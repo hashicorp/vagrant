@@ -27,6 +27,7 @@ class VirtualBox
         "cableconnected1" => "on",
         "nictrace1"       => "off",
         "bridgeadapter1"  => "en0: Ethernet",
+        "macaddress1"     => "08002771F257",
         # Ports
         "audio"           => "none",
         "clipboard"       => "bidirectional",
