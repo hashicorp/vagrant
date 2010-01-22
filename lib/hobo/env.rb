@@ -15,7 +15,7 @@ module Hobo
 
     def ensure_files
       ENSURE[:files].each do |target, default|
-        File.copy(PROJECT_ROOT + default, target) unless File.exists?(target)
+        File.copy(File.join(PROJECT_ROOT, default), target) unless File.exists?(target)
       end
     end
     

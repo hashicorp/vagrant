@@ -19,10 +19,32 @@ class EnvTest < Test::Unit::TestCase
       File.expects(:copy).never
       @handler.ensure_files
     end
+    
+    test "should create the ensured directories if they don't exist" do
+      file_seq = sequence("file_seq")
+      
+      @ensure[:dirs].each do |dir|
+        File.expects(:exists?).returns(false).in_sequence(file_seq)
+        Dir.expects(:mkdir).with(dir).in_sequence(file_seq)
+      end
+      
+      @handler.ensure_directories
+    end
+    
+    test "should create the ensured files if they don't exist" do
+      file_seq = sequence("file_seq")
+      
+      @ensure[:files].each do |target, default|
+        File.expects(:exists?).with(target).returns(false).in_sequence(file_seq)
+        File.expects(:copy).with(File.join(PROJECT_ROOT, default), target).in_sequence(file_seq)
+      end
+      
+      @handler.ensure_files
+    end
 
     test "should load configuration" do
-      dir_expectations
-      file_expectations
+      @handler.expects(:ensure_directories).once
+      @handler.expects(:ensure_files).once
       @handler.load_config do |file|
         assert_equal file, Hobo::Env::CONFIG.keys.first
         { :setting => 1 }
@@ -30,15 +52,5 @@ class EnvTest < Test::Unit::TestCase
 
       assert_equal Hobo.config.setting, 1
     end
-  end
-
-  def dir_expectations
-    File.expects(:exists?).times(@ensure[:dirs].length).returns(false)
-    Dir.expects(:mkdir).times(@ensure[:dirs].length).returns nil
-  end
-
-  def file_expectations
-    File.expects(:exists?).times(@ensure[:files].length).returns(false)
-    File.expects(:copy).times(@ensure[:files].length)
   end
 end
