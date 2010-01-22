@@ -20,4 +20,4 @@ rescue LoadError; end
 
 require File.join(File.dirname(__FILE__), '..', 'lib', 'hobo')
 require 'contest'
-require 'mocha'
+require 'flexmock/test_unit'
