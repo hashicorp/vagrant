@@ -13,4 +13,9 @@ ENVERR
   exit
 end
 
+# ruby-debug, not necessary, but useful if we have it
+begin
+  require 'ruby-debug'
+rescue LoadError; end
+
 require 'contest'

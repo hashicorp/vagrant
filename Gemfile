@@ -6,6 +6,7 @@ gem "net-ssh", ">= 2.0.19"
 only :test do
   gem "contest", ">= 0.1.2"
   gem "mocha", ">= 0.9.8"
+  gem "ruby-debug", ">= 0.10.3" if RUBY_VERSION < '1.9'
 end
 
 # Since hobo uses bin/, change the bin_path to something
