@@ -5,15 +5,18 @@ class EnvTest < Test::Unit::TestCase
   context "Hobo environment handler" do
     setup do
       @handler = Hobo::Env.new
+      @ensure = Hobo::Env::ENSURE
     end
     
-    test "should check for all required directories"  do
-      dir_expectations
+    test "should not create any directories if they exist"  do
+      File.expects(:exists?).times(@ensure[:dirs].length).returns(true)
+      Dir.expects(:mkdir).never
       @handler.ensure_directories
     end
 
-    test "should check for all required config files" do
-      file_expectations
+    test "should not copy any files if they exist" do
+      File.expects(:exists?).times(@ensure[:files].length).returns(true)
+      File.expects(:copy).never
       @handler.ensure_files
     end
 
@@ -30,12 +33,12 @@ class EnvTest < Test::Unit::TestCase
   end
 
   def dir_expectations
-    File.expects(:exists?).times(Hobo::Env::ENSURE[:dirs].length).returns(false)
-    Dir.expects(:mkdir).times(Hobo::Env::ENSURE[:dirs].length).returns nil
+    File.expects(:exists?).times(@ensure[:dirs].length).returns(false)
+    Dir.expects(:mkdir).times(@ensure[:dirs].length).returns nil
   end
 
   def file_expectations
-    File.expects(:exists?).times(Hobo::Env::ENSURE[:files].length).returns(false)
-    File.expects(:copy).times(Hobo::Env::ENSURE[:files].length)
+    File.expects(:exists?).times(@ensure[:files].length).returns(false)
+    File.expects(:copy).times(@ensure[:files].length)
   end
 end
