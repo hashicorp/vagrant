@@ -1,14 +1,14 @@
 module Hobo
   class Config
-    @@config = nil
+    @@settings = nil
     class << self
-      # TODO Config.config is awkward
-      def config 
-        @@config
+      
+      def settings
+        @@settings
       end
       
       def from_hash!(hash)
-        @@config = hash_to_struct(hash)
+        @@settings = hash_to_struct(hash)
       end
 
       private

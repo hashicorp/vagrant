@@ -1,17 +1,20 @@
 module Hobo
   class Env
-    DIRS = [ File.expand_path('~/.hobo') ]
-    CONFIG_FILE = { File.expand_path('~/.hobo/config.yml') => '/config/default.yml' }
-    FILES = CONFIG_FILE.merge({}) #additional files go mhia!
-    
+    HOME =  File.expand_path('~/.hobo')
+    CONFIG = { File.join(HOME, 'config.yml') => '/config/default.yml' }
+    ENSURE = { 
+      :files => CONFIG.merge({}), #additional files go mhia!
+      :dirs => [HOME] #additional dirs go mhia!
+    }
+
     def ensure_directories
-      DIRS.each do |name|
+      ENSURE[:dirs].each do |name|
         Dir.mkdir(name) unless File.exists?(name)
       end
     end
 
     def ensure_files
-      FILES.each do |target, default|
+      ENSURE[:files].each do |target, default|
         File.copy(PROJECT_ROOT + default, target) unless File.exists?(target)
       end
     end
@@ -19,7 +22,7 @@ module Hobo
     def load_config
       ensure_directories
       ensure_files
-      parsed = yield(CONFIG_FILE.keys.first)
+      parsed = yield(CONFIG.keys.first)
       Config.from_hash!(parsed)
     end
   end
