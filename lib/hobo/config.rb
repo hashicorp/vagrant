@@ -2,21 +2,22 @@ module Hobo
   class Config
     @@config = nil
     class << self
+      # TODO Config.config is awkward
       def config 
         @@config
       end
       
-      def parse!(source)
-        @@config ||= parse_to_struct(source)
+      def from_hash!(hash)
+        @@config = hash_to_struct(hash)
       end
 
       private
 
-      def parse_to_struct(value)
+      def hash_to_struct(value)
         return value unless value.instance_of?(Hash)
 
         result = value.inject({}) do |acc, pair|
-          acc[pair.first] = parse_to_struct(pair.last)
+          acc[pair.first] = hash_to_struct(pair.last)
           acc
         end
         
