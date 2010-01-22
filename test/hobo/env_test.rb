@@ -24,7 +24,8 @@ class EnvTest < Test::Unit::TestCase
         assert_equal file, Hobo::Env::CONFIG.keys.first
         { :setting => 1 }
       end
-      assert_equal Hobo::Config.settings.setting, 1
+
+      assert_equal Hobo.config.setting, 1
     end
   end
 
