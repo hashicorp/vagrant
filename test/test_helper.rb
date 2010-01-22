@@ -1,5 +1,5 @@
 begin
-  require File.join(File.dirname(__FILE__), 'vendor', 'gems', 'environment')
+  require File.join(File.dirname(__FILE__), '..', 'vendor', 'gems', 'environment')
 rescue LoadError
   puts <<-ENVERR
 ==================================================
