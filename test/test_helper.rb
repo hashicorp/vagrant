@@ -18,4 +18,5 @@ begin
   require 'ruby-debug'
 rescue LoadError; end
 
+require File.join(File.dirname(__FILE__), '..', 'lib', 'hobo')
 require 'contest'
