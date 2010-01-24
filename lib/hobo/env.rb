@@ -23,7 +23,7 @@ module Hobo
       ensure_directories
       ensure_files
       parsed = yield(CONFIG.keys.first)
-      Hobo.config_from_hash!(parsed)
+      Hobo.set_config!(parsed)
     end
   end
 end

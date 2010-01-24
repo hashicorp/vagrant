@@ -50,7 +50,7 @@ class EnvTest < Test::Unit::TestCase
         { :setting => 1 }
       end
 
-      assert_equal Hobo.config.setting, 1
+      assert_equal Hobo.config[:setting], 1
     end
   end
 end
