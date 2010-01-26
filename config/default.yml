@@ -1,1 +1,4 @@
-:setting: 1
+:ssh:
+  :uname: hobo
+  :pass: hobo
+  :host: localhost

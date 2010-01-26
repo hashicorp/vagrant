@@ -1,5 +1,7 @@
 # Gems required for the lib to even run
 gem "net-ssh", ">= 2.0.19"
+gem "jashmenn-git-style-binaries", ">= 0.1.10"
+source "http://gems.github.com"
 
 # Gems required for testing only. To install run
 # gem bundle test

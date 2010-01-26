@@ -7,23 +7,25 @@ module Hobo
       :dirs => [HOME] #additional dirs go mhia!
     }
 
-    def ensure_directories
-      ENSURE[:dirs].each do |name|
-        Dir.mkdir(name) unless File.exists?(name)
+    class << self
+      def ensure_directories
+        ENSURE[:dirs].each do |name|
+          Dir.mkdir(name) unless File.exists?(name)
+        end
       end
-    end
 
-    def ensure_files
-      ENSURE[:files].each do |target, default|
-        File.copy(File.join(PROJECT_ROOT, default), target) unless File.exists?(target)
+      def ensure_files
+        ENSURE[:files].each do |target, default|
+          File.copy(File.join(PROJECT_ROOT, default), target) unless File.exists?(target)
+        end
       end
-    end
-    
-    def load_config
-      ensure_directories
-      ensure_files
-      parsed = yield(CONFIG.keys.first)
-      Hobo.config!(parsed)
+      
+      def load_config
+        ensure_directories
+        ensure_files
+        parsed = block_given? ? yield(CONFIG.keys.first) : YAML.load_file(CONFIG.keys.first)
+        Hobo.config!(parsed)
+      end
     end
   end
 end

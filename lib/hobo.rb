@@ -8,6 +8,8 @@ require 'logger'
 require 'hobo/config'
 require 'hobo/env'
 require 'hobo/virtual_box'
+require 'hobo/ssh'
 
 # TODO: Make this configurable
 HOBO_LOGGER = Logger.new(STDOUT)
+Hobo::Env.load_config

@@ -21,3 +21,5 @@ rescue LoadError; end
 require File.join(File.dirname(__FILE__), '..', 'lib', 'hobo')
 require 'contest'
 require 'mocha'
+
+HOBO_MOCK_CONFIG = { :ssh => { :uname => 'foo'} }

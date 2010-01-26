@@ -4,7 +4,7 @@ class EnvTest < Test::Unit::TestCase
 
   context "Hobo environment handler" do
     setup do
-      @handler = Hobo::Env.new
+      @handler = Hobo::Env
       @ensure = Hobo::Env::ENSURE
     end
     
@@ -42,15 +42,20 @@ class EnvTest < Test::Unit::TestCase
       @handler.ensure_files
     end
 
-    test "should load configuration" do
+    test "should load configuration with a block" do
       @handler.expects(:ensure_directories).once
       @handler.expects(:ensure_files).once
       @handler.load_config do |file|
         assert_equal file, Hobo::Env::CONFIG.keys.first
-        { :setting => 1 }
+        HOBO_MOCK_CONFIG
       end
+      assert_equal Hobo.config[:ssh], HOBO_MOCK_CONFIG[:ssh]
+    end
 
-      assert_equal Hobo.config[:setting], 1
+    test "should default to haml load of the default, without a block" do
+      YAML.expects(:load_file).with(Hobo::Env::CONFIG.keys.first).returns(HOBO_MOCK_CONFIG)
+      @handler.load_config
+      assert_equal Hobo.config[:ssh], HOBO_MOCK_CONFIG[:ssh]                                    
     end
   end
 end
