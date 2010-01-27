@@ -22,4 +22,12 @@ require File.join(File.dirname(__FILE__), '..', 'lib', 'hobo')
 require 'contest'
 require 'mocha'
 
-HOBO_MOCK_CONFIG = { :ssh => { :uname => 'foo'} }
+HOBO_MOCK_CONFIG = 
+{ :ssh => 
+  { 
+    :uname => 'foo',
+    :pass => 'bar',
+    :host => 'baz',
+    :port => 'bak' 
+  } 
+}

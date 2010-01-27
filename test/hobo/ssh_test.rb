@@ -9,14 +9,14 @@ class SshTest < Test::Unit::TestCase
     end
     
     test "should call exec with defaults when no options are supplied" do
-      # NOTE HOBO_MOCK_CONFIG only contains the :uname at this stage, adding further params will break this test
-      Kernel.expects(:exec).with("#{@script} #{HOBO_MOCK_CONFIG[:ssh][:uname]}")
+      ssh = HOBO_MOCK_CONFIG[:ssh]
+      Kernel.expects(:exec).with("#{@script} #{ssh[:uname]} #{ssh[:pass]} #{ssh[:host]} #{ssh[:port]}")
       Hobo::SSH.connect
     end
 
     test "should call exec with supplied params" do
-      args = {:uname => 'bar', :pass => 'baz', :host => 'bak'}
-      Kernel.expects(:exec).with("#{@script} #{args[:uname]} #{args[:pass]} #{args[:host]}")
+      args = {:uname => 'bar', :pass => 'baz', :host => 'bak', :port => 'bag'}
+      Kernel.expects(:exec).with("#{@script} #{args[:uname]} #{args[:pass]} #{args[:host]} #{args[:port]}")
       Hobo::SSH.connect(args)
     end
   end
