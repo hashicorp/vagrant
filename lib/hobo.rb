@@ -7,7 +7,6 @@ require 'ftools'
 require 'logger'
 require 'hobo/config'
 require 'hobo/env'
-require 'hobo/virtual_box'
 require 'hobo/ssh'
 
 # TODO: Make this configurable
