@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+begin
+  require File.expand_path(File.join(File.dirname(__FILE__), "../vendor/gems/ruby/1.8/environment"))
+rescue LoadError
+end
+
+require 'git-style-binary/command'
+
+# Get hobo
+hobodir = File.join(File.dirname(__FILE__), '..', 'lib')
+$:.unshift(hobodir) unless $:.include?(hobodir)
+require 'hobo'
+
+GitStyleBinary.command do
+  short_desc "create the hobo environment"
+  banner <<-EOS
+Usage: #{command.full_name} #{all_options_string}
+
+Create the hobo environment.
+
+EOS
+
+  run do |command|
+    Hobo::VM.up
+  end
+end

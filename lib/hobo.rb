@@ -5,9 +5,11 @@ PROJECT_ROOT = File.join(libdir, '..')
 require 'ostruct'
 require 'ftools'
 require 'logger'
+require 'virtualbox'
 require 'hobo/config'
 require 'hobo/env'
 require 'hobo/ssh'
+require 'hobo/vm'
 
 # TODO: Make this configurable
 log_output = ENV['HOBO_ENV'] == 'test' ? nil : STDOUT

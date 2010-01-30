@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+begin
+  require File.expand_path(File.join(File.dirname(__FILE__), "../vendor/gems/ruby/1.8/environment"))
+rescue LoadError
+end
+require 'git-style-binary/command'
+
+GitStyleBinary.primary do
+  version "Somewhere between 0 and 0.1"
+  
+  run { educate }
+end

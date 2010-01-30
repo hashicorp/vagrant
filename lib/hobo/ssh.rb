@@ -1,6 +1,6 @@
 module Hobo
   class SSH
-    SCRIPT = File.join(File.dirname(__FILE__), '..', '..', 'bin', 'hobo-ssh-expect.sh')
+    SCRIPT = File.join(File.dirname(__FILE__), '..', '..', 'script', 'hobo-ssh-expect.sh')
     
     def self.connect(opts={})
       Kernel.exec "#{SCRIPT} #{uname(opts)} #{pass(opts)} #{host(opts)} #{port(opts)}".strip

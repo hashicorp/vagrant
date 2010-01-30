@@ -1,6 +1,4 @@
 module Hobo
-  
-  
   module_function
 
   def config
