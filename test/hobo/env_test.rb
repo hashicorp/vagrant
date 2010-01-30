@@ -60,12 +60,19 @@ class EnvTest < Test::Unit::TestCase
     end
 
     test "load! should load the config and set the persisted_uid" do
-      dot_file_expectation
       config_file_expectation
+      dot_file_expectation
       Hobo::Env.load!
+    end
+
+    test "when no dotfile exists uuid should be nil" do
+      Hobo.config! hobo_mock_config.merge(:dotfile_name => 'unpossiblyunpossiblfilename')
+      Hobo::Env.load_uuid!
+      assert_equal Hobo::Env.persisted_uuid, nil
     end
     
     def dot_file_expectation
+      File.expects(:exists?).at_least_once.returns(true)
       File.expects(:open).with('.hobo', 'r').returns(['foo'])
     end
 

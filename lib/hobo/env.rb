@@ -37,8 +37,11 @@ module Hobo
       end
 
       def load_uuid!
-        # TODO check multiple lines after the first for information
-        @@persisted_uuid = File.open(Hobo.config[:dotfile_name], 'r').first
+        @@persisted_uuid = nil
+        if File.exists?(Hobo.config[:dotfile_name])
+          # TODO check multiple lines after the first for information
+          @@persisted_uuid = File.open(Hobo.config[:dotfile_name], 'r').first
+        end
       end
 
       def persisted_uuid
