@@ -2,8 +2,8 @@ libdir = File.dirname(__FILE__)
 $:.unshift(libdir)
 PROJECT_ROOT = File.join(libdir, '..')
 
-require 'ostruct'
 require 'ftools'
+require 'pathname'
 require 'logger'
 require 'virtualbox'
 require 'hobo/config'
