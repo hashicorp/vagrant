@@ -14,7 +14,7 @@ class ConfigTest < Test::Unit::TestCase
 
     should "prevent the alteration of a non leaf setting value" do
       assert_raise Hobo::InvalidSettingAlteration do
-        Hobo.set_config_value('a', 2)
+        Hobo.set_config_value 'a', 2
       end
     end
 
