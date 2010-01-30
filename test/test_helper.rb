@@ -28,12 +28,15 @@ require 'mocha'
 
 class Test::Unit::TestCase
   def hobo_mock_config
-    { :ssh => 
-      { 
+    { :ssh => { 
         :uname => 'foo',
         :pass => 'bar',
         :host => 'baz',
         :port => 'bak' 
+      },
+      :vm => {
+        :base => "foo",
+        :base_mac => "42"
       },
       :dotfile_name => '.hobo'
     }

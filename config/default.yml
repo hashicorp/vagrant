@@ -2,6 +2,8 @@
   :uname: hobo
   :pass: hobo
   :host: localhost
+  :port: 2222
 
 :vm:
   :base: ~/.hobo/base/base.ovf
+  :base_mac: 0800279C2E41
