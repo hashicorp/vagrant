@@ -8,6 +8,7 @@ module Hobo
       :files => CONFIG.merge({}), #additional files go mhia!
       :dirs => [HOME] #additional dirs go mhia!
     }
+    PATH_CHUNK_REGEX = /\/[^\/]+$/
 
     class << self
       def load!
@@ -37,11 +38,19 @@ module Hobo
       end
 
       def load_uuid!
-        @@persisted_uuid = nil
-        if File.exists?(Hobo.config[:dotfile_name])
+        @@persisted_uuid = load_dotfile
+      end
+
+      def load_dotfile(dir=Dir.pwd)
+        return nil if dir.empty?
+
+        file = "#{dir}/#{Hobo.config[:dotfile_name]}"
+        if File.exists?(file)
           # TODO check multiple lines after the first for information
-          @@persisted_uuid = File.open(Hobo.config[:dotfile_name], 'r').first
+          return File.open(file, 'r').first
         end
+        
+        load_dotfile(dir.sub(PATH_CHUNK_REGEX, '')) 
       end
 
       def persisted_uuid

@@ -71,13 +71,27 @@ class EnvTest < Test::Unit::TestCase
       assert_equal Hobo::Env.persisted_uuid, nil
     end
     
+    test "should walk the parent directories looking for the dotfile" do
+      Hobo.config! hobo_mock_config
+      #Expects exists with the current directory and .hobo 
+      File.expects(:exists?).with(dotfile).returns(false)
+      File.expects(:exists?).with(dotfile(Dir.pwd.sub(Hobo::Env::PATH_CHUNK_REGEX, ''))).returns(true)
+      File.expects(:open).returns(['foo'])
+      Hobo::Env.load_uuid!
+      assert_equal Hobo::Env.persisted_uuid, 'foo'
+    end
+
     def dot_file_expectation
       File.expects(:exists?).at_least_once.returns(true)
-      File.expects(:open).with('.hobo', 'r').returns(['foo'])
+      File.expects(:open).with(dotfile, 'r').returns(['foo'])
     end
 
     def config_file_expectation
       YAML.expects(:load_file).with(Hobo::Env::CONFIG.keys.first).returns(hobo_mock_config)
+    end
+
+    def dotfile(dir=Dir.pwd)
+      "#{dir}/#{hobo_mock_config[:dotfile_name]}"
     end
   end
 end
