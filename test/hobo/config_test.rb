@@ -1,7 +1,6 @@
 require File.join(File.dirname(__FILE__), '..', 'test_helper')
 
 class ConfigTest < Test::Unit::TestCase
-
   context "Hobo configuration" do
     setup do
       @settings = {:a => { :b => 1}}

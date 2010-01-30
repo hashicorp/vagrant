@@ -13,6 +13,7 @@ ENVERR
   exit
 end
 
+# This silences logger output
 ENV['HOBO_ENV'] = 'test'
 
 # ruby-debug, not necessary, but useful if we have it

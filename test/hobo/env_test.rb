@@ -1,7 +1,6 @@
 require File.join(File.dirname(__FILE__), '..', 'test_helper')
 
 class EnvTest < Test::Unit::TestCase
-
   context "Hobo environment handler" do
     setup do
       @handler = Hobo::Env
