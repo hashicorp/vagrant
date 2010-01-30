@@ -9,7 +9,7 @@ class SshTest < Test::Unit::TestCase
     end
     
     test "should call exec with defaults when no options are supplied" do
-      ssh = HOBO_MOCK_CONFIG[:ssh]
+      ssh = hobo_mock_config[:ssh]
       Kernel.expects(:exec).with("#{@script} #{ssh[:uname]} #{ssh[:pass]} #{ssh[:host]} #{ssh[:port]}")
       Hobo::SSH.connect
     end

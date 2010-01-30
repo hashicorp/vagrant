@@ -13,6 +13,8 @@ ENVERR
   exit
 end
 
+ENV['HOBO_ENV'] = 'test'
+
 # ruby-debug, not necessary, but useful if we have it
 begin
   require 'ruby-debug'
@@ -22,12 +24,15 @@ require File.join(File.dirname(__FILE__), '..', 'lib', 'hobo')
 require 'contest'
 require 'mocha'
 
-HOBO_MOCK_CONFIG = 
-{ :ssh => 
-  { 
-    :uname => 'foo',
-    :pass => 'bar',
-    :host => 'baz',
-    :port => 'bak' 
-  } 
-}
+class Test::Unit::TestCase
+  def hobo_mock_config
+    { :ssh => 
+      { 
+        :uname => 'foo',
+        :pass => 'bar',
+        :host => 'baz',
+        :port => 'bak' 
+      } 
+    }
+  end
+end

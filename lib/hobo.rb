@@ -1,5 +1,5 @@
 libdir = File.dirname(__FILE__)
-$LOAD_PATH.unshift(libdir) unless $LOAD_PATH.include?(libdir)
+$:.unshift(libdir)
 PROJECT_ROOT = File.join(libdir, '..')
 
 require 'ostruct'
@@ -10,5 +10,6 @@ require 'hobo/env'
 require 'hobo/ssh'
 
 # TODO: Make this configurable
-HOBO_LOGGER = Logger.new(STDOUT)
+log_output = ENV['HOBO_ENV'] == 'test' ? nil : STDOUT
+HOBO_LOGGER = Logger.new(log_output)
 Hobo::Env.load_config

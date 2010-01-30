@@ -2,3 +2,6 @@
   :uname: hobo
   :pass: hobo
   :host: localhost
+
+:vm:
+  :base: ~/.hobo/base/base.ovf
