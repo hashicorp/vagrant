@@ -15,7 +15,7 @@ end
 
 # Since hobo uses bin/, change the bin_path to something
 # else...
-bin_path "bin/gembin"
+bin_path "gembin"
 
 # Makes sure that our code doesn't request gems outside
 # of our dependency list.
