@@ -1,21 +1,17 @@
 module Hobo
   module_function
-
   def config
     @@config
   end
 
-  def alterable_config
-    @@alterable_config
-  end
-
   def config!(hash)
-    @@alterable_config = hash.dup
-    @@config = hash.freeze
+    @@config = hash
   end
 
-  def set_config_value(chain, val, cfg=@@alterable_config)
+  def set_config_value(chain, val, cfg=@@config)
     keys = chain.split('.')
+    return if keys.empty?
+
     key = keys.shift.to_sym
     if keys.empty? 
       raise InvalidSettingAlteration if cfg[key].instance_of?(Hash)
