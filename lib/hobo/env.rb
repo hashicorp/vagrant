@@ -27,7 +27,7 @@ module Hobo
         ensure_files
         
         HOBO_LOGGER.info "Loading config from #{CONFIG.keys.first}"
-        parsed = block_given? ? yield(CONFIG.keys.first) : YAML.load_file(CONFIG.keys.first)
+        parsed = YAML.load_file(CONFIG.keys.first)
         Hobo.config!(parsed)
       end
     end

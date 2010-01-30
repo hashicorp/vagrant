@@ -5,6 +5,7 @@ class EnvTest < Test::Unit::TestCase
     setup do
       @handler = Hobo::Env
       @ensure = Hobo::Env::ENSURE
+      Hobo.config! nil
     end
     
     test "should not create any directories if they exist"  do
@@ -41,20 +42,14 @@ class EnvTest < Test::Unit::TestCase
       @handler.ensure_files
     end
 
-    test "should load configuration with a block" do
-      @handler.expects(:ensure_directories).once
-      @handler.expects(:ensure_files).once
-      @handler.load_config do |file|
-        assert_equal file, Hobo::Env::CONFIG.keys.first
-        hobo_mock_config
-      end
-      assert_equal Hobo.config[:ssh], hobo_mock_config[:ssh]
-    end
-
-    test "should default to haml load of the default, without a block" do
+    test "should load of the default" do
       YAML.expects(:load_file).with(Hobo::Env::CONFIG.keys.first).returns(hobo_mock_config)
       @handler.load_config
       assert_equal Hobo.config[:ssh], hobo_mock_config[:ssh]                                    
+    end
+
+    test "Hobo.config should be nil unless loaded" do
+      assert_equal Hobo.config, nil
     end
   end
 end

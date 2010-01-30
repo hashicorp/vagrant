@@ -6,6 +6,7 @@ class SshTest < Test::Unit::TestCase
     setup do
       @handler = Hobo::SSH
       @script = Hobo::SSH::SCRIPT
+      Hobo.config!(hobo_mock_config)
     end
     
     test "should call exec with defaults when no options are supplied" do
