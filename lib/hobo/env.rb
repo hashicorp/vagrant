@@ -10,6 +10,11 @@ module Hobo
     }
 
     class << self
+      def load!
+        load_config!
+        load_uuid!
+      end
+
       def ensure_directories
         ENSURE[:dirs].each do |name|
           Dir.mkdir(name) unless File.exists?(name)
@@ -22,13 +27,22 @@ module Hobo
         end
       end
       
-      def load_config
+      def load_config!
         ensure_directories
         ensure_files
         
         HOBO_LOGGER.info "Loading config from #{CONFIG.keys.first}"
         parsed = YAML.load_file(CONFIG.keys.first)
         Hobo.config!(parsed)
+      end
+
+      def load_uuid!
+        # TODO check multiple lines after the first for information
+        @@persisted_uuid = File.open(Hobo.config[:dotfile_name], 'r').first
+      end
+
+      def persisted_uuid
+        @@persisted_uuid
       end
     end
   end

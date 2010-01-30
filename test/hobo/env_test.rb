@@ -43,13 +43,34 @@ class EnvTest < Test::Unit::TestCase
     end
 
     test "should load of the default" do
-      YAML.expects(:load_file).with(Hobo::Env::CONFIG.keys.first).returns(hobo_mock_config)
-      @handler.load_config
+      config_file_expectation
+      @handler.load_config!
       assert_equal Hobo.config[:ssh], hobo_mock_config[:ssh]                                    
     end
 
     test "Hobo.config should be nil unless loaded" do
       assert_equal Hobo.config, nil
+    end
+
+    test "loading of the uuid from the dotfile" do
+      dot_file_expectation
+      Hobo.config! hobo_mock_config
+      Hobo::Env.load_uuid!
+      assert_equal Hobo::Env.persisted_uuid, 'foo'
+    end
+
+    test "load! should load the config and set the persisted_uid" do
+      dot_file_expectation
+      config_file_expectation
+      Hobo::Env.load!
+    end
+    
+    def dot_file_expectation
+      File.expects(:open).with('.hobo', 'r').returns(['foo'])
+    end
+
+    def config_file_expectation
+      YAML.expects(:load_file).with(Hobo::Env::CONFIG.keys.first).returns(hobo_mock_config)
     end
   end
 end

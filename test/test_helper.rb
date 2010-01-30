@@ -1,4 +1,4 @@
-begin
+ begin
   require File.join(File.dirname(__FILE__), '..', 'vendor', 'gems', 'environment')
 rescue LoadError
   puts <<-ENVERR
@@ -21,6 +21,7 @@ begin
   require 'ruby-debug'
 rescue LoadError; end
 
+
 require File.join(File.dirname(__FILE__), '..', 'lib', 'hobo')
 require 'contest'
 require 'mocha'
@@ -33,7 +34,8 @@ class Test::Unit::TestCase
         :pass => 'bar',
         :host => 'baz',
         :port => 'bak' 
-      } 
+      },
+      :dotfile_name => '.hobo'
     }
   end
 end
