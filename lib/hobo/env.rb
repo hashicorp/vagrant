@@ -1,3 +1,5 @@
+require 'yaml'
+
 module Hobo
   class Env
     HOME =  File.expand_path('~/.hobo')
