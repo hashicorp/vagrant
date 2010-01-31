@@ -1,5 +1,5 @@
 # Gems required for the lib to even run
-gem "virtualbox", ">= 0.4.1"
+gem "virtualbox", ">= 0.4.2"
 gem "net-ssh", ">= 2.0.19"
 
 source "http://gems.github.com"
