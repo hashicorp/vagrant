@@ -79,13 +79,30 @@ class EnvTest < Test::Unit::TestCase
     end
   end
 
-  context "loading the UUID out from the persisted file" do
-    test "loading of the uuid from the dotfile" do
+  context "persisting the UUID into a file" do
+    setup do
       Hobo.config! hobo_mock_config
+    end
+
+    test "should save it to the dotfile path" do
+      uuid = "foo"
 
       filemock = mock("filemock")
+      filemock.expects(:write).with(uuid)
+      File.expects(:open).with(Hobo::Env.dotfile_path, 'w+').once.yields(filemock)
+      Hobo::Env.persist_uuid(uuid)
+    end
+  end
+
+  context "loading the UUID out from the persisted file" do
+    setup do
+      Hobo.config! hobo_mock_config
+    end
+
+    test "loading of the uuid from the dotfile" do
+      filemock = mock("filemock")
       filemock.expects(:read).returns("foo")
-      File.expects(:open).with(File.join(Hobo::Env.root_path, hobo_mock_config[:dotfile_name])).once.yields(filemock)
+      File.expects(:open).with(Hobo::Env.dotfile_path).once.yields(filemock)
       Hobo::Env.load_uuid!
       assert_equal Hobo::Env.persisted_uuid, 'foo'
     end
@@ -94,6 +111,10 @@ class EnvTest < Test::Unit::TestCase
       File.expects(:open).raises(Errno::ENOENT)
       Hobo::Env.load_uuid!
       assert_nil Hobo::Env.persisted_uuid
+    end
+
+    test "should build up the dotfile out of the root path and the dotfile name" do
+      assert_equal File.join(Hobo::Env.root_path, hobo_mock_config[:dotfile_name]), Hobo::Env.dotfile_path
     end
   end
 

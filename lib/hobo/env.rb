@@ -17,6 +17,7 @@ module Hobo
     class << self
       def persisted_uuid; @@persisted_uuid; end
       def root_path; @@root_path; end
+      def dotfile_path; File.join(root_path, Hobo.config[:dotfile_name]); end
 
       def load!
         load_root_path!
@@ -46,11 +47,17 @@ module Hobo
       end
 
       def load_uuid!
-        File.open(File.join(root_path, Hobo.config[:dotfile_name])) do |f|
+        File.open(dotfile_path) do |f|
           @@persisted_uuid = f.read
         end
       rescue Errno::ENOENT
         @@persisted_uuid = nil
+      end
+
+      def persist_uuid(uuid)
+        File.open(dotfile_path, 'w+') do |f|
+          f.write(uuid)
+        end
       end
 
       def load_root_path!(path=Pathname.new(Dir.pwd))
