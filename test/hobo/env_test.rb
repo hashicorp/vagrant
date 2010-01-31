@@ -14,8 +14,30 @@ class EnvTest < Test::Unit::TestCase
     "#{dir}/#{hobo_mock_config[:dotfile_name]}"
   end
 
+  def mock_persisted_vm(returnvalue="foovm")
+    filemock = mock("filemock")
+    filemock.expects(:read).returns("foo")
+    VirtualBox::VM.expects(:find).with("foo").returns(returnvalue)
+    File.expects(:open).with(Hobo::Env.dotfile_path).once.yields(filemock)
+    Hobo::Env.load_vm!
+  end
+
   setup do
     Hobo::Env.stubs(:error_and_exit)
+  end
+
+  context "requiring a VM" do
+    should "error and exit if no persisted VM was found" do
+      assert_nil Hobo::Env.persisted_vm
+      Hobo::Env.expects(:error_and_exit).once
+      Hobo::Env.require_persisted_vm
+    end
+
+    should "return and continue if persisted VM is found" do
+      mock_persisted_vm
+      Hobo::Env.expects(:error_and_exit).never
+      Hobo::Env.require_persisted_vm
+    end
   end
 
   context "initial load" do
@@ -101,12 +123,7 @@ class EnvTest < Test::Unit::TestCase
     end
 
     test "loading of the uuid from the dotfile" do
-      VirtualBox::VM.expects(:find).with("foo").returns("foovm")
-
-      filemock = mock("filemock")
-      filemock.expects(:read).returns("foo")
-      File.expects(:open).with(Hobo::Env.dotfile_path).once.yields(filemock)
-      Hobo::Env.load_vm!
+      mock_persisted_vm
       assert_equal 'foovm', Hobo::Env.persisted_vm
     end
 

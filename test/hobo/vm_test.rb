@@ -6,6 +6,24 @@ class VMTest < Test::Unit::TestCase
     Hobo.config!(hobo_mock_config)
   end
 
+  context "hobo down" do
+    setup do
+      @persisted_vm = mock("persisted_vm")
+      @persisted_vm.stubs(:destroy)
+      Hobo::Env.stubs(:persisted_vm).returns(@persisted_vm)
+    end
+
+    should "require a persisted VM" do
+      Hobo::Env.expects(:require_persisted_vm).once
+      Hobo::VM.down
+    end
+
+    should "destroy the persisted VM and the VM image" do
+      @persisted_vm.expects(:destroy).with(:destroy_image => true).once
+      Hobo::VM.down
+    end
+  end
+
   context "hobo up" do
     should "create the instance in the proper order" do
       create_seq = sequence("create_seq")

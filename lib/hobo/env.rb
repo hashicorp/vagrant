@@ -80,6 +80,18 @@ msg
         load_root_path!(path.parent)
       end
 
+      def require_persisted_vm
+        if !persisted_vm
+          error_and_exit(<<-error)
+The task you're trying to run requires that the hobo environment
+already be created, but unfortunately this hobo still appears to
+have no box! You can setup the environment by setting up your
+Hobofile and running `hobo up`
+error
+          return
+        end
+      end
+
       def error_and_exit(error)
         puts <<-error
 =====================================================================

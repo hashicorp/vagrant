@@ -11,6 +11,14 @@ module Hobo
         setup_shared_folder(vm)
       end
 
+      # Tear down a virtual machine.
+      def down
+        Env.require_persisted_vm
+
+        HOBO_LOGGER.info "Destroying VM and associated drives..."
+        Env.persisted_vm.destroy(:destroy_image => true)
+      end
+
       def import
         HOBO_LOGGER.info "Importing base VM (#{Hobo.config[:vm][:base]})..."
         VirtualBox::VM.import(File.expand_path(Hobo.config[:vm][:base]))
