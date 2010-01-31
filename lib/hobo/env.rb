@@ -2,16 +2,24 @@ require 'yaml'
 
 module Hobo
   class Env
+    HOBOFILE_NAME = "hobofile"
     HOME =  File.expand_path('~/.hobo')
     CONFIG = { File.join(HOME, 'config.yml') => '/config/default.yml' }
-    ENSURE = { 
+    ENSURE = {
       :files => CONFIG.merge({}), #additional files go mhia!
       :dirs => [HOME] #additional dirs go mhia!
     }
 
+    # Initialize class variables used
+    @@persisted_uuid = nil
+    @@root_path = nil
 
     class << self
+      def persisted_uuid; @@persisted_uuid; end
+      def root_path; @@root_path; end
+
       def load!
+        load_root_path!
         load_config!
         load_uuid!
       end
@@ -27,34 +35,42 @@ module Hobo
           File.copy(File.join(PROJECT_ROOT, default), target) unless File.exists?(target)
         end
       end
-      
+
       def load_config!
         ensure_directories
         ensure_files
-        
+
         HOBO_LOGGER.info "Loading config from #{CONFIG.keys.first}"
         parsed = YAML.load_file(CONFIG.keys.first)
         Hobo.config!(parsed)
       end
 
       def load_uuid!
-        @@persisted_uuid = load_dotfile
-      end
-
-      def load_dotfile(path=Pathname.new(Dir.pwd))
-        return nil if path.to_s == '/'
-
-        file = "#{path}/#{Hobo.config[:dotfile_name]}"
-        if File.exists?(file)
-          # TODO check multiple lines after the first for information
-          return File.open(file, 'r').first
+        File.open(File.join(root_path, Hobo.config[:dotfile_name])) do |f|
+          @@persisted_uuid = f.read
         end
-        
-        load_dotfile(path.parent)
+      rescue Errno::ENOENT
+        @@persisted_uuid = nil
       end
 
-      def persisted_uuid
-        @@persisted_uuid
+      def load_root_path!(path=Pathname.new(Dir.pwd))
+        if path.to_s == '/'
+          error_and_exit("UH OH")
+          return
+        end
+
+        file = "#{path}/#{HOBOFILE_NAME}"
+        if File.exist?(file)
+          @@root_path = path.to_s
+          return
+        end
+
+        load_root_path!(path.parent)
+      end
+
+      def error_and_exit(error)
+        puts error
+        exit
       end
     end
   end
