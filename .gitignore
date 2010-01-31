@@ -1,2 +1,3 @@
 gembin/*
 vendor/gems/*
+pkg/*
