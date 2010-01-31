@@ -55,7 +55,12 @@ module Hobo
 
       def load_root_path!(path=Pathname.new(Dir.pwd))
         if path.to_s == '/'
-          error_and_exit("UH OH")
+          error_and_exit(<<-msg)
+A `Hobofile` was not found! This file is required for hobo to run
+since it describes the expected environment that hobo is supposed
+to manage. Please create a Hobofile and place it in your project
+root.
+msg
           return
         end
 
@@ -69,7 +74,13 @@ module Hobo
       end
 
       def error_and_exit(error)
-        puts error
+        puts <<-error
+=====================================================================
+Hobo experienced an error!
+
+#{error.chomp}
+=====================================================================
+error
         exit
       end
     end
