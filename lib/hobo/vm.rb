@@ -5,7 +5,7 @@ module Hobo
       # provisions it.
       def up
         vm = import
-        persist_uuid(vm)
+        persist_vm(vm)
         setup_mac_address(vm)
         forward_ssh(vm)
         setup_shared_folder(vm)
@@ -16,9 +16,9 @@ module Hobo
         VirtualBox::VM.import(File.expand_path(Hobo.config[:vm][:base]))
       end
 
-      def persist_uuid(vm)
+      def persist_vm(vm)
         HOBO_LOGGER.info "Persisting the VM UUID (#{vm.uuid})..."
-        Env.persist_uuid(vm.uuid)
+        Env.persist_vm(vm)
       end
 
       def setup_mac_address(vm)

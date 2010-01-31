@@ -10,7 +10,7 @@ class VMTest < Test::Unit::TestCase
     should "create the instance in the proper order" do
       create_seq = sequence("create_seq")
       Hobo::VM.expects(:import).in_sequence(create_seq)
-      Hobo::VM.expects(:persist_uuid).in_sequence(create_seq)
+      Hobo::VM.expects(:persist_vm).in_sequence(create_seq)
       Hobo::VM.expects(:setup_mac_address).in_sequence(create_seq)
       Hobo::VM.expects(:forward_ssh).in_sequence(create_seq)
       Hobo::VM.expects(:setup_shared_folder).in_sequence(create_seq)
@@ -30,11 +30,11 @@ class VMTest < Test::Unit::TestCase
     end
   end
 
-  context "persisting UUID" do
-    should "persist the UUID with Env" do
-      @vm.stubs(:uuid).returns("FOO")
-      Hobo::Env.expects(:persist_uuid).with(@vm.uuid).once
-      Hobo::VM.persist_uuid(@vm)
+  context "persisting VM" do
+    should "persist the VM with Env" do
+      @vm.stubs(:uuid)
+      Hobo::Env.expects(:persist_vm).with(@vm).once
+      Hobo::VM.persist_vm(@vm)
     end
   end
 

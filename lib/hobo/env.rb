@@ -11,18 +11,18 @@ module Hobo
     }
 
     # Initialize class variables used
-    @@persisted_uuid = nil
+    @@persisted_vm = nil
     @@root_path = nil
 
     class << self
-      def persisted_uuid; @@persisted_uuid; end
+      def persisted_vm; @@persisted_vm; end
       def root_path; @@root_path; end
       def dotfile_path; File.join(root_path, Hobo.config[:dotfile_name]); end
 
       def load!
         load_root_path!
         load_config!
-        load_uuid!
+        load_vm!
       end
 
       def ensure_directories
@@ -46,17 +46,17 @@ module Hobo
         Hobo.config!(parsed)
       end
 
-      def load_uuid!
+      def load_vm!
         File.open(dotfile_path) do |f|
-          @@persisted_uuid = f.read
+          @@persisted_vm = VirtualBox::VM.find(f.read)
         end
       rescue Errno::ENOENT
-        @@persisted_uuid = nil
+        @@persisted_vm = nil
       end
 
-      def persist_uuid(uuid)
+      def persist_vm(vm)
         File.open(dotfile_path, 'w+') do |f|
-          f.write(uuid)
+          f.write(vm.uuid)
         end
       end
 

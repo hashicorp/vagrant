@@ -21,7 +21,7 @@ class EnvTest < Test::Unit::TestCase
   context "initial load" do
     test "load! should load the config and set the persisted_uid" do
       Hobo::Env.expects(:load_config!).once
-      Hobo::Env.expects(:load_uuid!).once
+      Hobo::Env.expects(:load_vm!).once
       Hobo::Env.expects(:load_root_path!).once
       Hobo::Env.load!
     end
@@ -79,18 +79,19 @@ class EnvTest < Test::Unit::TestCase
     end
   end
 
-  context "persisting the UUID into a file" do
+  context "persisting the VM into a file" do
     setup do
       Hobo.config! hobo_mock_config
     end
 
     test "should save it to the dotfile path" do
-      uuid = "foo"
+      vm = mock("vm")
+      vm.stubs(:uuid).returns("foo")
 
       filemock = mock("filemock")
-      filemock.expects(:write).with(uuid)
+      filemock.expects(:write).with(vm.uuid)
       File.expects(:open).with(Hobo::Env.dotfile_path, 'w+').once.yields(filemock)
-      Hobo::Env.persist_uuid(uuid)
+      Hobo::Env.persist_vm(vm)
     end
   end
 
@@ -100,17 +101,19 @@ class EnvTest < Test::Unit::TestCase
     end
 
     test "loading of the uuid from the dotfile" do
+      VirtualBox::VM.expects(:find).with("foo").returns("foovm")
+
       filemock = mock("filemock")
       filemock.expects(:read).returns("foo")
       File.expects(:open).with(Hobo::Env.dotfile_path).once.yields(filemock)
-      Hobo::Env.load_uuid!
-      assert_equal Hobo::Env.persisted_uuid, 'foo'
+      Hobo::Env.load_vm!
+      assert_equal 'foovm', Hobo::Env.persisted_vm
     end
 
     test "uuid should be nil if dotfile didn't exist" do
       File.expects(:open).raises(Errno::ENOENT)
-      Hobo::Env.load_uuid!
-      assert_nil Hobo::Env.persisted_uuid
+      Hobo::Env.load_vm!
+      assert_nil Hobo::Env.persisted_vm
     end
 
     test "should build up the dotfile out of the root path and the dotfile name" do
