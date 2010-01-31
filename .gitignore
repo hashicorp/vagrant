@@ -1,3 +1,4 @@
 gembin/*
 vendor/gems/*
 pkg/*
+Hobofile

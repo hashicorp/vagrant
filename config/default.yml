@@ -4,6 +4,8 @@
   :host: localhost
   :port: 2222
 
+:dotfile_name: .hobo
+
 :vm:
   :base: ~/.hobo/base/base.ovf
   :base_mac: 0800279C2E41
