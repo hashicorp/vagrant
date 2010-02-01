@@ -3,6 +3,7 @@
   :pass: hobo
   :host: localhost
   :port: 2222
+  :max_tries: 10
 
 :dotfile_name: .hobo
 

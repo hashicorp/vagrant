@@ -96,14 +96,21 @@ module Hobo
       HOBO_LOGGER.info "Waiting for VM to boot..."
       counter = 1
       begin
+        sleep 5 unless ENV['HOBO_ENV'] == 'test'
+        HOBO_LOGGER.info "Trying to connect (attempt ##{counter} of #{Hobo.config[:ssh][:max_tries]})..."
         SSH.execute { |ssh| }
       rescue Errno::ECONNREFUSED
-        sleep 5 unless ENV['HOBO_ENV'] == 'test'
+        if counter >= Hobo.config[:ssh][:max_tries].to_i
+          HOBO_LOGGER.info "Failed to connect to VM! Failed to boot?"
+          return false
+        end
+
         counter += 1
         retry
       end
 
       HOBO_LOGGER.info "VM booted and ready for use!"
+      true
     end
   end
 end

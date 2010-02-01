@@ -118,6 +118,11 @@ class VMTest < Test::Unit::TestCase
         Net::SSH.expects(:start).once.in_sequence(ssh_seq)
         @vm.start
       end
+
+      should "try the max number of times then just return" do
+        Net::SSH.expects(:start).times(Hobo.config[:ssh][:max_tries].to_i).raises(Errno::ECONNREFUSED)
+        assert !@vm.start
+      end
     end
 
     context "importing" do
