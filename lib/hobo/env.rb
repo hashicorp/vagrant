@@ -48,7 +48,7 @@ module Hobo
 
       def load_vm!
         File.open(dotfile_path) do |f|
-          @@persisted_vm = VirtualBox::VM.find(f.read)
+          @@persisted_vm = Hobo::VM.find(f.read)
         end
       rescue Errno::ENOENT
         @@persisted_vm = nil

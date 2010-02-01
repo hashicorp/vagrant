@@ -17,7 +17,7 @@ class EnvTest < Test::Unit::TestCase
   def mock_persisted_vm(returnvalue="foovm")
     filemock = mock("filemock")
     filemock.expects(:read).returns("foo")
-    VirtualBox::VM.expects(:find).with("foo").returns(returnvalue)
+    Hobo::VM.expects(:find).with("foo").returns(returnvalue)
     File.expects(:open).with(Hobo::Env.dotfile_path).once.yields(filemock)
     Hobo::Env.load_vm!
   end

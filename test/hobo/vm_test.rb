@@ -33,6 +33,20 @@ class VMTest < Test::Unit::TestCase
     end
   end
 
+  context "finding a VM" do
+    should "return nil if the VM is not found" do
+      VirtualBox::VM.expects(:find).returns(nil)
+      assert_nil Hobo::VM.find("foo")
+    end
+
+    should "return a Hobo::VM object for that VM otherwise" do
+      VirtualBox::VM.expects(:find).with("foo").returns("bar")
+      result = Hobo::VM.find("foo")
+      assert result.is_a?(Hobo::VM)
+      assert_equal "bar", result.vm
+    end
+  end
+
   context "hobo VM instance" do
     setup do
       @vm = Hobo::VM.new(@mock_vm)
