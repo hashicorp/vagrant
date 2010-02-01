@@ -116,7 +116,17 @@ class VMTest < Test::Unit::TestCase
     end
 
     context "setting up the shared folder" do
-      # TODO: Since the code actually doesn't do anything yet
+      should "create a shared folder with the root folder for the VM" do
+        shared_folder = mock("shared_folder")
+        shared_folder.stubs(:name=)
+        shared_folder.expects(:hostpath=).with(Hobo::Env.root_path).once
+        shared_folder_collection = mock("collection")
+        shared_folder_collection.expects(:<<).with(shared_folder)
+        VirtualBox::SharedFolder.expects(:new).returns(shared_folder)
+        @mock_vm.expects(:shared_folders).returns(shared_folder_collection)
+        @mock_vm.expects(:save).with(true).once
+        @vm.setup_shared_folder
+      end
     end
   end
 end

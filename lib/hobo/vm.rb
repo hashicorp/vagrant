@@ -67,14 +67,13 @@ module Hobo
       @vm.save(true)
     end
 
-    # TODO: We need to get the host path.
     def setup_shared_folder
       HOBO_LOGGER.info "Creating shared folders..."
       folder = VirtualBox::SharedFolder.new
-      folder.name = "project-path"
-      folder.hostpath = ""
+      folder.name = "hobo-root-path"
+      folder.hostpath = Env.root_path
       @vm.shared_folders << folder
-      #vm.save(true)
+      @vm.save(true)
     end
   end
 end
