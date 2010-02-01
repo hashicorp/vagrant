@@ -19,7 +19,7 @@ class VMTest < Test::Unit::TestCase
     end
 
     should "destroy the persisted VM and the VM image" do
-      @persisted_vm.expects(:destroy).with(:destroy_image => true).once
+      @persisted_vm.expects(:destroy).once
       Hobo::VM.down
     end
   end
@@ -61,6 +61,13 @@ class VMTest < Test::Unit::TestCase
         @vm.expects(:forward_ssh).in_sequence(create_seq)
         @vm.expects(:setup_shared_folder).in_sequence(create_seq)
         @vm.create
+      end
+    end
+
+    context "destroying" do
+      should "destoy the VM along with images" do
+        @mock_vm.expects(:destroy).with(:destroy_image => true).once
+        @vm.destroy
       end
     end
 

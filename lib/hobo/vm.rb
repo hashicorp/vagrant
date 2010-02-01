@@ -12,9 +12,7 @@ module Hobo
       # Tear down a virtual machine.
       def down
         Env.require_persisted_vm
-
-        HOBO_LOGGER.info "Destroying VM and associated drives..."
-        Env.persisted_vm.destroy(:destroy_image => true)
+        Env.persisted_vm.destroy
       end
 
       # Finds a virtual machine by a given UUID and either returns
@@ -36,6 +34,11 @@ module Hobo
       setup_mac_address
       forward_ssh
       setup_shared_folder
+    end
+
+    def destroy
+      HOBO_LOGGER.info "Destroying VM and associated drives..."
+      @vm.destroy(:destroy_image => true)
     end
 
     def import
