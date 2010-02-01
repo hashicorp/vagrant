@@ -15,6 +15,12 @@ module Hobo
         Env.persisted_vm.destroy
       end
 
+      # SSHs into the VM and replaces the ruby process with the SSH process
+      def ssh
+        Env.require_persisted_vm
+        SSH.connect
+      end
+
       # Finds a virtual machine by a given UUID and either returns
       # a Hobo::VM object or returns nil.
       def find(uuid)

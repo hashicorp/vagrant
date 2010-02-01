@@ -1,21 +1,14 @@
 module Hobo
   class SSH
     SCRIPT = File.join(File.dirname(__FILE__), '..', '..', 'script', 'hobo-ssh-expect.sh')
-    
+
     def self.connect(opts={})
-      Kernel.exec "#{SCRIPT} #{uname(opts)} #{pass(opts)} #{host(opts)} #{port(opts)}".strip
-    end
-
-    private 
-    module ClassMethods
-      private
-      [:port, :host, :pass, :uname].each do |method|
-        define_method(method) do |opts|
-          opts[method] || Hobo.config[:ssh][method]
-        end
+      options = {}
+      [:port, :host, :pass, :uname].each do |param|
+        options[param] = opts[param] || Hobo.config[:ssh][param]
       end
-    end
 
-    extend ClassMethods
+      Kernel.exec "#{SCRIPT} #{options[:uname]} #{options[:pass]} #{options[:host]} #{options[:port]}".strip
+    end
   end
 end

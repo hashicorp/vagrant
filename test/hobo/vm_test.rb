@@ -4,13 +4,30 @@ class VMTest < Test::Unit::TestCase
   setup do
     @mock_vm = mock("vm")
     Hobo.config!(hobo_mock_config)
+
+    @persisted_vm = mock("persisted_vm")
+    Hobo::Env.stubs(:persisted_vm).returns(@persisted_vm)
+  end
+
+  context "hobo ssh" do
+    setup do
+      Hobo::SSH.stubs(:connect)
+    end
+
+    should "require a persisted VM" do
+      Hobo::Env.expects(:require_persisted_vm).once
+      Hobo::VM.ssh
+    end
+
+    should "connect to SSH" do
+      Hobo::SSH.expects(:connect).once
+      Hobo::VM.ssh
+    end
   end
 
   context "hobo down" do
     setup do
-      @persisted_vm = mock("persisted_vm")
       @persisted_vm.stubs(:destroy)
-      Hobo::Env.stubs(:persisted_vm).returns(@persisted_vm)
     end
 
     should "require a persisted VM" do
