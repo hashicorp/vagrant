@@ -34,9 +34,15 @@ module Hobo
       setup_mac_address
       forward_ssh
       setup_shared_folder
+      start
     end
 
     def destroy
+      if @vm.running?
+        HOBO_LOGGER.info "VM is running. Forcing immediate shutdown..."
+        @vm.stop(true)
+      end
+
       HOBO_LOGGER.info "Destroying VM and associated drives..."
       @vm.destroy(:destroy_image => true)
     end
@@ -74,6 +80,14 @@ module Hobo
       folder.hostpath = Env.root_path
       @vm.shared_folders << folder
       @vm.save(true)
+    end
+
+    def start
+      HOBO_LOGGER.info "Booting VM..."
+      @vm.start(:headless, true)
+
+      # Now we have to wait for the boot to be successful
+      # TODO
     end
   end
 end

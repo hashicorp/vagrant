@@ -60,14 +60,33 @@ class VMTest < Test::Unit::TestCase
         @vm.expects(:setup_mac_address).in_sequence(create_seq)
         @vm.expects(:forward_ssh).in_sequence(create_seq)
         @vm.expects(:setup_shared_folder).in_sequence(create_seq)
+        @vm.expects(:start).in_sequence(create_seq)
         @vm.create
       end
     end
 
     context "destroying" do
+      setup do
+        @mock_vm.stubs(:running?).returns(false)
+      end
+
       should "destoy the VM along with images" do
         @mock_vm.expects(:destroy).with(:destroy_image => true).once
         @vm.destroy
+      end
+
+      should "stop the VM if its running" do
+        @mock_vm.expects(:running?).returns(true)
+        @mock_vm.expects(:stop).with(true)
+        @mock_vm.expects(:destroy).with(:destroy_image => true).once
+        @vm.destroy
+      end
+    end
+
+    context "starting" do
+      should "start the VM in headless mode" do
+        @mock_vm.expects(:start).with(:headless, true).once
+        @vm.start
       end
     end
 
