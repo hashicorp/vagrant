@@ -93,7 +93,17 @@ module Hobo
       @vm.start(:headless, true)
 
       # Now we have to wait for the boot to be successful
-      # TODO
+      HOBO_LOGGER.info "Waiting for VM to boot..."
+      counter = 1
+      begin
+        SSH.execute { |ssh| }
+      rescue Errno::ECONNREFUSED
+        sleep 5 unless ENV['HOBO_ENV'] == 'test'
+        counter += 1
+        retry
+      end
+
+      HOBO_LOGGER.info "VM booted and ready for use!"
     end
   end
 end

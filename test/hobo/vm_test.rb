@@ -7,6 +7,8 @@ class VMTest < Test::Unit::TestCase
 
     @persisted_vm = mock("persisted_vm")
     Hobo::Env.stubs(:persisted_vm).returns(@persisted_vm)
+
+    Net::SSH.stubs(:start)
   end
 
   context "hobo ssh" do
@@ -101,8 +103,19 @@ class VMTest < Test::Unit::TestCase
     end
 
     context "starting" do
+      setup do
+        @mock_vm.stubs(:start)
+      end
+
       should "start the VM in headless mode" do
         @mock_vm.expects(:start).with(:headless, true).once
+        @vm.start
+      end
+
+      should "repeatedly SSH while waiting for the VM to start" do
+        ssh_seq = sequence("ssh_seq")
+        Net::SSH.expects(:start).once.raises(Errno::ECONNREFUSED).in_sequence(ssh_seq)
+        Net::SSH.expects(:start).once.in_sequence(ssh_seq)
         @vm.start
       end
     end
