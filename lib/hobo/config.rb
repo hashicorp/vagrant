@@ -1,29 +1,64 @@
+require 'forwardable'
+
 module Hobo
-  module_function
-  
-  def config
-    @@config
+  def self.config
+    Config.config
   end
 
-  def config!(hash)
-    @@config = hash
+  class Config
+    @config = nil
+    @config_runners = []
+
+    class <<self
+      def config
+        @config ||= Config::Top.new
+      end
+
+      def config_runners
+        @config_runners ||= []
+      end
+
+      def run(&block)
+        config_runners << block
+      end
+
+      def execute!
+        config_runners.each do |block|
+          block.call(config)
+        end
+      end
+    end
   end
 
-  def set_config_value(chain, val, cfg=@@config)
-    keys = chain.split('.')
-
-    return if keys.empty?
-
-    if keys.length == 1
-      # If we're out of keys and the value for this key is not a leaf blow up
-      raise InvalidSettingAlteration if cfg[keys.first.to_sym].is_a?(Hash)
-      
-      # set the value and return if the value is a leaf
-      return cfg[keys.first.to_sym] = val
+  class Config
+    class Base
+      def [](key)
+        send(key)
+      end
     end
 
-    set_config_value(keys[1..-1].join('.'), val, cfg[keys.first.to_sym])    
-  end
+    class SSHConfig < Base
+      attr_accessor :uname
+      attr_accessor :pass
+      attr_accessor :host
+      attr_accessor :port
+      attr_accessor :max_tries
+    end
 
-  class InvalidSettingAlteration < StandardError; end
+    class VMConfig < Base
+      attr_accessor :base
+      attr_accessor :base_mac
+    end
+
+    class Top < Base
+      attr_accessor :dotfile_name
+      attr_reader :ssh
+      attr_reader :vm
+
+      def initialize
+        @ssh = SSHConfig.new
+        @vm = VMConfig.new
+      end
+    end
+  end
 end

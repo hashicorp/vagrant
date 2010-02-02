@@ -1,27 +1,46 @@
 require File.join(File.dirname(__FILE__), '..', 'test_helper')
 
 class ConfigTest < Test::Unit::TestCase
-  context "Hobo configuration" do
+  context "accessing configuration" do
     setup do
-      @settings = {:a => { :b => 1}}
-      Hobo.config!(@settings)
+      Hobo::Config.run { |config| }
+      Hobo::Config.execute!
     end
 
-    should "alter the config given a dot chain of keys" do
-      Hobo.set_config_value 'a.b', 2
-      assert_equal Hobo.config[:a][:b], 2
+    should "forward config to the class method" do
+      assert_equal Hobo.config, Hobo::Config.config
+    end
+  end
+
+  context "initializing" do
+    teardown do
+      Hobo::Config.instance_variable_set(:@config_runners, nil)
+      Hobo::Config.instance_variable_set(:@config, nil)
     end
 
-    should "prevent the alteration of a non leaf setting value" do
-      assert_raise Hobo::InvalidSettingAlteration do
-        Hobo.set_config_value 'a', 2
-      end
+    should "not run the blocks right away" do
+      obj = mock("obj")
+      obj.expects(:foo).never
+      Hobo::Config.run { |config| obj.foo }
+      Hobo::Config.run { |config| obj.foo }
+      Hobo::Config.run { |config| obj.foo }
     end
 
-    should "not alter settings through the chain method when provided and empty string" do
-      prev = Hobo.config
-      Hobo.set_config_value '', 2
-      assert_equal Hobo.config, prev
+    should "run the blocks when execute! is ran" do
+      obj = mock("obj")
+      obj.expects(:foo).times(2)
+      Hobo::Config.run { |config| obj.foo }
+      Hobo::Config.run { |config| obj.foo }
+      Hobo::Config.execute!
+    end
+
+    should "run the blocks with the same config object" do
+      config = mock("config")
+      config.expects(:foo).twice
+      Hobo::Config.stubs(:config).returns(config)
+      Hobo::Config.run { |config| config.foo }
+      Hobo::Config.run { |config| config.foo }
+      Hobo::Config.execute!
     end
   end
 end

@@ -2,13 +2,7 @@ require 'yaml'
 
 module Hobo
   class Env
-    HOBOFILE_NAME = "hobofile"
-    HOME =  File.expand_path('~/.hobo')
-    CONFIG = { File.join(HOME, 'config.yml') => '/config/default.yml' }
-    ENSURE = {
-      :files => CONFIG.merge({}), #additional files go mhia!
-      :dirs => [HOME] #additional dirs go mhia!
-    }
+    HOBOFILE_NAME = "Hobofile"
 
     # Initialize class variables used
     @@persisted_vm = nil
@@ -17,7 +11,7 @@ module Hobo
     class << self
       def persisted_vm; @@persisted_vm; end
       def root_path; @@root_path; end
-      def dotfile_path; File.join(root_path, Hobo.config[:dotfile_name]); end
+      def dotfile_path; File.join(root_path, Hobo.config.dotfile_name); end
 
       def load!
         load_root_path!
@@ -25,25 +19,19 @@ module Hobo
         load_vm!
       end
 
-      def ensure_directories
-        ENSURE[:dirs].each do |name|
-          Dir.mkdir(name) unless File.exists?(name)
-        end
-      end
-
-      def ensure_files
-        ENSURE[:files].each do |target, default|
-          File.copy(File.join(PROJECT_ROOT, default), target) unless File.exists?(target)
-        end
-      end
-
       def load_config!
-        ensure_directories
-        ensure_files
+        load_paths = [
+          File.join(PROJECT_ROOT, "config", "default.rb"),
+          File.join(root_path, HOBOFILE_NAME)
+        ]
 
-        HOBO_LOGGER.info "Loading config from #{CONFIG.keys.first}"
-        parsed = YAML.load_file(CONFIG.keys.first)
-        Hobo.config!(parsed)
+        load_paths.each do |path|
+          HOBO_LOGGER.info "Loading config from #{path}..."
+          load path if File.exist?(path)
+        end
+
+        # Execute the configurations
+        Config.execute!
       end
 
       def load_vm!

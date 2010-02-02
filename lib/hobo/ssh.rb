@@ -6,7 +6,7 @@ module Hobo
       def connect(opts={})
         options = {}
         [:port, :host, :pass, :uname].each do |param|
-          options[param] = opts[param] || Hobo.config[:ssh][param]
+          options[param] = opts[param] || Hobo.config.ssh.send(param)
         end
 
         Kernel.exec "#{SCRIPT} #{options[:uname]} #{options[:pass]} #{options[:host]} #{options[:port]}".strip

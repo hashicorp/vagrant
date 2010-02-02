@@ -28,18 +28,22 @@ require 'mocha'
 
 class Test::Unit::TestCase
   def hobo_mock_config
-    { :ssh => {
-        :uname => 'foo',
-        :pass => 'bar',
-        :host => 'baz',
-        :port => 'bak',
-        :max_tries => 10
-      },
-      :vm => {
-        :base => "foo",
-        :base_mac => "42"
-      },
-      :dotfile_name => '.hobo'
-    }
+    Hobo::Config.instance_variable_set(:@config_runners, nil)
+    Hobo::Config.instance_variable_set(:@config, nil)
+
+    Hobo::Config.run do |config|
+      config.dotfile_name = ".hobo"
+
+      config.ssh.uname = "foo"
+      config.ssh.pass = "bar"
+      config.ssh.host = "baz"
+      config.ssh.port = "bak"
+      config.ssh.max_tries = 10
+
+      config.vm.base = "foo"
+      config.vm.base_mac = "42"
+    end
+
+    Hobo::Config.execute!
   end
 end

@@ -3,7 +3,7 @@ require File.join(File.dirname(__FILE__), '..', 'test_helper')
 class VMTest < Test::Unit::TestCase
   setup do
     @mock_vm = mock("vm")
-    Hobo.config!(hobo_mock_config)
+    hobo_mock_config
 
     @persisted_vm = mock("persisted_vm")
     Hobo::Env.stubs(:persisted_vm).returns(@persisted_vm)

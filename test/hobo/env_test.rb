@@ -6,10 +6,6 @@ class EnvTest < Test::Unit::TestCase
     File.expects(:open).with(dotfile, 'r').returns(['foo'])
   end
 
-  def config_file_expectation
-    YAML.expects(:load_file).with(Hobo::Env::CONFIG.keys.first).returns(hobo_mock_config)
-  end
-
   def dotfile(dir=Dir.pwd)
     "#{dir}/#{hobo_mock_config[:dotfile_name]}"
   end
@@ -24,6 +20,7 @@ class EnvTest < Test::Unit::TestCase
 
   setup do
     Hobo::Env.stubs(:error_and_exit)
+    hobo_mock_config
   end
 
   context "requiring a VM" do
@@ -40,6 +37,43 @@ class EnvTest < Test::Unit::TestCase
     end
   end
 
+  context "loading config" do
+    setup do
+      @root_path = "/foo"
+      Hobo::Env.stubs(:root_path).returns(@root_path)
+      File.stubs(:exist?).returns(false)
+      Hobo::Config.stubs(:execute!)
+    end
+
+    should "load from the project root" do
+      File.expects(:exist?).with(File.join(PROJECT_ROOT, "config", "default.rb")).once
+      Hobo::Env.load_config!
+    end
+
+    should "load from the root path" do
+      File.expects(:exist?).with(File.join(@root_path, Hobo::Env::HOBOFILE_NAME)).once
+      Hobo::Env.load_config!
+    end
+
+    should "load the files only if exist? returns true" do
+      File.expects(:exist?).once.returns(true)
+      Hobo::Env.expects(:load).once
+      Hobo::Env.load_config!
+    end
+
+    should "not load the files if exist? returns false" do
+      Hobo::Env.expects(:load).never
+      Hobo::Env.load_config!
+    end
+
+    should "execute after loading" do
+      File.expects(:exist?).once.returns(true)
+      Hobo::Env.expects(:load).once
+      Hobo::Config.expects(:execute!).once
+      Hobo::Env.load_config!
+    end
+  end
+
   context "initial load" do
     test "load! should load the config and set the persisted_uid" do
       Hobo::Env.expects(:load_config!).once
@@ -49,61 +83,9 @@ class EnvTest < Test::Unit::TestCase
     end
   end
 
-  context "loading config" do
-    setup do
-      @handler = Hobo::Env
-      @ensure = Hobo::Env::ENSURE
-      Hobo.config! nil
-    end
-
-    test "should not create any directories if they exist"  do
-      File.expects(:exists?).times(@ensure[:dirs].length).returns(true)
-      Dir.expects(:mkdir).never
-      @handler.ensure_directories
-    end
-
-    test "should not copy any files if they exist" do
-      File.expects(:exists?).times(@ensure[:files].length).returns(true)
-      File.expects(:copy).never
-      @handler.ensure_files
-    end
-
-    test "should create the ensured directories if they don't exist" do
-      file_seq = sequence("file_seq")
-
-      @ensure[:dirs].each do |dir|
-        File.expects(:exists?).returns(false).in_sequence(file_seq)
-        Dir.expects(:mkdir).with(dir).in_sequence(file_seq)
-      end
-
-      @handler.ensure_directories
-    end
-
-    test "should create the ensured files if they don't exist" do
-      file_seq = sequence("file_seq")
-
-      @ensure[:files].each do |target, default|
-        File.expects(:exists?).with(target).returns(false).in_sequence(file_seq)
-        File.expects(:copy).with(File.join(PROJECT_ROOT, default), target).in_sequence(file_seq)
-      end
-
-      @handler.ensure_files
-    end
-
-    test "should load of the default" do
-      config_file_expectation
-      @handler.load_config!
-      assert_equal Hobo.config[:ssh], hobo_mock_config[:ssh]
-    end
-
-    test "Hobo.config should be nil unless loaded" do
-      assert_equal Hobo.config, nil
-    end
-  end
-
   context "persisting the VM into a file" do
     setup do
-      Hobo.config! hobo_mock_config
+      hobo_mock_config
     end
 
     test "should save it to the dotfile path" do
@@ -118,10 +100,6 @@ class EnvTest < Test::Unit::TestCase
   end
 
   context "loading the UUID out from the persisted file" do
-    setup do
-      Hobo.config! hobo_mock_config
-    end
-
     test "loading of the uuid from the dotfile" do
       mock_persisted_vm
       assert_equal 'foovm', Hobo::Env.persisted_vm
@@ -134,7 +112,7 @@ class EnvTest < Test::Unit::TestCase
     end
 
     test "should build up the dotfile out of the root path and the dotfile name" do
-      assert_equal File.join(Hobo::Env.root_path, hobo_mock_config[:dotfile_name]), Hobo::Env.dotfile_path
+      assert_equal File.join(Hobo::Env.root_path, Hobo.config.dotfile_name), Hobo::Env.dotfile_path
     end
   end
 
