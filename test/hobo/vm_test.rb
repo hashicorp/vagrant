@@ -112,15 +112,15 @@ class VMTest < Test::Unit::TestCase
         @vm.start
       end
 
-      should "repeatedly SSH while waiting for the VM to start" do
-        ssh_seq = sequence("ssh_seq")
-        Net::SSH.expects(:start).once.raises(Errno::ECONNREFUSED).in_sequence(ssh_seq)
-        Net::SSH.expects(:start).once.in_sequence(ssh_seq)
-        @vm.start
+      should "repeatedly ping the SSH port and return false with no response" do
+        seq = sequence('pings')
+        Ping.expects(:pingecho).times(Hobo.config[:ssh][:max_tries].to_i - 1).returns(false).in_sequence(seq)
+        Ping.expects(:pingecho).once.returns(true).in_sequence(seq)
+        assert @vm.start
       end
 
-      should "try the max number of times then just return" do
-        Net::SSH.expects(:start).times(Hobo.config[:ssh][:max_tries].to_i).raises(Errno::ECONNREFUSED)
+      should "ping the max number of times then just return" do
+        Ping.expects(:pingecho).times(Hobo.config[:ssh][:max_tries].to_i).returns(false)
         assert !@vm.start
       end
     end
@@ -180,6 +180,49 @@ class VMTest < Test::Unit::TestCase
         @mock_vm.expects(:shared_folders).returns(shared_folder_collection)
         @mock_vm.expects(:save).with(true).once
         @vm.setup_shared_folder
+      end
+    end
+
+    context "suspending a vm" do
+      should "put the vm in a suspended state" do 
+        saved_state_expectations(false)
+        Hobo::VM.suspend
+      end
+
+      should "results in an error and exit if the vm is already in a saved state" do
+        saved_state_expectations(true)
+        Hobo::VM.expects(:error_and_exit)
+        Hobo::VM.suspend
+      end
+
+      def saved_state_expectations(saved)
+        @persisted_vm.expects(:saved?).returns(saved)
+
+        # In this case the exit, is ignored so the expectation of save_state on the persisted
+        # vm must be set
+        @persisted_vm.expects(:save_state).with(true)
+      end
+    end
+
+    context "resuming a vm" do
+      should "start a vm in a suspended state" do 
+        start_state_expectaions(true)
+        Hobo::VM.resume
+      end
+
+      should "results in an error and exit if the vm is not in a saved state" do
+        start_state_expectaions(false)
+        
+        # In this case the exit, is ignored so the expectation of start on the persisted
+        # vm must be set
+        # TODO research the matter of mocking exit
+        Hobo::VM.expects(:error_and_exit)
+        Hobo::VM.resume
+      end
+
+      def start_state_expectaions(saved)
+        @persisted_vm.expects(:saved?).returns(saved)
+        Hobo::Env.persisted_vm.expects(:start).once.returns(true)
       end
     end
   end

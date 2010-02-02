@@ -2,7 +2,7 @@ module Hobo
   class SSH
     SCRIPT = File.join(File.dirname(__FILE__), '..', '..', 'script', 'hobo-ssh-expect.sh')
 
-    class <<self
+    class << self
       def connect(opts={})
         options = {}
         [:port, :host, :pass, :uname].each do |param|
@@ -16,6 +16,10 @@ module Hobo
         Net::SSH.start("localhost", Hobo.config[:ssh][:uname], :port => Hobo.config[:ssh][:port], :password => Hobo.config[:ssh][:pass]) do |ssh|
           yield ssh
         end
+      end
+
+      def up?
+        Ping.pingecho "localhost", 1, Hobo.config[:ssh][:port]
       end
     end
   end

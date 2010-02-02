@@ -2,7 +2,9 @@ module Hobo
   class VM
     attr_reader :vm
 
-    class <<self
+    extend Hobo::Error
+
+    class << self
       # Bring up the virtual machine. Imports the base image and
       # provisions it.
       def up
@@ -19,6 +21,27 @@ module Hobo
       def ssh
         Env.require_persisted_vm
         SSH.connect
+      end
+
+      
+      # Save the state of the current hobo environment to disk
+      def suspend
+        Env.require_persisted_vm
+        error_and_exit(<<-error) if Env.persisted_vm.saved?
+The hobo virtual environment you are trying to reume is already in a
+suspended state.
+error
+        Env.persisted_vm.save_state(true)
+      end
+
+      # Resume the current hobo environment from disk
+      def resume
+        Env.require_persisted_vm
+        error_and_exit(<<-error) unless Env.persisted_vm.saved?
+The hobo virtual environment you are trying to resume is not in a
+suspended state.
+error
+        Env.persisted_vm.start
       end
 
       # Finds a virtual machine by a given UUID and either returns
@@ -94,23 +117,23 @@ module Hobo
 
       # Now we have to wait for the boot to be successful
       HOBO_LOGGER.info "Waiting for VM to boot..."
-      counter = 1
-      begin
+      
+      Hobo.config[:ssh][:max_tries].to_i.times do |i|
         sleep 5 unless ENV['HOBO_ENV'] == 'test'
-        HOBO_LOGGER.info "Trying to connect (attempt ##{counter} of #{Hobo.config[:ssh][:max_tries]})..."
-        SSH.execute { |ssh| }
-      rescue Errno::ECONNREFUSED
-        if counter >= Hobo.config[:ssh][:max_tries].to_i
-          HOBO_LOGGER.info "Failed to connect to VM! Failed to boot?"
-          return false
+        HOBO_LOGGER.info "Trying to connect (attempt ##{i+1} of #{Hobo.config[:ssh][:max_tries]})..."
+        
+        if Hobo::SSH.up?
+          HOBO_LOGGER.info "VM booted and ready for use!"
+          return true
         end
-
-        counter += 1
-        retry
       end
 
-      HOBO_LOGGER.info "VM booted and ready for use!"
-      true
+      HOBO_LOGGER.info "Failed to connect to VM! Failed to boot?"
+      false
     end
+
+    def saved?; @vm.saved? end
+    
+    def save_state(errs); @vm.save_state(errs) end
   end
 end

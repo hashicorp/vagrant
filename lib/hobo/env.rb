@@ -7,6 +7,8 @@ module Hobo
     # Initialize class variables used
     @@persisted_vm = nil
     @@root_path = nil
+    
+    extend Hobo::Error
 
     class << self
       def persisted_vm; @@persisted_vm; end
@@ -78,17 +80,6 @@ Hobofile and running `hobo up`
 error
           return
         end
-      end
-
-      def error_and_exit(error)
-        puts <<-error
-=====================================================================
-Hobo experienced an error!
-
-#{error.chomp}
-=====================================================================
-error
-        exit
       end
     end
   end
