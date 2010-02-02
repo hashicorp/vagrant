@@ -183,45 +183,43 @@ class VMTest < Test::Unit::TestCase
       end
     end
 
-    context "suspending a vm" do
+    context "suspending and resuming a vm" do
       should "put the vm in a suspended state" do 
-        saved_state_expectations(false)
+        saved_state_expectation(false)
+        save_expectation
         Hobo::VM.suspend
       end
 
       should "results in an error and exit if the vm is already in a saved state" do
-        saved_state_expectations(true)
+        saved_state_expectation(true)
+        save_expectation
         Hobo::VM.expects(:error_and_exit)
         Hobo::VM.suspend
       end
 
-      def saved_state_expectations(saved)
-        @persisted_vm.expects(:saved?).returns(saved)
-
-        # In this case the exit, is ignored so the expectation of save_state on the persisted
-        # vm must be set
-        @persisted_vm.expects(:save_state).with(true)
-      end
-    end
-
-    context "resuming a vm" do
       should "start a vm in a suspended state" do 
-        start_state_expectaions(true)
+        saved_state_expectation(true)
+        start_expectation
         Hobo::VM.resume
       end
 
       should "results in an error and exit if the vm is not in a saved state" do
-        start_state_expectaions(false)
-        
-        # In this case the exit, is ignored so the expectation of start on the persisted
-        # vm must be set
+        saved_state_expectation(false)
+        start_expectation
         # TODO research the matter of mocking exit
         Hobo::VM.expects(:error_and_exit)
         Hobo::VM.resume
+      end      
+
+      def saved_state_expectation(saved)
+        @persisted_vm.expects(:saved?).returns(saved)
+      end
+      
+      def save_expectation
+        @persisted_vm.expects(:save_state).with(true)
       end
 
-      def start_state_expectaions(saved)
-        @persisted_vm.expects(:saved?).returns(saved)
+      def start_expectation
         Hobo::Env.persisted_vm.expects(:start).once.returns(true)
       end
     end
