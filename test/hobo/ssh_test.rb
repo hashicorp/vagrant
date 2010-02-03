@@ -13,28 +13,45 @@ class SshTest < Test::Unit::TestCase
     test "should call exec with defaults when no options are supplied" do
       ssh = Hobo.config.ssh
       port = Hobo.config.vm.forwarded_ports[ssh.forwarded_port_key][:hostport]
-      Kernel.expects(:exec).with("#{@script} #{ssh[:uname]} #{ssh[:pass]} #{ssh[:host]} #{port}")
+      Kernel.expects(:exec).with("#{@script} #{ssh[:username]} #{ssh[:password]} #{ssh[:host]} #{port}")
       Hobo::SSH.connect
     end
 
     test "should call exec with supplied params" do
-      args = {:uname => 'bar', :pass => 'baz', :host => 'bak', :port => 'bag'}
-      Kernel.expects(:exec).with("#{@script} #{args[:uname]} #{args[:pass]} #{args[:host]} #{args[:port]}")
+      args = {:username => 'bar', :password => 'baz', :host => 'bak', :port => 'bag'}
+      Kernel.expects(:exec).with("#{@script} #{args[:username]} #{args[:password]} #{args[:host]} #{args[:port]}")
       Hobo::SSH.connect(args)
     end
   end
 
   context "net-ssh interaction" do
     should "call net::ssh.start with the proper names" do
-      Net::SSH.expects(:start).with("localhost", Hobo.config[:ssh][:uname], anything).once
+      Net::SSH.expects(:start).with(Hobo.config.ssh.host, Hobo.config[:ssh][:username], anything).once
+      Hobo::SSH.execute
+    end
+
+    should "use custom host if set" do
+      Hobo.config.ssh.host = "foo"
+      Net::SSH.expects(:start).with(Hobo.config.ssh.host, Hobo.config[:ssh][:username], anything).once
       Hobo::SSH.execute
     end
   end
 
   context "checking if host is up" do
+    setup do
+      hobo_mock_config
+    end
+
     should "pingecho the server" do
       port = Hobo.config.vm.forwarded_ports[Hobo.config.ssh.forwarded_port_key][:hostport]
-      Ping.expects(:pingecho).with("localhost", 1, port).once
+      Ping.expects(:pingecho).with(Hobo.config.ssh.host, 1, port).once
+      Hobo::SSH.up?
+    end
+
+    should "use custom host if set" do
+      port = Hobo.config.vm.forwarded_ports[Hobo.config.ssh.forwarded_port_key][:hostport]
+      Hobo.config.ssh.host = "foo"
+      Ping.expects(:pingecho).with(Hobo.config.ssh.host, 1, port).once
       Hobo::SSH.up?
     end
   end

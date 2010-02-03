@@ -34,8 +34,8 @@ class Test::Unit::TestCase
     Hobo::Config.run do |config|
       config.dotfile_name = ".hobo"
 
-      config.ssh.uname = "foo"
-      config.ssh.pass = "bar"
+      config.ssh.username = "foo"
+      config.ssh.password = "bar"
       config.ssh.host = "baz"
       config.ssh.forwarded_port_key = "ssh"
       config.ssh.max_tries = 10

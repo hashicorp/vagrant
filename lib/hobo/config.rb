@@ -38,8 +38,8 @@ module Hobo
     end
 
     class SSHConfig < Base
-      attr_accessor :uname
-      attr_accessor :pass
+      attr_accessor :username
+      attr_accessor :password
       attr_accessor :host
       attr_accessor :forwarded_port_key
       attr_accessor :max_tries
