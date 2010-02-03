@@ -37,11 +37,12 @@ class Test::Unit::TestCase
       config.ssh.uname = "foo"
       config.ssh.pass = "bar"
       config.ssh.host = "baz"
-      config.ssh.port = "bak"
+      config.ssh.forwarded_port_key = "ssh"
       config.ssh.max_tries = 10
 
       config.vm.base = "foo"
       config.vm.base_mac = "42"
+      config.vm.forward_port("ssh", 22, 2222)
     end
 
     Hobo::Config.execute!

@@ -23,7 +23,7 @@ module Hobo
         SSH.connect
       end
 
-      
+
       # Save the state of the current hobo environment to disk
       def suspend
         Env.require_persisted_vm
@@ -61,7 +61,7 @@ error
       import
       persist
       setup_mac_address
-      forward_ssh
+      forward_ports
       setup_shared_folder
       start
     end
@@ -92,13 +92,18 @@ error
       @vm.save(true)
     end
 
-    def forward_ssh
-      HOBO_LOGGER.info "Forwarding SSH ports..."
-      port = VirtualBox::ForwardedPort.new
-      port.name = "ssh"
-      port.hostport = Hobo.config[:ssh][:port]
-      port.guestport = 22
-      @vm.forwarded_ports << port
+    def forward_ports
+      HOBO_LOGGER.info "Forwarding ports..."
+
+      Hobo.config.vm.forwarded_ports.each do |name, options|
+        HOBO_LOGGER.info "Forwarding \"#{name}\": #{options[:guestport]} => #{options[:hostport]}"
+        port = VirtualBox::ForwardedPort.new
+        port.name = name
+        port.hostport = options[:hostport]
+        port.guestport = options[:guestport]
+        @vm.forwarded_ports << port
+      end
+
       @vm.save(true)
     end
 
@@ -117,11 +122,11 @@ error
 
       # Now we have to wait for the boot to be successful
       HOBO_LOGGER.info "Waiting for VM to boot..."
-      
+
       Hobo.config[:ssh][:max_tries].to_i.times do |i|
         sleep 5 unless ENV['HOBO_ENV'] == 'test'
         HOBO_LOGGER.info "Trying to connect (attempt ##{i+1} of #{Hobo.config[:ssh][:max_tries]})..."
-        
+
         if Hobo::SSH.up?
           HOBO_LOGGER.info "VM booted and ready for use!"
           return true
@@ -133,7 +138,7 @@ error
     end
 
     def saved?; @vm.saved? end
-    
+
     def save_state(errs); @vm.save_state(errs) end
   end
 end

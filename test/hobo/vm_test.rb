@@ -77,7 +77,7 @@ class VMTest < Test::Unit::TestCase
         @vm.expects(:import).in_sequence(create_seq)
         @vm.expects(:persist).in_sequence(create_seq)
         @vm.expects(:setup_mac_address).in_sequence(create_seq)
-        @vm.expects(:forward_ssh).in_sequence(create_seq)
+        @vm.expects(:forward_ports).in_sequence(create_seq)
         @vm.expects(:setup_shared_folder).in_sequence(create_seq)
         @vm.expects(:start).in_sequence(create_seq)
         @vm.create
@@ -157,7 +157,7 @@ class VMTest < Test::Unit::TestCase
       end
     end
 
-    context "forwarding SSH" do
+    context "forwarding ports" do
       should "create a port forwarding for the VM" do
         # TODO: Test the actual port value to make sure it has the
         # correct attributes
@@ -165,7 +165,7 @@ class VMTest < Test::Unit::TestCase
         forwarded_ports.expects(:<<)
         @mock_vm.expects(:forwarded_ports).returns(forwarded_ports)
         @mock_vm.expects(:save).with(true).once
-        @vm.forward_ssh
+        @vm.forward_ports
       end
     end
 
@@ -184,7 +184,7 @@ class VMTest < Test::Unit::TestCase
     end
 
     context "suspending and resuming a vm" do
-      should "put the vm in a suspended state" do 
+      should "put the vm in a suspended state" do
         saved_state_expectation(false)
         save_expectation
         Hobo::VM.suspend
@@ -197,7 +197,7 @@ class VMTest < Test::Unit::TestCase
         Hobo::VM.suspend
       end
 
-      should "start a vm in a suspended state" do 
+      should "start a vm in a suspended state" do
         saved_state_expectation(true)
         start_expectation
         Hobo::VM.resume
@@ -209,12 +209,12 @@ class VMTest < Test::Unit::TestCase
         # TODO research the matter of mocking exit
         Hobo::VM.expects(:error_and_exit)
         Hobo::VM.resume
-      end      
+      end
 
       def saved_state_expectation(saved)
         @persisted_vm.expects(:saved?).returns(saved)
       end
-      
+
       def save_expectation
         @persisted_vm.expects(:save_state).with(true)
       end

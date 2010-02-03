@@ -41,13 +41,26 @@ module Hobo
       attr_accessor :uname
       attr_accessor :pass
       attr_accessor :host
-      attr_accessor :port
+      attr_accessor :forwarded_port_key
       attr_accessor :max_tries
     end
 
     class VMConfig < Base
       attr_accessor :base
       attr_accessor :base_mac
+      attr_reader :forwarded_ports
+
+      def initialize
+        @forwarded_ports = {}
+      end
+
+      def forward_port(name, guestport, hostport, protocol="TCP")
+        forwarded_ports[name] = {
+          :guestport  => guestport,
+          :hostport   => hostport,
+          :protocol   => protocol
+        }
+      end
     end
 
     class Top < Base
