@@ -1,7 +1,7 @@
 Hobo::Config.run do |config|
   # default config goes here
-  config.ssh.uname = "hobo"
-  config.ssh.pass = "hobo"
+  config.ssh.username = "hobo"
+  config.ssh.password = "hobo"
   config.ssh.host = "localhost"
   config.ssh.forwarded_port_key = "ssh"
   config.ssh.max_tries = 10
