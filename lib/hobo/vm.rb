@@ -28,7 +28,7 @@ module Hobo
       def suspend
         Env.require_persisted_vm
         error_and_exit(<<-error) if Env.persisted_vm.saved?
-The hobo virtual environment you are trying to reume is already in a
+The hobo virtual environment you are trying to resume is already in a
 suspended state.
 error
         Env.persisted_vm.save_state(true)
