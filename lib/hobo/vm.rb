@@ -64,6 +64,7 @@ error
       forward_ports
       setup_shared_folder
       start
+      mount_shared_folder
     end
 
     def destroy
@@ -114,6 +115,14 @@ error
       folder.hostpath = Env.root_path
       @vm.shared_folders << folder
       @vm.save(true)
+    end
+
+    def mount_shared_folder
+      HOBO_LOGGER.info "Mounting shared folders..."
+      Hobo::SSH.execute do |ssh|
+        ssh.exec!("sudo mkdir -p #{Hobo.config.vm.project_directory}")
+        ssh.exec!("sudo mount -t vboxsf hobo-root-path #{Hobo.config.vm.project_directory}")
+      end
     end
 
     def start

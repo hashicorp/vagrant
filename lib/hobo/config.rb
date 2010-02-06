@@ -46,6 +46,7 @@ module Hobo
     class VMConfig < Base
       attr_accessor :base
       attr_accessor :base_mac
+      attr_accessor :project_directory
       attr_reader :forwarded_ports
 
       def initialize

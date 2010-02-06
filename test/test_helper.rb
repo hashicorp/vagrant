@@ -36,6 +36,7 @@ class Test::Unit::TestCase
 
       config.vm.base = "foo"
       config.vm.base_mac = "42"
+      config.vm.project_directory = "/hobo"
       config.vm.forward_port("ssh", 22, 2222)
     end
 

@@ -80,6 +80,7 @@ class VMTest < Test::Unit::TestCase
         @vm.expects(:forward_ports).in_sequence(create_seq)
         @vm.expects(:setup_shared_folder).in_sequence(create_seq)
         @vm.expects(:start).in_sequence(create_seq)
+        @vm.expects(:mount_shared_folder).in_sequence(create_seq)
         @vm.create
       end
     end
@@ -180,6 +181,17 @@ class VMTest < Test::Unit::TestCase
         @mock_vm.expects(:shared_folders).returns(shared_folder_collection)
         @mock_vm.expects(:save).with(true).once
         @vm.setup_shared_folder
+      end
+    end
+
+    context "mounting the shared folders" do
+      should "create the directory then mount the shared folder" do
+        mount_seq = sequence("mount_seq")
+        ssh = mock("ssh")
+        ssh.expects(:exec!).with("sudo mkdir -p #{Hobo.config.vm.project_directory}").in_sequence(mount_seq)
+        ssh.expects(:exec!).with("sudo mount -t vboxsf hobo-root-path #{Hobo.config.vm.project_directory}").in_sequence(mount_seq)
+        Hobo::SSH.expects(:execute).yields(ssh)
+        @vm.mount_shared_folder
       end
     end
 
