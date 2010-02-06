@@ -1,5 +1,3 @@
-require 'forwardable'
-
 module Hobo
   def self.config
     Config.config
