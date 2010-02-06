@@ -1,7 +1,11 @@
 #!/usr/bin/env ruby
 begin
-  require File.expand_path(File.join(File.dirname(__FILE__), "../vendor/gems/ruby/1.8/environment"))
+  require File.expand_path('../.bundle/environment', __FILE__)
 rescue LoadError
+  # Fallback on doing the resolve at runtime.
+  require "rubygems"
+  require "bundler"
+  Bundler.setup
 end
 
 require 'git-style-binary/command'
