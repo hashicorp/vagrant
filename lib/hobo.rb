@@ -16,5 +16,5 @@ require 'hobo/vm'
 
 # TODO: Make this configurable
 log_output = ENV['HOBO_ENV'] == 'test' ? nil : STDOUT
-HOBO_LOGGER = Logger.new(log_output)
+HOBO_LOGGER = Hobo::Logger.new(log_output)
 Hobo::Env.load! unless ENV['HOBO_ENV'] == 'test'
