@@ -235,5 +235,41 @@ class VMTest < Test::Unit::TestCase
         Hobo::Env.persisted_vm.expects(:start).once.returns(true)
       end
     end
+    
+    context "creating a new vm with a specified disk storage location" do
+
+      should "error and exit of the vm is not powered off" do
+        # Exit does not prevent method from proceeding in test, so we must set expectations
+        vm = move_hd_expectations
+        @mock_vm.expects(:powered_off?).returns(false)
+        vm.expects(:error_and_exit)
+        vm.move_hd
+      end
+      
+      should "create assign a new disk image, and delete the old one" do
+        vm = move_hd_expectations
+        @mock_vm.expects(:powered_off?).returns(true)
+        vm.move_hd
+      end
+
+      def move_hd_expectations
+        image, hd = mock('image'), mock('hd')
+
+        Hobo.config[:vm].expects(:hd_location).at_least_once.returns('/locations/')
+        image.expects(:clone).with(Hobo.config[:vm][:hd_location] + 'foo', Hobo::VM::HD_EXT_DEFAULT, true).returns(image)
+        image.expects(:filename).twice.returns('foo')
+
+        hd.expects(:image).twice.returns(image)
+        hd.expects(:image=).with(image)
+        
+        image.expects(:destroy)
+
+        @mock_vm.expects(:save)
+        
+        vm = Hobo::VM.new(@mock_vm)
+        vm.expects(:hd).times(3).returns(hd)
+        vm
+      end
+    end
   end
 end

@@ -8,7 +8,7 @@ module Hobo
     @@persisted_vm = nil
     @@root_path = nil
     
-    extend Hobo::Error
+    extend Hobo::Util
 
     class << self
       def persisted_vm; @@persisted_vm; end

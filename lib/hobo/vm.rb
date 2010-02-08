@@ -1,8 +1,10 @@
 module Hobo
   class VM
+    HD_EXT_DEFAULT = 'VMDK'
     attr_reader :vm
 
-    extend Hobo::Error
+    extend Hobo::Util
+    include Hobo::Util
 
     class << self
       # Bring up the virtual machine. Imports the base image and
@@ -28,9 +30,10 @@ module Hobo
       def suspend
         Env.require_persisted_vm
         error_and_exit(<<-error) if Env.persisted_vm.saved?
-The hobo virtual environment you are trying to resume is already in a
+The hobo virtual environment you are trying to suspend is already in a
 suspended state.
 error
+        logger.info "Saving VM state..."
         Env.persisted_vm.save_state(true)
       end
 
@@ -59,6 +62,7 @@ error
 
     def create
       import
+      move_hd if Hobo.config[:vm][:hd_location]
       persist
       setup_mac_address
       forward_ports
@@ -69,26 +73,46 @@ error
 
     def destroy
       if @vm.running?
-        HOBO_LOGGER.info "VM is running. Forcing immediate shutdown..."
+        logger.info "VM is running. Forcing immediate shutdown..."
         @vm.stop(true)
       end
 
-      HOBO_LOGGER.info "Destroying VM and associated drives..."
+      logger.info "Destroying VM and associated drives..."
       @vm.destroy(:destroy_image => true)
     end
 
+    def move_hd
+      error_and_exit(<<-error) unless @vm.powered_off?
+The virtual machine must be powered off to move its disk.
+error
+
+      old_image = hd.image.dup
+      new_image_file = Hobo.config[:vm][:hd_location] + old_image.filename
+
+      logger.info "Cloning current VM Disk to new location (#{ new_image_file })..."
+      # TODO image extension default?
+      new_image = hd.image.clone(new_image_file , HD_EXT_DEFAULT, true)
+      hd.image = new_image
+      
+      logger.info "Attaching new disk to VM ..."
+      @vm.save
+
+      logger.info "Destroying old VM Disk (#{ old_image.filename })..."
+      old_image.destroy(true)
+    end
+
     def import
-      HOBO_LOGGER.info "Importing base VM (#{Hobo.config[:vm][:base]})..."
+      logger.info "Importing base VM (#{Hobo.config[:vm][:base]})..."
       @vm = VirtualBox::VM.import(File.expand_path(Hobo.config[:vm][:base]))
     end
 
     def persist
-      HOBO_LOGGER.info "Persisting the VM UUID (#{@vm.uuid})..."
+      logger.info "Persisting the VM UUID (#{@vm.uuid})..."
       Env.persist_vm(@vm)
     end
 
     def setup_mac_address
-      HOBO_LOGGER.info "Matching MAC addresses..."
+      logger.info "Matching MAC addresses..."
       @vm.nics.first.macaddress = Hobo.config[:vm][:base_mac]
       @vm.save(true)
     end
@@ -109,7 +133,7 @@ error
     end
 
     def setup_shared_folder
-      HOBO_LOGGER.info "Creating shared folders..."
+      logger.info "Creating shared folders..."
       folder = VirtualBox::SharedFolder.new
       folder.name = "hobo-root-path"
       folder.hostpath = Env.root_path
@@ -126,28 +150,31 @@ error
     end
 
     def start
-      HOBO_LOGGER.info "Booting VM..."
+      logger.info "Booting VM..."
       @vm.start(:headless, true)
 
       # Now we have to wait for the boot to be successful
-      HOBO_LOGGER.info "Waiting for VM to boot..."
-
+      logger.info "Waiting for VM to boot..."
+      
       Hobo.config[:ssh][:max_tries].to_i.times do |i|
         sleep 5 unless ENV['HOBO_ENV'] == 'test'
-        HOBO_LOGGER.info "Trying to connect (attempt ##{i+1} of #{Hobo.config[:ssh][:max_tries]})..."
+        logger.info "Trying to connect (attempt ##{i+1} of #{Hobo.config[:ssh][:max_tries]})..."
 
         if Hobo::SSH.up?
-          HOBO_LOGGER.info "VM booted and ready for use!"
+          logger.info "VM booted and ready for use!"
           return true
         end
       end
 
-      HOBO_LOGGER.info "Failed to connect to VM! Failed to boot?"
+      logger.info "Failed to connect to VM! Failed to boot?"
       false
     end
 
     def saved?; @vm.saved? end
 
     def save_state(errs); @vm.save_state(errs) end
+
+    # TODO need a better way to which controller is the hd
+    def hd; @vm.storage_controllers.first.devices.first end
   end
 end

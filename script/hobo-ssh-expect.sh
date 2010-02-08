@@ -11,10 +11,9 @@ if { $port != "" } {
   set port_option ""
 }
 
-spawn ssh $port_option $uname@$host
+spawn ssh $port_option -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $uname@$host
 
 expect "*password: " {
-  sleep 1
   send "$password\r"
 } timeout {
   send_user "Error connecting"

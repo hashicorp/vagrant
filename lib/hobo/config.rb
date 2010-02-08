@@ -7,7 +7,7 @@ module Hobo
     @config = nil
     @config_runners = []
 
-    class <<self
+    class << self
       def config
         @config ||= Config::Top.new
       end
@@ -48,6 +48,7 @@ module Hobo
       attr_accessor :base_mac
       attr_accessor :project_directory
       attr_reader :forwarded_ports
+      attr_accessor :hd_location
 
       def initialize
         @forwarded_ports = {}
@@ -59,6 +60,11 @@ module Hobo
           :hostport   => hostport,
           :protocol   => protocol
         }
+      end
+        
+      def hd_location=(val)
+        raise Exception.new "disk_storage must be set to a directory" unless File.directory?(val)
+        @hd_location=val
       end
     end
 
