@@ -21,5 +21,5 @@ error
       "[#{level} #{time.strftime('%m-%d-%Y %X')}] Hobo: #{msg}\n"
     end
   end
-end  
+end
 

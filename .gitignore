@@ -3,3 +3,5 @@ vendor/gems/*
 pkg/*
 Hobofile
 .hobo
+.bundle
+*.lock
