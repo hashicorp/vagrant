@@ -31,11 +31,6 @@ module Hobo
             Busy.busy = false
           end
         end
-        
-        # In the case were an exception is thrown by the wrapped code
-        # make sure to set busy to sane state and reraise the error
-      ensure
-        Busy.busy = false
       end
     end
   end
