@@ -26,7 +26,7 @@ class BusyTest < Test::Unit::TestCase
     should "report busy to the outside world regardless of thread" do
       Thread.new do
         Hobo.busy do
-          sleep(10)
+          sleep(1)
         end
       end
       
