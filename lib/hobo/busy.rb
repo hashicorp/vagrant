@@ -10,6 +10,7 @@ module Hobo
   class Busy
     @@busy = false
     @@mutex = Mutex.new
+
     class << self
       def busy?
         @@busy
@@ -21,16 +22,15 @@ module Hobo
 
       def busy(&block)
         @@mutex.synchronize do
-          Busy.busy = true
-          yield
-          Busy.busy = false
+          begin
+            Busy.busy = true
+            yield
+          ensure
+            # In the case an exception is thrown, make sure we restore
+            # busy back to some sane state.
+            Busy.busy = false
+          end
         end
-        
-        # In the case were an exception is thrown by the wrapped code
-        # make sure to set busy to sane state and reraise the error
-      rescue Exception => e
-        Busy.busy = false
-        raise
       end
     end
   end
