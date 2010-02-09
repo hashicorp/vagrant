@@ -25,7 +25,6 @@ module Hobo
         SSH.connect
       end
 
-
       # Save the state of the current hobo environment to disk
       def suspend
         Env.require_persisted_vm
@@ -61,14 +60,16 @@ error
     end
 
     def create
+      share_folder("hobo-root", Env.root_path, Hobo.config.vm.project_directory)
+
       import
       move_hd if Hobo.config[:vm][:hd_location]
       persist
       setup_mac_address
       forward_ports
-      setup_shared_folder
+      setup_shared_folders
       start
-      mount_shared_folder
+      mount_shared_folders
     end
 
     def destroy
@@ -93,7 +94,7 @@ error
       # TODO image extension default?
       new_image = hd.image.clone(new_image_file , HD_EXT_DEFAULT, true)
       hd.image = new_image
-      
+
       logger.info "Attaching new disk to VM ..."
       @vm.save
 
@@ -132,20 +133,28 @@ error
       @vm.save(true)
     end
 
-    def setup_shared_folder
-      logger.info "Creating shared folders..."
-      folder = VirtualBox::SharedFolder.new
-      folder.name = "hobo-root-path"
-      folder.hostpath = Env.root_path
-      @vm.shared_folders << folder
+    def setup_shared_folders
+      logger.info "Creating shared folders metadata..."
+
+      shared_folders.each do |name, hostpath, guestpath|
+        folder = VirtualBox::SharedFolder.new
+        folder.name = name
+        folder.hostpath = hostpath
+        @vm.shared_folders << folder
+      end
+
       @vm.save(true)
     end
 
-    def mount_shared_folder
-      HOBO_LOGGER.info "Mounting shared folders..."
+    def mount_shared_folders
+      logger.info "Mounting shared folders..."
+
       Hobo::SSH.execute do |ssh|
-        ssh.exec!("sudo mkdir -p #{Hobo.config.vm.project_directory}")
-        ssh.exec!("sudo mount -t vboxsf hobo-root-path #{Hobo.config.vm.project_directory}")
+        shared_folders.each do |name, hostpath, guestpath|
+          logger.info "-- #{name}: #{guestpath}"
+          ssh.exec!("sudo mkdir -p #{guestpath}")
+          ssh.exec!("sudo mount -t vboxsf #{name} #{guestpath}")
+        end
       end
     end
 
@@ -155,7 +164,7 @@ error
 
       # Now we have to wait for the boot to be successful
       logger.info "Waiting for VM to boot..."
-      
+
       Hobo.config[:ssh][:max_tries].to_i.times do |i|
         sleep 5 unless ENV['HOBO_ENV'] == 'test'
         logger.info "Trying to connect (attempt ##{i+1} of #{Hobo.config[:ssh][:max_tries]})..."
@@ -170,11 +179,26 @@ error
       false
     end
 
-    def saved?; @vm.saved? end
+    def shared_folders(clear=false)
+      @shared_folders = nil if clear
+      @shared_folders ||= []
+    end
 
-    def save_state(errs); @vm.save_state(errs) end
+    def share_folder(name, hostpath, guestpath)
+      shared_folders << [name, hostpath, guestpath]
+    end
+
+    def saved?
+      @vm.saved?
+    end
+
+    def save_state(errs)
+      @vm.save_state(errs)
+    end
 
     # TODO need a better way to which controller is the hd
-    def hd; @vm.storage_controllers.first.devices.first end
+    def hd
+      @vm.storage_controllers.first.devices.first
+    end
   end
 end

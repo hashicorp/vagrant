@@ -78,9 +78,9 @@ class VMTest < Test::Unit::TestCase
         @vm.expects(:persist).in_sequence(create_seq)
         @vm.expects(:setup_mac_address).in_sequence(create_seq)
         @vm.expects(:forward_ports).in_sequence(create_seq)
-        @vm.expects(:setup_shared_folder).in_sequence(create_seq)
+        @vm.expects(:setup_shared_folders).in_sequence(create_seq)
         @vm.expects(:start).in_sequence(create_seq)
-        @vm.expects(:mount_shared_folder).in_sequence(create_seq)
+        @vm.expects(:mount_shared_folders).in_sequence(create_seq)
         @vm.create
       end
     end
@@ -170,31 +170,6 @@ class VMTest < Test::Unit::TestCase
       end
     end
 
-    context "setting up the shared folder" do
-      should "create a shared folder with the root folder for the VM" do
-        shared_folder = mock("shared_folder")
-        shared_folder.stubs(:name=)
-        shared_folder.expects(:hostpath=).with(Hobo::Env.root_path).once
-        shared_folder_collection = mock("collection")
-        shared_folder_collection.expects(:<<).with(shared_folder)
-        VirtualBox::SharedFolder.expects(:new).returns(shared_folder)
-        @mock_vm.expects(:shared_folders).returns(shared_folder_collection)
-        @mock_vm.expects(:save).with(true).once
-        @vm.setup_shared_folder
-      end
-    end
-
-    context "mounting the shared folders" do
-      should "create the directory then mount the shared folder" do
-        mount_seq = sequence("mount_seq")
-        ssh = mock("ssh")
-        ssh.expects(:exec!).with("sudo mkdir -p #{Hobo.config.vm.project_directory}").in_sequence(mount_seq)
-        ssh.expects(:exec!).with("sudo mount -t vboxsf hobo-root-path #{Hobo.config.vm.project_directory}").in_sequence(mount_seq)
-        Hobo::SSH.expects(:execute).yields(ssh)
-        @vm.mount_shared_folder
-      end
-    end
-
     context "suspending and resuming a vm" do
       should "put the vm in a suspended state" do
         saved_state_expectation(false)
@@ -235,9 +210,60 @@ class VMTest < Test::Unit::TestCase
         Hobo::Env.persisted_vm.expects(:start).once.returns(true)
       end
     end
-    
-    context "creating a new vm with a specified disk storage location" do
 
+    context "shared folders" do
+      setup do
+        @mock_vm = mock("mock_vm")
+        @vm = Hobo::VM.new(@mock_vm)
+      end
+
+      should "not have any shared folders initially" do
+        assert @vm.shared_folders.empty?
+      end
+
+      should "be able to add shared folders" do
+        @vm.share_folder("foo", "from", "to")
+        assert_equal 1, @vm.shared_folders.length
+      end
+
+      should "be able to clear shared folders" do
+        @vm.share_folder("foo", "from", "to")
+        assert !@vm.shared_folders.empty?
+        @vm.shared_folders(true)
+        assert @vm.shared_folders.empty?
+      end
+
+      should "add all shared folders to the VM with 'setup_shared_folders'" do
+        @vm.share_folder("foo", "from", "to")
+        @vm.share_folder("bar", "bfrom", "bto")
+
+        share_seq = sequence("share_seq")
+        shared_folders = mock("shared_folders")
+        shared_folders.expects(:<<).in_sequence(share_seq).with() { |sf| sf.name == "foo" && sf.hostpath == "from" }
+        shared_folders.expects(:<<).in_sequence(share_seq).with() { |sf| sf.name == "bar" && sf.hostpath == "bfrom" }
+        @mock_vm.stubs(:shared_folders).returns(shared_folders)
+        @mock_vm.expects(:save).with(true).once
+
+        @vm.setup_shared_folders
+      end
+
+      should "mount all shared folders to the VM with `mount_shared_folders`" do
+        @vm.share_folder("foo", "from", "to")
+        @vm.share_folder("bar", "bfrom", "bto")
+
+        mount_seq = sequence("mount_seq")
+        ssh = mock("ssh")
+        @vm.shared_folders.each do |name, hostpath, guestpath|
+          ssh.expects(:exec!).with("sudo mkdir -p #{guestpath}").in_sequence(mount_seq)
+          ssh.expects(:exec!).with("sudo mount -t vboxsf #{name} #{guestpath}").in_sequence(mount_seq)
+        end
+        Hobo::SSH.expects(:execute).yields(ssh)
+
+        @vm.mount_shared_folders
+      end
+    end
+
+    context "creating a new vm with a specified disk storage location" do
       should "error and exit of the vm is not powered off" do
         # Exit does not prevent method from proceeding in test, so we must set expectations
         vm = move_hd_expectations
@@ -245,7 +271,7 @@ class VMTest < Test::Unit::TestCase
         vm.expects(:error_and_exit)
         vm.move_hd
       end
-      
+
       should "create assign a new disk image, and delete the old one" do
         vm = move_hd_expectations
         @mock_vm.expects(:powered_off?).returns(true)
@@ -261,11 +287,11 @@ class VMTest < Test::Unit::TestCase
 
         hd.expects(:image).twice.returns(image)
         hd.expects(:image=).with(image)
-        
+
         image.expects(:destroy)
 
         @mock_vm.expects(:save)
-        
+
         vm = Hobo::VM.new(@mock_vm)
         vm.expects(:hd).times(3).returns(hd)
         vm
