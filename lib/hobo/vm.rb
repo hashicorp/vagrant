@@ -174,13 +174,14 @@ error
       logger.info "Waiting for VM to boot..."
 
       Hobo.config[:ssh][:max_tries].to_i.times do |i|
-        sleep 5 unless ENV['HOBO_ENV'] == 'test'
         logger.info "Trying to connect (attempt ##{i+1} of #{Hobo.config[:ssh][:max_tries]})..."
 
         if Hobo::SSH.up?
           logger.info "VM booted and ready for use!"
           return true
         end
+
+        sleep 5 unless ENV['HOBO_ENV'] == 'test'
       end
 
       logger.info "Failed to connect to VM! Failed to boot?"

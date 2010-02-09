@@ -113,6 +113,7 @@ class VMTest < Test::Unit::TestCase
 
       should "start the VM in headless mode" do
         @mock_vm.expects(:start).with(:headless, true).once
+        Hobo::SSH.expects(:up?).once.returns(true)
         @vm.start
       end
 
