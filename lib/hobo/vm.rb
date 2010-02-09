@@ -62,6 +62,11 @@ error
     def create
       share_folder("hobo-root", Env.root_path, Hobo.config.vm.project_directory)
 
+      # Create the provisioning object, prior to doing anything so it can
+      # set any configuration on the VM object prior to creation
+      provisioning = Provisioning.new(self)
+
+      # The path of righteousness
       import
       move_hd if Hobo.config[:vm][:hd_location]
       persist
@@ -70,6 +75,9 @@ error
       setup_shared_folders
       start
       mount_shared_folders
+
+      # Once we're started, run the provisioning
+      provisioning.run
     end
 
     def destroy

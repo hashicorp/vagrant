@@ -12,6 +12,7 @@ require 'hobo/busy'
 require 'hobo/util'
 require 'hobo/config'
 require 'hobo/env'
+require 'hobo/provisioning'
 require 'hobo/ssh'
 require 'hobo/vm'
 

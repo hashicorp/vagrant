@@ -73,7 +73,9 @@ class VMTest < Test::Unit::TestCase
 
     context "creating" do
       should "create the VM in the proper order" do
+        prov = mock("prov")
         create_seq = sequence("create_seq")
+        Hobo::Provisioning.expects(:new).with(@vm).in_sequence(create_seq).returns(prov)
         @vm.expects(:import).in_sequence(create_seq)
         @vm.expects(:persist).in_sequence(create_seq)
         @vm.expects(:setup_mac_address).in_sequence(create_seq)
@@ -81,6 +83,7 @@ class VMTest < Test::Unit::TestCase
         @vm.expects(:setup_shared_folders).in_sequence(create_seq)
         @vm.expects(:start).in_sequence(create_seq)
         @vm.expects(:mount_shared_folders).in_sequence(create_seq)
+        prov.expects(:run).in_sequence(create_seq)
         @vm.create
       end
     end

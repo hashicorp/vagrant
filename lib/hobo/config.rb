@@ -61,21 +61,28 @@ module Hobo
           :protocol   => protocol
         }
       end
-        
+
       def hd_location=(val)
         raise Exception.new "disk_storage must be set to a directory" unless File.directory?(val)
         @hd_location=val
       end
     end
 
+    class ChefConfig < Base
+      attr_accessor :cookbooks_path
+      attr_accessor :provisioning_path
+    end
+
     class Top < Base
       attr_accessor :dotfile_name
       attr_reader :ssh
       attr_reader :vm
+      attr_reader :chef
 
       def initialize
         @ssh = SSHConfig.new
         @vm = VMConfig.new
+        @chef = ChefConfig.new
       end
     end
   end

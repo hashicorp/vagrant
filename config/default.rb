@@ -12,4 +12,7 @@ Hobo::Config.run do |config|
   config.vm.base_mac = "0800279C2E41"
   config.vm.project_directory = "/hobo"
   config.vm.forward_port("ssh", 22, 2222)
+
+  config.chef.cookbooks_path = "cookbooks"
+  config.chef.provisioning_path = "/tmp/hobo-chef"
 end
