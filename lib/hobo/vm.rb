@@ -162,6 +162,7 @@ error
           logger.info "-- #{name}: #{guestpath}"
           ssh.exec!("sudo mkdir -p #{guestpath}")
           ssh.exec!("sudo mount -t vboxsf #{name} #{guestpath}")
+          ssh.exec!("sudo chown #{Hobo.config.ssh.username} #{guestpath}")
         end
       end
     end

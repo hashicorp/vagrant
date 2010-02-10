@@ -260,6 +260,7 @@ class VMTest < Test::Unit::TestCase
         @vm.shared_folders.each do |name, hostpath, guestpath|
           ssh.expects(:exec!).with("sudo mkdir -p #{guestpath}").in_sequence(mount_seq)
           ssh.expects(:exec!).with("sudo mount -t vboxsf #{name} #{guestpath}").in_sequence(mount_seq)
+          ssh.expects(:exec!).with("sudo chown #{Hobo.config.ssh.username} #{guestpath}").in_sequence(mount_seq)
         end
         Hobo::SSH.expects(:execute).yields(ssh)
 

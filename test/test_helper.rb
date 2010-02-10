@@ -41,6 +41,9 @@ class Test::Unit::TestCase
 
       config.chef.cookbooks_path = "cookbooks"
       config.chef.provisioning_path = "/tmp/hobo-chef"
+      config.chef.json = {
+        :recipes => ["hobo_main"]
+      }
     end
 
     Hobo::Config.execute!

@@ -71,6 +71,7 @@ module Hobo
     class ChefConfig < Base
       attr_accessor :cookbooks_path
       attr_accessor :provisioning_path
+      attr_accessor :json
     end
 
     class Top < Base

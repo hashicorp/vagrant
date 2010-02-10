@@ -5,3 +5,4 @@ Hobofile
 .hobo
 .bundle
 *.lock
+cookbooks/*

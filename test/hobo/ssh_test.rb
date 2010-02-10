@@ -38,8 +38,12 @@ class SshTest < Test::Unit::TestCase
   end
 
   context "SCPing files to the remote host" do
-    should "use the SSH information to SCP files" do
-      Net::SCP.expects(:upload!).with(Hobo.config.ssh.host, Hobo.config.ssh.username, "foo", "bar", :password => Hobo.config.ssh.password)
+    should "use Hobo::SSH execute to setup an SCP connection and upload" do
+      scp = mock("scp")
+      ssh = mock("ssh")
+      scp.expects(:upload!).with("foo", "bar").once
+      Net::SCP.expects(:new).with(ssh).returns(scp).once
+      Hobo::SSH.expects(:execute).yields(ssh).once
       Hobo::SSH.upload!("foo", "bar")
     end
   end

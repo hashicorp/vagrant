@@ -23,9 +23,10 @@ module Hobo
       end
 
       def upload!(from, to)
-        Net::SCP.upload!(Hobo.config.ssh.host, Hobo.config.ssh.username,
-            from, to,
-            :password => Hobo.config.ssh.password)
+        execute do |ssh|
+          scp = Net::SCP.new(ssh)
+          scp.upload!(from, to)
+        end
       end
 
       def up?

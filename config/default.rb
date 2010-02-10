@@ -15,4 +15,7 @@ Hobo::Config.run do |config|
 
   config.chef.cookbooks_path = "cookbooks"
   config.chef.provisioning_path = "/tmp/hobo-chef"
+  config.chef.json = {
+    :recipes => ["hobo_main"]
+  }
 end
