@@ -1,4 +1,4 @@
-module Hobo
+module Vagrant
   def self.config
     Config.config
   end

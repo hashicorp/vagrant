@@ -8,21 +8,21 @@ end
 
 require 'git-style-binary/command'
 
-# Get hobo
-hobodir = File.join(File.dirname(__FILE__), '..', 'lib')
-$:.unshift(hobodir) unless $:.include?(hobodir)
-require 'hobo'
+# Get library
+libdir = File.join(File.dirname(__FILE__), '..', 'lib')
+$:.unshift(libdir) unless $:.include?(libdir)
+require 'vagrant'
 
 GitStyleBinary.command do
-  short_desc "opens an SSH connection into the VM"
+  short_desc "suspends the vagrant environment"
   banner <<-EOS
 Usage: #{command.full_name} #{all_options_string}
 
-Opens an SSH connection into the created VM.
+Suspends the vagrant environment.
 
 EOS
 
   run do |command|
-    Hobo::VM.ssh
+    Vagrant::VM.suspend
   end
 end

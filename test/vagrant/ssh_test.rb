@@ -2,71 +2,71 @@ require File.join(File.dirname(__FILE__), '..', 'test_helper')
 
 class SshTest < Test::Unit::TestCase
   setup do
-    hobo_mock_config
+    mock_config
   end
 
-  context "hobo ssh" do
+  context "ssh" do
     setup do
-      @script = Hobo::SSH::SCRIPT
+      @script = Vagrant::SSH::SCRIPT
     end
 
     test "should call exec with defaults when no options are supplied" do
-      ssh = Hobo.config.ssh
-      port = Hobo.config.vm.forwarded_ports[ssh.forwarded_port_key][:hostport]
+      ssh = Vagrant.config.ssh
+      port = Vagrant.config.vm.forwarded_ports[ssh.forwarded_port_key][:hostport]
       Kernel.expects(:exec).with("#{@script} #{ssh[:username]} #{ssh[:password]} #{ssh[:host]} #{port}")
-      Hobo::SSH.connect
+      Vagrant::SSH.connect
     end
 
     test "should call exec with supplied params" do
       args = {:username => 'bar', :password => 'baz', :host => 'bak', :port => 'bag'}
       Kernel.expects(:exec).with("#{@script} #{args[:username]} #{args[:password]} #{args[:host]} #{args[:port]}")
-      Hobo::SSH.connect(args)
+      Vagrant::SSH.connect(args)
     end
   end
 
   context "net-ssh interaction" do
     should "call net::ssh.start with the proper names" do
-      Net::SSH.expects(:start).with(Hobo.config.ssh.host, Hobo.config.ssh.username, anything).once
-      Hobo::SSH.execute
+      Net::SSH.expects(:start).with(Vagrant.config.ssh.host, Vagrant.config.ssh.username, anything).once
+      Vagrant::SSH.execute
     end
 
     should "use custom host if set" do
-      Hobo.config.ssh.host = "foo"
-      Net::SSH.expects(:start).with(Hobo.config.ssh.host, Hobo.config.ssh.username, anything).once
-      Hobo::SSH.execute
+      Vagrant.config.ssh.host = "foo"
+      Net::SSH.expects(:start).with(Vagrant.config.ssh.host, Vagrant.config.ssh.username, anything).once
+      Vagrant::SSH.execute
     end
   end
 
   context "SCPing files to the remote host" do
-    should "use Hobo::SSH execute to setup an SCP connection and upload" do
+    should "use Vagrant::SSH execute to setup an SCP connection and upload" do
       scp = mock("scp")
       ssh = mock("ssh")
       scp.expects(:upload!).with("foo", "bar").once
       Net::SCP.expects(:new).with(ssh).returns(scp).once
-      Hobo::SSH.expects(:execute).yields(ssh).once
-      Hobo::SSH.upload!("foo", "bar")
+      Vagrant::SSH.expects(:execute).yields(ssh).once
+      Vagrant::SSH.upload!("foo", "bar")
     end
   end
 
   context "checking if host is up" do
     setup do
-      hobo_mock_config
+      mock_config
     end
 
     should "return true if SSH connection works" do
       Net::SSH.expects(:start).yields("success")
-      assert Hobo::SSH.up?
+      assert Vagrant::SSH.up?
     end
 
     should "return false if SSH connection times out" do
       Net::SSH.expects(:start)
-      assert !Hobo::SSH.up?
+      assert !Vagrant::SSH.up?
     end
 
     should "return false if the connection is refused" do
       Net::SSH.expects(:start).raises(Errno::ECONNREFUSED)
       assert_nothing_raised {
-        assert !Hobo::SSH.up?
+        assert !Vagrant::SSH.up?
       }
     end
   end

@@ -8,7 +8,7 @@ rescue LoadError
 end
 
 # This silences logger output
-ENV['HOBO_ENV'] = 'test'
+ENV['VAGRANT_ENV'] = 'test'
 
 # ruby-debug, not necessary, but useful if we have it
 begin
@@ -16,16 +16,16 @@ begin
 rescue LoadError; end
 
 
-require File.join(File.dirname(__FILE__), '..', 'lib', 'hobo')
+require File.join(File.dirname(__FILE__), '..', 'lib', 'vagrant')
 require 'contest'
 require 'mocha'
 
 class Test::Unit::TestCase
-  def hobo_mock_config
-    Hobo::Config.instance_variable_set(:@config_runners, nil)
-    Hobo::Config.instance_variable_set(:@config, nil)
+  def mock_config
+    Vagrant::Config.instance_variable_set(:@config_runners, nil)
+    Vagrant::Config.instance_variable_set(:@config, nil)
 
-    Hobo::Config.run do |config|
+    Vagrant::Config.run do |config|
       config.dotfile_name = ".hobo"
 
       config.ssh.username = "foo"
@@ -46,6 +46,6 @@ class Test::Unit::TestCase
       }
     end
 
-    Hobo::Config.execute!
+    Vagrant::Config.execute!
   end
 end

@@ -3,11 +3,11 @@ require 'rake/testtask'
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gemspec|
-    gemspec.name = "hobo"
+    gemspec.name = "vagrant"
     gemspec.summary = "Create virtualized development environments"
     gemspec.description = "Create virtualized development environments"
     gemspec.email = "todo@todo.com"
-    gemspec.homepage = "http://github.com/mitchellh/hobo"
+    gemspec.homepage = "http://github.com/mitchellh/vagrant"
     gemspec.authors = ["Mitchell Hashimoto", "John Bender"]
 
     gemspec.add_dependency('virtualbox', '>= 0.4.3')

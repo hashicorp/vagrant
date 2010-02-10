@@ -1,4 +1,4 @@
-module Hobo
+module Vagrant
   def self.busy?
     Busy.busy?
   end

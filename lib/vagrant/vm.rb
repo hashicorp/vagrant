@@ -1,10 +1,10 @@
-module Hobo
+module Vagrant
   class VM
     HD_EXT_DEFAULT = 'VMDK'
     attr_reader :vm
 
-    extend Hobo::Util
-    include Hobo::Util
+    extend Vagrant::Util
+    include Vagrant::Util
 
     class << self
       # Bring up the virtual machine. Imports the base image and
@@ -25,29 +25,29 @@ module Hobo
         SSH.connect
       end
 
-      # Save the state of the current hobo environment to disk
+      # Save the state of the current vagrant environment to disk
       def suspend
         Env.require_persisted_vm
         error_and_exit(<<-error) if Env.persisted_vm.saved?
-The hobo virtual environment you are trying to suspend is already in a
+The vagrant virtual environment you are trying to suspend is already in a
 suspended state.
 error
         logger.info "Saving VM state..."
         Env.persisted_vm.save_state(true)
       end
 
-      # Resume the current hobo environment from disk
+      # Resume the current vagrant environment from disk
       def resume
         Env.require_persisted_vm
         error_and_exit(<<-error) unless Env.persisted_vm.saved?
-The hobo virtual environment you are trying to resume is not in a
+The vagrant virtual environment you are trying to resume is not in a
 suspended state.
 error
         Env.persisted_vm.start
       end
 
       # Finds a virtual machine by a given UUID and either returns
-      # a Hobo::VM object or returns nil.
+      # a Vagrant::VM object or returns nil.
       def find(uuid)
         vm = VirtualBox::VM.find(uuid)
         return nil if vm.nil?
@@ -60,7 +60,7 @@ error
     end
 
     def create
-      share_folder("hobo-root", Env.root_path, Hobo.config.vm.project_directory)
+      share_folder("vagrant-root", Env.root_path, Vagrant.config.vm.project_directory)
 
       # Create the provisioning object, prior to doing anything so it can
       # set any configuration on the VM object prior to creation
@@ -68,7 +68,7 @@ error
 
       # The path of righteousness
       import
-      move_hd if Hobo.config[:vm][:hd_location]
+      move_hd if Vagrant.config[:vm][:hd_location]
       persist
       setup_mac_address
       forward_ports
@@ -96,7 +96,7 @@ The virtual machine must be powered off to move its disk.
 error
 
       old_image = hd.image.dup
-      new_image_file = Hobo.config[:vm][:hd_location] + old_image.filename
+      new_image_file = Vagrant.config[:vm][:hd_location] + old_image.filename
 
       logger.info "Cloning current VM Disk to new location (#{ new_image_file })..."
       # TODO image extension default?
@@ -111,8 +111,8 @@ error
     end
 
     def import
-      logger.info "Importing base VM (#{Hobo.config[:vm][:base]})..."
-      @vm = VirtualBox::VM.import(File.expand_path(Hobo.config[:vm][:base]))
+      logger.info "Importing base VM (#{Vagrant.config[:vm][:base]})..."
+      @vm = VirtualBox::VM.import(File.expand_path(Vagrant.config[:vm][:base]))
     end
 
     def persist
@@ -122,15 +122,15 @@ error
 
     def setup_mac_address
       logger.info "Matching MAC addresses..."
-      @vm.nics.first.macaddress = Hobo.config[:vm][:base_mac]
+      @vm.nics.first.macaddress = Vagrant.config[:vm][:base_mac]
       @vm.save(true)
     end
 
     def forward_ports
-      HOBO_LOGGER.info "Forwarding ports..."
+      logger.info "Forwarding ports..."
 
-      Hobo.config.vm.forwarded_ports.each do |name, options|
-        HOBO_LOGGER.info "Forwarding \"#{name}\": #{options[:guestport]} => #{options[:hostport]}"
+      Vagrant.config.vm.forwarded_ports.each do |name, options|
+        logger.info "Forwarding \"#{name}\": #{options[:guestport]} => #{options[:hostport]}"
         port = VirtualBox::ForwardedPort.new
         port.name = name
         port.hostport = options[:hostport]
@@ -157,12 +157,12 @@ error
     def mount_shared_folders
       logger.info "Mounting shared folders..."
 
-      Hobo::SSH.execute do |ssh|
+      Vagrant::SSH.execute do |ssh|
         shared_folders.each do |name, hostpath, guestpath|
           logger.info "-- #{name}: #{guestpath}"
           ssh.exec!("sudo mkdir -p #{guestpath}")
           ssh.exec!("sudo mount -t vboxsf #{name} #{guestpath}")
-          ssh.exec!("sudo chown #{Hobo.config.ssh.username} #{guestpath}")
+          ssh.exec!("sudo chown #{Vagrant.config.ssh.username} #{guestpath}")
         end
       end
     end
@@ -174,15 +174,15 @@ error
       # Now we have to wait for the boot to be successful
       logger.info "Waiting for VM to boot..."
 
-      Hobo.config[:ssh][:max_tries].to_i.times do |i|
-        logger.info "Trying to connect (attempt ##{i+1} of #{Hobo.config[:ssh][:max_tries]})..."
+      Vagrant.config[:ssh][:max_tries].to_i.times do |i|
+        logger.info "Trying to connect (attempt ##{i+1} of #{Vagrant.config[:ssh][:max_tries]})..."
 
-        if Hobo::SSH.up?
+        if Vagrant::SSH.up?
           logger.info "VM booted and ready for use!"
           return true
         end
 
-        sleep 5 unless ENV['HOBO_ENV'] == 'test'
+        sleep 5 unless ENV['VAGRANT_ENV'] == 'test'
       end
 
       logger.info "Failed to connect to VM! Failed to boot?"

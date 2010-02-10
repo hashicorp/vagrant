@@ -3,79 +3,79 @@ require File.join(File.dirname(__FILE__), '..', 'test_helper')
 class VMTest < Test::Unit::TestCase
   setup do
     @mock_vm = mock("vm")
-    hobo_mock_config
+    mock_config
 
     @persisted_vm = mock("persisted_vm")
-    Hobo::Env.stubs(:persisted_vm).returns(@persisted_vm)
+    Vagrant::Env.stubs(:persisted_vm).returns(@persisted_vm)
 
     Net::SSH.stubs(:start)
   end
 
-  context "hobo ssh" do
+  context "vagrant ssh" do
     setup do
-      Hobo::SSH.stubs(:connect)
+      Vagrant::SSH.stubs(:connect)
     end
 
     should "require a persisted VM" do
-      Hobo::Env.expects(:require_persisted_vm).once
-      Hobo::VM.ssh
+      Vagrant::Env.expects(:require_persisted_vm).once
+      Vagrant::VM.ssh
     end
 
     should "connect to SSH" do
-      Hobo::SSH.expects(:connect).once
-      Hobo::VM.ssh
+      Vagrant::SSH.expects(:connect).once
+      Vagrant::VM.ssh
     end
   end
 
-  context "hobo down" do
+  context "vagrant down" do
     setup do
       @persisted_vm.stubs(:destroy)
     end
 
     should "require a persisted VM" do
-      Hobo::Env.expects(:require_persisted_vm).once
-      Hobo::VM.down
+      Vagrant::Env.expects(:require_persisted_vm).once
+      Vagrant::VM.down
     end
 
     should "destroy the persisted VM and the VM image" do
       @persisted_vm.expects(:destroy).once
-      Hobo::VM.down
+      Vagrant::VM.down
     end
   end
 
-  context "hobo up" do
-    should "create a Hobo::VM instance and call create" do
+  context "vagrant up" do
+    should "create a Vagrant::VM instance and call create" do
       inst = mock("instance")
       inst.expects(:create).once
-      Hobo::VM.expects(:new).returns(inst)
-      Hobo::VM.up
+      Vagrant::VM.expects(:new).returns(inst)
+      Vagrant::VM.up
     end
   end
 
   context "finding a VM" do
     should "return nil if the VM is not found" do
       VirtualBox::VM.expects(:find).returns(nil)
-      assert_nil Hobo::VM.find("foo")
+      assert_nil Vagrant::VM.find("foo")
     end
 
-    should "return a Hobo::VM object for that VM otherwise" do
+    should "return a Vagrant::VM object for that VM otherwise" do
       VirtualBox::VM.expects(:find).with("foo").returns("bar")
-      result = Hobo::VM.find("foo")
-      assert result.is_a?(Hobo::VM)
+      result = Vagrant::VM.find("foo")
+      assert result.is_a?(Vagrant::VM)
       assert_equal "bar", result.vm
     end
   end
 
-  context "hobo VM instance" do
+  context "vagrant VM instance" do
     setup do
-      @vm = Hobo::VM.new(@mock_vm)
+      @vm = Vagrant::VM.new(@mock_vm)
     end
 
     context "creating" do
       should "create the VM in the proper order" do
         prov = mock("prov")
         create_seq = sequence("create_seq")
-        Hobo::Provisioning.expects(:new).with(@vm).in_sequence(create_seq).returns(prov)
+        Vagrant::Provisioning.expects(:new).with(@vm).in_sequence(create_seq).returns(prov)
         @vm.expects(:import).in_sequence(create_seq)
         @vm.expects(:persist).in_sequence(create_seq)
         @vm.expects(:setup_mac_address).in_sequence(create_seq)
@@ -113,19 +113,19 @@ class VMTest < Test::Unit::TestCase
 
       should "start the VM in headless mode" do
         @mock_vm.expects(:start).with(:headless, true).once
-        Hobo::SSH.expects(:up?).once.returns(true)
+        Vagrant::SSH.expects(:up?).once.returns(true)
         @vm.start
       end
 
       should "repeatedly ping the SSH port and return false with no response" do
         seq = sequence('pings')
-        Hobo::SSH.expects(:up?).times(Hobo.config[:ssh][:max_tries].to_i - 1).returns(false).in_sequence(seq)
-        Hobo::SSH.expects(:up?).once.returns(true).in_sequence(seq)
+        Vagrant::SSH.expects(:up?).times(Vagrant.config[:ssh][:max_tries].to_i - 1).returns(false).in_sequence(seq)
+        Vagrant::SSH.expects(:up?).once.returns(true).in_sequence(seq)
         assert @vm.start
       end
 
       should "ping the max number of times then just return" do
-        Hobo::SSH.expects(:up?).times(Hobo.config[:ssh][:max_tries].to_i).returns(false)
+        Vagrant::SSH.expects(:up?).times(Vagrant.config[:ssh][:max_tries].to_i).returns(false)
         assert !@vm.start
       end
     end
@@ -145,7 +145,7 @@ class VMTest < Test::Unit::TestCase
     context "persisting" do
       should "persist the VM with Env" do
         @mock_vm.stubs(:uuid)
-        Hobo::Env.expects(:persist_vm).with(@mock_vm).once
+        Vagrant::Env.expects(:persist_vm).with(@mock_vm).once
         @vm.persist
       end
     end
@@ -178,28 +178,28 @@ class VMTest < Test::Unit::TestCase
       should "put the vm in a suspended state" do
         saved_state_expectation(false)
         save_expectation
-        Hobo::VM.suspend
+        Vagrant::VM.suspend
       end
 
       should "results in an error and exit if the vm is already in a saved state" do
         saved_state_expectation(true)
         save_expectation
-        Hobo::VM.expects(:error_and_exit)
-        Hobo::VM.suspend
+        Vagrant::VM.expects(:error_and_exit)
+        Vagrant::VM.suspend
       end
 
       should "start a vm in a suspended state" do
         saved_state_expectation(true)
         start_expectation
-        Hobo::VM.resume
+        Vagrant::VM.resume
       end
 
       should "results in an error and exit if the vm is not in a saved state" do
         saved_state_expectation(false)
         start_expectation
         # TODO research the matter of mocking exit
-        Hobo::VM.expects(:error_and_exit)
-        Hobo::VM.resume
+        Vagrant::VM.expects(:error_and_exit)
+        Vagrant::VM.resume
       end
 
       def saved_state_expectation(saved)
@@ -211,14 +211,14 @@ class VMTest < Test::Unit::TestCase
       end
 
       def start_expectation
-        Hobo::Env.persisted_vm.expects(:start).once.returns(true)
+        Vagrant::Env.persisted_vm.expects(:start).once.returns(true)
       end
     end
 
     context "shared folders" do
       setup do
         @mock_vm = mock("mock_vm")
-        @vm = Hobo::VM.new(@mock_vm)
+        @vm = Vagrant::VM.new(@mock_vm)
       end
 
       should "not have any shared folders initially" do
@@ -260,9 +260,9 @@ class VMTest < Test::Unit::TestCase
         @vm.shared_folders.each do |name, hostpath, guestpath|
           ssh.expects(:exec!).with("sudo mkdir -p #{guestpath}").in_sequence(mount_seq)
           ssh.expects(:exec!).with("sudo mount -t vboxsf #{name} #{guestpath}").in_sequence(mount_seq)
-          ssh.expects(:exec!).with("sudo chown #{Hobo.config.ssh.username} #{guestpath}").in_sequence(mount_seq)
+          ssh.expects(:exec!).with("sudo chown #{Vagrant.config.ssh.username} #{guestpath}").in_sequence(mount_seq)
         end
-        Hobo::SSH.expects(:execute).yields(ssh)
+        Vagrant::SSH.expects(:execute).yields(ssh)
 
         @vm.mount_shared_folders
       end
@@ -286,8 +286,8 @@ class VMTest < Test::Unit::TestCase
       def move_hd_expectations
         image, hd = mock('image'), mock('hd')
 
-        Hobo.config[:vm].expects(:hd_location).at_least_once.returns('/locations/')
-        image.expects(:clone).with(Hobo.config[:vm][:hd_location] + 'foo', Hobo::VM::HD_EXT_DEFAULT, true).returns(image)
+        Vagrant.config[:vm].expects(:hd_location).at_least_once.returns('/locations/')
+        image.expects(:clone).with(Vagrant.config[:vm][:hd_location] + 'foo', Vagrant::VM::HD_EXT_DEFAULT, true).returns(image)
         image.expects(:filename).twice.returns('foo')
 
         hd.expects(:image).twice.returns(image)
@@ -297,7 +297,7 @@ class VMTest < Test::Unit::TestCase
 
         @mock_vm.expects(:save)
 
-        vm = Hobo::VM.new(@mock_vm)
+        vm = Vagrant::VM.new(@mock_vm)
         vm.expects(:hd).times(3).returns(hd)
         vm
       end

@@ -8,21 +8,21 @@ end
 
 require 'git-style-binary/command'
 
-# Get hobo
-hobodir = File.join(File.dirname(__FILE__), '..', 'lib')
-$:.unshift(hobodir) unless $:.include?(hobodir)
-require 'hobo'
+# Get library
+libdir = File.join(File.dirname(__FILE__), '..', 'lib')
+$:.unshift(libdir) unless $:.include?(libdir)
+require 'vagrant'
 
 GitStyleBinary.command do
-  short_desc "resumes the hobo environment"
+  short_desc "create the vagrant environment"
   banner <<-EOS
 Usage: #{command.full_name} #{all_options_string}
 
-Resumes the hobo environment.
+Create the vagrant environment.
 
 EOS
 
   run do |command|
-    Hobo::VM.resume
+    Vagrant::VM.up
   end
 end
