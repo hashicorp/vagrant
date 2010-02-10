@@ -23,6 +23,6 @@ Destroys the vagrant environment.
 EOS
 
   run do |command|
-    Vagrant::VM.down
+    Vagrant::Commands.down
   end
 end

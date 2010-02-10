@@ -13,39 +13,6 @@ module Vagrant
         new.create
       end
 
-      # Tear down a virtual machine.
-      def down
-        Env.require_persisted_vm
-        Env.persisted_vm.destroy
-      end
-
-      # SSHs into the VM and replaces the ruby process with the SSH process
-      def ssh
-        Env.require_persisted_vm
-        SSH.connect
-      end
-
-      # Save the state of the current vagrant environment to disk
-      def suspend
-        Env.require_persisted_vm
-        error_and_exit(<<-error) if Env.persisted_vm.saved?
-The vagrant virtual environment you are trying to suspend is already in a
-suspended state.
-error
-        logger.info "Saving VM state..."
-        Env.persisted_vm.save_state(true)
-      end
-
-      # Resume the current vagrant environment from disk
-      def resume
-        Env.require_persisted_vm
-        error_and_exit(<<-error) unless Env.persisted_vm.saved?
-The vagrant virtual environment you are trying to resume is not in a
-suspended state.
-error
-        Env.persisted_vm.start
-      end
-
       # Finds a virtual machine by a given UUID and either returns
       # a Vagrant::VM object or returns nil.
       def find(uuid)
@@ -202,8 +169,9 @@ error
       @vm.saved?
     end
 
-    def save_state(errs)
-      @vm.save_state(errs)
+    def save_state
+      logger.info "Saving VM state..."
+      @vm.save_state(true)
     end
 
     # TODO need a better way to which controller is the hd

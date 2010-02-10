@@ -11,38 +11,6 @@ class VMTest < Test::Unit::TestCase
     Net::SSH.stubs(:start)
   end
 
-  context "vagrant ssh" do
-    setup do
-      Vagrant::SSH.stubs(:connect)
-    end
-
-    should "require a persisted VM" do
-      Vagrant::Env.expects(:require_persisted_vm).once
-      Vagrant::VM.ssh
-    end
-
-    should "connect to SSH" do
-      Vagrant::SSH.expects(:connect).once
-      Vagrant::VM.ssh
-    end
-  end
-
-  context "vagrant down" do
-    setup do
-      @persisted_vm.stubs(:destroy)
-    end
-
-    should "require a persisted VM" do
-      Vagrant::Env.expects(:require_persisted_vm).once
-      Vagrant::VM.down
-    end
-
-    should "destroy the persisted VM and the VM image" do
-      @persisted_vm.expects(:destroy).once
-      Vagrant::VM.down
-    end
-  end
-
   context "vagrant up" do
     should "create a Vagrant::VM instance and call create" do
       inst = mock("instance")
@@ -174,47 +142,6 @@ class VMTest < Test::Unit::TestCase
       end
     end
 
-    context "suspending and resuming a vm" do
-      should "put the vm in a suspended state" do
-        saved_state_expectation(false)
-        save_expectation
-        Vagrant::VM.suspend
-      end
-
-      should "results in an error and exit if the vm is already in a saved state" do
-        saved_state_expectation(true)
-        save_expectation
-        Vagrant::VM.expects(:error_and_exit)
-        Vagrant::VM.suspend
-      end
-
-      should "start a vm in a suspended state" do
-        saved_state_expectation(true)
-        start_expectation
-        Vagrant::VM.resume
-      end
-
-      should "results in an error and exit if the vm is not in a saved state" do
-        saved_state_expectation(false)
-        start_expectation
-        # TODO research the matter of mocking exit
-        Vagrant::VM.expects(:error_and_exit)
-        Vagrant::VM.resume
-      end
-
-      def saved_state_expectation(saved)
-        @persisted_vm.expects(:saved?).returns(saved)
-      end
-
-      def save_expectation
-        @persisted_vm.expects(:save_state).with(true)
-      end
-
-      def start_expectation
-        Vagrant::Env.persisted_vm.expects(:start).once.returns(true)
-      end
-    end
-
     context "shared folders" do
       setup do
         @mock_vm = mock("mock_vm")
@@ -265,6 +192,18 @@ class VMTest < Test::Unit::TestCase
         Vagrant::SSH.expects(:execute).yields(ssh)
 
         @vm.mount_shared_folders
+      end
+    end
+
+    context "saving the state" do
+      should "check if a VM is saved" do
+        @mock_vm.expects(:saved?).returns("foo")
+        assert_equal "foo", @vm.saved?
+      end
+
+      should "save state with errors raised" do
+        @mock_vm.expects(:save_state).with(true).once
+        @vm.save_state
       end
     end
 

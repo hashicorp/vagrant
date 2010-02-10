@@ -23,6 +23,6 @@ Opens an SSH connection into the created VM.
 EOS
 
   run do |command|
-    Vagrant::VM.ssh
+    Vagrant::Commands.ssh
   end
 end

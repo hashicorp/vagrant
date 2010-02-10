@@ -14,15 +14,15 @@ $:.unshift(libdir) unless $:.include?(libdir)
 require 'vagrant'
 
 GitStyleBinary.command do
-  short_desc "create the vagrant environment"
+  short_desc "initializes directory for vagrant use"
   banner <<-EOS
 Usage: #{command.full_name} #{all_options_string}
 
-Create the vagrant environment.
+Creates the initial files required for using vagrant.
 
 EOS
 
   run do |command|
-    Vagrant::Commands.up
+    Vagrant::Commands.init
   end
 end

@@ -11,6 +11,7 @@ require 'net/ssh'
 require 'net/scp'
 require 'vagrant/busy'
 require 'vagrant/util'
+require 'vagrant/commands'
 require 'vagrant/config'
 require 'vagrant/env'
 require 'vagrant/provisioning'
@@ -20,4 +21,3 @@ require 'vagrant/vm'
 # TODO: Make this configurable
 log_output = ENV['VAGRANT_ENV'] == 'test' ? nil : STDOUT
 VAGRANT_LOGGER = Vagrant::Logger.new(log_output)
-Vagrant::Env.load! unless ENV['VAGRANT_ENV'] == 'test'

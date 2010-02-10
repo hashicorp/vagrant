@@ -23,6 +23,6 @@ Suspends the vagrant environment.
 EOS
 
   run do |command|
-    Vagrant::VM.suspend
+    Vagrant::Commands.suspend
   end
 end
