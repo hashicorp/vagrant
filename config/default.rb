@@ -16,6 +16,7 @@ Vagrant::Config.run do |config|
   config.chef.cookbooks_path = "cookbooks"
   config.chef.provisioning_path = "/tmp/vagrant-chef"
   config.chef.json = {
+    :instance_role => "vagrant",
     :recipes => ["vagrant_main"]
   }
 end

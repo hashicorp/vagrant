@@ -36,13 +36,22 @@ class ProvisioningTest < Test::Unit::TestCase
 
   context "generating and uploading json" do
     should "convert the JSON config to JSON" do
-      Vagrant.config.chef.json.expects(:to_json).once.returns("foo")
+      Hash.any_instance.expects(:to_json).once.returns("foo")
+      @prov.setup_json
+    end
+
+    should "add the project directory to the JSON" do
+      Vagrant::SSH.expects(:upload!).with do |json, path|
+        data = JSON.parse(json.read)
+        assert_equal Vagrant.config.vm.project_directory, data["project_directory"]
+        true
+      end
+
       @prov.setup_json
     end
 
     should "upload a StringIO to dna.json" do
-      Vagrant.config.chef.json.expects(:to_json).once.returns("foo")
-      StringIO.expects(:new).with("foo").returns("bar")
+      StringIO.expects(:new).with(anything).returns("bar")
       File.expects(:join).with(Vagrant.config.chef.provisioning_path, "dna.json").once.returns("baz")
       Vagrant::SSH.expects(:upload!).with("bar", "baz").once
       @prov.setup_json
