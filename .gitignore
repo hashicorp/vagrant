@@ -4,3 +4,4 @@ Vagrantfile
 .bundle
 *.lock
 cookbooks/*
+_site/*

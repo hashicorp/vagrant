@@ -1,5 +1,3 @@
-require 'yaml'
-
 module Vagrant
   class Env
     ROOTFILE_NAME = "Vagrantfile"
