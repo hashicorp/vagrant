@@ -1,0 +1,271 @@
+/* -------------------------------
+              GLOBAL
+------------------------------  */
+
+body {
+  font-family: Helvetica, Arial, Verdana, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  background: #fff;
+  margin: 0;
+  color: #444;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: Georgia, "bitstream vera serif", Times, serif;
+  letter-spacing: -.03em;
+  color: #000;
+  font-weight: normal;
+}
+
+h1 {
+  font-size: 220%;
+  margin: 1em 0 .5em 0;
+  line-height: 1.25em;
+}
+
+h2 {
+  font-size: 160%;
+  margin: .75em 0 .5em 0;
+  line-height: 1.25em;
+}
+
+h3 {
+  font-size: 130%;
+  margin: .5em 0 .35em 0;
+}
+
+h4 {
+  font-size: 110%;
+  margin: 1em 0 .25em 0;
+}
+
+h5 {
+  font-size: 110%;
+  margin: .25em 0;
+}
+
+h6 {
+  font-size: 100%;
+  margin: 0;
+}
+
+p {
+  margin: .5em 0 .75em 0;
+}
+
+hr {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  height: 1px;
+  background-color: #FFF;
+}
+
+.container_12 h1 {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+
+/* -------------------------------
+          MISCELLANEOUS
+------------------------------  */
+
+.section {
+  color: #666;
+  margin-bottom: 0;
+  font-size: 18px;
+}
+
+hr.single {
+  border-bottom: 1px solid #DDD;
+  margin: 1.5em 0 1em 0;
+}
+
+hr.dotted {
+  border-bottom: 1px dotted #DDD;
+  margin: 1.5em 0 1em 0;
+}
+
+hr.double {
+  /* border-bottom: double #DDD; */
+  border-bottom: 1px solid #DDD;
+  margin: 1.5em 0 1em 0;
+}
+
+
+/* -----      links      -----  */
+
+a {
+  color: #369;
+  color: #06A;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #008200;
+  color: #06A;
+  text-decoration: underline;
+}
+
+
+/* -----      code       -----  */
+
+code {
+  font-size: 90%;
+  font-family: Monaco, Consolas, monospace;
+}
+
+p code {
+  color: #96F;
+  color: #008200;
+  color: #C30;
+}
+
+pre {
+  font-size: 90%;
+  font-family: Monaco, Consolas, monospace;
+  background-color: #F8F8F8;
+  border: 1px solid #DDD;
+  color: #000;
+  display: block;
+  line-height: 150%;
+  overflow: auto;
+  padding: 1em;
+}
+
+/* -----   abbr & help   -----  */
+
+abbr,
+acronym {
+  font-family: monotype;
+  border-bottom: 1px dotted silver;
+}
+
+/* -----    blockquote   -----  */
+
+blockquote {
+  margin: 1em;
+  padding: 0 0 0 25px;
+  color: #666;
+  background: url(/images/layout/blockquote-open.png) no-repeat left top;
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-style: normal;
+}
+
+
+/* -------------------------------
+              HEADER
+------------------------------  */
+
+#header {
+  margin-top: 1em;
+  margin-bottom: 1.5em;
+  padding: 0;
+  background: #fff;
+  border-bottom: 1px solid #DDD;
+}
+
+  #header #logo {
+    float: left;
+  }
+
+    #header #logo a {
+      font-family: Helvetica, Arial, Verdana, sans-serif;
+      vertical-align: top;
+      font-size: 60px;
+      color: #111;
+      letter-spacing: -.05em;
+      font-weight: bold;
+      margin: 0;
+    }
+
+    #header #logo a,
+    #header #logo a:hover {
+      color: #111;
+      text-decoration: none;
+    }
+
+    #header #logo a em {
+      color: #666;
+      font-family: Georgia, "bitstream vera serif", Times, serif;
+      font-size: 80%;
+      margin-left: -5px;
+    }
+
+  #header #navigation {
+    font-size: 1.1em;
+    float: right;
+    text-align: right;
+    font-family: Helvetica, Arial, Verdana, sans-serif;
+    font-variant: small-caps;
+    /* text-transform: capitalize; */
+  }
+
+    #header #navigation ul {
+      padding: 2em 0 1em 100px;
+      margin: 0;
+      list-style-type: none;
+    }
+
+      #header #navigation ul li {
+        float: left;
+        margin: 0;
+        padding: 0 .75em;
+        border-right: 1px dotted #DDD;
+      }
+
+/* -------------------------------
+             CONTENT
+------------------------------  */
+
+
+/* -------------------------------
+             PREFOOTER
+------------------------------  */
+
+#prefooter {
+  font-size: .9em;
+}
+
+  #prefooter .span-6 {
+    width: 220px;
+    margin-right: 20px;
+  }
+
+  #prefooter .last {
+    margin-right: 0px;
+  }
+
+  #prefooter h6 {
+    margin: .5em 0;
+  }
+
+  #prefooter ol,
+  #prefooter ul {
+    list-style-type: none;
+    margin: 0;
+  }
+
+  #prefooter li {
+    border-bottom: 1px dotted #DDD;
+    margin: .5em 0;
+  }
+
+
+/* -------------------------------
+              FOOTER
+------------------------------  */
+
+#footer {
+  font-family: Georgia, "bitstream vera serif", Times, serif;
+  margin-top: 1.5em;
+  padding: 1em 0;
+  color: #444;
+  text-align: center;
+}
+
+  #footer #copy {
+    /*font-size: 80%;*/
+  }
