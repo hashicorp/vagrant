@@ -7,9 +7,6 @@ rescue LoadError
   Bundler.setup
 end
 
-# This silences logger output
-ENV['VAGRANT_ENV'] = 'test'
-
 # ruby-debug, not necessary, but useful if we have it
 begin
   require 'ruby-debug'

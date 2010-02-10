@@ -134,7 +134,7 @@ error
       end
     end
 
-    def start
+    def start(sleep_interval = 5)
       logger.info "Booting VM..."
       @vm.start(:headless, true)
 
@@ -149,7 +149,7 @@ error
           return true
         end
 
-        sleep 5 unless ENV['VAGRANT_ENV'] == 'test'
+        sleep sleep_interval
       end
 
       logger.info "Failed to connect to VM! Failed to boot?"

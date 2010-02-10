@@ -26,7 +26,7 @@ module Vagrant
         ]
 
         load_paths.each do |path|
-          VAGRANT_LOGGER.info "Loading config from #{path}..."
+          logger.info "Loading config from #{path}..."
           load path if File.exist?(path)
         end
 

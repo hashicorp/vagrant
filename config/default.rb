@@ -1,5 +1,7 @@
 Vagrant::Config.run do |config|
   # default config goes here
+  config.vagrant.log_output = STDOUT
+
   config.ssh.username = "vagrant"
   config.ssh.password = "vagrant"
   config.ssh.host = "localhost"

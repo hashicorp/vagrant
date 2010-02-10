@@ -82,19 +82,19 @@ class VMTest < Test::Unit::TestCase
       should "start the VM in headless mode" do
         @mock_vm.expects(:start).with(:headless, true).once
         Vagrant::SSH.expects(:up?).once.returns(true)
-        @vm.start
+        @vm.start(0)
       end
 
       should "repeatedly ping the SSH port and return false with no response" do
         seq = sequence('pings')
         Vagrant::SSH.expects(:up?).times(Vagrant.config[:ssh][:max_tries].to_i - 1).returns(false).in_sequence(seq)
         Vagrant::SSH.expects(:up?).once.returns(true).in_sequence(seq)
-        assert @vm.start
+        assert @vm.start(0)
       end
 
       should "ping the max number of times then just return" do
         Vagrant::SSH.expects(:up?).times(Vagrant.config[:ssh][:max_tries].to_i).returns(false)
-        assert !@vm.start
+        assert !@vm.start(0)
       end
     end
 

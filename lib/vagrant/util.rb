@@ -12,7 +12,12 @@ error
     end
 
     def logger
-      VAGRANT_LOGGER
+      # TODO: Buffer messages until config is loaded, then output them?
+      if Vagrant.config.loaded?
+        @logger ||= Vagrant::Logger.new(Vagrant.config.vagrant.log_output)
+      else
+        Vagrant::Logger.new(nil)
+      end
     end
   end
 

@@ -24,6 +24,8 @@ module Vagrant
         config_runners.each do |block|
           block.call(config)
         end
+
+        config.loaded!
       end
     end
   end
@@ -74,16 +76,32 @@ module Vagrant
       attr_accessor :json
     end
 
+    class VagrantConfig < Base
+      attr_accessor :log_output
+    end
+
     class Top < Base
       attr_accessor :dotfile_name
       attr_reader :ssh
       attr_reader :vm
       attr_reader :chef
+      attr_reader :vagrant
 
       def initialize
         @ssh = SSHConfig.new
         @vm = VMConfig.new
         @chef = ChefConfig.new
+        @vagrant = VagrantConfig.new
+
+        @loaded = false
+      end
+
+      def loaded?
+        @loaded
+      end
+
+      def loaded!
+        @loaded = true
       end
     end
   end

@@ -35,12 +35,19 @@ class ConfigTest < Test::Unit::TestCase
     end
 
     should "run the blocks with the same config object" do
-      config = mock("config")
-      config.expects(:foo).twice
-      Vagrant::Config.stubs(:config).returns(config)
-      Vagrant::Config.run { |config| config.foo }
-      Vagrant::Config.run { |config| config.foo }
+      Vagrant::Config.run { |config| assert config }
+      Vagrant::Config.run { |config| assert config }
       Vagrant::Config.execute!
+    end
+
+    should "not be loaded, initially" do
+      assert !Vagrant::Config.config.loaded?
+    end
+
+    should "be loaded after running" do
+      Vagrant::Config.run {}
+      Vagrant::Config.execute!
+      assert Vagrant::Config.config.loaded?
     end
   end
 end
