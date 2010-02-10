@@ -14,6 +14,7 @@ module Hobo
       chown_provisioning_folder
       setup_json
       setup_solo_config
+      run_chef_solo
     end
 
     def chown_provisioning_folder
@@ -36,6 +37,17 @@ solo
 
       logger.info "Uploading chef-solo configuration script..."
       SSH.upload!(StringIO.new(solo_file), File.join(Hobo.config.chef.provisioning_path, "solo.rb"))
+    end
+
+    def run_chef_solo
+      logger.info "Running chef recipes..."
+      SSH.execute do |ssh|
+        ssh.exec!("cd #{Hobo.config.chef.provisioning_path} && sudo chef-solo -c solo.rb -j dna.json") do |channel, data, stream|
+          # TODO: Very verbose. It would be easier to save the data and only show it during
+          # an error, or when verbosity level is set high
+          logger.info("#{stream}: #{data}")
+        end
+      end
     end
 
     def cookbooks_path

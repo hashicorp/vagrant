@@ -68,4 +68,13 @@ config
       @prov.setup_solo_config
     end
   end
+
+  context "running chef solo" do
+    should "cd into the provisioning directory and run chef solo" do
+      ssh = mock("ssh")
+      ssh.expects(:exec!).with("cd #{Hobo.config.chef.provisioning_path} && sudo chef-solo -c solo.rb -j dna.json").once
+      Hobo::SSH.expects(:execute).yields(ssh)
+      @prov.run_chef_solo
+    end
+  end
 end
