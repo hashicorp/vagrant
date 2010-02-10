@@ -26,14 +26,21 @@ class SshTest < Test::Unit::TestCase
 
   context "net-ssh interaction" do
     should "call net::ssh.start with the proper names" do
-      Net::SSH.expects(:start).with(Hobo.config.ssh.host, Hobo.config[:ssh][:username], anything).once
+      Net::SSH.expects(:start).with(Hobo.config.ssh.host, Hobo.config.ssh.username, anything).once
       Hobo::SSH.execute
     end
 
     should "use custom host if set" do
       Hobo.config.ssh.host = "foo"
-      Net::SSH.expects(:start).with(Hobo.config.ssh.host, Hobo.config[:ssh][:username], anything).once
+      Net::SSH.expects(:start).with(Hobo.config.ssh.host, Hobo.config.ssh.username, anything).once
       Hobo::SSH.execute
+    end
+  end
+
+  context "SCPing files to the remote host" do
+    should "use the SSH information to SCP files" do
+      Net::SCP.expects(:upload!).with(Hobo.config.ssh.host, Hobo.config.ssh.username, "foo", "bar", :password => Hobo.config.ssh.password)
+      Hobo::SSH.upload!("foo", "bar")
     end
   end
 

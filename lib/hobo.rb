@@ -3,10 +3,12 @@ $:.unshift(libdir)
 PROJECT_ROOT = File.join(libdir, '..')
 
 require 'ftools'
+require 'json'
 require 'pathname'
 require 'logger'
 require 'virtualbox'
 require 'net/ssh'
+require 'net/scp'
 require 'ping'
 require 'hobo/busy'
 require 'hobo/util'

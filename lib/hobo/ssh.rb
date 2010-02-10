@@ -22,6 +22,12 @@ module Hobo
         end
       end
 
+      def upload!(from, to)
+        Net::SCP.upload!(Hobo.config.ssh.host, Hobo.config.ssh.username,
+            from, to,
+            :password => Hobo.config.ssh.password)
+      end
+
       def up?
         port = Hobo.config.vm.forwarded_ports[Hobo.config.ssh.forwarded_port_key][:hostport]
         Net::SSH.start(Hobo.config.ssh.host, Hobo.config.ssh.username, :port => port, :password => Hobo.config.ssh.password, :timeout => 5) do |ssh|
