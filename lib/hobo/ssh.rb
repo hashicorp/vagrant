@@ -24,7 +24,13 @@ module Hobo
 
       def up?
         port = Hobo.config.vm.forwarded_ports[Hobo.config.ssh.forwarded_port_key][:hostport]
-        Ping.pingecho Hobo.config.ssh.host, 1, port
+        Net::SSH.start(Hobo.config.ssh.host, Hobo.config.ssh.username, :port => port, :password => Hobo.config.ssh.password, :timeout => 5) do |ssh|
+          return true
+        end
+
+        false
+      rescue Errno::ECONNREFUSED
+        false
       end
     end
   end

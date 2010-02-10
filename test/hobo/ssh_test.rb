@@ -42,17 +42,21 @@ class SshTest < Test::Unit::TestCase
       hobo_mock_config
     end
 
-    should "pingecho the server" do
-      port = Hobo.config.vm.forwarded_ports[Hobo.config.ssh.forwarded_port_key][:hostport]
-      Ping.expects(:pingecho).with(Hobo.config.ssh.host, 1, port).once
-      Hobo::SSH.up?
+    should "return true if SSH connection works" do
+      Net::SSH.expects(:start).yields("success")
+      assert Hobo::SSH.up?
     end
 
-    should "use custom host if set" do
-      port = Hobo.config.vm.forwarded_ports[Hobo.config.ssh.forwarded_port_key][:hostport]
-      Hobo.config.ssh.host = "foo"
-      Ping.expects(:pingecho).with(Hobo.config.ssh.host, 1, port).once
-      Hobo::SSH.up?
+    should "return false if SSH connection times out" do
+      Net::SSH.expects(:start)
+      assert !Hobo::SSH.up?
+    end
+
+    should "return false if the connection is refused" do
+      Net::SSH.expects(:start).raises(Errno::ECONNREFUSED)
+      assert_nothing_raised {
+        assert !Hobo::SSH.up?
+      }
     end
   end
 end

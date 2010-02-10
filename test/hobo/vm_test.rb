@@ -119,13 +119,13 @@ class VMTest < Test::Unit::TestCase
 
       should "repeatedly ping the SSH port and return false with no response" do
         seq = sequence('pings')
-        Ping.expects(:pingecho).times(Hobo.config[:ssh][:max_tries].to_i - 1).returns(false).in_sequence(seq)
-        Ping.expects(:pingecho).once.returns(true).in_sequence(seq)
+        Hobo::SSH.expects(:up?).times(Hobo.config[:ssh][:max_tries].to_i - 1).returns(false).in_sequence(seq)
+        Hobo::SSH.expects(:up?).once.returns(true).in_sequence(seq)
         assert @vm.start
       end
 
       should "ping the max number of times then just return" do
-        Ping.expects(:pingecho).times(Hobo.config[:ssh][:max_tries].to_i).returns(false)
+        Hobo::SSH.expects(:up?).times(Hobo.config[:ssh][:max_tries].to_i).returns(false)
         assert !@vm.start
       end
     end
