@@ -19,7 +19,7 @@ error
   class Logger < ::Logger
     @@singleton_logger = nil
 
-    class <<self
+    class << self
       def singleton_logger
         # TODO: Buffer messages until config is loaded, then output them?
         if Vagrant.config.loaded?
