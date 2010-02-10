@@ -1,8 +1,6 @@
-gembin/*
-vendor/gems/*
 pkg/*
-Hobofile
-.hobo
+Vagrantfile
+.vagrant
 .bundle
 *.lock
 cookbooks/*
