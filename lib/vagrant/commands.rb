@@ -7,9 +7,21 @@ module Vagrant
     extend Vagrant::Util
 
     class <<self
-      # TODO: Coming soon to a theatre near you.
+      # Initializes a directory for use with vagrant. This command copies an
+      # initial `Vagrantfile` into the current working directory so you can
+      # begin using vagrant. The configuration file contains some documentation
+      # to get you started.
       def init
+        rootfile_path = File.join(Dir.pwd, Env::ROOTFILE_NAME)
+        if File.exist?(rootfile_path)
+          error_and_exit(<<-error)
+It looks like this directory is already setup for vagrant! (A #{Env::ROOTFILE_NAME}
+already exists.)
+error
+        end
 
+        # Copy over the rootfile template into this directory
+        File.copy(File.join(PROJECT_ROOT, "templates", Env::ROOTFILE_NAME), rootfile_path)
       end
 
       # Bring up a vagrant instance. This handles everything from importing

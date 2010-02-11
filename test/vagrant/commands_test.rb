@@ -8,6 +8,26 @@ class CommandsTest < Test::Unit::TestCase
     Vagrant::Env.stubs(:persisted_vm).returns(@persisted_vm)
   end
 
+  context "init" do
+    setup do
+      File.stubs(:copy)
+      @rootfile_path = File.join(Dir.pwd, Vagrant::Env::ROOTFILE_NAME)
+      @template_path = File.join(PROJECT_ROOT, "templates", Vagrant::Env::ROOTFILE_NAME)
+    end
+
+    should "error and exit if a rootfile already exists" do
+      File.expects(:exist?).with(@rootfile_path).returns(true)
+      Vagrant::Commands.expects(:error_and_exit).once
+      Vagrant::Commands.init
+    end
+
+    should "copy the templated rootfile to the current path" do
+      File.expects(:exist?).with(@rootfile_path).returns(false)
+      File.expects(:copy).with(@template_path, @rootfile_path).once
+      Vagrant::Commands.init
+    end
+  end
+
   context "up" do
     setup do
       Vagrant::Env.stubs(:persisted_vm).returns(nil)

@@ -5,3 +5,4 @@ Vagrantfile
 *.lock
 cookbooks/*
 _site/*
+!templates/*
