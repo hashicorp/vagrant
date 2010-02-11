@@ -48,8 +48,9 @@ module Vagrant
         end
       end
 
-      def load_root_path!(path=Pathname.new(Dir.pwd))
+      def load_root_path!(path=Pathname.new(Dir.pwd), opts={})
         if path.to_s == '/'
+          return false if opts[:suppress_errors]
           error_and_exit(<<-msg)
 A `#{ROOTFILE_NAME}` was not found! This file is required for vagrant to run
 since it describes the expected environment that vagrant is supposed
@@ -62,10 +63,10 @@ msg
         file = "#{path}/#{ROOTFILE_NAME}"
         if File.exist?(file)
           @@root_path = path.to_s
-          return
+          return true
         end
 
-        load_root_path!(path.parent)
+        load_root_path!(path.parent, opts)
       end
 
       def require_persisted_vm

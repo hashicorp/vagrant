@@ -1,11 +1,6 @@
 require File.join(File.dirname(__FILE__), '..', 'test_helper')
 
 class EnvTest < Test::Unit::TestCase
-  def dot_file_expectation
-    File.expects(:exists?).at_least_once.returns(true)
-    File.expects(:open).with(dotfile, 'r').returns(['foo'])
-  end
-
   def mock_persisted_vm(returnvalue="foovm")
     filemock = mock("filemock")
     filemock.expects(:read).returns("foo")
@@ -15,7 +10,6 @@ class EnvTest < Test::Unit::TestCase
   end
 
   setup do
-    Vagrant::Env.stubs(:error_and_exit)
     mock_config
   end
 
@@ -114,6 +108,8 @@ class EnvTest < Test::Unit::TestCase
 
   context "loading the root path" do
     test "should walk the parent directories looking for rootfile" do
+      Vagrant::Env.expects(:error_and_exit).once
+
       paths = [
         Pathname.new("/foo/bar/baz"),
         Pathname.new("/foo/bar"),
@@ -135,11 +131,26 @@ class EnvTest < Test::Unit::TestCase
       Vagrant::Env.load_root_path!(path)
     end
 
+    should "return false if suppress errors is set and no root path is found" do
+      path = Pathname.new("/")
+
+      Vagrant::Env.expects(:error_and_exit).never
+      assert !Vagrant::Env.load_root_path!(path, :suppress_errors => true)
+    end
+
+    should "pipe suppress errors flag through recursion" do
+      path = Pathname.new("/foo/bar/baz")
+      File.expects(:exist?).times(3).returns(false)
+
+      Vagrant::Env.expects(:error_and_exit).never
+      assert !Vagrant::Env.load_root_path!(path, :suppress_errors => true)
+    end
+
     test "should set the path for the rootfile" do
       path = "/foo"
       File.expects(:exist?).with("#{path}/#{Vagrant::Env::ROOTFILE_NAME}").returns(true)
-      Vagrant::Env.load_root_path!(Pathname.new(path))
 
+      assert Vagrant::Env.load_root_path!(Pathname.new(path))
       assert_equal path, Vagrant::Env.root_path
     end
   end
