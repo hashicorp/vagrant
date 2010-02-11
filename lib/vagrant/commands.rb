@@ -18,6 +18,16 @@ module Vagrant
       # running it in the background.
       def up
         Env.load!
+
+        if Env.persisted_vm
+          error_and_exit(<<-error)
+The task you're trying to run requires that the vagrant environment
+not exist yet, but it appears you already have an instance running
+or available. If you really want to rebuild this instance, please
+run `vagrant down` first.
+error
+        end
+
         VM.up
       end
 
