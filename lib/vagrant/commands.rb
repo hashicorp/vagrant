@@ -6,6 +6,7 @@ module Vagrant
   class Commands
     extend Vagrant::Util
 
+
     class << self
       # Initializes a directory for use with vagrant. This command copies an
       # initial `Vagrantfile` into the current working directory so you can
