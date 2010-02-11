@@ -11,23 +11,54 @@ class UtilTest < Test::Unit::TestCase
   end
 
   context "logger" do
+    class OtherUtil
+      extend Vagrant::Util
+    end
+
     setup do
       @config = Vagrant::Config::Top.new
+      @config.stubs(:loaded?).returns(true)
+      @config.vagrant.log_output = STDOUT
       Vagrant::Config.stubs(:config).returns(@config)
+      Vagrant::Logger.reset_logger!
+    end
+
+    teardown do
+      Vagrant::Logger.reset_logger!
     end
 
     should "return a logger to nil if config is not loaded" do
       @config.expects(:loaded?).returns(false)
-      Vagrant::Logger.expects(:new).with(nil).once.returns("foo")
-      assert_equal "foo", RegUtil.logger
+      logger = RegUtil.logger
+      assert_nil logger.instance_variable_get(:@logdev)
     end
 
     should "return a logger using the configured output" do
-      @config.stubs(:loaded?).returns(true)
-      @config.vagrant.log_output = "foo"
-      Vagrant::Logger.expects(:new).once.with("foo").returns("bar")
-      assert_equal "bar", RegUtil.logger
-      assert_equal "bar", RegUtil.logger
+      logger = RegUtil.logger
+      logdev = logger.instance_variable_get(:@logdev)
+      assert logger
+      assert !logdev.nil?
+      assert_equal STDOUT, logdev.dev
+    end
+
+    should "only instantiate a logger once" do
+      Vagrant::Logger.expects(:new).once.returns("GOOD")
+      RegUtil.logger
+      RegUtil.logger
+    end
+
+    should "be able to reset the logger" do
+      Vagrant::Logger.expects(:new).twice
+      RegUtil.logger
+      Vagrant::Logger.reset_logger!
+      RegUtil.logger
+    end
+
+    should "return the same logger across classes" do
+      logger = RegUtil.logger
+      other = OtherUtil.logger
+
+      assert logger.equal?(other)
     end
   end
 end

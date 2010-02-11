@@ -12,16 +12,28 @@ error
     end
 
     def logger
-      # TODO: Buffer messages until config is loaded, then output them?
-      if Vagrant.config.loaded?
-        @logger ||= Vagrant::Logger.new(Vagrant.config.vagrant.log_output)
-      else
-        Vagrant::Logger.new(nil)
-      end
+      Logger.singleton_logger
     end
   end
 
   class Logger < ::Logger
+    @@singleton_logger = nil
+
+    class <<self
+      def singleton_logger
+        # TODO: Buffer messages until config is loaded, then output them?
+        if Vagrant.config.loaded?
+          @@singleton_logger ||= Vagrant::Logger.new(Vagrant.config.vagrant.log_output)
+        else
+          Vagrant::Logger.new(nil)
+        end
+      end
+
+      def reset_logger!
+        @@singleton_logger = nil
+      end
+    end
+
     def format_message(level, time, progname, msg)
       "[#{level} #{time.strftime('%m-%d-%Y %X')}] Vagrant: #{msg}\n"
     end
