@@ -10,11 +10,19 @@ class CommandsTest < Test::Unit::TestCase
 
   context "up" do
     setup do
+      Vagrant::Env.stubs(:persisted_vm).returns(nil)
       Vagrant::VM.stubs(:up)
     end
 
     should "require load the environment" do
       Vagrant::Env.expects(:load!).once
+      Vagrant::Commands.up
+    end
+
+    should "error if a persisted VM already exists" do
+      Vagrant::Env.expects(:persisted_vm).returns(true)
+      Vagrant::Commands.expects(:error_and_exit).once
+      Vagrant::VM.expects(:up).never
       Vagrant::Commands.up
     end
 
