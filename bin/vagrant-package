@@ -21,10 +21,7 @@ Usage: #{command.full_name} #{all_options_string}
 Package the current vagrant environment
 
 EOS
-
-  opt :file, "the name of the resulting packaged file"
-
   run do |command|
-    Vagrant::VM.package((command.argv[0] || 'vagrant.box'))
+    Vagrant::Commands.package(command.argv[0])
   end
 end

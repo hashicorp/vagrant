@@ -226,7 +226,7 @@ class VMTest < Test::Unit::TestCase
         image, hd = mock('image'), mock('hd')
 
         Vagrant.config[:vm].expects(:hd_location).at_least_once.returns('/locations/')
-        image.expects(:clone).with(Vagrant.config[:vm][:hd_location] + 'foo', Vagrant::VM::HD_EXT_DEFAULT, true).returns(image)
+        image.expects(:clone).with(Vagrant.config[:vm][:hd_location] + 'foo', Vagrant.config[:vm][:disk_image_format], true).returns(image)
         image.expects(:filename).twice.returns('foo')
         image.expects(:destroy)
 
@@ -239,6 +239,21 @@ class VMTest < Test::Unit::TestCase
         vm.expects(:hd).times(3).returns(hd)
         vm
       end
+    end
+  end
+
+  context "packaging a vm" do
+    should "dump the three necessary files to a tar in the current working dir" do
+      location = FileUtils.pwd
+      name = 'vagrant'
+      new_dir = File.join(location, name)
+      @mock_vm.expects(:export).with(File.join(new_dir, "#{name}.ovf"))
+      FileUtils.expects(:mkpath).with(new_dir).returns(new_dir)
+      FileUtils.expects(:rm_r).with(new_dir)
+      Tar.expects(:open)
+
+      # TODO test whats passed to the open tar.append_tree
+      assert_equal Vagrant::VM.new(@mock_vm).package(name, location), "#{new_dir}.box"
     end
   end
 end

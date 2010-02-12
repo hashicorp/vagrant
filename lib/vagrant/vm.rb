@@ -1,10 +1,7 @@
 module Vagrant
   class VM
-    HD_EXT_DEFAULT = 'VMDK'
-    attr_reader :vm
-
-    extend Vagrant::Util
     include Vagrant::Util
+    attr_reader :vm
 
     class << self
       # Bring up the virtual machine. Imports the base image and
@@ -19,15 +16,6 @@ module Vagrant
         vm = VirtualBox::VM.find(uuid)
         return nil if vm.nil?
         new(vm)
-      end
-
-      def package(name, to=FileUtils.pwd)
-        Env.require_persisted_vm
-        error_and_exit(<<-error) unless Env.persisted_vm.powered_off?
-The vagrant virtual environment you are trying to package must be powered off
-error
-
-        Packaged.new(name, :vm => Env.persisted_vm).compress(to)
       end
     end
 
@@ -76,7 +64,7 @@ error
 
       logger.info "Cloning current VM Disk to new location (#{ new_image_file })..."
       # TODO image extension default?
-      new_image = hd.image.clone(new_image_file , HD_EXT_DEFAULT, true)
+      new_image = hd.image.clone(new_image_file , Vagrant.config[:vm][:disk_image_format], true)
       hd.image = new_image
 
       logger.info "Attaching new disk to VM ..."
@@ -181,6 +169,37 @@ error
     def save_state
       logger.info "Saving VM state..."
       @vm.save_state(true)
+    end
+
+    # TODO the longest method, needs to be split up
+    def package(name, to)
+      folder = FileUtils.mkpath(File.join(to, name))
+      logger.info "Creating working directory: #{folder} ..."
+
+      ovf_path = File.join(folder, "#{name}.ovf")
+      tar_path = "#{folder}.box"
+      
+      logger.info "Exporting required VM files to working directory ..."
+      @vm.export(ovf_path)
+      
+      # TODO use zlib ...
+      logger.info "Packaging VM into #{name}.box ..."
+      Tar.open(tar_path, File::CREAT | File::WRONLY, 0644, Tar::GNU) do |tar|
+        begin
+          # appending the expanded file path adds the whole folder tree 
+          # to the tar archive there must be a better way
+          working_dir = FileUtils.pwd
+          FileUtils.cd(to)
+          tar.append_tree(name)
+        ensure
+          FileUtils.cd(working_dir)
+        end
+      end
+
+      logger.info "Removiding working directory ..."
+      FileUtils.rm_r(folder)
+
+      tar_path
     end
 
     # TODO need a better way to which controller is the hd

@@ -51,6 +51,8 @@ module Vagrant
       attr_accessor :project_directory
       attr_reader :forwarded_ports
       attr_accessor :hd_location
+      attr_accessor :disk_image_format
+
 
       def initialize
         @forwarded_ports = {}
@@ -70,6 +72,10 @@ module Vagrant
       end
     end
 
+    class PackageConfig < Base
+      attr_accessor :name
+    end
+
     class ChefConfig < Base
       attr_accessor :cookbooks_path
       attr_accessor :provisioning_path
@@ -82,6 +88,7 @@ module Vagrant
 
     class Top < Base
       attr_accessor :dotfile_name
+      attr_reader :package
       attr_reader :ssh
       attr_reader :vm
       attr_reader :chef
@@ -92,6 +99,7 @@ module Vagrant
         @vm = VMConfig.new
         @chef = ChefConfig.new
         @vagrant = VagrantConfig.new
+        @package = PackageConfig.new
 
         @loaded = false
       end

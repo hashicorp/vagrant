@@ -1,5 +1,9 @@
 module Vagrant
   module Util
+    def self.included?(base)
+      base.extend Vagrant::Util
+    end
+    
     def error_and_exit(error)
       puts <<-error
 =====================================================================

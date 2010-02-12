@@ -131,4 +131,33 @@ class CommandsTest < Test::Unit::TestCase
       Vagrant::Commands.resume
     end
   end
+
+  context "package" do
+    setup do
+      @persisted_vm.stubs(:package)
+      @persisted_vm.stubs(:powered_off?).returns(true)
+    end
+
+    should "require a persisted vm" do
+      Vagrant::Env.expects(:require_persisted_vm).once
+      Vagrant::Commands.package
+    end
+
+    should "error and exit if the VM is not powered off" do
+      @persisted_vm.stubs(:powered_off?).returns(false)
+      Vagrant::Commands.expects(:error_and_exit).once
+      @persisted_vm.expects(:package).never
+      Vagrant::Commands.package
+    end
+    
+    should "package the vm with the default name and the current directory" do
+      @persisted_vm.expects(:package).with(Vagrant.config[:package][:name], FileUtils.pwd).once
+      Vagrant::Commands.package
+    end
+
+    should "package the vm with the specified name" do      
+      @persisted_vm.expects(:package).with('foo', FileUtils.pwd).once
+      Vagrant::Commands.package('foo')
+    end
+  end
 end
