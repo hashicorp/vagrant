@@ -6,3 +6,4 @@ Vagrantfile
 cookbooks/*
 _site/*
 !templates/*
+*.org

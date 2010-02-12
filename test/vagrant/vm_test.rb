@@ -228,11 +228,10 @@ class VMTest < Test::Unit::TestCase
         Vagrant.config[:vm].expects(:hd_location).at_least_once.returns('/locations/')
         image.expects(:clone).with(Vagrant.config[:vm][:hd_location] + 'foo', Vagrant::VM::HD_EXT_DEFAULT, true).returns(image)
         image.expects(:filename).twice.returns('foo')
+        image.expects(:destroy)
 
         hd.expects(:image).twice.returns(image)
         hd.expects(:image=).with(image)
-
-        image.expects(:destroy)
 
         @mock_vm.expects(:save)
 

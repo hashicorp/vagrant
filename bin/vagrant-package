@@ -1,0 +1,30 @@
+#!/usr/bin/env ruby
+begin
+  require File.expand_path('../../.bundle/environment', __FILE__)
+rescue LoadError
+  # Fallback on rubygems
+  require "rubygems"
+end
+
+require 'git-style-binary/command'
+
+# Get library
+libdir = File.join(File.dirname(__FILE__), '..', 'lib')
+$:.unshift(libdir) unless $:.include?(libdir)
+require 'vagrant'
+
+GitStyleBinary.command do
+  short_desc "package the current vagrant environment"
+  banner <<-EOS
+Usage: #{command.full_name} #{all_options_string}
+
+Package the current vagrant environment
+
+EOS
+
+  opt :file, "the name of the resulting packaged file"
+
+  run do |command|
+    Vagrant::VM.package((command.argv[0] || 'vagrant.box'))
+  end
+end

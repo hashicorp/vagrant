@@ -20,6 +20,15 @@ module Vagrant
         return nil if vm.nil?
         new(vm)
       end
+
+      def package(name, to=FileUtils.pwd)
+        Env.require_persisted_vm
+        error_and_exit(<<-error) unless Env.persisted_vm.powered_off?
+The vagrant virtual environment you are trying to package must be powered off
+error
+
+        Packaged.new(name, :vm => Env.persisted_vm).compress(to)
+      end
     end
 
     def initialize(vm=nil)
@@ -178,5 +187,9 @@ error
     def hd
       @vm.storage_controllers.first.devices.first
     end
+
+    def powered_off?; @vm.powered_off? end
+
+    def export(filename); @vm.export(filename, {}, true) end
   end
 end
