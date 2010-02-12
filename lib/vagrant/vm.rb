@@ -196,7 +196,7 @@ error
         end
       end
 
-      logger.info "Removiding working directory ..."
+      logger.info "Removing working directory ..."
       FileUtils.rm_r(folder)
 
       tar_path
