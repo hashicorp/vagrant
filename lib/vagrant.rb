@@ -1,6 +1,6 @@
 libdir = File.dirname(__FILE__)
 $:.unshift(libdir)
-PROJECT_ROOT = File.join(libdir, '..')
+PROJECT_ROOT = File.join(libdir, '..') unless defined?(PROJECT_ROOT)
 
 # The libs which must be loaded prior to the rest
 %w{ftools json pathname logger virtualbox net/ssh
