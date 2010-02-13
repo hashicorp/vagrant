@@ -18,8 +18,8 @@ class ForwardPortsActionTest < Test::Unit::TestCase
       end
     end
 
-    @vm.expects(:forwarded_ports).returns(forwarded_ports)
-    @vm.expects(:save).with(true).once
+    @mock_vm.expects(:forwarded_ports).returns(forwarded_ports)
+    @mock_vm.expects(:save).with(true).once
     @action.execute!
   end
 end
