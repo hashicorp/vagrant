@@ -11,6 +11,71 @@ class VMTest < Test::Unit::TestCase
     Net::SSH.stubs(:start)
   end
 
+  context "callbacks" do
+    setup do
+      @vm = Vagrant::VM.new(@mock_vm)
+    end
+
+    should "not invoke callback on actions which don't respond to it" do
+      action = mock("action")
+      action.stubs(:respond_to?).with(:foo).returns(false)
+      action.expects(:foo).never
+
+      assert_nothing_raised do
+        @vm.actions << action
+        @vm.invoke_callback(:foo)
+      end
+    end
+
+    should "invoke callback on actions which do respond to the method" do
+      action = mock("action")
+      action.expects(:foo).once
+
+      @vm.actions << action
+      @vm.invoke_callback(:foo)
+    end
+  end
+
+  context "actions" do
+    setup do
+      @vm = Vagrant::VM.new(@mock_vm)
+    end
+
+    should "be empty initially" do
+      assert @vm.actions.empty?
+    end
+
+    should "be able to add actions" do
+      assert_nothing_raised do
+        @vm.actions << "Foo"
+        @vm.actions << "Bar"
+        assert_equal 2, @vm.actions.length
+      end
+    end
+
+    should "run #prepare on all actions, then #execute!" do
+      action_seq = sequence("action_seq")
+      actions = []
+      5.times do |i|
+        action = mock("action#{i}")
+        action_class = mock("action_class#{i}")
+
+        action_class.expects(:new).once.returns(action).in_sequence(action_seq)
+
+        @vm.actions << action_class
+        actions << action
+      end
+
+      [:prepare, :execute!].each do |method|
+        actions.each do |action|
+          action.expects(method).once.in_sequence(action_seq)
+        end
+      end
+
+      @vm.execute!
+    end
+  end
+
   context "vagrant up" do
     should "create a Vagrant::VM instance and call create" do
       inst = mock("instance")

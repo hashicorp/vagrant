@@ -1,7 +1,8 @@
 module Vagrant
   class VM
     include Vagrant::Util
-    attr_reader :vm
+    attr_accessor :vm
+    attr_reader :actions
 
     class << self
       # Bring up the virtual machine. Imports the base image and
@@ -21,6 +22,32 @@ module Vagrant
 
     def initialize(vm=nil)
       @vm = vm
+      @actions = []
+    end
+
+    def execute!
+      # Initialize each action. Prepare is not done together with
+      # this since initialization is a time which guarantees that
+      # prepare has not been called for any other action yet.
+      @actions.collect! do |action_class|
+        action_class.new(self)
+      end
+
+      # Call the prepare method on each once its
+      # initialized, then call the execute! method
+      [:prepare, :execute!].each do |method|
+        @actions.each do |action|
+          action.send(method)
+        end
+      end
+    end
+
+    def invoke_callback(name, *args)
+      # Attempt to call the method for the callback on each of the
+      # actions
+      @actions.each do |action|
+        action.send(name, *args) if action.respond_to?(name)
+      end
     end
 
     def create
@@ -178,15 +205,15 @@ error
 
       ovf_path = File.join(folder, "#{name}.ovf")
       tar_path = "#{folder}.box"
-      
+
       logger.info "Exporting required VM files to working directory ..."
       @vm.export(ovf_path)
-      
+
       # TODO use zlib ...
       logger.info "Packaging VM into #{name}.box ..."
       Tar.open(tar_path, File::CREAT | File::WRONLY, 0644, Tar::GNU) do |tar|
         begin
-          # appending the expanded file path adds the whole folder tree 
+          # appending the expanded file path adds the whole folder tree
           # to the tar archive there must be a better way
           working_dir = FileUtils.pwd
           FileUtils.cd(to)
