@@ -114,10 +114,9 @@ error
       @actions.each do |action|
         results << action.send(name, *args) if action.respond_to?(name)
       end
-
       results
     end
-
+    
     def destroy
       if @vm.running?
         logger.info "VM is running. Forcing immediate shutdown..."
