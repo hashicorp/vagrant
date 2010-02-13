@@ -18,6 +18,7 @@ require 'contest'
 require 'mocha'
 
 class Test::Unit::TestCase
+  # Clears the previous config and sets up the new config
   def mock_config
     Vagrant::Config.instance_variable_set(:@config_runners, nil)
     Vagrant::Config.instance_variable_set(:@config, nil)
@@ -44,5 +45,16 @@ class Test::Unit::TestCase
     end
 
     Vagrant::Config.execute!
+  end
+
+  # Sets up the mocks and instantiates an action for testing
+  def mock_action(action_klass)
+    @vm = mock("vboxvm")
+    @mock_vm = mock("vm")
+    @mock_vm.stubs(:vm).returns(@vm)
+    @mock_vm.stubs(:vm=)
+    @action = action_klass.new(@mock_vm)
+
+    [@mock_vm, @vm, @action]
   end
 end
