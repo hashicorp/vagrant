@@ -4,7 +4,7 @@ PROJECT_ROOT = File.join(libdir, '..')
 
 # The libs which must be loaded prior to the rest
 %w{ftools json pathname logger virtualbox net/ssh
-  net/scp tarruby fileutils vagrant/util}.each do |f|
+  net/scp tarruby fileutils vagrant/util vagrant/actions/base}.each do |f|
   require f
 end
 
