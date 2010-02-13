@@ -151,13 +151,11 @@ error
 
       logger.info "Packaging VM into #{tar_path} ..."
       Zlib::GzipWriter.open(tar_path) do |gz|
-        first_file = true
         Dir.new(folder).each do  |file|
           next if File.directory?(file)
           # Delimit the files, and guarantee new line for next file if not the first
           gz.write "#{delimiter}#{file}#{delimiter}"
           File.open(File.join(folder, file)).each { |line| gz.write(line) }
-          first_file = false
         end
       end
 
