@@ -34,6 +34,19 @@ class VMTest < Test::Unit::TestCase
       @vm.actions << action
       @vm.invoke_callback(:foo)
     end
+
+    should "collect all the results and return them as an array" do
+      result = []
+      3.times do |i|
+        action = mock("action#{i}")
+        action.expects(:foo).returns("foo#{i}").once
+
+        @vm.actions << action
+        result << "foo#{i}"
+      end
+
+      assert_equal result, @vm.invoke_callback(:foo)
+    end
   end
 
   context "actions" do

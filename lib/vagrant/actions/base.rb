@@ -7,6 +7,7 @@ module Vagrant
     class Base
       attr_reader :vm
 
+      # Included so subclasses don't need to include it themselves.
       include Vagrant::Util
 
       # Initialization of the actions are done all at once. The guarantee

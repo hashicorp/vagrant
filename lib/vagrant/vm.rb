@@ -45,9 +45,12 @@ module Vagrant
     def invoke_callback(name, *args)
       # Attempt to call the method for the callback on each of the
       # actions
+      results = []
       @actions.each do |action|
-        action.send(name, *args) if action.respond_to?(name)
+        results << action.send(name, *args) if action.respond_to?(name)
       end
+
+      results
     end
 
     def create
