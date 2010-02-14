@@ -1,11 +1,8 @@
 ---
 layout: default
 ---
-Vagrant site coming soon.
+Coming soon! For now, take a look at these pictures:
 
-{% highlight ruby %}
-# Just testing code highlighting
-Vagrant::Config.run do |config|
-  config.chef.cookbooks_path = "cookbooks"
-end
-{% endhighlight %}
+<img src="images/vagrant_looking.png" class="left" width="300px" />
+<img src="images/vagrant_holding.png" class="left" width="300px" />
+<img src="images/vagrant_chilling.png" class="left" width="300px" />
