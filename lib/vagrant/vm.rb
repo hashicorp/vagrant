@@ -116,7 +116,7 @@ error
       end
       results
     end
-    
+
     def destroy
       if @vm.running?
         logger.info "VM is running. Forcing immediate shutdown..."
