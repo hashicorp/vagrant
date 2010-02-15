@@ -7,6 +7,14 @@ class ImportActionTest < Test::Unit::TestCase
     VirtualBox::VM.stubs(:import)
   end
 
+  should "invoke before/after callbacks around the import" do
+    callback_seq = sequence("callback_seq")
+    @mock_vm.expects(:invoke_callback).with(:before_import).once.in_sequence(callback_seq)
+    VirtualBox::VM.expects(:import).once.in_sequence(callback_seq)
+    @mock_vm.expects(:invoke_callback).with(:after_import).once.in_sequence(callback_seq)
+    @import.execute!
+  end
+
   should "call import on VirtualBox::VM with the proper base" do
     VirtualBox::VM.expects(:import).once
     @import.execute!

@@ -7,11 +7,11 @@ class UpActionTest < Test::Unit::TestCase
   end
 
   context "callbacks" do
-    should "call persist and mac address setup before boot" do
+    should "call persist and mac address setup after import" do
       boot_seq = sequence("boot")
       @action.expects(:persist).once.in_sequence(boot_seq)
       @action.expects(:setup_mac_address).once.in_sequence(boot_seq)
-      @action.before_boot
+      @action.after_import
     end
 
     should "setup the root directory shared folder" do

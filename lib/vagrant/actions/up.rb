@@ -16,7 +16,7 @@ module Vagrant
         ["vagrant-root", Env.root_path, Vagrant.config.vm.project_directory]
       end
 
-      def before_boot
+      def after_import
         persist
         setup_mac_address
       end
