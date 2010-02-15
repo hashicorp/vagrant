@@ -109,6 +109,14 @@ The vagrant virtual environment you are trying to package must be powered off
 error
         Env.persisted_vm.package(name || Vagrant.config[:package][:name], FileUtils.pwd)
       end
+
+      def unpackage(name)
+        Env.load!
+        error_and_exit(<<-error) unless name
+Please specify a target package to unpack and import
+error
+        VM.up(VM.unpackage(name))
+      end
     end
   end
 end

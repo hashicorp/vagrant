@@ -70,10 +70,16 @@ module Vagrant
         raise Exception.new "disk_storage must be set to a directory" unless File.directory?(val)
         @hd_location=val
       end
+
+      def base
+        File.expand_path(@base)
+      end
     end
 
     class PackageConfig < Base
       attr_accessor :name
+      attr_accessor :delimiter
+      attr_accessor :delimiter_regex
     end
 
     class ChefConfig < Base
@@ -84,6 +90,11 @@ module Vagrant
 
     class VagrantConfig < Base
       attr_accessor :log_output
+      attr_accessor :home
+
+      def home
+        File.expand_path(@home)
+      end
     end
 
     class Top < Base

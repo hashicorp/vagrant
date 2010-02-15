@@ -2,12 +2,71 @@ module Vagrant
   class VM
     include Vagrant::Util
     attr_reader :vm
+    attr_accessor :from
 
     class << self
       # Bring up the virtual machine. Imports the base image and
       # provisions it.
-      def up
-        new.create
+      def up(from=Vagrant.config[:vm][:base])
+        vm = new
+        vm.from = from 
+        vm.create
+      end
+
+      # Unpack the specified vm package
+      def unpackage(package_path)
+        working_dir = package_path.chomp(File.extname(package_path))
+        new_base_dir = File.join(Vagrant.config[:vagrant][:home], File.basename(package_path, '.*'))
+
+        # Exit if folder of same name exists
+        # TODO provide a way for them to specify the directory name
+        error_and_exit(<<-error) if File.exists?(new_base_dir)
+The directory `#{File.basename(package_path, '.*')}` already exists under #{Vagrant.config[:vagrant][:home]}. Please 
+remove it, rename your packaged VM file, or (TODO) specifiy an 
+alternate directory 
+error
+        
+        logger.info "Creating working dir: #{working_dir} ..."
+        FileUtils.mkpath(working_dir)
+
+        logger.info "Decompressing the packaged VM: #{package_path} ..."
+        decompress(package_path, working_dir)
+        
+        logger.info "Moving the unpackaged VM to #{new_base_dir} ..."
+        FileUtils.mv(working_dir, Vagrant.config[:vagrant][:home])
+        
+        #Return the ovf file for importation
+        Dir["#{new_base_dir}/*.ovf"].first
+      end
+
+      def decompress(path, dir, file_delimeter=Vagrant.config[:package][:delimiter_regex])
+        file = nil
+        Zlib::GzipReader.open(path) do |gz|
+          begin
+            gz.each_line do |line|
+              
+              # If the line is a file delimiter create new file and write to it
+              if line =~ file_delimeter
+
+                #Write the the part of the line belonging to the previous file
+                if file
+                  file.write $1
+                  file.close 
+                end
+
+                #Open a new file with the name contained in the delimiter
+                file = File.open(File.join(dir, $2), 'w')
+
+                #Write the rest of the line to the new file
+                file.write $3
+              else
+                file.write line
+              end
+            end
+          ensure
+            file.close if file
+          end
+        end
       end
 
       # Finds a virtual machine by a given UUID and either returns
@@ -76,7 +135,7 @@ error
 
     def import
       logger.info "Importing base VM (#{Vagrant.config[:vm][:base]})..."
-      @vm = VirtualBox::VM.import(File.expand_path(Vagrant.config[:vm][:base]))
+      @vm = VirtualBox::VM.import(@from)
     end
 
     def persist
@@ -173,6 +232,7 @@ error
 
     # TODO the longest method, needs to be split up
     def package(name, to)
+      delimiter = Vagrant.config[:package][:delimiter]
       folder = FileUtils.mkpath(File.join(to, name))
       logger.info "Creating working directory: #{folder} ..."
 
@@ -182,17 +242,15 @@ error
       logger.info "Exporting required VM files to working directory ..."
       @vm.export(ovf_path)
       
-      # TODO use zlib ...
-      logger.info "Packaging VM into #{name}.box ..."
-      Tar.open(tar_path, File::CREAT | File::WRONLY, 0644, Tar::GNU) do |tar|
-        begin
-          # appending the expanded file path adds the whole folder tree 
-          # to the tar archive there must be a better way
-          working_dir = FileUtils.pwd
-          FileUtils.cd(to)
-          tar.append_tree(name)
-        ensure
-          FileUtils.cd(working_dir)
+      logger.info "Packaging VM into #{tar_path} ..."
+      Zlib::GzipWriter.open(tar_path) do |gz|
+        first_file = true
+        Dir.new(folder).each do  |file|
+          next if File.directory?(file)
+          # Delimit the files, and guarantee new line for next file if not the first
+          gz.write "#{delimiter}#{file}#{delimiter}"
+          File.open(File.join(folder, file)).each { |line| gz.write(line) } 
+          first_file = false
         end
       end
 
@@ -201,6 +259,7 @@ error
 
       tar_path
     end
+
 
     # TODO need a better way to which controller is the hd
     def hd

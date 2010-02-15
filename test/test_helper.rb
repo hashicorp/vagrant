@@ -36,11 +36,16 @@ class Test::Unit::TestCase
       config.vm.project_directory = "/hobo"
       config.vm.forward_port("ssh", 22, 2222)
 
+      config.package.delimiter = 'V'
+      config.package.delimiter_regex = /'V(.+)V'/
+
       config.chef.cookbooks_path = "cookbooks"
       config.chef.provisioning_path = "/tmp/hobo-chef"
       config.chef.json = {
         :recipes => ["hobo_main"]
       }
+
+      config.vagrant.home = '~/.home'
     end
 
     Vagrant::Config.execute!

@@ -1,6 +1,6 @@
 module Vagrant
   module Util
-    def self.included?(base)
+    def self.included(base)
       base.extend Vagrant::Util
     end
     
