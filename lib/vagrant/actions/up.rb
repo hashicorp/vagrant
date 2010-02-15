@@ -5,7 +5,7 @@ module Vagrant
         # Up is a "meta-action" so it really just queues up a bunch
         # of other actions in its place:
         [Import, ForwardPorts, SharedFolders, Start].each do |action_klass|
-          @vm.actions << action_klass
+          @vm.add_action(action_klass)
         end
 
         # TODO: Move hard drive

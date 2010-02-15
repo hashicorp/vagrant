@@ -8,7 +8,7 @@ module Vagrant
       # Executes a specific action
       def execute!(action_klass)
         vm = new
-        vm.actions << action_klass
+        vm.add_action(action_klass)
         vm.execute!
       end
 
@@ -32,14 +32,11 @@ module Vagrant
       @actions = []
     end
 
-    def execute!
-      # Initialize each action. Prepare is not done together with
-      # this since initialization is a time which guarantees that
-      # prepare has not been called for any other action yet.
-      @actions.collect! do |action_class|
-        action_class.new(self)
-      end
+    def add_action(action_klass)
+      @actions << action_klass.new(self)
+    end
 
+    def execute!
       # Call the prepare method on each once its
       # initialized, then call the execute! method
       [:prepare, :execute!].each do |method|

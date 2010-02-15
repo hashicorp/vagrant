@@ -58,12 +58,12 @@ class VMTest < Test::Unit::TestCase
       assert @vm.actions.empty?
     end
 
-    should "be able to add actions" do
-      assert_nothing_raised do
-        @vm.actions << "Foo"
-        @vm.actions << "Bar"
-        assert_equal 2, @vm.actions.length
-      end
+    should "initialize the action when added" do
+      action_klass = mock("action_class")
+      action_inst = mock("action_inst")
+      action_klass.expects(:new).once.returns(action_inst)
+      @vm.add_action(action_klass)
+      assert_equal 1, @vm.actions.length
     end
 
     should "run #prepare on all actions, then #execute!" do
@@ -71,11 +71,8 @@ class VMTest < Test::Unit::TestCase
       actions = []
       5.times do |i|
         action = mock("action#{i}")
-        action_class = mock("action_class#{i}")
 
-        action_class.expects(:new).once.returns(action).in_sequence(action_seq)
-
-        @vm.actions << action_class
+        @vm.actions << action
         actions << action
       end
 
@@ -90,11 +87,9 @@ class VMTest < Test::Unit::TestCase
 
     should "run actions on class method execute!" do
       vm = mock("vm")
-      actions = mock("actions")
       execute_seq = sequence("execute_seq")
       Vagrant::VM.expects(:new).returns(vm).in_sequence(execute_seq)
-      vm.expects(:actions).returns(actions).in_sequence(execute_seq)
-      actions.expects(:<<).with("foo").once.in_sequence(execute_seq)
+      vm.expects(:add_action).with("foo").in_sequence(execute_seq)
       vm.expects(:execute!).once.in_sequence(execute_seq)
 
       Vagrant::VM.execute!("foo")

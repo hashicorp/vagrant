@@ -40,7 +40,7 @@ run `vagrant down` first.
 error
         end
 
-        VM.up
+        VM.execute!(Actions::Up)
       end
 
       # Tear down a vagrant instance. This not only shuts down the instance
