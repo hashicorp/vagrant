@@ -88,16 +88,6 @@ error
       @actions << action_klass.new(self)
     end
 
-    def destroy
-      if @vm.running?
-        logger.info "VM is running. Forcing immediate shutdown..."
-        @vm.stop(true)
-      end
-
-      logger.info "Destroying VM and associated drives..."
-      @vm.destroy(:destroy_image => true)
-    end
-
     def execute!
       # Call the prepare method on each once its
       # initialized, then call the execute! method
