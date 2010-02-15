@@ -35,6 +35,7 @@ class Test::Unit::TestCase
       config.vm.base = "foo"
       config.vm.base_mac = "42"
       config.vm.project_directory = "/hobo"
+      config.vm.disk_image_format = 'VMDK'
       config.vm.forward_port("ssh", 22, 2222)
 
       config.chef.cookbooks_path = "cookbooks"
@@ -42,6 +43,12 @@ class Test::Unit::TestCase
       config.chef.json = {
         :recipes => ["hobo_main"]
       }
+    end
+
+    if block_given?
+      Vagrant::Config.run do |config|
+        yield config
+      end
     end
 
     Vagrant::Config.execute!
