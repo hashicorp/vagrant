@@ -31,7 +31,7 @@ class CommandsTest < Test::Unit::TestCase
   context "up" do
     setup do
       Vagrant::Env.stubs(:persisted_vm).returns(nil)
-      Vagrant::VM.stubs(:up)
+      Vagrant::VM.stubs(:execute!)
     end
 
     should "require load the environment" do
@@ -46,8 +46,8 @@ class CommandsTest < Test::Unit::TestCase
       Vagrant::Commands.up
     end
 
-    should "call up on VM" do
-      Vagrant::VM.expects(:up).once
+    should "call the up action on VM" do
+      Vagrant::VM.expects(:execute!).with(Vagrant::Actions::Up).once
       Vagrant::Commands.up
     end
   end
@@ -149,13 +149,13 @@ class CommandsTest < Test::Unit::TestCase
       @persisted_vm.expects(:package).never
       Vagrant::Commands.package
     end
-    
+
     should "package the vm with the default name and the current directory" do
       @persisted_vm.expects(:package).with(Vagrant.config[:package][:name], FileUtils.pwd).once
       Vagrant::Commands.package
     end
 
-    should "package the vm with the specified name" do      
+    should "package the vm with the specified name" do
       @persisted_vm.expects(:package).with('foo', FileUtils.pwd).once
       Vagrant::Commands.package('foo')
     end

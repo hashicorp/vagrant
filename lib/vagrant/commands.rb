@@ -40,7 +40,7 @@ run `vagrant down` first.
 error
         end
 
-        VM.up
+        VM.execute!(Actions::Up)
       end
 
       # Tear down a vagrant instance. This not only shuts down the instance
@@ -99,7 +99,7 @@ error
       end
 
       # Export and package the current vm
-      # 
+      #
       # This command requires that an instance be powered off
       def package(name=nil)
         Env.load!

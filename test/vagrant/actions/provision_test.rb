@@ -1,27 +1,27 @@
-require File.join(File.dirname(__FILE__), '..', 'test_helper')
+require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
 
-class ProvisioningTest < Test::Unit::TestCase
+class ProvisionActionTest < Test::Unit::TestCase
   setup do
-    # Stub upload so nothing happens
+    @mock_vm, @vm, @action = mock_action(Vagrant::Actions::Provision)
+
+    Vagrant::SSH.stubs(:execute)
     Vagrant::SSH.stubs(:upload!)
 
-    vm = mock("vm")
-    vm.stubs(:share_folder)
-    @prov = Vagrant::Provisioning.new(vm)
+    mock_config
   end
 
-  context "initializing" do
+  context "shared folders" do
     should "setup shared folder on VM for the cookbooks" do
       File.expects(:expand_path).with(Vagrant.config.chef.cookbooks_path, Vagrant::Env.root_path).returns("foo")
-      Vagrant::Provisioning.any_instance.expects(:cookbooks_path).returns("bar")
-      vm = mock("vm")
-      vm.expects(:share_folder).with("vagrant-provisioning", "foo", "bar")
-      Vagrant::Provisioning.new(vm)
+      @action.expects(:cookbooks_path).returns("bar")
+      assert_equal ["vagrant-provisioning", "foo", "bar"], @action.collect_shared_folders
     end
+  end
 
+  context "cookbooks path" do
     should "return the proper cookbook path" do
       cookbooks_path = File.join(Vagrant.config.chef.provisioning_path, "cookbooks")
-      assert_equal cookbooks_path, @prov.cookbooks_path
+      assert_equal cookbooks_path, @action.cookbooks_path
     end
   end
 
@@ -30,14 +30,14 @@ class ProvisioningTest < Test::Unit::TestCase
       ssh = mock("ssh")
       ssh.expects(:exec!).with("sudo chown #{Vagrant.config.ssh.username} #{Vagrant.config.chef.provisioning_path}")
       Vagrant::SSH.expects(:execute).yields(ssh)
-      @prov.chown_provisioning_folder
+      @action.chown_provisioning_folder
     end
   end
 
   context "generating and uploading json" do
     should "convert the JSON config to JSON" do
       Hash.any_instance.expects(:to_json).once.returns("foo")
-      @prov.setup_json
+      @action.setup_json
     end
 
     should "add the project directory to the JSON" do
@@ -47,14 +47,14 @@ class ProvisioningTest < Test::Unit::TestCase
         true
       end
 
-      @prov.setup_json
+      @action.setup_json
     end
 
     should "upload a StringIO to dna.json" do
       StringIO.expects(:new).with(anything).returns("bar")
       File.expects(:join).with(Vagrant.config.chef.provisioning_path, "dna.json").once.returns("baz")
       Vagrant::SSH.expects(:upload!).with("bar", "baz").once
-      @prov.setup_json
+      @action.setup_json
     end
   end
 
@@ -62,19 +62,19 @@ class ProvisioningTest < Test::Unit::TestCase
     should "upload properly generate the configuration file using configuration data" do
       expected_config = <<-config
 file_cache_path "#{Vagrant.config.chef.provisioning_path}"
-cookbook_path "#{@prov.cookbooks_path}"
+cookbook_path "#{@action.cookbooks_path}"
 config
 
       StringIO.expects(:new).with(expected_config).once
-      @prov.setup_solo_config
+      @action.setup_solo_config
     end
 
     should "upload this file as solo.rb to the provisioning folder" do
-      @prov.expects(:cookbooks_path).returns("cookbooks")
+      @action.expects(:cookbooks_path).returns("cookbooks")
       StringIO.expects(:new).returns("foo")
       File.expects(:join).with(Vagrant.config.chef.provisioning_path, "solo.rb").once.returns("bar")
       Vagrant::SSH.expects(:upload!).with("foo", "bar").once
-      @prov.setup_solo_config
+      @action.setup_solo_config
     end
   end
 
@@ -83,7 +83,7 @@ config
       ssh = mock("ssh")
       ssh.expects(:exec!).with("cd #{Vagrant.config.chef.provisioning_path} && sudo chef-solo -c solo.rb -j dna.json").once
       Vagrant::SSH.expects(:execute).yields(ssh)
-      @prov.run_chef_solo
+      @action.run_chef_solo
     end
   end
 end
