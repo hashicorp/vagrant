@@ -56,6 +56,12 @@ class Test::Unit::TestCase
       end
     end
 
+    if block_given?
+      Vagrant::Config.run do |config|
+        yield config
+      end
+    end
+
     Vagrant::Config.execute!
   end
 
