@@ -5,6 +5,13 @@ module Vagrant
     attr_reader :actions
 
     class << self
+      # Executes a specific action
+      def execute!(action_klass)
+        vm = new
+        vm.actions << action_klass
+        vm.execute!
+      end
+
       # Bring up the virtual machine. Imports the base image and
       # provisions it.
       def up

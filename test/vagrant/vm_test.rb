@@ -87,6 +87,18 @@ class VMTest < Test::Unit::TestCase
 
       @vm.execute!
     end
+
+    should "run actions on class method execute!" do
+      vm = mock("vm")
+      actions = mock("actions")
+      execute_seq = sequence("execute_seq")
+      Vagrant::VM.expects(:new).returns(vm).in_sequence(execute_seq)
+      vm.expects(:actions).returns(actions).in_sequence(execute_seq)
+      actions.expects(:<<).with("foo").once.in_sequence(execute_seq)
+      vm.expects(:execute!).once.in_sequence(execute_seq)
+
+      Vagrant::VM.execute!("foo")
+    end
   end
 
   context "vagrant up" do

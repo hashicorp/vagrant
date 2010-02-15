@@ -10,10 +10,10 @@ module Vagrant
           port.name = name
           port.hostport = options[:hostport]
           port.guestport = options[:guestport]
-          @vm.forwarded_ports << port
+          @vm.vm.forwarded_ports << port
         end
 
-        @vm.save(true)
+        @vm.vm.save(true)
       end
     end
   end

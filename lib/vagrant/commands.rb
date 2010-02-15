@@ -99,7 +99,7 @@ error
       end
 
       # Export and package the current vm
-      # 
+      #
       # This command requires that an instance be powered off
       def package(name=nil)
         Env.load!
