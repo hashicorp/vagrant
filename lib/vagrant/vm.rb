@@ -88,7 +88,12 @@ error
       @actions << action_klass.new(self, *args)
     end
 
-    def execute!
+    def execute!(single_action=nil, *args)
+      if single_action
+        @actions.clear
+        add_action(single_action, *args)
+      end
+
       # Call the prepare method on each once its
       # initialized, then call the execute! method
       [:prepare, :execute!].each do |method|
@@ -118,10 +123,7 @@ error
     end
 
     def destroy
-      if @vm.running?
-        logger.info "VM is running. Forcing immediate shutdown..."
-        @vm.stop(true)
-      end
+      execute!(Actions::Stop) if @vm.running?
 
       logger.info "Destroying VM and associated drives..."
       @vm.destroy(:destroy_image => true)

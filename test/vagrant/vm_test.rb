@@ -92,6 +92,21 @@ class VMTest < Test::Unit::TestCase
       @vm.add_action(action_klass, "foo", "bar")
     end
 
+    should "clear the actions and run a single action if given to execute!" do
+      action = mock("action")
+      run_action = mock("action_run")
+      run_class = mock("run_class")
+      run_class.expects(:new).once.returns(run_action)
+      @vm.actions << action
+
+      [:prepare, :execute!].each do |method|
+        action.expects(method).never
+        run_action.expects(method).once
+      end
+
+      @vm.execute!(run_class)
+    end
+
     should "run #prepare on all actions, then #execute!" do
       action_seq = sequence("action_seq")
       actions = []
@@ -154,6 +169,7 @@ class VMTest < Test::Unit::TestCase
     context "destroying" do
       setup do
         @mock_vm.stubs(:running?).returns(false)
+        @vm.stubs(:execute!)
       end
 
       should "destoy the VM along with images" do
@@ -163,8 +179,8 @@ class VMTest < Test::Unit::TestCase
 
       should "stop the VM if its running" do
         @mock_vm.expects(:running?).returns(true)
-        @mock_vm.expects(:stop).with(true)
         @mock_vm.expects(:destroy).with(:destroy_image => true).once
+        @vm.expects(:execute!).with(Vagrant::Actions::Stop).once
         @vm.destroy
       end
     end
