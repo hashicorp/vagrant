@@ -1,6 +1,10 @@
 require File.join(File.dirname(__FILE__), '..', 'test_helper')
 
 class BusyTest < Test::Unit::TestCase
+  context "waiting for not busy" do
+    # TODO: Need to test this method
+  end
+
   context "during an action in a busy block" do
     should "report as busy" do
       Vagrant.busy do
@@ -32,6 +36,22 @@ class BusyTest < Test::Unit::TestCase
 
       # While the above thread is executing vagrant should be busy
       assert Vagrant.busy?
+    end
+
+    should "run the action in a new thread" do
+      runner_thread = nil
+      Vagrant.busy do
+        runner_thread = Thread.current
+      end
+
+      assert_not_equal Thread.current, runner_thread
+    end
+
+    should "trap INT" do
+      trap_seq = sequence("trap_seq")
+      Signal.expects(:trap).with("INT", anything).once.in_sequence(trap_seq)
+      Signal.expects(:trap).with("INT", "DEFAULT").once.in_sequence(trap_seq)
+      Vagrant.busy do; end
     end
   end
 end

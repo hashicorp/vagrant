@@ -4,8 +4,10 @@ module Vagrant
       def execute!
         @vm.invoke_callback(:before_import)
 
-        logger.info "Importing base VM (#{Vagrant.config[:vm][:base]})..."
-        @vm.vm = VirtualBox::VM.import(File.expand_path(Vagrant.config[:vm][:base]))
+        Busy.busy do
+          logger.info "Importing base VM (#{Vagrant.config[:vm][:base]})..."
+          @vm.vm = VirtualBox::VM.import(File.expand_path(Vagrant.config[:vm][:base]))
+        end
 
         @vm.invoke_callback(:after_import)
       end

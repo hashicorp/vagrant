@@ -7,6 +7,11 @@ class ImportActionTest < Test::Unit::TestCase
     VirtualBox::VM.stubs(:import)
   end
 
+  should "run in a busy block" do
+    Vagrant::Busy.expects(:busy).once
+    @import.execute!
+  end
+
   should "invoke before/after callbacks around the import" do
     callback_seq = sequence("callback_seq")
     @mock_vm.expects(:invoke_callback).with(:before_import).once.in_sequence(callback_seq)
