@@ -63,8 +63,7 @@ error
       def reload
         Env.load!
         Env.require_persisted_vm
-
-        VM.execute!(Actions::Reload)
+        Env.persisted_vm.execute!(Actions::Reload)
       end
 
       # SSH into the vagrant instance. This will setup an SSH connection into
