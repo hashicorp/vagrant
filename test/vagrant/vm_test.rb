@@ -66,6 +66,12 @@ class VMTest < Test::Unit::TestCase
       assert_equal 1, @vm.actions.length
     end
 
+    should "initialize the action with given arguments when added" do
+      action_klass = mock("action_class")
+      action_klass.expects(:new).with(@vm, "foo", "bar").once
+      @vm.add_action(action_klass, "foo", "bar")
+    end
+
     should "run #prepare on all actions, then #execute!" do
       action_seq = sequence("action_seq")
       actions = []
@@ -93,6 +99,16 @@ class VMTest < Test::Unit::TestCase
       vm.expects(:execute!).once.in_sequence(execute_seq)
 
       Vagrant::VM.execute!("foo")
+    end
+
+    should "forward arguments to add_action on class method execute!" do
+      vm = mock("vm")
+      execute_seq = sequence("execute_seq")
+      Vagrant::VM.expects(:new).returns(vm).in_sequence(execute_seq)
+      vm.expects(:add_action).with("foo", "bar", "baz").in_sequence(execute_seq)
+      vm.expects(:execute!).once.in_sequence(execute_seq)
+
+      Vagrant::VM.execute!("foo", "bar", "baz")
     end
   end
 

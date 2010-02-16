@@ -8,9 +8,9 @@ module Vagrant
 
     class << self
       # Executes a specific action
-      def execute!(action_klass)
+      def execute!(action_klass, *args)
         vm = new
-        vm.add_action(action_klass)
+        vm.add_action(action_klass, *args)
         vm.execute!
       end
 
@@ -84,8 +84,8 @@ error
       @actions = []
     end
 
-    def add_action(action_klass)
-      @actions << action_klass.new(self)
+    def add_action(action_klass, *args)
+      @actions << action_klass.new(self, *args)
     end
 
     def execute!

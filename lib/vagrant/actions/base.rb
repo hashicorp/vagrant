@@ -17,7 +17,7 @@ module Vagrant
       # would be instance_evaling the vm instance to include a module so
       # additionally functionality could be defined on the vm which other
       # action `prepare` methods may rely on.
-      def initialize(vm)
+      def initialize(vm, *args)
         @vm = vm
       end
 
