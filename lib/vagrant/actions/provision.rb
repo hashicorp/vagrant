@@ -1,7 +1,7 @@
 module Vagrant
   module Actions
     class Provision < Base
-      def execute!
+      def after_boot
         chown_provisioning_folder
         setup_json
         setup_solo_config

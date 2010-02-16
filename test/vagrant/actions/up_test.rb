@@ -8,7 +8,7 @@ class UpActionTest < Test::Unit::TestCase
 
   context "sub-actions" do
     setup do
-      @default_order = [Vagrant::Actions::Import, Vagrant::Actions::ForwardPorts, Vagrant::Actions::SharedFolders, Vagrant::Actions::Start]
+      @default_order = [Vagrant::Actions::Import, Vagrant::Actions::ForwardPorts, Vagrant::Actions::SharedFolders, Vagrant::Actions::Start, Vagrant::Actions::Provision]
     end
 
     def setup_action_expectations

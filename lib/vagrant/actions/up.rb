@@ -4,7 +4,7 @@ module Vagrant
       def prepare
         # Up is a "meta-action" so it really just queues up a bunch
         # of other actions in its place:
-        steps = [Import, ForwardPorts, SharedFolders, Start]
+        steps = [Import, ForwardPorts, SharedFolders, Start, Provision]
         steps.insert(1, MoveHardDrive) if Vagrant.config.vm.hd_location
 
         steps.each do |action_klass|
