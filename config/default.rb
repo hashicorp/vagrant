@@ -18,6 +18,7 @@ Vagrant::Config.run do |config|
   config.vm.disk_image_format = 'VMDK'
 
   config.package.name = 'vagrant'
+  config.package.extension = '.box'
   config.package.delimiter = 'VAGRANT'
   config.package.delimiter_regex = /(.*)#{config.package.delimiter}(.+)#{config.package.delimiter}(.*[\n\r])/
 

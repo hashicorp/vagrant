@@ -136,34 +136,6 @@ error
       @vm.save_state(true)
     end
 
-    # TODO the longest method, needs to be split up
-    def package(name, to)
-      delimiter = Vagrant.config[:package][:delimiter]
-      folder = FileUtils.mkpath(File.join(to, name))
-      logger.info "Creating working directory: #{folder} ..."
-
-      ovf_path = File.join(folder, "#{name}.ovf")
-      tar_path = "#{folder}.box"
-
-      logger.info "Exporting required VM files to working directory ..."
-      @vm.export(ovf_path)
-
-      logger.info "Packaging VM into #{tar_path} ..."
-      Zlib::GzipWriter.open(tar_path) do |gz|
-        Dir.new(folder).each do  |file|
-          next if File.directory?(file)
-          # Delimit the files, and guarantee new line for next file if not the first
-          gz.write "#{delimiter}#{file}#{delimiter}"
-          File.open(File.join(folder, file)).each { |line| gz.write(line) }
-        end
-      end
-
-      logger.info "Removing working directory ..."
-      FileUtils.rm_r(folder)
-
-      tar_path
-    end
-
     def powered_off?; @vm.powered_off? end
 
     def export(filename); @vm.export(filename, {}, true) end

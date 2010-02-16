@@ -182,22 +182,6 @@ class VMTest < Test::Unit::TestCase
     end
   end
 
-  # TODO more comprehensive testing
-  context "packaging a vm" do
-    should "dump the three necessary files to a tar in the current working dir" do
-      location = FileUtils.pwd
-      name = 'vagrant'
-      new_dir = File.join(location, name)
-      @mock_vm.expects(:export).with(File.join(new_dir, "#{name}.ovf"))
-      FileUtils.expects(:mkpath).with(new_dir).returns(new_dir)
-      FileUtils.expects(:rm_r).with(new_dir)
-      Zlib::GzipWriter.expects(:open).with("#{location}/#{name}.box")
-
-      # TODO test whats passed to the open tar.append_tree
-      assert_equal Vagrant::VM.new(@mock_vm).package(name, location), "#{new_dir}.box"
-    end
-  end
-
   context "unpackaging a vm" do
 
     # TODO test actual decompression

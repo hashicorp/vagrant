@@ -38,6 +38,8 @@ class Test::Unit::TestCase
       config.vm.disk_image_format = 'VMDK'
       config.vm.forward_port("ssh", 22, 2222)
 
+      config.package.name = 'vagrant'
+      config.package.extension = '.box'
       config.package.delimiter = 'V'
       config.package.delimiter_regex = /'V(.+)V'/
 

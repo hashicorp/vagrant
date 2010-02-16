@@ -107,7 +107,11 @@ error
         error_and_exit(<<-error) unless Env.persisted_vm.powered_off?
 The vagrant virtual environment you are trying to package must be powered off
 error
-        Env.persisted_vm.package(name || Vagrant.config[:package][:name], FileUtils.pwd)
+        # TODO allow directory specification
+        act_on_vm do |vm|
+          vm.add_action(Actions::Export)
+          vm.add_action(Actions::Package)# (name || Vagrant.config[:package][:name], FileUtils.pwd)
+        end
       end
 
       def unpackage(name)
@@ -116,6 +120,14 @@ error
 Please specify a target package to unpack and import
 error
         VM.up(VM.unpackage(name))
+      end
+
+
+      private
+
+      def act_on_vm(&block)
+        yield Env.persisted_vm
+        Env.persisted_vm.execute!
       end
     end
   end
