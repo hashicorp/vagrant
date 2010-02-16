@@ -8,7 +8,7 @@ class UpActionTest < Test::Unit::TestCase
 
   context "sub-actions" do
     setup do
-      @default_order = [Vagrant::Actions::Import, Vagrant::Actions::ForwardPorts, Vagrant::Actions::SharedFolders, Vagrant::Actions::Start, Vagrant::Actions::Provision]
+      @default_order = [Vagrant::Actions::Import, Vagrant::Actions::ForwardPorts, Vagrant::Actions::SharedFolders, Vagrant::Actions::Start]
     end
 
     def setup_action_expectations
@@ -19,6 +19,16 @@ class UpActionTest < Test::Unit::TestCase
     end
 
     should "do the proper actions by default" do
+      setup_action_expectations
+      @action.prepare
+    end
+
+    should "add in the provisioning step if enabled" do
+      mock_config do |config|
+        config.chef.enabled = true
+      end
+
+      @default_order.push(Vagrant::Actions::Provision)
       setup_action_expectations
       @action.prepare
     end

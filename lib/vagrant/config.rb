@@ -87,6 +87,11 @@ module Vagrant
       attr_accessor :cookbooks_path
       attr_accessor :provisioning_path
       attr_accessor :json
+      attr_accessor :enabled
+
+      def initialize
+        @enabled = false
+      end
     end
 
     class VagrantConfig < Base
