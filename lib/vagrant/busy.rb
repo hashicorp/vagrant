@@ -12,6 +12,7 @@ module Vagrant
 
     @@busy = false
     @@mutex = Mutex.new
+    @@trap_thread = nil
 
     class << self
       def busy?
@@ -34,6 +35,9 @@ module Vagrant
             # busy back to some sane state.
             Busy.busy = false
 
+            # Make sure that the trap thread completes, if it is running
+            trap_thread.join if trap_thread
+
             # And restore the INT trap to the default
             Signal.trap("INT", "DEFAULT")
           end
@@ -41,7 +45,7 @@ module Vagrant
       end
 
       def wait_for_not_busy(sleeptime=5)
-        Thread.new do
+        @@trap_thread ||= Thread.new do
           # Wait while the app is busy
           loop do
             break unless busy?
@@ -50,8 +54,19 @@ module Vagrant
           end
 
           # Exit out of the entire script
+          logger.info "Exiting vagrant..."
           exit
         end
+      end
+
+      # Used for testing
+      def reset_trap_thread!
+        @@trap_thread = nil
+      end
+
+      # Returns the trap thread
+      def trap_thread
+        @@trap_thread
       end
     end
   end
