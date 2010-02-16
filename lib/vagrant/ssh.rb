@@ -9,10 +9,7 @@ module Vagrant
           options[param] = opts[param] || Vagrant.config.ssh.send(param)
         end
 
-        # The port is special
-        options[:port] = opts[:port] || Vagrant.config.vm.forwarded_ports[Vagrant.config.ssh.forwarded_port_key][:hostport]
-
-        Kernel.exec "#{SCRIPT} #{options[:username]} #{options[:password]} #{options[:host]} #{options[:port]}".strip
+        Kernel.exec "#{SCRIPT} #{options[:username]} #{options[:password]} #{options[:host]} #{port(opts)}".strip
       end
 
       def execute
@@ -30,7 +27,6 @@ module Vagrant
       end
 
       def up?
-        port = Vagrant.config.vm.forwarded_ports[Vagrant.config.ssh.forwarded_port_key][:hostport]
         Net::SSH.start(Vagrant.config.ssh.host, Vagrant.config.ssh.username, :port => port, :password => Vagrant.config.ssh.password, :timeout => 5) do |ssh|
           return true
         end
@@ -38,6 +34,10 @@ module Vagrant
         false
       rescue Errno::ECONNREFUSED
         false
+      end
+
+      def port(opts={})
+        opts[:port] || Vagrant.config.vm.forwarded_ports[Vagrant.config.ssh.forwarded_port_key][:hostport]
       end
     end
   end

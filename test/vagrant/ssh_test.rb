@@ -5,15 +5,14 @@ class SshTest < Test::Unit::TestCase
     mock_config
   end
 
-  context "ssh" do
+  context "connecting to SSH" do
     setup do
       @script = Vagrant::SSH::SCRIPT
     end
 
     test "should call exec with defaults when no options are supplied" do
       ssh = Vagrant.config.ssh
-      port = Vagrant.config.vm.forwarded_ports[ssh.forwarded_port_key][:hostport]
-      Kernel.expects(:exec).with("#{@script} #{ssh[:username]} #{ssh[:password]} #{ssh[:host]} #{port}")
+      Kernel.expects(:exec).with("#{@script} #{ssh[:username]} #{ssh[:password]} #{ssh[:host]} #{Vagrant::SSH.port}")
       Vagrant::SSH.connect
     end
 
@@ -24,9 +23,15 @@ class SshTest < Test::Unit::TestCase
     end
   end
 
-  context "net-ssh interaction" do
+  context "executing ssh commands" do
     should "call net::ssh.start with the proper names" do
-      Net::SSH.expects(:start).with(Vagrant.config.ssh.host, Vagrant.config.ssh.username, anything).once
+      Net::SSH.expects(:start).once.with() do |host, username, opts|
+        assert_equal Vagrant.config.ssh.host, host
+        assert_equal Vagrant.config.ssh.username, username
+        assert_equal Vagrant::SSH.port, opts[:port]
+        assert_equal Vagrant.config.ssh.password, opts[:password]
+        true
+      end
       Vagrant::SSH.execute
     end
 
@@ -68,6 +73,16 @@ class SshTest < Test::Unit::TestCase
       assert_nothing_raised {
         assert !Vagrant::SSH.up?
       }
+    end
+  end
+
+  context "getting the ssh port" do
+    should "return the configured port by default" do
+      assert_equal Vagrant.config.vm.forwarded_ports[Vagrant.config.ssh.forwarded_port_key][:hostport], Vagrant::SSH.port
+    end
+
+    should "return the port given in options if it exists" do
+      assert_equal "47", Vagrant::SSH.port({ :port => "47" })
     end
   end
 end
