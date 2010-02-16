@@ -55,6 +55,18 @@ error
         Env.persisted_vm.destroy
       end
 
+      # Reload the environment. This is almost equivalent to the {up} command
+      # except that it doesn't import the VM and do the initialize bootstrapping
+      # of the instance. Instead, it forces a shutdown (if its running) of the
+      # VM, updates the metadata (shared folders, forwarded ports), restarts
+      # the VM, and then reruns the provisioning if enabled.
+      def reload
+        Env.load!
+        Env.require_persisted_vm
+
+        VM.execute!(Actions::Reload)
+      end
+
       # SSH into the vagrant instance. This will setup an SSH connection into
       # the vagrant instance, replacing the running ruby process with the SSH
       # connection.

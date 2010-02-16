@@ -68,6 +68,18 @@ class CommandsTest < Test::Unit::TestCase
     end
   end
 
+  context "reload" do
+    should "require a persisted VM" do
+      Vagrant::Env.expects(:require_persisted_vm).once
+      Vagrant::Commands.reload
+    end
+
+    should "call the `reload` action on the VM" do
+      Vagrant::VM.expects(:execute!).with(Vagrant::Actions::Reload).once
+      Vagrant::Commands.reload
+    end
+  end
+
   context "ssh" do
     setup do
       Vagrant::SSH.stubs(:connect)
