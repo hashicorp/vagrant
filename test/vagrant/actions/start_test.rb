@@ -8,12 +8,11 @@ class StartActionTest < Test::Unit::TestCase
   end
 
   context "execution" do
-    should "invoke before callback, boot, and invoke the after callback" do
+    should "invoke the 'boot' around callback" do
       boot_seq = sequence("boot_seq")
-      @mock_vm.expects(:invoke_callback).with(:before_boot).once.in_sequence(boot_seq)
+      @mock_vm.expects(:invoke_around_callback).with(:boot).once.in_sequence(boot_seq).yields
       @action.expects(:boot).in_sequence(boot_seq)
       @action.expects(:wait_for_boot).returns(true).in_sequence(boot_seq)
-      @mock_vm.expects(:invoke_callback).with(:after_boot).once.in_sequence(boot_seq)
       @action.execute!
     end
 
@@ -21,7 +20,6 @@ class StartActionTest < Test::Unit::TestCase
       fail_boot_seq = sequence("fail_boot_seq")
       @action.expects(:boot).once.in_sequence(fail_boot_seq)
       @action.expects(:wait_for_boot).returns(false).in_sequence(fail_boot_seq)
-      @action.expects(:invoke_callback).with(:after_boot).never
       @action.expects(:error_and_exit).once.in_sequence(fail_boot_seq)
       @action.execute!
     end

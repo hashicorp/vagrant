@@ -16,6 +16,26 @@ class VMTest < Test::Unit::TestCase
       @vm = Vagrant::VM.new(@mock_vm)
     end
 
+    context "around callbacks" do
+      should "invoke before/after_name for around callbacks" do
+        block_obj = mock("block_obj")
+        around_seq = sequence("around_seq")
+        @vm.expects(:invoke_callback).with(:before_foo).once.in_sequence(around_seq)
+        block_obj.expects(:foo).once.in_sequence(around_seq)
+        @vm.expects(:invoke_callback).with(:after_foo).once.in_sequence(around_seq)
+
+        @vm.invoke_around_callback(:foo) do
+          block_obj.foo
+        end
+      end
+
+      should "forward arguments to invoke_callback" do
+        @vm.expects(:invoke_callback).with(:before_foo, "foo").once
+        @vm.expects(:invoke_callback).with(:after_foo, "foo").once
+        @vm.invoke_around_callback(:foo, "foo") do; end
+      end
+    end
+
     should "not invoke callback on actions which don't respond to it" do
       action = mock("action")
       action.stubs(:respond_to?).with(:foo).returns(false)

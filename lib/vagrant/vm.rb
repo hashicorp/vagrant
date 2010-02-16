@@ -98,6 +98,15 @@ error
       end
     end
 
+    # Invokes an "around callback" which invokes before_name and
+    # after_name for the given callback name, yielding a block between
+    # callback invokations.
+    def invoke_around_callback(name, *args)
+      invoke_callback("before_#{name}".to_sym, *args)
+      yield
+      invoke_callback("after_#{name}".to_sym, *args)
+    end
+
     def invoke_callback(name, *args)
       # Attempt to call the method for the callback on each of the
       # actions

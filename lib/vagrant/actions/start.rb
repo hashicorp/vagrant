@@ -2,20 +2,18 @@ module Vagrant
   module Actions
     class Start < Base
       def execute!
-        @vm.invoke_callback(:before_boot)
+        @vm.invoke_around_callback(:boot) do
+          # Startup the VM
+          boot
 
-        # Startup the VM
-        boot
-
-        # Wait for it to complete booting, or error if we could
-        # never detect it booted up successfully
-        if !wait_for_boot
-          error_and_exit(<<-error)
+          # Wait for it to complete booting, or error if we could
+          # never detect it booted up successfully
+          if !wait_for_boot
+            error_and_exit(<<-error)
 Failed to connect to VM! Failed to boot?
 error
+          end
         end
-
-        @vm.invoke_callback(:after_boot)
       end
 
       def boot

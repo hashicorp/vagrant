@@ -66,6 +66,7 @@ class Test::Unit::TestCase
     @mock_vm.stubs(:vm).returns(@vm)
     @mock_vm.stubs(:vm=)
     @mock_vm.stubs(:invoke_callback)
+    @mock_vm.stubs(:invoke_around_callback).yields
     @action = action_klass.new(@mock_vm)
 
     [@mock_vm, @vm, @action]

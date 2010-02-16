@@ -12,11 +12,8 @@ class ImportActionTest < Test::Unit::TestCase
     @import.execute!
   end
 
-  should "invoke before/after callbacks around the import" do
-    callback_seq = sequence("callback_seq")
-    @mock_vm.expects(:invoke_callback).with(:before_import).once.in_sequence(callback_seq)
-    VirtualBox::VM.expects(:import).once.in_sequence(callback_seq)
-    @mock_vm.expects(:invoke_callback).with(:after_import).once.in_sequence(callback_seq)
+  should "invoke an around callback around the import" do
+    @mock_vm.expects(:invoke_around_callback).with(:import).once
     @import.execute!
   end
 
