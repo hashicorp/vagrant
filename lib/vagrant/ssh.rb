@@ -13,7 +13,6 @@ module Vagrant
       end
 
       def execute
-        port = Vagrant.config.vm.forwarded_ports[Vagrant.config.ssh.forwarded_port_key][:hostport]
         Net::SSH.start(Vagrant.config.ssh.host, Vagrant.config[:ssh][:username], :port => port, :password => Vagrant.config[:ssh][:password]) do |ssh|
           yield ssh
         end
