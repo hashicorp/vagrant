@@ -117,7 +117,7 @@ code {
   font-family: Monaco, Consolas, monospace;
 }
 
-p code {
+p code, li code {
   color: #96F;
   color: #008200;
   color: #C30;
