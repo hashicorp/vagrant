@@ -130,12 +130,11 @@ error
         error_and_exit(<<-error) unless name
 Please specify a target package to unpack and import
 error
-        VM.up(VM.unpackage(name))
-      end
-
+        
+        VM.execute!(Actions::Up, VM.execute!(Actions::Unpackage, name))
+      end 
 
       private
-
       def act_on_vm(&block)
         yield Env.persisted_vm
         Env.persisted_vm.execute!

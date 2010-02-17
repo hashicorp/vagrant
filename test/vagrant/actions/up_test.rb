@@ -8,11 +8,12 @@ class UpActionTest < Test::Unit::TestCase
 
   context "sub-actions" do
     setup do
-      @default_order = [Vagrant::Actions::Import, Vagrant::Actions::ForwardPorts, Vagrant::Actions::SharedFolders, Vagrant::Actions::Start]
+      @default_order = [Vagrant::Actions::ForwardPorts, Vagrant::Actions::SharedFolders, Vagrant::Actions::Start]
     end
 
     def setup_action_expectations
       default_seq = sequence("default_seq")
+      @mock_vm.expects(:add_action).with(Vagrant::Actions::Import, nil).once.in_sequence(default_seq)
       @default_order.each do |action|
         @mock_vm.expects(:add_action).with(action).once.in_sequence(default_seq)
       end
@@ -39,7 +40,7 @@ class UpActionTest < Test::Unit::TestCase
         config.vm.hd_location = "foo"
       end
 
-      @default_order.insert(1, Vagrant::Actions::MoveHardDrive)
+      @default_order.insert(0, Vagrant::Actions::MoveHardDrive)
       setup_action_expectations
       @action.prepare
     end

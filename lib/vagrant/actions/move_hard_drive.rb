@@ -12,9 +12,17 @@ error
         destroy_drive_after { clone_and_attach }
       end
 
-      # TODO: Better way to detect main bootup drive?
       def hard_drive
-        @vm.storage_controllers.first.devices.first
+        @hard_drive ||= find_hard_drive
+      end
+
+      # TODO won't work if the first disk is not the boot disk or even if there are multiple disks
+      def find_hard_drive
+        @vm.storage_controllers.each do |sc|
+          sc.devices.each do |d|
+            return d if d.image.is_a?(VirtualBox::HardDrive)
+          end
+        end
       end
 
       def clone_and_attach

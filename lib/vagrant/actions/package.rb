@@ -19,7 +19,7 @@ module Vagrant
         Zlib::GzipWriter.open(compressed_file_name) do |gz|
           files_to_compress.each do  |file|
             # Delimit the files, and guarantee new line for next file if not the first
-            gz.write "#{delimiter}#{file}#{delimiter}"
+            gz.write "#{delimiter}#{File.basename(file)}#{delimiter}"
             File.open(file).each { |line| gz.write(line) }
           end
         end

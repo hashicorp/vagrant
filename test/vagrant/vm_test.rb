@@ -197,18 +197,4 @@ class VMTest < Test::Unit::TestCase
       end
     end
   end
-
-  context "unpackaging a vm" do
-
-    # TODO test actual decompression
-    should "call decompress with the path to the file and the directory to decompress to" do
-      working_dir = File.join FileUtils.pwd, 'something'
-      file = File.join(FileUtils.pwd, 'something.box')
-      FileUtils.expects(:mkpath).with(working_dir).once
-      FileUtils.expects(:mv).with(working_dir, Vagrant.config[:vagrant][:home]).once
-      Vagrant::VM.expects(:decompress).with(file, working_dir).once
-      Vagrant::VM.unpackage(file)
-
-    end
-  end
 end

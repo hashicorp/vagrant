@@ -1,12 +1,20 @@
 module Vagrant
   module Actions
     class Up < Base
+      #First arg should be the ovf_file location for import
+      def initialize(vm, *args)
+        super vm
+        @ovf_file = args[0]
+      end
+
       def prepare
         # Up is a "meta-action" so it really just queues up a bunch
         # of other actions in its place:
-        steps = [Import, ForwardPorts, SharedFolders, Start]
+        @vm.add_action(Import, @ovf_file)
+        
+        steps = [ForwardPorts, SharedFolders, Start]
         steps << Provision if Vagrant.config.chef.enabled
-        steps.insert(1, MoveHardDrive) if Vagrant.config.vm.hd_location
+        steps.insert(0, MoveHardDrive) if Vagrant.config.vm.hd_location
 
         steps.each do |action_klass|
           @vm.add_action(action_klass)

@@ -10,6 +10,21 @@ class MoveHardDriveActionTest < Test::Unit::TestCase
     end
   end
 
+  
+  should "be able to identifiy a hard drive within the storage controllers" do
+    hd = mock('hd')
+    hd_image = mock('hd_image')
+    hd_image.expects(:is_a?).returns(true)
+    hd.expects(:image).returns(hd_image)
+
+    dvd = mock('dvd')
+    controller = mock('controller')
+    controller.expects(:devices).returns([hd, dvd])
+
+    @mock_vm.expects(:storage_controllers).once.returns([controller])
+    assert_equal @action.find_hard_drive, hd
+  end
+
   context "execution" do
     should "error and exit if the vm is not powered off" do
       @mock_vm.expects(:powered_off?).returns(false)
