@@ -31,7 +31,7 @@ module Vagrant
         end
 
         false
-      rescue Errno::ECONNREFUSED
+      rescue Errno::ECONNREFUSED, Net::SSH::Disconnect
         false
       end
 

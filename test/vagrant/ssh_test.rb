@@ -74,6 +74,13 @@ class SshTest < Test::Unit::TestCase
         assert !Vagrant::SSH.up?
       }
     end
+
+    should "return false if the connection is dropped" do
+      Net::SSH.expects(:start).raises(Net::SSH::Disconnect)
+      assert_nothing_raised {
+        assert !Vagrant::SSH.up?
+      }
+    end
   end
 
   context "getting the ssh port" do
