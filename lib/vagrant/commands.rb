@@ -121,7 +121,7 @@ error
         # TODO allow directory specification
         act_on_vm do |vm|
           vm.add_action(Actions::Export)
-          vm.add_action(Actions::Package)# (name || Vagrant.config[:package][:name], FileUtils.pwd)
+          vm.add_action(Actions::Package, name || Vagrant.config[:package][:name], FileUtils.pwd)
         end
       end
 
@@ -130,7 +130,7 @@ error
         error_and_exit(<<-error) unless name
 Please specify a target package to unpack and import
 error
-        
+
         VM.execute!(Actions::Up, VM.execute!(Actions::Unpackage, name))
       end 
 

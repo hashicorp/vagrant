@@ -79,8 +79,6 @@ module Vagrant
     class PackageConfig < Base
       attr_accessor :name
       attr_accessor :extension
-      attr_accessor :delimiter
-      attr_accessor :delimiter_regex
     end
 
     class ChefConfig < Base

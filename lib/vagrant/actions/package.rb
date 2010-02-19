@@ -1,26 +1,41 @@
 module Vagrant
   module Actions
     class Package < Base
-      def execute!(name=Vagrant.config.package.name, to=FileUtils.pwd)
-        folder = FileUtils.mkpath(File.join(to, name))
-        tar_path = "#{folder}#{Vagrant.config.package.extension}"
+      attr_accessor :name, :to
 
+      def initialize(vm, *args)
+        super vm
+        @name = args[0]
+        @to = args[1]
+      end
+
+      def execute!
         logger.info "Packaging VM into #{tar_path} ..."
-        compress(Dir["#{folder}/*.*"], tar_path)
+        compress
 
         logger.info "Removing working directory ..."
-        FileUtils.rm_r(folder)
+        FileUtils.rm_r(working_dir)
 
         tar_path
       end
 
-      def compress(files_to_compress, compressed_file_name)
-        delimiter = Vagrant.config.package.delimiter
-        Zlib::GzipWriter.open(compressed_file_name) do |gz|
-          files_to_compress.each do  |file|
-            # Delimit the files, and guarantee new line for next file if not the first
-            gz.write "#{delimiter}#{File.basename(file)}#{delimiter}"
-            File.open(file).each { |line| gz.write(line) }
+      def working_dir
+        FileUtils.mkpath(File.join(@to, @name))
+      end
+
+      def tar_path
+        "#{working_dir}#{Vagrant.config.package.extension}"
+      end
+
+      def compress
+        Tar.open(tar_path, File::CREAT | File::WRONLY, 0644, Tar::GNU) do |tar|
+          begin
+            # Append tree will append the entire directory tree unless a relative folder reference is used
+            current_dir = FileUtils.pwd
+            FileUtils.cd(@to)
+            tar.append_tree(@name)
+          ensure
+            FileUtils.cd(current_dir)
           end
         end
       end

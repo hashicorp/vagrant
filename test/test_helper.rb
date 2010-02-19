@@ -40,8 +40,6 @@ class Test::Unit::TestCase
 
       config.package.name = 'vagrant'
       config.package.extension = '.box'
-      config.package.delimiter = 'V'
-      config.package.delimiter_regex = /'V(.+)V'/
 
       config.chef.cookbooks_path = "cookbooks"
       config.chef.provisioning_path = "/tmp/hobo-chef"

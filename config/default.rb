@@ -19,8 +19,6 @@ Vagrant::Config.run do |config|
 
   config.package.name = 'vagrant'
   config.package.extension = '.box'
-  config.package.delimiter = 'VAGRANT'
-  config.package.delimiter_regex = /(.*)#{config.package.delimiter}(.+)#{config.package.delimiter}(.*[\n\r])/
 
   config.chef.enabled = false
   config.chef.cookbooks_path = "cookbooks"
