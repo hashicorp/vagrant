@@ -55,5 +55,44 @@ class PackageActionTest < Test::Unit::TestCase
     end
   end
 
-  # TODO test compression once its finished
+  context "compression" do
+    setup do
+      @tar_path = "foo"
+      @action.stubs(:tar_path).returns(@tar_path)
+
+      @pwd = "bar"
+      FileUtils.stubs(:pwd).returns(@pwd)
+      FileUtils.stubs(:cd)
+
+      @tar = mock("tar")
+      Tar.stubs(:open).yields(@tar)
+    end
+
+    should "open the tar file with the tar path properly" do
+      Tar.expects(:open).with(@tar_path, File::CREAT | File::WRONLY, 0644, Tar::GNU).once
+      @action.compress
+    end
+
+    #----------------------------------------------------------------
+    # Methods below this comment test the block yielded by Tar.open
+    #----------------------------------------------------------------
+    should "cd to the directory and append the directory" do
+      compress_seq = sequence("compress_seq")
+      FileUtils.expects(:pwd).once.returns(@pwd).in_sequence(compress_seq)
+      FileUtils.expects(:cd).with(@action.to).in_sequence(compress_seq)
+      @tar.expects(:append_tree).with(@action.name).in_sequence(compress_seq)
+      FileUtils.expects(:cd).with(@pwd).in_sequence(compress_seq)
+      @action.compress
+    end
+
+    should "pop back to the current directory even if an exception is raised" do
+      cd_seq = sequence("cd_seq")
+      FileUtils.expects(:cd).with(@action.to).raises(Exception).in_sequence(cd_seq)
+      FileUtils.expects(:cd).with(@pwd).in_sequence(cd_seq)
+
+      assert_raises(Exception) {
+        @action.compress
+      }
+    end
+  end
 end
