@@ -14,9 +14,13 @@ module Vagrant
         compress
 
         logger.info "Removing working directory ..."
-        FileUtils.rm_r(working_dir)
+        clean
 
         tar_path
+      end
+
+      def clean
+        FileUtils.rm_r(working_dir)
       end
 
       def working_dir
