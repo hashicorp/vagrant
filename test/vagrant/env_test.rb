@@ -27,6 +27,31 @@ class EnvTest < Test::Unit::TestCase
     end
   end
 
+  context "loading home directory" do
+    setup do
+      @home_dir = File.expand_path(Vagrant.config.vagrant.home)
+
+      File.stubs(:directory?).returns(true)
+      FileUtils.stubs(:mkdir_p)
+    end
+
+    should "create each directory if it doesn't exist" do
+      create_seq = sequence("create_seq")
+      File.stubs(:directory?).returns(false)
+      Vagrant::Env::HOME_SUBDIRS.each do |subdir|
+        FileUtils.expects(:mkdir_p).with(File.join(@home_dir, subdir)).in_sequence(create_seq)
+      end
+
+      Vagrant::Env.load_home_directory!
+    end
+
+    should "not create directories if they exist" do
+      File.stubs(:directory?).returns(true)
+      FileUtils.expects(:mkdir_p).never
+      Vagrant::Env.load_home_directory!
+    end
+  end
+
   context "loading config" do
     setup do
       @root_path = "/foo"
@@ -69,6 +94,7 @@ class EnvTest < Test::Unit::TestCase
       Vagrant::Env.expects(:load_config!).once
       Vagrant::Env.expects(:load_vm!).once
       Vagrant::Env.expects(:load_root_path!).once
+      Vagrant::Env.expects(:load_home_directory!).once
       Vagrant::Env.load!
     end
   end

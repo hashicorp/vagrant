@@ -1,6 +1,7 @@
 module Vagrant
   class Env
     ROOTFILE_NAME = "Vagrantfile"
+    HOME_SUBDIRS = ["tmp", "boxes"]
 
     # Initialize class variables used
     @@persisted_vm = nil
@@ -16,6 +17,7 @@ module Vagrant
       def load!
         load_root_path!
         load_config!
+        load_home_directory!
         load_vm!
       end
 
@@ -32,6 +34,20 @@ module Vagrant
 
         # Execute the configurations
         Config.execute!
+      end
+
+      def load_home_directory!
+        home_dir = File.expand_path(Vagrant.config.vagrant.home)
+
+        dirs = HOME_SUBDIRS.collect { |path| File.join(home_dir, path) }
+        dirs.unshift(home_dir)
+
+        dirs.each do |dir|
+          next if File.directory?(dir)
+
+          logger.info "Creating home directory since it doesn't exist: #{dir}"
+          FileUtils.mkdir_p(dir)
+        end
       end
 
       def load_vm!
