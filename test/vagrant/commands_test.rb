@@ -210,4 +210,23 @@ class CommandsTest < Test::Unit::TestCase
       Vagrant::Commands.box_add(@name, @path)
     end
   end
+
+  context "box remove" do
+    setup do
+      @name = "foo"
+    end
+
+    should "error and exit if the box doesn't exist" do
+      Vagrant::Box.expects(:find).returns(nil)
+      Vagrant::Commands.expects(:error_and_exit).once
+      Vagrant::Commands.box_remove(@name)
+    end
+
+    should "call destroy on the box if it exists" do
+      @box = mock("box")
+      Vagrant::Box.expects(:find).with(@name).returns(@box)
+      @box.expects(:destroy).once
+      Vagrant::Commands.box_remove(@name)
+    end
+  end
 end

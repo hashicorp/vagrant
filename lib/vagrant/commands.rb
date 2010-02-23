@@ -161,6 +161,19 @@ error
         Box.add(name, path)
       end
 
+      # Removes a box.
+      def box_remove(name)
+        box = Box.find(name)
+        if box.nil?
+          error_and_exit(<<-error)
+The box you're attempting to remove does not exist!
+error
+          return # for tests
+        end
+
+        box.destroy
+      end
+
       private
 
       def act_on_vm(&block)

@@ -21,7 +21,7 @@ msg
         end
 
         def box_dir
-          File.join(Env.boxes_path, @runner.name)
+          @runner.directory
         end
 
         def decompress

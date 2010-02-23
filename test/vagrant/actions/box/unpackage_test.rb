@@ -20,12 +20,10 @@ class UnpackageBoxActionTest < Test::Unit::TestCase
   end
 
   context "box directory" do
-    setup do
-      @box_dir = File.join(Vagrant::Env.boxes_path, @runner.name)
-    end
-
-    should "return the boxes_path joined with the name" do
-      assert_equal @box_dir, @action.box_dir
+    should "return the runner directory" do
+      result = mock("object")
+      @runner.expects(:directory).once.returns(result)
+      assert result.equal?(@action.box_dir)
     end
   end
 
