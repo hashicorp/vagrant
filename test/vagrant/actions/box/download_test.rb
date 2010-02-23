@@ -3,7 +3,8 @@ require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 class DownloadBoxActionTest < Test::Unit::TestCase
   setup do
     @uri = "foo.com"
-    @wrapper_vm, @vm, @action = mock_action(Vagrant::Actions::Box::Download, @uri)
+    @runner, @vm, @action = mock_action(Vagrant::Actions::Box::Download)
+    @runner.stubs(:uri).returns(@uri)
     mock_config
 
     Vagrant::Env.stubs(:tmp_path).returns("foo")
@@ -46,6 +47,11 @@ class DownloadBoxActionTest < Test::Unit::TestCase
       @file.stubs(:read)
       @file.stubs(:eof?).returns(false)
       @action.stubs(:open).yields(@file)
+    end
+
+    should "open with the given uri" do
+      @action.expects(:open).with(@uri).once
+      @action.copy_uri_to(@tempfile)
     end
 
     should "read from the file and write to the tempfile" do

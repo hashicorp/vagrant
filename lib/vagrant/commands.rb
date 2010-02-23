@@ -158,7 +158,7 @@ error
 
       # Adds a box to the local filesystem, given a URI.
       def box_add(name, path)
-        Box.execute!(Actions::Box::Add, name, path)
+        Box.add(name, path)
       end
 
       private

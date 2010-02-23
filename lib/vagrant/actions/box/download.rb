@@ -7,11 +7,6 @@ module Vagrant
         BASENAME = "box"
         BUFFERSIZE = 1048576 # 1 MB
 
-        def initialize(runner, uri, *args)
-          super
-          @uri = uri
-        end
-
         def execute!
           with_tempfile do |tempfile|
             copy_uri_to(tempfile)
@@ -27,7 +22,7 @@ module Vagrant
 
         def copy_uri_to(f)
           logger.info "Copying box to temporary location..."
-          open(@uri) do |remote_file|
+          open(@runner.uri) do |remote_file|
             loop do
               break if remote_file.eof?
               f.write(remote_file.read(BUFFERSIZE))

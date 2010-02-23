@@ -206,7 +206,7 @@ class CommandsTest < Test::Unit::TestCase
     end
 
     should "execute the add action with the name and path" do
-      Vagrant::Box.expects(:execute!).with(Vagrant::Actions::Box::Add, @name, @path).once
+      Vagrant::Box.expects(:add).with(@name, @path).once
       Vagrant::Commands.box_add(@name, @path)
     end
   end
