@@ -2,19 +2,12 @@ module Vagrant
   module Actions
     module VM
       class Import < Base
-        attr_accessor :ovf_file
-        #First arg should be the ovf_file location for import
-        def initialize(vm, *args)
-          super vm
-          @ovf_file = File.expand_path(args[0] || Vagrant.config[:vm][:base])
-        end
-
         def execute!
           @runner.invoke_around_callback(:import) do
             Busy.busy do
-              logger.info "Importing base VM (#{@ovf_file})..."
+              logger.info "Importing base VM (#{Vagrant.config[:vm][:base]})..."
               # Use the first argument passed to the action
-              @runner.vm = VirtualBox::VM.import(@ovf_file)
+              @runner.vm = VirtualBox::VM.import(Vagrant.config[:vm][:base])
             end
           end
         end
