@@ -191,5 +191,11 @@ class EnvTest < Test::Unit::TestCase
       Vagrant::Env.stubs(:home_path).returns(@home_path)
       assert_equal File.join(@home_path, "tmp"), Vagrant::Env.tmp_path
     end
+
+    should "return the boxes path" do
+      @home_path = "foo"
+      Vagrant::Env.stubs(:home_path).returns(@home_path)
+      assert_equal File.join(@home_path, "boxes"), Vagrant::Env.boxes_path
+    end
   end
 end

@@ -5,6 +5,7 @@ class DownloadBoxActionTest < Test::Unit::TestCase
     @uri = "foo.com"
     @runner, @vm, @action = mock_action(Vagrant::Actions::Box::Download)
     @runner.stubs(:uri).returns(@uri)
+    @runner.stubs(:temp_path=)
     mock_config
 
     Vagrant::Env.stubs(:tmp_path).returns("foo")
@@ -12,12 +13,23 @@ class DownloadBoxActionTest < Test::Unit::TestCase
 
   context "executing" do
     setup do
+      @path = "foo"
+
       @tempfile = mock("tempfile")
+      @tempfile.stubs(:path).returns(@path)
+
+      @action.stubs(:with_tempfile).yields(@tempfile)
+      @action.stubs(:copy_uri_to)
     end
 
     should "make a tempfile and copy the URI contents to it" do
       @action.expects(:with_tempfile).yields(@tempfile)
       @action.expects(:copy_uri_to).with(@tempfile)
+      @action.execute!
+    end
+
+    should "save the tempfile path" do
+      @runner.expects(:temp_path=).with(@path).once
       @action.execute!
     end
   end

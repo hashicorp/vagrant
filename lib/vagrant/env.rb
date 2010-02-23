@@ -15,6 +15,7 @@ module Vagrant
       def dotfile_path; File.join(root_path, Vagrant.config.dotfile_name); end
       def home_path; File.expand_path(Vagrant.config.vagrant.home); end
       def tmp_path; File.join(home_path, "tmp"); end
+      def boxes_path; File.join(home_path, "boxes"); end
 
       def load!
         load_root_path!

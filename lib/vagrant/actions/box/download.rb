@@ -10,6 +10,7 @@ module Vagrant
         def execute!
           with_tempfile do |tempfile|
             copy_uri_to(tempfile)
+            @runner.temp_path = tempfile.path
           end
         end
 
@@ -20,6 +21,8 @@ module Vagrant
           end
         end
 
+        # TODO: Need a way to report progress. Downloading/copying a 350 MB
+        # box without any progress is not acceptable.
         def copy_uri_to(f)
           logger.info "Copying box to temporary location..."
           open(@runner.uri) do |remote_file|
