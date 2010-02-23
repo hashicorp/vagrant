@@ -73,13 +73,8 @@ class BoxTest < Test::Unit::TestCase
     end
 
     context "destroying" do
-      setup do
-        @dir = mock("directory")
-        @box.stubs(:directory).returns(@dir)
-      end
-
-      should "rm_rf the directory" do
-        FileUtils.expects(:rm_rf).with(@dir).once
+      should "execute the destroy action" do
+        @box.expects(:execute!).with(Vagrant::Actions::Box::Destroy).once
         @box.destroy
       end
     end

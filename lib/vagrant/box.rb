@@ -32,7 +32,7 @@ module Vagrant
     end
 
     def destroy
-      FileUtils.rm_rf(directory)
+      execute!(Actions::Box::Destroy)
     end
 
     def directory
