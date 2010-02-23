@@ -10,11 +10,11 @@ module Vagrant
         end
 
         def execute!
-          @vm.invoke_around_callback(:import) do
+          @runner.invoke_around_callback(:import) do
             Busy.busy do
               logger.info "Importing base VM (#{@ovf_file})..."
               # Use the first argument passed to the action
-              @vm.vm = VirtualBox::VM.import(@ovf_file)
+              @runner.vm = VirtualBox::VM.import(@ovf_file)
             end
           end
         end

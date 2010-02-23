@@ -7,7 +7,7 @@ module Vagrant
           steps << Provision if Vagrant.config.chef.enabled
 
           steps.each do |action_klass|
-            @vm.add_action(action_klass)
+            @runner.add_action(action_klass)
           end
         end
       end

@@ -3,7 +3,7 @@ module Vagrant
     module VM
       class Start < Base
         def execute!
-          @vm.invoke_around_callback(:boot) do
+          @runner.invoke_around_callback(:boot) do
             # Startup the VM
             boot
 
@@ -19,7 +19,7 @@ error
 
         def boot
           logger.info "Booting VM..."
-          @vm.vm.start(:headless, true)
+          @runner.vm.start(:headless, true)
         end
 
         def wait_for_boot(sleeptime=5)

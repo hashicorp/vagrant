@@ -5,7 +5,7 @@ module Vagrant
     # action should define any callbacks that it will call, or
     # attach itself to some callbacks on the VM object.
     class Base
-      attr_reader :vm
+      attr_reader :runner
 
       # Included so subclasses don't need to include it themselves.
       include Vagrant::Util
@@ -17,8 +17,8 @@ module Vagrant
       # would be instance_evaling the vm instance to include a module so
       # additionally functionality could be defined on the vm which other
       # action `prepare` methods may rely on.
-      def initialize(vm, *args)
-        @vm = vm
+      def initialize(runner, *args)
+        @runner = runner
       end
 
       # This method is called once per action, allowing the action

@@ -3,7 +3,7 @@ module Vagrant
     module VM
       class SharedFolders < Base
         def shared_folders
-          shared_folders = @vm.invoke_callback(:collect_shared_folders)
+          shared_folders = @runner.invoke_callback(:collect_shared_folders)
 
           # Basic filtering of shared folders. Basically only verifies that
           # the result is an array of 3 elements. In the future this should
@@ -25,10 +25,10 @@ module Vagrant
             folder = VirtualBox::SharedFolder.new
             folder.name = name
             folder.hostpath = hostpath
-            @vm.vm.shared_folders << folder
+            @runner.vm.shared_folders << folder
           end
 
-          @vm.vm.save(true)
+          @runner.vm.save(true)
         end
 
         def after_boot

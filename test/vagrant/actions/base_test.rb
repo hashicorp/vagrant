@@ -11,8 +11,8 @@ class BaseActionTest < Test::Unit::TestCase
       @base = Vagrant::Actions::Base.new(@mock_vm)
     end
 
-    should "allow read-only access to the VM" do
-      assert_equal @mock_vm, @base.vm
+    should "allow read-only access to the runner" do
+      assert_equal @mock_vm, @base.runner
     end
 
     should "implement prepare which does nothing" do

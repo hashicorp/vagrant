@@ -9,7 +9,7 @@ module Vagrant
           ovf_path = File.join(folder, "#{name}.ovf")
 
           logger.info "Exporting required VM files to directory: #{folder} ..."
-          @vm.export(ovf_path)
+          @runner.export(ovf_path)
         end
       end
     end

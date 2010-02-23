@@ -3,7 +3,7 @@ module Vagrant
     module VM
       class MoveHardDrive < Base
         def execute!
-          unless @vm.powered_off?
+          unless @runner.powered_off?
             error_and_exit(<<-error)
 The virtual machine must be powered off to move its disk.
 error
@@ -19,7 +19,7 @@ error
 
         # TODO won't work if the first disk is not the boot disk or even if there are multiple disks
         def find_hard_drive
-          @vm.storage_controllers.each do |sc|
+          @runner.storage_controllers.each do |sc|
             sc.devices.each do |d|
               return d if d.image.is_a?(VirtualBox::HardDrive)
             end
@@ -31,7 +31,7 @@ error
           hard_drive.image = hard_drive.image.clone(new_image_path, Vagrant.config.vm.disk_image_format, true)
 
           logger.info "Attaching new disk to VM ..."
-          @vm.vm.save
+          @runner.vm.save
         end
 
         def destroy_drive_after
