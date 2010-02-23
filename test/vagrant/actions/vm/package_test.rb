@@ -1,8 +1,8 @@
-require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
+require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 
 class PackageActionTest < Test::Unit::TestCase
   setup do
-    @wrapper_vm, @vm, @action = mock_action(Vagrant::Actions::Package)
+    @wrapper_vm, @vm, @action = mock_action(Vagrant::Actions::VM::Package)
     @action.to = '/foo/bar/baz'
     @action.name = 'bing'
     mock_config

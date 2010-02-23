@@ -1,13 +1,13 @@
-require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
+require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 
 class UnpackageActionTest < Test::Unit::TestCase
   setup do
-    @wrapper_vm, @vm, @action = mock_action(Vagrant::Actions::Unpackage)
+    @wrapper_vm, @vm, @action = mock_action(Vagrant::Actions::VM::Unpackage)
     @expanded_path =  File.join(FileUtils.pwd, 'foo.box')
     File.stubs(:expand_path).returns(@expanded_path)
     @action.package_file_path = 'foo.box'
     mock_config
-  end  
+  end
 
   # TODO test actual decompression
   should "call decompress with the path to the file and the directory to decompress to" do
@@ -27,7 +27,7 @@ class UnpackageActionTest < Test::Unit::TestCase
   end
 
   should "call decompress with the defined options and the correct package path" do
-    Tar.expects(:open).with(@expanded_path, *Vagrant::Actions::Unpackage::TAR_OPTIONS)
+    Tar.expects(:open).with(@expanded_path, *Vagrant::Actions::VM::Unpackage::TAR_OPTIONS)
     @action.decompress
   end
 

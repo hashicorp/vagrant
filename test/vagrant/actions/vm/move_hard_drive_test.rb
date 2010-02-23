@@ -1,8 +1,8 @@
-require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
+require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 
 class MoveHardDriveActionTest < Test::Unit::TestCase
   setup do
-    @mock_vm, @vm, @action = mock_action(Vagrant::Actions::MoveHardDrive)
+    @mock_vm, @vm, @action = mock_action(Vagrant::Actions::VM::MoveHardDrive)
     @hd_location = "/foo"
     mock_config do |config|
       File.expects(:directory?).with(@hd_location).returns(true)
@@ -10,7 +10,7 @@ class MoveHardDriveActionTest < Test::Unit::TestCase
     end
   end
 
-  
+
   should "be able to identifiy a hard drive within the storage controllers" do
     hd = mock('hd')
     hd_image = mock('hd_image')

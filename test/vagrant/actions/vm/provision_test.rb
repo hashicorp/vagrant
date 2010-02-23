@@ -1,8 +1,8 @@
-require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
+require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 
 class ProvisionActionTest < Test::Unit::TestCase
   setup do
-    @mock_vm, @vm, @action = mock_action(Vagrant::Actions::Provision)
+    @mock_vm, @vm, @action = mock_action(Vagrant::Actions::VM::Provision)
 
     Vagrant::SSH.stubs(:execute)
     Vagrant::SSH.stubs(:upload!)

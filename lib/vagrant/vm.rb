@@ -20,7 +20,7 @@ module Vagrant
     end
 
     def destroy
-      execute!(Actions::Stop) if @vm.running?
+      execute!(Actions::VM::Stop) if @vm.running?
 
       logger.info "Destroying VM and associated drives..."
       @vm.destroy(:destroy_image => true)

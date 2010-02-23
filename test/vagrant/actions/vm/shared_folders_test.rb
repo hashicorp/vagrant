@@ -1,8 +1,8 @@
-require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
+require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 
 class SharedFoldersActionTest < Test::Unit::TestCase
   setup do
-    @mock_vm, @vm, @action = mock_action(Vagrant::Actions::SharedFolders)
+    @mock_vm, @vm, @action = mock_action(Vagrant::Actions::VM::SharedFolders)
     mock_config
   end
 

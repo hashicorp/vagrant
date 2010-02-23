@@ -1,8 +1,8 @@
-require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
+require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 
 class ImportActionTest < Test::Unit::TestCase
   setup do
-    @mock_vm, @vm, @import = mock_action(Vagrant::Actions::Import)
+    @mock_vm, @vm, @import = mock_action(Vagrant::Actions::VM::Import)
 
     VirtualBox::VM.stubs(:import)
   end
@@ -37,15 +37,15 @@ class ImportActionTest < Test::Unit::TestCase
       File.expand_path do |n|
         assert_equal n, Vagrant.config.vm.base
       end
-      Vagrant::Actions::Import.new(@vm)
+      Vagrant::Actions::VM::Import.new(@vm)
     end
 
     should "expand the ovf path and assign it when passed as a parameter" do
       File.stubs(:expand_path)
       File.expand_path do |n|
          assert_equal n, 'foo'
-      end 
-      Vagrant::Actions::Import.new(@vm, 'foo')
+      end
+      Vagrant::Actions::VM::Import.new(@vm, 'foo')
     end
   end
 end

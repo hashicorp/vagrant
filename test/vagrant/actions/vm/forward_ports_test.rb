@@ -1,8 +1,8 @@
-require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
+require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 
 class ForwardPortsActionTest < Test::Unit::TestCase
   setup do
-    @mock_vm, @vm, @action = mock_action(Vagrant::Actions::ForwardPorts)
+    @mock_vm, @vm, @action = mock_action(Vagrant::Actions::VM::ForwardPorts)
     mock_config
   end
 

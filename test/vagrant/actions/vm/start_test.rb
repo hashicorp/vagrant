@@ -1,8 +1,8 @@
-require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
+require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 
 class StartActionTest < Test::Unit::TestCase
   setup do
-    @mock_vm, @vm, @action = mock_action(Vagrant::Actions::Start)
+    @mock_vm, @vm, @action = mock_action(Vagrant::Actions::VM::Start)
     @mock_vm.stubs(:invoke_callback)
     mock_config
   end

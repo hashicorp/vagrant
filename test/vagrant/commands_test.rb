@@ -48,7 +48,7 @@ class CommandsTest < Test::Unit::TestCase
     end
 
     should "call the up action on VM" do
-      Vagrant::VM.expects(:execute!).with(Vagrant::Actions::Up).once
+      Vagrant::VM.expects(:execute!).with(Vagrant::Actions::VM::Up).once
       Vagrant::Commands.up
     end
   end
@@ -76,7 +76,7 @@ class CommandsTest < Test::Unit::TestCase
     end
 
     should "call the `reload` action on the VM" do
-      @persisted_vm.expects(:execute!).with(Vagrant::Actions::Reload).once
+      @persisted_vm.expects(:execute!).with(Vagrant::Actions::VM::Reload).once
       Vagrant::Commands.reload
     end
   end

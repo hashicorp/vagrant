@@ -1,19 +1,19 @@
-require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
+require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 
 class UpActionTest < Test::Unit::TestCase
   setup do
-    @mock_vm, @vm, @action = mock_action(Vagrant::Actions::Up)
+    @mock_vm, @vm, @action = mock_action(Vagrant::Actions::VM::Up)
     mock_config
   end
 
   context "sub-actions" do
     setup do
-      @default_order = [Vagrant::Actions::ForwardPorts, Vagrant::Actions::SharedFolders, Vagrant::Actions::Start]
+      @default_order = [Vagrant::Actions::VM::ForwardPorts, Vagrant::Actions::VM::SharedFolders, Vagrant::Actions::VM::Start]
     end
 
     def setup_action_expectations
       default_seq = sequence("default_seq")
-      @mock_vm.expects(:add_action).with(Vagrant::Actions::Import, nil).once.in_sequence(default_seq)
+      @mock_vm.expects(:add_action).with(Vagrant::Actions::VM::Import, nil).once.in_sequence(default_seq)
       @default_order.each do |action|
         @mock_vm.expects(:add_action).with(action).once.in_sequence(default_seq)
       end
@@ -29,7 +29,7 @@ class UpActionTest < Test::Unit::TestCase
         config.chef.enabled = true
       end
 
-      @default_order.push(Vagrant::Actions::Provision)
+      @default_order.push(Vagrant::Actions::VM::Provision)
       setup_action_expectations
       @action.prepare
     end
@@ -40,7 +40,7 @@ class UpActionTest < Test::Unit::TestCase
         config.vm.hd_location = "foo"
       end
 
-      @default_order.insert(0, Vagrant::Actions::MoveHardDrive)
+      @default_order.insert(0, Vagrant::Actions::VM::MoveHardDrive)
       setup_action_expectations
       @action.prepare
     end

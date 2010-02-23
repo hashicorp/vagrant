@@ -40,7 +40,7 @@ run `vagrant down` first.
 error
         end
 
-        VM.execute!(Actions::Up)
+        VM.execute!(Actions::VM::Up)
       end
 
       # Tear down a vagrant instance. This not only shuts down the instance
@@ -63,7 +63,7 @@ error
       def reload
         Env.load!
         Env.require_persisted_vm
-        Env.persisted_vm.execute!(Actions::Reload)
+        Env.persisted_vm.execute!(Actions::VM::Reload)
       end
 
       # SSH into the vagrant instance. This will setup an SSH connection into
@@ -120,8 +120,8 @@ The vagrant virtual environment you are trying to package must be powered off
 error
         # TODO allow directory specification
         act_on_vm do |vm|
-          vm.add_action(Actions::Export)
-          vm.add_action(Actions::Package, name || Vagrant.config[:package][:name], FileUtils.pwd)
+          vm.add_action(Actions::VM::Export)
+          vm.add_action(Actions::VM::Package, name || Vagrant.config[:package][:name], FileUtils.pwd)
         end
       end
 
@@ -131,7 +131,7 @@ error
 Please specify a target package to unpack and import
 error
 
-        VM.execute!(Actions::Up, VM.execute!(Actions::Unpackage, name))
+        VM.execute!(Actions::VM::Up, VM.execute!(Actions::VM::Unpackage, name))
       end
 
       # Manages the `vagrant box` command, allowing the user to add

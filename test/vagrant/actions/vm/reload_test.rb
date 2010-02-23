@@ -1,14 +1,14 @@
-require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
+require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 
 class ReloadActionTest < Test::Unit::TestCase
   setup do
-    @mock_vm, @vm, @action = mock_action(Vagrant::Actions::Reload)
+    @mock_vm, @vm, @action = mock_action(Vagrant::Actions::VM::Reload)
     mock_config
   end
 
   context "sub-actions" do
     setup do
-      @default_order = [Vagrant::Actions::Stop, Vagrant::Actions::ForwardPorts, Vagrant::Actions::SharedFolders, Vagrant::Actions::Start]
+      @default_order = [Vagrant::Actions::VM::Stop, Vagrant::Actions::VM::ForwardPorts, Vagrant::Actions::VM::SharedFolders, Vagrant::Actions::VM::Start]
     end
 
     def setup_action_expectations
@@ -28,7 +28,7 @@ class ReloadActionTest < Test::Unit::TestCase
         config.chef.enabled = true
       end
 
-      @default_order.push(Vagrant::Actions::Provision)
+      @default_order.push(Vagrant::Actions::VM::Provision)
       setup_action_expectations
       @action.prepare
     end
