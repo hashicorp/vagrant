@@ -8,12 +8,11 @@ class UpActionTest < Test::Unit::TestCase
 
   context "sub-actions" do
     setup do
-      @default_order = [Vagrant::Actions::VM::ForwardPorts, Vagrant::Actions::VM::SharedFolders, Vagrant::Actions::VM::Start]
+      @default_order = [Vagrant::Actions::VM::Import, Vagrant::Actions::VM::ForwardPorts, Vagrant::Actions::VM::SharedFolders, Vagrant::Actions::VM::Start]
     end
 
     def setup_action_expectations
       default_seq = sequence("default_seq")
-      @mock_vm.expects(:add_action).with(Vagrant::Actions::VM::Import, nil).once.in_sequence(default_seq)
       @default_order.each do |action|
         @mock_vm.expects(:add_action).with(action).once.in_sequence(default_seq)
       end

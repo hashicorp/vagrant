@@ -125,15 +125,6 @@ error
         end
       end
 
-      def unpackage(name)
-        Env.load!
-        error_and_exit(<<-error) unless name
-Please specify a target package to unpack and import
-error
-
-        VM.execute!(Actions::VM::Up, VM.execute!(Actions::VM::Unpackage, name))
-      end
-
       # Manages the `vagrant box` command, allowing the user to add
       # and remove boxes. This single command, given an array, determines
       # which action to take and calls the respective action method
