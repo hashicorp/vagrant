@@ -132,9 +132,35 @@ Please specify a target package to unpack and import
 error
 
         VM.execute!(Actions::Up, VM.execute!(Actions::Unpackage, name))
-      end 
+      end
+
+      # Manages the `vagrant box` command, allowing the user to add
+      # and remove boxes. This single command, given an array, determines
+      # which action to take and calls the respective action method
+      # (see {box_add} and {box_remove})
+      def box(argv)
+        sub_commands = ["add", "remove"]
+
+        if !sub_commands.include?(argv[0])
+          error_and_exit(<<-error)
+Please specify a valid action to take on the boxes, either
+`add` or `remove`. Examples:
+
+vagrant box add name uri
+vagrant box remove name
+error
+        end
+
+        send("box_#{argv[0]}", *argv[1..-1])
+      end
+
+      # Adds a box to the local filesystem, given a URI.
+      def box_add(name, path)
+        Box.execute!(Actions::Box::Add, name, path)
+      end
 
       private
+
       def act_on_vm(&block)
         yield Env.persisted_vm
         Env.persisted_vm.execute!

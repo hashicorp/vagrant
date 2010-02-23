@@ -165,4 +165,44 @@ class CommandsTest < Test::Unit::TestCase
       Vagrant::Commands.package
     end
   end
+
+  context "box" do
+    setup do
+      Vagrant::Commands.stubs(:box_foo)
+      Vagrant::Commands.stubs(:box_add)
+      Vagrant::Commands.stubs(:box_remove)
+    end
+
+    should "error and exit if the first argument is not 'add' or 'remove'" do
+      Vagrant::Commands.expects(:error_and_exit).once
+      Vagrant::Commands.box(["foo"])
+    end
+
+    should "not error and exit if the first argument is 'add' or 'remove'" do
+      commands = ["add", "remove"]
+
+      commands.each do |command|
+        Vagrant::Commands.expects(:error_and_exit).never
+        Vagrant::Commands.expects("box_#{command}".to_sym).once
+        Vagrant::Commands.box([command])
+      end
+    end
+
+    should "forward any additional arguments" do
+      Vagrant::Commands.expects(:box_add).with(1,2,3).once
+      Vagrant::Commands.box(["add",1,2,3])
+    end
+  end
+
+  context "box add" do
+    setup do
+      @name = "foo"
+      @path = "bar"
+    end
+
+    should "execute the add action with the name and path" do
+      Vagrant::Box.expects(:execute!).with(Vagrant::Actions::Box::Add, @name, @path).once
+      Vagrant::Commands.box_add(@name, @path)
+    end
+  end
 end
