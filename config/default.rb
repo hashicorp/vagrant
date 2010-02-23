@@ -11,7 +11,7 @@ Vagrant::Config.run do |config|
 
   config.dotfile_name = ".vagrant"
 
-  config.vm.base = "~/.vagrant/base/base.ovf"
+  config.vm.box_ovf = "box.ovf"
   config.vm.base_mac = "0800279C2E41"
   config.vm.project_directory = "/vagrant"
   config.vm.forward_port("ssh", 22, 2222)

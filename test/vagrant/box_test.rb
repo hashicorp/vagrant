@@ -78,5 +78,15 @@ class BoxTest < Test::Unit::TestCase
         @box.destroy
       end
     end
+
+    context "ovf file" do
+      setup do
+        @box.stubs(:directory).returns("foo")
+      end
+
+      should "be the directory joined with the config ovf file" do
+        assert_equal File.join(@box.directory, Vagrant.config.vm.box_ovf), @box.ovf_file
+      end
+    end
   end
 end

@@ -40,6 +40,7 @@ run `vagrant down` first.
 error
         end
 
+        Env.require_box
         VM.execute!(Actions::VM::Up)
       end
 

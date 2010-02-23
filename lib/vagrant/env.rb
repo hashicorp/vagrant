@@ -6,10 +6,12 @@ module Vagrant
     # Initialize class variables used
     @@persisted_vm = nil
     @@root_path = nil
+    @@box = nil
 
     extend Vagrant::Util
 
     class << self
+      def box; @@box; end
       def persisted_vm; @@persisted_vm; end
       def root_path; @@root_path; end
       def dotfile_path; File.join(root_path, Vagrant.config.dotfile_name); end
@@ -21,6 +23,7 @@ module Vagrant
         load_root_path!
         load_config!
         load_home_directory!
+        load_box!
         load_vm!
       end
 
@@ -51,6 +54,10 @@ module Vagrant
           logger.info "Creating home directory since it doesn't exist: #{dir}"
           FileUtils.mkdir_p(dir)
         end
+      end
+
+      def load_box!
+        @@box = Box.find(Vagrant.config.vm.box) if Vagrant.config.vm.box
       end
 
       def load_vm!
@@ -86,6 +93,16 @@ msg
         end
 
         load_root_path!(path.parent, opts)
+      end
+
+      def require_box
+        if !box
+          error_and_exit(<<-msg)
+No base box was specified! A base box is required as a staring point
+for every vagrant virtual machine. Please specify one in your Vagrantfile
+using `config.vm.box`
+msg
+        end
       end
 
       def require_persisted_vm

@@ -4,6 +4,11 @@ class ImportActionTest < Test::Unit::TestCase
   setup do
     @mock_vm, @vm, @import = mock_action(Vagrant::Actions::VM::Import)
 
+    @ovf_file = "foo"
+    @box = mock("box")
+    @box.stubs(:ovf_file).returns(@ovf_file)
+    Vagrant::Env.stubs(:box).returns(@box)
+
     VirtualBox::VM.stubs(:import)
   end
 
@@ -18,7 +23,7 @@ class ImportActionTest < Test::Unit::TestCase
   end
 
   should "call import on VirtualBox::VM with the proper base" do
-    VirtualBox::VM.expects(:import).once
+    VirtualBox::VM.expects(:import).once.with(@ovf_file)
     @import.execute!
   end
 
@@ -27,25 +32,5 @@ class ImportActionTest < Test::Unit::TestCase
     @mock_vm.expects(:vm=).with(new_vm).once
     VirtualBox::VM.expects(:import).returns(new_vm)
     @import.execute!
-  end
-
-  context "when importing with or without an ovf file as an argument" do
-    # NOTE for both tests File.expects(:expand_path) makes mocha recurse and vomit
-
-    should "default the ovf_file value to the vagrant base when not passed as an init argument" do\
-      File.stubs(:expand_path)
-      File.expand_path do |n|
-        assert_equal n, Vagrant.config.vm.base
-      end
-      Vagrant::Actions::VM::Import.new(@vm)
-    end
-
-    should "expand the ovf path and assign it when passed as a parameter" do
-      File.stubs(:expand_path)
-      File.expand_path do |n|
-         assert_equal n, 'foo'
-      end
-      Vagrant::Actions::VM::Import.new(@vm, 'foo')
-    end
   end
 end

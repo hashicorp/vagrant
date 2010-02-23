@@ -27,6 +27,10 @@ module Vagrant
       @name = name
     end
 
+    def ovf_file
+      File.join(directory, Vagrant.config.vm.box_ovf)
+    end
+
     def add
       execute!(Actions::Box::Add)
     end

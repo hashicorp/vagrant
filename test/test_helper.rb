@@ -32,7 +32,8 @@ class Test::Unit::TestCase
       config.ssh.forwarded_port_key = "ssh"
       config.ssh.max_tries = 10
 
-      config.vm.base = "foo"
+      config.vm.box = "foo"
+      config.vm.box_ovf = "box.ovf"
       config.vm.base_mac = "42"
       config.vm.project_directory = "/hobo"
       config.vm.disk_image_format = 'VMDK'

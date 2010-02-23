@@ -33,10 +33,16 @@ class CommandsTest < Test::Unit::TestCase
     setup do
       Vagrant::Env.stubs(:persisted_vm).returns(nil)
       Vagrant::VM.stubs(:execute!)
+      Vagrant::Env.stubs(:require_box)
     end
 
     should "require load the environment" do
       Vagrant::Env.expects(:load!).once
+      Vagrant::Commands.up
+    end
+
+    should "require a box" do
+      Vagrant::Env.expects(:require_box).once
       Vagrant::Commands.up
     end
 

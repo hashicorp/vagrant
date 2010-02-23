@@ -11,6 +11,7 @@ class EnvTest < Test::Unit::TestCase
 
   setup do
     mock_config
+    Vagrant::Box.stubs(:find).returns("foo")
   end
 
   context "requiring a VM" do
@@ -196,6 +197,26 @@ class EnvTest < Test::Unit::TestCase
       @home_path = "foo"
       Vagrant::Env.stubs(:home_path).returns(@home_path)
       assert_equal File.join(@home_path, "boxes"), Vagrant::Env.boxes_path
+    end
+  end
+
+  context "loading box" do
+    setup do
+      @box = mock("box")
+    end
+
+    should "set the box to what is found by the Box class" do
+      Vagrant::Box.expects(:find).with(Vagrant.config.vm.box).once.returns(@box)
+      Vagrant::Env.load_box!
+      assert @box.equal?(Vagrant::Env.box)
+    end
+  end
+
+  context "requiring boxes" do
+    should "error and exit if no box is found" do
+      Vagrant::Env.expects(:box).returns(nil)
+      Vagrant::Env.expects(:error_and_exit).once
+      Vagrant::Env.require_box
     end
   end
 end
