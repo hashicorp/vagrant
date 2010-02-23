@@ -173,6 +173,11 @@ class CommandsTest < Test::Unit::TestCase
       Vagrant::Commands.stubs(:box_remove)
     end
 
+    should "load the environment" do
+      Vagrant::Env.expects(:load!).once
+      Vagrant::Commands.box(["add"])
+    end
+
     should "error and exit if the first argument is not 'add' or 'remove'" do
       Vagrant::Commands.expects(:error_and_exit).once
       Vagrant::Commands.box(["foo"])

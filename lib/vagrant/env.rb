@@ -13,6 +13,8 @@ module Vagrant
       def persisted_vm; @@persisted_vm; end
       def root_path; @@root_path; end
       def dotfile_path; File.join(root_path, Vagrant.config.dotfile_name); end
+      def home_path; File.expand_path(Vagrant.config.vagrant.home); end
+      def tmp_path; File.join(home_path, "tmp"); end
 
       def load!
         load_root_path!

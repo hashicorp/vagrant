@@ -180,4 +180,16 @@ class EnvTest < Test::Unit::TestCase
       assert_equal path, Vagrant::Env.root_path
     end
   end
+
+  context "home directory paths" do
+    should "return the expanded config for `home_path`" do
+      assert_equal File.expand_path(Vagrant.config.vagrant.home), Vagrant::Env.home_path
+    end
+
+    should "return the home_path joined with tmp for a tmp path" do
+      @home_path = "foo"
+      Vagrant::Env.stubs(:home_path).returns(@home_path)
+      assert_equal File.join(@home_path, "tmp"), Vagrant::Env.tmp_path
+    end
+  end
 end

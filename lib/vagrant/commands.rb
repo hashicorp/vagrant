@@ -139,6 +139,8 @@ error
       # which action to take and calls the respective action method
       # (see {box_add} and {box_remove})
       def box(argv)
+        Env.load!
+
         sub_commands = ["add", "remove"]
 
         if !sub_commands.include?(argv[0])

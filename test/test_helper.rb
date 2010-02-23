@@ -66,15 +66,15 @@ class Test::Unit::TestCase
   end
 
   # Sets up the mocks and instantiates an action for testing
-  def mock_action(action_klass)
+  def mock_action(action_klass, *args)
     @vm = mock("vboxvm")
     @mock_vm = mock("vm")
     @mock_vm.stubs(:vm).returns(@vm)
     @mock_vm.stubs(:vm=)
     @mock_vm.stubs(:invoke_callback)
     @mock_vm.stubs(:invoke_around_callback).yields
-    
-    @action = action_klass.new(@mock_vm)
+
+    @action = action_klass.new(@mock_vm, *args)
 
     [@mock_vm, @vm, @action]
   end
