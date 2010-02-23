@@ -11,10 +11,19 @@ class UnpackageBoxActionTest < Test::Unit::TestCase
   end
 
   context "executing" do
+    setup do
+      @runner.stubs(:invoke_around_callback).yields
+    end
+
     should "execute the proper actions in the proper order" do
       exec_seq = sequence("exec_seq")
       @action.expects(:setup_box_dir).in_sequence(exec_seq)
       @action.expects(:decompress).in_sequence(exec_seq)
+      @action.execute!
+    end
+
+    should "execute it in a around block" do
+      @runner.expects(:invoke_around_callback).with(:unpackage).once
       @action.execute!
     end
   end

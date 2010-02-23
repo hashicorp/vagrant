@@ -14,6 +14,11 @@ module Vagrant
           end
         end
 
+        def after_unpackage
+          logger.info "Cleaning up tempfile..."
+          File.unlink(@runner.temp_path) if @runner.temp_path && File.exist?(@runner.temp_path)
+        end
+
         def with_tempfile
           logger.info "Creating tempfile for storing box file..."
           Tempfile.open(BASENAME, Env.tmp_path) do |tempfile|

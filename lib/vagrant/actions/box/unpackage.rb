@@ -5,8 +5,10 @@ module Vagrant
         TAR_OPTIONS = [File::RDONLY, 0644, Tar::GNU]
 
         def execute!
-          setup_box_dir
-          decompress
+          @runner.invoke_around_callback(:unpackage) do
+            setup_box_dir
+            decompress
+          end
         end
 
         def setup_box_dir

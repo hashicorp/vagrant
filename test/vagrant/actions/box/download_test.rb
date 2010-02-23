@@ -50,6 +50,25 @@ class DownloadBoxActionTest < Test::Unit::TestCase
     end
   end
 
+  context "after unpackaging" do
+    setup do
+      @temp_path = "foo"
+      @runner.stubs(:temp_path).returns(@temp_path)
+      File.stubs(:exist?).returns(true)
+    end
+
+    should "delete the temporary file if it exists" do
+      File.expects(:unlink).with(@temp_path).once
+      @action.after_unpackage
+    end
+
+    should "not delete anything if it doesn't exist" do
+      File.stubs(:exist?).returns(false)
+      File.expects(:unlink).never
+      @action.after_unpackage
+    end
+  end
+
   context "copying URI file" do
     setup do
       @tempfile = mock("tempfile")
