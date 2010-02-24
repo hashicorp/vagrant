@@ -21,7 +21,7 @@ class MoveHardDriveActionTest < Test::Unit::TestCase
     controller = mock('controller')
     controller.expects(:devices).returns([hd, dvd])
 
-    @mock_vm.expects(:storage_controllers).once.returns([controller])
+    @vm.expects(:storage_controllers).once.returns([controller])
     assert_equal @action.find_hard_drive, hd
   end
 

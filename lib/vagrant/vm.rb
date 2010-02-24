@@ -42,9 +42,5 @@ module Vagrant
     end
 
     def powered_off?; @vm.powered_off? end
-
-    def export(filename); @vm.export(filename, {}, true) end
-
-    def storage_controllers; @vm.storage_controllers end
   end
 end

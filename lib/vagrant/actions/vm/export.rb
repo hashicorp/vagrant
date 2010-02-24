@@ -24,7 +24,7 @@ module Vagrant
 
         def export
           logger.info "Exporting VM to #{ovf_path} ..."
-          @runner.export(ovf_path)
+          @runner.vm.export(ovf_path, {}, true)
         end
       end
     end

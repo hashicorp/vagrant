@@ -19,7 +19,7 @@ error
 
         # TODO won't work if the first disk is not the boot disk or even if there are multiple disks
         def find_hard_drive
-          @runner.storage_controllers.each do |sc|
+          @runner.vm.storage_controllers.each do |sc|
             sc.devices.each do |d|
               return d if d.image.is_a?(VirtualBox::HardDrive)
             end

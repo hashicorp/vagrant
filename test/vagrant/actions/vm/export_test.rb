@@ -60,7 +60,7 @@ class ExportActionTest < Test::Unit::TestCase
     end
 
     should "call export on the runner with the ovf path" do
-      @runner.expects(:export).with(@ovf_path).once
+      @vm.expects(:export).with(@ovf_path, {}, true).once
       @action.export
     end
   end
