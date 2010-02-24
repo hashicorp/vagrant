@@ -57,6 +57,7 @@ class EnvTest < Test::Unit::TestCase
     setup do
       @root_path = "/foo"
       Vagrant::Env.stubs(:root_path).returns(@root_path)
+      Vagrant::Env.stubs(:box).returns(nil)
       File.stubs(:exist?).returns(false)
       Vagrant::Config.stubs(:execute!)
       Vagrant::Config.stubs(:reset!)
@@ -74,6 +75,20 @@ class EnvTest < Test::Unit::TestCase
 
     should "load from the root path" do
       File.expects(:exist?).with(File.join(@root_path, Vagrant::Env::ROOTFILE_NAME)).once
+      Vagrant::Env.load_config!
+    end
+
+    should "not load from the box directory if it is nil" do
+      Vagrant::Env.expects(:box).once.returns(nil)
+      Vagrant::Env.load_config!
+    end
+
+    should "load from the box directory if it is not nil" do
+      dir = "foo"
+      box = mock("box")
+      box.stubs(:directory).returns(dir)
+      Vagrant::Env.expects(:box).twice.returns(box)
+      File.expects(:exist?).with(File.join(dir, Vagrant::Env::ROOTFILE_NAME)).once
       Vagrant::Env.load_config!
     end
 
@@ -102,6 +117,7 @@ class EnvTest < Test::Unit::TestCase
       Vagrant::Env.expects(:load_vm!).once
       Vagrant::Env.expects(:load_root_path!).once
       Vagrant::Env.expects(:load_home_directory!).once
+      Vagrant::Env.expects(:load_box!).once
       Vagrant::Env.load!
     end
   end
@@ -209,12 +225,26 @@ class EnvTest < Test::Unit::TestCase
   context "loading box" do
     setup do
       @box = mock("box")
+
+      Vagrant::Env.stubs(:load_config!)
     end
 
     should "set the box to what is found by the Box class" do
       Vagrant::Box.expects(:find).with(Vagrant.config.vm.box).once.returns(@box)
       Vagrant::Env.load_box!
       assert @box.equal?(Vagrant::Env.box)
+    end
+
+    should "load the config if a box is loaded" do
+      Vagrant::Env.expects(:load_config!).once
+      Vagrant::Box.expects(:find).returns(@box)
+      Vagrant::Env.load_box!
+    end
+
+    should "not load the config if a box is not loaded" do
+      Vagrant::Env.expects(:load_config!).never
+      Vagrant::Box.expects(:find).returns(nil)
+      Vagrant::Env.load_box!
     end
   end
 

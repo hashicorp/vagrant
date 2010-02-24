@@ -28,10 +28,9 @@ module Vagrant
       end
 
       def load_config!
-        load_paths = [
-          File.join(PROJECT_ROOT, "config", "default.rb"),
-          File.join(root_path, ROOTFILE_NAME)
-        ]
+        load_paths = [File.join(PROJECT_ROOT, "config", "default.rb")]
+        load_paths << File.join(box.directory, ROOTFILE_NAME) if box
+        load_paths << File.join(root_path, ROOTFILE_NAME)
 
         load_paths.each do |path|
           logger.info "Loading config from #{path}..."
@@ -59,6 +58,11 @@ module Vagrant
 
       def load_box!
         @@box = Box.find(Vagrant.config.vm.box) if Vagrant.config.vm.box
+
+        if @@box
+          logger.info("Reloading configuration to account for loaded box...")
+          load_config!
+        end
       end
 
       def load_vm!
