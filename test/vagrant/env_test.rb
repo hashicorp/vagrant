@@ -59,6 +59,12 @@ class EnvTest < Test::Unit::TestCase
       Vagrant::Env.stubs(:root_path).returns(@root_path)
       File.stubs(:exist?).returns(false)
       Vagrant::Config.stubs(:execute!)
+      Vagrant::Config.stubs(:reset!)
+    end
+
+    should "reset the configuration object" do
+      Vagrant::Config.expects(:reset!).once
+      Vagrant::Env.load_config!
     end
 
     should "load from the project root" do

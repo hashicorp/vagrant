@@ -8,6 +8,11 @@ module Vagrant
     @config_runners = []
 
     class << self
+      def reset!
+        @config = nil
+        config_runners.clear
+      end
+
       def config
         @config ||= Config::Top.new
       end

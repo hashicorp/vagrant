@@ -38,7 +38,8 @@ module Vagrant
           load path if File.exist?(path)
         end
 
-        # Execute the configurations
+        # Execute the configurations, clearing out the old data
+        Config.reset!
         Config.execute!
       end
 

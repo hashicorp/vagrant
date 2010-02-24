@@ -1,6 +1,30 @@
 require File.join(File.dirname(__FILE__), '..', 'test_helper')
 
 class ConfigTest < Test::Unit::TestCase
+  context "resetting" do
+    setup do
+      Vagrant::Config.run { |config| }
+      Vagrant::Config.execute!
+    end
+
+    should "return the same config object typically" do
+      config = Vagrant::Config.config
+      assert config.equal?(Vagrant::Config.config)
+    end
+
+    should "create a new object if cleared" do
+      config = Vagrant::Config.config
+      Vagrant::Config.reset!
+      assert !config.equal?(Vagrant::Config.config)
+    end
+
+    should "empty the runners" do
+      assert !Vagrant::Config.config_runners.empty?
+      Vagrant::Config.reset!
+      assert Vagrant::Config.config_runners.empty?
+    end
+  end
+
   context "accessing configuration" do
     setup do
       Vagrant::Config.run { |config| }
