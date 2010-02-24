@@ -28,17 +28,20 @@ module Vagrant
       end
 
       def load_config!
+        # Prepare load paths for config files
         load_paths = [File.join(PROJECT_ROOT, "config", "default.rb")]
         load_paths << File.join(box.directory, ROOTFILE_NAME) if box
         load_paths << File.join(root_path, ROOTFILE_NAME)
+
+        # Then clear out the old data
+        Config.reset!
 
         load_paths.each do |path|
           logger.info "Loading config from #{path}..."
           load path if File.exist?(path)
         end
 
-        # Execute the configurations, clearing out the old data
-        Config.reset!
+        # Execute the configurations
         Config.execute!
       end
 
