@@ -1,6 +1,13 @@
 require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
 
 class ActionRunnerTest < Test::Unit::TestCase
+  def mock_fake_action
+    action = mock("action")
+    action.stubs(:prepare)
+    action.stubs(:execute!)
+    action
+  end
+
   context "callbacks" do
     setup do
       @runner = Vagrant::Actions::Runner.new
@@ -102,6 +109,14 @@ class ActionRunnerTest < Test::Unit::TestCase
       end
 
       @runner.execute!(run_class)
+    end
+
+    should "clear actions after running execute!" do
+      @runner.actions << mock_fake_action
+      @runner.actions << mock_fake_action
+      assert !@runner.actions.empty? # sanity
+      @runner.execute!
+      assert @runner.actions.empty?
     end
 
     should "run #prepare on all actions, then #execute!" do

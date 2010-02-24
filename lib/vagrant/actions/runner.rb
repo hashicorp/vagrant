@@ -38,13 +38,14 @@ module Vagrant
 
         # Call the prepare method on each once its
         # initialized, then call the execute! method
-        return_value = nil
         [:prepare, :execute!].each do |method|
           actions.each do |action|
-            return_value = action.send(method)
+            action.send(method)
           end
         end
-        return_value
+
+        # Clear the actions
+        actions.clear
       end
 
       # Invokes an "around callback" which invokes before_name and
