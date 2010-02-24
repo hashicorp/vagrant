@@ -113,17 +113,14 @@ error
       # Export and package the current vm
       #
       # This command requires that an instance be powered off
-      def package(name=nil)
+      def package(out_path=nil)
         Env.load!
         Env.require_persisted_vm
         error_and_exit(<<-error) unless Env.persisted_vm.powered_off?
 The vagrant virtual environment you are trying to package must be powered off
 error
-        # TODO allow directory specification
-        act_on_vm do |vm|
-          vm.add_action(Actions::VM::Export)
-          vm.add_action(Actions::VM::Package, name || Vagrant.config[:package][:name], FileUtils.pwd)
-        end
+
+        Env.persisted_vm.package(out_path)
       end
 
       # Manages the `vagrant box` command, allowing the user to add

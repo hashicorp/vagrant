@@ -2,19 +2,17 @@ require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 
 class PackageActionTest < Test::Unit::TestCase
   setup do
-    @wrapper_vm, @vm, @action = mock_action(Vagrant::Actions::VM::Package)
-    @action.to = '/foo/bar/baz'
-    @action.name = 'bing'
+    @wrapper_vm, @vm, @action = mock_action(Vagrant::Actions::VM::Package, "bing")
     mock_config
+
+    @temp_path = "temp_path"
+    @action.temp_path = @temp_path
   end
 
   context "executing" do
     setup do
-      @tar_path = "foo"
-
       @action.stubs(:compress)
       @action.stubs(:clean)
-      @action.stubs(:tar_path).returns(@tar_path)
     end
 
     should "compress and remove the working directory" do
@@ -22,10 +20,6 @@ class PackageActionTest < Test::Unit::TestCase
       @action.expects(:compress).in_sequence(package_seq)
       @action.expects(:clean).in_sequence(package_seq)
       @action.execute!
-    end
-
-    should "return the tar path" do
-      assert_equal @tar_path, @action.execute!
     end
   end
 
@@ -36,22 +30,16 @@ class PackageActionTest < Test::Unit::TestCase
     end
 
     should "remove the working directory" do
-      FileUtils.expects(:rm_r).with(@working_dir).once
+      FileUtils.expects(:rm_r).with(@temp_path).once
       @action.clean
     end
   end
 
-  context "working directory" do
-    should "create the directory" do
-      FileUtils.expects(:mkpath).with(File.join(@action.to, @action.name))
-      @action.working_dir
-    end
-  end
-
   context "tar path" do
-    should "be the working directory with the extension attached" do
-      @action.expects(:working_dir).returns("foo")
-      assert_equal "foo#{Vagrant.config.package.extension}", @action.tar_path
+    should "be the temporary directory with the name and extension attached" do
+      pwd = "foo"
+      FileUtils.stubs(:pwd).returns(pwd)
+      assert_equal File.join(pwd, "#{@action.out_path}#{Vagrant.config.package.extension}"), @action.tar_path
     end
   end
 
@@ -79,20 +67,28 @@ class PackageActionTest < Test::Unit::TestCase
     should "cd to the directory and append the directory" do
       compress_seq = sequence("compress_seq")
       FileUtils.expects(:pwd).once.returns(@pwd).in_sequence(compress_seq)
-      FileUtils.expects(:cd).with(@action.to).in_sequence(compress_seq)
-      @tar.expects(:append_tree).with(@action.name).in_sequence(compress_seq)
+      FileUtils.expects(:cd).with(@temp_path).in_sequence(compress_seq)
+      @tar.expects(:append_tree).with(".").in_sequence(compress_seq)
       FileUtils.expects(:cd).with(@pwd).in_sequence(compress_seq)
       @action.compress
     end
 
     should "pop back to the current directory even if an exception is raised" do
       cd_seq = sequence("cd_seq")
-      FileUtils.expects(:cd).with(@action.to).raises(Exception).in_sequence(cd_seq)
+      FileUtils.expects(:cd).with(@temp_path).raises(Exception).in_sequence(cd_seq)
       FileUtils.expects(:cd).with(@pwd).in_sequence(cd_seq)
 
       assert_raises(Exception) {
         @action.compress
       }
+    end
+  end
+
+  context "export callback to set temp path" do
+    should "save to the temp_path directory" do
+      foo = mock("foo")
+      @action.set_export_temp_path(foo)
+      assert foo.equal?(@action.temp_path)
     end
   end
 end

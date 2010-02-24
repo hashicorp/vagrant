@@ -18,7 +18,7 @@ GitStyleBinary.command do
   banner <<-EOS
 Usage: #{command.full_name} #{all_options_string}
 
-Package the current vagrant environment
+Package the current vagrant environment into a box.
 
 EOS
   run do |command|

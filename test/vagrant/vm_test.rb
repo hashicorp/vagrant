@@ -37,6 +37,17 @@ class VMTest < Test::Unit::TestCase
       @vm = Vagrant::VM.new(@mock_vm)
     end
 
+    context "packaging" do
+      should "queue up the actions and execute" do
+        out_path = mock("out_path")
+        action_seq = sequence("actions")
+        @vm.expects(:add_action).with(Vagrant::Actions::VM::Export).once.in_sequence(action_seq)
+        @vm.expects(:add_action).with(Vagrant::Actions::VM::Package, out_path).once.in_sequence(action_seq)
+        @vm.expects(:execute!).in_sequence(action_seq)
+        @vm.package(out_path)
+      end
+    end
+
     context "destroying" do
       setup do
         @mock_vm.stubs(:running?).returns(false)

@@ -155,8 +155,6 @@ class CommandsTest < Test::Unit::TestCase
     setup do
       @persisted_vm.stubs(:package)
       @persisted_vm.stubs(:powered_off?).returns(true)
-      @persisted_vm.expects(:add_action).twice
-      @persisted_vm.expects(:execute!)
     end
 
     should "require a persisted vm" do
@@ -169,6 +167,17 @@ class CommandsTest < Test::Unit::TestCase
       Vagrant::Commands.expects(:error_and_exit).once
       @persisted_vm.expects(:package).never
       Vagrant::Commands.package
+    end
+
+    should "call package on the persisted VM" do
+      @persisted_vm.expects(:package).once
+      Vagrant::Commands.package
+    end
+
+    should "pass in the out path to the package method" do
+      out_path = mock("out_path")
+      @persisted_vm.expects(:package).with(out_path).once
+      Vagrant::Commands.package(out_path)
     end
   end
 

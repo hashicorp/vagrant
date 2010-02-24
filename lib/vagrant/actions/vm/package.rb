@@ -2,47 +2,46 @@ module Vagrant
   module Actions
     module VM
       class Package < Base
-        attr_accessor :name, :to
+        attr_accessor :out_path
+        attr_accessor :temp_path
 
-        def initialize(vm, *args)
-          super vm
-          @name = args[0]
-          @to = args[1]
+        def initialize(vm, out_path = nil, *args)
+          super
+          @out_path = out_path || "package"
+          @temp_path = nil
         end
 
         def execute!
-          logger.info "Packaging VM into #{tar_path} ..."
           compress
-
-          logger.info "Removing working directory ..."
           clean
-
-          tar_path
         end
 
         def clean
-          FileUtils.rm_r(working_dir)
-        end
-
-        def working_dir
-          FileUtils.mkpath(File.join(@to, @name))
+          logger.info "Removing temporary directory ..."
+          FileUtils.rm_r(temp_path)
         end
 
         def tar_path
-          "#{working_dir}#{Vagrant.config.package.extension}"
+          File.join(FileUtils.pwd, "#{out_path}#{Vagrant.config.package.extension}")
         end
 
         def compress
+          logger.info "Packaging VM into #{tar_path} ..."
           Tar.open(tar_path, File::CREAT | File::WRONLY, 0644, Tar::GNU) do |tar|
             begin
               # Append tree will append the entire directory tree unless a relative folder reference is used
               current_dir = FileUtils.pwd
-              FileUtils.cd(@to)
-              tar.append_tree(@name)
+              FileUtils.cd(temp_path)
+              tar.append_tree(".")
             ensure
               FileUtils.cd(current_dir)
             end
           end
+        end
+
+        # This is a callback by Actions::VM::Export
+        def set_export_temp_path(temp_path)
+          @temp_path = temp_path
         end
       end
     end
