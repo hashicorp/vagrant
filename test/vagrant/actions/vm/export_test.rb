@@ -24,6 +24,7 @@ class ExportActionTest < Test::Unit::TestCase
       Vagrant::Env.stubs(:tmp_path).returns(@tmp_path)
 
       @temp_dir = File.join(Vagrant::Env.tmp_path, @time_now)
+      FileUtils.stubs(:mkpath)
     end
 
     should "create the temporary directory using the current time" do
