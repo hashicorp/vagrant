@@ -17,6 +17,11 @@ error
           end
         end
 
+        def collect_shared_folders
+          # The root shared folder for the project
+          ["vagrant-root", Env.root_path, Vagrant.config.vm.project_directory]
+        end
+
         def boot
           logger.info "Booting VM..."
           @runner.vm.start(:headless, true)

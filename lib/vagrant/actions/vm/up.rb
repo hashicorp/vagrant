@@ -14,11 +14,6 @@ module Vagrant
           end
         end
 
-        def collect_shared_folders
-          # The root shared folder for the project
-          ["vagrant-root", Env.root_path, Vagrant.config.vm.project_directory]
-        end
-
         def after_import
           persist
           setup_mac_address

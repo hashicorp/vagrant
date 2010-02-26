@@ -52,11 +52,6 @@ class UpActionTest < Test::Unit::TestCase
       @action.expects(:setup_mac_address).once.in_sequence(boot_seq)
       @action.after_import
     end
-
-    should "setup the root directory shared folder" do
-      expected = ["vagrant-root", Vagrant::Env.root_path, Vagrant.config.vm.project_directory]
-      assert_equal expected, @action.collect_shared_folders
-    end
   end
 
   context "persisting" do

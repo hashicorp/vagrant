@@ -45,4 +45,11 @@ class StartActionTest < Test::Unit::TestCase
       assert !@action.wait_for_boot(0)
     end
   end
+
+  context "callbacks" do
+    should "setup the root directory shared folder" do
+      expected = ["vagrant-root", Vagrant::Env.root_path, Vagrant.config.vm.project_directory]
+      assert_equal expected, @action.collect_shared_folders
+    end
+  end
 end
