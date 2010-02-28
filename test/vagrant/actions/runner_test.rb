@@ -158,7 +158,10 @@ class ActionRunnerTest < Test::Unit::TestCase
     context "exceptions" do
       setup do
         @actions = [mock_fake_action, mock_fake_action]
-        @actions.each { |a| @runner.actions << a }
+        @actions.each do |a|
+          a.stubs(:rescue)
+          @runner.actions << a
+        end
 
         @exception = Exception.new
       end
@@ -169,6 +172,8 @@ class ActionRunnerTest < Test::Unit::TestCase
         end
 
         @actions[0].stubs(:execute!).raises(@exception)
+
+        @runner.expects(:error_and_exit).never
         assert_raises(Exception) { @runner.execute! }
       end
 
@@ -178,7 +183,18 @@ class ActionRunnerTest < Test::Unit::TestCase
         end
 
         @actions[0].stubs(:prepare).raises(@exception)
+
+        @runner.expects(:error_and_exit).never
         assert_raises(Exception) { @runner.execute! }
+      end
+
+      should "call error_and_exit if it is an ActionException" do
+        msg = "Message"
+        @exception = Vagrant::Actions::ActionException.new(msg)
+        @actions[0].stubs(:prepare).raises(@exception)
+
+        @runner.expects(:error_and_exit).with(msg).once
+        @runner.execute!
       end
     end
   end

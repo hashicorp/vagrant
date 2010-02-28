@@ -4,6 +4,8 @@ module Vagrant
     # for actions. A runner is simply a class which will execute
     # actions.
     class Runner
+      include Vagrant::Util
+
       class << self
         # Executes a specific action.
         def execute!(action_klass, *args)
@@ -48,6 +50,12 @@ module Vagrant
           # Run the rescue code to do any emergency cleanup
           actions.each do |action|
             action.rescue(e)
+          end
+
+          # If its an ActionException, error and exit the message
+          if e.is_a?(ActionException)
+            error_and_exit(e.message)
+            return
           end
 
           # Finally, reraise the exception
