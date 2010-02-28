@@ -41,7 +41,7 @@ module Vagrant
         # Call the prepare method on each once its
         # initialized, then call the execute! method
         begin
-          [:prepare, :execute!].each do |method|
+          [:prepare, :execute!, :cleanup].each do |method|
             actions.each do |action|
               action.send(method)
             end

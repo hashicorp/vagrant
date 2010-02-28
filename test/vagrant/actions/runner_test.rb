@@ -5,6 +5,7 @@ class ActionRunnerTest < Test::Unit::TestCase
     action = mock("action")
     action.stubs(:prepare)
     action.stubs(:execute!)
+    action.stubs(:cleanup)
     action
   end
 
@@ -120,7 +121,7 @@ class ActionRunnerTest < Test::Unit::TestCase
       run_class.expects(:new).once.returns(run_action)
       @runner.actions << action
 
-      [:prepare, :execute!].each do |method|
+      [:prepare, :execute!, :cleanup].each do |method|
         action.expects(method).never
         run_action.expects(method).once
       end
@@ -146,7 +147,7 @@ class ActionRunnerTest < Test::Unit::TestCase
         actions << action
       end
 
-      [:prepare, :execute!].each do |method|
+      [:prepare, :execute!, :cleanup].each do |method|
         actions.each do |action|
           action.expects(method).once.in_sequence(action_seq)
         end

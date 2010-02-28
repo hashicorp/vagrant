@@ -47,6 +47,11 @@ module Vagrant
         # @vm.invoke_callback(:after_oven, "more", "than", "one", "option")
       end
 
+      # This method is called after all actions have finished executing.
+      # It is meant as a place where final cleanup code can be done, knowing
+      # that all other actions are finished using your data.
+      def cleanup; end
+
       # This method is only called if some exception occurs in the chain
       # of actions. If an exception is raised in any action in the current
       # chain, then every action part of that chain has {#rescue} called
