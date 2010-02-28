@@ -46,6 +46,18 @@ module Vagrant
         # Do lots of stuff here
         # @vm.invoke_callback(:after_oven, "more", "than", "one", "option")
       end
+
+      # This method is only called if some exception occurs in the chain
+      # of actions. If an exception is raised in any action in the current
+      # chain, then every action part of that chain has {#rescue} called
+      # before raising the exception further. This method should be used to
+      # perform any cleanup necessary in the face of errors.
+      #
+      # **Warning:** Since this method is called when an exception is already
+      # raised, be _extra careful_ when implementing this method to handle
+      # all your own exceptions, otherwise it'll mask the initially raised
+      # exception.
+      def rescue(exception); end
     end
 
     class ActionException < Exception; end

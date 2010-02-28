@@ -66,20 +66,9 @@ class ActionRunnerTest < Test::Unit::TestCase
     end
   end
 
-  context "actions" do
+  context "adding actions" do
     setup do
       @runner = Vagrant::Actions::Runner.new
-    end
-
-    should "setup actions to be an array" do
-      assert_nil @runner.instance_variable_get(:@actions)
-      actions = @runner.actions
-      assert actions.is_a?(Array)
-      assert actions.equal?(@runner.actions)
-    end
-
-    should "be empty initially" do
-      assert @runner.actions.empty?
     end
 
     should "initialize the action when added" do
@@ -94,6 +83,34 @@ class ActionRunnerTest < Test::Unit::TestCase
       action_klass = mock("action_class")
       action_klass.expects(:new).with(@runner, "foo", "bar").once
       @runner.add_action(action_klass, "foo", "bar")
+    end
+  end
+
+  context "class method execute" do
+    should "run actions on class method execute!" do
+      vm = mock("vm")
+      execute_seq = sequence("execute_seq")
+      Vagrant::Actions::Runner.expects(:new).returns(vm).in_sequence(execute_seq)
+      vm.expects(:add_action).with("foo").in_sequence(execute_seq)
+      vm.expects(:execute!).once.in_sequence(execute_seq)
+
+      Vagrant::Actions::Runner.execute!("foo")
+    end
+
+    should "forward arguments to add_action on class method execute!" do
+      vm = mock("vm")
+      execute_seq = sequence("execute_seq")
+      Vagrant::Actions::Runner.expects(:new).returns(vm).in_sequence(execute_seq)
+      vm.expects(:add_action).with("foo", "bar", "baz").in_sequence(execute_seq)
+      vm.expects(:execute!).once.in_sequence(execute_seq)
+
+      Vagrant::Actions::Runner.execute!("foo", "bar", "baz")
+    end
+  end
+
+  context "instance method execute" do
+    setup do
+      @runner = Vagrant::Actions::Runner.new
     end
 
     should "clear the actions and run a single action if given to execute!" do
@@ -138,24 +155,48 @@ class ActionRunnerTest < Test::Unit::TestCase
       @runner.execute!
     end
 
-    should "run actions on class method execute!" do
-      vm = mock("vm")
-      execute_seq = sequence("execute_seq")
-      Vagrant::VM.expects(:new).returns(vm).in_sequence(execute_seq)
-      vm.expects(:add_action).with("foo").in_sequence(execute_seq)
-      vm.expects(:execute!).once.in_sequence(execute_seq)
+    context "exceptions" do
+      setup do
+        @actions = [mock_fake_action, mock_fake_action]
+        @actions.each { |a| @runner.actions << a }
 
-      Vagrant::VM.execute!("foo")
+        @exception = Exception.new
+      end
+
+      should "call #rescue on each action if an exception is raised during execute!" do
+        @actions.each do |a|
+          a.expects(:rescue).with(@exception).once
+        end
+
+        @actions[0].stubs(:execute!).raises(@exception)
+        assert_raises(Exception) { @runner.execute! }
+      end
+
+      should "call #rescue on each action if an exception is raised during prepare" do
+        @actions.each do |a|
+          a.expects(:rescue).with(@exception).once
+        end
+
+        @actions[0].stubs(:prepare).raises(@exception)
+        assert_raises(Exception) { @runner.execute! }
+      end
+    end
+  end
+
+  context "actions" do
+    setup do
+      @runner = Vagrant::Actions::Runner.new
     end
 
-    should "forward arguments to add_action on class method execute!" do
-      vm = mock("vm")
-      execute_seq = sequence("execute_seq")
-      Vagrant::VM.expects(:new).returns(vm).in_sequence(execute_seq)
-      vm.expects(:add_action).with("foo", "bar", "baz").in_sequence(execute_seq)
-      vm.expects(:execute!).once.in_sequence(execute_seq)
+    should "setup actions to be an array" do
+      assert_nil @runner.instance_variable_get(:@actions)
+      actions = @runner.actions
+      assert actions.is_a?(Array)
+      assert actions.equal?(@runner.actions)
+    end
 
-      Vagrant::VM.execute!("foo", "bar", "baz")
+    should "be empty initially" do
+      assert @runner.actions.empty?
     end
   end
 end

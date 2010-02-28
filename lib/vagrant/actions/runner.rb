@@ -38,10 +38,20 @@ module Vagrant
 
         # Call the prepare method on each once its
         # initialized, then call the execute! method
-        [:prepare, :execute!].each do |method|
-          actions.each do |action|
-            action.send(method)
+        begin
+          [:prepare, :execute!].each do |method|
+            actions.each do |action|
+              action.send(method)
+            end
           end
+        rescue Exception => e
+          # Run the rescue code to do any emergency cleanup
+          actions.each do |action|
+            action.rescue(e)
+          end
+
+          # Finally, reraise the exception
+          raise
         end
 
         # Clear the actions
