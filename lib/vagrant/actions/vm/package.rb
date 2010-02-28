@@ -6,10 +6,10 @@ module Vagrant
         attr_accessor :include_files
         attr_accessor :temp_path
 
-        def initialize(vm, out_path = nil, include_files = [], *args)
+        def initialize(vm, out_path = nil, include_files = nil, *args)
           super
           @out_path = out_path || "package"
-          @include_files = include_files
+          @include_files = include_files || []
           @temp_path = nil
         end
 
@@ -31,11 +31,12 @@ module Vagrant
           logger.info "Packaging VM into #{tar_path} ..."
           Tar.open(tar_path, File::CREAT | File::WRONLY, 0644, Tar::GNU) do |tar|
             begin
+              current_dir = FileUtils.pwd
               @include_files.each { |f| tar.append_file(f) }
 
-              # Append tree will append the entire directory tree unless a relative folder reference is used
-              current_dir = FileUtils.pwd
               FileUtils.cd(temp_path)
+
+              # Append tree will append the entire directory tree unless a relative folder reference is used
               tar.append_tree(".")
             ensure
               FileUtils.cd(current_dir)

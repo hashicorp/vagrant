@@ -9,6 +9,24 @@ class PackageActionTest < Test::Unit::TestCase
     @action.temp_path = @temp_path
   end
 
+  context "initialization" do
+    def get_action(*args)
+      wrapper_vm, vm, action = mock_action(Vagrant::Actions::VM::Package, *args)
+      return action
+    end
+
+    should "make out_path 'package' by default if nil is given" do
+      action = get_action(nil, [])
+      assert_equal "package", @action.out_path
+    end
+
+    should "make include files an empty array by default" do
+      action = get_action("foo", nil)
+      assert action.include_files.is_a?(Array)
+      assert action.include_files.empty?
+    end
+  end
+
   context "executing" do
     setup do
       @action.stubs(:compress)
@@ -97,7 +115,7 @@ class PackageActionTest < Test::Unit::TestCase
       @action.compress
     end
   end
-  
+
   context "export callback to set temp path" do
     should "save to the temp_path directory" do
       foo = mock("foo")
