@@ -42,7 +42,7 @@ class VMTest < Test::Unit::TestCase
         out_path = mock("out_path")
         action_seq = sequence("actions")
         @vm.expects(:add_action).with(Vagrant::Actions::VM::Export).once.in_sequence(action_seq)
-        @vm.expects(:add_action).with(Vagrant::Actions::VM::Package, out_path).once.in_sequence(action_seq)
+        @vm.expects(:add_action).with(Vagrant::Actions::VM::Package, out_path, []).once.in_sequence(action_seq)
         @vm.expects(:execute!).in_sequence(action_seq)
         @vm.package(out_path)
       end

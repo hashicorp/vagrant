@@ -2,7 +2,7 @@ require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 
 class PackageActionTest < Test::Unit::TestCase
   setup do
-    @wrapper_vm, @vm, @action = mock_action(Vagrant::Actions::VM::Package, "bing")
+    @wrapper_vm, @vm, @action = mock_action(Vagrant::Actions::VM::Package, "bing", [])
     mock_config
 
     @temp_path = "temp_path"
@@ -82,8 +82,22 @@ class PackageActionTest < Test::Unit::TestCase
         @action.compress
       }
     end
-  end
 
+    should "add included files when passed" do
+      include_files = ['foo', 'bar']
+      action = mock_action(Vagrant::Actions::VM::Package, "bing", include_files).last
+      @tar.expects(:append_tree).with(".")
+      include_files.each { |f| @tar.expects(:append_file).with(f) }
+      action.compress
+    end
+
+    should "not add files when none are specified" do
+      @tar.expects(:append_tree).with(".")
+      @tar.expects(:append_file).never
+      @action.compress
+    end
+  end
+  
   context "export callback to set temp path" do
     should "save to the temp_path directory" do
       foo = mock("foo")

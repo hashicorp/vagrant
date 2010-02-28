@@ -174,9 +174,16 @@ class CommandsTest < Test::Unit::TestCase
       Vagrant::Commands.package
     end
 
-    should "pass in the out path to the package method" do
+    should "pass the out path and include_files to the package method" do
       out_path = mock("out_path")
-      @persisted_vm.expects(:package).with(out_path).once
+      include_files = mock("include_files")
+      @persisted_vm.expects(:package).with(out_path, include_files).once
+      Vagrant::Commands.package(out_path, include_files)
+    end
+
+    should "default to an empty array when not include_files are specified" do
+      out_path = mock("out_path")
+      @persisted_vm.expects(:package).with(out_path, []).once
       Vagrant::Commands.package(out_path)
     end
   end

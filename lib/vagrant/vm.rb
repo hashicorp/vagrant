@@ -19,9 +19,9 @@ module Vagrant
       @vm = vm
     end
 
-    def package(out_path)
+    def package(out_path, include_files=[])
       add_action(Actions::VM::Export)
-      add_action(Actions::VM::Package, out_path)
+      add_action(Actions::VM::Package, out_path, include_files)
       execute!
     end
 

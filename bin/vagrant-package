@@ -21,7 +21,10 @@ Usage: #{command.full_name} #{all_options_string}
 Package the current vagrant environment into a box.
 
 EOS
+
+  opt :include, "files to include in the package", :type => :strings
+
   run do |command|
-    Vagrant::Commands.package(command.argv[0])
+    Vagrant::Commands.package(command.argv[0], command.opts[:include])
   end
 end
