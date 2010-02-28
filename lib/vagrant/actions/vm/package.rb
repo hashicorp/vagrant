@@ -38,7 +38,10 @@ module Vagrant
           Tar.open(tar_path, File::CREAT | File::WRONLY, 0644, Tar::GNU) do |tar|
             begin
               current_dir = FileUtils.pwd
-              @include_files.each { |f| tar.append_file(f) }
+              @include_files.each do |f|
+                logger.info "Packaging additional file: #{f}"
+                tar.append_file(f)
+              end
 
               FileUtils.cd(temp_path)
 
