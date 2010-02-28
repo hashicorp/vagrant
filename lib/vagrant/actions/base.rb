@@ -47,5 +47,7 @@ module Vagrant
         # @vm.invoke_callback(:after_oven, "more", "than", "one", "option")
       end
     end
+
+    class ActionException < Exception; end
   end
 end

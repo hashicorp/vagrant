@@ -4,7 +4,6 @@ class PackageActionTest < Test::Unit::TestCase
   setup do
     @wrapper_vm, @vm, @action = mock_action(Vagrant::Actions::VM::Package, "bing", [])
     mock_config
-
     @temp_path = "temp_path"
     @action.temp_path = @temp_path
   end
@@ -121,6 +120,25 @@ class PackageActionTest < Test::Unit::TestCase
       foo = mock("foo")
       @action.set_export_temp_path(foo)
       assert foo.equal?(@action.temp_path)
+    end
+  end
+
+  context "preparing the action" do
+    setup do
+      @include_files = ['fooiest', 'booiest']
+      @action = mock_action(Vagrant::Actions::VM::Package, "bing", @include_files).last
+    end
+
+    should "check that all the include files exist" do
+      @include_files.each do |file|
+        File.expects(:exists?).with(file).returns(true)
+      end
+      @action.prepare
+    end
+
+    should "raise an exception when an include file does not exist" do
+      File.expects(:exists?).once.returns(false)
+      assert_raises(Vagrant::Actions::ActionException) { @action.prepare }
     end
   end
 end

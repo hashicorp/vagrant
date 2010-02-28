@@ -13,6 +13,12 @@ module Vagrant
           @temp_path = nil
         end
 
+        def prepare 
+          @include_files.each do |file|
+            raise ActionException.new("#{file} does not exist") unless File.exists?(file)
+          end
+        end
+
         def execute!
           compress
           clean
