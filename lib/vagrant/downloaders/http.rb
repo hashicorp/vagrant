@@ -28,12 +28,19 @@ module Vagrant
             destination_file.write(segment)
           end
         end
+
+        complete_progress
       end
 
       def report_progress(progress, total)
         percent = (progress.to_f / total.to_f) * 100
         print "#{CL_RESET}Download Progress: #{percent.to_i}% (#{progress} / #{total})"
         $stdout.flush
+      end
+
+      def complete_progress
+        # Just clear the line back out
+        print "#{CL_RESET}"
       end
     end
   end
