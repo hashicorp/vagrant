@@ -4,7 +4,7 @@ module Vagrant
       class Package < Base
         attr_accessor :out_path
         attr_accessor :include_files
-        attr_accessor :temp_path
+        attr_reader :export_action
 
         def initialize(vm, out_path = nil, include_files = nil, *args)
           super
@@ -14,9 +14,14 @@ module Vagrant
         end
 
         def prepare
+          # Verify the existance of all the additional files, if any
           @include_files.each do |file|
             raise ActionException.new("#{file} does not exist") unless File.exists?(file)
           end
+
+          # Get the export action and store a reference to it
+          @export_action = @runner.find_action(Export)
+          raise ActionException.new("Package must be used in conjunction with export.") unless @export_action
         end
 
         def execute!
@@ -25,6 +30,10 @@ module Vagrant
 
         def tar_path
           File.join(FileUtils.pwd, "#{out_path}#{Vagrant.config.package.extension}")
+        end
+
+        def temp_path
+          export_action.temp_dir
         end
 
         def compress
@@ -45,11 +54,6 @@ module Vagrant
               FileUtils.cd(current_dir)
             end
           end
-        end
-
-        # This is a callback by Actions::VM::Export
-        def set_export_temp_path(temp_path)
-          @temp_path = temp_path
         end
       end
     end

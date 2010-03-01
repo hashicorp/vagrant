@@ -67,6 +67,23 @@ class ActionRunnerTest < Test::Unit::TestCase
     end
   end
 
+  context "finding actions" do
+    setup do
+      @runner = Vagrant::Actions::Runner.new
+    end
+
+    should "return nil if the action could not be found" do
+      assert_nil @runner.find_action(Vagrant::Actions::VM::Export)
+    end
+
+    should "return the first instance of the action found" do
+      @runner.add_action(Vagrant::Actions::VM::Export)
+      @runner.add_action(Vagrant::Actions::VM::Export)
+
+      assert @runner.actions[0].equal?(@runner.find_action(Vagrant::Actions::VM::Export))
+    end
+  end
+
   context "adding actions" do
     setup do
       @runner = Vagrant::Actions::Runner.new

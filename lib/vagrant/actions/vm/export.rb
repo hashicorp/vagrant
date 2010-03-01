@@ -25,8 +25,6 @@ module Vagrant
 
           logger.info "Creating temporary directory for export..."
           FileUtils.mkpath(temp_dir)
-
-          @runner.invoke_callback(:set_export_temp_path, @temp_dir)
         end
 
         def ovf_path

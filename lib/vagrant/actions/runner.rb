@@ -25,6 +25,11 @@ module Vagrant
         @actions ||= []
       end
 
+      # Returns the first action instance which matches the given class.
+      def find_action(action_klass)
+        actions.find { |a| a.is_a?(action_klass) }
+      end
+
       # Add an action to the list of queued actions to execute. This method
       # appends the given action class to the end of the queue.
       def add_action(action_klass, *args)

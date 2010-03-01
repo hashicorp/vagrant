@@ -36,11 +36,6 @@ class ExportActionTest < Test::Unit::TestCase
       @action.setup_temp_dir
       assert_equal @temp_dir, @action.temp_dir
     end
-
-    should "call the set_export_temp_path callback" do
-      @runner.expects(:invoke_callback).with(:set_export_temp_path, @temp_dir).once
-      @action.setup_temp_dir
-    end
   end
 
   context "path to OVF file" do

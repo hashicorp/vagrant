@@ -2,21 +2,20 @@ require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 
 class PackageActionTest < Test::Unit::TestCase
   setup do
-    @wrapper_vm, @vm, @action = mock_action(Vagrant::Actions::VM::Package, "bing", [])
+    @runner, @vm, @action = mock_action(Vagrant::Actions::VM::Package, "bing", [])
+
     mock_config
-    @temp_path = "temp_path"
-    @action.temp_path = @temp_path
   end
 
   context "initialization" do
     def get_action(*args)
-      wrapper_vm, vm, action = mock_action(Vagrant::Actions::VM::Package, *args)
+      runner, vm, action = mock_action(Vagrant::Actions::VM::Package, *args)
       return action
     end
 
     should "make out_path 'package' by default if nil is given" do
       action = get_action(nil, [])
-      assert_equal "package", @action.out_path
+      assert_equal "package", action.out_path
     end
 
     should "make include files an empty array by default" do
@@ -46,10 +45,26 @@ class PackageActionTest < Test::Unit::TestCase
     end
   end
 
+  context "temp path" do
+    setup do
+      @export = mock("export")
+      @action.expects(:export_action).returns(@export)
+    end
+
+    should "use the export action's temp dir" do
+      path = mock("path")
+      @export.expects(:temp_dir).returns(path)
+      @action.temp_path
+    end
+  end
+
   context "compression" do
     setup do
       @tar_path = "foo"
       @action.stubs(:tar_path).returns(@tar_path)
+
+      @temp_path = "foo"
+      @action.stubs(:temp_path).returns(@temp_path)
 
       @pwd = "bar"
       FileUtils.stubs(:pwd).returns(@pwd)
@@ -89,6 +104,7 @@ class PackageActionTest < Test::Unit::TestCase
     should "add included files when passed" do
       include_files = ['foo', 'bar']
       action = mock_action(Vagrant::Actions::VM::Package, "bing", include_files).last
+      action.stubs(:temp_path).returns("foo")
       @tar.expects(:append_tree).with(".")
       include_files.each { |f| @tar.expects(:append_file).with(f) }
       action.compress
@@ -101,30 +117,39 @@ class PackageActionTest < Test::Unit::TestCase
     end
   end
 
-  context "export callback to set temp path" do
-    should "save to the temp_path directory" do
-      foo = mock("foo")
-      @action.set_export_temp_path(foo)
-      assert foo.equal?(@action.temp_path)
-    end
-  end
-
   context "preparing the action" do
-    setup do
-      @include_files = ['fooiest', 'booiest']
-      @action = mock_action(Vagrant::Actions::VM::Package, "bing", @include_files).last
-    end
-
-    should "check that all the include files exist" do
-      @include_files.each do |file|
-        File.expects(:exists?).with(file).returns(true)
+    context "checking include files" do
+      setup do
+        @include_files = ['fooiest', 'booiest']
+        @runner, @vm, @action = mock_action(Vagrant::Actions::VM::Package, "bing", @include_files)
+        @runner.stubs(:find_action).returns("foo")
       end
-      @action.prepare
+
+      should "check that all the include files exist" do
+        @include_files.each do |file|
+          File.expects(:exists?).with(file).returns(true)
+        end
+        @action.prepare
+      end
+
+      should "raise an exception when an include file does not exist" do
+        File.expects(:exists?).once.returns(false)
+        assert_raises(Vagrant::Actions::ActionException) { @action.prepare }
+      end
     end
 
-    should "raise an exception when an include file does not exist" do
-      File.expects(:exists?).once.returns(false)
-      assert_raises(Vagrant::Actions::ActionException) { @action.prepare }
+    context "loading export reference" do
+      should "find and store a reference to the export action" do
+        @export = mock("export")
+        @runner.expects(:find_action).with(Vagrant::Actions::VM::Export).once.returns(@export)
+        @action.prepare
+        assert @export.equal?(@action.export_action)
+      end
+
+      should "raise an exception if the export action couldn't be found" do
+        @runner.expects(:find_action).with(Vagrant::Actions::VM::Export).once.returns(nil)
+        assert_raises(Vagrant::Actions::ActionException) { @action.prepare }
+      end
     end
   end
 end
