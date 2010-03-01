@@ -12,10 +12,13 @@ module Vagrant
         def prepare
           # Parse the URI given and prepare a downloader
           uri = URI.parse(@runner.uri)
+          uri_map = [[URI::HTTP, Downloaders::HTTP], [URI::Generic, Downloaders::File]]
 
-          if uri.is_a?(URI::Generic)
-            logger.info "Generic URI type for box download, assuming file..."
-            @downloader = Downloaders::File.new
+          uri_map.find do |uri_type, downloader_klass|
+            if uri.is_a?(uri_type)
+              logger.info "#{uri_type} for URI, downloading via #{downloader_klass}..."
+              @downloader = downloader_klass.new
+            end
           end
 
           raise ActionException.new("Unknown URI type for box download.") unless @downloader

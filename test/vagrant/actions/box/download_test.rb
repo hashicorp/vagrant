@@ -30,6 +30,12 @@ class DownloadBoxActionTest < Test::Unit::TestCase
       @action.prepare
       assert @action.downloader.is_a?(Vagrant::Downloaders::File)
     end
+
+    should "set the downloader to HTTP if URI is HTTP" do
+      @uri.stubs(:is_a?).with(URI::HTTP).returns(true)
+      @action.prepare
+      assert @action.downloader.is_a?(Vagrant::Downloaders::HTTP)
+    end
   end
 
   context "executing" do
