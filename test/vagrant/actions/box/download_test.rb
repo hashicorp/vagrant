@@ -11,6 +11,27 @@ class DownloadBoxActionTest < Test::Unit::TestCase
     Vagrant::Env.stubs(:tmp_path).returns("foo")
   end
 
+  context "preparing" do
+    setup do
+      @uri = mock("uri")
+      @uri.stubs(:is_a?).returns(false)
+      URI.stubs(:parse).returns(@uri)
+    end
+
+    should "raise an exception if no URI type is matched" do
+      @uri.stubs(:is_a?).returns(false)
+      assert_raises(Vagrant::Actions::ActionException) {
+        @action.prepare
+      }
+    end
+
+    should "set the downloader to file if URI is generic" do
+      @uri.stubs(:is_a?).with(URI::Generic).returns(true)
+      @action.prepare
+      assert @action.downloader.is_a?(Vagrant::Downloaders::File)
+    end
+  end
+
   context "executing" do
     setup do
       @path = "foo"
@@ -19,12 +40,12 @@ class DownloadBoxActionTest < Test::Unit::TestCase
       @tempfile.stubs(:path).returns(@path)
 
       @action.stubs(:with_tempfile).yields(@tempfile)
-      @action.stubs(:copy_uri_to)
+      @action.stubs(:download_to)
     end
 
     should "make a tempfile and copy the URI contents to it" do
       @action.expects(:with_tempfile).yields(@tempfile)
-      @action.expects(:copy_uri_to).with(@tempfile)
+      @action.expects(:download_to).with(@tempfile)
       @action.execute!
     end
 
@@ -69,30 +90,16 @@ class DownloadBoxActionTest < Test::Unit::TestCase
     end
   end
 
-  context "copying URI file" do
+  context "downloading" do
     setup do
-      @tempfile = mock("tempfile")
-      @tempfile.stubs(:write)
-
-      @file = mock("file")
-      @file.stubs(:read)
-      @file.stubs(:eof?).returns(false)
-      @action.stubs(:open).yields(@file)
+      @downloader = mock("downloader")
+      @action.stubs(:downloader).returns(@downloader)
     end
 
-    should "open with the given uri" do
-      @action.expects(:open).with(@uri).once
-      @action.copy_uri_to(@tempfile)
-    end
-
-    should "read from the file and write to the tempfile" do
-      data = mock("data")
-      write_seq = sequence("write_seq")
-      @file.stubs(:eof?).returns(false).in_sequence(write_seq)
-      @file.expects(:read).returns(data).in_sequence(write_seq)
-      @tempfile.expects(:write).with(data).in_sequence(write_seq)
-      @file.stubs(:eof?).returns(true).in_sequence(write_seq)
-      @action.copy_uri_to(@tempfile)
+    should "call download! on the download with the URI and tempfile" do
+      tempfile = "foo"
+      @downloader.expects(:download!).with(@runner.uri, tempfile)
+      @action.download_to(tempfile)
     end
   end
 end

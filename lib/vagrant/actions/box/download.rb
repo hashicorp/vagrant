@@ -7,9 +7,23 @@ module Vagrant
         BASENAME = "box"
         BUFFERSIZE = 1048576 # 1 MB
 
+        attr_reader :downloader
+
+        def prepare
+          # Parse the URI given and prepare a downloader
+          uri = URI.parse(@runner.uri)
+
+          if uri.is_a?(URI::Generic)
+            logger.info "Generic URI type for box download, assuming file..."
+            @downloader = Downloaders::File.new
+          end
+
+          raise ActionException.new("Unknown URI type for box download.") unless @downloader
+        end
+
         def execute!
           with_tempfile do |tempfile|
-            copy_uri_to(tempfile)
+            download_to(tempfile)
             @runner.temp_path = tempfile.path
           end
         end
@@ -26,16 +40,9 @@ module Vagrant
           end
         end
 
-        # TODO: Need a way to report progress. Downloading/copying a 350 MB
-        # box without any progress is not acceptable.
-        def copy_uri_to(f)
+        def download_to(f)
           logger.info "Copying box to temporary location..."
-          open(@runner.uri) do |remote_file|
-            loop do
-              break if remote_file.eof?
-              f.write(remote_file.read(BUFFERSIZE))
-            end
-          end
+          downloader.download!(@runner.uri, f)
         end
       end
     end

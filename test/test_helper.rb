@@ -80,4 +80,12 @@ class Test::Unit::TestCase
 
     [mock_vm, vm, action]
   end
+
+  # Sets up the mocks and stubs for a downloader
+  def mock_downloader(downloader_klass)
+    tempfile = mock("tempfile")
+    tempfile.stubs(:write)
+
+    [downloader_klass.new, tempfile]
+  end
 end
