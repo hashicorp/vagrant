@@ -9,6 +9,17 @@ module Vagrant
           export
         end
 
+        def cleanup
+          if temp_dir
+            logger.info "Removing temporary export directory..."
+            FileUtils.rm_r(temp_dir)
+          end
+        end
+
+        def rescue(exception)
+          cleanup
+        end
+
         def setup_temp_dir
           @temp_dir = File.join(Env.tmp_path, Time.now.to_i.to_s)
 

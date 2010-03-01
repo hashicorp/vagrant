@@ -65,4 +65,29 @@ class ExportActionTest < Test::Unit::TestCase
       @action.export
     end
   end
+
+  context "cleanup" do
+    setup do
+      @temp_dir = "foo"
+      @action.stubs(:temp_dir).returns(@temp_dir)
+    end
+
+    should "remove the temporary directory" do
+      FileUtils.expects(:rm_r).with(@temp_dir).once
+      @action.cleanup
+    end
+
+    should "not remove a directory if temp_dir is nil" do
+      FileUtils.expects(:rm_r).never
+      @action.stubs(:temp_dir).returns(nil)
+      @action.cleanup
+    end
+  end
+
+  context "rescue" do
+    should "call cleanup method" do
+      @action.expects(:cleanup).once
+      @action.rescue(nil)
+    end
+  end
 end

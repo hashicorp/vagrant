@@ -29,26 +29,12 @@ class PackageActionTest < Test::Unit::TestCase
   context "executing" do
     setup do
       @action.stubs(:compress)
-      @action.stubs(:clean)
     end
 
-    should "compress and remove the working directory" do
+    should "compress" do
       package_seq = sequence("package_seq")
       @action.expects(:compress).in_sequence(package_seq)
-      @action.expects(:clean).in_sequence(package_seq)
       @action.execute!
-    end
-  end
-
-  context "cleaning up" do
-    setup do
-      @working_dir = "foo"
-      @action.stubs(:working_dir).returns(@working_dir)
-    end
-
-    should "remove the working directory" do
-      FileUtils.expects(:rm_r).with(@temp_path).once
-      @action.clean
     end
   end
 

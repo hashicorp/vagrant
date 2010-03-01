@@ -13,7 +13,7 @@ module Vagrant
           @temp_path = nil
         end
 
-        def prepare 
+        def prepare
           @include_files.each do |file|
             raise ActionException.new("#{file} does not exist") unless File.exists?(file)
           end
@@ -21,12 +21,6 @@ module Vagrant
 
         def execute!
           compress
-          clean
-        end
-
-        def clean
-          logger.info "Removing temporary directory ..."
-          FileUtils.rm_r(temp_path)
         end
 
         def tar_path
