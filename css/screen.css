@@ -237,7 +237,7 @@ blockquote {
   margin-right: 8px;
 }
 
-  .sidebar ol {
+  .sidebar ol, .sidebar ul {
     margin-bottom: 0px;
   }
 
