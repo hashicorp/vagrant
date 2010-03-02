@@ -18,12 +18,10 @@ Let's get started with the bare minimum needed to get your first virtual environ
 running, then we'll go over them step by step. After running the following sequence of
 commands, you'll have a fully functional Ubuntu-based server running in the background!
 
-{% highlight bash %}
-$ sudo gem install vagrant
+{% highlight bash %}$ sudo gem install vagrant
 $ vagrant box add base http://files.vagrantup.com/base.box
 $ vagrant init
-$ vagrant up
-{% endhighlight %}
+$ vagrant up{% endhighlight %}
 
 ## Step-by-Step Explanations
 
