@@ -225,6 +225,9 @@ blockquote {
   margin-top: 5px;
 }
 
+/* WORKAROUND FOR GITHUB PAGES BUG */
+.highlight + .highlight { display:none; }
+
 /* -------------------------------
               SIDEBAR
 ------------------------------  */
