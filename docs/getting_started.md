@@ -8,7 +8,7 @@ will largely be useless from a development point of view, but functions to intro
 you to the basic concepts of Vagrant. This guide will not introduce the provisioning
 functionality or packaging system built-in to vagrant.
 
-After the getting started guide, we recommend you read the [Vagrant tutorial](#),
+After the getting started guide, we recommend you read the [Vagrant tutorial](/docs/tutorial/index.html),
 which is a much more detailed guide which sets up an HTTP server with MySQL to
 run in the background.
 
