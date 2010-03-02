@@ -2,3 +2,4 @@ _site/*
 .vagrant
 Vagrantfile
 pkg/*
+.bundle/*
