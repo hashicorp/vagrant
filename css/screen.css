@@ -220,6 +220,26 @@ blockquote {
              CONTENT
 ------------------------------  */
 
+.guide h1 {
+  margin-left: 0;
+  margin-top: 5px;
+}
+
+/* -------------------------------
+              SIDEBAR
+------------------------------  */
+
+.sidebar {
+  border: 1px dotted #DDD;
+  background-color: #EEEEEE;
+  padding: 10px;
+  margin-top: 10px;
+  margin-right: 8px;
+}
+
+  .sidebar ol {
+    margin-bottom: 0px;
+  }
 
 /* -------------------------------
              PREFOOTER
