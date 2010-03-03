@@ -47,6 +47,7 @@ $ vagrant box remove ubuntu_base
 **Warning:** There is no going back from this command. This command literally
 deletes the files off the filesystem.
 
+<a name="creating-a-box"> </a>
 ## Creating a Box
 
 Boxes are created from a vagrant project. So the first step to creating a box
