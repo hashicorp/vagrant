@@ -80,6 +80,16 @@ class VMTest < Test::Unit::TestCase
     end
 
     context "starting" do
+      setup do
+        @mock_vm.stubs(:running?).returns(false)
+      end
+
+      should "not do anything if the VM is already running" do
+        @mock_vm.stubs(:running?).returns(true)
+        @vm.expects(:execute!).never
+        @vm.start
+      end
+
       should "add and execute the proper actions" do
         actions = [Vagrant::Actions::VM::ForwardPorts, Vagrant::Actions::VM::SharedFolders, Vagrant::Actions::VM::Start]
 
