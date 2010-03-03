@@ -21,3 +21,8 @@ to create its virtual machines and then uses [Chef](http://www.opscode.org/chef)
 ### For Teams
 
 ### For Companies
+
+If you've ever maintained a large web application one of the hardest parts is onboarding new resources.
+Message queues, caching, database servers and other infrastructure pieces mean a lot of installation
+and a lot more configuration (see [Insanity](http://www.robbyonrails.com/articles/2010/02/08/installing-ruby-on-rails-passenger-postgresql-mysql-oh-my-zsh-on-snow-leopard-fourth-edition)). Vagrant gives you the tools to build a development environment once and then easily distribute it to
+new members of your development team so you can get them to work and saving time, money and frustration.

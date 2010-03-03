@@ -66,4 +66,20 @@ listed below, not in any specific order:
 <a name="vagrant-ssh"> </a>
 ## vagrant ssh
 
-TODO
+Working from the command line inside your box is accomplished with a vanilla ssh connection. In fact
+you could use ssh directly, but using `vagrant ssh` means you don't have to remember the login information
+or what port ssh is forwarded to on your box. To learn more about those settings see the section on the [Vagrantfile](/docs/user-guide/vagrantfile.html).
+
+<a name="vagrant-suspend"> </a>
+## vagrant suspend
+
+When you're ready to call it quits for the day, there's no need to leave your Vagrant box soaking
+up cpu cycles and memory. Simply issue `vagrant suspend` from your project root and VirtualBox will 
+take a snapshot of the box's current state from which you can resume later.
+
+<a name="vagrant-resume"> </a>
+## vagrant resume
+
+When you're ready to get rolling again its just as easy to start your virtual machine back up with
+`vagrant resume`.
+
