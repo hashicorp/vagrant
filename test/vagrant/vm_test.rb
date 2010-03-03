@@ -78,5 +78,19 @@ class VMTest < Test::Unit::TestCase
         @vm.save_state
       end
     end
+
+    context "starting" do
+      should "add and execute the proper actions" do
+        actions = [Vagrant::Actions::VM::ForwardPorts, Vagrant::Actions::VM::SharedFolders, Vagrant::Actions::VM::Start]
+
+        action_seq = sequence("action_seq")
+        actions.each do |action|
+          @vm.expects(:add_action).with(action).in_sequence(action_seq)
+        end
+
+        @vm.expects(:execute!).once.in_sequence(action_seq)
+        @vm.start
+      end
+    end
   end
 end

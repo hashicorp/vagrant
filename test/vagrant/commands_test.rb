@@ -46,15 +46,15 @@ class CommandsTest < Test::Unit::TestCase
       Vagrant::Commands.up
     end
 
-    should "error if a persisted VM already exists" do
-      Vagrant::Env.expects(:persisted_vm).returns(true)
-      Vagrant::Commands.expects(:error_and_exit).once
-      Vagrant::VM.expects(:up).never
+    should "call the up action on VM if it doesn't exist" do
+      Vagrant::VM.expects(:execute!).with(Vagrant::Actions::VM::Up).once
       Vagrant::Commands.up
     end
 
-    should "call the up action on VM" do
-      Vagrant::VM.expects(:execute!).with(Vagrant::Actions::VM::Up).once
+    should "call start on the persisted vm if it exists" do
+      Vagrant::Env.stubs(:persisted_vm).returns(@persisted_vm)
+      @persisted_vm.expects(:start).once
+      Vagrant::VM.expects(:execute!).never
       Vagrant::Commands.up
     end
   end

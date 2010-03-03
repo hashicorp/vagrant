@@ -32,16 +32,12 @@ error
         Env.load!
 
         if Env.persisted_vm
-          error_and_exit(<<-error)
-The task you're trying to run requires that the vagrant environment
-not exist yet, but it appears you already have an instance running
-or available. If you really want to rebuild this instance, please
-run `vagrant down` first.
-error
+          logger.info "VM already created. Starting VM if its not already running..."
+          Env.persisted_vm.start
+        else
+          Env.require_box
+          VM.execute!(Actions::VM::Up)
         end
-
-        Env.require_box
-        VM.execute!(Actions::VM::Up)
       end
 
       # Tear down a vagrant instance. This not only shuts down the instance

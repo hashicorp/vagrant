@@ -25,6 +25,15 @@ module Vagrant
       execute!
     end
 
+    def start
+      actions = [Actions::VM::ForwardPorts, Actions::VM::SharedFolders, Actions::VM::Start]
+      actions.each do |action|
+        add_action(action)
+      end
+
+      execute!
+    end
+
     def destroy
       execute!(Actions::VM::Halt) if @vm.running?
 

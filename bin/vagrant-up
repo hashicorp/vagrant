@@ -18,7 +18,9 @@ GitStyleBinary.command do
   banner <<-EOS
 Usage: #{command.full_name} #{all_options_string}
 
-Create the vagrant environment.
+Create the vagrant environment if it doesn't exist,
+otherwise start the vagrant environment if its not
+already running.
 
 EOS
 
