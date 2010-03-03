@@ -16,7 +16,7 @@ by forwarding the virtual machine's port 80 to some port on the host machine and
 visiting it in any browser.
 
 Are you ready to use vagrant to revolutionize the way you work? Check out
-the [getting started guide](/docs/getting_started.html).
+the [getting started guide](/docs/getting-started/index.html).
 
 <div class="clear"> </div>
 
