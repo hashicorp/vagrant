@@ -53,4 +53,6 @@ $ vagrant box add my_box /path/to/the/package.box
 
 After that they just have to configure their Vagrantfile to use the box as
 a base, run `vagrant up`, and they should have a fully working development
-environment!
+environment! Notice that they don't have to do provisioning or any of that;
+since we already did all that, the exported virtual machine has it done
+already.
