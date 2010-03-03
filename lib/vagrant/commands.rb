@@ -79,6 +79,18 @@ error
         SSH.connect
       end
 
+      # Halts a running vagrant instance. This forcibly halts the instance;
+      # it is the equivalent of pulling the power on a machine. The instance
+      # can be restarted again with {up}.
+      #
+      # This command requires than an instance already be brought up with
+      # `vagrant up`.
+      def halt
+        Env.load!
+        Env.require_persisted_vm
+        Env.persisted_vm.execute!(Actions::VM::Halt)
+      end
+
       # Suspend a running vagrant instance. This suspends the instance, saving
       # the state of the VM and "pausing" it. The instance can be resumed
       # again with {resume}.

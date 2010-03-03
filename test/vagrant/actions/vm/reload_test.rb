@@ -8,7 +8,7 @@ class ReloadActionTest < Test::Unit::TestCase
 
   context "sub-actions" do
     setup do
-      @default_order = [Vagrant::Actions::VM::Stop, Vagrant::Actions::VM::ForwardPorts, Vagrant::Actions::VM::SharedFolders, Vagrant::Actions::VM::Start]
+      @default_order = [Vagrant::Actions::VM::Halt, Vagrant::Actions::VM::ForwardPorts, Vagrant::Actions::VM::SharedFolders, Vagrant::Actions::VM::Start]
     end
 
     def setup_action_expectations

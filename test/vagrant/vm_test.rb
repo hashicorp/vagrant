@@ -62,7 +62,7 @@ class VMTest < Test::Unit::TestCase
       should "stop the VM if its running" do
         @mock_vm.expects(:running?).returns(true)
         @mock_vm.expects(:destroy).with(:destroy_image => true).once
-        @vm.expects(:execute!).with(Vagrant::Actions::VM::Stop).once
+        @vm.expects(:execute!).with(Vagrant::Actions::VM::Halt).once
         @vm.destroy
       end
     end

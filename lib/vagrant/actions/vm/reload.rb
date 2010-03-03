@@ -3,7 +3,7 @@ module Vagrant
     module VM
       class Reload < Base
         def prepare
-          steps = [Stop, ForwardPorts, SharedFolders, Start]
+          steps = [Halt, ForwardPorts, SharedFolders, Start]
           steps << Provision if Vagrant.config.chef.enabled
 
           steps.each do |action_klass|

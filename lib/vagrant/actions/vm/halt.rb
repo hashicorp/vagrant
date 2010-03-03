@@ -1,7 +1,7 @@
 module Vagrant
   module Actions
     module VM
-      class Stop < Base
+      class Halt < Base
         def execute!
           logger.info "Forcing shutdown of VM..."
           @runner.vm.stop(true)

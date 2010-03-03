@@ -103,6 +103,18 @@ class CommandsTest < Test::Unit::TestCase
     end
   end
 
+  context "halt" do
+    should "require a persisted VM" do
+      Vagrant::Env.expects(:require_persisted_vm).once
+      Vagrant::Commands.halt
+    end
+
+    should "call the `halt` action on the VM" do
+      @persisted_vm.expects(:execute!).with(Vagrant::Actions::VM::Halt).once
+      Vagrant::Commands.halt
+    end
+  end
+
   context "suspend" do
     setup do
       @persisted_vm.stubs(:save_state)
