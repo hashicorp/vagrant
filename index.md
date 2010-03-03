@@ -2,6 +2,9 @@
 layout: default
 title: Welcome
 ---
+
+<img src="/images/vagrant_chilling.png" class="left" />
+
 Vagrant is a tool set out to **change the way web developers work**.
 
 Vagrant quickly and seamlessly builds and provisions virtual machines for
@@ -11,6 +14,11 @@ but all the servers, processes, etc. actually run within a virtualized environme
 Vagrant allows ports to be forwarded so you can still test a web service, for example,
 by forwarding the virtual machine's port 80 to some port on the host machine and
 visiting it in any browser.
+
+Are you ready to use vagrant to revolutionize the way you work? Check out
+the [getting started guide](/docs/getting_started.html).
+
+<div class="clear"> </div>
 
 ## Why Use Vagrant?
 
@@ -30,8 +38,3 @@ visiting it in any browser.
   different pieces of the application to get it running on his development machine.
   Forget about it! Just tell him to pull the latest code base from version control
   and run `vagrant up` and you're in business!
-
-## Get Started!
-
-Are you ready to use vagrant to revolutionize the way you work? Check out
-the [getting started guide](/docs/getting_started.html).

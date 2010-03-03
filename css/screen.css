@@ -220,6 +220,18 @@ blockquote {
              CONTENT
 ------------------------------  */
 
+#content img.left {
+  float: left;
+  width: 275px;
+  height: 275px;
+}
+
+#content img.right {
+  float: right;
+  width: 275px;
+  height: 275px;
+}
+
 .guide h1 {
   margin-left: 0;
   margin-top: 5px;
