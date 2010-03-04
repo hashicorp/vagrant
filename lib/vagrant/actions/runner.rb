@@ -1,13 +1,38 @@
 module Vagrant
   module Actions
     # Base class for any class which will act as a runner
-    # for actions. A runner is simply a class which will execute
-    # actions.
+    # for actions. A runner handles queueing up and executing actions,
+    # and executing the methods of an action in the proper order. The
+    # action runner also handles invoking callbacks that actions may
+    # request.
+    #
+    # # Executing Actions
+    #
+    # Actions can be executed by adding them and executing them all
+    # at once:
+    #
+    #     runner = Vagrant::Actions::Runner.new
+    #     runner.add_action(FooAction)
+    #     runner.add_action(BarAction)
+    #     runner.add_action(BazAction)
+    #     runner.execute!
+    #
+    # Single actions have a shorthand to be executed:
+    #
+    #     Vagrant::Actions::Runner.execute!(FooAction)
+    #
+    # Arguments may be passed into added actions by adding them after
+    # the action class:
+    #
+    #     runner.add_action(FooAction, "many", "arguments", "may", "follow")
+    #
     class Runner
       include Vagrant::Util
 
       class << self
-        # Executes a specific action.
+        # Executes a specific action, optionally passing in any arguments to that
+        # action. This method is shorthand to initializing a runner, adding a single
+        # action, and executing it.
         def execute!(action_klass, *args)
           runner = new
           runner.add_action(action_klass, *args)
@@ -26,17 +51,23 @@ module Vagrant
       end
 
       # Returns the first action instance which matches the given class.
+      #
+      # @param [Class] action_klass The action to search for in the queue
+      # @return [Object]
       def find_action(action_klass)
         actions.find { |a| a.is_a?(action_klass) }
       end
 
       # Add an action to the list of queued actions to execute. This method
-      # appends the given action class to the end of the queue.
+      # appends the given action class to the end of the queue. Any arguments
+      # given after the class are passed into the class constructor.
       def add_action(action_klass, *args)
         actions << action_klass.new(self, *args)
       end
 
-      # Execute the actions in queue.
+      # Execute the actions in queue. This method can also optionally be used
+      # to execute a single action on an instance. The syntax for executing a
+      # single method on an instance is the same as the {execute!} class method.
       def execute!(single_action=nil, *args)
         if single_action
           actions.clear
