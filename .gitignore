@@ -7,3 +7,5 @@ cookbooks/*
 _site/*
 !templates/*
 *.org
+.yardoc/
+doc/
