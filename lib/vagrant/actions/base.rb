@@ -1,22 +1,37 @@
 module Vagrant
   module Actions
-    # Base class for any command actions. A command action handles
-    # executing a step or steps on a given Vagrant::VM object. The
-    # action should define any callbacks that it will call, or
-    # attach itself to some callbacks on the VM object.
+    # Base class for any command actions.
+    #
+    # Actions are the smallest unit of functionality found within
+    # Vagrant. Vagrant composes many actions together to execute
+    # its complex tasks while keeping the individual pieces of a
+    # task as discrete reusable actions. Actions are ran exclusively
+    # by an {Runner action runner} which is simply a subclass of {Runner}.
+    #
+    # Actions work by implementing any or all of the following methods
+    # which a {Runner} executes:
+    #
+    # * `prepare` - Called once for each action before any action has `execute!`
+    #   called. This is meant for basic setup.
+    # * `execute!` - This is where the meat of the action typically goes;
+    #   the main code which executes the action.
+    # * `cleanup` - This is called exactly once for each action after every
+    #   other action is completed. It is meant for cleaning up any resources.
+    # * `rescue` - This is called if an exception occurs in _any action_. This
+    #   gives every other action a chance to clean itself up.
+    #
+    # For details of each step of an action, read the specific function call
+    # documentation below.
     class Base
+      # The {Runner runner} which is executing the action
       attr_reader :runner
 
       # Included so subclasses don't need to include it themselves.
       include Vagrant::Util
 
-      # Initialization of the actions are done all at once. The guarantee
-      # is that when an action is initialized, no other action has had
-      # its `prepare` or `execute!` method called yet, so an action can
-      # setup anything it needs to with this safety. An example of this
-      # would be instance_evaling the vm instance to include a module so
-      # additionally functionality could be defined on the vm which other
-      # action `prepare` methods may rely on.
+      # Initialization of the action, passing any arguments which may have
+      # been given to the {Runner runner}. This method can be used by subclasses
+      # to save any of the configuration options which are passed in.
       def initialize(runner, *args)
         @runner = runner
       end
@@ -24,28 +39,32 @@ module Vagrant
       # This method is called once per action, allowing the action
       # to setup any callbacks, add more events, etc. Prepare is
       # called in the order the actions are defined, and the action
-      # itself has no control over this, so no race conditions between
-      # action setups should be done here.
-      def prepare
-        # Examples:
-        #
-        # Perhaps we need an additional action to go, specifically
-        # maybe only if a configuration is set
-        #
-        #@vm.actions << FooAction if Vagrant.config[:foo] == :bar
-      end
+      # itself has no control over this.
+      #
+      # Examples of its usage:
+      #
+      # Perhaps we need an additional action only if a configuration is set:
+      #
+      #     def prepare
+      #       @vm.actions << FooAction if Vagrant.config[:foo] == :bar
+      #     end
+      #
+      def prepare; end
 
       # This method is called once, after preparing, to execute the
       # actual task. This method is responsible for calling any
-      # callbacks. Adding new actions here will have NO EFFECT, and
-      # adding callbacks has unpredictable effects.
-      def execute!
-        # Example code:
-        #
-        # @vm.invoke_callback(:before_oven, "cookies")
-        # Do lots of stuff here
-        # @vm.invoke_callback(:after_oven, "more", "than", "one", "option")
-      end
+      # callbacks. Adding new actions here will have unpredictable
+      # effects and should never be done.
+      #
+      # Examples of its usage:
+      #
+      #     def execute!
+      #       @vm.invoke_callback(:before_oven, "cookies")
+      #       # Do lots of stuff here
+      #       @vm.invoke_callback(:after_oven, "more", "than", "one", "option")
+      #     end
+      #
+      def execute!; end
 
       # This method is called after all actions have finished executing.
       # It is meant as a place where final cleanup code can be done, knowing
