@@ -61,6 +61,13 @@ class DownloadBoxActionTest < Test::Unit::TestCase
     end
   end
 
+  context "rescue" do
+    should "call cleanup method" do
+      @action.expects(:cleanup).once
+      @action.rescue(nil)
+    end
+  end
+
   context "tempfile" do
     should "create a tempfile in the vagrant tmp directory" do
       Tempfile.expects(:open).with(Vagrant::Actions::Box::Download::BASENAME, Vagrant::Env.tmp_path).once
@@ -77,7 +84,7 @@ class DownloadBoxActionTest < Test::Unit::TestCase
     end
   end
 
-  context "after unpackaging" do
+  context "cleaning up" do
     setup do
       @temp_path = "foo"
       @runner.stubs(:temp_path).returns(@temp_path)
@@ -86,13 +93,13 @@ class DownloadBoxActionTest < Test::Unit::TestCase
 
     should "delete the temporary file if it exists" do
       File.expects(:unlink).with(@temp_path).once
-      @action.after_unpackage
+      @action.cleanup
     end
 
     should "not delete anything if it doesn't exist" do
       File.stubs(:exist?).returns(false)
       File.expects(:unlink).never
-      @action.after_unpackage
+      @action.cleanup
     end
   end
 

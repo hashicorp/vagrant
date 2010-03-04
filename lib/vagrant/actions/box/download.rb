@@ -31,9 +31,15 @@ module Vagrant
           end
         end
 
-        def after_unpackage
-          logger.info "Cleaning up tempfile..."
-          File.unlink(@runner.temp_path) if @runner.temp_path && File.exist?(@runner.temp_path)
+        def cleanup
+          if @runner.temp_path && File.exist?(@runner.temp_path)
+            logger.info "Cleaning up downloaded box..."
+            File.unlink(@runner.temp_path)
+          end
+        end
+
+        def rescue(exception)
+          cleanup
         end
 
         def with_tempfile
