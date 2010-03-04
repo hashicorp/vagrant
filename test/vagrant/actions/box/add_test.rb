@@ -3,6 +3,8 @@ require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 class AddBoxActionTest < Test::Unit::TestCase
   setup do
     @runner, @vm, @action = mock_action(Vagrant::Actions::Box::Add)
+    @runner.stubs(:directory).returns("foo")
+    File.stubs(:exists?).returns(false)
     mock_config
   end
 
@@ -21,6 +23,17 @@ class AddBoxActionTest < Test::Unit::TestCase
     should "do the proper actions by default" do
       setup_action_expectations
       @action.prepare
+    end
+  end
+
+  context "providing a name for a base that exists" do
+    should "result in an action exception" do
+      File.expects(:exists?).once.returns(true)
+      @runner.expects(:name).twice.returns('foo')
+      @runner.expects(:add_action).never
+      assert_raise Vagrant::Actions::ActionException do
+        @action.prepare
+      end
     end
   end
 end
