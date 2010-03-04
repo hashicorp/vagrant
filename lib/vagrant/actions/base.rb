@@ -84,6 +84,10 @@ module Vagrant
       def rescue(exception); end
     end
 
+    # An exception which occured within an action. This should be used instead of
+    # {Vagrant::Util#error_and_exit error_and_exit}, since it allows the {Runner} to call
+    # {Base#rescue rescue} on all the actions and properly exit. Any message
+    # passed into the {ActionException} is then shown and and vagrant exits.
     class ActionException < Exception; end
   end
 end
