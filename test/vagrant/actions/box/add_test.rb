@@ -3,14 +3,14 @@ require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 class AddBoxActionTest < Test::Unit::TestCase
   setup do
     @runner, @vm, @action = mock_action(Vagrant::Actions::Box::Add)
-    @runner.stubs(:directory).returns("foo")
-    File.stubs(:exists?).returns(false)
     mock_config
   end
 
-  context "sub-actions" do
+  context "prepare" do
     setup do
       @default_order = [Vagrant::Actions::Box::Download, Vagrant::Actions::Box::Unpackage]
+      @runner.stubs(:directory).returns("foo")
+      File.stubs(:exists?).returns(false)
     end
 
     def setup_action_expectations
@@ -20,14 +20,12 @@ class AddBoxActionTest < Test::Unit::TestCase
       end
     end
 
-    should "do the proper actions by default" do
+    should "setup the proper sequence of actions" do
       setup_action_expectations
       @action.prepare
     end
-  end
 
-  context "providing a name for a base that exists" do
-    should "result in an action exception" do
+    should "result in an action exception if the box already exists" do
       File.expects(:exists?).once.returns(true)
       @runner.expects(:name).twice.returns('foo')
       @runner.expects(:add_action).never
