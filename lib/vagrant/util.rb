@@ -3,16 +3,15 @@ module Vagrant
     def self.included(base)
       base.extend Vagrant::Util
     end
-    
+
     def error_and_exit(error)
-      puts <<-error
+      abort <<-error
 =====================================================================
 Vagrant experienced an error!
 
 #{error.chomp}
 =====================================================================
 error
-      exit
     end
 
     def logger
