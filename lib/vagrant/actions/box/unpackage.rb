@@ -13,6 +13,13 @@ module Vagrant
           end
         end
 
+        def rescue(exception)
+          if File.directory?(box_dir)
+            logger.info "An error occurred, rolling back box unpackaging..."
+            FileUtils.rm_rf(box_dir)
+          end
+        end
+
         def setup_box_dir
           if File.directory?(box_dir)
             error_and_exit(<<-msg)

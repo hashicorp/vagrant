@@ -28,6 +28,27 @@ class UnpackageBoxActionTest < Test::Unit::TestCase
     end
   end
 
+  context "rescuing" do
+    setup do
+      File.stubs(:directory?).returns(false)
+      FileUtils.stubs(:rm_rf)
+
+      @box_dir = mock("foo")
+      @action.stubs(:box_dir).returns(@box_dir)
+    end
+
+    should "do nothing if a directory doesn't exist" do
+      FileUtils.expects(:rm_rf).never
+      @action.rescue(nil)
+    end
+
+    should "remove the box directory if it exists" do
+      File.expects(:directory?).returns(true)
+      FileUtils.expects(:rm_rf).with(@box_dir).once
+      @action.rescue(nil)
+    end
+  end
+
   context "box directory" do
     should "return the runner directory" do
       result = mock("object")
