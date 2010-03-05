@@ -31,6 +31,7 @@ The Vagrantfile has many configurable options. To configure Vagrant, a configure
 block must be created, which is passed in the configuration object. A brief example
 is embedded below:
 
+<a name="init-config"> </a>
 {% highlight ruby %}
 Vagrant::Config.run do |config|
   # Use the config object to do any configuration:
@@ -38,4 +39,52 @@ Vagrant::Config.run do |config|
 end
 {% endhighlight %}
 
-There are many available configuration options. These are listed below:
+There are many available configuration options.
+
+## config.vagrant
+
+The vagrant configuration subset represents configuration settings for Vagrant itself and 
+should _*not*_ be altered in your packaged box or project Vagrantfile.
+
+## config.ssh
+
+These settings will be used when logging into your Vagrant boxes. Generally, this will be configured
+in the Vagrantfile packaged with any boxes you're using as the packaged virtual machine should have been
+setup to use a specific user account for connecting. 
+
+## config.vm
+
+Vm settings are used when creating new virtual machines to alert Vagrant about how they 
+should be configured for use. 
+
+`config.vm.box` determines which of your boxes will be used when creating a new virtual machine for your project.
+In many cases this will be the only configuration you'll ever have to do. The [example](#init-config) above represents a
+Vagrantfile configuration where the box being used was installed with 
+
+{% highlight bash %}
+$ vagrant box add my_box http://some.url.for/some_remote_box.box
+{% endhighlight %}
+
+or 
+
+{% highlight bash %}
+$ vagrant box add my_box some_downloaded.box
+{% endhighlight %}
+
+`config.vm.box_ovf` tells Vagrant and consequently the [virtualbox](http://github.com/mitchellh/virtualbox) gem
+which file in the ~/.vagrant/boxes/[configured box]/ directory should be used when importing the configured box 
+for duplication. (see `config.vm.box`). This setting is only really important for those creating 
+boxes for distribution as this configuration should be included in the packaged Vagrantfile.
+
+`config.vm.base_mac` configures the mac address that the vm will use when built. Because Vagrant duplicates virtual machines
+and updating operating system configuration to accomodate changing mac addresses is non standard across operating systems it must
+force a predetermined mac address at vm creation.
+
+`config.vm.project_directory` tells vagrant where to mount the current project directory as a shared folder
+withing the new virtual machine's file system. 
+
+{% highlight ruby %}
+config.vm.project_directory = "/vagrant"
+{% endhighlight %}
+
+The above will use the vagrant folder under root as the mount point for the shared project directory.
