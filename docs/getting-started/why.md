@@ -18,7 +18,25 @@ to create its virtual machines and then uses [Chef](http://www.opscode.org/chef)
 
 ### For Solo Developers
 
+Maintaining consistent development environments over multiple projects is simply an
+unfeasible task for a modern web developer. Each project depends on its own libraries,
+message queue systems, databases, framework, and more each with their own versions.
+In addition to the dependencies, running all these on a single home machine and remembering
+to turn it all off at the end of the day or when working on other projects is also unfeasible.
+Vagrant gives you the tools to build unique development environments for each project once
+and then easily tear them down and rebuild them only when they're needed so you can save
+time and frustration.
+
 ### For Teams
+
+Each member of a team ideally has identical development environments: same dependencies, same
+versions, same configurations, same everything. But this is simply not true today. With database
+agnostic ORMs, multiple web server options, and fast-moving libraries, one team member may be using
+MySQL with one version of a library while another team member may be using PostgreSQL with another
+version of the same library. Or perhaps one team member's configuration for their server is slightly
+different. These are all real cases which are bound to cause real issues at some point down the road.
+Vagrant gives teams the ability to enforce a consistent and portable
+virtual development environment that is easy to create and quick to setup.
 
 ### For Companies
 
