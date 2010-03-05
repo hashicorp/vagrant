@@ -47,6 +47,10 @@ module Vagrant
       execute!(Actions::VM::Suspend)
     end
 
+    def resume
+      execute!(Actions::VM::Resume)
+    end
+
     def saved?
       @vm.saved?
     end

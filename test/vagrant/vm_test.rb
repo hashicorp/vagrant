@@ -68,14 +68,16 @@ class VMTest < Test::Unit::TestCase
     end
 
     context "suspending" do
-      should "check if a VM is saved" do
-        @mock_vm.expects(:saved?).returns("foo")
-        assert_equal "foo", @vm.saved?
-      end
-
       should "execute the suspend action" do
         @vm.expects(:execute!).with(Vagrant::Actions::VM::Suspend).once
         @vm.suspend
+      end
+    end
+
+    context "resuming" do
+      should "execute the resume action" do
+        @vm.expects(:execute!).with(Vagrant::Actions::VM::Resume).once
+        @vm.resume
       end
     end
 

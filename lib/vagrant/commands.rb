@@ -107,11 +107,7 @@ error
       def resume
         Env.load!
         Env.require_persisted_vm
-        error_and_exit(<<-error) unless Env.persisted_vm.saved?
-The vagrant virtual environment you are trying to resume is not in a
-suspended state.
-error
-        Env.persisted_vm.start
+        Env.persisted_vm.resume
       end
 
       # Export and package the current vm

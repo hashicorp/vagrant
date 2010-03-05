@@ -134,7 +134,7 @@ class CommandsTest < Test::Unit::TestCase
 
   context "resume" do
     setup do
-      @persisted_vm.stubs(:start)
+      @persisted_vm.stubs(:resume)
       @persisted_vm.stubs(:saved?).returns(true)
     end
 
@@ -143,15 +143,8 @@ class CommandsTest < Test::Unit::TestCase
       Vagrant::Commands.resume
     end
 
-    should "error and exit if the VM is not already saved" do
-      @persisted_vm.expects(:saved?).returns(false)
-      Vagrant::Commands.expects(:error_and_exit).once
-      @persisted_vm.expects(:save_state).never
-      Vagrant::Commands.resume
-    end
-
     should "save the state of the VM" do
-      @persisted_vm.expects(:start).once
+      @persisted_vm.expects(:resume).once
       Vagrant::Commands.resume
     end
   end
