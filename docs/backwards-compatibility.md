@@ -11,10 +11,10 @@ to be a _stable and reliable_ tool. One of the main benefits of Vagrant
 is that you should be able to go back to a Vagrant powered project
 a year later and still be able to build its environment as if it were
 made the same day. We plan to uphold the promise to this feature, but to
-do so we first need to settle on a _standard API and configuration specification_.
+do so we first need to settle on a standard API and configuration specification.
 
 That being said, **our promise** is to provide backwards compatibility
-for every _major version_ of Vagrant. For example, once Vagrant 1.0 is released, we
+for every major version of Vagrant. For example, once Vagrant 1.0 is released, we
 promise to support that version forever (one way or another).
 
 To reiterate our point, you should be able to go back to a Vagrant 1.0 project
@@ -25,6 +25,5 @@ single command:
 $ vagrant up
 {% endhighlight %}
 
-It is a bold statement and a promise which we're sure will introduce significant
-development challenges in the future, but we've discussed it and we're sure
-we can take this head on and we're committed to keeping our promise.
+It is a bold statement, one which we’re sure will introduce significant
+development challenges in the future, but we’re committed to it.
