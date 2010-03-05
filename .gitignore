@@ -3,3 +3,5 @@ _site/*
 Vagrantfile
 pkg/*
 .bundle/*
+doc/
+.yardoc/
