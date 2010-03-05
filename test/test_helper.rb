@@ -24,7 +24,7 @@ class Test::Unit::TestCase
     Vagrant::Config.instance_variable_set(:@config, nil)
 
     Vagrant::Config.run do |config|
-      config.dotfile_name = ".hobo"
+      config.vagrant.dotfile_name = ".hobo"
 
       config.ssh.username = "foo"
       config.ssh.password = "bar"

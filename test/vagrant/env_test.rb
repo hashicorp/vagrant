@@ -151,7 +151,7 @@ class EnvTest < Test::Unit::TestCase
     end
 
     test "should build up the dotfile out of the root path and the dotfile name" do
-      assert_equal File.join(Vagrant::Env.root_path, Vagrant.config.dotfile_name), Vagrant::Env.dotfile_path
+      assert_equal File.join(Vagrant::Env.root_path, Vagrant.config.vagrant.dotfile_name), Vagrant::Env.dotfile_path
     end
   end
 

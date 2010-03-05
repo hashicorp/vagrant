@@ -118,6 +118,7 @@ module Vagrant
     end
 
     class VagrantConfig < Base
+      attr_accessor :dotfile_name
       attr_accessor :log_output
       attr_accessor :home
 
@@ -127,7 +128,6 @@ module Vagrant
     end
 
     class Top < Base
-      attr_accessor :dotfile_name
       attr_reader :package
       attr_reader :ssh
       attr_reader :vm

@@ -1,6 +1,7 @@
 Vagrant::Config.run do |config|
   # default config goes here
   config.vagrant.log_output = STDOUT
+  config.vagrant.dotfile_name = ".vagrant"
   config.vagrant.home = "~/.vagrant"
 
   config.ssh.username = "vagrant"
@@ -8,8 +9,6 @@ Vagrant::Config.run do |config|
   config.ssh.host = "localhost"
   config.ssh.forwarded_port_key = "ssh"
   config.ssh.max_tries = 10
-
-  config.dotfile_name = ".vagrant"
 
   config.vm.box_ovf = "box.ovf"
   config.vm.base_mac = "0800279C2E42"
