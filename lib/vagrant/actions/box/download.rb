@@ -2,7 +2,11 @@ module Vagrant
   module Actions
     module Box
       # An action which acts on a box by downloading the box file from
-      # the given URI into a temporary location.
+      # the given URI into a temporary location. This action parses a
+      # given URI and handles downloading it via one of the many Vagrant
+      # downloads (such as {Vagrant::Downloaders::File}).
+      #
+      # This action cleans itself up by removing the downloaded box file.
       class Download < Base
         BASENAME = "box"
         BUFFERSIZE = 1048576 # 1 MB

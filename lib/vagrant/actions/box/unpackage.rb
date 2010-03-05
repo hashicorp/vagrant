@@ -1,6 +1,8 @@
 module Vagrant
   module Actions
     module Box
+      # This action unpackages a downloaded box file into its final
+      # box destination within the vagrant home folder.
       class Unpackage < Base
         TAR_OPTIONS = [File::RDONLY, 0644, Tar::GNU]
 
