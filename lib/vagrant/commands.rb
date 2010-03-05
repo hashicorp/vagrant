@@ -96,11 +96,7 @@ error
       def suspend
         Env.load!
         Env.require_persisted_vm
-        error_and_exit(<<-error) if Env.persisted_vm.saved?
-The vagrant virtual environment you are trying to suspend is already in a
-suspended state.
-error
-        Env.persisted_vm.save_state(true)
+        Env.persisted_vm.suspend
       end
 
       # Resume a running vagrant instance. This resumes an already suspended

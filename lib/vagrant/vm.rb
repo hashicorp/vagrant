@@ -43,13 +43,12 @@ module Vagrant
       @vm.destroy(:destroy_image => true)
     end
 
-    def saved?
-      @vm.saved?
+    def suspend
+      execute!(Actions::VM::Suspend)
     end
 
-    def save_state
-      logger.info "Saving VM state..."
-      @vm.save_state(true)
+    def saved?
+      @vm.saved?
     end
 
     def powered_off?; @vm.powered_off? end
