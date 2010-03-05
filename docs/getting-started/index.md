@@ -12,6 +12,16 @@ fully functional Ruby on Rails development environment. The getting started
 guide concludes by explaining how to package the newly created vagrant environment
 so other developers can get up and running in just a couple commands.
 
+## Get VirtualBox
+
+Vagrant depends on [Sun's VirtualBox](http://www.virtualbox.org) to create all of
+it's virtual environments. VirtualBox is a general-purpose full virtualizer for
+x86 hardware. Targeted at server, desktop and embedded use, it is now the only
+professional-quality virtualization solution that is also Open Source Software.
+VirtualBox runs on **Windows**, **Mac OS X**, **Linux**, and **Solaris**.
+
+Here is a link directly to the [download page](http://www.virtualbox.org/wiki/Downloads).
+
 ## Install Vagrant
 
 Vagrant is packaged as a [RubyGem](http://rubygems.org/). Since Vagrant is written
