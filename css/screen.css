@@ -232,6 +232,11 @@ blockquote {
   height: 275px;
 }
 
+#content h1.top {
+  margin-top: 0px;
+  margin-left: 0px;
+}
+
 .guide h1 {
   margin-left: 0;
   margin-top: 5px;
@@ -245,12 +250,32 @@ blockquote {
 ------------------------------  */
 
 .sidebar {
-  border: 1px dotted #DDD;
-  background-color: #EEEEEE;
-  padding: 10px;
-  margin-top: 10px;
   margin-right: 8px;
 }
+
+  .sidebar .block h1 {
+    font-size: 20px;
+    margin: 0;
+    margin-top: 5px;
+    color: inherit;
+    font-weight: bold;
+  }
+
+  .sidebar .block {
+    border: 1px dotted #DDD;
+    background-color: #EEEEEE;
+    padding: 10px;
+    margin-top: 10px;
+  }
+
+  .sidebar .block.warning {
+    border: 1px dotted #9F6000;
+    background-color: #FEEFB3;
+    color: #333;
+    padding-top: 0px;
+    padding-bottom: 0px;
+  }
+
 
   .sidebar ol, .sidebar ul {
     margin-bottom: 0px;
