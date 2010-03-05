@@ -40,6 +40,17 @@ module Vagrant
       def [](key)
         send(key)
       end
+
+      def to_json
+        instance_variables_hash.to_json
+      end
+
+      def instance_variables_hash
+        instance_variables.inject({}) do |acc, iv|
+          acc[iv.to_s[1..-1].to_sym] = instance_variable_get(iv)
+          acc
+        end
+      end
     end
 
     class SSHConfig < Base
@@ -95,6 +106,14 @@ module Vagrant
 
       def initialize
         @enabled = false
+      end
+
+      def to_json
+        # Overridden so that the 'json' key could be removed, since its just
+        # merged into the config anyways
+        data = instance_variables_hash
+        data.delete(:json)
+        data.to_json
       end
     end
 

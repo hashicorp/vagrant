@@ -74,4 +74,50 @@ class ConfigTest < Test::Unit::TestCase
       assert Vagrant::Config.config.loaded?
     end
   end
+
+  context "base class" do
+    setup do
+      @base = Vagrant::Config::Base.new
+    end
+
+    should "forward [] access to methods" do
+      @base.expects(:foo).once
+      @base[:foo]
+    end
+
+    should "return a hash of instance variables" do
+      data = { :foo => "bar", :bar => "baz" }
+
+      data.each do |iv, value|
+        @base.instance_variable_set("@#{iv}".to_sym, value)
+      end
+
+      result = @base.instance_variables_hash
+      assert_equal data.length, result.length
+
+      data.each do |iv, value|
+        assert_equal value, result[iv]
+      end
+    end
+
+    should "convert instance variable hash to json" do
+      @json = mock("json")
+      @iv_hash = mock("iv_hash")
+      @iv_hash.expects(:to_json).once.returns(@json)
+      @base.expects(:instance_variables_hash).returns(@iv_hash)
+      assert_equal @json, @base.to_json
+    end
+  end
+
+  context "chef config" do
+    setup do
+      @config = Vagrant::Config::ChefConfig.new
+      @config.json = "HEY"
+    end
+
+    should "not include the 'json' key in the config dump" do
+      result = JSON.parse(@config.to_json)
+      assert !result.has_key?("json")
+    end
+  end
 end

@@ -35,19 +35,33 @@ class ProvisionActionTest < Test::Unit::TestCase
   end
 
   context "generating and uploading json" do
-    should "convert the JSON config to JSON" do
-      Hash.any_instance.expects(:to_json).once.returns("foo")
-      @action.setup_json
-    end
-
-    should "add the project directory to the JSON" do
+    def assert_json
       Vagrant::SSH.expects(:upload!).with do |json, path|
         data = JSON.parse(json.read)
-        assert_equal Vagrant.config.vm.project_directory, data["project_directory"]
+        yield data
         true
       end
 
       @action.setup_json
+    end
+
+    should "merge in the extra json specified in the config" do
+      Vagrant.config.chef.json = { :foo => "BAR" }
+      assert_json do |data|
+        assert_equal "BAR", data["foo"]
+      end
+    end
+
+    should "add the directory as a special case to the JSON" do
+      assert_json do |data|
+        assert_equal Vagrant.config.vm.project_directory, data["vagrant"]["directory"]
+      end
+    end
+
+    should "add the config to the JSON" do
+      assert_json do |data|
+        assert_equal Vagrant.config.vm.project_directory, data["vagrant"]["config"]["vm"]["project_directory"]
+      end
     end
 
     should "upload a StringIO to dna.json" do

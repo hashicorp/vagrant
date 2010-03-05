@@ -19,7 +19,20 @@ module Vagrant
         def setup_json
           logger.info "Generating JSON and uploading..."
 
-          json = { :project_directory => Vagrant.config.vm.project_directory }.merge(Vagrant.config.chef.json).to_json
+          # Set up initial configuration
+          data = {
+            :config => Vagrant.config,
+            :directory => Vagrant.config.vm.project_directory,
+          }
+
+          # And wrap it under the "vagrant" namespace
+          data = { :vagrant => data }
+
+          # Merge with the "extra data" which isn't put under the
+          # vagrant namespace by default
+          data.merge!(Vagrant.config.chef.json)
+
+          json = data.to_json
 
           SSH.upload!(StringIO.new(json), File.join(Vagrant.config.chef.provisioning_path, "dna.json"))
         end
