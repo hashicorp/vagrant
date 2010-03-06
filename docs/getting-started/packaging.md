@@ -17,6 +17,31 @@ with boxes is a Vagrantfile. If a Vagrantfile exists in a box, it will be
 added to the configuration load chain. Boxes can use a Vagrantfile to specify
 default forwarded ports, SSH information, etc.
 
+Before working through the rest of this page, make sure the virtual environment
+is built by running `vagrant up`.
+
+## Creating the Vagrantfile
+
+The first step is to create a Vagrantfile which does most of the heavy
+lifting for the users of your box and to remove code which isn't useful
+for boxes. First, backup your old Vagrantfile by copying it to something like
+`Vagrantfile.bak`. Then, remove everything pertaining to provisioning, since the
+packaged box will already be fully provisioned since its an export of the
+running virtual machine. Second, remove the base box configuration, since
+there is no base box for a box. And finally, we need to add in the MAC address of the
+virtual machine so the internet access will work on any machine (more on
+this later). The resulting Vagrantfile should look like the following:
+
+{% highlight ruby %}
+Vagrant::Config.run do |config|
+  # Mac address (make sure this matches _exactly_)
+  config.vm.base_mac = "0800279C2E41"
+
+  # Forward apache
+  config.vm.forward_port("web", 80, 8080)
+end
+{% endhighlight %}
+
 ## Packaging the Project
 
 Run the following code to package the environment up. This code requires
@@ -24,7 +49,7 @@ that the environment already exist, so before packaging run `vagrant up`.
 
 {% highlight bash %}
 $ vagrant halt
-$ vagrant package
+$ vagrant package --include Vagrantfile
 {% endhighlight %}
 
 The first command simply halts the running virtual machine (if its running).
@@ -33,7 +58,9 @@ recommended in general. In this case, it shouldn't really cause any damage.
 
 The second command is where the meat is. `vagrant package` takes the virtual
 environment from the current project and packages it into a `package.box`
-file in the same directory.
+file in the same directory. The additional options passed to the command tell
+it to include the newly created Vagrantfile with it, so that the users of
+the box will already have the MAC address and port forwarding setup.
 
 ## Distributing the Box
 
