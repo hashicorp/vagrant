@@ -60,9 +60,18 @@ module Vagrant
       end
 
       def load_box!
-        @@box = Box.find(Vagrant.config.vm.box) if Vagrant.config.vm.box
+        if Vagrant.config.vm.box
+          @@box = Box.find(Vagrant.config.vm.box)
 
-        if @@box
+          if !@@box
+            error_and_exit(<<-msg)
+Specified box `#{Vagrant.config.vm.box}` does not exist!
+
+The box must be added through the `vagrant box add` command. Please view
+the documentation associated with the command for more information.
+msg
+          end
+
           logger.info("Reloading configuration to account for loaded box...")
           load_config!
         end

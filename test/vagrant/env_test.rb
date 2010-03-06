@@ -229,6 +229,15 @@ class EnvTest < Test::Unit::TestCase
       Vagrant::Env.stubs(:load_config!)
     end
 
+    should "not load the box if its not set" do
+      mock_config do |config|
+        config.vm.box = nil
+      end
+
+      Vagrant::Box.expects(:find).never
+      Vagrant::Env.load_box!
+    end
+
     should "set the box to what is found by the Box class" do
       Vagrant::Box.expects(:find).with(Vagrant.config.vm.box).once.returns(@box)
       Vagrant::Env.load_box!
@@ -241,9 +250,9 @@ class EnvTest < Test::Unit::TestCase
       Vagrant::Env.load_box!
     end
 
-    should "not load the config if a box is not loaded" do
-      Vagrant::Env.expects(:load_config!).never
+    should "error and exit if a box is specified but doesn't exist" do
       Vagrant::Box.expects(:find).returns(nil)
+      Vagrant::Env.expects(:error_and_exit).once
       Vagrant::Env.load_box!
     end
   end
