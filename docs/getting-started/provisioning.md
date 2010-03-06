@@ -38,9 +38,7 @@ should be at `cookbooks/htop/recipes/default.rb`.
 
 {% highlight ruby %}
 # Install the htop package via the packaging system
-package "htop" do
-  action :install
-end
+package "htop"
 {% endhighlight %}
 
 ## Creating the `vagrant_main` Cookbook
@@ -109,6 +107,6 @@ environment and trying to execute `htop`:
 {% highlight bash %}
 $ vagrant ssh
 ...
-vagrant-instance ~$ htop
-...
+vagrant-instance ~$ which htop
+/usr/bin/htop
 {% endhighlight %}

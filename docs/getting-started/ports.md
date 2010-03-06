@@ -41,3 +41,12 @@ apply them without re-importing and re-building everything.
 
 Note that forwarding ports requires a virtual machine restart since VirtualBox
 won't pick up on the forwarded ports until it is completely restarted.
+
+## Results!
+
+At this point, after running `vagrant up`, you should be able to take your
+regular old browser to `localhost:8080` and see the following page. Sure,
+it's an error page, but it means that rails is running and everything is
+working!
+
+![Success!](/images/getting-started/success.jpg)
