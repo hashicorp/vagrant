@@ -8,7 +8,7 @@ By providing automated creation and provisioning of virtual machines
 using [Sun's VirtualBox](http://www.virtualbox.org), Vagrant provides
 the tools to create and configure lightweight, reproducible, and portable
 virtual environments. For more information, see the part of the
-getting started guide on "[Why Vagrant?](/docs/getting-started/why.html)."
+getting started guide on "[Why Vagrant?](/docs/getting-started/why.html)"
 
 Are you ready to use vagrant to revolutionize the way you work? Check out
 the [getting started guide](/docs/getting-started/index.html).
