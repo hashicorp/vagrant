@@ -49,20 +49,8 @@ class VMTest < Test::Unit::TestCase
     end
 
     context "destroying" do
-      setup do
-        @mock_vm.stubs(:running?).returns(false)
-        @vm.stubs(:execute!)
-      end
-
-      should "destoy the VM along with images" do
-        @mock_vm.expects(:destroy).with(:destroy_image => true).once
-        @vm.destroy
-      end
-
-      should "stop the VM if its running" do
-        @mock_vm.expects(:running?).returns(true)
-        @mock_vm.expects(:destroy).with(:destroy_image => true).once
-        @vm.expects(:execute!).with(Vagrant::Actions::VM::Halt).once
+      should "execute the down action" do
+        @vm.expects(:execute!).with(Vagrant::Actions::VM::Down).once
         @vm.destroy
       end
     end
