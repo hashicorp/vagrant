@@ -45,4 +45,6 @@ While the rest of the getting started guide will focus on explaining how to
 build a fully functional virtual machine to serve rails applications, you
 should get used to the above snippet of code. After the initial setup of
 any Vagrant environment, the above is all any developer will need to create
-their development environment!
+their development environment! Note that the above snippet does actually
+create a fully functional 360MB virtual machine running Ubuntu in the
+background, although the machine doesn't do much in this state.
