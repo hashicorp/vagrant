@@ -126,5 +126,5 @@ config.chef.json = {
 }
 {% endhighlight %}
 
-If you do not with to create a vagrant_main recipe in your cookbooks directory you can override the recipes hash key by placing `config.chef.json.merge({:recipes => 'you_want'})`
+If you don't want to create a vagrant_main recipe in your cookbooks directory you can override the recipes by placing `config.chef.json.merge({:recipes => 'you_want'})`
 in either a packaged or project directory Vagrantfile.
