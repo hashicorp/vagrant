@@ -2,7 +2,7 @@
 layout: welcome
 title: Welcome
 ---
-Welcome to **sane development environments**.
+Vagrant is a tool for building and distributing virtualized development environments.
 
 By providing automated creation and provisioning of virtual machines
 using [Sun's VirtualBox](http://www.virtualbox.org), Vagrant provides
