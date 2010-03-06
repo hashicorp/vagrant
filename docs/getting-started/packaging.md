@@ -44,8 +44,7 @@ end
 
 ## Packaging the Project
 
-Run the following code to package the environment up. This code requires
-that the environment already exist, so before packaging run `vagrant up`.
+Run the following code to package the environment up:
 
 {% highlight bash %}
 $ vagrant halt
