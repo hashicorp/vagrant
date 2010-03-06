@@ -1,19 +1,21 @@
 ---
-layout: default
+layout: welcome
 title: Welcome
 ---
+Welcome to **sane development environments**.
 
-<img src="/images/vagrant_chilling.png" class="left" />
+While web technologies have progressed leaps and bounds in the past decade,
+the techniques used for web development have remained rather stagnant. Ten
+years ago, a PHP developer would start up Apache and MySQL on their local
+machine and use that to "develop." Today, with the rise of more complex web
+applications, complete with message queues, multiple database backends,
+custom worker processes, and more, its surprising to see that this method of
+development remains largely unchanged.
 
-Vagrant is a tool set out to **change the way web developers work**.
-
-Vagrant quickly and seamlessly builds and provisions virtual machines for
-development using [Sun's VirtualBox](http://www.virtualbox.org). Using vagrant,
-developers can continue to manage project files using their own system and editors,
-but all the servers, processes, etc. actually run within a virtualized environment.
-Vagrant allows ports to be forwarded so you can still test a web service, for example,
-by forwarding the virtual machine's port 80 to some port on the host machine and
-visiting it in any browser.
+Vagrant is **here to change that.** By providing automated creation and
+provisioning of virtual machines using [Sun's VirtualBox], Vagrant provides
+the tools to create and configure lightweight, reproducible, and portable
+virtual environments.
 
 Are you ready to use vagrant to revolutionize the way you work? Check out
 the [getting started guide](/docs/getting-started/index.html).
