@@ -88,3 +88,44 @@ config.vm.project_directory = "/vagrant"
 {% endhighlight %}
 
 The above will use the vagrant folder under root as the mount point for the shared project directory.
+
+`config.vm.forward_ports` is a function that will add a set of ports to forward from the host machine to the virtual machine
+created with vagrant. The default Vagrantfile that is packaged with Vagrant itself forwards port 2222 on the host machine to 
+port 22 on the guest for ssh. 
+
+`config.vm.disk_image_format` alerts Vagrant to the prefered virtual disk image file format for use when creating new virtual machines. VirtualBox 
+supports many disk formats such as .vdi (VirtualBox's own format), .vmdk (VMWare's disk image format), and .vhd (Microsoft's format).
+
+
+## config.package
+
+These setting determine the defaults for the file name, `config.package.name`, and file extension, `config.package.extension`, used
+when [packaging](/docs/getting-started/packaging.html) a vm for distribution. 
+
+## config.chef
+
+Vagrant leverages Chef's ability to [provision](/docs/user-guide/provisioning.html) environments quickly and easily through this set of configuration options. 
+
+`config.chef.enabled` is set to false in the default Vagrantfile and must be explicity turned on in a packaged or project specific Vagrantfile.
+
+`config.chef.cooksbooks_path` represents the cookbooks path on your host machine located relative to your project directory. Vagrant will expand whatever path you
+place in this configuration option and use those cookbooks during provisioning
+
+`config.chef.provisioning_path` is the folder on the virtual machine where Vagrant will copy a small ruby script to include the cookbooks and a json chef configuration file.  
+A chef solo command will be issued from within this directory to put chef to work.
+
+{% highlight bash %}
+$ sudo chef solo -c solo.rb -j dna.json
+{% endhiglight %}
+
+`config.chef.json` is the place for any extra json that might be required for the chef solo command to properly provision your virtual machine. By default it includes
+
+{% highlight ruby %}
+  config.chef.json = {
+    :instance_role => "vagrant",
+    :recipes => ["vagrant_main"]
+  }
+{% endhighlight %}
+
+If you do not with to create a vagrant_main recipe in your cookbooks directory you can override the recipes hash key by placing `config.chef.json.merge({:recipes => 'you_want'})`
+in either a packaged or project directory Vagrantfile.
