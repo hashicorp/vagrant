@@ -4,39 +4,39 @@ title: Welcome
 ---
 Welcome to **sane development environments**.
 
-While web technologies have progressed leaps and bounds in the past decade,
-the techniques used for web development have remained rather stagnant. Ten
-years ago, a PHP developer would start up Apache and MySQL on their local
-machine and use that to "develop." Today, with the rise of more complex web
-applications, complete with message queues, multiple database backends,
-custom worker processes, and more, its surprising to see that this method of
-development remains largely unchanged.
-
-Vagrant is **here to change that.** By providing automated creation and
-provisioning of virtual machines using [Sun's VirtualBox], Vagrant provides
+By providing automated creation and provisioning of virtual machines
+using [Sun's VirtualBox](http://www.virtualbox.org), Vagrant provides
 the tools to create and configure lightweight, reproducible, and portable
-virtual environments.
+virtual environments. For more information, see the part of the
+getting started guide on "[Why Vagrant?](/docs/getting-started/why.html)."
 
 Are you ready to use vagrant to revolutionize the way you work? Check out
 the [getting started guide](/docs/getting-started/index.html).
 
-<div class="clear"> </div>
+## Your First Vagrant Virtual Environment
 
-## Why Use Vagrant?
+{% highlight bash %}
+$ sudo gem install vagrant
+$ vagrant box add base http://files.vagrantup.com/base.box
+$ vagrant init
+$ vagrant up
+{% endhighlight %}
 
-* **Get up and running without worrying about server setup** - Instead of spending
-  hours setting up a development environment for a project, simply run
-  `vagrant up` and get coding!
-* **Continue using your own editor and browser** - With shared folders and port forwarding,
-  it feels exactly as if nothing has changed. You can still edit files using your favorite
-  editor, and test the site using your favorite local tools.
-* **Avoid dependency hell** - Every project which uses vagrant has its own _unique and isolated virtual environment_,
-  so the dependencies and configurations of multiple projects never collide.
-* **Cleanup when you're done** - When you're done working for the day, execute
-  `vagrant down` and remove the virtual machine! No more web server, database, etc.
-  processes running when they're not needed!
-* **Add developers quickly and easily** - For teams, adding developers to new projects
-  is often a pain, since the new developer needs to learn how to setup all the
-  different pieces of the application to get it running on his development machine.
-  Forget about it! Just tell him to pull the latest code base from version control
-  and run `vagrant up` and you're in business!
+These four commands alone will automatically download and create a bare bones
+Ubuntu-based server running in the background. Sure, that on its own isn't
+that amazing, but imagine running a single `vagrant up` and having a fully
+featured web development environment running! This is all possible with Vagrant.
+
+## Feature List
+
+This is a compact feature list of Vagrant. For more information on any of
+the specific features, read the [getting started guide](/docs/getting-started/index.html).
+
+* Automated virtual machine creation using [Sun's VirtualBox](http://www.virtualbox.org)
+* Automated provisioning of virtual environments using [chef](http://www.opscode.com/chef)
+* Forward ports to the host machine
+* Full SSH access to created environments
+* Shared folders allows you to continue using your own editor
+* Package environments into distributable boxes
+* Completely tear down environment when you're done
+* Easily rebuild a complete environment with a single command
