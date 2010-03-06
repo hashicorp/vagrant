@@ -34,9 +34,12 @@ same directory run the `rails` command:
 
 {% highlight bash %}
 $ rails .
+$ rm public/index.html
 {% endhighlight %}
 
-This creates a rails-app in the current directory. We'll leave it as-is.
+This creates a rails-app in the current directory. It also removes the static
+index file but leaves everything else as-is. This guide is assuming you're
+using **Rails 2.3.5**.
 
 The above setups required (rails and vagrant) could have been run in any order.
 Vagrant can easily be initialized in already-existing project folders.

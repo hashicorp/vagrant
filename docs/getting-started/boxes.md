@@ -16,10 +16,10 @@ basically tar packages in a specific format for Vagrant use. Anybody
 can create a box, and packaging will be covered specifically in the
 [packaging](/docs/getting-started/packaging.html) section.
 
-## Getting the Rails Box
+## Getting the Getting Started Box
 
 We've already packaged a basic box which contains Apache2, Passenger,
-and MySQL. While provisioning will be covered in the getting started
+and SQLite. While provisioning will be covered in the getting started
 guide, we didn't want to burden you with downloading all the cookbooks
 for all the servers, so we'll instead cover a more simple case, although
 the rails box was created completely with Vagrant provisioning.
@@ -29,7 +29,7 @@ HTTP URL. Beginning running the following command so it can begin downloading
 while box installation is covered in more detail:
 
 {% highlight bash %}
-$ vagrant box add rails http://files.vagrantup.com/rails.box
+$ vagrant box add getting_started http://files.vagrantup.com/getting_started.box
 {% endhighlight %}
 
 Installed boxes are global to the current vagrant installation. This means
@@ -67,7 +67,7 @@ contents should be self-explanatory:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.vm.box = "rails"
+  config.vm.box = "getting_started"
 end
 {% endhighlight %}
 
@@ -76,15 +76,14 @@ end
 So far, we've only specified a base. No ports have been forwarded, no custom provisioning
 has been done, etc. We literally just have one line of configuration in our Vagrantfile.
 But even so, we already have a fully functional virtual machine. You can see for yourself
-by running `vagrant up` which will create the environment. After running `vagrant up`,
-you can SSH in to your virtual machine to prove its running using `vagrant ssh`. Finally,
-when you're finished verifying your work so far, you can destroy everything with a
-`vagrant down` (or you may shut down the virtual machine, its your choice).
+by running `vagrant up` which will create the environment. After a few minutes, you should
+have a fully running virtual machine. We haven't yet forwarded any ports and we haven't covered
+SSH yet, so you'll just have to take our word that its working for now. Finally,
+when you're finished verifying the virtual machine, you can destroy everything with a
+`vagrant down`.
 
 {% highlight bash %}
 $ vagrant up
-...
-$ vagrant ssh
 ...
 $ vagrant down
 ...
