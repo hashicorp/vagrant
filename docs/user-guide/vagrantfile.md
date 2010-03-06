@@ -111,20 +111,19 @@ Vagrant leverages Chef's ability to [provision](/docs/user-guide/provisioning.ht
 `config.chef.cooksbooks_path` represents the cookbooks path on your host machine located relative to your project directory. Vagrant will expand whatever path you
 place in this configuration option and use those cookbooks during provisioning
 
-`config.chef.provisioning_path` is the folder on the virtual machine where Vagrant will copy a small ruby script to include the cookbooks and a json chef configuration file.  
-A chef solo command will be issued from within this directory to put chef to work.
+`config.chef.provisioning_path` is the folder on the virtual machine where Vagrant will copy a small ruby script to include the cookbooks and a json chef configuration file. A chef solo command will be issued from within this directory to put chef to work.
 
 {% highlight bash %}
 $ sudo chef solo -c solo.rb -j dna.json
-{% endhiglight %}
+{% endhighlight %}
 
 `config.chef.json` is the place for any extra json that might be required for the chef solo command to properly provision your virtual machine. By default it includes
 
 {% highlight ruby %}
-  config.chef.json = {
-    :instance_role => "vagrant",
-    :recipes => ["vagrant_main"]
-  }
+config.chef.json = {
+  :instance_role => "vagrant",
+  :recipes => ["vagrant_main"] 
+}
 {% endhighlight %}
 
 If you do not with to create a vagrant_main recipe in your cookbooks directory you can override the recipes hash key by placing `config.chef.json.merge({:recipes => 'you_want'})`
