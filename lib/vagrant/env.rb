@@ -60,18 +60,9 @@ module Vagrant
       end
 
       def load_box!
-        if Vagrant.config.vm.box
-          @@box = Box.find(Vagrant.config.vm.box)
+        @@box = Box.find(Vagrant.config.vm.box) if Vagrant.config.vm.box
 
-          if !@@box
-            error_and_exit(<<-msg)
-Specified box `#{Vagrant.config.vm.box}` does not exist!
-
-The box must be added through the `vagrant box add` command. Please view
-the documentation associated with the command for more information.
-msg
-          end
-
+        if @@box
           logger.info("Reloading configuration to account for loaded box...")
           load_config!
         end
@@ -114,11 +105,20 @@ msg
 
       def require_box
         if !box
-          error_and_exit(<<-msg)
+          if !Vagrant.config.vm.box
+            error_and_exit(<<-msg)
 No base box was specified! A base box is required as a staring point
 for every vagrant virtual machine. Please specify one in your Vagrantfile
 using `config.vm.box`
 msg
+          else
+            error_and_exit(<<-msg)
+Specified box `#{Vagrant.config.vm.box}` does not exist!
+
+The box must be added through the `vagrant box add` command. Please view
+the documentation associated with the command for more information.
+msg
+          end
         end
       end
 
