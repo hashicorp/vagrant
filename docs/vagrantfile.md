@@ -1,6 +1,6 @@
 ---
-layout: guide
-title: User Guide - Vagrantfile
+layout: documentation
+title: Documentation - Vagrantfile
 ---
 # Vagrantfile
 
@@ -43,37 +43,37 @@ There are many available configuration options.
 
 ## config.vagrant
 
-The vagrant configuration subset represents configuration settings for Vagrant itself and 
+The vagrant configuration subset represents configuration settings for Vagrant itself and
 should _*not*_ be altered in your packaged box or project Vagrantfile.
 
 ## config.ssh
 
 These settings will be used when logging into your Vagrant boxes. Generally, this will be configured
 in the Vagrantfile packaged with any boxes you're using as the packaged virtual machine should have been
-setup to use a specific user account for connecting. 
+setup to use a specific user account for connecting.
 
 ## config.vm
 
-Vm settings are used when creating new virtual machines to alert Vagrant about how they 
-should be configured for use. 
+Vm settings are used when creating new virtual machines to alert Vagrant about how they
+should be configured for use.
 
 `config.vm.box` determines which of your boxes will be used when creating a new virtual machine for your project.
 In many cases this will be the only configuration you'll ever have to do. The [example](#init-config) above represents a
-Vagrantfile configuration where the box being used was installed with 
+Vagrantfile configuration where the box being used was installed with
 
 {% highlight bash %}
 $ vagrant box add my_box http://some.url.for/some_remote_box.box
 {% endhighlight %}
 
-or 
+or
 
 {% highlight bash %}
 $ vagrant box add my_box some_downloaded.box
 {% endhighlight %}
 
 `config.vm.box_ovf` tells Vagrant and consequently the [virtualbox](http://github.com/mitchellh/virtualbox) gem
-which file in the ~/.vagrant/boxes/[configured box]/ directory should be used when importing the configured box 
-for duplication. (see `config.vm.box`). This setting is only really important for those creating 
+which file in the ~/.vagrant/boxes/[configured box]/ directory should be used when importing the configured box
+for duplication. (see `config.vm.box`). This setting is only really important for those creating
 boxes for distribution as this configuration should be included in the packaged Vagrantfile.
 
 `config.vm.base_mac` configures the mac address that the vm will use when built. Because Vagrant duplicates virtual machines
@@ -81,7 +81,7 @@ and updating operating system configuration to accomodate changing mac addresses
 force a predetermined mac address at vm creation.
 
 `config.vm.project_directory` tells vagrant where to mount the current project directory as a shared folder
-withing the new virtual machine's file system. 
+withing the new virtual machine's file system.
 
 {% highlight ruby %}
 config.vm.project_directory = "/vagrant"
@@ -90,21 +90,21 @@ config.vm.project_directory = "/vagrant"
 The above will use the vagrant folder under root as the mount point for the shared project directory.
 
 `config.vm.forward_ports` is a function that will add a set of ports to forward from the host machine to the virtual machine
-created with vagrant. The default Vagrantfile that is packaged with Vagrant itself forwards port 2222 on the host machine to 
-port 22 on the guest for ssh. 
+created with vagrant. The default Vagrantfile that is packaged with Vagrant itself forwards port 2222 on the host machine to
+port 22 on the guest for ssh.
 
-`config.vm.disk_image_format` alerts Vagrant to the prefered virtual disk image file format for use when creating new virtual machines. VirtualBox 
+`config.vm.disk_image_format` alerts Vagrant to the prefered virtual disk image file format for use when creating new virtual machines. VirtualBox
 supports many disk formats such as .vdi (VirtualBox's own format), .vmdk (VMWare's disk image format), and .vhd (Microsoft's format).
 
 
 ## config.package
 
 These setting determine the defaults for the file name, `config.package.name`, and file extension, `config.package.extension`, used
-when [packaging](/docs/getting-started/packaging.html) a vm for distribution. 
+when [packaging](/docs/getting-started/packaging.html) a vm for distribution.
 
 ## config.chef
 
-Vagrant leverages Chef's ability to [provision](/docs/user-guide/provisioning.html) environments quickly and easily through this set of configuration options. 
+Vagrant leverages Chef's ability to [provision](/docs/provisioning.html) environments quickly and easily through this set of configuration options.
 
 `config.chef.enabled` is set to false in the default Vagrantfile and must be explicity turned on in a packaged or project specific Vagrantfile.
 
@@ -122,7 +122,7 @@ $ sudo chef solo -c solo.rb -j dna.json
 {% highlight ruby %}
 config.chef.json = {
   :instance_role => "vagrant",
-  :recipes => ["vagrant_main"] 
+  :recipes => ["vagrant_main"]
 }
 {% endhighlight %}
 

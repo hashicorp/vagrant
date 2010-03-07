@@ -1,6 +1,6 @@
 ---
-layout: guide
-title: User Guide - Provisioning
+layout: documentation
+title: Documentation - Provisioning
 ---
 # Provisioning
 

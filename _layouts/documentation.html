@@ -1,0 +1,19 @@
+{% include header.html %}
+    <div class="grid_3 alpha sidebar">
+      <div class="block">
+        <ol>
+          <li><a href="/docs/index.html">Overview</a></li>
+          <li><a href="/docs/commands.html">Commands</a></li>
+          <li><a href="/docs/vagrantfile.html">Vagrantfile</a></li>
+          <li><a href="/docs/provisioning.html">Provisioning</a></li>
+          <li><a href="/docs/boxes.html">Boxes</a></li>
+          <li><a href="/docs/rake.html">Rake Integration</a></li>
+        </ol>
+      </div>
+
+      {% include block_beta_warning.html %}
+    </div>
+    <div class="grid_9 omega guide">
+      {{ content }}
+    </div>
+{% include footer.html %}

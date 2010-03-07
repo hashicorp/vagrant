@@ -1,6 +1,6 @@
 ---
-layout: guide
-title: User Guide - Boxes
+layout: documentation
+title: Documentation - Boxes
 ---
 # Boxes
 

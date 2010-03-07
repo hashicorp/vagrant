@@ -1,6 +1,6 @@
 ---
-layout: guide
-title: User Guide - Rake Integration
+layout: documentation
+title: Documentation - Rake Integration
 ---
 # Rake Integration
 
