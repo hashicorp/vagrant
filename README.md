@@ -1,6 +1,6 @@
 # Vagrant
 
-* Website: http://vagrantup.com
+* Website: [http://vagrantup.com](http://vagrantup.com)
 * IRC: `#vagrant` on Freenode
 * Mailng list: [Google Groups](http://groups.google.com/group/vagrant-up)
 
