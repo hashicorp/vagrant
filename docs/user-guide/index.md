@@ -14,5 +14,5 @@ release is tagged, including the documentation branch.
 
 This guide goes through every aspect of Vagrant in great detail. If instead
 you're more of the tinkering type and want to just get Vagrant up and running,
-check out the [Getting Started](#) page instead.
+check out the [Getting Started](/docs/getting-started/index.html) page instead.
 
