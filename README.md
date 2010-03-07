@@ -1,8 +1,8 @@
 # Vagrant
 
-Website: http://vagrantup.com
-IRC: `#vagrant` on Freenode
-Mailng list: [Google Groups](http://groups.google.com/group/vagrant-up)
+* Website: http://vagrantup.com
+* IRC: `#vagrant` on Freenode
+* Mailng list: [Google Groups](http://groups.google.com/group/vagrant-up)
 
 Vagrant is a tool for building and distributing virtualized development environments.
 
