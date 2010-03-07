@@ -14,13 +14,13 @@ module Vagrant
       def box; @@box; end
       def persisted_vm; @@persisted_vm; end
       def root_path; @@root_path; end
-      def dotfile_path; File.join(root_path, Vagrant.config.vagrant.dotfile_name); end
+      def dotfile_path;File.join(root_path, Vagrant.config.vagrant.dotfile_name); end
       def home_path; File.expand_path(Vagrant.config.vagrant.home); end
       def tmp_path; File.join(home_path, "tmp"); end
       def boxes_path; File.join(home_path, "boxes"); end
 
-      def load!
-        load_root_path!
+      def load!(opts={})
+        load_root_path!(Pathname.new(Dir.pwd), opts)
         load_config!
         load_home_directory!
         load_box!
@@ -31,7 +31,7 @@ module Vagrant
         # Prepare load paths for config files
         load_paths = [File.join(PROJECT_ROOT, "config", "default.rb")]
         load_paths << File.join(box.directory, ROOTFILE_NAME) if box
-        load_paths << File.join(root_path, ROOTFILE_NAME)
+        load_paths << File.join(root_path, ROOTFILE_NAME) if root_path
 
         # Then clear out the old data
         Config.reset!
@@ -69,6 +69,8 @@ module Vagrant
       end
 
       def load_vm!
+        return unless root_path
+
         File.open(dotfile_path) do |f|
           @@persisted_vm = Vagrant::VM.find(f.read)
         end

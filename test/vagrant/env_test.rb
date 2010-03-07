@@ -78,6 +78,12 @@ class EnvTest < Test::Unit::TestCase
       Vagrant::Env.load_config!
     end
 
+    should "not load from the root path if nil" do
+      Vagrant::Env.stubs(:root_path).returns(nil)
+      File.expects(:exist?).with(File.join(@root_path, Vagrant::Env::ROOTFILE_NAME)).never
+      Vagrant::Env.load_config!
+    end
+
     should "not load from the box directory if it is nil" do
       Vagrant::Env.expects(:box).once.returns(nil)
       Vagrant::Env.load_config!
@@ -115,7 +121,7 @@ class EnvTest < Test::Unit::TestCase
     test "load! should load the config and set the persisted_uid" do
       Vagrant::Env.expects(:load_config!).once
       Vagrant::Env.expects(:load_vm!).once
-      Vagrant::Env.expects(:load_root_path!).once
+      Vagrant::Env.expects(:load_root_path!).with(Pathname.new(Dir.pwd), {}).once
       Vagrant::Env.expects(:load_home_directory!).once
       Vagrant::Env.expects(:load_box!).once
       Vagrant::Env.load!
@@ -142,6 +148,12 @@ class EnvTest < Test::Unit::TestCase
     test "loading of the uuid from the dotfile" do
       mock_persisted_vm
       assert_equal 'foovm', Vagrant::Env.persisted_vm
+    end
+
+    should "do nothing if the root path is nil" do
+      File.expects(:open).never
+      Vagrant::Env.stubs(:root_path).returns(nil)
+      Vagrant::Env.load_vm!
     end
 
     test "uuid should be nil if dotfile didn't exist" do
