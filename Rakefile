@@ -4,9 +4,9 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gemspec|
     gemspec.name = "vagrant"
-    gemspec.summary = "Create virtualized development environments"
-    gemspec.description = "Create virtualized development environments"
-    gemspec.email = "todo@todo.com"
+    gemspec.summary = "Vagrant is a tool for building and distributing virtualized development environments."
+    gemspec.description = "Vagrant is a tool for building and distributing virtualized development environments."
+    gemspec.email = ["mitchell.hashimoto@gmail.com", "john.m.bender@gmail.com"]
     gemspec.homepage = "http://github.com/mitchellh/vagrant"
     gemspec.authors = ["Mitchell Hashimoto", "John Bender"]
 
