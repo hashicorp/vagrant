@@ -2,6 +2,53 @@ require File.join(File.dirname(__FILE__), '..', 'test_helper')
 
 class BoxTest < Test::Unit::TestCase
   context "class methods" do
+    context "listing all boxes" do
+      setup do
+        Dir.stubs(:open)
+        File.stubs(:directory?).returns(true)
+
+        @boxes_path = "foo"
+        Vagrant::Env.stubs(:boxes_path).returns(@boxes_path)
+      end
+
+      should "open the boxes directory" do
+        Dir.expects(:open).with(Vagrant::Env.boxes_path)
+        Vagrant::Box.all
+      end
+
+      should "return an array" do
+        result = Vagrant::Box.all
+        assert result.is_a?(Array)
+      end
+
+      should "not return the '.' and '..' directories" do
+        dir = [".", "..", "..", ".", ".."]
+        Dir.expects(:open).yields(dir)
+        result = Vagrant::Box.all
+        assert result.empty?
+      end
+
+      should "return the other directories" do
+        dir = [".", "foo", "bar", "baz"]
+        Dir.expects(:open).yields(dir)
+        result = Vagrant::Box.all
+        assert_equal ["foo", "bar", "baz"], result
+      end
+
+      should "ignore the files" do
+        dir = ["foo", "bar"]
+        files = [true, false]
+        Dir.expects(:open).yields(dir)
+        dir_sequence = sequence("directory")
+        dir.each_with_index do |dir, index|
+          File.expects(:directory?).with(File.join(@boxes_path, dir)).returns(files[index]).in_sequence(dir_sequence)
+        end
+
+        result = Vagrant::Box.all
+        assert_equal ["foo"], result
+      end
+    end
+
     context "finding" do
       setup do
         @dir = "foo"

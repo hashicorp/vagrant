@@ -52,6 +52,22 @@ module Vagrant
     attr_accessor :temp_path
 
     class <<self
+      # Returns an array of all created boxes, as strings.
+      #
+      # @return [Array<String>]
+      def all
+        results = []
+
+        Dir.open(Env.boxes_path) do |dir|
+          dir.each do |d|
+            next if d == "." || d == ".." || !File.directory?(File.join(Env.boxes_path, d))
+            results << d.to_s
+          end
+        end
+
+        results
+      end
+
       # Finds a box with the given name. This method searches for a box
       # with the given name, returning `nil` if none is found or returning
       # a {Box} instance otherwise.

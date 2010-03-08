@@ -130,7 +130,7 @@ error
       def box(argv)
         Env.load!(:suppress_errors => true)
 
-        sub_commands = ["add", "remove"]
+        sub_commands = ["list", "add", "remove"]
 
         if !sub_commands.include?(argv[0])
           error_and_exit(<<-error)
@@ -143,6 +143,22 @@ error
         end
 
         send("box_#{argv[0]}", *argv[1..-1])
+      end
+
+      # Lists all added boxes
+      def box_list
+        boxes = Box.all.sort
+
+        wrap_output do
+          if !boxes.empty?
+            puts "Installed Vagrant Boxes:\n\n"
+            boxes.each do |box|
+              puts box
+            end
+          else
+            puts "No Vagrant Boxes Added!"
+          end
+        end
       end
 
       # Adds a box to the local filesystem, given a URI.

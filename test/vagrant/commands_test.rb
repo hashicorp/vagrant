@@ -219,6 +219,22 @@ class CommandsTest < Test::Unit::TestCase
     end
   end
 
+  context "box list" do
+    setup do
+      @boxes = ["foo", "bar"]
+
+      Vagrant::Box.stubs(:all).returns(@boxes)
+      Vagrant::Commands.stubs(:puts)
+    end
+
+    should "call all on box and sort the results" do
+      @all = mock("all")
+      @all.expects(:sort).returns(@boxes)
+      Vagrant::Box.expects(:all).returns(@all)
+      Vagrant::Commands.box_list
+    end
+  end
+
   context "box add" do
     setup do
       @name = "foo"
