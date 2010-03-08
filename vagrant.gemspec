@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{vagrant}
-  s.version = "0.1.0"
+  s.version = "0.1.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Mitchell Hashimoto", "John Bender"]
@@ -14,11 +14,13 @@ Gem::Specification.new do |s|
   s.email = ["mitchell.hashimoto@gmail.com", "john.m.bender@gmail.com"]
   s.executables = ["vagrant", "vagrant-box", "vagrant-down", "vagrant-halt", "vagrant-init", "vagrant-package", "vagrant-reload", "vagrant-resume", "vagrant-ssh", "vagrant-suspend", "vagrant-up"]
   s.extra_rdoc_files = [
-    "README.md"
+    "LICENSE",
+     "README.md"
   ]
   s.files = [
     ".gitignore",
      "Gemfile",
+     "LICENSE",
      "README.md",
      "Rakefile",
      "VERSION",
@@ -102,7 +104,8 @@ Gem::Specification.new do |s|
      "test/vagrant/env_test.rb",
      "test/vagrant/ssh_test.rb",
      "test/vagrant/util_test.rb",
-     "test/vagrant/vm_test.rb"
+     "test/vagrant/vm_test.rb",
+     "vagrant.gemspec"
   ]
   s.homepage = %q{http://github.com/mitchellh/vagrant}
   s.rdoc_options = ["--charset=UTF-8"]
