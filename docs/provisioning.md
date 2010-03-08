@@ -86,7 +86,10 @@ By default, Vagrant JSON configuration looks like the following:
 {% highlight ruby %}
 {
   :instance_role => "vagrant",
-  :project_directory => "/vagrant", # Or wherever your project directory is setup
+  :vagrant => {
+    :config => { ... }, # Full Vagrant config
+    :directory => "/vagrant" # Or wherever configured project directory is
+  }
 }
 {% endhighlight %}
 

@@ -15,6 +15,7 @@ $ vagrant
 vagrant
 vagrant-box
 vagrant-down
+vagrant-halt
 vagrant-init
 vagrant-package
 vagrant-reload
@@ -31,15 +32,17 @@ Each binary has its own documentation associated with it as well. By running
 `vagrant help COMMAND`, the documentation will show for the given command.
 But we'll go over each binary here, as well.
 
-The commands are documented in the order "most useful" or "most used." While
-this may be annoying for reference needs, the titles of each section are simply
-the command, so you can easily use the browser search to find any command you're
-looking for.
-
 <a name="vagrant-box"> </a>
 ## vagrant box
 
 Boxes have there own section: [Vagrant Boxes](/docs/boxes.html)
+
+<a name="vagrant-halt"> </a>
+## vagrant halt
+
+This halts the running virtual machine immediately by essentially "pulling the power."
+It is a force shutdown. If possible, we recommend that virtual machines be shut down
+gracefully by setting up a [rake task](/docs/rake.html) or using [`vagrant ssh`](#vagrant-ssh) to shut it down.
 
 <a name="vagrant-init"> </a>
 ## vagrant init
