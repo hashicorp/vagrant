@@ -12,7 +12,7 @@ development environments, Vagrant helps maximize your productivity and flexibili
 
 Vagrant is a development tool which stands on the shoulders of giants, using tried and
 proven technologies to achieve its magic. Vagrant uses [Sun's VirtualBox](http://www.virtualbox.org)
-to create its virtual machines and then uses [Chef](http://www.opscode.org/chef) to provision them.
+to create its virtual machines and then uses [Chef](http://www.opscode.com/chef) to provision them.
 
 ## Benefits of Vagrant
 
