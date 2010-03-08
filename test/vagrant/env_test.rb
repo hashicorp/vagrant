@@ -15,6 +15,16 @@ class EnvTest < Test::Unit::TestCase
   end
 
   context "requiring a VM" do
+    setup do
+      Vagrant::Env.stubs(:require_root_path)
+      Vagrant::Env.stubs(:error_and_exit)
+    end
+
+    should "require root path" do
+      Vagrant::Env.expects(:require_root_path).once
+      Vagrant::Env.require_persisted_vm
+    end
+
     should "error and exit if no persisted VM was found" do
       assert_nil Vagrant::Env.persisted_vm
       Vagrant::Env.expects(:error_and_exit).once
@@ -121,7 +131,7 @@ class EnvTest < Test::Unit::TestCase
     test "load! should load the config and set the persisted_uid" do
       Vagrant::Env.expects(:load_config!).once
       Vagrant::Env.expects(:load_vm!).once
-      Vagrant::Env.expects(:load_root_path!).with(Pathname.new(Dir.pwd), {}).once
+      Vagrant::Env.expects(:load_root_path!).once
       Vagrant::Env.expects(:load_home_directory!).once
       Vagrant::Env.expects(:load_box!).once
       Vagrant::Env.load!
@@ -168,9 +178,21 @@ class EnvTest < Test::Unit::TestCase
   end
 
   context "loading the root path" do
-    test "should walk the parent directories looking for rootfile" do
-      Vagrant::Env.expects(:error_and_exit).once
+    should "default the path to the pwd if nil" do
+      @path = mock("path")
+      @path.stubs(:to_s).returns("/")
+      Pathname.expects(:new).with(Dir.pwd).returns(@path)
+      Vagrant::Env.load_root_path!(nil)
+    end
 
+    should "not default the path to pwd if its not nil" do
+      @path = mock("path")
+      @path.stubs(:to_s).returns("/")
+      Pathname.expects(:new).never
+      Vagrant::Env.load_root_path!(@path)
+    end
+
+    should "should walk the parent directories looking for rootfile" do
       paths = [
         Pathname.new("/foo/bar/baz"),
         Pathname.new("/foo/bar"),
@@ -182,32 +204,15 @@ class EnvTest < Test::Unit::TestCase
         File.expects(:exist?).with("#{path}/#{Vagrant::Env::ROOTFILE_NAME}").returns(false).in_sequence(search_seq)
       end
 
-      assert_nil Vagrant::Env.load_root_path!(paths.first)
+      assert !Vagrant::Env.load_root_path!(paths.first)
     end
 
-    test "should print out an error and exit if not found" do
+    should "should return false if not found" do
       path = Pathname.new("/")
-
-      Vagrant::Env.expects(:error_and_exit).once
-      Vagrant::Env.load_root_path!(path)
+      assert !Vagrant::Env.load_root_path!(path)
     end
 
-    should "return false if suppress errors is set and no root path is found" do
-      path = Pathname.new("/")
-
-      Vagrant::Env.expects(:error_and_exit).never
-      assert !Vagrant::Env.load_root_path!(path, :suppress_errors => true)
-    end
-
-    should "pipe suppress errors flag through recursion" do
-      path = Pathname.new("/foo/bar/baz")
-      File.expects(:exist?).times(3).returns(false)
-
-      Vagrant::Env.expects(:error_and_exit).never
-      assert !Vagrant::Env.load_root_path!(path, :suppress_errors => true)
-    end
-
-    test "should set the path for the rootfile" do
+    should "should set the path for the rootfile" do
       path = "/foo"
       File.expects(:exist?).with("#{path}/#{Vagrant::Env::ROOTFILE_NAME}").returns(true)
 
@@ -239,6 +244,13 @@ class EnvTest < Test::Unit::TestCase
       @box = mock("box")
 
       Vagrant::Env.stubs(:load_config!)
+      Vagrant::Env.stubs(:root_path).returns("foo")
+    end
+
+    should "do nothing if the root path is nil" do
+      Vagrant::Box.expects(:find).never
+      Vagrant::Env.stubs(:root_path).returns(nil)
+      Vagrant::Env.load_vm!
     end
 
     should "not load the box if its not set" do
@@ -264,6 +276,16 @@ class EnvTest < Test::Unit::TestCase
   end
 
   context "requiring boxes" do
+    setup do
+      Vagrant::Env.stubs(:require_root_path)
+      Vagrant::Env.stubs(:error_and_exit)
+    end
+
+    should "require root path" do
+      Vagrant::Env.expects(:require_root_path).once
+      Vagrant::Env.require_box
+    end
+
     should "error and exit if no box is found" do
       mock_config do |config|
         config.vm.box = nil
@@ -288,6 +310,20 @@ class EnvTest < Test::Unit::TestCase
         true
       end
       Vagrant::Env.require_box
+    end
+  end
+
+  context "requiring root_path" do
+    should "error and exit if no root_path is set" do
+      Vagrant::Env.expects(:root_path).returns(nil)
+      Vagrant::Env.expects(:error_and_exit).once
+      Vagrant::Env.require_root_path
+    end
+
+    should "not error and exit if root_path is set" do
+      Vagrant::Env.expects(:root_path).returns("foo")
+      Vagrant::Env.expects(:error_and_exit).never
+      Vagrant::Env.require_root_path
     end
   end
 end

@@ -128,7 +128,7 @@ error
       # which action to take and calls the respective action method
       # (see {box_add} and {box_remove})
       def box(argv)
-        Env.load!(:suppress_errors => true)
+        Env.load!
 
         sub_commands = ["list", "add", "remove"]
 

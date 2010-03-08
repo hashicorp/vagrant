@@ -19,8 +19,8 @@ module Vagrant
       def tmp_path; File.join(home_path, "tmp"); end
       def boxes_path; File.join(home_path, "boxes"); end
 
-      def load!(opts={})
-        load_root_path!(Pathname.new(Dir.pwd), opts)
+      def load!
+        load_root_path!
         load_config!
         load_home_directory!
         load_box!
@@ -60,6 +60,8 @@ module Vagrant
       end
 
       def load_box!
+        return unless root_path
+
         @@box = Box.find(Vagrant.config.vm.box) if Vagrant.config.vm.box
 
         if @@box
@@ -84,17 +86,10 @@ module Vagrant
         end
       end
 
-      def load_root_path!(path=Pathname.new(Dir.pwd), opts={})
-        if path.to_s == '/'
-          return false if opts[:suppress_errors]
-          error_and_exit(<<-msg)
-A `#{ROOTFILE_NAME}` was not found! This file is required for vagrant to run
-since it describes the expected environment that vagrant is supposed
-to manage. Please create a #{ROOTFILE_NAME} and place it in your project
-root.
-msg
-          return
-        end
+      def load_root_path!(path=nil)
+        path ||= Pathname.new(Dir.pwd)
+
+        return false if path.to_s == '/'
 
         file = "#{path}/#{ROOTFILE_NAME}"
         if File.exist?(file)
@@ -102,10 +97,23 @@ msg
           return true
         end
 
-        load_root_path!(path.parent, opts)
+        load_root_path!(path.parent)
+      end
+
+      def require_root_path
+        if !root_path
+          error_and_exit(<<-msg)
+A `#{ROOTFILE_NAME}` was not found! This file is required for vagrant to run
+since it describes the expected environment that vagrant is supposed
+to manage. Please create a #{ROOTFILE_NAME} and place it in your project
+root.
+msg
+        end
       end
 
       def require_box
+        require_root_path
+
         if !box
           if !Vagrant.config.vm.box
             error_and_exit(<<-msg)
@@ -125,6 +133,8 @@ msg
       end
 
       def require_persisted_vm
+        require_root_path
+
         if !persisted_vm
           error_and_exit(<<-error)
 The task you're trying to run requires that the vagrant environment

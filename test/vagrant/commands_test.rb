@@ -7,6 +7,7 @@ class CommandsTest < Test::Unit::TestCase
     @persisted_vm = mock("persisted_vm")
     @persisted_vm.stubs(:execute!)
     Vagrant::Env.stubs(:persisted_vm).returns(@persisted_vm)
+    Vagrant::Env.stubs(:require_persisted_vm)
   end
 
   context "init" do
@@ -194,7 +195,7 @@ class CommandsTest < Test::Unit::TestCase
     end
 
     should "load the environment" do
-      Vagrant::Env.expects(:load!).with(:suppress_errors => true).once
+      Vagrant::Env.expects(:load!).once
       Vagrant::Commands.box(["add"])
     end
 
