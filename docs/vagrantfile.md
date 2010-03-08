@@ -72,13 +72,14 @@ $ vagrant box add my_box some_downloaded.box
 {% endhighlight %}
 
 `config.vm.box_ovf` tells Vagrant and consequently the [virtualbox](http://github.com/mitchellh/virtualbox) gem
-which file in the ~/.vagrant/boxes/[configured box]/ directory should be used when importing the configured box
+which file in the `~/.vagrant/boxes/{configured box}/` directory should be used when importing the configured box
 for duplication. (see `config.vm.box`). This setting is only really important for those creating
 boxes for distribution as this configuration should be included in the packaged Vagrantfile.
 
 `config.vm.base_mac` configures the mac address that the vm will use when built. Because Vagrant duplicates virtual machines
-and updating operating system configuration to accomodate changing mac addresses is non standard across operating systems it must
-force a predetermined mac address at vm creation.
+and updating operating system configuration to accommodate changing mac addresses is non standard across operating systems it must
+force a predetermined mac address at vm creation. This setting is also only useful for those creating boxes
+for distribution.
 
 `config.vm.project_directory` tells vagrant where to mount the current project directory as a shared folder
 withing the new virtual machine's file system.
@@ -89,9 +90,18 @@ config.vm.project_directory = "/vagrant"
 
 The above will use the vagrant folder under root as the mount point for the shared project directory.
 
-`config.vm.forward_ports` is a function that will add a set of ports to forward from the host machine to the virtual machine
+`config.vm.forward_port` is a function that will add a set of ports to forward from the host machine to the virtual machine
 created with vagrant. The default Vagrantfile that is packaged with Vagrant itself forwards port 2222 on the host machine to
-port 22 on the guest for ssh.
+port 22 on the guest for ssh. Example usage of this is shown below:
+
+{% highlight ruby %}
+config.vm.forward_port("web", 80, 8080)
+config.vm.forward_port("ftp", 21, 4567)
+{% endhighlight %}
+
+The first parameter of the `forward_port` method is simply a key used internally to reference the
+forwarded port. It doesn't affect the actual ports forwarded at all. The above example could've
+changed `web` to `fluffy bananas` and it still would've worked fine.
 
 `config.vm.disk_image_format` alerts Vagrant to the prefered virtual disk image file format for use when creating new virtual machines. VirtualBox
 supports many disk formats such as .vdi (VirtualBox's own format), .vmdk (VMWare's disk image format), and .vhd (Microsoft's format).
@@ -128,3 +138,15 @@ config.chef.json = {
 
 If you don't want to create a vagrant_main recipe in your cookbooks directory you can override the recipes by placing `config.chef.json.merge({:recipes => 'you_want'})`
 in either a packaged or project directory Vagrantfile.
+
+This configuration value can also be used to set attributes for the cookbooks used in provisioning.
+For example, to set the MySQL root password used in the default [opscode mysql cookbook](http://github.com/opscode/cookbooks/tree/master/mysql/), it can be
+configured in the Vagrantfile like so:
+
+{% highlight ruby %}
+config.chef.json.merge!({
+  :mysql => {
+    :server_root_password => "my_root_password"
+  }
+})
+{% endhighlight %}
