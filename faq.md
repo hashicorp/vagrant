@@ -12,7 +12,20 @@ the rise of MVC and opinionated development frameworks and they would
 be speaking the truth as well. Vagrant is not trying to change the way
 you work because its wrong, per se, but move web development forward
 by providing isolated environments which are easy to build, portable,
-and lightweight.
+and lightweight. For more specific reasons, check out the "[Why Vagrant?](/docs/getting-started/why.html)" page.
+
+### Could you perhaps turn convert a Vagrant project into an EC2 instance for deployment?
+
+That's where Chef comes in. Vagrant uses [Chef](http://www.opscode.com/chef)
+for provisioning VMs. It's basically software configuration management (same category
+as cfengine or Puppet) -- you write cookbooks that specify how a system should be set
+up. If you write your Chef configuration the right way you can take the same set of
+Chef cookbooks you write and deploy to EC2 or any other Linux box, virtual or not.
+So with Vagrant you can essentially pass around a virtual machine configuration amongst
+your team and be confident that the entire team is coding and testing in a near-exact
+replica of the production environment. Then when you're ready to deploy to production,
+you should be able to share the same cookbooks and set up the same environment
+for production as well.
 
 ### Vagrant would be so much better if it had feature `X`!
 
