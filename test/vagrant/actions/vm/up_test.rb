@@ -8,6 +8,8 @@ class UpActionTest < Test::Unit::TestCase
 
   context "sub-actions" do
     setup do
+      File.stubs(:file?).returns(true)
+      File.stubs(:exist?).returns(true)
       @default_order = [Vagrant::Actions::VM::Import, Vagrant::Actions::VM::ForwardPorts, Vagrant::Actions::VM::SharedFolders, Vagrant::Actions::VM::Start]
     end
 
@@ -16,6 +18,26 @@ class UpActionTest < Test::Unit::TestCase
       @default_order.each do |action|
         @mock_vm.expects(:add_action).with(action).once.in_sequence(default_seq)
       end
+    end
+
+    should "raise an ActionException if a dotfile exists but is not a file" do
+      File.expects(:file?).with(Vagrant::Env.dotfile_path).returns(false)
+      assert_raises(Vagrant::Actions::ActionException) {
+        @action.prepare
+      }
+    end
+
+    should "not raise an ActionException if dotfile doesn't exist" do
+      setup_action_expectations
+      File.stubs(:exist?).returns(false)
+      assert_nothing_raised { @action.prepare }
+    end
+
+    should "not raise an ActionException if dotfile exists but is a file" do
+      File.stubs(:file?).returns(true)
+      File.stubs(:exist?).returns(true)
+      setup_action_expectations
+      assert_nothing_raised { @action.prepare }
     end
 
     should "do the proper actions by default" do

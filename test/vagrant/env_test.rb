@@ -6,6 +6,7 @@ class EnvTest < Test::Unit::TestCase
     filemock.expects(:read).returns("foo")
     Vagrant::VM.expects(:find).with("foo").returns(returnvalue)
     File.expects(:open).with(Vagrant::Env.dotfile_path).once.yields(filemock)
+    File.expects(:file?).with(Vagrant::Env.dotfile_path).once.returns(true)
     Vagrant::Env.load_vm!
   end
 
@@ -155,7 +156,11 @@ class EnvTest < Test::Unit::TestCase
   end
 
   context "loading the UUID out from the persisted file" do
-    test "loading of the uuid from the dotfile" do
+    setup do
+      File.stubs(:file?).returns(true)
+    end
+
+    should "loading of the uuid from the dotfile" do
       mock_persisted_vm
       assert_equal 'foovm', Vagrant::Env.persisted_vm
     end
@@ -166,13 +171,19 @@ class EnvTest < Test::Unit::TestCase
       Vagrant::Env.load_vm!
     end
 
-    test "uuid should be nil if dotfile didn't exist" do
+    should "do nothing if dotfile is not a file" do
+      File.expects(:file?).returns(false)
+      File.expects(:open).never
+      Vagrant::Env.load_vm!
+    end
+
+    should "uuid should be nil if dotfile didn't exist" do
       File.expects(:open).raises(Errno::ENOENT)
       Vagrant::Env.load_vm!
       assert_nil Vagrant::Env.persisted_vm
     end
 
-    test "should build up the dotfile out of the root path and the dotfile name" do
+    should "should build up the dotfile out of the root path and the dotfile name" do
       assert_equal File.join(Vagrant::Env.root_path, Vagrant.config.vagrant.dotfile_name), Vagrant::Env.dotfile_path
     end
   end

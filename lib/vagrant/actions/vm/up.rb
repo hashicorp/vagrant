@@ -3,6 +3,17 @@ module Vagrant
     module VM
       class Up < Base
         def prepare
+          # If the dotfile is not a file, raise error
+          if File.exist?(Env.dotfile_path) && !File.file?(Env.dotfile_path)
+            raise ActionException.new(<<-msg)
+The dotfile which Vagrant uses to store the UUID of the project's
+virtual machine already exists and is not a file! The dotfile is
+currently configured to be `#{Env.dotfile_path}`
+
+To change this value, please see `config.vagrant.dotfile_name`
+msg
+          end
+
           # Up is a "meta-action" so it really just queues up a bunch
           # of other actions in its place:
           steps = [Import, ForwardPorts, SharedFolders, Start]

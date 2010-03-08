@@ -71,7 +71,7 @@ module Vagrant
       end
 
       def load_vm!
-        return unless root_path
+        return if !root_path || !File.file?(dotfile_path)
 
         File.open(dotfile_path) do |f|
           @@persisted_vm = Vagrant::VM.find(f.read)
