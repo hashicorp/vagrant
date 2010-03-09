@@ -15,7 +15,7 @@ begin
     gemspec.add_dependency('net-scp', '>= 1.0.2')
     gemspec.add_dependency('json', '>= 1.2.0')
     gemspec.add_dependency('git-style-binaries', '>= 0.1.10')
-    gemspec.add_dependency('archive-tar-minitar', '>= 0.5.2')
+    gemspec.add_dependency('archive-tar-minitar', '= 0.5.2')
   end
   Jeweler::GemcutterTasks.new
 rescue LoadError
