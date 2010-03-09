@@ -9,7 +9,7 @@ end
 require 'git-style-binary/command'
 
 GitStyleBinary.primary do
-  version "0.1.3"
+  version "0.1.4.pre"
 
   run { educate }
 end
