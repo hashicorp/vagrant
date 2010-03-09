@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{vagrant}
-  s.version = "0.1.1"
+  s.version = "0.1.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Mitchell Hashimoto", "John Bender"]
-  s.date = %q{2010-03-07}
+  s.date = %q{2010-03-08}
   s.description = %q{Vagrant is a tool for building and distributing virtualized development environments.}
   s.email = ["mitchell.hashimoto@gmail.com", "john.m.bender@gmail.com"]
   s.executables = ["vagrant", "vagrant-box", "vagrant-down", "vagrant-halt", "vagrant-init", "vagrant-package", "vagrant-reload", "vagrant-resume", "vagrant-ssh", "vagrant-suspend", "vagrant-up"]
@@ -44,6 +44,7 @@ Gem::Specification.new do |s|
      "lib/vagrant/actions/box/download.rb",
      "lib/vagrant/actions/box/unpackage.rb",
      "lib/vagrant/actions/runner.rb",
+     "lib/vagrant/actions/vm/boot.rb",
      "lib/vagrant/actions/vm/destroy.rb",
      "lib/vagrant/actions/vm/down.rb",
      "lib/vagrant/actions/vm/export.rb",
@@ -79,6 +80,7 @@ Gem::Specification.new do |s|
      "test/vagrant/actions/box/download_test.rb",
      "test/vagrant/actions/box/unpackage_test.rb",
      "test/vagrant/actions/runner_test.rb",
+     "test/vagrant/actions/vm/boot_test.rb",
      "test/vagrant/actions/vm/destroy_test.rb",
      "test/vagrant/actions/vm/down_test.rb",
      "test/vagrant/actions/vm/export_test.rb",
@@ -120,6 +122,7 @@ Gem::Specification.new do |s|
      "test/vagrant/actions/box/download_test.rb",
      "test/vagrant/actions/box/unpackage_test.rb",
      "test/vagrant/actions/runner_test.rb",
+     "test/vagrant/actions/vm/boot_test.rb",
      "test/vagrant/actions/vm/destroy_test.rb",
      "test/vagrant/actions/vm/down_test.rb",
      "test/vagrant/actions/vm/export_test.rb",
