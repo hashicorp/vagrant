@@ -52,33 +52,80 @@ Now this is **really important**: Make sure the network controller is set to
 connects are not supported since it requires the machine to specify which
 device it is bridged to, which is unknown.
 
-### Boot and Setup Basic Software
+For consistency across various Vagrant boxes, if you plan to distribute the box,
+please follow these conventions where possible:
 
-Once the VM is created, boot it up and setup the software you want. The
-_required_ software is listed below:
-
-* **Ruby** - For Chef
-* **RubyGems** - For Chef
-* **Chef** - For provisioning support.
-* **SSH**
-
-These are typically straightforward to install the details won't be gone
-into here. Make sure that the SSH uses **basic username/password authentication**
-and write down the username/password.
+* Hostname: vagrant-[os-name],  e.g.  vagrant-debian-lenny
+* Domain: vagrantup.com
+* Root Password: vagrant
+* Main user username: vagrant
+* Main user password: vagrant
 
 ### Setup Permissions
 
-After the software is setup, make sure the user has proper permissions. Specifically
-the main user should have **password-less `sudo` priveleges**. We do this by
-running `visudo` and setting the admin group to use no password. The line in the
-`visudo` configuration looks like this:
+Once the VM is created, boot it up. Then lets start by making sure the user has proper
+permissions. Specifically the main user should have **password-less `sudo` privileges**.
+We do this by running `su` and entering the root password you entered during the
+installation of the operating system. Once logged in, run `visudo` and and set the admin
+group to use no password. The line in the `visudo` configuration to do that looks like this:
 
 {% highlight bash %}
 %admin ALL=NOPASSWD: ALL
 {% endhighlight %}
 
-Once that is setup, be sure to add the main user to the `admin` group and verify
-that sudo works without a password.
+If you unfamiliar with vi, the editor visudo uses, press 'i' to start input, ESC to stop
+input, CTRL+X to quit, and type 'Y' to save. Once that is setup, you may need to make the
+'admin' group, and you then need to assign the main user to that group.
+
+Finally, verify that sudo works without a password, but running 'exit' out of the root
+account, then `sudo su sudo`. You should get output similar to '/usr/bin/sudo'.
+
+### Install VirtualBox Guest Additions
+
+Now we have the permissions, lets get the operating system running a bit smoother.
+
+There are various guides across the internet explaining how to set up the Virtualbox Guest
+Additions, but for most unix-based systems, the following will work just fine.
+
+First, build the necessary packages. You may have to look these up for your system,
+but they should be fairly similar. On Ubuntu and Debian based systems they are as follows:
+
+{% highlight bash %}
+$ sudo apt-get install linux-headers-$(uname -r) build-essential
+{% endhighlight %}
+
+Next, make sure to insert the guest additions image by using the GUI and clicking
+on "Devices" followed by "Install Guest Additions.". Now, depending on your operating
+system, the guest additions may or may not be mounted. If /cdrom doesn't exist, then
+run the following to mount the cdrom:
+
+{% highlight bash %}
+$ sudo mount /media/cdrom
+{% endhighlight %}
+
+And finally, run the shell script which matches your system. For linux on x86,
+it is the following:
+
+{% highlight bash %}
+sudo sh /cdrom/VBoxLinuxAdditions-x86.run
+{% endhighlight %}
+
+The install will probably warn you about not installing OpenGL or Window System Drivers,
+but this is okay. Once setup, shut down the VM.
+
+### Boot and Setup Basic Software
+
+Nearly done. We need to setup the software Vagrant relies on. The
+_required_ software is listed below:
+
+* **Ruby** - Use the dev package so mkmf is present for Chef
+* **RubyGems** - For Chef
+* **Chef** - For provisioning support.
+* **SSH**
+
+These are typically straightforward to install the details won't be gone
+into here. If promoted, make sure that the SSH uses **basic username/password authentication**
+and write down the username/password.
 
 ### Copy the MAC Address
 
@@ -86,43 +133,11 @@ When the OS installs, it typically sets up the basic network devices (eth0 and s
 automatically. This includes setting the MAC address of these devices. Since configuring
 these network devices is often very OS-specific, instead of Vagrant dynamically setting
 this at runtime, it forces VirtualBox to use a specific MAC address. This requires
-little work on your end. Simply run `ifconfig` or the equivalent and copy the
+little work on your end. Simply run `sudo ifconfig` or the equivalent and copy the
 MAC address down somewhere on your host machine. A screenshot of this is shown
 below:
 
 ![Copying MAC Address](/images/base_box_mac.jpg)
-
-### Install VirtualBox Guest Additions
-
-Finally, the box requires the VirtualBox guest additions. There are various guides
-across the internet explaining how to set this up, but for most unix-based systems,
-the following will work just fine.
-
-First, build the necessary packages. You may have to look these up for your system,
-but they should be fairly similar. On Ubuntu-based systems they are as follows:
-
-{% highlight bash %}
-$ sudo apt-get install linux-headers-$(uname -r) build-essential
-{% endhighlight %}
-
-Next, make sure to insert the guest additions image by using the GUI and clicking
-on "Devices" followed by "Install Guest Additions." Once clicked, the device must
-be mounted:
-
-{% highlight bash %}
-$ sudo mount /media/cdrom
-$ cd /cdrom
-{% endhighlight %}
-
-And finally, run the shell script which matches your system. For linux on x86,
-it is the following:
-
-{% highlight bash %}
-sudo sh VBoxLinuxAdditions-x86.run
-{% endhighlight %}
-
-The install will probably warn you about not installing OpenGL or Window System Drivers,
-but this is okay. Once setup, shut down the VM.
 
 ### Export the Virtual Machine
 
