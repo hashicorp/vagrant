@@ -66,27 +66,49 @@ class PackageActionTest < Test::Unit::TestCase
       @temp_path = "foo"
       @action.stubs(:temp_path).returns(@temp_path)
 
+      @include_files = []
+      @action.stubs(:include_files).returns(@include_files)
+
       @pwd = "bar"
       FileUtils.stubs(:pwd).returns(@pwd)
       FileUtils.stubs(:cd)
 
-      @tar = mock("tar")
-      Tar.stubs(:open).yields(@tar)
+      @file = mock("file")
+      File.stubs(:open).yields(@file)
+
+      @output = mock("output")
+      @tar = Archive::Tar::Minitar
+      Archive::Tar::Minitar::Output.stubs(:open).yields(@output)
+      @tar.stubs(:pack_file)
     end
 
     should "open the tar file with the tar path properly" do
-      Tar.expects(:open).with(@tar_path, File::CREAT | File::WRONLY, 0644, Tar::GNU).once
+      File.expects(:open).with(@tar_path, File::CREAT | File::WRONLY, 0644).once
+      @action.compress
+    end
+
+    should "open tar file" do
+      Archive::Tar::Minitar::Output.expects(:open).with(@file).once
       @action.compress
     end
 
     #----------------------------------------------------------------
-    # Methods below this comment test the block yielded by Tar.open
+    # Methods below this comment test the block yielded by Minitar open
     #----------------------------------------------------------------
     should "cd to the directory and append the directory" do
+      @files = []
       compress_seq = sequence("compress_seq")
+
       FileUtils.expects(:pwd).once.returns(@pwd).in_sequence(compress_seq)
       FileUtils.expects(:cd).with(@temp_path).in_sequence(compress_seq)
-      @tar.expects(:append_tree).with(".").in_sequence(compress_seq)
+      Dir.expects(:glob).returns(@files).in_sequence(compress_seq)
+
+      5.times do |i|
+        file = mock("file#{i}")
+        @tar.expects(:pack_file).with(file, @output).once.in_sequence(compress_seq)
+        @files << file
+      end
+
       FileUtils.expects(:cd).with(@pwd).in_sequence(compress_seq)
       @action.compress
     end
@@ -102,17 +124,21 @@ class PackageActionTest < Test::Unit::TestCase
     end
 
     should "add included files when passed" do
-      include_files = ['foo', 'bar']
-      action = mock_action(Vagrant::Actions::VM::Package, "bing", include_files).last
-      action.stubs(:temp_path).returns("foo")
-      @tar.expects(:append_tree).with(".")
-      include_files.each { |f| @tar.expects(:append_file).with(f) }
-      action.compress
+      compress_seq = sequence("compress")
+      @files = []
+      5.times do |i|
+        file = mock("file#{i}")
+        @tar.expects(:pack_file).with(file, @output).once.in_sequence(compress_seq)
+        @files << file
+      end
+
+      @action.expects(:include_files).returns(@files)
+      @action.compress
     end
 
     should "not add files when none are specified" do
-      @tar.expects(:append_tree).with(".")
-      @tar.expects(:append_file).never
+      @tar.expects(:pack_file).never
+      Dir.expects(:glob).once.returns([])
       @action.compress
     end
   end

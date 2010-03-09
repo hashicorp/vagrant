@@ -84,6 +84,7 @@ class UnpackageBoxActionTest < Test::Unit::TestCase
 
       @action.stubs(:box_dir).returns(@box_dir)
       Dir.stubs(:chdir).yields
+      Archive::Tar::Minitar.stubs(:unpack)
     end
 
     should "change to the box directory" do
@@ -92,9 +93,7 @@ class UnpackageBoxActionTest < Test::Unit::TestCase
     end
 
     should "open the tar file within the new directory, and extract it all" do
-      @tar = mock("tar")
-      @tar.expects(:extract_all).once
-      Tar.expects(:open).with(@runner.temp_path, anything, anything, anything).yields(@tar)
+      Archive::Tar::Minitar.expects(:unpack).with(@runner.temp_path, @box_dir).once
       @action.decompress
     end
   end

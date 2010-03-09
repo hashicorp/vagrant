@@ -38,20 +38,24 @@ module Vagrant
 
         def compress
           logger.info "Packaging VM into #{tar_path} ..."
-          open(tar_path, File::CREAT | File::WRONLY, 0644) do |tar|
-            begin
-              current_dir = FileUtils.pwd
-              @include_files.each do |f|
-                logger.info "Packaging additional file: #{f}"
-                Archive::Tar::Minitar.pack(f, tar)
+          File.open(tar_path, File::CREAT | File::WRONLY, 0644) do |tar|
+            Archive::Tar::Minitar::Output.open(tar) do |output|
+              begin
+                current_dir = FileUtils.pwd
+
+                include_files.each do |f|
+                  logger.info "Packaging additional file: #{f}"
+                  Archive::Tar::Minitar.pack_file(f, output)
+                end
+
+                FileUtils.cd(temp_path)
+
+                Dir.glob(File.join(".", "*")).each do |entry|
+                  Archive::Tar::Minitar.pack_file(entry, output)
+                end
+              ensure
+                FileUtils.cd(current_dir)
               end
-
-              FileUtils.cd(temp_path)
-
-              # Append tree will append the entire directory tree unless a relative folder reference is used
-              Archive::Tar::Minitar.pack(".", tar)
-            ensure
-              FileUtils.cd(current_dir)
             end
           end
         end
