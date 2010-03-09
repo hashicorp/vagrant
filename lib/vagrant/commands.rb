@@ -21,7 +21,7 @@ error
         end
 
         # Copy over the rootfile template into this directory
-        File.copy(File.join(PROJECT_ROOT, "templates", Env::ROOTFILE_NAME), rootfile_path)
+        FileUtils.cp(File.join(PROJECT_ROOT, "templates", Env::ROOTFILE_NAME), rootfile_path)
       end
 
       # Bring up a vagrant instance. This handles everything from importing
