@@ -154,6 +154,24 @@ blockquote {
   font-style: normal;
 }
 
+/* -----    info boxes   -----  */
+
+.info {
+  padding-left: 52px;
+  margin-top: 0px;
+  margin-bottom: 10px;
+  border: 1px dotted #DDD;
+  background-image: url(/images/icons/error.png);
+  background-position: 10px 10px;
+  background-color: #EEEEEE;
+  background-repeat: no-repeat;
+  color: #000;
+  font-size: 0.8em;
+}
+
+  .info h3 {
+    font-size: 1.3em;
+  }
 
 /* -------------------------------
               HEADER
