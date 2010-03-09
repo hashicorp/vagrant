@@ -68,6 +68,14 @@ class SshTest < Test::Unit::TestCase
       assert !Vagrant::SSH.up?
     end
 
+    should "allow the thread the configured timeout time" do
+      @thread = mock("thread")
+      @thread.stubs(:[])
+      Thread.expects(:new).returns(@thread)
+      @thread.expects(:join).with(Vagrant.config.ssh.timeout).once
+      Vagrant::SSH.up?
+    end
+
     should "return false if the connection is refused" do
       Net::SSH.expects(:start).raises(Errno::ECONNREFUSED)
       assert_nothing_raised {

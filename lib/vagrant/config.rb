@@ -59,6 +59,7 @@ module Vagrant
       attr_accessor :host
       attr_accessor :forwarded_port_key
       attr_accessor :max_tries
+      attr_accessor :timeout
     end
 
     class VMConfig < Base

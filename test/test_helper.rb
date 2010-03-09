@@ -31,6 +31,7 @@ class Test::Unit::TestCase
       config.ssh.host = "baz"
       config.ssh.forwarded_port_key = "ssh"
       config.ssh.max_tries = 10
+      config.ssh.timeout = 10
 
       config.vm.box = "foo"
       config.vm.box_ovf = "box.ovf"

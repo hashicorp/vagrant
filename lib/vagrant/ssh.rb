@@ -29,7 +29,7 @@ module Vagrant
         check_thread = Thread.new do
           begin
             Thread.current[:result] = false
-            Net::SSH.start(Vagrant.config.ssh.host, Vagrant.config.ssh.username, :port => port, :password => Vagrant.config.ssh.password, :timeout => 5) do |ssh|
+            Net::SSH.start(Vagrant.config.ssh.host, Vagrant.config.ssh.username, :port => port, :password => Vagrant.config.ssh.password, :timeout => Vagrant.config.ssh.timeout) do |ssh|
               Thread.current[:result] = true
             end
           rescue Errno::ECONNREFUSED, Net::SSH::Disconnect
@@ -37,7 +37,7 @@ module Vagrant
           end
         end
 
-        check_thread.join(5)
+        check_thread.join(Vagrant.config.ssh.timeout)
         return check_thread[:result]
       end
 
