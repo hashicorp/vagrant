@@ -161,14 +161,14 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<net-scp>, [">= 1.0.2"])
       s.add_runtime_dependency(%q<json>, [">= 1.2.0"])
       s.add_runtime_dependency(%q<git-style-binaries>, [">= 0.1.10"])
-      s.add_runtime_dependency(%q<tarruby>, [">= 0.1.5"])
+      s.add_runtime_dependency(%q<archive-tar-minitar>, [">= 0.1.5"])
     else
       s.add_dependency(%q<virtualbox>, [">= 0.5.0"])
       s.add_dependency(%q<net-ssh>, [">= 2.0.19"])
       s.add_dependency(%q<net-scp>, [">= 1.0.2"])
       s.add_dependency(%q<json>, [">= 1.2.0"])
       s.add_dependency(%q<git-style-binaries>, [">= 0.1.10"])
-      s.add_dependency(%q<tarruby>, [">= 0.1.5"])
+      s.add_dependency(%q<archive-tar-minitar>, [">= 0.5.2"])
     end
   else
     s.add_dependency(%q<virtualbox>, [">= 0.5.0"])
@@ -176,7 +176,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<net-scp>, [">= 1.0.2"])
     s.add_dependency(%q<json>, [">= 1.2.0"])
     s.add_dependency(%q<git-style-binaries>, [">= 0.1.10"])
-    s.add_dependency(%q<tarruby>, [">= 0.1.5"])
+    s.add_dependency(%q<archive-tar-minitar>, [">= 0.5.2"])
   end
 end
 

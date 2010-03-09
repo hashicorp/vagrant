@@ -4,7 +4,6 @@ module Vagrant
       # This action unpackages a downloaded box file into its final
       # box destination within the vagrant home folder.
       class Unpackage < Base
-        TAR_OPTIONS = [File::RDONLY, 0644, Tar::GNU]
 
         def execute!
           @runner.invoke_around_callback(:unpackage) do
@@ -38,9 +37,7 @@ msg
         def decompress
           Dir.chdir(box_dir) do
             logger.info "Extracting box to #{box_dir}..."
-            Tar.open(@runner.temp_path, *TAR_OPTIONS) do |tar|
-              tar.extract_all
-            end
+            Archive::Tar::Minitar.unpack(@runner.temp_path, box_dir)
           end
         end
       end

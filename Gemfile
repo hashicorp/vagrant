@@ -6,7 +6,7 @@ gem "net-ssh", ">= 2.0.19"
 gem "net-scp", ">= 1.0.2"
 gem "git-style-binaries", ">= 0.1.10"
 gem "json", ">= 1.2.0"
-gem "tarruby", ">= 0.1.5"
+gem "archive-tar-minitar", ">= 0.5.2"
 
 # Gems required for testing only. To install run
 # gem bundle test
