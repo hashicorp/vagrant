@@ -1,8 +1,8 @@
 require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
 
 class ActionRunnerTest < Test::Unit::TestCase
-  def mock_fake_action
-    action = mock("action")
+  def mock_fake_action(action_klass = nil, runner = nil)
+    action = action_klass ? action_klass.new(runner) : mock("action")
     action.stubs(:prepare)
     action.stubs(:execute!)
     action.stubs(:cleanup)
@@ -129,6 +129,7 @@ class ActionRunnerTest < Test::Unit::TestCase
   context "instance method execute" do
     setup do
       @runner = Vagrant::Actions::Runner.new
+      @runner.stubs(:action_klasses).returns([Vagrant::Actions::Base])
     end
 
     should "clear the actions and run a single action if given to execute!" do
@@ -231,6 +232,31 @@ class ActionRunnerTest < Test::Unit::TestCase
 
     should "be empty initially" do
       assert @runner.actions.empty?
+    end
+  end
+
+  context "duplicate action exceptions" do
+    setup do
+      @runner = Vagrant::Actions::Runner.new
+    end
+    
+    should "should be raised when a duplicate is added" do
+      action = mock_fake_action
+      2.times {@runner.actions << action }
+      assert_raise Vagrant::Actions::DuplicateActionException do
+        @runner.execute!
+      end
+    end
+
+    should "should not be raise when no duplicate actions are present" do
+      @runner.actions << mock_fake_action(Vagrant::Actions::Base, @runner)
+      @runner.actions << mock_fake_action(Vagrant::Actions::VM::Halt, @runner)
+      
+      assert_nothing_raised { @runner.execute! }
+    end
+
+    should "should not raise when a single action is specified" do
+      assert_nothing_raised { @runner.execute!(Vagrant::Actions::Base) }
     end
   end
 end

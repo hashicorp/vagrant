@@ -69,11 +69,15 @@ module Vagrant
       # to execute a single action on an instance. The syntax for executing a
       # single method on an instance is the same as the {execute!} class method.
       def execute!(single_action=nil, *args)
+
         if single_action
           actions.clear
           add_action(single_action, *args)
         end
 
+        # Raising it here might be too late and hard debug where the actions are comming from (meta actions)
+        raise DuplicateActionException.new if action_klasses.uniq.size < action_klasses.size
+    
         # Call the prepare method on each once its
         # initialized, then call the execute! method
         begin
@@ -123,6 +127,12 @@ module Vagrant
         end
         results
       end
+
+      def action_klasses
+        actions.map { |a| a.class }
+      end
     end
+    
+    class DuplicateActionException < Exception; end
   end
 end
