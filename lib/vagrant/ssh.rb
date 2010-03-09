@@ -26,13 +26,19 @@ module Vagrant
       end
 
       def up?
-        Net::SSH.start(Vagrant.config.ssh.host, Vagrant.config.ssh.username, :port => port, :password => Vagrant.config.ssh.password, :timeout => 5) do |ssh|
-          return true
+        check_thread = Thread.new do
+          begin
+            Thread.current[:result] = false
+            Net::SSH.start(Vagrant.config.ssh.host, Vagrant.config.ssh.username, :port => port, :password => Vagrant.config.ssh.password, :timeout => 5) do |ssh|
+              Thread.current[:result] = true
+            end
+          rescue Errno::ECONNREFUSED, Net::SSH::Disconnect
+            # False, its defaulted above
+          end
         end
 
-        false
-      rescue Errno::ECONNREFUSED, Net::SSH::Disconnect
-        false
+        check_thread.join(5)
+        return check_thread[:result]
       end
 
       def port(opts={})
