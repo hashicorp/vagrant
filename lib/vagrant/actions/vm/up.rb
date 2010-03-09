@@ -16,7 +16,7 @@ msg
 
           # Up is a "meta-action" so it really just queues up a bunch
           # of other actions in its place:
-          steps = [Import, ForwardPorts, SharedFolders, Start]
+          steps = [Import, ForwardPorts, SharedFolders, Boot]
           steps << Provision if Vagrant.config.chef.enabled
           steps.insert(0, MoveHardDrive) if Vagrant.config.vm.hd_location
 
