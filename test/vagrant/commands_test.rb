@@ -12,7 +12,7 @@ class CommandsTest < Test::Unit::TestCase
 
   context "init" do
     setup do
-      File.stubs(:copy)
+      FileUtils.stubs(:cp)
       @rootfile_path = File.join(Dir.pwd, Vagrant::Env::ROOTFILE_NAME)
       @template_path = File.join(PROJECT_ROOT, "templates", Vagrant::Env::ROOTFILE_NAME)
     end
@@ -25,7 +25,7 @@ class CommandsTest < Test::Unit::TestCase
 
     should "copy the templated rootfile to the current path" do
       File.expects(:exist?).with(@rootfile_path).returns(false)
-      File.expects(:copy).with(@template_path, @rootfile_path).once
+      FileUtils.expects(:cp).with(@template_path, @rootfile_path).once
       Vagrant::Commands.init
     end
   end
