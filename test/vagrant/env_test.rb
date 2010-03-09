@@ -218,8 +218,13 @@ class EnvTest < Test::Unit::TestCase
       assert !Vagrant::Env.load_root_path!(paths.first)
     end
 
-    should "should return false if not found" do
+    should "return false if not found" do
       path = Pathname.new("/")
+      assert !Vagrant::Env.load_root_path!(path)
+    end
+
+    should "return false if not found on windows-style root" do
+      path = Pathname.new("C:.")
       assert !Vagrant::Env.load_root_path!(path)
     end
 

@@ -89,7 +89,10 @@ module Vagrant
       def load_root_path!(path=nil)
         path ||= Pathname.new(Dir.pwd)
 
-        return false if path.to_s == '/'
+        # Stop if we're at the root. 2nd regex matches windows drives
+        # such as C:. and Z:. Portability of this check will need to be
+        # researched.
+        return false if path.to_s == '/' || path.to_s =~ /^[A-Z]:\.$/
 
         file = "#{path}/#{ROOTFILE_NAME}"
         if File.exist?(file)
