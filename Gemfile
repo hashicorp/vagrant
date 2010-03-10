@@ -1,7 +1,7 @@
 source :gemcutter
 
 # Gems required for the lib to even run
-gem "virtualbox", ">= 0.5.0"
+gem "virtualbox", ">= 0.5.1"
 gem "net-ssh", ">= 2.0.19"
 gem "net-scp", ">= 1.0.2"
 gem "git-style-binaries", ">= 0.1.10"

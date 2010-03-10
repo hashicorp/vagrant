@@ -24,7 +24,34 @@ module Vagrant
         load_config!
         load_home_directory!
         load_box!
+        check_virtualbox!
         load_vm!
+      end
+
+      def check_virtualbox!
+        version = VirtualBox::Command.version
+        if version.nil?
+          error_and_exit(<<-msg)
+Vagrant could not detect VirtualBox! Make sure VirtualBox is properly installed.
+If VirtualBox is installed, you may need to tweak the paths to the `VBoxManage`
+application which ships with VirtualBox and the path to the global XML configuration
+which VirtualBox typically stores somewhere in your home directory.
+
+The following shows how to configure VirtualBox. This can be done in the
+Vagrantfile. Note that 90% of the time, you shouldn't need to do this if VirtualBox
+is installed. Please use the various Vagrant support lines to request more information
+if you can't get this working.
+
+VirtualBox::Command.vboxmanage = "/path/to/my/VBoxManage"
+VirtualBox::Global.vboxconfig = "~/path/to/VirtualBox.xml"
+msg
+        elsif version.to_f < 3.0
+          error_and_exit(<<-msg)
+Vagrant has detected that you have VirtualBox version #{version} installed!
+Vagrant requires that you use at least VirtualBox version 3. Please install
+a more recent version of VirtualBox to continue.
+msg
+        end
       end
 
       def load_config!

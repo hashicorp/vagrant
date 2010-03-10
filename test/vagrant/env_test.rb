@@ -15,6 +15,24 @@ class EnvTest < Test::Unit::TestCase
     Vagrant::Box.stubs(:find).returns("foo")
   end
 
+  context "checking virtualbox version" do
+    setup do
+      VirtualBox::Command.stubs(:version)
+    end
+
+    should "error and exit if VirtualBox is not installed or detected" do
+      Vagrant::Env.expects(:error_and_exit).once
+      VirtualBox::Command.expects(:version).returns(nil)
+      Vagrant::Env.check_virtualbox!
+    end
+
+    should "error and exit if VirtualBox is lower than version 3" do
+      Vagrant::Env.expects(:error_and_exit).once
+      VirtualBox::Command.expects(:version).returns("2.1.3r1041")
+      Vagrant::Env.check_virtualbox!
+    end
+  end
+
   context "requiring a VM" do
     setup do
       Vagrant::Env.stubs(:require_root_path)
@@ -130,11 +148,13 @@ class EnvTest < Test::Unit::TestCase
 
   context "initial load" do
     test "load! should load the config and set the persisted_uid" do
-      Vagrant::Env.expects(:load_config!).once
-      Vagrant::Env.expects(:load_vm!).once
-      Vagrant::Env.expects(:load_root_path!).once
-      Vagrant::Env.expects(:load_home_directory!).once
-      Vagrant::Env.expects(:load_box!).once
+      call_seq = sequence("call_sequence")
+      Vagrant::Env.expects(:load_root_path!).once.in_sequence(call_seq)
+      Vagrant::Env.expects(:load_config!).once.in_sequence(call_seq)
+      Vagrant::Env.expects(:load_home_directory!).once.in_sequence(call_seq)
+      Vagrant::Env.expects(:load_box!).once.in_sequence(call_seq)
+      Vagrant::Env.expects(:check_virtualbox!).once.in_sequence(call_seq)
+      Vagrant::Env.expects(:load_vm!).once.in_sequence(call_seq)
       Vagrant::Env.load!
     end
   end

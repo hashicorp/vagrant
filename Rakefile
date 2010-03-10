@@ -10,7 +10,7 @@ begin
     gemspec.homepage = "http://github.com/mitchellh/vagrant"
     gemspec.authors = ["Mitchell Hashimoto", "John Bender"]
 
-    gemspec.add_dependency('virtualbox', '>= 0.5.0')
+    gemspec.add_dependency('virtualbox', '>= 0.5.1')
     gemspec.add_dependency('net-ssh', '>= 2.0.19')
     gemspec.add_dependency('net-scp', '>= 1.0.2')
     gemspec.add_dependency('json', '>= 1.2.0')
