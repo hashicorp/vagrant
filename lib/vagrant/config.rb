@@ -13,6 +13,10 @@ module Vagrant
         config_runners.clear
       end
 
+      def configures(key, klass)
+        @@config.class.configures(key, klass)
+      end
+
       def config
         @@config ||= Config::Top.new
       end
@@ -129,18 +133,30 @@ module Vagrant
     end
 
     class Top < Base
-      attr_reader :package
-      attr_reader :ssh
-      attr_reader :vm
-      attr_reader :chef
-      attr_reader :vagrant
+      @@configures = []
+
+      class <<self
+        def configures_list
+          @@configures ||= []
+        end
+
+        def configures(key, klass)
+          configures_list << [key, klass]
+          attr_reader key.to_sym
+        end
+      end
+
+      # Setup default configures
+      configures :package, PackageConfig
+      configures :ssh, SSHConfig
+      configures :vm, VMConfig
+      configures :chef, ChefConfig
+      configures :vagrant, VagrantConfig
 
       def initialize
-        @ssh = SSHConfig.new
-        @vm = VMConfig.new
-        @chef = ChefConfig.new
-        @vagrant = VagrantConfig.new
-        @package = PackageConfig.new
+        self.class.configures_list.each do |key, klass|
+          instance_variable_set("@#{key}".to_sym, klass.new)
+        end
 
         @loaded = false
       end

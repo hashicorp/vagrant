@@ -1,6 +1,15 @@
 require File.join(File.dirname(__FILE__), '..', 'test_helper')
 
 class ConfigTest < Test::Unit::TestCase
+  context "adding configures" do
+    should "forward the method to the Top class" do
+      key = mock("key")
+      klass = mock("klass")
+      Vagrant::Config::Top.expects(:configures).with(key, klass)
+      Vagrant::Config.configures(key, klass)
+    end
+  end
+
   context "resetting" do
     setup do
       Vagrant::Config.run { |config| }
@@ -117,6 +126,55 @@ class ConfigTest < Test::Unit::TestCase
     should "not include the 'json' key in the config dump" do
       result = JSON.parse(@config.to_json)
       assert !result.has_key?("json")
+    end
+  end
+
+  context "top config class" do
+    setup do
+      @configures_list = []
+      Vagrant::Config::Top.stubs(:configures_list).returns(@configures_list)
+      Vagrant::Config::Top.stubs(:attr_reader)
+    end
+
+    context "adding configure keys" do
+      setup do
+        @key = "top_config_foo"
+        @klass = mock("klass")
+      end
+
+      should "add key and klass to configures list" do
+        @configures_list.expects(:<<).with([@key, @klass])
+        Vagrant::Config::Top.configures(@key, @klass)
+      end
+    end
+
+    context "initializing" do
+      should "initialize each configurer and set it to its key" do
+        5.times do |i|
+          key = "key#{i}"
+          klass = mock("klass#{i}")
+          instance = mock("instance#{i}")
+          klass.expects(:new).returns(instance)
+          @configures_list << [key, klass]
+        end
+
+        Vagrant::Config::Top.new
+      end
+    end
+
+    context "loaded status" do
+      setup do
+        @top= Vagrant::Config::Top.new
+      end
+
+      should "not be loaded by default" do
+        assert !@top.loaded?
+      end
+
+      should "be loaded after calling loaded!" do
+        @top.loaded!
+        assert @top.loaded?
+      end
     end
   end
 end
