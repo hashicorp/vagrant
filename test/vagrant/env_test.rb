@@ -246,9 +246,13 @@ class EnvTest < Test::Unit::TestCase
     end
 
     should "return false if not found on windows-style root" do
-      # Note the escaped back slash
-      path = Pathname.new("C:\\")
-      assert !Vagrant::Env.load_root_path!(path)
+      # TODO: Is there _any_ way to test this on unix machines? The
+      # expand path doesn't work [properly for the test] on unix machines.
+      if RUBY_PLATFORM.downcase.include?("mswin")
+        # Note the escaped back slash
+        path = Pathname.new("C:\\")
+        assert !Vagrant::Env.load_root_path!(path)
+      end
     end
 
     should "should set the path for the rootfile" do
