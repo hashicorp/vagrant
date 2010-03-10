@@ -7,7 +7,13 @@ module Vagrant
     class Base
       include Vagrant::Util
 
-      # This is the single method called to provision the system. This method
+      # This is the method called to "prepare" the provisioner. This is called
+      # before any actions are run by the action runner (see {Vagrant::Actions::Runner}).
+      # This can be used to setup shared folders, forward ports, etc. Whatever is
+      # necessary on a "meta" level.
+      def prepare; end
+
+      # This is the method called to provision the system. This method
       # is expected to do whatever necessary to provision the system (create files,
       # SSH, etc.)
       def provision!; end

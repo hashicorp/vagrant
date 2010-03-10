@@ -20,10 +20,9 @@ Vagrant::Config.run do |config|
   config.package.name = 'vagrant'
   config.package.extension = '.box'
 
-  config.chef.enabled = false
-  config.chef.cookbooks_path = "cookbooks"
-  config.chef.provisioning_path = "/tmp/vagrant-chef"
-  config.chef.json = {
+  config.chef_solo.cookbooks_path = "cookbooks"
+  config.chef_solo.provisioning_path = "/tmp/vagrant-chef"
+  config.chef_solo.json = {
     :instance_role => "vagrant",
     :recipes => ["vagrant_main"]
   }

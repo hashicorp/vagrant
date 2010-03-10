@@ -5,7 +5,7 @@ PROJECT_ROOT = File.join(libdir, '..') unless defined?(PROJECT_ROOT)
 # The libs which must be loaded prior to the rest
 %w{tempfile open-uri json pathname logger uri net/http virtualbox net/ssh archive/tar/minitar
   net/scp fileutils vagrant/util vagrant/actions/base vagrant/downloaders/base vagrant/actions/runner
-  vagrant/provisioners/base}.each do |f|
+  vagrant/config vagrant/provisioners/base}.each do |f|
   require f
 end
 

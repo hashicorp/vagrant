@@ -42,9 +42,10 @@ class Test::Unit::TestCase
       config.package.name = 'vagrant'
       config.package.extension = '.box'
 
-      config.chef.cookbooks_path = "cookbooks"
-      config.chef.provisioning_path = "/tmp/hobo-chef"
-      config.chef.json = {
+      # Chef solo
+      config.chef_solo.cookbooks_path = "cookbooks"
+      config.chef_solo.provisioning_path = "/tmp/hobo-chef"
+      config.chef_solo.json = {
         :recipes => ["hobo_main"]
       }
 

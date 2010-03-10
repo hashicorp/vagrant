@@ -16,5 +16,12 @@ class BaseProvisionerTest < Test::Unit::TestCase
         @base.provision!
       end
     end
+
+    should "implement prepare which does nothing" do
+      assert_nothing_raised do
+        assert @base.respond_to?(:prepare)
+        @base.prepare
+      end
+    end
   end
 end

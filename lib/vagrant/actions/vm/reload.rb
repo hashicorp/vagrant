@@ -5,7 +5,7 @@ module Vagrant
         def prepare
           steps = [ForwardPorts, SharedFolders, Boot]
           steps.unshift(Halt) if @runner.vm.running?
-          steps << Provision if Vagrant.config.chef.enabled
+          steps << Provision if !Vagrant.config.vm.provisioner.nil?
 
           steps.each do |action_klass|
             @runner.add_action(action_klass)

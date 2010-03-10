@@ -117,18 +117,6 @@ class ConfigTest < Test::Unit::TestCase
     end
   end
 
-  context "chef config" do
-    setup do
-      @config = Vagrant::Config::ChefConfig.new
-      @config.json = "HEY"
-    end
-
-    should "not include the 'json' key in the config dump" do
-      result = JSON.parse(@config.to_json)
-      assert !result.has_key?("json")
-    end
-  end
-
   context "top config class" do
     setup do
       @configures_list = []
