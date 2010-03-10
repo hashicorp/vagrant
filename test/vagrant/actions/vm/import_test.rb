@@ -23,14 +23,21 @@ class ImportActionTest < Test::Unit::TestCase
   end
 
   should "call import on VirtualBox::VM with the proper base" do
-    VirtualBox::VM.expects(:import).once.with(@ovf_file)
-    @import.execute!
+    VirtualBox::VM.expects(:import).once.with(@ovf_file).returns("foo")
+    assert_nothing_raised { @import.execute! }
+  end
+
+  should "raise an exception if import is nil" do
+    @mock_vm.expects(:vm).returns(nil)
+    assert_raises(Vagrant::Actions::ActionException) {
+      @import.execute!
+    }
   end
 
   should "set the resulting VM as the VM of the Vagrant VM object" do
     new_vm = mock("new_vm")
     @mock_vm.expects(:vm=).with(new_vm).once
-    VirtualBox::VM.expects(:import).returns(new_vm)
+    VirtualBox::VM.expects(:import).returns(new_vm).returns("foo")
     @import.execute!
   end
 end
