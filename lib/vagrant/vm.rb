@@ -19,6 +19,10 @@ module Vagrant
       @vm = vm
     end
 
+    def reload!
+      @vm = VirtualBox::VM.find(@vm.uuid)
+    end
+
     def package(out_path, include_files=[])
       add_action(Actions::VM::Export)
       add_action(Actions::VM::Package, out_path, include_files)

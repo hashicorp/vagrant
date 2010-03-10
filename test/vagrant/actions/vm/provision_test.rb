@@ -14,7 +14,8 @@ class ProvisionActionTest < Test::Unit::TestCase
     should "setup shared folder on VM for the cookbooks" do
       File.expects(:expand_path).with(Vagrant.config.chef.cookbooks_path, Vagrant::Env.root_path).returns("foo")
       @action.expects(:cookbooks_path).returns("bar")
-      assert_equal ["vagrant-provisioning", "foo", "bar"], @action.collect_shared_folders
+      Vagrant.config.vm.expects(:share_folder).with("vagrant-provisioning", "bar", "foo").once
+      @action.prepare
     end
   end
 

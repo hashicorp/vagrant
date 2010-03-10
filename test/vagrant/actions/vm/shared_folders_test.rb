@@ -12,17 +12,58 @@ class SharedFoldersActionTest < Test::Unit::TestCase
     folders
   end
 
+  context "before boot" do
+    should "clear folders and create metadata, in order" do
+      before_seq = sequence("before")
+      @action.expects(:clear_shared_folders).once.in_sequence(before_seq)
+      @action.expects(:create_metadata).once.in_sequence(before_seq)
+      @action.before_boot
+    end
+  end
+
   context "collecting shared folders" do
-    should "return the arrays that the callback returns" do
-      result = [[1,2,3],[4,5,6]]
-      @mock_vm.expects(:invoke_callback).with(:collect_shared_folders).once.returns(result)
+    setup do
+      File.stubs(:expand_path).returns("baz")
+    end
+
+    should "convert the vagrant config values into an array" do
+      mock_config do |config|
+        config.vm.shared_folders.clear
+        config.vm.share_folder("foo", "bar", "baz")
+      end
+
+      result = [["foo", "baz", "bar"]]
       assert_equal result, @action.shared_folders
     end
 
-    should "filter out invalid results" do
-      result = [[1,2,3],[4,5]]
-      @mock_vm.expects(:invoke_callback).with(:collect_shared_folders).once.returns(result)
-      assert_equal [[1,2,3]], @action.shared_folders
+    should "expand the path of the host folder" do
+      File.expects(:expand_path).with("baz").once.returns("expanded_baz")
+
+      mock_config do |config|
+        config.vm.shared_folders.clear
+        config.vm.share_folder("foo", "bar", "baz")
+      end
+
+      result = [["foo", "expanded_baz", "bar"]]
+      assert_equal result, @action.shared_folders
+    end
+  end
+
+  context "clearing shared folders" do
+    setup do
+      @shared_folder = mock("shared_folder")
+      @shared_folders = [@shared_folder]
+      @vm.stubs(:shared_folders).returns(@shared_folders)
+    end
+
+    should "call destroy on each shared folder then reload" do
+      destroy_seq = sequence("destroy")
+      @shared_folders.each do |sf|
+        sf.expects(:destroy).once.in_sequence(destroy_seq)
+      end
+
+      @mock_vm.expects(:reload!).once.in_sequence(destroy_seq)
+      @action.clear_shared_folders
     end
   end
 
@@ -39,7 +80,7 @@ class SharedFoldersActionTest < Test::Unit::TestCase
       @vm.stubs(:shared_folders).returns(shared_folders)
       @vm.expects(:save).with(true).once
 
-      @action.before_boot
+      @action.create_metadata
     end
   end
 

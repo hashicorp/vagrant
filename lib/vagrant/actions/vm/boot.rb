@@ -2,6 +2,10 @@ module Vagrant
   module Actions
     module VM
       class Boot < Base
+        def prepare
+          Vagrant.config.vm.share_folder("vagrant-root", Vagrant.config.vm.project_directory, Env.root_path)
+        end
+
         def execute!
           @runner.invoke_around_callback(:boot) do
             # Startup the VM
@@ -15,11 +19,6 @@ Failed to connect to VM! Failed to boot?
 error
             end
           end
-        end
-
-        def collect_shared_folders
-          # The root shared folder for the project
-          ["vagrant-root", Env.root_path, Vagrant.config.vm.project_directory]
         end
 
         def boot

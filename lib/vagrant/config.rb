@@ -72,12 +72,14 @@ module Vagrant
       attr_accessor :base_mac
       attr_accessor :project_directory
       attr_reader :forwarded_ports
+      attr_reader :shared_folders
       attr_accessor :hd_location
       attr_accessor :disk_image_format
 
 
       def initialize
         @forwarded_ports = {}
+        @shared_folders = {}
       end
 
       def forward_port(name, guestport, hostport, protocol="TCP")
@@ -85,6 +87,13 @@ module Vagrant
           :guestport  => guestport,
           :hostport   => hostport,
           :protocol   => protocol
+        }
+      end
+
+      def share_folder(name, guestpath, hostpath)
+        @shared_folders[name] = {
+          :guestpath => guestpath,
+          :hostpath => hostpath
         }
       end
 

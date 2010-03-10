@@ -7,6 +7,13 @@ class BootActionTest < Test::Unit::TestCase
     mock_config
   end
 
+  context "preparing" do
+    should "add the root shared folder" do
+      Vagrant.config.vm.expects(:share_folder).with("vagrant-root", Vagrant.config.vm.project_directory, Vagrant::Env.root_path).once
+      @action.prepare
+    end
+  end
+
   context "execution" do
     should "invoke the 'boot' around callback" do
       boot_seq = sequence("boot_seq")
@@ -43,13 +50,6 @@ class BootActionTest < Test::Unit::TestCase
     should "ping the max number of times then just return" do
       Vagrant::SSH.expects(:up?).times(Vagrant.config[:ssh][:max_tries].to_i).returns(false)
       assert !@action.wait_for_boot(0)
-    end
-  end
-
-  context "callbacks" do
-    should "setup the root directory shared folder" do
-      expected = ["vagrant-root", Vagrant::Env.root_path, Vagrant.config.vm.project_directory]
-      assert_equal expected, @action.collect_shared_folders
     end
   end
 end

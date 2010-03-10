@@ -2,6 +2,10 @@ module Vagrant
   module Actions
     module VM
       class Provision < Base
+        def prepare
+          Vagrant.config.vm.share_folder("vagrant-provisioning", cookbooks_path, File.expand_path(Vagrant.config.chef.cookbooks_path, Env.root_path))
+        end
+
         def execute!
           chown_provisioning_folder
           setup_json
@@ -60,10 +64,6 @@ solo
 
         def cookbooks_path
           File.join(Vagrant.config.chef.provisioning_path, "cookbooks")
-        end
-
-        def collect_shared_folders
-          ["vagrant-provisioning", File.expand_path(Vagrant.config.chef.cookbooks_path, Env.root_path), cookbooks_path]
         end
       end
     end
