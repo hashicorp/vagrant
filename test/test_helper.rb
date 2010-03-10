@@ -20,8 +20,7 @@ require 'mocha'
 class Test::Unit::TestCase
   # Clears the previous config and sets up the new config
   def mock_config
-    Vagrant::Config.instance_variable_set(:@config_runners, nil)
-    Vagrant::Config.instance_variable_set(:@config, nil)
+    Vagrant::Config.reset!
 
     Vagrant::Config.run do |config|
       config.vagrant.dotfile_name = ".hobo"

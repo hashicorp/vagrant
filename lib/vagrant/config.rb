@@ -4,21 +4,21 @@ module Vagrant
   end
 
   class Config
-    @config = nil
-    @config_runners = []
+    @@config = nil
+    @@config_runners = []
 
     class << self
       def reset!
-        @config = nil
+        @@config = nil
         config_runners.clear
       end
 
       def config
-        @config ||= Config::Top.new
+        @@config ||= Config::Top.new
       end
 
       def config_runners
-        @config_runners ||= []
+        @@config_runners ||= []
       end
 
       def run(&block)

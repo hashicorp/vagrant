@@ -38,8 +38,7 @@ class ConfigTest < Test::Unit::TestCase
 
   context "initializing" do
     teardown do
-      Vagrant::Config.instance_variable_set(:@config_runners, nil)
-      Vagrant::Config.instance_variable_set(:@config, nil)
+      Vagrant::Config.reset!
     end
 
     should "not run the blocks right away" do
