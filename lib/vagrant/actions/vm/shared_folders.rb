@@ -3,32 +3,15 @@ module Vagrant
     module VM
       class SharedFolders < Base
         def shared_folders
-          shared_folders = @runner.invoke_callback(:collect_shared_folders)
-
-          # Basic filtering of shared folders. Basically only verifies that
-          # the result is an array of 3 elements. In the future this should
-          # also verify that the host path exists, the name is valid,
-          # and that the guest path is valid.
-          shared_folders.collect do |folder|
-            if folder.is_a?(Array) && folder.length == 3
-              folder
-            else
-              nil
-            end
-          end.compact
+          Vagrant.config.vm.shared_folders.inject([]) do |acc, data|
+            name, value = data
+            acc << [name, File.expand_path(value[:hostpath]), value[:guestpath]]
+          end
         end
 
         def before_boot
-          logger.info "Creating shared folders metadata..."
-
-          shared_folders.each do |name, hostpath, guestpath|
-            folder = VirtualBox::SharedFolder.new
-            folder.name = name
-            folder.hostpath = hostpath
-            @runner.vm.shared_folders << folder
-          end
-
-          @runner.vm.save(true)
+          clear_shared_folders
+          create_metadata
         end
 
         def after_boot
@@ -42,6 +25,29 @@ module Vagrant
               ssh.exec!("sudo chown #{Vagrant.config.ssh.username} #{guestpath}")
             end
           end
+        end
+
+        def clear_shared_folders
+          logger.info "Clearing previously set shared folders..."
+
+          @runner.vm.shared_folders.each do |shared_folder|
+            shared_folder.destroy
+          end
+
+          @runner.reload!
+        end
+
+        def create_metadata
+          logger.info "Creating shared folders metadata..."
+
+          shared_folders.each do |name, hostpath, guestpath|
+            folder = VirtualBox::SharedFolder.new
+            folder.name = name
+            folder.hostpath = hostpath
+            @runner.vm.shared_folders << folder
+          end
+
+          @runner.vm.save(true)
         end
 
         def mount_folder(ssh, name, guestpath, sleeptime=5)

@@ -35,6 +35,16 @@ class VMTest < Test::Unit::TestCase
   context "vagrant VM instance" do
     setup do
       @vm = Vagrant::VM.new(@mock_vm)
+      @mock_vm.stubs(:uuid).returns("foo")
+    end
+
+    context "reloading" do
+      should "load the same VM and set it" do
+        new_vm = mock("vm")
+        VirtualBox::VM.expects(:find).with(@mock_vm.uuid).returns(new_vm)
+        @vm.reload!
+        assert_equal new_vm, @vm.vm
+      end
     end
 
     context "packaging" do
