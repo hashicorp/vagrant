@@ -16,14 +16,8 @@ Vagrant::Config.run do |config|
   config.vm.project_directory = "/vagrant"
   config.vm.forward_port("ssh", 22, 2222)
   config.vm.disk_image_format = 'VMDK'
+  config.vm.provisioner = nil
 
   config.package.name = 'vagrant'
   config.package.extension = '.box'
-
-  config.chef_solo.cookbooks_path = "cookbooks"
-  config.chef_solo.provisioning_path = "/tmp/vagrant-chef"
-  config.chef_solo.json = {
-    :instance_role => "vagrant",
-    :recipes => ["vagrant_main"]
-  }
 end

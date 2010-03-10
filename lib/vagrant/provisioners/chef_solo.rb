@@ -8,6 +8,15 @@ module Vagrant
         attr_accessor :provisioning_path
         attr_accessor :json
 
+        def initialize
+          @cookbooks_path = "cookbooks"
+          @provisioning_path = "/tmp/vagrant-chef"
+          @json = {
+            :instance_role => "vagrant",
+            :recipes => ["vagrant_main"]
+          }
+        end
+
         def to_json
           # Overridden so that the 'json' key could be removed, since its just
           # merged into the config anyways
