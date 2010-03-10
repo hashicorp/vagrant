@@ -5,9 +5,9 @@
 
 Gem::Specification.new do |s|
   s.name = %q{vagrant}
-  s.version = "0.1.4.pre.a"
+  s.version = "0.1.4"
 
-  s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
+  s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Mitchell Hashimoto", "John Bender"]
   s.date = %q{2010-03-09}
   s.description = %q{Vagrant is a tool for building and distributing virtualized development environments.}
@@ -161,14 +161,14 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<net-scp>, [">= 1.0.2"])
       s.add_runtime_dependency(%q<json>, [">= 1.2.0"])
       s.add_runtime_dependency(%q<git-style-binaries>, [">= 0.1.10"])
-      s.add_runtime_dependency(%q<archive-tar-minitar>, [">= 0.5.2"])
+      s.add_runtime_dependency(%q<archive-tar-minitar>, ["= 0.5.2"])
     else
       s.add_dependency(%q<virtualbox>, [">= 0.5.0"])
       s.add_dependency(%q<net-ssh>, [">= 2.0.19"])
       s.add_dependency(%q<net-scp>, [">= 1.0.2"])
       s.add_dependency(%q<json>, [">= 1.2.0"])
       s.add_dependency(%q<git-style-binaries>, [">= 0.1.10"])
-      s.add_dependency(%q<archive-tar-minitar>, [">= 0.5.2"])
+      s.add_dependency(%q<archive-tar-minitar>, ["= 0.5.2"])
     end
   else
     s.add_dependency(%q<virtualbox>, [">= 0.5.0"])
@@ -176,7 +176,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<net-scp>, [">= 1.0.2"])
     s.add_dependency(%q<json>, [">= 1.2.0"])
     s.add_dependency(%q<git-style-binaries>, [">= 0.1.10"])
-    s.add_dependency(%q<archive-tar-minitar>, [">= 0.5.2"])
+    s.add_dependency(%q<archive-tar-minitar>, ["= 0.5.2"])
   end
 end
 
