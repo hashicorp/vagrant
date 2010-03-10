@@ -211,7 +211,7 @@ class EnvTest < Test::Unit::TestCase
   context "loading the root path" do
     should "default the path to the pwd if nil" do
       @path = mock("path")
-      @path.stubs(:to_s).returns("/")
+      @path.stubs(:root?).returns(true)
       Pathname.expects(:new).with(Dir.pwd).returns(@path)
       Vagrant::Env.load_root_path!(nil)
     end
@@ -219,7 +219,9 @@ class EnvTest < Test::Unit::TestCase
     should "not default the path to pwd if its not nil" do
       @path = mock("path")
       @path.stubs(:to_s).returns("/")
-      Pathname.expects(:new).never
+      File.expects(:expand_path).with(@path).returns("/")
+      Pathname.expects(:new).with("/").returns(@path)
+      @path.stubs(:root?).returns(true)
       Vagrant::Env.load_root_path!(@path)
     end
 
@@ -244,7 +246,8 @@ class EnvTest < Test::Unit::TestCase
     end
 
     should "return false if not found on windows-style root" do
-      path = Pathname.new("C:.")
+      # Note the escaped back slash
+      path = Pathname.new("C:\\")
       assert !Vagrant::Env.load_root_path!(path)
     end
 

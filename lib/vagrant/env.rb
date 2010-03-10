@@ -114,12 +114,10 @@ msg
       end
 
       def load_root_path!(path=nil)
-        path ||= Pathname.new(Dir.pwd)
+	path = Pathname.new(File.expand_path(path || Dir.pwd))
 
-        # Stop if we're at the root. 2nd regex matches windows drives
-        # such as C:. and Z:. Portability of this check will need to be
-        # researched.
-        return false if path.to_s == '/' || path.to_s =~ /^[A-Z]:\.$/
+        # Stop if we're at the root.
+        return false if path.root?
 
         file = "#{path}/#{ROOTFILE_NAME}"
         if File.exist?(file)
