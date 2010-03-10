@@ -44,6 +44,7 @@ class ProvisionActionTest < Test::Unit::TestCase
       setup do
         @instance = mock("instance")
         @instance.stubs(:is_a?).with(Vagrant::Provisioners::Base).returns(true)
+        @instance.stubs(:prepare)
         @klass = mock("klass")
         @klass.stubs(:is_a?).with(Class).returns(true)
         @klass.stubs(:new).returns(@instance)
@@ -57,6 +58,11 @@ class ProvisionActionTest < Test::Unit::TestCase
         @klass.expects(:new).once.returns(@instance)
         assert_nothing_raised { @action.prepare }
         assert_equal @instance, @action.provisioner
+      end
+
+      should "call prepare on the instance" do
+        @instance.expects(:prepare).once
+        @action.prepare
       end
 
       should "raise an exception if the class is not a subclass of the provisioner base" do
@@ -88,6 +94,14 @@ class ProvisionActionTest < Test::Unit::TestCase
       end
 
       should "set :chef_solo to the ChefSolo provisioner" do
+        provisioner_expectation(:chef_solo, Vagrant::Provisioners::ChefSolo)
+      end
+
+      should "call prepare on the instance" do
+        instance = mock("instance")
+        instance.expects(:prepare).once
+        instance.stubs(:is_a?).returns(true)
+        Vagrant::Provisioners::ChefSolo.expects(:new).returns(instance)
         provisioner_expectation(:chef_solo, Vagrant::Provisioners::ChefSolo)
       end
     end

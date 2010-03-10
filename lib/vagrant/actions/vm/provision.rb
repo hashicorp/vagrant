@@ -32,7 +32,8 @@ module Vagrant
             @provisioner = provisioner_klass.new
           end
 
-          logger.info "Provisioning enabld with #{@provisioner.class}"
+          logger.info "Provisioning enabled with #{@provisioner.class}"
+          @provisioner.prepare
         end
 
         def execute!
