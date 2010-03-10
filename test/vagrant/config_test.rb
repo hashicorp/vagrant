@@ -133,7 +133,6 @@ class ConfigTest < Test::Unit::TestCase
     setup do
       @configures_list = []
       Vagrant::Config::Top.stubs(:configures_list).returns(@configures_list)
-      Vagrant::Config::Top.stubs(:attr_reader)
     end
 
     context "adding configure keys" do
@@ -148,7 +147,11 @@ class ConfigTest < Test::Unit::TestCase
       end
     end
 
-    context "initializing" do
+    context "configuration keys on instance" do
+      setup do
+        @configures_list.clear
+      end
+
       should "initialize each configurer and set it to its key" do
         5.times do |i|
           key = "key#{i}"
@@ -159,6 +162,17 @@ class ConfigTest < Test::Unit::TestCase
         end
 
         Vagrant::Config::Top.new
+      end
+
+      should "allow reading via methods" do
+        key = "my_foo_bar_key"
+        klass = mock("klass")
+        instance = mock("instance")
+        klass.expects(:new).returns(instance)
+        Vagrant::Config::Top.configures(key, klass)
+
+        config = Vagrant::Config::Top.new
+        assert_equal instance, config.send(key)
       end
     end
 
