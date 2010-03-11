@@ -21,12 +21,47 @@ class ChefProvisionerTest < Test::Unit::TestCase
   context "config" do
     setup do
       @config = Vagrant::Provisioners::Chef::ChefConfig.new
-      @config.json = "HEY"
+      @config.run_list.clear
     end
 
     should "not include the 'json' key in the config dump" do
       result = JSON.parse(@config.to_json)
       assert !result.has_key?("json")
+    end
+
+    should "provide accessors to the run list" do
+      @config.run_list << "foo"
+      assert !@config.run_list.empty?
+      assert_equal ["foo"], @config.run_list
+    end
+
+    should "provide a writer for the run list" do
+      data = mock("data")
+
+      assert_nothing_raised {
+        @config.run_list = data
+        assert_equal data, @config.run_list
+      }
+    end
+
+    should "add a recipe to the run list" do
+      @config.add_recipe("foo")
+      assert_equal "recipe[foo]", @config.run_list[0]
+    end
+
+    should "not wrap the recipe in 'recipe[]' if it was in the name" do
+      @config.add_recipe("recipe[foo]")
+      assert_equal "recipe[foo]", @config.run_list[0]
+    end
+
+    should "add a role to the run list" do
+      @config.add_role("user")
+      assert_equal "role[user]", @config.run_list[0]
+    end
+
+    should "not wrap the role in 'role[]' if it was in the name" do
+      @config.add_role("role[user]")
+      assert_equal "role[user]", @config.run_list[0]
     end
   end
 

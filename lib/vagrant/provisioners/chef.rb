@@ -31,6 +31,28 @@ module Vagrant
           }
         end
 
+        # Returns the run list for the provisioning
+        def run_list
+          json[:run_list]
+        end
+
+        # Sets the run list to the specified value
+        def run_list=(value)
+          json[:run_list] = value
+        end
+
+        # Adds a recipe to the run list
+        def add_recipe(name)
+          name = "recipe[#{name}]" unless name =~ /^recipe\[(.+?)\]$/
+          run_list << name
+        end
+
+        # Adds a role to the run list
+        def add_role(name)
+          name = "role[#{name}]" unless name =~ /^role\[(.+?)\]$/
+          run_list << name
+        end
+
         def to_json
           # Overridden so that the 'json' key could be removed, since its just
           # merged into the config anyways
