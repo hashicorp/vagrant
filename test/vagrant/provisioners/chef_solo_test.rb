@@ -10,6 +10,17 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
     mock_config
   end
 
+  context "provisioning" do
+    should "run the proper sequence of methods in order" do
+      prov_seq = sequence("prov_seq")
+      @action.expects(:chown_provisioning_folder).once.in_sequence(prov_seq)
+      @action.expects(:setup_json).once.in_sequence(prov_seq)
+      @action.expects(:setup_solo_config).once.in_sequence(prov_seq)
+      @action.expects(:run_chef_solo).once.in_sequence(prov_seq)
+      @action.provision!
+    end
+  end
+
   context "shared folders" do
     should "setup shared folder on VM for the cookbooks" do
       File.expects(:expand_path).with(Vagrant.config.chef.cookbooks_path, Vagrant::Env.root_path).returns("foo")

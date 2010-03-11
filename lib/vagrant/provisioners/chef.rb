@@ -6,11 +6,20 @@ module Vagrant
     class Chef < Base
       # This is the configuration which is available through `config.chef`
       class ChefConfig < Vagrant::Config::Base
+        # Chef server specific config
+        attr_accessor :chef_server_url
+        attr_accessor :validation_key_path
+        attr_accessor :validation_client_name
+
+        # Chef solo specific config
         attr_accessor :cookbooks_path
+
+        # Shared config
         attr_accessor :provisioning_path
         attr_accessor :json
 
         def initialize
+          @validation_client_name = "chef-validator"
           @cookbooks_path = "cookbooks"
           @provisioning_path = "/tmp/vagrant-chef"
           @json = {
@@ -38,6 +47,7 @@ module Vagrant
       def chown_provisioning_folder
         logger.info "Setting permissions on chef provisioning folder..."
         SSH.execute do |ssh|
+          ssh.exec!("sudo mkdir -p #{Vagrant.config.chef.provisioning_path}")
           ssh.exec!("sudo chown #{Vagrant.config.ssh.username} #{Vagrant.config.chef.provisioning_path}")
         end
       end

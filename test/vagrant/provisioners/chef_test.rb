@@ -31,9 +31,11 @@ class ChefProvisionerTest < Test::Unit::TestCase
   end
 
   context "permissions on provisioning folder" do
-    should "chown the folder to the ssh user" do
+    should "create and chown the folder to the ssh user" do
+      ssh_seq = sequence("ssh_seq")
       ssh = mock("ssh")
-      ssh.expects(:exec!).with("sudo chown #{Vagrant.config.ssh.username} #{Vagrant.config.chef.provisioning_path}")
+      ssh.expects(:exec!).with("sudo mkdir -p #{Vagrant.config.chef.provisioning_path}").once.in_sequence(ssh_seq)
+      ssh.expects(:exec!).with("sudo chown #{Vagrant.config.ssh.username} #{Vagrant.config.chef.provisioning_path}").once.in_sequence(ssh_seq)
       Vagrant::SSH.expects(:execute).yields(ssh)
       @action.chown_provisioning_folder
     end
