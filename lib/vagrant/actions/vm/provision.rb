@@ -24,7 +24,8 @@ module Vagrant
           elsif provisioner.is_a?(Symbol)
             # We have a few hard coded provisioners for built-ins
             mapping = {
-              :chef_solo => Provisioners::ChefSolo
+              :chef_solo    => Provisioners::ChefSolo,
+              :chef_server  => Provisioners::ChefServer
             }
 
             provisioner_klass = mapping[provisioner]

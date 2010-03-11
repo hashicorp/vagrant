@@ -97,6 +97,10 @@ class ProvisionActionTest < Test::Unit::TestCase
         provisioner_expectation(:chef_solo, Vagrant::Provisioners::ChefSolo)
       end
 
+      should "set :chef_server to the ChefServer provisioner" do
+        provisioner_expectation(:chef_server, Vagrant::Provisioners::ChefServer)
+      end
+
       should "call prepare on the instance" do
         instance = mock("instance")
         instance.expects(:prepare).once
