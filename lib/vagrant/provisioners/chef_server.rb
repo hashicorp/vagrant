@@ -10,6 +10,12 @@ Chef server provisioning requires that the `config.chef.validation_key_path` con
 be set to a path on your local machine of the validation key used to register the
 VM with the chef server.
 msg
+        elsif !File.file?(Vagrant.config.chef.validation_key_path)
+          raise Actions::ActionException.new(<<-msg)
+The validation key set for `config.chef.validation_key_path` does not exist! This
+file needs to exist so it can be uploaded to the virtual machine. It is
+currently set to "#{Vagrant.config.chef.validation_key_path}"
+msg
         end
 
         if Vagrant.config.chef.chef_server_url.nil?

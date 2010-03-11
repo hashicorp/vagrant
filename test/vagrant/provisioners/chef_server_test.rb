@@ -24,6 +24,10 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
   end
 
   context "preparing" do
+    setup do
+      File.stubs(:file?).returns(true)
+    end
+
     should "not raise an exception if validation_key_path is set" do
       mock_config do |config|
         config.chef.validation_key_path = "7"
@@ -37,6 +41,26 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
         config.chef.validation_key_path = nil
       end
 
+      assert_raises(Vagrant::Actions::ActionException) {
+        @action.prepare
+      }
+    end
+
+    should "not raise an exception if validation_key_path does exist" do
+      mock_config do |config|
+        config.chef.validation_key_path = "7"
+      end
+
+      File.expects(:file?).with(Vagrant.config.chef.validation_key_path).returns(true)
+      assert_nothing_raised { @action.prepare }
+    end
+
+    should "raise an exception if validation_key_path doesn't exist" do
+      mock_config do |config|
+        config.chef.validation_key_path = "7"
+      end
+
+      File.expects(:file?).with(Vagrant.config.chef.validation_key_path).returns(false)
       assert_raises(Vagrant::Actions::ActionException) {
         @action.prepare
       }

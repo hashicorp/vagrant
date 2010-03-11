@@ -79,8 +79,11 @@ class ProvisionActionTest < Test::Unit::TestCase
           config.vm.provisioner = symbol
         end
 
+        instance = mock("instance")
+        instance.expects(:prepare).once
+        provisioner.expects(:new).returns(instance)
         assert_nothing_raised { @action.prepare }
-        assert @action.provisioner.is_a?(provisioner)
+        assert_equal instance, @action.provisioner
       end
 
       should "raise an ActionException if its an unknown symbol" do
@@ -99,14 +102,6 @@ class ProvisionActionTest < Test::Unit::TestCase
 
       should "set :chef_server to the ChefServer provisioner" do
         provisioner_expectation(:chef_server, Vagrant::Provisioners::ChefServer)
-      end
-
-      should "call prepare on the instance" do
-        instance = mock("instance")
-        instance.expects(:prepare).once
-        instance.stubs(:is_a?).returns(true)
-        Vagrant::Provisioners::ChefSolo.expects(:new).returns(instance)
-        provisioner_expectation(:chef_solo, Vagrant::Provisioners::ChefSolo)
       end
     end
   end
