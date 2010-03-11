@@ -10,6 +10,7 @@ module Vagrant
         attr_accessor :chef_server_url
         attr_accessor :validation_key_path
         attr_accessor :validation_client_name
+        attr_accessor :client_key_path
 
         # Chef solo specific config
         attr_accessor :cookbooks_path
@@ -20,6 +21,8 @@ module Vagrant
 
         def initialize
           @validation_client_name = "chef-validator"
+          @client_key_path = "/etc/chef/client.pem"
+
           @cookbooks_path = "cookbooks"
           @provisioning_path = "/tmp/vagrant-chef"
           @json = {

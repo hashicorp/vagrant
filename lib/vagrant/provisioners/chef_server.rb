@@ -23,15 +23,25 @@ msg
 
       def provision!
         chown_provisioning_folder
+        create_client_key_folder
         upload_validation_key
         setup_json
         setup_config
         run_chef_client
       end
 
+      def create_client_key_folder
+        logger.info "Creating folder to hold client key..."
+        path = Pathname.new(Vagrant.config.chef.client_key_path)
+
+        SSH.execute do |ssh|
+          ssh.exec!("sudo mkdir -p #{path.dirname}")
+        end
+      end
+
       def upload_validation_key
         logger.info "Uploading chef client validation key..."
-        SSH.upload!(Vagrant.config.chef.validation_key_path, guest_validation_key_path)
+        SSH.upload!(validation_key_path, guest_validation_key_path)
       end
 
       def setup_config
@@ -43,7 +53,7 @@ chef_server_url    "#{Vagrant.config.chef.chef_server_url}"
 
 validation_client_name "#{Vagrant.config.chef.validation_client_name}"
 validation_key         "#{guest_validation_key_path}"
-client_key             "/etc/chef/client.pem"
+client_key             "#{Vagrant.config.chef.client_key_path}"
 
 file_store_path    "/srv/chef/file_store"
 file_cache_path    "/srv/chef/cache"
@@ -66,6 +76,10 @@ solo
             logger.info("#{stream}: #{data}")
           end
         end
+      end
+
+      def validation_key_path
+        File.expand_path(Vagrant.config.chef.validation_key_path, Env.root_path)
       end
 
       def guest_validation_key_path

@@ -14,6 +14,7 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
     should "run the proper sequence of methods in order" do
       prov_seq = sequence("prov_seq")
       @action.expects(:chown_provisioning_folder).once.in_sequence(prov_seq)
+      @action.expects(:create_client_key_folder).once.in_sequence(prov_seq)
       @action.expects(:upload_validation_key).once.in_sequence(prov_seq)
       @action.expects(:setup_json).once.in_sequence(prov_seq)
       @action.expects(:setup_config).once.in_sequence(prov_seq)
@@ -60,11 +61,38 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
     end
   end
 
+  context "creating the client key folder" do
+    setup do
+      @raw_path = "/foo/bar/baz.pem"
+      mock_config do |config|
+        config.chef.client_key_path = @raw_path
+      end
+
+      @path = Pathname.new(@raw_path)
+    end
+
+    should "create the folder using the dirname of the path" do
+      ssh = mock("ssh")
+      ssh.expects(:exec!).with("sudo mkdir -p #{@path.dirname}").once
+      Vagrant::SSH.expects(:execute).yields(ssh)
+      @action.create_client_key_folder
+    end
+  end
+
   context "uploading the validation key" do
     should "upload the validation key to the provisioning path" do
+      @action.expects(:validation_key_path).once.returns("foo")
       @action.expects(:guest_validation_key_path).once.returns("bar")
-      Vagrant::SSH.expects(:upload!).with(Vagrant.config.chef.validation_key_path, "bar").once
+      Vagrant::SSH.expects(:upload!).with("foo", "bar").once
       @action.upload_validation_key
+    end
+  end
+
+  context "the validation key path" do
+    should "expand the configured key path" do
+      result = mock("result")
+      File.expects(:expand_path).with(Vagrant.config.chef.validation_key_path, Vagrant::Env.root_path).once.returns(result)
+      assert_equal result, @action.validation_key_path
     end
   end
 
@@ -90,7 +118,7 @@ chef_server_url    "#{Vagrant.config.chef.chef_server_url}"
 
 validation_client_name "#{Vagrant.config.chef.validation_client_name}"
 validation_key         "#{@action.guest_validation_key_path}"
-client_key             "/etc/chef/client.pem"
+client_key             "#{Vagrant.config.chef.client_key_path}"
 
 file_store_path    "/srv/chef/file_store"
 file_cache_path    "/srv/chef/cache"
