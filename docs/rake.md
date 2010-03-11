@@ -79,7 +79,7 @@ task :graceful_down do
   Vagrant::Env.load!
   Vagrant::Env.require_persisted_vm
   Vagrant::SSH.execute do |ssh|
-    ssh.execute!("sudo halt")
+    ssh.exec!("sudo halt")
   end
 end
 {% endhighlight %}
