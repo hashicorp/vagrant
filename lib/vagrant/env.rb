@@ -114,7 +114,7 @@ msg
       end
 
       def load_root_path!(path=nil)
-	      path = Pathname.new(File.expand_path(path || Dir.pwd))
+        path = Pathname.new(File.expand_path(path || Dir.pwd))
 
         # Stop if we're at the root.
         return false if path.root?
