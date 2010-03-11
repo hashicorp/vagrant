@@ -13,7 +13,7 @@ module Vagrant
           @provisioning_path = "/tmp/vagrant-chef"
           @json = {
             :instance_role => "vagrant",
-            :recipes => ["vagrant_main"]
+            :run_list => ["recipe[vagrant_main]"]
           }
         end
 
