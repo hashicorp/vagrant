@@ -4,6 +4,7 @@ set uname [lrange $argv 0 0]
 set password [lrange $argv 1 1]
 set host [lrange $argv 2 2]
 set port [lrange $argv 3 3]
+set timeout 30
 
 if { $port != "" } {
   set port_option "-p $port"
