@@ -3,7 +3,8 @@ require File.join(File.dirname(__FILE__), '..', 'test_helper')
 class ConfigTest < Test::Unit::TestCase
   context "the ssh config" do
     should "expand any path when requesting the value" do
-      File.stubs(:expand_path).with(Vagrant.config.ssh[:private_key_path]).returns('success')
+      Vagrant::Env.stubs(:root_path).returns('foo')
+      File.stubs(:expand_path).with(Vagrant.config.ssh[:private_key_path], 'foo').returns('success')
       assert Vagrant.config.ssh.private_key_path, 'success'
     end
   end

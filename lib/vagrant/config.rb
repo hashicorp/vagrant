@@ -67,7 +67,7 @@ module Vagrant
       attr_accessor :private_key_path
 
       def private_key_path
-        File.expand_path(@private_key_path)
+        File.expand_path(@private_key_path, Env.root_path)
       end
     end
 
