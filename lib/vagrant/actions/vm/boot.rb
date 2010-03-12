@@ -26,7 +26,7 @@ error
           @runner.vm.start(:headless, true)
         end
 
-        def wait_for_boot
+        def wait_for_boot(sleeptime=5)
           logger.info "Waiting for VM to boot..."
 
           current_timeout = Vagrant.config.ssh.timeout
@@ -41,6 +41,7 @@ error
             end
 
             current_timeout += Vagrant.config.ssh.retry_timeout_delta unless current_timeout >= max_timeout
+            sleep sleeptime
           end
 
           logger.info "Failed to connect to VM! Failed to boot?"
