@@ -10,6 +10,13 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
     mock_config
   end
 
+  context "preparing" do
+    should "share cookbook folders" do
+      @action.expects(:share_cookbook_folders).once
+      @action.prepare
+    end
+  end
+
   context "provisioning" do
     should "run the proper sequence of methods in order" do
       prov_seq = sequence("prov_seq")
@@ -21,19 +28,86 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
     end
   end
 
-  context "shared folders" do
-    should "setup shared folder on VM for the cookbooks" do
-      File.expects(:expand_path).with(Vagrant.config.chef.cookbooks_path, Vagrant::Env.root_path).returns("foo")
-      @action.expects(:cookbooks_path).returns("bar")
-      Vagrant.config.vm.expects(:share_folder).with("vagrant-chef-solo", "bar", "foo").once
-      @action.prepare
+  context "sharing cookbook folders" do
+    setup do
+      @host_cookbook_paths = ["foo", "bar"]
+      @action.stubs(:host_cookbook_paths).returns(@host_cookbook_paths)
+    end
+
+    should "share each cookbook folder" do
+      share_seq = sequence("share_seq")
+      @host_cookbook_paths.each_with_index do |cookbook, i|
+        Vagrant.config.vm.expects(:share_folder).with("vagrant-chef-solo-#{i}", @action.cookbook_path(i), cookbook).in_sequence(share_seq)
+      end
+
+      @action.share_cookbook_folders
+    end
+  end
+
+  context "host cookbooks paths" do
+    should "expand the path of the cookbooks relative to the environment root path" do
+      @cookbook = "foo"
+      @expanded = "bar"
+      File.expects(:expand_path).with(@cookbook, Vagrant::Env.root_path).returns(@expanded)
+
+      mock_config do |config|
+        config.chef.cookbooks_path = @cookbook
+      end
+
+      assert_equal [@expanded], @action.host_cookbook_paths
+    end
+
+    should "return as an array if was originally a string" do
+      File.stubs(:expand_path).returns("foo")
+
+      mock_config do |config|
+        config.chef.cookbooks_path = "foo"
+      end
+
+      assert_equal ["foo"], @action.host_cookbook_paths
+    end
+
+    should "return the array of cookbooks if its an array" do
+      cookbooks = ["foo", "bar"]
+      mock_config do |config|
+        config.chef.cookbooks_path = cookbooks
+      end
+
+      expand_seq = sequence('expand_seq')
+      cookbooks.each do |cookbook|
+        File.expects(:expand_path).with(cookbook, Vagrant::Env.root_path).returns(cookbook)
+      end
+
+      assert_equal cookbooks, @action.host_cookbook_paths
     end
   end
 
   context "cookbooks path" do
-    should "return the proper cookbook path" do
-      cookbooks_path = File.join(Vagrant.config.chef.provisioning_path, "cookbooks")
-      assert_equal cookbooks_path, @action.cookbooks_path
+    should "return a proper path to a single cookbook" do
+      expected = File.join(Vagrant.config.chef.provisioning_path, "cookbooks-5")
+      assert_equal expected, @action.cookbook_path(5)
+    end
+
+    should "return array-representation of cookbook paths if multiple" do
+      @cookbooks = (0..5).inject([]) do |acc, i|
+        acc << @action.cookbook_path(i)
+      end
+
+      mock_config do |config|
+        config.chef.cookbooks_path = @cookbooks
+      end
+
+      assert_equal @cookbooks.to_json, @action.cookbooks_path
+    end
+
+    should "return a single string representation if cookbook paths is single" do
+      @cookbooks = @action.cookbook_path(0)
+
+      mock_config do |config|
+        config.chef.cookbooks_path = @cookbooks
+      end
+
+      assert_equal @cookbooks.to_json, @action.cookbooks_path
     end
   end
 
@@ -41,7 +115,7 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
     should "upload properly generate the configuration file using configuration data" do
       expected_config = <<-config
 file_cache_path "#{Vagrant.config.chef.provisioning_path}"
-cookbook_path "#{@action.cookbooks_path}"
+cookbook_path #{@action.cookbooks_path}
 config
 
       StringIO.expects(:new).with(expected_config).once

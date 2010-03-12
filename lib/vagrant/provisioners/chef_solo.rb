@@ -3,7 +3,7 @@ module Vagrant
     # This class implements provisioning via chef-solo.
     class ChefSolo < Chef
       def prepare
-        Vagrant.config.vm.share_folder("vagrant-chef-solo", cookbooks_path, File.expand_path(Vagrant.config.chef.cookbooks_path, Env.root_path))
+        share_cookbook_folders
       end
 
       def provision!
@@ -13,10 +13,16 @@ module Vagrant
         run_chef_solo
       end
 
+      def share_cookbook_folders
+        host_cookbook_paths.each_with_index do |cookbook, i|
+          Vagrant.config.vm.share_folder("vagrant-chef-solo-#{i}", cookbook_path(i), cookbook)
+        end
+      end
+
       def setup_solo_config
         solo_file = <<-solo
 file_cache_path "#{Vagrant.config.chef.provisioning_path}"
-cookbook_path "#{cookbooks_path}"
+cookbook_path #{cookbooks_path}
 solo
 
         logger.info "Uploading chef-solo configuration script..."
@@ -34,8 +40,27 @@ solo
         end
       end
 
+      def host_cookbook_paths
+        cookbooks = Vagrant.config.chef.cookbooks_path
+        cookbooks = [cookbooks] unless cookbooks.is_a?(Array)
+        cookbooks.collect! { |cookbook| File.expand_path(cookbook, Env.root_path) }
+        return cookbooks
+      end
+
+      def cookbook_path(i)
+        File.join(Vagrant.config.chef.provisioning_path, "cookbooks-#{i}")
+      end
+
       def cookbooks_path
-        File.join(Vagrant.config.chef.provisioning_path, "cookbooks")
+        result = []
+        host_cookbook_paths.each_with_index do |host_path, i|
+          result << cookbook_path(i)
+        end
+
+        # We're lucky that ruby's string and array syntax for strings is the
+        # same as JSON, so we can just convert to JSON here and use that
+        result = result.to_s if result.length == 1
+        result.to_json
       end
     end
   end
