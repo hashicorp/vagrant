@@ -14,7 +14,7 @@ module Vagrant
       end
 
       def configures(key, klass)
-        @@config.class.configures(key, klass)
+        config.class.configures(key, klass)
       end
 
       def config
@@ -75,11 +75,12 @@ module Vagrant
       attr_reader :shared_folders
       attr_accessor :hd_location
       attr_accessor :disk_image_format
-
+      attr_accessor :provisioner
 
       def initialize
         @forwarded_ports = {}
         @shared_folders = {}
+        @provisioner = nil
       end
 
       def forward_port(name, guestport, hostport, protocol="TCP")
@@ -112,25 +113,6 @@ module Vagrant
       attr_accessor :extension
     end
 
-    class ChefConfig < Base
-      attr_accessor :cookbooks_path
-      attr_accessor :provisioning_path
-      attr_accessor :json
-      attr_accessor :enabled
-
-      def initialize
-        @enabled = false
-      end
-
-      def to_json
-        # Overridden so that the 'json' key could be removed, since its just
-        # merged into the config anyways
-        data = instance_variables_hash
-        data.delete(:json)
-        data.to_json
-      end
-    end
-
     class VagrantConfig < Base
       attr_accessor :dotfile_name
       attr_accessor :log_output
@@ -159,7 +141,6 @@ module Vagrant
       configures :package, PackageConfig
       configures :ssh, SSHConfig
       configures :vm, VMConfig
-      configures :chef, ChefConfig
       configures :vagrant, VagrantConfig
 
       def initialize

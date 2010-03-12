@@ -42,6 +42,10 @@ class Test::Unit::TestCase
       config.package.name = 'vagrant'
       config.package.extension = '.box'
 
+      # Chef
+      config.chef.chef_server_url = "http://localhost:4000"
+      config.chef.validation_key_path = "validation.pem"
+      config.chef.client_key_path = "/zoo/foo/bar.pem"
       config.chef.cookbooks_path = "cookbooks"
       config.chef.provisioning_path = "/tmp/hobo-chef"
       config.chef.json = {

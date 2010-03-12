@@ -33,7 +33,8 @@ class ReloadActionTest < Test::Unit::TestCase
 
     should "add in the provisioning step if enabled" do
       mock_config do |config|
-        config.chef.enabled = true
+        # Dummy provisioner to test
+        config.vm.provisioner = "foo"
       end
 
       @default_order.push(Vagrant::Actions::VM::Provision)
