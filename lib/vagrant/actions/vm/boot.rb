@@ -26,7 +26,7 @@ error
           @runner.vm.start(:headless, true)
         end
 
-        def wait_for_boot(sleeptime=5)
+        def wait_for_boot
           logger.info "Waiting for VM to boot..."
 
           Vagrant.config[:ssh][:max_tries].to_i.times do |i|
@@ -36,8 +36,6 @@ error
               logger.info "VM booted and ready for use!"
               return true
             end
-
-            sleep sleeptime
           end
 
           logger.info "Failed to connect to VM! Failed to boot?"

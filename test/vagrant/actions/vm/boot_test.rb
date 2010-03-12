@@ -44,12 +44,12 @@ class BootActionTest < Test::Unit::TestCase
       seq = sequence('pings')
       Vagrant::SSH.expects(:up?).times(Vagrant.config[:ssh][:max_tries].to_i - 1).returns(false).in_sequence(seq)
       Vagrant::SSH.expects(:up?).once.returns(true).in_sequence(seq)
-      assert @action.wait_for_boot(0)
+      assert @action.wait_for_boot
     end
 
     should "ping the max number of times then just return" do
       Vagrant::SSH.expects(:up?).times(Vagrant.config[:ssh][:max_tries].to_i).returns(false)
-      assert !@action.wait_for_boot(0)
+      assert !@action.wait_for_boot
     end
   end
 end
