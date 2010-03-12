@@ -39,7 +39,7 @@ module Vagrant
 
         def execute!
           if provisioner
-            logger.info "Beginning provisining process..."
+            logger.info "Beginning provisioning process..."
             provisioner.provision!
           end
         end
