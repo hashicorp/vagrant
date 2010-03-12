@@ -10,6 +10,7 @@ Vagrant::Config.run do |config|
   config.ssh.forwarded_port_key = "ssh"
   config.ssh.max_tries = 10
   config.ssh.timeout = 30
+  config.ssh.private_key_path = File.join(File.dirname(__FILE__), '..', 'keys', 'vagrant')
 
   config.vm.box_ovf = "box.ovf"
   config.vm.base_mac = "0800279C2E42"

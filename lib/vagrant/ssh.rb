@@ -1,19 +1,20 @@
 module Vagrant
   class SSH
-    SCRIPT = File.join(File.dirname(__FILE__), '..', '..', 'script', 'vagrant-ssh-expect.sh')
-
     class << self
       def connect(opts={})
         options = {}
-        [:host, :password, :username].each do |param|
+        [:host, :username, :private_key_path].each do |param|
           options[param] = opts[param] || Vagrant.config.ssh.send(param)
         end
 
-        Kernel.exec "#{SCRIPT} #{options[:username]} #{options[:password]} #{options[:host]} #{port(opts)}".strip
+        Kernel.exec "ssh -p #{port(opts)} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i #{options[:private_key_path]} #{options[:username]}@#{options[:host]}".strip
       end
 
-      def execute
-        Net::SSH.start(Vagrant.config.ssh.host, Vagrant.config[:ssh][:username], :port => port, :password => Vagrant.config[:ssh][:password]) do |ssh|
+      def execute(opts={})
+        Net::SSH.start(Vagrant.config.ssh.host, 
+                       Vagrant.config[:ssh][:username], 
+                       opts.merge( :port => port, 
+                                   :keys => [Vagrant.config.ssh.private_key_path])) do |ssh|
           yield ssh
         end
       end
@@ -29,7 +30,7 @@ module Vagrant
         check_thread = Thread.new do
           begin
             Thread.current[:result] = false
-            Net::SSH.start(Vagrant.config.ssh.host, Vagrant.config.ssh.username, :port => port, :password => Vagrant.config.ssh.password, :timeout => Vagrant.config.ssh.timeout) do |ssh|
+            execute(:timeout => Vagrant.config.ssh.timeout) do |ssh|
               Thread.current[:result] = true
             end
           rescue Errno::ECONNREFUSED, Net::SSH::Disconnect

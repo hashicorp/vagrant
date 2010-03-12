@@ -6,20 +6,30 @@ class SshTest < Test::Unit::TestCase
   end
 
   context "connecting to SSH" do
-    setup do
-      @script = Vagrant::SSH::SCRIPT
-    end
-
     test "should call exec with defaults when no options are supplied" do
       ssh = Vagrant.config.ssh
-      Kernel.expects(:exec).with("#{@script} #{ssh[:username]} #{ssh[:password]} #{ssh[:host]} #{Vagrant::SSH.port}")
+      ssh_exec_expect(Vagrant::SSH.port, 
+                      Vagrant.config.ssh.private_key_path, 
+                      Vagrant.config.ssh.username,
+                      Vagrant.config.ssh.host)
       Vagrant::SSH.connect
     end
 
     test "should call exec with supplied params" do
-      args = {:username => 'bar', :password => 'baz', :host => 'bak', :port => 'bag'}
-      Kernel.expects(:exec).with("#{@script} #{args[:username]} #{args[:password]} #{args[:host]} #{args[:port]}")
+      args = {:username => 'bar', :private_key_path => 'baz', :host => 'bak', :port => 'bag'}
+      ssh_exec_expect(args[:port], args[:private_key_path], args[:username], args[:host])
       Vagrant::SSH.connect(args)
+    end
+
+    def ssh_exec_expect(port, key_path, uname, host)
+    Kernel.expects(:exec).with() do |arg|
+        assert arg =~ /^ssh/
+        assert arg =~ /-p #{port}/
+        assert arg =~ /-i #{key_path}/
+        assert arg =~ /#{uname}@#{host}/
+        # TODO options not tested for as they may be removed, they may be removed
+        true
+      end
     end
   end
 
@@ -29,7 +39,7 @@ class SshTest < Test::Unit::TestCase
         assert_equal Vagrant.config.ssh.host, host
         assert_equal Vagrant.config.ssh.username, username
         assert_equal Vagrant::SSH.port, opts[:port]
-        assert_equal Vagrant.config.ssh.password, opts[:password]
+        assert_equal [Vagrant.config.ssh.private_key_path], opts[:keys]
         true
       end
       Vagrant::SSH.execute
@@ -88,6 +98,11 @@ class SshTest < Test::Unit::TestCase
       assert_nothing_raised {
         assert !Vagrant::SSH.up?
       }
+    end
+
+    should "specifity the timeout as an option to execute" do
+      Vagrant::SSH.expects(:execute).with(:timeout => Vagrant.config.ssh.timeout).yields(true)
+      assert Vagrant::SSH.up?
     end
   end
 

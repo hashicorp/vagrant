@@ -64,6 +64,11 @@ module Vagrant
       attr_accessor :forwarded_port_key
       attr_accessor :max_tries
       attr_accessor :timeout
+      attr_accessor :private_key_path
+
+      def private_key_path
+        File.expand_path(@private_key_path)
+      end
     end
 
     class VMConfig < Base
