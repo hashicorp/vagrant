@@ -45,10 +45,10 @@ if you can't get this working.
 VirtualBox::Command.vboxmanage = "/path/to/my/VBoxManage"
 VirtualBox::Global.vboxconfig = "~/path/to/VirtualBox.xml"
 msg
-        elsif version.to_f < 3.0
+        elsif version.to_f < 3.1
           error_and_exit(<<-msg)
 Vagrant has detected that you have VirtualBox version #{version} installed!
-Vagrant requires that you use at least VirtualBox version 3. Please install
+Vagrant requires that you use at least VirtualBox version 3.1. Please install
 a more recent version of VirtualBox to continue.
 msg
         end

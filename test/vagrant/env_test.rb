@@ -26,9 +26,9 @@ class EnvTest < Test::Unit::TestCase
       Vagrant::Env.check_virtualbox!
     end
 
-    should "error and exit if VirtualBox is lower than version 3" do
+    should "error and exit if VirtualBox is lower than version 3.1" do
       Vagrant::Env.expects(:error_and_exit).once
-      VirtualBox::Command.expects(:version).returns("2.1.3r1041")
+      VirtualBox::Command.expects(:version).returns("3.0.12r1041")
       Vagrant::Env.check_virtualbox!
     end
   end
