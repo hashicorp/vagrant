@@ -182,6 +182,7 @@ management tools, so the details won't be gone into here. If promoted, make sure
 SSH package is set to use **basic username/password authentication** and write down the
 username/password for later.
 
+<a name="mac-address"> </a>
 ### Copy the MAC Address
 
 When the operating system was installed, it typically sets up the basic network devices
