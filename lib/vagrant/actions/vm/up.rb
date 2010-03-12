@@ -11,6 +11,10 @@ virtual machine already exists and is not a file! The dotfile is
 currently configured to be `#{Env.dotfile_path}`
 
 To change this value, please see `config.vagrant.dotfile_name`
+
+This often exists if you're trying to create a Vagrant virtual
+environment from your home directory. To resolve this, you can either
+modify the configuration a bit, or simply use a different directory.
 msg
           end
 
