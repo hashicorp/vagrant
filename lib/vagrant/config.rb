@@ -64,6 +64,8 @@ module Vagrant
       attr_accessor :forwarded_port_key
       attr_accessor :max_tries
       attr_accessor :timeout
+      attr_accessor :retry_timeout_delta
+      attr_accessor :max_timeout_delta
     end
 
     class VMConfig < Base

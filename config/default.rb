@@ -9,7 +9,9 @@ Vagrant::Config.run do |config|
   config.ssh.host = "localhost"
   config.ssh.forwarded_port_key = "ssh"
   config.ssh.max_tries = 10
-  config.ssh.timeout = 30
+  config.ssh.timeout = 5
+  config.ssh.retry_timeout_delta = 5
+  config.ssh.max_timeout_delta = 30
 
   config.vm.box_ovf = "box.ovf"
   config.vm.base_mac = "0800279C2E42"

@@ -51,5 +51,27 @@ class BootActionTest < Test::Unit::TestCase
       Vagrant::SSH.expects(:up?).times(Vagrant.config[:ssh][:max_tries].to_i).returns(false)
       assert !@action.wait_for_boot
     end
+
+    should "slowly increase timeout given to up? up to maximum specified" do
+      @timeout = 30
+      @retry_delta = 5
+      @max_delta = 30
+
+      mock_config do |config|
+        config.ssh.timeout = @timeout
+        config.ssh.retry_timeout_delta = @retry_delta
+        config.ssh.max_timeout_delta = @max_delta
+      end
+
+      up_sequence = sequence("up_seq")
+      current_timeout = @timeout
+      max_timeout = @timeout + @max_delta
+      Vagrant.config.ssh.max_tries.times do |i|
+        Vagrant::SSH.expects(:up?).with(current_timeout).returns(false).in_sequence(up_sequence)
+        current_timeout += @retry_delta unless current_timeout >= max_timeout
+      end
+
+      assert !@action.wait_for_boot
+    end
   end
 end
