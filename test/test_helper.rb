@@ -31,8 +31,6 @@ class Test::Unit::TestCase
       config.ssh.forwarded_port_key = "ssh"
       config.ssh.max_tries = 10
       config.ssh.timeout = 10
-      config.ssh.retry_timeout_delta = 5
-      config.ssh.max_timeout_delta = 30
 
       config.vm.box = "foo"
       config.vm.box_ovf = "box.ovf"

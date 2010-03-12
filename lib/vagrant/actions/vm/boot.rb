@@ -29,18 +29,14 @@ error
         def wait_for_boot(sleeptime=5)
           logger.info "Waiting for VM to boot..."
 
-          current_timeout = Vagrant.config.ssh.timeout
-          max_timeout = current_timeout + Vagrant.config.ssh.max_timeout_delta
-
           Vagrant.config[:ssh][:max_tries].to_i.times do |i|
             logger.info "Trying to connect (attempt ##{i+1} of #{Vagrant.config[:ssh][:max_tries]})..."
 
-            if Vagrant::SSH.up?(current_timeout)
+            if Vagrant::SSH.up?
               logger.info "VM booted and ready for use!"
               return true
             end
 
-            current_timeout += Vagrant.config.ssh.retry_timeout_delta unless current_timeout >= max_timeout
             sleep sleeptime
           end
 

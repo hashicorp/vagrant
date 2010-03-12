@@ -56,57 +56,24 @@ class SshTest < Test::Unit::TestCase
   context "checking if host is up" do
     setup do
       mock_config
+    end
 
-      @timeout = 7
+    should "return true if SSH connection works" do
+      Net::SSH.expects(:start).yields("success")
+      assert Vagrant::SSH.up?
+    end
 
+    should "return false if SSH connection times out" do
+      Net::SSH.expects(:start)
+      assert !Vagrant::SSH.up?
+    end
+
+    should "allow the thread the configured timeout time" do
       @thread = mock("thread")
       @thread.stubs(:[])
-      @thread.stubs(:[]=)
-      @thread.stubs(:join)
-      Thread.stubs(:current).returns(@thread)
-      Thread.stubs(:new).returns(@thread).yields
-
-      Net::SSH.stubs(:start)
-    end
-
-    should "return the value of result in thread" do
-      result = mock("result")
-      @thread.expects(:[]).with(:result).returns(result)
-      assert_equal result, Vagrant::SSH.up?
-    end
-
-    should "start SSH with proper configuration" do
-      Net::SSH.expects(:start).with(Vagrant.config.ssh.host, Vagrant.config.ssh.username, :port => Vagrant::SSH.port, :password => Vagrant.config.ssh.password, :timeout => Vagrant.config.ssh.timeout).once
-      Vagrant::SSH.up?
-    end
-
-    should "start SSH with proper timeout value if given" do
-      Net::SSH.expects(:start).with(Vagrant.config.ssh.host, Vagrant.config.ssh.username, :port => Vagrant::SSH.port, :password => Vagrant.config.ssh.password, :timeout => @timeout).once
-      Vagrant::SSH.up?(@timeout)
-    end
-
-    should "set result to true if SSH connection works" do
-      @thread.expects(:[]=).with(:result, true)
-      Net::SSH.expects(:start).yields("success")
-      Vagrant::SSH.up?
-    end
-
-    should "set result to false if SSH connection times out" do
-      @thread.expects(:[]=).with(:result, false)
-      Net::SSH.expects(:start)
-      Vagrant::SSH.up?
-    end
-
-    should "allow the thread the configured timeout time by default" do
       Thread.expects(:new).returns(@thread)
       @thread.expects(:join).with(Vagrant.config.ssh.timeout).once
       Vagrant::SSH.up?
-    end
-
-    should "allow the thread the given timeout time if given" do
-      Thread.expects(:new).returns(@thread)
-      @thread.expects(:join).with(@timeout).once
-      Vagrant::SSH.up?(@timeout)
     end
 
     should "return false if the connection is refused" do
