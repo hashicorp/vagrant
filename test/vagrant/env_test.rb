@@ -112,6 +112,15 @@ class EnvTest < Test::Unit::TestCase
       Vagrant::Env.load_config!
     end
 
+    should "not load from the home directory if the home config is nil" do
+      mock_config do |config|
+        config.vagrant.home = nil
+      end
+
+      File.expects(:exist?).with(File.join(Vagrant::Env.home_path, Vagrant::Env::ROOTFILE_NAME)).never
+      Vagrant::Env.load_config!
+    end
+
     should "not load from the root path if nil" do
       Vagrant::Env.stubs(:root_path).returns(nil)
       File.expects(:exist?).with(File.join(@root_path, Vagrant::Env::ROOTFILE_NAME)).never
@@ -158,6 +167,7 @@ class EnvTest < Test::Unit::TestCase
       Vagrant::Env.expects(:load_config!).once.in_sequence(call_seq)
       Vagrant::Env.expects(:load_home_directory!).once.in_sequence(call_seq)
       Vagrant::Env.expects(:load_box!).once.in_sequence(call_seq)
+      Vagrant::Env.expects(:load_config!).once.in_sequence(call_seq)
       Vagrant::Env.expects(:check_virtualbox!).once.in_sequence(call_seq)
       Vagrant::Env.expects(:load_vm!).once.in_sequence(call_seq)
       Vagrant::Env.load!
@@ -314,12 +324,6 @@ class EnvTest < Test::Unit::TestCase
       Vagrant::Box.expects(:find).with(Vagrant.config.vm.box).once.returns(@box)
       Vagrant::Env.load_box!
       assert @box.equal?(Vagrant::Env.box)
-    end
-
-    should "load the config if a box is loaded" do
-      Vagrant::Env.expects(:load_config!).once
-      Vagrant::Box.expects(:find).returns(@box)
-      Vagrant::Env.load_box!
     end
   end
 

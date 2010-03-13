@@ -24,6 +24,7 @@ module Vagrant
         load_config!
         load_home_directory!
         load_box!
+        load_config!
         check_virtualbox!
         load_vm!
       end
@@ -58,7 +59,7 @@ msg
         # Prepare load paths for config files
         load_paths = [File.join(PROJECT_ROOT, "config", "default.rb")]
         load_paths << File.join(box.directory, ROOTFILE_NAME) if box
-        load_paths << File.join(home_path, ROOTFILE_NAME)
+        load_paths << File.join(home_path, ROOTFILE_NAME) if Vagrant.config.vagrant.home
         load_paths << File.join(root_path, ROOTFILE_NAME) if root_path
 
         # Then clear out the old data
@@ -93,11 +94,6 @@ msg
         return unless root_path
 
         @@box = Box.find(Vagrant.config.vm.box) if Vagrant.config.vm.box
-
-        if @@box
-          logger.info("Reloading configuration to account for loaded box...")
-          load_config!
-        end
       end
 
       def load_vm!
