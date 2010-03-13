@@ -11,10 +11,10 @@ end
 # The vagrant specific files which must be loaded prior to the rest
 %w{vagrant/util vagrant/actions/base vagrant/downloaders/base vagrant/actions/runner
   vagrant/config vagrant/provisioners/base vagrant/provisioners/chef}.each do |f|
-  require File.expand_path(f, libdir)
+  puts File.expand_path(f, libdir)
 end
 
 # Glob require the rest
 Dir[File.join(libdir, "vagrant", "**", "*.rb")].each do |f|
-  require File.expand_path(f, PROJECT_ROOT)
+  puts File.expand_path(f)
 end
