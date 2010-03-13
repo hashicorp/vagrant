@@ -52,7 +52,30 @@ should _*not*_ be altered in your packaged box or project Vagrantfile.
 
 These settings will be used when logging into your Vagrant boxes. Generally, this will be configured
 in the Vagrantfile packaged with any boxes you're using as the packaged virtual machine should have been
-setup to use a specific user account for connecting.
+setup to use a specific user account for connecting. However, these settings are listed
+here for documentation purposes:
+
+`config.ssh.host` sets the SSH host. By default this is "localhost" but sometimes its useful
+to change these to things such as "127.0.0.1."
+
+`config.ssh.max_tries` specifies how many tries Vagrant attempts to connect to the
+virtualized environment upon boot.
+
+`config.ssh.private_key_path` is the path to the private key used to authenticate into
+SSH. Typically you won't need to touch this unless the box you're using is setup
+to use a custom SSH keypair.
+
+`config.ssh.timeout` specifies the timeout when trying to connect to the virtual
+environment.
+
+### Deprecated SSH Configuration
+
+These configuration keys will be completely removed in the next version of Vagrant.
+They do nothing in the current version:
+
+* `config.ssh.username` - Username and password SSH authentication has been completely
+  removed. These settings currently do nothing but log a deprecation warning.
+* `config.ssh.password`
 
 ## config.vm
 
