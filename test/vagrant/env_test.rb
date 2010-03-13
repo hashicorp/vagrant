@@ -107,6 +107,11 @@ class EnvTest < Test::Unit::TestCase
       Vagrant::Env.load_config!
     end
 
+    should "load from the home directory" do
+      File.expects(:exist?).with(File.join(Vagrant::Env.home_path, Vagrant::Env::ROOTFILE_NAME)).once
+      Vagrant::Env.load_config!
+    end
+
     should "not load from the root path if nil" do
       Vagrant::Env.stubs(:root_path).returns(nil)
       File.expects(:exist?).with(File.join(@root_path, Vagrant::Env::ROOTFILE_NAME)).never

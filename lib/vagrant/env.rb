@@ -58,14 +58,17 @@ msg
         # Prepare load paths for config files
         load_paths = [File.join(PROJECT_ROOT, "config", "default.rb")]
         load_paths << File.join(box.directory, ROOTFILE_NAME) if box
+        load_paths << File.join(home_path, ROOTFILE_NAME)
         load_paths << File.join(root_path, ROOTFILE_NAME) if root_path
 
         # Then clear out the old data
         Config.reset!
 
         load_paths.each do |path|
-          logger.info "Loading config from #{path}..."
-          load path if File.exist?(path)
+          if File.exist?(path)
+            logger.info "Loading config from #{path}..."
+            load path
+          end
         end
 
         # Execute the configurations
