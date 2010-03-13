@@ -10,8 +10,7 @@ require 'git-style-binary/command'
 
 # Get library
 libdir = File.join(File.dirname(__FILE__), '..', 'lib')
-$:.unshift(libdir) unless $:.include?(libdir)
-require 'vagrant'
+require File.expand_path('vagrant', libdir)
 
 GitStyleBinary.command do
   short_desc "resumes the vagrant environment"
