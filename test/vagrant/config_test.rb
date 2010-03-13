@@ -8,7 +8,7 @@ class ConfigTest < Test::Unit::TestCase
       assert Vagrant.config.ssh.private_key_path, 'success'
     end
   end
-  
+
   context "adding configures" do
     should "forward the method to the Top class" do
       key = mock("key")
@@ -185,6 +185,23 @@ class ConfigTest < Test::Unit::TestCase
         @top.loaded!
         assert @top.loaded?
       end
+    end
+  end
+
+  context "vagrant configuration" do
+    setup do
+      @config = Vagrant::Config::VagrantConfig.new
+    end
+
+    should "return nil if home is nil" do
+      File.expects(:expand_path).never
+      assert @config.home.nil?
+    end
+
+    should "expand the path if home is not nil" do
+      @config.home = "foo"
+      File.expects(:expand_path).with("foo").once.returns("result")
+      assert_equal "result", @config.home
     end
   end
 end

@@ -124,7 +124,7 @@ module Vagrant
       attr_accessor :home
 
       def home
-        File.expand_path(@home)
+        @home ? File.expand_path(@home) : nil
       end
     end
 
