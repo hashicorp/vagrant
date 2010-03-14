@@ -161,7 +161,7 @@ class EnvTest < Test::Unit::TestCase
   end
 
   context "initial load" do
-    test "load! should load the config and set the persisted_uid" do
+    should "load! should load the config and set the persisted_uid" do
       call_seq = sequence("call_sequence")
       Vagrant::Env.expects(:load_root_path!).once.in_sequence(call_seq)
       Vagrant::Env.expects(:load_config!).once.in_sequence(call_seq)
@@ -177,16 +177,24 @@ class EnvTest < Test::Unit::TestCase
   context "persisting the VM into a file" do
     setup do
       mock_config
+
+      @vm = mock("vm")
+      @vm.stubs(:uuid).returns("foo")
+
+      File.stubs(:open)
+      Vagrant::ActiveList.stubs(:add)
     end
 
-    test "should save it to the dotfile path" do
-      vm = mock("vm")
-      vm.stubs(:uuid).returns("foo")
-
+    should "should save it to the dotfile path" do
       filemock = mock("filemock")
-      filemock.expects(:write).with(vm.uuid)
+      filemock.expects(:write).with(@vm.uuid)
       File.expects(:open).with(Vagrant::Env.dotfile_path, 'w+').once.yields(filemock)
-      Vagrant::Env.persist_vm(vm)
+      Vagrant::Env.persist_vm(@vm)
+    end
+
+    should "add the VM to the activelist" do
+      Vagrant::ActiveList.expects(:add).with(@vm)
+      Vagrant::Env.persist_vm(@vm)
     end
   end
 

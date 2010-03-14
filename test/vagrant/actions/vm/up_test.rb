@@ -78,8 +78,8 @@ class UpActionTest < Test::Unit::TestCase
 
   context "persisting" do
     should "persist the VM with Env" do
-      @vm.stubs(:uuid)
-      Vagrant::Env.expects(:persist_vm).with(@vm).once
+      @mock_vm.stubs(:uuid)
+      Vagrant::Env.expects(:persist_vm).with(@mock_vm).once
       @action.persist
     end
   end

@@ -35,8 +35,8 @@ msg
         end
 
         def persist
-          logger.info "Persisting the VM UUID (#{@runner.vm.uuid})..."
-          Env.persist_vm(@runner.vm)
+          logger.info "Persisting the VM UUID (#{@runner.uuid})..."
+          Env.persist_vm(@runner)
         end
 
         def setup_mac_address

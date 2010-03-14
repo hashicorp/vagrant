@@ -107,9 +107,13 @@ msg
       end
 
       def persist_vm(vm)
+        # Save to the dotfile for this project
         File.open(dotfile_path, 'w+') do |f|
           f.write(vm.uuid)
         end
+
+        # Also add to the global store
+        ActiveList.add(vm)
       end
 
       def load_root_path!(path=nil)
