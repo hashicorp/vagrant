@@ -139,6 +139,7 @@ Please specify a valid action to take on the boxes, either
 
 vagrant box add name uri
 vagrant box remove name
+vagrant box list
 error
         end
 
