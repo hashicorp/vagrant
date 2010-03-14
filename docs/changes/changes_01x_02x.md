@@ -75,3 +75,13 @@ For more information on the new provisioners, read the detailed [provisioners](/
 <a name="enhanced-chef-support"> </a>
 ## Enhanced Chef Support, including Chef Server Support
 
+### Chef Solo Changes
+
+For Chef Solo, Vagrant now supports multiple cookbooks paths by setting
+`config.chef.cookbooks_path` to an array of paths.
+
+### Chef Server Support
+
+In addition to Chef Solo, Vagrant now comes with support for Chef Server built-in.
+Exact details on how to use chef server with Vagrant are explained on the
+[chef server provisioning](/docs/provisioners/chef_server.html) page.
