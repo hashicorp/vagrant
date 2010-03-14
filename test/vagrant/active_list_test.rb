@@ -56,6 +56,104 @@ class ActiveListTest < Test::Unit::TestCase
 
         assert_equal results, Vagrant::ActiveList.vms
       end
+
+      should "compact out the nil values" do
+        Vagrant::VM.stubs(:find).returns(nil)
+        results = Vagrant::ActiveList.vms
+        assert results.empty?
+      end
+    end
+
+    context "filtered list" do
+      should "return a list of UUIDs from the VMs" do
+        vms = []
+        result = []
+        5.times do |i|
+          vm = mock("vm#{i}")
+          vm.expects(:uuid).returns(i)
+          result << i
+          vms << vm
+        end
+
+        Vagrant::ActiveList.stubs(:vms).returns(vms)
+        assert_equal result, Vagrant::ActiveList.filtered_list
+      end
+    end
+
+    context "adding a VM to the list" do
+      setup do
+        @list = []
+        Vagrant::ActiveList.stubs(:list).returns(@list)
+        Vagrant::ActiveList.stubs(:save)
+
+        @uuid = "foo"
+        @vm = mock("vm")
+        @vm.stubs(:uuid).returns(@uuid)
+      end
+
+      should "add the VMs UUID to the list" do
+        Vagrant::ActiveList.add(@vm)
+        assert_equal [@uuid], @list
+      end
+
+      should "uniq the array so multiples never exist" do
+        @list << @uuid
+        assert_equal 1, @list.length
+        Vagrant::ActiveList.add(@vm)
+        assert_equal 1, @list.length
+      end
+
+      should "save after adding" do
+        save_seq = sequence('save')
+        @list.expects(:<<).in_sequence(save_seq)
+        Vagrant::ActiveList.expects(:save).in_sequence(save_seq)
+        Vagrant::ActiveList.add(@vm)
+      end
+    end
+
+    context "deleting a VM from the list" do
+      setup do
+        @list = ["bar"]
+        Vagrant::ActiveList.stubs(:list).returns(@list)
+        Vagrant::ActiveList.stubs(:save)
+
+        @uuid = "bar"
+        @vm = mock("vm")
+        @vm.stubs(:uuid).returns(@uuid)
+        @vm.stubs(:is_a?).with(Vagrant::VM).returns(true)
+      end
+
+      should "delete the uuid from the list of a VM" do
+        Vagrant::ActiveList.remove(@vm)
+        assert @list.empty?
+      end
+
+      should "delete just the string if a string is given" do
+        @list << "zoo"
+        Vagrant::ActiveList.remove("zoo")
+        assert !@list.include?("zoo")
+      end
+
+      should "save after removing" do
+        save_seq = sequence('save')
+        @list.expects(:delete).in_sequence(save_seq)
+        Vagrant::ActiveList.expects(:save).in_sequence(save_seq)
+        Vagrant::ActiveList.remove(@vm)
+      end
+    end
+
+    context "saving" do
+      setup do
+        @filtered = ["zoo"]
+        Vagrant::ActiveList.stubs(:filtered_list).returns(@filtered)
+      end
+
+      should "open the JSON path and save to it" do
+        file = mock("file")
+        File.expects(:open).with(Vagrant::ActiveList.path, "w+").yields(file)
+        file.expects(:write).with(@filtered.to_json)
+        Vagrant::ActiveList.save
+      end
     end
 
     context "path" do
