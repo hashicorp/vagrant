@@ -4,9 +4,18 @@ module Vagrant
       class Destroy < Base
         def execute!
           @runner.invoke_around_callback(:destroy) do
-            logger.info "Destroying VM and associated drives..."
-            @runner.vm.destroy(:destroy_image => true)
+            destroy_vm
+            depersist
           end
+        end
+
+        def destroy_vm
+          logger.info "Destroying VM and associated drives..."
+          @runner.vm.destroy(:destroy_image => true)
+        end
+
+        def depersist
+          Env.depersist_vm(@runner)
         end
       end
     end

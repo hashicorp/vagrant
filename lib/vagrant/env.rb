@@ -116,6 +116,14 @@ msg
         ActiveList.add(vm)
       end
 
+      def depersist_vm(vm)
+        # Delete the dotfile if it exists
+        File.delete(dotfile_path) if File.exist?(dotfile_path)
+
+        # Remove from the global store
+        ActiveList.remove(vm)
+      end
+
       def load_root_path!(path=nil)
         path = Pathname.new(File.expand_path(path || Dir.pwd))
 

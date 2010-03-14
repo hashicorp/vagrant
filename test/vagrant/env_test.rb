@@ -176,8 +176,6 @@ class EnvTest < Test::Unit::TestCase
 
   context "persisting the VM into a file" do
     setup do
-      mock_config
-
       @vm = mock("vm")
       @vm.stubs(:uuid).returns("foo")
 
@@ -195,6 +193,37 @@ class EnvTest < Test::Unit::TestCase
     should "add the VM to the activelist" do
       Vagrant::ActiveList.expects(:add).with(@vm)
       Vagrant::Env.persist_vm(@vm)
+    end
+  end
+
+  context "depersisting the VM" do
+    setup do
+      File.stubs(:exist?).returns(false)
+      File.stubs(:delete)
+
+      Vagrant::ActiveList.stubs(:remove)
+
+      @dotfile_path = "foo"
+      Vagrant::Env.stubs(:dotfile_path).returns(@dotfile_path)
+
+      @vm = mock("vm")
+    end
+
+    should "remove the dotfile if it exists" do
+      File.expects(:exist?).with(Vagrant::Env.dotfile_path).returns(true)
+      File.expects(:delete).with(Vagrant::Env.dotfile_path).once
+      Vagrant::Env.depersist_vm(@vm)
+    end
+
+    should "not remove the dotfile if it doesn't exist" do
+      File.expects(:exist?).returns(false)
+      File.expects(:delete).never
+      Vagrant::Env.depersist_vm(@vm)
+    end
+
+    should "remove from the active list" do
+      Vagrant::ActiveList.expects(:remove).with(@vm)
+      Vagrant::Env.depersist_vm(@vm)
     end
   end
 

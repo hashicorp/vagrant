@@ -2,23 +2,36 @@ require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 
 class DestroyActionTest < Test::Unit::TestCase
   setup do
-    @mock_vm, @vm, @action = mock_action(Vagrant::Actions::VM::Destroy)
+    @runner, @vm, @action = mock_action(Vagrant::Actions::VM::Destroy)
     mock_config
   end
 
   context "executing" do
-    setup do
-      @vm.stubs(:destroy)
-    end
-
     should "invoke an around callback around the destroy" do
-      @mock_vm.expects(:invoke_around_callback).with(:destroy).once
+      @runner.expects(:invoke_around_callback).with(:destroy).once
       @action.execute!
     end
 
+    should "destroy VM and clear persist" do
+      @runner.stubs(:invoke_around_callback).yields
+      clear_seq = sequence("clear")
+      @action.expects(:destroy_vm).in_sequence(clear_seq)
+      @action.expects(:depersist).in_sequence(clear_seq)
+      @action.execute!
+    end
+  end
+
+  context "destroying the VM" do
     should "destroy VM and attached images" do
       @vm.expects(:destroy).with(:destroy_image => true).once
-      @action.execute!
+      @action.destroy_vm
+    end
+  end
+
+  context "depersisting" do
+    should "call depersist_vm on Env" do
+      Vagrant::Env.expects(:depersist_vm).with(@runner).once
+      @action.depersist
     end
   end
 end
