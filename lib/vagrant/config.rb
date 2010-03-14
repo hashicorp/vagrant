@@ -104,7 +104,7 @@ module Vagrant
       end
 
       def hd_location=(val)
-        raise Exception.new "disk_storage must be set to a directory" unless File.directory?(val)
+        raise Exception.new("disk_storage must be set to a directory") unless File.directory?(val)
         @hd_location=val
       end
 
