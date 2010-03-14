@@ -38,6 +38,14 @@ class VMTest < Test::Unit::TestCase
       @mock_vm.stubs(:uuid).returns("foo")
     end
 
+    context "uuid" do
+      should "call UUID on VM object" do
+        uuid = mock("uuid")
+        @mock_vm.expects(:uuid).once.returns(uuid)
+        assert_equal uuid, @vm.uuid
+      end
+    end
+
     context "reloading" do
       should "load the same VM and set it" do
         new_vm = mock("vm")

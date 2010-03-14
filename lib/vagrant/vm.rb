@@ -19,6 +19,10 @@ module Vagrant
       @vm = vm
     end
 
+    def uuid
+      @vm.uuid
+    end
+
     def reload!
       @vm = VirtualBox::VM.find(@vm.uuid)
     end
