@@ -109,10 +109,6 @@ module Vagrant
         raise Exception.new("disk_storage must be set to a directory") unless File.directory?(val)
         @hd_location=val
       end
-
-      def base
-        File.expand_path(@base)
-      end
     end
 
     class PackageConfig < Base
