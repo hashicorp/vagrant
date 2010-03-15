@@ -3,8 +3,7 @@ module Vagrant
     module VM
       class ForwardPorts < Base
         def prepare
-          ActiveList.vms.each do |vagrant_vm|
-            vm = vagrant_vm.vm
+          VirtualBox::VM.all.each do |vm|
             next unless vm.running?
 
             vm.forwarded_ports.each do |fp|
@@ -12,7 +11,7 @@ module Vagrant
                 if fp.hostport.to_s == options[:hostport].to_s
                   raise ActionException.new(<<-msg)
 Vagrant cannot forward the specified ports on this VM, since they
-would collide with another Vagrant-managed virtual machine's forwarded
+would collide with another VirtualBox virtual machine's forwarded
 ports! The "#{name}" forwarded port (#{fp.hostport}) is already in use on the host
 machine.
 

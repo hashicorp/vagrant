@@ -15,10 +15,8 @@ class ForwardPortsActionTest < Test::Unit::TestCase
       @vm = mock("vm")
       @vm.stubs(:forwarded_ports).returns(@forwarded_ports)
       @vm.stubs(:running?).returns(true)
-      vagrant_vm = mock("vagrant_vm")
-      vagrant_vm.stubs(:vm).returns(@vm)
-      vms = [vagrant_vm]
-      Vagrant::ActiveList.stubs(:vms).returns(vms)
+      vms = [@vm]
+      VirtualBox::VM.stubs(:all).returns(vms)
 
       mock_config do |config|
         config.vm.forwarded_ports.clear
