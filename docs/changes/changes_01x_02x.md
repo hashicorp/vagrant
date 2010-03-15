@@ -93,3 +93,20 @@ Vagrant will now give an error if it detects that the configured forwarded ports
 would collide with another running virtual machine's forwarded ports. Before this
 feature, this would fail silently, causing unexpected behavior such as the
 VM successfully running but the forwarded port going to some other VM.
+
+<a name="vm-customization"> </a>
+## VM Customization
+
+You can now customize the specs and details of the virtual machine via the
+_vm customization_ configuration. This allows you to modify details such as the
+RAM or name of the VM. It is passed in the complete [VirtualBox::VM](http://mitchellh.github.com/virtualbox/VirtualBox/VM.html) object, so
+you're free to modify anything with it. Example below:
+
+{% highlight ruby %}
+Vagrant::Config.run do |config|
+  config.vm.customize do |vm|
+    vm.name = "my vagrant VM"
+    vm.memory = 512
+  end
+end
+{% endhighlight %}
