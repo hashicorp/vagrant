@@ -47,7 +47,7 @@ module Vagrant
       #
       # @return [Array]
       def actions
-        @actions ||= []
+        @actions ||= Actions::Collection.new
       end
 
       # Returns the first action instance which matches the given class.
@@ -75,9 +75,9 @@ module Vagrant
           add_action(single_action, *args)
         end
 
-        # Raising it here might be too late and hard debug where the actions are comming from (meta actions)
-        raise DuplicateActionException.new if action_klasses.uniq.size < action_klasses.size
-    
+        actions.duplicates!
+        actions.dependencies!
+
         # Call the prepare method on each once its
         # initialized, then call the execute! method
         begin
@@ -127,12 +127,6 @@ module Vagrant
         end
         results
       end
-
-      def action_klasses
-        actions.map { |a| a.class }
-      end
     end
-    
-    class DuplicateActionException < Exception; end
   end
 end

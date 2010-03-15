@@ -6,6 +6,7 @@ class ActionRunnerTest < Test::Unit::TestCase
     action.stubs(:prepare)
     action.stubs(:execute!)
     action.stubs(:cleanup)
+    stub_default_action_dependecies(action)
     action
   end
 
@@ -135,6 +136,7 @@ class ActionRunnerTest < Test::Unit::TestCase
     should "clear the actions and run a single action if given to execute!" do
       action = mock("action")
       run_action = mock("action_run")
+      stub_default_action_dependecies(run_action)
       run_class = mock("run_class")
       run_class.expects(:new).once.returns(run_action)
       @runner.actions << action
@@ -149,7 +151,6 @@ class ActionRunnerTest < Test::Unit::TestCase
 
     should "clear actions after running execute!" do
       @runner.actions << mock_fake_action
-      @runner.actions << mock_fake_action
       assert !@runner.actions.empty? # sanity
       @runner.execute!
       assert @runner.actions.empty?
@@ -158,9 +159,10 @@ class ActionRunnerTest < Test::Unit::TestCase
     should "run #prepare on all actions, then #execute!" do
       action_seq = sequence("action_seq")
       actions = []
-      5.times do |i|
+      [MockAction, MockActionOther].each_with_index do |klass, i|
         action = mock("action#{i}")
-
+        action.expects(:class).returns(klass)
+        stub_default_action_dependecies(action, klass)
         @runner.actions << action
         actions << action
       end
@@ -176,10 +178,12 @@ class ActionRunnerTest < Test::Unit::TestCase
 
     context "exceptions" do
       setup do
-        @actions = [mock_fake_action, mock_fake_action]
-        @actions.each do |a|
-          a.stubs(:rescue)
-          @runner.actions << a
+        @actions = [MockAction, MockActionOther].map do |klass|
+          action = mock_fake_action
+          action.expects(:class).returns(klass)
+          action.stubs(:rescue)
+          @runner.actions << action
+          action
         end
 
         @exception = Exception.new

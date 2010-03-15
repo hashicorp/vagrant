@@ -82,6 +82,20 @@ module Vagrant
       # all your own exceptions, otherwise it'll mask the initially raised
       # exception.
       def rescue(exception); end
+
+      # The following two methods are used for declaring action dependencies.
+      # For example, you require that the reload action be in place before 
+      # a your new FooAction you might do the following
+      #
+      # def follows; [Reload] end
+      
+      # This method is called when the runner is determining the actions that
+      # must precede a given action. You would say "This action follows [Action1, Action2]"
+      def follows; [] end
+      
+      # This method is called when the runner is determining the actions that
+      # must follow a given action. You would say "This action precedes [Action3, Action4]
+      def precedes; [] end
     end
 
     # An exception which occured within an action. This should be used instead of

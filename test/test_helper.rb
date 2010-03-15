@@ -76,6 +76,7 @@ class Test::Unit::TestCase
     vm = mock("vboxvm")
     mock_vm = mock("vm")
     action = action_klass.new(mock_vm, *args)
+    stub_default_action_dependecies(action)
 
     mock_vm.stubs(:vm).returns(vm)
     mock_vm.stubs(:vm=)
@@ -86,6 +87,11 @@ class Test::Unit::TestCase
     [mock_vm, vm, action]
   end
 
+  def stub_default_action_dependecies(mock, klass=MockAction)
+    mock.stubs(:precedes).returns([])
+    mock.stubs(:follows).returns([])
+  end
+
   # Sets up the mocks and stubs for a downloader
   def mock_downloader(downloader_klass)
     tempfile = mock("tempfile")
@@ -94,3 +100,7 @@ class Test::Unit::TestCase
     [downloader_klass.new, tempfile]
   end
 end
+
+class MockAction; end
+class MockActionOther; end
+
