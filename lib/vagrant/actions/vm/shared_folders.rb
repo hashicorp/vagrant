@@ -54,10 +54,16 @@ module Vagrant
           # Note: This method seems pretty OS-specific and could also use
           # some configuration options. For now its duct tape and "works"
           # but should be looked at in the future.
-          attempts = 0
 
+          # Determine the permission string to attach to the mount command
+          perms = []
+          perms << "uid=#{Vagrant.config.vm.shared_folder_uid}" if Vagrant.config.vm.shared_folder_uid
+          perms << "gid=#{Vagrant.config.vm.shared_folder_gid}" if Vagrant.config.vm.shared_folder_gid
+          perms = " -o #{perms.join(",")}" if !perms.empty?
+
+          attempts = 0
           while true
-            result = ssh.exec!("sudo mount -t vboxsf #{name} #{guestpath}") do |ch, type, data|
+            result = ssh.exec!("sudo mount -t vboxsf#{perms} #{name} #{guestpath}") do |ch, type, data|
               # net/ssh returns the value in ch[:result] (based on looking at source)
               ch[:result] = !!(type == :stderr && data =~ /No such device/i)
             end

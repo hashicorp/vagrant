@@ -81,6 +81,8 @@ module Vagrant
       attr_accessor :hd_location
       attr_accessor :disk_image_format
       attr_accessor :provisioner
+      attr_accessor :shared_folder_uid
+      attr_accessor :shared_folder_gid
 
       def initialize
         @forwarded_ports = {}

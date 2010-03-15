@@ -18,6 +18,8 @@ Vagrant::Config.run do |config|
   config.vm.forward_port("ssh", 22, 2222)
   config.vm.disk_image_format = 'VMDK'
   config.vm.provisioner = nil
+  config.vm.shared_folder_uid = nil
+  config.vm.shared_folder_gid = nil
 
   config.package.name = 'vagrant'
   config.package.extension = '.box'

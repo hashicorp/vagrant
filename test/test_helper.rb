@@ -23,7 +23,7 @@ class Test::Unit::TestCase
     Vagrant::Config.reset!
 
     Vagrant::Config.run do |config|
-      config.vagrant.dotfile_name = ".hobo"
+      config.vagrant.dotfile_name = ".vagrant"
 
       config.ssh.username = "foo"
       config.ssh.password = "bar"
@@ -36,9 +36,11 @@ class Test::Unit::TestCase
       config.vm.box = "foo"
       config.vm.box_ovf = "box.ovf"
       config.vm.base_mac = "42"
-      config.vm.project_directory = "/hobo"
+      config.vm.project_directory = "/vagrant"
       config.vm.disk_image_format = 'VMDK'
       config.vm.forward_port("ssh", 22, 2222)
+      config.vm.shared_folder_uid = nil
+      config.vm.shared_folder_gid = nil
 
       config.package.name = 'vagrant'
       config.package.extension = '.box'
@@ -48,9 +50,9 @@ class Test::Unit::TestCase
       config.chef.validation_key_path = "validation.pem"
       config.chef.client_key_path = "/zoo/foo/bar.pem"
       config.chef.cookbooks_path = "cookbooks"
-      config.chef.provisioning_path = "/tmp/hobo-chef"
+      config.chef.provisioning_path = "/tmp/vagrant-chef"
       config.chef.json = {
-        :recipes => ["hobo_main"]
+        :recipes => ["vagrant_main"]
       }
 
       config.vagrant.home = '~/.home'
