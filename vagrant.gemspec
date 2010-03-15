@@ -5,14 +5,14 @@
 
 Gem::Specification.new do |s|
   s.name = %q{vagrant}
-  s.version = "0.1.4"
+  s.version = "0.2.0.pre"
 
-  s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
+  s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Mitchell Hashimoto", "John Bender"]
-  s.date = %q{2010-03-11}
+  s.date = %q{2010-03-15}
   s.description = %q{Vagrant is a tool for building and distributing virtualized development environments.}
   s.email = ["mitchell.hashimoto@gmail.com", "john.m.bender@gmail.com"]
-  s.executables = ["vagrant", "vagrant-box", "vagrant-down", "vagrant-halt", "vagrant-init", "vagrant-package", "vagrant-reload", "vagrant-resume", "vagrant-ssh", "vagrant-suspend", "vagrant-up"]
+  s.executables = ["vagrant", "vagrant-box", "vagrant-down", "vagrant-halt", "vagrant-init", "vagrant-package", "vagrant-reload", "vagrant-resume", "vagrant-ssh", "vagrant-status", "vagrant-suspend", "vagrant-up"]
   s.extra_rdoc_files = [
     "LICENSE",
      "README.md"
@@ -34,17 +34,23 @@ Gem::Specification.new do |s|
      "bin/vagrant-reload",
      "bin/vagrant-resume",
      "bin/vagrant-ssh",
+     "bin/vagrant-status",
      "bin/vagrant-suspend",
      "bin/vagrant-up",
      "config/default.rb",
+     "keys/README.md",
+     "keys/vagrant",
+     "keys/vagrant.pub",
      "lib/vagrant.rb",
      "lib/vagrant/actions/base.rb",
      "lib/vagrant/actions/box/add.rb",
      "lib/vagrant/actions/box/destroy.rb",
      "lib/vagrant/actions/box/download.rb",
      "lib/vagrant/actions/box/unpackage.rb",
+     "lib/vagrant/actions/collection.rb",
      "lib/vagrant/actions/runner.rb",
      "lib/vagrant/actions/vm/boot.rb",
+     "lib/vagrant/actions/vm/customize.rb",
      "lib/vagrant/actions/vm/destroy.rb",
      "lib/vagrant/actions/vm/down.rb",
      "lib/vagrant/actions/vm/export.rb",
@@ -60,6 +66,7 @@ Gem::Specification.new do |s|
      "lib/vagrant/actions/vm/start.rb",
      "lib/vagrant/actions/vm/suspend.rb",
      "lib/vagrant/actions/vm/up.rb",
+     "lib/vagrant/active_list.rb",
      "lib/vagrant/box.rb",
      "lib/vagrant/busy.rb",
      "lib/vagrant/commands.rb",
@@ -68,10 +75,14 @@ Gem::Specification.new do |s|
      "lib/vagrant/downloaders/file.rb",
      "lib/vagrant/downloaders/http.rb",
      "lib/vagrant/env.rb",
+     "lib/vagrant/provisioners/base.rb",
+     "lib/vagrant/provisioners/chef.rb",
+     "lib/vagrant/provisioners/chef_server.rb",
+     "lib/vagrant/provisioners/chef_solo.rb",
      "lib/vagrant/ssh.rb",
+     "lib/vagrant/stacked_proc_runner.rb",
      "lib/vagrant/util.rb",
      "lib/vagrant/vm.rb",
-     "script/vagrant-ssh-expect.sh",
      "templates/Vagrantfile",
      "test/test_helper.rb",
      "test/vagrant/actions/base_test.rb",
@@ -79,8 +90,10 @@ Gem::Specification.new do |s|
      "test/vagrant/actions/box/destroy_test.rb",
      "test/vagrant/actions/box/download_test.rb",
      "test/vagrant/actions/box/unpackage_test.rb",
+     "test/vagrant/actions/collection_test.rb",
      "test/vagrant/actions/runner_test.rb",
      "test/vagrant/actions/vm/boot_test.rb",
+     "test/vagrant/actions/vm/customize_test.rb",
      "test/vagrant/actions/vm/destroy_test.rb",
      "test/vagrant/actions/vm/down_test.rb",
      "test/vagrant/actions/vm/export_test.rb",
@@ -96,6 +109,7 @@ Gem::Specification.new do |s|
      "test/vagrant/actions/vm/start_test.rb",
      "test/vagrant/actions/vm/suspend_test.rb",
      "test/vagrant/actions/vm/up_test.rb",
+     "test/vagrant/active_list_test.rb",
      "test/vagrant/box_test.rb",
      "test/vagrant/busy_test.rb",
      "test/vagrant/commands_test.rb",
@@ -104,7 +118,12 @@ Gem::Specification.new do |s|
      "test/vagrant/downloaders/file_test.rb",
      "test/vagrant/downloaders/http_test.rb",
      "test/vagrant/env_test.rb",
+     "test/vagrant/provisioners/base_test.rb",
+     "test/vagrant/provisioners/chef_server_test.rb",
+     "test/vagrant/provisioners/chef_solo_test.rb",
+     "test/vagrant/provisioners/chef_test.rb",
      "test/vagrant/ssh_test.rb",
+     "test/vagrant/stacked_proc_runner_test.rb",
      "test/vagrant/util_test.rb",
      "test/vagrant/vm_test.rb",
      "vagrant.gemspec"
@@ -112,7 +131,7 @@ Gem::Specification.new do |s|
   s.homepage = %q{http://github.com/mitchellh/vagrant}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.5}
+  s.rubygems_version = %q{1.3.6}
   s.summary = %q{Vagrant is a tool for building and distributing virtualized development environments.}
   s.test_files = [
     "test/test_helper.rb",
@@ -121,8 +140,10 @@ Gem::Specification.new do |s|
      "test/vagrant/actions/box/destroy_test.rb",
      "test/vagrant/actions/box/download_test.rb",
      "test/vagrant/actions/box/unpackage_test.rb",
+     "test/vagrant/actions/collection_test.rb",
      "test/vagrant/actions/runner_test.rb",
      "test/vagrant/actions/vm/boot_test.rb",
+     "test/vagrant/actions/vm/customize_test.rb",
      "test/vagrant/actions/vm/destroy_test.rb",
      "test/vagrant/actions/vm/down_test.rb",
      "test/vagrant/actions/vm/export_test.rb",
@@ -138,6 +159,7 @@ Gem::Specification.new do |s|
      "test/vagrant/actions/vm/start_test.rb",
      "test/vagrant/actions/vm/suspend_test.rb",
      "test/vagrant/actions/vm/up_test.rb",
+     "test/vagrant/active_list_test.rb",
      "test/vagrant/box_test.rb",
      "test/vagrant/busy_test.rb",
      "test/vagrant/commands_test.rb",
@@ -146,7 +168,12 @@ Gem::Specification.new do |s|
      "test/vagrant/downloaders/file_test.rb",
      "test/vagrant/downloaders/http_test.rb",
      "test/vagrant/env_test.rb",
+     "test/vagrant/provisioners/base_test.rb",
+     "test/vagrant/provisioners/chef_server_test.rb",
+     "test/vagrant/provisioners/chef_solo_test.rb",
+     "test/vagrant/provisioners/chef_test.rb",
      "test/vagrant/ssh_test.rb",
+     "test/vagrant/stacked_proc_runner_test.rb",
      "test/vagrant/util_test.rb",
      "test/vagrant/vm_test.rb"
   ]
