@@ -41,7 +41,8 @@ their boxes for Vagrant by using the Vagrant insecure keys.
 Vagrant now includes two [insecure keys](http://github.com/mitchellh/vagrant/tree/master/keys/) which can be used
 to authenticate to public boxes. Public boxes should allow SSH access to the `vagrant`
 user via the public insecure key, and Vagrant by default will use the private
-insecure key to attempt to access a virtual machine.
+insecure key to attempt to access a virtual machine. For more information on
+converting boxes to use the new SSH authentication, read the [converting box to key-based SSH](/docs/converting_password_to_key_ssh.html) page.
 
 For users who require more security, they are welcome to use their own keypair
 with their box. Vagrant has the `config.ssh.private_key_path` configuration for
