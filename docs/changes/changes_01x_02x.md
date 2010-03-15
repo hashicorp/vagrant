@@ -85,3 +85,11 @@ For Chef Solo, Vagrant now supports multiple cookbooks paths by setting
 In addition to Chef Solo, Vagrant now comes with support for Chef Server built-in.
 Exact details on how to use chef server with Vagrant are explained on the
 [chef server provisioning](/docs/provisioners/chef_server.html) page.
+
+<a name="port-collision-detection"> </a>
+## Port Collision Detection
+
+Vagrant will now give an error if it detects that the configured forwarded ports
+would collide with another running virtual machine's forwarded ports. Before this
+feature, this would fail silently, causing unexpected behavior such as the
+VM successfully running but the forwarded port going to some other VM.
