@@ -14,7 +14,7 @@ you work because its wrong, per se, but move web development forward
 by providing isolated environments which are easy to build, portable,
 and lightweight. For more specific reasons, check out the "[Why Vagrant?](/docs/getting-started/why.html)" page.
 
-### Could you perhaps turn convert a Vagrant project into an EC2 instance for deployment?
+### Could you perhaps convert a Vagrant project into an EC2 instance for deployment?
 
 That's where Chef comes in. Vagrant uses [Chef](http://www.opscode.com/chef)
 for provisioning VMs. It's basically software configuration management (same category
