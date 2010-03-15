@@ -4,13 +4,14 @@ module Vagrant
   end
 
   class Config
+    extend StackedProcRunner
+
     @@config = nil
-    @@config_runners = []
 
     class << self
       def reset!
         @@config = nil
-        config_runners.clear
+        proc_stack.clear
       end
 
       def configures(key, klass)
@@ -21,19 +22,12 @@ module Vagrant
         @@config ||= Config::Top.new
       end
 
-      def config_runners
-        @@config_runners ||= []
-      end
-
       def run(&block)
-        config_runners << block
+        push_proc(&block)
       end
 
       def execute!
-        config_runners.each do |block|
-          block.call(config)
-        end
-
+        run_procs!(config)
         config.loaded!
       end
     end

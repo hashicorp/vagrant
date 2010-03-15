@@ -35,10 +35,10 @@ class ConfigTest < Test::Unit::TestCase
       assert !config.equal?(Vagrant::Config.config)
     end
 
-    should "empty the runners" do
-      assert !Vagrant::Config.config_runners.empty?
+    should "empty the proc stack" do
+      assert !Vagrant::Config.proc_stack.empty?
       Vagrant::Config.reset!
-      assert Vagrant::Config.config_runners.empty?
+      assert Vagrant::Config.proc_stack.empty?
     end
   end
 
@@ -54,29 +54,18 @@ class ConfigTest < Test::Unit::TestCase
   end
 
   context "initializing" do
-    teardown do
+    setup do
       Vagrant::Config.reset!
     end
 
-    should "not run the blocks right away" do
-      obj = mock("obj")
-      obj.expects(:foo).never
-      Vagrant::Config.run { |config| obj.foo }
-      Vagrant::Config.run { |config| obj.foo }
-      Vagrant::Config.run { |config| obj.foo }
+    should "add the given block to the proc stack" do
+      proc = Proc.new {}
+      Vagrant::Config.run(&proc)
+      assert_equal [proc], Vagrant::Config.proc_stack
     end
 
-    should "run the blocks when execute! is ran" do
-      obj = mock("obj")
-      obj.expects(:foo).times(2)
-      Vagrant::Config.run { |config| obj.foo }
-      Vagrant::Config.run { |config| obj.foo }
-      Vagrant::Config.execute!
-    end
-
-    should "run the blocks with the same config object" do
-      Vagrant::Config.run { |config| assert config }
-      Vagrant::Config.run { |config| assert config }
+    should "run the proc stack with the config when execute is called" do
+      Vagrant::Config.expects(:run_procs!).with(Vagrant::Config.config).once
       Vagrant::Config.execute!
     end
 
