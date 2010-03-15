@@ -8,8 +8,8 @@ class SshTest < Test::Unit::TestCase
   context "connecting to SSH" do
     test "should call exec with defaults when no options are supplied" do
       ssh = Vagrant.config.ssh
-      ssh_exec_expect(Vagrant::SSH.port, 
-                      Vagrant.config.ssh.private_key_path, 
+      ssh_exec_expect(Vagrant::SSH.port,
+                      Vagrant.config.ssh.private_key_path,
                       Vagrant.config.ssh.username,
                       Vagrant.config.ssh.host)
       Vagrant::SSH.connect
@@ -103,6 +103,12 @@ class SshTest < Test::Unit::TestCase
     should "specifity the timeout as an option to execute" do
       Vagrant::SSH.expects(:execute).with(:timeout => Vagrant.config.ssh.timeout).yields(true)
       assert Vagrant::SSH.up?
+    end
+
+    should "error and exit if a Net::SSH::AuthenticationFailed is raised" do
+      Vagrant::SSH.expects(:execute).raises(Net::SSH::AuthenticationFailed)
+      Vagrant::SSH.expects(:error_and_exit).once
+      Vagrant::SSH.up?
     end
   end
 
