@@ -66,6 +66,8 @@ module Vagrant
     end
 
     class VMConfig < Base
+      include StackedProcRunner
+
       attr_accessor :box
       attr_accessor :box_ovf
       attr_accessor :base_mac
@@ -110,6 +112,10 @@ module Vagrant
 
       def shared_folder_gid
         @shared_folder_gid || Vagrant.config.ssh.username
+      end
+
+      def customize(&block)
+        push_proc(&block)
       end
     end
 

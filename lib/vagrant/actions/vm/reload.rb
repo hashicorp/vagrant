@@ -3,7 +3,7 @@ module Vagrant
     module VM
       class Reload < Base
         def prepare
-          steps = [ForwardPorts, SharedFolders, Boot]
+          steps = [Customize, ForwardPorts, SharedFolders, Boot]
           steps.unshift(Halt) if @runner.vm.running?
           steps << Provision if !Vagrant.config.vm.provisioner.nil?
 

@@ -204,24 +204,36 @@ class ConfigTest < Test::Unit::TestCase
       end
     end
 
-    should "return the shared folder UID if set" do
-      @config.shared_folder_uid = "foo"
-      assert_equal "foo", @config.shared_folder_uid
+    should "include the stacked proc runner module" do
+      assert @config.class.included_modules.include?(Vagrant::StackedProcRunner)
     end
 
-    should "return the SSH username if UID not set" do
-      @config.shared_folder_uid = nil
-      assert_equal @username, @config.shared_folder_uid
+    should "add the customize proc to the proc stack" do
+      proc = Proc.new {}
+      @config.customize(&proc)
+      assert_equal [proc], @config.proc_stack
     end
 
-    should "return the shared folder GID if set" do
-      @config.shared_folder_gid = "foo"
-      assert_equal "foo", @config.shared_folder_gid
-    end
+    context "uid/gid" do
+      should "return the shared folder UID if set" do
+        @config.shared_folder_uid = "foo"
+        assert_equal "foo", @config.shared_folder_uid
+      end
 
-    should "return the SSH username if GID not set" do
-      @config.shared_folder_gid = nil
-      assert_equal @username, @config.shared_folder_gid
+      should "return the SSH username if UID not set" do
+        @config.shared_folder_uid = nil
+        assert_equal @username, @config.shared_folder_uid
+      end
+
+      should "return the shared folder GID if set" do
+        @config.shared_folder_gid = "foo"
+        assert_equal "foo", @config.shared_folder_gid
+      end
+
+      should "return the SSH username if GID not set" do
+        @config.shared_folder_gid = nil
+        assert_equal @username, @config.shared_folder_gid
+      end
     end
   end
 end

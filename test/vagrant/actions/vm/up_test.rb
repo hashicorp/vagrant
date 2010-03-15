@@ -10,7 +10,7 @@ class UpActionTest < Test::Unit::TestCase
     setup do
       File.stubs(:file?).returns(true)
       File.stubs(:exist?).returns(true)
-      @default_order = [Vagrant::Actions::VM::Import, Vagrant::Actions::VM::ForwardPorts, Vagrant::Actions::VM::SharedFolders, Vagrant::Actions::VM::Boot]
+      @default_order = [Vagrant::Actions::VM::Import, Vagrant::Actions::VM::Customize, Vagrant::Actions::VM::ForwardPorts, Vagrant::Actions::VM::SharedFolders, Vagrant::Actions::VM::Boot]
     end
 
     def setup_action_expectations
