@@ -106,6 +106,17 @@ and updating operating system configuration to accommodate changing mac addresse
 force a predetermined mac address at vm creation. This setting is also only useful for those creating boxes
 for distribution.
 
+`config.vm.customize` is a method which takes a block or lambda and allows you to customize the virtual machine
+which Vagrant creates. The block is passed a [VirtualBox::VM](http://mitchellh.github.com/virtualbox/VirtualBox/VM.html)
+object as its only parameter, and is automatically saved afterwards. Example:
+
+{% highlight ruby %}
+config.vm.customize do |vm|
+  vm.memory = 512
+  vm.name = "My Project VM"
+end
+{% endhighlight %}
+
 `config.vm.disk_image_format` alerts Vagrant to the prefered virtual disk image file format for use when creating new virtual machines. VirtualBox
 supports many disk formats such as .vdi (VirtualBox's own format), .vmdk (VMWare's disk image format), and .vhd (Microsoft's format).
 
