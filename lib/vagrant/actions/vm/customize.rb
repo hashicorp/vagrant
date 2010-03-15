@@ -3,6 +3,8 @@ module Vagrant
     module VM
       class Customize < Base
         def execute!
+          logger.info "Running any VM customizations..."
+
           # Run the customization procs over the VM
           Vagrant.config.vm.run_procs!(@runner.vm)
 
