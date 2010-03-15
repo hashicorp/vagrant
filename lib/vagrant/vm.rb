@@ -20,7 +20,7 @@ module Vagrant
     end
 
     def uuid
-      @vm.uuid
+      vm ? vm.uuid : nil
     end
 
     def reload!

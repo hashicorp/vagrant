@@ -4,7 +4,7 @@ module Vagrant
       class ForwardPorts < Base
         def prepare
           VirtualBox::VM.all.each do |vm|
-            next unless vm.running?
+            next if !vm.running? || vm.uuid == @runner.uuid
 
             vm.forwarded_ports.each do |fp|
               Vagrant.config.vm.forwarded_ports.each do |name, options|

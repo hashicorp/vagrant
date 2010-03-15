@@ -44,6 +44,11 @@ class VMTest < Test::Unit::TestCase
         @mock_vm.expects(:uuid).once.returns(uuid)
         assert_equal uuid, @vm.uuid
       end
+
+      should "return nil if vm is nil" do
+        @vm.expects(:vm).returns(nil)
+        assert @vm.uuid.nil?
+      end
     end
 
     context "reloading" do

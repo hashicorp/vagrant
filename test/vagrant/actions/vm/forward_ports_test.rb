@@ -15,6 +15,8 @@ class ForwardPortsActionTest < Test::Unit::TestCase
       @vm = mock("vm")
       @vm.stubs(:forwarded_ports).returns(@forwarded_ports)
       @vm.stubs(:running?).returns(true)
+      @vm.stubs(:uuid).returns("foo")
+      @mock_vm.stubs(:uuid).returns("bar")
       vms = [@vm]
       VirtualBox::VM.stubs(:all).returns(vms)
 
@@ -26,6 +28,12 @@ class ForwardPortsActionTest < Test::Unit::TestCase
 
     should "ignore vms which aren't running" do
       @vm.expects(:running?).returns(false)
+      @vm.expects(:forwarded_ports).never
+      @action.prepare
+    end
+
+    should "ignore vms which are equivalent to ours" do
+      @mock_vm.expects(:uuid).returns(@vm.uuid)
       @vm.expects(:forwarded_ports).never
       @action.prepare
     end
