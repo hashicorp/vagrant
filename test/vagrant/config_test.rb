@@ -193,4 +193,35 @@ class ConfigTest < Test::Unit::TestCase
       assert_equal "result", @config.home
     end
   end
+
+  context "VM configuration" do
+    setup do
+      @config = Vagrant::Config::VMConfig.new
+      @username = "bob"
+
+      mock_config do |config|
+        config.ssh.username = @username
+      end
+    end
+
+    should "return the shared folder UID if set" do
+      @config.shared_folder_uid = "foo"
+      assert_equal "foo", @config.shared_folder_uid
+    end
+
+    should "return the SSH username if UID not set" do
+      @config.shared_folder_uid = nil
+      assert_equal @username, @config.shared_folder_uid
+    end
+
+    should "return the shared folder GID if set" do
+      @config.shared_folder_gid = "foo"
+      assert_equal "foo", @config.shared_folder_gid
+    end
+
+    should "return the SSH username if GID not set" do
+      @config.shared_folder_gid = nil
+      assert_equal @username, @config.shared_folder_gid
+    end
+  end
 end

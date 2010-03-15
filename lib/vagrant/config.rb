@@ -103,6 +103,14 @@ module Vagrant
         raise Exception.new("disk_storage must be set to a directory") unless File.directory?(val)
         @hd_location=val
       end
+
+      def shared_folder_uid
+        @shared_folder_uid || Vagrant.config.ssh.username
+      end
+
+      def shared_folder_gid
+        @shared_folder_gid || Vagrant.config.ssh.username
+      end
     end
 
     class PackageConfig < Base

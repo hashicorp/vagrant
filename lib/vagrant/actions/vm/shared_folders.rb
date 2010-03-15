@@ -57,8 +57,8 @@ module Vagrant
 
           # Determine the permission string to attach to the mount command
           perms = []
-          perms << "uid=#{Vagrant.config.vm.shared_folder_uid}" if Vagrant.config.vm.shared_folder_uid
-          perms << "gid=#{Vagrant.config.vm.shared_folder_gid}" if Vagrant.config.vm.shared_folder_gid
+          perms << "uid=#{Vagrant.config.vm.shared_folder_uid}"
+          perms << "gid=#{Vagrant.config.vm.shared_folder_gid}"
           perms = " -o #{perms.join(",")}" if !perms.empty?
 
           attempts = 0

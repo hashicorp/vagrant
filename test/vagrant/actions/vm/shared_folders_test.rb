@@ -119,7 +119,7 @@ class SharedFoldersActionTest < Test::Unit::TestCase
     end
 
     should "execute the proper mount command" do
-      @ssh.expects(:exec!).with("sudo mount -t vboxsf #{@name} #{@guestpath}").returns(@success_return)
+      @ssh.expects(:exec!).with("sudo mount -t vboxsf -o uid=#{Vagrant.config.ssh.username},gid=#{Vagrant.config.ssh.username} #{@name} #{@guestpath}").returns(@success_return)
       mount_folder
     end
 
@@ -155,27 +155,7 @@ class SharedFoldersActionTest < Test::Unit::TestCase
       }
     end
 
-    should "add uid to mount if set" do
-      uid = "foo"
-      mock_config do |config|
-        config.vm.shared_folder_uid = uid
-      end
-
-      @ssh.expects(:exec!).with("sudo mount -t vboxsf -o uid=#{uid} #{@name} #{@guestpath}").returns(@success_return)
-      mount_folder
-    end
-
-    should "add gid to mount if set" do
-      gid = "foo"
-      mock_config do |config|
-        config.vm.shared_folder_gid = gid
-      end
-
-      @ssh.expects(:exec!).with("sudo mount -t vboxsf -o gid=#{gid} #{@name} #{@guestpath}").returns(@success_return)
-      mount_folder
-    end
-
-    should "add uid AND gid to mount if set" do
+    should "add uid AND gid to mount" do
       uid = "foo"
       gid = "bar"
       mock_config do |config|
