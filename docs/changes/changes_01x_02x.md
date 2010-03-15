@@ -4,8 +4,7 @@ title: Changes - 0.1.x to 0.2.x
 ---
 # Changes from Version 0.1.x to 0.2.x
 
-`0.1.x` was an experimental version for Vagrant. It was the first public
-release of Vagrant and it allowed us to get feedback from users of where
+Vagrant `0.1.x` was the first public release of Vagrant and it allowed us to get feedback from users of where
 they'd like to see it head. It also allowed us to focus on stability and
 cross-platform support, since initially it was only known to run on Mac OS X 10.6,
 but Vagrant `0.1.4` now runs on multiple platforms.
