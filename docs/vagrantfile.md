@@ -17,12 +17,14 @@ value overwrites the older value. Vagrant loads Vagrantfiles in the following or
 
 1. Vagrantfile from the gem directory is loaded. This contains all the defaults
   and should never be edited.
-2. Vagrantfile from the box directory is loaded if a box is specified.
-3. Vagrantfile from the project directory is loaded. This is typically the
+1. Vagrantfile from the box directory is loaded if a box is specified.
+1. Vagrantfile from the home directory (defaults to `~/.vagrant/`) is loaded if it exists.
+1. Vagrantfile from the project directory is loaded. This is typically the
   file that users will be touching.
 
 Therefore, the Vagrantfile in the project directory overwrites any conflicting
-configuration from a box which overwrites any conflicting configuration from
+configuration from the home directory which overwrites any conflicting configuration
+from a box which overwrites any conflicting configuration from
 the default file.
 
 ## Vagrantfile Options
@@ -50,7 +52,30 @@ should _*not*_ be altered in your packaged box or project Vagrantfile.
 
 These settings will be used when logging into your Vagrant boxes. Generally, this will be configured
 in the Vagrantfile packaged with any boxes you're using as the packaged virtual machine should have been
-setup to use a specific user account for connecting.
+setup to use a specific user account for connecting. However, these settings are listed
+here for documentation purposes:
+
+`config.ssh.host` sets the SSH host. By default this is "localhost" but sometimes its useful
+to change these to things such as "127.0.0.1."
+
+`config.ssh.max_tries` specifies how many tries Vagrant attempts to connect to the
+virtualized environment upon boot.
+
+`config.ssh.private_key_path` is the path to the private key used to authenticate into
+SSH. Typically you won't need to touch this unless the box you're using is setup
+to use a custom SSH keypair.
+
+`config.ssh.timeout` specifies the timeout when trying to connect to the virtual
+environment.
+
+### Deprecated SSH Configuration
+
+These configuration keys will be completely removed in the next version of Vagrant.
+They do nothing in the current version:
+
+* `config.ssh.username` - Username and password SSH authentication has been completely
+  removed. These settings currently do nothing but log a deprecation warning.
+* `config.ssh.password`
 
 ## config.vm
 
@@ -81,14 +106,19 @@ and updating operating system configuration to accommodate changing mac addresse
 force a predetermined mac address at vm creation. This setting is also only useful for those creating boxes
 for distribution.
 
-`config.vm.project_directory` tells vagrant where to mount the current project directory as a shared folder
-withing the new virtual machine's file system.
+`config.vm.customize` is a method which takes a block or lambda and allows you to customize the virtual machine
+which Vagrant creates. The block is passed a [VirtualBox::VM](http://mitchellh.github.com/virtualbox/VirtualBox/VM.html)
+object as its only parameter, and is automatically saved afterwards. Example:
 
 {% highlight ruby %}
-config.vm.project_directory = "/vagrant"
+config.vm.customize do |vm|
+  vm.memory = 512
+  vm.name = "My Project VM"
+end
 {% endhighlight %}
 
-The above will use the vagrant folder under root as the mount point for the shared project directory.
+`config.vm.disk_image_format` alerts Vagrant to the prefered virtual disk image file format for use when creating new virtual machines. VirtualBox
+supports many disk formats such as .vdi (VirtualBox's own format), .vmdk (VMWare's disk image format), and .vhd (Microsoft's format).
 
 `config.vm.forward_port` is a function that will add a set of ports to forward from the host machine to the virtual machine
 created with vagrant. The default Vagrantfile that is packaged with Vagrant itself forwards port 2222 on the host machine to
@@ -103,9 +133,37 @@ The first parameter of the `forward_port` method is simply a key used internally
 forwarded port. It doesn't affect the actual ports forwarded at all. The above example could've
 changed `web` to `fluffy bananas` and it still would've worked fine.
 
-`config.vm.disk_image_format` alerts Vagrant to the prefered virtual disk image file format for use when creating new virtual machines. VirtualBox
-supports many disk formats such as .vdi (VirtualBox's own format), .vmdk (VMWare's disk image format), and .vhd (Microsoft's format).
+`config.vm.project_directory` tells Vagrant where to mount the current project directory as a shared folder
+withing the new virtual machine's file system.
 
+{% highlight ruby %}
+config.vm.project_directory = "/vagrant"
+{% endhighlight %}
+
+The above will use the vagrant folder under root as the mount point for the shared project directory.
+
+`config.vm.provisioner` tells Vagrant which provisioner to use to provision the system. By
+default, this is set to `nil` which disables provisioning. It can also be set to a symbol
+to use a built-in provisioner, or a class to use a custom provisioner. Example:
+
+{% highlight ruby %}
+# Use a built-in provisioner
+config.vm.provisioner = :chef_solo
+
+# Use a custom provisioner
+config.vm.provisioner = MyCustomProvisioner
+{% endhighlight %}
+
+`config.vm.share_folder` is a function that will share a folder on the host machine with the
+guest machine, allowing the guest machine to read and write to a folder on the host machine.
+This function takes three parameters, in the same way as `config.vm.forward_port`, with the
+first parameter being a key used internally to reference the folder, the second parameter being
+the path on the guest machine, and the third parameter being the path to the folder to share
+on the host machine.
+
+{% highlight ruby %}
+config.vm.share_folder("my-folder", "/folder", "/path/to/real/folder")
+{% endhighlight %}
 
 ## config.package
 
@@ -114,18 +172,44 @@ when [packaging](/docs/getting-started/packaging.html) a vm for distribution.
 
 ## config.chef
 
-Vagrant leverages Chef's ability to [provision](/docs/provisioning.html) environments quickly and easily through this set of configuration options.
+Vagrant can use [chef solo](/docs/provisioners/chef_solo.html) or [chef server](/docs/provisioners/chef_server.html)
+to provision virtual environments. These are built-in provisioners which include their own configuration.
 
-`config.chef.enabled` is set to false in the default Vagrantfile and must be explicity turned on in a packaged or project specific Vagrantfile.
+### Chef Solo Configuration
+
+The settings below only have an effect if chef solo is used as the provisioner. Chef solo
+provisioning can be enabled by setting `provisioner` to `:chef_solo`.
 
 `config.chef.cooksbooks_path` represents the cookbooks path on your host machine located relative to your project directory. Vagrant will expand whatever path you
-place in this configuration option and use those cookbooks during provisioning
+place in this configuration option and use those cookbooks during provisioning. This value can also be an array of paths, which will cause
+chef to look through all specified directories for the necessary cookbooks.
 
-`config.chef.provisioning_path` is the folder on the virtual machine where Vagrant will copy a small ruby script to include the cookbooks and a json chef configuration file. A chef solo command will be issued from within this directory to put chef to work.
+### Chef Server Configuration
 
-{% highlight bash %}
-$ sudo chef solo -c solo.rb -j dna.json
+The settings below only have an effect if chef server is used as the provisioner. Chef
+server provisioning can be enabled by setting `provisioner` to `:chef_server`.
+
+`config.chef.chef_server_url` represents the URL (and possibly port) to the chef server. An example is shown below:
+
+{% highlight ruby %}
+config.chef.chef_server_url = "http://mychefserver.com:4000"
 {% endhighlight %}
+
+`config.chef.validation_key_path` denotes the path to the validation key used to register a new node with
+the chef server. This path is expanded relative to the project directory.
+
+`config.chef.validation_client_name` is used to specify the name of the validation client. By default this is
+set to `chef-validator` which is the default for chef server installations. Most of the time this won'
+be changed.
+
+`config.chef.client_key_path` is used to specify the path to store the client key once the
+registration is complete. This defaults to `/etc/chef/client.pem`. This setting typically
+doesn't need to be changed.
+
+### Shared Chef Configuration
+
+The configuration keys below are shared among chef solo and chef server, and affect
+both.
 
 `config.chef.json` is the place for any extra json that might be required for the chef solo command to properly provision your virtual machine. By default it includes
 
@@ -136,10 +220,7 @@ config.chef.json = {
 }
 {% endhighlight %}
 
-If you don't want to create a vagrant_main recipe in your cookbooks directory you can override the recipes by placing `config.chef.json.merge({:recipes => 'you_want'})`
-in either a packaged or project directory Vagrantfile.
-
-This configuration value can also be used to set attributes for the cookbooks used in provisioning.
+This configuration value can be used to set attributes for the cookbooks used in provisioning.
 For example, to set the MySQL root password used in the default [opscode mysql cookbook](http://github.com/opscode/cookbooks/tree/master/mysql/), it can be
 configured in the Vagrantfile like so:
 
@@ -149,4 +230,23 @@ config.chef.json.merge!({
     :server_root_password => "my_root_password"
   }
 })
+{% endhighlight %}
+
+`config.chef.provisioning_path` is the folder on the virtual machine where Vagrant will copy a small ruby script to include the cookbooks and a json chef configuration file. A chef solo command will be issued from within this directory to put chef to work. This setting usually doesn't have to be changed.
+
+{% highlight bash %}
+$ sudo chef solo -c solo.rb -j dna.json
+{% endhighlight %}
+
+`config.chef.run_list` is an array of recipes and/or roles to run on the node. This can be used to run
+different recipes on the node. There are also helper methods `add_recipe` and `add_role` which can
+be used as well.
+
+{% highlight ruby %}
+# Accessing the run list directly
+config.chef.run_list = ["recipe[foo]", "recipe[bar]"]
+
+# Using the helpers
+config.chef.add_recipe("foo")
+config.chef.add_role("bar")
 {% endhighlight %}

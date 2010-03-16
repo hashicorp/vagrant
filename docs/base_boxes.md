@@ -21,8 +21,7 @@ are ones which contain the bare bones necessary for Vagrant to function. The bas
 requirements of a base box are as follows:
 
 * VirtualBox Guest Additions for shared folders, port forwarding, etc.
-* SSH with basic username/password SSH authentication
-* Password-less `sudo` for the main account
+* SSH with key-based auth support for the vagrant user
 * Ruby & RubyGems to install Chef
 * Chef for provisioning support
 
@@ -30,11 +29,12 @@ The above are absolutely _required_ of a base box in order to work properly with
 The versions of those requirements however are up to you, as long as they are working properly.
 
 <div class="info">
-  <h3>Isn't a password-less <code>sudo</code> a security risk? What about public/private keys?</h3>
+  <h3>What about password-based SSH? Why public/private keys?</h3>
   <p>
-    Since Vagrant targets development environments, security is not a major concern, and we
-    currently value simplicity over it. However, Vagrant is still young, and in the future we may
-    support keys, password <code>sudo</code>, etc. Right now though, these are not possible.
+    While Vagrant was initially released with password-based SSH support, this proved
+    to be difficult to support across multiple platforms. Instead, we switched to
+    supporting only key-based authentication which has made cross platform support
+    much easier.
   </p>
 </div>
 
@@ -182,6 +182,22 @@ management tools, so the details won't be gone into here. If promoted, make sure
 SSH package is set to use **basic username/password authentication** and write down the
 username/password for later.
 
+### Configure SSH Authentication with a Public Key
+
+Since Vagrant only supports key-based authentication for SSH, you must setup the SSH
+user to use key-based authentication. This simply requires copying a public key into
+`~/.ssh/authorized_keys`.
+
+If you plan on distributing this base box as a public box, Vagrant provides an
+"insecure" pair of public and private keys which are [available here](http://github.com/mitchellh/vagrant/tree/master/keys/).
+By using the public key in that box, any Vagrant installation will automatically
+be able to connect to your box since Vagrant defaults to using that insecure private
+key.
+
+If this box is meant to be private, we recommend you create your own custom
+pair of keys and set that up. Users of your box can then specify the private key
+you created by setting `config.ssh.private_key_path`.
+
 <a name="mac-address"> </a>
 ### Copy the MAC Address
 
@@ -217,12 +233,6 @@ look like, well commented to explain each option:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  # SSH username
-  config.ssh.username = "vagrant"
-
-  # SSH password
-  config.ssh.password = "vagrant"
-
   # Forward the SSH port. The 'forward_port_key' should match the
   # name of the forwarded port.
   config.ssh.forwarded_port_key = "ssh"

@@ -35,7 +35,7 @@ But we'll go over each binary here, as well.
 <a name="vagrant-box"> </a>
 ## vagrant box
 
-Boxes have there own section: [Vagrant Boxes](/docs/boxes.html)
+Boxes have their own section: [Vagrant Boxes](/docs/boxes.html)
 
 <a name="vagrant-halt"> </a>
 ## vagrant halt
@@ -93,7 +93,7 @@ If you're box is booted simply run `vagrant ssh` from the root of your project d
 <a name="vagrant-up"> </a>
 ## vagrant up
 
-This command builds the [Sun VirtualBox](http://www.virtualbox.org) and sets it up based
+This command builds the [Oracle VirtualBox](http://www.virtualbox.org) and sets it up based
 on the specifications of the `Vagrantfile`. This command requires that the `Vagrantfile`,
 in the very least, specify a box to use. The basic tasks handled by the up command are
 listed below, not in any specific order:

@@ -32,9 +32,9 @@ while box installation is covered in more detail:
 $ vagrant box add getting_started http://files.vagrantup.com/getting_started.box
 {% endhighlight %}
 
-Installed boxes are global to the current vagrant installation. This means
-that once the rails box has been added, it can be used by multiple projects
-at the same time. Each project uses the box as a _base_ only, so once the
+Installed boxes reside in ~/.vagrant/boxes, and they are global to the current vagrant 
+installation. This means that once the rails box has been added, it can be used by 
+multiple projects at the same time. Each project uses the box as a _base_ only, so once the
 project VM is created, modifications can be made without affecting other
 projects which may use the same box.
 
@@ -47,8 +47,9 @@ the filename and logical name are equal in this case.
 ## Removing Boxes
 
 Just as easily as they're added, boxes can be removed as well. The following
-is an example command to remove a box. **Do not run this command if you're
-following the guide. It is just an example.**
+is an example command to remove a box. 
+
+**Do not run this command if you're following the guide. It is just an example.**
 
 {% highlight bash %}
 $ vagrant box remove my_box

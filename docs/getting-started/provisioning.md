@@ -12,7 +12,10 @@ to use the rails box, but then add the custom software on top of it (and
 perhaps even packaging it later so others can make use of it).
 
 Luckily, Vagrant comes with provisioning built right into the software by
-using [chef](http://www.opscode.com/chef).
+using [chef](http://www.opscode.com/chef), with support for both [chef solo](http://wiki.opscode.com/display/chef/Chef+Solo)
+and [chef server](http://wiki.opscode.com/display/chef/Chef+Server). You can
+also [extend vagrant](/docs/provisioners/others.html) to support more provisioners, but this is an advanced topic
+which we won't be covered here.
 
 For our basic rails app, we're going to use provisioning for a different
 purpose: installing some basic system monitoring tools, specifically [htop](http://htop.sourceforge.net/).
@@ -71,7 +74,8 @@ following contents to the project's Vagrantfile:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.chef.enabled = true
+  # Enable the chef solo provisioner
+  config.vm.provisioner = :chef_solo
 
   # This directory is expanded relative to the project directory.
   config.chef.cookbooks_path = "cookbooks"

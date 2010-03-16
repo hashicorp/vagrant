@@ -28,7 +28,8 @@ $ vagrant box add ubuntu_base http://files.vagrantup.com/base.box
 
 The name used with the `vagrant box add` command is the name used to
 reference the box from that point forward. Any box can be named anything
-you want.
+you want.  Boxes that are added using `vagrant box add` are global to the
+vagrant install, and they are stored at `~/.vagrant/boxes` on the local filesystem.
 
 **Note:** The default Vagrantfile created with `vagrant init` defaults to
 using a box named "base." This is why in the getting started guide, the
@@ -46,6 +47,20 @@ $ vagrant box remove ubuntu_base
 
 **Warning:** There is no going back from this command. This command literally
 deletes the files off the filesystem.
+
+## Listing Installed Boxes
+
+Keeping track of the installed boxes can be difficult. Vagrant provides the
+`vagrant box list` command to list all installed boxes.
+
+{% highlight bash %}
+$ vagrant box list
+=====================================================================
+Installed Vagrant Boxes:
+
+base
+=====================================================================
+{% endhighlight %}
 
 <a name="creating-a-box"> </a>
 ## Creating a Box
