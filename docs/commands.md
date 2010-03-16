@@ -21,6 +21,7 @@ vagrant-package
 vagrant-reload
 vagrant-resume
 vagrant-ssh
+vagrant-status
 vagrant-suspend
 vagrant-up
 {% endhighlight %}
@@ -75,13 +76,6 @@ residing at the root of your project directory should be included, see [Vagrant 
 When you're ready to get rolling again its just as easy to start your virtual machine back up with
 `vagrant resume`.
 
-<a name="vagrant-suspend"> </a>
-## vagrant suspend
-
-When you're ready to call it quits for the day, there's no need to leave your Vagrant box soaking
-up cpu cycles and memory. Simply issue `vagrant suspend` from your project root and VirtualBox will
-take a snapshot of the box's current state from which you can resume later.
-
 <a name="vagrant-ssh"> </a>
 ## vagrant ssh
 
@@ -89,6 +83,19 @@ Working from the command line inside your box is accomplished with a vanilla ssh
 you could use ssh directly, but using `vagrant ssh` means you don't have to remember the login information
 or what port ssh is forwarded to from your box. To learn more about those settings see the section on the [Vagrantfile](/docs/vagrantfile.html).
 If you're box is booted simply run `vagrant ssh` from the root of your project directory.
+
+<a name="vagrant-status"> </a>
+## vagrant status
+
+Its often hard to keep track and remember whether or not you brought up a virtual environment, shut
+it down, suspended it, etc. `vagrant status` tells you the status of your current project's environment.
+
+<a name="vagrant-suspend"> </a>
+## vagrant suspend
+
+When you're ready to call it quits for the day, there's no need to leave your Vagrant box soaking
+up cpu cycles and memory. Simply issue `vagrant suspend` from your project root and VirtualBox will
+take a snapshot of the box's current state from which you can resume later.
 
 <a name="vagrant-up"> </a>
 ## vagrant up
