@@ -4,7 +4,7 @@ title: Getting Started
 ---
 # Getting Started with Vagrant
 
-Vagrant uses [Sun's VirtualBox](http://www.virtualbox.org)
+Vagrant uses [Oracle's VirtualBox](http://www.virtualbox.org)
 to build configurable, lightweight, and portable virtual machines dynamically.
 The first couple pages serve to introduce you to Vagrant and what it has
 to offer while the rest of the guide is a technical walkthrough for building a
@@ -14,7 +14,7 @@ so other developers can get up and running in just a couple commands.
 
 ## Get VirtualBox
 
-Vagrant depends on [Sun's VirtualBox](http://www.virtualbox.org) to create all of
+Vagrant depends on [Oracle's VirtualBox](http://www.virtualbox.org) to create all of
 it's virtual environments. VirtualBox is a general-purpose full virtualizer for
 x86 hardware. Targeted at server, desktop and embedded use, it is now the only
 professional-quality virtualization solution that is also Open Source Software.

@@ -5,7 +5,7 @@ title: Welcome
 Vagrant is a tool for building and distributing virtualized development environments.
 
 By providing automated creation and provisioning of virtual machines
-using [Sun's VirtualBox](http://www.virtualbox.org), Vagrant provides
+using [Oracle's VirtualBox](http://www.virtualbox.org), Vagrant provides
 the tools to create and configure lightweight, reproducible, and portable
 virtual environments. For more information, see the part of the
 getting started guide on "[Why Vagrant?](/docs/getting-started/why.html)"
@@ -33,7 +33,7 @@ featured web development environment running! This is all possible with Vagrant.
 This is a compact feature list of Vagrant. For more information on any of
 the specific features, read the [getting started guide](/docs/getting-started/index.html).
 
-* Automated virtual machine creation using [Sun's VirtualBox](http://www.virtualbox.org)
+* Automated virtual machine creation using [Oracle's VirtualBox](http://www.virtualbox.org)
 * Automated provisioning of virtual environments using [chef](http://www.opscode.com/chef)
 * Forward ports to the host machine
 * Full SSH access to created environments
