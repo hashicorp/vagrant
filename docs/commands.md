@@ -35,7 +35,7 @@ But we'll go over each binary here, as well.
 <a name="vagrant-box"> </a>
 ## vagrant box
 
-Boxes have there own section: [Vagrant Boxes](/docs/boxes.html)
+Boxes have their own section: [Vagrant Boxes](/docs/boxes.html)
 
 <a name="vagrant-halt"> </a>
 ## vagrant halt
