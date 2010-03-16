@@ -12,6 +12,13 @@ class BaseDownloaderTest < Test::Unit::TestCase
 
     should "implement prepare which does nothing" do
       assert_nothing_raised do
+        assert @base.respond_to?(:prepare)
+        @base.prepare("source")
+      end
+    end
+
+    should "implement download! which does nothing" do
+      assert_nothing_raised do
         assert @base.respond_to?(:download!)
         @base.download!("source", "destination")
       end

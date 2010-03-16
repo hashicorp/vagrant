@@ -16,6 +16,10 @@ class DownloadBoxActionTest < Test::Unit::TestCase
       @uri = mock("uri")
       @uri.stubs(:is_a?).returns(false)
       URI.stubs(:parse).returns(@uri)
+
+      @downloader = mock("downloader")
+      Vagrant::Downloaders::File.any_instance.stubs(:prepare)
+      Vagrant::Downloaders::HTTP.any_instance.stubs(:prepare)
     end
 
     should "raise an exception if no URI type is matched" do
@@ -23,6 +27,13 @@ class DownloadBoxActionTest < Test::Unit::TestCase
       assert_raises(Vagrant::Actions::ActionException) {
         @action.prepare
       }
+    end
+
+    should "call #prepare on the downloader" do
+      @downloader.expects(:prepare).with(@runner.uri).once
+      Vagrant::Downloaders::File.expects(:new).returns(@downloader)
+      @uri.stubs(:is_a?).with(URI::Generic).returns(true)
+      @action.prepare
     end
 
     should "set the downloader to file if URI is generic" do
