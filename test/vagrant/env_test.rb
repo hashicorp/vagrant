@@ -17,7 +17,15 @@ class EnvTest < Test::Unit::TestCase
 
   context "checking virtualbox version" do
     setup do
-      VirtualBox::Command.stubs(:version)
+      VirtualBox::Command.stubs(:version).returns("3.1.4")
+      VirtualBox::Global.stubs(:vboxconfig?).returns(true)
+    end
+
+    should "not error and exit if everything is good" do
+      VirtualBox::Command.expects(:version).returns("3.1.4")
+      VirtualBox::Global.expects(:vboxconfig?).returns(true)
+      Vagrant::Env.expects(:error_and_exit).never
+      Vagrant::Env.check_virtualbox!
     end
 
     should "error and exit if VirtualBox is not installed or detected" do
@@ -29,6 +37,12 @@ class EnvTest < Test::Unit::TestCase
     should "error and exit if VirtualBox is lower than version 3.1" do
       Vagrant::Env.expects(:error_and_exit).once
       VirtualBox::Command.expects(:version).returns("3.0.12r1041")
+      Vagrant::Env.check_virtualbox!
+    end
+
+    should "error and exit if the the vboxconfig is not set" do
+      VirtualBox::Global.expects(:vboxconfig?).returns(false)
+      Vagrant::Env.expects(:error_and_exit).once
       Vagrant::Env.check_virtualbox!
     end
   end

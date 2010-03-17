@@ -53,6 +53,23 @@ Vagrant requires that you use at least VirtualBox version 3.1. Please install
 a more recent version of VirtualBox to continue.
 msg
         end
+
+        if !VirtualBox::Global.vboxconfig?
+          error_and_exit(<<-msg)
+Vagrant couldn't find your global VirtualBox.xml file!
+
+If you just recently installed VirtualBox, make sure you've launched
+it at least once, since the initial launch will typically create this
+file.
+
+Otherwise, you may need to set the path to the VirtualBox.xml file
+manually. Note that 90% of people should never have to do this, so
+don't be afraid to use the various Vagrant support lines to ask for
+help. To set the path manually:
+
+VirtualBox::Global.vboxconfig = "/path/to/VirtualBox.xml"
+msg
+        end
       end
 
       def load_config!
