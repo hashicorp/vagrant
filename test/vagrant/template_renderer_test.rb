@@ -73,12 +73,12 @@ class TemplateRendererTest < Test::Unit::TestCase
       @r = Vagrant::TemplateRenderer.new(@template)
       @r.stubs(:render)
 
-      Vagrant::TemplateRenderer.stubs(:new).with(@template).returns(@r)
+      Vagrant::TemplateRenderer.stubs(:new).with(@template, {}).returns(@r)
     end
 
     should "use the first argument as the template" do
       template = "foo"
-      Vagrant::TemplateRenderer.expects(:new).with(template).returns(@r)
+      Vagrant::TemplateRenderer.expects(:new).with(template, {}).returns(@r)
       Vagrant::TemplateRenderer.render!(template)
     end
 
