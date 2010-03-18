@@ -78,6 +78,12 @@ class ConfigTest < Test::Unit::TestCase
       Vagrant::Config.execute!
       assert Vagrant::Config.config.loaded?
     end
+
+    should "return the configuration on execute!" do
+      Vagrant::Config.run {}
+      result = Vagrant::Config.execute!
+      assert result.equal?(Vagrant.config)
+    end
   end
 
   context "base class" do

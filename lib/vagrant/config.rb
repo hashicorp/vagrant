@@ -29,6 +29,7 @@ module Vagrant
       def execute!
         run_procs!(config)
         config.loaded!
+        config
       end
     end
   end
