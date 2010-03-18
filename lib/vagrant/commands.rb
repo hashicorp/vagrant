@@ -23,7 +23,7 @@ error
         # Copy over the rootfile template into this directory
         default_box ||= "base"
         File.open(rootfile_path, 'w+') do |f|
-          f.write(Util::TemplateRenderer.render!(Env::ROOTFILE_NAME, :default_box => default_box))
+          f.write(TemplateRenderer.render!(Env::ROOTFILE_NAME, :default_box => default_box))
         end
       end
 
