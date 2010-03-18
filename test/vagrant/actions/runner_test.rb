@@ -215,7 +215,7 @@ class ActionRunnerTest < Test::Unit::TestCase
         @exception = Vagrant::Actions::ActionException.new("foo")
         @actions[0].stubs(:prepare).raises(@exception)
 
-        @runner.expects(:error_and_exit).with(@exception.message).once
+        @runner.expects(:error_and_exit).with(@exception.key, @exception.data).once
         @runner.execute!
       end
     end

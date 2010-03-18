@@ -1,111 +1,111 @@
 :box_already_exists: "This box appears to already exist! Please call `vagrant box remove <%= box_name %>`
-    and then try to add it again."
+    \nand then try to add it again."
 :box_add_already_exists: "A box with the name '<%= box_name %>' already exists, please use another name or use `vagrant box remove <%= box_name %>`"
 :box_download_unknown_type: "Unknown URI type for box download."
 :box_remove_doesnt_exist: "The box you're attempting to remove does not exist!"
-:box_specified_doesnt_exist: "Specified box `<%= box_name %>` does not exist!
+:box_specified_doesnt_exist: "Specified box `<%= box_name %>` does not exist!\n
 
-    The box must be added through the `vagrant box add` command. Please view
-    the documentation associated with the command for more information."
+    \nThe box must be added through the `vagrant box add` command. Please view
+    \nthe documentation associated with the command for more information."
 :box_not_specified: "No base box was specified! A base box is required as a staring point
-    for every vagrant virtual machine. Please specify one in your Vagrantfile
-    using `config.vm.box`"
+    \nfor every vagrant virtual machine. Please specify one in your Vagrantfile
+    \nusing `config.vm.box`"
 :chef_base_invalid_provisioner: "Vagrant::Provisioners::Chef is not a valid provisioner! Use ChefSolo or ChefServer instead."
 :chef_server_url_required: "Chef server provisioning requires that the `config.chef.chef_server_url` be set to the
-    URL of your chef server. Examples include \"http://12.12.12.12:4000\" and
-    \"http://myserver.com:4000\" (the port of course can be different, but 4000 is the default)"
+    \nURL of your chef server. Examples include \"http://12.12.12.12:4000\" and
+    \n\"http://myserver.com:4000\" (the port of course can be different, but 4000 is the default)"
 :chef_server_validation_key_required: "Chef server provisioning requires that the `config.chef.validation_key_path` configuration
-    be set to a path on your local machine of the validation key used to register the
-    VM with the chef server."
+    \nbe set to a path on your local machine of the validation key used to register the
+    \nVM with the chef server."
 :chef_server_validation_key_doesnt_exist: "The validation key set for `config.chef.validation_key_path` does not exist! This
-    file needs to exist so it can be uploaded to the virtual machine. It is
-    currently set to \"<%= Vagrant.config.chef.validation_key_path %>\""
+    \nfile needs to exist so it can be uploaded to the virtual machine. It is
+    \ncurrently set to \"<%= Vagrant.config.chef.validation_key_path %>\""
 :command_box_invalid: "Please specify a valid action to take on the boxes, either
-    `add` or `remove`. Examples:
+    \n`add` or `remove`. Examples:
 
-    vagrant box add name uri
-    vagrant box remove name
-    vagrant box list"
+    \nvagrant box add name uri
+    \nvagrant box remove name
+    \nvagrant box list"
 :dotfile_error: "The dotfile which Vagrant uses to store the UUID of the project's
-    virtual machine already exists and is not a file! The dotfile is
-    currently configured to be `<%= Vagrant::Env.dotfile_path %>`
+    \nvirtual machine already exists and is not a file! The dotfile is
+    \ncurrently configured to be `<%= Vagrant::Env.dotfile_path %>`
 
-    To change this value, please see `config.vagrant.dotfile_name`
+    \nTo change this value, please see `config.vagrant.dotfile_name`
 
-    This often exists if you're trying to create a Vagrant virtual
-    environment from your home directory. To resolve this, you can either
-    modify the configuration a bit, or simply use a different directory."
-:downloader_file_doesnt_exist: "The given box does not exist on the file system:
+    \nThis often exists if you're trying to create a Vagrant virtual
+    \nenvironment from your home directory. To resolve this, you can either
+    \nmodify the configuration a bit, or simply use a different directory."
+:downloader_file_doesnt_exist: "The given box does not exist on the file system:\n
 
-    <%= source_url %>"
+    \n<%= source_url %>"
 :environment_not_created: "The task you're trying to run requires that the vagrant environment
-    already be created, but unfortunately this vagrant still appears to
-    have no box! You can setup the environment by setting up your
-    <%= Vagrant::Env::ROOTFILE_NAME %> and running `vagrant up`"
+    \nalready be created, but unfortunately this vagrant still appears to
+    \nhave no box! You can setup the environment by setting up your
+    \n<%= Vagrant::Env::ROOTFILE_NAME %> and running `vagrant up`"
 :package_include_file_doesnt_exist: "File specified to include: '<%= filename %>' does not exist!"
 :package_requires_export: "Package must be used in conjunction with export."
 :provisioner_invalid_class: "Provisioners must be an instance of Vagrant::Provisioners::Base"
 :provisioner_unknown_type: "Unknown provisioner type: <%= provisioner %>"
 :rootfile_already_exists: "It looks like this directory is already setup for vagrant! (A <%= Vagrant::Env::ROOTFILE_NAME %>
-    already exists.)"
+    \nalready exists.)"
 :rootfile_not_found: "A `<%= Vagrant::Env::ROOTFILE_NAME %>` was not found! This file is required for vagrant to run
-    since it describes the expected environment that vagrant is supposed
-    to manage. Please create a `<%= Vagrant::Env::ROOTFILE_NAME %>` and place it in your project
-    root."
+    \nsince it describes the expected environment that vagrant is supposed
+    \nto manage. Please create a `<%= Vagrant::Env::ROOTFILE_NAME %>` and place it in your project
+    \nroot."
 :virtualbox_import_failure: "The VM import failed! Try running `VBoxManage import` on the box file manually for more verbose error output."
 :virtualbox_invalid_version: "Vagrant has detected that you have VirtualBox version <%= version %> installed!
-    Vagrant requires that you use at least VirtualBox version 3.1. Please install
-    a more recent version of VirtualBox to continue."
+    \nVagrant requires that you use at least VirtualBox version 3.1. Please install
+    \na more recent version of VirtualBox to continue."
 :virtualbox_not_detected: "Vagrant could not detect VirtualBox! Make sure VirtualBox is properly installed.
-    If VirtualBox is installed, you may need to tweak the paths to the `VBoxManage`
-    application which ships with VirtualBox and the path to the global XML configuration
-    which VirtualBox typically stores somewhere in your home directory.
+    \nIf VirtualBox is installed, you may need to tweak the paths to the `VBoxManage`
+    \napplication which ships with VirtualBox and the path to the global XML configuration
+    \nwhich VirtualBox typically stores somewhere in your home directory.\n
 
-    The following shows how to configure VirtualBox. This can be done in the
-    Vagrantfile. Note that 90% of the time, you shouldn't need to do this if VirtualBox
-    is installed. Please use the various Vagrant support lines to request more information
-    if you can't get this working.
+    \nThe following shows how to configure VirtualBox. This can be done in the
+    \nVagrantfile. Note that 90% of the time, you shouldn't need to do this if VirtualBox
+    \nis installed. Please use the various Vagrant support lines to request more information
+    \nif you can't get this working.\n
 
-    VirtualBox::Command.vboxmanage = \"/path/to/my/VBoxManage\"
-    VirtualBox::Global.vboxconfig = \"~/path/to/VirtualBox.xml\""
-:virtualbox_xml_not_detected: "Vagrant couldn't find your global VirtualBox.xml file!
+    \nVirtualBox::Command.vboxmanage = \"/path/to/my/VBoxManage\"
+    \nVirtualBox::Global.vboxconfig = \"~/path/to/VirtualBox.xml\""
+:virtualbox_xml_not_detected: "Vagrant couldn't find your global VirtualBox.xml file!\n
 
-    If you just recently installed VirtualBox, make sure you've launched
-    it at least once, since the initial launch will typically create this
-    file.
+    \nIf you just recently installed VirtualBox, make sure you've launched
+    \nit at least once, since the initial launch will typically create this
+    \nfile.\n
 
-    Otherwise, you may need to set the path to the VirtualBox.xml file
-    manually. Note that 90% of people should never have to do this, so
-    don't be afraid to use the various Vagrant support lines to ask for
-    help. To set the path manually:
+    \nOtherwise, you may need to set the path to the VirtualBox.xml file
+    \nmanually. Note that 90% of people should never have to do this, so
+    \ndon't be afraid to use the various Vagrant support lines to ask for
+    \nhelp. To set the path manually:\n
 
-    VirtualBox::Global.vboxconfig = \"/path/to/VirtualBox.xml\""
+    \nVirtualBox::Global.vboxconfig = \"/path/to/VirtualBox.xml\""
 :vm_failed_to_boot: "Failed to connect to VM! Failed to boot?"
 :vm_not_running: "VM is not running! Nothing to shut down!"
 :vm_not_running_for_suspend: "The vagrant virtual environment you are trying to suspend must be running to be suspended."
 :vm_not_suspended: "The vagrant virtual environment you are trying to resume is not in a suspended state."
 :vm_port_collision: "Vagrant cannot forward the specified ports on this VM, since they
-    would collide with another VirtualBox virtual machine's forwarded
-    ports! The \"<%= name %>\" forwarded port (<%= hostport %>) is already in use on the host
-    machine.
+    \nwould collide with another VirtualBox virtual machine's forwarded
+    \nports! The \"<%= name %>\" forwarded port (<%= hostport %>) is already in use on the host
+    \nmachine.\n
 
-    To fix this, modify your current projects Vagrantfile to use another
-    port. Example, where '1234' would be replaced by a unique host port:
+    \nTo fix this, modify your current projects Vagrantfile to use another
+    \nport. Example, where '1234' would be replaced by a unique host port:\n
 
-    config.vm.forward_port(\"<%= name %>\", <%= guestport %>, 1234)"
+    \nconfig.vm.forward_port(\"<%= name %>\", <%= guestport %>, 1234)"
 :vm_power_off_to_move_hd: "The virtual machine must be powered off to move its disk."
 :vm_power_off_to_package: "The vagrant virtual environment you are trying to package must be powered off."
 :vm_mount_fail: "Failed to mount shared folders. vboxsf was not available."
 :vm_ssh_auth_failed: "SSH authentication failed! While this could be due to a variety of reasons,
-    the two most common are: private key path is incorrect or you're using a box
-    which was built for Vagrant 0.1.x.
+    \nthe two most common are: private key path is incorrect or you're using a box
+    \nwhich was built for Vagrant 0.1.x.\n
 
-    Vagrant 0.2.x dropped support for password-based authentication. If you're
-    tring to `vagrant up` a box which does not support Vagrant's private/public
-    keypair, then this error will be raised. To resolve this, read the guide
-    on converting base boxes from password-based to keypairs here:
+    \nVagrant 0.2.x dropped support for password-based authentication. If you're
+    \ntring to `vagrant up` a box which does not support Vagrant's private/public
+    \nkeypair, then this error will be raised. To resolve this, read the guide
+    \non converting base boxes from password-based to keypairs here:\n
 
-    http://vagrantup.com/docs/converting_password_to_key_ssh.html
+    \nhttp://vagrantup.com/docs/converting_password_to_key_ssh.html
 
-    If the box was built for 0.2.x and contains a custom public key, perhaps
-    the path to the private key is incorrect. Check your `config.ssh.private_key_path`."
+    \nIf the box was built for 0.2.x and contains a custom public key, perhaps
+    \nthe path to the private key is incorrect. Check your `config.ssh.private_key_path`."

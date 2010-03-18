@@ -94,7 +94,7 @@ module Vagrant
 
           # If its an ActionException, error and exit the message
           if e.is_a?(ActionException)
-            error_and_exit(e.message)
+            error_and_exit(e.key, e.data)
             return
           end
 
