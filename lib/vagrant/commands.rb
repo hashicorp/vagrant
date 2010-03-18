@@ -14,7 +14,7 @@ module Vagrant
       def init(default_box=nil)
         rootfile_path = File.join(Dir.pwd, Env::ROOTFILE_NAME)
         if File.exist?(rootfile_path)
-          error_and_exit(:rootfile_already_exists, :rootfile => Env::ROOTFILE_NAME)
+          error_and_exit(:rootfile_already_exists)
         end
 
         # Copy over the rootfile template into this directory

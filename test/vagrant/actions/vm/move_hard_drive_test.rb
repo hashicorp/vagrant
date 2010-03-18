@@ -28,7 +28,7 @@ class MoveHardDriveActionTest < Test::Unit::TestCase
   context "execution" do
     should "error and exit if the vm is not powered off" do
       @mock_vm.expects(:powered_off?).returns(false)
-      @action.expects(:error_and_exit).once
+      @action.expects(:error_and_exit).with(:vm_power_off_to_move_hd).once
       @action.execute!
     end
 

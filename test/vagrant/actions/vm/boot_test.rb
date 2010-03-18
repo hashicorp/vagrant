@@ -27,7 +27,7 @@ class BootActionTest < Test::Unit::TestCase
       fail_boot_seq = sequence("fail_boot_seq")
       @action.expects(:boot).once.in_sequence(fail_boot_seq)
       @action.expects(:wait_for_boot).returns(false).in_sequence(fail_boot_seq)
-      @action.expects(:error_and_exit).once.in_sequence(fail_boot_seq)
+      @action.expects(:error_and_exit).with(:vm_failed_to_boot).once.in_sequence(fail_boot_seq)
       @action.execute!
     end
   end

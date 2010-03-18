@@ -29,20 +29,21 @@ class EnvTest < Test::Unit::TestCase
     end
 
     should "error and exit if VirtualBox is not installed or detected" do
-      Vagrant::Env.expects(:error_and_exit).once
+      Vagrant::Env.expects(:error_and_exit).with(:virtualbox_not_detected).once
       VirtualBox::Command.expects(:version).returns(nil)
       Vagrant::Env.check_virtualbox!
     end
 
     should "error and exit if VirtualBox is lower than version 3.1" do
-      Vagrant::Env.expects(:error_and_exit).once
-      VirtualBox::Command.expects(:version).returns("3.0.12r1041")
+      version = "3.0.12r1041"
+      Vagrant::Env.expects(:error_and_exit).with(:virtualbox_invalid_version, :version => version.to_s).once
+      VirtualBox::Command.expects(:version).returns(version)
       Vagrant::Env.check_virtualbox!
     end
 
     should "error and exit if the the vboxconfig is not set" do
       VirtualBox::Global.expects(:vboxconfig?).returns(false)
-      Vagrant::Env.expects(:error_and_exit).once
+      Vagrant::Env.expects(:error_and_exit).with(:virtualbox_xml_not_detected).once
       Vagrant::Env.check_virtualbox!
     end
   end
@@ -60,7 +61,7 @@ class EnvTest < Test::Unit::TestCase
 
     should "error and exit if no persisted VM was found" do
       assert_nil Vagrant::Env.persisted_vm
-      Vagrant::Env.expects(:error_and_exit).once
+      Vagrant::Env.expects(:error_and_exit).with(:environment_not_created).once
       Vagrant::Env.require_persisted_vm
     end
 
@@ -413,7 +414,7 @@ class EnvTest < Test::Unit::TestCase
   context "requiring root_path" do
     should "error and exit if no root_path is set" do
       Vagrant::Env.expects(:root_path).returns(nil)
-      Vagrant::Env.expects(:error_and_exit).once
+      Vagrant::Env.expects(:error_and_exit).with(:rootfile_not_found).once
       Vagrant::Env.require_root_path
     end
 

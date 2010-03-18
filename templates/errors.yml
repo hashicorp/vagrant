@@ -18,11 +18,11 @@
     already be created, but unfortunately this vagrant still appears to
     have no box! You can setup the environment by setting up your
     <%= Vagrant::Env::ROOTFILE_NAME %> and running `vagrant up`"
-:rootfile_already_exists: "It looks like this directory is already setup for vagrant! (A <%= rootfile %>
+:rootfile_already_exists: "It looks like this directory is already setup for vagrant! (A <%= Vagrant::Env::ROOTFILE_NAME %>
     already exists.)"
-:rootfile_not_found: "A `<%= rootfile %>` was not found! This file is required for vagrant to run
+:rootfile_not_found: "A `<%= Vagrant::Env::ROOTFILE_NAME %>` was not found! This file is required for vagrant to run
     since it describes the expected environment that vagrant is supposed
-    to manage. Please create a `<%= rootfile %>` and place it in your project
+    to manage. Please create a `<%= Vagrant::Env::ROOTFILE_NAME %>` and place it in your project
     root."
 :virtualbox_invalid_version: "Vagrant has detected that you have VirtualBox version <%= version %> installed!
     Vagrant requires that you use at least VirtualBox version 3.1. Please install

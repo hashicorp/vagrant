@@ -68,7 +68,7 @@ class UnpackageBoxActionTest < Test::Unit::TestCase
 
     should "error and exit if the directory exists" do
       File.expects(:directory?).returns(true)
-      @action.expects(:error_and_exit).once
+      @action.expects(:error_and_exit).with(:box_already_exists, :box_name => @runner.name).once
       @action.setup_box_dir
     end
 

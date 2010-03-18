@@ -22,7 +22,7 @@ class CommandsTest < Test::Unit::TestCase
 
     should "error and exit if a rootfile already exists" do
       File.expects(:exist?).with(@rootfile_path).returns(true)
-      Vagrant::Commands.expects(:error_and_exit).once
+      Vagrant::Commands.expects(:error_and_exit).with(:rootfile_already_exists).once
       Vagrant::Commands.init
     end
 
@@ -180,7 +180,7 @@ class CommandsTest < Test::Unit::TestCase
 
     should "error and exit if the VM is not powered off" do
       @persisted_vm.stubs(:powered_off?).returns(false)
-      Vagrant::Commands.expects(:error_and_exit).once
+      Vagrant::Commands.expects(:error_and_exit).with(:vm_power_off_to_package).once
       @persisted_vm.expects(:package).never
       Vagrant::Commands.package
     end
@@ -216,12 +216,12 @@ class CommandsTest < Test::Unit::TestCase
       Vagrant::Commands.box(["add"])
     end
 
-    should "error and exit if the first argument is not 'add' or 'remove'" do
-      Vagrant::Commands.expects(:error_and_exit).once
+    should "error and exit if the first argument is not a valid subcommand" do
+      Vagrant::Commands.expects(:error_and_exit).with(:command_box_invalid).once
       Vagrant::Commands.box(["foo"])
     end
 
-    should "not error and exit if the first argument is 'add' or 'remove'" do
+    should "not error and exit if the first argument is a valid subcommand" do
       commands = ["add", "remove"]
 
       commands.each do |command|
@@ -272,7 +272,7 @@ class CommandsTest < Test::Unit::TestCase
 
     should "error and exit if the box doesn't exist" do
       Vagrant::Box.expects(:find).returns(nil)
-      Vagrant::Commands.expects(:error_and_exit).once
+      Vagrant::Commands.expects(:error_and_exit).with(:box_remove_doesnt_exist).once
       Vagrant::Commands.box_remove(@name)
     end
 

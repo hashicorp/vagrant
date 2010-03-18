@@ -128,7 +128,7 @@ module Vagrant
 
       def require_root_path
         if !root_path
-          error_and_exit(:rootfile_not_found, :rootfile => ROOTFILE_NAME)
+          error_and_exit(:rootfile_not_found)
         end
       end
 
