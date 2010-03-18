@@ -5,6 +5,43 @@ class EnvironmentTest < Test::Unit::TestCase
     mock_config
   end
 
+  context "class method load!" do
+    setup do
+      @cwd = mock('cwd')
+
+      @env = mock('env')
+      @env.stubs(:load!).returns(@env)
+    end
+
+    should "create the environment with given cwd, load it, and return it" do
+      Vagrant::Environment.expects(:new).with(@cwd).once.returns(@env)
+      @env.expects(:load!).returns(@env)
+      assert_equal @env, Vagrant::Environment.load!(@cwd)
+    end
+
+    should "work without a given cwd" do
+      Vagrant::Environment.expects(:new).with(nil).returns(@env)
+
+      assert_nothing_raised {
+        env = Vagrant::Environment.load!
+        assert_equal env, @env
+      }
+    end
+  end
+
+  context "initialization" do
+    should "set the cwd if given" do
+      cwd = "foobarbaz"
+      env = Vagrant::Environment.new(cwd)
+      assert_equal cwd, env.cwd
+    end
+
+    should "default to pwd if cwd is nil" do
+      env = Vagrant::Environment.new
+      assert_equal Dir.pwd, env.cwd
+    end
+  end
+
   context "paths" do
     setup do
       @env = mock_environment
@@ -49,7 +86,7 @@ class EnvironmentTest < Test::Unit::TestCase
     end
 
     context "overall load method" do
-      should "load! should load the config and set the persisted_uid" do
+      should "load! should call proper sequence and return itself" do
         call_seq = sequence("call_sequence")
         @env.expects(:load_root_path!).once.in_sequence(call_seq)
         @env.expects(:load_config!).once.in_sequence(call_seq)
@@ -57,7 +94,7 @@ class EnvironmentTest < Test::Unit::TestCase
         @env.expects(:load_box!).once.in_sequence(call_seq)
         @env.expects(:load_config!).once.in_sequence(call_seq)
         @env.expects(:load_vm!).once.in_sequence(call_seq)
-        @env.load!
+        assert_equal @env, @env.load!
       end
     end
 

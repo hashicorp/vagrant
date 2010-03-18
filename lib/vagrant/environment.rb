@@ -15,6 +15,22 @@ module Vagrant
     attr_reader :vm
 
     #---------------------------------------------------------------
+    # Class Methods
+    #---------------------------------------------------------------
+    class <<self
+      # Loads and returns an environment given a specific working
+      # directory. If a working directory is not given, it will default
+      # to the pwd.
+      def load!(cwd=nil)
+        Environment.new(cwd).load!
+      end
+    end
+
+    def initialize(cwd=nil)
+      @cwd = cwd
+    end
+
+    #---------------------------------------------------------------
     # Path Helpers
     #---------------------------------------------------------------
 
@@ -51,6 +67,7 @@ module Vagrant
       load_box!
       load_config!
       load_vm!
+      self
     end
 
     # Loads the root path of this environment, given the starting
