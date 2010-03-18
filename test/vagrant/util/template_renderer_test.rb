@@ -77,39 +77,62 @@ class TemplateRendererUtilTest < Test::Unit::TestCase
     end
   end
 
-  context "class-level render! method" do
-    setup do
-      @template = "foo"
-      @r = Vagrant::Util::TemplateRenderer.new(@template)
-      @r.stubs(:render)
+  context "class methods" do
+    context "render_with method" do
+      setup do
+        @template = "foo"
+        @r = Vagrant::Util::TemplateRenderer.new(@template)
+        @r.stubs(:render)
 
-      Vagrant::Util::TemplateRenderer.stubs(:new).with(@template, {}).returns(@r)
-    end
+        @method = :rawr
 
-    should "use the first argument as the template" do
-      template = "foo"
-      Vagrant::Util::TemplateRenderer.expects(:new).with(template, {}).returns(@r)
-      Vagrant::Util::TemplateRenderer.render!(template)
-    end
+        Vagrant::Util::TemplateRenderer.stubs(:new).with(@template, {}).returns(@r)
+      end
 
-    should "send in additional argument to the renderer" do
-      template = "foo"
-      data = {:hey => :foo}
-      Vagrant::Util::TemplateRenderer.expects(:new).with(template, data).returns(@r)
-      Vagrant::Util::TemplateRenderer.render!(template, data)
-    end
+      should "use the second argument as the template" do
+        Vagrant::Util::TemplateRenderer.expects(:new).with(@template, {}).returns(@r)
+        Vagrant::Util::TemplateRenderer.render_with(@method, @template)
+      end
 
-    should "yield a block if given with the renderer as the argument" do
-      @r.expects(:yielded=).with(true).once
-      Vagrant::Util::TemplateRenderer.render!(@template) do |r|
-        r.yielded = true
+      should "send in additional argument to the renderer" do
+        data = {:hey => :foo}
+        Vagrant::Util::TemplateRenderer.expects(:new).with(@template, data).returns(@r)
+        Vagrant::Util::TemplateRenderer.render_with(@method, @template, data)
+      end
+
+      should "yield a block if given with the renderer as the argument" do
+        @r.expects(:yielded=).with(true).once
+        Vagrant::Util::TemplateRenderer.render_with(@method, @template) do |r|
+          r.yielded = true
+        end
+      end
+
+      should "render the result using the given method" do
+        result = mock('result')
+        @r.expects(@method).returns(result)
+        assert_equal result, Vagrant::Util::TemplateRenderer.render_with(@method, @template)
+      end
+
+      should "convert the given method to a sym prior to calling" do
+        @r.expects(@method.to_sym).returns(nil)
+        Vagrant::Util::TemplateRenderer.render_with(@method.to_s, @template)
       end
     end
 
-    should "render the result" do
-      result = mock('result')
-      @r.expects(:render).returns(result)
-      assert_equal result, Vagrant::Util::TemplateRenderer.render!(@template)
+    context "render method" do
+      should "call render_with the render! method" do
+        args = ["foo", "bar", "baz"]
+        Vagrant::Util::TemplateRenderer.expects(:render_with).with(:render, *args)
+        Vagrant::Util::TemplateRenderer.render(*args)
+      end
+    end
+
+    context "render_string method" do
+      should "call render_with the render! method" do
+        args = ["foo", "bar", "baz"]
+        Vagrant::Util::TemplateRenderer.expects(:render_with).with(:render_string, *args)
+        Vagrant::Util::TemplateRenderer.render_string(*args)
+      end
     end
   end
 end

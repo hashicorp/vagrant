@@ -11,12 +11,27 @@ module Vagrant
         # takes a block which will be passed the renderer prior to rendering, which
         # allows the caller to set any view variables within the renderer itself.
         #
-        # @param [String] template Name of the template file, without the extension
         # @return [String] Rendered template
-        def render!(template, data={})
+        def render(*args)
+          render_with(:render, *args)
+        end
+
+        # Render a given string and return the result. This method optionally
+        # takes a block which will be passed the renderer prior to rendering, which
+        # allows the caller to set any view variables within the renderer itself.
+        #
+        # @param [String] template The template data string.
+        # @return [String] Rendered template
+        def render_string(*args)
+          render_with(:render_string, *args)
+        end
+
+        # Method used internally to DRY out the other renderers. This method
+        # creates and sets up the renderer before calling a specified method on it.
+        def render_with(method, template, data={})
           renderer = new(template, data)
           yield renderer if block_given?
-          renderer.render
+          renderer.send(method.to_sym)
         end
       end
 
