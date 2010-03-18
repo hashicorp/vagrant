@@ -35,13 +35,25 @@ module Vagrant
       #
       # @return [String]
       def render
+        # TODO: Seems like a pretty dirty way to do this. Perhaps refactor this
+        old_template = template
         result = nil
         File.open(full_template_path, 'r') do |f|
-          erb = ERB.new(f.read)
-          result = erb.result(binding)
+          self.template = f.read
+          result = render_string
         end
 
         result
+      ensure
+        self.template = old_template
+      end
+
+      # Renders a template, handling the template as a string, but otherwise
+      # acting the same way as {#render}.
+      #
+      # @return [String]
+      def render_string
+        ERB.new(template).result(binding)
       end
 
       # Returns the full path to the template, taking into accoun the gem directory

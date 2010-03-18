@@ -24,9 +24,6 @@ class TemplateRendererUtilTest < Test::Unit::TestCase
       @file = mock("file")
       @file.stubs(:read).returns(@contents)
       File.stubs(:open).yields(@file)
-
-      @erb = mock("erb")
-      @erb.stubs(:result)
     end
 
     should "open the template file for reading" do
@@ -34,15 +31,13 @@ class TemplateRendererUtilTest < Test::Unit::TestCase
       @r.render
     end
 
-    should "create an ERB object with the file contents" do
-      ERB.expects(:new).with(@file.read).returns(@erb)
-      @r.render
-    end
+    should "set the template to the file contents, render, then set it back" do
+      result = "bar"
 
-    should "render the ERB file and return the results" do
-      result = mock("result")
-      ERB.expects(:new).returns(@erb)
-      @erb.expects(:result).with(anything).once.returns(result)
+      template_seq = sequence("template_seq")
+      @r.expects(:template=).with(@file.read).in_sequence(template_seq)
+      @r.expects(:render_string).returns(result).in_sequence(template_seq)
+      @r.expects(:template=).with(@template).in_sequence(template_seq)
       assert_equal result, @r.render
     end
 
@@ -52,6 +47,21 @@ class TemplateRendererUtilTest < Test::Unit::TestCase
       @r.foo = result
       @file.expects(:read).returns(template)
       assert_equal result, @r.render
+    end
+  end
+
+  context "rendering as string" do
+    setup do
+      @result = "foo"
+      @erb = mock("erb")
+      @erb.stubs(:result).returns(@result)
+
+      @r = Vagrant::Util::TemplateRenderer.new("foo")
+    end
+
+    should "simply render the template as a string" do
+      ERB.expects(:new).with(@r.template).returns(@erb)
+      assert_equal @result, @r.render_string
     end
   end
 
