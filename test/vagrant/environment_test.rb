@@ -30,6 +30,17 @@ class EnvironmentTest < Test::Unit::TestCase
         assert_equal File.join(@env.root_path, @env.config.vagrant.dotfile_name), @env.dotfile_path
       end
     end
+
+    context "home path" do
+      should "return nil if config is not yet loaded" do
+        @env.stubs(:config).returns(nil)
+        assert_nil @env.home_path
+      end
+
+      should "return the home path if it loaded" do
+        assert_equal @env.config.vagrant.home, @env.home_path
+      end
+    end
   end
 
   context "loading" do
@@ -113,8 +124,9 @@ class EnvironmentTest < Test::Unit::TestCase
     context "loading config" do
       setup do
         @root_path = "/foo"
-        @env = Vagrant::Environment.new
+        @home_path = "/bar"
         @env.stubs(:root_path).returns(@root_path)
+        @env.stubs(:home_path).returns(@home_path)
 
         File.stubs(:exist?).returns(false)
         Vagrant::Config.stubs(:execute!)
@@ -139,6 +151,32 @@ class EnvironmentTest < Test::Unit::TestCase
       should "not load from the root path if nil" do
         @env.stubs(:root_path).returns(nil)
         File.expects(:exist?).with(File.join(@root_path, Vagrant::Environment::ROOTFILE_NAME)).never
+        @env.load_config!
+      end
+
+      should "load from the home directory" do
+        File.expects(:exist?).with(File.join(@env.home_path, Vagrant::Environment::ROOTFILE_NAME)).once
+        @env.load_config!
+      end
+
+      should "not load from the home directory if the config is nil" do
+        @env.stubs(:home_path).returns(nil)
+        File.expects(:exist?).twice.returns(false)
+        @env.load_config!
+      end
+
+      should "not load from the box directory if it is nil" do
+        @env.expects(:box).once.returns(nil)
+        File.expects(:exist?).twice.returns(false)
+        @env.load_config!
+      end
+
+      should "load from the box directory if it is not nil" do
+        dir = "foo"
+        box = mock("box")
+        box.stubs(:directory).returns(dir)
+        @env.expects(:box).twice.returns(box)
+        File.expects(:exist?).with(File.join(dir, Vagrant::Environment::ROOTFILE_NAME)).once
         @env.load_config!
       end
 

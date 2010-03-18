@@ -32,6 +32,11 @@ module Vagrant
       File.join(root_path, config.vagrant.dotfile_name)
     end
 
+    # The path to the home directory, which is usually in `~/.vagrant/~
+    def home_path
+      config ? config.vagrant.home : nil
+    end
+
     #---------------------------------------------------------------
     # Load Methods
     #---------------------------------------------------------------
@@ -74,6 +79,8 @@ module Vagrant
     def load_config!
       # Prepare load paths for config files
       load_paths = [File.join(PROJECT_ROOT, "config", "default.rb")]
+      load_paths << File.join(box.directory, ROOTFILE_NAME) if box
+      load_paths << File.join(home_path, ROOTFILE_NAME) if home_path
       load_paths << File.join(root_path, ROOTFILE_NAME) if root_path
 
       # Clear out the old data
@@ -94,8 +101,6 @@ module Vagrant
     # Loads the home directory path and creates the necessary subdirectories
     # within the home directory if they're not already created.
     def load_home_directory!
-      home_path = File.expand_path(config.vagrant.home)
-
       # Setup the array of necessary home directories
       dirs = HOME_SUBDIRS.collect { |subdir| File.join(home_path, subdir) }
       dirs.unshift(home_path)
