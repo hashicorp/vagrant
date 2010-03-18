@@ -1,14 +1,14 @@
-require File.join(File.dirname(__FILE__), '..', 'test_helper')
+require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
 
-class TemplateRendererTest < Test::Unit::TestCase
+class TemplateRendererUtilTest < Test::Unit::TestCase
   context "initializing" do
     should "set the template to the given argument" do
-      r = Vagrant::TemplateRenderer.new("foo")
+      r = Vagrant::Util::TemplateRenderer.new("foo")
       assert_equal "foo", r.template
     end
 
     should "set any additional variables" do
-      r = Vagrant::TemplateRenderer.new("foo", {:bar => :baz})
+      r = Vagrant::Util::TemplateRenderer.new("foo", {:bar => :baz})
       assert_equal :baz, r.bar
     end
   end
@@ -16,7 +16,7 @@ class TemplateRendererTest < Test::Unit::TestCase
   context "rendering" do
     setup do
       @template = "foo"
-      @r = Vagrant::TemplateRenderer.new(@template)
+      @r = Vagrant::Util::TemplateRenderer.new(@template)
       @r.stubs(:full_template_path).returns(@template + "!")
 
       @contents = "bar"
@@ -58,7 +58,7 @@ class TemplateRendererTest < Test::Unit::TestCase
   context "the full template path" do
     setup do
       @template = "foo"
-      @r = Vagrant::TemplateRenderer.new(@template)
+      @r = Vagrant::Util::TemplateRenderer.new(@template)
     end
 
     should "be the ERB file in the templates directory" do
@@ -70,28 +70,28 @@ class TemplateRendererTest < Test::Unit::TestCase
   context "class-level render! method" do
     setup do
       @template = "foo"
-      @r = Vagrant::TemplateRenderer.new(@template)
+      @r = Vagrant::Util::TemplateRenderer.new(@template)
       @r.stubs(:render)
 
-      Vagrant::TemplateRenderer.stubs(:new).with(@template, {}).returns(@r)
+      Vagrant::Util::TemplateRenderer.stubs(:new).with(@template, {}).returns(@r)
     end
 
     should "use the first argument as the template" do
       template = "foo"
-      Vagrant::TemplateRenderer.expects(:new).with(template, {}).returns(@r)
-      Vagrant::TemplateRenderer.render!(template)
+      Vagrant::Util::TemplateRenderer.expects(:new).with(template, {}).returns(@r)
+      Vagrant::Util::TemplateRenderer.render!(template)
     end
 
     should "send in additional argument to the renderer" do
       template = "foo"
       data = {:hey => :foo}
-      Vagrant::TemplateRenderer.expects(:new).with(template, data).returns(@r)
-      Vagrant::TemplateRenderer.render!(template, data)
+      Vagrant::Util::TemplateRenderer.expects(:new).with(template, data).returns(@r)
+      Vagrant::Util::TemplateRenderer.render!(template, data)
     end
 
     should "yield a block if given with the renderer as the argument" do
       @r.expects(:yielded=).with(true).once
-      Vagrant::TemplateRenderer.render!(@template) do |r|
+      Vagrant::Util::TemplateRenderer.render!(@template) do |r|
         r.yielded = true
       end
     end
@@ -99,7 +99,7 @@ class TemplateRendererTest < Test::Unit::TestCase
     should "render the result" do
       result = mock('result')
       @r.expects(:render).returns(result)
-      assert_equal result, Vagrant::TemplateRenderer.render!(@template)
+      assert_equal result, Vagrant::Util::TemplateRenderer.render!(@template)
     end
   end
 end

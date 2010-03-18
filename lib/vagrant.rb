@@ -3,7 +3,7 @@ PROJECT_ROOT = File.join(libdir, '..') unless defined?(PROJECT_ROOT)
 
 # The libs which must be loaded prior to the rest
 %w{tempfile open-uri json pathname logger uri net/http virtualbox net/ssh archive/tar/minitar
-  net/scp fileutils ostruct erb}.each do |lib|
+  net/scp fileutils}.each do |lib|
   require lib
 end
 

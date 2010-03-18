@@ -17,7 +17,7 @@ class CommandsTest < Test::Unit::TestCase
       File.stubs(:open).yields(@file)
       @rootfile_path = File.join(Dir.pwd, Vagrant::Env::ROOTFILE_NAME)
 
-      Vagrant::TemplateRenderer.stubs(:render!)
+      Vagrant::Util::TemplateRenderer.stubs(:render!)
     end
 
     should "error and exit if a rootfile already exists" do
@@ -28,7 +28,7 @@ class CommandsTest < Test::Unit::TestCase
 
     should "write to the rootfile path using the template renderer" do
       result = "foo"
-      Vagrant::TemplateRenderer.expects(:render!).returns(result).once
+      Vagrant::Util::TemplateRenderer.expects(:render!).returns(result).once
       @file.expects(:write).with(result).once
       File.expects(:open).with(@rootfile_path, 'w+').yields(@file)
 
@@ -37,12 +37,12 @@ class CommandsTest < Test::Unit::TestCase
 
     should "use the given base box if given" do
       box = "zooo"
-      Vagrant::TemplateRenderer.expects(:render!).with(Vagrant::Env::ROOTFILE_NAME, :default_box => box)
+      Vagrant::Util::TemplateRenderer.expects(:render!).with(Vagrant::Env::ROOTFILE_NAME, :default_box => box)
       Vagrant::Commands.init(box)
     end
 
     should "use the default `base` if no box is given" do
-      Vagrant::TemplateRenderer.expects(:render!).with(Vagrant::Env::ROOTFILE_NAME, :default_box => "base")
+      Vagrant::Util::TemplateRenderer.expects(:render!).with(Vagrant::Env::ROOTFILE_NAME, :default_box => "base")
       Vagrant::Commands.init
     end
   end
