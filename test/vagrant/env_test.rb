@@ -389,16 +389,13 @@ class EnvTest < Test::Unit::TestCase
       Vagrant::Env.require_box
     end
 
-    should "error and exit if no box is found" do
+    should "error and exit if no box is specified" do
       mock_config do |config|
         config.vm.box = nil
       end
 
       Vagrant::Env.expects(:box).returns(nil)
-      Vagrant::Env.expects(:error_and_exit).once.with() do |msg|
-        assert msg =~ /no base box was specified/i
-        true
-      end
+      Vagrant::Env.expects(:error_and_exit).once.with(:box_not_specified)
       Vagrant::Env.require_box
     end
 
@@ -408,10 +405,7 @@ class EnvTest < Test::Unit::TestCase
       end
 
       Vagrant::Env.expects(:box).returns(nil)
-      Vagrant::Env.expects(:error_and_exit).once.with() do |msg|
-        assert msg =~ /does not exist/i
-        true
-      end
+      Vagrant::Env.expects(:error_and_exit).once.with(:box_specified_doesnt_exist, :box_name => "foo")
       Vagrant::Env.require_box
     end
   end

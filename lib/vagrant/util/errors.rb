@@ -8,6 +8,8 @@ module Vagrant
       @@errors = nil
 
       class <<self
+        # Resets the internal errors hash to nil, forcing a reload on the next
+        # access of {errors}.
         def reset!
           @@errors = nil
         end

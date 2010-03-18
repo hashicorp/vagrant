@@ -14,10 +14,7 @@ module Vagrant
       def init(default_box=nil)
         rootfile_path = File.join(Dir.pwd, Env::ROOTFILE_NAME)
         if File.exist?(rootfile_path)
-          error_and_exit(<<-error)
-It looks like this directory is already setup for vagrant! (A #{Env::ROOTFILE_NAME}
-already exists.)
-error
+          error_and_exit(:rootfile_already_exists, :rootfile => Env::ROOTFILE_NAME)
         end
 
         # Copy over the rootfile template into this directory
@@ -162,9 +159,7 @@ msg
       def package(out_path=nil, include_files=[])
         Env.load!
         Env.require_persisted_vm
-        error_and_exit(<<-error) unless Env.persisted_vm.powered_off?
-The vagrant virtual environment you are trying to package must be powered off
-error
+        error_and_exit(:vm_power_off_to_package) unless Env.persisted_vm.powered_off?
 
         Env.persisted_vm.package(out_path, include_files)
       end
@@ -179,14 +174,7 @@ error
         sub_commands = ["list", "add", "remove"]
 
         if !sub_commands.include?(argv[0])
-          error_and_exit(<<-error)
-Please specify a valid action to take on the boxes, either
-`add` or `remove`. Examples:
-
-vagrant box add name uri
-vagrant box remove name
-vagrant box list
-error
+          error_and_exit(:command_box_invalid)
         end
 
         send("box_#{argv[0]}", *argv[1..-1])
@@ -217,9 +205,7 @@ error
       def box_remove(name)
         box = Box.find(name)
         if box.nil?
-          error_and_exit(<<-error)
-The box you're attempting to remove does not exist!
-error
+          error_and_exit(:box_remove_doesnt_exist)
           return # for tests
         end
 

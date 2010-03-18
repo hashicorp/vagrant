@@ -21,10 +21,7 @@ module Vagrant
 
         def setup_box_dir
           if File.directory?(box_dir)
-            error_and_exit(<<-msg)
-This box appears to already exist! Please call `vagrant box remove #{@runner.name}`
-and then try to add it again.
-msg
+            error_and_exit(:box_already_exists, :box_name => @runner.name)
           end
 
           FileUtils.mkdir_p(box_dir)

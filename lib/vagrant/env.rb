@@ -32,43 +32,13 @@ module Vagrant
       def check_virtualbox!
         version = VirtualBox::Command.version
         if version.nil?
-          error_and_exit(<<-msg)
-Vagrant could not detect VirtualBox! Make sure VirtualBox is properly installed.
-If VirtualBox is installed, you may need to tweak the paths to the `VBoxManage`
-application which ships with VirtualBox and the path to the global XML configuration
-which VirtualBox typically stores somewhere in your home directory.
-
-The following shows how to configure VirtualBox. This can be done in the
-Vagrantfile. Note that 90% of the time, you shouldn't need to do this if VirtualBox
-is installed. Please use the various Vagrant support lines to request more information
-if you can't get this working.
-
-VirtualBox::Command.vboxmanage = "/path/to/my/VBoxManage"
-VirtualBox::Global.vboxconfig = "~/path/to/VirtualBox.xml"
-msg
+          error_and_exit(:virtualbox_not_detected)
         elsif version.to_f < 3.1
-          error_and_exit(<<-msg)
-Vagrant has detected that you have VirtualBox version #{version} installed!
-Vagrant requires that you use at least VirtualBox version 3.1. Please install
-a more recent version of VirtualBox to continue.
-msg
+          error_and_exit(:virtualbox_invalid_version, :version => version.to_s)
         end
 
         if !VirtualBox::Global.vboxconfig?
-          error_and_exit(<<-msg)
-Vagrant couldn't find your global VirtualBox.xml file!
-
-If you just recently installed VirtualBox, make sure you've launched
-it at least once, since the initial launch will typically create this
-file.
-
-Otherwise, you may need to set the path to the VirtualBox.xml file
-manually. Note that 90% of people should never have to do this, so
-don't be afraid to use the various Vagrant support lines to ask for
-help. To set the path manually:
-
-VirtualBox::Global.vboxconfig = "/path/to/VirtualBox.xml"
-msg
+          error_and_exit(:virtualbox_xml_not_detected)
         end
       end
 
@@ -158,12 +128,7 @@ msg
 
       def require_root_path
         if !root_path
-          error_and_exit(<<-msg)
-A `#{ROOTFILE_NAME}` was not found! This file is required for vagrant to run
-since it describes the expected environment that vagrant is supposed
-to manage. Please create a #{ROOTFILE_NAME} and place it in your project
-root.
-msg
+          error_and_exit(:rootfile_not_found, :rootfile => ROOTFILE_NAME)
         end
       end
 
@@ -172,18 +137,9 @@ msg
 
         if !box
           if !Vagrant.config.vm.box
-            error_and_exit(<<-msg)
-No base box was specified! A base box is required as a staring point
-for every vagrant virtual machine. Please specify one in your Vagrantfile
-using `config.vm.box`
-msg
+            error_and_exit(:box_not_specified)
           else
-            error_and_exit(<<-msg)
-Specified box `#{Vagrant.config.vm.box}` does not exist!
-
-The box must be added through the `vagrant box add` command. Please view
-the documentation associated with the command for more information.
-msg
+            error_and_exit(:box_specified_doesnt_exist, :box_name => Vagrant.config.vm.box)
           end
         end
       end
@@ -192,13 +148,7 @@ msg
         require_root_path
 
         if !persisted_vm
-          error_and_exit(<<-error)
-The task you're trying to run requires that the vagrant environment
-already be created, but unfortunately this vagrant still appears to
-have no box! You can setup the environment by setting up your
-#{ROOTFILE_NAME} and running `vagrant up`
-error
-          return
+          error_and_exit(:environment_not_created)
         end
       end
     end

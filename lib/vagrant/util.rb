@@ -10,12 +10,12 @@ module Vagrant
       puts "====================================================================="
     end
 
-    def error_and_exit(error)
+    def error_and_exit(key, data = {})
       abort <<-error
 =====================================================================
 Vagrant experienced an error!
 
-#{error.chomp}
+#{Errors.error_string(key, data).chomp}
 =====================================================================
 error
     end

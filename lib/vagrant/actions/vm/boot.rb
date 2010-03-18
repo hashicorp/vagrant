@@ -14,9 +14,7 @@ module Vagrant
             # Wait for it to complete booting, or error if we could
             # never detect it booted up successfully
             if !wait_for_boot
-              error_and_exit(<<-error)
-Failed to connect to VM! Failed to boot?
-error
+              error_and_exit(:vm_failed_to_boot)
             end
           end
         end

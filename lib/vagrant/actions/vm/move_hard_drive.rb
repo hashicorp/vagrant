@@ -4,9 +4,7 @@ module Vagrant
       class MoveHardDrive < Base
         def execute!
           unless @runner.powered_off?
-            error_and_exit(<<-error)
-The virtual machine must be powered off to move its disk.
-error
+            error_and_exit(:vm_power_off_to_move_hd)
             return
           end
 
