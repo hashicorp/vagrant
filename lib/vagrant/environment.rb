@@ -8,6 +8,7 @@ module Vagrant
 
     include Util
 
+    attr_accessor :cwd
     attr_reader :root_path
     attr_reader :config
     attr_reader :box
@@ -16,6 +17,14 @@ module Vagrant
     #---------------------------------------------------------------
     # Path Helpers
     #---------------------------------------------------------------
+
+    # Specifies the "current working directory" for this environment.
+    # This is vital in determining the root path and therefore the
+    # dotfile, rootpath vagrantfile, etc. This defaults to the
+    # actual cwd (`Dir.pwd`).
+    def cwd
+      @cwd || Dir.pwd
+    end
 
     # The path to the `dotfile`, which contains the persisted UUID of
     # the VM if it exists.
@@ -26,6 +35,37 @@ module Vagrant
     #---------------------------------------------------------------
     # Load Methods
     #---------------------------------------------------------------
+
+    # Loads this entire environment, setting up the instance variables
+    # such as `vm`, `config`, etc. on this environment. The order this
+    # method calls its other methods is very particular.
+    def load!
+      load_root_path!
+      load_config!
+      load_home_directory!
+      load_box!
+      load_config!
+      load_vm!
+    end
+
+    # Loads the root path of this environment, given the starting
+    # directory (the "cwd" of this environment for lack of better words).
+    # This method allows an environment in `/foo` to be detected from
+    # `/foo/bar` (similar to how git works in subdirectories)
+    def load_root_path!(path=nil)
+      path = Pathname.new(File.expand_path(path || cwd))
+
+      # Stop if we're at the root.
+      return false if path.root?
+
+      file = "#{path}/#{ROOTFILE_NAME}"
+      if File.exist?(file)
+        @root_path = path.to_s
+        return true
+      end
+
+      load_root_path!(path.parent)
+    end
 
     # Loads this environment's configuration and stores it in the {config}
     # variable. The configuration loaded by this method is specified to
