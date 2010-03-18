@@ -11,7 +11,7 @@ module Vagrant
       # initial `Vagrantfile` into the current working directory so you can
       # begin using vagrant. The configuration file contains some documentation
       # to get you started.
-      def init
+      def init(default_box=nil)
         rootfile_path = File.join(Dir.pwd, Env::ROOTFILE_NAME)
         if File.exist?(rootfile_path)
           error_and_exit(<<-error)
@@ -21,7 +21,10 @@ error
         end
 
         # Copy over the rootfile template into this directory
-        FileUtils.cp(File.join(PROJECT_ROOT, "templates", Env::ROOTFILE_NAME), rootfile_path)
+        default_box ||= "base"
+        File.open(rootfile_path, 'w+') do |f|
+          f.write(TemplateRenderer.render!(Env::ROOTFILE_NAME, :default_box => default_box))
+        end
       end
 
       # Outputs the status of the current environment. This command outputs

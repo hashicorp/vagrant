@@ -12,9 +12,12 @@ class CommandsTest < Test::Unit::TestCase
 
   context "init" do
     setup do
-      FileUtils.stubs(:cp)
+      @file = mock("file")
+      @file.stubs(:write)
+      File.stubs(:open).yields(@file)
       @rootfile_path = File.join(Dir.pwd, Vagrant::Env::ROOTFILE_NAME)
-      @template_path = File.join(PROJECT_ROOT, "templates", Vagrant::Env::ROOTFILE_NAME)
+
+      Vagrant::TemplateRenderer.stubs(:render!)
     end
 
     should "error and exit if a rootfile already exists" do
@@ -23,9 +26,23 @@ class CommandsTest < Test::Unit::TestCase
       Vagrant::Commands.init
     end
 
-    should "copy the templated rootfile to the current path" do
-      File.expects(:exist?).with(@rootfile_path).returns(false)
-      FileUtils.expects(:cp).with(@template_path, @rootfile_path).once
+    should "write to the rootfile path using the template renderer" do
+      result = "foo"
+      Vagrant::TemplateRenderer.expects(:render!).returns(result).once
+      @file.expects(:write).with(result).once
+      File.expects(:open).with(@rootfile_path, 'w+').yields(@file)
+
+      Vagrant::Commands.init
+    end
+
+    should "use the given base box if given" do
+      box = "zooo"
+      Vagrant::TemplateRenderer.expects(:render!).with(Vagrant::Env::ROOTFILE_NAME, :default_box => box)
+      Vagrant::Commands.init(box)
+    end
+
+    should "use the default `base` if no box is given" do
+      Vagrant::TemplateRenderer.expects(:render!).with(Vagrant::Env::ROOTFILE_NAME, :default_box => "base")
       Vagrant::Commands.init
     end
   end

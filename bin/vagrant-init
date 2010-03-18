@@ -22,6 +22,6 @@ Creates the initial files required for using vagrant.
 EOS
 
   run do |command|
-    Vagrant::Commands.init
+    Vagrant::Commands.init(command.argv[0])
   end
 end
