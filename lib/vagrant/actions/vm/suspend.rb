@@ -4,7 +4,7 @@ module Vagrant
       class Suspend < Base
         def execute!
           if !@runner.vm.running?
-            raise ActionException.new("The vagrant virtual environment you are trying to suspend must be running to be suspended.")
+            raise ActionException.new(:vm_not_running_for_suspend)
           end
 
           logger.info "Saving VM state and suspending execution..."

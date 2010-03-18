@@ -84,15 +84,15 @@ module Vagrant
       def rescue(exception); end
 
       # The following two methods are used for declaring action dependencies.
-      # For example, you require that the reload action be in place before 
+      # For example, you require that the reload action be in place before
       # a your new FooAction you might do the following
       #
       # def follows; [Reload] end
-      
+
       # This method is called when the runner is determining the actions that
       # must precede a given action. You would say "This action follows [Action1, Action2]"
       def follows; [] end
-      
+
       # This method is called when the runner is determining the actions that
       # must follow a given action. You would say "This action precedes [Action3, Action4]
       def precedes; [] end
@@ -102,6 +102,17 @@ module Vagrant
     # {Vagrant::Util#error_and_exit error_and_exit}, since it allows the {Runner} to call
     # {Base#rescue rescue} on all the actions and properly exit. Any message
     # passed into the {ActionException} is then shown and and vagrant exits.
-    class ActionException < Exception; end
+    class ActionException < Exception
+      attr_reader :key
+      attr_reader :data
+
+      def initialize(key, data = {})
+        @key = key
+        @data = data
+
+        message = Vagrant::Util::Errors.error_string(key, data)
+        super(message)
+      end
+    end
   end
 end

@@ -27,7 +27,8 @@ module Vagrant
         #
         # @return [String]
         def error_string(key, data = {})
-          TemplateRenderer.render_string(errors[key], data)
+          template = errors[key] || "Unknown error key: #{key}"
+          TemplateRenderer.render_string(template, data)
         end
       end
     end

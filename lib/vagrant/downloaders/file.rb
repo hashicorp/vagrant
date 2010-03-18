@@ -5,11 +5,7 @@ module Vagrant
     class File < Base
       def prepare(source_url)
         if !::File.file?(source_url)
-          raise Actions::ActionException.new(<<-msg)
-The given box does not exist on the file system:
-
-#{source_url}
-msg
+          raise Actions::ActionException.new(:downloader_file_doesnt_exist, :source_url => source_url)
         end
       end
 

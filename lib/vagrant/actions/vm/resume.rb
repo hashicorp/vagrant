@@ -4,7 +4,7 @@ module Vagrant
       class Resume < Base
         def execute!
           if !@runner.vm.saved?
-            raise ActionException.new("The vagrant virtual environment you are trying to resume is not in a suspended state.")
+            raise ActionException.new(:vm_not_suspended)
           end
 
           logger.info "Resuming suspended VM..."

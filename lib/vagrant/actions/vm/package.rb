@@ -16,12 +16,12 @@ module Vagrant
         def prepare
           # Verify the existance of all the additional files, if any
           @include_files.each do |file|
-            raise ActionException.new("#{file} does not exist") unless File.exists?(file)
+            raise ActionException.new(:package_include_file_doesnt_exist, :filename => file) unless File.exists?(file)
           end
 
           # Get the export action and store a reference to it
           @export_action = @runner.find_action(Export)
-          raise ActionException.new("Package must be used in conjunction with export.") unless @export_action
+          raise ActionException.new(:packaged_requires_export) unless @export_action
         end
 
         def execute!

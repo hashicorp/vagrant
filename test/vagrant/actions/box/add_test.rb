@@ -27,7 +27,7 @@ class AddBoxActionTest < Test::Unit::TestCase
 
     should "result in an action exception if the box already exists" do
       File.expects(:exists?).once.returns(true)
-      @runner.expects(:name).twice.returns('foo')
+      @runner.expects(:name).once.returns('foo')
       @runner.expects(:add_action).never
       assert_raise Vagrant::Actions::ActionException do
         @action.prepare

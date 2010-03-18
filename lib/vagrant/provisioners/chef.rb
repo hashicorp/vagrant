@@ -66,7 +66,7 @@ module Vagrant
       Config.configures :chef, ChefConfig
 
       def prepare
-        raise Actions::ActionException.new("Vagrant::Provisioners::Chef is not a valid provisioner! Use ChefSolo or ChefServer instead.")
+        raise Actions::ActionException.new(:chef_base_invalid_provisioner)
       end
 
       def chown_provisioning_folder

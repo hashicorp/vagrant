@@ -10,7 +10,7 @@ module Vagrant
       class Add < Base
         def prepare
           if File.exists?(@runner.directory)
-            raise ActionException.new("A box with the name '#{@runner.name}' already exists, please use another name or use `vagrant box remove #{@runner.name}`")
+            raise ActionException.new(:box_add_already_exists, :box_name => @runner.name)
           end
 
           @runner.add_action(Download)

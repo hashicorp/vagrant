@@ -48,5 +48,10 @@ class ErrorsUtilTest < Test::Unit::TestCase
       TemplateRenderer.expects(:render_string).returns(result)
       assert_equal result, Errors.error_string(:foo)
     end
+
+    should "return an unknown if the key doesn't exist" do
+      result = Errors.error_string(:unknown)
+      assert result =~ /Unknown/i
+    end
   end
 end

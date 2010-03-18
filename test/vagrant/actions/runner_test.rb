@@ -212,11 +212,10 @@ class ActionRunnerTest < Test::Unit::TestCase
       end
 
       should "call error_and_exit if it is an ActionException" do
-        msg = "Message"
-        @exception = Vagrant::Actions::ActionException.new(msg)
+        @exception = Vagrant::Actions::ActionException.new("foo")
         @actions[0].stubs(:prepare).raises(@exception)
 
-        @runner.expects(:error_and_exit).with(msg).once
+        @runner.expects(:error_and_exit).with(@exception.message).once
         @runner.execute!
       end
     end
@@ -243,7 +242,7 @@ class ActionRunnerTest < Test::Unit::TestCase
     setup do
       @runner = Vagrant::Actions::Runner.new
     end
-    
+
     should "should be raised when a duplicate is added" do
       action = mock_fake_action
       2.times {@runner.actions << action }
@@ -255,7 +254,7 @@ class ActionRunnerTest < Test::Unit::TestCase
     should "should not be raise when no duplicate actions are present" do
       @runner.actions << mock_fake_action(Vagrant::Actions::Base, @runner)
       @runner.actions << mock_fake_action(Vagrant::Actions::VM::Halt, @runner)
-      
+
       assert_nothing_raised { @runner.execute! }
     end
 

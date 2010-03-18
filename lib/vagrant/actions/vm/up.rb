@@ -5,17 +5,7 @@ module Vagrant
         def prepare
           # If the dotfile is not a file, raise error
           if File.exist?(Env.dotfile_path) && !File.file?(Env.dotfile_path)
-            raise ActionException.new(<<-msg)
-The dotfile which Vagrant uses to store the UUID of the project's
-virtual machine already exists and is not a file! The dotfile is
-currently configured to be `#{Env.dotfile_path}`
-
-To change this value, please see `config.vagrant.dotfile_name`
-
-This often exists if you're trying to create a Vagrant virtual
-environment from your home directory. To resolve this, you can either
-modify the configuration a bit, or simply use a different directory.
-msg
+            raise ActionException.new(:dotfile_error)
           end
 
           # Up is a "meta-action" so it really just queues up a bunch

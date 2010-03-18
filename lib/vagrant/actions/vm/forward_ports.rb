@@ -9,17 +9,7 @@ module Vagrant
             vm.forwarded_ports.each do |fp|
               Vagrant.config.vm.forwarded_ports.each do |name, options|
                 if fp.hostport.to_s == options[:hostport].to_s
-                  raise ActionException.new(<<-msg)
-Vagrant cannot forward the specified ports on this VM, since they
-would collide with another VirtualBox virtual machine's forwarded
-ports! The "#{name}" forwarded port (#{fp.hostport}) is already in use on the host
-machine.
-
-To fix this, modify your current projects Vagrantfile to use another
-port. Example, where '1234' would be replaced by a unique host port:
-
-config.vm.forward_port("#{name}", #{options[:guestport]}, 1234)
-msg
+                  raise ActionException.new(:vm_port_collision, :name => name, :hostport => fp.hostport.to_s, :guestport => options[:guestport].to_s)
                 end
               end
             end

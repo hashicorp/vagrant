@@ -20,7 +20,7 @@ module Vagrant
 
           if provisioner.is_a?(Class)
             @provisioner = provisioner.new
-            raise ActionException.new("Provisioners must be an instance of Vagrant::Provisioners::Base") unless @provisioner.is_a?(Provisioners::Base)
+            raise ActionException.new(:provisioner_invalid_class) unless @provisioner.is_a?(Provisioners::Base)
           elsif provisioner.is_a?(Symbol)
             # We have a few hard coded provisioners for built-ins
             mapping = {
@@ -29,7 +29,7 @@ module Vagrant
             }
 
             provisioner_klass = mapping[provisioner]
-            raise ActionException.new("Unknown provisioner type: #{provisioner}") if provisioner_klass.nil?
+            raise ActionException.new(:provisioner_unknown_type, :provisioner => provisioner.to_s) if provisioner_klass.nil?
             @provisioner = provisioner_klass.new
           end
 

@@ -25,7 +25,7 @@ module Vagrant
             end
           end
 
-          raise ActionException.new("Unknown URI type for box download.") unless @downloader
+          raise ActionException.new(:box_download_unknown_type) unless @downloader
 
           # Prepare the downloader
           @downloader.prepare(@runner.uri)
