@@ -1,8 +1,8 @@
-require File.join(File.dirname(__FILE__), '..', 'test_helper')
+require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
 
-class StackedProcRunnerTest < Test::Unit::TestCase
+class StackedProcRunnerUtilTest < Test::Unit::TestCase
   class TestClass
-    include Vagrant::StackedProcRunner
+    include Vagrant::Util::StackedProcRunner
   end
 
   setup do

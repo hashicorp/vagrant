@@ -4,7 +4,7 @@ module Vagrant
   end
 
   class Config
-    extend StackedProcRunner
+    extend Util::StackedProcRunner
 
     @@config = nil
 
@@ -66,7 +66,7 @@ module Vagrant
     end
 
     class VMConfig < Base
-      include StackedProcRunner
+      include Util::StackedProcRunner
 
       attr_accessor :box
       attr_accessor :box_ovf

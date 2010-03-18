@@ -205,7 +205,7 @@ class ConfigTest < Test::Unit::TestCase
     end
 
     should "include the stacked proc runner module" do
-      assert @config.class.included_modules.include?(Vagrant::StackedProcRunner)
+      assert @config.class.included_modules.include?(Vagrant::Util::StackedProcRunner)
     end
 
     should "add the customize proc to the proc stack" do
