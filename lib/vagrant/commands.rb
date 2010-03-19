@@ -125,9 +125,9 @@ msg
       # This command requires than an instance already be brought up with
       # `vagrant up`.
       def halt
-        Env.load!
-        Env.require_persisted_vm
-        Env.persisted_vm.execute!(Actions::VM::Halt)
+        env = Environment.load!
+        env.require_persisted_vm
+        env.vm.execute!(Actions::VM::Halt)
       end
 
       # Suspend a running vagrant instance. This suspends the instance, saving
