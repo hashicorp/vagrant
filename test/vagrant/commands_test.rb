@@ -120,16 +120,21 @@ class CommandsTest < Test::Unit::TestCase
 
   context "ssh" do
     setup do
-      Vagrant::SSH.stubs(:connect)
+      @env.ssh.stubs(:connect)
+    end
+
+    should "load the current environment" do
+      Vagrant::Environment.expects(:load!).once.returns(@env)
+      Vagrant::Commands.ssh
     end
 
     should "require a persisted VM" do
-      Vagrant::Env.expects(:require_persisted_vm).once
+      @env.expects(:require_persisted_vm).once
       Vagrant::Commands.ssh
     end
 
     should "connect to SSH" do
-      Vagrant::SSH.expects(:connect).once
+      @env.ssh.expects(:connect).once
       Vagrant::Commands.ssh
     end
   end

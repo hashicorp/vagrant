@@ -113,9 +113,9 @@ msg
       # This command requires that an instance already be brought up with
       # `vagrant up`.
       def ssh
-        Env.load!
-        Env.require_persisted_vm
-        SSH.connect
+        env = Environment.load!
+        env.require_persisted_vm
+        env.ssh.connect
       end
 
       # Halts a running vagrant instance. This forcibly halts the instance;
