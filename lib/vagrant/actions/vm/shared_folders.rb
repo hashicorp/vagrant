@@ -3,7 +3,7 @@ module Vagrant
     module VM
       class SharedFolders < Base
         def shared_folders
-          Vagrant.config.vm.shared_folders.inject([]) do |acc, data|
+          @runner.env.config.vm.shared_folders.inject([]) do |acc, data|
             name, value = data
             acc << [name, File.expand_path(value[:hostpath]), value[:guestpath]]
           end
@@ -17,7 +17,7 @@ module Vagrant
         def after_boot
           logger.info "Mounting shared folders..."
 
-          Vagrant::SSH.execute do |ssh|
+          @runner.env.ssh.execute do |ssh|
             shared_folders.each do |name, hostpath, guestpath|
               logger.info "-- #{name}: #{guestpath}"
               ssh.exec!("sudo mkdir -p #{guestpath}")
@@ -57,8 +57,8 @@ module Vagrant
 
           # Determine the permission string to attach to the mount command
           perms = []
-          perms << "uid=#{Vagrant.config.vm.shared_folder_uid}"
-          perms << "gid=#{Vagrant.config.vm.shared_folder_gid}"
+          perms << "uid=#{@runner.env.config.vm.shared_folder_uid}"
+          perms << "gid=#{@runner.env.config.vm.shared_folder_gid}"
           perms = " -o #{perms.join(",")}" if !perms.empty?
 
           attempts = 0
