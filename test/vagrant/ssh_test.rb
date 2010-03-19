@@ -6,7 +6,18 @@ class SshTest < Test::Unit::TestCase
   end
 
   context "connecting to SSH" do
-    test "should call exec with defaults when no options are supplied" do
+    setup do
+      Vagrant::SSH.stubs(:check_key_permissions)
+    end
+
+    should "check key permissions prior to exec" do
+      exec_seq = sequence("exec_seq")
+      Vagrant::SSH.expects(:check_key_permissions).with(Vagrant.config.ssh.private_key_path).once.in_sequence(exec_seq)
+      Kernel.expects(:exec).in_sequence(exec_seq)
+      Vagrant::SSH.connect
+    end
+
+    should "call exec with defaults when no options are supplied" do
       ssh = Vagrant.config.ssh
       ssh_exec_expect(Vagrant::SSH.port,
                       Vagrant.config.ssh.private_key_path,
@@ -15,7 +26,7 @@ class SshTest < Test::Unit::TestCase
       Vagrant::SSH.connect
     end
 
-    test "should call exec with supplied params" do
+    should "call exec with supplied params" do
       args = {:username => 'bar', :private_key_path => 'baz', :host => 'bak', :port => 'bag'}
       ssh_exec_expect(args[:port], args[:private_key_path], args[:username], args[:host])
       Vagrant::SSH.connect(args)
@@ -119,6 +130,67 @@ class SshTest < Test::Unit::TestCase
 
     should "return the port given in options if it exists" do
       assert_equal "47", Vagrant::SSH.port({ :port => "47" })
+    end
+  end
+
+  context "checking key permissions" do
+    setup do
+      @key_path = "foo"
+
+      Vagrant::SSH.stubs(:file_perms)
+
+      @stat = mock("stat")
+      @stat.stubs(:owned?).returns(true)
+      File.stubs(:stat).returns(@stat)
+    end
+
+    should "do nothing if the user is not the owner" do
+      @stat.expects(:owned?).returns(false)
+      File.expects(:chmod).never
+      Vagrant::SSH.check_key_permissions(@key_path)
+    end
+
+    should "do nothing if the file perms equal 600" do
+      Vagrant::SSH.expects(:file_perms).with(@key_path).returns("600")
+      File.expects(:chmod).never
+      Vagrant::SSH.check_key_permissions(@key_path)
+    end
+
+    should "chmod the file if the file perms aren't 600" do
+      perm_sequence = sequence("perm_seq")
+      Vagrant::SSH.expects(:file_perms).returns("900").in_sequence(perm_sequence)
+      File.expects(:chmod).with(0600, @key_path).once.in_sequence(perm_sequence)
+      Vagrant::SSH.expects(:file_perms).returns("600").in_sequence(perm_sequence)
+      Vagrant::SSH.expects(:error_and_exit).never
+      Vagrant::SSH.check_key_permissions(@key_path)
+    end
+
+    should "error and exit if the resulting chmod doesn't work" do
+      perm_sequence = sequence("perm_seq")
+      Vagrant::SSH.expects(:file_perms).returns("900").in_sequence(perm_sequence)
+      File.expects(:chmod).with(0600, @key_path).once.in_sequence(perm_sequence)
+      Vagrant::SSH.expects(:file_perms).returns("900").in_sequence(perm_sequence)
+      Vagrant::SSH.expects(:error_and_exit).once.with(:ssh_bad_permissions, :key_path => @key_path).in_sequence(perm_sequence)
+      Vagrant::SSH.check_key_permissions(@key_path)
+    end
+
+    should "error and exit if a bad file perm is raised" do
+      Vagrant::SSH.expects(:file_perms).with(@key_path).returns("900")
+      File.expects(:chmod).raises(Errno::EPERM)
+      Vagrant::SSH.expects(:error_and_exit).once.with(:ssh_bad_permissions, :key_path => @key_path)
+      Vagrant::SSH.check_key_permissions(@key_path)
+    end
+  end
+
+  context "getting file permissions" do
+    should "return the last 3 characters of the file mode" do
+      path = "foo"
+      mode = "10000foo"
+      stat = mock("stat")
+      File.expects(:stat).with(path).returns(stat)
+      stat.expects(:mode).returns(mode)
+      Vagrant::SSH.expects(:sprintf).with("%o", mode).returns(mode)
+      assert_equal path, Vagrant::SSH.file_perms(path)
     end
   end
 end

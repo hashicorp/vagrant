@@ -52,6 +52,12 @@
     \nsince it describes the expected environment that vagrant is supposed
     \nto manage. Please create a `<%= Vagrant::Env::ROOTFILE_NAME %>` and place it in your project
     \nroot."
+:ssh_bad_permissions: "The private key to connect to this box via SSH has invalid permissions
+    \nset on it. The permissions of the private key should be set to 0600, otherwise SSH will
+    \nignore the key. Vagrant tried to do this automatically for you but failed. Please set the
+    \npermissions on the following file to 0600 and then try running this command again:
+
+    \n<%= key_path %>"
 :virtualbox_import_failure: "The VM import failed! Try running `VBoxManage import` on the box file manually for more verbose error output."
 :virtualbox_invalid_version: "Vagrant has detected that you have VirtualBox version <%= version %> installed!
     \nVagrant requires that you use at least VirtualBox version 3.1. Please install

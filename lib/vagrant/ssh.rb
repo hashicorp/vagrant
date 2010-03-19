@@ -9,6 +9,7 @@ module Vagrant
           options[param] = opts[param] || Vagrant.config.ssh.send(param)
         end
 
+        check_key_permissions(options[:private_key_path])
         Kernel.exec "ssh -p #{port(opts)} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i #{options[:private_key_path]} #{options[:username]}@#{options[:host]}".strip
       end
 
@@ -48,6 +49,28 @@ module Vagrant
 
       def port(opts={})
         opts[:port] || Vagrant.config.vm.forwarded_ports[Vagrant.config.ssh.forwarded_port_key][:hostport]
+      end
+
+      def check_key_permissions(key_path)
+        # TODO: This only works on unix based systems for now. Windows
+        # systems will need to be investigated further.
+        stat = File.stat(key_path)
+
+        if stat.owned? && file_perms(key_path) != "600"
+          logger.info "Permissions on private key incorrect, fixing..."
+          File.chmod(0600, key_path)
+
+          error_and_exit(:ssh_bad_permissions, :key_path => key_path) if file_perms(key_path) != "600"
+        end
+      rescue Errno::EPERM
+        # This shouldn't happen since we verify we own the file, but just
+        # in case.
+        error_and_exit(:ssh_bad_permissions, :key_path => key_path)
+      end
+
+      def file_perms(path)
+        perms = sprintf("%o", File.stat(path).mode)
+        perms.reverse[0..2].reverse
       end
     end
   end
