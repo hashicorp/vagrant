@@ -2,7 +2,7 @@ require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 
 class UpActionTest < Test::Unit::TestCase
   setup do
-    @mock_vm, @vm, @action = mock_action(Vagrant::Actions::VM::Up)
+    @runner, @vm, @action = mock_action(Vagrant::Actions::VM::Up)
     mock_config
   end
 
@@ -11,17 +11,20 @@ class UpActionTest < Test::Unit::TestCase
       File.stubs(:file?).returns(true)
       File.stubs(:exist?).returns(true)
       @default_order = [Vagrant::Actions::VM::Import, Vagrant::Actions::VM::Customize, Vagrant::Actions::VM::ForwardPorts, Vagrant::Actions::VM::SharedFolders, Vagrant::Actions::VM::Boot]
+
+      @dotfile_path = "foo"
+      @runner.env.stubs(:dotfile_path).returns(@dotfile_path)
     end
 
     def setup_action_expectations
       default_seq = sequence("default_seq")
       @default_order.each do |action|
-        @mock_vm.expects(:add_action).with(action).once.in_sequence(default_seq)
+        @runner.expects(:add_action).with(action).once.in_sequence(default_seq)
       end
     end
 
     should "raise an ActionException if a dotfile exists but is not a file" do
-      File.expects(:file?).with(Vagrant::Env.dotfile_path).returns(false)
+      File.expects(:file?).with(@runner.env.dotfile_path).returns(false)
       assert_raises(Vagrant::Actions::ActionException) {
         @action.prepare
       }
@@ -46,9 +49,12 @@ class UpActionTest < Test::Unit::TestCase
     end
 
     should "add in the provisioning step if enabled" do
-      mock_config do |config|
+      env = mock_environment do |config|
         config.vm.provisioner = "foo"
       end
+
+      @runner.stubs(:env).returns(env)
+      env.stubs(:dotfile_path).returns(@dotfile_path)
 
       @default_order.push(Vagrant::Actions::VM::Provision)
       setup_action_expectations
@@ -56,10 +62,13 @@ class UpActionTest < Test::Unit::TestCase
     end
 
     should "add in the action to move hard drive if config is set" do
-      mock_config do |config|
+      env = mock_environment do |config|
         File.expects(:directory?).with("foo").returns(true)
         config.vm.hd_location = "foo"
       end
+
+      @runner.stubs(:env).returns(env)
+      env.stubs(:dotfile_path).returns(@dotfile_path)
 
       @default_order.insert(0, Vagrant::Actions::VM::MoveHardDrive)
       setup_action_expectations
@@ -78,8 +87,8 @@ class UpActionTest < Test::Unit::TestCase
 
   context "persisting" do
     should "persist the VM with Env" do
-      @mock_vm.stubs(:uuid)
-      Vagrant::Env.expects(:persist_vm).with(@mock_vm).once
+      @runner.stubs(:uuid)
+      @runner.env.expects(:persist_vm).once
       @action.persist
     end
   end
