@@ -24,6 +24,22 @@ module Vagrant
       def load!(cwd=nil)
         Environment.new(cwd).load!
       end
+
+      # Verifies that VirtualBox is installed and that the version of
+      # VirtualBox installed is high enough. Also verifies that the
+      # configuration path is properly set.
+      def check_virtualbox!
+        version = VirtualBox::Command.version
+        if version.nil?
+          error_and_exit(:virtualbox_not_detected)
+        elsif version.to_f < 3.1
+          error_and_exit(:virtualbox_invalid_version, :version => version.to_s)
+        end
+
+        if !VirtualBox::Global.vboxconfig?
+          error_and_exit(:virtualbox_xml_not_detected)
+        end
+      end
     end
 
     def initialize(cwd=nil)
@@ -66,6 +82,7 @@ module Vagrant
       load_home_directory!
       load_box!
       load_config!
+      self.class.check_virtualbox!
       load_vm!
       self
     end
@@ -147,6 +164,32 @@ module Vagrant
       end
     rescue Errno::ENOENT
       @vm = nil
+    end
+
+    #---------------------------------------------------------------
+    # Methods to check for properties and error
+    #---------------------------------------------------------------
+
+    def require_root_path
+      error_and_exit(:rootfile_not_found) if !root_path
+    end
+
+    def require_box
+      require_root_path
+
+      if !box
+        if !Vagrant.config.vm.box
+          error_and_exit(:box_not_specified)
+        else
+          error_and_exit(:box_specified_doesnt_exist, :box_name => Vagrant.config.vm.box)
+        end
+      end
+    end
+
+    def require_persisted_vm
+      require_root_path
+
+      error_and_exit(:environment_not_created) if !persisted_vm
     end
   end
 end

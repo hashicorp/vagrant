@@ -5,6 +5,39 @@ class EnvironmentTest < Test::Unit::TestCase
     mock_config
   end
 
+  context "class method check virtualbox version" do
+    setup do
+      VirtualBox::Command.stubs(:version).returns("3.1.4")
+      VirtualBox::Global.stubs(:vboxconfig?).returns(true)
+    end
+
+    should "not error and exit if everything is good" do
+      VirtualBox::Command.expects(:version).returns("3.1.4")
+      VirtualBox::Global.expects(:vboxconfig?).returns(true)
+      Vagrant::Env.expects(:error_and_exit).never
+      Vagrant::Environment.check_virtualbox!
+    end
+
+    should "error and exit if VirtualBox is not installed or detected" do
+      Vagrant::Environment.expects(:error_and_exit).with(:virtualbox_not_detected).once
+      VirtualBox::Command.expects(:version).returns(nil)
+      Vagrant::Environment.check_virtualbox!
+    end
+
+    should "error and exit if VirtualBox is lower than version 3.1" do
+      version = "3.0.12r1041"
+      Vagrant::Environment.expects(:error_and_exit).with(:virtualbox_invalid_version, :version => version.to_s).once
+      VirtualBox::Command.expects(:version).returns(version)
+      Vagrant::Environment.check_virtualbox!
+    end
+
+    should "error and exit if the the vboxconfig is not set" do
+      VirtualBox::Global.expects(:vboxconfig?).returns(false)
+      Vagrant::Environment.expects(:error_and_exit).with(:virtualbox_xml_not_detected).once
+      Vagrant::Environment.check_virtualbox!
+    end
+  end
+
   context "class method load!" do
     setup do
       @cwd = mock('cwd')
@@ -93,6 +126,7 @@ class EnvironmentTest < Test::Unit::TestCase
         @env.expects(:load_home_directory!).once.in_sequence(call_seq)
         @env.expects(:load_box!).once.in_sequence(call_seq)
         @env.expects(:load_config!).once.in_sequence(call_seq)
+        Vagrant::Environment.expects(:check_virtualbox!).once.in_sequence(call_seq)
         @env.expects(:load_vm!).once.in_sequence(call_seq)
         assert_equal @env, @env.load!
       end
@@ -331,6 +365,66 @@ class EnvironmentTest < Test::Unit::TestCase
         File.expects(:open).raises(Errno::ENOENT)
         @env.load_vm!
         assert_nil @env.vm
+      end
+    end
+  end
+
+  context "requiring properties" do
+    setup do
+      @env = mock_environment
+    end
+
+    context "requiring boxes" do
+      setup do
+        reconfig_environment
+      end
+
+      def reconfig_environment
+        @env = mock_environment do |config|
+          yield config if block_given?
+        end
+
+        @env.stubs(:require_root_path)
+        @env.stubs(:error_and_exit)
+      end
+
+      should "require root path" do
+        @env.expects(:require_root_path).once
+        @env.require_box
+      end
+
+      should "error and exit if no box is specified" do
+        reconfig_environment do |config|
+          config.vm.box = nil
+        end
+
+        @env.expects(:box).returns(nil)
+        @env.expects(:error_and_exit).once.with(:box_not_specified)
+        @env.require_box
+      end
+
+      should "error and exit if box is specified but doesn't exist" do
+        reconfig_environment do |config|
+          config.vm.box = "foo"
+        end
+
+        @env.expects(:box).returns(nil)
+        @env.expects(:error_and_exit).once.with(:box_specified_doesnt_exist, :box_name => "foo")
+        @env.require_box
+      end
+    end
+
+    context "requiring root_path" do
+      should "error and exit if no root_path is set" do
+        @env.expects(:root_path).returns(nil)
+        @env.expects(:error_and_exit).with(:rootfile_not_found).once
+        @env.require_root_path
+      end
+
+      should "not error and exit if root_path is set" do
+        @env.expects(:root_path).returns("foo")
+        @env.expects(:error_and_exit).never
+        @env.require_root_path
       end
     end
   end
