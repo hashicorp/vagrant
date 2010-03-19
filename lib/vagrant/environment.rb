@@ -167,6 +167,28 @@ module Vagrant
     end
 
     #---------------------------------------------------------------
+    # Methods to persist/unpersist VM
+    #---------------------------------------------------------------
+
+    def persist_vm
+      # Save to the dotfile for this project
+      File.open(dotfile_path, 'w+') do |f|
+        f.write(vm.uuid)
+      end
+
+      # Also add to the global store
+      ActiveList.add(vm)
+    end
+
+    def depersist_vm
+      # Delete the dotfile if it exists
+      File.delete(dotfile_path) if File.exist?(dotfile_path)
+
+      # Remove from the global store
+      ActiveList.remove(vm)
+    end
+
+    #---------------------------------------------------------------
     # Methods to check for properties and error
     #---------------------------------------------------------------
 
