@@ -161,6 +161,7 @@ module Vagrant
 
       File.open(dotfile_path) do |f|
         @vm = Vagrant::VM.find(f.read)
+        @vm.env = self
       end
     rescue Errno::ENOENT
       @vm = nil
@@ -170,10 +171,17 @@ module Vagrant
     # Methods to manage VM
     #---------------------------------------------------------------
 
+    # Sets the VM to a new VM. This is not too useful but is used
+    # in {Command.up}. This will very likely be refactored at a later
+    # time.
     def create_vm
       @vm = VM.new
+      @vm.env = self
+      @vm
     end
 
+    # Persists this environment's VM to the dotfile so it can be
+    # re-loaded at a later time.
     def persist_vm
       # Save to the dotfile for this project
       File.open(dotfile_path, 'w+') do |f|
@@ -184,6 +192,7 @@ module Vagrant
       ActiveList.add(vm)
     end
 
+    # Removes this environment's VM from the dotfile.
     def depersist_vm
       # Delete the dotfile if it exists
       File.delete(dotfile_path) if File.exist?(dotfile_path)

@@ -338,6 +338,7 @@ class EnvironmentTest < Test::Unit::TestCase
 
       should "loading of the uuid from the dotfile" do
         vm = mock("vm")
+        vm.expects(:env=).with(@env)
 
         filemock = mock("filemock")
         filemock.expects(:read).returns("foo")
@@ -449,6 +450,16 @@ class EnvironmentTest < Test::Unit::TestCase
         @env.create_vm
         assert !@env.vm.nil?
         assert @env.vm.is_a?(Vagrant::VM)
+      end
+
+      should "set the new VM's environment to the env" do
+        @env.create_vm
+        assert_equal @env, @env.vm.env
+      end
+
+      should "return the new VM" do
+        result = @env.create_vm
+        assert result.is_a?(Vagrant::VM)
       end
     end
 
