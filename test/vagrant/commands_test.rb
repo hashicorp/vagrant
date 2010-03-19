@@ -107,8 +107,13 @@ class CommandsTest < Test::Unit::TestCase
   end
 
   context "reload" do
+    should "load the current environment" do
+      Vagrant::Environment.expects(:load!).once.returns(@env)
+      Vagrant::Commands.reload
+    end
+
     should "require a persisted VM" do
-      Vagrant::Env.expects(:require_persisted_vm).once
+      @env.expects(:require_persisted_vm).once
       Vagrant::Commands.reload
     end
 
@@ -144,7 +149,7 @@ class CommandsTest < Test::Unit::TestCase
       Vagrant::Environment.expects(:load!).once.returns(@env)
       Vagrant::Commands.halt
     end
-    
+
     should "require a persisted VM" do
       @env.expects(:require_persisted_vm).once
       Vagrant::Commands.halt

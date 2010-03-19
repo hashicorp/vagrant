@@ -101,9 +101,9 @@ msg
       # VM, updates the metadata (shared folders, forwarded ports), restarts
       # the VM, and then reruns the provisioning if enabled.
       def reload
-        Env.load!
-        Env.require_persisted_vm
-        Env.persisted_vm.execute!(Actions::VM::Reload)
+        env = Environment.load!
+        env.require_persisted_vm
+        env.vm.execute!(Actions::VM::Reload)
       end
 
       # SSH into the vagrant instance. This will setup an SSH connection into
