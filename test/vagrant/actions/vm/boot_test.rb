@@ -2,14 +2,14 @@ require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 
 class BootActionTest < Test::Unit::TestCase
   setup do
-    @mock_vm, @vm, @action = mock_action(Vagrant::Actions::VM::Boot)
-    @mock_vm.stubs(:invoke_callback)
+    @runner, @vm, @action = mock_action(Vagrant::Actions::VM::Boot)
+    @runner.stubs(:invoke_callback)
     mock_config
   end
 
   context "preparing" do
     should "add the root shared folder" do
-      Vagrant.config.vm.expects(:share_folder).with("vagrant-root", Vagrant.config.vm.project_directory, Vagrant::Env.root_path).once
+      @runner.env.config.vm.expects(:share_folder).with("vagrant-root", @runner.env.config.vm.project_directory, @runner.env.root_path).once
       @action.prepare
     end
   end
@@ -17,7 +17,7 @@ class BootActionTest < Test::Unit::TestCase
   context "execution" do
     should "invoke the 'boot' around callback" do
       boot_seq = sequence("boot_seq")
-      @mock_vm.expects(:invoke_around_callback).with(:boot).once.in_sequence(boot_seq).yields
+      @runner.expects(:invoke_around_callback).with(:boot).once.in_sequence(boot_seq).yields
       @action.expects(:boot).in_sequence(boot_seq)
       @action.expects(:wait_for_boot).returns(true).in_sequence(boot_seq)
       @action.execute!
@@ -42,13 +42,13 @@ class BootActionTest < Test::Unit::TestCase
   context "waiting for boot" do
     should "repeatedly ping the SSH port and return false with no response" do
       seq = sequence('pings')
-      Vagrant::SSH.expects(:up?).times(Vagrant.config[:ssh][:max_tries].to_i - 1).returns(false).in_sequence(seq)
-      Vagrant::SSH.expects(:up?).once.returns(true).in_sequence(seq)
+      @runner.env.ssh.expects(:up?).times(@runner.env.config.ssh.max_tries.to_i - 1).returns(false).in_sequence(seq)
+      @runner.env.ssh.expects(:up?).once.returns(true).in_sequence(seq)
       assert @action.wait_for_boot(0)
     end
 
     should "ping the max number of times then just return" do
-      Vagrant::SSH.expects(:up?).times(Vagrant.config[:ssh][:max_tries].to_i).returns(false)
+      @runner.env.ssh.expects(:up?).times(Vagrant.config.ssh.max_tries.to_i).returns(false)
       assert !@action.wait_for_boot(0)
     end
   end
