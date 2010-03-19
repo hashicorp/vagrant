@@ -16,6 +16,14 @@ class SshTest < Test::Unit::TestCase
   context "connecting to external SSH" do
     setup do
       mock_ssh
+      @ssh.stubs(:check_key_permissions)
+    end
+
+    should "check key permissions prior to exec" do
+      exec_seq = sequence("exec_seq")
+      @ssh.expects(:check_key_permissions).with(@env.config.ssh.private_key_path).once.in_sequence(exec_seq)
+      Kernel.expects(:exec).in_sequence(exec_seq)
+      @ssh.connect
     end
 
     should "call exec with defaults when no options are supplied" do
@@ -38,7 +46,7 @@ class SshTest < Test::Unit::TestCase
         assert arg =~ /-p #{port}/
         assert arg =~ /-i #{key_path}/
         assert arg =~ /#{uname}@#{host}/
-        # TODO options not tested for as they may be removed, they may be removed
+        # TODO options not tested for as they may be removed
         true
       end
     end
@@ -142,6 +150,73 @@ class SshTest < Test::Unit::TestCase
 
     should "return the port given in options if it exists" do
       assert_equal "47", @ssh.port({ :port => "47" })
+    end
+  end
+
+  context "checking key permissions" do
+    setup do
+      mock_ssh
+      @ssh.stubs(:file_perms)
+
+      @key_path = "foo"
+
+
+      @stat = mock("stat")
+      @stat.stubs(:owned?).returns(true)
+      File.stubs(:stat).returns(@stat)
+    end
+
+    should "do nothing if the user is not the owner" do
+      @stat.expects(:owned?).returns(false)
+      File.expects(:chmod).never
+      @ssh.check_key_permissions(@key_path)
+    end
+
+    should "do nothing if the file perms equal 600" do
+      @ssh.expects(:file_perms).with(@key_path).returns("600")
+      File.expects(:chmod).never
+      @ssh.check_key_permissions(@key_path)
+    end
+
+    should "chmod the file if the file perms aren't 600" do
+      perm_sequence = sequence("perm_seq")
+      @ssh.expects(:file_perms).returns("900").in_sequence(perm_sequence)
+      File.expects(:chmod).with(0600, @key_path).once.in_sequence(perm_sequence)
+      @ssh.expects(:file_perms).returns("600").in_sequence(perm_sequence)
+      @ssh.expects(:error_and_exit).never
+      @ssh.check_key_permissions(@key_path)
+    end
+
+    should "error and exit if the resulting chmod doesn't work" do
+      perm_sequence = sequence("perm_seq")
+      @ssh.expects(:file_perms).returns("900").in_sequence(perm_sequence)
+      File.expects(:chmod).with(0600, @key_path).once.in_sequence(perm_sequence)
+      @ssh.expects(:file_perms).returns("900").in_sequence(perm_sequence)
+      @ssh.expects(:error_and_exit).once.with(:ssh_bad_permissions, :key_path => @key_path).in_sequence(perm_sequence)
+      @ssh.check_key_permissions(@key_path)
+    end
+
+    should "error and exit if a bad file perm is raised" do
+      @ssh.expects(:file_perms).with(@key_path).returns("900")
+      File.expects(:chmod).raises(Errno::EPERM)
+      @ssh.expects(:error_and_exit).once.with(:ssh_bad_permissions, :key_path => @key_path)
+      @ssh.check_key_permissions(@key_path)
+    end
+  end
+
+  context "getting file permissions" do
+    setup do
+      mock_ssh
+    end
+
+    should "return the last 3 characters of the file mode" do
+      path = "foo"
+      mode = "10000foo"
+      stat = mock("stat")
+      File.expects(:stat).with(path).returns(stat)
+      stat.expects(:mode).returns(mode)
+      @ssh.expects(:sprintf).with("%o", mode).returns(mode)
+      assert_equal path, @ssh.file_perms(path)
     end
   end
 end
