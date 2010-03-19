@@ -302,6 +302,7 @@ class EnvironmentTest < Test::Unit::TestCase
     context "loading box" do
       setup do
         @box = mock("box")
+        @box.stubs(:env=)
 
         @env = mock_environment
         @env.stubs(:root_path).returns("foo")
@@ -326,6 +327,12 @@ class EnvironmentTest < Test::Unit::TestCase
         Vagrant::Box.expects(:find).with(@env.config.vm.box).once.returns(@box)
         @env.load_box!
         assert @box.equal?(@env.box)
+      end
+
+      should "set the environment of the box" do
+        @box.expects(:env=).with(@env).once
+        Vagrant::Box.expects(:find).with(@env.config.vm.box).once.returns(@box)
+        @env.load_box!
       end
     end
 

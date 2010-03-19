@@ -155,6 +155,7 @@ module Vagrant
       return unless root_path
 
       @box = Box.find(config.vm.box) if config.vm.box
+      @box.env = self if @box
     end
 
     # Loads the persisted VM (if it exists) for this environment.

@@ -51,6 +51,9 @@ module Vagrant
     # only be used internally.
     attr_accessor :temp_path
 
+    # The environment which this box belongs to
+    attr_accessor :env
+
     class <<self
       # Returns an array of all created boxes, as strings.
       #
