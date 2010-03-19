@@ -137,9 +137,9 @@ msg
       # This command requires that an instance already be brought up with
       # `vagrant up`.
       def suspend
-        Env.load!
-        Env.require_persisted_vm
-        Env.persisted_vm.suspend
+        env = Environment.load!
+        env.require_persisted_vm
+        env.vm.suspend
       end
 
       # Resume a running vagrant instance. This resumes an already suspended
