@@ -148,9 +148,9 @@ msg
       # This command requires that an instance already be brought up with
       # `vagrant up`.
       def resume
-        Env.load!
-        Env.require_persisted_vm
-        Env.persisted_vm.resume
+        env = Environment.load!
+        env.require_persisted_vm
+        env.vm.resume
       end
 
       # Export and package the current vm
