@@ -167,8 +167,12 @@ module Vagrant
     end
 
     #---------------------------------------------------------------
-    # Methods to persist/unpersist VM
+    # Methods to manage VM
     #---------------------------------------------------------------
+
+    def create_vm
+      @vm = VM.new
+    end
 
     def persist_vm
       # Save to the dotfile for this project

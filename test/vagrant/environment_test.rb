@@ -429,20 +429,33 @@ class EnvironmentTest < Test::Unit::TestCase
     end
   end
 
-  context "persisting/depersisting VM" do
+  context "managing VM" do
     setup do
       @env = mock_environment
 
       @dotfile_path = "foo"
       @env.stubs(:dotfile_path).returns(@dotfile_path)
+    end
 
+    def mock_vm
       @vm = mock("vm")
       @vm.stubs(:uuid).returns("foo")
       @env.stubs(:vm).returns(@vm)
     end
 
+    context "creating a new VM" do
+      should "create a new VM" do
+        assert_nil @env.vm
+        @env.create_vm
+        assert !@env.vm.nil?
+        assert @env.vm.is_a?(Vagrant::VM)
+      end
+    end
+
     context "persisting the VM into a file" do
       setup do
+        mock_vm
+
         File.stubs(:open)
         Vagrant::ActiveList.stubs(:add)
       end
@@ -462,6 +475,8 @@ class EnvironmentTest < Test::Unit::TestCase
 
     context "depersisting the VM" do
       setup do
+        mock_vm
+
         File.stubs(:exist?).returns(false)
         File.stubs(:delete)
 
