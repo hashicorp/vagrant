@@ -20,10 +20,12 @@ class ForwardPortsActionTest < Test::Unit::TestCase
       vms = [@vm]
       VirtualBox::VM.stubs(:all).returns(vms)
 
-      mock_config do |config|
+      @env = mock_environment do |config|
         config.vm.forwarded_ports.clear
         config.vm.forward_port("ssh", 22, 2222)
       end
+
+      @mock_vm.stubs(:env).returns(@env)
     end
 
     should "ignore vms which aren't running" do
@@ -71,7 +73,7 @@ class ForwardPortsActionTest < Test::Unit::TestCase
     should "create a port forwarding for the VM" do
       forwarded_ports = mock("forwarded_ports")
 
-      Vagrant.config.vm.forwarded_ports.each do |name, opts|
+      @mock_vm.env.config.vm.forwarded_ports.each do |name, opts|
         forwarded_ports.expects(:<<).with do |port|
           assert_equal name, port.name
           assert_equal opts[:hostport], port.hostport

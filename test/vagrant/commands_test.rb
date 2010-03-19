@@ -54,30 +54,33 @@ class CommandsTest < Test::Unit::TestCase
 
   context "up" do
     setup do
-      Vagrant::Env.stubs(:persisted_vm).returns(nil)
-      Vagrant::VM.stubs(:execute!)
-      Vagrant::Env.stubs(:require_box)
+      @new_vm = mock("vm")
+      @new_vm.stubs(:execute!)
+
+      @env.stubs(:vm).returns(nil)
+      @env.stubs(:require_box)
+      @env.stubs(:create_vm).returns(@new_vm)
     end
 
     should "require load the environment" do
-      Vagrant::Env.expects(:load!).once
+      Vagrant::Environment.expects(:load!).once.returns(@env)
       Vagrant::Commands.up
     end
 
     should "require a box" do
-      Vagrant::Env.expects(:require_box).once
+      @env.expects(:require_box).once
       Vagrant::Commands.up
     end
 
     should "call the up action on VM if it doesn't exist" do
-      Vagrant::VM.expects(:execute!).with(Vagrant::Actions::VM::Up).once
+      @new_vm.expects(:execute!).with(Vagrant::Actions::VM::Up).once
       Vagrant::Commands.up
     end
 
     should "call start on the persisted vm if it exists" do
-      Vagrant::Env.stubs(:persisted_vm).returns(@persisted_vm)
+      @env.stubs(:vm).returns(@persisted_vm)
       @persisted_vm.expects(:start).once
-      Vagrant::VM.expects(:execute!).never
+      @env.expects(:create_vm).never
       Vagrant::Commands.up
     end
   end

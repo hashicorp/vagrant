@@ -72,14 +72,14 @@ msg
       # provisioning the instance with chef. {up} also starts the instance,
       # running it in the background.
       def up
-        Env.load!
+        env = Environment.load!
 
-        if Env.persisted_vm
+        if env.vm
           logger.info "VM already created. Starting VM if its not already running..."
-          Env.persisted_vm.start
+          env.vm.start
         else
-          Env.require_box
-          VM.execute!(Actions::VM::Up)
+          env.require_box
+          env.create_vm.execute!(Actions::VM::Up)
         end
       end
 
