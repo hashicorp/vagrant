@@ -28,27 +28,27 @@ module Vagrant
       # useful information such as whether or not the environment is created
       # and if its running, suspended, etc.
       def status
-        Env.load!
+        env = Environment.load!
 
         wrap_output do
-          if !Env.persisted_vm
+          if !env.vm
             puts <<-msg
 The environment has not yet been created. Run `vagrant up` to create the
 environment.
 msg
           else
             additional_msg = ""
-            if Env.persisted_vm.vm.running?
+            if env.vm.vm.running?
               additional_msg = <<-msg
 To stop this VM, you can run `vagrant halt` to shut it down forcefully,
 or you can run `vagrant suspend` to simply suspend the virtual machine.
 In either case, to restart it again, simply run a `vagrant up`.
 msg
-            elsif Env.persisted_vm.vm.saved?
+            elsif env.vm.vm.saved?
               additional_msg = <<-msg
 To resume this VM, simply run `vagrant up`.
 msg
-            elsif Env.persisted_vm.vm.powered_off?
+            elsif env.vm.vm.powered_off?
               additional_msg = <<-msg
 To restart this VM, simply run `vagrant up`.
 msg
@@ -61,7 +61,7 @@ msg
 
             puts <<-msg
 The environment has been created. The status of the current environment's
-virtual machine is: "#{Env.persisted_vm.vm.state}."#{additional_msg}
+virtual machine is: "#{env.vm.vm.state}."#{additional_msg}
 msg
           end
         end

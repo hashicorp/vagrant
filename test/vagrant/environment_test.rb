@@ -128,6 +128,7 @@ class EnvironmentTest < Test::Unit::TestCase
         @env.expects(:load_config!).once.in_sequence(call_seq)
         Vagrant::Environment.expects(:check_virtualbox!).once.in_sequence(call_seq)
         @env.expects(:load_vm!).once.in_sequence(call_seq)
+        @env.expects(:load_ssh!).once.in_sequence(call_seq)
         assert_equal @env, @env.load!
       end
     end
@@ -366,6 +367,19 @@ class EnvironmentTest < Test::Unit::TestCase
         File.expects(:open).raises(Errno::ENOENT)
         @env.load_vm!
         assert_nil @env.vm
+      end
+    end
+
+    context "loading SSH" do
+      setup do
+        @env = mock_environment
+      end
+
+      should "initialize the SSH object with the given environment" do
+        ssh = mock("ssh")
+        Vagrant::SSH.expects(:new).with(@env).returns(ssh)
+        @env.load_ssh!
+        assert_equal ssh, @env.ssh
       end
     end
   end

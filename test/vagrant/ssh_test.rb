@@ -5,24 +5,35 @@ class SshTest < Test::Unit::TestCase
     mock_config
   end
 
-  context "connecting to SSH" do
-    test "should call exec with defaults when no options are supplied" do
-      ssh = Vagrant.config.ssh
-      ssh_exec_expect(Vagrant::SSH.port,
-                      Vagrant.config.ssh.private_key_path,
-                      Vagrant.config.ssh.username,
-                      Vagrant.config.ssh.host)
-      Vagrant::SSH.connect
+  def mock_ssh
+    @env = mock_environment do |config|
+      yield config if block_given?
     end
 
-    test "should call exec with supplied params" do
+    @ssh = Vagrant::SSH.new(@env)
+  end
+
+  context "connecting to external SSH" do
+    setup do
+      mock_ssh
+    end
+
+    should "call exec with defaults when no options are supplied" do
+      ssh_exec_expect(@ssh.port,
+                      @env.config.ssh.private_key_path,
+                      @env.config.ssh.username,
+                      @env.config.ssh.host)
+      @ssh.connect
+    end
+
+    should "call exec with supplied params" do
       args = {:username => 'bar', :private_key_path => 'baz', :host => 'bak', :port => 'bag'}
       ssh_exec_expect(args[:port], args[:private_key_path], args[:username], args[:host])
-      Vagrant::SSH.connect(args)
+      @ssh.connect(args)
     end
 
     def ssh_exec_expect(port, key_path, uname, host)
-    Kernel.expects(:exec).with() do |arg|
+      Kernel.expects(:exec).with() do |arg|
         assert arg =~ /^ssh/
         assert arg =~ /-p #{port}/
         assert arg =~ /-i #{key_path}/
@@ -34,91 +45,103 @@ class SshTest < Test::Unit::TestCase
   end
 
   context "executing ssh commands" do
+    setup do
+      mock_ssh
+    end
+
     should "call net::ssh.start with the proper names" do
       Net::SSH.expects(:start).once.with() do |host, username, opts|
-        assert_equal Vagrant.config.ssh.host, host
-        assert_equal Vagrant.config.ssh.username, username
-        assert_equal Vagrant::SSH.port, opts[:port]
-        assert_equal [Vagrant.config.ssh.private_key_path], opts[:keys]
+        assert_equal @env.config.ssh.host, host
+        assert_equal @env.config.ssh.username, username
+        assert_equal @ssh.port, opts[:port]
+        assert_equal [@env.config.ssh.private_key_path], opts[:keys]
         true
       end
-      Vagrant::SSH.execute
+      @ssh.execute
     end
 
     should "use custom host if set" do
-      Vagrant.config.ssh.host = "foo"
-      Net::SSH.expects(:start).with(Vagrant.config.ssh.host, Vagrant.config.ssh.username, anything).once
-      Vagrant::SSH.execute
+      @env.config.ssh.host = "foo"
+      Net::SSH.expects(:start).with(@env.config.ssh.host, @env.config.ssh.username, anything).once
+      @ssh.execute
     end
   end
 
   context "SCPing files to the remote host" do
+    setup do
+      mock_ssh
+    end
+
     should "use Vagrant::SSH execute to setup an SCP connection and upload" do
       scp = mock("scp")
       ssh = mock("ssh")
       scp.expects(:upload!).with("foo", "bar").once
       Net::SCP.expects(:new).with(ssh).returns(scp).once
-      Vagrant::SSH.expects(:execute).yields(ssh).once
-      Vagrant::SSH.upload!("foo", "bar")
+      @ssh.expects(:execute).yields(ssh).once
+      @ssh.upload!("foo", "bar")
     end
   end
 
   context "checking if host is up" do
     setup do
-      mock_config
+      mock_ssh
     end
 
     should "return true if SSH connection works" do
       Net::SSH.expects(:start).yields("success")
-      assert Vagrant::SSH.up?
+      assert @ssh.up?
     end
 
     should "return false if SSH connection times out" do
       Net::SSH.expects(:start)
-      assert !Vagrant::SSH.up?
+      assert !@ssh.up?
     end
 
     should "allow the thread the configured timeout time" do
       @thread = mock("thread")
       @thread.stubs(:[])
       Thread.expects(:new).returns(@thread)
-      @thread.expects(:join).with(Vagrant.config.ssh.timeout).once
-      Vagrant::SSH.up?
+      @thread.expects(:join).with(@env.config.ssh.timeout).once
+      @ssh.up?
     end
 
     should "return false if the connection is refused" do
       Net::SSH.expects(:start).raises(Errno::ECONNREFUSED)
       assert_nothing_raised {
-        assert !Vagrant::SSH.up?
+        assert !@ssh.up?
       }
     end
 
     should "return false if the connection is dropped" do
       Net::SSH.expects(:start).raises(Net::SSH::Disconnect)
       assert_nothing_raised {
-        assert !Vagrant::SSH.up?
+        assert !@ssh.up?
       }
     end
 
     should "specifity the timeout as an option to execute" do
-      Vagrant::SSH.expects(:execute).with(:timeout => Vagrant.config.ssh.timeout).yields(true)
-      assert Vagrant::SSH.up?
+      @ssh.expects(:execute).with(:timeout => @env.config.ssh.timeout).yields(true)
+      assert @ssh.up?
     end
 
     should "error and exit if a Net::SSH::AuthenticationFailed is raised" do
-      Vagrant::SSH.expects(:execute).raises(Net::SSH::AuthenticationFailed)
-      Vagrant::SSH.expects(:error_and_exit).with(:vm_ssh_auth_failed).once
-      Vagrant::SSH.up?
+      @ssh.expects(:execute).raises(Net::SSH::AuthenticationFailed)
+      @ssh.expects(:error_and_exit).with(:vm_ssh_auth_failed).once
+      @ssh.up?
     end
   end
 
   context "getting the ssh port" do
+    setup do
+      mock_ssh
+    end
+
     should "return the configured port by default" do
-      assert_equal Vagrant.config.vm.forwarded_ports[Vagrant.config.ssh.forwarded_port_key][:hostport], Vagrant::SSH.port
+      assert_equal @env.config.vm.forwarded_ports[@env.config.ssh.forwarded_port_key][:hostport], @ssh.port
     end
 
     should "return the port given in options if it exists" do
-      assert_equal "47", Vagrant::SSH.port({ :port => "47" })
+      assert_equal "47", @ssh.port({ :port => "47" })
     end
   end
 end

@@ -13,6 +13,7 @@ module Vagrant
     attr_reader :config
     attr_reader :box
     attr_reader :vm
+    attr_reader :ssh
 
     #---------------------------------------------------------------
     # Class Methods
@@ -84,6 +85,7 @@ module Vagrant
       load_config!
       self.class.check_virtualbox!
       load_vm!
+      load_ssh!
       self
     end
 
@@ -165,6 +167,11 @@ module Vagrant
       end
     rescue Errno::ENOENT
       @vm = nil
+    end
+
+    # Loads/initializes the SSH object
+    def load_ssh!
+      @ssh = SSH.new(self)
     end
 
     #---------------------------------------------------------------
