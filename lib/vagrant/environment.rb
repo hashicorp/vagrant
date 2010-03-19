@@ -164,7 +164,7 @@ module Vagrant
 
       File.open(dotfile_path) do |f|
         @vm = Vagrant::VM.find(f.read)
-        @vm.env = self
+        @vm.env = self if @vm
       end
     rescue Errno::ENOENT
       @vm = nil
@@ -232,7 +232,7 @@ module Vagrant
     def require_persisted_vm
       require_root_path
 
-      error_and_exit(:environment_not_created) if !persisted_vm
+      error_and_exit(:environment_not_created) if !vm
     end
   end
 end

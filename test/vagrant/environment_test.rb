@@ -358,6 +358,17 @@ class EnvironmentTest < Test::Unit::TestCase
         assert_equal vm, @env.vm
       end
 
+      should "not set the environment if the VM is nil" do
+        filemock = mock("filemock")
+        filemock.expects(:read).returns("foo")
+        Vagrant::VM.expects(:find).with("foo").returns(nil)
+        File.expects(:open).with(@env.dotfile_path).once.yields(filemock)
+        File.expects(:file?).with(@env.dotfile_path).once.returns(true)
+
+        assert_nothing_raised { @env.load_vm! }
+        assert_nil @env.vm
+      end
+
       should "do nothing if the root path is nil" do
         File.expects(:open).never
         @env.stubs(:root_path).returns(nil)
@@ -447,6 +458,25 @@ class EnvironmentTest < Test::Unit::TestCase
         @env.expects(:root_path).returns("foo")
         @env.expects(:error_and_exit).never
         @env.require_root_path
+      end
+    end
+
+    context "requiring a persisted VM" do
+      setup do
+        @env.stubs(:vm).returns("foo")
+        @env.stubs(:require_root_path)
+      end
+
+      should "require a root path" do
+        @env.expects(:require_root_path).once
+        @env.expects(:error_and_exit).never
+        @env.require_persisted_vm
+      end
+
+      should "error and exit if the VM is not set" do
+        @env.expects(:vm).returns(nil)
+        @env.expects(:error_and_exit).once
+        @env.require_persisted_vm
       end
     end
   end

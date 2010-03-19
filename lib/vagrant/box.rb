@@ -51,7 +51,9 @@ module Vagrant
     # only be used internally.
     attr_accessor :temp_path
 
-    # The environment which this box belongs to
+    # The environment which this box belongs to. Although this could
+    # actually be many environments, this points to the environment
+    # of a specific instance.
     attr_accessor :env
 
     class <<self

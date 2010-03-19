@@ -138,6 +138,7 @@ class Test::Unit::TestCase
     mock_vm.stubs(:invoke_callback)
     mock_vm.stubs(:invoke_around_callback).yields
     mock_vm.stubs(:actions).returns([action])
+    mock_vm.stubs(:env).returns(mock_environment)
 
     [mock_vm, vm, action]
   end

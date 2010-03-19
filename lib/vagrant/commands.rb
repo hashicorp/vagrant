@@ -90,9 +90,9 @@ msg
       # This command requires that an instance already be brought up with
       # `vagrant up`.
       def down
-        Env.load!
-        Env.require_persisted_vm
-        Env.persisted_vm.destroy
+        env = Environment.load!
+        env.require_persisted_vm
+        env.vm.destroy
       end
 
       # Reload the environment. This is almost equivalent to the {up} command

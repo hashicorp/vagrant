@@ -8,6 +8,11 @@ class CommandsTest < Test::Unit::TestCase
     @persisted_vm.stubs(:execute!)
     Vagrant::Env.stubs(:persisted_vm).returns(@persisted_vm)
     Vagrant::Env.stubs(:require_persisted_vm)
+
+    @env = mock_environment
+    @env.stubs(:vm).returns(@persisted_vm)
+    @env.stubs(:require_persisted_vm)
+    Vagrant::Environment.stubs(:load!).returns(@env)
   end
 
   context "init" do
@@ -82,8 +87,13 @@ class CommandsTest < Test::Unit::TestCase
       @persisted_vm.stubs(:destroy)
     end
 
+    should "load the current environment" do
+      Vagrant::Environment.expects(:load!).once.returns(@env)
+      Vagrant::Commands.down
+    end
+
     should "require a persisted VM" do
-      Vagrant::Env.expects(:require_persisted_vm).once
+      @env.expects(:require_persisted_vm).once
       Vagrant::Commands.down
     end
 
