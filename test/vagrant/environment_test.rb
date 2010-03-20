@@ -145,6 +145,7 @@ class EnvironmentTest < Test::Unit::TestCase
         Vagrant::Environment.expects(:check_virtualbox!).once.in_sequence(call_seq)
         @env.expects(:load_vm!).once.in_sequence(call_seq)
         @env.expects(:load_ssh!).once.in_sequence(call_seq)
+        @env.expects(:load_active_list!).once.in_sequence(call_seq)
         assert_equal @env, @env.load!
       end
     end
@@ -416,6 +417,19 @@ class EnvironmentTest < Test::Unit::TestCase
         assert_equal ssh, @env.ssh
       end
     end
+
+    context "loading the active list" do
+      setup do
+        @env = mock_environment
+      end
+
+      should "initialize the ActiveList object with the given environment" do
+        active_list = mock("active_list")
+        Vagrant::ActiveList.expects(:new).with(@env).returns(active_list)
+        @env.load_active_list!
+        assert_equal active_list, @env.active_list
+      end
+    end
   end
 
   context "requiring properties" do
@@ -535,7 +549,7 @@ class EnvironmentTest < Test::Unit::TestCase
         mock_vm
 
         File.stubs(:open)
-        Vagrant::ActiveList.stubs(:add)
+        @env.active_list.stubs(:add)
       end
 
       should "should save it to the dotfile path" do
@@ -546,7 +560,7 @@ class EnvironmentTest < Test::Unit::TestCase
       end
 
       should "add the VM to the activelist" do
-        Vagrant::ActiveList.expects(:add).with(@vm)
+        @env.active_list.expects(:add).with(@vm)
         @env.persist_vm
       end
     end
@@ -558,7 +572,7 @@ class EnvironmentTest < Test::Unit::TestCase
         File.stubs(:exist?).returns(false)
         File.stubs(:delete)
 
-        Vagrant::ActiveList.stubs(:remove)
+        @env.active_list.stubs(:remove)
       end
 
       should "remove the dotfile if it exists" do
@@ -574,7 +588,7 @@ class EnvironmentTest < Test::Unit::TestCase
       end
 
       should "remove from the active list" do
-        Vagrant::ActiveList.expects(:remove).with(@vm)
+        @env.active_list.expects(:remove).with(@vm)
         @env.depersist_vm
       end
     end

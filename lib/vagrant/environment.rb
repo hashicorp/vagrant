@@ -14,6 +14,7 @@ module Vagrant
     attr_reader :box
     attr_reader :vm
     attr_reader :ssh
+    attr_reader :active_list
 
     #---------------------------------------------------------------
     # Class Methods
@@ -96,6 +97,7 @@ module Vagrant
       self.class.check_virtualbox!
       load_vm!
       load_ssh!
+      load_active_list!
       self
     end
 
@@ -185,6 +187,11 @@ module Vagrant
       @ssh = SSH.new(self)
     end
 
+    # Loads the activelist for this environment
+    def load_active_list!
+      @active_list = ActiveList.new(self)
+    end
+
     #---------------------------------------------------------------
     # Methods to manage VM
     #---------------------------------------------------------------
@@ -207,7 +214,7 @@ module Vagrant
       end
 
       # Also add to the global store
-      ActiveList.add(vm)
+      active_list.add(vm)
     end
 
     # Removes this environment's VM from the dotfile.
@@ -216,7 +223,7 @@ module Vagrant
       File.delete(dotfile_path) if File.exist?(dotfile_path)
 
       # Remove from the global store
-      ActiveList.remove(vm)
+      active_list.remove(vm)
     end
 
     #---------------------------------------------------------------
