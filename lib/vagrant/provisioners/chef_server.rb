@@ -6,7 +6,7 @@ module Vagrant
       def prepare
         if env.config.chef.validation_key_path.nil?
           raise Actions::ActionException.new(:chef_server_validation_key_required)
-        elsif !File.file?(env.config.chef.validation_key_path)
+        elsif !File.file?(validation_key_path)
           raise Actions::ActionException.new(:chef_server_validation_key_doesnt_exist)
         end
 

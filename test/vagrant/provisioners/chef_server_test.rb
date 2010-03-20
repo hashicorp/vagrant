@@ -54,8 +54,9 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
       end
 
       @action.stubs(:env).returns(@env)
+      @action.stubs(:validation_key_path).returns("9")
 
-      File.expects(:file?).with(@env.config.chef.validation_key_path).returns(true)
+      File.expects(:file?).with(@action.validation_key_path).returns(true)
       assert_nothing_raised { @action.prepare }
     end
 
@@ -65,8 +66,9 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
       end
 
       @action.stubs(:env).returns(@env)
+      @action.stubs(:validation_key_path).returns("9")
 
-      File.expects(:file?).with(@env.config.chef.validation_key_path).returns(false)
+      File.expects(:file?).with(@action.validation_key_path).returns(false)
       assert_raises(Vagrant::Actions::ActionException) {
         @action.prepare
       }
