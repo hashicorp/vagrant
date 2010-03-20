@@ -8,6 +8,7 @@ class StartActionTest < Test::Unit::TestCase
 
   context "sub-actions" do
     setup do
+      @vm.stubs(:saved?).returns(true)
       File.stubs(:file?).returns(true)
       File.stubs(:exist?).returns(true)
       @default_order = [Vagrant::Actions::VM::ForwardPorts, Vagrant::Actions::VM::SharedFolders, Vagrant::Actions::VM::Boot]
@@ -21,6 +22,13 @@ class StartActionTest < Test::Unit::TestCase
     end
 
     should "do the proper actions by default" do
+      setup_action_expectations
+      @action.prepare
+    end
+
+    should "add customize to the beginning if its not saved" do
+      @vm.expects(:saved?).returns(false)
+      @default_order.unshift(Vagrant::Actions::VM::Customize)
       setup_action_expectations
       @action.prepare
     end
