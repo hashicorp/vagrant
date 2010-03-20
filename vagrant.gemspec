@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Mitchell Hashimoto", "John Bender"]
-  s.date = %q{2010-03-17}
+  s.date = %q{2010-03-20}
   s.description = %q{Vagrant is a tool for building and distributing virtualized development environments.}
   s.email = ["mitchell.hashimoto@gmail.com", "john.m.bender@gmail.com"]
   s.executables = ["vagrant", "vagrant-box", "vagrant-down", "vagrant-halt", "vagrant-init", "vagrant-package", "vagrant-reload", "vagrant-resume", "vagrant-ssh", "vagrant-status", "vagrant-suspend", "vagrant-up"]
@@ -74,15 +74,15 @@ Gem::Specification.new do |s|
      "lib/vagrant/downloaders/base.rb",
      "lib/vagrant/downloaders/file.rb",
      "lib/vagrant/downloaders/http.rb",
-     "lib/vagrant/env.rb",
+     "lib/vagrant/environment.rb",
      "lib/vagrant/provisioners/base.rb",
      "lib/vagrant/provisioners/chef.rb",
      "lib/vagrant/provisioners/chef_server.rb",
      "lib/vagrant/provisioners/chef_solo.rb",
      "lib/vagrant/ssh.rb",
-     "lib/vagrant/stacked_proc_runner.rb",
      "lib/vagrant/util.rb",
      "lib/vagrant/util/errors.rb",
+     "lib/vagrant/util/stacked_proc_runner.rb",
      "lib/vagrant/util/template_renderer.rb",
      "lib/vagrant/vm.rb",
      "templates/Vagrantfile.erb",
@@ -120,14 +120,14 @@ Gem::Specification.new do |s|
      "test/vagrant/downloaders/base_test.rb",
      "test/vagrant/downloaders/file_test.rb",
      "test/vagrant/downloaders/http_test.rb",
-     "test/vagrant/env_test.rb",
+     "test/vagrant/environment_test.rb",
      "test/vagrant/provisioners/base_test.rb",
      "test/vagrant/provisioners/chef_server_test.rb",
      "test/vagrant/provisioners/chef_solo_test.rb",
      "test/vagrant/provisioners/chef_test.rb",
      "test/vagrant/ssh_test.rb",
-     "test/vagrant/stacked_proc_runner_test.rb",
      "test/vagrant/util/errors_test.rb",
+     "test/vagrant/util/stacked_proc_runner_test.rb",
      "test/vagrant/util/template_renderer_test.rb",
      "test/vagrant/util_test.rb",
      "test/vagrant/vm_test.rb",
@@ -172,14 +172,14 @@ Gem::Specification.new do |s|
      "test/vagrant/downloaders/base_test.rb",
      "test/vagrant/downloaders/file_test.rb",
      "test/vagrant/downloaders/http_test.rb",
-     "test/vagrant/env_test.rb",
+     "test/vagrant/environment_test.rb",
      "test/vagrant/provisioners/base_test.rb",
      "test/vagrant/provisioners/chef_server_test.rb",
      "test/vagrant/provisioners/chef_solo_test.rb",
      "test/vagrant/provisioners/chef_test.rb",
      "test/vagrant/ssh_test.rb",
-     "test/vagrant/stacked_proc_runner_test.rb",
      "test/vagrant/util/errors_test.rb",
+     "test/vagrant/util/stacked_proc_runner_test.rb",
      "test/vagrant/util/template_renderer_test.rb",
      "test/vagrant/util_test.rb",
      "test/vagrant/vm_test.rb"
@@ -193,14 +193,14 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<virtualbox>, [">= 0.5.4"])
       s.add_runtime_dependency(%q<net-ssh>, [">= 2.0.19"])
       s.add_runtime_dependency(%q<net-scp>, [">= 1.0.2"])
-      s.add_runtime_dependency(%q<json>, [">= 1.2.0"])
+      s.add_runtime_dependency(%q<json_pure>, [">= 1.2.0"])
       s.add_runtime_dependency(%q<git-style-binaries>, [">= 0.1.10"])
       s.add_runtime_dependency(%q<archive-tar-minitar>, ["= 0.5.2"])
     else
       s.add_dependency(%q<virtualbox>, [">= 0.5.4"])
       s.add_dependency(%q<net-ssh>, [">= 2.0.19"])
       s.add_dependency(%q<net-scp>, [">= 1.0.2"])
-      s.add_dependency(%q<json>, [">= 1.2.0"])
+      s.add_dependency(%q<json_pure>, [">= 1.2.0"])
       s.add_dependency(%q<git-style-binaries>, [">= 0.1.10"])
       s.add_dependency(%q<archive-tar-minitar>, ["= 0.5.2"])
     end
@@ -208,7 +208,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<virtualbox>, [">= 0.5.4"])
     s.add_dependency(%q<net-ssh>, [">= 2.0.19"])
     s.add_dependency(%q<net-scp>, [">= 1.0.2"])
-    s.add_dependency(%q<json>, [">= 1.2.0"])
+    s.add_dependency(%q<json_pure>, [">= 1.2.0"])
     s.add_dependency(%q<git-style-binaries>, [">= 0.1.10"])
     s.add_dependency(%q<archive-tar-minitar>, ["= 0.5.2"])
   end
