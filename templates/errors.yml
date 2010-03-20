@@ -28,7 +28,7 @@
     \nvagrant box list"
 :dotfile_error: "The dotfile which Vagrant uses to store the UUID of the project's
     \nvirtual machine already exists and is not a file! The dotfile is
-    \ncurrently configured to be `<%= Vagrant::Env.dotfile_path %>`
+    \ncurrently configured to be `<%= env.dotfile_path %>`
 
     \nTo change this value, please see `config.vagrant.dotfile_name`
 
@@ -41,16 +41,16 @@
 :environment_not_created: "The task you're trying to run requires that the vagrant environment
     \nalready be created, but unfortunately this vagrant still appears to
     \nhave no box! You can setup the environment by setting up your
-    \n<%= Vagrant::Env::ROOTFILE_NAME %> and running `vagrant up`"
+    \n<%= Vagrant::Environment::ROOTFILE_NAME %> and running `vagrant up`"
 :package_include_file_doesnt_exist: "File specified to include: '<%= filename %>' does not exist!"
 :package_requires_export: "Package must be used in conjunction with export."
 :provisioner_invalid_class: "Provisioners must be an instance of Vagrant::Provisioners::Base"
 :provisioner_unknown_type: "Unknown provisioner type: <%= provisioner %>"
-:rootfile_already_exists: "It looks like this directory is already setup for vagrant! (A <%= Vagrant::Env::ROOTFILE_NAME %>
+:rootfile_already_exists: "It looks like this directory is already setup for vagrant! (A <%= Vagrant::Environment::ROOTFILE_NAME %>
     \nalready exists.)"
-:rootfile_not_found: "A `<%= Vagrant::Env::ROOTFILE_NAME %>` was not found! This file is required for vagrant to run
+:rootfile_not_found: "A `<%= Vagrant::Environment::ROOTFILE_NAME %>` was not found! This file is required for vagrant to run
     \nsince it describes the expected environment that vagrant is supposed
-    \nto manage. Please create a `<%= Vagrant::Env::ROOTFILE_NAME %>` and place it in your project
+    \nto manage. Please create a `<%= Vagrant::Environment::ROOTFILE_NAME %>` and place it in your project
     \nroot."
 :ssh_bad_permissions: "The private key to connect to this box via SSH has invalid permissions
     \nset on it. The permissions of the private key should be set to 0600, otherwise SSH will

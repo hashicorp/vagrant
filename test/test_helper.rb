@@ -20,7 +20,9 @@ require 'mocha'
 class Test::Unit::TestCase
   # Mocks an environment, setting it up with the given config.
   def mock_environment
-    Vagrant::Config.reset!
+    environment = Vagrant::Environment.new
+
+    Vagrant::Config.reset!(environment)
 
     Vagrant::Config.run do |config|
       config.vagrant.dotfile_name = ".vagrant"
@@ -66,7 +68,6 @@ class Test::Unit::TestCase
 
     config = Vagrant::Config.execute!
 
-    environment = Vagrant::Environment.new
     environment.instance_variable_set(:@config, config)
     environment
   end

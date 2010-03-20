@@ -14,7 +14,7 @@ class EnvironmentTest < Test::Unit::TestCase
     should "not error and exit if everything is good" do
       VirtualBox::Command.expects(:version).returns("3.1.4")
       VirtualBox::Global.expects(:vboxconfig?).returns(true)
-      Vagrant::Env.expects(:error_and_exit).never
+      Vagrant::Environment.expects(:error_and_exit).never
       Vagrant::Environment.check_virtualbox!
     end
 
@@ -194,10 +194,10 @@ class EnvironmentTest < Test::Unit::TestCase
 
       should "should set the path for the rootfile" do
         path = "/foo"
-        File.expects(:exist?).with("#{path}/#{Vagrant::Env::ROOTFILE_NAME}").returns(true)
+        File.expects(:exist?).with("#{path}/#{Vagrant::Environment::ROOTFILE_NAME}").returns(true)
 
-        assert Vagrant::Env.load_root_path!(Pathname.new(path))
-        assert_equal path, Vagrant::Env.root_path
+        assert @env.load_root_path!(Pathname.new(path))
+        assert_equal path, @env.root_path
       end
     end
 
@@ -214,7 +214,7 @@ class EnvironmentTest < Test::Unit::TestCase
       end
 
       should "reset the configuration object" do
-        Vagrant::Config.expects(:reset!).once
+        Vagrant::Config.expects(:reset!).with(@env).once
         @env.load_config!
       end
 
@@ -293,7 +293,7 @@ class EnvironmentTest < Test::Unit::TestCase
       should "create each directory if it doesn't exist" do
         create_seq = sequence("create_seq")
         File.stubs(:directory?).returns(false)
-        Vagrant::Env::HOME_SUBDIRS.each do |subdir|
+        Vagrant::Environment::HOME_SUBDIRS.each do |subdir|
           FileUtils.expects(:mkdir_p).with(File.join(@home_dir, subdir)).in_sequence(create_seq)
         end
 

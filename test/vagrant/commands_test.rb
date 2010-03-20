@@ -2,12 +2,8 @@ require File.join(File.dirname(__FILE__), '..', 'test_helper')
 
 class CommandsTest < Test::Unit::TestCase
   setup do
-    Vagrant::Env.stubs(:load!)
-
     @persisted_vm = mock("persisted_vm")
     @persisted_vm.stubs(:execute!)
-    Vagrant::Env.stubs(:persisted_vm).returns(@persisted_vm)
-    Vagrant::Env.stubs(:require_persisted_vm)
 
     @env = mock_environment
     @env.stubs(:vm).returns(@persisted_vm)
@@ -20,7 +16,7 @@ class CommandsTest < Test::Unit::TestCase
       @file = mock("file")
       @file.stubs(:write)
       File.stubs(:open).yields(@file)
-      @rootfile_path = File.join(Dir.pwd, Vagrant::Env::ROOTFILE_NAME)
+      @rootfile_path = File.join(Dir.pwd, Vagrant::Environment::ROOTFILE_NAME)
 
       Vagrant::Util::TemplateRenderer.stubs(:render)
     end
@@ -42,12 +38,12 @@ class CommandsTest < Test::Unit::TestCase
 
     should "use the given base box if given" do
       box = "zooo"
-      Vagrant::Util::TemplateRenderer.expects(:render).with(Vagrant::Env::ROOTFILE_NAME, :default_box => box)
+      Vagrant::Util::TemplateRenderer.expects(:render).with(Vagrant::Environment::ROOTFILE_NAME, :default_box => box)
       Vagrant::Commands.init(box)
     end
 
     should "use the default `base` if no box is given" do
-      Vagrant::Util::TemplateRenderer.expects(:render).with(Vagrant::Env::ROOTFILE_NAME, :default_box => "base")
+      Vagrant::Util::TemplateRenderer.expects(:render).with(Vagrant::Environment::ROOTFILE_NAME, :default_box => "base")
       Vagrant::Commands.init
     end
   end

@@ -51,7 +51,7 @@ module Vagrant
 
         def with_tempfile
           logger.info "Creating tempfile for storing box file..."
-          Tempfile.open(BASENAME, Env.tmp_path) do |tempfile|
+          Tempfile.open(BASENAME, @runner.env.tmp_path) do |tempfile|
             yield tempfile
           end
         end

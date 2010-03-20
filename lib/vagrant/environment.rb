@@ -125,7 +125,7 @@ module Vagrant
       load_paths << File.join(root_path, ROOTFILE_NAME) if root_path
 
       # Clear out the old data
-      Config.reset!
+      Config.reset!(self)
 
       # Load each of the config files in order
       load_paths.each do |path|

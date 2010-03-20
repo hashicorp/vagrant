@@ -5,7 +5,7 @@ module Vagrant
         def prepare
           # If the dotfile is not a file, raise error
           if File.exist?(@runner.env.dotfile_path) && !File.file?(@runner.env.dotfile_path)
-            raise ActionException.new(:dotfile_error)
+            raise ActionException.new(:dotfile_error, :env => @runner.env)
           end
 
           # Up is a "meta-action" so it really just queues up a bunch

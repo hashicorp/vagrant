@@ -2,10 +2,14 @@ require File.join(File.dirname(__FILE__), '..', 'test_helper')
 
 class ConfigTest < Test::Unit::TestCase
   context "the ssh config" do
+    setup do
+      @env = mock_environment
+      @env.stubs(:root_path).returns("foo")
+    end
+
     should "expand any path when requesting the value" do
-      Vagrant::Env.stubs(:root_path).returns('foo')
-      File.stubs(:expand_path).with(Vagrant.config.ssh[:private_key_path], 'foo').returns('success')
-      assert Vagrant.config.ssh.private_key_path, 'success'
+      result = File.expand_path(@env.config.ssh[:private_key_path], @env.root_path)
+      assert_equal result, @env.config.ssh.private_key_path
     end
   end
 
@@ -39,6 +43,12 @@ class ConfigTest < Test::Unit::TestCase
       assert !Vagrant::Config.proc_stack.empty?
       Vagrant::Config.reset!
       assert Vagrant::Config.proc_stack.empty?
+    end
+
+    should "reload the config object based on the given environment" do
+      env = mock("env")
+      Vagrant::Config.expects(:config).with(env).once
+      Vagrant::Config.reset!(env)
     end
   end
 
@@ -144,21 +154,25 @@ class ConfigTest < Test::Unit::TestCase
       end
 
       should "initialize each configurer and set it to its key" do
+        env = mock('env')
+
         5.times do |i|
           key = "key#{i}"
           klass = mock("klass#{i}")
           instance = mock("instance#{i}")
+          instance.expects(:env=).with(env)
           klass.expects(:new).returns(instance)
           @configures_list << [key, klass]
         end
 
-        Vagrant::Config::Top.new
+        Vagrant::Config::Top.new(env)
       end
 
       should "allow reading via methods" do
         key = "my_foo_bar_key"
         klass = mock("klass")
         instance = mock("instance")
+        instance.stubs(:env=)
         klass.expects(:new).returns(instance)
         Vagrant::Config::Top.configures(key, klass)
 
@@ -202,12 +216,9 @@ class ConfigTest < Test::Unit::TestCase
 
   context "VM configuration" do
     setup do
-      @config = Vagrant::Config::VMConfig.new
-      @username = "bob"
-
-      mock_config do |config|
-        config.ssh.username = @username
-      end
+      @env = mock_environment
+      @config = @env.config.vm
+      @env.config.ssh.username = @username
     end
 
     should "include the stacked proc runner module" do

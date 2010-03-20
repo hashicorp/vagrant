@@ -12,7 +12,7 @@ module Vagrant
       # begin using vagrant. The configuration file contains some documentation
       # to get you started.
       def init(default_box=nil)
-        rootfile_path = File.join(Dir.pwd, Env::ROOTFILE_NAME)
+        rootfile_path = File.join(Dir.pwd, Environment::ROOTFILE_NAME)
         if File.exist?(rootfile_path)
           error_and_exit(:rootfile_already_exists)
         end
@@ -20,7 +20,7 @@ module Vagrant
         # Copy over the rootfile template into this directory
         default_box ||= "base"
         File.open(rootfile_path, 'w+') do |f|
-          f.write(TemplateRenderer.render(Env::ROOTFILE_NAME, :default_box => default_box))
+          f.write(TemplateRenderer.render(Environment::ROOTFILE_NAME, :default_box => default_box))
         end
       end
 

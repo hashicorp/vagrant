@@ -7,7 +7,7 @@ class UnpackageBoxActionTest < Test::Unit::TestCase
     @runner.stubs(:temp_path).returns("bar")
     mock_config
 
-    Vagrant::Env.stubs(:boxes_path).returns("bar")
+    @runner.env.stubs(:boxes_path).returns("bar")
   end
 
   context "executing" do
