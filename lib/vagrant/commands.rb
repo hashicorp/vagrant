@@ -169,7 +169,7 @@ msg
       # which action to take and calls the respective action method
       # (see {box_add} and {box_remove})
       def box(argv)
-        Environment.load!
+        env = Environment.load!
 
         sub_commands = ["list", "add", "remove"]
 
@@ -177,12 +177,12 @@ msg
           error_and_exit(:command_box_invalid)
         end
 
-        send("box_#{argv[0]}", *argv[1..-1])
+        send("box_#{argv[0]}", env, *argv[1..-1])
       end
 
       # Lists all added boxes
-      def box_list
-        boxes = Box.all.sort
+      def box_list(env)
+        boxes = Box.all(env).sort
 
         wrap_output do
           if !boxes.empty?
@@ -197,13 +197,13 @@ msg
       end
 
       # Adds a box to the local filesystem, given a URI.
-      def box_add(name, path)
-        Box.add(name, path)
+      def box_add(env, name, path)
+        Box.add(env, name, path)
       end
 
       # Removes a box.
-      def box_remove(name)
-        box = Box.find(name)
+      def box_remove(env, name)
+        box = Box.find(env, name)
         if box.nil?
           error_and_exit(:box_remove_doesnt_exist)
           return # for tests

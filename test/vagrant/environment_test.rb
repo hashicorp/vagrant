@@ -119,6 +119,14 @@ class EnvironmentTest < Test::Unit::TestCase
         assert_equal File.join("foo", "tmp"), @env.tmp_path
       end
     end
+
+    context "boxes path" do
+      should "return the home path joined with 'tmp'" do
+        home_path = "foo"
+        @env.stubs(:home_path).returns(home_path)
+        assert_equal File.join("foo", "boxes"), @env.boxes_path
+      end
+    end
   end
 
   context "loading" do

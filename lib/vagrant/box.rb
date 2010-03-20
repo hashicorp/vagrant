@@ -60,12 +60,12 @@ module Vagrant
       # Returns an array of all created boxes, as strings.
       #
       # @return [Array<String>]
-      def all
+      def all(env)
         results = []
 
-        Dir.open(Env.boxes_path) do |dir|
+        Dir.open(env.boxes_path) do |dir|
           dir.each do |d|
-            next if d == "." || d == ".." || !File.directory?(File.join(Env.boxes_path, d))
+            next if d == "." || d == ".." || !File.directory?(File.join(env.boxes_path, d))
             results << d.to_s
           end
         end
@@ -79,8 +79,8 @@ module Vagrant
       #
       # @param [String] name The name of the box
       # @return [Box] Instance of {Box} representing the box found
-      def find(name)
-        return nil unless File.directory?(directory(name))
+      def find(env, name)
+        return nil unless File.directory?(directory(env, name))
         new(name)
       end
 
@@ -90,10 +90,11 @@ module Vagrant
       #
       # @param [String] name The name of the box
       # @param [String] uri URI to the box file
-      def add(name, uri)
+      def add(env, name, uri)
         box = new
         box.name = name
         box.uri = uri
+        box.env = env
         box.add
       end
 
@@ -103,7 +104,7 @@ module Vagrant
       #
       # @param [String] name Name of the box whose directory you're interested in.
       # @return [String] Full path to the box directory.
-      def directory(name)
+      def directory(env, name)
         File.join(Env.boxes_path, name)
       end
     end

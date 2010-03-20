@@ -75,6 +75,11 @@ module Vagrant
       File.join(home_path, "tmp")
     end
 
+    # The path to the Vagrant boxes directory
+    def boxes_path
+      File.join(home_path, "boxes")
+    end
+
     #---------------------------------------------------------------
     # Load Methods
     #---------------------------------------------------------------

@@ -251,7 +251,7 @@ class CommandsTest < Test::Unit::TestCase
     end
 
     should "load the environment" do
-      Vagrant::Environment.expects(:load!).once
+      Vagrant::Environment.expects(:load!).once.returns(@env)
       Vagrant::Commands.box(["add"])
     end
 
@@ -271,7 +271,7 @@ class CommandsTest < Test::Unit::TestCase
     end
 
     should "forward any additional arguments" do
-      Vagrant::Commands.expects(:box_add).with(1,2,3).once
+      Vagrant::Commands.expects(:box_add).with(@env, 1,2,3).once
       Vagrant::Commands.box(["add",1,2,3])
     end
   end
@@ -287,8 +287,8 @@ class CommandsTest < Test::Unit::TestCase
     should "call all on box and sort the results" do
       @all = mock("all")
       @all.expects(:sort).returns(@boxes)
-      Vagrant::Box.expects(:all).returns(@all)
-      Vagrant::Commands.box_list
+      Vagrant::Box.expects(:all).with(@env).returns(@all)
+      Vagrant::Commands.box_list(@env)
     end
   end
 
@@ -299,8 +299,8 @@ class CommandsTest < Test::Unit::TestCase
     end
 
     should "execute the add action with the name and path" do
-      Vagrant::Box.expects(:add).with(@name, @path).once
-      Vagrant::Commands.box_add(@name, @path)
+      Vagrant::Box.expects(:add).with(@env, @name, @path).once
+      Vagrant::Commands.box_add(@env, @name, @path)
     end
   end
 
@@ -312,14 +312,14 @@ class CommandsTest < Test::Unit::TestCase
     should "error and exit if the box doesn't exist" do
       Vagrant::Box.expects(:find).returns(nil)
       Vagrant::Commands.expects(:error_and_exit).with(:box_remove_doesnt_exist).once
-      Vagrant::Commands.box_remove(@name)
+      Vagrant::Commands.box_remove(@env, @name)
     end
 
     should "call destroy on the box if it exists" do
       @box = mock("box")
-      Vagrant::Box.expects(:find).with(@name).returns(@box)
+      Vagrant::Box.expects(:find).with(@env, @name).returns(@box)
       @box.expects(:destroy).once
-      Vagrant::Commands.box_remove(@name)
+      Vagrant::Commands.box_remove(@env, @name)
     end
   end
 end
