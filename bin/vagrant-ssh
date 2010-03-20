@@ -22,6 +22,6 @@ Opens an SSH connection into the created VM.
 EOS
 
   run do |command|
-    Vagrant::Commands.ssh
+    Vagrant::Commands.execute(:ssh)
   end
 end

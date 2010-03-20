@@ -24,6 +24,6 @@ etc.
 EOS
 
   run do |command|
-    Vagrant::Commands.status
+    Vagrant::Commands.execute(:status)
   end
 end

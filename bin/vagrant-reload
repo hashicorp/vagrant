@@ -24,6 +24,6 @@ the VM, and reruns the chef recipes.
 EOS
 
   run do |command|
-    Vagrant::Commands.reload
+    Vagrant::Commands.execute(:reload)
   end
 end

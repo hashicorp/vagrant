@@ -24,6 +24,6 @@ EOS
   opt :include, "files to include in the package", :type => :strings
 
   run do |command|
-    Vagrant::Commands.package(command.argv[0], command.opts[:include])
+    Vagrant::Commands.execute(:package, command.argv[0], command.opts[:include])
   end
 end

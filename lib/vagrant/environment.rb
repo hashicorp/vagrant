@@ -15,6 +15,7 @@ module Vagrant
     attr_reader :vm
     attr_reader :ssh
     attr_reader :active_list
+    attr_reader :commands
 
     #---------------------------------------------------------------
     # Class Methods
@@ -98,6 +99,7 @@ module Vagrant
       load_vm!
       load_ssh!
       load_active_list!
+      load_commands!
       self
     end
 
@@ -189,6 +191,13 @@ module Vagrant
     # Loads the activelist for this environment
     def load_active_list!
       @active_list = ActiveList.new(self)
+    end
+
+    # Loads the instance of {Commands} for this environment. This allows
+    # users of the instance to run commands such as "up" "down" etc. in
+    # the context of this environment.
+    def load_commands!
+      @commands = Commands.new(self)
     end
 
     #---------------------------------------------------------------

@@ -22,6 +22,6 @@ Resumes the vagrant environment.
 EOS
 
   run do |command|
-    Vagrant::Commands.resume
+    Vagrant::Commands.execute(:resume)
   end
 end

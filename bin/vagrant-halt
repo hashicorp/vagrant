@@ -23,6 +23,6 @@ of pulling the power on your computer.
 EOS
 
   run do |command|
-    Vagrant::Commands.halt
+    Vagrant::Commands.execute(:halt)
   end
 end
