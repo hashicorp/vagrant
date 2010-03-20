@@ -70,6 +70,11 @@ module Vagrant
       config ? config.vagrant.home : nil
     end
 
+    # The path to the Vagrant tmp directory
+    def tmp_path
+      File.join(home_path, "tmp")
+    end
+
     #---------------------------------------------------------------
     # Load Methods
     #---------------------------------------------------------------

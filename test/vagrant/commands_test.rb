@@ -211,8 +211,13 @@ class CommandsTest < Test::Unit::TestCase
       @persisted_vm.stubs(:powered_off?).returns(true)
     end
 
+    should "load the current environment" do
+      Vagrant::Environment.expects(:load!).once.returns(@env)
+      Vagrant::Commands.package
+    end
+
     should "require a persisted vm" do
-      Vagrant::Env.expects(:require_persisted_vm).once
+      @env.expects(:require_persisted_vm).once
       Vagrant::Commands.package
     end
 

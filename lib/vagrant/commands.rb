@@ -157,11 +157,11 @@ msg
       #
       # This command requires that an instance be powered off
       def package(out_path=nil, include_files=[])
-        Env.load!
-        Env.require_persisted_vm
-        error_and_exit(:vm_power_off_to_package) unless Env.persisted_vm.powered_off?
+        env = Environment.load!
+        env.require_persisted_vm
+        error_and_exit(:vm_power_off_to_package) unless env.vm.powered_off?
 
-        Env.persisted_vm.package(out_path, include_files)
+        env.vm.package(out_path, include_files)
       end
 
       # Manages the `vagrant box` command, allowing the user to add

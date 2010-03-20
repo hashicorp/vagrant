@@ -111,6 +111,14 @@ class EnvironmentTest < Test::Unit::TestCase
         assert_equal @env.config.vagrant.home, @env.home_path
       end
     end
+
+    context "temp path" do
+      should "return the home path joined with 'tmp'" do
+        home_path = "foo"
+        @env.stubs(:home_path).returns(home_path)
+        assert_equal File.join("foo", "tmp"), @env.tmp_path
+      end
+    end
   end
 
   context "loading" do

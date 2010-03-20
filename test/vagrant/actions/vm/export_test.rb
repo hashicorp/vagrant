@@ -21,9 +21,9 @@ class ExportActionTest < Test::Unit::TestCase
       Time.stubs(:now).returns(@time_now)
 
       @tmp_path = "foo"
-      Vagrant::Env.stubs(:tmp_path).returns(@tmp_path)
+      @runner.env.stubs(:tmp_path).returns(@tmp_path)
 
-      @temp_dir = File.join(Vagrant::Env.tmp_path, @time_now)
+      @temp_dir = File.join(@runner.env.tmp_path, @time_now)
       FileUtils.stubs(:mkpath)
     end
 
@@ -45,7 +45,7 @@ class ExportActionTest < Test::Unit::TestCase
     end
 
     should "be the temporary directory joined with the OVF filename" do
-      assert_equal File.join(@temp_dir, Vagrant.config.vm.box_ovf), @action.ovf_path
+      assert_equal File.join(@temp_dir, @runner.env.config.vm.box_ovf), @action.ovf_path
     end
   end
 
