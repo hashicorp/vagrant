@@ -31,21 +31,25 @@ as well.
 
 ## Loading the Vagrant Environment
 
-The first step to doing _almost_ anything with Vagrant is to make sure the
-environment is loaded. The environment must be loaded before anything is
-done except for configuring and running methods in the `Vagrant::Command`
-class. If you need custom configuration, make sure you
-define your configuration blocks _before_ loading the environment. If you
-are going to use a Vagrant command, you can run it before or after an
-environment load with no consequence. For
-everything else, load the environment _first_.
+The first step to doing anything with Vagrant is to make sure that the
+environment is loaded. Each Vagrant project has its own "environment"
+which simply encapsulates the configuration, SSH access, VM, etc.
+of that project.
 
 Loading the environment sets up all the paths, loads the virtual
 machine (if one exists), and loads the configuration. Loading the
-environment is a one-liner:
+environment for the current directory is a one-liner:
 
 {% highlight ruby %}
-Vagrant::Env.load!
+env = Vagrant::Environment.load!
+{% endhighlight %}
+
+If you're working in a separate directory or you're writing a script that
+will be used with multiple Vagrant projects, you can load a specific
+Vagrant environment by passing in a path:
+
+{% highlight ruby %}
+env = Vagrant::Environment.load!("/path/to/my/project")
 {% endhighlight %}
 
 ## Executing Commands
@@ -67,7 +71,8 @@ end
 ## SSH Commands
 
 Perhaps you want to write a rake task that does some commands within the
-virtual server setup? This can be done through `Vagrant::SSH`. `Vagrant::SSH`
+virtual server setup? This can be done through the `ssh` accessor of the
+environment, which is an instance of `Vagrant::SSH`. `Vagrant::SSH`
 is simply a wrapper around `Net::SSH` and the objects returned are typically
 `Net::SSH` objects.
 
@@ -76,13 +81,13 @@ shutdown command:
 
 {% highlight ruby %}
 task :graceful_down do
-  Vagrant::Env.load!
-  Vagrant::Env.require_persisted_vm
-  Vagrant::SSH.execute do |ssh|
+  env = Vagrant::Environment.load!
+  env.require_persisted_vm
+  env.ssh.execute do |ssh|
     ssh.exec!("sudo halt")
   end
 end
 {% endhighlight %}
 
-This example also shows `Env.require_persisted_vm` which simply errors and
+This example also shows `env.require_persisted_vm` which simply errors and
 exits if there is no Vagrant VM created yet.
