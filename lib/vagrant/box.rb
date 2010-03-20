@@ -81,7 +81,7 @@ module Vagrant
       # @return [Box] Instance of {Box} representing the box found
       def find(env, name)
         return nil unless File.directory?(directory(env, name))
-        new(name)
+        new(env, name)
       end
 
       # Adds a new box with given name from the given URI. This method
@@ -115,8 +115,9 @@ module Vagrant
     #
     # **Note:** This method does not actually _create_ the box, but merely
     # returns a new, abstract representation of it. To add a box, see {#add}.
-    def initialize(name=nil)
+    def initialize(env=nil, name=nil)
       @name = name
+      @env = env
     end
 
     # Returns path to the OVF file of the box. The OVF file is an open

@@ -71,6 +71,13 @@ class BoxTest < Test::Unit::TestCase
         assert result
         assert_equal @name, result.name
       end
+
+      should "return a box object with the proper env set" do
+        File.expects(:directory?).with(@dir).once.returns(true)
+        result = Vagrant::Box.find(@env, @name)
+        assert result
+        assert_equal @env, result.env
+      end
     end
 
     context "adding" do
