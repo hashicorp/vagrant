@@ -211,13 +211,6 @@ msg
 
         box.destroy
       end
-
-      private
-
-      def act_on_vm(&block)
-        yield Env.persisted_vm
-        Env.persisted_vm.execute!
-      end
     end
   end
 end
