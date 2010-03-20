@@ -47,7 +47,7 @@ class ProvisionActionTest < Test::Unit::TestCase
         @instance.stubs(:prepare)
         @klass = mock("klass")
         @klass.stubs(:is_a?).with(Class).returns(true)
-        @klass.stubs(:new).returns(@instance)
+        @klass.stubs(:new).with(@runner.env).returns(@instance)
 
         mock_config do |config|
           config.vm.provisioner = @klass
@@ -55,7 +55,7 @@ class ProvisionActionTest < Test::Unit::TestCase
       end
 
       should "set the provisioner to an instantiation of the class" do
-        @klass.expects(:new).once.returns(@instance)
+        @klass.expects(:new).with(@runner.env).once.returns(@instance)
         assert_nothing_raised { @action.prepare }
         assert_equal @instance, @action.provisioner
       end
@@ -81,7 +81,7 @@ class ProvisionActionTest < Test::Unit::TestCase
 
         instance = mock("instance")
         instance.expects(:prepare).once
-        provisioner.expects(:new).returns(instance)
+        provisioner.expects(:new).with(@runner.env).returns(instance)
         assert_nothing_raised { @action.prepare }
         assert_equal instance, @action.provisioner
       end

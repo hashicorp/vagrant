@@ -15,24 +15,24 @@ module Vagrant
 
       def share_cookbook_folders
         host_cookbook_paths.each_with_index do |cookbook, i|
-          Vagrant.config.vm.share_folder("vagrant-chef-solo-#{i}", cookbook_path(i), cookbook)
+          env.config.vm.share_folder("vagrant-chef-solo-#{i}", cookbook_path(i), cookbook)
         end
       end
 
       def setup_solo_config
         solo_file = <<-solo
-file_cache_path "#{Vagrant.config.chef.provisioning_path}"
+file_cache_path "#{env.config.chef.provisioning_path}"
 cookbook_path #{cookbooks_path}
 solo
 
         logger.info "Uploading chef-solo configuration script..."
-        SSH.upload!(StringIO.new(solo_file), File.join(Vagrant.config.chef.provisioning_path, "solo.rb"))
+        env.ssh.upload!(StringIO.new(solo_file), File.join(env.config.chef.provisioning_path, "solo.rb"))
       end
 
       def run_chef_solo
         logger.info "Running chef-solo..."
-        SSH.execute do |ssh|
-          ssh.exec!("cd #{Vagrant.config.chef.provisioning_path} && sudo chef-solo -c solo.rb -j dna.json") do |channel, data, stream|
+        env.ssh.execute do |ssh|
+          ssh.exec!("cd #{env.config.chef.provisioning_path} && sudo chef-solo -c solo.rb -j dna.json") do |channel, data, stream|
             # TODO: Very verbose. It would be easier to save the data and only show it during
             # an error, or when verbosity level is set high
             logger.info("#{stream}: #{data}")
@@ -41,14 +41,14 @@ solo
       end
 
       def host_cookbook_paths
-        cookbooks = Vagrant.config.chef.cookbooks_path
+        cookbooks = env.config.chef.cookbooks_path
         cookbooks = [cookbooks] unless cookbooks.is_a?(Array)
-        cookbooks.collect! { |cookbook| File.expand_path(cookbook, Env.root_path) }
+        cookbooks.collect! { |cookbook| File.expand_path(cookbook, env.root_path) }
         return cookbooks
       end
 
       def cookbook_path(i)
-        File.join(Vagrant.config.chef.provisioning_path, "cookbooks-#{i}")
+        File.join(env.config.chef.provisioning_path, "cookbooks-#{i}")
       end
 
       def cookbooks_path
