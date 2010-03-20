@@ -2,6 +2,7 @@ module Vagrant
   class VM < Actions::Runner
     include Vagrant::Util
 
+    attr_accessor :env
     attr_accessor :vm
     attr_accessor :from
 

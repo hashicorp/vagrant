@@ -7,6 +7,13 @@ module Vagrant
     class Base
       include Vagrant::Util
 
+      # The environment which this is being provisioned in
+      attr_reader :env
+
+      def initialize(env)
+        @env = env
+      end
+
       # This is the method called to "prepare" the provisioner. This is called
       # before any actions are run by the action runner (see {Vagrant::Actions::Runner}).
       # This can be used to setup shared folders, forward ports, etc. Whatever is

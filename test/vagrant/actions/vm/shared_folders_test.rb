@@ -2,7 +2,7 @@ require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 
 class SharedFoldersActionTest < Test::Unit::TestCase
   setup do
-    @mock_vm, @vm, @action = mock_action(Vagrant::Actions::VM::SharedFolders)
+    @runner, @vm, @action = mock_action(Vagrant::Actions::VM::SharedFolders)
     mock_config
   end
 
@@ -27,10 +27,12 @@ class SharedFoldersActionTest < Test::Unit::TestCase
     end
 
     should "convert the vagrant config values into an array" do
-      mock_config do |config|
+      env = mock_environment do |config|
         config.vm.shared_folders.clear
         config.vm.share_folder("foo", "bar", "baz")
       end
+
+      @runner.expects(:env).returns(env)
 
       result = [["foo", "baz", "bar"]]
       assert_equal result, @action.shared_folders
@@ -39,10 +41,12 @@ class SharedFoldersActionTest < Test::Unit::TestCase
     should "expand the path of the host folder" do
       File.expects(:expand_path).with("baz").once.returns("expanded_baz")
 
-      mock_config do |config|
+      env = mock_environment do |config|
         config.vm.shared_folders.clear
         config.vm.share_folder("foo", "bar", "baz")
       end
+
+      @runner.expects(:env).returns(env)
 
       result = [["foo", "expanded_baz", "bar"]]
       assert_equal result, @action.shared_folders
@@ -62,7 +66,7 @@ class SharedFoldersActionTest < Test::Unit::TestCase
         sf.expects(:destroy).once.in_sequence(destroy_seq)
       end
 
-      @mock_vm.expects(:reload!).once.in_sequence(destroy_seq)
+      @runner.expects(:reload!).once.in_sequence(destroy_seq)
       @action.clear_shared_folders
     end
   end
@@ -95,9 +99,9 @@ class SharedFoldersActionTest < Test::Unit::TestCase
       @folders.each do |name, hostpath, guestpath|
         ssh.expects(:exec!).with("sudo mkdir -p #{guestpath}").in_sequence(mount_seq)
         @action.expects(:mount_folder).with(ssh, name, guestpath).in_sequence(mount_seq)
-        ssh.expects(:exec!).with("sudo chown #{Vagrant.config.ssh.username} #{guestpath}").in_sequence(mount_seq)
+        ssh.expects(:exec!).with("sudo chown #{@runner.env.config.ssh.username} #{guestpath}").in_sequence(mount_seq)
       end
-      Vagrant::SSH.expects(:execute).yields(ssh)
+      @runner.env.ssh.expects(:execute).yields(ssh)
 
       @action.after_boot
     end
@@ -119,7 +123,7 @@ class SharedFoldersActionTest < Test::Unit::TestCase
     end
 
     should "execute the proper mount command" do
-      @ssh.expects(:exec!).with("sudo mount -t vboxsf -o uid=#{Vagrant.config.ssh.username},gid=#{Vagrant.config.ssh.username} #{@name} #{@guestpath}").returns(@success_return)
+      @ssh.expects(:exec!).with("sudo mount -t vboxsf -o uid=#{@runner.env.config.ssh.username},gid=#{@runner.env.config.ssh.username} #{@name} #{@guestpath}").returns(@success_return)
       mount_folder
     end
 
@@ -158,10 +162,12 @@ class SharedFoldersActionTest < Test::Unit::TestCase
     should "add uid AND gid to mount" do
       uid = "foo"
       gid = "bar"
-      mock_config do |config|
+      env = mock_environment do |config|
         config.vm.shared_folder_uid = uid
         config.vm.shared_folder_gid = gid
       end
+
+      @runner.expects(:env).twice.returns(env)
 
       @ssh.expects(:exec!).with("sudo mount -t vboxsf -o uid=#{uid},gid=#{gid} #{@name} #{@guestpath}").returns(@success_return)
       mount_folder

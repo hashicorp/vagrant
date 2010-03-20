@@ -51,16 +51,21 @@ module Vagrant
     # only be used internally.
     attr_accessor :temp_path
 
+    # The environment which this box belongs to. Although this could
+    # actually be many environments, this points to the environment
+    # of a specific instance.
+    attr_accessor :env
+
     class <<self
       # Returns an array of all created boxes, as strings.
       #
       # @return [Array<String>]
-      def all
+      def all(env)
         results = []
 
-        Dir.open(Env.boxes_path) do |dir|
+        Dir.open(env.boxes_path) do |dir|
           dir.each do |d|
-            next if d == "." || d == ".." || !File.directory?(File.join(Env.boxes_path, d))
+            next if d == "." || d == ".." || !File.directory?(File.join(env.boxes_path, d))
             results << d.to_s
           end
         end
@@ -74,9 +79,9 @@ module Vagrant
       #
       # @param [String] name The name of the box
       # @return [Box] Instance of {Box} representing the box found
-      def find(name)
-        return nil unless File.directory?(directory(name))
-        new(name)
+      def find(env, name)
+        return nil unless File.directory?(directory(env, name))
+        new(env, name)
       end
 
       # Adds a new box with given name from the given URI. This method
@@ -85,10 +90,11 @@ module Vagrant
       #
       # @param [String] name The name of the box
       # @param [String] uri URI to the box file
-      def add(name, uri)
+      def add(env, name, uri)
         box = new
         box.name = name
         box.uri = uri
+        box.env = env
         box.add
       end
 
@@ -98,8 +104,8 @@ module Vagrant
       #
       # @param [String] name Name of the box whose directory you're interested in.
       # @return [String] Full path to the box directory.
-      def directory(name)
-        File.join(Env.boxes_path, name)
+      def directory(env, name)
+        File.join(env.boxes_path, name)
       end
     end
 
@@ -109,8 +115,9 @@ module Vagrant
     #
     # **Note:** This method does not actually _create_ the box, but merely
     # returns a new, abstract representation of it. To add a box, see {#add}.
-    def initialize(name=nil)
+    def initialize(env=nil, name=nil)
       @name = name
+      @env = env
     end
 
     # Returns path to the OVF file of the box. The OVF file is an open
@@ -139,7 +146,7 @@ module Vagrant
     #
     # @return [String]
     def directory
-      self.class.directory(self.name)
+      self.class.directory(env, self.name)
     end
   end
 end

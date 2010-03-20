@@ -8,7 +8,7 @@ class DownloadBoxActionTest < Test::Unit::TestCase
     @runner.stubs(:temp_path=)
     mock_config
 
-    Vagrant::Env.stubs(:tmp_path).returns("foo")
+    @runner.env.stubs(:tmp_path).returns("foo")
   end
 
   context "preparing" do
@@ -81,7 +81,7 @@ class DownloadBoxActionTest < Test::Unit::TestCase
 
   context "tempfile" do
     should "create a tempfile in the vagrant tmp directory" do
-      Tempfile.expects(:open).with(Vagrant::Actions::Box::Download::BASENAME, Vagrant::Env.tmp_path).once
+      Tempfile.expects(:open).with(Vagrant::Actions::Box::Download::BASENAME, @runner.env.tmp_path).once
       @action.with_tempfile
     end
 

@@ -21,14 +21,14 @@ module Vagrant
         end
 
         def setup_temp_dir
-          @temp_dir = File.join(Env.tmp_path, Time.now.to_i.to_s)
+          @temp_dir = File.join(@runner.env.tmp_path, Time.now.to_i.to_s)
 
           logger.info "Creating temporary directory for export..."
           FileUtils.mkpath(temp_dir)
         end
 
         def ovf_path
-          File.join(temp_dir, Vagrant.config.vm.box_ovf)
+          File.join(temp_dir, @runner.env.config.vm.box_ovf)
         end
 
         def export

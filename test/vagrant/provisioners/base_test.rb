@@ -7,7 +7,13 @@ class BaseProvisionerTest < Test::Unit::TestCase
 
   context "base instance" do
     setup do
-      @base = Vagrant::Provisioners::Base.new
+      @env = mock_environment
+      @base = Vagrant::Provisioners::Base.new(@env)
+    end
+
+    should "set the environment" do
+      base = Vagrant::Provisioners::Base.new(@env)
+      assert_equal @env, base.env
     end
 
     should "implement provision! which does nothing" do

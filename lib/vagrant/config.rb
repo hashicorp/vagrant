@@ -9,17 +9,20 @@ module Vagrant
     @@config = nil
 
     class << self
-      def reset!
+      def reset!(env=nil)
         @@config = nil
         proc_stack.clear
+
+        # Reset the configuration to the specified environment
+        config(env)
       end
 
       def configures(key, klass)
         config.class.configures(key, klass)
       end
 
-      def config
-        @@config ||= Config::Top.new
+      def config(env=nil)
+        @@config ||= Config::Top.new(env)
       end
 
       def run(&block)
@@ -29,12 +32,15 @@ module Vagrant
       def execute!
         run_procs!(config)
         config.loaded!
+        config
       end
     end
   end
 
   class Config
     class Base
+      attr_accessor :env
+
       def [](key)
         send(key)
       end
@@ -61,7 +67,7 @@ module Vagrant
       attr_accessor :private_key_path
 
       def private_key_path
-        File.expand_path(@private_key_path, Env.root_path)
+        File.expand_path(@private_key_path, env.root_path)
       end
     end
 
@@ -107,11 +113,11 @@ module Vagrant
       end
 
       def shared_folder_uid
-        @shared_folder_uid || Vagrant.config.ssh.username
+        @shared_folder_uid || env.config.ssh.username
       end
 
       def shared_folder_gid
-        @shared_folder_gid || Vagrant.config.ssh.username
+        @shared_folder_gid || env.config.ssh.username
       end
 
       def customize(&block)
@@ -154,12 +160,15 @@ module Vagrant
       configures :vm, VMConfig
       configures :vagrant, VagrantConfig
 
-      def initialize
+      def initialize(env=nil)
         self.class.configures_list.each do |key, klass|
-          instance_variable_set("@#{key}".to_sym, klass.new)
+          config = klass.new
+          config.env = env
+          instance_variable_set("@#{key}".to_sym, config)
         end
 
         @loaded = false
+        @env = env
       end
 
       def loaded?

@@ -19,7 +19,7 @@ module Vagrant
           end
 
           if provisioner.is_a?(Class)
-            @provisioner = provisioner.new
+            @provisioner = provisioner.new(@runner.env)
             raise ActionException.new(:provisioner_invalid_class) unless @provisioner.is_a?(Provisioners::Base)
           elsif provisioner.is_a?(Symbol)
             # We have a few hard coded provisioners for built-ins
@@ -30,7 +30,7 @@ module Vagrant
 
             provisioner_klass = mapping[provisioner]
             raise ActionException.new(:provisioner_unknown_type, :provisioner => provisioner.to_s) if provisioner_klass.nil?
-            @provisioner = provisioner_klass.new
+            @provisioner = provisioner_klass.new(@runner.env)
           end
 
           logger.info "Provisioning enabled with #{@provisioner.class}"

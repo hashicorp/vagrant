@@ -6,7 +6,9 @@ class VMTest < Test::Unit::TestCase
     mock_config
 
     @persisted_vm = mock("persisted_vm")
-    Vagrant::Env.stubs(:persisted_vm).returns(@persisted_vm)
+
+    @env = mock_environment
+    @env.stubs(:vm).returns(@persisted_vm)
 
     Net::SSH.stubs(:start)
   end

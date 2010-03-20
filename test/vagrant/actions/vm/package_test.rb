@@ -41,7 +41,7 @@ class PackageActionTest < Test::Unit::TestCase
     should "be the temporary directory with the name and extension attached" do
       pwd = "foo"
       FileUtils.stubs(:pwd).returns(pwd)
-      assert_equal File.join(pwd, "#{@action.out_path}#{Vagrant.config.package.extension}"), @action.tar_path
+      assert_equal File.join(pwd, "#{@action.out_path}#{@runner.env.config.package.extension}"), @action.tar_path
     end
   end
 

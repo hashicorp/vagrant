@@ -71,9 +71,9 @@ module Vagrant
 
       def chown_provisioning_folder
         logger.info "Setting permissions on chef provisioning folder..."
-        SSH.execute do |ssh|
-          ssh.exec!("sudo mkdir -p #{Vagrant.config.chef.provisioning_path}")
-          ssh.exec!("sudo chown #{Vagrant.config.ssh.username} #{Vagrant.config.chef.provisioning_path}")
+        env.ssh.execute do |ssh|
+          ssh.exec!("sudo mkdir -p #{env.config.chef.provisioning_path}")
+          ssh.exec!("sudo chown #{env.config.ssh.username} #{env.config.chef.provisioning_path}")
         end
       end
 
@@ -82,8 +82,8 @@ module Vagrant
 
         # Set up initial configuration
         data = {
-          :config => Vagrant.config,
-          :directory => Vagrant.config.vm.project_directory,
+          :config => env.config,
+          :directory => env.config.vm.project_directory,
         }
 
         # And wrap it under the "vagrant" namespace
@@ -91,11 +91,11 @@ module Vagrant
 
         # Merge with the "extra data" which isn't put under the
         # vagrant namespace by default
-        data.merge!(Vagrant.config.chef.json)
+        data.merge!(env.config.chef.json)
 
         json = data.to_json
 
-        SSH.upload!(StringIO.new(json), File.join(Vagrant.config.chef.provisioning_path, "dna.json"))
+        env.ssh.upload!(StringIO.new(json), File.join(env.config.chef.provisioning_path, "dna.json"))
       end
     end
   end

@@ -15,7 +15,7 @@ module Vagrant
         end
 
         def depersist
-          Env.depersist_vm(@runner)
+          @runner.env.depersist_vm
         end
       end
     end

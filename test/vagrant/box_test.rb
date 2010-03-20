@@ -2,36 +2,40 @@ require File.join(File.dirname(__FILE__), '..', 'test_helper')
 
 class BoxTest < Test::Unit::TestCase
   context "class methods" do
+    setup do
+      @env = mock_environment
+    end
+
     context "listing all boxes" do
       setup do
         Dir.stubs(:open)
         File.stubs(:directory?).returns(true)
 
         @boxes_path = "foo"
-        Vagrant::Env.stubs(:boxes_path).returns(@boxes_path)
+        @env.stubs(:boxes_path).returns(@boxes_path)
       end
 
       should "open the boxes directory" do
-        Dir.expects(:open).with(Vagrant::Env.boxes_path)
-        Vagrant::Box.all
+        Dir.expects(:open).with(@env.boxes_path)
+        Vagrant::Box.all(@env)
       end
 
       should "return an array" do
-        result = Vagrant::Box.all
+        result = Vagrant::Box.all(@env)
         assert result.is_a?(Array)
       end
 
       should "not return the '.' and '..' directories" do
         dir = [".", "..", "..", ".", ".."]
         Dir.expects(:open).yields(dir)
-        result = Vagrant::Box.all
+        result = Vagrant::Box.all(@env)
         assert result.empty?
       end
 
       should "return the other directories" do
         dir = [".", "foo", "bar", "baz"]
         Dir.expects(:open).yields(dir)
-        result = Vagrant::Box.all
+        result = Vagrant::Box.all(@env)
         assert_equal ["foo", "bar", "baz"], result
       end
 
@@ -44,7 +48,7 @@ class BoxTest < Test::Unit::TestCase
           File.expects(:directory?).with(File.join(@boxes_path, dir)).returns(files[index]).in_sequence(dir_sequence)
         end
 
-        result = Vagrant::Box.all
+        result = Vagrant::Box.all(@env)
         assert_equal ["foo"], result
       end
     end
@@ -53,19 +57,26 @@ class BoxTest < Test::Unit::TestCase
       setup do
         @dir = "foo"
         @name = "bar"
-        Vagrant::Box.stubs(:directory).with(@name).returns(@dir)
+        Vagrant::Box.stubs(:directory).with(@env, @name).returns(@dir)
       end
 
       should "return nil if the box doesn't exist" do
         File.expects(:directory?).with(@dir).once.returns(false)
-        assert_nil Vagrant::Box.find(@name)
+        assert_nil Vagrant::Box.find(@env, @name)
       end
 
       should "return a box object with the proper name set" do
         File.expects(:directory?).with(@dir).once.returns(true)
-        result = Vagrant::Box.find(@name)
+        result = Vagrant::Box.find(@env, @name)
         assert result
         assert_equal @name, result.name
+      end
+
+      should "return a box object with the proper env set" do
+        File.expects(:directory?).with(@dir).once.returns(true)
+        result = Vagrant::Box.find(@env, @name)
+        assert result
+        assert_equal @env, result.env
       end
     end
 
@@ -79,20 +90,21 @@ class BoxTest < Test::Unit::TestCase
         box = mock("box")
         box.expects(:name=).with(@name)
         box.expects(:uri=).with(@uri)
+        box.expects(:env=).with(@env)
         box.expects(:add).once
         Vagrant::Box.expects(:new).returns(box)
-        Vagrant::Box.add(@name, @uri)
+        Vagrant::Box.add(@env, @name, @uri)
       end
     end
 
     context "box directory" do
       setup do
         @name = "foo"
-        @box_dir = File.join(Vagrant::Env.boxes_path, @name)
+        @box_dir = File.join(@env.boxes_path, @name)
       end
 
       should "return the boxes_path joined with the name" do
-        assert_equal @box_dir, Vagrant::Box.directory(@name)
+        assert_equal @box_dir, Vagrant::Box.directory(@env, @name)
       end
     end
   end
@@ -114,7 +126,7 @@ class BoxTest < Test::Unit::TestCase
 
       should "return the boxes_path joined with the name" do
         result = mock("object")
-        Vagrant::Box.expects(:directory).with(@box.name).returns(result)
+        Vagrant::Box.expects(:directory).with(@box.env, @box.name).returns(result)
         assert result.equal?(@box.directory)
       end
     end

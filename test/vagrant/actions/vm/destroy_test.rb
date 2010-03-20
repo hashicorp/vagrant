@@ -3,7 +3,6 @@ require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 class DestroyActionTest < Test::Unit::TestCase
   setup do
     @runner, @vm, @action = mock_action(Vagrant::Actions::VM::Destroy)
-    mock_config
   end
 
   context "executing" do
@@ -30,7 +29,7 @@ class DestroyActionTest < Test::Unit::TestCase
 
   context "depersisting" do
     should "call depersist_vm on Env" do
-      Vagrant::Env.expects(:depersist_vm).with(@runner).once
+      @runner.env.expects(:depersist_vm).once
       @action.depersist
     end
   end

@@ -7,7 +7,7 @@ module Vagrant
             next if !vm.running? || vm.uuid == @runner.uuid
 
             vm.forwarded_ports.each do |fp|
-              Vagrant.config.vm.forwarded_ports.each do |name, options|
+              @runner.env.config.vm.forwarded_ports.each do |name, options|
                 if fp.hostport.to_s == options[:hostport].to_s
                   raise ActionException.new(:vm_port_collision, :name => name, :hostport => fp.hostport.to_s, :guestport => options[:guestport].to_s)
                 end
@@ -29,7 +29,7 @@ module Vagrant
         def forward_ports
           logger.info "Forwarding ports..."
 
-          Vagrant.config.vm.forwarded_ports.each do |name, options|
+          @runner.env.config.vm.forwarded_ports.each do |name, options|
             logger.info "Forwarding \"#{name}\": #{options[:guestport]} => #{options[:hostport]}"
             port = VirtualBox::ForwardedPort.new
             port.name = name

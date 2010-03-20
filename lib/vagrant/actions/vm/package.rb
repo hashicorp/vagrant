@@ -29,7 +29,7 @@ module Vagrant
         end
 
         def tar_path
-          File.join(FileUtils.pwd, "#{out_path}#{Vagrant.config.package.extension}")
+          File.join(FileUtils.pwd, "#{out_path}#{@runner.env.config.package.extension}")
         end
 
         def temp_path

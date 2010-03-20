@@ -3,7 +3,7 @@ module Vagrant
     module VM
       class Boot < Base
         def prepare
-          Vagrant.config.vm.share_folder("vagrant-root", Vagrant.config.vm.project_directory, Env.root_path)
+          @runner.env.config.vm.share_folder("vagrant-root", @runner.env.config.vm.project_directory, @runner.env.root_path)
         end
 
         def execute!
@@ -27,10 +27,10 @@ module Vagrant
         def wait_for_boot(sleeptime=5)
           logger.info "Waiting for VM to boot..."
 
-          Vagrant.config[:ssh][:max_tries].to_i.times do |i|
+          @runner.env.config.ssh.max_tries.to_i.times do |i|
             logger.info "Trying to connect (attempt ##{i+1} of #{Vagrant.config[:ssh][:max_tries]})..."
 
-            if Vagrant::SSH.up?
+            if @runner.env.ssh.up?
               logger.info "VM booted and ready for use!"
               return true
             end

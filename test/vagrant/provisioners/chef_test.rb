@@ -2,7 +2,8 @@ require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
 
 class ChefProvisionerTest < Test::Unit::TestCase
   setup do
-    @action = Vagrant::Provisioners::Chef.new
+    @env = mock_environment
+    @action = Vagrant::Provisioners::Chef.new(@env)
 
     Vagrant::SSH.stubs(:execute)
     Vagrant::SSH.stubs(:upload!)
@@ -69,16 +70,16 @@ class ChefProvisionerTest < Test::Unit::TestCase
     should "create and chown the folder to the ssh user" do
       ssh_seq = sequence("ssh_seq")
       ssh = mock("ssh")
-      ssh.expects(:exec!).with("sudo mkdir -p #{Vagrant.config.chef.provisioning_path}").once.in_sequence(ssh_seq)
-      ssh.expects(:exec!).with("sudo chown #{Vagrant.config.ssh.username} #{Vagrant.config.chef.provisioning_path}").once.in_sequence(ssh_seq)
-      Vagrant::SSH.expects(:execute).yields(ssh)
+      ssh.expects(:exec!).with("sudo mkdir -p #{@env.config.chef.provisioning_path}").once.in_sequence(ssh_seq)
+      ssh.expects(:exec!).with("sudo chown #{@env.config.ssh.username} #{@env.config.chef.provisioning_path}").once.in_sequence(ssh_seq)
+      @env.ssh.expects(:execute).yields(ssh)
       @action.chown_provisioning_folder
     end
   end
 
   context "generating and uploading json" do
     def assert_json
-      Vagrant::SSH.expects(:upload!).with do |json, path|
+      @env.ssh.expects(:upload!).with do |json, path|
         data = JSON.parse(json.read)
         yield data
         true
@@ -88,7 +89,7 @@ class ChefProvisionerTest < Test::Unit::TestCase
     end
 
     should "merge in the extra json specified in the config" do
-      Vagrant.config.chef.json = { :foo => "BAR" }
+      @env.config.chef.json = { :foo => "BAR" }
       assert_json do |data|
         assert_equal "BAR", data["foo"]
       end
@@ -96,20 +97,20 @@ class ChefProvisionerTest < Test::Unit::TestCase
 
     should "add the directory as a special case to the JSON" do
       assert_json do |data|
-        assert_equal Vagrant.config.vm.project_directory, data["vagrant"]["directory"]
+        assert_equal @env.config.vm.project_directory, data["vagrant"]["directory"]
       end
     end
 
     should "add the config to the JSON" do
       assert_json do |data|
-        assert_equal Vagrant.config.vm.project_directory, data["vagrant"]["config"]["vm"]["project_directory"]
+        assert_equal @env.config.vm.project_directory, data["vagrant"]["config"]["vm"]["project_directory"]
       end
     end
 
     should "upload a StringIO to dna.json" do
       StringIO.expects(:new).with(anything).returns("bar")
-      File.expects(:join).with(Vagrant.config.chef.provisioning_path, "dna.json").once.returns("baz")
-      Vagrant::SSH.expects(:upload!).with("bar", "baz").once
+      File.expects(:join).with(@env.config.chef.provisioning_path, "dna.json").once.returns("baz")
+      @env.ssh.expects(:upload!).with("bar", "baz").once
       @action.setup_json
     end
   end

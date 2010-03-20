@@ -12,7 +12,7 @@ module Vagrant
       # begin using vagrant. The configuration file contains some documentation
       # to get you started.
       def init(default_box=nil)
-        rootfile_path = File.join(Dir.pwd, Env::ROOTFILE_NAME)
+        rootfile_path = File.join(Dir.pwd, Environment::ROOTFILE_NAME)
         if File.exist?(rootfile_path)
           error_and_exit(:rootfile_already_exists)
         end
@@ -20,7 +20,7 @@ module Vagrant
         # Copy over the rootfile template into this directory
         default_box ||= "base"
         File.open(rootfile_path, 'w+') do |f|
-          f.write(TemplateRenderer.render(Env::ROOTFILE_NAME, :default_box => default_box))
+          f.write(TemplateRenderer.render(Environment::ROOTFILE_NAME, :default_box => default_box))
         end
       end
 
@@ -28,27 +28,27 @@ module Vagrant
       # useful information such as whether or not the environment is created
       # and if its running, suspended, etc.
       def status
-        Env.load!
+        env = Environment.load!
 
         wrap_output do
-          if !Env.persisted_vm
+          if !env.vm
             puts <<-msg
 The environment has not yet been created. Run `vagrant up` to create the
 environment.
 msg
           else
             additional_msg = ""
-            if Env.persisted_vm.vm.running?
+            if env.vm.vm.running?
               additional_msg = <<-msg
 To stop this VM, you can run `vagrant halt` to shut it down forcefully,
 or you can run `vagrant suspend` to simply suspend the virtual machine.
 In either case, to restart it again, simply run a `vagrant up`.
 msg
-            elsif Env.persisted_vm.vm.saved?
+            elsif env.vm.vm.saved?
               additional_msg = <<-msg
 To resume this VM, simply run `vagrant up`.
 msg
-            elsif Env.persisted_vm.vm.powered_off?
+            elsif env.vm.vm.powered_off?
               additional_msg = <<-msg
 To restart this VM, simply run `vagrant up`.
 msg
@@ -61,7 +61,7 @@ msg
 
             puts <<-msg
 The environment has been created. The status of the current environment's
-virtual machine is: "#{Env.persisted_vm.vm.state}."#{additional_msg}
+virtual machine is: "#{env.vm.vm.state}."#{additional_msg}
 msg
           end
         end
@@ -72,14 +72,14 @@ msg
       # provisioning the instance with chef. {up} also starts the instance,
       # running it in the background.
       def up
-        Env.load!
+        env = Environment.load!
 
-        if Env.persisted_vm
+        if env.vm
           logger.info "VM already created. Starting VM if its not already running..."
-          Env.persisted_vm.start
+          env.vm.start
         else
-          Env.require_box
-          VM.execute!(Actions::VM::Up)
+          env.require_box
+          env.create_vm.execute!(Actions::VM::Up)
         end
       end
 
@@ -90,9 +90,9 @@ msg
       # This command requires that an instance already be brought up with
       # `vagrant up`.
       def down
-        Env.load!
-        Env.require_persisted_vm
-        Env.persisted_vm.destroy
+        env = Environment.load!
+        env.require_persisted_vm
+        env.vm.destroy
       end
 
       # Reload the environment. This is almost equivalent to the {up} command
@@ -101,9 +101,9 @@ msg
       # VM, updates the metadata (shared folders, forwarded ports), restarts
       # the VM, and then reruns the provisioning if enabled.
       def reload
-        Env.load!
-        Env.require_persisted_vm
-        Env.persisted_vm.execute!(Actions::VM::Reload)
+        env = Environment.load!
+        env.require_persisted_vm
+        env.vm.execute!(Actions::VM::Reload)
       end
 
       # SSH into the vagrant instance. This will setup an SSH connection into
@@ -113,9 +113,9 @@ msg
       # This command requires that an instance already be brought up with
       # `vagrant up`.
       def ssh
-        Env.load!
-        Env.require_persisted_vm
-        SSH.connect
+        env = Environment.load!
+        env.require_persisted_vm
+        env.ssh.connect
       end
 
       # Halts a running vagrant instance. This forcibly halts the instance;
@@ -125,9 +125,9 @@ msg
       # This command requires than an instance already be brought up with
       # `vagrant up`.
       def halt
-        Env.load!
-        Env.require_persisted_vm
-        Env.persisted_vm.execute!(Actions::VM::Halt)
+        env = Environment.load!
+        env.require_persisted_vm
+        env.vm.execute!(Actions::VM::Halt)
       end
 
       # Suspend a running vagrant instance. This suspends the instance, saving
@@ -137,9 +137,9 @@ msg
       # This command requires that an instance already be brought up with
       # `vagrant up`.
       def suspend
-        Env.load!
-        Env.require_persisted_vm
-        Env.persisted_vm.suspend
+        env = Environment.load!
+        env.require_persisted_vm
+        env.vm.suspend
       end
 
       # Resume a running vagrant instance. This resumes an already suspended
@@ -148,20 +148,20 @@ msg
       # This command requires that an instance already be brought up with
       # `vagrant up`.
       def resume
-        Env.load!
-        Env.require_persisted_vm
-        Env.persisted_vm.resume
+        env = Environment.load!
+        env.require_persisted_vm
+        env.vm.resume
       end
 
       # Export and package the current vm
       #
       # This command requires that an instance be powered off
       def package(out_path=nil, include_files=[])
-        Env.load!
-        Env.require_persisted_vm
-        error_and_exit(:vm_power_off_to_package) unless Env.persisted_vm.powered_off?
+        env = Environment.load!
+        env.require_persisted_vm
+        error_and_exit(:vm_power_off_to_package) unless env.vm.powered_off?
 
-        Env.persisted_vm.package(out_path, include_files)
+        env.vm.package(out_path, include_files)
       end
 
       # Manages the `vagrant box` command, allowing the user to add
@@ -169,7 +169,7 @@ msg
       # which action to take and calls the respective action method
       # (see {box_add} and {box_remove})
       def box(argv)
-        Env.load!
+        env = Environment.load!
 
         sub_commands = ["list", "add", "remove"]
 
@@ -177,12 +177,12 @@ msg
           error_and_exit(:command_box_invalid)
         end
 
-        send("box_#{argv[0]}", *argv[1..-1])
+        send("box_#{argv[0]}", env, *argv[1..-1])
       end
 
       # Lists all added boxes
-      def box_list
-        boxes = Box.all.sort
+      def box_list(env)
+        boxes = Box.all(env).sort
 
         wrap_output do
           if !boxes.empty?
@@ -197,26 +197,19 @@ msg
       end
 
       # Adds a box to the local filesystem, given a URI.
-      def box_add(name, path)
-        Box.add(name, path)
+      def box_add(env, name, path)
+        Box.add(env, name, path)
       end
 
       # Removes a box.
-      def box_remove(name)
-        box = Box.find(name)
+      def box_remove(env, name)
+        box = Box.find(env, name)
         if box.nil?
           error_and_exit(:box_remove_doesnt_exist)
           return # for tests
         end
 
         box.destroy
-      end
-
-      private
-
-      def act_on_vm(&block)
-        yield Env.persisted_vm
-        Env.persisted_vm.execute!
       end
     end
   end

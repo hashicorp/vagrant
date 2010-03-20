@@ -8,7 +8,7 @@ class CustomizeActionTest < Test::Unit::TestCase
 
   context "executing" do
     should "run the VM customization procs then save the VM" do
-      Vagrant.config.vm.expects(:run_procs!).with(@vm)
+      @runner.env.config.vm.expects(:run_procs!).with(@vm)
       @vm.expects(:save).with(true).once
       @action.execute!
     end
