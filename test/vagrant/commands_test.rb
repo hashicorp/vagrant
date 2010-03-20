@@ -255,7 +255,7 @@ class CommandsTest < Test::Unit::TestCase
     end
 
     should "load the environment" do
-      Vagrant::Env.expects(:load!).once
+      Vagrant::Environment.expects(:load!).once
       Vagrant::Commands.box(["add"])
     end
 

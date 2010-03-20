@@ -169,7 +169,7 @@ msg
       # which action to take and calls the respective action method
       # (see {box_add} and {box_remove})
       def box(argv)
-        Env.load!
+        Environment.load!
 
         sub_commands = ["list", "add", "remove"]
 
