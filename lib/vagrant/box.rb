@@ -105,7 +105,7 @@ module Vagrant
       # @param [String] name Name of the box whose directory you're interested in.
       # @return [String] Full path to the box directory.
       def directory(env, name)
-        File.join(Env.boxes_path, name)
+        File.join(env.boxes_path, name)
       end
     end
 
