@@ -119,7 +119,7 @@ class BoxTest < Test::Unit::TestCase
 
       should "return the boxes_path joined with the name" do
         result = mock("object")
-        Vagrant::Box.expects(:directory).with(@box.name).returns(result)
+        Vagrant::Box.expects(:directory).with(@box.env, @box.name).returns(result)
         assert result.equal?(@box.directory)
       end
     end

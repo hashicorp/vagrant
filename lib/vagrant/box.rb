@@ -145,7 +145,7 @@ module Vagrant
     #
     # @return [String]
     def directory
-      self.class.directory(self.name)
+      self.class.directory(env, self.name)
     end
   end
 end
