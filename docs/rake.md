@@ -55,15 +55,18 @@ env = Vagrant::Environment.load!("/path/to/my/project")
 ## Executing Commands
 
 All available `vagrant` command line tools are available in code through
-the `Vagrant::Commands` class as class methods. The following is a sample
-rake task that simply does the equivalent of `vagrant up`, but does some
-useless things around it:
+the `commands` accessor on the environment instance. This allows you to
+easily to run the command line tools in the context of an environment
+without any extra fuss. The following is a simple rake task that simply
+does the equivalent of `vagrant up` but does some extra, useless things
+around it:
 
 {% highlight ruby %}
 # Example of emulating vagrant up with some code around it
 task :up do
   puts "About to run vagrant-up..."
-  Vagrant::Commands.up
+  env = Vagrant::Environment.load!
+  env.commands.up
   puts "Finished running vagrant-up"
 end
 {% endhighlight %}
