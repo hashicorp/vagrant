@@ -166,7 +166,7 @@ module Vagrant
     def load_box!
       return unless root_path
 
-      @box = Box.find(config.vm.box) if config.vm.box
+      @box = Box.find(self, config.vm.box) if config.vm.box
       @box.env = self if @box
     end
 

@@ -341,14 +341,14 @@ class EnvironmentTest < Test::Unit::TestCase
       end
 
       should "set the box to what is found by the Box class" do
-        Vagrant::Box.expects(:find).with(@env.config.vm.box).once.returns(@box)
+        Vagrant::Box.expects(:find).with(@env, @env.config.vm.box).once.returns(@box)
         @env.load_box!
         assert @box.equal?(@env.box)
       end
 
       should "set the environment of the box" do
         @box.expects(:env=).with(@env).once
-        Vagrant::Box.expects(:find).with(@env.config.vm.box).once.returns(@box)
+        Vagrant::Box.expects(:find).with(@env, @env.config.vm.box).once.returns(@box)
         @env.load_box!
       end
     end
