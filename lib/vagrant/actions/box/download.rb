@@ -51,15 +51,16 @@ module Vagrant
 
         def with_tempfile
           logger.info "Creating tempfile for storing box file..."
-	  # create, write only, fail if the file exists
-	  File.open(file_temp_path, File::WRONLY|File::EXCL|File::CREAT) do |tempfile|
-	    yield tempfile
+
+          # create, write only, fail if the file exists
+          File.open(file_temp_path, File::WRONLY | File::EXCL | File::CREAT) do |tempfile|
+            yield tempfile
           end
         end
 
-	def file_temp_path
-	  File.join(@runner.env.tmp_path, BASENAME + Time.now.to_i.to_s)
-	end
+        def file_temp_path
+          File.join(@runner.env.tmp_path, BASENAME + Time.now.to_i.to_s)
+        end
 
         def download_to(f)
           logger.info "Copying box to temporary location..."
