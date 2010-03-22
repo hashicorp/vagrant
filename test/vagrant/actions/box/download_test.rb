@@ -81,13 +81,15 @@ class DownloadBoxActionTest < Test::Unit::TestCase
 
   context "tempfile" do
     should "create a tempfile in the vagrant tmp directory" do
-      Tempfile.expects(:open).with(Vagrant::Actions::Box::Download::BASENAME, @runner.env.tmp_path).once
+      File.expects(:open).with { |name, bitmask| 
+	name =~ /#{Vagrant::Actions::Box::Download::BASENAME}/ &&  name =~ /#{@runner.env.tmp_path}/
+      }.once	
       @action.with_tempfile
     end
 
     should "yield the tempfile object" do
       @tempfile = mock("tempfile")
-      Tempfile.expects(:open).yields(@tempfile)
+      File.expects(:open).yields(@tempfile)
 
       @action.with_tempfile do |otherfile|
         assert @tempfile.equal?(otherfile)

@@ -153,12 +153,13 @@ class EnvironmentTest < Test::Unit::TestCase
 
     context "loading the root path" do
       setup do
-        @env.cwd = "/foo"
+	@env.cwd = "/foo"
       end
 
       should "default the path to the cwd instance var if nil" do
         @path = mock("path")
         @path.stubs(:root?).returns(true)
+	File.expects(:expand_path).with(@env.cwd).returns(@env.cwd)
         Pathname.expects(:new).with(@env.cwd).returns(@path)
         @env.load_root_path!(nil)
       end
@@ -181,7 +182,8 @@ class EnvironmentTest < Test::Unit::TestCase
 
         search_seq = sequence("search_seq")
         paths.each do |path|
-          File.expects(:exist?).with("#{path}/#{Vagrant::Environment::ROOTFILE_NAME}").returns(false).in_sequence(search_seq)
+	  # NOTE File.expect(:expand_path) causes tests to hang in windows below is the interim solution
+          File.expects(:exist?).with("#{File.expand_path(path)}/#{Vagrant::Environment::ROOTFILE_NAME}").returns(false).in_sequence(search_seq)
         end
 
         assert !@env.load_root_path!(paths.first)
@@ -203,7 +205,8 @@ class EnvironmentTest < Test::Unit::TestCase
       end
 
       should "should set the path for the rootfile" do
-        path = "/foo"
+	# NOTE File.expect(:expand_path) causes tests to hang in windows below is the interim solution
+        path = File.expand_path("/foo")
         File.expects(:exist?).with("#{path}/#{Vagrant::Environment::ROOTFILE_NAME}").returns(true)
 
         assert @env.load_root_path!(Pathname.new(path))
