@@ -57,7 +57,7 @@ module Vagrant
           end
         end
 
-	def file_temp_path 
+	def file_temp_path
 	  File.join(@runner.env.tmp_path, BASENAME + Time.now.to_i.to_s)
 	end
 

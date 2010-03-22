@@ -81,9 +81,9 @@ class DownloadBoxActionTest < Test::Unit::TestCase
 
   context "tempfile" do
     should "create a tempfile in the vagrant tmp directory" do
-      File.expects(:open).with { |name, bitmask| 
+      File.expects(:open).with { |name, bitmask|
 	name =~ /#{Vagrant::Actions::Box::Download::BASENAME}/ &&  name =~ /#{@runner.env.tmp_path}/
-      }.once	
+      }.once
       @action.with_tempfile
     end
 
