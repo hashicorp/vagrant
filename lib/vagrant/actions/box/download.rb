@@ -48,7 +48,7 @@ module Vagrant
 
         def with_tempfile
           logger.info "Creating tempfile for storing box file..."
-	  # create, write only, fail if the file exists
+          # create, write only, fail if the file exists
           File.open(box_temp_path, File::WRONLY|File::EXCL|File::CREAT) do |tempfile|
             yield tempfile
           end

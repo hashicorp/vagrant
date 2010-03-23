@@ -39,6 +39,11 @@ class HttpDownloaderTest < Test::Unit::TestCase
       URI.expects(:extract).returns(['foo'])
       assert Vagrant::Downloaders::HTTP.match?('foo')
     end
+
+    should "return false if there are no extract results" do
+      URI.expects(:extract).returns([])
+      assert !Vagrant::Downloaders::HTTP.match?('foo')
+    end    
   end
 
   context "reporting progress" do
