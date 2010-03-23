@@ -20,7 +20,7 @@ to create its virtual machines and then uses [Chef](http://www.opscode.com/chef)
 
 Maintaining consistent development environments over multiple projects is simply an
 unfeasible task for a modern web developer. Each project depends on its own libraries,
-message queue systems, databases, framework, and more each with their own versions.
+message queue systems, databases, framework, and more, each with their own versions.
 In addition to the dependencies, running all these on a single home machine and remembering
 to turn it all off at the end of the day or when working on other projects is also unfeasible.
 Vagrant gives you the tools to build unique development environments for each project once
