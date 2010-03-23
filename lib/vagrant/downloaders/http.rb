@@ -8,8 +8,9 @@ module Vagrant
 
       def self.match?(uri)
         # URI.parse barfs on '<drive letter>:\\files \on\ windows'
-        uri = URI.extract(uri).first
-        uri && uri.include?(uri)
+        # TODO temprorary
+        extracted = URI.extract(uri).first
+        extracted && extracted.include?(uri)
       end
         
       def download!(source_url, destination_file)
