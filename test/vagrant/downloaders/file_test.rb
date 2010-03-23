@@ -23,4 +23,11 @@ class FileDownloaderTest < Test::Unit::TestCase
       @downloader.download!(@uri, @tempfile)
     end
   end
+
+  context "matching a uri" do
+    should "return true if the File exists on the file system" do
+      File.expects(:exists?).with('foo').returns(true)
+      assert Vagrant::Downloaders::File.match?('foo')
+    end
+  end
 end

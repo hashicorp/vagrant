@@ -34,6 +34,13 @@ class HttpDownloaderTest < Test::Unit::TestCase
     end
   end
 
+  context "matching the uri" do
+    should "use extract to verify that the string is in fact a uri" do
+      URI.expects(:extract).returns(['foo'])
+      assert Vagrant::Downloaders::HTTP.match?('foo')
+    end
+  end
+
   context "reporting progress" do
     # TODO: Testing for this, probably
   end

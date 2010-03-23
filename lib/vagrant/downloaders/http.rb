@@ -6,6 +6,11 @@ module Vagrant
       # ANSI escape code to clear lines from cursor to end of line
       CL_RESET = "\r\e[0K"
 
+      def self.match?(uri)
+        # URI.parse barfs on '<drive letter>:\\files \on\ windows'
+        URI.extract(uri).first.include?(uri)
+      end
+        
       def download!(source_url, destination_file)
         Net::HTTP.get_response(URI.parse(source_url)) do |response|
           total = response.content_length

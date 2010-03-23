@@ -13,17 +13,14 @@ class DownloadBoxActionTest < Test::Unit::TestCase
 
   context "preparing" do
     setup do
-      @uri = mock("uri")
-      @uri.stubs(:is_a?).returns(false)
-      URI.stubs(:parse).returns(@uri)
-
       @downloader = mock("downloader")
       Vagrant::Downloaders::File.any_instance.stubs(:prepare)
       Vagrant::Downloaders::HTTP.any_instance.stubs(:prepare)
     end
 
-    should "raise an exception if no URI type is matched" do
-      @uri.stubs(:is_a?).returns(false)
+    should "raise an exception if no URI type is matched" do\
+      Vagrant::Downloaders::File.expects(:match?).returns(false)
+      Vagrant::Downloaders::HTTP.expects(:match?).returns(false)
       assert_raises(Vagrant::Actions::ActionException) {
         @action.prepare
       }
@@ -32,20 +29,30 @@ class DownloadBoxActionTest < Test::Unit::TestCase
     should "call #prepare on the downloader" do
       @downloader.expects(:prepare).with(@runner.uri).once
       Vagrant::Downloaders::File.expects(:new).returns(@downloader)
-      @uri.stubs(:is_a?).with(URI::Generic).returns(true)
+      expect_file
       @action.prepare
     end
 
-    should "set the downloader to file if URI is generic" do
-      @uri.stubs(:is_a?).with(URI::Generic).returns(true)
+    should "set the downloader to file if the uri provided is a file" do
+      expect_file
       @action.prepare
       assert @action.downloader.is_a?(Vagrant::Downloaders::File)
     end
 
-    should "set the downloader to HTTP if URI is HTTP" do
-      @uri.stubs(:is_a?).with(URI::HTTP).returns(true)
+    should "set the downloader to HTTP if the uri provided is a valid url" do
+      expect_http
       @action.prepare
       assert @action.downloader.is_a?(Vagrant::Downloaders::HTTP)
+    end
+
+    def expect_file
+      Vagrant::Downloaders::File.expects(:match?).returns(true)
+      Vagrant::Downloaders::HTTP.expects(:match?).returns(false)
+    end
+
+    def expect_http
+      Vagrant::Downloaders::File.expects(:match?).returns(false)
+      Vagrant::Downloaders::HTTP.expects(:match?).returns(true)
     end
   end
 
@@ -81,9 +88,9 @@ class DownloadBoxActionTest < Test::Unit::TestCase
 
   context "tempfile" do
     should "create a tempfile in the vagrant tmp directory" do
-      File.expects(:open).with { |name, bitmask|
-        name =~ /#{Vagrant::Actions::Box::Download::BASENAME}/ &&  name =~ /#{@runner.env.tmp_path}/
-      }.once
+      File.expects(:open).with { |name, bitmask| 
+	name =~ /#{Vagrant::Actions::Box::Download::BASENAME}/ &&  name =~ /#{@runner.env.tmp_path}/
+      }.once	
       @action.with_tempfile
     end
 

@@ -14,14 +14,11 @@ module Vagrant
         attr_reader :downloader
 
         def prepare
-          # Parse the URI given and prepare a downloader
-          uri = URI.parse(@runner.uri)
-          uri_map = [[URI::HTTP, Downloaders::HTTP], [URI::Generic, Downloaders::File]]
-
-          uri_map.find do |uri_type, downloader_klass|
-            if uri.is_a?(uri_type)
-              logger.info "#{uri_type} for URI, downloading via #{downloader_klass}..."
-              @downloader = downloader_klass.new
+          # Check the URI given and prepare a downloader
+          [Downloaders::HTTP, Downloaders::File].each do |dler|
+            if dler.match?(@runner.uri)
+              logger.info "Downloading via #{dler}..."
+              @downloader = dler.new 
             end
           end
 
@@ -51,14 +48,13 @@ module Vagrant
 
         def with_tempfile
           logger.info "Creating tempfile for storing box file..."
-
-          # create, write only, fail if the file exists
-          File.open(file_temp_path, File::WRONLY | File::EXCL | File::CREAT) do |tempfile|
+	  # create, write only, fail if the file exists
+          File.open(box_temp_path, File::WRONLY|File::EXCL|File::CREAT) do |tempfile|
             yield tempfile
           end
         end
 
-        def file_temp_path
+        def box_temp_path
           File.join(@runner.env.tmp_path, BASENAME + Time.now.to_i.to_s)
         end
 

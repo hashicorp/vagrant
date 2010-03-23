@@ -3,6 +3,10 @@ module Vagrant
     # "Downloads" a file to a temporary file. Basically, this downloader
     # simply does a file copy.
     class File < Base
+      def self.match?(uri)
+        ::File.exists?(uri)
+      end
+
       def prepare(source_url)
         if !::File.file?(source_url)
           raise Actions::ActionException.new(:downloader_file_doesnt_exist, :source_url => source_url)
