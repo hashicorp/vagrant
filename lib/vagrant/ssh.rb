@@ -17,6 +17,12 @@ module Vagrant
     # process with an SSH process. This method optionally takes a hash
     # of options which override the configuration values.
     def connect(opts={})
+      if Mario::Platform.windows?
+        error_and_exit(:ssh_unavailable_windows, 
+                       :key_path => env.config.ssh.private_key_path,
+                       :ssh_port => port(opts))
+      end
+
       options = {}
       [:host, :username, :private_key_path].each do |param|
         options[param] = opts[param] || env.config.ssh.send(param)

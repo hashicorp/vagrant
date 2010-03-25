@@ -58,12 +58,6 @@
     \npermissions on the following file to 0600 and then try running this command again:
 
     \n<%= key_path %>"
-:ssh_unavailable_windows: "`vagrant ssh` isn't available on the Windows platform. The vagrant.ppk 
-    \nfile is available at <%= key_path %>.ppk 
-    \nfor use with Putty. To do this create a new Putty session for vagrant@localhost on
-    \nport <%= ssh_port %>, in the Connection>SSH>Auth configuration section navigate 
-    \nto the vagrant.ppk file, select it, save the session for later use, and connect. 
-    \nFor a more detailed guide please consult TODO LINK."
 :virtualbox_import_failure: "The VM import failed! Try running `VBoxManage import` on the box file manually for more verbose error output."
 :virtualbox_invalid_version: "Vagrant has detected that you have VirtualBox version <%= version %> installed!
     \nVagrant requires that you use at least VirtualBox version 3.1. Please install

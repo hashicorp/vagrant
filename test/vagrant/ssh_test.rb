@@ -17,6 +17,8 @@ class SshTest < Test::Unit::TestCase
     setup do
       mock_ssh
       @ssh.stubs(:check_key_permissions)
+      @ssh.stubs(:error_and_exit)
+      Kernel.stubs(:exec)
     end
 
     should "check key permissions prior to exec" do
@@ -38,6 +40,22 @@ class SshTest < Test::Unit::TestCase
       args = {:username => 'bar', :private_key_path => 'baz', :host => 'bak', :port => 'bag'}
       ssh_exec_expect(args[:port], args[:private_key_path], args[:username], args[:host])
       @ssh.connect(args)
+    end
+
+    context "cheching windows" do
+      should "error and exit if the platform is windows" do
+        Mario::Platform.expects(:windows?).returns(true)
+        @ssh.expects(:error_and_exit).with do |error_name, opts|
+          opts[:key_path] && opts[:ssh_port]
+        end
+        @ssh.connect
+      end
+
+      should "not error and exit if the platform is anything other that windows" do
+        Mario::Platform.expects(:windows?).returns(false)
+        @ssh.expects(:error_and_exit).never
+        @ssh.connect
+      end
     end
 
     def ssh_exec_expect(port, key_path, uname, host)
