@@ -7,7 +7,7 @@ gem "net-scp", ">= 1.0.2"
 gem "git-style-binaries", ">= 0.1.10"
 gem "json_pure", ">= 1.2.0"
 gem "archive-tar-minitar", ">= 0.5.2"
-gem "mario, "= 0.0.6"
+gem "mario", "= 0.0.6"
 
 # Gems required for testing only. To install run
 # gem bundle test
