@@ -59,7 +59,7 @@ solo
 
         # We're lucky that ruby's string and array syntax for strings is the
         # same as JSON, so we can just convert to JSON here and use that
-        result = result.to_s if result.length == 1
+        result = result[0].to_s if result.length == 1
         result.to_json
       end
     end
