@@ -10,7 +10,7 @@ title: Windows
     Windows support is a recent addition to vagrant so if you do experience trouble
     or find this section hard to follow, please see the <a href='/support.html'>support page</a> 
     and let us know so we can help you. Our goal is to make Vagrant the best tool
-    for the job on all platforms.
+    for the job on as many platforms as possible.
   </p>
   <p>
     All Windows testing has been performed from the vanilla Windows XP command prompt. Cygwin support
@@ -48,7 +48,7 @@ Vagrant, and the virtualbox gem on which it relies, require that the VBoxManage 
 
 ![Copying MAC Address](/images/windows/vbox_manage_default_location.jpg)
 
-You can add additional folders to Windows XP path by taking the following steps. First click Start, right click My Computer and select Properties. Select the Advanced tab in the window that pops up and find the Environment Variables button
+You can add this or other folders to the Windows XP path by taking the following steps. First click Start, right click My Computer and select Properties. Select the Advanced tab in the window that pops up and find the Environment Variables button
 
 ![Environment Variables Button](/images/windows/environment_variables_button.jpg)
 
@@ -73,13 +73,13 @@ After this completes you'll need to move onto the following section to connect t
 
 ### Putty
 
-Since SSH is not easy to use/install on the command line under Windows we have included a [Putty](http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html) formatted private key generated from the keypair included with the Vagrant gem. This allows quick and easy SSH access to all Base Boxes that leverage those keys.
+Since SSH is not easy to use/install on the command line under Windows we have included a [Putty](http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html) formatted private key generated from the key pair included with the Vagrant gem. This allows quick and easy SSH access to all Base Boxes that leverage that key pair.
 
-To configure Putty we need 3 things: a user to log on with, the port that Vagrant forwarded for ssh, and the location of the ppk file. By default the first two will be `vagrant` and 2222, but there are many reasons those may be different, especially the port (other vm's services etc). If you've come here after following the quick start you'll have seen the following:
+To configure Putty we need 3 things: a user to log on with, the port that Vagrant forwarded for ssh, and the location of the ppk file. By default the first two will be `vagrant` and 2222, but there are many reasons those may be different, especially the port (other vm's services etc). At this point if you issue `vagrant ssh` from the directory where you created your initial vm you should see something like the following:
 
 ![No Vagrant SSH On Windows](/images/windows/port_and_ppk_path.jpg)
 
-It's important to take note of both the port and the .ppk file location. If you've used the Ruby 1.8.6 installer, the above path will be the same for you. Moving on, once you've got Putty installed, opening putty.exe will present you with the connection configuration window. First enter the SSH information and a name for the connection, then open the SSH configuration sub-tree.
+It's important to take note of both the port and the .ppk file location. If you've used the Ruby 1.8.6 installer, the above path will be the same for you taking into account the version of the Vagrant gem you have installed. Moving on, once you've got Putty installed, opening putty.exe will present you with the connection configuration window. First enter the SSH information and a name for the connection, then open the SSH configuration sub-tree.
 
 ![Vagrant SSH Info Putty](/images/windows/putty_first_screen.jpg)
 
@@ -87,10 +87,10 @@ Here in the `Auth` configuration section we'll take the path information provide
 
 ![PPK Selection](/images/windows/ppk_selection.jpg)
 
-Once you've done that head to the top of the configuration tree and click the `Session` tree item and save the putty configuration so it will be available for use again later.
+Once you've done that head to the top of the configuration tree, click the `Session` tree item and save the putty configuration so it will be available for use again later.
 
 ![Save Result](/images/windows/save_result.jpg)
 
-Last but not least, click the Open button to be presented with a bash prompt inside your new and shiny Vagrant virtual development environtment!
+Last but not least, click the Open button to be presented with a bash prompt inside your new and shiny Vagrant virtual development environtment! If you've taken the steps above to save the configuration it should be easy to use and adapt to other virtual environments created with Vagrant.
 
  
