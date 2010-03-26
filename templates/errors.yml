@@ -85,12 +85,20 @@
 
   <%= key_path %>
 :ssh_unavailable_windows: |-
-  `vagrant ssh` isn't available on the Windows platform. The vagrant.ppk
-  file is available at <%= key_path %>.ppk
-  for use with Putty. To do this create a new Putty session for vagrant@localhost on
-  port <%= ssh_port %>, in the Connection>SSH>Auth configuration section navigate
-  to the vagrant.ppk file, select it, save the session for later use, and connect.
-  For a more detailed guide please consult TODO LINK.
+  `vagrant ssh` isn't available on the Windows platform. The 
+  vagrant.ppk file is available at
+
+     <%= key_path %>.ppk
+  
+  for use with Putty. To do this create a new Putty session for 
+  vagrant@localhost on port <%= ssh_port %>, in the Connection>SSH>Auth 
+  configuration section navigate to the vagrant.ppk file, 
+  select it, save the session for later use, and connect. 
+
+  For a more detailed guide please consult:
+
+     http://vagrantup.com/docs/getting-started/windows.html
+
 :virtualbox_import_failure: |-
   The VM import failed! Try running `VBoxManage import` on the box file manually for more verbose error output.
 :virtualbox_invalid_version: |-
