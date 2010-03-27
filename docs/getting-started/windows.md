@@ -14,16 +14,7 @@ title: Windows
   </p>
   <p>
     All Windows testing has been performed from the vanilla Windows XP command prompt. Cygwin support
-    is planned but Vista, and Windows 7 testing will have to be a community effort.   
-  </p>
-  <p>
-    If you are interested in testing the latest updates please do the following (requires a github account):
-    
-{% highlight bash %}
-$ git clone git@github.com:mitchellh/vagrant.git
-$ cd vagrant
-$ rake install
-{% endhighlight %}
+    is planned but Vista, and Windows 7 testing will have to be a community effort. If you are interested in testing the latest updates please checkout the <a href='http://github.com/mitchellh/vagrant'>github page</a>.
    </p>
 </div>
 
