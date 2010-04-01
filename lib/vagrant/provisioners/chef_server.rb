@@ -42,6 +42,7 @@ module Vagrant
         solo_file = <<-solo
 log_level          :info
 log_location       STDOUT
+node_name          "#{env.config.chef.node_name}"
 ssl_verify_mode    :verify_none
 chef_server_url    "#{env.config.chef.chef_server_url}"
 
@@ -64,7 +65,7 @@ solo
       def run_chef_client
         logger.info "Running chef-client..."
         env.ssh.execute do |ssh|
-          ssh.exec!("cd #{env.config.chef.provisioning_path} && sudo chef-client -c client.rb -j dna.json -N #{env.config.chef.node_name}") do |channel, data, stream|
+          ssh.exec!("cd #{env.config.chef.provisioning_path} && sudo chef-client -c client.rb -j dna.json") do |channel, data, stream|
             # TODO: Very verbose. It would be easier to save the data and only show it during
             # an error, or when verbosity level is set high
             logger.info("#{stream}: #{data}")

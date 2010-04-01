@@ -149,6 +149,7 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
       expected_config = <<-config
 log_level          :info
 log_location       STDOUT
+node_name          "#{@env.config.chef.node_name}"
 ssl_verify_mode    :verify_none
 chef_server_url    "#{@env.config.chef.chef_server_url}"
 
@@ -179,7 +180,7 @@ config
   context "running chef client" do
     should "cd into the provisioning directory and run chef client" do
       ssh = mock("ssh")
-      ssh.expects(:exec!).with("cd #{@env.config.chef.provisioning_path} && sudo chef-client -c client.rb -j dna.json -N #{@env.config.chef.node_name}").once
+      ssh.expects(:exec!).with("cd #{@env.config.chef.provisioning_path} && sudo chef-client -c client.rb -j dna.json").once
       @env.ssh.expects(:execute).yields(ssh)
       @action.run_chef_client
     end
