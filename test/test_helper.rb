@@ -51,6 +51,7 @@ class Test::Unit::TestCase
       config.chef.chef_server_url = "http://localhost:4000"
       config.chef.validation_key_path = "validation.pem"
       config.chef.client_key_path = "/zoo/foo/bar.pem"
+      config.chef.node_name = "baz"
       config.chef.cookbooks_path = "cookbooks"
       config.chef.provisioning_path = "/tmp/vagrant-chef"
       config.chef.json = {

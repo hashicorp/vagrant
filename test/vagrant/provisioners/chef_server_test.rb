@@ -179,7 +179,7 @@ config
   context "running chef client" do
     should "cd into the provisioning directory and run chef client" do
       ssh = mock("ssh")
-      ssh.expects(:exec!).with("cd #{@env.config.chef.provisioning_path} && sudo chef-client -c client.rb -j dna.json").once
+      ssh.expects(:exec!).with("cd #{@env.config.chef.provisioning_path} && sudo chef-client -c client.rb -j dna.json -N #{@env.config.chef.node_name}").once
       @env.ssh.expects(:execute).yields(ssh)
       @action.run_chef_client
     end
