@@ -88,13 +88,13 @@ class DownloadBoxActionTest < Test::Unit::TestCase
 
   context "tempfile" do
     should "create a tempfile in the vagrant tmp directory" do
-      File.expects(:open).with { |name, bitmask| 
+      File.expects(:open).with { |name, bitmask|
         name =~ /#{Vagrant::Actions::Box::Download::BASENAME}/ &&  name =~ /#{@runner.env.tmp_path}/
-      }.once	
+      }.once
       @action.with_tempfile
     end
 
-  
+
     should "yield the tempfile object" do
       @tempfile = mock("tempfile")
       File.expects(:open).yields(@tempfile)
@@ -107,6 +107,9 @@ class DownloadBoxActionTest < Test::Unit::TestCase
 
   context "file options" do
     should "include add binary bit to options on windows platform" do
+      # This constant is not defined on non-windows platforms, so define it here
+      File::BINARY = 4096 unless defined?(File::BINARY)
+
       Mario::Platform.expects(:windows?).returns(true)
       assert_equal @action.file_options, File::CREAT|File::EXCL|File::WRONLY|File::BINARY
     end
