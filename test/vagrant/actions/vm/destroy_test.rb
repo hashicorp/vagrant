@@ -22,7 +22,7 @@ class DestroyActionTest < Test::Unit::TestCase
 
   context "destroying the VM" do
     should "destroy VM and attached images" do
-      @vm.expects(:destroy).with(:destroy_image => true).once
+      @vm.expects(:destroy).with(:destroy_medium => :delete).once
       @action.destroy_vm
     end
   end

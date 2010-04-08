@@ -11,7 +11,7 @@ module Vagrant
 
         def destroy_vm
           logger.info "Destroying VM and associated drives..."
-          @runner.vm.destroy(:destroy_image => true)
+          @runner.vm.destroy(:destroy_medium => :delete)
         end
 
         def depersist
