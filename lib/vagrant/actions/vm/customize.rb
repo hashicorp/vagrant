@@ -9,7 +9,7 @@ module Vagrant
           @runner.env.config.vm.run_procs!(@runner.vm)
 
           # Save the vm
-          @runner.vm.save(true)
+          @runner.vm.save
         end
       end
     end
