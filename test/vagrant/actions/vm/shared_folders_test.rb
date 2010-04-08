@@ -82,7 +82,7 @@ class SharedFoldersActionTest < Test::Unit::TestCase
       shared_folders.expects(:<<).in_sequence(share_seq).with() { |sf| sf.name == "foo" && sf.host_path == "from" }
       shared_folders.expects(:<<).in_sequence(share_seq).with() { |sf| sf.name == "bar" && sf.host_path == "bfrom" }
       @vm.stubs(:shared_folders).returns(shared_folders)
-      @vm.expects(:save).with(true).once
+      @vm.expects(:save).once
 
       @action.create_metadata
     end

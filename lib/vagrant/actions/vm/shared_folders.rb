@@ -47,7 +47,7 @@ module Vagrant
             @runner.vm.shared_folders << folder
           end
 
-          @runner.vm.save(true)
+          @runner.vm.save
         end
 
         def mount_folder(ssh, name, guestpath, sleeptime=5)
