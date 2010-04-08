@@ -43,7 +43,7 @@ module Vagrant
           shared_folders.each do |name, hostpath, guestpath|
             folder = VirtualBox::SharedFolder.new
             folder.name = name
-            folder.hostpath = hostpath
+            folder.host_path = hostpath
             @runner.vm.shared_folders << folder
           end
 

@@ -32,15 +32,11 @@ module Vagrant
       # VirtualBox installed is high enough. Also verifies that the
       # configuration path is properly set.
       def check_virtualbox!
-        version = VirtualBox::Command.version
+        version = VirtualBox.version
         if version.nil?
           error_and_exit(:virtualbox_not_detected)
         elsif version.to_f < 3.1
           error_and_exit(:virtualbox_invalid_version, :version => version.to_s)
-        end
-
-        if !VirtualBox::Global.vboxconfig?
-          error_and_exit(:virtualbox_xml_not_detected)
         end
       end
     end

@@ -79,8 +79,8 @@ class SharedFoldersActionTest < Test::Unit::TestCase
     should "add all shared folders to the VM" do
       share_seq = sequence("share_seq")
       shared_folders = mock("shared_folders")
-      shared_folders.expects(:<<).in_sequence(share_seq).with() { |sf| sf.name == "foo" && sf.hostpath == "from" }
-      shared_folders.expects(:<<).in_sequence(share_seq).with() { |sf| sf.name == "bar" && sf.hostpath == "bfrom" }
+      shared_folders.expects(:<<).in_sequence(share_seq).with() { |sf| sf.name == "foo" && sf.host_path == "from" }
+      shared_folders.expects(:<<).in_sequence(share_seq).with() { |sf| sf.name == "bar" && sf.host_path == "bfrom" }
       @vm.stubs(:shared_folders).returns(shared_folders)
       @vm.expects(:save).with(true).once
 
