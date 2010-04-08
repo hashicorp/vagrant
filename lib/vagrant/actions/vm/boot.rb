@@ -21,7 +21,7 @@ module Vagrant
 
         def boot
           logger.info "Booting VM..."
-          @runner.vm.start(:headless, true)
+          @runner.vm.start("vrdp")
         end
 
         def wait_for_boot(sleeptime=5)

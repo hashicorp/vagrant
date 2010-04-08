@@ -34,7 +34,7 @@ class BootActionTest < Test::Unit::TestCase
 
   context "booting" do
     should "start the VM in headless mode" do
-      @vm.expects(:start).with(:headless, true).once
+      @vm.expects(:start).with("vrdp").once
       @action.boot
     end
   end
