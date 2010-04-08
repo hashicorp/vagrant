@@ -31,8 +31,8 @@ module Vagrant
 
         def setup_mac_address
           logger.info "Matching MAC addresses..."
-          @runner.vm.nics.first.macaddress = @runner.env.config.vm.base_mac
-          @runner.vm.save(true)
+          @runner.vm.network_adapters.first.mac_address = @runner.env.config.vm.base_mac
+          @runner.vm.save
         end
       end
     end

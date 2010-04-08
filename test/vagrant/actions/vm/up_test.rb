@@ -96,10 +96,10 @@ class UpActionTest < Test::Unit::TestCase
   context "setting up MAC address" do
     should "match the mac address with the base" do
       nic = mock("nic")
-      nic.expects(:macaddress=).once
+      nic.expects(:mac_address=).once
 
-      @vm.expects(:nics).returns([nic]).once
-      @vm.expects(:save).with(true).once
+      @vm.expects(:network_adapters).returns([nic]).once
+      @vm.expects(:save).once
 
       @action.setup_mac_address
     end
