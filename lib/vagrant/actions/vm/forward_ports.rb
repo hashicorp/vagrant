@@ -38,7 +38,7 @@ module Vagrant
             @runner.vm.forwarded_ports << port
           end
 
-          @runner.vm.save(true)
+          @runner.vm.save
         end
       end
     end

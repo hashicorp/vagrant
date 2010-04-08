@@ -83,7 +83,7 @@ class ForwardPortsActionTest < Test::Unit::TestCase
       end
 
       @vm.expects(:forwarded_ports).returns(forwarded_ports)
-      @vm.expects(:save).with(true).once
+      @vm.expects(:save).once
       @action.forward_ports
     end
   end
