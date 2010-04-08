@@ -6,7 +6,7 @@ module Vagrant
           raise ActionException.new(:vm_not_running) unless @runner.vm.running?
 
           logger.info "Forcing shutdown of VM..."
-          @runner.vm.stop(true)
+          @runner.vm.stop
         end
       end
     end

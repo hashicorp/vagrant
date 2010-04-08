@@ -12,7 +12,7 @@ class HaltActionTest < Test::Unit::TestCase
     end
 
     should "force the VM to stop" do
-      @vm.expects(:stop).with(true).once
+      @vm.expects(:stop).once
       @action.execute!
     end
 
