@@ -1,6 +1,9 @@
 require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
 
 class ActionRunnerTest < Test::Unit::TestCase
+  class MockAction; end
+  class MockActionOther; end
+
   def mock_fake_action(action_klass = nil, runner = nil)
     action = action_klass ? action_klass.new(runner) : mock("action")
     action.stubs(:prepare)
@@ -162,7 +165,7 @@ class ActionRunnerTest < Test::Unit::TestCase
       [MockAction, MockActionOther].each_with_index do |klass, i|
         action = mock("action#{i}")
         action.expects(:class).returns(klass)
-        stub_default_action_dependecies(action, klass)
+        stub_default_action_dependecies(action)
         @runner.actions << action
         actions << action
       end

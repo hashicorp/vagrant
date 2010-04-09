@@ -1,6 +1,9 @@
 require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
 
 class CollectionTest < Test::Unit::TestCase
+  class MockAction; end
+  class MockActionOther; end
+
   context "checking uniqueness" do
     setup do
       @actions = Vagrant::Actions::Collection.new([1])
@@ -10,14 +13,14 @@ class CollectionTest < Test::Unit::TestCase
       @actions << 1
       assert @actions.duplicates?
     end
-    
+
     should "return false it all the classes are unique" do
       @actions << 1.0 << "foo"
       assert !@actions.duplicates?
     end
 
     should "raise an exception when there are duplicates" do
-      @actions << 1 
+      @actions << 1
       assert_raise Vagrant::Actions::DuplicateActionException do
         @actions.duplicates!
       end
@@ -42,7 +45,7 @@ class CollectionTest < Test::Unit::TestCase
       stub_default_action_dependecies(@mock_action)
       stub_default_action_dependecies(@mock_action2)
     end
-    
+
     context "that come before an action" do
       setup do
         @mock_action.stubs(:follows).returns([MockActionOther])
@@ -52,7 +55,7 @@ class CollectionTest < Test::Unit::TestCase
           collection.new([@mock_action]).dependencies!
         end
       end
-    
+
       should "not raise an exception if they are met" do
         assert_nothing_raised do
           collection.new([@mock_action2, @mock_action]).dependencies!
@@ -97,7 +100,7 @@ class CollectionTest < Test::Unit::TestCase
       end
     end
   end
-  
+
   context "klasses" do
     should "return a list of the collection element's classes" do
       @action = mock('action')

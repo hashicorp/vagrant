@@ -91,7 +91,7 @@ class Test::Unit::TestCase
     [mock_vm, vm, action]
   end
 
-  def stub_default_action_dependecies(mock, klass=MockAction)
+  def stub_default_action_dependecies(mock)
     mock.stubs(:precedes).returns([])
     mock.stubs(:follows).returns([])
   end
@@ -104,7 +104,4 @@ class Test::Unit::TestCase
     [downloader_klass.new, tempfile]
   end
 end
-
-class MockAction; end
-class MockActionOther; end
 
