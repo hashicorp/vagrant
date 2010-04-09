@@ -92,22 +92,12 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
       @env.ssh.stubs(:upload!)
     end
 
-    should "upload properly generate the configuration file using configuration data" do
-      expected_config = <<-config
-file_cache_path "#{@env.config.chef.provisioning_path}"
-cookbook_path #{@action.cookbooks_path}
-config
+    should "call setup_config with proper variables" do
+      @action.expects(:setup_config).with("chef_solo_solo", "solo.rb", {
+        :provisioning_path => @env.config.chef.provisioning_path,
+        :cookbooks_path => @action.cookbooks_path
+      })
 
-      StringIO.expects(:new).with(expected_config).once
-      @action.setup_solo_config
-    end
-
-    should "upload this file as solo.rb to the provisioning folder" do
-      Vagrant::Util::TemplateRenderer.expects(:render).returns("foo")
-      @action.expects(:cookbooks_path).returns("cookbooks")
-      StringIO.expects(:new).returns("foo")
-      File.expects(:join).with(@env.config.chef.provisioning_path, "solo.rb").once.returns("bar")
-      @env.ssh.expects(:upload!).with("foo", "bar").once
       @action.setup_solo_config
     end
   end

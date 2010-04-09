@@ -18,6 +18,7 @@ module Vagrant
 
         # Shared config
         attr_accessor :provisioning_path
+        attr_accessor :log_level
         attr_accessor :json
 
         def initialize
@@ -27,6 +28,7 @@ module Vagrant
 
           @cookbooks_path = "cookbooks"
           @provisioning_path = "/tmp/vagrant-chef"
+          @log_level = :info
           @json = {
             :instance_role => "vagrant",
             :run_list => ["recipe[vagrant_main]"]
@@ -77,6 +79,15 @@ module Vagrant
           ssh.exec!("sudo mkdir -p #{env.config.chef.provisioning_path}")
           ssh.exec!("sudo chown #{env.config.ssh.username} #{env.config.chef.provisioning_path}")
         end
+      end
+
+      def setup_config(template, filename, template_vars)
+        config_file = TemplateRenderer.render(template, {
+          :log_level => env.config.chef.log_level.to_sym
+        }.merge(template_vars))
+
+        logger.info "Uploading chef configuration script..."
+        env.ssh.upload!(StringIO.new(config_file), File.join(env.config.chef.provisioning_path, filename))
       end
 
       def setup_json

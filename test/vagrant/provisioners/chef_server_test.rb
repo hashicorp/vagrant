@@ -15,7 +15,7 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
       @action.expects(:create_client_key_folder).once.in_sequence(prov_seq)
       @action.expects(:upload_validation_key).once.in_sequence(prov_seq)
       @action.expects(:setup_json).once.in_sequence(prov_seq)
-      @action.expects(:setup_config).once.in_sequence(prov_seq)
+      @action.expects(:setup_server_config).once.in_sequence(prov_seq)
       @action.expects(:run_chef_client).once.in_sequence(prov_seq)
       @action.provision!
     end
@@ -141,40 +141,18 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
   context "generating and uploading chef client configuration file" do
     setup do
       @action.stubs(:guest_validation_key_path).returns("foo")
-
-      @env.ssh.stubs(:upload!)
     end
 
-    should "upload properly generate the configuration file using configuration data" do
-      expected_config = <<-config
-log_level          :info
-log_location       STDOUT
-node_name          "#{@env.config.chef.node_name}"
-ssl_verify_mode    :verify_none
-chef_server_url    "#{@env.config.chef.chef_server_url}"
+    should "call setup_config with proper variables" do
+      @action.expects(:setup_config).with("chef_server_client", "client.rb", {
+        :node_name => @env.config.chef.node_name,
+        :chef_server_url => @env.config.chef.chef_server_url,
+        :validation_client_name => @env.config.chef.validation_client_name,
+        :validation_key => @action.guest_validation_key_path,
+        :client_key => @env.config.chef.client_key_path
+      })
 
-validation_client_name "#{@env.config.chef.validation_client_name}"
-validation_key         "#{@action.guest_validation_key_path}"
-client_key             "#{@env.config.chef.client_key_path}"
-
-file_store_path    "/srv/chef/file_store"
-file_cache_path    "/srv/chef/cache"
-
-pid_file           "/var/run/chef/chef-client.pid"
-
-Mixlib::Log::Formatter.show_time = true
-config
-
-      StringIO.expects(:new).with(expected_config).once
-      @action.setup_config
-    end
-
-    should "upload this file as client.rb to the provisioning folder" do
-      Vagrant::Util::TemplateRenderer.expects(:render).returns("foo")
-      StringIO.expects(:new).returns("foo")
-      File.expects(:join).with(@env.config.chef.provisioning_path, "client.rb").once.returns("bar")
-      @env.ssh.expects(:upload!).with("foo", "bar").once
-      @action.setup_config
+      @action.setup_server_config
     end
   end
 

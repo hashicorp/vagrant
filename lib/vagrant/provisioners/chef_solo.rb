@@ -20,13 +20,10 @@ module Vagrant
       end
 
       def setup_solo_config
-        solo_file = TemplateRenderer.render("chef_solo_solo", {
+        setup_config("chef_solo_solo", "solo.rb", {
           :provisioning_path => env.config.chef.provisioning_path,
           :cookbooks_path => cookbooks_path
         })
-
-        logger.info "Uploading chef-solo configuration script..."
-        env.ssh.upload!(StringIO.new(solo_file), File.join(env.config.chef.provisioning_path, "solo.rb"))
       end
 
       def run_chef_solo

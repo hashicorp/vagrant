@@ -77,6 +77,56 @@ class ChefProvisionerTest < Test::Unit::TestCase
     end
   end
 
+  context "generating and uploading chef configuration file" do
+    setup do
+      @env.ssh.stubs(:upload!)
+
+      @template = "template"
+      @filename = "foo.rb"
+
+      Vagrant::Util::TemplateRenderer.stubs(:render).returns("foo")
+    end
+
+    should "render and upload file" do
+      template_data = mock("data")
+      string_io = mock("string_io")
+      Vagrant::Util::TemplateRenderer.expects(:render).with(@template, anything).returns(template_data)
+      StringIO.expects(:new).with(template_data).returns(string_io)
+      File.expects(:join).with(@env.config.chef.provisioning_path, @filename).once.returns("bar")
+      @env.ssh.expects(:upload!).with(string_io, "bar")
+
+      @action.setup_config(@template, @filename, {})
+    end
+
+    should "provide log level by default" do
+      Vagrant::Util::TemplateRenderer.expects(:render).returns("foo").with() do |template, vars|
+        assert vars.has_key?(:log_level)
+        assert_equal @env.config.chef.log_level.to_sym, vars[:log_level]
+        true
+      end
+
+      @action.setup_config(@template, @filename, {})
+    end
+
+    should "allow custom template variables" do
+      custom = {
+        :foo => "bar",
+        :int => 7
+      }
+
+      Vagrant::Util::TemplateRenderer.expects(:render).returns("foo").with() do |template, vars|
+        custom.each do |key, value|
+          assert vars.has_key?(key)
+          assert_equal value, vars[key]
+        end
+
+        true
+      end
+
+      @action.setup_config(@template, @filename, custom)
+    end
+  end
+
   context "generating and uploading json" do
     def assert_json
       @env.ssh.expects(:upload!).with do |json, path|

@@ -54,6 +54,7 @@ class Test::Unit::TestCase
       config.chef.node_name = "baz"
       config.chef.cookbooks_path = "cookbooks"
       config.chef.provisioning_path = "/tmp/vagrant-chef"
+      config.chef.log_level = :info
       config.chef.json = {
         :recipes => ["vagrant_main"]
       }

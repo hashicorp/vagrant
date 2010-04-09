@@ -20,7 +20,7 @@ module Vagrant
         create_client_key_folder
         upload_validation_key
         setup_json
-        setup_config
+        setup_server_config
         run_chef_client
       end
 
@@ -38,17 +38,14 @@ module Vagrant
         env.ssh.upload!(validation_key_path, guest_validation_key_path)
       end
 
-      def setup_config
-        solo_file = TemplateRenderer.render("chef_server_client", {
+      def setup_server_config
+        setup_config("chef_server_client", "client.rb", {
           :node_name => env.config.chef.node_name,
           :chef_server_url => env.config.chef.chef_server_url,
           :validation_client_name => env.config.chef.validation_client_name,
           :validation_key => guest_validation_key_path,
           :client_key => env.config.chef.client_key_path
         })
-
-        logger.info "Uploading chef-client configuration script..."
-        env.ssh.upload!(StringIO.new(solo_file), File.join(env.config.chef.provisioning_path, "client.rb"))
       end
 
       def run_chef_client
