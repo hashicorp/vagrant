@@ -85,15 +85,15 @@
 
   <%= key_path %>
 :ssh_unavailable_windows: |-
-  `vagrant ssh` isn't available on the Windows platform. The 
+  `vagrant ssh` isn't available on the Windows platform. The
   vagrant.ppk file is available at
 
      <%= key_path %>.ppk
-  
-  for use with Putty. To do this create a new Putty session for 
-  vagrant@localhost on port <%= ssh_port %>, in the Connection>SSH>Auth 
-  configuration section navigate to the vagrant.ppk file, 
-  select it, save the session for later use, and connect. 
+
+  for use with Putty. To do this create a new Putty session for
+  vagrant@localhost on port <%= ssh_port %>, in the Connection>SSH>Auth
+  configuration section navigate to the vagrant.ppk file,
+  select it, save the session for later use, and connect.
 
   For a more detailed guide please consult:
 
@@ -107,30 +107,8 @@
   a more recent version of VirtualBox to continue.
 :virtualbox_not_detected: |-
   Vagrant could not detect VirtualBox! Make sure VirtualBox is properly installed.
-  If VirtualBox is installed, you may need to tweak the paths to the `VBoxManage`
-  application which ships with VirtualBox and the path to the global XML configuration
-  which VirtualBox typically stores somewhere in your home directory.
-
-  The following shows how to configure VirtualBox. This can be done in the
-  Vagrantfile. Note that 90% of the time, you shouldn't need to do this if VirtualBox
-  is installed. Please use the various Vagrant support lines to request more information
-  if you can't get this working.
-
-  VirtualBox::Command.vboxmanage = "/path/to/my/VBoxManage"
-  VirtualBox::Global.vboxconfig = "~/path/to/VirtualBox.xml"
-:virtualbox_xml_not_detected: |-
-  Vagrant couldn't find your global VirtualBox.xml file!
-
-  If you just recently installed VirtualBox, make sure you've launched
-  it at least once, since the initial launch will typically create this
-  file.
-
-  Otherwise, you may need to set the path to the VirtualBox.xml file
-  manually. Note that 90% of people should never have to do this, so
-  don't be afraid to use the various Vagrant support lines to ask for
-  help. To set the path manually:
-
-  VirtualBox::Global.vboxconfig = "/path/to/VirtualBox.xml"
+  If VirtualBox is installed, it may be an incorrect version. Vagrant currently
+  only supports VirtualBox 3.1.x. Please install the proper version to continue.
 :vm_failed_to_boot: |-
   Failed to connect to VM! Failed to boot?
 :vm_not_running: |-
