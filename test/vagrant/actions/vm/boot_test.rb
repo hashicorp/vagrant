@@ -32,8 +32,10 @@ class BootActionTest < Test::Unit::TestCase
   end
 
   context "booting" do
-    should "start the VM in headless mode" do
-      @vm.expects(:start).with("vrdp").once
+    should "start the VM in specified mode" do
+      mode = mock("boot_mode")
+      @runner.env.config.vm.boot_mode = mode
+      @vm.expects(:start).with(mode).once
       @action.boot
     end
   end

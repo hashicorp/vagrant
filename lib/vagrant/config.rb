@@ -77,6 +77,7 @@ module Vagrant
       attr_accessor :box
       attr_accessor :box_ovf
       attr_accessor :base_mac
+      attr_accessor :boot_mode
       attr_accessor :project_directory
       attr_reader :forwarded_ports
       attr_reader :shared_folders
