@@ -5,7 +5,6 @@ class UnpackageBoxActionTest < Test::Unit::TestCase
     @runner, @vm, @action = mock_action(Vagrant::Actions::Box::Unpackage)
     @runner.stubs(:name).returns("foo")
     @runner.stubs(:temp_path).returns("bar")
-    mock_config
 
     @runner.env.stubs(:boxes_path).returns("bar")
   end

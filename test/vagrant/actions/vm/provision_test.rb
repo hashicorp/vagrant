@@ -3,7 +3,6 @@ require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 class ProvisionActionTest < Test::Unit::TestCase
   setup do
     @runner, @vm, @action = mock_action(Vagrant::Actions::VM::Provision)
-    mock_config
   end
 
   context "initialization" do
@@ -29,9 +28,7 @@ class ProvisionActionTest < Test::Unit::TestCase
   context "preparing" do
     context "with a nil provisioner" do
       setup do
-        mock_config do |config|
-          config.vm.provisioner = nil
-        end
+        @runner.env.config.vm.provisioner = nil
       end
 
       should "not set a provisioner if set to nil" do
@@ -49,9 +46,7 @@ class ProvisionActionTest < Test::Unit::TestCase
         @klass.stubs(:is_a?).with(Class).returns(true)
         @klass.stubs(:new).with(@runner.env).returns(@instance)
 
-        mock_config do |config|
-          config.vm.provisioner = @klass
-        end
+        @runner.env.config.vm.provisioner = @klass
       end
 
       should "set the provisioner to an instantiation of the class" do
@@ -75,9 +70,7 @@ class ProvisionActionTest < Test::Unit::TestCase
 
     context "with a Symbol provisioner" do
       def provisioner_expectation(symbol, provisioner)
-        mock_config do |config|
-          config.vm.provisioner = symbol
-        end
+        @runner.env.config.vm.provisioner = symbol
 
         instance = mock("instance")
         instance.expects(:prepare).once
@@ -87,9 +80,7 @@ class ProvisionActionTest < Test::Unit::TestCase
       end
 
       should "raise an ActionException if its an unknown symbol" do
-        mock_config do |config|
-          config.vm.provisioner = :this_will_never_exist
-        end
+        @runner.env.config.vm.provisioner = :this_will_never_exist
 
         assert_raises(Vagrant::Actions::ActionException) {
           @action.prepare

@@ -6,7 +6,6 @@ class DestroyBoxActionTest < Test::Unit::TestCase
     @dir = "foo"
     @runner, @vm, @action = mock_action(Vagrant::Actions::Box::Destroy)
     @runner.stubs(:directory).returns(@dir)
-    mock_config
   end
 
   context "executing" do

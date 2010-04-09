@@ -6,7 +6,6 @@ class DownloadBoxActionTest < Test::Unit::TestCase
     @runner, @vm, @action = mock_action(Vagrant::Actions::Box::Download)
     @runner.stubs(:uri).returns(@uri)
     @runner.stubs(:temp_path=)
-    mock_config
 
     @runner.env.stubs(:tmp_path).returns("foo")
   end

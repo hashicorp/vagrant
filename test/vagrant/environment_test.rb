@@ -1,10 +1,6 @@
 require File.join(File.dirname(__FILE__), '..', 'test_helper')
 
 class EnvironmentTest < Test::Unit::TestCase
-  setup do
-    mock_config
-  end
-
   context "class method check virtualbox version" do
     setup do
       VirtualBox.stubs(:version).returns("3.1.4")

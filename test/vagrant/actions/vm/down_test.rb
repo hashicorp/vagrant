@@ -3,7 +3,6 @@ require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 class DownActionTest < Test::Unit::TestCase
   setup do
     @mock_vm, @vm, @action = mock_action(Vagrant::Actions::VM::Down)
-    mock_config
   end
 
   context "preparing" do

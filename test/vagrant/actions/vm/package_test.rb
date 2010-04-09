@@ -3,8 +3,6 @@ require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 class PackageActionTest < Test::Unit::TestCase
   setup do
     @runner, @vm, @action = mock_action(Vagrant::Actions::VM::Package, "bing", [])
-
-    mock_config
   end
 
   context "initialization" do

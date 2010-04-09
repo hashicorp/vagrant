@@ -3,7 +3,6 @@ require File.join(File.dirname(__FILE__), '..', 'test_helper')
 class VMTest < Test::Unit::TestCase
   setup do
     @mock_vm = mock("vm")
-    mock_config
 
     @persisted_vm = mock("persisted_vm")
 

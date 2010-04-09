@@ -2,8 +2,6 @@ require File.join(File.dirname(__FILE__), '..', 'test_helper')
 
 class ActiveListTest < Test::Unit::TestCase
   setup do
-    mock_config
-
     @env = mock_environment
     @list = Vagrant::ActiveList.new(@env)
   end

@@ -4,8 +4,6 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
   setup do
     @env = mock_environment
     @action = Vagrant::Provisioners::ChefServer.new(@env)
-
-    mock_config
   end
 
   context "provisioning" do

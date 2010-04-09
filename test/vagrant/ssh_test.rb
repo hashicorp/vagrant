@@ -1,10 +1,6 @@
 require File.join(File.dirname(__FILE__), '..', 'test_helper')
 
 class SshTest < Test::Unit::TestCase
-  setup do
-    mock_config
-  end
-
   def mock_ssh
     @env = mock_environment do |config|
       yield config if block_given?

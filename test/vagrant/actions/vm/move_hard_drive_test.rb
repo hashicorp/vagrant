@@ -4,10 +4,8 @@ class MoveHardDriveActionTest < Test::Unit::TestCase
   setup do
     @mock_vm, @vm, @action = mock_action(Vagrant::Actions::VM::MoveHardDrive)
     @hd_location = "/foo"
-    mock_config do |config|
-      File.expects(:directory?).with(@hd_location).returns(true)
-      config.vm.hd_location = @hd_location
-    end
+
+    @mock_vm.env.config.vm.stubs(:hd_location).returns(@hd_location)
   end
 
 
@@ -51,7 +49,7 @@ class MoveHardDriveActionTest < Test::Unit::TestCase
     end
 
     should "be the configured hd location and the existing hard drive filename" do
-      joined = File.join(Vagrant.config.vm.hd_location, @filename)
+      joined = File.join(@mock_vm.env.config.vm.hd_location, @filename)
       assert_equal joined, @action.new_image_path
     end
   end

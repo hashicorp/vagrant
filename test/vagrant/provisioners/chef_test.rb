@@ -4,11 +4,6 @@ class ChefProvisionerTest < Test::Unit::TestCase
   setup do
     @env = mock_environment
     @action = Vagrant::Provisioners::Chef.new(@env)
-
-    Vagrant::SSH.stubs(:execute)
-    Vagrant::SSH.stubs(:upload!)
-
-    mock_config
   end
 
   context "preparing" do

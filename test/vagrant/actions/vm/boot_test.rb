@@ -4,7 +4,6 @@ class BootActionTest < Test::Unit::TestCase
   setup do
     @runner, @vm, @action = mock_action(Vagrant::Actions::VM::Boot)
     @runner.stubs(:invoke_callback)
-    mock_config
   end
 
   context "preparing" do
