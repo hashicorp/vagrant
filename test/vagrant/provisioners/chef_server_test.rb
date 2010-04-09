@@ -170,6 +170,7 @@ config
     end
 
     should "upload this file as client.rb to the provisioning folder" do
+      Vagrant::Util::TemplateRenderer.expects(:render).returns("foo")
       StringIO.expects(:new).returns("foo")
       File.expects(:join).with(@env.config.chef.provisioning_path, "client.rb").once.returns("bar")
       @env.ssh.expects(:upload!).with("foo", "bar").once

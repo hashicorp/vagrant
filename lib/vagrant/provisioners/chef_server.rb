@@ -39,24 +39,13 @@ module Vagrant
       end
 
       def setup_config
-        solo_file = <<-solo
-log_level          :info
-log_location       STDOUT
-node_name          "#{env.config.chef.node_name}"
-ssl_verify_mode    :verify_none
-chef_server_url    "#{env.config.chef.chef_server_url}"
-
-validation_client_name "#{env.config.chef.validation_client_name}"
-validation_key         "#{guest_validation_key_path}"
-client_key             "#{env.config.chef.client_key_path}"
-
-file_store_path    "/srv/chef/file_store"
-file_cache_path    "/srv/chef/cache"
-
-pid_file           "/var/run/chef/chef-client.pid"
-
-Mixlib::Log::Formatter.show_time = true
-solo
+        solo_file = TemplateRenderer.render("chef_server_client", {
+          :node_name => env.config.chef.node_name,
+          :chef_server_url => env.config.chef.chef_server_url,
+          :validation_client_name => env.config.chef.validation_client_name,
+          :validation_key => guest_validation_key_path,
+          :client_key => env.config.chef.client_key_path
+        })
 
         logger.info "Uploading chef-client configuration script..."
         env.ssh.upload!(StringIO.new(solo_file), File.join(env.config.chef.provisioning_path, "client.rb"))
