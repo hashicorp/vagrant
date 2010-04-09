@@ -8,7 +8,7 @@ module Vagrant
           end
 
           logger.info "Saving VM state and suspending execution..."
-          @runner.vm.save_state(true)
+          @runner.vm.save_state
         end
       end
     end
