@@ -15,6 +15,7 @@ module Vagrant
 
         # Chef solo specific config
         attr_accessor :cookbooks_path
+        attr_accessor :roles_path
 
         # Shared config
         attr_accessor :provisioning_path
@@ -27,6 +28,7 @@ module Vagrant
           @node_name = "client"
 
           @cookbooks_path = "cookbooks"
+          @roles_path = []
           @provisioning_path = "/tmp/vagrant-chef"
           @log_level = :info
           @json = {
