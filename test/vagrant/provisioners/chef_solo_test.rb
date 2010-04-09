@@ -11,7 +11,7 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
       @action.expects(:share_cookbook_folders).once
       @action.prepare
     end
-    
+
     should "share role folders" do
       @action.expects(:share_role_folders).once
       @action.prepare
@@ -44,7 +44,7 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
       @action.share_cookbook_folders
     end
   end
-  
+
   context "sharing role folders" do
     setup do
       @host_role_paths = ["foo", "bar"]
@@ -61,41 +61,60 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
     end
   end
 
-  context "host cookbooks paths" do
+  context "host folder paths" do
     should "return as an array if was originally a string" do
-      File.stubs(:expand_path).returns("foo")
-      @env.config.chef.cookbooks_path = "foo"
-
-      assert_equal ["foo"], @action.host_cookbook_paths
+      folder = "foo"
+      File.stubs(:expand_path).returns("bar")
+      assert_equal ["bar"], @action.host_folder_paths(folder)
     end
 
-    should "return the array of cookbooks if its an array" do
-      cookbooks = ["foo", "bar"]
-      @env.config.chef.cookbooks_path = cookbooks
-
+    should "return the array of folders if its an array" do
+      folders = ["foo", "bar"]
       expand_seq = sequence('expand_seq')
-      cookbooks.collect! { |cookbook| File.expand_path(cookbook, @env.root_path) }
+      folders.collect! { |folder| File.expand_path(folder, @env.root_path) }
 
-      assert_equal cookbooks, @action.host_cookbook_paths
+      assert_equal folders, @action.host_folder_paths(folders)
     end
   end
-  
-  context "host roles paths" do
-    should "return as an array if was originally a string" do
-      File.stubs(:expand_path).returns("foo")
-      @env.config.chef.roles_path = "foo"
 
-      assert_equal ["foo"], @action.host_role_paths
+  context "host cookbooks paths" do
+    should "get folders path for configured cookbooks path" do
+      result = mock("result")
+      @env.config.chef.stubs(:cookbooks_path).returns("foo")
+      @action.expects(:host_folder_paths).with(@env.config.chef.cookbooks_path).returns(result)
+      assert_equal result, @action.host_cookbook_paths
+    end
+  end
+
+  context "host roles paths" do
+    should "get folders path for configured roles path" do
+      result = mock("result")
+      @env.config.chef.stubs(:roles_path).returns("foo")
+      @action.expects(:host_folder_paths).with(@env.config.chef.roles_path).returns(result)
+      assert_equal result, @action.host_role_paths
+    end
+  end
+
+  context "folder path" do
+    should "return a proper path to a single folder" do
+      expected = File.join(@env.config.chef.provisioning_path, "cookbooks-5")
+      assert_equal expected, @action.folder_path("cookbooks", 5)
     end
 
-    should "return the array of roles if its an array" do
-      roles = ["foo", "bar"]
-      @env.config.chef.roles_path = roles
+    should "return array-representation of folder paths if multiple" do
+      @folders = (0..5).to_a
+      @cookbooks = @folders.inject([]) do |acc, i|
+        acc << @action.cookbook_path(i)
+      end
 
-      expand_seq = sequence('expand_seq')
-      roles.collect! { |role| File.expand_path(role, @env.root_path) }
+      assert_equal @cookbooks.to_json, @action.folders_path(@folders, "cookbooks")
+    end
 
-      assert_equal roles, @action.host_role_paths
+    should "return a single string representation if folder paths is single" do
+      @folder = "cookbooks"
+      @cookbooks = @action.folder_path(@folder, 0)
+
+      assert_equal @cookbooks.to_json, @action.folders_path([0], @folder)
     end
   end
 
@@ -105,43 +124,25 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
       assert_equal expected, @action.cookbook_path(5)
     end
 
-    should "return array-representation of cookbook paths if multiple" do
-      @cookbooks = (0..5).inject([]) do |acc, i|
-        acc << @action.cookbook_path(i)
-      end
-
-      @env.config.chef.cookbooks_path = @cookbooks
-      assert_equal @cookbooks.to_json, @action.cookbooks_path
-    end
-
-    should "return a single string representation if cookbook paths is single" do
-      @cookbooks = @action.cookbook_path(0)
-
-      @env.config.chef.cookbooks_path = @cookbooks
-      assert_equal @cookbooks.to_json, @action.cookbooks_path
+    should "properly call folders path and return result" do
+      result = mock("result")
+      @action.stubs(:host_cookbook_paths).returns([])
+      @action.expects(:folders_path).with(@action.host_cookbook_paths, "cookbooks").once.returns(result)
+      assert_equal result, @action.cookbooks_path
     end
   end
-  
+
   context "roles path" do
     should "return a proper path to a single role" do
       expected = File.join(@env.config.chef.provisioning_path, "roles-5")
       assert_equal expected, @action.role_path(5)
     end
 
-    should "return array-representation of role paths if multiple" do
-      @roles = (0..5).inject([]) do |acc, i|
-        acc << @action.role_path(i)
-      end
-
-      @env.config.chef.roles_path = @roles
-      assert_equal @roles.to_json, @action.roles_path
-    end
-
-    should "return a single string representation if roles paths is single" do
-      @roles = @action.role_path(0)
-
-      @env.config.chef.roles_path = @roles
-      assert_equal @roles.to_json, @action.roles_path
+    should "properly call folders path and return result" do
+      result = mock("result")
+      @action.stubs(:host_role_paths).returns([])
+      @action.expects(:folders_path).with(@action.host_role_paths, "roles").once.returns(result)
+      assert_equal result, @action.roles_path
     end
   end
 

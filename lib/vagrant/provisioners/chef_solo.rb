@@ -19,7 +19,7 @@ module Vagrant
           env.config.vm.share_folder("vagrant-chef-solo-#{i}", cookbook_path(i), cookbook)
         end
       end
-      
+
       def share_role_folders
         host_role_paths.each_with_index do |role, i|
           env.config.vm.share_folder("vagrant-chef-solo-#{i}", role_path(i), role)
@@ -45,50 +45,48 @@ module Vagrant
         end
       end
 
-      def host_cookbook_paths
-        cookbooks = env.config.chef.cookbooks_path
-        cookbooks = [cookbooks] unless cookbooks.is_a?(Array)
-        cookbooks.collect! { |cookbook| File.expand_path(cookbook, env.root_path) }
-        return cookbooks
+      def host_folder_paths(paths)
+        [paths].flatten.collect { |path| File.expand_path(path, env.root_path) }
       end
-      
+
+      def folder_path(folder, i)
+        File.join(env.config.chef.provisioning_path, "#{folder}-#{i}")
+      end
+
+      def folders_path(folders, folder)
+        result = []
+        folders.each_with_index do |host_path, i|
+          result << folder_path(folder, i)
+        end
+
+        # We're lucky that ruby's string and array syntax for strings is the
+        # same as JSON, so we can just convert to JSON here and use that
+        result = result[0].to_s if result.length == 1
+        result.to_json
+      end
+
+      def host_cookbook_paths
+        host_folder_paths(env.config.chef.cookbooks_path)
+      end
+
       def host_role_paths
-        roles = env.config.chef.roles_path
-        roles = [roles] unless roles.is_a?(Array)
-        roles.collect! { |role| File.expand_path(role, env.root_path) }
-        return roles
+        host_folder_paths(env.config.chef.roles_path)
       end
 
       def cookbook_path(i)
-        File.join(env.config.chef.provisioning_path, "cookbooks-#{i}")
+        folder_path("cookbooks", i)
       end
-      
+
       def role_path(i)
-        File.join(env.config.chef.provisioning_path, "roles-#{i}")
+        folder_path("roles", i)
       end
 
       def cookbooks_path
-        result = []
-        host_cookbook_paths.each_with_index do |host_path, i|
-          result << cookbook_path(i)
-        end
-
-        # We're lucky that ruby's string and array syntax for strings is the
-        # same as JSON, so we can just convert to JSON here and use that
-        result = result[0].to_s if result.length == 1
-        result.to_json
+        folders_path(host_cookbook_paths, "cookbooks")
       end
-      
-      def roles_path
-        result = []
-        host_role_paths.each_with_index do |host_path, i|
-          result << role_path(i)
-        end
 
-        # We're lucky that ruby's string and array syntax for strings is the
-        # same as JSON, so we can just convert to JSON here and use that
-        result = result[0].to_s if result.length == 1
-        result.to_json
+      def roles_path
+        folders_path(host_role_paths, "roles")
       end
     end
   end
