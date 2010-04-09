@@ -103,6 +103,7 @@ config
     end
 
     should "upload this file as solo.rb to the provisioning folder" do
+      Vagrant::Util::TemplateRenderer.expects(:render).returns("foo")
       @action.expects(:cookbooks_path).returns("cookbooks")
       StringIO.expects(:new).returns("foo")
       File.expects(:join).with(@env.config.chef.provisioning_path, "solo.rb").once.returns("bar")
