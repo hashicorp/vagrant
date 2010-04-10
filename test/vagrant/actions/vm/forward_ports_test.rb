@@ -92,7 +92,7 @@ class ForwardPortsActionTest < Test::Unit::TestCase
       forwarded_ports = []
       5.times do |i|
         port = mock("port#{i}")
-        port.expects(:destroy).with(true).once
+        port.expects(:destroy).once
         forwarded_ports << port
       end
 

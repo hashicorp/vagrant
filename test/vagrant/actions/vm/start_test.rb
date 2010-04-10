@@ -10,12 +10,12 @@ class StartActionTest < Test::Unit::TestCase
       @vm.stubs(:saved?).returns(true)
       File.stubs(:file?).returns(true)
       File.stubs(:exist?).returns(true)
-      @default_order = [Vagrant::Actions::VM::ForwardPorts, Vagrant::Actions::VM::SharedFolders, Vagrant::Actions::VM::Boot]
+      @default_order = [Vagrant::Actions::VM::Boot]
     end
 
     def setup_action_expectations
       default_seq = sequence("default_seq")
-      @default_order.each do |action|
+      @default_order.flatten.each do |action|
         @mock_vm.expects(:add_action).with(action).once.in_sequence(default_seq)
       end
     end
@@ -27,7 +27,7 @@ class StartActionTest < Test::Unit::TestCase
 
     should "add customize to the beginning if its not saved" do
       @vm.expects(:saved?).returns(false)
-      @default_order.unshift(Vagrant::Actions::VM::Customize)
+      @default_order.unshift([Vagrant::Actions::VM::Customize, Vagrant::Actions::VM::ForwardPorts, Vagrant::Actions::VM::SharedFolders])
       setup_action_expectations
       @action.prepare
     end

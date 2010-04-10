@@ -5,10 +5,10 @@ module Vagrant
         def prepare
           # Start is a "meta-action" so it really just queues up a bunch
           # of other actions in its place:
-          steps = [ForwardPorts, SharedFolders, Boot]
-          steps.unshift(Customize) unless @runner.vm.saved?
+          steps = [Boot]
+          steps.unshift([Customize, ForwardPorts, SharedFolders]) unless @runner.vm.saved?
 
-          steps.each do |action_klass|
+          steps.flatten.each do |action_klass|
             @runner.add_action(action_klass)
           end
         end

@@ -11,7 +11,7 @@ class SuspendActionTest < Test::Unit::TestCase
     end
 
     should "save the state of the VM" do
-      @vm.expects(:save_state).with(true).once
+      @vm.expects(:save_state).once
       @action.execute!
     end
 
