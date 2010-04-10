@@ -22,6 +22,6 @@ Destroys the vagrant environment.
 EOS
 
   run do |command|
-    Vagrant::Commands.execute(:down)
+    Vagrant::Commands.execute(:destroy)
   end
 end
