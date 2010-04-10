@@ -140,6 +140,21 @@ Vagrant::Configure.run do |config|
 end
 {% endhighlight %}
 
+## Roles
+
+Chef solo supports [roles](http://wiki.opscode.com/display/chef/Roles), which are specified via
+JSON files within a roles directory. Similar to the cookbooks path, a roles path can be specified
+to a directory containing these role files, and these roles can then be used by the
+chef solo run list. An example of configuring roles is shown below:
+
+{% highlight ruby %}
+Vagrant::Configure.run do |config|
+  # The roles path will be expanded relative to the project directory
+  config.chef.roles_path = "roles"
+  config.chef.add_role("web")
+end
+{% endhighlight %}
+
 ## Configuring the Server Path
 
 In order to run chef, Vagrant has to mount the specified cookbooks directory as a
