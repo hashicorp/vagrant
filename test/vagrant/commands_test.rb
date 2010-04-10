@@ -52,19 +52,19 @@ class CommandsTest < Test::Unit::TestCase
       end
     end
 
-    context "down" do
+    context "destroy" do
       setup do
         @persisted_vm.stubs(:destroy)
       end
 
       should "require a persisted VM" do
         @env.expects(:require_persisted_vm).once
-        @commands.down
+        @commands.destroy
       end
 
       should "destroy the persisted VM and the VM image" do
         @persisted_vm.expects(:destroy).once
-        @commands.down
+        @commands.destroy
       end
     end
 
