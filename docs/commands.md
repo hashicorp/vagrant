@@ -14,7 +14,7 @@ all the vagrant binaries:
 $ vagrant
 vagrant
 vagrant-box
-vagrant-down
+vagrant-destroy
 vagrant-halt
 vagrant-init
 vagrant-package
@@ -37,6 +37,15 @@ But we'll go over each binary here, as well.
 ## vagrant box
 
 Boxes have their own section: [Vagrant Boxes](/docs/boxes.html)
+
+<a name="vagrant-destroy"> </a>
+## vagrant destroy
+
+This destroys the vagrant environment by completely deleting the virtual machine
+along with the hard drives attached to the virtual machine. `vagrant up` can then
+be run again to rebuild the environment.
+
+**Warning: This command _will_ delete all the data created within the machine.**
 
 <a name="vagrant-halt"> </a>
 ## vagrant halt
