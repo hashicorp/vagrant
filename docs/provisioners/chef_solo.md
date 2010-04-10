@@ -169,5 +169,5 @@ end
 
 Once enabled, if you are building a VM from scratch, run `vagrant up` and provisioning
 will automatically occur. If you already have a running VM and don't want to rebuild
-everything from scratch, run `vagrant reload` and provisioning will automatically
-occur.
+everything from scratch, run `vagrant reload` and it will restart the VM, without completely
+destroying the environment first, allowing the import step to be skipped.
