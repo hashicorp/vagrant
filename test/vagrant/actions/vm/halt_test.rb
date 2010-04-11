@@ -10,6 +10,13 @@ class HaltActionTest < Test::Unit::TestCase
       @vm.stubs(:running?).returns(true)
     end
 
+    should "invoke the 'halt' around callback" do
+      halt_seq = sequence("halt_seq")
+      @runner.expects(:invoke_around_callback).with(:halt).once.in_sequence(halt_seq).yields
+      @vm.expects(:stop).in_sequence(halt_seq)
+      @action.execute!
+    end
+
     should "force the VM to stop" do
       @vm.expects(:stop).once
       @action.execute!
