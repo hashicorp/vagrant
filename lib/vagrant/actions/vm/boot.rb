@@ -3,7 +3,7 @@ module Vagrant
     module VM
       class Boot < Base
         def prepare
-          @runner.env.config.vm.share_folder("vagrant-root", @runner.env.config.vm.project_directory, @runner.env.root_path)
+          @runner.env.config.vm.share_folder("v-root", @runner.env.config.vm.project_directory, @runner.env.root_path)
         end
 
         def execute!

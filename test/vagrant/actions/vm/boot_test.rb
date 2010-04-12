@@ -8,7 +8,7 @@ class BootActionTest < Test::Unit::TestCase
 
   context "preparing" do
     should "add the root shared folder" do
-      @runner.env.config.vm.expects(:share_folder).with("vagrant-root", @runner.env.config.vm.project_directory, @runner.env.root_path).once
+      @runner.env.config.vm.expects(:share_folder).with("v-root", @runner.env.config.vm.project_directory, @runner.env.root_path).once
       @action.prepare
     end
   end
