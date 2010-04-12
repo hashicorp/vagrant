@@ -51,6 +51,17 @@ module Vagrant
           end
         end
 
+        # This method creates the auto-generated Vagrantfile at the root of the
+        # box. This Vagrantfile contains the MAC address so that the user doesn't
+        # have to worry about it.
+        def create_vagrantfile
+          File.open(File.join(temp_path, "Vagrantfile"), "w") do |f|
+            f.write(TemplateRenderer.render("package_Vagrantfile", {
+              :base_mac => @runner.env.config.vm.base_mac
+            }))
+          end
+        end
+
         def compress
           logger.info "Packaging VM into #{tar_path}..."
           File.open(tar_path, File::CREAT | File::WRONLY, 0644) do |tar|
@@ -59,6 +70,7 @@ module Vagrant
                 current_dir = FileUtils.pwd
 
                 copy_include_files
+                create_vagrantfile
 
                 FileUtils.cd(temp_path)
                 Dir.glob(File.join(".", "**", "*")).each do |entry|

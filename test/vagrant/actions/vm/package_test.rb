@@ -87,6 +87,25 @@ class PackageActionTest < Test::Unit::TestCase
     end
   end
 
+  context "creating vagrantfile" do
+    setup do
+      @temp_path = "foo"
+      @action.stubs(:temp_path).returns(@temp_path)
+    end
+
+    should "write the rendered vagrantfile to temp_path Vagrantfile" do
+      f = mock("file")
+      rendered = mock("rendered")
+      File.expects(:open).with(File.join(@action.temp_path, "Vagrantfile"), "w").yields(f)
+      Vagrant::Util::TemplateRenderer.expects(:render).returns(rendered).with("package_Vagrantfile", {
+        :base_mac => @runner.env.config.vm.base_mac
+      })
+      f.expects(:write).with(rendered)
+
+      @action.create_vagrantfile
+    end
+  end
+
   context "compression" do
     setup do
       @tar_path = "foo"
@@ -109,6 +128,9 @@ class PackageActionTest < Test::Unit::TestCase
       @tar = Archive::Tar::Minitar
       Archive::Tar::Minitar::Output.stubs(:open).yields(@output)
       @tar.stubs(:pack_file)
+
+      @action.stubs(:copy_include_files)
+      @action.stubs(:create_vagrantfile)
     end
 
     should "open the tar file with the tar path properly" do
@@ -130,6 +152,7 @@ class PackageActionTest < Test::Unit::TestCase
 
       FileUtils.expects(:pwd).once.returns(@pwd).in_sequence(compress_seq)
       @action.expects(:copy_include_files).once.in_sequence(compress_seq)
+      @action.expects(:create_vagrantfile).once.in_sequence(compress_seq)
       FileUtils.expects(:cd).with(@temp_path).in_sequence(compress_seq)
       Dir.expects(:glob).returns(@files).in_sequence(compress_seq)
 
