@@ -4,3 +4,8 @@ Vagrant::Config.run do |config|
   # the actual `Vagrantfile` in this box.
   config.vm.base_mac = "<%= base_mac %>"
 end
+
+# Load include vagrant file if it exists after the auto-generated
+# so it can override any of the settings
+include_vagrantfile = File.expand_path(File.join(File.dirname(__FILE__), "include", "Vagrantfile"))
+load include_vagrantfile if File.exist?(include_vagrantfile)
