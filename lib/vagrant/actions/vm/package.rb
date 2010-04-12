@@ -36,6 +36,21 @@ module Vagrant
           export_action.temp_dir
         end
 
+        # This method copies the include files (passed in via command line)
+        # to the temporary directory so they are included in a sub-folder within
+        # the actual box
+        def copy_include_files
+          if include_files.length > 0
+            include_dir = File.join(temp_path, "include")
+            FileUtils.mkdir_p(include_dir)
+
+            include_files.each do |f|
+              logger.info "Packaging additional file: #{f}"
+              FileUtils.cp(f, include_dir)
+            end
+          end
+        end
+
         def compress
           logger.info "Packaging VM into #{tar_path}..."
           File.open(tar_path, File::CREAT | File::WRONLY, 0644) do |tar|
@@ -43,14 +58,10 @@ module Vagrant
               begin
                 current_dir = FileUtils.pwd
 
-                include_files.each do |f|
-                  logger.info "Packaging additional file: #{f}"
-                  Archive::Tar::Minitar.pack_file(f, output)
-                end
+                copy_include_files
 
                 FileUtils.cd(temp_path)
-
-                Dir.glob(File.join(".", "*")).each do |entry|
+                Dir.glob(File.join(".", "**", "*")).each do |entry|
                   Archive::Tar::Minitar.pack_file(entry, output)
                 end
               ensure

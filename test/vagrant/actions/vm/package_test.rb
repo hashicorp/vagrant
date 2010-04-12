@@ -56,6 +56,37 @@ class PackageActionTest < Test::Unit::TestCase
     end
   end
 
+  context "copying include files" do
+    setup do
+      @include_files = []
+      @action.stubs(:include_files).returns(@include_files)
+
+      @temp_path = "foo"
+      @action.stubs(:temp_path).returns(@temp_path)
+    end
+
+    should "do nothing if no include files are specified" do
+      assert @action.include_files.empty?
+      FileUtils.expects(:mkdir_p).never
+      FileUtils.expects(:cp).never
+      @action.copy_include_files
+    end
+
+    should "create the include directory and copy files to it" do
+      include_dir = File.join(@action.temp_path, "include")
+      copy_seq = sequence("copy_seq")
+      FileUtils.expects(:mkdir_p).with(include_dir).once.in_sequence(copy_seq)
+
+      5.times do |i|
+        file = mock("f#{i}")
+        @include_files << file
+        FileUtils.expects(:cp).with(file, include_dir).in_sequence(copy_seq)
+      end
+
+      @action.copy_include_files
+    end
+  end
+
   context "compression" do
     setup do
       @tar_path = "foo"
@@ -98,6 +129,7 @@ class PackageActionTest < Test::Unit::TestCase
       compress_seq = sequence("compress_seq")
 
       FileUtils.expects(:pwd).once.returns(@pwd).in_sequence(compress_seq)
+      @action.expects(:copy_include_files).once.in_sequence(compress_seq)
       FileUtils.expects(:cd).with(@temp_path).in_sequence(compress_seq)
       Dir.expects(:glob).returns(@files).in_sequence(compress_seq)
 
@@ -119,25 +151,6 @@ class PackageActionTest < Test::Unit::TestCase
       assert_raises(Exception) {
         @action.compress
       }
-    end
-
-    should "add included files when passed" do
-      compress_seq = sequence("compress")
-      @files = []
-      5.times do |i|
-        file = mock("file#{i}")
-        @tar.expects(:pack_file).with(file, @output).once.in_sequence(compress_seq)
-        @files << file
-      end
-
-      @action.expects(:include_files).returns(@files)
-      @action.compress
-    end
-
-    should "not add files when none are specified" do
-      @tar.expects(:pack_file).never
-      Dir.expects(:glob).once.returns([])
-      @action.compress
     end
   end
 
