@@ -24,6 +24,20 @@ environment, and it will package a fully functional environment. You can still
 include customizations and so on with the `--include` flag, and these will
 continue to work as expected.
 
+## Base Box Packaging with `vagrant package`
+
+Base box creators rejoice! You can now package base boxes using the `vagrant package`
+command. This also means that, along with the above change, you no longer need
+to "copy down the MAC address," since Vagrant handles this for you. An example,
+if you created a base virtual machine named "karmic" (in VirtualBox):
+
+{% highlight bash %}
+$ vagrant package --base karmic
+{% endhighlight %}
+
+That's all there is to it! No more manual Vagrantfile creation, no more manual
+`tar`ing, etc.
+
 ## Minor Changes
 
 #### Specifying a Box with `vagrant init`
