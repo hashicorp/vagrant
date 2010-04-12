@@ -16,13 +16,13 @@ module Vagrant
 
       def share_cookbook_folders
         host_cookbook_paths.each_with_index do |cookbook, i|
-          env.config.vm.share_folder("vcsc-#{i}", cookbook_path(i), cookbook)
+          env.config.vm.share_folder("vagrant-csc-#{i}", cookbook_path(i), cookbook)
         end
       end
 
       def share_role_folders
         host_role_paths.each_with_index do |role, i|
-          env.config.vm.share_folder("vcsr-#{i}", role_path(i), role)
+          env.config.vm.share_folder("vagrant-csr-#{i}", role_path(i), role)
         end
       end
 
