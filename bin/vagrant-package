@@ -21,9 +21,10 @@ Package the current vagrant environment into a box.
 
 EOS
 
+  opt :base, "name of the VM to create a base package", :type => :string
   opt :include, "files to include in the package", :type => :strings
 
   run do |command|
-    Vagrant::Commands.execute(:package, command.argv[0], command.opts[:include])
+    Vagrant::Commands.execute(:package, command.argv[0], command.opts)
   end
 end

@@ -96,11 +96,24 @@ module Vagrant
     # Export and package the current vm
     #
     # This command requires that an instance be powered off
-    def package(out_path=nil, include_files=[])
-      env.require_persisted_vm
-      error_and_exit(:vm_power_off_to_package) unless env.vm.powered_off?
+    def package(out_path=nil, opts={})
+      opts[:include] ||= []
 
-      env.vm.package(out_path, include_files)
+      if !opts[:base]
+        # Packaging a pre-existing environment
+        env.require_persisted_vm
+      else
+        # Packaging a base box; that is a VM not tied to a specific
+        # vagrant environment
+        vm = VM.find(opts[:base])
+        vm.env = env if vm
+        env.vm = vm
+
+        error_and_exit(:vm_base_not_found, :name => opts[:base]) unless vm
+      end
+
+      error_and_exit(:vm_power_off_to_package) unless env.vm.powered_off?
+      env.vm.package(out_path, opts[:include])
     end
 
     # Manages the `vagrant box` command, allowing the user to add

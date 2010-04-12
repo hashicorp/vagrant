@@ -12,7 +12,7 @@ module Vagrant
     attr_reader :root_path
     attr_reader :config
     attr_reader :box
-    attr_reader :vm
+    attr_accessor :vm
     attr_reader :ssh
     attr_reader :active_list
     attr_reader :commands

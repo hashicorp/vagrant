@@ -148,34 +148,67 @@ class CommandsTest < Test::Unit::TestCase
         @persisted_vm.stubs(:powered_off?).returns(true)
       end
 
-      should "require a persisted vm" do
-        @env.expects(:require_persisted_vm).once
-        @commands.package
+      context "with no base specified" do
+        should "require a persisted vm" do
+          @env.expects(:require_persisted_vm).once
+          @commands.package
+        end
       end
 
-      should "error and exit if the VM is not powered off" do
-        @persisted_vm.stubs(:powered_off?).returns(false)
-        @commands.expects(:error_and_exit).with(:vm_power_off_to_package).once
-        @persisted_vm.expects(:package).never
-        @commands.package
+      context "with base specified" do
+        setup do
+          @vm = mock("vm")
+
+          Vagrant::VM.stubs(:find).with(@name).returns(@vm)
+          @vm.stubs(:env=).with(@env)
+          @env.stubs(:vm=)
+
+          @name = :bar
+        end
+
+        should "find the given base and set it on the env" do
+          Vagrant::VM.expects(:find).with(@name).returns(@vm)
+          @vm.expects(:env=).with(@env)
+          @env.expects(:vm=).with(@vm)
+
+          @commands.package("foo", { :base => @name })
+        end
+
+        should "error if the VM is not found" do
+          Vagrant::VM.expects(:find).with(@name).returns(nil)
+          @commands.expects(:error_and_exit).with(:vm_base_not_found, :name => @name).once
+
+          @commands.package("foo", { :base => @name })
+        end
       end
 
-      should "call package on the persisted VM" do
-        @persisted_vm.expects(:package).once
-        @commands.package
-      end
+      context "shared (with and without base specified)" do
+        should "error and exit if the VM is not powered off" do
+          @persisted_vm.stubs(:powered_off?).returns(false)
+          @commands.expects(:error_and_exit).with(:vm_power_off_to_package).once
+          @persisted_vm.expects(:package).never
+          @commands.package
+        end
 
-      should "pass the out path and include_files to the package method" do
-        out_path = mock("out_path")
-        include_files = mock("include_files")
-        @persisted_vm.expects(:package).with(out_path, include_files).once
-        @commands.package(out_path, include_files)
-      end
+        should "call package on the persisted VM" do
+          @persisted_vm.expects(:package).once
+          @commands.package
+        end
 
-      should "default to an empty array when not include_files are specified" do
-        out_path = mock("out_path")
-        @persisted_vm.expects(:package).with(out_path, []).once
-        @commands.package(out_path)
+        should "pass the out path and include_files to the package method" do
+          out_path = mock("out_path")
+          include_files = mock("include_files")
+          @persisted_vm.expects(:package).with(out_path, include_files).once
+          @commands.package(out_path, {
+            :include => include_files
+          })
+        end
+
+        should "default to an empty array when not include_files are specified" do
+          out_path = mock("out_path")
+          @persisted_vm.expects(:package).with(out_path, []).once
+          @commands.package(out_path)
+        end
       end
     end
 
