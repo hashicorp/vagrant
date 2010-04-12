@@ -38,7 +38,7 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
     should "share each cookbook folder" do
       share_seq = sequence("share_seq")
       @host_cookbook_paths.each_with_index do |cookbook, i|
-        @env.config.vm.expects(:share_folder).with("vagrant-chef-solo-cookbooks-#{i}", @action.cookbook_path(i), cookbook).in_sequence(share_seq)
+        @env.config.vm.expects(:share_folder).with("vcsc-#{i}", @action.cookbook_path(i), cookbook).in_sequence(share_seq)
       end
 
       @action.share_cookbook_folders
@@ -54,7 +54,7 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
     should "share each role folder" do
       share_seq = sequence("share_seq")
       @host_role_paths.each_with_index do |role, i|
-        @env.config.vm.expects(:share_folder).with("vagrant-chef-solo-roles-#{i}", @action.role_path(i), role).in_sequence(share_seq)
+        @env.config.vm.expects(:share_folder).with("vcsr-#{i}", @action.role_path(i), role).in_sequence(share_seq)
       end
 
       @action.share_role_folders
