@@ -121,18 +121,20 @@ class ConfigTest < Test::Unit::TestCase
       end
     end
 
-    should "convert instance variable hash to json" do
-      @json = mock("json")
-      @iv_hash = mock("iv_hash")
-      @iv_hash.expects(:to_json).once.returns(@json)
-      @base.expects(:instance_variables_hash).returns(@iv_hash)
-      assert_equal @json, @base.to_json
-    end
+    context "converting to JSON" do
+      should "convert instance variable hash to json" do
+        @json = mock("json")
+        @iv_hash = mock("iv_hash")
+        @iv_hash.expects(:to_json).once.returns(@json)
+        @base.expects(:instance_variables_hash).returns(@iv_hash)
+        assert_equal @json, @base.to_json
+      end
 
-    should "not include env in the JSON hash" do
-      @base.env = "FOO"
-      hash = @base.instance_variables_hash
-      assert !hash.has_key?(:env)
+      should "not include env in the JSON hash" do
+        @base.env = "FOO"
+        hash = @base.instance_variables_hash
+        assert !hash.has_key?(:env)
+      end
     end
   end
 
