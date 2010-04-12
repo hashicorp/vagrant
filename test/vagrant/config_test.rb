@@ -128,6 +128,12 @@ class ConfigTest < Test::Unit::TestCase
       @base.expects(:instance_variables_hash).returns(@iv_hash)
       assert_equal @json, @base.to_json
     end
+
+    should "not include env in the JSON hash" do
+      @base.env = "FOO"
+      hash = @base.instance_variables_hash
+      assert !hash.has_key?(:env)
+    end
   end
 
   context "top config class" do

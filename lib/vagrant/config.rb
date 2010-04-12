@@ -51,7 +51,7 @@ module Vagrant
 
       def instance_variables_hash
         instance_variables.inject({}) do |acc, iv|
-          acc[iv.to_s[1..-1].to_sym] = instance_variable_get(iv)
+          acc[iv.to_s[1..-1].to_sym] = instance_variable_get(iv) unless iv.to_sym == :@env
           acc
         end
       end
