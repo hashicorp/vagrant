@@ -37,7 +37,7 @@ module Vagrant
         end
 
         def compress
-          logger.info "Packaging VM into #{tar_path} ..."
+          logger.info "Packaging VM into #{tar_path}..."
           File.open(tar_path, File::CREAT | File::WRONLY, 0644) do |tar|
             Archive::Tar::Minitar::Output.open(tar) do |output|
               begin

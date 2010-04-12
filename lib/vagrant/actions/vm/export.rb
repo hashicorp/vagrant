@@ -34,7 +34,7 @@ module Vagrant
         end
 
         def export
-          logger.info "Exporting VM to #{ovf_path} ..."
+          logger.info "Exporting VM to #{ovf_path}..."
           @runner.vm.export(ovf_path) do |progress|
             update_progress(progress, 100)
           end
