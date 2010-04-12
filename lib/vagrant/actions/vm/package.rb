@@ -57,7 +57,7 @@ module Vagrant
         def create_vagrantfile
           File.open(File.join(temp_path, "Vagrantfile"), "w") do |f|
             f.write(TemplateRenderer.render("package_Vagrantfile", {
-              :base_mac => @runner.env.config.vm.base_mac
+              :base_mac => @runner.vm.network_adapters.first.mac_address
             }))
           end
         end

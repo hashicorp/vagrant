@@ -91,6 +91,10 @@ class PackageActionTest < Test::Unit::TestCase
     setup do
       @temp_path = "foo"
       @action.stubs(:temp_path).returns(@temp_path)
+
+      @network_adapter = mock("nic")
+      @network_adapter.stubs(:mac_address).returns("mac_address")
+      @vm.stubs(:network_adapters).returns([@network_adapter])
     end
 
     should "write the rendered vagrantfile to temp_path Vagrantfile" do
@@ -98,7 +102,7 @@ class PackageActionTest < Test::Unit::TestCase
       rendered = mock("rendered")
       File.expects(:open).with(File.join(@action.temp_path, "Vagrantfile"), "w").yields(f)
       Vagrant::Util::TemplateRenderer.expects(:render).returns(rendered).with("package_Vagrantfile", {
-        :base_mac => @runner.env.config.vm.base_mac
+        :base_mac => @runner.vm.network_adapters.first.mac_address
       })
       f.expects(:write).with(rendered)
 
