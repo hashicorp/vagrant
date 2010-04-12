@@ -191,37 +191,13 @@ If this box is meant to be private, we recommend you create your own custom
 pair of keys and set that up. Users of your box can then specify the private key
 you created by setting `config.ssh.private_key_path`.
 
-### Copy the MAC Address
-
-When the operating system was installed, it typically sets up the basic network devices
-(eth0 and so on) automatically. This includes setting the MAC address of these devices.
-Since configuring these network devices is often very OS-specific, instead of Vagrant
-dynamically setting this at runtime, it forces VirtualBox to use a specific MAC address.
-
-This requires little work on your end, but only needs to be done once per base box.
-Simply run `sudo ifconfig` or the equivalent and copy the MAC address down somewhere on
-your host machine. A screenshot of this is shown below:
-
-![Copying MAC Address](/images/base_box_mac.jpg)
-
-This MAC Address will be used soon. Go ahead and shutdown the virtual machine before continuing.
-
-### Export the Virtual Machine
-
-Next, export the virtual machine with "File" then "Export Appliance." Export it to
-any folder, but make sure the filename is set to `box.ovf`, which is the Vagrant default.
-You may actually name this ovf file anything you wish, but naming it the default has
-no consequence and will make your life easier.
-
-The export process can take several minutes. While that is running, you can progress
-onto the next step.
-
 ### Setup the Vagrantfile
 
-Create a Vagrantfile within the directory which contains the exported virtual
-machine files (i.e. the directory with `box.ovf`). Then setup the contents of
-the Vagrantfile. The following is what the contents of the Vagrantfile should
-look like, well commented to explain each option:
+By default, Vagrant does not forward any ports. You probably want your base box
+to automatically forward SSH, at the very least. This next step allows you to setup
+a Vagrantfile which is packaged with your base box. Create this Vagrantfile in any
+directory. The following shows the contents of a sample Vagrantfile which just
+forwards SSH:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
@@ -229,55 +205,38 @@ Vagrant::Config.run do |config|
   # name of the forwarded port.
   config.ssh.forwarded_port_key = "ssh"
   config.vm.forward_port("ssh", 22, 2222)
-
-  # The name of your OVF file. This probably won't need to be changed
-  # if you exported as box.ovf
-  config.vm.box_ovf = "box.ovf"
-
-  # The MAC address which was copied earlier, without the colons ":"
-  config.vm.base_mac = "0800279C2E42"
 end
 {% endhighlight %}
 
+This Vagrantfile will be used during the packaging phase of base box creation.
+
 ### Package and Distribute
 
-Now that you have the exported virtual machine and the necessary Vagrantfile,
-the final step is to package the contents into a "box" file and distribute it.
-The format of "box" files is nothing special: they're simply tar files. The
-biggest thing is to make sure that all the files in the archive are top-level,
-meaning that the files aren't in a subdirectory.
+Now that you have a completed virtual machine and possibly its accompanying
+Vagrantfile, the final step is to package the contents into a "box" file and
+distribute it. Packaging is done from Vagrant itself. Open a terminal and go
+to the directory where your base box's Vagrantfile is, if you made one. If you
+didn't make one, you can be in any directory.
 
-<div class="info">
-  <h3>Hold on, why not .gz, .bz2, or .7z ?!</h3>
-  <p>
-    Simple. When you export the virtual machine from VirtualBox, it is
-    already compressed. Adding additional compression is slower and yields
-    no smaller box size than just using tar.
-  </p>
-</div>
-
-The following shows how to build the tar archive properly:
+Next, run `vagrant package`, specifying the name of the virtual machine in
+VirtualBox that you want to package:
 
 {% highlight bash %}
-$ cd export_directory
-$ ls
-box.mf box.ovf drive.vmdk Vagrantfile
-$ tar -cvf package.box ./*
+$ vagrant package --base my_base_box --include Vagrantfile
 {% endhighlight %}
 
-As with the export, this can take several minutes. The result is a file called
-`package.box` which can be distributed and installed by Vagrant users.
+This will take a few minutes, but the export will show you a progress bar. The
+result is a file named `package.box` within the same directory which can be
+distributed and installed by Vagrant users.
 
 It would be a good idea to try and add this box to your own Vagrant installation,
 setup a test environment, and try ssh in.
 
 {% highlight bash %}
-$ cd export_directory
 $ vagrant box add my_box package.box
 $ mkdir test_environment
 $ cd test_environment
-$ vagrant init
-# open up Vagrantfile and set config.vm.box to 'my_box'
+$ vagrant init my_box
 $ vagrant up
 $ vagrant ssh
 {% endhighlight %}
