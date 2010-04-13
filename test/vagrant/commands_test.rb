@@ -116,6 +116,13 @@ class CommandsTest < Test::Unit::TestCase
         @env.stubs(:require_root_path)
 
         @commands.stubs(:puts)
+
+        @data = {
+          :host_key => "vagrant",
+          :ssh_user => @env.config.ssh.username,
+          :ssh_port => @env.ssh.port,
+          :private_key_path => @env.config.ssh.private_key_path
+        }
       end
 
       should "require root path" do
@@ -125,15 +132,17 @@ class CommandsTest < Test::Unit::TestCase
 
       should "output rendered template" do
         result = mock("result")
-        Vagrant::Util::TemplateRenderer.expects(:render).with("ssh_config", {
-          :host_key => "vagrant",
-          :ssh_user => @env.config.ssh.username,
-          :ssh_port => @env.ssh.port,
-          :private_key_path => @env.config.ssh.private_key_path
-        }).returns(result)
+        Vagrant::Util::TemplateRenderer.expects(:render).with("ssh_config", @data).returns(result)
 
         @commands.expects(:puts).with(result).once
         @commands.ssh_config
+      end
+
+      should "render with the given host name if given" do
+        opts = { :host => "foo" }
+        @data[:host_key] = opts[:host]
+        Vagrant::Util::TemplateRenderer.expects(:render).with("ssh_config", @data)
+        @commands.ssh_config(opts)
       end
     end
 

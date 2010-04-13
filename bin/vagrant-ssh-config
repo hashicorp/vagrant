@@ -22,7 +22,9 @@ to the current environment.
 
 EOS
 
+  opt :host, "the host key for the entry", :type => :string
+
   run do |command|
-    Vagrant::Commands.execute(:ssh_config)
+    Vagrant::Commands.execute(:ssh_config, command.opts)
   end
 end
