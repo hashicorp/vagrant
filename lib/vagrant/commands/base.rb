@@ -84,17 +84,31 @@ module Vagrant
         self.class.puts_help
       end
 
-      # Parse options out of the command-line. This method uses `optparse`
-      # to parse command line options. A block is required and will yield
-      # the `OptionParser` object along with a hash which can be used to
-      # store options and which will be returned as a result of the function.
-      def parse_options(args)
-        options = {}
-        @parser = OptionParser.new do |opts|
-          yield opts, options
-        end
+      # This method is called by the base class to get the `optparse` configuration
+      # for the command.
+      def options_spec(opts)
+        opts.banner = "Usage: vagrant SUBCOMMAND"
+      end
 
-        @parser.parse!(args)
+      # Returns the `OptionParser` instance to be used with this subcommand,
+      # based on the specs defined in {#options_spec}.
+      def option_parser(reload=false)
+        @option_parser = nil if reload
+        @option_parser ||= OptionParser.new do |opts|
+          options_spec(opts)
+        end
+      end
+
+      # The options for the given command. This will just be an empty hash
+      # until {#parse_options} is called.
+      def options
+        @options ||= {}
+      end
+
+      # Parse options out of the command-line. This method uses `optparse`
+      # to parse command line options.
+      def parse_options(args)
+        option_parser.parse!(args)
         options
       rescue OptionParser::InvalidOption
         show_help
@@ -114,7 +128,7 @@ module Vagrant
           puts "Description: #{description}"
         end
 
-        puts @parser.help
+        puts option_parser.help
         exit
       end
     end

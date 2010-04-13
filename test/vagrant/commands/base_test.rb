@@ -71,36 +71,40 @@ class CommandsBaseTest < Test::Unit::TestCase
       end
     end
 
+    context "getting the option parser" do
+      should "create it with the options spec if it hasn't been created yet" do
+        opts = mock("opts")
+        result = mock("result")
+        OptionParser.expects(:new).yields(opts).returns(result)
+        @instance.expects(:options_spec).with(opts)
+
+        assert_equal result, @instance.option_parser(true)
+      end
+
+      should "not create it once its been created" do
+        result = mock("result")
+        OptionParser.expects(:new).once.returns(result)
+
+        assert_equal result, @instance.option_parser(true)
+        assert_equal result, @instance.option_parser
+        assert_equal result, @instance.option_parser
+      end
+    end
+
     context "parsing options" do
       setup do
         @args = []
+
+        @options = mock("options")
+        @option_parser = mock("option_parser")
+
+        @instance.stubs(:option_parser).returns(@option_parser)
+        @instance.stubs(:options).returns(@options)
       end
 
-      should "return the options hash" do
-        value = mock("foo")
-        result = @instance.parse_options(@args) do |opts, options|
-          options[:foo] = value
-        end
-
-        assert_equal value, result[:foo]
-      end
-
-      should "parse with the given args" do
-        parser = mock("parser")
-
-        OptionParser.stubs(:new).returns(parser)
-        parser.expects(:parse!).with(@args)
-        @instance.parse_options(@args) do; end
-      end
-
-      should "show help if an invalid options error is raised" do
-        parser = mock("parser")
-
-        OptionParser.stubs(:new).returns(parser)
-        parser.expects(:parse!).raises(OptionParser::InvalidOption)
-        @instance.expects(:show_help).once
-
-        @instance.parse_options(@args) do; end
+      should "parse the options with the args" do
+        @option_parser.expects(:parse!).with(@args).once
+        assert_equal @options, @instance.parse_options(@args)
       end
     end
   end

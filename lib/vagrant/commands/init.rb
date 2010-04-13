@@ -5,11 +5,11 @@ module Vagrant
       description "Initializes current folder for Vagrant usage"
 
       def execute(args)
-        parse_options(args) do |opts, options|
-          opts.banner = "Usage: vagrant init [name]"
-        end
-
         create_vagrantfile(args[0])
+      end
+
+      def options_spec(opts)
+        opts.banner = "Usage: vagrant init [name]"
       end
 
       # Actually writes the initial Vagrantfile to the current working directory.
