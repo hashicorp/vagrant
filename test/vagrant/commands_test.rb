@@ -113,6 +113,14 @@ class CommandsTest < Test::Unit::TestCase
         @ssh = mock("ssh")
         @ssh.stubs(:port).returns(2197)
         @env.stubs(:ssh).returns(@ssh)
+        @env.stubs(:require_root_path)
+
+        @commands.stubs(:puts)
+      end
+
+      should "require root path" do
+        @env.expects(:require_root_path).once
+        @commands.ssh_config
       end
 
       should "output rendered template" do

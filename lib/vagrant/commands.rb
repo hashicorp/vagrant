@@ -64,7 +64,7 @@ module Vagrant
     # Outputs a valid entry for .ssh/config which can be used to connect
     # to this environment.
     def ssh_config
-      env.require_persisted_vm
+      env.require_root_path
       puts TemplateRenderer.render("ssh_config", {
         :host_key => "vagrant",
         :ssh_user => env.config.ssh.username,
