@@ -5,6 +5,8 @@ module Vagrant
     # This is the base command class which all sub-commands must
     # inherit from.
     class Base
+      include Util
+
       attr_reader :env
 
       class <<self

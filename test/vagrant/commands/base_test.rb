@@ -1,6 +1,6 @@
 require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
 
-class CommandsBastTest < Test::Unit::TestCase
+class CommandsBaseTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Commands::Base
   end
