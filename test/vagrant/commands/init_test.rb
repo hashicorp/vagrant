@@ -9,7 +9,11 @@ class CommandsInitTest < Test::Unit::TestCase
   end
 
   context "execute" do
-    # TODO
+    should "create the vagrantfile with the first arg" do
+      args = [:foo]
+      @instance.expects(:create_vagrantfile).with(args.first)
+      @instance.execute(args)
+    end
   end
 
   context "creating the vagrantfile" do
