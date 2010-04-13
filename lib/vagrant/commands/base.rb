@@ -56,7 +56,8 @@ module Vagrant
           puts "Usage: vagrant SUBCOMMAND ...\n\n"
 
           puts "Supported commands:"
-          subcommands.each do |key, klass|
+          subcommands.keys.sort.each do |key|
+            klass = subcommands[key]
             puts "#{' ' * 4}#{key.ljust(20)}#{klass.description}"
           end
 
