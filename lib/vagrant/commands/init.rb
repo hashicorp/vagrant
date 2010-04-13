@@ -9,7 +9,7 @@ module Vagrant
           opts.banner = "Usage: vagrant init [name]"
         end
 
-        puts "HEY"
+        show_help
       end
     end
   end

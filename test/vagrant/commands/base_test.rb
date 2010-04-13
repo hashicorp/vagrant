@@ -15,6 +15,7 @@ class CommandsBastTest < Test::Unit::TestCase
 
   context "class methods" do
     setup do
+      @env = mock_environment
       @klass.subcommands.clear
     end
 
@@ -35,17 +36,16 @@ class CommandsBastTest < Test::Unit::TestCase
         @args = [1,2,3]
       end
 
-      should "instantiate and execute on registered subcommands" do
-        instance = mock("instance")
-        @command_klass.expects(:new).with(@env).returns(instance)
-        instance.expects(:execute).with(@args)
-
+      should "call dispatch on child if subcommand is found" do
+        @command_klass.expects(:dispatch).with(@env, *@args)
         @klass.dispatch(@env, @name, *@args)
       end
 
-      should "print help if command doesn't exist" do
-        @klass.expects(:puts_help).once
-        @klass.dispatch(@env, "#{@name}foo")
+      should "instantiate and execute when no subcommand is found" do
+        instance = mock("instance")
+        @klass.expects(:new).with(@env).returns(instance)
+        instance.expects(:execute).with(@args)
+        @klass.dispatch(@env, *@args)
       end
     end
 
@@ -65,11 +65,7 @@ class CommandsBastTest < Test::Unit::TestCase
     end
 
     context "executing" do
-      should "raise an error if called (since not a subclass)" do
-        assert_raises(RuntimeError) {
-          @instance.execute([])
-        }
-      end
+      # TODO
     end
 
     context "parsing options" do

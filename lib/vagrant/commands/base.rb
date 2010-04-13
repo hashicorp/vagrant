@@ -28,15 +28,21 @@ module Vagrant
 
         # Dispatches a subcommand to the proper registered command. Otherwise, it
         # prints a help message.
-        def dispatch(env, name, *args)
-          klass = subcommands[name]
+        def dispatch(env, *args)
+          klass = subcommands[args[0]] unless args.empty?
           if klass.nil?
-            puts_help
-            return # For tests
+            # Run _this_ command!
+            command = self.new(env)
+            command.execute(args)
+            return
           end
 
-          command = klass.new(env)
-          command.execute(args)
+          # Shift off the front arg, since we just consumed it in finding the
+          # subcommand.
+          args.shift
+
+          # Dispatch to the next class
+          klass.dispatch(env, *args)
         end
 
         # Prints out the list of supported commands and their descriptions (if
@@ -71,7 +77,9 @@ module Vagrant
       # executed. The `args` parameter is an array of parameters to the
       # command (similar to ARGV)
       def execute(args)
-        raise "Subcommands should implement the execute method properly."
+        # Just print out the help, since this top-level command does nothing
+        # on its own
+        self.class.puts_help
       end
 
       # Parse options out of the command-line. This method uses `optparse`
@@ -90,10 +98,20 @@ module Vagrant
         show_help
       end
 
+      # Gets the description of the command. This is similar grabbed from the
+      # class level.
+      def description
+        self.class.description
+      end
+
       # Prints the help for the given command. Prior to calling this method,
       # {#parse_options} must be called or a nilerror will be raised. This
       # is by design.
       def show_help
+        if !description.empty?
+          puts "Description: #{description}"
+        end
+
         puts @parser.help
         exit
       end
