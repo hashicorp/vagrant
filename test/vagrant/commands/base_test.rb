@@ -65,7 +65,14 @@ class CommandsBaseTest < Test::Unit::TestCase
     end
 
     context "executing" do
-      should "just print the help" do
+      should "show version if flag is set" do
+        @instance.expects(:puts_version).once
+        @instance.expects(:puts_help).never
+        @instance.execute(["--version"])
+      end
+
+      should "just print the help by default" do
+        @instance.expects(:puts_version).never
         @klass.expects(:puts_help)
         @instance.execute([])
       end

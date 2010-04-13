@@ -20,8 +20,8 @@ module Vagrant
 
     # Execute a subcommand with the given name and args. This method properly
     # finds the subcommand, instantiates it, and executes.
-    def subcommand(name, *args)
-      Commands::Base.dispatch(env, name, *args)
+    def subcommand(*args)
+      Commands::Base.dispatch(env, *args)
     end
   end
 end

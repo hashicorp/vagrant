@@ -3,7 +3,10 @@ require 'optparse'
 module Vagrant
   class Commands
     # This is the base command class which all sub-commands must
-    # inherit from.
+    # inherit from. Subclasses of bases are expected to implement two
+    # methods: {#execute} and {#options_spec} (optional). The former
+    # defines the actual behavior of the command while the latter is a spec
+    # outlining the options that the command may take.
     class Base
       include Util
 
@@ -79,15 +82,36 @@ module Vagrant
       # executed. The `args` parameter is an array of parameters to the
       # command (similar to ARGV)
       def execute(args)
-        # Just print out the help, since this top-level command does nothing
-        # on its own
-        self.class.puts_help
+        parse_options(args)
+
+        if options[:version]
+          puts_version
+        else
+          # Just print out the help, since this top-level command does nothing
+          # on its own
+          self.class.puts_help
+        end
       end
 
       # This method is called by the base class to get the `optparse` configuration
       # for the command.
       def options_spec(opts)
         opts.banner = "Usage: vagrant SUBCOMMAND"
+
+        opts.on("--version", "Output running Vagrant version.") do |v|
+          options[:version] = v
+        end
+      end
+
+      #-------------------------------------------------------------------
+      # Methods below are not meant to be overriden/implemented by subclasses
+      #-------------------------------------------------------------------
+
+      # Shows the version
+      def puts_version
+        File.open(File.join(PROJECT_ROOT, "VERSION"), "r") do |f|
+          puts f.read
+        end
       end
 
       # Returns the `OptionParser` instance to be used with this subcommand,
