@@ -13,9 +13,10 @@ module Vagrant
       #
       # @param [Float] progress Progress
       # @param [Float] total Total
-      def update_progress(progress, total)
+      def update_progress(progress, total, show_parts=true)
         percent = (progress.to_f / total.to_f) * 100
-        print "#{CL_RESET}Progress: #{percent.to_i}% (#{progress} / #{total})"
+        print "#{CL_RESET}Progress: #{percent.to_i}%"
+        print " (#{progress} / #{total})" if show_parts
         $stdout.flush
       end
 
