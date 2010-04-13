@@ -108,6 +108,27 @@ class CommandsTest < Test::Unit::TestCase
       end
     end
 
+    context "ssh-config" do
+      setup do
+        @ssh = mock("ssh")
+        @ssh.stubs(:port).returns(2197)
+        @env.stubs(:ssh).returns(@ssh)
+      end
+
+      should "output rendered template" do
+        result = mock("result")
+        Vagrant::Util::TemplateRenderer.expects(:render).with("ssh_config", {
+          :host_key => "vagrant",
+          :ssh_user => @env.config.ssh.username,
+          :ssh_port => @env.ssh.port,
+          :private_key_path => @env.config.ssh.private_key_path
+        }).returns(result)
+
+        @commands.expects(:puts).with(result).once
+        @commands.ssh_config
+      end
+    end
+
     context "suspend" do
       setup do
         @persisted_vm.stubs(:suspend)

@@ -1,0 +1,28 @@
+#!/usr/bin/env ruby
+begin
+  require File.expand_path('../../.bundle/environment', __FILE__)
+rescue LoadError
+  # Fallback on rubygems
+  require "rubygems"
+end
+
+require 'git-style-binary/command'
+
+# Get library
+libdir = File.join(File.dirname(__FILE__), '..', 'lib')
+require File.expand_path('vagrant', libdir)
+
+GitStyleBinary.command do
+  short_desc "outputs .ssh/config valid syntax for connecting to this environment via ssh"
+  banner <<-EOS
+Usage: #{command.full_name} #{all_options_string}
+
+Outputs a .ssh/config valid entry for connecting (via SCP, git, etc.)
+to the current environment.
+
+EOS
+
+  run do |command|
+    Vagrant::Commands.execute(:ssh_config)
+  end
+end

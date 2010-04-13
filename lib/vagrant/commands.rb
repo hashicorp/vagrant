@@ -61,6 +61,18 @@ module Vagrant
       env.ssh.connect
     end
 
+    # Outputs a valid entry for .ssh/config which can be used to connect
+    # to this environment.
+    def ssh_config
+      env.require_persisted_vm
+      puts TemplateRenderer.render("ssh_config", {
+        :host_key => "vagrant",
+        :ssh_user => env.config.ssh.username,
+        :ssh_port => env.ssh.port,
+        :private_key_path => env.config.ssh.private_key_path
+      })
+    end
+
     # Halts a running vagrant instance. This forcibly halts the instance;
     # it is the equivalent of pulling the power on a machine. The instance
     # can be restarted again with {up}.
