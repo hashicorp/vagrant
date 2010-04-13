@@ -189,11 +189,11 @@ module Vagrant
       @active_list = ActiveList.new(self)
     end
 
-    # Loads the instance of {Commands} for this environment. This allows
+    # Loads the instance of {Command} for this environment. This allows
     # users of the instance to run commands such as "up" "down" etc. in
     # the context of this environment.
     def load_commands!
-      @commands = Commands.new(self)
+      @commands = Command.new(self)
     end
 
     #---------------------------------------------------------------

@@ -424,7 +424,7 @@ class EnvironmentTest < Test::Unit::TestCase
 
       should "initialize the Commands object with the given environment" do
         commands = mock("commands")
-        Vagrant::Commands.expects(:new).with(@env).returns(commands)
+        Vagrant::Command.expects(:new).with(@env).returns(commands)
         @env.load_commands!
         assert_equal commands, @env.commands
       end
