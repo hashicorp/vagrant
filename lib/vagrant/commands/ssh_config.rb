@@ -1,10 +1,7 @@
 module Vagrant
   class Commands
-    # Reload the environment. This is almost equivalent to the {up} command
-    # except that it doesn't import the VM and do the initialize bootstrapping
-    # of the instance. Instead, it forces a shutdown (if its running) of the
-    # VM, updates the metadata (shared folders, forwarded ports), restarts
-    # the VM, and then reruns the provisioning if enabled.
+    # Outputs a valid entry for .ssh/config which can be used to connect
+    # to this environment.
     class SSHConfig < Base
       Base.subcommand "ssh-config", self
       description "outputs .ssh/config valid syntax for connecting to this environment via ssh"
