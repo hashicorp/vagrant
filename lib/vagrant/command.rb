@@ -21,18 +21,7 @@ module Vagrant
     # Execute a subcommand with the given name and args. This method properly
     # finds the subcommand, instantiates it, and executes.
     def subcommand(name, *args)
-      command_klass = Commands.const_get(camelize(name))
-      command = command_klass.new(env)
-      command.execute(args)
-    end
-
-    # Camel-case a string.
-    def camelize(string)
-      parts = string.to_s.split(/[^a-z0-9]/).collect do |part|
-        part.capitalize
-      end
-
-      parts.join("")
+      Commands::Base.dispatch(env, name, *args)
     end
   end
 end

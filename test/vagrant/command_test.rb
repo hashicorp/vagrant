@@ -43,28 +43,10 @@ class CommandTest < Test::Unit::TestCase
         @instance.stubs(:camelize).with(@raw_name).returns(@name)
       end
 
-      should "send the command to the proper class" do
-        klass = mock("klass")
-        instance = mock("instance")
+      should "send the env, name, and args to the base class" do
         args = [1,2,3]
-        Vagrant::Commands.expects(:const_get).with(@name).returns(klass)
-        klass.expects(:new).with(@env).returns(instance)
-        instance.expects(:execute).with(args)
-
-        @instance.subcommand(@raw_name, *args)
-      end
-    end
-
-    context "camelizing" do
-      should "camel case a string" do
-        tests = {
-          "foo_bar_baz" => "FooBarBaz",
-          "ssh-config" => "SshConfig"
-        }
-
-        tests.each do |test, expected|
-          assert_equal expected, @instance.camelize(test)
-        end
+        Vagrant::Commands::Base.expects(:dispatch).with(@env, @name, *args)
+        @instance.subcommand(@name, *args)
       end
     end
   end
