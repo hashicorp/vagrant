@@ -65,7 +65,10 @@ class CommandsBastTest < Test::Unit::TestCase
     end
 
     context "executing" do
-      # TODO
+      should "just print the help" do
+        @klass.expects(:puts_help)
+        @instance.execute([])
+      end
     end
 
     context "parsing options" do
