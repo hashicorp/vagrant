@@ -1,6 +1,4 @@
 #!/usr/bin/env ruby
-require 'rubygems'
-
 # Get library
 libdir = File.join(File.dirname(__FILE__), '..', 'lib')
 require File.expand_path('vagrant', libdir)
