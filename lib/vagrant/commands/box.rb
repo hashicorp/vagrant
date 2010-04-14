@@ -4,7 +4,7 @@ module Vagrant
     # and remove boxes. This single command, given an array, determines
     # which action to take and calls the respective action method
     # (see {box_add} and {box_remove})
-    class Box < Base
+    class BoxCommand < Base
       Base.subcommand "box", self
       description "Box commands"
 
