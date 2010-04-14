@@ -1,8 +1,8 @@
 module Vagrant
   class Commands
-    # Export and package the current vm
-    #
-    # This command requires that an instance be powered off
+    # Outputs the status of the current environment. This command outputs
+    # useful information such as whether or not the environment is created
+    # and if its running, suspended, etc.
     class Status < Base
       Base.subcommand "status", self
       description "Shows the status of the current environment."
