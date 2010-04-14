@@ -1,15 +1,9 @@
 #!/usr/bin/env ruby
-begin
-  require File.expand_path('../../.bundle/environment', __FILE__)
-rescue LoadError
-  # Fallback on rubygems
-  require "rubygems"
-end
+require 'rubygems'
 
-require 'git-style-binary/command'
+# Get library
+libdir = File.join(File.dirname(__FILE__), '..', 'lib')
+require File.expand_path('vagrant', libdir)
 
-GitStyleBinary.primary do
-  version "0.2.0"
-
-  run { educate }
-end
+# Call the command
+Vagrant::Command.execute(*ARGV)
