@@ -24,5 +24,11 @@ class CommandsBoxAddTest < Test::Unit::TestCase
       Vagrant::Box.expects(:add).with(@env, @name, @path).once
       @instance.execute([@name, @path])
     end
+
+    should "show help if not enough arguments" do
+      Vagrant::Box.expects(:add).never
+      @instance.expects(:show_help).once
+      @instance.execute([])
+    end
   end
 end
