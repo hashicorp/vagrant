@@ -9,7 +9,12 @@ module Vagrant
 
       def execute(args=[])
         wrap_output do
-          if !env.vm
+          if !env.root_path
+            puts <<-msg
+No vagrant environment detected. Run `vagrant init` to setup a Vagrantfile
+in the current directory to get started with Vagrant.
+msg
+          elsif !env.vm
             puts <<-msg
 The environment has not yet been created. Run `vagrant up` to create the
 environment.
