@@ -58,6 +58,8 @@ module Vagrant
           puts "Supported commands:"
           subcommands.keys.sort.each do |key|
             klass = subcommands[key]
+            next if klass.description.empty?
+
             puts "#{' ' * 4}#{key.ljust(20)}#{klass.description}"
           end
 
