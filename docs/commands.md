@@ -5,33 +5,28 @@ title: Documentation - Commands
 # Commands
 
 The main interface to Vagrant is through the `vagrant` command line tools. `vagrant`
-is a "git-style" binary, meaning that it has various other binaries that are prefixed
-with "vagrant" but can be used with a space between them. Let's take a look if at
-all the vagrant binaries:
+has many other subcommands which are invoked through it, for example `vagrant up` and
+`vagrant package`. To learn about all the available subcommands through `vagrant`, simply
+run `vagrant` alone:
 
 {% highlight bash %}
-# Hitting tab to have our shell complete the filename with available binaries
 $ vagrant
-vagrant
-vagrant-box
-vagrant-destroy
-vagrant-halt
-vagrant-init
-vagrant-package
-vagrant-reload
-vagrant-resume
-vagrant-ssh
-vagrant-status
-vagrant-suspend
-vagrant-up
+Usage: vagrant SUBCOMMAND ...
+
+Supported commands:
+    box                 Box commands
+    destroy             Destroys the vagrant environment
+    halt                Halts the currently running vagrant environment
+    init                Initializes current folder for Vagrant usage
+    package             Packages a vagrant environment for distribution
+    reload              Reload the vagrant environment
+    resume              Resumes a suspend vagrant environment
+    ssh                 SSH into the currently running environment
+    ssh-config          outputs .ssh/config valid syntax for connecting to this environment via ssh
+    status              Shows the status of the current environment.
+    suspend             Suspends the currently running vagrant environment
+    up                  Creates the vagrant environment
 {% endhighlight %}
-
-But just like git, we can use any of these tools by using a space instead of a
-hyphen, so `vagrant init` is the same as `vagrant-init`.
-
-Each binary has its own documentation associated with it as well. By running
-`vagrant help COMMAND`, the documentation will show for the given command.
-But we'll go over each binary here, as well.
 
 <a name="vagrant-box"> </a>
 ## vagrant box
@@ -92,6 +87,32 @@ Working from the command line inside your box is accomplished with a vanilla ssh
 you could use ssh directly, but using `vagrant ssh` means you don't have to remember the login information
 or what port ssh is forwarded to from your box. To learn more about those settings see the section on the [Vagrantfile](/docs/vagrantfile.html).
 If you're box is booted simply run `vagrant ssh` from the root of your project directory.
+
+<a name="vagrant-ssh-config"> </a>
+## vagrant ssh-config
+
+Although Vagrant provides direct access to SSH with the created environment via `vagrant ssh`, its
+sometimes useful to be able to access the environment via a tool such as SCP or git, which requires
+an entry in `.ssh/config`. `vagrant ssh-config` outputs a valid entry for `.ssh/config` which can
+simply be appended to the file. Example output:
+
+{% highlight bash %}
+$ vagrant ssh-config
+Host vagrant
+  HostName localhost
+  User vagrant
+  Port 2222
+  UserKnownHostsFile /dev/null
+  StrictHostKeyChecking no
+  IdentityFile /opt/local/lib/ruby/gems/1.8/gems/vagrant-0.3.0/keys/vagrant
+{% endhighlight %}
+
+Then, after putting this entry into my `.ssh/config`, I could do something like the following,
+to show a single example:
+
+{% highlight bash %}
+$ scp vagrant:/vagrant/my_file.txt ~/Desktop/my_file.txt
+{% endhighlight %}
 
 <a name="vagrant-status"> </a>
 ## vagrant status
