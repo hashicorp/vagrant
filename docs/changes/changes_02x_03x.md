@@ -9,9 +9,18 @@ and based on the feedback in `#vagrant`, the mailing list, and twitter, people h
 using Vagrant quite successfully.
 
 This stability allowed us to focus on refinement and new features for Vagrant `0.3.x`.
-Best of all, there are **no backwards incompatible** changes in `0.3.x`
 
 **TODO BEFORE 0.3.x RELASE: MUCH MORE TO COME**
+
+## `vagrant` Command Changes
+
+`vagrant down` is now `vagrant destroy`. A deprecation warning has been inserted
+into `0.3.0` but will be removed completely for any subsequent release.
+
+Additionally, the `vagrant` commands are no longer "git style" binaries. This means
+that the `vagrant up` is no longer equivalent to `vagrant-up`. The space is now
+mandatory. This was required to improve extensibility and functionality of the
+specific commands.
 
 ## Improved Packaging
 
