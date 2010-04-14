@@ -1,9 +1,6 @@
 module Vagrant
   class Commands
-    # Manages the `vagrant box` command, allowing the user to add
-    # and remove boxes. This single command, given an array, determines
-    # which action to take and calls the respective action method
-    # (see {box_add} and {box_remove})
+    # Adds a box to the local filesystem, given a URI.
     module Box
       class Add < BoxCommand
         BoxCommand.subcommand "add", self
