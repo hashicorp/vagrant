@@ -1,6 +1,6 @@
 ---
 layout: getting_started
-title: Windows
+title: Getting Started - Setting up Windows
 ---
 # Windows
 
