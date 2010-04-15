@@ -52,9 +52,11 @@
 
   To change this value, please see `config.vagrant.dotfile_name`
 
-  This often exists if you're trying to create a Vagrant virtual
-  environment from your home directory. To resolve this, you can either
-  modify the configuration a bit, or simply use a different directory.
+  Are you trying to use Vagrant from your home directory? This is the
+  leading cause of this error message. To resolve this, simply use a
+  different directory. Or, if you really want to run Vagrant from your
+  home directory, modify the `config.vagrant.dotfile_name` configuration
+  key.
 :downloader_file_doesnt_exist: |-
   The given box does not exist on the file system:
 
@@ -94,7 +96,7 @@
      <%= key_path %>.ppk
 
   for use with Putty. To do this create a new Putty session for
-  vagrant@localhost on port <%= ssh_port %>, in the Connection>SSH>Auth
+  `vagrant@localhost` on port `<%= ssh_port %>`, in the Connection>SSH>Auth
   configuration section navigate to the vagrant.ppk file,
   select it, save the session for later use, and connect.
 
@@ -103,7 +105,8 @@
      http://vagrantup.com/docs/getting-started/windows.html
 
 :virtualbox_import_failure: |-
-  The VM import failed! Try running `VBoxManage import` on the box file manually for more verbose error output.
+  The VM import failed! Try running `VBoxManage import` on the box file
+  manually for more verbose error output.
 :virtualbox_invalid_version: |-
   Vagrant has detected that you have VirtualBox version <%= version %> installed!
   Vagrant requires that you use at least VirtualBox version 3.1. Please install
