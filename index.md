@@ -12,8 +12,7 @@ getting started guide on "[Why Vagrant?](/docs/getting-started/why.html)"
 
 Are you ready to revolutionize the way you work? Check out
 the [getting started guide](/docs/getting-started/index.html), the
-[getting started video](http://vimeo.com/9976342), or if you're using
-Windows see [here](/docs/getting-started/windows.html).
+[getting started video](http://vimeo.com/9976342).
 
 ## Your First Vagrant Virtual Environment
 
