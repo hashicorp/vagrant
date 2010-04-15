@@ -45,6 +45,13 @@ module Vagrant
       end
 
       def wait_for_not_busy(sleeptime=5)
+        if @@trap_thread
+          logger.info "Exiting vagrant immediately!"
+          Thread.kill(@@trap_thread)
+          abort
+          return # for tests
+        end
+
         @@trap_thread ||= Thread.new do
           # Wait while the app is busy
           loop do

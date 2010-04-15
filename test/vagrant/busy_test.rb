@@ -1,19 +1,28 @@
 require File.join(File.dirname(__FILE__), '..', 'test_helper')
 
 class BusyTest < Test::Unit::TestCase
+  setup do
+    @klass = Vagrant::Busy
+  end
+
   context "waiting for not busy" do
     setup do
-      Vagrant::Busy.reset_trap_thread!
+      @klass.reset_trap_thread!
     end
 
     should "run in a thread" do
       Thread.expects(:new).once.returns(nil)
-      Vagrant::Busy.wait_for_not_busy
+      @klass.wait_for_not_busy
     end
 
-    should "not start a thread multiple times" do
-      Thread.expects(:new).once.returns("foo")
-      Vagrant::Busy.wait_for_not_busy
+    should "immediately exit on second call" do
+      tid = "foo"
+      Thread.expects(:new).once.returns(tid)
+      @klass.wait_for_not_busy
+
+      Thread.expects(:kill).once.with(tid)
+      @klass.expects(:abort).once
+      @klass.wait_for_not_busy
     end
   end
 
@@ -42,7 +51,7 @@ class BusyTest < Test::Unit::TestCase
     should "complete the trap thread even if an exception occurs" do
       trap_thread = mock("trap_thread")
       trap_thread.expects(:join).once
-      Vagrant::Busy.stubs(:trap_thread).returns(trap_thread)
+      @klass.stubs(:trap_thread).returns(trap_thread)
 
       assert_raise Exception do
         Vagrant.busy do
