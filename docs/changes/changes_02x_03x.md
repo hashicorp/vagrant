@@ -10,7 +10,16 @@ using Vagrant quite successfully.
 
 This stability allowed us to focus on refinement and new features for Vagrant `0.3.x`.
 
-**TODO BEFORE 0.3.x RELASE: MUCH MORE TO COME**
+## Microsoft Windows Support!
+
+Vagrant now officially supports Windows as a host machine. Web developers stuck on
+Windows can now develop in linux environments while continuing to use RubyMine or
+any text editor you prefer on Windows.
+
+**Windows support is very beta. Its known to work on Windows XP but Vista and
+Windows 7 are untested.**
+
+For a quick-start guide on Windows, see our [Windows setup guide](/docs/getting-started/setup/windows.html).
 
 ## `vagrant` Command Changes
 
