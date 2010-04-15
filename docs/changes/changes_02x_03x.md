@@ -82,3 +82,12 @@ Roles can now be used with chef solo by specifying a path to the roles
 directory with `config.chef.roles_path`. Roles can then be added to the
 chef run list just like chef server. For more details on how to configure
 roles for chef solo, read [the official documentation](http://wiki.opscode.com/display/chef/Chef+Solo#ChefSolo-Roles).
+
+#### Refinement, Refinement, Refinement
+
+While `0.2.x` had no showstopper bugs, it certainly had its share of odd
+behavior, edge case bugs, etc. All out-standing bugs in the [issue tracker](http://github.com/mitchellh/vagrant/issues)
+have been closed (as of this writing) and Vagrant is more stable than ever.
+
+As always, if you run into any troubles, please report the issue on the
+GitHub [issue tracker](http://github.com/mitchellh/vagrant/issues).
