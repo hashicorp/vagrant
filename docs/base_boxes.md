@@ -128,6 +128,15 @@ Then restart sudo using `/etc/init.d/sudo restart` (command may defer on operati
 Finally, verify that sudo works without a password, but running `exit` out of the root
 account, then `sudo which sudo`. You should get output similar to `/usr/bin/sudo`.
 
+<div class="info">
+  <h3>Disable <code>requiretty</code></h3>
+  <p>
+    Some distros automatically enabled <code>requiretty</code> within the sudo
+    configuration. If so, there will be a line that looks like <code>Defaults requiretty</code>.
+    Make sure this line is commented, otherwise Vagrant will fail.
+  </p>
+</div>
+
 ### Install VirtualBox Guest Additions
 
 Now we have the permissions, lets gets shared folders and port forwarding working so we
