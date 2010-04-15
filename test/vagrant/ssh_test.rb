@@ -15,6 +15,8 @@ class SshTest < Test::Unit::TestCase
       @ssh.stubs(:check_key_permissions)
       @ssh.stubs(:error_and_exit)
       Kernel.stubs(:exec)
+
+      Vagrant::Util::Platform.stubs(:leopard?).returns(false)
     end
 
     should "check key permissions prior to exec" do
@@ -38,7 +40,21 @@ class SshTest < Test::Unit::TestCase
       @ssh.connect(args)
     end
 
-    context "cheching windows" do
+    context "on leopard" do
+      setup do
+        Vagrant::Util::Platform.stubs(:leopard?).returns(true)
+      end
+
+      should "fork, exec, and wait" do
+        pid = mock("pid")
+        @ssh.expects(:fork).once.returns(pid)
+        Process.expects(:wait).with(pid)
+
+        @ssh.connect
+      end
+    end
+
+    context "checking windows" do
       should "error and exit if the platform is windows" do
         Mario::Platform.expects(:windows?).returns(true)
         @ssh.expects(:error_and_exit).with do |error_name, opts|

@@ -18,7 +18,7 @@ module Vagrant
     # of options which override the configuration values.
     def connect(opts={})
       if Mario::Platform.windows?
-        error_and_exit(:ssh_unavailable_windows, 
+        error_and_exit(:ssh_unavailable_windows,
                        :key_path => env.config.ssh.private_key_path,
                        :ssh_port => port(opts))
       end
@@ -29,7 +29,14 @@ module Vagrant
       end
 
       check_key_permissions(options[:private_key_path])
-      Kernel.exec "ssh -p #{port(opts)} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i #{options[:private_key_path]} #{options[:username]}@#{options[:host]}".strip
+
+      # Some hackery going on here. On Mac OS X Leopard (10.5), exec fails
+      # (GH-51). As a workaround, we fork and wait. On all other platforms,
+      # we simply exec.
+      pid = nil
+      pid = fork if Util::Platform.leopard?
+      Kernel.exec "ssh -p #{port(opts)} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i #{options[:private_key_path]} #{options[:username]}@#{options[:host]}".strip if pid.nil?
+      Process.wait(pid) if pid
     end
 
     # Opens an SSH connection to this environment's virtual machine and yields
