@@ -4,9 +4,6 @@ module Vagrant
     # to standard out. The progress meter shows the progress of an operation
     # with console-animated text in stdout.
     module ProgressMeter
-      # ANSI escape code to clear lines from cursor to end of line
-      CL_RESET = "\r\e[0K"
-
       # Updates the progress meter with the given progress amount and total.
       # This method will do the math to figure out a percentage and show it
       # within stdout.
@@ -15,7 +12,7 @@ module Vagrant
       # @param [Float] total Total
       def update_progress(progress, total, show_parts=true)
         percent = (progress.to_f / total.to_f) * 100
-        print "#{CL_RESET}Progress: #{percent.to_i}%"
+        print "#{cl_reset}Progress: #{percent.to_i}%"
         print " (#{progress} / #{total})" if show_parts
         $stdout.flush
       end
@@ -23,7 +20,13 @@ module Vagrant
       # Completes the progress meter by resetting it off of the screen.
       def complete_progress
         # Just clear the line back out
-        print "#{CL_RESET}"
+        print "#{cl_reset}"
+      end
+
+      def cl_reset
+        reset = "\r"
+        reset += "\e[0K" unless Mario::Platform.windows?
+        reset
       end
     end
   end
