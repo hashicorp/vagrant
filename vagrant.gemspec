@@ -157,6 +157,7 @@ Gem::Specification.new do |s|
      "test/vagrant/provisioners/chef_test.rb",
      "test/vagrant/ssh_test.rb",
      "test/vagrant/util/errors_test.rb",
+     "test/vagrant/util/progress_meter_test.rb",
      "test/vagrant/util/stacked_proc_runner_test.rb",
      "test/vagrant/util/template_renderer_test.rb",
      "test/vagrant/util_test.rb",
@@ -225,6 +226,7 @@ Gem::Specification.new do |s|
      "test/vagrant/provisioners/chef_test.rb",
      "test/vagrant/ssh_test.rb",
      "test/vagrant/util/errors_test.rb",
+     "test/vagrant/util/progress_meter_test.rb",
      "test/vagrant/util/stacked_proc_runner_test.rb",
      "test/vagrant/util/template_renderer_test.rb",
      "test/vagrant/util_test.rb",
@@ -241,14 +243,14 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<net-scp>, [">= 1.0.2"])
       s.add_runtime_dependency(%q<json_pure>, [">= 1.2.0"])
       s.add_runtime_dependency(%q<archive-tar-minitar>, ["= 0.5.2"])
-      s.add_runtime_dependency(%q<mario>, ["= 0.0.6"])
+      s.add_runtime_dependency(%q<mario>, ["~> 0.0.6"])
     else
       s.add_dependency(%q<virtualbox>, ["~> 0.6.0"])
       s.add_dependency(%q<net-ssh>, [">= 2.0.19"])
       s.add_dependency(%q<net-scp>, [">= 1.0.2"])
       s.add_dependency(%q<json_pure>, [">= 1.2.0"])
       s.add_dependency(%q<archive-tar-minitar>, ["= 0.5.2"])
-      s.add_dependency(%q<mario>, ["= 0.0.6"])
+      s.add_dependency(%q<mario>, ["~> 0.0.6"])
     end
   else
     s.add_dependency(%q<virtualbox>, ["~> 0.6.0"])
@@ -256,7 +258,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<net-scp>, [">= 1.0.2"])
     s.add_dependency(%q<json_pure>, [">= 1.2.0"])
     s.add_dependency(%q<archive-tar-minitar>, ["= 0.5.2"])
-    s.add_dependency(%q<mario>, ["= 0.0.6"])
+    s.add_dependency(%q<mario>, ["~> 0.0.6"])
   end
 end
 

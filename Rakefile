@@ -15,7 +15,7 @@ begin
     gemspec.add_dependency('net-scp', '>= 1.0.2')
     gemspec.add_dependency('json_pure', '>= 1.2.0')
     gemspec.add_dependency('archive-tar-minitar', '= 0.5.2')
-    gemspec.add_dependency('mario', '= 0.0.6')
+    gemspec.add_dependency('mario', '~> 0.0.6')
   end
   Jeweler::GemcutterTasks.new
 rescue LoadError
