@@ -31,6 +31,21 @@ Here is a link directly to the [download page](http://www.virtualbox.org/wiki/Do
   </p>
 </div>
 
+## Setting up Ruby and RubyGems
+
+Although Vagrant is written in Ruby, web developers from many different languages
+come to use it (Python, Java, Clojure, etc.). Therefore, if you've never setup Ruby
+or RubyGems before, please check out our basic guides, written for different
+popular operating systems listed below:
+
+* [Windows](/docs/getting-started/setup/windows.html)
+* [Mac OS X](/docs/getting-started/setup/mac.html)
+* [Ubuntu](/docs/getting-started/setup/ubuntu.html)
+
+Is your OS not listed above? Feel free ask for help via our [support channels](/support.html).
+Or if you figure it out on your own, let us know how and we'll gladly update the
+website.
+
 ## Install Vagrant
 
 Vagrant is packaged as a [RubyGem](http://rubygems.org/). Since Vagrant is written

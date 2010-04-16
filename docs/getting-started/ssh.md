@@ -23,6 +23,19 @@ Last login: Fri Mar  5 23:21:47 2010 from 10.0.2.2
 vagrant@vagrantbase:~$
 {% endhighlight %}
 
+<div class="info">
+  <h3>Using Microsoft Windows?</h3>
+  <p>
+    SSH is not easy to install or use from the Windows command-line. Instead,
+    Vagrant provides you with a <code>ppk</code> file which can be used with
+    <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/">PuTTY</a> to
+    connect to your virtual environments.
+  </p>
+  <p>
+    Read more about this issue on the <a href="/docs/getting-started/setup/windows.html">Windows setup page</a>.
+  </p>
+</div>
+
 ## Accessing the Project Files
 
 Vagrant bridges your application with the virtual environment by using a

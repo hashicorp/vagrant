@@ -8,14 +8,13 @@ This initial section will introduce the binaries and Vagrantfile, which are
 used extensively in controlling Vagrant. The remainder of the getting started
 guides assumes this basic knowledge.
 
-## Vagrant Binaries
+## Vagrant Binary
 
 Once Vagrant is installed, it is typically controlled through the `vagrant`
-command line interface. Vagrant comes with around 10 separate binaries, all prefixed
-with `vagrant`, such as `vagrant-up`, `vagrant-ssh`, and `vagrant-package`. These are
-known as _git style binaries_ (since they mimic git). Taking it one step further,
-the hyphen between the commands are optional. To call `vagrant-up` for example, you
-could just do `vagrant up` and the two commands would behave the exact same way.
+command line interface. The `vagrant` binary has many "subcommands" which can be
+invoked which handle all the functionality within Vagrant, such as `vagrant up`,
+`vagrant ssh`, and `vagrant package`, to name a few. To discover all the supported
+subcommands, just run `vagrant` alone, and it'll list them out for you:
 
 ## The Vagrantfile
 
