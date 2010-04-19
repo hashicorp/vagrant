@@ -7,7 +7,7 @@ class AddBoxActionTest < Test::Unit::TestCase
 
   context "prepare" do
     setup do
-      @default_order = [Vagrant::Actions::Box::Download, Vagrant::Actions::Box::Unpackage]
+      @default_order = [Vagrant::Actions::Box::Download, Vagrant::Actions::Box::Unpackage, Vagrant::Actions::Box::Verify]
       @runner.stubs(:directory).returns("foo")
       File.stubs(:exists?).returns(false)
     end

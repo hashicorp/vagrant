@@ -4,7 +4,6 @@ module Vagrant
       # This action unpackages a downloaded box file into its final
       # box destination within the vagrant home folder.
       class Unpackage < Base
-
         def execute!
           @runner.invoke_around_callback(:unpackage) do
             setup_box_dir

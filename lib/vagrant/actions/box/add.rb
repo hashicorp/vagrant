@@ -15,6 +15,7 @@ module Vagrant
 
           @runner.add_action(Download)
           @runner.add_action(Unpackage)
+          @runner.add_action(Verify)
         end
       end
     end
