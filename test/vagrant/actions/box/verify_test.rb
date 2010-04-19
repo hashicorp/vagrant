@@ -33,12 +33,12 @@ class VerifyBoxActionTest < Test::Unit::TestCase
 
     should "create new appliance and return true if succeeds" do
       VirtualBox::Appliance.expects(:new).with(@runner.ovf_file)
-      assert @action.verify_appliance
+      assert_nothing_raised { @action.verify_appliance }
     end
 
     should "return false if an exception is raised" do
       VirtualBox::Appliance.expects(:new).with(@runner.ovf_file).raises(VirtualBox::Exceptions::FileErrorException)
-      assert !@action.verify_appliance
+      assert_raises(Vagrant::Actions::ActionException) { @action.verify_appliance }
     end
   end
 end

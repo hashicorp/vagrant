@@ -23,9 +23,8 @@ module Vagrant
         def verify_appliance
           # We now try to read the applince. If it succeeds, we return true.
           VirtualBox::Appliance.new(@runner.ovf_file)
-          true
         rescue VirtualBox::Exceptions::FileErrorException
-          false
+          raise ActionException.new(:box_verification_failed)
         end
       end
     end

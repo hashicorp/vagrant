@@ -17,6 +17,9 @@
 
   The box must be added through the `vagrant box add` command. Please view
   the documentation associated with the command for more information.
+:box_verification_failed: |-
+  The specified box is invalid. This can commonly be attributed to incorrectly
+  typing in the path to the box or invalid packaging of the box.
 :box_not_specified: |-
   No base box was specified! A base box is required as a staring point
   for every vagrant virtual machine. Please specify one in your Vagrantfile
