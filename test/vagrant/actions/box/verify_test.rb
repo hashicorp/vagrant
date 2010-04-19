@@ -28,19 +28,16 @@ class VerifyBoxActionTest < Test::Unit::TestCase
 
   context "verifying appliance" do
     setup do
-      @box = mock("box")
-      @box.stubs(:ovf_file).returns("foo")
-
-      @runner.env.stubs(:box).returns(@box)
+      @runner.stubs(:ovf_file).returns("foo")
     end
 
     should "create new appliance and return true if succeeds" do
-      VirtualBox::Appliance.expects(:new).with(@box.ovf_file)
+      VirtualBox::Appliance.expects(:new).with(@runner.ovf_file)
       assert @action.verify_appliance
     end
 
     should "return false if an exception is raised" do
-      VirtualBox::Appliance.expects(:new).with(@box.ovf_file).raises(VirtualBox::Exceptions::FileErrorException)
+      VirtualBox::Appliance.expects(:new).with(@runner.ovf_file).raises(VirtualBox::Exceptions::FileErrorException)
       assert !@action.verify_appliance
     end
   end

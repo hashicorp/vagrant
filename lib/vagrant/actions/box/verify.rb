@@ -6,6 +6,7 @@ module Vagrant
       # the box is assumed to be valid.
       class Verify < Base
         def execute!
+          logger.info "Verifying box..."
           reload_configuration
           verify_appliance
         end
@@ -21,7 +22,7 @@ module Vagrant
 
         def verify_appliance
           # We now try to read the applince. If it succeeds, we return true.
-          VirtualBox::Appliance.new(@runner.env.box.ovf_file)
+          VirtualBox::Appliance.new(@runner.ovf_file)
           true
         rescue VirtualBox::Exceptions::FileErrorException
           false
