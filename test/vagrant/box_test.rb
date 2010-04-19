@@ -112,6 +112,7 @@ class BoxTest < Test::Unit::TestCase
   context "instance methods" do
     setup do
       @box = Vagrant::Box.new
+      @box.env = mock_environment
     end
 
     should "execute the Add action when add is called" do
@@ -141,10 +142,12 @@ class BoxTest < Test::Unit::TestCase
     context "ovf file" do
       setup do
         @box.stubs(:directory).returns("foo")
+
+        @box.env.config.vm.box_ovf = "foo.ovf"
       end
 
       should "be the directory joined with the config ovf file" do
-        assert_equal File.join(@box.directory, Vagrant.config.vm.box_ovf), @box.ovf_file
+        assert_equal File.join(@box.directory, @box.env.config.vm.box_ovf), @box.ovf_file
       end
     end
   end

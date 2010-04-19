@@ -126,7 +126,7 @@ module Vagrant
     #
     # @return [String]
     def ovf_file
-      File.join(directory, Vagrant.config.vm.box_ovf)
+      File.join(directory, env.config.vm.box_ovf)
     end
 
     # Begins the process of adding a box to the vagrant installation. This
