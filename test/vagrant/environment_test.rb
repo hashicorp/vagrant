@@ -24,6 +24,13 @@ class EnvironmentTest < Test::Unit::TestCase
       VirtualBox.expects(:version).returns(version)
       Vagrant::Environment.check_virtualbox!
     end
+
+    should "error and exit for OSE VirtualBox" do
+      version = "3.1.6_OSE"
+      Vagrant::Environment.expects(:error_and_exit).with(:virtualbox_invalid_ose, :version => version.to_s).once
+      VirtualBox.expects(:version).returns(version)
+      Vagrant::Environment.check_virtualbox!
+    end
   end
 
   context "class method load!" do

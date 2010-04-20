@@ -37,6 +37,8 @@ module Vagrant
           error_and_exit(:virtualbox_not_detected)
         elsif version.to_f < 3.1
           error_and_exit(:virtualbox_invalid_version, :version => version.to_s)
+        elsif version.to_s.downcase.include?("ose")
+          error_and_exit(:virtualbox_invalid_ose, :version => version.to_s)
         end
       end
     end
