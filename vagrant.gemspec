@@ -5,9 +5,9 @@
 
 Gem::Specification.new do |s|
   s.name = %q{vagrant}
-  s.version = "0.3.1.pre"
+  s.version = "0.3.1"
 
-  s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
+  s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Mitchell Hashimoto", "John Bender"]
   s.date = %q{2010-04-21}
   s.default_executable = %q{vagrant}
