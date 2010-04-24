@@ -1,7 +1,7 @@
 source :gemcutter
 
 # Gems required for the lib to even run
-gem "virtualbox", "~> 0.6.0"
+gem "virtualbox", "~> 0.6.1"
 gem "net-ssh", ">= 2.0.19"
 gem "net-scp", ">= 1.0.2"
 gem "json_pure", ">= 1.2.0"

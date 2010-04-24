@@ -241,14 +241,14 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<virtualbox>, ["~> 0.6.0"])
+      s.add_runtime_dependency(%q<virtualbox>, ["~> 0.6.1"])
       s.add_runtime_dependency(%q<net-ssh>, [">= 2.0.19"])
       s.add_runtime_dependency(%q<net-scp>, [">= 1.0.2"])
       s.add_runtime_dependency(%q<json_pure>, [">= 1.2.0"])
       s.add_runtime_dependency(%q<archive-tar-minitar>, ["= 0.5.2"])
       s.add_runtime_dependency(%q<mario>, ["~> 0.0.6"])
     else
-      s.add_dependency(%q<virtualbox>, ["~> 0.6.0"])
+      s.add_dependency(%q<virtualbox>, ["~> 0.6.1"])
       s.add_dependency(%q<net-ssh>, [">= 2.0.19"])
       s.add_dependency(%q<net-scp>, [">= 1.0.2"])
       s.add_dependency(%q<json_pure>, [">= 1.2.0"])
@@ -256,7 +256,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<mario>, ["~> 0.0.6"])
     end
   else
-    s.add_dependency(%q<virtualbox>, ["~> 0.6.0"])
+    s.add_dependency(%q<virtualbox>, ["~> 0.6.1"])
     s.add_dependency(%q<net-ssh>, [">= 2.0.19"])
     s.add_dependency(%q<net-scp>, [">= 1.0.2"])
     s.add_dependency(%q<json_pure>, [">= 1.2.0"])
