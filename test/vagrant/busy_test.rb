@@ -63,14 +63,9 @@ class BusyTest < Test::Unit::TestCase
     should "report busy to the outside world regardless of thread" do
       Thread.new do
         Vagrant.busy do
-          sleep(2)
+          assert Vagrant.busy?
         end
       end
-      # Give the thread time to start
-      sleep(1)
-
-      # While the above thread is executing vagrant should be busy
-      assert Vagrant.busy?
     end
 
     should "trap INT" do
