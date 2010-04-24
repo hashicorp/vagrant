@@ -73,15 +73,6 @@ class BusyTest < Test::Unit::TestCase
       assert Vagrant.busy?
     end
 
-    should "run the action in a new thread" do
-      runner_thread = nil
-      Vagrant.busy do
-        runner_thread = Thread.current
-      end
-
-      assert_not_equal Thread.current, runner_thread
-    end
-
     should "trap INT" do
       trap_seq = sequence("trap_seq")
       Signal.expects(:trap).with("INT", anything).once.in_sequence(trap_seq)

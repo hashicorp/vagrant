@@ -28,8 +28,7 @@ module Vagrant
           begin
             Signal.trap("INT") { wait_for_not_busy }
             Busy.busy = true
-            runner = Thread.new(block) { block.call }
-            runner.join
+            block.call
           ensure
             # In the case an exception is thrown, make sure we restore
             # busy back to some sane state.
