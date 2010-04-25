@@ -6,8 +6,12 @@ module Vagrant
           raise ActionException.new(:vm_not_running) unless @runner.vm.running?
 
           @runner.invoke_around_callback(:halt) do
-            logger.info "Forcing shutdown of VM..."
-            @runner.vm.stop
+            @runner.system.halt
+
+            if @runner.vm.state(true) != :powered_off
+              logger.info "Forcing shutdown of VM..."
+              @runner.vm.stop
+            end
           end
         end
       end

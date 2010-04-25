@@ -87,7 +87,14 @@ class Test::Unit::TestCase
     mock_vm.stubs(:actions).returns([action])
     mock_vm.stubs(:env).returns(mock_environment)
 
+    vm.stubs(:env).returns(mock_vm.env)
+
     [mock_vm, vm, action]
+  end
+
+  # Returns a linux system
+  def linux_system(vm)
+    Vagrant::Systems::Linux.new(vm)
   end
 
   def stub_default_action_dependecies(mock)

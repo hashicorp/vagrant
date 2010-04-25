@@ -3,7 +3,7 @@ require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 class SharedFoldersActionTest < Test::Unit::TestCase
   setup do
     @runner, @vm, @action = mock_action(Vagrant::Actions::VM::SharedFolders)
-    @runner.stubs(:system).returns(Vagrant::Systems::Linux.new(@vm))
+    @runner.stubs(:system).returns(linux_system(@vm))
   end
 
   def stub_shared_folders

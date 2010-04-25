@@ -11,6 +11,24 @@ module Vagrant
       #-------------------------------------------------------------------
       # Overridden methods
       #-------------------------------------------------------------------
+      def halt
+        logger.info "Attempting graceful shutdown of linux..."
+        vm.env.ssh.execute do |ssh|
+          ssh.exec!("sudo halt")
+        end
+
+        # Wait until the VM's state is actually powered off. If this doesn't
+        # occur within a reasonable amount of time (15 seconds by default),
+        # then simply return and allow Vagrant to kill the machine.
+        count = 0
+        while vm.vm.state(true) != :powered_off
+          count += 1
+
+          return if count >= 15
+          sleep 1
+        end
+      end
+
       def mount_shared_folder(ssh, name, guestpath)
         ssh.exec!("sudo mkdir -p #{guestpath}")
         mount_folder(ssh, name, guestpath)

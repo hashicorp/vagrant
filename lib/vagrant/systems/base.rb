@@ -27,6 +27,15 @@ module Vagrant
         @vm = vm
       end
 
+      # Halt the machine. This method should gracefully shut down the
+      # operating system. This method will cause `vagrant halt` and associated
+      # commands to _block_, meaning that if the machine doesn't halt
+      # in a reasonable amount of time, this method should just return.
+      #
+      # If when this method returns, the machine's state isn't "powered_off,"
+      # Vagrant will proceed to forcefully shut the machine down.
+      def halt; end
+
       # Mounts a shared folder. This method is called by the shared
       # folder action with an open SSH session (passed in as `ssh`).
       # This method should create, mount, and properly set permissions

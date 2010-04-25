@@ -3,21 +3,35 @@ require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 class HaltActionTest < Test::Unit::TestCase
   setup do
     @runner, @vm, @action = mock_action(Vagrant::Actions::VM::Halt)
+    @runner.stubs(:system).returns(linux_system(@vm))
   end
 
   context "executing" do
     setup do
       @vm.stubs(:running?).returns(true)
+
+      @runner.system.stubs(:halt)
+      @vm.stubs(:stop)
+      @vm.stubs(:state).returns(:powered_off)
     end
 
     should "invoke the 'halt' around callback" do
-      halt_seq = sequence("halt_seq")
-      @runner.expects(:invoke_around_callback).with(:halt).once.in_sequence(halt_seq).yields
-      @vm.expects(:stop).in_sequence(halt_seq)
+      @runner.expects(:invoke_around_callback).with(:halt).once
       @action.execute!
     end
 
-    should "force the VM to stop" do
+    should "halt with the system and NOT force VM to stop if powered off" do
+      @vm.expects(:state).with(true).returns(:powered_off)
+
+      @runner.system.expects(:halt).once
+      @vm.expects(:stop).never
+      @action.execute!
+    end
+
+    should "halt with the system and force VM to stop if NOT powered off" do
+      @vm.expects(:state).with(true).returns(:running)
+
+      @runner.system.expects(:halt).once
       @vm.expects(:stop).once
       @action.execute!
     end

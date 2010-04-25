@@ -9,6 +9,26 @@ class LinuxSystemTest < Test::Unit::TestCase
     @instance = @klass.new(@vm)
   end
 
+  context "halting" do
+    setup do
+      @ssh_session = mock("ssh_session")
+      @ssh = mock("ssh")
+      @ssh.stubs(:execute).yields(@ssh_session)
+      @vm.env.stubs(:ssh).returns(@ssh)
+
+      @real_vm = mock("real_vm")
+      @real_vm.stubs(:state).returns(:powered_off)
+      @vm.stubs(:vm).returns(@real_vm)
+    end
+
+    should "execute halt via SSH" do
+      @ssh_session.expects(:exec!).with("sudo halt").once
+      @instance.halt
+    end
+
+    # TODO: Sleep/timeout testing
+  end
+
   context "mounting shared folders" do
     setup do
       @ssh = mock("ssh")
