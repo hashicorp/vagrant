@@ -36,6 +36,12 @@ class HaltActionTest < Test::Unit::TestCase
       @action.execute!
     end
 
+    should "not call halt on the system if forcing" do
+      @action.stubs(:force).returns(true)
+      @runner.system.expects(:halt).never
+      @action.execute!
+    end
+
     should "raise an ActionException if VM is not running" do
       @vm.stubs(:running?).returns(false)
       @vm.expects(:stop).never

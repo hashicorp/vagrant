@@ -11,12 +11,21 @@ module Vagrant
       description "Halts the currently running vagrant environment"
 
       def execute(args=[])
+        parse_options(args)
+
         env.require_persisted_vm
-        env.vm.execute!(Actions::VM::Halt)
+        env.vm.execute!(Actions::VM::Halt, options[:force])
       end
 
       def options_spec(opts)
         opts.banner = "Usage: vagrant halt"
+
+        # Defaults
+        options[:force] = false
+
+        opts.on("-f", "--force", "Forceful shutdown of virtual machine.") do |v|
+          options[:force] = true
+        end
       end
     end
   end

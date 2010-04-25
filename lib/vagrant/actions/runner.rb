@@ -69,7 +69,6 @@ module Vagrant
       # to execute a single action on an instance. The syntax for executing a
       # single method on an instance is the same as the {execute!} class method.
       def execute!(single_action=nil, *args)
-
         if single_action
           actions.clear
           add_action(single_action, *args)

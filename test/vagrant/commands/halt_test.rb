@@ -21,8 +21,15 @@ class CommandsHaltTest < Test::Unit::TestCase
     end
 
     should "call the `halt` action on the VM" do
-      @persisted_vm.expects(:execute!).with(Vagrant::Actions::VM::Halt).once
+      @persisted_vm.expects(:execute!).with(Vagrant::Actions::VM::Halt, false).once
       @instance.execute
+    end
+
+    should "be forceful if -f flag is sent" do
+      %w{--force -f}.each do |flag|
+        @persisted_vm.expects(:execute!).with(Vagrant::Actions::VM::Halt, true).once
+        @instance.execute([flag])
+      end
     end
   end
 end
