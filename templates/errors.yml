@@ -45,9 +45,6 @@
   vagrant box add name uri
   vagrant box remove name
   vagrant box list
-:command_deprecation_down: |-
-  `vagrant down` is now `vagrant destroy`. Please use that command instead. This
-  warning will be removed in future versions.
 :dotfile_error: |-
   The dotfile which Vagrant uses to store the UUID of the project's
   virtual machine already exists and is not a file! The dotfile is
