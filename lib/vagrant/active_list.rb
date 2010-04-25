@@ -35,7 +35,7 @@ module Vagrant
     # Returns an array of {Vagrant::VM} objects which are currently
     # active.
     def vms
-      list.collect { |uuid| Vagrant::VM.find(uuid) }.compact
+      list.collect { |uuid| Vagrant::VM.find(uuid, env) }.compact
     end
 
     # Returns an array of UUIDs filtered so each is verified to exist.

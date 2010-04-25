@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Mitchell Hashimoto", "John Bender"]
-  s.date = %q{2010-04-24}
+  s.date = %q{2010-04-25}
   s.default_executable = %q{vagrant}
   s.description = %q{Vagrant is a tool for building and distributing virtualized development environments.}
   s.email = ["mitchell.hashimoto@gmail.com", "john.m.bender@gmail.com"]
@@ -68,7 +68,6 @@ Gem::Specification.new do |s|
      "lib/vagrant/commands/box/list.rb",
      "lib/vagrant/commands/box/remove.rb",
      "lib/vagrant/commands/destroy.rb",
-     "lib/vagrant/commands/down.rb",
      "lib/vagrant/commands/halt.rb",
      "lib/vagrant/commands/init.rb",
      "lib/vagrant/commands/package.rb",
@@ -89,8 +88,11 @@ Gem::Specification.new do |s|
      "lib/vagrant/provisioners/chef_server.rb",
      "lib/vagrant/provisioners/chef_solo.rb",
      "lib/vagrant/ssh.rb",
+     "lib/vagrant/systems/base.rb",
+     "lib/vagrant/systems/linux.rb",
      "lib/vagrant/util.rb",
      "lib/vagrant/util/errors.rb",
+     "lib/vagrant/util/glob_loader.rb",
      "lib/vagrant/util/platform.rb",
      "lib/vagrant/util/progress_meter.rb",
      "lib/vagrant/util/stacked_proc_runner.rb",
@@ -137,7 +139,6 @@ Gem::Specification.new do |s|
      "test/vagrant/commands/box/list_test.rb",
      "test/vagrant/commands/box/remove_test.rb",
      "test/vagrant/commands/destroy_test.rb",
-     "test/vagrant/commands/down_test.rb",
      "test/vagrant/commands/halt_test.rb",
      "test/vagrant/commands/init_test.rb",
      "test/vagrant/commands/package_test.rb",
@@ -158,6 +159,7 @@ Gem::Specification.new do |s|
      "test/vagrant/provisioners/chef_solo_test.rb",
      "test/vagrant/provisioners/chef_test.rb",
      "test/vagrant/ssh_test.rb",
+     "test/vagrant/systems/linux_test.rb",
      "test/vagrant/util/errors_test.rb",
      "test/vagrant/util/progress_meter_test.rb",
      "test/vagrant/util/stacked_proc_runner_test.rb",
@@ -207,7 +209,6 @@ Gem::Specification.new do |s|
      "test/vagrant/commands/box/list_test.rb",
      "test/vagrant/commands/box/remove_test.rb",
      "test/vagrant/commands/destroy_test.rb",
-     "test/vagrant/commands/down_test.rb",
      "test/vagrant/commands/halt_test.rb",
      "test/vagrant/commands/init_test.rb",
      "test/vagrant/commands/package_test.rb",
@@ -228,6 +229,7 @@ Gem::Specification.new do |s|
      "test/vagrant/provisioners/chef_solo_test.rb",
      "test/vagrant/provisioners/chef_test.rb",
      "test/vagrant/ssh_test.rb",
+     "test/vagrant/systems/linux_test.rb",
      "test/vagrant/util/errors_test.rb",
      "test/vagrant/util/progress_meter_test.rb",
      "test/vagrant/util/stacked_proc_runner_test.rb",

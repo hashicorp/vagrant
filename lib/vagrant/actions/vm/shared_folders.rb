@@ -20,9 +20,7 @@ module Vagrant
           @runner.env.ssh.execute do |ssh|
             shared_folders.each do |name, hostpath, guestpath|
               logger.info "-- #{name}: #{guestpath}"
-              ssh.exec!("sudo mkdir -p #{guestpath}")
-              mount_folder(ssh, name, guestpath)
-              ssh.exec!("sudo chown #{Vagrant.config.ssh.username} #{guestpath}")
+              @runner.system.mount_shared_folder(ssh, name, guestpath)
             end
           end
         end
@@ -48,32 +46,6 @@ module Vagrant
           end
 
           @runner.vm.save
-        end
-
-        def mount_folder(ssh, name, guestpath, sleeptime=5)
-          # Note: This method seems pretty OS-specific and could also use
-          # some configuration options. For now its duct tape and "works"
-          # but should be looked at in the future.
-
-          # Determine the permission string to attach to the mount command
-          perms = []
-          perms << "uid=#{@runner.env.config.vm.shared_folder_uid}"
-          perms << "gid=#{@runner.env.config.vm.shared_folder_gid}"
-          perms = " -o #{perms.join(",")}" if !perms.empty?
-
-          attempts = 0
-          while true
-            result = ssh.exec!("sudo mount -t vboxsf#{perms} #{name} #{guestpath}") do |ch, type, data|
-              # net/ssh returns the value in ch[:result] (based on looking at source)
-              ch[:result] = !!(type == :stderr && data =~ /No such device/i)
-            end
-
-            break unless result
-
-            attempts += 1
-            raise ActionException.new(:vm_mount_fail) if attempts >= 10
-            sleep sleeptime
-          end
         end
       end
     end

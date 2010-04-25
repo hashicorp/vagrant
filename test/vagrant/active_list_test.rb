@@ -70,7 +70,7 @@ class ActiveListTest < Test::Unit::TestCase
       results = []
       @the_list.each do |item|
         result = mock("result-#{item}")
-        Vagrant::VM.expects(:find).with(item).returns(result).in_sequence(new_seq)
+        Vagrant::VM.expects(:find).with(item, @env).returns(result).in_sequence(new_seq)
         results << result
       end
 

@@ -20,7 +20,7 @@ module Vagrant
       @env = env
       @vm = vm
 
-      load_system!
+      load_system! unless @env.nil?
     end
 
     def load_system!
