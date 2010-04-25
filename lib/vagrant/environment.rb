@@ -174,8 +174,7 @@ module Vagrant
       return if !root_path || !File.file?(dotfile_path)
 
       File.open(dotfile_path) do |f|
-        @vm = Vagrant::VM.find(f.read)
-        @vm.env = self if @vm
+        @vm = Vagrant::VM.find(f.read, self)
       end
     rescue Errno::ENOENT
       @vm = nil
@@ -206,9 +205,7 @@ module Vagrant
     # in {Command.up}. This will very likely be refactored at a later
     # time.
     def create_vm
-      @vm = VM.new
-      @vm.env = self
-      @vm
+      @vm = VM.new(self)
     end
 
     # Persists this environment's VM to the dotfile so it can be

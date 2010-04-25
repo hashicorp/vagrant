@@ -356,11 +356,10 @@ class EnvironmentTest < Test::Unit::TestCase
 
       should "loading of the uuid from the dotfile" do
         vm = mock("vm")
-        vm.expects(:env=).with(@env)
 
         filemock = mock("filemock")
         filemock.expects(:read).returns("foo")
-        Vagrant::VM.expects(:find).with("foo").returns(vm)
+        Vagrant::VM.expects(:find).with("foo", @env).returns(vm)
         File.expects(:open).with(@env.dotfile_path).once.yields(filemock)
         File.expects(:file?).with(@env.dotfile_path).once.returns(true)
         @env.load_vm!
@@ -371,7 +370,7 @@ class EnvironmentTest < Test::Unit::TestCase
       should "not set the environment if the VM is nil" do
         filemock = mock("filemock")
         filemock.expects(:read).returns("foo")
-        Vagrant::VM.expects(:find).with("foo").returns(nil)
+        Vagrant::VM.expects(:find).with("foo", @env).returns(nil)
         File.expects(:open).with(@env.dotfile_path).once.yields(filemock)
         File.expects(:file?).with(@env.dotfile_path).once.returns(true)
 

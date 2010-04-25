@@ -14,7 +14,7 @@ class VMTest < Test::Unit::TestCase
 
   context "being an action runner" do
     should "be an action runner" do
-      vm = Vagrant::VM.new
+      vm = Vagrant::VM.new(@env)
       assert vm.is_a?(Vagrant::Actions::Runner)
     end
   end
@@ -27,7 +27,7 @@ class VMTest < Test::Unit::TestCase
 
     should "return a Vagrant::VM object for that VM otherwise" do
       VirtualBox::VM.expects(:find).with("foo").returns("bar")
-      result = Vagrant::VM.find("foo")
+      result = Vagrant::VM.find("foo", mock_environment)
       assert result.is_a?(Vagrant::VM)
       assert_equal "bar", result.vm
     end
@@ -35,8 +35,61 @@ class VMTest < Test::Unit::TestCase
 
   context "vagrant VM instance" do
     setup do
-      @vm = Vagrant::VM.new(@mock_vm)
+      @vm = Vagrant::VM.new(@env, @mock_vm)
       @mock_vm.stubs(:uuid).returns("foo")
+    end
+
+    context "loading associated system" do
+      should "error and exit if system is not specified" do
+        @vm.env.config.vm.system = nil
+
+        @vm.expects(:error_and_exit).with(:system_unspecified).once
+        @vm.load_system!
+      end
+
+      context "with a class" do
+        class FakeSystemClass
+          def initialize(vm); end
+        end
+
+        should "initialize class if given" do
+          @vm.env.config.vm.system = Vagrant::Systems::Linux
+
+          @vm.expects(:error_and_exit).never
+          @vm.load_system!
+
+          assert @vm.system.is_a?(Vagrant::Systems::Linux)
+        end
+
+        should "error and exit if class has invalid parent" do
+          @vm.env.config.vm.system = FakeSystemClass
+          @vm.expects(:error_and_exit).with(:system_invalid_class, :system => @vm.env.config.vm.system.to_s).once
+          @vm.load_system!
+        end
+      end
+
+      context "with a symbol" do
+        should "initialize proper symbols" do
+          valid = {
+            :linux => Vagrant::Systems::Linux
+          }
+
+          valid.each do |symbol, klass|
+            @vm.env.config.vm.system = symbol
+            @vm.expects(:error_and_exit).never
+            @vm.load_system!
+
+            assert @vm.system.is_a?(klass)
+            assert_equal @vm, @vm.system.vm
+          end
+        end
+
+        should "error and exit with invalid symbol" do
+          @vm.env.config.vm.system = :shall_never_exist
+          @vm.expects(:error_and_exit).with(:system_unknown_type, :system => @vm.env.config.vm.system.to_s).once
+          @vm.load_system!
+        end
+      end
     end
 
     context "uuid" do

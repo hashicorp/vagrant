@@ -103,7 +103,17 @@
   For a more detailed guide please consult:
 
      http://vagrantup.com/docs/getting-started/windows.html
+:system_invalid_class: |-
+  The specified system does not inherit from `Vagrant::Systems::Base`. The
+  specified system class must inherit from this class.
 
+  The specified system class was: <%= system %>
+:system_unknown_type: |-
+  The specified system type is unknown: <%= system %>. Please change this
+  to a proper value.
+:system_unspecified: |-
+  A VM system type must be specified! This is done via the `config.vm.system`
+  configuration value. Please read the documentation online for more information.
 :virtualbox_import_failure: |-
   The VM import failed! Try running `VBoxManage import` on the box file
   manually for more verbose error output.

@@ -21,6 +21,7 @@ Vagrant::Config.run do |config|
   config.vm.shared_folder_uid = nil
   config.vm.shared_folder_gid = nil
   config.vm.boot_mode = "vrdp"
+  config.vm.system = :linux
 
   config.package.name = 'vagrant'
   config.package.extension = '.box'
