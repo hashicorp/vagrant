@@ -25,8 +25,6 @@ class LinuxSystemTest < Test::Unit::TestCase
       @ssh_session.expects(:exec!).with("sudo halt").once
       @instance.halt
     end
-
-    # TODO: Sleep/timeout testing
   end
 
   context "mounting shared folders" do
