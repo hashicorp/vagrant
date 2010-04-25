@@ -50,22 +50,6 @@ module Vagrant
           klass.dispatch(env, *args)
         end
 
-        # Prints out the list of supported commands and their descriptions (if
-        # available) then exits.
-        def puts_help
-          puts "Usage: vagrant SUBCOMMAND ...\n\n"
-
-          puts "Supported commands:"
-          subcommands.keys.sort.each do |key|
-            klass = subcommands[key]
-            next if klass.description.empty?
-
-            puts "#{' ' * 4}#{key.ljust(20)}#{klass.description}"
-          end
-
-          exit
-        end
-
         # Sets or reads the description, depending on if the value is set in the
         # parameter.
         def description(value=nil)
@@ -92,7 +76,7 @@ module Vagrant
         else
           # Just print out the help, since this top-level command does nothing
           # on its own
-          self.class.puts_help
+          show_help
         end
       end
 
@@ -122,6 +106,12 @@ module Vagrant
       def option_parser(reload=false)
         @option_parser = nil if reload
         @option_parser ||= OptionParser.new do |opts|
+          # The --help flag is available on all children commands, and will
+          # immediately show help.
+          opts.on("--help", "Show help for the current subcommand.") do
+            show_help
+          end
+
           options_spec(opts)
         end
       end
@@ -156,6 +146,20 @@ module Vagrant
         end
 
         puts option_parser.help
+
+        my_klass = self.class
+        if !my_klass.subcommands.empty?
+          puts "\nSupported subcommands:"
+          my_klass.subcommands.keys.sort.each do |key|
+            klass = my_klass.subcommands[key]
+            next if klass.description.empty?
+
+            puts "#{' ' * 8}#{key.ljust(20)}#{klass.description}"
+          end
+
+          puts "\nFor help on a specific subcommand, run `vagrant SUBCOMMAND --help`"
+        end
+
         exit
       end
     end
