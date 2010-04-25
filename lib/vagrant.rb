@@ -1,19 +1,16 @@
-libdir = File.dirname(__FILE__)
-PROJECT_ROOT = File.join(libdir, '..') unless defined?(PROJECT_ROOT)
+libdir = File.join(File.dirname(__FILE__), "vagrant")
+PROJECT_ROOT = File.join(libdir, '..', "..") unless defined?(PROJECT_ROOT)
 
-# The libs which must be loaded prior to the rest
+# First, load the various libs which Vagrant requires
 %w{tempfile open-uri json pathname logger uri net/http virtualbox net/ssh archive/tar/minitar
   net/scp fileutils mario}.each do |lib|
   require lib
 end
 
-# The vagrant specific files which must be loaded prior to the rest
-%w{vagrant/util vagrant/util/stacked_proc_runner vagrant/util/progress_meter vagrant/actions/base vagrant/downloaders/base vagrant/actions/collection
-  vagrant/actions/runner vagrant/config vagrant/provisioners/base vagrant/provisioners/chef vagrant/commands/base vagrant/commands/box}.each do |f|
-  require File.expand_path(f, libdir)
-end
+# Then load the glob loader, which will handle loading everything else
+require File.expand_path("util/glob_loader", libdir)
 
-# Glob require the rest
-Dir[File.join(libdir, "vagrant", "**", "*.rb")].each do |f|
-  require File.expand_path(f)
-end
+# Load them up
+Vagrant::GlobLoader.glob_require(libdir, %w{util util/stacked_proc_runner util/progress_meter
+  actions/base downloaders/base actions/collection actions/runner config
+  provisioners/base provisioners/chef systems/base commands/base commands/box})
