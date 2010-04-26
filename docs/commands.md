@@ -28,6 +28,21 @@ Supported commands:
     up                  Creates the vagrant environment
 {% endhighlight %}
 
+## Built-in Help
+
+You can quickly and easily get help for any given command by simply adding the
+`--help` flag to any command. This will save you the trip of coming to
+this documentation page most of the time. Example:
+
+{% highlight bash %}
+$ vagrant package --help
+Description: Packages a vagrant environment for distribution
+Usage: vagrant package [--base BASE] [--include FILES]
+        --help                       Show help for the current subcommand.
+        --base [BASE]                Name or UUID of VM to create a base box from
+        --include x,y,z              List of files to include in the package
+{% endhighlight %}
+
 <a name="vagrant-box"> </a>
 ## vagrant box
 
