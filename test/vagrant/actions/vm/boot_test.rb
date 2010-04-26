@@ -49,7 +49,7 @@ class BootActionTest < Test::Unit::TestCase
     end
 
     should "ping the max number of times then just return" do
-      @runner.env.ssh.expects(:up?).times(Vagrant.config.ssh.max_tries.to_i).returns(false)
+      @runner.env.ssh.expects(:up?).times(@runner.env.config.ssh.max_tries.to_i).returns(false)
       assert !@action.wait_for_boot(0)
     end
   end

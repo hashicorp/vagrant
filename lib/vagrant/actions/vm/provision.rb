@@ -11,7 +11,7 @@ module Vagrant
         end
 
         def prepare
-          provisioner = Vagrant.config.vm.provisioner
+          provisioner = @runner.env.config.vm.provisioner
 
           if provisioner.nil?
             logger.info("Provisioning not enabled, ignoring this step")

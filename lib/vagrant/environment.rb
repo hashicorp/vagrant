@@ -241,10 +241,10 @@ module Vagrant
       require_root_path
 
       if !box
-        if !Vagrant.config.vm.box
+        if !config.vm.box
           error_and_exit(:box_not_specified)
         else
-          error_and_exit(:box_specified_doesnt_exist, :box_name => Vagrant.config.vm.box)
+          error_and_exit(:box_specified_doesnt_exist, :box_name => config.vm.box)
         end
       end
     end

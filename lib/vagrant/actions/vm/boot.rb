@@ -28,7 +28,7 @@ module Vagrant
           logger.info "Waiting for VM to boot..."
 
           @runner.env.config.ssh.max_tries.to_i.times do |i|
-            logger.info "Trying to connect (attempt ##{i+1} of #{Vagrant.config[:ssh][:max_tries]})..."
+            logger.info "Trying to connect (attempt ##{i+1} of #{@runner.env.config[:ssh][:max_tries]})..."
 
             if @runner.env.ssh.up?
               logger.info "VM booted and ready for use!"
