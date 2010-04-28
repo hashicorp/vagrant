@@ -112,7 +112,7 @@ object as its only parameter, and is automatically saved afterwards. Example:
 
 {% highlight ruby %}
 config.vm.customize do |vm|
-  vm.memory = 512
+  vm.memory_size = 512
   vm.name = "My Project VM"
 end
 {% endhighlight %}
