@@ -10,8 +10,7 @@ module Vagrant
 
           # Up is a "meta-action" so it really just queues up a bunch
           # of other actions in its place:
-          steps = [Import, Customize, ForwardPorts, SharedFolders, Boot]
-          steps << Provision if !@runner.env.config.vm.provisioner.nil?
+          steps = [Import, Start]
           steps.insert(0, MoveHardDrive) if @runner.env.config.vm.hd_location
 
           steps.each do |action_klass|

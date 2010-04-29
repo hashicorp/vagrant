@@ -9,7 +9,7 @@ class UpActionTest < Test::Unit::TestCase
     setup do
       File.stubs(:file?).returns(true)
       File.stubs(:exist?).returns(true)
-      @default_order = [Vagrant::Actions::VM::Import, Vagrant::Actions::VM::Customize, Vagrant::Actions::VM::ForwardPorts, Vagrant::Actions::VM::SharedFolders, Vagrant::Actions::VM::Boot]
+      @default_order = [Vagrant::Actions::VM::Import, Vagrant::Actions::VM::Start]
 
       @dotfile_path = "foo"
       @runner.env.stubs(:dotfile_path).returns(@dotfile_path)
@@ -43,19 +43,6 @@ class UpActionTest < Test::Unit::TestCase
     end
 
     should "do the proper actions by default" do
-      setup_action_expectations
-      @action.prepare
-    end
-
-    should "add in the provisioning step if enabled" do
-      env = mock_environment do |config|
-        config.vm.provisioner = "foo"
-      end
-
-      @runner.stubs(:env).returns(env)
-      env.stubs(:dotfile_path).returns(@dotfile_path)
-
-      @default_order.push(Vagrant::Actions::VM::Provision)
       setup_action_expectations
       @action.prepare
     end
