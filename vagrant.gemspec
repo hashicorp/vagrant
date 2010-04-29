@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Mitchell Hashimoto", "John Bender"]
-  s.date = %q{2010-04-28}
+  s.date = %q{2010-04-29}
   s.default_executable = %q{vagrant}
   s.description = %q{Vagrant is a tool for building and distributing virtualized development environments.}
   s.email = ["mitchell.hashimoto@gmail.com", "john.m.bender@gmail.com"]
@@ -243,14 +243,14 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<virtualbox>, ["~> 0.6.1"])
+      s.add_runtime_dependency(%q<virtualbox>, ["~> 0.6.2"])
       s.add_runtime_dependency(%q<net-ssh>, [">= 2.0.19"])
       s.add_runtime_dependency(%q<net-scp>, [">= 1.0.2"])
       s.add_runtime_dependency(%q<json>, [">= 1.2.0"])
       s.add_runtime_dependency(%q<archive-tar-minitar>, ["= 0.5.2"])
       s.add_runtime_dependency(%q<mario>, ["~> 0.0.6"])
     else
-      s.add_dependency(%q<virtualbox>, ["~> 0.6.1"])
+      s.add_dependency(%q<virtualbox>, ["~> 0.6.2"])
       s.add_dependency(%q<net-ssh>, [">= 2.0.19"])
       s.add_dependency(%q<net-scp>, [">= 1.0.2"])
       s.add_dependency(%q<json>, [">= 1.2.0"])
@@ -258,7 +258,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<mario>, ["~> 0.0.6"])
     end
   else
-    s.add_dependency(%q<virtualbox>, ["~> 0.6.1"])
+    s.add_dependency(%q<virtualbox>, ["~> 0.6.2"])
     s.add_dependency(%q<net-ssh>, [">= 2.0.19"])
     s.add_dependency(%q<net-scp>, [">= 1.0.2"])
     s.add_dependency(%q<json>, [">= 1.2.0"])
