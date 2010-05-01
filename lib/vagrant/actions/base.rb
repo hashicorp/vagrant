@@ -110,7 +110,7 @@ module Vagrant
         @key = key
         @data = data
 
-        message = Vagrant::Util::Errors.error_string(key, data)
+        message = Vagrant::Util::Translator.t(key, data)
         super(message)
       end
     end
