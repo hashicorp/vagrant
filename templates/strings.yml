@@ -3,6 +3,32 @@
 # In short, |  means keep new lines, trim whitespace left and right
 # The |- does the above, but trims the new line at the end of all text
 
+#---------------------------------------------------------------------
+# CATEGORY: Status Messages
+#---------------------------------------------------------------------
+:status_no_environment: |-
+  No vagrant environment detected. Run `vagrant init` to setup a Vagrantfile
+  in the current directory to get started with Vagrant.
+:status_not_created: |-
+  The environment has not yet been created. Run `vagrant up` to create the
+  environment.
+:status_created: |-
+  The environment has been created. The status of the current environment's
+  virtual machine is: "<%= vm_state %>"
+
+  <%= additional_message %>
+:status_created_running: |-
+  To stop this VM, you can run `vagrant halt` to shut it down forcefully,
+  or you can run `vagrant suspend` to simply suspend the virtual machine.
+  In either case, to restart it again, simply run a `vagrant up`.
+:status_created_saved: |-
+  To resume this VM, simply run `vagrant up`.
+:status_created_powered_off: |-
+  To restart this VM, simply run `vagrant up`.
+
+#---------------------------------------------------------------------
+# CATEGORY: Error Messages
+#---------------------------------------------------------------------
 :box_already_exists: |-
   This box appears to already exist! Please call `vagrant box remove <%= box_name %>`
   and then try to add it again.

@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Mitchell Hashimoto", "John Bender"]
-  s.date = %q{2010-04-29}
+  s.date = %q{2010-04-30}
   s.default_executable = %q{vagrant}
   s.description = %q{Vagrant is a tool for building and distributing virtualized development environments.}
   s.email = ["mitchell.hashimoto@gmail.com", "john.m.bender@gmail.com"]
@@ -91,19 +91,19 @@ Gem::Specification.new do |s|
      "lib/vagrant/systems/base.rb",
      "lib/vagrant/systems/linux.rb",
      "lib/vagrant/util.rb",
-     "lib/vagrant/util/errors.rb",
      "lib/vagrant/util/glob_loader.rb",
      "lib/vagrant/util/platform.rb",
      "lib/vagrant/util/progress_meter.rb",
      "lib/vagrant/util/stacked_proc_runner.rb",
      "lib/vagrant/util/template_renderer.rb",
+     "lib/vagrant/util/translator.rb",
      "lib/vagrant/vm.rb",
      "templates/Vagrantfile.erb",
      "templates/chef_server_client.erb",
      "templates/chef_solo_solo.erb",
-     "templates/errors.yml",
      "templates/package_Vagrantfile.erb",
      "templates/ssh_config.erb",
+     "templates/strings.yml",
      "test/test_helper.rb",
      "test/vagrant/actions/base_test.rb",
      "test/vagrant/actions/box/add_test.rb",
@@ -160,10 +160,10 @@ Gem::Specification.new do |s|
      "test/vagrant/provisioners/chef_test.rb",
      "test/vagrant/ssh_test.rb",
      "test/vagrant/systems/linux_test.rb",
-     "test/vagrant/util/errors_test.rb",
      "test/vagrant/util/progress_meter_test.rb",
      "test/vagrant/util/stacked_proc_runner_test.rb",
      "test/vagrant/util/template_renderer_test.rb",
+     "test/vagrant/util/translator_test.rb",
      "test/vagrant/util_test.rb",
      "test/vagrant/vm_test.rb",
      "vagrant.gemspec"
@@ -230,10 +230,10 @@ Gem::Specification.new do |s|
      "test/vagrant/provisioners/chef_test.rb",
      "test/vagrant/ssh_test.rb",
      "test/vagrant/systems/linux_test.rb",
-     "test/vagrant/util/errors_test.rb",
      "test/vagrant/util/progress_meter_test.rb",
      "test/vagrant/util/stacked_proc_runner_test.rb",
      "test/vagrant/util/template_renderer_test.rb",
+     "test/vagrant/util/translator_test.rb",
      "test/vagrant/util_test.rb",
      "test/vagrant/vm_test.rb"
   ]

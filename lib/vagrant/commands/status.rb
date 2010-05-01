@@ -8,46 +8,30 @@ module Vagrant
       description "Shows the status of the current environment."
 
       def execute(args=[])
-        wrap_output do
-          if !env.root_path
-            puts <<-msg
-No vagrant environment detected. Run `vagrant init` to setup a Vagrantfile
-in the current directory to get started with Vagrant.
-msg
-          elsif !env.vm
-            puts <<-msg
-The environment has not yet been created. Run `vagrant up` to create the
-environment.
-msg
-          else
-            additional_msg = ""
-            if env.vm.vm.running?
-              additional_msg = <<-msg
-To stop this VM, you can run `vagrant halt` to shut it down forcefully,
-or you can run `vagrant suspend` to simply suspend the virtual machine.
-In either case, to restart it again, simply run a `vagrant up`.
-msg
-            elsif env.vm.vm.saved?
-              additional_msg = <<-msg
-To resume this VM, simply run `vagrant up`.
-msg
-            elsif env.vm.vm.powered_off?
-              additional_msg = <<-msg
-To restart this VM, simply run `vagrant up`.
-msg
-            end
+        string_key = nil
 
-            if !additional_msg.empty?
-              additional_msg.chomp!
-              additional_msg = "\n\n#{additional_msg}"
-            end
-
-            puts <<-msg
-The environment has been created. The status of the current environment's
-virtual machine is: "#{env.vm.vm.state}."#{additional_msg}
-msg
+        if !env.root_path
+          string_key = :status_no_environment
+        elsif !env.vm
+          string_key = :status_not_created
+        else
+          additional_key = nil
+          if env.vm.vm.running?
+            additional_key = :status_created_running
+          elsif env.vm.vm.saved?
+            additional_key = :status_created_saved
+          elsif env.vm.vm.powered_off?
+            additional_key = :status_created_powered_off
           end
+
+          string_key = [:status_created, {
+            :vm_state => env.vm.vm.state,
+            :additional_message => additional_key ? Translator.t(additional_key) : ""
+          }]
         end
+
+        string_key = [string_key, {}] unless string_key.is_a?(Array)
+        wrap_output { puts Translator.t(*string_key) }
       end
 
       def options_spec(opts)
