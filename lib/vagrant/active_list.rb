@@ -50,7 +50,7 @@ module Vagrant
     def add(vm)
       list[vm.uuid] = {
         :path => env.root_path,
-        :last_updated => Time.now.to_i
+        :created_at => Time.now.to_i
       }
 
       save
