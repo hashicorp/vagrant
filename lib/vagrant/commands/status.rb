@@ -5,9 +5,23 @@ module Vagrant
     # and if its running, suspended, etc.
     class Status < Base
       Base.subcommand "status", self
-      description "Shows the status of the current environment."
+      description "Shows the status of the Vagrant environment."
 
       def execute(args=[])
+        parse_options(args)
+
+        if !options[:global]
+          show_local_status
+        else
+          show_global_status
+        end
+      end
+
+      # Shows the status of the CURRENT environment (the current working
+      # directory). This prints out a human friendly sentence or paragraph
+      # describing the state of the Vagrant environment represented by the
+      # current working directory.
+      def show_local_status
         string_key = nil
 
         if !env.root_path
@@ -34,8 +48,32 @@ module Vagrant
         wrap_output { puts Translator.t(*string_key) }
       end
 
+      # Shows the status of the GLOBAL Vagrant environment. This prints out
+      # a listing of the virtual machines which Vagrant manages (running or
+      # not).
+      def show_global_status
+        entries = []
+
+        env.active_list.list.each do |uuid, data|
+          vm = Vagrant::VM.find(uuid, env)
+          entries << Translator.t(:status_global_entry, {
+            :vm => vm,
+            :data => data
+          })
+        end
+
+        wrap_output { puts Translator.t(:status_global, :entries => entries) }
+      end
+
       def options_spec(opts)
-        opts.banner = "Usage: vagrant status"
+        opts.banner = "Usage: vagrant status [--global]"
+
+        # Defaults
+        options[:global] = false
+
+        opts.on("-g", "--global", "Show global status of Vagrant (running VMs managed by Vagrant)") do |v|
+          options[:global] = true
+        end
       end
     end
   end

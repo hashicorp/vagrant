@@ -15,6 +15,16 @@ class CommandsStatusTest < Test::Unit::TestCase
   end
 
   context "executing" do
-    # TODO
+    should "show local status by default" do
+      @instance.expects(:show_local_status).once
+      @instance.expects(:show_global_status).never
+      @instance.execute
+    end
+
+    should "show global status if flagged" do
+      @instance.expects(:show_local_status).never
+      @instance.expects(:show_global_status).once
+      @instance.execute(["--global"])
+    end
   end
 end

@@ -25,6 +25,16 @@
   To resume this VM, simply run `vagrant up`.
 :status_created_powered_off: |-
   To restart this VM, simply run `vagrant up`.
+:status_global: |-
+  Below is a list of virtual machines which are currently created and were
+  created by a Vagrant environment. The path listed was the "last known path"
+  of the environment (it may have moved).
+
+  <%= entries.join("\n\n") %>
+:status_global_entry: |-
+  Name:       <%= vm.vm.name %>
+  Path:       <%= data["path"] %>
+  Created at: <%= Time.at(data["created_at"]) %>
 
 #---------------------------------------------------------------------
 # CATEGORY: Error Messages
