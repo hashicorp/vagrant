@@ -23,30 +23,36 @@ module Vagrant
     def list(reload=false)
       return @list unless @list.nil? || reload
 
-      @list ||= []
+      @list ||= {}
       return @list unless File.file?(path)
       File.open(path, "r") do |f|
         @list = JSON.parse(f.read)
+
+        # This forces earlier versions of Vagrant to use the new hash
+        # format. Clearing out the old data isn't a big deal since it
+        # was never used.
+        @list = {} unless @list.is_a?(Hash)
       end
 
       @list
     end
 
-    # Returns an array of {Vagrant::VM} objects which are currently
-    # active.
-    def vms
-      list.collect { |uuid| Vagrant::VM.find(uuid, env) }.compact
-    end
-
     # Returns an array of UUIDs filtered so each is verified to exist.
-    def filtered_list
-      vms.collect { |vm| vm.uuid }
+    def filter_list
+      list.each do |uuid, data|
+        list.delete(uuid) unless Vagrant::VM.find(uuid, env)
+      end
+
+      list
     end
 
     # Adds a virtual environment to the list of active virtual machines
     def add(vm)
-      list << vm.uuid
-      list.uniq!
+      list[vm.uuid] = {
+        :path => env.root_path,
+        :last_updated => Time.now.to_i
+      }
+
       save
     end
 
@@ -60,7 +66,7 @@ module Vagrant
     # Persists the list down to the JSON file.
     def save
       File.open(path, "w+") do |f|
-        f.write(filtered_list.to_json)
+        f.write(filter_list.to_json)
       end
     end
 
