@@ -15,7 +15,7 @@ module Vagrant
 =====================================================================
 Vagrant experienced an error!
 
-#{Translator.error_string(key, data).chomp}
+#{Translator.t(key, data).chomp}
 =====================================================================
 error
     end
