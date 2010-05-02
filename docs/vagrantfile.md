@@ -73,9 +73,8 @@ environment.
 These configuration keys will be completely removed in the next version of Vagrant.
 They do nothing in the current version:
 
-* `config.ssh.username` - Username and password SSH authentication has been completely
-  removed. These settings currently do nothing but log a deprecation warning.
-* `config.ssh.password`
+* `config.ssh.password` - Password SSH authentication has been completely
+  removed. This setting does nothing in the current version of Vagrant.
 
 ## config.vm
 
