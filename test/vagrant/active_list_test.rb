@@ -57,6 +57,18 @@ class ActiveListTest < Test::Unit::TestCase
       assert result.equal?(@list.list)
       assert result.equal?(@list.list)
     end
+
+    should "be an empty hash if JSON parsing raises an exception" do
+      file = mock("file")
+      file.stubs(:read)
+      File.expects(:file?).returns(true)
+      File.expects(:open).with(@list.path, 'r').once.yields(file)
+      JSON.expects(:parse).raises(Exception)
+
+      assert_nothing_raised do
+        assert_equal Hash.new, @list.list(true)
+      end
+    end
   end
 
   context "filter list" do

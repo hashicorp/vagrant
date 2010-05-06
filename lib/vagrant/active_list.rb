@@ -26,7 +26,11 @@ module Vagrant
       @list ||= {}
       return @list unless File.file?(path)
       File.open(path, "r") do |f|
-        @list = JSON.parse(f.read)
+        begin
+          @list = JSON.parse(f.read)
+        rescue Exception
+          @list = {}
+        end
 
         # This forces earlier versions of Vagrant to use the new hash
         # format. Clearing out the old data isn't a big deal since it
