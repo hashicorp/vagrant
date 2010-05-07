@@ -17,7 +17,7 @@ the [getting started guide](/docs/getting-started/index.html), the
 ## Your First Vagrant Virtual Environment
 
 {% highlight bash %}
-$ sudo gem install vagrant
+$ gem install vagrant
 $ vagrant box add base http://files.vagrantup.com/base.box
 $ vagrant init
 $ vagrant up
