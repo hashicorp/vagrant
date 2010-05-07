@@ -54,7 +54,7 @@ quickest and easiest way to distribute Vagrant to the masses, and it can be inst
 just as easily:
 
 {% highlight bash %}
-$ sudo gem install vagrant
+$ gem install vagrant
 {% endhighlight %}
 
 ## Your First Vagrant Virtual Environment
