@@ -13,7 +13,8 @@ class DownActionTest < Test::Unit::TestCase
     def setup_action_expectations(order)
       default_seq = sequence("default_seq")
       order.each do |action|
-        @runner.expects(:add_action).with(action).once.in_sequence(default_seq)
+        action = [action] unless action.is_a?(Array)
+        @runner.expects(:add_action).with(action.shift, *action).once.in_sequence(default_seq)
       end
     end
 
@@ -24,7 +25,7 @@ class DownActionTest < Test::Unit::TestCase
 
     should "add the halt action if the VM is running" do
       @vm.expects(:running?).returns(true)
-      setup_action_expectations([Vagrant::Actions::VM::Halt, Vagrant::Actions::VM::Destroy])
+      setup_action_expectations([[Vagrant::Actions::VM::Halt, true], Vagrant::Actions::VM::Destroy])
       @action.prepare
     end
   end
