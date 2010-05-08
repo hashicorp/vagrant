@@ -26,7 +26,7 @@ module Vagrant
 
         def clone_and_attach
           logger.info "Cloning current VM Disk to new location (#{new_image_path})..."
-          hard_drive.image = hard_drive.image.clone(new_image_path, Vagrant.config.vm.disk_image_format, true)
+          hard_drive.image = hard_drive.image.clone(new_image_path, @runner.env.config.vm.disk_image_format, true)
 
           logger.info "Attaching new disk to VM ..."
           @runner.vm.save
@@ -43,7 +43,7 @@ module Vagrant
 
         # Returns the path to the new location for the hard drive
         def new_image_path
-          File.join(Vagrant.config.vm.hd_location, hard_drive.image.filename)
+          File.join(@runner.env.config.vm.hd_location, hard_drive.image.filename)
         end
       end
     end

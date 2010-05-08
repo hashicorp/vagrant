@@ -52,17 +52,6 @@ class ConfigTest < Test::Unit::TestCase
     end
   end
 
-  context "accessing configuration" do
-    setup do
-      Vagrant::Config.run { |config| }
-      Vagrant::Config.execute!
-    end
-
-    should "forward config to the class method" do
-      assert_equal Vagrant.config, Vagrant::Config.config
-    end
-  end
-
   context "initializing" do
     setup do
       Vagrant::Config.reset!
@@ -92,7 +81,14 @@ class ConfigTest < Test::Unit::TestCase
     should "return the configuration on execute!" do
       Vagrant::Config.run {}
       result = Vagrant::Config.execute!
-      assert result.equal?(Vagrant.config)
+      assert result.is_a?(Vagrant::Config::Top)
+    end
+
+    should "use given configuration object if given" do
+      fake_env = mock("env")
+      config = Vagrant::Config::Top.new(fake_env)
+      result = Vagrant::Config.execute!(config)
+      assert_equal config.env, result.env
     end
   end
 

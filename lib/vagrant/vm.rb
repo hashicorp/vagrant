@@ -6,7 +6,7 @@ module Vagrant
     attr_reader :system
     attr_accessor :vm
 
-    class << self
+    class <<self
       # Finds a virtual machine by a given UUID and either returns
       # a Vagrant::VM object or returns nil.
       def find(uuid, env=nil)
@@ -36,7 +36,7 @@ module Vagrant
         error_and_exit(:system_invalid_class, :system => system.to_s) unless @system.is_a?(Systems::Base)
       elsif system.is_a?(Symbol)
         # Hard-coded internal systems
-        mapping = { :linux    => Systems::Linux }
+        mapping = { :linux => Systems::Linux }
 
         if !mapping.has_key?(system)
           error_and_exit(:system_unknown_type, :system => system.to_s)
