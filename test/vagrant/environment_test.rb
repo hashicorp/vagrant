@@ -372,28 +372,45 @@ class EnvironmentTest < Test::Unit::TestCase
         File.stubs(:file?).returns(true)
       end
 
-      should "loading of the uuid from the dotfile" do
+      should "load the UUID if the JSON parsing fails" do
         vm = mock("vm")
 
         filemock = mock("filemock")
         filemock.expects(:read).returns("foo")
-        Vagrant::VM.expects(:find).with("foo", @env).returns(vm)
+        Vagrant::VM.expects(:find).with("foo", @env, :__vagrant).returns(vm)
         File.expects(:open).with(@env.dotfile_path).once.yields(filemock)
         File.expects(:file?).with(@env.dotfile_path).once.returns(true)
         @env.load_vm!
 
-        assert_equal vm, @env.vm
+        assert_equal vm,  @env.vms.values.first
       end
 
-      should "not set the environment if the VM is nil" do
+      should "load all the VMs from the dotfile" do
+        vms = { :foo => "bar", :bar => "baz" }
+        results = {}
+
         filemock = mock("filemock")
-        filemock.expects(:read).returns("foo")
-        Vagrant::VM.expects(:find).with("foo", @env).returns(nil)
+        filemock.expects(:read).returns(vms.to_json)
         File.expects(:open).with(@env.dotfile_path).once.yields(filemock)
         File.expects(:file?).with(@env.dotfile_path).once.returns(true)
 
-        assert_nothing_raised { @env.load_vm! }
-        assert_nil @env.vm
+        vms.each do |key, value|
+          vm = mock("vm#{key}")
+          Vagrant::VM.expects(:find).with(value, @env, key.to_sym).returns(vm)
+          results[key] = vm
+        end
+
+        @env.load_vm!
+
+        results.each do |key, value|
+          assert_equal value, @env.vms[key]
+        end
+      end
+
+      should "do nothing if the vm_name is set" do
+        @env.stubs(:vm_name).returns(:foo)
+        File.expects(:open).never
+        @env.load_vm!
       end
 
       should "do nothing if the root path is nil" do

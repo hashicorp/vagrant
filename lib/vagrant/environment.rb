@@ -16,6 +16,7 @@ module Vagrant
     attr_reader :config
     attr_reader :box
     attr_accessor :vm
+    attr_reader :vms
     attr_reader :active_list
     attr_reader :commands
 
@@ -49,17 +50,19 @@ module Vagrant
       defaults = {
         :parent => nil,
         :vm_name => nil,
+        :vm => nil,
         :cwd => nil
       }
 
       opts = defaults.merge(opts || {})
-      @cwd = opts[:cwd]
-      @parent = opts[:parent]
-      @vm_name = opts[:vm_name]
+
+      defaults.each do |key, value|
+        instance_variable_set("@#{key}".to_sym, opts[key])
+      end
     end
 
     #---------------------------------------------------------------
-    # Path Helpers
+    # Helpers
     #---------------------------------------------------------------
 
     # Specifies the "current working directory" for this environment.
@@ -89,6 +92,11 @@ module Vagrant
     # The path to the Vagrant boxes directory
     def boxes_path
       File.join(home_path, "boxes")
+    end
+
+    # Returns the VMs associated with this environment.
+    def vms
+      @vms ||= {}
     end
 
     #---------------------------------------------------------------
@@ -191,13 +199,32 @@ module Vagrant
 
     # Loads the persisted VM (if it exists) for this environment.
     def load_vm!
+      # This environment represents a single sub VM. The VM is then
+      # probably (read: should be) set on the VM attribute, so we do
+      # nothing.
+      return if vm_name
       return if !root_path || !File.file?(dotfile_path)
 
+      # Empty out previously loaded vms
+      vms.clear
+
       File.open(dotfile_path) do |f|
-        @vm = Vagrant::VM.find(f.read, self)
+        data = { :__vagrant => f.read }
+
+        begin
+          data = JSON.parse(data[:__vagrant])
+        rescue JSON::ParserError
+          # Most likely an older (<= 0.3.x) dotfile. Try to load it
+          # as the :__vagrant VM.
+        end
+
+        data.each do |key, value|
+          key = key.to_sym
+          vms[key] = Vagrant::VM.find(value, self, key)
+        end
       end
     rescue Errno::ENOENT
-      @vm = nil
+      # Just rescue it.
     end
 
     # Loads the activelist for this environment

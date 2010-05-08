@@ -9,10 +9,10 @@ module Vagrant
     class <<self
       # Finds a virtual machine by a given UUID and either returns
       # a Vagrant::VM object or returns nil.
-      def find(uuid, env=nil)
+      def find(uuid, env=nil, vm_name=nil)
         vm = VirtualBox::VM.find(uuid)
         return nil if vm.nil?
-        new(:vm => vm, :env => env)
+        new(:vm => vm, :env => env, :vm_name => vm_name)
       end
     end
 
@@ -28,7 +28,12 @@ module Vagrant
       @vm = opts[:vm]
 
       if !opts[:env].nil?
-        @env = Vagrant::Environment.new(:cwd => opts[:env].cwd, :parent => opts[:env], :vm_name => opts[:vm_name]).load!
+        @env = Vagrant::Environment.new({
+          :cwd => opts[:env].cwd,
+          :parent => opts[:env],
+          :vm_name => opts[:vm_name],
+          :vm => self
+        }).load!
         load_system!
       end
     end

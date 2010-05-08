@@ -234,6 +234,15 @@ class ConfigTest < Test::Unit::TestCase
         @config.define(:name, &proc)
         assert_equal proc, @config.defined_vms[:name]
       end
+
+      should "not have multi-VMs by default" do
+        assert !@config.has_multi_vms?
+      end
+
+      should "have multi-VMs once one is specified" do
+        @config.define(:foo) {}
+        assert @config.has_multi_vms?
+      end
     end
 
     context "customizing" do
