@@ -11,7 +11,7 @@ module Vagrant
 
       def execute(args=[])
         env.require_persisted_vm
-        env.ssh.connect
+        env.vm.ssh.connect
       end
 
       def options_spec(opts)

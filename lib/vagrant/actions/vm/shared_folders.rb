@@ -17,7 +17,7 @@ module Vagrant
         def after_boot
           logger.info "Mounting shared folders..."
 
-          @runner.env.ssh.execute do |ssh|
+          @runner.ssh.execute do |ssh|
             shared_folders.each do |name, hostpath, guestpath|
               logger.info "-- #{name}: #{guestpath}"
               @runner.system.mount_shared_folder(ssh, name, guestpath)

@@ -13,7 +13,6 @@ module Vagrant
     attr_reader :config
     attr_reader :box
     attr_accessor :vm
-    attr_reader :ssh
     attr_reader :active_list
     attr_reader :commands
 
@@ -95,7 +94,6 @@ module Vagrant
       load_config!
       self.class.check_virtualbox!
       load_vm!
-      load_ssh!
       load_active_list!
       load_commands!
       self
@@ -178,11 +176,6 @@ module Vagrant
       end
     rescue Errno::ENOENT
       @vm = nil
-    end
-
-    # Loads/initializes the SSH object
-    def load_ssh!
-      @ssh = SSH.new(self)
     end
 
     # Loads the activelist for this environment

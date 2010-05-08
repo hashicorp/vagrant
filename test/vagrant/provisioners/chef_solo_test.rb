@@ -149,7 +149,7 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
 
   context "generating and uploading chef solo configuration file" do
     setup do
-      @env.ssh.stubs(:upload!)
+      @vm.ssh.stubs(:upload!)
     end
 
     should "call setup_config with proper variables" do
@@ -167,7 +167,7 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
     should "cd into the provisioning directory and run chef solo" do
       ssh = mock("ssh")
       ssh.expects(:exec!).with("cd #{@env.config.chef.provisioning_path} && sudo chef-solo -c solo.rb -j dna.json").once
-      @env.ssh.expects(:execute).yields(ssh)
+      @vm.ssh.expects(:execute).yields(ssh)
       @action.run_chef_solo
     end
   end

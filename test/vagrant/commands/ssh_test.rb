@@ -4,11 +4,11 @@ class CommandsSSHTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Commands::SSH
 
-    @persisted_vm = mock("persisted_vm")
-    @persisted_vm.stubs(:execute!)
-
     @env = mock_environment
     @env.stubs(:require_persisted_vm)
+
+    @persisted_vm = mock_vm(@env)
+    @persisted_vm.stubs(:execute!)
     @env.stubs(:vm).returns(@persisted_vm)
 
     @instance = @klass.new(@env)
@@ -16,7 +16,7 @@ class CommandsSSHTest < Test::Unit::TestCase
 
   context "executing" do
     setup do
-      @env.ssh.stubs(:connect)
+      @persisted_vm.ssh.stubs(:connect)
     end
 
     should "require a persisted VM" do
@@ -25,7 +25,7 @@ class CommandsSSHTest < Test::Unit::TestCase
     end
 
     should "connect to SSH" do
-      @env.ssh.expects(:connect).once
+      @persisted_vm.ssh.expects(:connect).once
       @instance.execute
     end
   end

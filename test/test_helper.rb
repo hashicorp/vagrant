@@ -74,9 +74,10 @@ class Test::Unit::TestCase
   end
 
   # Sets up the mocks for a VM
-  def mock_vm
+  def mock_vm(env=nil)
+    env ||= mock_environment
     vm = Vagrant::VM.new(nil, nil)
-    vm.stubs(:env).returns(mock_environment)
+    vm.stubs(:env).returns(env)
     vm.stubs(:ssh).returns(Vagrant::SSH.new(vm.env))
     vm
   end

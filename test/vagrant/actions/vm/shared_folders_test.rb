@@ -99,7 +99,7 @@ class SharedFoldersActionTest < Test::Unit::TestCase
       @folders.each do |name, hostpath, guestpath|
         @runner.system.expects(:mount_shared_folder).with(ssh, name, guestpath).in_sequence(mount_seq)
       end
-      @runner.env.ssh.expects(:execute).yields(ssh)
+      @runner.ssh.expects(:execute).yields(ssh)
 
       @action.after_boot
     end
