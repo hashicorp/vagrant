@@ -77,7 +77,7 @@ module Vagrant
 
       def chown_provisioning_folder
         logger.info "Setting permissions on chef provisioning folder..."
-        env.ssh.execute do |ssh|
+        vm.ssh.execute do |ssh|
           ssh.exec!("sudo mkdir -p #{env.config.chef.provisioning_path}")
           ssh.exec!("sudo chown #{env.config.ssh.username} #{env.config.chef.provisioning_path}")
         end
@@ -89,7 +89,7 @@ module Vagrant
         }.merge(template_vars))
 
         logger.info "Uploading chef configuration script..."
-        env.ssh.upload!(StringIO.new(config_file), File.join(env.config.chef.provisioning_path, filename))
+        vm.ssh.upload!(StringIO.new(config_file), File.join(env.config.chef.provisioning_path, filename))
       end
 
       def setup_json
@@ -110,7 +110,7 @@ module Vagrant
 
         json = data.to_json
 
-        env.ssh.upload!(StringIO.new(json), File.join(env.config.chef.provisioning_path, "dna.json"))
+        vm.ssh.upload!(StringIO.new(json), File.join(env.config.chef.provisioning_path, "dna.json"))
       end
     end
   end

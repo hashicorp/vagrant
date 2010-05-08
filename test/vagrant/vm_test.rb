@@ -39,6 +39,28 @@ class VMTest < Test::Unit::TestCase
       @mock_vm.stubs(:uuid).returns("foo")
     end
 
+    context "accessing the SSH object" do
+      setup do
+        # Reset this to nil to force the reload
+        @vm.instance_variable_set(:@ssh, nil)
+
+        @ssh = mock("ssh")
+        Vagrant::SSH.stubs(:new).returns(@ssh)
+      end
+
+      should "load it the first time" do
+        Vagrant::SSH.expects(:new).with(@env).once.returns(@ssh)
+        @vm.ssh
+        @vm.ssh
+        @vm.ssh
+      end
+
+      should "use the same value once its loaded" do
+        result = @vm.ssh
+        assert_equal result, @vm.ssh
+      end
+    end
+
     context "loading associated system" do
       should "error and exit if system is not specified" do
         @vm.env.config.vm.system = nil

@@ -73,6 +73,14 @@ class Test::Unit::TestCase
     environment
   end
 
+  # Sets up the mocks for a VM
+  def mock_vm
+    vm = Vagrant::VM.new(nil, nil)
+    vm.stubs(:env).returns(mock_environment)
+    vm.stubs(:ssh).returns(Vagrant::SSH.new(vm.env))
+    vm
+  end
+
   # Sets up the mocks and instantiates an action for testing
   def mock_action(action_klass, *args)
     vm = mock("vboxvm")
@@ -86,6 +94,11 @@ class Test::Unit::TestCase
     mock_vm.stubs(:invoke_around_callback).yields
     mock_vm.stubs(:actions).returns([action])
     mock_vm.stubs(:env).returns(mock_environment)
+
+    mock_ssh = Vagrant::SSH.new(mock_vm.env)
+    mock_ssh.stubs(:execute)
+
+    mock_vm.stubs(:ssh).returns(mock_ssh)
 
     vm.stubs(:env).returns(mock_vm.env)
 

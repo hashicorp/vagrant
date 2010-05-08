@@ -30,7 +30,7 @@ module Vagrant
       #-------------------------------------------------------------------
       def halt
         logger.info "Attempting graceful shutdown of linux..."
-        vm.env.ssh.execute do |ssh|
+        vm.ssh.execute do |ssh|
           ssh.exec!("sudo halt")
         end
 

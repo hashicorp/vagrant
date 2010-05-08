@@ -2,8 +2,9 @@ require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
 
 class ChefSoloProvisionerTest < Test::Unit::TestCase
   setup do
-    @env = mock_environment
-    @action = Vagrant::Provisioners::ChefSolo.new(@env)
+    @vm = mock_vm
+    @env = @vm.env
+    @action = Vagrant::Provisioners::ChefSolo.new(@vm)
   end
 
   context "preparing" do

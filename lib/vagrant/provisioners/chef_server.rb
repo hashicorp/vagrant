@@ -64,7 +64,7 @@ module Vagrant
       end
 
       def guest_validation_key_path
-        File.join(@env.config.chef.provisioning_path, "validation.pem")
+        File.join(env.config.chef.provisioning_path, "validation.pem")
       end
     end
   end

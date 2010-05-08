@@ -20,9 +20,14 @@ module Vagrant
       @env = env
       @vm = vm
 
-      load_system! unless @env.nil?
+      load_system! if !@env.nil?
     end
 
+    # Loads the system associated with the VM. The system class is
+    # responsible for OS-specific functionality. More information
+    # can be found by reading the documentation on {Vagrant::Systems::Base}.
+    #
+    # **This method should never be called manually.**
     def load_system!
       system = env.config.vm.system
 
@@ -31,9 +36,7 @@ module Vagrant
         error_and_exit(:system_invalid_class, :system => system.to_s) unless @system.is_a?(Systems::Base)
       elsif system.is_a?(Symbol)
         # Hard-coded internal systems
-        mapping = {
-          :linux    => Systems::Linux
-        }
+        mapping = { :linux    => Systems::Linux }
 
         if !mapping.has_key?(system)
           error_and_exit(:system_unknown_type, :system => system.to_s)
@@ -44,6 +47,13 @@ module Vagrant
       else
         error_and_exit(:system_unspecified)
       end
+    end
+
+    # Access the {Vagrant::SSH} object associated with this VM.
+    # On the initial call, this will initialize the object. On
+    # subsequent calls it will reuse the existing object.
+    def ssh
+      @ssh ||= SSH.new(env)
     end
 
     def uuid
