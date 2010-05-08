@@ -14,7 +14,7 @@ class VMTest < Test::Unit::TestCase
 
   context "being an action runner" do
     should "be an action runner" do
-      vm = Vagrant::VM.new(@env)
+      vm = Vagrant::VM.new(:env => @env)
       assert vm.is_a?(Vagrant::Actions::Runner)
     end
   end
@@ -35,7 +35,7 @@ class VMTest < Test::Unit::TestCase
 
   context "vagrant VM instance" do
     setup do
-      @vm = Vagrant::VM.new(@env, @mock_vm)
+      @vm = Vagrant::VM.new(:env => @env, :vm => @mock_vm)
       @mock_vm.stubs(:uuid).returns("foo")
     end
 
@@ -49,7 +49,7 @@ class VMTest < Test::Unit::TestCase
       end
 
       should "load it the first time" do
-        Vagrant::SSH.expects(:new).with(@env).once.returns(@ssh)
+        Vagrant::SSH.expects(:new).with(@vm.env).once.returns(@ssh)
         @vm.ssh
         @vm.ssh
         @vm.ssh

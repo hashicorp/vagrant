@@ -8,6 +8,9 @@ module Vagrant
 
     include Util
 
+    attr_reader :parent     # Parent environment (in the case of multi-VMs)
+    attr_reader :vm_name    # The name of the VM (internal name) which this environment represents
+
     attr_accessor :cwd
     attr_reader :root_path
     attr_reader :config
@@ -24,7 +27,7 @@ module Vagrant
       # directory. If a working directory is not given, it will default
       # to the pwd.
       def load!(cwd=nil)
-        Environment.new(cwd).load!
+        Environment.new(:cwd => cwd).load!
       end
 
       # Verifies that VirtualBox is installed and that the version of
@@ -42,8 +45,17 @@ module Vagrant
       end
     end
 
-    def initialize(cwd=nil)
-      @cwd = cwd
+    def initialize(opts=nil)
+      defaults = {
+        :parent => nil,
+        :vm_name => nil,
+        :cwd => nil
+      }
+
+      opts = defaults.merge(opts || {})
+      @cwd = opts[:cwd]
+      @parent = opts[:parent]
+      @vm_name = opts[:vm_name]
     end
 
     #---------------------------------------------------------------
@@ -123,20 +135,30 @@ module Vagrant
     # this environment, meaning that it will use the given root directory
     # to load the Vagrantfile into that context.
     def load_config!
-      # Prepare load paths for config files
-      load_paths = [File.join(PROJECT_ROOT, "config", "default.rb")]
-      load_paths << File.join(box.directory, ROOTFILE_NAME) if box
-      load_paths << File.join(home_path, ROOTFILE_NAME) if home_path
-      load_paths << File.join(root_path, ROOTFILE_NAME) if root_path
+      # Prepare load paths for config files and append to config queue
+      config_queue = [File.join(PROJECT_ROOT, "config", "default.rb")]
+      config_queue << File.join(box.directory, ROOTFILE_NAME) if box
+      config_queue << File.join(home_path, ROOTFILE_NAME) if home_path
+      config_queue << File.join(root_path, ROOTFILE_NAME) if root_path
+
+      # If this environment represents some VM in a multi-VM environment,
+      # we push that VM's configuration onto the config_queue.
+      config_queue << parent.config.vm.defined_vms[vm_name] if vm_name
 
       # Clear out the old data
       Config.reset!(self)
 
       # Load each of the config files in order
-      load_paths.each do |path|
-        if File.exist?(path)
-          logger.info "Loading config from #{path}..."
-          load path
+      config_queue.each do |item|
+        if item.is_a?(String) && File.exist?(item)
+          logger.info "Loading config from #{item}..."
+          load item
+          next
+        end
+
+        if item.is_a?(Proc)
+          # Just push the proc straight onto the config runnable stack
+          Config.run(&item)
         end
       end
 
@@ -198,7 +220,7 @@ module Vagrant
     # in {Command.up}. This will very likely be refactored at a later
     # time.
     def create_vm
-      @vm = VM.new(self)
+      @vm = VM.new(:env => self)
     end
 
     # Persists this environment's VM to the dotfile so it can be

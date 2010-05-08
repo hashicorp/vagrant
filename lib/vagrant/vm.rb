@@ -12,15 +12,25 @@ module Vagrant
       def find(uuid, env=nil)
         vm = VirtualBox::VM.find(uuid)
         return nil if vm.nil?
-        new(env, vm)
+        new(:vm => vm, :env => env)
       end
     end
 
-    def initialize(env, vm=nil)
-      @env = env
-      @vm = vm
+    def initialize(opts=nil)
+      defaults = {
+        :vm => nil,
+        :env => nil,
+        :vm_name => nil
+      }
 
-      load_system! if !@env.nil?
+      opts = defaults.merge(opts || {})
+
+      @vm = opts[:vm]
+
+      if !opts[:env].nil?
+        @env = Vagrant::Environment.new(:cwd => opts[:env].cwd, :parent => opts[:env], :vm_name => opts[:vm_name]).load!
+        load_system!
+      end
     end
 
     # Loads the system associated with the VM. The system class is

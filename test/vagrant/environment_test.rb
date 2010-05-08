@@ -42,13 +42,13 @@ class EnvironmentTest < Test::Unit::TestCase
     end
 
     should "create the environment with given cwd, load it, and return it" do
-      Vagrant::Environment.expects(:new).with(@cwd).once.returns(@env)
+      Vagrant::Environment.expects(:new).with(:cwd => @cwd).once.returns(@env)
       @env.expects(:load!).returns(@env)
       assert_equal @env, Vagrant::Environment.load!(@cwd)
     end
 
     should "work without a given cwd" do
-      Vagrant::Environment.expects(:new).with(nil).returns(@env)
+      Vagrant::Environment.expects(:new).with(:cwd => nil).returns(@env)
 
       assert_nothing_raised {
         env = Vagrant::Environment.load!
@@ -60,7 +60,7 @@ class EnvironmentTest < Test::Unit::TestCase
   context "initialization" do
     should "set the cwd if given" do
       cwd = "foobarbaz"
-      env = Vagrant::Environment.new(cwd)
+      env = Vagrant::Environment.new(:cwd => cwd)
       assert_equal cwd, env.cwd
     end
 
@@ -215,9 +215,9 @@ class EnvironmentTest < Test::Unit::TestCase
         @env.stubs(:root_path).returns(@root_path)
         @env.stubs(:home_path).returns(@home_path)
 
+        @parent_env = mock_environment
+
         File.stubs(:exist?).returns(false)
-        Vagrant::Config.stubs(:execute!)
-        Vagrant::Config.stubs(:reset!)
       end
 
       should "reset the configuration object" do
@@ -265,6 +265,25 @@ class EnvironmentTest < Test::Unit::TestCase
         @env.expects(:box).twice.returns(box)
         File.expects(:exist?).with(File.join(dir, Vagrant::Environment::ROOTFILE_NAME)).once
         @env.load_config!
+      end
+
+      should "load a sub-VM configuration if specified" do
+        vm_name = :foo
+        sub_box = :YO
+        @parent_env.config.vm.box = :NO
+        @parent_env.config.vm.define(vm_name) do |config|
+          config.vm.box = sub_box
+        end
+
+        # Sanity
+        assert_equal :NO, @parent_env.config.vm.box
+
+        @env.stubs(:vm_name).returns(vm_name)
+        @env.stubs(:parent).returns(@parent_env)
+
+        @env.load_config!
+
+        assert_equal sub_box, @env.config.vm.box
       end
 
       should "load the files only if exist? returns true" do
@@ -517,16 +536,18 @@ class EnvironmentTest < Test::Unit::TestCase
     end
 
     context "creating a new VM" do
+      should "create a new VM with the given environment" do
+        result = mock("result")
+        Vagrant::VM.expects(:new).with(:env => @env).once.returns(result)
+        @env.create_vm
+        assert_equal result, @env.vm
+      end
+
       should "create a new VM" do
         assert_nil @env.vm
         @env.create_vm
         assert !@env.vm.nil?
         assert @env.vm.is_a?(Vagrant::VM)
-      end
-
-      should "set the new VM's environment to the env" do
-        @env.create_vm
-        assert_equal @env, @env.vm.env
       end
 
       should "return the new VM" do
