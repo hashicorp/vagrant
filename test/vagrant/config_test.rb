@@ -229,14 +229,27 @@ class ConfigTest < Test::Unit::TestCase
       @env.config.ssh.username = @username
     end
 
-    should "include the stacked proc runner module" do
-      assert @config.class.included_modules.include?(Vagrant::Util::StackedProcRunner)
+    context "defining VMs" do
+      should "store the proc by name but not run it" do
+        foo = mock("proc")
+        foo.expects(:call).never
+
+        proc = Proc.new { foo.call }
+        @config.define(:name, &proc)
+        assert_equal proc, @config.defined_vms[:name]
+      end
     end
 
-    should "add the customize proc to the proc stack" do
-      proc = Proc.new {}
-      @config.customize(&proc)
-      assert_equal [proc], @config.proc_stack
+    context "customizing" do
+      should "include the stacked proc runner module" do
+        assert @config.class.included_modules.include?(Vagrant::Util::StackedProcRunner)
+      end
+
+      should "add the customize proc to the proc stack" do
+        proc = Proc.new {}
+        @config.customize(&proc)
+        assert_equal [proc], @config.proc_stack
+      end
     end
 
     context "uid/gid" do

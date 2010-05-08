@@ -125,6 +125,14 @@ module Vagrant
       def customize(&block)
         push_proc(&block)
       end
+
+      def defined_vms
+        @defined_vms ||= {}
+      end
+
+      def define(name, &block)
+        defined_vms[name.to_sym] = block
+      end
     end
 
     class PackageConfig < Base
