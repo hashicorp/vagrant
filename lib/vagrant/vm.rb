@@ -11,7 +11,6 @@ module Vagrant
       # a Vagrant::VM object or returns nil.
       def find(uuid, env=nil, vm_name=nil)
         vm = VirtualBox::VM.find(uuid)
-        return nil if vm.nil?
         new(:vm => vm, :env => env, :vm_name => vm_name)
       end
     end
@@ -69,6 +68,14 @@ module Vagrant
     # subsequent calls it will reuse the existing object.
     def ssh
       @ssh ||= SSH.new(env)
+    end
+
+    # Returns a boolean true if the VM has been created, otherwise
+    # returns false.
+    #
+    # @return [Boolean]
+    def created?
+      !vm.nil?
     end
 
     def uuid

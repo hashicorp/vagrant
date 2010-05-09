@@ -20,12 +20,14 @@ class VMTest < Test::Unit::TestCase
   end
 
   context "finding a VM" do
-    should "return nil if the VM is not found" do
+    should "return return an uncreated VM object if the VM is not found" do
       VirtualBox::VM.expects(:find).returns(nil)
-      assert_nil Vagrant::VM.find("foo")
+      result = Vagrant::VM.find("foo")
+      assert result.is_a?(Vagrant::VM)
+      assert !result.created?
     end
 
-    should "return a Vagrant::VM object for that VM otherwise" do
+    should "return a Vagrant::VM object for that VM if found" do
       VirtualBox::VM.expects(:find).with("foo").returns("bar")
       result = Vagrant::VM.find("foo", mock_environment)
       assert result.is_a?(Vagrant::VM)
@@ -37,6 +39,18 @@ class VMTest < Test::Unit::TestCase
     setup do
       @vm = Vagrant::VM.new(:env => @env, :vm => @mock_vm)
       @mock_vm.stubs(:uuid).returns("foo")
+    end
+
+    context "checking if created" do
+      should "return true if the VM object is not nil" do
+        @vm.stubs(:vm).returns(:foo)
+        assert @vm.created?
+      end
+
+      should "return false if the VM object is nil" do
+        @vm.stubs(:vm).returns(nil)
+        assert !@vm.created?
+      end
     end
 
     context "accessing the SSH object" do

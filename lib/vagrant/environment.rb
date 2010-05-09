@@ -243,13 +243,6 @@ module Vagrant
     # Methods to manage VM
     #---------------------------------------------------------------
 
-    # Sets the VM to a new VM. This is not too useful but is used
-    # in {Command.up}. This will very likely be refactored at a later
-    # time.
-    def create_vm
-      @vm = VM.new(:env => self)
-    end
-
     # Persists this environment's VM to the dotfile so it can be
     # re-loaded at a later time.
     def persist_vm
