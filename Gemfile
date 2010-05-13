@@ -1,10 +1,10 @@
 source :gemcutter
 
 # Gems required for the lib to even run
-gem "virtualbox", "~> 0.6.2"
+gem "virtualbox", :git => "git://github.com/mitchellh/virtualbox.git"
 gem "net-ssh", ">= 2.0.19"
 gem "net-scp", ">= 1.0.2"
-gem "json", ">= 1.2.0"
+gem "json", ">= 1.2.4"
 gem "archive-tar-minitar", "= 0.5.2"
 gem "mario", "~> 0.0.6"
 
