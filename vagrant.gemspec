@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{vagrant}
-  s.version = "0.3.2"
+  s.version = "0.3.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Mitchell Hashimoto", "John Bender"]
-  s.date = %q{2010-04-24}
+  s.date = %q{2010-05-13}
   s.default_executable = %q{vagrant}
   s.description = %q{Vagrant is a tool for building and distributing virtualized development environments.}
   s.email = ["mitchell.hashimoto@gmail.com", "john.m.bender@gmail.com"]
@@ -173,67 +173,67 @@ Gem::Specification.new do |s|
   s.summary = %q{Vagrant is a tool for building and distributing virtualized development environments.}
   s.test_files = [
     "test/test_helper.rb",
-     "test/vagrant/actions/base_test.rb",
-     "test/vagrant/actions/box/add_test.rb",
-     "test/vagrant/actions/box/destroy_test.rb",
-     "test/vagrant/actions/box/download_test.rb",
-     "test/vagrant/actions/box/unpackage_test.rb",
-     "test/vagrant/actions/box/verify_test.rb",
-     "test/vagrant/actions/collection_test.rb",
-     "test/vagrant/actions/runner_test.rb",
-     "test/vagrant/actions/vm/boot_test.rb",
-     "test/vagrant/actions/vm/customize_test.rb",
-     "test/vagrant/actions/vm/destroy_test.rb",
-     "test/vagrant/actions/vm/down_test.rb",
-     "test/vagrant/actions/vm/export_test.rb",
-     "test/vagrant/actions/vm/forward_ports_test.rb",
-     "test/vagrant/actions/vm/halt_test.rb",
-     "test/vagrant/actions/vm/import_test.rb",
-     "test/vagrant/actions/vm/move_hard_drive_test.rb",
-     "test/vagrant/actions/vm/package_test.rb",
-     "test/vagrant/actions/vm/provision_test.rb",
-     "test/vagrant/actions/vm/reload_test.rb",
-     "test/vagrant/actions/vm/resume_test.rb",
-     "test/vagrant/actions/vm/shared_folders_test.rb",
-     "test/vagrant/actions/vm/start_test.rb",
-     "test/vagrant/actions/vm/suspend_test.rb",
-     "test/vagrant/actions/vm/up_test.rb",
-     "test/vagrant/active_list_test.rb",
+     "test/vagrant/vm_test.rb",
+     "test/vagrant/command_test.rb",
+     "test/vagrant/environment_test.rb",
+     "test/vagrant/util_test.rb",
      "test/vagrant/box_test.rb",
      "test/vagrant/busy_test.rb",
-     "test/vagrant/command_test.rb",
+     "test/vagrant/provisioners/base_test.rb",
+     "test/vagrant/provisioners/chef_test.rb",
+     "test/vagrant/provisioners/chef_server_test.rb",
+     "test/vagrant/provisioners/chef_solo_test.rb",
+     "test/vagrant/config_test.rb",
+     "test/vagrant/actions/base_test.rb",
+     "test/vagrant/actions/runner_test.rb",
+     "test/vagrant/actions/box/verify_test.rb",
+     "test/vagrant/actions/box/destroy_test.rb",
+     "test/vagrant/actions/box/add_test.rb",
+     "test/vagrant/actions/box/unpackage_test.rb",
+     "test/vagrant/actions/box/download_test.rb",
+     "test/vagrant/actions/collection_test.rb",
+     "test/vagrant/actions/vm/reload_test.rb",
+     "test/vagrant/actions/vm/suspend_test.rb",
+     "test/vagrant/actions/vm/boot_test.rb",
+     "test/vagrant/actions/vm/package_test.rb",
+     "test/vagrant/actions/vm/down_test.rb",
+     "test/vagrant/actions/vm/shared_folders_test.rb",
+     "test/vagrant/actions/vm/destroy_test.rb",
+     "test/vagrant/actions/vm/halt_test.rb",
+     "test/vagrant/actions/vm/import_test.rb",
+     "test/vagrant/actions/vm/customize_test.rb",
+     "test/vagrant/actions/vm/start_test.rb",
+     "test/vagrant/actions/vm/move_hard_drive_test.rb",
+     "test/vagrant/actions/vm/up_test.rb",
+     "test/vagrant/actions/vm/export_test.rb",
+     "test/vagrant/actions/vm/provision_test.rb",
+     "test/vagrant/actions/vm/resume_test.rb",
+     "test/vagrant/actions/vm/forward_ports_test.rb",
+     "test/vagrant/active_list_test.rb",
      "test/vagrant/commands/base_test.rb",
+     "test/vagrant/commands/reload_test.rb",
+     "test/vagrant/commands/ssh_config_test.rb",
+     "test/vagrant/commands/suspend_test.rb",
+     "test/vagrant/commands/package_test.rb",
+     "test/vagrant/commands/status_test.rb",
+     "test/vagrant/commands/down_test.rb",
+     "test/vagrant/commands/init_test.rb",
+     "test/vagrant/commands/destroy_test.rb",
+     "test/vagrant/commands/halt_test.rb",
+     "test/vagrant/commands/box/remove_test.rb",
      "test/vagrant/commands/box/add_test.rb",
      "test/vagrant/commands/box/list_test.rb",
-     "test/vagrant/commands/box/remove_test.rb",
-     "test/vagrant/commands/destroy_test.rb",
-     "test/vagrant/commands/down_test.rb",
-     "test/vagrant/commands/halt_test.rb",
-     "test/vagrant/commands/init_test.rb",
-     "test/vagrant/commands/package_test.rb",
-     "test/vagrant/commands/reload_test.rb",
-     "test/vagrant/commands/resume_test.rb",
-     "test/vagrant/commands/ssh_config_test.rb",
-     "test/vagrant/commands/ssh_test.rb",
-     "test/vagrant/commands/status_test.rb",
-     "test/vagrant/commands/suspend_test.rb",
      "test/vagrant/commands/up_test.rb",
-     "test/vagrant/config_test.rb",
+     "test/vagrant/commands/resume_test.rb",
+     "test/vagrant/commands/ssh_test.rb",
      "test/vagrant/downloaders/base_test.rb",
      "test/vagrant/downloaders/file_test.rb",
      "test/vagrant/downloaders/http_test.rb",
-     "test/vagrant/environment_test.rb",
-     "test/vagrant/provisioners/base_test.rb",
-     "test/vagrant/provisioners/chef_server_test.rb",
-     "test/vagrant/provisioners/chef_solo_test.rb",
-     "test/vagrant/provisioners/chef_test.rb",
-     "test/vagrant/ssh_test.rb",
-     "test/vagrant/util/errors_test.rb",
-     "test/vagrant/util/progress_meter_test.rb",
      "test/vagrant/util/stacked_proc_runner_test.rb",
+     "test/vagrant/util/progress_meter_test.rb",
      "test/vagrant/util/template_renderer_test.rb",
-     "test/vagrant/util_test.rb",
-     "test/vagrant/vm_test.rb"
+     "test/vagrant/util/errors_test.rb",
+     "test/vagrant/ssh_test.rb"
   ]
 
   if s.respond_to? :specification_version then
@@ -244,14 +244,14 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<virtualbox>, ["~> 0.6.1"])
       s.add_runtime_dependency(%q<net-ssh>, [">= 2.0.19"])
       s.add_runtime_dependency(%q<net-scp>, [">= 1.0.2"])
-      s.add_runtime_dependency(%q<json_pure>, [">= 1.2.0"])
+      s.add_runtime_dependency(%q<json>, [">= 1.2.0"])
       s.add_runtime_dependency(%q<archive-tar-minitar>, ["= 0.5.2"])
       s.add_runtime_dependency(%q<mario>, ["~> 0.0.6"])
     else
       s.add_dependency(%q<virtualbox>, ["~> 0.6.1"])
       s.add_dependency(%q<net-ssh>, [">= 2.0.19"])
       s.add_dependency(%q<net-scp>, [">= 1.0.2"])
-      s.add_dependency(%q<json_pure>, [">= 1.2.0"])
+      s.add_dependency(%q<json>, [">= 1.2.0"])
       s.add_dependency(%q<archive-tar-minitar>, ["= 0.5.2"])
       s.add_dependency(%q<mario>, ["~> 0.0.6"])
     end
@@ -259,7 +259,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<virtualbox>, ["~> 0.6.1"])
     s.add_dependency(%q<net-ssh>, [">= 2.0.19"])
     s.add_dependency(%q<net-scp>, [">= 1.0.2"])
-    s.add_dependency(%q<json_pure>, [">= 1.2.0"])
+    s.add_dependency(%q<json>, [">= 1.2.0"])
     s.add_dependency(%q<archive-tar-minitar>, ["= 0.5.2"])
     s.add_dependency(%q<mario>, ["~> 0.0.6"])
   end

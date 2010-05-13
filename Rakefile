@@ -13,7 +13,7 @@ begin
     gemspec.add_dependency('virtualbox', '~> 0.6.1')
     gemspec.add_dependency('net-ssh', '>= 2.0.19')
     gemspec.add_dependency('net-scp', '>= 1.0.2')
-    gemspec.add_dependency('json_pure', '>= 1.2.0')
+    gemspec.add_dependency('json', '>= 1.2.0')
     gemspec.add_dependency('archive-tar-minitar', '= 0.5.2')
     gemspec.add_dependency('mario', '~> 0.0.6')
   end

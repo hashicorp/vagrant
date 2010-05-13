@@ -7,6 +7,7 @@ gem "net-scp", ">= 1.0.2"
 gem "json", ">= 1.2.4"
 gem "archive-tar-minitar", "= 0.5.2"
 gem "mario", "~> 0.0.6"
+gem "jeweler", "~> 1.4.0"
 
 # Gems required for testing only. To install run
 # gem bundle test
