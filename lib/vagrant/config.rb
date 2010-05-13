@@ -45,8 +45,8 @@ module Vagrant
         send(key)
       end
 
-      def to_json
-        instance_variables_hash.to_json
+      def to_json(*a)
+        instance_variables_hash.to_json(*a)
       end
 
       def instance_variables_hash
