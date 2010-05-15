@@ -16,25 +16,50 @@ class CommandsUpTest < Test::Unit::TestCase
       @new_vm = mock("vm")
       @new_vm.stubs(:execute!)
 
-      @env.stubs(:vm).returns(nil)
+      @vms = {}
+
+      @env.stubs(:vms).returns(@vms)
       @env.stubs(:require_box)
-      @env.stubs(:create_vm).returns(@new_vm)
     end
 
-    should "require a box" do
-      @env.expects(:require_box).once
+    def create_vm
+      env = mock_environment
+      env.stubs(:require_box)
+
+      vm = mock("vm")
+      vm.stubs(:env).returns(env)
+      vm.stubs(:execute!)
+      vm.stubs(:created?).returns(false)
+      vm
+    end
+
+    should "require a box for all VMs" do
+      @vms[:foo] = create_vm
+      @vms[:bar] = create_vm
+
+      @vms.each do |name, vm|
+        vm.env.expects(:require_box).once
+      end
+
       @instance.execute
     end
 
-    should "call the up action on VM if it doesn't exist" do
-      @new_vm.expects(:execute!).with(Vagrant::Actions::VM::Up).once
+    should "start created VMs" do
+      vm = create_vm
+      vm.stubs(:created?).returns(true)
+
+      @vms[:foo] = vm
+
+      vm.expects(:start).once
       @instance.execute
     end
 
-    should "call start on the persisted vm if it exists" do
-      @env.stubs(:vm).returns(@persisted_vm)
-      @persisted_vm.expects(:start).once
-      @env.expects(:create_vm).never
+    should "up non-created VMs" do
+      vm = create_vm
+      vm.expects(:execute!).with(Vagrant::Actions::VM::Up).once
+      vm.expects(:start).never
+
+      @vms[:foo] = vm
       @instance.execute
     end
   end

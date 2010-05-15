@@ -16,10 +16,10 @@ module Vagrant
         env.vms.each do |name, vm|
           if vm.created?
             logger.info "VM '#{name}' already created. Booting if its not already running..."
-            # vm.start
+            vm.start
           else
             logger.info "Creating VM '#{name}'"
-            # env.create_vm.execute!(Actions::VM::Up)
+            vm.execute!(Actions::VM::Up)
           end
         end
       end
