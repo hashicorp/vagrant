@@ -23,7 +23,7 @@ module Vagrant
     #---------------------------------------------------------------
     # Class Methods
     #---------------------------------------------------------------
-    class <<self
+    class << self
       # Loads and returns an environment given a specific working
       # directory. If a working directory is not given, it will default
       # to the pwd.
@@ -203,11 +203,15 @@ module Vagrant
       # probably (read: should be) set on the VM attribute, so we do
       # nothing.
       return if vm_name
+
+      # Or, return if there is no root path set or the dotfile doesn't
+      # exist, since we can't do anything in that case anyways.
       return if !root_path || !File.file?(dotfile_path)
 
       # Empty out previously loaded vms
       vms.clear
 
+      # Open and parse the dotfile
       File.open(dotfile_path) do |f|
         data = { :__vagrant => f.read }
 

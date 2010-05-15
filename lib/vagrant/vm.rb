@@ -6,7 +6,7 @@ module Vagrant
     attr_reader :system
     attr_accessor :vm
 
-    class <<self
+    class << self
       # Finds a virtual machine by a given UUID and either returns
       # a Vagrant::VM object or returns nil.
       def find(uuid, env=nil, vm_name=nil)
@@ -27,12 +27,17 @@ module Vagrant
       @vm = opts[:vm]
 
       if !opts[:env].nil?
+        # We have an environment, so we create a new child environment
+        # specifically for this VM. This step will load any custom
+        # config and such.
         @env = Vagrant::Environment.new({
           :cwd => opts[:env].cwd,
           :parent => opts[:env],
           :vm_name => opts[:vm_name],
           :vm => self
         }).load!
+
+        # Load the associated system. 
         load_system!
       end
     end
