@@ -9,12 +9,18 @@ module Vagrant
       description "Creates the vagrant environment"
 
       def execute(args=[])
-        if env.vm
-          logger.info "VM already created. Starting VM if its not already running..."
-          env.vm.start
-        else
-          env.require_box
-          env.create_vm.execute!(Actions::VM::Up)
+        # First verify that all VMs have valid boxes
+        env.vms.each { |name, vm| vm.env.require_box unless vm.created? }
+
+        # Next, handle each VM
+        env.vms.each do |name, vm|
+          if vm.created?
+            logger.info "VM '#{name}' already created. Booting if its not already running..."
+            # vm.start
+          else
+            logger.info "Creating VM '#{name}'"
+            # env.create_vm.execute!(Actions::VM::Up)
+          end
         end
       end
 

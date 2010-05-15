@@ -372,12 +372,20 @@ class EnvironmentTest < Test::Unit::TestCase
         File.stubs(:file?).returns(true)
       end
 
+      should "blank the VMs" do
+        load_seq = sequence("load_seq")
+        @env.stubs(:root_path).returns("foo")
+        @env.expects(:load_blank_vms!).in_sequence(load_seq)
+        File.expects(:open).in_sequence(load_seq)
+        @env.load_vm!
+      end
+
       should "load the UUID if the JSON parsing fails" do
         vm = mock("vm")
 
         filemock = mock("filemock")
         filemock.expects(:read).returns("foo")
-        Vagrant::VM.expects(:find).with("foo", @env, :__vagrant).returns(vm)
+        Vagrant::VM.expects(:find).with("foo", @env, Vagrant::Environment::DEFAULT_VM).returns(vm)
         File.expects(:open).with(@env.dotfile_path).once.yields(filemock)
         File.expects(:file?).with(@env.dotfile_path).once.returns(true)
         @env.load_vm!
@@ -413,10 +421,13 @@ class EnvironmentTest < Test::Unit::TestCase
         @env.load_vm!
       end
 
-      should "do nothing if the root path is nil" do
+      should "do nothing if the dotfile is nil" do
+        @env.stubs(:dotfile_path).returns(nil)
         File.expects(:open).never
-        @env.stubs(:root_path).returns(nil)
-        @env.load_vm!
+
+        assert_nothing_raised {
+          @env.load_vm!
+        }
       end
 
       should "do nothing if dotfile is not a file" do
@@ -429,6 +440,37 @@ class EnvironmentTest < Test::Unit::TestCase
         File.expects(:open).raises(Errno::ENOENT)
         @env.load_vm!
         assert_nil @env.vm
+      end
+    end
+
+    context "loading blank VMs" do
+      setup do
+        @env = mock_environment
+      end
+
+      should "blank the VMs" do
+        @env = mock_environment do |config|
+          config.vm.define :foo do |config|
+          end
+
+          config.vm.define :bar do |config|
+          end
+        end
+
+        @env.load_blank_vms!
+
+        assert_equal 2, @env.vms.length
+        assert_equal [:foo, :bar], @env.vms.keys
+        assert(@env.vms.all? { |name, vm| !vm.created? })
+      end
+
+      should "load the default VM blank if no multi-VMs are specified" do
+        assert @env.config.vm.defined_vms.empty? # sanity
+
+        @env.load_blank_vms!
+
+        assert_equal 1, @env.vms.length
+        assert !@env.vms.values.first.created?
       end
     end
 

@@ -5,6 +5,7 @@ module Vagrant
   class Environment
     ROOTFILE_NAME = "Vagrantfile"
     HOME_SUBDIRS = ["tmp", "boxes"]
+    DEFAULT_VM = :default
 
     include Util
 
@@ -76,7 +77,7 @@ module Vagrant
     # The path to the `dotfile`, which contains the persisted UUID of
     # the VM if it exists.
     def dotfile_path
-      File.join(root_path, config.vagrant.dotfile_name)
+      root_path ? File.join(root_path, config.vagrant.dotfile_name) : nil
     end
 
     # The path to the home directory, which is usually in `~/.vagrant/~
@@ -204,19 +205,18 @@ module Vagrant
       # nothing.
       return if vm_name
 
-      # Or, return if there is no root path set or the dotfile doesn't
-      # exist, since we can't do anything in that case anyways.
-      return if !root_path || !File.file?(dotfile_path)
+      # First load the defaults (blank, noncreated VMs)
+      load_blank_vms!
 
-      # Empty out previously loaded vms
-      vms.clear
+      # If we have no dotfile, then return
+      return if !dotfile_path || !File.file?(dotfile_path)
 
       # Open and parse the dotfile
       File.open(dotfile_path) do |f|
-        data = { :__vagrant => f.read }
+        data = { DEFAULT_VM => f.read }
 
         begin
-          data = JSON.parse(data[:__vagrant])
+          data = JSON.parse(data[DEFAULT_VM])
         rescue JSON::ParserError
           # Most likely an older (<= 0.3.x) dotfile. Try to load it
           # as the :__vagrant VM.
@@ -229,6 +229,20 @@ module Vagrant
       end
     rescue Errno::ENOENT
       # Just rescue it.
+    end
+
+    # Loads blank VMs into the `vms` attribute.
+    def load_blank_vms!
+      # Clear existing vms
+      vms.clear
+
+      # Load up the blank VMs
+      defined_vms = config.vm.defined_vms.keys
+      defined_vms = [DEFAULT_VM] if defined_vms.empty?
+
+      defined_vms.each do |name|
+        vms[name] = Vagrant::VM.new(:vm_name => name, :env => self)
+      end
     end
 
     # Loads the activelist for this environment
