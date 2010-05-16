@@ -81,6 +81,7 @@ module Vagrant
       attr_accessor :base_mac
       attr_accessor :boot_mode
       attr_accessor :project_directory
+      attr_accessor :rsync_project_directory
       attr_reader :forwarded_ports
       attr_reader :shared_folders
       attr_accessor :hd_location
@@ -104,8 +105,16 @@ module Vagrant
         }
       end
 
-      def share_folder(name, guestpath, hostpath)
+      def share_folder(name, guestpath, hostpath = nil, opts = {})
+        guestpath, opts[:rsync] = shift(guestpath, opts[:rsync])
+
+        # TODO if both are nil the exception information will be unusable
+        if opts[:rsync] == guestpath
+          raise Exception.new("The rsync directory #{opts[:rsync]} is identical to the shifted shared folder mount point #{guestpath}")
+        end
+
         @shared_folders[name] = {
+          :rsyncpath => opts[:rsync],
           :guestpath => guestpath,
           :hostpath => hostpath
         }
@@ -139,6 +148,14 @@ module Vagrant
       def define(name, &block)
         defined_vms[name.to_sym] = block
       end
+
+      def shift(orig, rsync)
+        if rsync
+          [orig + '-rsync', rsync == true ? orig : rsync]
+        else
+          [orig, rsync]
+        end
+      end
     end
 
     class PackageConfig < Base
@@ -159,7 +176,7 @@ module Vagrant
     class Top < Base
       @@configures = []
 
-      class <<self
+      class << self
         def configures_list
           @@configures ||= []
         end

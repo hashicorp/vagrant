@@ -15,6 +15,7 @@ Vagrant::Config.run do |config|
   config.vm.box_ovf = "box.ovf"
   config.vm.base_mac = "0800279C2E42"
   config.vm.project_directory = "/vagrant"
+  config.vm.rsync_project_directory = false
   config.vm.forward_port("ssh", 22, 2222)
   config.vm.disk_image_format = 'VMDK'
   config.vm.provisioner = nil

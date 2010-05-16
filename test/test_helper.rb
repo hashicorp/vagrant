@@ -37,6 +37,7 @@ class Test::Unit::TestCase
       config.vm.box_ovf = "box.ovf"
       config.vm.base_mac = "42"
       config.vm.project_directory = "/vagrant"
+      config.vm.rsync_project_directory = false
       config.vm.disk_image_format = 'VMDK'
       config.vm.forward_port("ssh", 22, 2222)
       config.vm.shared_folder_uid = nil

@@ -257,6 +257,34 @@ class ConfigTest < Test::Unit::TestCase
       end
     end
 
+    context "shared folders" do
+      should "set the rsyncpath to nil by default" do
+        share_with_opts
+        assert !@config.shared_folders['foo'][:rsyncpath]
+      end
+
+      should "append rsync to directory name when boolean" do
+        share_with_opts(:rsync => true)
+        assert_equal @config.shared_folders['foo'][:rsyncpath], 'foo-dir'
+        assert_equal @config.shared_folders['foo'][:guestpath], 'foo-dir-rsync'
+      end
+
+      should "use the specified rsync directory" do
+        share_with_opts(:rsync => 'bar-baz')
+        assert_equal @config.shared_folders['foo'][:rsyncpath], 'bar-baz'
+      end
+
+      should "raise an exception an exception if the guestpath and rsyncpath are the same" do
+        assert_raise Exception do
+          share_with_opts(:rsync => 'foo-dir-rsync')
+        end
+      end
+
+      def share_with_opts(opts={})
+        @config.share_folder('foo', 'foo-dir', '', opts)
+      end
+    end
+
     context "uid/gid" do
       should "return the shared folder UID if set" do
         @config.shared_folder_uid = "foo"
