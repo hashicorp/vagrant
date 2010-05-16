@@ -460,8 +460,10 @@ class EnvironmentTest < Test::Unit::TestCase
         @env.load_blank_vms!
 
         assert_equal 2, @env.vms.length
-        assert_equal [:foo, :bar], @env.vms.keys
         assert(@env.vms.all? { |name, vm| !vm.created? })
+
+        sorted_vms = @env.vms.keys.sort { |a,b| a.to_s <=> b.to_s }
+        assert_equal [:bar, :foo], sorted_vms
       end
 
       should "load the default VM blank if no multi-VMs are specified" do
@@ -593,54 +595,53 @@ class EnvironmentTest < Test::Unit::TestCase
       @vm.stubs(:uuid).returns("foo")
       @env.stubs(:vm).returns(@vm)
     end
+  end
 
-    context "persisting the VM into a file" do
-      setup do
-        mock_vm
-
-        File.stubs(:open)
-        @env.active_list.stubs(:add)
-      end
-
-      should "should save it to the dotfile path" do
-        filemock = mock("filemock")
-        filemock.expects(:write).with(@vm.uuid)
-        File.expects(:open).with(@env.dotfile_path, 'w+').once.yields(filemock)
-        @env.persist_vm
-      end
-
-      should "add the VM to the activelist" do
-        @env.active_list.expects(:add).with(@vm)
-        @env.persist_vm
-      end
+  context "updating the dotfile" do
+    setup do
+      @env = mock_environment
+      @env.stubs(:parent).returns(nil)
+      @env.stubs(:dotfile_path).returns("foo")
+      File.stubs(:open)
     end
 
-    context "depersisting the VM" do
-      setup do
-        mock_vm
+    def create_vm(created)
+      vm = mock("vm")
+      vm.stubs(:created?).returns(created)
+      vm.stubs(:uuid).returns("foo")
+      vm
+    end
 
-        File.stubs(:exist?).returns(false)
-        File.stubs(:delete)
+    should "call parent if exists" do
+      parent = mock("parent")
+      @env.stubs(:parent).returns(parent)
+      parent.expects(:update_dotfile).once
 
-        @env.active_list.stubs(:remove)
+      @env.update_dotfile
+    end
+
+    should "write the proper data to dotfile" do
+      vms = {
+        :foo => create_vm(false),
+        :bar => create_vm(true),
+        :baz => create_vm(true)
+      }
+
+      f = mock("f")
+      @env.stubs(:vms).returns(vms)
+      File.expects(:open).with(@env.dotfile_path, 'w+').yields(f)
+      f.expects(:write).with() do |json|
+        assert_nothing_raised {
+          data = JSON.parse(json)
+          assert_equal 2, data.length
+          assert_equal vms[:bar].uuid, data["bar"]
+          assert_equal vms[:baz].uuid, data["baz"]
+        }
+
+        true
       end
 
-      should "remove the dotfile if it exists" do
-        File.expects(:exist?).with(@env.dotfile_path).returns(true)
-        File.expects(:delete).with(@env.dotfile_path).once
-        @env.depersist_vm
-      end
-
-      should "not remove the dotfile if it doesn't exist" do
-        File.expects(:exist?).returns(false)
-        File.expects(:delete).never
-        @env.depersist_vm
-      end
-
-      should "remove from the active list" do
-        @env.active_list.expects(:remove).with(@vm)
-        @env.depersist_vm
-      end
+      @env.update_dotfile
     end
   end
 end

@@ -263,23 +263,25 @@ module Vagrant
 
     # Persists this environment's VM to the dotfile so it can be
     # re-loaded at a later time.
-    def persist_vm
-      # Save to the dotfile for this project
+    def update_dotfile
+      if parent
+        parent.update_dotfile
+        return
+      end
+
+      # Generate and save the persisted VM info
+      data = vms.inject({}) do |acc, data|
+        key, value = data
+        acc[key] = value.uuid if value.created?
+        acc
+      end
+
       File.open(dotfile_path, 'w+') do |f|
-        f.write(vm.uuid)
+        f.write(data.to_json)
       end
 
       # Also add to the global store
-      active_list.add(vm)
-    end
-
-    # Removes this environment's VM from the dotfile.
-    def depersist_vm
-      # Delete the dotfile if it exists
-      File.delete(dotfile_path) if File.exist?(dotfile_path)
-
-      # Remove from the global store
-      active_list.remove(vm)
+      # active_list.add(vm)
     end
 
     #---------------------------------------------------------------
