@@ -143,6 +143,11 @@
   For a more detailed guide please consult:
 
      http://vagrantup.com/docs/getting-started/windows.html
+:ssh_multivm: |-
+  Because this Vagrant environment represents multiple VMs, a
+  specific VM must be specified. This can be done by calling
+  `vagrant ssh NAME` where NAME is a valid VM represented by
+  your Vagrantfile.
 :system_invalid_class: |-
   The specified system does not inherit from `Vagrant::Systems::Base`. The
   specified system class must inherit from this class.

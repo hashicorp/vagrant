@@ -10,8 +10,28 @@ module Vagrant
       description "SSH into the currently running environment"
 
       def execute(args=[])
-        env.require_persisted_vm
-        env.vm.ssh.connect
+        args = parse_options(args)
+        ssh_connect(args[0])
+      end
+
+      def ssh_connect(name)
+        if name.nil? && env.multivm?
+          error_and_exit(:ssh_multivm)
+          return # for tests
+        end
+
+        vm = name.nil? ? env.vms.values.first :  env.vms[name.to_sym]
+        if vm.nil?
+          error_and_exit(:unknown_vm, :vm => name)
+          return # for tests
+        end
+
+        if !vm.created?
+          error_and_exit(:environment_not_created)
+          return
+        else
+          vm.ssh.connect
+        end
       end
 
       def options_spec(opts)
