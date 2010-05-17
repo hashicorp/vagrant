@@ -4,30 +4,58 @@ class CommandsResumeTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Commands::Resume
 
-    @persisted_vm = mock("persisted_vm")
-    @persisted_vm.stubs(:execute!)
-
     @env = mock_environment
-    @env.stubs(:require_persisted_vm)
-    @env.stubs(:vm).returns(@persisted_vm)
-
     @instance = @klass.new(@env)
   end
 
   context "executing" do
+    should "call on all if no name is given" do
+      @instance.expects(:resume_all).once
+      @instance.execute
+    end
+
+    should "call on single if a name is given" do
+      @instance.expects(:resume_single).with("foo").once
+      @instance.execute(["foo"])
+    end
+  end
+
+  context "resume all" do
+    should "resume each VM" do
+      vms = { :foo => nil, :bar => nil, :baz => nil }
+      @env.stubs(:vms).returns(vms)
+
+      vms.each do |name, value|
+        @instance.expects(:resume_single).with(name).once
+      end
+
+      @instance.resume_all
+    end
+  end
+
+  context "resuming a single VM" do
     setup do
-      @persisted_vm.stubs(:resume)
-      @persisted_vm.stubs(:saved?).returns(true)
+      @foo_vm = mock("vm")
+      vms = { :foo => @foo_vm }
+      @env.stubs(:vms).returns(vms)
     end
 
-    should "require a persisted VM" do
-      @env.expects(:require_persisted_vm).once
-      @instance.execute
+    should "error and exit if the VM doesn't exist" do
+      @env.stubs(:vms).returns({})
+      @instance.expects(:error_and_exit).with(:unknown_vm, :vm => :foo).once
+      @instance.resume_single(:foo)
     end
 
-    should "save the state of the VM" do
-      @persisted_vm.expects(:resume).once
-      @instance.execute
+    should "resume if its created" do
+      @foo_vm.stubs(:created?).returns(true)
+      @foo_vm.expects(:resume).once
+      @instance.execute(["foo"])
+    end
+
+    should "do nothing if its not created" do
+      @foo_vm.stubs(:created?).returns(false)
+      @foo_vm.expects(:resume).never
+      @instance.resume_single(:foo)
     end
   end
 end

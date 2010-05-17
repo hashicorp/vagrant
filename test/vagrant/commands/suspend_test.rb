@@ -46,13 +46,7 @@ class CommandsSuspendTest < Test::Unit::TestCase
       @instance.suspend_single(:foo)
     end
 
-    should "halt if its created" do
-      @foo_vm.stubs(:created?).returns(true)
-      @foo_vm.expects(:suspend).once
-      @instance.execute(["foo"])
-    end
-
-    should "halt and force if specified" do
+    should "suspend if its created" do
       @foo_vm.stubs(:created?).returns(true)
       @foo_vm.expects(:suspend).once
       @instance.execute(["foo"])
