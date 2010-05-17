@@ -100,6 +100,17 @@ module Vagrant
       @vms ||= {}
     end
 
+    # Returns a boolean whether this environment represents a multi-VM
+    # environment or not. This will work even when called on child
+    # environments.
+    def multivm?
+      if parent
+        parent.multivm?
+      else
+        vms.length > 1
+      end
+    end
+
     #---------------------------------------------------------------
     # Load Methods
     #---------------------------------------------------------------

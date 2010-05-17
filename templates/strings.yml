@@ -6,6 +6,10 @@
 #---------------------------------------------------------------------
 # CATEGORY: Status Messages
 #---------------------------------------------------------------------
+:status_listing: |-
+  This environment represents multiple VMs. The VMs will be listed
+  below with a short status. For more detailed information about a
+  VM, run `vagrant status NAME`.
 :status_no_environment: |-
   No vagrant environment detected. Run `vagrant init` to setup a Vagrantfile
   in the current directory to get started with Vagrant.

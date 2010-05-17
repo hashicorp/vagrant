@@ -124,6 +124,41 @@ class EnvironmentTest < Test::Unit::TestCase
     end
   end
 
+  context "multivm? helper" do
+    setup do
+      @env = mock_environment
+    end
+
+    context "with a parent" do
+      setup do
+        @parent = mock('parent')
+        @env.stubs(:parent).returns(@parent)
+      end
+
+      should "return the value of multivm? from the parent" do
+        result = mock("result")
+        @parent.stubs(:multivm?).returns(result)
+        assert_equal result, @env.multivm?
+      end
+    end
+
+    context "without a parent" do
+      setup do
+        @env.stubs(:parent).returns(nil)
+      end
+
+      should "return true if VM length greater than 1" do
+        @env.stubs(:vms).returns([1,2,3])
+        assert @env.multivm?
+      end
+
+      should "return false if VM length is 1" do
+        @env.stubs(:vms).returns([1])
+        assert !@env.multivm?
+      end
+    end
+  end
+
   context "loading" do
     setup do
       @env = mock_environment

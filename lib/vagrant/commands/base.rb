@@ -12,7 +12,7 @@ module Vagrant
 
       attr_reader :env
 
-      class <<self
+      class << self
         # Contains the list of registered subcommands. The registered commands are
         # stored in a hash table and are therefore unordered.
         #
@@ -126,7 +126,6 @@ module Vagrant
       # to parse command line options.
       def parse_options(args)
         option_parser.parse!(args)
-        options
       rescue OptionParser::InvalidOption
         show_help
       end

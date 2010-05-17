@@ -4,6 +4,7 @@ module Vagrant
 
     attr_reader :env
     attr_reader :system
+    attr_reader :name
     attr_accessor :vm
 
     class << self
@@ -25,6 +26,7 @@ module Vagrant
       opts = defaults.merge(opts || {})
 
       @vm = opts[:vm]
+      @name = opts[:vm_name]
 
       if !opts[:env].nil?
         # We have an environment, so we create a new child environment
@@ -37,7 +39,7 @@ module Vagrant
           :vm => self
         }).load!
 
-        # Load the associated system. 
+        # Load the associated system.
         load_system!
       end
     end

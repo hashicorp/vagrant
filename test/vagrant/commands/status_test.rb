@@ -26,5 +26,15 @@ class CommandsStatusTest < Test::Unit::TestCase
       @instance.expects(:show_global_status).once
       @instance.execute(["--global"])
     end
+
+    should "show help if too many args are given" do
+      @instance.expects(:show_help).once
+      @instance.execute(["1","2","3"])
+    end
+
+    should "pass the VM name to local status if given" do
+      @instance.expects(:show_local_status).with("foo").once
+      @instance.execute(["foo"])
+    end
   end
 end
