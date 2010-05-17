@@ -108,6 +108,11 @@
   <%= Vagrant::Environment::ROOTFILE_NAME %> and running `vagrant up`
 :package_include_file_doesnt_exist: |-
   File specified to include: '<%= filename %>' does not exist!
+:package_multivm: |-
+  Because this Vagrant environment represents multiple VMs, a
+  specific VM must be specified. This can be done by calling
+  `vagrant package NAME` where NAME is a valid VM represented by
+  your Vagrantfile.
 :package_requires_export: |-
   Package must be used in conjunction with export.
 :provisioner_invalid_class: |-

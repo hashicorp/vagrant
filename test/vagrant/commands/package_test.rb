@@ -4,81 +4,102 @@ class CommandsPackageTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Commands::Package
 
-    @persisted_vm = mock("persisted_vm")
-    @persisted_vm.stubs(:execute!)
-
     @env = mock_environment
-    @env.stubs(:require_persisted_vm)
-    @env.stubs(:vm).returns(@persisted_vm)
-
     @instance = @klass.new(@env)
   end
 
   context "executing" do
+    should "package base if a base is given" do
+      @instance.expects(:package_base).once
+      @instance.execute(["--base","foo"])
+    end
+
+    should "package single if no name is given" do
+      @instance.expects(:package_single).with(nil).once
+      @instance.execute
+    end
+
+    should "package single if a name is given" do
+      @instance.expects(:package_single).with("foo").once
+      @instance.execute(["foo"])
+    end
+  end
+
+  context "packaging base" do
+    should "error and exit if no VM is found" do
+      Vagrant::VM.expects(:find).with("foo").returns(nil)
+      @instance.expects(:error_and_exit).with(:vm_base_not_found, :name => "foo").once
+      @instance.execute(["--base", "foo"])
+    end
+
+    should "package the VM like any other VM" do
+      vm = mock("vm")
+      Vagrant::VM.expects(:find).with("foo").returns(vm)
+      vm.expects(:env=).with(@env).once
+      @instance.expects(:package_vm).with(vm).once
+      @instance.execute(["--base", "foo"])
+    end
+  end
+
+  context "packaging a single VM" do
     setup do
-      @persisted_vm.stubs(:package)
-      @persisted_vm.stubs(:powered_off?).returns(true)
+      @vm = mock("vm")
+      @vm.stubs(:created?).returns(true)
+
+      @vms = {:bar => @vm}
+      @env.stubs(:vms).returns(@vms)
+      @env.stubs(:multivm?).returns(false)
     end
 
-    context "with no base specified" do
-      should "require a persisted vm" do
-        @env.expects(:require_persisted_vm).once
-        @instance.execute
-      end
+    should "error and exit if no name is given in a multi-vm env" do
+      @env.stubs(:multivm?).returns(true)
+      @instance.expects(:error_and_exit).with(:package_multivm).once
+      @instance.package_single(nil)
     end
 
-    context "with base specified" do
-      setup do
-        @vm = mock("vm")
-
-        Vagrant::VM.stubs(:find).with(@name).returns(@vm)
-        @vm.stubs(:env=).with(@env)
-        @env.stubs(:vm=)
-
-        @name = "bar"
-      end
-
-      should "find the given base and set it on the env" do
-        Vagrant::VM.expects(:find).with(@name).returns(@vm)
-        @vm.expects(:env=).with(@env)
-        @env.expects(:vm=).with(@vm)
-
-        @instance.execute(["foo", "--base", @name])
-      end
-
-      should "error if the VM is not found" do
-        Vagrant::VM.expects(:find).with(@name).returns(nil)
-        @instance.expects(:error_and_exit).with(:vm_base_not_found, :name => @name).once
-
-        @instance.execute(["foo", "--base", @name])
-      end
+    should "error and exit if the VM doesn't exist" do
+      @instance.expects(:error_and_exit).with(:unknown_vm, :vm => :foo).once
+      @instance.package_single(:foo)
     end
 
-    context "shared (with and without base specified)" do
-      should "error and exit if the VM is not powered off" do
-        @persisted_vm.stubs(:powered_off?).returns(false)
-        @instance.expects(:error_and_exit).with(:vm_power_off_to_package).once
-        @persisted_vm.expects(:package).never
-        @instance.execute
-      end
+    should "error and exit if the VM is not created" do
+      @vm.stubs(:created?).returns(false)
+      @instance.expects(:error_and_exit).with(:environment_not_created).once
+      @instance.package_single(:bar)
+    end
 
-      should "call package on the persisted VM" do
-        @persisted_vm.expects(:package).once
-        @instance.execute
-      end
+    should "use the first VM is no name is given in a single VM environment" do
+      @instance.expects(:package_vm).with(@vm).once
+      @instance.package_single(nil)
+    end
 
-      should "pass the out path and include_files to the package method" do
-        out_path = mock("out_path")
-        include_files = "foo"
-        @persisted_vm.expects(:package).with(out_path, [include_files]).once
-        @instance.execute([out_path, "--include", include_files])
-      end
+    should "package the VM" do
+      @instance.expects(:package_vm).with(@vm).once
+      @instance.package_single(:bar)
+    end
+  end
 
-      should "default to an empty array when not include_files are specified" do
-        out_path = mock("out_path")
-        @persisted_vm.expects(:package).with(out_path, []).once
-        @instance.execute([out_path])
-      end
+  context "packaging a VM" do
+    setup do
+      @vm = mock("vm")
+      @vm.stubs(:powered_off?).returns(true)
+
+      @options = {}
+      @instance.stubs(:options).returns(@options)
+    end
+
+    should "error and exit if VM is not powered off" do
+      @vm.stubs(:powered_off?).returns(false)
+      @instance.expects(:error_and_exit).with(:vm_power_off_to_package).once
+      @instance.package_vm(@vm)
+    end
+
+    should "package the VM with the proper arguments" do
+      @options[:output] = "foo.box"
+      @options[:include] = :bar
+
+      @vm.expects(:package).with(@options[:output], @options[:include]).once
+      @instance.package_vm(@vm)
     end
   end
 end
