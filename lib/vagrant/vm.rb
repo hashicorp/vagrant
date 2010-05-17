@@ -99,6 +99,10 @@ module Vagrant
       execute!
     end
 
+    def up
+      execute!(Actions::VM::Up)
+    end
+
     def start
       return if @vm.running?
 

@@ -4,13 +4,7 @@ class CommandsHaltTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Commands::Halt
 
-    @persisted_vm = mock("persisted_vm")
-    @persisted_vm.stubs(:execute!)
-
     @env = mock_environment
-    @env.stubs(:require_persisted_vm)
-    @env.stubs(:vm).returns(@persisted_vm)
-
     @instance = @klass.new(@env)
   end
 

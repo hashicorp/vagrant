@@ -9,18 +9,40 @@ module Vagrant
       description "Creates the vagrant environment"
 
       def execute(args=[])
+        args = parse_options(args)
+
+        if args[0]
+          up_single(args[0])
+        else
+          up_all
+        end
+      end
+
+      def up_single(name)
+        vm = env.vms[name.to_sym]
+        if vm.nil?
+          error_and_exit(:unknown_vm, :vm => name)
+          return # for tests
+        end
+
+        if vm.created?
+          logger.info "VM '#{name}' already created. Booting if its not already running..."
+          vm.start
+        else
+          vm.env.require_box
+
+          logger.info "Creating VM '#{name}'"
+          vm.up
+        end
+      end
+
+      def up_all
         # First verify that all VMs have valid boxes
         env.vms.each { |name, vm| vm.env.require_box unless vm.created? }
 
         # Next, handle each VM
-        env.vms.each do |name, vm|
-          if vm.created?
-            logger.info "VM '#{name}' already created. Booting if its not already running..."
-            vm.start
-          else
-            logger.info "Creating VM '#{name}'"
-            vm.execute!(Actions::VM::Up)
-          end
+        env.vms.keys.each do |name|
+          up_single(name)
         end
       end
 

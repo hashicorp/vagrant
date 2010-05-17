@@ -161,6 +161,13 @@ class VMTest < Test::Unit::TestCase
       end
     end
 
+    context "upping" do
+      should "execute the up action" do
+        @vm.expects(:execute!).with(Vagrant::Actions::VM::Up).once
+        @vm.up
+      end
+    end
+
     context "halting" do
       should "execute the halt action" do
         @vm.expects(:execute!).with(Vagrant::Actions::VM::Halt, false).once
