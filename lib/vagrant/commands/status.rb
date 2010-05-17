@@ -39,6 +39,7 @@ module Vagrant
             # No specific VM was specified in a multi-vm environment,
             # so show short info for each VM
             show_list
+            return
           else
             # Set the VM to just be the root VM
             vm = env.vms.values.first
@@ -56,9 +57,11 @@ module Vagrant
       def show_list
         wrap_output do
           puts Translator.t(:status_listing)
+          puts ""
 
           env.vms.each do |name, vm|
-            puts "#{name.ljust(20)}#{vm.state}"
+            state = vm.created? ? vm.vm.state : "not created"
+            puts "#{name.to_s.ljust(30)}#{state}"
           end
         end
       end
