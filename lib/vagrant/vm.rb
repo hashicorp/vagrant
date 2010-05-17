@@ -105,6 +105,10 @@ module Vagrant
       execute!(Actions::VM::Start)
     end
 
+    def halt(force=false)
+      execute!(Actions::VM::Halt, force)
+    end
+
     def destroy
       execute!(Actions::VM::Down)
     end

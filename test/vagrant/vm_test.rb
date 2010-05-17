@@ -161,6 +161,18 @@ class VMTest < Test::Unit::TestCase
       end
     end
 
+    context "halting" do
+      should "execute the halt action" do
+        @vm.expects(:execute!).with(Vagrant::Actions::VM::Halt, false).once
+        @vm.halt
+      end
+
+      should "force if specified" do
+        @vm.expects(:execute!).with(Vagrant::Actions::VM::Halt, true).once
+        @vm.halt(true)
+      end
+    end
+
     context "destroying" do
       should "execute the down action" do
         @vm.expects(:execute!).with(Vagrant::Actions::VM::Down).once
