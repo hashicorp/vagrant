@@ -46,7 +46,7 @@ module Vagrant
         else
           # Try to get the vm based on the name. If the specified VM
           # doesn't exist, then error saying so
-          vm = env.vms[vm.to_sym]
+          vm = env.vms[vm.to_sym] || error_and_exit(:unknown_vm, :vm => vm)
         end
 
         show_single(vm)

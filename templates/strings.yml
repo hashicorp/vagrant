@@ -154,6 +154,8 @@
 :system_unspecified: |-
   A VM system type must be specified! This is done via the `config.vm.system`
   configuration value. Please read the documentation online for more information.
+:unknown_vm: |-
+  The specified VM could not be found: <%= vm %>
 :virtualbox_import_failure: |-
   The VM import failed! Try running `VBoxManage import` on the box file
   manually for more verbose error output.
