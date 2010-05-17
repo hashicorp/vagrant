@@ -113,6 +113,10 @@ module Vagrant
       execute!(Actions::VM::Halt, force)
     end
 
+    def reload
+      execute!(Actions::VM::Reload)
+    end
+
     def destroy
       execute!(Actions::VM::Down)
     end
