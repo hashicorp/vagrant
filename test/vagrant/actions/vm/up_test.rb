@@ -63,19 +63,19 @@ class UpActionTest < Test::Unit::TestCase
   end
 
   context "callbacks" do
-    should "call persist and mac address setup after import" do
+    should "call update dotfile and mac address setup after import" do
       boot_seq = sequence("boot")
-      @action.expects(:persist).once.in_sequence(boot_seq)
+      @action.expects(:update_dotfile).once.in_sequence(boot_seq)
       @action.expects(:setup_mac_address).once.in_sequence(boot_seq)
       @action.after_import
     end
   end
 
-  context "persisting" do
-    should "persist the VM with Env" do
+  context "updating the dotfile" do
+    should "call update dotfile on the VM's environment" do
       @runner.stubs(:uuid)
-      @runner.env.expects(:persist_vm).once
-      @action.persist
+      @runner.env.expects(:update_dotfile).once
+      @action.update_dotfile
     end
   end
 

@@ -11,10 +11,33 @@ module Vagrant
       description "Halts the currently running vagrant environment"
 
       def execute(args=[])
-        parse_options(args)
+        args = parse_options(args)
 
-        env.require_persisted_vm
-        env.vm.execute!(Actions::VM::Halt, options[:force])
+        if args[0]
+          halt_single(args[0])
+        else
+          halt_all
+        end
+      end
+
+      def halt_single(name)
+        vm = env.vms[name.to_sym]
+        if vm.nil?
+          error_and_exit(:unknown_vm, :vm => name)
+          return # for tests
+        end
+
+        if vm.created?
+          vm.halt(options[:force])
+        else
+          logger.info "VM '#{name}' not created. Ignoring."
+        end
+      end
+
+      def halt_all
+        env.vms.keys.each do |name|
+          halt_single(name)
+        end
       end
 
       def options_spec(opts)

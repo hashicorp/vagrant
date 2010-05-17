@@ -14,18 +14,20 @@ class VMTest < Test::Unit::TestCase
 
   context "being an action runner" do
     should "be an action runner" do
-      vm = Vagrant::VM.new(@env)
+      vm = Vagrant::VM.new(:env => @env)
       assert vm.is_a?(Vagrant::Actions::Runner)
     end
   end
 
   context "finding a VM" do
-    should "return nil if the VM is not found" do
+    should "return return an uncreated VM object if the VM is not found" do
       VirtualBox::VM.expects(:find).returns(nil)
-      assert_nil Vagrant::VM.find("foo")
+      result = Vagrant::VM.find("foo")
+      assert result.is_a?(Vagrant::VM)
+      assert !result.created?
     end
 
-    should "return a Vagrant::VM object for that VM otherwise" do
+    should "return a Vagrant::VM object for that VM if found" do
       VirtualBox::VM.expects(:find).with("foo").returns("bar")
       result = Vagrant::VM.find("foo", mock_environment)
       assert result.is_a?(Vagrant::VM)
@@ -35,8 +37,42 @@ class VMTest < Test::Unit::TestCase
 
   context "vagrant VM instance" do
     setup do
-      @vm = Vagrant::VM.new(@env, @mock_vm)
+      @vm = Vagrant::VM.new(:env => @env, :vm => @mock_vm)
       @mock_vm.stubs(:uuid).returns("foo")
+    end
+
+    context "checking if created" do
+      should "return true if the VM object is not nil" do
+        @vm.stubs(:vm).returns(:foo)
+        assert @vm.created?
+      end
+
+      should "return false if the VM object is nil" do
+        @vm.stubs(:vm).returns(nil)
+        assert !@vm.created?
+      end
+    end
+
+    context "accessing the SSH object" do
+      setup do
+        # Reset this to nil to force the reload
+        @vm.instance_variable_set(:@ssh, nil)
+
+        @ssh = mock("ssh")
+        Vagrant::SSH.stubs(:new).returns(@ssh)
+      end
+
+      should "load it the first time" do
+        Vagrant::SSH.expects(:new).with(@vm.env).once.returns(@ssh)
+        @vm.ssh
+        @vm.ssh
+        @vm.ssh
+      end
+
+      should "use the same value once its loaded" do
+        result = @vm.ssh
+        assert_equal result, @vm.ssh
+      end
     end
 
     context "loading associated system" do
@@ -122,6 +158,32 @@ class VMTest < Test::Unit::TestCase
         @vm.expects(:add_action).with(Vagrant::Actions::VM::Package, out_path, []).once.in_sequence(action_seq)
         @vm.expects(:execute!).in_sequence(action_seq)
         @vm.package(out_path)
+      end
+    end
+
+    context "upping" do
+      should "execute the up action" do
+        @vm.expects(:execute!).with(Vagrant::Actions::VM::Up).once
+        @vm.up
+      end
+    end
+
+    context "halting" do
+      should "execute the halt action" do
+        @vm.expects(:execute!).with(Vagrant::Actions::VM::Halt, false).once
+        @vm.halt
+      end
+
+      should "force if specified" do
+        @vm.expects(:execute!).with(Vagrant::Actions::VM::Halt, true).once
+        @vm.halt(true)
+      end
+    end
+
+    context "reloading" do
+      should "execute the reload action" do
+        @vm.expects(:execute!).with(Vagrant::Actions::VM::Reload).once
+        @vm.reload
       end
     end
 

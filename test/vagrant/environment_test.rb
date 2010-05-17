@@ -42,13 +42,13 @@ class EnvironmentTest < Test::Unit::TestCase
     end
 
     should "create the environment with given cwd, load it, and return it" do
-      Vagrant::Environment.expects(:new).with(@cwd).once.returns(@env)
+      Vagrant::Environment.expects(:new).with(:cwd => @cwd).once.returns(@env)
       @env.expects(:load!).returns(@env)
       assert_equal @env, Vagrant::Environment.load!(@cwd)
     end
 
     should "work without a given cwd" do
-      Vagrant::Environment.expects(:new).with(nil).returns(@env)
+      Vagrant::Environment.expects(:new).with(:cwd => nil).returns(@env)
 
       assert_nothing_raised {
         env = Vagrant::Environment.load!
@@ -60,7 +60,7 @@ class EnvironmentTest < Test::Unit::TestCase
   context "initialization" do
     should "set the cwd if given" do
       cwd = "foobarbaz"
-      env = Vagrant::Environment.new(cwd)
+      env = Vagrant::Environment.new(:cwd => cwd)
       assert_equal cwd, env.cwd
     end
 
@@ -124,6 +124,41 @@ class EnvironmentTest < Test::Unit::TestCase
     end
   end
 
+  context "multivm? helper" do
+    setup do
+      @env = mock_environment
+    end
+
+    context "with a parent" do
+      setup do
+        @parent = mock('parent')
+        @env.stubs(:parent).returns(@parent)
+      end
+
+      should "return the value of multivm? from the parent" do
+        result = mock("result")
+        @parent.stubs(:multivm?).returns(result)
+        assert_equal result, @env.multivm?
+      end
+    end
+
+    context "without a parent" do
+      setup do
+        @env.stubs(:parent).returns(nil)
+      end
+
+      should "return true if VM length greater than 1" do
+        @env.stubs(:vms).returns([1,2,3])
+        assert @env.multivm?
+      end
+
+      should "return false if VM length is 1" do
+        @env.stubs(:vms).returns([1])
+        assert !@env.multivm?
+      end
+    end
+  end
+
   context "loading" do
     setup do
       @env = mock_environment
@@ -139,7 +174,6 @@ class EnvironmentTest < Test::Unit::TestCase
         @env.expects(:load_config!).once.in_sequence(call_seq)
         Vagrant::Environment.expects(:check_virtualbox!).once.in_sequence(call_seq)
         @env.expects(:load_vm!).once.in_sequence(call_seq)
-        @env.expects(:load_ssh!).once.in_sequence(call_seq)
         @env.expects(:load_active_list!).once.in_sequence(call_seq)
         @env.expects(:load_commands!).once.in_sequence(call_seq)
         assert_equal @env, @env.load!
@@ -216,9 +250,9 @@ class EnvironmentTest < Test::Unit::TestCase
         @env.stubs(:root_path).returns(@root_path)
         @env.stubs(:home_path).returns(@home_path)
 
+        @parent_env = mock_environment
+
         File.stubs(:exist?).returns(false)
-        Vagrant::Config.stubs(:execute!)
-        Vagrant::Config.stubs(:reset!)
       end
 
       should "reset the configuration object" do
@@ -266,6 +300,25 @@ class EnvironmentTest < Test::Unit::TestCase
         @env.expects(:box).twice.returns(box)
         File.expects(:exist?).with(File.join(dir, Vagrant::Environment::ROOTFILE_NAME)).once
         @env.load_config!
+      end
+
+      should "load a sub-VM configuration if specified" do
+        vm_name = :foo
+        sub_box = :YO
+        @parent_env.config.vm.box = :NO
+        @parent_env.config.vm.define(vm_name) do |config|
+          config.vm.box = sub_box
+        end
+
+        # Sanity
+        assert_equal :NO, @parent_env.config.vm.box
+
+        @env.stubs(:vm_name).returns(vm_name)
+        @env.stubs(:parent).returns(@parent_env)
+
+        @env.load_config!
+
+        assert_equal sub_box, @env.config.vm.box
       end
 
       should "load the files only if exist? returns true" do
@@ -354,34 +407,62 @@ class EnvironmentTest < Test::Unit::TestCase
         File.stubs(:file?).returns(true)
       end
 
-      should "loading of the uuid from the dotfile" do
+      should "blank the VMs" do
+        load_seq = sequence("load_seq")
+        @env.stubs(:root_path).returns("foo")
+        @env.expects(:load_blank_vms!).in_sequence(load_seq)
+        File.expects(:open).in_sequence(load_seq)
+        @env.load_vm!
+      end
+
+      should "load the UUID if the JSON parsing fails" do
         vm = mock("vm")
 
         filemock = mock("filemock")
         filemock.expects(:read).returns("foo")
-        Vagrant::VM.expects(:find).with("foo", @env).returns(vm)
+        Vagrant::VM.expects(:find).with("foo", @env, Vagrant::Environment::DEFAULT_VM).returns(vm)
         File.expects(:open).with(@env.dotfile_path).once.yields(filemock)
         File.expects(:file?).with(@env.dotfile_path).once.returns(true)
         @env.load_vm!
 
-        assert_equal vm, @env.vm
+        assert_equal vm,  @env.vms.values.first
       end
 
-      should "not set the environment if the VM is nil" do
+      should "load all the VMs from the dotfile" do
+        vms = { :foo => "bar", :bar => "baz" }
+        results = {}
+
         filemock = mock("filemock")
-        filemock.expects(:read).returns("foo")
-        Vagrant::VM.expects(:find).with("foo", @env).returns(nil)
+        filemock.expects(:read).returns(vms.to_json)
         File.expects(:open).with(@env.dotfile_path).once.yields(filemock)
         File.expects(:file?).with(@env.dotfile_path).once.returns(true)
 
-        assert_nothing_raised { @env.load_vm! }
-        assert_nil @env.vm
+        vms.each do |key, value|
+          vm = mock("vm#{key}")
+          Vagrant::VM.expects(:find).with(value, @env, key.to_sym).returns(vm)
+          results[key] = vm
+        end
+
+        @env.load_vm!
+
+        results.each do |key, value|
+          assert_equal value, @env.vms[key]
+        end
       end
 
-      should "do nothing if the root path is nil" do
+      should "do nothing if the vm_name is set" do
+        @env.stubs(:vm_name).returns(:foo)
         File.expects(:open).never
-        @env.stubs(:root_path).returns(nil)
         @env.load_vm!
+      end
+
+      should "do nothing if the dotfile is nil" do
+        @env.stubs(:dotfile_path).returns(nil)
+        File.expects(:open).never
+
+        assert_nothing_raised {
+          @env.load_vm!
+        }
       end
 
       should "do nothing if dotfile is not a file" do
@@ -397,16 +478,36 @@ class EnvironmentTest < Test::Unit::TestCase
       end
     end
 
-    context "loading SSH" do
+    context "loading blank VMs" do
       setup do
         @env = mock_environment
       end
 
-      should "initialize the SSH object with the given environment" do
-        ssh = mock("ssh")
-        Vagrant::SSH.expects(:new).with(@env).returns(ssh)
-        @env.load_ssh!
-        assert_equal ssh, @env.ssh
+      should "blank the VMs" do
+        @env = mock_environment do |config|
+          config.vm.define :foo do |config|
+          end
+
+          config.vm.define :bar do |config|
+          end
+        end
+
+        @env.load_blank_vms!
+
+        assert_equal 2, @env.vms.length
+        assert(@env.vms.all? { |name, vm| !vm.created? })
+
+        sorted_vms = @env.vms.keys.sort { |a,b| a.to_s <=> b.to_s }
+        assert_equal [:bar, :foo], sorted_vms
+      end
+
+      should "load the default VM blank if no multi-VMs are specified" do
+        assert @env.config.vm.defined_vms.empty? # sanity
+
+        @env.load_blank_vms!
+
+        assert_equal 1, @env.vms.length
+        assert !@env.vms.values.first.created?
       end
     end
 
@@ -529,73 +630,53 @@ class EnvironmentTest < Test::Unit::TestCase
       @vm.stubs(:uuid).returns("foo")
       @env.stubs(:vm).returns(@vm)
     end
+  end
 
-    context "creating a new VM" do
-      should "create a new VM" do
-        assert_nil @env.vm
-        @env.create_vm
-        assert !@env.vm.nil?
-        assert @env.vm.is_a?(Vagrant::VM)
-      end
-
-      should "set the new VM's environment to the env" do
-        @env.create_vm
-        assert_equal @env, @env.vm.env
-      end
-
-      should "return the new VM" do
-        result = @env.create_vm
-        assert result.is_a?(Vagrant::VM)
-      end
+  context "updating the dotfile" do
+    setup do
+      @env = mock_environment
+      @env.stubs(:parent).returns(nil)
+      @env.stubs(:dotfile_path).returns("foo")
+      File.stubs(:open)
     end
 
-    context "persisting the VM into a file" do
-      setup do
-        mock_vm
-
-        File.stubs(:open)
-        @env.active_list.stubs(:add)
-      end
-
-      should "should save it to the dotfile path" do
-        filemock = mock("filemock")
-        filemock.expects(:write).with(@vm.uuid)
-        File.expects(:open).with(@env.dotfile_path, 'w+').once.yields(filemock)
-        @env.persist_vm
-      end
-
-      should "add the VM to the activelist" do
-        @env.active_list.expects(:add).with(@vm)
-        @env.persist_vm
-      end
+    def create_vm(created)
+      vm = mock("vm")
+      vm.stubs(:created?).returns(created)
+      vm.stubs(:uuid).returns("foo")
+      vm
     end
 
-    context "depersisting the VM" do
-      setup do
-        mock_vm
+    should "call parent if exists" do
+      parent = mock("parent")
+      @env.stubs(:parent).returns(parent)
+      parent.expects(:update_dotfile).once
 
-        File.stubs(:exist?).returns(false)
-        File.stubs(:delete)
+      @env.update_dotfile
+    end
 
-        @env.active_list.stubs(:remove)
+    should "write the proper data to dotfile" do
+      vms = {
+        :foo => create_vm(false),
+        :bar => create_vm(true),
+        :baz => create_vm(true)
+      }
+
+      f = mock("f")
+      @env.stubs(:vms).returns(vms)
+      File.expects(:open).with(@env.dotfile_path, 'w+').yields(f)
+      f.expects(:write).with() do |json|
+        assert_nothing_raised {
+          data = JSON.parse(json)
+          assert_equal 2, data.length
+          assert_equal vms[:bar].uuid, data["bar"]
+          assert_equal vms[:baz].uuid, data["baz"]
+        }
+
+        true
       end
 
-      should "remove the dotfile if it exists" do
-        File.expects(:exist?).with(@env.dotfile_path).returns(true)
-        File.expects(:delete).with(@env.dotfile_path).once
-        @env.depersist_vm
-      end
-
-      should "not remove the dotfile if it doesn't exist" do
-        File.expects(:exist?).returns(false)
-        File.expects(:delete).never
-        @env.depersist_vm
-      end
-
-      should "remove from the active list" do
-        @env.active_list.expects(:remove).with(@vm)
-        @env.depersist_vm
-      end
+      @env.update_dotfile
     end
   end
 end

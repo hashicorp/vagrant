@@ -7,11 +7,19 @@ module Vagrant
     class Base
       include Vagrant::Util
 
-      # The environment which this is being provisioned in
-      attr_reader :env
+      # The VM which this is being provisioned for
+      attr_reader :vm
 
-      def initialize(env)
-        @env = env
+      def initialize(vm)
+        @vm = vm
+      end
+
+      # This method returns the environment which the provisioner is working
+      # on. This is also the environment of the VM. This method is provided
+      # as a simple helper since the environment is often used throughout the
+      # provisioner.
+      def env
+        @vm.env
       end
 
       # This is the method called to "prepare" the provisioner. This is called

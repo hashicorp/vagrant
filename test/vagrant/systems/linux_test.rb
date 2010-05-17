@@ -4,8 +4,7 @@ class LinuxSystemTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Systems::Linux
 
-    @vm = mock("vm")
-    @vm.stubs(:env).returns(mock_environment)
+    @vm = mock_vm
     @instance = @klass.new(@vm)
   end
 
@@ -14,7 +13,7 @@ class LinuxSystemTest < Test::Unit::TestCase
       @ssh_session = mock("ssh_session")
       @ssh = mock("ssh")
       @ssh.stubs(:execute).yields(@ssh_session)
-      @vm.env.stubs(:ssh).returns(@ssh)
+      @vm.stubs(:ssh).returns(@ssh)
 
       @real_vm = mock("real_vm")
       @real_vm.stubs(:state).returns(:powered_off)

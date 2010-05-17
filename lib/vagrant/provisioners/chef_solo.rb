@@ -36,7 +36,7 @@ module Vagrant
 
       def run_chef_solo
         logger.info "Running chef-solo..."
-        env.ssh.execute do |ssh|
+        vm.ssh.execute do |ssh|
           ssh.exec!("cd #{env.config.chef.provisioning_path} && sudo chef-solo -c solo.rb -j dna.json") do |channel, data, stream|
             # TODO: Very verbose. It would be easier to save the data and only show it during
             # an error, or when verbosity level is set high

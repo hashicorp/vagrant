@@ -5,27 +5,31 @@ module Vagrant
   class Environment
     ROOTFILE_NAME = "Vagrantfile"
     HOME_SUBDIRS = ["tmp", "boxes"]
+    DEFAULT_VM = :default
 
     include Util
+
+    attr_reader :parent     # Parent environment (in the case of multi-VMs)
+    attr_reader :vm_name    # The name of the VM (internal name) which this environment represents
 
     attr_accessor :cwd
     attr_reader :root_path
     attr_reader :config
     attr_reader :box
     attr_accessor :vm
-    attr_reader :ssh
+    attr_reader :vms
     attr_reader :active_list
     attr_reader :commands
 
     #---------------------------------------------------------------
     # Class Methods
     #---------------------------------------------------------------
-    class <<self
+    class << self
       # Loads and returns an environment given a specific working
       # directory. If a working directory is not given, it will default
       # to the pwd.
       def load!(cwd=nil)
-        Environment.new(cwd).load!
+        Environment.new(:cwd => cwd).load!
       end
 
       # Verifies that VirtualBox is installed and that the version of
@@ -43,12 +47,23 @@ module Vagrant
       end
     end
 
-    def initialize(cwd=nil)
-      @cwd = cwd
+    def initialize(opts=nil)
+      defaults = {
+        :parent => nil,
+        :vm_name => nil,
+        :vm => nil,
+        :cwd => nil
+      }
+
+      opts = defaults.merge(opts || {})
+
+      defaults.each do |key, value|
+        instance_variable_set("@#{key}".to_sym, opts[key])
+      end
     end
 
     #---------------------------------------------------------------
-    # Path Helpers
+    # Helpers
     #---------------------------------------------------------------
 
     # Specifies the "current working directory" for this environment.
@@ -62,7 +77,7 @@ module Vagrant
     # The path to the `dotfile`, which contains the persisted UUID of
     # the VM if it exists.
     def dotfile_path
-      File.join(root_path, config.vagrant.dotfile_name)
+      root_path ? File.join(root_path, config.vagrant.dotfile_name) : nil
     end
 
     # The path to the home directory, which is usually in `~/.vagrant/~
@@ -80,6 +95,22 @@ module Vagrant
       File.join(home_path, "boxes")
     end
 
+    # Returns the VMs associated with this environment.
+    def vms
+      @vms ||= {}
+    end
+
+    # Returns a boolean whether this environment represents a multi-VM
+    # environment or not. This will work even when called on child
+    # environments.
+    def multivm?
+      if parent
+        parent.multivm?
+      else
+        vms.length > 1
+      end
+    end
+
     #---------------------------------------------------------------
     # Load Methods
     #---------------------------------------------------------------
@@ -95,7 +126,6 @@ module Vagrant
       load_config!
       self.class.check_virtualbox!
       load_vm!
-      load_ssh!
       load_active_list!
       load_commands!
       self
@@ -125,20 +155,30 @@ module Vagrant
     # this environment, meaning that it will use the given root directory
     # to load the Vagrantfile into that context.
     def load_config!
-      # Prepare load paths for config files
-      load_paths = [File.join(PROJECT_ROOT, "config", "default.rb")]
-      load_paths << File.join(box.directory, ROOTFILE_NAME) if box
-      load_paths << File.join(home_path, ROOTFILE_NAME) if home_path
-      load_paths << File.join(root_path, ROOTFILE_NAME) if root_path
+      # Prepare load paths for config files and append to config queue
+      config_queue = [File.join(PROJECT_ROOT, "config", "default.rb")]
+      config_queue << File.join(box.directory, ROOTFILE_NAME) if box
+      config_queue << File.join(home_path, ROOTFILE_NAME) if home_path
+      config_queue << File.join(root_path, ROOTFILE_NAME) if root_path
+
+      # If this environment represents some VM in a multi-VM environment,
+      # we push that VM's configuration onto the config_queue.
+      config_queue << parent.config.vm.defined_vms[vm_name] if vm_name
 
       # Clear out the old data
       Config.reset!(self)
 
       # Load each of the config files in order
-      load_paths.each do |path|
-        if File.exist?(path)
-          logger.info "Loading config from #{path}..."
-          load path
+      config_queue.each do |item|
+        if item.is_a?(String) && File.exist?(item)
+          logger.info "Loading config from #{item}..."
+          load item
+          next
+        end
+
+        if item.is_a?(Proc)
+          # Just push the proc straight onto the config runnable stack
+          Config.run(&item)
         end
       end
 
@@ -171,18 +211,49 @@ module Vagrant
 
     # Loads the persisted VM (if it exists) for this environment.
     def load_vm!
-      return if !root_path || !File.file?(dotfile_path)
+      # This environment represents a single sub VM. The VM is then
+      # probably (read: should be) set on the VM attribute, so we do
+      # nothing.
+      return if vm_name
 
+      # First load the defaults (blank, noncreated VMs)
+      load_blank_vms!
+
+      # If we have no dotfile, then return
+      return if !dotfile_path || !File.file?(dotfile_path)
+
+      # Open and parse the dotfile
       File.open(dotfile_path) do |f|
-        @vm = Vagrant::VM.find(f.read, self)
+        data = { DEFAULT_VM => f.read }
+
+        begin
+          data = JSON.parse(data[DEFAULT_VM])
+        rescue JSON::ParserError
+          # Most likely an older (<= 0.3.x) dotfile. Try to load it
+          # as the :__vagrant VM.
+        end
+
+        data.each do |key, value|
+          key = key.to_sym
+          vms[key] = Vagrant::VM.find(value, self, key)
+        end
       end
     rescue Errno::ENOENT
-      @vm = nil
+      # Just rescue it.
     end
 
-    # Loads/initializes the SSH object
-    def load_ssh!
-      @ssh = SSH.new(self)
+    # Loads blank VMs into the `vms` attribute.
+    def load_blank_vms!
+      # Clear existing vms
+      vms.clear
+
+      # Load up the blank VMs
+      defined_vms = config.vm.defined_vms.keys
+      defined_vms = [DEFAULT_VM] if defined_vms.empty?
+
+      defined_vms.each do |name|
+        vms[name] = Vagrant::VM.new(:vm_name => name, :env => self)
+      end
     end
 
     # Loads the activelist for this environment
@@ -201,32 +272,27 @@ module Vagrant
     # Methods to manage VM
     #---------------------------------------------------------------
 
-    # Sets the VM to a new VM. This is not too useful but is used
-    # in {Command.up}. This will very likely be refactored at a later
-    # time.
-    def create_vm
-      @vm = VM.new(self)
-    end
-
     # Persists this environment's VM to the dotfile so it can be
     # re-loaded at a later time.
-    def persist_vm
-      # Save to the dotfile for this project
+    def update_dotfile
+      if parent
+        parent.update_dotfile
+        return
+      end
+
+      # Generate and save the persisted VM info
+      data = vms.inject({}) do |acc, data|
+        key, value = data
+        acc[key] = value.uuid if value.created?
+        acc
+      end
+
       File.open(dotfile_path, 'w+') do |f|
-        f.write(vm.uuid)
+        f.write(data.to_json)
       end
 
       # Also add to the global store
-      active_list.add(vm)
-    end
-
-    # Removes this environment's VM from the dotfile.
-    def depersist_vm
-      # Delete the dotfile if it exists
-      File.delete(dotfile_path) if File.exist?(dotfile_path)
-
-      # Remove from the global store
-      active_list.remove(vm)
+      # active_list.add(vm)
     end
 
     #---------------------------------------------------------------

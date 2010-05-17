@@ -6,6 +6,10 @@
 #---------------------------------------------------------------------
 # CATEGORY: Status Messages
 #---------------------------------------------------------------------
+:status_listing: |-
+  This environment represents multiple VMs. The VMs will be listed
+  below with a short status. For more detailed information about a
+  VM, run `vagrant status NAME`.
 :status_no_environment: |-
   No vagrant environment detected. Run `vagrant init` to setup a Vagrantfile
   in the current directory to get started with Vagrant.
@@ -104,6 +108,11 @@
   <%= Vagrant::Environment::ROOTFILE_NAME %> and running `vagrant up`
 :package_include_file_doesnt_exist: |-
   File specified to include: '<%= filename %>' does not exist!
+:package_multivm: |-
+  Because this Vagrant environment represents multiple VMs, a
+  specific VM must be specified. This can be done by calling
+  `vagrant package NAME` where NAME is a valid VM represented by
+  your Vagrantfile.
 :package_requires_export: |-
   Package must be used in conjunction with export.
 :provisioner_invalid_class: |-
@@ -139,6 +148,16 @@
   For a more detailed guide please consult:
 
      http://vagrantup.com/docs/getting-started/windows.html
+:ssh_multivm: |-
+  Because this Vagrant environment represents multiple VMs, a
+  specific VM must be specified. This can be done by calling
+  `vagrant ssh NAME` where NAME is a valid VM represented by
+  your Vagrantfile.
+:ssh_config_multivm: |-
+  Because this Vagrant environment represents multiple VMs, a
+  specific VM must be specified. This can be done by calling
+  `vagrant ssh-config NAME` where NAME is a valid VM represented by
+  your Vagrantfile.
 :system_invalid_class: |-
   The specified system does not inherit from `Vagrant::Systems::Base`. The
   specified system class must inherit from this class.
@@ -150,6 +169,8 @@
 :system_unspecified: |-
   A VM system type must be specified! This is done via the `config.vm.system`
   configuration value. Please read the documentation online for more information.
+:unknown_vm: |-
+  The specified VM could not be found: <%= vm %>
 :virtualbox_import_failure: |-
   The VM import failed! Try running `VBoxManage import` on the box file
   manually for more verbose error output.

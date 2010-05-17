@@ -112,8 +112,9 @@ class CommandsBaseTest < Test::Unit::TestCase
       end
 
       should "parse the options with the args" do
-        @option_parser.expects(:parse!).with(@args).once
-        assert_equal @options, @instance.parse_options(@args)
+        result = mock("result")
+        @option_parser.expects(:parse!).with(@args).once.returns(result)
+        assert_equal result, @instance.parse_options(@args)
       end
     end
   end

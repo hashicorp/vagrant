@@ -4,29 +4,55 @@ class CommandsSSHTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Commands::SSH
 
-    @persisted_vm = mock("persisted_vm")
-    @persisted_vm.stubs(:execute!)
-
     @env = mock_environment
-    @env.stubs(:require_persisted_vm)
-    @env.stubs(:vm).returns(@persisted_vm)
-
     @instance = @klass.new(@env)
   end
 
   context "executing" do
+    should "connect to the given argument" do
+      @instance.expects(:ssh_connect).with("foo").once
+      @instance.execute(["foo"])
+    end
+
+    should "connect with nil name if none is given" do
+      @instance.expects(:ssh_connect).with(nil).once
+      @instance.execute
+    end
+  end
+
+  context "ssh connecting" do
     setup do
-      @env.ssh.stubs(:connect)
+      @vm = mock("vm")
+      @vm.stubs(:created?).returns(true)
+
+      @vms = {:bar => @vm}
+      @env.stubs(:vms).returns(@vms)
+      @env.stubs(:multivm?).returns(false)
     end
 
-    should "require a persisted VM" do
-      @env.expects(:require_persisted_vm).once
-      @instance.execute
+    should "error and exit if no VM is specified and multivm" do
+      @env.stubs(:multivm?).returns(true)
+      @instance.expects(:error_and_exit).with(:ssh_multivm).once
+      @instance.ssh_connect(nil)
     end
 
-    should "connect to SSH" do
-      @env.ssh.expects(:connect).once
-      @instance.execute
+    should "error and exit if VM is nil" do
+      @instance.expects(:error_and_exit).with(:unknown_vm, :vm => :foo).once
+      @instance.ssh_connect(:foo)
+    end
+
+    should "error and exit if VM isn't created" do
+      @vm.stubs(:created?).returns(false)
+      @instance.expects(:error_and_exit).with(:environment_not_created).once
+      @instance.ssh_connect(:bar)
+    end
+
+    should "ssh connect" do
+      ssh = mock("ssh")
+      @vm.stubs(:ssh).returns(ssh)
+      ssh.expects(:connect)
+
+      @instance.ssh_connect(:bar)
     end
   end
 end

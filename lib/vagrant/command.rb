@@ -5,7 +5,7 @@ module Vagrant
   class Command
     attr_reader :env
 
-    class <<self
+    class << self
       # Executes a given subcommand within the current environment (from the
       # current working directory).
       def execute(*args)

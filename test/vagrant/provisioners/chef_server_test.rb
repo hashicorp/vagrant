@@ -2,8 +2,9 @@ require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
 
 class ChefServerProvisionerTest < Test::Unit::TestCase
   setup do
-    @env = mock_environment
-    @action = Vagrant::Provisioners::ChefServer.new(@env)
+    @vm = mock_vm
+    @env = @vm.env
+    @action = Vagrant::Provisioners::ChefServer.new(@vm)
   end
 
   context "provisioning" do
@@ -106,7 +107,7 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
     should "create the folder using the dirname of the path" do
       ssh = mock("ssh")
       ssh.expects(:exec!).with("sudo mkdir -p #{@path.dirname}").once
-      @env.ssh.expects(:execute).yields(ssh)
+      @vm.ssh.expects(:execute).yields(ssh)
       @action.create_client_key_folder
     end
   end
@@ -115,7 +116,7 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
     should "upload the validation key to the provisioning path" do
       @action.expects(:validation_key_path).once.returns("foo")
       @action.expects(:guest_validation_key_path).once.returns("bar")
-      @env.ssh.expects(:upload!).with("foo", "bar").once
+      @vm.ssh.expects(:upload!).with("foo", "bar").once
       @action.upload_validation_key
     end
   end
@@ -158,7 +159,7 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
     should "cd into the provisioning directory and run chef client" do
       ssh = mock("ssh")
       ssh.expects(:exec!).with("cd #{@env.config.chef.provisioning_path} && sudo chef-client -c client.rb -j dna.json").once
-      @env.ssh.expects(:execute).yields(ssh)
+      @vm.ssh.expects(:execute).yields(ssh)
       @action.run_chef_client
     end
   end

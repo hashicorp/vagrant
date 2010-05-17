@@ -9,12 +9,27 @@ module Vagrant
       def execute(args=[])
         env.require_root_path
 
-        parse_options(args)
+        args = parse_options(args)
+        show_single(args[0])
+      end
+
+      def show_single(name)
+        if name.nil? && env.multivm?
+          error_and_exit(:ssh_config_multivm)
+          return # for tests
+        end
+
+        vm = name.nil? ? env.vms.values.first : env.vms[name.to_sym]
+        if vm.nil?
+          error_and_exit(:unknown_vm, :vm => name)
+          return # for tests
+        end
+
         puts TemplateRenderer.render("ssh_config", {
           :host_key => options[:host] || "vagrant",
-          :ssh_user => env.config.ssh.username,
-          :ssh_port => env.ssh.port,
-          :private_key_path => env.config.ssh.private_key_path
+          :ssh_user => vm.env.config.ssh.username,
+          :ssh_port => vm.ssh.port,
+          :private_key_path => vm.env.config.ssh.private_key_path
         })
       end
 

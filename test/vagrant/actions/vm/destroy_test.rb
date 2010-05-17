@@ -15,7 +15,7 @@ class DestroyActionTest < Test::Unit::TestCase
       @runner.stubs(:invoke_around_callback).yields
       clear_seq = sequence("clear")
       @action.expects(:destroy_vm).in_sequence(clear_seq)
-      @action.expects(:depersist).in_sequence(clear_seq)
+      @action.expects(:update_dotfile).in_sequence(clear_seq)
       @action.execute!
     end
   end
@@ -23,14 +23,15 @@ class DestroyActionTest < Test::Unit::TestCase
   context "destroying the VM" do
     should "destroy VM and attached images" do
       @vm.expects(:destroy).with(:destroy_medium => :delete).once
+      @runner.expects(:vm=).with(nil).once
       @action.destroy_vm
     end
   end
 
-  context "depersisting" do
-    should "call depersist_vm on Env" do
-      @runner.env.expects(:depersist_vm).once
-      @action.depersist
+  context "updating the dotfile" do
+    should "update the environment dotfile" do
+      @runner.env.expects(:update_dotfile).once
+      @action.update_dotfile
     end
   end
 end

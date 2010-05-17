@@ -2,8 +2,9 @@ require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
 
 class ChefProvisionerTest < Test::Unit::TestCase
   setup do
-    @env = mock_environment
-    @action = Vagrant::Provisioners::Chef.new(@env)
+    @vm = mock_vm
+    @env = @vm.env
+    @action = Vagrant::Provisioners::Chef.new(@vm)
   end
 
   context "preparing" do
@@ -67,14 +68,14 @@ class ChefProvisionerTest < Test::Unit::TestCase
       ssh = mock("ssh")
       ssh.expects(:exec!).with("sudo mkdir -p #{@env.config.chef.provisioning_path}").once.in_sequence(ssh_seq)
       ssh.expects(:exec!).with("sudo chown #{@env.config.ssh.username} #{@env.config.chef.provisioning_path}").once.in_sequence(ssh_seq)
-      @env.ssh.expects(:execute).yields(ssh)
+      @vm.ssh.expects(:execute).yields(ssh)
       @action.chown_provisioning_folder
     end
   end
 
   context "generating and uploading chef configuration file" do
     setup do
-      @env.ssh.stubs(:upload!)
+      @vm.ssh.stubs(:upload!)
 
       @template = "template"
       @filename = "foo.rb"
@@ -88,7 +89,7 @@ class ChefProvisionerTest < Test::Unit::TestCase
       Vagrant::Util::TemplateRenderer.expects(:render).with(@template, anything).returns(template_data)
       StringIO.expects(:new).with(template_data).returns(string_io)
       File.expects(:join).with(@env.config.chef.provisioning_path, @filename).once.returns("bar")
-      @env.ssh.expects(:upload!).with(string_io, "bar")
+      @vm.ssh.expects(:upload!).with(string_io, "bar")
 
       @action.setup_config(@template, @filename, {})
     end
@@ -124,7 +125,7 @@ class ChefProvisionerTest < Test::Unit::TestCase
 
   context "generating and uploading json" do
     def assert_json
-      @env.ssh.expects(:upload!).with do |json, path|
+      @vm.ssh.expects(:upload!).with do |json, path|
         data = JSON.parse(json.read)
         yield data
         true
@@ -155,7 +156,7 @@ class ChefProvisionerTest < Test::Unit::TestCase
     should "upload a StringIO to dna.json" do
       StringIO.expects(:new).with(anything).returns("bar")
       File.expects(:join).with(@env.config.chef.provisioning_path, "dna.json").once.returns("baz")
-      @env.ssh.expects(:upload!).with("bar", "baz").once
+      @vm.ssh.expects(:upload!).with("bar", "baz").once
       @action.setup_json
     end
   end

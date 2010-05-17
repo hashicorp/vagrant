@@ -10,6 +10,8 @@ class ImportActionTest < Test::Unit::TestCase
     @runner.env.stubs(:box).returns(@box)
 
     VirtualBox::VM.stubs(:import)
+
+    @import.stubs(:complete_progress)
   end
 
   should "run in a busy block" do

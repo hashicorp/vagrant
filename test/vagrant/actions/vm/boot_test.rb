@@ -43,13 +43,13 @@ class BootActionTest < Test::Unit::TestCase
   context "waiting for boot" do
     should "repeatedly ping the SSH port and return false with no response" do
       seq = sequence('pings')
-      @runner.env.ssh.expects(:up?).times(@runner.env.config.ssh.max_tries.to_i - 1).returns(false).in_sequence(seq)
-      @runner.env.ssh.expects(:up?).once.returns(true).in_sequence(seq)
+      @runner.ssh.expects(:up?).times(@runner.env.config.ssh.max_tries.to_i - 1).returns(false).in_sequence(seq)
+      @runner.ssh.expects(:up?).once.returns(true).in_sequence(seq)
       assert @action.wait_for_boot(0)
     end
 
     should "ping the max number of times then just return" do
-      @runner.env.ssh.expects(:up?).times(@runner.env.config.ssh.max_tries.to_i).returns(false)
+      @runner.ssh.expects(:up?).times(@runner.env.config.ssh.max_tries.to_i).returns(false)
       assert !@action.wait_for_boot(0)
     end
   end

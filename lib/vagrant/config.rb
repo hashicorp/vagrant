@@ -29,10 +29,12 @@ module Vagrant
         push_proc(&block)
       end
 
-      def execute!
-        run_procs!(config)
-        config.loaded!
-        config
+      def execute!(config_object=nil)
+        config_object ||= config
+
+        run_procs!(config_object)
+        config_object.loaded!
+        config_object
       end
     end
   end
@@ -124,6 +126,18 @@ module Vagrant
 
       def customize(&block)
         push_proc(&block)
+      end
+
+      def has_multi_vms?
+        !defined_vms.empty?
+      end
+
+      def defined_vms
+        @defined_vms ||= {}
+      end
+
+      def define(name, &block)
+        defined_vms[name.to_sym] = block
       end
     end
 

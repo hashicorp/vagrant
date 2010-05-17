@@ -52,17 +52,6 @@ class ConfigTest < Test::Unit::TestCase
     end
   end
 
-  context "accessing configuration" do
-    setup do
-      Vagrant::Config.run { |config| }
-      Vagrant::Config.execute!
-    end
-
-    should "forward config to the class method" do
-      assert_equal Vagrant.config, Vagrant::Config.config
-    end
-  end
-
   context "initializing" do
     setup do
       Vagrant::Config.reset!
@@ -92,7 +81,14 @@ class ConfigTest < Test::Unit::TestCase
     should "return the configuration on execute!" do
       Vagrant::Config.run {}
       result = Vagrant::Config.execute!
-      assert result.equal?(Vagrant.config)
+      assert result.is_a?(Vagrant::Config::Top)
+    end
+
+    should "use given configuration object if given" do
+      fake_env = mock("env")
+      config = Vagrant::Config::Top.new(fake_env)
+      result = Vagrant::Config.execute!(config)
+      assert_equal config.env, result.env
     end
   end
 
@@ -229,14 +225,36 @@ class ConfigTest < Test::Unit::TestCase
       @env.config.ssh.username = @username
     end
 
-    should "include the stacked proc runner module" do
-      assert @config.class.included_modules.include?(Vagrant::Util::StackedProcRunner)
+    context "defining VMs" do
+      should "store the proc by name but not run it" do
+        foo = mock("proc")
+        foo.expects(:call).never
+
+        proc = Proc.new { foo.call }
+        @config.define(:name, &proc)
+        assert_equal proc, @config.defined_vms[:name]
+      end
+
+      should "not have multi-VMs by default" do
+        assert !@config.has_multi_vms?
+      end
+
+      should "have multi-VMs once one is specified" do
+        @config.define(:foo) {}
+        assert @config.has_multi_vms?
+      end
     end
 
-    should "add the customize proc to the proc stack" do
-      proc = Proc.new {}
-      @config.customize(&proc)
-      assert_equal [proc], @config.proc_stack
+    context "customizing" do
+      should "include the stacked proc runner module" do
+        assert @config.class.included_modules.include?(Vagrant::Util::StackedProcRunner)
+      end
+
+      should "add the customize proc to the proc stack" do
+        proc = Proc.new {}
+        @config.customize(&proc)
+        assert_equal [proc], @config.proc_stack
+      end
     end
 
     context "uid/gid" do

@@ -19,13 +19,13 @@ module Vagrant
         end
 
         def after_import
-          persist
+          update_dotfile
           setup_mac_address
         end
 
-        def persist
+        def update_dotfile
           logger.info "Persisting the VM UUID (#{@runner.uuid})..."
-          @runner.env.persist_vm
+          @runner.env.update_dotfile
         end
 
         def setup_mac_address

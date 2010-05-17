@@ -3,6 +3,7 @@ require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 class ExportActionTest < Test::Unit::TestCase
   setup do
     @runner, @vm, @action = mock_action(Vagrant::Actions::VM::Export)
+    @action.stubs(:complete_progress)
   end
 
   context "executing" do

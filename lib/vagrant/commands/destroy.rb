@@ -11,8 +11,35 @@ module Vagrant
       description "Destroys the vagrant environment"
 
       def execute(args=[])
-        env.require_persisted_vm
-        env.vm.destroy
+        args = parse_options(args)
+
+        if args[0]
+          destroy_single(args[0])
+        else
+          destroy_all
+        end
+      end
+
+      # Destroys a single VM by name.
+      def destroy_single(name)
+        vm = env.vms[name.to_sym]
+        if vm.nil?
+          error_and_exit(:unknown_vm, :vm => name)
+          return # for tests
+        end
+
+        if vm.created?
+          vm.destroy
+        else
+          logger.info "VM '#{name}' not created. Ignoring."
+        end
+      end
+
+      # Destroys all VMs represented by the current environment.
+      def destroy_all
+        env.vms.each do |name, vm|
+          destroy_single(name)
+        end
       end
 
       def options_spec(opts)

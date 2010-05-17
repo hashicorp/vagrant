@@ -10,8 +10,33 @@ module Vagrant
       description "Reload the vagrant environment"
 
       def execute(args=[])
-        env.require_persisted_vm
-        env.vm.execute!(Actions::VM::Reload)
+        args = parse_options(args)
+
+        if args[0]
+          reload_single(args[0])
+        else
+          reload_all
+        end
+      end
+
+      def reload_single(name)
+        vm = env.vms[name.to_sym]
+        if vm.nil?
+          error_and_exit(:unknown_vm, :vm => name)
+          return # for tests
+        end
+
+        if vm.created?
+          vm.reload
+        else
+          logger.info "VM '#{name}' not created. Ignoring."
+        end
+      end
+
+      def reload_all
+        env.vms.keys.each do |name|
+          reload_single(name)
+        end
       end
 
       def options_spec(opts)

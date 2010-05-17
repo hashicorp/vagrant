@@ -28,14 +28,14 @@ module Vagrant
         logger.info "Creating folder to hold client key..."
         path = Pathname.new(env.config.chef.client_key_path)
 
-        env.ssh.execute do |ssh|
+        vm.ssh.execute do |ssh|
           ssh.exec!("sudo mkdir -p #{path.dirname}")
         end
       end
 
       def upload_validation_key
         logger.info "Uploading chef client validation key..."
-        env.ssh.upload!(validation_key_path, guest_validation_key_path)
+        vm.ssh.upload!(validation_key_path, guest_validation_key_path)
       end
 
       def setup_server_config
@@ -50,7 +50,7 @@ module Vagrant
 
       def run_chef_client
         logger.info "Running chef-client..."
-        env.ssh.execute do |ssh|
+        vm.ssh.execute do |ssh|
           ssh.exec!("cd #{env.config.chef.provisioning_path} && sudo chef-client -c client.rb -j dna.json") do |channel, data, stream|
             # TODO: Very verbose. It would be easier to save the data and only show it during
             # an error, or when verbosity level is set high
@@ -64,7 +64,7 @@ module Vagrant
       end
 
       def guest_validation_key_path
-        File.join(@env.config.chef.provisioning_path, "validation.pem")
+        File.join(env.config.chef.provisioning_path, "validation.pem")
       end
     end
   end
