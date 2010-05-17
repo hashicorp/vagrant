@@ -11,8 +11,33 @@ module Vagrant
       description "Suspends the currently running vagrant environment"
 
       def execute(args=[])
-        env.require_persisted_vm
-        env.vm.suspend
+        args = parse_options(args)
+
+        if args[0]
+          suspend_single(args[0])
+        else
+          suspend_all
+        end
+      end
+
+      def suspend_single(name)
+        vm = env.vms[name.to_sym]
+        if vm.nil?
+          error_and_exit(:unknown_vm, :vm => name)
+          return # for tests
+        end
+
+        if vm.created?
+          vm.suspend
+        else
+          logger.info "VM '#{name}' not created. Ignoring."
+        end
+      end
+
+      def suspend_all
+        env.vms.keys.each do |name|
+          suspend_single(name)
+        end
       end
 
       def options_spec(opts)
