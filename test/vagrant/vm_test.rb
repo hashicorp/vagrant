@@ -180,7 +180,7 @@ class VMTest < Test::Unit::TestCase
       end
     end
 
-    context "reloading" do
+    context "reloading action" do
       should "execute the reload action" do
         @vm.expects(:execute!).with(Vagrant::Actions::VM::Reload).once
         @vm.reload
