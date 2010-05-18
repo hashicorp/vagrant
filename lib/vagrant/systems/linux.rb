@@ -49,7 +49,24 @@ module Vagrant
       def mount_shared_folder(ssh, name, guestpath)
         ssh.exec!("sudo mkdir -p #{guestpath}")
         mount_folder(ssh, name, guestpath)
-        ssh.exec!("sudo chown #{vm.env.config.ssh.username} #{guestpath}")
+        chown(ssh, guestpath)
+      end
+
+      def create_rsync(ssh, opts)
+        crontab_entry = render_crontab_entry(opts.merge(:rsyncopts => config.vm.rsync_opts,
+                                                        :scriptname => config.vm.rsync_script))
+
+        ssh.exec!("sudo mkdir -p #{opts[:rsyncpath]}")
+        ssh.exec!("sudo chmod +x #{config.vm.rsync_script}")
+        ssh.exec!("sudo echo \"#{crontab_entry}\" >> #{config.vm.rsync_crontab_entry_file}")
+        ssh.exec!("crontab #{config.vm.rsync_crontab_entry_file}")
+        chown(ssh, opts[:rsyncpath])
+      end
+
+      def prepare_rsync(ssh)
+        logger.info "Preparing system for rsync..."
+        vm.env.ssh.upload!(StringIO.new(render_rsync), config.vm.rsync_script)
+        ssh.exec!('sudo rm #{config.vm.rsync_crontab_entry_file}')
       end
 
       #-------------------------------------------------------------------
@@ -75,6 +92,22 @@ module Vagrant
           raise Actions::ActionException.new(:vm_mount_fail) if attempts >= 10
           sleep sleeptime
         end
+      end
+
+      def chown(ssh, dir)
+        ssh.exec!("sudo chown #{config.ssh.username} #{dir}")
+      end
+
+      def config
+        vm.env.config
+      end
+
+      def render_rsync
+        TemplateRenderer.render('rsync')
+      end
+
+      def render_crontab_entry(opts)
+        TemplateRenderer.render('crontab-entry', opts)
       end
     end
   end

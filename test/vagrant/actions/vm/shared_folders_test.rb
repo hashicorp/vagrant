@@ -27,12 +27,7 @@ class SharedFoldersActionTest < Test::Unit::TestCase
     end
 
     should "convert the vagrant config values into an array" do
-      env = mock_environment do |config|
-        config.vm.shared_folders.clear
-        config.vm.share_folder("foo", "bar", "baz")
-      end
-
-      @runner.expects(:env).returns(env)
+      mock_env_shared_folders
 
       result = [["foo", "baz", "bar"]]
       assert_equal result, @action.shared_folders
@@ -50,6 +45,23 @@ class SharedFoldersActionTest < Test::Unit::TestCase
 
       result = [["foo", "expanded_baz", "bar"]]
       assert_equal result, @action.shared_folders
+    end
+
+    context "with rsync" do
+      should "append the rsync value to the other config values" do
+        mock_env_shared_folders(:rsync => true)
+
+        assert_equal [["foo", "baz", "bar-rsync", "bar"]], @action.shared_folders
+      end
+    end
+
+    def mock_env_shared_folders(opts={})
+      env = mock_environment do |config|
+        config.vm.shared_folders.clear
+        config.vm.share_folder("foo", "bar", "baz", opts)
+      end
+
+      @runner.expects(:env).returns(env)
     end
   end
 
@@ -91,17 +103,34 @@ class SharedFoldersActionTest < Test::Unit::TestCase
   context "mounting the shared folders" do
     setup do
       @folders = stub_shared_folders
+      @ssh = mock("ssh")
+      @runner.env.ssh.stubs(:execute).yields(@ssh)
+      @runner.system.stubs(:mount_shared_folder)
     end
 
     should "mount all shared folders to the VM" do
       mount_seq = sequence("mount_seq")
-      ssh = mock("ssh")
       @folders.each do |name, hostpath, guestpath|
-        @runner.system.expects(:mount_shared_folder).with(ssh, name, guestpath).in_sequence(mount_seq)
+        @runner.system.expects(:mount_shared_folder).with(@ssh, name, guestpath).in_sequence(mount_seq)
+      end
+
+      @action.after_boot
+    end
+
+    should "execute the necessary rysnc commands for each rsync folder" do
+      @folders.map { |f| f << 'rsync' }
+      @folders.each do |name, hostpath, guestpath, rsyncd|
+        @runner.system.expects(:create_rsync).with(@ssh, :rsyncpath => rsyncd, :guestpath => guestpath)
       end
       @runner.ssh.expects(:execute).yields(ssh)
 
       @action.after_boot
+    end
+  end
+
+  context "with rsyncd folders" do
+    # TODO
+    should "prepare the system for rsync if necessary" do
     end
   end
 end

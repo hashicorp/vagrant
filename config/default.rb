@@ -24,6 +24,11 @@ Vagrant::Config.run do |config|
   config.vm.boot_mode = "vrdp"
   config.vm.system = :linux
 
+  # TODO new config class
+  config.vm.rsync_opts = "-ur --delete"
+  config.vm.rsync_script = "/tmp/rsync"
+  config.vm.rsync_crontab_entry_file = "/tmp/crontab-entry"
+
   config.package.name = 'vagrant'
   config.package.extension = '.box'
 end

@@ -1,0 +1,14 @@
+#!/bin/sh
+TIMESTART=`date +%s`
+while [ 1 ]
+do
+  echo 'Syncing...'
+  rsync $1 $2 $3
+  TIME=$((`date +%s`-$TIMESTART)) 
+  echo $TIME
+  if [ $TIME -ge 50 ]
+  then 
+    break
+  fi
+  sleep 1
+done

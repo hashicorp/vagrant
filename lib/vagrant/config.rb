@@ -82,6 +82,10 @@ module Vagrant
       attr_accessor :boot_mode
       attr_accessor :project_directory
       attr_accessor :rsync_project_directory
+      attr_accessor :rsync_opts
+      attr_accessor :rsync_script
+      attr_accessor :rsync_crontab_entry_file
+      attr_reader :rsync_required
       attr_reader :forwarded_ports
       attr_reader :shared_folders
       attr_accessor :hd_location
@@ -151,6 +155,7 @@ module Vagrant
 
       def shift(orig, rsync)
         if rsync
+          @rsync_required = true
           [orig + '-rsync', rsync == true ? orig : rsync]
         else
           [orig, rsync]

@@ -257,7 +257,7 @@ class ConfigTest < Test::Unit::TestCase
       end
     end
 
-    context "shared folders" do
+    context "rsyncd folders" do
       should "set the rsyncpath to nil by default" do
         share_with_opts
         assert !@config.shared_folders['foo'][:rsyncpath]
@@ -278,6 +278,11 @@ class ConfigTest < Test::Unit::TestCase
         assert_raise Exception do
           share_with_opts(:rsync => 'foo-dir-rsync')
         end
+      end
+
+      should "set the rsync required flag to true" do
+        share_with_opts(:rsync => true)
+        assert @config.rsync_required
       end
 
       def share_with_opts(opts={})
