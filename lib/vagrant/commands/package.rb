@@ -20,13 +20,12 @@ module Vagrant
       def package_base
         # Packaging a base box; that is a VM not tied to a specific
         # vagrant environment
-        vm = VM.find(options[:base])
+        vm = VM.find(options[:base], env)
         if !vm
           error_and_exit(:vm_base_not_found, :name => options[:base])
           return # for tests
         end
 
-        vm.env = env
         package_vm(vm)
       end
 

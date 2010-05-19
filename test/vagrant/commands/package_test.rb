@@ -27,15 +27,14 @@ class CommandsPackageTest < Test::Unit::TestCase
 
   context "packaging base" do
     should "error and exit if no VM is found" do
-      Vagrant::VM.expects(:find).with("foo").returns(nil)
+      Vagrant::VM.expects(:find).with("foo", @instance.env).returns(nil)
       @instance.expects(:error_and_exit).with(:vm_base_not_found, :name => "foo").once
       @instance.execute(["--base", "foo"])
     end
 
     should "package the VM like any other VM" do
       vm = mock("vm")
-      Vagrant::VM.expects(:find).with("foo").returns(vm)
-      vm.expects(:env=).with(@env).once
+      Vagrant::VM.expects(:find).with("foo", @instance.env).returns(vm)
       @instance.expects(:package_vm).with(vm).once
       @instance.execute(["--base", "foo"])
     end
