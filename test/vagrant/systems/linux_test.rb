@@ -46,12 +46,12 @@ class LinuxSystemTest < Test::Unit::TestCase
   context "preparing rsync" do
     setup do
       @ssh.stubs(:exec!)
-      @vm.env.stubs(:ssh).returns(@ssh)
-      @vm.env.ssh.stubs(:upload!)
+      @vm.stubs(:ssh).returns(@ssh)
+      @vm.ssh.stubs(:upload!)
     end
 
     should "upload the rsync template" do
-      @vm.env.ssh.expects(:upload!).with do |string_io, guest_path|
+      @vm.ssh.expects(:upload!).with do |string_io, guest_path|
         string_io.string =~ /#!\/bin\/sh/ && guest_path == @mock_env.config.vm.rsync_script
       end
 
@@ -96,6 +96,10 @@ class LinuxSystemTest < Test::Unit::TestCase
     should "chown the rsync directory" do
       @instance.expects(:chown).with(@ssh, "foo")
       @instance.create_rsync(@ssh, :rsyncpath => "foo")
+    end
+
+    should "return provide a formatted crontab entry that runs every minute" do
+      assert @instance.render_crontab_entry({}).include?("* * * * *")
     end
   end
 

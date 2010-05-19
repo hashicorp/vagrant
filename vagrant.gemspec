@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Mitchell Hashimoto", "John Bender"]
-  s.date = %q{2010-05-18}
+  s.date = %q{2010-05-19}
   s.default_executable = %q{vagrant}
   s.description = %q{Vagrant is a tool for building and distributing virtualized development environments.}
   s.email = ["mitchell.hashimoto@gmail.com", "john.m.bender@gmail.com"]
@@ -101,7 +101,7 @@ Gem::Specification.new do |s|
      "templates/Vagrantfile.erb",
      "templates/chef_server_client.erb",
      "templates/chef_solo_solo.erb",
-     "templates/crontab-entry.erb",
+     "templates/crontab_entry.erb",
      "templates/package_Vagrantfile.erb",
      "templates/rsync.erb",
      "templates/ssh_config.erb",

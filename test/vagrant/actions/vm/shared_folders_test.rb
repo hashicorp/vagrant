@@ -104,7 +104,7 @@ class SharedFoldersActionTest < Test::Unit::TestCase
     setup do
       @folders = stub_shared_folders
       @ssh = mock("ssh")
-      @runner.env.ssh.stubs(:execute).yields(@ssh)
+      @runner.ssh.stubs(:execute).yields(@ssh)
       @runner.system.stubs(:mount_shared_folder)
     end
 
@@ -122,7 +122,7 @@ class SharedFoldersActionTest < Test::Unit::TestCase
       @folders.each do |name, hostpath, guestpath, rsyncd|
         @runner.system.expects(:create_rsync).with(@ssh, :rsyncpath => rsyncd, :guestpath => guestpath)
       end
-      @runner.ssh.expects(:execute).yields(ssh)
+      @runner.ssh.expects(:execute).yields(@ssh)
 
       @action.after_boot
     end

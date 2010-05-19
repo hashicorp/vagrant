@@ -64,7 +64,7 @@ module Vagrant
 
       def prepare_rsync(ssh)
         logger.info "Preparing system for rsync..."
-        vm.env.ssh.upload!(StringIO.new(render_rsync), config.vm.rsync_script)
+        vm.ssh.upload!(StringIO.new(render_rsync), config.vm.rsync_script)
         ssh.exec!("sudo chmod +x #{config.vm.rsync_script}")
         ssh.exec!("sudo rm #{config.vm.rsync_crontab_entry_file}")
       end
@@ -107,7 +107,7 @@ module Vagrant
       end
 
       def render_crontab_entry(opts)
-        TemplateRenderer.render('crontab-entry', opts)
+        TemplateRenderer.render('crontab_entry', opts)
       end
     end
   end
