@@ -3,15 +3,16 @@ require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
 class LinuxSystemTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Systems::Linux
-
-    @vm = mock_vm
+    @ssh = mock("ssh")
+    @mock_env = mock_environment
+    @vm = mock("vm")
+    @vm.stubs(:env).returns(@mock_env)
     @instance = @klass.new(@vm)
   end
 
   context "halting" do
     setup do
       @ssh_session = mock("ssh_session")
-      @ssh = mock("ssh")
       @ssh.stubs(:execute).yields(@ssh_session)
       @vm.stubs(:ssh).returns(@ssh)
 
@@ -28,7 +29,6 @@ class LinuxSystemTest < Test::Unit::TestCase
 
   context "mounting shared folders" do
     setup do
-      @ssh = mock("ssh")
       @name = "foo"
       @guestpath = "/bar"
     end
@@ -43,12 +43,67 @@ class LinuxSystemTest < Test::Unit::TestCase
     end
   end
 
+  context "preparing rsync" do
+    setup do
+      @ssh.stubs(:exec!)
+      @vm.env.stubs(:ssh).returns(@ssh)
+      @vm.env.ssh.stubs(:upload!)
+    end
+
+    should "upload the rsync template" do
+      @vm.env.ssh.expects(:upload!).with do |string_io, guest_path|
+        string_io.string =~ /#!\/bin\/sh/ && guest_path == @mock_env.config.vm.rsync_script
+      end
+
+      @instance.prepare_rsync(@ssh)
+    end
+
+    should "remove old crontab entries file" do
+      @ssh.expects(:exec!).with("sudo rm #{@mock_env.config.vm.rsync_crontab_entry_file}")
+      @instance.prepare_rsync(@ssh)
+    end
+
+    should "prepare the rsync template for execution" do
+      @ssh.expects(:exec!).with("sudo chmod +x #{@mock_env.config.vm.rsync_script}")
+      @instance.prepare_rsync(@ssh)
+    end
+  end
+
+  context "setting up an rsync folder" do
+    setup do
+      @ssh.stubs(:exec!)
+    end
+
+    should "create the new rysnc destination directory" do
+      rsync_path = 'foo'
+      @ssh.expects(:exec!).with("sudo mkdir -p #{rsync_path}")
+      @instance.create_rsync(@ssh, :rsyncpath => "foo")
+    end
+
+    should "add an entry to the crontab file" do
+      @instance.expects(:render_crontab_entry).returns('foo')
+      @ssh.expects(:exec!).with do |cmd|
+        cmd =~ /echo/ && cmd =~ /foo/ && cmd =~ /#{@mock_env.config.vm.rsync_crontab_entry_file}/
+      end
+      @instance.create_rsync(@ssh, {})
+    end
+
+    should "use the crontab entry file to define vagrant users cron entries" do
+      @ssh.expects(:exec!).with("crontab #{@mock_env.config.vm.rsync_crontab_entry_file}")
+      @instance.create_rsync(@ssh, {})
+    end
+
+    should "chown the rsync directory" do
+      @instance.expects(:chown).with(@ssh, "foo")
+      @instance.create_rsync(@ssh, :rsyncpath => "foo")
+    end
+  end
+
   #-------------------------------------------------------------------
   # "Private" methods tests
   #-------------------------------------------------------------------
   context "mounting the main folder" do
     setup do
-      @ssh = mock("ssh")
       @name = "foo"
       @guestpath = "bar"
       @sleeptime = 0

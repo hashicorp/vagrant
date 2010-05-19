@@ -57,16 +57,16 @@ module Vagrant
                                                         :scriptname => config.vm.rsync_script))
 
         ssh.exec!("sudo mkdir -p #{opts[:rsyncpath]}")
-        ssh.exec!("sudo chmod +x #{config.vm.rsync_script}")
+        chown(ssh, opts[:rsyncpath])
         ssh.exec!("sudo echo \"#{crontab_entry}\" >> #{config.vm.rsync_crontab_entry_file}")
         ssh.exec!("crontab #{config.vm.rsync_crontab_entry_file}")
-        chown(ssh, opts[:rsyncpath])
       end
 
       def prepare_rsync(ssh)
         logger.info "Preparing system for rsync..."
         vm.env.ssh.upload!(StringIO.new(render_rsync), config.vm.rsync_script)
-        ssh.exec!('sudo rm #{config.vm.rsync_crontab_entry_file}')
+        ssh.exec!("sudo chmod +x #{config.vm.rsync_script}")
+        ssh.exec!("sudo rm #{config.vm.rsync_crontab_entry_file}")
       end
 
       #-------------------------------------------------------------------

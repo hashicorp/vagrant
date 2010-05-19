@@ -43,6 +43,8 @@ class Test::Unit::TestCase
       config.vm.shared_folder_uid = nil
       config.vm.shared_folder_gid = nil
       config.vm.system = :linux
+      config.vm.rsync_script = "/foo"
+      config.vm.rsync_crontab_entry_file = "/tmp/foo"
 
       config.package.name = 'vagrant'
       config.package.extension = '.box'

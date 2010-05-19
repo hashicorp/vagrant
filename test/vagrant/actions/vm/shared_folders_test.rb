@@ -129,7 +129,7 @@ class SharedFoldersActionTest < Test::Unit::TestCase
   end
 
   context "with rsyncd folders" do
-    # TODO
+    # TODO prevented by odd configuration swapping when stubbing ssh.execute
     should "prepare the system for rsync if necessary" do
     end
   end
