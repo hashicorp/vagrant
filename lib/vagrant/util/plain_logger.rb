@@ -5,7 +5,7 @@ module Vagrant
     class PlainLogger < ::Logger
       def format_message(level, time, progname, msg)
         # We do no formatting, its up to the user
-        msg
+        "#{msg}\n"
       end
     end
   end
