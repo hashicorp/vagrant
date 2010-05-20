@@ -6,7 +6,7 @@ module Vagrant
     # This class is used to render the ERB templates in the
     # `GEM_ROOT/templates` directory.
     class TemplateRenderer < OpenStruct
-      class <<self
+      class << self
         # Render a given template and return the result. This method optionally
         # takes a block which will be passed the renderer prior to rendering, which
         # allows the caller to set any view variables within the renderer itself.

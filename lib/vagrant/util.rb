@@ -1,25 +1,5 @@
 module Vagrant
   module Util
-    def self.included(base)
-      base.extend Vagrant::Util
-    end
-
-    def wrap_output
-      puts "====================================================================="
-      yield
-      puts "====================================================================="
-    end
-
-    def error_and_exit(key, data = {})
-      abort <<-error
-=====================================================================
-Vagrant experienced an error!
-
-#{Translator.t(key, data).chomp}
-=====================================================================
-error
-    end
-
     def logger
       Logger.singleton_logger
     end
