@@ -5,3 +5,4 @@ pkg/*
 .bundle/*
 doc/
 .yardoc/
+Gemfile.lock
