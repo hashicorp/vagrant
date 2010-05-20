@@ -37,7 +37,8 @@ class VMTest < Test::Unit::TestCase
 
   context "vagrant VM instance" do
     setup do
-      @vm = Vagrant::VM.new(:env => @env, :vm => @mock_vm)
+      @vm_name = "foo"
+      @vm = Vagrant::VM.new(:env => @env, :vm => @mock_vm, :vm_name => @vm_name)
       @mock_vm.stubs(:uuid).returns("foo")
     end
 
@@ -50,6 +51,16 @@ class VMTest < Test::Unit::TestCase
       should "return false if the VM object is nil" do
         @vm.stubs(:vm).returns(nil)
         assert !@vm.created?
+      end
+    end
+
+    context "the logger" do
+      should "create a logger for the proper environment" do
+        logger = @vm.logger
+        assert logger
+        assert logger.is_a?(Vagrant::ResourceLogger)
+        assert_equal @vm.env, logger.env
+        assert_equal @vm_name, logger.resource
       end
     end
 
