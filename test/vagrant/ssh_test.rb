@@ -85,6 +85,14 @@ class SshTest < Test::Unit::TestCase
   context "executing ssh commands" do
     setup do
       mock_ssh
+      @ssh.stubs(:check_key_permissions)
+    end
+
+    should "check key permissions then attempt to start connection" do
+      seq = sequence("seq")
+      @ssh.expects(:check_key_permissions).with(@env.config.ssh.private_key_path).once.in_sequence(seq)
+      Net::SSH.expects(:start).once.in_sequence(seq)
+      @ssh.execute
     end
 
     should "call net::ssh.start with the proper names" do
@@ -123,6 +131,7 @@ class SshTest < Test::Unit::TestCase
   context "checking if host is up" do
     setup do
       mock_ssh
+      @ssh.stubs(:check_key_permissions)
     end
 
     should "return true if SSH connection works" do
