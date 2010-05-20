@@ -6,7 +6,7 @@
 
 Vagrant is a tool for building and distributing virtualized development environments.
 
-By providing automated creation and provisioning of virtual machines using [Sun’s VirtualBox](http://www.virtualbox.org),
+By providing automated creation and provisioning of virtual machines using [Oracle’s VirtualBox](http://www.virtualbox.org),
 Vagrant provides the tools to create and configure lightweight, reproducible, and portable
 virtual environments. For more information, see the part of the getting started guide
 on ”[Why Vagrant?](http://vagrantup.com/docs/getting-started/index.html)”
@@ -48,6 +48,6 @@ To hack on vagrant, you'll need [bundler](http://github.com/carlhuda/bundler) wh
 be installed with a simple `sudo gem install bundler`. Afterwords, do the following:
 
     bundle install
-    rake
+    bundle exec rake
 
 This will run the test suite, which should come back all green! Then you're good to go!
