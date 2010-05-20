@@ -42,6 +42,9 @@ module Vagrant
     # Opens an SSH connection to this environment's virtual machine and yields
     # a Net::SSH object which can be used to execute remote commands.
     def execute(opts={})
+      # Check the key permissions to avoid SSH hangs
+      check_key_permissions(env.config.ssh.private_key_path)
+
       Net::SSH.start(env.config.ssh.host,
                      env.config[:ssh][:username],
                      opts.merge( :port => port,
