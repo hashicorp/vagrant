@@ -29,6 +29,14 @@ module Vagrant
       # Included so subclasses don't need to include it themselves.
       include Vagrant::Util
 
+      # A helper method for logging which simply gets the logger from
+      # the runner. Since actions tend to log quite a bit, this
+      # removes the need to prefix `logger` with `@runner` over and
+      # over.
+      def logger
+        runner.logger
+      end
+
       # Initialization of the action, passing any arguments which may have
       # been given to the {Runner runner}. This method can be used by subclasses
       # to save any of the configuration options which are passed in.

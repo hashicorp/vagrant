@@ -56,7 +56,7 @@ module Vagrant
     # of a specific instance.
     attr_accessor :env
 
-    class <<self
+    class << self
       # Returns an array of all created boxes, as strings.
       #
       # @return [Array<String>]
