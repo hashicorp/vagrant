@@ -20,6 +20,7 @@ module Vagrant
     attr_reader :vms
     attr_reader :active_list
     attr_reader :commands
+    attr_reader :logger
 
     #---------------------------------------------------------------
     # Class Methods
@@ -119,6 +120,7 @@ module Vagrant
     # such as `vm`, `config`, etc. on this environment. The order this
     # method calls its other methods is very particular.
     def load!
+      load_logger!
       load_root_path!
       load_config!
       load_home_directory!
@@ -171,7 +173,6 @@ module Vagrant
       # Load each of the config files in order
       config_queue.each do |item|
         if item.is_a?(String) && File.exist?(item)
-          logger.info "Loading config from #{item}..."
           load item
           next
         end
@@ -184,6 +185,19 @@ module Vagrant
 
       # Execute the configuration stack and store the result
       @config = Config.execute!
+
+      # (re)load the logger
+      load_logger!
+    end
+
+    # Loads the logger for this environment. This is called by
+    # {#load_config!} so that the logger is only loaded after
+    # configuration information is available. The logger is also
+    # loaded early on in the load chain process so that the various
+    # references to logger won't throw nil exceptions, but by default
+    # the logger will just send the log data to a black hole.
+    def load_logger!
+      @logger = ResourceLogger.new("vagrant", self)
     end
 
     # Loads the home directory path and creates the necessary subdirectories

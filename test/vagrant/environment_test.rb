@@ -167,6 +167,7 @@ class EnvironmentTest < Test::Unit::TestCase
     context "overall load method" do
       should "load! should call proper sequence and return itself" do
         call_seq = sequence("call_sequence")
+        @env.expects(:load_logger!).once.in_sequence(call_seq)
         @env.expects(:load_root_path!).once.in_sequence(call_seq)
         @env.expects(:load_config!).once.in_sequence(call_seq)
         @env.expects(:load_home_directory!).once.in_sequence(call_seq)
@@ -249,6 +250,7 @@ class EnvironmentTest < Test::Unit::TestCase
         @home_path = "/bar"
         @env.stubs(:root_path).returns(@root_path)
         @env.stubs(:home_path).returns(@home_path)
+        @env.stubs(:load_logger!)
 
         @parent_env = mock_environment
 
@@ -339,6 +341,13 @@ class EnvironmentTest < Test::Unit::TestCase
         Vagrant::Config.expects(:execute!).once.returns(result)
         @env.load_config!
         assert_equal result, @env.config
+      end
+
+      should "reload the logger after executing" do
+        load_seq = sequence("load_seq")
+        Vagrant::Config.expects(:execute!).once.returns(nil).in_sequence(load_seq)
+        @env.expects(:load_logger!).once.in_sequence(load_seq)
+        @env.load_config!
       end
     end
 

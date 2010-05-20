@@ -24,7 +24,7 @@ module Vagrant
 
     class << self
       def singleton_logger(env=nil)
-        if env && env.config.loaded?
+        if env && env.config && env.config.loaded?
           @@singleton_logger ||= Util::PlainLogger.new(env.config.vagrant.log_output)
         else
           Util::PlainLogger.new(nil)

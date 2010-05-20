@@ -24,6 +24,7 @@ class Test::Unit::TestCase
 
     Vagrant::Config.run do |config|
       config.vagrant.dotfile_name = ".vagrant"
+      config.vagrant.log_output = nil
 
       config.ssh.username = "foo"
       config.ssh.password = "bar"
@@ -73,6 +74,12 @@ class Test::Unit::TestCase
     config = Vagrant::Config.execute!
 
     environment.instance_variable_set(:@config, config)
+
+    # Setup the logger. We create it then reset it so that subsequent
+    # calls will recreate it for us.
+    environment.load_logger!
+    environment.logger.class.reset_singleton_logger!
+
     environment
   end
 
