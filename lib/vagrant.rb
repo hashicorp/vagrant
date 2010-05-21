@@ -11,6 +11,6 @@ end
 require File.expand_path("util/glob_loader", libdir)
 
 # Load them up
-Vagrant::GlobLoader.glob_require(libdir, %w{util util/stacked_proc_runner util/progress_meter
+Vagrant::GlobLoader.glob_require(libdir, %w{util/stacked_proc_runner util/progress_meter
   actions/base downloaders/base actions/collection actions/runner config
   provisioners/base provisioners/chef systems/base commands/base commands/box})

@@ -29,7 +29,7 @@ module Vagrant
         if vm.created?
           vm.resume
         else
-          logger.info "VM '#{name}' not created. Ignoring."
+          vm.env.logger.info "VM '#{name}' not created. Ignoring."
         end
       end
 

@@ -37,6 +37,7 @@ class CommandsDestroyTest < Test::Unit::TestCase
   context "destroying a single VM" do
     setup do
       @foo_vm = mock("vm")
+      @foo_vm.stubs(:env).returns(@env)
       vms = { :foo => @foo_vm }
       @env.stubs(:vms).returns(vms)
     end
