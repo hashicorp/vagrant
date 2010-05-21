@@ -91,7 +91,6 @@ Gem::Specification.new do |s|
      "lib/vagrant/ssh.rb",
      "lib/vagrant/systems/base.rb",
      "lib/vagrant/systems/linux.rb",
-     "lib/vagrant/util.rb",
      "lib/vagrant/util/error_helper.rb",
      "lib/vagrant/util/glob_loader.rb",
      "lib/vagrant/util/output_helper.rb",
@@ -174,7 +173,6 @@ Gem::Specification.new do |s|
      "test/vagrant/util/stacked_proc_runner_test.rb",
      "test/vagrant/util/template_renderer_test.rb",
      "test/vagrant/util/translator_test.rb",
-     "test/vagrant/util_test.rb",
      "test/vagrant/vm_test.rb",
      "vagrant.gemspec"
   ]
@@ -188,7 +186,6 @@ Gem::Specification.new do |s|
      "test/vagrant/vm_test.rb",
      "test/vagrant/command_test.rb",
      "test/vagrant/environment_test.rb",
-     "test/vagrant/util_test.rb",
      "test/vagrant/box_test.rb",
      "test/vagrant/busy_test.rb",
      "test/vagrant/provisioners/base_test.rb",
