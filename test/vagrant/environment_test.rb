@@ -351,6 +351,26 @@ class EnvironmentTest < Test::Unit::TestCase
       end
     end
 
+    context "loading logger" do
+      setup do
+        @env = mock_environment
+        @env.stubs(:vm_name).returns(nil)
+      end
+
+      should "use 'vagrant' by default" do
+        assert @env.vm_name.nil? # sanity
+        @env.load_logger!
+        assert_equal "vagrant", @env.logger.resource
+      end
+
+      should "use the vm name if available" do
+        name = "foo"
+        @env.stubs(:vm_name).returns(name)
+        @env.load_logger!
+        assert_equal name, @env.logger.resource
+      end
+    end
+
     context "loading home directory" do
       setup do
         @env = mock_environment

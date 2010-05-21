@@ -54,16 +54,6 @@ class VMTest < Test::Unit::TestCase
       end
     end
 
-    context "the logger" do
-      should "create a logger for the proper environment" do
-        logger = @vm.logger
-        assert logger
-        assert logger.is_a?(Vagrant::ResourceLogger)
-        assert_equal @vm.env, logger.env
-        assert_equal @vm_name, logger.resource
-      end
-    end
-
     context "accessing the SSH object" do
       setup do
         # Reset this to nil to force the reload

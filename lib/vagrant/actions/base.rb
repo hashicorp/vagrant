@@ -34,7 +34,7 @@ module Vagrant
       # removes the need to prefix `logger` with `@runner` over and
       # over.
       def logger
-        runner.logger
+        runner.env.logger
       end
 
       # Initialization of the action, passing any arguments which may have

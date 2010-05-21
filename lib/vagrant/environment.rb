@@ -197,7 +197,8 @@ module Vagrant
     # references to logger won't throw nil exceptions, but by default
     # the logger will just send the log data to a black hole.
     def load_logger!
-      @logger = ResourceLogger.new("vagrant", self)
+      resource = vm_name || "vagrant"
+      @logger = ResourceLogger.new(resource, self)
     end
 
     # Loads the home directory path and creates the necessary subdirectories

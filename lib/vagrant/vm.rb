@@ -4,7 +4,6 @@ module Vagrant
 
     attr_reader :env
     attr_reader :system
-    attr_reader :logger
     attr_reader :name
     attr_accessor :vm
 
@@ -43,8 +42,6 @@ module Vagrant
         # Load the associated system.
         load_system!
       end
-
-      @logger = ResourceLogger.new(@name, @env)
     end
 
     # Loads the system associated with the VM. The system class is

@@ -105,7 +105,7 @@ class Test::Unit::TestCase
     mock_vm.stubs(:invoke_around_callback).yields
     mock_vm.stubs(:actions).returns([action])
     mock_vm.stubs(:env).returns(mock_environment)
-    mock_vm.stubs(:logger).returns(Vagrant::ResourceLogger.new("mock", nil))
+    mock_vm.env.stubs(:logger).returns(Vagrant::ResourceLogger.new("mock", nil))
 
     mock_ssh = Vagrant::SSH.new(mock_vm.env)
     mock_ssh.stubs(:execute)
