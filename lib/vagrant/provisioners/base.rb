@@ -22,6 +22,12 @@ module Vagrant
         @vm.env
       end
 
+      # This method returns the environment's logger as a convenience
+      # method.
+      def logger
+        env.logger
+      end
+
       # This is the method called to "prepare" the provisioner. This is called
       # before any actions are run by the action runner (see {Vagrant::Actions::Runner}).
       # This can be used to setup shared folders, forward ports, etc. Whatever is

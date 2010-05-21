@@ -26,12 +26,12 @@ module Vagrant
         end
 
         if vm.created?
-          logger.info "VM '#{name}' already created. Booting if its not already running..."
+          vm.env.logger.info "VM '#{name}' already created. Booting if its not already running..."
           vm.start
         else
           vm.env.require_box
 
-          logger.info "Creating VM '#{name}'"
+          vm.env.logger.info "Creating VM '#{name}'"
           vm.up
         end
       end
