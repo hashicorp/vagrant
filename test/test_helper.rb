@@ -79,6 +79,8 @@ class Test::Unit::TestCase
     # calls will recreate it for us.
     environment.load_logger!
     environment.logger.class.reset_singleton_logger!
+    environment.logger.stubs(:flush_progress)
+    environment.logger.stubs(:cl_reset).returns("")
 
     environment
   end
@@ -105,7 +107,7 @@ class Test::Unit::TestCase
     mock_vm.stubs(:invoke_around_callback).yields
     mock_vm.stubs(:actions).returns([action])
     mock_vm.stubs(:env).returns(mock_environment)
-    mock_vm.env.stubs(:logger).returns(Vagrant::ResourceLogger.new("mock", nil))
+    mock_vm.env.stubs(:logger).returns(quiet_logger("mock"))
 
     mock_ssh = Vagrant::SSH.new(mock_vm.env)
     mock_ssh.stubs(:execute)
@@ -115,6 +117,14 @@ class Test::Unit::TestCase
     vm.stubs(:env).returns(mock_vm.env)
 
     [mock_vm, vm, action]
+  end
+
+  # Returns a resource logger which is safe for tests
+  def quiet_logger(resource, env=nil)
+    logger = Vagrant::ResourceLogger.new(resource, env)
+    logger.stubs(:flush_progress)
+    logger.stubs(:cl_reset).returns("")
+    logger
   end
 
   # Returns a linux system

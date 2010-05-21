@@ -71,11 +71,68 @@ class ResourceLoggerTest < Test::Unit::TestCase
     end
 
     context "logging methods" do
+      setup do
+        @instance.stubs(:flush_progress)
+      end
+
       should "log with the proper format" do
         message = "bar"
         @logger.expects(:info).with("[#{@resource}] #{message}").once
 
         @instance.info(message)
+      end
+    end
+
+    context "reporting progress" do
+      setup do
+        @instance.stubs(:flush_progress)
+      end
+
+      should "flush progress" do
+        @instance.expects(:flush_progress).once
+        @instance.report_progress(72, 100)
+      end
+
+      should "add the reporter to the progress reporters" do
+        @instance.report_progress(72, 100)
+        assert @klass.progress_reporters.has_key?(@instance.resource)
+      end
+    end
+
+    context "clearing progress" do
+      setup do
+        @instance.stubs(:flush_progress)
+
+        @klass.progress_reporters.clear
+        @instance.report_progress(72, 100)
+      end
+
+      should "remove the key from the reporters" do
+        assert @klass.progress_reporters.has_key?(@instance.resource)
+        @instance.clear_progress
+        assert !@klass.progress_reporters.has_key?(@instance.resource)
+      end
+    end
+
+    context "command line reset" do
+      context "on windows" do
+        setup do
+          Mario::Platform.forced = Mario::Platform::Windows7
+        end
+
+        should "just return \\r for the clear screen" do
+          assert_equal  "\r", @instance.cl_reset
+        end
+      end
+
+      context "on other platforms" do
+        setup do
+          Mario::Platform.forced = Mario::Platform::Linux
+        end
+
+        should "return the full clear screen" do
+          assert_equal "\r\e[0K", @instance.cl_reset
+        end
       end
     end
   end
