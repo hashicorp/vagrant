@@ -7,7 +7,8 @@ class BaseDownloaderTest < Test::Unit::TestCase
 
   context "base instance" do
     setup do
-      @base = Vagrant::Downloaders::Base.new
+      @env = mock_environment
+      @base = Vagrant::Downloaders::Base.new(@env)
     end
 
     should "implement prepare which does nothing" do

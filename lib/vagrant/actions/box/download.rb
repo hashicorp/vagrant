@@ -18,7 +18,7 @@ module Vagrant
           [Downloaders::HTTP, Downloaders::File].each do |dler|
             if dler.match?(@runner.uri)
               logger.info "Downloading via #{dler}..."
-              @downloader = dler.new 
+              @downloader = dler.new(@runner.env)
             end
           end
 
@@ -52,7 +52,7 @@ module Vagrant
             yield tempfile
           end
         end
-        
+
         def file_options
           # create, write only, fail if the file exists, binary if windows
           File::WRONLY|File::EXCL|File::CREAT|(Mario::Platform.windows? ? File::BINARY : 0)

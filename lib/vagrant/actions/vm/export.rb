@@ -2,8 +2,6 @@ module Vagrant
   module Actions
     module VM
       class Export < Base
-        include Util::ProgressMeter
-
         attr_reader :temp_dir
 
         def execute!
@@ -36,10 +34,10 @@ module Vagrant
         def export
           logger.info "Exporting VM to #{ovf_path}..."
           @runner.vm.export(ovf_path) do |progress|
-            update_progress(progress.percent, 100, false)
+            logger.report_progress(progress.percent, 100, false)
           end
 
-          complete_progress
+          logger.clear_progress
         end
       end
     end

@@ -3,8 +3,6 @@ module Vagrant
     # Downloads a file from an HTTP URL to a temporary file. This
     # downloader reports its progress to stdout while downloading.
     class HTTP < Base
-      include Util::ProgressMeter
-
       def self.match?(uri)
         # URI.parse barfs on '<drive letter>:\\files \on\ windows'
         # TODO temprorary
@@ -26,7 +24,7 @@ module Vagrant
             # Progress reporting is limited to every 25 segments just so
             # we're not constantly updating
             if segment_count % 25 == 0
-              update_progress(progress, total)
+              env.logger.report_progress(progress, total)
               segment_count = 0
             end
 
@@ -35,7 +33,7 @@ module Vagrant
           end
         end
 
-        complete_progress
+        env.logger.clear_progress
       end
     end
   end
