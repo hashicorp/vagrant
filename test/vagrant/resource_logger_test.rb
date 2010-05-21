@@ -115,6 +115,10 @@ class ResourceLoggerTest < Test::Unit::TestCase
     end
 
     context "command line reset" do
+      setup do
+        Mario::Platform.logger(nil)
+      end
+
       context "on windows" do
         setup do
           Mario::Platform.forced = Mario::Platform::Windows7
