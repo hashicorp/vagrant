@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{vagrant}
-  s.version = "0.3.4.dev"
+  s.version = "0.3.5.dev"
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Mitchell Hashimoto", "John Bender"]
-  s.date = %q{2010-05-20}
+  s.date = %q{2010-05-21}
   s.default_executable = %q{vagrant}
   s.description = %q{Vagrant is a tool for building and distributing virtualized development environments.}
   s.email = ["mitchell.hashimoto@gmail.com", "john.m.bender@gmail.com"]
