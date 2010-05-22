@@ -12,24 +12,6 @@ class CommandsProvisionTest < Test::Unit::TestCase
       @instance.expects(:all_or_single).with([], :provision).once
       @instance.execute
     end
-
-    should "provision single if a name is given" do
-      @instance.expects(:provision_single).with("foo").once
-      @instance.execute(["foo"])
-    end
-  end
-
-  context "provisioning all" do
-    should "reprovision each VM" do
-      vms = { :foo => nil, :bar => nil, :baz => nil }
-      @env.stubs(:vms).returns(vms)
-
-      vms.each do |name, value|
-        @instance.expects(:provision_single).with(name).once
-      end
-
-      @instance.execute
-    end
   end
 
   context "provisioning a single VM" do
