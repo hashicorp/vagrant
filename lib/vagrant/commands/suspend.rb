@@ -11,13 +11,7 @@ module Vagrant
       description "Suspends the currently running vagrant environment"
 
       def execute(args=[])
-        args = parse_options(args)
-
-        if args[0]
-          suspend_single(args[0])
-        else
-          suspend_all
-        end
+        all_or_single(args, :suspend)
       end
 
       def suspend_single(name)
@@ -31,12 +25,6 @@ module Vagrant
           vm.suspend
         else
           vm.env.logger.info "VM '#{name}' not created. Ignoring."
-        end
-      end
-
-      def suspend_all
-        env.vms.keys.each do |name|
-          suspend_single(name)
         end
       end
 

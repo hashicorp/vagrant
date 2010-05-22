@@ -9,27 +9,9 @@ class CommandsResumeTest < Test::Unit::TestCase
   end
 
   context "executing" do
-    should "call on all if no name is given" do
-      @instance.expects(:resume_all).once
+    should "call all or single for the method" do
+      @instance.expects(:all_or_single).with([], :resume)
       @instance.execute
-    end
-
-    should "call on single if a name is given" do
-      @instance.expects(:resume_single).with("foo").once
-      @instance.execute(["foo"])
-    end
-  end
-
-  context "resume all" do
-    should "resume each VM" do
-      vms = { :foo => nil, :bar => nil, :baz => nil }
-      @env.stubs(:vms).returns(vms)
-
-      vms.each do |name, value|
-        @instance.expects(:resume_single).with(name).once
-      end
-
-      @instance.resume_all
     end
   end
 

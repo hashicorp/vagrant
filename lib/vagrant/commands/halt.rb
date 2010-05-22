@@ -11,13 +11,7 @@ module Vagrant
       description "Halts the currently running vagrant environment"
 
       def execute(args=[])
-        args = parse_options(args)
-
-        if args[0]
-          halt_single(args[0])
-        else
-          halt_all
-        end
+        all_or_single(args, :halt)
       end
 
       def halt_single(name)
@@ -31,12 +25,6 @@ module Vagrant
           vm.halt(options[:force])
         else
           vm.env.logger.info "VM '#{name}' not created. Ignoring."
-        end
-      end
-
-      def halt_all
-        env.vms.keys.each do |name|
-          halt_single(name)
         end
       end
 

@@ -78,6 +78,24 @@ class CommandsBaseTest < Test::Unit::TestCase
       end
     end
 
+    context "all or single methods" do
+      should "call the single method if a name is given" do
+        name = "bar"
+        @instance.expects(:foo_single).with(name).once
+        @instance.all_or_single(["bar"], :foo)
+      end
+
+      should "call the single method for each VM if no name is given" do
+        vms = { :foo => nil, :bar => nil }
+        vms.keys.each do |name|
+          @instance.expects(:foo_single).with(name).once
+        end
+
+        @env.stubs(:vms).returns(vms)
+        @instance.all_or_single([], :foo)
+      end
+    end
+
     context "getting the option parser" do
       should "create it with the options spec if it hasn't been created yet" do
         opts = mock("opts")

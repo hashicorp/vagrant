@@ -9,27 +9,9 @@ class CommandsHaltTest < Test::Unit::TestCase
   end
 
   context "executing" do
-    should "call halt_all if no name is given" do
-      @instance.expects(:halt_all).once
+    should "call all or single for the method" do
+      @instance.expects(:all_or_single).with([], :halt)
       @instance.execute
-    end
-
-    should "call halt_single if a name is given" do
-      @instance.expects(:halt_single).with("foo").once
-      @instance.execute(["foo"])
-    end
-  end
-
-  context "halting all" do
-    should "halt each VM" do
-      vms = { :foo => nil, :bar => nil, :baz => nil }
-      @env.stubs(:vms).returns(vms)
-
-      vms.each do |name, value|
-        @instance.expects(:halt_single).with(name).once
-      end
-
-      @instance.halt_all
     end
   end
 

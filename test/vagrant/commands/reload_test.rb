@@ -9,27 +9,9 @@ class CommandsReloadTest < Test::Unit::TestCase
   end
 
   context "executing" do
-    should "call on all if no name is given" do
-      @instance.expects(:reload_all).once
+    should "call all or single for the method" do
+      @instance.expects(:all_or_single).with([], :reload)
       @instance.execute
-    end
-
-    should "call on single if a name is given" do
-      @instance.expects(:reload_single).with("foo").once
-      @instance.execute(["foo"])
-    end
-  end
-
-  context "reloading all" do
-    should "reload each VM" do
-      vms = { :foo => nil, :bar => nil, :baz => nil }
-      @env.stubs(:vms).returns(vms)
-
-      vms.each do |name, value|
-        @instance.expects(:reload_single).with(name).once
-      end
-
-      @instance.reload_all
     end
   end
 

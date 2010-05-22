@@ -9,14 +9,9 @@ class CommandsUpTest < Test::Unit::TestCase
   end
 
   context "executing" do
-    should "call up_all if no name is given" do
-      @instance.expects(:up_all).once
+    should "call all or single for the method" do
+      @instance.expects(:all_or_single).with([], :up)
       @instance.execute
-    end
-
-    should "call up_single if a name is given" do
-      @instance.expects(:up_single).with("foo").once
-      @instance.execute(["foo"])
     end
   end
 
@@ -47,32 +42,6 @@ class CommandsUpTest < Test::Unit::TestCase
       @vm.expects(:up).once
       @vm.expects(:start).never
       @instance.up_single(:foo)
-    end
-  end
-
-  context "upping all VMs" do
-    setup do
-      @vms = {}
-      @env.stubs(:vms).returns(@vms)
-    end
-
-    def create_vm
-      vm = mock("vm")
-      vm.stubs(:env).returns(mock_environment)
-      vm.stubs(:created?).returns(false)
-      vm
-    end
-
-    should "require a box for all VMs" do
-      @vms[:foo] = create_vm
-      @vms[:bar] = create_vm
-
-      @vms.each do |name, vm|
-        vm.env.expects(:require_box).once
-        @instance.expects(:up_single).with(name).once
-      end
-
-      @instance.up_all
     end
   end
 end

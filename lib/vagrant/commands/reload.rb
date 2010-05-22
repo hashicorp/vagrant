@@ -10,13 +10,7 @@ module Vagrant
       description "Reload the vagrant environment"
 
       def execute(args=[])
-        args = parse_options(args)
-
-        if args[0]
-          reload_single(args[0])
-        else
-          reload_all
-        end
+        all_or_single(args, :reload)
       end
 
       def reload_single(name)
@@ -30,12 +24,6 @@ module Vagrant
           vm.reload
         else
           vm.env.logger.info "VM '#{name}' not created. Ignoring."
-        end
-      end
-
-      def reload_all
-        env.vms.keys.each do |name|
-          reload_single(name)
         end
       end
 

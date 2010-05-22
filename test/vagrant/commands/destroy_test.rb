@@ -10,27 +10,9 @@ class CommandsDestroyTest < Test::Unit::TestCase
   end
 
   context "executing" do
-    should "call destroy_all if no name is given" do
-      @instance.expects(:destroy_all).once
+    should "call all or single for the method" do
+      @instance.expects(:all_or_single).with([], :destroy)
       @instance.execute
-    end
-
-    should "call destroy_single if a name is given" do
-      @instance.expects(:destroy_single).with("foo").once
-      @instance.execute(["foo"])
-    end
-  end
-
-  context "destroying all" do
-    should "destroy each VM" do
-      vms = { :foo => nil, :bar => nil, :baz => nil }
-      @env.stubs(:vms).returns(vms)
-
-      vms.each do |name, value|
-        @instance.expects(:destroy_single).with(name).once
-      end
-
-      @instance.destroy_all
     end
   end
 

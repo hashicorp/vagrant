@@ -11,13 +11,7 @@ module Vagrant
       description "Destroys the vagrant environment"
 
       def execute(args=[])
-        args = parse_options(args)
-
-        if args[0]
-          destroy_single(args[0])
-        else
-          destroy_all
-        end
+        all_or_single(args, :destroy)
       end
 
       # Destroys a single VM by name.
@@ -32,13 +26,6 @@ module Vagrant
           vm.destroy
         else
           vm.env.logger.info "VM '#{name}' not created. Ignoring."
-        end
-      end
-
-      # Destroys all VMs represented by the current environment.
-      def destroy_all
-        env.vms.each do |name, vm|
-          destroy_single(name)
         end
       end
 

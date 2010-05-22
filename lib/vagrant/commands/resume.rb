@@ -10,13 +10,7 @@ module Vagrant
       description "Resumes a suspend vagrant environment"
 
       def execute(args=[])
-        args = parse_options(args)
-
-        if args[0]
-          resume_single(args[0])
-        else
-          resume_all
-        end
+        all_or_single(args, :resume)
       end
 
       def resume_single(name)
@@ -30,12 +24,6 @@ module Vagrant
           vm.resume
         else
           vm.env.logger.info "VM '#{name}' not created. Ignoring."
-        end
-      end
-
-      def resume_all
-        env.vms.keys.each do |name|
-          resume_single(name)
         end
       end
 

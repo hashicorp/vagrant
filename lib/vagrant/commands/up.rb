@@ -9,13 +9,7 @@ module Vagrant
       description "Creates the vagrant environment"
 
       def execute(args=[])
-        args = parse_options(args)
-
-        if args[0]
-          up_single(args[0])
-        else
-          up_all
-        end
+        all_or_single(args, :up)
       end
 
       def up_single(name)
@@ -33,16 +27,6 @@ module Vagrant
 
           vm.env.logger.info "Creating VM '#{name}'"
           vm.up
-        end
-      end
-
-      def up_all
-        # First verify that all VMs have valid boxes
-        env.vms.each { |name, vm| vm.env.require_box unless vm.created? }
-
-        # Next, handle each VM
-        env.vms.keys.each do |name|
-          up_single(name)
         end
       end
 

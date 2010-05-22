@@ -9,27 +9,9 @@ class CommandsSuspendTest < Test::Unit::TestCase
   end
 
   context "executing" do
-    should "call on all if no name is given" do
-      @instance.expects(:suspend_all).once
+    should "call all or single for the method" do
+      @instance.expects(:all_or_single).with([], :suspend)
       @instance.execute
-    end
-
-    should "call on single if a name is given" do
-      @instance.expects(:suspend_single).with("foo").once
-      @instance.execute(["foo"])
-    end
-  end
-
-  context "suspending all" do
-    should "suspend each VM" do
-      vms = { :foo => nil, :bar => nil, :baz => nil }
-      @env.stubs(:vms).returns(vms)
-
-      vms.each do |name, value|
-        @instance.expects(:suspend_single).with(name).once
-      end
-
-      @instance.suspend_all
     end
   end
 

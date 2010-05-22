@@ -94,6 +94,23 @@ module Vagrant
       # Methods below are not meant to be overriden/implemented by subclasses
       #-------------------------------------------------------------------
 
+      # Parses the options for a given command and if a name was
+      # given, it calls the single method, otherwise it calls the all
+      # method. This helper is an abstraction which allows commands to
+      # easily be used in both regular and multi-VM environments.
+      def all_or_single(args, method_prefix)
+        args = parse_options(args)
+
+        single_method = "#{method_prefix}_single".to_sym
+        if args[0]
+          send(single_method, args[0])
+        else
+          env.vms.keys.each do |name|
+            send(single_method, name)
+          end
+        end
+      end
+
       # Shows the version
       def puts_version
         File.open(File.join(PROJECT_ROOT, "VERSION"), "r") do |f|
