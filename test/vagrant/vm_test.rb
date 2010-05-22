@@ -188,6 +188,13 @@ class VMTest < Test::Unit::TestCase
       end
     end
 
+    context "provisioning" do
+      should "execute the provision action" do
+        @vm.expects(:execute!).with(Vagrant::Actions::VM::Provision).once
+        @vm.provision
+      end
+    end
+
     context "destroying" do
       should "execute the down action" do
         @vm.expects(:execute!).with(Vagrant::Actions::VM::Down).once

@@ -117,6 +117,10 @@ module Vagrant
       execute!(Actions::VM::Reload)
     end
 
+    def provision
+      execute!(Actions::VM::Provision)
+    end
+
     def destroy
       execute!(Actions::VM::Down)
     end
