@@ -105,9 +105,14 @@ module Vagrant
         if args[0]
           send(single_method, args[0])
         else
+          threads = []
           env.vms.keys.each do |name|
-            send(single_method, name)
+            threads << Thread.new do
+              send(single_method, name)
+            end
           end
+
+          threads.each { |t| t.join }
         end
       end
 
