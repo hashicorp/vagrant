@@ -138,7 +138,7 @@ class PackageActionTest < Test::Unit::TestCase
     end
 
     should "open the tar file with the tar path properly" do
-      File.expects(:open).with(@tar_path, File::CREAT | File::WRONLY, 0644).once
+      File.expects(:open).with(@tar_path, Vagrant::Util::Platform.tar_file_options).once
       @action.compress
     end
 

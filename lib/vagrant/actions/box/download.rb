@@ -48,14 +48,9 @@ module Vagrant
 
         def with_tempfile
           logger.info "Creating tempfile for storing box file..."
-          File.open(box_temp_path, file_options) do |tempfile|
+          File.open(box_temp_path, Platform.tar_file_options) do |tempfile|
             yield tempfile
           end
-        end
-
-        def file_options
-          # create, write only, fail if the file exists, binary if windows
-          File::WRONLY|File::EXCL|File::CREAT|(Mario::Platform.windows? ? File::BINARY : 0)
         end
 
         def box_temp_path

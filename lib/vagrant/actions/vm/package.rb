@@ -64,7 +64,7 @@ module Vagrant
 
         def compress
           logger.info "Packaging VM into #{tar_path}..."
-          File.open(tar_path, File::CREAT | File::WRONLY, 0644) do |tar|
+          File.open(tar_path, Platform.tar_file_options) do |tar|
             Archive::Tar::Minitar::Output.open(tar) do |output|
               begin
                 current_dir = FileUtils.pwd

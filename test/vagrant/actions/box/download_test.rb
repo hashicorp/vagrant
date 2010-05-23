@@ -93,7 +93,6 @@ class DownloadBoxActionTest < Test::Unit::TestCase
       @action.with_tempfile
     end
 
-
     should "yield the tempfile object" do
       @tempfile = mock("tempfile")
       File.expects(:open).yields(@tempfile)
@@ -103,22 +102,6 @@ class DownloadBoxActionTest < Test::Unit::TestCase
       end
     end
   end
-
-  context "file options" do
-    should "include add binary bit to options on windows platform" do
-      # This constant is not defined on non-windows platforms, so define it here
-      File::BINARY = 4096 unless defined?(File::BINARY)
-
-      Mario::Platform.expects(:windows?).returns(true)
-      assert_equal @action.file_options, File::CREAT|File::EXCL|File::WRONLY|File::BINARY
-    end
-
-    should "not include binary bit on other platforms" do
-      Mario::Platform.expects(:windows?).returns(false)
-      assert_equal @action.file_options, File::CREAT|File::EXCL|File::WRONLY
-    end
-  end
-
 
   context "cleaning up" do
     setup do
