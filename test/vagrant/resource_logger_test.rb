@@ -73,6 +73,7 @@ class ResourceLoggerTest < Test::Unit::TestCase
     context "logging methods" do
       setup do
         @instance.stubs(:flush_progress)
+        @instance.stubs(:cl_reset).returns("")
       end
 
       should "log with the proper format" do
