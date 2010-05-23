@@ -7,6 +7,8 @@ class UpActionTest < Test::Unit::TestCase
 
   context "sub-actions" do
     setup do
+      @runner.stubs(:created?).returns(false)
+
       File.stubs(:file?).returns(true)
       File.stubs(:exist?).returns(true)
       @default_order = [Vagrant::Actions::VM::Import, Vagrant::Actions::VM::Start]
