@@ -87,6 +87,8 @@ module Vagrant
     # Checks the file permissions for the private key, resetting them
     # if needed, or on failure erroring.
     def check_key_permissions(key_path)
+      return if Mario::Platform.windows?
+
       # TODO: This only works on unix based systems for now. Windows
       # systems will need to be investigated further.
       stat = File.stat(key_path)

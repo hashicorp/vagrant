@@ -203,6 +203,14 @@ class SshTest < Test::Unit::TestCase
       @stat = mock("stat")
       @stat.stubs(:owned?).returns(true)
       File.stubs(:stat).returns(@stat)
+
+      Mario::Platform.stubs(:windows?).returns(false)
+    end
+
+    should "do nothing if on windows" do
+      Mario::Platform.stubs(:windows?).returns(true)
+      File.expects(:stat).never
+      @ssh.check_key_permissions(@key_path)
     end
 
     should "do nothing if the user is not the owner" do
