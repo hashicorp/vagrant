@@ -114,9 +114,19 @@ module Vagrant
 
     # Returns the port which is either given in the options hash or taken from
     # the config by finding it in the forwarded ports hash based on the
-    # `config.ssh.forwarded_port_key`
+    # `config.ssh.forwarded_port_key` or use the default port given by `config.ssh.port`
+    # when port forwarding isn't used.
     def port(opts={})
-      opts[:port] || env.config.vm.forwarded_ports[env.config.ssh.forwarded_port_key][:hostport]
+      # Check if port was specified in options hash
+      pnum = opts[:port]
+      return pnum if pnum
+
+      # Check if we have an SSH forwarded port
+      pnum = env.config.vm.forwarded_ports[env.config.ssh.forwarded_port_key]
+      return pnum[:hostport] if pnum
+
+      # Fall back to the default
+      return env.config.ssh.port
     end
   end
 end

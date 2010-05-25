@@ -63,6 +63,7 @@ module Vagrant
       attr_accessor :username
       attr_accessor :password
       attr_accessor :host
+      attr_accessor :port
       attr_accessor :forwarded_port_key
       attr_accessor :max_tries
       attr_accessor :timeout
@@ -101,11 +102,12 @@ module Vagrant
         @provisioner = nil
       end
 
-      def forward_port(name, guestport, hostport, protocol="TCP")
+      def forward_port(name, guestport, hostport, protocol="TCP", instance=0)
         forwarded_ports[name] = {
           :guestport  => guestport,
           :hostport   => hostport,
-          :protocol   => protocol
+          :protocol   => protocol,
+          :instance   => instance
         }
       end
 
