@@ -36,7 +36,7 @@ module Vagrant
             # Host-only or Bridged networking don't require port-forwarding and establishing forwarded ports on these
             # attachment types has uncertain behaviour.
             if @runner.vm.network_adapters[adapter].attachment_type == :nat
-               logger.info "Forwarding \"#{name}\": #{options[:guestport]} on Adapter\##{adapter+1} => #{options[:hostport]}"
+               logger.info "Forwarding \"#{name}\": #{options[:guestport]} on adapter \##{adapter+1} => #{options[:hostport]}"
                port = VirtualBox::ForwardedPort.new
                port.name = name
                port.hostport = options[:hostport]
@@ -44,8 +44,8 @@ module Vagrant
                port.instance = adapter
                @runner.vm.forwarded_ports << port
             else
-              logger.info "VirtualBox Adapter\##{adapter+1} not configured as \"NAT\"."
-              logger.info "Skipped setting forwarding \"#{name}\": #{options[:guestport]} on Adapter\##{adapter+1} => #{options[:hostport]}"
+              logger.info "VirtualBox adapter \##{adapter+1} not configured as \"NAT\"."
+              logger.info "Skipped port forwarding \"#{name}\": #{options[:guestport]} on adapter\##{adapter+1} => #{options[:hostport]}"
             end
           end
 
