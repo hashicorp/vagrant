@@ -72,16 +72,16 @@ class ForwardPortsActionTest < Test::Unit::TestCase
     should "create a port forwarding for the VM" do
       forwarded_ports = mock("forwarded_ports")
       network_adapter = mock("network_adapter")
-      
+
       @vm.expects(:network_adapters).returns([network_adapter])
       network_adapter.expects(:attachment_type).returns(:nat)
-      
+
       @mock_vm.env.config.vm.forwarded_ports.each do |name, opts|
         forwarded_ports.expects(:<<).with do |port|
           assert_equal name, port.name
           assert_equal opts[:hostport], port.hostport
           assert_equal opts[:guestport], port.guestport
-          assert_equal opts[:instance], port.instance
+          assert_equal opts[:adapter], port.instance
           true
         end
       end
@@ -96,9 +96,9 @@ class ForwardPortsActionTest < Test::Unit::TestCase
     should "No port forwarding for non NAT interfaces" do
       forwarded_ports = mock("forwarded_ports")
       network_adapter = mock("network_adapter")
-      
+
       @vm.expects(:network_adapters).returns([network_adapter])
-      network_adapter.expects(:attachment_type).returns(:host_only)      
+      network_adapter.expects(:attachment_type).returns(:host_only)
       @vm.expects(:save).once
       @action.forward_ports
     end

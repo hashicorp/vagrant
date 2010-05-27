@@ -13,6 +13,7 @@ Vagrant::Config.run do |config|
   config.ssh.timeout = 30
   config.ssh.private_key_path = File.join(PROJECT_ROOT, 'keys', 'vagrant')
 
+  config.vm.auto_port_range = (2200..2250)
   config.vm.box_ovf = "box.ovf"
   config.vm.base_mac = "0800279C2E42"
   config.vm.project_directory = "/vagrant"

@@ -9,7 +9,7 @@ module Vagrant
             vm.forwarded_ports.each do |fp|
               @runner.env.config.vm.forwarded_ports.each do |name, options|
                 if fp.hostport.to_s == options[:hostport].to_s
-                  raise ActionException.new(:vm_port_collision, :name => name, :hostport => fp.hostport.to_s, :guestport => options[:guestport].to_s, :instance => options[:instance])
+                  raise ActionException.new(:vm_port_collision, :name => name, :hostport => fp.hostport.to_s, :guestport => options[:guestport].to_s, :adapter => options[:adapter])
                 end
               end
             end
@@ -30,7 +30,7 @@ module Vagrant
           logger.info "Forwarding ports..."
 
           @runner.env.config.vm.forwarded_ports.each do |name, options|
-            adapter = options[:instance]
+            adapter = options[:adapter]
 
             # Assuming the only reason to establish port forwarding is because the VM is using Virtualbox NAT networking.
             # Host-only or Bridged networking don't require port-forwarding and establishing forwarded ports on these

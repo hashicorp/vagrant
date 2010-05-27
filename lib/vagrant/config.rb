@@ -77,6 +77,7 @@ module Vagrant
     class VMConfig < Base
       include Util::StackedProcRunner
 
+      attr_accessor :auto_port_range
       attr_accessor :box
       attr_accessor :box_ovf
       attr_accessor :base_mac
@@ -102,13 +103,15 @@ module Vagrant
         @provisioner = nil
       end
 
-      def forward_port(name, guestport, hostport, protocol="TCP", instance=0)
-        forwarded_ports[name] = {
+      def forward_port(name, guestport, hostport, options=nil)
+        options = {
           :guestport  => guestport,
           :hostport   => hostport,
-          :protocol   => protocol,
-          :instance   => instance
-        }
+          :protocol   => "TCP",
+          :adapter    => 0
+        }.merge(options || {})
+
+        forwarded_ports[name] = options
       end
 
       def share_folder(name, guestpath, hostpath = nil, opts = {})
