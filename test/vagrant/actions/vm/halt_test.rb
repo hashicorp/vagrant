@@ -6,6 +6,18 @@ class HaltActionTest < Test::Unit::TestCase
     @runner.stubs(:system).returns(linux_system(@vm))
   end
 
+  context "force?" do
+    should "not force by default" do
+      @action.options[:force] = nil
+      assert !@action.force?
+    end
+
+    should "force if specified" do
+      @action.options[:force] = true
+      assert @action.force?
+    end
+  end
+
   context "executing" do
     setup do
       @vm.stubs(:running?).returns(true)

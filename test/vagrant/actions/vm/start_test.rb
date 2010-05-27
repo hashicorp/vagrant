@@ -52,4 +52,22 @@ class StartActionTest < Test::Unit::TestCase
       @action.prepare
     end
   end
+
+  context "provision?" do
+    should "return false if no provisioner is set" do
+      @vm.env.config.vm.provisioner = nil
+      assert !@action.provision?
+    end
+
+    should "return true if a provisioner is set" do
+      @vm.env.config.vm.provisioner = :chef_solo
+      assert @action.provision?
+    end
+
+    should "return false if provisioning is specifically disabled" do
+      @vm.env.config.vm.provisioner = :chef_solo
+      @action.options[:provision] = false
+      assert !@action.provision?
+    end
+  end
 end

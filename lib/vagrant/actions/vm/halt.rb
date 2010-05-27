@@ -14,6 +14,10 @@ module Vagrant
             end
           end
         end
+
+        def force?
+          !!options[:force]
+        end
       end
     end
   end

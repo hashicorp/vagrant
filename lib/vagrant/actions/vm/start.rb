@@ -8,12 +8,17 @@ module Vagrant
           steps = [Boot]
           if !@runner.vm || !@runner.vm.saved?
             steps.unshift([Customize, ForwardPorts, SharedFolders])
-            steps << Provision if !@runner.env.config.vm.provisioner.nil? && options[:provision]
+            steps << Provision if provision?
           end
 
           steps.flatten.each do |action_klass|
             @runner.add_action(action_klass, options)
           end
+        end
+
+        def provision?
+          enabled = options[:provision].nil? ? true : options[:provision]
+          !@runner.env.config.vm.provisioner.nil? && enabled
         end
       end
     end
