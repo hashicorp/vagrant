@@ -22,7 +22,7 @@ module Vagrant
         end
 
         if vm.created?
-          vm.halt(options[:force])
+          vm.halt(options)
         else
           vm.env.logger.info "VM '#{name}' not created. Ignoring."
         end

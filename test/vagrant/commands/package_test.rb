@@ -97,7 +97,7 @@ class CommandsPackageTest < Test::Unit::TestCase
       @options[:output] = "foo.box"
       @options[:include] = :bar
 
-      @vm.expects(:package).with(@options[:output], @options[:include]).once
+      @vm.expects(:package).with(@options).once
       @instance.package_vm(@vm)
     end
   end

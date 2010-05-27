@@ -31,13 +31,13 @@ class CommandsHaltTest < Test::Unit::TestCase
 
     should "halt if its created" do
       @foo_vm.stubs(:created?).returns(true)
-      @foo_vm.expects(:halt).with(false).once
+      @foo_vm.expects(:halt).with(:force => false).once
       @instance.execute(["foo"])
     end
 
     should "halt and force if specified" do
       @foo_vm.stubs(:created?).returns(true)
-      @foo_vm.expects(:halt).with(true).once
+      @foo_vm.expects(:halt).with(:force => true).once
       @instance.execute(["foo", "--force"])
     end
 

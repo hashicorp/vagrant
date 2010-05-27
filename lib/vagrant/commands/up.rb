@@ -31,7 +31,14 @@ module Vagrant
       end
 
       def options_spec(opts)
-        opts.banner = "Usage: vagrant up"
+        opts.banner = "Usage: vagrant up [--no-provision]"
+
+        # Defaults
+        options[:provision] = true
+
+        opts.on("--no-provision", "Do not provision during this up.") do |v|
+          options[:provision] = false
+        end
       end
     end
   end

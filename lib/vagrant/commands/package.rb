@@ -58,7 +58,7 @@ module Vagrant
           return # for tests
         end
 
-        vm.package(options[:output], options[:include])
+        vm.package(options)
       end
 
       def options_spec(opts)

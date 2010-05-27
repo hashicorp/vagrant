@@ -2,12 +2,15 @@ require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 
 class PackageActionTest < Test::Unit::TestCase
   setup do
-    @runner, @vm, @action = mock_action(Vagrant::Actions::VM::Package, "bing", [])
+    @runner, @vm, @action = mock_action(Vagrant::Actions::VM::Package)
   end
 
   context "initialization" do
-    def get_action(*args)
-      runner, vm, action = mock_action(Vagrant::Actions::VM::Package, *args)
+    def get_action(output, include_files)
+      runner, vm, action = mock_action(Vagrant::Actions::VM::Package, {
+                                         :output => output,
+                                         :include => include_files
+                                       })
       return action
     end
 
@@ -32,6 +35,31 @@ class PackageActionTest < Test::Unit::TestCase
       package_seq = sequence("package_seq")
       @action.expects(:compress).in_sequence(package_seq)
       @action.execute!
+    end
+  end
+
+  context "out path" do
+    should "be the specified output file if given" do
+      result = mock("result")
+      @action.options[:output] = result
+      assert_equal result, @action.out_path
+    end
+
+    should "default to 'package'" do
+      @action.options[:output] = nil
+      assert_equal "package", @action.out_path
+    end
+  end
+
+  context "include files" do
+    should "specified array if given" do
+      @action.options[:include] = [1,2,3]
+      assert_equal @action.options[:include], @action.include_files
+    end
+
+    should "be an empty array by default" do
+      @action.options[:include] = nil
+      assert_equal [], @action.include_files
     end
   end
 
@@ -185,7 +213,9 @@ class PackageActionTest < Test::Unit::TestCase
     context "checking include files" do
       setup do
         @include_files = ['fooiest', 'booiest']
-        @runner, @vm, @action = mock_action(Vagrant::Actions::VM::Package, "bing", @include_files)
+        @runner, @vm, @action = mock_action(Vagrant::Actions::VM::Package, {
+                                              :include => @include_files
+                                            })
         @runner.stubs(:find_action).returns("foo")
       end
 

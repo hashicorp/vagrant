@@ -93,14 +93,14 @@ module Vagrant
       @vm = VirtualBox::VM.find(@vm.uuid)
     end
 
-    def package(out_path, include_files=[])
-      add_action(Actions::VM::Export)
-      add_action(Actions::VM::Package, out_path, include_files)
+    def package(options=nil)
+      add_action(Actions::VM::Export, options)
+      add_action(Actions::VM::Package, options)
       execute!
     end
 
-    def up
-      execute!(Actions::VM::Up)
+    def up(options=nil)
+      execute!(Actions::VM::Up, options)
     end
 
     def start
@@ -109,8 +109,8 @@ module Vagrant
       execute!(Actions::VM::Start)
     end
 
-    def halt(force=false)
-      execute!(Actions::VM::Halt, force)
+    def halt(options=nil)
+      execute!(Actions::VM::Halt, options)
     end
 
     def reload

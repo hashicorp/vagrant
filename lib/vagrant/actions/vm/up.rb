@@ -14,7 +14,7 @@ module Vagrant
           steps.insert(0, MoveHardDrive) if @runner.env.config.vm.hd_location
 
           steps.each do |action_klass|
-            @runner.add_action(action_klass)
+            @runner.add_action(action_klass, options)
           end
         end
 

@@ -2,20 +2,16 @@ module Vagrant
   module Actions
     module VM
       class Package < Base
-        attr_accessor :out_path
-        attr_accessor :include_files
         attr_reader :export_action
 
-        def initialize(vm, out_path = nil, include_files = nil, *args)
+        def initialize(*args)
           super
-          @out_path = out_path || "package"
-          @include_files = include_files || []
           @temp_path = nil
         end
 
         def prepare
           # Verify the existance of all the additional files, if any
-          @include_files.each do |file|
+          include_files.each do |file|
             raise ActionException.new(:package_include_file_doesnt_exist, :filename => file) unless File.exists?(file)
           end
 
@@ -26,6 +22,14 @@ module Vagrant
 
         def execute!
           compress
+        end
+
+        def out_path
+          options[:output] || "package"
+        end
+
+        def include_files
+          options[:include] || []
         end
 
         def tar_path

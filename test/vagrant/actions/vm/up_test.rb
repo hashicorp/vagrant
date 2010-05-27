@@ -20,7 +20,7 @@ class UpActionTest < Test::Unit::TestCase
     def setup_action_expectations
       default_seq = sequence("default_seq")
       @default_order.each do |action|
-        @runner.expects(:add_action).with(action).once.in_sequence(default_seq)
+        @runner.expects(:add_action).with(action, @action.options).once.in_sequence(default_seq)
       end
     end
 

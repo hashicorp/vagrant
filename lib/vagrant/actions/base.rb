@@ -26,6 +26,9 @@ module Vagrant
       # The {Runner runner} which is executing the action
       attr_reader :runner
 
+      # Any options which are passed into the initializer as a hash.
+      attr_reader :options
+
       # Included so subclasses don't need to include it themselves.
       include Vagrant::Util
 
@@ -40,8 +43,9 @@ module Vagrant
       # Initialization of the action, passing any arguments which may have
       # been given to the {Runner runner}. This method can be used by subclasses
       # to save any of the configuration options which are passed in.
-      def initialize(runner, *args)
+      def initialize(runner, options=nil)
         @runner = runner
+        @options = options || {}
       end
 
       # This method is called once per action, allowing the action

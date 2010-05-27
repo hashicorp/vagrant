@@ -153,31 +153,30 @@ class VMTest < Test::Unit::TestCase
 
     context "packaging" do
       should "queue up the actions and execute" do
-        out_path = mock("out_path")
-        action_seq = sequence("actions")
-        @vm.expects(:add_action).with(Vagrant::Actions::VM::Export).once.in_sequence(action_seq)
-        @vm.expects(:add_action).with(Vagrant::Actions::VM::Package, out_path, []).once.in_sequence(action_seq)
+        action_seq = sequence("action_seq")
+        @vm.expects(:add_action).with(Vagrant::Actions::VM::Export, nil).once.in_sequence(action_seq)
+        @vm.expects(:add_action).with(Vagrant::Actions::VM::Package, nil).once.in_sequence(action_seq)
         @vm.expects(:execute!).in_sequence(action_seq)
-        @vm.package(out_path)
+        @vm.package
       end
     end
 
     context "upping" do
       should "execute the up action" do
-        @vm.expects(:execute!).with(Vagrant::Actions::VM::Up).once
+        @vm.expects(:execute!).with(Vagrant::Actions::VM::Up, nil).once
         @vm.up
       end
     end
 
     context "halting" do
       should "execute the halt action" do
-        @vm.expects(:execute!).with(Vagrant::Actions::VM::Halt, false).once
+        @vm.expects(:execute!).with(Vagrant::Actions::VM::Halt, nil).once
         @vm.halt
       end
 
       should "force if specified" do
-        @vm.expects(:execute!).with(Vagrant::Actions::VM::Halt, true).once
-        @vm.halt(true)
+        @vm.expects(:execute!).with(Vagrant::Actions::VM::Halt, {:foo => :bar}).once
+        @vm.halt({:foo => :bar})
       end
     end
 

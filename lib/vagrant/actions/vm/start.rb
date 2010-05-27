@@ -8,11 +8,11 @@ module Vagrant
           steps = [Boot]
           if !@runner.vm || !@runner.vm.saved?
             steps.unshift([Customize, ForwardPorts, SharedFolders])
-            steps << Provision if !@runner.env.config.vm.provisioner.nil? && !@runner.created?
+            steps << Provision if !@runner.env.config.vm.provisioner.nil? && options[:provision]
           end
 
           steps.flatten.each do |action_klass|
-            @runner.add_action(action_klass)
+            @runner.add_action(action_klass, options)
           end
         end
       end
