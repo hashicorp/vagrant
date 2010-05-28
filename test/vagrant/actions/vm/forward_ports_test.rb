@@ -72,7 +72,6 @@ class ForwardPortsActionTest < Test::Unit::TestCase
       @used_ports = [1,2,3]
 
       @runner.env.config.vm.auto_port_range = (1..5)
-      @auto_port_range = @runner.env.config.vm.auto_port_range.to_a
     end
 
     should "raise an exception if auto forwarding is disabled" do
@@ -93,6 +92,13 @@ class ForwardPortsActionTest < Test::Unit::TestCase
       assert !@used_ports.include?(4)
       @action.handle_collision(@name, @options, @used_ports)
       assert @used_ports.include?(4)
+    end
+
+    should "raise an exception if there are no auto ports available" do
+      @runner.env.config.vm.auto_port_range = (1..3)
+      assert_raises(Vagrant::Actions::ActionException) {
+        @action.handle_collision(@name, @options, @used_ports)
+      }
     end
   end
 

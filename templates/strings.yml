@@ -197,6 +197,13 @@
   The vagrant virtual environment you are trying to suspend must be running to be suspended.
 :vm_not_suspended: |-
   The vagrant virtual environment you are trying to resume is not in a suspended state.
+:vm_port_auto_empty: |-
+  Vagrant found a port collision for the specified port and virtual machine.
+  While this port was marked to be auto-corrected, the ports in the
+  auto-correction range are all also used.
+
+  VM: <%= vm_name %>
+  Forwarded port: <%= name %> (<%= options[:guestport] %> => <%= options[:hostport] %>)
 :vm_port_collision: |-
   Vagrant cannot forward the specified ports on this VM, since they
   would collide with another VirtualBox virtual machine's forwarded

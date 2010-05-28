@@ -101,6 +101,7 @@ class Test::Unit::TestCase
     action = action_klass.new(mock_vm, *args)
     stub_default_action_dependecies(action)
 
+    mock_vm.stubs(:name).returns("foo")
     mock_vm.stubs(:vm).returns(vm)
     mock_vm.stubs(:vm=)
     mock_vm.stubs(:invoke_callback)

@@ -46,6 +46,10 @@ module Vagrant
           range = runner.env.config.vm.auto_port_range.to_a
           range -= used_ports
 
+          if range.empty?
+            raise ActionException.new(:vm_port_auto_empty, :vm_name => @runner.name, :name => name, :options => options)
+          end
+
           # Set the port up to be the first one and add that port to
           # the used list.
           options[:hostport] = range.shift
