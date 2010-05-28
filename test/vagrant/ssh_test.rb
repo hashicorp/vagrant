@@ -6,6 +6,13 @@ class SshTest < Test::Unit::TestCase
       yield config if block_given?
     end
 
+    @forwarded_ports = []
+    @vm = mock("vm")
+    @vm.stubs(:forwarded_ports).returns(@forwarded_ports)
+
+    @env.stubs(:vm).returns(mock_vm(@env))
+    @env.vm.stubs(:vm).returns(@vm)
+
     @ssh = Vagrant::SSH.new(@env)
   end
 
@@ -181,10 +188,17 @@ class SshTest < Test::Unit::TestCase
   context "getting the ssh port" do
     setup do
       mock_ssh
+
     end
 
     should "return the configured port by default" do
-      assert_equal @env.config.vm.forwarded_ports[@env.config.ssh.forwarded_port_key][:hostport], @ssh.port
+      port = 2222
+      fp = mock("fp")
+      fp.stubs(:name).returns(@env.config.ssh.forwarded_port_key)
+      fp.stubs(:hostport).returns(port)
+      @forwarded_ports << fp
+
+      assert_equal port, @ssh.port
     end
 
     should "return the port given in options if it exists" do

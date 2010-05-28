@@ -122,8 +122,11 @@ module Vagrant
       return pnum if pnum
 
       # Check if we have an SSH forwarded port
-      pnum = env.config.vm.forwarded_ports[env.config.ssh.forwarded_port_key]
-      return pnum[:hostport] if pnum
+      pnum = env.vm.vm.forwarded_ports.detect do |fp|
+        fp.name == env.config.ssh.forwarded_port_key
+      end
+
+      return pnum.hostport if pnum
 
       # Fall back to the default
       return env.config.ssh.port

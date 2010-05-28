@@ -29,6 +29,7 @@ class Test::Unit::TestCase
       config.ssh.username = "foo"
       config.ssh.password = "bar"
       config.ssh.host = "baz"
+      config.ssh.port = 22
       config.ssh.forwarded_port_key = "ssh"
       config.ssh.max_tries = 10
       config.ssh.timeout = 10
