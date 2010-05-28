@@ -101,6 +101,18 @@ module Vagrant
       @vms ||= {}
     end
 
+    # Returns the primray VM associated with this environment
+    def primary_vm
+      return vms.values.first if !multivm?
+      return parent.primary_vm if parent
+
+      config.vm.defined_vms.each do |name, options|
+        return vms[name] if options[:primary]
+      end
+
+      nil
+    end
+
     # Returns a boolean whether this environment represents a multi-VM
     # environment or not. This will work even when called on child
     # environments.
@@ -165,7 +177,10 @@ module Vagrant
 
       # If this environment represents some VM in a multi-VM environment,
       # we push that VM's configuration onto the config_queue.
-      config_queue << parent.config.vm.defined_vms[vm_name] if vm_name
+      if vm_name
+        vm_data = parent.config.vm.defined_vms[vm_name] || {}
+        config_queue << vm_data[:config_proc]
+      end
 
       # Clear out the old data
       Config.reset!(self)

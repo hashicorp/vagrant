@@ -155,8 +155,9 @@ module Vagrant
         @defined_vms ||= {}
       end
 
-      def define(name, &block)
-        defined_vms[name.to_sym] = block
+      def define(name, options=nil, &block)
+        options ||= {}
+        defined_vms[name.to_sym] = options.merge({:config_proc => block})
       end
 
       def shift(orig, rsync)

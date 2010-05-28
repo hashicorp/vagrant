@@ -124,6 +124,55 @@ class EnvironmentTest < Test::Unit::TestCase
     end
   end
 
+  context "primary VM helper" do
+    setup do
+      @env = mock_environment
+      @env.stubs(:multivm?).returns(true)
+    end
+
+    should "return the first VM if not multivm" do
+      result = mock("result")
+
+      @env.stubs(:multivm?).returns(false)
+      @env.stubs(:vms).returns({:default => result})
+
+      assert_equal result, @env.primary_vm
+    end
+
+    should "call and return the primary VM from the parent if has one" do
+      result = mock("result")
+      parent = mock("parent")
+      parent.expects(:primary_vm).returns(result)
+
+      @env.stubs(:parent).returns(parent)
+      assert_equal result, @env.primary_vm
+    end
+
+    should "return nil if no VM is marked as primary" do
+      @env.config.vm.define(:foo)
+      @env.config.vm.define(:bar)
+      @env.config.vm.define(:baz)
+
+      assert @env.primary_vm.nil?
+    end
+
+    should "return the primary VM" do
+      @env.config.vm.define(:foo)
+      @env.config.vm.define(:bar, :primary => true)
+      @env.config.vm.define(:baz)
+
+      result = mock("result")
+      vms = {
+        :foo => :foo,
+        :bar => result,
+        :baz => :baz
+      }
+      @env.stubs(:vms).returns(vms)
+
+      assert_equal result, @env.primary_vm
+    end
+  end
+
   context "multivm? helper" do
     setup do
       @env = mock_environment

@@ -232,7 +232,12 @@ class ConfigTest < Test::Unit::TestCase
 
         proc = Proc.new { foo.call }
         @config.define(:name, &proc)
-        assert_equal proc, @config.defined_vms[:name]
+        assert_equal proc, @config.defined_vms[:name][:config_proc]
+      end
+
+      should "store the options" do
+        @config.define(:name, :set => true)
+        assert @config.defined_vms[:name][:set]
       end
 
       should "not have multi-VMs by default" do
