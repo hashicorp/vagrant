@@ -118,6 +118,15 @@ class SshTest < Test::Unit::TestCase
       Net::SSH.expects(:start).with(@env.config.ssh.host, @env.config.ssh.username, anything).once
       @ssh.execute
     end
+
+    should "yield an SSH session object" do
+      raw = mock("raw")
+      Net::SSH.expects(:start).yields(raw)
+      @ssh.execute do |ssh|
+        assert ssh.is_a?(Vagrant::SSH::Session)
+        assert_equal raw, ssh.session
+      end
+    end
   end
 
   context "SCPing files to the remote host" do
@@ -128,8 +137,10 @@ class SshTest < Test::Unit::TestCase
     should "use Vagrant::SSH execute to setup an SCP connection and upload" do
       scp = mock("scp")
       ssh = mock("ssh")
+      sess = mock("session")
+      ssh.stubs(:session).returns(sess)
       scp.expects(:upload!).with("foo", "bar").once
-      Net::SCP.expects(:new).with(ssh).returns(scp).once
+      Net::SCP.expects(:new).with(ssh.session).returns(scp).once
       @ssh.expects(:execute).yields(ssh).once
       @ssh.upload!("foo", "bar")
     end

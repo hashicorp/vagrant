@@ -49,7 +49,7 @@ module Vagrant
                      env.config[:ssh][:username],
                      opts.merge( :port => port,
                                  :keys => [env.config.ssh.private_key_path])) do |ssh|
-        yield ssh
+        yield SSH::Session.new(ssh)
       end
     end
 
@@ -58,7 +58,7 @@ module Vagrant
     # the arguments to `Net::SCP#upload!` so view that for more information.
     def upload!(from, to)
       execute do |ssh|
-        scp = Net::SCP.new(ssh)
+        scp = Net::SCP.new(ssh.session)
         scp.upload!(from, to)
       end
     end
@@ -130,6 +130,54 @@ module Vagrant
 
       # Fall back to the default
       return env.config.ssh.port
+    end
+  end
+
+  class SSH
+    # A helper class which wraps around `Net::SSH::Connection::Session`
+    # in order to provide basic command error checking while still
+    # providing access to the actual session object.
+    class Session
+      attr_reader :session
+
+      def initialize(session)
+        @session = session
+      end
+
+      # Executes a given command on the SSH session and blocks until
+      # the command completes. This is an almost line for line copy of
+      # the actual `exec!` implementation, except that this
+      # implementation also reports `:exit_status` to the block if given.
+      def exec!(command, &block)
+        block ||= Proc.new do |ch, type, data|
+          ch[:result] ||= ""
+          ch[:result] << data if [:stdout, :stderr].include?(type)
+        end
+
+        metach = session.open_channel do |channel|
+          channel.exec(command) do |ch, success|
+            raise "could not execute command: #{command.inspect}" unless success
+
+            # Output stdout data to the block
+            channel.on_data do |ch2, data|
+              block.call(ch2, :stdout, data)
+            end
+
+            # Output stderr data to the block
+            channel.on_extended_data do |ch2, type, data|
+              block.call(ch2, :stderr, data)
+            end
+
+            # Output exit status information to the block
+            channel.on_request("exit-status") do |ch2, data|
+              block.call(ch2, :exit_status, data.read_long)
+            end
+          end
+        end
+
+        metach.wait
+        metach[:result]
+      end
     end
   end
 end
