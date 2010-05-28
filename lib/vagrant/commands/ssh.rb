@@ -16,11 +16,13 @@ module Vagrant
 
       def ssh_connect(name)
         if name.nil? && env.multivm?
-          error_and_exit(:ssh_multivm)
-          return # for tests
+          if env.primary_vm.nil?
+            error_and_exit(:ssh_multivm)
+            return # for tests
+          end
         end
 
-        vm = name.nil? ? env.vms.values.first :  env.vms[name.to_sym]
+        vm = name.nil? ? env.primary_vm :  env.vms[name.to_sym]
         if vm.nil?
           error_and_exit(:unknown_vm, :vm => name)
           return # for tests

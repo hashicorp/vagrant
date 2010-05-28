@@ -30,9 +30,22 @@ class CommandsSSHTest < Test::Unit::TestCase
       @env.stubs(:multivm?).returns(false)
     end
 
-    should "error and exit if no VM is specified and multivm" do
+    should "error and exit if no VM is specified and multivm and no primary VM" do
       @env.stubs(:multivm?).returns(true)
+      @env.stubs(:primary_vm).returns(nil)
       @instance.expects(:error_and_exit).with(:ssh_multivm).once
+      @instance.ssh_connect(nil)
+    end
+
+    should "use the primary VM if it exists and no name is specified" do
+      vm = mock("vm")
+      ssh = mock("ssh")
+      vm.stubs(:created?).returns(true)
+      vm.stubs(:ssh).returns(ssh)
+
+      @env.stubs(:multivm?).returns(true)
+      @env.stubs(:primary_vm).returns(vm)
+      ssh.expects(:connect).once
       @instance.ssh_connect(nil)
     end
 

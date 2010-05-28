@@ -153,6 +153,14 @@
   specific VM must be specified. This can be done by calling
   `vagrant ssh NAME` where NAME is a valid VM represented by
   your Vagrantfile.
+
+  Alternatively, if you mark one of your VMs as 'primary,'
+  then Vagrant will default to that VM. This can be done by
+  specifying `:primary => true` when defining the VM. Example:
+
+  config.vm.define(:foo, :primary => true) do |config|
+    ...
+  end
 :ssh_config_multivm: |-
   Because this Vagrant environment represents multiple VMs, a
   specific VM must be specified. This can be done by calling
