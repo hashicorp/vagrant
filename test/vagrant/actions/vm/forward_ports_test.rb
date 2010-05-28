@@ -2,10 +2,18 @@ require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 
 class ForwardPortsActionTest < Test::Unit::TestCase
   setup do
-    @mock_vm, @vm, @action = mock_action(Vagrant::Actions::VM::ForwardPorts)
+    @runner, @vm, @action = mock_action(Vagrant::Actions::VM::ForwardPorts)
   end
 
-  context "checking for colliding ports" do
+  context "preparing" do
+    should "call proper sequence" do
+      prep_seq = sequence("prepare")
+      @action.expects(:external_collision_check).in_sequence(prep_seq)
+      @action.prepare
+    end
+  end
+
+  context "checking for colliding external ports" do
     setup do
       @forwarded_port = mock("forwarded_port")
       @forwarded_port.stubs(:hostport)
@@ -15,7 +23,7 @@ class ForwardPortsActionTest < Test::Unit::TestCase
       @vm.stubs(:forwarded_ports).returns(@forwarded_ports)
       @vm.stubs(:running?).returns(true)
       @vm.stubs(:uuid).returns("foo")
-      @mock_vm.stubs(:uuid).returns("bar")
+      @runner.stubs(:uuid).returns("bar")
       vms = [@vm]
       VirtualBox::VM.stubs(:all).returns(vms)
 
@@ -24,38 +32,67 @@ class ForwardPortsActionTest < Test::Unit::TestCase
         config.vm.forward_port("ssh", 22, 2222)
       end
 
-      @mock_vm.stubs(:env).returns(@env)
+      @runner.stubs(:env).returns(@env)
+
+      # So no exceptions are raised
+      @action.stubs(:handle_collision)
     end
 
     should "ignore vms which aren't running" do
       @vm.expects(:running?).returns(false)
       @vm.expects(:forwarded_ports).never
-      @action.prepare
+      @action.external_collision_check
     end
 
     should "ignore vms which are equivalent to ours" do
-      @mock_vm.expects(:uuid).returns(@vm.uuid)
+      @runner.expects(:uuid).returns(@vm.uuid)
       @vm.expects(:forwarded_ports).never
-      @action.prepare
+      @action.external_collision_check
     end
 
     should "not raise any errors if no forwarded ports collide" do
       @forwarded_port.expects(:hostport).returns(80)
-      assert_nothing_raised { @action.prepare }
+      assert_nothing_raised { @action.external_collision_check }
     end
 
-    should "raise an ActionException if a port collides" do
+    should "handle the collision if it happens" do
       @forwarded_port.expects(:hostport).returns(2222)
+      @action.expects(:handle_collision).with("ssh", anything, anything).once
+      @action.external_collision_check
+    end
+  end
+
+  context "handling collisions" do
+    setup do
+      @name = :foo
+      @options = {
+        :hostport => 0,
+        :auto => true
+      }
+      @used_ports = [1,2,3]
+
+      @runner.env.config.vm.auto_port_range = (1..5)
+      @auto_port_range = @runner.env.config.vm.auto_port_range.to_a
+    end
+
+    should "raise an exception if auto forwarding is disabled" do
+      @options[:auto] = false
+
       assert_raises(Vagrant::Actions::ActionException) {
-        @action.prepare
+        @action.handle_collision(@name, @options, @used_ports)
       }
     end
 
-    should "convert ports to strings prior to checking" do
-      @forwarded_port.expects(:hostport).returns("2222")
-      assert_raises(Vagrant::Actions::ActionException) {
-        @action.prepare
-      }
+    should "set the host port to the first available port" do
+      assert_equal 0, @options[:hostport]
+      @action.handle_collision(@name, @options, @used_ports)
+      assert_equal 4, @options[:hostport]
+    end
+
+    should "add the newly used port to the list of used ports" do
+      assert !@used_ports.include?(4)
+      @action.handle_collision(@name, @options, @used_ports)
+      assert @used_ports.include?(4)
     end
   end
 
@@ -76,7 +113,7 @@ class ForwardPortsActionTest < Test::Unit::TestCase
       @vm.expects(:network_adapters).returns([network_adapter])
       network_adapter.expects(:attachment_type).returns(:nat)
 
-      @mock_vm.env.config.vm.forwarded_ports.each do |name, opts|
+      @runner.env.config.vm.forwarded_ports.each do |name, opts|
         forwarded_ports.expects(:<<).with do |port|
           assert_equal name, port.name
           assert_equal opts[:hostport], port.hostport

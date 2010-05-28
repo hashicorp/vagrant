@@ -3,17 +3,56 @@ module Vagrant
     module VM
       class ForwardPorts < Base
         def prepare
-          VirtualBox::VM.all.each do |vm|
-            next if !vm.running? || vm.uuid == @runner.uuid
+          external_collision_check
+        end
 
-            vm.forwarded_ports.each do |fp|
-              @runner.env.config.vm.forwarded_ports.each do |name, options|
-                if fp.hostport.to_s == options[:hostport].to_s
-                  raise ActionException.new(:vm_port_collision, :name => name, :hostport => fp.hostport.to_s, :guestport => options[:guestport].to_s, :adapter => options[:adapter])
-                end
+        # This method checks for any port collisions with any VMs
+        # which are already created (by Vagrant or otherwise).
+        # report the collisions detected or will attempt to fix them
+        # automatically if the port is configured to do so.
+        def external_collision_check
+          # Flatten all the already-created forwarded ports into a
+          # flat list.
+          used_ports = VirtualBox::VM.all.collect do |vm|
+            if vm.running? && vm.uuid != runner.uuid
+              vm.forwarded_ports.collect do |fp|
+                fp.hostport.to_s
               end
             end
           end
+
+          used_ports.flatten!
+          used_ports.uniq!
+
+          runner.env.config.vm.forwarded_ports.each do |name, options|
+            if used_ports.include?(options[:hostport].to_s)
+              handle_collision(name, options, used_ports)
+            end
+          end
+        end
+
+        # Handles any collisions. This method will either attempt to
+        # fix the collision automatically or will raise an error if
+        # auto fixing is disabled.
+        def handle_collision(name, options, used_ports)
+          if !options[:auto]
+            # Auto fixing is disabled for this port forward, so we
+            # must throw an error so the user can fix it.
+            raise ActionException.new(:vm_port_collision, :name => name, :hostport => options[:hostport].to_s, :guestport => options[:guestport].to_s, :adapter => options[:adapter])
+          end
+
+          # Get the auto port range and get rid of the used ports so
+          # all we're left with is available ports
+          range = runner.env.config.vm.auto_port_range.to_a
+          range -= used_ports
+
+          # Set the port up to be the first one and add that port to
+          # the used list.
+          options[:hostport] = range.shift
+          used_ports << options[:hostport]
+
+          # Notify the user
+          logger.info "Fixed port collision: #{name} now on port #{options[:hostport]}"
         end
 
         def execute!

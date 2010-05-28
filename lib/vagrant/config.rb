@@ -108,7 +108,8 @@ module Vagrant
           :guestport  => guestport,
           :hostport   => hostport,
           :protocol   => "TCP",
-          :adapter    => 0
+          :adapter    => 0,
+          :auto       => false
         }.merge(options || {})
 
         forwarded_ports[name] = options
