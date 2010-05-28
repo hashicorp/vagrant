@@ -94,6 +94,14 @@ class ForwardPortsActionTest < Test::Unit::TestCase
       assert @used_ports.include?(4)
     end
 
+    should "not use a host port which is being forwarded later" do
+      @runner.env.config.vm.forward_port("http", 80, 4)
+
+      assert_equal 0, @options[:hostport]
+      @action.handle_collision(@name, @options, @used_ports)
+      assert_equal 5, @options[:hostport]
+    end
+
     should "raise an exception if there are no auto ports available" do
       @runner.env.config.vm.auto_port_range = (1..3)
       assert_raises(Vagrant::Actions::ActionException) {

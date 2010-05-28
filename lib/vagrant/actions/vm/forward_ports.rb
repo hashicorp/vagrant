@@ -41,9 +41,11 @@ module Vagrant
             raise ActionException.new(:vm_port_collision, :name => name, :hostport => options[:hostport].to_s, :guestport => options[:guestport].to_s, :adapter => options[:adapter])
           end
 
-          # Get the auto port range and get rid of the used ports so
-          # all we're left with is available ports
+          # Get the auto port range and get rid of the used ports and
+          # ports which are being used in other forwards so we're just
+          # left with available ports.
           range = runner.env.config.vm.auto_port_range.to_a
+          range -= runner.env.config.vm.forwarded_ports.collect { |n, o| o[:hostport].to_i }
           range -= used_ports
 
           if range.empty?
