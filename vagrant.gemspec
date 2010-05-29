@@ -166,6 +166,7 @@ Gem::Specification.new do |s|
      "test/vagrant/provisioners/chef_solo_test.rb",
      "test/vagrant/provisioners/chef_test.rb",
      "test/vagrant/resource_logger_test.rb",
+     "test/vagrant/ssh_session_test.rb",
      "test/vagrant/ssh_test.rb",
      "test/vagrant/systems/linux_test.rb",
      "test/vagrant/util/error_helper_test.rb",
@@ -251,6 +252,7 @@ Gem::Specification.new do |s|
      "test/vagrant/util/platform_test.rb",
      "test/vagrant/util/error_helper_test.rb",
      "test/vagrant/util/plain_logger_test.rb",
+     "test/vagrant/ssh_session_test.rb",
      "test/vagrant/ssh_test.rb"
   ]
 
