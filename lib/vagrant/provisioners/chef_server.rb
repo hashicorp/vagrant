@@ -49,12 +49,18 @@ module Vagrant
       end
 
       def run_chef_client
+        command = "cd #{env.config.chef.provisioning_path} && sudo chef-client -c client.rb -j dna.json"
+
         logger.info "Running chef-client..."
         vm.ssh.execute do |ssh|
-          ssh.exec!("cd #{env.config.chef.provisioning_path} && sudo chef-client -c client.rb -j dna.json") do |channel, data, stream|
+          ssh.exec!(command) do |channel, type, data|
             # TODO: Very verbose. It would be easier to save the data and only show it during
             # an error, or when verbosity level is set high
-            logger.info("#{stream}: #{data}")
+            if type == :exit_status
+              ssh.check_exit_status(data, command)
+            else
+              logger.info("#{data}: #{type}")
+            end
           end
         end
       end

@@ -150,9 +150,7 @@ module Vagrant
       # implementation also reports `:exit_status` to the block if given.
       def exec!(command, &block)
         block ||= Proc.new do |ch, type, data|
-          if type == :exit_status && data != 0
-            raise ActionException.new(:ssh_bad_exit_status, :command => command)
-          end
+          check_exit_status(data, command) if type == :exit_status
 
           ch[:result] ||= ""
           ch[:result] << data if [:stdout, :stderr].include?(type)
@@ -181,6 +179,14 @@ module Vagrant
 
         metach.wait
         metach[:result]
+      end
+
+      # Checks for an erroroneous exit status and raises an exception
+      # if so.
+      def check_exit_status(exit_status, command)
+        if exit_status != 0
+          raise Actions::ActionException.new(:ssh_bad_exit_status, :command => command)
+        end
       end
     end
   end

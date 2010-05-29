@@ -156,10 +156,19 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
   end
 
   context "running chef client" do
+    setup do
+      @ssh = mock("ssh")
+      @vm.ssh.stubs(:execute).yields(@ssh)
+    end
+
     should "cd into the provisioning directory and run chef client" do
-      ssh = mock("ssh")
-      ssh.expects(:exec!).with("cd #{@env.config.chef.provisioning_path} && sudo chef-client -c client.rb -j dna.json").once
-      @vm.ssh.expects(:execute).yields(ssh)
+      @ssh.expects(:exec!).with("cd #{@env.config.chef.provisioning_path} && sudo chef-client -c client.rb -j dna.json").once
+      @action.run_chef_client
+    end
+
+    should "check the exit status if that is given" do
+      @ssh.stubs(:exec!).yields(nil, :exit_status, :foo)
+      @ssh.expects(:check_exit_status).with(:foo, anything).once
       @action.run_chef_client
     end
   end
