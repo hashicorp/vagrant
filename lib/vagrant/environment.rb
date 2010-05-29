@@ -315,7 +315,7 @@ module Vagrant
       end
 
       if data.empty?
-        File.rm(dotfile_path)
+        File.delete(dotfile_path)
       else
         File.open(dotfile_path, 'w+') do |f|
           f.write(data.to_json)

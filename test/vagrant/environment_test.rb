@@ -739,7 +739,7 @@ class EnvironmentTest < Test::Unit::TestCase
       }
 
       @env.stubs(:vms).returns(vms)
-      File.expects(:rm).with(@env.dotfile_path).once
+      File.expects(:delete).with(@env.dotfile_path).once
       @env.update_dotfile
     end
 
