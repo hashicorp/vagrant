@@ -5,28 +5,38 @@ class HttpDownloaderTest < Test::Unit::TestCase
     @downloader, @tempfile = mock_downloader(Vagrant::Downloaders::HTTP)
     @downloader.stubs(:report_progress)
     @downloader.stubs(:complete_progress)
-    @uri = "foo.box"
+    @uri = "http://google.com/"
   end
 
   context "downloading" do
     setup do
-      @parsed_uri = mock("parsed")
-      URI.stubs(:parse).with(@uri).returns(@parsed_uri)
+      @parsed_uri = URI.parse(@uri)
+      @http = Net::HTTP.new(@parsed_uri.host, @parsed_uri.port)
+      Net::HTTP.stubs(:new).returns(@http)
+      @http.stubs(:start)
     end
 
-    should "parse the URI and use that parsed URI for Net::HTTP" do
-      URI.expects(:parse).with(@uri).returns(@parsed_uri).once
-      Net::HTTP.expects(:get_response).with(@parsed_uri).once
+    should "create a proper net/http object" do
+      Net::HTTP.expects(:new).with(@parsed_uri.host, @parsed_uri.port).once.returns(@http)
+      @http.expects(:start)
+      @downloader.download!(@uri, @tempfile)
+    end
+
+    should "enable SSL if scheme is https" do
+      @uri = "https://google.com/"
+      @http.expects(:use_ssl=).with(true).once
       @downloader.download!(@uri, @tempfile)
     end
 
     should "read the body of the response and place each segment into the file" do
+      h = mock("http")
       response = mock("response")
       response.stubs(:content_length)
       segment = mock("segment")
       segment.stubs(:length).returns(7)
 
-      Net::HTTP.stubs(:get_response).yields(response)
+      @http.stubs(:start).yields(h)
+      h.expects(:request_get).with(@parsed_uri.request_uri).once.yields(response)
       response.expects(:read_body).once.yields(segment)
       @tempfile.expects(:write).with(segment).once
 
@@ -43,7 +53,7 @@ class HttpDownloaderTest < Test::Unit::TestCase
     should "return false if there are no extract results" do
       URI.expects(:extract).returns([])
       assert !Vagrant::Downloaders::HTTP.match?('foo')
-    end    
+    end
   end
 
   context "reporting progress" do
