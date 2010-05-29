@@ -148,9 +148,9 @@ module Vagrant
       # the command completes. This is an almost line for line copy of
       # the actual `exec!` implementation, except that this
       # implementation also reports `:exit_status` to the block if given.
-      def exec!(command, &block)
+      def exec!(command, options=nil, &block)
         block ||= Proc.new do |ch, type, data|
-          check_exit_status(data, command) if type == :exit_status
+          check_exit_status(data, command, options) if type == :exit_status
 
           ch[:result] ||= ""
           ch[:result] << data if [:stdout, :stderr].include?(type)
@@ -183,9 +183,16 @@ module Vagrant
 
       # Checks for an erroroneous exit status and raises an exception
       # if so.
-      def check_exit_status(exit_status, command)
+      def check_exit_status(exit_status, command, options=nil)
         if exit_status != 0
-          raise Actions::ActionException.new(:ssh_bad_exit_status, :command => command)
+          options = {
+            :error_key => :ssh_bad_exit_status,
+            :error_data => {
+              :command => command
+            }
+          }.merge(options || {})
+
+          raise Actions::ActionException.new(options[:error_key], options[:error_data])
         end
       end
     end

@@ -15,6 +15,19 @@ class SshTest < Test::Unit::TestCase
       }
     end
 
+    should "raise the given exception if specified" do
+      options = {
+        :error_key => :foo,
+        :error_data => {}
+      }
+      result = Exception.new
+      Vagrant::Actions::ActionException.expects(:new).with(options[:error_key], options[:error_data]).once.returns(result)
+
+      assert_raises(Exception) {
+        @instance.check_exit_status(1, "foo", options)
+      }
+    end
+
     should "raise nothing if its zero" do
       assert_nothing_raised {
         @instance.check_exit_status(0, "foo")
