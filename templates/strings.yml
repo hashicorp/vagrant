@@ -134,6 +134,11 @@
   permissions on the following file to 0600 and then try running this command again:
 
   <%= key_path %>
+:ssh_bad_exit_status: |-
+  The following SSH command responded with a non-zero exit status.
+  Vagrant assumes that this means the command failed!
+
+  <%= command %>
 :ssh_unavailable_windows: |-
   `vagrant ssh` isn't available on the Windows platform. The
   vagrant.ppk file is available at

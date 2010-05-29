@@ -150,6 +150,10 @@ module Vagrant
       # implementation also reports `:exit_status` to the block if given.
       def exec!(command, &block)
         block ||= Proc.new do |ch, type, data|
+          if type == :exit_status && data != 0
+            raise ActionException.new(:ssh_bad_exit_status, :command => command)
+          end
+
           ch[:result] ||= ""
           ch[:result] << data if [:stdout, :stderr].include?(type)
         end
