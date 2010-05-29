@@ -16,6 +16,7 @@ module Vagrant
       end
 
       def provision!
+        verify_binary("chef-client")
         chown_provisioning_folder
         create_client_key_folder
         upload_validation_key

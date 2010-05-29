@@ -78,6 +78,11 @@
   The validation key set for `config.chef.validation_key_path` does not exist! This
   file needs to exist so it can be uploaded to the virtual machine. It is
   currently set to "<%= Vagrant.config.chef.validation_key_path %>"
+:chef_not_detected: |-
+  The `<%= binary %>` binary appears to not be in the PATH of the guest. This
+  could be because the PATH is not properly setup or perhaps chef is not
+  installed on this guest. Chef provisioning can not continue without
+  chef properly installed.
 :command_box_invalid: |-
   Please specify a valid action to take on the boxes, either
   `add` or `remove`. Examples:

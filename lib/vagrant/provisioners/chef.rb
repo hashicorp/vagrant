@@ -75,6 +75,14 @@ module Vagrant
         raise Actions::ActionException.new(:chef_base_invalid_provisioner)
       end
 
+      def verify_binary(binary)
+        vm.ssh.execute do |ssh|
+          # Checks for the existence of chef binary and error if it
+          # doesn't exist.
+          ssh.exec!("which #{binary}", :error_key => :chef_not_detected, :error_data => {:binary => binary})
+        end
+      end
+
       def chown_provisioning_folder
         logger.info "Setting permissions on chef provisioning folder..."
         vm.ssh.execute do |ssh|

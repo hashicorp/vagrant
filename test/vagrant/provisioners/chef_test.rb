@@ -62,6 +62,18 @@ class ChefProvisionerTest < Test::Unit::TestCase
     end
   end
 
+  context "verifying binary" do
+    setup do
+      @ssh = mock("ssh")
+      @vm.ssh.stubs(:execute).yields(@ssh)
+    end
+
+    should "verify binary exists" do
+      binary = "foo"
+      @ssh.expects(:exec!).with("which #{binary}", :error_key => :chef_not_detected, :error_data => { :binary => binary }).once
+      @action.verify_binary(binary)
+    end
+  end
   context "permissions on provisioning folder" do
     should "create and chown the folder to the ssh user" do
       ssh_seq = sequence("ssh_seq")

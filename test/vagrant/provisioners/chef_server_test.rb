@@ -10,6 +10,7 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
   context "provisioning" do
     should "run the proper sequence of methods in order" do
       prov_seq = sequence("prov_seq")
+      @action.expects(:verify_binary).with("chef-client").once.in_sequence(prov_seq)
       @action.expects(:chown_provisioning_folder).once.in_sequence(prov_seq)
       @action.expects(:create_client_key_folder).once.in_sequence(prov_seq)
       @action.expects(:upload_validation_key).once.in_sequence(prov_seq)

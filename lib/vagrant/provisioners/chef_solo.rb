@@ -8,6 +8,7 @@ module Vagrant
       end
 
       def provision!
+        verify_binary("chef-solo")
         chown_provisioning_folder
         setup_json
         setup_solo_config

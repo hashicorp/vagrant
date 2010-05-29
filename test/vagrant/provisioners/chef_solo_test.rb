@@ -22,6 +22,7 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
   context "provisioning" do
     should "run the proper sequence of methods in order" do
       prov_seq = sequence("prov_seq")
+      @action.expects(:verify_binary).with("chef-solo").once.in_sequence(prov_seq)
       @action.expects(:chown_provisioning_folder).once.in_sequence(prov_seq)
       @action.expects(:setup_json).once.in_sequence(prov_seq)
       @action.expects(:setup_solo_config).once.in_sequence(prov_seq)
@@ -29,7 +30,6 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
       @action.provision!
     end
   end
-
   context "sharing cookbook folders" do
     setup do
       @host_cookbook_paths = ["foo", "bar"]
