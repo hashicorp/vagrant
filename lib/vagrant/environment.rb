@@ -305,10 +305,7 @@ module Vagrant
     # Persists this environment's VM to the dotfile so it can be
     # re-loaded at a later time.
     def update_dotfile
-      if parent
-        parent.update_dotfile
-        return
-      end
+      return parent.update_dotfile if parent
 
       # Generate and save the persisted VM info
       data = vms.inject({}) do |acc, data|
@@ -317,8 +314,12 @@ module Vagrant
         acc
       end
 
-      File.open(dotfile_path, 'w+') do |f|
-        f.write(data.to_json)
+      if data.empty?
+        File.rm(dotfile_path)
+      else
+        File.open(dotfile_path, 'w+') do |f|
+          f.write(data.to_json)
+        end
       end
 
       # Also add to the global store

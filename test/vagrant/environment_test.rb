@@ -733,6 +733,16 @@ class EnvironmentTest < Test::Unit::TestCase
       @env.update_dotfile
     end
 
+    should "remove the dotfile if the data is empty" do
+      vms = {
+        :foo => create_vm(false)
+      }
+
+      @env.stubs(:vms).returns(vms)
+      File.expects(:rm).with(@env.dotfile_path).once
+      @env.update_dotfile
+    end
+
     should "write the proper data to dotfile" do
       vms = {
         :foo => create_vm(false),
