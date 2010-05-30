@@ -59,7 +59,7 @@ class LinuxSystemTest < Test::Unit::TestCase
     end
 
     should "remove old crontab entries file" do
-      @ssh.expects(:exec!).with("sudo rm #{@mock_env.config.vm.rsync_crontab_entry_file}")
+      @ssh.expects(:exec!).with("sudo rm #{@mock_env.config.vm.rsync_crontab_entry_file}", :error_check => false)
       @instance.prepare_rsync(@ssh)
     end
 

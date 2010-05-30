@@ -66,7 +66,7 @@ module Vagrant
         logger.info "Preparing system for rsync..."
         vm.ssh.upload!(StringIO.new(render_rsync), config.vm.rsync_script)
         ssh.exec!("sudo chmod +x #{config.vm.rsync_script}")
-        ssh.exec!("sudo rm #{config.vm.rsync_crontab_entry_file}")
+        ssh.exec!("sudo rm #{config.vm.rsync_crontab_entry_file}", :error_check => false)
       end
 
       #-------------------------------------------------------------------
