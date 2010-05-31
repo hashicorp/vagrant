@@ -10,10 +10,10 @@ module Vagrant
         end
 
         def after_halt
-          # This sleep is necessary to wait for the GUI to clean itself up.
+          # This sleep is necessary to wait for the VM to clean itself up.
           # There appears to be nothing in the API that does this "wait"
           # for us.
-          Kernel.sleep(1) if @runner.env.config.vm.boot_mode == "gui"
+          Kernel.sleep(1)
         end
       end
     end

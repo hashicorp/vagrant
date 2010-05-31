@@ -31,15 +31,8 @@ class DownActionTest < Test::Unit::TestCase
   end
 
   context "after halting" do
-    should "sleep if boot mode is GUI" do
-      @runner.env.config.vm.boot_mode = "gui"
+    should "sleep" do
       Kernel.expects(:sleep).once
-      @action.after_halt
-    end
-
-    should "not sleep if boot mode is anything else" do
-      @runner.env.config.vm.boot_mode = "vrdp"
-      Kernel.expects(:sleep).never
       @action.after_halt
     end
   end
