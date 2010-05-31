@@ -165,6 +165,7 @@ class ForwardPortsActionTest < Test::Unit::TestCase
       end
 
       @vm.expects(:forwarded_ports).returns(forwarded_ports)
+      @runner.expects(:reload!)
       @action.clear
     end
   end
