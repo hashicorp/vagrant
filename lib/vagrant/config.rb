@@ -102,7 +102,7 @@ module Vagrant
         @forwarded_ports = {}
         @shared_folders = {}
         @provisioner = nil
-        @network_options = nil
+        @network_options = []
       end
 
       def forward_port(name, guestport, hostport, options=nil)
@@ -140,7 +140,7 @@ module Vagrant
           :name => nil
         }.merge(options || {})
 
-        @network_options = options
+        @network_options[options[:adapter]] = options
       end
 
       def hd_location=(val)

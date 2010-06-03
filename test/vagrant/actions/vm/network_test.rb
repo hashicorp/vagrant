@@ -25,6 +25,7 @@ class NetworkTest < Test::Unit::TestCase
 
   context "after boot" do
     setup do
+      @runner.env.config.vm.network("foo")
       @action.stubs(:enable_network?).returns(true)
     end
 

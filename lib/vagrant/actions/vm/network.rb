@@ -11,12 +11,15 @@ module Vagrant
             logger.info "Enabling host only network..."
 
             runner.system.prepare_host_only_network
-            runner.system.enable_host_only_network(runner.env.config.vm.network_options)
+
+            runner.env.config.vm.network_options.compact.each do |network_options|
+              runner.system.enable_host_only_network(network_options)
+            end
           end
         end
 
         def enable_network?
-          !runner.env.config.vm.network_options.nil?
+          !runner.env.config.vm.network_options.compact.empty?
         end
 
         # Enables and assigns the host only network to the proper
@@ -24,12 +27,13 @@ module Vagrant
         def assign_network
           logger.info "Preparing host only network..."
 
-          network_options = runner.env.config.vm.network_options
-          adapter = runner.vm.network_adapters[network_options[:adapter]]
-          adapter.enabled = true
-          adapter.attachment_type = :host_only
-          adapter.host_interface = network_name(network_options)
-          adapter.save
+          runner.env.config.vm.network_options.compact.each do |network_options|
+            adapter = runner.vm.network_adapters[network_options[:adapter]]
+            adapter.enabled = true
+            adapter.attachment_type = :host_only
+            adapter.host_interface = network_name(network_options)
+            adapter.save
+          end
         end
 
         # Returns the name of the proper host only network, or creates
