@@ -38,7 +38,7 @@ multiple projects at the same time. Each project uses the box as a _base_ only, 
 project VM is created, modifications can be made without affecting other
 projects which may use the same box.
 
-Note that the box is given its own name, in this case "rails." This name
+Note that the box is given its own name, in this case "getting_started." This name
 is used throughout Vagrant to reference that box from this point forward.
 The URL is only used when adding, but never again. And the filename of the
 box means nothing to the logical name given. It is simply a coincidence that
