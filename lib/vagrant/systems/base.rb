@@ -54,6 +54,13 @@ module Vagrant
       # @param [String] guestpath The path on the machine which the user
       #   wants the folder mounted.
       def mount_shared_folder(ssh, name, guestpath); end
+
+      # Setup the system by adding a new host only network. This
+      # method should configure and bring up the interface for the
+      # given options.
+      #
+      # @param [Hash] net_options The options for the network.
+      def enable_host_only_network(net_options); end
     end
   end
 end
