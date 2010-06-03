@@ -76,7 +76,8 @@ module Vagrant
         # Remove any previous host only network additions to the
         # interface file.
         vm.ssh.execute do |ssh|
-          ssh.exec!("sudo su -c \"sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/network/interfaces > /etc/network/interfaces\"")
+          ssh.exec!("sudo sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/network/interfaces > /tmp/vagrant-network-interfaces")
+          ssh.exec!("sudo su -c 'cat /tmp/vagrant-network-interfaces > /etc/network/interfaces'")
         end
       end
 
@@ -86,6 +87,7 @@ module Vagrant
 
         vm.ssh.execute do |ssh|
           ssh.exec!("sudo su -c 'cat /tmp/vagrant-network-entry >> /etc/network/interfaces'")
+          ssh.exec!("sudo /etc/init.d/networking restart")
         end
       end
 

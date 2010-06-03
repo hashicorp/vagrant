@@ -107,6 +107,7 @@ Gem::Specification.new do |s|
      "templates/chef_server_client.erb",
      "templates/chef_solo_solo.erb",
      "templates/crontab_entry.erb",
+     "templates/network_entry.erb",
      "templates/package_Vagrantfile.erb",
      "templates/rsync.erb",
      "templates/ssh_config.erb",

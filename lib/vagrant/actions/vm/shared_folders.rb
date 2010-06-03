@@ -38,10 +38,6 @@ module Vagrant
           end
 
           @runner.reload!
-
-          # Sleep to allow VirtualBox to clean things up. There seems
-          # to be no clean API call to do this.
-          sleep 1
         end
 
         def create_metadata
