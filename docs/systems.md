@@ -25,6 +25,8 @@ The following is a list of tasks which are delegated to system classes:
 * **Halting** - Shutting down the machine gracefully
 * **Mounting Shared Folders** - Creating, mounting, and setting up the permissions
   for shared folders.
+* **Enabling Host Only Networks** - Preparing and enabling host only networks on
+  specified interfaces.
 
 This list will surely grow as Vagrant grows. For now, to implement a custom operating
 system implementation, only the above two features need to be implemented.
@@ -34,7 +36,9 @@ system implementation, only the above two features need to be implemented.
 Creating a new system implementer is quite simple: Inherit from `Vagrant::Systems::Base`
 and implement the stubbed method on that class. Instead of going over each method here,
 I'll point you to the [base source file](http://github.com/mitchellh/vagrant/blob/master/lib/vagrant/systems/base.rb)
-which is thoroughly commented to explain each method.
+which is thoroughly commented to explain each method. Its also recommended you view the
+[linux system](http://github.com/mitchellh/vagrant/blob/master/lib/vagrant/systems/linux.rb)
+which is currently the only system shipped with Vagrant.
 
 ## Using a New System Implementer
 

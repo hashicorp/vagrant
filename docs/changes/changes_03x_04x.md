@@ -40,6 +40,16 @@ which are detected.
 
 TODO: Docs
 
+## New Abstraction: Systems
+
+"Systems" are a new abstraction within Vagrant which allow OS or system
+specific behaviour such as shutdown or mounting folders to be defined within
+a specific system class, which is then configured within the Vagrantfile.
+Vagrant ships with a general Linux system which should cover the majority
+of users and is the default system.
+
+For more information, please read the [systems documentation](/docs/systems.html).
+
 ## Minor Changes
 
 ### `vagrant provision`

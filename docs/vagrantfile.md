@@ -68,14 +68,6 @@ to use a custom SSH keypair.
 `config.ssh.timeout` specifies the timeout when trying to connect to the virtual
 environment.
 
-### Deprecated SSH Configuration
-
-These configuration keys will be completely removed in the next version of Vagrant.
-They do nothing in the current version:
-
-* `config.ssh.password` - Password SSH authentication has been completely
-  removed. This setting does nothing in the current version of Vagrant.
-
 ## config.vm
 
 Vm settings are used when creating new virtual machines to alert Vagrant about how they
@@ -116,6 +108,9 @@ config.vm.customize do |vm|
 end
 {% endhighlight %}
 
+`config.vm.define` is a method which allows you to define a new VM for a multi-VM environment. Since
+this is a huge topic in itself, please read its dedicated documentation page for more details.
+
 `config.vm.disk_image_format` alerts Vagrant to the prefered virtual disk image file format for use when creating new virtual machines. VirtualBox
 supports many disk formats such as .vdi (VirtualBox's own format), .vmdk (VMWare's disk image format), and .vhd (Microsoft's format).
 
@@ -126,11 +121,21 @@ port 22 on the guest for ssh. Example usage of this is shown below:
 {% highlight ruby %}
 config.vm.forward_port("web", 80, 8080)
 config.vm.forward_port("ftp", 21, 4567)
+config.vm.forward_port("ssh", 22, 2222, :auto => true)
 {% endhighlight %}
 
 The first parameter of the `forward_port` method is simply a key used internally to reference the
 forwarded port. It doesn't affect the actual ports forwarded at all. The above example could've
 changed `web` to `fluffy bananas` and it still would've worked fine.
+
+The final parameter is a hash of options which can be used to configure details of the forwarded
+ports. `:adapter` allows you to specify which network adapter to forward the ports on. And if `:auto`
+is set to true, then Vagrant will attempt to find a new port if it detects that the specified
+port would collide with another VM.
+
+`config.vm.network` is a method which allows a static IP to be assigned to a VM via
+host only networking. This is a large enough topic that it has its own page. Please
+read the page on host only networking for more information and details.
 
 `config.vm.project_directory` tells Vagrant where to mount the current project directory as a shared folder
 withing the new virtual machine's file system.
