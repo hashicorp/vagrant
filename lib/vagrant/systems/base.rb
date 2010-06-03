@@ -55,6 +55,10 @@ module Vagrant
       #   wants the folder mounted.
       def mount_shared_folder(ssh, name, guestpath); end
 
+      # Prepares the system for host only networks. This is called
+      # once prior to any `enable_host_only_network` calls.
+      def prepare_host_only_network; end
+
       # Setup the system by adding a new host only network. This
       # method should configure and bring up the interface for the
       # given options.

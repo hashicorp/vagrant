@@ -23,6 +23,25 @@ class NetworkTest < Test::Unit::TestCase
     end
   end
 
+  context "after boot" do
+    setup do
+      @action.stubs(:enable_network?).returns(true)
+    end
+
+    should "prepare the host only network, then enable them" do
+      run_seq = sequence("run")
+      @runner.system.expects(:prepare_host_only_network).once.in_sequence(run_seq)
+      @runner.system.expects(:enable_host_only_network).once.in_sequence(run_seq)
+      @action.after_boot
+    end
+
+    should "do nothing if network is not enabled" do
+      @action.stubs(:enable_network?).returns(false)
+      @runner.system.expects(:prepare_host_only_network).never
+      @action.after_boot
+    end
+  end
+
   context "checking if network is enabled" do
     should "return true if the network options are set" do
       @runner.env.config.vm.network("foo")

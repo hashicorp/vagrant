@@ -69,6 +69,26 @@ module Vagrant
         ssh.exec!("sudo rm #{config.vm.rsync_crontab_entry_file}", :error_check => false)
       end
 
+      def prepare_host_only_network
+        # TODO: Verify ubuntu here, otherwise error and tell user to
+        # implement this manually or to use ubuntu.
+
+        # Remove any previous host only network additions to the
+        # interface file.
+        vm.ssh.execute do |ssh|
+          ssh.exec!("sudo su -c \"sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/network/interfaces > /etc/network/interfaces\"")
+        end
+      end
+
+      def enable_host_only_network(net_options)
+        entry = TemplateRenderer.render('network_entry', :net_options => net_options)
+        vm.ssh.upload!(StringIO.new(entry), "/tmp/vagrant-network-entry")
+
+        vm.ssh.execute do |ssh|
+          ssh.exec!("sudo su -c 'cat /tmp/vagrant-network-entry >> /etc/network/interfaces'")
+        end
+      end
+
       #-------------------------------------------------------------------
       # "Private" methods which assist above methods
       #-------------------------------------------------------------------

@@ -7,7 +7,7 @@ class ReloadActionTest < Test::Unit::TestCase
 
   context "sub-actions" do
     setup do
-      @default_order = [Vagrant::Actions::VM::Customize, Vagrant::Actions::VM::ForwardPorts, Vagrant::Actions::VM::SharedFolders, Vagrant::Actions::VM::Boot]
+      @default_order = [Vagrant::Actions::VM::Customize, Vagrant::Actions::VM::ForwardPorts, Vagrant::Actions::VM::SharedFolders, Vagrant::Actions::VM::Network, Vagrant::Actions::VM::Boot]
       @vm.stubs(:running?).returns(false)
     end
 

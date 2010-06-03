@@ -7,7 +7,12 @@ module Vagrant
         end
 
         def after_boot
+          if enable_network?
+            logger.info "Enabling host only network..."
 
+            runner.system.prepare_host_only_network
+            runner.system.enable_host_only_network(runner.env.config.vm.network_options)
+          end
         end
 
         def enable_network?
@@ -17,7 +22,7 @@ module Vagrant
         # Enables and assigns the host only network to the proper
         # adapter on the VM, and saves the adapter.
         def assign_network
-          logger.info "Enabling host only network..."
+          logger.info "Preparing host only network..."
 
           network_options = runner.env.config.vm.network_options
           adapter = runner.vm.network_adapters[network_options[:adapter]]
