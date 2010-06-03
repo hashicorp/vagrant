@@ -257,3 +257,17 @@
 
   If the box was built for 0.2.x and contains a custom public key, perhaps
   the path to the private key is incorrect. Check your `config.ssh.private_key_path`.
+
+#---------------------------------------------------------------------
+# CATEGORY: Error Messages for Linux System
+#---------------------------------------------------------------------
+:network_not_debian: |-
+  Host only networking is only supported for Debian/Ubuntu by the built-in
+  "Linux" system. If you're using some other distro and want to implement
+  host only networking, please subclass the `Vagrant::Systems::Linux` class
+  and implement the `prepare_host_only_network` and `enable_host_only_network`
+  methods.
+
+  Otherwise, please report your distro and how to modify network interfaces
+  to the Vagrant mailing list or IRC and we'll probably be glad to add it
+  to the internal systems.

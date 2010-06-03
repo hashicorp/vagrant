@@ -70,12 +70,13 @@ module Vagrant
       end
 
       def prepare_host_only_network
-        # TODO: Verify ubuntu here, otherwise error and tell user to
-        # implement this manually or to use ubuntu.
-
         # Remove any previous host only network additions to the
         # interface file.
         vm.ssh.execute do |ssh|
+          # Verify debian/ubuntu
+          ssh.exec!("cat /etc/debian_version", :error_key => :network_not_debian)
+
+          # Clear out any previous entries
           ssh.exec!("sudo sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/network/interfaces > /tmp/vagrant-network-interfaces")
           ssh.exec!("sudo su -c 'cat /tmp/vagrant-network-interfaces > /etc/network/interfaces'")
         end
