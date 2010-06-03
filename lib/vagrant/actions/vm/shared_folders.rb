@@ -33,7 +33,8 @@ module Vagrant
         def clear_shared_folders
           logger.info "Clearing previously set shared folders..."
 
-          @runner.vm.shared_folders.each do |shared_folder|
+          folders = @runner.vm.shared_folders.dup
+          folders.each do |shared_folder|
             shared_folder.destroy
           end
 
