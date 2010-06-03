@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Mitchell Hashimoto", "John Bender"]
-  s.date = %q{2010-05-30}
+  s.date = %q{2010-06-03}
   s.default_executable = %q{vagrant}
   s.description = %q{Vagrant is a tool for building and distributing virtualized development environments.}
   s.email = ["mitchell.hashimoto@gmail.com", "john.m.bender@gmail.com"]
@@ -50,6 +50,7 @@ Gem::Specification.new do |s|
      "lib/vagrant/actions/vm/halt.rb",
      "lib/vagrant/actions/vm/import.rb",
      "lib/vagrant/actions/vm/move_hard_drive.rb",
+     "lib/vagrant/actions/vm/network.rb",
      "lib/vagrant/actions/vm/package.rb",
      "lib/vagrant/actions/vm/provision.rb",
      "lib/vagrant/actions/vm/reload.rb",
@@ -128,6 +129,7 @@ Gem::Specification.new do |s|
      "test/vagrant/actions/vm/halt_test.rb",
      "test/vagrant/actions/vm/import_test.rb",
      "test/vagrant/actions/vm/move_hard_drive_test.rb",
+     "test/vagrant/actions/vm/network_test.rb",
      "test/vagrant/actions/vm/package_test.rb",
      "test/vagrant/actions/vm/provision_test.rb",
      "test/vagrant/actions/vm/reload_test.rb",
@@ -218,6 +220,7 @@ Gem::Specification.new do |s|
      "test/vagrant/actions/vm/import_test.rb",
      "test/vagrant/actions/vm/customize_test.rb",
      "test/vagrant/actions/vm/start_test.rb",
+     "test/vagrant/actions/vm/network_test.rb",
      "test/vagrant/actions/vm/move_hard_drive_test.rb",
      "test/vagrant/actions/vm/up_test.rb",
      "test/vagrant/actions/vm/export_test.rb",

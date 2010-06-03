@@ -136,6 +136,7 @@ module Vagrant
         options = {
           :ip => ip,
           :netmask => "255.255.255.0",
+          :adapter => 1,
           :name => nil
         }.merge(options || {})
 

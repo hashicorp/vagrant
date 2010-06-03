@@ -111,6 +111,11 @@
   already be created, but unfortunately this vagrant still appears to
   have no box! You can setup the environment by setting up your
   <%= Vagrant::Environment::ROOTFILE_NAME %> and running `vagrant up`
+:network_not_found: |-
+  The specified host network could not be found: <%= name %>.
+  If the name specification is removed, Vagrant will create a new
+  host only network for you. Alternatively, please create the
+  specified network manually.
 :package_include_file_doesnt_exist: |-
   File specified to include: '<%= filename %>' does not exist!
 :package_multivm: |-

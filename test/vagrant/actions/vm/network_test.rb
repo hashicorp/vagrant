@@ -70,7 +70,7 @@ class NetworkTest < Test::Unit::TestCase
 
       @action.stubs(:matching_network?).returns(false)
 
-      @options = { :ip => :foo, :netmask => :bar }
+      @options = { :ip => :foo, :netmask => :bar, :name => nil }
     end
 
     should "return the network which matches" do
@@ -81,6 +81,26 @@ class NetworkTest < Test::Unit::TestCase
 
       @action.expects(:matching_network?).with(interface, @options).returns(true)
       assert_equal result, @action.network_name(@options)
+    end
+
+    should "return the network which matches the name if given" do
+      @options[:name] = "foo"
+
+      interface = mock("interface")
+      interface.stubs(:name).returns(@options[:name])
+      @interfaces << interface
+
+      assert_equal @options[:name], @action.network_name(@options)
+    end
+
+    should "error and exit if the given network name is not found" do
+      @options[:name] = "foo"
+
+      @interfaces.expects(:create).never
+
+      assert_raises(Vagrant::Actions::ActionException) {
+        @action.network_name(@options)
+      }
     end
 
     should "create a network for the IP and netmask" do
