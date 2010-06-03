@@ -90,6 +90,7 @@ module Vagrant
       attr_reader :rsync_required
       attr_reader :forwarded_ports
       attr_reader :shared_folders
+      attr_reader :network_options
       attr_accessor :hd_location
       attr_accessor :disk_image_format
       attr_accessor :provisioner
@@ -101,6 +102,7 @@ module Vagrant
         @forwarded_ports = {}
         @shared_folders = {}
         @provisioner = nil
+        @network_options = nil
       end
 
       def forward_port(name, guestport, hostport, options=nil)
@@ -128,6 +130,16 @@ module Vagrant
           :guestpath => guestpath,
           :hostpath => hostpath
         }
+      end
+
+      def network(ip, options=nil)
+        options = {
+          :ip => ip,
+          :netmask => "255.255.255.0",
+          :name => nil
+        }.merge(options || {})
+
+        @network_options = options
       end
 
       def hd_location=(val)

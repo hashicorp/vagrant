@@ -7,7 +7,7 @@ module Vagrant
           # of other actions in its place:
           steps = [Boot]
           if !@runner.vm || !@runner.vm.saved?
-            steps.unshift([Customize, ForwardPorts, SharedFolders])
+            steps.unshift([Customize, ForwardPorts, SharedFolders, Network])
             steps << Provision if provision?
           end
 

@@ -30,14 +30,14 @@ class StartActionTest < Test::Unit::TestCase
 
     should "add customize to the beginning if its not saved" do
       @vm.expects(:saved?).returns(false)
-      @default_order.unshift([Vagrant::Actions::VM::Customize, Vagrant::Actions::VM::ForwardPorts, Vagrant::Actions::VM::SharedFolders])
+      @default_order.unshift([Vagrant::Actions::VM::Customize, Vagrant::Actions::VM::ForwardPorts, Vagrant::Actions::VM::SharedFolders, Vagrant::Actions::VM::Network])
       setup_action_expectations
       @action.prepare
     end
 
     should "add do additional if VM is not created yet" do
       @runner.stubs(:vm).returns(nil)
-      @default_order.unshift([Vagrant::Actions::VM::Customize, Vagrant::Actions::VM::ForwardPorts, Vagrant::Actions::VM::SharedFolders])
+      @default_order.unshift([Vagrant::Actions::VM::Customize, Vagrant::Actions::VM::ForwardPorts, Vagrant::Actions::VM::SharedFolders, Vagrant::Actions::VM::Network])
       setup_action_expectations
       @action.prepare
     end
@@ -46,7 +46,7 @@ class StartActionTest < Test::Unit::TestCase
       @vm.env.config.vm.provisioner = :chef_solo
 
       @runner.stubs(:vm).returns(nil)
-      @default_order.unshift([Vagrant::Actions::VM::Customize, Vagrant::Actions::VM::ForwardPorts, Vagrant::Actions::VM::SharedFolders])
+      @default_order.unshift([Vagrant::Actions::VM::Customize, Vagrant::Actions::VM::ForwardPorts, Vagrant::Actions::VM::SharedFolders, Vagrant::Actions::VM::Network])
       @default_order << Vagrant::Actions::VM::Provision
       setup_action_expectations
       @action.prepare
