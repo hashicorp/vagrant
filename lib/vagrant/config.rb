@@ -61,13 +61,16 @@ module Vagrant
 
     class SSHConfig < Base
       attr_accessor :username
-      attr_accessor :password
       attr_accessor :host
       attr_accessor :port
       attr_accessor :forwarded_port_key
       attr_accessor :max_tries
       attr_accessor :timeout
       attr_accessor :private_key_path
+
+      # The attribute(s) below do nothing. They are just kept here to
+      # prevent syntax errors for backwards compat.
+      attr_accessor :password
 
       def private_key_path
         File.expand_path(@private_key_path, env.root_path)
@@ -82,8 +85,6 @@ module Vagrant
       attr_accessor :box_ovf
       attr_accessor :base_mac
       attr_accessor :boot_mode
-      attr_accessor :project_directory
-      attr_accessor :rsync_project_directory
       attr_accessor :rsync_opts
       attr_accessor :rsync_script
       attr_accessor :rsync_crontab_entry_file

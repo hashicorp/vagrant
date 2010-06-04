@@ -5,7 +5,7 @@ module Vagrant
         def shared_folders
           @runner.env.config.vm.shared_folders.inject([]) do |acc, data|
             name, value = data
-            acc << [name, File.expand_path(value[:hostpath]), value[:guestpath], value[:rsyncpath]].compact
+            acc << [name, File.expand_path(value[:hostpath], @runner.env.root_path), value[:guestpath], value[:rsyncpath]].compact
           end
         end
 

@@ -27,7 +27,6 @@ class Test::Unit::TestCase
       config.vagrant.log_output = nil
 
       config.ssh.username = "foo"
-      config.ssh.password = "bar"
       config.ssh.host = "baz"
       config.ssh.port = 22
       config.ssh.forwarded_port_key = "ssh"
@@ -38,8 +37,6 @@ class Test::Unit::TestCase
       config.vm.box = "foo"
       config.vm.box_ovf = "box.ovf"
       config.vm.base_mac = "42"
-      config.vm.project_directory = "/vagrant"
-      config.vm.rsync_project_directory = false
       config.vm.disk_image_format = 'VMDK'
       config.vm.forward_port("ssh", 22, 2222)
       config.vm.shared_folder_uid = nil
@@ -47,6 +44,7 @@ class Test::Unit::TestCase
       config.vm.system = :linux
       config.vm.rsync_script = "/foo"
       config.vm.rsync_crontab_entry_file = "/tmp/foo"
+      config.vm.share_folder("v-root", "/vagrant", ".")
 
       config.package.name = 'vagrant'
       config.package.extension = '.box'

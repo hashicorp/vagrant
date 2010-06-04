@@ -155,13 +155,13 @@ class ChefProvisionerTest < Test::Unit::TestCase
 
     should "add the directory as a special case to the JSON" do
       assert_json do |data|
-        assert_equal @env.config.vm.project_directory, data["vagrant"]["directory"]
+        assert_equal @env.config.vm.shared_folders["v-root"][:guestpath], data["vagrant"]["directory"]
       end
     end
 
     should "add the config to the JSON" do
       assert_json do |data|
-        assert_equal @env.config.vm.project_directory, data["vagrant"]["config"]["vm"]["project_directory"]
+        assert_equal @env.config.ssh.username, data["vagrant"]["config"]["ssh"]["username"]
       end
     end
 

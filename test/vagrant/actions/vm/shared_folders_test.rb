@@ -34,7 +34,7 @@ class SharedFoldersActionTest < Test::Unit::TestCase
     end
 
     should "expand the path of the host folder" do
-      File.expects(:expand_path).with("baz").once.returns("expanded_baz")
+      File.expects(:expand_path).with("baz", @runner.env.root_path).once.returns("expanded_baz")
 
       env = mock_environment do |config|
         config.vm.shared_folders.clear

@@ -6,16 +6,6 @@ class BootActionTest < Test::Unit::TestCase
     @runner.stubs(:invoke_callback)
   end
 
-  context "preparing" do
-    should "add the root shared folder" do
-      @runner.env.config.vm.expects(:share_folder).with("v-root",
-                                                        @runner.env.config.vm.project_directory,
-                                                        @runner.env.root_path,
-                                                        :rsync => @runner.env.config.vm.rsync_project_directory).once
-      @action.prepare
-    end
-  end
-
   context "execution" do
     should "invoke the 'boot' around callback" do
       boot_seq = sequence("boot_seq")

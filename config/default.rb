@@ -5,7 +5,6 @@ Vagrant::Config.run do |config|
   config.vagrant.home = "~/.vagrant"
 
   config.ssh.username = "vagrant"
-  config.ssh.password = "vagrant"
   config.ssh.host = "localhost"
   config.ssh.port = 22
   config.ssh.forwarded_port_key = "ssh"
@@ -16,8 +15,6 @@ Vagrant::Config.run do |config|
   config.vm.auto_port_range = (2200..2250)
   config.vm.box_ovf = "box.ovf"
   config.vm.base_mac = "0800279C2E42"
-  config.vm.project_directory = "/vagrant"
-  config.vm.rsync_project_directory = false
   config.vm.forward_port("ssh", 22, 2222, :auto => true)
   config.vm.disk_image_format = 'VMDK'
   config.vm.provisioner = nil
@@ -25,6 +22,10 @@ Vagrant::Config.run do |config|
   config.vm.shared_folder_gid = nil
   config.vm.boot_mode = "vrdp"
   config.vm.system = :linux
+
+  # Share the root folder. This can then be overridden by
+  # other Vagrantfiles, if they wish.
+  config.vm.share_folder("v-root", "/vagrant", ".")
 
   # TODO new config class
   config.vm.rsync_opts = "-ur --delete"

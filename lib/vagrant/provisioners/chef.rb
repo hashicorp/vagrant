@@ -106,7 +106,7 @@ module Vagrant
         # Set up initial configuration
         data = {
           :config => env.config,
-          :directory => env.config.vm.project_directory,
+          :directory => env.config.vm.shared_folders["v-root"][:guestpath],
         }
 
         # And wrap it under the "vagrant" namespace
