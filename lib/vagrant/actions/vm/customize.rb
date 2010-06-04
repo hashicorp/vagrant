@@ -3,13 +3,15 @@ module Vagrant
     module VM
       class Customize < Base
         def execute!
-          logger.info "Running any VM customizations..."
+          if !runner.env.config.vm.proc_stack.empty?
+            logger.info "Running any VM customizations..."
 
-          # Run the customization procs over the VM
-          @runner.env.config.vm.run_procs!(@runner.vm)
+            # Run the customization procs over the VM
+            runner.env.config.vm.run_procs!(@runner.vm)
 
-          # Save the vm
-          @runner.vm.save
+            # Save the vm
+            runner.vm.save
+          end
         end
       end
     end

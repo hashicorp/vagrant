@@ -7,8 +7,14 @@ class CustomizeActionTest < Test::Unit::TestCase
 
   context "executing" do
     should "run the VM customization procs then save the VM" do
+      @runner.env.config.vm.customize { |vm| }
       @runner.env.config.vm.expects(:run_procs!).with(@vm)
       @vm.expects(:save).once
+      @action.execute!
+    end
+
+    should "not run anything if no customize blocks exist" do
+      @vm.expects(:save).never
       @action.execute!
     end
   end
