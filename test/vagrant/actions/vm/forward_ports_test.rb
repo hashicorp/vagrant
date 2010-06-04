@@ -139,6 +139,7 @@ class ForwardPortsActionTest < Test::Unit::TestCase
 
       @vm.expects(:forwarded_ports).returns(forwarded_ports)
       @vm.expects(:save).once
+      @runner.expects(:reload!).once
       @action.forward_ports
     end
   end
@@ -151,6 +152,7 @@ class ForwardPortsActionTest < Test::Unit::TestCase
       @vm.expects(:network_adapters).returns([network_adapter])
       network_adapter.expects(:attachment_type).returns(:host_only)
       @vm.expects(:save).once
+      @runner.expects(:reload!).once
       @action.forward_ports
     end
   end

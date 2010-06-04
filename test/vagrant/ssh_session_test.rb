@@ -8,6 +8,15 @@ class SshTest < Test::Unit::TestCase
     @instance = @klass.new(@session)
   end
 
+  context "exec!" do
+    should "retry 5 times" do
+      @session.expects(:open_channel).times(5).raises(IOError)
+      assert_raises(IOError) {
+        @instance.exec!("foo")
+      }
+    end
+  end
+
   context "checking exit status" do
     should "raise an ActionException if its non-zero" do
       assert_raises(Vagrant::Actions::ActionException) {

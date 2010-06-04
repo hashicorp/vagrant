@@ -160,25 +160,32 @@ module Vagrant
           ch[:result] << data if [:stdout, :stderr].include?(type)
         end
 
-        metach = session.open_channel do |channel|
-          channel.exec(command) do |ch, success|
-            raise "could not execute command: #{command.inspect}" unless success
+        tries = 5
 
-            # Output stdout data to the block
-            channel.on_data do |ch2, data|
-              block.call(ch2, :stdout, data)
-            end
+        begin
+          metach = session.open_channel do |channel|
+            channel.exec(command) do |ch, success|
+              raise "could not execute command: #{command.inspect}" unless success
 
-            # Output stderr data to the block
-            channel.on_extended_data do |ch2, type, data|
-              block.call(ch2, :stderr, data)
-            end
+              # Output stdout data to the block
+              channel.on_data do |ch2, data|
+                block.call(ch2, :stdout, data)
+              end
 
-            # Output exit status information to the block
-            channel.on_request("exit-status") do |ch2, data|
-              block.call(ch2, :exit_status, data.read_long)
+              # Output stderr data to the block
+              channel.on_extended_data do |ch2, type, data|
+                block.call(ch2, :stderr, data)
+              end
+
+              # Output exit status information to the block
+              channel.on_request("exit-status") do |ch2, data|
+                block.call(ch2, :exit_status, data.read_long)
+              end
             end
           end
+        rescue IOError
+          retry if (tries -= 1) > 0
+          raise
         end
 
         metach.wait
