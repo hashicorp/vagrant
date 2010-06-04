@@ -144,6 +144,13 @@ class SshTest < Test::Unit::TestCase
       @ssh.expects(:execute).yields(ssh).once
       @ssh.upload!("foo", "bar")
     end
+
+    should "retry 5 times" do
+      @ssh.expects(:execute).times(5).raises(IOError)
+      assert_raises(IOError) {
+        @ssh.upload!("foo", "bar")
+      }
+    end
   end
 
   context "checking if host is up" do

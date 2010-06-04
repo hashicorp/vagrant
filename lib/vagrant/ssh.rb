@@ -57,9 +57,16 @@ module Vagrant
     # or StringIO, and `to` is expected to be a path. This method simply forwards
     # the arguments to `Net::SCP#upload!` so view that for more information.
     def upload!(from, to)
-      execute do |ssh|
-        scp = Net::SCP.new(ssh.session)
-        scp.upload!(from, to)
+      tries = 5
+
+      begin
+        execute do |ssh|
+          scp = Net::SCP.new(ssh.session)
+          scp.upload!(from, to)
+        end
+      rescue IOError
+        retry if (tries -= 1) > 0
+        raise
       end
     end
 
