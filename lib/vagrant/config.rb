@@ -98,6 +98,16 @@ module Vagrant
       attr_accessor :shared_folder_gid
       attr_accessor :system
 
+      # Represents a SubVM. This class is only used here in the VMs
+      # hash.
+      class SubVM
+        include Util::StackedProcRunner
+
+        def options
+          @options ||= {}
+        end
+      end
+
       def initialize
         @forwarded_ports = {}
         @shared_folders = {}
@@ -170,7 +180,9 @@ module Vagrant
 
       def define(name, options=nil, &block)
         options ||= {}
-        defined_vms[name.to_sym] = options.merge({:config_proc => block})
+        defined_vms[name.to_sym] ||= SubVM.new
+        defined_vms[name.to_sym].options.merge!(options)
+        defined_vms[name.to_sym].push_proc(&block)
       end
 
       def shift(orig, rsync)

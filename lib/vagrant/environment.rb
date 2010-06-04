@@ -106,8 +106,8 @@ module Vagrant
       return vms.values.first if !multivm?
       return parent.primary_vm if parent
 
-      config.vm.defined_vms.each do |name, options|
-        return vms[name] if options[:primary]
+      config.vm.defined_vms.each do |name, subvm|
+        return vms[name] if subvm.options[:primary]
       end
 
       nil
@@ -178,9 +178,12 @@ module Vagrant
       # If this environment represents some VM in a multi-VM environment,
       # we push that VM's configuration onto the config_queue.
       if vm_name
-        vm_data = parent.config.vm.defined_vms[vm_name] || {}
-        config_queue << vm_data[:config_proc]
+        subvm = parent.config.vm.defined_vms[vm_name]
+        config_queue << subvm.proc_stack if subvm
       end
+
+      # Flatten the config queue so any nested procs are flattened
+      config_queue.flatten!
 
       # Clear out the old data
       Config.reset!(self)
