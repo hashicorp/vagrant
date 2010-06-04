@@ -99,6 +99,7 @@ module Vagrant
           end
 
           @runner.vm.save
+          @runner.reload!
         end
       end
     end
