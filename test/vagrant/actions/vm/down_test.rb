@@ -19,13 +19,13 @@ class DownActionTest < Test::Unit::TestCase
     end
 
     should "add the destroy action alone if VM is not running" do
-      setup_action_expectations([Vagrant::Actions::VM::Destroy])
+      setup_action_expectations([Vagrant::Actions::VM::Network, Vagrant::Actions::VM::Destroy])
       @action.prepare
     end
 
     should "add the halt action if the VM is running" do
       @vm.expects(:running?).returns(true)
-      setup_action_expectations([[Vagrant::Actions::VM::Halt, {:force => true}], Vagrant::Actions::VM::Destroy])
+      setup_action_expectations([[Vagrant::Actions::VM::Halt, {:force => true}], Vagrant::Actions::VM::Network, Vagrant::Actions::VM::Destroy])
       @action.prepare
     end
   end

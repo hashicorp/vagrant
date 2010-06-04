@@ -6,6 +6,7 @@ module Vagrant
           # The true as the 2nd parameter always forces the shutdown so its
           # fast (since we're destroying anyways)
           @runner.add_action(Halt, :force => true) if @runner.vm.running?
+          @runner.add_action(Network)
           @runner.add_action(Destroy)
         end
 
