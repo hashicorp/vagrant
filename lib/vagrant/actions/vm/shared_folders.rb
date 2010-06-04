@@ -31,14 +31,16 @@ module Vagrant
         end
 
         def clear_shared_folders
-          logger.info "Clearing previously set shared folders..."
+          if runner.vm.shared_folders.length > 0
+            logger.info "Clearing previously set shared folders..."
 
-          folders = @runner.vm.shared_folders.dup
-          folders.each do |shared_folder|
-            shared_folder.destroy
+            folders = @runner.vm.shared_folders.dup
+            folders.each do |shared_folder|
+              shared_folder.destroy
+            end
+
+            @runner.reload!
           end
-
-          @runner.reload!
         end
 
         def create_metadata

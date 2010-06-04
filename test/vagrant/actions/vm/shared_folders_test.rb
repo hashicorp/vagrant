@@ -81,6 +81,12 @@ class SharedFoldersActionTest < Test::Unit::TestCase
       @runner.expects(:reload!).once.in_sequence(destroy_seq)
       @action.clear_shared_folders
     end
+
+    should "do nothing if no shared folders existed" do
+      @shared_folders.clear
+      @runner.expects(:reload!).never
+      @action.clear_shared_folders
+    end
   end
 
   context "setting up shared folder metadata" do
