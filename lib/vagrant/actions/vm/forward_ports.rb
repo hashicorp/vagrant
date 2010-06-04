@@ -67,10 +67,12 @@ module Vagrant
         end
 
         def clear
-          logger.info "Deleting any previously set forwarded ports..."
-          fp = @runner.vm.forwarded_ports.dup
-          fp.collect { |p| p.destroy }
-          @runner.reload!
+          if runner.vm.forwarded_ports.length > 0
+            logger.info "Deleting any previously set forwarded ports..."
+            fp = runner.vm.forwarded_ports.dup
+            fp.collect { |p| p.destroy }
+            runner.reload!
+          end
         end
 
         def forward_ports

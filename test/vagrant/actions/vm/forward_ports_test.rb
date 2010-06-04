@@ -164,8 +164,14 @@ class ForwardPortsActionTest < Test::Unit::TestCase
         forwarded_ports << port
       end
 
-      @vm.expects(:forwarded_ports).returns(forwarded_ports)
+      @vm.stubs(:forwarded_ports).returns(forwarded_ports)
       @runner.expects(:reload!)
+      @action.clear
+    end
+
+    should "do nothing if there are no forwarded ports" do
+      @vm.stubs(:forwarded_ports).returns([])
+      @runner.expects(:reload!).never
       @action.clear
     end
   end
