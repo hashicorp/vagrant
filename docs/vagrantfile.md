@@ -114,6 +114,7 @@ this is a huge topic in itself, please read its dedicated documentation page for
 `config.vm.disk_image_format` alerts Vagrant to the prefered virtual disk image file format for use when creating new virtual machines. VirtualBox
 supports many disk formats such as .vdi (VirtualBox's own format), .vmdk (VMWare's disk image format), and .vhd (Microsoft's format).
 
+<a name="config-vm-forwardport"> </a>
 `config.vm.forward_port` is a function that will add a set of ports to forward from the host machine to the virtual machine
 created with vagrant. The default Vagrantfile that is packaged with Vagrant itself forwards port 2222 on the host machine to
 port 22 on the guest for ssh. Example usage of this is shown below:
@@ -137,15 +138,6 @@ port would collide with another VM.
 host only networking. This is a large enough topic that it has its own page. Please
 read the page on host only networking for more information and details.
 
-`config.vm.project_directory` tells Vagrant where to mount the current project directory as a shared folder
-withing the new virtual machine's file system.
-
-{% highlight ruby %}
-config.vm.project_directory = "/vagrant"
-{% endhighlight %}
-
-The above will use the vagrant folder under root as the mount point for the shared project directory.
-
 `config.vm.provisioner` tells Vagrant which provisioner to use to provision the system. By
 default, this is set to `nil` which disables provisioning. It can also be set to a symbol
 to use a built-in provisioner, or a class to use a custom provisioner. Example:
@@ -163,10 +155,11 @@ guest machine, allowing the guest machine to read and write to a folder on the h
 This function takes three parameters, in the same way as `config.vm.forward_port`, with the
 first parameter being a key used internally to reference the folder, the second parameter being
 the path on the guest machine, and the third parameter being the path to the folder to share
-on the host machine.
+on the host machine. If the third parameter is a _relative path_, then it is relative to where the root Vagrantfile is.
 
 {% highlight ruby %}
 config.vm.share_folder("my-folder", "/folder", "/path/to/real/folder")
+config.vm.share_folder("another-folder", "/other", "../other")
 {% endhighlight %}
 
 ## config.package

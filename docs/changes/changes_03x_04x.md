@@ -59,7 +59,8 @@ the introduction of multi-VM support, port collision is now quite common.
 To deal with this, Vagrant can now automatically resolve any port collisions
 which are detected.
 
-TODO: Docs
+For an example and more information, please view the `config.vm.forward_port`
+documentation on the [Vagrantfile page](/docs/vagrantfile.html#config-vm-forwardport).
 
 ## New Abstraction: Systems
 
@@ -79,6 +80,16 @@ For more information, please read the [systems documentation](/docs/systems.html
 scripts without having to reload the entire VM environment. There are certain
 limitations to this command which are discussed further on the commands
 documentation page.
+
+### Relative Path Shared Folders
+
+The host path for a shared folder can now be a relative path. This relative
+path will be expanded relative to where the project Vagrantfile is. Example
+below shows how the root shared folder is defined:
+
+{% highlight ruby %}
+config.vm.share_folder("v-root", "/vagrant", ".")
+{% endhighlight %}
 
 ### Many Bug Fixes
 
