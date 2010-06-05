@@ -5,7 +5,7 @@ module Vagrant
         def shared_folders
           @runner.env.config.vm.shared_folders.inject([]) do |acc, data|
             name, value = data
-            acc << [name, File.expand_path(value[:hostpath], @runner.env.root_path), value[:guestpath], value[:rsyncpath]].compact
+            acc << [name, File.expand_path(value[:hostpath], @runner.env.root_path), value[:guestpath], value[:syncpath]].compact
           end
         end
 
@@ -18,13 +18,13 @@ module Vagrant
           logger.info "Mounting shared folders..."
 
           @runner.ssh.execute do |ssh|
-            @runner.system.prepare_rsync(ssh) if @runner.env.config.vm.rsync_required
+            @runner.system.prepare_sync(ssh) if @runner.env.config.vm.sync_required
 
-            shared_folders.each do |name, hostpath, guestpath, rsyncpath|
-              logger.info "-- #{name}: #{rsyncpath ? guestpath + " -rsync-> " + rsyncpath : guestpath}"
+            shared_folders.each do |name, hostpath, guestpath, syncpath|
+              logger.info "-- #{name}: #{syncpath ? guestpath + " -sync-> " + syncpath : guestpath}"
               @runner.system.mount_shared_folder(ssh, name, guestpath)
-              if rsyncpath
-                @runner.system.create_rsync(ssh, :rsyncpath => rsyncpath, :guestpath => guestpath)
+              if syncpath
+                @runner.system.create_sync(ssh, :syncpath => syncpath, :guestpath => guestpath)
               end
             end
           end

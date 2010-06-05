@@ -262,32 +262,32 @@ class ConfigTest < Test::Unit::TestCase
       end
     end
 
-    context "rsyncd folders" do
-      should "set the rsyncpath to nil by default" do
+    context "syncd folders" do
+      should "set the syncpath to nil by default" do
         share_with_opts
-        assert !@config.shared_folders['foo'][:rsyncpath]
+        assert !@config.shared_folders['foo'][:syncpath]
       end
 
-      should "append rsync to directory name when boolean" do
-        share_with_opts(:rsync => true)
-        assert_equal @config.shared_folders['foo'][:rsyncpath], 'foo-dir'
-        assert_equal @config.shared_folders['foo'][:guestpath], 'foo-dir-rsync'
+      should "append sync to directory name when boolean" do
+        share_with_opts(:sync => true)
+        assert_equal @config.shared_folders['foo'][:syncpath], 'foo-dir'
+        assert_equal @config.shared_folders['foo'][:guestpath], 'foo-dir-sync'
       end
 
-      should "use the specified rsync directory" do
-        share_with_opts(:rsync => 'bar-baz')
-        assert_equal @config.shared_folders['foo'][:rsyncpath], 'bar-baz'
+      should "use the specified sync directory" do
+        share_with_opts(:sync => 'bar-baz')
+        assert_equal @config.shared_folders['foo'][:syncpath], 'bar-baz'
       end
 
-      should "raise an exception an exception if the guestpath and rsyncpath are the same" do
+      should "raise an exception an exception if the guestpath and syncpath are the same" do
         assert_raise Exception do
-          share_with_opts(:rsync => 'foo-dir-rsync')
+          share_with_opts(:sync => 'foo-dir-sync')
         end
       end
 
-      should "set the rsync required flag to true" do
-        share_with_opts(:rsync => true)
-        assert @config.rsync_required
+      should "set the sync required flag to true" do
+        share_with_opts(:sync => true)
+        assert @config.sync_required
       end
 
       def share_with_opts(opts={})

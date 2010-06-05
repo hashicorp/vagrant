@@ -47,11 +47,11 @@ class SharedFoldersActionTest < Test::Unit::TestCase
       assert_equal result, @action.shared_folders
     end
 
-    context "with rsync" do
-      should "append the rsync value to the other config values" do
-        mock_env_shared_folders(:rsync => true)
+    context "with sync" do
+      should "append the sync value to the other config values" do
+        mock_env_shared_folders(:sync => true)
 
-        assert_equal [["foo", "baz", "bar-rsync", "bar"]], @action.shared_folders
+        assert_equal [["foo", "baz", "bar-sync", "bar"]], @action.shared_folders
       end
     end
 
@@ -123,10 +123,10 @@ class SharedFoldersActionTest < Test::Unit::TestCase
       @action.after_boot
     end
 
-    should "execute the necessary rysnc commands for each rsync folder" do
-      @folders.map { |f| f << 'rsync' }
-      @folders.each do |name, hostpath, guestpath, rsyncd|
-        @runner.system.expects(:create_rsync).with(@ssh, :rsyncpath => rsyncd, :guestpath => guestpath)
+    should "execute the necessary rysnc commands for each sync folder" do
+      @folders.map { |f| f << 'sync' }
+      @folders.each do |name, hostpath, guestpath, syncd|
+        @runner.system.expects(:create_sync).with(@ssh, :syncpath => syncd, :guestpath => guestpath)
       end
       @runner.ssh.expects(:execute).yields(@ssh)
 
@@ -134,9 +134,9 @@ class SharedFoldersActionTest < Test::Unit::TestCase
     end
   end
 
-  context "with rsyncd folders" do
+  context "with syncd folders" do
     # TODO prevented by odd configuration swapping when stubbing ssh.execute
-    should "prepare the system for rsync if necessary" do
+    should "prepare the system for sync if necessary" do
     end
   end
 end

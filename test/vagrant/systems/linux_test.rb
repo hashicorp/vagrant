@@ -43,59 +43,59 @@ class LinuxSystemTest < Test::Unit::TestCase
     end
   end
 
-  context "preparing rsync" do
+  context "preparing sync" do
     setup do
       @ssh.stubs(:exec!)
       @vm.stubs(:ssh).returns(@ssh)
       @vm.ssh.stubs(:upload!)
     end
 
-    should "upload the rsync template" do
+    should "upload the sync template" do
       @vm.ssh.expects(:upload!).with do |string_io, guest_path|
-        string_io.string =~ /#!\/bin\/sh/ && guest_path == @mock_env.config.vm.rsync_script
+        string_io.string =~ /#!\/bin\/sh/ && guest_path == @mock_env.config.vm.sync_script
       end
 
-      @instance.prepare_rsync(@ssh)
+      @instance.prepare_sync(@ssh)
     end
 
     should "remove old crontab entries file" do
-      @ssh.expects(:exec!).with("sudo rm #{@mock_env.config.vm.rsync_crontab_entry_file}", :error_check => false)
-      @instance.prepare_rsync(@ssh)
+      @ssh.expects(:exec!).with("sudo rm #{@mock_env.config.vm.sync_crontab_entry_file}", :error_check => false)
+      @instance.prepare_sync(@ssh)
     end
 
-    should "prepare the rsync template for execution" do
-      @ssh.expects(:exec!).with("sudo chmod +x #{@mock_env.config.vm.rsync_script}")
-      @instance.prepare_rsync(@ssh)
+    should "prepare the sync template for execution" do
+      @ssh.expects(:exec!).with("sudo chmod +x #{@mock_env.config.vm.sync_script}")
+      @instance.prepare_sync(@ssh)
     end
   end
 
-  context "setting up an rsync folder" do
+  context "setting up an sync folder" do
     setup do
       @ssh.stubs(:exec!)
     end
 
     should "create the new rysnc destination directory" do
-      rsync_path = 'foo'
-      @ssh.expects(:exec!).with("sudo mkdir -p #{rsync_path}")
-      @instance.create_rsync(@ssh, :rsyncpath => "foo")
+      sync_path = 'foo'
+      @ssh.expects(:exec!).with("sudo mkdir -p #{sync_path}")
+      @instance.create_sync(@ssh, :syncpath => "foo")
     end
 
     should "add an entry to the crontab file" do
       @instance.expects(:render_crontab_entry).returns('foo')
       @ssh.expects(:exec!).with do |cmd|
-        cmd =~ /echo/ && cmd =~ /foo/ && cmd =~ /#{@mock_env.config.vm.rsync_crontab_entry_file}/
+        cmd =~ /echo/ && cmd =~ /foo/ && cmd =~ /#{@mock_env.config.vm.sync_crontab_entry_file}/
       end
-      @instance.create_rsync(@ssh, {})
+      @instance.create_sync(@ssh, {})
     end
 
     should "use the crontab entry file to define vagrant users cron entries" do
-      @ssh.expects(:exec!).with("crontab #{@mock_env.config.vm.rsync_crontab_entry_file}")
-      @instance.create_rsync(@ssh, {})
+      @ssh.expects(:exec!).with("crontab #{@mock_env.config.vm.sync_crontab_entry_file}")
+      @instance.create_sync(@ssh, {})
     end
 
-    should "chown the rsync directory" do
+    should "chown the sync directory" do
       @instance.expects(:chown).with(@ssh, "foo")
-      @instance.create_rsync(@ssh, :rsyncpath => "foo")
+      @instance.create_sync(@ssh, :syncpath => "foo")
     end
 
     should "return provide a formatted crontab entry that runs every minute" do

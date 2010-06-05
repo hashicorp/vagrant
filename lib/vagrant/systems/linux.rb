@@ -52,21 +52,21 @@ module Vagrant
         chown(ssh, guestpath)
       end
 
-      def create_rsync(ssh, opts)
-        crontab_entry = render_crontab_entry(opts.merge(:rsyncopts => config.vm.rsync_opts,
-                                                        :scriptname => config.vm.rsync_script))
+      def create_sync(ssh, opts)
+        crontab_entry = render_crontab_entry(opts.merge(:syncopts => config.vm.sync_opts,
+                                                        :scriptname => config.vm.sync_script))
 
-        ssh.exec!("sudo mkdir -p #{opts[:rsyncpath]}")
-        chown(ssh, opts[:rsyncpath])
-        ssh.exec!("sudo echo \"#{crontab_entry}\" >> #{config.vm.rsync_crontab_entry_file}")
-        ssh.exec!("crontab #{config.vm.rsync_crontab_entry_file}")
+        ssh.exec!("sudo mkdir -p #{opts[:syncpath]}")
+        chown(ssh, opts[:syncpath])
+        ssh.exec!("sudo echo \"#{crontab_entry}\" >> #{config.vm.sync_crontab_entry_file}")
+        ssh.exec!("crontab #{config.vm.sync_crontab_entry_file}")
       end
 
-      def prepare_rsync(ssh)
-        logger.info "Preparing system for rsync..."
-        vm.ssh.upload!(StringIO.new(render_rsync), config.vm.rsync_script)
-        ssh.exec!("sudo chmod +x #{config.vm.rsync_script}")
-        ssh.exec!("sudo rm #{config.vm.rsync_crontab_entry_file}", :error_check => false)
+      def prepare_sync(ssh)
+        logger.info "Preparing system for sync..."
+        vm.ssh.upload!(StringIO.new(render_sync), config.vm.sync_script)
+        ssh.exec!("sudo chmod +x #{config.vm.sync_script}")
+        ssh.exec!("sudo rm #{config.vm.sync_crontab_entry_file}", :error_check => false)
       end
 
       def prepare_host_only_network
@@ -125,8 +125,8 @@ module Vagrant
         vm.env.config
       end
 
-      def render_rsync
-        TemplateRenderer.render('rsync')
+      def render_sync
+        TemplateRenderer.render('sync')
       end
 
       def render_crontab_entry(opts)

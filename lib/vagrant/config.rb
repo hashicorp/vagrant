@@ -85,10 +85,10 @@ module Vagrant
       attr_accessor :box_ovf
       attr_accessor :base_mac
       attr_accessor :boot_mode
-      attr_accessor :rsync_opts
-      attr_accessor :rsync_script
-      attr_accessor :rsync_crontab_entry_file
-      attr_reader :rsync_required
+      attr_accessor :sync_opts
+      attr_accessor :sync_script
+      attr_accessor :sync_crontab_entry_file
+      attr_reader :sync_required
       attr_reader :forwarded_ports
       attr_reader :shared_folders
       attr_reader :network_options
@@ -129,15 +129,15 @@ module Vagrant
       end
 
       def share_folder(name, guestpath, hostpath = nil, opts = {})
-        guestpath, opts[:rsync] = shift(guestpath, opts[:rsync])
+        guestpath, opts[:sync] = shift(guestpath, opts[:sync])
 
         # TODO if both are nil the exception information will be unusable
-        if opts[:rsync] == guestpath
-          raise Exception.new("The rsync directory #{opts[:rsync]} is identical to the shifted shared folder mount point #{guestpath}")
+        if opts[:sync] == guestpath
+          raise Exception.new("The sync directory #{opts[:sync]} is identical to the shifted shared folder mount point #{guestpath}")
         end
 
         @shared_folders[name] = {
-          :rsyncpath => opts[:rsync],
+          :syncpath => opts[:sync],
           :guestpath => guestpath,
           :hostpath => hostpath
         }
@@ -186,12 +186,12 @@ module Vagrant
         defined_vms[name.to_sym].push_proc(&block)
       end
 
-      def shift(orig, rsync)
-        if rsync
-          @rsync_required = true
-          [orig + '-rsync', rsync == true ? orig : rsync]
+      def shift(orig, sync)
+        if sync
+          @sync_required = true
+          [orig + '-sync', sync == true ? orig : sync]
         else
-          [orig, rsync]
+          [orig, sync]
         end
       end
     end

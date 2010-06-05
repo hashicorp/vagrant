@@ -28,9 +28,9 @@ Vagrant::Config.run do |config|
   config.vm.share_folder("v-root", "/vagrant", ".")
 
   # TODO new config class
-  config.vm.rsync_opts = "-ur --delete"
-  config.vm.rsync_script = "/tmp/rsync"
-  config.vm.rsync_crontab_entry_file = "/tmp/crontab-entry"
+  config.vm.sync_opts = "-terse -group -owner -batch -silent"
+  config.vm.sync_script = "/tmp/sync"
+  config.vm.sync_crontab_entry_file = "/tmp/crontab-entry"
 
   config.package.name = 'vagrant'
   config.package.extension = '.box'
