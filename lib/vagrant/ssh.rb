@@ -48,7 +48,10 @@ module Vagrant
       Net::SSH.start(env.config.ssh.host,
                      env.config[:ssh][:username],
                      opts.merge( :port => port,
-                                 :keys => [env.config.ssh.private_key_path])) do |ssh|
+                                 :keys => [env.config.ssh.private_key_path],
+                                 :user_known_hosts_file => [],
+                                 :paranoid => false,
+                                 :config => false)) do |ssh|
         yield SSH::Session.new(ssh)
       end
     end
