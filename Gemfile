@@ -1,4 +1,4 @@
-source :gemcutter
+source "http://rubygems.org"
 
 # Gems required for the lib to even run
 gem "virtualbox", :git => "git://github.com/mitchellh/virtualbox.git"
