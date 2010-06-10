@@ -6,7 +6,7 @@ title: Changes - 0.3.x to 0.4.x
 
 ## VirtualBox 3.2 Support
 
-Vagrant now supports VirtualBox 3.2.0 in addition to the 3.1.x series.
+Vagrant now supports VirtualBox 3.2.x in addition to the 3.1.x series.
 No configuration is necessary; Vagrant will automatically determine which
 VirtualBox version is running and use the correct API calls.
 
