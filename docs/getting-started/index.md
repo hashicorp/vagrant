@@ -23,12 +23,11 @@ VirtualBox runs on **Windows**, **Mac OS X**, **Linux**, and **Solaris**.
 Here is a link directly to the [download page](http://www.virtualbox.org/wiki/Downloads).
 
 <div class="info">
-  <h3>Version 3.1.x!</h3>
+  <h3>Version 3.1 or Higher!</h3>
   <p>
-    Vagrant requires a version in the 3.1 series of VirtualBox (3.1.0 through 3.1.8). If your package manager is still stuck on a lower version or maybe is even on the 3.2 series already, then download the 3.1 installation pcakage from the official <a href="http://www.virtualbox.org/wiki/Downloads">download page</a>.
-  </p>
-  <p>
-    VirtualBox 3.2.x support is coming with the next release of Vagrant, in the coming weeks.
+    Vagrant requires at least version 3.1 of VirtualBox. If your package manager is still
+    stuck on version 3.0 or lower, then download the 3.1 installation package from the official VirtualBox
+    <a href="http://www.virtualbox.org/wiki/Downloads">download page</a>.
   </p>
 </div>
 
