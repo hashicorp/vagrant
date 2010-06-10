@@ -66,18 +66,29 @@ around it:
 task :up do
   puts "About to run vagrant-up..."
   env = Vagrant::Environment.load!
-  env.commands.up
+  env.commands.subcommand("up")
   puts "Finished running vagrant-up"
+end
+{% endhighlight %}
+
+The arguments to `subcommand` are simply an array of parameters
+that you'd typically sent to the command line client, ignoring the `vagrant`
+part. This allows you to do more complex things easily:
+
+{% highlight ruby %}
+desc "Package my environment with a custom file"
+task :package do
+  env = Vagrant::Environment.load!
+  env.commands.subcommand("package", "--include", "MyCustomFile")
 end
 {% endhighlight %}
 
 ## SSH Commands
 
 Perhaps you want to write a rake task that does some commands within the
-virtual server setup? This can be done through the `ssh` accessor of the
-environment, which is an instance of `Vagrant::SSH`. `Vagrant::SSH`
-is simply a wrapper around `Net::SSH` and the objects returned are typically
-`Net::SSH` objects.
+virtual server setup? This can be done through the `ssh` accessor of any
+VM within the environment, which is an instance of `Vagrant::SSH`. `Vagrant::SSH`
+is simply a wrapper around `Net::SSH`.
 
 The following example is a useful example showing how to create a graceful
 shutdown command:
@@ -86,7 +97,7 @@ shutdown command:
 task :graceful_down do
   env = Vagrant::Environment.load!
   env.require_persisted_vm
-  env.ssh.execute do |ssh|
+  env.primary_vm.ssh.execute do |ssh|
     ssh.exec!("sudo halt")
   end
 end
@@ -94,3 +105,17 @@ end
 
 This example also shows `env.require_persisted_vm` which simply errors and
 exits if there is no Vagrant VM created yet.
+
+Additionally, if you're in a [multi-VM environment](/docs/multivm.html), you can
+access the VMs through the `vms` array on the environment:
+
+{% highlight ruby %}
+task :graceful_down do
+  env = Vagrant::Environment.load!
+  env.vms.each do |vm|
+    vm.ssh.execute do |ssh|
+      ssh.exec!("sudo halt")
+    end
+  end
+end
+{% endhighlight %}
