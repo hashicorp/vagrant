@@ -209,22 +209,13 @@ you created by setting `config.ssh.private_key_path`.
 
 ### Setup the Vagrantfile
 
-By default, Vagrant does not forward any ports. You probably want your base box
-to automatically forward SSH, at the very least. This next step allows you to setup
-a Vagrantfile which is packaged with your base box. Create this Vagrantfile in any
-directory. The following shows the contents of a sample Vagrantfile which just
-forwards SSH:
+By default, Vagrant only forwards SSH (from port 22 to 2222 with automatic port
+collision fixing enabled). If you want to modify any defaults or add any other
+ports to forward, you will have to package a Vagrantfile with your box. You can
+create a Vagrantfile in any directory.
 
-{% highlight ruby %}
-Vagrant::Config.run do |config|
-  # Forward the SSH port. The 'forward_port_key' should match the
-  # name of the forwarded port.
-  config.ssh.forwarded_port_key = "ssh"
-  config.vm.forward_port("ssh", 22, 2222)
-end
-{% endhighlight %}
-
-This Vagrantfile will be used during the packaging phase of base box creation.
+In the next section when the base box is packaged, it'll explain how to include
+your custom Vagrantfile.
 
 ### Package and Distribute
 
@@ -235,10 +226,12 @@ to the directory where your base box's Vagrantfile is, if you made one. If you
 didn't make one, you can be in any directory.
 
 Next, run `vagrant package`, specifying the name of the virtual machine in
-VirtualBox that you want to package:
+VirtualBox that you want to package. If you created a custom Vagrantfile, don't
+forget to add `--include Vagrantfile` at the end of the following command as
+well to include that in the package.
 
 {% highlight bash %}
-$ vagrant package --base my_base_box --include Vagrantfile
+$ vagrant package --base my_base_box
 {% endhighlight %}
 
 This will take a few minutes, but the export will show you a progress bar. The

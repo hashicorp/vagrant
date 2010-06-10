@@ -11,21 +11,41 @@ run `vagrant` alone:
 
 {% highlight bash %}
 $ vagrant
-Usage: vagrant SUBCOMMAND ...
+Usage: vagrant SUBCOMMAND
+        --help                       Show help for the current subcommand.
+        --version                    Output running Vagrant version.
 
-Supported commands:
-    box                 Box commands
-    destroy             Destroys the vagrant environment
-    halt                Halts the currently running vagrant environment
-    init                Initializes current folder for Vagrant usage
-    package             Packages a vagrant environment for distribution
-    reload              Reload the vagrant environment
-    resume              Resumes a suspend vagrant environment
-    ssh                 SSH into the currently running environment
-    ssh-config          outputs .ssh/config valid syntax for connecting to this environment via ssh
-    status              Shows the status of the current environment.
-    suspend             Suspends the currently running vagrant environment
-    up                  Creates the vagrant environment
+Supported subcommands:
+        box                 Box commands
+        destroy             Destroys the vagrant environment
+        halt                Halts the currently running vagrant environment
+        init                Initializes current folder for Vagrant usage
+        package             Packages a vagrant environment for distribution
+        provision           Run the provisioner
+        reload              Reload the vagrant environment
+        resume              Resumes a suspend vagrant environment
+        ssh                 SSH into the currently running environment
+        ssh-config          outputs .ssh/config valid syntax for connecting to this environment via ssh
+        status              Shows the status of the Vagrant environment.
+        suspend             Suspends the currently running vagrant environment
+        up                  Creates the vagrant environment
+
+For help on a specific subcommand, run `vagrant SUBCOMMAND --help`
+{% endhighlight %}
+
+## Built-in Help
+
+You can quickly and easily get help for any given command by simply adding the
+`--help` flag to any command. This will save you the trip of coming to
+this documentation page most of the time. Example:
+
+{% highlight bash %}
+$ vagrant package --help
+Description: Packages a vagrant environment for distribution
+Usage: vagrant package [--base BASE] [--include FILES]
+        --help                       Show help for the current subcommand.
+        --base [BASE]                Name or UUID of VM to create a base box from
+        --include x,y,z              List of files to include in the package
 {% endhighlight %}
 
 <a name="vagrant-box"> </a>
@@ -73,6 +93,17 @@ Vagrant package brings together all the necessary files required for [VirtualBox
 and register an identical virtual environment for other projects or other machines. It is important to note
 that if you intend to recreate an identical experience for another developer using Vagrant that the Vagrantfile
 residing at the root of your project directory should be included, see [Vagrant Boxes](/docs/boxes.html#creating-a-box) for more information.
+
+<a name="vagrant-provision"> </a>
+## vagrant provision
+
+Runs the provisioning scripts without reloading the entire Vagrant environment.
+If you're just tweaking or adding some cookbooks, this command can save you a
+lot of time.
+
+Since this command doesn't reload the entire environment or reboot the VM,
+it will not add new cookbooks folders if the cookbooks folder path changes. In
+this case, please call `vagrant reload`.
 
 <a name="vagrant-resume"> </a>
 ## vagrant resume
