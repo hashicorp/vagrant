@@ -16,7 +16,7 @@ module Vagrant
           return # for tests
         end
 
-        if vm.vm.running?
+        if vm.created? && vm.vm.running?
           vm.provision
         else
           vm.env.logger.info "VM '#{name}' not running. Ignoring provision request."

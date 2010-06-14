@@ -18,6 +18,7 @@ class CommandsProvisionTest < Test::Unit::TestCase
     setup do
       @foo_vm = mock("vm")
       @foo_vm.stubs(:env).returns(@env)
+      @foo_vm.stubs(:created?).returns(true)
 
       @vm_for_real = mock("vm for real")
       @foo_vm.stubs(:vm).returns(@vm_for_real)
@@ -42,6 +43,15 @@ class CommandsProvisionTest < Test::Unit::TestCase
       logger.expects(:info)
       @env.stubs(:logger).returns(logger)
       @vm_for_real.stubs(:running?).returns(false)
+      @foo_vm.expects(:provision).never
+      @instance.execute(["foo"])
+    end
+
+    should "do log to info if it's not created" do
+      logger = mock("logger")
+      logger.expects(:info)
+      @env.stubs(:logger).returns(logger)
+      @foo_vm.stubs(:created?).returns(false)
       @foo_vm.expects(:provision).never
       @instance.execute(["foo"])
     end
