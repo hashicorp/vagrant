@@ -76,11 +76,12 @@ class ResourceLoggerTest < Test::Unit::TestCase
         @instance.stubs(:cl_reset).returns("")
       end
 
-      should "log with the proper format" do
-        message = "bar"
-        @logger.expects(:info).with("[#{@resource}] #{message}").once
-
-        @instance.info(message)
+      [:debug, :info, :error, :fatal].each do |method|
+        should "log with the proper format on #{method}" do
+          message = "bar"
+          @logger.expects(method).with("[#{@resource}] #{message}").once
+          @instance.send(method, message)
+        end
       end
     end
 

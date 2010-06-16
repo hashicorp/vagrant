@@ -41,6 +41,26 @@
   Created at: <%= Time.at(data["created_at"]) %>
 
 #---------------------------------------------------------------------
+# CATEGORY: Warning Messages
+#---------------------------------------------------------------------
+:vm_additions_not_detected: |-
+  WARNING!
+  No guest additions were detected on the base box for this VM! Guest
+  additions are required for forwarded ports, shared folders, host only
+  networking, and more. If SSH fails on this machine, please install
+  the guest additions and repackage the box to continue.
+:vm_additions_version_mismatch: |-
+  WARNING!
+  The guest additions on this VM do not match the install version of
+  VirtualBox! This often causes things such as forwared ports, shared
+  folders, and more to not work properly. If any of those things fail on
+  this machine, please update the guest additions and repackage the
+  box.
+
+  Guest Additions Version: <%= guest_additions_version %>
+  VirtualBox Version: <%= virtualbox_version %>
+
+#---------------------------------------------------------------------
 # CATEGORY: Error Messages
 #---------------------------------------------------------------------
 :box_already_exists: |-

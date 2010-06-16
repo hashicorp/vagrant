@@ -21,6 +21,7 @@ module Vagrant
         def after_import
           update_dotfile
           setup_mac_address
+          check_guest_additions
         end
 
         def update_dotfile
@@ -32,6 +33,19 @@ module Vagrant
           logger.info "Matching MAC addresses..."
           @runner.vm.network_adapters.first.mac_address = @runner.env.config.vm.base_mac
           @runner.vm.save
+        end
+
+        def check_guest_additions
+          # Use the raw interface for now, while the virtualbox gem
+          # doesn't support guest properties (due to cross platform issues)
+          version = @runner.vm.interface.get_guest_property_value("/VirtualBox/GuestAdd/Version")
+          if version.empty?
+            logger.error Translator.t(:vm_additions_not_detected)
+          elsif version != VirtualBox.version
+            logger.error Translator.t(:vm_additions_version_mismatch,
+                                     :guest_additions_version => version,
+                                     :virtualbox_version => VirtualBox.version)
+          end
         end
       end
     end

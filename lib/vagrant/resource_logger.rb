@@ -61,19 +61,19 @@ module Vagrant
       @logger = self.class.singleton_logger(env)
     end
 
-    # TODO: The other logging methods.
+    [:debug, :info, :error, :fatal].each do |method|
+      define_method(method) do |message|
+        @@writer_lock.synchronize do
+          # We clear the line in case progress reports have been going
+          # out.
+          print(cl_reset)
+          logger.send(method, "[#{resource}] #{message}")
+        end
 
-    def info(message)
-      @@writer_lock.synchronize do
-        # We clear the line in case progress reports have been going
-        # out.
-        print(cl_reset)
-        logger.info("[#{resource}] #{message}")
+        # Once again flush the progress reporters since we probably
+        # cleared any existing ones.
+        flush_progress
       end
-
-      # Once again flush the progress reporters since we probably
-      # cleared any existing ones.
-      flush_progress
     end
 
     # Sets a progress report for the resource that this logger

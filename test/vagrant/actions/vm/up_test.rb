@@ -69,6 +69,7 @@ class UpActionTest < Test::Unit::TestCase
       boot_seq = sequence("boot")
       @action.expects(:update_dotfile).once.in_sequence(boot_seq)
       @action.expects(:setup_mac_address).once.in_sequence(boot_seq)
+      @action.expects(:check_guest_additions).once.in_sequence(boot_seq)
       @action.after_import
     end
   end

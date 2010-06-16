@@ -6,7 +6,7 @@ module Vagrant
     class Translator
       @@strings = nil
 
-      class <<self
+      class << self
         # Resets the internal strings hash to nil, forcing a reload on the next
         # access of {strings}.
         def reset!
