@@ -18,6 +18,63 @@ class CommandsSSHTest < Test::Unit::TestCase
       @instance.expects(:ssh_connect).with(nil).once
       @instance.execute
     end
+
+    should "execute if commands are given" do
+      @env.stubs(:vms).returns(:foo => mock("foo"))
+      @instance.expects(:ssh_execute).with("foo", @env.vms[:foo]).once
+      @instance.execute(["foo","-e","bar"])
+    end
+
+    should "execute over every VM if none is specified with a command" do
+      vms = {
+        :foo => mock("foo"),
+        :bar => mock("bar")
+      }
+
+      @env.stubs(:vms).returns(vms)
+      vms.each do |key, vm|
+        @instance.expects(:ssh_execute).with(key, vm).once
+      end
+
+      @instance.execute(["--execute", "bar"])
+    end
+  end
+
+  context "ssh executing" do
+    setup do
+      @name = :foo
+
+      @ssh_conn = mock("connection")
+      @ssh_conn.stubs(:exec!)
+
+      @ssh = mock("ssh")
+      @ssh.stubs(:execute).yields(@ssh_conn)
+
+      @vm = mock("vm")
+      @vm.stubs(:created?).returns(true)
+      @vm.stubs(:ssh).returns(@ssh)
+    end
+
+    should "error and exit if invalid VM given" do
+      @instance.expects(:error_and_exit).with(:unknown_vm, :vm => @name).once
+      @instance.ssh_execute(@name, nil)
+    end
+
+    should "error and exit if VM isn't created" do
+      @vm.stubs(:created?).returns(false)
+      @instance.expects(:error_and_exit).with(:environment_not_created).once
+      @instance.ssh_execute(@name, @vm)
+    end
+
+    should "execute each command" do
+      commands = [:a,:b,:c]
+      @instance.stubs(:options).returns(:execute => commands)
+      commands.each do |cmd|
+        @ssh_conn.expects(:exec!).with(cmd).once
+      end
+
+      @instance.ssh_execute(@name, @vm)
+    end
   end
 
   context "ssh connecting" do

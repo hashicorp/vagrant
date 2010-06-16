@@ -11,7 +11,34 @@ module Vagrant
 
       def execute(args=[])
         args = parse_options(args)
-        ssh_connect(args[0])
+        if !options[:execute].empty?
+          vms = args[0] ? {args[0] => env.vms[args[0].to_sym]} : env.vms
+          vms.each do |name, vm|
+            ssh_execute(name, vm)
+          end
+        else
+          ssh_connect(args[0])
+        end
+      end
+
+      def ssh_execute(name, vm)
+        if vm.nil?
+          error_and_exit(:unknown_vm, :vm => name)
+          return # for tests
+        elsif !vm.created?
+          error_and_exit(:environment_not_created)
+          return
+        end
+
+        vm.ssh.execute do |ssh|
+          options[:execute].each do |command|
+            vm.env.logger.info("Execute: #{command}")
+            ssh.exec!(command) do |channel, type, data|
+              # TODO: Exit status checking?
+              vm.env.logger.info("#{type}: #{data}")
+            end
+          end
+        end
       end
 
       def ssh_connect(name)
@@ -37,7 +64,14 @@ module Vagrant
       end
 
       def options_spec(opts)
-        opts.banner = "Usage: vagrant ssh"
+        opts.banner = "Usage: vagrant ssh [--execute COMMAND]"
+
+        # Defaults
+        options[:execute] = []
+
+        opts.on("-e", "--execute COMMAND", "A command to execute. Multiple -e's may be specified.") do |value|
+          options[:execute] << value
+        end
       end
     end
   end
