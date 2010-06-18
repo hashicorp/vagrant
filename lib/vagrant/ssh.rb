@@ -132,8 +132,20 @@ module Vagrant
       return pnum if pnum
 
       # Check if we have an SSH forwarded port
-      pnum = env.vm.vm.forwarded_ports.detect do |fp|
-        fp.name == env.config.ssh.forwarded_port_key
+      if VirtualBox.version =~ /^3\.1\./
+        pnum = env.vm.vm.forwarded_ports.detect do |fp|
+          fp.name == env.config.ssh.forwarded_port_key
+        end
+      else
+        # VirtualBox 3.2 specific
+        pnum = nil
+        env.vm.vm.network_adapters.each do |na|
+          pnum = na.nat_engine.forwarded_ports.detect do |fp|
+            fp.name == env.config.ssh.forwarded_port_key
+          end
+
+          break if pnum
+        end
       end
 
       return pnum.hostport if pnum

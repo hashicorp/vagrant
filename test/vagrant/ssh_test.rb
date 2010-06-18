@@ -16,6 +16,10 @@ class SshTest < Test::Unit::TestCase
     @ssh = Vagrant::SSH.new(@env)
   end
 
+  setup do
+    VirtualBox.stubs(:version).returns("3.1.4")
+  end
+
   context "connecting to external SSH" do
     setup do
       mock_ssh
@@ -93,6 +97,7 @@ class SshTest < Test::Unit::TestCase
     setup do
       mock_ssh
       @ssh.stubs(:check_key_permissions)
+      @ssh.stubs(:port).returns(80)
     end
 
     should "check key permissions then attempt to start connection" do
@@ -206,10 +211,11 @@ class SshTest < Test::Unit::TestCase
   context "getting the ssh port" do
     setup do
       mock_ssh
-
     end
 
-    should "return the configured port by default" do
+    should "return the configured port by default in VB 3.1.x" do
+      VirtualBox.stubs(:version).returns("3.1.4")
+
       port = 2222
       fp = mock("fp")
       fp.stubs(:name).returns(@env.config.ssh.forwarded_port_key)

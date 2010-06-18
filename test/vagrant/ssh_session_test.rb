@@ -1,6 +1,6 @@
 require File.join(File.dirname(__FILE__), '..', 'test_helper')
 
-class SshTest < Test::Unit::TestCase
+class SshSessionTest < Test::Unit::TestCase
   setup do
     @session = mock("session")
 
