@@ -53,6 +53,7 @@ class CommandsSSHTest < Test::Unit::TestCase
       @vm = mock("vm")
       @vm.stubs(:created?).returns(true)
       @vm.stubs(:ssh).returns(@ssh)
+      @vm.stubs(:env).returns(@env)
     end
 
     should "error and exit if invalid VM given" do

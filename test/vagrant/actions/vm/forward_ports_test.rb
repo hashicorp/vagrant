@@ -15,18 +15,6 @@ class ForwardPortsActionTest < Test::Unit::TestCase
 
   context "checking for colliding external ports" do
     setup do
-      @forwarded_port = mock("forwarded_port")
-      @forwarded_port.stubs(:hostport)
-      @forwarded_ports = [@forwarded_port]
-
-      @vm = mock("vm")
-      @vm.stubs(:forwarded_ports).returns(@forwarded_ports)
-      @vm.stubs(:running?).returns(true)
-      @vm.stubs(:uuid).returns("foo")
-      @runner.stubs(:uuid).returns("bar")
-      vms = [@vm]
-      VirtualBox::VM.stubs(:all).returns(vms)
-
       @env = mock_environment do |config|
         config.vm.forwarded_ports.clear
         config.vm.forward_port("ssh", 22, 2222)
@@ -34,29 +22,20 @@ class ForwardPortsActionTest < Test::Unit::TestCase
 
       @runner.stubs(:env).returns(@env)
 
+      @used_ports = []
+      @action.stubs(:used_ports).returns(@used_ports)
+
       # So no exceptions are raised
       @action.stubs(:handle_collision)
     end
 
-    should "ignore vms which aren't running" do
-      @vm.expects(:running?).returns(false)
-      @vm.expects(:forwarded_ports).never
-      @action.external_collision_check
-    end
-
-    should "ignore vms which are equivalent to ours" do
-      @runner.expects(:uuid).returns(@vm.uuid)
-      @vm.expects(:forwarded_ports).never
-      @action.external_collision_check
-    end
-
     should "not raise any errors if no forwarded ports collide" do
-      @forwarded_port.expects(:hostport).returns(80)
+      @used_ports << "80"
       assert_nothing_raised { @action.external_collision_check }
     end
 
     should "handle the collision if it happens" do
-      @forwarded_port.expects(:hostport).returns(2222)
+      @used_ports << "2222"
       @action.expects(:handle_collision).with("ssh", anything, anything).once
       @action.external_collision_check
     end
@@ -127,24 +106,11 @@ class ForwardPortsActionTest < Test::Unit::TestCase
       @vm.expects(:network_adapters).returns([network_adapter])
       network_adapter.expects(:attachment_type).returns(:nat)
 
-      @runner.env.config.vm.forwarded_ports.each do |name, opts|
-        forwarded_ports.expects(:<<).with do |port|
-          assert_equal name, port.name
-          assert_equal opts[:hostport], port.hostport
-          assert_equal opts[:guestport], port.guestport
-          assert_equal opts[:adapter], port.instance
-          true
-        end
-      end
-
-      @vm.expects(:forwarded_ports).returns(forwarded_ports)
       @vm.expects(:save).once
       @runner.expects(:reload!).once
       @action.forward_ports
     end
-  end
 
-  context "Not forwarding ports" do
     should "No port forwarding for non NAT interfaces" do
       forwarded_ports = mock("forwarded_ports")
       network_adapter = mock("network_adapter")
@@ -158,23 +124,176 @@ class ForwardPortsActionTest < Test::Unit::TestCase
   end
 
   context "clearing forwarded ports" do
-    should "call destroy on all forwarded ports" do
-      forwarded_ports = []
-      5.times do |i|
-        port = mock("port#{i}")
-        port.expects(:destroy).once
-        forwarded_ports << port
-      end
+    setup do
+      @action.stubs(:used_ports).returns([:a])
+      @action.stubs(:clear_ports)
+    end
 
-      @vm.stubs(:forwarded_ports).returns(forwarded_ports)
+    should "call destroy on all forwarded ports" do
+      @action.expects(:clear_ports).once
       @runner.expects(:reload!)
       @action.clear
     end
 
     should "do nothing if there are no forwarded ports" do
-      @vm.stubs(:forwarded_ports).returns([])
+      @action.stubs(:used_ports).returns([])
       @runner.expects(:reload!).never
       @action.clear
+    end
+  end
+
+  context "getting list of used ports" do
+    setup do
+      @vms = []
+      VirtualBox::VM.stubs(:all).returns(@vms)
+      VirtualBox.stubs(:version).returns("3.1.0")
+      @runner.stubs(:uuid).returns(:bar)
+    end
+
+    def mock_vm(options={})
+      options = {
+        :running? => true,
+        :uuid => :foo
+      }.merge(options)
+
+      vm = mock("vm")
+      options.each do |k,v|
+        vm.stubs(k).returns(v)
+      end
+
+      vm
+    end
+
+    def mock_fp(hostport)
+      fp = mock("fp")
+      fp.stubs(:hostport).returns(hostport.to_s)
+      fp
+    end
+
+    should "ignore VMs which aren't running" do
+      @vms << mock_vm(:running? => false)
+      @vms[0].expects(:forwarded_ports).never
+      @action.used_ports
+    end
+
+    should "ignore VMs of the same uuid" do
+      @vms << mock_vm(:uuid => @runner.uuid)
+      @vms[0].expects(:forwarded_ports).never
+      @action.used_ports
+    end
+
+    should "return the forwarded ports for VB 3.1.x" do
+      VirtualBox.stubs(:version).returns("3.1.4")
+      fps = [mock_fp(2222), mock_fp(80)]
+      @vms << mock_vm(:forwarded_ports => fps)
+      assert_equal %W[2222 80], @action.used_ports
+    end
+
+    should "return the forwarded ports for VB 3.2.x" do
+      VirtualBox.stubs(:version).returns("3.2.4")
+      fps = [mock_fp(2222), mock_fp(80)]
+      na = mock("na")
+      ne = mock("ne")
+      na.stubs(:nat_engine).returns(ne)
+      ne.stubs(:forwarded_ports).returns(fps)
+      @vms << mock_vm(:network_adapters => [na])
+      assert_equal %W[2222 80], @action.used_ports
+    end
+  end
+
+  context "clearing ports" do
+    def mock_fp
+      fp = mock("fp")
+      fp.expects(:destroy).once
+      fp
+    end
+
+    context "in VB 3.1.x" do
+      setup do
+        VirtualBox.stubs(:version).returns("3.1.4")
+        @fps = []
+        @vm.stubs(:forwarded_ports).returns(@fps)
+      end
+
+      should "destroy each forwarded port" do
+        @fps << mock_fp
+        @fps << mock_fp
+        @action.clear_ports
+      end
+    end
+
+    context "in VB 3.2.x" do
+      setup do
+        VirtualBox.stubs(:version).returns("3.2.8")
+        @adapters = []
+        @vm.stubs(:network_adapters).returns(@adapters)
+      end
+
+      def mock_adapter
+        na = mock("adapter")
+        engine = mock("engine")
+        engine.stubs(:forwarded_ports).returns([mock_fp])
+        na.stubs(:nat_engine).returns(engine)
+        na
+      end
+
+      should "destroy each forwarded port" do
+        @adapters << mock_adapter
+        @adapters << mock_adapter
+        @action.clear_ports
+      end
+    end
+  end
+
+  context "forwarding ports" do
+    context "in VB 3.1.x" do
+      setup do
+        VirtualBox.stubs(:version).returns("3.1.4")
+      end
+
+      should "forward ports" do
+        forwarded_ports = mock("forwarded_ports")
+        @vm.expects(:forwarded_ports).returns(forwarded_ports)
+        @runner.env.config.vm.forwarded_ports.each do |name, opts|
+          forwarded_ports.expects(:<<).with do |port|
+            assert_equal name, port.name
+            assert_equal opts[:hostport], port.hostport
+            assert_equal opts[:guestport], port.guestport
+            assert_equal opts[:adapter], port.instance
+            true
+          end
+
+          @action.forward_port(name, opts)
+        end
+      end
+    end
+
+    context "in VB 3.2.x" do
+      setup do
+        VirtualBox.stubs(:version).returns("3.2.8")
+      end
+
+      should "forward ports" do
+        name, opts = @runner.env.config.vm.forwarded_ports.first
+
+        adapters = []
+        adapter = mock("adapter")
+        engine = mock("engine")
+        fps = mock("forwarded ports")
+        adapter.stubs(:nat_engine).returns(engine)
+        engine.stubs(:forwarded_ports).returns(fps)
+        fps.expects(:<<).with do |port|
+          assert_equal name, port.name
+          assert_equal opts[:hostport], port.hostport
+          assert_equal opts[:guestport], port.guestport
+          true
+        end
+
+        adapters[opts[:adapter]] = adapter
+        @vm.stubs(:network_adapters).returns(adapters)
+
+        @action.forward_port(name, opts)
+      end
     end
   end
 end
