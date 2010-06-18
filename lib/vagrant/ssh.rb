@@ -140,7 +140,7 @@ module Vagrant
         # VirtualBox 3.2 specific
         pnum = nil
         env.vm.vm.network_adapters.each do |na|
-          pnum = na.nat_engine.forwarded_ports.detect do |fp|
+          pnum = na.nat_driver.forwarded_ports.detect do |fp|
             fp.name == env.config.ssh.forwarded_port_key
           end
 

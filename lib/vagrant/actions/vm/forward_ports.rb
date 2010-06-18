@@ -108,7 +108,7 @@ module Vagrant
               else
                 # VirtualBox 3.2.x uses forwarded ports via NAT engines
                 vm.network_adapters.collect do |na|
-                  na.nat_engine.forwarded_ports.collect do |fp|
+                  na.nat_driver.forwarded_ports.collect do |fp|
                     fp.hostport.to_s
                   end
                 end
@@ -126,7 +126,7 @@ module Vagrant
             fp.each { |p| p.destroy }
           else
             runner.vm.network_adapters.each do |na|
-              na.nat_engine.forwarded_ports.dup.each do |fp|
+              na.nat_driver.forwarded_ports.dup.each do |fp|
                 fp.destroy
               end
             end
@@ -147,7 +147,7 @@ module Vagrant
             port.name = name
             port.guestport = options[:guestport]
             port.hostport = options[:hostport]
-            runner.vm.network_adapters[options[:adapter]].nat_engine.forwarded_ports << port
+            runner.vm.network_adapters[options[:adapter]].nat_driver.forwarded_ports << port
           end
         end
       end

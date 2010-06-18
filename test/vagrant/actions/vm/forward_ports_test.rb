@@ -194,7 +194,7 @@ class ForwardPortsActionTest < Test::Unit::TestCase
       fps = [mock_fp(2222), mock_fp(80)]
       na = mock("na")
       ne = mock("ne")
-      na.stubs(:nat_engine).returns(ne)
+      na.stubs(:nat_driver).returns(ne)
       ne.stubs(:forwarded_ports).returns(fps)
       @vms << mock_vm(:network_adapters => [na])
       assert_equal %W[2222 80], @action.used_ports
@@ -233,7 +233,7 @@ class ForwardPortsActionTest < Test::Unit::TestCase
         na = mock("adapter")
         engine = mock("engine")
         engine.stubs(:forwarded_ports).returns([mock_fp])
-        na.stubs(:nat_engine).returns(engine)
+        na.stubs(:nat_driver).returns(engine)
         na
       end
 
@@ -280,7 +280,7 @@ class ForwardPortsActionTest < Test::Unit::TestCase
         adapter = mock("adapter")
         engine = mock("engine")
         fps = mock("forwarded ports")
-        adapter.stubs(:nat_engine).returns(engine)
+        adapter.stubs(:nat_driver).returns(engine)
         engine.stubs(:forwarded_ports).returns(fps)
         fps.expects(:<<).with do |port|
           assert_equal name, port.name
