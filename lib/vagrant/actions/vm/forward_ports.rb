@@ -100,17 +100,9 @@ module Vagrant
         def used_ports
           result = VirtualBox::VM.all.collect do |vm|
             if vm.running? && vm.uuid != runner.uuid
-              if VirtualBox.version =~ /^3\.1\./
-                # VirtualBox 3.1.x uses forwarded ports via extra-data
-                vm.forwarded_ports.collect do |fp|
+              vm.network_adapters.collect do |na|
+                na.nat_driver.forwarded_ports.collect do |fp|
                   fp.hostport.to_s
-                end
-              else
-                # VirtualBox 3.2.x uses forwarded ports via NAT engines
-                vm.network_adapters.collect do |na|
-                  na.nat_driver.forwarded_ports.collect do |fp|
-                    fp.hostport.to_s
-                  end
                 end
               end
             end
@@ -121,34 +113,20 @@ module Vagrant
 
         # Deletes existing forwarded ports.
         def clear_ports
-          if VirtualBox.version =~ /^3\.1\./
-            fp = runner.vm.forwarded_ports.dup
-            fp.each { |p| p.destroy }
-          else
-            runner.vm.network_adapters.each do |na|
-              na.nat_driver.forwarded_ports.dup.each do |fp|
-                fp.destroy
-              end
+          runner.vm.network_adapters.each do |na|
+            na.nat_driver.forwarded_ports.dup.each do |fp|
+              fp.destroy
             end
           end
         end
 
         # Forwards a port.
         def forward_port(name, options)
-          if VirtualBox.version =~ /^3\.1\./
-            port = VirtualBox::ForwardedPort.new
-            port.name = name
-            port.hostport = options[:hostport]
-            port.guestport = options[:guestport]
-            port.instance = options[:adapter]
-            runner.vm.forwarded_ports << port
-          else
-            port = VirtualBox::NATForwardedPort.new
-            port.name = name
-            port.guestport = options[:guestport]
-            port.hostport = options[:hostport]
-            runner.vm.network_adapters[options[:adapter]].nat_driver.forwarded_ports << port
-          end
+          port = VirtualBox::NATForwardedPort.new
+          port.name = name
+          port.guestport = options[:guestport]
+          port.hostport = options[:hostport]
+          runner.vm.network_adapters[options[:adapter]].nat_driver.forwarded_ports << port
         end
       end
     end

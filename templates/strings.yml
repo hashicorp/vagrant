@@ -219,7 +219,7 @@
   manually for more verbose error output.
 :virtualbox_invalid_version: |-
   Vagrant has detected that you have VirtualBox version <%= version %> installed!
-  Vagrant requires that you use at least VirtualBox version 3.1. Please install
+  Vagrant requires that you use at least VirtualBox version 3.2. Please install
   a more recent version of VirtualBox to continue.
 :virtualbox_not_detected: |-
   Vagrant could not detect VirtualBox! Make sure VirtualBox is properly installed.

@@ -103,9 +103,10 @@ class ForwardPortsActionTest < Test::Unit::TestCase
       forwarded_ports = mock("forwarded_ports")
       network_adapter = mock("network_adapter")
 
-      @vm.expects(:network_adapters).returns([network_adapter])
+      @vm.stubs(:network_adapters).returns([network_adapter])
       network_adapter.expects(:attachment_type).returns(:nat)
 
+      @action.expects(:forward_port).once
       @vm.expects(:save).once
       @runner.expects(:reload!).once
       @action.forward_ports
@@ -182,13 +183,6 @@ class ForwardPortsActionTest < Test::Unit::TestCase
       @action.used_ports
     end
 
-    should "return the forwarded ports for VB 3.1.x" do
-      VirtualBox.stubs(:version).returns("3.1.4")
-      fps = [mock_fp(2222), mock_fp(80)]
-      @vms << mock_vm(:forwarded_ports => fps)
-      assert_equal %W[2222 80], @action.used_ports
-    end
-
     should "return the forwarded ports for VB 3.2.x" do
       VirtualBox.stubs(:version).returns("3.2.4")
       fps = [mock_fp(2222), mock_fp(80)]
@@ -208,92 +202,52 @@ class ForwardPortsActionTest < Test::Unit::TestCase
       fp
     end
 
-    context "in VB 3.1.x" do
-      setup do
-        VirtualBox.stubs(:version).returns("3.1.4")
-        @fps = []
-        @vm.stubs(:forwarded_ports).returns(@fps)
-      end
-
-      should "destroy each forwarded port" do
-        @fps << mock_fp
-        @fps << mock_fp
-        @action.clear_ports
-      end
+    setup do
+      VirtualBox.stubs(:version).returns("3.2.8")
+      @adapters = []
+      @vm.stubs(:network_adapters).returns(@adapters)
     end
 
-    context "in VB 3.2.x" do
-      setup do
-        VirtualBox.stubs(:version).returns("3.2.8")
-        @adapters = []
-        @vm.stubs(:network_adapters).returns(@adapters)
-      end
+    def mock_adapter
+      na = mock("adapter")
+      engine = mock("engine")
+      engine.stubs(:forwarded_ports).returns([mock_fp])
+      na.stubs(:nat_driver).returns(engine)
+      na
+    end
 
-      def mock_adapter
-        na = mock("adapter")
-        engine = mock("engine")
-        engine.stubs(:forwarded_ports).returns([mock_fp])
-        na.stubs(:nat_driver).returns(engine)
-        na
-      end
-
-      should "destroy each forwarded port" do
-        @adapters << mock_adapter
-        @adapters << mock_adapter
-        @action.clear_ports
-      end
+    should "destroy each forwarded port" do
+      @adapters << mock_adapter
+      @adapters << mock_adapter
+      @action.clear_ports
     end
   end
 
-  context "forwarding ports" do
-    context "in VB 3.1.x" do
-      setup do
-        VirtualBox.stubs(:version).returns("3.1.4")
-      end
-
-      should "forward ports" do
-        forwarded_ports = mock("forwarded_ports")
-        @vm.expects(:forwarded_ports).returns(forwarded_ports)
-        @runner.env.config.vm.forwarded_ports.each do |name, opts|
-          forwarded_ports.expects(:<<).with do |port|
-            assert_equal name, port.name
-            assert_equal opts[:hostport], port.hostport
-            assert_equal opts[:guestport], port.guestport
-            assert_equal opts[:adapter], port.instance
-            true
-          end
-
-          @action.forward_port(name, opts)
-        end
-      end
+  context "forwarding ports implementation" do
+    setup do
+      VirtualBox.stubs(:version).returns("3.2.8")
     end
 
-    context "in VB 3.2.x" do
-      setup do
-        VirtualBox.stubs(:version).returns("3.2.8")
+    should "forward ports" do
+      name, opts = @runner.env.config.vm.forwarded_ports.first
+
+      adapters = []
+      adapter = mock("adapter")
+      engine = mock("engine")
+      fps = mock("forwarded ports")
+      adapter.stubs(:nat_driver).returns(engine)
+      engine.stubs(:forwarded_ports).returns(fps)
+      fps.expects(:<<).with do |port|
+        assert_equal name, port.name
+        assert_equal opts[:hostport], port.hostport
+        assert_equal opts[:guestport], port.guestport
+        true
       end
 
-      should "forward ports" do
-        name, opts = @runner.env.config.vm.forwarded_ports.first
+      adapters[opts[:adapter]] = adapter
+      @vm.stubs(:network_adapters).returns(adapters)
 
-        adapters = []
-        adapter = mock("adapter")
-        engine = mock("engine")
-        fps = mock("forwarded ports")
-        adapter.stubs(:nat_driver).returns(engine)
-        engine.stubs(:forwarded_ports).returns(fps)
-        fps.expects(:<<).with do |port|
-          assert_equal name, port.name
-          assert_equal opts[:hostport], port.hostport
-          assert_equal opts[:guestport], port.guestport
-          true
-        end
-
-        adapters[opts[:adapter]] = adapter
-        @vm.stubs(:network_adapters).returns(adapters)
-
-        @action.forward_port(name, opts)
-      end
+      @action.forward_port(name, opts)
     end
   end
 end
