@@ -23,6 +23,7 @@ class Test::Unit::TestCase
     Vagrant::Config.reset!(environment)
 
     Vagrant::Config.run do |config|
+      config.vagrant.home = '~/.home'
       config.vagrant.dotfile_name = ".vagrant"
       config.vagrant.log_output = nil
 
@@ -42,12 +43,13 @@ class Test::Unit::TestCase
       config.vm.shared_folder_uid = nil
       config.vm.shared_folder_gid = nil
       config.vm.system = :linux
-      config.vm.sync_script = "/foo"
-      config.vm.sync_crontab_entry_file = "/tmp/foo"
       config.vm.share_folder("v-root", "/vagrant", ".")
 
       config.package.name = 'vagrant'
       config.package.extension = '.box'
+
+      # Unison
+      config.unison.folder_suffix = ".sync"
 
       # Chef
       config.chef.chef_server_url = "http://localhost:4000"
@@ -60,8 +62,6 @@ class Test::Unit::TestCase
       config.chef.json = {
         :recipes => ["vagrant_main"]
       }
-
-      config.vagrant.home = '~/.home'
     end
 
     if block_given?

@@ -262,39 +262,6 @@ class ConfigTest < Test::Unit::TestCase
       end
     end
 
-    context "syncd folders" do
-      should "set the syncpath to nil by default" do
-        share_with_opts
-        assert !@config.shared_folders['foo'][:syncpath]
-      end
-
-      should "append sync to directory name when boolean" do
-        share_with_opts(:sync => true)
-        assert_equal @config.shared_folders['foo'][:syncpath], 'foo-dir'
-        assert_equal @config.shared_folders['foo'][:guestpath], 'foo-dir-sync'
-      end
-
-      should "use the specified sync directory" do
-        share_with_opts(:sync => 'bar-baz')
-        assert_equal @config.shared_folders['foo'][:syncpath], 'bar-baz'
-      end
-
-      should "raise an exception an exception if the guestpath and syncpath are the same" do
-        assert_raise Exception do
-          share_with_opts(:sync => 'foo-dir-sync')
-        end
-      end
-
-      should "set the sync required flag to true" do
-        share_with_opts(:sync => true)
-        assert @config.sync_required
-      end
-
-      def share_with_opts(opts={})
-        @config.share_folder('foo', 'foo-dir', '', opts)
-      end
-    end
-
     context "uid/gid" do
       should "return the shared folder UID if set" do
         @config.shared_folder_uid = "foo"

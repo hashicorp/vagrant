@@ -77,6 +77,18 @@ module Vagrant
       end
     end
 
+    class UnisonConfig < Base
+      attr_accessor :folder_suffix
+
+      # TODO figure out what is needed here, the options above were
+      # added after the fact so they are fine. Below needs to be
+      # reanalyzed:
+      attr_accessor :sync_opts
+      attr_accessor :sync_script
+      attr_accessor :sync_crontab_entry_file
+      attr_reader :sync_required
+    end
+
     class VMConfig < Base
       include Util::StackedProcRunner
 
@@ -85,10 +97,6 @@ module Vagrant
       attr_accessor :box_ovf
       attr_accessor :base_mac
       attr_accessor :boot_mode
-      attr_accessor :sync_opts
-      attr_accessor :sync_script
-      attr_accessor :sync_crontab_entry_file
-      attr_reader :sync_required
       attr_reader :forwarded_ports
       attr_reader :shared_folders
       attr_reader :network_options
@@ -128,19 +136,11 @@ module Vagrant
         forwarded_ports[name] = options
       end
 
-      def share_folder(name, guestpath, hostpath = nil, opts = {})
-        guestpath, opts[:sync] = shift(guestpath, opts[:sync])
-
-        # TODO if both are nil the exception information will be unusable
-        if opts[:sync] == guestpath
-          raise Exception.new("The sync directory #{opts[:sync]} is identical to the shifted shared folder mount point #{guestpath}")
-        end
-
+      def share_folder(name, guestpath, hostpath, opts=nil)
         @shared_folders[name] = {
-          :syncpath => opts[:sync],
           :guestpath => guestpath,
           :hostpath => hostpath
-        }
+        }.merge(opts || {})
       end
 
       def network(ip, options=nil)
@@ -185,15 +185,6 @@ module Vagrant
         defined_vms[name.to_sym].options.merge!(options)
         defined_vms[name.to_sym].push_proc(&block)
       end
-
-      def shift(orig, sync)
-        if sync
-          @sync_required = true
-          [orig + '-sync', sync == true ? orig : sync]
-        else
-          [orig, sync]
-        end
-      end
     end
 
     class PackageConfig < Base
@@ -228,6 +219,7 @@ module Vagrant
       # Setup default configures
       configures :package, PackageConfig
       configures :ssh, SSHConfig
+      configures :unison, UnisonConfig
       configures :vm, VMConfig
       configures :vagrant, VagrantConfig
 
