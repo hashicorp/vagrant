@@ -7,9 +7,20 @@ class SharedFoldersActionTest < Test::Unit::TestCase
   end
 
   def stub_shared_folders
-    folders = [%w{foo from to}, %w{bar bfrom bto}]
-    @action.expects(:shared_folders).returns(folders)
-    folders
+    env = mock_environment do |config|
+      config.vm.shared_folders.clear
+
+      if block_given?
+        yield config
+      else
+        folders = [%w{foo fooguest foohost}, %w{bar barguest barhost}]
+        folders.each do |data|
+          config.vm.share_folder(*data)
+        end
+      end
+    end
+
+    @runner.stubs(:env).returns(env)
   end
 
   context "before boot" do
@@ -32,7 +43,7 @@ class SharedFoldersActionTest < Test::Unit::TestCase
         "bar" => %W[foo baz]
       }
 
-      mock_env do |config|
+      stub_shared_folders do |config|
         data.each do |name, value|
           config.vm.share_folder(name, *value)
         end
@@ -52,22 +63,13 @@ class SharedFoldersActionTest < Test::Unit::TestCase
       guest = "bar"
       host = "baz"
 
-      mock_env do |config|
+      stub_shared_folders do |config|
         config.vm.share_folder(name, guest, host, :sync => true)
       end
 
       result = @action.shared_folders
       assert_equal "#{guest}#{@runner.env.config.unison.folder_suffix}", result[name][:guestpath]
       assert_equal guest, result[name][:original][:guestpath]
-    end
-
-    def mock_env
-      env = mock_environment do |config|
-        config.vm.shared_folders.clear
-        yield config
-      end
-
-      @runner.expects(:env).returns(env)
     end
   end
 
@@ -97,19 +99,24 @@ class SharedFoldersActionTest < Test::Unit::TestCase
 
   context "setting up shared folder metadata" do
     setup do
-      @folders = stub_shared_folders
+      stub_shared_folders
     end
 
-    # should "add all shared folders to the VM" do
-    #   share_seq = sequence("share_seq")
-    #   shared_folders = mock("shared_folders")
-    #   shared_folders.expects(:<<).in_sequence(share_seq).with() { |sf| sf.name == "foo" && sf.host_path == "from" }
-    #   shared_folders.expects(:<<).in_sequence(share_seq).with() { |sf| sf.name == "bar" && sf.host_path == "bfrom" }
-    #   @vm.stubs(:shared_folders).returns(shared_folders)
-    #   @vm.expects(:save).once
+    should "add all shared folders to the VM" do
+      shared_folders = []
+      data = %W[foo bar]
+      shared_folders.expects(:<<).times(data.length).with() do |sf|
+        hostpath = File.expand_path("#{sf.name}host", @runner.env.root_path)
+        assert data.include?(sf.name)
+        assert_equal hostpath, sf.host_path
+        true
+      end
 
-    #   @action.create_metadata
-    # end
+      @vm.stubs(:shared_folders).returns(shared_folders)
+      @vm.expects(:save).once
+
+      @action.create_metadata
+    end
   end
 
   # context "mounting the shared folders" do
