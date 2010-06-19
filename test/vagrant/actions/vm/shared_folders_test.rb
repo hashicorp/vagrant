@@ -21,6 +21,7 @@ class SharedFoldersActionTest < Test::Unit::TestCase
     end
 
     @runner.stubs(:env).returns(env)
+    env.config.vm.shared_folders
   end
 
   context "before boot" do
@@ -29,6 +30,15 @@ class SharedFoldersActionTest < Test::Unit::TestCase
       @action.expects(:clear_shared_folders).once.in_sequence(before_seq)
       @action.expects(:create_metadata).once.in_sequence(before_seq)
       @action.before_boot
+    end
+  end
+
+  context "after boot" do
+    should "mount folders then setup unison" do
+      seq = sequence("after")
+      @action.expects(:mount_shared_folders).once.in_sequence(seq)
+      @action.expects(:setup_unison).once.in_sequence(seq)
+      @action.after_boot
     end
   end
 
@@ -119,31 +129,21 @@ class SharedFoldersActionTest < Test::Unit::TestCase
     end
   end
 
-  # context "mounting the shared folders" do
-  #   setup do
-  #     @folders = stub_shared_folders
-  #     @ssh = mock("ssh")
-  #     @runner.ssh.stubs(:execute).yields(@ssh)
-  #     @runner.system.stubs(:mount_shared_folder)
-  #   end
+  context "mounting the shared folders" do
+    setup do
+      @folders = stub_shared_folders
+      @ssh = mock("ssh")
+      @runner.ssh.stubs(:execute).yields(@ssh)
+      @runner.system.stubs(:mount_shared_folder)
+    end
 
-  #   should "mount all shared folders to the VM" do
-  #     mount_seq = sequence("mount_seq")
-  #     @folders.each do |name, hostpath, guestpath|
-  #       @runner.system.expects(:mount_shared_folder).with(@ssh, name, guestpath).in_sequence(mount_seq)
-  #     end
+    should "mount all shared folders to the VM" do
+      mount_seq = sequence("mount_seq")
+      @folders.each do |name, data|
+        @runner.system.expects(:mount_shared_folder).with(@ssh, name, data[:guestpath]).in_sequence(mount_seq)
+      end
 
-  #     @action.after_boot
-  #   end
-
-  #   should "execute the necessary rysnc commands for each sync folder" do
-  #     @folders.map { |f| f << 'sync' }
-  #     @folders.each do |name, hostpath, guestpath, syncd|
-  #       @runner.system.expects(:create_sync).with(@ssh, :syncpath => syncd, :guestpath => guestpath)
-  #     end
-  #     @runner.ssh.expects(:execute).yields(@ssh)
-
-  #     @action.after_boot
-  #   end
-  # end
+      @action.mount_shared_folders
+    end
+  end
 end
