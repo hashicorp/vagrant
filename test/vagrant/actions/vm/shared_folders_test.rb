@@ -81,6 +81,17 @@ class SharedFoldersActionTest < Test::Unit::TestCase
       assert_equal "#{guest}#{@runner.env.config.unison.folder_suffix}", result[name][:guestpath]
       assert_equal guest, result[name][:original][:guestpath]
     end
+
+    should "not destroy original hash" do
+      @folders = stub_shared_folders do |config|
+        config.vm.share_folder("foo", "bar", "baz", :sync => true)
+      end
+
+      folder = @folders["foo"].dup
+
+      @action.shared_folders
+      assert_equal folder, @runner.env.config.vm.shared_folders["foo"]
+    end
   end
 
   context "unison shared folders" do
@@ -183,11 +194,12 @@ class SharedFoldersActionTest < Test::Unit::TestCase
     should "prepare unison then create for each folder" do
       seq = sequence("unison seq")
       @runner.system.expects(:prepare_unison).with(@ssh).once.in_sequence(seq)
-      @folders.each do |name, data|
+      @action.unison_folders.each do |name, data|
         if data[:sync]
           @runner.system.expects(:create_unison).with do |ssh, opts|
             assert_equal @ssh, ssh
             assert_equal data, opts
+
             true
           end
         end

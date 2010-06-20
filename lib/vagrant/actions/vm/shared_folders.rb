@@ -8,6 +8,9 @@ module Vagrant
           runner.env.config.vm.shared_folders.inject({}) do |acc, data|
             key, value = data
 
+            # This to prevent overwriting the actual shared folders data
+            value = value.dup
+
             if value[:sync]
               # Syncing this folder. Change the guestpath to reflect
               # what we're actually mounting.

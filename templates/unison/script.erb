@@ -45,7 +45,7 @@ echo $$ > "${LOCK_FILE}"
 while [ 1 ]; do
   echo 'Syncing...'
   # TODO check result and output log data... somewhere!
-  unison $1 $2 $3
+  sudo unison $1 $2 $3 > unison.log 2>&1
   sleep 1
 done
 
