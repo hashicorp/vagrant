@@ -83,6 +83,22 @@ class SharedFoldersActionTest < Test::Unit::TestCase
     end
   end
 
+  context "unison shared folders" do
+    setup do
+      @folders = stub_shared_folders do |config|
+        config.vm.share_folder("foo", "bar", "baz", :sync => true)
+        config.vm.share_folder("bar", "foo", "baz")
+      end
+    end
+
+    should "only return the folders marked for syncing" do
+      result = @action.unison_folders
+      assert_equal 1, result.length
+      assert result.has_key?("foo")
+      assert !result.has_key?("bar")
+    end
+  end
+
   context "clearing shared folders" do
     setup do
       @shared_folder = mock("shared_folder")
@@ -145,5 +161,9 @@ class SharedFoldersActionTest < Test::Unit::TestCase
 
       @action.mount_shared_folders
     end
+  end
+
+  context "setting up unison" do
+
   end
 end

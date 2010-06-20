@@ -76,7 +76,7 @@ module Vagrant
       #
       # @return [String]
       def full_template_path
-        File.join(PROJECT_ROOT, 'templates', "#{template}.erb")
+        File.join(PROJECT_ROOT, 'templates', "#{template}.erb").squeeze("/")
       end
     end
   end

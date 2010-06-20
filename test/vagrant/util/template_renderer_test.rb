@@ -75,6 +75,12 @@ class TemplateRendererUtilTest < Test::Unit::TestCase
       result = File.join(PROJECT_ROOT, "templates", "#{@template}.erb")
       assert_equal result, @r.full_template_path
     end
+
+    should "remove duplicate path separators" do
+      @r.template = "foo///bar"
+      result = File.join(PROJECT_ROOT, "templates", "foo", "bar.erb")
+      assert_equal result, @r.full_template_path
+    end
   end
 
   context "class methods" do

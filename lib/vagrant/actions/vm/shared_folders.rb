@@ -20,6 +20,16 @@ module Vagrant
           end
         end
 
+        # This method returns the list of shared folders which are to
+        # be synced via unison.
+        def unison_folders
+          shared_folders.inject({}) do |acc, data|
+            key, value = data
+            acc[key] = value if !!value[:sync]
+            acc
+          end
+        end
+
         def before_boot
           clear_shared_folders
           create_metadata
@@ -42,6 +52,8 @@ module Vagrant
         end
 
         def setup_unison
+          return if unison_folders.empty?
+
           # TODO
         end
 
