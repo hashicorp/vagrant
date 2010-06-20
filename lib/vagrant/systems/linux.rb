@@ -49,24 +49,24 @@ module Vagrant
       def mount_shared_folder(ssh, name, guestpath)
         ssh.exec!("sudo mkdir -p #{guestpath}")
         mount_folder(ssh, name, guestpath)
-        chown(ssh, guestpath)
+        ssh.exec!("sudo chown #{config.ssh.username} #{guestpath}")
       end
-
-      # def create_sync(ssh, opts)
-      #   crontab_entry = render_crontab_entry(opts.merge(:syncopts => config.vm.sync_opts,
-      #                                                   :scriptname => config.vm.sync_script))
-
-      #   ssh.exec!("sudo mkdir -p #{opts[:syncpath]}")
-      #   chown(ssh, opts[:syncpath])
-      #   ssh.exec!("sudo echo \"#{crontab_entry}\" >> #{config.vm.sync_crontab_entry_file}")
-      #   ssh.exec!("crontab #{config.vm.sync_crontab_entry_file}")
-      # end
 
       def prepare_unison(ssh)
         logger.info "Preparing system for unison sync..."
         vm.ssh.upload!(StringIO.new(TemplateRenderer.render('/unison/script')), config.unison.script)
         ssh.exec!("sudo chmod +x #{config.unison.script}")
         ssh.exec!("sudo rm #{config.unison.crontab_entry_file}", :error_check => false)
+      end
+
+      def create_unison(ssh, opts)
+        crontab_entry = TemplateRenderer.render('/unison/crontab_entry',
+                                                :from => opts[:original][:guestpath],
+                                                :to => opts[:guestpath],
+                                                :options => config.unison.options,
+                                                :script => config.unison.script)
+        ssh.exec!("sudo echo \"#{crontab_entry}\" >> #{config.unison.crontab_entry_file}")
+        ssh.exec!("crontab #{config.unison.crontab_entry_file}")
       end
 
       def prepare_host_only_network
@@ -117,16 +117,8 @@ module Vagrant
         end
       end
 
-      def chown(ssh, dir)
-        ssh.exec!("sudo chown #{config.ssh.username} #{dir}")
-      end
-
       def config
         vm.env.config
-      end
-
-      def render_crontab_entry(opts)
-        TemplateRenderer.render('crontab_entry', opts)
       end
     end
   end

@@ -70,39 +70,22 @@ class LinuxSystemTest < Test::Unit::TestCase
     end
   end
 
-  # context "setting up an sync folder" do
-  #   setup do
-  #     @ssh.stubs(:exec!)
-  #   end
+  context "creating unison entry" do
+    setup do
+      @ssh.stubs(:exec!)
+      @options = {
+        :guestpath => "foo",
+        :original => { :guestpath => "bar" }
+      }
+    end
 
-  #   should "create the new rysnc destination directory" do
-  #     sync_path = 'foo'
-  #     @ssh.expects(:exec!).with("sudo mkdir -p #{sync_path}")
-  #     @instance.create_sync(@ssh, :syncpath => "foo")
-  #   end
+    # TODO Test crontab entry
 
-  #   should "add an entry to the crontab file" do
-  #     @instance.expects(:render_crontab_entry).returns('foo')
-  #     @ssh.expects(:exec!).with do |cmd|
-  #       cmd =~ /echo/ && cmd =~ /foo/ && cmd =~ /#{@mock_env.config.vm.sync_crontab_entry_file}/
-  #     end
-  #     @instance.create_sync(@ssh, {})
-  #   end
-
-  #   should "use the crontab entry file to define vagrant users cron entries" do
-  #     @ssh.expects(:exec!).with("crontab #{@mock_env.config.vm.sync_crontab_entry_file}")
-  #     @instance.create_sync(@ssh, {})
-  #   end
-
-  #   should "chown the sync directory" do
-  #     @instance.expects(:chown).with(@ssh, "foo")
-  #     @instance.create_sync(@ssh, :syncpath => "foo")
-  #   end
-
-  #   should "return provide a formatted crontab entry that runs every minute" do
-  #     assert @instance.render_crontab_entry({}).include?("* * * * *")
-  #   end
-  # end
+    should "enable the crontab file" do
+      @ssh.expects(:exec!).with("crontab #{@mock_env.config.unison.crontab_entry_file}")
+      @instance.create_unison(@ssh, @options)
+    end
+  end
 
   #-------------------------------------------------------------------
   # "Private" methods tests
