@@ -54,7 +54,14 @@ module Vagrant
         def setup_unison
           return if unison_folders.empty?
 
-          # TODO
+          logger.info "Setting up unison crontab..."
+          runner.ssh.execute do |ssh|
+            runner.system.prepare_unison(ssh)
+
+            unison_folders.each do |name, data|
+              runner.system.create_unison(ssh, data)
+            end
+          end
         end
 
         def clear_shared_folders

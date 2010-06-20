@@ -164,6 +164,36 @@ class SharedFoldersActionTest < Test::Unit::TestCase
   end
 
   context "setting up unison" do
+    setup do
+      @ssh = mock("ssh")
+      @runner.ssh.stubs(:execute).yields(@ssh)
 
+      @folders = stub_shared_folders do |config|
+        config.vm.share_folder("foo", "bar", "baz", :sync => true)
+        config.vm.share_folder("bar", "foo", "baz")
+      end
+    end
+
+    should "do nothing if unison folders is empty" do
+      @action.stubs(:unison_folders).returns({})
+      @runner.ssh.expects(:execute).never
+      @action.setup_unison
+    end
+
+    should "prepare unison then create for each folder" do
+      seq = sequence("unison seq")
+      @runner.system.expects(:prepare_unison).with(@ssh).once.in_sequence(seq)
+      @folders.each do |name, data|
+        if data[:sync]
+          @runner.system.expects(:create_unison).with do |ssh, opts|
+            assert_equal @ssh, ssh
+            assert_equal data, opts
+            true
+          end
+        end
+      end
+
+      @action.setup_unison
+    end
   end
 end
