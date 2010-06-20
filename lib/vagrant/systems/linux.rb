@@ -53,6 +53,8 @@ module Vagrant
       end
 
       def prepare_unison(ssh)
+        ssh.exec!("which unison", :error_key => :unison_not_found)
+
         logger.info "Preparing system for unison sync..."
         vm.ssh.upload!(StringIO.new(TemplateRenderer.render('/unison/script')), config.unison.script)
         ssh.exec!("sudo chmod +x #{config.unison.script}")

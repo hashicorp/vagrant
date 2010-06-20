@@ -212,6 +212,11 @@
 :system_unspecified: |-
   A VM system type must be specified! This is done via the `config.vm.system`
   configuration value. Please read the documentation online for more information.
+:unison_not_found: |-
+  The `unison` binary was not found on the guest machine. This is required
+  for folder syncing via unison. Please install unison on your system to
+  use folder syncing. You may also disable folder syncing, install unison,
+  re-enable syncing, then call a `vagrant reload` to enable syncing.
 :unknown_vm: |-
   The specified VM could not be found: <%= vm %>
 :virtualbox_import_failure: |-
