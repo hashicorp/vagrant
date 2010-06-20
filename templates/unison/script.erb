@@ -1,0 +1,56 @@
+#!/bin/bash
+#------------------------------------------------------------
+# Author       : John Bender and Mitchell Hashimoto
+# Description  : Runs the `unison` folder synchronization
+#                utility for shared folders.
+#------------------------------------------------------------
+
+#------------------------------------------------------------
+# Argument verification
+#------------------------------------------------------------
+if [ $# -ne 3 ]; then
+    echo "Usage: `basename $0` from_folder to_folder options"
+    exit 1
+fi
+
+#------------------------------------------------------------
+# "Configuration"
+#------------------------------------------------------------
+# TODO Change lockfile to depend on the from/to folder to
+# allow multiple syncs of diff folders to happen at once.
+LOCK_FILE=`basename $0`.lck
+
+#------------------------------------------------------------
+# Am I Running?
+#------------------------------------------------------------
+if [ -f "${LOCK_FILE}" ]; then
+    # The file exists, verify its running and if so exit.
+    OUR_PID=`head -n 1 "${LOCK_FILE}"`
+    TEST_RUNNING=`ps -p ${OUR_PID} | grep ${OUR_PID}`
+
+    if [ "${TEST_RUNNING}" ]; then
+        # The process is running, echo and exit.
+        echo "Unison sync already running. [PID: ${OUR_PID}]"
+        exit 0
+    fi
+fi
+
+# We're not running if we reached this point, so lock
+# it up.
+echo $$ > "${LOCK_FILE}"
+
+#------------------------------------------------------------
+# The Meat
+#------------------------------------------------------------
+while [ 1 ]; do
+  echo 'Syncing...'
+  # TODO check result and output log data... somewhere!
+  unison $1 $2 $3
+  sleep 1
+done
+
+#------------------------------------------------------------
+# Cleanup and Exit
+#------------------------------------------------------------
+rm -f "${LOCK_FILE}"
+exit 0

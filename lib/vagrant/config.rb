@@ -79,14 +79,9 @@ module Vagrant
 
     class UnisonConfig < Base
       attr_accessor :folder_suffix
-
-      # TODO figure out what is needed here, the options above were
-      # added after the fact so they are fine. Below needs to be
-      # reanalyzed:
-      attr_accessor :sync_opts
-      attr_accessor :sync_script
-      attr_accessor :sync_crontab_entry_file
-      attr_reader :sync_required
+      attr_accessor :script
+      attr_accessor :options
+      attr_accessor :crontab_entry_file
     end
 
     class VMConfig < Base

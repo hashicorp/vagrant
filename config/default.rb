@@ -28,6 +28,10 @@ Vagrant::Config.run do |config|
   config.vm.share_folder("v-root", "/vagrant", ".")
 
   config.unison.folder_suffix = ".sync"
+  config.unison.script = "/tmp/vagrant-unison"
+  config.unison.options = "-terse -owner -group -batch"
+  config.unison.crontab_entry_file = "/tmp/vagrant-unison-crontab"
+
   # TODO fix these
   # config.vm.sync_opts = "-terse -group -owner -batch -silent"
   # config.vm.sync_script = "/tmp/sync"
