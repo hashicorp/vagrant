@@ -7,7 +7,7 @@ class EnvironmentTest < Test::Unit::TestCase
     end
 
     should "not error and exit if everything is good" do
-      VirtualBox.expects(:version).returns("3.1.4")
+      VirtualBox.expects(:version).returns("3.2.4")
       Vagrant::Environment.expects(:error_and_exit).never
       Vagrant::Environment.check_virtualbox!
     end
@@ -18,15 +18,15 @@ class EnvironmentTest < Test::Unit::TestCase
       Vagrant::Environment.check_virtualbox!
     end
 
-    should "error and exit if VirtualBox is lower than version 3.1" do
-      version = "3.0.12r1041"
+    should "error and exit if VirtualBox is lower than version 3.2" do
+      version = "3.1.12r1041"
       Vagrant::Environment.expects(:error_and_exit).with(:virtualbox_invalid_version, :version => version.to_s).once
       VirtualBox.expects(:version).returns(version)
       Vagrant::Environment.check_virtualbox!
     end
 
     should "error and exit for OSE VirtualBox" do
-      version = "3.1.6_OSE"
+      version = "3.2.6_OSE"
       Vagrant::Environment.expects(:error_and_exit).with(:virtualbox_invalid_ose, :version => version.to_s).once
       VirtualBox.expects(:version).returns(version)
       Vagrant::Environment.check_virtualbox!
