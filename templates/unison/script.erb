@@ -13,12 +13,24 @@ if [ $# -ne 3 ]; then
     exit 1
 fi
 
+# Sanitization function which turns any non-alphanumeric char
+# into a dash '-' and returns it by echoing the result.
+function sanitize() {
+    local DATA=$1
+    DATA=${DATA//[^a-zA-Z0-9_-]/-}
+    echo ${DATA}
+}
+
 #------------------------------------------------------------
 # "Configuration"
 #------------------------------------------------------------
 # TODO Change lockfile to depend on the from/to folder to
 # allow multiple syncs of diff folders to happen at once.
-LOCK_FILE=`basename $0`.lck
+FROM=$1
+TO=$2
+OPTIONS=$3
+LOCK_FILE=`basename $0`-$(sanitize ${TO}).lck
+LOG_FILE=unison-$(sanitize ${TO}).log
 
 #------------------------------------------------------------
 # Am I Running?
@@ -45,7 +57,7 @@ echo $$ > "${LOCK_FILE}"
 while [ 1 ]; do
   echo 'Syncing...'
   # TODO check result and output log data... somewhere!
-  sudo unison $1 $2 $3 > unison.log 2>&1
+  sudo unison ${FROM} ${TO} ${OPTIONS} > ${LOG_FILE} 2>&1
   sleep 1
 done
 

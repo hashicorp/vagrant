@@ -63,8 +63,8 @@ module Vagrant
 
       def create_unison(ssh, opts)
         crontab_entry = TemplateRenderer.render('/unison/crontab_entry',
-                                                :from => opts[:original][:guestpath],
-                                                :to => opts[:guestpath],
+                                                :from => opts[:guestpath],
+                                                :to => opts[:original][:guestpath],
                                                 :options => config.unison.options,
                                                 :script => config.unison.script)
         ssh.exec!("sudo echo \"#{crontab_entry}\" >> #{config.unison.crontab_entry_file}")
