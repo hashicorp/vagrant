@@ -92,6 +92,11 @@ class LinuxSystemTest < Test::Unit::TestCase
       @instance.create_unison(@ssh, @options)
     end
 
+    should "remove the original guestpath" do
+      @ssh.expects(:exec!).with("sudo rm -rf #{@options[:original][:guestpath]}")
+      @instance.create_unison(@ssh, @options)
+    end
+
     should "enable the crontab file" do
       @ssh.expects(:exec!).with("crontab #{@mock_env.config.unison.crontab_entry_file}")
       @instance.create_unison(@ssh, @options)
