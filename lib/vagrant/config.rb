@@ -82,6 +82,7 @@ module Vagrant
       attr_accessor :script
       attr_accessor :options
       attr_accessor :crontab_entry_file
+      attr_accessor :log_file
     end
 
     class VMConfig < Base

@@ -30,7 +30,6 @@ FROM=$1
 TO=$2
 OPTIONS=$3
 LOCK_FILE=`basename $0`-$(sanitize ${TO}).lck
-LOG_FILE=unison-$(sanitize ${TO}).log
 
 #------------------------------------------------------------
 # Am I Running?
@@ -54,10 +53,14 @@ echo $$ > "${LOCK_FILE}"
 #------------------------------------------------------------
 # The Meat
 #------------------------------------------------------------
+echo "Beginning Sync:"
+echo " -- From: ${FROM}"
+echo " -- To: ${TO}"
+echo " -- Options: ${OPTIONS}"
 while [ 1 ]; do
-  echo 'Syncing...'
+  echo "Syncing: $(date)"
   # TODO check result and output log data... somewhere!
-  sudo unison ${FROM} ${TO} ${OPTIONS} > ${LOG_FILE} 2>&1
+  sudo unison ${FROM} ${TO} ${OPTIONS}
   sleep 1
 done
 

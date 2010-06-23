@@ -50,6 +50,7 @@ class Test::Unit::TestCase
 
       # Unison
       config.unison.folder_suffix = ".sync"
+      config.unison.log_file = "foo-%s"
 
       # Chef
       config.chef.chef_server_url = "http://localhost:4000"

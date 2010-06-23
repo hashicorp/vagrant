@@ -75,11 +75,22 @@ class LinuxSystemTest < Test::Unit::TestCase
       @ssh.stubs(:exec!)
       @options = {
         :guestpath => "foo",
-        :original => { :guestpath => "bar" }
+        :original => { :guestpath => "bar!" }
       }
     end
 
-    # TODO Test crontab entry
+    should "render the crontab entry with proper variables" do
+      variables = {
+        :from => @options[:guestpath],
+        :to => @options[:original][:guestpath],
+        :options => @mock_env.config.unison.options,
+        :script => @mock_env.config.unison.script,
+        :log_file => @mock_env.config.unison.log_file % "bar-"
+      }
+      Vagrant::Util::TemplateRenderer.expects(:render).with('/unison/crontab_entry',
+                                                            variables).once
+      @instance.create_unison(@ssh, @options)
+    end
 
     should "enable the crontab file" do
       @ssh.expects(:exec!).with("crontab #{@mock_env.config.unison.crontab_entry_file}")

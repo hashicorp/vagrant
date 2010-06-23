@@ -62,11 +62,13 @@ module Vagrant
       end
 
       def create_unison(ssh, opts)
+        sanitized_string = opts[:original][:guestpath].gsub(/[^a-zA-Z0-9_-]/, '-')
         crontab_entry = TemplateRenderer.render('/unison/crontab_entry',
                                                 :from => opts[:guestpath],
                                                 :to => opts[:original][:guestpath],
                                                 :options => config.unison.options,
-                                                :script => config.unison.script)
+                                                :script => config.unison.script,
+                                                :log_file => (config.unison.log_file % sanitized_string))
         ssh.exec!("sudo echo \"#{crontab_entry}\" >> #{config.unison.crontab_entry_file}")
         ssh.exec!("crontab #{config.unison.crontab_entry_file}")
       end
