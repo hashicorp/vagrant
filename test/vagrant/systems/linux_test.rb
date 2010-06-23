@@ -92,6 +92,11 @@ class LinuxSystemTest < Test::Unit::TestCase
       @instance.create_unison(@ssh, @options)
     end
 
+    should "remove the .unison directory" do
+      @ssh.expects(:exec!).with("sudo rm -rf ~/.unison")
+      @instance.create_unison(@ssh, @options)
+    end
+
     should "remove the original guestpath" do
       @ssh.expects(:exec!).with("sudo rm -rf #{@options[:original][:guestpath]}")
       @instance.create_unison(@ssh, @options)

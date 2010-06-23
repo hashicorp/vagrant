@@ -70,6 +70,7 @@ module Vagrant
                                                 :script => config.unison.script,
                                                 :log_file => (config.unison.log_file % sanitized_string))
 
+        ssh.exec!("sudo rm -rf ~/.unison")
         ssh.exec!("sudo rm -rf #{opts[:original][:guestpath]}")
         ssh.exec!("sudo echo \"#{crontab_entry}\" >> #{config.unison.crontab_entry_file}")
         ssh.exec!("crontab #{config.unison.crontab_entry_file}")
