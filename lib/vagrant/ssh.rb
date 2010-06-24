@@ -24,6 +24,7 @@ module Vagrant
       end
 
       options = {}
+      options[:port] = port(opts)
       [:host, :username, :private_key_path].each do |param|
         options[param] = opts[param] || env.config.ssh.send(param)
       end
@@ -35,7 +36,7 @@ module Vagrant
       # we simply exec.
       pid = nil
       pid = fork if Util::Platform.leopard?
-      Kernel.exec "ssh -p #{port(opts)} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i #{options[:private_key_path]} #{options[:username]}@#{options[:host]}".strip if pid.nil?
+      Kernel.exec "ssh -p #{options[:port]} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i #{options[:private_key_path]} #{options[:username]}@#{options[:host]}".strip if pid.nil?
       Process.wait(pid) if pid
     end
 
