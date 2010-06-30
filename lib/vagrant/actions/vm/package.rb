@@ -10,6 +10,8 @@ module Vagrant
         end
 
         def prepare
+          raise ActionException.new(:box_file_exists, :output_file => tar_path) if File.exist?(tar_path)
+
           # Verify the existance of all the additional files, if any
           include_files.each do |file|
             raise ActionException.new(:package_include_file_doesnt_exist, :filename => file) unless File.exists?(file)

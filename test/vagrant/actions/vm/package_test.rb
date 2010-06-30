@@ -226,6 +226,11 @@ class PackageActionTest < Test::Unit::TestCase
         @action.prepare
       end
 
+      should "raise an exception if the output file already exists" do
+        File.expects(:exist?).with(@action.tar_path).returns(false)
+        assert_raises(Vagrant::Actions::ActionException) { @action.prepare }
+      end
+
       should "raise an exception when an include file does not exist" do
         File.expects(:exists?).once.returns(false)
         assert_raises(Vagrant::Actions::ActionException) { @action.prepare }
