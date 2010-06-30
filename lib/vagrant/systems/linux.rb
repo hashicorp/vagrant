@@ -17,7 +17,7 @@ module Vagrant
         attr_accessor :halt_check_interval
 
         def initialize
-          @halt_timeout = 15
+          @halt_timeout = 30
           @halt_check_interval = 1
         end
       end
