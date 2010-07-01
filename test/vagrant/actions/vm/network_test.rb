@@ -122,23 +122,43 @@ class NetworkTest < Test::Unit::TestCase
       @options = { :ip => :foo, :netmask => :bar, :name => nil }
     end
 
+    def mock_interface(options=nil)
+      options = {
+        :interface_type => :host_only,
+        :name => "foo"
+      }.merge(options || {})
+
+      interface = mock("interface")
+      options.each do |k,v|
+        interface.stubs(k).returns(v)
+      end
+
+      @interfaces << interface
+      interface
+    end
+
     should "return the network which matches" do
       result = mock("result")
-      interface = mock("interface")
-      interface.stubs(:name).returns(result)
-      @interfaces << interface
+      interface = mock_interface(:name => result)
 
       @action.expects(:matching_network?).with(interface, @options).returns(true)
       assert_equal result, @action.network_name(@options)
     end
 
+    should "ignore non-host only interfaces" do
+      @options[:name] = "foo"
+      mock_interface(:name => @options[:name],
+                     :interface_type => :bridged)
+
+      assert_raises(Vagrant::Actions::ActionException) {
+        @action.network_name(@options)
+      }
+    end
+
     should "return the network which matches the name if given" do
       @options[:name] = "foo"
 
-      interface = mock("interface")
-      interface.stubs(:name).returns(@options[:name])
-      @interfaces << interface
-
+      interface = mock_interface(:name => @options[:name])
       assert_equal @options[:name], @action.network_name(@options)
     end
 
@@ -154,12 +174,12 @@ class NetworkTest < Test::Unit::TestCase
 
     should "create a network for the IP and netmask" do
       result = mock("result")
-      interface = mock("interface")
       network_ip = :foo
+
+      interface = mock_interface(:name => result)
+      interface.expects(:enable_static).with(network_ip, @options[:netmask])
       @interfaces.expects(:create).returns(interface)
       @action.expects(:network_ip).with(@options[:ip], @options[:netmask]).once.returns(network_ip)
-      interface.expects(:enable_static).with(network_ip, @options[:netmask])
-      interface.expects(:name).returns(result)
 
       assert_equal result, @action.network_name(@options)
     end

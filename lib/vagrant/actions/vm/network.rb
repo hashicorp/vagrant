@@ -62,6 +62,10 @@ module Vagrant
           # First try to find a matching network
           interfaces = VirtualBox::Global.global.host.network_interfaces
           interfaces.each do |ni|
+            # Ignore non-host only interfaces which may also match,
+            # since they're not valid options.
+            next if ni.interface_type != :host_only
+
             if net_options[:name]
               return ni.name if net_options[:name] == ni.name
             else
