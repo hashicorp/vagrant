@@ -4,6 +4,36 @@ class NetworkTest < Test::Unit::TestCase
   setup do
     @runner, @vm, @action = mock_action(Vagrant::Actions::VM::Network)
     @runner.stubs(:system).returns(linux_system(@vm))
+
+    @interfaces = []
+    VirtualBox::Global.global.host.stubs(:network_interfaces).returns(@interfaces)
+  end
+
+  def mock_interface(options=nil)
+    options = {
+      :interface_type => :host_only,
+      :name => "foo"
+    }.merge(options || {})
+
+    interface = mock("interface")
+    options.each do |k,v|
+      interface.stubs(k).returns(v)
+    end
+
+    @interfaces << interface
+    interface
+  end
+
+  context "preparing" do
+    should "verify no bridge collisions for each network enabled" do
+      @runner.env.config.vm.network("foo")
+      @action.expects(:verify_no_bridge_collision).once.with() do |options|
+        assert_equal "foo", options[:ip]
+        true
+      end
+
+      @action.prepare
+    end
   end
 
   context "before destroy" do
@@ -112,29 +142,33 @@ class NetworkTest < Test::Unit::TestCase
     end
   end
 
-  context "network name" do
+  context "verify no bridge collision" do
     setup do
-      @interfaces = []
-      VirtualBox::Global.global.host.stubs(:network_interfaces).returns(@interfaces)
-
       @action.stubs(:matching_network?).returns(false)
-
       @options = { :ip => :foo, :netmask => :bar, :name => nil }
     end
 
-    def mock_interface(options=nil)
-      options = {
-        :interface_type => :host_only,
-        :name => "foo"
-      }.merge(options || {})
+    should "do nothing if everything is okay" do
+      mock_interface
 
-      interface = mock("interface")
-      options.each do |k,v|
-        interface.stubs(k).returns(v)
-      end
+      assert_nothing_raised { @action.verify_no_bridge_collision(@options) }
+    end
 
-      @interfaces << interface
-      interface
+    should "raise an exception if a collision is found" do
+      mock_interface(:interface_type => :bridged)
+      @action.stubs(:matching_network?).returns(true)
+
+      assert_raises(Vagrant::Actions::ActionException) {
+        @action.verify_no_bridge_collision(@options)
+      }
+    end
+  end
+
+  context "network name" do
+    setup do
+      @action.stubs(:matching_network?).returns(false)
+
+      @options = { :ip => :foo, :netmask => :bar, :name => nil }
     end
 
     should "return the network which matches" do

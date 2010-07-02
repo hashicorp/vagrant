@@ -142,6 +142,11 @@
   If the name specification is removed, Vagrant will create a new
   host only network for you. Alternatively, please create the
   specified network manually.
+:network_collides: |-
+  The specified host network collides with a non-hostonly network!
+  This will cause your specified IP to be inaccessible. Please change
+  the IP or name of your host only network to not match that of
+  a bridged or non-hostonly network.
 :package_include_file_doesnt_exist: |-
   File specified to include: '<%= filename %>' does not exist!
 :package_multivm: |-

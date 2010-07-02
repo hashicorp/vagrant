@@ -2,6 +2,13 @@ module Vagrant
   module Actions
     module VM
       class Network < Base
+        def prepare
+          # Verify that the given network options are valid
+          runner.env.config.vm.network_options.compact.each do |network_options|
+            verify_no_bridge_collision(network_options)
+          end
+        end
+
         def before_destroy
           # We need to check if the host only network specified by any
           # of the adapters would not have any more clients if it was
@@ -52,6 +59,24 @@ module Vagrant
             adapter.attachment_type = :host_only
             adapter.host_interface = network_name(network_options)
             adapter.save
+          end
+        end
+
+        # Verifies that there is no collision with a bridged network interface
+        # for the given network options.
+        def verify_no_bridge_collision(net_options)
+          # First try to find a matching network
+          interfaces = VirtualBox::Global.global.host.network_interfaces
+          interfaces.each do |ni|
+            next if ni.interface_type == :host_only
+
+            result = if net_options[:name]
+              true if net_options[:name] == ni.name
+            else
+              true if matching_network?(ni, net_options)
+            end
+
+            raise ActionException.new(:network_collides) if result
           end
         end
 
