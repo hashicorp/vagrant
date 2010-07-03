@@ -36,7 +36,41 @@ class ActionBuilderTest < Test::Unit::TestCase
     end
 
     context "converting to an app" do
+      should "initialize each middleware with app and env" do
+        # TODO: better testing of this method... somehow
 
+        result = mock("result")
+        env = {:a => :b}
+        middleware = mock("middleware")
+        middleware.expects(:new).with(anything, env).returns(result)
+        @instance.use middleware
+        assert_equal result, @instance.to_app(env)
+      end
+    end
+
+    context "calling" do
+      def mock_middleware
+        middleware = Class.new do
+          def initialize(app, env)
+            @app = app
+          end
+
+          def call(env)
+            @app.call(env)
+          end
+        end
+      end
+
+      should "convert to an app then call with the env" do
+        mw = mock_middleware
+        mw.any_instance.expects(:call).with() do |env|
+          assert env.has_key?(:key)
+          true
+        end
+
+        @instance.use(mw)
+        @instance.call(:key => :value)
+      end
     end
   end
 end
