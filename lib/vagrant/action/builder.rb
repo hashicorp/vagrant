@@ -37,7 +37,12 @@ module Vagrant
       #
       # @param [Class] middleware The middleware class
       def use(middleware, *args, &block)
-        stack << [middleware, args, block]
+        if middleware.kind_of?(Builder)
+          # Merge in the other builder's stack into our own
+          self.stack.concat(middleware.stack)
+        else
+          self.stack << [middleware, args, block]
+        end
       end
 
       # Converts the builder stack to a runnable action sequence.

@@ -33,6 +33,17 @@ class ActionBuilderTest < Test::Unit::TestCase
         @instance.use 2
         assert_equal [2, [], nil], @instance.stack.last
       end
+
+      should "merge in other builder's stack" do
+        other = @klass.new do
+          use 2
+          use 3
+        end
+
+        @instance.use 1
+        @instance.use other
+        assert_equal 3, @instance.stack.length
+      end
     end
 
     context "converting to an app" do

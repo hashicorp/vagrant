@@ -31,9 +31,12 @@ module Vagrant
     end
 
     # Runs the given callable object in the context of the environment.
+    # If a symbol is given as the `callable` parameter, then it is looked
+    # up in the registered actions list which are registered with {register}.
     #
     # @param [Object] callable An object which responds to `call`.
     def run(callable)
+      callable = self.class.actions[callable] if callable.kind_of?(Symbol)
       callable.call(Action::Environment.new(env))
     end
   end
