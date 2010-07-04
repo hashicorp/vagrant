@@ -50,12 +50,19 @@ module Vagrant
       # @param [Vagrant::Action::Environment] env The action environment
       # @return [Object] A callable object
       def to_app(env)
-        items = stack.collect do |item|
+        # Prepend the error halt task so errneous environments are halted
+        # before the chain even begins.
+        items = stack.dup.unshift([ErrorHalt, [], nil])
+
+        # Convert each middleware into a lambda which takes the next
+        # middleware.
+        items = items.collect do |item|
           klass, args, block = item
           lambda { |app| klass.new(app, env, *args, &block) }
         end
 
-        items << lambda { |env| } # The final step, which simply returns
+        # Append the final step and convert into flattened call chain.
+        items << lambda { |env| }
         items[0...-1].reverse.inject(items.last) { |a,e| e.call(a) }
       end
 

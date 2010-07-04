@@ -47,16 +47,17 @@ class ActionBuilderTest < Test::Unit::TestCase
     end
 
     context "converting to an app" do
-      should "initialize each middleware with app and env" do
-        # TODO: better testing of this method... somehow
-
+      should "preprend error halt to the chain" do
         result = mock("result")
         env = {:a => :b}
         middleware = mock("middleware")
         middleware.expects(:new).with(anything, env).returns(result)
         @instance.use middleware
-        assert_equal result, @instance.to_app(env)
+        result = @instance.to_app(env)
+        assert result.kind_of?(Vagrant::Action::ErrorHalt)
       end
+
+      # TODO: Better testing of this method
     end
 
     context "calling" do
@@ -79,8 +80,11 @@ class ActionBuilderTest < Test::Unit::TestCase
           true
         end
 
+        env = Vagrant::Action::Environment.new(nil)
+        env[:key] = :value
+
         @instance.use(mw)
-        @instance.call(:key => :value)
+        @instance.call(env)
       end
     end
   end
