@@ -94,6 +94,12 @@ class Test::Unit::TestCase
     vm
   end
 
+  def mock_action_data
+    app = lambda { |env| }
+    env = Vagrant::Action::Environment.new(mock_environment)
+    [app, env]
+  end
+
   # Sets up the mocks and instantiates an action for testing
   def mock_action(action_klass, *args)
     vm = mock("vboxvm")

@@ -32,5 +32,14 @@ class ActionTest < Test::Unit::TestCase
       @klass.register(:call, callable)
       @instance.run(:call)
     end
+
+    should "error and exit if erroneous environment results" do
+      callable = lambda do |env|
+        env.error!(:key, :foo => :bar)
+      end
+
+      @instance.expects(:error_and_exit).with(:key, :foo => :bar)
+      @instance.run(callable)
+    end
   end
 end

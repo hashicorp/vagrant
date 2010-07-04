@@ -3,6 +3,8 @@ module Vagrant
   # has an instance of {Action} to allow for running in the context of
   # the environment.
   class Action
+    include Util
+
     class << self
       # Returns the list of registered actions.
       def actions
@@ -37,7 +39,17 @@ module Vagrant
     # @param [Object] callable An object which responds to `call`.
     def run(callable)
       callable = self.class.actions[callable] if callable.kind_of?(Symbol)
-      callable.call(Action::Environment.new(env))
+
+      action_environment = Action::Environment.new(env)
+      callable.call(action_environment)
+
+      if action_environment.error?
+        # Erroneous environment resulted. Properly display error
+        # message.
+        key, options = action_environment.error
+        error_and_exit(key, options)
+        return false
+      end
     end
   end
 end

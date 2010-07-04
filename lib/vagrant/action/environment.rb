@@ -9,8 +9,34 @@ module Vagrant
       # action environment.
       attr_reader :env
 
+      # If nonnil, the error associated with this environment. Set
+      # using {#error!}
+      attr_reader :error
+
       def initialize(env)
         @env = env
+        @error = nil
+      end
+
+      # Returns a logger associated with the environment.
+      def logger
+        env.logger
+      end
+
+      # Flags the environment as erroneous. Stores the given key
+      # and options until the end of the action sequence.
+      #
+      # @param [Symbol] key Key to translation to display error message.
+      # @param [Hash] options Variables to pass to the translation
+      def error!(key, options=nil)
+        @error = [key, (options || {})]
+      end
+
+      # Returns boolean denoting if environment is in erroneous state.
+      #
+      # @return [Boolean]
+      def error?
+        !error.nil?
       end
     end
   end
