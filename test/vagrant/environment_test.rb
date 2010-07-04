@@ -226,6 +226,7 @@ class EnvironmentTest < Test::Unit::TestCase
         @env.expects(:load_vm!).once.in_sequence(call_seq)
         @env.expects(:load_active_list!).once.in_sequence(call_seq)
         @env.expects(:load_commands!).once.in_sequence(call_seq)
+        @env.expects(:load_actions!).once.in_sequence(call_seq)
         assert_equal @env, @env.load!
       end
     end
@@ -612,6 +613,19 @@ class EnvironmentTest < Test::Unit::TestCase
         Vagrant::Command.expects(:new).with(@env).returns(commands)
         @env.load_commands!
         assert_equal commands, @env.commands
+      end
+    end
+
+    context "loading actions" do
+      setup do
+        @env = mock_environment
+      end
+
+      should "initialize the Action object with the given environment" do
+        result = mock("result")
+        Vagrant::Action.expects(:new).with(@env).returns(result)
+        @env.load_actions!
+        assert_equal result, @env.actions
       end
     end
   end

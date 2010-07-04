@@ -4,6 +4,18 @@ module Vagrant
     # a middleware sequence for Vagrant actions. This code is based
     # heavily off of `Rack::Builder` and `ActionDispatch::MiddlewareStack`
     # in Rack and Rails, respectively.
+    #
+    # Usage
+    #
+    # Building an action sequence is very easy:
+    #
+    #     app = Vagrant::Action::Builder.new do
+    #       use MiddlewareA
+    #       use MiddlewareB
+    #     end
+    #
+    #     Vagrant::Action.run(app)
+    #
     class Builder
       # Initializes the builder. An optional block can be passed which
       # will be evaluated in the context of the instance.

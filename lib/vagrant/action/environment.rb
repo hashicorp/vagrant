@@ -9,7 +9,7 @@ module Vagrant
       # action environment.
       attr_reader :env
 
-      def new(env)
+      def initialize(env)
         @env = env
       end
     end

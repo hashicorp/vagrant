@@ -1,4 +1,7 @@
 module Vagrant
+  # Manages action running and registration. Every Vagrant environment
+  # has an instance of {Action} to allow for running in the context of
+  # the environment.
   class Action
     class << self
       # Returns the list of registered actions.
@@ -14,13 +17,24 @@ module Vagrant
       def register(key, callable)
         @actions[key] = callable
       end
+    end
 
-      # Runs a registered action with the given key.
-      #
-      # @param [Symbol] key
-      def run(key)
-        @actions[key].call
-      end
+    # The environment to run the actions in.
+    attr_reader :env
+
+    # Initializes the action with the given environment which the actions
+    # will be run in.
+    #
+    # @param [Environment] env
+    def initialize(env)
+      @env = env
+    end
+
+    # Runs the given callable object in the context of the environment.
+    #
+    # @param [Object] callable An object which responds to `call`.
+    def run(callable)
+      callable.call(Action::Environment.new(env))
     end
   end
 end
