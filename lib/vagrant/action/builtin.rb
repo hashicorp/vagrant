@@ -7,6 +7,7 @@ module Vagrant
     def self.builtin!
       up = Builder.new do
         use VM::Import
+        use VM::Customize
       end
 
       register :up, up
