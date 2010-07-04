@@ -15,7 +15,7 @@ module Vagrant
       #
       # @param [Symbol] key
       def register(key, callable)
-        @actions[key] = callable
+        actions[key] = callable
       end
     end
 
