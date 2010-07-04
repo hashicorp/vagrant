@@ -8,6 +8,7 @@ module Vagrant
       up = Builder.new do
         use VM::Import
         use VM::Customize
+        use VM::ForwardPorts
       end
 
       register :up, up
