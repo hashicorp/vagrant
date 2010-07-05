@@ -7,6 +7,7 @@ module Vagrant
     def self.builtin!
       up = Builder.new do
         use VM::Import
+        use VM::Persist
         use VM::Customize
         use VM::ForwardPorts
         use VM::ShareFolders
