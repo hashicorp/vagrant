@@ -1,6 +1,8 @@
 module Vagrant
   class Action
     module VM
+      # Destroys the unused host only interfaces. This middleware cleans
+      # up any created host only networks.
       class DestroyUnusedNetworkInterfaces
         def initialize(app, env)
           @app = app
