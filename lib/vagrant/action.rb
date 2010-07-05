@@ -37,10 +37,11 @@ module Vagrant
     # up in the registered actions list which are registered with {register}.
     #
     # @param [Object] callable An object which responds to `call`.
-    def run(callable)
+    def run(callable, options=nil)
       callable = self.class.actions[callable] if callable.kind_of?(Symbol)
 
       action_environment = Action::Environment.new(env)
+      action_environment.merge!(options || {})
       callable.call(action_environment)
 
       if action_environment.error?

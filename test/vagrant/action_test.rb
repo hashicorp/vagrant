@@ -25,6 +25,27 @@ class ActionTest < Test::Unit::TestCase
       @instance.run(callable)
     end
 
+    should "run the callable with the passed in options if given" do
+      options = {
+        :key => :value,
+        :another => %W[1 2 3]
+      }
+
+      callable = mock("callable")
+      callable.expects(:call).with() do |env|
+        assert env.kind_of?(Vagrant::Action::Environment)
+        assert_equal @instance.env, env.env
+
+        options.each do |k,v|
+          assert_equal v, env[k]
+        end
+
+        true
+      end
+
+      @instance.run(callable, options)
+    end
+
     should "run the registered callable if a symbol is given" do
       callable = mock("callable")
       callable.expects(:call).once
