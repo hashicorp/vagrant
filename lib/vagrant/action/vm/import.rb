@@ -11,12 +11,12 @@ module Vagrant
 
           begin
             # Import the virtual machine
-            env['vm'] = VirtualBox::VM.import(env.env.box.ovf_file) do |progress|
+            env.env.vm.vm = VirtualBox::VM.import(env.env.box.ovf_file) do |progress|
               env.logger.report_progress(progress.percent, 100, false)
             end
 
             # Flag as erroneous and return if import failed
-            return env.error!(:virtualbox_import_failure) if !env['vm']
+            return env.error!(:virtualbox_import_failure) if !env['vm'].vm
           ensure
             env.logger.clear_progress
           end

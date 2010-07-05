@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Mitchell Hashimoto", "John Bender"]
-  s.date = %q{2010-07-02}
+  s.date = %q{2010-07-05}
   s.default_executable = %q{vagrant}
   s.description = %q{Vagrant is a tool for building and distributing virtualized development environments.}
   s.email = ["mitchell.hashimoto@gmail.com", "john.m.bender@gmail.com"]
@@ -33,6 +33,16 @@ Gem::Specification.new do |s|
      "keys/vagrant.ppk",
      "keys/vagrant.pub",
      "lib/vagrant.rb",
+     "lib/vagrant/action.rb",
+     "lib/vagrant/action/builder.rb",
+     "lib/vagrant/action/builtin.rb",
+     "lib/vagrant/action/environment.rb",
+     "lib/vagrant/action/error_halt.rb",
+     "lib/vagrant/action/vm/boot.rb",
+     "lib/vagrant/action/vm/customize.rb",
+     "lib/vagrant/action/vm/forward_ports.rb",
+     "lib/vagrant/action/vm/import.rb",
+     "lib/vagrant/action/vm/share_folders.rb",
      "lib/vagrant/actions/base.rb",
      "lib/vagrant/actions/box/add.rb",
      "lib/vagrant/actions/box/destroy.rb",
@@ -113,6 +123,15 @@ Gem::Specification.new do |s|
      "templates/unison/crontab_entry.erb",
      "templates/unison/script.erb",
      "test/test_helper.rb",
+     "test/vagrant/action/builder_test.rb",
+     "test/vagrant/action/environment_test.rb",
+     "test/vagrant/action/error_halt_test.rb",
+     "test/vagrant/action/vm/boot_test.rb",
+     "test/vagrant/action/vm/customize_test.rb",
+     "test/vagrant/action/vm/forward_ports_test.rb",
+     "test/vagrant/action/vm/import_test.rb",
+     "test/vagrant/action/vm/share_folders_test.rb",
+     "test/vagrant/action_test.rb",
      "test/vagrant/actions/base_test.rb",
      "test/vagrant/actions/box/add_test.rb",
      "test/vagrant/actions/box/destroy_test.rb",
@@ -190,6 +209,15 @@ Gem::Specification.new do |s|
   s.summary = %q{Vagrant is a tool for building and distributing virtualized development environments.}
   s.test_files = [
     "test/test_helper.rb",
+     "test/vagrant/action/builder_test.rb",
+     "test/vagrant/action/environment_test.rb",
+     "test/vagrant/action/error_halt_test.rb",
+     "test/vagrant/action/vm/boot_test.rb",
+     "test/vagrant/action/vm/customize_test.rb",
+     "test/vagrant/action/vm/forward_ports_test.rb",
+     "test/vagrant/action/vm/import_test.rb",
+     "test/vagrant/action/vm/share_folders_test.rb",
+     "test/vagrant/action_test.rb",
      "test/vagrant/actions/base_test.rb",
      "test/vagrant/actions/box/add_test.rb",
      "test/vagrant/actions/box/destroy_test.rb",

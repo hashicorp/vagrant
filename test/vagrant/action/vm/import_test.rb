@@ -11,6 +11,8 @@ class ImportVMActionTest < Test::Unit::TestCase
     @box.stubs(:ovf_file).returns(ovf_file)
     @env.env.stubs(:box).returns(@box)
 
+    @env.env.vm = Vagrant::VM.new
+
     VirtualBox::VM.stubs(:import)
   end
 
@@ -25,7 +27,7 @@ class ImportVMActionTest < Test::Unit::TestCase
     @app.expects(:call).with(@env).once
     @instance.call(@env)
 
-    assert_equal vm, @env["vm"]
+    assert_equal vm, @env["vm"].vm
   end
 
   should "mark environment erroneous and not continue chain on failure" do

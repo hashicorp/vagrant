@@ -6,6 +6,11 @@ class ActionEnvironmentTest < Test::Unit::TestCase
     @instance = @klass.new(mock_environment)
   end
 
+  should "default values to those on the env" do
+    @instance.env.stubs(:key).returns("value")
+    assert_equal "value", @instance["key"]
+  end
+
   should "setup the logger" do
     assert_equal @instance.env.logger, @instance.logger
   end
