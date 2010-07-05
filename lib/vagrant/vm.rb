@@ -100,7 +100,7 @@ module Vagrant
     end
 
     def up(options=nil)
-      execute!(Actions::VM::Up, options)
+      env.actions.run(:up, options)
     end
 
     def start
@@ -122,7 +122,7 @@ module Vagrant
     end
 
     def destroy
-      execute!(Actions::VM::Down)
+      env.actions.run(:destroy)
     end
 
     def suspend

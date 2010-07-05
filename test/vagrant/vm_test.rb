@@ -163,7 +163,7 @@ class VMTest < Test::Unit::TestCase
 
     context "upping" do
       should "execute the up action" do
-        @vm.expects(:execute!).with(Vagrant::Actions::VM::Up, nil).once
+        @vm.env.actions.expects(:run).with(:up, nil).once
         @vm.up
       end
     end
@@ -195,8 +195,8 @@ class VMTest < Test::Unit::TestCase
     end
 
     context "destroying" do
-      should "execute the down action" do
-        @vm.expects(:execute!).with(Vagrant::Actions::VM::Down).once
+      should "execute the destroy action" do
+        @vm.env.actions.expects(:run).with(:destroy).once
         @vm.destroy
       end
     end

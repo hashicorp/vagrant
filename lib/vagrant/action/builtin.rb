@@ -18,14 +18,14 @@ module Vagrant
         use VM::Boot
       end
 
-      down = Builder.new do
+      destroy = Builder.new do
         use VM::Halt
         use VM::DestroyUnusedNetworkInterfaces
         use VM::Destroy
       end
 
       register :up, up
-      register :down, down
+      register :destroy, destroy
     end
   end
 end
