@@ -13,6 +13,7 @@ module Vagrant
         use VM::Customize
         use VM::ForwardPorts
         use VM::ShareFolders
+        use VM::Network
         use VM::Boot
       end
 
