@@ -9,6 +9,7 @@ module Vagrant
         use VM::Import
         use VM::Persist
         use VM::MatchMACAddress
+        use VM::CheckGuestAdditions
         use VM::Customize
         use VM::ForwardPorts
         use VM::ShareFolders
