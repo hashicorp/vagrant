@@ -18,7 +18,12 @@ module Vagrant
         use VM::Boot
       end
 
+      down = Builder.new do
+        use VM::Halt
+      end
+
       register :up, up
+      register :down, down
     end
   end
 end
