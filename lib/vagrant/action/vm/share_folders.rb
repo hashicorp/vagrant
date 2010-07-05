@@ -15,8 +15,12 @@ module Vagrant
 
           @app.call(env)
 
-          mount_shared_folders
-          setup_unison
+          if !env.error?
+            # Only mount and setup shared folders in the absense of an
+            # error
+            mount_shared_folders
+            setup_unison
+          end
         end
 
         # This method returns an actual list of VirtualBox shared
