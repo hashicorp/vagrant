@@ -7,13 +7,13 @@ module Vagrant
         end
 
         def call(env)
-          return env.error!(:vm_not_running) unless env["vm"].vm.running?
+          if env["vm"].vm.running?
+            env["vm"].system.halt if !env["force"]
 
-          env["vm"].system.halt if !env["force"]
-
-          if env["vm"].vm.state(true) != :powered_off
-            env.logger.info "Forcing shutdown of VM..."
-            env["vm"].vm.stop
+            if env["vm"].vm.state(true) != :powered_off
+              env.logger.info "Forcing shutdown of VM..."
+              env["vm"].vm.stop
+            end
           end
 
           @app.call(env)

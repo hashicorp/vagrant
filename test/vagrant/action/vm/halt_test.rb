@@ -26,6 +26,15 @@ class HaltVMActionTest < Test::Unit::TestCase
       @internal_vm.stubs(:state).returns(:powered_off)
     end
 
+    should "do nothing if VM not running" do
+      @internal_vm.stubs(:running?).returns(false)
+      @vm.system.expects(:halt).never
+      @internal_vm.expects(:stop).never
+      @app.expects(:call).once
+
+      @instance.call(@env)
+    end
+
     should "halt with the system and NOT force VM to stop if powered off" do
       @internal_vm.expects(:state).with(true).returns(:powered_off)
       @vm.system.expects(:halt).once
@@ -48,15 +57,6 @@ class HaltVMActionTest < Test::Unit::TestCase
       @env["force"] = true
       @vm.system.expects(:halt).never
       @instance.call(@env)
-    end
-
-    should "raise an ActionException if VM is not running" do
-      @internal_vm.stubs(:running?).returns(false)
-      @internal_vm.expects(:stop).never
-      @app.expects(:call).never
-      @instance.call(@env)
-      assert @env.error?
-      assert_equal :vm_not_running, @env.error.first
     end
   end
 end
