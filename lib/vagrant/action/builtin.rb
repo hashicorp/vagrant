@@ -12,9 +12,9 @@ module Vagrant
         use VM::CheckGuestAdditions
         use VM::Customize
         use VM::ForwardPorts
+        use VM::Provision
         use VM::ShareFolders
         use VM::Network
-        use VM::Provision
         use VM::Boot
       end
 
