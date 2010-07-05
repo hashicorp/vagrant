@@ -45,6 +45,52 @@ module Vagrant
         end
       end
 
+      # Inserts a middleware at the given index or directly before the
+      # given middleware object.
+      def insert(index, middleware, *args, &block)
+        index = self.index(index) unless index.is_a?(Integer)
+        stack.insert(index, [middleware, args, block])
+      end
+
+      alias_method :insert_before, :insert
+
+      # Inserts a middleware after the given index or middleware object.
+      def insert_after(index, middleware, *args, &block)
+        index = self.index(index) unless index.is_a?(Integer)
+        raise "no such middleware to insert after: #{index.inspect}" unless index
+        insert(index + 1, middleware, *args, &block)
+      end
+
+      # Swaps out the given middlware object or index with the new
+      # middleware.
+      def swap(index, middleware, *args, &block)
+        if index.is_a?(Integer)
+          delete(index)
+          insert(index, middleware, *args, &block)
+        else
+          insert_before(index, middleware, *args, &block)
+          delete(index)
+        end
+      end
+
+      # Deletes the given middleware object or index
+      def delete(index)
+        index = self.index(index) unless index.is_a?(Integer)
+        stack.delete_at(index)
+      end
+
+      # Returns the numeric index for the given middleware object.
+      #
+      # @param [Object] object The item to find the index for
+      # @return [Integer]
+      def index(object)
+        stack.each_with_index do |item, i|
+          return i if item[0] == object
+        end
+
+        nil
+      end
+
       # Converts the builder stack to a runnable action sequence.
       #
       # @param [Vagrant::Action::Environment] env The action environment

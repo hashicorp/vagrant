@@ -46,6 +46,86 @@ class ActionBuilderTest < Test::Unit::TestCase
       end
     end
 
+    context "inserting" do
+      setup do
+        @instance.use "1"
+        @instance.use "2"
+      end
+
+      should "insert at the proper numeric index" do
+        @instance.insert(1, "3")
+        assert_equal "3", @instance.stack[1].first
+      end
+
+      should "insert next to the proper object if given" do
+        @instance.insert("2", "3")
+        assert_equal "3", @instance.stack[1].first
+      end
+
+      should "be able to call insert_before as well" do
+        @instance.insert_before("1", "0")
+        assert_equal "0", @instance.stack.first.first
+      end
+
+      should "be able to insert_after" do
+        @instance.insert_after("1", "0")
+        assert_equal "0", @instance.stack[1].first
+      end
+
+      should "be able to insert_after using numeric index" do
+        @instance.insert_after(1, "0")
+        assert_equal "0", @instance.stack[2].first
+      end
+
+      should "raise an exception if invalid index" do
+        assert_raises(RuntimeError) {
+          @instance.insert_after("15", "0")
+        }
+      end
+    end
+
+    context "swapping" do
+      setup do
+        @instance.use "1"
+        @instance.use "2"
+      end
+
+      should "be able to swap using the object" do
+        @instance.swap "1", "3"
+        assert_equal "3", @instance.stack.first.first
+      end
+
+      should "be able to swap using the index" do
+        @instance.swap 0, "3"
+        assert_equal "3", @instance.stack.first.first
+      end
+    end
+
+    context "deleting" do
+      setup do
+        @instance.use "1"
+      end
+
+      should "delete the proper object" do
+        @instance.delete("1")
+        assert @instance.stack.empty?
+      end
+
+      should "delete by index if given" do
+        @instance.delete(0)
+        assert @instance.stack.empty?
+      end
+    end
+
+    context "getting an index of an object" do
+      should "return the proper index if it exists" do
+        @instance.use 1
+        @instance.use 2
+        @instance.use 3
+        assert_equal 1, @instance.index(2)
+      end
+    end
+
     context "converting to an app" do
       should "preprend error halt to the chain" do
         result = mock("result")
