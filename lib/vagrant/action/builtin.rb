@@ -10,6 +10,7 @@ module Vagrant
         use VM::Customize
         use VM::ForwardPorts
         use VM::ShareFolders
+        use VM::Boot
       end
 
       register :up, up
