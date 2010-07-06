@@ -29,6 +29,7 @@ module Vagrant
 
       def setup_solo_config
         setup_config("chef_solo_solo", "solo.rb", {
+          :node_name => env.config.chef.node_name,
           :provisioning_path => env.config.chef.provisioning_path,
           :cookbooks_path => cookbooks_path,
           :roles_path => roles_path

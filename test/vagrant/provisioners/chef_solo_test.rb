@@ -154,6 +154,7 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
 
     should "call setup_config with proper variables" do
       @action.expects(:setup_config).with("chef_solo_solo", "solo.rb", {
+        :node_name => @env.config.chef.node_name,
         :provisioning_path => @env.config.chef.provisioning_path,
         :cookbooks_path => @action.cookbooks_path,
         :roles_path => @action.roles_path
