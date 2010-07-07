@@ -5,6 +5,13 @@ module Vagrant
     # all the necessary Vagrant libraries are loaded. Hopefully
     # in the future this will no longer be necessary with autoloading.
     def self.builtin!
+      # provision - Provisions a running VM
+      provision = Builder.new do
+        use VM::Provision
+      end
+
+      register :provision, provision
+
       # start - Starts a VM, assuming it already exists on the
       # environment.
       start = Builder.new do

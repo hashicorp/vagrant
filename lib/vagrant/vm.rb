@@ -118,7 +118,7 @@ module Vagrant
     end
 
     def provision
-      execute!(Actions::VM::Provision)
+      env.actions.run(:provision)
     end
 
     def destroy

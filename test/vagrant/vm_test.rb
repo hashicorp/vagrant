@@ -184,7 +184,7 @@ class VMTest < Test::Unit::TestCase
 
     context "provisioning" do
       should "execute the provision action" do
-        @vm.expects(:execute!).with(Vagrant::Actions::VM::Provision).once
+        @vm.env.actions.expects(:run).with(:provision).once
         @vm.provision
       end
     end
