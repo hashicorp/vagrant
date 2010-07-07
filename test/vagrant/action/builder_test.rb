@@ -41,25 +41,21 @@ class ActionBuilderTest < Test::Unit::TestCase
         end
 
         @instance.use 1
-        @instance.use other.mergeable
-        assert_equal 3, @instance.stack.length
-      end
-
-      should "not merge in another builder if not mergeable" do
-        other = @klass.new do
-          use 2
-          use 3
-        end
-
-        @instance.use 1
         @instance.use other
-        assert_equal 2, @instance.stack.length
+        assert_equal 3, @instance.stack.length
       end
     end
 
-    context "mergeable" do
-      should "return the merge format with the builder" do
-        assert_equal [:merge, @instance], @instance.mergeable
+    context "flatten" do
+      should "return the flattened format of the builder" do
+        env = Vagrant::Action::Environment.new(nil)
+        env.expects(:foo).once
+
+        func = lambda { |x| x.foo }
+        @instance.use func
+        proc = @instance.flatten
+        assert proc.respond_to?(:call)
+        proc.call(env)
       end
     end
 

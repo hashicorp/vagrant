@@ -34,8 +34,10 @@ module Vagrant
       # Returns a mergeable version of the builder. If `use` is called with
       # the return value of this method, then the stack will merge, instead
       # of being treated as a separate single middleware.
-      def mergeable
-        [:merge, self]
+      def flatten
+        lambda do |env|
+          self.call(env)
+        end
       end
 
       # Adds a middleware class to the middleware stack. Any additional
@@ -44,9 +46,9 @@ module Vagrant
       #
       # @param [Class] middleware The middleware class
       def use(middleware, *args, &block)
-        if middleware.kind_of?(Array) && middleware[0] == :merge
+        if middleware.kind_of?(Builder)
           # Merge in the other builder's stack into our own
-          self.stack.concat(middleware[1].stack)
+          self.stack.concat(middleware.stack)
         else
           self.stack << [middleware, args, block]
         end

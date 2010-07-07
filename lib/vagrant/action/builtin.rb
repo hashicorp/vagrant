@@ -28,8 +28,8 @@ module Vagrant
 
       # reload - Halts then restarts the VM
       reload = Builder.new do
-        use Action[:halt].mergeable
-        use Action[:start].mergeable
+        use Action[:halt]
+        use Action[:start]
       end
 
       register :reload, reload
@@ -40,14 +40,14 @@ module Vagrant
         use VM::Persist
         use VM::MatchMACAddress
         use VM::CheckGuestAdditions
-        use Action[:start].mergeable
+        use Action[:start]
       end
 
       register :up, up
 
       # destroy - Halts, cleans up, and destroys an existing VM
       destroy = Builder.new do
-        use Action[:halt].mergeable
+        use Action[:halt]
         use VM::DestroyUnusedNetworkInterfaces
         use VM::Destroy
       end
