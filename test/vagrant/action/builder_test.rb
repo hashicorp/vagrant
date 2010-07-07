@@ -41,8 +41,25 @@ class ActionBuilderTest < Test::Unit::TestCase
         end
 
         @instance.use 1
-        @instance.use other
+        @instance.use other.mergeable
         assert_equal 3, @instance.stack.length
+      end
+
+      should "not merge in another builder if not mergeable" do
+        other = @klass.new do
+          use 2
+          use 3
+        end
+
+        @instance.use 1
+        @instance.use other
+        assert_equal 2, @instance.stack.length
+      end
+    end
+
+    context "mergeable" do
+      should "return the merge format with the builder" do
+        assert_equal [:merge, @instance], @instance.mergeable
       end
     end
 
@@ -131,10 +148,27 @@ class ActionBuilderTest < Test::Unit::TestCase
         result = mock("result")
         env = {:a => :b}
         middleware = mock("middleware")
+        middleware.stubs(:is_a?).with(Class).returns(true)
         middleware.expects(:new).with(anything, env).returns(result)
         @instance.use middleware
         result = @instance.to_app(env)
         assert result.kind_of?(Vagrant::Action::ErrorHalt)
+      end
+
+      should "make non-classes lambdas" do
+        env = Vagrant::Action::Environment.new(nil)
+        env.expects(:foo).once
+
+        func = lambda { |x| x.foo }
+        @instance.use func
+        @instance.to_app(env).call(env)
+      end
+
+      should "raise exception if given invalid middleware" do
+        @instance.use 7
+        assert_raises(RuntimeError) {
+          @instance.to_app(nil)
+        }
       end
 
       # TODO: Better testing of this method

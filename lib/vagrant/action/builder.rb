@@ -31,15 +31,22 @@ module Vagrant
         @stack ||= []
       end
 
+      # Returns a mergeable version of the builder. If `use` is called with
+      # the return value of this method, then the stack will merge, instead
+      # of being treated as a separate single middleware.
+      def mergeable
+        [:merge, self]
+      end
+
       # Adds a middleware class to the middleware stack. Any additional
       # args and a block, if given, are saved and passed to the initializer
       # of the middleware.
       #
       # @param [Class] middleware The middleware class
       def use(middleware, *args, &block)
-        if middleware.kind_of?(Builder)
+        if middleware.kind_of?(Array) && middleware[0] == :merge
           # Merge in the other builder's stack into our own
-          self.stack.concat(middleware.stack)
+          self.stack.concat(middleware[1].stack)
         else
           self.stack << [middleware, args, block]
         end
@@ -104,7 +111,23 @@ module Vagrant
         # middleware.
         items = items.collect do |item|
           klass, args, block = item
-          lambda { |app| klass.new(app, env, *args, &block) }
+
+          lambda do |app|
+            if klass.is_a?(Class)
+              # A middleware klass which is to be instantiated with the
+              # app, env, and any arguments given
+              klass.new(app, env, *args, &block)
+            elsif klass.respond_to?(:call)
+              # Make it a lambda which calls the item then forwards
+              # up the chain
+              lambda do |e|
+                klass.call(e)
+                app.call(e)
+              end
+            else
+              raise "Invalid middleware: #{item.inspect}"
+            end
+          end
         end
 
         # Append the final step and convert into flattened call chain.

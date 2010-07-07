@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Mitchell Hashimoto", "John Bender"]
-  s.date = %q{2010-07-05}
+  s.date = %q{2010-07-06}
   s.default_executable = %q{vagrant}
   s.description = %q{Vagrant is a tool for building and distributing virtualized development environments.}
   s.email = ["mitchell.hashimoto@gmail.com", "john.m.bender@gmail.com"]
@@ -41,8 +41,10 @@ Gem::Specification.new do |s|
      "lib/vagrant/action/vm/boot.rb",
      "lib/vagrant/action/vm/check_guest_additions.rb",
      "lib/vagrant/action/vm/customize.rb",
+     "lib/vagrant/action/vm/destroy.rb",
      "lib/vagrant/action/vm/destroy_unused_network_interfaces.rb",
      "lib/vagrant/action/vm/forward_ports.rb",
+     "lib/vagrant/action/vm/halt.rb",
      "lib/vagrant/action/vm/import.rb",
      "lib/vagrant/action/vm/match_mac_address.rb",
      "lib/vagrant/action/vm/network.rb",
@@ -135,8 +137,10 @@ Gem::Specification.new do |s|
      "test/vagrant/action/vm/boot_test.rb",
      "test/vagrant/action/vm/check_guest_additions_test.rb",
      "test/vagrant/action/vm/customize_test.rb",
+     "test/vagrant/action/vm/destroy_test.rb",
      "test/vagrant/action/vm/destroy_unused_network_interfaces_test.rb",
      "test/vagrant/action/vm/forward_ports_test.rb",
+     "test/vagrant/action/vm/halt_test.rb",
      "test/vagrant/action/vm/import_test.rb",
      "test/vagrant/action/vm/match_mac_address_test.rb",
      "test/vagrant/action/vm/network_test.rb",
@@ -227,8 +231,10 @@ Gem::Specification.new do |s|
      "test/vagrant/action/vm/boot_test.rb",
      "test/vagrant/action/vm/check_guest_additions_test.rb",
      "test/vagrant/action/vm/customize_test.rb",
+     "test/vagrant/action/vm/destroy_test.rb",
      "test/vagrant/action/vm/destroy_unused_network_interfaces_test.rb",
      "test/vagrant/action/vm/forward_ports_test.rb",
+     "test/vagrant/action/vm/halt_test.rb",
      "test/vagrant/action/vm/import_test.rb",
      "test/vagrant/action/vm/match_mac_address_test.rb",
      "test/vagrant/action/vm/network_test.rb",
