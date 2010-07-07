@@ -205,7 +205,7 @@ class VMTest < Test::Unit::TestCase
 
     context "resuming" do
       should "execute the resume action" do
-        @vm.expects(:execute!).with(Vagrant::Actions::VM::Resume).once
+        @vm.env.actions.expects(:run).with(:resume).once
         @vm.resume
       end
     end

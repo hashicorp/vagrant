@@ -40,6 +40,13 @@ module Vagrant
 
       register :suspend, suspend
 
+      # resume - Resume a VM
+      resume = Builder.new do
+        use VM::Resume
+      end
+
+      register :resume, resume
+
       # reload - Halts then restarts the VM
       reload = Builder.new do
         use Action[:halt]

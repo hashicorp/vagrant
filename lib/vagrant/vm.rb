@@ -130,7 +130,7 @@ module Vagrant
     end
 
     def resume
-      execute!(Actions::VM::Resume)
+      env.actions.run(:resume)
     end
 
     def saved?
