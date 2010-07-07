@@ -106,15 +106,15 @@ module Vagrant
     def start
       return if @vm.running?
 
-      execute!(Actions::VM::Start)
+      env.actions.run(:start)
     end
 
     def halt(options=nil)
-      execute!(Actions::VM::Halt, options)
+      env.actions.run(:halt, options)
     end
 
     def reload
-      execute!(Actions::VM::Reload)
+      env.actions.run(:reload)
     end
 
     def provision

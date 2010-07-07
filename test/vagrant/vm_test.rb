@@ -170,19 +170,14 @@ class VMTest < Test::Unit::TestCase
 
     context "halting" do
       should "execute the halt action" do
-        @vm.expects(:execute!).with(Vagrant::Actions::VM::Halt, nil).once
-        @vm.halt
-      end
-
-      should "force if specified" do
-        @vm.expects(:execute!).with(Vagrant::Actions::VM::Halt, {:foo => :bar}).once
+        @vm.env.actions.expects(:run).with(:halt, :foo => :bar).once
         @vm.halt({:foo => :bar})
       end
     end
 
     context "reloading action" do
       should "execute the reload action" do
-        @vm.expects(:execute!).with(Vagrant::Actions::VM::Reload).once
+        @vm.env.actions.expects(:run).with(:reload).once
         @vm.reload
       end
     end
@@ -227,7 +222,7 @@ class VMTest < Test::Unit::TestCase
       end
 
       should "execute the start action" do
-        @vm.expects(:execute!).once.with(Vagrant::Actions::VM::Start)
+        @vm.env.actions.expects(:run).with(:start).once
         @vm.start
       end
     end
