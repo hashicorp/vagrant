@@ -19,6 +19,11 @@ module Vagrant
       def register(key, callable)
         actions[key] = callable
       end
+
+      # Retrieves a registered action by key.
+      def [](key)
+        actions[key]
+      end
     end
 
     # The environment to run the actions in.

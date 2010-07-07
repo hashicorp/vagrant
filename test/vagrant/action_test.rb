@@ -5,6 +5,23 @@ class ActionTest < Test::Unit::TestCase
     @klass = Vagrant::Action
   end
 
+  context "with a class" do
+    teardown do
+      @klass.actions.clear
+    end
+
+    should "be able to register an action" do
+      @klass.register(:foo, :bar)
+      assert @klass.actions.has_key?(:foo)
+      assert_equal :bar, @klass.actions[:foo]
+    end
+
+    should "be able to retrieve an action using []" do
+      @klass.register(:foo, :bar)
+      assert_equal :bar, @klass[:foo]
+    end
+  end
+
   context "with an instance" do
     setup do
       @instance = @klass.new(mock_environment)

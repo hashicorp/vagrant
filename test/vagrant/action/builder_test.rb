@@ -144,6 +144,10 @@ class ActionBuilderTest < Test::Unit::TestCase
     end
 
     context "converting to an app" do
+      teardown do
+        Vagrant::Action.actions.clear
+      end
+
       should "preprend error halt to the chain" do
         result = mock("result")
         env = {:a => :b}
@@ -170,8 +174,6 @@ class ActionBuilderTest < Test::Unit::TestCase
           @instance.to_app(nil)
         }
       end
-
-      # TODO: Better testing of this method
     end
 
     context "calling" do
