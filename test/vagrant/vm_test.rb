@@ -198,7 +198,7 @@ class VMTest < Test::Unit::TestCase
 
     context "suspending" do
       should "execute the suspend action" do
-        @vm.expects(:execute!).with(Vagrant::Actions::VM::Suspend).once
+        @vm.env.actions.expects(:run).with(:suspend).once
         @vm.suspend
       end
     end

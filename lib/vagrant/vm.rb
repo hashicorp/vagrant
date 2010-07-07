@@ -126,7 +126,7 @@ module Vagrant
     end
 
     def suspend
-      execute!(Actions::VM::Suspend)
+      env.actions.run(:suspend)
     end
 
     def resume

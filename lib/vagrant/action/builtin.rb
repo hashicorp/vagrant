@@ -33,6 +33,13 @@ module Vagrant
 
       register :halt, halt
 
+      # suspend - Suspends the VM
+      suspend = Builder.new do
+        use VM::Suspend
+      end
+
+      register :suspend, suspend
+
       # reload - Halts then restarts the VM
       reload = Builder.new do
         use Action[:halt]
