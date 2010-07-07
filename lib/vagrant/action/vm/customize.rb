@@ -9,8 +9,8 @@ module Vagrant
         def call(env)
           if !env.env.config.vm.proc_stack.empty?
             env.logger.info "Running any VM customizations..."
-            env.env.config.vm.run_procs!(env["vm"])
-            env["vm"].save
+            env.env.config.vm.run_procs!(env["vm"].vm)
+            env["vm"].vm.save
           end
 
           @app.call(env)
