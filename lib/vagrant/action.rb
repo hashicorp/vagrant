@@ -43,6 +43,7 @@ module Vagrant
     #
     # @param [Object] callable An object which responds to `call`.
     def run(callable, options=nil)
+      callable = Builder.new.use(callable) if callable.kind_of?(Class)
       callable = self.class.actions[callable] if callable.kind_of?(Symbol)
 
       action_environment = Action::Environment.new(env)

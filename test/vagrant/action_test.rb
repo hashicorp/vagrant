@@ -71,6 +71,19 @@ class ActionTest < Test::Unit::TestCase
       @instance.run(:call)
     end
 
+    should "run the given class if a class is given" do
+      callable = Class.new do
+        def initialize(app, env); end
+      end
+
+      callable.any_instance.expects(:call).with() do |env|
+        assert_equal :foo, env[:bar]
+        true
+      end
+
+      @instance.run(callable, :bar => :foo)
+    end
+
     should "error and exit if erroneous environment results" do
       callable = lambda do |env|
         env.error!(:key, :foo => :bar)
