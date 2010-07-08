@@ -1,5 +1,5 @@
 module Vagrant
-  class VM < Actions::Runner
+  class VM
     include Vagrant::Util
 
     attr_reader :env

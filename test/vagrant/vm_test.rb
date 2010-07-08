@@ -12,13 +12,6 @@ class VMTest < Test::Unit::TestCase
     Net::SSH.stubs(:start)
   end
 
-  context "being an action runner" do
-    should "be an action runner" do
-      vm = Vagrant::VM.new(:env => @env)
-      assert vm.is_a?(Vagrant::Actions::Runner)
-    end
-  end
-
   context "finding a VM" do
     should "return return an uncreated VM object if the VM is not found" do
       VirtualBox::VM.expects(:find).returns(nil)
