@@ -134,7 +134,7 @@ class BoxTest < Test::Unit::TestCase
 
     context "destroying" do
       should "execute the destroy action" do
-        @box.expects(:execute!).with(Vagrant::Actions::Box::Destroy).once
+        @box.env.actions.expects(:run).with(:box_remove, { "box" => @box })
         @box.destroy
       end
     end

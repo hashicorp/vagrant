@@ -40,7 +40,7 @@ module Vagrant
   #     box = Vagrant::Box.find("foo")
   #     box.destroy
   #
-  class Box < Actions::Runner
+  class Box
     # The name of the box.
     attr_accessor :name
 
@@ -138,7 +138,7 @@ module Vagrant
 
     # Beings the process of destroying this box.
     def destroy
-      execute!(Actions::Box::Destroy)
+      env.actions.run(:box_remove, { "box" => self })
     end
 
     # Returns the directory to the location of this boxes content in the local

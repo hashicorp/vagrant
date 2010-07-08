@@ -92,6 +92,13 @@ module Vagrant
       end
 
       register :box_add, box_add
+
+      # box_remove - Removes/deletes a box.
+      box_remove = Builder.new do
+        use Box::Destroy
+      end
+
+      register :box_remove, box_remove
     end
   end
 end

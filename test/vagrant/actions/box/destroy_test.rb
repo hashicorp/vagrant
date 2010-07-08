@@ -1,6 +1,6 @@
 require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 
-class DestroyBoxActionTest < Test::Unit::TestCase
+class DestroyBoxActionsTest < Test::Unit::TestCase
   setup do
     @name = "foo"
     @dir = "foo"
