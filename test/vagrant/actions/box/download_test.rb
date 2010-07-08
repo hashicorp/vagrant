@@ -1,6 +1,6 @@
 require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 
-class DownloadBoxActionTest < Test::Unit::TestCase
+class DownloadBoxActionsTest < Test::Unit::TestCase
   setup do
     @uri = "foo.com"
     @runner, @vm, @action = mock_action(Vagrant::Actions::Box::Download)
