@@ -7,6 +7,8 @@ class DownloadBoxActionTest < Test::Unit::TestCase
 
     @vm = mock("vm")
     @env["vm"] = @vm
+    @env["box"] = Vagrant::Box.new(mock_environment, "foo")
+    @env["box"].uri = "http://google.com"
 
     @internal_vm = mock("internal")
     @vm.stubs(:vm).returns(@internal_vm)
@@ -22,7 +24,6 @@ class DownloadBoxActionTest < Test::Unit::TestCase
   context "with an instance" do
     setup do
       @instance = @klass.new(@app, @env)
-      @env["download.uri"] = "http://google.com"
     end
 
     context "calling" do
@@ -48,13 +49,13 @@ class DownloadBoxActionTest < Test::Unit::TestCase
     context "instantiating downloader" do
       should "instantiate the proper class" do
         instance = mock("instance")
-        Vagrant::Downloaders::HTTP.expects(:new).with(@env["download.uri"]).returns(instance)
-        instance.expects(:prepare).with(@env["download.uri"]).once
+        Vagrant::Downloaders::HTTP.expects(:new).with(@env["box"].uri).returns(instance)
+        instance.expects(:prepare).with(@env["box"].uri).once
         assert @instance.instantiate_downloader
       end
 
       should "error environment if URI is invalid for any downloaders" do
-        @env["download.uri"] = "foobar"
+        @env["box"].uri = "foobar"
         assert !@instance.instantiate_downloader
         assert @env.error?
         assert_equal :box_download_unknown_type, @env.error.first
@@ -131,7 +132,7 @@ class DownloadBoxActionTest < Test::Unit::TestCase
 
       should "call download! on the download with the URI and tempfile" do
         tempfile = "foo"
-        @downloader.expects(:download!).with(@env["download.uri"], tempfile)
+        @downloader.expects(:download!).with(@env["box"].uri, tempfile)
         @instance.download_to(tempfile)
       end
     end

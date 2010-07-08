@@ -29,9 +29,9 @@ module Vagrant
 
         def instantiate_downloader
           @env["download.classes"].each do |klass|
-            if klass.match?(@env["download.uri"])
+            if klass.match?(@env["box"].uri)
               @env.logger.info "Downloading with #{klass}..."
-              @downloader = klass.new(@env["download.uri"])
+              @downloader = klass.new(@env["box"].uri)
             end
           end
 
@@ -40,7 +40,7 @@ module Vagrant
             return false
           end
 
-          @downloader.prepare(@env["download.uri"])
+          @downloader.prepare(@env["box"].uri)
           true
         end
 
@@ -71,7 +71,7 @@ module Vagrant
 
         def download_to(f)
           @env.logger.info "Copying box to temporary location..."
-          @downloader.download!(@env["download.uri"], f)
+          @downloader.download!(@env["box"].uri, f)
         end
       end
     end
