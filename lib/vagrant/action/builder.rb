@@ -52,6 +52,8 @@ module Vagrant
         else
           self.stack << [middleware, args, block]
         end
+
+        self
       end
 
       # Inserts a middleware at the given index or directly before the

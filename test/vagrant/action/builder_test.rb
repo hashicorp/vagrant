@@ -28,6 +28,10 @@ class ActionBuilderTest < Test::Unit::TestCase
     end
 
     context "adding to the stack" do
+      should "return self" do
+        assert @instance.equal?(@instance.use(1))
+      end
+
       should "add to the end" do
         @instance.use 1
         @instance.use 2
