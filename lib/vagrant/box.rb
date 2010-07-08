@@ -133,7 +133,7 @@ module Vagrant
     # method requires that `name` and `uri` be set. The logic of this method
     # is kicked out to the {Actions::Box::Add add box} action.
     def add
-      execute!(Actions::Box::Add)
+      env.actions.run(:box_add, { "box" => self })
     end
 
     # Beings the process of destroying this box.

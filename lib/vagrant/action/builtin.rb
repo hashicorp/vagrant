@@ -83,6 +83,14 @@ module Vagrant
       end
 
       register :package, package
+
+      # box_add - Download and add a box.
+      box_add = Builder.new do
+        use Box::Download
+        use Box::Unpackage
+      end
+
+      register :box_add, box_add
     end
   end
 end

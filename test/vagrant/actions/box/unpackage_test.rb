@@ -1,6 +1,6 @@
 require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 
-class UnpackageBoxActionTest < Test::Unit::TestCase
+class UnpackageBoxActionsTest < Test::Unit::TestCase
   setup do
     @runner, @vm, @action = mock_action(Vagrant::Actions::Box::Unpackage)
     @runner.stubs(:name).returns("foo")

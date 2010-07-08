@@ -116,7 +116,7 @@ class BoxTest < Test::Unit::TestCase
     end
 
     should "execute the Add action when add is called" do
-      @box.expects(:execute!).with(Vagrant::Actions::Box::Add).once
+      @box.env.actions.expects(:run).with(:box_add, { "box" => @box })
       @box.add
     end
 

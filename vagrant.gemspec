@@ -34,6 +34,8 @@ Gem::Specification.new do |s|
      "keys/vagrant.pub",
      "lib/vagrant.rb",
      "lib/vagrant/action.rb",
+     "lib/vagrant/action/box/download.rb",
+     "lib/vagrant/action/box/unpackage.rb",
      "lib/vagrant/action/builder.rb",
      "lib/vagrant/action/builtin.rb",
      "lib/vagrant/action/environment.rb",
@@ -135,6 +137,8 @@ Gem::Specification.new do |s|
      "templates/unison/crontab_entry.erb",
      "templates/unison/script.erb",
      "test/test_helper.rb",
+     "test/vagrant/action/box/download_test.rb",
+     "test/vagrant/action/box/unpackage_test.rb",
      "test/vagrant/action/builder_test.rb",
      "test/vagrant/action/environment_test.rb",
      "test/vagrant/action/error_halt_test.rb",
@@ -233,6 +237,8 @@ Gem::Specification.new do |s|
   s.summary = %q{Vagrant is a tool for building and distributing virtualized development environments.}
   s.test_files = [
     "test/test_helper.rb",
+     "test/vagrant/action/box/download_test.rb",
+     "test/vagrant/action/box/unpackage_test.rb",
      "test/vagrant/action/builder_test.rb",
      "test/vagrant/action/environment_test.rb",
      "test/vagrant/action/error_halt_test.rb",
