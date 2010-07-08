@@ -88,6 +88,7 @@ module Vagrant
       box_add = Builder.new do
         use Box::Download
         use Box::Unpackage
+        use Box::Verify
       end
 
       register :box_add, box_add
