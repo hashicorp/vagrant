@@ -152,12 +152,9 @@ class VMTest < Test::Unit::TestCase
     end
 
     context "packaging" do
-      should "queue up the actions and execute" do
-        action_seq = sequence("action_seq")
-        @vm.expects(:add_action).with(Vagrant::Actions::VM::Export, nil).once.in_sequence(action_seq)
-        @vm.expects(:add_action).with(Vagrant::Actions::VM::Package, nil).once.in_sequence(action_seq)
-        @vm.expects(:execute!).in_sequence(action_seq)
-        @vm.package
+      should "execute the package action" do
+        @vm.env.actions.expects(:run).with(:package, :foo => :bar).once
+        @vm.package(:foo => :bar)
       end
     end
 

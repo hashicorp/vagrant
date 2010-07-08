@@ -74,6 +74,14 @@ module Vagrant
       end
 
       register :destroy, destroy
+
+      # package - Export and package the VM
+      package = Builder.new do
+        use VM::Export
+        use VM::Package
+      end
+
+      register :package, package
     end
   end
 end

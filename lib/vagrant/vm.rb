@@ -94,9 +94,7 @@ module Vagrant
     end
 
     def package(options=nil)
-      add_action(Actions::VM::Export, options)
-      add_action(Actions::VM::Package, options)
-      execute!
+      env.actions.run(:package, options)
     end
 
     def up(options=nil)

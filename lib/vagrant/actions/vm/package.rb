@@ -19,7 +19,7 @@ module Vagrant
 
           # Get the export action and store a reference to it
           @export_action = @runner.find_action(Export)
-          raise ActionException.new(:packaged_requires_export) unless @export_action
+          raise ActionException.new(:package_requires_export) unless @export_action
         end
 
         def execute!
