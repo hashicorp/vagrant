@@ -15,6 +15,10 @@ class ExportVMActionTest < Test::Unit::TestCase
   end
 
   context "calling" do
+    setup do
+      @internal_vm.stubs(:powered_off?).returns(true)
+    end
+
     should "call the proper methods then continue chain" do
       seq = sequence("seq")
       @instance.expects(:setup_temp_dir).in_sequence(seq)
@@ -22,6 +26,17 @@ class ExportVMActionTest < Test::Unit::TestCase
       @app.expects(:call).with(@env).in_sequence(seq)
 
       @instance.call(@env)
+    end
+
+    should "halt the chain if not powered off" do
+      @internal_vm.stubs(:powered_off?).returns(false)
+      @instance.expects(:setup_temp_dir).never
+      @instance.expects(:export).never
+      @app.expects(:call).with(@env).never
+
+      @instance.call(@env)
+      assert @env.error?
+      assert_equal :vm_power_off_to_package, @env.error.first
     end
   end
 

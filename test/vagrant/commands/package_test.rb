@@ -81,16 +81,9 @@ class CommandsPackageTest < Test::Unit::TestCase
   context "packaging a VM" do
     setup do
       @vm = mock("vm")
-      @vm.stubs(:powered_off?).returns(true)
 
       @options = {}
       @instance.stubs(:options).returns(@options)
-    end
-
-    should "error and exit if VM is not powered off" do
-      @vm.stubs(:powered_off?).returns(false)
-      @instance.expects(:error_and_exit).with(:vm_power_off_to_package).once
-      @instance.package_vm(@vm)
     end
 
     should "package the VM with the proper arguments" do
