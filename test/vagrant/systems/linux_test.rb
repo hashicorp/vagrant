@@ -149,7 +149,7 @@ class LinuxSystemTest < Test::Unit::TestCase
     should "raise an ActionException if the command fails constantly" do
       @ssh.expects(:exec!).times(@limit).returns(!@success_return)
 
-      assert_raises(Vagrant::Actions::ActionException) {
+      assert_raises(Vagrant::Action::ActionException) {
         mount_folder
       }
     end

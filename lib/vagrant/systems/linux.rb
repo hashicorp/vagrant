@@ -119,7 +119,7 @@ module Vagrant
           break unless result
 
           attempts += 1
-          raise Actions::ActionException.new(:vm_mount_fail) if attempts >= 10
+          raise Action::ActionException.new(:vm_mount_fail) if attempts >= 10
           sleep sleeptime
         end
       end
