@@ -1,7 +1,11 @@
+require File.join(File.dirname(__FILE__), 'forward_ports_helpers')
+
 module Vagrant
   class Action
     module VM
       class ForwardPorts
+        include ForwardPortsHelpers
+
         def initialize(app,env)
           @app = app
           @env = env
@@ -63,18 +67,9 @@ module Vagrant
         def call(env)
           @env = env
 
-          clear
           forward_ports
 
           @app.call(env)
-        end
-
-        def clear
-          if used_ports.length > 0
-            @env.logger.info "Deleting any previously set forwarded ports..."
-            clear_ports
-            @env["vm"].reload!
-          end
         end
 
         def forward_ports
@@ -102,34 +97,6 @@ module Vagrant
         #--------------------------------------------------------------
         # General Helpers
         #--------------------------------------------------------------
-
-        # Returns an array of used ports. This method is implemented
-        # differently depending on the VirtualBox version, but the
-        # behavior is the same.
-        #
-        # @return [Array<String>]
-        def used_ports
-          result = VirtualBox::VM.all.collect do |vm|
-            if vm.running? && vm.uuid != @env["vm"].uuid
-              vm.network_adapters.collect do |na|
-                na.nat_driver.forwarded_ports.collect do |fp|
-                  fp.hostport.to_s
-                end
-              end
-            end
-          end
-
-          result.flatten.uniq
-        end
-
-        # Deletes existing forwarded ports.
-        def clear_ports
-          @env["vm"].vm.network_adapters.each do |na|
-            na.nat_driver.forwarded_ports.dup.each do |fp|
-              fp.destroy
-            end
-          end
-        end
 
         # Forwards a port.
         def forward_port(name, options)

@@ -16,6 +16,7 @@ module Vagrant
       # environment.
       start = Builder.new do
         use VM::Customize
+        use VM::ClearForwardedPorts
         use VM::ForwardPorts
         use VM::Provision
         use VM::ClearSharedFolders

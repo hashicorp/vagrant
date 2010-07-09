@@ -97,7 +97,6 @@ class ForwardPortsVMActionTest < Test::Unit::TestCase
     context "calling" do
       should "clear all previous ports and forward new ports" do
         exec_seq = sequence("exec_seq")
-        @instance.expects(:clear).once.in_sequence(exec_seq)
         @instance.expects(:forward_ports).once.in_sequence(exec_seq)
         @app.expects(:call).once.with(@env).in_sequence(exec_seq)
         @instance.call(@env)
@@ -132,107 +131,6 @@ class ForwardPortsVMActionTest < Test::Unit::TestCase
         @internal_vm.expects(:save).once
         @vm.expects(:reload!).once
         @instance.forward_ports
-      end
-    end
-
-    context "clearing forwarded ports" do
-      setup do
-        @instance.stubs(:used_ports).returns([:a])
-        @instance.stubs(:clear_ports)
-      end
-
-      should "call destroy on all forwarded ports" do
-        @instance.expects(:clear_ports).once
-        @vm.expects(:reload!)
-        @instance.clear
-      end
-
-      should "do nothing if there are no forwarded ports" do
-        @instance.stubs(:used_ports).returns([])
-        @vm.expects(:reload!).never
-        @instance.clear
-      end
-    end
-
-    context "getting list of used ports" do
-      setup do
-        @vms = []
-        VirtualBox::VM.stubs(:all).returns(@vms)
-        VirtualBox.stubs(:version).returns("3.1.0")
-        @vm.stubs(:uuid).returns(:bar)
-      end
-
-      def mock_vm(options={})
-        options = {
-          :running? => true,
-          :uuid => :foo
-        }.merge(options)
-
-        vm = mock("vm")
-        options.each do |k,v|
-          vm.stubs(k).returns(v)
-        end
-
-        vm
-      end
-
-      def mock_fp(hostport)
-        fp = mock("fp")
-        fp.stubs(:hostport).returns(hostport.to_s)
-        fp
-      end
-
-      should "ignore VMs which aren't running" do
-        @vms << mock_vm(:running? => false)
-        @vms[0].expects(:forwarded_ports).never
-        @instance.used_ports
-      end
-
-      should "ignore VMs of the same uuid" do
-        @vms << mock_vm(:uuid => @vm.uuid)
-        @vms[0].expects(:forwarded_ports).never
-        @instance.used_ports
-      end
-
-      should "return the forwarded ports for VB 3.2.x" do
-        VirtualBox.stubs(:version).returns("3.2.4")
-        fps = [mock_fp(2222), mock_fp(80)]
-        na = mock("na")
-        ne = mock("ne")
-        na.stubs(:nat_driver).returns(ne)
-        ne.stubs(:forwarded_ports).returns(fps)
-        @vms << mock_vm(:network_adapters => [na])
-        assert_equal %W[2222 80], @instance.used_ports
-      end
-    end
-
-    context "clearing ports" do
-      def mock_fp
-        fp = mock("fp")
-        fp.expects(:destroy).once
-        fp
-      end
-
-      setup do
-        VirtualBox.stubs(:version).returns("3.2.8")
-        @adapters = []
-        @internal_vm = mock("internal_vm")
-        @internal_vm.stubs(:network_adapters).returns(@adapters)
-        @vm.stubs(:vm).returns(@internal_vm)
-      end
-
-      def mock_adapter
-        na = mock("adapter")
-        engine = mock("engine")
-        engine.stubs(:forwarded_ports).returns([mock_fp])
-        na.stubs(:nat_driver).returns(engine)
-        na
-      end
-
-      should "destroy each forwarded port" do
-        @adapters << mock_adapter
-        @adapters << mock_adapter
-        @instance.clear_ports
       end
     end
 
