@@ -2,16 +2,19 @@ require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
 
 class ChefProvisionerTest < Test::Unit::TestCase
   setup do
-    @vm = mock_vm
-    @env = @vm.env
-    @action = Vagrant::Provisioners::Chef.new(@vm)
+    @action_env = Vagrant::Action::Environment.new(mock_environment)
+    @action_env.env.vm = mock_vm
+
+    @action = Vagrant::Provisioners::Chef.new(@action_env)
+    @env = @action.env
+    @vm = @action.vm
   end
 
   context "preparing" do
-    should "raise an ActionException" do
-      assert_raises(Vagrant::Actions::ActionException) {
-        @action.prepare
-      }
+    should "error the environment" do
+      @action.prepare
+      assert @action_env.error?
+      assert_equal :chef_base_invalid_provisioner, @action_env.error.first
     end
   end
 

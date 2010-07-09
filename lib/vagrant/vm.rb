@@ -1,5 +1,5 @@
 module Vagrant
-  class VM < Actions::Runner
+  class VM
     include Vagrant::Util
 
     attr_reader :env
@@ -94,43 +94,41 @@ module Vagrant
     end
 
     def package(options=nil)
-      add_action(Actions::VM::Export, options)
-      add_action(Actions::VM::Package, options)
-      execute!
+      env.actions.run(:package, options)
     end
 
     def up(options=nil)
-      execute!(Actions::VM::Up, options)
+      env.actions.run(:up, options)
     end
 
     def start
       return if @vm.running?
 
-      execute!(Actions::VM::Start)
+      env.actions.run(:start)
     end
 
     def halt(options=nil)
-      execute!(Actions::VM::Halt, options)
+      env.actions.run(:halt, options)
     end
 
     def reload
-      execute!(Actions::VM::Reload)
+      env.actions.run(:reload)
     end
 
     def provision
-      execute!(Actions::VM::Provision)
+      env.actions.run(:provision)
     end
 
     def destroy
-      execute!(Actions::VM::Down)
+      env.actions.run(:destroy)
     end
 
     def suspend
-      execute!(Actions::VM::Suspend)
+      env.actions.run(:suspend)
     end
 
     def resume
-      execute!(Actions::VM::Resume)
+      env.actions.run(:resume)
     end
 
     def saved?

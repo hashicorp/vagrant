@@ -250,8 +250,6 @@
   Failed to connect to VM! Failed to boot?
 :vm_base_not_found: |-
   The specified base VM "<%= name %>" was not found.
-:vm_not_running: |-
-  VM is not running! Nothing to shut down!
 :vm_not_running_for_suspend: |-
   The vagrant virtual environment you are trying to suspend must be running to be suspended.
 :vm_not_suspended: |-

@@ -72,7 +72,7 @@ module Vagrant
       Config.configures :chef, ChefConfig
 
       def prepare
-        raise Actions::ActionException.new(:chef_base_invalid_provisioner)
+        action_env.error!(:chef_base_invalid_provisioner)
       end
 
       def verify_binary(binary)

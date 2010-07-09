@@ -12,13 +12,6 @@ class VMTest < Test::Unit::TestCase
     Net::SSH.stubs(:start)
   end
 
-  context "being an action runner" do
-    should "be an action runner" do
-      vm = Vagrant::VM.new(:env => @env)
-      assert vm.is_a?(Vagrant::Actions::Runner)
-    end
-  end
-
   context "finding a VM" do
     should "return return an uncreated VM object if the VM is not found" do
       VirtualBox::VM.expects(:find).returns(nil)
@@ -152,65 +145,57 @@ class VMTest < Test::Unit::TestCase
     end
 
     context "packaging" do
-      should "queue up the actions and execute" do
-        action_seq = sequence("action_seq")
-        @vm.expects(:add_action).with(Vagrant::Actions::VM::Export, nil).once.in_sequence(action_seq)
-        @vm.expects(:add_action).with(Vagrant::Actions::VM::Package, nil).once.in_sequence(action_seq)
-        @vm.expects(:execute!).in_sequence(action_seq)
-        @vm.package
+      should "execute the package action" do
+        @vm.env.actions.expects(:run).with(:package, :foo => :bar).once
+        @vm.package(:foo => :bar)
       end
     end
 
     context "upping" do
       should "execute the up action" do
-        @vm.expects(:execute!).with(Vagrant::Actions::VM::Up, nil).once
+        @vm.env.actions.expects(:run).with(:up, nil).once
         @vm.up
       end
     end
 
     context "halting" do
       should "execute the halt action" do
-        @vm.expects(:execute!).with(Vagrant::Actions::VM::Halt, nil).once
-        @vm.halt
-      end
-
-      should "force if specified" do
-        @vm.expects(:execute!).with(Vagrant::Actions::VM::Halt, {:foo => :bar}).once
+        @vm.env.actions.expects(:run).with(:halt, :foo => :bar).once
         @vm.halt({:foo => :bar})
       end
     end
 
     context "reloading action" do
       should "execute the reload action" do
-        @vm.expects(:execute!).with(Vagrant::Actions::VM::Reload).once
+        @vm.env.actions.expects(:run).with(:reload).once
         @vm.reload
       end
     end
 
     context "provisioning" do
       should "execute the provision action" do
-        @vm.expects(:execute!).with(Vagrant::Actions::VM::Provision).once
+        @vm.env.actions.expects(:run).with(:provision).once
         @vm.provision
       end
     end
 
     context "destroying" do
-      should "execute the down action" do
-        @vm.expects(:execute!).with(Vagrant::Actions::VM::Down).once
+      should "execute the destroy action" do
+        @vm.env.actions.expects(:run).with(:destroy).once
         @vm.destroy
       end
     end
 
     context "suspending" do
       should "execute the suspend action" do
-        @vm.expects(:execute!).with(Vagrant::Actions::VM::Suspend).once
+        @vm.env.actions.expects(:run).with(:suspend).once
         @vm.suspend
       end
     end
 
     context "resuming" do
       should "execute the resume action" do
-        @vm.expects(:execute!).with(Vagrant::Actions::VM::Resume).once
+        @vm.env.actions.expects(:run).with(:resume).once
         @vm.resume
       end
     end
@@ -227,7 +212,7 @@ class VMTest < Test::Unit::TestCase
       end
 
       should "execute the start action" do
-        @vm.expects(:execute!).once.with(Vagrant::Actions::VM::Start)
+        @vm.env.actions.expects(:run).with(:start).once
         @vm.start
       end
     end

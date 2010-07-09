@@ -2,9 +2,12 @@ require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
 
 class ChefServerProvisionerTest < Test::Unit::TestCase
   setup do
-    @vm = mock_vm
-    @env = @vm.env
-    @action = Vagrant::Provisioners::ChefServer.new(@vm)
+    @action_env = Vagrant::Action::Environment.new(mock_environment)
+    @action_env.env.vm = mock_vm
+
+    @action = Vagrant::Provisioners::ChefServer.new(@action_env)
+    @env = @action.env
+    @vm = @action.vm
   end
 
   context "provisioning" do
@@ -33,19 +36,20 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
 
       @action.stubs(:env).returns(@env)
 
-      assert_nothing_raised { @action.prepare }
+      @action.prepare
+      assert !@action_env.error?
     end
 
-    should "raise an exception if validation_key_path is nil" do
+    should "eraise an exception if validation_key_path is nil" do
       @env = mock_environment do |config|
         config.chef.validation_key_path = nil
       end
 
       @action.stubs(:env).returns(@env)
 
-      assert_raises(Vagrant::Actions::ActionException) {
-        @action.prepare
-      }
+      @action.prepare
+      assert @action_env.error?
+      assert_equal :chef_server_validation_key_required, @action_env.error.first
     end
 
     should "not raise an exception if validation_key_path does exist" do
@@ -57,7 +61,8 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
       @action.stubs(:validation_key_path).returns("9")
 
       File.expects(:file?).with(@action.validation_key_path).returns(true)
-      assert_nothing_raised { @action.prepare }
+      @action.prepare
+      assert !@action_env.error?
     end
 
     should "raise an exception if validation_key_path doesn't exist" do
@@ -69,9 +74,9 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
       @action.stubs(:validation_key_path).returns("9")
 
       File.expects(:file?).with(@action.validation_key_path).returns(false)
-      assert_raises(Vagrant::Actions::ActionException) {
-        @action.prepare
-      }
+      @action.prepare
+      assert @action_env.error?
+      assert_equal :chef_server_validation_key_doesnt_exist, @action_env.error.first
     end
 
     should "not raise an exception if chef_server_url is set" do
@@ -81,7 +86,8 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
 
       @action.stubs(:env).returns(@env)
 
-      assert_nothing_raised { @action.prepare }
+      @action.prepare
+      assert !@action_env.error?
     end
 
     should "raise an exception if chef_server_url is nil" do
@@ -91,9 +97,9 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
 
       @action.stubs(:env).returns(@env)
 
-      assert_raises(Vagrant::Actions::ActionException) {
-        @action.prepare
-      }
+      @action.prepare
+      assert @action_env.error?
+      assert_equal :chef_server_url_required, @action_env.error.first
     end
   end
 

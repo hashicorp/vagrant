@@ -40,7 +40,7 @@ module Vagrant
   #     box = Vagrant::Box.find("foo")
   #     box.destroy
   #
-  class Box < Actions::Runner
+  class Box
     # The name of the box.
     attr_accessor :name
 
@@ -133,12 +133,12 @@ module Vagrant
     # method requires that `name` and `uri` be set. The logic of this method
     # is kicked out to the {Actions::Box::Add add box} action.
     def add
-      execute!(Actions::Box::Add)
+      env.actions.run(:box_add, { "box" => self })
     end
 
     # Beings the process of destroying this box.
     def destroy
-      execute!(Actions::Box::Destroy)
+      env.actions.run(:box_remove, { "box" => self })
     end
 
     # Returns the directory to the location of this boxes content in the local

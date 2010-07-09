@@ -219,7 +219,7 @@ module Vagrant
             }
           }.merge(options || {})
 
-          raise Actions::ActionException.new(options[:error_key], options[:error_data])
+          raise Action::ActionException.new(options[:error_key], options[:error_data])
         end
       end
     end

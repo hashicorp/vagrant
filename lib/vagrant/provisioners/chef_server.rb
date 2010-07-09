@@ -5,13 +5,11 @@ module Vagrant
     class ChefServer < Chef
       def prepare
         if env.config.chef.validation_key_path.nil?
-          raise Actions::ActionException.new(:chef_server_validation_key_required)
+          action_env.error!(:chef_server_validation_key_required)
         elsif !File.file?(validation_key_path)
-          raise Actions::ActionException.new(:chef_server_validation_key_doesnt_exist)
-        end
-
-        if env.config.chef.chef_server_url.nil?
-          raise Actions::ActionException.new(:chef_server_url_required)
+          action_env.error!(:chef_server_validation_key_doesnt_exist)
+        elsif env.config.chef.chef_server_url.nil?
+          action_env.error!(:chef_server_url_required)
         end
       end
 

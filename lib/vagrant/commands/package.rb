@@ -53,11 +53,6 @@ module Vagrant
       end
 
       def package_vm(vm)
-        if !vm.powered_off?
-          error_and_exit(:vm_power_off_to_package)
-          return # for tests
-        end
-
         vm.package(options)
       end
 
