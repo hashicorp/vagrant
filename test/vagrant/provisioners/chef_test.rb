@@ -11,10 +11,10 @@ class ChefProvisionerTest < Test::Unit::TestCase
   end
 
   context "preparing" do
-    should "raise an ActionException" do
-      assert_raises(Vagrant::Actions::ActionException) {
-        @action.prepare
-      }
+    should "error the environment" do
+      @action.prepare
+      assert @action_env.error?
+      assert_equal :chef_base_invalid_provisioner, @action_env.error.first
     end
   end
 
