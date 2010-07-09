@@ -12,7 +12,8 @@ require File.expand_path("util/glob_loader", libdir)
 
 # Load them up
 Vagrant::GlobLoader.glob_require(libdir, %w{util/stacked_proc_runner
-  downloaders/base config provisioners/base provisioners/chef systems/base commands/base commands/box})
+  downloaders/base config provisioners/base provisioners/chef systems/base
+  commands/base commands/box action/exception_catcher})
 
 # Initialize the built-in actions
 Vagrant::Action.builtin!

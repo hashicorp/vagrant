@@ -38,6 +38,7 @@ class DownloadBoxActionTest < Test::Unit::TestCase
 
       should "halt the chain if downloader instantiation fails" do
         seq = sequence("seq")
+        @env.error!(:foo)
         @instance.expects(:instantiate_downloader).in_sequence(seq).returns(false)
         @instance.expects(:download).never
         @app.expects(:call).with(@env).never

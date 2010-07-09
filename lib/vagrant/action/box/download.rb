@@ -5,6 +5,7 @@ module Vagrant
         BASENAME = "box"
 
         include Util
+        include ExceptionCatcher
 
         attr_reader :temp_path
 
@@ -19,9 +20,11 @@ module Vagrant
         def call(env)
           @env = env
 
-          return if !instantiate_downloader
-          download
+          catch_action_exception(env) do
+            download if instantiate_downloader
+          end
 
+          return if env.error?
           @app.call(@env)
 
           cleanup
