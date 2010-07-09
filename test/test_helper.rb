@@ -100,32 +100,6 @@ class Test::Unit::TestCase
     [app, env]
   end
 
-  # Sets up the mocks and instantiates an action for testing
-  def mock_action(action_klass, *args)
-    vm = mock("vboxvm")
-    mock_vm = mock("vm")
-    action = action_klass.new(mock_vm, *args)
-    stub_default_action_dependecies(action)
-
-    mock_vm.stubs(:name).returns("foo")
-    mock_vm.stubs(:vm).returns(vm)
-    mock_vm.stubs(:vm=)
-    mock_vm.stubs(:invoke_callback)
-    mock_vm.stubs(:invoke_around_callback).yields
-    mock_vm.stubs(:actions).returns([action])
-    mock_vm.stubs(:env).returns(mock_environment)
-    mock_vm.env.stubs(:logger).returns(quiet_logger("mock"))
-
-    mock_ssh = Vagrant::SSH.new(mock_vm.env)
-    mock_ssh.stubs(:execute)
-
-    mock_vm.stubs(:ssh).returns(mock_ssh)
-
-    vm.stubs(:env).returns(mock_vm.env)
-
-    [mock_vm, vm, action]
-  end
-
   # Returns a resource logger which is safe for tests
   def quiet_logger(resource, env=nil)
     logger = Vagrant::ResourceLogger.new(resource, env)

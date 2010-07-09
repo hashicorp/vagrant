@@ -9,7 +9,7 @@ class FileDownloaderTest < Test::Unit::TestCase
   context "preparing" do
     should "raise an exception if the file does not exist" do
       File.expects(:file?).with(@uri).returns(false)
-      assert_raises(Vagrant::Actions::ActionException) {
+      assert_raises(Vagrant::Action::ActionException) {
         @downloader.prepare(@uri)
       }
     end
