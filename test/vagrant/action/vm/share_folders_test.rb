@@ -38,7 +38,6 @@ class ShareFoldersVMActionTest < Test::Unit::TestCase
   context "calling" do
     should "run the methods in the proper order" do
       before_seq = sequence("before")
-      @instance.expects(:clear_shared_folders).once.in_sequence(before_seq)
       @instance.expects(:create_metadata).once.in_sequence(before_seq)
       @app.expects(:call).with(@env).in_sequence(before_seq)
       @instance.expects(:mount_shared_folders).once.in_sequence(before_seq)
@@ -51,7 +50,6 @@ class ShareFoldersVMActionTest < Test::Unit::TestCase
       @env.error!(:foo)
 
       before_seq = sequence("before")
-      @instance.expects(:clear_shared_folders).once.in_sequence(before_seq)
       @instance.expects(:create_metadata).once.in_sequence(before_seq)
       @app.expects(:call).with(@env).in_sequence(before_seq)
       @instance.expects(:mount_shared_folders).never
@@ -126,30 +124,6 @@ class ShareFoldersVMActionTest < Test::Unit::TestCase
       assert_equal 1, result.length
       assert result.has_key?("foo")
       assert !result.has_key?("bar")
-    end
-  end
-
-  context "clearing shared folders" do
-    setup do
-      @shared_folder = mock("shared_folder")
-      @shared_folders = [@shared_folder]
-      @internal_vm.stubs(:shared_folders).returns(@shared_folders)
-    end
-
-    should "call destroy on each shared folder then reload" do
-      destroy_seq = sequence("destroy")
-      @shared_folders.each do |sf|
-        sf.expects(:destroy).once.in_sequence(destroy_seq)
-      end
-
-      @vm.expects(:reload!).once.in_sequence(destroy_seq)
-      @instance.clear_shared_folders
-    end
-
-    should "do nothing if no shared folders existed" do
-      @shared_folders.clear
-      @vm.expects(:reload!).never
-      @instance.clear_shared_folders
     end
   end
 

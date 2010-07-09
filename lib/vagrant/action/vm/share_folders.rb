@@ -12,7 +12,6 @@ module Vagrant
         def call(env)
           @env = env
 
-          clear_shared_folders
           create_metadata
 
           @app.call(env)
@@ -55,19 +54,6 @@ module Vagrant
             key, value = data
             acc[key] = value if !!value[:sync]
             acc
-          end
-        end
-
-        def clear_shared_folders
-          if @env["vm"].vm.shared_folders.length > 0
-            @env.logger.info "Clearing previously set shared folders..."
-
-            folders = @env["vm"].vm.shared_folders.dup
-            folders.each do |shared_folder|
-              shared_folder.destroy
-            end
-
-            @env["vm"].reload!
           end
         end
 
