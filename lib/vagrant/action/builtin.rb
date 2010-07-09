@@ -79,6 +79,7 @@ module Vagrant
       # package - Export and package the VM
       package = Builder.new do
         use Action[:halt]
+        use VM::ClearSharedFolders
         use VM::Export
         use VM::Package
       end
