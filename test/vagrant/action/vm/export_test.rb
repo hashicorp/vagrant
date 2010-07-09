@@ -24,6 +24,7 @@ class ExportVMActionTest < Test::Unit::TestCase
       @instance.expects(:setup_temp_dir).in_sequence(seq)
       @instance.expects(:export).in_sequence(seq)
       @app.expects(:call).with(@env).in_sequence(seq)
+      @instance.expects(:cleanup).in_sequence(seq)
 
       @instance.call(@env)
     end
@@ -33,10 +34,30 @@ class ExportVMActionTest < Test::Unit::TestCase
       @instance.expects(:setup_temp_dir).never
       @instance.expects(:export).never
       @app.expects(:call).with(@env).never
+      @instance.expects(:cleanup).never
 
       @instance.call(@env)
       assert @env.error?
       assert_equal :vm_power_off_to_package, @env.error.first
+    end
+  end
+
+  context "cleaning up" do
+    setup do
+      @temp_dir = "foo"
+      @instance.stubs(:temp_dir).returns(@temp_dir)
+      File.stubs(:exist?).returns(true)
+    end
+
+    should "delete the temporary file if it exists" do
+      File.expects(:unlink).with(@temp_dir).once
+      @instance.cleanup
+    end
+
+    should "not delete anything if it doesn't exist" do
+      File.stubs(:exist?).returns(false)
+      File.expects(:unlink).never
+      @instance.cleanup
     end
   end
 
@@ -60,6 +81,7 @@ class ExportVMActionTest < Test::Unit::TestCase
     should "set to the environment" do
       @instance.setup_temp_dir
       assert_equal @temp_dir, @env["export.temp_dir"]
+      assert_equal @temp_dir, @instance.temp_dir
     end
   end
 

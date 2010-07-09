@@ -2,6 +2,8 @@ module Vagrant
   class Action
     module VM
       class Export
+        attr_reader :temp_dir
+
         def initialize(app, env)
           @app = app
           @env = env
@@ -16,11 +18,19 @@ module Vagrant
           export
 
           @app.call(env)
+
+          cleanup
+        end
+
+        def cleanup
+          if temp_dir && File.exist?(temp_dir)
+            FileUtils.rm_rf(temp_dir)
+          end
         end
 
         def setup_temp_dir
           @env.logger.info "Creating temporary directory for export..."
-          @env["export.temp_dir"] = File.join(@env.env.tmp_path, Time.now.to_i.to_s)
+          @temp_dir = @env["export.temp_dir"] = File.join(@env.env.tmp_path, Time.now.to_i.to_s)
           FileUtils.mkpath(@env["export.temp_dir"])
         end
 
