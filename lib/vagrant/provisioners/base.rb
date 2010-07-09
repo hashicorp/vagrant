@@ -7,19 +7,27 @@ module Vagrant
     class Base
       include Vagrant::Util
 
-      # The VM which this is being provisioned for
-      attr_reader :vm
+      # The environment which provisioner is running in. This is a
+      # {Vagrant::Action::Environment}
+      attr_reader :action_env
 
-      def initialize(vm)
-        @vm = vm
+      def initialize(env)
+        @action_env = env
       end
 
-      # This method returns the environment which the provisioner is working
-      # on. This is also the environment of the VM. This method is provided
-      # as a simple helper since the environment is often used throughout the
-      # provisioner.
+      # Returns the actual {Vagrant::Environment} which this provisioner
+      # represents.
+      #
+      # @return [Vagrant::Environment]
       def env
-        @vm.env
+        action_env.env
+      end
+
+      # Returns the VM which this provisioner is working on.
+      #
+      # @return [Vagrant::VM]
+      def vm
+        env.vm
       end
 
       # This method returns the environment's logger as a convenience

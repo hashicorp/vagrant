@@ -26,7 +26,7 @@ module Vagrant
           provisioner = @env["config"].vm.provisioner
 
           if provisioner.is_a?(Class)
-            @provisioner = provisioner.new(@env["vm"])
+            @provisioner = provisioner.new(@env)
             return @env.error!(:provisioner_invalid_class) unless @provisioner.is_a?(Provisioners::Base)
           elsif provisioner.is_a?(Symbol)
             # We have a few hard coded provisioners for built-ins
@@ -37,7 +37,7 @@ module Vagrant
 
             provisioner_klass = mapping[provisioner]
             return @env.error!(:provisioner_unknown_type, :provisioner => provisioner.to_s) if provisioner_klass.nil?
-            @provisioner = provisioner_klass.new(@env["vm"])
+            @provisioner = provisioner_klass.new(@env)
           end
 
           @env.logger.info "Provisioning enabled with #{@provisioner.class}"
