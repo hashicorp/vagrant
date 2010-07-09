@@ -4,6 +4,8 @@ module Vagrant
       # Networking middleware for Vagrant. This enables host only
       # networking on VMs if configured as such.
       class Network
+        include ExceptionCatcher
+
         def initialize(app, env)
           @app = app
           @env = env
@@ -23,10 +25,12 @@ module Vagrant
           @app.call(env)
 
           if !env.error? && enable_network?
-            @env.logger.info "Enabling host only network..."
-            @env["vm"].system.prepare_host_only_network
-            @env.env.config.vm.network_options.compact.each do |network_options|
-              @env["vm"].system.enable_host_only_network(network_options)
+            catch_action_exception(env) do
+              @env.logger.info "Enabling host only network..."
+              @env["vm"].system.prepare_host_only_network
+              @env.env.config.vm.network_options.compact.each do |network_options|
+                @env["vm"].system.enable_host_only_network(network_options)
+              end
             end
           end
         end

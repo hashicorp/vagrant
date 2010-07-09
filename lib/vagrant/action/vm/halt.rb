@@ -2,13 +2,18 @@ module Vagrant
   class Action
     module VM
       class Halt
+        include ExceptionCatcher
+
         def initialize(app, env)
           @app = app
         end
 
         def call(env)
           if env["vm"].vm.running?
-            env["vm"].system.halt if !env["force"]
+            if !env["force"]
+              catch_action_exception(env) { env["vm"].system.halt }
+              return if env.error?
+            end
 
             if env["vm"].vm.state(true) != :powered_off
               env.logger.info "Forcing shutdown of VM..."
