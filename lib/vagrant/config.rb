@@ -67,6 +67,7 @@ module Vagrant
       attr_accessor :max_tries
       attr_accessor :timeout
       attr_accessor :private_key_path
+      attr_accessor :forward_agent
 
       # The attribute(s) below do nothing. They are just kept here to
       # prevent syntax errors for backwards compat.

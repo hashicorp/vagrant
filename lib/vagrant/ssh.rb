@@ -31,12 +31,17 @@ module Vagrant
 
       check_key_permissions(options[:private_key_path])
 
+      # Command line options
+      command_options = ["-p #{options[:port]}", "-o UserKnownHostsFile=/dev/null",
+                         "-o StrictHostKeyChecking=no", "-i #{options[:private_key_path]}"]
+      command_options << "-o ForwardAgent=yes" if env.config.ssh.forward_agent
+
       # Some hackery going on here. On Mac OS X Leopard (10.5), exec fails
       # (GH-51). As a workaround, we fork and wait. On all other platforms,
       # we simply exec.
       pid = nil
       pid = fork if Util::Platform.leopard?
-      Kernel.exec "ssh -p #{options[:port]} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i #{options[:private_key_path]} #{options[:username]}@#{options[:host]}".strip if pid.nil?
+      Kernel.exec "ssh #{command_options.join(" ")} #{options[:username]}@#{options[:host]}".strip if pid.nil?
       Process.wait(pid) if pid
     end
 
@@ -45,6 +50,10 @@ module Vagrant
     def execute(opts={})
       # Check the key permissions to avoid SSH hangs
       check_key_permissions(env.config.ssh.private_key_path)
+
+      # Merge in any additional options
+      opts = opts.dup
+      opts[:forward_agent] = true if env.config.ssh.forward_agent
 
       Net::SSH.start(env.config.ssh.host,
                      env.config[:ssh][:username],

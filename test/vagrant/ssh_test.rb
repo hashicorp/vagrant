@@ -52,6 +52,17 @@ class SshTest < Test::Unit::TestCase
       @ssh.connect(args)
     end
 
+    should "add forward agent option if enabled" do
+      @env.config.ssh.forward_agent = true
+      ssh_exec_expect(@ssh.port,
+                      @env.config.ssh.private_key_path,
+                      @env.config.ssh.username,
+                      @env.config.ssh.host) do |args|
+        assert args =~ /-o ForwardAgent=yes/
+      end
+      @ssh.connect
+    end
+
     context "on leopard" do
       setup do
         Vagrant::Util::Platform.stubs(:leopard?).returns(true)
@@ -88,7 +99,7 @@ class SshTest < Test::Unit::TestCase
         assert arg =~ /-p #{port}/
         assert arg =~ /-i #{key_path}/
         assert arg =~ /#{uname}@#{host}/
-        # TODO options not tested for as they may be removed
+        yield arg if block_given?
         true
       end
     end
@@ -116,6 +127,16 @@ class SshTest < Test::Unit::TestCase
         assert_equal [@env.config.ssh.private_key_path], opts[:keys]
         true
       end
+      @ssh.execute
+    end
+
+    should "forward agent if configured" do
+      @env.config.ssh.forward_agent = true
+      Net::SSH.expects(:start).once.with() do |host, username, opts|
+        assert opts[:forward_agent]
+        true
+      end
+
       @ssh.execute
     end
 
