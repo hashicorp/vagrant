@@ -14,11 +14,46 @@ module Vagrant
       #      folder.
       #
       class NFS
+        attr_reader :folders
+
         def initialize(app,env)
           @app = app
           @env = env
 
           verify_host
+        end
+
+        def call(env)
+          @env = env
+
+          extract_folders
+          export_folders
+
+          @app.call(env)
+        end
+
+        # Removes the NFS enabled shared folders from the configuration,
+        # so they will no longer be mounted by the actual shared folder
+        # task.
+        def extract_folders
+          # Load the NFS enabled shared folders
+          @folders = @env["config"].vm.shared_folders.inject({}) do |acc, data|
+            key, opts = data
+            acc[key] = opts if opts[:nfs]
+            acc
+          end
+
+          # Delete them from the original configuration so they aren't
+          # mounted by the ShareFolders middleware
+          @folders.each do |key, opts|
+            @env["config"].vm.shared_folders.delete(key)
+          end
+        end
+
+        # Uses the host class to export the folders via NFS. This typically
+        # involves adding a line to `/etc/exports` for this VM, but it is
+        # up to the host class to define the specific behavior.
+        def export_folders
         end
 
         # Verifies that the host is set and supports NFS.
