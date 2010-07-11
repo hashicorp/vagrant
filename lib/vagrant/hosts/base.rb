@@ -50,6 +50,15 @@ module Vagrant
       def initialize(env)
         @env = env
       end
+
+      # Returns true of false denoting whether or not this host supports
+      # NFS shared folder setup. This method ideally should verify that
+      # NFS is installed.
+      #
+      # @return [Boolean]
+      def nfs?
+        false
+      end
     end
   end
 end

@@ -137,6 +137,14 @@
   already be created, but unfortunately this vagrant still appears to
   have no box! You can setup the environment by setting up your
   <%= Vagrant::Environment::ROOTFILE_NAME %> and running `vagrant up`
+:nfs_host_required: |-
+  A host class is required for NFS shared folders. By default, these
+  are auto-detected, but can be overriden with `config.vagrant.host`.
+  There is currently not host class loaded.
+:nfs_not_supported: |-
+  The host class is reporting that NFS is not supported by this host,
+  or `nfsd` may not be installed. Please verify that `nfsd` is installed
+  on your machine, and retry.
 :network_not_found: |-
   The specified host network could not be found: <%= name %>.
   If the name specification is removed, Vagrant will create a new
