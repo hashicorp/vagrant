@@ -3,6 +3,7 @@ Vagrant::Config.run do |config|
   config.vagrant.log_output = STDOUT
   config.vagrant.dotfile_name = ".vagrant"
   config.vagrant.home = "~/.vagrant"
+  config.vagrant.host = :detect
 
   config.ssh.username = "vagrant"
   config.ssh.host = "localhost"

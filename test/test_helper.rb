@@ -26,6 +26,7 @@ class Test::Unit::TestCase
       config.vagrant.home = '~/.home'
       config.vagrant.dotfile_name = ".vagrant"
       config.vagrant.log_output = nil
+      config.vagrant.host = :detect
 
       config.ssh.username = "foo"
       config.ssh.host = "baz"
