@@ -47,10 +47,6 @@ module Vagrant
     # The URI for a new box. This is not available for existing boxes.
     attr_accessor :uri
 
-    # The temporary path to the downloaded or copied box. This should
-    # only be used internally.
-    attr_accessor :temp_path
-
     # The environment which this box belongs to. Although this could
     # actually be many environments, this points to the environment
     # of a specific instance.
