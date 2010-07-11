@@ -14,7 +14,7 @@ module Vagrant
       #      folder.
       #
       class NFS
-        attr_reader :folders
+        include ExceptionCatcher
 
         def initialize(app,env)
           @app = app
@@ -27,9 +27,17 @@ module Vagrant
           @env = env
 
           extract_folders
-          export_folders
+          export_folders if !folders.empty?
+          return if env.error?
 
           @app.call(env)
+
+          mount_folders if !folders.empty? && !env.error?
+        end
+
+        # Returns the folders which are to be synced via NFS.
+        def folders
+          @folders ||= {}
         end
 
         # Removes the NFS enabled shared folders from the configuration,
@@ -54,6 +62,13 @@ module Vagrant
         # involves adding a line to `/etc/exports` for this VM, but it is
         # up to the host class to define the specific behavior.
         def export_folders
+          catch_action_exception(@env) do
+            @env["host"].nfs_export(folders)
+          end
+        end
+
+        # Uses the system class to mount the NFS folders.
+        def mount_folders
         end
 
         # Verifies that the host is set and supports NFS.

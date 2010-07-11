@@ -59,6 +59,13 @@ module Vagrant
       def nfs?
         false
       end
+
+      # Exports the given hash of folders via NFS. This method will raise
+      # an {Vagrant::Action::ActionException} if anything goes wrong.
+      #
+      # @param [Hash] folders Shared folders to sync.
+      def nfs_export(folders)
+      end
     end
   end
 end
