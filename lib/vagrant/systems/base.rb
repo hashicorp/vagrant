@@ -55,6 +55,10 @@ module Vagrant
       #   wants the folder mounted.
       def mount_shared_folder(ssh, name, guestpath); end
 
+      # Mounts a shared folder via NFS. This assumes that the exports
+      # via the host are already done.
+      def mount_nfs(ip, folders); end
+
       # Prepares the system for unison folder syncing. This is called
       # once once prior to any `create_unison` calls.
       def prepare_unison(ssh); end

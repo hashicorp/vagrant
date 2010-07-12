@@ -145,6 +145,9 @@
   The host class is reporting that NFS is not supported by this host,
   or `nfsd` may not be installed. Please verify that `nfsd` is installed
   on your machine, and retry.
+:nfs_no_host_network: |-
+  NFS shared folders requires that host only networking is enabled.
+  Please enable host only networking via `config.vm.network`.
 :network_not_found: |-
   The specified host network could not be found: <%= name %>.
   If the name specification is removed, Vagrant will create a new

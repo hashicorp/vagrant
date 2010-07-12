@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Mitchell Hashimoto", "John Bender"]
-  s.date = %q{2010-07-09}
+  s.date = %q{2010-07-11}
   s.default_executable = %q{vagrant}
   s.description = %q{Vagrant is a tool for building and distributing virtualized development environments.}
   s.email = ["mitchell.hashimoto@gmail.com", "john.m.bender@gmail.com"]
@@ -58,6 +58,7 @@ Gem::Specification.new do |s|
      "lib/vagrant/action/vm/import.rb",
      "lib/vagrant/action/vm/match_mac_address.rb",
      "lib/vagrant/action/vm/network.rb",
+     "lib/vagrant/action/vm/nfs.rb",
      "lib/vagrant/action/vm/package.rb",
      "lib/vagrant/action/vm/persist.rb",
      "lib/vagrant/action/vm/provision.rb",
@@ -90,6 +91,8 @@ Gem::Specification.new do |s|
      "lib/vagrant/downloaders/file.rb",
      "lib/vagrant/downloaders/http.rb",
      "lib/vagrant/environment.rb",
+     "lib/vagrant/hosts/base.rb",
+     "lib/vagrant/hosts/bsd.rb",
      "lib/vagrant/provisioners/base.rb",
      "lib/vagrant/provisioners/chef.rb",
      "lib/vagrant/provisioners/chef_server.rb",
@@ -140,6 +143,7 @@ Gem::Specification.new do |s|
      "test/vagrant/action/vm/import_test.rb",
      "test/vagrant/action/vm/match_mac_address_test.rb",
      "test/vagrant/action/vm/network_test.rb",
+     "test/vagrant/action/vm/nfs_test.rb",
      "test/vagrant/action/vm/package_test.rb",
      "test/vagrant/action/vm/persist_test.rb",
      "test/vagrant/action/vm/provision_test.rb",
@@ -172,6 +176,7 @@ Gem::Specification.new do |s|
      "test/vagrant/downloaders/file_test.rb",
      "test/vagrant/downloaders/http_test.rb",
      "test/vagrant/environment_test.rb",
+     "test/vagrant/hosts/base_test.rb",
      "test/vagrant/provisioners/base_test.rb",
      "test/vagrant/provisioners/chef_server_test.rb",
      "test/vagrant/provisioners/chef_solo_test.rb",
@@ -220,6 +225,7 @@ Gem::Specification.new do |s|
      "test/vagrant/action/vm/import_test.rb",
      "test/vagrant/action/vm/match_mac_address_test.rb",
      "test/vagrant/action/vm/network_test.rb",
+     "test/vagrant/action/vm/nfs_test.rb",
      "test/vagrant/action/vm/package_test.rb",
      "test/vagrant/action/vm/persist_test.rb",
      "test/vagrant/action/vm/provision_test.rb",
@@ -252,6 +258,7 @@ Gem::Specification.new do |s|
      "test/vagrant/downloaders/file_test.rb",
      "test/vagrant/downloaders/http_test.rb",
      "test/vagrant/environment_test.rb",
+     "test/vagrant/hosts/base_test.rb",
      "test/vagrant/provisioners/base_test.rb",
      "test/vagrant/provisioners/chef_server_test.rb",
      "test/vagrant/provisioners/chef_solo_test.rb",

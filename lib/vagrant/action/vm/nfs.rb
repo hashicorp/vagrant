@@ -20,7 +20,7 @@ module Vagrant
           @app = app
           @env = env
 
-          verify_host
+          verify_settings
         end
 
         def call(env)
@@ -62,6 +62,8 @@ module Vagrant
         # involves adding a line to `/etc/exports` for this VM, but it is
         # up to the host class to define the specific behavior.
         def export_folders
+          @env.logger.info "Exporting NFS shared folders..."
+
           catch_action_exception(@env) do
             @env["host"].nfs_export(folders)
           end
@@ -69,12 +71,30 @@ module Vagrant
 
         # Uses the system class to mount the NFS folders.
         def mount_folders
+          @env.logger.info "Mounting NFS shared folders..."
+
+          catch_action_exception(@env) do
+            @env["vm"].system.mount_nfs(host_ip, folders)
+          end
+        end
+
+        # Returns the IP address of the first host only network adapter
+        #
+        # @return [String]
+        def host_ip
+          interface = @env["vm"].vm.network_adapters.find do |adapter|
+            adapter.host_interface_object
+          end
+
+          return nil if !interface
+          interface.host_interface_object.ip_address
         end
 
         # Verifies that the host is set and supports NFS.
-        def verify_host
+        def verify_settings
           return @env.error!(:nfs_host_required) if @env["host"].nil?
           return @env.error!(:nfs_not_supported) if !@env["host"].nfs?
+          return @env.error!(:nfs_no_host_network) if @env["config"].vm.network_options.empty?
         end
       end
     end
