@@ -21,6 +21,10 @@ module Vagrant
           # though its executed in multiple subshells.
           system(%Q[sudo su root -c "echo '#{line}' >> /etc/exports"])
         end
+
+        # We run restart here instead of "update" just in case nfsd
+        # is not starting
+        system("sudo nfsd restart")
       end
     end
   end

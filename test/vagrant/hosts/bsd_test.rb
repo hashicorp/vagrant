@@ -30,6 +30,7 @@ class BSDHostTest < Test::Unit::TestCase
                                                             :folders => @folders).returns(output)
 
       @instance.expects(:system).times(output.split("\n").length)
+      @instance.expects(:system).with("sudo nfsd restart")
       @instance.nfs_export(@ip, @folders)
     end
   end
