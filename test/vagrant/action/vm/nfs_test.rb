@@ -96,10 +96,11 @@ class NFSVMActionTest < Test::Unit::TestCase
     context "exporting folders" do
       setup do
         @instance.stubs(:folders).returns({})
+        @instance.stubs(:guest_ip).returns("192.168.33.10")
       end
 
       should "call nfs_export on the host" do
-        @env["host"].expects(:nfs_export).with(@instance.folders)
+        @env["host"].expects(:nfs_export).with(@instance.guest_ip, @instance.folders)
         @instance.export_folders
       end
 
@@ -148,6 +149,15 @@ class NFSVMActionTest < Test::Unit::TestCase
 
       should "return nil if no IP is found" do
         assert_nil @instance.host_ip
+      end
+    end
+
+    context "getting the guest IP" do
+      should "return the first networked IP" do
+        ip = "192.168.33.10"
+        @env.env.config.vm.network(ip, :adapter => 1)
+        @env.env.config.vm.network("192.168.66.10", :adapter => 2)
+        assert_equal ip, @instance.guest_ip
       end
     end
 

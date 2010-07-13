@@ -65,7 +65,7 @@ module Vagrant
           @env.logger.info "Exporting NFS shared folders..."
 
           catch_action_exception(@env) do
-            @env["host"].nfs_export(folders)
+            @env["host"].nfs_export(guest_ip, folders)
           end
         end
 
@@ -88,6 +88,14 @@ module Vagrant
 
           return nil if !interface
           interface.host_interface_object.ip_address
+        end
+
+        # Returns the IP address of the guest by looking at the first
+        # enabled host only network.
+        #
+        # @return [String]
+        def guest_ip
+          @env["config"].vm.network_options[1][:ip]
         end
 
         # Verifies that the host is set and supports NFS.
