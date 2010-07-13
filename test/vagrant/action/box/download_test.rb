@@ -50,7 +50,7 @@ class DownloadBoxActionTest < Test::Unit::TestCase
     context "instantiating downloader" do
       should "instantiate the proper class" do
         instance = mock("instance")
-        Vagrant::Downloaders::HTTP.expects(:new).with(@env["box"].uri).returns(instance)
+        Vagrant::Downloaders::HTTP.expects(:new).with(@env).returns(instance)
         instance.expects(:prepare).with(@env["box"].uri).once
         assert @instance.instantiate_downloader
       end

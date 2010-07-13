@@ -34,7 +34,7 @@ module Vagrant
           @env["download.classes"].each do |klass|
             if klass.match?(@env["box"].uri)
               @env.logger.info "Downloading with #{klass}..."
-              @downloader = klass.new(@env["box"].uri)
+              @downloader = klass.new(@env)
             end
           end
 
