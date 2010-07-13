@@ -5,8 +5,8 @@ module Vagrant
       include Util
 
       def nfs?
-        # TODO: verify it exists
-        true
+        system("which nfsd")
+        $?.to_i == 0
       end
 
       def nfs_export(ip, folders)

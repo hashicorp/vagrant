@@ -10,7 +10,21 @@ class BSDHostTest < Test::Unit::TestCase
 
   context "supporting nfs check" do
     should "support NFS" do
+      @instance.expects(:system).with() do |cmd|
+        `which which`
+        true
+      end
+
       assert @instance.nfs?
+    end
+
+    should "not support NFS if nfsd is not found" do
+      @instance.expects(:system).with() do |cmd|
+        `which thisshouldnoteverneverexist`
+        true
+      end
+
+      assert !@instance.nfs?
     end
   end
 
