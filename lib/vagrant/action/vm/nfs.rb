@@ -38,6 +38,13 @@ module Vagrant
         # Returns the folders which are to be synced via NFS.
         def folders
           @folders ||= {}
+          @folders.inject({}) do |acc, data|
+            key, opts = data
+            opts = opts.dup
+            opts[:hostpath] = File.expand_path(opts[:hostpath], @env.env.root_path)
+            acc[key] = opts
+            acc
+          end
         end
 
         # Removes the NFS enabled shared folders from the configuration,

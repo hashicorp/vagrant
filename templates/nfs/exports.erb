@@ -1,3 +1,3 @@
 # VAGRANT-BEGIN: <%= uuid %>
-<%= folders.inspect %>
+<% folders.each do |name, opts| %><%= opts[:hostpath] %> <%= ip %><% end %>
 # VAGRANT-END: <%= uuid %>
