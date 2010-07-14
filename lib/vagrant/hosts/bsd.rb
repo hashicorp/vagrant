@@ -5,7 +5,7 @@ module Vagrant
       include Util
 
       def nfs?
-        system("which nfsd")
+        system("which nfsd > /dev/null 2>&1")
         $?.to_i == 0
       rescue TypeError
         false
