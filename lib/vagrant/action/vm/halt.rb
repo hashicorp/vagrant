@@ -4,13 +4,14 @@ module Vagrant
       class Halt
         include ExceptionCatcher
 
-        def initialize(app, env)
+        def initialize(app, env, options=nil)
           @app = app
+          env.merge!(options || {})
         end
 
         def call(env)
           if env["vm"].vm.running?
-            if !env["force"]
+            if !env[:force]
               catch_action_exception(env) { env["vm"].system.halt }
               return if env.error?
             end

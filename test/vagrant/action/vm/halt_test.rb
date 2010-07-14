@@ -17,6 +17,13 @@ class HaltVMActionTest < Test::Unit::TestCase
     @instance = @klass.new(@app, @env)
   end
 
+  context "initializing" do
+    should "merge in the given options" do
+      @klass.new(@app, @env, :foo => :bar)
+      assert_equal :bar, @env[:foo]
+    end
+  end
+
   context "calling" do
     setup do
       @internal_vm.stubs(:running?).returns(true)
@@ -54,7 +61,7 @@ class HaltVMActionTest < Test::Unit::TestCase
     end
 
     should "not call halt on the system if forcing" do
-      @env["force"] = true
+      @env[:force] = true
       @vm.system.expects(:halt).never
       @instance.call(@env)
     end
