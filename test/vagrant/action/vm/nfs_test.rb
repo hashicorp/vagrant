@@ -46,6 +46,7 @@ class NFSVMActionTest < Test::Unit::TestCase
         seq = sequence('seq')
         @instance.expects(:extract_folders).in_sequence(seq)
         @instance.expects(:export_folders).in_sequence(seq)
+        @instance.expects(:clear_nfs_exports).with(@env).in_sequence(seq)
         @app.expects(:call).with(@env).in_sequence(seq)
         @instance.expects(:mount_folders).in_sequence(seq)
         @instance.call(@env)
@@ -57,6 +58,7 @@ class NFSVMActionTest < Test::Unit::TestCase
         seq = sequence('seq')
         @instance.expects(:extract_folders).in_sequence(seq)
         @instance.expects(:export_folders).never
+        @instance.expects(:clear_nfs_exports).never
         @app.expects(:call).with(@env).in_sequence(seq)
         @instance.expects(:mount_folders).never
         @instance.call(@env)
@@ -68,6 +70,7 @@ class NFSVMActionTest < Test::Unit::TestCase
         seq = sequence('seq')
         @instance.expects(:extract_folders).in_sequence(seq)
         @instance.expects(:export_folders).in_sequence(seq)
+        @instance.expects(:clear_nfs_exports).in_sequence(seq)
         @app.expects(:call).never
         @instance.call(@env)
       end

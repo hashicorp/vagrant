@@ -5,6 +5,8 @@ class BSDHostTest < Test::Unit::TestCase
     @klass = Vagrant::Hosts::BSD
     @env = mock_environment
     @env.stubs(:vm).returns(Vagrant::VM.new(:env => @env))
+    @env.logger.stubs(:info)
+
     @instance = @klass.new(@env)
   end
 
@@ -52,5 +54,9 @@ class BSDHostTest < Test::Unit::TestCase
       @instance.expects(:system).with("sudo nfsd restart")
       @instance.nfs_export(@ip, @folders)
     end
+  end
+
+  context "nfs cleanup" do
+    # TODO: How to test all the system calls?
   end
 end

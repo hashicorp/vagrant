@@ -67,6 +67,10 @@ module Vagrant
       # @param [Hash] folders Shared folders to sync.
       def nfs_export(ip, folders)
       end
+
+      # Cleans up the exports for the current VM.
+      def nfs_cleanup
+      end
     end
   end
 end

@@ -1,3 +1,5 @@
+require File.join(File.dirname(__FILE__), 'nfs_helpers')
+
 module Vagrant
   class Action
     module VM
@@ -15,6 +17,7 @@ module Vagrant
       #
       class NFS
         include ExceptionCatcher
+        include NFSHelpers
 
         def initialize(app,env)
           @app = app
@@ -27,7 +30,12 @@ module Vagrant
           @env = env
 
           extract_folders
-          export_folders if !folders.empty?
+
+          if !folders.empty?
+            export_folders
+            clear_nfs_exports(env)
+          end
+
           return if env.error?
 
           @app.call(env)
