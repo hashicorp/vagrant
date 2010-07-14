@@ -7,6 +7,8 @@ module Vagrant
       def nfs?
         system("which nfsd")
         $?.to_i == 0
+      rescue TypeError
+        false
       end
 
       def nfs_export(ip, folders)

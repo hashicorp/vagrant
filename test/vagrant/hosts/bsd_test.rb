@@ -26,6 +26,11 @@ class BSDHostTest < Test::Unit::TestCase
 
       assert !@instance.nfs?
     end
+
+    should "not support NFS if an error is raised" do
+      @instance.expects(:system).raises(TypeError.new("foo"))
+      assert !@instance.nfs?
+    end
   end
 
   context "nfs export" do
