@@ -41,6 +41,7 @@ module Vagrant
           @app.call(env)
 
           mount_folders if !folders.empty? && !env.error?
+          clear_nfs_exports(env) if env.error?
         end
 
         # Returns the folders which are to be synced via NFS.

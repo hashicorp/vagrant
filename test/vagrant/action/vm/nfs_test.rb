@@ -37,7 +37,7 @@ class NFSVMActionTest < Test::Unit::TestCase
       setup do
         @instance.stubs(:folders).returns([:a])
 
-        [:extract_folders, :export_folders, :mount_folders].each do |meth|
+        [:clear_nfs_exports, :extract_folders, :export_folders, :mount_folders].each do |meth|
           @instance.stubs(meth)
         end
       end
@@ -76,12 +76,15 @@ class NFSVMActionTest < Test::Unit::TestCase
       end
 
       should "not mount folders if an error occured" do
-        @app.expects(:call).with() do
+        seq = sequence("seq")
+        @app.expects(:call).in_sequence(seq).with() do
           # Use this mark the env as error
           @env.error!(:foo)
 
           true
         end
+
+        @instance.expects(:clear_nfs_exports).with(@env).in_sequence(seq)
 
         @instance.expects(:mount_folders).never
         @instance.call(@env)
