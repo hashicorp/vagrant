@@ -11,7 +11,7 @@ module Vagrant
 
         def call(env)
           if env["vm"].vm.running?
-            if !env[:force]
+            if !env["force"]
               catch_action_exception(env) { env["vm"].system.halt }
               return if env.error?
             end

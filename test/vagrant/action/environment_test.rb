@@ -28,4 +28,12 @@ class ActionEnvironmentTest < Test::Unit::TestCase
     @instance.error!(:key)
     assert @instance.error?
   end
+
+  should "have indifferent access" do
+    @instance[:foo] = :bar
+    @instance["bar"] = :baz
+
+    assert_equal :bar, @instance["foo"]
+    assert_equal :baz, @instance[:bar]
+  end
 end
