@@ -15,11 +15,21 @@ class NFSVMActionTest < Test::Unit::TestCase
     @vm.stubs(:vm).returns(@internal_vm)
   end
 
+  context "initializing" do
+    should "not call verify settings if NFS is not enabled" do
+      @klass.any_instance.expects(:verify_settings).never
+      @klass.new(@app, @env)
+    end
+
+    should "call verify settings if NFS is enabled" do
+      @env.env.config.vm.share_folder("v-root", "/vagrant", ".", :nfs => true)
+      @klass.any_instance.expects(:verify_settings).once
+      @klass.new(@app, @env)
+    end
+  end
+
   context "with an instance" do
     setup do
-      # Kind of dirty but not sure of a way around this
-      @klass.send(:alias_method, :verify_settings_real, :verify_settings)
-      @klass.any_instance.stubs(:verify_settings)
       @instance = @klass.new(@app, @env)
     end
 
@@ -161,6 +171,17 @@ class NFSVMActionTest < Test::Unit::TestCase
       end
     end
 
+    context "nfs enabled" do
+      should "return false if no folders are marked for NFS" do
+        assert !@instance.nfs_enabled?
+      end
+
+      should "return true if a shared folder is marked for NFS" do
+        @env.env.config.vm.share_folder("v-foo", "/foo", "/bar", :nfs => true)
+        assert @instance.nfs_enabled?
+      end
+    end
+
     context "verifying settings" do
       setup do
         @env.env.host.stubs(:nfs?).returns(true)
@@ -168,28 +189,28 @@ class NFSVMActionTest < Test::Unit::TestCase
 
       should "error environment if host is nil" do
         @env.env.stubs(:host).returns(nil)
-        @instance.verify_settings_real
+        @instance.verify_settings
         assert @env.error?
         assert_equal :nfs_host_required, @env.error.first
       end
 
       should "error environment if host does not support NFS" do
         @env.env.host.stubs(:nfs?).returns(false)
-        @instance.verify_settings_real
+        @instance.verify_settings
         assert @env.error?
         assert_equal :nfs_not_supported, @env.error.first
       end
 
       should "error environment if host only networking is not enabled" do
         @env.env.config.vm.network_options.clear
-        @instance.verify_settings_real
+        @instance.verify_settings
         assert @env.error?
         assert_equal :nfs_no_host_network, @env.error.first
       end
 
       should "be fine if everything passes" do
         @env.env.host.stubs(:nfs?).returns(true)
-        @instance.verify_settings_real
+        @instance.verify_settings
         assert !@env.error?
       end
     end

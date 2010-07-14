@@ -20,7 +20,7 @@ module Vagrant
           @app = app
           @env = env
 
-          verify_settings
+          verify_settings if nfs_enabled?
         end
 
         def call(env)
@@ -103,6 +103,15 @@ module Vagrant
         # @return [String]
         def guest_ip
           @env["config"].vm.network_options[1][:ip]
+        end
+
+        # Checks if there are any NFS enabled shared folders.
+        def nfs_enabled?
+          @env["config"].vm.shared_folders.each do |key, opts|
+            return true if opts[:nfs]
+          end
+
+          false
         end
 
         # Verifies that the host is set and supports NFS.
