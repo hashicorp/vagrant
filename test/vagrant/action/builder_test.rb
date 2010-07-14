@@ -48,6 +48,17 @@ class ActionBuilderTest < Test::Unit::TestCase
         @instance.use other
         assert_equal 3, @instance.stack.length
       end
+
+      should "prepend a set environment task for merging middlewares if given" do
+        other = @klass.new do
+          use 1
+        end
+
+        @instance.use 0
+        @instance.use(other, :foo => :bar)
+        assert_equal 3, @instance.stack.length
+        assert_equal Vagrant::Action::Env::Set, @instance.stack[1].first
+      end
     end
 
     context "flatten" do
@@ -156,7 +167,7 @@ class ActionBuilderTest < Test::Unit::TestCase
         middleware.expects(:new).with(anything, env).returns(result)
         @instance.use middleware
         result = @instance.to_app(env)
-        assert result.kind_of?(Vagrant::Action::ErrorHalt)
+        assert result.kind_of?(Vagrant::Action::Env::ErrorHalt)
       end
 
       should "make non-classes lambdas" do

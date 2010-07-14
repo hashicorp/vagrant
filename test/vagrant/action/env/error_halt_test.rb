@@ -1,8 +1,8 @@
-require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
+require File.join(File.dirname(__FILE__), '..', '..', '..', 'test_helper')
 
-class ErrorHaltTest < Test::Unit::TestCase
+class ErrorHaltEnvActionTest < Test::Unit::TestCase
   setup do
-    @klass = Vagrant::Action::ErrorHalt
+    @klass = Vagrant::Action::Env::ErrorHalt
     @app, @env = mock_action_data
     @instance = @klass.new(@app, @env)
   end

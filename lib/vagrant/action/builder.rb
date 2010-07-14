@@ -47,6 +47,9 @@ module Vagrant
       # @param [Class] middleware The middleware class
       def use(middleware, *args, &block)
         if middleware.kind_of?(Builder)
+          # Prepend with a environment setter if args are given
+          self.use(Env::Set, *args, &block) if !args.empty? && args.first.is_a?(Hash)
+
           # Merge in the other builder's stack into our own
           self.stack.concat(middleware.stack)
         else
@@ -109,7 +112,7 @@ module Vagrant
       def to_app(env)
         # Prepend the error halt task so errneous environments are halted
         # before the chain even begins.
-        items = stack.dup.unshift([ErrorHalt, [], nil])
+        items = stack.dup.unshift([Env::ErrorHalt, [], nil])
 
         # Convert each middleware into a lambda which takes the next
         # middleware.
