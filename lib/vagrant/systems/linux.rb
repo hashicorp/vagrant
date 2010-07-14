@@ -52,6 +52,17 @@ module Vagrant
         ssh.exec!("sudo chown #{config.ssh.username} #{guestpath}")
       end
 
+      def mount_nfs(ip, folders)
+        # TODO: Maybe check for nfs support on the guest, since its often
+        # not installed by default
+        folders.each do |name, opts|
+          vm.ssh.execute do |ssh|
+            ssh.exec!("sudo mkdir -p #{opts[:guestpath]}")
+            ssh.exec!("sudo mount #{ip}:#{opts[:hostpath]} #{opts[:guestpath]}")
+          end
+        end
+      end
+
       def prepare_unison(ssh)
         ssh.exec!("which unison", :error_key => :unison_not_found)
 
