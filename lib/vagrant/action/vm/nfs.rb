@@ -32,8 +32,8 @@ module Vagrant
           extract_folders
 
           if !folders.empty?
-            export_folders
             clear_nfs_exports(env)
+            export_folders
           end
 
           return if env.error?

@@ -72,6 +72,7 @@ module Vagrant
       # destroy - Halts, cleans up, and destroys an existing VM
       destroy = Builder.new do
         use Action[:halt], :force => true
+        use VM::ClearNFSExports
         use VM::DestroyUnusedNetworkInterfaces
         use VM::Destroy
       end
