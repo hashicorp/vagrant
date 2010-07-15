@@ -19,6 +19,10 @@ class ForwardPortsVMActionTest < Test::Unit::TestCase
   end
 
   context "checking for threshold" do
+    setup do
+      @klass.any_instance.stubs(:external_collision_check)
+    end
+
     should "error if has a port below threshold" do
       @env.env.config.vm.forwarded_ports.clear
       @env.env.config.vm.forward_port("foo", 22, 222)

@@ -85,6 +85,14 @@ class ShareFoldersVMActionTest < Test::Unit::TestCase
       end
     end
 
+    should "ignore disabled shared folders" do
+      stub_shared_folders do |config|
+        config.vm.share_folder("v-root", "/vagrant", ".", :disabled => true)
+      end
+
+      assert @instance.shared_folders.empty?
+    end
+
     should "append sync suffix if sync enabled to a folder" do
       name = "foo"
       guest = "bar"

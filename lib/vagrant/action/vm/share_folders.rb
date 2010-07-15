@@ -32,6 +32,8 @@ module Vagrant
           @env.env.config.vm.shared_folders.inject({}) do |acc, data|
             key, value = data
 
+            return acc if value[:disabled]
+
             # This to prevent overwriting the actual shared folders data
             value = value.dup
 

@@ -93,6 +93,7 @@ class NFSVMActionTest < Test::Unit::TestCase
 
     context "extracting folders" do
       setup do
+        @env.env.config.vm.shared_folders.clear
         @env.env.config.vm.share_folder("v-foo", "/foo", ".", :nfs => true)
         @env.env.config.vm.share_folder("v-bar", "/bar", ".", :nfs => true)
       end
@@ -102,10 +103,11 @@ class NFSVMActionTest < Test::Unit::TestCase
         assert_equal 2, @instance.folders.length
       end
 
-      should "remove the folders from the original config" do
+      should "mark the folders disabled from the original config" do
         @instance.extract_folders
-        assert_equal 1, @env["config"].vm.shared_folders.length
-        assert @env["config"].vm.shared_folders.has_key?("v-root")
+        %W[v-foo v-bar].each do |key|
+          assert @env["config"].vm.shared_folders[key][:disabled]
+        end
       end
     end
 

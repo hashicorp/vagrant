@@ -63,14 +63,13 @@ module Vagrant
           # Load the NFS enabled shared folders
           @folders = @env["config"].vm.shared_folders.inject({}) do |acc, data|
             key, opts = data
-            acc[key] = opts if opts[:nfs]
-            acc
-          end
 
-          # Delete them from the original configuration so they aren't
-          # mounted by the ShareFolders middleware
-          @folders.each do |key, opts|
-            @env["config"].vm.shared_folders.delete(key)
+            if opts[:nfs]
+              acc[key] = opts.dup
+              opts[:disabled] = true
+            end
+
+            acc
           end
         end
 
