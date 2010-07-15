@@ -15,6 +15,7 @@ module Vagrant
       # start - Starts a VM, assuming it already exists on the
       # environment.
       start = Builder.new do
+        use VM::CleanMachineFolder
         use VM::Customize
         use VM::ClearForwardedPorts
         use VM::ForwardPorts
@@ -75,6 +76,7 @@ module Vagrant
         use VM::ClearNFSExports
         use VM::DestroyUnusedNetworkInterfaces
         use VM::Destroy
+        use VM::CleanMachineFolder
       end
 
       register :destroy, destroy

@@ -1,0 +1,37 @@
+require 'fileutils'
+
+module Vagrant
+  class Action
+    module VM
+      # Cleans up the VirtualBox machine folder for any ".xml-prev"
+      # files which VirtualBox may have left over. This is a bug in
+      # VirtualBox. As soon as this is fixed, this middleware can and
+      # will be removed.
+      class CleanMachineFolder
+        def initialize(app, env)
+          @app = app
+        end
+
+        def call(env)
+          clean_machine_folder
+          @app.call(env)
+        end
+
+        def clean_machine_folder
+          folder = File.join(VirtualBox::Global.global.system_properties.default_machine_folder, "*")
+          Dir[folder].each do |f|
+            next unless File.directory?(f)
+
+            keep = Dir["#{f}/**/*"].find do |d|
+              # Find a file that doesn't have ".xml-prev" as the suffix,
+              # which signals that we want to keep this folder
+              File.file?(d) && !(File.basename(d) =~ /\.xml-prev$/)
+            end
+
+            FileUtils.rm_rf(f) if !keep
+          end
+        end
+      end
+    end
+  end
+end
