@@ -19,6 +19,12 @@ module Vagrant
 
         def clean_machine_folder
           folder = File.join(VirtualBox::Global.global.system_properties.default_machine_folder, "*")
+
+          # Small safeguard against potentially unwanted rm-rf, since the default
+          # machine folder will typically always be greater than 10 characters long.
+          # For users with it < 10, out of luck?
+          return if folder.length < 10
+
           Dir[folder].each do |f|
             next unless File.directory?(f)
 

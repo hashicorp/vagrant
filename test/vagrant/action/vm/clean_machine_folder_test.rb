@@ -19,7 +19,7 @@ class CleanMachineFolderVMActionTest < Test::Unit::TestCase
 
   context "cleaning the folder" do
     setup do
-      @machine_folder = "foo"
+      @machine_folder = "/foo/bar/baz"
       @folder = File.join(@machine_folder, "*")
       VirtualBox::Global.global.system_properties.stubs(:default_machine_folder).returns(@machine_folder)
       File.stubs(:file?).returns(true)
@@ -72,6 +72,11 @@ class CleanMachineFolderVMActionTest < Test::Unit::TestCase
       FileUtils.expects(:rm_rf).with("sbar").once
 
       @instance.clean_machine_folder
+    end
+
+    should "do nothing if folder is < 10 characters" do
+      VirtualBox::Global.global.system_properties.stubs(:default_machine_folder).returns("foo")
+      Dir.expects(:[]).never
     end
   end
 end
