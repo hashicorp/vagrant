@@ -19,8 +19,8 @@ module Vagrant
         use VM::Customize
         use VM::ClearForwardedPorts
         use VM::ForwardPorts
-        use VM::NFS
         use VM::Provision
+        use VM::NFS
         use VM::ClearSharedFolders
         use VM::ShareFolders
         use VM::Network
