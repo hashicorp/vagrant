@@ -12,8 +12,26 @@ class ForwardPortsVMActionTest < Test::Unit::TestCase
 
   context "initializing" do
     should "call proper methods" do
+      @klass.any_instance.expects(:threshold_check)
       @klass.any_instance.expects(:external_collision_check)
       @klass.new(@app, @env)
+    end
+  end
+
+  context "checking for threshold" do
+    should "error if has a port below threshold" do
+      @env.env.config.vm.forwarded_ports.clear
+      @env.env.config.vm.forward_port("foo", 22, 222)
+      @klass.new(@app, @env)
+      assert @env.error?
+      assert_equal :vm_port_below_threshold, @env.error.first
+    end
+
+    should "not error if ports are fine" do
+      @env.env.config.vm.forwarded_ports.clear
+      @env.env.config.vm.forward_port("foo", 22, 2222)
+      @klass.new(@app, @env)
+      assert !@env.error?
     end
   end
 
@@ -43,6 +61,7 @@ class ForwardPortsVMActionTest < Test::Unit::TestCase
 
   context "with instance" do
     setup do
+      @klass.any_instance.stubs(:threshold_check)
       @klass.any_instance.stubs(:external_collision_check)
       @instance = @klass.new(@app, @env)
     end

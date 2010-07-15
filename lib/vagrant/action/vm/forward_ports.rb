@@ -10,13 +10,22 @@ module Vagrant
           @app = app
           @env = env
 
-          external_collision_check
+          threshold_check
+          external_collision_check if !env.error?
         end
 
         #--------------------------------------------------------------
         # Prepare Helpers - These functions are not involved in actually
         # executing the action
         #--------------------------------------------------------------
+
+        # This method checks for any forwarded ports on the host below
+        # 1024, which causes the forwarded ports to fail.
+        def threshold_check
+          @env.env.config.vm.forwarded_ports.each do |name, options|
+            return @env.error!(:vm_port_below_threshold) if options[:hostport] <= 1024
+          end
+        end
 
         # This method checks for any port collisions with any VMs
         # which are already created (by Vagrant or otherwise).

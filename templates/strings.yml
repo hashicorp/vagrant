@@ -272,6 +272,11 @@
 
   VM: <%= vm_name %>
   Forwarded port: <%= name %> (<%= options[:guestport] %> => <%= options[:hostport] %>)
+:vm_port_below_threshold: |-
+  The host port of all forwarded ports must be above 1024. VirtualBox
+  does not allow host ports to be below 1024. (Guest ports below 1024
+  are fine. For example: SSH on port 22 on the guest can be forwarded
+  to port 2222, but not 222).
 :vm_port_collision: |-
   Vagrant cannot forward the specified ports on this VM, since they
   would collide with another VirtualBox virtual machine's forwarded
