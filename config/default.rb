@@ -35,6 +35,9 @@ Vagrant::Config.run do |config|
   config.unison.crontab_entry_file = "/tmp/vagrant-unison-crontab"
   config.unison.log_file = "/tmp/v-unison-log-%s"
 
+  config.nfs.map_uid = :auto
+  config.nfs.map_gid = :auto
+
   # TODO fix these
   # config.vm.sync_opts = "-terse -group -owner -batch -silent"
   # config.vm.sync_script = "/tmp/sync"

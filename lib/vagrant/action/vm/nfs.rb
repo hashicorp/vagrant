@@ -32,6 +32,7 @@ module Vagrant
           extract_folders
 
           if !folders.empty?
+            prepare_folders
             clear_nfs_exports(env)
             export_folders
           end
@@ -71,6 +72,36 @@ module Vagrant
 
             acc
           end
+        end
+
+        # Prepares the settings for the NFS folders, such as setting the
+        # options on the NFS folders.
+        def prepare_folders
+          @folders = @folders.inject({}) do |acc, data|
+            key, opts = data
+            opts[:nfs] = {} if !opts.is_a?(Hash)
+            opts[:map_uid] = prepare_permission(:uid, opts)
+            opts[:map_gid] = prepare_permission(:gid, opts)
+
+            acc[key] = opts
+            acc
+          end
+        end
+
+        # Prepares the UID/GID settings for a single folder.
+        def prepare_permission(perm, opts)
+          key = "map_#{perm}".to_sym
+          return nil if opts.has_key?(key) && opts[key].nil?
+
+          # The options on the hash get priority, then the default
+          # values
+          value = opts[key] || @env["config"].nfs.send(key)
+          return value if value != :auto
+
+          # Get UID/GID from folder if we've made it this far
+          # (value == :auto)
+          stat = File.stat(opts[:hostpath])
+          return stat.send(perm)
         end
 
         # Uses the host class to export the folders via NFS. This typically

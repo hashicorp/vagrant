@@ -37,7 +37,7 @@ class NFSVMActionTest < Test::Unit::TestCase
       setup do
         @instance.stubs(:folders).returns([:a])
 
-        [:clear_nfs_exports, :extract_folders, :export_folders, :mount_folders].each do |meth|
+        [:clear_nfs_exports, :extract_folders, :prepare_folders, :export_folders, :mount_folders].each do |meth|
           @instance.stubs(meth)
         end
       end
@@ -45,6 +45,7 @@ class NFSVMActionTest < Test::Unit::TestCase
       should "call the proper sequence and succeed" do
         seq = sequence('seq')
         @instance.expects(:extract_folders).in_sequence(seq)
+        @instance.expects(:prepare_folders).in_sequence(seq)
         @instance.expects(:clear_nfs_exports).with(@env).in_sequence(seq)
         @instance.expects(:export_folders).in_sequence(seq)
         @app.expects(:call).with(@env).in_sequence(seq)
@@ -57,6 +58,7 @@ class NFSVMActionTest < Test::Unit::TestCase
 
         seq = sequence('seq')
         @instance.expects(:extract_folders).in_sequence(seq)
+        @instance.expects(:prepare_folders).never
         @instance.expects(:export_folders).never
         @instance.expects(:clear_nfs_exports).never
         @app.expects(:call).with(@env).in_sequence(seq)
@@ -69,6 +71,7 @@ class NFSVMActionTest < Test::Unit::TestCase
 
         seq = sequence('seq')
         @instance.expects(:extract_folders).in_sequence(seq)
+        @instance.expects(:prepare_folders).in_sequence(seq)
         @instance.expects(:clear_nfs_exports).in_sequence(seq)
         @instance.expects(:export_folders).in_sequence(seq)
         @app.expects(:call).never
@@ -108,6 +111,38 @@ class NFSVMActionTest < Test::Unit::TestCase
         %W[v-foo v-bar].each do |key|
           assert @env["config"].vm.shared_folders[key][:disabled]
         end
+      end
+    end
+
+    context "preparing UID/GID" do
+      setup do
+        @stat = mock("stat")
+        File.stubs(:stat).returns(@stat)
+      end
+
+      should "return nil if the perm is not set" do
+        assert_nil @instance.prepare_permission(:uid, {:gid => 7})
+      end
+
+      should "return nil if the perm explicitly says nil" do
+        assert_nil @instance.prepare_permission(:uid, {:uid => nil})
+      end
+
+      should "return the set value if it is set" do
+        assert_equal 7, @instance.prepare_permission(:gid, {:map_gid => 7})
+      end
+
+      should "return the global config value if set and not explicitly set on folder" do
+        @env.env.config.nfs.map_gid = 12
+        assert_equal 12, @instance.prepare_permission(:gid, {})
+      end
+
+      should "return the stat result of the hostpath if :auto" do
+        opts = { :hostpath => "foo", :map_uid => :auto }
+        File.expects(:stat).with(opts[:hostpath]).returns(@stat)
+        @stat.stubs(:uid).returns(24)
+
+        assert_equal 24, @instance.prepare_permission(:uid, opts)
       end
     end
 

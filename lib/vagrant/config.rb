@@ -86,6 +86,11 @@ module Vagrant
       attr_accessor :log_file
     end
 
+    class NFSConfig < Base
+      attr_accessor :map_uid
+      attr_accessor :map_gid
+    end
+
     class VMConfig < Base
       include Util::StackedProcRunner
 
@@ -216,6 +221,7 @@ module Vagrant
 
       # Setup default configures
       configures :package, PackageConfig
+      configures :nfs, NFSConfig
       configures :ssh, SSHConfig
       configures :unison, UnisonConfig
       configures :vm, VMConfig
