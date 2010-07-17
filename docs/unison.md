@@ -4,6 +4,20 @@ title: Documentation - Unison Shared Folder Syncing
 ---
 # Unison Shared Folder Syncing
 
+<div class="info">
+  <h3>Warning! Unsupported Feature</h3>
+  <p>
+    Unison folder syncing was an attempt at a solution to slow VirtualBox
+    shared folders. Since this attempt, NFS shared folders appear to be a
+    stronger solution. Because of this, Unison shared folders are not officially
+    supported, despite significant documentation and code in place.
+  </p>
+  <p>
+    This documentation is simply left over here. Unison shared folders may
+    be removed at any time.
+  </p>
+</div>
+
 Its been a long known issue that VirtualBox shared folder performance
 degrades quickly as the number of files in the shared folder increases.
 As a project reaches thousands of files, doing simple things like running
