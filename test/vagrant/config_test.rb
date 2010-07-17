@@ -199,6 +199,26 @@ class ConfigTest < Test::Unit::TestCase
         assert @top.loaded?
       end
     end
+
+    context "deep cloning" do
+      class DeepCloneConfig < Vagrant::Config::Base
+        attr_accessor :attribute
+      end
+
+      setup do
+        Vagrant::Config::Top.configures :deep, DeepCloneConfig
+        @top = Vagrant::Config::Top.new
+        @top.deep.attribute = [1,2,3]
+      end
+
+      should "deep clone the object" do
+        copy = @top.deep_clone
+        copy.deep.attribute << 4
+        assert_not_equal @top.deep.attribute, copy.deep.attribute
+        assert_equal 3, @top.deep.attribute.length
+        assert_equal 4, copy.deep.attribute.length
+      end
+    end
   end
 
   context "vagrant configuration" do

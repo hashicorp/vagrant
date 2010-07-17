@@ -245,6 +245,12 @@ module Vagrant
       def loaded!
         @loaded = true
       end
+
+      # Deep clones the entire configuration tree using the marshalling
+      # trick. All subclasses must be able to marshal properly.
+      def deep_clone
+        Marshal.load(Marshal.dump(self))
+      end
     end
   end
 end
