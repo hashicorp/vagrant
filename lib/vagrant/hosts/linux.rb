@@ -42,7 +42,7 @@ module Vagrant
         if $?.to_i == 0
           # Use sed to just strip out the block of code which was inserted
           # by Vagrant
-          system("sudo sed -e '/^# VAGRANT-BEGIN: #{env.vm.uuid}/,/^# VAGRANT-END: #{env.vm.uuid}/ d' -i bak /etc/exports")
+          system("sudo sed -e '/^# VAGRANT-BEGIN: #{env.vm.uuid}/,/^# VAGRANT-END: #{env.vm.uuid}/ d' -ibak /etc/exports")
         end
       end
     end
