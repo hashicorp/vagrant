@@ -16,6 +16,11 @@ folders can offer a solution. Vagrant will orchestrate the configuration
 of the NFS server on the host and will mount of the folder on the guest
 for you.
 
+**Note:** NFS is not supported on Windows hosts. According to VirtualBox,
+shared folders on Windows shouldn't suffer the same performance penalties
+as on unix-based systems. If this is not true, feel free to use our [support](/support.html)
+channels and maybe we can help you out.
+
 ## Performance Benchmarks
 
 [John](http://nickelcode.com) and [I](http://github.com/mitchellh) did extensive
