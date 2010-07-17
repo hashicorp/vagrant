@@ -247,24 +247,3 @@ config.chef.run_list = ["recipe[foo]", "recipe[bar]"]
 config.chef.add_recipe("foo")
 config.chef.add_role("bar")
 {% endhighlight %}
-
-## Unison Configuration
-
-If you're using [unison folder syncing](/docs/unison.html), then this
-is configurable with the following options:
-
-`config.unison.folder_suffix` is the string suffix which is appended
-to the original shared folder guest path to be the VirtualBox shared
-folder when configuring sync.
-
-`config.unison.script` is the full path and filename of where to place
-the syncing script.
-
-`config.unison.options` is a string of command line arguments to pass
-to unison when run. By default, these are carefully chosen (and can
-be seen by looking at the `config.rb` file in the Vagrant gem), therefore
-please be careful when modifying these.
-
-`config.unison.crontab_entry_file` is the full path to where the
-unison syncing crontab file is placed.
-
