@@ -12,26 +12,20 @@ class BSDHostTest < Test::Unit::TestCase
 
   context "supporting nfs check" do
     should "support NFS" do
-      @instance.expects(:system).with() do |cmd|
-        `which which`
-        true
-      end
-
+      @instance.expects(:system).returns(true)
       assert @instance.nfs?
     end
 
     should "not support NFS if nfsd is not found" do
-      @instance.expects(:system).with() do |cmd|
-        `which thisshouldnoteverneverexist`
-        true
-      end
-
+      @instance.expects(:system).returns(false)
       assert !@instance.nfs?
     end
 
-    should "not support NFS if an error is raised" do
-      @instance.expects(:system).raises(TypeError.new("foo"))
-      assert !@instance.nfs?
+    should "retry until a boolean is returned" do
+      seq = sequence("seq")
+      @instance.expects(:system).in_sequence(seq).raises(TypeError.new("foo"))
+      @instance.expects(:system).in_sequence(seq).returns(true)
+      assert @instance.nfs?
     end
   end
 

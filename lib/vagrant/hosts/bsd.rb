@@ -5,10 +5,16 @@ module Vagrant
       include Util
 
       def nfs?
-        system("which nfsd > /dev/null 2>&1")
-        $?.to_i == 0
-      rescue TypeError
-        false
+        tries = 10
+        begin
+          system("which nfsd > /dev/null 2>&1")
+        rescue TypeError
+          tries -= 1
+          retry if tries > 0
+
+          # Hopefully this point isn't reached
+          raise
+        end
       end
 
       def nfs_export(ip, folders)
