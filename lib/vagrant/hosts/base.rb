@@ -30,7 +30,8 @@ module Vagrant
           # More coming soon
           classes = {
             :darwin => BSD,
-            :bsd => BSD
+            :bsd => BSD,
+            :linux => Linux
           }
 
           classes.each do |type, klass|

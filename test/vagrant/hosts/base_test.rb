@@ -36,7 +36,7 @@ class BaseHostTest < Test::Unit::TestCase
       end
 
       should "return nil if an exception is raised" do
-        Vagrant::Util::Platform.expects(:darwin?).raises(Exception)
+        Vagrant::Util::Platform.stubs(:platform).returns("boo")
         assert_nothing_raised {
           assert_nil @klass.detect
         }
