@@ -68,6 +68,7 @@ class PackageVMActionTest < Test::Unit::TestCase
         @instance.expects(:verify_included_files).in_sequence(seq).returns(true)
         @instance.expects(:compress).in_sequence(seq)
         @app.expects(:call).with(@env).in_sequence(seq)
+        @instance.expects(:cleanup).never
 
         @instance.call(@env)
       end
@@ -87,6 +88,40 @@ class PackageVMActionTest < Test::Unit::TestCase
 
         assert @env.error?
         assert_equal :package_requires_export, @env.error.first
+      end
+
+      should "run cleanup if environment errors" do
+        seq = sequence("seq")
+        @instance.expects(:verify_included_files).in_sequence(seq).returns(true)
+        @instance.expects(:compress).in_sequence(seq)
+        @app.expects(:call).with(@env).in_sequence(seq)
+        @instance.expects(:cleanup).in_sequence(seq)
+
+        @env.error!(:foo)
+        @instance.call(@env)
+      end
+    end
+
+    context "cleaning up" do
+      setup do
+        File.stubs(:exist?).returns(false)
+        File.stubs(:delete)
+
+        @instance.stubs(:tar_path).returns("foo")
+      end
+
+      should "do nothing if the file doesn't exist" do
+        File.expects(:exist?).with(@instance.tar_path).returns(false)
+        File.expects(:delete).never
+
+        @instance.cleanup
+      end
+
+      should "delete the packaged box if it exists" do
+        File.expects(:exist?).returns(true)
+        File.expects(:delete).with(@instance.tar_path).once
+
+        @instance.cleanup
       end
     end
 
