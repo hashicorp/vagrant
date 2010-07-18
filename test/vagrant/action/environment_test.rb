@@ -29,6 +29,12 @@ class ActionEnvironmentTest < Test::Unit::TestCase
     assert @instance.error?
   end
 
+  should "report interrupted if interrupt error" do
+    assert !@instance.interrupted?
+    @instance.error!(:interrupt)
+    assert @instance.interrupted?
+  end
+
   should "have indifferent access" do
     @instance[:foo] = :bar
     @instance["bar"] = :baz

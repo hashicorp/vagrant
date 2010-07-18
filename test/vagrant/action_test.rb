@@ -84,6 +84,16 @@ class ActionTest < Test::Unit::TestCase
       @instance.run(callable, :bar => :foo)
     end
 
+    should "exit if environment was marked as interrupted" do
+      callable = lambda do |env|
+        env.error!(:interrupt)
+      end
+
+      @instance.stubs(:error_and_exit)
+      @instance.expects(:exit).once
+      @instance.run(callable)
+    end
+
     should "error and exit if erroneous environment results" do
       callable = lambda do |env|
         env.error!(:key, :foo => :bar)

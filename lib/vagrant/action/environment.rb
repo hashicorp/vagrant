@@ -50,6 +50,12 @@ module Vagrant
         !error.nil?
       end
 
+      # Returns a boolean denoting if environment has been interrupted
+      # with a SIGINT.
+      def interrupted?
+        error? && error.first == :interrupt
+      end
+
       #-----------------------------------------------------------------
       # Hash with indifferent access
       #-----------------------------------------------------------------

@@ -48,7 +48,13 @@ module Vagrant
 
       action_environment = Action::Environment.new(env)
       action_environment.merge!(options || {})
-      callable.call(action_environment)
+
+      # Run the action chain in a busy block, marking the environment as
+      # interrupted if a SIGINT occurs, and exiting cleanly once the
+      # chain has been run.
+      int_callback = lambda { action_environment.error!(:interrupt) }
+      Busy.busy(int_callback) { callable.call(action_environment) }
+      exit if action_environment.interrupted?
 
       if action_environment.error?
         # Erroneous environment resulted. Properly display error
