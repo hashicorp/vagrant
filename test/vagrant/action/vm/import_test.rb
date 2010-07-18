@@ -43,7 +43,7 @@ class ImportVMActionTest < Test::Unit::TestCase
       assert_equal @env, env
       @env.error!(:interrupt)
     end
-    @env.env.actions.expects(:run).with(Vagrant::Action::VM::Destroy).once
+    @env.env.actions.expects(:run).with(:destroy).once
 
     @instance.call(@env)
   end

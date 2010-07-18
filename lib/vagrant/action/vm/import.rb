@@ -25,7 +25,7 @@ module Vagrant
           @app.call(env) if !env.error?
 
           # Interrupted, destroy the VM
-          env["actions"].run(Destroy) if env.interrupted?
+          env["actions"].run(:destroy) if env.interrupted?
         end
       end
     end
