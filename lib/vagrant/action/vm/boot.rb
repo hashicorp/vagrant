@@ -8,6 +8,9 @@ module Vagrant
         end
 
         def call(env)
+          # Do nothing if the environment is erroneous
+          return if env.error?
+
           @env = env
 
           # Start up the VM and wait for it to boot.

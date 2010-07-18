@@ -16,6 +16,14 @@ class BootVMActionTest < Test::Unit::TestCase
   end
 
   context "calling" do
+    should "do nothing if environment is erroneous" do
+      @env.error!(:foo)
+      @instance.expects(:boot).never
+      @app.expects(:call).never
+
+      @instance.call(@env)
+    end
+
     should "run the proper methods on success" do
       boot_seq = sequence("boot_seq")
       @instance.expects(:boot).in_sequence(boot_seq)
