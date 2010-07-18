@@ -744,6 +744,7 @@ class EnvironmentTest < Test::Unit::TestCase
       @env.stubs(:parent).returns(nil)
       @env.stubs(:dotfile_path).returns("foo")
       File.stubs(:open)
+      File.stubs(:exist?).returns(true)
     end
 
     def create_vm(created)
@@ -769,6 +770,17 @@ class EnvironmentTest < Test::Unit::TestCase
       @env.stubs(:vms).returns(vms)
       File.expects(:delete).with(@env.dotfile_path).once
       @env.update_dotfile
+    end
+
+    should "not remove the dotfile if it doesn't exist" do
+      vms = {
+        :foo => create_vm(false)
+      }
+
+      @env.stubs(:vms).returns(vms)
+      File.expects(:exist?).with(@env.dotfile_path).returns(false)
+      File.expects(:delete).never
+      assert_nothing_raised { @env.update_dotfile }
     end
 
     should "write the proper data to dotfile" do

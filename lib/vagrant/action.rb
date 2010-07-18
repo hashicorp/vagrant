@@ -52,7 +52,11 @@ module Vagrant
       # Run the action chain in a busy block, marking the environment as
       # interrupted if a SIGINT occurs, and exiting cleanly once the
       # chain has been run.
-      int_callback = lambda { action_environment.error!(:interrupt) }
+      int_callback = lambda do
+        env.logger.info "Waiting for cleanup before exiting..."
+        action_environment.error!(:interrupt)
+      end
+
       Busy.busy(int_callback) { callable.call(action_environment) }
       exit if action_environment.interrupted?
 
