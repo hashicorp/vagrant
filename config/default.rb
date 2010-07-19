@@ -16,6 +16,7 @@ Vagrant::Config.run do |config|
 
   config.vm.auto_port_range = (2200..2250)
   config.vm.box_ovf = "box.ovf"
+  config.vm.box_url = "http://files.vagrantup.com/base.box"
   config.vm.base_mac = "0800279C2E42"
   config.vm.forward_port("ssh", 22, 2222, :auto => true)
   config.vm.disk_image_format = 'VMDK'
