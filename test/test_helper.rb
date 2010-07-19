@@ -32,6 +32,7 @@ class Test::Unit::TestCase
       config.ssh.private_key_path = '~/foo'
 
       config.vm.box = "foo"
+      config.vm.box_url = "http://mycompany.com/protected/my_box.box"
       config.vm.box_ovf = "box.ovf"
       config.vm.base_mac = "42"
       config.vm.disk_image_format = 'VMDK'
