@@ -1,8 +1,8 @@
 require "test_helper"
 
-class ResourceLoggerTest < Test::Unit::TestCase
+class ResourceLoggerUtilTest < Test::Unit::TestCase
   setup do
-    @klass = Vagrant::ResourceLogger
+    @klass = Vagrant::Util::ResourceLogger
   end
 
   context "singleton logger" do
