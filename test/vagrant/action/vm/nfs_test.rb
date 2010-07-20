@@ -112,6 +112,14 @@ class NFSVMActionTest < Test::Unit::TestCase
           assert @env["config"].vm.shared_folders[key][:disabled]
         end
       end
+
+      should "expand the hostpath relative to the env root" do
+        @instance.extract_folders
+        %W[v-foo v-bar].each do |key|
+          opts = @env["config"].vm.shared_folders[key]
+          assert_equal File.expand_path(opts[:hostpath], @env.env.root_path), @instance.folders[key][:hostpath]
+        end
+      end
     end
 
     context "preparing UID/GID" do
