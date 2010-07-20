@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
+require "test_helper"
 
 class PlatformTest < Test::Unit::TestCase
   context "file options" do

@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
+require "test_helper"
 
 class BaseProvisionerTest < Test::Unit::TestCase
   should "include the util class so subclasses have access to it" do

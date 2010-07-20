@@ -3,10 +3,12 @@ begin
   require 'ruby-debug'
 rescue LoadError; end
 
-
 require File.join(File.dirname(__FILE__), '..', 'lib', 'vagrant')
 require 'contest'
 require 'mocha'
+
+# Add this folder to the load path for "test_helper"
+$:.unshift(File.dirname(__FILE__))
 
 class Test::Unit::TestCase
   # Mocks an environment, setting it up with the given config.

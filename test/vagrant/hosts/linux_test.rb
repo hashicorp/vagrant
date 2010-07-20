@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
+require "test_helper"
 
 class LinuxHostTest < Test::Unit::TestCase
   setup do
