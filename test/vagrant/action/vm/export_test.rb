@@ -40,6 +40,17 @@ class ExportVMActionTest < Test::Unit::TestCase
       assert @env.error?
       assert_equal :vm_power_off_to_package, @env.error.first
     end
+
+    should "halt the chain if env error" do
+      @internal_vm.stubs(:powered_off?).returns(true)
+      @instance.expects(:setup_temp_dir).never
+      @instance.expects(:export).never
+      @app.expects(:call).with(@env).never
+      @instance.expects(:cleanup).never
+
+      @env.error!(:interrupt)
+      @instance.call(@env)
+    end
   end
 
   context "cleaning up" do
