@@ -26,7 +26,7 @@ module Vagrant
           @env["vm"].vm.start(@env.env.config.vm.boot_mode)
         end
 
-        def wait_for_boot(sleeptime=5)
+        def wait_for_boot
           @env.logger.info "Waiting for VM to boot..."
 
           @env.env.config.ssh.max_tries.to_i.times do |i|
@@ -41,7 +41,7 @@ module Vagrant
             # get shown
             return true if @env.interrupted?
 
-            sleep sleeptime
+            sleep 5 if !@env["vagrant.test"]
           end
 
           @env.logger.info "Failed to connect to VM! Failed to boot?"

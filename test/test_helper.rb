@@ -93,6 +93,7 @@ class Test::Unit::TestCase
   def mock_action_data
     app = lambda { |env| }
     env = Vagrant::Action::Environment.new(mock_environment)
+    env["vagrant.test"] = true
     [app, env]
   end
 

@@ -23,7 +23,7 @@ module Vagrant
 
             # Sleep for a second to verify that the VM properly
             # cleans itself up
-            sleep 1
+            sleep 1 if !env["vagrant.test"]
           end
 
           @app.call(env)

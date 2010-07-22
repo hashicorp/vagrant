@@ -4,6 +4,7 @@ class SetEnvActionTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Action::Env::Set
     @app, @env = mock_action_data
+    @env.clear
   end
 
   should "merge in the given options" do

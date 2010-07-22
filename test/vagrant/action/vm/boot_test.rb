@@ -66,18 +66,18 @@ class BootVMActionTest < Test::Unit::TestCase
       seq = sequence('pings')
       @vm.ssh.expects(:up?).times(@env.env.config.ssh.max_tries.to_i - 1).returns(false).in_sequence(seq)
       @vm.ssh.expects(:up?).once.returns(true).in_sequence(seq)
-      assert @instance.wait_for_boot(0)
+      assert @instance.wait_for_boot
     end
 
     should "return right away if interrupted" do
       @env.error!(:interrupt)
       @vm.ssh.expects(:up?).times(1).returns(false)
-      assert @instance.wait_for_boot(0)
+      assert @instance.wait_for_boot
     end
 
     should "ping the max number of times then just return" do
       @vm.ssh.expects(:up?).times(@env.env.config.ssh.max_tries.to_i).returns(false)
-      assert !@instance.wait_for_boot(0)
+      assert !@instance.wait_for_boot
     end
   end
 end
