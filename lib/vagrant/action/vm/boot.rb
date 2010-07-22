@@ -16,6 +16,7 @@ module Vagrant
           # Start up the VM and wait for it to boot.
           boot
           return env.error!(:vm_failed_to_boot) if !wait_for_boot
+          return if env.error?
 
           @app.call(env)
         end
@@ -35,6 +36,10 @@ module Vagrant
               @env.logger.info "VM booted and ready for use!"
               return true
             end
+
+            # Return true so that the vm_failed_to_boot error doesn't
+            # get shown
+            return true if @env.interrupted?
 
             sleep sleeptime
           end
