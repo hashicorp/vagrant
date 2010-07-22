@@ -33,6 +33,7 @@ module Vagrant
       # a restart if fails.
       halt = Builder.new do
         use VM::Halt
+        use VM::DisableNetworks
       end
 
       register :halt, halt

@@ -20,6 +20,10 @@ module Vagrant
               env.logger.info "Forcing shutdown of VM..."
               env["vm"].vm.stop
             end
+
+            # Sleep for a second to verify that the VM properly
+            # cleans itself up
+            sleep 1
           end
 
           @app.call(env)
