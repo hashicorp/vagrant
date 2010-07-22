@@ -60,20 +60,20 @@ module Vagrant
         opts.banner = "Usage: vagrant package [--base BASE] [--include FILES]"
 
         # Defaults
-        options[:include] = []
         options[:base] = nil
-        options[:output] = nil
+        options["package.output"] = nil
+        options["package.include"] = []
 
         opts.on("--base BASE", "Name or UUID of VM to create a base box from") do |v|
           options[:base] = v
         end
 
         opts.on("--include x,y,z", Array, "List of files to include in the package") do |v|
-          options[:include] = v
+          options["package.include"] = v
         end
 
         opts.on("-o", "--output FILE", "File to save the package as.") do |v|
-          options[:output] = v
+          options["package.output"] = v
         end
       end
     end
