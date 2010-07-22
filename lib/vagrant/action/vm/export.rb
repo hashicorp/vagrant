@@ -18,7 +18,7 @@ module Vagrant
           setup_temp_dir
           export
 
-          @app.call(env)
+          @app.call(env) if !env.error?
 
           cleanup
         end

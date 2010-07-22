@@ -51,6 +51,20 @@ class ExportVMActionTest < Test::Unit::TestCase
       @env.error!(:interrupt)
       @instance.call(@env)
     end
+
+    should "halt the chain if env error when call is reached" do
+      @internal_vm.stubs(:powered_off?).returns(true)
+      @instance.expects(:setup_temp_dir).once
+      @instance.expects(:export).once.with() do
+        @env.error!(:interrupt)
+        true
+      end
+
+      @app.expects(:call).with(@env).never
+      @instance.expects(:cleanup).once
+
+      @instance.call(@env)
+    end
   end
 
   context "cleaning up" do
