@@ -53,6 +53,11 @@ module Vagrant
       # interrupted if a SIGINT occurs, and exiting cleanly once the
       # chain has been run.
       int_callback = lambda do
+        if action_environment.interrupted?
+          env.logger.info "Exiting immediately!"
+          abort
+        end
+
         env.logger.info "Waiting for cleanup before exiting..."
         action_environment.error!(:interrupt)
       end
