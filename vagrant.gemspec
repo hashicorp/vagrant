@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.authors       = ["Mitchell Hashimoto", "John Bender"]
   s.email         = ["mitchell.hashimoto@gmail.com", "john.m.bender@gmail.com"]
   s.homepage      = "http://vagrantup.com"
-  s.summary       = "Vagrant is a tool for building and distributing virtualized development environments."
+  s.summary       = "Build and distribute virtualized development environments."
   s.description   = "Vagrant is a tool for building and distributing virtualized development environments."
   s.executables   = ["vagrant"]
   s.require_paths = ["lib"]
