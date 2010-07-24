@@ -5,7 +5,6 @@ module Vagrant
         BASENAME = "box"
 
         include Util
-        include ExceptionCatcher
 
         attr_reader :temp_path
 
