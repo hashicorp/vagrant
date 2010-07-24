@@ -649,46 +649,6 @@ class EnvironmentTest < Test::Unit::TestCase
       @env = mock_environment
     end
 
-    context "requiring boxes" do
-      setup do
-        reconfig_environment
-      end
-
-      def reconfig_environment
-        @env = mock_environment do |config|
-          yield config if block_given?
-        end
-
-        @env.stubs(:require_root_path)
-        @env.stubs(:error_and_exit)
-      end
-
-      should "require root path" do
-        @env.expects(:require_root_path).once
-        @env.require_box
-      end
-
-      should "error and exit if no box is specified" do
-        reconfig_environment do |config|
-          config.vm.box = nil
-        end
-
-        @env.expects(:box).returns(nil)
-        @env.expects(:error_and_exit).once.with(:box_not_specified)
-        @env.require_box
-      end
-
-      should "error and exit if box is specified but doesn't exist" do
-        reconfig_environment do |config|
-          config.vm.box = "foo"
-        end
-
-        @env.expects(:box).returns(nil)
-        @env.expects(:error_and_exit).once.with(:box_specified_doesnt_exist, :box_name => "foo")
-        @env.require_box
-      end
-    end
-
     context "requiring root_path" do
       should "error and exit if no root_path is set" do
         @env.expects(:root_path).returns(nil)

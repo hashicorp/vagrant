@@ -353,18 +353,6 @@ module Vagrant
       error_and_exit(:rootfile_not_found) if !root_path
     end
 
-    def require_box
-      require_root_path
-
-      if !box
-        if !config.vm.box
-          error_and_exit(:box_not_specified)
-        else
-          error_and_exit(:box_specified_doesnt_exist, :box_name => config.vm.box)
-        end
-      end
-    end
-
     def require_persisted_vm
       require_root_path
 
