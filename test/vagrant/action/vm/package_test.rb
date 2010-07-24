@@ -31,9 +31,9 @@ class PackageVMActionTest < Test::Unit::TestCase
       assert_equal :box_file_exists, @env.error.first
     end
 
-    should "set the output path to 'package' by default" do
+    should "set the output path to configured by default" do
       @klass.new(@app, @env)
-      assert_equal "package", @env["package.output"]
+      assert_equal @env["config"].package.name, @env["package.output"]
     end
 
     should "not set the output path if it is already set" do
@@ -258,5 +258,10 @@ class PackageVMActionTest < Test::Unit::TestCase
       end
     end
 
+    context "tar path" do
+      should "return proper path" do
+        assert_equal File.join(FileUtils.pwd, @env["package.output"]), @instance.tar_path
+      end
+    end
   end
 end

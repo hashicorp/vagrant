@@ -7,7 +7,7 @@ module Vagrant
         def initialize(app, env)
           @app = app
           @env = env
-          @env["package.output"] ||= "package"
+          @env["package.output"] ||= env["config"].package.name
           @env["package.include"] ||= []
 
           env.error!(:box_file_exists, :output_file => tar_path) if File.exist?(tar_path)
@@ -91,7 +91,7 @@ module Vagrant
 
         # Path to the final box output file
         def tar_path
-          File.join(FileUtils.pwd, "#{@env["package.output"]}#{@env.env.config.package.extension}")
+          File.join(FileUtils.pwd, @env["package.output"])
         end
       end
     end

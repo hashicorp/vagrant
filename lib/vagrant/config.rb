@@ -192,7 +192,6 @@ module Vagrant
 
     class PackageConfig < Base
       attr_accessor :name
-      attr_accessor :extension
     end
 
     class VagrantConfig < Base

@@ -42,8 +42,7 @@ class Test::Unit::TestCase
       config.vm.system = :linux
       config.vm.share_folder("v-root", "/vagrant", ".")
 
-      config.package.name = 'vagrant'
-      config.package.extension = '.box'
+      config.package.name = 'package'
 
       # Unison
       config.unison.folder_suffix = ".sync"

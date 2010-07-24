@@ -44,6 +44,5 @@ Vagrant::Config.run do |config|
   # config.vm.sync_script = "/tmp/sync"
   # config.vm.sync_crontab_entry_file = "/tmp/crontab-entry"
 
-  config.package.name = 'vagrant'
-  config.package.extension = '.box'
+  config.package.name = 'package.box'
 end
