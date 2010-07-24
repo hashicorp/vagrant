@@ -14,6 +14,18 @@ for bugs to easily slip through. Because of this, I've decided to focus on Virtu
 3.2.x. If you must use VirtualBox 3.1.x, please use an earlier version of Vagrant
 (0.4.1 works nicely).
 
+## Box URL Specification in Vagrantfile
+
+Up until this point, the steps to share a project have been two-fold:
+
+1. Checkout the project with the Vagrantfile and associated files
+1. Ask coworker to download a box from some URL if they haven't already
+
+This is now combined into a single step, since a box URL can be specified
+with the `config.vm.box_url`. During a `vagrant up`, if the box specified
+with `config.vm.box` doesn't exist, then Vagrant will download
+the box from this URL under the configured name.
+
 ## NFS Shared Folders
 
 It is a well known fact that VirtualBox shared folder performance degrades
@@ -46,6 +58,9 @@ And if you did a SIGINT before Vagrant could persist the VM UUID, then
 But now, SIGINT anytime you want, and Vagrant will properly clean up after
 itself. Yes, you can even send an INT signal during an import or export,
 and everything will work out.
+
+And, if you don't actually care about a clean exit, just press Ctrl-C
+again and any Vagrant commands will immediately exit.
 
 ## Huge Internal Changes
 
