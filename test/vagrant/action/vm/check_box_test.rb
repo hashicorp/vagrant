@@ -32,5 +32,17 @@ class CheckBoxVMActionTest < Test::Unit::TestCase
       assert @env.error?
       assert_equal :box_specified_doesnt_exist, @env.error.first
     end
+
+    should "attempt to download box and continue if URL specified" do
+      seq = sequence("seq")
+      @env.env.config.vm.box_url = "bar"
+      Vagrant::Box.expects(:find).returns(nil)
+      Vagrant::Box.expects(:add).with(@env.env, @env["config"].vm.box, @env["config"].vm.box_url).in_sequence(seq)
+      @env.env.expects(:load_box!).in_sequence(seq)
+      @app.expects(:call).with(@env).once.in_sequence(seq)
+
+      @instance.call(@env)
+      assert !@env.error?
+    end
   end
 end
