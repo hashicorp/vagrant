@@ -1,11 +1,11 @@
 module Vagrant
   class Action
     class Warden
-      attr_accessor :actions
+      attr_accessor :actions, :stack
 
-      def initialize(middleware, env)
+      def initialize(actions, env)
         @stack = []
-        @actions = middleware.map { |m| finalize_middleware(m, env) }.reverse
+        @actions = actions.map { |m| finalize_action(m, env) }.reverse
       end
 
       def call(env)
@@ -13,11 +13,11 @@ module Vagrant
         @stack.push(@actions.pop).last.call(env)
       end
 
-      def finalize_middleware(middleware, env)
-        klass, args, block = middleware
+      def finalize_action(action, env)
+        klass, args, block = action
 
         if klass.is_a?(Class)
-          # A middleware klass which is to be instantiated with the
+          # A action klass which is to be instantiated with the
           # app, env, and any arguments given
           klass.new(self, env, *args, &block)
         elsif klass.respond_to?(:call)
@@ -28,7 +28,7 @@ module Vagrant
             self.call(e)
           end
         else
-          raise "Invalid middleware: #{middleware.inspect}"
+          raise "Invalid action: #{action.inspect}"
         end
       end
     end
