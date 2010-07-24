@@ -112,34 +112,11 @@ module Vagrant
       def to_app(env)
         # Prepend the error halt task so errneous environments are halted
         # before the chain even begins.
-        items = stack.dup.unshift([Env::ErrorHalt, [], nil])
+        middleware = stack.dup.push([Env::ErrorHalt, [], nil])
 
         # Convert each middleware into a lambda which takes the next
         # middleware.
-        items = items.collect do |item|
-          klass, args, block = item
-
-          lambda do |app|
-            if klass.is_a?(Class)
-              # A middleware klass which is to be instantiated with the
-              # app, env, and any arguments given
-              klass.new(app, env, *args, &block)
-            elsif klass.respond_to?(:call)
-              # Make it a lambda which calls the item then forwards
-              # up the chain
-              lambda do |e|
-                klass.call(e)
-                app.call(e)
-              end
-            else
-              raise "Invalid middleware: #{item.inspect}"
-            end
-          end
-        end
-
-        # Append the final step and convert into flattened call chain.
-        items << lambda { |env| }
-        items[0...-1].reverse.inject(items.last) { |a,e| e.call(a) }
+        Vagrant::Action::Warden.new(middleware, env)
       end
 
       # Runs the builder stack with the given environment.
