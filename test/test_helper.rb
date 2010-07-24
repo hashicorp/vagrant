@@ -121,7 +121,8 @@ class Test::Unit::TestCase
     tempfile = mock("tempfile")
     tempfile.stubs(:write)
 
-    [downloader_klass.new(mock_environment), tempfile]
+    _, env = mock_action_data
+    [downloader_klass.new(env), tempfile]
   end
 end
 

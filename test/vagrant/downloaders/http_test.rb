@@ -42,6 +42,14 @@ class HttpDownloaderTest < Test::Unit::TestCase
 
       @downloader.download!(@uri, @tempfile)
     end
+
+    should "error environment if invalid URL given" do
+      Net::HTTP.expects(:new).raises(SocketError.new)
+      @downloader.download!(@uri, @tempfile)
+
+      assert @downloader.env.error?
+      assert_equal :box_download_http_socket_error, @downloader.env.error.first
+    end
   end
 
   context "matching the uri" do

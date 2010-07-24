@@ -48,6 +48,8 @@ module Vagrant
         end
 
         env.logger.clear_progress
+      rescue SocketError
+        env.error!(:box_download_http_socket_error, :box_url => source_url)
       end
     end
   end
