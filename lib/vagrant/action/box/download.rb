@@ -19,11 +19,9 @@ module Vagrant
         def call(env)
           @env = env
 
-          catch_action_exception(env) do
-            download if instantiate_downloader
-          end
-
+          download if instantiate_downloader
           return if env.error?
+
           @app.call(@env)
 
           cleanup
