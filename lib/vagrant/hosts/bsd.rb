@@ -23,7 +23,11 @@ module Vagrant
                                          :ip => ip,
                                          :folders => folders)
 
+        # The sleep ensures that the output is truly flushed before any `sudo`
+        # commands are issued.
         env.logger.info "Preparing to edit /etc/exports. Administrator priveleges will be required..."
+        sleep 0.5
+
         output.split("\n").each do |line|
           # This should only ask for administrative permission once, even
           # though its executed in multiple subshells.
