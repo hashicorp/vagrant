@@ -87,6 +87,10 @@ or
 $ vagrant box add my_box some_downloaded.box
 {% endhighlight %}
 
+`config.vm.box_url`, if specified, will be used to download the box given in `config.vm.box`
+if it doesn't exist. This URL can be anything which `vagrant box add` accepts as a
+URL.
+
 `config.vm.box_ovf` tells Vagrant and consequently the [virtualbox](http://github.com/mitchellh/virtualbox) gem
 which file in the `~/.vagrant/boxes/{configured box}/` directory should be used when importing the configured box
 for duplication. (see `config.vm.box`). This setting is only really important for those creating
