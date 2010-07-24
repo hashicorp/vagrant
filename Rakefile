@@ -1,28 +1,34 @@
 require 'rake/testtask'
 
-begin
-  require 'jeweler'
-  Jeweler::Tasks.new do |gemspec|
-    gemspec.name = "vagrant"
-    gemspec.summary = "Vagrant is a tool for building and distributing virtualized development environments."
-    gemspec.description = "Vagrant is a tool for building and distributing virtualized development environments."
-    gemspec.email = ["mitchell.hashimoto@gmail.com", "john.m.bender@gmail.com"]
-    gemspec.homepage = "http://github.com/mitchellh/vagrant"
-    gemspec.authors = ["Mitchell Hashimoto", "John Bender"]
+task :default => :test
 
-    gemspec.add_dependency('virtualbox', '~> 0.7.3')
-    gemspec.add_dependency('net-ssh', '>= 2.0.19')
-    gemspec.add_dependency('net-scp', '>= 1.0.2')
-    gemspec.add_dependency('json', '>= 1.2.0')
-    gemspec.add_dependency('archive-tar-minitar', '= 0.5.2')
-    gemspec.add_dependency('mario', '~> 0.0.6')
+def gemspec
+  @gemspec ||= begin
+    file = File.expand_path('../vagrant.gemspec', __FILE__)
+    eval(File.read(file), binding, file)
   end
-  Jeweler::GemcutterTasks.new
-rescue LoadError
-  puts "Jeweler not available. Install it with: gem install jeweler"
 end
 
-task :default => :test
+begin
+  require 'rake/gempackagetask'
+rescue LoadError
+  task(:gem) { $stderr.puts '`gem install rake` to package gems' }
+else
+  Rake::GemPackageTask.new(gemspec) do |pkg|
+    pkg.gem_spec = gemspec
+  end
+  task :gem => :gemspec
+end
+
+desc "install the gem locally"
+task :install => :package do
+  sh %{gem install pkg/#{gemspec.name}-#{gemspec.version}}
+end
+
+desc "validate the gemspec"
+task :gemspec do
+  gemspec.validate
+end
 
 Rake::TestTask.new do |t|
   t.libs << "test"

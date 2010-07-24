@@ -113,9 +113,7 @@ module Vagrant
 
       # Shows the version
       def puts_version
-        File.open(File.join(PROJECT_ROOT, "VERSION"), "r") do |f|
-          puts f.read
-        end
+        puts VERSION
       end
 
       # Returns the `OptionParser` instance to be used with this subcommand,
