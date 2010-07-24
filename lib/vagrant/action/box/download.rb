@@ -13,8 +13,7 @@ module Vagrant
           @app = app
           @env = env
           @env["download.classes"] ||= []
-          @env["download.classes"] << [Downloaders::HTTP, Downloaders::File]
-          @env["download.classes"].flatten!
+          @env["download.classes"] += [Downloaders::HTTP, Downloaders::File]
         end
 
         def call(env)
