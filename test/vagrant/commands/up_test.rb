@@ -38,7 +38,6 @@ class CommandsUpTest < Test::Unit::TestCase
 
     should "up non-created VMs" do
       @vm.stubs(:created?).returns(false)
-      @vm.env.expects(:require_box).once
       @vm.expects(:up).once
       @vm.expects(:start).never
       @instance.up_single(:foo)

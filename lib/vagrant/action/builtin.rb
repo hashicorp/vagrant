@@ -62,6 +62,7 @@ module Vagrant
 
       # up - Imports, prepares, then starts a fresh VM.
       up = Builder.new do
+        use VM::CheckBox
         use VM::Import
         use VM::Persist
         use VM::MatchMACAddress
