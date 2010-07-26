@@ -19,7 +19,7 @@ class ActionWardenTest < Test::Unit::TestCase
 
   context "setting up middleware" do
     should "make non-classes lambdas" do
-      env = Vagrant::Action::Environment.new(nil)
+      env = new_env
       env.expects(:foo).once
 
       func = lambda { |x| x.foo }
@@ -53,9 +53,46 @@ class ActionWardenTest < Test::Unit::TestCase
       @instance.actions << action
       @instance.call(new_env)
     end
+
+    should "begin rescue on environment error" do
+      env = new_env
+      env.error!(:foo)
+      @instance.expects(:begin_rescue)
+      @instance.actions << lambda {}
+      @instance.actions.first.expects(:call).never
+      @instance.call(env)
+    end
+  end
+
+  context "rescue" do
+    should "call rescue on all items in the stack" do
+      mock_action = rescueable_mock("action")
+      mock_action.expects(:rescue).times(2)
+      @instance.stack = [mock_action, mock_action]
+      @instance.begin_rescue(new_env)
+    end
+
+    should "call rescue on stack in reversed order" do
+      seq = sequence("reverse")
+      first_mock_action = rescueable_mock("first")
+      second_mock_action = rescueable_mock("second")
+
+      @instance.stack = [first_mock_action, second_mock_action]
+
+      second_mock_action.expects(:rescue).in_sequence(seq)
+      first_mock_action.expects(:rescue).in_sequence(seq)
+
+      @instance.begin_rescue(new_env)
+    end
   end
 
   def new_env
     Vagrant::Action::Environment.new(nil)
+  end
+
+  def rescueable_mock(name)
+    mock_action = mock(name)
+    mock_action.stubs(:respond_to?).with(:rescue).returns(true)
+    mock_action
   end
 end

@@ -19,8 +19,8 @@ module Vagrant
       end
 
       def begin_rescue(env)
-        @stack.reverse.each do |action|
-          action.rescue(env) if actions.respond_to?(:rescue)
+        @stack.reverse.each do |act|
+          act.rescue(env) if act.respond_to?(:rescue)
         end
       end
 
