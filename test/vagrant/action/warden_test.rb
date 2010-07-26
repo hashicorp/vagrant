@@ -12,7 +12,7 @@ class ActionWardenTest < Test::Unit::TestCase
       middleware.each do |m|
         @klass.any_instance.expects(:finalize_action).with(m, {}).returns(m)
       end
-      @warden = @klass.new(middleware, {})
+      @warden = @klass.new(middleware, new_env)
       assert_equal @warden.actions, [3,2,1]
     end
   end
@@ -36,13 +36,13 @@ class ActionWardenTest < Test::Unit::TestCase
   context "calling" do
     should "return if there are no actions to execute" do
       @instance.actions.expects(:pop).never
-      assert !@instance.call({})
+      assert !@instance.call(new_env)
     end
 
     should "move the last action to the front of the stack" do
       @instance.actions << lambda {}
       assert @instance.stack.empty?
-      @instance.call({})
+      @instance.call(new_env)
       assert !@instance.stack.empty?
       assert @instance.actions.empty?
     end
@@ -51,7 +51,11 @@ class ActionWardenTest < Test::Unit::TestCase
       action = mock('action')
       action.expects(:call).with({})
       @instance.actions << action
-      @instance.call({})
+      @instance.call(new_env)
     end
+  end
+
+  def new_env
+    Vagrant::Action::Environment.new(nil)
   end
 end

@@ -10,7 +10,18 @@ module Vagrant
 
       def call(env)
         return if @actions.empty?
-        @stack.push(@actions.pop).last.call(env)
+
+        if env.error?
+          begin_rescue(env)
+        else
+          @stack.push(@actions.pop).last.call(env)
+        end
+      end
+
+      def begin_rescue(env)
+        @stack.reverse.each do |action|
+          action.rescue(env) if actions.respond_to?(:rescue)
+        end
       end
 
       def finalize_action(action, env)
