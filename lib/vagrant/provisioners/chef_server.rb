@@ -53,8 +53,6 @@ module Vagrant
         logger.info "Running chef-client..."
         vm.ssh.execute do |ssh|
           ssh.exec!(command) do |channel, type, data|
-            # TODO: Very verbose. It would be easier to save the data and only show it during
-            # an error, or when verbosity level is set high
             if type == :exit_status
               ssh.check_exit_status(data, command)
             else

@@ -10,7 +10,6 @@ module Vagrant
     class HTTP < Base
       def self.match?(uri)
         # URI.parse barfs on '<drive letter>:\\files \on\ windows'
-        # TODO temprorary
         extracted = URI.extract(uri).first
         extracted && extracted.include?(uri)
       end
