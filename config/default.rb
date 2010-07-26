@@ -39,10 +39,5 @@ Vagrant::Config.run do |config|
   config.nfs.map_uid = :auto
   config.nfs.map_gid = :auto
 
-  # TODO fix these
-  # config.vm.sync_opts = "-terse -group -owner -batch -silent"
-  # config.vm.sync_script = "/tmp/sync"
-  # config.vm.sync_crontab_entry_file = "/tmp/crontab-entry"
-
   config.package.name = 'package.box'
 end
