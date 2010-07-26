@@ -87,6 +87,10 @@ or
 $ vagrant box add my_box some_downloaded.box
 {% endhighlight %}
 
+`config.vm.box_url`, if specified, will be used to download the box given in `config.vm.box`
+if it doesn't exist. This URL can be anything which `vagrant box add` accepts as a
+URL.
+
 `config.vm.box_ovf` tells Vagrant and consequently the [virtualbox](http://github.com/mitchellh/virtualbox) gem
 which file in the `~/.vagrant/boxes/{configured box}/` directory should be used when importing the configured box
 for duplication. (see `config.vm.box`). This setting is only really important for those creating
@@ -152,10 +156,13 @@ config.vm.provisioner = MyCustomProvisioner
 
 `config.vm.share_folder` is a function that will share a folder on the host machine with the
 guest machine, allowing the guest machine to read and write to a folder on the host machine.
-This function takes three parameters, in the same way as `config.vm.forward_port`, with the
+This function takes three mandatory parameters, in the same way as `config.vm.forward_port`, with the
 first parameter being a key used internally to reference the folder, the second parameter being
 the path on the guest machine, and the third parameter being the path to the folder to share
 on the host machine. If the third parameter is a _relative path_, then it is relative to where the root Vagrantfile is.
+
+The method also takes a fourth, optional, parameter which is a has of options. This hash
+can be used to enable things such as [NFS shared folders](/docs/nfs.html).
 
 {% highlight ruby %}
 config.vm.share_folder("my-folder", "/folder", "/path/to/real/folder")
@@ -166,6 +173,17 @@ config.vm.share_folder("another-folder", "/other", "../other")
 
 These setting determine the defaults for the file name, `config.package.name`, and file extension, `config.package.extension`, used
 when [packaging](/docs/getting-started/packaging.html) a vm for distribution.
+
+## config.nfs
+
+These settings configure [NFS shared folders](/docs/nfs.html), if they are used.
+
+`config.nfs.map_uid` is the UID which any remote file accesses map to on the
+host machine. By default this is set to `:auto`, which tells Vagrant to match
+the UID of any NFS shared folders on the host machine.
+
+`config.nfs.map_gid` is the same `config.nfs.map_uid` but for the GID of the
+shared folder.
 
 ## config.chef
 

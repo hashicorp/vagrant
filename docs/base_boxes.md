@@ -207,6 +207,16 @@ If this box is meant to be private, we recommend you create your own custom
 pair of keys and set that up. Users of your box can then specify the private key
 you created by setting `config.ssh.private_key_path`.
 
+<div class="info">
+  <h3>Additional SSH Tweaks</h3>
+  <p>
+    In order to keep SSH access speedy even when your host computer can't
+    access the internet, be sure to set <code>UseDNS</code> to <code>no</code>
+    in <code>/etc/ssh/sshd_config</code>. This will disable DNS lookup of
+    clients connecting to the server, which speeds up SSH connection.
+  </p>
+</div>
+
 ### Setup the Vagrantfile
 
 By default, Vagrant only forwards SSH (from port 22 to 2222 with automatic port
