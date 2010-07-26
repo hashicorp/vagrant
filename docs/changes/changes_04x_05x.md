@@ -69,3 +69,17 @@ for future features. I expect these changes to bring about more stability in
 the long run to Vagrant, while possibly causing some very minor short term
 bugs, though my coworkers and I have been using Vagrant 0.5 in-house for a few
 weeks now without issue.
+
+## The Future
+
+Since this release was mostly internals, despite a couple big new features, I think it is important
+that I talk a bit about my plans for the future of this project. Vagrant 0.6 will
+be a _huge_ release and the features are already set for it, they just need to be
+developed. More details on this will be available to the mailing list as the
+features are developed.
+
+Besides pure Vagrant releases, an official community-powered Vagrant box listing
+website has been under development and will be deployed and available shortly.
+
+And finally, before Vagrant 0.6, I'm going to take the time to redo the getting
+started guide and updating the screencast as well.
