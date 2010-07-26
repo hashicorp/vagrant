@@ -81,11 +81,11 @@ by running `vagrant up` which will create the environment. After a few minutes, 
 have a fully running virtual machine. We haven't yet forwarded any ports and we haven't covered
 SSH yet, so you'll just have to take our word that its working for now. Finally,
 when you're finished verifying the virtual machine, you can destroy everything with a
-`vagrant down`.
+`vagrant destroy`.
 
 {% highlight bash %}
 $ vagrant up
 ...
-$ vagrant down
+$ vagrant destroy
 ...
 {% endhighlight %}
