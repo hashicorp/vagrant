@@ -110,6 +110,13 @@ module Vagrant
       end
 
       register :box_remove, box_remove
+
+      # box_repackage - Repackages a box.
+      box_repackage = Builder.new do
+        use Box::Package
+      end
+
+      register :box_repackage, box_repackage
     end
   end
 end
