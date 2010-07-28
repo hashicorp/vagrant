@@ -14,5 +14,6 @@ group :test do
   gem "rake"
   gem "contest", ">= 0.1.2"
   gem "mocha"
+  gem "yard"
   gem "ruby-debug", ">= 0.10.3" if RUBY_VERSION < '1.9'
 end
