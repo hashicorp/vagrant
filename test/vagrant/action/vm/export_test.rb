@@ -106,6 +106,7 @@ class ExportVMActionTest < Test::Unit::TestCase
     should "set to the environment" do
       @instance.setup_temp_dir
       assert_equal @temp_dir, @env["export.temp_dir"]
+      assert_equal @temp_dir, @env["package.directory"]
       assert_equal @temp_dir, @instance.temp_dir
     end
   end

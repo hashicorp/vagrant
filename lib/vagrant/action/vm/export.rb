@@ -32,6 +32,7 @@ module Vagrant
         def setup_temp_dir
           @env.logger.info "Creating temporary directory for export..."
           @temp_dir = @env["export.temp_dir"] = File.join(@env.env.tmp_path, Time.now.to_i.to_s)
+          @env["package.directory"] = @temp_dir # TODO temporary
           FileUtils.mkpath(@env["export.temp_dir"])
         end
 

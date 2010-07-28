@@ -59,7 +59,7 @@ class PackageVMActionTest < Test::Unit::TestCase
       File.stubs(:exist?).returns(false)
       @instance = @klass.new(@app, @env)
 
-      @env["export.temp_dir"] = "foo"
+      @env["package.directory"] = "foo"
     end
 
     context "calling" do
@@ -82,7 +82,7 @@ class PackageVMActionTest < Test::Unit::TestCase
       end
 
       should "halt the chain if export didn't run" do
-        @env["export.temp_dir"] = nil
+        @env["package.directory"] = nil
         @app.expects(:call).never
         @instance.call(@env)
 
@@ -157,7 +157,7 @@ class PackageVMActionTest < Test::Unit::TestCase
       end
 
       should "create the include directory and copy files to it" do
-        include_dir = File.join(@env["export.temp_dir"], "include")
+        include_dir = File.join(@env["package.directory"], "include")
         copy_seq = sequence("copy_seq")
         FileUtils.expects(:mkdir_p).with(include_dir).once.in_sequence(copy_seq)
 
@@ -168,26 +168,6 @@ class PackageVMActionTest < Test::Unit::TestCase
         end
 
         @instance.copy_include_files
-      end
-    end
-
-    context "creating vagrantfile" do
-      setup do
-        @network_adapter = mock("nic")
-        @network_adapter.stubs(:mac_address).returns("mac_address")
-        @internal_vm.stubs(:network_adapters).returns([@network_adapter])
-      end
-
-      should "write the rendered vagrantfile to temp_path Vagrantfile" do
-        f = mock("file")
-        rendered = mock("rendered")
-        File.expects(:open).with(File.join(@env["export.temp_dir"], "Vagrantfile"), "w").yields(f)
-        Vagrant::Util::TemplateRenderer.expects(:render).returns(rendered).with("package_Vagrantfile", {
-                                                                                  :base_mac => @internal_vm.network_adapters.first.mac_address
-                                                                                })
-        f.expects(:write).with(rendered)
-
-        @instance.create_vagrantfile
       end
     end
 
@@ -211,7 +191,6 @@ class PackageVMActionTest < Test::Unit::TestCase
         @tar.stubs(:pack_file)
 
         @instance.stubs(:copy_include_files)
-        @instance.stubs(:create_vagrantfile)
       end
 
       should "open the tar file with the tar path properly" do
@@ -233,8 +212,7 @@ class PackageVMActionTest < Test::Unit::TestCase
 
         FileUtils.expects(:pwd).once.returns(@pwd).in_sequence(compress_seq)
         @instance.expects(:copy_include_files).once.in_sequence(compress_seq)
-        @instance.expects(:create_vagrantfile).once.in_sequence(compress_seq)
-        FileUtils.expects(:cd).with(@env["export.temp_dir"]).in_sequence(compress_seq)
+        FileUtils.expects(:cd).with(@env["package.directory"]).in_sequence(compress_seq)
         Dir.expects(:glob).returns(@files).in_sequence(compress_seq)
 
         5.times do |i|
@@ -249,7 +227,7 @@ class PackageVMActionTest < Test::Unit::TestCase
 
       should "pop back to the current directory even if an exception is raised" do
         cd_seq = sequence("cd_seq")
-        FileUtils.expects(:cd).with(@env["export.temp_dir"]).raises(Exception).in_sequence(cd_seq)
+        FileUtils.expects(:cd).with(@env["package.directory"]).raises(Exception).in_sequence(cd_seq)
         FileUtils.expects(:cd).with(@pwd).in_sequence(cd_seq)
 
         assert_raises(Exception) {

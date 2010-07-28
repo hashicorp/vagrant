@@ -16,7 +16,7 @@ module Vagrant
         def call(env)
           @env = env
 
-          return env.error!(:package_requires_export) if !@env["export.temp_dir"]
+          return env.error!(:package_requires_export) if !@env["package.directory"]
           return if !verify_included_files
           compress
 
@@ -46,7 +46,7 @@ module Vagrant
         # the actual box
         def copy_include_files
           if @env["package.include"].length > 0
-            include_dir = File.join(@env["export.temp_dir"], "include")
+            include_dir = File.join(@env["package.directory"], "include")
             FileUtils.mkdir_p(include_dir)
 
             @env["package.include"].each do |f|
@@ -60,7 +60,7 @@ module Vagrant
         # box. This Vagrantfile contains the MAC address so that the user doesn't
         # have to worry about it.
         def create_vagrantfile
-          File.open(File.join(@env["export.temp_dir"], "Vagrantfile"), "w") do |f|
+          File.open(File.join(@env["package.directory"], "Vagrantfile"), "w") do |f|
             f.write(TemplateRenderer.render("package_Vagrantfile", {
               :base_mac => @env["vm"].vm.network_adapters.first.mac_address
             }))
@@ -76,9 +76,8 @@ module Vagrant
                 current_dir = FileUtils.pwd
 
                 copy_include_files
-                create_vagrantfile
 
-                FileUtils.cd(@env["export.temp_dir"])
+                FileUtils.cd(@env["package.directory"])
                 Dir.glob(File.join(".", "**", "*")).each do |entry|
                   Archive::Tar::Minitar.pack_file(entry, output)
                 end

@@ -132,9 +132,14 @@ module Vagrant
       env.actions.run(:box_add, { "box" => self })
     end
 
-    # Beings the process of destroying this box.
+    # Begins the process of destroying this box.
     def destroy
       env.actions.run(:box_remove, { "box" => self })
+    end
+
+    # Begins sequence to repackage this box.
+    def repackage
+      env.actions.run(:box_repackage, { "box" => self })
     end
 
     # Returns the directory to the location of this boxes content in the local

@@ -89,6 +89,7 @@ module Vagrant
         use VM::ClearForwardedPorts
         use VM::ClearSharedFolders
         use VM::Export
+        use VM::PackageVagrantfile
         use VM::Package
       end
 

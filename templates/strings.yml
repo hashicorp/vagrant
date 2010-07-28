@@ -84,6 +84,11 @@
   Specified output file: <%= output_file %>
 :box_remove_doesnt_exist: |-
   The box you're attempting to remove does not exist!
+:box_repackage_doesnt_exist: |-
+  The box you're attempting to repackage does not exist. Please check the
+  name you specified and try again. As a reminder, the repackage
+  command is for repackaging boxes which have been added through `vagrant box add`
+  but the box has been lost.
 :box_specified_doesnt_exist: |-
   Specified box `<%= box_name %>` does not exist!
 
