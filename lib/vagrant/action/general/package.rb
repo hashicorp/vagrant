@@ -1,6 +1,16 @@
 module Vagrant
   class Action
-    module VM
+    module General
+      # A general packaging (tar) middleware. Given the following options,
+      # it will do the right thing:
+      #
+      #   * package.output - The filename of the outputted package.
+      #   * package.include - An array of files to include in the package.
+      #   * package.directory - The directory which contains the contents to
+      #       compress into the package.
+      #
+      # This middleware always produces the final file in the current working
+      # directory (FileUtils.pwd)
       class Package
         include Util
 
@@ -9,14 +19,13 @@ module Vagrant
           @env = env
           @env["package.output"] ||= env["config"].package.name
           @env["package.include"] ||= []
-
-          env.error!(:box_file_exists, :output_file => tar_path) if File.exist?(tar_path)
         end
 
         def call(env)
           @env = env
 
-          return env.error!(:package_requires_export) if !@env["package.directory"]
+          return env.error!(:package_output_exists) if File.exist?(tar_path)
+          return env.error!(:package_requires_directory) if !@env["package.directory"]
           return if !verify_included_files
           compress
 

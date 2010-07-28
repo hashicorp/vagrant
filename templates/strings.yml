@@ -176,6 +176,13 @@
   specific VM must be specified. This can be done by calling
   `vagrant package NAME` where NAME is a valid VM represented by
   your Vagrantfile.
+:package_output_exists: |-
+  The specified file to save the package as already exists. Please
+  remove this file or specify a different filename for outputting.
+:package_requires_directory: |-
+  A directory was not specified to package. This is an internal
+  issue. Please send the relevant stack trace (if any) and information
+  about this issue to the Vagrant team.
 :package_requires_export: |-
   Package must be used in conjunction with export.
 :provisioner_invalid_class: |-

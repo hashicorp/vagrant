@@ -90,7 +90,7 @@ module Vagrant
         use VM::ClearSharedFolders
         use VM::Export
         use VM::PackageVagrantfile
-        use VM::Package
+        use General::Package
       end
 
       register :package, package

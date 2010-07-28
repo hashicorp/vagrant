@@ -1,15 +1,12 @@
 require "test_helper"
 
-class PackageVMActionTest < Test::Unit::TestCase
+class PackageGeneralActionTest < Test::Unit::TestCase
   setup do
-    @klass = Vagrant::Action::VM::Package
+    @klass = Vagrant::Action::General::Package
     @app, @env = mock_action_data
 
     @vm = mock("vm")
     @env["vm"] = @vm
-
-    @internal_vm = mock("internal")
-    @vm.stubs(:vm).returns(@internal_vm)
   end
 
   context "initializing" do
@@ -22,13 +19,6 @@ class PackageVMActionTest < Test::Unit::TestCase
     should "initialize fine" do
       @klass.new(@app, @env)
       assert !@env.error?
-    end
-
-    should "error the environment if the output file exists" do
-      File.stubs(:exist?).with(@tar_path).returns(true)
-      @klass.new(@app, @env)
-      assert @env.error?
-      assert_equal :box_file_exists, @env.error.first
     end
 
     should "set the output path to configured by default" do
@@ -81,13 +71,22 @@ class PackageVMActionTest < Test::Unit::TestCase
         @instance.call(@env)
       end
 
-      should "halt the chain if export didn't run" do
+      should "halt the chain if the output file already exists" do
+        File.expects(:exist?).returns(true)
+        @app.expects(:call).never
+        @instance.call(@env)
+
+        assert @env.error?
+        assert_equal :package_output_exists, @env.error.first
+      end
+
+      should "halt the chain if directory isn't set" do
         @env["package.directory"] = nil
         @app.expects(:call).never
         @instance.call(@env)
 
         assert @env.error?
-        assert_equal :package_requires_export, @env.error.first
+        assert_equal :package_requires_directory, @env.error.first
       end
 
       should "run cleanup if environment errors" do
