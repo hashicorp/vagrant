@@ -2,7 +2,7 @@ module Vagrant
   module Exceptions
     # Raised when an action sequence is trying to be run for an uncallable
     # action (not a lambda, middleware, or registered sequence).
-    class UncallableAction < Exception
+    class UncallableAction < ::Exception
       def initialize(callable)
         super()
 
