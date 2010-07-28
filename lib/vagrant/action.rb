@@ -45,6 +45,7 @@ module Vagrant
     def run(callable, options=nil)
       callable = Builder.new.use(callable) if callable.kind_of?(Class)
       callable = self.class.actions[callable] if callable.kind_of?(Symbol)
+      raise Exceptions::UncallableAction.new(callable) if !callable
 
       action_environment = Action::Environment.new(env)
       action_environment.merge!(options || {})
