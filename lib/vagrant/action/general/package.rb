@@ -25,7 +25,7 @@ module Vagrant
           @env = env
 
           return env.error!(:package_output_exists) if File.exist?(tar_path)
-          return env.error!(:package_requires_directory) if !@env["package.directory"]
+          return env.error!(:package_requires_directory) if !@env["package.directory"] || !File.directory?(@env["package.directory"])
           return if !verify_included_files
           compress
 
@@ -67,7 +67,7 @@ module Vagrant
 
         # Compress the exported file into a package
         def compress
-          @env.logger.info "Packaging VM into #{tar_path}..."
+          @env.logger.info "Compressing package to #{tar_path}..."
           File.open(tar_path, Platform.tar_file_options) do |tar|
             Archive::Tar::Minitar::Output.open(tar) do |output|
               begin

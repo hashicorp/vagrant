@@ -47,6 +47,7 @@ class PackageGeneralActionTest < Test::Unit::TestCase
   context "with an instance" do
     setup do
       File.stubs(:exist?).returns(false)
+      File.stubs(:directory?).returns(true)
       @instance = @klass.new(@app, @env)
 
       @env["package.directory"] = "foo"
@@ -82,6 +83,15 @@ class PackageGeneralActionTest < Test::Unit::TestCase
 
       should "halt the chain if directory isn't set" do
         @env["package.directory"] = nil
+        @app.expects(:call).never
+        @instance.call(@env)
+
+        assert @env.error?
+        assert_equal :package_requires_directory, @env.error.first
+      end
+
+      should "halt the chain if directory doesn't exist" do
+        File.expects(:directory?).with(@env["package.directory"]).returns(false)
         @app.expects(:call).never
         @instance.call(@env)
 
