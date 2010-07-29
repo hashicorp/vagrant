@@ -139,6 +139,18 @@ class BoxTest < Test::Unit::TestCase
       end
     end
 
+    context "repackaging" do
+      should "execute the repackage action" do
+        @box.env.actions.expects(:run).with(:box_repackage, { "box" => @box })
+        @box.repackage
+      end
+
+      should "forward given options into the action" do
+        @box.env.actions.expects(:run).with(:box_repackage, { "box" => @box, "foo" => "bar" })
+        @box.repackage("foo" => "bar")
+      end
+    end
+
     context "ovf file" do
       setup do
         @box.stubs(:directory).returns("foo")

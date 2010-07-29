@@ -57,7 +57,7 @@ module Vagrant
       end
 
       def options_spec(opts)
-        opts.banner = "Usage: vagrant package [--base BASE] [--include FILES]"
+        opts.banner = "Usage: vagrant package [--base BASE] [--output FILENAME] [--include FILES]"
 
         # Defaults
         options[:base] = nil

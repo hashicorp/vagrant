@@ -22,7 +22,7 @@ class CommandsBoxRepackageTest < Test::Unit::TestCase
     should "show help if not enough arguments" do
       Vagrant::Box.expects(:find).never
       @instance.expects(:show_help).once
-      @instance.execute([])
+      @instance.execute(["--include", "x,y,z"])
     end
 
     should "error and exit if the box doesn't exist" do
@@ -31,11 +31,22 @@ class CommandsBoxRepackageTest < Test::Unit::TestCase
       @instance.execute([@name])
     end
 
-    should "call destroy on the box if it exists" do
+    should "call repackage on the box if it exists" do
       @box = mock("box")
       Vagrant::Box.expects(:find).with(@env, @name).returns(@box)
       @box.expects(:repackage).once
       @instance.execute([@name])
+    end
+
+    should "pass given options into repackage" do
+      @box = mock("box")
+      Vagrant::Box.expects(:find).with(@env, @name).returns(@box)
+      @box.expects(:repackage).once.with() do |opts|
+        assert opts.is_a?(Hash)
+        assert_equal "filename.box", opts["package.output"]
+        true
+      end
+      @instance.execute([@name, "--output", "filename.box"])
     end
   end
 end

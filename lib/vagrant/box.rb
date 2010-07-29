@@ -138,8 +138,8 @@ module Vagrant
     end
 
     # Begins sequence to repackage this box.
-    def repackage
-      env.actions.run(:box_repackage, { "box" => self })
+    def repackage(options=nil)
+      env.actions.run(:box_repackage, { "box" => self }.merge(options || {}))
     end
 
     # Returns the directory to the location of this boxes content in the local
