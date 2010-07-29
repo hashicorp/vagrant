@@ -1,6 +1,7 @@
 module Vagrant
   class Action
     class Warden
+      include Util
       attr_accessor :actions, :stack
 
       def initialize(actions, env)
@@ -11,17 +12,22 @@ module Vagrant
       def call(env)
         return if @actions.empty?
 
-        if env.error?
-          begin_rescue(env)
-        else
-          @stack.push(@actions.pop).last.call(env)
-        end
+        # If the previous action passes and environment error on
+        @stack.push(@actions.pop).last.call(env) unless env.error?
+
+        # if the call action returned prematurely with an error
+        begin_rescue(env) if env.error?
       end
 
       def begin_rescue(env)
         @stack.reverse.each do |act|
           act.rescue(env) if act.respond_to?(:rescue)
         end
+        
+        exit if env.interrupted?
+
+        # Erroneous environment resulted. Properly display error message.
+        error_and_exit(*env.error)
       end
 
       def finalize_action(action, env)

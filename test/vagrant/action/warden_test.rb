@@ -4,6 +4,7 @@ class ActionWardenTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Action::Warden
     @instance = @klass.new([], {})
+    @klass.any_instance.stubs(:error_and_exit)
   end
 
   context "initializing" do
@@ -83,6 +84,18 @@ class ActionWardenTest < Test::Unit::TestCase
       first_mock_action.expects(:rescue).in_sequence(seq)
 
       @instance.begin_rescue(new_env)
+    end
+
+    should "call error and exit" do
+      @instance.expects(:error_and_exit)
+      @instance.begin_rescue(new_env)
+    end
+
+    should "call exit if the environment is interupted" do
+      @instance.expects(:exit)
+      env = new_env
+      env.expects(:interrupted?).returns(true)
+      @instance.begin_rescue(env)
     end
   end
 
