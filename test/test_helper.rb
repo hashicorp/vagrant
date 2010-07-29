@@ -53,6 +53,7 @@ class Test::Unit::TestCase
       config.chef.validation_key_path = "validation.pem"
       config.chef.client_key_path = "/zoo/foo/bar.pem"
       config.chef.node_name = "baz"
+      config.chef.recipe_url = nil
       config.chef.cookbooks_path = "cookbooks"
       config.chef.provisioning_path = "/tmp/vagrant-chef"
       config.chef.log_level = :info

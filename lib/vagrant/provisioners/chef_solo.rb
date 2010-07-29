@@ -32,7 +32,8 @@ module Vagrant
           :node_name => env.config.chef.node_name,
           :provisioning_path => env.config.chef.provisioning_path,
           :cookbooks_path => cookbooks_path,
-          :roles_path => roles_path
+          :recipe_url => env.config.chef.recipe_url,
+          :roles_path => roles_path,
         })
       end
 
@@ -65,7 +66,7 @@ module Vagrant
         # We're lucky that ruby's string and array syntax for strings is the
         # same as JSON, so we can just convert to JSON here and use that
         result = result[0].to_s if result.length == 1
-        result.to_json
+        result
       end
 
       def host_cookbook_paths
@@ -85,11 +86,14 @@ module Vagrant
       end
 
       def cookbooks_path
-        folders_path(host_cookbook_paths, "cookbooks")
+        result = folders_path(host_cookbook_paths, "cookbooks")
+        result = [result, File.join(env.config.chef.provisioning_path, "cookbooks")].flatten if env.config.chef.recipe_url
+
+        result.to_json
       end
 
       def roles_path
-        folders_path(host_role_paths, "roles")
+        folders_path(host_role_paths, "roles").to_json
       end
     end
   end

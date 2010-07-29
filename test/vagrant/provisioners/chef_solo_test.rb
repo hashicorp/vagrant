@@ -111,14 +111,14 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
         acc << @action.cookbook_path(i)
       end
 
-      assert_equal @cookbooks.to_json, @action.folders_path(@folders, "cookbooks")
+      assert_equal @cookbooks, @action.folders_path(@folders, "cookbooks")
     end
 
     should "return a single string representation if folder paths is single" do
       @folder = "cookbooks"
       @cookbooks = @action.folder_path(@folder, 0)
 
-      assert_equal @cookbooks.to_json, @action.folders_path([0], @folder)
+      assert_equal @cookbooks, @action.folders_path([0], @folder)
     end
   end
 
@@ -129,10 +129,17 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
     end
 
     should "properly call folders path and return result" do
-      result = mock("result")
-      @action.stubs(:host_cookbook_paths).returns([])
+      result = [:a, :b, :c]
       @action.expects(:folders_path).with(@action.host_cookbook_paths, "cookbooks").once.returns(result)
-      assert_equal result, @action.cookbooks_path
+      assert_equal result.to_json, @action.cookbooks_path
+    end
+
+    should "append a bare cookbooks path to the cookbooks path for recipe URL" do
+      @env.config.chef.recipe_url = "foo"
+      @action.stubs(:folders_path).returns([])
+      result = @action.cookbooks_path
+      assert result
+      assert result =~ /\/cookbooks"\]$/
     end
   end
 
@@ -143,16 +150,17 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
     end
 
     should "properly call folders path and return result" do
-      result = mock("result")
-      @action.stubs(:host_role_paths).returns([])
+      result = [:a, :b, :c]
       @action.expects(:folders_path).with(@action.host_role_paths, "roles").once.returns(result)
-      assert_equal result, @action.roles_path
+      assert_equal result.to_json, @action.roles_path
     end
   end
 
   context "generating and uploading chef solo configuration file" do
     setup do
       @vm.ssh.stubs(:upload!)
+
+      @env.config.chef.recipe_url = "foo/bar/baz"
     end
 
     should "call setup_config with proper variables" do
@@ -160,6 +168,7 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
         :node_name => @env.config.chef.node_name,
         :provisioning_path => @env.config.chef.provisioning_path,
         :cookbooks_path => @action.cookbooks_path,
+        :recipe_url => @env.config.chef.recipe_url,
         :roles_path => @action.roles_path
       })
 
