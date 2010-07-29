@@ -56,12 +56,37 @@ class ActionWardenTest < Test::Unit::TestCase
     end
 
     should "begin rescue on environment error" do
-      env = new_env
-      env.error!(:foo)
       @instance.expects(:begin_rescue)
       @instance.actions << lambda {}
       @instance.actions.first.expects(:call).never
-      @instance.call(env)
+      @instance.call(new_env_with_error)
+    end
+
+    should "not call the next action on env err" do
+      action = mock('action')
+      action.expects(:call).never
+      @instance.actions << action
+      @instance.expects(:begin_rescue)
+      @instance.call(new_env_with_error)
+    end
+
+    should "call begin rescue when the called action returns with an env error" do
+      class Foo
+        def initialize(*args); end
+        def call(env)
+          return env.error!(:foo)
+        end
+      end
+
+      @instance.actions << Foo.new
+      @instance.expects(:begin_rescue)
+      @instance.call(new_env)
+    end
+    
+    def new_env_with_error
+      env = new_env
+      env.error!(:foo)
+      env
     end
   end
 
@@ -97,7 +122,15 @@ class ActionWardenTest < Test::Unit::TestCase
       env.expects(:interrupted?).returns(true)
       @instance.begin_rescue(env)
     end
+
+    context "with many middleware" do
+      should "not call middleware after" do
+        
+      end
+    end
   end
+
+  
 
   def new_env
     Vagrant::Action::Environment.new(nil)
