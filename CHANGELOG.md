@@ -1,5 +1,7 @@
 ## 0.5.1 (unreleased)
 
+  - Fixed NFS erroring when NFS wasn't even enabled if `/etc/exports` doesn't
+    exist. [GH-126]
   - Fixed `vagrant resume` to properly resume a suspended VM. [GH-122]
   - Fixed `halt`, `destroy`, `reload` to where they failed if the VM was
     in a saved state. [GH-123]

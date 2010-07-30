@@ -40,6 +40,7 @@ module Vagrant
       end
 
       def nfs_cleanup
+        return if !File.exist?("/etc/exports")
         system("cat /etc/exports | grep 'VAGRANT-BEGIN: #{env.vm.uuid}' > /dev/null 2>&1")
 
         if $?.to_i == 0
