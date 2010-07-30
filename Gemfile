@@ -1,12 +1,9 @@
 source "http://rubygems.org"
 
-# Gems required for the lib to even run
+gem "vagrant", :path => '.'
+
+# Use the version of virtualbox off of github
 gem "virtualbox", :git => "git://github.com/mitchellh/virtualbox.git"
-gem "net-ssh", ">= 2.0.19"
-gem "net-scp", ">= 1.0.2"
-gem "json", ">= 1.2.4"
-gem "archive-tar-minitar", "= 0.5.2"
-gem "mario", "~> 0.0.6"
 
 # Gems required for testing only. To install run
 # gem bundle test
