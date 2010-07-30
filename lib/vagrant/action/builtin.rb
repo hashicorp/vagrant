@@ -32,6 +32,7 @@ module Vagrant
       # halt - Halts the VM, attempting gracefully but then forcing
       # a restart if fails.
       halt = Builder.new do
+        use VM::DiscardState
         use VM::Halt
         use VM::DisableNetworks
       end
