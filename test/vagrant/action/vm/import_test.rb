@@ -37,14 +37,11 @@ class ImportVMActionTest < Test::Unit::TestCase
     assert @env.error?
   end
 
-  should "run the destroy action if interrupted" do
-    VirtualBox::VM.stubs(:import).returns(mock("vm"))
-    @app.expects(:call).once.with() do |env|
-      assert_equal @env, env
-      @env.error!(:interrupt)
-    end
-    @env.env.actions.expects(:run).with(:destroy).once
-
-    @instance.call(@env)
+  should "run the destroy action on rescue" do
+    env = mock("env")
+    destroy = mock("destory")
+    env.expects(:[]).with("actions").returns(destroy)
+    destroy.expects(:run).with(:destroy)
+    @instance.rescue(env)
   end
 end
