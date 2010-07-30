@@ -9,7 +9,7 @@ module Vagrant
         def call(env)
           if env["vm"].vm.saved?
             env.logger.info "Resuming suspended VM..."
-            env["actions"].run(:start)
+            env["actions"].run(Boot)
           end
 
           @app.call(env)

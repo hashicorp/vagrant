@@ -1,5 +1,6 @@
 ## 0.5.1 (unreleased)
 
+  - Fixed `vagrant resume` to properly resume a suspended VM. [GH-122]
   - Fixed `halt`, `destroy`, `reload` to where they failed if the VM was
     in a saved state. [GH-123]
   - Added `config.chef.recipe_url` which allows you to specify a URL to
