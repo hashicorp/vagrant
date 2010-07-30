@@ -22,10 +22,12 @@ module Vagrant
           end
 
           # Import completed successfully. Continue the chain
-          @app.call(env) if !env.error?
-
+          @app.call(env)
+        end
+        
+        def rescue(env)
           # Interrupted, destroy the VM
-          env["actions"].run(:destroy) if env.interrupted?
+          env["actions"].run(:destroy)
         end
       end
     end
