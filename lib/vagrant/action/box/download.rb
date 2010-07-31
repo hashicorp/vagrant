@@ -22,8 +22,6 @@ module Vagrant
           return if env.error?
 
           @app.call(@env)
-
-          cleanup
         end
 
         def instantiate_downloader
@@ -50,9 +48,9 @@ module Vagrant
           end
         end
 
-        def cleanup
+        def rescue(env)
           if temp_path && File.exist?(temp_path)
-            @env.logger.info "Cleaning up downloaded box..."
+            env.logger.info "Cleaning up downloaded box..."
             File.unlink(temp_path)
           end
         end
