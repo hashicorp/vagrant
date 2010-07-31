@@ -66,6 +66,10 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
   end
 
   context "host folder paths" do
+    should "ignore VM paths" do
+      assert @action.host_folder_paths([:vm, "foo"]).empty?
+    end
+
     should "return as an array if was originally a string" do
       folder = "foo"
       File.stubs(:expand_path).returns("bar")
@@ -120,6 +124,11 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
 
       assert_equal @cookbooks, @action.folders_path([0], @folder)
     end
+
+    should "properly format VM folder paths" do
+      @env.config.chef.provisioning_path = "/foo"
+      assert_equal "/foo/bar", @action.folders_path([:vm, "bar"], nil)
+    end
   end
 
   context "cookbooks path" do
@@ -130,7 +139,7 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
 
     should "properly call folders path and return result" do
       result = [:a, :b, :c]
-      @action.expects(:folders_path).with(@action.host_cookbook_paths, "cookbooks").once.returns(result)
+      @action.expects(:folders_path).with(@env.config.chef.cookbooks_path, "cookbooks").once.returns(result)
       assert_equal result.to_json, @action.cookbooks_path
     end
 
@@ -151,7 +160,7 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
 
     should "properly call folders path and return result" do
       result = [:a, :b, :c]
-      @action.expects(:folders_path).with(@action.host_role_paths, "roles").once.returns(result)
+      @action.expects(:folders_path).with(@env.config.chef.roles_path, "roles").once.returns(result)
       assert_equal result.to_json, @action.roles_path
     end
   end

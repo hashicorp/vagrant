@@ -1,5 +1,8 @@
 ## 0.5.1 (unreleased)
 
+  - Allow specifying cookbook paths which exist only on the VM in `config.chef.cookbooks_path`.
+    This is used for specifying cookbook paths when `config.chef.recipe_url` is used. [GH-130]
+    See updated chef solo documentation for more information on this.
   - No longer show "Disabling host only networks..." if no host only networks
     are destroyed. Quiets `destroy`, `halt`, etc output a bit.
   - Updated getting started guide to be more up to date and generic. [GH-125]

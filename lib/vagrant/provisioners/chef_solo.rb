@@ -50,17 +50,37 @@ module Vagrant
       end
 
       def host_folder_paths(paths)
-        [paths].flatten.collect { |path| File.expand_path(path, env.root_path) }
+        # Convert single cookbook paths such as "cookbooks" or [:vm, "cookbooks"]
+        # into a proper array representation.
+        paths = [paths] if paths.is_a?(String) || paths.first.is_a?(Symbol)
+
+        paths.inject([]) do |acc, path|
+          path = [:host, path] if !path.is_a?(Array)
+          type, path = path
+
+          acc << File.expand_path(path, env.root_path) if type == :host
+          acc
+        end
       end
 
-      def folder_path(folder, i)
-        File.join(env.config.chef.provisioning_path, "#{folder}-#{i}")
+      def folder_path(*args)
+        File.expand_path(args.join("-"), env.config.chef.provisioning_path)
       end
 
       def folders_path(folders, folder)
+        # Convert single cookbook paths such as "cookbooks" or [:vm, "cookbooks"]
+        # into a proper array representation.
+        folders = [folders] if folders.is_a?(String) || folders.first.is_a?(Symbol)
+
+        # Convert each path to the proper absolute path depending on if the path
+        # is a host path or a VM path
         result = []
-        folders.each_with_index do |host_path, i|
-          result << folder_path(folder, i)
+        folders.each_with_index do |path, i|
+          path = [:host, path] if !path.is_a?(Array)
+          type, path = path
+
+          result << folder_path(folder, i) if type == :host
+          result << folder_path(path) if type == :vm
         end
 
         # We're lucky that ruby's string and array syntax for strings is the
@@ -86,14 +106,14 @@ module Vagrant
       end
 
       def cookbooks_path
-        result = folders_path(host_cookbook_paths, "cookbooks")
+        result = folders_path(env.config.chef.cookbooks_path, "cookbooks")
         result = [result, File.join(env.config.chef.provisioning_path, "cookbooks")].flatten if env.config.chef.recipe_url
 
         result.to_json
       end
 
       def roles_path
-        folders_path(host_role_paths, "roles").to_json
+        folders_path(env.config.chef.roles_path, "roles").to_json
       end
     end
   end
