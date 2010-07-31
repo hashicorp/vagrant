@@ -1,5 +1,7 @@
 ## 0.5.1 (unreleased)
 
+  - No longer show "Disabling host only networks..." if no host only networks
+    are destroyed. Quiets `destroy`, `halt`, etc output a bit.
   - Updated getting started guide to be more up to date and generic. [GH-125]
   - Fixed error with doing a `vagrant up` when no Vagrantfile existed. [GH-128]
   - Fixed NFS erroring when NFS wasn't even enabled if `/etc/exports` doesn't

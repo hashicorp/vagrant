@@ -10,10 +10,16 @@ module Vagrant
         end
 
         def call(env)
-          env.logger.info "Disabling host only networks..."
+          logged = false
 
           env["vm"].vm.network_adapters.each do |adapter|
             next if adapter.attachment_type != :host_only
+
+            if !logged
+              env.logger.info "Disabling host only networks..."
+              logged = true
+            end
+
             adapter.enabled = false
             adapter.save
           end
