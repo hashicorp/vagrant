@@ -18,7 +18,7 @@ the [getting started guide](/docs/getting-started/index.html), the
 
 {% highlight bash %}
 $ gem install vagrant
-$ vagrant box add base http://files.vagrantup.com/base.box
+$ vagrant box add base http://files.vagrantup.com/lucid32.box
 $ vagrant init
 $ vagrant up
 {% endhighlight %}
