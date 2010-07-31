@@ -37,11 +37,11 @@ class ImportVMActionTest < Test::Unit::TestCase
     assert @env.error?
   end
 
-  should "run the destroy action on rescue" do
+  should "run the destroy action on recover" do
     env = mock("env")
     destroy = mock("destory")
     env.expects(:[]).with("actions").returns(destroy)
     destroy.expects(:run).with(:destroy)
-    @instance.rescue(env)
+    @instance.recover(env)
   end
 end

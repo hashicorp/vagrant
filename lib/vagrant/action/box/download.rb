@@ -22,8 +22,10 @@ module Vagrant
           return if env.error?
 
           @app.call(@env)
+          
+          recover(env) # called in both cases to cleanup workspace
         end
-
+ 
         def instantiate_downloader
           @env["download.classes"].each do |klass|
             if klass.match?(@env["box"].uri)
@@ -48,7 +50,7 @@ module Vagrant
           end
         end
 
-        def rescue(env)
+        def recover(env)
           if temp_path && File.exist?(temp_path)
             env.logger.info "Cleaning up downloaded box..."
             File.unlink(temp_path)

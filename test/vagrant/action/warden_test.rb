@@ -55,7 +55,7 @@ class ActionWardenTest < Test::Unit::TestCase
       @instance.call(new_env)
     end
 
-    should "begin rescue on environment error" do
+    should "begin recover on environment error" do
       @instance.expects(:begin_rescue)
       @instance.actions << lambda {}
       @instance.actions.first.expects(:call).never
@@ -70,7 +70,7 @@ class ActionWardenTest < Test::Unit::TestCase
       @instance.call(new_env_with_error)
     end
 
-    should "call begin rescue when the called action returns with an env error" do
+    should "call begin recover when the called action returns with an env error" do
       class Foo
         def initialize(*args); end
         def call(env)
@@ -90,23 +90,23 @@ class ActionWardenTest < Test::Unit::TestCase
     end
   end
 
-  context "rescue" do
-    should "call rescue on all items in the stack" do
+  context "recover" do
+    should "call recover on all items in the stack" do
       mock_action = rescueable_mock("action")
-      mock_action.expects(:rescue).times(2)
+      mock_action.expects(:recover).times(2)
       @instance.stack = [mock_action, mock_action]
       @instance.begin_rescue(new_env)
     end
 
-    should "call rescue on stack in reversed order" do
+    should "call recover on stack in reversed order" do
       seq = sequence("reverse")
       first_mock_action = rescueable_mock("first")
       second_mock_action = rescueable_mock("second")
 
       @instance.stack = [first_mock_action, second_mock_action]
 
-      second_mock_action.expects(:rescue).in_sequence(seq)
-      first_mock_action.expects(:rescue).in_sequence(seq)
+      second_mock_action.expects(:recover).in_sequence(seq)
+      first_mock_action.expects(:recover).in_sequence(seq)
 
       @instance.begin_rescue(new_env)
     end
@@ -138,7 +138,7 @@ class ActionWardenTest < Test::Unit::TestCase
 
   def rescueable_mock(name)
     mock_action = mock(name)
-    mock_action.stubs(:respond_to?).with(:rescue).returns(true)
+    mock_action.stubs(:respond_to?).with(:recover).returns(true)
     mock_action
   end
 end

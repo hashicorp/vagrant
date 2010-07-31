@@ -110,14 +110,14 @@ class PackageGeneralActionTest < Test::Unit::TestCase
         File.expects(:exist?).with(@instance.tar_path).returns(false)
         File.expects(:delete).never
 
-        @instance.rescue(@env)
+        @instance.recover(@env)
       end
 
       should "delete the packaged box if it exists" do
         File.expects(:exist?).returns(true)
         File.expects(:delete).with(@instance.tar_path).once
 
-        @instance.rescue(@env)
+        @instance.recover(@env)
       end
     end
 

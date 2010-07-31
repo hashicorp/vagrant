@@ -25,7 +25,7 @@ module Vagrant
           @app.call(env)
         end
         
-        def rescue(env)
+        def recover(env)
           # Interrupted, destroy the VM
           env["actions"].run(:destroy)
         end

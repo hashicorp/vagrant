@@ -21,7 +21,7 @@ module Vagrant
 
       def begin_rescue(env)
         @stack.reverse.each do |act|
-          act.rescue(env) if act.respond_to?(:rescue)
+          act.recover(env) if act.respond_to?(:recover)
         end
         
         exit if env.interrupted?

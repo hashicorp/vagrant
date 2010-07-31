@@ -32,7 +32,7 @@ module Vagrant
           @app.call(env)
         end
 
-        def rescue(env)
+        def recover(env)
           # Cleanup any packaged files if the packaging failed at some point.
           File.delete(tar_path) if File.exist?(tar_path)
         end
