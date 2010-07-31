@@ -28,7 +28,7 @@ module Vagrant
           @client_key_path = "/etc/chef/client.pem"
           @node_name = "client"
 
-          @cookbooks_path = "cookbooks"
+          @cookbooks_path = ["cookbooks", [:vm, "cookbooks"]]
           @roles_path = []
           @provisioning_path = "/tmp/vagrant-chef"
           @log_level = :info

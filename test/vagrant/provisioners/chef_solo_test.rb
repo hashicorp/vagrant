@@ -142,14 +142,6 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
       @action.expects(:folders_path).with(@env.config.chef.cookbooks_path, "cookbooks").once.returns(result)
       assert_equal result.to_json, @action.cookbooks_path
     end
-
-    should "append a bare cookbooks path to the cookbooks path for recipe URL" do
-      @env.config.chef.recipe_url = "foo"
-      @action.stubs(:folders_path).returns([])
-      result = @action.cookbooks_path
-      assert result
-      assert result =~ /\/cookbooks"\]$/
-    end
   end
 
   context "roles path" do

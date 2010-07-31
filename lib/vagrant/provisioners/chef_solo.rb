@@ -106,10 +106,7 @@ module Vagrant
       end
 
       def cookbooks_path
-        result = folders_path(env.config.chef.cookbooks_path, "cookbooks")
-        result = [result, File.join(env.config.chef.provisioning_path, "cookbooks")].flatten if env.config.chef.recipe_url
-
-        result.to_json
+        folders_path(env.config.chef.cookbooks_path, "cookbooks").to_json
       end
 
       def roles_path
