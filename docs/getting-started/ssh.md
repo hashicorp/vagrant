@@ -21,9 +21,7 @@ following:
 {% highlight bash %}
 $ vagrant ssh
 ...
-Welcome to your vagrant instance!
-Last login: Fri Mar  5 23:21:47 2010 from 10.0.2.2
-vagrant@vagrantbase:~$
+vagrant@vagrantup:~$
 {% endhighlight %}
 
 <div class="info">

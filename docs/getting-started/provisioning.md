@@ -51,4 +51,18 @@ and Vagrant will automatically provision it. If your environment is already
 running since you did an `up` in a previous step, just run `vagrant reload`,
 which will quickly restart your VM, skipping the import step.
 
-TODO: create cookbooks and show output here
+After Vagrant completes running, the web server will be up and running as well.
+You can't see your website from your own browser yet, since we haven't covered
+port forwarding, but you can verify that the provisioning works by SSHing into
+the VM and checking the output of hitting `127.0.0.1`:
+
+{% highlight bash %}
+$ vagrant ssh
+...
+vagrant@vagrantup:~$ wget -qO- 127.0.0.1
+<h1>Hello from a Vagrant VM</h1>
+vagrant@vagrantup:~$
+{% endhighlight %}
+
+In the next step of the getting started guide, we'll show you how to view
+your website using your own browser.

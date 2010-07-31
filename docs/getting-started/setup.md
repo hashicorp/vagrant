@@ -34,7 +34,7 @@ which we'll use later to showcase your VM. Run the following command in your
 project directory (the directory with the Vagrantfile):
 
 {% highlight bash %}
-$ echo "<h1>Hello from a Vagrant VM!</h1>" > index.html
+$ echo "<h1>Hello from a Vagrant VM</h1>" > index.html
 {% endhighlight %}
 
 The above steps could have been run in any order. Vagrant can easily be initialized
