@@ -155,7 +155,7 @@ Vagrant::Configure.run do |config|
 end
 {% endhighlight %}
 
-## Configuring the Server Path
+## Configuring the Temporary Path
 
 In order to run chef, Vagrant has to mount the specified cookbooks directory as a
 shared folder on the virtual machine. By default, this is set to be `/tmp/vagrant-chef`,
