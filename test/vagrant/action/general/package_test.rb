@@ -59,8 +59,6 @@ class PackageGeneralActionTest < Test::Unit::TestCase
         @instance.expects(:verify_included_files).in_sequence(seq).returns(true)
         @instance.expects(:compress).in_sequence(seq)
         @app.expects(:call).with(@env).in_sequence(seq)
-        @instance.expects(:cleanup).never
-
         @instance.call(@env)
       end
 
@@ -98,17 +96,6 @@ class PackageGeneralActionTest < Test::Unit::TestCase
         assert @env.error?
         assert_equal :package_requires_directory, @env.error.first
       end
-
-      should "run cleanup if environment errors" do
-        seq = sequence("seq")
-        @instance.expects(:verify_included_files).in_sequence(seq).returns(true)
-        @instance.expects(:compress).in_sequence(seq)
-        @app.expects(:call).with(@env).in_sequence(seq)
-        @instance.expects(:cleanup).in_sequence(seq)
-
-        @env.error!(:foo)
-        @instance.call(@env)
-      end
     end
 
     context "cleaning up" do
@@ -123,14 +110,14 @@ class PackageGeneralActionTest < Test::Unit::TestCase
         File.expects(:exist?).with(@instance.tar_path).returns(false)
         File.expects(:delete).never
 
-        @instance.cleanup
+        @instance.rescue(@env)
       end
 
       should "delete the packaged box if it exists" do
         File.expects(:exist?).returns(true)
         File.expects(:delete).with(@instance.tar_path).once
 
-        @instance.cleanup
+        @instance.rescue(@env)
       end
     end
 
