@@ -5,12 +5,15 @@ class CommandsReloadTest < Test::Unit::TestCase
     @klass = Vagrant::Commands::Reload
 
     @env = mock_environment
+    @env.stubs(:require_root_path)
     @instance = @klass.new(@env)
   end
 
   context "executing" do
     should "call all or single for the method" do
-      @instance.expects(:all_or_single).with([], :reload)
+      seq = sequence("seq")
+      @env.expects(:require_root_path).in_sequence(seq)
+      @instance.expects(:all_or_single).with([], :reload).in_sequence(seq)
       @instance.execute
     end
   end

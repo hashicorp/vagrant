@@ -1,5 +1,6 @@
 ## 0.5.1 (unreleased)
 
+  - Fixed error with doing a `vagrant up` when no Vagrantfile existed. [GH-128]
   - Fixed NFS erroring when NFS wasn't even enabled if `/etc/exports` doesn't
     exist. [GH-126]
   - Fixed `vagrant resume` to properly resume a suspended VM. [GH-122]

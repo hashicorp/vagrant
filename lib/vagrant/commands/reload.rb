@@ -10,6 +10,7 @@ module Vagrant
       description "Reload the vagrant environment"
 
       def execute(args=[])
+        env.require_root_path
         all_or_single(args, :reload)
       end
 

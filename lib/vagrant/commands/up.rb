@@ -9,6 +9,7 @@ module Vagrant
       description "Creates the vagrant environment"
 
       def execute(args=[])
+        env.require_root_path
         all_or_single(args, :up)
       end
 

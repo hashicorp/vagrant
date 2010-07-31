@@ -5,12 +5,15 @@ class CommandsUpTest < Test::Unit::TestCase
     @klass = Vagrant::Commands::Up
 
     @env = mock_environment
+    @env.stubs(:require_root_path)
     @instance = @klass.new(@env)
   end
 
   context "executing" do
     should "call all or single for the method" do
-      @instance.expects(:all_or_single).with([], :up)
+      seq = sequence("seq")
+      @env.expects(:require_root_path).in_sequence(seq)
+      @instance.expects(:all_or_single).with([], :up).in_sequence(seq)
       @instance.execute
     end
   end
