@@ -4,41 +4,41 @@ title: Getting Started - Boxes
 ---
 # Boxes
 
-After project initialization, the next step is always to setup the
-_base box_. Vagrant doesn't create a virtual machine _completely_ from
-scratch. Instead, it imports a base VM, and builds off of that. This
-simplifies things greatly for both the Vagrant developers and for the
-Vagrant users, since they don't have to spend time specifying tedious
-details such as memory size, hard disk size, network controllers, etc.
+After project initialization, the first step is always to specify the
+_base box_ in the Vagrantfile. Vagrant doesn't create a virtual machine
+instance _completely_ from scratch. Instead, it imports a base image for
+a VM and builds off of that. This simplifes things greatly for Vagrant
+users since they don't have to spend time specifying tedious details
+such as memory capacity, hard disk capacity, network controllers, etc,
+and also allows customizable bases to build projects from.
 
 The bases that Vagrant builds off are packaged as "boxes," which are
 basically tar packages in a specific format for Vagrant use. Anybody
 can create a box, and packaging will be covered specifically in the
 [packaging](/docs/getting-started/packaging.html) section.
 
-## Getting the Getting Started Box
+## Getting a Base Box
 
-We've already packaged a basic box which contains Apache2, Passenger,
-and SQLite. While provisioning will be covered in the getting started
-guide, we didn't want to burden you with downloading all the cookbooks
-for all the servers, so we'll instead cover a more simple case, although
-the rails box was created completely with Vagrant provisioning.
+We've already packaged a base box which has a bare bones installation
+of Ubuntu Lucid (10.04) 32-bit. Note that if you already downloaded
+this box from the [overview page](/docs/getting-started/index.html) you
+do not have to download it again.
 
 Vagrant supports adding boxes from both the local filesystem and an
 HTTP URL. Begin running the following command so it can begin downloading
 while box installation is covered in more detail:
 
 {% highlight bash %}
-$ vagrant box add getting_started http://files.vagrantup.com/getting_started.box
+$ vagrant box add lucid32 http://files.vagrantup.com/lucid32.box
 {% endhighlight %}
 
-Installed boxes reside in ~/.vagrant/boxes, and they are global to the current vagrant
-installation. This means that once the rails box has been added, it can be used by
+Installed boxes reside in `~/.vagrant/boxes`, and they are global to the current vagrant
+installation. This means that once the lucid32 box has been added, it can be used by
 multiple projects at the same time. Each project uses the box as a _base_ only, so once the
 project VM is created, modifications can be made without affecting other
 projects which may use the same box.
 
-Note that the box is given its own name, in this case "getting_started." This name
+Note that the box is given its own name, in this case "lucid32." This name
 is used throughout Vagrant to reference that box from this point forward.
 The URL is only used when adding, but never again. And the filename of the
 box means nothing to the logical name given. It is simply a coincidence that
@@ -49,11 +49,13 @@ the filename and logical name are equal in this case.
 Just as easily as they're added, boxes can be removed as well. The following
 is an example command to remove a box.
 
-**Do not run this command if you're following the guide. It is just an example.**
-
 {% highlight bash %}
 $ vagrant box remove my_box
 {% endhighlight %}
+
+If you tried to run this command, it will obviously fail, since you haven't
+added a box named "my_box" yet (or if you have, I'm sorry because you just
+deleted it forever).
 
 Once a box is removed, no new virtual machines based on that box can be created,
 since it is completely deleted off the filesystem, but existing virtual machines
@@ -61,14 +63,14 @@ which have already been spun up will continue to function properly.
 
 ## Configuring the Project to use the Box
 
-Now that the rails box has been successfully added to the Vagrant system, we need
-to tell our project to use it as a base. This is done through the Vagrantfile.
-Open the Vagrantfile and paste the following contents into it. The function of the
-contents should be self-explanatory:
+Now that the lucid box has been successfully added to the Vagrant installation,
+we need to tell our project to use it as a base. This is done through the Vagrantfile.
+Open the Vagrantfile and paste the following contents into it. The functional of
+the contents should be self-explanatory:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.vm.box = "getting_started"
+  config.vm.box = "lucid32"
 end
 {% endhighlight %}
 

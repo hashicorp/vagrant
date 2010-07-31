@@ -25,9 +25,9 @@ fairly painless:
 
 {% highlight bash %}
 $ cd ~
-$ wget http://rubyforge.org/frs/download.php/69365/rubygems-1.3.6.tgz
-$ tar xvzf rubygems-1.3.6.tgz
-$ cd rubygems-1.3.6
+$ wget http://production.cf.rubygems.org/rubygems/rubygems-1.3.7.tgz
+$ tar xvzf rubygems-1.3.7.tgz
+$ cd rubygems-1.3.7
 $ sudo ruby setup.rb
 $ sudo ln -s /usr/bin/gem1.8 /usr/bin/gem
 {% endhighlight bash %}

@@ -4,17 +4,18 @@ title: Getting Started - Port Forwarding
 ---
 # Port Forwarding
 
-So we now have this virtual environment running all these servers
-and processes. Great! But what's the use if we can't access them from
-our _outside_ of the virtual environment? Well, it turns out Vagrant has
-a built-in feature to handle just that: port forwarding.
+At this point we have a virtual environment running with Apache serving
+the basic web project. But so far we can only access it from within the
+VM, using the command line. Vagrant's goal is to provide the benefit of
+a virtualized environment without getting in your way. In order to access
+your project, Vagrant has a feature known as port forwarding.
 
-Port forwarding allows you to specify ports on the host machine to forward
-to the guest machine. This allows you to access your web services using
+Port forwarding allows you to specify ports on the guest machine to forward
+to the host machine. This enables you to access your web services using
 your own browser on your machine while the server actually sits and runs
 within a virtual machine.
 
-## Creating a Forwarded Port
+## Specifying a Forwarded Port
 
 In our case, we just want to forward Apache. Port forwarding is specified
 in the Vagrantfile, like so:
@@ -44,9 +45,11 @@ won't pick up on the forwarded ports until it is completely restarted.
 
 ## Results!
 
-At this point, after running `vagrant up`, you should be able to take your
-regular old browser to `localhost:4567` and see the following page. Sure,
-it's an error page, but it means that rails is running and everything is
-working!
+After running `vagrant up`, you should be able to take your
+regular old browser to `localhost:4567` and see the index page we created
+earlier. At this point, we have a fully functional VM ready for development for
+a basic HTML website. It should be clear to see that if PHP, Rails, etc.
+were setup, you could be developing those technologies as well.
 
-![Success!](/images/getting-started/success.jpg)
+For fun, you can also edit the `index.html` file, save it, refresh your
+browser, and immediately see your changes served directly from your VM.

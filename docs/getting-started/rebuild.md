@@ -4,13 +4,12 @@ title: Getting Started - Rebuild Instantly
 ---
 # Rebuild Instantly
 
-Let's assume its time to work on that rails project again. Maybe
+Let's assume its time to work on that web project again. Maybe
 its the next day at work, maybe its the next _year_ at work, but
-your boss wants you to work on that rails project again. Worried
-about dependencies? Rails versions mismatched maybe? Server versions
-changed?
+your boss wants you to work on that web project again. Worried
+about dependencies? Software versions mismatched maybe?
 
-Don't worry! We built the development environment for the rails
+Don't worry! We already built the development environment for the web
 project with Vagrant! Rebuilding is a snap.
 
 **Note:** If you're following along and haven't already completely
@@ -18,7 +17,7 @@ destroyed your virtual environment, please do so by running
 `vagrant down` so you can really experience this step of the
 getting started guide.
 
-Are you ready for this? Go back to that rails project directory
+Are you ready for this? Go back to that web project directory
 and issue the following command:
 
 {% highlight bash %}

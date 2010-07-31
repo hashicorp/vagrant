@@ -6,111 +6,49 @@ title: Getting Started - Provisioning
 
 Boxes aren't always going to be one-step setups for your Vagrant environment.
 Often times boxes will be used as a base for a more complicated setup. For
-example: Perhaps you're creating a rails application which also uses AMQP and
+example: Perhaps you're creating a web application which also uses AMQP and
 some custom background worker daemons. In this situation, it would be easiest
-to use the rails box, but then add the custom software on top of it (and
-perhaps even packaging it later so others can make use of it).
+to use the base box, but then add the custom software on top of it (and then
+packaging it so others can more easily make use of it, but we'll cover this
+later).
 
 Luckily, Vagrant comes with provisioning built right into the software by
 using [chef](http://www.opscode.com/chef), with support for both [chef solo](http://wiki.opscode.com/display/chef/Chef+Solo)
 and [chef server](http://wiki.opscode.com/display/chef/Chef+Server). You can
 also [extend vagrant](/docs/provisioners/others.html) to support more provisioners, but this is an advanced topic
-which we won't be covered here.
+which we won't cover here.
 
-For our basic rails app, we're going to use provisioning for a different
-purpose: installing some basic system monitoring tools, specifically [htop](http://htop.sourceforge.net/).
-The getting started guide doesn't cover more advanced cookbooks for the purpose of keeping things
-simple, but anything is possible with chef.
+For our basic HTML website, we're going to use chef provisioning to setup Apache
+to serve the website.
 
-## Creating the `htop` Cookbook
+## Configuring Chef and the Vagrant
 
-First things first, we're going to create a directory to store our cookbooks
-and then we're going to create the directories for the `htop` cookbook.
-
-{% highlight bash %}
-$ mkdir -p cookbooks/htop/recipes
-{% endhighlight %}
-
-**Note:** Generally, cookbooks are created with Rake commands using the Rakefile
-provided by the Opscode cookbooks repository. Since what we're doing here is so
-simple, we're not using this, but most projects typically do.
-
-In the recipes directory of the `htop` cookbook, create a file named `default.rb`
-with the following contents. This file defines how chef installs `htop`. The file
-should be at `cookbooks/htop/recipes/default.rb`.
-
-{% highlight ruby %}
-# Install the htop package via the packaging system
-package "htop"
-{% endhighlight %}
-
-## Creating the `vagrant_main` Cookbook
-
-Vagrant uses `vagrant_main` as the entry-point cookbook for chef. This is
-analogous to a C program calling `int main` to start a program. The actual
-contents of the `vagrant_main` recipe should be to simply include other recipes
-in the order you want them ran. First, we'll setup the directory for this cookbook:
-
-{% highlight bash %}
-$ mkdir -p cookbooks/vagrant_main/recipes
-{% endhighlight %}
-
-And then the contents of the `default.rb` file:
-
-{% highlight ruby %}
-# Just install htop
-require_recipe "htop"
-{% endhighlight %}
-
-**Note:** The fact that Vagrant calls `vagrant_main` as the main cookbook is
-configurable using the Vagrantfile, but we won't modify it in this getting
-started guide.
-
-## Enabling Provisioning
-
-With everything is now in place, the final step is to modify the Vagrantfile
-to point to our cookbooks directory and to enable provisioning. Add the
-following contents to the project's Vagrantfile:
+Since a tutorial on how to use Chef is out of scope for this getting started
+guide, I've prepackaged the cookbooks for you for provisioning. You just have
+to configure your Vagrantfile to point to them:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
+  config.vm.box = "lucid32"
+
   # Enable the chef solo provisioner
   config.vm.provisioner = :chef_solo
 
-  # This directory is expanded relative to the project directory.
-  config.chef.cookbooks_path = "cookbooks"
+  # Grab the cookbooks from the Vagrant files
+  config.chef.recipe_url = "http://files.vagrantup.com/getting_started/cookbooks.tar.gz"
 end
 {% endhighlight %}
 
-**Note:** If you're feeling lazy, you can simply copy and paste the above code
-at the end of the Vagrantfile after the previous configuration block. Vagrant
-runs all configuration blocks, overwriting the newest values over the older
-values. Otherwise, you may simply copy the block contents and append it to the
-block contents of your current Vagrantfile. Either way, things will work.
+Note that while we use a URL to download the cookbooks for this getting
+started project, you can also put cookbooks in a local directory, which is
+nice for storing your cookbooks in version control with your project. More
+details on this can be found in the [chef solo documentation](/docs/provisioners/chef_solo.html).
 
 ## Running it!
 
-With everything setup, you can now test what we have so far. If you haven't yet
-created the vagrant environment, run `vagrant up` to create it from scratch.
-Otherwise, if you already ran `vagrant up` and chose to suspend or shut down
-the environment during the last step, or even if its still running,
-run `vagrant reload` to simply reload the environment, but not
-create a new one.
+With provisioning configured, just run `vagrant up` to create your environment
+and Vagrant will automatically provision it. If your environment is already
+running since you did an `up` in a previous step, just run `vagrant reload`,
+which will quickly restart your VM, skipping the import step.
 
-If you have no idea what's going on, run a `vagrant down` to
-tear down any potentially created vagrant environment, and start over with
-a fresh `vagrant up`.
-
-You should notice that provisioning is now part of the steps executed, and
-Vagrant will even log and output the output of chef, so you can debug any
-problems which may occur.
-
-You can verify everything worked successfully by SSHing in to the running
-environment and trying to execute `htop`:
-
-{% highlight bash %}
-$ vagrant ssh
-...
-vagrant-instance ~$ which htop
-/usr/bin/htop
-{% endhighlight %}
+TODO: create cookbooks and show output here
