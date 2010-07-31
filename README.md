@@ -40,7 +40,6 @@ covers a few parts of Vagrant in more detail than the website guide.
 If you want the bleeding edge version of Vagrant, we try to keep master pretty stable
 and you're welcome to give it a shot. The following is an example showing how to do this:
 
-    rake build
     sudo rake install
 
 ## Contributing to Vagrant
