@@ -9,11 +9,21 @@ class CommandsInitTest < Test::Unit::TestCase
   end
 
   context "execute" do
-    should "create the vagrantfile with the first arg" do
-      args = [:foo]
-      @instance.expects(:create_vagrantfile).with(args.first)
+    should "create a vagrant file without any args" do
+      args = []
+      @instance.expects(:create_vagrantfile).with(nil)
       @instance.execute(args)
-    end
+    end 
+    context "when any arg is provided" do
+      should "create the vagrant file using the first arg as default_box and the second as default_box_url" do
+        args = []
+        args[0] = "foo"
+        args[1] = "foo.box"
+
+        @instance.expects(:create_vagrantfile).with(:default_box => "foo", :default_box_url => "foo.box")
+        @instance.execute(args)
+      end
+    end 
   end
 
   context "creating the vagrantfile" do
@@ -43,13 +53,21 @@ class CommandsInitTest < Test::Unit::TestCase
 
     should "use the given base box if given" do
       box = "zooo"
-      Vagrant::Util::TemplateRenderer.expects(:render).with(Vagrant::Environment::ROOTFILE_NAME, :default_box => box)
-      @instance.create_vagrantfile(box)
+      Vagrant::Util::TemplateRenderer.expects(:render).with(Vagrant::Environment::ROOTFILE_NAME, :default_box => box, :default_box_url => nil)
+      @instance.create_vagrantfile :default_box => box
     end
 
+    should "use the box_url if given" do
+      box_url = "fubar.box" 
+      Vagrant::Util::TemplateRenderer.expects(:render).with(Vagrant::Environment::ROOTFILE_NAME, :default_box => "base", :default_box_url => "fubar.box")
+      @instance.create_vagrantfile :default_box_url => box_url
+    end 
+
     should "use the default `base` if no box is given" do
-      Vagrant::Util::TemplateRenderer.expects(:render).with(Vagrant::Environment::ROOTFILE_NAME, :default_box => "base")
+      Vagrant::Util::TemplateRenderer.expects(:render).with(Vagrant::Environment::ROOTFILE_NAME, :default_box => "base", :default_box_url => nil)
       @instance.create_vagrantfile
     end
+
+
   end
 end

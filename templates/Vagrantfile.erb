@@ -5,4 +5,9 @@ Vagrant::Config.run do |config|
 
   # Every Vagrant virtual environment requires a box to build off of.
   config.vm.box = "<%= default_box %>"
+
+  <% if !default_box_url.nil? %>
+  # The url from where the 'config.vm.box' box will be fetched
+  config.vm.box_url = "<%= default_box_url %>"
+  <% end  %>
 end
