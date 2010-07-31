@@ -1,4 +1,8 @@
-## 0.5.1 (unreleased)
+## 0.5.2 (unreleased)
+
+
+
+## 0.5.1 (July 31, 2010)
 
   - Allow specifying cookbook paths which exist only on the VM in `config.chef.cookbooks_path`.
     This is used for specifying cookbook paths when `config.chef.recipe_url` is used. [GH-130]
