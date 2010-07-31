@@ -14,7 +14,7 @@ key-based SSH.
   <h3>We updated our boxes!</h3>
   <p>
     If you're not using a custom base box, and you're using one of the base
-    boxes we created (<code>getting_started.box</code>, <code>base.box</code>, etc.),
+    boxes we created (<code>lucid32.box</code>, <code>lucid64.box</code>, etc.)
     then just remove your old box and download the new one. We updated all
     of our boxes to work with <code>0.2.x</code>!
   </p>
