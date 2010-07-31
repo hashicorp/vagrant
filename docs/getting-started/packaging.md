@@ -10,14 +10,10 @@ you want to share the same virtual environment with them. Let's package this
 new environment into a box for them so they can get up and running
 with just a few keystrokes.
 
-Packages are tar files ending in the suffix 'box' (hence known as box files)
-containing the exported virtual machine and optionally
-additional files specified on the command line. A common file also included
-with boxes is a Vagrantfile. If a Vagrantfile exists in a box, it will be
-added to the configuration load chain. Boxes can use a Vagrantfile to specify
-default forwarded ports, SSH information, etc. Note, however, that a Vagrantfile
-is not required to be packaged with a box, and boxes will work just fine
-without one.
+Packages are exported images of your current virtual environment which
+can be easily distributed. They're typically suffixed with a "box" extension,
+hence they are known as box files. Optionally, Vagrantfiles can be included
+with boxes, which can be used to specify forwarded ports, shared folders, etc.
 
 Before working through the rest of this page, make sure the virtual environment
 is built by running `vagrant up`.
@@ -55,19 +51,13 @@ end
 Run the following code to package the environment up:
 
 {% highlight bash %}
-$ vagrant halt
 $ vagrant package --include Vagrantfile
 {% endhighlight %}
 
-The first command simply halts the running virtual machine (if its running).
-This is basically equivalent to pulling the plug on our machine and is not
-recommended in general. In this case, it shouldn't really cause any damage.
-
-The second command is where the meat is. `vagrant package` takes the virtual
-environment from the current project and packages it into a `package.box`
-file in the same directory. The additional options passed to the command tell
-it to include the newly created Vagrantfile with it, so that the users of
-the box will already have port forwarding setup.
+`vagrant package` takes the virtual environment from the current project
+and packages it into a `package.box` file in the same directory. The additional
+options tell it to include the newly created Vagrantfile with it, so that
+users of the box will already have port forwarding setup.
 
 ## Distributing the Box
 

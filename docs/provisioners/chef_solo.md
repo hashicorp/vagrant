@@ -34,7 +34,7 @@ various cookbooks.
 To tell Vagrant what the cookbook path is, set it up in your Vagrantfile, like so:
 
 {% highlight ruby %}
-Vagrant::Configure.run do |config|
+Vagrant::Config.run do |config|
   # This path will be expanded relative to the project directory
   config.chef.cookbooks_path = "cookbooks"
 end
@@ -48,7 +48,7 @@ end
     directory, and chef solo will then look in every directory for the cookbooks.
 
 {% highlight ruby %}
-Vagrant::Configure.run do |config|
+Vagrant::Config.run do |config|
   config.chef.cookbooks_path = ["cookbooks", "~/company/cookbooks"]
 end
 {% endhighlight %}
@@ -130,7 +130,7 @@ But sometimes, cookbooks need additional, custom JSON configuration. For this
 you can specify additional JSON data in the Vagrantfile:
 
 {% highlight ruby %}
-Vagrant::Configure.run do |config|
+Vagrant::Config.run do |config|
   # merge is used to preserve the default JSON configuration, otherwise it'll
   # all be overwritten
   config.chef.json.merge!({
@@ -148,14 +148,14 @@ to a directory containing these role files, and these roles can then be used by 
 chef solo run list. An example of configuring roles is shown below:
 
 {% highlight ruby %}
-Vagrant::Configure.run do |config|
+Vagrant::Config.run do |config|
   # The roles path will be expanded relative to the project directory
   config.chef.roles_path = "roles"
   config.chef.add_role("web")
 end
 {% endhighlight %}
 
-## Configuring the Server Path
+## Configuring the Temporary Path
 
 In order to run chef, Vagrant has to mount the specified cookbooks directory as a
 shared folder on the virtual machine. By default, this is set to be `/tmp/vagrant-chef`,
@@ -163,7 +163,7 @@ and this should be fine for most users. But in the case that you need to customi
 the location, you can do so in the Vagrantfile:
 
 {% highlight ruby %}
-Vagrant::Configure.run do |config|
+Vagrant::Config.run do |config|
   config.chef.provisioning_path = "/tmp/vagrant-chef"
 end
 {% endhighlight %}

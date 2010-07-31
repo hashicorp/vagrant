@@ -27,19 +27,26 @@ $ vagrant init
 as-is, but it will be used extensively in future steps to configure our virtual
 machine.
 
-## Rails Project Setup
+## Web Project Setup
 
-With Vagrant now ready for the given directory, lets add rails to it. In the
-same directory run the `rails` command:
+With Vagrant now ready for the given directory, let's create a quick "web project"
+which we'll use later to showcase your VM. Run the following command in your
+project directory (the directory with the Vagrantfile):
 
 {% highlight bash %}
-$ rails .
-$ rm public/index.html
+$ echo "<h1>Hello from a Vagrant VM</h1>" > index.html
 {% endhighlight %}
 
-This creates a rails-app in the current directory. It also removes the static
-index file but leaves everything else as-is. This guide is assuming you're
-using **Rails 2.3.5**.
+The above steps could have been run in any order. Vagrant can easily be initialized
+in pre-existing project folders.
 
-The above setups required (rails and vagrant) could have been run in any order.
-Vagrant can easily be initialized in already-existing project folders.
+<div class="info">
+  <h3>What about PHP? Python? Java?</h3>
+  <p>
+    To keep this getting started guide simple and as general as possible,
+    uses an HTML-based project as an example, but Vagrant doesn't make
+    any assumptions about the type of project you're developing. It should
+    be clear after going through the getting started guide on how to use Vagrant
+    with other types of web projects.
+  </p>
+</div>

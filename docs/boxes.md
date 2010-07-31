@@ -19,11 +19,11 @@ Boxes are also required as a base for all vagrant projects. The
 Boxes can be installed from the filesystem or via HTTP (note that
 if you're interested, its quite easy to extend this to support more
 protocols). No matter the source, the installation method is the same.
-The following adds a box named `ubuntu_base` to a local vagrant
+The following adds a box named `lucid32` to a local vagrant
 installation:
 
 {% highlight bash %}
-$ vagrant box add ubuntu_base http://files.vagrantup.com/base.box
+$ vagrant box add lucid32 http://files.vagrantup.com/lucid32.box
 {% endhighlight %}
 
 The name used with the `vagrant box add` command is the name used to
@@ -38,11 +38,11 @@ first few commands tell you to add a box named "base" to the project.
 ## Removing a Box
 
 Boxes can just as easily be removed using the same `vagrant box` command.
-The following command removes the `ubuntu_base` box which was added in the
+The following command removes the `lucid32` box which was added in the
 previous section:
 
 {% highlight bash %}
-$ vagrant box remove ubuntu_base
+$ vagrant box remove lucid32
 {% endhighlight %}
 
 **Warning:** There is no going back from this command. This command literally
@@ -58,7 +58,7 @@ $ vagrant box list
 =====================================================================
 Installed Vagrant Boxes:
 
-base
+lucid32
 =====================================================================
 {% endhighlight %}
 

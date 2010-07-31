@@ -14,7 +14,7 @@ Once Vagrant is installed, it is typically controlled through the `vagrant`
 command line interface. The `vagrant` binary has many "subcommands" which can be
 invoked which handle all the functionality within Vagrant, such as `vagrant up`,
 `vagrant ssh`, and `vagrant package`, to name a few. To discover all the supported
-subcommands, just run `vagrant` alone, and it'll list them out for you:
+subcommands, just run `vagrant` alone, and it'll list them out for you.
 
 ## The Vagrantfile
 

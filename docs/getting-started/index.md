@@ -60,8 +60,8 @@ $ gem install vagrant
 ## Your First Vagrant Virtual Environment
 
 {% highlight bash %}
-$ vagrant box add base http://files.vagrantup.com/base.box
-$ vagrant init
+$ vagrant box add lucid32 http://files.vagrantup.com/lucid32.box
+$ vagrant init lucid32
 $ vagrant up
 {% endhighlight %}
 
@@ -70,5 +70,5 @@ build a fully functional virtual machine to serve rails applications, you
 should get used to the above snippet of code. After the initial setup of
 any Vagrant environment, the above is all any developer will need to create
 their development environment! Note that the above snippet does actually
-create a fully functional 360MB virtual machine running Ubuntu in the
+create a fully functional 512MB virtual machine running Ubuntu in the
 background, although the machine doesn't do much in this state.
