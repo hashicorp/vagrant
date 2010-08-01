@@ -14,7 +14,7 @@ project with Vagrant! Rebuilding is a snap.
 
 **Note:** If you're following along and haven't already completely
 destroyed your virtual environment, please do so by running
-`vagrant down` so you can really experience this step of the
+`vagrant destroy` so you can really experience this step of the
 getting started guide.
 
 Are you ready for this? Go back to that web project directory
