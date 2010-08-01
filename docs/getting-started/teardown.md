@@ -46,7 +46,7 @@ for the disk space that is consumed by the virtual machine.
 ## Destroying the Environment
 
 Finally, you can _completely destroy the virtual environment_. This can be
-done by running `vagrant down` which will literally delete all traces of the
+done by running `vagrant destroy` which will literally delete all traces of the
 virtual environment off the disk. To get started again, run `vagrant up` and
 your environment will be rebuilt.
 
