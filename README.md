@@ -18,12 +18,12 @@ First, make sure your development machine has [VirtualBox](http://www.virtualbox
 installed. The setup from that point forward is very easy, since Vagrant is simply
 a rubygem.
 
-    sudo gem install vagrant
+    gem install vagrant
 
 To build your first virtual environment:
 
-    vagrant init
-    vagrant box add base http://files.vagrantup.com/base.box
+    vagrant box add lucid32 http://files.vagrantup.com/lucid32.box
+    vagrant init lucid32
     vagrant up
 
 ## Getting Started Guide and Video
@@ -40,12 +40,12 @@ covers a few parts of Vagrant in more detail than the website guide.
 If you want the bleeding edge version of Vagrant, we try to keep master pretty stable
 and you're welcome to give it a shot. The following is an example showing how to do this:
 
-    sudo rake install
+    rake install
 
 ## Contributing to Vagrant
 
 To hack on vagrant, you'll need [bundler](http://github.com/carlhuda/bundler) which can
-be installed with a simple `sudo gem install bundler`. Afterwords, do the following:
+be installed with a simple `gem install bundler`. Afterwords, do the following:
 
     bundle install
     bundle exec rake
