@@ -1,6 +1,7 @@
 ## 0.5.2 (unreleased)
 
-
+  - Added ability to specify box url in `init`, which populates the
+    Vagrantfile with the proper `config.vm.box_url`.
 
 ## 0.5.1 (July 31, 2010)
 

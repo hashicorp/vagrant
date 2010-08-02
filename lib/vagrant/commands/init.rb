@@ -5,12 +5,7 @@ module Vagrant
       description "Initializes current folder for Vagrant usage"
 
       def execute(args)
-        if args.empty?
-          create_vagrantfile
-        else
-          create_vagrantfile(:default_box => args[0] , :default_box_url => args[1])
-        end 
-          
+        create_vagrantfile(:default_box => args[0] , :default_box_url => args[1])
       end
 
       def options_spec(opts)
@@ -30,10 +25,10 @@ module Vagrant
         error_and_exit(:rootfile_already_exists) if File.exist?(rootfile_path)
 
         # Write the rootfile
-        default_opts = { :default_box => "base", :default_box_url => nil}.merge(opts)          
+        opts = { :default_box => "base", :default_box_url => nil}.merge(opts)
 
         File.open(rootfile_path, 'w+') do |f|
-          f.write(TemplateRenderer.render(Environment::ROOTFILE_NAME, :default_box => default_opts[:default_box], :default_box_url => default_opts[:default_box_url]))
+          f.write(TemplateRenderer.render(Environment::ROOTFILE_NAME, opts))
         end
       end
     end

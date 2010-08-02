@@ -11,9 +11,9 @@ class CommandsInitTest < Test::Unit::TestCase
   context "execute" do
     should "create a vagrant file without any args" do
       args = []
-      @instance.expects(:create_vagrantfile).with(nil)
+      @instance.expects(:create_vagrantfile).with(:default_box => nil, :default_box_url => nil)
       @instance.execute(args)
-    end 
+    end
     context "when any arg is provided" do
       should "create the vagrant file using the first arg as default_box and the second as default_box_url" do
         args = []
@@ -23,7 +23,7 @@ class CommandsInitTest < Test::Unit::TestCase
         @instance.expects(:create_vagrantfile).with(:default_box => "foo", :default_box_url => "foo.box")
         @instance.execute(args)
       end
-    end 
+    end
   end
 
   context "creating the vagrantfile" do
@@ -58,10 +58,10 @@ class CommandsInitTest < Test::Unit::TestCase
     end
 
     should "use the box_url if given" do
-      box_url = "fubar.box" 
+      box_url = "fubar.box"
       Vagrant::Util::TemplateRenderer.expects(:render).with(Vagrant::Environment::ROOTFILE_NAME, :default_box => "base", :default_box_url => "fubar.box")
       @instance.create_vagrantfile :default_box_url => box_url
-    end 
+    end
 
     should "use the default `base` if no box is given" do
       Vagrant::Util::TemplateRenderer.expects(:render).with(Vagrant::Environment::ROOTFILE_NAME, :default_box => "base", :default_box_url => nil)
