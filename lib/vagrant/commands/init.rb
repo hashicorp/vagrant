@@ -24,8 +24,8 @@ module Vagrant
         rootfile_path = File.join(Dir.pwd, Environment::ROOTFILE_NAME)
         error_and_exit(:rootfile_already_exists) if File.exist?(rootfile_path)
 
-        # Write the rootfile
-        opts = { :default_box => "base", :default_box_url => nil}.merge(opts)
+        # Set the defaults of the Vagrantfile
+        opts[:default_box] ||= "base"
 
         File.open(rootfile_path, 'w+') do |f|
           f.write(TemplateRenderer.render(Environment::ROOTFILE_NAME, opts))
