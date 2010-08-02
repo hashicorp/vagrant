@@ -22,9 +22,12 @@ a rubygem.
 
 To build your first virtual environment:
 
-    vagrant box add lucid32 http://files.vagrantup.com/lucid32.box
-    vagrant init lucid32
+    vagrant init lucid32 http://files.vagrantup.com/lucid32.box
     vagrant up
+
+Note: The above `vagrant up` command will also trigger Vagrant to download the
+`lucid32` box via the specified URL. Vagrant only does this if it detects that
+the box doesn't already exist on your system.
 
 ## Getting Started Guide and Video
 
