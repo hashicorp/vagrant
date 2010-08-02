@@ -68,7 +68,7 @@ module Vagrant
       #
       # @return [String]
       def render_string
-        ERB.new(template).result(binding)
+        ERB.new(template, nil, "%<>-").result(binding)
       end
 
       # Returns the full path to the template, taking into accoun the gem directory

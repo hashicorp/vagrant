@@ -191,7 +191,7 @@
   Unknown provisioner type: <%= provisioner %>
 :rootfile_already_exists: |-
   It looks like this directory is already setup for vagrant! (A <%= Vagrant::Environment::ROOTFILE_NAME %>
-  already exists.)
+   already exists.)
 :rootfile_not_found: |-
   A `<%= Vagrant::Environment::ROOTFILE_NAME %>` was not found! This file is required for vagrant to run
   since it describes the expected environment that vagrant is supposed

@@ -60,7 +60,7 @@ class TemplateRendererUtilTest < Test::Unit::TestCase
     end
 
     should "simply render the template as a string" do
-      ERB.expects(:new).with(@r.template).returns(@erb)
+      ERB.expects(:new).with(@r.template, nil, "%<>-").returns(@erb)
       assert_equal @result, @r.render_string
     end
   end
