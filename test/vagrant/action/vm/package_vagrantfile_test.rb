@@ -7,7 +7,7 @@ class PackageVagrantfileVMActionTest < Test::Unit::TestCase
 
     @vm = mock("vm")
     @env["vm"] = @vm
-    @env["package.directory"] = "foo"
+    @env["export.temp_dir"] = "foo"
 
     @internal_vm = mock("internal")
     @vm.stubs(:vm).returns(@internal_vm)
@@ -34,7 +34,7 @@ class PackageVagrantfileVMActionTest < Test::Unit::TestCase
     should "write the rendered vagrantfile to temp_path Vagrantfile" do
       f = mock("file")
       rendered = mock("rendered")
-      File.expects(:open).with(File.join(@env["package.directory"], "Vagrantfile"), "w").yields(f)
+      File.expects(:open).with(File.join(@env["export.temp_dir"], "Vagrantfile"), "w").yields(f)
       Vagrant::Util::TemplateRenderer.expects(:render).returns(rendered).with("package_Vagrantfile", {
                                                                                 :base_mac => @internal_vm.network_adapters.first.mac_address
                                                                               })

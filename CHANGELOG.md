@@ -1,5 +1,6 @@
 ## 0.5.2 (unreleased)
 
+  - Fix regression with `package` not working. [GH-132]
   - Added ability to specify box url in `init`, which populates the
     Vagrantfile with the proper `config.vm.box_url`.
 

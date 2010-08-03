@@ -21,7 +21,7 @@ module Vagrant
         # box. This Vagrantfile contains the MAC address so that the user doesn't
         # have to worry about it.
         def create_vagrantfile
-          File.open(File.join(@env["package.directory"], "Vagrantfile"), "w") do |f|
+          File.open(File.join(@env["export.temp_dir"], "Vagrantfile"), "w") do |f|
             f.write(TemplateRenderer.render("package_Vagrantfile", {
               :base_mac => @env["vm"].vm.network_adapters.first.mac_address
             }))
