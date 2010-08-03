@@ -53,7 +53,7 @@ class CommandsInitTest < Test::Unit::TestCase
 
     should "use the given base box if given" do
       box = "zooo"
-      Vagrant::Util::TemplateRenderer.expects(:render).with(Vagrant::Environment::ROOTFILE_NAME, :default_box => box, :default_box_url => nil)
+      Vagrant::Util::TemplateRenderer.expects(:render).with(Vagrant::Environment::ROOTFILE_NAME, :default_box => box)
       @instance.create_vagrantfile :default_box => box
     end
 
@@ -64,10 +64,8 @@ class CommandsInitTest < Test::Unit::TestCase
     end
 
     should "use the default `base` if no box is given" do
-      Vagrant::Util::TemplateRenderer.expects(:render).with(Vagrant::Environment::ROOTFILE_NAME, :default_box => "base", :default_box_url => nil)
+      Vagrant::Util::TemplateRenderer.expects(:render).with(Vagrant::Environment::ROOTFILE_NAME, :default_box => "base")
       @instance.create_vagrantfile
     end
-
-
   end
 end
