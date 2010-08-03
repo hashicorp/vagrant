@@ -33,7 +33,8 @@ module Vagrant
 
       # Command line options
       command_options = ["-p #{options[:port]}", "-o UserKnownHostsFile=/dev/null",
-                         "-o StrictHostKeyChecking=no", "-i #{options[:private_key_path]}"]
+                         "-o StrictHostKeyChecking=no", "-o IdentitiesOnly=yes",
+                         "-i #{options[:private_key_path]}"]
       command_options << "-o ForwardAgent=yes" if env.config.ssh.forward_agent
 
       # Some hackery going on here. On Mac OS X Leopard (10.5), exec fails
