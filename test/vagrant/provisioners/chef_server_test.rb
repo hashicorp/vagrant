@@ -169,7 +169,7 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
     end
 
     should "cd into the provisioning directory and run chef client" do
-      @ssh.expects(:exec!).with("cd #{@env.config.chef.provisioning_path} && sudo chef-client -c client.rb -j dna.json").once
+      @ssh.expects(:exec!).with("cd #{@env.config.chef.provisioning_path} && sudo -E chef-client -c client.rb -j dna.json").once
       @action.run_chef_client
     end
 

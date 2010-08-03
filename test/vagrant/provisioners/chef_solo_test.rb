@@ -184,7 +184,7 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
     end
 
     should "cd into the provisioning directory and run chef solo" do
-      @ssh.expects(:exec!).with("cd #{@env.config.chef.provisioning_path} && sudo chef-solo -c solo.rb -j dna.json").once
+      @ssh.expects(:exec!).with("cd #{@env.config.chef.provisioning_path} && sudo -E chef-solo -c solo.rb -j dna.json").once
       @action.run_chef_solo
     end
 

@@ -1,5 +1,7 @@
 ## 0.5.2 (unreleased)
 
+  - Sudo uses "-E" flag to preserve environment for chef provisioners.
+    This fixes issues with CentOS. [GH-133]
   - Added "IdentitiesOnly yes" to options when `vagrant ssh` is run to
     avoid "Too Many Authentication Failures" error. [GH-131]
   - Fix regression with `package` not working. [GH-132]
