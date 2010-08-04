@@ -203,11 +203,19 @@ class VMTest < Test::Unit::TestCase
     context "starting" do
       setup do
         @mock_vm.stubs(:running?).returns(false)
+        @mock_vm.stubs(:saved?).returns(false)
       end
 
       should "not do anything if the VM is already running" do
         @mock_vm.stubs(:running?).returns(true)
         @vm.expects(:execute!).never
+        @vm.start
+      end
+
+      should "execute the resume action if saved" do
+        @mock_vm.expects(:saved?).returns(true)
+        @vm.expects(:resume).once
+        @vm.env.actions.expects(:run).with(:start).never
         @vm.start
       end
 

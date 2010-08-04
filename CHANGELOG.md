@@ -1,5 +1,7 @@
 ## 0.5.2 (unreleased)
 
+  - `vagrant up` can be used as a way to resume the VM as well (same as
+    `vagrant resume`). [GH-134]
   - Sudo uses "-E" flag to preserve environment for chef provisioners.
     This fixes issues with CentOS. [GH-133]
   - Added "IdentitiesOnly yes" to options when `vagrant ssh` is run to

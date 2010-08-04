@@ -103,6 +103,7 @@ module Vagrant
 
     def start
       return if @vm.running?
+      return resume if @vm.saved?
 
       env.actions.run(:start)
     end
