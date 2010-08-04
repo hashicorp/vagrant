@@ -1,4 +1,4 @@
-## 0.5.2 (unreleased)
+## 0.5.2 (August 3, 2010)
 
   - `vagrant up` can be used as a way to resume the VM as well (same as
     `vagrant resume`). [GH-134]
