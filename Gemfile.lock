@@ -1,0 +1,45 @@
+GIT
+  remote: git://github.com/mitchellh/virtualbox.git
+  revision: 69db76b
+  specs:
+    virtualbox (0.7.5)
+      ffi (>= 0.6.3)
+
+PATH
+  remote: .
+  specs:
+    vagrant (0.5.3.dev)
+      archive-tar-minitar (= 0.5.2)
+      json (>= 1.4.3)
+      mario (~> 0.0.6)
+      net-scp (>= 1.0.2)
+      net-ssh (>= 2.0.19)
+      virtualbox (~> 0.7.3)
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    archive-tar-minitar (0.5.2)
+    contest (0.1.2)
+    ffi (0.6.3)
+      rake (>= 0.8.7)
+    json (1.4.6)
+    mario (0.0.6)
+    mocha (0.9.8)
+      rake
+    net-scp (1.0.2)
+      net-ssh (>= 1.99.1)
+    net-ssh (2.0.23)
+    rake (0.8.7)
+    yard (0.5.8)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  contest (>= 0.1.2)
+  mocha
+  rake
+  vagrant!
+  virtualbox!
+  yard

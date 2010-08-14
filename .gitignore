@@ -2,7 +2,6 @@ pkg/*
 Vagrantfile
 .vagrant
 .bundle
-*.lock
 cookbooks/*
 _site/*
 !templates/*
