@@ -48,9 +48,9 @@ and you're welcome to give it a shot. The following is an example showing how to
 ## Contributing to Vagrant
 
 To hack on vagrant, you'll need [bundler](http://github.com/carlhuda/bundler) which can
-be installed with a simple `gem install bundler`. Afterwords, do the following:
+be installed with a simple `gem install bundler --pre`. Afterwords, do the following:
 
     bundle install
-    bundle exec rake
+    rake
 
 This will run the test suite, which should come back all green! Then you're good to go!
