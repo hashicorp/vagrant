@@ -1,3 +1,5 @@
 # VAGRANT-BEGIN: <%= uuid %>
-<% folders.each do |name, opts| %><%= opts[:hostpath] %> <%= ip %><% if opts[:map_uid] %> -mapall=<%= [opts[:map_uid],opts[:map_gid]].compact.join(":") %><% end %><% end %>
+<% folders.each do |name, opts| %>
+<%= opts[:hostpath] %> <%= ip %><% if opts[:map_uid] -%> -mapall=<%= [opts[:map_uid],opts[:map_gid]].compact.join(":") %><% end -%>
+<% end %>
 # VAGRANT-END: <%= uuid %>
