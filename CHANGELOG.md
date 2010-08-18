@@ -1,6 +1,7 @@
 ## 0.5.3 (unreleased)
 
-
+  - Fixed chef solo provision to work on Windows. It was expanding a linux
+    path which prepended a drive letter onto it.
 
 ## 0.5.2 (August 3, 2010)
 

@@ -64,7 +64,7 @@ module Vagrant
       end
 
       def folder_path(*args)
-        File.expand_path(args.join("-"), env.config.chef.provisioning_path)
+        File.join(env.config.chef.provisioning_path, args.join("-"))
       end
 
       def folders_path(folders, folder)

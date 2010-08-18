@@ -27,7 +27,7 @@ GEM
     mario (0.0.6)
     mocha (0.9.8)
       rake
-    net-scp (1.0.2)
+    net-scp (1.0.3)
       net-ssh (>= 1.99.1)
     net-ssh (2.0.23)
     rake (0.8.7)
