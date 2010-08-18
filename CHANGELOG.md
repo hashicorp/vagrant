@@ -1,5 +1,6 @@
 ## 0.5.3 (unreleased)
 
+  - Fixed NFS not working properly with multiple NFS folders.
   - Fixed chef solo provision to work on Windows. It was expanding a linux
     path which prepended a drive letter onto it.
 
