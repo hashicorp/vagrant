@@ -1,8 +1,4 @@
-# -*- encoding: utf-8 -*-
-lib = File.expand_path("../lib/", __FILE__)
-$:.unshift(lib) unless $:.include?(lib)
-
-require 'vagrant/version'
+require File.expand_path("../lib/vagrant/version", __FILE__)
 
 Gem::Specification.new do |s|
   s.name          = "vagrant"
@@ -13,10 +9,9 @@ Gem::Specification.new do |s|
   s.homepage      = "http://vagrantup.com"
   s.summary       = "Build and distribute virtualized development environments."
   s.description   = "Vagrant is a tool for building and distributing virtualized development environments."
-  s.executables   = ["vagrant"]
-  s.require_paths = ["lib"]
-  s.files         = Dir.glob("{bin,config,keys,lib,templates}/**/*") + %W[LICENSE README.md]
-  s.rubyforge_project = "vagrant"
+
+  s.required_rubygems_version = ">= 1.3.6"
+  s.rubyforge_project         = "vagrant"
 
   s.add_dependency("virtualbox", "~> 0.7.3")
   s.add_dependency("net-ssh", ">= 2.0.19")
@@ -30,5 +25,10 @@ Gem::Specification.new do |s|
   s.add_development_dependency("contest", ">= 0.1.2")
   s.add_development_dependency("mocha")
   s.add_development_dependency("ruby-debug")
+  s.add_development_dependency("bundler", ">= 1.0.0.rc.5")
+
+  s.files         = `git ls-files`.split("\n")
+  s.executables   = `git ls-files`.split("\n").map{|f| f =~ /^bin\/(.*)/ ? $1 : nil}.compact
+  s.require_path  = 'lib'
 end
 
