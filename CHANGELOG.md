@@ -1,5 +1,7 @@
 ## 0.5.3 (unreleased)
 
+  - Add erubis as a dependency since its rendering of `erb` is sane.
+  - Fixed poorly formatted Vagrantfile after `vagrant init`. [GH-142]
   - Fixed NFS not working properly with multiple NFS folders.
   - Fixed chef solo provision to work on Windows. It was expanding a linux
     path which prepended a drive letter onto it.

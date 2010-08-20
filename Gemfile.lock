@@ -10,6 +10,7 @@ PATH
   specs:
     vagrant (0.5.3.dev)
       archive-tar-minitar (= 0.5.2)
+      erubis (>= 2.6.6)
       json (>= 1.4.3)
       mario (~> 0.0.6)
       net-scp (>= 1.0.2)
@@ -19,8 +20,11 @@ PATH
 GEM
   remote: http://rubygems.org/
   specs:
+    abstract (1.0.0)
     archive-tar-minitar (0.5.2)
     contest (0.1.2)
+    erubis (2.6.6)
+      abstract (>= 1.0.0)
     ffi (0.6.3)
       rake (>= 0.8.7)
     json (1.4.6)

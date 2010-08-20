@@ -24,6 +24,7 @@ Gem::Specification.new do |s|
   s.add_dependency("json", ">= 1.4.3")
   s.add_dependency("archive-tar-minitar", "= 0.5.2")
   s.add_dependency("mario", "~> 0.0.6")
+  s.add_dependency("erubis", ">= 2.6.6")
 
   s.add_development_dependency("rake")
   s.add_development_dependency("contest", ">= 0.1.2")
