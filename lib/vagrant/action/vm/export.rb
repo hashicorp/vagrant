@@ -19,7 +19,7 @@ module Vagrant
 
           @app.call(env)
 
-          recover # called to cleanup temp directory
+          recover(env) # called to cleanup temp directory
         end
 
         def recover(env)
