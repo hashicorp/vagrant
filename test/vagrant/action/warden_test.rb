@@ -41,7 +41,7 @@ class ActionWardenTest < Test::Unit::TestCase
     end
 
     should "move the last action to the front of the stack" do
-      @instance.actions << lambda {}
+      @instance.actions << lambda { |env| }
       assert @instance.stack.empty?
       @instance.call(new_env)
       assert !@instance.stack.empty?
@@ -82,7 +82,7 @@ class ActionWardenTest < Test::Unit::TestCase
       @instance.expects(:begin_rescue)
       @instance.call(new_env)
     end
-    
+
     def new_env_with_error
       env = new_env
       env.error!(:foo)
@@ -125,12 +125,12 @@ class ActionWardenTest < Test::Unit::TestCase
 
     context "with many middleware" do
       should "not call middleware after" do
-        
+
       end
     end
   end
 
-  
+
 
   def new_env
     Vagrant::Action::Environment.new(nil)
