@@ -13,17 +13,16 @@ module Vagrant
           @env = env
 
           return env.error!(:vm_power_off_to_package) if !@env["vm"].vm.powered_off?
-          return if env.error?
 
           setup_temp_dir
           export
 
-          @app.call(env) if !env.error?
+          @app.call(env)
 
-          cleanup
+          recover # called to cleanup temp directory
         end
 
-        def cleanup
+        def recover(env)
           if temp_dir && File.exist?(temp_dir)
             FileUtils.rm_rf(temp_dir)
           end
