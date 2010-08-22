@@ -25,11 +25,9 @@ module Vagrant
           decompress
 
           @app.call(@env)
-
-          cleanup if @env.error?
         end
 
-        def cleanup
+        def recover(env)
           if File.directory?(box_directory)
             FileUtils.rm_rf(box_directory)
           end
