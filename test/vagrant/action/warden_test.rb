@@ -130,8 +130,6 @@ class ActionWardenTest < Test::Unit::TestCase
     end
   end
 
-
-
   def new_env
     Vagrant::Action::Environment.new(nil)
   end

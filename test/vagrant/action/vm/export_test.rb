@@ -24,7 +24,7 @@ class ExportVMActionTest < Test::Unit::TestCase
       @instance.expects(:setup_temp_dir).in_sequence(seq)
       @instance.expects(:export).in_sequence(seq)
       @app.expects(:call).with(@env).in_sequence(seq)
-      @instance.expects(:recover).in_sequence(seq)
+      @instance.expects(:recover).in_sequence(seq).with(@env)
 
       @instance.call(@env)
     end
