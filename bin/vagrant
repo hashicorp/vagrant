@@ -1,7 +1,5 @@
 #!/usr/bin/env ruby
-# Get library
-libdir = File.join(File.dirname(__FILE__), '..', 'lib')
-require File.expand_path('vagrant', libdir)
+require 'vagrant'
 
 # Call the command
 Vagrant::Command.execute(*ARGV)

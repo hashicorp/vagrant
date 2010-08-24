@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+
+# NOTE: This file is TEMPORARY. Eventually the plan is for this binary
+# to become the new `vagrant` binary. The only reason for the separation
+# now is so that both can be tested in parallel.
+
+require 'vagrant'
+require 'vagrant/cli'
+
+begin
+  Vagrant::CLI.start(ARGV, :env => Vagrant::Environment.load!)
+rescue Vagrant::VagrantError => e
+  Vagrant.ui.error e.message
+  Vagrant.ui.error e.backtrace.join("\n")
+  exit e.status_code
+end

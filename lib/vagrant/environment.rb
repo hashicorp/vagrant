@@ -129,6 +129,12 @@ module Vagrant
       end
     end
 
+    # Makes a call to the CLI with the given arguments as if they
+    # came from the real command line (sometimes they do!)
+    def cli(*args)
+      Vagrant::CLI.start(args.flatten, :env => self)
+    end
+
     #---------------------------------------------------------------
     # Load Methods
     #---------------------------------------------------------------
