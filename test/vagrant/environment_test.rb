@@ -226,7 +226,6 @@ class EnvironmentTest < Test::Unit::TestCase
         Vagrant::Environment.expects(:check_virtualbox!).once.in_sequence(call_seq)
         @env.expects(:load_vm!).once.in_sequence(call_seq)
         @env.expects(:load_active_list!).once.in_sequence(call_seq)
-        @env.expects(:load_commands!).once.in_sequence(call_seq)
         @env.expects(:load_actions!).once.in_sequence(call_seq)
         assert_equal @env, @env.load!
       end
@@ -614,19 +613,6 @@ class EnvironmentTest < Test::Unit::TestCase
         Vagrant::ActiveList.expects(:new).with(@env).returns(active_list)
         @env.load_active_list!
         assert_equal active_list, @env.active_list
-      end
-    end
-
-    context "loading the commands" do
-      setup do
-        @env = mock_environment
-      end
-
-      should "initialize the Commands object with the given environment" do
-        commands = mock("commands")
-        Vagrant::Command.expects(:new).with(@env).returns(commands)
-        @env.load_commands!
-        assert_equal commands, @env.commands
       end
     end
 

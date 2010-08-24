@@ -31,9 +31,9 @@ end
 # Load them up. One day we'll convert this to autoloads. Today
 # is not that day. Low hanging fruit for anyone wishing to do it.
 libdir = File.expand_path("lib/vagrant", Vagrant.source_root)
-Vagrant::GlobLoader.glob_require(libdir, %w{util util/stacked_proc_runner
+Vagrant::GlobLoader.glob_require(libdir, %w{util util/stacked_proc_runner cli
   downloaders/base config provisioners/base provisioners/chef systems/base
-  commands/base commands/box action/exception_catcher hosts/base})
+  action/exception_catcher hosts/base})
 
 # Initialize the built-in actions
 Vagrant::Action.builtin!

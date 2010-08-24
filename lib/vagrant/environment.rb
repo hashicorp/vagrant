@@ -23,7 +23,6 @@ module Vagrant
     attr_accessor :vm
     attr_reader :vms
     attr_reader :active_list
-    attr_reader :commands
     attr_reader :logger
     attr_reader :actions
 
@@ -153,7 +152,6 @@ module Vagrant
       self.class.check_virtualbox!
       load_vm!
       load_active_list!
-      load_commands!
       load_actions!
       self
     end
@@ -310,13 +308,6 @@ module Vagrant
     # Loads the activelist for this environment
     def load_active_list!
       @active_list = ActiveList.new(self)
-    end
-
-    # Loads the instance of {Command} for this environment. This allows
-    # users of the instance to run commands such as "up" "down" etc. in
-    # the context of this environment.
-    def load_commands!
-      @commands = Command.new(self)
     end
 
     # Loads the instance of {Action} for this environment. This allows
