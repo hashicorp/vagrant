@@ -18,7 +18,7 @@ module Vagrant
         #
         # @return [Hash]
         def strings
-          @@strings ||= YAML.load_file(File.join(PROJECT_ROOT, "templates", "strings.yml"))
+          @@strings ||= YAML.load_file(File.join(Vagrant.source_root, "templates", "strings.yml"))
         end
 
         # Renders the string with the given key and data parameters and returns

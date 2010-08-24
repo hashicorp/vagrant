@@ -314,7 +314,7 @@ class EnvironmentTest < Test::Unit::TestCase
       end
 
       should "load from the project root" do
-        File.expects(:exist?).with(File.join(PROJECT_ROOT, "config", "default.rb")).once
+        File.expects(:exist?).with(File.join(Vagrant.source_root, "config", "default.rb")).once
         @env.load_config!
       end
 

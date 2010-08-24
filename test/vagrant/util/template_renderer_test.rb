@@ -73,13 +73,13 @@ class TemplateRendererUtilTest < Test::Unit::TestCase
     end
 
     should "be the ERB file in the templates directory" do
-      result = File.join(PROJECT_ROOT, "templates", "#{@template}.erb")
+      result = File.join(Vagrant.source_root, "templates", "#{@template}.erb")
       assert_equal result, @r.full_template_path
     end
 
     should "remove duplicate path separators" do
       @r.template = "foo///bar"
-      result = File.join(PROJECT_ROOT, "templates", "foo", "bar.erb")
+      result = File.join(Vagrant.source_root, "templates", "foo", "bar.erb")
       assert_equal result, @r.full_template_path
     end
   end

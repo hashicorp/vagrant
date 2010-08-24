@@ -14,7 +14,7 @@ class TranslatorUtilTest < Test::Unit::TestCase
     end
 
     should "load the file initially, then never again unless reset" do
-      YAML.expects(:load_file).with(File.join(PROJECT_ROOT, "templates", "strings.yml")).once
+      YAML.expects(:load_file).with(File.join(Vagrant.source_root, "templates", "strings.yml")).once
       @klass.strings
       @klass.strings
       @klass.strings
@@ -22,7 +22,7 @@ class TranslatorUtilTest < Test::Unit::TestCase
     end
 
     should "reload if reset! is called" do
-      YAML.expects(:load_file).with(File.join(PROJECT_ROOT, "templates", "strings.yml")).twice
+      YAML.expects(:load_file).with(File.join(Vagrant.source_root, "templates", "strings.yml")).twice
       @klass.strings
       @klass.reset!
       @klass.strings

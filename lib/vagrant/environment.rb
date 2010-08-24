@@ -174,7 +174,7 @@ module Vagrant
     # to load the Vagrantfile into that context.
     def load_config!
       # Prepare load paths for config files and append to config queue
-      config_queue = [File.join(PROJECT_ROOT, "config", "default.rb")]
+      config_queue = [File.expand_path("config/default.rb", Vagrant.source_root)]
       config_queue << File.join(box.directory, ROOTFILE_NAME) if box
       config_queue << File.join(home_path, ROOTFILE_NAME) if home_path
       config_queue << File.join(root_path, ROOTFILE_NAME) if root_path
