@@ -1,4 +1,4 @@
-## 0.5.3 (unreleased)
+## 0.5.3 (August 23, 2010)
 
   - Add erubis as a dependency since its rendering of `erb` is sane.
   - Fixed poorly formatted Vagrantfile after `vagrant init`. [GH-142]
