@@ -19,6 +19,7 @@ Gem::Specification.new do |s|
   s.add_dependency "mario", "~> 0.0.6"
   s.add_dependency "net-ssh", "~> 2.0.23"
   s.add_dependency "net-scp", "~> 1.0.3"
+  s.add_dependency "thor"
   s.add_dependency "radar"
   s.add_dependency "virtualbox", "~> 0.7.3"
 

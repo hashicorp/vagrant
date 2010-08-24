@@ -24,6 +24,7 @@ PATH
       net-scp (~> 1.0.3)
       net-ssh (~> 2.0.23)
       radar
+      thor
       virtualbox (~> 0.7.3)
 
 GEM
@@ -45,6 +46,7 @@ GEM
       net-ssh (>= 1.99.1)
     net-ssh (2.0.23)
     rake (0.8.7)
+    thor (0.14.0)
     yard (0.5.8)
 
 PLATFORMS
