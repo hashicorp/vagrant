@@ -124,5 +124,20 @@ class Test::Unit::TestCase
     _, env = mock_action_data
     [downloader_klass.new(env), tempfile]
   end
+
+  # Silences one or more streams for the duration of a block.
+  # This was taken from the facets library.
+  def silence_stream(*streams) #:yeild:
+    on_hold = streams.collect{ |stream| stream.dup }
+    streams.each do |stream|
+      stream.reopen(RUBY_PLATFORM =~ /mswin/ ? 'NUL:' : '/dev/null')
+      stream.sync = true
+    end
+    yield
+  ensure
+    streams.each_with_index do |stream, i|
+      stream.reopen(on_hold[i])
+    end
+  end
 end
 
