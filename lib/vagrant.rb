@@ -28,6 +28,7 @@ module Vagrant
   end
 
   class CLIMissingEnvironment < VagrantError; status_code(1); end
+  class BoxNotFound < VagrantError; status_code(2); end
 end
 
 # Load them up. One day we'll convert this to autoloads. Today

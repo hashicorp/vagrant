@@ -2,10 +2,12 @@
 require 'vagrant'
 require 'vagrant/cli'
 
+env = Vagrant::Environment.load!
+
 begin
-  Vagrant::CLI.start(ARGV, :env => Vagrant::Environment.load!)
+  Vagrant::CLI.start(ARGV, :env => env)
 rescue Vagrant::VagrantError => e
-  Vagrant.ui.error e.message
-  Vagrant.ui.error e.backtrace.join("\n")
+  env.ui.error e.message
+  env.ui.error e.backtrace.join("\n")
   exit e.status_code
 end
