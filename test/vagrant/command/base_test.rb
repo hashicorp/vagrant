@@ -8,19 +8,19 @@ class CommandBaseTest < Test::Unit::TestCase
 
   context "setting up a UI" do
     setup do
-      Vagrant.ui = nil
+      @env.ui = nil
     end
 
     should "setup a shell UI" do
       silence_stream(STDOUT) { @klass.start([], :env => @env) }
-      assert Vagrant.ui.is_a?(Vagrant::UI::Shell)
+      assert @env.ui.is_a?(Vagrant::UI::Shell)
     end
 
     should "setup a shell UI only once" do
       silence_stream(STDOUT) { @klass.start([], :env => @env) }
-      ui = Vagrant.ui
+      ui = @env.ui
       silence_stream(STDOUT) { @klass.start([], :env => @env) }
-      assert Vagrant.ui.equal?(ui)
+      assert @env.ui.equal?(ui)
     end
   end
 

@@ -25,6 +25,7 @@ module Vagrant
     attr_reader :active_list
     attr_reader :logger
     attr_reader :actions
+    attr_writer :ui
 
     #---------------------------------------------------------------
     # Class Methods
@@ -132,6 +133,12 @@ module Vagrant
     # came from the real command line (sometimes they do!)
     def cli(*args)
       Vagrant::CLI.start(args.flatten, :env => self)
+    end
+
+    # Returns the {UI} for the environment, which is responsible
+    # for talking with the outside world.
+    def ui
+      @ui ||= UI.new
     end
 
     #---------------------------------------------------------------

@@ -1,6 +1,10 @@
 require "test_helper"
 
 class EnvironmentTest < Test::Unit::TestCase
+  setup do
+    @klass = Vagrant::Environment
+  end
+
   context "class method check virtualbox version" do
     setup do
       VirtualBox.stubs(:version).returns("3.1.4")
@@ -8,28 +12,28 @@ class EnvironmentTest < Test::Unit::TestCase
 
     should "not error and exit if everything is good" do
       VirtualBox.expects(:version).returns("3.2.4")
-      Vagrant::Environment.expects(:error_and_exit).never
-      Vagrant::Environment.check_virtualbox!
+      @klass.expects(:error_and_exit).never
+      @klass.check_virtualbox!
     end
 
     should "error and exit if VirtualBox is not installed or detected" do
-      Vagrant::Environment.expects(:error_and_exit).with(:virtualbox_not_detected).once
+      @klass.expects(:error_and_exit).with(:virtualbox_not_detected).once
       VirtualBox.expects(:version).returns(nil)
-      Vagrant::Environment.check_virtualbox!
+      @klass.check_virtualbox!
     end
 
     should "error and exit if VirtualBox is lower than version 3.2" do
       version = "3.1.12r1041"
-      Vagrant::Environment.expects(:error_and_exit).with(:virtualbox_invalid_version, :version => version.to_s).once
+      @klass.expects(:error_and_exit).with(:virtualbox_invalid_version, :version => version.to_s).once
       VirtualBox.expects(:version).returns(version)
-      Vagrant::Environment.check_virtualbox!
+      @klass.check_virtualbox!
     end
 
     should "error and exit for OSE VirtualBox" do
       version = "3.2.6_OSE"
-      Vagrant::Environment.expects(:error_and_exit).with(:virtualbox_invalid_ose, :version => version.to_s).once
+      @klass.expects(:error_and_exit).with(:virtualbox_invalid_ose, :version => version.to_s).once
       VirtualBox.expects(:version).returns(version)
-      Vagrant::Environment.check_virtualbox!
+      @klass.check_virtualbox!
     end
   end
 
@@ -42,16 +46,16 @@ class EnvironmentTest < Test::Unit::TestCase
     end
 
     should "create the environment with given cwd, load it, and return it" do
-      Vagrant::Environment.expects(:new).with(:cwd => @cwd).once.returns(@env)
+      @klass.expects(:new).with(:cwd => @cwd).once.returns(@env)
       @env.expects(:load!).returns(@env)
-      assert_equal @env, Vagrant::Environment.load!(@cwd)
+      assert_equal @env, @klass.load!(@cwd)
     end
 
     should "work without a given cwd" do
-      Vagrant::Environment.expects(:new).with(:cwd => nil).returns(@env)
+      @klass.expects(:new).with(:cwd => nil).returns(@env)
 
       assert_nothing_raised {
-        env = Vagrant::Environment.load!
+        env = @klass.load!
         assert_equal env, @env
       }
     end
@@ -60,12 +64,12 @@ class EnvironmentTest < Test::Unit::TestCase
   context "initialization" do
     should "set the cwd if given" do
       cwd = "foobarbaz"
-      env = Vagrant::Environment.new(:cwd => cwd)
+      env = @klass.new(:cwd => cwd)
       assert_equal cwd, env.cwd
     end
 
     should "default to pwd if cwd is nil" do
-      env = Vagrant::Environment.new
+      env = @klass.new
       assert_equal Dir.pwd, env.cwd
     end
   end
@@ -223,7 +227,7 @@ class EnvironmentTest < Test::Unit::TestCase
         @env.expects(:load_host!).once.in_sequence(call_seq)
         @env.expects(:load_box!).once.in_sequence(call_seq)
         @env.expects(:load_config!).once.in_sequence(call_seq)
-        Vagrant::Environment.expects(:check_virtualbox!).once.in_sequence(call_seq)
+        @klass.expects(:check_virtualbox!).once.in_sequence(call_seq)
         @env.expects(:load_vm!).once.in_sequence(call_seq)
         @env.expects(:load_active_list!).once.in_sequence(call_seq)
         @env.expects(:load_actions!).once.in_sequence(call_seq)
@@ -263,7 +267,7 @@ class EnvironmentTest < Test::Unit::TestCase
         search_seq = sequence("search_seq")
         paths.each do |path|
           # NOTE File.expect(:expand_path) causes tests to hang in windows below is the interim solution
-          File.expects(:exist?).with("#{File.expand_path(path)}/#{Vagrant::Environment::ROOTFILE_NAME}").returns(false).in_sequence(search_seq)
+          File.expects(:exist?).with("#{File.expand_path(path)}/#{@klass::ROOTFILE_NAME}").returns(false).in_sequence(search_seq)
         end
 
         assert !@env.load_root_path!(paths.first)
@@ -287,7 +291,7 @@ class EnvironmentTest < Test::Unit::TestCase
       should "should set the path for the rootfile" do
         # NOTE File.expect(:expand_path) causes tests to hang in windows below is the interim solution
         path = File.expand_path("/foo")
-        File.expects(:exist?).with("#{path}/#{Vagrant::Environment::ROOTFILE_NAME}").returns(true)
+        File.expects(:exist?).with("#{path}/#{@klass::ROOTFILE_NAME}").returns(true)
 
         assert @env.load_root_path!(Pathname.new(path))
         assert_equal path, @env.root_path
@@ -318,18 +322,18 @@ class EnvironmentTest < Test::Unit::TestCase
       end
 
       should "load from the root path" do
-        File.expects(:exist?).with(File.join(@root_path, Vagrant::Environment::ROOTFILE_NAME)).once
+        File.expects(:exist?).with(File.join(@root_path, @klass::ROOTFILE_NAME)).once
         @env.load_config!
       end
 
       should "not load from the root path if nil" do
         @env.stubs(:root_path).returns(nil)
-        File.expects(:exist?).with(File.join(@root_path, Vagrant::Environment::ROOTFILE_NAME)).never
+        File.expects(:exist?).with(File.join(@root_path, @klass::ROOTFILE_NAME)).never
         @env.load_config!
       end
 
       should "load from the home directory" do
-        File.expects(:exist?).with(File.join(@env.home_path, Vagrant::Environment::ROOTFILE_NAME)).once
+        File.expects(:exist?).with(File.join(@env.home_path, @klass::ROOTFILE_NAME)).once
         @env.load_config!
       end
 
@@ -350,7 +354,7 @@ class EnvironmentTest < Test::Unit::TestCase
         box = mock("box")
         box.stubs(:directory).returns(dir)
         @env.expects(:box).twice.returns(box)
-        File.expects(:exist?).with(File.join(dir, Vagrant::Environment::ROOTFILE_NAME)).once
+        File.expects(:exist?).with(File.join(dir, @klass::ROOTFILE_NAME)).once
         @env.load_config!
       end
 
@@ -433,7 +437,7 @@ class EnvironmentTest < Test::Unit::TestCase
       should "create each directory if it doesn't exist" do
         create_seq = sequence("create_seq")
         File.stubs(:directory?).returns(false)
-        Vagrant::Environment::HOME_SUBDIRS.each do |subdir|
+        @klass::HOME_SUBDIRS.each do |subdir|
           FileUtils.expects(:mkdir_p).with(File.join(@home_dir, subdir)).in_sequence(create_seq)
         end
 
@@ -512,7 +516,7 @@ class EnvironmentTest < Test::Unit::TestCase
 
         filemock = mock("filemock")
         filemock.expects(:read).returns("foo")
-        Vagrant::VM.expects(:find).with("foo", @env, Vagrant::Environment::DEFAULT_VM).returns(vm)
+        Vagrant::VM.expects(:find).with("foo", @env, @klass::DEFAULT_VM).returns(vm)
         File.expects(:open).with(@env.dotfile_path).once.yields(filemock)
         File.expects(:file?).with(@env.dotfile_path).once.returns(true)
         @env.load_vm!

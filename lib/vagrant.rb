@@ -13,18 +13,10 @@ module Vagrant
   end
 
   class << self
-    attr_writer :ui
-
     # The source root is the path to the root directory of
     # the Vagrant gem.
     def source_root
       @source_root ||= File.expand_path('../../', __FILE__)
-    end
-
-    # Returns the {UI} class to use for talking with the
-    # outside world.
-    def ui
-      @ui ||= UI.new
     end
   end
 
