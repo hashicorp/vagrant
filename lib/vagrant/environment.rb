@@ -1,3 +1,6 @@
+require 'pathname'
+require 'fileutils'
+
 module Vagrant
   # Represents a single Vagrant environment. This class is responsible
   # for loading all of the Vagrantfile's for the given environment and

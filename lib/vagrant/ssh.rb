@@ -1,3 +1,7 @@
+require 'net/ssh'
+require 'net/scp'
+require 'mario'
+
 module Vagrant
   # Manages SSH access to a specific environment. Allows an environment to
   # replace the process with SSH itself, run a specific set of commands,

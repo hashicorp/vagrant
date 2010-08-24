@@ -1,3 +1,5 @@
+require 'fileutils'
+
 module Vagrant
   module Downloaders
     # "Downloads" a file to a temporary file. Basically, this downloader

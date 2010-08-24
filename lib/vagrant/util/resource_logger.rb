@@ -1,4 +1,5 @@
 require 'thread'
+require 'mario'
 
 module Vagrant
   module Util

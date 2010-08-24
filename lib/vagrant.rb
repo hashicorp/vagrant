@@ -1,8 +1,6 @@
-# First, load the various libs which Vagrant requires
-%w{tempfile json pathname logger virtualbox net/ssh archive/tar/minitar
-  net/scp fileutils mario}.each do |lib|
-  require lib
-end
+require 'json'
+require 'virtualbox'
+require "vagrant/util/glob_loader"
 
 module Vagrant
   class << self
@@ -14,10 +12,8 @@ module Vagrant
   end
 end
 
-# Then load the glob loader, which will handle loading everything else
-require "vagrant/util/glob_loader"
-
-# Load them up
+# Load them up. One day we'll convert this to autoloads. Today
+# is not that day. Low hanging fruit for anyone wishing to do it.
 libdir = File.expand_path("lib/vagrant", Vagrant.source_root)
 Vagrant::GlobLoader.glob_require(libdir, %w{util util/stacked_proc_runner
   downloaders/base config provisioners/base provisioners/chef systems/base

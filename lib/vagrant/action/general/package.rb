@@ -1,3 +1,6 @@
+require 'fileutils'
+require 'archive/tar/minitar'
+
 module Vagrant
   class Action
     module General

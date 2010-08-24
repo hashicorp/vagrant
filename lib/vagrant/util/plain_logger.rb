@@ -1,3 +1,5 @@
+require 'logger'
+
 module Vagrant
   module Util
     # Subclass of the standard library logger which has no format on

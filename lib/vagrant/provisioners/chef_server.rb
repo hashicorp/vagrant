@@ -1,3 +1,5 @@
+require 'pathname'
+
 module Vagrant
   module Provisioners
     # This class implements provisioning via chef-client, allowing provisioning

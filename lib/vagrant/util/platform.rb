@@ -1,3 +1,5 @@
+require 'mario'
+
 module Vagrant
   module Util
     # This class just contains some platform checking code.

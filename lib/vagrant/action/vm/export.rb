@@ -1,3 +1,5 @@
+require 'fileutils'
+
 module Vagrant
   class Action
     module VM
