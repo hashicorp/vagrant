@@ -9,7 +9,8 @@ module Vagrant
   autoload :CLI, 'vagrant/cli'
 
   module Command
-    autoload :Base, 'vagrant/command/base'
+    autoload :Base,      'vagrant/command/base'
+    autoload :GroupBase, 'vagrant/command/group_base'
   end
 
   class << self

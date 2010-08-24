@@ -19,6 +19,8 @@ module Vagrant
     class Base < Thor::Group
       include Thor::Actions
 
+      attr_reader :env
+
       # Register the command with the main Vagrant CLI under the
       # given name. The name will be used for accessing it from the CLI,
       # so if you name it "lamp", then the command to invoke this
@@ -27,10 +29,13 @@ module Vagrant
       # The description added to the class via the `desc` method will be
       # used as a description for the command.
       def self.register(usage)
-        # Extracts the name out of the usage string. So `init [foo] [bar]`
-        # becomes "init"
-        _, name = /^([a-zA-Z0-9]+)(\s+(.+?))?$/.match(usage).to_a
-        CLI.register(self, name, usage, desc)
+        CLI.register(self, extract_name_from_usage(usage), usage, desc)
+      end
+
+      # Extracts the name of the command from a usage string. Example:
+      # `init [box_name] [box_url]` becomes just `init`.
+      def self.extract_name_from_usage(usage)
+        /^([a-zA-Z0-9]+)(\s+(.+?))?$/.match(usage).to_a[1]
       end
 
       def initialize(args=[], options={}, config={})

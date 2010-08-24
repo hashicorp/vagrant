@@ -8,13 +8,13 @@ module Vagrant
     # Registers the given class with the CLI so it can be accessed.
     # The class must be a subclass of either {Command} or {GroupCommand}.
     def self.register(klass, name, usage, description)
-      if klass <= Thor # TODO: make Command::GroupBase
-        # A subclass of Thor is a subcommand, since it contains
+      if klass <= Command::GroupBase
+        # A subclass of GroupBase is a subcommand, since it contains
         # many smaller commands within it.
         desc usage, description
         subcommand name, klass
       elsif klass <= Command::Base
-        # A subclass of Thor::Group is a single command, since it
+        # A subclass of Base is a single command, since it
         # is invoked as a whole.
         desc usage, description
         define_method(name) { |*args| invoke klass, args }

@@ -1,16 +1,9 @@
 require "test_helper"
 
-class CommandBaseTest < Test::Unit::TestCase
+class CommandGroupBaseTest < Test::Unit::TestCase
   setup do
-    @klass = Vagrant::Command::Base
+    @klass = Vagrant::Command::GroupBase
     @env = mock_environment
-  end
-
-  context "extracting a name from a usage string" do
-    should "extract properly" do
-      assert_equal "init", @klass.extract_name_from_usage("init")
-      assert_equal "init", @klass.extract_name_from_usage("init [foo] [bar]")
-    end
   end
 
   context "setting up a UI" do

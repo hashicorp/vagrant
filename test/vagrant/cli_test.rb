@@ -12,5 +12,12 @@ class CLITest < Test::Unit::TestCase
       @klass.register(base, name, name, "A description")
       assert @klass.tasks[name]
     end
+
+    should "register a group base as a subcommand" do
+      base = Class.new(Vagrant::Command::GroupBase)
+      name = "_test_registering_single_group"
+      @klass.register(base, name, name, "A description")
+      assert @klass.subcommands.include?(name)
+    end
   end
 end
