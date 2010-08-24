@@ -7,7 +7,7 @@ module Vagrant
     # The source root is the path to the root directory of
     # the Vagrant gem.
     def source_root
-      File.expand_path('../../', __FILE__)
+      @source_root ||= File.expand_path('../../', __FILE__)
     end
   end
 end
