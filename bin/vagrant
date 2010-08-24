@@ -1,5 +1,11 @@
 #!/usr/bin/env ruby
 require 'vagrant'
+require 'vagrant/cli'
 
-# Call the command
-Vagrant::Command.execute(*ARGV)
+begin
+  Vagrant::CLI.start(ARGV, :env => Vagrant::Environment.load!)
+rescue Vagrant::VagrantError => e
+  Vagrant.ui.error e.message
+  Vagrant.ui.error e.backtrace.join("\n")
+  exit e.status_code
+end
