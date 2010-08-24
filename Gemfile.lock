@@ -1,4 +1,12 @@
 GIT
+  remote: git://github.com/mitchellh/radar.git
+  revision: cec6c4b
+  specs:
+    radar (0.4.0.dev)
+      builder (~> 2.0)
+      json (>= 1.4.6)
+
+GIT
   remote: git://github.com/mitchellh/virtualbox.git
   revision: 69db76b
   specs:
@@ -10,11 +18,12 @@ PATH
   specs:
     vagrant (0.6.0.dev)
       archive-tar-minitar (= 0.5.2)
-      erubis (>= 2.6.6)
-      json (>= 1.4.3)
+      erubis (~> 2.6.6)
+      json (~> 1.4.6)
       mario (~> 0.0.6)
-      net-scp (>= 1.0.2)
-      net-ssh (>= 2.0.19)
+      net-scp (~> 1.0.3)
+      net-ssh (~> 2.0.23)
+      radar
       virtualbox (~> 0.7.3)
 
 GEM
@@ -22,6 +31,7 @@ GEM
   specs:
     abstract (1.0.0)
     archive-tar-minitar (0.5.2)
+    builder (2.1.2)
     contest (0.1.2)
     erubis (2.6.6)
       abstract (>= 1.0.0)
@@ -43,6 +53,7 @@ PLATFORMS
 DEPENDENCIES
   contest (>= 0.1.2)
   mocha
+  radar!
   rake
   vagrant!
   virtualbox!

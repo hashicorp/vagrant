@@ -13,19 +13,20 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = ">= 1.3.6"
   s.rubyforge_project         = "vagrant"
 
-  s.add_dependency("virtualbox", "~> 0.7.3")
-  s.add_dependency("net-ssh", ">= 2.0.19")
-  s.add_dependency("net-scp", ">= 1.0.2")
-  s.add_dependency("json", ">= 1.4.3")
-  s.add_dependency("archive-tar-minitar", "= 0.5.2")
-  s.add_dependency("mario", "~> 0.0.6")
-  s.add_dependency("erubis", ">= 2.6.6")
+  s.add_dependency "archive-tar-minitar", "= 0.5.2"
+  s.add_dependency "erubis", "~> 2.6.6"
+  s.add_dependency "json", "~> 1.4.6"
+  s.add_dependency "mario", "~> 0.0.6"
+  s.add_dependency "net-ssh", "~> 2.0.23"
+  s.add_dependency "net-scp", "~> 1.0.3"
+  s.add_dependency "radar"
+  s.add_dependency "virtualbox", "~> 0.7.3"
 
-  s.add_development_dependency("rake")
-  s.add_development_dependency("contest", ">= 0.1.2")
-  s.add_development_dependency("mocha")
-  s.add_development_dependency("ruby-debug")
-  s.add_development_dependency("bundler", ">= 1.0.0.rc.5")
+  s.add_development_dependency "rake"
+  s.add_development_dependency "contest", ">= 0.1.2"
+  s.add_development_dependency "mocha"
+  s.add_development_dependency "ruby-debug"
+  s.add_development_dependency "bundler", ">= 1.0.0.rc.6"
 
   s.files         = `git ls-files`.split("\n")
   s.executables   = `git ls-files`.split("\n").map{|f| f =~ /^bin\/(.*)/ ? $1 : nil}.compact
