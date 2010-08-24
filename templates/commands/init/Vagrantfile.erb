@@ -1,0 +1,13 @@
+Vagrant::Config.run do |config|
+  # All Vagrant configuration is done here. For a detailed explanation
+  # and listing of configuration options, please view the documentation
+  # online.
+
+  # Every Vagrant virtual environment requires a box to build off of.
+  config.vm.box = "<%= box_name %>"
+  <% if !box_url.nil? %>
+
+  # The url from where the 'config.vm.box' box will be fetched if it
+  # doesn't already exist on the user's system
+  config.vm.box_url = "<%= box_url %>"<% end %>
+end

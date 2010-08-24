@@ -3,6 +3,15 @@ require 'virtualbox'
 require "vagrant/util/glob_loader"
 
 module Vagrant
+  # TODO: Move more classes over to the autoload model. We'll
+  # start small, but slowly move everything over.
+
+  autoload :CLI, 'vagrant/cli'
+
+  module Command
+    autoload :Base, 'vagrant/command/base'
+  end
+
   class << self
     attr_writer :ui
 
@@ -31,7 +40,7 @@ end
 # Load them up. One day we'll convert this to autoloads. Today
 # is not that day. Low hanging fruit for anyone wishing to do it.
 libdir = File.expand_path("lib/vagrant", Vagrant.source_root)
-Vagrant::GlobLoader.glob_require(libdir, %w{util util/stacked_proc_runner cli
+Vagrant::GlobLoader.glob_require(libdir, %w{util util/stacked_proc_runner
   downloaders/base config provisioners/base provisioners/chef systems/base
   action/exception_catcher hosts/base})
 
