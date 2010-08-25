@@ -40,7 +40,7 @@ module Vagrant
 
           string_key = [:status_created, {
             :vm_state => vm.vm.state,
-            :additional_message => additional_key ? Translator.t(additional_key) : ""
+            :additional_message => additional_key ? Util::Translator.t(additional_key) : ""
           }]
         end
 
