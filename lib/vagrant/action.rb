@@ -64,15 +64,6 @@ module Vagrant
       end
 
       Busy.busy(int_callback) { callable.call(action_environment) }
-      exit if action_environment.interrupted?
-
-      if action_environment.error?
-        # Erroneous environment resulted. Properly display error
-        # message.
-        key, options = action_environment.error
-        error_and_exit(key, options)
-        return false
-      end
     end
   end
 end

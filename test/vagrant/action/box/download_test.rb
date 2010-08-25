@@ -32,7 +32,7 @@ class DownloadBoxActionTest < Test::Unit::TestCase
         @instance.expects(:instantiate_downloader).in_sequence(seq).returns(true)
         @instance.expects(:download).in_sequence(seq)
         @app.expects(:call).with(@env).in_sequence(seq)
-        @instance.expects(:cleanup).in_sequence(seq)
+        @instance.expects(:recover).with(@env).in_sequence(seq)
         @instance.call(@env)
       end
 
@@ -42,7 +42,6 @@ class DownloadBoxActionTest < Test::Unit::TestCase
         @instance.expects(:instantiate_downloader).in_sequence(seq).returns(false)
         @instance.expects(:download).never
         @app.expects(:call).with(@env).never
-        @instance.expects(:cleanup).never
         @instance.call(@env)
       end
     end
@@ -115,13 +114,13 @@ class DownloadBoxActionTest < Test::Unit::TestCase
 
       should "delete the temporary file if it exists" do
         File.expects(:unlink).with(@temp_path).once
-        @instance.cleanup
+        @instance.recover(@env)
       end
 
       should "not delete anything if it doesn't exist" do
         File.stubs(:exist?).returns(false)
         File.expects(:unlink).never
-        @instance.cleanup
+        @instance.recover(@env)
       end
     end
 

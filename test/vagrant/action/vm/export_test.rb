@@ -24,7 +24,7 @@ class ExportVMActionTest < Test::Unit::TestCase
       @instance.expects(:setup_temp_dir).in_sequence(seq)
       @instance.expects(:export).in_sequence(seq)
       @app.expects(:call).with(@env).in_sequence(seq)
-      @instance.expects(:cleanup).in_sequence(seq)
+      @instance.expects(:recover).in_sequence(seq).with(@env)
 
       @instance.call(@env)
     end
@@ -34,36 +34,11 @@ class ExportVMActionTest < Test::Unit::TestCase
       @instance.expects(:setup_temp_dir).never
       @instance.expects(:export).never
       @app.expects(:call).with(@env).never
-      @instance.expects(:cleanup).never
+      @instance.expects(:recover).never
 
       @instance.call(@env)
       assert @env.error?
       assert_equal :vm_power_off_to_package, @env.error.first
-    end
-
-    should "halt the chain if env error" do
-      @internal_vm.stubs(:powered_off?).returns(true)
-      @instance.expects(:setup_temp_dir).never
-      @instance.expects(:export).never
-      @app.expects(:call).with(@env).never
-      @instance.expects(:cleanup).never
-
-      @env.error!(:interrupt)
-      @instance.call(@env)
-    end
-
-    should "halt the chain if env error when call is reached" do
-      @internal_vm.stubs(:powered_off?).returns(true)
-      @instance.expects(:setup_temp_dir).once
-      @instance.expects(:export).once.with() do
-        @env.error!(:interrupt)
-        true
-      end
-
-      @app.expects(:call).with(@env).never
-      @instance.expects(:cleanup).once
-
-      @instance.call(@env)
     end
   end
 
@@ -76,13 +51,13 @@ class ExportVMActionTest < Test::Unit::TestCase
 
     should "delete the temporary file if it exists" do
       File.expects(:unlink).with(@temp_dir).once
-      @instance.cleanup
+      @instance.recover(nil)
     end
 
     should "not delete anything if it doesn't exist" do
       File.stubs(:exist?).returns(false)
       File.expects(:unlink).never
-      @instance.cleanup
+      @instance.recover(nil)
     end
   end
 

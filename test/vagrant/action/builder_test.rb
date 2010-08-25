@@ -166,7 +166,7 @@ class ActionBuilderTest < Test::Unit::TestCase
         middleware.stubs(:is_a?).with(Class).returns(true)
         middleware.expects(:new).with(anything, env).returns(result)
         @instance.use middleware
-        result = @instance.to_app(env)
+        result = @instance.to_app(env).actions.first
         assert result.kind_of?(Vagrant::Action::Env::ErrorHalt)
       end
 

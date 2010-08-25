@@ -33,11 +33,9 @@ module Vagrant
           compress
 
           @app.call(env)
-
-          cleanup if env.error?
         end
 
-        def cleanup
+        def recover(env)
           # Cleanup any packaged files if the packaging failed at some point.
           File.delete(tar_path) if File.exist?(tar_path)
         end

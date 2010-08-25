@@ -21,7 +21,6 @@ class UnpackageBoxActionTest < Test::Unit::TestCase
       @instance.expects(:setup_box_directory).in_sequence(seq).returns(true)
       @instance.expects(:decompress).in_sequence(seq)
       @app.expects(:call).with(@env)
-      @instance.expects(:cleanup).never
       @instance.call(@env)
     end
 
@@ -29,18 +28,6 @@ class UnpackageBoxActionTest < Test::Unit::TestCase
       @instance.expects(:setup_box_directory).returns(false)
       @instance.expects(:decompress).never
       @app.expects(:call).never
-      @instance.expects(:cleanup).never
-      @instance.call(@env)
-    end
-
-    should "cleanup if there was an error" do
-      @env.error!(:foo)
-
-      seq = sequence("sequence")
-      @instance.expects(:setup_box_directory).in_sequence(seq).returns(true)
-      @instance.expects(:decompress).in_sequence(seq)
-      @app.expects(:call).with(@env)
-      @instance.expects(:cleanup).once
       @instance.call(@env)
     end
   end
@@ -54,13 +41,13 @@ class UnpackageBoxActionTest < Test::Unit::TestCase
 
     should "do nothing if not a directory" do
       FileUtils.expects(:rm_rf).never
-      @instance.cleanup
+      @instance.recover(nil)
     end
 
     should "remove the directory if exists" do
       File.expects(:directory?).with(@instance.box_directory).once.returns(true)
       FileUtils.expects(:rm_rf).with(@instance.box_directory).once
-      @instance.cleanup
+      @instance.recover(nil)
     end
   end
 
