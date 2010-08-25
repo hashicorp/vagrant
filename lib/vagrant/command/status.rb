@@ -5,11 +5,8 @@ module Vagrant
       argument :name, :type => :string, :optional => true
       register "status"
 
-      def verify_environment
-        raise NoEnvironmentError.new("No Vagrant environment detected. Run `vagrant init` to set one up.") if !env.root_path
-      end
-
       def route
+        require_environment
         show_multivm if target_vms.length > 1
         show_single(target_vms.first)
       end
