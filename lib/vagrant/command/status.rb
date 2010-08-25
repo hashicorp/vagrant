@@ -7,7 +7,7 @@ module Vagrant
 
       def route
         require_environment
-        show_multivm if target_vms.length > 1
+        return show_multivm if target_vms.length > 1
         show_single(target_vms.first)
       end
 
