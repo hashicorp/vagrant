@@ -1,13 +1,14 @@
 module Vagrant
   module Command
-    class DestroyCommand < Base
-      desc "Destroy the environment, deleting the created virtual machines"
-      register "destroy"
+    class HaltCommand < Base
+      desc "Halt the running VMs in the environment"
+      class_option :force, :type => :boolean, :default => false, :aliases => "-f"
+      register "halt"
 
       def execute
         target_vms.each do |vm|
           if vm.created?
-            vm.destroy
+            vm.halt(options)
           else
             vm.env.ui.info "VM not created. Moving on..."
           end
