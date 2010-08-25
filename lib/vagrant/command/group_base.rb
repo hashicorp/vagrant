@@ -10,6 +10,7 @@ module Vagrant
     # then use {Base} instead.
     class GroupBase < Thor
       include Thor::Actions
+      include Helpers
 
       attr_reader :env
 

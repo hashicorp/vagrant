@@ -18,6 +18,7 @@ module Vagrant
     # view the various Vagrant commands, which are relatively simple.
     class Base < Thor::Group
       include Thor::Actions
+      include Helpers
 
       attr_reader :env
 

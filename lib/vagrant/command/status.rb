@@ -10,16 +10,9 @@ module Vagrant
       end
 
       def route
-        if env.multivm?
-          return show_mulitvm if !self.name
-          vm = env.vms[self.name.to_sym]
-          raise VMNotFoundError.new("A VM by the name of `#{self.name}` was not found.") if !vm
-        else
-          raise MultiVMEnvironmentRequired.new("A multi-vm environment is required for name specification to a command.") if self.name
-          vm = env.vms.values.first
-        end
-
-        show_single(vm)
+        vms = target_vms
+        show_multivm if vms.length > 1
+        show_single(vms.first)
       end
 
       protected
