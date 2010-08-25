@@ -1,6 +1,12 @@
 ## 0.6.0 (unreleased)
 
-
+  - Converted CLI to use Thor. As a tradeoff, there are some backwards
+    incompatibilities:
+      * `vagrant package` - The `--include` flag now separates filenames
+        by spaces, instead of by commas. e.g. `vagrant package --include x y z`
+      * `vagrant ssh` - If you specify a command to execute using the `--execute`
+        flag, you may now only specify one command (before you were able to
+        specify an arbitrary amount). e.g. `vagrant ssh -e "echo hello"`
 
 ## 0.5.3 (August 23, 2010)
 
