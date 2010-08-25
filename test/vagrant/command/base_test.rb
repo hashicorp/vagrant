@@ -10,6 +10,7 @@ class CommandBaseTest < Test::Unit::TestCase
     should "extract properly" do
       assert_equal "init", @klass.extract_name_from_usage("init")
       assert_equal "init", @klass.extract_name_from_usage("init [foo] [bar]")
+      assert_equal "ssh-config", @klass.extract_name_from_usage("ssh-config")
     end
   end
 

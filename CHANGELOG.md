@@ -7,6 +7,8 @@
       * `vagrant ssh` - If you specify a command to execute using the `--execute`
         flag, you may now only specify one command (before you were able to
         specify an arbitrary amount). e.g. `vagrant ssh -e "echo hello"`
+      * `vagrant ssh-config` has become `vagrant ssh_config` due to a limitation
+        in Thor.
 
 ## 0.5.3 (August 23, 2010)
 

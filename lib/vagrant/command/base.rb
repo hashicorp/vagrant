@@ -36,7 +36,7 @@ module Vagrant
       # Extracts the name of the command from a usage string. Example:
       # `init [box_name] [box_url]` becomes just `init`.
       def self.extract_name_from_usage(usage)
-        /^([a-zA-Z0-9]+)(\s+(.+?))?$/.match(usage).to_a[1]
+        /^([-_a-zA-Z0-9]+)(\s+(.+?))?$/.match(usage).to_a[1]
       end
 
       def initialize(args=[], options={}, config={})
