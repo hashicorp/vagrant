@@ -24,7 +24,9 @@ module Vagrant
 
       desc "list", "Lists all installed boxes"
       def list
-        # TODO
+        boxes = Box.all(env).sort
+        return env.ui.warn("There are no installed boxes! Use `vagrant box add` to add some.") if boxes.empty?
+        boxes.each { |b| env.ui.info(b) }
       end
     end
   end
