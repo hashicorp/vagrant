@@ -1,6 +1,6 @@
 module Vagrant
   module Command
-    class SSHCommand < Base
+    class SSHCommand < NamedBase
       desc "SSH into the currently running Vagrant environment."
       class_option :execute, :type => :string, :default => false, :aliases => "-e"
       register "ssh"
@@ -31,7 +31,7 @@ module Vagrant
 
       def ssh_vm
         @ssh_vm ||= begin
-          vm = self.name.nil? && env.multivm? ? env.primary_vm
+          vm = self.name.nil? && env.multivm? ? env.primary_vm : nil
           raise MultiVMTargetRequired.new("A target or primary VM must be specified for SSH in a multi-vm environment.") if !vm && target_vms.length > 1
           vm = target_vms.first if !vm
           vm

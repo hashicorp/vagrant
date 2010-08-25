@@ -1,6 +1,6 @@
 module Vagrant
   module Command
-    class ProvisionCommand < Base
+    class ProvisionCommand < NamedBase
       desc "Rerun the provisioning scripts on a running VM"
       register "provision"
 

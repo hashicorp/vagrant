@@ -1,6 +1,6 @@
 module Vagrant
   module Command
-    class DestroyCommand < Base
+    class DestroyCommand < NamedBase
       desc "Destroy the environment, deleting the created virtual machines"
       register "destroy"
 

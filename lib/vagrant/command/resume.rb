@@ -1,6 +1,6 @@
 module Vagrant
   module Command
-    class ResumeCommand < Base
+    class ResumeCommand < NamedBase
       desc "Resume a suspended Vagrant environment."
       register "resume"
 

@@ -1,6 +1,6 @@
 module Vagrant
   module Command
-    class PackageCommand < Base
+    class PackageCommand < NamedBase
       desc "Package a Vagrant environment for distribution"
       class_option :base, :type => :string, :default => nil
       class_option :output, :type => :string, :default => nil

@@ -1,6 +1,6 @@
 module Vagrant
   module Command
-    class ReloadCommand < Base
+    class ReloadCommand < NamedBase
       desc "Reload the environment, halting it then restarting it."
       register "reload"
 

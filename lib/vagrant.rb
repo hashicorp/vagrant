@@ -13,6 +13,7 @@ module Vagrant
     autoload :Base,      'vagrant/command/base'
     autoload :GroupBase, 'vagrant/command/group_base'
     autoload :Helpers,   'vagrant/command/helpers'
+    autoload :NamedBase, 'vagrant/command/named_base'
   end
 
   # The source root is the path to the root directory of

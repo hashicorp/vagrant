@@ -1,6 +1,6 @@
 module Vagrant
   module Command
-    class HaltCommand < Base
+    class HaltCommand < NamedBase
       desc "Halt the running VMs in the environment"
       class_option :force, :type => :boolean, :default => false, :aliases => "-f"
       register "halt"
