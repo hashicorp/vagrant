@@ -67,7 +67,7 @@ class CommandHelpersTest < Test::Unit::TestCase
 
       should "return all the VMs if no name is specified" do
         instance = command([], @env)
-        assert_equal @env.vms, instance.target_vms
+        assert_equal @env.vms.values, instance.target_vms
       end
 
       should "return only the specified VM if a name is given" do

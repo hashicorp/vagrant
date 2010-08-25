@@ -12,7 +12,7 @@ module Vagrant
 
         @target_vms ||= begin
           if env.multivm?
-            return env.vms if !self.name
+            return env.vms.values if !self.name
             vm = env.vms[self.name.to_sym]
             raise VMNotFoundError.new("A VM by the name of `#{self.name}` was not found.") if !vm
           else
