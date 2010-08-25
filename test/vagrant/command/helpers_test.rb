@@ -17,6 +17,12 @@ class CommandHelpersTest < Test::Unit::TestCase
       @env = mock_environment
     end
 
+    should "only calculate the result once" do
+      instance = command([], @env)
+      result = instance.target_vms
+      assert instance.target_vms.equal?(result)
+    end
+
     context "without multivm" do
       setup do
         @env.stubs(:vms).returns({ :one => 1 })

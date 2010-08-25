@@ -10,9 +10,8 @@ module Vagrant
       end
 
       def route
-        vms = target_vms
-        show_multivm if vms.length > 1
-        show_single(vms.first)
+        show_multivm if target_vms.length > 1
+        show_single(target_vms.first)
       end
 
       protected
