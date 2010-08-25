@@ -21,8 +21,8 @@ module Vagrant
       #
       # Additionally, unlike {Base}, a description must be specified to
       # this register command, since there is no class-wide description.
-      def self.register(usage, description)
-        CLI.register(self, Base.extract_name_from_usage(usage), usage, description)
+      def self.register(usage, description, opts=nil)
+        CLI.register(self, Base.extract_name_from_usage(usage), usage, description, opts)
       end
 
       def initialize(args=[], options={}, config={})

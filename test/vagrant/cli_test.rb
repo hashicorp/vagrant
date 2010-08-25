@@ -19,5 +19,17 @@ class CLITest < Test::Unit::TestCase
       @klass.register(base, name, name, "A description")
       assert @klass.subcommands.include?(name)
     end
+
+    should "alias methods if the alias option is given" do
+      base = Class.new(Vagrant::Command::Base) do
+        def execute
+          raise "WORKED"
+        end
+      end
+
+      name = "__test_registering_with_alias"
+      @klass.register(base, name, name, "A description", :alias => "--ALIAS")
+      assert_raises(RuntimeError) { @klass.start(["--ALIAS"], :env => mock_environment) }
+    end
   end
 end

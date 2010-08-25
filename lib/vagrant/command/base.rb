@@ -29,8 +29,8 @@ module Vagrant
       #
       # The description added to the class via the `desc` method will be
       # used as a description for the command.
-      def self.register(usage)
-        CLI.register(self, extract_name_from_usage(usage), usage, desc)
+      def self.register(usage, opts=nil)
+        CLI.register(self, extract_name_from_usage(usage), usage, desc, opts)
       end
 
       # Extracts the name of the command from a usage string. Example:
