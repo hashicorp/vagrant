@@ -27,12 +27,6 @@ module Vagrant
         @vm = vm
       end
 
-      # A convenience method to access the logger on the VM
-      # environment.
-      def logger
-        vm.env.logger
-      end
-
       # Halt the machine. This method should gracefully shut down the
       # operating system. This method will cause `vagrant halt` and associated
       # commands to _block_, meaning that if the machine doesn't halt

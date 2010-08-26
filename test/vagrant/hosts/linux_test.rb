@@ -5,7 +5,6 @@ class LinuxHostTest < Test::Unit::TestCase
     @klass = Vagrant::Hosts::Linux
     @env = mock_environment
     @env.stubs(:vm).returns(Vagrant::VM.new(:env => @env))
-    @env.logger.stubs(:info)
 
     @instance = @klass.new(@env)
   end

@@ -55,11 +55,11 @@ module Vagrant
       # chain has been run.
       int_callback = lambda do
         if action_environment.interrupted?
-          env.logger.info "Exiting immediately!"
+          env.ui.info "Exiting immediately!"
           abort
         end
 
-        env.logger.info "Waiting for cleanup before exiting..."
+        env.ui.info "Waiting for cleanup before exiting..."
         action_environment.error!(:interrupt)
       end
 

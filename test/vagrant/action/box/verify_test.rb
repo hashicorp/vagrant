@@ -16,10 +16,6 @@ class VerifyBoxActionTest < Test::Unit::TestCase
   end
 
   context "calling" do
-    setup do
-      @env.logger.stubs(:info)
-    end
-
     should "continue fine if verification succeeds" do
       seq = sequence("seq")
       VirtualBox::Appliance.expects(:new).with(@env["box"].ovf_file).in_sequence(seq)

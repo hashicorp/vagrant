@@ -15,16 +15,10 @@ class DestroyBoxActionTest < Test::Unit::TestCase
     @instance = @klass.new(@app, @env)
   end
 
-  context "calling" do
-    setup do
-      @env.logger.stubs(:info)
-    end
-
-    should "delete the box directory" do
-      seq = sequence("seq")
-      FileUtils.expects(:rm_rf).with(@env["box"].directory).in_sequence(seq)
-      @app.expects(:call).with(@env).once.in_sequence(seq)
-      @instance.call(@env)
-    end
+  should "delete the box directory" do
+    seq = sequence("seq")
+    FileUtils.expects(:rm_rf).with(@env["box"].directory).in_sequence(seq)
+    @app.expects(:call).with(@env).once.in_sequence(seq)
+    @instance.call(@env)
   end
 end

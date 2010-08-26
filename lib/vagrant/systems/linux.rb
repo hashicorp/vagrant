@@ -29,7 +29,7 @@ module Vagrant
       # Overridden methods
       #-------------------------------------------------------------------
       def halt
-        logger.info "Attempting graceful shutdown of linux..."
+        vm.env.ui.info "Attempting graceful shutdown of linux..."
         vm.ssh.execute do |ssh|
           ssh.exec!("sudo halt")
         end
@@ -66,7 +66,7 @@ module Vagrant
       def prepare_unison(ssh)
         ssh.exec!("which unison", :error_key => :unison_not_found)
 
-        logger.info "Preparing system for unison sync..."
+        vm.env.ui.info "Preparing system for unison sync..."
         vm.ssh.upload!(StringIO.new(TemplateRenderer.render('/unison/script')), config.unison.script)
         ssh.exec!("sudo chmod +x #{config.unison.script}")
         ssh.exec!("sudo rm #{config.unison.crontab_entry_file}", :error_check => false)

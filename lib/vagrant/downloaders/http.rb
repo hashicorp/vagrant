@@ -36,7 +36,7 @@ module Vagrant
               # Progress reporting is limited to every 25 segments just so
               # we're not constantly updating
               if segment_count % 25 == 0
-                env.logger.report_progress(progress, total)
+                env.ui.report_progress(progress, total)
                 segment_count = 0
               end
 
@@ -45,8 +45,6 @@ module Vagrant
             end
           end
         end
-
-        env.logger.clear_progress
       rescue SocketError
         env.error!(:box_download_http_socket_error, :box_url => source_url)
       end

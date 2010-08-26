@@ -26,7 +26,7 @@ module Vagrant
       end
 
       def create_client_key_folder
-        logger.info "Creating folder to hold client key..."
+        env.ui.info "Creating folder to hold client key..."
         path = Pathname.new(env.config.chef.client_key_path)
 
         vm.ssh.execute do |ssh|
@@ -35,7 +35,7 @@ module Vagrant
       end
 
       def upload_validation_key
-        logger.info "Uploading chef client validation key..."
+        env.ui.info "Uploading chef client validation key..."
         vm.ssh.upload!(validation_key_path, guest_validation_key_path)
       end
 
@@ -52,13 +52,13 @@ module Vagrant
       def run_chef_client
         command = "cd #{env.config.chef.provisioning_path} && sudo -E chef-client -c client.rb -j dna.json"
 
-        logger.info "Running chef-client..."
+        env.ui.info "Running chef-client..."
         vm.ssh.execute do |ssh|
           ssh.exec!(command) do |channel, type, data|
             if type == :exit_status
               ssh.check_exit_status(data, command)
             else
-              logger.info("#{data}: #{type}")
+              env.ui.info("#{data}: #{type}")
             end
           end
         end

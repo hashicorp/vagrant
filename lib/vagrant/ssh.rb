@@ -118,7 +118,7 @@ module Vagrant
       stat = File.stat(key_path)
 
       if stat.owned? && file_perms(key_path) != "600"
-        env.logger.info "Permissions on private key incorrect, fixing..."
+        env.ui.info "Permissions on private key incorrect, fixing..."
         File.chmod(0600, key_path)
 
         error_and_exit(:ssh_bad_permissions, :key_path => key_path) if file_perms(key_path) != "600"
