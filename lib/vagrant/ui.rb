@@ -3,6 +3,12 @@ module Vagrant
   # through a shell). They must respond to the typically logger methods
   # of `warn`, `error`, `info`, and `confirm`.
   class UI
+    attr_reader :env
+
+    def initialize(env)
+      @env = env
+    end
+
     [:warn, :error, :info, :confirm].each do |method|
       # By default these methods don't do anything. A silent UI.
       define_method(method) { |message| }
@@ -11,7 +17,9 @@ module Vagrant
     # A shell UI, which uses a `Thor::Shell` object to talk with
     # a terminal.
     class Shell < UI
-      def initialize(shell)
+      def initialize(env, shell)
+        super(env)
+
         @shell = shell
       end
 

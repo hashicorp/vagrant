@@ -31,7 +31,7 @@ module Vagrant
         # The last argument must _always_ be a Vagrant Environment class.
         raise CLIMissingEnvironment.new("This command requires that a Vagrant environment be properly passed in as the last parameter.") if !config[:env]
         @env = config[:env]
-        @env.ui = UI::Shell.new(shell) if !@env.ui.is_a?(UI::Shell)
+        @env.ui = UI::Shell.new(@env, shell) if !@env.ui.is_a?(UI::Shell)
       end
     end
   end
