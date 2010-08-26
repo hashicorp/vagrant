@@ -21,7 +21,7 @@ module Vagrant
             # Destroy the network interface if there is only one
             # attached VM (which must be this VM)
             if interface.attached_vms.length == 1
-              env.logger.info "Destroying unused network interface..."
+              env.ui.info "Destroying unused network interface..."
               interface.destroy
             end
           end

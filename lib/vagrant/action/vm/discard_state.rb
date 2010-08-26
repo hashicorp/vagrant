@@ -10,7 +10,7 @@ module Vagrant
 
         def call(env)
           if env["vm"].vm.saved?
-            env.logger.info "Discarding saved state of VM..."
+            env.ui.info "Discarding saved state of VM..."
             env["vm"].vm.discard_state
           end
 

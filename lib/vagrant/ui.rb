@@ -9,9 +9,9 @@ module Vagrant
       @env = env
     end
 
-    [:warn, :error, :info, :confirm].each do |method|
+    [:warn, :error, :info, :confirm, :say_with_vm].each do |method|
       # By default these methods don't do anything. A silent UI.
-      define_method(method) { |message| }
+      define_method(method) { |*args| }
     end
 
     # A shell UI, which uses a `Thor::Shell` object to talk with
@@ -23,20 +23,18 @@ module Vagrant
         @shell = shell
       end
 
-      def warn(message)
-        @shell.say(message, :yellow)
+      [[:warn, :yellow], [:error, :red], [:info, nil], [:confirm, :green]].each do |method, color|
+        define_method(method) do |message, prepend_vm_name=true|
+          message = format_message(message) if prepend_vm_name
+          @shell.say(message, color)
+        end
       end
 
-      def error(message)
-        @shell.say(message, :red)
-      end
+      protected
 
-      def info(message)
-        @shell.say(message)
-      end
-
-      def confirm(message)
-        @shell.say(message, :green)
+      def format_message(message)
+        name = env.vm_name || "vagrant"
+        "[#{name}] #{message}"
       end
     end
   end

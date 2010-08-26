@@ -10,7 +10,7 @@ module Vagrant
         end
 
         def call(env)
-          env.logger.info "Deleting box directory..."
+          env.ui.info "Deleting box directory..."
           FileUtils.rm_rf(env["box"].directory)
 
           @app.call(env)

@@ -15,6 +15,10 @@ class ActionEnvironmentTest < Test::Unit::TestCase
     assert_equal @instance.env.logger, @instance.logger
   end
 
+  should "setup the UI" do
+    assert_equal @instance.env.ui, @instance.ui
+  end
+
   should "not be erroneous initially" do
     assert !@instance.error?
   end

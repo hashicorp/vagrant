@@ -7,7 +7,7 @@ module Vagrant
         end
 
         def call(env)
-          env.logger.info "Importing base VM (#{env.env.box.ovf_file})"
+          env.ui.info "Importing base VM (#{env.env.box.ovf_file})"
 
           begin
             # Import the virtual machine
@@ -24,7 +24,7 @@ module Vagrant
           # Import completed successfully. Continue the chain
           @app.call(env)
         end
-        
+
         def recover(env)
           # Interrupted, destroy the VM
           env["actions"].run(:destroy)

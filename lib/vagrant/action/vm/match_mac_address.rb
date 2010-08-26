@@ -7,7 +7,7 @@ module Vagrant
         end
 
         def call(env)
-          env.logger.info "Matching MAC addresses..."
+          env.ui.info "Matching MAC addresses..."
           env["vm"].vm.network_adapters.first.mac_address = env.env.config.vm.base_mac
           env["vm"].vm.save
 

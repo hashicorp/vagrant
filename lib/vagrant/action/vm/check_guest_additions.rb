@@ -16,11 +16,11 @@ module Vagrant
           # doesn't support guest properties (due to cross platform issues)
           version = env["vm"].vm.interface.get_guest_property_value("/VirtualBox/GuestAdd/Version")
           if version.empty?
-            env.logger.error Translator.t(:vm_additions_not_detected)
+            env.ui.warn Translator.t(:vm_additions_not_detected)
           elsif version != VirtualBox.version
-            env.logger.error Translator.t(:vm_additions_version_mismatch,
-                                          :guest_additions_version => version,
-                                          :virtualbox_version => VirtualBox.version)
+            env.ui.warn Translator.t(:vm_additions_version_mismatch,
+                                      :guest_additions_version => version,
+                                      :virtualbox_version => VirtualBox.version)
           end
 
           # Continue

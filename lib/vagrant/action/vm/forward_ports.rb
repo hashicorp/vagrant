@@ -67,7 +67,7 @@ module Vagrant
           existing_ports << options[:hostport]
 
           # Notify the user
-          @env.logger.info "Fixed port collision: #{name} now on port #{options[:hostport]}"
+          @env.ui.info "Fixed port collision: #{name} now on port #{options[:hostport]}"
         end
 
         #--------------------------------------------------------------
@@ -82,7 +82,7 @@ module Vagrant
         end
 
         def forward_ports
-          @env.logger.info "Forwarding ports..."
+          @env.ui.info "Forwarding ports..."
 
           @env.env.config.vm.forwarded_ports.each do |name, options|
             adapter = options[:adapter]
@@ -91,11 +91,11 @@ module Vagrant
             # Host-only or Bridged networking don't require port-forwarding and establishing forwarded ports on these
             # attachment types has uncertain behaviour.
             if @env["vm"].vm.network_adapters[adapter].attachment_type == :nat
-              @env.logger.info "Forwarding \"#{name}\": #{options[:guestport]} on adapter \##{adapter+1} => #{options[:hostport]}"
+              @env.ui.info "Forwarding \"#{name}\": #{options[:guestport]} on adapter \##{adapter+1} => #{options[:hostport]}"
               forward_port(name, options)
             else
-              @env.logger.info "VirtualBox adapter \##{adapter+1} not configured as \"NAT\"."
-              @env.logger.info "Skipped port forwarding \"#{name}\": #{options[:guestport]} on adapter\##{adapter+1} => #{options[:hostport]}"
+              @env.ui.info "VirtualBox adapter \##{adapter+1} not configured as \"NAT\"."
+              @env.ui.info "Skipped port forwarding \"#{name}\": #{options[:guestport]} on adapter\##{adapter+1} => #{options[:hostport]}"
             end
           end
 

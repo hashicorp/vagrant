@@ -60,7 +60,7 @@ module Vagrant
             FileUtils.mkdir_p(include_dir)
 
             @env["package.include"].each do |f|
-              @env.logger.info "Packaging additional file: #{f}"
+              @env.ui.info "Packaging additional file: #{f}"
               FileUtils.cp(f, include_dir)
             end
           end
@@ -68,7 +68,7 @@ module Vagrant
 
         # Compress the exported file into a package
         def compress
-          @env.logger.info "Compressing package to #{tar_path}..."
+          @env.ui.info "Compressing package to #{tar_path}..."
           File.open(tar_path, Platform.tar_file_options) do |tar|
             Archive::Tar::Minitar::Output.open(tar) do |output|
               begin

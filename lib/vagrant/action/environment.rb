@@ -34,6 +34,11 @@ module Vagrant
         env.logger
       end
 
+      # Returns a UI object from the environment
+      def ui
+        env.ui
+      end
+
       # Flags the environment as erroneous. Stores the given key
       # and options until the end of the action sequence.
       #

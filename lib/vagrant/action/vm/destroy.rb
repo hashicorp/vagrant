@@ -7,7 +7,7 @@ module Vagrant
         end
 
         def call(env)
-          env.logger.info "Destroying VM and associated drives..."
+          env.ui.info "Destroying VM and associated drives..."
           env["vm"].vm.destroy(:destroy_medium => :delete)
           env["vm"].vm = nil
           env.env.update_dotfile

@@ -11,7 +11,7 @@ module Vagrant
         end
 
         def call(env)
-          env.logger.info "Persisting the VM UUID (#{env["vm"].uuid})"
+          env.ui.info "Persisting the VM UUID (#{env["vm"].uuid})"
           env.env.update_dotfile
 
           @app.call(env)

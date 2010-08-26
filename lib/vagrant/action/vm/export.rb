@@ -31,13 +31,13 @@ module Vagrant
         end
 
         def setup_temp_dir
-          @env.logger.info "Creating temporary directory for export..."
+          @env.ui.info "Creating temporary directory for export..."
           @temp_dir = @env["export.temp_dir"] = File.join(@env.env.tmp_path, Time.now.to_i.to_s)
           FileUtils.mkpath(@env["export.temp_dir"])
         end
 
         def export
-          @env.logger.info "Exporting VM to #{ovf_path}..."
+          @env.ui.info "Exporting VM to #{ovf_path}..."
           @env["vm"].vm.export(ovf_path) do |progress|
             @env.logger.report_progress(progress.percent, 100, false)
           end

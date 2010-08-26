@@ -16,7 +16,7 @@ module Vagrant
 
         def clear_shared_folders
           if @env["vm"].vm.shared_folders.length > 0
-            @env.logger.info "Clearing previously set shared folders..."
+            @env.ui.info "Clearing previously set shared folders..."
 
             folders = @env["vm"].vm.shared_folders.dup
             folders.each do |shared_folder|

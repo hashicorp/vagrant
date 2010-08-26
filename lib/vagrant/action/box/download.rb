@@ -22,14 +22,14 @@ module Vagrant
           return if env.error?
 
           @app.call(@env)
-          
+
           recover(env) # called in both cases to cleanup workspace
         end
- 
+
         def instantiate_downloader
           @env["download.classes"].each do |klass|
             if klass.match?(@env["box"].uri)
-              @env.logger.info "Downloading with #{klass}..."
+              @env.ui.info "Downloading with #{klass}..."
               @downloader = klass.new(@env)
             end
           end
@@ -52,13 +52,13 @@ module Vagrant
 
         def recover(env)
           if temp_path && File.exist?(temp_path)
-            env.logger.info "Cleaning up downloaded box..."
+            env.ui.info "Cleaning up downloaded box..."
             File.unlink(temp_path)
           end
         end
 
         def with_tempfile
-          @env.logger.info "Creating tempfile for storing box file..."
+          @env.ui.info "Creating tempfile for storing box file..."
           File.open(box_temp_path, Platform.tar_file_options) do |tempfile|
             yield tempfile
           end
@@ -69,7 +69,7 @@ module Vagrant
         end
 
         def download_to(f)
-          @env.logger.info "Copying box to temporary location..."
+          @env.ui.info "Copying box to temporary location..."
           @downloader.download!(@env["box"].uri, f)
         end
       end
