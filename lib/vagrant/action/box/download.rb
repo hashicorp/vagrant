@@ -13,6 +13,7 @@ module Vagrant
           @env = env
           @env["download.classes"] ||= []
           @env["download.classes"] += [Downloaders::HTTP, Downloaders::File]
+          @downloader = nil
         end
 
         def call(env)

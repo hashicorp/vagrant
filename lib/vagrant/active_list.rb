@@ -12,6 +12,7 @@ module Vagrant
     # Creates the instance of the ActiveList, with the given environment
     # if specified
     def initialize(env=nil)
+      @list = nil
       @env = env
     end
 

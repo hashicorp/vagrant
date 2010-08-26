@@ -44,8 +44,8 @@ class BoxTest < Test::Unit::TestCase
         files = [true, false]
         Dir.expects(:open).yields(dir)
         dir_sequence = sequence("directory")
-        dir.each_with_index do |dir, index|
-          File.expects(:directory?).with(File.join(@boxes_path, dir)).returns(files[index]).in_sequence(dir_sequence)
+        dir.each_with_index do |value, index|
+          File.expects(:directory?).with(File.join(@boxes_path, value)).returns(files[index]).in_sequence(dir_sequence)
         end
 
         result = Vagrant::Box.all(@env)

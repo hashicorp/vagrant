@@ -37,7 +37,7 @@ class PackageGeneralActionTest < Test::Unit::TestCase
       assert_equal [], @env["package.include"]
     end
 
-    should "not set the output path if it is already set" do
+    should "not set the include path if it is already set" do
       @env["package.include"] = "foo"
       @klass.new(@app, @env)
       assert_equal "foo", @env["package.include"]

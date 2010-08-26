@@ -240,6 +240,8 @@ class ConfigTest < Test::Unit::TestCase
 
   context "VM configuration" do
     setup do
+      @username = "mitchellh"
+
       @env = mock_environment
       @config = @env.config.vm
       @env.config.ssh.username = @username

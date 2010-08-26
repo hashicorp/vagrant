@@ -66,7 +66,7 @@ module Vagrant
       attr_accessor :forwarded_port_key
       attr_accessor :max_tries
       attr_accessor :timeout
-      attr_accessor :private_key_path
+      attr_writer :private_key_path
       attr_accessor :forward_agent
 
       # The attribute(s) below do nothing. They are just kept here to
@@ -103,11 +103,11 @@ module Vagrant
       attr_reader :forwarded_ports
       attr_reader :shared_folders
       attr_reader :network_options
-      attr_accessor :hd_location
+      attr_reader :hd_location
       attr_accessor :disk_image_format
       attr_accessor :provisioner
-      attr_accessor :shared_folder_uid
-      attr_accessor :shared_folder_gid
+      attr_writer :shared_folder_uid
+      attr_writer :shared_folder_gid
       attr_accessor :system
 
       # Represents a SubVM. This class is only used here in the VMs
@@ -197,8 +197,12 @@ module Vagrant
     class VagrantConfig < Base
       attr_accessor :dotfile_name
       attr_accessor :log_output
-      attr_accessor :home
+      attr_writer :home
       attr_accessor :host
+
+      def initialize
+        @home = nil
+      end
 
       def home
         @home ? File.expand_path(@home) : nil

@@ -15,13 +15,12 @@ module Vagrant
     attr_reader :parent     # Parent environment (in the case of multi-VMs)
     attr_reader :vm_name    # The name of the VM (internal name) which this environment represents
 
-    attr_accessor :cwd
+    attr_writer :cwd
     attr_reader :root_path
     attr_reader :config
     attr_reader :host
     attr_reader :box
     attr_accessor :vm
-    attr_reader :vms
     attr_reader :active_list
     attr_reader :logger
     attr_reader :actions
@@ -340,8 +339,8 @@ module Vagrant
       return parent.update_dotfile if parent
 
       # Generate and save the persisted VM info
-      data = vms.inject({}) do |acc, data|
-        key, value = data
+      data = vms.inject({}) do |acc, values|
+        key, value = values
         acc[key] = value.uuid if value.created?
         acc
       end

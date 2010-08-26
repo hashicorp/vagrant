@@ -581,10 +581,10 @@ class EnvironmentTest < Test::Unit::TestCase
 
       should "blank the VMs" do
         @env = mock_environment do |config|
-          config.vm.define :foo do |config|
+          config.vm.define :foo do |foo_config|
           end
 
-          config.vm.define :bar do |config|
+          config.vm.define :bar do |bar_config|
           end
         end
 
