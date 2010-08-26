@@ -35,7 +35,7 @@ module Vagrant
       def report_progress(progress, total, show_parts=true)
         percent = (progress.to_f / total.to_f) * 100
         line = "Progress: #{percent.to_i}%"
-        line << " (#{data[:progress]} / #{data[:total]})" if data[:show_parts]
+        line << " (#{progress} / #{total})" if show_parts
         line = "#{line_reset}#{line}"
 
         @shell.say(line, nil, false)

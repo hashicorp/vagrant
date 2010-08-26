@@ -138,6 +138,7 @@ module Vagrant
     # Returns the {UI} for the environment, which is responsible
     # for talking with the outside world.
     def ui
+      return parent.ui if parent
       @ui ||= UI.new(self)
     end
 
