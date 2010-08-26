@@ -1,6 +1,14 @@
 module Vagrant
   module Command
     module Helpers
+      # Initializes the environment by pulling the environment out of
+      # the configuration hash and sets up the UI if necessary.
+      def initialize_environment(args, options, config)
+        raise CLIMissingEnvironment.new("This command requires that a Vagrant environment be properly passed in as the last parameter.") if !config[:env]
+        @env = config[:env]
+        @env.ui = UI::Shell.new(@env, shell) if !@env.ui.is_a?(UI::Shell)
+      end
+
       def require_environment
         raise NoEnvironmentError.new("No Vagrant environment detected. Run `vagrant init` to set one up.") if !env.root_path
       end

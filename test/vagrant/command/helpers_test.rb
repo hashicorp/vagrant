@@ -12,6 +12,18 @@ class CommandHelpersTest < Test::Unit::TestCase
     @command.new(args, {}, { :env => env })
   end
 
+  context "initializing environment" do
+    should "raise an exception if no environment is given" do
+      assert_raises(Vagrant::CLIMissingEnvironment) { command([], nil) }
+    end
+
+    should "not raise an exception if environment is given and setup UI" do
+      env = mock_environment
+      assert_nothing_raised { command([], env) }
+      assert env.ui.is_a?(Vagrant::UI::Shell)
+    end
+  end
+
   context "requiring environment" do
     setup do
       @env = mock_environment

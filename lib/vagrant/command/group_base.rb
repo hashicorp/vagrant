@@ -25,13 +25,9 @@ module Vagrant
         CLI.register(self, Base.extract_name_from_usage(usage), usage, description, opts)
       end
 
-      def initialize(args=[], options={}, config={})
+      def initialize(*args)
         super
-
-        # The last argument must _always_ be a Vagrant Environment class.
-        raise CLIMissingEnvironment.new("This command requires that a Vagrant environment be properly passed in as the last parameter.") if !config[:env]
-        @env = config[:env]
-        @env.ui = UI::Shell.new(@env, shell) if !@env.ui.is_a?(UI::Shell)
+        initialize_environment(*args)
       end
     end
   end
