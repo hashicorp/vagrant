@@ -1,3 +1,5 @@
+require 'mario'
+
 module Vagrant
   # Vagrant UIs handle communication with the outside world (typically
   # through a shell). They must respond to the typically logger methods
@@ -9,7 +11,7 @@ module Vagrant
       @env = env
     end
 
-    [:warn, :error, :info, :confirm, :say_with_vm].each do |method|
+    [:warn, :error, :info, :confirm, :say_with_vm, :report_progress].each do |method|
       # By default these methods don't do anything. A silent UI.
       define_method(method) { |*args| }
     end
@@ -26,8 +28,17 @@ module Vagrant
       [[:warn, :yellow], [:error, :red], [:info, nil], [:confirm, :green]].each do |method, color|
         define_method(method) do |message, prepend_vm_name=true|
           message = format_message(message) if prepend_vm_name
-          @shell.say(message, color)
+          @shell.say("#{line_reset}#{message}", color)
         end
+      end
+
+      def report_progress(progress, total, show_parts=true)
+        percent = (progress.to_f / total.to_f) * 100
+        line = "Progress: #{percent.to_i}%"
+        line << " (#{data[:progress]} / #{data[:total]})" if data[:show_parts]
+        line = "#{line_reset}#{line}"
+
+        @shell.say(line, nil, false)
       end
 
       protected
@@ -35,6 +46,12 @@ module Vagrant
       def format_message(message)
         name = env.vm_name || "vagrant"
         "[#{name}] #{message}"
+      end
+
+      def line_reset
+        reset = "\r"
+        reset += "\e[0K" unless Mario::Platform.windows?
+        reset
       end
     end
   end

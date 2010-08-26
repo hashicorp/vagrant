@@ -9,17 +9,13 @@ module Vagrant
         def call(env)
           env.ui.info "Importing base VM (#{env.env.box.ovf_file})"
 
-          begin
-            # Import the virtual machine
-            env.env.vm.vm = VirtualBox::VM.import(env.env.box.ovf_file) do |progress|
-              env.logger.report_progress(progress.percent, 100, false)
-            end
-
-            # Flag as erroneous and return if import failed
-            return env.error!(:virtualbox_import_failure) if !env['vm'].vm
-          ensure
-            env.logger.clear_progress
+          # Import the virtual machine
+          env.env.vm.vm = VirtualBox::VM.import(env.env.box.ovf_file) do |progress|
+            env.ui.report_progress(progress.percent, 100, false)
           end
+
+          # Flag as erroneous and return if import failed
+          return env.error!(:virtualbox_import_failure) if !env['vm'].vm
 
           # Import completed successfully. Continue the chain
           @app.call(env)

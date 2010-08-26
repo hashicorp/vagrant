@@ -39,10 +39,8 @@ module Vagrant
         def export
           @env.ui.info "Exporting VM to #{ovf_path}..."
           @env["vm"].vm.export(ovf_path) do |progress|
-            @env.logger.report_progress(progress.percent, 100, false)
+            @env.ui.report_progress(progress.percent, 100, false)
           end
-        ensure
-          @env.logger.clear_progress
         end
 
         def ovf_path
