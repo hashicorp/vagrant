@@ -4,6 +4,7 @@ module Vagrant
   # the environment.
   class Action
     include Util
+    @@reported_interrupt = false
 
     class << self
       # Returns the list of registered actions.
@@ -59,8 +60,9 @@ module Vagrant
           abort
         end
 
-        env.ui.info "Waiting for cleanup before exiting..."
+        env.ui.info "Waiting for cleanup before exiting..." if !@@reported_interrupt
         action_environment.error!(:interrupt)
+        @@reported_interrupt = true
       end
 
       Busy.busy(int_callback) { callable.call(action_environment) }

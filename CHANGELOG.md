@@ -1,5 +1,7 @@
 ## 0.6.0 (unreleased)
 
+  - Fixed issue with "Waiting for cleanup" message appearing twice in
+    some cases. [GH-145]
   - Converted CLI to use Thor. As a tradeoff, there are some backwards
     incompatibilities:
       * `vagrant package` - The `--include` flag now separates filenames
