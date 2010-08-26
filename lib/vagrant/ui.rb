@@ -5,7 +5,7 @@ module Vagrant
   # through a shell). They must respond to the typically logger methods
   # of `warn`, `error`, `info`, and `confirm`.
   class UI
-    attr_reader :env
+    attr_accessor :env
 
     def initialize(env)
       @env = env
