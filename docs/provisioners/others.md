@@ -30,8 +30,8 @@ settings. An example implementation of the prepare method is shown below:
 class FooProvisioner < Vagrant::Provisioners::Base
   def prepare
     # Maybe we need to share a folder?
-    Vagrant.config.vm.share_folder("foo-folder", "/tmp/foo-provisioning",
-                                                 "/path/to/host/folder")
+    env.config.vm.share_folder("foo-folder", "/tmp/foo-provisioning",
+                                             "/path/to/host/folder")
   end
 end
 {% endhighlight %}
@@ -47,7 +47,7 @@ is shown below:
 {% highlight ruby %}
 class FooProvisioner < Vagrant::Provisioners::Base
   def provision!
-    Vagrant::SSH.execute do |ssh|
+    env.ssh.execute do |ssh|
       ssh.exec!("sudo foo-provision")
     end
   end
@@ -90,8 +90,8 @@ both the `prepare` and the `provision!` method:
 {% highlight ruby %}
 class FooProvisioner < Vagrant::Provisioners::Base
   def provision!
-    if Vagrant.config.foo.chunky_bacon
-      logger.info "Chunky bacon is on."
+    if env.config.foo.chunky_bacon
+      env.logger.info "Chunky bacon is on."
     end
   end
 end
