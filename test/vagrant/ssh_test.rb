@@ -68,6 +68,10 @@ class SshTest < Test::Unit::TestCase
         Vagrant::Util::Platform.stubs(:leopard?).returns(true)
       end
 
+      teardown do
+        Vagrant::Util::Platform.stubs(:leopard?).returns(false)
+      end
+
       should "fork, exec, and wait" do
         pid = mock("pid")
         @ssh.expects(:fork).once.returns(pid)
@@ -78,18 +82,18 @@ class SshTest < Test::Unit::TestCase
     end
 
     context "checking windows" do
+      teardown do
+        Mario::Platform.forced = Mario::Platform::Linux
+      end
+
       should "error and exit if the platform is windows" do
-        Mario::Platform.expects(:windows?).returns(true)
-        @ssh.expects(:error_and_exit).with do |error_name, opts|
-          opts[:key_path] && opts[:ssh_port]
-        end
-        @ssh.connect
+        Mario::Platform.forced = Mario::Platform::Windows7
+        assert_raises(Vagrant::Errors::SSHUnavailableWindows) { @ssh.connect }
       end
 
       should "not error and exit if the platform is anything other that windows" do
-        Mario::Platform.expects(:windows?).returns(false)
-        @ssh.expects(:error_and_exit).never
-        @ssh.connect
+        Mario::Platform.forced = Mario::Platform::Linux
+        assert_nothing_raised { @ssh.connect }
       end
     end
 
@@ -252,11 +256,15 @@ class SshTest < Test::Unit::TestCase
       @stat.stubs(:owned?).returns(true)
       File.stubs(:stat).returns(@stat)
 
-      Mario::Platform.stubs(:windows?).returns(false)
+      Mario::Platform.forced = Mario::Platform::Linux
+    end
+
+    teardown do
+      Mario::Platform.forced = Mario::Platform::Linux
     end
 
     should "do nothing if on windows" do
-      Mario::Platform.stubs(:windows?).returns(true)
+      Mario::Platform.forced = Mario::Platform::Windows7
       File.expects(:stat).never
       @ssh.check_key_permissions(@key_path)
     end

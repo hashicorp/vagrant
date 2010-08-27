@@ -56,6 +56,11 @@ module Vagrant
       error_key(:no_env)
     end
 
+    class SSHUnavailableWindows < VagrantError
+      status_code(10)
+      error_key(:ssh_unavailable_windows)
+    end
+
     class VirtualBoxInvalidOSE < VagrantError
       status_code(9)
       error_key(:virtualbox_invalid_ose)

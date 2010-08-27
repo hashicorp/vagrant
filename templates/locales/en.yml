@@ -11,6 +11,21 @@ en:
       multi_vm_required: A multi-vm environment is required for name specification to this command.
       multi_vm_target_required: `vagrant %{command}` requires a specific VM name to target in a multi-VM environment.
       no_env: No Vagrant environment detected. Run `vagrant init` to set one up.
+      ssh_unavailable_windows: |-
+        `vagrant ssh` isn't available on the Windows platform. The
+        vagrant.ppk file for use with Putty is available at:
+
+          <%= key_path %>.ppk
+
+        To use this create a new Putty session for `vagrant@localhost`
+        on port `<%= ssh_port %>`, in the Connection>SSH>Auth
+        configuration section navigate to the vagrant.ppk file,
+        select it, save the session for later use, and connect.
+
+        For a more detailed guide please consult:
+
+          http://vagrantup.com/docs/getting-started/windows.
+
       virtualbox_invalid_ose: |-
         Vagrant has detected you're using an OSE ("Open Source Edition") of VirtualBox.
         Vagrant currently doesn't support any of the OSE editions due to slight API
