@@ -44,8 +44,7 @@ module Vagrant
       protected
 
       def format_message(message)
-        name = env.vm_name || "vagrant"
-        "[#{name}] #{message}"
+        "[#{env.resource}] #{message}"
       end
 
       def line_reset

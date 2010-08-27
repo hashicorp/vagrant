@@ -100,6 +100,13 @@ module Vagrant
       File.join(home_path, "boxes")
     end
 
+    # Returns the name of the resource which this environment represents.
+    # The resource is the VM name if there is a VM it represents, otherwise
+    # it defaults to "vagrant"
+    def resource
+      vm_name || "vagrant"
+    end
+
     # Returns the VMs associated with this environment.
     def vms
       @vms ||= {}
@@ -238,7 +245,6 @@ module Vagrant
     # references to logger won't throw nil exceptions, but by default
     # the logger will just send the log data to a black hole.
     def load_logger!
-      resource = vm_name || "vagrant"
       @logger = Util::ResourceLogger.new(resource, self)
     end
 

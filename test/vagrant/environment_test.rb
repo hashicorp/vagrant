@@ -128,6 +128,21 @@ class EnvironmentTest < Test::Unit::TestCase
     end
   end
 
+  context "resource" do
+    setup do
+      @env = mock_environment
+    end
+
+    should "return 'vagrant' as a default" do
+      assert_equal 'vagrant', @env.resource
+    end
+
+    should "return the VM name if it is specified" do
+      @env.stubs(:vm_name).returns("foo")
+      assert_equal "foo", @env.resource
+    end
+  end
+
   context "primary VM helper" do
     setup do
       @env = mock_environment
