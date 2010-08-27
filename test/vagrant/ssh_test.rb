@@ -25,7 +25,6 @@ class SshTest < Test::Unit::TestCase
     setup do
       mock_ssh
       @ssh.stubs(:check_key_permissions)
-      @ssh.stubs(:error_and_exit)
       Kernel.stubs(:exec)
 
       Vagrant::Util::Platform.stubs(:leopard?).returns(false)
@@ -285,8 +284,7 @@ class SshTest < Test::Unit::TestCase
       @ssh.expects(:file_perms).returns("900").in_sequence(perm_sequence)
       File.expects(:chmod).with(0600, @key_path).once.in_sequence(perm_sequence)
       @ssh.expects(:file_perms).returns("600").in_sequence(perm_sequence)
-      @ssh.expects(:error_and_exit).never
-      @ssh.check_key_permissions(@key_path)
+      assert_nothing_raised { @ssh.check_key_permissions(@key_path) }
     end
 
     should "error and exit if the resulting chmod doesn't work" do
@@ -294,15 +292,13 @@ class SshTest < Test::Unit::TestCase
       @ssh.expects(:file_perms).returns("900").in_sequence(perm_sequence)
       File.expects(:chmod).with(0600, @key_path).once.in_sequence(perm_sequence)
       @ssh.expects(:file_perms).returns("900").in_sequence(perm_sequence)
-      @ssh.expects(:error_and_exit).once.with(:ssh_bad_permissions, :key_path => @key_path).in_sequence(perm_sequence)
-      @ssh.check_key_permissions(@key_path)
+      assert_raises(Vagrant::Errors::SSHKeyBadPermissions) { @ssh.check_key_permissions(@key_path) }
     end
 
     should "error and exit if a bad file perm is raised" do
       @ssh.expects(:file_perms).with(@key_path).returns("900")
       File.expects(:chmod).raises(Errno::EPERM)
-      @ssh.expects(:error_and_exit).once.with(:ssh_bad_permissions, :key_path => @key_path)
-      @ssh.check_key_permissions(@key_path)
+      assert_raises(Vagrant::Errors::SSHKeyBadPermissions) { @ssh.check_key_permissions(@key_path) }
     end
   end
 

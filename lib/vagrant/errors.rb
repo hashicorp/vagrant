@@ -61,6 +61,11 @@ module Vagrant
       error_key(:ssh_authentication_failed)
     end
 
+    class SSHKeyBadPermissions < VagrantError
+      status_code(12)
+      error_key(:ssh_key_bad_permissions)
+    end
+
     class SSHUnavailableWindows < VagrantError
       status_code(10)
       error_key(:ssh_unavailable_windows)

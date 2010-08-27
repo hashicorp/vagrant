@@ -7,8 +7,6 @@ module Vagrant
   # replace the process with SSH itself, run a specific set of commands,
   # upload files, or even check if a host is up.
   class SSH
-    include Vagrant::Util
-
     # Reference back up to the environment which this SSH object belongs
     # to
     attr_accessor :env
@@ -120,12 +118,12 @@ module Vagrant
         env.ui.info "Permissions on private key incorrect, fixing..."
         File.chmod(0600, key_path)
 
-        error_and_exit(:ssh_bad_permissions, :key_path => key_path) if file_perms(key_path) != "600"
+        raise Errors::SSHKeyBadPermissions.new(:key_path => key_path) if file_perms(key_path) != "600"
       end
     rescue Errno::EPERM
       # This shouldn't happen since we verify we own the file, but just
       # in case.
-      error_and_exit(:ssh_bad_permissions, :key_path => key_path)
+      raise Errors::SSHKeyBadPermissions.new(:key_path => key_path)
     end
 
     # Returns the file permissions of a given file. This is fairly unix specific

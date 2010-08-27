@@ -16,6 +16,13 @@ en:
         keypair for the SSH user not being properly set on the guest VM. Please
         verify that the guest VM is setup with the proper public key, and that
         the private key path for Vagrant is setup propery as well.
+      ssh_key_bad_permissions: |-
+        The private key to connect to this box via SSH has invalid permissions
+        set on it. The permissions of the private key should be set to 0600, otherwise SSH will
+        ignore the key. Vagrant tried to do this automatically for you but failed. Please set the
+        permissions on the following file to 0600 and then try running this command again:
+
+        <%= key_path %>
       ssh_unavailable_windows: |-
         `vagrant ssh` isn't available on the Windows platform. The
         vagrant.ppk file for use with Putty is available at:
