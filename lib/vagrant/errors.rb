@@ -31,7 +31,7 @@ module Vagrant
 
   class CLIMissingEnvironment < VagrantError
     status_code(1)
-    error_key(:cli_missing_environment)
+    error_key(:cli_missing_env)
   end
 
   class MultiVMEnvironmentRequired < VagrantError
@@ -46,7 +46,7 @@ module Vagrant
 
   class NoEnvironmentError < VagrantError
     status_code(3)
-    error_key(:no_environment)
+    error_key(:no_env)
   end
 
   class VMNotCreatedError < VagrantError

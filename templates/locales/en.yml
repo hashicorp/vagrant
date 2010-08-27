@@ -9,3 +9,25 @@ en:
       no_env: No Vagrant environment detected. Run `vagrant init` to set one up.
       vm_creation_required: VM must be created before running this command. Run `vagrant up` first.
       vm_not_found: A VM by the name of %{name} was not found.
+    commands:
+      status:
+        output: |-
+          Current VM states:
+
+          %{states}
+
+          %{message}
+        not_created: |-
+          The environment has not yet been created. Run `vagrant up` to
+          create the environment.
+        powered_off: The VM is powered off. To restart the VM, simply run `vagrant up`
+        running: |-
+          The VM is running. To stop this VM, you can run `vagrant halt` to
+          shut it down forcefully, or you can run `vagrant suspend` to simply
+          suspend the virtual machine. In either case, to restart it again,
+          simply run `vagrant up`.
+        saved: To resume this VM, simply run `vagrant up`.
+        listing: |-
+          This environment represents multiple VMs. The VMs are all listed
+          above with their current state. For more information about a specific
+          VM, run `vagrant status NAME`.
