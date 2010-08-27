@@ -56,6 +56,11 @@ module Vagrant
       error_key(:no_env)
     end
 
+    class SSHAuthenticationFailed < VagrantError
+      status_code(11)
+      error_key(:ssh_authentication_failed)
+    end
+
     class SSHUnavailableWindows < VagrantError
       status_code(10)
       error_key(:ssh_unavailable_windows)

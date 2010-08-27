@@ -105,7 +105,7 @@ module Vagrant
       check_thread.join(env.config.ssh.timeout)
       return check_thread[:result]
     rescue Net::SSH::AuthenticationFailed
-      error_and_exit(:vm_ssh_auth_failed)
+      raise Errors::SSHAuthenticationFailed.new
     end
 
     # Checks the file permissions for the private key, resetting them

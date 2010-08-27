@@ -229,8 +229,7 @@ class SshTest < Test::Unit::TestCase
 
     should "error and exit if a Net::SSH::AuthenticationFailed is raised" do
       @ssh.expects(:execute).raises(Net::SSH::AuthenticationFailed)
-      @ssh.expects(:error_and_exit).with(:vm_ssh_auth_failed).once
-      @ssh.up?
+      assert_raises(Vagrant::Errors::SSHAuthenticationFailed) { @ssh.up? }
     end
   end
 

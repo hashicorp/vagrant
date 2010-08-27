@@ -11,6 +11,11 @@ en:
       multi_vm_required: A multi-vm environment is required for name specification to this command.
       multi_vm_target_required: `vagrant %{command}` requires a specific VM name to target in a multi-VM environment.
       no_env: No Vagrant environment detected. Run `vagrant init` to set one up.
+      ssh_authentication_failed: |-
+        SSH authentication failed! This is typically caused by the public/private
+        keypair for the SSH user not being properly set on the guest VM. Please
+        verify that the guest VM is setup with the proper public key, and that
+        the private key path for Vagrant is setup propery as well.
       ssh_unavailable_windows: |-
         `vagrant ssh` isn't available on the Windows platform. The
         vagrant.ppk file for use with Putty is available at:
