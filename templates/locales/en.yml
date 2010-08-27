@@ -10,6 +10,8 @@ en:
       vm_creation_required: VM must be created before running this command. Run `vagrant up` first.
       vm_not_found: A VM by the name of %{name} was not found.
     commands:
+      box:
+        no_installed_boxes: There are no installed boxes! Use `vagrant box add` to add some.
       status:
         output: |-
           Current VM states:
