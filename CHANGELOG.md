@@ -1,5 +1,10 @@
 ## 0.6.0 (unreleased)
 
+  - Every [expected] Vagrant error now exits with a clean error message
+    and a unique exit status, and raises a unique exception (if you're
+    scripting Vagrant).
+  - Added I18n gem dependency for pulling strings into clean YML files.
+    Vagrant is now localizable as a side effect! Translations welcome.
   - Fixed issue with "Waiting for cleanup" message appearing twice in
     some cases. [GH-145]
   - Converted CLI to use Thor. As a tradeoff, there are some backwards
