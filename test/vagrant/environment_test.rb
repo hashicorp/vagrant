@@ -645,45 +645,6 @@ class EnvironmentTest < Test::Unit::TestCase
     end
   end
 
-  context "requiring properties" do
-    setup do
-      @env = mock_environment
-    end
-
-    context "requiring root_path" do
-      should "error and exit if no root_path is set" do
-        @env.expects(:root_path).returns(nil)
-        @env.expects(:error_and_exit).with(:rootfile_not_found).once
-        @env.require_root_path
-      end
-
-      should "not error and exit if root_path is set" do
-        @env.expects(:root_path).returns("foo")
-        @env.expects(:error_and_exit).never
-        @env.require_root_path
-      end
-    end
-
-    context "requiring a persisted VM" do
-      setup do
-        @env.stubs(:vm).returns("foo")
-        @env.stubs(:require_root_path)
-      end
-
-      should "require a root path" do
-        @env.expects(:require_root_path).once
-        @env.expects(:error_and_exit).never
-        @env.require_persisted_vm
-      end
-
-      should "error and exit if the VM is not set" do
-        @env.expects(:vm).returns(nil)
-        @env.expects(:error_and_exit).once
-        @env.require_persisted_vm
-      end
-    end
-  end
-
   context "managing VM" do
     setup do
       @env = mock_environment

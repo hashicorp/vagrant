@@ -362,19 +362,5 @@ module Vagrant
       # Also add to the global store
       # active_list.add(vm)
     end
-
-    #---------------------------------------------------------------
-    # Methods to check for properties and error
-    #---------------------------------------------------------------
-
-    def require_root_path
-      error_and_exit(:rootfile_not_found) if !root_path
-    end
-
-    def require_persisted_vm
-      require_root_path
-
-      error_and_exit(:environment_not_created) if !vm
-    end
   end
 end
