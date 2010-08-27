@@ -1,0 +1,11 @@
+en:
+  vagrant:
+    errors:
+      base_vm_not_found: The base VM with the name '%{name}' was not found.
+      box_not_found: Box '%{name}' could not be found.
+      cli_missing_env: This command requires that a Vagrant environment be properly passed in as the last parameter.
+      multi_vm_required: A multi-vm environment is required for name specification to this command.
+      multi_vm_target_required: `vagrant %{command}` requires a specific VM name to target in a multi-VM environment.
+      no_env: No Vagrant environment detected. Run `vagrant init` to set one up.
+      vm_creation_required: VM must be created before running this command. Run `vagrant up` first.
+      vm_not_found: A VM by the name of %{name} was not found.

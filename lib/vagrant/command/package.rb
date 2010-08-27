@@ -16,14 +16,14 @@ module Vagrant
 
       def package_base
         vm = VM.find(options[:base], env)
-        raise VMNotFoundError.new("Specified base VM not found: #{options[:base]}") if !vm.created?
+        raise BaseVMNotFoundError.new(:name => options[:base]) if !vm.created?
         package_vm(vm)
       end
 
       def package_target
-        raise MultiVMTargetRequired.new("`vagrant package` requires the name of the VM to package in a multi-vm environment.") if target_vms.length > 1
+        raise MultiVMTargetRequired.new(:command => "package") if target_vms.length > 1
         vm = target_vms.first
-        raise VMNotCreatedError.new("The VM must be created to package it. Run `vagrant up` first.") if !vm.created?
+        raise VMNotCreatedError.new if !vm.created?
         package_vm(vm)
       end
 

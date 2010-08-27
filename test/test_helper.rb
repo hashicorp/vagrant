@@ -10,6 +10,9 @@ require 'mocha'
 # Add this folder to the load path for "test_helper"
 $:.unshift(File.dirname(__FILE__))
 
+# Add the I18n locale for tests
+I18n.load_path << File.expand_path("../locales/en.yml", __FILE__)
+
 class Test::Unit::TestCase
   # Mocks an environment, setting it up with the given config.
   def mock_environment

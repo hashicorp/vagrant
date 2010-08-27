@@ -1,4 +1,5 @@
 require 'json'
+require 'i18n'
 require 'virtualbox'
 require 'vagrant/errors'
 require 'vagrant/util/glob_loader'
@@ -22,6 +23,9 @@ module Vagrant
     @source_root ||= File.expand_path('../../', __FILE__)
   end
 end
+
+# Default I18n to load the en locale
+I18n.load_path << File.expand_path("templates/locales/en.yml", Vagrant.source_root)
 
 # Load them up. One day we'll convert this to autoloads. Today
 # is not that day. Low hanging fruit for anyone wishing to do it.

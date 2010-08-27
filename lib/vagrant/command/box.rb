@@ -11,14 +11,14 @@ module Vagrant
       desc "remove NAME", "Remove a box from the system"
       def remove(name)
         b = Box.find(env, name)
-        raise BoxNotFound.new("Box '#{name}' could not be found.") if !b
+        raise BoxNotFound.new(:name => name) if !b
         b.destroy
       end
 
       desc "repackage NAME", "Repackage an installed box into a `.box` file."
       def repackage(name)
         b = Box.find(env, name)
-        raise BoxNotFound.new("Box '#{name}' could not be found.") if !b
+        raise BoxNotFound.new(:name => name) if !b
         b.repackage
       end
 
