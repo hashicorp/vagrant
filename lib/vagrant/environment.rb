@@ -43,11 +43,11 @@ module Vagrant
       def check_virtualbox!
         version = VirtualBox.version
         if version.nil?
-          error_and_exit(:virtualbox_not_detected)
+          raise Errors::VirtualBoxNotDetected.new
         elsif version.to_f < 3.2
-          error_and_exit(:virtualbox_invalid_version, :version => version.to_s)
+          raise Errors::VirtualBoxInvalidVersion.new(:version => version.to_s)
         elsif version.to_s.downcase.include?("ose")
-          error_and_exit(:virtualbox_invalid_ose, :version => version.to_s)
+          raise Errors::VirtualBoxInvalidOSE.new(:version => version.to_s)
         end
       end
     end

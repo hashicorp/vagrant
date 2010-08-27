@@ -14,7 +14,7 @@ class CommandHelpersTest < Test::Unit::TestCase
 
   context "initializing environment" do
     should "raise an exception if no environment is given" do
-      assert_raises(Vagrant::CLIMissingEnvironment) { command([], nil) }
+      assert_raises(Vagrant::Errors::CLIMissingEnvironment) { command([], nil) }
     end
 
     should "not raise an exception if environment is given and setup UI" do
@@ -31,7 +31,7 @@ class CommandHelpersTest < Test::Unit::TestCase
 
     should "raise an exception if no environment" do
       @env.stubs(:root_path).returns(nil)
-      assert_raises(Vagrant::NoEnvironmentError) { command([], @env).require_environment }
+      assert_raises(Vagrant::Errors::NoEnvironmentError) { command([], @env).require_environment }
     end
 
     should "not raise an exception if there is an environment" do
@@ -59,7 +59,7 @@ class CommandHelpersTest < Test::Unit::TestCase
 
       should "raise an exception if a name is specified" do
         instance = command(["foo"], @env)
-        assert_raises(Vagrant::MultiVMEnvironmentRequired) {
+        assert_raises(Vagrant::Errors::MultiVMEnvironmentRequired) {
           instance.target_vms
         }
       end
@@ -89,7 +89,7 @@ class CommandHelpersTest < Test::Unit::TestCase
 
       should "raise an exception if an invalid name is given" do
         instance = command(["foo"], @env)
-        assert_raises(Vagrant::VMNotFoundError) {
+        assert_raises(Vagrant::Errors::VMNotFoundError) {
           instance.target_vms
         }
       end

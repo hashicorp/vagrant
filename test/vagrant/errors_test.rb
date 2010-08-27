@@ -2,7 +2,7 @@ require "test_helper"
 
 class ErrorsTest < Test::Unit::TestCase
   setup do
-    @super = Vagrant::VagrantError
+    @super = Vagrant::Errors::VagrantError
   end
 
   should "set the given status code" do

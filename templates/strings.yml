@@ -226,19 +226,6 @@
 :virtualbox_import_failure: |-
   The VM import failed! Try running `VBoxManage import` on the box file
   manually for more verbose error output.
-:virtualbox_invalid_version: |-
-  Vagrant has detected that you have VirtualBox version <%= version %> installed!
-  Vagrant requires that you use at least VirtualBox version 3.2. Please install
-  a more recent version of VirtualBox to continue.
-:virtualbox_not_detected: |-
-  Vagrant could not detect VirtualBox! Make sure VirtualBox is properly installed.
-  If VirtualBox is installed, it may be an incorrect version. Vagrant currently
-  requires VirtualBox 3.2.x. Please install the proper version to continue.
-:virtualbox_invalid_ose: |-
-  Vagrant has detected you're using an OSE ("Open Source Edition") of VirtualBox.
-  Vagrant currently doesn't support any of the OSE editions due to slight API
-  differences. Please download the regular package from virtualbox.org and install
-  to continue.
 :vm_failed_to_boot: |-
   Failed to connect to VM! Failed to boot?
 :vm_base_not_found: |-

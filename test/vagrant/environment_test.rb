@@ -12,28 +12,24 @@ class EnvironmentTest < Test::Unit::TestCase
 
     should "not error and exit if everything is good" do
       VirtualBox.expects(:version).returns("3.2.4")
-      @klass.expects(:error_and_exit).never
-      @klass.check_virtualbox!
+      assert_nothing_raised { @klass.check_virtualbox! }
     end
 
     should "error and exit if VirtualBox is not installed or detected" do
-      @klass.expects(:error_and_exit).with(:virtualbox_not_detected).once
       VirtualBox.expects(:version).returns(nil)
-      @klass.check_virtualbox!
+      assert_raises(Vagrant::Errors::VirtualBoxNotDetected) { @klass.check_virtualbox! }
     end
 
     should "error and exit if VirtualBox is lower than version 3.2" do
       version = "3.1.12r1041"
-      @klass.expects(:error_and_exit).with(:virtualbox_invalid_version, :version => version.to_s).once
       VirtualBox.expects(:version).returns(version)
-      @klass.check_virtualbox!
+      assert_raises(Vagrant::Errors::VirtualBoxInvalidVersion) { @klass.check_virtualbox! }
     end
 
     should "error and exit for OSE VirtualBox" do
       version = "3.2.6_OSE"
-      @klass.expects(:error_and_exit).with(:virtualbox_invalid_ose, :version => version.to_s).once
       VirtualBox.expects(:version).returns(version)
-      @klass.check_virtualbox!
+      assert_raises(Vagrant::Errors::VirtualBoxInvalidOSE) { @klass.check_virtualbox! }
     end
   end
 

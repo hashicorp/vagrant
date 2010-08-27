@@ -8,7 +8,7 @@ class CommandGroupBaseTest < Test::Unit::TestCase
 
   context "initialization" do
     should "require an environment" do
-      assert_raises(Vagrant::CLIMissingEnvironment) { @klass.new([], {}, {}) }
+      assert_raises(Vagrant::Errors::CLIMissingEnvironment) { @klass.new([], {}, {}) }
       assert_nothing_raised { @klass.new([], {}, { :env => @env }) }
     end
   end
