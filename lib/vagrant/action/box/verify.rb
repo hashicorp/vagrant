@@ -12,7 +12,7 @@ module Vagrant
             env.ui.info "vagrant.actions.box.verify.verifying"
             VirtualBox::Appliance.new(env["box"].ovf_file)
           rescue Exception
-            return env.error!(:box_verification_failed)
+            raise Errors::BoxVerificationFailed.new
           end
 
           @app.call(env)

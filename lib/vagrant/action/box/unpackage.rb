@@ -24,7 +24,7 @@ module Vagrant
         def call(env)
           @env = env
 
-          return if !setup_box_directory
+          setup_box_directory
           decompress
 
           @app.call(@env)
@@ -37,14 +37,10 @@ module Vagrant
         end
 
         def setup_box_directory
-          if File.directory?(@env["box"].directory)
-            @env.error!(:box_already_exists, :box_name => @env["box"].name)
-            return false
-          end
+          raise Errors::BoxAlreadyExists.new(:name => @env["box"].name) if File.directory?(@env["box"].directory)
 
           FileUtils.mkdir_p(@env["box"].directory)
           @box_directory = @env["box"].directory
-          true
         end
 
         def decompress

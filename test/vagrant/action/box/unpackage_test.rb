@@ -23,13 +23,6 @@ class UnpackageBoxActionTest < Test::Unit::TestCase
       @app.expects(:call).with(@env)
       @instance.call(@env)
     end
-
-    should "halt the chain if setting up the box directory fails" do
-      @instance.expects(:setup_box_directory).returns(false)
-      @instance.expects(:decompress).never
-      @app.expects(:call).never
-      @instance.call(@env)
-    end
   end
 
   context "cleaning up" do
@@ -59,9 +52,9 @@ class UnpackageBoxActionTest < Test::Unit::TestCase
 
     should "error the environment if the box already exists" do
       File.expects(:directory?).returns(true)
-      assert !@instance.setup_box_directory
-      assert @env.error?
-      assert_equal :box_already_exists, @env.error.first
+      assert_raises(Vagrant::Errors::BoxAlreadyExists) {
+        @instance.setup_box_directory
+      }
     end
 
     should "create the directory" do

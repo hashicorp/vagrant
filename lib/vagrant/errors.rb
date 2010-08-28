@@ -38,6 +38,11 @@ module Vagrant
       error_key(:base_vm_not_found)
     end
 
+    class BoxAlreadyExists < VagrantError
+      status_code(14)
+      error_key(:already_exists, "vagrant.actions.box.unpackage")
+    end
+
     class BoxDownloadUnknownType < VagrantError
       status_code(13)
       error_key(:unknown_type, "vagrant.actions.box.download")
@@ -46,6 +51,11 @@ module Vagrant
     class BoxNotFound < VagrantError
       status_code(2)
       error_key(:box_not_found)
+    end
+
+    class BoxVerificationFailed < VagrantError
+      status_code(15)
+      error_key(:failed, "vagrant.actions.box.verify")
     end
 
     class CLIMissingEnvironment < VagrantError

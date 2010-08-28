@@ -86,11 +86,6 @@ class ActionWardenTest < Test::Unit::TestCase
       @instance.begin_rescue(new_env)
     end
 
-    should "call error and exit" do
-      @instance.expects(:error_and_exit)
-      @instance.begin_rescue(new_env)
-    end
-
     should "call exit if the environment is interupted" do
       @instance.expects(:exit)
       env = new_env

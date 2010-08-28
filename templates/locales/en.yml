@@ -181,8 +181,17 @@ en:
           unknown_type: "Unknown or unsupported URI type given for box download."
         unpackage:
           extracting: "Extracting box..."
+          already_exists: |-
+            A box already exists under the name of '%{name}'. This may or may
+            not be the same box you are trying to add. Please use another name
+            or remove the previous box then try to add it again.
         verify:
           verifying: "Verifying box..."
+          failed: |-
+            The box file you're attempting to add is invalid. This can be
+            commonly attributed to typos in the path given to the box add
+            command. Another common case of this is invalid packaging of the
+            box itself.
 
       general:
         package:

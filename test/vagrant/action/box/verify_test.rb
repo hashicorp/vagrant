@@ -27,9 +27,9 @@ class VerifyBoxActionTest < Test::Unit::TestCase
     should "halt chain if verification fails" do
       VirtualBox::Appliance.expects(:new).with(@env["box"].ovf_file).raises(Exception)
       @app.expects(:call).with(@env).never
-      @instance.call(@env)
-      assert @env.error?
-      assert_equal :box_verification_failed, @env.error.first
+      assert_raises(Vagrant::Errors::BoxVerificationFailed) {
+        @instance.call(@env)
+      }
     end
   end
 end

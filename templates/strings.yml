@@ -7,9 +7,6 @@
 #---------------------------------------------------------------------
 # CATEGORY: Error Messages
 #---------------------------------------------------------------------
-:box_already_exists: |-
-  This box appears to already exist! Please call `vagrant box remove <%= box_name %>`
-  and then try to add it again.
 :box_download_http_socket_error: |-
   An error occurred while trying to download the specified box. This most
   often happens if there is no internet connection or the address is
@@ -34,9 +31,6 @@
 
   The box must be added through the `vagrant box add` command. Please view
   the documentation associated with the command for more information.
-:box_verification_failed: |-
-  The specified box is invalid. This can commonly be attributed to incorrectly
-  typing in the path to the box or invalid packaging of the box.
 :box_not_specified: |-
   No base box was specified! A base box is required as a staring point
   for every vagrant virtual machine. Please specify one in your Vagrantfile
