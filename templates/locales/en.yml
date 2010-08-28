@@ -180,3 +180,12 @@ en:
         package:
           packaging: "Packaging additional file: %{file}"
           compressing: "Compressing package to: %w{tar_path}"
+
+    hosts:
+      bsd:
+        nfs_export:
+          prepare: "Preparing to edit /etc/exports. Administrator priveleges will be required..."
+      linux:
+        nfs_export:
+          prepare: "Preparing to edit /etc/exports. Administrator priveleges will be required..."
+

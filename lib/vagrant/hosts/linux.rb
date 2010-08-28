@@ -24,7 +24,7 @@ module Vagrant
                                          :ip => ip,
                                          :folders => folders)
 
-        env.ui.info "Preparing to edit /etc/exports. Administrator priveleges will be required..."
+        env.ui.info "vagrant.hosts.linux.nfs_export.prepare"
         sleep 0.5
 
         output.split("\n").each do |line|
