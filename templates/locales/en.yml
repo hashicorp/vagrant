@@ -175,3 +175,8 @@ en:
           extracting: Extracting box...
         verify:
           verifying: Verifying box...
+
+      general:
+        package:
+          packaging: "Packaging additional file: %{file}"
+          compressing: "Compressing package to: %w{tar_path}"
