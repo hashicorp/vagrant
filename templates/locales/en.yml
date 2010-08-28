@@ -58,8 +58,12 @@ en:
 # Translations for commands. e.g. `vagrant x`
 #-------------------------------------------------------------------------------
     commands:
+      common:
+        vm_not_created: "VM not created. Moving on..."
       box:
-        no_installed_boxes: There are no installed boxes! Use `vagrant box add` to add some.
+        no_installed_boxes: "There are no installed boxes! Use `vagrant box add` to add some."
+      ssh:
+        execute: "Execute: %{command}"
       status:
         output: |-
           Current VM states:
@@ -81,6 +85,10 @@ en:
           This environment represents multiple VMs. The VMs are all listed
           above with their current state. For more information about a specific
           VM, run `vagrant status NAME`.
+      up:
+        vm_created: "VM already created. Booting if its not already running..."
+      version:
+        output: "Vagrant version %{version}"
 
 #-------------------------------------------------------------------------------
 # Translations for Vagrant middleware acions
