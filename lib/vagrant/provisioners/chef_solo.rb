@@ -40,7 +40,7 @@ module Vagrant
       def run_chef_solo
         command = "cd #{env.config.chef.provisioning_path} && sudo -E chef-solo -c solo.rb -j dna.json"
 
-        env.ui.info "Running chef-solo..."
+        env.ui.info "vagrant.provisioners.chef.running_solo"
         vm.ssh.execute do |ssh|
           ssh.exec!(command) do |channel, type, data|
             ssh.check_exit_status(data, command) if type == :exit_status

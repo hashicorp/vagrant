@@ -29,7 +29,7 @@ module Vagrant
       # Overridden methods
       #-------------------------------------------------------------------
       def halt
-        vm.env.ui.info "Attempting graceful shutdown of linux..."
+        vm.env.ui.info "vagrant.systems.linux.attempting_halt"
         vm.ssh.execute do |ssh|
           ssh.exec!("sudo halt")
         end
