@@ -6,8 +6,15 @@ class ErrorsTest < Test::Unit::TestCase
   end
 
   should "set the given status code" do
-    klass = Class.new(@super) { status_code(4) }
-    assert_equal 4, klass.new.status_code
+    klass = Class.new(@super) { status_code(4444) }
+    assert_equal 4444, klass.new.status_code
+  end
+
+  should "raise an error if attempting to set the same status code twice" do
+    klass = Class.new(@super) { status_code(4445) }
+    assert_raises(RuntimeError) {
+      Class.new(@super) { status_code(4445) }
+    }
   end
 
   should "use the given message if no set error key" do

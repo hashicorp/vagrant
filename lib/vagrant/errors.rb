@@ -10,8 +10,14 @@ module Vagrant
     # I18n.
     class VagrantError < StandardError
       DEFAULT_NAMESPACE = "vagrant.errors"
+      @@used_codes = []
 
       def self.status_code(code = nil)
+        if code
+          raise "Status code already in use: #{code}"  if @@used_codes.include?(code)
+          @@used_codes << code
+        end
+
         define_method(:status_code) { code }
       end
 
@@ -34,7 +40,7 @@ module Vagrant
     end
 
     class BaseVMNotFound < VagrantError
-      status_code(6)
+      status_code(18)
       error_key(:base_vm_not_found)
     end
 
@@ -78,6 +84,21 @@ module Vagrant
       error_key(:no_env)
     end
 
+    class PackageIncludeMissing < VagrantError
+      status_code(20)
+      error_key(:include_file_missing, "vagrant.actions.general.package")
+    end
+
+    class PackageOutputExists < VagrantError
+      status_code(16)
+      error_key(:output_exists, "vagrant.actions.general.package")
+    end
+
+    class PackageRequiresDirectory < VagrantError
+      status_code(19)
+      error_key(:requires_directory, "vagrant.actions.general.package")
+    end
+
     class SSHAuthenticationFailed < VagrantError
       status_code(11)
       error_key(:ssh_authentication_failed)
@@ -99,7 +120,7 @@ module Vagrant
     end
 
     class VirtualBoxInvalidVersion < VagrantError
-      status_code(9)
+      status_code(17)
       error_key(:virtualbox_invalid_version)
     end
 

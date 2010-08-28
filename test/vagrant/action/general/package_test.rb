@@ -62,39 +62,28 @@ class PackageGeneralActionTest < Test::Unit::TestCase
         @instance.call(@env)
       end
 
-      should "halt the chain if verify failed" do
-        @instance.expects(:verify_included_files).returns(false)
-        @instance.expects(:compress).never
-        @app.expects(:call).never
-
-        @instance.call(@env)
-      end
-
       should "halt the chain if the output file already exists" do
         File.expects(:exist?).returns(true)
         @app.expects(:call).never
-        @instance.call(@env)
-
-        assert @env.error?
-        assert_equal :package_output_exists, @env.error.first
+        assert_raises(Vagrant::Errors::PackageOutputExists) {
+          @instance.call(@env)
+        }
       end
 
       should "halt the chain if directory isn't set" do
         @env["package.directory"] = nil
         @app.expects(:call).never
-        @instance.call(@env)
-
-        assert @env.error?
-        assert_equal :package_requires_directory, @env.error.first
+        assert_raises(Vagrant::Errors::PackageRequiresDirectory) {
+          @instance.call(@env)
+        }
       end
 
       should "halt the chain if directory doesn't exist" do
         File.expects(:directory?).with(@env["package.directory"]).returns(false)
         @app.expects(:call).never
-        @instance.call(@env)
-
-        assert @env.error?
-        assert_equal :package_requires_directory, @env.error.first
+        assert_raises(Vagrant::Errors::PackageRequiresDirectory) {
+          @instance.call(@env)
+        }
       end
     end
 
@@ -129,9 +118,9 @@ class PackageGeneralActionTest < Test::Unit::TestCase
 
       should "error if included file is not found" do
         File.expects(:exist?).with("foo").returns(false)
-        assert !@instance.verify_included_files
-        assert @env.error?
-        assert_equal :package_include_file_doesnt_exist, @env.error.first
+        assert_raises(Vagrant::Errors::PackageIncludeMissing) {
+          @instance.verify_included_files
+        }
       end
 
       should "return true if all exist" do

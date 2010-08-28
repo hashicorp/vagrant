@@ -98,15 +98,6 @@
   This will cause your specified IP to be inaccessible. Please change
   the IP or name of your host only network to not match that of
   a bridged or non-hostonly network.
-:package_include_file_doesnt_exist: |-
-  File specified to include: '<%= filename %>' does not exist!
-:package_output_exists: |-
-  The specified file to save the package as already exists. Please
-  remove this file or specify a different filename for outputting.
-:package_requires_directory: |-
-  A directory was not specified to package. This is an internal
-  issue. Please send the relevant stack trace (if any) and information
-  about this issue to the Vagrant team.
 :package_requires_export: |-
   Package must be used in conjunction with export.
 :provisioner_invalid_class: |-

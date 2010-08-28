@@ -27,9 +27,10 @@ module Vagrant
         def call(env)
           @env = env
 
-          return env.error!(:package_output_exists) if File.exist?(tar_path)
-          return env.error!(:package_requires_directory) if !@env["package.directory"] || !File.directory?(@env["package.directory"])
-          return if !verify_included_files
+          raise Errors::PackageOutputExists.new if File.exist?(tar_path)
+          raise Errors::PackageRequiresDirectory.new if !@env["package.directory"] || !File.directory?(@env["package.directory"])
+
+          verify_included_files
           compress
 
           @app.call(env)
@@ -42,13 +43,8 @@ module Vagrant
 
         def verify_included_files
           @env["package.include"].each do |file|
-            if !File.exist?(file)
-              @env.error!(:package_include_file_doesnt_exist, :filename => file)
-              return false
-            end
+            raise Errors::PackageIncludeMissing.new(:file => file) if !File.exist?(file)
           end
-
-          true
         end
 
         # This method copies the include files (passed in via command line)
