@@ -44,7 +44,7 @@ module Vagrant
         vm.ssh.execute do |ssh|
           ssh.exec!(command) do |channel, type, data|
             ssh.check_exit_status(data, command) if type == :exit_status
-            env.ui.info("#{data}: #{type}") if type != :exit_status
+            env.ui.info("#{data}: #{type}", :_translate => false) if type != :exit_status
           end
         end
       end

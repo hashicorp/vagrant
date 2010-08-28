@@ -58,7 +58,7 @@ module Vagrant
             if type == :exit_status
               ssh.check_exit_status(data, command)
             else
-              env.ui.info("#{data}: #{type}")
+              env.ui.info("#{data}: #{type}", :_translate => false)
             end
           end
         end

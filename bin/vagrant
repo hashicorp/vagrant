@@ -7,7 +7,8 @@ env = Vagrant::Environment.load!
 begin
   Vagrant::CLI.start(ARGV, :env => env)
 rescue Vagrant::Errors::VagrantError => e
-  env.ui.error e.message, false
-  env.ui.error e.backtrace.join("\n"), false if ENV["VAGRANT_DEBUG"]
+  opts = { :_translate => false, :_prefix => false }
+  env.ui.error e.message, opts
+  env.ui.error e.backtrace.join("\n"), opts if ENV["VAGRANT_DEBUG"]
   exit e.status_code
 end

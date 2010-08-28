@@ -26,9 +26,9 @@ module Vagrant
       end
 
       [[:warn, :yellow], [:error, :red], [:info, nil], [:confirm, :green]].each do |method, color|
-        define_method(method) do |key, opts=nil|
-          opts = { :_prefix => true }.merge(opts || {})
-          message = I18n.t(key, opts)
+        define_method(method) do |message, opts=nil|
+          opts = { :_prefix => true, :_translate => true }.merge(opts || {})
+          message = I18n.t(message, opts) if opts[:_translate]
           message = format_message(message) if opts[:_prefix]
           @shell.say("#{line_reset}#{message}", color)
         end
