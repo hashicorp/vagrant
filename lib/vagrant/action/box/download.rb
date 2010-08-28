@@ -30,7 +30,7 @@ module Vagrant
         def instantiate_downloader
           @env["download.classes"].each do |klass|
             if klass.match?(@env["box"].uri)
-              @env.ui.info "Downloading with #{klass}..."
+              @env.ui.info "vagrant.actions.box.download.with", :class => klass.to_s
               @downloader = klass.new(@env)
             end
           end
@@ -53,13 +53,12 @@ module Vagrant
 
         def recover(env)
           if temp_path && File.exist?(temp_path)
-            env.ui.info "Cleaning up downloaded box..."
+            env.ui.info "vagrant.actions.box.download.cleaning"
             File.unlink(temp_path)
           end
         end
 
         def with_tempfile
-          @env.ui.info "Creating tempfile for storing box file..."
           File.open(box_temp_path, Platform.tar_file_options) do |tempfile|
             yield tempfile
           end
@@ -70,7 +69,7 @@ module Vagrant
         end
 
         def download_to(f)
-          @env.ui.info "Copying box to temporary location..."
+          @env.ui.info "vagrant.actions.box.download.copying"
           @downloader.download!(@env["box"].uri, f)
         end
       end

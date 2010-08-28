@@ -10,7 +10,7 @@ module Vagrant
         end
 
         def call(env)
-          env.ui.info "Deleting box directory..."
+          env.ui.info "vagrant.actions.box.destroy.destroying", :name => env["box"].name
           FileUtils.rm_rf(env["box"].directory)
 
           @app.call(env)
