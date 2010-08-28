@@ -10,5 +10,6 @@ rescue Vagrant::Errors::VagrantError => e
   opts = { :_translate => false, :_prefix => false }
   env.ui.error e.message, opts
   env.ui.error e.backtrace.join("\n"), opts if ENV["VAGRANT_DEBUG"]
-  exit e.status_code
+  exit e.status_code if e.respond_to?(:status_code)
+  exit 999 # An error occurred with no status code defined
 end

@@ -20,8 +20,6 @@ module Vagrant
           @env = env
 
           download if instantiate_downloader
-          return if env.error?
-
           @app.call(@env)
 
           recover(env) # called in both cases to cleanup workspace
@@ -35,10 +33,7 @@ module Vagrant
             end
           end
 
-          if !@downloader
-            @env.error!(:box_download_unknown_type)
-            return false
-          end
+          raise Errors::BoxDownloadUnknownType.new if !@downloader
 
           @downloader.prepare(@env["box"].uri)
           true

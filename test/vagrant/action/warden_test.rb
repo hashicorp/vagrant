@@ -55,32 +55,17 @@ class ActionWardenTest < Test::Unit::TestCase
       @instance.call(new_env)
     end
 
-    should "begin recover on environment error" do
-      @instance.expects(:begin_rescue)
-      @instance.actions << lambda {}
-      @instance.actions.first.expects(:call).never
-      @instance.call(new_env_with_error)
-    end
-
-    should "not call the next action on env err" do
-      action = mock('action')
-      action.expects(:call).never
-      @instance.actions << action
-      @instance.expects(:begin_rescue)
-      @instance.call(new_env_with_error)
-    end
-
-    should "call begin recover when the called action returns with an env error" do
+    should "begin recovery sequence when the called action raises an exception" do
       class Foo
         def initialize(*args); end
         def call(env)
-          return env.error!(:foo)
+          raise "An exception"
         end
       end
 
       @instance.actions << Foo.new
       @instance.expects(:begin_rescue)
-      @instance.call(new_env)
+      assert_raises(RuntimeError) { @instance.call(new_env) }
     end
 
     def new_env_with_error

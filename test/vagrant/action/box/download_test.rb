@@ -35,15 +35,6 @@ class DownloadBoxActionTest < Test::Unit::TestCase
         @instance.expects(:recover).with(@env).in_sequence(seq)
         @instance.call(@env)
       end
-
-      should "halt the chain if downloader instantiation fails" do
-        seq = sequence("seq")
-        @env.error!(:foo)
-        @instance.expects(:instantiate_downloader).in_sequence(seq).returns(false)
-        @instance.expects(:download).never
-        @app.expects(:call).with(@env).never
-        @instance.call(@env)
-      end
     end
 
     context "instantiating downloader" do
@@ -56,9 +47,9 @@ class DownloadBoxActionTest < Test::Unit::TestCase
 
       should "error environment if URI is invalid for any downloaders" do
         @env["box"].uri = "foobar"
-        assert !@instance.instantiate_downloader
-        assert @env.error?
-        assert_equal :box_download_unknown_type, @env.error.first
+        assert_raises(Vagrant::Errors::BoxDownloadUnknownType) {
+          @instance.instantiate_downloader
+        }
       end
     end
 

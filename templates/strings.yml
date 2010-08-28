@@ -10,8 +10,6 @@
 :box_already_exists: |-
   This box appears to already exist! Please call `vagrant box remove <%= box_name %>`
   and then try to add it again.
-:box_download_unknown_type: |-
-  Unknown URI type for box download.
 :box_download_http_socket_error: |-
   An error occurred while trying to download the specified box. This most
   often happens if there is no internet connection or the address is

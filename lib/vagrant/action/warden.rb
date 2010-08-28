@@ -1,5 +1,11 @@
 module Vagrant
   class Action
+    # The action warden is a middleware which injects itself between
+    # every other middleware, watching for exceptions which are raised
+    # and performing proper cleanup on every action by calling the {#recover}
+    # method. The warden therefore allows middlewares to not worry about
+    # exceptional events, and by providing a simple callback, can clean up
+    # in any erroneous case.
     class Warden
       include Util
       attr_accessor :actions, :stack
@@ -12,11 +18,16 @@ module Vagrant
       def call(env)
         return if @actions.empty?
 
-        # If the previous action passes and environment error on
-        @stack.unshift(@actions.shift).first.call(env) unless env.error?
-
-        # if the call action returned prematurely with an error
-        begin_rescue(env) if env.error?
+        begin
+          # Call the next middleware in the sequence, appending to the stack
+          # of "recoverable" middlewares in case something goes wrong!
+          @stack.unshift(@actions.shift).first.call(env)
+        rescue
+          # Something went horribly wrong. Start the rescue chain then
+          # reraise the exception to properly kick us out of limbo here.
+          begin_rescue(env)
+          raise
+        end
       end
 
       def begin_rescue(env)
@@ -25,9 +36,6 @@ module Vagrant
         end
 
         exit if env.interrupted?
-
-        # Erroneous environment resulted. Properly display error message.
-        error_and_exit(*env.error)
       end
 
       def finalize_action(action, env)

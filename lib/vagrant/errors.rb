@@ -1,3 +1,6 @@
+# This file contains all of the internal errors in Vagrant's core
+# commands, actions, etc.
+
 module Vagrant
   module Errors
     # Main superclass of any errors in Vagrant. This provides some
@@ -6,12 +9,15 @@ module Vagrant
     # error code, and the error key is used as a default message from
     # I18n.
     class VagrantError < StandardError
+      DEFAULT_NAMESPACE = "vagrant.errors"
+
       def self.status_code(code = nil)
         define_method(:status_code) { code }
       end
 
-      def self.error_key(key=nil)
+      def self.error_key(key=nil, namespace=nil)
         define_method(:error_key) { key }
+        define_method(:error_namespace) { namespace } if namespace
       end
 
       def initialize(message=nil, *args)
@@ -22,13 +28,19 @@ module Vagrant
       protected
 
       def translate_error(key, opts=nil)
-        I18n.t("vagrant.errors.#{key}", opts)
+        namespace = respond_to?(:error_namespace) ? error_namespace : DEFAULT_NAMESPACE
+        I18n.t("#{namespace}.#{key}", opts)
       end
     end
 
     class BaseVMNotFound < VagrantError
       status_code(6)
       error_key(:base_vm_not_found)
+    end
+
+    class BoxDownloadUnknownType < VagrantError
+      status_code(13)
+      error_key(:unknown_type, "vagrant.actions.box.download")
     end
 
     class BoxNotFound < VagrantError

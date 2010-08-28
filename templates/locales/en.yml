@@ -173,15 +173,16 @@ en:
 
       box:
         destroy:
-          destroying: Deleting box '%{name}'...
+          destroying: "Deleting box '%{name}'..."
         download:
-          with: Downloading with %{class}...
-          cleaning: Cleaning up downloaded box...
-          copying: Copying box to temporary location...
+          with: "Downloading with %{class}..."
+          cleaning: "Cleaning up downloaded box..."
+          copying: "Copying box to temporary location..."
+          unknown_type: "Unknown or unsupported URI type given for box download."
         unpackage:
-          extracting: Extracting box...
+          extracting: "Extracting box..."
         verify:
-          verifying: Verifying box...
+          verifying: "Verifying box..."
 
       general:
         package:
