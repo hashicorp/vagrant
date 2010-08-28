@@ -8,6 +8,7 @@ class ImportVMActionTest < Test::Unit::TestCase
 
     ovf_file = "foo"
     @box = mock("box")
+    @box.stubs(:name).returns("foo")
     @box.stubs(:ovf_file).returns(ovf_file)
     @env.env.stubs(:box).returns(@box)
 

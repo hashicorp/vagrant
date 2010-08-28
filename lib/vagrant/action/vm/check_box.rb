@@ -14,7 +14,7 @@ module Vagrant
             box_url = env["config"].vm.box_url
             return env.error!(:box_specified_doesnt_exist, :box_name => box_name) if !box_url
 
-            env.ui.info "Box #{box_name} not found. Fetching box since URL specified..."
+            env.ui.info "vagrant.actions.vm.check_box.not_found", :name => box_name
             Vagrant::Box.add(env.env, box_name, box_url)
             env.env.load_box!
           end

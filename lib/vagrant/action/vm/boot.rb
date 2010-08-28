@@ -22,18 +22,16 @@ module Vagrant
         end
 
         def boot
-          @env.ui.info "Booting VM..."
+          @env.ui.info "vagrant.actions.vm.boot.booting"
           @env["vm"].vm.start(@env.env.config.vm.boot_mode)
         end
 
         def wait_for_boot
-          @env.ui.info "Waiting for VM to boot..."
+          @env.ui.info "vagrant.actions.vm.boot.waiting"
 
           @env.env.config.ssh.max_tries.to_i.times do |i|
-            @env.ui.info "Trying to connect (attempt ##{i+1} of #{@env.env.config[:ssh][:max_tries]})..."
-
             if @env["vm"].ssh.up?
-              @env.ui.info "VM booted and ready for use!"
+              @env.ui.info "vagrant.actions.vm.boot.ready"
               return true
             end
 
@@ -44,7 +42,7 @@ module Vagrant
             sleep 5 if !@env["vagrant.test"]
           end
 
-          @env.ui.error "Failed to connect to VM! Failed to boot?"
+          @env.ui.error "vagrant.actions.vm.boot.failed"
           false
         end
       end

@@ -60,7 +60,7 @@ module Vagrant
         end
 
         def create_metadata
-          @env.ui.info "Creating shared folders metadata..."
+          @env.ui.info "vagrant.actions.vm.share_folders.creating"
 
           shared_folders.each do |name, data|
             folder = VirtualBox::SharedFolder.new
@@ -73,11 +73,13 @@ module Vagrant
         end
 
         def mount_shared_folders
-          @env.ui.info "Mounting shared folders..."
+          @env.ui.info "vagrant.actions.vm.share_folders.mounting"
 
           @env["vm"].ssh.execute do |ssh|
             shared_folders.each do |name, data|
-              @env.ui.info "-- #{name}: #{data[:guestpath]}"
+              @env.ui.info("vagrant.actions.vm.share_folders.mounting_entry",
+                           :name => name,
+                           :guest_path => data[:guestpath])
               @env["vm"].system.mount_shared_folder(ssh, name, data[:guestpath])
             end
           end
@@ -89,7 +91,7 @@ module Vagrant
           @env["vm"].ssh.execute do |ssh|
             @env["vm"].system.prepare_unison(ssh)
 
-            @env.ui.info "Creating unison crontab entries..."
+            @env.ui.info "vagrant.actions.vm.share_folders.setup_unison"
             unison_folders.each do |name, data|
               @env["vm"].system.create_unison(ssh, data)
             end

@@ -8,7 +8,7 @@ module Vagrant
 
         def call(env)
           if env["vm"].vm.saved?
-            env.ui.info "Resuming suspended VM..."
+            env.ui.info "vagrant.actions.vm.resume.resuming"
             env["actions"].run(Boot)
           end
 

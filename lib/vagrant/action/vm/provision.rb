@@ -13,7 +13,7 @@ module Vagrant
           @app.call(env)
 
           if !env.error? && provisioning_enabled?
-            @env.ui.info "Beginning provisioning process..."
+            @env.ui.info "vagrant.actions.vm.provision.beginning"
             @provisioner.provision!
           end
         end
@@ -40,7 +40,7 @@ module Vagrant
             @provisioner = provisioner_klass.new(@env)
           end
 
-          @env.ui.info "Provisioning enabled with #{@provisioner.class}"
+          @env.ui.info "vagrant.actions.vm.provision.enabled", :provisioner => provisioner.class.to_s
           @provisioner.prepare
           @provisioner
         end

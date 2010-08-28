@@ -26,7 +26,7 @@ module Vagrant
 
           if !env.error? && enable_network?
             catch_action_exception(env) do
-              @env.ui.info "Enabling host only network..."
+              @env.ui.info "vagrant.actions.vm.network.enabling"
               @env["vm"].system.prepare_host_only_network
               @env.env.config.vm.network_options.compact.each do |network_options|
                 @env["vm"].system.enable_host_only_network(network_options)
@@ -61,7 +61,7 @@ module Vagrant
         # Enables and assigns the host only network to the proper
         # adapter on the VM, and saves the adapter.
         def assign_network
-          @env.ui.info "Preparing host only network..."
+          @env.ui.info "vagrant.actions.vm.network.preparing"
 
           @env.env.config.vm.network_options.compact.each do |network_options|
             adapter = @env["vm"].vm.network_adapters[network_options[:adapter]]
@@ -93,7 +93,7 @@ module Vagrant
           return @env.error!(:network_not_found, :name => net_options[:name]) if net_options[:name]
 
           # One doesn't exist, create it.
-          @env.ui.info "Creating new host only network for environment..."
+          @env.ui.info "vagrant.actions.vm.network.creating"
 
           ni = interfaces.create
           ni.enable_static(network_ip(net_options[:ip], net_options[:netmask]),

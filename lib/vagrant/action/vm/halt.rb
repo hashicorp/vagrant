@@ -17,7 +17,7 @@ module Vagrant
             end
 
             if env["vm"].vm.state(true) != :powered_off
-              env.ui.info "Forcing shutdown of VM..."
+              env.ui.info "vagrant.actions.vm.halt.force"
               env["vm"].vm.stop
             end
 

@@ -19,7 +19,7 @@ module Vagrant
 
         def clear
           if used_ports.length > 0
-            @env.ui.info "Deleting any previously set forwarded ports..."
+            @env.ui.info "vagrant.actions.vm.clear_forward_ports.deleting"
             clear_ports
             @env["vm"].reload!
           end

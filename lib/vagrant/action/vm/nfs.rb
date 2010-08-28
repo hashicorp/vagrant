@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), 'nfs_helpers')
+require File.expand_path("../nfs_helpers", __FILE__)
 
 module Vagrant
   class Action
@@ -104,7 +104,7 @@ module Vagrant
         # involves adding a line to `/etc/exports` for this VM, but it is
         # up to the host class to define the specific behavior.
         def export_folders
-          @env.ui.info "Exporting NFS shared folders..."
+          @env.ui.info "vagrant.actions.vm.nfs.exporting"
 
           catch_action_exception(@env) do
             @env["host"].nfs_export(guest_ip, folders)
@@ -113,7 +113,7 @@ module Vagrant
 
         # Uses the system class to mount the NFS folders.
         def mount_folders
-          @env.ui.info "Mounting NFS shared folders..."
+          @env.ui.info "vagrant.actions.vm.nfs.mounting"
 
           catch_action_exception(@env) do
             @env["vm"].system.mount_nfs(host_ip, folders)

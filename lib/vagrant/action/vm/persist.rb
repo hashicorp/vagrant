@@ -11,7 +11,7 @@ module Vagrant
         end
 
         def call(env)
-          env.ui.info "Persisting the VM UUID (#{env["vm"].uuid})"
+          env.ui.info "vagrant.actions.vm.persist.persisting", :uuid => env["vm"].uuid
           env.env.update_dotfile
 
           @app.call(env)
