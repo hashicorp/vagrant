@@ -110,13 +110,9 @@ module Vagrant
       # @param [Vagrant::Action::Environment] env The action environment
       # @return [Object] A callable object
       def to_app(env)
-        # Prepend the error halt task so errneous environments are halted
-        # before the chain even begins.
-        middleware = stack.dup.push([Env::ErrorHalt, [], nil])
-
-        # Convert each middleware into a lambda which takes the next
-        # middleware.
-        Vagrant::Action::Warden.new(middleware, env)
+        # Wrap the middleware stack with the Warden to provide a consistent
+        # and predictable behavior upon exceptions.
+        Warden.new(stack.dup, env)
       end
 
       # Runs the builder stack with the given environment.

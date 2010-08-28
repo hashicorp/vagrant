@@ -159,17 +159,6 @@ class ActionBuilderTest < Test::Unit::TestCase
         Vagrant::Action.actions.clear
       end
 
-      should "preprend error halt to the chain" do
-        result = mock("result")
-        env = {:a => :b}
-        middleware = mock("middleware")
-        middleware.stubs(:is_a?).with(Class).returns(true)
-        middleware.expects(:new).with(anything, env).returns(result)
-        @instance.use middleware
-        result = @instance.to_app(env).actions.first
-        assert result.kind_of?(Vagrant::Action::Env::ErrorHalt)
-      end
-
       should "make non-classes lambdas" do
         env = Vagrant::Action::Environment.new(nil)
         env.expects(:foo).once
