@@ -6,24 +6,24 @@ module Vagrant
 
       def initialize(actions, env)
         @stack = []
-        @actions = actions.map { |m| finalize_action(m, env) }.reverse
+        @actions = actions.map { |m| finalize_action(m, env) }
       end
 
       def call(env)
         return if @actions.empty?
 
         # If the previous action passes and environment error on
-        @stack.push(@actions.pop).last.call(env) unless env.error?
+        @stack.unshift(@actions.shift).first.call(env) unless env.error?
 
         # if the call action returned prematurely with an error
         begin_rescue(env) if env.error?
       end
 
       def begin_rescue(env)
-        @stack.reverse.each do |act|
+        @stack.each do |act|
           act.recover(env) if act.respond_to?(:recover)
         end
-        
+
         exit if env.interrupted?
 
         # Erroneous environment resulted. Properly display error message.

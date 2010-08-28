@@ -14,7 +14,7 @@ class ActionWardenTest < Test::Unit::TestCase
         @klass.any_instance.expects(:finalize_action).with(m, {}).returns(m)
       end
       @warden = @klass.new(middleware, new_env)
-      assert_equal @warden.actions, [3,2,1]
+      assert_equal @warden.actions, [1,2,3]
     end
   end
 
@@ -92,21 +92,11 @@ class ActionWardenTest < Test::Unit::TestCase
 
   context "recover" do
     should "call recover on all items in the stack" do
-      mock_action = rescueable_mock("action")
-      mock_action.expects(:recover).times(2)
-      @instance.stack = [mock_action, mock_action]
-      @instance.begin_rescue(new_env)
-    end
-
-    should "call recover on stack in reversed order" do
-      seq = sequence("reverse")
-      first_mock_action = rescueable_mock("first")
-      second_mock_action = rescueable_mock("second")
-
-      @instance.stack = [first_mock_action, second_mock_action]
-
-      second_mock_action.expects(:recover).in_sequence(seq)
-      first_mock_action.expects(:recover).in_sequence(seq)
+      seq = sequence("sequence")
+      @instance.stack = [rescueable_mock("action"), rescueable_mock("another")]
+      @instance.stack.each do |action|
+        action.expects(:recover).with(new_env).in_sequence(seq)
+      end
 
       @instance.begin_rescue(new_env)
     end
