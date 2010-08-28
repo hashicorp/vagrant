@@ -53,13 +53,6 @@ module Vagrant
       # via the host are already done.
       def mount_nfs(ip, folders); end
 
-      # Prepares the system for unison folder syncing. This is called
-      # once once prior to any `create_unison` calls.
-      def prepare_unison(ssh); end
-
-      # Creates an entry for folder syncing via unison.
-      def create_unison(ssh, options); end
-
       # Prepares the system for host only networks. This is called
       # once prior to any `enable_host_only_network` calls.
       def prepare_host_only_network; end

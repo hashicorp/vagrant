@@ -21,7 +21,6 @@ module Vagrant
               # Only mount and setup shared folders in the absense of an
               # error
               mount_shared_folders
-              setup_unison
             end
           end
         end
@@ -36,25 +35,7 @@ module Vagrant
 
             # This to prevent overwriting the actual shared folders data
             value = value.dup
-
-            if value[:sync]
-              # Syncing this folder. Change the guestpath to reflect
-              # what we're actually mounting.
-              value[:original] = value.dup
-              value[:guestpath] = "#{value[:guestpath]}#{@env.env.config.unison.folder_suffix}"
-            end
-
             acc[key] = value
-            acc
-          end
-        end
-
-        # This method returns the list of shared folders which are to
-        # be synced via unison.
-        def unison_folders
-          shared_folders.inject({}) do |acc, data|
-            key, value = data
-            acc[key] = value if !!value[:sync]
             acc
           end
         end
@@ -81,19 +62,6 @@ module Vagrant
                            :name => name,
                            :guest_path => data[:guestpath])
               @env["vm"].system.mount_shared_folder(ssh, name, data[:guestpath])
-            end
-          end
-        end
-
-        def setup_unison
-          return if unison_folders.empty?
-
-          @env["vm"].ssh.execute do |ssh|
-            @env["vm"].system.prepare_unison(ssh)
-
-            @env.ui.info "vagrant.actions.vm.share_folders.setup_unison"
-            unison_folders.each do |name, data|
-              @env["vm"].system.create_unison(ssh, data)
             end
           end
         end

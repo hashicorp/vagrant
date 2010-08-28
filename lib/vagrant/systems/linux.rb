@@ -63,30 +63,6 @@ module Vagrant
         end
       end
 
-      def prepare_unison(ssh)
-        ssh.exec!("which unison", :error_key => :unison_not_found)
-
-        vm.env.ui.info "Preparing system for unison sync..."
-        vm.ssh.upload!(StringIO.new(TemplateRenderer.render('/unison/script')), config.unison.script)
-        ssh.exec!("sudo chmod +x #{config.unison.script}")
-        ssh.exec!("sudo rm #{config.unison.crontab_entry_file}", :error_check => false)
-      end
-
-      def create_unison(ssh, opts)
-        sanitized_string = opts[:original][:guestpath].gsub(/[^a-zA-Z0-9_-]/, '-')
-        crontab_entry = TemplateRenderer.render('/unison/crontab_entry',
-                                                :from => opts[:guestpath],
-                                                :to => opts[:original][:guestpath],
-                                                :options => config.unison.options,
-                                                :script => config.unison.script,
-                                                :log_file => (config.unison.log_file % sanitized_string))
-
-        ssh.exec!("sudo rm -rf ~/.unison")
-        ssh.exec!("sudo rm -rf #{opts[:original][:guestpath]}")
-        ssh.exec!("sudo echo \"#{crontab_entry}\" >> #{config.unison.crontab_entry_file}")
-        ssh.exec!("crontab #{config.unison.crontab_entry_file}")
-      end
-
       def prepare_host_only_network
         # Remove any previous host only network additions to the
         # interface file.

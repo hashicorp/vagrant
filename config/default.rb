@@ -30,12 +30,6 @@ Vagrant::Config.run do |config|
   # other Vagrantfiles, if they wish.
   config.vm.share_folder("v-root", "/vagrant", ".")
 
-  config.unison.folder_suffix = ".sync"
-  config.unison.script = "/tmp/vagrant-unison"
-  config.unison.options = "-terse -owner -group -batch"
-  config.unison.crontab_entry_file = "/tmp/vagrant-unison-crontab"
-  config.unison.log_file = "/tmp/v-unison-log-%s"
-
   config.nfs.map_uid = :auto
   config.nfs.map_gid = :auto
 

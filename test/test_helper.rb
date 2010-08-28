@@ -47,10 +47,6 @@ class Test::Unit::TestCase
 
       config.package.name = 'package'
 
-      # Unison
-      config.unison.folder_suffix = ".sync"
-      config.unison.log_file = "foo-%s"
-
       # Chef
       config.chef.chef_server_url = "http://localhost:4000"
       config.chef.validation_key_path = "validation.pem"

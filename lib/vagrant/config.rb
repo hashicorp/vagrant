@@ -78,14 +78,6 @@ module Vagrant
       end
     end
 
-    class UnisonConfig < Base
-      attr_accessor :folder_suffix
-      attr_accessor :script
-      attr_accessor :options
-      attr_accessor :crontab_entry_file
-      attr_accessor :log_file
-    end
-
     class NFSConfig < Base
       attr_accessor :map_uid
       attr_accessor :map_gid
@@ -227,7 +219,6 @@ module Vagrant
       configures :package, PackageConfig
       configures :nfs, NFSConfig
       configures :ssh, SSHConfig
-      configures :unison, UnisonConfig
       configures :vm, VMConfig
       configures :vagrant, VagrantConfig
 

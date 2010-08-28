@@ -41,7 +41,6 @@ class ShareFoldersVMActionTest < Test::Unit::TestCase
       @instance.expects(:create_metadata).once.in_sequence(before_seq)
       @app.expects(:call).with(@env).in_sequence(before_seq)
       @instance.expects(:mount_shared_folders).once.in_sequence(before_seq)
-      @instance.expects(:setup_unison).once.in_sequence(before_seq)
 
       @instance.call(@env)
     end
@@ -53,7 +52,6 @@ class ShareFoldersVMActionTest < Test::Unit::TestCase
       @instance.expects(:create_metadata).once.in_sequence(before_seq)
       @app.expects(:call).with(@env).in_sequence(before_seq)
       @instance.expects(:mount_shared_folders).never
-      @instance.expects(:setup_unison).never
 
       @instance.call(@env)
     end
@@ -96,20 +94,6 @@ class ShareFoldersVMActionTest < Test::Unit::TestCase
       assert_equal %W[v-bar v-foo], @instance.shared_folders.keys.sort
     end
 
-    should "append sync suffix if sync enabled to a folder" do
-      name = "foo"
-      guest = "bar"
-      host = "baz"
-
-      stub_shared_folders do |config|
-        config.vm.share_folder(name, guest, host, :sync => true)
-      end
-
-      result = @instance.shared_folders
-      assert_equal "#{guest}#{@env.env.config.unison.folder_suffix}", result[name][:guestpath]
-      assert_equal guest, result[name][:original][:guestpath]
-    end
-
     should "not destroy original hash" do
       @folders = stub_shared_folders do |config|
         config.vm.share_folder("foo", "bar", "baz", :sync => true)
@@ -119,22 +103,6 @@ class ShareFoldersVMActionTest < Test::Unit::TestCase
 
       @instance.shared_folders
       assert_equal folder, @env.env.config.vm.shared_folders["foo"]
-    end
-  end
-
-  context "unison shared folders" do
-    setup do
-      @folders = stub_shared_folders do |config|
-        config.vm.share_folder("foo", "bar", "baz", :sync => true)
-        config.vm.share_folder("bar", "foo", "baz")
-      end
-    end
-
-    should "only return the folders marked for syncing" do
-      result = @instance.unison_folders
-      assert_equal 1, result.length
-      assert result.has_key?("foo")
-      assert !result.has_key?("bar")
     end
   end
 
@@ -175,41 +143,6 @@ class ShareFoldersVMActionTest < Test::Unit::TestCase
       end
 
       @instance.mount_shared_folders
-    end
-  end
-
-  context "setting up unison" do
-    setup do
-      @ssh = mock("ssh")
-      @vm.ssh.stubs(:execute).yields(@ssh)
-
-      @folders = stub_shared_folders do |config|
-        config.vm.share_folder("foo", "bar", "baz", :sync => true)
-        config.vm.share_folder("bar", "foo", "baz")
-      end
-    end
-
-    should "do nothing if unison folders is empty" do
-      @instance.stubs(:unison_folders).returns({})
-      @vm.ssh.expects(:execute).never
-      @instance.setup_unison
-    end
-
-    should "prepare unison then create for each folder" do
-      seq = sequence("unison seq")
-      @vm.system.expects(:prepare_unison).with(@ssh).once.in_sequence(seq)
-      @instance.unison_folders.each do |name, data|
-        if data[:sync]
-          @vm.system.expects(:create_unison).with do |ssh, opts|
-            assert_equal @ssh, ssh
-            assert_equal data, opts
-
-            true
-          end
-        end
-      end
-
-      @instance.setup_unison
     end
   end
 end
