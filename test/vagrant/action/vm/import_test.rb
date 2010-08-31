@@ -33,9 +33,9 @@ class ImportVMActionTest < Test::Unit::TestCase
 
   should "mark environment erroneous and not continue chain on failure" do
     @app.expects(:call).never
-    @instance.call(@env)
-
-    assert @env.error?
+    assert_raises(Vagrant::Errors::VMImportFailure) {
+      @instance.call(@env)
+    }
   end
 
   should "run the destroy action on recover" do

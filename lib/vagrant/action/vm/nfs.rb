@@ -37,11 +37,11 @@ module Vagrant
             export_folders
           end
 
-          return if env.error?
-
           @app.call(env)
 
-          mount_folders if !folders.empty? && !env.error?
+          mount_folders if !folders.empty?
+
+          # TODO: Make recover method
           clear_nfs_exports(env) if env.error?
         end
 
@@ -151,9 +151,9 @@ module Vagrant
 
         # Verifies that the host is set and supports NFS.
         def verify_settings
-          return @env.error!(:nfs_host_required) if @env["host"].nil?
-          return @env.error!(:nfs_not_supported) if !@env["host"].nfs?
-          return @env.error!(:nfs_no_host_network) if @env["config"].vm.network_options.empty?
+          raise Errors::NFSHostRequired.new if @env["host"].nil?
+          raise Errors::NFSNotSupported.new if !@env["host"].nfs?
+          raise Errors::NFSNoHostNetwork.new if @env["config"].vm.network_options.empty?
         end
       end
     end

@@ -11,7 +11,7 @@ module Vagrant
           @env = env
 
           threshold_check
-          external_collision_check if !env.error?
+          external_collision_check
         end
 
         #--------------------------------------------------------------
@@ -23,7 +23,7 @@ module Vagrant
         # 1024, which causes the forwarded ports to fail.
         def threshold_check
           @env.env.config.vm.forwarded_ports.each do |name, options|
-            return @env.error!(:vm_port_below_threshold) if options[:hostport] <= 1024
+            raise Errors::ForwardPortBelowThreshold.new if options[:hostport] <= 1024
           end
         end
 
@@ -47,7 +47,9 @@ module Vagrant
           if !options[:auto]
             # Auto fixing is disabled for this port forward, so we
             # must throw an error so the user can fix it.
-            return @env.error!(:vm_port_collision, :name => name, :hostport => options[:hostport].to_s, :guestport => options[:guestport].to_s, :adapter => options[:adapter])
+            raise Errors::ForwardPortCollision.new(:name => name,
+                                                   :host_port => options[:hostport].to_s,
+                                                   :guest_port => options[:guestport].to_s)
           end
 
           # Get the auto port range and get rid of the used ports and
@@ -58,7 +60,10 @@ module Vagrant
           range -= existing_ports
 
           if range.empty?
-            return @env.error!(:vm_port_auto_empty, :vm_name => @env["vm"].name, :name => name, :options => options)
+            raise Errors::ForwardPortAutolistEmpty.new(:vm_name => @env["vm"].name,
+                                                       :name => name,
+                                                       :host_port => options[:hostport].to_s,
+                                                       :guest_port => options[:guestport].to_s)
           end
 
           # Set the port up to be the first one and add that port to

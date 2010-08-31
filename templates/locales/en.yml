@@ -149,6 +149,29 @@ en:
           exporting: Exporting VM...
           power_off: "The Vagrant virtual environment you are trying to package must be powered off."
         forward_ports:
+          auto_empty: |-
+            Vagrant found a port collision for the specified port and virtual machine.
+            While this port was marked to be auto-corrected, the ports in the
+            auto-correction range are all also used.
+
+            VM: %{vm_name}
+            Forwarded port: %{name} (%{guest_port} => %{host_port})
+          below_threshold_error: |-
+            The host port of all forwarded ports must be above 1024. VirtualBox
+            does not allow host ports to be below 1024. (Guest ports below 1024
+            are fine. For example: SSH on port 22 on the guest can be forwarded
+            to port 2222, but not 222).
+          collision_error: |-
+            Vagrant cannot forward the specified ports on this VM, since they
+            would collide with another VirtualBox virtual machine's forwarded
+            ports! The '%{name}' forwarded port (%{host_port}) is already in use on the host
+            machine.
+
+            To fix this, modify your current projects Vagrantfile to use another
+            port. Example, where '1234' would be replaced by a unique host port:
+
+              config.vm.forward_port("%{name}", %{guest_port}, 1234)
+
           fixed_collision: Fixed port collision '%{name}'. Now on port %{new_port}.
           forwarding: Forwarding ports...
           forwarding_entry: "-- %{name}: %{guest_port} => %{host_port} (adapter %{adapter})"
@@ -159,13 +182,37 @@ en:
           force: Forcing shutdown of VM...
         import:
           importing: Importing base box '%{name}'...
+          failure: |-
+            The VM import failed! Try running `VBoxManage import` on the box file
+            manually for more verbose error output.
         match_mac:
           matching: Matching MAC address for NAT networking...
         network:
-          enabling: Enabling host only network...
-          preparing: Preparing host only network...
+          collides: |-
+            The specified host network collides with a non-hostonly network!
+            This will cause your specified IP to be inaccessible. Please change
+            the IP or name of your host only network to not match that of
+            a bridged or non-hostonly network.
           creating: Creating new host only network for environment...
+          enabling: Enabling host only network...
+          not_found: |-
+            The specified host network could not be found: '%{name}.'
+            If the name specification is removed, Vagrant will create a new
+            host only network for you. Alternatively, please create the
+            specified network manually.
+          preparing: Preparing host only network...
         nfs:
+          host_required: |-
+            A host class is required for NFS shared folders. By default, these
+            are auto-detected, but can be overriden with `config.vagrant.host`.
+            There is currently not host class loaded.
+          no_host_network: |-
+            NFS shared folders requires that host only networking is enabled.
+            Please enable host only networking via `config.vm.network`.
+          not_supported: |-
+            The host class is reporting that NFS is not supported by this host,
+            or `nfsd` may not be installed. Please verify that `nfsd` is installed
+            on your machine, and retry.
           exporting: Exporting NFS shared folders...
           mounting: Mounting NFS shared folders...
         persist:

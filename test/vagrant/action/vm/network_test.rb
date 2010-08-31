@@ -18,7 +18,7 @@ class NetworkVMActionTest < Test::Unit::TestCase
   context "initializing" do
     should "verify no bridge collisions for each network enabled" do
       @env.env.config.vm.network("foo")
-      @klass.any_instance.expects(:verify_no_bridge_collision).once.with() do |options|
+      @klass.any_instance.expects(:verify_no_bridge_collision).returns(true).once.with() do |options|
         assert_equal "foo", options[:ip]
         true
       end
@@ -139,8 +139,9 @@ class NetworkVMActionTest < Test::Unit::TestCase
         mock_interface(:name => @options[:name],
                        :interface_type => :bridged)
 
-        @instance.network_name(@options)
-        assert @env.error?
+        assert_raises(Vagrant::Errors::NetworkNotFound) {
+          @instance.network_name(@options)
+        }
       end
 
       should "return the network which matches the name if given" do
@@ -154,9 +155,9 @@ class NetworkVMActionTest < Test::Unit::TestCase
         @options[:name] = "foo"
 
         @interfaces.expects(:create).never
-        @instance.network_name(@options)
-        assert @env.error?
-        assert_equal :network_not_found, @env.error.first
+        assert_raises(Vagrant::Errors::NetworkNotFound) {
+          @instance.network_name(@options)
+        }
       end
 
       should "create a network for the IP and netmask" do

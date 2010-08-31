@@ -66,18 +66,6 @@ class NFSVMActionTest < Test::Unit::TestCase
         @instance.call(@env)
       end
 
-      should "halt chain if environment error occured" do
-        @env.error!(:foo)
-
-        seq = sequence('seq')
-        @instance.expects(:extract_folders).in_sequence(seq)
-        @instance.expects(:prepare_folders).in_sequence(seq)
-        @instance.expects(:clear_nfs_exports).in_sequence(seq)
-        @instance.expects(:export_folders).in_sequence(seq)
-        @app.expects(:call).never
-        @instance.call(@env)
-      end
-
       should "not mount folders if an error occured" do
         seq = sequence("seq")
         @app.expects(:call).in_sequence(seq).with() do
@@ -240,29 +228,30 @@ class NFSVMActionTest < Test::Unit::TestCase
 
       should "error environment if host is nil" do
         @env.env.stubs(:host).returns(nil)
-        @instance.verify_settings
-        assert @env.error?
-        assert_equal :nfs_host_required, @env.error.first
+        assert_raises(Vagrant::Errors::NFSHostRequired) {
+          @instance.verify_settings
+        }
       end
 
       should "error environment if host does not support NFS" do
         @env.env.host.stubs(:nfs?).returns(false)
-        @instance.verify_settings
-        assert @env.error?
-        assert_equal :nfs_not_supported, @env.error.first
+        assert_raises(Vagrant::Errors::NFSNotSupported) {
+          @instance.verify_settings
+        }
       end
 
       should "error environment if host only networking is not enabled" do
         @env.env.config.vm.network_options.clear
-        @instance.verify_settings
-        assert @env.error?
-        assert_equal :nfs_no_host_network, @env.error.first
+        assert_raises(Vagrant::Errors::NFSNoHostNetwork) {
+          @instance.verify_settings
+        }
       end
 
       should "be fine if everything passes" do
         @env.env.host.stubs(:nfs?).returns(true)
-        @instance.verify_settings
-        assert !@env.error?
+        assert_nothing_raised {
+          @instance.verify_settings
+        }
       end
     end
   end

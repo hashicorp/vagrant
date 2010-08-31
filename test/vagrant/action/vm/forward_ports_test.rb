@@ -26,9 +26,10 @@ class ForwardPortsVMActionTest < Test::Unit::TestCase
     should "error if has a port below threshold" do
       @env.env.config.vm.forwarded_ports.clear
       @env.env.config.vm.forward_port("foo", 22, 222)
-      @klass.new(@app, @env)
-      assert @env.error?
-      assert_equal :vm_port_below_threshold, @env.error.first
+
+      assert_raises(Vagrant::Errors::ForwardPortBelowThreshold) {
+        @klass.new(@app, @env)
+      }
     end
 
     should "not error if ports are fine" do
@@ -84,9 +85,10 @@ class ForwardPortsVMActionTest < Test::Unit::TestCase
 
       should "error if auto forwarding is disabled" do
         @options[:auto] = false
-        @instance.handle_collision(@name, @options, @used_ports)
-        assert @env.error?
-        assert_equal :vm_port_collision, @env.error.first
+
+        assert_raises(Vagrant::Errors::ForwardPortCollision) {
+          @instance.handle_collision(@name, @options, @used_ports)
+        }
       end
 
       should "set the host port to the first available port" do
@@ -111,9 +113,10 @@ class ForwardPortsVMActionTest < Test::Unit::TestCase
 
       should "raise an exception if there are no auto ports available" do
         @env.env.config.vm.auto_port_range = (1..3)
-        @instance.handle_collision(@name, @options, @used_ports)
-        assert @env.error?
-        assert_equal :vm_port_auto_empty, @env.error.first
+
+        assert_raises(Vagrant::Errors::ForwardPortAutolistEmpty) {
+          @instance.handle_collision(@name, @options, @used_ports)
+        }
       end
     end
 

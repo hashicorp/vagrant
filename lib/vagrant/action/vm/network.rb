@@ -11,10 +11,7 @@ module Vagrant
           @env = env
 
           env["config"].vm.network_options.compact.each do |network_options|
-            if !verify_no_bridge_collision(network_options)
-              env.error!(:network_collides)
-              return
-            end
+            raise Errors::NetworkCollision.new if !verify_no_bridge_collision(network_options)
           end
         end
 
@@ -24,7 +21,7 @@ module Vagrant
 
           @app.call(env)
 
-          if !env.error? && enable_network?
+          if enable_network?
             catch_action_exception(env) do
               @env.ui.info "vagrant.actions.vm.network.enabling"
               @env["vm"].system.prepare_host_only_network
@@ -90,7 +87,7 @@ module Vagrant
             end
           end
 
-          return @env.error!(:network_not_found, :name => net_options[:name]) if net_options[:name]
+          raise Errors::NetworkNotFound.new(:name => net_options[:name]) if net_options[:name]
 
           # One doesn't exist, create it.
           @env.ui.info "vagrant.actions.vm.network.creating"

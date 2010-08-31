@@ -79,6 +79,21 @@ module Vagrant
       error_key(:cli_missing_env)
     end
 
+    class ForwardPortAutolistEmpty < VagrantError
+      status_code(27)
+      error_key(:auto_empty, "vagrant.actions.vm.forward_ports")
+    end
+
+    class ForwardPortBelowThreshold < VagrantError
+      status_code(25)
+      error_key(:below_threshold_error, "vagrant.actions.vm.forward_ports")
+    end
+
+    class ForwardPortCollision < VagrantError
+      status_code(26)
+      error_key(:collision_error, "vagrant.actions.vm.forward_ports")
+    end
+
     class MultiVMEnvironmentRequired < VagrantError
       status_code(5)
       error_key(:multi_vm_required)
@@ -87,6 +102,31 @@ module Vagrant
     class MultiVMTargetRequired < VagrantError
       status_code(7)
       error_key(:multi_vm_target_required)
+    end
+
+    class NetworkCollision < VagrantError
+      status_code(29)
+      error_key(:collides, "vagrant.actions.vm.network")
+    end
+
+    class NetworkNotFound < VagrantError
+      status_code(30)
+      error_key(:not_found, "vagrant.actions.vm.network")
+    end
+
+    class NFSHostRequired < VagrantError
+      status_code(31)
+      error_key(:host_required, "vagrant.actions.vm.nfs")
+    end
+
+    class NFSNotSupported < VagrantError
+      status_code(32)
+      error_key(:not_supported, "vagrant.actions.vm.nfs")
+    end
+
+    class NFSNoHostNetwork < VagrantError
+      status_code(33)
+      error_key(:no_host_network, "vagrant.actions.vm.nfs")
     end
 
     class NoEnvironmentError < VagrantError
@@ -142,6 +182,11 @@ module Vagrant
     class VMFailedToBoot < VagrantError
       status_code(21)
       error_key(:failed_to_boot, "vagrant.actions.vm.boot")
+    end
+
+    class VMImportFailure < VagrantError
+      status_code(28)
+      error_key(:failure, "vagrant.actions.vm.import")
     end
 
     class VMNotCreatedError < VagrantError

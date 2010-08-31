@@ -15,7 +15,7 @@ module Vagrant
           end
 
           # Flag as erroneous and return if import failed
-          return env.error!(:virtualbox_import_failure) if !env['vm'].vm
+          raise Errors::VMImportFailure.new if !env["vm"].vm
 
           # Import completed successfully. Continue the chain
           @app.call(env)
