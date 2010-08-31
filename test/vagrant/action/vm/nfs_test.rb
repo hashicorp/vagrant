@@ -65,20 +65,12 @@ class NFSVMActionTest < Test::Unit::TestCase
         @instance.expects(:mount_folders).never
         @instance.call(@env)
       end
+    end
 
-      should "not mount folders if an error occured" do
-        seq = sequence("seq")
-        @app.expects(:call).in_sequence(seq).with() do
-          # Use this mark the env as error
-          @env.error!(:foo)
-
-          true
-        end
-
-        @instance.expects(:clear_nfs_exports).with(@env).in_sequence(seq)
-
-        @instance.expects(:mount_folders).never
-        @instance.call(@env)
+    context "recovery" do
+      should "clear NFS exports" do
+        @instance.expects(:clear_nfs_exports).with(@env).once
+        @instance.recover(@env)
       end
     end
 
