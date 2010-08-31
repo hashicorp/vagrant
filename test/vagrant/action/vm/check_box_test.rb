@@ -12,14 +12,13 @@ class CheckBoxVMActionTest < Test::Unit::TestCase
       Vagrant::Box.stubs(:find)
     end
 
-    should "return error if box not specified" do
+    should "raise error if box not specified" do
       @env.env.config.vm.box = nil
-
       @app.expects(:call).never
-      @instance.call(@env)
 
-      assert @env.error?
-      assert_equal :box_not_specified, @env.error.first
+      assert_raises(Vagrant::Errors::BoxNotSpecified) {
+        @instance.call(@env)
+      }
     end
 
     should "error if box does not exist and URL not specified" do
@@ -27,10 +26,9 @@ class CheckBoxVMActionTest < Test::Unit::TestCase
       Vagrant::Box.expects(:find).with(@env.env, @env["config"].vm.box).returns(nil)
 
       @app.expects(:call).never
-      @instance.call(@env)
-
-      assert @env.error?
-      assert_equal :box_specified_doesnt_exist, @env.error.first
+      assert_raises(Vagrant::Errors::BoxSpecifiedDoesntExist) {
+        @instance.call(@env)
+      }
     end
 
     should "attempt to download box and continue if URL specified" do

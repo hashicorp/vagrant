@@ -26,15 +26,6 @@
   name you specified and try again. As a reminder, the repackage
   command is for repackaging boxes which have been added through `vagrant box add`
   but the box has been lost.
-:box_specified_doesnt_exist: |-
-  Specified box `<%= box_name %>` does not exist!
-
-  The box must be added through the `vagrant box add` command. Please view
-  the documentation associated with the command for more information.
-:box_not_specified: |-
-  No base box was specified! A base box is required as a staring point
-  for every vagrant virtual machine. Please specify one in your Vagrantfile
-  using `config.vm.box`
 :chef_base_invalid_provisioner: |-
   Vagrant::Provisioners::Chef is not a valid provisioner! Use ChefSolo or ChefServer instead.
 :chef_server_url_required: |-
@@ -123,8 +114,6 @@
 :virtualbox_import_failure: |-
   The VM import failed! Try running `VBoxManage import` on the box file
   manually for more verbose error output.
-:vm_failed_to_boot: |-
-  Failed to connect to VM! Failed to boot?
 :vm_port_auto_empty: |-
   Vagrant found a port collision for the specified port and virtual machine.
   While this port was marked to be auto-corrected, the ports in the
@@ -147,8 +136,6 @@
   port. Example, where '1234' would be replaced by a unique host port:
 
   config.vm.forward_port("<%= name %>", <%= guestport %>, 1234)
-:vm_power_off_to_package: |-
-  The vagrant virtual environment you are trying to package must be powered off.
 :vm_mount_fail: |-
   Failed to mount shared folders. vboxsf was not available.
 #---------------------------------------------------------------------

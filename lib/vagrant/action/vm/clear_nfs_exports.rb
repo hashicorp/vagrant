@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), 'nfs_helpers')
+require File.expand_path("../nfs_helpers", __FILE__)
 
 module Vagrant
   class Action

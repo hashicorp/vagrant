@@ -100,8 +100,18 @@ en:
           waiting: Waiting for VM to boot. This can take a few minutes.
           ready: VM booted and ready for use!
           failed: Failed to connect to VM!
+          failed_to_boot: VM failed to boot.
         check_box:
           not_found: Box %{name} was not found. Fetching box from specified URL...
+          not_specified: |-
+            No base box was specified! A base box is required as a staring point
+            for every vagrant virtual machine. Please specify one in your Vagrantfile
+            using `config.vm.box`
+          does_not_exist: |-
+            Specified box `%{name}` does not exist!
+
+            The box must be added through the `vagrant box add` command. Please view
+            the documentation associated with the command for more information.
         check_guest_additions:
           not_detected: |-
             No guest additions were detected on the base box for this VM! Guest
@@ -137,6 +147,7 @@ en:
         export:
           create_dir: Creating temporary directory for export...
           exporting: Exporting VM...
+          power_off: "The Vagrant virtual environment you are trying to package must be powered off."
         forward_ports:
           fixed_collision: Fixed port collision '%{name}'. Now on port %{new_port}.
           forwarding: Forwarding ports...

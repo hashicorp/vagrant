@@ -36,9 +36,9 @@ class ExportVMActionTest < Test::Unit::TestCase
       @app.expects(:call).with(@env).never
       @instance.expects(:recover).never
 
-      @instance.call(@env)
-      assert @env.error?
-      assert_equal :vm_power_off_to_package, @env.error.first
+      assert_raises(Vagrant::Errors::VMPowerOffToPackage) {
+        @instance.call(@env)
+      }
     end
   end
 

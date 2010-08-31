@@ -14,7 +14,7 @@ module Vagrant
         def call(env)
           @env = env
 
-          return env.error!(:vm_power_off_to_package) if !@env["vm"].vm.powered_off?
+          raise Errors::VMPowerOffToPackage.new if !@env["vm"].vm.powered_off?
 
           setup_temp_dir
           export

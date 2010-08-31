@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), 'forward_ports_helpers')
+require File.expand_path("../forward_ports_helpers", __FILE__)
 
 module Vagrant
   class Action

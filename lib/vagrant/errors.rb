@@ -59,6 +59,16 @@ module Vagrant
       error_key(:box_not_found)
     end
 
+    class BoxNotSpecified < VagrantError
+      status_code(22)
+      error_key(:not_specified, "vagrant.actions.vm.check_box")
+    end
+
+    class BoxSpecifiedDoesntExist < VagrantError
+      status_code(23)
+      error_key(:does_not_exist, "vagrant.actions.vm.check_box")
+    end
+
     class BoxVerificationFailed < VagrantError
       status_code(15)
       error_key(:failed, "vagrant.actions.box.verify")
@@ -129,6 +139,11 @@ module Vagrant
       error_key(:virtualbox_not_detected)
     end
 
+    class VMFailedToBoot < VagrantError
+      status_code(21)
+      error_key(:failed_to_boot, "vagrant.actions.vm.boot")
+    end
+
     class VMNotCreatedError < VagrantError
       status_code(6)
       error_key(:vm_creation_required)
@@ -137,6 +152,11 @@ module Vagrant
     class VMNotFoundError < VagrantError
       status_code(4)
       error_key(:vm_not_found)
+    end
+
+    class VMPowerOffToPackage < VagrantError
+      status_code(24)
+      error_key(:power_off, "vagrant.actions.vm.export")
     end
   end
 end

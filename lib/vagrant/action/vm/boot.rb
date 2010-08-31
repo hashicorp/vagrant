@@ -8,16 +8,11 @@ module Vagrant
         end
 
         def call(env)
-          # Do nothing if the environment is erroneous
-          return if env.error?
-
           @env = env
 
           # Start up the VM and wait for it to boot.
           boot
-          return env.error!(:vm_failed_to_boot) if !wait_for_boot
-          return if env.error?
-
+          raise Errors::VMFailedToBoot.new if !wait_for_boot
           @app.call(env)
         end
 
