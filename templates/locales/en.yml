@@ -216,10 +216,24 @@ en:
           exporting: Exporting NFS shared folders...
           mounting: Mounting NFS shared folders...
         persist:
-          persisting: Persisting the VM UUID (%{uuid})...
+          dotfile_error: |-
+            The dotfile which Vagrant uses to store the UUID of the project's
+            virtual machine already exists and is not a file! The dotfile is
+            currently configured to be '%{dotfile_path}'
+
+            To change this value, please see `config.vagrant.dotfile_name`
+
+            Are you trying to use Vagrant from your home directory? This is the
+            leading cause of this error message. To resolve this, simply use a
+            different directory. Or, if you really want to run Vagrant from your
+            home directory, modify the `config.vagrant.dotfile_name` configuration
+            key.
+          persisting: "Persisting the VM UUID (%{uuid})..."
         provision:
-          beginning: Beginning provisioning process...
-          enabled: Provisioning enabled with %{provisioner}...
+          beginning: "Beginning provisioning process..."
+          enabled: "Provisioning enabled with %{provisioner}..."
+          invalid_class: "Provisioners must be an instance of Vagrant::Provisioners::Base"
+          unknown_type: "Unknown provisioner type: %{provisioner}"
         resume:
           resuming: Resuming suspended VM...
         share_folders:

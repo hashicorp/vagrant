@@ -16,12 +16,8 @@ module Vagrant
 
           @app.call(env)
 
-          if !env.error?
-            catch_action_exception(env) do
-              # Only mount and setup shared folders in the absense of an
-              # error
-              mount_shared_folders
-            end
+          catch_action_exception(env) do
+            mount_shared_folders
           end
         end
 

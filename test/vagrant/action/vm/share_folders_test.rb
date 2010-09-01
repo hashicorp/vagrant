@@ -44,17 +44,6 @@ class ShareFoldersVMActionTest < Test::Unit::TestCase
 
       @instance.call(@env)
     end
-
-    should "run only the metadata actions if erroneous environment" do
-      @env.error!(:foo)
-
-      before_seq = sequence("before")
-      @instance.expects(:create_metadata).once.in_sequence(before_seq)
-      @app.expects(:call).with(@env).in_sequence(before_seq)
-      @instance.expects(:mount_shared_folders).never
-
-      @instance.call(@env)
-    end
   end
 
   context "collecting shared folders" do

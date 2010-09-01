@@ -20,9 +20,9 @@ class PersistVMActionTest < Test::Unit::TestCase
 
     should "error environment if dotfile exists but is not a file" do
       File.expects(:file?).with(@env.env.dotfile_path).returns(false)
-      @klass.new(@app, @env)
-      assert @env.error?
-      assert_equal :dotfile_error, @env.error.first
+      assert_raises(Vagrant::Errors::PersistDotfileExists) {
+        @klass.new(@app, @env)
+      }
     end
 
     should "initialize properly if dotfiles doesn't exist" do

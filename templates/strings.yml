@@ -52,28 +52,12 @@
   vagrant box add name uri
   vagrant box remove name
   vagrant box list
-:dotfile_error: |-
-  The dotfile which Vagrant uses to store the UUID of the project's
-  virtual machine already exists and is not a file! The dotfile is
-  currently configured to be `<%= env.dotfile_path %>`
-
-  To change this value, please see `config.vagrant.dotfile_name`
-
-  Are you trying to use Vagrant from your home directory? This is the
-  leading cause of this error message. To resolve this, simply use a
-  different directory. Or, if you really want to run Vagrant from your
-  home directory, modify the `config.vagrant.dotfile_name` configuration
-  key.
 :downloader_file_doesnt_exist: |-
   The given box does not exist on the file system:
 
   <%= source_url %>
 :package_requires_export: |-
   Package must be used in conjunction with export.
-:provisioner_invalid_class: |-
-  Provisioners must be an instance of Vagrant::Provisioners::Base
-:provisioner_unknown_type: |-
-  Unknown provisioner type: <%= provisioner %>
 :ssh_bad_exit_status: |-
   The following SSH command responded with a non-zero exit status.
   Vagrant assumes that this means the command failed!

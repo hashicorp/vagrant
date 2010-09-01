@@ -12,7 +12,7 @@ module Vagrant
         def call(env)
           @app.call(env)
 
-          if !env.error? && provisioning_enabled?
+          if provisioning_enabled?
             @env.ui.info "vagrant.actions.vm.provision.beginning"
             @provisioner.provision!
           end
@@ -27,7 +27,7 @@ module Vagrant
 
           if provisioner.is_a?(Class)
             @provisioner = provisioner.new(@env)
-            return @env.error!(:provisioner_invalid_class) unless @provisioner.is_a?(Provisioners::Base)
+            raise Errors::ProvisionInvalidClass.new if !@provisioner.is_a?(Provisioners::Base)
           elsif provisioner.is_a?(Symbol)
             # We have a few hard coded provisioners for built-ins
             mapping = {
@@ -36,7 +36,7 @@ module Vagrant
             }
 
             provisioner_klass = mapping[provisioner]
-            return @env.error!(:provisioner_unknown_type, :provisioner => provisioner.to_s) if provisioner_klass.nil?
+            raise Errors::ProvisionUnknownType.new(:provisioner => provisioner.to_s) if provisioner_klass.nil?
             @provisioner = provisioner_klass.new(@env)
           end
 

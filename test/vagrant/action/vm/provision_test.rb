@@ -65,9 +65,10 @@ class ProvisionVMActionTest < Test::Unit::TestCase
 
         should "error environment if the class is not a subclass of the provisioner base" do
           @prov.expects(:is_a?).with(Vagrant::Provisioners::Base).returns(false)
-          @instance.load_provisioner
-          assert @env.error?
-          assert_equal :provisioner_invalid_class, @env.error.first
+
+          assert_raises(Vagrant::Errors::ProvisionInvalidClass) {
+            @instance.load_provisioner
+          }
         end
       end
 
@@ -81,11 +82,12 @@ class ProvisionVMActionTest < Test::Unit::TestCase
           assert_equal instance, @instance.load_provisioner
         end
 
-        should "raise an ActionException if its an unknown symbol" do
+        should "raise an error if its an unknown symbol" do
           @env["config"].vm.provisioner = :this_will_never_exist
-          @instance.load_provisioner
-          assert @env.error?
-          assert_equal :provisioner_unknown_type, @env.error.first
+
+          assert_raises(Vagrant::Errors::ProvisionUnknownType) {
+            @instance.load_provisioner
+          }
         end
 
         should "set :chef_solo to the ChefSolo provisioner" do
@@ -115,15 +117,6 @@ class ProvisionVMActionTest < Test::Unit::TestCase
 
       should "continue chain and not provision if not enabled" do
         @env["config"].vm.provisioner = nil
-        @prov.expects(:provision!).never
-        @app.expects(:call).with(@env).once
-
-        @instance.call(@env)
-      end
-
-      should "not provision if erroneous environment" do
-        @env.error!(:foo)
-
         @prov.expects(:provision!).never
         @app.expects(:call).with(@env).once
 
