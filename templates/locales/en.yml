@@ -111,6 +111,9 @@ en:
 # Translations for Vagrant middleware acions
 #-------------------------------------------------------------------------------
     actions:
+      runner:
+        waiting_cleanup: "Waiting for cleanup before exiting..."
+        exit_immediately: "Exiting immediately, without cleanup!"
       vm:
         boot:
           booting: Booting VM...
