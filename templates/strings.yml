@@ -34,11 +34,6 @@
   vagrant box list
 :package_requires_export: |-
   Package must be used in conjunction with export.
-:ssh_bad_exit_status: |-
-  The following SSH command responded with a non-zero exit status.
-  Vagrant assumes that this means the command failed!
-
-  <%= command %>
 :system_invalid_class: |-
   The specified system does not inherit from `Vagrant::Systems::Base`. The
   specified system class must inherit from this class.
@@ -50,8 +45,6 @@
 :system_unspecified: |-
   A VM system type must be specified! This is done via the `config.vm.system`
   configuration value. Please read the documentation online for more information.
-:vm_mount_fail: |-
-  Failed to mount shared folders. vboxsf was not available.
 #---------------------------------------------------------------------
 # CATEGORY: Error Messages for Linux System
 #---------------------------------------------------------------------

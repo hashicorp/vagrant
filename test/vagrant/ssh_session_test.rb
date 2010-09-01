@@ -19,21 +19,14 @@ class SshSessionTest < Test::Unit::TestCase
 
   context "checking exit status" do
     should "raise an ActionException if its non-zero" do
-      assert_raises(Vagrant::Action::ActionException) {
+      assert_raises(Vagrant::Errors::VagrantError) {
         @instance.check_exit_status(1, "foo")
       }
     end
 
     should "raise the given exception if specified" do
-      options = {
-        :error_key => :foo,
-        :error_data => {}
-      }
-      result = Exception.new
-      Vagrant::Action::ActionException.expects(:new).with(options[:error_key], options[:error_data]).once.returns(result)
-
-      assert_raises(Exception) {
-        @instance.check_exit_status(1, "foo", options)
+      assert_raises(Vagrant::Errors::BaseVMNotFound) {
+        @instance.check_exit_status(1, "foo", :_error_class => Vagrant::Errors::BaseVMNotFound)
       }
     end
 

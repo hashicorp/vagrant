@@ -222,13 +222,12 @@ module Vagrant
       def check_exit_status(exit_status, command, options=nil)
         if exit_status != 0
           options = {
-            :error_key => :ssh_bad_exit_status,
-            :error_data => {
-              :command => command
-            }
+            :_error_class => Errors::VagrantError,
+            :_key => :ssh_bad_exit_status,
+            :command => command
           }.merge(options || {})
 
-          raise Action::ActionException.new(options[:error_key], options[:error_data])
+          raise options[:_error_class].new(options)
         end
       end
     end

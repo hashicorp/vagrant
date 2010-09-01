@@ -106,13 +106,19 @@ module Vagrant
           break unless result
 
           attempts += 1
-          raise Action::ActionException.new(:vm_mount_fail) if attempts >= 10
+          raise LinuxError.new(:mount_fail) if attempts >= 10
           sleep sleeptime
         end
       end
 
       def config
         vm.env.config
+      end
+    end
+
+    class Linux < Base
+      class LinuxError < Errors::VagrantError
+        error_namespace("vagrant.systems.linux")
       end
     end
   end
