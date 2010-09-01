@@ -16,7 +16,6 @@ module Vagrant
       #      folder.
       #
       class NFS
-        include ExceptionCatcher
         include NFSHelpers
 
         def initialize(app,env)
@@ -107,18 +106,14 @@ module Vagrant
         def export_folders
           @env.ui.info "vagrant.actions.vm.nfs.exporting"
 
-          catch_action_exception(@env) do
-            @env["host"].nfs_export(guest_ip, folders)
-          end
+          @env["host"].nfs_export(guest_ip, folders)
         end
 
         # Uses the system class to mount the NFS folders.
         def mount_folders
           @env.ui.info "vagrant.actions.vm.nfs.mounting"
 
-          catch_action_exception(@env) do
-            @env["vm"].system.mount_nfs(host_ip, folders)
-          end
+          @env["vm"].system.mount_nfs(host_ip, folders)
         end
 
         # Returns the IP address of the first host only network adapter

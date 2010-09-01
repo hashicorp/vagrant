@@ -32,7 +32,7 @@ I18n.load_path << File.expand_path("templates/locales/en.yml", Vagrant.source_ro
 libdir = File.expand_path("lib/vagrant", Vagrant.source_root)
 Vagrant::GlobLoader.glob_require(libdir, %w{util util/stacked_proc_runner
   downloaders/base config provisioners/base provisioners/chef systems/base
-  action/exception_catcher hosts/base})
+  hosts/base})
 
 # Initialize the built-in actions
 Vagrant::Action.builtin!

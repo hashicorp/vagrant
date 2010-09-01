@@ -2,8 +2,6 @@ module Vagrant
   class Action
     module VM
       class ShareFolders
-        include ExceptionCatcher
-
         def initialize(app, env)
           @app = app
           @env = env
@@ -16,9 +14,7 @@ module Vagrant
 
           @app.call(env)
 
-          catch_action_exception(env) do
-            mount_shared_folders
-          end
+          mount_shared_folders
         end
 
         # This method returns an actual list of VirtualBox shared

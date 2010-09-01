@@ -2,8 +2,6 @@ module Vagrant
   class Action
     module VM
       class Halt
-        include ExceptionCatcher
-
         def initialize(app, env, options=nil)
           @app = app
           env.merge!(options || {})
@@ -11,10 +9,7 @@ module Vagrant
 
         def call(env)
           if env["vm"].vm.running?
-            if !env["force"]
-              catch_action_exception(env) { env["vm"].system.halt }
-              return if env.error?
-            end
+            env["vm"].system.halt if !env["force"]
 
             if env["vm"].vm.state(true) != :powered_off
               env.ui.info "vagrant.actions.vm.halt.force"

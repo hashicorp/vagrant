@@ -144,13 +144,6 @@ class NFSVMActionTest < Test::Unit::TestCase
         @env["host"].expects(:nfs_export).with(@instance.guest_ip, @instance.folders)
         @instance.export_folders
       end
-
-      should "error the environment if exception is raised" do
-        @env["host"].expects(:nfs_export).raises(Vagrant::Action::ActionException.new(:foo))
-        @instance.export_folders
-        assert @env.error?
-        assert_equal :foo, @env.error.first
-      end
     end
 
     context "mounting folders" do
