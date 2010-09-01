@@ -9,7 +9,6 @@ module Vagrant
     # error code, and the error key is used as a default message from
     # I18n.
     class VagrantError < StandardError
-      DEFAULT_NAMESPACE = "vagrant.errors"
       @@used_codes = []
 
       def self.status_code(code = nil)
@@ -23,19 +22,34 @@ module Vagrant
 
       def self.error_key(key=nil, namespace=nil)
         define_method(:error_key) { key }
-        define_method(:error_namespace) { namespace } if namespace
+        error_namespace(namespace) if namespace
+      end
+
+      def self.error_namespace(namespace)
+        define_method(:error_namespace) { namespace }
       end
 
       def initialize(message=nil, *args)
-        message = translate_error(error_key, message) if respond_to?(:error_key)
+        message = { :_key => message } if message && !message.is_a?(Hash)
+        message = { :_key => error_key, :_namespace => error_namespace }.merge(message || {})
+        message = translate_error(message)
+
         super
       end
 
+      # The default error namespace which is used for the error key.
+      # This can be overridden here or by calling the "error_namespace"
+      # class method.
+      def error_namespace; "vagrant.errors"; end
+
+      # The key for the error message. This should be set using the
+      # {error_key} method but can be overridden here if needed.
+      def error_key; ""; end
+
       protected
 
-      def translate_error(key, opts=nil)
-        namespace = respond_to?(:error_namespace) ? error_namespace : DEFAULT_NAMESPACE
-        I18n.t("#{namespace}.#{key}", opts)
+      def translate_error(opts)
+        I18n.t("#{opts[:_namespace]}.#{opts[:_key]}", opts)
       end
     end
 
