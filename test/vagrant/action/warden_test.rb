@@ -66,6 +66,16 @@ class ActionWardenTest < Test::Unit::TestCase
       @instance.expects(:begin_rescue)
       assert_raises(RuntimeError) { @instance.call(new_env) }
     end
+
+    should "raise interrupt if the environment is interupted" do
+      env = new_env
+      env.expects(:interrupted?).returns(true)
+      @instance.actions << lambda { |env| }
+
+      assert_raises(Vagrant::Errors::VagrantInterrupt) {
+        @instance.call(env)
+      }
+    end
   end
 
   context "recover" do
@@ -77,20 +87,6 @@ class ActionWardenTest < Test::Unit::TestCase
       end
 
       @instance.begin_rescue(new_env)
-    end
-
-    should "call exit if the environment is interupted" do
-      env = new_env
-      env.expects(:interrupted?).returns(true)
-      assert_raises(Vagrant::Errors::VagrantInterrupt) {
-        @instance.begin_rescue(env)
-      }
-    end
-
-    context "with many middleware" do
-      should "not call middleware after" do
-
-      end
     end
   end
 
