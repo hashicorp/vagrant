@@ -26,7 +26,7 @@ module Vagrant
         end
 
         @env = env
-        @error = nil
+        @interrupted = false
       end
 
       # Returns a logger associated with the environment.
@@ -39,26 +39,16 @@ module Vagrant
         env.ui
       end
 
-      # Flags the environment as erroneous. Stores the given key
-      # and options until the end of the action sequence.
-      #
-      # @param [Symbol] key Key to translation to display error message.
-      # @param [Hash] options Variables to pass to the translation
-      def error!(key, options=nil)
-        @error = [key, (options || {})]
-      end
-
-      # Returns boolean denoting if environment is in erroneous state.
-      #
-      # @return [Boolean]
-      def error?
-        !error.nil?
+      # Marks an environment as interrupted (by an outside signal or
+      # anything)
+      def interrupt!
+        @interrupted = true
       end
 
       # Returns a boolean denoting if environment has been interrupted
       # with a SIGINT.
       def interrupted?
-        error? && error.first == :interrupt
+        !!@interrupted
       end
 
       #-----------------------------------------------------------------

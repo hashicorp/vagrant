@@ -19,23 +19,9 @@ class ActionEnvironmentTest < Test::Unit::TestCase
     assert_equal @instance.env.ui, @instance.ui
   end
 
-  should "not be erroneous initially" do
-    assert !@instance.error?
-  end
-
-  should "mark as erroneous" do
-    @instance.error!(:key)
-    assert_equal [:key, {}], @instance.error
-  end
-
-  should "properly report erroneous" do
-    @instance.error!(:key)
-    assert @instance.error?
-  end
-
   should "report interrupted if interrupt error" do
     assert !@instance.interrupted?
-    @instance.error!(:interrupt)
+    @instance.interrupt!
     assert @instance.interrupted?
   end
 

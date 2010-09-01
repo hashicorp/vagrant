@@ -53,7 +53,7 @@ class BootVMActionTest < Test::Unit::TestCase
     end
 
     should "return right away if interrupted" do
-      @env.error!(:interrupt)
+      @env.interrupt!
       @vm.ssh.expects(:up?).times(1).returns(false)
       assert @instance.wait_for_boot
     end

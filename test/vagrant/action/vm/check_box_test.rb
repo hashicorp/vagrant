@@ -39,8 +39,9 @@ class CheckBoxVMActionTest < Test::Unit::TestCase
       @env.env.expects(:load_box!).in_sequence(seq)
       @app.expects(:call).with(@env).once.in_sequence(seq)
 
-      @instance.call(@env)
-      assert !@env.error?
+      assert_nothing_raised {
+        @instance.call(@env)
+      }
     end
   end
 end

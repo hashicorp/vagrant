@@ -61,7 +61,7 @@ module Vagrant
         end
 
         env.ui.info "Waiting for cleanup before exiting..." if !@@reported_interrupt
-        action_environment.error!(:interrupt)
+        action_environment.interrupt!
         @@reported_interrupt = true
       end
 

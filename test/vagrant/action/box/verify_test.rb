@@ -20,8 +20,9 @@ class VerifyBoxActionTest < Test::Unit::TestCase
       seq = sequence("seq")
       VirtualBox::Appliance.expects(:new).with(@env["box"].ovf_file).in_sequence(seq)
       @app.expects(:call).with(@env).once.in_sequence(seq)
-      @instance.call(@env)
-      assert !@env.error?
+      assert_nothing_raised {
+        @instance.call(@env)
+      }
     end
 
     should "halt chain if verification fails" do

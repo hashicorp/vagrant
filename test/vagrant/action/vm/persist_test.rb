@@ -27,8 +27,7 @@ class PersistVMActionTest < Test::Unit::TestCase
 
     should "initialize properly if dotfiles doesn't exist" do
       File.expects(:exist?).with(@env.env.dotfile_path).returns(false)
-      @klass.new(@app, @env)
-      assert !@env.error?
+      assert_nothing_raised { @klass.new(@app, @env) }
     end
   end
 

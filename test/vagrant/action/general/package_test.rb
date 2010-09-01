@@ -18,7 +18,6 @@ class PackageGeneralActionTest < Test::Unit::TestCase
 
     should "initialize fine" do
       @klass.new(@app, @env)
-      assert !@env.error?
     end
 
     should "set the output path to configured by default" do
@@ -124,8 +123,9 @@ class PackageGeneralActionTest < Test::Unit::TestCase
       end
 
       should "return true if all exist" do
-        assert @instance.verify_included_files
-        assert !@env.error?
+        assert_nothing_raised {
+          assert @instance.verify_included_files
+        }
       end
     end
 

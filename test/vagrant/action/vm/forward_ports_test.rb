@@ -35,8 +35,10 @@ class ForwardPortsVMActionTest < Test::Unit::TestCase
     should "not error if ports are fine" do
       @env.env.config.vm.forwarded_ports.clear
       @env.env.config.vm.forward_port("foo", 22, 2222)
-      @klass.new(@app, @env)
-      assert !@env.error?
+
+      assert_nothing_raised {
+        @klass.new(@app, @env)
+      }
     end
   end
 
@@ -52,15 +54,13 @@ class ForwardPortsVMActionTest < Test::Unit::TestCase
 
     should "not raise any errors if no forwarded ports collide" do
       @used_ports << "80"
-      @klass.new(@app, @env)
-      assert !@env.error?
+      assert_nothing_raised { @klass.new(@app, @env) }
     end
 
     should "handle collision if it happens" do
       @used_ports << "2222"
       @klass.any_instance.expects(:handle_collision).with("ssh", anything, anything).once
-      @klass.new(@app, @env)
-      assert !@env.error?
+      assert_nothing_raised { @klass.new(@app, @env) }
     end
   end
 
