@@ -86,13 +86,11 @@ class VMTest < Test::Unit::TestCase
         should "initialize class if given" do
           @vm.env.config.vm.system = Vagrant::Systems::Linux
 
-          @vm.expects(:error_and_exit).never
-          @vm.load_system!
-
+          assert_nothing_raised { @vm.load_system!}
           assert @vm.system.is_a?(Vagrant::Systems::Linux)
         end
 
-        should "error and exit if class has invalid parent" do
+        should "raise error if class has invalid parent" do
           @vm.env.config.vm.system = FakeSystemClass
           assert_raises(Vagrant::Errors::VMSystemError) {
             @vm.load_system!
@@ -108,9 +106,8 @@ class VMTest < Test::Unit::TestCase
 
           valid.each do |symbol, klass|
             @vm.env.config.vm.system = symbol
-            @vm.expects(:error_and_exit).never
-            @vm.load_system!
 
+            assert_nothing_raised { @vm.load_system! }
             assert @vm.system.is_a?(klass)
             assert_equal @vm, @vm.system.vm
           end

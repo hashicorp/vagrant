@@ -4,7 +4,6 @@ class ActionWardenTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Action::Warden
     @instance = @klass.new([], {})
-    @klass.any_instance.stubs(:error_and_exit)
   end
 
   context "initializing" do
