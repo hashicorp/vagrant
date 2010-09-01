@@ -79,6 +79,16 @@ module Vagrant
       error_key(:cli_missing_env)
     end
 
+    class DownloaderFileDoesntExist < VagrantError
+      status_code(37)
+      error_key(:file_missing, "vagrant.downloaders.file")
+    end
+
+    class DownloaderHTTPSocketError < VagrantError
+      status_code(38)
+      error_key(:socket_error, "vagrant.downloaders.http")
+    end
+
     class ForwardPortAutolistEmpty < VagrantError
       status_code(27)
       error_key(:auto_empty, "vagrant.actions.vm.forward_ports")

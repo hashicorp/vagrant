@@ -278,6 +278,15 @@ en:
           include_file_missing: |-
             Package include file doesn't exist: %{file}
 
+    downloaders:
+      file:
+        file_missing: "The specified path to a file doesn't exist."
+      http:
+        socket_error: |-
+          An error occurred while trying to download the specified box. This most
+          often happens if there is no internet connection or the address is
+          invalid.
+
     hosts:
       bsd:
         nfs_export:

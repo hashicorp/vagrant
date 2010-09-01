@@ -9,9 +9,10 @@ class FileDownloaderTest < Test::Unit::TestCase
   context "preparing" do
     should "raise an exception if the file does not exist" do
       File.expects(:file?).with(@uri).returns(false)
-      @downloader.prepare(@uri)
-      assert @downloader.env.error?
-      assert_equal :downloader_file_doesnt_exist, @downloader.env.error.first
+
+      assert_raises(Vagrant::Errors::DownloaderFileDoesntExist) {
+        @downloader.prepare(@uri)
+      }
     end
   end
 

@@ -7,12 +7,6 @@
 #---------------------------------------------------------------------
 # CATEGORY: Error Messages
 #---------------------------------------------------------------------
-:box_download_http_socket_error: |-
-  An error occurred while trying to download the specified box. This most
-  often happens if there is no internet connection or the address is
-  invalid.
-
-  Box URL: <%= box_url %>
 :box_file_exists: |-
   The specified output file for packaging already exists. Please move
   the file or modify the output filename parameter then try to package
@@ -52,10 +46,6 @@
   vagrant box add name uri
   vagrant box remove name
   vagrant box list
-:downloader_file_doesnt_exist: |-
-  The given box does not exist on the file system:
-
-  <%= source_url %>
 :package_requires_export: |-
   Package must be used in conjunction with export.
 :ssh_bad_exit_status: |-

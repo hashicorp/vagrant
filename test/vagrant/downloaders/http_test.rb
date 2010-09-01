@@ -45,10 +45,10 @@ class HttpDownloaderTest < Test::Unit::TestCase
 
     should "error environment if invalid URL given" do
       Net::HTTP.expects(:new).raises(SocketError.new)
-      @downloader.download!(@uri, @tempfile)
 
-      assert @downloader.env.error?
-      assert_equal :box_download_http_socket_error, @downloader.env.error.first
+      assert_raises(Vagrant::Errors::DownloaderHTTPSocketError) {
+        @downloader.download!(@uri, @tempfile)
+      }
     end
   end
 

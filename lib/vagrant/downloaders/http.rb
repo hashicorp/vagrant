@@ -46,7 +46,7 @@ module Vagrant
           end
         end
       rescue SocketError
-        env.error!(:box_download_http_socket_error, :box_url => source_url)
+        raise Errors::DownloaderHTTPSocketError.new
       end
     end
   end

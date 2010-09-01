@@ -10,9 +10,7 @@ module Vagrant
       end
 
       def prepare(source_url)
-        if !::File.file?(source_url)
-          return env.error!(:downloader_file_doesnt_exist, :source_url => source_url)
-        end
+        raise Errors::DownloaderFileDoesntExist.new if !::File.file?(source_url)
       end
 
       def download!(source_url, destination_file)
