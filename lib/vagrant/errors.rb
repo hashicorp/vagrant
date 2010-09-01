@@ -242,5 +242,10 @@ module Vagrant
       status_code(24)
       error_key(:power_off, "vagrant.actions.vm.export")
     end
+
+    class VMSystemError < VagrantError
+      status_code(39)
+      error_namespace("vagrant.errors.system")
+    end
   end
 end

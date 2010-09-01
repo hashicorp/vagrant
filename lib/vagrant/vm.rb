@@ -54,19 +54,15 @@ module Vagrant
 
       if system.is_a?(Class)
         @system = system.new(self)
-        error_and_exit(:system_invalid_class, :system => system.to_s) unless @system.is_a?(Systems::Base)
+        raise Errors::VMSystemError.new(:_key => :invalid_class, :system => system.to_s) if !@system.is_a?(Systems::Base)
       elsif system.is_a?(Symbol)
         # Hard-coded internal systems
         mapping = { :linux => Systems::Linux }
 
-        if !mapping.has_key?(system)
-          error_and_exit(:system_unknown_type, :system => system.to_s)
-          return # for tests
-        end
-
+        raise Errors::VMSystemError.new(:_key => :unknown_type, :system => system.to_s) if !mapping.has_key?(system)
         @system = mapping[system].new(self)
       else
-        error_and_exit(:system_unspecified)
+        raise Errors::VMSystemError.new(:unspecified)
       end
     end
 

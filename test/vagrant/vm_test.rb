@@ -73,8 +73,9 @@ class VMTest < Test::Unit::TestCase
       should "error and exit if system is not specified" do
         @vm.env.config.vm.system = nil
 
-        @vm.expects(:error_and_exit).with(:system_unspecified).once
-        @vm.load_system!
+        assert_raises(Vagrant::Errors::VMSystemError) {
+          @vm.load_system!
+        }
       end
 
       context "with a class" do
@@ -93,8 +94,9 @@ class VMTest < Test::Unit::TestCase
 
         should "error and exit if class has invalid parent" do
           @vm.env.config.vm.system = FakeSystemClass
-          @vm.expects(:error_and_exit).with(:system_invalid_class, :system => @vm.env.config.vm.system.to_s).once
-          @vm.load_system!
+          assert_raises(Vagrant::Errors::VMSystemError) {
+            @vm.load_system!
+          }
         end
       end
 
@@ -116,8 +118,10 @@ class VMTest < Test::Unit::TestCase
 
         should "error and exit with invalid symbol" do
           @vm.env.config.vm.system = :shall_never_exist
-          @vm.expects(:error_and_exit).with(:system_unknown_type, :system => @vm.env.config.vm.system.to_s).once
-          @vm.load_system!
+
+          assert_raises(Vagrant::Errors::VMSystemError) {
+            @vm.load_system!
+          }
         end
       end
     end
