@@ -1,14 +1,14 @@
 require 'json'
 require 'i18n'
 require 'virtualbox'
-require 'vagrant/errors'
 require 'vagrant/util/glob_loader'
 
 module Vagrant
   # TODO: Move more classes over to the autoload model. We'll
   # start small, but slowly move everything over.
 
-  autoload :CLI, 'vagrant/cli'
+  autoload :CLI,    'vagrant/cli'
+  autoload :Errors, 'vagrant/errors'
 
   module Command
     autoload :Base,      'vagrant/command/base'

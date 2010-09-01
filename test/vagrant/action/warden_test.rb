@@ -67,12 +67,6 @@ class ActionWardenTest < Test::Unit::TestCase
       @instance.expects(:begin_rescue)
       assert_raises(RuntimeError) { @instance.call(new_env) }
     end
-
-    def new_env_with_error
-      env = new_env
-      env.error!(:foo)
-      env
-    end
   end
 
   context "recover" do
