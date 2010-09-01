@@ -7,7 +7,6 @@ module Vagrant
     # exceptional events, and by providing a simple callback, can clean up
     # in any erroneous case.
     class Warden
-      include Util
       attr_accessor :actions, :stack
 
       def initialize(actions, env)

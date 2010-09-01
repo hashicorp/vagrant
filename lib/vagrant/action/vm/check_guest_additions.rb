@@ -5,8 +5,6 @@ module Vagrant
       # installed and prints a warning if they're not detected or if the
       # version does not match the installed VirtualBox version.
       class CheckGuestAdditions
-        include Util
-
         def initialize(app, env)
           @app = app
         end

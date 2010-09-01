@@ -10,8 +10,6 @@ module Vagrant
     HOME_SUBDIRS = ["tmp", "boxes"]
     DEFAULT_VM = :default
 
-    include Util
-
     attr_reader :parent     # Parent environment (in the case of multi-VMs)
     attr_reader :vm_name    # The name of the VM (internal name) which this environment represents
 
