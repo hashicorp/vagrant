@@ -308,6 +308,11 @@ en:
         running_client: "Running chef-client..."
         running_solo: "Running chef-solo..."
         invalid_provisioner: "Vagrant::Provisioners::Chef is not a valid provisioner! Use ChefSolo or ChefServer instead."
+        not_detected: |-
+          The `%{binary}` binary appears to not be in the PATH of the guest. This
+          could be because the PATH is not properly setup or perhaps chef is not
+          installed on this guest. Chef provisioning can not continue without
+          chef properly installed.
         server_url_required: |-
           Chef server provisioning requires that the `config.chef.chef_server_url` be set to the
           URL of your chef server. Examples include "http://12.12.12.12:4000" and
@@ -324,3 +329,13 @@ en:
       linux:
         attempting_halt: "Attempting graceful shutdown of linux..."
         mount_fail: "Failed to mount shared folders. `vboxsf` was not available."
+        network_not_debian: |-
+          Host only networking is only supported for Debian/Ubuntu by the built-in
+          "Linux" system. If you're using some other distro and want to implement
+          host only networking, please subclass the `Vagrant::Systems::Linux` class
+          and implement the `prepare_host_only_network` and `enable_host_only_network`
+          methods.
+
+          Otherwise, please report your distro and how to modify network interfaces
+          to the Vagrant mailing list or IRC and we'll probably be glad to add it
+          to the internal systems.

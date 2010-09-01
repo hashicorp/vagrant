@@ -73,7 +73,7 @@ class ChefProvisionerTest < Test::Unit::TestCase
 
     should "verify binary exists" do
       binary = "foo"
-      @ssh.expects(:exec!).with("which #{binary}", :error_key => :chef_not_detected, :error_data => { :binary => binary }).once
+      @ssh.expects(:exec!).with("which #{binary}", anything)
       @action.verify_binary(binary)
     end
   end

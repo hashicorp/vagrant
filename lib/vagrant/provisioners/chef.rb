@@ -12,7 +12,7 @@ module Vagrant
         vm.ssh.execute do |ssh|
           # Checks for the existence of chef binary and error if it
           # doesn't exist.
-          ssh.exec!("which #{binary}", :error_key => :chef_not_detected, :error_data => {:binary => binary})
+          ssh.exec!("which #{binary}", :error_class => ChefError, :_key => :chef_not_detected, :binary => binary)
         end
       end
 

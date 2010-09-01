@@ -68,7 +68,7 @@ module Vagrant
         # interface file.
         vm.ssh.execute do |ssh|
           # Verify debian/ubuntu
-          ssh.exec!("cat /etc/debian_version", :error_key => :network_not_debian)
+          ssh.exec!("cat /etc/debian_version", :error_class => LinuxError, :_key => :network_not_debian)
 
           # Clear out any previous entries
           ssh.exec!("sudo sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/network/interfaces > /tmp/vagrant-network-interfaces")
