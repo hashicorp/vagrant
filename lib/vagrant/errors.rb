@@ -32,7 +32,7 @@ module Vagrant
       def initialize(message=nil, *args)
         message = { :_key => message } if message && !message.is_a?(Hash)
         message = { :_key => error_key, :_namespace => error_namespace }.merge(message || {})
-        message = translate_error(message) if message[:_key]
+        message = translate_error(message)
 
         super
       end
@@ -49,6 +49,7 @@ module Vagrant
       protected
 
       def translate_error(opts)
+        return nil if !opts[:_key]
         I18n.t("#{opts[:_namespace]}.#{opts[:_key]}", opts)
       end
     end

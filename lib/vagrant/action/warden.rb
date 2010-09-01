@@ -20,6 +20,7 @@ module Vagrant
         begin
           # Call the next middleware in the sequence, appending to the stack
           # of "recoverable" middlewares in case something goes wrong!
+          raise Errors::VagrantInterrupt.new if env.interrupted?
           @stack.unshift(@actions.shift).first.call(env)
           raise Errors::VagrantInterrupt.new if env.interrupted?
         rescue
@@ -34,6 +35,10 @@ module Vagrant
         @stack.each do |act|
           act.recover(env) if act.respond_to?(:recover)
         end
+
+        # Clear stack so that warden down the middleware chain doesn't
+        # rescue again.
+        @stack.clear
       end
 
       def finalize_action(action, env)
