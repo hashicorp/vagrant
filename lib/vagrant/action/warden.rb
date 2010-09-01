@@ -35,7 +35,7 @@ module Vagrant
           act.recover(env) if act.respond_to?(:recover)
         end
 
-        exit if env.interrupted?
+        raise Errors::VagrantInterrupt.new if env.interrupted?
       end
 
       def finalize_action(action, env)

@@ -80,10 +80,11 @@ class ActionWardenTest < Test::Unit::TestCase
     end
 
     should "call exit if the environment is interupted" do
-      @instance.expects(:exit)
       env = new_env
       env.expects(:interrupted?).returns(true)
-      @instance.begin_rescue(env)
+      assert_raises(Vagrant::Errors::VagrantInterrupt) {
+        @instance.begin_rescue(env)
+      }
     end
 
     context "with many middleware" do

@@ -32,7 +32,7 @@ module Vagrant
       def initialize(message=nil, *args)
         message = { :_key => message } if message && !message.is_a?(Hash)
         message = { :_key => error_key, :_namespace => error_namespace }.merge(message || {})
-        message = translate_error(message)
+        message = translate_error(message) if message[:_key]
 
         super
       end
@@ -44,7 +44,7 @@ module Vagrant
 
       # The key for the error message. This should be set using the
       # {error_key} method but can be overridden here if needed.
-      def error_key; ""; end
+      def error_key; nil; end
 
       protected
 
@@ -201,6 +201,10 @@ module Vagrant
     class SSHUnavailableWindows < VagrantError
       status_code(10)
       error_key(:ssh_unavailable_windows)
+    end
+
+    class VagrantInterrupt < VagrantError
+      status_code(40)
     end
 
     class VirtualBoxInvalidOSE < VagrantError
