@@ -12,9 +12,9 @@ class ChefProvisionerTest < Test::Unit::TestCase
 
   context "preparing" do
     should "error the environment" do
-      @action.prepare
-      assert @action_env.error?
-      assert_equal :chef_base_invalid_provisioner, @action_env.error.first
+      assert_raises(Vagrant::Provisioners::Chef::ChefError) {
+        @action.prepare
+      }
     end
   end
 

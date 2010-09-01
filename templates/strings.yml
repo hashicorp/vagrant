@@ -20,20 +20,6 @@
   name you specified and try again. As a reminder, the repackage
   command is for repackaging boxes which have been added through `vagrant box add`
   but the box has been lost.
-:chef_base_invalid_provisioner: |-
-  Vagrant::Provisioners::Chef is not a valid provisioner! Use ChefSolo or ChefServer instead.
-:chef_server_url_required: |-
-  Chef server provisioning requires that the `config.chef.chef_server_url` be set to the
-  URL of your chef server. Examples include "http://12.12.12.12:4000" and
-  "http://myserver.com:4000" (the port of course can be different, but 4000 is the default)
-:chef_server_validation_key_required: |-
-  Chef server provisioning requires that the `config.chef.validation_key_path` configuration
-  be set to a path on your local machine of the validation key used to register the
-  VM with the chef server.
-:chef_server_validation_key_doesnt_exist: |-
-  The validation key set for `config.chef.validation_key_path` does not exist! This
-  file needs to exist so it can be uploaded to the virtual machine. It is
-  currently set to "<%= Vagrant.config.chef.validation_key_path %>"
 :chef_not_detected: |-
   The `<%= binary %>` binary appears to not be in the PATH of the guest. This
   could be because the PATH is not properly setup or perhaps chef is not

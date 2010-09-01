@@ -35,21 +35,19 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
       end
 
       @action.stubs(:env).returns(@env)
-
-      @action.prepare
-      assert !@action_env.error?
+      assert_nothing_raised { @action.prepare }
     end
 
-    should "eraise an exception if validation_key_path is nil" do
+    should "raise an exception if validation_key_path is nil" do
       @env = mock_environment do |config|
         config.chef.validation_key_path = nil
       end
 
       @action.stubs(:env).returns(@env)
 
-      @action.prepare
-      assert @action_env.error?
-      assert_equal :chef_server_validation_key_required, @action_env.error.first
+      assert_raises(Vagrant::Provisioners::Chef::ChefError) {
+        @action.prepare
+      }
     end
 
     should "not raise an exception if validation_key_path does exist" do
@@ -61,8 +59,7 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
       @action.stubs(:validation_key_path).returns("9")
 
       File.expects(:file?).with(@action.validation_key_path).returns(true)
-      @action.prepare
-      assert !@action_env.error?
+      assert_nothing_raised { @action.prepare }
     end
 
     should "raise an exception if validation_key_path doesn't exist" do
@@ -74,9 +71,9 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
       @action.stubs(:validation_key_path).returns("9")
 
       File.expects(:file?).with(@action.validation_key_path).returns(false)
-      @action.prepare
-      assert @action_env.error?
-      assert_equal :chef_server_validation_key_doesnt_exist, @action_env.error.first
+      assert_raises(Vagrant::Provisioners::Chef::ChefError) {
+        @action.prepare
+      }
     end
 
     should "not raise an exception if chef_server_url is set" do
@@ -85,9 +82,7 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
       end
 
       @action.stubs(:env).returns(@env)
-
-      @action.prepare
-      assert !@action_env.error?
+      assert_nothing_raised { @action.prepare }
     end
 
     should "raise an exception if chef_server_url is nil" do
@@ -97,9 +92,9 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
 
       @action.stubs(:env).returns(@env)
 
-      @action.prepare
-      assert @action_env.error?
-      assert_equal :chef_server_url_required, @action_env.error.first
+      assert_raises(Vagrant::Provisioners::Chef::ChefError) {
+        @action.prepare
+      }
     end
   end
 
