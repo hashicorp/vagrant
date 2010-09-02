@@ -38,13 +38,9 @@ module Vagrant
       # configuration path is properly set.
       def check_virtualbox!
         version = VirtualBox.version
-        if version.nil?
-          raise Errors::VirtualBoxNotDetected.new
-        elsif version.to_f < 3.2
-          raise Errors::VirtualBoxInvalidVersion.new(:version => version.to_s)
-        elsif version.to_s.downcase.include?("ose")
-          raise Errors::VirtualBoxInvalidOSE.new(:version => version.to_s)
-        end
+        raise Errors::VirtualBoxNotDetected.new if version.nil?
+        raise Errors::VirtualBoxInvalidVersion.new(:version => version.to_s) if version.to_f < 3.2
+        raise Errors::VirtualBoxInvalidOSE.new(:version => version.to_s) if version.to_s.downcase.include?("ose")
       end
     end
 
