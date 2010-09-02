@@ -40,7 +40,7 @@ module Vagrant
             @provisioner = provisioner_klass.new(@env)
           end
 
-          @env.ui.info "vagrant.actions.vm.provision.enabled", :provisioner => provisioner.class.to_s
+          @env.ui.info "vagrant.actions.vm.provision.enabled", :provisioner => @provisioner.class.to_s
           @provisioner.prepare
           @provisioner
         end
