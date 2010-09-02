@@ -388,3 +388,5 @@ en:
           Otherwise, please report your distro and how to modify network interfaces
           to the Vagrant mailing list or IRC and we'll probably be glad to add it
           to the internal systems.
+      solaris:
+        attempting_halt: "Attempting graceful shutdown of solaris..."
