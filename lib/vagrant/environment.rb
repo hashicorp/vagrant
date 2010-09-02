@@ -19,8 +19,6 @@ module Vagrant
     attr_reader :host
     attr_reader :box
     attr_accessor :vm
-    attr_reader :active_list
-    attr_reader :logger
     attr_reader :actions
     attr_writer :ui
 
@@ -159,6 +157,13 @@ module Vagrant
       @local_data ||= DataStore.new(dotfile_path)
     end
 
+    # Accesses the logger for Vagrant. This logger is a _detailed_
+    # logger which should be used to log internals only. For outward
+    # facing information, use {#ui}.
+    def logger
+      @logger ||= Util::ResourceLogger.new(resource, self)
+    end
+
     #---------------------------------------------------------------
     # Load Methods
     #---------------------------------------------------------------
@@ -167,7 +172,6 @@ module Vagrant
     # such as `vm`, `config`, etc. on this environment. The order this
     # method calls its other methods is very particular.
     def load!
-      load_logger!
       load_root_path!
       load_config!
       load_home_directory!
@@ -176,7 +180,6 @@ module Vagrant
       load_config!
       self.class.check_virtualbox!
       load_vm!
-      load_active_list!
       load_actions!
       self
     end
@@ -241,17 +244,7 @@ module Vagrant
       @config = Config.execute!
 
       # (re)load the logger
-      load_logger!
-    end
-
-    # Loads the logger for this environment. This is called by
-    # {#load_config!} so that the logger is only loaded after
-    # configuration information is available. The logger is also
-    # loaded early on in the load chain process so that the various
-    # references to logger won't throw nil exceptions, but by default
-    # the logger will just send the log data to a black hole.
-    def load_logger!
-      @logger = Util::ResourceLogger.new(resource, self)
+      @logger = nil
     end
 
     # Loads the home directory path and creates the necessary subdirectories
@@ -329,11 +322,6 @@ module Vagrant
       end
     end
 
-    # Loads the activelist for this environment
-    def load_active_list!
-      @active_list = ActiveList.new(self)
-    end
-
     # Loads the instance of {Action} for this environment. This allows
     # users of the instance to run action sequences in the context of
     # this environment.
@@ -364,9 +352,6 @@ module Vagrant
           f.write(data.to_json)
         end
       end
-
-      # Also add to the global store
-      # active_list.add(vm)
     end
   end
 end

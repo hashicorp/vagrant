@@ -73,7 +73,6 @@ class Test::Unit::TestCase
 
     # Setup the logger. We create it then reset it so that subsequent
     # calls will recreate it for us.
-    environment.load_logger!
     environment.logger.class.reset_singleton_logger!
     environment.logger.stubs(:flush_progress)
     environment.logger.stubs(:cl_reset).returns("")

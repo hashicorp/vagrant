@@ -237,6 +237,17 @@ class EnvironmentTest < Test::Unit::TestCase
     end
   end
 
+  context "loading logger" do
+    should "lazy load the logger only once" do
+      result = Vagrant::Util::ResourceLogger.new("vagrant", mock_environment)
+      Vagrant::Util::ResourceLogger.expects(:new).returns(result).once
+      @env = mock_environment
+      assert_equal result, @env.logger
+      assert_equal result, @env.logger
+      assert_equal result, @env.logger
+    end
+  end
+
   context "loading" do
     setup do
       @env = mock_environment
@@ -245,7 +256,6 @@ class EnvironmentTest < Test::Unit::TestCase
     context "overall load method" do
       should "load! should call proper sequence and return itself" do
         call_seq = sequence("call_sequence")
-        @env.expects(:load_logger!).once.in_sequence(call_seq)
         @env.expects(:load_root_path!).once.in_sequence(call_seq)
         @env.expects(:load_config!).once.in_sequence(call_seq)
         @env.expects(:load_home_directory!).once.in_sequence(call_seq)
@@ -254,7 +264,6 @@ class EnvironmentTest < Test::Unit::TestCase
         @env.expects(:load_config!).once.in_sequence(call_seq)
         @klass.expects(:check_virtualbox!).once.in_sequence(call_seq)
         @env.expects(:load_vm!).once.in_sequence(call_seq)
-        @env.expects(:load_active_list!).once.in_sequence(call_seq)
         @env.expects(:load_actions!).once.in_sequence(call_seq)
         assert_equal @env, @env.load!
       end
@@ -329,7 +338,6 @@ class EnvironmentTest < Test::Unit::TestCase
         @home_path = "/bar"
         @env.stubs(:root_path).returns(@root_path)
         @env.stubs(:home_path).returns(@home_path)
-        @env.stubs(:load_logger!)
 
         @parent_env = mock_environment
 
@@ -425,28 +433,8 @@ class EnvironmentTest < Test::Unit::TestCase
       should "reload the logger after executing" do
         load_seq = sequence("load_seq")
         Vagrant::Config.expects(:execute!).once.returns(nil).in_sequence(load_seq)
-        @env.expects(:load_logger!).once.in_sequence(load_seq)
         @env.load_config!
-      end
-    end
-
-    context "loading logger" do
-      setup do
-        @env = mock_environment
-        @env.stubs(:vm_name).returns(nil)
-      end
-
-      should "use 'vagrant' by default" do
-        assert @env.vm_name.nil? # sanity
-        @env.load_logger!
-        assert_equal "vagrant", @env.logger.resource
-      end
-
-      should "use the vm name if available" do
-        name = "foo"
-        @env.stubs(:vm_name).returns(name)
-        @env.load_logger!
-        assert_equal name, @env.logger.resource
+        assert @env.instance_variable_get(:@logger).nil?
       end
     end
 
@@ -629,19 +617,6 @@ class EnvironmentTest < Test::Unit::TestCase
 
         assert_equal 1, @env.vms.length
         assert !@env.vms.values.first.created?
-      end
-    end
-
-    context "loading the active list" do
-      setup do
-        @env = mock_environment
-      end
-
-      should "initialize the ActiveList object with the given environment" do
-        active_list = mock("active_list")
-        Vagrant::ActiveList.expects(:new).with(@env).returns(active_list)
-        @env.load_active_list!
-        assert_equal active_list, @env.active_list
       end
     end
 
