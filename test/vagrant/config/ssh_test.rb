@@ -7,7 +7,7 @@ class ConfigSSHTest < Test::Unit::TestCase
   end
 
   should "expand any path when requesting the value" do
-    result = File.expand_path(@env.config.ssh[:private_key_path], @env.root_path)
+    result = File.expand_path(@env.config.ssh.private_key_path, @env.root_path)
     assert_equal result, @env.config.ssh.private_key_path
   end
 end

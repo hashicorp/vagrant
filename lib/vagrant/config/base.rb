@@ -6,12 +6,24 @@ module Vagrant
     class Base
       attr_accessor :env
 
-      def [](key)
-        send(key)
+      # Loads configuration values from JSON back into the proper
+      # configuration classes. By default, this is done by simply
+      # iterating over all values in the JSON hash and assigning them
+      # to instance variables on the class.
+      def self.json_create(data)
+        data.inject(new) do |result, data|
+          key, value = data
+          result.instance_variable_set("@#{key}".to_sym, value) if key != "json_class"
+          result
+        end
       end
 
       def to_json(*a)
-        { 'json_class' => self.class.name }.merge(instance_variables_hash).to_json(*a)
+        opts = a.first if a.first.is_a?(Hash)
+        opts ||= {}
+        result = {}
+        result.merge!('json_class' => self.class.name) if opts[:loadable]
+        result.merge(instance_variables_hash).to_json(*a)
       end
 
       def instance_variables_hash

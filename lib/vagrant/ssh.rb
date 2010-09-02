@@ -58,7 +58,7 @@ module Vagrant
       opts[:forward_agent] = true if env.config.ssh.forward_agent
 
       Net::SSH.start(env.config.ssh.host,
-                     env.config[:ssh][:username],
+                     env.config.ssh.username,
                      opts.merge( :port => port,
                                  :keys => [env.config.ssh.private_key_path],
                                  :user_known_hosts_file => [],

@@ -25,8 +25,8 @@ class ChefProvisionerTest < Test::Unit::TestCase
     end
 
     should "not include the 'json' key in the config dump" do
-      result = JSON.parse(@config.to_json)
-      assert !result.has_key?("json")
+      result = @config.to_json
+      assert result !~ /"json":/
     end
 
     should "provide accessors to the run list" do
@@ -141,7 +141,7 @@ class ChefProvisionerTest < Test::Unit::TestCase
   context "generating and uploading json" do
     def assert_json
       @vm.ssh.expects(:upload!).with do |json, path|
-        data = JSON.parse(json.read)
+        data = JSON.parse(json.read, :object_class => Hash)
         yield data
         true
       end
