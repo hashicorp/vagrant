@@ -28,15 +28,15 @@ en:
         ignore the key. Vagrant tried to do this automatically for you but failed. Please set the
         permissions on the following file to 0600 and then try running this command again:
 
-        <%= key_path %>
+        %{key_path}
       ssh_unavailable_windows: |-
         `vagrant ssh` isn't available on the Windows platform. The
         vagrant.ppk file for use with Putty is available at:
 
-          <%= key_path %>.ppk
+          %{key_path}.ppk
 
         To use this create a new Putty session for `vagrant@localhost`
-        on port `<%= ssh_port %>`, in the Connection>SSH>Auth
+        on port `%{ssh_port}`, in the Connection>SSH>Auth
         configuration section navigate to the vagrant.ppk file,
         select it, save the session for later use, and connect.
 
