@@ -1,6 +1,7 @@
 require 'json'
 require 'i18n'
 require 'virtualbox'
+require 'radar'
 require 'vagrant/util/glob_loader'
 
 module Vagrant
@@ -22,6 +23,14 @@ module Vagrant
   def self.source_root
     @source_root ||= File.expand_path('../../', __FILE__)
   end
+end
+
+# Setup Radar application for exception catching
+Radar::Application.new(:vagrant) do |app|
+  app.reject :class, Vagrant::Errors::VagrantError
+  app.reject :class, SystemExit
+  app.reporters.use :file
+  app.rescue_at_exit!
 end
 
 # Default I18n to load the en locale
