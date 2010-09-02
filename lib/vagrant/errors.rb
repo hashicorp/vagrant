@@ -206,6 +206,7 @@ module Vagrant
 
     class VagrantInterrupt < VagrantError
       status_code(40)
+      error_key(:interrupted)
     end
 
     class VirtualBoxInvalidOSE < VagrantError
