@@ -9,6 +9,7 @@ module Vagrant
   # start small, but slowly move everything over.
 
   autoload :CLI,    'vagrant/cli'
+  autoload :Config, 'vagrant/config'
   autoload :Errors, 'vagrant/errors'
 
   module Command
@@ -40,7 +41,7 @@ I18n.load_path << File.expand_path("templates/locales/en.yml", Vagrant.source_ro
 # is not that day. Low hanging fruit for anyone wishing to do it.
 libdir = File.expand_path("lib/vagrant", Vagrant.source_root)
 Vagrant::GlobLoader.glob_require(libdir, %w{util/stacked_proc_runner
-  downloaders/base config provisioners/base provisioners/chef systems/base
+  downloaders/base provisioners/base provisioners/chef systems/base
   hosts/base})
 
 # Initialize the built-in actions

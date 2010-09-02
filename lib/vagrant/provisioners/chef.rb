@@ -116,12 +116,12 @@ module Vagrant
           run_list << name
         end
 
-        def to_json(*a)
+        def instance_variables_hash
           # Overridden so that the 'json' key could be removed, since its just
           # merged into the config anyways
-          data = instance_variables_hash
-          data.delete(:json)
-          data.to_json(*a)
+          result = super
+          result.delete("json")
+          result
         end
       end
 
