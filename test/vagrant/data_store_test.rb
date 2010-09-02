@@ -14,6 +14,10 @@ class DataStoreTest < Test::Unit::TestCase
     File.delete(@db_file)
   end
 
+  should "just be an empty hash if file doesn't exist" do
+    assert @klass.new("NEvERNENVENRNE").empty?
+  end
+
   should "read the data" do
     assert_equal @initial_data["foo"], @instance["foo"]
   end

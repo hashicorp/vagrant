@@ -223,6 +223,20 @@ class EnvironmentTest < Test::Unit::TestCase
     end
   end
 
+  context "local data" do
+    setup do
+      @env = mock_environment
+    end
+
+    should "lazy load the data store only once" do
+      result = mock("result")
+      Vagrant::DataStore.expects(:new).with(@env.dotfile_path).returns(result).once
+      assert_equal result, @env.local_data
+      assert_equal result, @env.local_data
+      assert_equal result, @env.local_data
+    end
+  end
+
   context "loading" do
     setup do
       @env = mock_environment

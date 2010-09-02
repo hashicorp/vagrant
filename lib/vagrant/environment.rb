@@ -151,6 +151,14 @@ module Vagrant
       end
     end
 
+    # Loads (on initial access) and reads data from the local data
+    # store. This file is always at the root path as the file "~/.vagrant"
+    # and contains a JSON dump of a hash. See {DataStore} for more
+    # information.
+    def local_data
+      @local_data ||= DataStore.new(dotfile_path)
+    end
+
     #---------------------------------------------------------------
     # Load Methods
     #---------------------------------------------------------------
