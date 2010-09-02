@@ -8,9 +8,10 @@ module Vagrant
   # TODO: Move more classes over to the autoload model. We'll
   # start small, but slowly move everything over.
 
-  autoload :CLI,    'vagrant/cli'
-  autoload :Config, 'vagrant/config'
-  autoload :Errors, 'vagrant/errors'
+  autoload :CLI,       'vagrant/cli'
+  autoload :Config,    'vagrant/config'
+  autoload :DataStore, 'vagrant/data_store'
+  autoload :Errors,    'vagrant/errors'
 
   module Command
     autoload :Base,      'vagrant/command/base'

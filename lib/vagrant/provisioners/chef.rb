@@ -36,7 +36,7 @@ module Vagrant
 
         # Set up initial configuration
         data = {
-          :config => env.config,
+          :config => env.config.to_hash,
           :directory => env.config.vm.shared_folders["v-root"][:guestpath],
         }
 

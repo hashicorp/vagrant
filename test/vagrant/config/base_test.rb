@@ -21,17 +21,11 @@ class ConfigBaseTest < Test::Unit::TestCase
   end
 
   context "converting to JSON" do
-    should "include magic `json_class` if loadable is set to true" do
+    should "include magic `json_class`" do
       @iv_hash = { "foo" => "bar" }
       @base.expects(:instance_variables_hash).returns(@iv_hash)
       @json = { 'json_class' => @base.class.name }.merge(@iv_hash).to_json
-      assert_equal @json, @base.to_json(:loadable => true)
-    end
-
-    should "convert instance variable hash to json" do
-      @iv_hash = { "foo" => "bar" }
-      @base.expects(:instance_variables_hash).returns(@iv_hash)
-      assert_equal @iv_hash.to_json, @base.to_json
+      assert_equal @json, @base.to_json
     end
 
     should "not include env in the JSON hash" do

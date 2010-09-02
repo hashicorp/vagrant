@@ -18,11 +18,18 @@ module Vagrant
         end
       end
 
+      # Converts the configuration to a raw hash.
+      def to_hash
+        instance_variables_hash.inject({}) do |acc, data|
+          k,v = data
+          v = v.to_hash if v.respond_to?(:to_hash)
+          acc[k] = v
+          acc
+        end
+      end
+
       def to_json(*a)
-        opts = a.first if a.first.is_a?(Hash)
-        opts ||= {}
-        result = {}
-        result.merge!('json_class' => self.class.name) if opts[:loadable]
+        result = { 'json_class' => self.class.name }
         result.merge(instance_variables_hash).to_json(*a)
       end
 

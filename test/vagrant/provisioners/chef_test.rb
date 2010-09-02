@@ -141,7 +141,7 @@ class ChefProvisionerTest < Test::Unit::TestCase
   context "generating and uploading json" do
     def assert_json
       @vm.ssh.expects(:upload!).with do |json, path|
-        data = JSON.parse(json.read, :object_class => Hash)
+        data = JSON.parse(json.read)
         yield data
         true
       end
