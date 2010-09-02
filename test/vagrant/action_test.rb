@@ -32,8 +32,8 @@ class ActionTest < Test::Unit::TestCase
     end
 
     should "raise an exception if a nil action is given" do
-      assert_raises(Vagrant::Exceptions::UncallableAction) { @instance.run(nil) }
-      assert_raises(Vagrant::Exceptions::UncallableAction) { @instance.run(:dontexist) }
+      assert_raises(ArgumentError) { @instance.run(nil) }
+      assert_raises(ArgumentError) { @instance.run(:dontexist) }
     end
 
     should "run the callable item with the proper context" do
