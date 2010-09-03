@@ -1,5 +1,8 @@
 ## 0.6.0 (unreleased)
 
+  - The format of the ".vagrant" file which stores persisted VMs has
+    changed. This is **backwards incompatible**. Will provide an upgrade
+    utility prior to 0.6 launch.
   - Every [expected] Vagrant error now exits with a clean error message
     and a unique exit status, and raises a unique exception (if you're
     scripting Vagrant).
