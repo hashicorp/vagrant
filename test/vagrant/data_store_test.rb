@@ -38,4 +38,13 @@ class DataStoreTest < Test::Unit::TestCase
 
     assert_equal "changed", @klass.new(@db_file)[:foo]
   end
+
+  should "clean nil and empties if commit is called" do
+    @instance[:foo] = { :bar => nil }
+    @instance[:bar] = {}
+    @instance.commit
+
+    assert !@instance.has_key?(:foo)
+    assert !@instance.has_key?(:bar)
+  end
 end

@@ -24,8 +24,33 @@ module Vagrant
     def commit
       return if !file_path
 
+      clean_nil_and_empties
       File.open(file_path, "w") do |f|
         f.write(to_json)
+      end
+    end
+
+    protected
+
+    # Removes the "nil" and "empty?" values from the hash (children
+    # included) so that the final output JSON is cleaner.
+    def clean_nil_and_empties(hash=self)
+      # Clean depth first
+      hash.each do |k, v|
+        clean_nil_and_empties(v) if v.is_a?(Hash)
+      end
+
+      # Clean ourselves, knowing that any children have already been
+      # cleaned up
+      bad_keys = hash.inject([]) do |acc, data|
+        k,v = data
+        acc.push(k) if v.nil?
+        acc.push(k) if v.respond_to?(:empty?) && v.empty?
+        acc
+      end
+
+      bad_keys.each do |key|
+        hash.delete(key)
       end
     end
   end
