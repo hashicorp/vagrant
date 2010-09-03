@@ -150,6 +150,7 @@ module Vagrant
     # and contains a JSON dump of a hash. See {DataStore} for more
     # information.
     def local_data
+      return parent.local_data if parent
       @local_data ||= DataStore.new(dotfile_path)
     end
 
@@ -281,27 +282,10 @@ module Vagrant
       # First load the defaults (blank, noncreated VMs)
       load_blank_vms!
 
-      # If we have no dotfile, then return
-      return if !dotfile_path || !File.file?(dotfile_path)
-
-      # Open and parse the dotfile
-      File.open(dotfile_path) do |f|
-        data = { DEFAULT_VM => f.read }
-
-        begin
-          data = JSON.parse(data[DEFAULT_VM])
-        rescue JSON::ParserError
-          # Most likely an older (<= 0.3.x) dotfile. Try to load it
-          # as the :__vagrant VM.
-        end
-
-        data.each do |key, value|
-          key = key.to_sym
-          vms[key] = Vagrant::VM.find(value, self, key)
-        end
+      # Load the VM UUIDs from the local data store
+      (local_data[:active] || {}).each do |name, uuid|
+        vms[name.to_sym] = Vagrant::VM.find(uuid, self, name.to_sym)
       end
-    rescue Errno::ENOENT
-      # Just rescue it.
     end
 
     # Loads blank VMs into the `vms` attribute.
@@ -323,31 +307,6 @@ module Vagrant
     # this environment.
     def load_actions!
       @actions = Action.new(self)
-    end
-
-    #---------------------------------------------------------------
-    # Methods to manage VM
-    #---------------------------------------------------------------
-
-    # Persists this environment's VM to the dotfile so it can be
-    # re-loaded at a later time.
-    def update_dotfile
-      return parent.update_dotfile if parent
-
-      # Generate and save the persisted VM info
-      data = vms.inject({}) do |acc, values|
-        key, value = values
-        acc[key] = value.uuid if value.created?
-        acc
-      end
-
-      if data.empty?
-        File.delete(dotfile_path) if File.exist?(dotfile_path)
-      else
-        File.open(dotfile_path, 'w+') do |f|
-          f.write(data.to_json)
-        end
-      end
     end
   end
 end

@@ -5,7 +5,7 @@ module Vagrant
     attr_reader :env
     attr_reader :system
     attr_reader :name
-    attr_accessor :vm
+    attr_reader :vm
 
     class << self
       # Finds a virtual machine by a given UUID and either returns
@@ -79,6 +79,25 @@ module Vagrant
     # @return [Boolean]
     def created?
       !vm.nil?
+    end
+
+    # Sets the currently active VM for this VM. If the VM is a valid,
+    # created virtual machine, then it will also update the local data
+    # to persist the VM. Otherwise, it will remove itself from the
+    # local data (if it exists).
+    def vm=(value)
+      @vm = value
+      env.local_data[:active] ||= {}
+
+      if value && value.uuid
+        env.local_data[:active][name.to_sym] = value.uuid
+      else
+        env.local_data[:active].delete(name.to_sym)
+      end
+
+      # Commit the local data so that the next time vagrant is initialized,
+      # it realizes the VM exists
+      env.local_data.commit
     end
 
     def uuid

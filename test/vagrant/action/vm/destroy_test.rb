@@ -18,7 +18,6 @@ class DestroyVMActionTest < Test::Unit::TestCase
     should "destroy VM and attached images" do
       @internal_vm.expects(:destroy).with(:destroy_medium => :delete).once
       @env["vm"].expects(:vm=).with(nil).once
-      @env.env.expects(:update_dotfile).once
       @app.expects(:call).with(@env).once
       @instance.call(@env)
     end

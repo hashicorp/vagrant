@@ -235,6 +235,14 @@ class EnvironmentTest < Test::Unit::TestCase
       assert_equal result, @env.local_data
       assert_equal result, @env.local_data
     end
+
+    should "return the parent's local data if a parent exists" do
+      @env.stubs(:parent).returns(mock_environment)
+      result = @env.parent.local_data
+
+      Vagrant::DataStore.expects(:new).never
+      assert_equal result, @env.local_data
+    end
   end
 
   context "loading logger" do
@@ -510,43 +518,25 @@ class EnvironmentTest < Test::Unit::TestCase
 
     context "loading the UUID out from the persisted dotfile" do
       setup do
+        @local_data = {}
+
         @env = mock_environment
         @env.stubs(:root_path).returns("foo")
-
-        File.stubs(:file?).returns(true)
+        @env.stubs(:local_data).returns(@local_data)
       end
 
       should "blank the VMs" do
         load_seq = sequence("load_seq")
         @env.stubs(:root_path).returns("foo")
         @env.expects(:load_blank_vms!).in_sequence(load_seq)
-        File.expects(:open).in_sequence(load_seq)
         @env.load_vm!
-      end
-
-      should "load the UUID if the JSON parsing fails" do
-        vm = mock("vm")
-
-        filemock = mock("filemock")
-        filemock.expects(:read).returns("foo")
-        Vagrant::VM.expects(:find).with("foo", @env, @klass::DEFAULT_VM).returns(vm)
-        File.expects(:open).with(@env.dotfile_path).once.yields(filemock)
-        File.expects(:file?).with(@env.dotfile_path).once.returns(true)
-        @env.load_vm!
-
-        assert_equal vm,  @env.vms.values.first
       end
 
       should "load all the VMs from the dotfile" do
-        vms = { :foo => "bar", :bar => "baz" }
+        @local_data[:active] = { :foo => "bar", :bar => "baz" }
+
         results = {}
-
-        filemock = mock("filemock")
-        filemock.expects(:read).returns(vms.to_json)
-        File.expects(:open).with(@env.dotfile_path).once.yields(filemock)
-        File.expects(:file?).with(@env.dotfile_path).once.returns(true)
-
-        vms.each do |key, value|
+        @local_data[:active].each do |key, value|
           vm = mock("vm#{key}")
           Vagrant::VM.expects(:find).with(value, @env, key.to_sym).returns(vm)
           results[key] = vm
@@ -565,23 +555,8 @@ class EnvironmentTest < Test::Unit::TestCase
         @env.load_vm!
       end
 
-      should "do nothing if the dotfile is nil" do
-        @env.stubs(:dotfile_path).returns(nil)
-        File.expects(:open).never
-
-        assert_nothing_raised {
-          @env.load_vm!
-        }
-      end
-
-      should "do nothing if dotfile is not a file" do
-        File.expects(:file?).returns(false)
-        File.expects(:open).never
-        @env.load_vm!
-      end
-
-      should "uuid should be nil if dotfile didn't exist" do
-        File.expects(:open).raises(Errno::ENOENT)
+      should "uuid should be nil if local data contains nothing" do
+        assert @local_data.empty? # sanity
         @env.load_vm!
         assert_nil @env.vm
       end
@@ -631,91 +606,6 @@ class EnvironmentTest < Test::Unit::TestCase
         @env.load_actions!
         assert_equal result, @env.actions
       end
-    end
-  end
-
-  context "managing VM" do
-    setup do
-      @env = mock_environment
-
-      @dotfile_path = "foo"
-      @env.stubs(:dotfile_path).returns(@dotfile_path)
-    end
-
-    def mock_vm
-      @vm = mock("vm")
-      @vm.stubs(:uuid).returns("foo")
-      @env.stubs(:vm).returns(@vm)
-    end
-  end
-
-  context "updating the dotfile" do
-    setup do
-      @env = mock_environment
-      @env.stubs(:parent).returns(nil)
-      @env.stubs(:dotfile_path).returns("foo")
-      File.stubs(:open)
-      File.stubs(:exist?).returns(true)
-    end
-
-    def create_vm(created)
-      vm = mock("vm")
-      vm.stubs(:created?).returns(created)
-      vm.stubs(:uuid).returns("foo")
-      vm
-    end
-
-    should "call parent if exists" do
-      parent = mock("parent")
-      @env.stubs(:parent).returns(parent)
-      parent.expects(:update_dotfile).once
-
-      @env.update_dotfile
-    end
-
-    should "remove the dotfile if the data is empty" do
-      vms = {
-        :foo => create_vm(false)
-      }
-
-      @env.stubs(:vms).returns(vms)
-      File.expects(:delete).with(@env.dotfile_path).once
-      @env.update_dotfile
-    end
-
-    should "not remove the dotfile if it doesn't exist" do
-      vms = {
-        :foo => create_vm(false)
-      }
-
-      @env.stubs(:vms).returns(vms)
-      File.expects(:exist?).with(@env.dotfile_path).returns(false)
-      File.expects(:delete).never
-      assert_nothing_raised { @env.update_dotfile }
-    end
-
-    should "write the proper data to dotfile" do
-      vms = {
-        :foo => create_vm(false),
-        :bar => create_vm(true),
-        :baz => create_vm(true)
-      }
-
-      f = mock("f")
-      @env.stubs(:vms).returns(vms)
-      File.expects(:open).with(@env.dotfile_path, 'w+').yields(f)
-      f.expects(:write).with() do |json|
-        assert_nothing_raised {
-          data = JSON.parse(json)
-          assert_equal 2, data.length
-          assert_equal vms[:bar].uuid, data["bar"]
-          assert_equal vms[:baz].uuid, data["baz"]
-        }
-
-        true
-      end
-
-      @env.update_dotfile
     end
   end
 end

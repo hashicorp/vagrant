@@ -47,6 +47,32 @@ class VMTest < Test::Unit::TestCase
       end
     end
 
+    context "setting the VM" do
+      setup do
+        @raw_vm = mock("vm")
+        @raw_vm.stubs(:uuid).returns("foobar")
+      end
+
+      should "set the VM" do
+        @vm.vm = @raw_vm
+        assert_equal @raw_vm, @vm.vm
+      end
+
+      should "add the VM to the active list" do
+        assert !@env.local_data[:active]
+        @vm.vm = @raw_vm
+        assert_equal @raw_vm.uuid, @env.local_data[:active][@vm.name.to_sym]
+      end
+
+      should "remove the VM from the active list if nil is given" do
+        @env.local_data[:active] = { @vm.name.to_sym => "foo" }
+
+        assert @env.local_data[:active].has_key?(@vm.name.to_sym) # sanity
+        @vm.vm = nil
+        assert !@env.local_data[:active].has_key?(@vm.name.to_sym)
+      end
+    end
+
     context "accessing the SSH object" do
       setup do
         # Reset this to nil to force the reload

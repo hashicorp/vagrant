@@ -65,7 +65,6 @@ module Vagrant
       up = Builder.new do
         use VM::CheckBox
         use VM::Import
-        use VM::Persist
         use VM::MatchMACAddress
         use VM::CheckGuestAdditions
         use Action[:start]

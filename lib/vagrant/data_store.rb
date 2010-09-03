@@ -10,6 +10,7 @@ module Vagrant
 
     def initialize(file_path)
       @file_path = file_path
+      return if !file_path
 
       File.open(file_path, "r") do |f|
         merge!(JSON.parse(f.read))
@@ -21,6 +22,8 @@ module Vagrant
     # Commits any changes to the data to disk. Even if the data
     # hasn't changed, it will be reserialized and written to disk.
     def commit
+      return if !file_path
+
       File.open(file_path, "w") do |f|
         f.write(to_json)
       end

@@ -12,23 +12,25 @@ class ImportVMActionTest < Test::Unit::TestCase
     @box.stubs(:ovf_file).returns(ovf_file)
     @env.env.stubs(:box).returns(@box)
 
-    @env.env.vm = Vagrant::VM.new
+    @env.env.vm = Vagrant::VM.new(:env => @env.env, :vm_name => "foobar")
 
     VirtualBox::VM.stubs(:import)
+
+    @vm = mock("vm")
+    @vm.stubs(:uuid).returns("foobar")
   end
 
   should "call import on VirtualBox with proper base" do
-    VirtualBox::VM.expects(:import).once.with(@env.env.box.ovf_file).returns("foo")
+    VirtualBox::VM.expects(:import).once.with(@env.env.box.ovf_file).returns(@vm)
     @instance.call(@env)
   end
 
   should "call next in chain on success and set VM" do
-    vm = mock("vm")
-    VirtualBox::VM.stubs(:import).returns(vm)
+    VirtualBox::VM.stubs(:import).returns(@vm)
     @app.expects(:call).with(@env).once
     @instance.call(@env)
 
-    assert_equal vm, @env["vm"].vm
+    assert_equal @vm, @env["vm"].vm
   end
 
   should "mark environment erroneous and not continue chain on failure" do
