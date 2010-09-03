@@ -1,10 +1,14 @@
 require 'vagrant/config/base'
 
 module Vagrant
+  # The config class is responsible for loading Vagrant configurations
+  # (usually through Vagrantfiles).
   class Config
     extend Util::StackedProcRunner
 
     @@config = nil
+
+    attr_reader :queue
 
     class << self
       def reset!(env=nil)
@@ -36,6 +40,29 @@ module Vagrant
       end
     end
 
+    def initialize(env)
+      @env = env
+      @queue = []
+    end
+
+    # Loads the queue of files/procs, executes them in the proper
+    # sequence, and returns the resulting configuration object.
+    def load!
+      self.class.reset!(@env)
+
+      queue.flatten.each do |item|
+        if item.is_a?(String) && File.exist?(item)
+          load item
+        elsif item.is_a?(Proc)
+          self.class.run(&item)
+        end
+      end
+
+      return self.class.execute!
+    end
+  end
+
+  class Config
     class Top < Base
       @@configures = []
 

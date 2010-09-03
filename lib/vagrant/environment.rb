@@ -215,40 +215,21 @@ module Vagrant
     # this environment, meaning that it will use the given root directory
     # to load the Vagrantfile into that context.
     def load_config!
-      # Prepare load paths for config files and append to config queue
-      config_queue = [File.expand_path("config/default.rb", Vagrant.source_root)]
-      config_queue << File.join(box.directory, ROOTFILE_NAME) if box
-      config_queue << File.join(home_path, ROOTFILE_NAME) if home_path
-      config_queue << File.join(root_path, ROOTFILE_NAME) if root_path
+      loader = Config.new(self)
+      loader.queue << File.expand_path("config/default.rb", Vagrant.source_root)
+      loader.queue << File.join(box.directory, ROOTFILE_NAME) if box
+      loader.queue << File.join(home_path, ROOTFILE_NAME) if home_path
+      loader.queue << File.join(root_path, ROOTFILE_NAME) if root_path
 
       # If this environment represents some VM in a multi-VM environment,
       # we push that VM's configuration onto the config_queue.
       if vm_name
         subvm = parent.config.vm.defined_vms[vm_name]
-        config_queue << subvm.proc_stack if subvm
-      end
-
-      # Flatten the config queue so any nested procs are flattened
-      config_queue.flatten!
-
-      # Clear out the old data
-      Config.reset!(self)
-
-      # Load each of the config files in order
-      config_queue.each do |item|
-        if item.is_a?(String) && File.exist?(item)
-          load item
-          next
-        end
-
-        if item.is_a?(Proc)
-          # Just push the proc straight onto the config runnable stack
-          Config.run(&item)
-        end
+        loader.queue << subvm.proc_stack if subvm
       end
 
       # Execute the configuration stack and store the result
-      @config = Config.execute!
+      @config = loader.load!
 
       # (re)load the logger
       @logger = nil

@@ -1,81 +1,139 @@
 require "test_helper"
 
 class ConfigTest < Test::Unit::TestCase
+  setup do
+    @klass = Vagrant::Config
+  end
+
+  context "with an instance" do
+    setup do
+      @env = mock_environment
+      @instance = @klass.new(@env)
+    end
+
+    should "initially have an empty queue" do
+      assert @instance.queue.empty?
+    end
+
+    should "reset the config class on load, then execute" do
+      seq = sequence("sequence")
+      @klass.expects(:reset!).with(@env).in_sequence(seq)
+      @klass.expects(:execute!).in_sequence(seq)
+      @instance.load!
+    end
+
+    should "run the queue in the order given" do
+      @instance.queue << Proc.new { |config| config.vm.box = "foo" }
+      @instance.queue << Proc.new { |config| config.vm.box = "bar" }
+      result = @instance.load!
+
+      assert_equal "bar", result.vm.box
+    end
+
+    should "allow nested arrays" do
+      queue = []
+      queue << Proc.new { |config| config.vm.box = "foo" }
+      queue << Proc.new { |config| config.vm.box = "bar" }
+      @instance.queue << queue
+      result = @instance.load!
+
+      assert_equal "bar", result.vm.box
+    end
+
+    should "load a file if it exists" do
+      filename = "foo"
+      File.expects(:exist?).with(filename).returns(true)
+      @instance.expects(:load).with(filename).once
+
+      @instance.queue << filename
+      @instance.load!
+    end
+
+    should "not load a file if it doesn't exist" do
+      filename = "foo"
+      File.expects(:exist?).with(filename).returns(false)
+      @instance.expects(:load).with(filename).never
+
+      @instance.queue << filename
+      @instance.load!
+    end
+  end
+
   context "adding configures" do
     should "forward the method to the Top class" do
       key = mock("key")
       klass = mock("klass")
-      Vagrant::Config::Top.expects(:configures).with(key, klass)
-      Vagrant::Config.configures(key, klass)
+      @klass::Top.expects(:configures).with(key, klass)
+      @klass.configures(key, klass)
     end
   end
 
   context "resetting" do
     setup do
-      Vagrant::Config.run { |config| }
-      Vagrant::Config.execute!
+      @klass.run { |config| }
+      @klass.execute!
     end
 
     should "return the same config object typically" do
-      config = Vagrant::Config.config
-      assert config.equal?(Vagrant::Config.config)
+      config = @klass.config
+      assert config.equal?(@klass.config)
     end
 
     should "create a new object if cleared" do
-      config = Vagrant::Config.config
-      Vagrant::Config.reset!
-      assert !config.equal?(Vagrant::Config.config)
+      config = @klass.config
+      @klass.reset!
+      assert !config.equal?(@klass.config)
     end
 
     should "empty the proc stack" do
-      assert !Vagrant::Config.proc_stack.empty?
-      Vagrant::Config.reset!
-      assert Vagrant::Config.proc_stack.empty?
+      assert !@klass.proc_stack.empty?
+      @klass.reset!
+      assert @klass.proc_stack.empty?
     end
 
     should "reload the config object based on the given environment" do
       env = mock("env")
-      Vagrant::Config.expects(:config).with(env).once
-      Vagrant::Config.reset!(env)
+      @klass.expects(:config).with(env).once
+      @klass.reset!(env)
     end
   end
 
   context "initializing" do
     setup do
-      Vagrant::Config.reset!
+      @klass.reset!
     end
 
     should "add the given block to the proc stack" do
       proc = Proc.new {}
-      Vagrant::Config.run(&proc)
-      assert_equal [proc], Vagrant::Config.proc_stack
+      @klass.run(&proc)
+      assert_equal [proc], @klass.proc_stack
     end
 
     should "run the proc stack with the config when execute is called" do
-      Vagrant::Config.expects(:run_procs!).with(Vagrant::Config.config).once
-      Vagrant::Config.execute!
+      @klass.expects(:run_procs!).with(@klass.config).once
+      @klass.execute!
     end
 
     should "not be loaded, initially" do
-      assert !Vagrant::Config.config.loaded?
+      assert !@klass.config.loaded?
     end
 
     should "be loaded after running" do
-      Vagrant::Config.run {}
-      Vagrant::Config.execute!
-      assert Vagrant::Config.config.loaded?
+      @klass.run {}
+      @klass.execute!
+      assert @klass.config.loaded?
     end
 
     should "return the configuration on execute!" do
-      Vagrant::Config.run {}
-      result = Vagrant::Config.execute!
-      assert result.is_a?(Vagrant::Config::Top)
+      @klass.run {}
+      result = @klass.execute!
+      assert result.is_a?(@klass::Top)
     end
 
     should "use given configuration object if given" do
       fake_env = mock("env")
-      config = Vagrant::Config::Top.new(fake_env)
-      result = Vagrant::Config.execute!(config)
+      config = @klass::Top.new(fake_env)
+      result = @klass.execute!(config)
       assert_equal config.env, result.env
     end
   end
@@ -83,18 +141,18 @@ class ConfigTest < Test::Unit::TestCase
   context "top config class" do
     setup do
       @configures_list = []
-      Vagrant::Config::Top.stubs(:configures_list).returns(@configures_list)
+      @klass::Top.stubs(:configures_list).returns(@configures_list)
     end
 
     context "adding configure keys" do
       setup do
         @key = "top_config_foo"
-        @klass = mock("klass")
+        @config_klass = mock("klass")
       end
 
       should "add key and klass to configures list" do
-        @configures_list.expects(:<<).with([@key, @klass])
-        Vagrant::Config::Top.configures(@key, @klass)
+        @configures_list.expects(:<<).with([@key, @config_klass])
+        @klass::Top.configures(@key, @config_klass)
       end
     end
 
@@ -115,7 +173,7 @@ class ConfigTest < Test::Unit::TestCase
           @configures_list << [key, klass]
         end
 
-        Vagrant::Config::Top.new(env)
+        @klass::Top.new(env)
       end
 
       should "allow reading via methods" do
@@ -124,16 +182,16 @@ class ConfigTest < Test::Unit::TestCase
         instance = mock("instance")
         instance.stubs(:env=)
         klass.expects(:new).returns(instance)
-        Vagrant::Config::Top.configures(key, klass)
+        @klass::Top.configures(key, klass)
 
-        config = Vagrant::Config::Top.new
+        config = @klass::Top.new
         assert_equal instance, config.send(key)
       end
     end
 
     context "loaded status" do
       setup do
-        @top= Vagrant::Config::Top.new
+        @top= @klass::Top.new
       end
 
       should "not be loaded by default" do
@@ -152,8 +210,8 @@ class ConfigTest < Test::Unit::TestCase
       end
 
       setup do
-        Vagrant::Config::Top.configures :deep, DeepCloneConfig
-        @top = Vagrant::Config::Top.new
+        @klass::Top.configures :deep, DeepCloneConfig
+        @top = @klass::Top.new
         @top.deep.attribute = [1,2,3]
       end
 

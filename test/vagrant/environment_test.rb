@@ -393,47 +393,36 @@ class EnvironmentTest < Test::Unit::TestCase
         @env.stubs(:root_path).returns(@root_path)
         @env.stubs(:home_path).returns(@home_path)
 
-        @parent_env = mock_environment
-
-        File.stubs(:exist?).returns(false)
-      end
-
-      should "reset the configuration object" do
-        Vagrant::Config.expects(:reset!).with(@env).once
-        @env.load_config!
+        @loader = Vagrant::Config.new(@env)
+        Vagrant::Config.stubs(:new).returns(@loader)
+        @loader.stubs(:load!)
       end
 
       should "load from the project root" do
-        File.expects(:exist?).with(File.join(Vagrant.source_root, "config", "default.rb")).once
         @env.load_config!
+        assert @loader.queue.include?(File.expand_path("config/default.rb", Vagrant.source_root))
       end
 
       should "load from the root path" do
-        File.expects(:exist?).with(File.join(@root_path, @klass::ROOTFILE_NAME)).once
         @env.load_config!
+        assert @loader.queue.include?(File.join(@root_path, @klass::ROOTFILE_NAME))
       end
 
       should "not load from the root path if nil" do
         @env.stubs(:root_path).returns(nil)
-        File.expects(:exist?).with(File.join(@root_path, @klass::ROOTFILE_NAME)).never
         @env.load_config!
+        assert !@loader.queue.include?(File.join(@root_path, @klass::ROOTFILE_NAME))
       end
 
       should "load from the home directory" do
-        File.expects(:exist?).with(File.join(@env.home_path, @klass::ROOTFILE_NAME)).once
         @env.load_config!
+        assert @loader.queue.include?(File.join(@env.home_path, @klass::ROOTFILE_NAME))
       end
 
       should "not load from the home directory if the config is nil" do
         @env.stubs(:home_path).returns(nil)
-        File.expects(:exist?).twice.returns(false)
         @env.load_config!
-      end
-
-      should "not load from the box directory if it is nil" do
-        @env.expects(:box).once.returns(nil)
-        File.expects(:exist?).twice.returns(false)
-        @env.load_config!
+        assert !@loader.queue.include?(File.join(@home_path, @klass::ROOTFILE_NAME))
       end
 
       should "load from the box directory if it is not nil" do
@@ -441,52 +430,30 @@ class EnvironmentTest < Test::Unit::TestCase
         box = mock("box")
         box.stubs(:directory).returns(dir)
         @env.expects(:box).twice.returns(box)
-        File.expects(:exist?).with(File.join(dir, @klass::ROOTFILE_NAME)).once
         @env.load_config!
+        assert @loader.queue.include?(File.join(dir, @klass::ROOTFILE_NAME))
       end
 
       should "load a sub-VM configuration if specified" do
-        vm_name = :foo
-        sub_box = :YO
-        @parent_env.config.vm.box = :NO
-        @parent_env.config.vm.define(vm_name) do |config|
-          config.vm.box = sub_box
-        end
-
-        # Sanity
-        assert_equal :NO, @parent_env.config.vm.box
-
+        vm_name = :foobar
+        proc = Proc.new {}
+        parent_env = mock_environment
+        parent_env.config.vm.define(vm_name, &proc)
+        @env.stubs(:parent).returns(parent_env)
         @env.stubs(:vm_name).returns(vm_name)
-        @env.stubs(:parent).returns(@parent_env)
 
         @env.load_config!
-
-        assert_equal sub_box, @env.config.vm.box
-      end
-
-      should "load the files only if exist? returns true" do
-        File.expects(:exist?).once.returns(true)
-        @env.expects(:load).once
-        @env.load_config!
-      end
-
-      should "not load the files if exist? returns false" do
-        @env.expects(:load).never
-        @env.load_config!
+        assert @loader.queue.flatten.include?(proc)
       end
 
       should "execute after loading and set result to environment config" do
         result = mock("result")
-        File.expects(:exist?).once.returns(true)
-        @env.expects(:load).once
-        Vagrant::Config.expects(:execute!).once.returns(result)
+        @loader.expects(:load!).once.returns(result)
         @env.load_config!
         assert_equal result, @env.config
       end
 
       should "reload the logger after executing" do
-        load_seq = sequence("load_seq")
-        Vagrant::Config.expects(:execute!).once.returns(nil).in_sequence(load_seq)
         @env.load_config!
         assert @env.instance_variable_get(:@logger).nil?
       end
