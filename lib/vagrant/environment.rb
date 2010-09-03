@@ -16,7 +16,6 @@ module Vagrant
     attr_reader :cwd
     attr_reader :root_path
     attr_reader :config
-    attr_reader :host
     attr_reader :box
     attr_accessor :vm
     attr_writer :ui
@@ -134,6 +133,11 @@ module Vagrant
       end
     end
 
+    # Returns the host object associated with this environment.
+    def host
+      @host ||= Hosts::Base.load(self, config.vagrant.host)
+    end
+
     # Returns the {Action} class for this environment which allows actions
     # to be executed (middleware chains) in the context of this environment.
     def actions
@@ -178,7 +182,6 @@ module Vagrant
       load_root_path!
       load_config!
       load_home_directory!
-      load_host!
       load_box!
       load_config!
       self.class.check_virtualbox!
@@ -263,11 +266,6 @@ module Vagrant
         logger.info "Creating home directory since it doesn't exist: #{dir}"
         FileUtils.mkdir_p(dir)
       end
-    end
-
-    # Loads the host class for this environment.
-    def load_host!
-      @host = Hosts::Base.load(self, config.vagrant.host)
     end
 
     # Loads the specified box for this environment.

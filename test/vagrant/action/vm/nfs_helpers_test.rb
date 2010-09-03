@@ -18,6 +18,7 @@ class NFSHelpersVMActionTest < Test::Unit::TestCase
   end
 
   should "not do anything if host is nil" do
+    @env.env.stubs(:host).returns(nil)
     assert_nothing_raised { @instance.clear_nfs_exports(@env) }
   end
 end

@@ -234,6 +234,20 @@ class EnvironmentTest < Test::Unit::TestCase
     end
   end
 
+  context "accessing host" do
+    setup do
+      @env = mock_environment
+    end
+
+    should "load the host once" do
+      result = mock("result")
+      Vagrant::Hosts::Base.expects(:load).with(@env, @env.config.vagrant.host).once.returns(result)
+      assert_equal result, @env.host
+      assert_equal result, @env.host
+      assert_equal result, @env.host
+    end
+  end
+
   context "accessing actions" do
     setup do
       @env = mock_environment
@@ -301,7 +315,6 @@ class EnvironmentTest < Test::Unit::TestCase
         @env.expects(:load_root_path!).once.in_sequence(call_seq)
         @env.expects(:load_config!).once.in_sequence(call_seq)
         @env.expects(:load_home_directory!).once.in_sequence(call_seq)
-        @env.expects(:load_host!).once.in_sequence(call_seq)
         @env.expects(:load_box!).once.in_sequence(call_seq)
         @env.expects(:load_config!).once.in_sequence(call_seq)
         @klass.expects(:check_virtualbox!).once.in_sequence(call_seq)
@@ -502,19 +515,6 @@ class EnvironmentTest < Test::Unit::TestCase
         File.stubs(:directory?).returns(true)
         FileUtils.expects(:mkdir_p).never
         @env.load_home_directory!
-      end
-    end
-
-    context "loading host" do
-      setup do
-        @env = mock_environment
-      end
-
-      should "load the host by calling the load method on Host::Base" do
-        result = mock("result")
-        Vagrant::Hosts::Base.expects(:load).with(@env, @env.config.vagrant.host).once.returns(result)
-        @env.load_host!
-        assert_equal result, @env.host
       end
     end
 
