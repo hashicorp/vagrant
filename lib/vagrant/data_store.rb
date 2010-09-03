@@ -25,8 +25,11 @@ module Vagrant
       return if !file_path
 
       clean_nil_and_empties
-      File.open(file_path, "w") do |f|
-        f.write(to_json)
+
+      if empty?
+        File.delete(file_path) if File.file?(file_path)
+      else
+        File.open(file_path, "w") { |f| f.write(to_json) }
       end
     end
 

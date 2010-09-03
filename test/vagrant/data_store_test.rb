@@ -11,7 +11,7 @@ class DataStoreTest < Test::Unit::TestCase
   end
 
   teardown do
-    File.delete(@db_file)
+    File.delete(@db_file) if File.file?(@db_file)
   end
 
   should "be a hash with indifferent access" do
@@ -37,6 +37,17 @@ class DataStoreTest < Test::Unit::TestCase
     @instance.commit
 
     assert_equal "changed", @klass.new(@db_file)[:foo]
+  end
+
+  should "delete the data store file if the hash is empty" do
+    @instance[:foo] = :bar
+    @instance.commit
+    assert File.exist?(@db_file)
+
+    @instance.clear
+    assert @instance.empty?
+    @instance.commit
+    assert !File.exist?(@db_file)
   end
 
   should "clean nil and empties if commit is called" do
