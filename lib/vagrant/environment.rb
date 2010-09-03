@@ -158,6 +158,7 @@ module Vagrant
     # logger which should be used to log internals only. For outward
     # facing information, use {#ui}.
     def logger
+      return parent.logger if parent
       @logger ||= Util::ResourceLogger.new(resource, self)
     end
 

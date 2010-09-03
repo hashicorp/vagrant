@@ -254,6 +254,15 @@ class EnvironmentTest < Test::Unit::TestCase
       assert_equal result, @env.logger
       assert_equal result, @env.logger
     end
+
+    should "return the parent's local data if a parent exists" do
+      @env = mock_environment
+      @env.stubs(:parent).returns(mock_environment)
+      result = @env.parent.logger
+
+      Vagrant::Util::ResourceLogger.expects(:new).never
+      assert_equal result, @env.logger
+    end
   end
 
   context "loading" do
