@@ -13,13 +13,12 @@ module Vagrant
     attr_reader :parent     # Parent environment (in the case of multi-VMs)
     attr_reader :vm_name    # The name of the VM (internal name) which this environment represents
 
-    attr_writer :cwd
+    attr_reader :cwd
     attr_reader :root_path
     attr_reader :config
     attr_reader :host
     attr_reader :box
     attr_accessor :vm
-    attr_reader :actions
     attr_writer :ui
 
     #---------------------------------------------------------------
@@ -45,16 +44,14 @@ module Vagrant
     end
 
     def initialize(opts=nil)
-      defaults = {
+      opts = {
         :parent => nil,
         :vm_name => nil,
         :vm => nil,
-        :cwd => nil
-      }
+        :cwd => Dir.pwd
+      }.merge(opts || {})
 
-      opts = defaults.merge(opts || {})
-
-      defaults.each do |key, value|
+      opts.each do |key, value|
         instance_variable_set("@#{key}".to_sym, opts[key])
       end
     end
@@ -62,14 +59,6 @@ module Vagrant
     #---------------------------------------------------------------
     # Helpers
     #---------------------------------------------------------------
-
-    # Specifies the "current working directory" for this environment.
-    # This is vital in determining the root path and therefore the
-    # dotfile, rootpath vagrantfile, etc. This defaults to the
-    # actual cwd (`Dir.pwd`).
-    def cwd
-      @cwd || Dir.pwd
-    end
 
     # The path to the `dotfile`, which contains the persisted UUID of
     # the VM if it exists.
@@ -145,6 +134,12 @@ module Vagrant
       end
     end
 
+    # Returns the {Action} class for this environment which allows actions
+    # to be executed (middleware chains) in the context of this environment.
+    def actions
+      @actions ||= Action.new(self)
+    end
+
     # Loads on initial access and reads data from the global data store.
     # The global data store is global to Vagrant everywhere (in every environment),
     # so it can be used to store system-wide information. Note that "system-wide"
@@ -188,7 +183,6 @@ module Vagrant
       load_config!
       self.class.check_virtualbox!
       load_vm!
-      load_actions!
       self
     end
 
@@ -311,13 +305,6 @@ module Vagrant
       defined_vms.each do |name|
         vms[name] = Vagrant::VM.new(:vm_name => name, :env => self)
       end
-    end
-
-    # Loads the instance of {Action} for this environment. This allows
-    # users of the instance to run action sequences in the context of
-    # this environment.
-    def load_actions!
-      @actions = Action.new(self)
     end
   end
 end

@@ -75,17 +75,6 @@ class EnvironmentTest < Test::Unit::TestCase
       @env = mock_environment
     end
 
-    context "cwd" do
-      should "default to Dir.pwd" do
-        assert_equal Dir.pwd, @env.cwd
-      end
-
-      should "return cwd if set" do
-        @env.cwd = "foo"
-        assert_equal "foo", @env.cwd
-      end
-    end
-
     context "dotfile path" do
       setup do
         @env.stubs(:root_path).returns("foo")
@@ -245,6 +234,20 @@ class EnvironmentTest < Test::Unit::TestCase
     end
   end
 
+  context "accessing actions" do
+    setup do
+      @env = mock_environment
+    end
+
+    should "initialize the Action object with the given environment" do
+      result = mock("result")
+      Vagrant::Action.expects(:new).with(@env).returns(result).once
+      assert_equal result, @env.actions
+      assert_equal result, @env.actions
+      assert_equal result, @env.actions
+    end
+  end
+
   context "global data" do
     setup do
       @env = mock_environment
@@ -303,14 +306,13 @@ class EnvironmentTest < Test::Unit::TestCase
         @env.expects(:load_config!).once.in_sequence(call_seq)
         @klass.expects(:check_virtualbox!).once.in_sequence(call_seq)
         @env.expects(:load_vm!).once.in_sequence(call_seq)
-        @env.expects(:load_actions!).once.in_sequence(call_seq)
         assert_equal @env, @env.load!
       end
     end
 
     context "loading the root path" do
       setup do
-        @env.cwd = "/foo"
+        @env.stubs(:cwd).returns("/foo")
       end
 
       should "default the path to the cwd instance var if nil" do
@@ -626,17 +628,5 @@ class EnvironmentTest < Test::Unit::TestCase
       end
     end
 
-    context "loading actions" do
-      setup do
-        @env = mock_environment
-      end
-
-      should "initialize the Action object with the given environment" do
-        result = mock("result")
-        Vagrant::Action.expects(:new).with(@env).returns(result)
-        @env.load_actions!
-        assert_equal result, @env.actions
-      end
-    end
   end
 end
