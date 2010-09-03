@@ -1,5 +1,6 @@
 ## 0.6.0 (unreleased)
 
+  - Fixed issue with not detecting Vagrantfile at root directory ("/").
   - Vagrant now gives a nice error message if there is a syntax error
     in any Vagrantfile. [GH-154]
   - The format of the ".vagrant" file which stores persisted VMs has

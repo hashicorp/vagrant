@@ -14,7 +14,6 @@ module Vagrant
     attr_reader :vm_name    # The name of the VM (internal name) which this environment represents
 
     attr_reader :cwd
-    attr_reader :root_path
     attr_reader :config
     attr_reader :box
     attr_accessor :vm
@@ -173,6 +172,21 @@ module Vagrant
       @logger ||= Util::ResourceLogger.new(resource, self)
     end
 
+    # The root path is the path where the top-most (loaded last)
+    # Vagrantfile resides. It can be considered the project root for
+    # this environment.
+    def root_path
+      return @root_path if defined?(@root_path)
+
+      root_finder = lambda do |path|
+        return path.to_s if File.exist?(File.join(path.to_s, ROOTFILE_NAME))
+        return nil if path.root?
+        root_finder.call(path.parent)
+      end
+
+      @root_path = root_finder.call(Pathname.new(cwd))
+    end
+
     #---------------------------------------------------------------
     # Load Methods
     #---------------------------------------------------------------
@@ -181,7 +195,6 @@ module Vagrant
     # such as `vm`, `config`, etc. on this environment. The order this
     # method calls its other methods is very particular.
     def load!
-      load_root_path!
       load_config!
       load_home_directory!
       load_box!
@@ -189,25 +202,6 @@ module Vagrant
       self.class.check_virtualbox!
       load_vm!
       self
-    end
-
-    # Loads the root path of this environment, given the starting
-    # directory (the "cwd" of this environment for lack of better words).
-    # This method allows an environment in `/foo` to be detected from
-    # `/foo/bar` (similar to how git works in subdirectories)
-    def load_root_path!(path=nil)
-      path = Pathname.new(File.expand_path(path || cwd))
-
-      # Stop if we're at the root.
-      return false if path.root?
-
-      file = "#{path}/#{ROOTFILE_NAME}"
-      if File.exist?(file)
-        @root_path = path.to_s
-        return true
-      end
-
-      load_root_path!(path.parent)
     end
 
     # Loads this environment's configuration and stores it in the {config}

@@ -304,6 +304,53 @@ class EnvironmentTest < Test::Unit::TestCase
     end
   end
 
+  context "loading the root path" do
+    setup do
+      @env = mock_environment
+      @env.stubs(:cwd).returns("/foo")
+    end
+
+    should "should walk the parent directories looking for rootfile" do
+      paths = [Pathname.new("/foo/bar/baz"),
+               Pathname.new("/foo/bar"),
+               Pathname.new("/foo"),
+               Pathname.new("/")
+              ]
+
+      search_seq = sequence("search_seq")
+      paths.each do |path|
+        File.expects(:exist?).with(File.join(path.to_s, @klass::ROOTFILE_NAME)).returns(false).in_sequence(search_seq)
+      end
+
+      @env.stubs(:cwd).returns(paths.first.to_s)
+      assert !@env.root_path
+    end
+
+    should "should set the path for the rootfile" do
+      path = File.expand_path("/foo")
+      @env.stubs(:cwd).returns(path)
+      File.expects(:exist?).with(File.join(path, @klass::ROOTFILE_NAME)).returns(true)
+
+      assert_equal path, @env.root_path
+    end
+
+    should "only load the root path once" do
+      File.expects(:exist?).with(File.join(@env.cwd, @klass::ROOTFILE_NAME)).returns(true).once
+
+      assert_equal @env.cwd, @env.root_path
+      assert_equal @env.cwd, @env.root_path
+      assert_equal @env.cwd, @env.root_path
+    end
+
+    should "only load the root path once even if nil" do
+      File.expects(:exist?).twice.returns(false)
+
+      assert @env.root_path.nil?
+      assert @env.root_path.nil?
+      assert @env.root_path.nil?
+    end
+  end
+
   context "loading" do
     setup do
       @env = mock_environment
@@ -312,7 +359,6 @@ class EnvironmentTest < Test::Unit::TestCase
     context "overall load method" do
       should "load! should call proper sequence and return itself" do
         call_seq = sequence("call_sequence")
-        @env.expects(:load_root_path!).once.in_sequence(call_seq)
         @env.expects(:load_config!).once.in_sequence(call_seq)
         @env.expects(:load_home_directory!).once.in_sequence(call_seq)
         @env.expects(:load_box!).once.in_sequence(call_seq)
@@ -320,69 +366,6 @@ class EnvironmentTest < Test::Unit::TestCase
         @klass.expects(:check_virtualbox!).once.in_sequence(call_seq)
         @env.expects(:load_vm!).once.in_sequence(call_seq)
         assert_equal @env, @env.load!
-      end
-    end
-
-    context "loading the root path" do
-      setup do
-        @env.stubs(:cwd).returns("/foo")
-      end
-
-      should "default the path to the cwd instance var if nil" do
-        @path = mock("path")
-        @path.stubs(:root?).returns(true)
-        File.expects(:expand_path).with(@env.cwd).returns(@env.cwd)
-        Pathname.expects(:new).with(@env.cwd).returns(@path)
-        @env.load_root_path!(nil)
-      end
-
-      should "not default the path to pwd if its not nil" do
-        @path = mock("path")
-        @path.stubs(:to_s).returns("/")
-        File.expects(:expand_path).with(@path).returns("/")
-        Pathname.expects(:new).with("/").returns(@path)
-        @path.stubs(:root?).returns(true)
-        @env.load_root_path!(@path)
-      end
-
-      should "should walk the parent directories looking for rootfile" do
-        paths = [
-          Pathname.new("/foo/bar/baz"),
-          Pathname.new("/foo/bar"),
-          Pathname.new("/foo")
-        ]
-
-        search_seq = sequence("search_seq")
-        paths.each do |path|
-          # NOTE File.expect(:expand_path) causes tests to hang in windows below is the interim solution
-          File.expects(:exist?).with("#{File.expand_path(path)}/#{@klass::ROOTFILE_NAME}").returns(false).in_sequence(search_seq)
-        end
-
-        assert !@env.load_root_path!(paths.first)
-      end
-
-      should "return false if not found" do
-        path = Pathname.new("/")
-        assert !@env.load_root_path!(path)
-      end
-
-      should "return false if not found on windows-style root" do
-        # TODO: Is there _any_ way to test this on unix machines? The
-        # expand path doesn't work [properly for the test] on unix machines.
-        if RUBY_PLATFORM.downcase.include?("mswin")
-          # Note the escaped back slash
-          path = Pathname.new("C:\\")
-          assert !@env.load_root_path!(path)
-        end
-      end
-
-      should "should set the path for the rootfile" do
-        # NOTE File.expect(:expand_path) causes tests to hang in windows below is the interim solution
-        path = File.expand_path("/foo")
-        File.expects(:exist?).with("#{path}/#{@klass::ROOTFILE_NAME}").returns(true)
-
-        assert @env.load_root_path!(Pathname.new(path))
-        assert_equal path, @env.root_path
       end
     end
 
