@@ -52,7 +52,12 @@ module Vagrant
 
       queue.flatten.each do |item|
         if item.is_a?(String) && File.exist?(item)
-          load item
+          begin
+            load item
+          rescue SyntaxError
+            # Report syntax errors in a nice way for Vagrantfiles
+            raise Errors::VagrantfileSyntaxError.new(:file => item)
+          end
         elsif item.is_a?(Proc)
           self.class.run(&item)
         end

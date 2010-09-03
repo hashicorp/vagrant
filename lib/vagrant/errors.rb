@@ -29,6 +29,10 @@ module Vagrant
         define_method(:error_namespace) { namespace }
       end
 
+      def self.force_stacktrace
+        define_method(:show_stacktrace) { true }
+      end
+
       def initialize(message=nil, *args)
         message = { :_key => message } if message && !message.is_a?(Hash)
         message = { :_key => error_key, :_namespace => error_namespace }.merge(message || {})
@@ -45,6 +49,9 @@ module Vagrant
       # The key for the error message. This should be set using the
       # {error_key} method but can be overridden here if needed.
       def error_key; nil; end
+
+      # Force the stacktrace to show (false by default)
+      def show_stacktrace; false; end
 
       protected
 
@@ -207,6 +214,12 @@ module Vagrant
     class VagrantInterrupt < VagrantError
       status_code(40)
       error_key(:interrupted)
+    end
+
+    class VagrantfileSyntaxError < VagrantError
+      status_code(41)
+      error_key(:vagrantfile_syntax_error)
+      force_stacktrace
     end
 
     class VirtualBoxInvalidOSE < VagrantError

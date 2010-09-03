@@ -57,6 +57,16 @@ class ConfigTest < Test::Unit::TestCase
       @instance.queue << filename
       @instance.load!
     end
+
+    should "raise an exception if there is a syntax error in a file" do
+      @instance.queue << "foo"
+      File.expects(:exist?).with("foo").returns(true)
+      @instance.expects(:load).with("foo").raises(SyntaxError.new)
+
+      assert_raises(Vagrant::Errors::VagrantfileSyntaxError) {
+        @instance.load!
+      }
+    end
   end
 
   context "adding configures" do

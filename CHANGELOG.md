@@ -1,5 +1,7 @@
 ## 0.6.0 (unreleased)
 
+  - Vagrant now gives a nice error message if there is a syntax error
+    in any Vagrantfile. [GH-154]
   - The format of the ".vagrant" file which stores persisted VMs has
     changed. This is **backwards incompatible**. Will provide an upgrade
     utility prior to 0.6 launch.
