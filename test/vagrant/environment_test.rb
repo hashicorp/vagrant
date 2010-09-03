@@ -245,6 +245,28 @@ class EnvironmentTest < Test::Unit::TestCase
     end
   end
 
+  context "global data" do
+    setup do
+      @env = mock_environment
+    end
+
+    should "lazy load the data store only once" do
+      result = mock("result")
+      Vagrant::DataStore.expects(:new).with(File.expand_path("global_data.json", @env.home_path)).returns(result).once
+      assert_equal result, @env.global_data
+      assert_equal result, @env.global_data
+      assert_equal result, @env.global_data
+    end
+
+    should "return the parent's local data if a parent exists" do
+      @env.stubs(:parent).returns(mock_environment)
+      result = @env.parent.global_data
+
+      Vagrant::DataStore.expects(:new).never
+      assert_equal result, @env.global_data
+    end
+  end
+
   context "loading logger" do
     should "lazy load the logger only once" do
       result = Vagrant::Util::ResourceLogger.new("vagrant", mock_environment)
