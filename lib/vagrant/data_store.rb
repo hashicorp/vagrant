@@ -5,7 +5,7 @@ module Vagrant
   # and `[]=`. If a key is set to `nil`, then it is removed from the
   # datastore. The data store is only updated on disk when {commit}
   # is called on the data store itself.
-  class DataStore < Hash
+  class DataStore < Util::HashWithIndifferentAccess
     attr_reader :file_path
 
     def initialize(file_path)
@@ -13,7 +13,7 @@ module Vagrant
       return if !file_path
 
       File.open(file_path, "r") do |f|
-        merge!(JSON.parse(f.read, :symbolize_names => true))
+        merge!(JSON.parse(f.read))
       end
     rescue Errno::ENOENT
       clear
