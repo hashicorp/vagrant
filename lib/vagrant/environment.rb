@@ -47,8 +47,10 @@ module Vagrant
         :parent => nil,
         :vm_name => nil,
         :vm => nil,
-        :cwd => Dir.pwd
+        :cwd => nil,
       }.merge(opts || {})
+
+      opts[:cwd] ||= Dir.pwd
 
       opts.each do |key, value|
         instance_variable_set("@#{key}".to_sym, opts[key])
