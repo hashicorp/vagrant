@@ -6,6 +6,10 @@ class ActionEnvironmentTest < Test::Unit::TestCase
     @instance = @klass.new(mock_environment)
   end
 
+  should "be a hash with indifferent access" do
+    assert @instance.is_a?(Vagrant::Util::HashWithIndifferentAccess)
+  end
+
   should "default values to those on the env" do
     @instance.env.stubs(:key).returns("value")
     assert_equal "value", @instance["key"]
@@ -23,13 +27,5 @@ class ActionEnvironmentTest < Test::Unit::TestCase
     assert !@instance.interrupted?
     @instance.interrupt!
     assert @instance.interrupted?
-  end
-
-  should "have indifferent access" do
-    @instance[:foo] = :bar
-    @instance["bar"] = :baz
-
-    assert_equal :bar, @instance["foo"]
-    assert_equal :baz, @instance[:bar]
   end
 end

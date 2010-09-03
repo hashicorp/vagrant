@@ -27,4 +27,13 @@ class HashWithIndifferentAccessUtilTest < Test::Unit::TestCase
     assert @instance.include?(:foo)
     assert @instance.member?(:foo)
   end
+
+  should "forward up block to Hash if given to initializer" do
+    instance = @klass.new do |h,k|
+      h[k] = "foo"
+    end
+
+    assert_equal "foo", instance[:foo]
+    assert_equal "foo", instance["foo"]
+  end
 end

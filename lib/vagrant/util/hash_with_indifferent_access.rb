@@ -10,8 +10,8 @@ module Vagrant
     #   hash['foo'] #=> 'bar'
     #
     class HashWithIndifferentAccess < ::Hash
-      def initialize(hash={})
-        super()
+      def initialize(hash={}, &block)
+        super(&block)
 
         hash.each do |key, value|
           self[convert_key(key)] = value

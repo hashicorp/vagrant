@@ -4,7 +4,7 @@ module Vagrant
     # to the `call` method of each action. This environment contains
     # some helper methods for accessing the environment as well
     # as being a hash, to store any additional options.
-    class Environment < Hash
+    class Environment < Util::HashWithIndifferentAccess
       # The {Vagrant::Environment} object represented by this
       # action environment.
       attr_reader :env
@@ -49,44 +49,6 @@ module Vagrant
       # with a SIGINT.
       def interrupted?
         !!@interrupted
-      end
-
-      #-----------------------------------------------------------------
-      # Hash with indifferent access
-      #-----------------------------------------------------------------
-      def [](key)
-        super(convert_key(key))
-      end
-
-      def []=(key, value)
-        super(convert_key(key), value)
-      end
-
-      def delete(key)
-        super(convert_key(key))
-      end
-
-      def values_at(*indices)
-        indices.collect { |key| self[convert_key(key)] }
-      end
-
-      def merge(other)
-        dup.merge!(other)
-      end
-
-      def merge!(other)
-        other.each do |key, value|
-          self[convert_key(key)] = value
-        end
-        self
-      end
-
-      def has_key?(key)
-        super(convert_key(key))
-      end
-
-      def convert_key(key)
-        key.is_a?(Symbol) ? key.to_s : key
       end
     end
   end
