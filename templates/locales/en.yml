@@ -57,11 +57,10 @@ en:
           A VM system type must be specified! This is done via the `config.vm.system`
           configuration value. Please read the documentation online for more information.
       vagrantfile_syntax_error: |-
-        There is a syntax error in the following Vagrantfile. The stack trace
-        is also printed below for convenience.
+        There is a syntax error in the following Vagrantfile. The syntax error
+        message is reproduced below for convenience:
 
         %{file}
-
       virtualbox_invalid_ose: |-
         Vagrant has detected you're using an OSE ("Open Source Edition") of VirtualBox.
         Vagrant currently doesn't support any of the OSE editions due to slight API

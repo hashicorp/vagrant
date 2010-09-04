@@ -39,13 +39,4 @@ class ErrorsTest < Test::Unit::TestCase
     klass = Class.new(@super) { error_key(:test_key_with_interpolation) }
     assert_equal I18n.t("vagrant.test.errors.test_key_with_interpolation", :key => "yo"), klass.new(:key => "yo").message
   end
-
-  should "not force stacktrace show by default" do
-    assert !@super.new.show_stacktrace
-  end
-
-  should "force stacktrace to show if enabled" do
-    klass = Class.new(@super) { force_stacktrace }
-    assert klass.new.show_stacktrace
-  end
 end

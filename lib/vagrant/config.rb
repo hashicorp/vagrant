@@ -54,9 +54,9 @@ module Vagrant
         if item.is_a?(String) && File.exist?(item)
           begin
             load item
-          rescue SyntaxError
+          rescue SyntaxError => e
             # Report syntax errors in a nice way for Vagrantfiles
-            raise Errors::VagrantfileSyntaxError.new(:file => item)
+            raise Errors::VagrantfileSyntaxError.new(:file => e.message)
           end
         elsif item.is_a?(Proc)
           self.class.run(&item)
