@@ -2,12 +2,7 @@ require "test_helper"
 
 class VMTest < Test::Unit::TestCase
   setup do
-    @mock_vm = mock("vm")
-
-    @persisted_vm = mock("persisted_vm")
-
-    @env = mock_environment
-    @env.stubs(:vm).returns(@persisted_vm)
+    @env = vagrant_env
 
     Net::SSH.stubs(:start)
   end
@@ -22,7 +17,7 @@ class VMTest < Test::Unit::TestCase
 
     should "return a Vagrant::VM object for that VM if found" do
       VirtualBox::VM.expects(:find).with("foo").returns("bar")
-      result = Vagrant::VM.find("foo", mock_environment)
+      result = Vagrant::VM.find("foo", @env)
       assert result.is_a?(Vagrant::VM)
       assert_equal "bar", result.vm
     end
@@ -31,6 +26,7 @@ class VMTest < Test::Unit::TestCase
   context "vagrant VM instance" do
     setup do
       @vm_name = "foo"
+      @mock_vm = mock("vm")
       @vm = Vagrant::VM.new(:env => @env, :vm => @mock_vm, :vm_name => @vm_name)
       @mock_vm.stubs(:uuid).returns("foo")
     end
@@ -59,7 +55,7 @@ class VMTest < Test::Unit::TestCase
       end
 
       should "add the VM to the active list" do
-        assert !@env.local_data[:active]
+        assert @env.local_data.empty?
         @vm.vm = @raw_vm
         assert_equal @raw_vm.uuid, @env.local_data[:active][@vm.name.to_sym]
       end
@@ -69,7 +65,10 @@ class VMTest < Test::Unit::TestCase
 
         assert @env.local_data[:active].has_key?(@vm.name.to_sym) # sanity
         @vm.vm = nil
-        assert !@env.local_data[:active].has_key?(@vm.name.to_sym)
+
+        # This becomes empty because vm= will commit the local data which
+        # actually prunes out the empty values.
+        assert @env.local_data.empty?
       end
     end
 
@@ -82,16 +81,11 @@ class VMTest < Test::Unit::TestCase
         Vagrant::SSH.stubs(:new).returns(@ssh)
       end
 
-      should "load it the first time" do
+      should "load it the first time, and only load it once" do
         Vagrant::SSH.expects(:new).with(@vm.env).once.returns(@ssh)
         @vm.ssh
         @vm.ssh
         @vm.ssh
-      end
-
-      should "use the same value once its loaded" do
-        result = @vm.ssh
-        assert_equal result, @vm.ssh
       end
     end
 

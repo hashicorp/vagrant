@@ -14,7 +14,6 @@ module Vagrant
     attr_reader :vm_name    # The name of the VM (internal name) which this environment represents
 
     attr_reader :cwd
-    attr_reader :config
     attr_reader :box
     attr_accessor :vm
     attr_writer :ui
@@ -84,6 +83,7 @@ module Vagrant
 
     # Returns the VMs associated with this environment.
     def vms
+      load! if !loaded?
       @vms ||= {}
     end
 
@@ -158,6 +158,14 @@ module Vagrant
       @local_data ||= DataStore.new(dotfile_path)
     end
 
+    # The configuration object represented by this environment. This
+    # will trigger the environment to load if it hasn't loaded yet (see
+    # {#load!}).
+    def config
+      load! if !loaded?
+      @config
+    end
+
     # Accesses the logger for Vagrant. This logger is a _detailed_
     # logger which should be used to log internals only. For outward
     # facing information, use {#ui}.
@@ -195,13 +203,13 @@ module Vagrant
     # such as `vm`, `config`, etc. on this environment. The order this
     # method calls its other methods is very particular.
     def load!
+      @loaded = true
       self.class.check_virtualbox!
       load_config!
       load_home_directory!
       load_box!
       load_config!
       load_vm!
-      @loaded = true
       self
     end
 

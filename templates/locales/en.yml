@@ -61,6 +61,7 @@ en:
         is also printed below for convenience.
 
         %{file}
+
       virtualbox_invalid_ose: |-
         Vagrant has detected you're using an OSE ("Open Source Edition") of VirtualBox.
         Vagrant currently doesn't support any of the OSE editions due to slight API

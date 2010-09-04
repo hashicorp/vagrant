@@ -280,6 +280,34 @@ class EnvironmentTest < Test::Unit::TestCase
     end
   end
 
+  context "accessing the configuration" do
+    should "load the environment if its not already loaded" do
+      env = @klass.new(:cwd => vagrantfile)
+      env.expects(:load!).once
+      env.config
+    end
+
+    should "not load the environment if its already loaded" do
+      env = vagrant_env
+      env.expects(:load!).never
+      env.config
+    end
+  end
+
+  context "accessing the VMs hash" do
+    should "load the environment if its not already loaded" do
+      env = @klass.new(:cwd => vagrantfile)
+      env.expects(:load!).once
+      env.vms
+    end
+
+    should "not load the environment if its already loaded" do
+      env = vagrant_env
+      env.expects(:load!).never
+      env.vms
+    end
+  end
+
   context "loading" do
     setup do
       @env = mock_environment

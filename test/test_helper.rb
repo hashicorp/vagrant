@@ -21,6 +21,7 @@ class Test::Unit::TestCase
   # Mocks an environment, setting it up with the given config.
   def mock_environment
     environment = Vagrant::Environment.new
+    environment.instance_variable_set(:@loaded, true)
 
     Vagrant::Config.reset!(environment)
 
