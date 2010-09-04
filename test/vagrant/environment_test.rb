@@ -373,7 +373,7 @@ class EnvironmentTest < Test::Unit::TestCase
 
     context "loading home directory" do
       setup do
-        @env = mock_environment
+        @env = vagrant_env
         @home_dir = File.expand_path(@env.config.vagrant.home)
 
         File.stubs(:directory?).returns(true)
@@ -398,33 +398,27 @@ class EnvironmentTest < Test::Unit::TestCase
     end
 
     context "loading box" do
-      setup do
-        @box = mock("box")
-        @box.stubs(:env=)
-
-        @env = mock_environment
-        @env.stubs(:root_path).returns("foo")
-      end
-
       should "do nothing if the root path is nil" do
+        env = @klass.new(:cwd => "/")
         Vagrant::Box.expects(:find).never
-        @env.stubs(:root_path).returns(nil)
-        @env.load_box!
+        env.load_box!
       end
 
       should "not load the box if its not set" do
-        @env = mock_environment do |config|
-          config.vm.box = nil
-        end
-
+        env = vagrant_env
+        assert env.config.vm.box.nil?
         Vagrant::Box.expects(:find).never
-        @env.load_box!
+        env.load_box!
       end
 
       should "set the box to what is found by the Box class" do
-        Vagrant::Box.expects(:find).with(@env, @env.config.vm.box).once.returns(@box)
-        @env.load_box!
-        assert @box.equal?(@env.box)
+        env = vagrant_env(vagrantfile("config.vm.box = 'foo'"))
+
+        @box = mock("box")
+        @box.stubs(:env=)
+        Vagrant::Box.expects(:find).with(env, env.config.vm.box).once.returns(@box)
+        env.load_box!
+        assert @box.equal?(env.box)
       end
     end
 
@@ -475,35 +469,29 @@ class EnvironmentTest < Test::Unit::TestCase
     end
 
     context "loading blank VMs" do
-      setup do
-        @env = mock_environment
-      end
-
       should "blank the VMs" do
-        @env = mock_environment do |config|
-          config.vm.define :foo do |foo_config|
-          end
+        env = vagrant_env(vagrantfile(<<-vf))
+          config.vm.define :foo
+          config.vm.define :bar
+        vf
 
-          config.vm.define :bar do |bar_config|
-          end
-        end
+        env.load_blank_vms!
 
-        @env.load_blank_vms!
+        assert_equal 2, env.vms.length
+        assert(env.vms.all? { |name, vm| !vm.created? })
 
-        assert_equal 2, @env.vms.length
-        assert(@env.vms.all? { |name, vm| !vm.created? })
-
-        sorted_vms = @env.vms.keys.sort { |a,b| a.to_s <=> b.to_s }
+        sorted_vms = env.vms.keys.sort { |a,b| a.to_s <=> b.to_s }
         assert_equal [:bar, :foo], sorted_vms
       end
 
       should "load the default VM blank if no multi-VMs are specified" do
-        assert @env.config.vm.defined_vms.empty? # sanity
+        env = vagrant_env
+        assert env.config.vm.defined_vms.empty? # sanity
 
-        @env.load_blank_vms!
+        env.load_blank_vms!
 
-        assert_equal 1, @env.vms.length
-        assert !@env.vms.values.first.created?
+        assert_equal 1, env.vms.length
+        assert !env.vms.values.first.created?
       end
     end
   end
