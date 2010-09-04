@@ -1,19 +1,19 @@
-# ruby-debug, not necessary, but useful if we have it
-begin
-  require 'ruby-debug'
-rescue LoadError; end
-
-require File.join(File.dirname(__FILE__), '..', 'lib', 'vagrant')
-require 'contest'
-require 'mocha'
-
 # Add this folder to the load path for "test_helper"
 $:.unshift(File.dirname(__FILE__))
+
+require 'vagrant'
+require 'contest'
+require 'mocha'
+require 'support/path'
+require 'support/environment'
 
 # Add the I18n locale for tests
 I18n.load_path << File.expand_path("../locales/en.yml", __FILE__)
 
 class Test::Unit::TestCase
+  include VagrantTestHelpers::Path
+  include VagrantTestHelpers::Environment
+
   # Mocks an environment, setting it up with the given config.
   def mock_environment
     environment = Vagrant::Environment.new
@@ -121,21 +121,6 @@ class Test::Unit::TestCase
 
     _, env = mock_action_data
     [downloader_klass.new(env), tempfile]
-  end
-
-  # Silences one or more streams for the duration of a block.
-  # This was taken from the facets library.
-  def silence_stream(*streams) #:yeild:
-    on_hold = streams.collect{ |stream| stream.dup }
-    streams.each do |stream|
-      stream.reopen(RUBY_PLATFORM =~ /mswin/ ? 'NUL:' : '/dev/null')
-      stream.sync = true
-    end
-    yield
-  ensure
-    streams.each_with_index do |stream, i|
-      stream.reopen(on_hold[i])
-    end
   end
 end
 

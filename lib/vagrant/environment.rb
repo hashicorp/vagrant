@@ -23,16 +23,8 @@ module Vagrant
     # Class Methods
     #---------------------------------------------------------------
     class << self
-      # Loads and returns an environment given a specific working
-      # directory. If a working directory is not given, it will default
-      # to the pwd.
-      def load!(cwd=nil)
-        Environment.new(:cwd => cwd).load!
-      end
-
       # Verifies that VirtualBox is installed and that the version of
-      # VirtualBox installed is high enough. Also verifies that the
-      # configuration path is properly set.
+      # VirtualBox installed is high enough.
       def check_virtualbox!
         version = VirtualBox.version
         raise Errors::VirtualBoxNotDetected.new if version.nil?
@@ -54,6 +46,8 @@ module Vagrant
       opts.each do |key, value|
         instance_variable_set("@#{key}".to_sym, opts[key])
       end
+
+      @loaded = false
     end
 
     #---------------------------------------------------------------
@@ -191,16 +185,23 @@ module Vagrant
     # Load Methods
     #---------------------------------------------------------------
 
+    # Returns a boolean representing if the environment has been
+    # loaded or not.
+    def loaded?
+      !!@loaded
+    end
+
     # Loads this entire environment, setting up the instance variables
     # such as `vm`, `config`, etc. on this environment. The order this
     # method calls its other methods is very particular.
     def load!
+      self.class.check_virtualbox!
       load_config!
       load_home_directory!
       load_box!
       load_config!
-      self.class.check_virtualbox!
       load_vm!
+      @loaded = true
       self
     end
 

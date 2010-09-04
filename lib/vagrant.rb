@@ -1,3 +1,4 @@
+require 'pathname'
 require 'json'
 require 'i18n'
 require 'virtualbox'
@@ -23,7 +24,7 @@ module Vagrant
   # The source root is the path to the root directory of
   # the Vagrant gem.
   def self.source_root
-    @source_root ||= File.expand_path('../../', __FILE__)
+    @source_root ||= Pathname.new(File.expand_path('../../', __FILE__))
   end
 end
 

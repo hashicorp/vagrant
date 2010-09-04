@@ -33,30 +33,6 @@ class EnvironmentTest < Test::Unit::TestCase
     end
   end
 
-  context "class method load!" do
-    setup do
-      @cwd = mock('cwd')
-
-      @env = mock('env')
-      @env.stubs(:load!).returns(@env)
-    end
-
-    should "create the environment with given cwd, load it, and return it" do
-      @klass.expects(:new).with(:cwd => @cwd).once.returns(@env)
-      @env.expects(:load!).returns(@env)
-      assert_equal @env, @klass.load!(@cwd)
-    end
-
-    should "work without a given cwd" do
-      @klass.expects(:new).with(:cwd => nil).returns(@env)
-
-      assert_nothing_raised {
-        env = @klass.load!
-        assert_equal env, @env
-      }
-    end
-  end
-
   context "initialization" do
     should "set the cwd if given" do
       cwd = "foobarbaz"
@@ -72,14 +48,10 @@ class EnvironmentTest < Test::Unit::TestCase
 
   context "paths" do
     setup do
-      @env = mock_environment
+      @env = vagrant_env
     end
 
     context "dotfile path" do
-      setup do
-        @env.stubs(:root_path).returns("foo")
-      end
-
       should "build up the dotfile out of the root path and the dotfile name" do
         assert_equal File.join(@env.root_path, @env.config.vagrant.dotfile_name), @env.dotfile_path
       end
@@ -98,24 +70,20 @@ class EnvironmentTest < Test::Unit::TestCase
 
     context "temp path" do
       should "return the home path joined with 'tmp'" do
-        home_path = "foo"
-        @env.stubs(:home_path).returns(home_path)
-        assert_equal File.join("foo", "tmp"), @env.tmp_path
+        assert_equal File.join(@env.home_path, "tmp"), @env.tmp_path
       end
     end
 
     context "boxes path" do
       should "return the home path joined with 'tmp'" do
-        home_path = "foo"
-        @env.stubs(:home_path).returns(home_path)
-        assert_equal File.join("foo", "boxes"), @env.boxes_path
+        assert_equal File.join(@env.home_path, "boxes"), @env.boxes_path
       end
     end
   end
 
   context "resource" do
     setup do
-      @env = mock_environment
+      @env = vagrant_env
     end
 
     should "return 'vagrant' as a default" do
@@ -129,114 +97,76 @@ class EnvironmentTest < Test::Unit::TestCase
   end
 
   context "primary VM helper" do
-    setup do
-      @env = mock_environment
-      @env.stubs(:multivm?).returns(true)
-    end
-
     should "return the first VM if not multivm" do
-      result = mock("result")
-
-      @env.stubs(:multivm?).returns(false)
-      @env.stubs(:vms).returns({:default => result})
-
-      assert_equal result, @env.primary_vm
+      env = vagrant_env
+      assert_equal env.vms[@klass::DEFAULT_VM], env.primary_vm
     end
 
     should "call and return the primary VM from the parent if has one" do
-      result = mock("result")
-      parent = mock("parent")
-      parent.expects(:primary_vm).returns(result)
+      env = vagrant_env(vagrantfile(<<-vf))
+        config.vm.define(:web, :primary => true) do; end
+        config.vm.define :db do; end
+      vf
 
-      @env.stubs(:parent).returns(parent)
-      assert_equal result, @env.primary_vm
+      assert_equal :web, env.primary_vm.name
     end
 
     should "return nil if no VM is marked as primary" do
-      @env.config.vm.define(:foo)
-      @env.config.vm.define(:bar)
-      @env.config.vm.define(:baz)
+      env = vagrant_env(vagrantfile(<<-vf))
+        config.vm.define :web
+        config.vm.define :db
+        config.vm.define :utility
+      vf
 
-      assert @env.primary_vm.nil?
-    end
-
-    should "return the primary VM" do
-      @env.config.vm.define(:foo)
-      @env.config.vm.define(:bar, :primary => true)
-      @env.config.vm.define(:baz)
-
-      result = mock("result")
-      vms = {
-        :foo => :foo,
-        :bar => result,
-        :baz => :baz
-      }
-      @env.stubs(:vms).returns(vms)
-
-      assert_equal result, @env.primary_vm
+      assert env.primary_vm.nil?
     end
   end
 
   context "multivm? helper" do
-    setup do
-      @env = mock_environment
+    should "return true if VM length greater than 1" do
+      env = vagrant_env(vagrantfile(<<-vf))
+        config.vm.define :web
+        config.vm.define :db
+      vf
+
+      assert env.multivm?
     end
 
-    context "with a parent" do
-      setup do
-        @parent = mock('parent')
-        @env.stubs(:parent).returns(@parent)
-      end
+    should "return false if VM length is 1" do
+      env = vagrant_env(vagrantfile(<<-vf))
+        config.vm.define :web
+      vf
 
-      should "return the value of multivm? from the parent" do
-        result = mock("result")
-        @parent.stubs(:multivm?).returns(result)
-        assert_equal result, @env.multivm?
-      end
-    end
-
-    context "without a parent" do
-      setup do
-        @env.stubs(:parent).returns(nil)
-      end
-
-      should "return true if VM length greater than 1" do
-        @env.stubs(:vms).returns([1,2,3])
-        assert @env.multivm?
-      end
-
-      should "return false if VM length is 1" do
-        @env.stubs(:vms).returns([1])
-        assert !@env.multivm?
-      end
+      assert !env.multivm?
     end
   end
 
   context "local data" do
-    setup do
-      @env = mock_environment
-    end
-
     should "lazy load the data store only once" do
-      result = mock("result")
-      Vagrant::DataStore.expects(:new).with(@env.dotfile_path).returns(result).once
-      assert_equal result, @env.local_data
-      assert_equal result, @env.local_data
-      assert_equal result, @env.local_data
+      result = { :foo => :bar }
+      Vagrant::DataStore.expects(:new).returns(result).once
+      env = vagrant_env
+      assert_equal result, env.local_data
+      assert_equal result, env.local_data
+      assert_equal result, env.local_data
     end
 
     should "return the parent's local data if a parent exists" do
-      @env.stubs(:parent).returns(mock_environment)
-      result = @env.parent.local_data
+      env = vagrant_env(vagrantfile(<<-vf))
+        config.vm.define :web
+        config.vm.define :db
+      vf
+
+      env.local_data[:foo] = :bar
 
       Vagrant::DataStore.expects(:new).never
-      assert_equal result, @env.local_data
+      assert_equal :bar, env.vms[:web].env.local_data[:foo]
     end
   end
 
   context "accessing host" do
     setup do
-      @env = mock_environment
+      @env = vagrant_env
     end
 
     should "load the host once" do
@@ -250,7 +180,7 @@ class EnvironmentTest < Test::Unit::TestCase
 
   context "accessing actions" do
     setup do
-      @env = mock_environment
+      @env = vagrant_env
     end
 
     should "initialize the Action object with the given environment" do
@@ -263,24 +193,25 @@ class EnvironmentTest < Test::Unit::TestCase
   end
 
   context "global data" do
-    setup do
-      @env = mock_environment
-    end
-
     should "lazy load the data store only once" do
-      result = mock("result")
-      Vagrant::DataStore.expects(:new).with(File.expand_path("global_data.json", @env.home_path)).returns(result).once
-      assert_equal result, @env.global_data
-      assert_equal result, @env.global_data
-      assert_equal result, @env.global_data
+      env = vagrant_env
+      store = env.global_data
+
+      assert env.global_data.equal?(store)
+      assert env.global_data.equal?(store)
+      assert env.global_data.equal?(store)
     end
 
     should "return the parent's local data if a parent exists" do
-      @env.stubs(:parent).returns(mock_environment)
-      result = @env.parent.global_data
+      env = vagrant_env(vagrantfile(<<-vf))
+        config.vm.define :web
+        config.vm.define :db
+      vf
+
+      result = env.global_data
 
       Vagrant::DataStore.expects(:new).never
-      assert_equal result, @env.global_data
+      assert env.vms[:web].env.global_data.equal?(result)
     end
   end
 
@@ -288,28 +219,26 @@ class EnvironmentTest < Test::Unit::TestCase
     should "lazy load the logger only once" do
       result = Vagrant::Util::ResourceLogger.new("vagrant", mock_environment)
       Vagrant::Util::ResourceLogger.expects(:new).returns(result).once
-      @env = mock_environment
-      assert_equal result, @env.logger
-      assert_equal result, @env.logger
-      assert_equal result, @env.logger
+      env = vagrant_env
+      assert_equal result, env.logger
+      assert_equal result, env.logger
+      assert_equal result, env.logger
     end
 
-    should "return the parent's local data if a parent exists" do
-      @env = mock_environment
-      @env.stubs(:parent).returns(mock_environment)
-      result = @env.parent.logger
+    should "return the parent's logger if a parent exists" do
+      env = vagrant_env(vagrantfile(<<-vf))
+        config.vm.define :web
+        config.vm.define :db
+      vf
+
+      result = env.logger
 
       Vagrant::Util::ResourceLogger.expects(:new).never
-      assert_equal result, @env.logger
+      assert env.vms[:web].env.logger.equal?(result)
     end
   end
 
   context "loading the root path" do
-    setup do
-      @env = mock_environment
-      @env.stubs(:cwd).returns("/foo")
-    end
-
     should "should walk the parent directories looking for rootfile" do
       paths = [Pathname.new("/foo/bar/baz"),
                Pathname.new("/foo/bar"),
@@ -322,32 +251,32 @@ class EnvironmentTest < Test::Unit::TestCase
         File.expects(:exist?).with(File.join(path.to_s, @klass::ROOTFILE_NAME)).returns(false).in_sequence(search_seq)
       end
 
-      @env.stubs(:cwd).returns(paths.first.to_s)
-      assert !@env.root_path
+      assert !@klass.new(:cwd => paths.first).root_path
     end
 
     should "should set the path for the rootfile" do
       path = File.expand_path("/foo")
-      @env.stubs(:cwd).returns(path)
       File.expects(:exist?).with(File.join(path, @klass::ROOTFILE_NAME)).returns(true)
 
-      assert_equal path, @env.root_path
+      assert_equal path, @klass.new(:cwd => path).root_path
     end
 
     should "only load the root path once" do
-      File.expects(:exist?).with(File.join(@env.cwd, @klass::ROOTFILE_NAME)).returns(true).once
+      env = @klass.new
+      File.expects(:exist?).with(File.join(env.cwd, @klass::ROOTFILE_NAME)).returns(true).once
 
-      assert_equal @env.cwd, @env.root_path
-      assert_equal @env.cwd, @env.root_path
-      assert_equal @env.cwd, @env.root_path
+      assert_equal env.cwd, env.root_path
+      assert_equal env.cwd, env.root_path
+      assert_equal env.cwd, env.root_path
     end
 
     should "only load the root path once even if nil" do
-      File.expects(:exist?).twice.returns(false)
+      File.stubs(:exist?).returns(false)
 
-      assert @env.root_path.nil?
-      assert @env.root_path.nil?
-      assert @env.root_path.nil?
+      env = @klass.new
+      assert env.root_path.nil?
+      assert env.root_path.nil?
+      assert env.root_path.nil?
     end
   end
 
@@ -359,11 +288,11 @@ class EnvironmentTest < Test::Unit::TestCase
     context "overall load method" do
       should "load! should call proper sequence and return itself" do
         call_seq = sequence("call_sequence")
+        @klass.expects(:check_virtualbox!).once.in_sequence(call_seq)
         @env.expects(:load_config!).once.in_sequence(call_seq)
         @env.expects(:load_home_directory!).once.in_sequence(call_seq)
         @env.expects(:load_box!).once.in_sequence(call_seq)
         @env.expects(:load_config!).once.in_sequence(call_seq)
-        @klass.expects(:check_virtualbox!).once.in_sequence(call_seq)
         @env.expects(:load_vm!).once.in_sequence(call_seq)
         assert_equal @env, @env.load!
       end
@@ -577,6 +506,5 @@ class EnvironmentTest < Test::Unit::TestCase
         assert !@env.vms.values.first.created?
       end
     end
-
   end
 end

@@ -2,10 +2,10 @@
 require 'vagrant'
 require 'vagrant/cli'
 
-env = Vagrant::Environment.load!
+env = Vagrant::Environment.new
 
 begin
-  Vagrant::CLI.start(ARGV, :env => env)
+  Vagrant::CLI.start(ARGV, :env => env.load!)
 rescue Vagrant::Errors::VagrantError => e
   opts = { :_translate => false, :_prefix => false }
   env.ui.error e.message, opts if e.message

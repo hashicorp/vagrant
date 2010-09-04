@@ -4,7 +4,7 @@ class DataStoreTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::DataStore
     @initial_data = { "foo" => "bar" }
-    @db_file = File.expand_path("test/tmp/data_store_test", Vagrant.source_root)
+    @db_file = File.join(tmp_path, "data_store_test")
     File.open(@db_file, "w") { |f| f.write(@initial_data.to_json) }
 
     @instance = @klass.new(@db_file)
