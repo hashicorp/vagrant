@@ -12,11 +12,6 @@ class ResourceLoggerUtilTest < Test::Unit::TestCase
       @result = mock("result")
     end
 
-    should "return a nil plain logger if no environment is given" do
-      Vagrant::Util::PlainLogger.expects(:new).with(nil).returns(@result)
-      assert_equal @result, @klass.singleton_logger
-    end
-
     should "return a nil plain logger if the config is not loaded" do
       env = mock_environment
       env.config.stubs(:loaded?).returns(false)

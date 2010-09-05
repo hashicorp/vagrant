@@ -124,16 +124,6 @@ class ConfigTest < Test::Unit::TestCase
       @klass.execute!
     end
 
-    should "not be loaded, initially" do
-      assert !@klass.config.loaded?
-    end
-
-    should "be loaded after running" do
-      @klass.run {}
-      @klass.execute!
-      assert @klass.config.loaded?
-    end
-
     should "return the configuration on execute!" do
       @klass.run {}
       result = @klass.execute!
@@ -196,41 +186,6 @@ class ConfigTest < Test::Unit::TestCase
 
         config = @klass::Top.new
         assert_equal instance, config.send(key)
-      end
-    end
-
-    context "loaded status" do
-      setup do
-        @top= @klass::Top.new
-      end
-
-      should "not be loaded by default" do
-        assert !@top.loaded?
-      end
-
-      should "be loaded after calling loaded!" do
-        @top.loaded!
-        assert @top.loaded?
-      end
-    end
-
-    context "deep cloning" do
-      class DeepCloneConfig < Vagrant::Config::Base
-        attr_accessor :attribute
-      end
-
-      setup do
-        @klass::Top.configures :deep, DeepCloneConfig
-        @top = @klass::Top.new
-        @top.deep.attribute = [1,2,3]
-      end
-
-      should "deep clone the object" do
-        copy = @top.deep_clone
-        copy.deep.attribute << 4
-        assert_not_equal @top.deep.attribute, copy.deep.attribute
-        assert_equal 3, @top.deep.attribute.length
-        assert_equal 4, copy.deep.attribute.length
       end
     end
   end

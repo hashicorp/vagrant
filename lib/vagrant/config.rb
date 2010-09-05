@@ -1,4 +1,5 @@
 require 'vagrant/config/base'
+require 'vagrant/config/error_recorder'
 
 module Vagrant
   # The config class is responsible for loading Vagrant configurations
@@ -35,7 +36,6 @@ module Vagrant
         config_object ||= config
 
         run_procs!(config_object)
-        config_object.loaded!
         config_object
       end
     end
@@ -89,22 +89,7 @@ module Vagrant
           instance_variable_set("@#{key}".to_sym, config)
         end
 
-        @loaded = false
         @env = env
-      end
-
-      def loaded?
-        @loaded
-      end
-
-      def loaded!
-        @loaded = true
-      end
-
-      # Deep clones the entire configuration tree using the marshalling
-      # trick. All subclasses must be able to marshal properly.
-      def deep_clone
-        Marshal.load(Marshal.dump(self))
       end
     end
   end
