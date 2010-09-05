@@ -1,5 +1,7 @@
 ## 0.6.0 (unreleased)
 
+  - Remove `config.ssh.password`. It hasn't been used for a few versions
+    now and was only kept around to avoid exceptions in Vagrantfiles.
   - Configuration is now validated so improper input can be found in
     Vagrantfiles.
   - Fixed issue with not detecting Vagrantfile at root directory ("/").

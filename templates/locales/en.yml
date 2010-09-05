@@ -86,8 +86,12 @@ en:
 # Translations for config validation errors
 #-------------------------------------------------------------------------------
     config:
-      base:
-        foo: UH OH FOO!
+      common:
+        error_empty: `%{field}` must be filled in.
+      ssh:
+        private_key_missing: "`private_key_path` file must exist: %{path}"
+      vm:
+        shared_folder_hostpath_missing: "Shared folder host path for '%{name}' doesn't exist: %{path}"
 
 #-------------------------------------------------------------------------------
 # Translations for commands. e.g. `vagrant x`

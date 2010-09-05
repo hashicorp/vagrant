@@ -9,6 +9,9 @@ class ConfigTest < Test::Unit::TestCase
     setup do
       @env = mock_environment
       @instance = @klass.new(@env)
+
+      # Don't want validation to occur for these tests
+      @klass::Top.any_instance.stubs(:validate!)
     end
 
     should "initially have an empty queue" do
@@ -80,6 +83,7 @@ class ConfigTest < Test::Unit::TestCase
 
   context "resetting" do
     setup do
+      @klass::Top.any_instance.stubs(:validate!)
       @klass.run { |config| }
       @klass.execute!
     end
@@ -111,6 +115,7 @@ class ConfigTest < Test::Unit::TestCase
   context "initializing" do
     setup do
       @klass.reset!
+      @klass::Top.any_instance.stubs(:validate!)
     end
 
     should "add the given block to the proc stack" do

@@ -13,7 +13,13 @@ module Vagrant
       end
 
       def home
-        @home ? File.expand_path(@home) : nil
+        File.expand_path(@home)
+      end
+
+      def validate(errors)
+        [:dotfile_name, :home, :host].each do |field|
+          errors.add("vagrant.config.common.error_empty", :field => field) if !instance_variable_get("@#{field}".to_sym)
+        end
       end
     end
   end

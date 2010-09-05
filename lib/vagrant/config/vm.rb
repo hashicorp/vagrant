@@ -94,6 +94,16 @@ module Vagrant
         defined_vms[name.to_sym].options.merge!(options)
         defined_vms[name.to_sym].push_proc(&block)
       end
+
+      def validate(errors)
+        shared_folders.each do |name, options|
+          if !File.directory?(File.expand_path(options[:hostpath], env.root_path))
+            errors.add("vagrant.config.vm.shared_folder_hostpath_missing",
+                       :name => name,
+                       :path => options[:hostpath])
+          end
+        end
+      end
     end
   end
 end

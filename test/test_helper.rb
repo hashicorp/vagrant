@@ -37,7 +37,7 @@ class Test::Unit::TestCase
       config.ssh.forwarded_port_key = "ssh"
       config.ssh.max_tries = 10
       config.ssh.timeout = 10
-      config.ssh.private_key_path = '~/foo'
+      config.ssh.private_key_path = File.expand_path("keys/vagrant", Vagrant.source_root)
 
       config.vm.box = "foo"
       config.vm.box_url = nil

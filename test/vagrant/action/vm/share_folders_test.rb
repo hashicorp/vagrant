@@ -14,6 +14,10 @@ class ShareFoldersVMActionTest < Test::Unit::TestCase
     @internal_vm = mock("internal")
     @vm.stubs(:vm).returns(@internal_vm)
 
+    # No validation for this test since its a nightmare due to all the
+    # nonexistent shared folders.
+    Vagrant::Config::Top.any_instance.stubs(:validate!)
+
     @instance = @klass.new(@app, @env)
   end
 
@@ -47,10 +51,6 @@ class ShareFoldersVMActionTest < Test::Unit::TestCase
   end
 
   context "collecting shared folders" do
-    setup do
-      File.stubs(:expand_path).returns("baz")
-    end
-
     should "return a hash of the shared folders" do
       data = {
         "foo" => %W[bar baz],
