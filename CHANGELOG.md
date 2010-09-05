@@ -1,5 +1,7 @@
 ## 0.6.0 (unreleased)
 
+  - Configuration is now validated so improper input can be found in
+    Vagrantfiles.
   - Fixed issue with not detecting Vagrantfile at root directory ("/").
   - Vagrant now gives a nice error message if there is a syntax error
     in any Vagrantfile. [GH-154]

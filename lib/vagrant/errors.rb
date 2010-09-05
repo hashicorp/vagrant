@@ -94,6 +94,11 @@ module Vagrant
       error_key(:cli_missing_env)
     end
 
+    class ConfigValidationFailed < VagrantError
+      status_code(42)
+      error_key(:config_validation)
+    end
+
     class DownloaderFileDoesntExist < VagrantError
       status_code(37)
       error_key(:file_missing, "vagrant.downloaders.file")

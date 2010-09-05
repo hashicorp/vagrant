@@ -120,7 +120,9 @@ class ConfigTest < Test::Unit::TestCase
     end
 
     should "run the proc stack with the config when execute is called" do
-      @klass.expects(:run_procs!).with(@klass.config).once
+      seq = sequence('seq')
+      @klass.expects(:run_procs!).with(@klass.config).once.in_sequence(seq)
+      @klass.config.expects(:validate!).once.in_sequence(seq)
       @klass.execute!
     end
 
@@ -186,6 +188,30 @@ class ConfigTest < Test::Unit::TestCase
 
         config = @klass::Top.new
         assert_equal instance, config.send(key)
+      end
+    end
+
+    context "validation" do
+      should "do nothing if no errors are added" do
+        valid_class = Class.new(@klass::Base)
+        @klass::Top.configures(:subconfig, valid_class)
+        instance = @klass::Top.new
+        assert_nothing_raised { instance.validate! }
+      end
+
+      should "raise an exception if there are errors" do
+        invalid_class = Class.new(@klass::Base) do
+          def validate(errors)
+            errors.add("vagrant.test.errors.test_key")
+          end
+        end
+
+        @klass::Top.configures(:subconfig, invalid_class)
+        instance = @klass::Top.new
+
+        assert_raises(Vagrant::Errors::ConfigValidationFailed) {
+          instance.validate!
+        }
       end
     end
   end

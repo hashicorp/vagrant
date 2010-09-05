@@ -36,6 +36,7 @@ module Vagrant
         config_object ||= config
 
         run_procs!(config_object)
+        config_object.validate!
         config_object
       end
     end
@@ -90,6 +91,23 @@ module Vagrant
         end
 
         @env = env
+      end
+
+      # Validates the configuration classes of this instance and raises an
+      # exception if they are invalid.
+      def validate!
+        # Validate each of the configured classes and store the results into
+        # a hash.
+        errors = self.class.configures_list.inject({}) do |container, data|
+          key, _ = data
+          recorder = ErrorRecorder.new
+          send(key.to_sym).validate(recorder)
+          container[key.to_sym] = recorder if !recorder.errors.empty?
+          container
+        end
+
+        return if errors.empty?
+        raise Errors::ConfigValidationFailed.new(:messages => Util::TemplateRenderer.render("config/validation_failed", :errors => errors))
       end
     end
   end
