@@ -68,11 +68,6 @@ module Vagrant
         @network_options[options[:adapter]] = options
       end
 
-      def hd_location=(val)
-        raise Exception.new("disk_storage must be set to a directory") unless File.directory?(val)
-        @hd_location=val
-      end
-
       def shared_folder_uid
         @shared_folder_uid || env.config.ssh.username
       end
