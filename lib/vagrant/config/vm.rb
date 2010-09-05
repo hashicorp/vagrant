@@ -97,7 +97,7 @@ module Vagrant
 
       def validate(errors)
         shared_folders.each do |name, options|
-          if !File.directory?(File.expand_path(options[:hostpath], env.root_path))
+          if !File.directory?(File.expand_path(options[:hostpath].to_s, env.root_path))
             errors.add("vagrant.config.vm.shared_folder_hostpath_missing",
                        :name => name,
                        :path => options[:hostpath])
