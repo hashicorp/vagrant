@@ -318,9 +318,6 @@ class EnvironmentTest < Test::Unit::TestCase
         call_seq = sequence("call_sequence")
         @klass.expects(:check_virtualbox!).once.in_sequence(call_seq)
         @env.expects(:load_config!).once.in_sequence(call_seq)
-        @env.expects(:load_home_directory!).once.in_sequence(call_seq)
-        @env.expects(:load_box!).once.in_sequence(call_seq)
-        @env.expects(:load_config!).once.in_sequence(call_seq)
         @env.expects(:load_vm!).once.in_sequence(call_seq)
         assert_equal @env, @env.load!
       end
@@ -332,6 +329,10 @@ class EnvironmentTest < Test::Unit::TestCase
         @home_path = "/bar"
         @env.stubs(:root_path).returns(@root_path)
         @env.stubs(:home_path).returns(@home_path)
+
+        # Temporary
+        @env.stubs(:load_home_directory!)
+        @env.stubs(:load_box!)
 
         @loader = Vagrant::Config.new(@env)
         Vagrant::Config.stubs(:new).returns(@loader)
@@ -388,7 +389,7 @@ class EnvironmentTest < Test::Unit::TestCase
 
       should "execute after loading and set result to environment config" do
         result = mock("result")
-        @loader.expects(:load!).once.returns(result)
+        @loader.stubs(:load!).returns(result)
         @env.load_config!
         assert_equal result, @env.config
       end

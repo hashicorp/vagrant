@@ -206,9 +206,6 @@ module Vagrant
       @loaded = true
       self.class.check_virtualbox!
       load_config!
-      load_home_directory!
-      load_box!
-      load_config!
       load_vm!
       self
     end
@@ -218,24 +215,36 @@ module Vagrant
     # this environment, meaning that it will use the given root directory
     # to load the Vagrantfile into that context.
     def load_config!
+      first_run = @config.nil?
+
+      # First load the initial, non config-dependent Vagrantfiles
       loader = Config.new(self)
       loader.queue << File.expand_path("config/default.rb", Vagrant.source_root)
-      loader.queue << File.join(box.directory, ROOTFILE_NAME) if box
-      loader.queue << File.join(home_path, ROOTFILE_NAME) if home_path
+      loader.queue << File.join(box.directory, ROOTFILE_NAME) if !first_run && box
+      loader.queue << File.join(home_path, ROOTFILE_NAME) if !first_run && home_path
       loader.queue << File.join(root_path, ROOTFILE_NAME) if root_path
 
-      # If this environment represents some VM in a multi-VM environment,
-      # we push that VM's configuration onto the config_queue.
-      if vm_name
+      # If this environment is representing a sub-VM, then we push that
+      # proc on as the last configuration.
+      if !first_run && vm_name
         subvm = parent.config.vm.defined_vms[vm_name]
         loader.queue << subvm.proc_stack if subvm
       end
 
-      # Execute the configuration stack and store the result
+      # Execute the configuration stack and store the result as the final
+      # value in the config ivar.
       @config = loader.load!
 
       # (re)load the logger
       @logger = nil
+
+      if first_run
+        # After the first run we want to load the configuration again since
+        # it can change due to box Vagrantfiles and home directory Vagrantfiles
+        load_home_directory!
+        load_box!
+        load_config!
+      end
     end
 
     # Loads the home directory path and creates the necessary subdirectories
@@ -256,8 +265,6 @@ module Vagrant
 
     # Loads the specified box for this environment.
     def load_box!
-      return unless root_path
-
       @box = Box.find(self, config.vm.box) if config.vm.box
     end
 
