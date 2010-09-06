@@ -9,8 +9,8 @@ en:
       box_not_found: Box '%{name}' could not be found.
       cli_missing_env: This command requires that a Vagrant environment be properly passed in as the last parameter.
       config_validation: |-
-        There was a problem with the configuration of Vagrant. The error messages
-        or messages are printed below:
+        There was a problem with the configuration of Vagrant. The error message(s)
+        are printed below:
 
         %{messages}
       interrupted: Vagrant exited after cleanup due to external interrupt.
@@ -21,7 +21,7 @@ en:
         SSH authentication failed! This is typically caused by the public/private
         keypair for the SSH user not being properly set on the guest VM. Please
         verify that the guest VM is setup with the proper public key, and that
-        the private key path for Vagrant is setup propery as well.
+        the private key path for Vagrant is setup properly as well.
       ssh_bad_exit_status: |-
         The following SSH command responded with a non-zero exit status.
         Vagrant assumes that this means the command failed!
@@ -165,7 +165,7 @@ en:
             in which case you may ignore this message.
           version_mismatch: |-
             The guest additions on this VM do not match the install version of
-            VirtualBox! This may cause things such as forwared ports, shared
+            VirtualBox! This may cause things such as forwarded ports, shared
             folders, and more to not work properly. If any of those things fail on
             this machine, please update the guest additions and repackage the
             box.
@@ -246,7 +246,7 @@ en:
         nfs:
           host_required: |-
             A host class is required for NFS shared folders. By default, these
-            are auto-detected, but can be overriden with `config.vagrant.host`.
+            are auto-detected, but can be overridden with `config.vagrant.host`.
             There is currently not host class loaded.
           no_host_network: |-
             NFS shared folders requires that host only networking is enabled.
@@ -313,7 +313,7 @@ en:
           compressing: "Compressing package to: %w{tar_path}"
           output_exists: |-
             The specified file to save the package as already exists. Please
-            remove this file or specify a different filename for outputting.
+            remove this file or specify a different file name for outputting.
           requires_directory: |-
             A directory was not specified to package. This should never happen
             and is a result of an internal inconsistency.
@@ -332,10 +332,10 @@ en:
     hosts:
       bsd:
         nfs_export:
-          prepare: "Preparing to edit /etc/exports. Administrator priveleges will be required..."
+          prepare: "Preparing to edit /etc/exports. Administrator privileges will be required..."
       linux:
         nfs_export:
-          prepare: "Preparing to edit /etc/exports. Administrator priveleges will be required..."
+          prepare: "Preparing to edit /etc/exports. Administrator privileges will be required..."
 
     provisioners:
       chef:
