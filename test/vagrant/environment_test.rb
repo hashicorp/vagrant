@@ -91,7 +91,7 @@ class EnvironmentTest < Test::Unit::TestCase
     end
 
     should "return the VM name if it is specified" do
-      @env.stubs(:vm_name).returns("foo")
+      @env.stubs(:vm).returns(mock("vm", :name => "foo"))
       assert_equal "foo", @env.resource
     end
   end
@@ -381,7 +381,7 @@ class EnvironmentTest < Test::Unit::TestCase
         parent_env = mock_environment
         parent_env.config.vm.define(vm_name, &proc)
         @env.stubs(:parent).returns(parent_env)
-        @env.stubs(:vm_name).returns(vm_name)
+        @env.stubs(:vm).returns(mock("vm", :name => vm_name))
 
         @env.load_config!
         assert @loader.queue.flatten.include?(proc)
@@ -484,8 +484,8 @@ class EnvironmentTest < Test::Unit::TestCase
         end
       end
 
-      should "do nothing if the vm_name is set" do
-        @env.stubs(:vm_name).returns(:foo)
+      should "do nothing if the vm is set" do
+        @env.stubs(:vm).returns(mock("vm"))
         File.expects(:open).never
         @env.load_vm!
       end

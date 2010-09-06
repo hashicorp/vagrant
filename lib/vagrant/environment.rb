@@ -11,7 +11,6 @@ module Vagrant
     DEFAULT_VM = :default
 
     attr_reader :parent     # Parent environment (in the case of multi-VMs)
-    attr_reader :vm_name    # The name of the VM (internal name) which this environment represents
 
     attr_reader :cwd
     attr_reader :box
@@ -35,7 +34,6 @@ module Vagrant
     def initialize(opts=nil)
       opts = {
         :parent => nil,
-        :vm_name => nil,
         :vm => nil,
         :cwd => nil,
       }.merge(opts || {})
@@ -78,7 +76,7 @@ module Vagrant
     # The resource is the VM name if there is a VM it represents, otherwise
     # it defaults to "vagrant"
     def resource
-      vm_name || "vagrant"
+      vm.name rescue "vagrant"
     end
 
     # Returns the VMs associated with this environment.
@@ -158,14 +156,6 @@ module Vagrant
       @local_data ||= DataStore.new(dotfile_path)
     end
 
-    # The configuration object represented by this environment. This
-    # will trigger the environment to load if it hasn't loaded yet (see
-    # {#load!}).
-    def config
-      load! if !loaded?
-      @config
-    end
-
     # Accesses the logger for Vagrant. This logger is a _detailed_
     # logger which should be used to log internals only. For outward
     # facing information, use {#ui}.
@@ -187,6 +177,18 @@ module Vagrant
       end
 
       @root_path = root_finder.call(Pathname.new(cwd))
+    end
+
+    #---------------------------------------------------------------
+    # Config Methods
+    #---------------------------------------------------------------
+
+    # The configuration object represented by this environment. This
+    # will trigger the environment to load if it hasn't loaded yet (see
+    # {#load!}).
+    def config
+      load! if !loaded?
+      @config
     end
 
     #---------------------------------------------------------------
@@ -226,8 +228,8 @@ module Vagrant
 
       # If this environment is representing a sub-VM, then we push that
       # proc on as the last configuration.
-      if !first_run && vm_name
-        subvm = parent.config.vm.defined_vms[vm_name]
+      if !first_run && vm
+        subvm = parent.config.vm.defined_vms[vm.name]
         loader.queue << subvm.proc_stack if subvm
       end
 
@@ -273,7 +275,7 @@ module Vagrant
       # This environment represents a single sub VM. The VM is then
       # probably (read: should be) set on the VM attribute, so we do
       # nothing.
-      return if vm_name
+      return if vm
 
       # First load the defaults (blank, noncreated VMs)
       load_blank_vms!
@@ -294,7 +296,7 @@ module Vagrant
       defined_vms = [DEFAULT_VM] if defined_vms.empty?
 
       defined_vms.each do |name|
-        vms[name] = Vagrant::VM.new(:vm_name => name, :env => self)
+        vms[name] = Vagrant::VM.new(:name => name, :env => self)
       end
     end
   end

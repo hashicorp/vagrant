@@ -27,7 +27,7 @@ class VMTest < Test::Unit::TestCase
     setup do
       @vm_name = "foo"
       @mock_vm = mock("vm")
-      @vm = Vagrant::VM.new(:env => @env, :vm => @mock_vm, :vm_name => @vm_name)
+      @vm = Vagrant::VM.new(:env => @env, :vm => @mock_vm, :name => @vm_name)
       @mock_vm.stubs(:uuid).returns("foo")
     end
 

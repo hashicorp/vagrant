@@ -12,7 +12,7 @@ class ImportVMActionTest < Test::Unit::TestCase
     @box.stubs(:ovf_file).returns(ovf_file)
     @env.env.stubs(:box).returns(@box)
 
-    @env.env.vm = Vagrant::VM.new(:env => @env.env, :vm_name => "foobar")
+    @env.env.vm = Vagrant::VM.new(:env => @env.env, :name => "foobar")
 
     VirtualBox::VM.stubs(:import)
 

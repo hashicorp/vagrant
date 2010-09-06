@@ -10,9 +10,9 @@ module Vagrant
     class << self
       # Finds a virtual machine by a given UUID and either returns
       # a Vagrant::VM object or returns nil.
-      def find(uuid, env=nil, vm_name=nil)
+      def find(uuid, env=nil, name=nil)
         vm = VirtualBox::VM.find(uuid)
-        new(:vm => vm, :env => env, :vm_name => vm_name)
+        new(:vm => vm, :env => env, :name => name)
       end
     end
 
@@ -20,13 +20,13 @@ module Vagrant
       defaults = {
         :vm => nil,
         :env => nil,
-        :vm_name => nil
+        :name => nil
       }
 
       opts = defaults.merge(opts || {})
 
       @vm = opts[:vm]
-      @name = opts[:vm_name]
+      @name = opts[:name]
 
       if !opts[:env].nil?
         # We have an environment, so we create a new child environment
@@ -35,7 +35,6 @@ module Vagrant
         @env = Vagrant::Environment.new({
           :cwd => opts[:env].cwd,
           :parent => opts[:env],
-          :vm_name => opts[:vm_name],
           :vm => self
         }).load!
 
