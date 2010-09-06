@@ -306,6 +306,15 @@ class EnvironmentTest < Test::Unit::TestCase
       env.expects(:load!).never
       env.vms
     end
+
+    should "return the parent's VMs hash if it has one" do
+      env = vagrant_env(vagrantfile(<<-vf))
+        config.vm.define :web
+        config.vm.define :db
+      vf
+
+      assert env.vms[:web].env.vms.equal?(env.vms)
+    end
   end
 
   context "loading" do
@@ -484,10 +493,15 @@ class EnvironmentTest < Test::Unit::TestCase
         end
       end
 
-      should "do nothing if the vm is set" do
-        @env.stubs(:vm).returns(mock("vm"))
-        File.expects(:open).never
-        @env.load_vm!
+      should "do nothing if the parent is set" do
+        env = vagrant_env(vagrantfile(<<-vf))
+          config.vm.define :web
+          config.vm.define :db
+        vf
+
+        subenv = env.vms[:web].env
+        subenv.expects(:load_blank_vms!).never
+        subenv.load_vm!
       end
 
       should "uuid should be nil if local data contains nothing" do

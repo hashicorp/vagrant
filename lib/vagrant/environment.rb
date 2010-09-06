@@ -81,6 +81,7 @@ module Vagrant
 
     # Returns the VMs associated with this environment.
     def vms
+      return parent.vms if parent
       load! if !loaded?
       @vms ||= {}
     end
@@ -275,7 +276,7 @@ module Vagrant
       # This environment represents a single sub VM. The VM is then
       # probably (read: should be) set on the VM attribute, so we do
       # nothing.
-      return if vm
+      return if parent
 
       # First load the defaults (blank, noncreated VMs)
       load_blank_vms!
