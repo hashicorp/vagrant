@@ -13,12 +13,12 @@ module Vagrant
       if klass <= Command::GroupBase
         # A subclass of GroupBase is a subcommand, since it contains
         # many smaller commands within it.
-        desc usage, description
+        desc usage, description, opts
         subcommand name, klass
       elsif klass <= Command::Base
         # A subclass of Base is a single command, since it
-        # is invoked as a whole.
-        desc usage, description
+        # is invoked as a whole (as Thor::Group)
+        desc usage, description, opts
         define_method(name) { |*args| invoke klass, args }
       end
 
