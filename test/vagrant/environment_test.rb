@@ -1,4 +1,5 @@
 require "test_helper"
+require "pathname"
 
 class EnvironmentTest < Test::Unit::TestCase
   setup do
@@ -37,12 +38,12 @@ class EnvironmentTest < Test::Unit::TestCase
     should "set the cwd if given" do
       cwd = "foobarbaz"
       env = @klass.new(:cwd => cwd)
-      assert_equal cwd, env.cwd
+      assert_equal Pathname.new(cwd), env.cwd
     end
 
     should "default to pwd if cwd is nil" do
       env = @klass.new
-      assert_equal Dir.pwd, env.cwd
+      assert_equal Pathname.new(Dir.pwd), env.cwd
     end
   end
 
@@ -252,7 +253,7 @@ class EnvironmentTest < Test::Unit::TestCase
       path = File.expand_path("/foo")
       File.expects(:exist?).with(File.join(path, @klass::ROOTFILE_NAME)).returns(true)
 
-      assert_equal path, @klass.new(:cwd => path).root_path
+      assert_equal Pathname.new(path), @klass.new(:cwd => path).root_path
     end
 
     should "only load the root path once" do

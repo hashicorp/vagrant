@@ -39,6 +39,7 @@ module Vagrant
       }.merge(opts || {})
 
       opts[:cwd] ||= Dir.pwd
+      opts[:cwd] = Pathname.new(opts[:cwd])
 
       opts.each do |key, value|
         instance_variable_set("@#{key}".to_sym, opts[key])
@@ -172,12 +173,12 @@ module Vagrant
       return @root_path if defined?(@root_path)
 
       root_finder = lambda do |path|
-        return path.to_s if File.exist?(File.join(path.to_s, ROOTFILE_NAME))
+        return path if File.exist?(File.join(path.to_s, ROOTFILE_NAME))
         return nil if path.root?
         root_finder.call(path.parent)
       end
 
-      @root_path = root_finder.call(Pathname.new(cwd))
+      @root_path = root_finder.call(cwd)
     end
 
     #---------------------------------------------------------------
