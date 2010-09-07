@@ -167,7 +167,7 @@ class EnvironmentTest < Test::Unit::TestCase
 
   context "accessing host" do
     should "load the host once" do
-      env = @klass.new(:cwd => vagrant_app)
+      env = @klass.new(:cwd => vagrantfile)
       result = mock("result")
       Vagrant::Hosts::Base.expects(:load).with(env, env.config.vagrant.host).once.returns(result)
       assert_equal result, env.host
