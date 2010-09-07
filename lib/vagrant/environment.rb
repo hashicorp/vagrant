@@ -206,11 +206,14 @@ module Vagrant
     # such as `vm`, `config`, etc. on this environment. The order this
     # method calls its other methods is very particular.
     def load!
-      @loaded = true
-      self.class.check_virtualbox!
-      load_config!
-      load_vm!
-      actions.run(:environment_load)
+      if !loaded?
+        @loaded = true
+        self.class.check_virtualbox!
+        load_config!
+        load_vm!
+        actions.run(:environment_load)
+      end
+
       self
     end
 

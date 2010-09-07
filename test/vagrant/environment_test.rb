@@ -318,12 +318,13 @@ class EnvironmentTest < Test::Unit::TestCase
 
     context "overall load method" do
       should "load! should call proper sequence and return itself" do
+        env = @klass.new(:cwd => vagrantfile)
         call_seq = sequence("call_sequence")
         @klass.expects(:check_virtualbox!).once.in_sequence(call_seq)
-        @env.expects(:load_config!).once.in_sequence(call_seq)
-        @env.expects(:load_vm!).once.in_sequence(call_seq)
-        @env.actions.expects(:run).with(:environment_load).once.in_sequence(call_seq)
-        assert_equal @env, @env.load!
+        env.expects(:load_config!).once.in_sequence(call_seq)
+        env.expects(:load_vm!).once.in_sequence(call_seq)
+        env.actions.expects(:run).with(:environment_load).once.in_sequence(call_seq)
+        assert_equal env, env.load!
       end
     end
 
