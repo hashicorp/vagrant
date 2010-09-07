@@ -165,30 +165,24 @@ class EnvironmentTest < Test::Unit::TestCase
   end
 
   context "accessing host" do
-    setup do
-      @env = vagrant_env
-    end
-
     should "load the host once" do
+      env = @klass.new(:cwd => vagrant_app)
       result = mock("result")
-      Vagrant::Hosts::Base.expects(:load).with(@env, @env.config.vagrant.host).once.returns(result)
-      assert_equal result, @env.host
-      assert_equal result, @env.host
-      assert_equal result, @env.host
+      Vagrant::Hosts::Base.expects(:load).with(env, env.config.vagrant.host).once.returns(result)
+      assert_equal result, env.host
+      assert_equal result, env.host
+      assert_equal result, env.host
     end
   end
 
   context "accessing actions" do
-    setup do
-      @env = vagrant_env
-    end
-
     should "initialize the Action object with the given environment" do
+      env = @klass.new(:cwd => vagrant_app)
       result = mock("result")
-      Vagrant::Action.expects(:new).with(@env).returns(result).once
-      assert_equal result, @env.actions
-      assert_equal result, @env.actions
-      assert_equal result, @env.actions
+      Vagrant::Action.expects(:new).with(env).returns(result).once
+      assert_equal result, env.actions
+      assert_equal result, env.actions
+      assert_equal result, env.actions
     end
   end
 
@@ -328,6 +322,7 @@ class EnvironmentTest < Test::Unit::TestCase
         @klass.expects(:check_virtualbox!).once.in_sequence(call_seq)
         @env.expects(:load_config!).once.in_sequence(call_seq)
         @env.expects(:load_vm!).once.in_sequence(call_seq)
+        @env.actions.expects(:run).with(:environment_load).once.in_sequence(call_seq)
         assert_equal @env, @env.load!
       end
     end

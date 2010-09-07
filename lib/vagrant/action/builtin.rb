@@ -117,6 +117,12 @@ module Vagrant
       end
 
       register :box_repackage, box_repackage
+
+      # post_load - Called after environment is loaded
+      environment_load = Builder.new do
+      end
+
+      register :environment_load, environment_load
     end
   end
 end
