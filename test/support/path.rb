@@ -4,7 +4,9 @@ module VagrantTestHelpers
   module Path
     # Path to the tmp directory for the tests
     def tmp_path
-      Vagrant.source_root.join("test", "tmp")
+      result = Vagrant.source_root.join("test", "tmp")
+      FileUtils.mkdir_p(result)
+      result
     end
 
     # Path to the "home" directory for the tests
