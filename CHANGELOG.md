@@ -30,6 +30,8 @@
 ## 0.5.4 (September 7, 2010)
 
   - Fix issue with the "exec failed" by running on Tiger as well.
+  - Give an error when downloading a box which already exists prior
+    to actually downloading the box.
 
 ## 0.5.3 (August 23, 2010)
 
