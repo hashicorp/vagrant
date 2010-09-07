@@ -7,7 +7,7 @@ class BaseProvisionerTest < Test::Unit::TestCase
 
   context "base instance" do
     setup do
-      @env = Vagrant::Action::Environment.new(mock_environment)
+      @env = Vagrant::Action::Environment.new(vagrant_env)
       @base = Vagrant::Provisioners::Base.new(@env)
     end
 

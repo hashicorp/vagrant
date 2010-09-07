@@ -8,7 +8,7 @@ class BaseHostTest < Test::Unit::TestCase
   context "class methods" do
     context "loading" do
       setup do
-        @env = mock_environment
+        @env = vagrant_env
       end
 
       should "return detected class if klass is nil" do

@@ -4,7 +4,7 @@ class ShellUITest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::UI::Shell
     @shell = mock("shell")
-    @instance = @klass.new(mock_environment, @shell)
+    @instance = @klass.new(vagrant_env, @shell)
   end
 
   context "prefixing with resource" do

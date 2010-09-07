@@ -2,8 +2,7 @@ require "test_helper"
 
 class ConfigSSHTest < Test::Unit::TestCase
   setup do
-    @env = mock_environment
-    @env.stubs(:root_path).returns("foo")
+    @env = vagrant_env
   end
 
   should "expand any path when requesting the value" do

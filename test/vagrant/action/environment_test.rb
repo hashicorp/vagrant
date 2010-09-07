@@ -3,7 +3,7 @@ require "test_helper"
 class ActionEnvironmentTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Action::Environment
-    @instance = @klass.new(mock_environment)
+    @instance = @klass.new(vagrant_env)
   end
 
   should "be a hash with indifferent access" do

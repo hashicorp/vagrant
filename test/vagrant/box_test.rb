@@ -3,7 +3,7 @@ require "test_helper"
 class BoxTest < Test::Unit::TestCase
   context "class methods" do
     setup do
-      @env = mock_environment
+      @env = vagrant_env
     end
 
     context "listing all boxes" do
@@ -112,7 +112,7 @@ class BoxTest < Test::Unit::TestCase
   context "instance methods" do
     setup do
       @box = Vagrant::Box.new
-      @box.env = mock_environment
+      @box.env = vagrant_env
     end
 
     should "execute the Add action when add is called" do

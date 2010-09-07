@@ -2,7 +2,7 @@ require "test_helper"
 
 class ChefProvisionerTest < Test::Unit::TestCase
   setup do
-    @action_env = Vagrant::Action::Environment.new(mock_environment)
+    @action_env = Vagrant::Action::Environment.new(vagrant_env)
     @action_env.env.vm = mock_vm
 
     @action = Vagrant::Provisioners::Chef.new(@action_env)

@@ -29,7 +29,7 @@ class CLITest < Test::Unit::TestCase
 
       name = "__test_registering_with_alias"
       @klass.register(base, name, name, "A description", :alias => "--ALIAS")
-      assert_raises(RuntimeError) { @klass.start(["--ALIAS"], :env => mock_environment) }
+      assert_raises(RuntimeError) { @klass.start(["--ALIAS"], :env => vagrant_env) }
     end
   end
 end

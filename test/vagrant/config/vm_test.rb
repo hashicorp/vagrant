@@ -4,7 +4,7 @@ class ConfigVMTest < Test::Unit::TestCase
   setup do
     @username = "mitchellh"
 
-    @env = mock_environment
+    @env = vagrant_env
     @config = @env.config.vm
     @env.config.ssh.username = @username
   end

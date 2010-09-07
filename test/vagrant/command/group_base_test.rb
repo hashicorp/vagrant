@@ -3,7 +3,7 @@ require "test_helper"
 class CommandGroupBaseTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Command::GroupBase
-    @env = mock_environment
+    @env = vagrant_env
   end
 
   context "initialization" do

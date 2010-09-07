@@ -7,7 +7,7 @@ class ConfigTest < Test::Unit::TestCase
 
   context "with an instance" do
     setup do
-      @env = mock_environment
+      @env = vagrant_env
       @instance = @klass.new(@env)
 
       # Don't want validation to occur for these tests

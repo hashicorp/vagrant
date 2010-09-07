@@ -24,7 +24,7 @@ class ActionTest < Test::Unit::TestCase
 
   context "with an instance" do
     setup do
-      @instance = @klass.new(mock_environment)
+      @instance = @klass.new(vagrant_env)
     end
 
     should "raise an exception if a nil action is given" do

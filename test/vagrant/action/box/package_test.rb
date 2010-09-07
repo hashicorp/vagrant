@@ -3,8 +3,8 @@ require "test_helper"
 class PackageBoxActionTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Action::Box::Package
-    @app, @env = mock_action_data
-    @env["box"] = Vagrant::Box.new(mock_environment, "foo")
+    @app, @env = action_env
+    @env["box"] = Vagrant::Box.new(vagrant_env, "foo")
 
     @instance = @klass.new(@app, @env)
   end

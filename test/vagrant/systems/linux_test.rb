@@ -4,7 +4,7 @@ class LinuxSystemTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Systems::Linux
     @ssh = mock("ssh")
-    @mock_env = mock_environment
+    @mock_env = vagrant_env
     @vm = mock("vm")
     @vm.stubs(:env).returns(@mock_env)
     @instance = @klass.new(@vm)

@@ -13,7 +13,7 @@ class ResourceLoggerUtilTest < Test::Unit::TestCase
     end
 
     should "return a nil plain logger if the config is not loaded" do
-      env = mock_environment
+      env = vagrant_env
       env.config.stubs(:loaded?).returns(false)
 
       Vagrant::Util::PlainLogger.expects(:new).with(nil).returns(@result)
@@ -22,7 +22,7 @@ class ResourceLoggerUtilTest < Test::Unit::TestCase
 
     should "return a logger with the specified output if environment is ready" do
       output = mock("output")
-      env = mock_environment
+      env = vagrant_env
       env.config.vagrant.log_output = output
 
       Vagrant::Util::PlainLogger.expects(:new).with(output).returns(@result)
@@ -31,7 +31,7 @@ class ResourceLoggerUtilTest < Test::Unit::TestCase
 
     should "only load the logger once" do
       output = mock("output")
-      env = mock_environment
+      env = vagrant_env
       env.config.vagrant.log_output = output
 
       Vagrant::Util::PlainLogger.expects(:new).with(output).returns(@result)
@@ -43,7 +43,7 @@ class ResourceLoggerUtilTest < Test::Unit::TestCase
 
   context "initialization" do
     should "setup the logger and attributes" do
-      env = mock_environment
+      env = vagrant_env
       resource = mock("resource")
       result = mock("result")
 
@@ -58,7 +58,7 @@ class ResourceLoggerUtilTest < Test::Unit::TestCase
   context "with an instance" do
     setup do
       @resource = "foo"
-      @env = mock_environment
+      @env = vagrant_env
       @logger = mock("logger")
 
       @klass.stubs(:singleton_logger).returns(@logger)

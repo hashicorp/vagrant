@@ -3,15 +3,9 @@ require "test_helper"
 class DownloadBoxActionTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Action::Box::Download
-    @app, @env = mock_action_data
-
-    @vm = mock("vm")
-    @env["vm"] = @vm
-    @env["box"] = Vagrant::Box.new(mock_environment, "foo")
+    @app, @env = action_env
+    @env["box"] = Vagrant::Box.new(vagrant_env, "foo")
     @env["box"].uri = "http://google.com"
-
-    @internal_vm = mock("internal")
-    @vm.stubs(:vm).returns(@internal_vm)
   end
 
   context "initializing" do

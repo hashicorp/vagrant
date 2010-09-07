@@ -18,7 +18,7 @@ class CommandHelpersTest < Test::Unit::TestCase
     end
 
     should "not raise an exception if environment is given and setup UI" do
-      env = mock_environment
+      env = vagrant_env
       assert_nothing_raised { command([], env) }
       assert env.ui.is_a?(Vagrant::UI::Shell)
     end
@@ -26,7 +26,7 @@ class CommandHelpersTest < Test::Unit::TestCase
 
   context "vms from args" do
     setup do
-      @env = mock_environment
+      @env = vagrant_env
       @env.stubs(:root_path).returns(7)
     end
 

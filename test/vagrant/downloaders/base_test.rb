@@ -7,7 +7,7 @@ class BaseDownloaderTest < Test::Unit::TestCase
 
   context "base instance" do
     setup do
-      @env = mock_environment
+      @env = vagrant_env
       @base = Vagrant::Downloaders::Base.new(@env)
     end
 

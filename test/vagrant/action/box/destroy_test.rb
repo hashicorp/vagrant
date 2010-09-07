@@ -3,14 +3,8 @@ require "test_helper"
 class DestroyBoxActionTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Action::Box::Destroy
-    @app, @env = mock_action_data
-
-    @vm = mock("vm")
-    @env["vm"] = @vm
-    @env["box"] = Vagrant::Box.new(mock_environment, "foo")
-
-    @internal_vm = mock("internal")
-    @vm.stubs(:vm).returns(@internal_vm)
+    @app, @env = action_env
+    @env["box"] = Vagrant::Box.new(vagrant_env, "foo")
 
     @instance = @klass.new(@app, @env)
   end
