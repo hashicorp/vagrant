@@ -212,7 +212,7 @@ class EnvironmentTest < Test::Unit::TestCase
 
   context "loading logger" do
     should "lazy load the logger only once" do
-      result = Vagrant::Util::ResourceLogger.new("vagrant", mock_environment)
+      result = Vagrant::Util::ResourceLogger.new("vagrant", vagrant_env)
       Vagrant::Util::ResourceLogger.expects(:new).returns(result).once
       env = vagrant_env
       assert_equal result, env.logger
@@ -313,10 +313,6 @@ class EnvironmentTest < Test::Unit::TestCase
   end
 
   context "loading" do
-    setup do
-      @env = mock_environment
-    end
-
     context "overall load method" do
       should "load! should call proper sequence and return itself" do
         env = @klass.new(:cwd => vagrantfile)
@@ -331,73 +327,55 @@ class EnvironmentTest < Test::Unit::TestCase
 
     context "loading config" do
       setup do
-        @root_path = "/foo"
-        @home_path = "/bar"
-        @env.stubs(:root_path).returns(@root_path)
-        @env.stubs(:home_path).returns(@home_path)
+        clean_paths
+        @env = @klass.new(:cwd => vagrantfile)
+      end
 
-        # Temporary
-        @env.stubs(:load_home_directory!)
-        @env.stubs(:load_box!)
+      def create_box_vagrantfile
+        vagrantfile(vagrant_box("box"), 'config.package.name = "box.box"')
+      end
 
-        @loader = Vagrant::Config.new(@env)
-        Vagrant::Config.stubs(:new).returns(@loader)
-        @loader.stubs(:load!)
+      def create_home_vagrantfile
+        vagrantfile(home_path, 'config.package.name = "home.box"')
+      end
+
+      def create_root_vagrantfile
+        vagrantfile(@env.root_path, 'config.package.name = "root.box"')
       end
 
       should "load from the project root" do
-        @env.load_config!
-        assert @loader.queue.include?(File.expand_path("config/default.rb", Vagrant.source_root))
+        assert_equal "package.box", @env.config.package.name
       end
 
-      should "load from the root path" do
-        @env.load_config!
-        assert @loader.queue.include?(File.join(@root_path, @klass::ROOTFILE_NAME))
+      should "load from box if specified" do
+        create_box_vagrantfile
+        vagrantfile(@env.root_path, "config.vm.box = 'box'")
+
+        assert_equal "box.box", @env.config.package.name
       end
 
-      should "not load from the root path if nil" do
-        @env.stubs(:root_path).returns(nil)
-        @env.load_config!
-        assert !@loader.queue.include?(File.join(@root_path, @klass::ROOTFILE_NAME))
+      should "load from home path if exists" do
+        create_home_vagrantfile
+        assert_equal "home.box", @env.config.package.name
       end
 
-      should "load from the home directory" do
-        @env.load_config!
-        assert @loader.queue.include?(File.join(@env.home_path, @klass::ROOTFILE_NAME))
+      should "load from root path" do
+        create_home_vagrantfile
+        create_root_vagrantfile
+        assert_equal "root.box", @env.config.package.name
       end
 
-      should "not load from the home directory if the config is nil" do
-        @env.stubs(:home_path).returns(nil)
-        @env.load_config!
-        assert !@loader.queue.include?(File.join(@home_path, @klass::ROOTFILE_NAME))
-      end
+      should "load from a sub-vm configuration if environment represents a VM" do
+        create_home_vagrantfile
+        vagrantfile(@env.root_path, <<-vf)
+          config.package.name = "root.box"
+          config.vm.define :web do |web|
+            web.package.name = "web.box"
+          end
+        vf
 
-      should "load from the box directory if it is not nil" do
-        dir = "foo"
-        box = mock("box")
-        box.stubs(:directory).returns(dir)
-        @env.expects(:box).twice.returns(box)
-        @env.load_config!
-        assert @loader.queue.include?(File.join(dir, @klass::ROOTFILE_NAME))
-      end
-
-      should "load a sub-VM configuration if specified" do
-        vm_name = :foobar
-        proc = Proc.new {}
-        parent_env = mock_environment
-        parent_env.config.vm.define(vm_name, &proc)
-        @env.stubs(:parent).returns(parent_env)
-        @env.stubs(:vm).returns(mock("vm", :name => vm_name))
-
-        @env.load_config!
-        assert @loader.queue.flatten.include?(proc)
-      end
-
-      should "execute after loading and set result to environment config" do
-        result = mock("result")
-        @loader.stubs(:load!).returns(result)
-        @env.load_config!
-        assert_equal result, @env.config
+        assert_equal "root.box", @env.config.package.name
+        assert_equal "web.box", @env.vms[:web].env.config.package.name
       end
 
       should "reload the logger after executing" do

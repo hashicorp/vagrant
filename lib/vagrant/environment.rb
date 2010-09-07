@@ -231,7 +231,7 @@ module Vagrant
       loader.queue << File.expand_path("config/default.rb", Vagrant.source_root)
       loader.queue << File.join(box.directory, ROOTFILE_NAME) if !first_run && box
       loader.queue << File.join(home_path, ROOTFILE_NAME) if !first_run && home_path
-      loader.queue << File.join(root_path, ROOTFILE_NAME) if root_path
+      loader.queue << File.join(root_path, ROOTFILE_NAME)
 
       # If this environment is representing a sub-VM, then we push that
       # proc on as the last configuration.

@@ -35,5 +35,12 @@ module VagrantTestHelpers
       path ||= vagrantfile
       Vagrant::Environment.new(:cwd => path).load!
     end
+
+    # Creates the folder to contain a vagrant box
+    def vagrant_box(name)
+      result = boxes_path.join(name)
+      FileUtils.mkdir_p(result)
+      result
+    end
   end
 end
