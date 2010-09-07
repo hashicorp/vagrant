@@ -11,7 +11,7 @@ module Vagrant
       @env = env
     end
 
-    [:warn, :error, :info, :confirm, :say_with_vm, :report_progress].each do |method|
+    [:warn, :error, :info, :confirm, :say_with_vm, :report_progress, :ask, :no?, :yes?].each do |method|
       # By default these methods don't do anything. A silent UI.
       define_method(method) { |*args| }
     end
@@ -27,10 +27,14 @@ module Vagrant
 
       [[:warn, :yellow], [:error, :red], [:info, nil], [:confirm, :green]].each do |method, color|
         define_method(method) do |message, opts=nil|
-          opts = { :_prefix => true, :_translate => true }.merge(opts || {})
-          message = I18n.t(message, opts) if opts[:_translate]
-          message = format_message(message) if opts[:_prefix]
-          @shell.say("#{line_reset}#{message}", color)
+          @shell.say("#{line_reset}#{format_message(message, opts)}", color)
+        end
+      end
+
+      [:ask, :no?, :yes?].each do |method|
+        define_method(method) do |message, opts=nil|
+          opts ||= {}
+          @shell.send(method, format_message(message, opts), opts[:_color])
         end
       end
 
@@ -45,8 +49,11 @@ module Vagrant
 
       protected
 
-      def format_message(message)
-        "[#{env.resource}] #{message}"
+      def format_message(message, opts=nil)
+        opts = { :_prefix => true, :_translate => true }.merge(opts || {})
+        message = I18n.t(message, opts) if opts[:_translate]
+        message = "[#{env.resource}] #{message}" if opts[:_prefix]
+        message
       end
 
       def line_reset
