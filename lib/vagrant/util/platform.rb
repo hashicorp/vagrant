@@ -5,8 +5,12 @@ module Vagrant
     # This class just contains some platform checking code.
     class Platform
       class << self
+        def tiger?
+          platform.include?("darwin8")
+        end
+
         def leopard?
-          RUBY_PLATFORM.downcase.include?("darwin9")
+          platform.include?("darwin9")
         end
 
         [:darwin, :bsd, :linux].each do |type|
