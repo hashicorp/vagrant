@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/mitchellh/radar.git
-  revision: cec6c4b
+  revision: cec6c4bed8a26ca7512f32ddfdb2b25b3b710a8e
   specs:
     radar (0.4.0.dev)
       builder (~> 2.0)
@@ -8,7 +8,7 @@ GIT
 
 GIT
   remote: git://github.com/mitchellh/virtualbox.git
-  revision: 69db76b
+  revision: 1696cc62accd063a8e318950468191cd201c9965
   specs:
     virtualbox (0.7.5)
       ffi (>= 0.6.3)
@@ -68,7 +68,7 @@ GEM
     ruby_core_source (0.1.4)
       archive-tar-minitar (>= 0.5.2)
     thor (0.14.0)
-    yard (0.5.8)
+    yard (0.6.1)
 
 PLATFORMS
   ruby
