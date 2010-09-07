@@ -54,7 +54,7 @@ class EnvironmentTest < Test::Unit::TestCase
 
     context "dotfile path" do
       should "build up the dotfile out of the root path and the dotfile name" do
-        assert_equal File.join(@env.root_path, @env.config.vagrant.dotfile_name), @env.dotfile_path
+        assert_equal @env.root_path.join(@env.config.vagrant.dotfile_name), @env.dotfile_path
       end
     end
 

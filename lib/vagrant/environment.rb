@@ -55,7 +55,7 @@ module Vagrant
     # The path to the `dotfile`, which contains the persisted UUID of
     # the VM if it exists.
     def dotfile_path
-      root_path ? File.join(root_path, config.vagrant.dotfile_name) : nil
+      root_path.join(config.vagrant.dotfile_name) rescue nil
     end
 
     # The path to the home directory, which is usually in `~/.vagrant/~
