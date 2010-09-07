@@ -41,7 +41,7 @@ module Vagrant
       # (GH-51). As a workaround, we fork and wait. On all other platforms,
       # we simply exec.
       pid = nil
-      pid = fork if Util::Platform.leopard?
+      pid = fork if Util::Platform.leopard? || Util::Platform.tiger?
       Kernel.exec "ssh #{command_options.join(" ")} #{options[:username]}@#{options[:host]}".strip if pid.nil?
       Process.wait(pid) if pid
     end

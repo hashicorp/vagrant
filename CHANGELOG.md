@@ -1,3 +1,7 @@
+## 0.5.4 (September 7, 2010)
+
+  - Fix issue with the "exec failed" by running on Tiger as well.
+
 ## 0.5.3 (August 23, 2010)
 
   - Add erubis as a dependency since its rendering of `erb` is sane.
