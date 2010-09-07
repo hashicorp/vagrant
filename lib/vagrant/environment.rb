@@ -209,6 +209,7 @@ module Vagrant
     def load!
       if !loaded?
         @loaded = true
+        raise Errors::NoEnvironmentError.new if !root_path
         self.class.check_virtualbox!
         load_config!
         load_vm!

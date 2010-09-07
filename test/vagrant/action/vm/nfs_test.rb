@@ -3,7 +3,7 @@ require "test_helper"
 class NFSVMActionTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Action::VM::NFS
-    @app, @env = mock_action_data
+    @app, @env = action_env
 
     @vm = mock("vm")
     @vm.stubs(:system).returns(mock("system"))
@@ -109,11 +109,12 @@ class NFSVMActionTest < Test::Unit::TestCase
       end
 
       should "return nil if the perm is not set" do
+        @env.env.config.nfs.map_uid = nil
         assert_nil @instance.prepare_permission(:uid, {:gid => 7})
       end
 
       should "return nil if the perm explicitly says nil" do
-        assert_nil @instance.prepare_permission(:uid, {:uid => nil})
+        assert_nil @instance.prepare_permission(:uid, {:map_uid => nil})
       end
 
       should "return the set value if it is set" do

@@ -7,6 +7,7 @@ require 'contest'
 require 'mocha'
 require 'support/path'
 require 'support/environment'
+require 'support/objects'
 
 # Try to load ruby debug since its useful if it is available.
 # But not a big deal if its not available (probably on a non-MRI
@@ -25,6 +26,7 @@ I18n.load_path << File.expand_path("../locales/en.yml", __FILE__)
 class Test::Unit::TestCase
   include VagrantTestHelpers::Path
   include VagrantTestHelpers::Environment
+  include VagrantTestHelpers::Objects
 
   # Mocks an environment, setting it up with the given config.
   def mock_environment
@@ -102,9 +104,10 @@ class Test::Unit::TestCase
     vm
   end
 
-  def mock_action_data
+  def mock_action_data(v_env=nil)
+    v_env ||= vagrant_env
     app = lambda { |env| }
-    env = Vagrant::Action::Environment.new(mock_environment)
+    env = Vagrant::Action::Environment.new(v_env)
     env["vagrant.test"] = true
     [app, env]
   end

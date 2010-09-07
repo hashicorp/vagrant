@@ -24,22 +24,6 @@ class CommandHelpersTest < Test::Unit::TestCase
     end
   end
 
-  context "requiring environment" do
-    setup do
-      @env = mock_environment
-    end
-
-    should "raise an exception if no environment" do
-      @env.stubs(:root_path).returns(nil)
-      assert_raises(Vagrant::Errors::NoEnvironmentError) { command([], @env).require_environment }
-    end
-
-    should "not raise an exception if there is an environment" do
-      @env.stubs(:root_path).returns(7)
-      assert_nothing_raised { command([], @env).require_environment }
-    end
-  end
-
   context "vms from args" do
     setup do
       @env = mock_environment

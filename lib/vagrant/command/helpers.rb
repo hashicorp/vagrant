@@ -9,15 +9,9 @@ module Vagrant
         @env.ui = UI::Shell.new(@env, shell) if !@env.ui.is_a?(UI::Shell)
       end
 
-      def require_environment
-        raise Errors::NoEnvironmentError.new if !env.root_path
-      end
-
       # This returns an array of {VM} objects depending on the arguments
       # given to the command.
       def target_vms
-        require_environment
-
         @target_vms ||= begin
           if env.multivm?
             return env.vms.values if !self.name

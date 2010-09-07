@@ -433,12 +433,6 @@ class EnvironmentTest < Test::Unit::TestCase
     end
 
     context "loading box" do
-      should "do nothing if the root path is nil" do
-        env = @klass.new(:cwd => "/")
-        Vagrant::Box.expects(:find).never
-        env.load_box!
-      end
-
       should "not load the box if its not set" do
         env = vagrant_env
         assert env.config.vm.box.nil?
@@ -459,11 +453,7 @@ class EnvironmentTest < Test::Unit::TestCase
 
     context "loading the UUID out from the persisted dotfile" do
       setup do
-        @local_data = {}
-
-        @env = mock_environment
-        @env.stubs(:root_path).returns("foo")
-        @env.stubs(:local_data).returns(@local_data)
+        @env = vagrant_env
       end
 
       should "blank the VMs" do
@@ -474,13 +464,13 @@ class EnvironmentTest < Test::Unit::TestCase
       end
 
       should "load all the VMs from the dotfile" do
-        @local_data[:active] = { :foo => "bar", :bar => "baz" }
+        @env.local_data[:active] = { "foo" => "bar", "bar" => "baz" }
 
         results = {}
-        @local_data[:active].each do |key, value|
+        @env.local_data[:active].each do |key, value|
           vm = mock("vm#{key}")
           Vagrant::VM.expects(:find).with(value, @env, key.to_sym).returns(vm)
-          results[key] = vm
+          results[key.to_sym] = vm
         end
 
         @env.load_vm!
@@ -502,7 +492,7 @@ class EnvironmentTest < Test::Unit::TestCase
       end
 
       should "uuid should be nil if local data contains nothing" do
-        assert @local_data.empty? # sanity
+        assert @env.local_data.empty? # sanity
         @env.load_vm!
         assert_nil @env.vm
       end

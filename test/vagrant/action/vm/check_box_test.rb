@@ -3,8 +3,6 @@ require 'test_helper'
 class CheckBoxVMActionTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Action::VM::CheckBox
-    @app, @env = mock_action_data
-    @instance = @klass.new(@app, @env)
   end
 
   context "calling" do
@@ -13,34 +11,48 @@ class CheckBoxVMActionTest < Test::Unit::TestCase
     end
 
     should "raise error if box not specified" do
-      @env.env.config.vm.box = nil
-      @app.expects(:call).never
+      app, env = action_env(vagrant_env(vagrantfile(<<-vf)))
+        config.vm.box = nil
+      vf
+
+      instance = @klass.new(app, env)
+      app.expects(:call).never
 
       assert_raises(Vagrant::Errors::BoxNotSpecified) {
-        @instance.call(@env)
+        instance.call(env)
       }
     end
 
     should "error if box does not exist and URL not specified" do
-      @env.env.config.vm.box_url = nil
-      Vagrant::Box.expects(:find).with(@env.env, @env["config"].vm.box).returns(nil)
+      app, env = action_env(vagrant_env(vagrantfile(<<-vf)))
+        config.vm.box = "yo"
+        config.vm.box_url = nil
+      vf
 
-      @app.expects(:call).never
+      instance = @klass.new(app, env)
+      app.expects(:call).never
+      Vagrant::Box.expects(:find).with(env.env, env["config"].vm.box).returns(nil)
+
       assert_raises(Vagrant::Errors::BoxSpecifiedDoesntExist) {
-        @instance.call(@env)
+        instance.call(env)
       }
     end
 
     should "attempt to download box and continue if URL specified" do
+      app, env = action_env(vagrant_env(vagrantfile(<<-vf)))
+        config.vm.box = "yo"
+        config.vm.box_url = "http://google.com"
+      vf
+
+      instance = @klass.new(app, env)
       seq = sequence("seq")
-      @env.env.config.vm.box_url = "bar"
       Vagrant::Box.expects(:find).returns(nil)
-      Vagrant::Box.expects(:add).with(@env.env, @env["config"].vm.box, @env["config"].vm.box_url).in_sequence(seq)
-      @env.env.expects(:load_box!).in_sequence(seq)
-      @app.expects(:call).with(@env).once.in_sequence(seq)
+      Vagrant::Box.expects(:add).with(env.env, env["config"].vm.box, env["config"].vm.box_url).in_sequence(seq)
+      env.env.expects(:load_box!).in_sequence(seq)
+      app.expects(:call).with(env).once.in_sequence(seq)
 
       assert_nothing_raised {
-        @instance.call(@env)
+        instance.call(env)
       }
     end
   end

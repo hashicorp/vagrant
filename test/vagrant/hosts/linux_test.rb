@@ -3,10 +3,9 @@ require "test_helper"
 class LinuxHostTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Hosts::Linux
-    @env = mock_environment
-    @env.stubs(:vm).returns(Vagrant::VM.new(:env => @env))
+    @env = vagrant_env
 
-    @instance = @klass.new(@env)
+    @instance = @klass.new(@env.vms.values.first.env)
   end
 
   context "supporting nfs check" do
@@ -39,7 +38,7 @@ class LinuxHostTest < Test::Unit::TestCase
     should "output the lines of the rendered template" do
       output = %W[foo bar baz].join("\n")
       Vagrant::Util::TemplateRenderer.expects(:render).with("nfs/exports_linux",
-                                                            :uuid => @env.vm.uuid,
+                                                            :uuid => @instance.env.vm.uuid,
                                                             :ip => @ip,
                                                             :folders => @folders).returns(output)
 

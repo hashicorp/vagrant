@@ -91,7 +91,7 @@ module Vagrant
 
           # The options on the hash get priority, then the default
           # values
-          value = opts[key] || @env["config"].nfs.send(key)
+          value = opts.has_key?(key) ? opts[key] : @env["config"].nfs.send(key)
           return value if value != :auto
 
           # Get UID/GID from folder if we've made it this far
