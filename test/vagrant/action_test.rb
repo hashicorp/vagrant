@@ -7,7 +7,7 @@ class ActionTest < Test::Unit::TestCase
 
   context "with a class" do
     teardown do
-      @klass.actions.clear
+      @klass.actions.delete(:foo)
     end
 
     should "be able to register an action" do
@@ -25,10 +25,6 @@ class ActionTest < Test::Unit::TestCase
   context "with an instance" do
     setup do
       @instance = @klass.new(mock_environment)
-    end
-
-    teardown do
-      @klass.actions.clear
     end
 
     should "raise an exception if a nil action is given" do
@@ -74,6 +70,7 @@ class ActionTest < Test::Unit::TestCase
 
       @klass.register(:call, callable)
       @instance.run(:call)
+      @klass.actions.delete(:call)
     end
 
     should "run the given class if a class is given" do

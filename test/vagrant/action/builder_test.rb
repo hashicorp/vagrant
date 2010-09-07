@@ -155,10 +155,6 @@ class ActionBuilderTest < Test::Unit::TestCase
     end
 
     context "converting to an app" do
-      teardown do
-        Vagrant::Action.actions.clear
-      end
-
       should "make non-classes lambdas" do
         env = Vagrant::Action::Environment.new(nil)
         env.expects(:foo).once
