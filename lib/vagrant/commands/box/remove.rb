@@ -12,7 +12,6 @@ module Vagrant
             return
           end
 
-
           box = Vagrant::Box.find(env, args[0])
           if box.nil?
             error_and_exit(:box_remove_doesnt_exist)

@@ -12,6 +12,12 @@ module Vagrant
             return
           end
 
+          box = Vagrant::Box.find(env, args[0])
+          if !box.nil?
+            error_and_exit(:box_already_exists)
+            return # for tests
+          end
+
           Vagrant::Box.add(env, args[0], args[1])
         end
 
