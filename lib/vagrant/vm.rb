@@ -89,9 +89,9 @@ module Vagrant
       env.local_data[:active] ||= {}
 
       if value && value.uuid
-        env.local_data[:active][name.to_sym] = value.uuid
+        env.local_data[:active][name.to_s] = value.uuid
       else
-        env.local_data[:active].delete(name.to_sym)
+        env.local_data[:active].delete(name.to_s)
       end
 
       # Commit the local data so that the next time vagrant is initialized,

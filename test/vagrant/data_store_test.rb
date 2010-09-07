@@ -26,6 +26,13 @@ class DataStoreTest < Test::Unit::TestCase
     assert_equal @initial_data["foo"], @instance[:foo]
   end
 
+  should "read the data by stringifying keys" do
+    @instance[:bar] = { "baz" => "yay" }
+    @instance.commit
+    @instance = @klass.new(@db_file)
+    assert_equal "yay", @instance[:bar]["baz"]
+  end
+
   should "write the data, but not save it right away" do
     @instance[:foo] = "changed"
     assert_equal "changed", @instance[:foo]

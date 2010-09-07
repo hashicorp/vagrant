@@ -57,13 +57,13 @@ class VMTest < Test::Unit::TestCase
       should "add the VM to the active list" do
         assert @env.local_data.empty?
         @vm.vm = @raw_vm
-        assert_equal @raw_vm.uuid, @env.local_data[:active][@vm.name.to_sym]
+        assert_equal @raw_vm.uuid, @env.local_data[:active][@vm.name.to_s]
       end
 
       should "remove the VM from the active list if nil is given" do
-        @env.local_data[:active] = { @vm.name.to_sym => "foo" }
+        @env.local_data[:active] = { @vm.name.to_s => "foo" }
 
-        assert @env.local_data[:active].has_key?(@vm.name.to_sym) # sanity
+        assert @env.local_data[:active].has_key?(@vm.name.to_s) # sanity
         @vm.vm = nil
 
         # This becomes empty because vm= will commit the local data which
