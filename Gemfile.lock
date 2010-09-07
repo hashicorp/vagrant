@@ -34,6 +34,7 @@ GEM
     abstract (1.0.0)
     archive-tar-minitar (0.5.2)
     builder (2.1.2)
+    columnize (0.3.1)
     contest (0.1.2)
     erubis (2.6.6)
       abstract (>= 1.0.0)
@@ -41,6 +42,9 @@ GEM
       rake (>= 0.8.7)
     i18n (0.4.1)
     json (1.4.6)
+    linecache (0.43)
+    linecache19 (0.5.11)
+      ruby_core_source (>= 0.1.4)
     mario (0.0.6)
     mocha (0.9.8)
       rake
@@ -48,6 +52,21 @@ GEM
       net-ssh (>= 1.99.1)
     net-ssh (2.0.23)
     rake (0.8.7)
+    ruby-debug (0.10.3)
+      columnize (>= 0.1)
+      ruby-debug-base (~> 0.10.3.0)
+    ruby-debug-base (0.10.3)
+      linecache (>= 0.3)
+    ruby-debug-base19 (0.11.24)
+      columnize (>= 0.3.1)
+      linecache19 (>= 0.5.11)
+      ruby_core_source (>= 0.1.4)
+    ruby-debug19 (0.11.6)
+      columnize (>= 0.3.1)
+      linecache19 (>= 0.5.11)
+      ruby-debug-base19 (>= 0.11.19)
+    ruby_core_source (0.1.4)
+      archive-tar-minitar (>= 0.5.2)
     thor (0.14.0)
     yard (0.5.8)
 
@@ -59,6 +78,8 @@ DEPENDENCIES
   mocha
   radar!
   rake
+  ruby-debug
+  ruby-debug19
   vagrant!
   virtualbox!
   yard

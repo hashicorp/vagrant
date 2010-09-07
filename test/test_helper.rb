@@ -8,6 +8,14 @@ require 'mocha'
 require 'support/path'
 require 'support/environment'
 
+# Try to load ruby debug since its useful if it is available.
+# But not a big deal if its not available (probably on a non-MRI
+# platform)
+begin
+  require 'ruby-debug'
+rescue LoadError
+end
+
 # Silence Mario by sending log output to black hole
 Mario::Platform.logger(nil)
 

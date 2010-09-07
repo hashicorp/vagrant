@@ -14,5 +14,12 @@ group :test do
   gem "contest", ">= 0.1.2"
   gem "mocha"
   gem "yard"
-  gem "ruby-debug", ">= 0.10.3" if RUBY_VERSION < '1.9'
+
+  platforms :mri_18 do
+    gem "ruby-debug"
+  end
+
+  platforms :mri_19 do
+    gem "ruby-debug19"
+  end
 end
