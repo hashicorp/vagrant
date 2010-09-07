@@ -1,3 +1,5 @@
+require 'fileutils'
+
 module Vagrant
   module Command
     class UpgradeTo060Command < Base
@@ -12,19 +14,29 @@ module Vagrant
           return
         end
 
-        if !@env.local_data.empty?
+        local_data = @env.local_data
+        if !local_data.empty?
+          if local_data[:active]
+            @env.ui.confirm "vagrant.commands.upgrade_to_060.already_done", :_prefix => false
+            return
+          end
+
+          # Backup the previous file
+          @env.ui.info "vagrant.commands.upgrade_to_060.backing_up", :_prefix => false
+          FileUtils.cp(local_data.file_path, "#{local_data.file_path}.bak-#{Time.now.to_i}")
+
           # Gather the previously set virtual machines into a single
           # active hash
-          active = @env.local_data.inject({}) do |acc, data|
+          active = local_data.inject({}) do |acc, data|
             key, uuid = data
             acc[key.to_sym] = uuid
             acc
           end
 
           # Set the active hash to the active list and save it
-          @env.local_data.clear
-          @env.local_data[:active] = active
-          @env.local_data.commit
+          local_data.clear
+          local_data[:active] = active
+          local_data.commit
         end
 
         @env.ui.confirm "vagrant.commands.upgrade_to_060.complete", :_prefix => false
