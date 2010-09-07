@@ -112,24 +112,6 @@ class Test::Unit::TestCase
     [app, env]
   end
 
-  # Returns a resource logger which is safe for tests
-  def quiet_logger(resource, env=nil)
-    logger = Vagrant::ResourceLogger.new(resource, env)
-    logger.stubs(:flush_progress)
-    logger.stubs(:cl_reset).returns("")
-    logger
-  end
-
-  # Returns a linux system
-  def linux_system(vm)
-    Vagrant::Systems::Linux.new(vm)
-  end
-
-  def stub_default_action_dependecies(mock)
-    mock.stubs(:precedes).returns([])
-    mock.stubs(:follows).returns([])
-  end
-
   # Sets up the mocks and stubs for a downloader
   def mock_downloader(downloader_klass)
     tempfile = mock("tempfile")

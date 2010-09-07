@@ -100,10 +100,10 @@ class LinuxSystemTest < Test::Unit::TestCase
     should "add uid AND gid to mount" do
       uid = "foo"
       gid = "bar"
-      env = mock_environment do |config|
-        config.vm.shared_folder_uid = uid
-        config.vm.shared_folder_gid = gid
-      end
+      env = vagrant_env(vagrantfile(<<-vf))
+        config.vm.shared_folder_uid = "#{uid}"
+        config.vm.shared_folder_gid = "#{gid}"
+      vf
 
       @vm.stubs(:env).returns(env)
 

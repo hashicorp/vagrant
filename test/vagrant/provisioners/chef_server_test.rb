@@ -30,18 +30,19 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
     end
 
     should "not raise an exception if validation_key_path is set" do
-      @env = mock_environment do |config|
+      @env = vagrant_env(vagrantfile(<<-vf))
         config.chef.validation_key_path = "7"
-      end
+        config.chef.chef_server_url = "7"
+      vf
 
       @action.stubs(:env).returns(@env)
       assert_nothing_raised { @action.prepare }
     end
 
     should "raise an exception if validation_key_path is nil" do
-      @env = mock_environment do |config|
+      @env = vagrant_env(vagrantfile(<<-vf))
         config.chef.validation_key_path = nil
-      end
+      vf
 
       @action.stubs(:env).returns(@env)
 
@@ -51,21 +52,20 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
     end
 
     should "not raise an exception if validation_key_path does exist" do
-      @env = mock_environment do |config|
-        config.chef.validation_key_path = "7"
-      end
+      @env = vagrant_env(vagrantfile(<<-vf))
+        config.chef.validation_key_path = "#{vagrantfile(tmp_path)}"
+        config.chef.chef_server_url = "7"
+      vf
 
       @action.stubs(:env).returns(@env)
-      @action.stubs(:validation_key_path).returns("9")
-
-      File.expects(:file?).with(@action.validation_key_path).returns(true)
       assert_nothing_raised { @action.prepare }
     end
 
     should "raise an exception if validation_key_path doesn't exist" do
-      @env = mock_environment do |config|
+      @env = vagrant_env(vagrantfile(<<-vf))
         config.chef.validation_key_path = "7"
-      end
+        config.chef.chef_server_url = "7"
+      vf
 
       @action.stubs(:env).returns(@env)
       @action.stubs(:validation_key_path).returns("9")
@@ -77,18 +77,19 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
     end
 
     should "not raise an exception if chef_server_url is set" do
-      @env = mock_environment do |config|
+      @env = vagrant_env(vagrantfile(<<-vf))
+        config.chef.validation_key_path = "#{vagrantfile(tmp_path)}"
         config.chef.chef_server_url = "7"
-      end
+      vf
 
       @action.stubs(:env).returns(@env)
       assert_nothing_raised { @action.prepare }
     end
 
     should "raise an exception if chef_server_url is nil" do
-      @env = mock_environment do |config|
+      @env = vagrant_env(vagrantfile(<<-vf))
         config.chef.chef_server_url = nil
-      end
+      vf
 
       @action.stubs(:env).returns(@env)
 

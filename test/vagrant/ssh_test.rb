@@ -2,11 +2,7 @@ require "test_helper"
 
 class SshTest < Test::Unit::TestCase
   def mock_ssh
-    @env = mock_environment do |config|
-      yield config if block_given?
-    end
-
-    @forwarded_ports = []
+    @env = vagrant_env
     @network_adapters = []
     @vm = mock("vm")
     @vm.stubs(:network_adapters).returns(@network_adapters)
@@ -18,7 +14,7 @@ class SshTest < Test::Unit::TestCase
   end
 
   setup do
-    VirtualBox.stubs(:version).returns("3.1.4")
+    VirtualBox.stubs(:version).returns("3.2.4")
   end
 
   context "connecting to external SSH" do
