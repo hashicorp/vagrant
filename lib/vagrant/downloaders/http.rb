@@ -15,8 +15,14 @@ module Vagrant
       end
 
       def download!(source_url, destination_file)
-        uri = URI.parse(source_url)
-        http = Net::HTTP.new(uri.host, uri.port)
+        if ENV['http_proxy']
+          proxy_uri = URI.parse(ENV['http_proxy'])
+          uri = URI.parse(source_url)
+          http = Net::HTTP.new(uri.host, uri.port, proxy_uri.host, proxy_uri.port, proxy_uri.user, proxy_uri.password)
+        else          
+          uri = URI.parse(source_url)
+          http = Net::HTTP.new(uri.host, uri.port)
+        end
         if uri.scheme == "https"
           http.use_ssl = true
           http.verify_mode = OpenSSL::SSL::VERIFY_NONE
