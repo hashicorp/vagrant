@@ -21,19 +21,11 @@ class ShareFoldersVMActionTest < Test::Unit::TestCase
     @instance = @klass.new(@app, @env)
   end
 
-  def stub_shared_folders
-    env = mock_environment do |config|
+  def stub_shared_folders(contents)
+    env = vagrant_env(vagrantfile(<<-vf))
       config.vm.shared_folders.clear
-
-      if block_given?
-        yield config
-      else
-        folders = [%w{foo fooguest foohost}, %w{bar barguest barhost}]
-        folders.each do |data|
-          config.vm.share_folder(*data)
-        end
-      end
-    end
+      #{contents}
+    vf
 
     @env.stubs(:env).returns(env)
     env.config.vm.shared_folders
@@ -57,11 +49,10 @@ class ShareFoldersVMActionTest < Test::Unit::TestCase
         "bar" => %W[foo baz]
       }
 
-      stub_shared_folders do |config|
-        data.each do |name, value|
-          config.vm.share_folder(name, *value)
-        end
-      end
+      stub_shared_folders(<<-sf)
+        config.vm.share_folder("foo", "bar", "baz")
+        config.vm.share_folder("bar", "foo", "baz")
+      sf
 
       result = @instance.shared_folders
       assert_equal data.length, result.length
@@ -73,20 +64,20 @@ class ShareFoldersVMActionTest < Test::Unit::TestCase
     end
 
     should "ignore disabled shared folders" do
-      stub_shared_folders do |config|
+      stub_shared_folders(<<-sf)
         config.vm.share_folder("v-foo", "/foo", "/foo")
         config.vm.share_folder("v-root", "/vagrant", ".", :disabled => true)
         config.vm.share_folder("v-bar", "/bar", "/bar")
-      end
+      sf
 
       assert_equal 2, @instance.shared_folders.length
       assert_equal %W[v-bar v-foo], @instance.shared_folders.keys.sort
     end
 
     should "not destroy original hash" do
-      @folders = stub_shared_folders do |config|
+      @folders = stub_shared_folders(<<-sf)
         config.vm.share_folder("foo", "bar", "baz", :sync => true)
-      end
+      sf
 
       folder = @folders["foo"].dup
 
@@ -97,7 +88,10 @@ class ShareFoldersVMActionTest < Test::Unit::TestCase
 
   context "setting up shared folder metadata" do
     setup do
-      stub_shared_folders
+      stub_shared_folders(<<-sf)
+        config.vm.share_folder("foo", "fooguest", "foohost")
+        config.vm.share_folder("bar", "barguest", "barhost")
+      sf
     end
 
     should "add all shared folders to the VM" do
@@ -119,7 +113,10 @@ class ShareFoldersVMActionTest < Test::Unit::TestCase
 
   context "mounting the shared folders" do
     setup do
-      @folders = stub_shared_folders
+      @folders = stub_shared_folders(<<-sf)
+        config.vm.share_folder("foo", "fooguest", "foohost")
+        config.vm.share_folder("bar", "barguest", "barhost")
+      sf
       @ssh = mock("ssh")
       @vm.ssh.stubs(:execute).yields(@ssh)
       @vm.system.stubs(:mount_shared_folder)
