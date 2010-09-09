@@ -6,8 +6,6 @@ module Vagrant
       register "status"
 
       def route
-        require_environment
-
         state = nil
         results = env.vms.collect do |name, vm|
           state ||= vm.created? ? vm.vm.state.to_s : "not_created"
