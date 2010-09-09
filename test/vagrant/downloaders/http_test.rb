@@ -10,6 +10,8 @@ class HttpDownloaderTest < Test::Unit::TestCase
 
   context "downloading" do
     setup do
+      ENV["http_proxy"] = nil
+
       @parsed_uri = URI.parse(@uri)
       @http = Net::HTTP.new(@parsed_uri.host, @parsed_uri.port)
       Net::HTTP.stubs(:new).returns(@http)
@@ -17,7 +19,15 @@ class HttpDownloaderTest < Test::Unit::TestCase
     end
 
     should "create a proper net/http object" do
-      Net::HTTP.expects(:new).with(@parsed_uri.host, @parsed_uri.port).once.returns(@http)
+      Net::HTTP.expects(:new).with(@parsed_uri.host, @parsed_uri.port, nil, nil, nil, nil).once.returns(@http)
+      @http.expects(:start)
+      @downloader.download!(@uri, @tempfile)
+    end
+
+    should "create a proper net/http object with a proxy" do
+      ENV["http_proxy"] = "http://user:foo@google.com"
+      @proxy = URI.parse(ENV["http_proxy"])
+      Net::HTTP.expects(:new).with(@parsed_uri.host, @parsed_uri.port, @proxy.host, @proxy.port, @proxy.user, @proxy.password).once.returns(@http)
       @http.expects(:start)
       @downloader.download!(@uri, @tempfile)
     end
