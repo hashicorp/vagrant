@@ -48,7 +48,7 @@ module Vagrant
       def mount_shared_folder(ssh, name, guestpath)
         ssh.exec!("sudo mkdir -p #{guestpath}")
         mount_folder(ssh, name, guestpath)
-        ssh.exec!("sudo chown #{config.ssh.username} #{guestpath}")
+        ssh.exec!("sudo chown #{vm.env.config.ssh.username} #{guestpath}")
       end
 
       def mount_nfs(ip, folders)
@@ -108,10 +108,6 @@ module Vagrant
           raise LinuxError.new(:mount_fail) if attempts >= 10
           sleep sleeptime
         end
-      end
-
-      def config
-        vm.env.config
       end
     end
 
