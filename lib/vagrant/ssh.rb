@@ -7,6 +7,8 @@ module Vagrant
   # replace the process with SSH itself, run a specific set of commands,
   # upload files, or even check if a host is up.
   class SSH
+    include Util::Retryable
+
     # Reference back up to the environment which this SSH object belongs
     # to
     attr_accessor :env
@@ -57,14 +59,16 @@ module Vagrant
       opts = opts.dup
       opts[:forward_agent] = true if env.config.ssh.forward_agent
 
-      Net::SSH.start(env.config.ssh.host,
-                     env.config.ssh.username,
-                     opts.merge( :port => port,
-                                 :keys => [env.config.ssh.private_key_path],
-                                 :user_known_hosts_file => [],
-                                 :paranoid => false,
-                                 :config => false)) do |ssh|
-        yield SSH::Session.new(ssh)
+      retryable(:tries => 5, :on => Errno::ECONNREFUSED) do
+        Net::SSH.start(env.config.ssh.host,
+                       env.config.ssh.username,
+                       opts.merge( :port => port,
+                                   :keys => [env.config.ssh.private_key_path],
+                                   :user_known_hosts_file => [],
+                                   :paranoid => false,
+                                   :config => false)) do |ssh|
+          yield SSH::Session.new(ssh)
+        end
       end
     end
 
@@ -72,16 +76,11 @@ module Vagrant
     # or StringIO, and `to` is expected to be a path. This method simply forwards
     # the arguments to `Net::SCP#upload!` so view that for more information.
     def upload!(from, to)
-      tries = 5
-
-      begin
+      retryable(:tries => 5, :on => IOError) do
         execute do |ssh|
           scp = Net::SCP.new(ssh.session)
           scp.upload!(from, to)
         end
-      rescue IOError
-        retry if (tries -= 1) > 0
-        raise
       end
     end
 

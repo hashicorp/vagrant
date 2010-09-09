@@ -1,5 +1,7 @@
 ## 0.6.0 (unreleased)
 
+  - SSH connection is retried 5 times if there is a connection refused.
+    Related to GH-140.
   - If `http_proxy` environmental variable is set, it will be used as the proxy
     box adding via http.
   - Remove `config.ssh.password`. It hasn't been used for a few versions

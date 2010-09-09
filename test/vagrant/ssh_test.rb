@@ -170,13 +170,6 @@ class SshTest < Test::Unit::TestCase
       @ssh.expects(:execute).yields(ssh).once
       @ssh.upload!("foo", "bar")
     end
-
-    should "retry 5 times" do
-      @ssh.expects(:execute).times(5).raises(IOError)
-      assert_raises(IOError) {
-        @ssh.upload!("foo", "bar")
-      }
-    end
   end
 
   context "checking if host is up" do
@@ -204,7 +197,7 @@ class SshTest < Test::Unit::TestCase
     end
 
     should "return false if the connection is refused" do
-      Net::SSH.expects(:start).raises(Errno::ECONNREFUSED)
+      Net::SSH.expects(:start).times(5).raises(Errno::ECONNREFUSED)
       assert_nothing_raised {
         assert !@ssh.up?
       }
