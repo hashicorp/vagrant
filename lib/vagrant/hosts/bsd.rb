@@ -3,17 +3,11 @@ module Vagrant
     # Represents a BSD host, such as FreeBSD and Darwin (Mac OS X).
     class BSD < Base
       include Util
+      include Util::Retryable
 
       def nfs?
-        tries = 10
-        begin
+        retryable(:tries => 10, :on => TypeError) do
           system("which nfsd > /dev/null 2>&1")
-        rescue TypeError
-          tries -= 1
-          retry if tries > 0
-
-          # Hopefully this point isn't reached
-          raise
         end
       end
 
