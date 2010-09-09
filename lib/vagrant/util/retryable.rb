@@ -13,7 +13,10 @@ module Vagrant
         begin
           return yield
         rescue opts[:on]
-          retry if (opts[:tries] -= 1) > 0
+          if (opts[:tries] -= 1) > 0
+            sleep opts[:sleep].to_f if opts[:sleep]
+            retry
+          end
           raise
         end
       end

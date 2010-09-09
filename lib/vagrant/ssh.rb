@@ -162,6 +162,8 @@ module Vagrant
     # in order to provide basic command error checking while still
     # providing access to the actual session object.
     class Session
+      include Util::Retryable
+
       attr_reader :session
 
       def initialize(session)
@@ -184,9 +186,7 @@ module Vagrant
           ch[:result] << data if [:stdout, :stderr].include?(type)
         end
 
-        tries = 5
-
-        begin
+        retryable(:tries => 5, :on => IOError, :sleep => 0.5) do
           metach = session.open_channel do |channel|
             channel.exec(command) do |ch, success|
               raise "could not execute command: #{command.inspect}" unless success
@@ -207,13 +207,10 @@ module Vagrant
               end
             end
           end
-        rescue IOError
-          retry if (tries -= 1) > 0
-          raise
-        end
 
-        metach.wait
-        metach[:result]
+          metach.wait
+          metach[:result]
+        end
       end
 
       # Checks for an erroroneous exit status and raises an exception
