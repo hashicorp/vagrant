@@ -3,7 +3,7 @@ require "test_helper"
 class ForwardPortsVMActionTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Action::VM::ForwardPorts
-    @app, @env = mock_action_data
+    @app, @env = action_env
 
     @vm = mock("vm")
     @vm.stubs(:name).returns("foo")

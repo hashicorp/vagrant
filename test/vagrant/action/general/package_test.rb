@@ -3,7 +3,7 @@ require "test_helper"
 class PackageGeneralActionTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Action::General::Package
-    @app, @env = mock_action_data
+    @app, @env = action_env
 
     @vm = mock("vm")
     @env["vm"] = @vm

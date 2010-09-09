@@ -3,7 +3,7 @@ require "test_helper"
 class BootVMActionTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Action::VM::Boot
-    @app, @env = mock_action_data
+    @app, @env = action_env
 
     @vm = mock("vm")
     @vm.stubs(:ssh).returns(mock("ssh"))

@@ -3,7 +3,7 @@ require "test_helper"
 class SetEnvActionTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Action::Env::Set
-    @app, @env = mock_action_data
+    @app, @env = action_env
     @env.clear
   end
 

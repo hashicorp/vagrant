@@ -3,7 +3,7 @@ require "test_helper"
 class PackageVMActionTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Action::VM::Package
-    @app, @env = mock_action_data
+    @app, @env = action_env
     @env["export.temp_dir"] = "foo"
 
     @instance = @klass.new(@app, @env)

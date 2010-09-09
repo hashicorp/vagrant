@@ -3,7 +3,7 @@ require "test_helper"
 class ImportVMActionTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Action::VM::Import
-    @app, @env = mock_action_data
+    @app, @env = action_env
     @instance = @klass.new(@app, @env)
 
     ovf_file = "foo"

@@ -2,9 +2,11 @@ require "test_helper"
 
 class NFSHelpersVMActionTest < Test::Unit::TestCase
   setup do
-    @klass = Class.new
-    @klass.send(:include, Vagrant::Action::VM::NFSHelpers)
-    @app, @env = mock_action_data
+    @klass = Class.new do
+      include Vagrant::Action::VM::NFSHelpers
+    end
+
+    @app, @env = action_env
 
     @instance = @klass.new
   end

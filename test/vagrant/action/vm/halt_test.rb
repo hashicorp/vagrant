@@ -3,7 +3,7 @@ require "test_helper"
 class HaltVMActionTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Action::VM::Halt
-    @app, @env = mock_action_data
+    @app, @env = action_env
 
     @vm = mock("vm")
     @vm.stubs(:name).returns("foo")

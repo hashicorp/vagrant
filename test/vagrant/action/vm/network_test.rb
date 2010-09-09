@@ -3,7 +3,7 @@ require "test_helper"
 class NetworkVMActionTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Action::VM::Network
-    @app, @env = mock_action_data
+    @app, @env = action_env
 
     @vm = mock("vm")
     @vm.stubs(:name).returns("foo")

@@ -3,7 +3,7 @@ require "test_helper"
 class CustomizeVMActionTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Action::VM::Customize
-    @app, @env = mock_action_data
+    @app, @env = action_env
     @instance = @klass.new(@app, @env)
 
     @vm = mock("vm")

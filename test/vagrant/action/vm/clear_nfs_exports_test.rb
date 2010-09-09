@@ -3,7 +3,7 @@ require "test_helper"
 class ClearNFSExportsActionTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Action::VM::ClearNFSExports
-    @app, @env = mock_action_data
+    @app, @env = action_env
     @env.env.stubs(:host).returns(Vagrant::Hosts::Base.new(@env))
 
     @instance = @klass.new(@app, @env)

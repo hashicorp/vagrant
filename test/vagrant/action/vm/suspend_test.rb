@@ -3,7 +3,7 @@ require "test_helper"
 class SuspendVMActionTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Action::VM::Suspend
-    @app, @env = mock_action_data
+    @app, @env = action_env
 
     @vm = mock("vm")
     @env["vm"] = @vm

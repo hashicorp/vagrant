@@ -3,7 +3,7 @@ require "test_helper"
 class CleanMachineFolderVMActionTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Action::VM::CleanMachineFolder
-    @app, @env = mock_action_data
+    @app, @env = action_env
 
     @instance = @klass.new(@app, @env)
   end

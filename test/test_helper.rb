@@ -37,20 +37,12 @@ class Test::Unit::TestCase
     vm
   end
 
-  def mock_action_data(v_env=nil)
-    v_env ||= vagrant_env
-    app = lambda { |env| }
-    env = Vagrant::Action::Environment.new(v_env)
-    env["vagrant.test"] = true
-    [app, env]
-  end
-
   # Sets up the mocks and stubs for a downloader
   def mock_downloader(downloader_klass)
     tempfile = mock("tempfile")
     tempfile.stubs(:write)
 
-    _, env = mock_action_data
+    _, env = action_env
     [downloader_klass.new(env), tempfile]
   end
 end

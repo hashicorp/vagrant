@@ -3,11 +3,11 @@ require "test_helper"
 class ForwardPortsHelpersVMActionTest < Test::Unit::TestCase
   setup do
     @klass = Class.new do
+      include Vagrant::Action::VM::ForwardPortsHelpers
       def initialize(env); @env = env; end
     end
 
-    @klass.send(:include, Vagrant::Action::VM::ForwardPortsHelpers)
-    @app, @env = mock_action_data
+    @app, @env = action_env
 
     @vm = mock("vm")
     @vm.stubs(:name).returns("foo")
