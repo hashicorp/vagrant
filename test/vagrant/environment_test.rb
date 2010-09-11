@@ -239,22 +239,22 @@ class EnvironmentTest < Test::Unit::TestCase
 
       search_seq = sequence("search_seq")
       paths.each do |path|
-        File.expects(:exist?).with(File.join(path.to_s, @klass::ROOTFILE_NAME)).returns(false).in_sequence(search_seq)
+        File.expects(:exist?).with(path.join(@klass::ROOTFILE_NAME).to_s).returns(false).in_sequence(search_seq)
       end
 
       assert !@klass.new(:cwd => paths.first).root_path
     end
 
     should "should set the path for the rootfile" do
-      path = File.expand_path("/foo")
-      File.expects(:exist?).with(File.join(path, @klass::ROOTFILE_NAME)).returns(true)
+      path = Pathname.new(File.expand_path("/foo"))
+      File.expects(:exist?).with(path.join(@klass::ROOTFILE_NAME).to_s).returns(true)
 
-      assert_equal Pathname.new(path), @klass.new(:cwd => path).root_path
+      assert_equal path, @klass.new(:cwd => path).root_path
     end
 
     should "only load the root path once" do
       env = @klass.new
-      File.expects(:exist?).with(File.join(env.cwd, @klass::ROOTFILE_NAME)).returns(true).once
+      File.expects(:exist?).with(env.cwd.join(@klass::ROOTFILE_NAME).to_s).returns(true).once
 
       assert_equal env.cwd, env.root_path
       assert_equal env.cwd, env.root_path

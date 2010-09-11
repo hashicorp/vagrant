@@ -60,7 +60,7 @@ module Vagrant
         end
 
         def box_temp_path
-          File.join(@env.env.tmp_path, BASENAME + Time.now.to_i.to_s)
+          @env.env.tmp_path.join(BASENAME + Time.now.to_i.to_s)
         end
 
         def download_to(f)

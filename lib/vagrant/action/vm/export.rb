@@ -32,7 +32,7 @@ module Vagrant
 
         def setup_temp_dir
           @env.ui.info "vagrant.actions.vm.export.create_dir"
-          @temp_dir = @env["export.temp_dir"] = File.join(@env.env.tmp_path, Time.now.to_i.to_s)
+          @temp_dir = @env["export.temp_dir"] = @env.env.tmp_path.join(Time.now.to_i.to_s)
           FileUtils.mkpath(@env["export.temp_dir"])
         end
 

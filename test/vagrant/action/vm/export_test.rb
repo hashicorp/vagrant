@@ -66,10 +66,7 @@ class ExportVMActionTest < Test::Unit::TestCase
       @time_now = Time.now.to_i.to_s
       Time.stubs(:now).returns(@time_now)
 
-      @tmp_path = "foo"
-      @env.env.stubs(:tmp_path).returns(@tmp_path)
-
-      @temp_dir = File.join(@env.env.tmp_path, @time_now)
+      @temp_dir = @env.env.tmp_path.join(@time_now)
       FileUtils.stubs(:mkpath)
     end
 
