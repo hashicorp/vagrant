@@ -26,7 +26,11 @@ module VagrantTestHelpers
     # Cleans all the test temp paths
     def clean_paths
       FileUtils.rm_rf(tmp_path)
-      FileUtils.mkdir_p(tmp_path)
+
+      # Call these methods only to rebuild the directories
+      tmp_path
+      home_path
+      boxes_path
     end
   end
 end

@@ -285,6 +285,41 @@ class EnvironmentTest < Test::Unit::TestCase
     end
   end
 
+  context "accessing the box collection" do
+    should "create a box collection representing the environment" do
+      env = vagrant_env
+      assert env.boxes.is_a?(Vagrant::BoxCollection)
+      assert_equal env, env.boxes.env
+    end
+
+    should "not load the environment if its already loaded" do
+      env = vagrant_env
+      env.expects(:load!).never
+      env.boxes
+    end
+
+    should "return the parent's box collection if it has one" do
+      env = vagrant_env(vagrantfile(<<-vf))
+        config.vm.define :web
+        config.vm.define :db
+      vf
+
+      assert env.vms[:web].env.boxes.equal?(env.boxes)
+    end
+  end
+
+  context "accessing the current box" do
+    should "return the box that is specified in the config" do
+      vagrant_box("foo")
+      env = vagrant_env(vagrantfile(<<-vf))
+        config.vm.box = "foo"
+      vf
+
+      assert env.box
+      assert_equal "foo", env.box.name
+    end
+  end
+
   context "accessing the VMs hash" do
     should "load the environment if its not already loaded" do
       env = @klass.new(:cwd => vagrantfile)
@@ -402,25 +437,6 @@ class EnvironmentTest < Test::Unit::TestCase
         File.stubs(:directory?).returns(true)
         FileUtils.expects(:mkdir_p).never
         @env.load_home_directory!
-      end
-    end
-
-    context "loading box" do
-      should "not load the box if its not set" do
-        env = vagrant_env
-        assert env.config.vm.box.nil?
-        Vagrant::Box.expects(:find).never
-        env.load_box!
-      end
-
-      should "set the box to what is found by the Box class" do
-        env = vagrant_env(vagrantfile("config.vm.box = 'foo'"))
-
-        @box = mock("box")
-        @box.stubs(:env=)
-        Vagrant::Box.expects(:find).with(env, env.config.vm.box).once.returns(@box)
-        env.load_box!
-        assert @box.equal?(env.box)
       end
     end
 

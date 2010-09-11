@@ -13,7 +13,6 @@ module Vagrant
     attr_reader :parent     # Parent environment (in the case of multi-VMs)
 
     attr_reader :cwd
-    attr_reader :box
     attr_accessor :vm
     attr_writer :ui
 
@@ -79,6 +78,17 @@ module Vagrant
     # it defaults to "vagrant"
     def resource
       vm.name rescue "vagrant"
+    end
+
+    # Returns the collection of boxes for the environment.
+    def boxes
+      return parent.boxes if parent
+      @_boxes ||= BoxCollection.new(self)
+    end
+
+    # Returns the box that this environment represents.
+    def box
+      boxes.find(config.vm.box)
     end
 
     # Returns the VMs associated with this environment.
@@ -252,7 +262,6 @@ module Vagrant
         # After the first run we want to load the configuration again since
         # it can change due to box Vagrantfiles and home directory Vagrantfiles
         load_home_directory!
-        load_box!
         load_config!
       end
     end
@@ -271,11 +280,6 @@ module Vagrant
         logger.info "Creating home directory since it doesn't exist: #{dir}"
         FileUtils.mkdir_p(dir)
       end
-    end
-
-    # Loads the specified box for this environment.
-    def load_box!
-      @box = Box.find(self, config.vm.box) if config.vm.box
     end
 
     # Loads the persisted VM (if it exists) for this environment.
