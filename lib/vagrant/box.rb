@@ -15,25 +15,9 @@ module Vagrant
     # The environment which this box belongs to. Although this could
     # actually be many environments, this points to the environment
     # of a specific instance.
-    attr_accessor :env
+    attr_reader :env
 
     class << self
-      # Returns an array of all created boxes, as strings.
-      #
-      # @return [Array<String>]
-      def all(env)
-        results = []
-
-        Dir.open(env.boxes_path) do |dir|
-          dir.each do |d|
-            next if d == "." || d == ".." || !File.directory?(File.join(env.boxes_path, d))
-            results << d.to_s
-          end
-        end
-
-        results
-      end
-
       # Adds a new box with given name from the given URI. This method
       # begins the process of adding a box from a given URI by setting up
       # the {Box} instance and calling {#add}.
@@ -41,21 +25,9 @@ module Vagrant
       # @param [String] name The name of the box
       # @param [String] uri URI to the box file
       def add(env, name, uri)
-        box = new
-        box.name = name
+        box = new(env, name)
         box.uri = uri
-        box.env = env
         box.add
-      end
-
-      # Returns the directory to a box of the given name. The name given
-      # as a parameter is not checked for existence; this method simply
-      # returns the directory which would be used if the box did exist.
-      #
-      # @param [String] name Name of the box whose directory you're interested in.
-      # @return [String] Full path to the box directory.
-      def directory(env, name)
-        File.join(env.boxes_path, name)
       end
     end
 
@@ -76,7 +48,7 @@ module Vagrant
     #
     # @return [String]
     def ovf_file
-      File.join(directory, env.config.vm.box_ovf)
+      directory.join(env.config.vm.box_ovf)
     end
 
     # Begins the process of adding a box to the vagrant installation. This
@@ -101,7 +73,13 @@ module Vagrant
     #
     # @return [String]
     def directory
-      self.class.directory(env, self.name)
+      env.boxes_path.join(name)
+    end
+
+    # Implemented for comparison with other boxes.
+    def <=>(other)
+      return super if !other.is_a?(self.class)
+      name <=> other.name
     end
   end
 end
