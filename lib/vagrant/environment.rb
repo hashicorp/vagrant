@@ -58,19 +58,20 @@ module Vagrant
       root_path.join(config.vagrant.dotfile_name) rescue nil
     end
 
-    # The path to the home directory, which is usually in `~/.vagrant/~
+    # The path to the home directory, expanded relative to the root path,
+    # and converted into a Pathname object.
     def home_path
-      config ? config.vagrant.home : nil
+      @_home_path ||= Pathname.new(File.expand_path(config.vagrant.home, root_path))
     end
 
     # The path to the Vagrant tmp directory
     def tmp_path
-      File.join(home_path, "tmp")
+      home_path.join("tmp")
     end
 
     # The path to the Vagrant boxes directory
     def boxes_path
-      File.join(home_path, "boxes")
+      home_path.join("boxes")
     end
 
     # Returns the name of the resource which this environment represents.
@@ -260,8 +261,8 @@ module Vagrant
     # within the home directory if they're not already created.
     def load_home_directory!
       # Setup the array of necessary home directories
-      dirs = HOME_SUBDIRS.collect { |subdir| File.join(home_path, subdir) }
-      dirs.unshift(home_path)
+      dirs = [home_path]
+      dirs += HOME_SUBDIRS.collect { |subdir| home_path.join(subdir) }
 
       # Go through each required directory, creating it if it doesn't exist
       dirs.each do |dir|

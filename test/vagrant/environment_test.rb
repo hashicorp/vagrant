@@ -59,25 +59,21 @@ class EnvironmentTest < Test::Unit::TestCase
     end
 
     context "home path" do
-      should "return nil if config is not yet loaded" do
-        @env.stubs(:config).returns(nil)
-        assert_nil @env.home_path
-      end
-
       should "return the home path if it loaded" do
-        assert_equal @env.config.vagrant.home, @env.home_path
+        expected = Pathname.new(File.expand_path(@env.config.vagrant.home, @env.root_path))
+        assert_equal expected, @env.home_path
       end
     end
 
     context "temp path" do
       should "return the home path joined with 'tmp'" do
-        assert_equal File.join(@env.home_path, "tmp"), @env.tmp_path
+        assert_equal @env.home_path.join("tmp"), @env.tmp_path
       end
     end
 
     context "boxes path" do
       should "return the home path joined with 'tmp'" do
-        assert_equal File.join(@env.home_path, "boxes"), @env.boxes_path
+        assert_equal @env.home_path.join("boxes"), @env.boxes_path
       end
     end
   end
@@ -387,7 +383,6 @@ class EnvironmentTest < Test::Unit::TestCase
     context "loading home directory" do
       setup do
         @env = vagrant_env
-        @home_dir = File.expand_path(@env.config.vagrant.home)
 
         File.stubs(:directory?).returns(true)
         FileUtils.stubs(:mkdir_p)
@@ -397,7 +392,7 @@ class EnvironmentTest < Test::Unit::TestCase
         create_seq = sequence("create_seq")
         File.stubs(:directory?).returns(false)
         @klass::HOME_SUBDIRS.each do |subdir|
-          FileUtils.expects(:mkdir_p).with(File.join(@home_dir, subdir)).in_sequence(create_seq)
+          FileUtils.expects(:mkdir_p).with(@env.home_path.join(subdir)).in_sequence(create_seq)
         end
 
         @env.load_home_directory!

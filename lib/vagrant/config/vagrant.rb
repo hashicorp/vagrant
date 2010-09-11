@@ -5,15 +5,11 @@ module Vagrant
 
       attr_accessor :dotfile_name
       attr_accessor :log_output
-      attr_writer :home
+      attr_accessor :home
       attr_accessor :host
 
       def initialize
         @home = nil
-      end
-
-      def home
-        File.expand_path(@home)
       end
 
       def validate(errors)
