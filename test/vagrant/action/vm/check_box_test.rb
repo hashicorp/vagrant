@@ -7,7 +7,6 @@ class CheckBoxVMActionTest < Test::Unit::TestCase
 
   context "calling" do
     setup do
-      Vagrant::Box.stubs(:find)
     end
 
     should "raise error if box not specified" do
@@ -31,7 +30,7 @@ class CheckBoxVMActionTest < Test::Unit::TestCase
 
       instance = @klass.new(app, env)
       app.expects(:call).never
-      Vagrant::Box.expects(:find).with(env.env, env["config"].vm.box).returns(nil)
+      env.env.boxes.expects(:find).with(env["config"].vm.box).returns(nil)
 
       assert_raises(Vagrant::Errors::BoxSpecifiedDoesntExist) {
         instance.call(env)
@@ -46,7 +45,7 @@ class CheckBoxVMActionTest < Test::Unit::TestCase
 
       instance = @klass.new(app, env)
       seq = sequence("seq")
-      Vagrant::Box.expects(:find).returns(nil)
+      env.env.boxes.expects(:find).returns(nil)
       Vagrant::Box.expects(:add).with(env.env, env["config"].vm.box, env["config"].vm.box_url).in_sequence(seq)
       env.env.expects(:load_box!).in_sequence(seq)
       app.expects(:call).with(env).once.in_sequence(seq)

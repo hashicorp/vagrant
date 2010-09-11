@@ -5,41 +5,6 @@ module Vagrant
   # and may contain additional files if specified by the creator. This
   # class serves to help manage these boxes, although most of the logic
   # is kicked out to actions.
-  #
-  # What can the {Box} class do?
-  #
-  # * Find boxes
-  # * Add existing boxes (from some URI)
-  # * Delete existing boxes
-  #
-  # # Finding Boxes
-  #
-  # Using the {Box.find} method, you can search for existing boxes. This
-  # method will return `nil` if none is found or an instance of {Box}
-  # otherwise.
-  #
-  #     box = Vagrant::Box.find("base")
-  #     if box.nil?
-  #       puts "Box not found!"
-  #     else
-  #       puts "Box exists at #{box.directory}"
-  #     end
-  #
-  # # Adding a Box
-  #
-  # Boxes can be added from any URI. Some schemas aren't supported; if this
-  # is the case, the error will output to the logger.
-  #
-  #     Vagrant::Box.add("foo", "http://myfiles.com/foo.box")
-  #
-  # # Destroying a box
-  #
-  # Boxes can be deleted as well. This method is _final_ and there is no way
-  # to undo this action once it is completed.
-  #
-  #     box = Vagrant::Box.find("foo")
-  #     box.destroy
-  #
   class Box
     # The name of the box.
     attr_accessor :name
@@ -67,17 +32,6 @@ module Vagrant
         end
 
         results
-      end
-
-      # Finds a box with the given name. This method searches for a box
-      # with the given name, returning `nil` if none is found or returning
-      # a {Box} instance otherwise.
-      #
-      # @param [String] name The name of the box
-      # @return [Box] Instance of {Box} representing the box found
-      def find(env, name)
-        return nil unless File.directory?(directory(env, name))
-        new(env, name)
       end
 
       # Adds a new box with given name from the given URI. This method

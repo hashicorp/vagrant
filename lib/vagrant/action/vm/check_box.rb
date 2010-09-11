@@ -10,7 +10,7 @@ module Vagrant
           box_name = env["config"].vm.box
           raise Errors::BoxNotSpecified.new if !box_name
 
-          if !Vagrant::Box.find(env.env , box_name)
+          if !env.env.boxes.find(box_name)
             box_url = env["config"].vm.box_url
             raise Errors::BoxSpecifiedDoesntExist.new(:name => box_name) if !box_url
 

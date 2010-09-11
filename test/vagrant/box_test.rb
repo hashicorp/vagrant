@@ -53,33 +53,6 @@ class BoxTest < Test::Unit::TestCase
       end
     end
 
-    context "finding" do
-      setup do
-        @dir = "foo"
-        @name = "bar"
-        Vagrant::Box.stubs(:directory).with(@env, @name).returns(@dir)
-      end
-
-      should "return nil if the box doesn't exist" do
-        File.expects(:directory?).with(@dir).once.returns(false)
-        assert_nil Vagrant::Box.find(@env, @name)
-      end
-
-      should "return a box object with the proper name set" do
-        File.expects(:directory?).with(@dir).once.returns(true)
-        result = Vagrant::Box.find(@env, @name)
-        assert result
-        assert_equal @name, result.name
-      end
-
-      should "return a box object with the proper env set" do
-        File.expects(:directory?).with(@dir).once.returns(true)
-        result = Vagrant::Box.find(@env, @name)
-        assert result
-        assert_equal @env, result.env
-      end
-    end
-
     context "adding" do
       setup do
         @name = "foo"
