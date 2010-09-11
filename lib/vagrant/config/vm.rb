@@ -1,7 +1,7 @@
 module Vagrant
   class Config
     class VMConfig < Base
-      Config.configures :vm, self
+      configures :vm
 
       include Util::StackedProcRunner
 

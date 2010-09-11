@@ -20,10 +20,6 @@ module Vagrant
         config(env)
       end
 
-      def configures(key, klass)
-        config.class.configures(key, klass)
-      end
-
       def config(env=nil)
         @@config ||= Config::Top.new(env)
       end

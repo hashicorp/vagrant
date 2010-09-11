@@ -1,7 +1,7 @@
 module Vagrant
   class Config
     class SSHConfig < Base
-      Config.configures :ssh, self
+      configures :ssh
 
       attr_accessor :username
       attr_accessor :host

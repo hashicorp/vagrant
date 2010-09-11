@@ -72,15 +72,6 @@ class ConfigTest < Test::Unit::TestCase
     end
   end
 
-  context "adding configures" do
-    should "forward the method to the Top class" do
-      key = mock("key")
-      klass = mock("klass")
-      @klass::Top.expects(:configures).with(key, klass)
-      @klass.configures(key, klass)
-    end
-  end
-
   context "resetting" do
     setup do
       @klass::Top.any_instance.stubs(:validate!)

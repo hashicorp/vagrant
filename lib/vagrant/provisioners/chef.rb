@@ -62,6 +62,8 @@ module Vagrant
     class Chef < Base
       # This is the configuration which is available through `config.chef`
       class ChefConfig < Vagrant::Config::Base
+        configures :chef
+
         # Chef server specific config
         attr_accessor :chef_server_url
         attr_accessor :validation_key_path
@@ -124,9 +126,6 @@ module Vagrant
           result
         end
       end
-
-      # Tell the Vagrant configure class about our custom configuration
-      Config.configures :chef, ChefConfig
     end
   end
 end

@@ -1,7 +1,7 @@
 module Vagrant
   class Config
     class VagrantConfig < Base
-      Config.configures :vagrant, self
+      configures :vagrant
 
       attr_accessor :dotfile_name
       attr_accessor :log_output

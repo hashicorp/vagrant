@@ -1,7 +1,7 @@
 module Vagrant
   class Config
     class PackageConfig < Base
-      Config.configures :package, self
+      configures :package
 
       attr_accessor :name
     end

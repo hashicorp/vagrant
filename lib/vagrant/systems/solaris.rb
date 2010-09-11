@@ -9,7 +9,7 @@ module Vagrant
       # generally, Vagrant tries to make almost every aspect of its execution
       # configurable, and this assists that goal.
       class SolarisConfig < Vagrant::Config::Base
-        Config.configures :solaris, self
+        configures :solaris
 
         attr_accessor :halt_timeout
         attr_accessor :halt_check_interval

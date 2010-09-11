@@ -1,7 +1,7 @@
 module Vagrant
   class Config
     class NFSConfig < Base
-      Config.configures :nfs, self
+      configures :nfs
 
       attr_accessor :map_uid
       attr_accessor :map_gid
