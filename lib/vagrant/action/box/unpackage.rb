@@ -46,7 +46,7 @@ module Vagrant
         def decompress
           Dir.chdir(@env["box"].directory) do
             @env.ui.info "vagrant.actions.box.unpackage.extracting"
-            Archive::Tar::Minitar.unpack(@env["download.temp_path"], @env["box"].directory)
+            Archive::Tar::Minitar.unpack(@env["download.temp_path"], @env["box"].directory.to_s)
           end
         end
       end

@@ -70,7 +70,7 @@ class UnpackageBoxActionTest < Test::Unit::TestCase
     end
 
     should "open the tar file within the new directory, and extract it all" do
-      Archive::Tar::Minitar.expects(:unpack).with(@env["download.temp_path"], @env["box"].directory).once
+      Archive::Tar::Minitar.expects(:unpack).with(@env["download.temp_path"], @env["box"].directory.to_s).once
       @instance.decompress
     end
   end
