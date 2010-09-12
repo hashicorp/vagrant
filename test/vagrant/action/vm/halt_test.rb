@@ -26,11 +26,21 @@ class HaltVMActionTest < Test::Unit::TestCase
 
   context "calling" do
     setup do
+      @vm.stubs(:created?).returns(true)
       @internal_vm.stubs(:running?).returns(true)
 
       @vm.system.stubs(:halt)
       @internal_vm.stubs(:stop)
       @internal_vm.stubs(:state).returns(:powered_off)
+    end
+
+    should "do nothing if VM is not created" do
+      @internal_vm.stubs(:created?).returns(false)
+      @vm.system.expects(:halt).never
+      @internal_vm.expects(:stop).never
+      @app.expects(:call).once
+
+      @instance.call(@env)
     end
 
     should "do nothing if VM not running" do

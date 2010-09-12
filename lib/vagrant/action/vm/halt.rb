@@ -8,7 +8,7 @@ module Vagrant
         end
 
         def call(env)
-          if env["vm"].vm.running?
+          if env["vm"].created? && env["vm"].vm.running?
             env["vm"].system.halt if !env["force"]
 
             if env["vm"].vm.state(true) != :powered_off
