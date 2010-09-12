@@ -1,5 +1,7 @@
 ## 0.6.0 (unreleased)
 
+  - Fixed various issues with certain action middleware not working if
+    the VM was not created.
   - SSH connection is retried 5 times if there is a connection refused.
     Related to GH-140.
   - If `http_proxy` environmental variable is set, it will be used as the proxy
