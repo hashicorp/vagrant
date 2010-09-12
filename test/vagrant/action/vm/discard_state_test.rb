@@ -16,11 +16,20 @@ class DiscardStateVMActionTest < Test::Unit::TestCase
 
   context "calling" do
     setup do
+      @vm.stubs(:created?).returns(true)
       @internal_vm.stubs(:saved?).returns(false)
+    end
+
+    should "do nothing if the VM is not created" do
+      @vm.stubs(:created?).returns(false)
+      @internal_vm.expects(:discard_state).never
+      @app.expects(:call).with(@env).once
+      @instance.call(@env)
     end
 
     should "do nothing if not saved and continue chain" do
       @internal_vm.expects(:saved?).returns(false)
+      @internal_vm.expects(:discard_state).never
       @app.expects(:call).with(@env).once
       @instance.call(@env)
     end

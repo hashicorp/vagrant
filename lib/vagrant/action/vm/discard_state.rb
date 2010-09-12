@@ -9,7 +9,7 @@ module Vagrant
         end
 
         def call(env)
-          if env["vm"].vm.saved?
+          if env["vm"].created? && env["vm"].vm.saved?
             env.ui.info "vagrant.actions.vm.discard_state.discarding"
             env["vm"].vm.discard_state
           end
