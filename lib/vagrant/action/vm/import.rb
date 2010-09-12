@@ -10,7 +10,7 @@ module Vagrant
           env.ui.info "vagrant.actions.vm.import.importing", :name => env.env.box.name
 
           # Import the virtual machine
-          env.env.vm.vm = VirtualBox::VM.import(env.env.box.ovf_file) do |progress|
+          env.env.vm.vm = VirtualBox::VM.import(env.env.box.ovf_file.to_s) do |progress|
             env.ui.report_progress(progress.percent, 100, false)
           end
 

@@ -2,15 +2,15 @@ require "test_helper"
 
 class ImportVMActionTest < Test::Unit::TestCase
   setup do
-    @klass = Vagrant::Action::VM::Import
-    @app, @env = action_env
-    @instance = @klass.new(@app, @env)
+    clean_paths
+    vagrant_box("foo")
 
-    ovf_file = "foo"
-    @box = mock("box")
-    @box.stubs(:name).returns("foo")
-    @box.stubs(:ovf_file).returns(ovf_file)
-    @env.env.stubs(:box).returns(@box)
+    @klass = Vagrant::Action::VM::Import
+    @app, @env = action_env(vagrant_env(vagrantfile(<<-vf)))
+      config.vm.box = "foo"
+    vf
+
+    @instance = @klass.new(@app, @env)
 
     @env.env.vm = Vagrant::VM.new(:env => @env.env, :name => "foobar")
 
@@ -21,7 +21,7 @@ class ImportVMActionTest < Test::Unit::TestCase
   end
 
   should "call import on VirtualBox with proper base" do
-    VirtualBox::VM.expects(:import).once.with(@env.env.box.ovf_file).returns(@vm)
+    VirtualBox::VM.expects(:import).once.with(@env.env.box.ovf_file.to_s).returns(@vm)
     @instance.call(@env)
   end
 
