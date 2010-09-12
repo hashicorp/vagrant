@@ -1,5 +1,8 @@
 ## 0.6.0 (unreleased)
 
+  - "vagrant_main" is no longer the default run list. Instead, chef
+    run list starts empty. It is up to you to specify all recipes in
+    the Vagrantfile now.
   - Fixed various issues with certain action middleware not working if
     the VM was not created.
   - SSH connection is retried 5 times if there is a connection refused.

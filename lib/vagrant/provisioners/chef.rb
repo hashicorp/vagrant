@@ -92,7 +92,7 @@ module Vagrant
           @log_level = :info
           @json = {
             :instance_role => "vagrant",
-            :run_list => ["recipe[vagrant_main]"]
+            :run_list => []
           }
         end
 
