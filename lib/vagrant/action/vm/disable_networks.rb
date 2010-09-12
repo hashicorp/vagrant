@@ -10,18 +10,20 @@ module Vagrant
         end
 
         def call(env)
-          logged = false
+          if env["vm"].created?
+            logged = false
 
-          env["vm"].vm.network_adapters.each do |adapter|
-            next if adapter.attachment_type != :host_only
+            env["vm"].vm.network_adapters.each do |adapter|
+              next if adapter.attachment_type != :host_only
 
-            if !logged
-              env.ui.info "vagrant.actions.vm.disable_networks.disabling"
-              logged = true
+              if !logged
+                env.ui.info "vagrant.actions.vm.disable_networks.disabling"
+                logged = true
+              end
+
+              adapter.enabled = false
+              adapter.save
             end
-
-            adapter.enabled = false
-            adapter.save
           end
 
           @app.call(env)

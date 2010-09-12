@@ -9,6 +9,7 @@ class DisableNetworksVMActionTest < Test::Unit::TestCase
     @env.env.stubs(:vm).returns(@vm)
 
     @internal_vm = mock("internal")
+    @vm.stubs(:created?).returns(true)
     @vm.stubs(:vm).returns(@internal_vm)
     @internal_vm.stubs(:network_adapters).returns([])
 
@@ -25,6 +26,14 @@ class DisableNetworksVMActionTest < Test::Unit::TestCase
     end
 
     @internal_vm.network_adapters << adapter
+  end
+
+  should "do nothing if VM is not created" do
+    @vm.stubs(:created?).returns(false)
+    @vm.expects(:vm).never
+
+    @app.expects(:call).with(@env).once
+    @instance.call(@env)
   end
 
   should "remove all network adapters and continue chain" do
