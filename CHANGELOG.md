@@ -1,5 +1,15 @@
 ## 0.6.0 (unreleased)
 
+  - `vagrant package` now takes a `--vagrantfile` option to specify a
+    Vagrantfile to package. The `--include` approach for including a Vagrantfile
+    no longer works (previously built boxes will continue to work).
+  - `vagrant package` has new logic with regards to the `--include` option
+    depending on if the file path is relative or absolute (they can be
+    intermixed):
+      * _Relative_ paths are copied directly into the box, preserving
+        their path. So `--include lib/foo` would be in the box as "lib/foo"
+      * _Absolute_ paths are simply copied files into the root of the
+        box. So `--include /lib/foo` would be in the box as "foo"
   - "vagrant_main" is no longer the default run list. Instead, chef
     run list starts empty. It is up to you to specify all recipes in
     the Vagrantfile now.

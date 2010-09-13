@@ -5,6 +5,7 @@ module Vagrant
       class_option :base, :type => :string, :default => nil
       class_option :output, :type => :string, :default => nil
       class_option :include, :type => :array, :default => nil
+      class_option :vagrantfile, :type => :string, :default => nil
       register "package"
 
       def execute

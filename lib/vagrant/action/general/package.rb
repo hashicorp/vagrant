@@ -22,6 +22,7 @@ module Vagrant
           @env = env
           @env["package.output"] ||= env["config"].package.name
           @env["package.include"] ||= []
+          @env["package.vagrantfile"] ||= nil
         end
 
         def call(env)
@@ -30,7 +31,7 @@ module Vagrant
           raise Errors::PackageOutputExists.new if File.exist?(tar_path)
           raise Errors::PackageRequiresDirectory.new if !@env["package.directory"] || !File.directory?(@env["package.directory"])
 
-          verify_included_files
+          verify_files_to_copy
           compress
 
           @app.call(env)
@@ -41,8 +42,21 @@ module Vagrant
           File.delete(tar_path) if File.exist?(tar_path)
         end
 
-        def verify_included_files
-          @env["package.include"].each do |file|
+        def files_to_copy
+          package_dir = Pathname.new(@env["package.directory"]).join("include")
+
+          files = @env["package.include"].inject({}) do |acc, file|
+            source = Pathname.new(file)
+            acc[file] = source.relative? ? package_dir.join(source) : package_dir.join(source.basename)
+            acc
+          end
+
+          files[@env["package.vagrantfile"]] = package_dir.join("_Vagrantfile") if @env["package.vagrantfile"]
+          files
+        end
+
+        def verify_files_to_copy
+          files_to_copy.each do |file, _|
             raise Errors::PackageIncludeMissing.new(:file => file) if !File.exist?(file)
           end
         end
@@ -51,14 +65,10 @@ module Vagrant
         # to the temporary directory so they are included in a sub-folder within
         # the actual box
         def copy_include_files
-          if @env["package.include"].length > 0
-            include_dir = File.join(@env["package.directory"], "include")
-            FileUtils.mkdir_p(include_dir)
-
-            @env["package.include"].each do |f|
-              @env.ui.info "vagrant.actions.general.package.packaging", :file => f
-              FileUtils.cp(f, include_dir)
-            end
+          files_to_copy.each do |from, to|
+            @env.ui.info "vagrant.actions.general.package.packaging", :file => from
+            FileUtils.mkdir_p(to.parent)
+            FileUtils.cp(from, to)
           end
         end
 

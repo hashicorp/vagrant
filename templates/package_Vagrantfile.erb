@@ -7,5 +7,5 @@ end
 
 # Load include vagrant file if it exists after the auto-generated
 # so it can override any of the settings
-include_vagrantfile = File.expand_path(File.join(File.dirname(__FILE__), "include", "Vagrantfile"))
+include_vagrantfile = File.expand_path("../include/_Vagrantfile", __FILE__)
 load include_vagrantfile if File.exist?(include_vagrantfile)

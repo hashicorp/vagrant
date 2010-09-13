@@ -55,7 +55,7 @@ class PackageGeneralActionTest < Test::Unit::TestCase
     context "calling" do
       should "call the proper methods then continue chain" do
         seq = sequence("seq")
-        @instance.expects(:verify_included_files).in_sequence(seq).returns(true)
+        @instance.expects(:verify_files_to_copy).in_sequence(seq).returns(true)
         @instance.expects(:compress).in_sequence(seq)
         @app.expects(:call).with(@env).in_sequence(seq)
         @instance.call(@env)
@@ -109,7 +109,34 @@ class PackageGeneralActionTest < Test::Unit::TestCase
       end
     end
 
-    context "verifying included files" do
+    context "files to copy" do
+      setup do
+        @env["package.include"] = []
+        @package_dir = Pathname.new(@env["package.directory"]).join("include")
+      end
+
+      should "have included files whole path if relative" do
+        path = "lib/foo"
+        @env["package.include"] = [path]
+        result = @instance.files_to_copy
+        assert_equal @package_dir.join(path), result[path]
+      end
+
+      should "have the filename if an absolute path" do
+        path = "/foo/bar"
+        @env["package.include"] = [path]
+        result = @instance.files_to_copy
+        assert_equal @package_dir.join("bar"), result[path]
+      end
+
+      should "include the Vagrantfile if specified" do
+        @env["package.vagrantfile"] = "foo"
+        result = @instance.files_to_copy
+        assert_equal @package_dir.join("_Vagrantfile"), result["foo"]
+      end
+    end
+
+    context "verifying files to copy" do
       setup do
         @env["package.include"] = ["foo"]
         File.stubs(:exist?).returns(true)
@@ -118,13 +145,13 @@ class PackageGeneralActionTest < Test::Unit::TestCase
       should "error if included file is not found" do
         File.expects(:exist?).with("foo").returns(false)
         assert_raises(Vagrant::Errors::PackageIncludeMissing) {
-          @instance.verify_included_files
+          @instance.verify_files_to_copy
         }
       end
 
       should "return true if all exist" do
         assert_nothing_raised {
-          assert @instance.verify_included_files
+          assert @instance.verify_files_to_copy
         }
       end
     end
@@ -142,14 +169,11 @@ class PackageGeneralActionTest < Test::Unit::TestCase
       end
 
       should "create the include directory and copy files to it" do
-        include_dir = File.join(@env["package.directory"], "include")
-        copy_seq = sequence("copy_seq")
-        FileUtils.expects(:mkdir_p).with(include_dir).once.in_sequence(copy_seq)
-
-        5.times do |i|
-          file = mock("f#{i}")
-          @env["package.include"] << file
-          FileUtils.expects(:cp).with(file, include_dir).in_sequence(copy_seq)
+        @env["package.include"] = ["/foo/bar", "lib/foo"]
+        seq = sequence("seq")
+        @instance.files_to_copy.each do |from, to|
+          FileUtils.expects(:mkdir_p).with(to.parent).in_sequence(seq)
+          FileUtils.expects(:cp).with(from, to).in_sequence(seq)
         end
 
         @instance.copy_include_files
