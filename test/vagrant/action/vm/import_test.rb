@@ -40,15 +40,27 @@ class ImportVMActionTest < Test::Unit::TestCase
     }
   end
 
-  should "not run the destroy action on recover if VM is not created" do
-    @env.env.vm.stubs(:created?).returns(false)
-    @env.env.actions.expects(:run).never
-    @instance.recover(@env)
-  end
+  context "recovery" do
+    setup do
+      @env.env.vm.stubs(:created?).returns(true)
+    end
 
-  should "run the destroy action on recover" do
-    @env.env.vm.stubs(:created?).returns(true)
-    @env.env.actions.expects(:run).with(:destroy).once
-    @instance.recover(@env)
+    should "not run the destroy action on recover if error is a VagrantError" do
+      @env["vagrant.error"] = Vagrant::Errors::VMImportFailure.new
+      @env.env.actions.expects(:run).never
+      @instance.recover(@env)
+    end
+
+    should "not run the destroy action on recover if VM is not created" do
+      @env.env.vm.stubs(:created?).returns(false)
+      @env.env.actions.expects(:run).never
+      @instance.recover(@env)
+    end
+
+    should "run the destroy action on recover" do
+      @env.env.vm.stubs(:created?).returns(true)
+      @env.env.actions.expects(:run).with(:destroy).once
+      @instance.recover(@env)
+    end
   end
 end

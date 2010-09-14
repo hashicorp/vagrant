@@ -23,6 +23,8 @@ module Vagrant
 
         def recover(env)
           if env["vm"].created?
+            return if env["vagrant.error"].is_a?(Errors::VagrantError)
+
             # Interrupted, destroy the VM
             env["actions"].run(:destroy)
           end
