@@ -23,7 +23,9 @@ module Vagrant
           raise Errors::VagrantInterrupt.new if env.interrupted?
           @stack.unshift(@actions.shift).first.call(env)
           raise Errors::VagrantInterrupt.new if env.interrupted?
-        rescue
+        rescue Exception => e
+          env["vagrant.error"] = e
+
           # Something went horribly wrong. Start the rescue chain then
           # reraise the exception to properly kick us out of limbo here.
           begin_rescue(env)

@@ -63,7 +63,10 @@ class ActionWardenTest < Test::Unit::TestCase
       end
 
       @instance.actions << Foo.new
-      @instance.expects(:begin_rescue)
+      @instance.expects(:begin_rescue).with() do |env|
+        assert env["vagrant.error"].is_a?(RuntimeError)
+        true
+      end
       assert_raises(RuntimeError) { @instance.call(new_env) }
     end
 
