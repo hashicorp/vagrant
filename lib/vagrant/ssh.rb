@@ -70,6 +70,8 @@ module Vagrant
           yield SSH::Session.new(ssh)
         end
       end
+    rescue Errno::ECONNREFUSED
+      raise Errors::SSHConnectionRefused.new
     end
 
     # Uploads a file from `from` to `to`. `from` is expected to be a filename
@@ -94,7 +96,7 @@ module Vagrant
           execute(:timeout => env.config.ssh.timeout) do |ssh|
             Thread.current[:result] = true
           end
-        rescue Errno::ECONNREFUSED, Net::SSH::Disconnect
+        rescue Errno::ECONNREFUSED, Net::SSH::Disconnect, Errors::SSHConnectionRefused
           # False, its defaulted above
         end
       end

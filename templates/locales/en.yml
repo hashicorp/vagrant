@@ -27,6 +27,13 @@ en:
         Vagrant assumes that this means the command failed!
 
         %{command}
+      ssh_connection_refused: |-
+        SSH connection was refused! This usually happens if the VM failed to
+        boot properly. Some steps to try to fix this: First, try reloading your
+        VM with `vagrant reload`, since a simple restart sometimes fixes things.
+        If that doesn't work, destroy your VM and recreate it with a `vagrant destroy`
+        followed by a `vagrant up`. If that doesn't work, contact a Vagrant
+        maintainer (support channels listed on the website) for more assistance.
       ssh_key_bad_permissions: |-
         The private key to connect to this box via SSH has invalid permissions
         set on it. The permissions of the private key should be set to 0600, otherwise SSH will

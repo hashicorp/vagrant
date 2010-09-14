@@ -199,6 +199,11 @@ module Vagrant
       error_key(:ssh_authentication_failed)
     end
 
+    class SSHConnectionRefused < VagrantError
+      status_code(43)
+      error_key(:ssh_connection_refused)
+    end
+
     class SSHKeyBadPermissions < VagrantError
       status_code(12)
       error_key(:ssh_key_bad_permissions)
