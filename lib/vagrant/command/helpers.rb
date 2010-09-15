@@ -11,14 +11,16 @@ module Vagrant
 
       # This returns an array of {VM} objects depending on the arguments
       # given to the command.
-      def target_vms
+      def target_vms(name=nil)
+        name ||= self.name
+
         @target_vms ||= begin
           if env.multivm?
-            return env.vms.values if !self.name
-            vm = env.vms[self.name.to_sym]
-            raise Errors::VMNotFoundError.new(:name => self.name) if !vm
+            return env.vms.values if !name
+            vm = env.vms[name.to_sym]
+            raise Errors::VMNotFoundError.new(:name => name) if !vm
           else
-            raise Errors::MultiVMEnvironmentRequired.new if self.name
+            raise Errors::MultiVMEnvironmentRequired.new if name
             vm = env.vms.values.first
           end
 

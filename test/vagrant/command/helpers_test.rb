@@ -71,6 +71,11 @@ class CommandHelpersTest < Test::Unit::TestCase
         assert_equal @env.vms[:one], instance.target_vms.first
       end
 
+      should "return only the specified VM if name is given in the arg" do
+        instance = command([], @env)
+        assert_equal @env.vms[:two], instance.target_vms("two").first
+      end
+
       should "raise an exception if an invalid name is given" do
         instance = command(["foo"], @env)
         assert_raises(Vagrant::Errors::VMNotFoundError) {
