@@ -55,11 +55,7 @@ Keeping track of the installed boxes can be difficult. Vagrant provides the
 
 {% highlight bash %}
 $ vagrant box list
-=====================================================================
-Installed Vagrant Boxes:
-
 lucid32
-=====================================================================
 {% endhighlight %}
 
 <a name="creating-a-box"> </a>
@@ -72,10 +68,10 @@ there, just run `vagrant package` and it'll package the environment and
 save it to `package.box` in the current working directory.
 
 Note that `vagrant package` will not include the Vagrantfile or any files other
-than the exported virtual machine. If you wish to include additional files,
-use the `--include` option. An example below:
+than the exported virtual machine. If you wish to include additional files or a
+Vagrantfile, use the `--include` and/or `--vagrantfile` options, respecitvely.
+An example below:
 
 {% highlight bash %}
-# We want to include a Vagrantfile into this box
-$ vagrant package --include Vagrantfile
+$ vagrant package --vagrantfile Vagrantfile.pkg --include README.txt
 {% endhighlight %}

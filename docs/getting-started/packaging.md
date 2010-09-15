@@ -23,9 +23,8 @@ is built by running `vagrant up`.
 First, we're going to create a basic Vagrantfile we'll package with the
 box which will forward the web port. This way, users of the box can simply
 add the box, do a `vagrant up`, and have everything working, including HTTP!
-First, backup your old Vagrantfile by copying it to something like
-`Vagrantfile.bak`. Then, create a new Vagrantfile which simply forwards the
-web port. The resulting Vagrantfile should look like the following:
+Create a new file, which will be the file used as the Vagrantfile for the
+box. Name the file `Vagrantfile.pkg` and put the following contents in it:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
@@ -39,7 +38,7 @@ end
 Run the following code to package the environment up:
 
 {% highlight bash %}
-$ vagrant package --include Vagrantfile
+$ vagrant package --vagrantfile Vagrantfile.pkg
 {% endhighlight %}
 
 `vagrant package` takes the virtual environment from the current project
