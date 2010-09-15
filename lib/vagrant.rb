@@ -14,6 +14,7 @@ module Vagrant
   autoload :Config,        'vagrant/config'
   autoload :DataStore,     'vagrant/data_store'
   autoload :Errors,        'vagrant/errors'
+  autoload :Plugin,        'vagrant/plugin'
   autoload :Util,          'vagrant/util'
 
   module Command
@@ -48,5 +49,6 @@ Vagrant::Util::GlobLoader.glob_require(libdir, %w{
   downloaders/base provisioners/base provisioners/chef systems/base
   hosts/base})
 
-# Initialize the built-in actions
+# Initialize the built-in actions and load the plugins.
 Vagrant::Action.builtin!
+Vagrant::Plugin.load!

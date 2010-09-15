@@ -1,5 +1,9 @@
 ## 0.6.0 (unreleased)
 
+  - **Plugins** have landed. Plugins are simply gems which have a `vagrant_init.rb`
+    file somewhere in their load path. Please read the documentation on
+    vagrantup.com before attempting to create a plugin (which is very easy)
+    for more information on how it all works and also some guidelines.
   - `vagrant package` now takes a `--vagrantfile` option to specify a
     Vagrantfile to package. The `--include` approach for including a Vagrantfile
     no longer works (previously built boxes will continue to work).
