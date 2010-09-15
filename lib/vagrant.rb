@@ -15,6 +15,7 @@ module Vagrant
   autoload :DataStore,     'vagrant/data_store'
   autoload :Errors,        'vagrant/errors'
   autoload :Plugin,        'vagrant/plugin'
+  autoload :TestHelpers,   'vagrant/test_helpers'
   autoload :Util,          'vagrant/util'
 
   module Command

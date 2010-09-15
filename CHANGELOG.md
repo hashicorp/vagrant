@@ -1,5 +1,7 @@
 ## 0.6.0 (unreleased)
 
+  - Exposed Vagrant test helpers in `Vagrant::TestHelpers` for plugins to easily
+    test themselves against Vagrant environments.
   - **Plugins** have landed. Plugins are simply gems which have a `vagrant_init.rb`
     file somewhere in their load path. Please read the documentation on
     vagrantup.com before attempting to create a plugin (which is very easy)

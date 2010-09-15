@@ -5,9 +5,6 @@ require 'vagrant'
 require 'mario'
 require 'contest'
 require 'mocha'
-require 'support/path'
-require 'support/environment'
-require 'support/objects'
 
 # Try to load ruby debug since its useful if it is available.
 # But not a big deal if its not available (probably on a non-MRI
@@ -24,9 +21,7 @@ Mario::Platform.logger(nil)
 I18n.load_path << File.expand_path("../locales/en.yml", __FILE__)
 
 class Test::Unit::TestCase
-  include VagrantTestHelpers::Path
-  include VagrantTestHelpers::Environment
-  include VagrantTestHelpers::Objects
+  include Vagrant::TestHelpers
 
   # Sets up the mocks for a VM
   def mock_vm(env=nil)
