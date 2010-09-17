@@ -27,7 +27,14 @@ class CommandHelpersTest < Test::Unit::TestCase
   context "vms from args" do
     setup do
       @env = vagrant_env
-      @env.stubs(:root_path).returns(7)
+    end
+
+    should "raise an exception if no root path" do
+      @env.stubs(:root_path).returns(nil)
+
+      assert_raises(Vagrant::Errors::NoEnvironmentError) {
+        command([], @env).target_vms
+      }
     end
 
     should "only calculate the result once" do

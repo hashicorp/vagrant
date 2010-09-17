@@ -12,6 +12,8 @@ module Vagrant
       # This returns an array of {VM} objects depending on the arguments
       # given to the command.
       def target_vms(name=nil)
+        raise Errors::NoEnvironmentError.new if !env.root_path
+
         name ||= self.name rescue nil
 
         @target_vms ||= begin
