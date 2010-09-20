@@ -27,6 +27,7 @@ Vagrant::Config.run do |config|
   config.vm.system = :linux
 
   config.vm.customize do |vm|
+    # Make VM name the name of the containing folder by default
     vm.name = File.basename(File.expand_path("../", Vagrant.source_root)) + "_#{Time.now.to_i}"
   end
 

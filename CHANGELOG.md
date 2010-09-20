@@ -1,5 +1,7 @@
 ## 0.6.0 (unreleased)
 
+  - VM name now defaults to the name of the containing folder, plus a timestamp.
+    This should make it easier to identify VMs in the VirtualBox GUI.
   - Exposed Vagrant test helpers in `Vagrant::TestHelpers` for plugins to easily
     test themselves against Vagrant environments.
   - **Plugins** have landed. Plugins are simply gems which have a `vagrant_init.rb`
