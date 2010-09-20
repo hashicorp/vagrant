@@ -15,10 +15,6 @@ class ActionEnvironmentTest < Test::Unit::TestCase
     assert_equal "value", @instance["key"]
   end
 
-  should "setup the logger" do
-    assert_equal @instance.env.logger, @instance.logger
-  end
-
   should "setup the UI" do
     assert_equal @instance.env.ui, @instance.ui
   end

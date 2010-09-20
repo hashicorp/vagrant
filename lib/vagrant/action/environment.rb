@@ -29,11 +29,6 @@ module Vagrant
         @interrupted = false
       end
 
-      # Returns a logger associated with the environment.
-      def logger
-        env.logger
-      end
-
       # Returns a UI object from the environment
       def ui
         env.ui
