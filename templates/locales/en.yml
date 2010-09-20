@@ -1,5 +1,7 @@
 en:
   vagrant:
+    general:
+      creating_home_dir: "Creating home directory since it doesn't exist: %{directory}"
 
 #-------------------------------------------------------------------------------
 # Translations for exception classes

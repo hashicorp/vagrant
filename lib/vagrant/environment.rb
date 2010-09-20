@@ -276,7 +276,7 @@ module Vagrant
       dirs.each do |dir|
         next if File.directory?(dir)
 
-        logger.info "Creating home directory since it doesn't exist: #{dir}"
+        ui.info "vagrant.general.creating_home_dir", :directory => dir
         FileUtils.mkdir_p(dir)
       end
     end
