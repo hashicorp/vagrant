@@ -42,7 +42,7 @@ class ConfigVMTest < Test::Unit::TestCase
     should "add the customize proc to the proc stack" do
       proc = Proc.new {}
       @config.customize(&proc)
-      assert_equal [proc], @config.proc_stack
+      assert @config.proc_stack.include?(proc)
     end
   end
 

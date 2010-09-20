@@ -14,6 +14,7 @@ class CustomizeVMActionTest < Test::Unit::TestCase
   end
 
   should "not run anything if no customize blocks exist" do
+    @env.env.config.vm.proc_stack.clear
     @internal_vm.expects(:save).never
     @app.expects(:call).with(@env).once
     @instance.call(@env)
