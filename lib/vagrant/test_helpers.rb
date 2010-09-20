@@ -21,7 +21,6 @@ module Vagrant
       str  = args.shift || ""
       File.open(path.to_s, "w") do |f|
         f.puts "Vagrant::Config.run do |config|"
-        f.puts "config.vagrant.log_output = nil"
         f.puts "config.vagrant.home = '#{home_path}'"
         f.puts str
         f.puts "end"

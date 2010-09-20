@@ -4,7 +4,6 @@ module Vagrant
       configures :vagrant
 
       attr_accessor :dotfile_name
-      attr_accessor :log_output
       attr_accessor :home
       attr_accessor :host
 

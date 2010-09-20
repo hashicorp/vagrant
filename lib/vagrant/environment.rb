@@ -7,7 +7,7 @@ module Vagrant
   # storing references to the various instances.
   class Environment
     ROOTFILE_NAME = "Vagrantfile"
-    HOME_SUBDIRS = ["tmp", "boxes"]
+    HOME_SUBDIRS = ["tmp", "boxes", "logs"]
     DEFAULT_VM = :default
 
     attr_reader :parent     # Parent environment (in the case of multi-VMs)
@@ -71,6 +71,11 @@ module Vagrant
     # The path to the Vagrant boxes directory
     def boxes_path
       home_path.join("boxes")
+    end
+
+    # Path to the Vagrant logs directory
+    def log_path
+      home_path.join("logs")
     end
 
     # Returns the name of the resource which this environment represents.

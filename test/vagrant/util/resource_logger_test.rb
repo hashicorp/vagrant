@@ -12,29 +12,29 @@ class ResourceLoggerUtilTest < Test::Unit::TestCase
       @result = mock("result")
     end
 
-    should "return a nil plain logger if the config is not loaded" do
+    should "return a nil plain logger if the environment is not loaded" do
       env = vagrant_env
-      env.config.stubs(:loaded?).returns(false)
+      env.stubs(:loaded?).returns(false)
 
       Vagrant::Util::PlainLogger.expects(:new).with(nil).returns(@result)
       assert_equal @result, @klass.singleton_logger(env)
     end
 
-    should "return a logger with the specified output if environment is ready" do
-      output = mock("output")
+    should "return a logger with the output file set if environment is ready" do
       env = vagrant_env
-      env.config.vagrant.log_output = output
 
-      Vagrant::Util::PlainLogger.expects(:new).with(output).returns(@result)
+      Vagrant::Util::PlainLogger.expects(:new).returns(@result).with() do |path|
+        assert path.to_s =~ /logs/
+        true
+      end
+
       assert_equal @result, @klass.singleton_logger(env)
     end
 
     should "only load the logger once" do
-      output = mock("output")
       env = vagrant_env
-      env.config.vagrant.log_output = output
 
-      Vagrant::Util::PlainLogger.expects(:new).with(output).returns(@result)
+      Vagrant::Util::PlainLogger.expects(:new).with(anything).returns(@result)
       assert_equal @result, @klass.singleton_logger(env)
       assert_equal @result, @klass.singleton_logger(env)
       assert_equal @result, @klass.singleton_logger(env)

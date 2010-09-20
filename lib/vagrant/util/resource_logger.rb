@@ -31,7 +31,12 @@ module Vagrant
         # instantiated, then the given environment will be used to
         # create a new logger.
         def singleton_logger(env=nil)
-          @@singleton_logger ||= PlainLogger.new(env.config.vagrant.log_output)
+          return PlainLogger.new(nil) if !env.loaded?
+
+          @@singleton_logger ||= begin
+            file = env.log_path.join("#{Time.now.to_i}.log")
+            PlainLogger.new(file)
+          end
         end
 
         # Resets the singleton logger (only used for testing).
