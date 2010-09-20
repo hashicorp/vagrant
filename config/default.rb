@@ -27,7 +27,7 @@ Vagrant::Config.run do |config|
   config.vm.system = :linux
 
   config.vm.customize do |vm|
-    vm.name = File.basename(File.expand_path("../", Vagrant.source_root))
+    vm.name = File.basename(File.expand_path("../", Vagrant.source_root)) + "_#{Time.now.to_i}"
   end
 
   # Share the root folder. This can then be overridden by
