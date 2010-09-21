@@ -193,15 +193,13 @@ class EnvironmentTest < Test::Unit::TestCase
       assert env.global_data.equal?(store)
     end
 
-    should "return the parent's local data if a parent exists" do
+    should "return the parent's global data if a parent exists" do
       env = vagrant_env(vagrantfile(<<-vf))
         config.vm.define :web
         config.vm.define :db
       vf
 
       result = env.global_data
-
-      Vagrant::DataStore.expects(:new).never
       assert env.vms[:web].env.global_data.equal?(result)
     end
   end
@@ -323,8 +321,9 @@ class EnvironmentTest < Test::Unit::TestCase
   context "accessing the VMs hash" do
     should "load the environment if its not already loaded" do
       env = @klass.new(:cwd => vagrantfile)
-      env.expects(:load!).once
+      assert !env.loaded?
       env.vms
+      assert env.loaded?
     end
 
     should "not load the environment if its already loaded" do
@@ -350,7 +349,6 @@ class EnvironmentTest < Test::Unit::TestCase
         call_seq = sequence("call_sequence")
         @klass.expects(:check_virtualbox!).once.in_sequence(call_seq)
         env.expects(:load_config!).once.in_sequence(call_seq)
-        env.expects(:load_vm!).once.in_sequence(call_seq)
         env.actions.expects(:run).with(:environment_load).once.in_sequence(call_seq)
         assert_equal env, env.load!
       end
@@ -445,13 +443,6 @@ class EnvironmentTest < Test::Unit::TestCase
         @env = vagrant_env
       end
 
-      should "blank the VMs" do
-        load_seq = sequence("load_seq")
-        @env.stubs(:root_path).returns("foo")
-        @env.expects(:load_blank_vms!).in_sequence(load_seq)
-        @env.load_vm!
-      end
-
       should "load all the VMs from the dotfile" do
         @env.local_data[:active] = { "foo" => "bar", "bar" => "baz" }
 
@@ -462,55 +453,17 @@ class EnvironmentTest < Test::Unit::TestCase
           results[key.to_sym] = vm
         end
 
-        @env.load_vm!
+        returned = @env.load_vms!
 
         results.each do |key, value|
-          assert_equal value, @env.vms[key]
+          assert_equal value, returned[key]
         end
-      end
-
-      should "do nothing if the parent is set" do
-        env = vagrant_env(vagrantfile(<<-vf))
-          config.vm.define :web
-          config.vm.define :db
-        vf
-
-        subenv = env.vms[:web].env
-        subenv.expects(:load_blank_vms!).never
-        subenv.load_vm!
       end
 
       should "uuid should be nil if local data contains nothing" do
         assert @env.local_data.empty? # sanity
-        @env.load_vm!
+        @env.load_vms!
         assert_nil @env.vm
-      end
-    end
-
-    context "loading blank VMs" do
-      should "blank the VMs" do
-        env = vagrant_env(vagrantfile(<<-vf))
-          config.vm.define :foo
-          config.vm.define :bar
-        vf
-
-        env.load_blank_vms!
-
-        assert_equal 2, env.vms.length
-        assert(env.vms.all? { |name, vm| !vm.created? })
-
-        sorted_vms = env.vms.keys.sort { |a,b| a.to_s <=> b.to_s }
-        assert_equal [:bar, :foo], sorted_vms
-      end
-
-      should "load the default VM blank if no multi-VMs are specified" do
-        env = vagrant_env
-        assert env.config.vm.defined_vms.empty? # sanity
-
-        env.load_blank_vms!
-
-        assert_equal 1, env.vms.length
-        assert !env.vms.values.first.created?
       end
     end
   end

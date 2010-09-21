@@ -100,7 +100,7 @@ module Vagrant
     def vms
       return parent.vms if parent
       load! if !loaded?
-      @vms ||= {}
+      @vms ||= load_vms!
     end
 
     # Returns the primray VM associated with this environment
@@ -227,7 +227,6 @@ module Vagrant
         @loaded = true
         self.class.check_virtualbox!
         load_config!
-        load_vm!
         actions.run(:environment_load)
       end
 
@@ -287,33 +286,23 @@ module Vagrant
     end
 
     # Loads the persisted VM (if it exists) for this environment.
-    def load_vm!
-      # This environment represents a single sub VM. The VM is then
-      # probably (read: should be) set on the VM attribute, so we do
-      # nothing.
-      return if parent
-
-      # First load the defaults (blank, noncreated VMs)
-      load_blank_vms!
+    def load_vms!
+      result = {}
 
       # Load the VM UUIDs from the local data store
       (local_data[:active] || {}).each do |name, uuid|
-        vms[name.to_sym] = Vagrant::VM.find(uuid, self, name.to_sym)
+        result[name.to_sym] = Vagrant::VM.find(uuid, self, name.to_sym)
       end
-    end
 
-    # Loads blank VMs into the `vms` attribute.
-    def load_blank_vms!
-      # Clear existing vms
-      vms.clear
-
-      # Load up the blank VMs
-      defined_vms = config.vm.defined_vms.keys
-      defined_vms = [DEFAULT_VM] if defined_vms.empty?
-
-      defined_vms.each do |name|
-        vms[name] = Vagrant::VM.new(:name => name, :env => self)
+      # For any VMs which aren't created, create a blank VM instance for
+      # them
+      all_keys = config.vm.defined_vms.keys
+      all_keys = [DEFAULT_VM] if all_keys.empty?
+      all_keys.each do |name|
+        result[name] = Vagrant::VM.new(:name => name, :env => self) if !result.has_key?(name)
       end
+
+      result
     end
   end
 end
