@@ -1,12 +1,4 @@
 GIT
-  remote: git://github.com/mitchellh/radar.git
-  revision: cec6c4bed8a26ca7512f32ddfdb2b25b3b710a8e
-  specs:
-    radar (0.4.0.dev)
-      builder (~> 2.0)
-      json (>= 1.4.6)
-
-GIT
   remote: git://github.com/mitchellh/virtualbox.git
   revision: 1696cc62accd063a8e318950468191cd201c9965
   specs:
@@ -24,7 +16,6 @@ PATH
       mario (~> 0.0.6)
       net-scp (~> 1.0.3)
       net-ssh (~> 2.0.23)
-      radar
       thor (~> 0.14.1)
       virtualbox (~> 0.7.3)
 
@@ -33,7 +24,6 @@ GEM
   specs:
     abstract (1.0.0)
     archive-tar-minitar (0.5.2)
-    builder (2.1.2)
     columnize (0.3.1)
     contest (0.1.2)
     erubis (2.6.6)
@@ -76,7 +66,6 @@ PLATFORMS
 DEPENDENCIES
   contest (>= 0.1.2)
   mocha
-  radar!
   rake
   ruby-debug
   ruby-debug19

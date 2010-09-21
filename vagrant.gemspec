@@ -21,7 +21,6 @@ Gem::Specification.new do |s|
   s.add_dependency "net-scp", "~> 1.0.3"
   s.add_dependency "i18n", "~> 0.4.1"
   s.add_dependency "thor", "~> 0.14.1"
-  s.add_dependency "radar"
   s.add_dependency "virtualbox", "~> 0.7.3"
 
   s.add_development_dependency "rake"

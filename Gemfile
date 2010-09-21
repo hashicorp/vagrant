@@ -5,7 +5,6 @@ gem "vagrant", :path => '.'
 # Use the following gems straight from git, since Vagrant dev
 # typically coincides with it
 gem "virtualbox", :git => "git://github.com/mitchellh/virtualbox.git"
-gem "radar", :git => "git://github.com/mitchellh/radar.git"
 
 # Gems required for testing only. To install run
 # gem bundle test
