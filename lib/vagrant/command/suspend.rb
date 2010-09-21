@@ -1,8 +1,7 @@
 module Vagrant
   module Command
     class SuspendCommand < NamedBase
-      desc "Suspend a running Vagrant environment."
-      register "suspend"
+      register "suspend", "Suspend a running Vagrant environment."
 
       def execute
         target_vms.each do |vm|

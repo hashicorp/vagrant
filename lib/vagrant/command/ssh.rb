@@ -1,9 +1,8 @@
 module Vagrant
   module Command
     class SSHCommand < NamedBase
-      desc "SSH into the currently running Vagrant environment."
       class_option :execute, :type => :string, :default => false, :aliases => "-e"
-      register "ssh"
+      register "ssh", "SSH into the currently running Vagrant environment."
 
       def execute
         if options[:execute]

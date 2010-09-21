@@ -1,9 +1,8 @@
 module Vagrant
   module Command
     class UpCommand < NamedBase
-      desc "Creates the Vagrant environment"
       class_option :provision, :type => :boolean, :default => true
-      register "up"
+      register "up", "Creates the Vagrant environment"
 
       def execute
         # TODO: Make the options[:provision] actually mean something

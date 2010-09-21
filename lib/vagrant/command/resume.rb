@@ -1,8 +1,7 @@
 module Vagrant
   module Command
     class ResumeCommand < NamedBase
-      desc "Resume a suspended Vagrant environment."
-      register "resume"
+      register "resume", "Resume a suspended Vagrant environment."
 
       def execute
         target_vms.each do |vm|

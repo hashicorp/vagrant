@@ -18,9 +18,6 @@ module Vagrant
       # usage. The usage will be used for accessing it from the CLI,
       # so if you give it a usage of `lamp [subcommand]`, then the command
       # to invoke this will be `vagrant lamp` (with a subcommand).
-      #
-      # Additionally, unlike {Base}, a description must be specified to
-      # this register command, since there is no class-wide description.
       def self.register(usage, description, opts=nil)
         CLI.register(self, Base.extract_name_from_usage(usage), usage, description, opts)
       end

@@ -1,8 +1,7 @@
 module Vagrant
   module Command
     class ReloadCommand < NamedBase
-      desc "Reload the environment, halting it then restarting it."
-      register "reload"
+      register "reload", "Reload the environment, halting it then restarting it."
 
       def execute
         target_vms.each do |vm|

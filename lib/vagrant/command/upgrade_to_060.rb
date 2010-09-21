@@ -3,8 +3,7 @@ require 'fileutils'
 module Vagrant
   module Command
     class UpgradeTo060Command < Base
-      desc "Upgrade pre-0.6.0 environment to 0.6.0"
-      register "upgrade_to_060", :hide => true
+      register "upgrade_to_060", "Upgrade pre-0.6.0 environment to 0.6.0", :hide => true
 
       def execute
         @env.ui.warn "vagrant.commands.upgrade_to_060.info", :_prefix => false

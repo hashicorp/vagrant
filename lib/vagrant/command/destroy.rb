@@ -1,8 +1,7 @@
 module Vagrant
   module Command
     class DestroyCommand < NamedBase
-      desc "Destroy the environment, deleting the created virtual machines"
-      register "destroy"
+      register "destroy", "Destroy the environment, deleting the created virtual machines"
 
       def execute
         target_vms.each do |vm|

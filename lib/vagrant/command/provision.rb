@@ -1,8 +1,7 @@
 module Vagrant
   module Command
     class ProvisionCommand < NamedBase
-      desc "Rerun the provisioning scripts on a running VM"
-      register "provision"
+      register "provision", "Rerun the provisioning scripts on a running VM"
 
       def execute
         target_vms.each do |vm|

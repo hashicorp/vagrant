@@ -26,10 +26,8 @@ module Vagrant
       # given name. The name will be used for accessing it from the CLI,
       # so if you name it "lamp", then the command to invoke this
       # will be `vagrant lamp`.
-      #
-      # The description added to the class via the `desc` method will be
-      # used as a description for the command.
-      def self.register(usage, opts=nil)
+      def self.register(usage, description, opts=nil)
+        desc description
         CLI.register(self, extract_name_from_usage(usage), usage, desc, opts)
       end
 

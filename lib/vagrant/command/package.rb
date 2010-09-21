@@ -1,12 +1,11 @@
 module Vagrant
   module Command
     class PackageCommand < NamedBase
-      desc "Package a Vagrant environment for distribution"
       class_option :base, :type => :string, :default => nil
       class_option :output, :type => :string, :default => nil
       class_option :include, :type => :array, :default => nil
       class_option :vagrantfile, :type => :string, :default => nil
-      register "package"
+      register "package", "Package a Vagrant environment for distribution"
 
       def execute
         return package_base if options[:base]

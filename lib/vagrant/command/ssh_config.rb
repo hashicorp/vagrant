@@ -1,9 +1,8 @@
 module Vagrant
   module Command
     class SSHConfigCommand < NamedBase
-      desc "outputs .ssh/config valid syntax for connecting to this environment via ssh"
       class_option :host, :type => :string, :default => nil, :aliases => "-h"
-      register "ssh_config"
+      register "ssh_config", "outputs .ssh/config valid syntax for connecting to this environment via ssh"
 
       def execute
         raise MultiVMTargetRequired.new(:command => "ssh_config") if target_vms.length > 1

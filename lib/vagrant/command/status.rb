@@ -1,9 +1,8 @@
 module Vagrant
   module Command
     class StatusCommand < Base
-      desc "Shows the status of the current Vagrant environment."
       argument :name, :type => :string, :optional => true
-      register "status"
+      register "status", "Shows the status of the current Vagrant environment."
 
       def route
         state = nil
