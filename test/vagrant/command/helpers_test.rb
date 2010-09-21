@@ -16,12 +16,6 @@ class CommandHelpersTest < Test::Unit::TestCase
     should "raise an exception if no environment is given" do
       assert_raises(Vagrant::Errors::CLIMissingEnvironment) { command([], nil) }
     end
-
-    should "not raise an exception if environment is given and setup UI" do
-      env = vagrant_env
-      assert_nothing_raised { command([], env) }
-      assert env.ui.is_a?(Vagrant::UI::Shell)
-    end
   end
 
   context "vms from args" do

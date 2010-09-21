@@ -5,6 +5,13 @@ require 'vagrant/cli'
 env = Vagrant::Environment.new
 
 begin
+  # Set the UI early in case any errors are raised, and load
+  # the config immediately, so we gather any new commands from
+  # plugins
+  env.ui = Vagrant::UI::Shell.new(env, Thor::Base.shell.new)
+  env.load!
+
+  # Kick start the CLI
   Vagrant::CLI.start(ARGV, :env => env)
 rescue Vagrant::Errors::VagrantError => e
   opts = { :_translate => false, :_prefix => false }

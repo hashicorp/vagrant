@@ -6,7 +6,6 @@ module Vagrant
       def initialize_environment(args, options, config)
         raise Errors::CLIMissingEnvironment.new if !config[:env]
         @env = config[:env]
-        @env.ui = UI::Shell.new(@env, shell) if !@env.ui.is_a?(UI::Shell)
       end
 
       # This returns an array of {VM} objects depending on the arguments
