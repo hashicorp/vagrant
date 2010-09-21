@@ -103,6 +103,8 @@ module Vagrant
                        :path => options[:hostpath])
           end
         end
+
+        errors.add("vagrant.config.vm.boot_mode_invalid") if ![:vrdp, :gui].include?(boot_mode.to_sym)
       end
     end
   end
