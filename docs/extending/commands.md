@@ -31,8 +31,7 @@ shown below:
 
 {% highlight ruby %}
 class SayHelloCommand < Vagrant::Command::Base
-  desc "Says hello then goodbye"
-  register "hello"
+  register "hello", "Says hello then goodbye"
 
   def hello
     puts "HELLO!"
@@ -46,8 +45,6 @@ end
 
 Important notes:
 
-* The `desc` call gives a description for the command which is shown when
-  `vagrant help` is called.
 * The `register` command is **the most important**! It is what registers the
   command with the actual binary. Without this call, the command won't be
   available.
