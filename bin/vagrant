@@ -14,7 +14,7 @@ begin
   # Kick start the CLI
   Vagrant::CLI.start(ARGV, :env => env)
 rescue Vagrant::Errors::VagrantError => e
-  opts = { :_translate => false, :_prefix => false }
+  opts = { :_prefix => false }
   env.ui.error e.message, opts if e.message
   env.ui.error e.backtrace.join("\n"), opts if ENV["VAGRANT_DEBUG"]
   exit e.status_code if e.respond_to?(:status_code)

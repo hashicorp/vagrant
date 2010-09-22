@@ -9,7 +9,7 @@ module Vagrant
           if vm.created?
             vm.halt(options)
           else
-            vm.env.ui.info "vagrant.commands.common.vm_not_created"
+            vm.env.ui.info I18n.t("vagrant.commands.common.vm_not_created")
           end
         end
       end

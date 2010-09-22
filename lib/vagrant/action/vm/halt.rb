@@ -12,7 +12,7 @@ module Vagrant
             env["vm"].system.halt if !env["force"]
 
             if env["vm"].vm.state(true) != :powered_off
-              env.ui.info "vagrant.actions.vm.halt.force"
+              env.ui.info I18n.t("vagrant.actions.vm.halt.force")
               env["vm"].vm.stop
             end
 

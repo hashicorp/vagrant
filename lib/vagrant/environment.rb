@@ -280,7 +280,7 @@ module Vagrant
       dirs.each do |dir|
         next if File.directory?(dir)
 
-        ui.info "vagrant.general.creating_home_dir", :directory => dir
+        ui.info I18n.t("vagrant.general.creating_home_dir", :directory => dir)
         FileUtils.mkdir_p(dir)
       end
     end

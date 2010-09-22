@@ -19,7 +19,7 @@ module Vagrant
 
         # The sleep ensures that the output is truly flushed before any `sudo`
         # commands are issued.
-        env.ui.info "vagrant.hosts.bsd.nfs_export.prepare"
+        env.ui.info I18n.t("vagrant.hosts.bsd.nfs_export.prepare")
         sleep 0.5
 
         output.split("\n").each do |line|

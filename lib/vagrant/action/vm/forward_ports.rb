@@ -72,9 +72,9 @@ module Vagrant
           existing_ports << options[:hostport]
 
           # Notify the user
-          @env.ui.info("vagrant.actions.vm.forward_ports.fixed_collision",
+          @env.ui.info(I18n.t("vagrant.actions.vm.forward_ports.fixed_collision",
                        :name => name,
-                       :new_port => options[:hostport])
+                       :new_port => options[:hostport]))
         end
 
         #--------------------------------------------------------------
@@ -89,7 +89,7 @@ module Vagrant
         end
 
         def forward_ports
-          @env.ui.info "vagrant.actions.vm.forward_ports.forwarding"
+          @env.ui.info I18n.t("vagrant.actions.vm.forward_ports.forwarding")
 
           @env.env.config.vm.forwarded_ports.each do |name, options|
             adapter = options[:adapter]
@@ -104,10 +104,10 @@ module Vagrant
             # Host-only or Bridged networking don't require port-forwarding and establishing forwarded ports on these
             # attachment types has uncertain behaviour.
             if @env["vm"].vm.network_adapters[adapter].attachment_type == :nat
-              @env.ui.info("vagrant.actions.vm.forward_ports.forwarding_entry", message_attributes)
+              @env.ui.info(I18n.t("vagrant.actions.vm.forward_ports.forwarding_entry", message_attributes))
               forward_port(name, options)
             else
-              @env.ui.info("vagrant.actions.vm.forward_ports.non_nat", message_attributes)
+              @env.ui.info(I18n.t("vagrant.actions.vm.forward_ports.non_nat", message_attributes))
             end
           end
 

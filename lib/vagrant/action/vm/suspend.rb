@@ -8,7 +8,7 @@ module Vagrant
 
         def call(env)
           if env["vm"].vm.running?
-            env.ui.info "vagrant.actions.vm.suspend.suspending"
+            env.ui.info I18n.t("vagrant.actions.vm.suspend.suspending")
             env["vm"].vm.save_state
           end
 

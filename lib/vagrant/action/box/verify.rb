@@ -9,7 +9,7 @@ module Vagrant
 
         def call(env)
           begin
-            env.ui.info "vagrant.actions.box.verify.verifying"
+            env.ui.info I18n.t("vagrant.actions.box.verify.verifying")
             VirtualBox::Appliance.new(env["box"].ovf_file.to_s)
           rescue Exception
             raise Errors::BoxVerificationFailed.new

@@ -32,7 +32,7 @@ module Vagrant
       end
 
       def setup_json
-        env.ui.info "vagrant.provisioners.chef.json"
+        env.ui.info I18n.t("vagrant.provisioners.chef.json")
 
         # Set up initial configuration
         data = {

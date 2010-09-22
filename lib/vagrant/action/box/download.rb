@@ -28,7 +28,7 @@ module Vagrant
         def instantiate_downloader
           @env["download.classes"].each do |klass|
             if klass.match?(@env["box"].uri)
-              @env.ui.info "vagrant.actions.box.download.with", :class => klass.to_s
+              @env.ui.info I18n.t("vagrant.actions.box.download.with", :class => klass.to_s)
               @downloader = klass.new(@env)
             end
           end
@@ -48,7 +48,7 @@ module Vagrant
 
         def recover(env)
           if temp_path && File.exist?(temp_path)
-            env.ui.info "vagrant.actions.box.download.cleaning"
+            env.ui.info I18n.t("vagrant.actions.box.download.cleaning")
             File.unlink(temp_path)
           end
         end
@@ -64,7 +64,7 @@ module Vagrant
         end
 
         def download_to(f)
-          @env.ui.info "vagrant.actions.box.download.copying"
+          @env.ui.info I18n.t("vagrant.actions.box.download.copying")
           @downloader.download!(@env["box"].uri, f)
         end
       end

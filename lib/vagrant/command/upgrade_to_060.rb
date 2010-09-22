@@ -6,22 +6,22 @@ module Vagrant
       register "upgrade_to_060", "Upgrade pre-0.6.0 environment to 0.6.0", :hide => true
 
       def execute
-        @env.ui.warn "vagrant.commands.upgrade_to_060.info", :_prefix => false
-        @env.ui.warn "", :_translate => false, :_prefix => false
-        if !@env.ui.yes? "vagrant.commands.upgrade_to_060.ask", :_prefix => false, :_color => :yellow
-          @env.ui.info "vagrant.commands.upgrade_to_060.quit", :_prefix => false
+        @env.ui.warn I18n.t("vagrant.commands.upgrade_to_060.info"), :_prefix => false
+        @env.ui.warn "", :_prefix => false
+        if !@env.ui.yes? I18n.t("vagrant.commands.upgrade_to_060.ask"), :_prefix => false, :_color => :yellow
+          @env.ui.info I18n.t("vagrant.commands.upgrade_to_060.quit"), :_prefix => false
           return
         end
 
         local_data = @env.local_data
         if !local_data.empty?
           if local_data[:active]
-            @env.ui.confirm "vagrant.commands.upgrade_to_060.already_done", :_prefix => false
+            @env.ui.confirm I18n.t("vagrant.commands.upgrade_to_060.already_done"), :_prefix => false
             return
           end
 
           # Backup the previous file
-          @env.ui.info "vagrant.commands.upgrade_to_060.backing_up", :_prefix => false
+          @env.ui.info I18n.t("vagrant.commands.upgrade_to_060.backing_up"), :_prefix => false
           FileUtils.cp(local_data.file_path, "#{local_data.file_path}.bak-#{Time.now.to_i}")
 
           # Gather the previously set virtual machines into a single
@@ -38,7 +38,7 @@ module Vagrant
           local_data.commit
         end
 
-        @env.ui.confirm "vagrant.commands.upgrade_to_060.complete", :_prefix => false
+        @env.ui.confirm I18n.t("vagrant.commands.upgrade_to_060.complete"), :_prefix => false
       end
     end
   end

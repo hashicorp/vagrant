@@ -104,14 +104,14 @@ module Vagrant
         # involves adding a line to `/etc/exports` for this VM, but it is
         # up to the host class to define the specific behavior.
         def export_folders
-          @env.ui.info "vagrant.actions.vm.nfs.exporting"
+          @env.ui.info I18n.t("vagrant.actions.vm.nfs.exporting")
 
           @env["host"].nfs_export(guest_ip, folders)
         end
 
         # Uses the system class to mount the NFS folders.
         def mount_folders
-          @env.ui.info "vagrant.actions.vm.nfs.mounting"
+          @env.ui.info I18n.t("vagrant.actions.vm.nfs.mounting")
 
           @env["vm"].system.mount_nfs(host_ip, folders)
         end

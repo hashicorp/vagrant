@@ -13,9 +13,9 @@ module Vagrant
 
         state = env.vms.length == 1 ? state : "listing"
 
-        env.ui.info("vagrant.commands.status.output",
+        env.ui.info(I18n.t("vagrant.commands.status.output",
                     :states => results.join("\n"),
-                    :message => I18n.t("vagrant.commands.status.#{state}"),
+                    :message => I18n.t("vagrant.commands.status.#{state}")),
                     :_prefix => false)
       end
     end

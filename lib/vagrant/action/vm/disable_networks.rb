@@ -17,7 +17,7 @@ module Vagrant
               next if adapter.attachment_type != :host_only
 
               if !logged
-                env.ui.info "vagrant.actions.vm.disable_networks.disabling"
+                env.ui.info I18n.t("vagrant.actions.vm.disable_networks.disabling")
                 logged = true
               end
 

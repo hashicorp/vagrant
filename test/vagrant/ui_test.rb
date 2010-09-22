@@ -26,24 +26,4 @@ class ShellUITest < Test::Unit::TestCase
       @instance.info("vagrant.errors.test_key", :_prefix => false)
     end
   end
-
-  context "translating" do
-    should "translate the message by default" do
-      @shell.expects(:say).with() do |message, color|
-        assert message.include?(I18n.t("vagrant.errors.test_key"))
-        true
-      end
-
-      @instance.info("vagrant.errors.test_key")
-    end
-
-    should "not translate the message if noted" do
-      @shell.expects(:say).with() do |message, color|
-        assert message.include?("vagrant.errors.test_key")
-        true
-      end
-
-      @instance.info("vagrant.errors.test_key", :_translate => false)
-    end
-  end
 end

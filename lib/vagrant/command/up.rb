@@ -8,7 +8,7 @@ module Vagrant
         # TODO: Make the options[:provision] actually mean something
         target_vms.each do |vm|
           if vm.created?
-            vm.env.ui.info "vagrant.commands.up.vm_created"
+            vm.env.ui.info I18n.t("vagrant.commands.up.vm_created")
             vm.start
           else
             vm.up

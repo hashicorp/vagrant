@@ -50,8 +50,7 @@ module Vagrant
       protected
 
       def format_message(message, opts=nil)
-        opts = { :_prefix => true, :_translate => true }.merge(opts || {})
-        message = I18n.t(message, opts) if opts[:_translate]
+        opts = { :_prefix => true }.merge(opts || {})
         message = "[#{env.resource}] #{message}" if opts[:_prefix]
         message
       end

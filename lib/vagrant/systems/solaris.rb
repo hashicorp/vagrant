@@ -31,7 +31,7 @@ module Vagrant
       #
       # does not exist in /etc/user_attr. TODO
       def halt
-        vm.env.ui.info "vagrant.systems.solaris.attempting_halt"
+        vm.env.ui.info I18n.t("vagrant.systems.solaris.attempting_halt")
         vm.ssh.execute do |ssh|
           ssh.exec!("pfexec poweroff")
         end

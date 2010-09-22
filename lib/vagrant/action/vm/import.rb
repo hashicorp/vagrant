@@ -7,7 +7,7 @@ module Vagrant
         end
 
         def call(env)
-          env.ui.info "vagrant.actions.vm.import.importing", :name => env.env.box.name
+          env.ui.info I18n.t("vagrant.actions.vm.import.importing", :name => env.env.box.name)
 
           # Import the virtual machine
           env.env.vm.vm = VirtualBox::VM.import(env.env.box.ovf_file.to_s) do |progress|

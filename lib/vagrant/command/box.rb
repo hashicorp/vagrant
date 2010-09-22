@@ -25,8 +25,8 @@ module Vagrant
       desc "list", "Lists all installed boxes"
       def list
         boxes = env.boxes.sort
-        return env.ui.warn("vagrant.commands.box.no_installed_boxes", :_prefix => false) if boxes.empty?
-        boxes.each { |b| env.ui.info(b.name, :_translate => false, :_prefix => false) }
+        return env.ui.warn(I18n.t("vagrant.commands.box.no_installed_boxes"), :_prefix => false) if boxes.empty?
+        boxes.each { |b| env.ui.info(b.name, :_prefix => false) }
       end
     end
   end

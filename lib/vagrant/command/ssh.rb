@@ -16,9 +16,9 @@ module Vagrant
 
       def ssh_execute
         ssh_vm.ssh.execute do |ssh|
-          ssh_vm.env.ui.info "vagrant.commands.ssh.execute", :command => options[:execute]
+          ssh_vm.env.ui.info I18n.t("vagrant.commands.ssh.execute", :command => options[:execute])
           ssh.exec!(options[:execute]) do |channel, type, data|
-            ssh_vm.env.ui.info "#{data}", :_translate => false
+            ssh_vm.env.ui.info "#{data}"
           end
         end
       end

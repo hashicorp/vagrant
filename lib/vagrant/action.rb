@@ -56,11 +56,11 @@ module Vagrant
       # chain has been run.
       int_callback = lambda do
         if action_environment.interrupted?
-          env.ui.error "vagrant.actions.runner.exit_immediately"
+          env.ui.error I18n.t("vagrant.actions.runner.exit_immediately")
           abort
         end
 
-        env.ui.warn "vagrant.actions.runner.waiting_cleanup" if !@@reported_interrupt
+        env.ui.warn I18n.t("vagrant.actions.runner.waiting_cleanup") if !@@reported_interrupt
         action_environment.interrupt!
         @@reported_interrupt = true
       end

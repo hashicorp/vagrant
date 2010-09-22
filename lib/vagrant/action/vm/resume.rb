@@ -8,7 +8,7 @@ module Vagrant
 
         def call(env)
           if env["vm"].vm.saved?
-            env.ui.info "vagrant.actions.vm.resume.resuming"
+            env.ui.info I18n.t("vagrant.actions.vm.resume.resuming")
             env["actions"].run(Boot)
           end
 

@@ -7,7 +7,7 @@ module Vagrant
         end
 
         def call(env)
-          env.ui.info "vagrant.actions.vm.destroy.destroying"
+          env.ui.info I18n.t("vagrant.actions.vm.destroy.destroying")
           env["vm"].vm.destroy(:destroy_medium => :delete)
           env["vm"].vm = nil
 
