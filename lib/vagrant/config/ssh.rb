@@ -18,10 +18,10 @@ module Vagrant
 
       def validate(errors)
         [:username, :host, :port, :forwarded_port_key, :max_tries, :timeout, :private_key_path].each do |field|
-          errors.add("vagrant.config.common.error_empty", :field => field) if !instance_variable_get("@#{field}".to_sym)
+          errors.add(I18n.t("vagrant.config.common.error_empty", :field => field)) if !instance_variable_get("@#{field}".to_sym)
         end
 
-        errors.add("vagrant.config.ssh.private_key_missing", :path => private_key_path) if !File.file?(private_key_path)
+        errors.add(I18n.t("vagrant.config.ssh.private_key_missing", :path => private_key_path)) if !File.file?(private_key_path)
       end
     end
   end

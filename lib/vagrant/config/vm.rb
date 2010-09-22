@@ -98,13 +98,13 @@ module Vagrant
       def validate(errors)
         shared_folders.each do |name, options|
           if !File.directory?(File.expand_path(options[:hostpath].to_s, env.root_path))
-            errors.add("vagrant.config.vm.shared_folder_hostpath_missing",
+            errors.add(I18n.t("vagrant.config.vm.shared_folder_hostpath_missing",
                        :name => name,
-                       :path => options[:hostpath])
+                       :path => options[:hostpath]))
           end
         end
 
-        errors.add("vagrant.config.vm.boot_mode_invalid") if ![:vrdp, :gui].include?(boot_mode.to_sym)
+        errors.add(I18n.t("vagrant.config.vm.boot_mode_invalid")) if ![:vrdp, :gui].include?(boot_mode.to_sym)
       end
     end
   end

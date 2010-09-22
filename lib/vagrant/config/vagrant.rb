@@ -13,7 +13,7 @@ module Vagrant
 
       def validate(errors)
         [:dotfile_name, :home, :host].each do |field|
-          errors.add("vagrant.config.common.error_empty", :field => field) if !instance_variable_get("@#{field}".to_sym)
+          errors.add(I18n.t("vagrant.config.common.error_empty", :field => field)) if !instance_variable_get("@#{field}".to_sym)
         end
       end
     end

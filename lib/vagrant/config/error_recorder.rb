@@ -10,11 +10,9 @@ module Vagrant
         @errors = []
       end
 
-      # Adds an error to the list of errors. The message key must be a key
-      # to an I18n translatable error message. Opts can be specified as
-      # interpolation variables for the message.
-      def add(message_key, opts=nil)
-        @errors << I18n.t(message_key, opts)
+      # Adds an error to the list of errors.
+      def add(message)
+        @errors << message
       end
     end
   end
