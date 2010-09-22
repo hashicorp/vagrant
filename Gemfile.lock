@@ -24,6 +24,7 @@ GEM
   specs:
     abstract (1.0.0)
     archive-tar-minitar (0.5.2)
+    bluecloth (2.0.7)
     columnize (0.3.1)
     contest (0.1.2)
     erubis (2.6.6)
@@ -64,6 +65,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  bluecloth
   contest (>= 0.1.2)
   mocha
   rake
@@ -71,4 +73,4 @@ DEPENDENCIES
   ruby-debug19
   vagrant!
   virtualbox!
-  yard
+  yard (~> 0.6.1)

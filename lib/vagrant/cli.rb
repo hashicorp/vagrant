@@ -4,9 +4,32 @@ module Vagrant
   # Entrypoint for the Vagrant CLI. This class should never be
   # initialized directly (like a typical Thor class). Instead,
   # use {Environment#cli} to invoke the CLI.
+  #
+  # # Defining Custom CLI Commands
+  #
+  # If you're looking to define custom CLI commands, then look at
+  # one of the two following classes:
+  #
+  # * {Command::Base} - Implementing a single command such as `vagrant up`, e.g.
+  #   one without subcommands. Also take a look at {Command::NamedBase}.
+  # * {Command::GroupBase} - Implementing a command with subcommands, such as
+  #   `vagrant box`, which has the `list`, `add`, etc. subcommands.
+  #
+  # The above linked classes contain the main documentation for each
+  # type of command.
   class CLI < Thor
     # Registers the given class with the CLI so it can be accessed.
-    # The class must be a subclass of either {Command} or {GroupCommand}.
+    # The class must be a subclass of either {Command::Base} or {Command::GroupBase}.
+    # Don't call this method directly, instead call the {Command::Base.register}
+    # or {Command::GroupBase.register} methods.
+    #
+    # @param [Class] klass Command class
+    # @param [String] name Command name, accessed at `vagrant NAME`
+    # @param [String] usage Command usage, such as "vagrant NAME [--option]"
+    # @param [String] description Description of the command shown during the
+    #   command listing.
+    # @param [Hash] opts Other options (not gone into detail here, look at
+    #   the source instead).
     def self.register(klass, name, usage, description, opts=nil)
       opts ||= {}
 

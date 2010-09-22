@@ -12,7 +12,10 @@ group :test do
   gem "rake"
   gem "contest", ">= 0.1.2"
   gem "mocha"
-  gem "yard"
+
+  # For documentation
+  gem "yard", "~> 0.6.1"
+  gem "bluecloth"
 
   platforms :mri_18 do
     gem "ruby-debug"

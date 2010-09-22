@@ -3,7 +3,7 @@ require 'thor/actions'
 
 module Vagrant
   module Command
-    # A CLI command is the subclass for all commands which are single
+    # A {Base} is the superclass for all commands which are single
     # commands, e.g. `vagrant init`, `vagrant up`. Not commands like
     # `vagrant box add`. For commands which have more subcommands, use
     # a {GroupBase}.
@@ -15,7 +15,50 @@ module Vagrant
     # the command is invoked, it must be made `protected` or `private`.
     #
     # The best way to get examples of how to create your own command is to
-    # view the various Vagrant commands, which are relatively simple.
+    # view the various Vagrant commands, which are relatively simple, and
+    # can be found in the Vagrant source tree at `lib/vagrant/command/`.
+    #
+    # # Defining a New Command
+    #
+    # To define a new single command, create a new class which inherits
+    # from this class, then call {register} to register the command. That's
+    # it! When the command is invoked, _all public methods_ will be called.
+    # Below is an example `SayHello` class:
+    #
+    #     class SayHello < Vagrant::Command::Base
+    #       register "hello", "Says hello"
+    #
+    #       def hello
+    #         env.ui.info "Hello"
+    #       end
+    #     end
+    #
+    # In this case, the above class is invokable via `vagrant hello`. To give
+    # this a try, just copy and paste the above into a Vagrantfile somewhere.
+    # The command will be available for that project!
+    #
+    # Also note that the above example uses `env.ui` to output. It is recommended
+    # you use this instead of raw "puts" since it is configurable and provides
+    # additional functionality, such as colors and asking for user input. See
+    # the {UI} class for more information.
+    #
+    # ## Defining Command-line Options
+    #
+    # Most command line actions won't be as simple as `vagrant hello`, and will
+    # probably require parameters or switches. Luckily, Thor makes adding these
+    # easy:
+    #
+    #     class SayHello < Vagrant::Command::Base
+    #       register "hello", "Says hello"
+    #       argument :name, :type => :string
+    #
+    #       def hello
+    #         env.ui.info "Hello, #{name}"
+    #       end
+    #     end
+    #
+    # Then, the above can be invoked with `vagrant hello Mitchell` which would
+    # output "Hello, Mitchell"
     class Base < Thor::Group
       include Thor::Actions
       include Helpers

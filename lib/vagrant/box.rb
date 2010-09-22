@@ -4,7 +4,7 @@ module Vagrant
   # virtual machine, at the least. They are created with `vagrant package`
   # and may contain additional files if specified by the creator. This
   # class serves to help manage these boxes, although most of the logic
-  # is kicked out to actions.
+  # is kicked out to middlewares.
   class Box
     # The name of the box.
     attr_accessor :name
@@ -46,6 +46,8 @@ module Vagrant
     # virtual machine file which contains specifications of the exported
     # virtual machine this box contains.
     #
+    # This will only be valid once the box is imported.
+    #
     # @return [String]
     def ovf_file
       directory.join(env.config.vm.box_ovf)
@@ -53,12 +55,12 @@ module Vagrant
 
     # Begins the process of adding a box to the vagrant installation. This
     # method requires that `name` and `uri` be set. The logic of this method
-    # is kicked out to the {Actions::Box::Add add box} action.
+    # is kicked out to the `box_add` registered middleware.
     def add
       env.actions.run(:box_add, { "box" => self })
     end
 
-    # Begins the process of destroying this box.
+    # Begins the process of destroying this box. This cannot be undone!
     def destroy
       env.actions.run(:box_remove, { "box" => self })
     end
@@ -69,14 +71,16 @@ module Vagrant
     end
 
     # Returns the directory to the location of this boxes content in the local
-    # filesystem.
+    # filesystem. Note that if the box isn't imported yet, then the path may not
+    # yet exist, but still represents where the box will be imported to.
     #
     # @return [String]
     def directory
       env.boxes_path.join(name)
     end
 
-    # Implemented for comparison with other boxes.
+    # Implemented for comparison with other boxes. Comparison is implemented
+    # by simply comparing name.
     def <=>(other)
       return super if !other.is_a?(self.class)
       name <=> other.name
