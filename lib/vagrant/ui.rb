@@ -34,7 +34,7 @@ module Vagrant
       [:ask, :no?, :yes?].each do |method|
         define_method(method) do |message, opts=nil|
           opts ||= {}
-          @shell.send(method, format_message(message, opts), opts[:_color])
+          @shell.send(method, format_message(message, opts), opts[:color])
         end
       end
 
@@ -50,8 +50,8 @@ module Vagrant
       protected
 
       def format_message(message, opts=nil)
-        opts = { :_prefix => true }.merge(opts || {})
-        message = "[#{env.resource}] #{message}" if opts[:_prefix]
+        opts = { :prefix => true }.merge(opts || {})
+        message = "[#{env.resource}] #{message}" if opts[:prefix]
         message
       end
 

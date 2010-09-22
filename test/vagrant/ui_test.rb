@@ -23,7 +23,7 @@ class ShellUITest < Test::Unit::TestCase
         true
       end
 
-      @instance.info("vagrant.errors.test_key", :_prefix => false)
+      @instance.info("vagrant.errors.test_key", :prefix => false)
     end
   end
 end

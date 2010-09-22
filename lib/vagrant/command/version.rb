@@ -6,7 +6,7 @@ module Vagrant
       def version
         env.ui.info(I18n.t("vagrant.commands.version.output",
                     :version => Vagrant::VERSION),
-                    :_prefix => false)
+                    :prefix => false)
       end
     end
   end

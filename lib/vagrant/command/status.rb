@@ -16,7 +16,7 @@ module Vagrant
         env.ui.info(I18n.t("vagrant.commands.status.output",
                     :states => results.join("\n"),
                     :message => I18n.t("vagrant.commands.status.#{state}")),
-                    :_prefix => false)
+                    :prefix => false)
       end
     end
   end
