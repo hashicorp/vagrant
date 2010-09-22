@@ -45,7 +45,34 @@ Vagrant provides a standardized method of validating input for your
 configuration classes. It is recommended that you _do not_ validate
 input anywhere except through the `validate` method, since this will
 allow Vagrant to output the error messages in a standard, unified, way.
+Instead of explaining, an example is easiest to understand, building
+upon the configuration class built in the previous section:
+
+{% highlight ruby %}
+class MyConfig < Vagrant::Config::Base
+  configures :my_config
+
+  attr_accessor :name
+  attr_accessor :location
+
+  def validate(errors)
+    errors.add("Name must be filled out.") if !name
+    errors.add("Name must be at least 5 characters.") if name && name.length < 5
+  end
+end
+{% endhighlight %}
+
+Pretty weak validations, I admit! But its up to you to decide how
+detailed to get. Vagrant will automatically run these validations
+after all the configuration is loaded, and will display a nicely formatted
+error in the case validation fails.
 
 ## Accessing Configuration in Your Plugin
 
-TODO
+Once you have your configuration setup, it can be accessed from the
+`config` accessor on a `Vagrant::Environment` object. For example:
+
+{% highlight ruby %}
+env.config.my_config.name
+env.config.my_config.location
+{% endhighlight %}
