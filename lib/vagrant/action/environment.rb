@@ -9,10 +9,6 @@ module Vagrant
       # action environment.
       attr_reader :env
 
-      # If nonnil, the error associated with this environment. Set
-      # using {#error!}
-      attr_reader :error
-
       def initialize(env)
         super() do |h,k|
           # By default, try to find the key as a method on the
