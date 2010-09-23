@@ -1,11 +1,19 @@
 require "rubygems"
 
 module Vagrant
+  # Represents a single plugin and also manages loading plugins from
+  # RubyGems. If a plugin has a `vagrant_init.rb` file somewhere on its
+  # load path, then this class will find it and load it. For logging purposes
+  # (for debugging), the list of loaded plugins is stored in the {plugins}
+  # array.
   class Plugin
     # The array of loaded plugins.
     @@plugins = []
 
+    # The gemspec of this plugin. This is an actual gemspec object.
     attr_reader :gemspec
+
+    # The path to the `vagrant_init.rb` file which was loaded for this plugin.
     attr_reader :file
 
     # Loads all the plugins for Vagrant. Plugins are currently
@@ -25,6 +33,8 @@ module Vagrant
 
     # Returns the array of plugins which are currently loaded by
     # Vagrant.
+    #
+    # @return [Array]
     def self.plugins; @@plugins; end
 
     # Initializes a new plugin, given a Gemspec and the path to the

@@ -2,6 +2,40 @@
 # commands, actions, etc.
 
 module Vagrant
+  # This module contains all of the internal errors in Vagrant's core.
+  # These errors are _expected_ errors and as such don't typically represent
+  # bugs in Vagrant itself. These are meant as a way to detect errors and
+  # display them in a user-friendly way.
+  #
+  # # Defining a new Error
+  #
+  # To define a new error, inherit from {VagrantError}, which lets Vagrant
+  # know that this is an expected error, and also gives you some helpers for
+  # providing exit codes and error messages. An example is shown below, then
+  # it is explained:
+  #
+  #     class MyError < Vagrant::Errors::VagrantError
+  #       error_key "my_error"
+  #     end
+  #
+  # This creates an error with an I18n error key of "my_error." {VagrantError}
+  # uses I18n to look up error messages, in the "vagrant.errors" namespace. So
+  # in the above, the error message would be the translation of "vagrant.errors.my_error"
+  #
+  # If you don't want to use I18n, you can override the {#initialize} method and
+  # set your own error message.
+  #
+  # # Raising an Error
+  #
+  # To raise an error, it is nothing special, just raise it like any normal
+  # exception:
+  #
+  #     raise MyError.new
+  #
+  # Eventually this exception will bubble out to the `vagrant` binary which
+  # will show a nice error message. And if it is raised in the middle of a
+  # middleware sequence, then {Action::Warden} will catch it and begin the
+  # recovery process prior to exiting.
   module Errors
     # Main superclass of any errors in Vagrant. This provides some
     # convenience methods for setting the status code and error key.
