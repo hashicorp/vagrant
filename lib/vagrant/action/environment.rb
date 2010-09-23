@@ -31,13 +31,17 @@ module Vagrant
       end
 
       # Marks an environment as interrupted (by an outside signal or
-      # anything)
+      # anything). This will trigger any middleware sequences using this
+      # environment to halt. This is automatically set by {Action} when
+      # a SIGINT is captured.
       def interrupt!
         @interrupted = true
       end
 
       # Returns a boolean denoting if environment has been interrupted
       # with a SIGINT.
+      #
+      # @return [Bool]
       def interrupted?
         !!@interrupted
       end

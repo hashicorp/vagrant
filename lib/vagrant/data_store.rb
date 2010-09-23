@@ -3,8 +3,15 @@ module Vagrant
   # as JSON in a local file which is specified in the initializer.
   # The data store itself is accessed via typical hash accessors: `[]`
   # and `[]=`. If a key is set to `nil`, then it is removed from the
-  # datastore. The data store is only updated on disk when {commit}
+  # datastore. The data store is only updated on disk when {#commit}
   # is called on the data store itself.
+  #
+  # The data store is a hash with indifferent access, meaning that
+  # while all keys are persisted as strings in the JSON, you can access
+  # them back as either symbols or strings. Note that this is only true
+  # for the top-level data store. As soon as you set a hash inside the
+  # data store, unless you explicitly use a {Util::HashWithIndifferentAccess},
+  # it will be a regular hash.
   class DataStore < Util::HashWithIndifferentAccess
     attr_reader :file_path
 
@@ -27,6 +34,7 @@ module Vagrant
       clean_nil_and_empties
 
       if empty?
+        # Delete the file since an empty data store is not useful
         File.delete(file_path) if File.file?(file_path)
       else
         File.open(file_path, "w") { |f| f.write(to_json) }

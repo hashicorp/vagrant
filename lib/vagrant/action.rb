@@ -1,13 +1,56 @@
 module Vagrant
   # Manages action running and registration. Every Vagrant environment
   # has an instance of {Action} to allow for running in the context of
-  # the environment.
+  # the environment, which is accessible at {Environment#actions}. Actions
+  # are the foundation of most functionality in Vagrant, and are implemented
+  # architecturally as "middleware."
+  #
+  # # Registering an Action
+  #
+  # The main benefits of registering an action is the ability to retrieve and
+  # modify that registered action, as well as easily run the action. An example
+  # of registering an action is shown below, with a simple middleware which just
+  # outputs to `STDOUT`:
+  #
+  #     class StdoutMiddleware
+  #       def initialize(app, env)
+  #         @app = app
+  #       end
+  #
+  #       def call(env)
+  #         puts "HI!"
+  #         @app.call(env)
+  #       end
+  #     end
+  #
+  #     Vagrant::Action.register(:stdout, StdoutMiddleware)
+  #
+  # Then to run a registered action, assuming `env` is a loaded {Environment}:
+  #
+  #     env.actions.run(:stdout)
+  #
+  # Or to retrieve the action class for any reason:
+  #
+  #     Vagrant::Action[:stdout]
+  #
+  # # Running an Action
+  #
+  # There are various built-in registered actions such as `start`, `stop`, `up`,
+  # etc. Actions are built to be run in the context of an environment, so use
+  # {Environment#actions} to run all actions. Then simply call {#run}:
+  #
+  #     env.actions.run(:name)
+  #
+  # Where `:name` is the name of the registered action.
+  #
   class Action
     include Util
     @@reported_interrupt = false
 
     class << self
       # Returns the list of registered actions.
+      #
+      # @return [Array]
       def actions
         @actions ||= {}
       end
@@ -18,12 +61,14 @@ module Vagrant
       #
       # @param [Symbol] key
       def register(key, callable)
-        actions[key] = callable
+        actions[key.to_sym] = callable
       end
 
       # Retrieves a registered action by key.
+      #
+      # @param [Symbol] key
       def [](key)
-        actions[key]
+        actions[key.to_sym]
       end
     end
 
@@ -41,6 +86,8 @@ module Vagrant
     # Runs the given callable object in the context of the environment.
     # If a symbol is given as the `callable` parameter, then it is looked
     # up in the registered actions list which are registered with {register}.
+    #
+    # Any options given are injected into the environment hash.
     #
     # @param [Object] callable An object which responds to `call`.
     def run(callable, options=nil)

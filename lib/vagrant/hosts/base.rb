@@ -45,7 +45,7 @@ module Vagrant
       end
 
       # Initialzes a new host. This method shouldn't be called directly,
-      # typically, since it will be called by {Environment#load_host!}
+      # typically, since it will be called by {Environment#load!}.
       #
       # @param [Environment] env
       def initialize(env)

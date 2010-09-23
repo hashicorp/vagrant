@@ -1,7 +1,16 @@
 module Vagrant
   # Represents a collection of boxes, providing helpful methods for
-  # finding boxes.
+  # finding boxes. An instance of this is returned by {Environment#boxes}.
+  #
+  # # Finding a Box
+  #
+  # To find a box, use the {#find} method with the name of the box. The name
+  # is an exact match search.
+  #
+  #     env.boxes.find("base") # => #<Vagrant::Box>
+  #
   class BoxCollection < Array
+    # The environment this box collection belongs to
     attr_reader :env
 
     def initialize(env)
