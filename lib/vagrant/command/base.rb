@@ -58,7 +58,9 @@ module Vagrant
     #     end
     #
     # Then, the above can be invoked with `vagrant hello Mitchell` which would
-    # output "Hello, Mitchell"
+    # output "Hello, Mitchell." If instead you're looking for switches, such as
+    # "--name Mitchell", then take a look at `class_option`, an example of which
+    # can be found in the {PackageCommand}.
     class Base < Thor::Group
       include Thor::Actions
       include Helpers
@@ -69,20 +71,35 @@ module Vagrant
       # given name. The name will be used for accessing it from the CLI,
       # so if you name it "lamp", then the command to invoke this
       # will be `vagrant lamp`.
+      #
+      # The description is used when the help is listed, and is meant to be
+      # a brief (one sentence) description of what the command does.
+      #
+      # Some additional options may be passed in as the last parameter:
+      #
+      # * `:alias` - If given as an array or string, these will be aliases
+      #  for the same command. For example, `vagrant version` is also
+      #  `vagrant --version` and `vagrant -v`
+      #
+      # @param [String] usage
+      # @param [String] description
+      # @param [Hash] opts
       def self.register(usage, description, opts=nil)
         desc description
         CLI.register(self, extract_name_from_usage(usage), usage, desc, opts)
       end
 
+      def initialize(*args)
+        super
+        initialize_environment(*args)
+      end
+
+      protected
+
       # Extracts the name of the command from a usage string. Example:
       # `init [box_name] [box_url]` becomes just `init`.
       def self.extract_name_from_usage(usage)
         /^([-_a-zA-Z0-9]+)(\s+(.+?))?$/.match(usage).to_a[1]
-      end
-
-      def initialize(*args)
-        super
-        initialize_environment(*args)
       end
     end
   end
