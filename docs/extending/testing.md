@@ -124,4 +124,45 @@ with the actual VM objects.
 
 ## Example: Testing a Command
 
-TODO
+Given the following command which runs the registered action `:foo` on every
+VM:
+
+{% highlight ruby %}
+class MyCommand < Vagrant::Command::Base
+  register "foo", "Runs the foo action on every VM"
+
+  def execute
+    # Only the values since its a name => VM hash.
+    env.vms.values.each do |vm|
+      vm.env.actions.run(:foo)
+    end
+  end
+end
+{% endhighlight %}
+
+We can test it with the following:
+
+{% highlight ruby %}
+class MyCommandTest < Test::Unit::TestCase
+  include Vagrant::TestHelpers
+
+  def setup
+    @env = vagrant_env
+  end
+
+  def test_my_command_runs_foo
+    @env.vms.values.each do |vm|
+      vm.env.actions.expects(:run).with(:foo).once
+    end
+
+    @env.cli("foo")
+  end
+end
+{% endhighlight %}
+
+Using method invocation expectations, this test verifies that every VM
+has the foo sequence invoked.
+
+Notice that we invoke the command using the `Environment#cli` method,
+so we are able to invoke the command as if it were executed via the
+actual command line.
