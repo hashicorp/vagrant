@@ -38,6 +38,7 @@ class MyConfig < Vagrant::Config::Base
     errors.add("You need a name.") if !name
   end
 end
+{% endhighlight %}
 
 We can test it with the following:
 
@@ -89,7 +90,7 @@ end
 
 The following class tests this:
 
-{% highight ruby %}
+{% highlight ruby %}
 class MyMiddlewareTest < Test::Unit::TestCase
   include Vagrant::TestHelpers
 
