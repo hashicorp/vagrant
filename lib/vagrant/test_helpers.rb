@@ -1,11 +1,17 @@
 module Vagrant
+  # Test helpers provided by Vagrant to allow for plugin developers
+  # to write automated tests for their code. This module simply provides
+  # methods which can be included into any test framework (`test/unit`,
+  # RSpec, Shoulda, etc.)
   module TestHelpers
     #------------------------------------------------------------
     # Environment creation helpers
     #------------------------------------------------------------
     # Creates a "vagrant_app" directory in the test tmp folder
     # which can be used for creating test Vagrant environments.
-    # Returns the root directory of the app.
+    # Returns the root directory of the app. This typically doesn't need
+    # to be called directly unless you're setting up a custom application.
+    # See the examples for common use cases.
     def vagrant_app(*path)
       root = tmp_path.join("vagrant_app")
       FileUtils.rm_rf(root)
@@ -14,7 +20,8 @@ module Vagrant
     end
 
     # Creates a Vagrantfile with the given contents in the given
-    # app directory.
+    # app directory. If no app directory is specified, then a default
+    # Vagrant app is used.
     def vagrantfile(*args)
       path = args.shift.join("Vagrantfile") if Pathname === args.first
       path ||= vagrant_app("Vagrantfile")
@@ -29,14 +36,19 @@ module Vagrant
       path.parent
     end
 
-    # Creates and _loads_ a Vagrant environment at the given path
+    # Creates and _loads_ a Vagrant environment at the given path.
+    # If no path is given, then a default {#vagrantfile} is used.
     def vagrant_env(*args)
       path = args.shift if Pathname === args.first
       path ||= vagrantfile
       Vagrant::Environment.new(:cwd => path).load!
     end
 
-    # Creates the folder to contain a vagrant box
+    # Creates the folder to contain a vagrant box. This allows for
+    # "fake" boxes to be made with the specified name.
+    #
+    # @param [String] name
+    # @return [Pathname]
     def vagrant_box(name)
       result = boxes_path.join(name)
       FileUtils.mkdir_p(result)
@@ -44,7 +56,7 @@ module Vagrant
     end
 
     # Returns a blank app (callable) and action environment with the
-    # given vagrant environment.
+    # given vagrant environment. This allows for testing of middlewares.
     def action_env(v_env = nil)
       v_env ||= vagrant_env
       app = lambda { |env| }
@@ -56,7 +68,9 @@ module Vagrant
     #------------------------------------------------------------
     # Path helpers
     #------------------------------------------------------------
-    # Path to the tmp directory for the tests
+    # Path to the tmp directory for the tests.
+    #
+    # @return [Pathname]
     def tmp_path
       result = Vagrant.source_root.join("test", "tmp")
       FileUtils.mkdir_p(result)
@@ -64,6 +78,8 @@ module Vagrant
     end
 
     # Path to the "home" directory for the tests
+    #
+    # @return [Pathname]
     def home_path
       result = tmp_path.join("home")
       FileUtils.mkdir_p(result)
@@ -71,13 +87,16 @@ module Vagrant
     end
 
     # Path to the boxes directory in the home directory
+    #
+    # @return [Pathname]
     def boxes_path
       result = home_path.join("boxes")
       FileUtils.mkdir_p(result)
       result
     end
 
-    # Cleans all the test temp paths
+    # Cleans all the test temp paths, which includes the boxes path,
+    # home path, etc. This allows for cleaning between tests.
     def clean_paths
       FileUtils.rm_rf(tmp_path)
 
