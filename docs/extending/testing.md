@@ -43,7 +43,7 @@ We can test it with the following:
 
 {% highlight ruby %}
 class MyConfigTest < Test::Unit::TestCase
-  def setup do
+  def setup
     @config = MyConfig.new
     @errors = Vagrant::Config::ErrorRecorder.new
   end
@@ -72,7 +72,54 @@ The above tests that:
 
 ## Example: Testing a Middleware
 
-TODO
+Given that we have the following middleware class:
+
+{% highlight ruby %}
+class MyMiddleware
+  def initialize(app, env)
+    @app = app
+  end
+
+  def call(env)
+    env["vm"].destroy
+    @app.call(env)
+  end
+end
+{% endhighlight %}
+
+The following class tests this:
+
+{% highight ruby %}
+class MyMiddlewareTest < Test::Unit::TestCase
+  include Vagrant::TestHelpers
+
+  def setup
+    @app, @env = action_env
+    @middleware = MyMiddleware.new(@app, @env)
+
+    # Stub this so it doesn't actually do anything
+    @env["vm"].stubs(:destroy)
+  end
+
+  def test_destroys_vm
+    @env["vm"].expects(:destroy).once
+    @middleware.call(@env)
+  end
+
+  def test_calls_the_next_app
+    @app.expects(:call).once
+    @middleware.call(@env)
+  end
+end
+{% endhighlight %}
+
+The above tests that:
+
+* The middleware properly destroys the VM
+* The middleware properly calls the next application.
+
+Middleware tests often use mocks/stubs like the above to test the interaction
+with the actual VM objects.
 
 ## Example: Testing a Command
 
