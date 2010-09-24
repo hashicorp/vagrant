@@ -2,18 +2,25 @@ require 'pathname'
 require 'fileutils'
 
 module Vagrant
-  # Represents a single Vagrant environment. This class is responsible
-  # for loading all of the Vagrantfile's for the given environment and
-  # storing references to the various instances.
+  # Represents a single Vagrant environment. A "Vagrant environment" is
+  # defined as basically a folder with a "Vagrantfile." This class allows
+  # access to the VMs, CLI, etc. all in the scope of this environment.
   class Environment
     ROOTFILE_NAME = "Vagrantfile"
     HOME_SUBDIRS = ["tmp", "boxes", "logs"]
     DEFAULT_VM = :default
 
-    attr_reader :parent     # Parent environment (in the case of multi-VMs)
+    # Parent environment (in the case of multi-VMs)
+    attr_reader :parent
 
+    # The `cwd` that this environment represents
     attr_reader :cwd
+
+    # The single VM that this environment represents, in the case of
+    # multi-VM.
     attr_accessor :vm
+
+    # The {UI} object to communicate with the outside world.
     attr_writer :ui
 
     #---------------------------------------------------------------
@@ -30,6 +37,11 @@ module Vagrant
       end
     end
 
+    # Initializes a new environment with the given options. The options
+    # is a hash where the main available key is `cwd`, which defines where
+    # the environment represents. There are other options available but
+    # they shouldn't be used in general. If `cwd` is nil, then it defaults
+    # to the `Dir.pwd` (which is the cwd of the executing process).
     def initialize(opts=nil)
       opts = {
         :parent => nil,
@@ -53,27 +65,37 @@ module Vagrant
 
     # The path to the `dotfile`, which contains the persisted UUID of
     # the VM if it exists.
+    #
+    # @return [Pathname]
     def dotfile_path
       root_path.join(config.vagrant.dotfile_name) rescue nil
     end
 
     # The path to the home directory, expanded relative to the root path,
     # and converted into a Pathname object.
+    #
+    # @return [Pathname]
     def home_path
       @_home_path ||= Pathname.new(File.expand_path(config.vagrant.home, root_path))
     end
 
     # The path to the Vagrant tmp directory
+    #
+    # @return [Pathname]
     def tmp_path
       home_path.join("tmp")
     end
 
     # The path to the Vagrant boxes directory
+    #
+    # @return [Pathname]
     def boxes_path
       home_path.join("boxes")
     end
 
     # Path to the Vagrant logs directory
+    #
+    # @return [Pathname]
     def log_path
       home_path.join("logs")
     end
@@ -81,29 +103,41 @@ module Vagrant
     # Returns the name of the resource which this environment represents.
     # The resource is the VM name if there is a VM it represents, otherwise
     # it defaults to "vagrant"
+    #
+    # @return [String]
     def resource
       vm.name rescue "vagrant"
     end
 
     # Returns the collection of boxes for the environment.
+    #
+    # @return [BoxCollection]
     def boxes
       return parent.boxes if parent
       @_boxes ||= BoxCollection.new(self)
     end
 
     # Returns the box that this environment represents.
+    #
+    # @return [Box]
     def box
       boxes.find(config.vm.box)
     end
 
     # Returns the VMs associated with this environment.
+    #
+    # @return [Array<VM>]
     def vms
       return parent.vms if parent
       load! if !loaded?
       @vms ||= load_vms!
     end
 
-    # Returns the primray VM associated with this environment
+    # Returns the primary VM associated with this environment. This
+    # method is only applicable for multi-VM environments. This can
+    # potentially be nil if no primary VM is specified.
+    #
+    # @return [VM]
     def primary_vm
       return vms.values.first if !multivm?
       return parent.primary_vm if parent
@@ -118,6 +152,8 @@ module Vagrant
     # Returns a boolean whether this environment represents a multi-VM
     # environment or not. This will work even when called on child
     # environments.
+    #
+    # @return [Bool]
     def multivm?
       if parent
         parent.multivm?
@@ -127,13 +163,18 @@ module Vagrant
     end
 
     # Makes a call to the CLI with the given arguments as if they
-    # came from the real command line (sometimes they do!)
+    # came from the real command line (sometimes they do!). An example:
+    #
+    #     env.cli("package", "--vagrantfile", "Vagrantfile")
+    #
     def cli(*args)
       CLI.start(args.flatten, :env => self)
     end
 
     # Returns the {UI} for the environment, which is responsible
     # for talking with the outside world.
+    #
+    # @return [UI]
     def ui
       @ui ||= if parent
         result = parent.ui.clone
@@ -145,12 +186,16 @@ module Vagrant
     end
 
     # Returns the host object associated with this environment.
+    #
+    # @return [Hosts::Base]
     def host
       @host ||= Hosts::Base.load(self, config.vagrant.host)
     end
 
     # Returns the {Action} class for this environment which allows actions
     # to be executed (middleware chains) in the context of this environment.
+    #
+    # @return [Action]
     def actions
       @actions ||= Action.new(self)
     end
@@ -160,6 +205,8 @@ module Vagrant
     # so it can be used to store system-wide information. Note that "system-wide"
     # typically means "for this user" since the location of the global data
     # store is in the home directory.
+    #
+    # @return [DataStore]
     def global_data
       return parent.global_data if parent
       @global_data ||= DataStore.new(File.expand_path("global_data.json", home_path))
@@ -169,6 +216,8 @@ module Vagrant
     # store. This file is always at the root path as the file "~/.vagrant"
     # and contains a JSON dump of a hash. See {DataStore} for more
     # information.
+    #
+    # @return [DataStore]
     def local_data
       return parent.local_data if parent
       @local_data ||= DataStore.new(dotfile_path)
@@ -177,6 +226,8 @@ module Vagrant
     # Accesses the logger for Vagrant. This logger is a _detailed_
     # logger which should be used to log internals only. For outward
     # facing information, use {#ui}.
+    #
+    # @return [Logger]
     def logger
       return parent.logger if parent
       @logger ||= Util::ResourceLogger.new(resource, self)
@@ -185,6 +236,8 @@ module Vagrant
     # The root path is the path where the top-most (loaded last)
     # Vagrantfile resides. It can be considered the project root for
     # this environment.
+    #
+    # @return [String]
     def root_path
       return @root_path if defined?(@root_path)
 
@@ -204,6 +257,8 @@ module Vagrant
     # The configuration object represented by this environment. This
     # will trigger the environment to load if it hasn't loaded yet (see
     # {#load!}).
+    #
+    # @return [Config::Top]
     def config
       load! if !loaded?
       @config
@@ -215,6 +270,8 @@ module Vagrant
 
     # Returns a boolean representing if the environment has been
     # loaded or not.
+    #
+    # @return [Bool]
     def loaded?
       !!@loaded
     end
