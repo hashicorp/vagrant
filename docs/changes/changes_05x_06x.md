@@ -7,7 +7,8 @@ title: Changes - 0.5.x to 0.6.x
 Vagrant 0.6.0 is the biggest release for Vagrant ever, with over
 200 commits touching over 200 files. The goal of Vagrant 0.6 was
 mainly to increase user-friendliness while also adding a couple
-very important features along the way.
+very important features along the way. There was also a lot of
+internal cleanup to make way for _plugins_, explained below.
 
 First, there are **backwards incompatible** changes! Please make
 sure to run `vagrant upgrade_to_060` on all your previously made
@@ -54,7 +55,14 @@ first-class citizens. The powers of plugins:
   new steps for the `up` sequence.
 
 The method by which plugins are installed and used is covered in the
-[plugins documentation](#).
+[plugins documentation](/docs/plugins.html). For a full guide on extending
+vagrant, see [the "Extending Vagrant" page](/docs/extending/index.html).
 
 **Note:** The plugin API is not finalized. But please make plugins! Your
 experiences will help guide the plugin API to a final state.
+
+## Complete Changelog
+
+The complete changelog from 0.5.4 to 0.6.0 can be found at the following URL:
+
+[http://github.com/mitchellh/vagrant/blob/master/CHANGELOG.md](http://github.com/mitchellh/vagrant/blob/master/CHANGELOG.md)
