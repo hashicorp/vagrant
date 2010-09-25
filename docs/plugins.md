@@ -19,5 +19,25 @@ an exposed and supported API. What can plugins do?
 * Add new configuration classes fr custom `config.my_plugin` style
   configuration in Vagrantfiles.
 
-For more information on how to use and write plugins, please see the
-[extending Vagrant](/docs/extending/index.html) documentation.
+## Using Plugins
+
+Installing plugins is a snap, and doesn't take more than a few
+seconds.
+
+Please refer to the documentation of any plugin you wish to use for
+information on how to use it, but in general there are two methods
+of installation:
+
+1. Downloading a library or gem and manually `require`ing it in
+   a project Vagrantfile.
+2. Installing a gem which automatically hooks into Vagrant. With
+   this option you don't have to do anything.
+
+Please refer to any plugin's documentation for more information on
+what you have to do.
+
+## Developing Plugins
+
+If you're interested in developing plugins, we've setup a comprehensive
+set of documentation at [extending Vagrant](/docs/extending/index.html).
+Also, if you run into any problems, please access any of our [support lines](/support.html)!
