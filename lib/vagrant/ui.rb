@@ -26,16 +26,20 @@ module Vagrant
       end
 
       [[:warn, :yellow], [:error, :red], [:info, nil], [:confirm, :green]].each do |method, color|
-        define_method(method) do |message, opts=nil|
-          @shell.say("#{line_reset}#{format_message(message, opts)}", color)
-        end
+        class_eval <<-CODE
+          def #{method}(message, opts=nil)
+            @shell.say("\#{line_reset}\#{format_message(message, opts)}", color)
+          end
+        CODE
       end
 
       [:ask, :no?, :yes?].each do |method|
-        define_method(method) do |message, opts=nil|
-          opts ||= {}
-          @shell.send(method, format_message(message, opts), opts[:color])
-        end
+        class_eval <<-CODE
+          def #{method}(message, opts=nil)
+            opts ||= {}
+            @shell.send(method, format_message(message, opts), opts[:color])
+          end
+        CODE
       end
 
       def report_progress(progress, total, show_parts=true)
