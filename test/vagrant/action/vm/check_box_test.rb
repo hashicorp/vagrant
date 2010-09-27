@@ -47,7 +47,6 @@ class CheckBoxVMActionTest < Test::Unit::TestCase
       seq = sequence("seq")
       env.env.boxes.expects(:find).returns(nil)
       Vagrant::Box.expects(:add).with(env.env, env["config"].vm.box, env["config"].vm.box_url).in_sequence(seq)
-      env.env.expects(:load_box!).in_sequence(seq)
       app.expects(:call).with(env).once.in_sequence(seq)
 
       assert_nothing_raised {

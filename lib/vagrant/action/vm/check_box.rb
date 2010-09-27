@@ -16,7 +16,6 @@ module Vagrant
 
             env.ui.info I18n.t("vagrant.actions.vm.check_box.not_found", :name => box_name)
             Vagrant::Box.add(env.env, box_name, box_url)
-            env.env.load_box!
           end
 
           @app.call(env)
