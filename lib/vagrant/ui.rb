@@ -28,7 +28,7 @@ module Vagrant
       [[:warn, :yellow], [:error, :red], [:info, nil], [:confirm, :green]].each do |method, color|
         class_eval <<-CODE
           def #{method}(message, opts=nil)
-            @shell.say("\#{line_reset}\#{format_message(message, opts)}", color)
+            @shell.say("\#{line_reset}\#{format_message(message, opts)}", "#{color}")
           end
         CODE
       end

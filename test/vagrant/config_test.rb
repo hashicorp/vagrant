@@ -138,7 +138,7 @@ class ConfigTest < Test::Unit::TestCase
 
   context "top config class" do
     setup do
-      @configures_list = []
+      @configures_list = {}
       @klass::Top.stubs(:configures_list).returns(@configures_list)
     end
 
@@ -149,8 +149,8 @@ class ConfigTest < Test::Unit::TestCase
       end
 
       should "add key and klass to configures list" do
-        @configures_list.expects(:<<).with([@key, @config_klass])
         @klass::Top.configures(@key, @config_klass)
+        assert_equal @config_klass, @configures_list[@key]
       end
     end
 
@@ -168,7 +168,7 @@ class ConfigTest < Test::Unit::TestCase
           instance = mock("instance#{i}")
           instance.expects(:env=).with(env)
           klass.expects(:new).returns(instance)
-          @configures_list << [key, klass]
+          @configures_list[key] = klass
         end
 
         @klass::Top.new(env)

@@ -116,19 +116,19 @@ module Vagrant
     #
     # If you're looking to create your own configuration class, see {Base}.
     class Top < Base
-      @@configures = []
+      @@configures = {} if !defined?(@@configures)
 
       class << self
         # The list of registered configuration classes as well as the key
         # they're registered under.
         def configures_list
-          @@configures ||= []
+          @@configures ||= {}
         end
 
         # Registers a configuration class with the given key. This method shouldn't
         # be called. Instead, inherit from {Base} and call {Base.configures}.
         def configures(key, klass)
-          configures_list << [key, klass]
+          configures_list[key] = klass
           attr_reader key.to_sym
         end
       end

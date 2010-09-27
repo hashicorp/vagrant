@@ -1,6 +1,6 @@
 ## 0.6.1 (unreleased)
 
-
+  - Fix issues with Ruby 1.8.7 where Vagrant simply failed.
 
 ## 0.6.0 (September 27, 2010)
 
