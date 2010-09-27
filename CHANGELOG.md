@@ -1,4 +1,8 @@
-## 0.6.0 (unreleased)
+## 0.6.1 (unreleased)
+
+
+
+## 0.6.0 (September 27, 2010)
 
   - VM name now defaults to the name of the containing folder, plus a timestamp.
     This should make it easier to identify VMs in the VirtualBox GUI.
