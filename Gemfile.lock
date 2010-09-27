@@ -1,9 +1,9 @@
 GIT
   remote: git://github.com/mitchellh/virtualbox.git
-  revision: 1696cc62accd063a8e318950468191cd201c9965
+  revision: 041996145591d20acf3e04fef3d4709f826d878a
   specs:
-    virtualbox (0.7.5)
-      ffi (>= 0.6.3)
+    virtualbox (0.7.6.dev)
+      ffi (~> 0.6.3)
 
 PATH
   remote: .
@@ -24,7 +24,7 @@ GEM
   specs:
     abstract (1.0.0)
     archive-tar-minitar (0.5.2)
-    bluecloth (2.0.7)
+    bluecloth (2.0.9)
     columnize (0.3.1)
     contest (0.1.2)
     erubis (2.6.6)
@@ -58,7 +58,7 @@ GEM
       ruby-debug-base19 (>= 0.11.19)
     ruby_core_source (0.1.4)
       archive-tar-minitar (>= 0.5.2)
-    thor (0.14.1)
+    thor (0.14.2)
     yard (0.6.1)
 
 PLATFORMS
