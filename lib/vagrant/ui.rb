@@ -37,7 +37,7 @@ module Vagrant
         class_eval <<-CODE
           def #{method}(message, opts=nil)
             opts ||= {}
-            @shell.send(method, format_message(message, opts), opts[:color])
+            @shell.send(#{method.inspect}, format_message(message, opts), opts[:color])
           end
         CODE
       end
