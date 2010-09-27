@@ -8,7 +8,7 @@ GIT
 PATH
   remote: .
   specs:
-    vagrant (0.6.0)
+    vagrant (0.6.1.dev)
       archive-tar-minitar (= 0.5.2)
       erubis (~> 2.6.6)
       i18n (~> 0.4.1)
