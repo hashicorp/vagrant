@@ -1,0 +1,22 @@
+{% include header.html %}
+    <div class="grid_3 alpha sidebar">
+      <div class="block">
+        <ol>
+          <li><a href="/docs/extending/index.html">Overview</a></li>
+          <li><a href="/docs/extending/types.html">Types of Plugins</a></li>
+          <li><a href="/docs/extending/objects.html">Vagrant Objects</a></li>
+          <li><a href="/docs/extending/commands.html">Commands</a></li>
+          <li><a href="/docs/extending/configuration.html">Configuration</a></li>
+          <li><a href="/docs/extending/middleware.html">Middleware</a></li>
+          <li><a href="/docs/extending/i18n.html">I18n</a></li>
+          <li><a href="/docs/extending/testing.html">Testing</a></li>
+          <li><a href="/docs/extending/example.html">A Full Example</a></li>
+        </ol>
+      </div>
+
+      {% include block_beta_warning.html %}
+    </div>
+    <div class="grid_9 omega guide">
+      {{ content }}
+    </div>
+{% include footer.html %}
