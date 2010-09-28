@@ -4,11 +4,16 @@ module Vagrant
     class Linux < Base
       include Util
       include Util::Retryable
+      include Util::Sh
 
       def nfs?
         retryable(:tries => 10, :on => TypeError) do
           # Check procfs to see if NFSd is a supported filesystem
-          system("cat /proc/filesystems | grep nfsd > /dev/null 2>&1")
+          _, status = sh("cat /proc/filesystems | grep nfsd")
+
+          # Sometimes the status is nil for some reason. In that case, force a retry
+          raise TypeError.new("Bad status code") if !status
+          status.success?
         end
       end
 
@@ -24,22 +29,22 @@ module Vagrant
         output.split("\n").each do |line|
           # This should only ask for administrative permission once, even
           # though its executed in multiple subshells.
-          system(%Q[sudo su root -c "echo '#{line}' >> /etc/exports"])
+          sh(%Q[sudo su root -c "echo '#{line}' >> /etc/exports"])
         end
 
         # We run restart here instead of "update" just in case nfsd
         # is not starting
-        system("sudo /etc/init.d/nfs-kernel-server restart")
+        sh("sudo /etc/init.d/nfs-kernel-server restart")
       end
 
       def nfs_cleanup
         return if !File.exist?("/etc/exports")
-        system("cat /etc/exports | grep 'VAGRANT-BEGIN: #{env.vm.uuid}' > /dev/null 2>&1")
+        _, status = sh("cat /etc/exports | grep 'VAGRANT-BEGIN: #{env.vm.uuid}'")
 
-        if $?.to_i == 0
+        if status.success?
           # Use sed to just strip out the block of code which was inserted
           # by Vagrant
-          system("sudo sed -e '/^# VAGRANT-BEGIN: #{env.vm.uuid}/,/^# VAGRANT-END: #{env.vm.uuid}/ d' -ibak /etc/exports")
+          sh("sudo sed -e '/^# VAGRANT-BEGIN: #{env.vm.uuid}/,/^# VAGRANT-END: #{env.vm.uuid}/ d' -ibak /etc/exports")
         end
       end
     end

@@ -1,6 +1,7 @@
 ## 0.6.4 (unreleased)
 
-
+  - Replaced `Kernel#system` calls with custom `Vagrant::Util::Sh` method to
+    fix strange error issues.
 
 ## 0.6.1, 0.6.2, 0.6.3 (September 27, 2010)
 

@@ -10,26 +10,30 @@ class LinuxHostTest < Test::Unit::TestCase
 
   context "supporting nfs check" do
     should "support NFS" do
-      @instance.expects(:system).returns(true)
+      result = @instance.sh("echo")
+      @instance.expects(:sh).returns(result)
       assert @instance.nfs?
     end
 
     should "not support NFS if nfsd is not found" do
-      @instance.expects(:system).returns(false)
+      result = @instance.sh("adosifjssdlkfj")
+      @instance.expects(:sh).returns(result)
       assert !@instance.nfs?
     end
 
     should "retry until a boolean is returned" do
+      result = @instance.sh("echo")
+
       seq = sequence("seq")
-      @instance.expects(:system).in_sequence(seq).raises(TypeError.new("foo"))
-      @instance.expects(:system).in_sequence(seq).returns(true)
+      @instance.expects(:sh).once.in_sequence(seq).raises(TypeError.new("foo"))
+      @instance.expects(:sh).once.in_sequence(seq).returns(result)
       assert @instance.nfs?
     end
   end
 
   context "nfs export" do
     setup do
-      @instance.stubs(:system)
+      @instance.stubs(:sh)
 
       @ip = "foo"
       @folders = "bar"
@@ -42,8 +46,8 @@ class LinuxHostTest < Test::Unit::TestCase
                                                             :ip => @ip,
                                                             :folders => @folders).returns(output)
 
-      @instance.expects(:system).times(output.split("\n").length)
-      @instance.expects(:system).with("sudo /etc/init.d/nfs-kernel-server restart")
+      @instance.expects(:sh).times(output.split("\n").length)
+      @instance.expects(:sh).with("sudo /etc/init.d/nfs-kernel-server restart")
       @instance.nfs_export(@ip, @folders)
     end
   end
