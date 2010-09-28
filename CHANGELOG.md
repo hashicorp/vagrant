@@ -1,3 +1,7 @@
+## 0.6.4 (unreleased)
+
+
+
 ## 0.6.1, 0.6.2, 0.6.3 (September 27, 2010)
 
 A lot of quick releases which all were to fix issues with Ruby 1.8.7
