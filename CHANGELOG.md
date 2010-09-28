@@ -1,6 +1,7 @@
-## 0.6.1 (September 27, 2010)
+## 0.6.1, 0.6.2, 0.6.3 (September 27, 2010)
 
-  - Fix issues with Ruby 1.8.7 where Vagrant simply failed.
+A lot of quick releases which all were to fix issues with Ruby 1.8.7
+compatibility.
 
 ## 0.6.0 (September 27, 2010)
 
