@@ -25,6 +25,7 @@ module Vagrant
 
       def ssh_connect
         raise Errors::VMNotCreatedError.new if !ssh_vm.created?
+        raise Errors::VMNotRunningError.new if !ssh_vm.vm.running?
         ssh_vm.ssh.connect
       end
 

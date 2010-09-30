@@ -88,8 +88,9 @@ en:
         Vagrant could not detect VirtualBox! Make sure VirtualBox is properly installed.
         If VirtualBox is installed, it may be an incorrect version. Vagrant currently
         requires VirtualBox 3.2.x. Please install the proper version to continue.
-      vm_creation_required: VM must be created before running this command. Run `vagrant up` first.
-      vm_not_found: A VM by the name of %{name} was not found.
+      vm_creation_required: "VM must be created before running this command. Run `vagrant up` first."
+      vm_not_found: "A VM by the name of %{name} was not found."
+      vm_not_running: "VM must be running to open SSH connection."
 
 #-------------------------------------------------------------------------------
 # Translations for config validation errors

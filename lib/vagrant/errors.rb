@@ -293,6 +293,11 @@ module Vagrant
       error_key(:vm_not_found)
     end
 
+    class VMNotRunningError < VagrantError
+      status_code(44)
+      error_key(:vm_not_running)
+    end
+
     class VMPowerOffToPackage < VagrantError
       status_code(24)
       error_key(:power_off, "vagrant.actions.vm.export")
