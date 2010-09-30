@@ -35,12 +35,15 @@ module Vagrant
 
       def nfs_cleanup
         return if !File.exist?("/etc/exports")
-        system("cat /etc/exports | grep 'VAGRANT-BEGIN: #{env.vm.uuid}' > /dev/null 2>&1")
 
-        if $?.to_i == 0
-          # Use sed to just strip out the block of code which was inserted
-          # by Vagrant
-          system("sudo sed -e '/^# VAGRANT-BEGIN: #{env.vm.uuid}/,/^# VAGRANT-END: #{env.vm.uuid}/ d' -i bak /etc/exports")
+        retryable(:tries => 10, :on => TypeError) do
+          system("cat /etc/exports | grep 'VAGRANT-BEGIN: #{env.vm.uuid}' > /dev/null 2>&1")
+
+          if $?.to_i == 0
+            # Use sed to just strip out the block of code which was inserted
+            # by Vagrant
+            system("sudo sed -e '/^# VAGRANT-BEGIN: #{env.vm.uuid}/,/^# VAGRANT-END: #{env.vm.uuid}/ d' -i bak /etc/exports")
+          end
         end
       end
     end
