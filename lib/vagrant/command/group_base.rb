@@ -87,12 +87,20 @@ module Vagrant
       # @param [String] description
       # @param [Hash] opts
       def self.register(usage, description, opts=nil)
-        CLI.register(self, Base.extract_name_from_usage(usage), usage, description, opts)
+        @_name = Base.extract_name_from_usage(usage)
+        CLI.register(self, @_name, usage, description, opts)
       end
 
       def initialize(*args)
         super
         initialize_environment(*args)
+      end
+
+      protected
+
+      # Override the basename to include the subcommand name.
+      def self.basename
+        "#{super} #{@_name}"
       end
     end
   end
