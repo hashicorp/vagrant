@@ -1,5 +1,6 @@
 ## 0.6.4 (unreleased)
 
+  - Fix some issues with undefined constants in command errors.
   - Replaced `Kernel#system` calls with custom `Vagrant::Util::Sh` method to
     fix strange error issues.
 

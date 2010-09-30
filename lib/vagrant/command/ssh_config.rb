@@ -5,9 +5,9 @@ module Vagrant
       register "ssh_config", "outputs .ssh/config valid syntax for connecting to this environment via ssh"
 
       def execute
-        raise MultiVMTargetRequired.new(:command => "ssh_config") if target_vms.length > 1
+        raise Errors::MultiVMTargetRequired.new(:command => "ssh_config") if target_vms.length > 1
         vm = target_vms.first
-        raise VMNotCreatedError.new if !vm.created?
+        raise Errors::VMNotCreatedError.new if !vm.created?
 
         env.ui.info(Util::TemplateRenderer.render("ssh_config", {
           :host_key => options[:host] || "vagrant",
