@@ -2,8 +2,6 @@
 
   - SSH gives proper error message if VM is not running. [GH-167]
   - Fix some issues with undefined constants in command errors.
-  - Replaced `Kernel#system` calls with custom `Vagrant::Util::Sh` method to
-    fix strange error issues.
 
 ## 0.6.1, 0.6.2, 0.6.3 (September 27, 2010)
 
