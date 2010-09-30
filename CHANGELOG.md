@@ -1,5 +1,7 @@
 ## 0.6.4 (unreleased)
 
+  - Top config class is now available in all `Vagrant::Config::Base`
+    subclasses, which is useful for config validation.
   - Subcommand help shows proper full command in task listing. [GH-168]
   - SSH gives error message if `ssh` binary is not found. [GH-161]
   - SSH gives proper error message if VM is not running. [GH-167]

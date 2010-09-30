@@ -47,6 +47,12 @@ class ConfigBaseTest < Test::Unit::TestCase
         hash = @base.instance_variables_hash
         assert !hash.has_key?(:env)
       end
+
+      should "not include top in the JSON hash" do
+        @base.top = "FOO"
+        hash = @base.instance_variables_hash
+        assert !hash.has_key?(:top)
+      end
     end
   end
 end

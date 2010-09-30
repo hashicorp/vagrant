@@ -167,6 +167,10 @@ class ConfigTest < Test::Unit::TestCase
           klass = mock("klass#{i}")
           instance = mock("instance#{i}")
           instance.expects(:env=).with(env)
+          instance.expects(:top=).with() do |top|
+            assert top.is_a?(@klass::Top)
+            true
+          end
           klass.expects(:new).returns(instance)
           @configures_list[key] = klass
         end
@@ -179,6 +183,7 @@ class ConfigTest < Test::Unit::TestCase
         klass = mock("klass")
         instance = mock("instance")
         instance.stubs(:env=)
+        instance.stubs(:top=)
         klass.expects(:new).returns(instance)
         @klass::Top.configures(key, klass)
 

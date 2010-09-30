@@ -137,6 +137,7 @@ module Vagrant
         self.class.configures_list.each do |key, klass|
           config = klass.new
           config.env = env
+          config.top = self
           instance_variable_set("@#{key}".to_sym, config)
         end
 

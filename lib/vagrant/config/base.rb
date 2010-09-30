@@ -4,7 +4,11 @@ module Vagrant
     # basic things such as the environment instance variable which all
     # config classes need as well as a basic `to_json` implementation.
     class Base
+      # {Environment} that this config belongs to
       attr_accessor :env
+
+      # {Top} of this configuration stack
+      attr_accessor :top
 
       # Registers a subclass with the Vagrant configuration system so
       # that it can then be used in Vagrantfiles.
@@ -58,7 +62,7 @@ module Vagrant
       # Returns the instance variables as a hash of key-value pairs.
       def instance_variables_hash
         instance_variables.inject({}) do |acc, iv|
-          acc[iv.to_s[1..-1]] = instance_variable_get(iv) unless iv.to_sym == :@env
+          acc[iv.to_s[1..-1]] = instance_variable_get(iv) unless [:@env, :@top].include?(iv.to_sym)
           acc
         end
       end
