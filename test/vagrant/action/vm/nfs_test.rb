@@ -68,8 +68,18 @@ class NFSVMActionTest < Test::Unit::TestCase
     end
 
     context "recovery" do
+      setup do
+        @vm.stubs(:created?).returns(true)
+      end
+
       should "clear NFS exports" do
         @instance.expects(:clear_nfs_exports).with(@env).once
+        @instance.recover(@env)
+      end
+
+      should "do nothing if VM is not created" do
+        @vm.stubs(:created?).returns(false)
+        @instance.expects(:clear_nfs_exports).never
         @instance.recover(@env)
       end
     end

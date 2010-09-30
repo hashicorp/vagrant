@@ -1,5 +1,7 @@
 ## 0.6.4 (unreleased)
 
+  - NFS no longer attempts to clean exports file if VM is not created,
+    which was causing a stack trace during recovery. [related to GH-166]
   - Basic validation added for Chef configuration (both solo and server).
   - Top config class is now available in all `Vagrant::Config::Base`
     subclasses, which is useful for config validation.

@@ -42,7 +42,7 @@ module Vagrant
         end
 
         def recover(env)
-          clear_nfs_exports(env)
+          clear_nfs_exports(env) if env["vm"].created?
         end
 
         # Returns the folders which are to be synced via NFS.
