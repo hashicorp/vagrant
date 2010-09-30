@@ -125,6 +125,24 @@ module Vagrant
           result.delete("json")
           result
         end
+
+        def validate(errors)
+          if top.vm.provisioner == :chef_solo
+            # Validate chef solo settings
+            errors.add(I18n.t("vagrant.config.chef.cookbooks_path_empty")) if !cookbooks_path || [cookbooks_path].flatten.empty?
+          end
+
+          if top.vm.provisioner == :chef_server
+            # Validate chef server settings
+            errors.add(I18n.t("vagrant.config.chef.server_url_empty")) if !chef_server_url || chef_server_url.strip == ""
+            errors.add(I18n.t("vagrant.config.chef.validation_key_path")) if !validation_key_path
+          end
+
+          if [:chef_solo, :chef_server].include?(top.vm.provisioner)
+            # Validations shared by both chef solo and server
+            errors.add(I18n.t("vagrant.config.chef.run_list_empty")) if !run_list || run_list.empty?
+          end
+        end
       end
     end
   end

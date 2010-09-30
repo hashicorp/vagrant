@@ -1,5 +1,6 @@
 ## 0.6.4 (unreleased)
 
+  - Basic validation added for Chef configuration (both solo and server).
   - Top config class is now available in all `Vagrant::Config::Base`
     subclasses, which is useful for config validation.
   - Subcommand help shows proper full command in task listing. [GH-168]

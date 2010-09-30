@@ -21,7 +21,6 @@ class ChefProvisionerTest < Test::Unit::TestCase
   context "config" do
     setup do
       @config = Vagrant::Provisioners::Chef::ChefConfig.new
-      @config.run_list.clear
     end
 
     should "not include the 'json' key in the config dump" do
@@ -44,6 +43,10 @@ class ChefProvisionerTest < Test::Unit::TestCase
       }
     end
 
+    should "have an empty run list to begin with" do
+      assert @config.run_list.empty?
+    end
+
     should "add a recipe to the run list" do
       @config.add_recipe("foo")
       assert_equal "recipe[foo]", @config.run_list[0]
@@ -63,6 +66,74 @@ class ChefProvisionerTest < Test::Unit::TestCase
       @config.add_role("role[user]")
       assert_equal "role[user]", @config.run_list[0]
     end
+
+    context "validation" do
+      setup do
+        @errors = Vagrant::Config::ErrorRecorder.new
+        @top = @config.top = Vagrant::Config::Top.new(@env)
+      end
+
+      context "chef solo" do
+        setup do
+          @top.vm.provisioner = :chef_solo
+
+          @config.run_list = ["foo"]
+          @config.cookbooks_path = "cookbooks"
+        end
+
+        should "be valid if provisioner is not chef solo" do
+          @top.vm.provisioner = nil
+          @config.validate(@errors)
+          assert @errors.errors.empty?
+        end
+
+        should "be invalid if run list is empty" do
+          @config.run_list = []
+          @config.validate(@errors)
+          assert !@errors.errors.empty?
+        end
+
+        should "be invalid if cookbooks path is empty" do
+          @config.cookbooks_path = nil
+          @config.validate(@errors)
+          assert !@errors.errors.empty?
+        end
+      end
+
+      context "chef server" do
+        setup do
+          @top.vm.provisioner = :chef_server
+
+          @config.run_list = ["foo"]
+          @config.chef_server_url = "foo"
+          @config.validation_key_path = "foo"
+        end
+
+        should "be valid if provisioner is not chef solo" do
+          @top.vm.provisioner = nil
+          @config.validate(@errors)
+          assert @errors.errors.empty?
+        end
+
+        should "be invalid if run list is empty" do
+          @config.run_list = []
+          @config.validate(@errors)
+          assert !@errors.errors.empty?
+        end
+
+        should "be invalid if run list is empty" do
+          @config.chef_server_url = nil
+          @config.validate(@errors)
+          assert !@errors.errors.empty?
+        end
+
+        should "be invalid if run list is empty" do
+          @config.validation_key_path = nil
+          @config.validate(@errors)
+          assert !@errors.errors.empty?
+        end
+      end
+    end
   end
 
   context "verifying binary" do
@@ -77,6 +148,7 @@ class ChefProvisionerTest < Test::Unit::TestCase
       @action.verify_binary(binary)
     end
   end
+
   context "permissions on provisioning folder" do
     should "create and chown the folder to the ssh user" do
       ssh_seq = sequence("ssh_seq")
