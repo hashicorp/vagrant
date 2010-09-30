@@ -1,5 +1,6 @@
 ## 0.6.4 (unreleased)
 
+  - SSH gives error message if `ssh` binary is not found. [GH-161]
   - SSH gives proper error message if VM is not running. [GH-167]
   - Fix some issues with undefined constants in command errors.
 

@@ -26,6 +26,8 @@ module Vagrant
                                                 :ssh_port => port(opts))
       end
 
+      raise Errors::SSHUnavailable.new if !Kernel.system("which ssh > /dev/null 2>&1")
+
       options = {}
       options[:port] = port(opts)
       [:host, :username, :private_key_path].each do |param|

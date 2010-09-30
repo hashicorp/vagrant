@@ -243,6 +243,11 @@ module Vagrant
       error_key(:ssh_key_bad_permissions)
     end
 
+    class SSHUnavailable < VagrantError
+      status_code(45)
+      error_key(:ssh_unavailable)
+    end
+
     class SSHUnavailableWindows < VagrantError
       status_code(10)
       error_key(:ssh_unavailable_windows)

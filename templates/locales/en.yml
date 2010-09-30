@@ -43,6 +43,7 @@ en:
         permissions on the following file to 0600 and then try running this command again:
 
         %{key_path}
+      ssh_unavailable: "`ssh` binary could not be found. Is an SSH client installed?"
       ssh_unavailable_windows: |-
         `vagrant ssh` isn't available on the Windows platform. The
         vagrant.ppk file for use with Putty is available at:

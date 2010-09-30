@@ -22,8 +22,21 @@ class SshTest < Test::Unit::TestCase
       mock_ssh
       @ssh.stubs(:check_key_permissions)
       Kernel.stubs(:exec)
+      Kernel.stubs(:system).returns(true)
 
       Vagrant::Util::Platform.stubs(:leopard?).returns(false)
+    end
+
+    should "raise an exception if SSH is not found" do
+      Kernel.stubs(:system).returns(false)
+      Kernel.expects(:system).returns(false).with() do |command|
+        assert command =~ /^which ssh/
+        true
+      end
+
+      assert_raises(Vagrant::Errors::SSHUnavailable) {
+        @ssh.connect
+      }
     end
 
     should "check key permissions prior to exec" do
