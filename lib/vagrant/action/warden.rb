@@ -26,6 +26,10 @@ module Vagrant
           raise Errors::VagrantInterrupt.new if env.interrupted?
           @stack.unshift(@actions.shift).first.call(env)
           raise Errors::VagrantInterrupt.new if env.interrupted?
+        rescue SystemExit
+          # This means that an "exit" or "abort" was called. In these cases,
+          # we just exit immediately.
+          raise
         rescue Exception => e
           env["vagrant.error"] = e
 

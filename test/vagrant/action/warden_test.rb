@@ -70,6 +70,20 @@ class ActionWardenTest < Test::Unit::TestCase
       assert_raises(RuntimeError) { @instance.call(new_env) }
     end
 
+    should "not begin recovery sequence if a SystemExit is raised" do
+      class Foo
+        def initialize(*args); end
+        def call(env)
+          # Raises a system exit
+          abort
+        end
+      end
+
+      @instance.actions << Foo.new
+      @instance.expects(:begin_rescue).never
+      assert_raises(SystemExit) { @instance.call(new_env) }
+    end
+
     should "raise interrupt if the environment is interupted" do
       env = new_env
       env.expects(:interrupted?).returns(true)
