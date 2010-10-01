@@ -1,5 +1,7 @@
 ## 0.6.4 (unreleased)
 
+  - Initial Vagrantfile is now heavily commented with various available
+    options. [GH-171]
   - Box add checks if a box already exists before the download. [GH-170]
   - NFS no longer attempts to clean exports file if VM is not created,
     which was causing a stack trace during recovery. [related to GH-166]
