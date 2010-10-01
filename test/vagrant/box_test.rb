@@ -27,6 +27,14 @@ class BoxTest < Test::Unit::TestCase
       @box = Vagrant::Box.new(vagrant_env, "foo")
     end
 
+    should "raise an exception if a box exists with the name we're attempting to add" do
+      vagrant_box(@box.name)
+
+      assert_raises(Vagrant::Errors::BoxAlreadyExists) {
+        @box.add
+      }
+    end
+
     should "execute the Add action when add is called" do
       @box.env.actions.expects(:run).with(:box_add, { "box" => @box })
       @box.add
