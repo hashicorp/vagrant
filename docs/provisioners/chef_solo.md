@@ -57,51 +57,29 @@ end
 
 ## Configuring the Main Cookbook
 
-By default, Vagrant is configured to run a single cookbook called `vagrant_main`.
-This cookbook is known as the "vagrant main cookbook" and is analogous to the
-main entry point of an executable program. This main cookbook should include
-other cookbooks in the order they should be run to setup the system.
-
-An example `vagrant_main` default recipe file is shown below:
+By default, Vagrant has an empty run list, or the list of recipes or roles for
+Chef to run. We've setup a `vagrant_main` cookbook above which we'll make our
+entrypoint. The default recipe for this cookbook is shown below:
 
 {% highlight ruby %}
 # vagrant_main cookbook
 # This cookbook includes and sets up a server with apache, mysql,
-# rails, and passenger. It finally runs a custom cookbook to configure
-# the application.
+# rails, and passenger.
 #
 require_recipe "apache2"
 require_recipe "mysql"
 require_recipe "rails"
 require_recipe "passenger_apache2::mod_rails"
-require_recipe "my_custom_application"
 {% endhighlight %}
 
-If you want Vagrant to use a cookbook other than `vagrant_main` as the default,
-this can be changed using the Vagrantfile:
+Then, we must tell Vagrant to use this cookbook:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.chef.run_list.clear
-  config.chef.add_recipe("my_recipe")
+  # ...
+  config.chef.add_recipe("vagrant_main")
 end
 {% endhighlight %}
-
-<div class="info">
-  <h3>Why the main cookbook at all?</h3>
-  <p>
-    Some people ask, "Why does Vagrant default to the vagrant_main cookbook at all?"
-    The reason is that its more portable to require all recipes within a single cookbook
-    than to define them all using <code>add_recipe</code> in the Vagrantfile. By
-    requiring all the recipes in a single meta-cookbook, you can then reuse that cookbook
-    for production environments and so on. Vagrant is basically encouraging you
-    to write more portable cookbooks!
-  </p>
-  <p>
-    Of course, if you don't like this, you're free to define your own recipes
-    as shown above.
-  </p>
-</div>
 
 ## JSON Configuration
 
