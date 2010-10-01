@@ -31,7 +31,7 @@ module Vagrant
         end
 
         def recover(env)
-          if File.directory?(box_directory)
+          if box_directory && File.directory?(box_directory)
             FileUtils.rm_rf(box_directory)
           end
         end

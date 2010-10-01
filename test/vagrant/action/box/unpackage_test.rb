@@ -26,6 +26,13 @@ class UnpackageBoxActionTest < Test::Unit::TestCase
       FileUtils.stubs(:rm_rf)
     end
 
+    should "do nothing if box directory is not set" do
+      @instance.stubs(:box_directory).returns(nil)
+      File.expects(:directory?).never
+      FileUtils.expects(:rm_rf).never
+      @instance.recover(nil)
+    end
+
     should "do nothing if not a directory" do
       FileUtils.expects(:rm_rf).never
       @instance.recover(nil)
