@@ -23,15 +23,6 @@ I18n.load_path << File.expand_path("../locales/en.yml", __FILE__)
 class Test::Unit::TestCase
   include Vagrant::TestHelpers
 
-  # Sets up the mocks for a VM
-  def mock_vm(env=nil)
-    env ||= vagrant_env
-    vm = Vagrant::VM.new
-    vm.stubs(:env).returns(env)
-    vm.stubs(:ssh).returns(Vagrant::SSH.new(vm.env))
-    vm
-  end
-
   # Sets up the mocks and stubs for a downloader
   def mock_downloader(downloader_klass)
     tempfile = mock("tempfile")

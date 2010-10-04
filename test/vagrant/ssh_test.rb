@@ -2,12 +2,10 @@ require "test_helper"
 
 class SshTest < Test::Unit::TestCase
   def mock_ssh
-    @env = vagrant_env
+    @env = vagrant_env.vms[:default].env
     @network_adapters = []
     @vm = mock("vm")
     @vm.stubs(:network_adapters).returns(@network_adapters)
-
-    @env.stubs(:vm).returns(mock_vm(@env))
     @env.vm.stubs(:vm).returns(@vm)
 
     @ssh = Vagrant::SSH.new(@env)
