@@ -161,7 +161,7 @@ first parameter being a key used internally to reference the folder, the second 
 the path on the guest machine, and the third parameter being the path to the folder to share
 on the host machine. If the third parameter is a _relative path_, then it is relative to where the root Vagrantfile is.
 
-The method also takes a fourth, optional, parameter which is a has of options. This hash
+The method also takes a fourth, optional, parameter which is a hash of options. This hash
 can be used to enable things such as [NFS shared folders](/docs/nfs.html).
 
 {% highlight ruby %}
