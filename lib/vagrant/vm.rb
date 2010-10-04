@@ -115,11 +115,11 @@ module Vagrant
       env.actions.run(:up, options)
     end
 
-    def start
+    def start(options=nil)
       return if @vm.running?
       return resume if @vm.saved?
 
-      env.actions.run(:start)
+      env.actions.run(:start, options)
     end
 
     def halt(options=nil)

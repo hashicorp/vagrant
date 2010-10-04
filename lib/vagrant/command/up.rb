@@ -5,13 +5,12 @@ module Vagrant
       register "up", "Creates the Vagrant environment"
 
       def execute
-        # TODO: Make the options[:provision] actually mean something
         target_vms.each do |vm|
           if vm.created?
             vm.env.ui.info I18n.t("vagrant.commands.up.vm_created")
-            vm.start
+            vm.start("provision.enabled" => options[:provision])
           else
-            vm.up
+            vm.up("provision.enabled" => options[:provision])
           end
         end
       end

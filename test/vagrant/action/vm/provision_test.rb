@@ -31,6 +31,12 @@ class ProvisionVMActionTest < Test::Unit::TestCase
       @klass.any_instance.expects(:load_provisioner).never
       @klass.new(@app, @env)
     end
+
+    should "not load provisioner if disabled through env hash" do
+      @env["provision.enabled"] = false
+      @klass.any_instance.expects(:load_provisioner).never
+      @klass.new(@app, @env)
+    end
   end
 
   context "with an instance" do
@@ -117,6 +123,14 @@ class ProvisionVMActionTest < Test::Unit::TestCase
 
       should "continue chain and not provision if not enabled" do
         @env["config"].vm.provisioner = nil
+        @prov.expects(:provision!).never
+        @app.expects(:call).with(@env).once
+
+        @instance.call(@env)
+      end
+
+      should "continue chain and not provision if not enabled through env hash" do
+        @env["provision.enabled"] = false
         @prov.expects(:provision!).never
         @app.expects(:call).with(@env).once
 

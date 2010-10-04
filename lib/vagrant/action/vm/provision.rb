@@ -5,6 +5,7 @@ module Vagrant
         def initialize(app, env)
           @app = app
           @env = env
+          @env["provision.enabled"] = true if !@env.has_key?("provision.enabled")
 
           load_provisioner if provisioning_enabled?
         end
@@ -19,7 +20,7 @@ module Vagrant
         end
 
         def provisioning_enabled?
-          !@env["config"].vm.provisioner.nil?
+          !@env["config"].vm.provisioner.nil? && @env["provision.enabled"]
         end
 
         def load_provisioner

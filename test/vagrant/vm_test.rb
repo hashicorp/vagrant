@@ -177,6 +177,11 @@ class VMTest < Test::Unit::TestCase
         @vm.env.actions.expects(:run).with(:up, nil).once
         @vm.up
       end
+
+      should "forward options to the action sequence" do
+        @vm.env.actions.expects(:run).with(:up, :foo => :bar).once
+        @vm.up(:foo => :bar)
+      end
     end
 
     context "halting" do
@@ -236,13 +241,18 @@ class VMTest < Test::Unit::TestCase
       should "execute the resume action if saved" do
         @mock_vm.expects(:saved?).returns(true)
         @vm.expects(:resume).once
-        @vm.env.actions.expects(:run).with(:start).never
+        @vm.env.actions.expects(:run).with(:start, nil).never
         @vm.start
       end
 
       should "execute the start action" do
-        @vm.env.actions.expects(:run).with(:start).once
+        @vm.env.actions.expects(:run).with(:start, nil).once
         @vm.start
+      end
+
+      should "forward options to the action sequence" do
+        @vm.env.actions.expects(:run).with(:start, :foo => :bar).once
+        @vm.start(:foo => :bar)
       end
     end
   end

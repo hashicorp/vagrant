@@ -1,5 +1,7 @@
 ## 0.6.4 (unreleased)
 
+  - `up --no-provision` works again. This disables provisioning during the
+    boot process.
   - Action warden doesn't do recovery process on `SystemExit` exceptions,
     allowing the double ctrl-C to work properly again. [related to GH-166]
   - Initial Vagrantfile is now heavily commented with various available
