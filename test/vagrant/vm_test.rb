@@ -3,8 +3,6 @@ require "test_helper"
 class VMTest < Test::Unit::TestCase
   setup do
     @env = vagrant_env
-
-    Net::SSH.stubs(:start)
   end
 
   context "finding a VM" do
