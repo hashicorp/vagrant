@@ -2,7 +2,7 @@ require "test_helper"
 
 class HttpDownloaderTest < Test::Unit::TestCase
   setup do
-    @downloader, @tempfile = mock_downloader(Vagrant::Downloaders::HTTP)
+    @downloader, @tempfile = vagrant_mock_downloader(Vagrant::Downloaders::HTTP)
     @downloader.stubs(:report_progress)
     @downloader.stubs(:complete_progress)
     @uri = "http://google.com/"

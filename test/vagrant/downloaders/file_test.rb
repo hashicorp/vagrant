@@ -2,7 +2,7 @@ require "test_helper"
 
 class FileDownloaderTest < Test::Unit::TestCase
   setup do
-    @downloader, @tempfile = mock_downloader(Vagrant::Downloaders::File)
+    @downloader, @tempfile = vagrant_mock_downloader(Vagrant::Downloaders::File)
     @uri = "foo.box"
   end
 

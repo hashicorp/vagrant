@@ -1,5 +1,6 @@
 ## 0.6.4 (unreleased)
 
+  - Added method to `TestHelpers` to assist with testing new downloaders.
   - `up --no-provision` works again. This disables provisioning during the
     boot process.
   - Action warden doesn't do recovery process on `SystemExit` exceptions,

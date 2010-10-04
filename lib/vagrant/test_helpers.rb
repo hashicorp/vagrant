@@ -55,6 +55,19 @@ module Vagrant
       result
     end
 
+    # Returns an instantiated downloader with a mocked tempfile
+    # which can be passed into it.
+    #
+    # @param [Class] klass The downloader class
+    # @return [Array] Returns an array of `downloader` `tempfile`
+    def vagrant_mock_downloader(klass)
+      tempfile = mock("tempfile")
+      tempfile.stubs(:write)
+
+      _, env = action_env
+      [klass.new(env), tempfile]
+    end
+
     # Returns a blank app (callable) and action environment with the
     # given vagrant environment. This allows for testing of middlewares.
     def action_env(v_env = nil)
