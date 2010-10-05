@@ -1,6 +1,6 @@
 ## 0.6.5 (unreleased)
 
-
+  - Fix plugin loading in a Rails 2.3.x project. [GH-176]
 
 ## 0.6.4 (October 4, 2010)
 
