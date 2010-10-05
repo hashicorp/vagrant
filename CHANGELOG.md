@@ -1,4 +1,4 @@
-## 0.6.4 (unreleased)
+## 0.6.4 (October 4, 2010)
 
   - Default VM name is now properly the parent folder of the working directory
     of the environment.
