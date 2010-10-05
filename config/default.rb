@@ -27,7 +27,7 @@ Vagrant::Config.run do |config|
 
   config.vm.customize do |vm|
     # Make VM name the name of the containing folder by default
-    vm.name = File.basename(File.expand_path("../", Vagrant.source_root)) + "_#{Time.now.to_i}"
+    vm.name = File.basename(config.env.cwd) + "_#{Time.now.to_i}"
   end
 
   # Share the root folder. This can then be overridden by
