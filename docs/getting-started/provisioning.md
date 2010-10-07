@@ -36,6 +36,10 @@ Vagrant::Config.run do |config|
 
   # Grab the cookbooks from the Vagrant files
   config.chef.recipe_url = "http://files.vagrantup.com/getting_started/cookbooks.tar.gz"
+
+  # Tell chef what recipe to run. In this case, the `vagrant_main` recipe
+  # does all the magic.
+  config.chef.add_recipe("vagrant_main")
 end
 {% endhighlight %}
 
