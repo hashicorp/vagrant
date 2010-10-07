@@ -53,3 +53,5 @@ your environment will be rebuilt.
 The benefit of this is that your disk space is completely restored to
 pre-VM state, saving you about 1 GB on average. The cost is that you must
 wait for a full rebuild when you `vagrant up` again.
+
+[&larr; Packaging](/docs/getting-started/packaging.html) &middot; Teardown &middot; [Rebuild Instantly &rarr;](/docs/getting-started/rebuild.html)

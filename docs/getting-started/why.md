@@ -44,3 +44,5 @@ If you've ever maintained a large web application, one of the hardest parts is o
 Message queues, caching, database servers and other infrastructure pieces mean a lot of installation
 and a lot more configuration (see [case-in-point: insanity](http://www.robbyonrails.com/articles/2010/02/08/installing-ruby-on-rails-passenger-postgresql-mysql-oh-my-zsh-on-snow-leopard-fourth-edition)). Vagrant gives you the tools to build a development environment once and then easily distribute it to
 new members of your development team so you can get them to work and saving time, money and frustration.
+
+[&larr; Overview](/docs/getting-started/index.html) &middot; Why Vagrant? &middot; [Introduction &rarr;](/docs/getting-started/introduction.html)
