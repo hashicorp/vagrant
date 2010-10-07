@@ -1,5 +1,7 @@
 ## 0.6.5 (unreleased)
 
+  - A nice error message is given if ".vagrant" is a directory and therefore
+    can't be accessed. [GH-172]
   - Fix plugin loading in a Rails 2.3.x project. [GH-176]
 
 ## 0.6.4 (October 4, 2010)

@@ -15,6 +15,12 @@ en:
         are printed below:
 
         %{messages}
+      dotfile_is_directory: |-
+        The local file Vagrant uses to store data ".vagrant" already exists
+        and is a directory! If you are in your home directory, then please run
+        this command in another directory. If you aren't in a home directory,
+        then please rename ".vagrant" to something else, or configure Vagrant
+        to use another filename by modifying `config.vagrant.dotfile_name`.
       interrupted: Vagrant exited after cleanup due to external interrupt.
       multi_vm_required: A multi-vm environment is required for name specification to this command.
       multi_vm_target_required: `vagrant %{command}` requires a specific VM name to target in a multi-VM environment.

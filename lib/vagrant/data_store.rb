@@ -24,6 +24,8 @@ module Vagrant
       end
     rescue Errno::ENOENT
       clear
+    rescue Errno::EISDIR
+      raise Errors::DotfileIsDirectory
     end
 
     # Commits any changes to the data to disk. Even if the data

@@ -133,6 +133,11 @@ module Vagrant
       error_key(:config_validation)
     end
 
+    class DotfileIsDirectory < VagrantError
+      status_code(46)
+      error_key(:dotfile_is_directory)
+    end
+
     class DownloaderFileDoesntExist < VagrantError
       status_code(37)
       error_key(:file_missing, "vagrant.downloaders.file")

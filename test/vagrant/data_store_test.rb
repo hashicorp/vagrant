@@ -1,3 +1,4 @@
+require "fileutils"
 require "test_helper"
 
 class DataStoreTest < Test::Unit::TestCase
@@ -11,7 +12,15 @@ class DataStoreTest < Test::Unit::TestCase
   end
 
   teardown do
-    File.delete(@db_file) if File.file?(@db_file)
+    File.delete(@db_file) if File.exist?(@db_file)
+  end
+
+  should "raise an exception if the db file is a directory" do
+    file = tmp_path.join("data_store_folder_test")
+    FileUtils.mkdir_p(file)
+    assert_raises (Vagrant::Errors::DotfileIsDirectory) {
+      @klass.new(file)
+    }
   end
 
   should "be a hash with indifferent access" do
