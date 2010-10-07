@@ -58,7 +58,7 @@ GEM
       ruby-debug-base19 (>= 0.11.19)
     ruby_core_source (0.1.4)
       archive-tar-minitar (>= 0.5.2)
-    thor (0.14.2)
+    thor (0.14.3)
     yard (0.6.1)
 
 PLATFORMS
