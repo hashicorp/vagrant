@@ -53,3 +53,5 @@ index.html Vagrantfile
 The VM has both read and write access to the shared folder.
 
 **Remember: Any changes are mirrored across both systems.**
+
+[&larr; Boxes](/docs/getting-started/boxes.html) &middot; SSH &middot; [Provisioning &rarr;](/docs/getting-started/provisioning.html)
