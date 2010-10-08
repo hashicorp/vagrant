@@ -10,7 +10,6 @@ class ConfigTest < Test::Unit::TestCase
       @env = vagrant_env
       @instance = @klass.new(@env)
 
-      # Don't want validation to occur for these tests
       @klass::Top.any_instance.stubs(:validate!)
     end
 
@@ -21,8 +20,15 @@ class ConfigTest < Test::Unit::TestCase
     should "reset the config class on load, then execute" do
       seq = sequence("sequence")
       @klass.expects(:reset!).with(@env).in_sequence(seq)
-      @klass.expects(:execute!).in_sequence(seq)
+      @klass.expects(:execute!).with(true).in_sequence(seq)
       @instance.load!
+    end
+
+    should "not validate if told not to" do
+      seq = sequence("sequence")
+      @klass.expects(:reset!).with(@env).in_sequence(seq)
+      @klass.expects(:execute!).with(false).in_sequence(seq)
+      @instance.load!(false)
     end
 
     should "run the queue in the order given" do
@@ -131,16 +137,18 @@ class ConfigTest < Test::Unit::TestCase
       @klass.execute!
     end
 
+    should "not run the validation if explicitly told not to" do
+      @klass.reset!(vagrant_env.vms[:default].env)
+      seq = sequence('seq')
+      @klass.expects(:run_procs!).with(@klass.config).once.in_sequence(seq)
+      @klass.config.expects(:validate!).never
+      @klass.execute!(false)
+    end
+
     should "return the configuration on execute!" do
       @klass.run {}
       result = @klass.execute!
       assert result.is_a?(@klass::Top)
-    end
-
-    should "use given configuration object if given" do
-      config = @klass::Top.new(vagrant_env)
-      result = @klass.execute!(config)
-      assert_equal config.env, result.env
     end
   end
 
