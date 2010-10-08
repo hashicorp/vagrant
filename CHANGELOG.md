@@ -1,4 +1,4 @@
-## 0.6.5 (unreleased)
+## 0.6.5 (October 8, 2010)
 
   - Validations on base MAC address to avoid situation described in GH-166, GH-181
     from ever happening again.
