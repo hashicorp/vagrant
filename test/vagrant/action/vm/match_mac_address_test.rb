@@ -25,4 +25,12 @@ class MatchMACAddressVMActionTest < Test::Unit::TestCase
 
     @instance.call(@env)
   end
+
+  should "raise an exception if no base MAC address is specified" do
+    @env.env.config.vm.base_mac = nil
+
+    assert_raises(Vagrant::Errors::VMBaseMacNotSpecified) {
+      @instance.call(@env)
+    }
+  end
 end

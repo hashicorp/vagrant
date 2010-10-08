@@ -283,6 +283,11 @@ module Vagrant
       error_key(:virtualbox_not_detected)
     end
 
+    class VMBaseMacNotSpecified < VagrantError
+      status_code(47)
+      error_key(:no_base_mac, "vagrant.actions.vm.match_mac")
+    end
+
     class VMFailedToBoot < VagrantError
       status_code(21)
       error_key(:failed_to_boot, "vagrant.actions.vm.boot")

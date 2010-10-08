@@ -113,8 +113,9 @@ en:
       ssh:
         private_key_missing: "`private_key_path` file must exist: %{path}"
       vm:
-        shared_folder_hostpath_missing: "Shared folder host path for '%{name}' doesn't exist: %{path}"
+        base_mac_invalid: "Base MAC address for eth0/NAT must be set. Contact box maintainer for more information."
         boot_mode_invalid: "Boot mode must be one of: vrdp or gui"
+        shared_folder_hostpath_missing: "Shared folder host path for '%{name}' doesn't exist: %{path}"
 
 #-------------------------------------------------------------------------------
 # Translations for commands. e.g. `vagrant x`
@@ -264,6 +265,11 @@ en:
             manually for more verbose error output.
         match_mac:
           matching: Matching MAC address for NAT networking...
+          no_base_mac: |-
+            No base MAC address was specified. This is required for the NAT networking
+            to work properly (and hence port forwarding, SSH, etc.). Specifying this
+            MAC address is typically up to the box and box maintiner. Please contact
+            the relevant person to solve this issue.
         network:
           collides: |-
             The specified host network collides with a non-hostonly network!

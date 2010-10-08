@@ -1,5 +1,7 @@
 ## 0.6.5 (unreleased)
 
+  - Validations on base MAC address to avoid situation described in GH-166, GH-181
+    from ever happening again.
   - Properly load sub-VM configuration on first-pass of config loading. Solves
     a LOT of problems with multi-VM. [GH-166] [GH-181]
   - Configuration now only validates on final Vagrantfile proc, so multi-VM

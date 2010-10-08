@@ -29,6 +29,7 @@ module Vagrant
       File.open(path.to_s, "w") do |f|
         f.puts "Vagrant::Config.run do |config|"
         f.puts "config.vagrant.home = '#{home_path}'"
+        f.puts "config.vm.base_mac = 'foo' if !config.vm.base_mac"
         f.puts str
         f.puts "end"
       end

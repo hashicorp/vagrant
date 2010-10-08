@@ -105,6 +105,7 @@ module Vagrant
         end
 
         errors.add(I18n.t("vagrant.config.vm.boot_mode_invalid")) if ![:vrdp, :gui].include?(boot_mode.to_sym)
+        errors.add(I18n.t("vagrant.config.vm.base_mac_invalid")) if !base_mac
       end
     end
   end
