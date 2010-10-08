@@ -158,7 +158,7 @@ module Vagrant
       if parent
         parent.multivm?
       else
-        vms.length > 1
+        vms.length > 1 || vms.keys.first != DEFAULT_VM
       end
     end
 

@@ -39,11 +39,11 @@ class CommandHelpersTest < Test::Unit::TestCase
 
     context "without multivm" do
       setup do
-        @env.stubs(:vms).returns({ :one => 1 })
+        @env.stubs(:vms).returns({ :one => 1, :two => 2 })
       end
 
       should "raise an exception if a name is specified" do
-        instance = command(["foo"], @env)
+        instance = command(["foo"], vagrant_env)
         assert_raises(Vagrant::Errors::MultiVMEnvironmentRequired) {
           instance.target_vms
         }

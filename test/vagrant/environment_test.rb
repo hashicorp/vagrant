@@ -129,12 +129,16 @@ class EnvironmentTest < Test::Unit::TestCase
       assert env.multivm?
     end
 
-    should "return false if VM length is 1" do
+    should "return true if VM length is 1 and a sub-VM is defined" do
       env = vagrant_env(vagrantfile(<<-vf))
         config.vm.define :web
       vf
 
-      assert !env.multivm?
+      assert env.multivm?
+    end
+
+    should "return false if only default VM exists" do
+      assert !vagrant_env.multivm?
     end
   end
 
