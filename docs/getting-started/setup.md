@@ -50,3 +50,5 @@ in pre-existing project folders.
     with other types of web projects.
   </p>
 </div>
+
+[&larr; Introduction](/docs/getting-started/introduction.html) &middot; Project Setup &middot; [Boxes &rarr;](/docs/getting-started/boxes.html)

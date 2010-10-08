@@ -33,3 +33,5 @@ end
 As you can see, a Vagrantfile is simply Ruby code which typically contains a Vagrant
 configuration block. For most commands, Vagrant will first load the project's
 Vagrantfile for configuration.
+
+[&larr; Why Vagrant?](/docs/getting-started/why.html) &middot; Introduction &middot; [Project Setup &rarr;](/docs/getting-started/setup.html)

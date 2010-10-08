@@ -83,3 +83,5 @@ mirrors the environment set up in previous steps of the guide. Notice that
 they didn't have to do do provisioning, or set up anything on their system
 (other than Vagrant), etc. Distributing development environments has never
 been so easy.
+
+[&larr; Port Forwarding](/docs/getting-started/ports.html) &middot; Packaging &middot; [Teardown &rarr;](/docs/getting-started/teardown.html)

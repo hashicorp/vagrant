@@ -91,3 +91,5 @@ $ vagrant up
 $ vagrant destroy
 ...
 {% endhighlight %}
+
+[&larr; Project Setup](/docs/getting-started/setup.html) &middot; Boxes &middot; [SSH &rarr;](/docs/getting-started/ssh.html)
