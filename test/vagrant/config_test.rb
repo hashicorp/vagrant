@@ -74,6 +74,7 @@ class ConfigTest < Test::Unit::TestCase
 
   context "resetting" do
     setup do
+      @klass.reset!(vagrant_env)
       @klass::Top.any_instance.stubs(:validate!)
       @klass.run { |config| }
       @klass.execute!
@@ -105,7 +106,7 @@ class ConfigTest < Test::Unit::TestCase
 
   context "initializing" do
     setup do
-      @klass.reset!
+      @klass.reset!(vagrant_env)
       @klass::Top.any_instance.stubs(:validate!)
     end
 
@@ -115,10 +116,18 @@ class ConfigTest < Test::Unit::TestCase
       assert_equal [proc], @klass.proc_stack
     end
 
-    should "run the proc stack with the config when execute is called" do
+    should "run the validation on an environment which represents a VM" do
+      @klass.reset!(vagrant_env.vms[:default].env)
       seq = sequence('seq')
       @klass.expects(:run_procs!).with(@klass.config).once.in_sequence(seq)
       @klass.config.expects(:validate!).once.in_sequence(seq)
+      @klass.execute!
+    end
+
+    should "not run the validation on an environment that doesn't directly represent a VM" do
+      seq = sequence('seq')
+      @klass.expects(:run_procs!).with(@klass.config).once.in_sequence(seq)
+      @klass.expects(:validate!).never
       @klass.execute!
     end
 
@@ -129,8 +138,7 @@ class ConfigTest < Test::Unit::TestCase
     end
 
     should "use given configuration object if given" do
-      fake_env = mock("env")
-      config = @klass::Top.new(fake_env)
+      config = @klass::Top.new(vagrant_env)
       result = @klass.execute!(config)
       assert_equal config.env, result.env
     end

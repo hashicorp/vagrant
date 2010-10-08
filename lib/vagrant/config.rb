@@ -70,9 +70,11 @@ module Vagrant
       # class.
       def execute!(config_object=nil)
         config_object ||= config
-
         run_procs!(config_object)
-        config_object.validate!
+
+        # Validate if we're looking at a config object which represents a
+        # real VM.
+        config_object.validate! if config_object.env.vm
         config_object
       end
     end
