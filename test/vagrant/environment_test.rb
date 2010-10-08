@@ -365,7 +365,10 @@ class EnvironmentTest < Test::Unit::TestCase
       end
 
       def create_box_vagrantfile
-        vagrantfile(vagrant_box("box"), 'config.package.name = "box.box"')
+        vagrantfile(vagrant_box("box"), <<-FILE)
+          config.package.name = "box.box"
+          config.vm.base_mac = "set"
+        FILE
       end
 
       def create_home_vagrantfile
@@ -400,15 +403,18 @@ class EnvironmentTest < Test::Unit::TestCase
 
       should "load from a sub-vm configuration if environment represents a VM" do
         create_home_vagrantfile
+        create_box_vagrantfile
         vagrantfile(@env.root_path, <<-vf)
           config.package.name = "root.box"
           config.vm.define :web do |web|
+            web.vm.box = "box"
             web.package.name = "web.box"
           end
         vf
 
         assert_equal "root.box", @env.config.package.name
         assert_equal "web.box", @env.vms[:web].env.config.package.name
+        assert_equal "set", @env.vms[:web].env.config.vm.base_mac
       end
 
       should "reload the logger after executing" do

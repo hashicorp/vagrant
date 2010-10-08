@@ -306,7 +306,7 @@ module Vagrant
 
       # If this environment is representing a sub-VM, then we push that
       # proc on as the last configuration.
-      if !first_run && vm
+      if vm
         subvm = parent.config.vm.defined_vms[vm.name]
         loader.queue << subvm.proc_stack if subvm
       end

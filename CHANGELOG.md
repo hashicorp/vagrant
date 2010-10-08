@@ -1,5 +1,7 @@
 ## 0.6.5 (unreleased)
 
+  - Properly load sub-VM configuration on first-pass of config loading. Solves
+    a LOT of problems with multi-VM. [GH-166] [GH-181]
   - Configuration now only validates on final Vagrantfile proc, so multi-VM
     validates correctly.
   - A nice error message is given if ".vagrant" is a directory and therefore
