@@ -243,7 +243,7 @@ module Vagrant
 
       root_finder = lambda do |path|
         return path if File.exist?(File.join(path.to_s, ROOTFILE_NAME))
-        return nil if path.root?
+        return nil if path.root? || !File.exist?(path)
         root_finder.call(path.parent)
       end
 

@@ -242,6 +242,7 @@ class EnvironmentTest < Test::Unit::TestCase
       search_seq = sequence("search_seq")
       paths.each do |path|
         File.expects(:exist?).with(path.join(@klass::ROOTFILE_NAME).to_s).returns(false).in_sequence(search_seq)
+        File.expects(:exist?).with(path).returns(true).in_sequence(search_seq) if !path.root?
       end
 
       assert !@klass.new(:cwd => paths.first).root_path
@@ -252,6 +253,10 @@ class EnvironmentTest < Test::Unit::TestCase
       File.expects(:exist?).with(path.join(@klass::ROOTFILE_NAME).to_s).returns(true)
 
       assert_equal path, @klass.new(:cwd => path).root_path
+    end
+
+    should "not infinite loop on relative paths" do
+      assert @klass.new(:cwd => "../test").root_path.nil?
     end
 
     should "only load the root path once" do
