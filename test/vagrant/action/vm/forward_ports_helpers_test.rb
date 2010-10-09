@@ -64,7 +64,7 @@ class ForwardPortsHelpersVMActionTest < Test::Unit::TestCase
       na.stubs(:nat_driver).returns(ne)
       ne.stubs(:forwarded_ports).returns(fps)
       @vms << mock_vm(:network_adapters => [na])
-      assert_equal %W[2222 80], @instance.used_ports
+      assert_equal [2222, 80], @instance.used_ports
     end
   end
 end

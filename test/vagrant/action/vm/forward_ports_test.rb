@@ -53,12 +53,12 @@ class ForwardPortsVMActionTest < Test::Unit::TestCase
     end
 
     should "not raise any errors if no forwarded ports collide" do
-      @used_ports << "80"
+      @used_ports << 80
       assert_nothing_raised { @klass.new(@app, @env) }
     end
 
     should "handle collision if it happens" do
-      @used_ports << "2222"
+      @used_ports << 2222
       @klass.any_instance.expects(:handle_collision).with("ssh", anything, anything).once
       assert_nothing_raised { @klass.new(@app, @env) }
     end

@@ -1,5 +1,6 @@
 ## 0.6.6 (unreleased)
 
+  - Fix port collision handling with greater than two VMs. [GH-185]
   - Fix potential infinite loop with root path if bad CWD is given to environment.
 
 ## 0.6.5 (October 8, 2010)

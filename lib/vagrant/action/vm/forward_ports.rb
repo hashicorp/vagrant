@@ -34,7 +34,7 @@ module Vagrant
         def external_collision_check
           existing = used_ports
           @env.env.config.vm.forwarded_ports.each do |name, options|
-            if existing.include?(options[:hostport].to_s)
+            if existing.include?(options[:hostport].to_i)
               handle_collision(name, options, existing)
             end
           end
