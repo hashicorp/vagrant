@@ -27,7 +27,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency "contest", ">= 0.1.2"
   s.add_development_dependency "mocha"
   s.add_development_dependency "ruby-debug"
-  s.add_development_dependency "bundler", ">= 1.0.0.rc.6"
 
   s.files         = `git ls-files`.split("\n")
   s.executables   = `git ls-files`.split("\n").map{|f| f =~ /^bin\/(.*)/ ? $1 : nil}.compact
