@@ -217,7 +217,7 @@ en:
             auto-correction range are all also used.
 
             VM: %{vm_name}
-            Weitergeleiteter Port // Anschluss: %{name} (%{guest_port} => %{host_port})
+            Weitergeleiteter Port: %{name} (%{guest_port} => %{host_port})
           below_threshold_error: |-
             The host port of all forwarded ports must be above 1024. VirtualBox
             does not allow host ports to be below 1024. (Guest ports below 1024
@@ -255,7 +255,7 @@ en:
             This will cause your specified IP to be inaccessible. Please change
             the IP or name of your host only network to not match that of
             a bridged or non-hostonly network.
-          creating: Erstellen neues Host-only-Netzwerk... // Creating new host only network for environment...
+          creating: Erstellen neues Host-only-Netzwerk...
           enabling: Aktiviere Host-only-Netzwerk...
           not_found: |-
             The specified host network could not be found: '%{name}.'
@@ -359,7 +359,7 @@ en:
 
     provisioners:
       chef:
-        json: "Erstelle JSON für Chef und lade es hoch... // Generating chef JSON and uploading..."
+        json: "Erstelle JSON für Chef und lade es hoch..."
         client_key_folder: "Erstelle Verzeichnis für Client-Schlüssel..."
         upload_validation_key: "Lade Chef Client Prüfschlüssel hoch..."
         running_client: "Führe chef-client aus..."
