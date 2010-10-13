@@ -9,8 +9,6 @@ class ConfigTest < Test::Unit::TestCase
     setup do
       @env = vagrant_env
       @instance = @klass.new(@env)
-
-      @klass::Top.any_instance.stubs(:validate!)
     end
 
     should "initially have an empty queue" do
@@ -20,15 +18,8 @@ class ConfigTest < Test::Unit::TestCase
     should "reset the config class on load, then execute" do
       seq = sequence("sequence")
       @klass.expects(:reset!).with(@env).in_sequence(seq)
-      @klass.expects(:execute!).with(true).in_sequence(seq)
+      @klass.expects(:execute!).in_sequence(seq)
       @instance.load!
-    end
-
-    should "not validate if told not to" do
-      seq = sequence("sequence")
-      @klass.expects(:reset!).with(@env).in_sequence(seq)
-      @klass.expects(:execute!).with(false).in_sequence(seq)
-      @instance.load!(false)
     end
 
     should "run the queue in the order given" do
@@ -113,36 +104,12 @@ class ConfigTest < Test::Unit::TestCase
   context "initializing" do
     setup do
       @klass.reset!(vagrant_env)
-      @klass::Top.any_instance.stubs(:validate!)
     end
 
     should "add the given block to the proc stack" do
       proc = Proc.new {}
       @klass.run(&proc)
       assert_equal [proc], @klass.proc_stack
-    end
-
-    should "run the validation on an environment which represents a VM" do
-      @klass.reset!(vagrant_env.vms[:default].env)
-      seq = sequence('seq')
-      @klass.expects(:run_procs!).with(@klass.config).once.in_sequence(seq)
-      @klass.config.expects(:validate!).once.in_sequence(seq)
-      @klass.execute!
-    end
-
-    should "not run the validation on an environment that doesn't directly represent a VM" do
-      seq = sequence('seq')
-      @klass.expects(:run_procs!).with(@klass.config).once.in_sequence(seq)
-      @klass.expects(:validate!).never
-      @klass.execute!
-    end
-
-    should "not run the validation if explicitly told not to" do
-      @klass.reset!(vagrant_env.vms[:default].env)
-      seq = sequence('seq')
-      @klass.expects(:run_procs!).with(@klass.config).once.in_sequence(seq)
-      @klass.config.expects(:validate!).never
-      @klass.execute!(false)
     end
 
     should "return the configuration on execute!" do

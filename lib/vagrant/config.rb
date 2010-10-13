@@ -68,13 +68,9 @@ module Vagrant
       # and returns the final configured object. This also validates the
       # configuration by calling {Top#validate!} on every configuration
       # class.
-      def execute!(validate=true)
+      def execute!
         config_object ||= config
         run_procs!(config_object)
-
-        # Validate if we're looking at a config object which represents a
-        # real VM.
-        config_object.validate! if validate && config_object.env.vm
         config_object
       end
     end
@@ -90,7 +86,7 @@ module Vagrant
 
     # Loads the queue of files/procs, executes them in the proper
     # sequence, and returns the resulting configuration object.
-    def load!(validate=true)
+    def load!
       self.class.reset!(@env)
 
       queue.flatten.each do |item|
@@ -106,7 +102,7 @@ module Vagrant
         end
       end
 
-      return self.class.execute!(validate)
+      return self.class.execute!
     end
   end
 

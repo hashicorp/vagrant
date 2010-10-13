@@ -313,7 +313,7 @@ module Vagrant
 
       # Execute the configuration stack and store the result as the final
       # value in the config ivar.
-      @config = loader.load!(!first_run)
+      @config = loader.load!
 
       # (re)load the logger
       @logger = nil
