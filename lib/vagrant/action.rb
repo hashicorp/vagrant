@@ -90,13 +90,17 @@ module Vagrant
     # Any options given are injected into the environment hash.
     #
     # @param [Object] callable An object which responds to `call`.
-    def run(callable, options=nil)
-      callable = Builder.new.use(callable) if callable.kind_of?(Class)
-      callable = self.class.actions[callable] if callable.kind_of?(Symbol)
-      raise ArgumentError.new("Argument to run must be a callable object or registered action.") if !callable
+    def run(callable_id, options=nil)
+      callable = callable_id
+      callable = Builder.new.use(callable_id) if callable_id.kind_of?(Class)
+      callable = self.class.actions[callable_id] if callable_id.kind_of?(Symbol)
+      raise ArgumentError.new("Argument to run must be a callable object or registered action.") if !callable || !callable.respond_to?(:call)
 
       action_environment = Action::Environment.new(env)
       action_environment.merge!(options || {})
+
+      # Run the before action run callback, if we're not doing that already
+      run(:before_action_run) if callable_id != :before_action_run
 
       # Run the action chain in a busy block, marking the environment as
       # interrupted if a SIGINT occurs, and exiting cleanly once the
