@@ -165,7 +165,12 @@ class VMTest < Test::Unit::TestCase
 
     context "packaging" do
       should "execute the package action" do
-        @vm.env.actions.expects(:run).with(:package, :foo => :bar).once
+        @vm.env.actions.expects(:run).once.with() do |action, options|
+          assert_equal :package, action
+          assert_equal :bar, options[:foo]
+          true
+        end
+
         @vm.package(:foo => :bar)
       end
     end

@@ -358,7 +358,6 @@ class EnvironmentTest < Test::Unit::TestCase
         call_seq = sequence("call_sequence")
         @klass.expects(:check_virtualbox!).once.in_sequence(call_seq)
         env.expects(:load_config!).once.in_sequence(call_seq)
-        env.actions.expects(:run).with(:environment_load).once.in_sequence(call_seq)
         assert_equal env, env.load!
       end
     end

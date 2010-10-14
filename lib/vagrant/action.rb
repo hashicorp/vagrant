@@ -100,7 +100,7 @@ module Vagrant
       action_environment.merge!(options || {})
 
       # Run the before action run callback, if we're not doing that already
-      run(:before_action_run) if callable_id != :before_action_run
+      run(:before_action_run, action_environment) if callable_id != :before_action_run
 
       # Run the action chain in a busy block, marking the environment as
       # interrupted if a SIGINT occurs, and exiting cleanly once the

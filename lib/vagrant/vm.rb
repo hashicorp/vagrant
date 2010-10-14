@@ -108,7 +108,7 @@ module Vagrant
     end
 
     def package(options=nil)
-      env.actions.run(:package, options)
+      env.actions.run(:package, { "validate" => false }.merge(options || {}))
     end
 
     def up(options=nil)
