@@ -1,5 +1,6 @@
 ## 0.6.6 (unreleased)
 
+  - Fix "junk" output for ssh-config. [GH-189]
   - Fix port collision handling with greater than two VMs. [GH-185]
   - Fix potential infinite loop with root path if bad CWD is given to environment.
 

@@ -9,12 +9,12 @@ module Vagrant
         vm = target_vms.first
         raise Errors::VMNotCreatedError.new if !vm.created?
 
-        env.ui.info(Util::TemplateRenderer.render("ssh_config", {
+        $stdout.puts(Util::TemplateRenderer.render("ssh_config", {
           :host_key => options[:host] || "vagrant",
           :ssh_user => vm.env.config.ssh.username,
           :ssh_port => vm.ssh.port,
           :private_key_path => vm.env.config.ssh.private_key_path
-        }), :prefix => false)
+        }))
       end
     end
   end
