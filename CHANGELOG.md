@@ -1,4 +1,4 @@
-## 0.6.6 (unreleased)
+## 0.6.6 (October 14, 2010)
 
   - `vagrant status NAME` works once again. [GH-191]
   - Conditional validation of Vagrantfile so that some commands don't validate. [GH-188]
