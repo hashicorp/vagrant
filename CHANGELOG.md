@@ -1,5 +1,6 @@
 ## 0.6.6 (unreleased)
 
+  - `vagrant status NAME` works once again. [GH-191]
   - Conditional validation of Vagrantfile so that some commands don't validate. [GH-188]
   - Fix "junk" output for ssh-config. [GH-189]
   - Fix port collision handling with greater than two VMs. [GH-185]
