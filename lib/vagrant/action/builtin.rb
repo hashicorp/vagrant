@@ -96,7 +96,6 @@ module Vagrant
 
       # Other callbacks. There will be more of these in the future. For
       # now, these are limited to what are needed internally.
-      register :environment_load, Builder.new
       register(:before_action_run, Builder.new do
         use General::Validate
       end)

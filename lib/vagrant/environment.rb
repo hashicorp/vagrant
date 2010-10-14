@@ -284,7 +284,6 @@ module Vagrant
         @loaded = true
         self.class.check_virtualbox!
         load_config!
-        actions.run(:environment_load)
       end
 
       self
