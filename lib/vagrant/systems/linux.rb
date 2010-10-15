@@ -81,7 +81,7 @@ module Vagrant
 
         vm.ssh.execute do |ssh|
           ssh.exec!("sudo su -c 'cat /tmp/vagrant-network-entry >> /etc/network/interfaces'")
-          ssh.exec!("sudo /etc/init.d/networking restart")
+          ssh.exec!("sudo /sbin/ifup eth#{net_options[:adapter]}")
         end
       end
 
