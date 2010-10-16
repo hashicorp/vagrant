@@ -80,6 +80,7 @@ module Vagrant
         vm.ssh.upload!(StringIO.new(entry), "/tmp/vagrant-network-entry")
 
         vm.ssh.execute do |ssh|
+          ssh.exec!("sudo /sbin/ifdown eth#{net_options[:adapter]} 2> /dev/null")
           ssh.exec!("sudo su -c 'cat /tmp/vagrant-network-entry >> /etc/network/interfaces'")
           ssh.exec!("sudo /sbin/ifup eth#{net_options[:adapter]}")
         end
