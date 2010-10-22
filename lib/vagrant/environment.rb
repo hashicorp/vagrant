@@ -121,7 +121,9 @@ module Vagrant
     #
     # @return [Box]
     def box
-      boxes.find(config.vm.box)
+      result = boxes.find(config.vm.box)
+      raise Errors::BoxNotFound, :name => config.vm.box if vm && !result
+      result
     end
 
     # Returns the VMs associated with this environment.

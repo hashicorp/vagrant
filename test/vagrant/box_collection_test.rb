@@ -13,18 +13,19 @@ class BoxCollectionTest < Test::Unit::TestCase
 
     result = @klass.new(vagrant_env)
     names = result.collect { |b| b.name }.sort
-    assert_equal 2, result.length
-    assert_equal ["bar", "foo"], names
+    assert result.length >= 2
+    assert names.include?("foo")
+    assert names.include?("bar")
   end
 
   should "reload the box list" do
     instance = @klass.new(vagrant_env)
-    assert instance.empty?
+    amount = instance.length
 
     vagrant_box("foo")
 
     instance.reload!
-    assert !instance.empty?
+    assert_equal (amount + 1), instance.length
   end
 
   should "find a specific box" do
