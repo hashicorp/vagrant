@@ -1,6 +1,8 @@
 ## 0.6.7 (unreleased)
 
-
+  - Added validation to verify that a box is specified.
+  - Proper error message when box is not found for `config.vm.box`. [GH-195]
+  - Fix output of `vagrant status` with multi-vm to be correct. [GH-196]
 
 ## 0.6.6 (October 14, 2010)
 

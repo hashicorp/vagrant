@@ -104,8 +104,10 @@ module Vagrant
           end
         end
 
+        errors.add(I18n.t("vagrant.config.vm.box_missing")) if !box
+        errors.add(I18n.t("vagrant.config.vm.box_not_found", :name => box)) if box && !box_url && !env.box
         errors.add(I18n.t("vagrant.config.vm.boot_mode_invalid")) if ![:vrdp, :gui].include?(boot_mode.to_sym)
-        errors.add(I18n.t("vagrant.config.vm.base_mac_invalid")) if !base_mac
+        errors.add(I18n.t("vagrant.config.vm.base_mac_invalid")) if env.box && !base_mac
       end
     end
   end

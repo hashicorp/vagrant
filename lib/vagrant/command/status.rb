@@ -6,7 +6,7 @@ module Vagrant
       def route
         state = nil
         results = target_vms.collect do |vm|
-          state ||= vm.created? ? vm.vm.state.to_s : "not_created"
+          state = vm.created? ? vm.vm.state.to_s : "not_created"
           "#{vm.name.to_s.ljust(25)}#{state.gsub("_", " ")}"
         end
 
