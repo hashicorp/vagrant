@@ -180,7 +180,9 @@ en:
           waiting: Waiting for VM to boot. This can take a few minutes.
           ready: VM booted and ready for use!
           failed: Failed to connect to VM!
-          failed_to_boot: VM failed to boot.
+          failed_to_boot: |-
+            Failed to connect to VM via SSH. Please verify the VM successfully booted
+            by looking at the VirtualBox GUI.
         check_box:
           not_found: Box %{name} was not found. Fetching box from specified URL...
           not_specified: |-
