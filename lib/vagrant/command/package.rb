@@ -16,7 +16,7 @@ module Vagrant
 
       def package_base
         vm = VM.find(options[:base], env)
-        raise Errors::BaseVMNotFoundError.new(:name => options[:base]) if !vm.created?
+        raise Errors::BaseVMNotFound.new(:name => options[:base]) if !vm.created?
         package_vm(vm)
       end
 
