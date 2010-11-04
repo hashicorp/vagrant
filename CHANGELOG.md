@@ -1,4 +1,4 @@
-## 0.6.7 (unreleased)
+## 0.6.7 (November 3, 2010)
 
   - Added validation to verify that a box is specified.
   - Proper error message when box is not found for `config.vm.box`. [GH-195]
