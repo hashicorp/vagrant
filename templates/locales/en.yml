@@ -9,6 +9,7 @@ en:
     errors:
       base_vm_not_found: The base VM with the name '%{name}' was not found.
       box_not_found: Box '%{name}' could not be found.
+      chef_not_detected: '%{binary}' binary does not exist.
       cli_missing_env: This command requires that a Vagrant environment be properly passed in as the last parameter.
       config_validation: |-
         There was a problem with the configuration of Vagrant. The error message(s)
