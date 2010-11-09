@@ -107,7 +107,7 @@ en:
       common:
         vm_not_created: "VM wurde nicht erstellt. Prozess wird fortgeführt..."
       box:
-        no_installed_boxes: "Es liegen noch keine .box-Dateien vor. Rufen Sie `vagrant box add` auf, um welche hinzuzufügen.
+        no_installed_boxes: "Es liegen noch keine .box-Dateien vor. Rufen Sie `vagrant box add` auf, um welche hinzuzufügen."
       ssh:
         execute: "Ausführen: %{command}"
       status:
