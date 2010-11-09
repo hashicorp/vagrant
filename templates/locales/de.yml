@@ -19,6 +19,12 @@ de:
         Bei der Überprüfung der Vagrant-Konfiguration traten folgende Fehler auf:
 
         %{messages}
+      dotfile_is_directory: |-
+        The local file Vagrant uses to store data ".vagrant" already exists
+        and is a directory! If you are in your home directory, then please run
+        this command in another directory. If you aren't in a home directory,
+        then please rename ".vagrant" to something else, or configure Vagrant
+        to use another filename by modifying `config.vagrant.dotfile_name`.
       interrupted: Vagrant wurde durch einen externen Befehl kontrolliert heruntergefahren.
       multi_vm_required: Der verwendete Befehl setzt eine Multi-VM-Umgebung voraus.
       multi_vm_target_required: `vagrant %{command}` erwartet einen Namen einer bestimmten VM innerhalb einer Multi-VM-Umgebung.
@@ -99,11 +105,19 @@ de:
     config:
       common:
         error_empty: `%{field}` muss ausgefüllt werden.
+      chef:
+        run_list_empty: "Die 'Run list' darf nicht leer sein."
+        cookbooks_path_empty: "Sie müssen für chef-solo einen Pfad zu den Rezepten angeben."
+        server_url_empty: "Sie müssen eine URL zum Chef Server angeben."
+        validation_key_path: "Der Pfad zum Validation-Schlüssel muss auf dem Chef Server vorhanden sein."
       ssh:
         private_key_missing: "`private_key_path` Datei muss vorhanden sein: %{path}"
       vm:
-        shared_folder_hostpath_missing: "Gemeinsame Ordner '%{name}' existiert auf dem Host nicht: %{path}"
+        base_mac_invalid: "MAC Adresse für eth0/NAT muss gesetzt sein. Wenden Sie sich an den box-Verwalter, um weitere Details zu erfahren."
         boot_mode_invalid: "Boot Modus muss einen dieser Werte haben: vrdp oder gui"
+        box_missing: "Sie müssen eine box-Datei angeben."
+        box_not_found: "Die box-Datei '%{name}' wurde nicht gefunden."
+        shared_folder_hostpath_missing: "Der Pfad für den gemeinsamen Ordner '%{name}' existiert auf dem Host nicht: %{path}"
 
 #-------------------------------------------------------------------------------
 # Translations for commands. e.g. `vagrant x`
@@ -163,7 +177,9 @@ de:
           waiting: Warte bis VM hochgefahren ist. Dies kann ein paar Minuten dauern.
           ready: VM wurde hochgefahren und kann genutzt werden!
           failed: Verbindung zur VM fehlgeschlagen!
-          failed_to_boot: Bootvorgang auf der VM fehlgeschlagen.
+          failed_to_boot: |-
+            Verbindung zur VM über SSH nicht möglich.
+            Öffnen Sie Virtualbox und stellen Sie sicher, dass die VM sauber hochgefahren ist.
         check_box:
           not_found: Box %{name} wurde nicht gefunden. Leite Download von der angegebenen URL ein...
           not_specified: |-
