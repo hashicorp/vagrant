@@ -1,4 +1,4 @@
-en:
+de:
   vagrant:
     general:
       creating_home_dir: "Verzeichnis %{directory} wurde angelegt, da noch nicht vorhanden."
