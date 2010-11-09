@@ -9,6 +9,11 @@ en:
     errors:
       base_vm_not_found: Die Basis-VM mit dem Namen '%{name}' wurde nicht gefunden.
       box_not_found: Die Box '%{name}' ist nicht vorhanden.
+      chef_not_detected: |-
+        Chef wurde auf der VM nicht gefunden (weder `chef-solo` noch `chef-client` können auf der VM aufgerufen werden).
+        Chef wird jedoch für die Konfiguration Ihrer VM benötigt.
+        
+        Stellen Sie sicher, dass Chef auf der VM installiert ist und die Programme im Pfad (PATH) liegen.
       cli_missing_env: Der Befehl erwartet als letzten Parameter den Wert einer aktiven Vagrant Umgebung.
       config_validation: |-
         Bei der Überprüfung der Vagrant-Konfiguration traten folgende Fehler auf:
