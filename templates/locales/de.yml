@@ -20,11 +20,10 @@ de:
 
         %{messages}
       dotfile_is_directory: |-
-        The local file Vagrant uses to store data ".vagrant" already exists
-        and is a directory! If you are in your home directory, then please run
-        this command in another directory. If you aren't in a home directory,
-        then please rename ".vagrant" to something else, or configure Vagrant
-        to use another filename by modifying `config.vagrant.dotfile_name`.
+        Die Datei ".vagrant", die von Vagrant zum Speichern von Daten nutzt,
+        ist bereits vorhanden oder ist ein Verzeichnis!
+        Wenn Sie sich in Ihrem Home-Verzeichnis befinden, wechseln Sie in ein anderes Verzeichnis und führen Sie den Befehl erneut aus.
+        Alternativ können Sie auch den Dateinamen über den Parameter `config.vagrant.dotfile_name` anpassen.
       interrupted: Vagrant wurde durch einen externen Befehl kontrolliert heruntergefahren.
       multi_vm_required: Der verwendete Befehl setzt eine Multi-VM-Umgebung voraus.
       multi_vm_target_required: `vagrant %{command}` erwartet einen Namen einer bestimmten VM innerhalb einer Multi-VM-Umgebung.
