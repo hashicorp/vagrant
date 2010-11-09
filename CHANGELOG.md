@@ -2,6 +2,7 @@
 
   - Network interfaces are now up/down in distinct commands instead of just
     restarting "networking." [GH-192]
+  - Add missing translation for chef binary missing. [GH-203]
 
 ## 0.6.7 (November 3, 2010)
 
