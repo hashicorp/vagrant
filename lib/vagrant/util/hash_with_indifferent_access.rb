@@ -1,7 +1,7 @@
 module Vagrant
   module Util
     # A hash with indifferent access. Mostly taken from Thor/Rails (thanks).
-    # Normally I'm not a fan of using an indifferent access hash sine Symbols
+    # Normally I'm not a fan of using an indifferent access hash since Symbols
     # are basically memory leaks in Ruby, but since Vagrant is typically a quick
     # one-off binary run and it doesn't use too many hash keys where this is
     # used, the effect should be minimal.

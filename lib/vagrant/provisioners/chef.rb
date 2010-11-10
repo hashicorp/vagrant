@@ -1,6 +1,6 @@
 module Vagrant
   module Provisioners
-    # This class is a base class where the common functinality shared between
+    # This class is a base class where the common functionality shared between
     # chef-solo and chef-client provisioning are stored. This is **not an actual
     # provisioner**. Instead, {ChefSolo} or {ChefServer} should be used.
     class Chef < Base

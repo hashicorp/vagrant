@@ -24,7 +24,7 @@ module Vagrant
       end
 
       # Returns the current stack of middlewares. You probably won't
-      # need to use this directly, and its recommended that you don't.
+      # need to use this directly, and it's recommended that you don't.
       #
       # @return [Array]
       def stack
