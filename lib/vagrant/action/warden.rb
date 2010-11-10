@@ -7,8 +7,9 @@ module Vagrant
     # exceptional events, and by providing a simple callback, can clean up
     # in any erroneous case.
     #
-    # Except for those who are curious about the internal workings of Vagrant,
-    # Warden will "just work" behind the scenes.
+    # Warden will "just work" behind the scenes, and is not of particular
+    # interest except to those who are curious about the internal workings
+    # of Vagrant.
     class Warden
       attr_accessor :actions, :stack
 
