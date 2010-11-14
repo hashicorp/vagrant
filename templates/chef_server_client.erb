@@ -1,6 +1,8 @@
 log_level          <%= log_level.inspect %>
 log_location       STDOUT
+<% if node_name %>
 node_name          "<%= node_name %>"
+<% end %>
 ssl_verify_mode    :verify_none
 chef_server_url    "<%= chef_server_url %>"
 
