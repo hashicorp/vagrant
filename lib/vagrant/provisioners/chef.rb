@@ -91,13 +91,12 @@ module Vagrant
           @log_level = :info
           @json = {
             :instance_role => "vagrant",
-            :run_list => []
           }
         end
 
         # Returns the run list for the provisioning
         def run_list
-          json[:run_list]
+          json[:run_list] ||= []
         end
 
         # Sets the run list to the specified value
