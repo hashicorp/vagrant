@@ -84,7 +84,6 @@ module Vagrant
         def initialize
           @validation_client_name = "chef-validator"
           @client_key_path = "/etc/chef/client.pem"
-          @node_name = "client"
 
           @cookbooks_path = ["cookbooks", [:vm, "cookbooks"]]
           @roles_path = []
