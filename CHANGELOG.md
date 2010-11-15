@@ -7,6 +7,7 @@
   - Blank client name for chef server now uses FQDN by default, instead of "client" [GH-214]
   - Run list can now be nil, which will cause it to sync with chef server (when
     chef server is enabled). [GH-214]
+  - Multiple NFS folders now work on linux. [GH-215]
 
 ## 0.6.7 (November 3, 2010)
 
