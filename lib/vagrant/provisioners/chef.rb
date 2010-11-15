@@ -136,9 +136,13 @@ module Vagrant
             errors.add(I18n.t("vagrant.config.chef.validation_key_path")) if !validation_key_path
           end
 
-          if [:chef_solo, :chef_server].include?(top.vm.provisioner)
-            # Validations shared by both chef solo and server
-            errors.add(I18n.t("vagrant.config.chef.run_list_empty")) if !run_list || run_list.empty?
+          if top.vm.provisioner == :chef_solo
+            # On chef solo, a run list MUST be specified
+            errors.add(I18n.t("vagrant.config.chef.run_list_empty")) if !json[:run_list] || run_list.empty?
+          elsif top.vm.provisioner == :chef_server
+            # On chef server, the run list is allowed to be nil, which causes it
+            # to sync with the chef server.
+            errors.add(I18n.t("vagrant.config.chef.run_list_empty")) if json[:run_list] && run_list.empty?
           end
         end
       end

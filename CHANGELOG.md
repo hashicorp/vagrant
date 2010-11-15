@@ -3,6 +3,10 @@
   - Network interfaces are now up/down in distinct commands instead of just
     restarting "networking." [GH-192]
   - Add missing translation for chef binary missing. [GH-203]
+  - Fix default settings for Opscode platform and comments. [GH-213]
+  - Blank client name for chef server now uses FQDN by default, instead of "client" [GH-214]
+  - Run list can now be nil, which will cause it to sync with chef server (when
+    chef server is enabled). [GH-214]
 
 ## 0.6.7 (November 3, 2010)
 
