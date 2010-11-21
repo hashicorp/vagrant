@@ -150,6 +150,11 @@ en:
           suspend the virtual machine. In either case, to restart it again,
           simply run `vagrant up`.
         saved: To resume this VM, simply run `vagrant up`.
+        stuck: |-
+          The VM is "stuck!" This is a very rare state which means that
+          VirtualBox is unable to recover the current state of the VM.
+          The only known solution to this problem is to restart your
+          machine, sorry.
         listing: |-
           This environment represents multiple VMs. The VMs are all listed
           above with their current state. For more information about a specific
