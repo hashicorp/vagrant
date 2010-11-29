@@ -13,6 +13,9 @@ en:
         The chef (either `chef-solo` or `chef-client`) binary was not found on
         the VM and is required for chef provisioning. Please verify that chef
         is installed and that the binary is available on the PATH.
+      puppet_not_detected: |-
+        The `puppet` binary was not found on the VM and is required for Puppet provisioning. 
+        Please verify that Puppet is installed and that the binary is available on the PATH.
       cli_missing_env: This command requires that a Vagrant environment be properly passed in as the last parameter.
       config_validation: |-
         There was a problem with the configuration of Vagrant. The error message(s)
@@ -415,6 +418,16 @@ en:
         server_validation_key_doesnt_exist: |-
           The validation key set for `config.chef.validation_key_path` does not exist! This
           file needs to exist so it can be uploaded to the virtual machine.
+
+      puppet:
+        not_detected: |-
+          The `%{binary}` binary appears to not be in the PATH of the guest. This
+          could be because the PATH is not properly setup or perhaps Puppet is not
+          installed on this guest. Puppet provisioning can not continue without
+          Puppet properly installed.
+        running_puppet: "Running Puppet..."
+        manifest_to_run: "Puppet will use the %{manifest} manifest to configure your box."
+        manifest_missing: "The Puppet %{manifest} manifest is missing. You cannot configure this box."
 
     systems:
       linux:
