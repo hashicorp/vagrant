@@ -103,6 +103,10 @@ class ProvisionVMActionTest < Test::Unit::TestCase
         should "set :chef_server to the ChefServer provisioner" do
           provisioner_expectation(:chef_server, Vagrant::Provisioners::ChefServer)
         end
+
+        should "set :puppet to the Puppet provisioner" do
+          provisioner_expectation(:puppet, Vagrant::Provisioners::Puppet)
+        end
       end
     end
 
