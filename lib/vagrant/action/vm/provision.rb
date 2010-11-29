@@ -33,7 +33,8 @@ module Vagrant
             # We have a few hard coded provisioners for built-ins
             mapping = {
               :chef_solo    => Provisioners::ChefSolo,
-              :chef_server  => Provisioners::ChefServer
+              :chef_server  => Provisioners::ChefServer,
+              :puppet       => Provisioners::Puppet
             }
 
             provisioner_klass = mapping[provisioner]
