@@ -4,18 +4,19 @@ title: Documentation - Provisioners - Others
 ---
 # Provisioning with Other Tools
 
-Vagrant understands that not everyone uses [Chef](http://www.opscode.com/chef).
-If you use [Puppet](http://reductivelabs.com/products/puppet/) or some other custom
-solution, then Vagrant doesn't force you to use Chef! You can easily create your own
-provisioners by extending the `Vagrant::Provisioners::Base` class and passing that
+Vagrant understands that not everyone uses [Chef](http://www.opscode.com/chef) 
+or [Puppet](http://www.puppetlabs.com/puppet).
+
+If you use some other configuration management solution, then Vagrant doesn't force you to use Chef or Puppet! 
+You can easily create your own provisioners by extending the `Vagrant::Provisioners::Base` class and passing that
 class as the configured provisioner.
 
 ## Creating Your Own Provisioner
 
-The [Chef Solo](/docs/provisioners/chef_solo.html) and [Chef Server](/docs/provisioners/chef_server.html)
-provisioners aren't anything special; they simply inherit from the
+The [Chef Solo](/docs/provisioners/chef_solo.html), [Chef Server](/docs/provisioners/chef_server.html), and 
+[Puppet[(/docs/provisioners/puppet.html) provisioners aren't anything special; they simply inherit from the
 `Vagrant::Provisioners::Base` class. They are also given a special ruby symbol shortcut
-such as `:chef_solo` since they are built into Vagrant, but thats only for ease of use.
+such as `:chef_solo` and `:puppet` since they are built into Vagrant, but thats only for ease of use.
 
 You can create your own provisioner by extending from the base. The
 methods you're supposed to implement are `prepare` and `provision!`.
