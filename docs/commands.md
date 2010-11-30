@@ -169,7 +169,7 @@ listed below, not in any specific order:
 * Build the VM based on the box
 * Setup shared folders
 * Setup forwarded ports
-* Provision with chef (if configured)
+* Provision with chef or Puppet (if configured)
 * Boot in the background
 
 

@@ -13,12 +13,12 @@ packaging it so others can more easily make use of it, but we'll cover this
 later).
 
 Luckily, Vagrant comes with provisioning built right into the software by
-using [chef](http://www.opscode.com/chef), with support for both [chef solo](http://wiki.opscode.com/display/chef/Chef+Solo)
-and [chef server](http://wiki.opscode.com/display/chef/Chef+Server). You can
+using [chef](http://www.opscode.com/chef), either [chef solo](http://wiki.opscode.com/display/chef/Chef+Solo)
+and [chef server](http://wiki.opscode.com/display/chef/Chef+Server), or [Puppet](http://www.puppetlabs.com/puppet). You can
 also [extend vagrant](/docs/provisioners/others.html) to support more provisioners, but this is an advanced topic
 which we won't cover here.
 
-For our basic HTML website, we're going to use chef provisioning to setup Apache
+For our basic HTML website, we're going to show you how to use both chef and Pupept provisioning to setup Apache
 to serve the website.
 
 ## Configuring Chef and the Vagrant
@@ -47,6 +47,43 @@ Note that while we use a URL to download the cookbooks for this getting
 started project, you can also put cookbooks in a local directory, which is
 nice for storing your cookbooks in version control with your project. More
 details on this can be found in the [chef solo documentation](/docs/provisioners/chef_solo.html).
+
+## Configuring Puppet and the Vagrant
+
+Alternatively, you can use Puppet to configure Apache.  To do this we need to create a directory called `manifests` 
+(in the root where your Vagrantfile is located) and create a file named after the box we're configuring, for example 
+`lucid32.pp`.
+
+That file contains the required Puppet configuration, for example:
+
+{% highlight ruby %}
+# Basic Puppet Apache manifest
+#
+
+class lucid32 {
+
+  package { "apache2":
+    ensure => present,
+  }
+
+  service { "apache2":
+    ensure => running,
+    require => Package["apache2"],
+  }
+}
+
+include lucid32
+{% endhighlight %}}
+
+We then add support in the Vagrantfile to support Puppet provisioning:
+
+{% highlight ruby %}
+Vagrant::Config.run do |config|
+  config.vm.box = "lucid32"
+
+  # Enable the Puppet provisioner
+  config.vm.provisioner = :puppet
+{% endhighlight %}
 
 ## Running it!
 
