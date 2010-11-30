@@ -28,12 +28,14 @@ class PuppetProvisionerTest < Test::Unit::TestCase
 
   context "share manifests folder" do
     setup do
+      @manifests_path = "manifests"
       @pp_path = "/tmp/vagrant-puppet"
+      @action.stubs(:manifests_path).returns(@manifests_path)
       @action.stubs(:pp_path).returns(@pp_path)
     end
 
     should "share manifest folder" do
-      @env.config.vm.expects(:share_folder).with("manifests", @pp_path, "manifests")
+      @env.config.vm.expects(:share_folder).with("manifests", @pp_path, @manifests_path)
       @action.share_manifests
     end
   end

@@ -8,9 +8,11 @@ module Vagrant
   class Config < Vagrant::Config::Base
     configures :puppet
 
+    attr_accessor :manifests_path
     attr_accessor :pp_path
 
     def initialize
+      @manifests_path = "manifests"
       @pp_path = "/tmp/vagrant-puppet"
     end
   end
@@ -35,7 +37,7 @@ module Vagrant
     end
 
     def share_manifests
-      env.config.vm.share_folder("manifests", env.config.puppet.pp_path, "manifests")
+      env.config.vm.share_folder("manifests", env.config.puppet.pp_path, env.config.puppet.manifests_path)
     end
 
     def verify_binary(binary)
