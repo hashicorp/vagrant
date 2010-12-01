@@ -5,13 +5,15 @@ module Vagrant
     error_namespace("vagrant.provisioners.puppet")
   end
 
-  class Config < Vagrant::Config::Base
+  class PuppetConfig < Vagrant::Config::Base
     configures :puppet
 
+    attr_accessor :manifest_file
     attr_accessor :manifests_path
     attr_accessor :pp_path
 
     def initialize
+      @manifest_file = ""
       @manifests_path = "manifests"
       @pp_path = "/tmp/vagrant-puppet"
     end
@@ -49,7 +51,11 @@ module Vagrant
     end
 
     def run_puppet_client
-      command = "cd #{env.config.puppet.pp_path} && sudo -E puppet #{env.config.vm.box}.pp"
+      unless env.config.puppet.manifest_file
+        env.config.puppet.manifest_file = "#{env.config.vm.box}.pp"
+      end
+
+      command = "cd #{env.config.puppet.pp_path} && sudo -E puppet #{env.config.puppet.manifest_file}"
 
       env.ui.info I18n.t("vagrant.provisioners.puppet.running_puppet")
 

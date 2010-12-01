@@ -68,10 +68,12 @@ class PuppetProvisionerTest < Test::Unit::TestCase
     setup do
       @ssh = mock("ssh")
       @vm.ssh.stubs(:execute).yields(@ssh)
+      @manifest_file = "lucid32.pp"
+      @action.stubs(:manifest_file).returns(@manifest_file)
     end
 
     should "cd into the pp_path directory and run puppet" do
-      @ssh.expects(:exec!).with("cd #{@env.config.puppet.pp_path} && sudo -E puppet #{@env.config.vm.box}.pp").once
+      @ssh.expects(:exec!).with("cd #{@env.config.puppet.pp_path} && sudo -E puppet #{@env.config.puppet.manifest_file}").once
       @action.run_puppet_client
     end
 
