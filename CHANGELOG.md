@@ -10,6 +10,7 @@
   - Multiple NFS folders now work on linux. [GH-215]
   - Add translation for state "stuck" which is very rare. [GH-218]
   - virtualbox gem dependency minimum raised to 0.7.6 to verify FFI < 1.0.0 is used.
+  - Fix issue where box downloading from `vagrant up` didn't reload the box collection. [GH-229]
 
 ## 0.6.7 (November 3, 2010)
 
