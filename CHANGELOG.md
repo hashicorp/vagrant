@@ -1,4 +1,8 @@
-## 0.6.8 (unreleased)
+## 0.6.9 (unreleased)
+
+
+
+## 0.6.8 (November 30, 2010)
 
   - Network interfaces are now up/down in distinct commands instead of just
     restarting "networking." [GH-192]
