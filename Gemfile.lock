@@ -17,7 +17,7 @@ PATH
       net-scp (~> 1.0.3)
       net-ssh (~> 2.0.23)
       thor (~> 0.14.2)
-      virtualbox (~> 0.7.3)
+      virtualbox (~> 0.7.6)
 
 GEM
   remote: http://rubygems.org/
