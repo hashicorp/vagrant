@@ -1,3 +1,5 @@
+require 'forwardable'
+
 module Vagrant
   # Represents a collection of boxes, providing helpful methods for
   # finding boxes. An instance of this is returned by {Environment#boxes}.
@@ -9,21 +11,25 @@ module Vagrant
   #
   #     env.boxes.find("base") # => #<Vagrant::Box>
   #
-  class BoxCollection < Array
+  class BoxCollection
+    include Enumerable
+    extend Forwardable
+    def_delegators :@boxes, :length, :each
+
     # The environment this box collection belongs to
     attr_reader :env
 
     def initialize(env)
-      super()
-
       @env = env
+      @boxes = []
+
       reload!
     end
 
     # Find a box in the collection by the given name. The name must
     # be a string, for now.
     def find(name)
-      each do |box|
+      @boxes.each do |box|
         return box if box.name == name
       end
 
@@ -33,12 +39,12 @@ module Vagrant
     # Loads the list of all boxes from the source. This modifies the
     # current array.
     def reload!
-      clear
+      @boxes.clear
 
       Dir.open(env.boxes_path) do |dir|
         dir.each do |d|
           next if d == "." || d == ".." || !File.directory?(env.boxes_path.join(d))
-          self << Box.new(env, d)
+          @boxes << Box.new(env, d)
         end
       end
     end
