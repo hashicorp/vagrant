@@ -119,7 +119,8 @@ class VMTest < Test::Unit::TestCase
       context "with a symbol" do
         should "initialize proper symbols" do
           valid = {
-            :linux => Vagrant::Systems::Linux
+            :linux => Vagrant::Systems::Linux,
+            :solaris => Vagrant::Systems::Solaris
           }
 
           valid.each do |symbol, klass|
