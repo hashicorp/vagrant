@@ -1,6 +1,7 @@
 ## 0.6.9 (unreleased)
 
-
+  - Solaris system configurable to use `sudo`.
+  - Solaris system registered, so it can be set with `:solaris`.
 
 ## 0.6.8 (November 30, 2010)
 
