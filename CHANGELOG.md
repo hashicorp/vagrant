@@ -1,5 +1,6 @@
 ## 0.6.9 (unreleased)
 
+  - Puppet provisioner. [GH-223]
   - Solaris system configurable to use `sudo`.
   - Solaris system registered, so it can be set with `:solaris`.
 
