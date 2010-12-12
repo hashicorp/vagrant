@@ -173,7 +173,21 @@ class PackageGeneralActionTest < Test::Unit::TestCase
         seq = sequence("seq")
         @instance.files_to_copy.each do |from, to|
           FileUtils.expects(:mkdir_p).with(to.parent).in_sequence(seq)
+          FileTest.expects(:file?).with(from).returns(true).in_sequence(seq)
           FileUtils.expects(:cp).with(from, to).in_sequence(seq)
+        end
+
+        @instance.copy_include_files
+      end
+
+      should "create the include directory and recursively copy globbed files to it" do
+        @env["package.include"] = ["foo*.txt"]
+        seq = sequence("seq")
+        @instance.files_to_copy.each do |from, to|
+          FileUtils.expects(:mkdir_p).with(to.parent).in_sequence(seq)
+          FileTest.expects(:file?).with(from).returns(false).in_sequence(seq)
+          Dir.expects(:glob).with(from).returns(from).in_sequence(seq)
+          FileUtils.expects(:cp_r).with(from, to.parent).in_sequence(seq)
         end
 
         @instance.copy_include_files
