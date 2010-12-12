@@ -68,7 +68,13 @@ module Vagrant
           files_to_copy.each do |from, to|
             @env.ui.info I18n.t("vagrant.actions.general.package.packaging", :file => from)
             FileUtils.mkdir_p(to.parent)
-            FileUtils.cp(from, to)
+
+            # Copy direcotry contents recursively.
+            if File.directory?(from)
+              FileUtils.cp_r(Dir.glob(from), to.parent)
+            else
+              FileUtils.cp(from, to)
+            end
           end
         end
 
