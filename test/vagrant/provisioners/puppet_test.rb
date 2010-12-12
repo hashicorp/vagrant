@@ -110,7 +110,13 @@ class PuppetProvisionerTest < Test::Unit::TestCase
     end
 
     should "cd into the pp_path directory and run puppet" do
-      @ssh.expects(:exec!).with("cd #{@env.config.puppet.pp_path} && sudo -E puppet #{@manifest}").once
+      @ssh.expects(:exec!).with("cd #{@env.config.puppet.pp_path} && sudo -E puppet  #{@manifest}").once
+      @action.run_puppet_client
+    end
+
+    should "cd into the pp_path directory and run puppet with given options" do
+      @env.config.puppet.options = ["--modulepath", "modules", "--verbose"]
+      @ssh.expects(:exec!).with("cd #{@env.config.puppet.pp_path} && sudo -E puppet --modulepath modules --verbose #{@manifest}").once
       @action.run_puppet_client
     end
 
