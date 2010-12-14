@@ -32,6 +32,14 @@ class ConfigVMTest < Test::Unit::TestCase
       @config.define(:foo) {}
       assert @config.has_multi_vms?
     end
+
+    should "retain vm definition order" do
+      @config.define(:a) {}
+      @config.define(:b) {}
+      @config.define(:c) {}
+
+      assert_equal [:a, :b, :c], @config.defined_vm_keys
+    end
   end
 
   context "customizing" do

@@ -88,8 +88,15 @@ module Vagrant
         @defined_vms ||= {}
       end
 
+      # This returns the keys of the sub-vms in the order they were
+      # defined.
+      def defined_vm_keys
+        @defined_vm_keys ||= []
+      end
+
       def define(name, options=nil, &block)
         options ||= {}
+        defined_vm_keys << name
         defined_vms[name.to_sym] ||= SubVM.new
         defined_vms[name.to_sym].options.merge!(options)
         defined_vms[name.to_sym].push_proc(&block)

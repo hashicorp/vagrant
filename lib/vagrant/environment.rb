@@ -126,11 +126,19 @@ module Vagrant
 
     # Returns the VMs associated with this environment.
     #
-    # @return [Array<VM>]
+    # @return [Hash<Symbol,VM>]
     def vms
       return parent.vms if parent
       load! if !loaded?
       @vms ||= load_vms!
+    end
+
+    # Returns the VMs associated with this environment, in the order
+    # that they were defined.
+    #
+    # @return [Array<VM>]
+    def vms_ordered
+      @vms_enum ||= config.vm.defined_vm_keys.map {|name| @vms[name]}
     end
 
     # Returns the primary VM associated with this environment. This
@@ -352,7 +360,7 @@ module Vagrant
 
       # For any VMs which aren't created, create a blank VM instance for
       # them
-      all_keys = config.vm.defined_vms.keys
+      all_keys = config.vm.defined_vm_keys
       all_keys = [DEFAULT_VM] if all_keys.empty?
       all_keys.each do |name|
         result[name] = Vagrant::VM.new(:name => name, :env => self) if !result.has_key?(name)
