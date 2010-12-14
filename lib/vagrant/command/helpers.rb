@@ -17,7 +17,7 @@ module Vagrant
 
         @target_vms ||= begin
           if env.multivm?
-            return env.vms.values if !name
+            return env.vms_enum if !name
             vm = env.vms[name.to_sym]
             raise Errors::VMNotFoundError.new(:name => name) if !vm
           else

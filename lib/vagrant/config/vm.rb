@@ -88,9 +88,15 @@ module Vagrant
         @defined_vms ||= {}
       end
 
+      # This preserves the definition order of VMs
+      def all_vm_keys
+        @all_vm_keys ||= []
+      end
+
       def define(name, options=nil, &block)
         options ||= {}
         defined_vms[name.to_sym] ||= SubVM.new
+        all_vm_keys << name
         defined_vms[name.to_sym].options.merge!(options)
         defined_vms[name.to_sym].push_proc(&block)
       end

@@ -39,7 +39,7 @@ class CommandHelpersTest < Test::Unit::TestCase
 
     context "without multivm" do
       setup do
-        @env.stubs(:vms).returns({ :one => 1, :two => 2 })
+        @env.stubs(:vms_enum => [1, 2], :vms => {:one => 1, :two => 2})
       end
 
       should "raise an exception if a name is specified" do
@@ -59,7 +59,7 @@ class CommandHelpersTest < Test::Unit::TestCase
 
     context "with multivm" do
       setup do
-        @env.stubs(:vms).returns(:one => 1, :two => 2)
+        @env.stubs(:vms_enum => [1, 2], :vms => {:one => 1, :two => 2})
       end
 
       should "return all the VMs if no name is specified" do
