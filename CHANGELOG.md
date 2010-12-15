@@ -3,6 +3,8 @@
   - Puppet provisioner. [GH-223]
   - Solaris system configurable to use `sudo`.
   - Solaris system registered, so it can be set with `:solaris`.
+  - `vagrant package` include can be a directory name, which will cause the
+    contents to be recursively copied into the package. [GH-241]
 
 ## 0.6.8 (November 30, 2010)
 
