@@ -64,11 +64,13 @@ module Vagrant
          return @manifest
        else
          raise PuppetError.new(:_key => :manifest_missing, :manifest => @manifest)
-      end 
-    end 
+      end
+    end
 
     def run_puppet_client
-      command = "cd #{env.config.puppet.pp_path} && sudo -E puppet #{env.config.puppet.options.join(" ")} #{@manifest}"
+      options = env.config.puppet.options
+      options = options.join(" ") if options.is_a?(Array)
+      command = "cd #{env.config.puppet.pp_path} && sudo -E puppet #{options} #{@manifest}"
 
       env.ui.info I18n.t("vagrant.provisioners.puppet.running_puppet")
 

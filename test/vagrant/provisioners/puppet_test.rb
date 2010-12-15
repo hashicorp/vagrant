@@ -29,7 +29,7 @@ class PuppetProvisionerTest < Test::Unit::TestCase
   end
 
   context "check manifest_dir" do
-    setup do 
+    setup do
       @env.config.puppet.manifests_path = "manifests"
     end
 
@@ -44,7 +44,7 @@ class PuppetProvisionerTest < Test::Unit::TestCase
       @action.check_manifest_dir
     end
   end
-  
+
   context "share manifests folder" do
     setup do
       @manifests_path = "manifests"
@@ -94,7 +94,7 @@ class PuppetProvisionerTest < Test::Unit::TestCase
       File.stubs(:exists?).with("#{@env.config.puppet.manifests_path}/#{@env.config.puppet.manifest_file}").returns(true)
       @action.set_manifest
     end
-  
+
     should "raise an error if the manifest does not exist" do
       File.stubs(:exists?).with("#{@env.config.puppet.manifests_path}/#{@env.config.puppet.manifest_file}").returns(false)
       assert_raises(Vagrant::Provisioners::PuppetError) {
@@ -114,8 +114,14 @@ class PuppetProvisionerTest < Test::Unit::TestCase
       @action.run_puppet_client
     end
 
-    should "cd into the pp_path directory and run puppet with given options" do
+    should "cd into the pp_path directory and run puppet with given options when given as an array" do
       @env.config.puppet.options = ["--modulepath", "modules", "--verbose"]
+      @ssh.expects(:exec!).with("cd #{@env.config.puppet.pp_path} && sudo -E puppet --modulepath modules --verbose #{@manifest}").once
+      @action.run_puppet_client
+    end
+
+    should "cd into the pp_path directory and run puppet with the options when given as a string" do
+      @env.config.puppet.options = "--modulepath modules --verbose"
       @ssh.expects(:exec!).with("cd #{@env.config.puppet.pp_path} && sudo -E puppet --modulepath modules --verbose #{@manifest}").once
       @action.run_puppet_client
     end
