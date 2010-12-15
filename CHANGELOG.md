@@ -6,6 +6,7 @@
   - `vagrant package` include can be a directory name, which will cause the
     contents to be recursively copied into the package. [GH-241]
   - Arbitrary options to puppet binary can be set with `config.puppet.options`. [GH-242]
+  - BSD hosts use proper GNU sed syntax for clearing NFS shares. [GH-243]
 
 ## 0.6.8 (November 30, 2010)
 
