@@ -62,27 +62,39 @@ module Vagrant
         end
       end
 
-      def prepare_host_only_network
+      def prepare_host_only_network(net_options)
         # Remove any previous host only network additions to the
         # interface file.
         vm.ssh.execute do |ssh|
-          # Verify debian/ubuntu
-          ssh.exec!("cat /etc/debian_version", :error_class => LinuxError, :_key => :network_not_debian)
-
-          # Clear out any previous entries
-          ssh.exec!("sudo sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/network/interfaces > /tmp/vagrant-network-interfaces")
-          ssh.exec!("sudo su -c 'cat /tmp/vagrant-network-interfaces > /etc/network/interfaces'")
+          case distribution(ssh)
+            when :debian
+              # Clear out any previous entries
+              ssh.exec!("sudo sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/network/interfaces > /tmp/vagrant-network-interfaces")
+              ssh.exec!("sudo su -c 'cat /tmp/vagrant-network-interfaces > /etc/network/interfaces'")
+            when :redhat
+              ssh.exec!("sudo sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/sysconfig/network-scripts/ifcfg-eth#{net_options[:adapter]} > /tmp/vagrant-ifcfg-eth#{net_options[:adapter]}")
+              ssh.exec!("sudo su -c 'cat /tmp/vagrant-ifcfg-eth#{net_options[:adapter]} > /etc/sysconfig/network-scripts/ifcfg-eth#{net_options[:adapter]}'")
+          end
         end
       end
 
       def enable_host_only_network(net_options)
-        entry = TemplateRenderer.render('network_entry', :net_options => net_options)
-        vm.ssh.upload!(StringIO.new(entry), "/tmp/vagrant-network-entry")
+         vm.ssh.execute do |ssh|
+          case distribution(ssh)
+            when :debian
+              entry = TemplateRenderer.render('debian_network_entry', :net_options => net_options)
+              vm.ssh.upload!(StringIO.new(entry), "/tmp/vagrant-network-entry")
+              ssh.exec!("sudo /sbin/ifdown eth#{net_options[:adapter]} 2> /dev/null")
+              ssh.exec!("sudo su -c 'cat /tmp/vagrant-network-entry >> /etc/network/interfaces'")
+              ssh.exec!("sudo /sbin/ifup eth#{net_options[:adapter]}")
 
-        vm.ssh.execute do |ssh|
-          ssh.exec!("sudo /sbin/ifdown eth#{net_options[:adapter]} 2> /dev/null")
-          ssh.exec!("sudo su -c 'cat /tmp/vagrant-network-entry >> /etc/network/interfaces'")
-          ssh.exec!("sudo /sbin/ifup eth#{net_options[:adapter]}")
+            when :redhat
+              entry = TemplateRenderer.render('redhat_network_entry', :net_options => net_options)
+              vm.ssh.upload!(StringIO.new(entry), "/tmp/vagrant-network-entry")
+              ssh.exec!("sudo /sbin/ifdown eth#{net_options[:adapter]} 2> /dev/null")
+              ssh.exec!("sudo su -c 'cat /tmp/vagrant-network-entry >> /etc/sysconfig/network-scripts/ifcfg-eth#{net_options[:adapter]}'")
+              ssh.exec!("sudo /sbin/ifup eth#{net_options[:adapter]}")
+          end
         end
       end
 
@@ -108,6 +120,30 @@ module Vagrant
           attempts += 1
           raise LinuxError.new(:mount_fail) if attempts >= 10
           sleep sleeptime
+        end
+      end
+      
+      def debian?(ssh)
+        ssh.exec!("test -e /etc/debian_version") do |ch, type, data|
+          return true if type == :exit_status && data == 0
+        end
+        false
+      end
+
+      def redhat?(ssh)
+        ssh.exec!("test -e /etc/redhat-release ") do |ch, type, data|
+          return true if type == :exit_status && data == 0
+        end
+        false
+      end
+
+      def distribution(ssh)
+        if debian?(ssh)
+          :debian
+        elsif redhat?(ssh)
+          :redhat
+        else
+          raise LinuxError.new(:distribution_not_supported)
         end
       end
     end
