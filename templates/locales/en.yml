@@ -16,6 +16,9 @@ en:
       puppet_not_detected: |-
         The `puppet` binary was not found on the VM and is required for Puppet provisioning.
         Please verify that Puppet is installed and that the binary is available on the PATH.
+      puppetd_not_detected: |-
+        The `puppetd` binary was not found on the VM is required for Puppet Server provisioning.
+        Please verify that Puppet is installed and that the binary is available on the PATH.
       cli_missing_env: This command requires that a Vagrant environment be properly passed in as the last parameter.
       config_validation: |-
         There was a problem with the configuration of Vagrant. The error message(s)
@@ -452,6 +455,14 @@ en:
         running_puppet: "Running Puppet..."
         manifest_to_run: "Puppet will use the %{manifest} manifest to configure your box."
         manifest_missing: "The Puppet %{manifest} manifest is missing. You cannot configure this box."
+
+      puppet_server:
+        not_detected: |-
+          The `%{binary}` binary appears to not be in the PATH of the guest. This
+          could be because the PATH is not properly setup or perhaps Puppet is not 
+          installed on this guest. Puppet provisioning can not continue without
+          Puppet properly installed.
+        running_puppetd: "Running Puppet agent..."
 
     systems:
       linux:
