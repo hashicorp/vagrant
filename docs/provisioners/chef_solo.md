@@ -44,8 +44,9 @@ end
   <h3>Multiple Cookbook Paths</h3>
   <p>
     You can also specify multiple cookbook paths by making the configuration an
-    array of file paths. Every file path will be expanded relative to the project
-    directory, and chef solo will then look in every directory for the cookbooks.
+    array of file paths. Note that the working directory while running Vagrant will always
+    be the directory which contains the Vagrantfile, therefore file paths will always
+    be expanded relative to that working directory.
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
