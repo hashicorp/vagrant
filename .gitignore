@@ -10,3 +10,4 @@ _site/*
 .yardoc/
 doc/
 tags
+Gemfile.lock
