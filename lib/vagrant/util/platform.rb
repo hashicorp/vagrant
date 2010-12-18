@@ -1,3 +1,4 @@
+require 'rbconfig'
 require 'mario'
 
 module Vagrant
@@ -33,7 +34,7 @@ module Vagrant
         end
 
         def platform
-          RUBY_PLATFORM.to_s.downcase
+          ::Config::CONFIG["host_os"].downcase
         end
       end
     end
