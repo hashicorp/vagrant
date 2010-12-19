@@ -34,8 +34,18 @@ To install the 64-bit version of JRuby, follow the steps below:
 
 ## Install Vagrant
 
-Once JRuby is install, everything from this point is normal. All normal
-Ruby commands are prefixed with a `j` however, so to install Vagrant:
+Once JRuby is installed, everything from this point is pretty normal.
+Ruby commands are prefixed with a `j`, which is one of the only differences.
+
+On JRuby, a couple libraries which Vagrant depends on aren't installed
+out of the box with JRuby, and must be installed manually. These libraries
+are `jruby-openssl` and `jruby-win32ole`:
+
+{% highlight bash %}
+$ jgem install jruby-openssl jruby-win32ole
+{% endhighlight %}
+
+After this, Vagrant installation proceeds as normal:
 
 {% highlight bash %}
 $ jgem install vagrant
