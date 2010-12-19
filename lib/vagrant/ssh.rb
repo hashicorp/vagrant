@@ -1,3 +1,4 @@
+require 'timeout'
 require 'net/ssh'
 require 'net/scp'
 require 'mario'
@@ -92,21 +93,16 @@ module Vagrant
     #
     # @return [Boolean]
     def up?
-      check_thread = Thread.new do
-        begin
-          Thread.current[:result] = false
-          execute(:timeout => env.config.ssh.timeout) do |ssh|
-            Thread.current[:result] = true
-          end
-        rescue Errno::ECONNREFUSED, Net::SSH::Disconnect, Errors::SSHConnectionRefused
-          # False, its defaulted above
-        end
+      Timeout.timeout(env.config.ssh.timeout) do
+        execute(:timeout => env.config.ssh.timeout) { |ssh| }
       end
 
-      check_thread.join(env.config.ssh.timeout)
-      return check_thread[:result]
+      true
     rescue Net::SSH::AuthenticationFailed
       raise Errors::SSHAuthenticationFailed.new
+    rescue Timeout::Error, Errno::ECONNREFUSED, Net::SSH::Disconnect,
+           Errors::SSHConnectionRefused, Net::SSH::AuthenticationFailed
+      return false
     end
 
     # Checks the file permissions for the private key, resetting them
