@@ -61,12 +61,12 @@ module Vagrant
       # Merge in any additional options
       opts = opts.dup
       opts[:forward_agent] = true if env.config.ssh.forward_agent
+      opts[:port] ||= port
 
       retryable(:tries => 5, :on => Errno::ECONNREFUSED) do
         Net::SSH.start(env.config.ssh.host,
                        env.config.ssh.username,
-                       opts.merge( :port => port,
-                                   :keys => [env.config.ssh.private_key_path],
+                       opts.merge( :keys => [env.config.ssh.private_key_path],
                                    :user_known_hosts_file => [],
                                    :paranoid => false,
                                    :config => false)) do |ssh|
@@ -93,8 +93,14 @@ module Vagrant
     #
     # @return [Boolean]
     def up?
+      # We have to determine the port outside of the block since it uses
+      # API calls which can only be used from the main thread in JRuby on
+      # Windows
+      ssh_port = port
+
       Timeout.timeout(env.config.ssh.timeout) do
-        execute(:timeout => env.config.ssh.timeout) { |ssh| }
+        execute(:timeout => env.config.ssh.timeout,
+                :port => ssh_port) { |ssh| }
       end
 
       true
