@@ -70,7 +70,7 @@ en:
 
         For a more detailed guide please consult:
 
-          http://vagrantup.com/docs/getting-started/windows.
+          http://vagrantup.com/docs/getting-started/windows
 
       system:
         invalid_class: |-
@@ -112,7 +112,8 @@ en:
         information on how to set this up and how to verify it is properly setup,
         please view the guide online at:
 
-        URL TODO
+          http://vagrantup.com/docs/getting-started/setup/windows_x64.html
+
       vm_creation_required: "VM must be created before running this command. Run `vagrant up` first."
       vm_not_found: "A VM by the name of %{name} was not found."
       vm_not_running: "VM must be running to open SSH connection."
