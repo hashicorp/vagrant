@@ -33,7 +33,7 @@ module Vagrant
         #
         # @return [Boolean]
         def bit64?
-          ["x86_64", "amd64"].include?(::Config::CONFIG["host_cpu"])
+          ["x86_64", "amd64"].include?(RbConfig::CONFIG["host_cpu"])
         end
 
         # Returns boolean noting whether this is a 32-bit CPU. This
@@ -50,7 +50,7 @@ module Vagrant
         end
 
         def platform
-          ::Config::CONFIG["host_os"].downcase
+          RbConfig::CONFIG["host_os"].downcase
         end
       end
     end
