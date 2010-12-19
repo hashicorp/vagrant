@@ -7,10 +7,11 @@ title: Getting Started - Setting up Windows
 <div class="info">
   <h3>64-bit Windows Users!</h3>
   <p>
-    Due to a bug in the standard Ruby interpreter for Windows, Vagrant currently doesn't
-    work on 64-bit Windows. Work is underway on getting this to work, but in the meantime,
-    there are no other options other than to run 32-bit Windows. We apologize for the
-    inconvenience!
+    To run Vagrant on 64-bit Windows, you must use <a href="http://jruby.org">JRuby</a>,
+    since standard Ruby has a bug which causes Vagrant to not work.
+    There is a <a href="/docs/getting-started/setup/windows_x64.html">complete page
+    dedicated to setting up Vagrant on 64-bit windows</a>, so please
+    read that to get going.
   </p>
 </div>
 
