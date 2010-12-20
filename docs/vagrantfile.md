@@ -195,7 +195,7 @@ to provision virtual environments. These are built-in provisioners which include
 The settings below only have an effect if chef solo is used as the provisioner. Chef solo
 provisioning can be enabled by setting `provisioner` to `:chef_solo`.
 
-`config.chef.cooksbooks_path` represents the cookbooks path on your host machine located relative to your project directory. Vagrant will expand whatever path you
+`config.chef.cookbooks_path` represents the cookbooks path on your host machine located relative to your project directory. Vagrant will expand whatever path you
 place in this configuration option and use those cookbooks during provisioning. This value can also be an array of paths, which will cause
 chef to look through all specified directories for the necessary cookbooks.
 
