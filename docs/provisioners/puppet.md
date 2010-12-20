@@ -22,7 +22,7 @@ Vagrantfile configuration file, for example:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.manifests_path = "puppetmanifests"
+  config.puppet.manifests_path = "puppetmanifests"
   config.puppet.manifest_file = "newbox.pp"
   end
   {% endhighlight %}
