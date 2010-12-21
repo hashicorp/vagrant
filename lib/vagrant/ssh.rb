@@ -1,3 +1,4 @@
+require 'timeout'
 require 'net/ssh'
 require 'net/scp'
 require 'mario'
@@ -60,12 +61,12 @@ module Vagrant
       # Merge in any additional options
       opts = opts.dup
       opts[:forward_agent] = true if env.config.ssh.forward_agent
+      opts[:port] ||= port
 
       retryable(:tries => 5, :on => Errno::ECONNREFUSED) do
         Net::SSH.start(env.config.ssh.host,
                        env.config.ssh.username,
-                       opts.merge( :port => port,
-                                   :keys => [env.config.ssh.private_key_path],
+                       opts.merge( :keys => [env.config.ssh.private_key_path],
                                    :user_known_hosts_file => [],
                                    :paranoid => false,
                                    :config => false)) do |ssh|
@@ -92,21 +93,22 @@ module Vagrant
     #
     # @return [Boolean]
     def up?
-      check_thread = Thread.new do
-        begin
-          Thread.current[:result] = false
-          execute(:timeout => env.config.ssh.timeout) do |ssh|
-            Thread.current[:result] = true
-          end
-        rescue Errno::ECONNREFUSED, Net::SSH::Disconnect, Errors::SSHConnectionRefused
-          # False, its defaulted above
-        end
+      # We have to determine the port outside of the block since it uses
+      # API calls which can only be used from the main thread in JRuby on
+      # Windows
+      ssh_port = port
+
+      Timeout.timeout(env.config.ssh.timeout) do
+        execute(:timeout => env.config.ssh.timeout,
+                :port => ssh_port) { |ssh| }
       end
 
-      check_thread.join(env.config.ssh.timeout)
-      return check_thread[:result]
+      true
     rescue Net::SSH::AuthenticationFailed
       raise Errors::SSHAuthenticationFailed.new
+    rescue Timeout::Error, Errno::ECONNREFUSED, Net::SSH::Disconnect,
+           Errors::SSHConnectionRefused, Net::SSH::AuthenticationFailed
+      return false
     end
 
     # Checks the file permissions for the private key, resetting them

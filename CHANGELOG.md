@@ -8,6 +8,8 @@
   - Arbitrary options to puppet binary can be set with `config.puppet.options`. [GH-242]
   - BSD hosts use proper GNU sed syntax for clearing NFS shares. [GH-243]
   - Enumerate VMs in a multi-VM environment in order they were defined. [GH-244]
+  - Check for VM boot changed to use `timeout` library, which works better with Windows.
+  - Show special error if VirtualBox not detected on 64-bit Windows.
 
 ## 0.6.8 (November 30, 2010)
 

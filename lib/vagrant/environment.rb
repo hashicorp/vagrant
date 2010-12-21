@@ -34,6 +34,14 @@ module Vagrant
         raise Errors::VirtualBoxNotDetected.new if version.nil?
         raise Errors::VirtualBoxInvalidVersion.new(:version => version.to_s) if version.to_f < 3.2
         raise Errors::VirtualBoxInvalidOSE.new(:version => version.to_s) if version.to_s.downcase.include?("ose")
+      rescue Errors::VirtualBoxNotDetected
+        # On 64-bit Windows, show a special error. This error is a subclass
+        # of VirtualBoxNotDetected, so libraries which use Vagrant can just
+        # rescue VirtualBoxNotDetected.
+        raise Errors::VirtualBoxNotDetected_Win64 if Util::Platform.windows? && Util::Platform.bit64?
+
+        # Otherwise, reraise the old error
+        raise
       end
     end
 
