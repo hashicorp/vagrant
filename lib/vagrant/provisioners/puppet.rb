@@ -22,7 +22,6 @@ module Vagrant
   end
 
   class Puppet < Base
-
     def prepare
       check_manifest_dir
       share_manifests
@@ -81,7 +80,6 @@ module Vagrant
         end
       end
     end
-
   end
  end
 end
