@@ -18,7 +18,7 @@ and [chef server](http://wiki.opscode.com/display/chef/Chef+Server), or [Puppet]
 also [extend vagrant](/docs/provisioners/others.html) to support more provisioners, but this is an advanced topic
 which we won't cover here.
 
-For our basic HTML website, we're going to show you how to use both Chef or Pupept provisioning to setup Apache
+For our basic HTML website, we're going to show you how to use both Chef or Puppet provisioning to setup Apache
 to serve the website. Note that you should choose which you want to try,
 or try both, but be sure to `destroy` and `up` your VM in between tries
 so you start with a clean slate.
