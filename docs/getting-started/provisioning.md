@@ -19,7 +19,7 @@ also [extend vagrant](/docs/provisioners/others.html) to support more provisione
 which we won't cover here.
 
 For our basic HTML website, we're going to show you how to use both Chef or Puppet provisioning to setup Apache
-to serve the website. Note that you should choose which you want to try,
+to serve the website. Note that you should choose which you want to try (either Chef or Puppet),
 or try both, but be sure to `destroy` and `up` your VM in between tries
 so you start with a clean slate.
 
