@@ -304,14 +304,19 @@ en:
             This will cause your specified IP to be inaccessible. Please change
             the IP or name of your host only network to not match that of
             a bridged or non-hostonly network.
-          creating: Creating new host only network for environment...
-          enabling: Enabling host only network...
+          creating: "Creating new host only network for environment..."
+          enabling: "Enabling host only network..."
           not_found: |-
             The specified host network could not be found: '%{name}.'
             If the name specification is removed, Vagrant will create a new
             host only network for you. Alternatively, please create the
             specified network manually.
-          preparing: Preparing host only network...
+          preparing: "Preparing host only network..."
+          windows_not_implemented: |-
+            Host only networking is currently broken on Windows due to a bug
+            in jruby-win32ole. When the bug is fixed, a patch release for Vagrant
+            will be released to remove this error. Until then, please just use
+            forwarded ports.
         nfs:
           host_required: |-
             A host class is required for NFS shared folders. By default, these

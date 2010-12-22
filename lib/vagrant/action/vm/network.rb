@@ -8,6 +8,10 @@ module Vagrant
           @app = app
           @env = env
 
+          if enable_network? && Util::Platform.windows?
+            raise Errors::NetworkNotImplemented
+          end
+
           env["config"].vm.network_options.compact.each do |network_options|
             raise Errors::NetworkCollision.new if !verify_no_bridge_collision(network_options)
           end
