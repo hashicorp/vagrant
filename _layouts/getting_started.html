@@ -64,5 +64,12 @@
     </div>
     <div class="grid_9 omega guide">
       {{ content }}
+      {% if page.previous_url and page.previous %}
+      <a href="{{ page.previous_url }}">&larr; {{ page.previous }}</a> &middot;
+      {% endif %}
+      {{ page.current }}
+      {% if page.next_url and page.next %}
+      &middot; <a href="{{ page.next_url }}">{{ page.next }} &rarr;</a>
+      {% endif %}
     </div>
 {% include footer.html %}

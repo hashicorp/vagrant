@@ -1,6 +1,10 @@
 ---
 layout: getting_started
 title: Getting Started
+
+current: Overview
+next: Why Vagrant?
+next_url: /docs/getting-started/why.html
 ---
 # Getting Started with Vagrant
 
@@ -72,5 +76,3 @@ any Vagrant environment, the above is all any developer will need to create
 their development environment! Note that the above snippet does actually
 create a fully functional 512MB virtual machine running Ubuntu in the
 background, although the machine doesn't do much in this state.
-
-Overview &middot; [Why Vagrant? &rarr;](/docs/getting-started/why.html)
