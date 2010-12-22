@@ -1,3 +1,7 @@
+## 0.6.10 (unreleased)
+
+
+
 ## 0.6.9 (December 21, 2010)
 
   - Puppet provisioner. [GH-223]
