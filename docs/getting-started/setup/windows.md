@@ -5,18 +5,14 @@ title: Getting Started - Setting up Windows
 # Windows
 
 <div class="info">
-  <h3>Windows Support</h3>
+  <h3>64-bit Windows Users!</h3>
   <p>
-    Windows support is a recent addition to vagrant so if you do experience trouble
-    or find this section hard to follow, please see the <a href='/support.html'>support page</a>
-    and let us know so we can help you. Our goal is to make Vagrant the best tool
-    for the job on as many platforms as possible.
+    To run Vagrant on 64-bit Windows, you must use <a href="http://jruby.org">JRuby</a>,
+    since standard Ruby has a bug which causes Vagrant to not work.
+    There is a <a href="/docs/getting-started/setup/windows_x64.html">complete page
+    dedicated to setting up Vagrant on 64-bit windows</a>, so please
+    read that to get going.
   </p>
-  <p>
-    All Windows testing has been performed from the vanilla Windows XP command prompt. Cygwin support
-    is planned but Vista and Windows 7 testing will have to be a community effort. If you are interested
-    in testing the latest updates please checkout the <a href='http://github.com/mitchellh/vagrant'>github page</a>.
-   </p>
 </div>
 
 ## Install Ruby and Vagrant

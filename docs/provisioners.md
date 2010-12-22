@@ -6,9 +6,9 @@ title: Documentation - Provisioners
 
 Vagrant supports provisioning a project's VM through the use of _provisioners_,
 since spinning up a blank virtual machine is not very useful! The provisioners
-supported out-of-the-box with a Vagrant installation are: [Chef Solo](/docs/provisioners/chef_solo.html) and
-[Chef Server](/docs/provisioners/chef_server.html). These provisioners allow
-you to easily setup your virtual machine with everything it needs to run as
+supported out-of-the-box with a Vagrant installation are: [Chef Solo](/docs/provisioners/chef_solo.html), 
+[Chef Server](/docs/provisioners/chef_server.html), and [Puppet](/docs/provisioners/puppet.html). 
+These provisioners allow you to easily setup your virtual machine with everything it needs to run as
 a proper server (whether it be a web server, database server, utility server,
 or all those things combined).
 
@@ -33,6 +33,9 @@ what is right for you.
   manage many projects, since it allows you to share cookbooks across multiple
   projects. The cookbooks themselves are stored on the server, and the client
   downloads the cookbooks upon running.
-* **Puppet, shell scripts, etc.** - Do you use something other than that which
+* **Puppet** - The Puppet provisioners runs stand-alone Puppet manifests that are 
+  stored on the server and downloaded to the client VM when it is created.  The
+  provisioner does not require a Puppet server and runs on the VM itself.
+* **Other tools, shell scripts, etc.** - Do you use something other than that which
   is built into Vagrant? Provisioners are simply subclasses of `Vagrant::Provisioners::Base`,
   meaning you can easily build your own, should the need arise.

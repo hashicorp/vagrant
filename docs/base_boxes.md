@@ -22,8 +22,8 @@ requirements of a base box are as follows:
 
 * VirtualBox Guest Additions for shared folders, port forwarding, etc.
 * SSH with key-based auth support for the vagrant user
-* Ruby & RubyGems to install Chef
-* Chef for provisioning support
+* Ruby & RubyGems to install Chef and Puppet
+* Chef and Puppet for provisioning support
 
 The above are absolutely _required_ of a base box in order to work properly with Vagrant.
 The versions of those requirements however are up to you, as long as they are working properly.
@@ -183,6 +183,7 @@ We need to setup the software Vagrant relies on. The _required_ software is list
 
 * **Ruby** - Use the dev package so mkmf is present for Chef to compile
 * **RubyGems** - To install the Chef gem
+* **Puppet** - To install Puppet
 * **Chef** gem - For provisioning support (gem install chef)
 * **SSH**
 

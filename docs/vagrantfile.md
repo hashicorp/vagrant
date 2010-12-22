@@ -195,7 +195,7 @@ to provision virtual environments. These are built-in provisioners which include
 The settings below only have an effect if chef solo is used as the provisioner. Chef solo
 provisioning can be enabled by setting `provisioner` to `:chef_solo`.
 
-`config.chef.cooksbooks_path` represents the cookbooks path on your host machine located relative to your project directory. Vagrant will expand whatever path you
+`config.chef.cookbooks_path` represents the cookbooks path on your host machine located relative to your project directory. Vagrant will expand whatever path you
 place in this configuration option and use those cookbooks during provisioning. This value can also be an array of paths, which will cause
 chef to look through all specified directories for the necessary cookbooks.
 
@@ -265,3 +265,15 @@ config.chef.run_list = ["recipe[foo]", "recipe[bar]"]
 config.chef.add_recipe("foo")
 config.chef.add_role("bar")
 {% endhighlight %}
+
+## config.puppet
+
+Vagrant can use [Puppet](http://www.puppetlabs.com/puppet) to provision virtual environments. This is a built-in provisioners which
+includes its own configuration.
+
+The settings below only have an effect if Puppet is used as the provisioner. Puppet
+provisioning can be enabled by setting `provisioner` to `:puppet`.
+
+`config.puppet.manifest_path` represents the manifests path on your host machine located relative to your project directory. Vagrant will expand whatever path you place in this configuration option and use those manifests during provisioning.
+
+`config.puppet.pp_path` represents the path for your manifests on the virtual machine, it defaults to `/tmp/vagrant-puppet`.
