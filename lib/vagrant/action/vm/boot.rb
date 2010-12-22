@@ -12,7 +12,7 @@ module Vagrant
 
           # Start up the VM and wait for it to boot.
           boot
-          raise Errors::VMFailedToBoot.new if !wait_for_boot
+          raise Errors::VMFailedToBoot if !wait_for_boot
           @app.call(env)
         end
 

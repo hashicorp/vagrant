@@ -37,7 +37,7 @@ module Vagrant
         end
 
         def setup_box_directory
-          raise Errors::BoxAlreadyExists.new(:name => @env["box"].name) if File.directory?(@env["box"].directory)
+          raise Errors::BoxAlreadyExists, :name => @env["box"].name if File.directory?(@env["box"].directory)
 
           FileUtils.mkdir_p(@env["box"].directory)
           @box_directory = @env["box"].directory

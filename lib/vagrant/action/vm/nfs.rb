@@ -147,9 +147,9 @@ module Vagrant
 
         # Verifies that the host is set and supports NFS.
         def verify_settings
-          raise Errors::NFSHostRequired.new if @env["host"].nil?
-          raise Errors::NFSNotSupported.new if !@env["host"].nfs?
-          raise Errors::NFSNoHostNetwork.new if @env["config"].vm.network_options.empty?
+          raise Errors::NFSHostRequired if @env["host"].nil?
+          raise Errors::NFSNotSupported if !@env["host"].nfs?
+          raise Errors::NFSNoHostNetwork if @env["config"].vm.network_options.empty?
         end
       end
     end

@@ -23,11 +23,11 @@ module Vagrant
     # of options which override the configuration values.
     def connect(opts={})
       if Mario::Platform.windows?
-        raise Errors::SSHUnavailableWindows.new(:key_path => env.config.ssh.private_key_path,
-                                                :ssh_port => port(opts))
+        raise Errors::SSHUnavailableWindows, :key_path => env.config.ssh.private_key_path,
+                                             :ssh_port => port(opts)
       end
 
-      raise Errors::SSHUnavailable.new if !Kernel.system("which ssh > /dev/null 2>&1")
+      raise Errors::SSHUnavailable if !Kernel.system("which ssh > /dev/null 2>&1")
 
       options = {}
       options[:port] = port(opts)
@@ -74,7 +74,7 @@ module Vagrant
         end
       end
     rescue Errno::ECONNREFUSED
-      raise Errors::SSHConnectionRefused.new
+      raise Errors::SSHConnectionRefused
     end
 
     # Uploads a file from `from` to `to`. `from` is expected to be a filename
@@ -105,7 +105,7 @@ module Vagrant
 
       true
     rescue Net::SSH::AuthenticationFailed
-      raise Errors::SSHAuthenticationFailed.new
+      raise Errors::SSHAuthenticationFailed
     rescue Timeout::Error, Errno::ECONNREFUSED, Net::SSH::Disconnect,
            Errors::SSHConnectionRefused, Net::SSH::AuthenticationFailed
       return false
@@ -122,12 +122,12 @@ module Vagrant
       if stat.owned? && file_perms(key_path) != "600"
         File.chmod(0600, key_path)
 
-        raise Errors::SSHKeyBadPermissions.new(:key_path => key_path) if file_perms(key_path) != "600"
+        raise Errors::SSHKeyBadPermissions, :key_path => key_path if file_perms(key_path) != "600"
       end
     rescue Errno::EPERM
       # This shouldn't happen since we verify we own the file, but just
       # in case.
-      raise Errors::SSHKeyBadPermissions.new(:key_path => key_path)
+      raise Errors::SSHKeyBadPermissions, :key_path => key_path
     end
 
     # Returns the file permissions of a given file. This is fairly unix specific
@@ -229,7 +229,7 @@ module Vagrant
             :command => command
           }.merge(options || {})
 
-          raise options[:_error_class].new(options)
+          raise options[:_error_class], options
         end
       end
     end

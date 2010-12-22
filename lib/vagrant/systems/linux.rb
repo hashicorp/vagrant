@@ -106,7 +106,7 @@ module Vagrant
           break unless result
 
           attempts += 1
-          raise LinuxError.new(:mount_fail) if attempts >= 10
+          raise LinuxError, :mount_fail if attempts >= 10
           sleep sleeptime
         end
       end

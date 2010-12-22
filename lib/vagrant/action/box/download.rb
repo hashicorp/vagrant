@@ -33,7 +33,7 @@ module Vagrant
             end
           end
 
-          raise Errors::BoxDownloadUnknownType.new if !@downloader
+          raise Errors::BoxDownloadUnknownType if !@downloader
 
           @downloader.prepare(@env["box"].uri)
           true

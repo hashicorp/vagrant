@@ -94,7 +94,7 @@ module Vagrant
       callable = callable_id
       callable = Builder.new.use(callable_id) if callable_id.kind_of?(Class)
       callable = self.class.actions[callable_id] if callable_id.kind_of?(Symbol)
-      raise ArgumentError.new("Argument to run must be a callable object or registered action.") if !callable || !callable.respond_to?(:call)
+      raise ArgumentError, "Argument to run must be a callable object or registered action." if !callable || !callable.respond_to?(:call)
 
       action_environment = Action::Environment.new(env)
       action_environment.merge!(options || {})

@@ -13,7 +13,7 @@ module Vagrant
           end
 
           env["config"].vm.network_options.compact.each do |network_options|
-            raise Errors::NetworkCollision.new if !verify_no_bridge_collision(network_options)
+            raise Errors::NetworkCollision if !verify_no_bridge_collision(network_options)
           end
         end
 
@@ -87,7 +87,7 @@ module Vagrant
             end
           end
 
-          raise Errors::NetworkNotFound.new(:name => net_options[:name]) if net_options[:name]
+          raise Errors::NetworkNotFound, :name => net_options[:name] if net_options[:name]
 
           # One doesn't exist, create it.
           @env.ui.info I18n.t("vagrant.actions.vm.network.creating")

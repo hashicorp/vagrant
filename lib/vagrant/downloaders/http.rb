@@ -48,7 +48,7 @@ module Vagrant
           end
         end
       rescue SocketError
-        raise Errors::DownloaderHTTPSocketError.new
+        raise Errors::DownloaderHTTPSocketError
       end
     end
   end
