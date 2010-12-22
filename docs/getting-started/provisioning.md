@@ -18,8 +18,10 @@ and [chef server](http://wiki.opscode.com/display/chef/Chef+Server), or [Puppet]
 also [extend vagrant](/docs/provisioners/others.html) to support more provisioners, but this is an advanced topic
 which we won't cover here.
 
-For our basic HTML website, we're going to show you how to use both chef and Pupept provisioning to setup Apache
-to serve the website.
+For our basic HTML website, we're going to show you how to use both Chef or Pupept provisioning to setup Apache
+to serve the website. Note that you should choose which you want to try,
+or try both, but be sure to `destroy` and `up` your VM in between tries
+so you start with a clean slate.
 
 ## Configuring Chef and the Vagrant
 
@@ -50,20 +52,18 @@ details on this can be found in the [chef solo documentation](/docs/provisioners
 
 ## Configuring Puppet and the Vagrant
 
-Alternatively, you can use Puppet to configure Apache.  To do this we create a directory called `manifests` 
+Alternatively, you can use Puppet to configure Apache.  To do this we create a directory called `manifests`
 (in the root where your Vagrantfile is located) and create a file to hold our Puppet configuration, for example `lucid.pp`.
 
-Note both the path and file name are configurable but Vagrant will default to `manifests/vm.box.pp` where vm.box is the name 
+Note both the path and file name are configurable but Vagrant will default to `manifests/vm.box.pp` where vm.box is the name
 of the box being configured.
 
 The manifest file will contain the required Puppet configuration, for example:
 
 {% highlight ruby %}
 # Basic Puppet Apache manifest
-#
 
 class lucid32 {
-
   package { "apache2":
     ensure => present,
   }
@@ -85,6 +85,7 @@ Vagrant::Config.run do |config|
 
   # Enable the Puppet provisioner
   config.vm.provisioner = :puppet
+end
 {% endhighlight %}
 
 ## Running it!

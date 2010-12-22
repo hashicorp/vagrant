@@ -4,7 +4,7 @@ title: Documentation - Provisioners - Puppet
 ---
 # Puppet Provisioning
 
-[Puppet](http://www.puppetlabs.com/puppet) allows you to provision your virtual machines with Puppet manifests.  It 
+[Puppet](http://www.puppetlabs.com/puppet) allows you to provision your virtual machines with Puppet manifests.  It
 runs in a stand-alone mode that doesn't require a Puppet server.
 
 This page will not go into the details of creating Puppet manifests, since that
@@ -14,18 +14,18 @@ is covered in detail around the web, but a good place to start is the [Puppet La
 
 First, Vagrant needs to know where the Puppet manifests are located. By default, Vagrant will
 look in the `manifests` directory relative to the root of the project directory (where
-the project's Vagrantfile is located). The `manifests` should contain a file for each box to be configured, 
-the default assumes a file named after the value of config.vm.box option: 
+the project's Vagrantfile is located). The `manifests` should contain a file for each box to be configured,
+the default assumes a file named after the value of config.vm.box option:
 
-Both the file and path can be configured using the `manifest_file` and `manifests_path` options in your 
+Both the file and path can be configured using the `manifest_file` and `manifests_path` options in your
 Vagrantfile configuration file, for example:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
   config.puppet.manifests_path = "puppetmanifests"
   config.puppet.manifest_file = "newbox.pp"
-  end
-  {% endhighlight %}
+end
+{% endhighlight %}
 
 ## Configuring the manifests
 
@@ -33,10 +33,8 @@ Creating a basic manifest is simple, for example:
 
 {% highlight ruby %}
 # Basic Puppet manifests
-#
 
 class lucid32 {
-
   package { "apache2":
     ensure => present,
   }
