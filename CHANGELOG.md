@@ -1,4 +1,4 @@
-## 0.6.9 (unreleased)
+## 0.6.9 (December 21, 2010)
 
   - Puppet provisioner. [GH-223]
   - Solaris system configurable to use `sudo`.
