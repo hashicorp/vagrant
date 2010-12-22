@@ -1,6 +1,12 @@
 ---
 layout: getting_started
 title: Getting Started - Project Setup
+
+current: Project Setup
+previous: Introduction
+previous_url: /docs/getting-started/introduction.html
+next: Boxes
+next_url: /docs/getting-started/boxes.html
 ---
 # Project Setup
 
@@ -50,5 +56,3 @@ in pre-existing project folders.
     with other types of web projects.
   </p>
 </div>
-
-[&larr; Introduction](/docs/getting-started/introduction.html) &middot; Project Setup &middot; [Boxes &rarr;](/docs/getting-started/boxes.html)

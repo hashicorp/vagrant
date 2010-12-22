@@ -1,6 +1,12 @@
 ---
 layout: getting_started
 title: Getting Started - Port Forwarding
+
+current: Port Forwarding
+previous: Provisioning
+previous_url: /docs/getting-started/provisioning.html
+next: Packaging
+next_url: /docs/getting-started/packaging.html
 ---
 # Port Forwarding
 
@@ -53,5 +59,3 @@ were setup, you could be developing those technologies as well.
 
 For fun, you can also edit the `index.html` file, save it, refresh your
 browser, and immediately see your changes served directly from your VM.
-
-[&larr; Provisioning](/docs/getting-started/provisioning.html) &middot; Port Forwarding &middot; [Packaging &rarr;](/docs/getting-started/packaging.html)

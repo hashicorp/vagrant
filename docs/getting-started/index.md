@@ -1,6 +1,10 @@
 ---
 layout: getting_started
 title: Getting Started
+
+current: Overview
+next: Why Vagrant?
+next_url: /docs/getting-started/why.html
 ---
 # Getting Started with Vagrant
 
@@ -23,11 +27,16 @@ VirtualBox runs on **Windows**, **Mac OS X**, **Linux**, and **Solaris**.
 Here is a link directly to the [download page](http://www.virtualbox.org/wiki/Downloads).
 
 <div class="info">
-  <h3>Version 3.2 or Higher!</h3>
+  <h3>Version 3.2.x!</h3>
   <p>
-    Vagrant requires at least version 3.2 of VirtualBox. If your package manager is still
-    stuck on version 3.1 or lower, then download the 3.2 installation package from the official VirtualBox
-    <a href="http://www.virtualbox.org/wiki/Downloads">download page</a>.
+    Vagrant requires VirtualBox version 3.2.x (meaning 3.2.0, 3.2.1, etc.). If your package
+    manager is still stuck on version 3.1 or lower, then download the 3.2 installation package from
+    the official VirtualBox <a href="http://www.virtualbox.org/wiki/Downloads">download page.</a>
+  </p>
+  <p>
+    VirtualBox 4.0 is not yet supported. Due to the massive internal API changes in that
+    version, work is still underway to add support for this to Vagrant. A release announcement
+    will be given when Vagrant supports VirtualBox 4.0.
   </p>
 </div>
 
@@ -72,5 +81,3 @@ any Vagrant environment, the above is all any developer will need to create
 their development environment! Note that the above snippet does actually
 create a fully functional 512MB virtual machine running Ubuntu in the
 background, although the machine doesn't do much in this state.
-
-Overview &middot; [Why Vagrant? &rarr;](/docs/getting-started/why.html)

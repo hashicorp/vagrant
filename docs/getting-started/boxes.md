@@ -1,6 +1,12 @@
 ---
 layout: getting_started
 title: Getting Started - Boxes
+
+current: Boxes
+previous: Project Setup
+previous_url: /docs/getting-started/setup.html
+next: SSH
+next_url: /docs/getting-started/ssh.html
 ---
 # Boxes
 
@@ -91,5 +97,3 @@ $ vagrant up
 $ vagrant destroy
 ...
 {% endhighlight %}
-
-[&larr; Project Setup](/docs/getting-started/setup.html) &middot; Boxes &middot; [SSH &rarr;](/docs/getting-started/ssh.html)

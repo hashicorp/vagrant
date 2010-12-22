@@ -1,6 +1,10 @@
 ---
 layout: getting_started
 title: Getting Started - Rebuild Instantly
+
+current: Rebuild Instantly
+previous: Teardown
+previous_url: /docs/getting-started/teardown.html
 ---
 # Rebuild Instantly
 
@@ -28,5 +32,3 @@ $ vagrant up
 completes setting up your environment, it should be exactly as
 you remembered it: same server layout, same dependency versions,
 no extraneous software, etc.
-
-[&larr; Teardown](/docs/getting-started/teardown.html) &middot; Rebuild Instantly

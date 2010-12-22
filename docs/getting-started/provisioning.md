@@ -1,6 +1,12 @@
 ---
 layout: getting_started
 title: Getting Started - Provisioning
+
+current: Provisioning
+previous: SSH
+previous_url: /docs/getting-started/ssh.html
+next: Port Forwarding
+next_url: /docs/getting-started/ports.html
 ---
 # Provisioning
 
@@ -110,5 +116,3 @@ vagrant@vagrantup:~$
 
 In the next step of the getting started guide, we'll show you how to view
 your website using your own browser.
-
-[&larr; SSH](/docs/getting-started/ssh.html) &middot; Provisioning &middot; [Port Forwarding &rarr;](/docs/getting-started/ports.html)
