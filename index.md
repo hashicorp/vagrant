@@ -34,9 +34,10 @@ This is a compact feature list of Vagrant. For more information on any of
 the specific features, read the [getting started guide](/docs/getting-started/index.html).
 
 * Automated virtual machine creation using [Oracle's VirtualBox](http://www.virtualbox.org)
-* Automated provisioning of virtual environments using [chef](http://www.opscode.com/chef) or [Puppet](http://www.puppetlabs.com/puppet).
-* Forward ports to the host machine
+* Automated provisioning of virtual environments using [Chef](http://www.opscode.com/chef) or [Puppet](http://www.puppetlabs.com/puppet).
 * Full SSH access to created environments
+* Assign a static IP to your VM, accessible from your machine
+* Forward ports to the host machine
 * Shared folders allows you to continue using your own editor
 * Package environments into distributable boxes
 * Completely tear down environment when you're done
