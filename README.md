@@ -52,5 +52,6 @@ be installed with a simple `gem install bundler --pre`. Afterwords, do the follo
 
     bundle install
     rake
+    bundle exec bin/vagrant help
 
 This will run the test suite, which should come back all green! Then you're good to go!
