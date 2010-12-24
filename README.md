@@ -52,6 +52,10 @@ be installed with a simple `gem install bundler --pre`. Afterwords, do the follo
 
     bundle install
     rake
-    bundle exec bin/vagrant help
 
 This will run the test suite, which should come back all green! Then you're good to go!
+
+If you want to run Vagrant without having to install the gem, you may use `bundle exec`,
+like so:
+
+    bundle exec bin/vagrant help
