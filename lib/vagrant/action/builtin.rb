@@ -30,7 +30,6 @@ module Vagrant
       register(:halt, Builder.new do
         use VM::DiscardState
         use VM::Halt
-        use VM::DisableNetworks
       end)
 
       # suspend - Suspends the VM

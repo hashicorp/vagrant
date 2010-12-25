@@ -6,6 +6,8 @@
   - Changed the unused host only network destroy mechanism to check for
     uselessness after the VM is destroyed. This should result in more accurate
     checks.
+  - Networks are no longer disabled upon halt/destroy. With the above
+    change, its unnecessary.
 
 ## 0.6.9 (December 21, 2010)
 
