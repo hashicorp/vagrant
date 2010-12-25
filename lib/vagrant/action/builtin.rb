@@ -62,9 +62,9 @@ module Vagrant
       register(:destroy, Builder.new do
         use Action[:halt], :force => true
         use VM::ClearNFSExports
-        use VM::DestroyUnusedNetworkInterfaces
         use VM::Destroy
         use VM::CleanMachineFolder
+        use VM::DestroyUnusedNetworkInterfaces
       end)
 
       # package - Export and package the VM

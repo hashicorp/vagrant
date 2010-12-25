@@ -16,24 +16,27 @@ class DestroyUnusedNetworkInterfacesVMActionTest < Test::Unit::TestCase
 
   context "calling" do
     setup do
-      @network_adapters = []
-      @internal_vm.stubs(:network_adapters).returns(@network_adapters)
+      @interfaces = []
+      global = mock("global")
+      host = mock("host")
+      VirtualBox::Global.stubs(:global).returns(global)
+      global.stubs(:host).returns(host)
+      host.stubs(:network_interfaces).returns(@interfaces)
     end
 
-    def stub_interface(length=5)
+    def stub_interface(length=5, type=:host_only)
       interface = mock("interface")
-      adapter = mock("adapter")
-      adapter.stubs(:host_interface_object).returns(interface)
+      interface.stubs(:interface_type).returns(type)
       interface.stubs(:attached_vms).returns(Array.new(length))
 
-      @network_adapters << adapter
+      @interfaces << interface
       interface
     end
 
     should "destroy only the unused network interfaces" do
       stub_interface(5)
       stub_interface(7)
-      results = [stub_interface(1), stub_interface(1)]
+      results = [stub_interface(0), stub_interface(0)]
 
       results.each do |result|
         result.expects(:destroy).once

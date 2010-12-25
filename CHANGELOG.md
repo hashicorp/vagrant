@@ -3,6 +3,9 @@
   - VirtualBox 4.0 support. Support for VirtualBox 3.2 is _dropped_, since
     the API is so different. Stay with the 0.6.x series if you have VirtualBox
     3.2.x.
+  - Changed the unused host only network destroy mechanism to check for
+    uselessness after the VM is destroyed. This should result in more accurate
+    checks.
 
 ## 0.6.9 (December 21, 2010)
 
