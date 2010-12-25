@@ -96,8 +96,13 @@ en:
         to continue.
       virtualbox_invalid_version: |-
         Vagrant has detected that you have VirtualBox version %{version} installed!
-        Vagrant requires that you use at least VirtualBox version 3.2. Please install
+        Vagrant requires that you use at least VirtualBox version 4.0. Please install
         a more recent version of VirtualBox to continue.
+
+        The Vagrant 0.6.x series supports VirtualBox 3.2, so if you're stuck with that
+        version, then please use the 0.6.x series of Vagrant.
+
+        Any earlier versions of VirtualBox are completely unsupported. Please upgrade.
       virtualbox_not_detected: |-
         Vagrant could not detect VirtualBox! Make sure VirtualBox is properly installed.
         If VirtualBox is installed, it may be an incorrect version. Vagrant currently

@@ -32,7 +32,7 @@ module Vagrant
       def check_virtualbox!
         version = VirtualBox.version
         raise Errors::VirtualBoxNotDetected if version.nil?
-        raise Errors::VirtualBoxInvalidVersion, :version => version.to_s if version.to_f < 3.2
+        raise Errors::VirtualBoxInvalidVersion, :version => version.to_s if version.to_f < 4.0
         raise Errors::VirtualBoxInvalidOSE, :version => version.to_s if version.to_s.downcase.include?("ose")
       rescue Errors::VirtualBoxNotDetected
         # On 64-bit Windows, show a special error. This error is a subclass
