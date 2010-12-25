@@ -1,4 +1,4 @@
-## 0.7.0 (unreleased)
+## 0.7.0.beta (December 24, 2010)
 
   - VirtualBox 4.0 support. Support for VirtualBox 3.2 is _dropped_, since
     the API is so different. Stay with the 0.6.x series if you have VirtualBox
