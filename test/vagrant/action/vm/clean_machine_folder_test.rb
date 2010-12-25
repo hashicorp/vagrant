@@ -77,6 +77,8 @@ class CleanMachineFolderVMActionTest < Test::Unit::TestCase
     should "do nothing if folder is < 10 characters" do
       VirtualBox::Global.global.system_properties.stubs(:default_machine_folder).returns("foo")
       Dir.expects(:[]).never
+
+      @instance.clean_machine_folder
     end
   end
 end
