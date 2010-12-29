@@ -92,8 +92,8 @@ module Vagrant
       def mount_folder(ssh, name, guestpath, sleeptime=5)
         # Determine the permission string to attach to the mount command
         perms = []
-        perms << "uid=#{vm.env.config.vm.shared_folder_uid}"
-        perms << "gid=#{vm.env.config.vm.shared_folder_gid}"
+        perms << "uid=`id -u #{vm.env.config.vm.shared_folder_uid}`"
+        perms << "gid=`id -g #{vm.env.config.vm.shared_folder_gid}`"
         perms = " -o #{perms.join(",")}" if !perms.empty?
 
         attempts = 0
