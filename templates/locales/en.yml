@@ -403,6 +403,7 @@ en:
       file:
         file_missing: "The specified path to a file doesn't exist."
       http:
+        follow_redirect: "Download following redirect: %{url}"
         socket_error: |-
           An error occurred while trying to download the specified box. This most
           often happens if there is no internet connection or the address is

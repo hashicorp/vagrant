@@ -1,6 +1,7 @@
 ## 0.7.0.beta2 (unreleased)
 
   - Use numeric uid/gid in mounting shared folders to increase portability. [GH-252]
+  - HTTP downloading follows redirects. [GH-163]
 
 ## 0.7.0.beta (December 24, 2010)
 
