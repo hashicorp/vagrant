@@ -1,3 +1,7 @@
+## 0.7.0.beta2 (unreleased)
+
+  - Use numeric uid/gid in mounting shared folders to increase portability. [GH-252]
+
 ## 0.7.0.beta (December 24, 2010)
 
   - VirtualBox 4.0 support. Support for VirtualBox 3.2 is _dropped_, since
