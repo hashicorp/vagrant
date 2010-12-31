@@ -25,11 +25,12 @@ module Vagrant
         end
 
         http.start do |h|
+          env.ui.info I18n.t("vagrant.downloaders.http.download", :url => source_url)
+
           h.request_get(uri.request_uri) do |response|
             if response.is_a?(Net::HTTPRedirection)
               # Follow the HTTP redirect.
               # TODO: Error on some redirect limit
-              env.ui.info I18n.t("vagrant.downloaders.http.follow_redirect", :url => response["Location"])
               download!(response["Location"], destination_file)
               return
             end

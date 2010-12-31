@@ -64,7 +64,6 @@ module Vagrant
         end
 
         def download_to(f)
-          @env.ui.info I18n.t("vagrant.actions.box.download.copying")
           @downloader.download!(@env["box"].uri, f)
         end
       end

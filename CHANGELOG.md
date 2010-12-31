@@ -2,6 +2,7 @@
 
   - Use numeric uid/gid in mounting shared folders to increase portability. [GH-252]
   - HTTP downloading follows redirects. [GH-163]
+  - Downloaders have clearer output to note what they're doing.
 
 ## 0.7.0.beta (December 24, 2010)
 

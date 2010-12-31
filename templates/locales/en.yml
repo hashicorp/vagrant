@@ -370,7 +370,6 @@ en:
         download:
           with: "Downloading with %{class}..."
           cleaning: "Cleaning up downloaded box..."
-          copying: "Copying box to temporary location..."
           unknown_type: "Unknown or unsupported URI type given for box download."
         unpackage:
           extracting: "Extracting box..."
@@ -401,9 +400,10 @@ en:
 
     downloaders:
       file:
+        download: "Copying box to temporary location..."
         file_missing: "The specified path to a file doesn't exist."
       http:
-        follow_redirect: "Download following redirect: %{url}"
+        download: "Downloading box: %{url}"
         socket_error: |-
           An error occurred while trying to download the specified box. This most
           often happens if there is no internet connection or the address is
