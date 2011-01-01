@@ -17,11 +17,25 @@ class FileDownloaderTest < Test::Unit::TestCase
   end
 
   context "downloading" do
+    setup do
+      clean_paths
+    end
+
     should "cp the file" do
-      path = '/path'
-      @tempfile.expects(:path).returns(path)
-      FileUtils.expects(:cp).with(@uri, path)
-      @downloader.download!(@uri, @tempfile)
+      uri = tmp_path.join("foo_source")
+      dest = tmp_path.join("foo_dest")
+
+      # Create the source file, then "download" it
+      File.open(uri, "w+") { |f| f.write("FOO") }
+      File.open(dest, "w+") do |dest_file|
+        @downloader.download!(uri, dest_file)
+      end
+
+      # Finally, verify the destination file was properly created
+      assert File.file?(dest)
+      File.open(dest) do |f|
+        assert_equal "FOO", f.read
+      end
     end
   end
 
