@@ -11,6 +11,7 @@ module Vagrant
       attr_accessor :timeout
       attr_writer :private_key_path
       attr_accessor :forward_agent
+      attr_accessor :forward_x11
 
       def private_key_path
         File.expand_path(@private_key_path, env.root_path)

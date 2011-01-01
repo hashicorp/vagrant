@@ -160,7 +160,7 @@ class NFSVMActionTest < Test::Unit::TestCase
     context "mounting folders" do
       setup do
         @instance.stubs(:host_ip).returns("foo")
-        @instance.stubs(:folders).returns([{:guestpath => "foo"}])
+        @instance.stubs(:folders).returns(:foo => {:guestpath => "foo"})
       end
 
       should "mount the folders on the system" do
@@ -169,8 +169,8 @@ class NFSVMActionTest < Test::Unit::TestCase
       end
 
       should "not mount folders which have no guest path" do
-        @instance.stubs(:folders).returns([{}])
-        @vm.system.expects(:mount_nfs).with(@instance.host_ip, [])
+        @instance.stubs(:folders).returns({})
+        @vm.system.expects(:mount_nfs).with(@instance.host_ip, {})
         @instance.mount_folders
       end
     end
