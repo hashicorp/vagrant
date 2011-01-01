@@ -12,6 +12,7 @@ Vagrant::Config.run do |config|
   config.ssh.timeout = 30
   config.ssh.private_key_path = File.expand_path("keys/vagrant", Vagrant.source_root)
   config.ssh.forward_agent = false
+  config.ssh.forward_x11 = false
 
   config.vm.auto_port_range = (2200..2250)
   config.vm.box_ovf = "box.ovf"
