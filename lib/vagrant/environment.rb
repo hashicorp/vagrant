@@ -305,6 +305,13 @@ module Vagrant
       self
     end
 
+    # Reloads the configuration of this environment.
+    def reload_config!
+      @config = nil
+      load_config!
+      self
+    end
+
     # Loads this environment's configuration and stores it in the {#config}
     # variable. The configuration loaded by this method is specified to
     # this environment, meaning that it will use the given root directory

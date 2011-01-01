@@ -425,6 +425,21 @@ class EnvironmentTest < Test::Unit::TestCase
         @env.load_config!
         assert @env.instance_variable_get(:@logger).nil?
       end
+
+      should "be able to reload config" do
+        vagrantfile(@env.root_path, "config.vm.box = 'box'")
+
+        # First load the config normally
+        @env.load_config!
+        assert_equal "box", @env.config.vm.box
+        assert_not_equal "set", @env.config.vm.base_mac
+
+        # Modify the Vagrantfile and reload it, then verify new results
+        # are available
+        vagrantfile(@env.root_path, "config.vm.base_mac = 'set'")
+        @env.reload_config!
+        assert_equal "set", @env.config.vm.base_mac
+      end
     end
 
     context "loading home directory" do

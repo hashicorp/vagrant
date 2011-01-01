@@ -4,6 +4,8 @@
   - HTTP downloading follows redirects. [GH-163]
   - Downloaders have clearer output to note what they're doing.
   - Shared folders with no guest path are not automounted. [GH-184]
+  - Boxes downloaded during `vagrant up` reload the Vagrantfile config, which
+    fixes a problem with box settings not being properly loaded. [GH-231]
 
 ## 0.7.0.beta (December 24, 2010)
 
