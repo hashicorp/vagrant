@@ -28,8 +28,8 @@ module Vagrant
         def call(env)
           @env = env
 
-          raise Errors::PackageOutputExists.new if File.exist?(tar_path)
-          raise Errors::PackageRequiresDirectory.new if !@env["package.directory"] || !File.directory?(@env["package.directory"])
+          raise Errors::PackageOutputExists if File.exist?(tar_path)
+          raise Errors::PackageRequiresDirectory if !@env["package.directory"] || !File.directory?(@env["package.directory"])
 
           verify_files_to_copy
           compress
@@ -57,7 +57,7 @@ module Vagrant
 
         def verify_files_to_copy
           files_to_copy.each do |file, _|
-            raise Errors::PackageIncludeMissing.new(:file => file) if !File.exist?(file)
+            raise Errors::PackageIncludeMissing, :file => file if !File.exist?(file)
           end
         end
 

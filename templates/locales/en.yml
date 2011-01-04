@@ -96,8 +96,13 @@ en:
         to continue.
       virtualbox_invalid_version: |-
         Vagrant has detected that you have VirtualBox version %{version} installed!
-        Vagrant requires that you use at least VirtualBox version 3.2. Please install
+        Vagrant requires that you use at least VirtualBox version 4.0. Please install
         a more recent version of VirtualBox to continue.
+
+        The Vagrant 0.6.x series supports VirtualBox 3.2, so if you're stuck with that
+        version, then please use the 0.6.x series of Vagrant.
+
+        Any earlier versions of VirtualBox are completely unsupported. Please upgrade.
       virtualbox_not_detected: |-
         Vagrant could not detect VirtualBox! Make sure VirtualBox is properly installed.
         If VirtualBox is installed, it may be an incorrect version. Vagrant currently
@@ -304,14 +309,19 @@ en:
             This will cause your specified IP to be inaccessible. Please change
             the IP or name of your host only network to not match that of
             a bridged or non-hostonly network.
-          creating: Creating new host only network for environment...
-          enabling: Enabling host only network...
+          creating: "Creating new host only network for environment..."
+          enabling: "Enabling host only network..."
           not_found: |-
             The specified host network could not be found: '%{name}.'
             If the name specification is removed, Vagrant will create a new
             host only network for you. Alternatively, please create the
             specified network manually.
-          preparing: Preparing host only network...
+          preparing: "Preparing host only network..."
+          windows_not_implemented: |-
+            Host only networking is currently broken on Windows due to a bug
+            in jruby-win32ole. When the bug is fixed, a patch release for Vagrant
+            will be released to remove this error. Until then, please just use
+            forwarded ports.
         nfs:
           host_required: |-
             A host class is required for NFS shared folders. By default, these
@@ -351,6 +361,7 @@ en:
           creating: Creating shared folders metadata...
           mounting: Mounting shared folders...
           mounting_entry: "-- %{name}: %{guest_path}"
+          nomount_entry: "-- %{name}: Automounting disabled."
         suspend:
           suspending: Saving VM state and suspending execution...
 
@@ -360,7 +371,6 @@ en:
         download:
           with: "Downloading with %{class}..."
           cleaning: "Cleaning up downloaded box..."
-          copying: "Copying box to temporary location..."
           unknown_type: "Unknown or unsupported URI type given for box download."
         unpackage:
           extracting: "Extracting box..."
@@ -391,8 +401,10 @@ en:
 
     downloaders:
       file:
+        download: "Copying box to temporary location..."
         file_missing: "The specified path to a file doesn't exist."
       http:
+        download: "Downloading box: %{url}"
         socket_error: |-
           An error occurred while trying to download the specified box. This most
           often happens if there is no internet connection or the address is

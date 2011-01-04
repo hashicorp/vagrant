@@ -16,6 +16,24 @@ class NetworkVMActionTest < Test::Unit::TestCase
   end
 
   context "initializing" do
+    should "raise an error if on windows and networking is enabled" do
+      Vagrant::Util::Platform.stubs(:windows?).returns(true)
+      @env.env.config.vm.network("foo")
+
+      assert_raises(Vagrant::Errors::NetworkNotImplemented) {
+        @klass.new(@app, @env)
+      }
+    end
+
+    should "not raise an error if not on windows and networking is enabled" do
+      Vagrant::Util::Platform.stubs(:windows?).returns(false)
+      @env.env.config.vm.network("foo")
+
+      assert_nothing_raised {
+        @klass.new(@app, @env)
+      }
+    end
+
     should "verify no bridge collisions for each network enabled" do
       @env.env.config.vm.network("foo")
       @klass.any_instance.expects(:verify_no_bridge_collision).returns(true).once.with() do |options|

@@ -31,9 +31,9 @@ module Vagrant
       # VirtualBox installed is high enough.
       def check_virtualbox!
         version = VirtualBox.version
-        raise Errors::VirtualBoxNotDetected.new if version.nil?
-        raise Errors::VirtualBoxInvalidVersion.new(:version => version.to_s) if version.to_f < 3.2
-        raise Errors::VirtualBoxInvalidOSE.new(:version => version.to_s) if version.to_s.downcase.include?("ose")
+        raise Errors::VirtualBoxNotDetected if version.nil?
+        raise Errors::VirtualBoxInvalidVersion, :version => version.to_s if version.to_f < 4.0
+        raise Errors::VirtualBoxInvalidOSE, :version => version.to_s if version.to_s.downcase.include?("ose")
       rescue Errors::VirtualBoxNotDetected
         # On 64-bit Windows, show a special error. This error is a subclass
         # of VirtualBoxNotDetected, so libraries which use Vagrant can just
@@ -302,6 +302,13 @@ module Vagrant
         load_config!
       end
 
+      self
+    end
+
+    # Reloads the configuration of this environment.
+    def reload_config!
+      @config = nil
+      load_config!
       self
     end
 

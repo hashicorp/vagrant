@@ -25,7 +25,16 @@ module Vagrant
         end
 
         http.start do |h|
+          env.ui.info I18n.t("vagrant.downloaders.http.download", :url => source_url)
+
           h.request_get(uri.request_uri) do |response|
+            if response.is_a?(Net::HTTPRedirection)
+              # Follow the HTTP redirect.
+              # TODO: Error on some redirect limit
+              download!(response["Location"], destination_file)
+              return
+            end
+
             total = response.content_length
             progress = 0
             segment_count = 0
@@ -48,7 +57,7 @@ module Vagrant
           end
         end
       rescue SocketError
-        raise Errors::DownloaderHTTPSocketError.new
+        raise Errors::DownloaderHTTPSocketError
       end
     end
   end

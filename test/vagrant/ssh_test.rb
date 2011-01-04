@@ -12,7 +12,7 @@ class SshTest < Test::Unit::TestCase
   end
 
   setup do
-    VirtualBox.stubs(:version).returns("3.2.4")
+    VirtualBox.stubs(:version).returns("4.0.0")
   end
 
   context "connecting to external SSH" do

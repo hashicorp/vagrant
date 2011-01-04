@@ -1,4 +1,24 @@
-## 0.6.9 (unreleased)
+## 0.7.0.beta2 (unreleased)
+
+  - Use numeric uid/gid in mounting shared folders to increase portability. [GH-252]
+  - HTTP downloading follows redirects. [GH-163]
+  - Downloaders have clearer output to note what they're doing.
+  - Shared folders with no guest path are not automounted. [GH-184]
+  - Boxes downloaded during `vagrant up` reload the Vagrantfile config, which
+    fixes a problem with box settings not being properly loaded. [GH-231]
+
+## 0.7.0.beta (December 24, 2010)
+
+  - VirtualBox 4.0 support. Support for VirtualBox 3.2 is _dropped_, since
+    the API is so different. Stay with the 0.6.x series if you have VirtualBox
+    3.2.x.
+  - Changed the unused host only network destroy mechanism to check for
+    uselessness after the VM is destroyed. This should result in more accurate
+    checks.
+  - Networks are no longer disabled upon halt/destroy. With the above
+    change, its unnecessary.
+
+## 0.6.9 (December 21, 2010)
 
   - Puppet provisioner. [GH-223]
   - Solaris system configurable to use `sudo`.
@@ -10,6 +30,8 @@
   - Enumerate VMs in a multi-VM environment in order they were defined. [GH-244]
   - Check for VM boot changed to use `timeout` library, which works better with Windows.
   - Show special error if VirtualBox not detected on 64-bit Windows.
+  - Show error to Windows users attempting to use host only networking since
+    it doesn't work yet.
 
 ## 0.6.8 (November 30, 2010)
 

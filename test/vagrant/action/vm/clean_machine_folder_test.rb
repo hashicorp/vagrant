@@ -37,10 +37,10 @@ class CleanMachineFolderVMActionTest < Test::Unit::TestCase
       @instance.clean_machine_folder
     end
 
-    should "delete directories with only .xml-prev files" do
+    should "delete directories with only .vbox-prev files" do
       folders = {
-        "sfoo" => %W[foo bar baz.xml-prev],
-        "sbar" => %W[foo.xml-prev]
+        "sfoo" => %W[foo bar baz.vbox-prev],
+        "sbar" => %W[foo.vbox-prev]
       }
 
       Dir.expects(:[]).with(@folder).returns(folders.keys)
@@ -57,7 +57,7 @@ class CleanMachineFolderVMActionTest < Test::Unit::TestCase
     should "delete directories with only subdirectories" do
       folders = {
         "sfoo" => %W[foo bar],
-        "sbar" => %W[foo.xml-prev]
+        "sbar" => %W[foo.vbox-prev]
       }
 
       File.stubs(:file?).returns(false)
@@ -77,6 +77,8 @@ class CleanMachineFolderVMActionTest < Test::Unit::TestCase
     should "do nothing if folder is < 10 characters" do
       VirtualBox::Global.global.system_properties.stubs(:default_machine_folder).returns("foo")
       Dir.expects(:[]).never
+
+      @instance.clean_machine_folder
     end
   end
 end

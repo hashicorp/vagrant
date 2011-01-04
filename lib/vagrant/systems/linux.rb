@@ -104,8 +104,8 @@ module Vagrant
       def mount_folder(ssh, name, guestpath, sleeptime=5)
         # Determine the permission string to attach to the mount command
         perms = []
-        perms << "uid=#{vm.env.config.vm.shared_folder_uid}"
-        perms << "gid=#{vm.env.config.vm.shared_folder_gid}"
+        perms << "uid=`id -u #{vm.env.config.vm.shared_folder_uid}`"
+        perms << "gid=`id -g #{vm.env.config.vm.shared_folder_gid}`"
         perms = " -o #{perms.join(",")}" if !perms.empty?
 
         attempts = 0
@@ -118,7 +118,7 @@ module Vagrant
           break unless result
 
           attempts += 1
-          raise LinuxError.new(:mount_fail) if attempts >= 10
+          raise LinuxError, :mount_fail if attempts >= 10
           sleep sleeptime
         end
       end

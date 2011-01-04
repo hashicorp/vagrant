@@ -95,7 +95,7 @@ module Vagrant
             load item
           rescue SyntaxError => e
             # Report syntax errors in a nice way for Vagrantfiles
-            raise Errors::VagrantfileSyntaxError.new(:file => e.message)
+            raise Errors::VagrantfileSyntaxError, :file => e.message
           end
         elsif item.is_a?(Proc)
           self.class.run(&item)
@@ -159,7 +159,7 @@ module Vagrant
         end
 
         return if errors.empty?
-        raise Errors::ConfigValidationFailed.new(:messages => Util::TemplateRenderer.render("config/validation_failed", :errors => errors))
+        raise Errors::ConfigValidationFailed, :messages => Util::TemplateRenderer.render("config/validation_failed", :errors => errors)
       end
     end
   end

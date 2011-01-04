@@ -5,7 +5,7 @@ module Vagrant
     # provisioner**. Instead, {ChefSolo} or {ChefServer} should be used.
     class Chef < Base
       def prepare
-        raise ChefError.new(:invalid_provisioner)
+        raise ChefError, :invalid_provisioner
       end
 
       def verify_binary(binary)

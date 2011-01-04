@@ -28,7 +28,7 @@ module Vagrant
 
           if provisioner.is_a?(Class)
             @provisioner = provisioner.new(@env)
-            raise Errors::ProvisionInvalidClass.new if !@provisioner.is_a?(Provisioners::Base)
+            raise Errors::ProvisionInvalidClass if !@provisioner.is_a?(Provisioners::Base)
           elsif provisioner.is_a?(Symbol)
             # We have a few hard coded provisioners for built-ins
             mapping = {
@@ -38,7 +38,7 @@ module Vagrant
             }
 
             provisioner_klass = mapping[provisioner]
-            raise Errors::ProvisionUnknownType.new(:provisioner => provisioner.to_s) if provisioner_klass.nil?
+            raise Errors::ProvisionUnknownType, :provisioner => provisioner.to_s if provisioner_klass.nil?
             @provisioner = provisioner_klass.new(@env)
           end
 

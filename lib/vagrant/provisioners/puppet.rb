@@ -22,7 +22,6 @@ module Vagrant
   end
 
   class Puppet < Base
-
     def prepare
       check_manifest_dir
       share_manifests
@@ -63,7 +62,7 @@ module Vagrant
          env.ui.info I18n.t("vagrant.provisioners.puppet.manifest_to_run", :manifest => @manifest)
          return @manifest
        else
-         raise PuppetError.new(:_key => :manifest_missing, :manifest => @manifest)
+         raise PuppetError, :_key => :manifest_missing, :manifest => @manifest
       end
     end
 
@@ -81,7 +80,6 @@ module Vagrant
         end
       end
     end
-
   end
  end
 end

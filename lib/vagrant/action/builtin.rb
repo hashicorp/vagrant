@@ -30,7 +30,6 @@ module Vagrant
       register(:halt, Builder.new do
         use VM::DiscardState
         use VM::Halt
-        use VM::DisableNetworks
       end)
 
       # suspend - Suspends the VM
@@ -62,9 +61,9 @@ module Vagrant
       register(:destroy, Builder.new do
         use Action[:halt], :force => true
         use VM::ClearNFSExports
-        use VM::DestroyUnusedNetworkInterfaces
         use VM::Destroy
         use VM::CleanMachineFolder
+        use VM::DestroyUnusedNetworkInterfaces
       end)
 
       # package - Export and package the VM
