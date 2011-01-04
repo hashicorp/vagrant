@@ -14,7 +14,7 @@ en:
         the VM and is required for chef provisioning. Please verify that chef
         is installed and that the binary is available on the PATH.
       puppet_not_detected: |-
-        The `puppet` binary was not found on the VM and is required for Puppet provisioning. 
+        The `puppet` binary was not found on the VM and is required for Puppet provisioning.
         Please verify that Puppet is installed and that the binary is available on the PATH.
       cli_missing_env: This command requires that a Vagrant environment be properly passed in as the last parameter.
       config_validation: |-
@@ -70,7 +70,7 @@ en:
 
         For a more detailed guide please consult:
 
-          http://vagrantup.com/docs/getting-started/windows.
+          http://vagrantup.com/docs/getting-started/windows
 
       system:
         invalid_class: |-
@@ -102,6 +102,18 @@ en:
         Vagrant could not detect VirtualBox! Make sure VirtualBox is properly installed.
         If VirtualBox is installed, it may be an incorrect version. Vagrant currently
         requires VirtualBox 3.2.x. Please install the proper version to continue.
+      virtualbox_not_detected_win64: |-
+        Vagrant could not detect VirtualBox! Make sure VirtualBox is properly installed
+        with version 3.2.0 or higher.
+
+        Additionally, it appears you're on 64-bit Windows. If this is the case, and
+        VirtualBox is properly installed with the correct version, then please make
+        sure you're running Vagrant via JRuby on a 64-bit Java runtime. For more
+        information on how to set this up and how to verify it is properly setup,
+        please view the guide online at:
+
+          http://vagrantup.com/docs/getting-started/setup/windows_x64.html
+
       vm_creation_required: "VM must be created before running this command. Run `vagrant up` first."
       vm_not_found: "A VM by the name of %{name} was not found."
       vm_not_running: "VM must be running to open SSH connection."

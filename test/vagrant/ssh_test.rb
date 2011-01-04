@@ -195,16 +195,15 @@ class SshTest < Test::Unit::TestCase
     end
 
     should "return false if SSH connection times out" do
-      Net::SSH.expects(:start)
-      assert !@ssh.up?
-    end
+      @env.config.ssh.timeout = 0.5
 
-    should "allow the thread the configured timeout time" do
-      @thread = mock("thread")
-      @thread.stubs(:[])
-      Thread.expects(:new).returns(@thread)
-      @thread.expects(:join).with(@env.config.ssh.timeout).once
-      @ssh.up?
+      Net::SSH.stubs(:start).with() do
+        # Sleep here to artificially fake timeout
+        sleep 1
+        true
+      end
+
+      assert !@ssh.up?
     end
 
     should "return false if the connection is refused" do
@@ -222,13 +221,22 @@ class SshTest < Test::Unit::TestCase
     end
 
     should "specifity the timeout as an option to execute" do
-      @ssh.expects(:execute).with(:timeout => @env.config.ssh.timeout).yields(true)
+      @ssh.expects(:execute).yields(true).with() do |opts|
+        assert_equal @env.config.ssh.timeout, opts[:timeout]
+        true
+      end
+
       assert @ssh.up?
     end
 
     should "error and exit if a Net::SSH::AuthenticationFailed is raised" do
       @ssh.expects(:execute).raises(Net::SSH::AuthenticationFailed)
       assert_raises(Vagrant::Errors::SSHAuthenticationFailed) { @ssh.up? }
+    end
+
+    should "only get the port once (in the main thread)" do
+      @ssh.expects(:port).once.returns(2222)
+      @ssh.up?
     end
   end
 
