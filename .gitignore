@@ -10,3 +10,5 @@ _site/*
 .yardoc/
 doc/
 tags
+.idea/*
+*.iml
