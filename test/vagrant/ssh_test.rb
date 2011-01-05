@@ -69,6 +69,17 @@ class SshTest < Test::Unit::TestCase
       @ssh.connect
     end
 
+    should "add forward X11 option if enabled" do
+      @env.config.ssh.forward_x11 = true
+      ssh_exec_expect(@ssh.port,
+                      @env.config.ssh.private_key_path,
+                      @env.config.ssh.username,
+                      @env.config.ssh.host) do |args|
+        assert args =~ /-o ForwardX11=yes/
+      end
+      @ssh.connect
+    end
+
     context "on leopard" do
       setup do
         Vagrant::Util::Platform.stubs(:leopard?).returns(true)

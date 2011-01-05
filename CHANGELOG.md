@@ -6,6 +6,7 @@
   - Shared folders with no guest path are not automounted. [GH-184]
   - Boxes downloaded during `vagrant up` reload the Vagrantfile config, which
     fixes a problem with box settings not being properly loaded. [GH-231]
+  - `config.ssh.forward_x11` to enable the ForwardX11 SSH option. [GH-255]
 
 ## 0.7.0.beta (December 24, 2010)
 
