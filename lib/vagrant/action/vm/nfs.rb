@@ -114,7 +114,7 @@ module Vagrant
           @env.ui.info I18n.t("vagrant.actions.vm.nfs.mounting")
 
           # Only mount the folders which have a guest path specified
-          am_folders = folders.select { |folder| folder[:guestpath] }
+          am_folders = folders.select { |name, folder| folder[:guestpath] }
           @env["vm"].system.mount_nfs(host_ip, am_folders)
         end
 
