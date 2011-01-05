@@ -131,7 +131,7 @@ module Vagrant
       end
 
       def redhat?(ssh)
-        ssh.exec!("test -e /etc/redhat-release ") do |ch, type, data|
+        ssh.exec!("test -e /etc/redhat-release") do |ch, type, data|
           return true if type == :exit_status && data == 0
         end
         false
