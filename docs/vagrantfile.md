@@ -68,6 +68,10 @@ to use a custom SSH keypair.
 `config.ssh.timeout` specifies the timeout when trying to connect to the virtual
 environment.
 
+`config.ssh.forward_agent` is a boolean which when true will enable agent forwarding for `vagrant ssh`.
+
+`config.ssh.forward_x11` is a boolean which when true will enable X11 forwarding for `vagrant ssh`.
+
 ## config.vm
 
 Vm settings are used when creating new virtual machines to alert Vagrant about how they
