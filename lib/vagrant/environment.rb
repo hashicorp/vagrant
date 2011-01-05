@@ -146,7 +146,7 @@ module Vagrant
     #
     # @return [Array<VM>]
     def vms_ordered
-      @vms_enum ||= config.vm.defined_vm_keys.map {|name| @vms[name]}
+      @vms_enum ||= config.vm.defined_vm_keys.map { |name| @vms[name] }
     end
 
     # Returns the primary VM associated with this environment. This
