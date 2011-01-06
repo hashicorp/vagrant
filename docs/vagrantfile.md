@@ -254,7 +254,7 @@ config.chef.json.merge!({
 `config.chef.provisioning_path` is the folder on the virtual machine where Vagrant will copy a small ruby script to include the cookbooks and a json chef configuration file. A chef solo command will be issued from within this directory to put chef to work. This setting usually doesn't have to be changed.
 
 {% highlight bash %}
-$ sudo chef solo -c solo.rb -j dna.json
+$ sudo chef-solo -c solo.rb -j dna.json
 {% endhighlight %}
 
 `config.chef.run_list` is an array of recipes and/or roles to run on the node. This can be used to run
