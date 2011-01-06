@@ -20,8 +20,8 @@ later).
 
 Luckily, Vagrant comes with provisioning built right into the software by
 using [chef](http://www.opscode.com/chef), either [chef solo](http://wiki.opscode.com/display/chef/Chef+Solo)
-and [chef server](http://wiki.opscode.com/display/chef/Chef+Server), or [Puppet](http://www.puppetlabs.com/puppet). You can
-also [extend vagrant](/docs/provisioners/others.html) to support more provisioners, but this is an advanced topic
+and [chef server](http://wiki.opscode.com/display/chef/Chef+Server), or [Puppet](http://www.puppetlabs.com/puppet) or 
+you can also [extend vagrant](/docs/provisioners/others.html) to support more provisioners, but this is an advanced topic
 which we won't cover here.
 
 For our basic HTML website, we're going to show you how to use both Chef or Puppet provisioning to setup Apache
@@ -93,6 +93,8 @@ Vagrant::Config.run do |config|
   config.vm.provisioner = :puppet
 end
 {% endhighlight %}
+
+Alternatively you can run Puppet in client-server mode by enabling the `:puppet_server` provisioner.  See the [Puppet Server](/docs/provisioners/puppet_server.html) documentation for more details.
 
 ## Running it!
 

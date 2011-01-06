@@ -64,6 +64,22 @@ end
 This folder is created for provisioning purposes and destroyed once provisioning
 is complete.
 
+# Setting options
+
+You can also specify additional options to be passed to Puppet using the `options` variable.
+
+{% highlight ruby %}
+Vagrant::Config.run do |config|
+  config.puppet.options = ["--modulepath","modules"]
+end
+{% endhighlight %} 
+ 
+You can also pass options as strings:
+
+{% highlight ruby %}
+  config.puppet.options = "--verbose --debug"
+{% endhighlight %} 
+
 ## Enabling and Executing
 
 Finally, once everything is setup, provisioning can be enabled and run. To enable
