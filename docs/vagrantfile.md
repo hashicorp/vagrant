@@ -272,8 +272,8 @@ config.chef.add_role("bar")
 
 ## config.puppet
 
-Vagrant can use [Puppet](http://www.puppetlabs.com/puppet) to provision virtual environments. This is a built-in provisioners which
-includes its own configuration.
+Vagrant can use [stand-alone Puppet](http://www.puppetlabs.com/puppet) to provision virtual environments. This is a built-in 
+provisioner which includes its own configuration.
 
 The settings below only have an effect if Puppet is used as the provisioner. Puppet
 provisioning can be enabled by setting `provisioner` to `:puppet`.
@@ -281,3 +281,15 @@ provisioning can be enabled by setting `provisioner` to `:puppet`.
 `config.puppet.manifest_path` represents the manifests path on your host machine located relative to your project directory. Vagrant will expand whatever path you place in this configuration option and use those manifests during provisioning.
 
 `config.puppet.pp_path` represents the path for your manifests on the virtual machine, it defaults to `/tmp/vagrant-puppet`.
+
+## config.puppet_server
+
+Also available is Puppet Server support which enables Puppet in client-server mode. 
+
+The settings below only have an effect if Puppet is used as the provisioner. Puppet
+provisioning can be enabled by setting `provisioner` to `:puppet_server`.
+
+`config.puppet_server.puppet_server` specifies the name of the Puppet Server you wish to connect to, it defaults to `puppet`.
+
+`config.puppet_server.puppet_node` specifies the node name of the VM you are configuring. Puppet uses this to identify what 
+configuration to apply to the VM. If not specified it defaults to the name of the box being provisioned.
