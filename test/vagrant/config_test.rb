@@ -11,7 +11,7 @@ class ConfigTest < Test::Unit::TestCase
       foo.expects(:call).once
 
       @klass.run { |config| foo.call }
-      value = @klass.last_proc
+      value = @klass.last_proc.first
       assert value.is_a?(Proc)
       value.call
 

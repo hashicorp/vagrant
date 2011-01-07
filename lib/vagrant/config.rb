@@ -42,7 +42,8 @@ module Vagrant
     # away for execution later.
     def self.run(&block)
       # Store it for later
-      @last_proc = block
+      @last_procs ||= []
+      @last_procs << block
     end
 
     # Returns the last proc which was activated for the class via {run}. This
@@ -51,8 +52,8 @@ module Vagrant
     #
     # @return [Proc]
     def self.last_proc
-      value = @last_proc
-      @last_proc = nil
+      value = @last_procs
+      @last_procs = nil
       value
     end
 
@@ -72,7 +73,7 @@ module Vagrant
     # and it will never be loaded again.
     def set(key, path)
       return if @procs.has_key?(key)
-      @procs[key] = [path].flatten.map(&method(:proc_for))
+      @procs[key] = [path].flatten.map(&method(:proc_for)).flatten
     end
 
     # Loads the added procs using the set `load_order` attribute and returns
