@@ -62,6 +62,17 @@ class ConfigTest < Test::Unit::TestCase
       assert_nothing_raised { @instance.load(nil) }
     end
 
+    should "not reload a file" do
+      foo_path = vagrant_box("foo").join("Vagrantfile")
+
+      vagrantfile(vagrant_box("foo"))
+      @instance.set(:foo, foo_path)
+
+      # Nothing should be raised in this case because the file isn't reloaded
+      vagrantfile(vagrant_box("foo"), "^%&8318")
+      assert_nothing_raised { @instance.set(:foo, foo_path) }
+    end
+
     should "raise an exception if there is a syntax error in a file" do
       vagrantfile(vagrant_box("foo"), "^%&8318")
 

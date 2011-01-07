@@ -32,6 +32,7 @@ module Vagrant
   class Config
     # An array of symbols specifying the load order for the procs.
     attr_accessor :load_order
+    attr_reader :procs
 
     # This is the method which is called by all Vagrantfiles to configure Vagrant.
     # This method expects a block which accepts a single argument representing
@@ -55,15 +56,22 @@ module Vagrant
       value
     end
 
-    def initialize
+    def initialize(parent=nil)
       @procs = {}
       @load_order = []
+
+      if parent
+        # Shallow copy the procs and load order from parent if given
+        @procs = parent.procs.dup
+        @load_order = parent.load_order.dup
+      end
     end
 
     # Adds a Vagrantfile to be loaded to the queue of config procs. Note
     # that this causes the Vagrantfile file to be loaded at this point,
     # and it will never be loaded again.
     def set(key, path)
+      return if @procs.has_key?(key)
       @procs[key] = [path].flatten.map(&method(:proc_for))
     end
 

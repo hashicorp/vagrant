@@ -23,6 +23,9 @@ module Vagrant
     # The {UI} object to communicate with the outside world.
     attr_writer :ui
 
+    # The {Config} object representing the Vagrantfile loader
+    attr_reader :config_loader
+
     #---------------------------------------------------------------
     # Class Methods
     #---------------------------------------------------------------
@@ -308,6 +311,7 @@ module Vagrant
     # Reloads the configuration of this environment.
     def reload_config!
       @config = nil
+      @config_loader = nil
       load_config!
       self
     end
@@ -320,23 +324,23 @@ module Vagrant
       first_run = @config.nil?
 
       # First load the initial, non config-dependent Vagrantfiles
-      loader = Config.new
-      loader.load_order = [:default, :box, :home, :root, :sub_vm]
-      loader.set(:default, File.expand_path("config/default.rb", Vagrant.source_root))
-      loader.set(:box, File.join(box.directory, ROOTFILE_NAME)) if !first_run && box
-      loader.set(:home, File.join(home_path, ROOTFILE_NAME)) if !first_run && home_path
-      loader.set(:root, File.join(root_path, ROOTFILE_NAME)) if root_path
+      @config_loader ||= Config.new(parent ? parent.config_loader : nil)
+      @config_loader.load_order = [:default, :box, :home, :root, :sub_vm]
+      @config_loader.set(:default, File.expand_path("config/default.rb", Vagrant.source_root))
+      @config_loader.set(:box, File.join(box.directory, ROOTFILE_NAME)) if !first_run && vm && box
+      @config_loader.set(:home, File.join(home_path, ROOTFILE_NAME)) if !first_run && home_path
+      @config_loader.set(:root, File.join(root_path, ROOTFILE_NAME)) if root_path
 
       # If this environment is representing a sub-VM, then we push that
       # proc on as the last configuration.
       if vm
         subvm = parent.config.vm.defined_vms[vm.name]
-        loader.set(:sub_vm, subvm.proc_stack) if subvm
+        @config_loader.set(:sub_vm, subvm.proc_stack) if subvm
       end
 
       # Execute the configuration stack and store the result as the final
       # value in the config ivar.
-      @config = loader.load(self)
+      @config = @config_loader.load(self)
 
       # (re)load the logger
       @logger = nil

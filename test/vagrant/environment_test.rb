@@ -393,7 +393,7 @@ class EnvironmentTest < Test::Unit::TestCase
         create_box_vagrantfile
         vagrantfile(@env.root_path, "config.vm.box = 'box'")
 
-        assert_equal "box.box", @env.config.package.name
+        assert_equal "box.box", @env.primary_vm.env.config.package.name
       end
 
       should "load from home path if exists" do
