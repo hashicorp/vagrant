@@ -8,7 +8,6 @@ class ConfigVagrantTest < Test::Unit::TestCase
   context "validation" do
     setup do
       @config.dotfile_name = "foo"
-      @config.home = "foo"
       @config.host = "foo"
 
       @errors = Vagrant::Config::ErrorRecorder.new
@@ -21,13 +20,6 @@ class ConfigVagrantTest < Test::Unit::TestCase
 
     should "be invalid with no dotfile" do
       @config.dotfile_name = nil
-
-      @config.validate(@errors)
-      assert !@errors.errors.empty?
-    end
-
-    should "be invalid with no home" do
-      @config.home = nil
 
       @config.validate(@errors)
       assert !@errors.errors.empty?

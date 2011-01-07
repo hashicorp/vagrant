@@ -61,8 +61,21 @@ class EnvironmentTest < Test::Unit::TestCase
     end
 
     context "home path" do
+      setup do
+        @env = @klass.new
+      end
+
       should "return the home path if it loaded" do
-        expected = Pathname.new(File.expand_path(@env.config.vagrant.home, @env.root_path))
+        ENV["VAGRANT_HOME"] = nil
+
+        expected = Pathname.new(File.expand_path(@klass::DEFAULT_HOME))
+        assert_equal expected, @env.home_path
+      end
+
+      should "return the home path set by the environmental variable" do
+        ENV["VAGRANT_HOME"] = "foo"
+
+        expected = Pathname.new(File.expand_path(ENV["VAGRANT_HOME"]))
         assert_equal expected, @env.home_path
       end
     end

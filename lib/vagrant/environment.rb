@@ -9,6 +9,7 @@ module Vagrant
     ROOTFILE_NAME = "Vagrantfile"
     HOME_SUBDIRS = ["tmp", "boxes", "logs"]
     DEFAULT_VM = :default
+    DEFAULT_HOME = "~/.vagrant"
 
     # Parent environment (in the case of multi-VMs)
     attr_reader :parent
@@ -82,12 +83,11 @@ module Vagrant
       root_path.join(config.vagrant.dotfile_name) rescue nil
     end
 
-    # The path to the home directory, expanded relative to the root path,
-    # and converted into a Pathname object.
+    # The path to the home directory and converted into a Pathname object.
     #
     # @return [Pathname]
     def home_path
-      @_home_path ||= Pathname.new(File.expand_path(config.vagrant.home, root_path))
+      @_home_path ||= Pathname.new(File.expand_path(ENV["VAGRANT_HOME"] || DEFAULT_HOME))
     end
 
     # The path to the Vagrant tmp directory

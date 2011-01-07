@@ -11,6 +11,8 @@
   - Vagrant source now has a `contrib` directory where contributions of miscellaneous
     addons for Vagrant will be added.
   - Vagrantfiles are now loaded only once (instead of 4+ times) [GH-238]
+  - Ability to move home vagrant dir (~/.vagrant) by setting VAGRANT_HOME
+    environmental variable.
 
 ## 0.7.0.beta (December 24, 2010)
 
