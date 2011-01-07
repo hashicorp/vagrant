@@ -37,5 +37,6 @@ require 'vagrant/command'
 require 'vagrant/provisioners'
 require 'vagrant/systems'
 require 'vagrant/ssh'
+require 'vagrant/version'
 Vagrant::Action.builtin!
 Vagrant::Plugin.load!
