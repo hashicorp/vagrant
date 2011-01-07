@@ -15,7 +15,6 @@ module Vagrant
   autoload :Errors,        'vagrant/errors'
   autoload :Hosts,         'vagrant/hosts'
   autoload :Plugin,        'vagrant/plugin'
-  autoload :SSH,           'vagrant/ssh'
   autoload :TestHelpers,   'vagrant/test_helpers'
   autoload :UI,            'vagrant/ui'
   autoload :Util,          'vagrant/util'
@@ -31,9 +30,12 @@ end
 # Default I18n to load the en locale
 I18n.load_path << File.expand_path("templates/locales/en.yml", Vagrant.source_root)
 
-# Load the things which must be loaded before anything else
+# Load the things which must be loaded before anything else. Note that
+# I'm not sure why 'vagrant/ssh' must be loaded. But if I don't, I get
+# a very scary "unsupported cipher" error from net-ssh for no apparent reason.
 require 'vagrant/command'
 require 'vagrant/provisioners'
 require 'vagrant/systems'
+require 'vagrant/ssh'
 Vagrant::Action.builtin!
 Vagrant::Plugin.load!
