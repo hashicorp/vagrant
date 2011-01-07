@@ -1,3 +1,12 @@
+require 'vagrant/action/builder'
+require 'vagrant/action/builtin'
+
+# The builtin middlewares
+require 'vagrant/action/box'
+require 'vagrant/action/env'
+require 'vagrant/action/general'
+require 'vagrant/action/vm'
+
 module Vagrant
   # Manages action running and registration. Every Vagrant environment
   # has an instance of {Action} to allow for running in the context of
@@ -44,6 +53,9 @@ module Vagrant
   # Where `:name` is the name of the registered action.
   #
   class Action
+    autoload :Environment, 'vagrant/action/environment'
+    autoload :Warden,      'vagrant/action/warden'
+
     include Util
     @@reported_interrupt = false
 
