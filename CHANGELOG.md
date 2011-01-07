@@ -13,6 +13,8 @@
   - Vagrantfiles are now loaded only once (instead of 4+ times) [GH-238]
   - Ability to move home vagrant dir (~/.vagrant) by setting VAGRANT_HOME
     environmental variable.
+  - Removed check and error for the "OSE" version of VirtualBox, since with
+    VirtualBox 4 this distinction no longer exists.
 
 ## 0.7.0.beta (December 24, 2010)
 

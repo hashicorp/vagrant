@@ -28,12 +28,6 @@ class EnvironmentTest < Test::Unit::TestCase
       VirtualBox.expects(:version).returns(version)
       assert_raises(Vagrant::Errors::VirtualBoxInvalidVersion) { @klass.check_virtualbox! }
     end
-
-    should "error and exit for OSE VirtualBox" do
-      version = "4.0.0_OSE"
-      VirtualBox.expects(:version).returns(version)
-      assert_raises(Vagrant::Errors::VirtualBoxInvalidOSE) { @klass.check_virtualbox! }
-    end
   end
 
   context "initialization" do

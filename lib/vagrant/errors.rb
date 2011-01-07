@@ -275,11 +275,6 @@ module Vagrant
       error_key(:vagrantfile_syntax_error)
     end
 
-    class VirtualBoxInvalidOSE < VagrantError
-      status_code(9)
-      error_key(:virtualbox_invalid_ose)
-    end
-
     class VirtualBoxInvalidVersion < VagrantError
       status_code(17)
       error_key(:virtualbox_invalid_version)
