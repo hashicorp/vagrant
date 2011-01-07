@@ -320,22 +320,23 @@ module Vagrant
       first_run = @config.nil?
 
       # First load the initial, non config-dependent Vagrantfiles
-      loader = Config.new(self)
-      loader.queue << File.expand_path("config/default.rb", Vagrant.source_root)
-      loader.queue << File.join(box.directory, ROOTFILE_NAME) if !first_run && box
-      loader.queue << File.join(home_path, ROOTFILE_NAME) if !first_run && home_path
-      loader.queue << File.join(root_path, ROOTFILE_NAME) if root_path
+      loader = Config.new
+      loader.load_order = [:default, :box, :home, :root, :sub_vm]
+      loader.set(:default, File.expand_path("config/default.rb", Vagrant.source_root))
+      loader.set(:box, File.join(box.directory, ROOTFILE_NAME)) if !first_run && box
+      loader.set(:home, File.join(home_path, ROOTFILE_NAME)) if !first_run && home_path
+      loader.set(:root, File.join(root_path, ROOTFILE_NAME)) if root_path
 
       # If this environment is representing a sub-VM, then we push that
       # proc on as the last configuration.
       if vm
         subvm = parent.config.vm.defined_vms[vm.name]
-        loader.queue << subvm.proc_stack if subvm
+        loader.set(:sub_vm, subvm.proc_stack) if subvm
       end
 
       # Execute the configuration stack and store the result as the final
       # value in the config ivar.
-      @config = loader.load!
+      @config = loader.load(self)
 
       # (re)load the logger
       @logger = nil

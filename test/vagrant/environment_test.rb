@@ -4,6 +4,8 @@ require "pathname"
 class EnvironmentTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Environment
+
+    clean_paths
   end
 
   context "class method check virtualbox version" do

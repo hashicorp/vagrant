@@ -17,92 +17,90 @@ module Vagrant
   # class you are looking for. Loading configuration is quite easy. The following
   # example assumes `env` is already a loaded instance of {Environment}:
   #
-  #     config = Vagrant::Config.new(env)
-  #     config.queue << "/path/to/some/Vagrantfile"
-  #     result = config.load!
+  #     config = Vagrant::Config.new
+  #     config.set(:first, "/path/to/some/Vagrantfile")
+  #     config.set(:second, "/path/to/another/Vagrantfile")
+  #     config.load_order = [:first, :second]
+  #     result = config.load(env)
   #
   #     p "Your box is: #{result.vm.box}"
   #
+  # The load order determines what order the config files specified are loaded.
+  # If a key is not mentioned (for example if above the load order was set to
+  # `[:first]`, therefore `:second` was not mentioned), then that config file
+  # won't be loaded.
   class Config
-    extend Util::StackedProcRunner
+    # An array of symbols specifying the load order for the procs.
+    attr_accessor :load_order
 
-    @@config = nil
-
-    attr_reader :queue
-
-    class << self
-      # Resets the current loaded config object to the specified environment.
-      # This clears the proc stack and initializes a new {Top} for loading.
-      # This method shouldn't be called directly, instead use an instance of this
-      # class for config loading.
-      #
-      # @param [Environment] env
-      def reset!(env=nil)
-        @@config = nil
-        proc_stack.clear
-
-        # Reset the configuration to the specified environment
-        config(env)
-      end
-
-      # Returns the current {Top} configuration object. While this is still
-      # here for implementation purposes, it shouldn't be called directly. Instead,
-      # use an instance of this class.
-      def config(env=nil)
-        @@config ||= Config::Top.new(env)
-      end
-
-      # Adds the given proc/block to the stack of config procs which are all
-      # run later on a single config object. This is the main way to configure
-      # Vagrant, and is how all Vagrantfiles are formatted:
-      #
-      #     Vagrant::Config.run do |config|
-      #       # ...
-      #     end
-      #
-      def run(&block)
-        push_proc(&block)
-      end
-
-      # Executes all the config procs onto the currently loaded {Top} object,
-      # and returns the final configured object. This also validates the
-      # configuration by calling {Top#validate!} on every configuration
-      # class.
-      def execute!
-        config_object ||= config
-        run_procs!(config_object)
-        config_object
-      end
-    end
-
-    # Initialize a {Config} object for the given {Environment}.
+    # This is the method which is called by all Vagrantfiles to configure Vagrant.
+    # This method expects a block which accepts a single argument representing
+    # an instance of the {Config::Top} class.
     #
-    # @param [Environment] env Environment which config object will be part
-    #   of.
-    def initialize(env)
-      @env = env
-      @queue = []
+    # Note that the block is not run immediately. Instead, it's proc is stored
+    # away for execution later.
+    def self.run(&block)
+      # Store it for later
+      @last_proc = block
     end
 
-    # Loads the queue of files/procs, executes them in the proper
-    # sequence, and returns the resulting configuration object.
-    def load!
-      self.class.reset!(@env)
+    # Returns the last proc which was activated for the class via {run}. This
+    # also sets the last proc to `nil` so that calling this method multiple times
+    # will not return duplicates.
+    #
+    # @return [Proc]
+    def self.last_proc
+      value = @last_proc
+      @last_proc = nil
+      value
+    end
 
-      queue.flatten.each do |item|
-        if item.is_a?(String) && File.exist?(item)
-          begin
-            load item
-          rescue SyntaxError => e
-            # Report syntax errors in a nice way for Vagrantfiles
-            raise Errors::VagrantfileSyntaxError, :file => e.message
+    def initialize
+      @procs = {}
+      @load_order = []
+    end
+
+    # Adds a Vagrantfile to be loaded to the queue of config procs. Note
+    # that this causes the Vagrantfile file to be loaded at this point,
+    # and it will never be loaded again.
+    def set(key, path)
+      @procs[key] = [path].flatten.map(&method(:proc_for))
+    end
+
+    # Loads the added procs using the set `load_order` attribute and returns
+    # the {Config::Top} object result. The configuration is loaded for the
+    # given {Environment} object.
+    #
+    # @param [Environment] env
+    def load(env)
+      config = Top.new(env)
+
+      # Only run the procs specified in the load order, in the order
+      # specified.
+      load_order.each do |key|
+        if @procs[key]
+          @procs[key].each do |proc|
+            proc.call(config) if proc
           end
-        elsif item.is_a?(Proc)
-          self.class.run(&item)
         end
       end
 
-      return self.class.execute!
+      config
+    end
+
+    protected
+
+    def proc_for(path)
+      return nil if !path
+      return path if path.is_a?(Proc)
+
+      begin
+        Kernel.load path if File.exist?(path)
+        return self.class.last_proc
+      rescue SyntaxError => e
+        # Report syntax errors in a nice way for Vagrantfiles
+        raise Errors::VagrantfileSyntaxError, :file => e.message
+      end
     end
   end
 

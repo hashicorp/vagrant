@@ -5,117 +5,69 @@ class ConfigTest < Test::Unit::TestCase
     @klass = Vagrant::Config
   end
 
+  context "with the class" do
+    should "allow access to the last proc" do
+      foo = mock("object")
+      foo.expects(:call).once
+
+      @klass.run { |config| foo.call }
+      value = @klass.last_proc
+      assert value.is_a?(Proc)
+      value.call
+
+      assert @klass.last_proc.nil?
+    end
+  end
+
   context "with an instance" do
     setup do
-      @env = vagrant_env
-      @instance = @klass.new(@env)
+      # @env = vagrant_env
+      @instance = @klass.new
     end
 
-    should "initially have an empty queue" do
-      assert @instance.queue.empty?
+    should "load the config files in the given order" do
+      names = %w{alpha beta gamma}
+
+      @instance.load_order = [:alpha, :beta]
+
+      names.each do |name|
+        vagrantfile(vagrant_box(name), "config.vm.box = '#{name}'")
+        @instance.set(name.to_sym, vagrant_box(name).join("Vagrantfile"))
+      end
+
+      config = @instance.load(nil)
+      assert_equal "beta", config.vm.box
     end
 
-    should "reset the config class on load, then execute" do
-      seq = sequence("sequence")
-      @klass.expects(:reset!).with(@env).in_sequence(seq)
-      @klass.expects(:execute!).in_sequence(seq)
-      @instance.load!
+    should "load the config as procs" do
+      @instance.set(:proc, Proc.new { |config| config.vm.box = "proc" })
+      @instance.load_order = [:proc]
+      config = @instance.load(nil)
+
+      assert_equal "proc", config.vm.box
     end
 
-    should "run the queue in the order given" do
-      @instance.queue << Proc.new { |config| config.vm.box = "foo" }
-      @instance.queue << Proc.new { |config| config.vm.box = "bar" }
-      result = @instance.load!
+    should "load an array of procs" do
+      @instance.set(:proc, [Proc.new { |config| config.vm.box = "proc" },
+                            Proc.new { |config| config.vm.box = "proc2" }])
+      @instance.load_order = [:proc]
+      config = @instance.load(nil)
 
-      assert_equal "bar", result.vm.box
+      assert_equal "proc2", config.vm.box
     end
 
-    should "allow nested arrays" do
-      queue = []
-      queue << Proc.new { |config| config.vm.box = "foo" }
-      queue << Proc.new { |config| config.vm.box = "bar" }
-      @instance.queue << queue
-      result = @instance.load!
-
-      assert_equal "bar", result.vm.box
-    end
-
-    should "load a file if it exists" do
-      filename = "foo"
-      File.expects(:exist?).with(filename).returns(true)
-      @instance.expects(:load).with(filename).once
-
-      @instance.queue << filename
-      @instance.load!
-    end
-
-    should "not load a file if it doesn't exist" do
-      filename = "foo"
-      File.expects(:exist?).with(filename).returns(false)
-      @instance.expects(:load).with(filename).never
-
-      @instance.queue << filename
-      @instance.load!
+    should "not care if a file doesn't exist" do
+      @instance.load_order = [:foo]
+      assert_nothing_raised { @instance.set(:foo, "i/dont/exist") }
+      assert_nothing_raised { @instance.load(nil) }
     end
 
     should "raise an exception if there is a syntax error in a file" do
-      @instance.queue << "foo"
-      File.expects(:exist?).with("foo").returns(true)
-      @instance.expects(:load).with("foo").raises(SyntaxError.new)
+      vagrantfile(vagrant_box("foo"), "^%&8318")
 
       assert_raises(Vagrant::Errors::VagrantfileSyntaxError) {
-        @instance.load!
+        @instance.set(:foo, vagrant_box("foo").join("Vagrantfile"))
       }
-    end
-  end
-
-  context "resetting" do
-    setup do
-      @klass.reset!(vagrant_env)
-      @klass::Top.any_instance.stubs(:validate!)
-      @klass.run { |config| }
-      @klass.execute!
-    end
-
-    should "return the same config object typically" do
-      config = @klass.config
-      assert config.equal?(@klass.config)
-    end
-
-    should "create a new object if cleared" do
-      config = @klass.config
-      @klass.reset!
-      assert !config.equal?(@klass.config)
-    end
-
-    should "empty the proc stack" do
-      assert !@klass.proc_stack.empty?
-      @klass.reset!
-      assert @klass.proc_stack.empty?
-    end
-
-    should "reload the config object based on the given environment" do
-      env = mock("env")
-      @klass.expects(:config).with(env).once
-      @klass.reset!(env)
-    end
-  end
-
-  context "initializing" do
-    setup do
-      @klass.reset!(vagrant_env)
-    end
-
-    should "add the given block to the proc stack" do
-      proc = Proc.new {}
-      @klass.run(&proc)
-      assert_equal [proc], @klass.proc_stack
-    end
-
-    should "return the configuration on execute!" do
-      @klass.run {}
-      result = @klass.execute!
-      assert result.is_a?(@klass::Top)
     end
   end
 
