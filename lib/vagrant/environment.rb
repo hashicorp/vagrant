@@ -116,7 +116,8 @@ module Vagrant
     #
     # @return [String]
     def resource
-      vm.name rescue "vagrant"
+      result = vm.name rescue nil
+      result || "vagrant"
     end
 
     # Returns the collection of boxes for the environment.
