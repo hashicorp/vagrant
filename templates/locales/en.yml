@@ -469,15 +469,5 @@ en:
           that the NFS client software is properly installed, and consult any resources
           specific to the linux distro you're using for more information on how to
           do this.
-        network_not_debian: |-
-          Host only networking is only supported for Debian/Ubuntu by the built-in
-          "Linux" system. If you're using some other distro and want to implement
-          host only networking, please subclass the `Vagrant::Systems::Linux` class
-          and implement the `prepare_host_only_network` and `enable_host_only_network`
-          methods.
-
-          Otherwise, please report your distro and how to modify network interfaces
-          to the Vagrant mailing list or IRC and we'll probably be glad to add it
-          to the internal systems.
       solaris:
         attempting_halt: "Attempting graceful shutdown of solaris..."
