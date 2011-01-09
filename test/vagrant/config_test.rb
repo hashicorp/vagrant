@@ -13,7 +13,7 @@ class ConfigTest < Test::Unit::TestCase
       @klass.run { |config| foo.call }
       value = @klass.last_proc.first
       assert value.is_a?(Proc)
-      value.call
+      value.call(nil)
 
       assert @klass.last_proc.nil?
     end
