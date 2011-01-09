@@ -463,6 +463,12 @@ en:
       linux:
         attempting_halt: "Attempting graceful shutdown of linux..."
         mount_fail: "Failed to mount shared folders. `vboxsf` was not available."
+        mount_nfs_fail: |-
+          Mounting NFS shared folders failed. This is most often caused by the NFS
+          client software not being installed on the guest machine. Please verify
+          that the NFS client software is properly installed, and consult any resources
+          specific to the linux distro you're using for more information on how to
+          do this.
         network_not_debian: |-
           Host only networking is only supported for Debian/Ubuntu by the built-in
           "Linux" system. If you're using some other distro and want to implement
