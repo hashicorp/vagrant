@@ -12,6 +12,16 @@ module Vagrant
         @session = session
       end
 
+      # Executes a given command and simply returns true/false if the
+      # command succeeded or not.
+      def test?(command)
+        exec!(command) do |ch, type, data|
+          return true if type == :exit_status && data == 0
+        end
+
+        false
+      end
+
       # Executes a given command on the SSH session and blocks until
       # the command completes. This is an almost line for line copy of
       # the actual `exec!` implementation, except that this

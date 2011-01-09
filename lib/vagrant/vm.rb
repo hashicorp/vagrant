@@ -58,9 +58,10 @@ module Vagrant
       elsif system.is_a?(Symbol)
         # Hard-coded internal systems
         mapping = {
+          :debian => Systems::Debian,
+          :gentoo => Systems::Gentoo,
           :linux => Systems::Linux,
-          :solaris => Systems::Solaris,
-          :gentoo => Systems::Gentoo
+          :solaris => Systems::Solaris
         }
 
         raise Errors::VMSystemError, :_key => :unknown_type, :system => system.to_s if !mapping.has_key?(system)
