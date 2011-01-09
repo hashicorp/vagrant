@@ -13,6 +13,7 @@ module Vagrant
           # Start up the VM and wait for it to boot.
           boot
           raise Errors::VMFailedToBoot if !wait_for_boot
+
           @app.call(env)
         end
 
@@ -34,7 +35,7 @@ module Vagrant
             # get shown
             return true if @env.interrupted?
 
-            sleep 5 if !@env["vagrant.test"]
+            sleep 2 if !@env["vagrant.test"]
           end
 
           @env.ui.error I18n.t("vagrant.actions.vm.boot.failed")
