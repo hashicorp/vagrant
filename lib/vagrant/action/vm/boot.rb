@@ -24,7 +24,7 @@ module Vagrant
         def wait_for_boot
           @env.ui.info I18n.t("vagrant.actions.vm.boot.waiting")
 
-          @env.env.config.ssh.max_tries.to_i.times do |i|
+          @env["config"].ssh.max_tries.to_i.times do |i|
             if @env["vm"].ssh.up?
               @env.ui.info I18n.t("vagrant.actions.vm.boot.ready")
               return true
