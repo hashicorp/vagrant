@@ -16,12 +16,4 @@ group :test do
   # For documentation
   gem "yard", "~> 0.6.1"
   gem "bluecloth"
-
-  platforms :mri_18 do
-    gem "ruby-debug"
-  end
-
-  platforms :mri_19 do
-    gem "ruby-debug19"
-  end
 end
