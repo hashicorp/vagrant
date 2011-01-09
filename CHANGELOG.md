@@ -15,6 +15,7 @@
     environmental variable.
   - Removed check and error for the "OSE" version of VirtualBox, since with
     VirtualBox 4 this distinction no longer exists.
+  - Ability to specify proxy settings for chef. [GH-169]
 
 ## 0.7.0.beta (December 24, 2010)
 

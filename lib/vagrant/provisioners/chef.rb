@@ -25,7 +25,14 @@ module Vagrant
 
       def setup_config(template, filename, template_vars)
         config_file = TemplateRenderer.render(template, {
-          :log_level => env.config.chef.log_level.to_sym
+          :log_level => env.config.chef.log_level.to_sym,
+          :http_proxy => env.config.chef.http_proxy,
+          :http_proxy_user => env.config.chef.http_proxy_user,
+          :http_proxy_pass => env.config.chef.http_proxy_pass,
+          :https_proxy => env.config.chef.https_proxy,
+          :https_proxy_user => env.config.chef.https_proxy_user,
+          :https_proxy_pass => env.config.chef.https_proxy_pass,
+          :no_proxy => env.config.chef.no_proxy
         }.merge(template_vars))
 
         vm.ssh.upload!(StringIO.new(config_file), File.join(env.config.chef.provisioning_path, filename))
@@ -80,6 +87,13 @@ module Vagrant
         attr_accessor :provisioning_path
         attr_accessor :log_level
         attr_accessor :json
+        attr_accessor :http_proxy
+        attr_accessor :http_proxy_user
+        attr_accessor :http_proxy_pass
+        attr_accessor :https_proxy
+        attr_accessor :https_proxy_user
+        attr_accessor :https_proxy_pass
+        attr_accessor :no_proxy
 
         def initialize
           @validation_client_name = "chef-validator"
@@ -87,11 +101,17 @@ module Vagrant
 
           @cookbooks_path = ["cookbooks", [:vm, "cookbooks"]]
           @roles_path = []
+
           @provisioning_path = "/tmp/vagrant-chef"
           @log_level = :info
-          @json = {
-            :instance_role => "vagrant",
-          }
+          @json = { :instance_role => "vagrant" }
+          @http_proxy = nil
+          @http_proxy_user = nil
+          @http_proxy_pass = nil
+          @https_proxy = nil
+          @https_proxy_user = nil
+          @https_proxy_pass = nil
+          @no_proxy = nil
         end
 
         # Returns the run list for the provisioning
