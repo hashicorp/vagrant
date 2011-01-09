@@ -460,6 +460,16 @@ en:
         running_puppetd: "Running Puppet agent..."
 
     systems:
+      base:
+        unsupported_host_only: |-
+          Host only networking is very distro-specific. Vagrant has support for many
+          distros built-in: Debian, Ubuntu, Gentoo, and RedHat. The distro of your VM
+          couldn't be detected, or isn't supported for host only networking.
+
+          Most of the time this is simply due to the fact that no one has contributed
+          back the SSH commands necessary to set this up. Please report a bug and this
+          will be fixed for your distro.
+
       linux:
         attempting_halt: "Attempting graceful shutdown of linux..."
         mount_fail: "Failed to mount shared folders. `vboxsf` was not available."
@@ -469,5 +479,6 @@ en:
           that the NFS client software is properly installed, and consult any resources
           specific to the linux distro you're using for more information on how to
           do this.
+
       solaris:
         attempting_halt: "Attempting graceful shutdown of solaris..."

@@ -15,6 +15,10 @@ module Vagrant
     # required by systems can and will change at any time. Any
     # changes will be noted on release notes.**
     class Base
+      class BaseError < Errors::VagrantError
+        error_namespace("vagrant.systems.base")
+      end
+
       include Vagrant::Util
 
       # The VM which this system is tied to.
@@ -64,7 +68,9 @@ module Vagrant
 
       # Prepares the system for host only networks. This is called
       # once prior to any `enable_host_only_network` calls.
-      def prepare_host_only_network; end
+      def prepare_host_only_network
+        raise BaseError, :_key => :unsupported_host_only
+      end
 
       # Setup the system by adding a new host only network. This
       # method should configure and bring up the interface for the
