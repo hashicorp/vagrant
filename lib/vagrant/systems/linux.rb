@@ -1,32 +1,9 @@
+require 'vagrant/systems/linux/error'
+require 'vagrant/systems/linux/config'
+
 module Vagrant
   module Systems
-    # A general Vagrant system implementation for "linux." In general,
-    # any linux-based OS will work fine with this system, although its
-    # not tested exhaustively. BSD or other based systems may work as
-    # well, but that hasn't been tested at all.
-    #
-    # At any rate, this system implementation should server as an
-    # example of how to implement any custom systems necessary.
     class Linux < Base
-      # A custom config class which will be made accessible via `config.linux`
-      # This is not necessary for all system implementers, of course. However,
-      # generally, Vagrant tries to make almost every aspect of its execution
-      # configurable, and this assists that goal.
-      class LinuxConfig < Vagrant::Config::Base
-        configures :linux
-
-        attr_accessor :halt_timeout
-        attr_accessor :halt_check_interval
-
-        def initialize
-          @halt_timeout = 30
-          @halt_check_interval = 1
-        end
-      end
-
-      #-------------------------------------------------------------------
-      # Overridden methods
-      #-------------------------------------------------------------------
       def halt
         vm.env.ui.info I18n.t("vagrant.systems.linux.attempting_halt")
         vm.ssh.execute do |ssh|
@@ -109,12 +86,6 @@ module Vagrant
           raise LinuxError, :mount_fail if attempts >= 10
           sleep sleeptime
         end
-      end
-    end
-
-    class Linux < Base
-      class LinuxError < Errors::VagrantError
-        error_namespace("vagrant.systems.linux")
       end
     end
   end

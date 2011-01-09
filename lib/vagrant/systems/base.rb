@@ -27,6 +27,15 @@ module Vagrant
         @vm = vm
       end
 
+      # This method is automatically called when the system is available (when
+      # Vagrant can successfully SSH into the machine) to give the system a chance
+      # to determine the distro and return a distro-specific system.
+      #
+      # **Warning:** If a return value which subclasses from {Base} is
+      # returned, Vagrant will use it as the new system instance for the
+      # class.
+      def distro_dispatch; end
+
       # Halt the machine. This method should gracefully shut down the
       # operating system. This method will cause `vagrant halt` and associated
       # commands to _block_, meaning that if the machine doesn't halt

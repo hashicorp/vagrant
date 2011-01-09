@@ -3,7 +3,6 @@ module Vagrant
     include Vagrant::Util
 
     attr_reader :env
-    attr_reader :system
     attr_reader :name
     attr_reader :vm
 
@@ -41,6 +40,8 @@ module Vagrant
         # Load the associated system.
         load_system!
       end
+
+      @loaded_system_distro = false
     end
 
     # Loads the system associated with the VM. The system class is
@@ -48,8 +49,8 @@ module Vagrant
     # can be found by reading the documentation on {Vagrant::Systems::Base}.
     #
     # **This method should never be called manually.**
-    def load_system!
-      system = env.config.vm.system
+    def load_system!(system=nil)
+      system ||= env.config.vm.system
 
       if system.is_a?(Class)
         @system = system.new(self)
@@ -63,6 +64,19 @@ module Vagrant
       else
         raise Errors::VMSystemError, :unspecified
       end
+    end
+
+    # Returns the system for this VM, loading the distro of the system if
+    # we can.
+    def system
+      if !@loaded_system_distro && created? && vm.running?
+        # Load the system distro for the first time
+        result = @system.distro_dispatch
+        load_system!(result)
+        @loaded_system_distro = true
+      end
+
+      @system
     end
 
     # Access the {Vagrant::SSH} object associated with this VM.
