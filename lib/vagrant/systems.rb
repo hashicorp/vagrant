@@ -3,3 +3,4 @@
 require 'vagrant/systems/base'
 require 'vagrant/systems/linux'
 require 'vagrant/systems/solaris'
+require 'vagrant/systems/gentoo'
