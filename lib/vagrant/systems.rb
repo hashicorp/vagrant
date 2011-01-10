@@ -6,3 +6,4 @@ require 'vagrant/systems/solaris'
 
 require 'vagrant/systems/debian'
 require 'vagrant/systems/gentoo'
+require 'vagrant/systems/redhat'

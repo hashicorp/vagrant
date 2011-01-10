@@ -60,6 +60,7 @@ module Vagrant
         mapping = {
           :debian => Systems::Debian,
           :gentoo => Systems::Gentoo,
+          :redhat => Systems::Redhat,
           :linux => Systems::Linux,
           :solaris => Systems::Solaris
         }
