@@ -43,37 +43,6 @@ class LinuxSystemTest < Test::Unit::TestCase
     end
   end
 
-  context "prepare host only network" do
-    setup do
-      @ssh_session = mock("ssh_session")
-      @ssh.stubs(:execute).yields(@ssh_session)
-      @vm.stubs(:ssh).returns(@ssh)
-    end
-
-    should "determin distribution debian, clear out any previous entries for adapter, then create interfaces" do
-      prepare_seq = sequence("prepare_seq")
-      @instance.expects(:distribution).returns(:debian).in_sequence(prepare_seq)
-      @ssh_session.expects(:exec!).with("sudo sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/network/interfaces > /tmp/vagrant-network-interfaces").in_sequence(prepare_seq)
-      @ssh_session.expects(:exec!).with("sudo su -c 'cat /tmp/vagrant-network-interfaces > /etc/network/interfaces'").in_sequence(prepare_seq)
-      @instance.prepare_host_only_network({})
-    end
-
-    should "determin distribution redhat, clear out any previous entries for adapter, then create interfaces" do
-      prepare_seq = sequence("prepare_seq")
-      @instance.expects(:distribution).returns(:redhat).in_sequence(prepare_seq)
-      @ssh_session.expects(:exec!).with("sudo sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/sysconfig/network-scripts/ifcfg-eth1 > /tmp/vagrant-ifcfg-eth1").in_sequence(prepare_seq)
-      @ssh_session.expects(:exec!).with("sudo su -c 'cat /tmp/vagrant-ifcfg-eth1 > /etc/sysconfig/network-scripts/ifcfg-eth1'").in_sequence(prepare_seq)
-      @instance.prepare_host_only_network({:adapter => 1})
-    end
-
-    should "determin distribution not supported" do
-      @instance.expects(:distribution).raises(Vagrant::Systems::Linux::LinuxError)
-      assert_raises(Vagrant::Systems::Linux::LinuxError) {
-        @instance.prepare_host_only_network({})
-      }
-    end
-  end
-
   #-------------------------------------------------------------------
   # "Private" methods tests
   #-------------------------------------------------------------------
@@ -142,54 +111,4 @@ class LinuxSystemTest < Test::Unit::TestCase
       mount_folder
     end
   end
-
-  context "determine distribution" do
-    setup do
-      @debian_test_command = "test -e /etc/debian_version"
-      @redhat_test_command = "test -e /etc/redhat-release"
-    end
-
-    should "is debian" do
-      @ssh.expects(:exec!).with(@debian_test_command).yields(nil, :exit_status, 0)
-      assert_equal true, @instance.debian?(@ssh)
-    end
-
-    should "is not debian" do
-      @ssh.expects(:exec!).with(@debian_test_command).yields(nil, :exit_status, 1)
-      assert_equal false, @instance.debian?(@ssh)
-    end
-
-    should "is redhat" do
-      @ssh.expects(:exec!).with(@redhat_test_command).yields(nil, :exit_status, 0)
-      assert_equal true, @instance.redhat?(@ssh)
-    end
-
-    should "is not redhat" do
-      @ssh.expects(:exec!).with(@redhat_test_command).yields(nil, :exit_status, 1)
-      assert_equal false, @instance.redhat?(@ssh)
-    end
-
-    should "debian selected" do
-      @instance.expects(:debian?).returns(true)
-      @instance.expects(:redhat?).never()
-      assert_equal :debian, @instance.distribution(@ssh)
-    end
-
-    should "redhat selected" do
-      check_seq = sequence("check_seq")
-      @instance.expects(:debian?).returns(false).in_sequence(check_seq)
-      @instance.expects(:redhat?).returns(true).in_sequence(check_seq)
-      assert_equal :redhat, @instance.distribution(@ssh)
-    end
-
-    should "not supported" do
-      check_seq = sequence("check_seq")
-      @instance.expects(:debian?).returns(false).in_sequence(check_seq)
-      @instance.expects(:redhat?).returns(false).in_sequence(check_seq)
-      assert_raises(Vagrant::Systems::Linux::LinuxError) {
-          @instance.distribution(@ssh)
-      }
-    end
-  end
-
 end

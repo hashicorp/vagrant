@@ -4,6 +4,8 @@ require "pathname"
 class EnvironmentTest < Test::Unit::TestCase
   setup do
     @klass = Vagrant::Environment
+
+    clean_paths
   end
 
   context "class method check virtualbox version" do
@@ -25,12 +27,6 @@ class EnvironmentTest < Test::Unit::TestCase
       version = "3.2.12r1041"
       VirtualBox.expects(:version).returns(version)
       assert_raises(Vagrant::Errors::VirtualBoxInvalidVersion) { @klass.check_virtualbox! }
-    end
-
-    should "error and exit for OSE VirtualBox" do
-      version = "4.0.0_OSE"
-      VirtualBox.expects(:version).returns(version)
-      assert_raises(Vagrant::Errors::VirtualBoxInvalidOSE) { @klass.check_virtualbox! }
     end
   end
 
@@ -59,8 +55,21 @@ class EnvironmentTest < Test::Unit::TestCase
     end
 
     context "home path" do
+      setup do
+        @env = @klass.new
+      end
+
       should "return the home path if it loaded" do
-        expected = Pathname.new(File.expand_path(@env.config.vagrant.home, @env.root_path))
+        ENV["VAGRANT_HOME"] = nil
+
+        expected = Pathname.new(File.expand_path(@klass::DEFAULT_HOME))
+        assert_equal expected, @env.home_path
+      end
+
+      should "return the home path set by the environmental variable" do
+        ENV["VAGRANT_HOME"] = "foo"
+
+        expected = Pathname.new(File.expand_path(ENV["VAGRANT_HOME"]))
         assert_equal expected, @env.home_path
       end
     end
@@ -391,7 +400,7 @@ class EnvironmentTest < Test::Unit::TestCase
         create_box_vagrantfile
         vagrantfile(@env.root_path, "config.vm.box = 'box'")
 
-        assert_equal "box.box", @env.config.package.name
+        assert_equal "box.box", @env.primary_vm.env.config.package.name
       end
 
       should "load from home path if exists" do

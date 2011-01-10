@@ -25,8 +25,8 @@ module Vagrant
 
           if enable_network?
             @env.ui.info I18n.t("vagrant.actions.vm.network.enabling")
+            @env["vm"].system.prepare_host_only_network
             @env.env.config.vm.network_options.compact.each do |network_options|
-              @env["vm"].system.prepare_host_only_network(network_options)
               @env["vm"].system.enable_host_only_network(network_options)
             end
           end

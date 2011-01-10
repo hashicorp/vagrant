@@ -25,6 +25,7 @@ class VMTest < Test::Unit::TestCase
     setup do
       @vm_name = "foo"
       @mock_vm = mock("vm")
+      @mock_vm.stubs(:running?).returns(false)
       @vm = Vagrant::VM.new(:env => @env, :vm => @mock_vm, :name => @vm_name)
       @mock_vm.stubs(:uuid).returns("foo")
     end
@@ -96,11 +97,14 @@ class VMTest < Test::Unit::TestCase
         }
       end
 
-      context "with a class" do
-        class FakeSystemClass
-          def initialize(vm); end
-        end
+      should "load the given system if specified" do
+        fake_class = Class.new(Vagrant::Systems::Base)
 
+        assert_nothing_raised { @vm.load_system!(fake_class) }
+        assert @vm.system.is_a?(fake_class)
+      end
+
+      context "with a class" do
         should "initialize class if given" do
           @vm.env.config.vm.system = Vagrant::Systems::Linux
 
@@ -109,7 +113,7 @@ class VMTest < Test::Unit::TestCase
         end
 
         should "raise error if class has invalid parent" do
-          @vm.env.config.vm.system = FakeSystemClass
+          @vm.env.config.vm.system = Class.new
           assert_raises(Vagrant::Errors::VMSystemError) {
             @vm.load_system!
           }
@@ -138,6 +142,30 @@ class VMTest < Test::Unit::TestCase
           assert_raises(Vagrant::Errors::VMSystemError) {
             @vm.load_system!
           }
+        end
+      end
+
+      context "loading the distro" do
+        setup do
+          @vm.vm.stubs(:running?).returns(true)
+        end
+
+        should "not replace the distro if it is nil" do
+          @vm.env.config.vm.system = Class.new(Vagrant::Systems::Base)
+
+          @vm.load_system!
+          assert @vm.system.is_a?(@vm.env.config.vm.system)
+        end
+
+        should "replace the distro if it is not nil" do
+          @vm.env.config.vm.system = Class.new(Vagrant::Systems::Base) do
+            def distro_dispatch
+              :linux
+            end
+          end
+
+          @vm.load_system!
+          assert @vm.system.is_a?(Vagrant::Systems::Linux)
         end
       end
     end

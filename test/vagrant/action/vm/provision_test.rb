@@ -107,6 +107,10 @@ class ProvisionVMActionTest < Test::Unit::TestCase
         should "set :puppet to the Puppet provisioner" do
           provisioner_expectation(:puppet, Vagrant::Provisioners::Puppet)
         end
+
+        should "set :puppet_server to the Puppet Server provisioner" do
+          provisioner_expectation(:puppet_server, Vagrant::Provisioners::PuppetServer)
+        end 
       end
     end
 

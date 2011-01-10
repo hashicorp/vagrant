@@ -1,5 +1,6 @@
 ## 0.7.0.beta2 (unreleased)
 
+  - Puppet server provisioner. [GH-262]
   - Use numeric uid/gid in mounting shared folders to increase portability. [GH-252]
   - HTTP downloading follows redirects. [GH-163]
   - Downloaders have clearer output to note what they're doing.
@@ -7,6 +8,16 @@
   - Boxes downloaded during `vagrant up` reload the Vagrantfile config, which
     fixes a problem with box settings not being properly loaded. [GH-231]
   - `config.ssh.forward_x11` to enable the ForwardX11 SSH option. [GH-255]
+  - Vagrant source now has a `contrib` directory where contributions of miscellaneous
+    addons for Vagrant will be added.
+  - Vagrantfiles are now loaded only once (instead of 4+ times) [GH-238]
+  - Ability to move home vagrant dir (~/.vagrant) by setting VAGRANT_HOME
+    environmental variable.
+  - Removed check and error for the "OSE" version of VirtualBox, since with
+    VirtualBox 4 this distinction no longer exists.
+  - Ability to specify proxy settings for chef. [GH-169]
+  - Helpful error message shown if NFS mounting fails. [GH-135]
+  - Gentoo guests now support host only networks. [GH-240]
 
 ## 0.7.0.beta (December 24, 2010)
 

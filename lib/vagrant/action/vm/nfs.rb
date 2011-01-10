@@ -115,7 +115,7 @@ module Vagrant
 
           # Only mount the folders which have a guest path specified
           am_folders = folders.select { |name, folder| folder[:guestpath] }
-          @env["vm"].system.mount_nfs(host_ip, am_folders)
+          @env["vm"].system.mount_nfs(host_ip, Hash[am_folders])
         end
 
         # Returns the IP address of the first host only network adapter

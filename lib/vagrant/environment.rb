@@ -9,6 +9,7 @@ module Vagrant
     ROOTFILE_NAME = "Vagrantfile"
     HOME_SUBDIRS = ["tmp", "boxes", "logs"]
     DEFAULT_VM = :default
+    DEFAULT_HOME = "~/.vagrant"
 
     # Parent environment (in the case of multi-VMs)
     attr_reader :parent
@@ -23,6 +24,9 @@ module Vagrant
     # The {UI} object to communicate with the outside world.
     attr_writer :ui
 
+    # The {Config} object representing the Vagrantfile loader
+    attr_reader :config_loader
+
     #---------------------------------------------------------------
     # Class Methods
     #---------------------------------------------------------------
@@ -33,7 +37,6 @@ module Vagrant
         version = VirtualBox.version
         raise Errors::VirtualBoxNotDetected if version.nil?
         raise Errors::VirtualBoxInvalidVersion, :version => version.to_s if version.to_f < 4.0
-        raise Errors::VirtualBoxInvalidOSE, :version => version.to_s if version.to_s.downcase.include?("ose")
       rescue Errors::VirtualBoxNotDetected
         # On 64-bit Windows, show a special error. This error is a subclass
         # of VirtualBoxNotDetected, so libraries which use Vagrant can just
@@ -79,12 +82,11 @@ module Vagrant
       root_path.join(config.vagrant.dotfile_name) rescue nil
     end
 
-    # The path to the home directory, expanded relative to the root path,
-    # and converted into a Pathname object.
+    # The path to the home directory and converted into a Pathname object.
     #
     # @return [Pathname]
     def home_path
-      @_home_path ||= Pathname.new(File.expand_path(config.vagrant.home, root_path))
+      @_home_path ||= Pathname.new(File.expand_path(ENV["VAGRANT_HOME"] || DEFAULT_HOME))
     end
 
     # The path to the Vagrant tmp directory
@@ -114,7 +116,8 @@ module Vagrant
     #
     # @return [String]
     def resource
-      vm.name rescue "vagrant"
+      result = vm.name rescue nil
+      result || "vagrant"
     end
 
     # Returns the collection of boxes for the environment.
@@ -146,7 +149,7 @@ module Vagrant
     #
     # @return [Array<VM>]
     def vms_ordered
-      @vms_enum ||= config.vm.defined_vm_keys.map {|name| @vms[name]}
+      @vms_enum ||= config.vm.defined_vm_keys.map { |name| @vms[name] }
     end
 
     # Returns the primary VM associated with this environment. This
@@ -308,6 +311,7 @@ module Vagrant
     # Reloads the configuration of this environment.
     def reload_config!
       @config = nil
+      @config_loader = nil
       load_config!
       self
     end
@@ -320,22 +324,23 @@ module Vagrant
       first_run = @config.nil?
 
       # First load the initial, non config-dependent Vagrantfiles
-      loader = Config.new(self)
-      loader.queue << File.expand_path("config/default.rb", Vagrant.source_root)
-      loader.queue << File.join(box.directory, ROOTFILE_NAME) if !first_run && box
-      loader.queue << File.join(home_path, ROOTFILE_NAME) if !first_run && home_path
-      loader.queue << File.join(root_path, ROOTFILE_NAME) if root_path
+      @config_loader ||= Config.new(parent ? parent.config_loader : nil)
+      @config_loader.load_order = [:default, :box, :home, :root, :sub_vm]
+      @config_loader.set(:default, File.expand_path("config/default.rb", Vagrant.source_root))
+      @config_loader.set(:box, File.join(box.directory, ROOTFILE_NAME)) if !first_run && vm && box
+      @config_loader.set(:home, File.join(home_path, ROOTFILE_NAME)) if !first_run && home_path
+      @config_loader.set(:root, File.join(root_path, ROOTFILE_NAME)) if root_path
 
       # If this environment is representing a sub-VM, then we push that
       # proc on as the last configuration.
       if vm
         subvm = parent.config.vm.defined_vms[vm.name]
-        loader.queue << subvm.proc_stack if subvm
+        @config_loader.set(:sub_vm, subvm.proc_stack) if subvm
       end
 
       # Execute the configuration stack and store the result as the final
       # value in the config ivar.
-      @config = loader.load!
+      @config = @config_loader.load(self)
 
       # (re)load the logger
       @logger = nil

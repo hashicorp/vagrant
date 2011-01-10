@@ -1,32 +1,20 @@
+require 'vagrant/systems/linux/error'
+require 'vagrant/systems/linux/config'
+
 module Vagrant
   module Systems
-    # A general Vagrant system implementation for "linux." In general,
-    # any linux-based OS will work fine with this system, although its
-    # not tested exhaustively. BSD or other based systems may work as
-    # well, but that hasn't been tested at all.
-    #
-    # At any rate, this system implementation should server as an
-    # example of how to implement any custom systems necessary.
     class Linux < Base
-      # A custom config class which will be made accessible via `config.linux`
-      # This is not necessary for all system implementers, of course. However,
-      # generally, Vagrant tries to make almost every aspect of its execution
-      # configurable, and this assists that goal.
-      class LinuxConfig < Vagrant::Config::Base
-        configures :linux
-
-        attr_accessor :halt_timeout
-        attr_accessor :halt_check_interval
-
-        def initialize
-          @halt_timeout = 30
-          @halt_check_interval = 1
+      def distro_dispatch
+        vm.ssh.execute do |ssh|
+          return :debian if ssh.test?("cat /etc/debian_version")
+          return :gentoo if ssh.test?("cat /etc/gentoo-release")
+          return :redhat if ssh.test?("cat /etc/redhat-release")
         end
+
+        # Can't detect the distro, assume vanilla linux
+        nil
       end
 
-      #-------------------------------------------------------------------
-      # Overridden methods
-      #-------------------------------------------------------------------
       def halt
         vm.env.ui.info I18n.t("vagrant.systems.linux.attempting_halt")
         vm.ssh.execute do |ssh|
@@ -57,43 +45,7 @@ module Vagrant
         folders.each do |name, opts|
           vm.ssh.execute do |ssh|
             ssh.exec!("sudo mkdir -p #{opts[:guestpath]}")
-            ssh.exec!("sudo mount #{ip}:#{opts[:hostpath]} #{opts[:guestpath]}")
-          end
-        end
-      end
-
-      def prepare_host_only_network(net_options)
-        # Remove any previous host only network additions to the
-        # interface file.
-        vm.ssh.execute do |ssh|
-          case distribution(ssh)
-            when :debian
-              # Clear out any previous entries
-              ssh.exec!("sudo sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/network/interfaces > /tmp/vagrant-network-interfaces")
-              ssh.exec!("sudo su -c 'cat /tmp/vagrant-network-interfaces > /etc/network/interfaces'")
-            when :redhat
-              ssh.exec!("sudo sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/sysconfig/network-scripts/ifcfg-eth#{net_options[:adapter]} > /tmp/vagrant-ifcfg-eth#{net_options[:adapter]}")
-              ssh.exec!("sudo su -c 'cat /tmp/vagrant-ifcfg-eth#{net_options[:adapter]} > /etc/sysconfig/network-scripts/ifcfg-eth#{net_options[:adapter]}'")
-          end
-        end
-      end
-
-      def enable_host_only_network(net_options)
-         vm.ssh.execute do |ssh|
-          case distribution(ssh)
-            when :debian
-              entry = TemplateRenderer.render('debian_network_entry', :net_options => net_options)
-              vm.ssh.upload!(StringIO.new(entry), "/tmp/vagrant-network-entry")
-              ssh.exec!("sudo /sbin/ifdown eth#{net_options[:adapter]} 2> /dev/null")
-              ssh.exec!("sudo su -c 'cat /tmp/vagrant-network-entry >> /etc/network/interfaces'")
-              ssh.exec!("sudo /sbin/ifup eth#{net_options[:adapter]}")
-
-            when :redhat
-              entry = TemplateRenderer.render('redhat_network_entry', :net_options => net_options)
-              vm.ssh.upload!(StringIO.new(entry), "/tmp/vagrant-network-entry")
-              ssh.exec!("sudo /sbin/ifdown eth#{net_options[:adapter]} 2> /dev/null")
-              ssh.exec!("sudo su -c 'cat /tmp/vagrant-network-entry >> /etc/sysconfig/network-scripts/ifcfg-eth#{net_options[:adapter]}'")
-              ssh.exec!("sudo /sbin/ifup eth#{net_options[:adapter]}")
+            ssh.exec!("sudo mount #{ip}:#{opts[:hostpath]} #{opts[:guestpath]}", :error_class => LinuxError, :_key => :mount_nfs_fail)
           end
         end
       end
@@ -121,36 +73,6 @@ module Vagrant
           raise LinuxError, :mount_fail if attempts >= 10
           sleep sleeptime
         end
-      end
-      
-      def debian?(ssh)
-        ssh.exec!("test -e /etc/debian_version") do |ch, type, data|
-          return true if type == :exit_status && data == 0
-        end
-        false
-      end
-
-      def redhat?(ssh)
-        ssh.exec!("test -e /etc/redhat-release") do |ch, type, data|
-          return true if type == :exit_status && data == 0
-        end
-        false
-      end
-
-      def distribution(ssh)
-        if debian?(ssh)
-          :debian
-        elsif redhat?(ssh)
-          :redhat
-        else
-          raise LinuxError.new(:distribution_not_supported)
-        end
-      end
-    end
-
-    class Linux < Base
-      class LinuxError < Errors::VagrantError
-        error_namespace("vagrant.systems.linux")
       end
     end
   end
