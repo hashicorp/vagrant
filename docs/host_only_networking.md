@@ -14,11 +14,11 @@ Vagrant allows users to assign a static IP to a VM, which is then
 setup using host-only networking.
 
 <div class="info">
-  <h3>Debian/Ubuntu Only!</h3>
+  <h3>Supported Operating Systems</h3>
   <p>
     Since setting up host-only networking requires configuring the OS to
-    use the new interface, this is a system behavior. Currently, Vagrant
-    only supports Ubuntu/Debian out of the box.
+    use the new interface, this is a system-specific behavior. Currently,
+    Vagrant supports Debian/Ubuntu, Gentoo, and RedHat.
   </p>
   <p>
     If you'd like another OS supported, you can add it yourself using a
