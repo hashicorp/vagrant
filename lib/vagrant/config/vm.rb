@@ -1,3 +1,5 @@
+require 'vagrant/config/vm/sub_vm'
+
 module Vagrant
   class Config
     class VMConfig < Base
@@ -20,16 +22,6 @@ module Vagrant
       attr_writer :shared_folder_uid
       attr_writer :shared_folder_gid
       attr_accessor :system
-
-      # Represents a SubVM. This class is only used here in the VMs
-      # hash.
-      class SubVM
-        include Util::StackedProcRunner
-
-        def options
-          @options ||= {}
-        end
-      end
 
       def initialize
         @forwarded_ports = {}
@@ -95,11 +87,17 @@ module Vagrant
       end
 
       def define(name, options=nil, &block)
+        name = name.to_sym
         options ||= {}
+
+        # Add the name to the array of VM keys. This array is used to
+        # preserve the order in which VMs are defined.
         defined_vm_keys << name
-        defined_vms[name.to_sym] ||= SubVM.new
-        defined_vms[name.to_sym].options.merge!(options)
-        defined_vms[name.to_sym].push_proc(&block)
+
+        # Add the SubVM to the hash of defined VMs
+        defined_vms[name] ||= SubVM.new
+        defined_vms[name].options.merge!(options)
+        defined_vms[name].push_proc(&block)
       end
 
       def validate(errors)
