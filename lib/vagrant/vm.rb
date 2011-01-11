@@ -53,8 +53,8 @@ module Vagrant
       system ||= env.config.vm.system
 
       if system.is_a?(Class)
+        raise Errors::VMSystemError, :_key => :invalid_class, :system => system.to_s if !(system <= Systems::Base)
         @system = system.new(self)
-        raise Errors::VMSystemError, :_key => :invalid_class, :system => system.to_s if !@system.is_a?(Systems::Base)
       elsif system.is_a?(Symbol)
         # Hard-coded internal systems
         mapping = {
