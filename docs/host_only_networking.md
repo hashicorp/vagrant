@@ -34,20 +34,30 @@ using a single function within the Vagrantfile:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.vm.network("192.168.10.10")
+  config.vm.network("33.33.33.10")
 end
 {% endhighlight %}
 
 The above will setup the VM with that specific IP. It is up to the user
 to make sure that no static IPs will collide with other virtual machines.
 
+<div class="info">
+  <h3>Avoid Router-only IPs</h3>
+  <p>
+    Some IP/subnets are reserved by routers, and if the static IP you attempt to
+    use conflicts with your router, it may fail to work for no obvious reason.
+    The IPs are typically `192.168.0.x` and `10.0.0.x`. This is why the examples
+    use `33.33.33.x`, which has been found to be very reliable.
+  </p>
+</div>
+
 ## Multiple Networks
 
 By default, Vagrant uses a netmask of `255.255.255.0`. This means that
 as long as the first three parts of the IP are equivalent, VMs will join
-the same network. So if two VMs are created with IPs `192.168.10.10` and
-`192.168.10.11`, they will be networked together. However, if a VM is
-created with an IP of `192.168.11.10`, it will be on a separate network
+the same network. So if two VMs are created with IPs `33.33.33.10` and
+`33.33.33.11`, they will be networked together. However, if a VM is
+created with an IP of `33.33.34.10`, it will be on a separate network
 and will not be able to communicate with the other VMs.
 
 A custom netmask can also be used, although a netmask of `255.255.255.0`
@@ -56,7 +66,7 @@ is shown below:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.vm.network("192.168.11.10", :netmask => "255.255.0.0")
+  config.vm.network("33.33.34.10", :netmask => "255.255.0.0")
 end
 {% endhighlight %}
 
