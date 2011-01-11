@@ -18,6 +18,7 @@
   - Ability to specify proxy settings for chef. [GH-169]
   - Helpful error message shown if NFS mounting fails. [GH-135]
   - Gentoo guests now support host only networks. [GH-240]
+  - RedHat (CentOS included) guests now support host only networks. [GH-260]
 
 ## 0.7.0.beta (December 24, 2010)
 

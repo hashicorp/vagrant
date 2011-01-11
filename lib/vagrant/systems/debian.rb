@@ -1,7 +1,7 @@
 module Vagrant
   module Systems
     class Debian < Linux
-      def prepare_host_only_network(net_options = nil)
+      def prepare_host_only_network(net_options=nil)
         # Remove any previous host only network additions to the
         # interface file.
         vm.ssh.execute do |ssh|

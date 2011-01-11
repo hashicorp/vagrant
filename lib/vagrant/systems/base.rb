@@ -68,7 +68,7 @@ module Vagrant
 
       # Prepares the system for host only networks. This is called
       # once prior to any `enable_host_only_network` calls.
-      def prepare_host_only_network(net_options = nil)
+      def prepare_host_only_network(net_options=nil)
         raise BaseError, :_key => :unsupported_host_only
       end
 
