@@ -6,8 +6,8 @@ title: Documentation - Provisioners
 
 Vagrant supports provisioning a project's VM through the use of _provisioners_,
 since spinning up a blank virtual machine is not very useful! The provisioners
-supported out-of-the-box with a Vagrant installation are: [Chef Solo](/docs/provisioners/chef_solo.html), 
-[Chef Server](/docs/provisioners/chef_server.html), [Puppet stand-alone](/docs/provisioners/puppet.html), and 
+supported out-of-the-box with a Vagrant installation are: [Chef Solo](/docs/provisioners/chef_solo.html),
+[Chef Server](/docs/provisioners/chef_server.html), [Puppet stand-alone](/docs/provisioners/puppet.html), and
 [Puppet Server](/docs/provisioners/puppet_server.html).
 
 These provisioners allow you to easily setup your virtual machine with everything it needs to run as
@@ -15,10 +15,9 @@ a proper server (whether it be a web server, database server, utility server,
 or all those things combined).
 
 By default, Vagrant disables provisioning. Provisioning can be enabled by selecting
-the provisioner using the `config.vm.provisioner` configuration key. The value
-of this key is either a symbol to use a built-in provisioner, a class which
-inherits from `Vagrant::Provisioners::Base` for a custom solution, or `nil`
-to disable it.
+the provisioner using the `config.vm.provision` configuration method. Calling this
+method tells Vagrant to use some built-in provisioner or a custom provisioner which
+inherits from `Vagrant::Provisioners::Base`.
 
 ## Which Provisioner Should I Use?
 
@@ -35,7 +34,7 @@ what is right for you.
   manage many projects, since it allows you to share cookbooks across multiple
   projects. The cookbooks themselves are stored on the server, and the client
   downloads the cookbooks upon running.
-* **Puppet** - The Puppet provisioner runs stand-alone Puppet manifests that are 
+* **Puppet** - The Puppet provisioner runs stand-alone Puppet manifests that are
   stored on the server and downloaded to the client VM when it is created.  The
   provisioner does not require a Puppet server and runs on the VM itself.
 * **Puppet Server** - The Puppet Server provisioner connects to a Puppet server and

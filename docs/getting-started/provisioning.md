@@ -20,7 +20,7 @@ later).
 
 Luckily, Vagrant comes with provisioning built right into the software by
 using [chef](http://www.opscode.com/chef), either [chef solo](http://wiki.opscode.com/display/chef/Chef+Solo)
-and [chef server](http://wiki.opscode.com/display/chef/Chef+Server), or [Puppet](http://www.puppetlabs.com/puppet) or 
+and [chef server](http://wiki.opscode.com/display/chef/Chef+Server), or [Puppet](http://www.puppetlabs.com/puppet) or
 you can also [extend vagrant](/docs/provisioners/others.html) to support more provisioners, but this is an advanced topic
 which we won't cover here.
 
@@ -39,11 +39,8 @@ to configure your Vagrantfile to point to them:
 Vagrant::Config.run do |config|
   config.vm.box = "lucid32"
 
-  # Enable the chef solo provisioner
-  config.vm.provisioner = :chef_solo
-
-  # Grab the cookbooks from the Vagrant files
-  config.chef.recipe_url = "http://files.vagrantup.com/getting_started/cookbooks.tar.gz"
+  # Enable and configure the chef solo provisioner
+  config.vm.provision :chef_solo, :recipe_url => "http://files.vagrantup.com/getting_started/cookbooks.tar.gz"
 
   # Tell chef what recipe to run. In this case, the `vagrant_main` recipe
   # does all the magic.
@@ -90,7 +87,7 @@ Vagrant::Config.run do |config|
   config.vm.box = "lucid32"
 
   # Enable the Puppet provisioner
-  config.vm.provisioner = :puppet
+  config.vm.provision :puppet
 end
 {% endhighlight %}
 

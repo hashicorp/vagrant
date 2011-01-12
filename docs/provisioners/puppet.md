@@ -22,8 +22,10 @@ Vagrantfile configuration file, for example:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.puppet.manifests_path = "puppetmanifests"
-  config.puppet.manifest_file = "newbox.pp"
+  config.vm.provision :puppet do |puppet|
+    puppet.manifests_path = "puppetmanifests"
+    puppet.manifest_file = "newbox.pp"
+  end
 end
 {% endhighlight %}
 
@@ -70,28 +72,19 @@ You can also specify additional options to be passed to Puppet using the `option
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.puppet.options = ["--modulepath","modules"]
-end
-{% endhighlight %} 
- 
-You can also pass options as strings:
-
-{% highlight ruby %}
-  config.puppet.options = "--verbose --debug"
-{% endhighlight %} 
-
-## Enabling and Executing
-
-Finally, once everything is setup, provisioning can be enabled and run. To enable
-provisioning, tell Vagrant to use Puppet in the Vagrantfile:
-
-{% highlight ruby %}
-Vagrant::Config.run do |config|
-  config.vm.provisioner = :puppet
+  config.vm.provision :puppet, :options = ["--modulepath","modules"]
 end
 {% endhighlight %}
 
-Once enabled, if you are building a VM from scratch, run `vagrant up` and provisioning
+You can also pass options as strings:
+
+{% highlight ruby %}
+  config.vm.provision :puppet, :options = "--verbose --debug"
+{% endhighlight %}
+
+## Enabling and Executing
+
+If you are building a VM from scratch, run `vagrant up` and provisioning
 will automatically occur. If you already have a running VM and don't want to rebuild
 everything from scratch, run `vagrant reload` and it will restart the VM, without completely
 destroying the environment first, allowing the import step to be skipped.
