@@ -111,12 +111,14 @@ class ChefProvisionerTest < Test::Unit::TestCase
   context "verifying binary" do
     setup do
       @ssh = mock("ssh")
+      @shell = mock("shell")
+      @ssh.stubs(:shell).yields(@shell)
       @vm.ssh.stubs(:execute).yields(@ssh)
     end
 
     should "verify binary exists" do
       binary = "foo"
-      @ssh.expects(:exec!).with("which #{binary}", anything)
+      @shell.expects(:execute).with("which #{binary}", anything)
       @action.verify_binary(binary)
     end
   end

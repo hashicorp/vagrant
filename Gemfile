@@ -5,6 +5,7 @@ gem "vagrant", :path => '.'
 # Use the following gems straight from git, since Vagrant dev
 # typically coincides with it
 gem "virtualbox", :git => "git://github.com/mitchellh/virtualbox.git"
+gem "net-ssh-shell", :git => "git://github.com/mitchellh/net-ssh-shell.git"
 
 # Gems required for testing only. To install run
 # gem bundle test
