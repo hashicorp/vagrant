@@ -18,24 +18,24 @@ module Vagrant
 
       def chown_provisioning_folder
         vm.ssh.execute do |ssh|
-          ssh.exec!("sudo mkdir -p #{env.config.chef.provisioning_path}")
-          ssh.exec!("sudo chown #{env.config.ssh.username} #{env.config.chef.provisioning_path}")
+          ssh.exec!("sudo mkdir -p #{config.provisioning_path}")
+          ssh.exec!("sudo chown #{env.config.ssh.username} #{config.provisioning_path}")
         end
       end
 
       def setup_config(template, filename, template_vars)
         config_file = TemplateRenderer.render(template, {
-          :log_level => env.config.chef.log_level.to_sym,
-          :http_proxy => env.config.chef.http_proxy,
-          :http_proxy_user => env.config.chef.http_proxy_user,
-          :http_proxy_pass => env.config.chef.http_proxy_pass,
-          :https_proxy => env.config.chef.https_proxy,
-          :https_proxy_user => env.config.chef.https_proxy_user,
-          :https_proxy_pass => env.config.chef.https_proxy_pass,
-          :no_proxy => env.config.chef.no_proxy
+          :log_level => config.log_level.to_sym,
+          :http_proxy => config.http_proxy,
+          :http_proxy_user => config.http_proxy_user,
+          :http_proxy_pass => config.http_proxy_pass,
+          :https_proxy => config.https_proxy,
+          :https_proxy_user => config.https_proxy_user,
+          :https_proxy_pass => config.https_proxy_pass,
+          :no_proxy => config.no_proxy
         }.merge(template_vars))
 
-        vm.ssh.upload!(StringIO.new(config_file), File.join(env.config.chef.provisioning_path, filename))
+        vm.ssh.upload!(StringIO.new(config_file), File.join(config.provisioning_path, filename))
       end
 
       def setup_json
@@ -52,11 +52,11 @@ module Vagrant
 
         # Merge with the "extra data" which isn't put under the
         # vagrant namespace by default
-        data.merge!(env.config.chef.json)
+        data.merge!(config.json)
 
         json = data.to_json
 
-        vm.ssh.upload!(StringIO.new(json), File.join(env.config.chef.provisioning_path, "dna.json"))
+        vm.ssh.upload!(StringIO.new(json), File.join(config.provisioning_path, "dna.json"))
       end
     end
 
@@ -70,6 +70,7 @@ module Vagrant
       # This is the configuration which is available through `config.chef`
       class Config < Vagrant::Config::Base
         # Shared config
+        attr_accessor :node_name
         attr_accessor :provisioning_path
         attr_accessor :log_level
         attr_accessor :json

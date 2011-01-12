@@ -51,16 +51,16 @@ module Vagrant
 
       def setup_solo_config
         setup_config("chef_solo_solo", "solo.rb", {
-          :node_name => env.config.chef.node_name,
-          :provisioning_path => env.config.chef.provisioning_path,
+          :node_name => config.node_name,
+          :provisioning_path => config.provisioning_path,
           :cookbooks_path => cookbooks_path,
-          :recipe_url => env.config.chef.recipe_url,
+          :recipe_url => config.recipe_url,
           :roles_path => roles_path,
         })
       end
 
       def run_chef_solo
-        command = "cd #{env.config.chef.provisioning_path} && sudo -E chef-solo -c solo.rb -j dna.json"
+        command = "cd #{config.provisioning_path} && sudo -E chef-solo -c solo.rb -j dna.json"
 
         env.ui.info I18n.t("vagrant.provisioners.chef.running_solo")
         vm.ssh.execute do |ssh|
@@ -86,7 +86,7 @@ module Vagrant
       end
 
       def folder_path(*args)
-        File.join(env.config.chef.provisioning_path, args.join("-"))
+        File.join(config.provisioning_path, args.join("-"))
       end
 
       def folders_path(folders, folder)
@@ -112,11 +112,11 @@ module Vagrant
       end
 
       def host_cookbook_paths
-        host_folder_paths(env.config.chef.cookbooks_path)
+        host_folder_paths(config.cookbooks_path)
       end
 
       def host_role_paths
-        host_folder_paths(env.config.chef.roles_path)
+        host_folder_paths(config.roles_path)
       end
 
       def cookbook_path(i)
@@ -128,11 +128,11 @@ module Vagrant
       end
 
       def cookbooks_path
-        folders_path(env.config.chef.cookbooks_path, "cookbooks").to_json
+        folders_path(config.cookbooks_path, "cookbooks").to_json
       end
 
       def roles_path
-        folders_path(env.config.chef.roles_path, "roles").to_json
+        folders_path(config.roles_path, "roles").to_json
       end
     end
   end

@@ -2,9 +2,12 @@ require "test_helper"
 
 class ChefServerProvisionerTest < Test::Unit::TestCase
   setup do
+    @klass = Vagrant::Provisioners::ChefServer
+
     @action_env = Vagrant::Action::Environment.new(vagrant_env.vms[:default].env)
 
-    @action = Vagrant::Provisioners::ChefServer.new(@action_env)
+    @config = @klass::Config.new
+    @action = @klass.new(@action_env, @config)
     @env = @action.env
     @vm = @action.vm
   end
@@ -29,21 +32,14 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
     end
 
     should "not raise an exception if validation_key_path is set" do
-      @env = vagrant_env(vagrantfile(<<-vf))
-        config.chef.validation_key_path = "7"
-        config.chef.chef_server_url = "7"
-      vf
+      @config.validation_key_path = "7"
+      @config.chef_server_url = "7"
 
-      @action.stubs(:env).returns(@env)
       assert_nothing_raised { @action.prepare }
     end
 
     should "raise an exception if validation_key_path is nil" do
-      @env = vagrant_env(vagrantfile(<<-vf))
-        config.chef.validation_key_path = nil
-      vf
-
-      @action.stubs(:env).returns(@env)
+      @config.validation_key_path = nil
 
       assert_raises(Vagrant::Provisioners::Chef::ChefError) {
         @action.prepare
@@ -51,23 +47,15 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
     end
 
     should "not raise an exception if validation_key_path does exist" do
-      @env = vagrant_env(vagrantfile(<<-vf))
-        config.chef.validation_key_path = "#{vagrantfile(tmp_path)}"
-        config.chef.chef_server_url = "7"
-      vf
+      @config.validation_key_path = vagrantfile(tmp_path)
+      @config.chef_server_url = "7"
 
-      @action.stubs(:env).returns(@env)
       assert_nothing_raised { @action.prepare }
     end
 
     should "raise an exception if validation_key_path doesn't exist" do
-      @env = vagrant_env(vagrantfile(<<-vf))
-        config.chef.validation_key_path = "7"
-        config.chef.chef_server_url = "7"
-      vf
-
-      @action.stubs(:env).returns(@env)
-      @action.stubs(:validation_key_path).returns("9")
+      @config.validation_key_path = "7"
+      @config.chef_server_url = "7"
 
       File.expects(:file?).with(@action.validation_key_path).returns(false)
       assert_raises(Vagrant::Provisioners::Chef::ChefError) {
@@ -76,21 +64,14 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
     end
 
     should "not raise an exception if chef_server_url is set" do
-      @env = vagrant_env(vagrantfile(<<-vf))
-        config.chef.validation_key_path = "#{vagrantfile(tmp_path)}"
-        config.chef.chef_server_url = "7"
-      vf
+      @config.validation_key_path = vagrantfile(tmp_path)
+      @config.chef_server_url = "7"
 
-      @action.stubs(:env).returns(@env)
       assert_nothing_raised { @action.prepare }
     end
 
     should "raise an exception if chef_server_url is nil" do
-      @env = vagrant_env(vagrantfile(<<-vf))
-        config.chef.chef_server_url = nil
-      vf
-
-      @action.stubs(:env).returns(@env)
+      @config.chef_server_url = nil
 
       assert_raises(Vagrant::Provisioners::Chef::ChefError) {
         @action.prepare
@@ -101,7 +82,7 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
   context "creating the client key folder" do
     setup do
       @raw_path = "/foo/bar/baz.pem"
-      @env.config.chef.client_key_path = @raw_path
+      @config.client_key_path = @raw_path
 
       @path = Pathname.new(@raw_path)
     end
@@ -126,7 +107,7 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
   context "the validation key path" do
     should "expand the configured key path" do
       result = mock("result")
-      File.expects(:expand_path).with(@env.config.chef.validation_key_path, @env.root_path).once.returns(result)
+      File.expects(:expand_path).with(@config.validation_key_path, @env.root_path).once.returns(result)
       assert_equal result, @action.validation_key_path
     end
   end
@@ -134,7 +115,7 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
   context "the guest validation key path" do
     should "be the provisioning path joined with validation.pem" do
       result = mock("result")
-      File.expects(:join).with(@env.config.chef.provisioning_path, "validation.pem").once.returns(result)
+      File.expects(:join).with(@config.provisioning_path, "validation.pem").once.returns(result)
       assert_equal result, @action.guest_validation_key_path
     end
   end
@@ -146,11 +127,11 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
 
     should "call setup_config with proper variables" do
       @action.expects(:setup_config).with("chef_server_client", "client.rb", {
-        :node_name => @env.config.chef.node_name,
-        :chef_server_url => @env.config.chef.chef_server_url,
-        :validation_client_name => @env.config.chef.validation_client_name,
+        :node_name => @config.node_name,
+        :chef_server_url => @config.chef_server_url,
+        :validation_client_name => @config.validation_client_name,
         :validation_key => @action.guest_validation_key_path,
-        :client_key => @env.config.chef.client_key_path
+        :client_key => @config.client_key_path
       })
 
       @action.setup_server_config
@@ -164,7 +145,7 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
     end
 
     should "cd into the provisioning directory and run chef client" do
-      @ssh.expects(:exec!).with("cd #{@env.config.chef.provisioning_path} && sudo -E chef-client -c client.rb -j dna.json").once
+      @ssh.expects(:exec!).with("cd #{@config.provisioning_path} && sudo -E chef-client -c client.rb -j dna.json").once
       @action.run_chef_client
     end
 

@@ -4,22 +4,20 @@ module Vagrant
       error_namespace("vagrant.provisioners.puppet_server")
     end
 
-    class PuppetServerConfig < Vagrant::Config::Base
-      # configures :puppet_server
-
-      attr_accessor :puppet_server
-      attr_accessor :puppet_node
-      attr_accessor :options
-
-      def initialize
-        @puppet_server = "puppet"
-        @puppet_node = "puppet_node"
-        @options = []
-      end
-    end
-
     class PuppetServer < Base
       register :puppet_server
+
+      class Config < Vagrant::Config::Base
+        attr_accessor :puppet_server
+        attr_accessor :puppet_node
+        attr_accessor :options
+
+        def initialize
+          @puppet_server = "puppet"
+          @puppet_node = "puppet_node"
+          @options = []
+        end
+      end
 
       def provision!
         verify_binary("puppetd")
@@ -35,15 +33,15 @@ module Vagrant
       end
 
       def run_puppetd_client
-        options = env.config.puppet_server.options
+        options = config.options
         options = options.join(" ") if options.is_a?(Array)
-        if env.config.puppet_server.puppet_node
-          cn = env.config.puppet_server.puppet_node
+        if config.puppet_node
+          cn = config.puppet_node
         else
           cn = env.config.vm.box
         end
 
-        command = "sudo -E puppetd #{options} --server #{env.config.puppet_server.puppet_server} --certname #{cn}"
+        command = "sudo -E puppetd #{options} --server #{config.puppet_server} --certname #{cn}"
 
         env.ui.info I18n.t("vagrant.provisioners.puppet_server.running_puppetd")
 

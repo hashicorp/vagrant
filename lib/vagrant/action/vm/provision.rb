@@ -30,7 +30,7 @@ module Vagrant
           @env["config"].vm.provisioners.each do |provisioner|
             @env.ui.info I18n.t("vagrant.actions.vm.provision.enabled", :provisioner => provisioner.shortcut)
 
-            instance = provisioner.provisioner.new(@env)
+            instance = provisioner.provisioner.new(@env, provisioner.config)
             instance.prepare
             @provisioners << instance
           end

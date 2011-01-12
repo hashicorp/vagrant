@@ -46,13 +46,26 @@ class ProvisionVMActionTest < Test::Unit::TestCase
     end
 
     context "loading a provisioner" do
+      setup do
+        Vagrant::Provisioners::ChefSolo.any_instance.expects(:prepare).at_least(0)
+      end
+
       should "instantiate and prepare each provisioner" do
-        Vagrant::Provisioners::ChefSolo.any_instance.expects(:prepare).times(2)
         @env["config"].vm.provision :chef_solo
         @env["config"].vm.provision :chef_solo
         @instance.load_provisioners
 
         assert_equal 2, @instance.provisioners.length
+      end
+
+      should "set the config for each provisioner" do
+        @env["config"].vm.provision :chef_solo do |chef|
+          chef.cookbooks_path = "foo"
+        end
+
+        @instance.load_provisioners
+
+        assert_equal "foo", @instance.provisioners.first.config.cookbooks_path
       end
     end
 

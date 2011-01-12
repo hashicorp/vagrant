@@ -4,24 +4,22 @@ module Vagrant
       error_namespace("vagrant.provisioners.puppet")
     end
 
-    class PuppetConfig < Vagrant::Config::Base
-      # configures :puppet
-
-      attr_accessor :manifest_file
-      attr_accessor :manifests_path
-      attr_accessor :pp_path
-      attr_accessor :options
-
-      def initialize
-        @manifest_file = ""
-        @manifests_path = "manifests"
-        @pp_path = "/tmp/vagrant-puppet"
-        @options = []
-      end
-    end
-
     class Puppet < Base
       register :puppet
+
+      class Config < Vagrant::Config::Base
+        attr_accessor :manifest_file
+        attr_accessor :manifests_path
+        attr_accessor :pp_path
+        attr_accessor :options
+
+        def initialize
+          @manifest_file = ""
+          @manifests_path = "manifests"
+          @pp_path = "/tmp/vagrant-puppet"
+          @options = []
+        end
+      end
 
       def prepare
         check_manifest_dir
@@ -36,11 +34,11 @@ module Vagrant
       end
 
       def check_manifest_dir
-        Dir.mkdir(env.config.puppet.manifests_path) unless File.directory?(env.config.puppet.manifests_path)
+        Dir.mkdir(config.manifests_path) unless File.directory?(config.manifests_path)
       end
 
       def share_manifests
-        env.config.vm.share_folder("manifests", env.config.puppet.pp_path, env.config.puppet.manifests_path)
+        env.config.vm.share_folder("manifests", config.pp_path, config.manifests_path)
       end
 
       def verify_binary(binary)
@@ -51,15 +49,15 @@ module Vagrant
 
       def create_pp_path
         vm.ssh.execute do |ssh|
-          ssh.exec!("sudo mkdir -p #{env.config.puppet.pp_path}")
-          ssh.exec!("sudo chown #{env.config.ssh.username} #{env.config.puppet.pp_path}")
+          ssh.exec!("sudo mkdir -p #{config.pp_path}")
+          ssh.exec!("sudo chown #{env.config.ssh.username} #{config.pp_path}")
         end
       end
 
       def set_manifest
-        @manifest = !env.config.puppet.manifest_file.empty? ? env.config.puppet.manifest_file : "#{env.config.vm.box}.pp"
+        @manifest = !config.manifest_file.empty? ? config.manifest_file : "#{env.config.vm.box}.pp"
 
-        if File.exists?("#{env.config.puppet.manifests_path}/#{@manifest}")
+        if File.exists?("#{config.manifests_path}/#{@manifest}")
           env.ui.info I18n.t("vagrant.provisioners.puppet.manifest_to_run", :manifest => @manifest)
           return @manifest
         else
@@ -68,9 +66,9 @@ module Vagrant
       end
 
       def run_puppet_client
-        options = env.config.puppet.options
+        options = config.options
         options = options.join(" ") if options.is_a?(Array)
-        command = "cd #{env.config.puppet.pp_path} && sudo -E puppet #{options} #{@manifest}"
+        command = "cd #{config.pp_path} && sudo -E puppet #{options} #{@manifest}"
 
         env.ui.info I18n.t("vagrant.provisioners.puppet.running_puppet")
 

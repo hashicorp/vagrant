@@ -11,6 +11,10 @@ module Vagrant
       # {Vagrant::Action::Environment}
       attr_reader :action_env
 
+      # The configuration for this provisioner. This will be an instance of
+      # the `Config` class which is part of the provisioner.
+      attr_reader :config
+
       # Registers a provisioner with a given shortcut. This allows that provisioner
       # to be referenced with the shortcut.
       #
@@ -24,8 +28,9 @@ module Vagrant
         @@registered ||= {}
       end
 
-      def initialize(env)
+      def initialize(env, config)
         @action_env = env
+        @config = config
       end
 
       # Returns the actual {Vagrant::Environment} which this provisioner

@@ -12,7 +12,6 @@ module Vagrant
         attr_accessor :validation_key_path
         attr_accessor :validation_client_name
         attr_accessor :client_key_path
-        attr_accessor :node_name
 
         def initialize
           super
@@ -31,9 +30,9 @@ module Vagrant
       end
 
       def prepare
-        raise ChefError, :server_validation_key_required if env.config.chef.validation_key_path.nil?
+        raise ChefError, :server_validation_key_required if config.validation_key_path.nil?
         raise ChefError, :server_validation_key_doesnt_exist if !File.file?(validation_key_path)
-        raise ChefError, :server_url_required if env.config.chef.chef_server_url.nil?
+        raise ChefError, :server_url_required if config.chef_server_url.nil?
       end
 
       def provision!
@@ -48,7 +47,7 @@ module Vagrant
 
       def create_client_key_folder
         env.ui.info I18n.t("vagrant.provisioners.chef.client_key_folder")
-        path = Pathname.new(env.config.chef.client_key_path)
+        path = Pathname.new(config.client_key_path)
 
         vm.ssh.execute do |ssh|
           ssh.exec!("sudo mkdir -p #{path.dirname}")
@@ -62,16 +61,16 @@ module Vagrant
 
       def setup_server_config
         setup_config("chef_server_client", "client.rb", {
-          :node_name => env.config.chef.node_name,
-          :chef_server_url => env.config.chef.chef_server_url,
-          :validation_client_name => env.config.chef.validation_client_name,
+          :node_name => config.node_name,
+          :chef_server_url => config.chef_server_url,
+          :validation_client_name => config.validation_client_name,
           :validation_key => guest_validation_key_path,
-          :client_key => env.config.chef.client_key_path
+          :client_key => config.client_key_path
         })
       end
 
       def run_chef_client
-        command = "cd #{env.config.chef.provisioning_path} && sudo -E chef-client -c client.rb -j dna.json"
+        command = "cd #{config.provisioning_path} && sudo -E chef-client -c client.rb -j dna.json"
 
         env.ui.info I18n.t("vagrant.provisioners.chef.running_client")
         vm.ssh.execute do |ssh|
@@ -86,11 +85,11 @@ module Vagrant
       end
 
       def validation_key_path
-        File.expand_path(env.config.chef.validation_key_path, env.root_path)
+        File.expand_path(config.validation_key_path, env.root_path)
       end
 
       def guest_validation_key_path
-        File.join(env.config.chef.provisioning_path, "validation.pem")
+        File.join(config.provisioning_path, "validation.pem")
       end
     end
   end

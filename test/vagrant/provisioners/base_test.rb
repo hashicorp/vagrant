@@ -30,7 +30,8 @@ class BaseProvisionerTest < Test::Unit::TestCase
   context "base instance" do
     setup do
       @env = Vagrant::Action::Environment.new(vagrant_env)
-      @base = Vagrant::Provisioners::Base.new(@env)
+      @config = mock("config")
+      @base = Vagrant::Provisioners::Base.new(@env, @config)
     end
 
     should "set the environment" do
@@ -39,6 +40,10 @@ class BaseProvisionerTest < Test::Unit::TestCase
 
     should "return the VM which the provisioner is acting on" do
       assert_equal @env.env.vm, @base.vm
+    end
+
+    should "provide access to the config" do
+      assert_equal @config, @base.config
     end
 
     should "implement provision! which does nothing" do

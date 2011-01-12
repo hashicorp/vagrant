@@ -2,9 +2,12 @@ require "test_helper"
 
 class PuppetServerProvisionerTest < Test::Unit::TestCase
   setup do
+    @klass = Vagrant::Provisioners::PuppetServer
+
     @action_env = Vagrant::Action::Environment.new(vagrant_env.vms[:default].env)
 
-    @action = Vagrant::Provisioners::PuppetServer.new(@action_env)
+    @config = @klass::Config.new
+    @action = @klass.new(@action_env, @config)
     @env = @action.env
     @vm = @action.vm
   end
@@ -39,20 +42,20 @@ class PuppetServerProvisionerTest < Test::Unit::TestCase
     end
 
     should "run the puppetd client" do
-      @ssh.expects(:exec!).with("sudo -E puppetd  --server #{@env.config.puppet_server.puppet_server} --certname #{@cn}").once
+      @ssh.expects(:exec!).with("sudo -E puppetd  --server #{@config.puppet_server} --certname #{@cn}").once
       @action.run_puppetd_client
     end
 
     should "run puppetd with given options when given as an array" do
-      @env.config.puppet_server.options = ["--modulepath", "modules", "--verbose"]
-      @ssh.expects(:exec!).with("sudo -E puppetd --modulepath modules --verbose --server #{@env.config.puppet_server.puppet_server} --certname #{@cn}").once
+      @config.options = ["--modulepath", "modules", "--verbose"]
+      @ssh.expects(:exec!).with("sudo -E puppetd --modulepath modules --verbose --server #{@config.puppet_server} --certname #{@cn}").once
       @action.run_puppetd_client
-    end   
+    end
 
     should "run puppetd with the options when given as a string" do
-      @env.config.puppet_server.options = "--modulepath modules --verbose"
-      @ssh.expects(:exec!).with("sudo -E puppetd --modulepath modules --verbose --server #{@env.config.puppet_server.puppet_server} --certname #{@cn}").once
-      @action.run_puppetd_client   
+      @config.options = "--modulepath modules --verbose"
+      @ssh.expects(:exec!).with("sudo -E puppetd --modulepath modules --verbose --server #{@config.puppet_server} --certname #{@cn}").once
+      @action.run_puppetd_client
     end
 
     should "check the exit status if that is given" do

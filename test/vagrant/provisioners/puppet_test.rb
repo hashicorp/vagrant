@@ -2,9 +2,12 @@ require "test_helper"
 
 class PuppetProvisionerTest < Test::Unit::TestCase
   setup do
+    @klass = Vagrant::Provisioners::Puppet
+
     @action_env = Vagrant::Action::Environment.new(vagrant_env.vms[:default].env)
 
-    @action = Vagrant::Provisioners::Puppet.new(@action_env)
+    @config = @klass::Config.new
+    @action = @klass.new(@action_env, @config)
     @env = @action.env
     @vm = @action.vm
   end
@@ -30,17 +33,17 @@ class PuppetProvisionerTest < Test::Unit::TestCase
 
   context "check manifest_dir" do
     setup do
-      @env.config.puppet.manifests_path = "manifests"
+      @config.manifests_path = "manifests"
     end
 
     should "should not create the manifest directory if it exists" do
-      File.expects(:directory?).with(@env.config.puppet.manifests_path).returns(true)
+      File.expects(:directory?).with(@config.manifests_path).returns(true)
       @action.check_manifest_dir
     end
 
     should "create the manifest directory if it does not exist" do
-      File.stubs(:directory?).with(@env.config.puppet.manifests_path).returns(false)
-      Dir.expects(:mkdir).with(@env.config.puppet.manifests_path).once
+      File.stubs(:directory?).with(@config.manifests_path).returns(false)
+      Dir.expects(:mkdir).with(@config.manifests_path).once
       @action.check_manifest_dir
     end
   end
@@ -76,8 +79,8 @@ class PuppetProvisionerTest < Test::Unit::TestCase
     should "create and chown the folder to the ssh user" do
       ssh_seq = sequence("ssh_seq")
       ssh = mock("ssh")
-      ssh.expects(:exec!).with("sudo mkdir -p #{@env.config.puppet.pp_path}").once.in_sequence(ssh_seq)
-      ssh.expects(:exec!).with("sudo chown #{@env.config.ssh.username} #{@env.config.puppet.pp_path}").once.in_sequence(ssh_seq)
+      ssh.expects(:exec!).with("sudo mkdir -p #{@config.pp_path}").once.in_sequence(ssh_seq)
+      ssh.expects(:exec!).with("sudo chown #{@env.config.ssh.username} #{@config.pp_path}").once.in_sequence(ssh_seq)
       @vm.ssh.expects(:execute).yields(ssh)
       @action.create_pp_path
     end
@@ -85,18 +88,18 @@ class PuppetProvisionerTest < Test::Unit::TestCase
 
   context "setting the manifest" do
     setup do
-      @env.config.puppet.stubs(:manifests_path).returns("manifests")
-      @env.config.puppet.stubs(:manifest_file).returns("foo.pp")
+      @config.stubs(:manifests_path).returns("manifests")
+      @config.stubs(:manifest_file).returns("foo.pp")
       @env.config.vm.stubs(:box).returns("base")
     end
 
     should "set the manifest if it exists" do
-      File.stubs(:exists?).with("#{@env.config.puppet.manifests_path}/#{@env.config.puppet.manifest_file}").returns(true)
+      File.stubs(:exists?).with("#{@config.manifests_path}/#{@config.manifest_file}").returns(true)
       @action.set_manifest
     end
 
     should "raise an error if the manifest does not exist" do
-      File.stubs(:exists?).with("#{@env.config.puppet.manifests_path}/#{@env.config.puppet.manifest_file}").returns(false)
+      File.stubs(:exists?).with("#{@config.manifests_path}/#{@config.manifest_file}").returns(false)
       assert_raises(Vagrant::Provisioners::PuppetError) {
         @action.set_manifest
       }
@@ -110,19 +113,19 @@ class PuppetProvisionerTest < Test::Unit::TestCase
     end
 
     should "cd into the pp_path directory and run puppet" do
-      @ssh.expects(:exec!).with("cd #{@env.config.puppet.pp_path} && sudo -E puppet  #{@manifest}").once
+      @ssh.expects(:exec!).with("cd #{@config.pp_path} && sudo -E puppet  #{@manifest}").once
       @action.run_puppet_client
     end
 
     should "cd into the pp_path directory and run puppet with given options when given as an array" do
-      @env.config.puppet.options = ["--modulepath", "modules", "--verbose"]
-      @ssh.expects(:exec!).with("cd #{@env.config.puppet.pp_path} && sudo -E puppet --modulepath modules --verbose #{@manifest}").once
+      @config.options = ["--modulepath", "modules", "--verbose"]
+      @ssh.expects(:exec!).with("cd #{@config.pp_path} && sudo -E puppet --modulepath modules --verbose #{@manifest}").once
       @action.run_puppet_client
     end
 
     should "cd into the pp_path directory and run puppet with the options when given as a string" do
-      @env.config.puppet.options = "--modulepath modules --verbose"
-      @ssh.expects(:exec!).with("cd #{@env.config.puppet.pp_path} && sudo -E puppet --modulepath modules --verbose #{@manifest}").once
+      @config.options = "--modulepath modules --verbose"
+      @ssh.expects(:exec!).with("cd #{@config.pp_path} && sudo -E puppet --modulepath modules --verbose #{@manifest}").once
       @action.run_puppet_client
     end
 
