@@ -19,6 +19,8 @@
   - Helpful error message shown if NFS mounting fails. [GH-135]
   - Gentoo guests now support host only networks. [GH-240]
   - RedHat (CentOS included) guests now support host only networks. [GH-260]
+  - New Vagrantfile syntax for enabling and configuring provisioners. This
+    change is not backwards compatible. [GH-265]
 
 ## 0.7.0.beta (December 24, 2010)
 
