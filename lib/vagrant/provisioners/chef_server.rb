@@ -7,6 +7,29 @@ module Vagrant
     class ChefServer < Chef
       register :chef_server
 
+      class Config < Chef::Config
+        attr_accessor :chef_server_url
+        attr_accessor :validation_key_path
+        attr_accessor :validation_client_name
+        attr_accessor :client_key_path
+        attr_accessor :node_name
+
+        def initialize
+          super
+
+          @validation_client_name = "chef-validator"
+          @client_key_path = "/etc/chef/client.pem"
+        end
+
+        def validate(errors)
+          super
+
+          errors.add(I18n.t("vagrant.config.chef.server_url_empty")) if !chef_server_url || chef_server_url.strip == ""
+          errors.add(I18n.t("vagrant.config.chef.validation_key_path")) if !validation_key_path
+          errors.add(I18n.t("vagrant.config.chef.run_list_empty")) if json[:run_list] && run_list.empty?
+        end
+      end
+
       def prepare
         raise ChefError, :server_validation_key_required if env.config.chef.validation_key_path.nil?
         raise ChefError, :server_validation_key_doesnt_exist if !File.file?(validation_key_path)

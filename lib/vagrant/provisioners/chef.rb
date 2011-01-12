@@ -68,21 +68,7 @@ module Vagrant
 
     class Chef < Base
       # This is the configuration which is available through `config.chef`
-      class ChefConfig < Vagrant::Config::Base
-        configures :chef
-
-        # Chef server specific config
-        attr_accessor :chef_server_url
-        attr_accessor :validation_key_path
-        attr_accessor :validation_client_name
-        attr_accessor :client_key_path
-        attr_accessor :node_name
-
-        # Chef solo specific config
-        attr_accessor :cookbooks_path
-        attr_accessor :roles_path
-        attr_accessor :recipe_url
-
+      class Config < Vagrant::Config::Base
         # Shared config
         attr_accessor :provisioning_path
         attr_accessor :log_level
@@ -96,12 +82,6 @@ module Vagrant
         attr_accessor :no_proxy
 
         def initialize
-          @validation_client_name = "chef-validator"
-          @client_key_path = "/etc/chef/client.pem"
-
-          @cookbooks_path = ["cookbooks", [:vm, "cookbooks"]]
-          @roles_path = []
-
           @provisioning_path = "/tmp/vagrant-chef"
           @log_level = :info
           @json = { :instance_role => "vagrant" }
@@ -142,28 +122,6 @@ module Vagrant
           result = super
           result.delete("json")
           result
-        end
-
-        def validate(errors)
-          if top.vm.provisioner == :chef_solo
-            # Validate chef solo settings
-            errors.add(I18n.t("vagrant.config.chef.cookbooks_path_empty")) if !cookbooks_path || [cookbooks_path].flatten.empty?
-          end
-
-          if top.vm.provisioner == :chef_server
-            # Validate chef server settings
-            errors.add(I18n.t("vagrant.config.chef.server_url_empty")) if !chef_server_url || chef_server_url.strip == ""
-            errors.add(I18n.t("vagrant.config.chef.validation_key_path")) if !validation_key_path
-          end
-
-          if top.vm.provisioner == :chef_solo
-            # On chef solo, a run list MUST be specified
-            errors.add(I18n.t("vagrant.config.chef.run_list_empty")) if !json[:run_list] || run_list.empty?
-          elsif top.vm.provisioner == :chef_server
-            # On chef server, the run list is allowed to be nil, which causes it
-            # to sync with the chef server.
-            errors.add(I18n.t("vagrant.config.chef.run_list_empty")) if json[:run_list] && run_list.empty?
-          end
         end
       end
     end

@@ -5,7 +5,7 @@ module Vagrant
     end
 
     class PuppetConfig < Vagrant::Config::Base
-      configures :puppet
+      # configures :puppet
 
       attr_accessor :manifest_file
       attr_accessor :manifests_path

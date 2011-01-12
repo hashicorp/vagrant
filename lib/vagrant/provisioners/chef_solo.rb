@@ -4,6 +4,26 @@ module Vagrant
     class ChefSolo < Chef
       register :chef_solo
 
+      class Config < Chef::Config
+        attr_accessor :cookbooks_path
+        attr_accessor :roles_path
+        attr_accessor :recipe_url
+
+        def initialize
+          super
+
+          @cookbooks_path = ["cookbooks", [:vm, "cookbooks"]]
+          @roles_path = []
+        end
+
+        def validate(errors)
+          super
+
+          errors.add(I18n.t("vagrant.config.chef.cookbooks_path_empty")) if !cookbooks_path || [cookbooks_path].flatten.empty?
+          errors.add(I18n.t("vagrant.config.chef.run_list_empty")) if !json[:run_list] || run_list.empty?
+        end
+      end
+
       def prepare
         share_cookbook_folders
         share_role_folders

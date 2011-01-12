@@ -5,7 +5,7 @@ module Vagrant
     end
 
     class PuppetServerConfig < Vagrant::Config::Base
-      configures :puppet_server
+      # configures :puppet_server
 
       attr_accessor :puppet_server
       attr_accessor :puppet_node

@@ -1,4 +1,5 @@
 require 'vagrant/config/vm/sub_vm'
+require 'vagrant/config/vm/provisioner'
 
 module Vagrant
   class Config
@@ -16,8 +17,8 @@ module Vagrant
       attr_reader :forwarded_ports
       attr_reader :shared_folders
       attr_reader :network_options
+      attr_reader :provisioners
       attr_accessor :disk_image_format
-      attr_accessor :provisioner
       attr_writer :shared_folder_uid
       attr_writer :shared_folder_gid
       attr_accessor :system
@@ -25,8 +26,8 @@ module Vagrant
       def initialize
         @forwarded_ports = {}
         @shared_folders = {}
-        @provisioner = nil
         @network_options = []
+        @provisioners = []
       end
 
       def forward_port(name, guestport, hostport, options=nil)
@@ -57,6 +58,10 @@ module Vagrant
         }.merge(options || {})
 
         @network_options[options[:adapter]] = options
+      end
+
+      def provisioner(name, options=nil, &block)
+        @provisioners << Provisioner.new(name, options, &block)
       end
 
       def shared_folder_uid
@@ -100,6 +105,11 @@ module Vagrant
       end
 
       def validate(errors)
+        errors.add(I18n.t("vagrant.config.vm.box_missing")) if !box
+        errors.add(I18n.t("vagrant.config.vm.box_not_found", :name => box)) if box && !box_url && !env.box
+        errors.add(I18n.t("vagrant.config.vm.boot_mode_invalid")) if ![:vrdp, :gui].include?(boot_mode.to_sym)
+        errors.add(I18n.t("vagrant.config.vm.base_mac_invalid")) if env.box && !base_mac
+
         shared_folders.each do |name, options|
           if !File.directory?(File.expand_path(options[:hostpath].to_s, env.root_path))
             errors.add(I18n.t("vagrant.config.vm.shared_folder_hostpath_missing",
@@ -108,10 +118,10 @@ module Vagrant
           end
         end
 
-        errors.add(I18n.t("vagrant.config.vm.box_missing")) if !box
-        errors.add(I18n.t("vagrant.config.vm.box_not_found", :name => box)) if box && !box_url && !env.box
-        errors.add(I18n.t("vagrant.config.vm.boot_mode_invalid")) if ![:vrdp, :gui].include?(boot_mode.to_sym)
-        errors.add(I18n.t("vagrant.config.vm.base_mac_invalid")) if env.box && !base_mac
+        # Each provisioner can validate itself
+        provisioners.each do |prov|
+          prov.validate(errors)
+        end
       end
     end
   end
