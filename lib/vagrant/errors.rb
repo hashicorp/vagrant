@@ -230,16 +230,6 @@ module Vagrant
       error_key(:dotfile_error, "vagrant.actions.vm.persist")
     end
 
-    class ProvisionInvalidClass < VagrantError
-      status_code(35)
-      error_key(:invalid_class, "vagrant.actions.vm.provision")
-    end
-
-    class ProvisionUnknownType < VagrantError
-      status_code(36)
-      error_key(:unknown_type, "vagrant.actions.vm.provision")
-    end
-
     class SSHAuthenticationFailed < VagrantError
       status_code(11)
       error_key(:ssh_authentication_failed)

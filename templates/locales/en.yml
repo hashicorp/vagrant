@@ -353,8 +353,6 @@ en:
         provision:
           beginning: "Running provisioner: %{provisioner}..."
           enabled: "Provisioning enabled with %{provisioner}..."
-          invalid_class: "Provisioners must be an instance of Vagrant::Provisioners::Base"
-          unknown_type: "Unknown provisioner type: %{provisioner}"
         resume:
           resuming: Resuming suspended VM...
         share_folders:
