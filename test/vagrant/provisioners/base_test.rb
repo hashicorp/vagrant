@@ -1,8 +1,30 @@
 require "test_helper"
 
 class BaseProvisionerTest < Test::Unit::TestCase
+  setup do
+    @klass = Vagrant::Provisioners::Base
+  end
+
   should "include the util class so subclasses have access to it" do
     assert Vagrant::Provisioners::Base.include?(Vagrant::Util)
+  end
+
+  context "registering provisioners" do
+    teardown do
+      @klass.registered.delete(:zomg)
+    end
+
+    should "not have unregistered provisioners" do
+      assert_nil @klass.registered[:foo]
+    end
+
+    should "be able to register a provisioner" do
+      foo = Class.new(@klass) do
+        register :zomg
+      end
+
+      assert_equal foo, @klass.registered[:zomg]
+    end
   end
 
   context "base instance" do

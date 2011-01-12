@@ -2,6 +2,8 @@ module Vagrant
   module Provisioners
     # This class implements provisioning via chef-solo.
     class ChefSolo < Chef
+      register :chef_solo
+
       def prepare
         share_cookbook_folders
         share_role_folders

@@ -21,6 +21,8 @@ module Vagrant
     end
 
     class Puppet < Base
+      register :puppet
+
       def prepare
         check_manifest_dir
         share_manifests

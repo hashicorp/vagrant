@@ -19,6 +19,8 @@ module Vagrant
     end
 
     class PuppetServer < Base
+      register :puppet_server
+
       def provision!
         verify_binary("puppetd")
         run_puppetd_client

@@ -5,6 +5,8 @@ module Vagrant
     # This class implements provisioning via chef-client, allowing provisioning
     # with a chef server.
     class ChefServer < Chef
+      register :chef_server
+
       def prepare
         raise ChefError, :server_validation_key_required if env.config.chef.validation_key_path.nil?
         raise ChefError, :server_validation_key_doesnt_exist if !File.file?(validation_key_path)

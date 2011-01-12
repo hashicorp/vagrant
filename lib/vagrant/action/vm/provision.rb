@@ -30,15 +30,7 @@ module Vagrant
             @provisioner = provisioner.new(@env)
             raise Errors::ProvisionInvalidClass if !@provisioner.is_a?(Provisioners::Base)
           elsif provisioner.is_a?(Symbol)
-            # We have a few hard coded provisioners for built-ins
-            mapping = {
-              :chef_solo      => Provisioners::ChefSolo,
-              :chef_server    => Provisioners::ChefServer,
-              :puppet         => Provisioners::Puppet,
-              :puppet_server  => Provisioners::PuppetServer
-            }
-
-            provisioner_klass = mapping[provisioner]
+            provisioner_klass = Provisioners::Base.registered[provisioner]
             raise Errors::ProvisionUnknownType, :provisioner => provisioner.to_s if provisioner_klass.nil?
             @provisioner = provisioner_klass.new(@env)
           end
