@@ -16,7 +16,6 @@ module Vagrant
       attr_reader :forwarded_ports
       attr_reader :shared_folders
       attr_reader :network_options
-      attr_reader :hd_location
       attr_accessor :disk_image_format
       attr_accessor :provisioner
       attr_writer :shared_folder_uid
