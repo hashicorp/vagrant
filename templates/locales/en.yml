@@ -31,10 +31,35 @@ en:
         this command in another directory. If you aren't in a home directory,
         then please rename ".vagrant" to something else, or configure Vagrant
         to use another filename by modifying `config.vagrant.dotfile_name`.
-      interrupted: Vagrant exited after cleanup due to external interrupt.
-      multi_vm_required: A multi-vm environment is required for name specification to this command.
-      multi_vm_target_required: `vagrant %{command}` requires a specific VM name to target in a multi-VM environment.
-      no_env: No Vagrant environment detected. Run `vagrant init` to set one up.
+      interrupted: "Vagrant exited after cleanup due to external interrupt."
+      multi_vm_required: "A multi-vm environment is required for name specification to this command."
+      multi_vm_target_required: "`vagrant %{command}` requires a specific VM name to target in a multi-VM environment."
+      no_env: "No Vagrant environment detected. Run `vagrant init` to set one up."
+      provisioner_equals_not_supported: |-
+        The `config.vm.provisioner =` syntax has been removed in Vagrant 0.7.0.
+        Please change your provisioners to use the new syntax described below.
+        All of these changes are reflected on the Vagrant website as well.
+
+        Before:
+
+          config.vm.provisioner = :chef_solo
+          config.chef.cookbooks_path = "my_cookbooks"
+          config.chef.add_recipe "apache"
+
+        After:
+
+          config.vm.provision :chef_solo, :cookbooks_path => "my_cookbooks",
+                                          :run_list => ["recipe[apache]"]
+
+        Instead of just a hash, you may use a block as well to get access to the
+        configuration object:
+
+          config.vm.provision :chef_solo do |chef|
+            chef.cookbooks_path = "my_cookbooks"
+            chef.add_recipe "apache"
+          end
+
+        This error message will be removed in later versions of Vagrant.
       ssh_authentication_failed: |-
         SSH authentication failed! This is typically caused by the public/private
         keypair for the SSH user not being properly set on the guest VM. Please

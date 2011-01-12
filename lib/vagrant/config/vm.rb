@@ -64,6 +64,13 @@ module Vagrant
         @provisioners << Provisioner.new(name, options, &block)
       end
 
+      # This shows an error message to smooth the transition for the
+      # backwards incompatible provisioner syntax change introduced
+      # in Vagrant 0.7.0.
+      def provisioner=(_value)
+        raise Errors::VagrantError, :_key => :provisioner_equals_not_supported
+      end
+
       def shared_folder_uid
         @shared_folder_uid || env.config.ssh.username
       end

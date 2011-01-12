@@ -75,4 +75,12 @@ class ConfigVMTest < Test::Unit::TestCase
       assert_equal @username, @config.shared_folder_gid
     end
   end
+
+  context "deprecated config" do
+    should "raise an error for provisioner=" do
+      assert_raises(Vagrant::Errors::VagrantError) {
+        @config.provisioner = :chef_solo
+      }
+    end
+  end
 end
