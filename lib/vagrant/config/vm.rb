@@ -60,7 +60,7 @@ module Vagrant
         @network_options[options[:adapter]] = options
       end
 
-      def provisioner(name, options=nil, &block)
+      def provision(name, options=nil, &block)
         @provisioners << Provisioner.new(name, options, &block)
       end
 

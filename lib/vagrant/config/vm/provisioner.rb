@@ -35,6 +35,10 @@ module Vagrant
             return
           end
 
+          if !(provisioner <= Provisioners::Base)
+            errors.add(I18n.t("vagrant.config.vm.provisioner_invalid_class", :shortcut => shortcut))
+          end
+
           # Pass on validation to the provisioner config
           config.validate(errors) if config
         end

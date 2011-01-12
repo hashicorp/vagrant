@@ -2,42 +2,38 @@ module Vagrant
   class Action
     module VM
       class Provision
+        attr_reader :provisioners
+
         def initialize(app, env)
           @app = app
           @env = env
           @env["provision.enabled"] = true if !@env.has_key?("provision.enabled")
+          @provisioners = []
 
-          load_provisioner if provisioning_enabled?
+          load_provisioners if provisioning_enabled?
         end
 
         def call(env)
           @app.call(env)
 
-          if provisioning_enabled?
-            @env.ui.info I18n.t("vagrant.actions.vm.provision.beginning")
-            @provisioner.provision!
+          @provisioners.each do |instance|
+            @env.ui.info I18n.t("vagrant.actions.vm.provision.beginning", :provisioner => instance.class)
+            instance.provision!
           end
         end
 
         def provisioning_enabled?
-          !@env["config"].vm.provisioner.nil? && @env["provision.enabled"]
+          !@env["config"].vm.provisioners.empty? && @env["provision.enabled"]
         end
 
-        def load_provisioner
-          provisioner = @env["config"].vm.provisioner
+        def load_provisioners
+          @env["config"].vm.provisioners.each do |provisioner|
+            @env.ui.info I18n.t("vagrant.actions.vm.provision.enabled", :provisioner => provisioner.shortcut)
 
-          if provisioner.is_a?(Class)
-            @provisioner = provisioner.new(@env)
-            raise Errors::ProvisionInvalidClass if !@provisioner.is_a?(Provisioners::Base)
-          elsif provisioner.is_a?(Symbol)
-            provisioner_klass = Provisioners::Base.registered[provisioner]
-            raise Errors::ProvisionUnknownType, :provisioner => provisioner.to_s if provisioner_klass.nil?
-            @provisioner = provisioner_klass.new(@env)
+            instance = provisioner.provisioner.new(@env)
+            instance.prepare
+            @provisioners << instance
           end
-
-          @env.ui.info I18n.t("vagrant.actions.vm.provision.enabled", :provisioner => @provisioner.class.to_s)
-          @provisioner.prepare
-          @provisioner
         end
       end
     end
