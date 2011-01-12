@@ -38,6 +38,11 @@ class ConfigVMProvisionerTest < Test::Unit::TestCase
 
       assert_equal "foo", instance.config.cookbooks_path
     end
+
+    should "configure the provisioner with a hash if valid" do
+      instance = @klass.new(:chef_solo, :cookbooks_path => "foo")
+      assert_equal "foo", instance.config.cookbooks_path
+    end
   end
 
   context "validation" do

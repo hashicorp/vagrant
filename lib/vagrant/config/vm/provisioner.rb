@@ -29,9 +29,8 @@ module Vagrant
 
           # Instantiate the config class and configure it
           @config = @provisioner.const_get(*const_args).new
+          @config.set_options(options) if options
           block.call(@config) if block
-
-          # TODO: Deal with the options hash
         end
 
         def validate(errors)

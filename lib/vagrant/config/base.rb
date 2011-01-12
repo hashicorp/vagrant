@@ -32,6 +32,15 @@ module Vagrant
         end
       end
 
+      # Allows setting options from a hash. By default this simply calls
+      # the `#{key}=` method on the config class with the value, which is
+      # the expected behavior most of the time.
+      def set_options(options)
+        options.each do |key, value|
+          send("#{key}=", value)
+        end
+      end
+
       # Called by {Top} after the configuration is loaded to validate
       # the configuaration objects. Subclasses should implement this
       # method and add any errors to the `errors` object given.
