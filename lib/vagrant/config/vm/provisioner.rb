@@ -9,7 +9,8 @@ module Vagrant
 
         def initialize(shortcut, options=nil, &block)
           @shortcut = shortcut
-          @provisioner = Provisioners::Base.registered[shortcut]
+          @provisioner = shortcut
+          @provisioner = Provisioners::Base.registered[shortcut] if shortcut.is_a?(Symbol)
           @config = nil
 
           configure(options, &block)
@@ -19,10 +20,10 @@ module Vagrant
         def configure(options=nil, &block)
           # We assume that every provisioner has a `Config` class beneath
           # it for configuring.
-          return if !defined?(@provisioner::Config)
+          return if !@provisioner || !@provisioner.const_defined?("Config", false)
 
           # Instantiate the config class and configure it
-          @config = @provisioner::Config.new
+          @config = @provisioner.const_get("Config", false).new
           block.call(@config) if block
 
           # TODO: Deal with the options hash
