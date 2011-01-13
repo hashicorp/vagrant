@@ -21,6 +21,8 @@
   - RedHat (CentOS included) guests now support host only networks. [GH-260]
   - New Vagrantfile syntax for enabling and configuring provisioners. This
     change is not backwards compatible. [GH-265]
+  - Provisioners are now RVM-friendly, meaning if you installed chef or puppet
+    with an RVM managed Ruby, Vagrant now finds then. [GH-254]
 
 ## 0.7.0.beta (December 24, 2010)
 
