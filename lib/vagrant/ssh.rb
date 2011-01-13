@@ -1,6 +1,5 @@
 require 'timeout'
 require 'net/ssh'
-require 'net/ssh/shell'
 require 'net/scp'
 require 'mario'
 

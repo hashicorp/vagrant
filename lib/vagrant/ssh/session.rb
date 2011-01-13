@@ -12,32 +12,6 @@ module Vagrant
         @session = session
       end
 
-      # Opens a shell with this SSH session, which forces things like the
-      # `/etc/profile` script to load, and for state to exist between commands,
-      # and so on. The overhead on this is much higher than simply calling
-      # {#exec!} and should really only be called when settings for the terminal
-      # may be needed (for things such as a PATH modifications and so on).
-      def shell
-        session.shell do |sh|
-          sh.on_process_run do |sh, process|
-            # Enable error checking by default
-            process.properties[:error_check] = true if !process.properties.has_key?(:error_check)
-
-            process.on_finish do |p|
-              # By default when a process finishes we want to check the exit
-              # status so we can properly raise an exception
-              self.check_exit_status(p.exit_status, p.command, p.properties) if p.properties[:error_check]
-            end
-          end
-
-          yield sh
-
-          # Exit and wait. We don't run shell commands in the background.
-          sh.execute "exit", :error_check => false
-          sh.wait!
-        end
-      end
-
       # Executes a given command and simply returns true/false if the
       # command succeeded or not.
       def test?(command)
