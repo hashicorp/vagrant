@@ -63,49 +63,6 @@ class ChefProvisionerTest < Test::Unit::TestCase
       @config.add_role("role[user]")
       assert_equal "role[user]", @config.run_list[0]
     end
-
-=begin
-    context "validation" do
-      setup do
-        @errors = Vagrant::Config::ErrorRecorder.new
-        @top = @config.top = Vagrant::Config::Top.new(@env)
-      end
-
-      context "chef server" do
-        setup do
-          @top.vm.provisioner = :chef_server
-
-          @config.run_list = ["foo"]
-          @config.chef_server_url = "foo"
-          @config.validation_key_path = "foo"
-        end
-
-        should "be valid if provisioner is not chef solo" do
-          @top.vm.provisioner = nil
-          @config.validate(@errors)
-          assert @errors.errors.empty?
-        end
-
-        should "be invalid if run list is empty" do
-          @config.run_list = []
-          @config.validate(@errors)
-          assert !@errors.errors.empty?
-        end
-
-        should "be invalid if run list is empty" do
-          @config.chef_server_url = nil
-          @config.validate(@errors)
-          assert !@errors.errors.empty?
-        end
-
-        should "be invalid if run list is empty" do
-          @config.validation_key_path = nil
-          @config.validate(@errors)
-          assert !@errors.errors.empty?
-        end
-      end
-    end
-=end
   end
 
   context "verifying binary" do

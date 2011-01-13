@@ -12,6 +12,34 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
     @vm = @action.vm
   end
 
+  context "config validation" do
+    setup do
+      @errors = Vagrant::Config::ErrorRecorder.new
+
+      @config.run_list = ["foo"]
+      @config.chef_server_url = "foo"
+      @config.validation_key_path = "foo"
+    end
+
+    should "be invalid if run list is empty" do
+      @config.run_list = []
+      @config.validate(@errors)
+      assert !@errors.errors.empty?
+    end
+
+    should "be invalid if run list is empty" do
+      @config.chef_server_url = nil
+      @config.validate(@errors)
+      assert !@errors.errors.empty?
+    end
+
+    should "be invalid if run list is empty" do
+      @config.validation_key_path = nil
+      @config.validate(@errors)
+      assert !@errors.errors.empty?
+    end
+  end
+
   context "provisioning" do
     should "run the proper sequence of methods in order" do
       prov_seq = sequence("prov_seq")
