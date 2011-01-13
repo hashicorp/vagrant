@@ -10,11 +10,9 @@ module Vagrant
 
       def verify_binary(binary)
         vm.ssh.execute do |ssh|
-          ssh.shell do |sh|
-            # Checks for the existence of chef binary and error if it
-            # doesn't exist.
-            sh.execute("which #{binary}", :error_class => ChefError, :_key => :chef_not_detected, :binary => binary)
-          end
+          # Checks for the existence of chef binary and error if it
+          # doesn't exist.
+          ssh.exec!("sudo -i which #{binary}", :error_class => ChefError, :_key => :chef_not_detected, :binary => binary)
         end
       end
 

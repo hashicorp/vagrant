@@ -24,12 +24,14 @@ class PuppetServerProvisionerTest < Test::Unit::TestCase
   context "verifying binary" do
     setup do
       @ssh = mock("ssh")
+      @shell = mock("shell")
+      @ssh.stubs(:shell).yields(@shell)
       @vm.ssh.stubs(:execute).yields(@ssh)
     end
 
     should "verify binary exists" do
       binary = "foo"
-      @ssh.expects(:exec!).with("which #{binary}", anything)
+      @shell.expects(:execute).with("sudo -i which #{binary}", anything)
       @action.verify_binary(binary)
     end
   end
@@ -42,19 +44,19 @@ class PuppetServerProvisionerTest < Test::Unit::TestCase
     end
 
     should "run the puppetd client" do
-      @ssh.expects(:exec!).with("sudo -E puppetd  --server #{@config.puppet_server} --certname #{@cn}").once
+      @ssh.expects(:exec!).with("sudo -i puppetd  --server #{@config.puppet_server} --certname #{@cn}").once
       @action.run_puppetd_client
     end
 
     should "run puppetd with given options when given as an array" do
       @config.options = ["--modulepath", "modules", "--verbose"]
-      @ssh.expects(:exec!).with("sudo -E puppetd --modulepath modules --verbose --server #{@config.puppet_server} --certname #{@cn}").once
+      @ssh.expects(:exec!).with("sudo -i puppetd --modulepath modules --verbose --server #{@config.puppet_server} --certname #{@cn}").once
       @action.run_puppetd_client
     end
 
     should "run puppetd with the options when given as a string" do
       @config.options = "--modulepath modules --verbose"
-      @ssh.expects(:exec!).with("sudo -E puppetd --modulepath modules --verbose --server #{@config.puppet_server} --certname #{@cn}").once
+      @ssh.expects(:exec!).with("sudo -i puppetd --modulepath modules --verbose --server #{@config.puppet_server} --certname #{@cn}").once
       @action.run_puppetd_client
     end
 

@@ -70,7 +70,7 @@ module Vagrant
       end
 
       def run_chef_client
-        command = "cd #{config.provisioning_path} && sudo -E chef-client -c client.rb -j dna.json"
+        command = "sudo -i 'cd #{config.provisioning_path} && chef-client -c client.rb -j dna.json'"
 
         env.ui.info I18n.t("vagrant.provisioners.chef.running_client")
         vm.ssh.execute do |ssh|
