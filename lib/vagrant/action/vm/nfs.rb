@@ -78,6 +78,7 @@ module Vagrant
             opts[:nfs] = {} if !opts.is_a?(Hash)
             opts[:map_uid] = prepare_permission(:uid, opts)
             opts[:map_gid] = prepare_permission(:gid, opts)
+            opts[:map_root] = opts.has_key?(:map_root) ? opts[:map_root] : @env["config"].nfs.map_root
 
             acc[key] = opts
             acc
@@ -150,6 +151,7 @@ module Vagrant
           raise Errors::NFSHostRequired if @env["host"].nil?
           raise Errors::NFSNotSupported if !@env["host"].nfs?
           raise Errors::NFSNoHostNetwork if @env["config"].vm.network_options.empty?
+          raise Errors::NFSImpossibleOptions if @env["config"].nfs.map_root && @env["config"].nfs.map_uid
         end
       end
     end

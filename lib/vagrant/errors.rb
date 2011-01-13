@@ -205,6 +205,11 @@ module Vagrant
       error_key(:no_host_network, "vagrant.actions.vm.nfs")
     end
 
+    class NFSImpossibleOptions < VagrantError
+      status_code(34)
+      error_key(:impossible_options, "vagrant.actions.vm.nfs")
+    end
+
     class NoEnvironmentError < VagrantError
       status_code(3)
       error_key(:no_env)
