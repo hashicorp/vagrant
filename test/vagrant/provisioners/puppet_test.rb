@@ -64,13 +64,15 @@ class PuppetProvisionerTest < Test::Unit::TestCase
 
   context "verifying binary" do
     setup do
+      @shell = mock("shell")
       @ssh = mock("ssh")
+      @ssh.stubs(:shell).yields(@shell)
       @vm.ssh.stubs(:execute).yields(@ssh)
     end
 
     should "verify binary exists" do
       binary = "foo"
-      @ssh.expects(:exec!).with("which #{binary}", anything)
+      @shell.expects(:execute).with("which #{binary}", anything)
       @action.verify_binary(binary)
     end
   end
@@ -109,29 +111,29 @@ class PuppetProvisionerTest < Test::Unit::TestCase
   context "running puppet client" do
     setup do
       @ssh = mock("ssh")
+      @shell = mock("shell")
+      @ssh.stubs(:shell).yields(@shell)
       @vm.ssh.stubs(:execute).yields(@ssh)
     end
 
+    def expect_puppet_command(command)
+      @shell.expects(:execute).with("sudo -i 'cd #{@config.pp_path}; #{command}'")
+    end
+
     should "cd into the pp_path directory and run puppet" do
-      @ssh.expects(:exec!).with("cd #{@config.pp_path} && sudo -E puppet  #{@manifest}").once
+      expect_puppet_command("puppet #{@manifest}")
       @action.run_puppet_client
     end
 
     should "cd into the pp_path directory and run puppet with given options when given as an array" do
       @config.options = ["--modulepath", "modules", "--verbose"]
-      @ssh.expects(:exec!).with("cd #{@config.pp_path} && sudo -E puppet --modulepath modules --verbose #{@manifest}").once
+      expect_puppet_command("puppet --modulepath modules --verbose #{@manifest}")
       @action.run_puppet_client
     end
 
     should "cd into the pp_path directory and run puppet with the options when given as a string" do
       @config.options = "--modulepath modules --verbose"
-      @ssh.expects(:exec!).with("cd #{@config.pp_path} && sudo -E puppet --modulepath modules --verbose #{@manifest}").once
-      @action.run_puppet_client
-    end
-
-    should "check the exit status if that is given" do
-      @ssh.stubs(:exec!).yields(nil, :exit_status, :foo)
-      @ssh.expects(:check_exit_status).with(:foo, anything).once
+      expect_puppet_command("puppet --modulepath modules --verbose #{@manifest}")
       @action.run_puppet_client
     end
   end

@@ -43,7 +43,9 @@ module Vagrant
 
       def verify_binary(binary)
         vm.ssh.execute do |ssh|
-          ssh.exec!("which #{binary}", :error_class => PuppetError, :_key => :puppet_not_detected, :binary => binary)
+          ssh.shell do |sh|
+            sh.execute("which #{binary}", :error_class => PuppetError, :_key => :puppet_not_detected, :binary => binary)
+          end
         end
       end
 
@@ -66,16 +68,19 @@ module Vagrant
       end
 
       def run_puppet_client
-        options = config.options
-        options = options.join(" ") if options.is_a?(Array)
-        command = "cd #{config.pp_path} && sudo -E puppet #{options} #{@manifest}"
+        options = [config.options].flatten
+        options << @manifest
+        options = options.join(" ")
 
         env.ui.info I18n.t("vagrant.provisioners.puppet.running_puppet")
 
         vm.ssh.execute do |ssh|
-          ssh.exec!(command) do |channel, type, data|
-            ssh.check_exit_status(data, command) if type == :exit_status
-            env.ui.info("#{data}: #{type}") if type != :exit_status
+          ssh.shell do |sh|
+            sh.execute "sudo -i 'cd #{config.pp_path}; puppet #{options}'" do |process|
+              process.on_output do |p, data|
+                env.ui.info(data)
+              end
+            end
           end
         end
       end
