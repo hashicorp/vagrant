@@ -70,10 +70,12 @@ module Vagrant
         options << @manifest
         options = options.join(" ")
 
+        command = "sudo -i 'cd #{config.pp_path}; puppet #{options}'"
+
         env.ui.info I18n.t("vagrant.provisioners.puppet.running_puppet")
 
         vm.ssh.execute do |ssh|
-          ssh.exec! "sudo -i 'cd #{config.pp_path}; puppet #{options}'" do |ch, type, data|
+          ssh.exec! command do |ch, type, data|
             if type == :exit_status
               ssh.check_exit_status(data, command)
             else
