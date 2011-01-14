@@ -14,27 +14,44 @@ module Vagrant
         attr_accessor :options
 
         def initialize
-          @manifest_file = ""
+          @manifest_file = nil
           @manifests_path = "manifests"
           @pp_path = "/tmp/vagrant-puppet"
           @options = []
         end
+
+        # Returns the manifests path expanded relative to the root path of the
+        # environment.
+        def expanded_manifests_path
+          Pathname.new(manifests_path).expand_path(env.root_path)
+        end
+
+        # Returns the manifest file if set otherwise returns the box name pp file
+        # which may or may not exist.
+        def computed_manifest_file
+          manifest_file || "#{top.vm.box}.pp"
+        end
+
+        def validate(errors)
+          super
+
+          if !expanded_manifests_path.directory?
+            errors.add(I18n.t("vagrant.provisioners.puppet.manifests_path_missing", :path => expanded_manifests_path))
+            return
+          end
+
+          errors.add(I18n.t("vagrant.provisioners.puppet.manifest_missing", :manifest => computed_manifest_file)) if !expanded_manifests_path.join(computed_manifest_file).file?
+        end
       end
 
       def prepare
-        check_manifest_dir
         share_manifests
       end
 
       def provision!
         verify_binary("puppet")
         create_pp_path
-        set_manifest
         run_puppet_client
-      end
-
-      def check_manifest_dir
-        Dir.mkdir(config.manifests_path) unless File.directory?(config.manifests_path)
       end
 
       def share_manifests
@@ -54,25 +71,14 @@ module Vagrant
         end
       end
 
-      def set_manifest
-        @manifest = !config.manifest_file.empty? ? config.manifest_file : "#{env.config.vm.box}.pp"
-
-        if File.exists?("#{config.manifests_path}/#{@manifest}")
-          env.ui.info I18n.t("vagrant.provisioners.puppet.manifest_to_run", :manifest => @manifest)
-          return @manifest
-        else
-          raise PuppetError, :_key => :manifest_missing, :manifest => @manifest
-        end
-      end
-
       def run_puppet_client
         options = [config.options].flatten
-        options << @manifest
+        options << config.computed_manifest_file
         options = options.join(" ")
 
         command = "sudo -i 'cd #{config.pp_path}; puppet #{options}'"
 
-        env.ui.info I18n.t("vagrant.provisioners.puppet.running_puppet")
+        env.ui.info I18n.t("vagrant.provisioners.puppet.running_puppet", :manifest => config.computed_manifest_file)
 
         vm.ssh.execute do |ssh|
           ssh.exec! command do |ch, type, data|

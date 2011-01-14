@@ -2,19 +2,71 @@ require "test_helper"
 
 class PuppetProvisionerTest < Test::Unit::TestCase
   setup do
+    clean_paths
+
     @klass = Vagrant::Provisioners::Puppet
 
     @action_env = Vagrant::Action::Environment.new(vagrant_env.vms[:default].env)
 
     @config = @klass::Config.new
+    @config.top = Vagrant::Config::Top.new(@action_env.env)
+    @config.top.vm.box = "foo"
     @action = @klass.new(@action_env, @config)
     @env = @action.env
     @vm = @action.vm
   end
 
+  context "config" do
+    setup do
+      @errors = Vagrant::Config::ErrorRecorder.new
+
+      # Set a box
+      @config.top.vm.box = "foo"
+
+      # Start in a valid state (verified by the first test)
+      @config.expanded_manifests_path.mkdir
+      File.open(@config.expanded_manifests_path.join(@config.computed_manifest_file), "w") { |f| f.puts "HELLO" }
+    end
+
+    should "expand the manifest path relative to the root path" do
+      assert_equal File.expand_path(@config.manifests_path, @env.root_path), @config.expanded_manifests_path.to_s
+    end
+
+    should "default the manifest file to the box name" do
+      assert_equal "#{@config.top.vm.box}.pp", @config.computed_manifest_file
+    end
+
+    should "use the custom manifest file if set" do
+      @config.manifest_file = "woot.pp"
+      assert_equal "woot.pp", @config.computed_manifest_file
+    end
+
+    should "be valid" do
+      @config.validate(@errors)
+      assert @errors.errors.empty?
+    end
+
+    should "be invalid if the manifests path doesn't exist" do
+      @config.expanded_manifests_path.rmtree
+      @config.validate(@errors)
+      assert !@errors.errors.empty?
+    end
+
+    should "be invalid if a custom manifests path doesn't exist" do
+      @config.manifests_path = "dont_exist"
+      @config.validate(@errors)
+      assert !@errors.errors.empty?
+    end
+
+    should "be invalid if the manifest file doesn't exist" do
+      @config.expanded_manifests_path.join(@config.computed_manifest_file).unlink
+      @config.validate(@errors)
+      assert !@errors.errors.empty?
+    end
+  end
+
   context "preparing" do
     should "share manifests" do
-      @action.expects(:check_manifest_dir).once
       @action.expects(:share_manifests).once
       @action.prepare
     end
@@ -25,26 +77,8 @@ class PuppetProvisionerTest < Test::Unit::TestCase
       prov_seq = sequence("prov_seq")
       @action.expects(:verify_binary).with("puppet").once.in_sequence(prov_seq)
       @action.expects(:create_pp_path).once.in_sequence(prov_seq)
-      @action.expects(:set_manifest).once.in_sequence(prov_seq)
       @action.expects(:run_puppet_client).once.in_sequence(prov_seq)
       @action.provision!
-    end
-  end
-
-  context "check manifest_dir" do
-    setup do
-      @config.manifests_path = "manifests"
-    end
-
-    should "should not create the manifest directory if it exists" do
-      File.expects(:directory?).with(@config.manifests_path).returns(true)
-      @action.check_manifest_dir
-    end
-
-    should "create the manifest directory if it does not exist" do
-      File.stubs(:directory?).with(@config.manifests_path).returns(false)
-      Dir.expects(:mkdir).with(@config.manifests_path).once
-      @action.check_manifest_dir
     end
   end
 
@@ -86,26 +120,6 @@ class PuppetProvisionerTest < Test::Unit::TestCase
     end
   end
 
-  context "setting the manifest" do
-    setup do
-      @config.stubs(:manifests_path).returns("manifests")
-      @config.stubs(:manifest_file).returns("foo.pp")
-      @env.config.vm.stubs(:box).returns("base")
-    end
-
-    should "set the manifest if it exists" do
-      File.stubs(:exists?).with("#{@config.manifests_path}/#{@config.manifest_file}").returns(true)
-      @action.set_manifest
-    end
-
-    should "raise an error if the manifest does not exist" do
-      File.stubs(:exists?).with("#{@config.manifests_path}/#{@config.manifest_file}").returns(false)
-      assert_raises(Vagrant::Provisioners::PuppetError) {
-        @action.set_manifest
-      }
-    end
-  end
-
   context "running puppet client" do
     setup do
       @ssh = mock("ssh")
@@ -117,19 +131,19 @@ class PuppetProvisionerTest < Test::Unit::TestCase
     end
 
     should "cd into the pp_path directory and run puppet" do
-      expect_puppet_command("puppet #{@manifest}")
+      expect_puppet_command("puppet #{@config.computed_manifest_file}")
       @action.run_puppet_client
     end
 
     should "cd into the pp_path directory and run puppet with given options when given as an array" do
       @config.options = ["--modulepath", "modules", "--verbose"]
-      expect_puppet_command("puppet --modulepath modules --verbose #{@manifest}")
+      expect_puppet_command("puppet --modulepath modules --verbose #{@config.computed_manifest_file}")
       @action.run_puppet_client
     end
 
     should "cd into the pp_path directory and run puppet with the options when given as a string" do
       @config.options = "--modulepath modules --verbose"
-      expect_puppet_command("puppet --modulepath modules --verbose #{@manifest}")
+      expect_puppet_command("puppet --modulepath modules --verbose #{@config.computed_manifest_file}")
       @action.run_puppet_client
     end
   end

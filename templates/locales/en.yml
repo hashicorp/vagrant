@@ -472,9 +472,9 @@ en:
           could be because the PATH is not properly setup or perhaps Puppet is not
           installed on this guest. Puppet provisioning can not continue without
           Puppet properly installed.
-        running_puppet: "Running Puppet..."
-        manifest_to_run: "Puppet will use the %{manifest} manifest to configure your box."
+        running_puppet: "Running Puppet with %{manifest}..."
         manifest_missing: "The Puppet %{manifest} manifest is missing. You cannot configure this box."
+        manifests_path_missing: "The manifests path specified for Puppet does not exist: %{path}"
 
       puppet_server:
         not_detected: |-
