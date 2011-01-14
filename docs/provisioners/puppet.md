@@ -66,7 +66,7 @@ end
 This folder is created for provisioning purposes and destroyed once provisioning
 is complete.
 
-# Setting options
+## Setting options
 
 You can also specify additional options to be passed to Puppet using the `options` variable.
 
