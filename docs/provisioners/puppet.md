@@ -91,7 +91,7 @@ the location, you can do so in the Vagrantfile:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.puppet.pp_path = "/tmp/vagrant-puppet"
+  config.vm.provision :puppet, :pp_path = "/tmp/vagrant-puppet"
 end
 {% endhighlight %}
 
