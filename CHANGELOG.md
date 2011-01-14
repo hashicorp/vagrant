@@ -1,4 +1,4 @@
-## 0.7.0.beta2 (unreleased)
+## 0.7.0.beta2 (January 13, 2010)
 
   - Puppet server provisioner. [GH-262]
   - Use numeric uid/gid in mounting shared folders to increase portability. [GH-252]
