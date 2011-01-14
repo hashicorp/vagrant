@@ -78,6 +78,11 @@ module Vagrant
       #
       # @param [Hash] net_options The options for the network.
       def enable_host_only_network(net_options); end
+
+      def change_host_name(name)
+        raise BaseError, :_key => :unsupported_host_name
+      end
+
     end
   end
 end

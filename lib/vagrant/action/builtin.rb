@@ -21,6 +21,7 @@ module Vagrant
         use VM::NFS
         use VM::ClearSharedFolders
         use VM::ShareFolders
+        use VM::HostName
         use VM::Network
         use VM::Boot
       end)

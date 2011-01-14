@@ -320,6 +320,8 @@ en:
             Skipping port forwarding '%{name}'.
         halt:
           force: Forcing shutdown of VM...
+        host_name:
+          setting: "Setting host name..."
         import:
           importing: Importing base box '%{name}'...
           failure: |-
@@ -499,7 +501,8 @@ en:
           Most of the time this is simply due to the fact that no one has contributed
           back the SSH commands necessary to set this up. Please report a bug and this
           will be fixed for your distro.
-
+        unsupported_host_name: |-
+          Setting host name is currently only supported on Debian, Ubuntu and RedHat
       linux:
         attempting_halt: "Attempting graceful shutdown of linux..."
         mount_fail: "Failed to mount shared folders. `vboxsf` was not available."
