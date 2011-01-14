@@ -1,3 +1,8 @@
+## 0.7.0 (unreleased)
+
+The 0.7.0 betas will be merged into this one section upon final release.
+I don't expect many changes.
+
 ## 0.7.0.beta2 (January 13, 2010)
 
   - Puppet server provisioner. [GH-262]
