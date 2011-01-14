@@ -3,11 +3,13 @@ module Vagrant
     class VMConfig < Base
       # Represents a single configured provisioner for a VM.
       class Provisioner
+        attr_reader :top
         attr_reader :shortcut
         attr_reader :provisioner
         attr_reader :config
 
-        def initialize(shortcut, options=nil, &block)
+        def initialize(top, shortcut, options=nil, &block)
+          @top = top
           @shortcut = shortcut
           @provisioner = shortcut
           @provisioner = Provisioners::Base.registered[shortcut] if shortcut.is_a?(Symbol)
@@ -29,6 +31,7 @@ module Vagrant
 
           # Instantiate the config class and configure it
           @config = @provisioner.const_get(*const_args).new
+          @config.top = top
           @config.set_options(options) if options
           block.call(@config) if block
         end

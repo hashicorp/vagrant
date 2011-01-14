@@ -9,6 +9,9 @@ module Vagrant
     class Top < Base
       @@configures = {} if !defined?(@@configures)
 
+      # The environment that this configuration is for.
+      attr_reader :env
+
       class << self
         # The list of registered configuration classes as well as the key
         # they're registered under.
@@ -27,7 +30,6 @@ module Vagrant
       def initialize(env=nil)
         self.class.configures_list.each do |key, klass|
           config = klass.new
-          config.env = env
           config.top = self
           instance_variable_set("@#{key}".to_sym, config)
         end

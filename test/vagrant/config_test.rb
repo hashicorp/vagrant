@@ -21,7 +21,6 @@ class ConfigTest < Test::Unit::TestCase
 
   context "with an instance" do
     setup do
-      # @env = vagrant_env
       @instance = @klass.new
     end
 
@@ -112,7 +111,6 @@ class ConfigTest < Test::Unit::TestCase
           key = "key#{i}"
           klass = mock("klass#{i}")
           instance = mock("instance#{i}")
-          instance.expects(:env=).with(env)
           instance.expects(:top=).with() do |top|
             assert top.is_a?(@klass::Top)
             true
@@ -128,7 +126,6 @@ class ConfigTest < Test::Unit::TestCase
         key = "my_foo_bar_key"
         klass = mock("klass")
         instance = mock("instance")
-        instance.stubs(:env=)
         instance.stubs(:top=)
         klass.expects(:new).returns(instance)
         @klass::Top.configures(key, klass)

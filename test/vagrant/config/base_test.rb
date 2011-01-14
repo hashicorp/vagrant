@@ -42,12 +42,6 @@ class ConfigBaseTest < Test::Unit::TestCase
         assert_equal @json, @base.to_json
       end
 
-      should "not include env in the JSON hash" do
-        @base.env = "FOO"
-        hash = @base.instance_variables_hash
-        assert !hash.has_key?(:env)
-      end
-
       should "not include top in the JSON hash" do
         @base.top = "FOO"
         hash = @base.instance_variables_hash
