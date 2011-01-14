@@ -475,6 +475,7 @@ en:
         running_puppet: "Running Puppet with %{manifest}..."
         manifest_missing: "The Puppet %{manifest} manifest is missing. You cannot configure this box."
         manifests_path_missing: "The manifests path specified for Puppet does not exist: %{path}"
+        module_path_missing: "The configured module path doesn't exist: %{path}"
 
       puppet_server:
         not_detected: |-

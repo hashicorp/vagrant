@@ -10,12 +10,14 @@ module Vagrant
       class Config < Vagrant::Config::Base
         attr_accessor :manifest_file
         attr_accessor :manifests_path
+        attr_accessor :module_path
         attr_accessor :pp_path
         attr_accessor :options
 
         def initialize
           @manifest_file = nil
           @manifests_path = "manifests"
+          @module_path = nil
           @pp_path = "/tmp/vagrant-puppet"
           @options = []
         end
@@ -32,20 +34,45 @@ module Vagrant
           manifest_file || "#{top.vm.box}.pp"
         end
 
+        # Returns the module paths as an array of paths expanded relative to the
+        # root path.
+        def expanded_module_paths
+          return [] if !module_path
+
+          # Get all the paths and expand them relative to the root path, returning
+          # the array of expanded paths
+          paths = module_path
+          paths = [paths] if !paths.is_a?(Array)
+          paths.map do |path|
+            Pathname.new(path).expand_path(env.root_path)
+          end
+        end
+
         def validate(errors)
           super
 
+          # Manifests path/file validation
           if !expanded_manifests_path.directory?
             errors.add(I18n.t("vagrant.provisioners.puppet.manifests_path_missing", :path => expanded_manifests_path))
-            return
+          else
+            if !expanded_manifests_path.join(computed_manifest_file).file?
+              errors.add(I18n.t("vagrant.provisioners.puppet.manifest_missing", :manifest => computed_manifest_file))
+            end
           end
 
-          errors.add(I18n.t("vagrant.provisioners.puppet.manifest_missing", :manifest => computed_manifest_file)) if !expanded_manifests_path.join(computed_manifest_file).file?
+          # Module paths validation
+          expanded_module_paths.each do |path|
+            if !path.directory?
+              errors.add(I18n.t("vagrant.provisioners.puppet.module_path_missing", :path => path))
+            end
+          end
         end
       end
 
       def prepare
+        set_module_paths
         share_manifests
+        share_module_paths
       end
 
       def provision!
@@ -56,6 +83,23 @@ module Vagrant
 
       def share_manifests
         env.config.vm.share_folder("manifests", config.pp_path, config.manifests_path)
+      end
+
+      def share_module_paths
+        count = 0
+        @module_paths.each do |from, to|
+          # Sorry for the cryptic key here, but VirtualBox has a strange limit on
+          # maximum size for it and its something small (around 10)
+          env.config.vm.share_folder("v-pp-m#{count}", to, from)
+          count += 1
+        end
+      end
+
+      def set_module_paths
+        @module_paths = {}
+        config.expanded_module_paths.each_with_index do |path, i|
+          @module_paths[path] = File.join(config.pp_path, "modules-#{i}")
+        end
       end
 
       def verify_binary(binary)
@@ -73,6 +117,7 @@ module Vagrant
 
       def run_puppet_client
         options = [config.options].flatten
+        options << "--modulepath '#{@module_paths.values.join(':')}'" if !@module_paths.empty?
         options << config.computed_manifest_file
         options = options.join(" ")
 

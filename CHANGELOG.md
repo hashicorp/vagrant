@@ -1,10 +1,8 @@
 ## 0.7.0 (unreleased)
 
-The 0.7.0 betas will be merged into this one section upon final release.
-I don't expect many changes.
-
-## 0.7.0.beta2 (January 13, 2010)
-
+  - VirtualBox 4.0 support. Support for VirtualBox 3.2 is _dropped_, since
+    the API is so different. Stay with the 0.6.x series if you have VirtualBox
+    3.2.x.
   - Puppet server provisioner. [GH-262]
   - Use numeric uid/gid in mounting shared folders to increase portability. [GH-252]
   - HTTP downloading follows redirects. [GH-163]
@@ -28,17 +26,13 @@ I don't expect many changes.
     change is not backwards compatible. [GH-265]
   - Provisioners are now RVM-friendly, meaning if you installed chef or puppet
     with an RVM managed Ruby, Vagrant now finds then. [GH-254]
-
-## 0.7.0.beta (December 24, 2010)
-
-  - VirtualBox 4.0 support. Support for VirtualBox 3.2 is _dropped_, since
-    the API is so different. Stay with the 0.6.x series if you have VirtualBox
-    3.2.x.
   - Changed the unused host only network destroy mechanism to check for
     uselessness after the VM is destroyed. This should result in more accurate
     checks.
   - Networks are no longer disabled upon halt/destroy. With the above
     change, its unnecessary.
+  - Puppet supports `module_path` configuration to mount local modules directory
+    as a shared folder and configure puppet with it. [GH-270]
 
 ## 0.6.9 (December 21, 2010)
 
