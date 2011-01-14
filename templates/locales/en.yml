@@ -512,3 +512,6 @@ en:
 
       solaris:
         attempting_halt: "Attempting graceful shutdown of solaris..."
+
+      freebsd:
+        attempting_halt: "Attempting graceful shutdown of FreeBSD..."
