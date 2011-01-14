@@ -245,6 +245,11 @@ module Vagrant
       error_key(:ssh_key_bad_permissions)
     end
 
+    class SSHPortNotDetected < VagrantError
+      status_code(50)
+      error_key(:ssh_port_not_detected)
+    end
+
     class SSHUnavailable < VagrantError
       status_code(45)
       error_key(:ssh_unavailable)

@@ -19,6 +19,7 @@ class SshTest < Test::Unit::TestCase
     setup do
       mock_ssh
       @ssh.stubs(:check_key_permissions)
+      @ssh.stubs(:port).returns(2222)
       Kernel.stubs(:exec)
       Kernel.stubs(:system).returns(true)
 
@@ -53,8 +54,8 @@ class SshTest < Test::Unit::TestCase
     end
 
     should "call exec with supplied params" do
-      args = {:username => 'bar', :private_key_path => 'baz', :host => 'bak', :port => 'bag'}
-      ssh_exec_expect(args[:port], args[:private_key_path], args[:username], args[:host])
+      args = {:username => 'bar', :private_key_path => 'baz', :host => 'bak'}
+      ssh_exec_expect(@ssh.port, args[:private_key_path], args[:username], args[:host])
       @ssh.connect(args)
     end
 
@@ -116,10 +117,10 @@ class SshTest < Test::Unit::TestCase
 
     def ssh_exec_expect(port, key_path, uname, host)
       Kernel.expects(:exec).with() do |arg|
-        assert arg =~ /^ssh/
-        assert arg =~ /-p #{port}/
-        assert arg =~ /-i #{key_path}/
-        assert arg =~ /#{uname}@#{host}/
+        assert arg =~ /^ssh/, "ssh command expected"
+        assert arg =~ /-p #{port}/, "-p #{port} expected"
+        assert arg =~ /-i #{key_path}/, "-i #{key_path} expected"
+        assert arg =~ /#{uname}@#{host}/, "#{uname}@{host} expected"
         yield arg if block_given?
         true
       end
@@ -198,6 +199,7 @@ class SshTest < Test::Unit::TestCase
     setup do
       mock_ssh
       @ssh.stubs(:check_key_permissions)
+      @ssh.stubs(:port).returns(2222)
     end
 
     should "return true if SSH connection works" do

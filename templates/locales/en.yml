@@ -84,6 +84,10 @@ en:
         permissions on the following file to 0600 and then try running this command again:
 
         %{key_path}
+      ssh_port_not_detected: |-
+        Vagrant couldn't determine the SSH port for your VM! This is a rare,
+        exceptional event, and a bug should be filed. Please try recreating your
+        VM (vagrant destroy, then vagrant up). Sorry!
       ssh_unavailable: "`ssh` binary could not be found. Is an SSH client installed?"
       ssh_unavailable_windows: |-
         `vagrant ssh` isn't available on the Windows platform. The
