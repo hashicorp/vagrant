@@ -77,12 +77,11 @@ module Vagrant
 
       def provision!
         verify_binary("puppet")
-        create_pp_path
         run_puppet_client
       end
 
       def share_manifests
-        env.config.vm.share_folder("manifests", config.pp_path, config.manifests_path)
+        env.config.vm.share_folder("manifests", manifests_guest_path, config.expanded_manifests_path)
       end
 
       def share_module_paths
@@ -102,16 +101,13 @@ module Vagrant
         end
       end
 
+      def manifests_guest_path
+        File.join(config.pp_path, "manifests")
+      end
+
       def verify_binary(binary)
         vm.ssh.execute do |ssh|
           ssh.exec!("sudo -i which #{binary}", :error_class => PuppetError, :_key => :puppet_not_detected, :binary => binary)
-        end
-      end
-
-      def create_pp_path
-        vm.ssh.execute do |ssh|
-          ssh.exec!("sudo mkdir -p #{config.pp_path}")
-          ssh.exec!("sudo chown #{env.config.ssh.username} #{config.pp_path}")
         end
       end
 
@@ -121,7 +117,7 @@ module Vagrant
         options << config.computed_manifest_file
         options = options.join(" ")
 
-        command = "sudo -i 'cd #{config.pp_path}; puppet #{options}'"
+        command = "sudo -i 'cd #{manifests_guest_path}; puppet #{options}'"
 
         env.ui.info I18n.t("vagrant.provisioners.puppet.running_puppet", :manifest => config.computed_manifest_file)
 

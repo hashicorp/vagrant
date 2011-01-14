@@ -106,22 +106,14 @@ class PuppetProvisionerTest < Test::Unit::TestCase
     should "run the proper sequence of methods in order" do
       prov_seq = sequence("prov_seq")
       @action.expects(:verify_binary).with("puppet").once.in_sequence(prov_seq)
-      @action.expects(:create_pp_path).once.in_sequence(prov_seq)
       @action.expects(:run_puppet_client).once.in_sequence(prov_seq)
       @action.provision!
     end
   end
 
   context "share manifests folder" do
-    setup do
-      @manifests_path = "manifests"
-      @pp_path = "/tmp/vagrant-puppet"
-      @action.stubs(:manifests_path).returns(@manifests_path)
-      @action.stubs(:pp_path).returns(@pp_path)
-    end
-
     should "share manifest folder" do
-      @env.config.vm.expects(:share_folder).with("manifests", @pp_path, @manifests_path)
+      @env.config.vm.expects(:share_folder).with("manifests", @action.manifests_guest_path, @config.expanded_manifests_path)
       @action.share_manifests
     end
   end
@@ -151,17 +143,6 @@ class PuppetProvisionerTest < Test::Unit::TestCase
     end
   end
 
-  context "create pp path" do
-    should "create and chown the folder to the ssh user" do
-      ssh_seq = sequence("ssh_seq")
-      ssh = mock("ssh")
-      ssh.expects(:exec!).with("sudo mkdir -p #{@config.pp_path}").once.in_sequence(ssh_seq)
-      ssh.expects(:exec!).with("sudo chown #{@env.config.ssh.username} #{@config.pp_path}").once.in_sequence(ssh_seq)
-      @vm.ssh.expects(:execute).yields(ssh)
-      @action.create_pp_path
-    end
-  end
-
   context "running puppet client" do
     setup do
       @ssh = mock("ssh")
@@ -170,7 +151,7 @@ class PuppetProvisionerTest < Test::Unit::TestCase
     end
 
     def expect_puppet_command(command)
-      @ssh.expects(:exec!).with("sudo -i 'cd #{@config.pp_path}; #{command}'")
+      @ssh.expects(:exec!).with("sudo -i 'cd #{@action.manifests_guest_path}; #{command}'")
     end
 
     should "cd into the pp_path directory and run puppet" do
