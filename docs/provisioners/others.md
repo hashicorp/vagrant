@@ -4,12 +4,11 @@ title: Documentation - Provisioners - Others
 ---
 # Provisioning with Other Tools
 
-Vagrant understands that not everyone uses [Chef](http://www.opscode.com/chef)
-or [Puppet](http://www.puppetlabs.com/puppet).
-
-If you use some other configuration management solution, then Vagrant doesn't force you to use Chef or Puppet!
-You can easily create your own provisioners by extending the `Vagrant::Provisioners::Base` class and passing that
-class as the configured provisioner.
+Of course, we understand that not everyone uses [Chef](http://www.opscode.com/chef)
+or [Puppet](http://www.puppetlabs.com/puppet). Vagrant allows for custom
+provisioners to easily be written and used in place (or alongside) the
+built-in ones by extending the `Vagrant::Provisioners::Base` class and
+using that class as the provisioner.
 
 ## Creating Your Own Provisioner
 
@@ -48,7 +47,7 @@ is shown below:
 {% highlight ruby %}
 class FooProvisioner < Vagrant::Provisioners::Base
   def provision!
-    env.ssh.execute do |ssh|
+    vm.ssh.execute do |ssh|
       ssh.exec!("sudo foo-provision")
     end
   end
@@ -64,24 +63,24 @@ is shown below:
 
 {% highlight ruby %}
 class FooProvisioner < Vagrant::Provisioners::Base
-  # Define the configuration class
+  # Vagrant automatically finds a class named "Config" namespaced
+  # beneath the provisioner, and uses it!
   class Config < Vagrant::Config::Base
     attr_accessor :chunky_bacon
   end
-
-  # Register it with Vagrant
-  Vagrant::Config.configures :foo, Config
 end
 {% endhighlight %}
 
-After registering the config such as in the above example, it can be accessed
-directly in the Vagrantfile:
+Vagrant automatically finds a class named `Config` within the namespace
+of your provisioner and will use it to configure the provisioner. Example:
 
 {% highlight ruby %}
 require 'foo_provisioner'
 
 Vagrant::Config.run do |config|
-  config.foo.chunky_bacon = "yes, please"
+  config.vm.provision FooProvisioner do |foo|
+    foo.chunky_bacon = "yes, please"
+  end
 end
 {% endhighlight %}
 
@@ -91,23 +90,34 @@ both the `prepare` and the `provision!` method:
 {% highlight ruby %}
 class FooProvisioner < Vagrant::Provisioners::Base
   def provision!
-    if env.config.foo.chunky_bacon
-      env.logger.info "Chunky bacon is on."
+    if config.foo.chunky_bacon
+      env.ui.info "Chunky bacon is on."
     end
   end
 end
 {% endhighlight %}
 
+<div class="info">
+  <h3>`env.config` versus `config`</h3>
+  <p>
+    In the example towards the top, we used <code>env.config</code>, but directly
+    above we used <code>config</code>. What's the difference? <code>env.config</code>
+    refers to the global config for the VM from the Vagrantfile. <code>config</code>
+    fefers only to the provisioner-specific configuration.
+  </p>
+</div>
+
 ## Enabling and Executing
 
 Telling Vagrant to use your custom provisioner is extremely easy. Assuming
-you use the above `FooProvisioner` you simply configure the Vagrantfile like so:
+you use the above `FooProvisioner` in a file "foo_provisioner.rb" you
+simply configure the Vagrantfile like so:
 
 {% highlight ruby %}
 require 'foo_provisioner'
 
 Vagrant::Config.run do |config|
-  config.vm.provisioner = FooProvisioner
+  config.vm.provision FooProvisioner
 end
 {% endhighlight %}
 

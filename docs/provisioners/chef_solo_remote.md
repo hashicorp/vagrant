@@ -24,8 +24,9 @@ done:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.vm.provisioner = :chef_solo
-  config.chef.recipe_url = "http://files.vagrantup.com/getting_started/cookbooks.tar.gz"
+  config.vm.provision :chef_solo do |chef|
+    chef.recipe_url = "http://files.vagrantup.com/getting_started/cookbooks.tar.gz"
+  end
 end
 {% endhighlight %}
 
@@ -42,7 +43,9 @@ path on the VM, and not on the host machine.
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.chef.cookbooks_path = [:vm, "cookbooks"]
+  config.vm.provision :chef_solo do |chef|
+    chef.cookbooks_path = [:vm, "cookbooks"]
+  end
 end
 {% endhighlight %}
 
@@ -57,7 +60,9 @@ You may also use an array to specify multiple cookbook paths.
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.chef.cookbooks_path = ["local-cookbooks", [:vm, "cookbooks"]]
+  config.vm.provision :chef_solo do |chef|
+    chef.cookbooks_path = ["local-cookbooks", [:vm, "cookbooks"]]
+  end
 end
 {% endhighlight %}
   </p>

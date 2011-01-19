@@ -26,7 +26,9 @@ server is located. This is done below:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.chef.chef_server_url = "http://mychefserver.com:4000"
+  config.vm.provision :chef_server do |chef|
+    chef.chef_server_url = "http://mychefserver.com:4000"
+  end
 end
 {% endhighlight %}
 
@@ -40,7 +42,9 @@ is also set in the Vagrantfile:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.chef.validation_key_path = "validation.pem"
+  config.vm.provision :chef_server do |chef|
+    chef.validation_key_path = "validation.pem"
+  end
 end
 {% endhighlight %}
 
@@ -50,27 +54,33 @@ directory if its a relative path. If its an absolute path, then it is taken as i
 ## Specifying the Run List
 
 The [run list](http://wiki.opscode.com/display/chef/Setting+the+run_list+in+JSON)
-is the list of things to run on the node, which are recipes and/or
-roles. By default, the run list will run the `vagrant_main` recipe. This can easily
-be altered using the helpers provided by the config, which are fairly self-explanatory:
+is the list of things to run on the node, which are recipes and/or roles.
+Usually the run list is managed by the chef server. In this case, you don't have
+to do anything, since by default Vagrant will pull the run list from the chef
+server. But if you wish, you can specify the run list directly by using the
+helpers provided by the config, which are fairly self-explanatory:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  # Provision with the apache2 recipe
-  config.chef.add_recipe("apache2")
+  config.vm.provision :chef_server do |chef|
+    # Provision with the apache2 recipe
+    chef.add_recipe("apache2")
 
-  # Provision with the database role
-  config.chef.add_role("database")
+    # Provision with the database role
+    chef.add_role("database")
+  end
 end
 {% endhighlight %}
 
-However, if you need to access the run list directly, you can also use the
-`run_list` accessor:
+If you need to access the run list directly, you can also use the `run_list`
+accessor:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  # Modifying the run list directly
-  config.chef.run_list = ["recipe[foo]", "role[bar]"]
+  config.vm.provision :chef_server do |chef|
+    # Modifying the run list directly
+    chef.run_list = ["recipe[foo]", "role[bar]"]
+  end
 end
 {% endhighlight %}
 
@@ -83,23 +93,16 @@ since if you're looking for these you probably already know what they are for:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.chef.validation_client_name = "chef-validator"
-  config.chef.client_key_path = "/etc/chef/client.pem"
+  config.vm.provision :chef_server do |chef|
+    chef.validation_client_name = "chef-validator"
+    chef.client_key_path = "/etc/chef/client.pem"
+  end
 end
 {% endhighlight %}
 
 ## Enabling and Executing
 
-Finally, once everything is setup, provisioning can be enabled and run. To enable
-provisioning, tell Vagrant to use chef server in the Vagrantfile:
-
-{% highlight ruby %}
-Vagrant::Config.run do |config|
-  config.vm.provisioner = :chef_server
-end
-{% endhighlight %}
-
-Once enabled, if you are building a VM from scratch, run `vagrant up` and provisioning
+If you are building a VM from scratch, run `vagrant up` and provisioning
 will automatically occur. If you already have a running VM and don't want to rebuild
 everything from scratch, run `vagrant reload` and provisioning will automatically
 occur.

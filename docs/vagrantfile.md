@@ -68,6 +68,10 @@ to use a custom SSH keypair.
 `config.ssh.timeout` specifies the timeout when trying to connect to the virtual
 environment.
 
+`config.ssh.forward_agent` is a boolean which when true will enable agent forwarding for `vagrant ssh`.
+
+`config.ssh.forward_x11` is a boolean which when true will enable X11 forwarding for `vagrant ssh`.
+
 ## config.vm
 
 Vm settings are used when creating new virtual machines to alert Vagrant about how they
@@ -142,16 +146,14 @@ port would collide with another VM.
 host only networking. This is a large enough topic that it has its own page. Please
 read the page on host only networking for more information and details.
 
-`config.vm.provisioner` tells Vagrant which provisioner to use to provision the system. By
-default, this is set to `nil` which disables provisioning. It can also be set to a symbol
-to use a built-in provisioner, or a class to use a custom provisioner. Example:
+`config.vm.provision` tells Vagrant to enable and configure a specific provisioner. Example:
 
 {% highlight ruby %}
 # Use a built-in provisioner
-config.vm.provisioner = :chef_solo
+config.vm.provision :chef_solo
 
 # Use a custom provisioner
-config.vm.provisioner = MyCustomProvisioner
+config.vm.provisoin MyCustomProvisioner
 {% endhighlight %}
 
 `config.vm.share_folder` is a function that will share a folder on the host machine with the
@@ -250,7 +252,7 @@ config.chef.json.merge!({
 `config.chef.provisioning_path` is the folder on the virtual machine where Vagrant will copy a small ruby script to include the cookbooks and a json chef configuration file. A chef solo command will be issued from within this directory to put chef to work. This setting usually doesn't have to be changed.
 
 {% highlight bash %}
-$ sudo chef solo -c solo.rb -j dna.json
+$ sudo chef-solo -c solo.rb -j dna.json
 {% endhighlight %}
 
 `config.chef.run_list` is an array of recipes and/or roles to run on the node. This can be used to run
@@ -268,8 +270,8 @@ config.chef.add_role("bar")
 
 ## config.puppet
 
-Vagrant can use [Puppet](http://www.puppetlabs.com/puppet) to provision virtual environments. This is a built-in provisioners which
-includes its own configuration.
+Vagrant can use [stand-alone Puppet](http://www.puppetlabs.com/puppet) to provision virtual environments. This is a built-in
+provisioner which includes its own configuration.
 
 The settings below only have an effect if Puppet is used as the provisioner. Puppet
 provisioning can be enabled by setting `provisioner` to `:puppet`.
@@ -277,3 +279,15 @@ provisioning can be enabled by setting `provisioner` to `:puppet`.
 `config.puppet.manifest_path` represents the manifests path on your host machine located relative to your project directory. Vagrant will expand whatever path you place in this configuration option and use those manifests during provisioning.
 
 `config.puppet.pp_path` represents the path for your manifests on the virtual machine, it defaults to `/tmp/vagrant-puppet`.
+
+## config.puppet_server
+
+Also available is Puppet Server support which enables Puppet in client-server mode.
+
+The settings below only have an effect if Puppet is used as the provisioner. Puppet
+provisioning can be enabled by setting `provisioner` to `:puppet_server`.
+
+`config.puppet_server.puppet_server` specifies the name of the Puppet Server you wish to connect to, it defaults to `puppet`.
+
+`config.puppet_server.puppet_node` specifies the node name of the VM you are configuring. Puppet uses this to identify what
+configuration to apply to the VM. If not specified it defaults to the name of the box being provisioned.

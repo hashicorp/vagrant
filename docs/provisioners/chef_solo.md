@@ -35,8 +35,10 @@ To tell Vagrant what the cookbook path is, set it up in your Vagrantfile, like s
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  # This path will be expanded relative to the project directory
-  config.chef.cookbooks_path = "cookbooks"
+  config.vm.provision :chef_solo do |chef|
+    # This path will be expanded relative to the project directory
+    chef.cookbooks_path = "cookbooks"
+  end
 end
 {% endhighlight %}
 
@@ -50,7 +52,9 @@ end
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.chef.cookbooks_path = ["cookbooks", "~/company/cookbooks"]
+  config.vm.provision :chef_solo do |chef|
+    chef.cookbooks_path = ["cookbooks", "~/company/cookbooks"]
+  end
 end
 {% endhighlight %}
   </p>
@@ -77,8 +81,9 @@ Then, we must tell Vagrant to use this cookbook:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  # ...
-  config.chef.add_recipe("vagrant_main")
+  config.vm.provision :chef_solo do |chef|
+    chef.add_recipe("vagrant_main")
+  end
 end
 {% endhighlight %}
 
@@ -110,12 +115,14 @@ you can specify additional JSON data in the Vagrantfile:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  # merge is used to preserve the default JSON configuration, otherwise it'll
-  # all be overwritten
-  config.chef.json.merge!({
-    :load_limit => 42,
-    :chunky_bacon => true
-  })
+  config.vm.provision :chef_solo do |chef|
+    # merge is used to preserve the default JSON configuration, otherwise it'll
+    # all be overwritten
+    chef.json.merge!({
+      :load_limit => 42,
+      :chunky_bacon => true
+    })
+  end
 end
 {% endhighlight %}
 
@@ -128,9 +135,11 @@ chef solo run list. An example of configuring roles is shown below:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  # The roles path will be expanded relative to the project directory
-  config.chef.roles_path = "roles"
-  config.chef.add_role("web")
+  config.vm.provision :chef_solo do |chef|
+    # The roles path will be expanded relative to the project directory
+    chef.roles_path = "roles"
+    chef.add_role("web")
+  end
 end
 {% endhighlight %}
 
@@ -143,7 +152,9 @@ the location, you can do so in the Vagrantfile:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.chef.provisioning_path = "/tmp/vagrant-chef"
+  config.vm.provision :chef_solo do |chef|
+    chef.provisioning_path = "/tmp/vagrant-chef"
+  end
 end
 {% endhighlight %}
 
@@ -152,16 +163,9 @@ is complete.
 
 ## Enabling and Executing
 
-Finally, once everything is setup, provisioning can be enabled and run. To enable
-provisioning, tell Vagrant to use chef solo in the Vagrantfile:
-
-{% highlight ruby %}
-Vagrant::Config.run do |config|
-  config.vm.provisioner = :chef_solo
-end
-{% endhighlight %}
-
-Once enabled, if you are building a VM from scratch, run `vagrant up` and provisioning
-will automatically occur. If you already have a running VM and don't want to rebuild
-everything from scratch, run `vagrant reload` and it will restart the VM, without completely
-destroying the environment first, allowing the import step to be skipped.
+By calling `config.vm.provision` with `:chef_solo`, chef solo based provisioning
+will be enabled and ran during a VM setup. If you are building a VM from scratch,
+run `vagrant up` and provisioning will automatically occur. If you already have
+a running VM and don't want to rebuild everything from scratch, run `vagrant reload`
+and it will restart the VM, without completely destroying the environment first,
+allowing the import step to be skipped.
