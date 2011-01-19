@@ -33,6 +33,7 @@
     change, its unnecessary.
   - Puppet supports `module_path` configuration to mount local modules directory
     as a shared folder and configure puppet with it. [GH-270]
+  - `ssh-config` now outputs `127.0.0.1` as the host instead of `localhost`.
 
 ## 0.6.9 (December 21, 2010)
 
