@@ -147,6 +147,7 @@ class SshTest < Test::Unit::TestCase
         assert_equal @env.config.ssh.username, username
         assert_equal @ssh.port, opts[:port]
         assert_equal [@env.config.ssh.private_key_path], opts[:keys]
+        assert opts[:keys_only]
         true
       end
       @ssh.execute
