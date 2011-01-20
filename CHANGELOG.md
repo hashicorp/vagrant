@@ -1,6 +1,6 @@
 ## 0.7.1 (unreleased)
 
-
+  - Change error output with references to VirtualBox 3.2 to 4.0.
 
 ## 0.7.0 (January 19, 2011)
 
