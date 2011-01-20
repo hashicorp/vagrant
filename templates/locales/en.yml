@@ -133,10 +133,10 @@ en:
       virtualbox_not_detected: |-
         Vagrant could not detect VirtualBox! Make sure VirtualBox is properly installed.
         If VirtualBox is installed, it may be an incorrect version. Vagrant currently
-        requires VirtualBox 3.2.x. Please install the proper version to continue.
+        requires VirtualBox 4.0.x. Please install the proper version to continue.
       virtualbox_not_detected_win64: |-
         Vagrant could not detect VirtualBox! Make sure VirtualBox is properly installed
-        with version 3.2.0 or higher.
+        with version 4.0.0 or higher.
 
         Additionally, it appears you're on 64-bit Windows. If this is the case, and
         VirtualBox is properly installed with the correct version, then please make

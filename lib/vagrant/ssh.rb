@@ -70,6 +70,7 @@ module Vagrant
         Net::SSH.start(env.config.ssh.host,
                        env.config.ssh.username,
                        opts.merge( :keys => [env.config.ssh.private_key_path],
+                                   :keys_only => true,
                                    :user_known_hosts_file => [],
                                    :paranoid => false,
                                    :config => false)) do |ssh|

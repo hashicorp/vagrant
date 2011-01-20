@@ -1,4 +1,10 @@
-## 0.7.0 (unreleased)
+## 0.7.1 (unreleased)
+
+  - Change error output with references to VirtualBox 3.2 to 4.0.
+  - Internal SSH through net-ssh now uses `IdentitiesOnly` thanks to
+    upstream net-ssh fix.
+
+## 0.7.0 (January 19, 2011)
 
   - VirtualBox 4.0 support. Support for VirtualBox 3.2 is _dropped_, since
     the API is so different. Stay with the 0.6.x series if you have VirtualBox
@@ -33,6 +39,7 @@
     change, its unnecessary.
   - Puppet supports `module_path` configuration to mount local modules directory
     as a shared folder and configure puppet with it. [GH-270]
+  - `ssh-config` now outputs `127.0.0.1` as the host instead of `localhost`.
 
 ## 0.6.9 (December 21, 2010)
 
