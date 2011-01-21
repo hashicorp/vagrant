@@ -44,7 +44,12 @@ module Vagrant
                          "-o StrictHostKeyChecking=no", "-o IdentitiesOnly=yes",
                          "-i #{options[:private_key_path]}"]
       command_options << "-o ForwardAgent=yes" if env.config.ssh.forward_agent
-      command_options << "-o ForwardX11=yes" if env.config.ssh.forward_x11
+
+      if env.config.ssh.forward_x11
+        # Both are required so that no warnings are shown regarding X11
+        command_options << "-o ForwardX11=yes"
+        command_options << "-o ForwardX11Trusted=yes"
+      end
 
       # Some hackery going on here. On Mac OS X Leopard (10.5), exec fails
       # (GH-51). As a workaround, we fork and wait. On all other platforms,
