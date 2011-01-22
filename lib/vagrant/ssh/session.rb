@@ -22,6 +22,29 @@ module Vagrant
         false
       end
 
+      # Executes a given command on the SSH session using `sudo` and
+      # blocks until the command completes. This takes the same parameters
+      # as {#exec!}. The only difference is that the command can be an
+      # array of commands, which will be placed into the same script.
+      #
+      # This is different than just calling {#exec!} with `sudo`, since
+      # this command is tailor-made to be compliant with older versions
+      # of `sudo`.
+      def sudo!(commands, options=nil, &block)
+        # First, make a temporary file to store the script
+        filename = exec!("mktemp /tmp/vagrant-command-#{'X' * 10}")
+
+        # Output each command into the temporary file
+        [commands].flatten.each do |command|
+          exec!("echo #{command} >> #{filename}")
+        end
+
+        # Finally, execute the file, passing in the parameters since this
+        # is the expected command to run.
+        exec!("sudo chmod +x #{filename}")
+        exec!("sudo -i #{filename}", options, &block)
+      end
+
       # Executes a given command on the SSH session and blocks until
       # the command completes. This is an almost line for line copy of
       # the actual `exec!` implementation, except that this
@@ -65,12 +88,12 @@ module Vagrant
 
       # Checks for an erroroneous exit status and raises an exception
       # if so.
-      def check_exit_status(exit_status, command, options=nil)
+      def check_exit_status(exit_status, commands, options=nil)
         if exit_status != 0
           options = {
             :_error_class => Errors::VagrantError,
             :_key => :ssh_bad_exit_status,
-            :command => command
+            :command => [commands].flatten.join("\n")
           }.merge(options || {})
 
           raise options[:_error_class], options

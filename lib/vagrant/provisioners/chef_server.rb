@@ -50,7 +50,7 @@ module Vagrant
         path = Pathname.new(config.client_key_path)
 
         vm.ssh.execute do |ssh|
-          ssh.exec!("sudo mkdir -p #{path.dirname}")
+          ssh.sudo!("mkdir -p #{path.dirname}")
         end
       end
 
@@ -70,13 +70,14 @@ module Vagrant
       end
 
       def run_chef_client
-        command = "sudo -i 'cd #{config.provisioning_path} && chef-client -c client.rb -j dna.json'"
+        commands = ["cd #{config.provisioning_path}",
+                    "chef-client -c client.rb -j dna.json"]
 
         env.ui.info I18n.t("vagrant.provisioners.chef.running_client")
         vm.ssh.execute do |ssh|
-          ssh.exec!(command) do |channel, type, data|
+          ssh.sudo!(commands) do |channel, type, data|
             if type == :exit_status
-              ssh.check_exit_status(data, command)
+              ssh.check_exit_status(data, commands)
             else
               env.ui.info("#{data}: #{type}")
             end

@@ -26,9 +26,7 @@ module Vagrant
 
       def verify_binary(binary)
         vm.ssh.execute do |ssh|
-          ssh.shell do |sh|
-            sh.execute("sudo -i which #{binary}", :error_class => PuppetServerError, :_key => :puppetd_not_detected, :binary => binary)
-          end
+          ssh.sudo!("which #{binary}", :error_class => PuppetServerError, :_key => :puppetd_not_detected, :binary => binary)
         end
       end
 
@@ -41,13 +39,13 @@ module Vagrant
           cn = env.config.vm.box
         end
 
-        command = "sudo -i puppetd #{options} --server #{config.puppet_server} --certname #{cn}"
+        commands = "puppetd #{options} --server #{config.puppet_server} --certname #{cn}"
 
         env.ui.info I18n.t("vagrant.provisioners.puppet_server.running_puppetd")
 
         vm.ssh.execute do |ssh|
-          ssh.exec!(command) do |channel, type, data|
-            ssh.check_exit_status(data, command) if type == :exit_status
+          ssh.sudo!(commands) do |channel, type, data|
+            ssh.check_exit_status(data, commands) if type == :exit_status
             env.ui.info(data) if type != :exit_status
           end
         end

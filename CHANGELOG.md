@@ -5,6 +5,9 @@
     upstream net-ssh fix.
   - Fix issue causing warnings to show with `forwardx11` enabled for SSH. [GH-279]
   - FreeBSD support for host only networks, NFS, halting, etc. [GH-275]
+  - Make SSH commands which use sudo compatible with sudo < 1.7.0. [GH-278]
+  - Fix broken puppet server provisioner which called a nonexistent
+    method.
 
 ## 0.7.0 (January 19, 2011)
 

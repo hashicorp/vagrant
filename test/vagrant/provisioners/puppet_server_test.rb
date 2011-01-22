@@ -25,13 +25,12 @@ class PuppetServerProvisionerTest < Test::Unit::TestCase
     setup do
       @ssh = mock("ssh")
       @shell = mock("shell")
-      @ssh.stubs(:shell).yields(@shell)
       @vm.ssh.stubs(:execute).yields(@ssh)
     end
 
     should "verify binary exists" do
       binary = "foo"
-      @shell.expects(:execute).with("sudo -i which #{binary}", anything)
+      @ssh.expects(:sudo!).with("which #{binary}", anything)
       @action.verify_binary(binary)
     end
   end
@@ -44,24 +43,24 @@ class PuppetServerProvisionerTest < Test::Unit::TestCase
     end
 
     should "run the puppetd client" do
-      @ssh.expects(:exec!).with("sudo -i puppetd  --server #{@config.puppet_server} --certname #{@cn}").once
+      @ssh.expects(:sudo!).with("puppetd  --server #{@config.puppet_server} --certname #{@cn}").once
       @action.run_puppetd_client
     end
 
     should "run puppetd with given options when given as an array" do
       @config.options = ["--modulepath", "modules", "--verbose"]
-      @ssh.expects(:exec!).with("sudo -i puppetd --modulepath modules --verbose --server #{@config.puppet_server} --certname #{@cn}").once
+      @ssh.expects(:sudo!).with("puppetd --modulepath modules --verbose --server #{@config.puppet_server} --certname #{@cn}").once
       @action.run_puppetd_client
     end
 
     should "run puppetd with the options when given as a string" do
       @config.options = "--modulepath modules --verbose"
-      @ssh.expects(:exec!).with("sudo -i puppetd --modulepath modules --verbose --server #{@config.puppet_server} --certname #{@cn}").once
+      @ssh.expects(:sudo!).with("puppetd --modulepath modules --verbose --server #{@config.puppet_server} --certname #{@cn}").once
       @action.run_puppetd_client
     end
 
     should "check the exit status if that is given" do
-      @ssh.stubs(:exec!).yields(nil, :exit_status, :foo)
+      @ssh.stubs(:sudo!).yields(nil, :exit_status, :foo)
       @ssh.expects(:check_exit_status).with(:foo, anything).once
       @action.run_puppetd_client
     end

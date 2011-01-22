@@ -138,7 +138,7 @@ class PuppetProvisionerTest < Test::Unit::TestCase
 
     should "verify binary exists" do
       binary = "foo"
-      @ssh.expects(:exec!).with("sudo -i which #{binary}", anything)
+      @ssh.expects(:sudo!).with("which #{binary}", anything)
       @action.verify_binary(binary)
     end
   end
@@ -151,7 +151,7 @@ class PuppetProvisionerTest < Test::Unit::TestCase
     end
 
     def expect_puppet_command(command)
-      @ssh.expects(:exec!).with("sudo -i 'cd #{@action.manifests_guest_path}; #{command}'")
+      @ssh.expects(:sudo!).with(["cd #{@action.manifests_guest_path}", command])
     end
 
     should "cd into the pp_path directory and run puppet" do

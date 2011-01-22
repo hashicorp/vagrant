@@ -107,7 +107,7 @@ module Vagrant
 
       def verify_binary(binary)
         vm.ssh.execute do |ssh|
-          ssh.exec!("sudo -i which #{binary}", :error_class => PuppetError, :_key => :puppet_not_detected, :binary => binary)
+          ssh.sudo!("which #{binary}", :error_class => PuppetError, :_key => :puppet_not_detected, :binary => binary)
         end
       end
 
@@ -117,14 +117,15 @@ module Vagrant
         options << config.computed_manifest_file
         options = options.join(" ")
 
-        command = "sudo -i 'cd #{manifests_guest_path}; puppet #{options}'"
+        commands = ["cd #{manifests_guest_path}",
+                    "puppet #{options}"]
 
         env.ui.info I18n.t("vagrant.provisioners.puppet.running_puppet", :manifest => config.computed_manifest_file)
 
         vm.ssh.execute do |ssh|
-          ssh.exec! command do |ch, type, data|
+          ssh.sudo! commands do |ch, type, data|
             if type == :exit_status
-              ssh.check_exit_status(data, command)
+              ssh.check_exit_status(data, commands)
             else
               env.ui.info(data)
             end

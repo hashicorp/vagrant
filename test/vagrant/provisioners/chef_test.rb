@@ -73,7 +73,7 @@ class ChefProvisionerTest < Test::Unit::TestCase
 
     should "verify binary exists" do
       binary = "foo"
-      @ssh.expects(:exec!).with("sudo -i which #{binary}", anything)
+      @ssh.expects(:sudo!).with("which #{binary}", anything)
       @action.verify_binary(binary)
     end
   end
@@ -82,8 +82,8 @@ class ChefProvisionerTest < Test::Unit::TestCase
     should "create and chown the folder to the ssh user" do
       ssh_seq = sequence("ssh_seq")
       ssh = mock("ssh")
-      ssh.expects(:exec!).with("sudo mkdir -p #{@config.provisioning_path}").once.in_sequence(ssh_seq)
-      ssh.expects(:exec!).with("sudo chown #{@env.config.ssh.username} #{@config.provisioning_path}").once.in_sequence(ssh_seq)
+      ssh.expects(:sudo!).with("mkdir -p #{@config.provisioning_path}").once.in_sequence(ssh_seq)
+      ssh.expects(:sudo!).with("chown #{@env.config.ssh.username} #{@config.provisioning_path}").once.in_sequence(ssh_seq)
       @vm.ssh.expects(:execute).yields(ssh)
       @action.chown_provisioning_folder
     end

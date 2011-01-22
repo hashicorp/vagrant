@@ -12,14 +12,14 @@ module Vagrant
         vm.ssh.execute do |ssh|
           # Checks for the existence of chef binary and error if it
           # doesn't exist.
-          ssh.exec!("sudo -i which #{binary}", :error_class => ChefError, :_key => :chef_not_detected, :binary => binary)
+          ssh.sudo!("which #{binary}", :error_class => ChefError, :_key => :chef_not_detected, :binary => binary)
         end
       end
 
       def chown_provisioning_folder
         vm.ssh.execute do |ssh|
-          ssh.exec!("sudo mkdir -p #{config.provisioning_path}")
-          ssh.exec!("sudo chown #{env.config.ssh.username} #{config.provisioning_path}")
+          ssh.sudo!("mkdir -p #{config.provisioning_path}")
+          ssh.sudo!("chown #{env.config.ssh.username} #{config.provisioning_path}")
         end
       end
 
