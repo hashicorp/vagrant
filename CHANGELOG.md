@@ -4,6 +4,7 @@
   - Internal SSH through net-ssh now uses `IdentitiesOnly` thanks to
     upstream net-ssh fix.
   - Fix issue causing warnings to show with `forwardx11` enabled for SSH. [GH-279]
+  - FreeBSD support for host only networks, NFS, halting, etc. [GH-275]
 
 ## 0.7.0 (January 19, 2011)
 

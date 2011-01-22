@@ -58,10 +58,11 @@ module Vagrant
       elsif system.is_a?(Symbol)
         # Hard-coded internal systems
         mapping = {
-          :debian => Systems::Debian,
-          :gentoo => Systems::Gentoo,
-          :redhat => Systems::Redhat,
-          :linux => Systems::Linux,
+          :debian  => Systems::Debian,
+          :freebsd => Systems::FreeBSD,
+          :gentoo  => Systems::Gentoo,
+          :redhat  => Systems::Redhat,
+          :linux   => Systems::Linux,
           :solaris => Systems::Solaris
         }
 

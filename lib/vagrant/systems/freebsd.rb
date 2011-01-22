@@ -43,6 +43,7 @@ module Vagrant
         end
       end
 
+      # TODO: Error/warning about this.
       # def mount_shared_folder(ssh, name, guestpath)
       #   ssh.exec!("sudo mkdir -p #{guestpath}")
       #   # Using a custom mount method here; could use improvement.
