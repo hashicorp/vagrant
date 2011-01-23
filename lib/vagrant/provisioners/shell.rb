@@ -37,7 +37,14 @@ module Vagrant
         # Execute it with sudo
         vm.ssh.execute do |ssh|
           ssh.sudo!("chmod +x #{config.upload_path}")
-          ssh.sudo!(config.upload_path)
+
+          ssh.sudo!(config.upload_path) do |ch, type, data|
+            if type == :exit_status
+              ssh.check_exit_status(data, config.upload_path)
+            else
+              env.ui.info(data)
+            end
+          end
         end
       end
     end
