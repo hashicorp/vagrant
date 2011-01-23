@@ -10,6 +10,8 @@
     method.
   - Default SSH host changed from `localhost` to `127.0.0.1` since
     `localhost` is not always loopback.
+  - New `shell` provisioner which simply uploads and executes a script as
+    root on the VM.
 
 ## 0.7.0 (January 19, 2011)
 
