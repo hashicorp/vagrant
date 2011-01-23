@@ -8,6 +8,8 @@
   - Make SSH commands which use sudo compatible with sudo < 1.7.0. [GH-278]
   - Fix broken puppet server provisioner which called a nonexistent
     method.
+  - Default SSH host changed from `localhost` to `127.0.0.1` since
+    `localhost` is not always loopback.
 
 ## 0.7.0 (January 19, 2011)
 
