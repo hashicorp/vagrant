@@ -32,7 +32,7 @@ the box doesn't already exist on your system.
 ## Getting Started Guide and Video
 
 To learn how to build a fully functional rails development environment, view the
-[getting started guide](http://vagrantup.com/getting-started/index.html).
+[getting started guide](http://vagrantup.com/docs/getting-started/index.html).
 
 There is also a fairly short (12 minute) [getting started video](http://vimeo.com/9976342) which
 explains how to build a fully functional LAMP development environment, which
