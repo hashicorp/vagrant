@@ -31,18 +31,23 @@ module Vagrant
       # this command is tailor-made to be compliant with older versions
       # of `sudo`.
       def sudo!(commands, options=nil, &block)
-        # First, make a temporary file to store the script
-        filename = exec!("mktemp /tmp/vagrant-command-#{'X' * 10}")
+        session.open_channel do |ch|
+          ch.exec("sudo -i sh") do |ch2, success|
+            # Output each command as if they were entered on the command line
+            [commands].flatten.each do |command|
+              ch2.send_data "#{command}\n"
+            end
 
-        # Output each command into the temporary file
-        [commands].flatten.each do |command|
-          exec!("echo #{command} >> #{filename}")
+            # Remember to exit or we'll hang!
+            ch2.send_data "exit\n"
+
+            # Setup the callbacks with our options so we get all the
+            # stdout/stderr and error checking goodies
+            setup_channel_callbacks(ch2, commands, options, block)
+          end
+
+          ch.wait
         end
-
-        # Finally, execute the file, passing in the parameters since this
-        # is the expected command to run.
-        exec!("sudo chmod +x #{filename}")
-        exec!("sudo -i #{filename}", options, &block)
       end
 
       # Executes a given command on the SSH session and blocks until
@@ -52,6 +57,22 @@ module Vagrant
       def exec!(command, options=nil, &block)
         options = { :error_check => true }.merge(options || {})
 
+        retryable(:tries => 5, :on => IOError, :sleep => 0.5) do
+          metach = session.open_channel do |channel|
+            channel.exec(command) do |ch, success|
+              raise "could not execute command: #{command.inspect}" unless success
+              setup_channel_callbacks(ch, command, options, block)
+            end
+          end
+
+          metach.wait
+          metach[:result]
+        end
+      end
+
+      # Sets up the channel callbacks to properly check exit statuses and
+      # callback on stdout/stderr.
+      def setup_channel_callbacks(channel, command, options, block)
         block ||= Proc.new do |ch, type, data|
           check_exit_status(data, command, options) if type == :exit_status && options[:error_check]
 
@@ -59,30 +80,19 @@ module Vagrant
           ch[:result] << data if [:stdout, :stderr].include?(type)
         end
 
-        retryable(:tries => 5, :on => IOError, :sleep => 0.5) do
-          metach = session.open_channel do |channel|
-            channel.exec(command) do |ch, success|
-              raise "could not execute command: #{command.inspect}" unless success
+        # Output stdout data to the block
+        channel.on_data do |ch2, data|
+          block.call(ch2, :stdout, data)
+        end
 
-              # Output stdout data to the block
-              channel.on_data do |ch2, data|
-                block.call(ch2, :stdout, data)
-              end
+        # Output stderr data to the block
+        channel.on_extended_data do |ch2, type, data|
+          block.call(ch2, :stderr, data)
+        end
 
-              # Output stderr data to the block
-              channel.on_extended_data do |ch2, type, data|
-                block.call(ch2, :stderr, data)
-              end
-
-              # Output exit status information to the block
-              channel.on_request("exit-status") do |ch2, data|
-                block.call(ch2, :exit_status, data.read_long)
-              end
-            end
-          end
-
-          metach.wait
-          metach[:result]
+        # Output exit status information to the block
+        channel.on_request("exit-status") do |ch2, data|
+          block.call(ch2, :exit_status, data.read_long)
         end
       end
 
