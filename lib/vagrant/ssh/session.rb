@@ -55,8 +55,6 @@ module Vagrant
       # the actual `exec!` implementation, except that this
       # implementation also reports `:exit_status` to the block if given.
       def exec!(command, options=nil, &block)
-        options = { :error_check => true }.merge(options || {})
-
         retryable(:tries => 5, :on => IOError, :sleep => 0.5) do
           metach = session.open_channel do |channel|
             channel.exec(command) do |ch, success|
@@ -73,6 +71,8 @@ module Vagrant
       # Sets up the channel callbacks to properly check exit statuses and
       # callback on stdout/stderr.
       def setup_channel_callbacks(channel, command, options, block)
+        options = { :error_check => true }.merge(options || {})
+
         block ||= Proc.new do |ch, type, data|
           check_exit_status(data, command, options) if type == :exit_status && options[:error_check]
 
