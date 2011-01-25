@@ -56,10 +56,11 @@ class ShellProvisionerTest < Test::Unit::TestCase
     end
 
     should "upload the file, chmod, then execute it" do
+      commands = ["chmod +x #{@config.upload_path}", @config.upload_path]
+
       p_seq = sequence("provisioning")
       @action.vm.ssh.expects(:upload!).with(@config.expanded_path.to_s, @config.upload_path).in_sequence(p_seq)
-      @ssh.expects(:sudo!).with("chmod +x #{@config.upload_path}").in_sequence(p_seq)
-      @ssh.expects(:sudo!).with(@config.upload_path).in_sequence(p_seq)
+      @ssh.expects(:sudo!).with(commands).in_sequence(p_seq)
 
       @action.provision!
     end

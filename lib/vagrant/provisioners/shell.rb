@@ -31,16 +31,16 @@ module Vagrant
       end
 
       def provision!
+        commands = ["chmod +x #{config.upload_path}", config.upload_path]
+
         # Upload the script to the VM
         vm.ssh.upload!(config.expanded_path.to_s, config.upload_path)
 
         # Execute it with sudo
         vm.ssh.execute do |ssh|
-          ssh.sudo!("chmod +x #{config.upload_path}")
-
-          ssh.sudo!(config.upload_path) do |ch, type, data|
+          ssh.sudo!(commands) do |ch, type, data|
             if type == :exit_status
-              ssh.check_exit_status(data, config.upload_path)
+              ssh.check_exit_status(data, commands)
             else
               env.ui.info(data)
             end
