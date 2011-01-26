@@ -12,6 +12,7 @@
     `localhost` is not always loopback.
   - New `shell` provisioner which simply uploads and executes a script as
     root on the VM.
+  - Gentoo host only networking no longer fails if alrady setup. [GH-286]
 
 ## 0.7.0 (January 19, 2011)
 

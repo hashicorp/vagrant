@@ -16,7 +16,7 @@ module Vagrant
         vm.ssh.upload!(StringIO.new(entry), "/tmp/vagrant-network-entry")
 
         vm.ssh.execute do |ssh|
-          ssh.exec!("sudo ln -s /etc/init.d/net.lo /etc/init.d/net.eth#{net_options[:adapter]}")
+          ssh.exec!("sudo ln -fs /etc/init.d/net.lo /etc/init.d/net.eth#{net_options[:adapter]}")
           ssh.exec!("sudo /etc/init.d/net.eth#{net_options[:adapter]} stop 2> /dev/null")
           ssh.exec!("sudo su -c 'cat /tmp/vagrant-network-entry >> /etc/conf.d/net'")
           ssh.exec!("sudo /etc/init.d/net.eth#{net_options[:adapter]} start")
