@@ -9,6 +9,10 @@ module Vagrant
         vm = target_vms.first
         raise Errors::VMNotCreatedError if !vm.created?
 
+        # We need to fix the file permissions of the key if they aren't set
+        # properly, otherwise if the user attempts to SSH in, it won't work!
+        vm.ssh.check_key_permissions(vm.env.config.ssh.private_key_path)
+
         $stdout.puts(Util::TemplateRenderer.render("ssh_config", {
           :host_key => options[:host] || "vagrant",
           :ssh_host => vm.env.config.ssh.host,
