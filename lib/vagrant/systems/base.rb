@@ -82,7 +82,6 @@ module Vagrant
       def change_host_name(name)
         raise BaseError, :_key => :unsupported_host_name
       end
-
     end
   end
 end

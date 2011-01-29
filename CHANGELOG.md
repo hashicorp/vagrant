@@ -13,6 +13,7 @@
   - New `shell` provisioner which simply uploads and executes a script as
     root on the VM.
   - Gentoo host only networking no longer fails if alrady setup. [GH-286]
+  - Set the host name of your guest OS with `config.vm.host_name` [GH-273]
 
 ## 0.7.0 (January 19, 2011)
 

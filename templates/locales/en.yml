@@ -507,7 +507,9 @@ en:
           back the SSH commands necessary to set this up. Please report a bug and this
           will be fixed for your distro.
         unsupported_host_name: |-
-          Setting host name is currently only supported on Debian, Ubuntu and RedHat
+          Setting host name is currently only supported on Debian, Ubuntu and RedHat.
+          If you'd like your guest OS to be supported, please open a ticket on the
+          project.
       linux:
         attempting_halt: "Attempting graceful shutdown of linux..."
         mount_fail: "Failed to mount shared folders. `vboxsf` was not available."

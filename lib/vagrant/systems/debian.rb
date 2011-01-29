@@ -24,12 +24,12 @@ module Vagrant
 
       def change_host_name(name)
         vm.ssh.execute do |ssh|
-          host_name_already_set = ssh.test?("sudo hostname | grep '#{name}'")
-          ssh.exec!("sudo sed -i 's/.*$/#{name}/' /etc/hostname") unless host_name_already_set
-          ssh.exec!("sudo service hostname start") unless host_name_already_set
+          if !ssh.test?("sudo hostname | grep '#{name}'")
+            ssh.exec!("sudo sed -i 's/.*$/#{name}/' /etc/hostname")
+            ssh.exec!("sudo service hostname start")
+          end
         end
       end
-
     end
   end
 end
