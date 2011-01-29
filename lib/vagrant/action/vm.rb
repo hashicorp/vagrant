@@ -15,6 +15,7 @@ module Vagrant
       autoload :Export,              'vagrant/action/vm/export'
       autoload :ForwardPorts,        'vagrant/action/vm/forward_ports'
       autoload :Halt,                'vagrant/action/vm/halt'
+      autoload :HostName,            'vagrant/action/vm/host_name'
       autoload :Import,              'vagrant/action/vm/import'
       autoload :MatchMACAddress,     'vagrant/action/vm/match_mac_address'
       autoload :Network,             'vagrant/action/vm/network'
