@@ -14,6 +14,7 @@
     root on the VM.
   - Gentoo host only networking no longer fails if alrady setup. [GH-286]
   - Set the host name of your guest OS with `config.vm.host_name` [GH-273]
+  - `vagrant ssh-config` now outputs the configured `config.ssh.host`
 
 ## 0.7.0 (January 19, 2011)
 
