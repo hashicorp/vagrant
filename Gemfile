@@ -14,6 +14,8 @@ group :test do
   gem "mocha"
 
   # For documentation
-  gem "yard", "~> 0.6.1"
-  gem "bluecloth"
+  platforms :ruby do
+    gem "yard", "~> 0.6.1"
+    gem "bluecloth"
+  end
 end
