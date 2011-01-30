@@ -1,6 +1,7 @@
 ## 0.7.2 (unreleased)
 
-
+  - Update JSON dependency to 1.5.1, which works with Ruby 1.9 on
+    Windows.
 
 ## 0.7.1 (January 28, 2011)
 
