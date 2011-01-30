@@ -8,7 +8,7 @@ module Vagrant
           @app = app
           @env = env
 
-          if enable_network? && Util::Platform.windows?
+          if enable_network? && Util::Platform.windows? && Util::Platform.bit64?
             raise Errors::NetworkNotImplemented
           end
 

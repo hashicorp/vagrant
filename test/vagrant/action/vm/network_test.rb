@@ -16,8 +16,9 @@ class NetworkVMActionTest < Test::Unit::TestCase
   end
 
   context "initializing" do
-    should "raise an error if on windows and networking is enabled" do
+    should "raise an error if on windows x64 and networking is enabled" do
       Vagrant::Util::Platform.stubs(:windows?).returns(true)
+      Vagrant::Util::Platform.stubs(:bit64?).returns(true)
       @env.env.config.vm.network("foo")
 
       assert_raises(Vagrant::Errors::NetworkNotImplemented) {
