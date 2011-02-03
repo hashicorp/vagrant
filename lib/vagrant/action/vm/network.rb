@@ -66,7 +66,7 @@ module Vagrant
             adapter.attachment_type = :host_only
             adapter.host_interface = network_name(network_options)
             if network_options[:mac]
-              adapter.mac = network_options[:mac]
+              adapter.mac_address = network_options[:mac]
             end
             adapter.save
           end
