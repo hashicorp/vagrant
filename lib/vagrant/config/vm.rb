@@ -55,7 +55,7 @@ module Vagrant
           :ip => ip,
           :netmask => "255.255.255.0",
           :adapter => 1,
-          :mac = nil,
+          :mac => nil,
           :name => nil
         }.merge(options || {})
 
