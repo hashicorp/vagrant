@@ -31,7 +31,7 @@ module Vagrant
       # this command is tailor-made to be compliant with older versions
       # of `sudo`.
       def sudo!(commands, options=nil, &block)
-        session.open_channel do |ch|
+        channel = session.open_channel do |ch|
           ch.exec("sudo sh -l") do |ch2, success|
             # Output each command as if they were entered on the command line
             [commands].flatten.each do |command|
@@ -45,9 +45,10 @@ module Vagrant
             # stdout/stderr and error checking goodies
             setup_channel_callbacks(ch2, commands, options, block)
           end
-
-          ch.wait
         end
+
+        channel.wait
+        channel[:result]
       end
 
       # Executes a given command on the SSH session and blocks until
