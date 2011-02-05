@@ -82,8 +82,7 @@ class ChefProvisionerTest < Test::Unit::TestCase
     should "create and chown the folder to the ssh user" do
       ssh_seq = sequence("ssh_seq")
       ssh = mock("ssh")
-      ssh.expects(:sudo!).with("mkdir -p #{@config.provisioning_path}").once.in_sequence(ssh_seq)
-      ssh.expects(:sudo!).with("chown #{@env.config.ssh.username} #{@config.provisioning_path}").once.in_sequence(ssh_seq)
+      ssh.expects(:sudo!).with("mkdir -p #{@config.provisioning_path} && chown #{@env.config.ssh.username} #{@config.provisioning_path}").once.in_sequence(ssh_seq)
       @vm.ssh.expects(:execute).yields(ssh)
       @action.chown_provisioning_folder
     end
