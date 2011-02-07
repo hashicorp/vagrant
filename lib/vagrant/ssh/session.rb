@@ -32,7 +32,7 @@ module Vagrant
       # of `sudo`.
       def sudo!(commands, options=nil, &block)
         channel = session.open_channel do |ch|
-          ch.exec("sudo sh -l") do |ch2, success|
+          ch.exec("sudo bash -l") do |ch2, success|
             # Output each command as if they were entered on the command line
             [commands].flatten.each do |command|
               ch2.send_data "#{command}\n"
