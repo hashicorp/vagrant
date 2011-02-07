@@ -192,7 +192,8 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
         :provisioning_path => @config.provisioning_path,
         :cookbooks_path => @action.cookbooks_path,
         :recipe_url => @config.recipe_url,
-        :roles_path => @action.roles_path
+        :roles_path => @action.roles_path,
+        :log_level => @config.log_level
       })
 
       @action.setup_solo_config
@@ -206,7 +207,7 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
     end
 
     should "cd into the provisioning directory and run chef solo" do
-      @ssh.expects(:sudo!).with(["cd #{@config.provisioning_path}", "chef-solo -c solo.rb -j dna.json"]).once
+      @ssh.expects(:sudo!).with(["cd #{@config.provisioning_path}", "chef-solo -c solo.rb -j dna.json -l info"]).once
       @action.run_chef_solo
     end
 

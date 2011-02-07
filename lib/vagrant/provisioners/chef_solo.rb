@@ -56,11 +56,15 @@ module Vagrant
           :cookbooks_path => cookbooks_path,
           :recipe_url => config.recipe_url,
           :roles_path => roles_path,
+          :log_level => config.log_level
         })
       end
 
       def run_chef_solo
-        commands = ["cd #{config.provisioning_path}", "chef-solo -c solo.rb -j dna.json"]
+        commands = [
+          "cd #{config.provisioning_path}",
+          "chef-solo -c solo.rb -j dna.json -l #{config.log_level}"
+        ]
 
         env.ui.info I18n.t("vagrant.provisioners.chef.running_solo")
         vm.ssh.execute do |ssh|
