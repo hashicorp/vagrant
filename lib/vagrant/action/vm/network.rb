@@ -65,9 +65,7 @@ module Vagrant
             adapter.enabled = true
             adapter.attachment_type = :host_only
             adapter.host_interface = network_name(network_options)
-            if network_options[:mac]
-              adapter.mac_address = network_options[:mac].gsub(/:/, '')
-            end
+            adapter.mac_address = network_options[:mac].gsub(':', '') if network_options[:mac]
             adapter.save
           end
         end
