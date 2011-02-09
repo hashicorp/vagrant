@@ -1,3 +1,7 @@
+## 0.7.3 (unreleased)
+
+
+
 ## 0.7.2 (February 8, 2011)
 
   - Update JSON dependency to 1.5.1, which works with Ruby 1.9 on
