@@ -5,6 +5,7 @@
   - Fix sudo issues on sudo < 1.7.0 (again).
   - Fix race condition in SSH, which specifically manifested itself in
     the chef server provisioner. [GH-295]
+  - Change sudo shell to use `bash` (configurable). [GH-301]
 
 ## 0.7.1 (January 28, 2011)
 
