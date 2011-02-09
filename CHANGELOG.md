@@ -7,6 +7,7 @@
     the chef server provisioner. [GH-295]
   - Change sudo shell to use `bash` (configurable). [GH-301]
   - Can now set mac address of host only network. [GH-294]
+  - NFS shared folders with spaces now work properly. [GH-293]
 
 ## 0.7.1 (January 28, 2011)
 
