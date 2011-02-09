@@ -170,7 +170,7 @@ And finally, run the shell script which matches your system. For linux on x86,
 it is the following:
 
 {% highlight bash %}
-sudo sh /cdrom/VBoxLinuxAdditions-x86.run
+sudo sh /cdrom/VBoxLinuxAdditions.run
 {% endhighlight %}
 
 If you didn't install a Desktop environment when you installed the operating system,
