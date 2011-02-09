@@ -70,6 +70,10 @@ en:
         Vagrant assumes that this means the command failed!
 
         %{command}
+
+        The output of the command prior to failing is outputted below:
+
+        %{output}
       ssh_connection_refused: |-
         SSH connection was refused! This usually happens if the VM failed to
         boot properly. Some steps to try to fix this: First, try reloading your

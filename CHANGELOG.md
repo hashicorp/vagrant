@@ -8,6 +8,7 @@
   - Change sudo shell to use `bash` (configurable). [GH-301]
   - Can now set mac address of host only network. [GH-294]
   - NFS shared folders with spaces now work properly. [GH-293]
+  - Failed SSH commands now show output in error message. [GH-285]
 
 ## 0.7.1 (January 28, 2011)
 

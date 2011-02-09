@@ -75,7 +75,7 @@ module Vagrant
         options = { :error_check => true }.merge(options || {})
 
         block ||= Proc.new do |ch, type, data|
-          check_exit_status(data, command, options) if type == :exit_status && options[:error_check]
+          check_exit_status(data, command, options, ch[:result]) if type == :exit_status && options[:error_check]
 
           ch[:result] ||= ""
           ch[:result] << data if [:stdout, :stderr].include?(type)
@@ -99,12 +99,14 @@ module Vagrant
 
       # Checks for an erroroneous exit status and raises an exception
       # if so.
-      def check_exit_status(exit_status, commands, options=nil)
+      def check_exit_status(exit_status, commands, options=nil, output=nil)
         if exit_status != 0
+          output ||= '[no output]'
           options = {
             :_error_class => Errors::VagrantError,
             :_key => :ssh_bad_exit_status,
-            :command => [commands].flatten.join("\n")
+            :command => [commands].flatten.join("\n"),
+            :output => output
           }.merge(options || {})
 
           raise options[:_error_class], options
