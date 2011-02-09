@@ -7,9 +7,11 @@ module Vagrant
       include Util::Retryable
 
       attr_reader :session
+      attr_reader :env
 
-      def initialize(session)
+      def initialize(session, env)
         @session = session
+        @env = env
       end
 
       # Executes a given command and simply returns true/false if the
@@ -32,7 +34,7 @@ module Vagrant
       # of `sudo`.
       def sudo!(commands, options=nil, &block)
         channel = session.open_channel do |ch|
-          ch.exec("sudo bash -l") do |ch2, success|
+          ch.exec("sudo #{env.config.ssh.sudo_shell} -l") do |ch2, success|
             # Output each command as if they were entered on the command line
             [commands].flatten.each do |command|
               ch2.send_data "#{command}\n"

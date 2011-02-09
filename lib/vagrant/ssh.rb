@@ -79,7 +79,7 @@ module Vagrant
                                    :user_known_hosts_file => [],
                                    :paranoid => false,
                                    :config => false)) do |ssh|
-          yield SSH::Session.new(ssh)
+          yield SSH::Session.new(ssh, env)
         end
       end
     rescue Errno::ECONNREFUSED

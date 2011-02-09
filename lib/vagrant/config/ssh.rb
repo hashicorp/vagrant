@@ -11,6 +11,11 @@ module Vagrant
       attr_writer :private_key_path
       attr_accessor :forward_agent
       attr_accessor :forward_x11
+      attr_accessor :sudo_shell
+
+      def initialize
+        @sudo_shell = "bash"
+      end
 
       def private_key_path
         File.expand_path(@private_key_path, env.root_path)
