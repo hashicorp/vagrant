@@ -61,7 +61,7 @@ You can also specify additional options to be passed to the Puppet Server using 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
   config.vm.provision :puppet_server do |puppet|
-    config.puppet_server.options = ["--user","puppet"]
+    puppet.options = ["--user","puppet"]
   end
 end
 {% endhighlight %}
