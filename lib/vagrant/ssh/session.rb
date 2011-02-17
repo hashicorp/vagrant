@@ -35,6 +35,9 @@ module Vagrant
       def sudo!(commands, options=nil, &block)
         channel = session.open_channel do |ch|
           ch.exec("sudo #{env.config.ssh.sudo_shell} -l") do |ch2, success|
+            # Set the terminal
+            ch2.send_data "export TERM=vt100\n"
+
             # Output each command as if they were entered on the command line
             [commands].flatten.each do |command|
               ch2.send_data "#{command}\n"
@@ -85,6 +88,9 @@ module Vagrant
 
         # Output stdout data to the block
         channel.on_data do |ch2, data|
+          # This clears the screen, we want to filter it out.
+          data.gsub!("\e[H", "")
+
           block.call(ch2, :stdout, data)
         end
 

@@ -1,6 +1,6 @@
 ## 0.7.3 (unreleased)
 
-
+  - Fix issue with unknown terminal type output for sudo commands.
 
 ## 0.7.2 (February 8, 2011)
 

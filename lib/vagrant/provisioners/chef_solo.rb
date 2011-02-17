@@ -65,8 +65,11 @@ module Vagrant
         env.ui.info I18n.t("vagrant.provisioners.chef.running_solo")
         vm.ssh.execute do |ssh|
           ssh.sudo!(commands) do |channel, type, data|
-            ssh.check_exit_status(data, commands) if type == :exit_status
-            env.ui.info("#{data}: #{type}") if type != :exit_status
+            if type == :exit_status
+              ssh.check_exit_status(data, commands)
+            else
+              env.ui.info("#{data}: #{type}")
+            end
           end
         end
       end
