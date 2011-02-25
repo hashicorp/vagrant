@@ -159,7 +159,9 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
         :chef_server_url => @config.chef_server_url,
         :validation_client_name => @config.validation_client_name,
         :validation_key => @action.guest_validation_key_path,
-        :client_key => @config.client_key_path
+        :client_key => @config.client_key_path,
+        :file_cache_path => @config.file_cache_path,
+        :file_backup_path => @config.file_backup_path
       })
 
       @action.setup_server_config
