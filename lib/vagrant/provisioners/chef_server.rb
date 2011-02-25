@@ -12,12 +12,16 @@ module Vagrant
         attr_accessor :validation_key_path
         attr_accessor :validation_client_name
         attr_accessor :client_key_path
+        attr_accessor :file_cache_path
+        attr_accessor :file_backup_path
 
         def initialize
           super
 
           @validation_client_name = "chef-validator"
           @client_key_path = "/etc/chef/client.pem"
+          @file_cache_path = "/srv/chef/file_store"
+          @file_backup_path = "/srv/chef/cache"
         end
 
         def validate(errors)
@@ -65,7 +69,9 @@ module Vagrant
           :chef_server_url => config.chef_server_url,
           :validation_client_name => config.validation_client_name,
           :validation_key => guest_validation_key_path,
-          :client_key => config.client_key_path
+          :client_key => config.client_key_path,
+          :file_cache_path => config.file_cache_path,
+          :file_backup_path => config.file_backup_path
         })
       end
 
