@@ -125,6 +125,7 @@ module Vagrant
           port.name = name
           port.guestport = options[:guestport]
           port.hostport = options[:hostport]
+          port.protocol = options[:protocol] || :tcp
           @env["vm"].vm.network_adapters[options[:adapter]].nat_driver.forwarded_ports << port
         end
       end

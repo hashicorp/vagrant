@@ -35,7 +35,7 @@ module Vagrant
         options = {
           :guestport  => guestport,
           :hostport   => hostport,
-          :protocol   => "TCP",
+          :protocol   => :tcp,
           :adapter    => 0,
           :auto       => false
         }.merge(options || {})
