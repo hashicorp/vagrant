@@ -3,6 +3,7 @@
   - Fix issue with unknown terminal type output for sudo commands.
   - Forwarded port protocol can now be set as UDP. [GH-311]
   - Chef server file cache path and file backup path can be configured. [GH-310]
+  - Setting hostname should work on Debian now. [GH-307]
 
 ## 0.7.2 (February 8, 2011)
 

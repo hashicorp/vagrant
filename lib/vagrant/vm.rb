@@ -59,6 +59,7 @@ module Vagrant
         # Hard-coded internal systems
         mapping = {
           :debian  => Systems::Debian,
+          :ubuntu  => Systems::Ubuntu,
           :freebsd => Systems::FreeBSD,
           :gentoo  => Systems::Gentoo,
           :redhat  => Systems::Redhat,

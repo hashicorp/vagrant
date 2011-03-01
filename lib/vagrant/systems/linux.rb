@@ -6,7 +6,11 @@ module Vagrant
     class Linux < Base
       def distro_dispatch
         vm.ssh.execute do |ssh|
-          return :debian if ssh.test?("cat /etc/debian_version")
+          if ssh.test?("cat /etc/debian_version")
+            return :debian if ssh.test?("cat /proc/version | grep 'Debian'")
+            return :ubuntu if ssh.test?("cat /proc/version | grep 'Ubuntu'")
+          end
+
           return :gentoo if ssh.test?("cat /etc/gentoo-release")
           return :redhat if ssh.test?("cat /etc/redhat-release")
         end
