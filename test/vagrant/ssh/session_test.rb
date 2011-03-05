@@ -3,9 +3,10 @@ require "test_helper"
 class SshSessionTest < Test::Unit::TestCase
   setup do
     @session = mock("session")
+    @env = vagrant_env
 
     @klass = Vagrant::SSH::Session
-    @instance = @klass.new(@session)
+    @instance = @klass.new(@session, @env)
   end
 
   context "exec!" do

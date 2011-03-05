@@ -19,13 +19,13 @@ module Vagrant
       @file_path = file_path
       return if !file_path
 
-      File.open(file_path, "r") do |f|
-        merge!(JSON.parse(f.read))
+      raise Errors::DotfileIsDirectory if File.directory?(file_path)
+
+      if File.exist?(file_path)
+        File.open(file_path, "r") do |f|
+          merge!(JSON.parse(f.read))
+        end
       end
-    rescue Errno::ENOENT
-      clear
-    rescue Errno::EISDIR
-      raise Errors::DotfileIsDirectory
     end
 
     # Commits any changes to the data to disk. Even if the data

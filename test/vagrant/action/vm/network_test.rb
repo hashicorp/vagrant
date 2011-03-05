@@ -16,6 +16,25 @@ class NetworkVMActionTest < Test::Unit::TestCase
   end
 
   context "initializing" do
+    should "raise an error if on windows x64 and networking is enabled" do
+      Vagrant::Util::Platform.stubs(:windows?).returns(true)
+      Vagrant::Util::Platform.stubs(:bit64?).returns(true)
+      @env.env.config.vm.network("foo")
+
+      assert_raises(Vagrant::Errors::NetworkNotImplemented) {
+        @klass.new(@app, @env)
+      }
+    end
+
+    should "not raise an error if not on windows and networking is enabled" do
+      Vagrant::Util::Platform.stubs(:windows?).returns(false)
+      @env.env.config.vm.network("foo")
+
+      assert_nothing_raised {
+        @klass.new(@app, @env)
+      }
+    end
+
     should "verify no bridge collisions for each network enabled" do
       @env.env.config.vm.network("foo")
       @klass.any_instance.expects(:verify_no_bridge_collision).returns(true).once.with() do |options|
@@ -97,24 +116,44 @@ class NetworkVMActionTest < Test::Unit::TestCase
 
         @network_adapters = []
         @internal_vm.stubs(:network_adapters).returns(@network_adapters)
+      end
 
-        @options = {
+      def expect_adapter_setup(options=nil)
+        options = {
           :ip => "foo",
           :adapter => 7
-        }
+        }.merge(options || {})
 
-        @env.env.config.vm.network(@options[:ip], @options)
+        @env["config"].vm.network(options[:ip], options)
+
+        @env["vm"].vm.network_adapters.clear
+        @env["vm"].vm.network_adapters[options[:adapter]] = adapter = mock("adapter")
+
+        adapter.expects(:enabled=).with(true)
+        adapter.expects(:attachment_type=).with(:host_only).once
+        adapter.expects(:host_interface=).with(@network_name).once
+
+        if options[:mac]
+          adapter.expects(:mac_address=).with(options[:mac].gsub(':', '')).once
+        else
+          adapter.expects(:mac_address=).never
+        end
+
+        adapter.expects(:save).once
       end
 
       should "setup the specified network adapter" do
-        adapter = mock("adapter")
-        @network_adapters[@options[:adapter]] = adapter
+        expect_adapter_setup
+        @instance.assign_network
+      end
 
-        adapter.expects(:enabled=).with(true).once
-        adapter.expects(:attachment_type=).with(:host_only).once
-        adapter.expects(:host_interface=).with(@network_name).once
-        adapter.expects(:save).once
+      should "setup the specified network adapter's mac address if specified" do
+        expect_adapter_setup(:mac => "foo")
+        @instance.assign_network
+      end
 
+      should "properly remove : from mac address" do
+        expect_adapter_setup(:mac => "foo:bar")
         @instance.assign_network
       end
     end

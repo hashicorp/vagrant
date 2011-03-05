@@ -31,7 +31,7 @@ module Vagrant
             keep = Dir["#{f}/**/*"].find do |d|
               # Find a file that doesn't have ".xml-prev" as the suffix,
               # which signals that we want to keep this folder
-              File.file?(d) && !(File.basename(d) =~ /\.xml-prev$/)
+              File.file?(d) && !(File.basename(d) =~ /\.vbox-prev$/)
             end
 
             FileUtils.rm_rf(f) if !keep

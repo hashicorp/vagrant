@@ -1,5 +1,13 @@
 require 'vagrant/config/base'
 require 'vagrant/config/error_recorder'
+require 'vagrant/config/top'
+
+# The built-in configuration classes
+require 'vagrant/config/vagrant'
+require 'vagrant/config/ssh'
+require 'vagrant/config/nfs'
+require 'vagrant/config/vm'
+require 'vagrant/config/package'
 
 module Vagrant
   # The config class is responsible for loading Vagrant configurations, which
@@ -17,161 +25,99 @@ module Vagrant
   # class you are looking for. Loading configuration is quite easy. The following
   # example assumes `env` is already a loaded instance of {Environment}:
   #
-  #     config = Vagrant::Config.new(env)
-  #     config.queue << "/path/to/some/Vagrantfile"
-  #     result = config.load!
+  #     config = Vagrant::Config.new
+  #     config.set(:first, "/path/to/some/Vagrantfile")
+  #     config.set(:second, "/path/to/another/Vagrantfile")
+  #     config.load_order = [:first, :second]
+  #     result = config.load(env)
   #
   #     p "Your box is: #{result.vm.box}"
   #
+  # The load order determines what order the config files specified are loaded.
+  # If a key is not mentioned (for example if above the load order was set to
+  # `[:first]`, therefore `:second` was not mentioned), then that config file
+  # won't be loaded.
   class Config
-    extend Util::StackedProcRunner
+    # An array of symbols specifying the load order for the procs.
+    attr_accessor :load_order
+    attr_reader :procs
 
-    @@config = nil
-
-    attr_reader :queue
-
-    class << self
-      # Resets the current loaded config object to the specified environment.
-      # This clears the proc stack and initializes a new {Top} for loading.
-      # This method shouldn't be called directly, instead use an instance of this
-      # class for config loading.
-      #
-      # @param [Environment] env
-      def reset!(env=nil)
-        @@config = nil
-        proc_stack.clear
-
-        # Reset the configuration to the specified environment
-        config(env)
-      end
-
-      # Returns the current {Top} configuration object. While this is still
-      # here for implementation purposes, it shouldn't be called directly. Instead,
-      # use an instance of this class.
-      def config(env=nil)
-        @@config ||= Config::Top.new(env)
-      end
-
-      # Adds the given proc/block to the stack of config procs which are all
-      # run later on a single config object. This is the main way to configure
-      # Vagrant, and is how all Vagrantfiles are formatted:
-      #
-      #     Vagrant::Config.run do |config|
-      #       # ...
-      #     end
-      #
-      def run(&block)
-        push_proc(&block)
-      end
-
-      # Executes all the config procs onto the currently loaded {Top} object,
-      # and returns the final configured object. This also validates the
-      # configuration by calling {Top#validate!} on every configuration
-      # class.
-      def execute!(validate=true)
-        config_object ||= config
-        run_procs!(config_object)
-
-        # Validate if we're looking at a config object which represents a
-        # real VM.
-        config_object.validate! if validate && config_object.env.vm
-        config_object
-      end
-    end
-
-    # Initialize a {Config} object for the given {Environment}.
+    # This is the method which is called by all Vagrantfiles to configure Vagrant.
+    # This method expects a block which accepts a single argument representing
+    # an instance of the {Config::Top} class.
     #
-    # @param [Environment] env Environment which config object will be part
-    #   of.
-    def initialize(env)
-      @env = env
-      @queue = []
+    # Note that the block is not run immediately. Instead, it's proc is stored
+    # away for execution later.
+    def self.run(&block)
+      # Store it for later
+      @last_procs ||= []
+      @last_procs << block
     end
 
-    # Loads the queue of files/procs, executes them in the proper
-    # sequence, and returns the resulting configuration object.
-    def load!(validate=true)
-      self.class.reset!(@env)
+    # Returns the last proc which was activated for the class via {run}. This
+    # also sets the last proc to `nil` so that calling this method multiple times
+    # will not return duplicates.
+    #
+    # @return [Proc]
+    def self.last_proc
+      value = @last_procs
+      @last_procs = nil
+      value
+    end
 
-      queue.flatten.each do |item|
-        if item.is_a?(String) && File.exist?(item)
-          begin
-            load item
-          rescue SyntaxError => e
-            # Report syntax errors in a nice way for Vagrantfiles
-            raise Errors::VagrantfileSyntaxError.new(:file => e.message)
+    def initialize(parent=nil)
+      @procs = {}
+      @load_order = []
+
+      if parent
+        # Shallow copy the procs and load order from parent if given
+        @procs = parent.procs.dup
+        @load_order = parent.load_order.dup
+      end
+    end
+
+    # Adds a Vagrantfile to be loaded to the queue of config procs. Note
+    # that this causes the Vagrantfile file to be loaded at this point,
+    # and it will never be loaded again.
+    def set(key, path)
+      return if @procs.has_key?(key)
+      @procs[key] = [path].flatten.map(&method(:proc_for)).flatten
+    end
+
+    # Loads the added procs using the set `load_order` attribute and returns
+    # the {Config::Top} object result. The configuration is loaded for the
+    # given {Environment} object.
+    #
+    # @param [Environment] env
+    def load(env)
+      config = Top.new(env)
+
+      # Only run the procs specified in the load order, in the order
+      # specified.
+      load_order.each do |key|
+        if @procs[key]
+          @procs[key].each do |proc|
+            proc.call(config) if proc
           end
-        elsif item.is_a?(Proc)
-          self.class.run(&item)
         end
       end
 
-      return self.class.execute!(validate)
+      config
     end
-  end
 
-  class Config
-    # This class is the "top" configure class, which handles registering
-    # other configuration classes as well as validation of all configured
-    # classes. This is the object which is returned by {Environment#config}
-    # and has accessors to all other configuration classes.
-    #
-    # If you're looking to create your own configuration class, see {Base}.
-    class Top < Base
-      @@configures = {} if !defined?(@@configures)
+    protected
 
-      class << self
-        # The list of registered configuration classes as well as the key
-        # they're registered under.
-        def configures_list
-          @@configures ||= {}
-        end
+    def proc_for(path)
+      return nil if !path
+      return path if path.is_a?(Proc)
 
-        # Registers a configuration class with the given key. This method shouldn't
-        # be called. Instead, inherit from {Base} and call {Base.configures}.
-        def configures(key, klass)
-          configures_list[key] = klass
-          attr_reader key.to_sym
-        end
-      end
-
-      def initialize(env=nil)
-        self.class.configures_list.each do |key, klass|
-          config = klass.new
-          config.env = env
-          config.top = self
-          instance_variable_set("@#{key}".to_sym, config)
-        end
-
-        @env = env
-      end
-
-      # Validates the configuration classes of this instance and raises an
-      # exception if they are invalid. If you are implementing a custom configuration
-      # class, the method you want to implement is {Base#validate}. This is
-      # the method that checks all the validation, not one which defines
-      # validation rules.
-      def validate!
-        # Validate each of the configured classes and store the results into
-        # a hash.
-        errors = self.class.configures_list.inject({}) do |container, data|
-          key, _ = data
-          recorder = ErrorRecorder.new
-          send(key.to_sym).validate(recorder)
-          container[key.to_sym] = recorder if !recorder.errors.empty?
-          container
-        end
-
-        return if errors.empty?
-        raise Errors::ConfigValidationFailed.new(:messages => Util::TemplateRenderer.render("config/validation_failed", :errors => errors))
+      begin
+        Kernel.load path if File.exist?(path)
+        return self.class.last_proc
+      rescue SyntaxError => e
+        # Report syntax errors in a nice way for Vagrantfiles
+        raise Errors::VagrantfileSyntaxError, :file => e.message
       end
     end
   end
 end
-
-# The built-in configuration classes
-require 'vagrant/config/vagrant'
-require 'vagrant/config/ssh'
-require 'vagrant/config/nfs'
-require 'vagrant/config/vm'
-require 'vagrant/config/package'

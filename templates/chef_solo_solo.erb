@@ -1,9 +1,19 @@
+<% if node_name %>
 node_name "<%= node_name %>"
+<% end %>
 file_cache_path "<%= provisioning_path %>"
 cookbook_path <%= cookbooks_path %>
 role_path <%= roles_path %>
-log_level          <%= log_level.inspect %>
+log_level <%= log_level.inspect %>
 
-<% if recipe_url %>
+<% if recipe_url -%>
 recipe_url "<%= recipe_url %>"
-<% end %>
+<% end -%>
+
+http_proxy <%= http_proxy.inspect %>
+http_proxy_user <%= http_proxy_user.inspect %>
+http_proxy_pass <%= http_proxy_pass.inspect %>
+https_proxy <%= https_proxy.inspect %>
+https_proxy_user <%= https_proxy_user.inspect %>
+https_proxy_pass <%= https_proxy_pass.inspect %>
+no_proxy <%= no_proxy.inspect %>

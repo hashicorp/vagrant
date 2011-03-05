@@ -14,7 +14,7 @@ module Vagrant
             if vm.running? && vm.uuid != @env["vm"].uuid
               vm.network_adapters.collect do |na|
                 na.nat_driver.forwarded_ports.collect do |fp|
-                  fp.hostport.to_s
+                  fp.hostport.to_i
                 end
               end
             end

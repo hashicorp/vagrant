@@ -9,6 +9,16 @@ en:
     errors:
       base_vm_not_found: The base VM with the name '%{name}' was not found.
       box_not_found: Box '%{name}' could not be found.
+      chef_not_detected: |-
+        The chef (either `chef-solo` or `chef-client`) binary was not found on
+        the VM and is required for chef provisioning. Please verify that chef
+        is installed and that the binary is available on the PATH.
+      puppet_not_detected: |-
+        The `puppet` binary was not found on the VM and is required for Puppet provisioning.
+        Please verify that Puppet is installed and that the binary is available on the PATH.
+      puppetd_not_detected: |-
+        The `puppetd` binary was not found on the VM is required for Puppet Server provisioning.
+        Please verify that Puppet is installed and that the binary is available on the PATH.
       cli_missing_env: This command requires that a Vagrant environment be properly passed in as the last parameter.
       config_validation: |-
         There was a problem with the configuration of Vagrant. The error message(s)
@@ -21,10 +31,35 @@ en:
         this command in another directory. If you aren't in a home directory,
         then please rename ".vagrant" to something else, or configure Vagrant
         to use another filename by modifying `config.vagrant.dotfile_name`.
-      interrupted: Vagrant exited after cleanup due to external interrupt.
-      multi_vm_required: A multi-vm environment is required for name specification to this command.
-      multi_vm_target_required: `vagrant %{command}` requires a specific VM name to target in a multi-VM environment.
-      no_env: No Vagrant environment detected. Run `vagrant init` to set one up.
+      interrupted: "Vagrant exited after cleanup due to external interrupt."
+      multi_vm_required: "A multi-vm environment is required for name specification to this command."
+      multi_vm_target_required: "`vagrant %{command}` requires a specific VM name to target in a multi-VM environment."
+      no_env: "No Vagrant environment detected. Run `vagrant init` to set one up."
+      provisioner_equals_not_supported: |-
+        The `config.vm.provisioner =` syntax has been removed in Vagrant 0.7.0.
+        Please change your provisioners to use the new syntax described below.
+        All of these changes are reflected on the Vagrant website as well.
+
+        Before:
+
+          config.vm.provisioner = :chef_solo
+          config.chef.cookbooks_path = "my_cookbooks"
+          config.chef.add_recipe "apache"
+
+        After:
+
+          config.vm.provision :chef_solo, :cookbooks_path => "my_cookbooks",
+                                          :run_list => ["recipe[apache]"]
+
+        Instead of just a hash, you may use a block as well to get access to the
+        configuration object:
+
+          config.vm.provision :chef_solo do |chef|
+            chef.cookbooks_path = "my_cookbooks"
+            chef.add_recipe "apache"
+          end
+
+        This error message will be removed in later versions of Vagrant.
       ssh_authentication_failed: |-
         SSH authentication failed! This is typically caused by the public/private
         keypair for the SSH user not being properly set on the guest VM. Please
@@ -35,6 +70,10 @@ en:
         Vagrant assumes that this means the command failed!
 
         %{command}
+
+        The output of the command prior to failing is outputted below:
+
+        %{output}
       ssh_connection_refused: |-
         SSH connection was refused! This usually happens if the VM failed to
         boot properly. Some steps to try to fix this: First, try reloading your
@@ -49,6 +88,10 @@ en:
         permissions on the following file to 0600 and then try running this command again:
 
         %{key_path}
+      ssh_port_not_detected: |-
+        Vagrant couldn't determine the SSH port for your VM! This is a rare,
+        exceptional event, and a bug should be filed. Please try recreating your
+        VM (vagrant destroy, then vagrant up). Sorry!
       ssh_unavailable: "`ssh` binary could not be found. Is an SSH client installed?"
       ssh_unavailable_windows: |-
         `vagrant ssh` isn't available on the Windows platform. The
@@ -63,7 +106,7 @@ en:
 
         For a more detailed guide please consult:
 
-          http://vagrantup.com/docs/getting-started/windows.
+          http://vagrantup.com/docs/getting-started/setup/windows.html
 
       system:
         invalid_class: |-
@@ -82,19 +125,31 @@ en:
         message is reproduced below for convenience:
 
         %{file}
-      virtualbox_invalid_ose: |-
-        Vagrant has detected you're using an OSE ("Open Source Edition") of VirtualBox.
-        Vagrant currently doesn't support any of the OSE editions due to slight API
-        differences. Please download the regular package from virtualbox.org and install
-        to continue.
       virtualbox_invalid_version: |-
         Vagrant has detected that you have VirtualBox version %{version} installed!
-        Vagrant requires that you use at least VirtualBox version 3.2. Please install
+        Vagrant requires that you use at least VirtualBox version 4.0. Please install
         a more recent version of VirtualBox to continue.
+
+        The Vagrant 0.6.x series supports VirtualBox 3.2, so if you're stuck with that
+        version, then please use the 0.6.x series of Vagrant.
+
+        Any earlier versions of VirtualBox are completely unsupported. Please upgrade.
       virtualbox_not_detected: |-
         Vagrant could not detect VirtualBox! Make sure VirtualBox is properly installed.
         If VirtualBox is installed, it may be an incorrect version. Vagrant currently
-        requires VirtualBox 3.2.x. Please install the proper version to continue.
+        requires VirtualBox 4.0.x. Please install the proper version to continue.
+      virtualbox_not_detected_win64: |-
+        Vagrant could not detect VirtualBox! Make sure VirtualBox is properly installed
+        with version 4.0.0 or higher.
+
+        Additionally, it appears you're on 64-bit Windows. If this is the case, and
+        VirtualBox is properly installed with the correct version, then please make
+        sure you're running Vagrant via JRuby on a 64-bit Java runtime. For more
+        information on how to set this up and how to verify it is properly setup,
+        please view the guide online at:
+
+          http://vagrantup.com/docs/getting-started/setup/windows_x64.html
+
       vm_creation_required: "VM must be created before running this command. Run `vagrant up` first."
       vm_not_found: "A VM by the name of %{name} was not found."
       vm_not_running: "VM must be running to open SSH connection."
@@ -115,7 +170,11 @@ en:
       vm:
         base_mac_invalid: "Base MAC address for eth0/NAT must be set. Contact box maintainer for more information."
         boot_mode_invalid: "Boot mode must be one of: vrdp or gui"
+        box_missing: "A box must be specified."
+        box_not_found: "The box '%{name}' could not be found."
         shared_folder_hostpath_missing: "Shared folder host path for '%{name}' doesn't exist: %{path}"
+        provisioner_not_found: "The provisioner '%{shortcut}' doesn't exist."
+        provisioner_invalid_class: "The provisioner '%{shortcut}' must inherit from `Vagrant::Provisioners::Base`."
 
 #-------------------------------------------------------------------------------
 # Translations for commands. e.g. `vagrant x`
@@ -144,6 +203,11 @@ en:
           suspend the virtual machine. In either case, to restart it again,
           simply run `vagrant up`.
         saved: To resume this VM, simply run `vagrant up`.
+        stuck: |-
+          The VM is "stuck!" This is a very rare state which means that
+          VirtualBox is unable to recover the current state of the VM.
+          The only known solution to this problem is to restart your
+          machine, sorry.
         listing: |-
           This environment represents multiple VMs. The VMs are all listed
           above with their current state. For more information about a specific
@@ -178,7 +242,9 @@ en:
           waiting: Waiting for VM to boot. This can take a few minutes.
           ready: VM booted and ready for use!
           failed: Failed to connect to VM!
-          failed_to_boot: VM failed to boot.
+          failed_to_boot: |-
+            Failed to connect to VM via SSH. Please verify the VM successfully booted
+            by looking at the VirtualBox GUI.
         check_box:
           not_found: Box %{name} was not found. Fetching box from specified URL...
           not_specified: |-
@@ -258,6 +324,8 @@ en:
             Skipping port forwarding '%{name}'.
         halt:
           force: Forcing shutdown of VM...
+        host_name:
+          setting: "Setting host name..."
         import:
           importing: Importing base box '%{name}'...
           failure: |-
@@ -276,14 +344,19 @@ en:
             This will cause your specified IP to be inaccessible. Please change
             the IP or name of your host only network to not match that of
             a bridged or non-hostonly network.
-          creating: Creating new host only network for environment...
-          enabling: Enabling host only network...
+          creating: "Creating new host only network for environment..."
+          enabling: "Enabling host only network..."
           not_found: |-
             The specified host network could not be found: '%{name}.'
             If the name specification is removed, Vagrant will create a new
             host only network for you. Alternatively, please create the
             specified network manually.
-          preparing: Preparing host only network...
+          preparing: "Preparing host only network..."
+          windows_not_implemented: |-
+            Host only networking is currently broken on Windows due to a bug
+            in jruby-win32ole. When the bug is fixed, a patch release for Vagrant
+            will be released to remove this error. Until then, please just use
+            forwarded ports.
         nfs:
           host_required: |-
             A host class is required for NFS shared folders. By default, these
@@ -313,16 +386,15 @@ en:
             key.
           persisting: "Persisting the VM UUID (%{uuid})..."
         provision:
-          beginning: "Beginning provisioning process..."
+          beginning: "Running provisioner: %{provisioner}..."
           enabled: "Provisioning enabled with %{provisioner}..."
-          invalid_class: "Provisioners must be an instance of Vagrant::Provisioners::Base"
-          unknown_type: "Unknown provisioner type: %{provisioner}"
         resume:
           resuming: Resuming suspended VM...
         share_folders:
           creating: Creating shared folders metadata...
           mounting: Mounting shared folders...
           mounting_entry: "-- %{name}: %{guest_path}"
+          nomount_entry: "-- %{name}: Automounting disabled."
         suspend:
           suspending: Saving VM state and suspending execution...
 
@@ -332,7 +404,6 @@ en:
         download:
           with: "Downloading with %{class}..."
           cleaning: "Cleaning up downloaded box..."
-          copying: "Copying box to temporary location..."
           unknown_type: "Unknown or unsupported URI type given for box download."
         unpackage:
           extracting: "Extracting box..."
@@ -363,8 +434,10 @@ en:
 
     downloaders:
       file:
+        download: "Copying box to temporary location..."
         file_missing: "The specified path to a file doesn't exist."
       http:
+        download: "Downloading box: %{url}"
         socket_error: |-
           An error occurred while trying to download the specified box. This most
           often happens if there is no internet connection or the address is
@@ -403,19 +476,56 @@ en:
           The validation key set for `config.chef.validation_key_path` does not exist! This
           file needs to exist so it can be uploaded to the virtual machine.
 
+      puppet:
+        not_detected: |-
+          The `%{binary}` binary appears to not be in the PATH of the guest. This
+          could be because the PATH is not properly setup or perhaps Puppet is not
+          installed on this guest. Puppet provisioning can not continue without
+          Puppet properly installed.
+        running_puppet: "Running Puppet with %{manifest}..."
+        manifest_missing: "The Puppet %{manifest} manifest is missing. You cannot configure this box."
+        manifests_path_missing: "The manifests path specified for Puppet does not exist: %{path}"
+        module_path_missing: "The configured module path doesn't exist: %{path}"
+
+      puppet_server:
+        not_detected: |-
+          The `%{binary}` binary appears to not be in the PATH of the guest. This
+          could be because the PATH is not properly setup or perhaps Puppet is not
+          installed on this guest. Puppet provisioning can not continue without
+          Puppet properly installed.
+        running_puppetd: "Running Puppet agent..."
+
+      shell:
+        path_not_set: "`path` parameter pointing to script file to execute for shell provisioner is required"
+        path_invalid: "`path` for shell provisioner does not exist on the host system: %{path}"
+        upload_path_not_set: "`upload_path` must be set for the shell provisioner."
+
     systems:
+      base:
+        unsupported_host_only: |-
+          Host only networking is very distro-specific. Vagrant has support for many
+          distros built-in: Debian, Ubuntu, Gentoo, and RedHat. The distro of your VM
+          couldn't be detected, or isn't supported for host only networking.
+
+          Most of the time this is simply due to the fact that no one has contributed
+          back the SSH commands necessary to set this up. Please report a bug and this
+          will be fixed for your distro.
+        unsupported_host_name: |-
+          Setting host name is currently only supported on Debian, Ubuntu and RedHat.
+          If you'd like your guest OS to be supported, please open a ticket on the
+          project.
       linux:
         attempting_halt: "Attempting graceful shutdown of linux..."
         mount_fail: "Failed to mount shared folders. `vboxsf` was not available."
-        network_not_debian: |-
-          Host only networking is only supported for Debian/Ubuntu by the built-in
-          "Linux" system. If you're using some other distro and want to implement
-          host only networking, please subclass the `Vagrant::Systems::Linux` class
-          and implement the `prepare_host_only_network` and `enable_host_only_network`
-          methods.
+        mount_nfs_fail: |-
+          Mounting NFS shared folders failed. This is most often caused by the NFS
+          client software not being installed on the guest machine. Please verify
+          that the NFS client software is properly installed, and consult any resources
+          specific to the linux distro you're using for more information on how to
+          do this.
 
-          Otherwise, please report your distro and how to modify network interfaces
-          to the Vagrant mailing list or IRC and we'll probably be glad to add it
-          to the internal systems.
       solaris:
         attempting_halt: "Attempting graceful shutdown of solaris..."
+
+      freebsd:
+        attempting_halt: "Attempting graceful shutdown of FreeBSD..."

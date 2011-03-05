@@ -6,9 +6,6 @@ class CheckBoxVMActionTest < Test::Unit::TestCase
   end
 
   context "calling" do
-    setup do
-    end
-
     should "raise error if box not specified" do
       app, env = action_env(vagrant_env(vagrantfile(<<-vf)))
         config.vm.box = nil
@@ -47,6 +44,8 @@ class CheckBoxVMActionTest < Test::Unit::TestCase
       seq = sequence("seq")
       env.env.boxes.expects(:find).returns(nil)
       Vagrant::Box.expects(:add).with(env.env, env["config"].vm.box, env["config"].vm.box_url).in_sequence(seq)
+      env.env.boxes.expects(:reload!).in_sequence(seq)
+      env.env.expects(:reload_config!).in_sequence(seq)
       app.expects(:call).with(env).once.in_sequence(seq)
 
       assert_nothing_raised {

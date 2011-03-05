@@ -183,6 +183,13 @@ module Vagrant
       error_key(:not_found, "vagrant.actions.vm.network")
     end
 
+    # Note: This is a temporary error for Windows users while host-only
+    # networking doesn't quite work.
+    class NetworkNotImplemented < VagrantError
+      status_code(49)
+      error_key(:windows_not_implemented, "vagrant.actions.vm.network")
+    end
+
     class NFSHostRequired < VagrantError
       status_code(31)
       error_key(:host_required, "vagrant.actions.vm.nfs")
@@ -223,16 +230,6 @@ module Vagrant
       error_key(:dotfile_error, "vagrant.actions.vm.persist")
     end
 
-    class ProvisionInvalidClass < VagrantError
-      status_code(35)
-      error_key(:invalid_class, "vagrant.actions.vm.provision")
-    end
-
-    class ProvisionUnknownType < VagrantError
-      status_code(36)
-      error_key(:unknown_type, "vagrant.actions.vm.provision")
-    end
-
     class SSHAuthenticationFailed < VagrantError
       status_code(11)
       error_key(:ssh_authentication_failed)
@@ -246,6 +243,11 @@ module Vagrant
     class SSHKeyBadPermissions < VagrantError
       status_code(12)
       error_key(:ssh_key_bad_permissions)
+    end
+
+    class SSHPortNotDetected < VagrantError
+      status_code(50)
+      error_key(:ssh_port_not_detected)
     end
 
     class SSHUnavailable < VagrantError
@@ -268,11 +270,6 @@ module Vagrant
       error_key(:vagrantfile_syntax_error)
     end
 
-    class VirtualBoxInvalidOSE < VagrantError
-      status_code(9)
-      error_key(:virtualbox_invalid_ose)
-    end
-
     class VirtualBoxInvalidVersion < VagrantError
       status_code(17)
       error_key(:virtualbox_invalid_version)
@@ -281,6 +278,15 @@ module Vagrant
     class VirtualBoxNotDetected < VagrantError
       status_code(8)
       error_key(:virtualbox_not_detected)
+    end
+
+    # Note that this is a subclass of VirtualBoxNotDetected, so developers
+    # who script Vagrant or use it as a library in any way can rescue from
+    # "VirtualBoxNotDetected" and catch both errors, which represent the
+    # same thing. This subclass simply has a specialized error message.
+    class VirtualBoxNotDetected_Win64 < VirtualBoxNotDetected
+      status_code(48)
+      error_key(:virtualbox_not_detected_win64)
     end
 
     class VMBaseMacNotSpecified < VagrantError

@@ -36,7 +36,7 @@ class BoxTest < Test::Unit::TestCase
     end
 
     should "execute the Add action when add is called" do
-      @box.env.actions.expects(:run).with(:box_add, { "box" => @box })
+      @box.env.actions.expects(:run).with(:box_add, { "box" => @box, "validate" => false })
       @box.add
     end
 
@@ -48,19 +48,19 @@ class BoxTest < Test::Unit::TestCase
 
     context "destroying" do
       should "execute the destroy action" do
-        @box.env.actions.expects(:run).with(:box_remove, { "box" => @box })
+        @box.env.actions.expects(:run).with(:box_remove, { "box" => @box, "validate" => false })
         @box.destroy
       end
     end
 
     context "repackaging" do
       should "execute the repackage action" do
-        @box.env.actions.expects(:run).with(:box_repackage, { "box" => @box })
+        @box.env.actions.expects(:run).with(:box_repackage, { "box" => @box, "validate" => false })
         @box.repackage
       end
 
       should "forward given options into the action" do
-        @box.env.actions.expects(:run).with(:box_repackage, { "box" => @box, "foo" => "bar" })
+        @box.env.actions.expects(:run).with(:box_repackage, { "box" => @box, "foo" => "bar", "validate" => false })
         @box.repackage("foo" => "bar")
       end
     end

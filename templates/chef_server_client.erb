@@ -1,6 +1,8 @@
 log_level          <%= log_level.inspect %>
 log_location       STDOUT
+<% if node_name %>
 node_name          "<%= node_name %>"
+<% end %>
 ssl_verify_mode    :verify_none
 chef_server_url    "<%= chef_server_url %>"
 
@@ -8,8 +10,8 @@ validation_client_name "<%= validation_client_name %>"
 validation_key         "<%= validation_key %>"
 client_key             "<%= client_key %>"
 
-file_store_path    "/srv/chef/file_store"
-file_cache_path    "/srv/chef/cache"
+file_cache_path    "<%= file_cache_path %>"
+file_backup_path   "<%= file_backup_path %>"
 
 pid_file           "/var/run/chef/chef-client.pid"
 

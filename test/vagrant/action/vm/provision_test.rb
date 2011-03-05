@@ -17,24 +17,23 @@ class ProvisionVMActionTest < Test::Unit::TestCase
 
   context "initializing" do
     setup do
-      @klass.any_instance.stubs(:load_provisioner)
+      @klass.any_instance.stubs(:load_provisioners)
     end
 
     should "load provisioner if provisioning enabled" do
-      @env["config"].vm.provisioner = :chef_solo
-      @klass.any_instance.expects(:load_provisioner).once
+      @env["config"].vm.provision :chef_solo
+      @klass.any_instance.expects(:load_provisioners).once
       @klass.new(@app, @env)
     end
 
     should "not load provisioner if disabled" do
-      @env["config"].vm.provisioner = nil
-      @klass.any_instance.expects(:load_provisioner).never
+      @klass.any_instance.expects(:load_provisioners).never
       @klass.new(@app, @env)
     end
 
     should "not load provisioner if disabled through env hash" do
       @env["provision.enabled"] = false
-      @klass.any_instance.expects(:load_provisioner).never
+      @klass.any_instance.expects(:load_provisioners).never
       @klass.new(@app, @env)
     end
   end
@@ -42,97 +41,47 @@ class ProvisionVMActionTest < Test::Unit::TestCase
   context "with an instance" do
     setup do
       # Set provisioner to nil so the provisioner isn't loaded on init
-      @env["config"].vm.provisioner = nil
+      @env["config"].vm.provisioners.clear
       @instance = @klass.new(@app, @env)
     end
 
     context "loading a provisioner" do
-      context "with a Class provisioner" do
-        setup do
-          @prov = mock("instance")
-          @prov.stubs(:is_a?).with(Vagrant::Provisioners::Base).returns(true)
-          @prov.stubs(:prepare)
-          @klass = mock("klass")
-          @klass.stubs(:is_a?).with(Class).returns(true)
-          @klass.stubs(:new).with(@env).returns(@prov)
-
-          @env["config"].vm.provisioner = @klass
-        end
-
-        should "set the provisioner to an instantiation of the class" do
-          @klass.expects(:new).with(@env).once.returns(@prov)
-          assert_equal @prov, @instance.load_provisioner
-        end
-
-        should "call prepare on the instance" do
-          @prov.expects(:prepare).once
-          @instance.load_provisioner
-        end
-
-        should "error environment if the class is not a subclass of the provisioner base" do
-          @prov.expects(:is_a?).with(Vagrant::Provisioners::Base).returns(false)
-
-          assert_raises(Vagrant::Errors::ProvisionInvalidClass) {
-            @instance.load_provisioner
-          }
-        end
+      setup do
+        Vagrant::Provisioners::ChefSolo.any_instance.expects(:prepare).at_least(0)
       end
 
-      context "with a Symbol provisioner" do
-        def provisioner_expectation(symbol, provisioner)
-          @env[:config].vm.provisioner = symbol
+      should "instantiate and prepare each provisioner" do
+        @env["config"].vm.provision :chef_solo
+        @env["config"].vm.provision :chef_solo
+        @instance.load_provisioners
 
-          instance = mock("instance")
-          instance.expects(:prepare).once
-          provisioner.expects(:new).with(@env).returns(instance)
-          assert_equal instance, @instance.load_provisioner
+        assert_equal 2, @instance.provisioners.length
+      end
+
+      should "set the config for each provisioner" do
+        @env["config"].vm.provision :chef_solo do |chef|
+          chef.cookbooks_path = "foo"
         end
 
-        should "raise an error if its an unknown symbol" do
-          @env["config"].vm.provisioner = :this_will_never_exist
+        @instance.load_provisioners
 
-          assert_raises(Vagrant::Errors::ProvisionUnknownType) {
-            @instance.load_provisioner
-          }
-        end
-
-        should "set :chef_solo to the ChefSolo provisioner" do
-          provisioner_expectation(:chef_solo, Vagrant::Provisioners::ChefSolo)
-        end
-
-        should "set :chef_server to the ChefServer provisioner" do
-          provisioner_expectation(:chef_server, Vagrant::Provisioners::ChefServer)
-        end
+        assert_equal "foo", @instance.provisioners.first.config.cookbooks_path
       end
     end
 
     context "calling" do
       setup do
         Vagrant::Provisioners::ChefSolo.any_instance.stubs(:prepare)
-        @env["config"].vm.provisioner = :chef_solo
-        @prov = @instance.load_provisioner
+        @env["config"].vm.provision :chef_solo
+        @instance.load_provisioners
       end
 
       should "provision and continue chain" do
         seq = sequence("seq")
         @app.expects(:call).with(@env).in_sequence(seq)
-        @prov.expects(:provision!).in_sequence(seq)
-
-        @instance.call(@env)
-      end
-
-      should "continue chain and not provision if not enabled" do
-        @env["config"].vm.provisioner = nil
-        @prov.expects(:provision!).never
-        @app.expects(:call).with(@env).once
-
-        @instance.call(@env)
-      end
-
-      should "continue chain and not provision if not enabled through env hash" do
-        @env["provision.enabled"] = false
-        @prov.expects(:provision!).never
-        @app.expects(:call).with(@env).once
+        @instance.provisioners.each do |prov|
+          prov.expects(:provision!).in_sequence(seq)
+        end
 
         @instance.call(@env)
       end

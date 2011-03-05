@@ -1,3 +1,12 @@
+require 'vagrant/action/builder'
+require 'vagrant/action/builtin'
+
+# The builtin middlewares
+require 'vagrant/action/box'
+require 'vagrant/action/env'
+require 'vagrant/action/general'
+require 'vagrant/action/vm'
+
 module Vagrant
   # Manages action running and registration. Every Vagrant environment
   # has an instance of {Action} to allow for running in the context of
@@ -44,6 +53,9 @@ module Vagrant
   # Where `:name` is the name of the registered action.
   #
   class Action
+    autoload :Environment, 'vagrant/action/environment'
+    autoload :Warden,      'vagrant/action/warden'
+
     include Util
     @@reported_interrupt = false
 
@@ -90,13 +102,17 @@ module Vagrant
     # Any options given are injected into the environment hash.
     #
     # @param [Object] callable An object which responds to `call`.
-    def run(callable, options=nil)
-      callable = Builder.new.use(callable) if callable.kind_of?(Class)
-      callable = self.class.actions[callable] if callable.kind_of?(Symbol)
-      raise ArgumentError.new("Argument to run must be a callable object or registered action.") if !callable
+    def run(callable_id, options=nil)
+      callable = callable_id
+      callable = Builder.new.use(callable_id) if callable_id.kind_of?(Class)
+      callable = self.class.actions[callable_id] if callable_id.kind_of?(Symbol)
+      raise ArgumentError, "Argument to run must be a callable object or registered action." if !callable || !callable.respond_to?(:call)
 
       action_environment = Action::Environment.new(env)
       action_environment.merge!(options || {})
+
+      # Run the before action run callback, if we're not doing that already
+      run(:before_action_run, action_environment) if callable_id != :before_action_run
 
       # Run the action chain in a busy block, marking the environment as
       # interrupted if a SIGINT occurs, and exiting cleanly once the

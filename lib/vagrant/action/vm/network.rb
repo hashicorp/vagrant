@@ -8,8 +8,12 @@ module Vagrant
           @app = app
           @env = env
 
+          if enable_network? && Util::Platform.windows? && Util::Platform.bit64?
+            raise Errors::NetworkNotImplemented
+          end
+
           env["config"].vm.network_options.compact.each do |network_options|
-            raise Errors::NetworkCollision.new if !verify_no_bridge_collision(network_options)
+            raise Errors::NetworkCollision if !verify_no_bridge_collision(network_options)
           end
         end
 
@@ -21,8 +25,8 @@ module Vagrant
 
           if enable_network?
             @env.ui.info I18n.t("vagrant.actions.vm.network.enabling")
-            @env["vm"].system.prepare_host_only_network
             @env.env.config.vm.network_options.compact.each do |network_options|
+              @env["vm"].system.prepare_host_only_network(network_options)
               @env["vm"].system.enable_host_only_network(network_options)
             end
           end
@@ -61,6 +65,7 @@ module Vagrant
             adapter.enabled = true
             adapter.attachment_type = :host_only
             adapter.host_interface = network_name(network_options)
+            adapter.mac_address = network_options[:mac].gsub(':', '') if network_options[:mac]
             adapter.save
           end
         end
@@ -83,7 +88,7 @@ module Vagrant
             end
           end
 
-          raise Errors::NetworkNotFound.new(:name => net_options[:name]) if net_options[:name]
+          raise Errors::NetworkNotFound, :name => net_options[:name] if net_options[:name]
 
           # One doesn't exist, create it.
           @env.ui.info I18n.t("vagrant.actions.vm.network.creating")

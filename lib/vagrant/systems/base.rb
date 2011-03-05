@@ -15,6 +15,10 @@ module Vagrant
     # required by systems can and will change at any time. Any
     # changes will be noted on release notes.**
     class Base
+      class BaseError < Errors::VagrantError
+        error_namespace("vagrant.systems.base")
+      end
+
       include Vagrant::Util
 
       # The VM which this system is tied to.
@@ -26,6 +30,15 @@ module Vagrant
       def initialize(vm)
         @vm = vm
       end
+
+      # This method is automatically called when the system is available (when
+      # Vagrant can successfully SSH into the machine) to give the system a chance
+      # to determine the distro and return a distro-specific system.
+      #
+      # **Warning:** If a return value which subclasses from {Base} is
+      # returned, Vagrant will use it as the new system instance for the
+      # class.
+      def distro_dispatch; end
 
       # Halt the machine. This method should gracefully shut down the
       # operating system. This method will cause `vagrant halt` and associated
@@ -55,7 +68,9 @@ module Vagrant
 
       # Prepares the system for host only networks. This is called
       # once prior to any `enable_host_only_network` calls.
-      def prepare_host_only_network; end
+      def prepare_host_only_network(net_options=nil)
+        raise BaseError, :_key => :unsupported_host_only
+      end
 
       # Setup the system by adding a new host only network. This
       # method should configure and bring up the interface for the
@@ -63,6 +78,10 @@ module Vagrant
       #
       # @param [Hash] net_options The options for the network.
       def enable_host_only_network(net_options); end
+
+      def change_host_name(name)
+        raise BaseError, :_key => :unsupported_host_name
+      end
     end
   end
 end

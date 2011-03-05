@@ -12,7 +12,8 @@ module Vagrant
 
           # Start up the VM and wait for it to boot.
           boot
-          raise Errors::VMFailedToBoot.new if !wait_for_boot
+          raise Errors::VMFailedToBoot if !wait_for_boot
+
           @app.call(env)
         end
 
@@ -24,7 +25,7 @@ module Vagrant
         def wait_for_boot
           @env.ui.info I18n.t("vagrant.actions.vm.boot.waiting")
 
-          @env.env.config.ssh.max_tries.to_i.times do |i|
+          @env["config"].ssh.max_tries.to_i.times do |i|
             if @env["vm"].ssh.up?
               @env.ui.info I18n.t("vagrant.actions.vm.boot.ready")
               return true
@@ -34,7 +35,7 @@ module Vagrant
             # get shown
             return true if @env.interrupted?
 
-            sleep 5 if !@env["vagrant.test"]
+            sleep 2 if !@env["vagrant.test"]
           end
 
           @env.ui.error I18n.t("vagrant.actions.vm.boot.failed")

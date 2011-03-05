@@ -2,6 +2,28 @@ module Vagrant
   module Provisioners
     # This class implements provisioning via chef-solo.
     class ChefSolo < Chef
+      register :chef_solo
+
+      class Config < Chef::Config
+        attr_accessor :cookbooks_path
+        attr_accessor :roles_path
+        attr_accessor :recipe_url
+
+        def initialize
+          super
+
+          @cookbooks_path = ["cookbooks", [:vm, "cookbooks"]]
+          @roles_path = []
+        end
+
+        def validate(errors)
+          super
+
+          errors.add(I18n.t("vagrant.config.chef.cookbooks_path_empty")) if !cookbooks_path || [cookbooks_path].flatten.empty?
+          errors.add(I18n.t("vagrant.config.chef.run_list_empty")) if !json[:run_list] || run_list.empty?
+        end
+      end
+
       def prepare
         share_cookbook_folders
         share_role_folders
@@ -29,22 +51,25 @@ module Vagrant
 
       def setup_solo_config
         setup_config("chef_solo_solo", "solo.rb", {
-          :node_name => env.config.chef.node_name,
-          :provisioning_path => env.config.chef.provisioning_path,
+          :node_name => config.node_name,
+          :provisioning_path => config.provisioning_path,
           :cookbooks_path => cookbooks_path,
-          :recipe_url => env.config.chef.recipe_url,
+          :recipe_url => config.recipe_url,
           :roles_path => roles_path,
         })
       end
 
       def run_chef_solo
-        command = "cd #{env.config.chef.provisioning_path} && sudo -E chef-solo -c solo.rb -j dna.json"
+        commands = ["cd #{config.provisioning_path}", "chef-solo -c solo.rb -j dna.json"]
 
         env.ui.info I18n.t("vagrant.provisioners.chef.running_solo")
         vm.ssh.execute do |ssh|
-          ssh.exec!(command) do |channel, type, data|
-            ssh.check_exit_status(data, command) if type == :exit_status
-            env.ui.info("#{data}: #{type}") if type != :exit_status
+          ssh.sudo!(commands) do |channel, type, data|
+            if type == :exit_status
+              ssh.check_exit_status(data, commands)
+            else
+              env.ui.info("#{data}: #{type}")
+            end
           end
         end
       end
@@ -64,7 +89,7 @@ module Vagrant
       end
 
       def folder_path(*args)
-        File.join(env.config.chef.provisioning_path, args.join("-"))
+        File.join(config.provisioning_path, args.join("-"))
       end
 
       def folders_path(folders, folder)
@@ -90,11 +115,11 @@ module Vagrant
       end
 
       def host_cookbook_paths
-        host_folder_paths(env.config.chef.cookbooks_path)
+        host_folder_paths(config.cookbooks_path)
       end
 
       def host_role_paths
-        host_folder_paths(env.config.chef.roles_path)
+        host_folder_paths(config.roles_path)
       end
 
       def cookbook_path(i)
@@ -106,11 +131,11 @@ module Vagrant
       end
 
       def cookbooks_path
-        folders_path(env.config.chef.cookbooks_path, "cookbooks").to_json
+        folders_path(config.cookbooks_path, "cookbooks").to_json
       end
 
       def roles_path
-        folders_path(env.config.chef.roles_path, "roles").to_json
+        folders_path(config.roles_path, "roles").to_json
       end
     end
   end

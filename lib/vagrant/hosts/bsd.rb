@@ -25,6 +25,7 @@ module Vagrant
         output.split("\n").each do |line|
           # This should only ask for administrative permission once, even
           # though its executed in multiple subshells.
+          line = line.gsub('"', '\"')
           system(%Q[sudo su root -c "echo '#{line}' >> /etc/exports"])
         end
 
@@ -42,7 +43,7 @@ module Vagrant
           if $?.to_i == 0
             # Use sed to just strip out the block of code which was inserted
             # by Vagrant
-            system("sudo sed -e '/^# VAGRANT-BEGIN: #{env.vm.uuid}/,/^# VAGRANT-END: #{env.vm.uuid}/ d' -i bak /etc/exports")
+            system("sudo sed -e '/^# VAGRANT-BEGIN: #{env.vm.uuid}/,/^# VAGRANT-END: #{env.vm.uuid}/ d' -ibak /etc/exports")
           end
         end
       end

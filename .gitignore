@@ -9,3 +9,7 @@ _site/*
 *.org
 .yardoc/
 doc/
+tags
+Gemfile.lock
+.idea/*
+*.iml

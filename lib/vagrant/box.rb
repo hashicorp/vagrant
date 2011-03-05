@@ -57,18 +57,18 @@ module Vagrant
     # method requires that `name` and `uri` be set. The logic of this method
     # is kicked out to the `box_add` registered middleware.
     def add
-      raise Errors::BoxAlreadyExists.new(:name => name) if File.directory?(directory)
-      env.actions.run(:box_add, { "box" => self })
+      raise Errors::BoxAlreadyExists, :name => name if File.directory?(directory)
+      env.actions.run(:box_add, { "box" => self, "validate" => false })
     end
 
     # Begins the process of destroying this box. This cannot be undone!
     def destroy
-      env.actions.run(:box_remove, { "box" => self })
+      env.actions.run(:box_remove, { "box" => self, "validate" => false })
     end
 
     # Begins sequence to repackage this box.
     def repackage(options=nil)
-      env.actions.run(:box_repackage, { "box" => self }.merge(options || {}))
+      env.actions.run(:box_repackage, { "box" => self, "validate" => false }.merge(options || {}))
     end
 
     # Returns the directory to the location of this boxes content in the local

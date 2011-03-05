@@ -6,15 +6,13 @@ module Vagrant
     # in the future this will no longer be necessary with autoloading.
     def self.builtin!
       # provision - Provisions a running VM
-      provision = Builder.new do
+      register(:provision, Builder.new do
         use VM::Provision
-      end
-
-      register :provision, provision
+      end)
 
       # start - Starts a VM, assuming it already exists on the
       # environment.
-      start = Builder.new do
+      register(:start, Builder.new do
         use VM::CleanMachineFolder
         use VM::Customize
         use VM::ClearForwardedPorts
@@ -23,106 +21,84 @@ module Vagrant
         use VM::NFS
         use VM::ClearSharedFolders
         use VM::ShareFolders
+        use VM::HostName
         use VM::Network
         use VM::Boot
-      end
-
-      register :start, start
+      end)
 
       # halt - Halts the VM, attempting gracefully but then forcing
       # a restart if fails.
-      halt = Builder.new do
+      register(:halt, Builder.new do
         use VM::DiscardState
         use VM::Halt
-        use VM::DisableNetworks
-      end
-
-      register :halt, halt
+      end)
 
       # suspend - Suspends the VM
-      suspend = Builder.new do
+      register(:suspend, Builder.new do
         use VM::Suspend
-      end
-
-      register :suspend, suspend
+      end)
 
       # resume - Resume a VM
-      resume = Builder.new do
+      register(:resume, Builder.new do
         use VM::Resume
-      end
-
-      register :resume, resume
+      end)
 
       # reload - Halts then restarts the VM
-      reload = Builder.new do
+      register(:reload, Builder.new do
         use Action[:halt]
         use Action[:start]
-      end
-
-      register :reload, reload
+      end)
 
       # up - Imports, prepares, then starts a fresh VM.
-      up = Builder.new do
+      register(:up, Builder.new do
         use VM::CheckBox
         use VM::Import
         use VM::MatchMACAddress
         use VM::CheckGuestAdditions
         use Action[:start]
-      end
-
-      register :up, up
+      end)
 
       # destroy - Halts, cleans up, and destroys an existing VM
-      destroy = Builder.new do
+      register(:destroy, Builder.new do
         use Action[:halt], :force => true
         use VM::ClearNFSExports
-        use VM::DestroyUnusedNetworkInterfaces
         use VM::Destroy
         use VM::CleanMachineFolder
-      end
-
-      register :destroy, destroy
+        use VM::DestroyUnusedNetworkInterfaces
+      end)
 
       # package - Export and package the VM
-      package = Builder.new do
+      register(:package, Builder.new do
         use Action[:halt]
         use VM::ClearForwardedPorts
         use VM::ClearSharedFolders
         use VM::Export
         use VM::PackageVagrantfile
         use VM::Package
-      end
-
-      register :package, package
+      end)
 
       # box_add - Download and add a box.
-      box_add = Builder.new do
+      register(:box_add, Builder.new do
         use Box::Download
         use Box::Unpackage
         use Box::Verify
-      end
-
-      register :box_add, box_add
+      end)
 
       # box_remove - Removes/deletes a box.
-      box_remove = Builder.new do
+      register(:box_remove, Builder.new do
         use Box::Destroy
-      end
-
-      register :box_remove, box_remove
+      end)
 
       # box_repackage - Repackages a box.
-      box_repackage = Builder.new do
+      register(:box_repackage, Builder.new do
         use Box::Package
-      end
+      end)
 
-      register :box_repackage, box_repackage
-
-      # post_load - Called after environment is loaded
-      environment_load = Builder.new do
-      end
-
-      register :environment_load, environment_load
+      # Other callbacks. There will be more of these in the future. For
+      # now, these are limited to what are needed internally.
+      register(:before_action_run, Builder.new do
+        use General::Validate
+      end)
     end
   end
 end

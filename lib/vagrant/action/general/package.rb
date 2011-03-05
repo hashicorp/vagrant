@@ -28,8 +28,8 @@ module Vagrant
         def call(env)
           @env = env
 
-          raise Errors::PackageOutputExists.new if File.exist?(tar_path)
-          raise Errors::PackageRequiresDirectory.new if !@env["package.directory"] || !File.directory?(@env["package.directory"])
+          raise Errors::PackageOutputExists if File.exist?(tar_path)
+          raise Errors::PackageRequiresDirectory if !@env["package.directory"] || !File.directory?(@env["package.directory"])
 
           verify_files_to_copy
           compress
@@ -57,7 +57,7 @@ module Vagrant
 
         def verify_files_to_copy
           files_to_copy.each do |file, _|
-            raise Errors::PackageIncludeMissing.new(:file => file) if !File.exist?(file)
+            raise Errors::PackageIncludeMissing, :file => file if !File.exist?(file)
           end
         end
 
@@ -68,7 +68,13 @@ module Vagrant
           files_to_copy.each do |from, to|
             @env.ui.info I18n.t("vagrant.actions.general.package.packaging", :file => from)
             FileUtils.mkdir_p(to.parent)
-            FileUtils.cp(from, to)
+
+            # Copy direcotry contents recursively.
+            if File.directory?(from)
+              FileUtils.cp_r(Dir.glob(from), to.parent)
+            else
+              FileUtils.cp(from, to)
+            end
           end
         end
 

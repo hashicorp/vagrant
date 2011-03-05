@@ -13,10 +13,13 @@ module Vagrant
 
         attr_accessor :halt_timeout
         attr_accessor :halt_check_interval
+        # This sets the command to use to execute items as a superuser. sudo is default
+        attr_accessor :suexec_cmd
 
         def initialize
           @halt_timeout = 30
           @halt_check_interval = 1
+          @suexec_cmd = 'sudo'
         end
       end
 
@@ -33,7 +36,7 @@ module Vagrant
       def halt
         vm.env.ui.info I18n.t("vagrant.systems.solaris.attempting_halt")
         vm.ssh.execute do |ssh|
-          ssh.exec!("pfexec poweroff")
+          ssh.exec!("#{vm.env.config.solaris.suexec_cmd} /usr/sbin/poweroff")
         end
 
         # Wait until the VM's state is actually powered off. If this doesn't
@@ -49,10 +52,10 @@ module Vagrant
       end
 
       def mount_shared_folder(ssh, name, guestpath)
-        ssh.exec!("pfexec mkdir -p #{guestpath}")
+        ssh.exec!("#{vm.env.config.solaris.suexec_cmd} mkdir -p #{guestpath}")
         # Using a custom mount method here; could use improvement.
-        ssh.exec!("pfexec mount -F vboxfs v-root #{guestpath}")
-        ssh.exec!("pfexec chown #{vm.env.config.ssh.username} #{guestpath}")
+        ssh.exec!("#{vm.env.config.solaris.suexec_cmd} /sbin/mount -F vboxfs #{name} #{guestpath}")
+        ssh.exec!("#{vm.env.config.solaris.suexec_cmd} chown #{vm.env.config.ssh.username} #{guestpath}")
       end
     end
   end

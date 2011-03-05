@@ -1,5 +1,118 @@
-## 0.6.6 (unreleased)
+## 0.7.3 (unreleased)
 
+  - Fix issue with unknown terminal type output for sudo commands.
+  - Forwarded port protocol can now be set as UDP. [GH-311]
+  - Chef server file cache path and file backup path can be configured. [GH-310]
+  - Setting hostname should work on Debian now. [GH-307]
+
+## 0.7.2 (February 8, 2011)
+
+  - Update JSON dependency to 1.5.1, which works with Ruby 1.9 on
+    Windows.
+  - Fix sudo issues on sudo < 1.7.0 (again).
+  - Fix race condition in SSH, which specifically manifested itself in
+    the chef server provisioner. [GH-295]
+  - Change sudo shell to use `bash` (configurable). [GH-301]
+  - Can now set mac address of host only network. [GH-294]
+  - NFS shared folders with spaces now work properly. [GH-293]
+  - Failed SSH commands now show output in error message. [GH-285]
+
+## 0.7.1 (January 28, 2011)
+
+  - Change error output with references to VirtualBox 3.2 to 4.0.
+  - Internal SSH through net-ssh now uses `IdentitiesOnly` thanks to
+    upstream net-ssh fix.
+  - Fix issue causing warnings to show with `forwardx11` enabled for SSH. [GH-279]
+  - FreeBSD support for host only networks, NFS, halting, etc. [GH-275]
+  - Make SSH commands which use sudo compatible with sudo < 1.7.0. [GH-278]
+  - Fix broken puppet server provisioner which called a nonexistent
+    method.
+  - Default SSH host changed from `localhost` to `127.0.0.1` since
+    `localhost` is not always loopback.
+  - New `shell` provisioner which simply uploads and executes a script as
+    root on the VM.
+  - Gentoo host only networking no longer fails if alrady setup. [GH-286]
+  - Set the host name of your guest OS with `config.vm.host_name` [GH-273]
+  - `vagrant ssh-config` now outputs the configured `config.ssh.host`
+
+## 0.7.0 (January 19, 2011)
+
+  - VirtualBox 4.0 support. Support for VirtualBox 3.2 is _dropped_, since
+    the API is so different. Stay with the 0.6.x series if you have VirtualBox
+    3.2.x.
+  - Puppet server provisioner. [GH-262]
+  - Use numeric uid/gid in mounting shared folders to increase portability. [GH-252]
+  - HTTP downloading follows redirects. [GH-163]
+  - Downloaders have clearer output to note what they're doing.
+  - Shared folders with no guest path are not automounted. [GH-184]
+  - Boxes downloaded during `vagrant up` reload the Vagrantfile config, which
+    fixes a problem with box settings not being properly loaded. [GH-231]
+  - `config.ssh.forward_x11` to enable the ForwardX11 SSH option. [GH-255]
+  - Vagrant source now has a `contrib` directory where contributions of miscellaneous
+    addons for Vagrant will be added.
+  - Vagrantfiles are now loaded only once (instead of 4+ times) [GH-238]
+  - Ability to move home vagrant dir (~/.vagrant) by setting VAGRANT_HOME
+    environmental variable.
+  - Removed check and error for the "OSE" version of VirtualBox, since with
+    VirtualBox 4 this distinction no longer exists.
+  - Ability to specify proxy settings for chef. [GH-169]
+  - Helpful error message shown if NFS mounting fails. [GH-135]
+  - Gentoo guests now support host only networks. [GH-240]
+  - RedHat (CentOS included) guests now support host only networks. [GH-260]
+  - New Vagrantfile syntax for enabling and configuring provisioners. This
+    change is not backwards compatible. [GH-265]
+  - Provisioners are now RVM-friendly, meaning if you installed chef or puppet
+    with an RVM managed Ruby, Vagrant now finds then. [GH-254]
+  - Changed the unused host only network destroy mechanism to check for
+    uselessness after the VM is destroyed. This should result in more accurate
+    checks.
+  - Networks are no longer disabled upon halt/destroy. With the above
+    change, its unnecessary.
+  - Puppet supports `module_path` configuration to mount local modules directory
+    as a shared folder and configure puppet with it. [GH-270]
+  - `ssh-config` now outputs `127.0.0.1` as the host instead of `localhost`.
+
+## 0.6.9 (December 21, 2010)
+
+  - Puppet provisioner. [GH-223]
+  - Solaris system configurable to use `sudo`.
+  - Solaris system registered, so it can be set with `:solaris`.
+  - `vagrant package` include can be a directory name, which will cause the
+    contents to be recursively copied into the package. [GH-241]
+  - Arbitrary options to puppet binary can be set with `config.puppet.options`. [GH-242]
+  - BSD hosts use proper GNU sed syntax for clearing NFS shares. [GH-243]
+  - Enumerate VMs in a multi-VM environment in order they were defined. [GH-244]
+  - Check for VM boot changed to use `timeout` library, which works better with Windows.
+  - Show special error if VirtualBox not detected on 64-bit Windows.
+  - Show error to Windows users attempting to use host only networking since
+    it doesn't work yet.
+
+## 0.6.8 (November 30, 2010)
+
+  - Network interfaces are now up/down in distinct commands instead of just
+    restarting "networking." [GH-192]
+  - Add missing translation for chef binary missing. [GH-203]
+  - Fix default settings for Opscode platform and comments. [GH-213]
+  - Blank client name for chef server now uses FQDN by default, instead of "client" [GH-214]
+  - Run list can now be nil, which will cause it to sync with chef server (when
+    chef server is enabled). [GH-214]
+  - Multiple NFS folders now work on linux. [GH-215]
+  - Add translation for state "stuck" which is very rare. [GH-218]
+  - virtualbox gem dependency minimum raised to 0.7.6 to verify FFI < 1.0.0 is used.
+  - Fix issue where box downloading from `vagrant up` didn't reload the box collection. [GH-229]
+
+## 0.6.7 (November 3, 2010)
+
+  - Added validation to verify that a box is specified.
+  - Proper error message when box is not found for `config.vm.box`. [GH-195]
+  - Fix output of `vagrant status` with multi-vm to be correct. [GH-196]
+
+## 0.6.6 (October 14, 2010)
+
+  - `vagrant status NAME` works once again. [GH-191]
+  - Conditional validation of Vagrantfile so that some commands don't validate. [GH-188]
+  - Fix "junk" output for ssh-config. [GH-189]
+  - Fix port collision handling with greater than two VMs. [GH-185]
   - Fix potential infinite loop with root path if bad CWD is given to environment.
 
 ## 0.6.5 (October 8, 2010)

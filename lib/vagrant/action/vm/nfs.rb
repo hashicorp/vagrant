@@ -113,7 +113,9 @@ module Vagrant
         def mount_folders
           @env.ui.info I18n.t("vagrant.actions.vm.nfs.mounting")
 
-          @env["vm"].system.mount_nfs(host_ip, folders)
+          # Only mount the folders which have a guest path specified
+          am_folders = folders.select { |name, folder| folder[:guestpath] }
+          @env["vm"].system.mount_nfs(host_ip, Hash[am_folders])
         end
 
         # Returns the IP address of the first host only network adapter
@@ -147,9 +149,9 @@ module Vagrant
 
         # Verifies that the host is set and supports NFS.
         def verify_settings
-          raise Errors::NFSHostRequired.new if @env["host"].nil?
-          raise Errors::NFSNotSupported.new if !@env["host"].nfs?
-          raise Errors::NFSNoHostNetwork.new if @env["config"].vm.network_options.empty?
+          raise Errors::NFSHostRequired if @env["host"].nil?
+          raise Errors::NFSNotSupported if !@env["host"].nfs?
+          raise Errors::NFSNoHostNetwork if @env["config"].vm.network_options.empty?
         end
       end
     end

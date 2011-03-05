@@ -32,6 +32,14 @@ class ConfigVMTest < Test::Unit::TestCase
       @config.define(:foo) {}
       assert @config.has_multi_vms?
     end
+
+    should "retain vm definition order" do
+      @config.define(:a) {}
+      @config.define(:b) {}
+      @config.define(:c) {}
+
+      assert_equal [:a, :b, :c], @config.defined_vm_keys
+    end
   end
 
   context "customizing" do
@@ -65,6 +73,14 @@ class ConfigVMTest < Test::Unit::TestCase
     should "return the SSH username if GID not set" do
       @config.shared_folder_gid = nil
       assert_equal @username, @config.shared_folder_gid
+    end
+  end
+
+  context "deprecated config" do
+    should "raise an error for provisioner=" do
+      assert_raises(Vagrant::Errors::VagrantError) {
+        @config.provisioner = :chef_solo
+      }
     end
   end
 end

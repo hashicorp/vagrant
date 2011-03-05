@@ -4,24 +4,22 @@ class ChefProvisionerTest < Test::Unit::TestCase
   setup do
     @action_env = Vagrant::Action::Environment.new(vagrant_env.vms[:default].env)
 
-    @action = Vagrant::Provisioners::Chef.new(@action_env)
+    @klass = Vagrant::Provisioners::Chef
+    @config = @klass::Config.new
+    @action = @klass.new(@action_env, @config)
     @env = @action.env
     @vm = @action.vm
   end
 
   context "preparing" do
     should "error the environment" do
-      assert_raises(Vagrant::Provisioners::Chef::ChefError) {
+      assert_raises(@klass::ChefError) {
         @action.prepare
       }
     end
   end
 
   context "config" do
-    setup do
-      @config = Vagrant::Provisioners::Chef::ChefConfig.new
-    end
-
     should "not include the 'json' key in the config dump" do
       result = @config.to_json
       assert result !~ /"json":/
@@ -65,74 +63,6 @@ class ChefProvisionerTest < Test::Unit::TestCase
       @config.add_role("role[user]")
       assert_equal "role[user]", @config.run_list[0]
     end
-
-    context "validation" do
-      setup do
-        @errors = Vagrant::Config::ErrorRecorder.new
-        @top = @config.top = Vagrant::Config::Top.new(@env)
-      end
-
-      context "chef solo" do
-        setup do
-          @top.vm.provisioner = :chef_solo
-
-          @config.run_list = ["foo"]
-          @config.cookbooks_path = "cookbooks"
-        end
-
-        should "be valid if provisioner is not chef solo" do
-          @top.vm.provisioner = nil
-          @config.validate(@errors)
-          assert @errors.errors.empty?
-        end
-
-        should "be invalid if run list is empty" do
-          @config.run_list = []
-          @config.validate(@errors)
-          assert !@errors.errors.empty?
-        end
-
-        should "be invalid if cookbooks path is empty" do
-          @config.cookbooks_path = nil
-          @config.validate(@errors)
-          assert !@errors.errors.empty?
-        end
-      end
-
-      context "chef server" do
-        setup do
-          @top.vm.provisioner = :chef_server
-
-          @config.run_list = ["foo"]
-          @config.chef_server_url = "foo"
-          @config.validation_key_path = "foo"
-        end
-
-        should "be valid if provisioner is not chef solo" do
-          @top.vm.provisioner = nil
-          @config.validate(@errors)
-          assert @errors.errors.empty?
-        end
-
-        should "be invalid if run list is empty" do
-          @config.run_list = []
-          @config.validate(@errors)
-          assert !@errors.errors.empty?
-        end
-
-        should "be invalid if run list is empty" do
-          @config.chef_server_url = nil
-          @config.validate(@errors)
-          assert !@errors.errors.empty?
-        end
-
-        should "be invalid if run list is empty" do
-          @config.validation_key_path = nil
-          @config.validate(@errors)
-          assert !@errors.errors.empty?
-        end
-      end
-    end
   end
 
   context "verifying binary" do
@@ -143,7 +73,7 @@ class ChefProvisionerTest < Test::Unit::TestCase
 
     should "verify binary exists" do
       binary = "foo"
-      @ssh.expects(:exec!).with("which #{binary}", anything)
+      @ssh.expects(:sudo!).with("which #{binary}", anything)
       @action.verify_binary(binary)
     end
   end
@@ -152,8 +82,8 @@ class ChefProvisionerTest < Test::Unit::TestCase
     should "create and chown the folder to the ssh user" do
       ssh_seq = sequence("ssh_seq")
       ssh = mock("ssh")
-      ssh.expects(:exec!).with("sudo mkdir -p #{@env.config.chef.provisioning_path}").once.in_sequence(ssh_seq)
-      ssh.expects(:exec!).with("sudo chown #{@env.config.ssh.username} #{@env.config.chef.provisioning_path}").once.in_sequence(ssh_seq)
+      ssh.expects(:sudo!).with("mkdir -p #{@config.provisioning_path}").once.in_sequence(ssh_seq)
+      ssh.expects(:sudo!).with("chown #{@env.config.ssh.username} #{@config.provisioning_path}").once.in_sequence(ssh_seq)
       @vm.ssh.expects(:execute).yields(ssh)
       @action.chown_provisioning_folder
     end
@@ -174,7 +104,7 @@ class ChefProvisionerTest < Test::Unit::TestCase
       string_io = mock("string_io")
       Vagrant::Util::TemplateRenderer.expects(:render).with(@template, anything).returns(template_data)
       StringIO.expects(:new).with(template_data).returns(string_io)
-      File.expects(:join).with(@env.config.chef.provisioning_path, @filename).once.returns("bar")
+      File.expects(:join).with(@config.provisioning_path, @filename).once.returns("bar")
       @vm.ssh.expects(:upload!).with(string_io, "bar")
 
       @action.setup_config(@template, @filename, {})
@@ -183,7 +113,7 @@ class ChefProvisionerTest < Test::Unit::TestCase
     should "provide log level by default" do
       Vagrant::Util::TemplateRenderer.expects(:render).returns("foo").with() do |template, vars|
         assert vars.has_key?(:log_level)
-        assert_equal @env.config.chef.log_level.to_sym, vars[:log_level]
+        assert_equal @config.log_level.to_sym, vars[:log_level]
         true
       end
 
@@ -221,7 +151,7 @@ class ChefProvisionerTest < Test::Unit::TestCase
     end
 
     should "merge in the extra json specified in the config" do
-      @env.config.chef.json = { :foo => "BAR" }
+      @config.json = { :foo => "BAR" }
       assert_json do |data|
         assert_equal "BAR", data["foo"]
       end
@@ -241,7 +171,7 @@ class ChefProvisionerTest < Test::Unit::TestCase
 
     should "upload a StringIO to dna.json" do
       StringIO.expects(:new).with(anything).returns("bar")
-      File.expects(:join).with(@env.config.chef.provisioning_path, "dna.json").once.returns("baz")
+      File.expects(:join).with(@config.provisioning_path, "dna.json").once.returns("baz")
       @vm.ssh.expects(:upload!).with("bar", "baz").once
       @action.setup_json
     end

@@ -4,9 +4,6 @@ module Vagrant
     # basic things such as the environment instance variable which all
     # config classes need as well as a basic `to_json` implementation.
     class Base
-      # {Environment} that this config belongs to
-      attr_accessor :env
-
       # {Top} of this configuration stack
       attr_accessor :top
 
@@ -29,6 +26,23 @@ module Vagrant
           key, value = data
           result.instance_variable_set("@#{key}".to_sym, value) if key != "json_class"
           result
+        end
+      end
+
+      # A helper to access the environment that this configuration is for.
+      # This is obtained by getting the env from the {Top}.
+      #
+      # @return [Vagrant::Envrionment]
+      def env
+        top.env
+      end
+
+      # Allows setting options from a hash. By default this simply calls
+      # the `#{key}=` method on the config class with the value, which is
+      # the expected behavior most of the time.
+      def set_options(options)
+        options.each do |key, value|
+          send("#{key}=", value)
         end
       end
 

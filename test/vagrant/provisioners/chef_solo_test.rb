@@ -2,11 +2,34 @@ require "test_helper"
 
 class ChefSoloProvisionerTest < Test::Unit::TestCase
   setup do
+    @klass = Vagrant::Provisioners::ChefSolo
+
     @action_env = Vagrant::Action::Environment.new(vagrant_env.vms[:default].env)
 
-    @action = Vagrant::Provisioners::ChefSolo.new(@action_env)
+    @config = @klass::Config.new
+    @action = @klass.new(@action_env, @config)
     @env = @action.env
     @vm = @action.vm
+  end
+
+  context "config validation" do
+    setup do
+      @errors = Vagrant::Config::ErrorRecorder.new
+      @config.run_list = ["foo"]
+      @config.cookbooks_path = "cookbooks"
+    end
+
+    should "be invalid if run list is empty" do
+      @config.run_list = []
+      @config.validate(@errors)
+      assert !@errors.errors.empty?
+    end
+
+    should "be invalid if cookbooks path is empty" do
+      @config.cookbooks_path = nil
+      @config.validate(@errors)
+      assert !@errors.errors.empty?
+    end
   end
 
   context "preparing" do
@@ -87,8 +110,8 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
   context "host cookbooks paths" do
     should "get folders path for configured cookbooks path" do
       result = mock("result")
-      @env.config.chef.stubs(:cookbooks_path).returns("foo")
-      @action.expects(:host_folder_paths).with(@env.config.chef.cookbooks_path).returns(result)
+      @config.stubs(:cookbooks_path).returns("foo")
+      @action.expects(:host_folder_paths).with(@config.cookbooks_path).returns(result)
       assert_equal result, @action.host_cookbook_paths
     end
   end
@@ -96,15 +119,15 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
   context "host roles paths" do
     should "get folders path for configured roles path" do
       result = mock("result")
-      @env.config.chef.stubs(:roles_path).returns("foo")
-      @action.expects(:host_folder_paths).with(@env.config.chef.roles_path).returns(result)
+      @config.stubs(:roles_path).returns("foo")
+      @action.expects(:host_folder_paths).with(@config.roles_path).returns(result)
       assert_equal result, @action.host_role_paths
     end
   end
 
   context "folder path" do
     should "return a proper path to a single folder" do
-      expected = File.join(@env.config.chef.provisioning_path, "cookbooks-5")
+      expected = File.join(@config.provisioning_path, "cookbooks-5")
       assert_equal expected, @action.folder_path("cookbooks", 5)
     end
 
@@ -125,33 +148,33 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
     end
 
     should "properly format VM folder paths" do
-      @env.config.chef.provisioning_path = "/foo"
+      @config.provisioning_path = "/foo"
       assert_equal "/foo/bar", @action.folders_path([:vm, "bar"], nil)
     end
   end
 
   context "cookbooks path" do
     should "return a proper path to a single cookbook" do
-      expected = File.join(@env.config.chef.provisioning_path, "cookbooks-5")
+      expected = File.join(@config.provisioning_path, "cookbooks-5")
       assert_equal expected, @action.cookbook_path(5)
     end
 
     should "properly call folders path and return result" do
       result = [:a, :b, :c]
-      @action.expects(:folders_path).with(@env.config.chef.cookbooks_path, "cookbooks").once.returns(result)
+      @action.expects(:folders_path).with(@config.cookbooks_path, "cookbooks").once.returns(result)
       assert_equal result.to_json, @action.cookbooks_path
     end
   end
 
   context "roles path" do
     should "return a proper path to a single role" do
-      expected = File.join(@env.config.chef.provisioning_path, "roles-5")
+      expected = File.join(@config.provisioning_path, "roles-5")
       assert_equal expected, @action.role_path(5)
     end
 
     should "properly call folders path and return result" do
       result = [:a, :b, :c]
-      @action.expects(:folders_path).with(@env.config.chef.roles_path, "roles").once.returns(result)
+      @action.expects(:folders_path).with(@config.roles_path, "roles").once.returns(result)
       assert_equal result.to_json, @action.roles_path
     end
   end
@@ -160,15 +183,15 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
     setup do
       @vm.ssh.stubs(:upload!)
 
-      @env.config.chef.recipe_url = "foo/bar/baz"
+      @config.recipe_url = "foo/bar/baz"
     end
 
     should "call setup_config with proper variables" do
       @action.expects(:setup_config).with("chef_solo_solo", "solo.rb", {
-        :node_name => @env.config.chef.node_name,
-        :provisioning_path => @env.config.chef.provisioning_path,
+        :node_name => @config.node_name,
+        :provisioning_path => @config.provisioning_path,
         :cookbooks_path => @action.cookbooks_path,
-        :recipe_url => @env.config.chef.recipe_url,
+        :recipe_url => @config.recipe_url,
         :roles_path => @action.roles_path
       })
 
@@ -183,12 +206,12 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
     end
 
     should "cd into the provisioning directory and run chef solo" do
-      @ssh.expects(:exec!).with("cd #{@env.config.chef.provisioning_path} && sudo -E chef-solo -c solo.rb -j dna.json").once
+      @ssh.expects(:sudo!).with(["cd #{@config.provisioning_path}", "chef-solo -c solo.rb -j dna.json"]).once
       @action.run_chef_solo
     end
 
     should "check the exit status if that is given" do
-      @ssh.stubs(:exec!).yields(nil, :exit_status, :foo)
+      @ssh.stubs(:sudo!).yields(nil, :exit_status, :foo)
       @ssh.expects(:check_exit_status).with(:foo, anything).once
       @action.run_chef_solo
     end

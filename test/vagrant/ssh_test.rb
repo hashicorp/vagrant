@@ -12,13 +12,14 @@ class SshTest < Test::Unit::TestCase
   end
 
   setup do
-    VirtualBox.stubs(:version).returns("3.2.4")
+    VirtualBox.stubs(:version).returns("4.0.0")
   end
 
   context "connecting to external SSH" do
     setup do
       mock_ssh
       @ssh.stubs(:check_key_permissions)
+      @ssh.stubs(:port).returns(2222)
       Kernel.stubs(:exec)
       Kernel.stubs(:system).returns(true)
 
@@ -53,8 +54,8 @@ class SshTest < Test::Unit::TestCase
     end
 
     should "call exec with supplied params" do
-      args = {:username => 'bar', :private_key_path => 'baz', :host => 'bak', :port => 'bag'}
-      ssh_exec_expect(args[:port], args[:private_key_path], args[:username], args[:host])
+      args = {:username => 'bar', :private_key_path => 'baz', :host => 'bak'}
+      ssh_exec_expect(@ssh.port, args[:private_key_path], args[:username], args[:host])
       @ssh.connect(args)
     end
 
@@ -65,6 +66,17 @@ class SshTest < Test::Unit::TestCase
                       @env.config.ssh.username,
                       @env.config.ssh.host) do |args|
         assert args =~ /-o ForwardAgent=yes/
+      end
+      @ssh.connect
+    end
+
+    should "add forward X11 option if enabled" do
+      @env.config.ssh.forward_x11 = true
+      ssh_exec_expect(@ssh.port,
+                      @env.config.ssh.private_key_path,
+                      @env.config.ssh.username,
+                      @env.config.ssh.host) do |args|
+        assert args =~ /-o ForwardX11=yes/
       end
       @ssh.connect
     end
@@ -105,10 +117,10 @@ class SshTest < Test::Unit::TestCase
 
     def ssh_exec_expect(port, key_path, uname, host)
       Kernel.expects(:exec).with() do |arg|
-        assert arg =~ /^ssh/
-        assert arg =~ /-p #{port}/
-        assert arg =~ /-i #{key_path}/
-        assert arg =~ /#{uname}@#{host}/
+        assert arg =~ /^ssh/, "ssh command expected"
+        assert arg =~ /-p #{port}/, "-p #{port} expected"
+        assert arg =~ /-i #{key_path}/, "-i #{key_path} expected"
+        assert arg =~ /#{uname}@#{host}/, "#{uname}@{host} expected"
         yield arg if block_given?
         true
       end
@@ -135,6 +147,7 @@ class SshTest < Test::Unit::TestCase
         assert_equal @env.config.ssh.username, username
         assert_equal @ssh.port, opts[:port]
         assert_equal [@env.config.ssh.private_key_path], opts[:keys]
+        assert opts[:keys_only]
         true
       end
       @ssh.execute
@@ -187,6 +200,7 @@ class SshTest < Test::Unit::TestCase
     setup do
       mock_ssh
       @ssh.stubs(:check_key_permissions)
+      @ssh.stubs(:port).returns(2222)
     end
 
     should "return true if SSH connection works" do
@@ -195,16 +209,15 @@ class SshTest < Test::Unit::TestCase
     end
 
     should "return false if SSH connection times out" do
-      Net::SSH.expects(:start)
-      assert !@ssh.up?
-    end
+      @env.config.ssh.timeout = 0.5
 
-    should "allow the thread the configured timeout time" do
-      @thread = mock("thread")
-      @thread.stubs(:[])
-      Thread.expects(:new).returns(@thread)
-      @thread.expects(:join).with(@env.config.ssh.timeout).once
-      @ssh.up?
+      Net::SSH.stubs(:start).with() do
+        # Sleep here to artificially fake timeout
+        sleep 1
+        true
+      end
+
+      assert !@ssh.up?
     end
 
     should "return false if the connection is refused" do
@@ -222,13 +235,22 @@ class SshTest < Test::Unit::TestCase
     end
 
     should "specifity the timeout as an option to execute" do
-      @ssh.expects(:execute).with(:timeout => @env.config.ssh.timeout).yields(true)
+      @ssh.expects(:execute).yields(true).with() do |opts|
+        assert_equal @env.config.ssh.timeout, opts[:timeout]
+        true
+      end
+
       assert @ssh.up?
     end
 
     should "error and exit if a Net::SSH::AuthenticationFailed is raised" do
       @ssh.expects(:execute).raises(Net::SSH::AuthenticationFailed)
       assert_raises(Vagrant::Errors::SSHAuthenticationFailed) { @ssh.up? }
+    end
+
+    should "only get the port once (in the main thread)" do
+      @ssh.expects(:port).once.returns(2222)
+      @ssh.up?
     end
   end
 

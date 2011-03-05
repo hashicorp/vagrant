@@ -50,10 +50,17 @@ module Vagrant
 
           @env["vm"].ssh.execute do |ssh|
             shared_folders.each do |name, data|
-              @env.ui.info(I18n.t("vagrant.actions.vm.share_folders.mounting_entry",
-                           :name => name,
-                           :guest_path => data[:guestpath]))
-              @env["vm"].system.mount_shared_folder(ssh, name, data[:guestpath])
+              if data[:guestpath]
+                # Guest path specified, so mount the folder to specified point
+                @env.ui.info(I18n.t("vagrant.actions.vm.share_folders.mounting_entry",
+                                    :name => name,
+                                    :guest_path => data[:guestpath]))
+                @env["vm"].system.mount_shared_folder(ssh, name, data[:guestpath])
+              else
+                # If no guest path is specified, then automounting is disabled
+                @env.ui.info(I18n.t("vagrant.actions.vm.share_folders.nomount_entry",
+                                    :name => name))
+              end
             end
           end
         end
