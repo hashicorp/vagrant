@@ -60,9 +60,10 @@ module Vagrant
       end
 
       def run_chef_solo
-        commands= ["chef-solo " +
-                 "-c #{config.provisioning_path}/solo.rb " +
-                 "-j #{config.provisioning_path}/dna.json"]
+        commands = ['cmd_prefix=`[ -e /usr/local/bin/rvm ] && echo \'rvm system exec\'`; ' +
+                    '${cmd_prefix} chef-solo ' +
+                    "-c #{config.provisioning_path}/solo.rb " +
+                    "-j #{config.provisioning_path}/dna.json"]
 
         env.ui.info I18n.t("vagrant.provisioners.chef.running_solo")
         vm.ssh.execute do |ssh|

@@ -206,7 +206,7 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
     end
 
     should "cd into the provisioning directory and run chef solo" do
-      @ssh.expects(:sudo!).with(["cd #{@config.provisioning_path}", "chef-solo -c solo.rb -j dna.json"]).once
+      @ssh.expects(:sudo!).with(["cmd_prefix=`[ -e /usr/local/bin/rvm ] && echo \'rvm system exec\'`; ${cmd_prefix} chef-solo -c #{@config.provisioning_path}/solo.rb -j #{@config.provisioning_path}/dna.json"]).once
       @action.run_chef_solo
     end
 
