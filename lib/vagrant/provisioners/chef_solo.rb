@@ -60,7 +60,9 @@ module Vagrant
       end
 
       def run_chef_solo
-        commands = ["cd #{config.provisioning_path}", "chef-solo -c solo.rb -j dna.json"]
+        commands= ["chef-solo " +
+                 "-c #{config.provisioning_path}/solo.rb " +
+                 "-j #{config.provisioning_path}/dna.json"]
 
         env.ui.info I18n.t("vagrant.provisioners.chef.running_solo")
         vm.ssh.execute do |ssh|
