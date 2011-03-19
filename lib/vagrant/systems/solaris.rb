@@ -57,6 +57,26 @@ module Vagrant
         ssh.exec!("#{vm.env.config.solaris.suexec_cmd} /sbin/mount -F vboxfs #{name} #{guestpath}")
         ssh.exec!("#{vm.env.config.solaris.suexec_cmd} chown #{vm.env.config.ssh.username} #{guestpath}")
       end
+
+      def change_host_name(name)
+        vm.ssh.execute do |ssh|
+          if !ssh.test?("hostname | grep '#{name}'")
+            # Replace default hostname in /etc/hosts with new hostname.
+            # Don't rely on GNU sed in Solaris as it often does not exist.
+            ssh.exec!("sed s/`hostname`/'#{name}'/g /etc/inet/hosts > /tmp/etc_hosts.new")
+            ssh.exec!("#{vm.env.config.solaris.suexec_cmd} mv /tmp/etc_hosts.new /etc/inet/hosts")
+            ssh.exec!("#{vm.env.config.solaris.suexec_cmd} chmod 444 /etc/inet/hosts")
+            ssh.exec!("echo '#{name}' | #{vm.env.config.solaris.suexec_cmd} tee /etc/nodename > /dev/null")
+            ssh.exec!("#{vm.env.config.solaris.suexec_cmd} hostname #{name}")
+            # A lot of things break after you change the hostname out from under
+            # Solaris.
+            ssh.exec!("svcadm restart name-service-cache system-log rpc/bind inetd console-login")
+            # Wait for things to go into maintenance then clear them.
+            sleep 5
+            ssh.exec!("for i in `svcs | grep maintenance | awk '{ print $3 }'`;do svcadm clear $i; done")
+          end
+        end
+      end
     end
   end
 end
