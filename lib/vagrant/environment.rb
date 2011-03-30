@@ -239,7 +239,7 @@ module Vagrant
     # @return [DataStore]
     def local_data
       return parent.local_data if parent
-      @local_data ||= DataStore.new(dotfile_path)
+      @local_data ||= DataStore.new(File.expand_path("local_data.json", home_path))
     end
 
     # Accesses the logger for Vagrant. This logger is a _detailed_
