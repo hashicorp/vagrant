@@ -61,7 +61,7 @@ class LinuxSystemTest < Test::Unit::TestCase
     end
 
     should "execute the proper mount command" do
-      @ssh.expects(:exec!).with("sudo mount -t vboxsf -o uid=`id -u #{@vm.env.config.ssh.username}`,gid=`id -g #{@vm.env.config.ssh.username}` #{@name} #{@guestpath}").returns(@success_return)
+      @ssh.expects(:exec!).with("sudo mount -t vboxsf -o uid=`id -u #{@vm.env.config.ssh.username} || echo #{@vm.env.config.ssh.username}`,gid=`id -g #{@vm.env.config.ssh.username} || echo #{@vm.env.config.ssh.username}` #{@name} #{@guestpath}").returns(@success_return)
       mount_folder
     end
 
@@ -107,7 +107,7 @@ class LinuxSystemTest < Test::Unit::TestCase
 
       @vm.stubs(:env).returns(env)
 
-      @ssh.expects(:exec!).with("sudo mount -t vboxsf -o uid=`id -u #{uid}`,gid=`id -g #{gid}` #{@name} #{@guestpath}").returns(@success_return)
+      @ssh.expects(:exec!).with("sudo mount -t vboxsf -o uid=`id -u #{uid} || echo #{uid}`,gid=`id -g #{gid} || echo #{gid}` #{@name} #{@guestpath}").returns(@success_return)
       mount_folder
     end
   end
