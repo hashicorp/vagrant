@@ -42,21 +42,53 @@ class PuppetServerProvisionerTest < Test::Unit::TestCase
       @vm.ssh.stubs(:execute).yields(@ssh)
     end
 
-    should "run the puppetd client" do
-      @ssh.expects(:sudo!).with("puppetd  --server #{@config.puppet_server} --certname #{@cn}").once
-      @action.run_puppetd_client
+    context "config.puppet_server is hostname" do
+      should "run the puppetd client" do
+        @ssh.expects(:sudo!).with("puppetd  --server #{@config.puppet_server} --certname #{@cn}").once
+        @action.run_puppetd_client
+      end
+
+      should "run puppetd with given options when given as an array" do
+        @config.options = ["--modulepath", "modules", "--verbose"]
+        @ssh.expects(:sudo!).with("puppetd --modulepath modules --verbose --server #{@config.puppet_server} --certname #{@cn}").once
+        @action.run_puppetd_client
+      end
+  
+      should "run puppetd with the options when given as a string" do
+        @config.options = "--modulepath modules --verbose"
+        @ssh.expects(:sudo!).with("puppetd --modulepath modules --verbose --server #{@config.puppet_server} --certname #{@cn}").once
+        @action.run_puppetd_client
+      end
     end
 
-    should "run puppetd with given options when given as an array" do
-      @config.options = ["--modulepath", "modules", "--verbose"]
-      @ssh.expects(:sudo!).with("puppetd --modulepath modules --verbose --server #{@config.puppet_server} --certname #{@cn}").once
-      @action.run_puppetd_client
+    context "config.puppet_server is ip_address" do
+      should "run the puppetd client" do
+        @config.puppet_server = '10.10.10.10'
+
+        expected_cmd = "bash -c \"mv /etc/hosts /etc/hosts.old && " \
+                     "{ grep -v 'puppet$' /etc/hosts.old; " \
+                     "echo '#{@config.puppet_server} puppet'; } " \
+                     ">/etc/hosts && puppetd  --server puppet "\
+                     "--certname #{@cn}\""
+
+        @ssh.expects(:sudo!).with(expected_cmd).once
+        @action.run_puppetd_client
+      end
     end
 
-    should "run puppetd with the options when given as a string" do
-      @config.options = "--modulepath modules --verbose"
-      @ssh.expects(:sudo!).with("puppetd --modulepath modules --verbose --server #{@config.puppet_server} --certname #{@cn}").once
-      @action.run_puppetd_client
+    context "config.puppet_server is 'ip_address hostname'" do
+      should "run the puppetd client" do
+        @config.puppet_server = '10.10.10.10 puppetmaster.test'
+
+        expected_cmd = "bash -c \"mv /etc/hosts /etc/hosts.old && " \
+                     "{ grep -v 'puppetmaster.test$' /etc/hosts.old; " \
+                     "echo '10.10.10.10 puppetmaster.test'; } " \
+                     ">/etc/hosts && puppetd  --server "\
+                     "puppetmaster.test --certname #{@cn}\""
+
+        @ssh.expects(:sudo!).with(expected_cmd).once
+        @action.run_puppetd_client
+      end
     end
 
     should "check the exit status if that is given" do
