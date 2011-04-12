@@ -81,6 +81,8 @@ module Vagrant
         attr_accessor :https_proxy_user
         attr_accessor :https_proxy_pass
         attr_accessor :no_proxy
+        attr_accessor :binary_path
+        attr_accessor :binary_env
 
         def initialize
           @provisioning_path = "/tmp/vagrant-chef"
@@ -93,6 +95,8 @@ module Vagrant
           @https_proxy_user = nil
           @https_proxy_pass = nil
           @no_proxy = nil
+          @binary_path = nil
+          @binary_env = nil
         end
 
         # Returns the run list for the provisioning
