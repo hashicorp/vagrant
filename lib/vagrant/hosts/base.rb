@@ -31,6 +31,7 @@ module Vagrant
           classes = {
             :darwin => BSD,
             :bsd => BSD,
+            :arch => Arch,
             :linux => Linux
           }
 
