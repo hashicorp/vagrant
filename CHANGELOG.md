@@ -1,5 +1,6 @@
 ## 0.7.3 (unreleased)
 
+  - Retry all SSH on Net::SSH::Disconnect in case SSH is just restarting. [GH-313]
   - Add NFS shared folder support for Arch linux. [GH-346]
   - Fix issue with unknown terminal type output for sudo commands.
   - Forwarded port protocol can now be set as UDP. [GH-311]
