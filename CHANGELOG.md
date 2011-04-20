@@ -1,4 +1,4 @@
-## 0.7.3 (unreleased)
+## 0.7.3 (April 19, 2011)
 
   - Retry all SSH on Net::SSH::Disconnect in case SSH is just restarting. [GH-313]
   - Add NFS shared folder support for Arch linux. [GH-346]
