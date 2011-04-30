@@ -451,6 +451,10 @@ en:
         nfs_export:
           prepare: "Preparing to edit /etc/exports. Administrator privileges will be required..."
 
+      arch:
+        nfs_export:
+          prepare: "Preparing to edit /etc/exports. Administrator privileges will be required..."
+
     provisioners:
       chef:
         json: "Generating chef JSON and uploading..."
