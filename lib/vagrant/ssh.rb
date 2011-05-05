@@ -42,7 +42,7 @@ module Vagrant
       # Command line options
       command_options = ["-p #{options[:port]}", "-o UserKnownHostsFile=/dev/null",
                          "-o StrictHostKeyChecking=no", "-o IdentitiesOnly=yes",
-                         "-i #{options[:private_key_path]}"]
+                         "-i #{options[:private_key_path]}", "-o LogLevel=ERROR"]
       command_options << "-o ForwardAgent=yes" if env.config.ssh.forward_agent
 
       if env.config.ssh.forward_x11
