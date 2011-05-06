@@ -31,6 +31,18 @@ class RetryableUtilTest < Test::Unit::TestCase
     }
   end
 
+  should "retry on multiple exceptions given" do
+    proc = mock("proc")
+    proc.expects(:call).twice
+
+    assert_raises(StandardError) {
+      @klass.retryable(:tries => 2, :on => [StandardError, RuntimeError]) do
+        proc.call
+        raise StandardError
+      end
+    }
+  end
+
   should "return the value of the block" do
     result = @klass.retryable { 7 }
     assert_equal 7, result
