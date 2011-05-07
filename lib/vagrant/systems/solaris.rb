@@ -58,6 +58,26 @@ module Vagrant
         ssh.exec!("#{vm.env.config.solaris.suexec_cmd} chown #{vm.env.config.ssh.username} #{guestpath}")
       end
 
+      def prepare_host_only_network(net_options)
+        # Remove any previous host only network additions to the
+        # interface file.
+        vm.ssh.execute do |ssh|
+          # Clear out any previous entries
+          ssh.exec!("echo '' | #{vm.env.config.solaris.suexec_cmd} tee /etc/hostname.e1000g#{net_options[:adapter]} > /dev/null")
+          ssh.exec!("sed -e '/.*# Added by Vagrant.*/ d' /etc/inet/hosts > /tmp/etc_hosts.new")
+          ssh.exec!("#{vm.env.config.solaris.suexec_cmd} mv /tmp/etc_hosts.new /etc/inet/hosts")
+          ssh.exec!("#{vm.env.config.solaris.suexec_cmd} chmod 444 /etc/inet/hosts")
+        end
+      end
+
+      def enable_host_only_network(net_options)
+        vm.ssh.execute do |ssh|
+          ssh.exec!("echo '#{net_options[:ip]}\t#{vm.env.config.vm.host_name}.vagrant.internal\t# Added by Vagrant' | #{vm.env.config.solaris.suexec_cmd} tee -a /etc/hosts > /dev/null")
+          ssh.exec!("echo '#{vm.env.config.vm.host_name}.vagrant.internal' | #{vm.env.config.solaris.suexec_cmd} tee /etc/hostname.e1000g#{net_options[:adapter]} > /dev/null")
+          ssh.exec!("#{vm.env.config.solaris.suexec_cmd} svcadm restart network/physical")
+        end
+      end
+
       def change_host_name(name)
         vm.ssh.execute do |ssh|
           if !ssh.test?("hostname | grep '#{name}'")
