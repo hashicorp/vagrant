@@ -13,7 +13,7 @@ client_key             "<%= client_key %>"
 file_cache_path    "<%= file_cache_path %>"
 file_backup_path   "<%= file_backup_path %>"
 
-<% unless environment == "_default" %>
+<% unless environment.nil? %>
 environment        "<%= environment %>"
 <% end %>
 
