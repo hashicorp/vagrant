@@ -13,6 +13,10 @@ client_key             "<%= client_key %>"
 file_cache_path    "<%= file_cache_path %>"
 file_backup_path   "<%= file_backup_path %>"
 
+<% unless environment == "_default" %>
+environment        "<%= environment %>"
+<% end %>
+
 pid_file           "/var/run/chef/chef-client.pid"
 
 Mixlib::Log::Formatter.show_time = true

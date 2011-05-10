@@ -14,6 +14,7 @@ module Vagrant
         attr_accessor :client_key_path
         attr_accessor :file_cache_path
         attr_accessor :file_backup_path
+        attr_accessor :environment
 
         def initialize
           super
@@ -22,6 +23,7 @@ module Vagrant
           @client_key_path = "/etc/chef/client.pem"
           @file_cache_path = "/srv/chef/file_store"
           @file_backup_path = "/srv/chef/cache"
+          @environment = "_default"
         end
 
         def validate(errors)
@@ -71,7 +73,8 @@ module Vagrant
           :validation_key => guest_validation_key_path,
           :client_key => config.client_key_path,
           :file_cache_path => config.file_cache_path,
-          :file_backup_path => config.file_backup_path
+          :file_backup_path => config.file_backup_path,
+          :environment => config.environment
         })
       end
 
