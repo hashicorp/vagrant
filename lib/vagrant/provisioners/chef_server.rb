@@ -23,7 +23,6 @@ module Vagrant
           @client_key_path = "/etc/chef/client.pem"
           @file_cache_path = "/srv/chef/file_store"
           @file_backup_path = "/srv/chef/cache"
-          @environment = "_default"
         end
 
         def validate(errors)
