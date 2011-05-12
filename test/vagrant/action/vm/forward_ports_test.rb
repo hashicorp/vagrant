@@ -169,7 +169,8 @@ class ForwardPortsVMActionTest < Test::Unit::TestCase
       end
 
       should "forward ports" do
-        name, opts = @env.env.config.vm.forwarded_ports.first
+        name = @env.env.config.vm.forwarded_ports.keys.first
+        opts = @env.env.config.vm.forwarded_ports[name]
 
         adapters = []
         adapter = mock("adapter")
