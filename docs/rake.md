@@ -41,7 +41,7 @@ machine (if one exists), and loads the configuration. Loading the
 environment for the current directory is a one-liner:
 
 {% highlight ruby %}
-env = Vagrant::Environment.load!
+env = Vagrant::Environment.new
 {% endhighlight %}
 
 If you're working in a separate directory or you're writing a script that
@@ -49,13 +49,13 @@ will be used with multiple Vagrant projects, you can load a specific
 Vagrant environment by passing in a path:
 
 {% highlight ruby %}
-env = Vagrant::Environment.load!("/path/to/my/project")
+env = Vagrant::Environment.new(:cwd => "/path/to/my/project")
 {% endhighlight %}
 
 ## Executing Commands
 
 All available `vagrant` command line tools are available in code through
-the `commands` accessor on the environment instance. This allows you to
+the `cli` method on the environment instance. This allows you to
 easily to run the command line tools in the context of an environment
 without any extra fuss. The following is a simple rake task that simply
 does the equivalent of `vagrant up` but does some extra, useless things
@@ -65,8 +65,8 @@ around it:
 # Example of emulating vagrant up with some code around it
 task :up do
   puts "About to run vagrant-up..."
-  env = Vagrant::Environment.load!
-  env.commands.subcommand("up")
+  env = Vagrant::Environment.new
+  env.cli("up")
   puts "Finished running vagrant-up"
 end
 {% endhighlight %}
@@ -78,8 +78,8 @@ part. This allows you to do more complex things easily:
 {% highlight ruby %}
 desc "Package my environment with a custom file"
 task :package do
-  env = Vagrant::Environment.load!
-  env.commands.subcommand("package", "--include", "MyCustomFile")
+  env = Vagrant::Environment.new
+  env.cli("package", "--include", "MyCustomFile")
 end
 {% endhighlight %}
 
@@ -95,23 +95,21 @@ shutdown command:
 
 {% highlight ruby %}
 task :graceful_down do
-  env = Vagrant::Environment.load!
-  env.require_persisted_vm
+  env = Vagrant::Environment.new
+  raise "Must run `vagrant up`" if !env.primary_vm.created?
+  raise "Must be running!" if !env.primary_vm.vm.running?
   env.primary_vm.ssh.execute do |ssh|
     ssh.exec!("sudo halt")
   end
 end
 {% endhighlight %}
 
-This example also shows `env.require_persisted_vm` which simply errors and
-exits if there is no Vagrant VM created yet.
-
 Additionally, if you're in a [multi-VM environment](/docs/multivm.html), you can
 access the VMs through the `vms` array on the environment:
 
 {% highlight ruby %}
 task :graceful_down do
-  env = Vagrant::Environment.load!
+  env = Vagrant::Environment.new
   env.vms.each do |vm|
     vm.ssh.execute do |ssh|
       ssh.exec!("sudo halt")

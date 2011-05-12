@@ -153,7 +153,7 @@ read the page on host only networking for more information and details.
 config.vm.provision :chef_solo
 
 # Use a custom provisioner
-config.vm.provisoin MyCustomProvisioner
+config.vm.provision MyCustomProvisioner
 {% endhighlight %}
 
 `config.vm.share_folder` is a function that will share a folder on the host machine with the
