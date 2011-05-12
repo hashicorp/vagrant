@@ -154,6 +154,9 @@ module Vagrant
       pnum = opts[:port]
       return pnum if pnum
 
+      # Check if a port was specified in the config
+      return env.config.ssh.port if env.config.ssh.port
+      
       # Check if we have an SSH forwarded port
       pnum = nil
       env.vm.vm.network_adapters.each do |na|
