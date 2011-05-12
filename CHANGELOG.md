@@ -1,4 +1,4 @@
-## 0.7.4 (unreleased)
+## 0.7.4 (May 12, 2011)
 
   - Chef environments support (for Chef 0.10) [GH-358]
   - Suppress the "added to known hosts" message for SSH [GH-354]
