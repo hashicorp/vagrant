@@ -12,6 +12,7 @@ module Vagrant
       attr_accessor :forward_agent
       attr_accessor :forward_x11
       attr_accessor :sudo_shell
+      attr_accessor :port
 
       def initialize
         @sudo_shell = "bash"
