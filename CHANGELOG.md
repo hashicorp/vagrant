@@ -1,6 +1,6 @@
 ## 0.7.4 (unreleased)
 
-
+  - Chef environments support (for Chef 0.10) [GH-358]
 
 ## 0.7.3 (April 19, 2011)
 
