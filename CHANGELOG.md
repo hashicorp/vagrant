@@ -3,6 +3,7 @@
   - Chef environments support (for Chef 0.10) [GH-358]
   - Suppress the "added to known hosts" message for SSH [GH-354]
   - Ruby 1.8.6 support [GH-352]
+  - Chef proxy settings now work for chef server [GH-335]
 
 ## 0.7.3 (April 19, 2011)
 
