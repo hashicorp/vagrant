@@ -104,14 +104,14 @@ You can also specify additional options to be passed to Puppet using the `option
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.vm.provision :puppet, :options = ["--modulepath","modules"]
+  config.vm.provision :puppet, :options => ["--modulepath","modules"]
 end
 {% endhighlight %}
 
 You can also pass options as strings:
 
 {% highlight ruby %}
-  config.vm.provision :puppet, :options = "--verbose --debug"
+  config.vm.provision :puppet, :options => "--verbose --debug"
 {% endhighlight %}
 
 ## Enabling and Executing
