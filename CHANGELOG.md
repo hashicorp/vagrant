@@ -1,6 +1,7 @@
 ## 0.7.5 (unreleased)
 
-
+  - `config.ssh.port` can be specified and takes highest precedence if specified.
+    Otherwise, Vagrant will still attempt to auto-detect the port. [GH-363]
 
 ## 0.7.4 (May 12, 2011)
 
