@@ -232,7 +232,7 @@ class VMTest < Test::Unit::TestCase
 
     context "provisioning" do
       should "execute the provision action" do
-        @vm.env.actions.expects(:run).with(:provision).once
+        @vm.env.actions.expects(:run).with(:provision, nil).once
         @vm.provision
       end
     end

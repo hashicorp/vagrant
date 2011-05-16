@@ -152,8 +152,8 @@ module Vagrant
       env.actions.run(:reload)
     end
 
-    def provision
-      env.actions.run(:provision)
+    def provision(options=nil)
+      env.actions.run(:provision, options)
     end
 
     def destroy
