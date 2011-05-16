@@ -13,6 +13,9 @@ en:
         The chef (either `chef-solo` or `chef-client`) binary was not found on
         the VM and is required for chef provisioning. Please verify that chef
         is installed and that the binary is available on the PATH.
+      shadow_puppet_not_detected: |-
+        The `shadow_puppet` binary was not found on the VM and is required for ShadowPuppet provisioning.
+        Please verify that ShadowPuppet is installed and that the binary is available on the PATH.
       puppet_not_detected: |-
         The `puppet` binary was not found on the VM and is required for Puppet provisioning.
         Please verify that Puppet is installed and that the binary is available on the PATH.
@@ -490,6 +493,16 @@ en:
         manifest_missing: "The Puppet %{manifest} manifest is missing. You cannot configure this box."
         manifests_path_missing: "The manifests path specified for Puppet does not exist: %{path}"
         module_path_missing: "The configured module path doesn't exist: %{path}"
+
+      shadow_puppet:
+        not_detected: |-
+          The `%{binary}` binary appears to not be in the PATH of the guest. This
+          could be because the PATH is not properly setup or perhaps ShadowPuppet is not
+          installed on this guest. ShadowPuppet provisioning can not continue without
+          ShadowPuppet properly installed.
+        running_shadow_puppet: "Running ShadowPuppet with %{manifest}..."
+        manifest_missing: "The ShadowPuppet %{manifest} manifest is missing. You cannot configure this box."
+        manifests_path_missing: "The manifests path specified for ShadowPuppet does not exist: %{path}"
 
       puppet_server:
         not_detected: |-
