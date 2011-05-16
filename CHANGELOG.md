@@ -4,6 +4,7 @@
     Otherwise, Vagrant will still attempt to auto-detect the port. [GH-363]
   - Get rid of RubyGems deprecations introduced with RubyGems 1.8.x
   - Search in pre-release gems for plugins as well as release gems.
+  - Support for Chef-solo `data_bags_path` [GH-362]
 
 ## 0.7.4 (May 12, 2011)
 
