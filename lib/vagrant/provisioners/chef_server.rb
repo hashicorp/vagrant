@@ -41,7 +41,7 @@ module Vagrant
       end
 
       def provision!
-        verify_binary("chef-client")
+        verify_binary(chef_client_binary)
         chown_provisioning_folder
         create_client_key_folder
         upload_validation_key
@@ -79,7 +79,7 @@ module Vagrant
 
       def run_chef_client
         commands = ["cd #{config.provisioning_path}",
-                    "chef-client -c client.rb -j dna.json"]
+                    "#{config.binary_env} #{chef_client_binary} -c client.rb -j dna.json"]
 
         env.ui.info I18n.t("vagrant.provisioners.chef.running_client")
         vm.ssh.execute do |ssh|
@@ -90,6 +90,14 @@ module Vagrant
               env.ui.info("#{data}: #{type}")
             end
           end
+        end
+      end
+
+      def chef_client_binary
+        if config.binary_path.nil? || config.binary_path.empty?
+          "chef-client"
+        else
+          File.join(config.binary_path, "chef-client")
         end
       end
 
