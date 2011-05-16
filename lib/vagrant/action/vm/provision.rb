@@ -28,11 +28,16 @@ module Vagrant
 
         def load_provisioners
           @env["config"].vm.provisioners.each do |provisioner|
-            @env.ui.info I18n.t("vagrant.actions.vm.provision.enabled", :provisioner => provisioner.shortcut)
+            if !@env["provision.provisioners"] ||
+                @env["provision.provisioners"].include?(provisioner.shortcut.to_s)
 
-            instance = provisioner.provisioner.new(@env, provisioner.config)
-            instance.prepare
-            @provisioners << instance
+              @env.ui.info I18n.t("vagrant.actions.vm.provision.enabled", :provisioner => provisioner.shortcut)
+
+              instance = provisioner.provisioner.new(@env, provisioner.config)
+              instance.prepare
+              @provisioners << instance
+
+            end
           end
         end
       end
