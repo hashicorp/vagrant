@@ -225,14 +225,14 @@ class VMTest < Test::Unit::TestCase
 
     context "reloading action" do
       should "execute the reload action" do
-        @vm.env.actions.expects(:run).with(:reload).once
+        @vm.env.actions.expects(:run).with(:reload, nil).once
         @vm.reload
       end
     end
 
     context "provisioning" do
       should "execute the provision action" do
-        @vm.env.actions.expects(:run).with(:provision).once
+        @vm.env.actions.expects(:run).with(:provision, nil).once
         @vm.provision
       end
     end

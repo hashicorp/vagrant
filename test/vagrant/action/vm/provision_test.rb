@@ -69,6 +69,42 @@ class ProvisionVMActionTest < Test::Unit::TestCase
       end
     end
 
+    context "loading specific provisioners" do
+      setup do
+        Vagrant::Provisioners::ChefSolo.any_instance.expects(:prepare).at_least(0)
+        @env["config"].vm.provisioners.clear
+      end
+
+      should "only load the specified provisioner" do
+        @env["config"].vm.provision :chef_solo
+        @env["config"].vm.provision :shell
+        @env["provision.provisioners"] = ["chef_solo"]
+        @instance = @klass.new(@app, @env)
+
+        assert_equal 1, @instance.provisioners.length
+      end
+
+      should "only load the specified provisioners" do
+        @env["config"].vm.provision :chef_solo
+        @env["config"].vm.provision :shell
+        @env["config"].vm.provision :chef_server
+        @env["provision.provisioners"] = ["chef_solo", "shell"]
+        @instance = @klass.new(@app, @env)
+
+        assert_equal 2, @instance.provisioners.length
+      end
+
+      should "raise an error if the specified provisioner does not exist" do
+        @env["provision.provisioners"] = ["chef_solo"]
+        @env["config"].vm.provision :shell
+        @env["config"].vm.provision :chef_server
+        
+        assert_raises(Vagrant::Errors::ProvisionerDoesNotExist) do
+          @instance = @klass.new(@app, @env)
+        end
+      end
+    end
+
     context "calling" do
       setup do
         Vagrant::Provisioners::ChefSolo.any_instance.stubs(:prepare)

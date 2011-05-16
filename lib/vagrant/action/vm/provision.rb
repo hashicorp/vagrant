@@ -26,13 +26,29 @@ module Vagrant
           !@env["config"].vm.provisioners.empty? && @env["provision.enabled"]
         end
 
-        def load_provisioners
-          @env["config"].vm.provisioners.each do |provisioner|
-            @env.ui.info I18n.t("vagrant.actions.vm.provision.enabled", :provisioner => provisioner.shortcut)
+        def validate_provisioners
+          return unless @env["provision.provisioners"]
+          shortcuts = @env["config"].vm.provisioners.collect {|p| p.shortcut.to_s}
+          missing_provisioners = @env["provision.provisioners"] - shortcuts
+          unless missing_provisioners.empty?
+            raise Vagrant::Errors::ProvisionerDoesNotExist.
+              new(:provisioner => missing_provisioners.join(", "))
+          end
+        end
 
-            instance = provisioner.provisioner.new(@env, provisioner.config)
-            instance.prepare
-            @provisioners << instance
+        def load_provisioners
+          validate_provisioners
+          @env["config"].vm.provisioners.each do |provisioner|
+            if !@env["provision.provisioners"] ||
+                @env["provision.provisioners"].include?(provisioner.shortcut.to_s)
+
+              @env.ui.info I18n.t("vagrant.actions.vm.provision.enabled", :provisioner => provisioner.shortcut)
+
+              instance = provisioner.provisioner.new(@env, provisioner.config)
+              instance.prepare
+              @provisioners << instance
+
+            end
           end
         end
       end
