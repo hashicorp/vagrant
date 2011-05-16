@@ -388,6 +388,7 @@ en:
         provision:
           beginning: "Running provisioner: %{provisioner}..."
           enabled: "Provisioning enabled with %{provisioner}..."
+          provisioner_missing: "Could not find %{provisioner} in Vagrantfile"
         resume:
           resuming: Resuming suspended VM...
         share_folders:

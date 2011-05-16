@@ -230,6 +230,11 @@ module Vagrant
       error_key(:dotfile_error, "vagrant.actions.vm.persist")
     end
 
+    class ProvisionerDoesNotExist < VagrantError
+      status_code(51)
+      error_key(:provisioner_missing, "vagrant.actions.vm.provision")
+    end
+
     class SSHAuthenticationFailed < VagrantError
       status_code(11)
       error_key(:ssh_authentication_failed)
