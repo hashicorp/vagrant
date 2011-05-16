@@ -6,8 +6,8 @@ module Vagrant
         # interface file.
         vm.ssh.execute do |ssh|
           # Clear out any previous entries
-          ssh.exec!("sudo sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/sysconfig/network-scripts/ifcfg-eth#{net_options[:adapter]} > /tmp/vagrant-ifcfg-eth#{net_options[:adapter]}")
-          ssh.exec!("sudo su -c 'cat /tmp/vagrant-ifcfg-eth#{net_options[:adapter]} > /etc/sysconfig/network-scripts/ifcfg-eth#{net_options[:adapter]}'")
+          ssh.exec!("sudo sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' #{network_scripts_dir}/ifcfg-eth#{net_options[:adapter]} > /tmp/vagrant-ifcfg-eth#{net_options[:adapter]}")
+          ssh.exec!("sudo su -c 'cat /tmp/vagrant-ifcfg-eth#{net_options[:adapter]} > #{network_scripts_dir}/ifcfg-eth#{net_options[:adapter]}'")
         end
       end
 
@@ -19,9 +19,13 @@ module Vagrant
         vm.ssh.execute do |ssh|
           interface_up = ssh.test?("/sbin/ifconfig eth#{net_options[:adapter]} | grep 'inet addr:'")
           ssh.exec!("sudo /sbin/ifdown eth#{net_options[:adapter]} 2> /dev/null") if interface_up
-          ssh.exec!("sudo su -c 'cat /tmp/vagrant-network-entry >> /etc/sysconfig/network-scripts/ifcfg-eth#{net_options[:adapter]}'")
+          ssh.exec!("sudo su -c 'cat /tmp/vagrant-network-entry >> #{network_scripts_dir}/ifcfg-eth#{net_options[:adapter]}'")
           ssh.exec!("sudo /sbin/ifup eth#{net_options[:adapter]}")
         end
+      end
+
+      def network_scripts_dir
+        '/etc/sysconfig/network-scripts/'
       end
 
       def change_host_name(name)
