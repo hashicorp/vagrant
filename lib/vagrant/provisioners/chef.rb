@@ -16,6 +16,13 @@ module Vagrant
         end
       end
 
+      # Returns the path to the Chef binary, taking into account the
+      # `binary_path` configuration option.
+      def chef_binary_path(binary)
+        return binary if !config.binary_path
+        return File.join(config.binary_path, binary)
+      end
+
       def chown_provisioning_folder
         vm.ssh.execute do |ssh|
           ssh.sudo!("mkdir -p #{config.provisioning_path}")

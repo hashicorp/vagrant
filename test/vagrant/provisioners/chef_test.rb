@@ -78,6 +78,18 @@ class ChefProvisionerTest < Test::Unit::TestCase
     end
   end
 
+  context "chef binary path" do
+    should "return just the binary if no binary path is set" do
+      @config.binary_path = nil
+      assert_equal "foo", @action.chef_binary_path("foo")
+    end
+
+    should "return the joined binary path and binary if set" do
+      @config.binary_path = "/foo"
+      assert_equal File.join(@config.binary_path, "bar"), @action.chef_binary_path("bar")
+    end
+  end
+
   context "permissions on provisioning folder" do
     should "create and chown the folder to the ssh user" do
       ssh_seq = sequence("ssh_seq")

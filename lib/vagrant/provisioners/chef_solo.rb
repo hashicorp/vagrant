@@ -33,7 +33,7 @@ module Vagrant
       end
 
       def provision!
-        verify_binary(chef_solo_binary)
+        verify_binary(chef_binary_path("chef-solo"))
         chown_provisioning_folder
         setup_json
         setup_solo_config
@@ -70,7 +70,8 @@ module Vagrant
       end
 
       def run_chef_solo
-        commands = ["cd #{config.provisioning_path}", "#{config.binary_env} #{chef_solo_binary} -c solo.rb -j dna.json"]
+        command_env = config.binary_env ? "#{config.binary_env} " : ""
+        commands = ["cd #{config.provisioning_path}", "#{command_env}#{chef_binary_path("chef-solo")} -c solo.rb -j dna.json"]
 
         env.ui.info I18n.t("vagrant.provisioners.chef.running_solo")
         vm.ssh.execute do |ssh|
@@ -81,14 +82,6 @@ module Vagrant
               env.ui.info("#{data}: #{type}")
             end
           end
-        end
-      end
-
-      def chef_solo_binary
-        if config.binary_path.nil? || config.binary_path.empty?
-          "chef-solo"
-        else
-          File.join(config.binary_path, "chef-solo")
         end
       end
 

@@ -5,6 +5,8 @@
   - Get rid of RubyGems deprecations introduced with RubyGems 1.8.x
   - Search in pre-release gems for plugins as well as release gems.
   - Support for Chef-solo `data_bags_path` [GH-362]
+  - Can specify path to Chef binary using `binary_path` [GH-342]
+  - Can specify additional environment data for Chef using `binary_env` [GH-342]
 
 ## 0.7.4 (May 12, 2011)
 
