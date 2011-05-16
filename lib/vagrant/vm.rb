@@ -148,8 +148,8 @@ module Vagrant
       env.actions.run(:halt, options)
     end
 
-    def reload
-      env.actions.run(:reload)
+    def reload(options=nil)
+      env.actions.run(:reload, options)
     end
 
     def provision(options=nil)
