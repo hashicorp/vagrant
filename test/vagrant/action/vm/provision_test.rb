@@ -69,6 +69,23 @@ class ProvisionVMActionTest < Test::Unit::TestCase
       end
     end
 
+    context "loading specific provisioners" do
+      setup do
+        Vagrant::Provisioners::ChefSolo.any_instance.expects(:prepare).at_least(0)
+      end
+
+      should "only load the specified provisioners" do
+        @env["config"].vm.provision :chef_solo
+        @env["config"].vm.provision :shell
+        @env["provision.provisioners"] = ["chef_solo"]
+        instance = @klass.new(@app, @env)
+        instance.load_provisioners
+
+        puts instance.provisioners.map{ |e| e.class }.inspect
+        assert_equal 1, instance.provisioners.size
+      end
+    end
+
     context "calling" do
       setup do
         Vagrant::Provisioners::ChefSolo.any_instance.stubs(:prepare)
