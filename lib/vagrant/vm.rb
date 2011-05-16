@@ -63,6 +63,7 @@ module Vagrant
           :freebsd => Systems::FreeBSD,
           :gentoo  => Systems::Gentoo,
           :redhat  => Systems::Redhat,
+          :suse    => Systems::Suse,
           :linux   => Systems::Linux,
           :solaris => Systems::Solaris
         }
