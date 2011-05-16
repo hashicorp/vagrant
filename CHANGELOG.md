@@ -1,3 +1,7 @@
+## 0.7.6 (unreleased)
+
+
+
 ## 0.7.5 (May 16, 2011)
 
   - `config.ssh.port` can be specified and takes highest precedence if specified.
