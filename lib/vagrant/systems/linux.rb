@@ -13,6 +13,7 @@ module Vagrant
 
           return :gentoo if ssh.test?("cat /etc/gentoo-release")
           return :redhat if ssh.test?("cat /etc/redhat-release")
+          return :suse if ssh.test?("cat /etc/SuSE-release")
         end
 
         # Can't detect the distro, assume vanilla linux
