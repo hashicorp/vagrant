@@ -1,6 +1,6 @@
 ## 0.7.6 (unreleased)
 
-
+  - Fix RedHat/CentOS issues with Host-Only networking
 
 ## 0.7.5 (May 16, 2011)
 
