@@ -15,6 +15,7 @@ module Vagrant
       protected
 
       def package_base
+        Vagrant.log.verbose "Searching for VM named \"#{options[:base]}\""
         vm = VM.find(options[:base], env)
         raise Errors::BaseVMNotFound, :name => options[:base] if !vm.created?
         package_vm(vm)

@@ -89,7 +89,10 @@ en:
 
         %{key_path}
       ssh_port_not_detected: |-
-        Vagrant couldn't determine the SSH port for your VM! This is a rare,
+        Vagrant couldn't determine the SSH port for your VM!
+        If you were attempting to create a base package, make sure there is a port forward
+        either named "ssh" or that forwards to guest port 22.
+        If you were merely attempting to connect to your vagrant-managed VM, this is a rare,
         exceptional event, and a bug should be filed. Please try recreating your
         VM (vagrant destroy, then vagrant up). Sorry!
       ssh_unavailable: "`ssh` binary could not be found. Is an SSH client installed?"
