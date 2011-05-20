@@ -34,6 +34,7 @@ Vagrant::Config.run do |config|
 
   config.nfs.map_uid = :auto
   config.nfs.map_gid = :auto
+  config.nfs.map_root = false
 
   config.package.name = 'package.box'
 end
