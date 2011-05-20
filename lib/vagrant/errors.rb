@@ -206,7 +206,7 @@ module Vagrant
     end
 
     class NFSImpossibleOptions < VagrantError
-      status_code(34)
+      status_code(35)
       error_key(:impossible_options, "vagrant.actions.vm.nfs")
     end
 
