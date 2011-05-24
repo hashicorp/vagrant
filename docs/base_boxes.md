@@ -156,14 +156,14 @@ on "Devices" followed by "Install Guest Additions.". Then run the following to
 mount the CD Rom:
 
 {% highlight bash %}
-$ sudo mount /media/cdrom
+$ sudo mount /dev/cdrom /media/cdrom
 {% endhighlight %}
 
 And finally, run the shell script which matches your system. For linux on x86,
 it is the following:
 
 {% highlight bash %}
-sudo sh /cdrom/VBoxLinuxAdditions.run
+sudo sh /media/cdrom/VBoxLinuxAdditions.run
 {% endhighlight %}
 
 If you didn't install a Desktop environment when you installed the operating system,
