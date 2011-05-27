@@ -9,6 +9,7 @@ module Vagrant
         attr_accessor :roles_path
         attr_accessor :data_bags_path
         attr_accessor :recipe_url
+        attr_accessor :nfs
 
         def initialize
           super
@@ -16,6 +17,7 @@ module Vagrant
           @cookbooks_path = ["cookbooks", [:vm, "cookbooks"]]
           @roles_path = []
           @data_bags_path = []
+          @nfs = false
         end
 
         def validate(errors)
@@ -42,19 +44,19 @@ module Vagrant
 
       def share_cookbook_folders
         host_cookbook_paths.each_with_index do |cookbook, i|
-          env.config.vm.share_folder("v-csc-#{i}", cookbook_path(i), cookbook)
+          env.config.vm.share_folder("v-csc-#{i}", cookbook_path(i), cookbook, :nfs => config.nfs)
         end
       end
 
       def share_role_folders
         host_role_paths.each_with_index do |role, i|
-          env.config.vm.share_folder("v-csr-#{i}", role_path(i), role)
+          env.config.vm.share_folder("v-csr-#{i}", role_path(i), role, :nfs => config.nfs)
         end
       end
 
       def share_data_bags_folders
         host_data_bag_paths.each_with_index do |data_bag, i|
-          env.config.vm.share_folder("v-csdb-#{i}", data_bag_path(i), data_bag)
+          env.config.vm.share_folder("v-csdb-#{i}", data_bag_path(i), data_bag, :nfs => config.nfs)
         end
       end
 
