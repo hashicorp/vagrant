@@ -10,8 +10,20 @@ validation_client_name "<%= validation_client_name %>"
 validation_key         "<%= validation_key %>"
 client_key             "<%= client_key %>"
 
+<% unless environment.nil? %>
+environment        "<%= environment %>"
+<% end %>
+
 file_cache_path    "<%= file_cache_path %>"
 file_backup_path   "<%= file_backup_path %>"
+
+http_proxy <%= http_proxy.inspect %>
+http_proxy_user <%= http_proxy_user.inspect %>
+http_proxy_pass <%= http_proxy_pass.inspect %>
+https_proxy <%= https_proxy.inspect %>
+https_proxy_user <%= https_proxy_user.inspect %>
+https_proxy_pass <%= https_proxy_pass.inspect %>
+no_proxy <%= no_proxy.inspect %>
 
 pid_file           "/var/run/chef/chef-client.pid"
 

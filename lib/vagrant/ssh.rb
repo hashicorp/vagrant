@@ -42,7 +42,7 @@ module Vagrant
       # Command line options
       command_options = ["-p #{options[:port]}", "-o UserKnownHostsFile=/dev/null",
                          "-o StrictHostKeyChecking=no", "-o IdentitiesOnly=yes",
-                         "-i #{options[:private_key_path]}"]
+                         "-i #{options[:private_key_path]}", "-o LogLevel=ERROR"]
       command_options << "-o ForwardAgent=yes" if env.config.ssh.forward_agent
 
       if env.config.ssh.forward_x11
@@ -154,6 +154,9 @@ module Vagrant
       pnum = opts[:port]
       return pnum if pnum
 
+      # Check if a port was specified in the config
+      return env.config.ssh.port if env.config.ssh.port
+      
       # Check if we have an SSH forwarded port
       pnum = nil
       env.vm.vm.network_adapters.each do |na|

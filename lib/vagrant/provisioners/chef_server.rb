@@ -14,6 +14,7 @@ module Vagrant
         attr_accessor :client_key_path
         attr_accessor :file_cache_path
         attr_accessor :file_backup_path
+        attr_accessor :environment
 
         def initialize
           super
@@ -40,7 +41,7 @@ module Vagrant
       end
 
       def provision!
-        verify_binary("chef-client")
+        verify_binary(chef_binary_path("chef-client"))
         chown_provisioning_folder
         create_client_key_folder
         upload_validation_key
@@ -71,13 +72,15 @@ module Vagrant
           :validation_key => guest_validation_key_path,
           :client_key => config.client_key_path,
           :file_cache_path => config.file_cache_path,
-          :file_backup_path => config.file_backup_path
+          :file_backup_path => config.file_backup_path,
+          :environment => config.environment
         })
       end
 
       def run_chef_client
+        command_env = config.binary_env ? "#{config.binary_env} " : ""
         commands = ["cd #{config.provisioning_path}",
-                    "chef-client -c client.rb -j dna.json"]
+                    "#{command_env}#{chef_binary_path("chef-client")} -c client.rb -j dna.json"]
 
         env.ui.info I18n.t("vagrant.provisioners.chef.running_client")
         vm.ssh.execute do |ssh|

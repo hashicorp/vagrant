@@ -7,6 +7,7 @@ module Vagrant
       class Config < Chef::Config
         attr_accessor :cookbooks_path
         attr_accessor :roles_path
+        attr_accessor :data_bags_path
         attr_accessor :recipe_url
 
         def initialize
@@ -14,6 +15,7 @@ module Vagrant
 
           @cookbooks_path = ["cookbooks", [:vm, "cookbooks"]]
           @roles_path = []
+          @data_bags_path = []
         end
 
         def validate(errors)
@@ -27,10 +29,11 @@ module Vagrant
       def prepare
         share_cookbook_folders
         share_role_folders
+        share_data_bags_folders
       end
 
       def provision!
-        verify_binary("chef-solo")
+        verify_binary(chef_binary_path("chef-solo"))
         chown_provisioning_folder
         setup_json
         setup_solo_config
@@ -49,6 +52,12 @@ module Vagrant
         end
       end
 
+      def share_data_bags_folders
+        host_data_bag_paths.each_with_index do |data_bag, i|
+          env.config.vm.share_folder("v-csdb-#{i}", data_bag_path(i), data_bag)
+        end
+      end
+
       def setup_solo_config
         setup_config("chef_solo_solo", "solo.rb", {
           :node_name => config.node_name,
@@ -56,11 +65,13 @@ module Vagrant
           :cookbooks_path => cookbooks_path,
           :recipe_url => config.recipe_url,
           :roles_path => roles_path,
+          :data_bags_path => data_bags_path,
         })
       end
 
       def run_chef_solo
-        commands = ["cd #{config.provisioning_path}", "chef-solo -c solo.rb -j dna.json"]
+        command_env = config.binary_env ? "#{config.binary_env} " : ""
+        commands = ["cd #{config.provisioning_path}", "#{command_env}#{chef_binary_path("chef-solo")} -c solo.rb -j dna.json"]
 
         env.ui.info I18n.t("vagrant.provisioners.chef.running_solo")
         vm.ssh.execute do |ssh|
@@ -122,6 +133,10 @@ module Vagrant
         host_folder_paths(config.roles_path)
       end
 
+      def host_data_bag_paths
+        host_folder_paths(config.data_bags_path)
+      end
+
       def cookbook_path(i)
         folder_path("cookbooks", i)
       end
@@ -130,12 +145,20 @@ module Vagrant
         folder_path("roles", i)
       end
 
+      def data_bag_path(i)
+        folder_path("data_bags", i)
+      end
+
       def cookbooks_path
         folders_path(config.cookbooks_path, "cookbooks").to_json
       end
 
       def roles_path
         folders_path(config.roles_path, "roles").to_json
+      end
+
+      def data_bags_path
+        folders_path(config.data_bags_path, "data_bags").to_json
       end
     end
   end

@@ -1,5 +1,28 @@
-## 0.7.3 (unreleased)
+## 0.7.6 (unreleased)
 
+
+
+## 0.7.5 (May 16, 2011)
+
+  - `config.ssh.port` can be specified and takes highest precedence if specified.
+    Otherwise, Vagrant will still attempt to auto-detect the port. [GH-363]
+  - Get rid of RubyGems deprecations introduced with RubyGems 1.8.x
+  - Search in pre-release gems for plugins as well as release gems.
+  - Support for Chef-solo `data_bags_path` [GH-362]
+  - Can specify path to Chef binary using `binary_path` [GH-342]
+  - Can specify additional environment data for Chef using `binary_env` [GH-342]
+
+## 0.7.4 (May 12, 2011)
+
+  - Chef environments support (for Chef 0.10) [GH-358]
+  - Suppress the "added to known hosts" message for SSH [GH-354]
+  - Ruby 1.8.6 support [GH-352]
+  - Chef proxy settings now work for chef server [GH-335]
+
+## 0.7.3 (April 19, 2011)
+
+  - Retry all SSH on Net::SSH::Disconnect in case SSH is just restarting. [GH-313]
+  - Add NFS shared folder support for Arch linux. [GH-346]
   - Fix issue with unknown terminal type output for sudo commands.
   - Forwarded port protocol can now be set as UDP. [GH-311]
   - Chef server file cache path and file backup path can be configured. [GH-310]
