@@ -126,7 +126,7 @@ class ShareFoldersVMActionTest < Test::Unit::TestCase
     should "mount all shared folders to the VM" do
       mount_seq = sequence("mount_seq")
       @folders.each do |name, data|
-        if data[:guestpath]
+        if data[:guestpath] and !data[:optional]
           @vm.system.expects(:mount_shared_folder).with(@ssh, name, data[:guestpath]).in_sequence(mount_seq)
         else
           @vm.system.expects(:mount_shared_folder).with(@ssh, name, anything).never
