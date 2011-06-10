@@ -1,5 +1,6 @@
 ## 0.7.6 (unreleased)
 
+  - Add "--no-color" as an argument and no colorized output will be used. [GH-379]
   - Added DEVICE option to the RedHat host only networking entry, which allows
     host only networking to work even if the VM has multiple NICs. [GH-382]
   - Touch the network configuration file for RedHat so that the `sed` works

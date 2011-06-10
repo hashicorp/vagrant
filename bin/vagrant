@@ -5,10 +5,12 @@ require 'vagrant/cli'
 env = Vagrant::Environment.new
 
 begin
+  shell = ARGV.include?("--no-color") ? Thor::Shell::Basic.new : Thor::Base.shell.new
+
   # Set the UI early in case any errors are raised, and load
   # the config immediately, so we gather any new commands from
   # plugins
-  env.ui = Vagrant::UI::Shell.new(env, Thor::Base.shell.new)
+  env.ui = Vagrant::UI::Shell.new(env, shell)
   env.load!
 
   # Kick start the CLI
