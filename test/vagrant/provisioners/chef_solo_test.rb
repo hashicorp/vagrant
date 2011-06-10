@@ -91,7 +91,7 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
       @action.share_role_folders
     end
   end
-  
+
   context "sharing data bag folders" do
     setup do
       @host_data_bag_paths = ["foo", "bar"]
@@ -145,7 +145,7 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
       assert_equal result, @action.host_role_paths
     end
   end
-  
+
   context "host data bags paths" do
     should "get folders path for configured data bag path" do
       result = mock("result")
@@ -250,7 +250,7 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
     end
 
     should "cd into the provisioning directory and run chef solo" do
-      @ssh.expects(:sudo!).with(["cd #{@config.provisioning_path}", "chef-solo -c solo.rb -j dna.json"]).once
+      @ssh.expects(:sudo!).with(["cd #{@config.provisioning_path}", "chef-solo -c #{@config.provisioning_path}/solo.rb -j #{@config.provisioning_path}/dna.json"]).once
       @action.run_chef_solo
     end
 

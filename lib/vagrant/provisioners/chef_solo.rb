@@ -71,7 +71,8 @@ module Vagrant
 
       def run_chef_solo
         command_env = config.binary_env ? "#{config.binary_env} " : ""
-        commands = ["cd #{config.provisioning_path}", "#{command_env}#{chef_binary_path("chef-solo")} -c solo.rb -j dna.json"]
+        commands = ["cd #{config.provisioning_path}",
+                    "#{command_env}#{chef_binary_path("chef-solo")} -c #{config.provisioning_path}/solo.rb -j #{config.provisioning_path}/dna.json"]
 
         env.ui.info I18n.t("vagrant.provisioners.chef.running_solo")
         vm.ssh.execute do |ssh|
