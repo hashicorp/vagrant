@@ -6,6 +6,7 @@ module Vagrant
         # interface file.
         vm.ssh.execute do |ssh|
           # Clear out any previous entries
+          ssh.exec!("sudo touch /etc/sysconfig/network-scripts/ifcfg-eth#{net_options[:adapter]}")
           ssh.exec!("sudo sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/sysconfig/network-scripts/ifcfg-eth#{net_options[:adapter]} > /tmp/vagrant-ifcfg-eth#{net_options[:adapter]}")
           ssh.exec!("sudo su -c 'cat /tmp/vagrant-ifcfg-eth#{net_options[:adapter]} > /etc/sysconfig/network-scripts/ifcfg-eth#{net_options[:adapter]}'")
         end
