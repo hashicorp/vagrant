@@ -5,4 +5,5 @@ BOOTPROTO=static
 DHCPCLASS=
 IPADDR=<%= net_options[:ip] %>
 NETMASK=<%= net_options[:netmask] %>
+DEVICE=eth<%= net_options[:adapter] %>
 #VAGRANT-END

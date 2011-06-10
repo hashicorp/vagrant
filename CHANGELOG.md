@@ -1,6 +1,7 @@
 ## 0.7.6 (unreleased)
 
-
+  - Added DEVICE option to the RedHat host only networking entry, which allows
+    host only networking to work even if the VM has multiple NICs. [GH-382]
 
 ## 0.7.5 (May 16, 2011)
 
