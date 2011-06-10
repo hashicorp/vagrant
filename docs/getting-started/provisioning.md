@@ -116,5 +116,11 @@ vagrant@vagrantup:~$ wget -qO- 127.0.0.1
 vagrant@vagrantup:~$
 {% endhighlight %}
 
+This works because the scripts for the provisioners above were written to
+modify the `DocumentRoot` for Apache to point to your `/vagrant` directory.
+The exact details of how this was done is specific to each provisioner and
+out of scope for the purpose of this getting started guide. For more
+information, I recommend looking into Chef or Puppet.
+
 In the next step of the getting started guide, we'll show you how to view
 your website using your own browser.
