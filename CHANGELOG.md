@@ -1,5 +1,6 @@
 ## 0.7.6 (unreleased)
 
+  - Add `nfs` option for Chef to mount Chef folders via NFS. [GH-378]
   - Add translation for `aborted` state in VM. [GH-371]
   - Use full paths with the Chef provisioner so that restart cookbook will
     work. [GH-374]
