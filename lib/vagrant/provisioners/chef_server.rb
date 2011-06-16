@@ -79,8 +79,11 @@ module Vagrant
 
       def run_chef_client
         command_env = config.binary_env ? "#{config.binary_env} " : ""
-        commands = ["cd #{config.provisioning_path}",
-                    "#{command_env}#{chef_binary_path("chef-client")} -c client.rb -j dna.json"]
+
+        client_file = File.join(config.provisioning_path, "client.rb")
+        json_file = File.join(config.provisioning_path, "dna.json")
+
+        commands = ["#{command_env}#{chef_binary_path("chef-client")} -c #{client_file} -j #{json_file}"]
 
         env.ui.info I18n.t("vagrant.provisioners.chef.running_client")
         vm.ssh.execute do |ssh|
