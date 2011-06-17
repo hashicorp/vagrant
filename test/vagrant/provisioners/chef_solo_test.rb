@@ -249,8 +249,8 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
       @vm.ssh.stubs(:execute).yields(@ssh)
     end
 
-    should "cd into the provisioning directory and run chef solo" do
-      @ssh.expects(:sudo!).with(["cd #{@config.provisioning_path}", "chef-solo -c #{@config.provisioning_path}/solo.rb -j #{@config.provisioning_path}/dna.json"]).once
+    should "run chef solo" do
+      @ssh.expects(:sudo!).with("chef-solo -c #{@config.provisioning_path}/solo.rb -j #{@config.provisioning_path}/dna.json").once
       @action.run_chef_solo
     end
 

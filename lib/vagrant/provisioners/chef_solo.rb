@@ -73,14 +73,13 @@ module Vagrant
 
       def run_chef_solo
         command_env = config.binary_env ? "#{config.binary_env} " : ""
-        commands = ["cd #{config.provisioning_path}",
-                    "#{command_env}#{chef_binary_path("chef-solo")} -c #{config.provisioning_path}/solo.rb -j #{config.provisioning_path}/dna.json"]
+        command = "#{command_env}#{chef_binary_path("chef-solo")} -c #{config.provisioning_path}/solo.rb -j #{config.provisioning_path}/dna.json"
 
         env.ui.info I18n.t("vagrant.provisioners.chef.running_solo")
         vm.ssh.execute do |ssh|
-          ssh.sudo!(commands) do |channel, type, data|
+          ssh.sudo!(command) do |channel, type, data|
             if type == :exit_status
-              ssh.check_exit_status(data, commands)
+              ssh.check_exit_status(data, command)
             else
               env.ui.info("#{data}: #{type}")
             end

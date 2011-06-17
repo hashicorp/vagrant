@@ -175,8 +175,8 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
       @vm.ssh.stubs(:execute).yields(@ssh)
     end
 
-    should "cd into the provisioning directory and run chef client" do
-      @ssh.expects(:sudo!).with(["cd #{@config.provisioning_path}", "chef-client -c client.rb -j dna.json"]).once
+    should "run chef client" do
+      @ssh.expects(:sudo!).with("chef-client -c #{@config.provisioning_path}/client.rb -j #{@config.provisioning_path}/dna.json").once
       @action.run_chef_client
     end
 
