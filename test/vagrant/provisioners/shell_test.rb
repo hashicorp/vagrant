@@ -47,6 +47,21 @@ class ShellProvisionerTest < Test::Unit::TestCase
       @config.validate(@errors)
       assert !@errors.errors.empty?
     end
+
+    should "be invalid if a path and a script are set" do
+      @config.script = "whoami"
+
+      @config.validate(@errors)
+      assert !@errors.errors.empty?
+    end
+
+    should "be invalid if script is set and path is not" do
+      @config.script = "whoami"
+      @config.path = nil
+
+      @config.validate(@errors)
+      assert @errors.errors.empty?
+    end
   end
 
   context "provisioning" do
@@ -61,6 +76,15 @@ class ShellProvisionerTest < Test::Unit::TestCase
       p_seq = sequence("provisioning")
       @action.vm.ssh.expects(:upload!).with(@config.expanded_path.to_s, @config.upload_path).in_sequence(p_seq)
       @ssh.expects(:sudo!).with(commands).in_sequence(p_seq)
+
+      @action.provision!
+    end
+
+    should "run script if script is set" do
+      @config.script = "whoami"
+
+      p_seq = sequence("provisioning")
+      @ssh.expects(:sudo!).with(@config.script).in_sequence(p_seq)
 
       @action.provision!
     end
