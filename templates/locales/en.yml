@@ -465,6 +465,7 @@ en:
         json: "Generating chef JSON and uploading..."
         client_key_folder: "Creating folder to hold client key..."
         upload_validation_key: "Uploading chef client validation key..."
+        upload_encrypted_data_bag_secret_key: "Uploading chef encrypted data bag secret key..."
         running_client: "Running chef-client..."
         running_solo: "Running chef-solo..."
         invalid_provisioner: "Vagrant::Provisioners::Chef is not a valid provisioner! Use ChefSolo or ChefServer instead."

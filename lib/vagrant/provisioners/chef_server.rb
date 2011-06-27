@@ -15,6 +15,8 @@ module Vagrant
         attr_accessor :file_cache_path
         attr_accessor :file_backup_path
         attr_accessor :environment
+        attr_accessor :encrypted_data_bag_secret_key_path
+        attr_accessor :encrypted_data_bag_secret
 
         def initialize
           super
@@ -23,6 +25,8 @@ module Vagrant
           @client_key_path = "/etc/chef/client.pem"
           @file_cache_path = "/srv/chef/file_store"
           @file_backup_path = "/srv/chef/cache"
+          @encrypted_data_bag_secret_key_path = nil
+          @encrypted_data_bag_secret = "/etc/chef/encrypted_data_bag_secret"
         end
 
         def validate(errors)
@@ -45,6 +49,7 @@ module Vagrant
         chown_provisioning_folder
         create_client_key_folder
         upload_validation_key
+        upload_encrypted_data_bag_secret if config.encrypted_data_bag_secret_key_path
         setup_json
         setup_server_config
         run_chef_client
@@ -63,6 +68,11 @@ module Vagrant
         env.ui.info I18n.t("vagrant.provisioners.chef.upload_validation_key")
         vm.ssh.upload!(validation_key_path, guest_validation_key_path)
       end
+      
+      def upload_encrypted_data_bag_secret
+        env.ui.info I18n.t("vagrant.provisioners.chef.upload_encrypted_data_bag_secret_key")
+        vm.ssh.upload!(encrypted_data_bag_secret_key_path, config.encrypted_data_bag_secret)
+      end
 
       def setup_server_config
         setup_config("chef_server_client", "client.rb", {
@@ -73,7 +83,8 @@ module Vagrant
           :client_key => config.client_key_path,
           :file_cache_path => config.file_cache_path,
           :file_backup_path => config.file_backup_path,
-          :environment => config.environment
+          :environment => config.environment,
+          :encrypted_data_bag_secret => config.encrypted_data_bag_secret
         })
       end
 
@@ -95,6 +106,10 @@ module Vagrant
 
       def validation_key_path
         File.expand_path(config.validation_key_path, env.root_path)
+      end
+      
+      def encrypted_data_bag_secret_key_path
+        File.expand_path(config.encrypted_data_bag_secret_key_path, env.root_path)
       end
 
       def guest_validation_key_path
