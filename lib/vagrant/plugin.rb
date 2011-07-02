@@ -21,6 +21,9 @@ module Vagrant
     # load path. This file is loaded to kick off the load sequence
     # for that plugin.
     def self.load!
+      # Our version is used for checking dependencies
+      our_version = Gem::Version.create(Vagrant::VERSION)
+
       # RubyGems 1.8.0 deprecated `source_index`. Gem::Specification is the
       # new replacement. For now, we support both, but special-case 1.8.x
       # so that we avoid deprecation messages.
@@ -38,6 +41,12 @@ module Vagrant
         specs = Gem::VERSION >= "1.6.0" ? source.latest_specs(true) : source.latest_specs
 
         specs.each do |spec|
+          # If this gem depends on Vagrant, verify this is a valid release of
+          # Vagrant for this gem to load into.
+          vagrant_dep = spec.dependencies.find { |d| d.name == "vagrant" }
+          next if vagrant_dep && !vagrant_dep.requirement.satisfied_by?(our_version)
+
+          # Find a vagrant_init.rb to verify if this is a plugin
           file = nil
           if Gem::VERSION >= "1.8.0"
             file = spec.matches_for_glob("**/vagrant_init.rb").first

@@ -11,6 +11,7 @@
   - Touch the network configuration file for RedHat so that the `sed` works
     with host only networking. [GH-381]
   - Load prerelease versions of plugins if available.
+  - Do not load a plugin if it depends on an invalid version of Vagrant.
 
 ## 0.7.5 (May 16, 2011)
 
