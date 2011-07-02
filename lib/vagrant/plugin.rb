@@ -37,7 +37,7 @@ module Vagrant
         # useful for developers.
         specs = Gem::VERSION >= "1.6.0" ? source.latest_specs(true) : source.latest_specs
 
-        source.latest_specs.each do |spec|
+        specs.each do |spec|
           file = nil
           if Gem::VERSION >= "1.8.0"
             file = spec.matches_for_glob("**/vagrant_init.rb").first

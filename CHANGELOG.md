@@ -10,6 +10,7 @@
     host only networking to work even if the VM has multiple NICs. [GH-382]
   - Touch the network configuration file for RedHat so that the `sed` works
     with host only networking. [GH-381]
+  - Load prerelease versions of plugins if available.
 
 ## 0.7.5 (May 16, 2011)
 
