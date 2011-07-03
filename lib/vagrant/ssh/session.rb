@@ -34,7 +34,7 @@ module Vagrant
       # of `sudo`.
       def sudo!(commands, options=nil, &block)
         channel = session.open_channel do |ch|
-          ch.exec("sudo #{env.config.ssh.sudo_shell} -l") do |ch2, success|
+          ch.exec("sudo -H #{env.config.ssh.sudo_shell} -l") do |ch2, success|
             # Set the terminal
             ch2.send_data "export TERM=vt100\n"
 
