@@ -1,4 +1,4 @@
-## 0.7.6 (unreleased)
+## 0.7.6 (July 2, 2011)
 
   - Run Chef commands in a single command. [GH-390]
   - Add `nfs` option for Chef to mount Chef folders via NFS. [GH-378]
