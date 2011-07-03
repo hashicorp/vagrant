@@ -162,7 +162,8 @@ class ChefServerProvisionerTest < Test::Unit::TestCase
         :client_key => @config.client_key_path,
         :file_cache_path => @config.file_cache_path,
         :file_backup_path => @config.file_backup_path,
-        :environment => @config.environment
+        :environment => @config.environment,
+        :encrypted_data_bag_secret => @config.encrypted_data_bag_secret
       })
 
       @action.setup_server_config
