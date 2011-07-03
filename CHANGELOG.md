@@ -13,6 +13,7 @@
   - Load prerelease versions of plugins if available.
   - Do not load a plugin if it depends on an invalid version of Vagrant.
   - Encrypted data bag support in Chef server provisioner. [GH-398]
+  - Use the `-H` flag to set the proper home directory for `sudo`. [GH-370]
 
 ## 0.7.5 (May 16, 2011)
 
