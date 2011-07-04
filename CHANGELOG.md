@@ -2,6 +2,7 @@
 
   - Performance optimizations in `virtualbox` gem. Huge speed gains.
   - `:chef_server` provisioner is now `:chef_client`. [GH-359]
+  - SUSE host only networking support. [GH-369]
 
 ## 0.7.6 (July 2, 2011)
 
