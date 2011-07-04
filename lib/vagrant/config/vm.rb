@@ -129,7 +129,12 @@ module Vagrant
 
         # Each provisioner can validate itself
         provisioners.each do |prov|
-          prov.validate(errors)
+          # TODO: Remove at some point
+          if prov.shortcut == :chef_server
+            errors.add(I18n.t("vagrant.config.vm.provisioner_chef_server_changed"))
+          else
+            prov.validate(errors)
+          end
         end
       end
     end
