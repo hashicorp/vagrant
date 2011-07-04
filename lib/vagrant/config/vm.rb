@@ -120,7 +120,8 @@ module Vagrant
         errors.add(I18n.t("vagrant.config.vm.base_mac_invalid")) if env.box && !base_mac
 
         shared_folders.each do |name, options|
-          if !File.directory?(File.expand_path(options[:hostpath].to_s, env.root_path))
+          if !File.directory?(File.expand_path(options[:hostpath].to_s, env.root_path)) &&
+            !options[:optional]
             errors.add(I18n.t("vagrant.config.vm.shared_folder_hostpath_missing",
                        :name => name,
                        :path => options[:hostpath]))
