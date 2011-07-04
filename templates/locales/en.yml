@@ -468,7 +468,7 @@ en:
         upload_encrypted_data_bag_secret_key: "Uploading chef encrypted data bag secret key..."
         running_client: "Running chef-client..."
         running_solo: "Running chef-solo..."
-        invalid_provisioner: "Vagrant::Provisioners::Chef is not a valid provisioner! Use ChefSolo or ChefServer instead."
+        invalid_provisioner: "Vagrant::Provisioners::Chef is not a valid provisioner! Use ChefSolo or ChefClient instead."
         not_detected: |-
           The `%{binary}` binary appears to not be in the PATH of the guest. This
           could be because the PATH is not properly setup or perhaps chef is not

@@ -4,8 +4,8 @@ module Vagrant
   module Provisioners
     # This class implements provisioning via chef-client, allowing provisioning
     # with a chef server.
-    class ChefServer < Chef
-      register :chef_server
+    class ChefClient < Chef
+      register :chef_client
 
       class Config < Chef::Config
         attr_accessor :chef_server_url
@@ -68,7 +68,7 @@ module Vagrant
         env.ui.info I18n.t("vagrant.provisioners.chef.upload_validation_key")
         vm.ssh.upload!(validation_key_path, guest_validation_key_path)
       end
-      
+
       def upload_encrypted_data_bag_secret
         env.ui.info I18n.t("vagrant.provisioners.chef.upload_encrypted_data_bag_secret_key")
         vm.ssh.upload!(encrypted_data_bag_secret_key_path, config.encrypted_data_bag_secret)
@@ -107,7 +107,7 @@ module Vagrant
       def validation_key_path
         File.expand_path(config.validation_key_path, env.root_path)
       end
-      
+
       def encrypted_data_bag_secret_key_path
         File.expand_path(config.encrypted_data_bag_secret_key_path, env.root_path)
       end

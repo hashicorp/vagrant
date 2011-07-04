@@ -1,8 +1,8 @@
 require "test_helper"
 
-class ChefServerProvisionerTest < Test::Unit::TestCase
+class ChefClientProvisionerTest < Test::Unit::TestCase
   setup do
-    @klass = Vagrant::Provisioners::ChefServer
+    @klass = Vagrant::Provisioners::ChefClient
 
     @action_env = Vagrant::Action::Environment.new(vagrant_env.vms[:default].env)
 

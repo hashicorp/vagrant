@@ -1,6 +1,7 @@
 ## 0.8.0 (unreleased)
 
   - Performance optimizations in `virtualbox` gem. Huge speed gains.
+  - `:chef_server` provisioner is now `:chef_client`. [GH-359]
 
 ## 0.7.6 (July 2, 2011)
 
