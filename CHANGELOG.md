@@ -1,6 +1,6 @@
 ## 0.8.0 (unreleased)
 
-
+  - Performance optimizations in `virtualbox` gem. Huge speed gains.
 
 ## 0.7.6 (July 2, 2011)
 
