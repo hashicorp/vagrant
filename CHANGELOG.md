@@ -1,3 +1,7 @@
+## 0.8.0 (unreleased)
+
+
+
 ## 0.7.6 (July 2, 2011)
 
   - Run Chef commands in a single command. [GH-390]

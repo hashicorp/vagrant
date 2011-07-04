@@ -4,7 +4,7 @@ gem "vagrant", :path => '.'
 
 # Use the following gems straight from git, since Vagrant dev
 # typically coincides with it
-gem "virtualbox", :git => "git://github.com/mitchellh/virtualbox.git", :ref => "038729cd89a15111106404726b75a1d463edc892"
+gem "virtualbox", :git => "git://github.com/mitchellh/virtualbox.git"
 
 # Gems required for testing only. To install run
 # gem bundle test
