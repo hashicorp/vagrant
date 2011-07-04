@@ -204,7 +204,7 @@ chef to look through all specified directories for the necessary cookbooks.
 ### Chef Server Configuration
 
 The settings below only have an effect if chef server is used as the provisioner. Chef
-server provisioning can be enabled by setting `provisioner` to `:chef_server`.
+server provisioning can be enabled by setting `provisioner` to `:chef_client`.
 
 `config.chef.chef_server_url` represents the URL (and possibly port) to the chef server. An example is shown below:
 

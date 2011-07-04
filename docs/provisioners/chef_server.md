@@ -26,7 +26,7 @@ server is located. This is done below:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.vm.provision :chef_server do |chef|
+  config.vm.provision :chef_client do |chef|
     chef.chef_server_url = "http://mychefserver.com:4000"
   end
 end
@@ -42,7 +42,7 @@ is also set in the Vagrantfile:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.vm.provision :chef_server do |chef|
+  config.vm.provision :chef_client do |chef|
     chef.validation_key_path = "validation.pem"
   end
 end
@@ -62,7 +62,7 @@ helpers provided by the config, which are fairly self-explanatory:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.vm.provision :chef_server do |chef|
+  config.vm.provision :chef_client do |chef|
     # Provision with the apache2 recipe
     chef.add_recipe("apache2")
 
@@ -77,7 +77,7 @@ accessor:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.vm.provision :chef_server do |chef|
+  config.vm.provision :chef_client do |chef|
     # Modifying the run list directly
     chef.run_list = ["recipe[foo]", "role[bar]"]
   end
@@ -93,7 +93,7 @@ since if you're looking for these you probably already know what they are for:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.vm.provision :chef_server do |chef|
+  config.vm.provision :chef_client do |chef|
     chef.validation_client_name = "chef-validator"
     chef.client_key_path = "/etc/chef/client.pem"
   end
