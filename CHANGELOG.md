@@ -14,6 +14,8 @@
     behavior. [GH-323]
   - Forward agent and forward X11 settings properly appear in
     `ssh_config` output. [GH-105]
+  - Chef JSON can now be set with `chef.json =` instead of the old
+    `merge` technique. [GH-314]
 
 ## 0.7.6 (July 2, 2011)
 

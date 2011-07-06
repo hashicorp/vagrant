@@ -24,7 +24,7 @@ module Vagrant
           super
 
           errors.add(I18n.t("vagrant.config.chef.cookbooks_path_empty")) if !cookbooks_path || [cookbooks_path].flatten.empty?
-          errors.add(I18n.t("vagrant.config.chef.run_list_empty")) if !json[:run_list] || run_list.empty?
+          errors.add(I18n.t("vagrant.config.chef.run_list_empty")) if !run_list || run_list.empty?
         end
       end
 

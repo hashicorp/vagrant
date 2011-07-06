@@ -59,7 +59,7 @@ module Vagrant
 
         # Merge with the "extra data" which isn't put under the
         # vagrant namespace by default
-        data.merge!(config.json)
+        data.merge!(config.merged_json)
 
         json = data.to_json
 
@@ -90,11 +90,12 @@ module Vagrant
         attr_accessor :no_proxy
         attr_accessor :binary_path
         attr_accessor :binary_env
+        attr_accessor :run_list
 
         def initialize
           @provisioning_path = "/tmp/vagrant-chef"
           @log_level = :info
-          @json = { :instance_role => "vagrant" }
+          @json = {}
           @http_proxy = nil
           @http_proxy_user = nil
           @http_proxy_pass = nil
@@ -104,16 +105,15 @@ module Vagrant
           @no_proxy = nil
           @binary_path = nil
           @binary_env = nil
+          @run_list = []
         end
 
-        # Returns the run list for the provisioning
-        def run_list
-          json[:run_list] ||= []
-        end
-
-        # Sets the run list to the specified value
-        def run_list=(value)
-          json[:run_list] = value
+        # This returns the json that is merged with the defaults and the
+        # user set data.
+        def merged_json
+          { :instance_role => "vagrant",
+            :run_list      => run_list
+          }.merge(json || {})
         end
 
         # Adds a recipe to the run list
