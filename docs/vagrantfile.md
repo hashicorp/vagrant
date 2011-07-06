@@ -164,11 +164,12 @@ the path on the guest machine, and the third parameter being the path to the fol
 on the host machine. If the third parameter is a _relative path_, then it is relative to where the root Vagrantfile is.
 
 The method also takes a fourth, optional, parameter which is a hash of options. This hash
-can be used to enable things such as [NFS shared folders](/docs/nfs.html).
+can be used to enable things such as [NFS shared folders](/docs/nfs.html) or changing the owner and group of the shared folder.
 
 {% highlight ruby %}
 config.vm.share_folder("my-folder", "/folder", "/path/to/real/folder")
 config.vm.share_folder("another-folder", "/other", "../other")
+config.vm.share_folder("third-folder", "/third", ".", :owner => "my-user", :group => "my-group")
 {% endhighlight %}
 
 ## config.package
