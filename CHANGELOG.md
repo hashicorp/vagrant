@@ -10,6 +10,8 @@
   - Host only network now properly works on multiple adapters. [GH-365]
   - Can now specify owner/group for regular shared folders. [GH-350]
   - `ssh_config` host name will use VM name if given. [GH-332]
+  - `ssh` `-e` flag changed to `-c` to align with `ssh` standard
+    behavior. [GH-323]
 
 ## 0.7.6 (July 2, 2011)
 

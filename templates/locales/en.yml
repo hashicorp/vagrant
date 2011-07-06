@@ -188,7 +188,7 @@ en:
       box:
         no_installed_boxes: "There are no installed boxes! Use `vagrant box add` to add some."
       ssh:
-        execute: "Execute: %{command}"
+        command: "Command: %{command}"
       status:
         aborted: |-
           The VM is in an aborted state. This means that it was abruptly
