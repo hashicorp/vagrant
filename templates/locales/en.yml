@@ -173,6 +173,8 @@ en:
         box_missing: "A box must be specified."
         box_not_found: "The box '%{name}' could not be found."
         shared_folder_hostpath_missing: "Shared folder host path for '%{name}' doesn't exist: %{path}"
+        shared_folder_nfs_owner_group: |-
+          Shared folder '%{name}': NFS does not support the owner/group settings.
         provisioner_chef_server_changed: "The provisioner 'chef_server' is now 'chef_client'"
         provisioner_not_found: "The provisioner '%{shortcut}' doesn't exist."
         provisioner_invalid_class: "The provisioner '%{shortcut}' must inherit from `Vagrant::Provisioners::Base`."
