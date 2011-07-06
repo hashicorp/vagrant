@@ -40,6 +40,18 @@ end
 This will cauase the `test.sh` file to be executed. Vagrant also shuttles
 the stderr and stdout output to the host console for your convenience.
 
+## Inline Scripts
+
+If you have a quick, short script you want to execute, or perhaps your
+script exists in a Ruby variable somehow in your Vagrantfile, you can
+specify the script inline as a string:
+
+{% highlight ruby %}
+Vagrant::Config.run do |config|
+  config.vm.provision :shell, :inline => "echo foo > /vagrant/test"
+end
+{% endhighlight %}
+
 ## Enabling and Executing
 
 As with all other provisioners, adding the `config.vm.provision` line
