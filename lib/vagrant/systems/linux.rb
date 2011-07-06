@@ -60,14 +60,11 @@ module Vagrant
       #-------------------------------------------------------------------
       def mount_folder(ssh, name, guestpath, owner, group, sleeptime=5)
         # Determine the permission string to attach to the mount command
-        perms = []
-        perms << "uid=`id -u #{owner}`"
-        perms << "gid=`id -g #{group}`"
-        perms = " -o #{perms.join(",")}" if !perms.empty?
+        options = "-o uid=`id -u #{owner}`,gid=`id -g #{group}`"
 
         attempts = 0
         while true
-          result = ssh.exec!("sudo mount -t vboxsf#{perms} #{name} #{guestpath}") do |ch, type, data|
+          result = ssh.exec!("sudo mount -t vboxsf #{options} #{name} #{guestpath}") do |ch, type, data|
             # net/ssh returns the value in ch[:result] (based on looking at source)
             ch[:result] = !!(type == :stderr && data =~ /No such device/i)
           end
