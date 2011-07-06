@@ -5,6 +5,8 @@
   - SUSE host only networking support. [GH-369]
   - Show nice error message for invalid HTTP responses for HTTP
     downloader. [GH-403]
+  - New `:inline` option for shell provisioner to provide inline
+    scripts as a string. [GH-395]
 
 ## 0.7.6 (July 2, 2011)
 

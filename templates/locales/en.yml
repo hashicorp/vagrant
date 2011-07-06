@@ -512,7 +512,8 @@ en:
         running_puppetd: "Running Puppet agent..."
 
       shell:
-        path_not_set: "`path` parameter pointing to script file to execute for shell provisioner is required"
+        path_and_inline_set: "Only one of `path` or `inline` may be set."
+        no_path_or_inline: "One of `path` or `inline` must be set."
         path_invalid: "`path` for shell provisioner does not exist on the host system: %{path}"
         upload_path_not_set: "`upload_path` must be set for the shell provisioner."
 
