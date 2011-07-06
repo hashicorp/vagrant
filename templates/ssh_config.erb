@@ -7,3 +7,9 @@ Host <%= host_key %>
   PasswordAuthentication no
   IdentityFile <%= private_key_path %>
   IdentitiesOnly yes
+<% if forward_agent -%>
+  ForwardAgent yes
+<% end -%>
+<% if forward_x11 -%>
+  ForwardX11 yes
+<% end -%>

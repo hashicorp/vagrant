@@ -18,7 +18,9 @@ module Vagrant
           :ssh_host => vm.env.config.ssh.host,
           :ssh_user => vm.env.config.ssh.username,
           :ssh_port => vm.ssh.port,
-          :private_key_path => vm.env.config.ssh.private_key_path
+          :private_key_path => vm.env.config.ssh.private_key_path,
+          :forward_agent => vm.env.config.ssh.forward_agent,
+          :forward_x11   => vm.env.config.ssh.forward_x11
         }))
       end
     end

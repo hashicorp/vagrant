@@ -12,6 +12,8 @@
   - `ssh_config` host name will use VM name if given. [GH-332]
   - `ssh` `-e` flag changed to `-c` to align with `ssh` standard
     behavior. [GH-323]
+  - Forward agent and forward X11 settings properly appear in
+    `ssh_config` output. [GH-105]
 
 ## 0.7.6 (July 2, 2011)
 

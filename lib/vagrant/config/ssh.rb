@@ -17,6 +17,8 @@ module Vagrant
       def initialize
         @sudo_shell = "bash"
         @port = nil
+        @forward_agent = false
+        @forward_x11 = false
       end
 
       def private_key_path
