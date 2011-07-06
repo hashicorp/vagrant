@@ -51,11 +51,16 @@ module Vagrant
         end
       end
 
-      def mount_shared_folder(ssh, name, guestpath)
+      def mount_shared_folder(ssh, name, guestpath, owner, group)
+        # Create the shared folder
         ssh.exec!("#{vm.env.config.solaris.suexec_cmd} mkdir -p #{guestpath}")
-        # Using a custom mount method here; could use improvement.
-        ssh.exec!("#{vm.env.config.solaris.suexec_cmd} /sbin/mount -F vboxfs #{name} #{guestpath}")
-        ssh.exec!("#{vm.env.config.solaris.suexec_cmd} chown #{vm.env.config.ssh.username} #{guestpath}")
+
+        # Mount the folder with the proper owner/group
+        options = "-o uid=`id -u #{owner}`,gid=`id -g #{group}`"
+        ssh.exec!("#{vm.env.config.solaris.suexec_cmd} /sbin/mount -F vboxfs #{options} #{name} #{guestpath}")
+
+        # chown the folder to the proper owner/group
+        ssh.exec!("#{vm.env.config.solaris.suexec_cmd} chown `id -u #{owner}`:`id -g #{group}` #{guestpath}")
       end
     end
   end
