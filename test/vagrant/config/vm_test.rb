@@ -54,28 +54,6 @@ class ConfigVMTest < Test::Unit::TestCase
     end
   end
 
-  context "uid/gid" do
-    should "return the shared folder UID if set" do
-      @config.shared_folder_uid = "foo"
-      assert_equal "foo", @config.shared_folder_uid
-    end
-
-    should "return the SSH username if UID not set" do
-      @config.shared_folder_uid = nil
-      assert_equal @username, @config.shared_folder_uid
-    end
-
-    should "return the shared folder GID if set" do
-      @config.shared_folder_gid = "foo"
-      assert_equal "foo", @config.shared_folder_gid
-    end
-
-    should "return the SSH username if GID not set" do
-      @config.shared_folder_gid = nil
-      assert_equal @username, @config.shared_folder_gid
-    end
-  end
-
   context "deprecated config" do
     should "raise an error for provisioner=" do
       assert_raises(Vagrant::Errors::VagrantError) {

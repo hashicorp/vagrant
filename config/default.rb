@@ -18,8 +18,6 @@ Vagrant::Config.run do |config|
   config.vm.base_mac = nil
   config.vm.forward_port("ssh", 22, 2222, :auto => true)
   config.vm.disk_image_format = 'VMDK'
-  config.vm.shared_folder_uid = nil
-  config.vm.shared_folder_gid = nil
   config.vm.boot_mode = "vrdp"
   config.vm.system = :linux
 

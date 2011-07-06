@@ -8,6 +8,7 @@
   - New `:inline` option for shell provisioner to provide inline
     scripts as a string. [GH-395]
   - Host only network now properly works on multiple adapters. [GH-365]
+  - Can now specify owner/group for regular shared folders. [GH-350]
 
 ## 0.7.6 (July 2, 2011)
 

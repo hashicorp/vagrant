@@ -20,8 +20,6 @@ module Vagrant
       attr_reader :network_options
       attr_reader :provisioners
       attr_accessor :disk_image_format
-      attr_writer :shared_folder_uid
-      attr_writer :shared_folder_gid
       attr_accessor :system
 
       def initialize
@@ -46,7 +44,9 @@ module Vagrant
       def share_folder(name, guestpath, hostpath, opts=nil)
         @shared_folders[name] = {
           :guestpath => guestpath,
-          :hostpath => hostpath
+          :hostpath => hostpath,
+          :owner => nil,
+          :group => nil
         }.merge(opts || {})
       end
 
@@ -71,14 +71,6 @@ module Vagrant
       # in Vagrant 0.7.0.
       def provisioner=(_value)
         raise Errors::VagrantError, :_key => :provisioner_equals_not_supported
-      end
-
-      def shared_folder_uid
-        @shared_folder_uid || env.config.ssh.username
-      end
-
-      def shared_folder_gid
-        @shared_folder_gid || env.config.ssh.username
       end
 
       def customize(&block)

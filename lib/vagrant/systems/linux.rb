@@ -38,10 +38,10 @@ module Vagrant
         end
       end
 
-      def mount_shared_folder(ssh, name, guestpath)
+      def mount_shared_folder(ssh, name, guestpath, owner, group)
         ssh.exec!("sudo mkdir -p #{guestpath}")
-        mount_folder(ssh, name, guestpath)
-        ssh.exec!("sudo chown #{vm.env.config.ssh.username} #{guestpath}")
+        mount_folder(ssh, name, guestpath, owner, group)
+        ssh.exec!("sudo chown `id -u #{owner}`:`id -g #{group}` #{guestpath}")
       end
 
       def mount_nfs(ip, folders)
@@ -58,11 +58,11 @@ module Vagrant
       #-------------------------------------------------------------------
       # "Private" methods which assist above methods
       #-------------------------------------------------------------------
-      def mount_folder(ssh, name, guestpath, sleeptime=5)
+      def mount_folder(ssh, name, guestpath, owner, group, sleeptime=5)
         # Determine the permission string to attach to the mount command
         perms = []
-        perms << "uid=`id -u #{vm.env.config.vm.shared_folder_uid}`"
-        perms << "gid=`id -g #{vm.env.config.vm.shared_folder_gid}`"
+        perms << "uid=`id -u #{owner}`"
+        perms << "gid=`id -g #{group}`"
         perms = " -o #{perms.join(",")}" if !perms.empty?
 
         attempts = 0

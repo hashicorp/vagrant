@@ -31,15 +31,17 @@ class LinuxSystemTest < Test::Unit::TestCase
     setup do
       @name = "foo"
       @guestpath = "/bar"
+      @owner = "owner"
+      @group = "group"
     end
 
     should "create the dir, mount the folder, then set permissions" do
       mount_seq = sequence("mount_seq")
       @ssh.expects(:exec!).with("sudo mkdir -p #{@guestpath}").in_sequence(mount_seq)
-      @instance.expects(:mount_folder).with(@ssh, @name, @guestpath).in_sequence(mount_seq)
-      @ssh.expects(:exec!).with("sudo chown #{@vm.env.config.ssh.username} #{@guestpath}").in_sequence(mount_seq)
+      @instance.expects(:mount_folder).with(@ssh, @name, @guestpath, @owner, @group).in_sequence(mount_seq)
+      @ssh.expects(:exec!).with("sudo chown `id -u #{@owner}`:`id -g #{@group}` #{@guestpath}").in_sequence(mount_seq)
 
-      @instance.mount_shared_folder(@ssh, @name, @guestpath)
+      @instance.mount_shared_folder(@ssh, @name, @guestpath, @owner, @group)
     end
   end
 
@@ -50,6 +52,8 @@ class LinuxSystemTest < Test::Unit::TestCase
     setup do
       @name = "foo"
       @guestpath = "bar"
+      @owner = "owner"
+      @group = "group"
       @sleeptime = 0
       @limit = 10
 
@@ -57,11 +61,11 @@ class LinuxSystemTest < Test::Unit::TestCase
     end
 
     def mount_folder
-      @instance.mount_folder(@ssh, @name, @guestpath, @sleeptime)
+      @instance.mount_folder(@ssh, @name, @guestpath, @owner, @group, @sleeptime)
     end
 
     should "execute the proper mount command" do
-      @ssh.expects(:exec!).with("sudo mount -t vboxsf -o uid=`id -u #{@vm.env.config.ssh.username}`,gid=`id -g #{@vm.env.config.ssh.username}` #{@name} #{@guestpath}").returns(@success_return)
+      @ssh.expects(:exec!).with("sudo mount -t vboxsf -o uid=`id -u #{@owner}`,gid=`id -g #{@group}` #{@name} #{@guestpath}").returns(@success_return)
       mount_folder
     end
 
@@ -95,20 +99,6 @@ class LinuxSystemTest < Test::Unit::TestCase
       assert_nothing_raised {
         mount_folder
       }
-    end
-
-    should "add uid AND gid to mount" do
-      uid = "foo"
-      gid = "bar"
-      env = vagrant_env(vagrantfile(<<-vf))
-        config.vm.shared_folder_uid = "#{uid}"
-        config.vm.shared_folder_gid = "#{gid}"
-      vf
-
-      @vm.stubs(:env).returns(env)
-
-      @ssh.expects(:exec!).with("sudo mount -t vboxsf -o uid=`id -u #{uid}`,gid=`id -g #{gid}` #{@name} #{@guestpath}").returns(@success_return)
-      mount_folder
     end
   end
 end

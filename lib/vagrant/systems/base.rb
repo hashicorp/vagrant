@@ -60,7 +60,7 @@ module Vagrant
       # @param [String] name The name of the shared folder.
       # @param [String] guestpath The path on the machine which the user
       #   wants the folder mounted.
-      def mount_shared_folder(ssh, name, guestpath); end
+      def mount_shared_folder(ssh, name, guestpath, owner, group); end
 
       # Mounts a shared folder via NFS. This assumes that the exports
       # via the host are already done.
