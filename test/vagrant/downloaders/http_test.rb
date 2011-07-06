@@ -42,6 +42,8 @@ class HttpDownloaderTest < Test::Unit::TestCase
       h = mock("http")
       response = mock("response")
       response.stubs(:content_length)
+      response.stubs(:is_a?).with(anything).returns(false)
+      response.stubs(:is_a?).with(Net::HTTPOK).returns(true)
       segment = mock("segment")
       segment.stubs(:length).returns(7)
 

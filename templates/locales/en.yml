@@ -448,6 +448,11 @@ en:
           An error occurred while trying to download the specified box. This most
           often happens if there is no internet connection or the address is
           invalid.
+        status_error: |-
+          Bad status code: %{status}
+
+          Please verify that the box exists and is accessible. Also verify that
+          this computer is properly connected to the internet.
 
     hosts:
       bsd:

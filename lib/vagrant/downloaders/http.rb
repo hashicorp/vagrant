@@ -33,6 +33,8 @@ module Vagrant
               # TODO: Error on some redirect limit
               download!(response["Location"], destination_file)
               return
+            elsif !response.is_a?(Net::HTTPOK)
+              raise Errors::DownloaderHTTPStatusError, :status => response.code
             end
 
             total = response.content_length
