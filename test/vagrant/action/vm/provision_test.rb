@@ -23,10 +23,6 @@ class ProvisionVMActionTest < Test::Unit::TestCase
     end
 
     context "loading a provisioner" do
-      setup do
-        Vagrant::Provisioners::ChefSolo.any_instance.expects(:prepare).at_least(0)
-      end
-
       should "instantiate and prepare each provisioner" do
         @env["config"].vm.provision :chef_solo
         @env["config"].vm.provision :chef_solo
@@ -58,6 +54,7 @@ class ProvisionVMActionTest < Test::Unit::TestCase
         @app.expects(:call).with(@env).in_sequence(seq)
         @instance.stubs(:enabled_provisioners).returns(provisioners)
         provisioners.each do |prov|
+          prov.expects(:prepare).in_sequence(seq)
           prov.expects(:provision!).in_sequence(seq)
         end
 

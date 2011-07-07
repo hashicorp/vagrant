@@ -15,6 +15,7 @@ module Vagrant
 
           enabled_provisioners.each do |instance|
             @env.ui.info I18n.t("vagrant.actions.vm.provision.beginning", :provisioner => instance.class)
+            instance.prepare
             instance.provision!
           end
         end
@@ -22,7 +23,6 @@ module Vagrant
         def enabled_provisioners
           @env["config"].vm.provisioners.map do |provisioner|
             instance = provisioner.provisioner.new(@env, provisioner.config)
-            instance.prepare
             instance
           end
         end
