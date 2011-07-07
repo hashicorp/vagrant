@@ -8,31 +8,22 @@ module Vagrant
           @app = app
           @env = env
           @env["provision.enabled"] = true if !@env.has_key?("provision.enabled")
-          @provisioners = []
-
-          load_provisioners if provisioning_enabled?
         end
 
         def call(env)
           @app.call(env)
 
-          @provisioners.each do |instance|
+          enabled_provisioners.each do |instance|
             @env.ui.info I18n.t("vagrant.actions.vm.provision.beginning", :provisioner => instance.class)
             instance.provision!
           end
         end
 
-        def provisioning_enabled?
-          !@env["config"].vm.provisioners.empty? && @env["provision.enabled"]
-        end
-
-        def load_provisioners
-          @env["config"].vm.provisioners.each do |provisioner|
-            @env.ui.info I18n.t("vagrant.actions.vm.provision.enabled", :provisioner => provisioner.shortcut)
-
+        def enabled_provisioners
+          @env["config"].vm.provisioners.map do |provisioner|
             instance = provisioner.provisioner.new(@env, provisioner.config)
             instance.prepare
-            @provisioners << instance
+            instance
           end
         end
       end

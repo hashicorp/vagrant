@@ -15,29 +15,6 @@ class ProvisionVMActionTest < Test::Unit::TestCase
     @vm.stubs(:vm).returns(@internal_vm)
   end
 
-  context "initializing" do
-    setup do
-      @klass.any_instance.stubs(:load_provisioners)
-    end
-
-    should "load provisioner if provisioning enabled" do
-      @env["config"].vm.provision :chef_solo
-      @klass.any_instance.expects(:load_provisioners).once
-      @klass.new(@app, @env)
-    end
-
-    should "not load provisioner if disabled" do
-      @klass.any_instance.expects(:load_provisioners).never
-      @klass.new(@app, @env)
-    end
-
-    should "not load provisioner if disabled through env hash" do
-      @env["provision.enabled"] = false
-      @klass.any_instance.expects(:load_provisioners).never
-      @klass.new(@app, @env)
-    end
-  end
-
   context "with an instance" do
     setup do
       # Set provisioner to nil so the provisioner isn't loaded on init
@@ -53,9 +30,9 @@ class ProvisionVMActionTest < Test::Unit::TestCase
       should "instantiate and prepare each provisioner" do
         @env["config"].vm.provision :chef_solo
         @env["config"].vm.provision :chef_solo
-        @instance.load_provisioners
+        provisioners = @instance.enabled_provisioners
 
-        assert_equal 2, @instance.provisioners.length
+        assert_equal 2, provisioners.length
       end
 
       should "set the config for each provisioner" do
@@ -63,9 +40,9 @@ class ProvisionVMActionTest < Test::Unit::TestCase
           chef.cookbooks_path = "foo"
         end
 
-        @instance.load_provisioners
+        provisioners = @instance.enabled_provisioners
 
-        assert_equal "foo", @instance.provisioners.first.config.cookbooks_path
+        assert_equal "foo", provisioners.first.config.cookbooks_path
       end
     end
 
@@ -73,13 +50,14 @@ class ProvisionVMActionTest < Test::Unit::TestCase
       setup do
         Vagrant::Provisioners::ChefSolo.any_instance.stubs(:prepare)
         @env["config"].vm.provision :chef_solo
-        @instance.load_provisioners
       end
 
       should "provision and continue chain" do
+        provisioners = [mock("one"), mock("two")]
         seq = sequence("seq")
         @app.expects(:call).with(@env).in_sequence(seq)
-        @instance.provisioners.each do |prov|
+        @instance.stubs(:enabled_provisioners).returns(provisioners)
+        provisioners.each do |prov|
           prov.expects(:provision!).in_sequence(seq)
         end
 

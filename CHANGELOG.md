@@ -16,6 +16,8 @@
     `ssh_config` output. [GH-105]
   - Chef JSON can now be set with `chef.json =` instead of the old
     `merge` technique. [GH-314]
+  - Provisioner configuration is no longer cleared when the box
+    needs to be downloaded during an `up`. [GH-308]
 
 ## 0.7.6 (July 2, 2011)
 

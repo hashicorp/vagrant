@@ -395,7 +395,6 @@ en:
           persisting: "Persisting the VM UUID (%{uuid})..."
         provision:
           beginning: "Running provisioner: %{provisioner}..."
-          enabled: "Provisioning enabled with %{provisioner}..."
         resume:
           resuming: Resuming suspended VM...
         share_folders:
