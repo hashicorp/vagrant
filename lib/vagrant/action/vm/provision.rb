@@ -2,8 +2,6 @@ module Vagrant
   class Action
     module VM
       class Provision
-        attr_reader :provisioners
-
         def initialize(app, env)
           @app = app
           @env = env
