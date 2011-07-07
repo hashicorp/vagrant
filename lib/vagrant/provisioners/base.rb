@@ -58,6 +58,10 @@ module Vagrant
       # is expected to do whatever necessary to provision the system (create files,
       # SSH, etc.)
       def provision!; end
+
+      # This is the method called to when the system is being destroyed
+      # and allows the provisioners to engage in any cleanup tasks necessary.
+      def cleanup; end
     end
   end
 end

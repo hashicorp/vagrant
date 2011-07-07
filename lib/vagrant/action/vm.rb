@@ -23,6 +23,7 @@ module Vagrant
       autoload :Package,             'vagrant/action/vm/package'
       autoload :PackageVagrantfile,  'vagrant/action/vm/package_vagrantfile'
       autoload :Provision,           'vagrant/action/vm/provision'
+      autoload :ProvisionerCleanup,  'vagrant/action/vm/provisioner_cleanup'
       autoload :Resume,              'vagrant/action/vm/resume'
       autoload :ShareFolders,        'vagrant/action/vm/share_folders'
       autoload :Suspend,             'vagrant/action/vm/suspend'

@@ -61,6 +61,7 @@ module Vagrant
       # destroy - Halts, cleans up, and destroys an existing VM
       register(:destroy, Builder.new do
         use Action[:halt], :force => true
+        use VM::ProvisionerCleanup
         use VM::ClearNFSExports
         use VM::Destroy
         use VM::CleanMachineFolder

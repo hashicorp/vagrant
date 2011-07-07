@@ -1,14 +1,11 @@
 require "test_helper"
 
-class ProvisionVMActionTest < Test::Unit::TestCase
+class ProvisionerCleanupVMActionTest < Test::Unit::TestCase
   setup do
-    @klass = Vagrant::Action::VM::Provision
+    @klass = Vagrant::Action::VM::ProvisionerCleanup
     @app, @env = action_env
 
     @vm = mock("vm")
-    @vm.stubs(:name).returns("foo")
-    @vm.stubs(:ssh).returns(mock("ssh"))
-    @vm.stubs(:system).returns(mock("system"))
     @env["vm"] = @vm
 
     @internal_vm = mock("internal")
@@ -46,12 +43,11 @@ class ProvisionVMActionTest < Test::Unit::TestCase
       should "provision and continue chain" do
         provisioners = [mock("one"), mock("two")]
         seq = sequence("seq")
-        @app.expects(:call).with(@env).in_sequence(seq)
         @instance.stubs(:enabled_provisioners).returns(provisioners)
         provisioners.each do |prov|
-          prov.expects(:prepare).in_sequence(seq)
-          prov.expects(:provision!).in_sequence(seq)
+          prov.expects(:cleanup).in_sequence(seq)
         end
+        @app.expects(:call).with(@env).in_sequence(seq)
 
         @instance.call(@env)
       end
