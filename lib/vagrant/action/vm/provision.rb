@@ -20,8 +20,7 @@ module Vagrant
 
         def enabled_provisioners
           @env["config"].vm.provisioners.map do |provisioner|
-            instance = provisioner.provisioner.new(@env, provisioner.config)
-            instance
+            provisioner.provisioner.new(@env, provisioner.config)
           end
         end
       end
