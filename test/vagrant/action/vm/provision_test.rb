@@ -46,10 +46,15 @@ class ProvisionVMActionTest < Test::Unit::TestCase
       should "provision and continue chain" do
         provisioners = [mock("one"), mock("two")]
         seq = sequence("seq")
-        @app.expects(:call).with(@env).in_sequence(seq)
         @instance.stubs(:enabled_provisioners).returns(provisioners)
+
         provisioners.each do |prov|
           prov.expects(:prepare).in_sequence(seq)
+        end
+
+        @app.expects(:call).with(@env).in_sequence(seq)
+
+        provisioners.each do |prov|
           prov.expects(:provision!).in_sequence(seq)
         end
 
