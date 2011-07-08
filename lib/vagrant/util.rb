@@ -1,6 +1,7 @@
 module Vagrant
   module Util
     autoload :Busy,                      'vagrant/util/busy'
+    autoload :Counter,                   'vagrant/util/counter'
     autoload :GlobLoader,                'vagrant/util/glob_loader'
     autoload :HashWithIndifferentAccess, 'vagrant/util/hash_with_indifferent_access'
     autoload :PlainLogger,               'vagrant/util/plain_logger'

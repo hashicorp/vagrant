@@ -32,23 +32,6 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
     end
   end
 
-  context "preparing" do
-    should "share cookbook folders" do
-      @action.expects(:share_cookbook_folders).once
-      @action.prepare
-    end
-
-    should "share role folders" do
-      @action.expects(:share_role_folders).once
-      @action.prepare
-    end
-
-    should "share data bag folders" do
-      @action.expects(:share_data_bags_folders).once
-      @action.prepare
-    end
-  end
-
   context "provisioning" do
     should "run the proper sequence of methods in order" do
       prov_seq = sequence("prov_seq")
@@ -60,165 +43,24 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
       @action.provision!
     end
   end
-  context "sharing cookbook folders" do
-    setup do
-      @host_cookbook_paths = ["foo", "bar"]
-      @action.stubs(:host_cookbook_paths).returns(@host_cookbook_paths)
+
+  context "creating expanded folder sets" do
+    should "expand VM folders properly" do
+      assert_equal [[:vm, nil, "/foo"]], @action.expanded_folders([:vm, "/foo"])
     end
 
-    should "share each cookbook folder" do
-      share_seq = sequence("share_seq")
-      @host_cookbook_paths.each_with_index do |cookbook, i|
-        @env.config.vm.expects(:share_folder).with("v-csc-#{i}", @action.cookbook_path(i), cookbook, :nfs => false).in_sequence(share_seq)
-      end
-
-      @action.share_cookbook_folders
+    should "expand host folders properly" do
+      path = "foo"
+      local_path = File.expand_path(path, @env.root_path)
+      remote_path = "#{@action.config.provisioning_path}/chef-solo-1"
+      assert_equal [[:host, local_path, remote_path]], @action.expanded_folders([:host, path])
     end
   end
 
-  context "sharing role folders" do
-    setup do
-      @host_role_paths = ["foo", "bar"]
-      @action.stubs(:host_role_paths).returns(@host_role_paths)
-    end
-
-    should "share each role folder" do
-      share_seq = sequence("share_seq")
-      @host_role_paths.each_with_index do |role, i|
-        @env.config.vm.expects(:share_folder).with("v-csr-#{i}", @action.role_path(i), role, :nfs => false).in_sequence(share_seq)
-      end
-
-      @action.share_role_folders
-    end
-  end
-
-  context "sharing data bag folders" do
-    setup do
-      @host_data_bag_paths = ["foo", "bar"]
-      @action.stubs(:host_data_bag_paths).returns(@host_data_bag_paths)
-    end
-
-    should "share each data bag folder" do
-      share_seq = sequence("share_seq")
-      @host_data_bag_paths.each_with_index do |data_bag, i|
-        @env.config.vm.expects(:share_folder).with("v-csdb-#{i}", @action.data_bag_path(i), data_bag, :nfs => false).in_sequence(share_seq)
-      end
-
-      @action.share_data_bags_folders
-    end
-  end
-
-  context "host folder paths" do
-    should "ignore VM paths" do
-      assert @action.host_folder_paths([:vm, "foo"]).empty?
-    end
-
-    should "return as an array if was originally a string" do
-      folder = "foo"
-      File.stubs(:expand_path).returns("bar")
-      assert_equal ["bar"], @action.host_folder_paths(folder)
-    end
-
-    should "return the array of folders if its an array" do
-      folders = ["foo", "bar"]
-      expand_seq = sequence('expand_seq')
-      folders.collect! { |folder| File.expand_path(folder, @env.root_path) }
-
-      assert_equal folders, @action.host_folder_paths(folders)
-    end
-  end
-
-  context "host cookbooks paths" do
-    should "get folders path for configured cookbooks path" do
-      result = mock("result")
-      @config.stubs(:cookbooks_path).returns("foo")
-      @action.expects(:host_folder_paths).with(@config.cookbooks_path).returns(result)
-      assert_equal result, @action.host_cookbook_paths
-    end
-  end
-
-  context "host roles paths" do
-    should "get folders path for configured roles path" do
-      result = mock("result")
-      @config.stubs(:roles_path).returns("foo")
-      @action.expects(:host_folder_paths).with(@config.roles_path).returns(result)
-      assert_equal result, @action.host_role_paths
-    end
-  end
-
-  context "host data bags paths" do
-    should "get folders path for configured data bag path" do
-      result = mock("result")
-      @config.stubs(:data_bags_path).returns("foo")
-      @action.expects(:host_folder_paths).with(@config.data_bags_path).returns(result)
-      assert_equal result, @action.host_data_bag_paths
-    end
-  end
-
-  context "folder path" do
-    should "return a proper path to a single folder" do
-      expected = File.join(@config.provisioning_path, "cookbooks-5")
-      assert_equal expected, @action.folder_path("cookbooks", 5)
-    end
-
-    should "return array-representation of folder paths if multiple" do
-      @folders = (0..5).to_a
-      @cookbooks = @folders.inject([]) do |acc, i|
-        acc << @action.cookbook_path(i)
-      end
-
-      assert_equal @cookbooks, @action.folders_path(@folders, "cookbooks")
-    end
-
-    should "return a single string representation if folder paths is single" do
-      @folder = "cookbooks"
-      @cookbooks = @action.folder_path(@folder, 0)
-
-      assert_equal @cookbooks, @action.folders_path([0], @folder)
-    end
-
-    should "properly format VM folder paths" do
-      @config.provisioning_path = "/foo"
-      assert_equal "/foo/bar", @action.folders_path([:vm, "bar"], nil)
-    end
-  end
-
-  context "cookbooks path" do
-    should "return a proper path to a single cookbook" do
-      expected = File.join(@config.provisioning_path, "cookbooks-5")
-      assert_equal expected, @action.cookbook_path(5)
-    end
-
-    should "properly call folders path and return result" do
-      result = [:a, :b, :c]
-      @action.expects(:folders_path).with(@config.cookbooks_path, "cookbooks").once.returns(result)
-      assert_equal result.to_json, @action.cookbooks_path
-    end
-  end
-
-  context "roles path" do
-    should "return a proper path to a single role" do
-      expected = File.join(@config.provisioning_path, "roles-5")
-      assert_equal expected, @action.role_path(5)
-    end
-
-    should "properly call folders path and return result" do
-      result = [:a, :b, :c]
-      @action.expects(:folders_path).with(@config.roles_path, "roles").once.returns(result)
-      assert_equal result.to_json, @action.roles_path
-    end
-  end
-
-  context "data bags path" do
-    should "return a proper path to a single data bag" do
-      expected = File.join(@config.provisioning_path, "data_bags-5")
-      assert_equal expected, @action.data_bag_path(5)
-    end
-
-    should "properly call folders path and return result" do
-      result = [:a, :b, :c]
-      @action.expects(:folders_path).with(@config.data_bags_path, "data_bags").once.returns(result)
-      assert_equal result.to_json, @action.data_bags_path
+  context "guest paths" do
+    should "extract the parts properly" do
+      structure = [[1,2,3],[1,2,3]]
+      assert_equal [3,3], @action.guest_paths(structure)
     end
   end
 
@@ -227,16 +69,17 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
       @vm.ssh.stubs(:upload!)
 
       @config.recipe_url = "foo/bar/baz"
+      @action.prepare
     end
 
     should "call setup_config with proper variables" do
       @action.expects(:setup_config).with("chef_solo_solo", "solo.rb", {
         :node_name => @config.node_name,
         :provisioning_path => @config.provisioning_path,
-        :cookbooks_path => @action.cookbooks_path,
+        :cookbooks_path => @action.guest_paths(@action.cookbook_folders),
         :recipe_url => @config.recipe_url,
-        :roles_path => @action.roles_path,
-        :data_bags_path => @action.data_bags_path
+        :roles_path => @action.guest_paths(@action.role_folders),
+        :data_bags_path => @action.guest_paths(@action.data_bags_folders)
       })
 
       @action.setup_solo_config

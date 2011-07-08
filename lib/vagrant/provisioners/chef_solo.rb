@@ -4,6 +4,8 @@ module Vagrant
     class ChefSolo < Chef
       register :chef_solo
 
+      extend Util::Counter
+
       class Config < Chef::Config
         attr_accessor :cookbooks_path
         attr_accessor :roles_path
@@ -28,10 +30,18 @@ module Vagrant
         end
       end
 
+      attr_reader :cookbook_folders
+      attr_reader :role_folders
+      attr_reader :data_bags_folders
+
       def prepare
-        share_cookbook_folders
-        share_role_folders
-        share_data_bags_folders
+        @cookbook_folders = expanded_folders(config.cookbooks_path)
+        @role_folders = expanded_folders(config.roles_path)
+        @data_bags_folders = expanded_folders(config.data_bags_path)
+
+        share_folders("csc", @cookbook_folders)
+        share_folders("csr", @role_folders)
+        share_folders("csdb", @data_bags_folders)
       end
 
       def provision!
@@ -42,25 +52,43 @@ module Vagrant
         run_chef_solo
       end
 
-      def share_cookbook_folders
-        host_cookbook_paths.each_with_index do |cookbook, i|
-          env.config.vm.share_folder("v-csc-#{i}", cookbook_path(i), cookbook, :nfs => config.nfs)
+      # Converts paths to a list of properly expanded paths with types.
+      def expanded_folders(paths)
+        # Convert the path to an array if it is a string or just a single
+        # path element which contains the folder location (:host or :vm)
+        paths = [paths] if paths.is_a?(String) || paths.first.is_a?(Symbol)
+
+        paths.map do |path|
+          path = [:host, path] if !path.is_a?(Array)
+          type, path = path
+
+          # Create the local/remote path based on whether this is a host
+          # or VM path.
+          local_path = nil
+          local_path = File.expand_path(path, env.root_path) if type == :host
+          remote_path = type == :host ? "#{config.provisioning_path}/chef-solo-#{self.class.get_and_update_counter}" : path
+
+          # Return the result
+          [type, local_path, remote_path]
         end
       end
 
-      def share_role_folders
-        host_role_paths.each_with_index do |role, i|
-          env.config.vm.share_folder("v-csr-#{i}", role_path(i), role, :nfs => config.nfs)
-        end
-      end
-
-      def share_data_bags_folders
-        host_data_bag_paths.each_with_index do |data_bag, i|
-          env.config.vm.share_folder("v-csdb-#{i}", data_bag_path(i), data_bag, :nfs => config.nfs)
+      # Shares the given folders with the given prefix. The folders should
+      # be of the structure resulting from the `expanded_folders` function.
+      def share_folders(prefix, folders)
+        folders.each do |type, local_path, remote_path|
+          if type == :host
+            env.config.vm.share_folder("v-#{prefix}-#{self.class.get_and_update_counter}",
+                                       remote_path, local_path, :nfs => config.nfs)
+          end
         end
       end
 
       def setup_solo_config
+        cookbooks_path = guest_paths(@cookbook_folders)
+        roles_path = guest_paths(@role_folders)
+        data_bags_path = guest_paths(@data_bags_folders)
+
         setup_config("chef_solo_solo", "solo.rb", {
           :node_name => config.node_name,
           :provisioning_path => config.provisioning_path,
@@ -87,80 +115,9 @@ module Vagrant
         end
       end
 
-      def host_folder_paths(paths)
-        # Convert single cookbook paths such as "cookbooks" or [:vm, "cookbooks"]
-        # into a proper array representation.
-        paths = [paths] if paths.is_a?(String) || paths.first.is_a?(Symbol)
-
-        paths.inject([]) do |acc, path|
-          path = [:host, path] if !path.is_a?(Array)
-          type, path = path
-
-          acc << File.expand_path(path, env.root_path) if type == :host
-          acc
-        end
-      end
-
-      def folder_path(*args)
-        File.join(config.provisioning_path, args.join("-"))
-      end
-
-      def folders_path(folders, folder)
-        # Convert single cookbook paths such as "cookbooks" or [:vm, "cookbooks"]
-        # into a proper array representation.
-        folders = [folders] if folders.is_a?(String) || folders.first.is_a?(Symbol)
-
-        # Convert each path to the proper absolute path depending on if the path
-        # is a host path or a VM path
-        result = []
-        folders.each_with_index do |path, i|
-          path = [:host, path] if !path.is_a?(Array)
-          type, path = path
-
-          result << folder_path(folder, i) if type == :host
-          result << folder_path(path) if type == :vm
-        end
-
-        # We're lucky that ruby's string and array syntax for strings is the
-        # same as JSON, so we can just convert to JSON here and use that
-        result = result[0].to_s if result.length == 1
-        result
-      end
-
-      def host_cookbook_paths
-        host_folder_paths(config.cookbooks_path)
-      end
-
-      def host_role_paths
-        host_folder_paths(config.roles_path)
-      end
-
-      def host_data_bag_paths
-        host_folder_paths(config.data_bags_path)
-      end
-
-      def cookbook_path(i)
-        folder_path("cookbooks", i)
-      end
-
-      def role_path(i)
-        folder_path("roles", i)
-      end
-
-      def data_bag_path(i)
-        folder_path("data_bags", i)
-      end
-
-      def cookbooks_path
-        folders_path(config.cookbooks_path, "cookbooks").to_json
-      end
-
-      def roles_path
-        folders_path(config.roles_path, "roles").to_json
-      end
-
-      def data_bags_path
-        folders_path(config.data_bags_path, "data_bags").to_json
+      # Extracts only the remote paths from a list of folders
+      def guest_paths(folders)
+        folders.map { |parts| parts[2] }
       end
     end
   end
