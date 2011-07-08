@@ -14,7 +14,6 @@ module Vagrant
       # environment.
       register(:start, Builder.new do
         use VM::CleanMachineFolder
-        use VM::Customize
         use VM::ClearForwardedPorts
         use VM::ForwardPorts
         use VM::Provision
@@ -23,6 +22,7 @@ module Vagrant
         use VM::ShareFolders
         use VM::HostName
         use VM::Network
+        use VM::Customize
         use VM::Boot
       end)
 
