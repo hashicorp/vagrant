@@ -18,6 +18,7 @@ module Vagrant
 
     def initialize(environment)
       @env = environment
+      @current_session = nil
     end
 
     # Connects to the environment's virtual machine, replacing the ruby
@@ -71,17 +72,28 @@ module Vagrant
       opts[:forward_agent] = true if env.config.ssh.forward_agent
       opts[:port] ||= port
 
-      retryable(:tries => 5, :on => Errno::ECONNREFUSED) do
-        Net::SSH.start(env.config.ssh.host,
-                       env.config.ssh.username,
-                       opts.merge( :keys => [env.config.ssh.private_key_path],
-                                   :keys_only => true,
-                                   :user_known_hosts_file => [],
-                                   :paranoid => false,
-                                   :config => false)) do |ssh|
-          yield SSH::Session.new(ssh, env)
+      # Check if we have a currently open SSH session which has the
+      # same options, and use that if possible
+      session, options = @current_session
+
+      if !session || options != opts
+        session = retryable(:tries => 5, :on => Errno::ECONNREFUSED) do
+          connection = Net::SSH.start(env.config.ssh.host,
+                         env.config.ssh.username,
+                         opts.merge( :keys => [env.config.ssh.private_key_path],
+                                     :keys_only => true,
+                                     :user_known_hosts_file => [],
+                                     :paranoid => false,
+                                     :config => false))
+          SSH::Session.new(connection, env)
         end
+
+        # Save the new session along with the options which created it
+        @current_session = [session, opts]
       end
+
+      # Yield our session for executing
+      return yield session if block_given?
     rescue Errno::ECONNREFUSED
       raise Errors::SSHConnectionRefused
     end
@@ -156,7 +168,7 @@ module Vagrant
 
       # Check if a port was specified in the config
       return env.config.ssh.port if env.config.ssh.port
-      
+
       # Check if we have an SSH forwarded port
       pnum = nil
       env.vm.vm.network_adapters.each do |na|

@@ -171,7 +171,7 @@ class SshTest < Test::Unit::TestCase
 
     should "yield an SSH session object" do
       raw = mock("raw")
-      Net::SSH.expects(:start).yields(raw)
+      Net::SSH.expects(:start).returns(raw)
       @ssh.execute do |ssh|
         assert ssh.is_a?(Vagrant::SSH::Session)
         assert_equal raw, ssh.session
