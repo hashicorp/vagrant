@@ -4,8 +4,6 @@ module Vagrant
     class ChefSolo < Chef
       register :chef_solo
 
-      extend Util::Counter
-
       class Config < Chef::Config
         attr_accessor :cookbooks_path
         attr_accessor :roles_path
@@ -58,6 +56,7 @@ module Vagrant
         # path element which contains the folder location (:host or :vm)
         paths = [paths] if paths.is_a?(String) || paths.first.is_a?(Symbol)
 
+        index = 0
         paths.map do |path|
           path = [:host, path] if !path.is_a?(Array)
           type, path = path
@@ -66,7 +65,8 @@ module Vagrant
           # or VM path.
           local_path = nil
           local_path = File.expand_path(path, env.root_path) if type == :host
-          remote_path = type == :host ? "#{config.provisioning_path}/chef-solo-#{self.class.get_and_update_counter}" : path
+          remote_path = type == :host ? "#{config.provisioning_path}/chef-solo-#{index}" : path
+          index += 1
 
           # Return the result
           [type, local_path, remote_path]
@@ -76,10 +76,12 @@ module Vagrant
       # Shares the given folders with the given prefix. The folders should
       # be of the structure resulting from the `expanded_folders` function.
       def share_folders(prefix, folders)
+        index = 0
         folders.each do |type, local_path, remote_path|
           if type == :host
-            env.config.vm.share_folder("v-#{prefix}-#{self.class.get_and_update_counter}",
+            env.config.vm.share_folder("v-#{prefix}-#{index}",
                                        remote_path, local_path, :nfs => config.nfs)
+            index += 1
           end
         end
       end

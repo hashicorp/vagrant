@@ -76,6 +76,8 @@ module Vagrant
     class Chef < Base
       # This is the configuration which is available through `config.chef`
       class Config < Vagrant::Config::Base
+        extend Util::Counter
+
         # Shared config
         attr_accessor :node_name
         attr_accessor :provisioning_path
@@ -93,7 +95,7 @@ module Vagrant
         attr_accessor :run_list
 
         def initialize
-          @provisioning_path = "/tmp/vagrant-chef"
+          @provisioning_path = "/tmp/vagrant-chef-#{self.class.get_and_update_counter}"
           @log_level = :info
           @json = {}
           @http_proxy = nil

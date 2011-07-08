@@ -18,6 +18,7 @@
     `merge` technique. [GH-314]
   - Provisioner configuration is no longer cleared when the box
     needs to be downloaded during an `up`. [GH-308]
+  - Multiple Chef provisioners no longer overwrite cookbook folders. [GH-407]
 
 ## 0.7.6 (July 2, 2011)
 

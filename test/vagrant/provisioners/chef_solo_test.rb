@@ -52,7 +52,7 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
     should "expand host folders properly" do
       path = "foo"
       local_path = File.expand_path(path, @env.root_path)
-      remote_path = "#{@action.config.provisioning_path}/chef-solo-1"
+      remote_path = "#{@action.config.provisioning_path}/chef-solo-0"
       assert_equal [[:host, local_path, remote_path]], @action.expanded_folders([:host, path])
     end
   end
