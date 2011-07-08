@@ -4,11 +4,10 @@ module Vagrant
       class ClearForwardedPorts
         def initialize(app, env)
           @app = app
-          @env = env
         end
 
         def call(env)
-          env["config"].vm.customize do |vm|
+          proc = lambda do |vm|
             env.ui.info I18n.t("vagrant.actions.vm.clear_forward_ports.deleting")
 
             vm.network_adapters.each do |na|
@@ -18,6 +17,7 @@ module Vagrant
             end
           end
 
+          env["vm.modify"].call(proc)
           @app.call(env)
         end
       end

@@ -8,6 +8,7 @@ class ClearForwardedPortsVMActionTest < Test::Unit::TestCase
     @vm = mock("vm")
     @vm.stubs(:name).returns("foo")
     @env["vm"] = @vm
+    @env["vm.modify"] = mock("proc")
 
     @instance = @klass.new(@app, @env)
   end
@@ -36,10 +37,14 @@ class ClearForwardedPortsVMActionTest < Test::Unit::TestCase
     end
 
     should "call the proper methods and continue chain" do
-      @env["config"].vm.expects(:customize).yields(@internal_vm)
+      @adapters << mock_adapter
+      @adapters << mock_adapter
 
-      @adapters << mock_adapter
-      @adapters << mock_adapter
+      @env["vm.modify"].expects(:call).with() do |proc|
+        proc.call(@internal_vm)
+        true
+      end
+
       @app.expects(:call).with(@env)
       @instance.call(@env)
     end
