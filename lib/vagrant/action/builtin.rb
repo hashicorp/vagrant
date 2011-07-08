@@ -23,6 +23,7 @@ module Vagrant
         use VM::HostName
         use VM::Network
         use VM::Customize
+        use VM::Modify
         use VM::Boot
       end)
 
@@ -73,6 +74,7 @@ module Vagrant
         use Action[:halt]
         use VM::ClearForwardedPorts
         use VM::ClearSharedFolders
+        use VM::Modify
         use VM::Export
         use VM::PackageVagrantfile
         use VM::Package

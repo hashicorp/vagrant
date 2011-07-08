@@ -18,6 +18,7 @@ module Vagrant
       autoload :HostName,            'vagrant/action/vm/host_name'
       autoload :Import,              'vagrant/action/vm/import'
       autoload :MatchMACAddress,     'vagrant/action/vm/match_mac_address'
+      autoload :Modify,              'vagrant/action/vm/modify'
       autoload :Network,             'vagrant/action/vm/network'
       autoload :NFS,                 'vagrant/action/vm/nfs'
       autoload :Package,             'vagrant/action/vm/package'

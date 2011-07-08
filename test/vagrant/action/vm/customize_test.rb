@@ -8,23 +8,29 @@ class CustomizeVMActionTest < Test::Unit::TestCase
 
     @vm = mock("vm")
     @env["vm"] = @vm
+    @env["vm.modify"] = mock("proc")
 
     @internal_vm = mock("internal")
     @vm.stubs(:vm).returns(@internal_vm)
   end
 
   should "not run anything if no customize blocks exist" do
-    @env.env.config.vm.proc_stack.clear
-    @internal_vm.expects(:save).never
+    @env["config"].vm.proc_stack.clear
+    @env["vm.modify"].expects(:call).never
     @app.expects(:call).with(@env).once
     @instance.call(@env)
   end
 
   should "run the VM customization procs then save the VM" do
-    @env.env.config.vm.customize { |vm| }
-    @env.env.config.vm.expects(:run_procs!).with(@internal_vm)
-    @internal_vm.expects(:save).once
-    @env["vm"].expects(:reload!).once
+    ran = false
+    @env["config"].vm.customize { |vm| }
+    @env["config"].vm.expects(:run_procs!).with(@internal_vm)
+
+    @env["vm.modify"].expects(:call).with() do |proc|
+      proc.call(@internal_vm)
+      true
+    end
+
     @app.expects(:call).with(@env).once
     @instance.call(@env)
   end

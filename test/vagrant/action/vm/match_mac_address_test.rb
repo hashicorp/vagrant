@@ -22,7 +22,11 @@ class MatchMACAddressVMActionTest < Test::Unit::TestCase
     @internal_vm.expects(:network_adapters).returns([nic]).once.in_sequence(update_seq)
     @app.expects(:call).with(@env).once.in_sequence(update_seq)
 
-    @env["config"].vm.expects(:customize).yields(@internal_vm)
+    @env["vm.modify"].expects(:call).with() do |proc|
+      proc.call(@internal_vm)
+      true
+    end
+
     @instance.call(@env)
   end
 
