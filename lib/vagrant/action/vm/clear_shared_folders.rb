@@ -8,7 +8,7 @@ module Vagrant
         end
 
         def call(env)
-          env["config"].vm.customize do |vm|
+          proc = lambda do |vm|
             if vm.shared_folders.length > 0
               env.ui.info I18n.t("vagrant.actions.vm.clear_shared_folders.deleting")
 
@@ -18,6 +18,7 @@ module Vagrant
             end
           end
 
+          env["vm.modify"].call(proc)
           @app.call(env)
         end
       end
