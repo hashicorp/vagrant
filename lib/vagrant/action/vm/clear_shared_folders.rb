@@ -8,23 +8,17 @@ module Vagrant
         end
 
         def call(env)
-          @env = env
+          env["config"].vm.customize do |vm|
+            if vm.shared_folders.length > 0
+              env.ui.info I18n.t("vagrant.actions.vm.clear_shared_folders.deleting")
 
-          clear_shared_folders
-          @app.call(env)
-        end
-
-        def clear_shared_folders
-          if @env["vm"].vm.shared_folders.length > 0
-            @env.ui.info I18n.t("vagrant.actions.vm.clear_shared_folders.deleting")
-
-            folders = @env["vm"].vm.shared_folders.dup
-            folders.each do |shared_folder|
-              shared_folder.destroy
+              vm.shared_folders.dup.each do |shared_folder|
+                shared_folder.destroy
+              end
             end
-
-            @env["vm"].reload!
           end
+
+          @app.call(env)
         end
       end
     end
