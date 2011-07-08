@@ -83,11 +83,12 @@ module Vagrant
         def call(env)
           @env = env
 
-          @env["config"].vm.customize do |vm|
-            @env.ui.info I18n.t("vagrant.actions.vm.forward_ports.forwarding")
+          proc = lambda do |vm|
+            env.ui.info I18n.t("vagrant.actions.vm.forward_ports.forwarding")
             forward_ports(vm)
           end
 
+          env["vm.modify"].call(proc)
           @app.call(env)
         end
 

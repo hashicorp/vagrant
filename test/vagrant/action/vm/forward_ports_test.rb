@@ -8,6 +8,7 @@ class ForwardPortsVMActionTest < Test::Unit::TestCase
     @vm = mock("vm")
     @vm.stubs(:name).returns("foo")
     @env["vm"] = @vm
+    @env["vm.modify"] = mock("proc")
   end
 
   context "initializing" do
@@ -123,7 +124,12 @@ class ForwardPortsVMActionTest < Test::Unit::TestCase
     context "calling" do
       should "clear all previous ports and forward new ports" do
         exec_seq = sequence("exec_seq")
-        @env["config"].vm.expects(:customize).yields(@internal_vm).in_sequence(exec_seq)
+
+        @env["vm.modify"].expects(:call).with() do |proc|
+          proc.call(@internal_vm)
+          true
+        end
+
         @instance.expects(:forward_ports).once.in_sequence(exec_seq)
         @app.expects(:call).once.with(@env).in_sequence(exec_seq)
         @instance.call(@env)
