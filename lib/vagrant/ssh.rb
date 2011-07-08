@@ -150,26 +150,58 @@ module Vagrant
     # the config by finding it in the forwarded ports hash based on the
     # `config.ssh.forwarded_port_key`.
     def port(opts={})
+      Vagrant.log.verbose "Looking for ssh port on guest machine."
       # Check if port was specified in options hash
       pnum = opts[:port]
-      return pnum if pnum
+      if pnum
+        Vagrant.log.verbose "Using port #{pnum} from --port on command line"
+        return pnum
+      end
 
       # Check if a port was specified in the config
-      return env.config.ssh.port if env.config.ssh.port
+      if env.config.ssh.port
+        Vagrant.log.verbose "Using port #{env.config.ssh.port} from config file"
+        return env.config.ssh.port
+      end
       
       # Check if we have an SSH forwarded port
       pnum = nil
+
+      Vagrant.log.debug "Searching for port forward named \"#{env.config.ssh.forwarded_port_key}\"..."
       env.vm.vm.network_adapters.each do |na|
+        Vagrant.log.debug "Searching network adapter #{na.slot} (MAC: #{na.mac_address})..."
         pnum = na.nat_driver.forwarded_ports.detect do |fp|
+          Vagrant.log.debug "Checking portforward...#{fp.name}: Host #{fp.hostport} => Guest #{fp.guestport} #{fp.protocol}"
           fp.name == env.config.ssh.forwarded_port_key
         end
 
-        break if pnum
+        if pnum
+          Vagrant.log.verbose "Using port #{pnum.hostport} found forwarded to VM ssh"
+          break
+        end
       end
 
       return pnum.hostport if pnum
 
-      # This should NEVER happen.
+      Vagrant.log.debug "Searching for port forward to guest port #{env.config.ssh.forwarded_port_destination}..."
+      env.vm.vm.network_adapters.each do |na|
+        Vagrant.log.debug "Searching network adapter #{na.slot} (MAC: #{na.mac_address})..."
+        pnum = na.nat_driver.forwarded_ports.detect do |fp|
+          Vagrant.log.debug "Checking portforward...#{fp.name}: Host #{fp.hostport} => Guest #{fp.guestport} #{fp.protocol}"
+          fp.guestport == env.config.ssh.forwarded_port_destination
+        end
+
+        if pnum
+          Vagrant.log.verbose "Using port #{pnum.hostport} found forwarded to VM ssh"
+          break
+        end
+      end
+
+      return pnum.hostport if pnum
+
+      Vagrant.log.debug "Exhausted search methods."
+
+      # This should NEVER happen for non-base connections
       raise Errors::SSHPortNotDetected
     end
   end

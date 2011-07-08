@@ -14,11 +14,16 @@ module Vagrant
   autoload :Environment,   'vagrant/environment'
   autoload :Errors,        'vagrant/errors'
   autoload :Hosts,         'vagrant/hosts'
+  autoload :Log,           'vagrant/log'
   autoload :Plugin,        'vagrant/plugin'
   autoload :TestHelpers,   'vagrant/test_helpers'
   autoload :UI,            'vagrant/ui'
   autoload :Util,          'vagrant/util'
   autoload :VM,            'vagrant/vm'
+
+  def self.log
+    Vagrant::Log.instance
+  end
 
   # The source root is the path to the root directory of
   # the Vagrant gem.

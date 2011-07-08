@@ -67,6 +67,9 @@ module Vagrant
 
       attr_reader :env
 
+      class_option :debug, :type => :boolean, :default => false, :required => false, :desc => "Show debug messages"
+      class_option :verbose, :type => :boolean, :default => true, :required => false, :desc => "Show extra information"
+
       # Register the command with the main Vagrant CLI under the
       # given name. The name will be used for accessing it from the CLI,
       # so if you name it "lamp", then the command to invoke this
@@ -95,6 +98,21 @@ module Vagrant
       end
 
       protected
+
+      # Crudely hack in some global options handling
+      def self.dispatch(task, given_args, given_opts, config)
+        args, opts = Thor::Options.split(given_args)
+        opts = given_opts || opts
+
+        if opts.member? "--debug"
+          Vagrant.log.raise_log_level_to :debug
+        end
+        if opts.member? "--verbose"
+          Vagrant.log.raise_log_level_to :verbose
+        end
+
+        super(task, given_args, given_opts, config)
+      end
 
       # Extracts the name of the command from a usage string. Example:
       # `init [box_name] [box_url]` becomes just `init`.
