@@ -11,6 +11,7 @@ module Vagrant
             env.ui.info I18n.t("vagrant.actions.vm.customize.running")
             env.env.config.vm.run_procs!(env["vm"].vm)
             env["vm"].vm.save
+            env["vm"].reload!
           end
 
           @app.call(env)
