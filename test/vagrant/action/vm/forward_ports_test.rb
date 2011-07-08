@@ -143,8 +143,8 @@ class ForwardPortsVMActionTest < Test::Unit::TestCase
         network_adapter.expects(:attachment_type).returns(:nat)
 
         @instance.expects(:forward_port).once
-        @internal_vm.expects(:save).once
-        @vm.expects(:reload!).once
+
+        @env["config"].vm.stubs(:customize).yields(@internal_vm)
         @instance.forward_ports
       end
 
@@ -154,8 +154,8 @@ class ForwardPortsVMActionTest < Test::Unit::TestCase
 
         @internal_vm.expects(:network_adapters).returns([network_adapter])
         network_adapter.expects(:attachment_type).returns(:host_only)
-        @internal_vm.expects(:save).once
-        @vm.expects(:reload!).once
+
+        @env["config"].vm.stubs(:customize).yields(@internal_vm)
         @instance.forward_ports
       end
     end
@@ -188,7 +188,7 @@ class ForwardPortsVMActionTest < Test::Unit::TestCase
         adapters[opts[:adapter]] = adapter
         @internal_vm.stubs(:network_adapters).returns(adapters)
 
-        @instance.forward_port(name, opts)
+        @instance.forward_port(@internal_vm, name, opts)
       end
     end
   end

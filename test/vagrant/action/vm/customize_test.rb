@@ -24,6 +24,7 @@ class CustomizeVMActionTest < Test::Unit::TestCase
     @env.env.config.vm.customize { |vm| }
     @env.env.config.vm.expects(:run_procs!).with(@internal_vm)
     @internal_vm.expects(:save).once
+    @env["vm"].expects(:reload!).once
     @app.expects(:call).with(@env).once
     @instance.call(@env)
   end

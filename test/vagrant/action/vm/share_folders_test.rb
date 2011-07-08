@@ -105,8 +105,8 @@ class ShareFoldersVMActionTest < Test::Unit::TestCase
       end
 
       @internal_vm.stubs(:shared_folders).returns(shared_folders)
-      @internal_vm.expects(:save).once
 
+      @env["config"].vm.expects(:customize).yields(@internal_vm)
       @instance.create_metadata
     end
   end
