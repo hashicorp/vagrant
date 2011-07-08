@@ -21,6 +21,8 @@
   - Multiple Chef provisioners no longer overwrite cookbook folders. [GH-407]
   - SSH connection is now cached after first access internally,
     speeding up `vagrant up`, `reload`, etc. quite a bit.
+  - Actions which modify the VM now occur much more quickly,
+    greatly speeding up `vagrant up`, `reload`, etc.
 
 ## 0.7.6 (July 2, 2011)
 
