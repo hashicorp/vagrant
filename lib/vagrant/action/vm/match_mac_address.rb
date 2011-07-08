@@ -10,8 +10,9 @@ module Vagrant
           raise Errors::VMBaseMacNotSpecified if !env.env.config.vm.base_mac
 
           env.ui.info I18n.t("vagrant.actions.vm.match_mac.matching")
-          env["vm"].vm.network_adapters.first.mac_address = env.env.config.vm.base_mac
-          env["vm"].vm.save
+          env["config"].vm.customize do |vm|
+            vm.network_adapters.first.mac_address = env["config"].vm.base_mac
+          end
 
           @app.call(env)
         end
