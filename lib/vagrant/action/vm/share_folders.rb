@@ -33,16 +33,16 @@ module Vagrant
         end
 
         def create_metadata
-          @env.ui.info I18n.t("vagrant.actions.vm.share_folders.creating")
+          @env["config"].vm.customize do |vm|
+            @env.ui.info I18n.t("vagrant.actions.vm.share_folders.creating")
 
-          shared_folders.each do |name, data|
-            folder = VirtualBox::SharedFolder.new
-            folder.name = name
-            folder.host_path = File.expand_path(data[:hostpath], @env.env.root_path)
-            @env["vm"].vm.shared_folders << folder
+            shared_folders.each do |name, data|
+              folder = VirtualBox::SharedFolder.new
+              folder.name = name
+              folder.host_path = File.expand_path(data[:hostpath], @env.env.root_path)
+              vm.shared_folders << folder
+            end
           end
-
-          @env["vm"].vm.save
         end
 
         def mount_shared_folders
