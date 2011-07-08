@@ -123,6 +123,7 @@ class ForwardPortsVMActionTest < Test::Unit::TestCase
     context "calling" do
       should "clear all previous ports and forward new ports" do
         exec_seq = sequence("exec_seq")
+        @env["config"].vm.expects(:customize).yields(@internal_vm).in_sequence(exec_seq)
         @instance.expects(:forward_ports).once.in_sequence(exec_seq)
         @app.expects(:call).once.with(@env).in_sequence(exec_seq)
         @instance.call(@env)
@@ -144,8 +145,7 @@ class ForwardPortsVMActionTest < Test::Unit::TestCase
 
         @instance.expects(:forward_port).once
 
-        @env["config"].vm.stubs(:customize).yields(@internal_vm)
-        @instance.forward_ports
+        @instance.forward_ports(@internal_vm)
       end
 
       should "not port forward for non NAT interfaces" do
@@ -155,8 +155,7 @@ class ForwardPortsVMActionTest < Test::Unit::TestCase
         @internal_vm.expects(:network_adapters).returns([network_adapter])
         network_adapter.expects(:attachment_type).returns(:host_only)
 
-        @env["config"].vm.stubs(:customize).yields(@internal_vm)
-        @instance.forward_ports
+        @instance.forward_ports(@internal_vm)
       end
     end
 
