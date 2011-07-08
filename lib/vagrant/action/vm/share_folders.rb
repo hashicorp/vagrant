@@ -33,7 +33,7 @@ module Vagrant
         end
 
         def create_metadata
-          @env["config"].vm.customize do |vm|
+          proc = lambda do |vm|
             @env.ui.info I18n.t("vagrant.actions.vm.share_folders.creating")
 
             shared_folders.each do |name, data|
@@ -43,6 +43,8 @@ module Vagrant
               vm.shared_folders << folder
             end
           end
+
+          @env["vm.modify"].call(proc)
         end
 
         def mount_shared_folders

@@ -10,6 +10,7 @@ class ShareFoldersVMActionTest < Test::Unit::TestCase
     @vm.stubs(:ssh).returns(mock("ssh"))
     @vm.stubs(:system).returns(mock("system"))
     @env["vm"] = @vm
+    @env["vm.modify"] = mock("proc")
 
     @internal_vm = mock("internal")
     @vm.stubs(:vm).returns(@internal_vm)
@@ -106,7 +107,11 @@ class ShareFoldersVMActionTest < Test::Unit::TestCase
 
       @internal_vm.stubs(:shared_folders).returns(shared_folders)
 
-      @env["config"].vm.expects(:customize).yields(@internal_vm)
+      @env["vm.modify"].expects(:call).with() do |proc|
+        proc.call(@internal_vm)
+        true
+      end
+
       @instance.create_metadata
     end
   end
