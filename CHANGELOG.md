@@ -24,8 +24,7 @@
     needs to be downloaded during an `up`. [GH-308]
   - Multiple Chef provisioners no longer overwrite cookbook folders. [GH-407]
   - `package` won't delete previously existing file. [GH-408]
-  - Vagrantfile by default is lowercase now and Vagrant properly finds old
-    uppercase Vagrantfiles. [GH-399]
+  - Vagrantfile can be lowercase now. [GH-399]
 
 ## 0.7.6 (July 2, 2011)
 
