@@ -1,15 +1,16 @@
-require 'timeout'
 require 'net/ssh'
 require 'net/scp'
 require 'mario'
-
-require 'vagrant/ssh/session'
 
 module Vagrant
   # Manages SSH access to a specific environment. Allows an environment to
   # replace the process with SSH itself, run a specific set of commands,
   # upload files, or even check if a host is up.
   class SSH
+    # Autoload this guy because he is really only used in one location
+    # and not for every Vagrant command.
+    autoload :Session, 'vagrant/ssh/session'
+
     include Util::Retryable
 
     # Reference back up to the environment which this SSH object belongs
@@ -119,6 +120,7 @@ module Vagrant
       # Windows
       ssh_port = port
 
+      require 'timeout'
       Timeout.timeout(env.config.ssh.timeout) do
         execute(:timeout => env.config.ssh.timeout,
                 :port => ssh_port) { |ssh| }
