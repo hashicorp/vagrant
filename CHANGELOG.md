@@ -2,6 +2,10 @@
 
   - Performance optimizations in `virtualbox` gem. Huge speed gains.
   - `:chef_server` provisioner is now `:chef_client`. [GH-359]
+  - SSH connection is now cached after first access internally,
+    speeding up `vagrant up`, `reload`, etc. quite a bit.
+  - Actions which modify the VM now occur much more quickly,
+    greatly speeding up `vagrant up`, `reload`, etc.
   - SUSE host only networking support. [GH-369]
   - Show nice error message for invalid HTTP responses for HTTP
     downloader. [GH-403]
@@ -19,10 +23,7 @@
   - Provisioner configuration is no longer cleared when the box
     needs to be downloaded during an `up`. [GH-308]
   - Multiple Chef provisioners no longer overwrite cookbook folders. [GH-407]
-  - SSH connection is now cached after first access internally,
-    speeding up `vagrant up`, `reload`, etc. quite a bit.
-  - Actions which modify the VM now occur much more quickly,
-    greatly speeding up `vagrant up`, `reload`, etc.
+  - `package` won't delete previously existing file. [GH-408]
 
 ## 0.7.6 (July 2, 2011)
 
