@@ -25,6 +25,7 @@
   - Multiple Chef provisioners no longer overwrite cookbook folders. [GH-407]
   - `package` won't delete previously existing file. [GH-408]
   - Vagrantfile can be lowercase now. [GH-399]
+  - Only one copy of Vagrant may be running at any given time. [GH-364]
 
 ## 0.7.6 (July 2, 2011)
 

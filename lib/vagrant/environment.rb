@@ -60,7 +60,8 @@ module Vagrant
         :parent => nil,
         :vm => nil,
         :cwd => nil,
-        :vagrantfile_name => nil
+        :vagrantfile_name => nil,
+        :lock_path => nil
       }.merge(opts || {})
 
       # Set the default working directory to look for the vagrantfile
@@ -77,6 +78,7 @@ module Vagrant
       end
 
       @loaded = false
+      @lock_acquired = false
     end
 
     #---------------------------------------------------------------
@@ -279,6 +281,39 @@ module Vagrant
       end
 
       @root_path = root_finder.call(cwd)
+    end
+
+    # This returns the path which Vagrant uses to determine the location
+    # of the file lock. This is specific to each operating system.
+    def lock_path
+      @lock_path || tmp_path.join("vagrant.lock")
+    end
+
+    # This locks Vagrant for the duration of the block passed to this
+    # method. During this time, any other environment which attempts
+    # to lock which points to the same lock file will fail.
+    def lock
+      # This allows multiple locks in the same process to be nested
+      return yield if @lock_acquired
+
+      File.open(lock_path, "w+") do |f|
+        # The file locking fails only if it returns "false." If it
+        # succeeds it returns a 0, so we must explicitly check for
+        # the proper error case.
+        raise Errors::EnvironmentLockedError if f.flock(File::LOCK_EX | File::LOCK_NB) === false
+
+        begin
+          # Mark that we have a lock
+          @lock_acquired = true
+
+          yield
+        ensure
+          # We need to make sure that no matter what this is always
+          # reset to false so we don't think we have a lock when we
+          # actually don't.
+          @lock_acquired = false
+        end
+      end
     end
 
     #---------------------------------------------------------------

@@ -1,5 +1,6 @@
 require "test_helper"
 require "pathname"
+require "tempfile"
 
 class EnvironmentTest < Test::Unit::TestCase
   setup do
@@ -288,6 +289,66 @@ class EnvironmentTest < Test::Unit::TestCase
       assert env.root_path.nil?
       assert env.root_path.nil?
       assert env.root_path.nil?
+    end
+  end
+
+  context "locking" do
+    setup do
+      @instance = @klass.new(:lock_path => Tempfile.new('vagrant-test').path)
+    end
+
+    should "allow nesting locks" do
+      assert_nothing_raised do
+        @instance.lock do
+          @instance.lock do
+            # Nothing
+          end
+        end
+      end
+    end
+
+    should "raise an exception if an environment already has a lock" do
+      @another = @klass.new(:lock_path => @instance.lock_path)
+
+      # Create first locked thread which should succeed
+      first = Thread.new do
+        begin
+          @instance.lock do
+            Thread.current[:locked] = true
+            loop { sleep 1000 }
+          end
+        rescue Vagrant::Errors::EnvironmentLockedError
+          Thread.current[:locked] = false
+        end
+      end
+
+      # Wait until the first thread has acquired the lock
+      loop do
+        break if first[:locked] || !first.alive?
+        Thread.pass
+      end
+
+      # Verify that the fist got the lock
+      assert first[:locked]
+
+      # Create second locked thread which should fail
+      second = Thread.new do
+        begin
+          @another.lock do
+            Thread.current[:error] = false
+          end
+        rescue Vagrant::Errors::EnvironmentLockedError
+          Thread.current[:error] = true
+        end
+      end
+
+      # Wait for the second to end and verify it failed
+      second.join
+      assert second[:error]
+
+      # Make sure both threads are killed
+      first.kill
+      second.kill
     end
   end
 
