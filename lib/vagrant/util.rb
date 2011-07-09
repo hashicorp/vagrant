@@ -8,6 +8,7 @@ module Vagrant
     autoload :Platform,                  'vagrant/util/platform'
     autoload :ResourceLogger,            'vagrant/util/resource_logger'
     autoload :Retryable,                 'vagrant/util/retryable'
+    autoload :SafeExec,                  'vagrant/util/safe_exec'
     autoload :StackedProcRunner,         'vagrant/util/stacked_proc_runner'
     autoload :TemplateRenderer,          'vagrant/util/template_renderer'
   end

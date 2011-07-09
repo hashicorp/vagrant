@@ -12,6 +12,7 @@ module Vagrant
     autoload :Session, 'vagrant/ssh/session'
 
     include Util::Retryable
+    include Util::SafeExec
 
     # Reference back up to the environment which this SSH object belongs
     # to
@@ -56,10 +57,8 @@ module Vagrant
       # Some hackery going on here. On Mac OS X Leopard (10.5), exec fails
       # (GH-51). As a workaround, we fork and wait. On all other platforms,
       # we simply exec.
-      pid = nil
-      pid = fork if Util::Platform.leopard? || Util::Platform.tiger?
-      Kernel.exec "ssh #{command_options.join(" ")} #{options[:username]}@#{options[:host]}".strip if pid.nil?
-      Process.wait(pid) if pid
+      command = "ssh #{command_options.join(" ")} #{options[:username]}@#{options[:host]}".strip
+      safe_exec(command)
     end
 
     # Opens an SSH connection to this environment's virtual machine and yields

@@ -20,10 +20,8 @@ class SshTest < Test::Unit::TestCase
       mock_ssh
       @ssh.stubs(:check_key_permissions)
       @ssh.stubs(:port).returns(2222)
-      Kernel.stubs(:exec)
+      @ssh.stubs(:safe_exec)
       Kernel.stubs(:system).returns(true)
-
-      Vagrant::Util::Platform.stubs(:leopard?).returns(false)
     end
 
     should "raise an exception if SSH is not found" do
@@ -41,7 +39,7 @@ class SshTest < Test::Unit::TestCase
     should "check key permissions prior to exec" do
       exec_seq = sequence("exec_seq")
       @ssh.expects(:check_key_permissions).with(@env.config.ssh.private_key_path).once.in_sequence(exec_seq)
-      Kernel.expects(:exec).in_sequence(exec_seq)
+      @ssh.expects(:safe_exec).in_sequence(exec_seq)
       @ssh.connect
     end
 
@@ -81,24 +79,6 @@ class SshTest < Test::Unit::TestCase
       @ssh.connect
     end
 
-    context "on leopard" do
-      setup do
-        Vagrant::Util::Platform.stubs(:leopard?).returns(true)
-      end
-
-      teardown do
-        Vagrant::Util::Platform.stubs(:leopard?).returns(false)
-      end
-
-      should "fork, exec, and wait" do
-        pid = mock("pid")
-        @ssh.expects(:fork).once.returns(pid)
-        Process.expects(:wait).with(pid)
-
-        @ssh.connect
-      end
-    end
-
     context "checking windows" do
       teardown do
         Mario::Platform.forced = Mario::Platform::Linux
@@ -116,7 +96,7 @@ class SshTest < Test::Unit::TestCase
     end
 
     def ssh_exec_expect(port, key_path, uname, host)
-      Kernel.expects(:exec).with() do |arg|
+      @ssh.expects(:safe_exec).with() do |arg|
         assert arg =~ /^ssh/, "ssh command expected"
         assert arg =~ /-p #{port}/, "-p #{port} expected"
         assert arg =~ /-i #{key_path}/, "-i #{key_path} expected"
