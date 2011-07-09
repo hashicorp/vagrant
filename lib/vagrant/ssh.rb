@@ -1,6 +1,5 @@
 require 'net/ssh'
 require 'net/scp'
-require 'mario'
 
 module Vagrant
   # Manages SSH access to a specific environment. Allows an environment to
@@ -27,7 +26,7 @@ module Vagrant
     # process with an SSH process. This method optionally takes a hash
     # of options which override the configuration values.
     def connect(opts={})
-      if Mario::Platform.windows?
+      if Util::Platform.windows?
         raise Errors::SSHUnavailableWindows, :key_path => env.config.ssh.private_key_path,
                                              :ssh_port => port(opts)
       end
@@ -137,7 +136,7 @@ module Vagrant
     # if needed, or on failure erroring.
     def check_key_permissions(key_path)
       # Windows systems don't have this issue
-      return if Mario::Platform.windows?
+      return if Util::Platform.windows?
 
       stat = File.stat(key_path)
 

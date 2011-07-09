@@ -80,17 +80,13 @@ class SshTest < Test::Unit::TestCase
     end
 
     context "checking windows" do
-      teardown do
-        Mario::Platform.forced = Mario::Platform::Linux
-      end
-
       should "error and exit if the platform is windows" do
-        Mario::Platform.forced = Mario::Platform::Windows7
+        Vagrant::Util::Platform.stubs(:windows?).returns(true)
         assert_raises(Vagrant::Errors::SSHUnavailableWindows) { @ssh.connect }
       end
 
       should "not error and exit if the platform is anything other that windows" do
-        Mario::Platform.forced = Mario::Platform::Linux
+        Vagrant::Util::Platform.stubs(:windows?).returns(false)
         assert_nothing_raised { @ssh.connect }
       end
     end
@@ -256,15 +252,11 @@ class SshTest < Test::Unit::TestCase
       @stat.stubs(:owned?).returns(true)
       File.stubs(:stat).returns(@stat)
 
-      Mario::Platform.forced = Mario::Platform::Linux
-    end
-
-    teardown do
-      Mario::Platform.forced = Mario::Platform::Linux
+      Vagrant::Util::Platform.stubs(:windows?).returns(false)
     end
 
     should "do nothing if on windows" do
-      Mario::Platform.forced = Mario::Platform::Windows7
+      Vagrant::Util::Platform.stubs(:windows?).returns(true)
       File.expects(:stat).never
       @ssh.check_key_permissions(@key_path)
     end

@@ -1,5 +1,3 @@
-require 'mario'
-
 module Vagrant
   # Vagrant UIs handle communication with the outside world (typically
   # through a shell). They must respond to the typically logger methods
@@ -61,7 +59,7 @@ module Vagrant
 
       def line_reset
         reset = "\r"
-        reset += "\e[0K" unless Mario::Platform.windows?
+        reset += "\e[0K" unless Util::Platform.windows?
         reset
       end
     end

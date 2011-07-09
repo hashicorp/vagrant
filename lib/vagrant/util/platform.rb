@@ -1,5 +1,4 @@
 require 'rbconfig'
-require 'mario'
 
 module Vagrant
   module Util
@@ -53,7 +52,7 @@ module Vagrant
 
         def tar_file_options
           # create, write only, fail if the file exists, binary if windows
-          File::WRONLY|File::EXCL|File::CREAT|(Mario::Platform.windows? ? File::BINARY : 0)
+          File::WRONLY | File::EXCL | File::CREAT | (windows? ? File::BINARY : 0)
         end
 
         def platform

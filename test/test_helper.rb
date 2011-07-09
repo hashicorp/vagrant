@@ -2,7 +2,6 @@
 $:.unshift(File.dirname(__FILE__))
 
 require 'vagrant'
-require 'mario'
 require 'contest'
 require 'mocha'
 
@@ -13,9 +12,6 @@ begin
   require 'ruby-debug'
 rescue LoadError
 end
-
-# Silence Mario by sending log output to black hole
-Mario::Platform.logger(nil)
 
 # Add the I18n locale for tests
 I18n.load_path << File.expand_path("../locales/en.yml", __FILE__)
