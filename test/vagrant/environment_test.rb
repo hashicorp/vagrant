@@ -248,20 +248,23 @@ class EnvironmentTest < Test::Unit::TestCase
                Pathname.new("/")
               ]
 
+      rootfile = "Foo"
+
       search_seq = sequence("search_seq")
       paths.each do |path|
-        File.expects(:exist?).with(path.join(@klass::ROOTFILE_NAME).to_s).returns(false).in_sequence(search_seq)
+        File.expects(:exist?).with(path.join(rootfile).to_s).returns(false).in_sequence(search_seq)
         File.expects(:exist?).with(path).returns(true).in_sequence(search_seq) if !path.root?
       end
 
-      assert !@klass.new(:cwd => paths.first).root_path
+      assert !@klass.new(:cwd => paths.first, :vagrantfile_name => rootfile).root_path
     end
 
     should "should set the path for the rootfile" do
+      rootfile = "Foo"
       path = Pathname.new(File.expand_path("/foo"))
-      File.expects(:exist?).with(path.join(@klass::ROOTFILE_NAME).to_s).returns(true)
+      File.expects(:exist?).with(path.join(rootfile).to_s).returns(true)
 
-      assert_equal path, @klass.new(:cwd => path).root_path
+      assert_equal path, @klass.new(:cwd => path, :vagrantfile_name => rootfile).root_path
     end
 
     should "not infinite loop on relative paths" do
@@ -269,8 +272,9 @@ class EnvironmentTest < Test::Unit::TestCase
     end
 
     should "only load the root path once" do
-      env = @klass.new
-      File.expects(:exist?).with(env.cwd.join(@klass::ROOTFILE_NAME).to_s).returns(true).once
+      rootfile = "foo"
+      env = @klass.new(:vagrantfile_name => rootfile)
+      File.expects(:exist?).with(env.cwd.join(rootfile).to_s).returns(true).once
 
       assert_equal env.cwd, env.root_path
       assert_equal env.cwd, env.root_path

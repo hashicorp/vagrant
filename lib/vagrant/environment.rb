@@ -6,7 +6,6 @@ module Vagrant
   # defined as basically a folder with a "Vagrantfile." This class allows
   # access to the VMs, CLI, etc. all in the scope of this environment.
   class Environment
-    ROOTFILE_NAME = "Vagrantfile"
     HOME_SUBDIRS = ["tmp", "boxes", "logs"]
     DEFAULT_VM = :default
     DEFAULT_HOME = "~/.vagrant"
@@ -16,6 +15,9 @@ module Vagrant
 
     # The `cwd` that this environment represents
     attr_reader :cwd
+
+    # The valid name for a Vagrantfile for this environment.
+    attr_reader :vagrantfile_name
 
     # The single VM that this environment represents, in the case of
     # multi-VM.
@@ -58,10 +60,17 @@ module Vagrant
         :parent => nil,
         :vm => nil,
         :cwd => nil,
+        :vagrantfile_name => nil
       }.merge(opts || {})
 
+      # Set the default working directory to look for the vagrantfile
       opts[:cwd] ||= Dir.pwd
       opts[:cwd] = Pathname.new(opts[:cwd])
+
+      # Set the default vagrantfile name, which can be either Vagrantfile
+      # or vagrantfile (capital for backwards compatibility)
+      opts[:vagrantfile_name] ||= ["Vagrantfile", "vagrantfile"]
+      opts[:vagrantfile_name] = [opts[:vagrantfile_name]] if !opts[:vagrantfile_name].is_a?(Array)
 
       opts.each do |key, value|
         instance_variable_set("@#{key}".to_sym, opts[key])
@@ -261,7 +270,10 @@ module Vagrant
       return @root_path if defined?(@root_path)
 
       root_finder = lambda do |path|
-        return path if File.exist?(File.join(path.to_s, ROOTFILE_NAME))
+        vagrantfile_name.each do |rootfile|
+          return path if File.exist?(File.join(path.to_s, rootfile))
+        end
+
         return nil if path.root? || !File.exist?(path)
         root_finder.call(path.parent)
       end
@@ -327,9 +339,12 @@ module Vagrant
       @config_loader ||= Config.new(parent ? parent.config_loader : nil)
       @config_loader.load_order = [:default, :box, :home, :root, :sub_vm]
       @config_loader.set(:default, File.expand_path("config/default.rb", Vagrant.source_root))
-      @config_loader.set(:box, File.join(box.directory, ROOTFILE_NAME)) if !first_run && vm && box
-      @config_loader.set(:home, File.join(home_path, ROOTFILE_NAME)) if !first_run && home_path
-      @config_loader.set(:root, File.join(root_path, ROOTFILE_NAME)) if root_path
+
+      vagrantfile_name.each do |rootfile|
+        @config_loader.set(:box, File.join(box.directory, rootfile)) if !first_run && vm && box
+        @config_loader.set(:home, File.join(home_path, rootfile)) if !first_run && home_path
+        @config_loader.set(:root, File.join(root_path, rootfile)) if root_path
+      end
 
       # If this environment is representing a sub-VM, then we push that
       # proc on as the last configuration.
