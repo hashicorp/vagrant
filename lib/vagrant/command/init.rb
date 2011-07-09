@@ -7,7 +7,7 @@ module Vagrant
       register "init [box_name] [box_url]", "Initializes the current folder for Vagrant usage"
 
       def execute
-        template "vagrantfile.erb", "vagrantfile"
+        template "Vagrantfile.erb", "Vagrantfile"
       end
     end
   end
