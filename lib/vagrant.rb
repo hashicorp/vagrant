@@ -3,6 +3,10 @@ require 'json'
 require 'i18n'
 require 'virtualbox'
 
+# OpenSSL must be loaded here since when it is loaded via `autoload`
+# there are issues with ciphers not being properly loaded.
+require 'openssl'
+
 module Vagrant
   autoload :Action,        'vagrant/action'
   autoload :Box,           'vagrant/box'
@@ -15,6 +19,7 @@ module Vagrant
   autoload :Errors,        'vagrant/errors'
   autoload :Hosts,         'vagrant/hosts'
   autoload :Plugin,        'vagrant/plugin'
+  autoload :SSH,           'vagrant/ssh'
   autoload :TestHelpers,   'vagrant/test_helpers'
   autoload :UI,            'vagrant/ui'
   autoload :Util,          'vagrant/util'
@@ -27,16 +32,13 @@ module Vagrant
   end
 end
 
-# Default I18n to load the en locale
+# # Default I18n to load the en locale
 I18n.load_path << File.expand_path("templates/locales/en.yml", Vagrant.source_root)
 
-# Load the things which must be loaded before anything else. Note that
-# I'm not sure why 'vagrant/ssh' must be loaded. But if I don't, I get
-# a very scary "unsupported cipher" error from net-ssh for no apparent reason.
+# Load the things which must be loaded before anything else.
 require 'vagrant/command'
 require 'vagrant/provisioners'
 require 'vagrant/systems'
-require 'vagrant/ssh'
 require 'vagrant/version'
 Vagrant::Action.builtin!
 Vagrant::Plugin.load!
