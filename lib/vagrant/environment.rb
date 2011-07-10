@@ -1,5 +1,6 @@
 require 'pathname'
 require 'fileutils'
+require 'logger'
 
 module Vagrant
   # Represents a single Vagrant environment. A "Vagrant environment" is
@@ -79,6 +80,11 @@ module Vagrant
 
       @loaded = false
       @lock_acquired = false
+
+      logger.info "Environment initialized (#{self})"
+      logger.info "  - cwd: #{cwd}"
+      logger.info "  - parent: #{parent}"
+      logger.info "  - vm: #{vm}"
     end
 
     #---------------------------------------------------------------
@@ -283,11 +289,22 @@ module Vagrant
     # @return [Logger]
     def logger
       return parent.logger if parent
-      return @logger if defined?(@logger)
+      return @logger if @logger
 
-      @logger = Logger.new(log_path.join("#{Time.now.to_i}.log"))
+      # Figure out where the output should go to.
+      output = nil
+      if ENV["VAGRANT_LOG"] == "STDOUT"
+        output = STDOUT
+      elsif ENV["VAGRANT_LOG"]
+        output = ENV["VAGRANT_LOG"]
+      else
+        output = log_path.join("#{Time.now.to_i}.log")
+      end
+
+      # Create the logger and custom formatter
+      @logger = Logger.new(output)
       @logger.formatter = Proc.new do |severity, datetime, progname, msg|
-        "#{datetime} - [#{resource}] #{msg}"
+        "#{datetime} - [#{resource}] #{msg}\n"
       end
 
       @logger
@@ -378,7 +395,15 @@ module Vagrant
     def load!
       if !loaded?
         @loaded = true
-        self.class.check_virtualbox!
+
+        if !parent
+          # We only need to check the virtualbox version once, so do it on
+          # the parent most environment and then forget about it
+          logger.info "Environment not loaded. Checking virtual box version..."
+          self.class.check_virtualbox!
+        end
+
+        logger.info "Loading configuration..."
         load_config!
       end
 
@@ -421,9 +446,6 @@ module Vagrant
       # Execute the configuration stack and store the result as the final
       # value in the config ivar.
       @config = @config_loader.load(self)
-
-      # (re)load the logger
-      @logger = nil
 
       if first_run
         # After the first run we want to load the configuration again since
