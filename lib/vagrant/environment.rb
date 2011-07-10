@@ -283,7 +283,14 @@ module Vagrant
     # @return [Logger]
     def logger
       return parent.logger if parent
-      @logger ||= Util::ResourceLogger.new(resource, self)
+      return @logger if defined?(@logger)
+
+      @logger = Logger.new(log_path.join("#{Time.now.to_i}.log"))
+      @logger.formatter = Proc.new do |severity, datetime, progname, msg|
+        "#{datetime} - [#{resource}] #{msg}"
+      end
+
+      @logger
     end
 
     # The root path is the path where the top-most (loaded last)

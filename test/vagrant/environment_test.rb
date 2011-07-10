@@ -256,12 +256,9 @@ class EnvironmentTest < Test::Unit::TestCase
 
   context "loading logger" do
     should "lazy load the logger only once" do
-      result = Vagrant::Util::ResourceLogger.new("vagrant", vagrant_env)
-      Vagrant::Util::ResourceLogger.expects(:new).returns(result).once
       env = vagrant_env
-      assert_equal result, env.logger
-      assert_equal result, env.logger
-      assert_equal result, env.logger
+      result = env.logger
+      assert result === env.logger
     end
 
     should "return the parent's logger if a parent exists" do
@@ -270,10 +267,7 @@ class EnvironmentTest < Test::Unit::TestCase
         config.vm.define :db
       vf
 
-      result = env.logger
-
-      Vagrant::Util::ResourceLogger.expects(:new).never
-      assert env.vms[:web].env.logger.equal?(result)
+      assert env.logger === env.vms[:web].env.logger
     end
   end
 
