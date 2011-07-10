@@ -41,6 +41,28 @@ module Vagrant
 
         commands = "puppetd #{options} --server #{config.puppet_server} --certname #{cn}"
 
+        # If config.puppet_server matches one of the following formats:
+        #
+        #   1.2.3.4
+        #   1.2.3.4 foobar.com
+        #
+        # then we patch /etc/hosts and contact the server as 'puppet'
+        # or 'foobar.com' respectively.
+        #
+        # This avoids SSL certificate mismatches when talking
+        # to a puppetmaster that can not be resolved by the local
+        # vagrant host.
+        magic_host = /^((\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})([\s]+)?([^\s]+)?)$/.match(config.puppet_server)
+        if magic_host
+          config.puppet_server = magic_host[4] || 'puppet'
+          puppet_srv_ip = magic_host[2]
+          commands = "bash -c \"mv /etc/hosts /etc/hosts.old && " \
+                     "{ grep -v '#{config.puppet_server}$' /etc/hosts.old; " \
+                     "echo '#{puppet_srv_ip} #{config.puppet_server}'; } " \
+                     ">/etc/hosts && puppetd #{options} " \
+                     "--server #{config.puppet_server} --certname #{cn}\""
+        end
+
         env.ui.info I18n.t("vagrant.provisioners.puppet_server.running_puppetd")
 
         vm.ssh.execute do |ssh|
