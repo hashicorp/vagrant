@@ -81,7 +81,7 @@ class lucid32 {
 }
 
 include lucid32
-{% endhighlight %}}
+{% endhighlight %}
 
 We then add support in the Vagrantfile to support Puppet provisioning:
 
