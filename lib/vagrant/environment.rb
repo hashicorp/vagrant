@@ -97,6 +97,7 @@ module Vagrant
     #
     # @return [Pathname]
     def home_path
+      return parent.home_path if parent
       return @_home_path if defined?(@_home_path)
 
       @_home_path ||= Pathname.new(File.expand_path(ENV["VAGRANT_HOME"] || DEFAULT_HOME))
