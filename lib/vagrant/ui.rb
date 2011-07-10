@@ -12,7 +12,7 @@ module Vagrant
     [:warn, :error, :info, :confirm].each do |method|
       define_method(method) do |message|
         # Log normal console messages
-        env.logger.info(message)
+        env.logger.info("ui") { message }
       end
     end
 

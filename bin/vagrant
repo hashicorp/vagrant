@@ -6,7 +6,7 @@ env = Vagrant::Environment.new
 
 begin
   # Begin logging early here
-  env.logger.info "`vagrant` invoked: #{ARGV.inspect}"
+  env.logger.info("vagrant") { "`vagrant` invoked: #{ARGV.inspect}" }
 
   # Disable color if the proper argument was passed
   shell = ARGV.include?("--no-color") ? Thor::Shell::Basic.new : Thor::Base.shell.new

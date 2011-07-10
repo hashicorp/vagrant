@@ -81,10 +81,10 @@ module Vagrant
       @loaded = false
       @lock_acquired = false
 
-      logger.info "Environment initialized (#{self})"
-      logger.info "  - cwd: #{cwd}"
-      logger.info "  - parent: #{parent}"
-      logger.info "  - vm: #{vm}"
+      logger.info("environment") { "Environment initialized (#{self})" }
+      logger.info("environment") { "  - cwd: #{cwd}" }
+      logger.info("environment") { "  - parent: #{parent}" }
+      logger.info("environment") { "  - vm: #{vm}" }
     end
 
     #---------------------------------------------------------------
@@ -107,14 +107,14 @@ module Vagrant
       return @_home_path if defined?(@_home_path)
 
       @_home_path ||= Pathname.new(File.expand_path(ENV["VAGRANT_HOME"] || DEFAULT_HOME))
-      logger.info "Home path: #{@_home_path}"
+      logger.info("environment") { "Home path: #{@_home_path}" }
 
       # This is the old default that Vagrant used to be put things into
       # up until Vagrant 0.8.0. We keep around an automatic migration
       # script here in case any old users upgrade.
       old_home = File.expand_path("~/.vagrant")
       if File.exists?(old_home) && File.directory?(old_home)
-        logger.info "Found both an old and new Vagrantfile. Migration initiated."
+        logger.info("environment") { "Found both an old and new Vagrantfile. Migration initiated." }
 
         # We can't migrate if the home directory already exists
         if File.exists?(@_home_path)
@@ -404,11 +404,11 @@ module Vagrant
         if !parent
           # We only need to check the virtualbox version once, so do it on
           # the parent most environment and then forget about it
-          logger.info "Environment not loaded. Checking virtual box version..."
+          logger.info("environment") { "Environment not loaded. Checking virtual box version..." }
           self.class.check_virtualbox!
         end
 
-        logger.info "Loading configuration..."
+        logger.info("environment") { "Loading configuration..." }
         load_config!
       end
 
