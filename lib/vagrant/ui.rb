@@ -9,8 +9,15 @@ module Vagrant
       @env = env
     end
 
-    [:warn, :error, :info, :confirm, :say_with_vm, :report_progress, :ask, :no?, :yes?].each do |method|
-      # By default these methods don't do anything. A silent UI.
+    [:warn, :error, :info, :confirm].each do |method|
+      define_method(method) do |message|
+        # Log normal console messages
+        env.logger.info(message)
+      end
+    end
+
+    [:report_progress, :ask, :no?, :yes?].each do |method|
+      # By default do nothing, these aren't logged
       define_method(method) { |*args| }
     end
 
@@ -26,6 +33,7 @@ module Vagrant
       [[:warn, :yellow], [:error, :red], [:info, nil], [:confirm, :green]].each do |method, color|
         class_eval <<-CODE
           def #{method}(message, opts=nil)
+            super(message)
             @shell.say("\#{line_reset}\#{format_message(message, opts)}", #{color.inspect})
           end
         CODE
@@ -34,6 +42,7 @@ module Vagrant
       [:ask, :no?, :yes?].each do |method|
         class_eval <<-CODE
           def #{method}(message, opts=nil)
+            super(message)
             opts ||= {}
             @shell.send(#{method.inspect}, format_message(message, opts), opts[:color])
           end

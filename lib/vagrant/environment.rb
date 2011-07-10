@@ -107,12 +107,15 @@ module Vagrant
       return @_home_path if defined?(@_home_path)
 
       @_home_path ||= Pathname.new(File.expand_path(ENV["VAGRANT_HOME"] || DEFAULT_HOME))
+      logger.info "Home path: #{@_home_path}"
 
       # This is the old default that Vagrant used to be put things into
       # up until Vagrant 0.8.0. We keep around an automatic migration
       # script here in case any old users upgrade.
       old_home = File.expand_path("~/.vagrant")
       if File.exists?(old_home) && File.directory?(old_home)
+        logger.info "Found both an old and new Vagrantfile. Migration initiated."
+
         # We can't migrate if the home directory already exists
         if File.exists?(@_home_path)
           ui.warn I18n.t("vagrant.general.home_dir_migration_failed",
