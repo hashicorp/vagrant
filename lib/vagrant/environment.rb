@@ -8,7 +8,7 @@ module Vagrant
   class Environment
     HOME_SUBDIRS = ["tmp", "boxes", "logs"]
     DEFAULT_VM = :default
-    DEFAULT_HOME = "~/.vagrant"
+    DEFAULT_HOME = "~/.vagrant.d"
 
     # Parent environment (in the case of multi-VMs)
     attr_reader :parent
@@ -97,7 +97,29 @@ module Vagrant
     #
     # @return [Pathname]
     def home_path
+      return @_home_path if defined?(@_home_path)
+
       @_home_path ||= Pathname.new(File.expand_path(ENV["VAGRANT_HOME"] || DEFAULT_HOME))
+
+      # This is the old default that Vagrant used to be put things into
+      # up until Vagrant 0.8.0. We keep around an automatic migration
+      # script here in case any old users upgrade.
+      old_home = File.expand_path("~/.vagrant")
+      if File.exists?(old_home) && File.directory?(old_home)
+        # We can't migrate if the home directory already exists
+        if File.exists?(@_home_path)
+          ui.warn I18n.t("vagrant.general.home_dir_migration_failed",
+                         :old => old_home,
+                         :new => @_home_path.to_s)
+        else
+          # If the new home path doesn't exist, simply transition to it
+          ui.info I18n.t("vagrant.general.moving_home_dir", :directory => @_home_path)
+          FileUtils.mv(old_home, @_home_path)
+        end
+      end
+
+      # Return the home path
+      @_home_path
     end
 
     # The path to the Vagrant tmp directory

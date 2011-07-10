@@ -58,6 +58,12 @@ class EnvironmentTest < Test::Unit::TestCase
     context "home path" do
       setup do
         @env = @klass.new
+
+        # Make a fake home directory for helping with tests
+        @home_path = tmp_path.join("home")
+        ENV["HOME"] = @home_path.to_s
+        FileUtils.rm_rf(@home_path)
+        FileUtils.mkdir_p(@home_path)
       end
 
       should "return the home path if it loaded" do
@@ -72,6 +78,36 @@ class EnvironmentTest < Test::Unit::TestCase
 
         expected = Pathname.new(File.expand_path(ENV["VAGRANT_HOME"]))
         assert_equal expected, @env.home_path
+      end
+
+      should "move the old home directory to the new location" do
+        new_path = @home_path.join(".vagrant.d")
+        old_path = @home_path.join(".vagrant")
+        old_path.mkdir
+
+        # Get the home path
+        ENV["VAGRANT_HOME"] = new_path.to_s
+
+        assert !new_path.exist?
+        assert_equal new_path, @env.home_path
+        assert !old_path.exist?
+        assert new_path.exist?
+      end
+
+      should "not move the old home directory if the new one already exists" do
+        new_path = @home_path.join(".vagrant.d")
+        new_path.mkdir
+
+        old_path = @home_path.join(".vagrant")
+        old_path.mkdir
+
+        # Get the home path
+        ENV["VAGRANT_HOME"] = new_path.to_s
+
+        assert new_path.exist?
+        assert_equal new_path, @env.home_path
+        assert old_path.exist?
+        assert new_path.exist?
       end
     end
 

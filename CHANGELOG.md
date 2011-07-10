@@ -26,6 +26,7 @@
   - `package` won't delete previously existing file. [GH-408]
   - Vagrantfile can be lowercase now. [GH-399]
   - Only one copy of Vagrant may be running at any given time. [GH-364]
+  - Default home directory for Vagrant moved to `~/.vagrant.d` [GH-333]
 
 ## 0.7.6 (July 2, 2011)
 
