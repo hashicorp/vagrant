@@ -76,7 +76,12 @@ module Vagrant
       session, options = @current_session
 
       if !session || options != opts
-        session = retryable(:tries => 5, :on => Errno::ECONNREFUSED) do
+        # The exceptions which are acceptable to retry on during
+        # attempts to connect to SSH
+        exceptions = [Errno::ECONNREFUSED, Net::SSH::Disconnect]
+
+        # Connect to SSH and gather the session
+        session = retryable(:tries => 5, :on => exceptions) do
           connection = Net::SSH.start(env.config.ssh.host,
                          env.config.ssh.username,
                          opts.merge( :keys => [env.config.ssh.private_key_path],

@@ -203,13 +203,6 @@ class SshTest < Test::Unit::TestCase
       }
     end
 
-    should "return false if the connection is dropped" do
-      Net::SSH.expects(:start).raises(Net::SSH::Disconnect)
-      assert_nothing_raised {
-        assert !@ssh.up?
-      }
-    end
-
     should "specifity the timeout as an option to execute" do
       @ssh.expects(:execute).yields(true).with() do |opts|
         assert_equal @env.config.ssh.timeout, opts[:timeout]
