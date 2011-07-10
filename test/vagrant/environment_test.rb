@@ -525,11 +525,6 @@ class EnvironmentTest < Test::Unit::TestCase
         assert_equal "set", @env.vms[:web].env.config.vm.base_mac
       end
 
-      should "reload the logger after executing" do
-        @env.load_config!
-        assert @env.instance_variable_get(:@logger).nil?
-      end
-
       should "be able to reload config" do
         vagrantfile(@env.root_path, "config.vm.box = 'box'")
 

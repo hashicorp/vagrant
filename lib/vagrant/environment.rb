@@ -295,6 +295,8 @@ module Vagrant
       output = nil
       if ENV["VAGRANT_LOG"] == "STDOUT"
         output = STDOUT
+      elsif ENV["VAGRANT_LOG"] == "NULL"
+        output = nil
       elsif ENV["VAGRANT_LOG"]
         output = ENV["VAGRANT_LOG"]
       else
@@ -431,9 +433,23 @@ module Vagrant
       @config_loader.set(:default, File.expand_path("config/default.rb", Vagrant.source_root))
 
       vagrantfile_name.each do |rootfile|
-        @config_loader.set(:box, File.join(box.directory, rootfile)) if !first_run && vm && box
-        @config_loader.set(:home, File.join(home_path, rootfile)) if !first_run && home_path
-        @config_loader.set(:root, File.join(root_path, rootfile)) if root_path
+        if !first_run && vm && box
+          # We load the box Vagrantfile
+          box_vagrantfile = box.directory.join(rootfile)
+          @config_loader.set(:box, box_vagrantfile) if box_vagrantfile.exist?
+        end
+
+        if !first_run && home_path
+          # Load the home Vagrantfile
+          home_vagrantfile = home_path.join(rootfile)
+          @config_loader.set(:home, home_vagrantfile) if home_vagrantfile.exist?
+        end
+
+        if root_path
+          # Load the Vagrantfile in this directory
+          root_vagrantfile = root_path.join(rootfile)
+          @config_loader.set(:root, File.join(root_path, rootfile)) if root_vagrantfile.exist?
+        end
       end
 
       # If this environment is representing a sub-VM, then we push that
