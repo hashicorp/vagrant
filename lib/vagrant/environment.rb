@@ -309,7 +309,7 @@ module Vagrant
       # Create the logger and custom formatter
       @logger = Logger.new(output)
       @logger.formatter = Proc.new do |severity, datetime, progname, msg|
-        "#{datetime} - [#{resource}] #{msg}\n"
+        "#{datetime} - #{progname} - [#{resource}] #{msg}\n"
       end
 
       @logger

@@ -5,6 +5,10 @@ require 'vagrant/cli'
 env = Vagrant::Environment.new
 
 begin
+  # Begin logging early here
+  env.logger.info "`vagrant` invoked: #{ARGV.inspect}"
+
+  # Disable color if the proper argument was passed
   shell = ARGV.include?("--no-color") ? Thor::Shell::Basic.new : Thor::Base.shell.new
 
   # Set the UI early in case any errors are raised, and load

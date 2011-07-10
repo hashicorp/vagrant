@@ -25,13 +25,16 @@ module Vagrant
           # Call the next middleware in the sequence, appending to the stack
           # of "recoverable" middlewares in case something goes wrong!
           raise Errors::VagrantInterrupt if env.interrupted?
-          @stack.unshift(@actions.shift).first.call(env)
+          action = @actions.shift
+          env["logger"].info("warden") { "Calling action: #{action}" }
+          @stack.unshift(action).first.call(env)
           raise Errors::VagrantInterrupt if env.interrupted?
         rescue SystemExit
           # This means that an "exit" or "abort" was called. In these cases,
           # we just exit immediately.
           raise
         rescue Exception => e
+          env["logger"].info("warden") { "Error occurred: #{e}" }
           env["vagrant.error"] = e
 
           # Something went horribly wrong. Start the rescue chain then
@@ -46,7 +49,10 @@ module Vagrant
       # which has already run, in reverse order.
       def begin_rescue(env)
         @stack.each do |act|
-          act.recover(env) if act.respond_to?(:recover)
+          if act.respond_to?(:recover)
+            env["logger"].info("warden") { "Calling recover: #{act}" }
+            act.recover(env)
+          end
         end
 
         # Clear stack so that warden down the middleware chain doesn't

@@ -129,6 +129,7 @@ module Vagrant
       end
 
       # We place a process lock around every action that is called
+      env.logger.info "Running action: #{callable_id}"
       env.lock do
         Busy.busy(int_callback) { callable.call(action_environment) }
       end
