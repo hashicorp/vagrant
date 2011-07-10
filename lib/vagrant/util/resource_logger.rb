@@ -1,5 +1,3 @@
-require 'thread'
-
 module Vagrant
   module Util
     # Represents a logger for a specific resource within Vagrant. Each
@@ -9,11 +7,8 @@ module Vagrant
     #
     #     [resource] message
     #
-    # This class is thread safe. The backing class which actually does
-    # all the logging IO is protected.
     class ResourceLogger
       @@singleton_logger = nil
-      @@writer_lock = Mutex.new
 
       # The resource which this logger represents.
       attr_reader :resource
@@ -53,9 +48,7 @@ module Vagrant
 
       [:debug, :info, :error, :fatal].each do |method|
         define_method(method) do |message|
-          @@writer_lock.synchronize do
-            logger.send(method, "[#{resource}] #{message}")
-          end
+          logger.send(method, "[#{resource}] #{message}")
         end
       end
     end
