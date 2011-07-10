@@ -96,6 +96,12 @@ end
 
 Alternatively you can run Puppet in client-server mode by enabling the `:puppet_server` provisioner.  See the [Puppet Server](/docs/provisioners/puppet_server.html) documentation for more details.
 
+**Note:** The Puppet example above is not quite equivalent to the Chef example,
+Apache isn't properly configured to serve our `/vagrant` directory. The main
+purpose here is to show you how Puppet provisioning works with Vagrant. You
+can imagine how you would configure Apache further to serve from the `/vagrant`
+directory.
+
 ## Running it!
 
 With provisioning configured, just run `vagrant up` to create your environment
