@@ -303,7 +303,7 @@ module Vagrant
       elsif ENV["VAGRANT_LOG"]
         output = ENV["VAGRANT_LOG"]
       else
-        output = log_path.join("#{Time.now.to_i}.log")
+        output = nil #log_path.join("#{Time.now.to_i}.log")
       end
 
       # Create the logger and custom formatter

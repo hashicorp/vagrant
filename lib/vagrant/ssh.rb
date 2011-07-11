@@ -57,6 +57,7 @@ module Vagrant
       # (GH-51). As a workaround, we fork and wait. On all other platforms,
       # we simply exec.
       command = "ssh #{command_options.join(" ")} #{options[:username]}@#{options[:host]}".strip
+      env.logger.info("ssh") { "Invoking SSH: #{command}" }
       safe_exec(command)
     end
 
@@ -76,6 +77,8 @@ module Vagrant
       session, options = @current_session
 
       if !session || options != opts
+        env.logger.info("ssh") { "Connecting to SSH: #{env.config.ssh.host} #{opts[:port]}" }
+
         # The exceptions which are acceptable to retry on during
         # attempts to connect to SSH
         exceptions = [Errno::ECONNREFUSED, Net::SSH::Disconnect]
@@ -94,6 +97,8 @@ module Vagrant
 
         # Save the new session along with the options which created it
         @current_session = [session, opts]
+      else
+        env.logger.info("ssh") { "Using cached SSH session: #{session}" }
       end
 
       # Yield our session for executing
@@ -143,11 +148,14 @@ module Vagrant
       # Windows systems don't have this issue
       return if Util::Platform.windows?
 
+      env.logger.info("ssh") { "Checking key permissions: #{key_path}" }
+
       stat = File.stat(key_path)
 
       if stat.owned? && file_perms(key_path) != "600"
-        File.chmod(0600, key_path)
+        env.logger.info("ssh") { "Attempting to correct key permissions to 0600" }
 
+        File.chmod(0600, key_path)
         raise Errors::SSHKeyBadPermissions, :key_path => key_path if file_perms(key_path) != "600"
       end
     rescue Errno::EPERM
@@ -168,8 +176,7 @@ module Vagrant
     # `config.ssh.forwarded_port_key`.
     def port(opts={})
       # Check if port was specified in options hash
-      pnum = opts[:port]
-      return pnum if pnum
+      return opts[:port] if opts[:port]
 
       # Check if a port was specified in the config
       return env.config.ssh.port if env.config.ssh.port
