@@ -27,6 +27,9 @@
   - Vagrantfile can be lowercase now. [GH-399]
   - Only one copy of Vagrant may be running at any given time. [GH-364]
   - Default home directory for Vagrant moved to `~/.vagrant.d` [GH-333]
+  - Specify a `forwarded_port_destination` for SSH configuration and
+    SSH port searching will fall back to that if it can't find any
+    other port. [GH-375]
 
 ## 0.7.6 (July 2, 2011)
 

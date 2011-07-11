@@ -6,6 +6,7 @@ module Vagrant
       attr_accessor :username
       attr_accessor :host
       attr_accessor :forwarded_port_key
+      attr_accessor :forwarded_port_destination
       attr_accessor :max_tries
       attr_accessor :timeout
       attr_writer :private_key_path

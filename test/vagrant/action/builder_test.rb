@@ -1,4 +1,5 @@
 require "test_helper"
+require "logger"
 
 class ActionBuilderTest < Test::Unit::TestCase
   setup do
@@ -64,6 +65,7 @@ class ActionBuilderTest < Test::Unit::TestCase
     context "flatten" do
       should "return the flattened format of the builder" do
         env = Vagrant::Action::Environment.new(nil)
+        env["logger"] = Logger.new(nil)
         env.expects(:foo).once
 
         func = lambda { |x| x.foo }
@@ -157,6 +159,7 @@ class ActionBuilderTest < Test::Unit::TestCase
     context "converting to an app" do
       should "make non-classes lambdas" do
         env = Vagrant::Action::Environment.new(nil)
+        env["logger"] = Logger.new(nil)
         env.expects(:foo).once
 
         func = lambda { |x| x.foo }
@@ -193,6 +196,7 @@ class ActionBuilderTest < Test::Unit::TestCase
         end
 
         env = Vagrant::Action::Environment.new(nil)
+        env["logger"] = Logger.new(nil)
         env[:key] = :value
 
         @instance.use(mw)

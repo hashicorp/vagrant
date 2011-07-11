@@ -1,4 +1,5 @@
 require "test_helper"
+require "logger"
 
 class ActionWardenTest < Test::Unit::TestCase
   setup do
@@ -8,11 +9,12 @@ class ActionWardenTest < Test::Unit::TestCase
 
   context "initializing" do
     should "finalize the middleware" do
+      env = new_env
       middleware = [1,2,3]
       middleware.each do |m|
-        @klass.any_instance.expects(:finalize_action).with(m, {}).returns(m)
+        @klass.any_instance.expects(:finalize_action).with(m, env).returns(m)
       end
-      @warden = @klass.new(middleware, new_env)
+      @warden = @klass.new(middleware, env)
       assert_equal @warden.actions, [1,2,3]
     end
   end
@@ -48,10 +50,11 @@ class ActionWardenTest < Test::Unit::TestCase
     end
 
     should "call the next action" do
+      env = new_env
       action = mock('action')
-      action.expects(:call).with({})
+      action.expects(:call).with(env)
       @instance.actions << action
-      @instance.call(new_env)
+      @instance.call(env)
     end
 
     should "begin recovery sequence when the called action raises an exception" do
@@ -97,18 +100,21 @@ class ActionWardenTest < Test::Unit::TestCase
 
   context "recover" do
     should "call recover on all items in the stack" do
+      env = new_env
       seq = sequence("sequence")
       @instance.stack = [rescueable_mock("action"), rescueable_mock("another")]
       @instance.stack.each do |action|
-        action.expects(:recover).with(new_env).in_sequence(seq)
+        action.expects(:recover).with(env).in_sequence(seq)
       end
 
-      @instance.begin_rescue(new_env)
+      @instance.begin_rescue(env)
     end
   end
 
   def new_env
-    Vagrant::Action::Environment.new(nil)
+    env = Vagrant::Action::Environment.new(nil)
+    env["logger"] = Logger.new(nil)
+    env
   end
 
   def rescueable_mock(name)

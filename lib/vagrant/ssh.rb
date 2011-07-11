@@ -182,16 +182,26 @@ module Vagrant
       return env.config.ssh.port if env.config.ssh.port
 
       # Check if we have an SSH forwarded port
-      pnum = nil
+      pnum_by_name = nil
+      pnum_by_destination = nil
       env.vm.vm.network_adapters.each do |na|
-        pnum = na.nat_driver.forwarded_ports.detect do |fp|
+        # Look for the port number by name...
+        pnum_by_name = na.nat_driver.forwarded_ports.detect do |fp|
           fp.name == env.config.ssh.forwarded_port_key
         end
 
-        break if pnum
+        # Look for the port number by destination...
+        pnum_by_destination = na.nat_driver.forwarded_ports.detect do |fp|
+          fp.guestport == env.config.ssh.forwarded_port_destination
+        end
+
+        # pnum_by_name is what we're looking for here, so break early
+        # if we have it.
+        break if pnum_by_name
       end
 
-      return pnum.hostport if pnum
+      return pnum_by_name.hostport if pnum_by_name
+      return pnum_by_destination.hostport if pnum_by_destination
 
       # This should NEVER happen.
       raise Errors::SSHPortNotDetected
