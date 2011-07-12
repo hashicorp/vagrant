@@ -324,10 +324,13 @@ module Vagrant
       return @root_path if defined?(@root_path)
 
       root_finder = lambda do |path|
-        vagrantfile_name.each do |rootfile|
-          return path if File.exist?(File.join(path.to_s, rootfile))
+        # Note: To remain compatible with Ruby 1.8, we have to use
+        # a `find` here instead of an `each`.
+        found = vagrantfile_name.find do |rootfile|
+          File.exist?(File.join(path.to_s, rootfile))
         end
 
+        return path if found
         return nil if path.root? || !File.exist?(path)
         root_finder.call(path.parent)
       end
