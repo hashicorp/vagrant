@@ -31,6 +31,10 @@
     SSH port searching will fall back to that if it can't find any
     other port. [GH-375]
 
+## 0.7.7 (July 12, 2011)
+
+  - Fix crashing bug with Psych and Ruby 1.9.2. [GH-411]
+
 ## 0.7.6 (July 2, 2011)
 
   - Run Chef commands in a single command. [GH-390]
