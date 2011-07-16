@@ -454,7 +454,7 @@ module Vagrant
         if root_path
           # Load the Vagrantfile in this directory
           root_vagrantfile = root_path.join(rootfile)
-          @config_loader.set(:root, File.join(root_path, rootfile)) if root_vagrantfile.exist?
+          @config_loader.set(:root, root_vagrantfile) if root_vagrantfile.exist?
         end
       end
 
