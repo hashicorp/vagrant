@@ -33,6 +33,10 @@
     SSH port searching will fall back to that if it can't find any
     other port. [GH-375]
 
+## 0.7.8 (July 19, 2011)
+
+  - Make sure VirtualBox version check verifies that it is 4.0.x.
+
 ## 0.7.7 (July 12, 2011)
 
   - Fix crashing bug with Psych and Ruby 1.9.2. [GH-411]
