@@ -71,7 +71,7 @@ module Vagrant
             adapter = @env["vm"].vm.network_adapters[network_options[:adapter]]
             adapter.enabled = true
             adapter.attachment_type = :host_only
-            adapter.host_interface = network_name(network_options)
+            adapter.host_only_interface = network_name(network_options)
             adapter.mac_address = network_options[:mac].gsub(':', '') if network_options[:mac]
             adapter.save
           end
