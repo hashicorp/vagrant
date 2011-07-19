@@ -1,5 +1,7 @@
 ## 0.8.0 (unreleased)
 
+  - VirtualBox 4.1 support _only_. Previous versions of VirtualBox
+    are supported by earlier versions of Vagrant.
   - Performance optimizations in `virtualbox` gem. Huge speed gains.
   - `:chef_server` provisioner is now `:chef_client`. [GH-359]
   - SSH connection is now cached after first access internally,
