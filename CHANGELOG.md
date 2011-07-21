@@ -1,4 +1,4 @@
-## 0.8.0 (unreleased)
+## 0.8.0 (July 20, 2011)
 
   - VirtualBox 4.1 support _only_. Previous versions of VirtualBox
     are supported by earlier versions of Vagrant.
