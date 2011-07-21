@@ -118,7 +118,7 @@ module Vagrant
         options = options.join(" ")
 
         commands = ["cd #{manifests_guest_path}",
-                    "puppet #{options}"]
+                    "puppet apply #{options}"]
 
         env.ui.info I18n.t("vagrant.provisioners.puppet.running_puppet", :manifest => config.computed_manifest_file)
 
