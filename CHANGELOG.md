@@ -1,4 +1,8 @@
-## 0.8.1 (unreleased)
+## 0.8.2 (unreleased)
+
+
+
+## 0.8.1 (July 20, 2011)
 
   - Repush of 0.8.0 to fix a Ruby 1.9.2 RubyGems issue.
 
