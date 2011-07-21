@@ -76,6 +76,16 @@ module Vagrant
       # same options, and use that if possible
       session, options = @current_session
 
+      if session && options == opts
+        # Verify that the SSH session is still valid
+        begin
+          session.exec!("echo foo")
+        rescue IOError
+          # Reset the session, we need to reconnect
+          session = nil
+        end
+      end
+
       if !session || options != opts
         env.logger.info("ssh") { "Connecting to SSH: #{env.config.ssh.host} #{opts[:port]}" }
 
