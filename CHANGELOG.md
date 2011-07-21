@@ -1,3 +1,7 @@
+## 0.8.1 (unreleased)
+
+
+
 ## 0.8.0 (July 20, 2011)
 
   - VirtualBox 4.1 support _only_. Previous versions of VirtualBox
