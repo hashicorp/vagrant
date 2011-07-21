@@ -46,18 +46,22 @@ Of course I'd still like to optimize this more, but I'm very happy with
 the results in this release.
 
 ## Minor Bugs and Improvements
+
 Many other minor bugs were fixed and improvements were made. Some highlights:
 
-  * The shell provisioner now supports the `inline` option which allows
-    you to write scripts as strings inline write into your Vagrantfile.
-    This is useful for quick tasks or if you're reading in the command
-    from some other source.
-  * With the Chef provisioner, you can finally do `config.json =` instead
-    of doing the hacky `merge!` technique. This makes this provisioner
-    much more approachable for newer users.
-  * You can now specify the owner/group for your shared folders (not NFS).
+* The shell provisioner now supports the `inline` option which allows
+  you to write scripts as strings inline write into your Vagrantfile.
+  This is useful for quick tasks or if you're reading in the command
+  from some other source.
+
+* With the Chef provisioner, you can finally do `config.json =` instead
+  of doing the hacky `merge!` technique. This makes this provisioner
+  much more approachable for newer users.
+
+* You can now specify the owner/group for your shared folders (not NFS).
 
 ## The Future
+
 I'm now in "Vagrant 1.0" mode. Vagrant 0.8.0 made big gains
 in performance, and I am pleased. I'll continue to optimize Vagrant where I
 can, but the focus for Vagrant 0.9.0 will be testing and stability.
