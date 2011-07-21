@@ -5,6 +5,7 @@ module Vagrant
 
       attr_accessor :dotfile_name
       attr_accessor :host
+      attr_accessor :ssh_session_cache
 
       def validate(errors)
         [:dotfile_name, :host].each do |field|

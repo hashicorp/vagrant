@@ -131,7 +131,7 @@ class NetworkVMActionTest < Test::Unit::TestCase
 
         adapter.expects(:enabled=).with(true)
         adapter.expects(:attachment_type=).with(:host_only).once
-        adapter.expects(:host_interface=).with(@network_name).once
+        adapter.expects(:host_only_interface=).with(@network_name).once
 
         if options[:mac]
           adapter.expects(:mac_address=).with(options[:mac].gsub(':', '')).once

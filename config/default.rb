@@ -2,6 +2,7 @@ Vagrant::Config.run do |config|
   # default config goes here
   config.vagrant.dotfile_name = ".vagrant"
   config.vagrant.host = :detect
+  config.vagrant.ssh_session_cache = false
 
   config.ssh.username = "vagrant"
   config.ssh.host = "127.0.0.1"

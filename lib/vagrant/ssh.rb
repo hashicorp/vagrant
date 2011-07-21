@@ -73,8 +73,12 @@ module Vagrant
       opts[:port] ||= port
 
       # Check if we have a currently open SSH session which has the
-      # same options, and use that if possible
-      session, options = @current_session
+      # same options, and use that if possible.
+      #
+      # NOTE: This is experimental and unstable. Therefore it is disabled
+      # by default.
+      session, options = nil
+      session, options = @current_session if env.config.vagrant.ssh_session_cache
 
       if session && options == opts
         # Verify that the SSH session is still valid

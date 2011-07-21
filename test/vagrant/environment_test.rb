@@ -11,11 +11,11 @@ class EnvironmentTest < Test::Unit::TestCase
 
   context "class method check virtualbox version" do
     setup do
-      VirtualBox.stubs(:version).returns("4.0.0")
+      VirtualBox.stubs(:version).returns("4.1.0")
     end
 
     should "not error and exit if everything is good" do
-      VirtualBox.expects(:version).returns("4.0.0")
+      VirtualBox.expects(:version).returns("4.1.0")
       assert_nothing_raised { @klass.check_virtualbox! }
     end
 
