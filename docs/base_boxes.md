@@ -115,7 +115,9 @@ start by making sure the default account has proper permissions. Specifically,
 the main user should have **password-less `sudo` privileges**. We do this by
 running `su` and entering the root password you entered during the installation
 of the operating system. Once logged in, run `visudo` and set the admin group
-to use no password.
+to use no password. Additionally, set the `env_keep` variable to `"SSH_AUTH_SOCK"`
+so the connection to the forward agent is kept when `sudo` is run. That way
+provisioners may run commands as other users and authenticate against the forward agent.
 
 **Note:** Some bare bones systems will not include `sudo` by default. If `visudo`
 is not an available command, install the `sudo` package for your operating system.
@@ -128,7 +130,7 @@ The line you should add in the `visudo` configuration to do that looks like this
 
 Once that is setup, you may need to make the 'admin' group, and you then need to
 assign the main user to that group (on Debian and Ubuntu systems, this is done with
-the groupadd and usermod utilities. Consult the documentation for the commands your
+the `groupadd` and `usermod` utilities. Consult the documentation for the commands your
 operating system uses).
 
 Then restart sudo using `/etc/init.d/sudo restart` (command may defer on operating systems).
