@@ -65,7 +65,7 @@ module Vagrant
           # or VM path.
           local_path = nil
           local_path = File.expand_path(path, env.root_path) if type == :host
-          remote_path = type == :host ? "#{config.provisioning_path}/chef-solo-#{index}" : path
+          remote_path = type == :host ? "#{config.provisioning_path}/chef-solo-#{index}-#{File.basename(local_path)}" : path
           index += 1
 
           # Return the result
