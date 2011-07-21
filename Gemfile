@@ -12,10 +12,4 @@ group :test do
   gem "rake"
   gem "contest", ">= 0.1.2"
   gem "mocha"
-
-  # For documentation
-  platforms :ruby do
-    gem "yard", "~> 0.6.1"
-    gem "bluecloth"
-  end
 end
