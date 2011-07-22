@@ -4,6 +4,8 @@ module Vagrant
     class ChefSolo < Chef
       register :chef_solo
 
+      extend Util::Counter
+
       class Config < Chef::Config
         attr_accessor :cookbooks_path
         attr_accessor :roles_path
@@ -56,7 +58,6 @@ module Vagrant
         # path element which contains the folder location (:host or :vm)
         paths = [paths] if paths.is_a?(String) || paths.first.is_a?(Symbol)
 
-        index = 0
         paths.map do |path|
           path = [:host, path] if !path.is_a?(Array)
           type, path = path
@@ -65,8 +66,7 @@ module Vagrant
           # or VM path.
           local_path = nil
           local_path = File.expand_path(path, env.root_path) if type == :host
-          remote_path = type == :host ? "#{config.provisioning_path}/chef-solo-#{index}" : path
-          index += 1
+          remote_path = type == :host ? "#{config.provisioning_path}/chef-solo-#{self.class.get_and_update_counter}" : path
 
           # Return the result
           [type, local_path, remote_path]
