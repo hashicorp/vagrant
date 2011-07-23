@@ -3,6 +3,7 @@
   - Fix issue with SSH disconnects not reconnecting.
   - Fix chef solo simply not working with roles/data bags. [GH-425]
   - Multiple chef solo provisioners now work together.
+  - Update Puppet provisioner so no deprecation warning is shown. [GH-421]
 
 ## 0.8.1 (July 20, 2011)
 
