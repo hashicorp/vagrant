@@ -1,7 +1,8 @@
 ## 0.8.2 (unreleased)
 
   - Fix issue with SSH disconnects not reconnecting.
-  - Fix chef solo simply not working with roles/data bags.
+  - Fix chef solo simply not working with roles/data bags. [GH-425]
+  - Multiple chef solo provisioners now work together.
 
 ## 0.8.1 (July 20, 2011)
 
