@@ -1,6 +1,7 @@
 ## 0.8.2 (unreleased)
 
   - Fix issue with SSH disconnects not reconnecting.
+  - Fix chef solo simply not working with roles/data bags.
 
 ## 0.8.1 (July 20, 2011)
 
