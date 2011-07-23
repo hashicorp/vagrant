@@ -155,25 +155,25 @@ class PuppetProvisionerTest < Test::Unit::TestCase
     end
 
     should "cd into the pp_path directory and run puppet" do
-      expect_puppet_command("puppet #{@config.computed_manifest_file}")
+      expect_puppet_command("puppet apply #{@config.computed_manifest_file}")
       @action.run_puppet_client
     end
 
     should "cd into the pp_path directory and run puppet with given options when given as an array" do
       @config.options = ["--modulepath", "modules", "--verbose"]
-      expect_puppet_command("puppet --modulepath modules --verbose #{@config.computed_manifest_file}")
+      expect_puppet_command("puppet apply --modulepath modules --verbose #{@config.computed_manifest_file}")
       @action.run_puppet_client
     end
 
     should "cd into the pp_path directory and run puppet with the options when given as a string" do
       @config.options = "--modulepath modules --verbose"
-      expect_puppet_command("puppet --modulepath modules --verbose #{@config.computed_manifest_file}")
+      expect_puppet_command("puppet apply --modulepath modules --verbose #{@config.computed_manifest_file}")
       @action.run_puppet_client
     end
 
     should "cd into the pp_path and run puppet with module paths if set" do
       @config.module_path = "foo"
-      expect_puppet_command("puppet --modulepath '#{File.join(@config.pp_path, 'modules-0')}' #{@config.computed_manifest_file}")
+      expect_puppet_command("puppet apply --modulepath '#{File.join(@config.pp_path, 'modules-0')}' #{@config.computed_manifest_file}")
 
       @action.set_module_paths
       @action.run_puppet_client
