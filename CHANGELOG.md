@@ -1,3 +1,7 @@
+## 0.8.3 (unreleased)
+
+
+
 ## 0.8.2 (July 22, 2011)
 
   - Fix issue with SSH disconnects not reconnecting.
