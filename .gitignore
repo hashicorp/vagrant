@@ -1,15 +1,22 @@
+# OS-specific
 .DS_Store
-pkg/*
+
+# Vagrant stuff
 Vagrantfile
 .vagrant
+
+# Bundler/Rubygems
 .bundle
-cookbooks/*
-_site/*
-!templates/*
-*.org
-.yardoc/
-doc/
+pkg/*
 tags
 Gemfile.lock
+test/tmp/
+
+# Documentation
+_site/*
+.yardoc/
+doc/
+
+# IDE junk
 .idea/*
 *.iml
