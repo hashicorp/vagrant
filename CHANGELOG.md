@@ -1,4 +1,4 @@
-## 0.8.2 (unreleased)
+## 0.8.2 (July 22, 2011)
 
   - Fix issue with SSH disconnects not reconnecting.
   - Fix chef solo simply not working with roles/data bags. [GH-425]
