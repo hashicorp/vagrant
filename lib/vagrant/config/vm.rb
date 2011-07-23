@@ -67,13 +67,6 @@ module Vagrant
         @provisioners << Provisioner.new(top, name, options, &block)
       end
 
-      # This shows an error message to smooth the transition for the
-      # backwards incompatible provisioner syntax change introduced
-      # in Vagrant 0.7.0.
-      def provisioner=(_value)
-        raise Errors::VagrantError, :_key => :provisioner_equals_not_supported
-      end
-
       def customize(&block)
         push_proc(&block)
       end
@@ -123,6 +116,21 @@ module Vagrant
             # Owner/group don't work with NFS
             errors.add(I18n.t("vagrant.config.vm.shared_folder_nfs_owner_group",
                               :name => name))
+          end
+        end
+
+        # Validate some basic networking
+        network_options.each do |options|
+          next if !options
+
+          ip = options[:ip].split(".")
+
+          if ip.length != 4
+            errors.add(I18n.t("vagrant.config.vm.network_ip_invalid",
+                              :ip => options[:ip]))
+          elsif ip.last == "1"
+            errors.add(I18n.t("vagrant.config.vm.network_ip_ends_one",
+                              :ip => options[:ip]))
           end
         end
 

@@ -4,6 +4,9 @@
   - Fix chef solo simply not working with roles/data bags. [GH-425]
   - Multiple chef solo provisioners now work together.
   - Update Puppet provisioner so no deprecation warning is shown. [GH-421]
+  - Removed error on "provisioner=" in config, as this has not existed
+    for some time now.
+  - Add better validation for networking.
 
 ## 0.8.1 (July 20, 2011)
 
