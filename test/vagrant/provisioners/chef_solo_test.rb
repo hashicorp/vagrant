@@ -56,17 +56,12 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
       assert_equal [[:host, local_path, remote_path]], @action.expanded_folders([:host, path])
     end
 
-    should "expand multiple host folders properly" do
-      cookbooks_path = "cookbooks"
-      cookbooks_local_path = File.expand_path(cookbooks_path, @env.root_path)
-      cookbooks_remote_path = "#{@action.config.provisioning_path}/chef-solo-4"
-      roles_path = "roles"
-      roles_local_path = File.expand_path(roles_path, @env.root_path)
-      roles_remote_path = "#{@action.config.provisioning_path}/chef-solo-5"
-
-      assert_not_equal @action.expanded_folders([:host, cookbooks_path])[0].last, @action.expanded_folders([:host, roles_path])[0].last
-      assert_equal [[:host, cookbooks_local_path, cookbooks_remote_path]], @action.expanded_folders([:host, cookbooks_path])
-      assert_equal [[:host, roles_local_path, roles_remote_path]], @action.expanded_folders([:host, roles_path])
+    should "share roles and cookbooks in different folders" do
+      local_roles_path = File.expand_path('roles',@env.root_path)
+      local_cookbooks_path = File.expand_path('cookbooks',@env.root_path)
+      remote_roles_path = @action.expanded_folders([:host,local_roles_path])[0][2]
+      remote_cookbooks_path = @action.expanded_folders([:host,local_cookbooks_path])[0][2]
+      assert_not_equal remote_roles_path, remote_cookbooks_path
     end
   end
 
