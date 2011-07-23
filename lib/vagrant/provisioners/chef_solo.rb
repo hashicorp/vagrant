@@ -76,12 +76,10 @@ module Vagrant
       # Shares the given folders with the given prefix. The folders should
       # be of the structure resulting from the `expanded_folders` function.
       def share_folders(prefix, folders)
-        index = 0
         folders.each do |type, local_path, remote_path|
           if type == :host
-            env.config.vm.share_folder("v-#{prefix}-#{index}",
+            env.config.vm.share_folder("v-#{prefix}-#{self.class.get_and_update_counter}",
                                        remote_path, local_path, :nfs => config.nfs)
-            index += 1
           end
         end
       end
