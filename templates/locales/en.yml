@@ -542,5 +542,10 @@ en:
       solaris:
         attempting_halt: "Attempting graceful shutdown of solaris..."
 
+      windows:
+        attempting_halt: "Attempting graceful shutdown of Windows..."
+        rename_requires_restart: "Renaming a Windows computer requires you to restart the VM."
+
       freebsd:
         attempting_halt: "Attempting graceful shutdown of FreeBSD..."
+
