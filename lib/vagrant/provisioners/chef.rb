@@ -92,7 +92,7 @@ module Vagrant
         attr_accessor :no_proxy
         attr_accessor :binary_path
         attr_accessor :binary_env
-        attr_accessor :run_list
+        attr_writer :run_list
 
         def initialize
           @provisioning_path = "/tmp/vagrant-chef-#{self.class.get_and_update_counter}"
@@ -107,15 +107,21 @@ module Vagrant
           @no_proxy = nil
           @binary_path = nil
           @binary_env = nil
-          @run_list = []
+          @run_list = nil
         end
 
         # This returns the json that is merged with the defaults and the
         # user set data.
         def merged_json
-          { :instance_role => "vagrant",
-            :run_list      => run_list
-          }.merge(json || {})
+          original = { :instance_role => "vagrant" }
+          original[:run_list] = @run_list if @run_list
+          original.merge(json || {})
+        end
+
+        # Returns the run list, but also sets it up to be empty if it
+        # hasn't been defined already.
+        def run_list
+          @run_list ||= []
         end
 
         # Adds a recipe to the run list

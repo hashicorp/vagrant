@@ -1,6 +1,7 @@
 ## 0.8.3 (unreleased)
 
  - Fix SSH `exec!` to inherit proper `$PATH`. [GH-426]
+ - Chef client now accepts an empty (`nil`) run list again. [GH-429]
 
 ## 0.8.2 (July 22, 2011)
 
