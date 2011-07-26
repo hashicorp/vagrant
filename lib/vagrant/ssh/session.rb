@@ -34,7 +34,7 @@ module Vagrant
       # of `sudo`.
       def sudo!(commands, options=nil, &block)
         channel = session.open_channel do |ch|
-          ch.exec("sudo -H #{env.config.ssh.sudo_shell} -l") do |ch2, success|
+          ch.exec("sudo -H #{env.config.ssh.shell} -l") do |ch2, success|
             # Set the terminal
             ch2.send_data "export TERM=vt100\n"
 
@@ -60,12 +60,23 @@ module Vagrant
       # the command completes. This is an almost line for line copy of
       # the actual `exec!` implementation, except that this
       # implementation also reports `:exit_status` to the block if given.
-      def exec!(command, options=nil, &block)
+      def exec!(commands, options=nil, &block)
         retryable(:tries => 5, :on => [IOError, Net::SSH::Disconnect], :sleep => 1.0) do
-          metach = session.open_channel do |channel|
-            channel.exec(command) do |ch, success|
-              raise "could not execute command: #{command.inspect}" unless success
-              setup_channel_callbacks(ch, command, options, block)
+          metach = session.open_channel do |ch|
+            ch.exec("#{env.config.ssh.shell} -l") do |ch2, success|
+              # Set the terminal
+              ch2.send_data "export TERM=vt100\n"
+
+              # Output the commands as if they were entered on the command line
+              [commands].flatten.each do |command|
+                ch2.send_data "#{command}\n"
+              end
+
+              # Remember to exit
+              ch2.send_data "exit\n"
+
+              # Setup the callbacks
+              setup_channel_callbacks(ch2, commands, options, block)
             end
           end
 

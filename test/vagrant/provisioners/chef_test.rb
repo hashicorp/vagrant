@@ -25,6 +25,17 @@ class ChefProvisionerTest < Test::Unit::TestCase
       assert result !~ /"json":/
     end
 
+    should "not include the 'run_list' key in json if not accessed" do
+      result = @config.merged_json
+      assert !result.has_key?(:run_list)
+    end
+
+    should "include the 'run_list' key in json if it is set" do
+      @config.run_list << "foo"
+      result = @config.merged_json
+      assert result.has_key?(:run_list)
+    end
+
     should "provide accessors to the run list" do
       @config.run_list << "foo"
       assert !@config.run_list.empty?
