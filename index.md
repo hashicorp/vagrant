@@ -17,10 +17,10 @@ the [getting started guide](/docs/getting-started/index.html), the
 ## Your First Vagrant Virtual Environment
 
 {% highlight bash %}
-$ gem install vagrant
-$ vagrant box add base http://files.vagrantup.com/lucid32.box
-$ vagrant init
-$ vagrant up
+$ gem install vagrant   # installs Vagrant on your system
+$ vagrant box add base http://files.vagrantup.com/lucid32.box   # creates a "base box" named "base"
+$ vagrant init    # creates a Vagrantfile, which allows you to configure your VM how you like it
+$ vagrant up   # boot up the VM
 {% endhighlight %}
 
 These four commands alone will automatically download and create a bare bones
