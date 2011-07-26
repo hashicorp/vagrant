@@ -1,6 +1,6 @@
 ## 0.8.3 (unreleased)
 
-
+ - Fix SSH `exec!` to inherit proper `$PATH`. [GH-426]
 
 ## 0.8.2 (July 22, 2011)
 
