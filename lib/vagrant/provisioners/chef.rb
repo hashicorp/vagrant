@@ -114,7 +114,9 @@ module Vagrant
         # user set data.
         def merged_json
           original = { :instance_role => "vagrant" }
-          original[:run_list] = @run_list if @run_list
+          if @run_list.respond_to? "empty?"
+            original[:run_list] = @run_list unless @run_list.empty?
+          end
           original.merge(json || {})
         end
 
