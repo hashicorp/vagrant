@@ -40,6 +40,20 @@ class ConfigVMTest < Test::Unit::TestCase
 
       assert_equal [:a, :b, :c], @config.defined_vm_keys
     end
+
+    should "use static ip for host-only interface when given" do
+      @config.network "1.1.1.1"
+
+      assert_equal "1.1.1.1", @config.network_options[1][:ip]
+      assert !@config.network_options[1][:dhcp]
+    end
+
+    should "use dynamic ip for host-only interface when specifying DHCP" do
+      @config.network "1.1.1.1", :dhcp => true
+
+      assert_equal "1.1.1.1", @config.network_options[1][:ip]
+      assert @config.network_options[1][:dhcp]
+    end
   end
 
   context "customizing" do

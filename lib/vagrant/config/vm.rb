@@ -53,6 +53,7 @@ module Vagrant
       def network(ip, options=nil)
         options = {
           :ip => ip,
+          :dhcp => false,
           :netmask => "255.255.255.0",
           :adapter => 1,
           :mac => nil,
