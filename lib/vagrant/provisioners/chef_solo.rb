@@ -17,8 +17,8 @@ module Vagrant
           super
 
           @cookbooks_path = ["cookbooks", [:vm, "cookbooks"]]
-          @roles_path = []
-          @data_bags_path = []
+          @roles_path = ""
+          @data_bags_path = ""
           @nfs = false
         end
 
@@ -94,8 +94,8 @@ module Vagrant
 
       def setup_solo_config
         cookbooks_path = guest_paths(@cookbook_folders)
-        roles_path = guest_paths(@role_folders)
-        data_bags_path = guest_paths(@data_bags_folders)
+        roles_path = guest_paths(@role_folders).first
+        data_bags_path = guest_paths(@data_bags_folders).first
 
         setup_config("chef_solo_solo", "solo.rb", {
           :node_name => config.node_name,
