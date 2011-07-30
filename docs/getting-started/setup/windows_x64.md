@@ -9,6 +9,16 @@ Vagrant is a bit different, but not any more difficult. The key
 ingredients to getting it working are a 64-bit Java runtime and
 64-bit JRuby, both of which have automated installers.
 
+<div class="info">
+  <h3>Vagrant 0.8.x and VirtualBox 4.1!</h3>
+  <p>
+    VirtualBox 4.1 changed some of its API interfaces in VirtualBox 4.1 to use
+    more arrays. JRuby's win32ole interface currently does not support array
+    creation. Therefore, if you need to run Vagrant on Windows, please continue
+    using Vagrant 0.7.8 and VirtualBox 4.0.12.
+  </p>
+</div>
+
 ## Install Java 64-bit
 
 To install the 64-bit JRE (Java Runtime Environment), follow the
