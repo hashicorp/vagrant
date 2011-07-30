@@ -44,7 +44,7 @@ the stderr and stdout output to the host console for your convenience.
 
 If you have a quick, short script you want to execute, or perhaps your
 script exists in a Ruby variable somehow in your Vagrantfile, you can
-specify the script inline as a string:
+specify the script inline right in your Vagrantfile:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
