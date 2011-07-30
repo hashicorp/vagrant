@@ -116,8 +116,6 @@ you can specify additional JSON data in the Vagrantfile:
 {% highlight ruby %}
 Vagrant::Config.run do |config|
   config.vm.provision :chef_solo do |chef|
-    # merge is used to preserve the default JSON configuration, otherwise it'll
-    # all be overwritten
     chef.json = {
       :load_limit => 42,
       :chunky_bacon => true
