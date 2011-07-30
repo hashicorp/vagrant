@@ -182,6 +182,7 @@ en:
     commands:
       common:
         vm_not_created: "VM not created. Moving on..."
+        vm_not_running: "VM is not currently running. Please bring it up to run this command."
       box:
         no_installed_boxes: "There are no installed boxes! Use `vagrant box add` to add some."
       ssh:
