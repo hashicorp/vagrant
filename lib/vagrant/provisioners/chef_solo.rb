@@ -66,7 +66,15 @@ module Vagrant
           # or VM path.
           local_path = nil
           local_path = File.expand_path(path, env.root_path) if type == :host
-          remote_path = type == :host ? "#{config.provisioning_path}/chef-solo-#{self.class.get_and_update_counter}" : path
+          remote_path = nil
+          if type == :host
+            # Path exists on the host, setup the remote path
+            remote_path = "#{config.provisioning_path}/chef-solo-#{self.class.get_and_update_counter}"
+          else
+            # Path already exists on the virtual machine. Expand it
+            # relative to where we're provisioning.
+            remote_path = File.expand_path(path, config.provisioning_path)
+          end
 
           # Return the result
           [type, local_path, remote_path]

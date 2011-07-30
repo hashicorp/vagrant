@@ -4,6 +4,7 @@
  - Chef client now accepts an empty (`nil`) run list again. [GH-429]
  - Fix incorrect error message when running `provision` on halted VM. [GH-447]
  - Checking guest addition versions now ignores OSE. [GH-438]
+ - Chef solo from a remote URL fixed. [GH-431]
 
 ## 0.8.2 (July 22, 2011)
 
