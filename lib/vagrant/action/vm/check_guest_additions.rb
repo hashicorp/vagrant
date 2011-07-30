@@ -15,10 +15,15 @@ module Vagrant
           version = env["vm"].vm.interface.get_guest_property_value("/VirtualBox/GuestAdd/Version")
           if version.empty?
             env.ui.warn I18n.t("vagrant.actions.vm.check_guest_additions.not_detected")
-          elsif version != VirtualBox.version
-            env.ui.warn(I18n.t("vagrant.actions.vm.check_guest_additions.version_mismatch",
-                        :guest_version => version,
-                        :virtualbox_version => VirtualBox.version))
+          else
+            # Strip the -OSE/_OSE off from the guest additions
+            version = version.gsub(/[-_]ose/i, '')
+
+            if version != VirtualBox.version
+              env.ui.warn(I18n.t("vagrant.actions.vm.check_guest_additions.version_mismatch",
+                                 :guest_version => version,
+                                 :virtualbox_version => VirtualBox.version))
+            end
           end
 
           # Continue
