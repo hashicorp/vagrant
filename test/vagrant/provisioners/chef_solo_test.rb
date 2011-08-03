@@ -86,8 +86,8 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
         :provisioning_path => @config.provisioning_path,
         :cookbooks_path => @action.guest_paths(@action.cookbook_folders),
         :recipe_url => @config.recipe_url,
-        :roles_path => @action.guest_paths(@action.role_folders),
-        :data_bags_path => @action.guest_paths(@action.data_bags_folders)
+        :roles_path => @action.guest_paths(@action.role_folders).first,
+        :data_bags_path => @action.guest_paths(@action.data_bags_folders).first
       })
 
       @action.setup_solo_config

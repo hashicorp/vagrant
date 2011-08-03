@@ -6,6 +6,7 @@
  - Checking guest addition versions now ignores OSE. [GH-438]
  - Chef solo from a remote URL fixed. [GH-431]
  - Arch linux support: host only networks and changing the host name. [GH-439] [GH-448]
+ - Chef solo `roles_path` and `data_bags_path` can only be be single paths. [GH-446]
 
 ## 0.8.2 (July 22, 2011)
 

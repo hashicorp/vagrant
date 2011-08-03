@@ -17,8 +17,8 @@ module Vagrant
           super
 
           @cookbooks_path = ["cookbooks", [:vm, "cookbooks"]]
-          @roles_path = ""
-          @data_bags_path = ""
+          @roles_path = nil
+          @data_bags_path = nil
           @nfs = false
         end
 
@@ -54,6 +54,8 @@ module Vagrant
 
       # Converts paths to a list of properly expanded paths with types.
       def expanded_folders(paths)
+        return [] if paths.nil?
+
         # Convert the path to an array if it is a string or just a single
         # path element which contains the folder location (:host or :vm)
         paths = [paths] if paths.is_a?(String) || paths.first.is_a?(Symbol)
