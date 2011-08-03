@@ -34,7 +34,7 @@ module Vagrant
 
           errors.add(I18n.t("vagrant.config.chef.server_url_empty")) if !chef_server_url || chef_server_url.strip == ""
           errors.add(I18n.t("vagrant.config.chef.validation_key_path")) if !validation_key_path
-          errors.add(I18n.t("vagrant.config.chef.run_list_empty")) if run_list && run_list.empty?
+          errors.add(I18n.t("vagrant.config.chef.run_list_empty")) if @run_list && @run_list.empty?
         end
       end
 
