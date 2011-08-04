@@ -5,6 +5,7 @@ module Vagrant
       register :chef_solo
 
       extend Util::Counter
+      include Util::Counter
 
       class Config < Chef::Config
         attr_accessor :cookbooks_path
@@ -71,7 +72,7 @@ module Vagrant
           remote_path = nil
           if type == :host
             # Path exists on the host, setup the remote path
-            remote_path = "#{config.provisioning_path}/chef-solo-#{self.class.get_and_update_counter}"
+            remote_path = "#{config.provisioning_path}/chef-solo-#{get_and_update_counter(:cookbooks_path)}"
           else
             # Path already exists on the virtual machine. Expand it
             # relative to where we're provisioning.
@@ -88,7 +89,7 @@ module Vagrant
       def share_folders(prefix, folders)
         folders.each do |type, local_path, remote_path|
           if type == :host
-            env.config.vm.share_folder("v-#{prefix}-#{self.class.get_and_update_counter}",
+            env.config.vm.share_folder("v-#{prefix}-#{self.class.get_and_update_counter(:shared_folder)}",
                                        remote_path, local_path, :nfs => config.nfs)
           end
         end
