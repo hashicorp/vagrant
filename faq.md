@@ -16,11 +16,11 @@ and lightweight. For more specific reasons, check out the "[Why Vagrant?](/docs/
 
 ### Could you perhaps convert a Vagrant project into an EC2 instance for deployment?
 
-That's where provisioners comes in. Vagrant can use [Chef](http://www.opscode.com/chef) or 
-[Puppet](http://www.puppetlabs.com/puppet) for provisioning VMs. 
+That's where provisioners comes in. Vagrant can use [Chef](http://www.opscode.com/chef) or
+[Puppet](http://www.puppetlabs.com/puppet) for provisioning VMs.
 
-Both tools provide software configuration management -- you write manifests that specify 
-how a system should be set up. If you write your Chef or Puppet configuration the right way 
+Both tools provide software configuration management -- you write manifests that specify
+how a system should be set up. If you write your Chef or Puppet configuration the right way
 you can take the same set of configuration you write and deploy to EC2 or any other Linux box, virtual or not.
 So with Vagrant you can essentially pass around a virtual machine configuration amongst
 your team and be confident that the entire team is coding and testing in a near-exact
@@ -40,7 +40,7 @@ enough, someone will add it in for you.
 ### Don't virtual machines slow down your main development machine?
 
 The short answer: no. Longer answer: Given a big enough and busy enough virtual machine... perhaps. But through real-world
-usage, we've found that most virtual machines are small, using 256 to 500 MB or RAM,
+usage, we've found that most virtual machines are small, using 256 to 512 MB of RAM,
 and typically are running mostly idle processes. Its not as if the virtual machines
 are running 3D games (although I suppose you could try it)!
 
