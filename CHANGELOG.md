@@ -8,6 +8,7 @@
  - Arch linux support: host only networks and changing the host name. [GH-439] [GH-448]
  - Chef solo `roles_path` and `data_bags_path` can only be be single paths. [GH-446]
  - Fix `virtualbox_not_detected` error message to require 4.1.x. [GH-458]
+ - Add shortname (`hostname -s`) for hostname setting on RHEL systems. [GH-456]
 
 ## 0.8.2 (July 22, 2011)
 
