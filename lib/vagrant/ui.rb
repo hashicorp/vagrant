@@ -34,7 +34,7 @@ module Vagrant
         class_eval <<-CODE
           def #{method}(message, opts=nil)
             super(message)
-            @shell.say("\#{line_reset}\#{format_message(message, opts)}", #{color.inspect})
+            @shell.say("\#{format_message(message, opts)}", #{color.inspect})
           end
         CODE
       end
@@ -53,9 +53,12 @@ module Vagrant
         percent = (progress.to_f / total.to_f) * 100
         line = "Progress: #{percent.to_i}%"
         line << " (#{progress} / #{total})" if show_parts
-        line = "#{line_reset}#{line}"
 
         @shell.say(line, nil, false)
+      end
+
+      def clear_line
+        @shell.say(line_reset, nil, false)
       end
 
       protected
