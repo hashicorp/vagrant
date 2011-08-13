@@ -16,7 +16,7 @@ module Vagrant
       end
     end
 
-    [:report_progress, :ask, :no?, :yes?].each do |method|
+    [:clear_line, :report_progress, :ask, :no?, :yes?].each do |method|
       # By default do nothing, these aren't logged
       define_method(method) { |*args| }
     end
