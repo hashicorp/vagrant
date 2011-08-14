@@ -6,8 +6,6 @@ gem "vagrant", :path => '.'
 # typically coincides with it
 gem "virtualbox", :git => "git://github.com/mitchellh/virtualbox.git"
 
-# Gems required for testing only. To install run
-# gem bundle test
 group :test do
   gem "rake"
   gem "contest", ">= 0.1.2"
