@@ -34,7 +34,9 @@ module Vagrant
         class_eval <<-CODE
           def #{method}(message, opts=nil)
             super(message)
-            @shell.say("\#{format_message(message, opts)}", #{color.inspect})
+            opts ||= {}
+            opts[:new_line] = true if !opts.has_key?(:new_line)
+            @shell.say("\#{format_message(message, opts)}", #{color.inspect}, opts[:new_line])
           end
         CODE
       end

@@ -16,9 +16,12 @@ module Vagrant
 
       def ssh_execute
         ssh_vm.ssh.execute do |ssh|
-          ssh_vm.env.ui.info I18n.t("vagrant.commands.ssh.command", :command => options[:command])
           ssh.exec!(options[:command]) do |channel, type, data|
-            ssh_vm.env.ui.info "#{data}"
+            if type != :exit_status
+              # Print the SSH output as it comes in, but don't prefix it and don't
+              # force a new line so that the output is properly preserved
+              ssh_vm.env.ui.info(data.to_s, :prefix => false, :new_line => false)
+            end
           end
         end
       end
