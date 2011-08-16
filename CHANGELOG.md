@@ -1,6 +1,6 @@
-## 0.8.4 (August 15, 2011)
+## 0.8.5 (August 15, 2011)
 
-Note: 0.8.3 was yanked due to RubyGems encoding issue.
+Note: 0.8.3 and 0.8.4 was yanked due to RubyGems encoding issue.
 
  - Fix SSH `exec!` to inherit proper `$PATH`. [GH-426]
  - Chef client now accepts an empty (`nil`) run list again. [GH-429]
