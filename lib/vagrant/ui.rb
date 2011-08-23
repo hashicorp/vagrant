@@ -16,7 +16,7 @@ module Vagrant
       end
     end
 
-    [:report_progress, :ask, :no?, :yes?].each do |method|
+    [:clear_line, :report_progress, :ask, :no?, :yes?].each do |method|
       # By default do nothing, these aren't logged
       define_method(method) { |*args| }
     end
@@ -34,7 +34,9 @@ module Vagrant
         class_eval <<-CODE
           def #{method}(message, opts=nil)
             super(message)
-            @shell.say("\#{line_reset}\#{format_message(message, opts)}", #{color.inspect})
+            opts ||= {}
+            opts[:new_line] = true if !opts.has_key?(:new_line)
+            @shell.say("\#{format_message(message, opts)}", #{color.inspect}, opts[:new_line])
           end
         CODE
       end
@@ -53,9 +55,12 @@ module Vagrant
         percent = (progress.to_f / total.to_f) * 100
         line = "Progress: #{percent.to_i}%"
         line << " (#{progress} / #{total})" if show_parts
-        line = "#{line_reset}#{line}"
 
         @shell.say(line, nil, false)
+      end
+
+      def clear_line
+        @shell.say(line_reset, nil, false)
       end
 
       protected

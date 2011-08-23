@@ -4,6 +4,14 @@ module Vagrant
     # chef-solo and chef-client provisioning are stored. This is **not an actual
     # provisioner**. Instead, {ChefSolo} or {ChefServer} should be used.
     class Chef < Base
+      include Util::Counter
+
+      def initialize(env, config)
+        super
+
+        config.provisioning_path ||= "/tmp/vagrant-chef-#{get_and_update_counter(:provisioning_path)}"
+      end
+
       def prepare
         raise ChefError, :invalid_provisioner
       end
@@ -76,8 +84,6 @@ module Vagrant
     class Chef < Base
       # This is the configuration which is available through `config.chef`
       class Config < Vagrant::Config::Base
-        extend Util::Counter
-
         # Shared config
         attr_accessor :node_name
         attr_accessor :provisioning_path
@@ -95,7 +101,7 @@ module Vagrant
         attr_writer :run_list
 
         def initialize
-          @provisioning_path = "/tmp/vagrant-chef-#{self.class.get_and_update_counter}"
+          @provisioning_path = nil
           @log_level = :info
           @json = {}
           @http_proxy = nil

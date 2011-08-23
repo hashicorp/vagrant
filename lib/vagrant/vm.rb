@@ -67,7 +67,8 @@ module Vagrant
           :suse    => Systems::Suse,
           :linux   => Systems::Linux,
           :solaris => Systems::Solaris,
-          :windows => Systems::Windows
+          :windows => Systems::Windows,
+          :arch    => Systems::Arch
         }
 
         raise Errors::VMSystemError, :_key => :unknown_type, :system => system.to_s if !mapping.has_key?(system)

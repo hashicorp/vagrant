@@ -5,8 +5,12 @@ module Vagrant
 
       def execute
         target_vms.each do |vm|
-          if vm.created? && vm.vm.running?
-            vm.provision
+          if vm.created?
+            if vm.vm.running?
+              vm.provision
+            else
+              vm.env.ui.info I18n.t("vagrant.commands.common.vm_not_running")
+            end
           else
             vm.env.ui.info I18n.t("vagrant.commands.common.vm_not_created")
           end

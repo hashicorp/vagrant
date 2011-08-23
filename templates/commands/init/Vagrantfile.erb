@@ -58,7 +58,7 @@ Vagrant::Config.run do |config|
   #   chef.add_role "web"
   #
   #   # You may also specify custom JSON attributes:
-  #   chef.json.merge!({ :mysql_password => "foo" })
+  #   chef.json = { :mysql_password => "foo" }
   # end
 
   # Enable provisioning with chef server, specifying the chef server URL,
@@ -71,7 +71,7 @@ Vagrant::Config.run do |config|
   # HTTP instead of HTTPS depending on your configuration. Also change the
   # validation key to validation.pem.
   #
-  # config.vm.provision :chef_server do |chef|
+  # config.vm.provision :chef_client do |chef|
   #   chef.chef_server_url = "https://api.opscode.com/organizations/ORGNAME"
   #   chef.validation_key_path = "ORGNAME-validator.pem"
   # end
