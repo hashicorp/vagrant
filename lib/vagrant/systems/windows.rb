@@ -26,7 +26,7 @@ module Vagrant
       def halt
         vm.env.ui.info I18n.t("vagrant.systems.windows.attempting_halt")
         vm.ssh.execute do |ssh|
-          ssh.exec!('shutdown.exe /l /t:1 "Vagrant Shutdown" /y /c')
+          ssh.exec!('shutdown.exe /p /f')
         end
 
         # Wait until the VM's state is actually powered off. If this doesn't
