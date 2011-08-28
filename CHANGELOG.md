@@ -1,6 +1,7 @@
 ## 0.8.6 (unreleased)
 
   - Fix issue with download progress not properly clearing the line. [GH-476]
+  - NFS should work properly on Fedora. [GH-450]
 
 ## 0.8.5 (August 15, 2011)
 
