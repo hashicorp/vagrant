@@ -7,11 +7,13 @@ module Vagrant
         attr_accessor :inline
         attr_accessor :path
         attr_accessor :upload_path
+        attr_accessor :args
 
         def initialize
           @inline = nil
           @path = nil
           @upload_path = "/tmp/vagrant-shell"
+          @args = nil
         end
 
         def expanded_path
@@ -64,7 +66,9 @@ module Vagrant
       end
 
       def provision!
-        commands = ["chmod +x #{config.upload_path}", config.upload_path]
+        args = ""
+        args = " #{config.args}" if config.args
+        commands = ["chmod +x #{config.upload_path}", "#{config.upload_path}#{args}"]
 
         with_script_file do |path|
           # Upload the script to the VM
