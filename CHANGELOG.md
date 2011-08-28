@@ -1,6 +1,6 @@
 ## 0.8.6 (unreleased)
 
-
+  - Fix issue with download progress not properly clearing the line. [GH-476]
 
 ## 0.8.5 (August 15, 2011)
 

@@ -49,6 +49,7 @@ module Vagrant
               # Progress reporting is limited to every 25 segments just so
               # we're not constantly updating
               if segment_count % 25 == 0
+                env.ui.clear_line
                 env.ui.report_progress(progress, total)
                 segment_count = 0
               end
@@ -56,6 +57,9 @@ module Vagrant
               # Store the segment
               destination_file.write(segment)
             end
+
+            # Clear the line one last time so that the progress meter disappears
+            env.ui.clear_line
           end
         end
       rescue SocketError
