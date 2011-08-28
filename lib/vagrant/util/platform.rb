@@ -27,13 +27,6 @@ module Vagrant
           false
         end
 
-        def arch?
-          linux? &&
-            File.exist?('/etc/rc.conf') &&
-            File.exist?('/etc/pacman.conf') &&
-            File.exist?('/etc/rc.d/')
-        end
-
         # Returns boolean noting whether this is a 64-bit CPU. This
         # is not 100% accurate and there could easily be false negatives.
         #

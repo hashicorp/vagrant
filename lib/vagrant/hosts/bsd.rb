@@ -1,9 +1,15 @@
+require 'vagrant/util/platform'
+
 module Vagrant
   module Hosts
     # Represents a BSD host, such as FreeBSD and Darwin (Mac OS X).
     class BSD < Base
       include Util
       include Util::Retryable
+
+      def self.distro_dispatch
+        return self if Util::Platform.darwin? || Util::Platform.bsd?
+      end
 
       def nfs?
         retryable(:tries => 10, :on => TypeError) do

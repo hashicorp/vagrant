@@ -1,9 +1,17 @@
+require 'vagrant/util/platform'
+
 module Vagrant
   module Hosts
     # Represents a Linux based host, such as Ubuntu.
     class Linux < Base
       include Util
       include Util::Retryable
+
+      def self.distro_dispatch
+        return nil if !Util::Platform.linux?
+        return Arch if File.exist?("/etc/rc.conf") && File.exist?("/etc/pacman.conf")
+        return self
+      end
 
       def nfs?
         retryable(:tries => 10, :on => TypeError) do
