@@ -84,6 +84,22 @@ Vagrant::Config.run do |config|
 end
 {% endhighlight %}
 
+## Specifying the Environment
+
+If you're using Chef 0.10 or later, you have access to
+[environments](http://wiki.opscode.com/display/chef/Environments).
+If you'd like to configure the environment you're node is part of, simply
+use the `environment` configuration option:
+
+{% highlight ruby %}
+Vagrant::Config.run do |config|
+  config.vm.provision :chef_client do |chef|
+    # Set the environment for the chef server
+    chef.environment = "development"
+  end
+end
+{% endhighlight %}
+
 ## Other Configuration Options
 
 There are other configuration options as well, but these can normally be left
