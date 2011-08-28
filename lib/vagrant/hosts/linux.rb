@@ -11,9 +11,9 @@ module Vagrant
         return nil if !Util::Platform.linux?
         return Arch if File.exist?("/etc/rc.conf") && File.exist?("/etc/pacman.conf")
 
-        if File.exist?("/etc/redhat-version")
+        if File.exist?("/etc/redhat-release")
           # Check if we have a known redhat release
-          File.open("/etc/redhat-version") do |f|
+          File.open("/etc/redhat-release") do |f|
             return Fedora if f.gets =~ /^Fedora/
           end
         end
