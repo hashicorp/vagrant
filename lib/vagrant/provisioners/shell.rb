@@ -39,6 +39,11 @@ module Vagrant
           if !upload_path
             errors.add(I18n.t("vagrant.provisioners.shell.upload_path_not_set"))
           end
+
+          # If there are args and its not a string, that is a problem
+          if args && !args.is_a?(String)
+            errors.add(I18n.t("vagrant.provisioners.shell.args_not_string"))
+          end
         end
       end
 
