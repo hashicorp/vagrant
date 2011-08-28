@@ -1,3 +1,7 @@
+## 0.8.6 (unreleased)
+
+
+
 ## 0.8.5 (August 15, 2011)
 
 Note: 0.8.3 and 0.8.4 was yanked due to RubyGems encoding issue.
