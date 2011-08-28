@@ -52,6 +52,22 @@ Vagrant::Config.run do |config|
 end
 {% endhighlight %}
 
+## Script Arguments
+
+You can also pass arguments to the script via the `args` configuration
+parameter. The `args` are expected to be a string that woudl be typed
+as-is onto the command line, so be sure to escape anything which should
+be escaped. Example:
+
+{% highlight ruby %}
+Vagrant::Config.run do |config|
+  config.vm.provision :shell do |shell|
+    shell.inline = "echo $1 > /vagrant/test"
+    shell.args = "'write this to a file'"
+  end
+end
+{% endhighlight %}
+
 ## Enabling and Executing
 
 As with all other provisioners, adding the `config.vm.provision` line
