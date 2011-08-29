@@ -262,6 +262,7 @@ class VMTest < Test::Unit::TestCase
       setup do
         @mock_vm.stubs(:running?).returns(false)
         @mock_vm.stubs(:saved?).returns(false)
+        @mock_vm.stubs(:accessible?).returns(true)
       end
 
       should "not do anything if the VM is already running" do
@@ -285,6 +286,14 @@ class VMTest < Test::Unit::TestCase
       should "forward options to the action sequence" do
         @vm.env.actions.expects(:run).with(:start, :foo => :bar).once
         @vm.start(:foo => :bar)
+      end
+
+      should "raise an exception if the VM is not accessible" do
+        @mock_vm.stubs(:accessible?).returns(false)
+
+        assert_raises(Vagrant::Errors::VMInaccessible) {
+          @vm.start
+        }
       end
     end
   end
