@@ -27,8 +27,6 @@ module Vagrant
       end
 
       def ssh_connect
-        raise Errors::VMNotCreatedError if !ssh_vm.created?
-        raise Errors::VMNotRunningError if !ssh_vm.vm.running?
         ssh_vm.ssh.connect
       end
 
@@ -37,6 +35,12 @@ module Vagrant
           vm = self.name.nil? && env.multivm? ? env.primary_vm : nil
           raise Errors::MultiVMTargetRequired, :command => "ssh" if !vm && target_vms.length > 1
           vm = target_vms.first if !vm
+
+          # Basic checks that are required for proper SSH
+          raise Errors::VMNotCreatedError if !vm.created?
+          raise Errors::VMInaccessible if !vm.vm.accessible?
+          raise Errors::VMNotRunningError if !vm.vm.running?
+
           vm
         end
       end
