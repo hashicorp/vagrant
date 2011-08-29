@@ -74,9 +74,9 @@ module Vagrant
             # Path exists on the host, setup the remote path
             remote_path = "#{config.provisioning_path}/chef-solo-#{get_and_update_counter(:cookbooks_path)}"
           else
-            # Path already exists on the virtual machine. Expand it
-            # relative to where we're provisioning.
-            remote_path = File.expand_path(path, config.provisioning_path)
+            # Path already exists on the virtual machine, therefore
+            # just use the path given.
+            remote_path = path
           end
 
           # Return the result
