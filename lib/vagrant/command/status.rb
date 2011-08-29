@@ -3,10 +3,19 @@ module Vagrant
     class StatusCommand < NamedBase
       register "status", "Shows the status of the current Vagrant environment."
 
-      def route
+      def execute
         state = nil
         results = target_vms.collect do |vm|
-          state = vm.created? ? vm.vm.state.to_s : "not_created"
+          if vm.created?
+            if vm.vm.accessible?
+              state = vm.vm.state.to_s
+            else
+              state = "inaccessible"
+            end
+          else
+            state = "not_created"
+          end
+
           "#{vm.name.to_s.ljust(25)}#{state.gsub("_", " ")}"
         end
 

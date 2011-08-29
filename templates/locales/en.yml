@@ -191,6 +191,11 @@ en:
           stopped without properly closing the session. Run `vagrant up`
           to resume this virtual machine. If any problems persist, you may
           have to destroy and restart the virtual machine.
+        inaccessible: |-
+          The VM is inaccessible! This is a rare case which means that VirtualBox
+          can't find your VM configuration. This usually happens when upgrading
+          VirtualBox, moving to a new computer, etc. Please consult VirtualBox
+          for how to handle this issue.
         output: |-
           Current VM states:
 
