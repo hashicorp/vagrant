@@ -6,7 +6,9 @@ module Vagrant
       def execute
         target_vms.each do |vm|
           if vm.created?
-            if vm.vm.running?
+            if !vm.vm.accessible?
+              raise Errors::VMInaccessible
+            elsif vm.vm.running?
               vm.provision
             else
               vm.env.ui.info I18n.t("vagrant.commands.common.vm_not_running")
