@@ -141,6 +141,7 @@ module Vagrant
     end
 
     def start(options=nil)
+      raise Errors::VMInaccessible if !@vm.accessible?
       return if @vm.running?
       return resume if @vm.saved?
 
