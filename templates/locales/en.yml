@@ -144,6 +144,11 @@ en:
           http://vagrantup.com/docs/getting-started/setup/windows_x64.html
 
       vm_creation_required: "VM must be created before running this command. Run `vagrant up` first."
+      vm_inaccessible: |-
+        Your VM has become "inaccessible." Unfortunately, this is a critical error
+        with VirtualBox that Vagrant can not cleanly recover from. Please open VirtualBox
+        and clear out your inaccessible virtual machines or find a way to fix
+        them.
       vm_not_found: "A VM by the name of %{name} was not found."
       vm_not_running: "VM must be running to open SSH connection."
 
