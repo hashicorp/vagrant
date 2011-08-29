@@ -11,7 +11,7 @@ module Vagrant
         # @return [Array<String>]
         def used_ports
           result = VirtualBox::VM.all.collect do |vm|
-            if vm.running? && vm.uuid != @env["vm"].uuid
+            if vm.accessible? && vm.running? && vm.uuid != @env["vm"].uuid
               vm.network_adapters.collect do |na|
                 na.nat_driver.forwarded_ports.collect do |fp|
                   fp.hostport.to_i
