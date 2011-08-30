@@ -1,6 +1,6 @@
 ## 0.8.7 (unreleased)
 
-
+  - Fix regression with remote paths from chef-solo. [GH-431]
 
 ## 0.8.6 (August 28, 2011)
 
