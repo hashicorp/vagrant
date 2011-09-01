@@ -9,6 +9,7 @@ class ForwardPortsVMActionTest < Test::Unit::TestCase
     @vm.stubs(:name).returns("foo")
     @env["vm"] = @vm
     @env["vm.modify"] = mock("proc")
+    ENV["USER"] = "not-root"
   end
 
   context "initializing" do
@@ -22,25 +23,37 @@ class ForwardPortsVMActionTest < Test::Unit::TestCase
   context "checking for threshold" do
     setup do
       @klass.any_instance.stubs(:external_collision_check)
-    end
-
-    should "error if has a port below threshold" do
       @env.env.config.vm.forwarded_ports.clear
-      @env.env.config.vm.forward_port("foo", 22, 222)
-
-      assert_raises(Vagrant::Errors::ForwardPortBelowThreshold) {
-        @klass.new(@app, @env)
-      }
     end
 
-    should "not error if ports are fine" do
-      @env.env.config.vm.forwarded_ports.clear
-      @env.env.config.vm.forward_port("foo", 22, 2222)
+    context "for non-root users" do
 
-      assert_nothing_raised {
-        @klass.new(@app, @env)
-      }
+      should "error if has a port below threshold" do
+        @env.env.config.vm.forward_port("foo", 22, 222)
+        assert_raises(Vagrant::Errors::ForwardPortBelowThreshold) { @klass.new(@app, @env) }
+      end
+
+      should "not error if ports are fine" do
+        @env.env.config.vm.forward_port("foo", 22, 2222)
+        assert_nothing_raised { @klass.new(@app, @env) }
+      end
+
     end
+    context "for a root user" do
+      setup do
+        ENV["USER"] = "root"
+      end
+
+      should "not error for any port" do
+        @env.env.config.vm.forward_port("foo", 22, 222)
+        assert_nothing_raised { @klass.new(@app, @env) }
+
+        @env.env.config.vm.forward_port("foo", 22, 2222)
+        assert_nothing_raised { @klass.new(@app, @env) }
+      end
+
+    end
+
   end
 
   context "checking for colliding external ports" do
