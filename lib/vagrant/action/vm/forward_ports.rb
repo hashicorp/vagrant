@@ -10,7 +10,7 @@ module Vagrant
           @app = app
           @env = env
 
-          threshold_check
+          threshold_check unless ENV["USER"] == "root"
           external_collision_check
         end
 
