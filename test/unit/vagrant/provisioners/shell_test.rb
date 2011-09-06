@@ -64,5 +64,16 @@ class ShellProvisionerTest < Test::Unit::TestCase
 
       @action.provision!
     end
+
+    should "append arguments if provided" do
+      @config.args = "foo bar baz"
+      commands = ["chmod +x #{@config.upload_path}", "#{@config.upload_path} #{@config.args}"]
+
+      p_seq = sequence("provisioning")
+      @action.vm.ssh.expects(:upload!).with(@config.expanded_path.to_s, @config.upload_path).in_sequence(p_seq)
+      @ssh.expects(:sudo!).with(commands).in_sequence(p_seq)
+
+      @action.provision!
+    end
   end
 end

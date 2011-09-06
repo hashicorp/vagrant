@@ -1,9 +1,31 @@
+require 'vagrant/util/platform'
+
 module Vagrant
   module Hosts
     # Represents a Linux based host, such as Ubuntu.
     class Linux < Base
       include Util
       include Util::Retryable
+
+      def self.distro_dispatch
+        return nil if !Util::Platform.linux?
+        return Arch if File.exist?("/etc/rc.conf") && File.exist?("/etc/pacman.conf")
+
+        if File.exist?("/etc/redhat-release")
+          # Check if we have a known redhat release
+          File.open("/etc/redhat-release") do |f|
+            return Fedora if f.gets =~ /^Fedora/
+          end
+        end
+
+        return self
+      end
+
+      def initialize(*args)
+        super
+
+        @nfs_server_binary = "/etc/init.d/nfs-kernel-server"
+      end
 
       def nfs?
         retryable(:tries => 10, :on => TypeError) do
@@ -29,7 +51,7 @@ module Vagrant
 
         # We run restart here instead of "update" just in case nfsd
         # is not starting
-        system("sudo /etc/init.d/nfs-kernel-server restart")
+        system("sudo #{@nfs_server_binary} restart")
       end
 
       def nfs_cleanup

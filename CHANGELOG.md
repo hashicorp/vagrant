@@ -1,3 +1,14 @@
+## 0.8.7 (unreleased)
+
+  - Fix regression with remote paths from chef-solo. [GH-431]
+
+## 0.8.6 (August 28, 2011)
+
+  - Fix issue with download progress not properly clearing the line. [GH-476]
+  - NFS should work properly on Fedora. [GH-450]
+  - Arguments can be specified to the `shell` provisioner via the `args` option. [GH-475]
+  - Vagrant behaves much better when there are "inaccessible" VMs. [GH-453]
+
 ## 0.8.5 (August 15, 2011)
 
 Note: 0.8.3 and 0.8.4 was yanked due to RubyGems encoding issue.

@@ -17,6 +17,9 @@ _site/*
 .yardoc/
 doc/
 
+# Rubinius
+*.rbc
+
 # IDE junk
 .idea/*
 *.iml

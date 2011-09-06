@@ -319,6 +319,11 @@ module Vagrant
       error_key(:failure, "vagrant.actions.vm.import")
     end
 
+    class VMInaccessible < VagrantError
+      status_code(54)
+      error_key(:vm_inaccessible)
+    end
+
     class VMNotCreatedError < VagrantError
       status_code(6)
       error_key(:vm_creation_required)

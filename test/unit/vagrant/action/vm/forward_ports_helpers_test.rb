@@ -27,6 +27,7 @@ class ForwardPortsHelpersVMActionTest < Test::Unit::TestCase
     def mock_vm(options={})
       options = {
         :running? => true,
+        :accessible? => true,
         :uuid => :foo
       }.merge(options)
 
@@ -46,6 +47,12 @@ class ForwardPortsHelpersVMActionTest < Test::Unit::TestCase
 
     should "ignore VMs which aren't running" do
       @vms << mock_vm(:running? => false)
+      @vms[0].expects(:forwarded_ports).never
+      @instance.used_ports
+    end
+
+    should "ignore VMs which aren't accessible" do
+      @vms << mock_vm(:accessible? => false)
       @vms[0].expects(:forwarded_ports).never
       @instance.used_ports
     end

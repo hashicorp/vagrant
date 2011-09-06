@@ -8,41 +8,39 @@ module Vagrant
       # The {Environment} which this host belongs to.
       attr_reader :env
 
-      class << self
-        # Loads the proper host for the given value. If the value is nil
-        # or is the symbol `:detect`, then the host class will be detected
-        # using the `RUBY_PLATFORM` constant.
-        #
-        # @param [Environment] env
-        # @param [String] klass
-        # @return [Base]
-        def load(env, klass)
-          klass = detect if klass.nil? || klass == :detect
-          return nil if !klass
-          return klass.new(env)
+      # Loads the proper host for the given value. If the value is nil
+      # or is the symbol `:detect`, then the host class will be detected
+      # using the `RUBY_PLATFORM` constant.
+      #
+      # @param [Environment] env
+      # @param [String] klass
+      # @return [Base]
+      def self.load(env, klass)
+        klass = detect if klass.nil? || klass == :detect
+        return nil if !klass
+        return klass.new(env)
+      end
+
+      # Detects the proper host class for current platform and returns
+      # the class.
+      #
+      # @return [Class]
+      def self.detect
+        [BSD, Linux].each do |type|
+          result = type.distro_dispatch
+          return result if result
         end
 
-        # Detects the proper host class for current platform and returns
-        # the class.
-        #
-        # @return [Class]
-        def detect
-          # More coming soon
-          classes = {
-            :darwin => BSD,
-            :bsd => BSD,
-            :arch => Arch,
-            :linux => Linux
-          }
+        nil
+      rescue Exception
+        nil
+      end
 
-          classes.each do |type, klass|
-            return klass if Util::Platform.send("#{type}?")
-          end
-
-          nil
-        rescue Exception
-          nil
-        end
+      # This must be implemented by subclasses to dispatch to the proper
+      # distro-specific class for the host. If this returns nil then it is
+      # an invalid host class.
+      def self.distro_dispatch
+        nil
       end
 
       # Initialzes a new host. This method shouldn't be called directly,

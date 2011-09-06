@@ -2,6 +2,7 @@ module Vagrant
   class Action
     module VM
       autoload :Boot,                'vagrant/action/vm/boot'
+      autoload :CheckAccessible,     'vagrant/action/vm/check_accessible'
       autoload :CheckBox,            'vagrant/action/vm/check_box'
       autoload :CheckGuestAdditions, 'vagrant/action/vm/check_guest_additions'
       autoload :CleanMachineFolder,  'vagrant/action/vm/clean_machine_folder'

@@ -8,6 +8,7 @@ module Vagrant
         raise Errors::MultiVMTargetRequired, :command => "ssh_config" if target_vms.length > 1
         vm = target_vms.first
         raise Errors::VMNotCreatedError if !vm.created?
+        raise Errors::VMInaccessible if !vm.vm.accessible?
 
         # We need to fix the file permissions of the key if they aren't set
         # properly, otherwise if the user attempts to SSH in, it won't work!

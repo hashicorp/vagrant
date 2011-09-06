@@ -144,6 +144,11 @@ en:
           http://vagrantup.com/docs/getting-started/setup/windows_x64.html
 
       vm_creation_required: "VM must be created before running this command. Run `vagrant up` first."
+      vm_inaccessible: |-
+        Your VM has become "inaccessible." Unfortunately, this is a critical error
+        with VirtualBox that Vagrant can not cleanly recover from. Please open VirtualBox
+        and clear out your inaccessible virtual machines or find a way to fix
+        them.
       vm_not_found: "A VM by the name of %{name} was not found."
       vm_not_running: "VM must be running to open SSH connection."
 
@@ -191,6 +196,11 @@ en:
           stopped without properly closing the session. Run `vagrant up`
           to resume this virtual machine. If any problems persist, you may
           have to destroy and restart the virtual machine.
+        inaccessible: |-
+          The VM is inaccessible! This is a rare case which means that VirtualBox
+          can't find your VM configuration. This usually happens when upgrading
+          VirtualBox, moving to a new computer, etc. Please consult VirtualBox
+          for how to handle this issue.
         output: |-
           Current VM states:
 
@@ -509,6 +519,7 @@ en:
         running_puppetd: "Running Puppet agent..."
 
       shell:
+        args_not_string: "Shell provisioner `args` must be a string."
         path_and_inline_set: "Only one of `path` or `inline` may be set."
         no_path_or_inline: "One of `path` or `inline` must be set."
         path_invalid: "`path` for shell provisioner does not exist on the host system: %{path}"
