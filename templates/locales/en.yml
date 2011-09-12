@@ -314,11 +314,6 @@ en:
 
             VM: %{vm_name}
             Forwarded port: %{name} (%{guest_port} => %{host_port})
-          below_threshold_error: |-
-            The host port of all forwarded ports must be above 1024. VirtualBox
-            does not allow host ports to be below 1024. (Guest ports below 1024
-            are fine. For example: SSH on port 22 on the guest can be forwarded
-            to port 2222, but not 222).
           collision_error: |-
             Vagrant cannot forward the specified ports on this VM, since they
             would collide with another VirtualBox virtual machine's forwarded
@@ -336,6 +331,12 @@ en:
           non_nat: |-
             VirtualBox adapter #%{adapter} not configured as "NAT"
             Skipping port forwarding '%{name}'.
+          privileged_ports: |-
+            You are trying to forward to privileged ports (ports <= 1024). Most
+            operating systems restrict this to only privileged process (typically
+            processes running as an administrative user). This is a warning in case
+            the port forwarding doesn't work. If any problems occur, please try a
+            port higher than 1024.
         halt:
           force: Forcing shutdown of VM...
         host_name:

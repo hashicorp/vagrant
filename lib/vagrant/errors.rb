@@ -168,11 +168,6 @@ module Vagrant
       error_key(:auto_empty, "vagrant.actions.vm.forward_ports")
     end
 
-    class ForwardPortBelowThreshold < VagrantError
-      status_code(25)
-      error_key(:below_threshold_error, "vagrant.actions.vm.forward_ports")
-    end
-
     class ForwardPortCollision < VagrantError
       status_code(26)
       error_key(:collision_error, "vagrant.actions.vm.forward_ports")
