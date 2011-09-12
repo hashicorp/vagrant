@@ -1,6 +1,7 @@
 ## 0.8.7 (unreleased)
 
   - Fix regression with remote paths from chef-solo. [GH-431]
+  - Fix issue where Vagrant crashes if `.vagrant` file becomes invalid. [GH-496]
 
 ## 0.8.6 (August 28, 2011)
 
