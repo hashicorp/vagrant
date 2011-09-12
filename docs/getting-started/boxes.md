@@ -38,8 +38,8 @@ while box installation is covered in more detail:
 $ vagrant box add lucid32 http://files.vagrantup.com/lucid32.box
 {% endhighlight %}
 
-Installed boxes reside in `~/.vagrant/boxes`, and they are global to the current vagrant
-installation. This means that once the lucid32 box has been added, it can be used by
+Installed boxes are global to the current vagrant installation. This
+means that once the lucid32 box has been added, it can be used by
 multiple projects at the same time. Each project uses the box as a _base_ only, so once the
 project VM is created, modifications can be made without affecting other
 projects which may use the same box.
