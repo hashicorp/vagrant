@@ -4,6 +4,7 @@
 auto eth<%= net_options[:adapter] %>
 <% if net_options[:dhcp] then %>
 iface eth<%= net_options[:adapter] %> inet dhcp
+pre-up sleep 10
 <% else %>
 iface eth<%= net_options[:adapter] %> inet static
       address <%= net_options[:ip] %>
