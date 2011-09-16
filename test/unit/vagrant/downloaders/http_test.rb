@@ -33,6 +33,16 @@ class HttpDownloaderTest < Test::Unit::TestCase
       @downloader.download!(@uri, @tempfile)
     end
 
+    should "create a proper net/http object without a proxy if no_proxy defined" do
+      @uri = "http://somewhere.direct.com/some_file"
+      @parsed_uri = URI.parse(@uri)
+      ENV["http_proxy"] = "http://user:foo@google.com"
+      ENV["no_proxy"] = "direct.com"
+      Net::HTTP.expects(:new).with(@parsed_uri.host, @parsed_uri.port, nil, nil, nil, nil).once.returns(@http)
+      @http.expects(:start)
+      @downloader.download!(@uri, @tempfile)
+    end
+
     should "enable SSL if scheme is https" do
       @uri = "https://google.com/"
       @http.expects(:use_ssl=).with(true).once
