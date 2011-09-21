@@ -23,6 +23,14 @@ class DataStoreTest < Test::Unit::TestCase
     }
   end
 
+  should "initialize just fine if the db file contains invalid data" do
+    file = tmp_path.join("data_store_empty_test")
+    File.open(file, "w") { |f| f.write("") }
+
+    instance = @klass.new(file)
+    assert instance.length == 0
+  end
+
   should "be a hash with indifferent access" do
     assert @instance.is_a?(Vagrant::Util::HashWithIndifferentAccess)
   end

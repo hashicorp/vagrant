@@ -23,7 +23,12 @@ module Vagrant
 
       if File.exist?(file_path)
         File.open(file_path, "r") do |f|
-          merge!(JSON.parse(f.read))
+          begin
+            merge!(JSON.parse(f.read))
+          rescue JSON::ParserError
+            # Ignore if the data is invalid in the file.
+            # TODO: Log here.
+          end
         end
       end
     end

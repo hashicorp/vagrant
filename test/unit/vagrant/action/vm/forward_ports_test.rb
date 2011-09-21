@@ -22,24 +22,21 @@ class ForwardPortsVMActionTest < Test::Unit::TestCase
   context "checking for threshold" do
     setup do
       @klass.any_instance.stubs(:external_collision_check)
+      @env.env.config.vm.forwarded_ports.clear
     end
 
-    should "error if has a port below threshold" do
-      @env.env.config.vm.forwarded_ports.clear
+    should "issue a warning for ports less than 1024" do
       @env.env.config.vm.forward_port("foo", 22, 222)
 
-      assert_raises(Vagrant::Errors::ForwardPortBelowThreshold) {
-        @klass.new(@app, @env)
-      }
+      @env.ui.expects(:warn).once
+      @klass.new(@app, @env)
     end
 
-    should "not error if ports are fine" do
-      @env.env.config.vm.forwarded_ports.clear
+    should "not issue a warning for ports greater than 1024" do
       @env.env.config.vm.forward_port("foo", 22, 2222)
 
-      assert_nothing_raised {
-        @klass.new(@app, @env)
-      }
+      @env.ui.expects(:warn).never
+      @klass.new(@app, @env)
     end
   end
 

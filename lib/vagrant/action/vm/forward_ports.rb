@@ -23,7 +23,10 @@ module Vagrant
         # 1024, which causes the forwarded ports to fail.
         def threshold_check
           @env.env.config.vm.forwarded_ports.each do |name, options|
-            raise Errors::ForwardPortBelowThreshold if options[:hostport] <= 1024
+            if options[:hostport] <= 1024
+              @env.ui.warn I18n.t("vagrant.actions.vm.forward_ports.privileged_ports")
+              return
+            end
           end
         end
 
