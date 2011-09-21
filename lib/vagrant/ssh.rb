@@ -98,7 +98,7 @@ module Vagrant
         exceptions = [Errno::ECONNREFUSED, Net::SSH::Disconnect]
 
         # Connect to SSH and gather the session
-        session = retryable(:tries => 5, :on => exceptions) do
+        session = retryable(:tries => env.config.ssh.max_tries, :on => exceptions) do
           connection = Net::SSH.start(env.config.ssh.host,
                          env.config.ssh.username,
                          opts.merge( :keys => [env.config.ssh.private_key_path],
