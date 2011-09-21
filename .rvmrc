@@ -10,3 +10,4 @@ if ! gem list | grep -q bundler; then
     bundle install
 fi
 
+alias vagrant="bundle exec vagrant"
