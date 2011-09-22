@@ -2,6 +2,7 @@ require 'net/http'
 require 'net/https'
 require 'open-uri'
 require 'uri'
+require 'base64'
 
 module Vagrant
   module Downloaders
@@ -27,7 +28,12 @@ module Vagrant
         http.start do |h|
           env.ui.info I18n.t("vagrant.downloaders.http.download", :url => source_url)
 
-          h.request_get(uri.request_uri) do |response|
+          headers = nil
+          if uri.user && uri.password
+            headers = {'Authorization' => 'Basic ' + Base64.encode64(uri.user + ':' + uri.password)}
+          end
+
+          h.request_get(uri.request_uri, headers) do |response|
             if response.is_a?(Net::HTTPRedirection)
               # Follow the HTTP redirect.
               # TODO: Error on some redirect limit

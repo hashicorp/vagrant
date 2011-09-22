@@ -6,6 +6,7 @@ class HttpDownloaderTest < Test::Unit::TestCase
     @downloader.stubs(:report_progress)
     @downloader.stubs(:complete_progress)
     @uri = "http://google.com/"
+    @headers = nil
   end
 
   context "downloading" do
@@ -48,7 +49,7 @@ class HttpDownloaderTest < Test::Unit::TestCase
       segment.stubs(:length).returns(7)
 
       @http.stubs(:start).yields(h)
-      h.expects(:request_get).with(@parsed_uri.request_uri).once.yields(response)
+      h.expects(:request_get).with(@parsed_uri.request_uri, @headers).once.yields(response)
       response.expects(:read_body).once.yields(segment)
       @tempfile.expects(:write).with(segment).once
 
