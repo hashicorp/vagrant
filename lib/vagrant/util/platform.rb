@@ -13,7 +13,7 @@ module Vagrant
           platform.include?("darwin9")
         end
 
-        [:darwin, :bsd, :linux].each do |type|
+        [:darwin, :bsd, :freebsd, :linux].each do |type|
           define_method("#{type}?") do
             platform.include?(type.to_s)
           end
