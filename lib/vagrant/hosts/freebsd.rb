@@ -2,21 +2,10 @@ require 'vagrant/util/platform'
 
 module Vagrant
   module Hosts
-    # Represents a BSD host, such as FreeBSD and Darwin (Mac OS X).
-    class BSD < Base
+    # Represents a FreeBSD host
+    class FreeBSD < BSD
       include Util
       include Util::Retryable
-
-      def self.distro_dispatch
-        return FreeBSD if Util::Platform.freebsd?
-        return self if Util::Platform.darwin? || Util::Platform.bsd?
-      end
-
-      def nfs?
-        retryable(:tries => 10, :on => TypeError) do
-          system("which nfsd > /dev/null 2>&1")
-        end
-      end
 
       def nfs_export(ip, folders)
         output = TemplateRenderer.render('nfs/exports',
@@ -38,10 +27,12 @@ module Vagrant
 
         # We run restart here instead of "update" just in case nfsd
         # is not starting
-        system("sudo nfsd restart")
+        system("sudo /etc/rc.d/mountd onereload")
       end
 
-      def nfs_cleanup
+    end
+
+    def nfs_cleanup
         return if !File.exist?("/etc/exports")
 
         retryable(:tries => 10, :on => TypeError) do
@@ -52,8 +43,9 @@ module Vagrant
             # by Vagrant
             system("sudo sed -e '/^# VAGRANT-BEGIN: #{env.vm.uuid}/,/^# VAGRANT-END: #{env.vm.uuid}/ d' -ibak /etc/exports")
           end
+
+          system("sudo /etc/rc.d/mountd onereload")
         end
       end
-    end
   end
 end
