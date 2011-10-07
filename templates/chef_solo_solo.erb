@@ -2,8 +2,8 @@
 node_name "<%= node_name %>"
 <% end %>
 file_cache_path "<%= provisioning_path %>"
-cookbook_path <%= cookbooks_path.inspect %>
-role_path <%= roles_path.inspect %>
+cookbooks_path <%= cookbooks_path.inspect %>
+roles_path <%= roles_path.inspect %>
 log_level <%= log_level.inspect %>
 
 <% if data_bags_path -%>
