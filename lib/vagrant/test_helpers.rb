@@ -84,6 +84,29 @@ module Vagrant
       [app, env]
     end
 
+    # Utility method for capturing output streams.
+    # @example Evaluate the output
+    #   output = capture(:stdout){ env.cli("foo") }
+    #   assert_equal "bar", output
+    # @example Silence the output
+    #   silence(:stdout){ env.cli("init") }
+    # @param [:stdout, :stderr] stream The stream to capture
+    # @yieldreturn String
+    # @see https://github.com/wycats/thor/blob/master/spec/spec_helper.rb
+    def capture(stream)
+      begin
+        stream = stream.to_s
+        eval "$#{stream} = StringIO.new"
+        yield
+        result = eval("$#{stream}").string
+      ensure
+        eval("$#{stream} = #{stream.upcase}")
+      end
+
+      result
+    end
+    alias :silence :capture
+
     #------------------------------------------------------------
     # Path helpers
     #------------------------------------------------------------
