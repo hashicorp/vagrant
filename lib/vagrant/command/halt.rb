@@ -3,6 +3,7 @@ module Vagrant
     class HaltCommand < NamedBase
       class_option :force, :type => :boolean, :default => false, :aliases => "-f"
       register "halt", "Halt the running VMs in the environment"
+      register "down", "Alias for the \"halt\" command"
 
       def execute
         target_vms.each do |vm|
