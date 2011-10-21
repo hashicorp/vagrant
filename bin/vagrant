@@ -2,7 +2,7 @@
 require 'vagrant'
 require 'vagrant/cli'
 
-env = Vagrant::Environment.new
+env = Vagrant::Environment.parse(ARGV)
 
 begin
   # Begin logging early here
