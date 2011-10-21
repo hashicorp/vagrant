@@ -46,13 +46,12 @@ module Vagrant
       end
 
       def change_host_name(name)
-        device = "#{vm.env.config.solaris.device}0"
         su_cmd = vm.env.config.solaris.suexec_cmd
         vm.ssh.execute do |ssh|
           # Only do this if the hostname is not already set
           if !ssh.test?("#{su_cmd} hostname | grep '#{name}'")
-            ssh.exec!("#{su_cmd} sh -c \"echo '#{name}' > /etc/hostname.#{device}\"")
-            ssh.exec!("#{su_cmd} sudo uname -S #{name}")
+            ssh.exec!("#{su_cmd} sh -c \"echo '#{name}' > /etc/nodename\"")
+            ssh.exec!("#{su_cmd} uname -S #{name}")
           end
         end
       end
