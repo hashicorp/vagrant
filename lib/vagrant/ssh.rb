@@ -53,12 +53,61 @@ module Vagrant
         command_options << "-o ForwardX11Trusted=yes"
       end
 
+      if env.config.ssh.shared_connections.is_a? FalseClass
+        command_options << "-o ControlMaster=no"
+      else
+        command_options << "-o ControlMaster=auto"
+      end
+      command_options << "-o ControlPath=~/.ssh/vagrant-multiplex-%r@%h:%p"
+
       # Some hackery going on here. On Mac OS X Leopard (10.5), exec fails
       # (GH-51). As a workaround, we fork and wait. On all other platforms,
       # we simply exec.
       command = "ssh #{command_options.join(" ")} #{options[:username]}@#{options[:host]}".strip
       env.logger.info("ssh") { "Invoking SSH: #{command}" }
       safe_exec(command)
+    end
+
+    # In order to run Aruba's 'When I type "..."' steps:
+    # Interactive connection to the environment's virtual machine, replacing the ruby
+    # process with an SSH process. This method optionally takes a hash
+    # of options which override the configuration values.
+    def interactive_connect(opts={})
+      if Mario::Platform.windows?
+        raise Errors::SSHUnavailableWindows, :key_path => env.config.ssh.private_key_path,
+                                             :ssh_port => port(opts)
+      end
+
+      raise Errors::SSHUnavailable if !Kernel.system("which ssh > /dev/null 2>&1")
+
+      options = {}
+      options[:port] = port(opts)
+      [:host, :username, :private_key_path].each do |param|
+        options[param] = opts[param] || env.config.ssh.send(param)
+      end
+
+      check_key_permissions(options[:private_key_path])
+
+      # Command line options
+      command_options = ["-p #{options[:port]}", "-o UserKnownHostsFile=/dev/null",
+                         "-o StrictHostKeyChecking=no", "-o IdentitiesOnly=yes",
+                         "-i #{options[:private_key_path]}"]
+      command_options << "-o ForwardAgent=yes" if env.config.ssh.forward_agent
+
+      if env.config.ssh.forward_x11
+        # Both are required so that no warnings are shown regarding X11
+        command_options << "-o ForwardX11=yes"
+        command_options << "-o ForwardX11Trusted=yes"
+      end
+
+      if env.config.ssh.shared_connections.is_a? FalseClass
+        command_options << "-o ControlMaster=no"
+      else
+        command_options << "-o ControlMaster=auto"
+      end
+      command_options << "-o ControlPath=~/.ssh/vagrant-multiplex-%r@%h:%p"
+
+      system "ssh #{command_options.join(" ")} #{options[:username]}@#{options[:host]}".strip
     end
 
     # Opens an SSH connection to this environment's virtual machine and yields

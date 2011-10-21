@@ -7,7 +7,7 @@ gemspec
 
 # Use the following gems straight from git, since Vagrant dev
 # typically coincides with it
-gem "virtualbox", :git => "git://github.com/mitchellh/virtualbox.git"
+gem "virtualbox"#, :git => "git://github.com/mitchellh/virtualbox.git"
 
 if platform.include?("mingw") || platform.include?("mswin")
   # JRuby requires these gems for development, but only
