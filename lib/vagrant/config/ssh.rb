@@ -14,12 +14,19 @@ module Vagrant
       attr_accessor :forward_x11
       attr_accessor :shell
       attr_accessor :port
+      attr_accessor :shared_connections
+      attr_accessor :control_master
 
       def initialize
         @shell = "bash"
         @port = nil
         @forward_agent = false
         @forward_x11 = false
+        if @shared_connections.is_a? FalseClass
+          @control_master = 'no'
+        else
+          @control_master = 'auto'
+        end
       end
 
       def private_key_path

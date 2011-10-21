@@ -47,7 +47,10 @@ class SshTest < Test::Unit::TestCase
       ssh_exec_expect(@ssh.port,
                       @env.config.ssh.private_key_path,
                       @env.config.ssh.username,
-                      @env.config.ssh.host)
+                      @env.config.ssh.host)do |args|
+        assert args =~ /-o ControlMaster=auto/, args.inspect
+        assert args =~ /-o ControlPath=~\/.ssh\/vagrant-multiplex-%r@%h:%p/, args.inspect
+      end
       @ssh.connect
     end
 
@@ -75,6 +78,50 @@ class SshTest < Test::Unit::TestCase
                       @env.config.ssh.username,
                       @env.config.ssh.host) do |args|
         assert args =~ /-o ForwardX11=yes/
+      end
+      @ssh.connect
+    end
+
+    should "add ControlMaster option if multiplexing enabled" do
+      @env.config.ssh.shared_connections = true
+      ssh_exec_expect(@ssh.port,
+                      @env.config.ssh.private_key_path,
+                      @env.config.ssh.username,
+                      @env.config.ssh.host) do |args|
+        assert args =~ /-o ControlMaster=auto/
+      end
+      @ssh.connect
+    end
+
+    should "add ControlPath option if multiplexing enabled" do
+      @env.config.ssh.shared_connections = true
+      ssh_exec_expect(@ssh.port,
+                      @env.config.ssh.private_key_path,
+                      @env.config.ssh.username,
+                      @env.config.ssh.host) do |args|
+        assert args =~ /-o ControlPath=~\/.ssh\/vagrant-multiplex-%r@%h:%p/
+      end
+      @ssh.connect
+    end
+
+    should "add ControlMaster option if multiplexing disabled" do
+      @env.config.ssh.shared_connections = false
+      ssh_exec_expect(@ssh.port,
+                      @env.config.ssh.private_key_path,
+                      @env.config.ssh.username,
+                      @env.config.ssh.host) do |args|
+        assert args =~ /-o ControlMaster=no/, args.inspect
+      end
+      @ssh.connect
+    end
+
+    should "not add ControlPath option if multiplexing disabled" do
+      @env.config.ssh.shared_connections = false
+      ssh_exec_expect(@ssh.port,
+                      @env.config.ssh.private_key_path,
+                      @env.config.ssh.username,
+                      @env.config.ssh.host) do |args|
+        assert args !=~ /-o ControlPath/
       end
       @ssh.connect
     end
