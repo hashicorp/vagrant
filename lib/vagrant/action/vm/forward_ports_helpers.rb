@@ -19,7 +19,6 @@ module Vagrant
               end
             end
           end
-          #puts "Ports forwarded: #{result.flatten.uniq}"
           result.flatten.uniq
         end
       end

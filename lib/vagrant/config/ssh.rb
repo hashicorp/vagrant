@@ -31,11 +31,11 @@ module Vagrant
         @connect_timeout = 60
         @keep_alive_interval = 60
         @shared_connections = true
-        if env
-          $stdout.puts 'DO WE EVER SEE THIS? '*10
-          @control_master ||= []
-          @control_master << ::Vagrant::SSH.new(env).execute({:command => "echo 'Vagrant SSH master connection'"})
-        end
+        #if env
+        #  $stdout.puts 'WE NEVER SEE THIS? '*10
+        #  @control_master ||= []
+        #  @control_master << ::Vagrant::SSH.new(env).execute({:command => "echo 'Vagrant SSH master connection'"})
+        #end
         @distribution = nil
       end
 

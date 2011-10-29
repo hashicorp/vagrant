@@ -45,10 +45,9 @@ en:
         occurring. Please wait for the other instance of Vagrant to end and then
         try again.  This error is also raised if there are active or orphaned
         SSH connections leftover from a previous Vagrant session.
-        Some steps to try to fix this: First, the moist drastic, run `killall ssh`.
+        Some steps to try to fix this: First, the most drastic, run `killall ssh`.
         This will end all SSH connections, including any unrelated to Vagrant.
-        Second, run `ps |grep ssh` and then manulayy slect the SSH connections
-        you wish to kill.
+        Second, run `ps |grep ssh` and then slect the SSH connections to kill.
       interrupted: "Vagrant exited after cleanup due to external interrupt."
       multi_vm_required: "A multi-vm environment is required for name specification to this command."
       multi_vm_target_required: "`vagrant %{command}` requires a specific VM name to target in a multi-VM environment."

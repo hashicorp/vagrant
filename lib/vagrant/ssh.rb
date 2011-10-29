@@ -26,7 +26,6 @@ module Vagrant
       @current_session = nil
     end
 
-    #TODO make private once test suite is complete.
     def build_options(opts={})
       options = opts.dup
       # We have to determine the port outside of the block since it uses
@@ -64,18 +63,17 @@ module Vagrant
       safe_exec(command)
     end
 
-    #TODO make private once test suite is complete.
     def ssh_peculiar_options(options)
       options[:port] = port unless options[:port]
       ["-p #{options[:port]}"].join(" ")
     end
 
-    #TODO make private once test suite is complete.
+
     def scp_peculiar_options(options)
       ["-P #{options[:port]}"].join(" ")
     end
 
-    #TODO make private once test suite is complete.
+
     def ssh_command_options(options)
       ssh_options = []
       if env.config.ssh.shared_connections
@@ -138,14 +136,14 @@ module Vagrant
       env.config.ssh.master_connection = session
     end
 
-    #TODO make private once test suite is complete.
+
     def ssh_command(vagrant_options)
       cmd = "ssh -t -t #{ssh_peculiar_options(vagrant_options)} #{ssh_command_options(vagrant_options)} #{vagrant_options[:username]}@#{vagrant_options[:host]}"
       cmd += " '#{unescape(vagrant_options[:command])}'" if vagrant_options[:command]
       unescape(cmd.strip)
     end
 
-    #TODO make private once test suite is complete.
+
     def scp_command(vagrant_options, from, to)
       # Do not pass `-t -t` option to scp.
       unescape("scp #{scp_peculiar_options(vagrant_options)} #{ssh_command_options(vagrant_options)} #{from} #{vagrant_options[:username]}@#{vagrant_options[:host]}:#{to}".strip)
@@ -227,7 +225,7 @@ module Vagrant
 
     end
 
-    #TODO make private once test suite is complete.
+
     def create_connection(opts)
       # Check the key permissions to avoid SSH hangs
       check_key_permissions(env.config.ssh.private_key_path)
@@ -250,7 +248,7 @@ module Vagrant
     end
 
     # Opens an SSH connection to this environment's virtual machine and yields
-    # a ChildProcess object which can be used to execute remote commands.
+    # a Aruba::Process object which can be used to execute remote commands.
     def execute(opts={})
       begin
         opts = opts.dup
@@ -313,7 +311,9 @@ module Vagrant
           begin
             run_simple(cmd, fail_on_error = true)
           rescue => e
-            raise ::Vagrant::Errors::SSHBannerExchange, {:output => e.message}
+            if e.message[/banner exchange/,1]
+              raise ::Vagrant::Errors::SSHBannerExchange, {:output => e.message}
+            end
           end
         end
       #end
@@ -411,19 +411,18 @@ module Vagrant
       return env.config.vm.distribution
     end
 
-    #TODO make private once test suite is complete.
+
     def aruba_timeout(seconds = (env.config.ssh.connect_timeout + 2) )
       @aruba_timeout_seconds = seconds
     end
 
-    #TODO make private once test suite is complete.
+
     def vagrant_remote_cmd(cmd)
       #vagrant-ssh-remote-command-exit-status
       vg_cmd = "#{cmd}\necho \"vsrces:$?\""
     end
 
     # Type the command into the SSH session. Log the content and sent character count (includes new lines).
-    #TODO Consider aliasing type to aruba_type, and letting this method name be type. Introduces ambiguity.
     def vagrant_type(cmd)
       env.logger.info("Typing command: #{cmd}" )
       cnt = type(cmd)
@@ -457,8 +456,7 @@ module Vagrant
     end
 
     #Check the SSH input process for 60 minutes. Then kill.
-    #TODO make private once test suite is complete.
-    def exit_and_log( name, command_timeout = 60, tries = 10)
+    def exit_and_log( name, command_timeout = 60, tries = 60)
       result = nil
       short_name = name[0..20] if name
       begin
@@ -466,7 +464,6 @@ module Vagrant
           type = :copy if name[/^scp /]
           type = :input if name[/^ssh /]
           type ||= :other
-          tries = 10
           pause_time = tries * command_timeout
           if alive?
             vagrant_type "echo '#{' EXITING --'*10}'"
@@ -533,7 +530,6 @@ module Vagrant
     # If sending SSH `exit` command did not terminate the SSH session, this process is called and the
     # SSH session pid is killed using posix 'TERM' signal.
     # NOTE: This will always be a fall back method, but one-day (TM),
-    #TODO make private once test suite is complete.
     def kill_ssh( name )
       change_session( name )
       exists = Process.getpgid( pid.to_i ) rescue

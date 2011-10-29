@@ -6,10 +6,8 @@ module Vagrant
 
       def execute
         if options[:command]
-          $stdout.puts "executing... #{options[:command]}"
           ssh_execute
         else
-          $stdout.puts "connecting..."
           ssh_connect
         end
       end
