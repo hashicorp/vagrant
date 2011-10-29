@@ -21,7 +21,8 @@ class SshTest < Test::Unit::TestCase
       @ssh.stubs(:check_key_permissions)
       @ssh.stubs(:port).returns(2222)
       @ssh.stubs(:safe_exec)
-      Kernel.stubs(:system).returns(true)
+      @ssh.stubs(:run_interactive)
+      #Kernel.stubs(:system).returns(true)
     end
 
     should "raise an exception if SSH is not found" do
@@ -47,7 +48,13 @@ class SshTest < Test::Unit::TestCase
       ssh_exec_expect(@ssh.port,
                       @env.config.ssh.private_key_path,
                       @env.config.ssh.username,
-                      @env.config.ssh.host)
+                      @env.config.ssh.host)do |args|
+        assert args =~ /-o ControlMaster=auto/, args.inspect
+        assert args =~ /-o ControlPath=~\/\.ssh\/vagrant-ssh-(.*)-%r@%h:%p/, args.inspect
+        assert args =~ /-o KeepAlive=yes/, args.inspect
+        assert args =~ /-o ServerAliveInterval=60/, args.inspect
+        assert args =~ /-o ConnectTimeout=2/, args.inspect
+      end
       @ssh.connect
     end
 
@@ -75,6 +82,50 @@ class SshTest < Test::Unit::TestCase
                       @env.config.ssh.username,
                       @env.config.ssh.host) do |args|
         assert args =~ /-o ForwardX11=yes/
+      end
+      @ssh.connect
+    end
+
+    should "add ControlMaster option if multiplexing enabled" do
+      @env.config.ssh.shared_connections = true
+      ssh_exec_expect(@ssh.port,
+                      @env.config.ssh.private_key_path,
+                      @env.config.ssh.username,
+                      @env.config.ssh.host) do |args|
+        assert args =~ /-o ControlMaster=auto/
+      end
+      @ssh.connect
+    end
+
+    should "add ControlPath option if multiplexing enabled" do
+      @env.config.ssh.shared_connections = true
+      ssh_exec_expect(@ssh.port,
+                      @env.config.ssh.private_key_path,
+                      @env.config.ssh.username,
+                      @env.config.ssh.host) do |args|
+        assert args =~ /-o ControlPath=~\/.ssh\/vagrant-ssh-(.*)-%r@%h:%p/
+      end
+      @ssh.connect
+    end
+
+    should "add ControlMaster option if multiplexing disabled" do
+      @env.config.ssh.shared_connections = false
+      ssh_exec_expect(@ssh.port,
+                      @env.config.ssh.private_key_path,
+                      @env.config.ssh.username,
+                      @env.config.ssh.host) do |args|
+        assert args =~ /-o ControlMaster=no/, args.inspect
+      end
+      @ssh.connect
+    end
+
+    should "not add ControlPath option if multiplexing disabled" do
+      @env.config.ssh.shared_connections = false
+      ssh_exec_expect(@ssh.port,
+                      @env.config.ssh.private_key_path,
+                      @env.config.ssh.username,
+                      @env.config.ssh.host) do |args|
+        assert args !=~ /-o ControlPath/
       end
       @ssh.connect
     end
@@ -110,49 +161,62 @@ class SshTest < Test::Unit::TestCase
       @ssh.stubs(:port).returns(80)
     end
 
-    should "check key permissions then attempt to start connection" do
+    should "check for an existing SSH connection, then attempt to connect" do
       seq = sequence("seq")
-      @ssh.expects(:check_key_permissions).with(@env.config.ssh.private_key_path).once.in_sequence(seq)
-      Net::SSH.expects(:start).once.in_sequence(seq)
+      @ssh.expects(:control_master_alive?).once.in_sequence(seq)
+      @ssh.expects(:start_control_master).once.in_sequence(seq)
+      @ssh.expects(:get_connection).once.in_sequence(seq)
+      @ssh.expects(:create_connection).with(is_a(Hash)).once.in_sequence(seq)
       @ssh.execute
     end
 
-    should "call net::ssh.start with the proper names" do
-      Net::SSH.expects(:start).once.with() do |host, username, opts|
-        assert_equal @env.config.ssh.host, host
-        assert_equal @env.config.ssh.username, username
-        assert_equal @ssh.port, opts[:port]
-        assert_equal [@env.config.ssh.private_key_path], opts[:keys]
-        assert opts[:keys_only]
-        true
-      end
-      @ssh.execute
+    should "check key permissions then attempt to make connection" do
+      seq = sequence("seq")
+      @ssh.expects(:check_key_permissions).with(@env.config.ssh.private_key_path).once.in_sequence(seq)
+      @ssh.expects(:interactive_connect).once.in_sequence(seq)
+      @ssh.expects(:type).once.in_sequence(seq)
+      @ssh.create_connection({})
     end
+
+    #TODO improve my <whataver-library> test-fu
+    #should "call vagrant::ssh.interactive_connect with the proper options" do
+    #  options = {:private_key_path => @env.config.ssh.private_key_path }
+    #  @ssh.expects(:interactive_connect).once.with(options) do |opts|
+    #    assert_equal @ssh.port, opts[:port]
+    #    assert_equal [@env.config.ssh.private_key_path], opts[:keys]
+    #    assert opts[:keys_only]
+    #    true
+    #  end
+    #  @ssh.execute
+    #end
 
     should "forward agent if configured" do
       @env.config.ssh.forward_agent = true
-      Net::SSH.expects(:start).once.with() do |host, username, opts|
+      @ssh.expects(:type).once
+      @ssh.expects(:interactive_connect).once.with() do |opts|
         assert opts[:forward_agent]
         true
       end
 
-      @ssh.execute
+      @ssh.create_connection({})
     end
 
     should "use custom host if set" do
       @env.config.ssh.host = "foo"
-      Net::SSH.expects(:start).with(@env.config.ssh.host, @env.config.ssh.username, anything).once
-      @ssh.execute
+      @ssh.expects(:type).once
+      @ssh.expects(:interactive_connect).with(anything).once
+      @ssh.create_connection({})
     end
 
-    should "yield an SSH session object" do
-      raw = mock("raw")
-      Net::SSH.expects(:start).returns(raw)
-      @ssh.execute do |ssh|
-        assert ssh.is_a?(Vagrant::SSH::Session)
-        assert_equal raw, ssh.session
-      end
-    end
+    #It does, session is no longer a separate class, so self is the 'session'
+    #should "yield an SSH session object" do
+    #  raw = mock("raw")
+    #  @ssh.expects(:interactive_connect).returns(raw)
+    #  @ssh.execute do |ssh|
+    #    assert ssh.is_a?(Vagrant::SSH)
+    #    assert_equal raw, ssh.session
+    #  end
+    #end
   end
 
   context "SCPing files to the remote host" do
@@ -165,9 +229,9 @@ class SshTest < Test::Unit::TestCase
       ssh = mock("ssh")
       sess = mock("session")
       ssh.stubs(:session).returns(sess)
-      scp.expects(:upload!).with("foo", "bar").once
-      Net::SCP.expects(:new).with(ssh.session).returns(scp).once
-      @ssh.expects(:execute).yields(ssh).once
+      @ssh.stubs(:port).returns(2222)
+      @ssh.expects(:scp_command).with(@ssh.build_options, "foo", "bar" ).returns(scp).once
+      @ssh.expects(:run_simple).returns(true).once
       @ssh.upload!("foo", "bar")
     end
   end
@@ -180,45 +244,29 @@ class SshTest < Test::Unit::TestCase
     end
 
     should "return true if SSH connection works" do
-      Net::SSH.expects(:start).yields("success")
+      @ssh.expects(:run_simple).yields(0)
       assert @ssh.up?
     end
 
-    should "return false if SSH connection times out" do
-      @env.config.ssh.timeout = 0.5
+    # TODO: Piggyback off Arbua's exits status assertions (requires RSpec ?)'
+    #should "return false if the connection is refused" do
+    #  @ssh.expects(:interactive_connect).times(5).raises(Errno::ECONNREFUSED)
+    #  @ssh.assert_not_exit_status(0)
+    #end
 
-      Net::SSH.stubs(:start).with() do
-        # Sleep here to artificially fake timeout
-        sleep 1
-        true
-      end
-
-      assert !@ssh.up?
-    end
-
-    should "return false if the connection is refused" do
-      Net::SSH.expects(:start).times(5).raises(Errno::ECONNREFUSED)
-      assert_nothing_raised {
-        assert !@ssh.up?
-      }
-    end
-
-    should "specifity the timeout as an option to execute" do
-      @ssh.expects(:execute).yields(true).with() do |opts|
-        assert_equal @env.config.ssh.timeout, opts[:timeout]
-        true
-      end
-
-      assert @ssh.up?
-    end
-
-    should "error and exit if a Net::SSH::AuthenticationFailed is raised" do
-      @ssh.expects(:execute).raises(Net::SSH::AuthenticationFailed)
-      assert_raises(Vagrant::Errors::SSHAuthenticationFailed) { @ssh.up? }
-    end
+    #Todo: timeout is not Vagrants code, essentially this is a test of the config values
+    #should "specifity the timeout as an option to execute" do
+    #  @ssh.expects(:run_simple).returns(true).with() do |opts|
+    #    assert_equal @env.config.ssh.timeout, opts[:timeout], "#{@env.config.ssh.timeout} and #{opts[:timeout]}"
+    #    true
+    #  end
+    #
+    #  assert @ssh.up?
+    #end
 
     should "only get the port once (in the main thread)" do
       @ssh.expects(:port).once.returns(2222)
+      @ssh.stubs(:run_simple).returns(true)
       @ssh.up?
     end
   end

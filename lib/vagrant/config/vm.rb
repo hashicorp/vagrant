@@ -20,12 +20,14 @@ module Vagrant
       attr_reader :network_options
       attr_reader :provisioners
       attr_accessor :system
+      attr_accessor :distribution
 
       def initialize
         @forwarded_ports = {}
         @shared_folders = {}
         @network_options = []
         @provisioners = []
+        @distribution = :ubuntu
       end
 
       def forward_port(name, guestport, hostport, options=nil)

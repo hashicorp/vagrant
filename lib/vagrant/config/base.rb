@@ -34,7 +34,7 @@ module Vagrant
       #
       # @return [Vagrant::Envrionment]
       def env
-        top.env
+        top.env if top
       end
 
       # Allows setting options from a hash. By default this simply calls

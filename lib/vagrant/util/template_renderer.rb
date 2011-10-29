@@ -16,6 +16,19 @@ module Vagrant
           render_with(:render, *args)
         end
 
+        # Render a given template and return a path to the temp file containing the result.
+        # This method optionally
+        # takes a block which will be passed the renderer prior to rendering, which
+        # allows the caller to set any view variables within the renderer itself.
+        #
+        # @return [String] Path to rendered template
+        def render_to_file(*args)
+          file = Tempfile.new('vagrant-rendered-template')
+          file.write(render(*args))
+          file.close
+          file
+        end
+
         # Render a given string and return the result. This method optionally
         # takes a block which will be passed the renderer prior to rendering, which
         # allows the caller to set any view variables within the renderer itself.
@@ -71,7 +84,7 @@ module Vagrant
         Erubis::Eruby.new(template, :trim => true).result(binding)
       end
 
-      # Returns the full path to the template, taking into accoun the gem directory
+      # Returns the full path to the template, taking into account the gem directory
       # and adding the `.erb` extension to the end.
       #
       # @return [String]

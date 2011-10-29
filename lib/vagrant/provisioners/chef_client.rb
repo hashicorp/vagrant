@@ -61,6 +61,7 @@ module Vagrant
 
         vm.ssh.execute do |ssh|
           ssh.sudo!("mkdir -p #{path.dirname}")
+          ssh.exit
         end
       end
 
@@ -101,6 +102,7 @@ module Vagrant
               env.ui.info("#{data}: #{type}")
             end
           end
+          ssh.exit
         end
       end
 

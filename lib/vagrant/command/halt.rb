@@ -7,7 +7,9 @@ module Vagrant
       def execute
         target_vms.each do |vm|
           if vm.created?
+            vm.ssh.exit_all
             vm.halt(options)
+            vm.ssh.show_all_connection_output
           else
             vm.env.ui.info I18n.t("vagrant.commands.common.vm_not_created")
           end

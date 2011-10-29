@@ -81,6 +81,7 @@ module Vagrant
                                     :name => name))
               end
             end
+            ssh.exit
           end
         end
       end

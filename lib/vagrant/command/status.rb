@@ -17,6 +17,7 @@ module Vagrant
           end
 
           "#{vm.name.to_s.ljust(25)}#{state.gsub("_", " ")}"
+          vm.ssh.exit_all
         end
 
         state = target_vms.length == 1 ? state : "listing"

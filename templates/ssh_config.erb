@@ -13,3 +13,8 @@ Host <%= host_key %>
 <% if forward_x11 -%>
   ForwardX11 yes
 <% end -%>
+<% if shared_connections -%>
+  ControlMaster auto
+  ControlPath ~/.ssh/vagrant-multiplex-%r@%h:%p
+<% end -%>
+

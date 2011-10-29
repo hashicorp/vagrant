@@ -101,13 +101,23 @@ class ChefSoloProvisionerTest < Test::Unit::TestCase
     end
 
     should "run chef solo" do
-      @ssh.expects(:sudo!).with("chef-solo -c #{@config.provisioning_path}/solo.rb -j #{@config.provisioning_path}/dna.json").once
+      cmd = "/bin/bash -c 'sudo /usr/bin/chef-solo -c #{@config.provisioning_path}/solo.rb -j #{@config.provisioning_path}/dna.json'"
+      #sess = mock('session')
+      #@ssh.stubs(:execute).yields(sess)
+      @ssh.expects(:vagrant_remote_cmd).with(cmd).returns("is_a(String)").once
+      @ssh.expects(:vagrant_type).with("is_a(String)").once
+      #@ssh.expects(:exit).once
       @action.run_chef_solo
     end
 
     should "check the exit status if that is given" do
-      @ssh.stubs(:sudo!).yields(nil, :exit_status, :foo)
-      @ssh.expects(:check_exit_status).with(:foo, anything).once
+      cmd = "/bin/bash -c 'sudo /usr/bin/chef-solo -c #{@config.provisioning_path}/solo.rb -j #{@config.provisioning_path}/dna.json'"
+      sess = mock('session')
+      @ssh.stubs(:execute).yields(sess)
+      @ssh.expects(:vagrant_remote_cmd).with(cmd).returns("is_a(String)").once
+      @ssh.expects(:vagrant_type).with("is_a(String)").once
+      #@ssh.expects(:check_exit_status).with(is_a(Integer), anything, is_a(Hash), is_a(String), is_a(String)).once
+      #@ssh.expects(:exit).once
       @action.run_chef_solo
     end
   end
