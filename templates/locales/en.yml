@@ -76,9 +76,11 @@ en:
         This will show the ssh connections every 0.1 sec to the VM port 2206.
 
         Some steps to try to fix this: First, destroy your VM and recreate with
-        `vagrant destroy` then `vagrant up`. Second, if the problem persists
-        rebuild your base box using the following Grub2 settings in the file
-        /etc/default/grub:
+        `vagrant destroy` then `vagrant up`. The next suggestion is substantial,
+        and we'd rather not have to build customized base boxes, so please report
+        a reproducible issue before trying the next suggestions.
+        Now, if the problem persists rebuild your base box using the following Grub2
+        settings in the file /etc/default/grub:
             # If you change this file, run 'update-grub' afterwards to update
             # /boot/grub/grub.cfg.
             #
@@ -86,8 +88,8 @@ en:
             # https://bugs.launchpad.net/ubuntu/+source/grub-installer/+bug/537849
             #
             GRUB_DEFAULT=0
-            GRUB_HIDDEN_TIMEOUT=7
-            GRUB_HIDDEN_TIMEOUT_QUIET=false
+            GRUB_HIDDEN_TIMEOUT=0
+            GRUB_HIDDEN_TIMEOUT_QUIET=true
             GRUB_TIMEOUT=10
             GRUB_DISTRIBUTOR=`lsb_release -i -s 2> /dev/null || echo Debian`
             GRUB_CMDLINE_LINUX_DEFAULT="console=tty0 quiet nomodeset nosplash noplymouth text"
@@ -95,7 +97,17 @@ en:
             # Uncomment to disable graphical terminal (grub-pc only)
             #GRUB_TERMINAL=console
             GRUB_TERMINAL_INPUT="console"
-
+        You should also try to minimize/elimnate the MOTD.  In /etc/ssh/sshd.conf on the server:
+            PrintMotd no
+            PrintLastLog no
+        In /etc/pam.d/sshd and /etc/pam.d/login:
+            # Print the message of the day upon successful login.
+            # session    optional     pam_motd.so
+        Finally, as the vagrant user, run `touch ~/.hushlogin`
+        Alternatively, try:
+            `sudo rm /etc/motd` then
+            `sudo touch /etc/motd` and
+            `sudo rm /etc/update-motd.d/50-landscape-sysinfo`.
         The output of the command prior to failing is:
 
         %{output}
