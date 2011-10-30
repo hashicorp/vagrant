@@ -16,6 +16,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency "aruba", "~> 0.4.6"
   s.add_dependency "archive-tar-minitar", "= 0.5.2"
+  s.add_dependency "backports", "~> 2.3.0"
   s.add_dependency "erubis", "~> 2.7.0"
   s.add_dependency "json", "~> 1.5.1"
   s.add_dependency "net-ssh", "~> 2.1.4"

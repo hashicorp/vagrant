@@ -203,7 +203,7 @@ class ChefProvisionerTest < Test::Unit::TestCase
     #end
 
     should "upload a template to dna.json" do
-      File.expects(:join).with(@config.provisioning_path, "dna.json").once.returns("baz")
+      File.expects(:join).with(anything, anything).at_least_once.returns("baz")
       @vm.ssh.expects(:upload!).with(is_a(String), "baz").once
       @action.setup_json
     end
