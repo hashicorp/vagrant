@@ -31,6 +31,24 @@ class EnvironmentTest < Test::Unit::TestCase
     end
   end
 
+  context "class method argument parsing" do
+    should "set the vagrantfile_name option" do
+      env = @klass.parse(%w[--vagrantfile=/foo/bar])
+      assert env.vagrantfile_name.include?('/foo/bar')
+
+      env = @klass.parse(%w[--vagrantfile /foo/bar])
+      assert env.vagrantfile_name.include?('/foo/bar')
+    end
+
+    should "set the cwd option" do
+      env = @klass.parse(%w[--cwd=/foo/bar])
+      assert_equal Pathname.new('/foo/bar'), env.cwd
+
+      env = @klass.parse(%w[--cwd /foo/bar])
+      assert_equal Pathname.new('/foo/bar'), env.cwd
+    end
+  end
+
   context "initialization" do
     should "set the cwd if given" do
       cwd = "foobarbaz"

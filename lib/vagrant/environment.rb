@@ -49,6 +49,34 @@ module Vagrant
         # Otherwise, reraise the old error
         raise
       end
+
+      # Create a new Environment with options specified in the arguments.
+      def parse(argv)
+        new(parse_arguments(argv))
+      end
+
+      # Return a Hash of options for a new Environment from the arguments.
+      def parse_arguments(argv)
+        opts = {}
+
+        if vagrantfile = flag_value('vagrantfile', argv)
+          opts[:vagrantfile_name] = vagrantfile
+        end
+
+        if cwd = flag_value('cwd', argv)
+          opts[:cwd] = cwd
+        end
+
+        opts
+      end
+
+      def flag_value(flag, argv)
+        if match = argv.grep(/^--#{flag}=/).first
+          return match[/^--#{flag}=(.*)$/, 1]
+        elsif index = argv.index("--#{flag}")
+          return argv[index + 1]
+        end
+      end
     end
 
     # Initializes a new environment with the given options. The options
