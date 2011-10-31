@@ -119,9 +119,6 @@ end
 `config.vm.define` is a method which allows you to define a new VM for a multi-VM environment. Since
 this is a huge topic in itself, please read its dedicated documentation page for more details.
 
-`config.vm.disk_image_format` alerts Vagrant to the prefered virtual disk image file format for use when creating new virtual machines. VirtualBox
-supports many disk formats such as .vdi (VirtualBox's own format), .vmdk (VMWare's disk image format), and .vhd (Microsoft's format).
-
 <a name="config-vm-forwardport"> </a>
 `config.vm.forward_port` is a function that will add a set of ports to forward from the host machine to the virtual machine
 created with vagrant. The default Vagrantfile that is packaged with Vagrant itself forwards port 2222 on the host machine to
