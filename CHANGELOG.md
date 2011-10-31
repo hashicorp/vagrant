@@ -3,6 +3,7 @@
   - Mount shared folders shortest to longest to avoid mounting
     subfolders first. [GH-525]
   - Support for basic HTTP auth in the URL for boxes.
+  - Solaris support for host only networks. [GH-533]
 
 ## 0.8.7 (September 13, 2011)
 
