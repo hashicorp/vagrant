@@ -2,6 +2,7 @@ require 'pathname'
 require 'json'
 require 'i18n'
 require 'virtualbox'
+require 'backports'
 
 # OpenSSL must be loaded here since when it is loaded via `autoload`
 # there are issues with ciphers not being properly loaded.

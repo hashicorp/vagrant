@@ -118,6 +118,7 @@ class ChefClientProvisionerTest < Test::Unit::TestCase
     should "create the folder using the dirname of the path" do
       ssh = mock("ssh")
       ssh.expects(:sudo!).with("mkdir -p #{@path.dirname}").once
+      ssh.expects(:exit).once
       @vm.ssh.expects(:execute).yields(ssh)
       @action.create_client_key_folder
     end
@@ -178,12 +179,14 @@ class ChefClientProvisionerTest < Test::Unit::TestCase
 
     should "run chef client" do
       @ssh.expects(:sudo!).with("chef-client -c #{@config.provisioning_path}/client.rb -j #{@config.provisioning_path}/dna.json").once
+      @ssh.expects(:exit).once
       @action.run_chef_client
     end
 
     should "check the exit status if that is given" do
       @ssh.stubs(:sudo!).yields(nil, :exit_status, :foo)
       @ssh.expects(:check_exit_status).with(:foo, anything).once
+      @ssh.expects(:exit).once
       @action.run_chef_client
     end
   end
