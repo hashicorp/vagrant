@@ -233,7 +233,7 @@ didn't make one, you can be in any directory.
 
 Next, run `vagrant package`, specifying the name of the virtual machine in
 VirtualBox that you want to package. If you created a custom Vagrantfile, don't
-forget to add `--include Vagrantfile` at the end of the following command as
+forget to add `--vagrantfile Vagrantfile` at the end of the following command as
 well to include that in the package.
 
 {% highlight bash %}
