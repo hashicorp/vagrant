@@ -39,7 +39,7 @@ module Vagrant
       end
 
       def setup_config(template, filename, template_vars)
-        config_file = TemplateRenderer.render(template, {
+        config_file = TemplateRenderer.render_to_file(template, {
           :log_level => config.log_level.to_sym,
           :http_proxy => config.http_proxy,
           :http_proxy_user => config.http_proxy_user,
@@ -49,8 +49,11 @@ module Vagrant
           :https_proxy_pass => config.https_proxy_pass,
           :no_proxy => config.no_proxy
         }.merge(template_vars))
-
-        vm.ssh.upload!(StringIO.new(config_file), File.join(config.provisioning_path, filename))
+        begin
+          vm.ssh.upload!(config_file.path, File.join(config.provisioning_path, filename))
+        rescue ::Vagrant::Errors::VagrantError => e
+        end
+        config_file.unlink
       end
 
       def setup_json
@@ -70,8 +73,14 @@ module Vagrant
         data.merge!(config.merged_json)
 
         json = data.to_json
-
-        vm.ssh.upload!(StringIO.new(json), File.join(config.provisioning_path, "dna.json"))
+        file = Tempfile.new('vagrant-rendered-json')
+        file.write(json)
+        file.close
+        begin
+        vm.ssh.upload!(file.path, File.join(config.provisioning_path, "dna.json"))
+        rescue ::Vagrant::Errors::VagrantError => e
+        end
+        file.unlink
       end
     end
 

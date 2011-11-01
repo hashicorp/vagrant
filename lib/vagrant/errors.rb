@@ -265,6 +265,21 @@ module Vagrant
       error_key(:ssh_unavailable)
     end
 
+    class SSHBannerExchange < VagrantError
+      status_code(255)
+      error_key(:ssh_banner_exchange)
+    end
+
+    class SSHControlMasterOrphan < VagrantError
+      status_code(254)
+      error_key(:ssh_control_master_orphan)
+    end
+
+    class SSHControlMasterNonExistent < VagrantError
+      status_code(253)
+      error_key(:ssh_control_master_non_existent)
+    end
+
     class SSHUnavailableWindows < VagrantError
       status_code(10)
       error_key(:ssh_unavailable_windows)

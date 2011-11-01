@@ -65,36 +65,44 @@ class LinuxSystemTest < Test::Unit::TestCase
     end
 
     should "execute the proper mount command" do
-      @ssh.expects(:exec!).with("sudo mount -t vboxsf -o uid=`id -u #{@owner}`,gid=`id -g #{@group}` #{@name} #{@guestpath}").returns(@success_return)
+      @ssh.expects(:exec!).with("sudo rm -rf /media/sf_veewee-validation").returns(@success_return)
+      @ssh.expects(:exec!).with("if mountpoint -q  #{@name}; then  sudo umount -t vboxsf #{@name}; fi").returns(@success_return)
+      @ssh.expects(:exec!).with("sudo mount -t vboxsf -o uid=`id -u #{@owner}`,gid=`id -g #{@group}` #{@name} #{@guestpath}").returns(0)
+      @ssh.expects(:aruba_timeout).returns(0) # 0 works around this test library digging into the stdlib method
       mount_folder
     end
 
     should "test type of text and text string to detect error" do
       data = mock("data")
-      data.expects(:[]=).with(:result, !@success_return)
+      @ssh.expects(:aruba_timeout).returns(0) # 0 works around this test library digging into the stdlib method
+      #data.expects(:[]=).with(:result, !@success_return)
 
-      @ssh.expects(:exec!).yields(data, :stderr, "No such device").returns(@success_return)
+      @ssh.expects(:exec!).times(3).yields(data, :stderr, "No such device").returns(@success_return)
       mount_folder
     end
 
     should "test type of text and test string to detect success" do
       data = mock("data")
-      data.expects(:[]=).with(:result, @success_return)
+      @ssh.expects(:aruba_timeout).returns(0) # 0 works around this test library digging into the stdlib method
+      #data.expects(:[]=).with(:result, @success_return)
 
-      @ssh.expects(:exec!).yields(data, :stdout, "Nothing such device").returns(@success_return)
+      @ssh.expects(:exec!).times(3).yields(data, :stdout, "Nothing such device").returns(true)
       mount_folder
     end
 
     should "raise an ActionException if the command fails constantly" do
-      @ssh.expects(:exec!).times(@limit).returns(!@success_return)
+      @ssh.expects(:exec!).times(2).returns(false)
+      @ssh.expects(:aruba_timeout).returns(0) # 0 works around this test library digging into the stdlib method
+      Timeout.expects(:timeout).raises(::Vagrant::Systems::Linux::LinuxError, :mount_fail)
 
-      assert_raises(Vagrant::Systems::Linux::LinuxError) {
+      assert_raises(::Vagrant::Systems::Linux::LinuxError) {
         mount_folder
       }
     end
 
     should "not raise any exception if the command succeeded" do
-      @ssh.expects(:exec!).once.returns(@success_return)
+      @ssh.expects(:exec!).times(3).returns(true)
+      @ssh.expects(:aruba_timeout).returns(0) # 0 works around this test library digging into the stdlib method
 
       assert_nothing_raised {
         mount_folder

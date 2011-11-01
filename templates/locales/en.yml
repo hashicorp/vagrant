@@ -43,7 +43,11 @@ en:
         An instance of Vagrant is already running. Only one instance of Vagrant
         may run at any given time to avoid problems with VirtualBox inconsistencies
         occurring. Please wait for the other instance of Vagrant to end and then
-        try again.
+        try again.  This error is also raised if there are active or orphaned
+        SSH connections leftover from a previous Vagrant session.
+        Some steps to try to fix this: First, the most drastic, run `killall ssh`.
+        This will end all SSH connections, including any unrelated to Vagrant.
+        Second, run `ps |grep ssh` and then slect the SSH connections to kill.
       interrupted: "Vagrant exited after cleanup due to external interrupt."
       multi_vm_required: "A multi-vm environment is required for name specification to this command."
       multi_vm_target_required: "`vagrant %{command}` requires a specific VM name to target in a multi-VM environment."
@@ -62,6 +66,67 @@ en:
         The output of the command prior to failing is outputted below:
 
         %{output}
+      ssh_banner_exchange: |-
+        SSH banner exchange failed after the SSH connection was made was made!
+        This usually indicates that two SSH connections are open simultaneously,
+        or there is a boot loader problem.  Some steps to try to diagnose which
+        of these it is:
+        To determine how many SSH connections are open when this error is raised,
+        run the command `watch -n 0.1 lsof -i :2206`.
+        This will show the ssh connections every 0.1 sec to the VM port 2206.
+
+        Some steps to try to fix this: First, destroy your VM and recreate with
+        `vagrant destroy` then `vagrant up`. The next suggestion is substantial,
+        and we'd rather not have to build customized base boxes, so please report
+        a reproducible issue before trying the next suggestions.
+        Now, if the problem persists rebuild your base box using the following Grub2
+        settings in the file /etc/default/grub:
+            # If you change this file, run 'update-grub' afterwards to update
+            # /boot/grub/grub.cfg.
+            #
+            # SEE:
+            # https://bugs.launchpad.net/ubuntu/+source/grub-installer/+bug/537849
+            #
+            GRUB_DEFAULT=0
+            GRUB_HIDDEN_TIMEOUT=0
+            GRUB_HIDDEN_TIMEOUT_QUIET=true
+            GRUB_TIMEOUT=10
+            GRUB_DISTRIBUTOR=`lsb_release -i -s 2> /dev/null || echo Debian`
+            GRUB_CMDLINE_LINUX_DEFAULT="console=tty0 quiet nomodeset nosplash noplymouth text"
+            GRUB_CMDLINE_LINUX=""
+            # Uncomment to disable graphical terminal (grub-pc only)
+            #GRUB_TERMINAL=console
+            GRUB_TERMINAL_INPUT="console"
+        You should also try to minimize/elimnate the MOTD.  In /etc/ssh/sshd.conf on the server:
+            PrintMotd no
+            PrintLastLog no
+        In /etc/pam.d/sshd and /etc/pam.d/login:
+            # Print the message of the day upon successful login.
+            # session    optional     pam_motd.so
+        Finally, as the vagrant user, run `touch ~/.hushlogin`
+        Alternatively, try:
+            `sudo rm /etc/motd` then
+            `sudo touch /etc/motd` and
+            `sudo rm /etc/update-motd.d/50-landscape-sysinfo`.
+        The output of the command prior to failing is:
+
+        %{output}
+      ssh_control_master_orphan: |-
+        The SSH control master session has been orphaned.  That is the process is still running
+        and connected to the VM, but the control path file has been deleted.
+        The control path is:
+
+        %{control_path}
+      ssh_control_master_non_existent: |-
+        The SSH control master session process does not exist.
+        When you can reproduce this please report this as a bug with the full stack trace.
+        The process ID is:
+
+        %{pid}
+
+        The control path is:
+
+        %{control_path}
       ssh_connection_refused: |-
         SSH connection was refused! This usually happens if the VM failed to
         boot properly. Some steps to try to fix this: First, try reloading your

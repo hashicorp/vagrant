@@ -469,6 +469,7 @@ module Vagrant
       # value in the config ivar.
       @config = @config_loader.load(self)
 
+      # TODO: Possible cause of GH issue #404
       if first_run
         # After the first run we want to load the configuration again since
         # it can change due to box Vagrantfiles and home directory Vagrantfiles

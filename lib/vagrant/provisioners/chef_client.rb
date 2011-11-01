@@ -61,17 +61,24 @@ module Vagrant
 
         vm.ssh.execute do |ssh|
           ssh.sudo!("mkdir -p #{path.dirname}")
+          ssh.exit
         end
       end
 
       def upload_validation_key
         env.ui.info I18n.t("vagrant.provisioners.chef.upload_validation_key")
-        vm.ssh.upload!(validation_key_path, guest_validation_key_path)
+        begin
+          vm.ssh.upload!(validation_key_path, guest_validation_key_path)
+        rescue ::Vagrant::Errors::VagrantError => e
+        end
       end
 
       def upload_encrypted_data_bag_secret
         env.ui.info I18n.t("vagrant.provisioners.chef.upload_encrypted_data_bag_secret_key")
-        vm.ssh.upload!(encrypted_data_bag_secret_key_path, config.encrypted_data_bag_secret)
+        begin
+          vm.ssh.upload!(encrypted_data_bag_secret_key_path, config.encrypted_data_bag_secret)
+        rescue ::Vagrant::Errors::VagrantError => e
+        end
       end
 
       def setup_server_config
@@ -101,6 +108,7 @@ module Vagrant
               env.ui.info("#{data}: #{type}")
             end
           end
+          ssh.exit
         end
       end
 

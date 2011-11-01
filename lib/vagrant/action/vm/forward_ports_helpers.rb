@@ -19,7 +19,6 @@ module Vagrant
               end
             end
           end
-
           result.flatten.uniq
         end
       end

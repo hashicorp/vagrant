@@ -4,21 +4,12 @@ require 'vagrant/systems/linux/config'
 module Vagrant
   module Systems
     class Linux < Base
+
+    include Util::Retryable
+
       def distro_dispatch
-        vm.ssh.execute do |ssh|
-          if ssh.test?("cat /etc/debian_version")
-            return :debian if ssh.test?("cat /proc/version | grep 'Debian'")
-            return :ubuntu if ssh.test?("cat /proc/version | grep 'Ubuntu'")
-          end
-
-          return :gentoo if ssh.test?("cat /etc/gentoo-release")
-          return :redhat if ssh.test?("cat /etc/redhat-release")
-          return :suse if ssh.test?("cat /etc/SuSE-release")
-          return :arch if ssh.test?("cat /etc/arch-release")
-        end
-
-        # Can't detect the distro, assume vanilla linux
-        nil
+        # Can't detect the distro, Assumes unknown and raises an error.
+        vm.env.config.vm.distribution
       end
 
       def halt
@@ -63,18 +54,17 @@ module Vagrant
         # Determine the permission string to attach to the mount command
         options = "-o uid=`id -u #{owner}`,gid=`id -g #{group}`"
 
-        attempts = 0
-        while true
-          result = ssh.exec!("sudo mount -t vboxsf #{options} #{name} #{guestpath}") do |ch, type, data|
-            # net/ssh returns the value in ch[:result] (based on looking at source)
-            ch[:result] = !!(type == :stderr && data =~ /No such device/i)
+        ssh.exec!("sudo rm -rf /media/sf_veewee-validation") # cleanup any veewee cruft using the default VirtualBox mount pattern
+        ssh.exec!("if mountpoint -q  #{name}; then  sudo umount -t vboxsf #{name}; fi" )  # somehow a mount can already exist
+
+        begin
+          Timeout.timeout(ssh.aruba_timeout) do
+            retryable(:tries => 5, :on => [ChildProcess::TimeoutError, IOError, ::Vagrant::Errors::SSHUnavailable], :sleep => 1.0) do
+              result = ssh.exec!("sudo mount -t vboxsf #{options} #{name} #{guestpath}")
+            end
           end
-
-          break unless result
-
-          attempts += 1
-          raise LinuxError, :mount_fail if attempts >= 10
-          sleep sleeptime
+        rescue Timeout::Error
+          raise LinuxError, :mount_fail
         end
       end
     end

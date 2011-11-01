@@ -1,3 +1,4 @@
+#require 'backports'
 require 'pathname'
 require 'json'
 require 'i18n'
