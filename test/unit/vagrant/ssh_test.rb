@@ -231,7 +231,7 @@ class SshTest < Test::Unit::TestCase
       ssh.stubs(:session).returns(sess)
       @ssh.stubs(:port).returns(2222)
       @ssh.expects(:scp_command).with(@ssh.build_options, "foo", "bar" ).returns(scp).once
-      @ssh.expects(:run_simple).returns(true).once
+      @ssh.expects(:execute).returns(true).once
       @ssh.upload!("foo", "bar")
     end
   end
