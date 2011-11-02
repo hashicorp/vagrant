@@ -53,9 +53,6 @@ module Vagrant
         command_options << "-o ForwardX11Trusted=yes"
       end
 
-      # Some hackery going on here. On Mac OS X Leopard (10.5), exec fails
-      # (GH-51). As a workaround, we fork and wait. On all other platforms,
-      # we simply exec.
       command = "ssh #{command_options.join(" ")} #{options[:username]}@#{options[:host]}".strip
       env.logger.info("ssh") { "Invoking SSH: #{command}" }
       safe_exec(command)
