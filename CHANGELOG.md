@@ -5,6 +5,8 @@
   - Support for basic HTTP auth in the URL for boxes.
   - Solaris support for host only networks. [GH-533]
   - `vagrant init` respects `Vagrant::Environment` cwd. [GH-528]
+  - `vagrant` commands will not output color when stdout is
+    not a TTY.
 
 ## 0.8.7 (September 13, 2011)
 
