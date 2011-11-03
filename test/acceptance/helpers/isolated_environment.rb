@@ -1,3 +1,5 @@
+require "fileutils"
+
 require "log4r"
 require "posix-spawn"
 
@@ -27,6 +29,15 @@ module Acceptance
       # Create a temporary directory for our work
       @tempdir = Tempdir.new("vagrant")
       @logger.info("Initialize isolated environment: #{@tempdir.path}")
+
+      # Setup the home and working directories
+      @homedir = File.join(@tempdir.path, "home")
+      @workdir = File.join(@tempdir.path, "work")
+
+      FileUtils.mkdir(@homedir)
+      FileUtils.mkdir(@workdir)
+
+      @env["HOME"] = @homedir
     end
 
     # Executes a command in the context of this isolated environment.
