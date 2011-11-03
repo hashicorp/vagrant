@@ -52,7 +52,7 @@ module Acceptance
       # Execute in a separate process, wait for it to complete, and
       # return the IO streams.
       @logger.info("Executing: #{command} #{argN.inspect}")
-      pid, stdin, stdout, stderr = popen4(@env, command, *argN, :chdir => @tempdir.path)
+      pid, stdin, stdout, stderr = popen4(@env, command, *argN, :chdir => @workdir)
       _pid, status = Process.waitpid2(pid)
       @logger.info("Exit status: #{status.exitstatus}")
 
