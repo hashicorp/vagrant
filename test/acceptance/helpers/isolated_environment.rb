@@ -1,4 +1,5 @@
 require "fileutils"
+require "pathname"
 
 require "log4r"
 require "posix-spawn"
@@ -34,25 +35,25 @@ module Acceptance
       @logger.info("Initialize isolated environment: #{@tempdir.path}")
 
       # Setup the home and working directories
-      @homedir = File.join(@tempdir.path, "home")
-      @workdir = File.join(@tempdir.path, "work")
+      @homedir = Pathname.new(File.join(@tempdir.path, "home"))
+      @workdir = Pathname.new(File.join(@tempdir.path, "work"))
 
-      FileUtils.mkdir(@homedir)
-      FileUtils.mkdir(@workdir)
+      @homedir.mkdir
+      @workdir.mkdir
 
-      @env["HOME"] = @homedir
+      @env["HOME"] = @homedir.to_s
     end
 
     # Executes a command in the context of this isolated environment.
     # Any command executed will therefore see our temporary directory
     # as the home directory.
     def execute(command, *argN)
-      command = @apps[command] if @apps.has_key?(command)
+      command = replace_command(command)
 
       # Execute in a separate process, wait for it to complete, and
       # return the IO streams.
       @logger.info("Executing: #{command} #{argN.inspect}")
-      pid, stdin, stdout, stderr = popen4(@env, command, *argN, :chdir => @workdir)
+      pid, stdin, stdout, stderr = popen4(@env, command, *argN, :chdir => @workdir.to_s)
       _pid, status = Process.waitpid2(pid)
       @logger.info("Exit status: #{status.exitstatus}")
 
@@ -63,6 +64,16 @@ module Acceptance
     def close
       # Delete the temporary directory
       FileUtils.rm_rf(@tempdir.path)
+    end
+
+    private
+
+    # This replaces a command with a replacement defined when this
+    # isolated environment was initialized. If nothing was defined,
+    # then the command itself is returned.
+    def replace_command(command)
+      return @apps[command] if @apps.has_key?(command)
+      return command
     end
   end
 
