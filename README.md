@@ -43,15 +43,49 @@ and you're welcome to give it a shot. The following is an example showing how to
 
 ## Contributing to Vagrant
 
+### Dependencies and Unit Tests
+
 To hack on vagrant, you'll need [bundler](http://github.com/carlhuda/bundler) which can
 be installed with a simple `gem install bundler`. Afterwords, do the following:
 
     bundle install
     rake
 
-This will run the test suite, which should come back all green! Then you're good to go!
+This will run the unit test suite, which should come back all green! Then you're good to go!
 
 If you want to run Vagrant without having to install the gem, you may use `bundle exec`,
 like so:
 
     bundle exec bin/vagrant help
+
+### Acceptance Tests
+
+Vagrant also comes with an acceptance test suite which runs the system
+end-to-end, without mocking out any dependencies. Note that this test
+suite is **extremely slow**, with the test suite taking hours on even
+a decent system. A CI will be setup in due time to run these tests
+automatically. However, it is still useful to know how to run these
+tests since it is often useful to run a single test if you're working
+on a specific feature.
+
+The acceptance tests have absolutely _zero_ dependence on the Vagrant
+source. Instead, an external configuration file must be used to give
+the acceptance tests some parameters (such as what Vagrant version is
+running, where the Vagrant `vagrant` binary is, etc.). If you want to
+run acceptance tests against source, or just want to see an example of
+this file, you can generate it automatically for the source code:
+
+    rake acceptance:config
+
+This will drop an `acceptance_config.yml` file in your working directory.
+You can then run a specific acceptance test like so:
+
+    ACCEPTANCE_CONFIG=./acceptance_config.yml ruby test/acceptance/version_test.rb
+
+That's it!
+
+If you're developing an acceptance test and you're unsure why things
+might be failing, you can also view log output for the acceptance tests,
+which can be very verbose but are a great help in finding bugs:
+
+    ACCEPTANCE_LOGGING=debug ACCEPTANCE_CONFIG=./acceptance_config.yml ruby test/acceptance/version_test.rb
