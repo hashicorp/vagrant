@@ -13,34 +13,28 @@ class VagrantTestColorOutput < AcceptanceTest
     skip("Test requires `expect`") if !has_expect?
 
     @environment.workdir.join("color.exp").open("w+") do |f|
-      f.write(<<-SCRIPT)
-catch {spawn vagrant status} reason
-expect {
-    "\e[31m" { exit }
-    default { exit 1 }
-}
+      f.puts(<<-SCRIPT)
+spawn #{@environment.replace_command("vagrant")} status
+expect default {}
 SCRIPT
     end
 
-    results = execute("expect", "color.exp")
-    assert_equal(0, results.exit_status)
+    result = execute("expect", "color.exp")
+    assert(result.stdout.read.index("\e[31m"), "output should contain color")
   end
 
   should "not output color if there is a TTY but --no-color is present" do
     skip("Test requires `expect`") if !has_expect?
 
     @environment.workdir.join("color.exp").open("w+") do |f|
-      f.write(<<-SCRIPT)
-catch {spawn vagrant status --no-color} reason
-expect {
-    "\e[31m" { exit 1 }
-    default { exit }
-}
+      f.puts(<<-SCRIPT)
+spawn #{@environment.replace_command("vagrant")} status --no-color
+expect default {}
 SCRIPT
     end
 
-    results = execute("expect", "color.exp")
-    assert_equal(0, results.exit_status)
+    result = execute("expect", "color.exp")
+    assert(!result.stdout.read.index("\e[31m"), "output should not contain color")
   end
 
   should "not output color in the absense of a TTY" do
@@ -49,6 +43,6 @@ SCRIPT
     # If `vagrant status` itself is broken, another acceptance test
     # should catch that. We just assume it works here.
     result = execute("vagrant", "status")
-    assert(result.stdout.read !~ /\e\[31/, "output should not contain color")
+    assert(!result.stdout.read.index("\e[31m"), "output should not contain color")
   end
 end

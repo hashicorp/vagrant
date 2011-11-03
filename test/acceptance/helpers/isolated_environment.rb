@@ -66,8 +66,6 @@ module Acceptance
       FileUtils.rm_rf(@tempdir.path)
     end
 
-    private
-
     # This replaces a command with a replacement defined when this
     # isolated environment was initialized. If nothing was defined,
     # then the command itself is returned.
