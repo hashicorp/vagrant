@@ -12,6 +12,9 @@ module Acceptance
   class IsolatedEnvironment
     include POSIX::Spawn
 
+    attr_reader :homedir
+    attr_reader :workdir
+
     # Initializes an isolated environment. You can pass in some
     # options here to configure runing custom applications in place
     # of others as well as specifying environmental variables.
@@ -54,6 +57,12 @@ module Acceptance
       @logger.info("Exit status: #{status.exitstatus}")
 
       return ExecuteProcess.new(status.exitstatus, stdout, stderr)
+    end
+
+    # Closes the environment, cleans up the temporary directories, etc.
+    def close
+      # Delete the temporary directory
+      FileUtils.rm_rf(@tempdir.path)
     end
   end
 

@@ -47,4 +47,8 @@ class AcceptanceTest < Test::Unit::TestCase
     apps = { "vagrant" => config.vagrant_path }
     @environment = Acceptance::IsolatedEnvironment.new(apps, config.env)
   end
+
+  teardown do
+    @environment.close
+  end
 end
