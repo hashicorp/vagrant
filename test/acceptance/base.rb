@@ -47,6 +47,10 @@ class AcceptanceTest < Test::Unit::TestCase
     # variables to pass in.
     apps = { "vagrant" => config.vagrant_path }
     @environment = Acceptance::IsolatedEnvironment.new(apps, config.env)
+
+    # Setup a logger for this test, since tests often log to assist
+    # with the debugging process in case of failure.
+    @logger = Log4r::Logger.new("acceptance::#{self.class.name.downcase.gsub("test", "")}")
   end
 
   teardown do

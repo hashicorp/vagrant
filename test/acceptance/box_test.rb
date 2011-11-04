@@ -67,6 +67,7 @@ class BoxTest < AcceptanceTest
     require_box("default")
 
     original_size = File.size(config.boxes["default"])
+    @logger.debug("Original package size: #{original_size}")
 
     # Add the box, repackage it, and verify that a package.box is
     # dumped of relatively similar size.
@@ -79,6 +80,7 @@ class BoxTest < AcceptanceTest
 
     # Compare the sizes
     repackaged_size = repackaged_file.size
+    @logger.debug("Repackaged size: #{repackaged_size}")
     size_diff = (repackaged_size - original_size).abs
     assert(size_diff < 1000, "Sizes should be very similar")
   end
