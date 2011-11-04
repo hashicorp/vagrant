@@ -50,10 +50,13 @@ module Acceptance
     def execute(command, *argN)
       command = replace_command(command)
 
+      # Add our hash options to the arguments list
+      argN << { :chdir => @workdir.to_s }
+
       # Execute in a separate process, wait for it to complete, and
       # return the IO streams.
       @logger.info("Executing: #{command} #{argN.inspect}")
-      pid, stdin, stdout, stderr = popen4(@env, command, *argN, :chdir => @workdir.to_s)
+      pid, stdin, stdout, stderr = popen4(@env, command, *argN)
       _pid, status = Process.waitpid2(pid)
       @logger.info("Exit status: #{status.exitstatus}")
 

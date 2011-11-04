@@ -1,3 +1,4 @@
+require "rubygems"
 require "contest"
 require "log4r"
 
