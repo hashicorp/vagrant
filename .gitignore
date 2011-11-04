@@ -3,6 +3,7 @@
 
 # Vagrant stuff
 acceptance_config.yml
+package.box
 Vagrantfile
 .vagrant
 

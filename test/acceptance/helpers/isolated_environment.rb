@@ -88,6 +88,10 @@ module Acceptance
       @stdout      = stdout
       @stderr      = stderr
     end
+
+    def success?
+      @exit_status == 0
+    end
   end
 end
 
