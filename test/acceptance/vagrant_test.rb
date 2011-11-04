@@ -9,6 +9,13 @@ class VagrantTestColorOutput < AcceptanceTest
     $?.success?
   end
 
+  # This is a helper to check for a color in some text.
+  # This will return `nil` if no color is found, any other
+  # truthy value otherwise.
+  def has_color?(text)
+    text.index("\e[31m")
+  end
+
   should "output color if there is a TTY" do
     skip("Test requires `expect`") if !has_expect?
 
@@ -20,7 +27,7 @@ SCRIPT
     end
 
     result = execute("expect", "color.exp")
-    assert(result.stdout.read.index("\e[31m"), "output should contain color")
+    assert(has_color?(result.stdout.read), "output should contain color")
   end
 
   should "not output color if there is a TTY but --no-color is present" do
@@ -34,7 +41,7 @@ SCRIPT
     end
 
     result = execute("expect", "color.exp")
-    assert(!result.stdout.read.index("\e[31m"), "output should not contain color")
+    assert(!has_color?(result.stdout.read), "output should not contain color")
   end
 
   should "not output color in the absense of a TTY" do
@@ -43,6 +50,6 @@ SCRIPT
     # If `vagrant status` itself is broken, another acceptance test
     # should catch that. We just assume it works here.
     result = execute("vagrant", "status")
-    assert(!result.stdout.read.index("\e[31m"), "output should not contain color")
+    assert(!has_color?(result.stdout.read), "output should not contain color")
   end
 end
