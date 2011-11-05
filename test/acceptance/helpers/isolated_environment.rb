@@ -55,17 +55,37 @@ module Acceptance
 
       # Execute in a separate process, wait for it to complete, and
       # return the IO streams.
-      @logger.info("Executing: #{command} #{argN.inspect}")
+      @logger.info("Executing: #{command} #{argN.inspect}. Output will stream in...")
       pid, stdin, stdout, stderr = popen4(@env, command, *argN)
-      _pid, status = Process.waitpid2(pid)
-      @logger.info("Exit status: #{status.exitstatus}")
 
-      return ExecuteProcess.new(status.exitstatus, stdout, stderr)
+      io_data = {
+        stdout => "",
+        stderr => ""
+      }
+
+      while results = IO.select([stdout, stderr], nil, nil, 5)
+        rs = results[0]
+        next if rs.empty?
+
+        rs.each do |r|
+          data = r.readline
+          io_data[r] += data
+
+          io_name = r == stdout ? "stdout" : "stderr"
+          @logger.debug("[#{io_name}] #{data.chomp}")
+        end
+      end
+
+      _pid, status = Process.waitpid2(pid)
+      @logger.debug("Exit status: #{status.exitstatus}")
+
+      return ExecuteProcess.new(status.exitstatus, io_data[stdout], io_data[stderr])
     end
 
     # Closes the environment, cleans up the temporary directories, etc.
     def close
       # Delete the temporary directory
+      @logger.info("Removing isolated environment: #{@tempdir.path}")
       FileUtils.rm_rf(@tempdir.path)
     end
 

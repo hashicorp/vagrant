@@ -9,7 +9,7 @@ class BoxTest < AcceptanceTest
 
   should "have no boxes by default" do
     result = execute("vagrant", "box", "list")
-    assert result.stdout.read =~ /There are no installed boxes!/
+    assert result.stdout =~ /There are no installed boxes!/
   end
 
   should "add a box from a file" do
@@ -21,13 +21,13 @@ class BoxTest < AcceptanceTest
 
     # Verify that the box now shows up in the list of available boxes
     results = execute("vagrant", "box", "list")
-    assert(results.stdout.read =~ /^foo$/, "Box should exist after it is added")
+    assert(results.stdout =~ /^foo$/, "Box should exist after it is added")
   end
 
   should "give an error if the file doesn't exist" do
     results = execute("vagrant", "box", "add", "foo", "/tmp/nope/nope/nope/nonono.box")
     assert(!results.success?, "Box add should fail.")
-    assert(results.stdout.read =~ /^The specified path to a file doesn't exist.$/,
+    assert(results.stdout =~ /^The specified path to a file doesn't exist.$/,
            "This should show an error message about the file not existing.")
   end
 
@@ -39,7 +39,7 @@ class BoxTest < AcceptanceTest
 
     results = execute("vagrant", "box", "add", "foo", invalid.to_s)
     assert(!results.success?, "Box add should fail.")
-    assert(results.stdout.read =~ /^The box file you're attempting to add is invalid./,
+    assert(results.stdout =~ /^The box file you're attempting to add is invalid./,
            "should show an error message")
   end
 
@@ -57,7 +57,7 @@ class BoxTest < AcceptanceTest
     execute("vagrant", "box", "remove", "foo")
     results = execute("vagrant", "box", "list")
     assert(results.success?, "box list should succeed")
-    assert(results.stdout.read =~ /^There are no installed boxes!/,
+    assert(results.stdout =~ /^There are no installed boxes!/,
            "box list should be empty")
   end
 
