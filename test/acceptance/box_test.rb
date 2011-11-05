@@ -1,5 +1,3 @@
-require "digest/sha1"
-
 require File.expand_path("../base", __FILE__)
 
 class BoxTest < AcceptanceTest
