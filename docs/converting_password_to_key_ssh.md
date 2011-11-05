@@ -78,7 +78,7 @@ your current project's directory (backing up your own Vagrantfile if necessary),
 then package the box. Let's assume the box we're repackaging here is named `broken_box`:
 
 {% highlight bash %}
-$ cp ~/.vagrant/boxes/broken_box/Vagrantfile .
+$ cp ~/.vagrant.d/boxes/broken_box/Vagrantfile .
 $ vagrant halt
 $ vagrant package --include Vagrantfile
 {% endhighlight %}
