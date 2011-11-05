@@ -2,8 +2,9 @@ require "rubygems"
 require "contest"
 require "log4r"
 
-require File.expand_path("../helpers/isolated_environment", __FILE__)
 require File.expand_path("../helpers/config.rb", __FILE__)
+require File.expand_path("../helpers/isolated_environment", __FILE__)
+require File.expand_path("../helpers/output.rb", __FILE__)
 
 # Enable logging if requested
 if ENV["ACCEPTANCE_LOGGING"]
@@ -37,6 +38,13 @@ class AcceptanceTest < Test::Unit::TestCase
   # @return [Object]
   def execute(*args)
     @environment.execute(*args)
+  end
+
+  # This is a shortcut method to instantiate an Output matcher.
+  #
+  # @return [Acceptance::Output]
+  def output(text)
+    Acceptance::Output.new(text)
   end
 
   setup do

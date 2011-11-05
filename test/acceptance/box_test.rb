@@ -9,7 +9,8 @@ class BoxTest < AcceptanceTest
 
   should "have no boxes by default" do
     result = execute("vagrant", "box", "list")
-    assert result.stdout =~ /There are no installed boxes!/
+    assert(output(result.stdout).no_boxes,
+           "output should say there are no installed boxes")
   end
 
   should "add a box from a file" do
@@ -21,14 +22,15 @@ class BoxTest < AcceptanceTest
 
     # Verify that the box now shows up in the list of available boxes
     results = execute("vagrant", "box", "list")
-    assert(results.stdout =~ /^foo$/, "Box should exist after it is added")
+    assert(output(results.stdout).box_installed("foo"),
+           "foo box should exist after it is added")
   end
 
   should "give an error if the file doesn't exist" do
     results = execute("vagrant", "box", "add", "foo", "/tmp/nope/nope/nope/nonono.box")
     assert(!results.success?, "Box add should fail.")
-    assert(results.stdout =~ /^The specified path to a file doesn't exist.$/,
-           "This should show an error message about the file not existing.")
+    assert(output(results.stdout).box_path_doesnt_exist,
+           "Should show an error message about the file not existing.")
   end
 
   should "give an error if the file is not a valid box" do
@@ -39,8 +41,8 @@ class BoxTest < AcceptanceTest
 
     results = execute("vagrant", "box", "add", "foo", invalid.to_s)
     assert(!results.success?, "Box add should fail.")
-    assert(results.stdout =~ /^The box file you're attempting to add is invalid./,
-           "should show an error message")
+    assert(output(results.stdout).box_invalid,
+           "should say the box is invalid")
   end
 
   should "add a box from an HTTP server" do
@@ -57,8 +59,8 @@ class BoxTest < AcceptanceTest
     execute("vagrant", "box", "remove", "foo")
     results = execute("vagrant", "box", "list")
     assert(results.success?, "box list should succeed")
-    assert(results.stdout =~ /^There are no installed boxes!/,
-           "box list should be empty")
+    assert(output(results.stdout).no_boxes,
+           "No boxes should be installed")
   end
 
   should "repackage a box" do
