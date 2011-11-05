@@ -29,7 +29,7 @@ $ vagrant box add lucid32 http://files.vagrantup.com/lucid32.box
 The name used with the `vagrant box add` command is the name used to
 reference the box from that point forward. Any box can be named anything
 you want.  Boxes that are added using `vagrant box add` are global to the
-vagrant install, and they are stored at `~/.vagrant/boxes` on the local filesystem.
+vagrant install, and they are stored at `~/.vagrant.d/boxes` on the local filesystem.
 
 **Note:** The default Vagrantfile created with `vagrant init` defaults to
 using a box named "base." This is why in the getting started guide, the
