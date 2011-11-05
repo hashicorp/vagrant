@@ -3,11 +3,20 @@ require 'bundler/setup'
 require 'rake/testtask'
 Bundler::GemHelper.install_tasks
 
-task :default => :test
+task :default => "test:unit"
 
-Rake::TestTask.new do |t|
-  t.libs << "test/unit"
-  t.pattern = 'test/unit/**/*_test.rb'
+namespace :test do
+  Rake::TestTask.new do |t|
+    t.name = "unit"
+    t.libs << "test/unit"
+    t.pattern = "test/unit/**/*_test.rb"
+  end
+
+  Rake::TestTask.new do |t|
+    t.name = "acceptance"
+    t.libs << "test/acceptance"
+    t.pattern = "test/acceptance/**/*_test.rb"
+  end
 end
 
 namespace :acceptance do
