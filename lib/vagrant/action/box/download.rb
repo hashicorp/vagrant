@@ -39,6 +39,7 @@ module Vagrant
             if classes.length == (i + 1) || klass.match?(@env["box"].uri)
               @env.ui.info I18n.t("vagrant.actions.box.download.with", :class => klass.to_s)
               @downloader = klass.new(@env)
+              break
             end
           end
 
