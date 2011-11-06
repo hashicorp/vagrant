@@ -32,5 +32,11 @@ module Acceptance
     def is_version?(version)
       @text =~ /^Vagrant version #{version}$/
     end
+
+    # This checks that the VM with the given `vm_name` has the
+    # status of `status`.
+    def status(vm_name, status)
+      @text =~ /^#{vm_name}\s+#{status}$/
+    end
   end
 end

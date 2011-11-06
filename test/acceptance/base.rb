@@ -36,8 +36,8 @@ class AcceptanceTest < Test::Unit::TestCase
   # is just a shortcut to IsolatedEnvironment#execute.
   #
   # @return [Object]
-  def execute(*args)
-    @environment.execute(*args)
+  def execute(*args, &block)
+    @environment.execute(*args, &block)
   end
 
   # This is a shortcut method to instantiate an Output matcher.
@@ -45,6 +45,15 @@ class AcceptanceTest < Test::Unit::TestCase
   # @return [Acceptance::Output]
   def output(text)
     Acceptance::Output.new(text)
+  end
+
+  # This method is an assertion helper for asserting that a process
+  # succeeds. It is a wrapper around `execute` that asserts that the
+  # exit status was successful.
+  def assert_execute(*args, &block)
+    result = execute(*args, &block)
+    assert(result.success?, "expected '#{args.join(" ")}' to succeed")
+    result
   end
 
   setup do

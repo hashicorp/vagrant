@@ -41,7 +41,10 @@ module Acceptance
       @homedir.mkdir
       @workdir.mkdir
 
+      # Set the home directory and virtualbox home directory environmental
+      # variables so that Vagrant and VirtualBox see the proper paths here.
       @env["HOME"] = @homedir.to_s
+      @env["VBOX_USER_HOME"] = @homedir.to_s
     end
 
     # Executes a command in the context of this isolated environment.
@@ -57,26 +60,48 @@ module Acceptance
       # return the IO streams.
       @logger.info("Executing: #{command} #{argN.inspect}. Output will stream in...")
       pid, stdin, stdout, stderr = popen4(@env, command, *argN)
+      status = nil
 
       io_data = {
         stdout => "",
         stderr => ""
       }
 
-      while results = IO.select([stdout, stderr], nil, nil, 5)
-        rs = results[0]
-        next if rs.empty?
+      while results = IO.select([stdout, stderr], [stdin], nil, 5)
+        # Check the readers first to see if they're ready
+        readers = results[0]
+        if !readers.empty?
+          begin
+            readers.each do |r|
+              data = r.readline
+              io_data[r] += data
 
-        rs.each do |r|
-          data = r.readline
-          io_data[r] += data
+              io_name = r == stdout ? "stdout" : "stderr"
+              @logger.debug("[#{io_name}] #{data.chomp}")
+              yield io_name.to_sym, data if block_given?
+            end
+          rescue EOFError
+            # Process exited, so break out of this while loop
+            break
+          end
+        end
 
-          io_name = r == stdout ? "stdout" : "stderr"
-          @logger.debug("[#{io_name}] #{data.chomp}")
+        # Check here if the process has exited, and if so, exit the
+        # loop.
+        exit_pid, status = Process.waitpid2(pid, Process::WNOHANG)
+        break if exit_pid
+
+        # Check the writers to see if they're ready, and notify any
+        # listeners...
+        if !results[1].empty?
+          yield :stdin, stdin if block_given?
         end
       end
 
-      _pid, status = Process.waitpid2(pid)
+      # Only load the exit status if we don't already have it, since
+      # it is possible that it could've been obtained in the above
+      # while loop.
+      _pid, status = Process.waitpid2(pid) if !status
       @logger.debug("Exit status: #{status.exitstatus}")
 
       return ExecuteProcess.new(status.exitstatus, io_data[stdout], io_data[stderr])
