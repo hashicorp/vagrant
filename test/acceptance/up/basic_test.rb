@@ -13,6 +13,16 @@ class BasicUpTest < AcceptanceTest
 
 =begin
 
+TODO:
+
+  should "fail if no `Vagrantfile` is found"
+  should "be able to run if `Vagrantfile` is in parent directory"
+  should "bring up a running virtual machine and be able to SSH into it"
+  should "bring up a running virtual machine and have a `/vagrant' shared folder by default"
+  should "destroy a running virtual machine"
+  should "save then restore a virtual machine using `vagrant up`"
+  should "halt then start a virtual machine using `vagrant up`"
+
 This shows how we can test that SSH is working. We'll use
 this code later, but for now have no test that exercises it.
 
