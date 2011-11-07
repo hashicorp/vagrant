@@ -26,7 +26,7 @@ namespace :acceptance do
     require 'posix-spawn'
 
     require File.expand_path("../lib/vagrant/version", __FILE__)
-    require File.expand_path('../test/acceptance/helpers/tempdir', __FILE__)
+    require File.expand_path('../test/acceptance/support/tempdir', __FILE__)
 
     # Generate the binstubs for the Vagrant binary
     tempdir = Tempdir.new
