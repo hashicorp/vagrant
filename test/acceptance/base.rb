@@ -2,9 +2,10 @@ require "rubygems"
 require "contest"
 require "log4r"
 
-require File.expand_path("../helpers/config.rb", __FILE__)
+require File.expand_path("../helpers/config", __FILE__)
 require File.expand_path("../helpers/isolated_environment", __FILE__)
-require File.expand_path("../helpers/output.rb", __FILE__)
+require File.expand_path("../helpers/output", __FILE__)
+require File.expand_path("../helpers/virtualbox", __FILE__)
 
 # Enable logging if requested
 if ENV["ACCEPTANCE_LOGGING"]
@@ -57,6 +58,9 @@ class AcceptanceTest < Test::Unit::TestCase
   end
 
   setup do
+    # Wait for VBoxSVC to disappear
+    Acceptance::VirtualBox.wait_for_vboxsvc
+
     # Setup the environment so that we have an isolated area
     # to run Vagrant. We do some configuration here as well in order
     # to replace "vagrant" with the proper path to Vagrant as well
@@ -71,6 +75,6 @@ class AcceptanceTest < Test::Unit::TestCase
   end
 
   teardown do
-    @environment.close
+    @environment.close if @environment
   end
 end

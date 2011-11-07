@@ -5,6 +5,7 @@ require "log4r"
 require "posix-spawn"
 
 require File.expand_path("../tempdir", __FILE__)
+require File.expand_path("../virtualbox", __FILE__)
 
 module Acceptance
   # This class manages an isolated environment for Vagrant to
@@ -109,6 +110,17 @@ module Acceptance
 
     # Closes the environment, cleans up the temporary directories, etc.
     def close
+      # Only delete virtual machines if VBoxSVC is running, meaning
+      # that something related to VirtualBox started running in this
+      # environment.
+      delete_virtual_machines if VirtualBox.find_vboxsvc
+
+      # Delete the temporary directory
+      @logger.info("Removing isolated environment: #{@tempdir.path}")
+      FileUtils.rm_rf(@tempdir.path)
+    end
+
+    def delete_virtual_machines
       # Delete all virtual machines
       @logger.debug("Finding all virtual machines")
       execute("VBoxManage", "list", "vms").stdout.lines.each do |line|
@@ -125,10 +137,6 @@ module Acceptance
       end
 
       @logger.info("Removed all virtual machines")
-
-      # Delete the temporary directory
-      @logger.info("Removing isolated environment: #{@tempdir.path}")
-      FileUtils.rm_rf(@tempdir.path)
     end
 
     # This replaces a command with a replacement defined when this
