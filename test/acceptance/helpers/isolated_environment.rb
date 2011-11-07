@@ -109,6 +109,23 @@ module Acceptance
 
     # Closes the environment, cleans up the temporary directories, etc.
     def close
+      # Delete all virtual machines
+      @logger.debug("Finding all virtual machines")
+      execute("VBoxManage", "list", "vms").stdout.lines.each do |line|
+        data = /^"(?<name>.+?)" {(?<uuid>.+?)}$/.match(line)
+
+        @logger.debug("Removing VM: #{data[:name]}")
+        result = execute("VBoxManage", "controlvm", data[:uuid], "poweroff")
+        raise Exception, "VM halt failed!" if result.exit_status != 0
+
+        sleep 0.5
+
+        result = execute("VBoxManage", "unregistervm", data[:uuid], "--delete")
+        raise Exception, "VM unregistration failed!" if result.exit_status != 0
+      end
+
+      @logger.info("Removed all virtual machines")
+
       # Delete the temporary directory
       @logger.info("Removing isolated environment: #{@tempdir.path}")
       FileUtils.rm_rf(@tempdir.path)
