@@ -1,6 +1,6 @@
-require File.expand_path("../../base", __FILE__)
+require File.expand_path("../base", __FILE__)
 
-class BasicUpTest < AcceptanceTest
+class UpBasicTest < AcceptanceTest
   should "fail if not Vagrantfile is found" do
     result = execute("vagrant", "up")
     assert(!result.success?, "vagrant up should fail")
