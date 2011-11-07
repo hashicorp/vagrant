@@ -7,6 +7,12 @@ require File.expand_path("../helpers/isolated_environment", __FILE__)
 require File.expand_path("../helpers/output", __FILE__)
 require File.expand_path("../helpers/virtualbox", __FILE__)
 
+# If VirtualBox is currently running, fail.
+if Acceptance::VirtualBox.find_vboxsvc
+  $stderr.puts "VirtualBox must be closed and remain closed for the duration of the tests."
+  abort
+end
+
 # Enable logging if requested
 if ENV["ACCEPTANCE_LOGGING"]
   logger = Log4r::Logger.new("acceptance")
@@ -18,10 +24,10 @@ end
 # Parse the command line options and load the global configuration.
 if !ENV.has_key?("ACCEPTANCE_CONFIG")
   $stderr.puts "A configuration file must be passed into the acceptance test."
-  exit
+  abort
 elsif !File.file?(ENV["ACCEPTANCE_CONFIG"])
   $stderr.puts "The configuration file must exist."
-  exit
+  abort
 end
 
 $acceptance_options = Acceptance::Config.new(ENV["ACCEPTANCE_CONFIG"])
