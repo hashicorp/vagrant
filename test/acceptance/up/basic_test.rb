@@ -18,19 +18,10 @@ class BasicUpTest < AcceptanceTest
            "Virtual machine should be running")
   end
 
-=begin
-
-TODO:
-
-  should "be able to run if `Vagrantfile` is in parent directory"
-  should "bring up a running virtual machine and be able to SSH into it"
-  should "bring up a running virtual machine and have a `/vagrant' shared folder by default"
-  should "destroy a running virtual machine"
-  should "save then restore a virtual machine using `vagrant up`"
-  should "halt then start a virtual machine using `vagrant up`"
-
-This shows how we can test that SSH is working. We'll use
-this code later, but for now have no test that exercises it.
+  should "bring up a running virtual machine and be able to SSH into it" do
+    assert_execute("vagrant", "box", "add", "base", config.boxes["default"])
+    assert_execute("vagrant", "init")
+    assert_execute("vagrant", "up")
 
     outputted = false
     result = assert_execute("vagrant", "ssh") do |io_type, data|
@@ -42,6 +33,18 @@ this code later, but for now have no test that exercises it.
     end
 
     assert_equal("hello", result.stdout.chomp,
-                 "Vagrant should bring up a virtual machine and be able to SSH in."
+                 "Vagrant should bring up a virtual machine and be able to SSH in.")
+  end
+
+=begin
+
+TODO:
+
+  should "be able to run if `Vagrantfile` is in parent directory"
+  should "bring up a running virtual machine and have a `/vagrant' shared folder by default"
+  should "destroy a running virtual machine"
+  should "save then restore a virtual machine using `vagrant up`"
+  should "halt then start a virtual machine using `vagrant up`"
+
 =end
 end
