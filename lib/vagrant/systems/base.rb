@@ -56,7 +56,7 @@ module Vagrant
       # adhere to any configuration values such as `shared_folder_uid`
       # on `config.vm`.
       #
-      # @param [Object] ssh The Net::SSH session.
+      # @param [Object] ssh session.
       # @param [String] name The name of the shared folder.
       # @param [String] guestpath The path on the machine which the user
       #   wants the folder mounted.
