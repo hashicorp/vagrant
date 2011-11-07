@@ -1,19 +1,21 @@
 require File.expand_path("../base", __FILE__)
 
-class BoxTest < AcceptanceTest
+describe "vagrant box" do
+  include_context "acceptance"
+
   def require_box(name)
     if !config.boxes.has_key?(name) || !File.file?(config.boxes[name])
       raise ArgumentError, "The configuration should specify a '#{name}' box."
     end
   end
 
-  should "have no boxes by default" do
+  it "has no boxes by default" do
     result = execute("vagrant", "box", "list")
     assert(output(result.stdout).no_boxes,
            "output should say there are no installed boxes")
   end
 
-  should "add a box from a file" do
+  it "can add a box from a file" do
     require_box("default")
 
     # Add the box, which we expect to succeed
@@ -26,15 +28,15 @@ class BoxTest < AcceptanceTest
            "foo box should exist after it is added")
   end
 
-  should "give an error if the file doesn't exist" do
+  it "gives an error if the file doesn't exist" do
     results = execute("vagrant", "box", "add", "foo", "/tmp/nope/nope/nope/nonono.box")
     assert(!results.success?, "Box add should fail.")
     assert(output(results.stdout).box_path_doesnt_exist,
            "Should show an error message about the file not existing.")
   end
 
-  should "give an error if the file is not a valid box" do
-    invalid = @environment.workdir.join("nope.txt")
+  it "gives an error if the file is not a valid box" do
+    invalid = environment.workdir.join("nope.txt")
     invalid.open("w+") do |f|
       f.write("INVALID!")
     end
@@ -45,12 +47,11 @@ class BoxTest < AcceptanceTest
            "should say the box is invalid")
   end
 
-  should "add a box from an HTTP server" do
-    # TODO: Spin up an HTTP server to serve a file, add and test.
-    skip("Need to setup HTTP server functionality")
+  it "can add a box from an HTTP server" do
+    pending("Need to setup HTTP server functionality")
   end
 
-  should "remove a box" do
+  it "can remove a box" do
     require_box("default")
 
     # Add the box, remove the box, then verify that the box no longer
@@ -63,11 +64,11 @@ class BoxTest < AcceptanceTest
            "No boxes should be installed")
   end
 
-  should "repackage a box" do
+  it "can repackage a box" do
     require_box("default")
 
     original_size = File.size(config.boxes["default"])
-    @logger.debug("Original package size: #{original_size}")
+    logger.debug("Original package size: #{original_size}")
 
     # Add the box, repackage it, and verify that a package.box is
     # dumped of relatively similar size.
@@ -75,12 +76,12 @@ class BoxTest < AcceptanceTest
     execute("vagrant", "box", "repackage", "foo")
 
     # By default, repackage should dump into package.box into the CWD
-    repackaged_file = @environment.workdir.join("package.box")
+    repackaged_file = environment.workdir.join("package.box")
     assert(repackaged_file.file?, "package.box should exist in cwd of environment")
 
     # Compare the sizes
     repackaged_size = repackaged_file.size
-    @logger.debug("Repackaged size: #{repackaged_size}")
+    logger.debug("Repackaged size: #{repackaged_size}")
     size_diff = (repackaged_size - original_size).abs
     assert(size_diff < 1000, "Sizes should be very similar")
   end

@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'bundler/setup'
 require 'rake/testtask'
+require 'rspec/core/rake_task'
 Bundler::GemHelper.install_tasks
 
 task :default => "test:unit"
@@ -12,9 +13,8 @@ namespace :test do
     t.pattern = "test/unit/**/*_test.rb"
   end
 
-  Rake::TestTask.new do |t|
+  RSpec::Core::RakeTask.new do |t|
     t.name = "acceptance"
-    t.libs << "test/acceptance"
     t.pattern = "test/acceptance/**/*_test.rb"
   end
 end

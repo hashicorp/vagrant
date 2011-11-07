@@ -1,11 +1,11 @@
 require "rubygems"
-require "contest"
+require "rspec/autorun"
+
 require "log4r"
 
-require File.expand_path("../helpers/config", __FILE__)
-require File.expand_path("../helpers/isolated_environment", __FILE__)
-require File.expand_path("../helpers/output", __FILE__)
-require File.expand_path("../helpers/virtualbox", __FILE__)
+require File.expand_path("../support/base_context", __FILE__)
+require File.expand_path("../support/config", __FILE__)
+require File.expand_path("../support/virtualbox", __FILE__)
 
 # If VirtualBox is currently running, fail.
 if Acceptance::VirtualBox.find_vboxsvc
@@ -32,55 +32,7 @@ end
 
 $acceptance_options = Acceptance::Config.new(ENV["ACCEPTANCE_CONFIG"])
 
-class AcceptanceTest < Test::Unit::TestCase
-  # This method is a shortcut to give access to the global configuration
-  # setup by the acceptance tests.
-  def config
-    $acceptance_options
-  end
-
-  # Executes the given command in the isolated environment. This
-  # is just a shortcut to IsolatedEnvironment#execute.
-  #
-  # @return [Object]
-  def execute(*args, &block)
-    @environment.execute(*args, &block)
-  end
-
-  # This is a shortcut method to instantiate an Output matcher.
-  #
-  # @return [Acceptance::Output]
-  def output(text)
-    Acceptance::Output.new(text)
-  end
-
-  # This method is an assertion helper for asserting that a process
-  # succeeds. It is a wrapper around `execute` that asserts that the
-  # exit status was successful.
-  def assert_execute(*args, &block)
-    result = execute(*args, &block)
-    assert(result.success?, "expected '#{args.join(" ")}' to succeed")
-    result
-  end
-
-  setup do
-    # Wait for VBoxSVC to disappear
-    Acceptance::VirtualBox.wait_for_vboxsvc
-
-    # Setup the environment so that we have an isolated area
-    # to run Vagrant. We do some configuration here as well in order
-    # to replace "vagrant" with the proper path to Vagrant as well
-    # as tell the isolated environment about custom environmental
-    # variables to pass in.
-    apps = { "vagrant" => config.vagrant_path }
-    @environment = Acceptance::IsolatedEnvironment.new(apps, config.env)
-
-    # Setup a logger for this test, since tests often log to assist
-    # with the debugging process in case of failure.
-    @logger = Log4r::Logger.new("acceptance::#{self.class.name.downcase.gsub("test", "")}")
-  end
-
-  teardown do
-    @environment.close if @environment
-  end
+# Configure RSpec
+RSpec.configure do |c|
+  c.expect_with :stdlib
 end

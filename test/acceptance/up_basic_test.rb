@@ -1,14 +1,14 @@
 require File.expand_path("../base", __FILE__)
 
-class UpBasicTest < AcceptanceTest
-  should "fail if not Vagrantfile is found" do
+describe "vagrant up", "basics" do
+  it "fails if not Vagrantfile is found" do
     result = execute("vagrant", "up")
     assert(!result.success?, "vagrant up should fail")
     assert(output(result.stdout).no_vagrantfile,
            "Vagrant should error since there is no Vagrantfile")
   end
 
-  should "bring up a running virtual machine" do
+  it "brings up a running virtual machine" do
     assert_execute("vagrant", "box", "add", "base", config.boxes["default"])
     assert_execute("vagrant", "init")
     assert_execute("vagrant", "up")
