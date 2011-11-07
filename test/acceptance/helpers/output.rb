@@ -44,5 +44,11 @@ module Acceptance
     def status(vm_name, status)
       @text =~ /^#{vm_name}\s+#{status}$/
     end
+
+    # This checks that an error message that the VM must be created
+    # is shown.
+    def error_vm_must_be_created
+      @text =~ /^VM must be created/
+    end
   end
 end
