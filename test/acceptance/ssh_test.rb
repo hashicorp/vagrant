@@ -34,4 +34,13 @@ class SSHTest < AcceptanceTest
     assert_equal("hello", result.stdout.chomp,
                  "Vagrant should bring up a virtual machine and be able to SSH in.")
   end
+
+  should "be able to execute a single command via the command line" do
+    assert_execute("vagrant", "box", "add", "base", config.boxes["default"])
+    assert_execute("vagrant", "init")
+    assert_execute("vagrant", "up")
+
+    result = assert_execute("vagrant", "ssh", "-c", "echo foo")
+    assert_equal("foo\n", result.stdout)
+  end
 end
