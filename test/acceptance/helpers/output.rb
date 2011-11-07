@@ -28,6 +28,12 @@ module Acceptance
       @text =~ /There are no installed boxes!/
     end
 
+    # Tests that the output says there is no Vagrantfile, and as such
+    # can't do whatever we requested Vagrant to do.
+    def no_vagrantfile
+      @text =~ /^No Vagrant environment detected/
+    end
+
     # Tests that the output contains a specific Vagrant version.
     def is_version?(version)
       @text =~ /^Vagrant version #{version}$/
