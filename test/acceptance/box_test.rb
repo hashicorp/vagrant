@@ -11,28 +11,25 @@ describe "vagrant box" do
 
   it "has no boxes by default" do
     result = execute("vagrant", "box", "list")
-    assert(output(result.stdout).no_boxes,
-           "output should say there are no installed boxes")
+    result.stdout.should match_output(:no_boxes)
   end
 
   it "can add a box from a file" do
     require_box("default")
 
     # Add the box, which we expect to succeed
-    results = execute("vagrant", "box", "add", "foo", config.boxes["default"])
-    assert(results.success?, "Box add should succeed.")
+    result = execute("vagrant", "box", "add", "foo", config.boxes["default"])
+    result.should be_success
 
     # Verify that the box now shows up in the list of available boxes
-    results = execute("vagrant", "box", "list")
-    assert(output(results.stdout).box_installed("foo"),
-           "foo box should exist after it is added")
+    result = execute("vagrant", "box", "list")
+    result.stdout.should match_output(:box_installed, "foo")
   end
 
   it "gives an error if the file doesn't exist" do
-    results = execute("vagrant", "box", "add", "foo", "/tmp/nope/nope/nope/nonono.box")
-    assert(!results.success?, "Box add should fail.")
-    assert(output(results.stdout).box_path_doesnt_exist,
-           "Should show an error message about the file not existing.")
+    result = execute("vagrant", "box", "add", "foo", "/tmp/nope/nope/nope/nonono.box")
+    result.should_not be_success
+    result.stdout.should match_output(:box_path_doesnt_exist)
   end
 
   it "gives an error if the file is not a valid box" do
@@ -41,10 +38,9 @@ describe "vagrant box" do
       f.write("INVALID!")
     end
 
-    results = execute("vagrant", "box", "add", "foo", invalid.to_s)
-    assert(!results.success?, "Box add should fail.")
-    assert(output(results.stdout).box_invalid,
-           "should say the box is invalid")
+    result = execute("vagrant", "box", "add", "foo", invalid.to_s)
+    result.should_not be_success
+    result.stdout.should match_output(:box_invalid)
   end
 
   it "can add a box from an HTTP server" do
@@ -58,10 +54,9 @@ describe "vagrant box" do
     # shows up in the list of available boxes.
     execute("vagrant", "box", "add", "foo", config.boxes["default"])
     execute("vagrant", "box", "remove", "foo")
-    results = execute("vagrant", "box", "list")
-    assert(results.success?, "box list should succeed")
-    assert(output(results.stdout).no_boxes,
-           "No boxes should be installed")
+    result = execute("vagrant", "box", "list")
+    result.should be_success
+    result.stdout.should match_output(:no_boxes)
   end
 
   it "can repackage a box" do
@@ -77,7 +72,7 @@ describe "vagrant box" do
 
     # By default, repackage should dump into package.box into the CWD
     repackaged_file = environment.workdir.join("package.box")
-    assert(repackaged_file.file?, "package.box should exist in cwd of environment")
+    repackaged_file.file?.should be, "package.box should exist in cwd of environment"
 
     # Compare the sizes
     repackaged_size = repackaged_file.size

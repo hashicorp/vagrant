@@ -5,19 +5,16 @@ describe "vagrant version" do
 
   it "prints the version to stdout" do
     result = execute("vagrant", "version")
-    assert(output(result.stdout).is_version?(config.vagrant_version),
-           "output should be version")
+    result.stdout.should match_output(:version, config.vagrant_version)
   end
 
   it "prints the version when called with '-v'" do
     result = execute("vagrant", "-v")
-    assert(output(result.stdout).is_version?(config.vagrant_version),
-           "output should be version")
+    result.stdout.should match_output(:version, config.vagrant_version)
   end
 
   it "prints the version when called with '--version'" do
     result = execute("vagrant", "--version")
-    assert(output(result.stdout).is_version?(config.vagrant_version),
-           "output should be version")
+    result.stdout.should match_output(:version, config.vagrant_version)
   end
 end

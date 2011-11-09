@@ -40,13 +40,6 @@ shared_context "acceptance" do
     environment.execute(*args, &block)
   end
 
-  # Returns an output matcher for the given text.
-  #
-  # @return [Acceptance::Output]
-  def output(text)
-    Acceptance::Output.new(text)
-  end
-
   # This method is an assertion helper for asserting that a process
   # succeeds. It is a wrapper around `execute` that asserts that the
   # exit status was successful.

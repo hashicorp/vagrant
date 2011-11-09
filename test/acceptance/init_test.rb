@@ -8,29 +8,26 @@ describe "vagrant init" do
     assert(!vagrantfile.exist?, "Vagrantfile shouldn't exist")
 
     result = execute("vagrant", "init")
-    assert(result.success?, "init should succeed")
-    assert(vagrantfile.exist?, "Vagrantfile should exist")
+    result.should be_success
+    vagrantfile.exist?.should be, "Vagrantfile should exist"
   end
 
   it "creates a Vagrantfile with the box set to the given argument" do
     vagrantfile = environment.workdir.join("Vagrantfile")
 
     result = execute("vagrant", "init", "foo")
-    assert(result.success?, "init should succeed")
-    assert(vagrantfile.read =~ /config.vm.box = "foo"$/,
-           "config.vm.box should be set to 'foo'")
+    result.should be_success
+    vagrantfile.read.should match(/config.vm.box = "foo"$/)
   end
 
   it "creates a Vagrantfile with the box URL set to the given argument" do
     vagrantfile = environment.workdir.join("Vagrantfile")
 
     result = execute("vagrant", "init", "foo", "bar")
-    assert(result.success?, "init should succeed")
+    result.should be_success
 
     contents = vagrantfile.read
-    assert(contents =~ /config.vm.box = "foo"$/,
-           "config.vm.box should be set to 'foo'")
-    assert(contents =~ /config.vm.box_url = "bar"$/,
-           "config.vm.box_url should be set to 'bar'")
+    contents.should match(/config.vm.box = "foo"$/)
+    contents.should match(/config.vm.box_url = "bar"$/)
   end
 end

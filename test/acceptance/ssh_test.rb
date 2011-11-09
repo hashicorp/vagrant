@@ -5,18 +5,16 @@ describe "vagrant ssh" do
 
   it "fails if no Vagrantfile is found" do
     result = execute("vagrant", "ssh")
-    assert(!result.success?, "vagrant ssh should fail")
-    assert(output(result.stdout).no_vagrantfile,
-           "Vagrant should error since there is no Vagrantfile")
+    result.should_not be_success
+    result.stdout.should match_output(:no_vagrantfile)
   end
 
   it "fails if the virtual machine is not created" do
     assert_execute("vagrant", "init")
 
     result = execute("vagrant", "ssh")
-    assert(!result.success?, "vagrant ssh should fail")
-    assert(output(result.stdout).error_vm_must_be_created,
-           "Vagrant should error that the VM must be created.")
+    result.should_not be_success
+    result.stdout.should match_output(:error_vm_must_be_created)
   end
 
   it "is able to SSH into a running virtual machine" do
@@ -33,8 +31,7 @@ describe "vagrant ssh" do
       end
     end
 
-    assert_equal("hello", result.stdout.chomp,
-                 "Vagrant should bring up a virtual machine and be able to SSH in.")
+    result.stdout.chomp.should eql("hello"), "Vagrant should bring up a VM to be able to SSH into."
   end
 
   it "is able to execute a single command via the command line" do
@@ -43,6 +40,6 @@ describe "vagrant ssh" do
     assert_execute("vagrant", "up")
 
     result = assert_execute("vagrant", "ssh", "-c", "echo foo")
-    assert_equal("foo\n", result.stdout)
+    result.stdout.should == "foo\n"
   end
 end

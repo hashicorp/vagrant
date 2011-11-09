@@ -1,11 +1,12 @@
 require File.expand_path("../base", __FILE__)
 
 describe "vagrant up", "basics" do
+  include_context "acceptance"
+
   it "fails if not Vagrantfile is found" do
     result = execute("vagrant", "up")
-    assert(!result.success?, "vagrant up should fail")
-    assert(output(result.stdout).no_vagrantfile,
-           "Vagrant should error since there is no Vagrantfile")
+    result.should_not be_success
+    result.stdout.should match_output(:no_vagrantfile)
   end
 
   it "brings up a running virtual machine" do
@@ -13,9 +14,7 @@ describe "vagrant up", "basics" do
     assert_execute("vagrant", "init")
     assert_execute("vagrant", "up")
     result = assert_execute("vagrant", "status")
-
-    assert(output(result.stdout).status("default", "running"),
-           "Virtual machine should be running")
+    result.stdout.should match_output(:status, "default", "running")
   end
 
 =begin

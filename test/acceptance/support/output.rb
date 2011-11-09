@@ -35,7 +35,7 @@ module Acceptance
     end
 
     # Tests that the output contains a specific Vagrant version.
-    def is_version?(version)
+    def version(version)
       @text =~ /^Vagrant version #{version}$/
     end
 

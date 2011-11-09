@@ -3,9 +3,15 @@ require "rspec/autorun"
 
 require "log4r"
 
-require File.expand_path("../support/base_context", __FILE__)
-require File.expand_path("../support/config", __FILE__)
-require File.expand_path("../support/virtualbox", __FILE__)
+# Add this directory to the load path, since it just makes
+# everything else so much easier.
+$:.unshift File.expand_path("../", __FILE__)
+
+# Load in the supporting files for our tests
+require "support/base_context"
+require "support/config"
+require "support/virtualbox"
+require "support/matchers/match_output"
 
 # If VirtualBox is currently running, fail.
 if Acceptance::VirtualBox.find_vboxsvc
@@ -34,5 +40,5 @@ $acceptance_options = Acceptance::Config.new(ENV["ACCEPTANCE_CONFIG"])
 
 # Configure RSpec
 RSpec.configure do |c|
-  c.expect_with :stdlib
+  c.expect_with :rspec, :stdlib
 end
