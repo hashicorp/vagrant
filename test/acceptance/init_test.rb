@@ -5,7 +5,7 @@ describe "vagrant init" do
 
   it "creates a Vagrantfile in the working directory" do
     vagrantfile = environment.workdir.join("Vagrantfile")
-    assert(!vagrantfile.exist?, "Vagrantfile shouldn't exist")
+    vagrantfile.exist?.should_not be, "Vagrantfile shouldn't exist initially"
 
     result = execute("vagrant", "init")
     result.should be_success

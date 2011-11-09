@@ -78,6 +78,6 @@ describe "vagrant box" do
     repackaged_size = repackaged_file.size
     logger.debug("Repackaged size: #{repackaged_size}")
     size_diff = (repackaged_size - original_size).abs
-    assert(size_diff < 1000, "Sizes should be very similar")
+    size_diff.should be < 1000, "Sizes should be very similar"
   end
 end

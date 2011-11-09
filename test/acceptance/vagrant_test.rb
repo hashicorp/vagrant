@@ -1,4 +1,5 @@
 require File.expand_path("../base", __FILE__)
+require "support/matchers/have_color"
 
 describe "vagrant and color output" do
   include_context "acceptance"
@@ -11,13 +12,6 @@ describe "vagrant and color output" do
     $?.success?
   end
 
-  # This is a helper to check for a color in some text.
-  # This will return `nil` if no color is found, any other
-  # truthy value otherwise.
-  def has_color?(text)
-    text.index("\e[31m")
-  end
-
   it "outputs color if there is a TTY", :if => has_expect? do
     environment.workdir.join("color.exp").open("w+") do |f|
       f.puts(<<-SCRIPT)
@@ -27,7 +21,7 @@ SCRIPT
     end
 
     result = execute("expect", "color.exp")
-    assert(has_color?(result.stdout), "output should contain color")
+    result.stdout.should have_color
   end
 
   it "doesn't output color if there is a TTY but --no-color is present", :if => has_expect? do
@@ -39,7 +33,7 @@ SCRIPT
     end
 
     result = execute("expect", "color.exp")
-    assert(!has_color?(result.stdout), "output should not contain color")
+    result.stdout.should_not have_color
   end
 
   it "doesn't output color in the absense of a TTY" do
@@ -48,6 +42,6 @@ SCRIPT
     # If `vagrant status` itself is broken, another acceptance test
     # should catch that. We just assume it works here.
     result = execute("vagrant", "status")
-    assert(!has_color?(result.stdout), "output should not contain color")
+    result.stdout.should_not have_color
   end
 end
