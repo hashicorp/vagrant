@@ -8,7 +8,7 @@ require "log4r"
 $:.unshift File.expand_path("../", __FILE__)
 
 # Load in the supporting files for our tests
-require "support/base_context"
+require "support/shared/base_context"
 require "support/config"
 require "support/virtualbox"
 require "support/matchers/match_output"

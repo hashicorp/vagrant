@@ -1,6 +1,6 @@
-require File.expand_path("../isolated_environment", __FILE__)
-require File.expand_path("../output", __FILE__)
-require File.expand_path("../virtualbox", __FILE__)
+require "support/isolated_environment"
+require "support/output"
+require "support/virtualbox"
 
 shared_context "acceptance" do
   # Setup variables for the loggers of this test. These can be used to

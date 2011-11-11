@@ -1,21 +1,10 @@
 require File.expand_path("../base", __FILE__)
+require "support/shared/command_examples"
 
 describe "vagrant ssh" do
   include_context "acceptance"
-
-  it "fails if no Vagrantfile is found" do
-    result = execute("vagrant", "ssh")
-    result.should_not be_success
-    result.stdout.should match_output(:no_vagrantfile)
-  end
-
-  it "fails if the virtual machine is not created" do
-    assert_execute("vagrant", "init")
-
-    result = execute("vagrant", "ssh")
-    result.should_not be_success
-    result.stdout.should match_output(:error_vm_must_be_created)
-  end
+  it_behaves_like "a command that requires a Vagrantfile", ["vagrant", "ssh"]
+  it_behaves_like "a command that requires a virtual machine", ["vagrant", "ssh"]
 
   it "is able to SSH into a running virtual machine" do
     assert_execute("vagrant", "box", "add", "base", config.boxes["default"])

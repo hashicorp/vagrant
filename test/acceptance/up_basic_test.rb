@@ -1,13 +1,9 @@
 require File.expand_path("../base", __FILE__)
+require "support/shared/command_examples"
 
 describe "vagrant up", "basics" do
   include_context "acceptance"
-
-  it "fails if not Vagrantfile is found" do
-    result = execute("vagrant", "up")
-    result.should_not be_success
-    result.stdout.should match_output(:no_vagrantfile)
-  end
+  it_behaves_like "a command that requires a Vagrantfile", ["vagrant", "up"]
 
   it "brings up a running virtual machine" do
     assert_execute("vagrant", "box", "add", "base", config.boxes["default"])
