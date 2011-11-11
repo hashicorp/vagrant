@@ -30,6 +30,4 @@ shared_examples "a command that requires a virtual machine" do |*args|
     result.should_not be_success
     result.stdout.should match_output(:error_vm_must_be_created)
   end
-
-  # TODO: Check for specific VM states: running, stopped, etc.
 end

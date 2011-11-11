@@ -31,4 +31,7 @@ describe "vagrant ssh" do
     result = assert_execute("vagrant", "ssh", "-c", "echo foo")
     result.stdout.should == "foo\n"
   end
+
+  # TODO:
+  # SSH should fail if the VM is not running
 end

@@ -5,12 +5,33 @@ describe "vagrant up", "basics" do
   include_context "acceptance"
   it_behaves_like "a command that requires a Vagrantfile", ["vagrant", "up"]
 
-  it "brings up a running virtual machine" do
+  # This creates an initial environment that is ready for a "vagrant up"
+  def initialize_valid_environment
     assert_execute("vagrant", "box", "add", "base", config.boxes["default"])
     assert_execute("vagrant", "init")
+  end
+
+  it "brings up a running virtual machine" do
+    initialize_valid_environment
+
     assert_execute("vagrant", "up")
     result = assert_execute("vagrant", "status")
     result.stdout.should match_output(:status, "default", "running")
+  end
+
+  it "should have a '/vagrant' shared folder" do
+    initialize_valid_environment
+
+    # This is the file that will be created from the VM,
+    # but should then exist on the host machine
+    foofile = environment.workdir.join("foo")
+
+    assert_execute("vagrant", "up")
+    foofile.exist?.should_not be,
+        "'foo' should not exist yet."
+
+    assert_execute("vagrant", "ssh", "-c", "touch /vagrant/foo")
+    foofile.exist?.should be, "'foo' should exist since it was touched in the shared folder"
   end
 
 =begin
@@ -18,7 +39,6 @@ describe "vagrant up", "basics" do
 TODO:
 
   should "be able to run if `Vagrantfile` is in parent directory"
-  should "bring up a running virtual machine and have a `/vagrant' shared folder by default"
   should "destroy a running virtual machine"
   should "save then restore a virtual machine using `vagrant up`"
   should "halt then start a virtual machine using `vagrant up`"
