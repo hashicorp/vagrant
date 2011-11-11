@@ -54,8 +54,11 @@ module Acceptance
     def execute(command, *argN)
       command = replace_command(command)
 
-      # Add our hash options to the arguments list
-      argN << { :chdir => @workdir.to_s }
+      # Setup the options that will be passed to the ``popen4``
+      # method.
+      argN << {} if !argN.last.is_a?(Hash)
+      options = argN.last
+      options[:chdir] ||= @workdir.to_s
 
       # Execute in a separate process, wait for it to complete, and
       # return the IO streams.

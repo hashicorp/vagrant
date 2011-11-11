@@ -19,6 +19,16 @@ describe "vagrant up", "basics" do
     result.stdout.should match_output(:status, "default", "running")
   end
 
+  it "is able to run if Vagrantfile is in a parent directory" do
+    initialize_valid_environment
+
+    # Create a subdirectory in the working directory and use
+    # that as the CWD for `vagrant up` and verify it still works
+    foodir = environment.workdir.join("foo")
+    foodir.mkdir
+    assert_execute("vagrant", "up", :chdir => foodir.to_s)
+  end
+
   it "should have a '/vagrant' shared folder" do
     initialize_valid_environment
 
@@ -38,7 +48,6 @@ describe "vagrant up", "basics" do
 
 TODO:
 
-  should "be able to run if `Vagrantfile` is in parent directory"
   should "destroy a running virtual machine"
   should "save then restore a virtual machine using `vagrant up`"
   should "halt then start a virtual machine using `vagrant up`"
