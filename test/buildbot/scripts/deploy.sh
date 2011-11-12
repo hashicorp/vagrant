@@ -8,6 +8,8 @@
 #----------------------------------------------------------------------
 # Download the Vagrant source, extract it
 cd /tmp
+rm -rf vagrant
+rm -rf mitchellh-vagrant-*
 wget https://github.com/mitchellh/vagrant/tarball/master -O vagrant.tar.gz
 tar xvzf vagrant.tar.gz
 mv mitchellh-vagrant-* vagrant
