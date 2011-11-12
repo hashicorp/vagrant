@@ -15,6 +15,7 @@ test/buildbot/master/vagrant-*/
 test/buildbot/slave/twistd.hostname
 test/buildbot/slave/twistd.log
 test/buildbot/slave/twistd.pid
+test/buildbot/slave/vagrant-*/
 Vagrantfile
 .vagrant
 
