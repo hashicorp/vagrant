@@ -186,6 +186,13 @@ class ChefProvisionerTest < Test::Unit::TestCase
       end
     end
 
+    should "not add the directory if the 'v-root' shared folder doesn't exist" do
+      @env.config.vm.shared_folders.delete("v-root")
+      assert_json do |data|
+        assert !data["vagrant"].has_key?("directory")
+      end
+    end
+
     should "add the config to the JSON" do
       assert_json do |data|
         assert_equal @env.config.ssh.username, data["vagrant"]["config"]["ssh"]["username"]
