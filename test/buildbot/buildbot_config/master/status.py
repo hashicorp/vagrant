@@ -25,7 +25,8 @@ def get_status(options):
     web_status = html.WebStatus(
         http_port = options.web_port,
         authz = authz,
-        order_console_by_time = True
+        order_console_by_time = True,
+        change_hook_dialects=dict(github=True)
         )
 
     return [web_status]
