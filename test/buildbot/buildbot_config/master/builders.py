@@ -17,7 +17,12 @@ def get_builders(slaves):
     slaves.
     """
     f = BuildFactory()
-    # TODO
+    f.addStep(Git(repourl="git://github.com/mitchellh/vagrant.git",
+                  mode="full",
+                  method="fresh",
+                  shallow=True))
+    f.addStep(buildsteps.Bundler())
+    f.addStep(buildsteps.UnitTests())
 
     return [BuilderConfig(
             name="vagrant-master",
