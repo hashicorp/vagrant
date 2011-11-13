@@ -16,16 +16,31 @@ def get_builders(slaves):
     This returns a list of builder configurations for the given
     slaves.
     """
+    return get_vagrant_builders("master", slaves)
+
+def get_vagrant_builders(branch, slaves):
+    """
+    This returns a list of the builders that represent the entire
+    chain for a given branch (unit, acceptance, packaging builds).
+    """
+    unit = BuilderConfig(
+        name="vagrant-%s-unit" % branch,
+        slavenames=[s.slavename for s in slaves],
+        factory=make_vagrant_unit_factory(branch))
+
+    return [unit]
+
+def make_vagrant_unit_factory(branch):
+    """
+    This returns the factory that runs the Vagrant unit tests.
+    """
     f = BuildFactory()
     f.addStep(Git(repourl="git://github.com/mitchellh/vagrant.git",
+                  branch=branch,
                   mode="full",
                   method="fresh",
                   shallow=True))
     f.addStep(buildsteps.Bundler())
     f.addStep(buildsteps.UnitTests())
 
-    return [BuilderConfig(
-            name="vagrant-master",
-            slavenames=[s.slavename for s in slaves],
-            factory=f)
-        ]
+    return f

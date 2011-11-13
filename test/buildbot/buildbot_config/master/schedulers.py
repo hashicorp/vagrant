@@ -7,8 +7,10 @@ from buildbot.changes.filter import ChangeFilter
 from buildbot.schedulers.basic import SingleBranchScheduler
 
 def get_schedulers():
-    full = SingleBranchScheduler(name="full",
+    # Run the unit tests for master
+    master_unit = SingleBranchScheduler(name="full",
                                  change_filter=ChangeFilter(branch="master"),
                                  treeStableTimer=60,
-                                 builderNames=["vagrant-master"])
-    return [full]
+                                 builderNames=["vagrant-master-unit"])
+
+    return [master_unit]
