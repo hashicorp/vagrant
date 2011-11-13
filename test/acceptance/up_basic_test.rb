@@ -7,7 +7,9 @@ describe "vagrant up", "basics" do
 
   # This creates an initial environment that is ready for a "vagrant up"
   def initialize_valid_environment
-    assert_execute("vagrant", "box", "add", "base", config.boxes["default"])
+    require_box("default")
+
+    assert_execute("vagrant", "box", "add", "base", box_path("default"))
     assert_execute("vagrant", "init")
   end
 

@@ -48,4 +48,18 @@ shared_context "acceptance" do
     assert(result.success?, "expected '#{args.join(" ")}' to succeed")
     result
   end
+
+  # This can be added to the beginning of a test to verify that the
+  # box with the given name is available to a test. This will raise
+  # an exception if the box is not found.
+  def require_box(name)
+    if !File.exist?(box_path(name))
+      raise ArgumentError, "The tests should have a '#{name}' box."
+    end
+  end
+
+  # This is used to get the path to a box of a specific name.
+  def box_path(name)
+    File.join(config.box_directory, "#{name}.box")
+  end
 end

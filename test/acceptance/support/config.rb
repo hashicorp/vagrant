@@ -8,7 +8,7 @@ module Acceptance
     attr_reader :vagrant_path
     attr_reader :vagrant_version
     attr_reader :env
-    attr_reader :boxes
+    attr_reader :box_directory
 
     def initialize(path)
       @logger = Log4r::Logger.new("acceptance::config")
@@ -19,7 +19,7 @@ module Acceptance
       @vagrant_path    = options["vagrant_path"]
       @vagrant_version = options["vagrant_version"]
       @env             = options["env"]
-      @boxes           = options["boxes"]
+      @box_directory   = options["box_directory"]
 
       # Verify the configuration object.
       validate
@@ -34,10 +34,8 @@ module Acceptance
         raise ArgumentError, "'vagrant_path' must point to the `vagrant` executable"
       elsif !@vagrant_version
         raise ArgumentError, "`vagrant_version' must be set to the version of the `vagrant` executable"
-      end
-
-      if !@boxes || !@boxes.is_a?(Hash)
-        raise ArgumentError, "`boxes` must be a dictionary of available boxes on the local filesystem."
+      elsif !@box_directory || !File.directory?(@box_directory)
+        raise ArgumentError, "`box_directory` must be set to a folder containing boxes for the tests."
       end
     end
   end

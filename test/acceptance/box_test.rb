@@ -3,12 +3,6 @@ require File.expand_path("../base", __FILE__)
 describe "vagrant box" do
   include_context "acceptance"
 
-  def require_box(name)
-    if !config.boxes.has_key?(name) || !File.file?(config.boxes[name])
-      raise ArgumentError, "The configuration should specify a '#{name}' box."
-    end
-  end
-
   it "has no boxes by default" do
     result = execute("vagrant", "box", "list")
     result.stdout.should match_output(:no_boxes)
@@ -18,7 +12,7 @@ describe "vagrant box" do
     require_box("default")
 
     # Add the box, which we expect to succeed
-    result = execute("vagrant", "box", "add", "foo", config.boxes["default"])
+    result = execute("vagrant", "box", "add", "foo", box_path("default"))
     result.should be_success
 
     # Verify that the box now shows up in the list of available boxes
@@ -52,7 +46,7 @@ describe "vagrant box" do
 
     # Add the box, remove the box, then verify that the box no longer
     # shows up in the list of available boxes.
-    execute("vagrant", "box", "add", "foo", config.boxes["default"])
+    execute("vagrant", "box", "add", "foo", box_path("default"))
     execute("vagrant", "box", "remove", "foo")
     result = execute("vagrant", "box", "list")
     result.should be_success
@@ -62,12 +56,12 @@ describe "vagrant box" do
   it "can repackage a box" do
     require_box("default")
 
-    original_size = File.size(config.boxes["default"])
+    original_size = File.size(box_path("default"))
     logger.debug("Original package size: #{original_size}")
 
     # Add the box, repackage it, and verify that a package.box is
     # dumped of relatively similar size.
-    execute("vagrant", "box", "add", "foo", config.boxes["default"])
+    execute("vagrant", "box", "add", "foo", box_path("default"))
     execute("vagrant", "box", "repackage", "foo")
 
     # By default, repackage should dump into package.box into the CWD

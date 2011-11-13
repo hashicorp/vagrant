@@ -7,7 +7,9 @@ describe "vagrant ssh" do
   it_behaves_like "a command that requires a virtual machine", ["vagrant", "ssh"]
 
   it "is able to SSH into a running virtual machine" do
-    assert_execute("vagrant", "box", "add", "base", config.boxes["default"])
+    require_box("default")
+
+    assert_execute("vagrant", "box", "add", "base", box_path("default"))
     assert_execute("vagrant", "init")
     assert_execute("vagrant", "up")
 
@@ -24,7 +26,9 @@ describe "vagrant ssh" do
   end
 
   it "is able to execute a single command via the command line" do
-    assert_execute("vagrant", "box", "add", "base", config.boxes["default"])
+    require_box("default")
+
+    assert_execute("vagrant", "box", "add", "base", box_path("default"))
     assert_execute("vagrant", "init")
     assert_execute("vagrant", "up")
 

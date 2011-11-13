@@ -59,9 +59,12 @@ namespace :acceptance do
   end
 
   desc "Generates the configuration for acceptance tests from current source."
-  task :config do
-    require File.expand_path("../lib/vagrant/version", __FILE__)
-    require File.expand_path('../test/acceptance/support/tempdir', __FILE__)
+  task :config, :box_dir do |t, args|
+    require File.expand_path("../../lib/vagrant/version", __FILE__)
+    require File.expand_path('../../test/acceptance/support/tempdir', __FILE__)
+
+    # Get the directory for the boxes
+    box_dir = Pathname.new(args[:directory] || File.expand_path("../../test/tmp/boxes", __FILE__))
 
     # Generate the binstubs for the Vagrant binary
     tempdir = Tempdir.new
@@ -80,8 +83,9 @@ namespace :acceptance do
       "vagrant_path" => File.join(tempdir.path, "vagrant"),
       "vagrant_version" => Vagrant::VERSION,
       "env" => {
-        "BUNDLE_GEMFILE" => File.expand_path("../Gemfile", __FILE__)
-      }
+        "BUNDLE_GEMFILE" => File.expand_path("../../Gemfile", __FILE__)
+      },
+      "box_directory" => box_dir.to_s
     }
 
     File.open("acceptance_config.yml", "w+") do |f|
