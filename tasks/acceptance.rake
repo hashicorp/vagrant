@@ -61,7 +61,7 @@ namespace :acceptance do
     require File.expand_path('../../test/acceptance/support/tempdir', __FILE__)
 
     # Get the directory for the boxes
-    box_dir = Pathname.new(args[:directory] || File.expand_path("../../test/tmp/boxes", __FILE__))
+    box_dir = Pathname.new(args[:box_dir] || File.expand_path("../../test/tmp/boxes", __FILE__))
 
     # Generate the binstubs for the Vagrant binary
     tempdir = Tempdir.new
