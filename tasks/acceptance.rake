@@ -27,10 +27,10 @@ namespace :acceptance do
       if box_file.exist?
         print "Box exists, checking SHA1 sum... "
         if checksum.checksum == box["checksum"]
-          puts "OK"
+          print "OK\n"
           next
         else
-          puts "FAIL"
+          print "FAIL\n"
         end
       end
 
@@ -39,13 +39,10 @@ namespace :acceptance do
 
       # TODO: This isn't Windows friendly yet. Move to a OS-independent
       # download.
-      pid, _stdin, stdout, stderr =
-        POSIX::Spawn.popen4("wget", box["url"], "-O", box_file.to_s)
+      pid =  POSIX::Spawn.spawn("wget", box["url"], "-O", box_file.to_s)
       pid, status = Process.waitpid2(pid)
       if status.exitstatus != 0
         puts "Download failed!"
-        puts stdout.read
-        puts stderr.read
         abort
       end
 
