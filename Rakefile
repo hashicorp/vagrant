@@ -1,6 +1,11 @@
 require 'rubygems'
 require 'bundler/setup'
 
+# Immediately sync all stdout so that tools like buildbot can
+# immediately load in the output.
+$stdout.sync = true
+$stderr.sync = true
+
 # Load all the rake tasks from the "tasks" folder. This folder
 # allows us to nicely separate rake tasks into individual files
 # based on their role, which makes development and debugging easier
