@@ -28,7 +28,12 @@ def get_vagrant_builders(branch, slaves):
         slavenames=[s.slavename for s in slaves],
         factory=make_vagrant_unit_factory(branch))
 
-    return [unit]
+    acceptance = BuilderConfig(
+        name="vagrant-%s-acceptance" % branch,
+        slavenames=[s.slavename for s in slaves],
+        factory=make_vagrant_acceptance_factory(branch))
+
+    return [unit, acceptance]
 
 def make_vagrant_unit_factory(branch):
     """
@@ -42,5 +47,23 @@ def make_vagrant_unit_factory(branch):
                   shallow=True))
     f.addStep(buildsteps.Bundler())
     f.addStep(buildsteps.UnitTests())
+
+    return f
+
+def make_vagrant_acceptance_factory(branch):
+    """
+    This returns a build factory that knows how to run the Vagrant
+    acceptance tests.
+    """
+    f = BuildFactory()
+    f.addStep(Git(repourl="git://github.com/mitchellh/vagrant.git",
+                  branch=branch,
+                  mode="full",
+                  method="fresh",
+                  shallow=True))
+    f.addStep(buildsteps.Bundler())
+    f.addStep(buildsteps.AcceptanceBoxes())
+    f.addStep(buildsteps.AcceptanceConfig())
+    f.addStep(buildsteps.AcceptanceTests())
 
     return f
