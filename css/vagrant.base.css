@@ -1,0 +1,33 @@
+body {
+  padding-top: 20px;
+}
+
+.Header {
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #DDD;
+}
+
+.Module.logo h1 a {
+  color: #000;
+}
+
+.Module.logo h1 {
+  font-size: 60px;
+  letter-spacing: -0.05em;
+}
+
+.Module.navigation {
+  font-variant: small-caps;
+}
+
+.Module.navigation ul {
+  list-style-type: none;
+}
+
+.Module.navigation ul li {
+  font-size: 1.5em;
+  float: left;
+  border-right: 1px dotted #DDD;
+  padding: 0 0.75em;
+}
