@@ -24,6 +24,15 @@ module Vagrant
                                          :ip => ip,
                                          :folders => folders)
 
+        # Check to see if the output is already in /etc/exports to avoid
+        # requesting sudo privileges if they are not needed.
+        begin
+          return if File.new("/etc/exports", "r").gets(nil).include?(output)
+          # @TODO: Add string to note that /etc/exports didn't need editing.
+        rescue => err
+          # @TODO: Add string to note that /etc/exports cannot be read.
+        end
+
         # The sleep ensures that the output is truly flushed before any `sudo`
         # commands are issued.
         env.ui.info I18n.t("vagrant.hosts.bsd.nfs_export.prepare")
