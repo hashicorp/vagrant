@@ -78,6 +78,7 @@ module Vagrant
             opts[:nfs] = {} if !opts.is_a?(Hash)
             opts[:map_uid] = prepare_permission(:uid, opts)
             opts[:map_gid] = prepare_permission(:gid, opts)
+            opts[:version] = opts.has_key?(:version) ? opts[:version] : 3
 
             acc[key] = opts
             acc

@@ -5,6 +5,7 @@ module Vagrant
 
       attr_accessor :map_uid
       attr_accessor :map_gid
+      attr_accessor :version
     end
   end
 end
