@@ -60,16 +60,31 @@ module Vagrant
         false
       end
 
+      # Check if the exports file already contains the proper information.
+      #
+      # @param [String] output Rendered output of a template.
+      def check_exports_file(output)
+        begin
+          return true if File.new("/etc/exports", "r").gets(nil).include?(output)
+          # @TODO: Add string to note that /etc/exports didn't need editing.
+        rescue => err
+          # @TODO: Add string to note that /etc/exports cannot be read.
+        end
+        false
+      end
+
       # Exports the given hash of folders via NFS. This method will raise
       # an {Vagrant::Action::ActionException} if anything goes wrong.
       #
       # @param [String] ip IP of the guest machine.
       # @param [Hash] folders Shared folders to sync.
-      def nfs_export(ip, folders)
+      def nfs_export(output)
       end
 
       # Cleans up the exports for the current VM.
-      def nfs_cleanup
+      #
+      # @param [String] output Rendered output of a template.
+      def nfs_cleanup(output)
       end
     end
   end

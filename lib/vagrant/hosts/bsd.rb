@@ -18,20 +18,8 @@ module Vagrant
         end
       end
 
-      def nfs_export(ip, folders)
-        output = TemplateRenderer.render('nfs/exports',
-                                         :uuid => env.vm.uuid,
-                                         :ip => ip,
-                                         :folders => folders)
-
-        # Check to see if the output is already in /etc/exports to avoid
-        # requesting sudo privileges if they are not needed.
-        begin
-          return if File.new("/etc/exports", "r").gets(nil).include?(output)
-          # @TODO: Add string to note that /etc/exports didn't need editing.
-        rescue => err
-          # @TODO: Add string to note that /etc/exports cannot be read.
-        end
+      def nfs_export(output)
+        return if check_exports_file(output)
 
         # The sleep ensures that the output is truly flushed before any `sudo`
         # commands are issued.
@@ -50,8 +38,9 @@ module Vagrant
         system("sudo nfsd restart")
       end
 
-      def nfs_cleanup
+      def nfs_cleanup(output)
         return if !File.exist?("/etc/exports")
+        return if check_exports_file(output)
 
         retryable(:tries => 10, :on => TypeError) do
           system("cat /etc/exports | grep 'VAGRANT-BEGIN: #{env.vm.uuid}' > /dev/null 2>&1")

@@ -34,11 +34,8 @@ module Vagrant
         end
       end
 
-      def nfs_export(ip, folders)
-        output = TemplateRenderer.render('nfs/exports_linux',
-                                         :uuid => env.vm.uuid,
-                                         :ip => ip,
-                                         :folders => folders)
+      def nfs_export(output)
+        return if check_exports_file(output)
 
         env.ui.info I18n.t("vagrant.hosts.linux.nfs_export.prepare")
         sleep 0.5
@@ -54,8 +51,10 @@ module Vagrant
         system("sudo #{@nfs_server_binary} restart")
       end
 
-      def nfs_cleanup
+      def nfs_cleanup(output)
         return if !File.exist?("/etc/exports")
+        return if check_exports_file(output)
+
         system("cat /etc/exports | grep 'VAGRANT-BEGIN: #{env.vm.uuid}' > /dev/null 2>&1")
 
         if $?.to_i == 0
