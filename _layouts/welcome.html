@@ -1,8 +1,10 @@
 {% include header.html %}
-    <div class="grid_3 alpha sidebar">
-      <div><img src="/images/vagrant_chilling.png" class="left" /></div>
-    </div>
-    <div class="grid_9 omega welcome">
-      {{ content }}
-    </div>
+<div class="row">
+  <div class="span4">
+    <img src="/images/vagrant_chilling.png" width="265px" height="265px" />
+  </div>
+  <div class="span12">
+    {{ content }}
+  </div>
+</div>
 {% include footer.html %}

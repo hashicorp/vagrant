@@ -6,26 +6,30 @@
 
   <meta name="description" content="Create and manage virtualized development environments." />
 
-  <link rel="stylesheet" href="/css/bootstrap-1.4.0.min.css" type="text/css" media="screen" />
-  <link rel="stylesheet" href="/css/vagrant.base.css" type="text/css" media="screen" />
+  <link rel="stylesheet" href="/static/css/bootstrap-1.4.0.min.css" type="text/css" media="screen" />
+  <link rel="stylesheet" href="/static/css/prettify.css" type="text/css" media="screen" />
+  <link rel="stylesheet" href="/static/css/vagrant.base.css" type="text/css" media="screen" />
+  <script src="/static/js/prettify.js" type="text/javascript" charset="utf-8"></script>
 </head>
-
-<body>
+<body onload="prettyPrint()">
   <div class="container">
     <div class="row Header">
       <div class="span4 Module logo">
         <h1><a href="/">Vagrant</a></h1>
       </div>
-      <div class="span12 Module navigation">
-        <ul>
-          <li><a href="/">home</a></li>
-          <li><a href="/docs/getting-started/index.html">get started</a></li>
-          <li><a href="/docs/index.html">documentation</a></li>
-          <li><a href="/faq.html">faq</a></li>
-          <li><a href="/support.html">support</a></li>
-          <li><a href="http://github.com/mitchellh/vagrant">code</a></li>
-        </ul>
+      <div class="span12">
+        <div class="Module navigation">
+          <ul>
+            <li><a href="/">home</a></li>
+            <li><a href="/docs/getting-started/index.html">get started</a></li>
+            <li><a href="/docs/index.html">documentation</a></li>
+            <li><a href="/faq.html">faq</a></li>
+            <li><a href="/support.html">support</a></li>
+            <li><a href="http://github.com/mitchellh/vagrant">code</a></li>
+          </ul>
+        </div>
       </div>
     </div>
 
-  <div id="content" class="container_12 clearfix">
+    <div class="row">
+      <div class="span16">

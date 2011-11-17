@@ -14,21 +14,21 @@ Are you ready to revolutionize the way you work? Check out
 the [getting started guide](/docs/getting-started/index.html), the
 [getting started video](http://vimeo.com/9976342).
 
-## Your First Vagrant Virtual Environment
+# Your First Vagrant Virtual Environment
 
-{% highlight bash %}
+<pre>
 $ gem install vagrant
 $ vagrant box add base http://files.vagrantup.com/lucid32.box
 $ vagrant init
 $ vagrant up
-{% endhighlight %}
+</pre>
 
 These four commands alone will automatically download and create a bare bones
 Ubuntu-based server running in the background. Sure, that on its own isn't
 that amazing, but imagine running a single `vagrant up` and having a fully
 featured web development environment running! This is all possible with Vagrant.
 
-## Feature List
+# Feature List
 
 This is a compact feature list of Vagrant. For more information on any of
 the specific features, read the [getting started guide](/docs/getting-started/index.html).

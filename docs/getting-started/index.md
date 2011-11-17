@@ -26,7 +26,7 @@ VirtualBox runs on **Windows**, **Mac OS X**, **Linux**, and **Solaris**.
 
 Here is a link directly to the [download page](http://www.virtualbox.org/wiki/Downloads).
 
-<div class="info">
+<div class="alert-message block-message grey">
   <h3>Version 4.1.x!</h3>
   <p>
     Vagrant requires VirtualBox version 4.1.x (meaning 4.1.0, 4.1.1, etc.). If your package
