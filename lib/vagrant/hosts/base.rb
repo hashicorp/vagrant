@@ -1,3 +1,5 @@
+require 'vagrant/util/template_renderer'
+
 module Vagrant
   module Hosts
     # Base class representing a host machine. These classes
@@ -71,6 +73,13 @@ module Vagrant
           # @TODO: Add string to note that /etc/exports cannot be read.
         end
         false
+      end
+
+      def render_nfs(ip, folders)
+        Vagrant::Util::TemplateRenderer.render('nfs/exports',
+                                               :uuid => env.vm.uuid,
+                                               :ip => ip,
+                                               :folders => folders)
       end
 
       # Exports the given hash of folders via NFS. This method will raise

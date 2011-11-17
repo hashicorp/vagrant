@@ -83,10 +83,7 @@ module Vagrant
             acc
           end
 
-          @template_output = TemplateRenderer.render('nfs/exports',
-                                                     :uuid => env.vm.uuid,
-                                                     :ip => guest_ip,
-                                                     :folders => folders)
+          @template_output = @env["host"].render_nfs(guest_ip, folders)
         end
 
         # Prepares the UID/GID settings for a single folder.
