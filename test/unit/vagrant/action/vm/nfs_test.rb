@@ -147,15 +147,16 @@ class NFSVMActionTest < Test::Unit::TestCase
       end
     end
 
-    context "exporting folders" do
+    context "preparing folders" do
       setup do
-        @instance.stubs(:folders).returns({})
+        @env.env.config.vm.shared_folders.clear
+        @env.env.config.vm.share_folder("v-foo", "/foo", ".", :nfs => true)
         @instance.stubs(:guest_ip).returns("192.168.33.10")
       end
 
-      should "call nfs_export on the host" do
-        @env["host"].expects(:nfs_export).with(@instance.guest_ip, @instance.folders)
-        @instance.export_folders
+      should "call render_nfs on the host" do
+        @env["host"].expects(:render_nfs).with(@instance.guest_ip, @instance.folders)
+        @instance.prepare_folders
       end
     end
 
