@@ -18,6 +18,10 @@ module Vagrant
         end
       end
 
+      def template_file
+        "nfs/exports"
+      end
+
       def nfs_export(output)
         return if check_exports_file(output)
 

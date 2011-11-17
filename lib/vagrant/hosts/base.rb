@@ -62,6 +62,13 @@ module Vagrant
         false
       end
 
+      # Returns the proper template to use to render this item's NFS exports.
+      #
+      # @return [String]
+      def template_file
+        nil
+      end
+
       # Check if the exports file already contains the proper information if
       # such information can be ascertained without using sudo.
       #
@@ -82,7 +89,7 @@ module Vagrant
       # @param [String] ip IP of the guest machine.
       # @param [Hash] folders Shared folders to sync.
       def render_nfs(ip, folders)
-        Vagrant::Util::TemplateRenderer.render('nfs/exports',
+        Vagrant::Util::TemplateRenderer.render(template_file,
                                                :uuid => env.vm.uuid,
                                                :ip => ip,
                                                :folders => folders)

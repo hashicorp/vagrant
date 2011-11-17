@@ -44,7 +44,8 @@ class LinuxHostTest < Test::Unit::TestCase
 
       @instance.expects(:system).times(output.split("\n").length)
       @instance.expects(:system).with("sudo /etc/init.d/nfs-kernel-server restart")
-      @instance.nfs_export(@ip, @folders)
+      @instance.render_nfs(@ip, @folders)
+      @instance.nfs_export(output)
     end
   end
 
