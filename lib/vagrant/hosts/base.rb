@@ -62,9 +62,10 @@ module Vagrant
         false
       end
 
-      # Check if the exports file already contains the proper information.
+      # Check if the exports file already contains the proper information if
+      # such information can be ascertained without using sudo.
       #
-      # @param [String] output Rendered output of a template.
+      # @param [String] output The rendered output of a template.
       def check_exports_file(output)
         begin
           return true if File.new("/etc/exports", "r").gets(nil).include?(output)
@@ -75,6 +76,11 @@ module Vagrant
         false
       end
 
+
+      # Render the output that will go into /etc/exports.
+      #
+      # @param [String] ip IP of the guest machine.
+      # @param [Hash] folders Shared folders to sync.
       def render_nfs(ip, folders)
         Vagrant::Util::TemplateRenderer.render('nfs/exports',
                                                :uuid => env.vm.uuid,
@@ -85,14 +91,13 @@ module Vagrant
       # Exports the given hash of folders via NFS. This method will raise
       # an {Vagrant::Action::ActionException} if anything goes wrong.
       #
-      # @param [String] ip IP of the guest machine.
-      # @param [Hash] folders Shared folders to sync.
+      # @param [String] output The rendered output of a template.
       def nfs_export(output)
       end
 
       # Cleans up the exports for the current VM.
       #
-      # @param [String] output Rendered output of a template.
+      # @param [String] output The rendered output of a template.
       def nfs_cleanup(output)
       end
     end
