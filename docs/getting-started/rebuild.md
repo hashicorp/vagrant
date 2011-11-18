@@ -24,9 +24,9 @@ getting started guide.
 Are you ready for this? Go back to that web project directory
 and issue the following command:
 
-<pre>
+{% highlight bash %}
 $ vagrant up
-</pre>
+{% endhighlight %}
 
 **That's _it_!** Really! In about 5 minutes or so after Vagrant
 completes setting up your environment, it should be exactly as

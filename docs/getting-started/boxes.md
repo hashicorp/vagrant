@@ -34,9 +34,9 @@ Vagrant supports adding boxes from both the local filesystem and an
 HTTP URL. Begin running the following command so it can begin downloading
 while box installation is covered in more detail:
 
-<pre>
+{% highlight bash %}
 $ vagrant box add lucid32 http://files.vagrantup.com/lucid32.box
-</pre>
+{% endhighlight %}
 
 Installed boxes are global to the current vagrant installation. This
 means that once the lucid32 box has been added, it can be used by
@@ -55,9 +55,9 @@ the filename and logical name are equal in this case.
 Just as easily as they're added, boxes can be removed as well. The following
 is an example command to remove a box.
 
-<pre>
+{% highlight bash %}
 $ vagrant box remove my_box
-</pre>
+{% endhighlight %}
 
 If you tried to run this command, it will obviously fail, since you haven't
 added a box named "my_box" yet (or if you have, I'm sorry because you just
@@ -74,11 +74,11 @@ we need to tell our project to use it as a base. This is done through the Vagran
 Open the Vagrantfile and paste the following contents into it. The functional of
 the contents should be self-explanatory:
 
-<pre class="prettyprint">
+{% highlight ruby %}
 Vagrant::Config.run do |config|
   config.vm.box = "lucid32"
 end
-</pre>
+{% endhighlight %}
 
 ## Testing the Setup
 
@@ -91,9 +91,9 @@ SSH yet, so you'll just have to take our word that its working for now. Finally,
 when you're finished verifying the virtual machine, you can destroy everything with a
 `vagrant destroy`.
 
-<pre>
+{% highlight bash %}
 $ vagrant up
 ...
 $ vagrant destroy
 ...
-</pre>
+{% endhighlight %}

@@ -24,11 +24,11 @@ from the VM to the host machine).
 After running `vagrant ssh`, you should see something similar to the
 following:
 
-<pre>
+{% highlight bash %}
 $ vagrant ssh
 ...
 vagrant@vagrantup:~$
-</pre>
+{% endhighlight %}
 
 <div class="alert-message block-message grey notice">
   <h3>Using Microsoft Windows?</h3>
@@ -51,10 +51,10 @@ is specified with the `config.vm.project_directory` in the Vagrantfile, but
 defaults to `/vagrant`. This can be verified by listing the files within
 that folder in the SSH session:
 
-<pre>
+{% highlight bash %}
 vagrant@vagrantbase:~$ ls /vagrant
 index.html Vagrantfile
-</pre>
+{% endhighlight %}
 
 The VM has both read and write access to the shared folder.
 

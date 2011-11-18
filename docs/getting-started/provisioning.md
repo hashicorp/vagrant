@@ -35,7 +35,7 @@ Since a tutorial on how to use Chef is out of scope for this getting started
 guide, I've prepackaged the cookbooks for you for provisioning. You just have
 to configure your Vagrantfile to point to them:
 
-<pre class="prettyprint">
+{% highlight ruby %}
 Vagrant::Config.run do |config|
   config.vm.box = "lucid32"
 
@@ -49,7 +49,7 @@ Vagrant::Config.run do |config|
     chef.add_recipe("vagrant_main")
   end
 end
-</pre>
+{% endhighlight %}
 
 Note that while we use a URL to download the cookbooks for this getting
 started project, you can also put cookbooks in a local directory, which is
@@ -66,7 +66,7 @@ of the box being configured.
 
 The manifest file will contain the required Puppet configuration, for example:
 
-<pre class="prettyprint">
+{% highlight ruby %}
 # Basic Puppet Apache manifest
 
 class lucid32 {
@@ -81,18 +81,18 @@ class lucid32 {
 }
 
 include lucid32
-</pre>
+{% endhighlight %}
 
 We then add support in the Vagrantfile to support Puppet provisioning:
 
-<pre class="prettyprint">
+{% highlight ruby %}
 Vagrant::Config.run do |config|
   config.vm.box = "lucid32"
 
   # Enable the Puppet provisioner
   config.vm.provision :puppet
 end
-</pre>
+{% endhighlight %}
 
 Alternatively you can run Puppet in client-server mode by enabling the `:puppet_server` provisioner.  See the [Puppet Server](/docs/provisioners/puppet_server.html) documentation for more details.
 

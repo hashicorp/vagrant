@@ -23,11 +23,11 @@ and setup the basic required files. Vagrant provides a handy command-line utilit
 for just that. In the terminal transcript below, we create the directory for our
 project and initialize it for Vagrant:
 
-<pre>
+{% highlight bash %}
 $ mkdir vagrant_guide
 $ cd vagrant_guide
 $ vagrant init
-</pre>
+{% endhighlight %}
 
 `vagrant init` creates an initial Vagrantfile. For now, we'll leave this Vagrantfile
 as-is, but it will be used extensively in future steps to configure our virtual

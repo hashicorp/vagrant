@@ -41,6 +41,11 @@ h6 {
   margin: 0;
 }
 
+h3 > code {
+  background-color: inherit;
+  color: black;
+}
+
 li {
   color: #404040;
   line-height: 1.6em;

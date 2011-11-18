@@ -26,12 +26,12 @@ within a virtual machine.
 In our case, we just want to forward Apache. Port forwarding is specified
 in the Vagrantfile, like so:
 
-<pre class="prettyprint">
+{% highlight ruby %}
 Vagrant::Config.run do |config|
   # Forward guest port 80 to host port 4567 and name the mapping "web"
   config.vm.forward_port("web", 80, 4567)
 end
-</pre>
+{% endhighlight %}
 
 `forward_port` is a method which takes three arguments:
 

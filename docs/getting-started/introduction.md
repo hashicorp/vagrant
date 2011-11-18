@@ -29,12 +29,12 @@ of any Vagrant project and is used to configure and specify the behavior of
 Vagrant and the virtual machine it creates. A basic Vagrantfile is embedded below
 so you can get a brief idea of how it looks:
 
-<pre class="prettyprint">
+{% highlight ruby %}
 Vagrant::Config.run do |config|
   # Setup the box
   config.vm.box = "my_box"
 end
-</pre>
+{% endhighlight %}
 
 As you can see, a Vagrantfile is simply Ruby code which typically contains a Vagrant
 configuration block. For most commands, Vagrant will first load the project's
