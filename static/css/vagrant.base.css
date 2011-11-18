@@ -67,6 +67,10 @@ pre, code {
   line-height: 1.6em;
 }
 
+pre > code {
+  background-color: #fefbf3;
+}
+
 .alert-message a {
   font-weight: normal;
   color: #0069D6;
@@ -79,6 +83,14 @@ pre, code {
 
 .alert-message.block-message.grey p {
   margin-bottom: 9px;
+}
+
+.alert-message.block-message.notice {
+  background-image: url(/static/images/icons/error.png);
+  background-position: 10px 10px;
+  background-repeat: no-repeat;
+  padding-left: 52px;
+  font-size: 0.8em;
 }
 
 .Header {
@@ -98,6 +110,10 @@ pre, code {
  *************************************************************/
 .Module.logo h1 a {
   color: #000;
+}
+
+.Module.logo h1 a:hover {
+  text-decoration: none;
 }
 
 .Module.logo h1 {

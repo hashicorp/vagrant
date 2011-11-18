@@ -32,20 +32,20 @@ add the box, do a `vagrant up`, and have everything working, including HTTP!
 Create a new file, which will be the file used as the Vagrantfile for the
 box. Name the file `Vagrantfile.pkg` and put the following contents in it:
 
-{% highlight ruby %}
+<pre class="prettyprint">
 Vagrant::Config.run do |config|
   # Forward apache
   config.vm.forward_port("web", 80, 8080)
 end
-{% endhighlight %}
+</pre>
 
 ## Packaging the Project
 
 Run the following code to package the environment up:
 
-{% highlight bash %}
+<pre>
 $ vagrant package --vagrantfile Vagrantfile.pkg
-{% endhighlight %}
+</pre>
 
 `vagrant package` takes the virtual environment from the current project
 and packages it into a `package.box` file in the same directory. The additional
@@ -66,11 +66,11 @@ Once the box is in place, other developers can add it and use it just
 like any other box. The example below is from the point of view of a new
 developer on your team using your newly packaged box:
 
-{% highlight bash %}
+<pre>
 $ vagrant box add my_box /path/to/the/package.box
 $ vagrant init my_box
 $ vagrant up
-{% endhighlight %}
+</pre>
 
 At this point, they should have a fully functional environment which exactly
 mirrors the environment set up in previous steps of the guide. Notice that

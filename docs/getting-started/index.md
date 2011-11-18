@@ -26,7 +26,7 @@ VirtualBox runs on **Windows**, **Mac OS X**, **Linux**, and **Solaris**.
 
 Here is a link directly to the [download page](http://www.virtualbox.org/wiki/Downloads).
 
-<div class="alert-message block-message grey">
+<div class="alert-message block-message grey notice">
   <h3>Version 4.1.x!</h3>
   <p>
     Vagrant requires VirtualBox version 4.1.x (meaning 4.1.0, 4.1.1, etc.). If your package
@@ -62,17 +62,17 @@ in Ruby and RubyGems is a standard part of most Ruby installations, RubyGems is 
 quickest and easiest way to distribute Vagrant to the masses, and it can be installed
 just as easily:
 
-{% highlight bash %}
+<pre>
 $ gem install vagrant
-{% endhighlight %}
+</pre>
 
 ## Your First Vagrant Virtual Environment
 
-{% highlight bash %}
+<pre>
 $ vagrant box add lucid32 http://files.vagrantup.com/lucid32.box
 $ vagrant init lucid32
 $ vagrant up
-{% endhighlight %}
+</pre>
 
 While the rest of the getting started guide will focus on explaining how to
 build a fully functional virtual machine to serve rails applications, you
