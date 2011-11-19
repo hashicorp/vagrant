@@ -1,0 +1,37 @@
+{% macro box(text=[], comment=None) -%}
+
+{%- if comment -%}<!-- {{ comment }} -->{%- endif -%}
+  <td class="{{ kwargs.class or kwargs.class_ or "" }}"
+    {%- for prop in ("align", "colspan", "rowspan", "border", "valign", "halign") -%}
+      {%- if prop in kwargs %} {{ prop }}="{{ kwargs[prop] }}"{% endif -%}
+    {%- endfor -%}>
+
+    {%- if text is string -%}
+      {{ text }}
+    {%- else -%}
+      {{- text|join("<br/>") -}}
+    {%- endif -%}
+  </td>
+{% endmacro %}
+
+{# this is currently just the text part of the boxes #}
+
+{% macro build_box(reason, url, number) -%}
+  <a title="Reason: {{ reason|e }}" href="{{ url }}">Build {{ number }}</a>
+{%- endmacro %}
+
+{% macro step_box(text, logs, urls) -%}
+  {%- if text is string -%}
+    {{ text }}
+  {%- else -%}
+    {{- text|join("<br/>") -}}
+  {%- endif -%}
+  <br/>
+  {%- for l in logs %}
+    <a {% if l.url %}href="{{ l.url }}"{% endif %}>{{ l.name|e }}</a><br/>
+  {%- endfor -%}
+
+  {%- for u in urls %}
+    [<a href="{{ u.link }}" class="BuildStep external">{{ u.name|e }}</a>]<br/>
+  {%- endfor -%}
+{%- endmacro %}
