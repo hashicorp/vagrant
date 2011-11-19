@@ -98,6 +98,10 @@ pre > code {
   font-size: 0.8em;
 }
 
+.right {
+  float: right;
+}
+
 .Header {
   padding-bottom: 10px;
   margin-bottom: 20px;
