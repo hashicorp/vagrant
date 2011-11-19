@@ -1,36 +1,39 @@
 {% include header.html %}
-    <div class="grid_3 alpha sidebar">
-      <div class="block">
-        <ol>
-          <li><a href="/docs/index.html">Overview</a></li>
-          <li><a href="/docs/commands.html">Commands</a></li>
-          <li><a href="/docs/vagrantfile.html">Vagrantfile</a></li>
-          <li><a href="/docs/provisioners.html">Provisioners</a>
-            <ul>
-              <li><a href="/docs/provisioners/introduction.html">Introduction</a></li>
-              <li><a href="/docs/provisioners/chef_solo.html">Chef Solo</a></li>
-              <li><a href="/docs/provisioners/chef_solo_remote.html">Chef Solo (Remote)</a></li>
-              <li><a href="/docs/provisioners/chef_server.html">Chef Server</a></li>
-              <li><a href="/docs/provisioners/puppet.html">Puppet</a></li>
-              <li><a href="/docs/provisioners/puppet_server.html">Puppet Server</a></li>
-              <li><a href="/docs/provisioners/shell.html">Shell</a></li>
-              <li><a href="/docs/provisioners/others.html">Others</a></li>
-            </ul>
-          </li>
-          <li><a href="/docs/boxes.html">Boxes</a></li>
-          <li><a href="/docs/multivm.html">Multi-VM Environments</a></li>
-          <li><a href="/docs/host_only_networking.html">Host-Only Networking</a></li>
-          <li><a href="/docs/nfs.html">NFS Shared Folders</a></li>
-          <li><a href="/docs/base_boxes.html">Base Boxes</a></li>
-          <li><a href="/docs/systems.html">Systems</a></li>
-          <li><a href="/docs/plugins.html">Plugins</a></li>
-          <li><a href="/docs/rake.html">Rake Integration</a></li>
-        </ol>
-      </div>
+<div class="row">
+  <div class="span4 Module sidebar">
+    <div class="alert-message block-message grey">
+    <ol>
+      <li><a href="/docs/index.html">Overview</a></li>
+      <li><a href="/docs/commands.html">Commands</a></li>
+      <li><a href="/docs/vagrantfile.html">Vagrantfile</a></li>
+      <li><a href="/docs/provisioners.html">Provisioners</a>
+        <ul>
+          <li><a href="/docs/provisioners/introduction.html">Introduction</a></li>
+          <li><a href="/docs/provisioners/chef_solo.html">Chef Solo</a></li>
+          <li><a href="/docs/provisioners/chef_solo_remote.html">Chef Solo (Remote)</a></li>
+          <li><a href="/docs/provisioners/chef_server.html">Chef Server</a></li>
+          <li><a href="/docs/provisioners/puppet.html">Puppet</a></li>
+          <li><a href="/docs/provisioners/puppet_server.html">Puppet Server</a></li>
+          <li><a href="/docs/provisioners/shell.html">Shell</a></li>
+          <li><a href="/docs/provisioners/others.html">Others</a></li>
+        </ul>
+      </li>
+      <li><a href="/docs/boxes.html">Boxes</a></li>
+      <li><a href="/docs/multivm.html">Multi-VM Environments</a></li>
+      <li><a href="/docs/host_only_networking.html">Host-Only Networking</a></li>
+      <li><a href="/docs/nfs.html">NFS Shared Folders</a></li>
+      <li><a href="/docs/base_boxes.html">Base Boxes</a></li>
+      <li><a href="/docs/systems.html">Systems</a></li>
+      <li><a href="/docs/plugins.html">Plugins</a></li>
+      <li><a href="/docs/rake.html">Rake Integration</a></li>
+    </ol>
+    </div>
 
-      {% include block_beta_warning.html %}
-    </div>
-    <div class="grid_9 omega guide">
-      {{ content }}
-    </div>
+    {% include block_beta_warning.html %}
+  </div>
+
+  <div class="span12">
+    {{ content }}
+  </div>
+</div>
 {% include footer.html %}

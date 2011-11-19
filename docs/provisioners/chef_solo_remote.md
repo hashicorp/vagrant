@@ -51,20 +51,20 @@ end
 
 You may also use an array to specify multiple cookbook paths.
 
-<div class="info">
+<div class="alert-message block-message grey notice">
   <h3>Mixing Host and VM Cookbook Paths</h3>
   <p>
     You can also mix together host and VM cookbook paths. This allows
     you to use some cookbooks from a remote location, and some from a
     local directory. An example of this is shown below:
 
-{% highlight ruby %}
+<pre>
 Vagrant::Config.run do |config|
   config.vm.provision :chef_solo do |chef|
     chef.cookbooks_path = ["local-cookbooks", [:vm, "cookbooks"]]
   end
 end
-{% endhighlight %}
+</pre>
   </p>
 </div>
 

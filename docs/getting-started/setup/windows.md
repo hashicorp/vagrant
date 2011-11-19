@@ -4,7 +4,7 @@ title: Getting Started - Setting up Windows
 ---
 # Windows
 
-<div class="info">
+<div class="alert-message block-message grey notice">
   <h3>64-bit Windows Users!</h3>
   <p>
     To run Vagrant on 64-bit Windows, you must use <a href="http://jruby.org">JRuby</a>,
@@ -51,7 +51,7 @@ are many reasons those may be different, especially the port (other vm's service
 if you issue `vagrant ssh` from the directory where you created your initial vm you should see
 something like the following:
 
-![No Vagrant SSH On Windows](/images/windows/port_and_ppk_path.jpg)
+![No Vagrant SSH On Windows](/static/images/windows/port_and_ppk_path.jpg)
 
 It's important to take note of both the port and the .ppk file location. If you've used the Ruby installer,
 the above path will be the same for you taking into account the version of the Vagrant gem you have installed.
@@ -59,17 +59,17 @@ Moving on, once you've got Putty installed, opening putty.exe will present you w
 configuration window. First enter the SSH information and a name for the connection, then open the SSH
 configuration sub-tree.
 
-![Vagrant SSH Info Putty](/images/windows/putty_first_screen.jpg)
+![Vagrant SSH Info Putty](/static/images/windows/putty_first_screen.jpg)
 
 Here in the `Auth` configuration section we'll take the path information provided to us above and locate
 the .ppk file via the browse dialog.
 
-![PPK Selection](/images/windows/ppk_selection.jpg)
+![PPK Selection](/static/images/windows/ppk_selection.jpg)
 
 Once you've done that head to the top of the configuration tree, click the `Session` tree item and save
 the putty configuration so it will be available for use again later.
 
-![Save Result](/images/windows/save_result.jpg)
+![Save Result](/static/images/windows/save_result.jpg)
 
 Last but not least, click the Open button to be presented with a bash prompt inside your new and shiny
 Vagrant virtual development environtment! If you've taken the steps above to save the configuration it

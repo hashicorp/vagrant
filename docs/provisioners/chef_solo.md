@@ -42,7 +42,7 @@ Vagrant::Config.run do |config|
 end
 {% endhighlight %}
 
-<div class="info">
+<div class="alert-message block-message grey notice">
   <h3>Multiple Cookbook Paths</h3>
   <p>
     You can also specify multiple cookbook paths by making the configuration an
@@ -50,13 +50,13 @@ end
     be the directory which contains the Vagrantfile, therefore file paths will always
     be expanded relative to that working directory.
 
-{% highlight ruby %}
+<pre>
 Vagrant::Config.run do |config|
   config.vm.provision :chef_solo do |chef|
     chef.cookbooks_path = ["cookbooks", "~/company/cookbooks"]
   end
 end
-{% endhighlight %}
+</pre>
   </p>
 </div>
 
@@ -93,7 +93,7 @@ Every chef cookbook has access to the `node` variable which is a hash containing
 server-specific configuration options which can be used to control provisioning.
 By default, Vagrant JSON configuration looks like the following:
 
-{% highlight ruby %}
+{% highlight json %}
 {
   :instance_role => "vagrant",
   :vagrant => {

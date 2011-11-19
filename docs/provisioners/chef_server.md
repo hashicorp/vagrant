@@ -9,7 +9,7 @@ virtual machine without having to keep the cookbooks within the repository itsel
 various benefits to this approach, such as being able to use your production cookbooks from
 chef server to provision your development environment.
 
-<div class="info">
+<div class="alert-message block-message grey notice">
   <h3>Do you really need a chef server?</h3>
   <p>
     If you're unfamiliar with <a href="http://www.opscode.com/chef/">Chef</a> or if you're

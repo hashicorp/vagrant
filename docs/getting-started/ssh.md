@@ -30,7 +30,7 @@ $ vagrant ssh
 vagrant@vagrantup:~$
 {% endhighlight %}
 
-<div class="info">
+<div class="alert-message block-message grey notice">
   <h3>Using Microsoft Windows?</h3>
   <p>
     SSH is not easy to install or use from the Windows command-line. Instead,

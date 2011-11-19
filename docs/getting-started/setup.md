@@ -46,7 +46,7 @@ $ echo "<h1>Hello from a Vagrant VM</h1>" > index.html
 The above steps could have been run in any order. Vagrant can easily be initialized
 in pre-existing project folders.
 
-<div class="info">
+<div class="alert-message block-message grey notice">
   <h3>What about PHP? Python? Java?</h3>
   <p>
     To keep this getting started guide simple and as general as possible,
