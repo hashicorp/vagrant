@@ -1,0 +1,7 @@
+# This is the list of required boxes for acceptance tests, and
+# their locations. The locations are used to download the boxes
+# on the fly, if necessary. Additionally, a SHA1 checksum is
+# given to determine if the box needs to be updated.
+- name: default
+  url: http://files.vagrantup.com/test/boxes/default.box
+  checksum: 1b0a7eb6e152c5b43f45485654ff4965a7f9f604

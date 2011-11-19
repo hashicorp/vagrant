@@ -120,7 +120,7 @@ class ShareFoldersVMActionTest < Test::Unit::TestCase
     setup do
       @folders = stub_shared_folders(<<-sf)
         config.vm.share_folder("foo", "fooguest", "foohost", :owner => "yo", :group => "fo")
-        config.vm.share_folder("bar", "barguest", "barhost", :owner => "foo", :group => "bar")
+        config.vm.share_folder("bar", "barguestt", "barhost", :owner => "foo", :group => "bar")
         config.vm.share_folder("foo_no_mount", nil, "foohost2")
       sf
       @ssh = mock("ssh")

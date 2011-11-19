@@ -15,11 +15,13 @@ module Vagrant
         attr_accessor :halt_check_interval
         # This sets the command to use to execute items as a superuser. sudo is default
         attr_accessor :suexec_cmd
+        attr_accessor :device
 
         def initialize
           @halt_timeout = 30
           @halt_check_interval = 1
           @suexec_cmd = 'sudo'
+          @device = "e1000g"
         end
       end
 
@@ -27,6 +29,33 @@ module Vagrant
       class SolarisError < Errors::VagrantError
         error_namespace("vagrant.systems.solaris")
       end
+
+      def prepare_host_only_network(net_options=nil)
+      end
+
+      def enable_host_only_network(net_options)
+        device = "#{vm.env.config.solaris.device}#{net_options[:adapter]}"
+        su_cmd = vm.env.config.solaris.suexec_cmd
+        ifconfig_cmd = "#{su_cmd} /sbin/ifconfig #{device}"
+        vm.ssh.execute do |ssh|
+          ssh.exec!("#{ifconfig_cmd} plumb")
+          ssh.exec!("#{ifconfig_cmd} inet #{net_options[:ip]} netmask #{net_options[:netmask]}")
+          ssh.exec!("#{ifconfig_cmd} up")
+          ssh.exec!("#{su_cmd} sh -c \"echo '#{net_options[:ip]}' > /etc/hostname.#{device}\"")
+        end
+      end
+
+      def change_host_name(name)
+        su_cmd = vm.env.config.solaris.suexec_cmd
+        vm.ssh.execute do |ssh|
+          # Only do this if the hostname is not already set
+          if !ssh.test?("#{su_cmd} hostname | grep '#{name}'")
+            ssh.exec!("#{su_cmd} sh -c \"echo '#{name}' > /etc/nodename\"")
+            ssh.exec!("#{su_cmd} uname -S #{name}")
+          end
+        end
+      end
+
 
       # There should be an exception raised if the line
       #
@@ -36,19 +65,36 @@ module Vagrant
       def halt
         vm.env.ui.info I18n.t("vagrant.systems.solaris.attempting_halt")
         vm.ssh.execute do |ssh|
-          ssh.exec!("#{vm.env.config.solaris.suexec_cmd} /usr/sbin/poweroff")
-        end
+          # Wait until the VM's state is actually powered off. If this doesn't
+          # occur within a reasonable amount of time (15 seconds by default),
+          # then simply return and allow Vagrant to kill the machine.
+          count = 0
+          last_error = nil
+          while vm.vm.state != :powered_off
+            begin
+              ssh.exec!("#{vm.env.config.solaris.suexec_cmd} /usr/sbin/poweroff")
+            rescue IOError => e
+              # Save the last error; if it's not shutdown in a reasonable amount
+              # of attempts we will re-raise the error so it's not hidden for
+              # all time
+              last_error = e
+            end
 
-        # Wait until the VM's state is actually powered off. If this doesn't
-        # occur within a reasonable amount of time (15 seconds by default),
-        # then simply return and allow Vagrant to kill the machine.
-        count = 0
-        while vm.vm.state != :powered_off
-          count += 1
+            count += 1
+            if count >= vm.env.config.solaris.halt_timeout
+              # Check for last error and re-raise it
+              if last_error != nil
+                raise last_error
+              else
+                # Otherwise, just return
+                return
+              end
+            end
 
-          return if count >= vm.env.config.solaris.halt_timeout
-          sleep vm.env.config.solaris.halt_check_interval
-        end
+            # Still opportunities remaining; sleep and loop
+            sleep vm.env.config.solaris.halt_check_interval
+          end # while
+        end # do
       end
 
       def mount_shared_folder(ssh, name, guestpath, owner, group)

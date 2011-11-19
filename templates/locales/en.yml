@@ -227,7 +227,7 @@ en:
           above with their current state. For more information about a specific
           VM, run `vagrant status NAME`.
       up:
-        vm_created: "VM already created. Booting if its not already running..."
+        vm_created: "VM already created. Booting if it's not already running..."
       upgrade_to_060:
         already_done: "Environment appears to already be upgraded to 0.6.0. Doing nothing!"
         ask: "Are you sure you want to execute this command?"

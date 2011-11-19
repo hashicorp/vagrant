@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /waterfall
+Disallow: /builders
+Disallow: /changes
+Disallow: /buildslaves
+Disallow: /schedulers
+Disallow: /one_line_per_build
+Disallow: /builders
+Disallow: /grid
+Disallow: /tgrid

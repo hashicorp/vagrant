@@ -2,6 +2,20 @@
 .DS_Store
 
 # Vagrant stuff
+acceptance_config.yml
+package.box
+test/buildbot/config.cfg
+test/buildbot/env
+test/buildbot/master/http.log
+test/buildbot/master/master.cfg.sample
+test/buildbot/master/twistd.log
+test/buildbot/master/twistd.pid
+test/buildbot/master/state.sqlite
+test/buildbot/master/vagrant-*/
+test/buildbot/slave/twistd.hostname
+test/buildbot/slave/twistd.log
+test/buildbot/slave/twistd.pid
+test/buildbot/slave/vagrant-*/
 Vagrantfile
 .vagrant
 
@@ -16,6 +30,9 @@ test/tmp/
 _site/*
 .yardoc/
 doc/
+
+# Python
+*.pyc
 
 # Rubinius
 *.rbc

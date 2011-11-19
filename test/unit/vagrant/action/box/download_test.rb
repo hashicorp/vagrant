@@ -39,9 +39,9 @@ class DownloadBoxActionTest < Test::Unit::TestCase
         assert @instance.instantiate_downloader
       end
 
-      should "error environment if URI is invalid for any downloaders" do
+      should "complain that the file doesn't exist if the URI is invalid for any downloaders" do
         @env["box"].uri = "foobar"
-        assert_raises(Vagrant::Errors::BoxDownloadUnknownType) {
+        assert_raises(Vagrant::Errors::DownloaderFileDoesntExist) {
           @instance.instantiate_downloader
         }
       end

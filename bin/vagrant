@@ -9,7 +9,12 @@ begin
   env.logger.info("vagrant") { "`vagrant` invoked: #{ARGV.inspect}" }
 
   # Disable color if the proper argument was passed
-  shell = ARGV.include?("--no-color") ? Thor::Shell::Basic.new : Thor::Base.shell.new
+  shell = nil
+  if !$stdout.tty? || ARGV.include?("--no-color")
+    shell = Thor::Shell::Basic.new
+  else
+    shell = Thor::Base.shell.new
+  end
 
   # Set the UI early in case any errors are raised, and load
   # the config immediately, so we gather any new commands from
