@@ -25,9 +25,9 @@
     <tr>
       <th colspan="2">Current Activity</th>
       {% for b in builders %}
-      <th class="{{ b.status_class }}">
+      <td class="{{ b.status_class }}">
         {{ "<br />".join(b.status) }}
-      </th>
+      </td>
       {% endfor %}
     </tr>
 
