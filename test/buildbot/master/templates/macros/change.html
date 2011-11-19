@@ -51,11 +51,12 @@
 <h3>Changed files</h3>
 <ul>
   {% for f in c.files -%}
-  <li class="{{ loop.cycle('alt', '') }}">{%- if f.url %}<a
-    href="{{ f.url }}"><b>{{ f.name|e }}</b></a></li>
-  {%- else %}
-  <b>{{ f.name|e }}</b>
-  {%- endif -%}
+  <li>
+    {%- if f.url %}
+    <a href="{{ f.url }}">{{ f.name|e }}</a>
+    {%- else %}
+    {{ f.name|e }}
+    {%- endif -%}
   </li>
   {% else %}
   <li>no files</li>
