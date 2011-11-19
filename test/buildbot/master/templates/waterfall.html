@@ -31,6 +31,14 @@
       {% endfor %}
     </tr>
 
+    <tr>
+      <th>Time ({{ tz }})</th>
+      <th>Changes</th>
+      {% for b in builders %}
+      <td>&nbsp;</td>
+      {% endfor %}
+    </tr>
+
     {% for i in range(gridlen) -%}
     <tr>
       {% for strip in grid -%}
