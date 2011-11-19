@@ -13,7 +13,7 @@
   <tr class="{{ loop.cycle('alt', '') if loop }}">
     <td>{{ b.time }}</td>
     <td>{{ b.rev|shortrev(b.rev_repo) }}</td>
-    <td class="{{ b.class }}">{{ b.results }}</td>
+    <td class="results {{ b.class }}">{{ b.results }}</td>
   {%- if include_builder %}
     <td><a href="{{ b.builderurl }}">{{ b.builder_name }}</a></td>
   {% endif %}
@@ -24,7 +24,7 @@
 
 {% macro build_table(builds, include_builder=False) %}
 {% if builds %}
-<table class="zebra-striped">
+<table class="zebra-striped Module buildtable">
   <thead>
     <tr>
       <th>Time</th>

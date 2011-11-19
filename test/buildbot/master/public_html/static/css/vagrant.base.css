@@ -171,12 +171,14 @@ pre > code {
   background-color: #FDDFDE;
 }
 
+.Module.buildtable tbody td.success,
 .Module.waterfall thead th.success,
 .Module.waterfall tbody td.success {
   background-color: #D1EED1;
   border-color: #BFE7BF;
 }
 
+.Module.buildtable tbody td.failure,
 .Module.waterfall .BuildStep.failure {
   background-color: #FDDFDE;
 }
