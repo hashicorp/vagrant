@@ -60,6 +60,9 @@ module Acceptance
       options = argN.last
       options[:chdir] ||= @workdir.to_s
 
+      # Determine the timeout for the process
+      timeout = options.delete(:timeout)
+
       # Execute in a separate process, wait for it to complete, and
       # return the IO streams.
       @logger.info("Executing: #{command} #{argN.inspect}. Output will stream in...")
@@ -71,7 +74,12 @@ module Acceptance
         stderr => ""
       }
 
-      while results = IO.select([stdout, stderr], [stdin], nil, 5)
+      # Record the start time for timeout purposes
+      start_time = Time.now.to_i
+
+      while results = IO.select([stdout, stderr], [stdin], nil, timeout || 5)
+        raise TimeoutExceeded, pid if timeout && (Time.now.to_i - start_time) > timeout
+
         # Check the readers first to see if they're ready
         readers = results[0]
         if !readers.empty?
@@ -102,11 +110,24 @@ module Acceptance
         end
       end
 
-      # Only load the exit status if we don't already have it, since
-      # it is possible that it could've been obtained in the above
-      # while loop.
-      _pid, status = Process.waitpid2(pid) if !status
-      @logger.debug("Exit status: #{status.exitstatus}")
+      # Continually try to wait for the process to end, but do so asynchronously
+      # so that we can also check to see if we have exceeded a timeout.
+      while true
+        # Break if status because it was already obtained above
+        break if status
+
+        # Try to wait for the PID to exit, and exit this loop if it does
+        exitpid, status = Process.waitpid2(pid, Process::WNOHANG)
+        break if exitpid
+
+        # Check to see if we exceeded our process timeout while waiting for
+        # it to end.
+        raise TimeoutExceeded, pid if timeout && (Time.now.to_i - start_time) > timeout
+
+        # Sleep between checks so that we're not constantly hitting the syscall
+        sleep 0.5
+      end
+        @logger.debug("Exit status: #{status.exitstatus}")
 
       return ExecuteProcess.new(status.exitstatus, io_data[stdout], io_data[stderr])
     end
@@ -167,6 +188,17 @@ module Acceptance
 
     def success?
       @exit_status == 0
+    end
+  end
+
+  # This exception is raised if the timeout for a process is exceeded.
+  class TimeoutExceeded < StandardError
+    attr_reader :pid
+
+    def initialize(pid)
+      @pid = pid
+
+      super()
     end
   end
 end
