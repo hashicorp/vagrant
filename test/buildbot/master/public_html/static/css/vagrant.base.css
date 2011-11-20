@@ -198,3 +198,7 @@ pre > code {
 .Module.builders tbody td.success {
   background-color: #D1EED1;
 }
+
+.Module.builders tbody td.failure {
+  background-color: #FDDFDE;
+}
