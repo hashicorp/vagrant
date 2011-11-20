@@ -150,9 +150,21 @@ module Acceptance
       execute("VBoxManage", "list", "vms").stdout.lines.each do |line|
         data = /^"(?<name>.+?)" {(?<uuid>.+?)}$/.match(line)
 
-        @logger.debug("Removing VM: #{data[:name]}")
-        result = execute("VBoxManage", "controlvm", data[:uuid], "poweroff")
-        raise Exception, "VM halt failed!" if result.exit_status != 0
+        begin
+          @logger.debug("Removing VM: #{data[:name]}")
+
+          # We add a timeout onto this because sometimes for seemingly no
+          # reason it will simply freeze, although the VM is successfully
+          # "aborted." The timeout gets around this strange behavior.
+          result = execute("VBoxManage", "controlvm", data[:uuid], "poweroff", :timeout => 5)
+          raise Exception, "VM halt failed!" if result.exit_status != 0
+        rescue TimeoutExceeded => e
+          @logger.info("Failed to poweroff VM '#{data[:uuid]}'. Killing process.")
+
+          # Kill the process and wait a bit for it to disappear
+          Process.kill('KILL', e.pid)
+          Process.waitpid2(e.pid)
+        end
 
         sleep 0.5
 
