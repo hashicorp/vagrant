@@ -51,6 +51,11 @@ module Acceptance
       @text =~ /^VM must be created/
     end
 
+    # This checks that the warning that the VM is not created is emitted.
+    def vm_not_created_warning
+      @text =~ /VM not created. Moving on...$/
+    end
+
     # This checks that the VM is destroyed.
     def vm_destroyed
       @text =~ /Destroying VM and associated drives...$/
