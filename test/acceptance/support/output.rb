@@ -50,5 +50,10 @@ module Acceptance
     def error_vm_must_be_created
       @text =~ /^VM must be created/
     end
+
+    # This checks that the VM is destroyed.
+    def vm_destroyed
+      @text =~ /Destroying VM and associated drives...$/
+    end
   end
 end
