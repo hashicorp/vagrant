@@ -30,4 +30,8 @@ describe "vagrant destroy" do
     result = assert_execute("vagrant", "status")
     result.stdout.should match_output(:status, "default", "not created")
   end
+
+  # TODO:
+  # it is able to destroy a halted virtual machine
+  # it is able to destroy a suspended virtual machine
 end
