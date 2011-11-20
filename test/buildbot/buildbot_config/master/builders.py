@@ -23,17 +23,26 @@ def get_vagrant_builders(branch, slaves):
     This returns a list of the builders that represent the entire
     chain for a given branch (unit, acceptance, packaging builds).
     """
-    unit = BuilderConfig(
-        name="vagrant-%s-unit" % branch,
-        slavenames=[s.slavename for s in slaves],
-        factory=make_vagrant_unit_factory(branch))
+    platforms = ["linux", "osx", "win"]
+    builders = []
 
-    acceptance = BuilderConfig(
-        name="vagrant-%s-acceptance" % branch,
-        slavenames=[s.slavename for s in slaves],
-        factory=make_vagrant_acceptance_factory(branch))
+    for platform in platforms:
+        platform_slaves = [s.slavename for s in slaves if platform in s.slavename]
 
-    return [unit, acceptance]
+        if len(platform_slaves) > 0:
+            unit = BuilderConfig(
+                name="%s-%s-unit" % (platform, branch),
+                slavenames=platform_slaves,
+                factory=make_vagrant_unit_factory(branch))
+
+            acceptance = BuilderConfig(
+                name="%s-%s-acceptance" % (platform, branch),
+                slavenames=platform_slaves,
+                factory=make_vagrant_acceptance_factory(branch))
+
+            builders.extend([unit, acceptance])
+
+    return builders
 
 def make_vagrant_unit_factory(branch):
     """
