@@ -96,4 +96,5 @@ class AcceptanceTests(ShellCommand):
         # Make sure that the proper environment variables for the test
         # get passed through to the slave
         kwargs["env"] = { "ACCEPTANCE_CONFIG": WithProperties("%(acceptance_config_path)s") }
+        kwargs["timeout"] = 3600
         ShellCommand.__init__(self, **kwargs)
