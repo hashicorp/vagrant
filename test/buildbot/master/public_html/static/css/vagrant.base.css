@@ -183,7 +183,8 @@ pre > code {
 }
 
 .Module.buildtable tbody td.failure,
-.Module.waterfall .BuildStep.failure {
+.Module.waterfall thead th.failure,
+.Module.waterfall tbody td.failure {
   background-color: #FDDFDE;
 }
 
