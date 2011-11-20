@@ -31,43 +31,6 @@ class UnitTests(ShellCommand):
     flunkOnFailure = True
     haltOnFailure = True
 
-class AcceptanceConfig(ShellCommand):
-    """
-    Creates the acceptance test configuration on the slave
-    and sets a property ``acceptance_config_path`` so that
-    future steps can use this for various purposes.
-    """
-
-    name = "acceptance test configuration"
-    description = "create acceptance test configuration"
-    descriptionDone = description
-    flunkOnFailure = True
-    haltOnFailure = True
-
-    # TODO:
-    #  * Generate the YAML object, download the YAML object as a file
-    #    onto the slave
-    #  * Store the final path into the "acceptance_config_path"
-    #    property.
-
-class AcceptanceTests(ShellCommand):
-    """
-    Runs the acceptance tests on the slave and knows how to
-    parse the output to provide reasonable metrics and output
-    on the status of the run since acceptance tests take so
-    long.
-    """
-
-    name = "acceptance tests"
-    description = "run acceptance tests"
-    descriptionDone = description
-    flunkOnFailure = True
-    haltOnFailure = True
-
-    # TODO:
-    #  * Run the tests using a given file
-    #  * Read the test output to provide metrics
-
 class AcceptanceBoxes(ShellCommand):
     """
     This step will download all the boxes required for the tests.
