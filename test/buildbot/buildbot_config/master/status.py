@@ -3,7 +3,7 @@ This module returns the given status handlers to enable for the
 buildbot master.
 """
 
-from buildbot.status import html
+from buildbot.status import html, words
 from buildbot.status.web.authz import Authz
 from buildbot.status.web.auth import BasicAuth
 
@@ -33,6 +33,7 @@ def get_status(options):
         cleanShutdown= False
         )
 
+    # The web status gives us the nice web interface to our buildbot
     web_status = html.WebStatus(
         http_port = options.web_port,
         authz = authz,
@@ -40,4 +41,12 @@ def get_status(options):
         change_hook_dialects=dict(github=True)
         )
 
-    return [web_status]
+    # Hook up an IRC bot into our channel
+    irc = words.IRC("irc.freenode.net", "vagrant-ci",
+                    channels=[{"channel": "#vagrant"}],
+                    notify_events={
+                        'exception': 1,
+                        'successToFailure': 1,
+                        'failureToSuccess': 1})
+
+    return [web_status, irc]
