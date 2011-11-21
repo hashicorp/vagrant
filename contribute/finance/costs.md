@@ -50,5 +50,5 @@ are enumerated below, however this list is constantly in flux.
   to host their own boxes they want to share with the public. Vagrant would
   like to offer an official source of Vagrant boxes. This requires
   hosting costs for both a website as well as the box files, which will
-  incur many terabytes of bandwidth per month. Costs: Hundreds of UW dollars
+  incur many terabytes of bandwidth per month. Costs: Hundreds of US dollars
   per month.
