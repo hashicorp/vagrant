@@ -150,3 +150,17 @@ pre > code {
 .Module.sidebar ul, .Module.sidebar ol {
   margin-bottom: 0;
 }
+
+.Module.sponsors {
+  margin-top: 35px;
+}
+
+.Module.sponsors ul {
+  list-style-type: none;
+}
+
+.Module.sponsors ul li {
+  float: left;
+  text-align: center;
+  width: 335px;
+}

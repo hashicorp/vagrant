@@ -1,0 +1,40 @@
+{% include header.html %}
+<div class="row">
+  <div class="span4 Module sidebar">
+    {% if page.section %}
+    <div class="alert-message block-message grey">
+      <a href="/contribute/index.html">&laquo; Contribute to Vagrant</a>
+    </div>
+    {% endif %}
+
+    <div class="alert-message block-message grey">
+    <ol>
+      {% if page.section == "docs" %}
+      <li><a href="/contribute/documentation/index.html">Overview</a></li>
+      <li><a href="/contribute/documentation/code.html">Get the code</a></li>
+      <li><a href="/contribute/documentation/run.html">Run the site</a></li>
+      <li><a href="/contribute/documentation/update.html">Update the site</a></li>
+      <li><a href="/contribute/documentation/contribute.html">Contribute your changes!</a></li>
+      {% elsif page.section == "code" %}
+      <li><a href="/contribute/code/index.html">Overview</a></li>
+      {% elsif page.section == "finance" %}
+      <li><a href="/contribute/finance/index.html">Overview</a></li>
+      <li><a href="/contribute/finance/costs.html">Current Costs</a></li>
+      <li><a href="/contribute/finance/feature.html">Pay for a Feature</a></li>
+      <li><a href="/contribute/finance/sponsor.html">Sponsor Vagrant</a></li>
+      <li><a href="/contribute/finance/donate.html">Donate</a></li>
+      {% else %}
+      <li><a href="/contribute/index.html">Overview</a></li>
+      <li><a href="/contribute/documentation/index.html">Documentation</a></li>
+      <li><a href="/contribute/code/index.html">Code</a></li>
+      <li><a href="/contribute/finance/index.html">Finance</a></li>
+      {% endif %}
+    </ol>
+    </div>
+  </div>
+
+  <div class="span12">
+    {{ content }}
+  </div>
+</div>
+{% include footer.html %}
