@@ -34,7 +34,7 @@ keep all parts of Vagrant running smoothly.
 
 Project sponsors have the following benefits:
 
-* Logo and link on the [About Vagrant](#) page.
+* Logo and link on the [About Vagrant](/about.html) page.
 * Logo and link on the website in every release announcement
   during the time of the sponsorship.
 * Logo and verbal thanks at any talks given by a Vagrant developer
