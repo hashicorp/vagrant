@@ -12,6 +12,17 @@ allow the Vagrant project to run smoothly by supporting
 hosting costs, providing testing machines, sponsoring travel
 to speak at conferences, etc.
 
-<a href="http://engineyard.com">
-  <img src="/static/images/sponsors/engineyard.png" alt="Engine Yard" width="125px"/>
-</a>
+<div class="clearfix Module sponsors">
+  <ul>
+    <li>
+      <a href="http://engineyard.com">
+        <img src="/static/images/sponsors/engineyard.png" alt="Engine Yard" />
+      </a>
+    </li>
+    <li>
+      <a href="http://kiip.me">
+        <img src="/static/images/sponsors/kiip.png" alt="Kiip" />
+      </a>
+    </li>
+  </ul>
+</div>
