@@ -2,7 +2,7 @@ require 'digest/sha1'
 require 'pathname'
 require 'yaml'
 
-require 'posix-spawn'
+require 'childprocess'
 
 require 'vagrant/util/file_checksum'
 
@@ -39,9 +39,11 @@ namespace :acceptance do
 
       # TODO: This isn't Windows friendly yet. Move to a OS-independent
       # download.
-      pid =  POSIX::Spawn.spawn("wget", box["url"], "-O", box_file.to_s)
-      pid, status = Process.waitpid2(pid)
-      if status.exitstatus != 0
+      process = ChildProcess.build("wget", box["url"], "-O", box_file.to_s)
+      process.io.inherit!
+      process.start
+      process.poll_for_exit(64000)
+      if process.exit_code != 0
         puts "Download failed!"
         abort
       end

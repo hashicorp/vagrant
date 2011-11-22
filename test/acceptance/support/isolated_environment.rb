@@ -1,8 +1,9 @@
 require "fileutils"
 require "pathname"
+require "tempfile"
 
 require "log4r"
-require "posix-spawn"
+require "childprocess"
 
 require File.expand_path("../tempdir", __FILE__)
 require File.expand_path("../virtualbox", __FILE__)
@@ -12,8 +13,6 @@ module Acceptance
   # run in. It creates a temporary directory to act as the
   # working directory as well as sets a custom home directory.
   class IsolatedEnvironment
-    include POSIX::Spawn
-
     attr_reader :homedir
     attr_reader :workdir
 
@@ -54,31 +53,46 @@ module Acceptance
     def execute(command, *argN)
       command = replace_command(command)
 
-      # Setup the options that will be passed to the ``popen4``
-      # method.
-      argN << {} if !argN.last.is_a?(Hash)
-      options = argN.last
-      options[:chdir] ||= @workdir.to_s
-
-      # Determine the timeout for the process
+      # Get the hash options passed to this method
+      options = argN.last.is_a?(Hash) ? argN.pop : {}
       timeout = options.delete(:timeout)
 
-      # Execute in a separate process, wait for it to complete, and
-      # return the IO streams.
+      # Build a child process to run this command. For the stdout/stderr
+      # we use pipes so that we can select() on it and block and stream
+      # data in as it comes.
       @logger.info("Executing: #{command} #{argN.inspect}. Output will stream in...")
-      pid, stdin, stdout, stderr = popen4(@env, command, *argN)
-      status = nil
+      process = ChildProcess.build(command, *argN)
+      stdout, stdout_writer = IO.pipe
+      process.io.stdout = stdout_writer
 
-      io_data = {
-        stdout => "",
-        stderr => ""
-      }
+      stderr, stderr_writer = IO.pipe
+      process.io.stderr = stderr_writer
+      process.duplex = true
+
+      Dir.chdir(@workdir.to_s) do
+        with_env_changes do
+          process.start
+          process.io.stdin.sync = true
+        end
+      end
+
+      # Close our side of the pipes, since we're just reading
+      stdout_writer.close
+      stderr_writer.close
+
+      # Create a hash to store all the data we see.
+      io_data = { stdout => "", stderr => "" }
 
       # Record the start time for timeout purposes
       start_time = Time.now.to_i
 
-      while results = IO.select([stdout, stderr], [stdin], nil, timeout || 5)
-        raise TimeoutExceeded, pid if timeout && (Time.now.to_i - start_time) > timeout
+      @logger.debug("Selecting on IO...")
+      while true
+        results = IO.select([stdout, stderr],
+                            [process.io.stdin], nil, timeout || 5)
+
+        # Check if we have exceeded our timeout from waiting on a select()
+        raise TimeoutExceeded, process.pid if timeout && (Time.now.to_i - start_time) > timeout
 
         # Check the readers first to see if they're ready
         readers = results[0]
@@ -87,7 +101,6 @@ module Acceptance
             readers.each do |r|
               data = r.readline
               io_data[r] += data
-
               io_name = r == stdout ? "stdout" : "stderr"
               @logger.debug("[#{io_name}] #{data.chomp}")
               yield io_name.to_sym, data if block_given?
@@ -98,38 +111,31 @@ module Acceptance
           end
         end
 
-        # Check here if the process has exited, and if so, exit the
-        # loop.
-        exit_pid, status = Process.waitpid2(pid, Process::WNOHANG)
-        break if exit_pid
+        # Check if the process exited in order to break the loop before
+        # we try to see if any stdin is ready.
+        break if process.exited?
 
-        # Check the writers to see if they're ready, and notify any
-        # listeners...
+        # Check the writers to see if they're ready, and notify any listeners
         if !results[1].empty?
-          yield :stdin, stdin if block_given?
+          yield :stdin, process.io.stdin if block_given?
         end
       end
 
       # Continually try to wait for the process to end, but do so asynchronously
       # so that we can also check to see if we have exceeded a timeout.
-      while true
-        # Break if status because it was already obtained above
-        break if status
-
-        # Try to wait for the PID to exit, and exit this loop if it does
-        exitpid, status = Process.waitpid2(pid, Process::WNOHANG)
-        break if exitpid
-
-        # Check to see if we exceeded our process timeout while waiting for
-        # it to end.
-        raise TimeoutExceeded, pid if timeout && (Time.now.to_i - start_time) > timeout
-
-        # Sleep between checks so that we're not constantly hitting the syscall
-        sleep 0.5
+      begin
+        # If a timeout is not set, we set a very large timeout to
+        # simulate "forever"
+        @logger.debug("Waiting for process to exit...")
+        remaining = (timeout || 32000) - (Time.now.to_i - start_time)
+        remaining = 0 if remaining < 0
+        process.poll_for_exit(remaining)
+      rescue ChildProcess::TimeoutError
+        raise TimeoutExceeded, process.pid
       end
-        @logger.debug("Exit status: #{status.exitstatus}")
 
-      return ExecuteProcess.new(status.exitstatus, io_data[stdout], io_data[stderr])
+      @logger.debug("Exit status: #{process.exit_code}")
+      return ExecuteProcess.new(process.exit_code, io_data[stdout], io_data[stderr])
     end
 
     # Closes the environment, cleans up the temporary directories, etc.
@@ -181,6 +187,28 @@ module Acceptance
     def replace_command(command)
       return @apps[command] if @apps.has_key?(command)
       return command
+    end
+
+    # This method changes the environmental variables of the process to
+    # that of this environment, yields, and then resets them. This allows
+    # us to change the environment temporarily.
+    #
+    # NOTE: NOT threadsafe.
+    def with_env_changes
+      stashed = {}
+
+      begin
+        @env.each do |key, value|
+          stashed[key] = ENV[key]
+          ENV[key] = value
+        end
+
+        yield
+      ensure
+        stashed.each do |key, value|
+          ENV[key] = stashed[key]
+        end
+      end
     end
   end
 
