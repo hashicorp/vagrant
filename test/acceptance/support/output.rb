@@ -2,6 +2,8 @@ module Acceptance
   # This class helps with matching against output so that every
   # test isn't inherently tied to the output format of Vagrant.
   class Output
+    DEFAULT_VM = "default"
+
     def initialize(text)
       @text = text
     end
@@ -63,8 +65,8 @@ module Acceptance
 
     # This checks that the "up" output properly contains text showing that
     # it is downloading the box during the up process.
-    def up_fetching_box(name)
-      @text =~ /Box #{name} was not found. Fetching box from specified URL...$/
+    def up_fetching_box(name, vm=DEFAULT_VM)
+      @text =~ /^[#{vm}] Box #{name} was not found. Fetching box from specified URL...$/
     end
   end
 end

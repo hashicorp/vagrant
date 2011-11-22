@@ -31,6 +31,10 @@ end
 VFILE
     end
 
+    # Bring up the environment, which should work. `machine1` should download
+    # the box while `machine2` doesn't.
     result = assert_execute("vagrant", "up")
+    result.stdout.should match_output(:up_fetching_box, "base", "machine1")
+    result.stdout.should_not match_output(:up_fetching_box, "base", "machine2")
   end
 end
