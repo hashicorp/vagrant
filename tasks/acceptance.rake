@@ -67,14 +67,14 @@ namespace :acceptance do
 
     # Generate the binstubs for the Vagrant binary
     tempdir = Tempdir.new
-    pid, stdin, stdout, stderr =
-      POSIX::Spawn.popen4("bundle", "install", "--binstubs", tempdir.path)
-    pid, status = Process.waitpid2(pid)
-    if status.exitstatus != 0
+    process = ChildProcess.build("bundle", "install", "--binstubs", tempdir.path)
+    process.io.inherit!
+    process.start
+    process.poll_for_exit(64000)
+    if process.exit_code != 0
       # Bundle install failed...
-      puts "Bundle install failed! Error:"
-      puts stderr.read
-      exit 1
+      puts "Bundle install failed!"
+      abort
     end
 
     # Generate the actual configuration
