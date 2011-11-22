@@ -66,7 +66,7 @@ module Acceptance
     # This checks that the "up" output properly contains text showing that
     # it is downloading the box during the up process.
     def up_fetching_box(name, vm=DEFAULT_VM)
-      @text =~ /^[#{vm}] Box #{name} was not found. Fetching box from specified URL...$/
+      @text =~ /^\[#{vm}\] Box #{name} was not found. Fetching box from specified URL...$/
     end
   end
 end
