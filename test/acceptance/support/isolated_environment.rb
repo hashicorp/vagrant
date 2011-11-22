@@ -1,6 +1,5 @@
 require "fileutils"
 require "pathname"
-require "tempfile"
 
 require "log4r"
 require "childprocess"
