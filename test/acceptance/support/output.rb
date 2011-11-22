@@ -60,5 +60,11 @@ module Acceptance
     def vm_destroyed
       @text =~ /Destroying VM and associated drives...$/
     end
+
+    # This checks that the "up" output properly contains text showing that
+    # it is downloading the box during the up process.
+    def up_fetching_box(name)
+      @text =~ /Box #{name} was not found. Fetching box from specified URL...$/
+    end
   end
 end
