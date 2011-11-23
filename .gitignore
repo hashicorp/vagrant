@@ -3,7 +3,7 @@
 
 # Vagrant stuff
 acceptance_config.yml
-package.box
+boxes/*
 test/buildbot/config.cfg
 test/buildbot/env
 test/buildbot/master/http.log
