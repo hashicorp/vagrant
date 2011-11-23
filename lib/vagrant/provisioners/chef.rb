@@ -56,10 +56,11 @@ module Vagrant
       def setup_json
         env.ui.info I18n.t("vagrant.provisioners.chef.json")
 
-        # Set up initial configuration
-        data, default_share = { :config => env.config.to_hash }, env.config.vm.shared_folders["v-root"]
+        # Set up our configuration that is passed to the attributes by default
+        data = { :config => env.config.to_hash }
 
-        # Add the directory on the guest if the default shared folder exists
+        # Add our default share directory if it exists
+        default_share = env.config.vm.shared_folders["v-root"]
         data[:directory] = default_share[:guestpath] if default_share
 
         # And wrap it under the "vagrant" namespace

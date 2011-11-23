@@ -8,6 +8,8 @@
   - `vagrant` commands will not output color when stdout is
     not a TTY.
   - Fix issue where `box_url` set with multiple VMs could cause issues. [GH-564]
+  - Chef provisioners no longer depend on a "v-root" share being
+    available. [GH-556]
 
 ## 0.8.7 (September 13, 2011)
 
