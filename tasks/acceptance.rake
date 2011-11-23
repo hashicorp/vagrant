@@ -1,5 +1,7 @@
 require 'digest/sha1'
+require 'net/http'
 require 'pathname'
+require 'uri'
 require 'yaml'
 
 require 'childprocess'
@@ -34,19 +36,30 @@ namespace :acceptance do
         end
       end
 
-      # Download the file
+      # Download the file. Note that this has no error checking and just uses
+      # pure net/http. There could be a better way.
       puts "Downloading: #{box["url"]}"
+      destination = box_file.open("wb")
+      uri = URI.parse(box["url"])
+      Net::HTTP.new(uri.host, uri.port).start do |http|
+        http.request_get(uri.request_uri) do |response|
+          total = response.content_length
+          progress = 0
+          count = 0
 
-      # TODO: This isn't Windows friendly yet. Move to a OS-independent
-      # download.
-      process = ChildProcess.build("wget", box["url"], "-O", box_file.to_s)
-      process.io.inherit!
-      process.start
-      process.poll_for_exit(64000)
-      if process.exit_code != 0
-        puts "Download failed!"
-        abort
+          response.read_body do |segment|
+            # Really elementary progress meter
+            progress += segment.length
+            count += 1
+            puts "Progress: #{(progress.to_f / total.to_f) * 100}%" if count % 300 == 0
+
+            # Write out to the destination file
+            destination.write(segment)
+          end
+        end
       end
+
+      destination.close
 
       # Check the checksum of the new file to verify that it
       # downloaded properly. This shouldn't happen, but it can!
