@@ -15,15 +15,9 @@ module Vagrant
       protected
 
       def ssh_execute
-        ssh_vm.ssh.execute do |ssh|
-          ssh.exec!(options[:command]) do |channel, type, data|
-            if type != :exit_status
-              # Print the SSH output as it comes in, but don't prefix it and don't
-              # force a new line so that the output is properly preserved
-              ssh_vm.env.ui.info(data.to_s, :prefix => false, :new_line => false)
-            end
-          end
-        end
+        ssh_vm.ssh.execute { |ssh| ssh.vagrant_type(ssh.vagrant_remote_cmd(options[:command])) }
+        ssh_vm.ssh.exit_all
+        ssh_vm.ssh.show_all_connection_output
       end
 
       def ssh_connect

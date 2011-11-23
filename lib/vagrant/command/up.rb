@@ -12,6 +12,8 @@ module Vagrant
           else
             vm.up("provision.enabled" => options[:provision])
           end
+          vm.ssh.exit_all
+          vm.ssh.show_all_connection_output
         end
       end
     end

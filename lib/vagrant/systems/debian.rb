@@ -8,17 +8,24 @@ module Vagrant
           # Clear out any previous entries
           ssh.exec!("sudo sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/network/interfaces > /tmp/vagrant-network-interfaces")
           ssh.exec!("sudo su -c 'cat /tmp/vagrant-network-interfaces > /etc/network/interfaces'")
+          ssh.exit
         end
       end
 
       def enable_host_only_network(net_options)
-        entry = TemplateRenderer.render('network_entry_debian', :net_options => net_options)
-        vm.ssh.upload!(StringIO.new(entry), "/tmp/vagrant-network-entry")
+        entry = TemplateRenderer.render_to_file('network_entry_debian', :net_options => net_options)
+        begin
+          vm.ssh.upload!(entry.path, "/tmp/vagrant-network-entry")
+        rescue ::Vagrant::Errors::VagrantError => e
+        end
 
+        entry.unlink
         vm.ssh.execute do |ssh|
-          ssh.exec!("sudo /sbin/ifdown eth#{net_options[:adapter]} 2> /dev/null")
-          ssh.exec!("sudo su -c 'cat /tmp/vagrant-network-entry >> /etc/network/interfaces'")
-          ssh.exec!("sudo /sbin/ifup eth#{net_options[:adapter]}")
+          #This ifdown command fails to begin with, so we don't type + error check,
+          #rather just type, then let execute do the usual last-error check at the end.
+          ssh.vagrant_type(ssh.vagrant_remote_cmd("sudo /sbin/ifdown eth#{net_options[:adapter]} 2> /dev/null"))
+          ssh.vagrant_type(ssh.vagrant_remote_cmd("sudo su -c 'cat /tmp/vagrant-network-entry >> /etc/network/interfaces'"))
+          ssh.vagrant_type(ssh.vagrant_remote_cmd("sudo /sbin/ifup eth#{net_options[:adapter]}"))
         end
       end
 

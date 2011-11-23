@@ -77,7 +77,10 @@ module Vagrant
 
         with_script_file do |path|
           # Upload the script to the VM
-          vm.ssh.upload!(path.to_s, config.upload_path)
+          begin
+            vm.ssh.upload!(path.to_s, config.upload_path)
+          rescue ::Vagrant::Errors::VagrantError => e
+          end
 
           # Execute it with sudo
           vm.ssh.execute do |ssh|

@@ -16,6 +16,9 @@ module Vagrant
             state = "not_created"
           end
 
+          vm.ssh.exit_all
+          vm.ssh.show_all_connection_output
+
           "#{vm.name.to_s.ljust(25)}#{state.gsub("_", " ")}"
         end
 

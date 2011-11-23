@@ -112,18 +112,9 @@ module Vagrant
 
       def run_chef_solo
         command_env = config.binary_env ? "#{config.binary_env} " : ""
-        command = "#{command_env}#{chef_binary_path("chef-solo")} -c #{config.provisioning_path}/solo.rb -j #{config.provisioning_path}/dna.json"
-
+        command = "/bin/bash -c 'sudo #{command_env}#{chef_binary_path("/usr/bin/chef-solo")} -c #{config.provisioning_path}/solo.rb -j #{config.provisioning_path}/dna.json'"
         env.ui.info I18n.t("vagrant.provisioners.chef.running_solo")
-        vm.ssh.execute do |ssh|
-          ssh.sudo!(command) do |channel, type, data|
-            if type == :exit_status
-              ssh.check_exit_status(data, command)
-            else
-              env.ui.info("#{data}: #{type}")
-            end
-          end
-        end
+        vm.ssh.execute { |ssh| ssh.vagrant_type(ssh.vagrant_remote_cmd(command)) }
       end
 
       # Extracts only the remote paths from a list of folders

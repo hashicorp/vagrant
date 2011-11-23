@@ -14,12 +14,48 @@ module Vagrant
       attr_accessor :forward_x11
       attr_accessor :shell
       attr_accessor :port
+      attr_accessor :shared_connections
+      attr_accessor :master_connection
+      attr_reader :control_master
+      attr_accessor :control_path
+      attr_accessor :connect_timeout
+      attr_accessor :keep_alive_interval
 
       def initialize
         @shell = "bash"
         @port = nil
         @forward_agent = false
         @forward_x11 = false
+        @control_master = 'auto'
+        @control_path = get_control_path
+        @connect_timeout = 60
+        @keep_alive_interval = 60
+        @shared_connections = true
+        #if env
+        #  $stdout.puts 'WE NEVER SEE THIS? '*10
+        #  @control_master ||= []
+        #  @control_master << ::Vagrant::SSH.new(env).execute({:command => "echo 'Vagrant SSH master connection'"})
+        #end
+        @distribution = nil
+      end
+
+      def get_control_path
+         @control_path ||= make_control_path
+      end
+
+      def make_control_path(cp_dir = '~/.ssh')
+        begin
+          cmtf = nil
+          FileUtils.mkdir_p cp_dir unless Dir.exist? cp_dir
+          tf = Tempfile.new('vagrant-ssh-control-master', cp_dir)
+          cmtf = tf.path
+        rescue
+
+        ensure
+          tf.close! if tf
+          cm = cmtf.nil? ? '~/.ssh/vagrant-ssh-fall-back-control-master-%r@%h:%p' : cmtf
+          return cm
+        end
       end
 
       def private_key_path
