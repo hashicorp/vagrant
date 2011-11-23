@@ -12,7 +12,7 @@ describe "vagrant up", "with a box URL set" do
     result.stdout.should match_output(:up_fetching_box, "base")
   end
 
-  it "downloads the file only once and works if shared by multiple VMs" do
+  it "downloads the file only once and works if shared by multiple VMs", :issue => "GH-564" do
     require_box("default")
 
     environment.workdir.join("Vagrantfile").open("w+") do |f|
