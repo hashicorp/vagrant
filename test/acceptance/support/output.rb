@@ -68,5 +68,15 @@ module Acceptance
     def up_fetching_box(name, vm=DEFAULT_VM)
       @text =~ /^\[#{vm}\] Box #{name} was not found. Fetching box from specified URL...$/
     end
+
+    # Check that the output shows that the VM was shut down gracefully
+    def vm_halt_graceful
+      @text =~ /Attempting graceful shutdown of/
+    end
+
+    # Output shows a forceful VM shutdown.
+    def vm_halt_force
+      @text =~ /Forcing shutdown of VM...$/
+    end
   end
 end
