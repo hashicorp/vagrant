@@ -161,8 +161,7 @@ module Acceptance
           # We add a timeout onto this because sometimes for seemingly no
           # reason it will simply freeze, although the VM is successfully
           # "aborted." The timeout gets around this strange behavior.
-          result = execute("VBoxManage", "controlvm", data[:uuid], "poweroff", :timeout => 5)
-          raise Exception, "VM halt failed!" if result.exit_status != 0
+          execute("VBoxManage", "controlvm", data[:uuid], "poweroff", :timeout => 5)
         rescue TimeoutExceeded => e
           @logger.info("Failed to poweroff VM '#{data[:uuid]}'. Killing process.")
 
