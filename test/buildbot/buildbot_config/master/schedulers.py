@@ -9,16 +9,24 @@ from buildbot.schedulers.basic import (
     SingleBranchScheduler)
 
 def get_schedulers(builders):
-    # Run the unit tests for master
-    unit_builders = [b.name for b in builders if "unit" in b.name]
-    master_unit = SingleBranchScheduler(name="master-unit",
-                                 change_filter=ChangeFilter(branch="master"),
-                                 treeStableTimer=60,
-                                 builderNames=unit_builders)
+    platforms = ["linux", "osx", "win"]
+    schedulers = []
 
-    acceptance_builders = [b.name for b in builders if "acceptance" in b.name]
-    master_acceptance = Dependent(name="master-acceptance",
-                                  upstream=master_unit,
-                                  builderNames=acceptance_builders)
+    for platform in platforms:
+        platform_builders = [b for b in builders if platform in b.name]
 
-    return [master_unit, master_acceptance]
+        # Unit tests for this platform
+        unit_builders = [b.name for b in platform_builders if "unit" in b.name]
+        master_unit = SingleBranchScheduler(name="%s-master-unit" % platform,
+                                            change_filter=ChangeFilter(branch="master"),
+                                            treeStableTimer=60,
+                                            builderNames=unit_builders)
+
+        acceptance_builders = [b.name for b in platform_builders if "acceptance" in b.name]
+        master_acceptance = Dependent(name="%s-master-acceptance" % platform,
+                                      upstream=master_unit,
+                                      builderNames=acceptance_builders)
+
+        schedulers.extend([master_unit, master_acceptance])
+
+    return schedulers
