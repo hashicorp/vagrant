@@ -18,7 +18,7 @@ value overwrites the older value. Vagrant loads Vagrantfiles in the following or
 1. Vagrantfile from the gem directory is loaded. This contains all the defaults
   and should never be edited.
 1. Vagrantfile from the box directory is loaded if a box is specified.
-1. Vagrantfile from the home directory (defaults to `~/.vagrant/`) is loaded if it exists.
+1. Vagrantfile from the home directory (defaults to `~/.vagrant.d/`) is loaded if it exists.
 1. Vagrantfile from the project directory is loaded. This is typically the
   file that users will be touching.
 
@@ -96,7 +96,7 @@ if it doesn't exist. This URL can be anything which `vagrant box add` accepts as
 URL.
 
 `config.vm.box_ovf` tells Vagrant and consequently the [virtualbox](http://github.com/mitchellh/virtualbox) gem
-which file in the `~/.vagrant/boxes/{configured box}/` directory should be used when importing the configured box
+which file in the `~/.vagrant.d/boxes/{configured box}/` directory should be used when importing the configured box
 for duplication. (see `config.vm.box`). This setting is only really important for those creating
 boxes for distribution as this configuration should be included in the packaged Vagrantfile.
 
