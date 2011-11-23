@@ -26,7 +26,7 @@ describe "vagrant halt" do
     result = assert_execute("vagrant", "halt")
     result.stdout.should match_output(:vm_halt_graceful)
 
-    # Assert that the VM no longer is created
+    # Assert that the VM is no longer running
     result = assert_execute("vagrant", "status")
     result.stdout.should match_output(:status, "default", "powered off")
   end
@@ -42,13 +42,31 @@ describe "vagrant halt" do
     result = assert_execute("vagrant", "halt", "--force")
     result.stdout.should match_output(:vm_halt_force)
 
-    # Assert that the VM no longer is created
+    # Assert that the VM is no longer running
     result = assert_execute("vagrant", "status")
     result.stdout.should match_output(:status, "default", "powered off")
+  end
+
+  it "is able to come back up after the machine has been halted" do
+    require_box("default")
+
+    assert_execute("vagrant", "box", "add", "base", box_path("default"))
+    assert_execute("vagrant", "init")
+    assert_execute("vagrant", "up")
+    assert_execute("vagrant", "halt")
+
+    # Assert that the VM is no longer running
+    result = assert_execute("vagrant", "status")
+    result.stdout.should match_output(:status, "default", "powered off")
+
+    assert_execute("vagrant", "up")
+
+    # Assert that the VM is once again running
+    result = assert_execute("vagrant", "status")
+    result.stdout.should match_output(:status, "default", "running")
   end
 
   # TODO:
   # halt behavior on suspend machine
   # halt behavior if machine is already powered off
-  # VM can come back up after a halt
 end
