@@ -7,6 +7,7 @@
   - `vagrant init` respects `Vagrant::Environment` cwd. [GH-528]
   - `vagrant` commands will not output color when stdout is
     not a TTY.
+  - Fix issue where `box_url` set with multiple VMs could cause issues. [GH-564]
 
 ## 0.8.7 (September 13, 2011)
 
