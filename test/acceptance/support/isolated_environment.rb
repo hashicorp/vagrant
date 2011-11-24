@@ -100,6 +100,7 @@ module Acceptance
             readers.each do |r|
               data = r.read_nonblock(1024)
               io_data[r] += data
+              io_name = r == stdout ? "stdout" : "stderr"
               @logger.debug(data)
               yield io_name.to_sym, data if block_given?
             end
