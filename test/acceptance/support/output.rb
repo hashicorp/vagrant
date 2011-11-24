@@ -78,5 +78,10 @@ module Acceptance
     def vm_halt_force
       @text =~ /Forcing shutdown of VM...$/
     end
+
+    # Output shows the VM is in the process of suspending
+    def vm_suspending
+      @text =~ /Saving VM state and suspending execution...$/
+    end
   end
 end
