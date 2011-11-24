@@ -98,12 +98,14 @@ module Acceptance
         if !readers.empty?
           begin
             readers.each do |r|
-              data = r.readline
+              data = r.read_nonblock(1024)
               io_data[r] += data
-              io_name = r == stdout ? "stdout" : "stderr"
-              @logger.debug("[#{io_name}] #{data.chomp}")
+              @logger.debug(data)
               yield io_name.to_sym, data if block_given?
             end
+          rescue IO::WaitReadable
+            # This just means the IO wasn't actually ready and we should
+            # wait some more. So we just let this pass through.
           rescue EOFError
             # Process exited, so break out of this while loop
             break
