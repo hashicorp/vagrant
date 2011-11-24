@@ -29,7 +29,7 @@ Note: The above `vagrant up` command will also trigger Vagrant to download the
 `lucid32` box via the specified URL. Vagrant only does this if it detects that
 the box doesn't already exist on your system.
 
-## Getting Started Guide and Video
+## Getting Started Guide
 
 To learn how to build a fully functional rails development environment, view the
 [getting started guide](http://vagrantup.com/docs/getting-started/index.html).
