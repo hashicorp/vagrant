@@ -31,22 +31,26 @@ describe "vagrant suspend" do
     result.stdout.should match_output(:status, "default", "saved")
   end
 
-  it "is able to resume after the machine has been suspended" do
-    require_box("default")
+  # These tests are parameterized since both "vagrant resume" and
+  # "vagrant up" should achieve the same result.
+  ["resume", "up"].each do |command|
+    it "is able to resume after the machine has been suspended using #{command}" do
+      require_box("default")
 
-    assert_execute("vagrant", "box", "add", "base", box_path("default"))
-    assert_execute("vagrant", "init")
-    assert_execute("vagrant", "up")
-    assert_execute("vagrant", "suspend")
+      assert_execute("vagrant", "box", "add", "base", box_path("default"))
+      assert_execute("vagrant", "init")
+      assert_execute("vagrant", "up")
+      assert_execute("vagrant", "suspend")
 
-    # Assert that the VM is no longer running
-    result = assert_execute("vagrant", "status")
-    result.stdout.should match_output(:status, "default", "saved")
+      # Assert that the VM is no longer running
+      result = assert_execute("vagrant", "status")
+      result.stdout.should match_output(:status, "default", "saved")
 
-    assert_execute("vagrant", "resume")
+      assert_execute("vagrant", command)
 
-    # Assert that the VM is once again running
-    result = assert_execute("vagrant", "status")
-    result.stdout.should match_output(:status, "default", "running")
+      # Assert that the VM is once again running
+      result = assert_execute("vagrant", "status")
+      result.stdout.should match_output(:status, "default", "running")
+    end
   end
 end
