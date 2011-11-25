@@ -16,10 +16,9 @@ module Vagrant
       end
 
       def download!(source_url, destination_file)
-        
         uri = URI.parse(source_url)
         proxy_uri = resolve_proxy(uri)
-        
+
         http = Net::HTTP.new(uri.host, uri.port, proxy_uri.host, proxy_uri.port, proxy_uri.user, proxy_uri.password)
 
         if uri.scheme == "https"
@@ -76,16 +75,23 @@ module Vagrant
 
       private
 
+      # This method respects the "http_proxy" and "no_proxy" environmental
+      # variables so that HTTP proxies can properly be used with Vagrant.
       def resolve_proxy(source_uri)
-        proxy_string = nil
-        if ENV['no_proxy'] && ENV['no_proxy'].split(',').any? { |h| source_uri.host =~ /#{Regexp.quote(h.strip)}$/  }
-          proxy_string = ''
-        else
-          proxy_string = ENV["http_proxy"] || ''
-        end 
-        URI.parse(proxy_string) 
-      end
+        proxy_string = ENV["http_proxy"] || ""
+        if !proxy_string.empty? && ENV.has_key?("no_proxy")
+          # Respect the "no_proxy" environmental variable which contains a list
+          # of hosts that a proxy should not be used for.
+          ENV["no_proxy"].split(",").each do |host|
+            if source_uri.host =~ /#{Regexp.quote(host.strip)}$/
+              proxy_string = ""
+              break
+            end
+          end
+        end
 
+        URI.parse(proxy_string)
+      end
     end
   end
 end

@@ -12,6 +12,8 @@
     available. [GH-556]
   - NFS should work for FreeBSD hosts now. [GH-510]
   - SSH executed methods respect `config.ssh.max_tries`. [GH-508]
+  - `vagrant box add` now respects the "no_proxy" environmental variable.
+    [GH-502]
 
 ## 0.8.7 (September 13, 2011)
 
