@@ -16,8 +16,10 @@ module Vagrant
       end
 
       def download!(source_url, destination_file)
-        proxy_uri = URI.parse(ENV["http_proxy"] || "")
+        
         uri = URI.parse(source_url)
+        proxy_uri = resolve_proxy(uri)
+        
         http = Net::HTTP.new(uri.host, uri.port, proxy_uri.host, proxy_uri.port, proxy_uri.user, proxy_uri.password)
 
         if uri.scheme == "https"
@@ -71,6 +73,19 @@ module Vagrant
       rescue SocketError
         raise Errors::DownloaderHTTPSocketError
       end
+
+      private
+
+      def resolve_proxy(source_uri)
+        proxy_string = nil
+        if ENV['no_proxy'] && ENV['no_proxy'].split(',').any? { |h| source_uri.host =~ /#{Regexp.quote(h.strip)}$/  }
+          proxy_string = ''
+        else
+          proxy_string = ENV["http_proxy"] || ''
+        end 
+        URI.parse(proxy_string) 
+      end
+
     end
   end
 end
