@@ -10,8 +10,8 @@ class SshSessionTest < Test::Unit::TestCase
   end
 
   context "exec!" do
-    should "retry 5 times" do
-      @session.expects(:open_channel).times(5).raises(IOError)
+    should "retry max_tries times" do
+      @session.expects(:open_channel).times(@env.config.ssh.max_tries).raises(IOError)
       assert_raises(IOError) {
         @instance.exec!("foo")
       }

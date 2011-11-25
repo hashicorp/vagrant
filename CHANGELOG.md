@@ -11,6 +11,7 @@
   - Chef provisioners no longer depend on a "v-root" share being
     available. [GH-556]
   - NFS should work for FreeBSD hosts now. [GH-510]
+  - SSH executed methods respect `config.ssh.max_tries`. [GH-508]
 
 ## 0.8.7 (September 13, 2011)
 
