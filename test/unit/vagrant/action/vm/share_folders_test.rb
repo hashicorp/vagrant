@@ -47,16 +47,19 @@ class ShareFoldersVMActionTest < Test::Unit::TestCase
     should "return a hash of the shared folders" do
       data = {
         "foo" => %W[bar baz],
-        "bar" => %W[foo baz]
+        "bar" => %W[foo baz],
+        "baz" => %W[bar foo]
       }
 
       stub_shared_folders(<<-sf)
         config.vm.share_folder("foo", "bar", "baz")
         config.vm.share_folder("bar", "foo", "baz")
+        config.vm.share_folder("baz", "bar", "foo")
       sf
 
       result = @instance.shared_folders
       assert_equal data.length, result.length
+      assert_equal %W[foo bar baz], result.keys
       data.each do |name, value|
         guest, host = value
         assert_equal guest, result[name][:guestpath]
