@@ -61,7 +61,7 @@ module Vagrant
       # the actual `exec!` implementation, except that this
       # implementation also reports `:exit_status` to the block if given.
       def exec!(commands, options=nil, &block)
-        retryable(:tries => 5, :on => [IOError, Net::SSH::Disconnect], :sleep => 1.0) do
+        retryable(:tries => env.config.ssh.max_tries, :on => [IOError, Net::SSH::Disconnect], :sleep => 1.0) do
           metach = session.open_channel do |ch|
             ch.exec("#{env.config.ssh.shell} -l") do |ch2, success|
               # Set the terminal
