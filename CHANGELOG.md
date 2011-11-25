@@ -10,6 +10,7 @@
   - Fix issue where `box_url` set with multiple VMs could cause issues. [GH-564]
   - Chef provisioners no longer depend on a "v-root" share being
     available. [GH-556]
+  - NFS should work for FreeBSD hosts now. [GH-510]
 
 ## 0.8.7 (September 13, 2011)
 
