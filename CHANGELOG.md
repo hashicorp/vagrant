@@ -14,6 +14,8 @@
   - SSH executed methods respect `config.ssh.max_tries`. [GH-508]
   - `vagrant box add` now respects the "no_proxy" environmental variable.
     [GH-502]
+  - Tweaks that should make "Waiting for VM to boot" slightly more
+    reliable.
 
 ## 0.8.7 (September 13, 2011)
 
