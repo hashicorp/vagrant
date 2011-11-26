@@ -9,6 +9,7 @@ class SshTest < Test::Unit::TestCase
     @env.vm.stubs(:vm).returns(@vm)
 
     @ssh = Vagrant::SSH.new(@env)
+    @session = mock("session")
   end
 
   setup do
@@ -177,11 +178,7 @@ class SshTest < Test::Unit::TestCase
       mock_ssh
       @ssh.stubs(:check_key_permissions)
       @ssh.stubs(:port).returns(2222)
-    end
-
-    should "return true if SSH connection works" do
-      Net::SSH.expects(:start).yields("success")
-      assert @ssh.up?
+      @session.stubs(:exec!).returns("hello\n")
     end
 
     should "return false if SSH connection times out" do
@@ -203,8 +200,8 @@ class SshTest < Test::Unit::TestCase
       }
     end
 
-    should "specifity the timeout as an option to execute" do
-      @ssh.expects(:execute).yields(true).with() do |opts|
+    should "specify the timeout as an option to execute" do
+      @ssh.expects(:execute).yields(@session).with() do |opts|
         assert_equal @env.config.ssh.timeout, opts[:timeout]
         true
       end
