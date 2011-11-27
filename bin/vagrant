@@ -9,17 +9,17 @@ begin
   env.logger.info("vagrant") { "`vagrant` invoked: #{ARGV.inspect}" }
 
   # Disable color if the proper argument was passed
-  shell = nil
+  ui = nil
   if !$stdout.tty? || ARGV.include?("--no-color")
-    shell = Thor::Shell::Basic.new
+    ui = Vagrant::UI::Colored.new(env)
   else
-    shell = Thor::Base.shell.new
+    ui = Vagrant::UI::Colored.new(env)
   end
 
   # Set the UI early in case any errors are raised, and load
   # the config immediately, so we gather any new commands from
   # plugins
-  env.ui = Vagrant::UI::Shell.new(env, shell)
+  env.ui = ui
   env.load!
 
   # Kick start the CLI
