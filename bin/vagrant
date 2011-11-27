@@ -11,7 +11,7 @@ begin
   # Disable color if the proper argument was passed
   ui = nil
   if !$stdout.tty? || ARGV.include?("--no-color")
-    ui = Vagrant::UI::Colored.new(env)
+    ui = Vagrant::UI::Basic.new(env)
   else
     ui = Vagrant::UI::Colored.new(env)
   end
