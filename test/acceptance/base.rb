@@ -13,6 +13,10 @@ require "support/config"
 require "support/virtualbox"
 require "support/matchers/match_output"
 
+# Do not buffer output
+$stdout.sync = true
+$stderr.sync = true
+
 # If VirtualBox is currently running, fail.
 if Acceptance::VirtualBox.find_vboxsvc
   $stderr.puts "VirtualBox must be closed and remain closed for the duration of the tests."

@@ -13,6 +13,10 @@ begin
 rescue LoadError
 end
 
+# Do not buffer output for tests
+$stdout.sync = true
+$stderr.sync = true
+
 # Set the home directory to some temporary directory
 ENV["HOME"] = Vagrant.source_root.join("test", "tmp", "home").to_s
 
