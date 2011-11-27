@@ -68,11 +68,13 @@ module Acceptance
       process.io.stderr = stderr_writer
       process.duplex = true
 
+      @env.each do |k, v|
+        process.environment[k] = v
+      end
+
       Dir.chdir(@workdir.to_s) do
-        with_env_changes do
-          process.start
-          process.io.stdin.sync = true
-        end
+        process.start
+        process.io.stdin.sync = true
       end
 
       # Close our side of the pipes, since we're just reading
@@ -188,28 +190,6 @@ module Acceptance
     def replace_command(command)
       return @apps[command] if @apps.has_key?(command)
       return command
-    end
-
-    # This method changes the environmental variables of the process to
-    # that of this environment, yields, and then resets them. This allows
-    # us to change the environment temporarily.
-    #
-    # NOTE: NOT threadsafe.
-    def with_env_changes
-      stashed = {}
-
-      begin
-        @env.each do |key, value|
-          stashed[key] = ENV[key]
-          ENV[key] = value
-        end
-
-        yield
-      ensure
-        stashed.each do |key, value|
-          ENV[key] = stashed[key]
-        end
-      end
     end
   end
 
