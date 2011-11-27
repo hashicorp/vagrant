@@ -88,6 +88,19 @@ module Vagrant
     # of messages. This should only be used with a TTY that supports color,
     # but is up to the user of the class to verify this is the case.
     class Colored < Interface
+      # Terminal colors
+      CLEAR  = "\e[0m"
+      YELLOW = "\e[33m"
+      RED    = "\e[31m"
+      GREEN  = "\e[32m"
+
+      # Mapping between type of message and the color to output
+      COLOR_MAP = {
+        :warn    => YELLOW,
+        :error   => RED,
+        :success => GREEN
+      }
+
       # Use some light meta-programming to create the various methods to
       # output text to the UI. These all delegate the real functionality
       # to `say`.
@@ -136,6 +149,9 @@ module Vagrant
 
         # Format the message
         message = "[#{env.resource}] #{message}" if opts[:prefix]
+
+        # Colorize the message
+        message = "#{COLOR_MAP[type]}#{message}#{CLEAR}" if COLOR_MAP[type]
 
         # Output!
         # TODO: Color
