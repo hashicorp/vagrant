@@ -16,6 +16,8 @@
     [GH-502]
   - Tweaks that should make "Waiting for VM to boot" slightly more
     reliable.
+  - Add comments to Vagrantfile to make it detected as Ruby file for
+    `vi` and `emacs`. [GH-515]
 
 ## 0.8.7 (September 13, 2011)
 
