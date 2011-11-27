@@ -243,7 +243,7 @@ module Vagrant
         result.env = self
         result
       else
-        UI.new(self)
+        UI::Silent.new(self)
       end
     end
 

@@ -27,6 +27,9 @@ module Vagrant
       end
     end
 
+    # This is a UI implementation that does nothing.
+    class Silent < Interface; end
+
     # This is a UI implementation that outputs the text as is. It
     # doesn't add any color.
     class Basic < Interface
