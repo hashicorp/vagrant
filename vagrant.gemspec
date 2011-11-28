@@ -17,6 +17,7 @@ Gem::Specification.new do |s|
   s.add_dependency "archive-tar-minitar", "= 0.5.2"
   s.add_dependency "erubis", "~> 2.7.0"
   s.add_dependency "json", "~> 1.5.1"
+  s.add_dependency "log4r", "~> 1.1.9"
   s.add_dependency "net-ssh", "~> 2.1.4"
   s.add_dependency "net-scp", "~> 1.0.4"
   s.add_dependency "i18n", "~> 0.6.0"
@@ -25,7 +26,6 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency "rake"
   s.add_development_dependency "contest", ">= 0.1.2"
-  s.add_development_dependency "log4r", "~> 1.1.9"
   s.add_development_dependency "minitest", "~> 2.5.1"
   s.add_development_dependency "mocha"
   s.add_development_dependency "childprocess", "~> 0.2.3"

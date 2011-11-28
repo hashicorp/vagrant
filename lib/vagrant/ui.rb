@@ -1,3 +1,5 @@
+require "log4r"
+
 module Vagrant
   module UI
     # Vagrant UIs handle communication with the outside world (typically
@@ -11,13 +13,14 @@ module Vagrant
       attr_accessor :env
 
       def initialize(env)
-        @env = env
+        @env    = env
+        @logger = Log4r::Logger.new("vagrant::ui::interface")
       end
 
       [:warn, :error, :info, :success].each do |method|
         define_method(method) do |message, *opts|
           # Log normal console messages
-          env.logger.info("ui") { message }
+          @logger.info { "#{method}: #{message}" }
         end
       end
 
