@@ -36,9 +36,9 @@ module Vagrant
       attr_reader :data_bags_folders
 
       def prepare
-        @cookbook_folders = expanded_folders(config.cookbooks_path)
-        @role_folders = expanded_folders(config.roles_path)
-        @data_bags_folders = expanded_folders(config.data_bags_path)
+        @cookbook_folders = expanded_folders(config.cookbooks_path, "cookbooks")
+        @role_folders = expanded_folders(config.roles_path, "roles")
+        @data_bags_folders = expanded_folders(config.data_bags_path, "data_bags")
 
         share_folders("csc", @cookbook_folders)
         share_folders("csr", @role_folders)
@@ -54,7 +54,7 @@ module Vagrant
       end
 
       # Converts paths to a list of properly expanded paths with types.
-      def expanded_folders(paths)
+      def expanded_folders(paths, appended_folder=nil)
         return [] if paths.nil?
 
         # Convert the path to an array if it is a string or just a single
@@ -84,6 +84,9 @@ module Vagrant
             # path like /home/vagrant/c:/foo/bar
             remote_path = remote_path.gsub(/^[a-zA-Z]:/, "")
           end
+
+          # If we have specified a folder name to append then append it
+          remote_path += "/#{appended_folder}" if appended_folder
 
           # Return the result
           [type, local_path, remote_path]
