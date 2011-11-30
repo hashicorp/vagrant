@@ -77,8 +77,11 @@ module Vagrant
             # Path already exists on the virtual machine. Expand it
             # relative to where we're provisioning.
             remote_path = File.expand_path(path, config.provisioning_path)
-            
-            # Remove drive letter if running on a windows host
+
+            # Remove drive letter if running on a windows host. This is a bit
+            # of a hack but is the most portable way I can think of at the moment
+            # to achieve this. Otherwise, Vagrant attempts to share at some crazy
+            # path like /home/vagrant/c:/foo/bar
             remote_path = remote_path.gsub(/^[a-zA-Z]:/, "")
           end
 
