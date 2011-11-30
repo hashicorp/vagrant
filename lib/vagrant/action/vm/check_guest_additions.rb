@@ -16,10 +16,13 @@ module Vagrant
           if version.empty?
             env.ui.warn I18n.t("vagrant.actions.vm.check_guest_additions.not_detected")
           else
-            # Strip the -OSE/_OSE off from the guest additions
-            version = version.gsub(/[-_]ose/i, '')
+            # Strip the -OSE/_OSE off from the guest additions and the virtual box
+            # version since all the matters are that the version _numbers_ match up.
+            guest_version, vb_version = [version, VirtualBox.version].map do |v|
+              v.gsub(/[-_]ose/i, '')
+            end
 
-            if version != VirtualBox.version
+            if guest_version != vb_version
               env.ui.warn(I18n.t("vagrant.actions.vm.check_guest_additions.version_mismatch",
                                  :guest_version => version,
                                  :virtualbox_version => VirtualBox.version))
