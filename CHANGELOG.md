@@ -18,6 +18,7 @@
     reliable.
   - Add comments to Vagrantfile to make it detected as Ruby file for
     `vi` and `emacs`. [GH-515]
+  - More correct guest addition version checking. [GH-514]
 
 ## 0.8.7 (September 13, 2011)
 
