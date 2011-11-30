@@ -81,6 +81,8 @@ module Vagrant
                                     :name => name))
               end
             end
+            # Emit an event for Upstart configs
+            ssh.exec!("[ -x /sbin/initctl ] && sudo /sbin/initctl emit vagrant-mounted")
           end
         end
       end
