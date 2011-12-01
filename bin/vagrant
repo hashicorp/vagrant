@@ -1,13 +1,18 @@
 #!/usr/bin/env ruby
+require 'log4r'
 require 'vagrant'
 require 'vagrant/cli'
 
+# Create a logger right away
+logger = Log4r::Logger.new("vagrant::bin::vagrant")
+logger.info("`vagrant` invoked: #{ARGV.inspect}")
+
+# Create the environment, which is the cwd of wherever the
+# `vagrant` command was invoked from
+logger.debug("Creating Vagrant environment")
 env = Vagrant::Environment.new
 
 begin
-  # Begin logging early here
-  env.logger.info("vagrant") { "`vagrant` invoked: #{ARGV.inspect}" }
-
   # Disable color if the proper argument was passed
   ui = nil
   if !$stdout.tty? || ARGV.include?("--no-color")
@@ -20,6 +25,9 @@ begin
   # the config immediately, so we gather any new commands from
   # plugins
   env.ui = ui
+
+  # Load the environment
+  logger.debug("Loading environment")
   env.load!
 
   # Kick start the CLI
