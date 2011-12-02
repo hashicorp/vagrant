@@ -1,3 +1,5 @@
+require 'log4r'
+
 require 'vagrant/action/builder'
 require 'vagrant/action/builtin'
 
@@ -93,6 +95,7 @@ module Vagrant
     # @param [Environment] env
     def initialize(env)
       @env = env
+      @logger = Log4r::Logger.new("vagrant::action")
     end
 
     # Runs the given callable object in the context of the environment.
@@ -129,7 +132,7 @@ module Vagrant
       end
 
       # We place a process lock around every action that is called
-      env.logger.info "Running action: #{callable_id}"
+      @logger.info("Running action: #{callable_id}")
       env.lock do
         Busy.busy(int_callback) { callable.call(action_environment) }
       end

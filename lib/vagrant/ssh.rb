@@ -1,3 +1,4 @@
+require 'log4r'
 require 'net/ssh'
 require 'net/scp'
 
@@ -19,6 +20,7 @@ module Vagrant
 
     def initialize(environment)
       @env = environment
+      @logger = Log4r::Logger.new("vagrant::ssh")
     end
 
     # Connects to the environment's virtual machine, replacing the ruby
@@ -53,7 +55,7 @@ module Vagrant
       end
 
       command = "ssh #{command_options.join(" ")} #{options[:username]}@#{options[:host]}".strip
-      env.logger.info("ssh") { "Invoking SSH: #{command}" }
+      @logger.info("Invoking SSH: #{command}")
       safe_exec(command)
     end
 
@@ -68,7 +70,7 @@ module Vagrant
       opts[:forward_agent] = true if env.config.ssh.forward_agent
       opts[:port] ||= port
 
-      env.logger.info("ssh") { "Connecting to SSH: #{env.config.ssh.host} #{opts[:port]}" }
+      @logger.info("Connecting to SSH: #{env.config.ssh.host} #{opts[:port]}")
 
       # The exceptions which are acceptable to retry on during
       # attempts to connect to SSH
@@ -137,12 +139,12 @@ module Vagrant
       # Windows systems don't have this issue
       return if Util::Platform.windows?
 
-      env.logger.info("ssh") { "Checking key permissions: #{key_path}" }
+      @logger.info("Checking key permissions: #{key_path}")
 
       stat = File.stat(key_path)
 
       if stat.owned? && file_perms(key_path) != "600"
-        env.logger.info("ssh") { "Attempting to correct key permissions to 0600" }
+        @logger.info("Attempting to correct key permissions to 0600")
 
         File.chmod(0600, key_path)
         raise Errors::SSHKeyBadPermissions, :key_path => key_path if file_perms(key_path) != "600"

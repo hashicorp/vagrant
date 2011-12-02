@@ -1,3 +1,5 @@
+require 'log4r'
+
 module Vagrant
   class VM
     include Vagrant::Util
@@ -26,6 +28,7 @@ module Vagrant
 
       @vm = opts[:vm]
       @name = opts[:name]
+      @logger = Log4r::Logger.new("vagrant::vm")
 
       if !opts[:env].nil?
         # We have an environment, so we create a new child environment
@@ -51,7 +54,7 @@ module Vagrant
     # **This method should never be called manually.**
     def load_system!(system=nil)
       system ||= env.config.vm.system
-      env.logger.info("vm: #{name}") { "Loading system: #{system}" }
+      @logger.info("Loading system: #{system}")
 
       if system.is_a?(Class)
         raise Errors::VMSystemError, :_key => :invalid_class, :system => system.to_s if !(system <= Systems::Base)
