@@ -1,11 +1,8 @@
 module Vagrant
   module Hosts
     class Arch < Linux
-      def nfs_export(ip, folders)
-        output = TemplateRenderer.render('nfs/exports_linux',
-                                         :uuid => env.vm.uuid,
-                                         :ip => ip,
-                                         :folders => folders)
+      def nfs_export(output)
+        return if check_exports_file(output)
 
         env.ui.info I18n.t("vagrant.hosts.arch.nfs_export.prepare")
         sleep 0.5

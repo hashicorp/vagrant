@@ -46,6 +46,7 @@ class NFSVMActionTest < Test::Unit::TestCase
         seq = sequence('seq')
         @instance.expects(:extract_folders).in_sequence(seq)
         @instance.expects(:prepare_folders).in_sequence(seq)
+        @instance.expects(:render_nfs).in_sequence(seq)
         @instance.expects(:clear_nfs_exports).with(@env).in_sequence(seq)
         @instance.expects(:export_folders).in_sequence(seq)
         @app.expects(:call).with(@env).in_sequence(seq)
@@ -59,6 +60,7 @@ class NFSVMActionTest < Test::Unit::TestCase
         seq = sequence('seq')
         @instance.expects(:extract_folders).in_sequence(seq)
         @instance.expects(:prepare_folders).never
+        @instance.expects(:render_nfs).never
         @instance.expects(:export_folders).never
         @instance.expects(:clear_nfs_exports).never
         @app.expects(:call).with(@env).in_sequence(seq)
@@ -145,15 +147,16 @@ class NFSVMActionTest < Test::Unit::TestCase
       end
     end
 
-    context "exporting folders" do
+    context "preparing folders" do
       setup do
-        @instance.stubs(:folders).returns({})
+        @env.env.config.vm.shared_folders.clear
+        @env.env.config.vm.share_folder("v-foo", "/foo", ".", :nfs => true)
         @instance.stubs(:guest_ip).returns("192.168.33.10")
       end
 
-      should "call nfs_export on the host" do
-        @env["host"].expects(:nfs_export).with(@instance.guest_ip, @instance.folders)
-        @instance.export_folders
+      should "call render_nfs on the host" do
+        @env["host"].expects(:render_nfs).with(@instance.guest_ip, @instance.folders)
+        @instance.prepare_folders
       end
     end
 

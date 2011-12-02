@@ -32,7 +32,7 @@ module Vagrant
 
           if !folders.empty?
             prepare_folders
-            clear_nfs_exports(env)
+            clear_nfs_exports(env, @template_output)
             export_folders
           end
 
@@ -82,6 +82,8 @@ module Vagrant
             acc[key] = opts
             acc
           end
+
+          @template_output = @env["host"].render_nfs(guest_ip, folders)
         end
 
         # Prepares the UID/GID settings for a single folder.
@@ -106,7 +108,7 @@ module Vagrant
         def export_folders
           @env.ui.info I18n.t("vagrant.actions.vm.nfs.exporting")
 
-          @env["host"].nfs_export(guest_ip, folders)
+          @env["host"].nfs_export(@template_output)
         end
 
         # Uses the system class to mount the NFS folders.
