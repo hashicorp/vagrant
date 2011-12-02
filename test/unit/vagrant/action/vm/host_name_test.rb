@@ -33,4 +33,17 @@ class HostNameVMActionTest < Test::Unit::TestCase
 
     @instance.call(@env)
   end
+
+  should "change host name if set to a fqdn" do
+    @env["config"].vm.host_name = "foo.example.com"
+
+    system = mock("system")
+    @vm.stubs(:system).returns(system)
+
+    seq = sequence("host_seq")
+    @app.expects(:call).with(@env).in_sequence(seq)
+    system.expects(:change_host_name).with(@env["config"].vm.host_name).in_sequence(seq)
+
+    @instance.call(@env)
+  end
 end
