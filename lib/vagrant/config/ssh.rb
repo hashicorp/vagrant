@@ -14,6 +14,7 @@ module Vagrant
       attr_accessor :forward_x11
       attr_accessor :shell
       attr_accessor :port
+      attr_accessor :remote_forward
 
       def initialize
         @shell = "bash"

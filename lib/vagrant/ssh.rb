@@ -46,6 +46,8 @@ module Vagrant
                          "-i #{options[:private_key_path]}", "-o LogLevel=ERROR"]
       command_options << "-o ForwardAgent=yes" if env.config.ssh.forward_agent
 
+      command_options << "-o RemoteForward='#{env.config.ssh.remote_forward}'" if env.config.ssh.remote_forward
+
       if env.config.ssh.forward_x11
         # Both are required so that no warnings are shown regarding X11
         command_options << "-o ForwardX11=yes"

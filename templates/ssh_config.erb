@@ -13,3 +13,6 @@ Host <%= host_key %>
 <% if forward_x11 -%>
   ForwardX11 yes
 <% end -%>
+<% if remote_forward -%>
+  RemoteForward <%= remote_forward %>
+<% end -%>
