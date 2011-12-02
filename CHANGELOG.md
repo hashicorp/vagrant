@@ -1,4 +1,4 @@
-## 0.8.8 (unreleased)
+## 0.8.8 (December 1, 2011)
 
   - Mount shared folders shortest to longest to avoid mounting
     subfolders first. [GH-525]
