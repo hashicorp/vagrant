@@ -254,23 +254,6 @@ class EnvironmentTest < Test::Unit::TestCase
     end
   end
 
-  context "loading logger" do
-    should "lazy load the logger only once" do
-      env = vagrant_env
-      result = env.logger
-      assert result === env.logger
-    end
-
-    should "return the parent's logger if a parent exists" do
-      env = vagrant_env(vagrantfile(<<-vf))
-        config.vm.define :web
-        config.vm.define :db
-      vf
-
-      assert env.logger === env.vms[:web].env.logger
-    end
-  end
-
   context "loading the root path" do
     should "should walk the parent directories looking for rootfile" do
       paths = [Pathname.new("/foo/bar/baz"),

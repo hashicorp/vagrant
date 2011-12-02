@@ -1,6 +1,7 @@
 require 'pathname'
 require 'fileutils'
-require 'logger'
+
+require 'log4r'
 
 module Vagrant
   # Represents a single Vagrant environment. A "Vagrant environment" is
@@ -81,10 +82,11 @@ module Vagrant
       @loaded = false
       @lock_acquired = false
 
-      logger.info("environment") { "Environment initialized (#{self})" }
-      logger.info("environment") { "  - cwd: #{cwd}" }
-      logger.info("environment") { "  - parent: #{parent}" }
-      logger.info("environment") { "  - vm: #{vm}" }
+      @logger = Log4r::Logger.new("vagrant::environment")
+      @logger.info("Environment initialized (#{self})")
+      @logger.info("  - cwd: #{cwd}")
+      @logger.info("  - parent: #{parent}")
+      @logger.info("  - vm: #{vm}")
     end
 
     #---------------------------------------------------------------
@@ -107,14 +109,14 @@ module Vagrant
       return @_home_path if defined?(@_home_path)
 
       @_home_path ||= Pathname.new(File.expand_path(ENV["VAGRANT_HOME"] || DEFAULT_HOME))
-      logger.info("environment") { "Home path: #{@_home_path}" }
+      @logger.info("Home path: #{@_home_path}")
 
       # This is the old default that Vagrant used to be put things into
       # up until Vagrant 0.8.0. We keep around an automatic migration
       # script here in case any old users upgrade.
       old_home = File.expand_path("~/.vagrant")
       if File.exists?(old_home) && File.directory?(old_home)
-        logger.info("environment") { "Found both an old and new Vagrantfile. Migration initiated." }
+        @logger.info("Found both an old and new Vagrantfile. Migration initiated.")
 
         # We can't migrate if the home directory already exists
         if File.exists?(@_home_path)
@@ -285,36 +287,6 @@ module Vagrant
       @local_data ||= DataStore.new(dotfile_path)
     end
 
-    # Accesses the logger for Vagrant. This logger is a _detailed_
-    # logger which should be used to log internals only. For outward
-    # facing information, use {#ui}.
-    #
-    # @return [Logger]
-    def logger
-      return parent.logger if parent
-      return @logger if @logger
-
-      # Figure out where the output should go to.
-      output = nil
-      if ENV["VAGRANT_LOG"] == "STDOUT"
-        output = STDOUT
-      elsif ENV["VAGRANT_LOG"] == "NULL"
-        output = nil
-      elsif ENV["VAGRANT_LOG"]
-        output = ENV["VAGRANT_LOG"]
-      else
-        output = nil #log_path.join("#{Time.now.to_i}.log")
-      end
-
-      # Create the logger and custom formatter
-      @logger = Logger.new(output)
-      @logger.formatter = Proc.new do |severity, datetime, progname, msg|
-        "#{datetime} - #{progname} - [#{resource}] #{msg}\n"
-      end
-
-      @logger
-    end
-
     # The root path is the path where the top-most (loaded last)
     # Vagrantfile resides. It can be considered the project root for
     # this environment.
@@ -407,11 +379,11 @@ module Vagrant
         if !parent
           # We only need to check the virtualbox version once, so do it on
           # the parent most environment and then forget about it
-          logger.info("environment") { "Environment not loaded. Checking virtual box version..." }
+          @logger.info("Environment not loaded. Checking virtual box version...")
           self.class.check_virtualbox!
         end
 
-        logger.info("environment") { "Loading configuration..." }
+        @logger.info("Loading configuration...")
         load_config!
       end
 
