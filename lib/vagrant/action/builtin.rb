@@ -7,12 +7,14 @@ module Vagrant
     def self.builtin!
       # provision - Provisions a running VM
       register(:provision, Builder.new do
+        use VM::CheckAccessible
         use VM::Provision
       end)
 
       # start - Starts a VM, assuming it already exists on the
       # environment.
       register(:start, Builder.new do
+        use VM::CheckAccessible
         use VM::CleanMachineFolder
         use VM::ClearForwardedPorts
         use VM::ForwardPorts
@@ -30,28 +32,33 @@ module Vagrant
       # halt - Halts the VM, attempting gracefully but then forcing
       # a restart if fails.
       register(:halt, Builder.new do
+        use VM::CheckAccessible
         use VM::DiscardState
         use VM::Halt
       end)
 
       # suspend - Suspends the VM
       register(:suspend, Builder.new do
+        use VM::CheckAccessible
         use VM::Suspend
       end)
 
       # resume - Resume a VM
       register(:resume, Builder.new do
+        use VM::CheckAccessible
         use VM::Resume
       end)
 
       # reload - Halts then restarts the VM
       register(:reload, Builder.new do
+        use VM::CheckAccessible
         use Action[:halt]
         use Action[:start]
       end)
 
       # up - Imports, prepares, then starts a fresh VM.
       register(:up, Builder.new do
+        use VM::CheckAccessible
         use VM::CheckBox
         use VM::Import
         use VM::MatchMACAddress
@@ -61,6 +68,7 @@ module Vagrant
 
       # destroy - Halts, cleans up, and destroys an existing VM
       register(:destroy, Builder.new do
+        use VM::CheckAccessible
         use Action[:halt], :force => true
         use VM::ProvisionerCleanup
         use VM::ClearNFSExports
@@ -71,6 +79,7 @@ module Vagrant
 
       # package - Export and package the VM
       register(:package, Builder.new do
+        use VM::CheckAccessible
         use Action[:halt]
         use VM::ClearForwardedPorts
         use VM::ClearSharedFolders
@@ -101,7 +110,6 @@ module Vagrant
       # now, these are limited to what are needed internally.
       register(:before_action_run, Builder.new do
         use General::Validate
-        use VM::CheckAccessible
       end)
     end
   end
