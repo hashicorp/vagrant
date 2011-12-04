@@ -372,18 +372,6 @@ class EnvironmentTest < Test::Unit::TestCase
     end
   end
 
-  context "accessing the current box" do
-    should "return the box that is specified in the config" do
-      vagrant_box("foo")
-      env = vagrant_env(vagrantfile(<<-vf))
-        config.vm.box = "foo"
-      vf
-
-      assert env.box
-      assert_equal "foo", env.box.name
-    end
-  end
-
   context "accessing the VMs hash" do
     should "load the environment if its not already loaded" do
       env = @klass.new(:cwd => vagrantfile)

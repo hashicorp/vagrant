@@ -162,13 +162,6 @@ module Vagrant
       @_boxes ||= BoxCollection.new(self)
     end
 
-    # Returns the box that this environment represents.
-    #
-    # @return [Box]
-    def box
-      boxes.find(config.vm.box)
-    end
-
     # Returns the VMs associated with this environment.
     #
     # @return [Hash<Symbol,VM>]
@@ -458,7 +451,7 @@ module Vagrant
         config = inner_load[subvm]
 
         # Second pass, with the box
-        config = inner_load[subvm, config.vm.box]
+        config = inner_load[subvm, boxes.find(config.vm.box)]
         config.vm.name = vm_name.to_s
 
         # Return the final configuration for this VM

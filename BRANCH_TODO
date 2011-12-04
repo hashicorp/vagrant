@@ -1,6 +1,7 @@
 This is a TODO file for only this branch (config-overhaul)
 
 * Config validation
+* What happens if a configured box doesn't exist?
 * Separation of global vs VM configuration.
 # Put VM-specific config directly into Vagrant::VM objects
 * Only allow one kind of vagrantfile to be loaded (i.e. if both

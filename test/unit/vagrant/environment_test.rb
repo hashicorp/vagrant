@@ -84,6 +84,25 @@ VF
       env.config.for_vm("foo").ssh.port.should == 100
       env.config.for_vm("bar").ssh.port.should == 200
     end
+
+    it "should load box configuration" do
+      environment = isolated_environment do |env|
+        env.vagrantfile(<<-VF)
+Vagrant::Config.run do |config|
+  config.vm.box = "base"
+end
+VF
+
+        env.box("base", <<-VF)
+Vagrant::Config.run do |config|
+  config.ssh.port = 100
+end
+VF
+      end
+
+      env = environment.create_vagrant_env
+      env.config.for_vm("default").ssh.port.should == 100
+    end
   end
 
   describe "ui" do
