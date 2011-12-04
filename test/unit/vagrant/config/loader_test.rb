@@ -17,6 +17,16 @@ describe Vagrant::Config::Loader do
     config.vagrant.dotfile_name.should == "foo"
   end
 
+  it "should only load configuration files once" do
+    $_config_data = 0
+
+    instance.load_order = [:file]
+    instance.set(:file, temporary_file("$_config_data += 1"))
+    5.times { instance.load }
+
+    $_config_data.should == 1
+  end
+
   it "should raise proper error if there is a syntax error in a Vagrantfile" do
     instance.load_order = [:file]
     instance.set(:file, temporary_file("Vagrant:^Config"))

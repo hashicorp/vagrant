@@ -19,6 +19,7 @@ module Vagrant
       def initialize
         @logger  = Log4r::Logger.new("vagrant::config::loader")
         @sources = {}
+        @proc_cache = {}
       end
 
       # Set the configuration data for the given name.
@@ -56,7 +57,16 @@ module Vagrant
         @load_order.each do |key|
           @sources[key].each do |source|
             @logger.debug("Loading from: #{key}")
-            procs_for_source(source).each do |proc|
+
+            # Load the procs, caching them by the source key. This makes
+            # sure that files are only loaded once, for example. The reason
+            # for this is because people may put side-effect code in their
+            # Vagrantfiles. This assures that the side effect only occurs
+            # once (which is what they expect)
+            @proc_cache[key] ||= procs_for_source(source)
+
+            # Call each proc with the top-level configuration.
+            @proc_cache[key].each do |proc|
               proc.call(top)
             end
           end
