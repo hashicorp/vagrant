@@ -18,10 +18,6 @@ module Vagrant
     # The valid name for a Vagrantfile for this environment.
     attr_reader :vagrantfile_name
 
-    # The single VM that this environment represents, in the case of
-    # multi-VM.
-    attr_accessor :vm
-
     # The {UI} object to communicate with the outside world.
     attr_reader :ui
 
@@ -53,7 +49,6 @@ module Vagrant
     # to the `Dir.pwd` (which is the cwd of the executing process).
     def initialize(opts=nil)
       opts = {
-        :vm => nil,
         :cwd => nil,
         :vagrantfile_name => nil,
         :lock_path => nil,
@@ -71,7 +66,6 @@ module Vagrant
       opts[:vagrantfile_name] = [opts[:vagrantfile_name]] if !opts[:vagrantfile_name].is_a?(Array)
 
       # Set instance variables for all the configuration parameters.
-      @vm     = opts[:vm]
       @cwd    = opts[:cwd]
       @vagrantfile_name = opts[:vagrantfile_name]
       @lock_path = opts[:lock_path]
@@ -460,7 +454,9 @@ module Vagrant
 
       # For any VMs which aren't created, create a blank VM instance for them.
       config.vms.each do |name|
-        result[name] = Vagrant::VM.new(name, self, config.for_vm(name)) if !result.has_key?(name)
+        if !result.has_key?(name)
+          result[name] = Vagrant::VM.new(name, self, config.for_vm(name))
+        end
       end
 
       result
