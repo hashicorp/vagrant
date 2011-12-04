@@ -1,6 +1,9 @@
 ## 0.9.0 (unreleased)
 
-
+  - Logging. The entire Vagrant source has had logging sprinkled throughout
+    to make debugging issues easier. To enable logging, set the VAGRANT_LOG
+    environmental variable to the log level you wish to see. By default,
+    logging is silent.
 
 ## 0.8.8 (December 1, 2011)
 
