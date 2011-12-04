@@ -1,3 +1,14 @@
+# Enable logging if it is requested. We do this before
+# anything else so that we can setup the output before
+# any logging occurs.
+if ENV["VAGRANT_LOG"]
+  require 'log4r'
+  logger = Log4r::Logger.new("vagrant")
+  logger.outputters = Log4r::Outputter.stdout
+  logger.level = Log4r.const_get(ENV["VAGRANT_LOG"].upcase)
+  logger = nil
+end
+
 require 'pathname'
 require 'json'
 require 'i18n'

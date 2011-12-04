@@ -3,15 +3,6 @@ require 'log4r'
 require 'vagrant'
 require 'vagrant/cli'
 
-# Enable logging if it is requested. We do this before
-# anything else so that all logs are visible.
-if ENV["VAGRANT_LOG"]
-  logger = Log4r::Logger.new("vagrant")
-  logger.outputters = Log4r::Outputter.stdout
-  logger.level = Log4r.const_get(ENV["VAGRANT_LOG"].upcase)
-  logger = nil
-end
-
 # Create a logger right away
 logger = Log4r::Logger.new("vagrant::bin::vagrant")
 logger.info("`vagrant` invoked: #{ARGV.inspect}")
