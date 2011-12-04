@@ -2,15 +2,7 @@ require 'forwardable'
 
 module Vagrant
   # Represents a collection of boxes, providing helpful methods for
-  # finding boxes. An instance of this is returned by {Environment#boxes}.
-  #
-  # # Finding a Box
-  #
-  # To find a box, use the {#find} method with the name of the box. The name
-  # is an exact match search.
-  #
-  #     env.boxes.find("base") # => #<Vagrant::Box>
-  #
+  # finding boxes.
   class BoxCollection
     include Enumerable
     extend Forwardable
@@ -45,8 +37,7 @@ module Vagrant
       Dir.open(@directory) do |dir|
         dir.each do |d|
           next if d == "." || d == ".." || !@directory.join(d).directory?
-          # TODO: env????
-          @boxes << Box.new(env, d)
+          @boxes << Box.new(d, @directory.join(d))
         end
       end
     end

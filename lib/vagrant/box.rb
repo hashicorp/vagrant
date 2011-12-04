@@ -12,24 +12,8 @@ module Vagrant
     # The URI for a new box. This is not available for existing boxes.
     attr_accessor :uri
 
-    # The environment which this box belongs to. Although this could
-    # actually be many environments, this points to the environment
-    # of a specific instance.
-    attr_reader :env
-
-    class << self
-      # Adds a new box with given name from the given URI. This method
-      # begins the process of adding a box from a given URI by setting up
-      # the {Box} instance and calling {#add}.
-      #
-      # @param [String] name The name of the box
-      # @param [String] uri URI to the box file
-      def add(env, name, uri)
-        box = new(env, name)
-        box.uri = uri
-        box.add
-      end
-    end
+    # The directory where this box is stored
+    attr_reader :directory
 
     # Creates a new box instance. Given an optional `name` parameter,
     # newly created instance will have that name, otherwise it defaults
@@ -37,9 +21,9 @@ module Vagrant
     #
     # **Note:** This method does not actually _create_ the box, but merely
     # returns a new, abstract representation of it. To add a box, see {#add}.
-    def initialize(env=nil, name=nil)
-      @name = name
-      @env = env
+    def initialize(name, directory)
+      @name      = name
+      @directory = directory
     end
 
     # Returns path to the OVF file of the box. The OVF file is an open
@@ -69,15 +53,6 @@ module Vagrant
     # Begins sequence to repackage this box.
     def repackage(options=nil)
       env.actions.run(:box_repackage, { "box" => self, "validate" => false }.merge(options || {}))
-    end
-
-    # Returns the directory to the location of this boxes content in the local
-    # filesystem. Note that if the box isn't imported yet, then the path may not
-    # yet exist, but still represents where the box will be imported to.
-    #
-    # @return [String]
-    def directory
-      env.boxes_path.join(name)
     end
 
     # Implemented for comparison with other boxes. Comparison is implemented
