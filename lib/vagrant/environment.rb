@@ -12,9 +12,6 @@ module Vagrant
     DEFAULT_VM = :default
     DEFAULT_HOME = "~/.vagrant.d"
 
-    # Parent environment (in the case of multi-VMs)
-    attr_reader :parent
-
     # The `cwd` that this environment represents
     attr_reader :cwd
 
@@ -26,7 +23,7 @@ module Vagrant
     attr_accessor :vm
 
     # The {UI} object to communicate with the outside world.
-    attr_writer :ui
+    attr_reader :ui
 
     #---------------------------------------------------------------
     # Class Methods
@@ -56,7 +53,6 @@ module Vagrant
     # to the `Dir.pwd` (which is the cwd of the executing process).
     def initialize(opts=nil)
       opts = {
-        :parent => nil,
         :vm => nil,
         :cwd => nil,
         :vagrantfile_name => nil,
@@ -75,13 +71,14 @@ module Vagrant
       opts[:vagrantfile_name] = [opts[:vagrantfile_name]] if !opts[:vagrantfile_name].is_a?(Array)
 
       # Set instance variables for all the configuration parameters.
-      @parent = opts[:parent]
       @vm     = opts[:vm]
       @cwd    = opts[:cwd]
       @vagrantfile_name = opts[:vagrantfile_name]
       @lock_path = opts[:lock_path]
-      @ui_class  = opts[:ui_class]
       @home_path = opts[:home_path]
+
+      ui_class = opts[:ui_class] || UI::Silent
+      @ui      = ui_class.new(self)
 
       @loaded = false
       @lock_acquired = false
@@ -89,7 +86,6 @@ module Vagrant
       @logger = Log4r::Logger.new("vagrant::environment")
       @logger.info("Environment initialized (#{self})")
       @logger.info("  - cwd: #{cwd}")
-      @logger.info("  - parent: #{parent}")
       @logger.info("  - vm: #{vm}")
     end
 
@@ -109,7 +105,6 @@ module Vagrant
     #
     # @return [Pathname]
     def home_path
-      return parent.home_path if parent
       return @_home_path if defined?(@_home_path)
 
       @_home_path ||= Pathname.new(File.expand_path(@home_path ||
@@ -158,7 +153,6 @@ module Vagrant
     #
     # @return [BoxCollection]
     def boxes
-      return parent.boxes if parent
       @_boxes ||= BoxCollection.new(self)
     end
 
@@ -166,7 +160,6 @@ module Vagrant
     #
     # @return [Hash<Symbol,VM>]
     def vms
-      return parent.vms if parent
       load! if !loaded?
       @vms ||= load_vms!
     end
@@ -186,7 +179,6 @@ module Vagrant
     # @return [VM]
     def primary_vm
       return vms.values.first if !multivm?
-      return parent.primary_vm if parent
 
       config.vm.defined_vms.each do |name, subvm|
         return vms[name] if subvm.options[:primary]
@@ -201,11 +193,7 @@ module Vagrant
     #
     # @return [Bool]
     def multivm?
-      if parent
-        parent.multivm?
-      else
-        vms.length > 1 || vms.keys.first != DEFAULT_VM
-      end
+      vms.length > 1 || vms.keys.first != DEFAULT_VM
     end
 
     # Makes a call to the CLI with the given arguments as if they
@@ -215,21 +203,6 @@ module Vagrant
     #
     def cli(*args)
       CLI.start(args.flatten, :env => self)
-    end
-
-    # Returns the {UI} for the environment, which is responsible
-    # for talking with the outside world.
-    #
-    # @return [UI]
-    def ui
-      @ui ||= if parent
-        result = parent.ui.clone
-        result.env = self
-        result
-      else
-        ui_class = @ui_class || UI::Silent
-        ui_class.new(self)
-      end
     end
 
     # Returns the host object associated with this environment.
@@ -255,7 +228,6 @@ module Vagrant
     #
     # @return [DataStore]
     def global_data
-      return parent.global_data if parent
       @global_data ||= DataStore.new(File.expand_path("global_data.json", home_path))
     end
 
@@ -266,7 +238,6 @@ module Vagrant
     #
     # @return [DataStore]
     def local_data
-      return parent.local_data if parent
       @local_data ||= DataStore.new(dotfile_path)
     end
 
@@ -359,12 +330,8 @@ module Vagrant
       if !loaded?
         @loaded = true
 
-        if !parent
-          # We only need to check the virtualbox version once, so do it on
-          # the parent most environment and then forget about it
-          @logger.info("Environment not loaded. Checking virtual box version...")
-          self.class.check_virtualbox!
-        end
+        @logger.info("Environment not loaded. Checking virtual box version...")
+        self.class.check_virtualbox!
 
         @logger.info("Loading configuration...")
         load_config!
