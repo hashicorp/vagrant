@@ -28,9 +28,6 @@ module Vagrant
     # The {UI} object to communicate with the outside world.
     attr_writer :ui
 
-    # The {Config} object representing the Vagrantfile loader
-    attr_reader :config_loader
-
     #---------------------------------------------------------------
     # Class Methods
     #---------------------------------------------------------------
@@ -64,7 +61,8 @@ module Vagrant
         :cwd => nil,
         :vagrantfile_name => nil,
         :lock_path => nil,
-        :ui_class => nil
+        :ui_class => nil,
+        :home_path => nil
       }.merge(opts || {})
 
       # Set the default working directory to look for the vagrantfile
@@ -83,6 +81,7 @@ module Vagrant
       @vagrantfile_name = opts[:vagrantfile_name]
       @lock_path = opts[:lock_path]
       @ui_class  = opts[:ui_class]
+      @home_path = opts[:home_path]
 
       @loaded = false
       @lock_acquired = false
@@ -113,8 +112,14 @@ module Vagrant
       return parent.home_path if parent
       return @_home_path if defined?(@_home_path)
 
-      @_home_path ||= Pathname.new(File.expand_path(ENV["VAGRANT_HOME"] || DEFAULT_HOME))
+      @_home_path ||= Pathname.new(File.expand_path(@home_path ||
+                                                    ENV["VAGRANT_HOME"] ||
+                                                    DEFAULT_HOME))
       @logger.info("Home path: #{@_home_path}")
+
+      # Make sure the home directory is properly setup
+      load_home_directory!
+
       @_home_path
     end
 
@@ -378,7 +383,6 @@ module Vagrant
     # Reloads the configuration of this environment.
     def reload_config!
       @config = nil
-      @config_loader = nil
       load_config!
       self
     end
@@ -388,50 +392,67 @@ module Vagrant
     # this environment, meaning that it will use the given root directory
     # to load the Vagrantfile into that context.
     def load_config!
-      first_run = @config.nil?
+      # Initialize the config loader
+      config_loader = Config::Loader.new
+      config_loader.load_order = [:default, :box, :home, :root, :vm]
 
-      # First load the initial, non config-dependent Vagrantfiles
-      @config_loader ||= Config.new(parent ? parent.config_loader : nil)
-      @config_loader.load_order = [:default, :box, :home, :root, :sub_vm]
-      @config_loader.set(:default, File.expand_path("config/default.rb", Vagrant.source_root))
+      inner_load = lambda do |subvm=nil, box=nil|
+        # Default Vagrantfile first. This is the Vagrantfile that ships
+        # with Vagrant.
+        config_loader.set(:default, File.expand_path("config/default.rb", Vagrant.source_root))
 
-      vagrantfile_name.each do |rootfile|
-        if !first_run && vm && box
-          # We load the box Vagrantfile
-          box_vagrantfile = box.directory.join(rootfile)
-          @config_loader.set(:box, box_vagrantfile) if box_vagrantfile.exist?
+        vagrantfile_name.each do |rootfile|
+          if box
+            # We load the box Vagrantfile
+            box_vagrantfile = box.directory.join(rootfile)
+            config_loader.set(:box, box_vagrantfile) if box_vagrantfile.exist?
+          end
+
+          if home_path
+            # Load the home Vagrantfile
+            home_vagrantfile = home_path.join(rootfile)
+            config_loader.set(:home, home_vagrantfile) if home_vagrantfile.exist?
+          end
+
+          if root_path
+            # Load the Vagrantfile in this directory
+            root_vagrantfile = root_path.join(rootfile)
+            config_loader.set(:root, root_vagrantfile) if root_vagrantfile.exist?
+          end
         end
 
-        if !first_run && home_path
-          # Load the home Vagrantfile
-          home_vagrantfile = home_path.join(rootfile)
-          @config_loader.set(:home, home_vagrantfile) if home_vagrantfile.exist?
+        if subvm
+          # We have subvm configuration, so set that up as well.
+          config_loader.set(:vm, subvm.proc_stack)
         end
 
-        if root_path
-          # Load the Vagrantfile in this directory
-          root_vagrantfile = root_path.join(rootfile)
-          @config_loader.set(:root, root_vagrantfile) if root_vagrantfile.exist?
-        end
+        # Execute the configuration stack and store the result as the final
+        # value in the config ivar.
+        config_loader.load
       end
 
-      # If this environment is representing a sub-VM, then we push that
-      # proc on as the last configuration.
-      if vm
-        subvm = parent.config.vm.defined_vms[vm.name]
-        @config_loader.set(:sub_vm, subvm.proc_stack) if subvm
+      # For the global configuration, we only need to load the configuration
+      # in a single pass, since nothing is conditional on the configuration.
+      global = inner_load.call
+
+      # For each virtual machine represented by this environment, we have
+      # to load the configuration in two-passes. We do this because the
+      # first pass is used to determine the box for the VM. The second pass
+      # is used to also load the box Vagrantfile.
+      vm_configs = global.vm.defined_vm_keys.map do |vm_name|
+        # First pass, first run.
+        config = inner_load[vm_name]
+
+        # Second pass, with the box
+        config = inner_load[global.vm.defined_vms[vm_name], config.vm.box]
+        config.vm.name = vm_name
+
+        # Return the final configuration for this VM
+        config
       end
 
-      # Execute the configuration stack and store the result as the final
-      # value in the config ivar.
-      @config = @config_loader.load(self)
-
-      if first_run
-        # After the first run we want to load the configuration again since
-        # it can change due to box Vagrantfiles and home directory Vagrantfiles
-        load_home_directory!
-        load_config!
-      end
+      # Finally, we have our configuration. Set it and forget it.
+      @config = Config::Container.new(global, vm_configs)
     end
 
     # Loads the home directory path and creates the necessary subdirectories
@@ -445,7 +466,7 @@ module Vagrant
       dirs.each do |dir|
         next if File.directory?(dir)
 
-        ui.info I18n.t("vagrant.general.creating_home_dir", :directory => dir)
+        @logger.info("Creating: #{dir}")
         FileUtils.mkdir_p(dir)
       end
     end

@@ -52,9 +52,12 @@ module Vagrant
           @logger.error("Unknown config sources: #{unknown_sources.inspect}")
         end
 
+        # Create the top-level configuration which will hold all the config.
         top = Top.new
 
         @load_order.each do |key|
+          next if !@sources.has_key?(key)
+
           @sources[key].each do |source|
             @logger.debug("Loading from: #{key}")
 
@@ -73,7 +76,6 @@ module Vagrant
         end
 
         @logger.debug("Configuration loaded successfully")
-
         top
       end
 

@@ -8,6 +8,7 @@ module Vagrant
 
       include Util::StackedProcRunner
 
+      attr_accessor :name
       attr_accessor :auto_port_range
       attr_accessor :box
       attr_accessor :box_url

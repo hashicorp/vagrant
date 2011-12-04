@@ -5,6 +5,11 @@ describe Vagrant::Config::Loader do
 
   let(:instance) { described_class.new }
 
+  it "should ignore non-existent load order keys" do
+    instance.load_order = [:foo]
+    instance.load
+  end
+
   it "should load and return the configuration" do
     proc = Proc.new do |config|
       config.vagrant.dotfile_name = "foo"

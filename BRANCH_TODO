@@ -1,0 +1,10 @@
+This is a TODO file for only this branch (config-overhaul)
+
+* Config validation
+* Separation of global vs VM configuration.
+* Finish Config::Container
+* Have Vagrant::Environment use new global config, put VM-specific
+  config directly into Vagrant::VM objects
+* Only allow one kind of vagrantfile to be loaded (i.e. if both
+  Vagrantfile and vagrantfile exist, throw an error)
+* Nicer error if can't setup home directory
