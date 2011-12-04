@@ -2,7 +2,11 @@ require File.expand_path("../../base", __FILE__)
 
 require "pathname"
 
+require "support/tempdir"
+
 describe Vagrant::Environment do
+  include_context "unit"
+
   describe "current working directory" do
     it "is the cwd by default" do
       described_class.new.cwd.should == Pathname.new(Dir.pwd)
@@ -16,8 +20,9 @@ describe Vagrant::Environment do
 
   describe "home path" do
     it "is set to the home path given" do
-      instance = described_class.new(:home_path => "/tmp/foo")
-      instance.home_path.should == Pathname.new("/tmp/foo")
+      dir = Tempdir.new.path
+      instance = described_class.new(:home_path => dir)
+      instance.home_path.should == Pathname.new(dir)
     end
 
     it "is set to the environmental variable VAGRANT_HOME" do
@@ -31,19 +36,53 @@ describe Vagrant::Environment do
   end
 
   describe "loading configuration" do
-    let(:home_path) { Pathname.new("/tmp/foo") }
+    let(:home_path) { Pathname.new(Tempdir.new.path) }
     let(:instance)  { described_class.new(:home_path => home_path) }
 
     it "should load global configuration" do
-      File.open(home_path.join("Vagrantfile"), "w+") do |f|
-        f.write(<<-VF)
+      environment = isolated_environment do |env|
+        env.vagrantfile(<<-VF)
 Vagrant::Config.run do |config|
   config.vagrant.dotfile_name = "foo"
 end
 VF
       end
 
-      instance.config.global.vagrant.dotfile_name.should == "foo"
+      env = environment.create_vagrant_env
+      env.config.global.vagrant.dotfile_name.should == "foo"
+    end
+
+    it "should load VM configuration" do
+      environment = isolated_environment do |env|
+        env.vagrantfile(<<-VF)
+Vagrant::Config.run do |config|
+  config.vagrant.dotfile_name = "foo"
+end
+VF
+      end
+
+      env = environment.create_vagrant_env
+      env.config.for_vm("default").vm.name.should == "default"
+    end
+
+    it "should load VM configuration with multiple VMs" do
+      environment = isolated_environment do |env|
+        env.vagrantfile(<<-VF)
+Vagrant::Config.run do |config|
+  config.vm.define :foo do |vm|
+    vm.ssh.port = 100
+  end
+
+  config.vm.define :bar do |vm|
+    vm.ssh.port = 200
+  end
+end
+VF
+      end
+
+      env = environment.create_vagrant_env
+      env.config.for_vm("foo").ssh.port.should == 100
+      env.config.for_vm("bar").ssh.port.should == 200
     end
   end
 

@@ -4,8 +4,8 @@ require "pathname"
 require "log4r"
 require "childprocess"
 
-require File.expand_path("../tempdir", __FILE__)
-require File.expand_path("../virtualbox", __FILE__)
+require "support/tempdir"
+require "support/virtualbox"
 
 module Acceptance
   # This class manages an isolated environment for Vagrant to

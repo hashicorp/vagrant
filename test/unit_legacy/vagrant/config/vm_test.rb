@@ -24,15 +24,6 @@ class ConfigVMTest < Test::Unit::TestCase
       assert @config.defined_vms[:name].options[:set]
     end
 
-    should "not have multi-VMs by default" do
-      assert !@config.has_multi_vms?
-    end
-
-    should "have multi-VMs once one is specified" do
-      @config.define(:foo) {}
-      assert @config.has_multi_vms?
-    end
-
     should "retain vm definition order" do
       @config.define(:a) {}
       @config.define(:b) {}

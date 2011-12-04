@@ -8,6 +8,7 @@ require "vagrant"
 # Add this directory to the load path, since it just makes
 # everything else easier.
 $:.unshift File.expand_path("../", __FILE__)
+$:.unshift File.expand_path("../../", __FILE__)
 
 # Load in helpers
 require "support/shared/base_context"

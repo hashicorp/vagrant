@@ -6,6 +6,7 @@ require "log4r"
 # Add this directory to the load path, since it just makes
 # everything else so much easier.
 $:.unshift File.expand_path("../", __FILE__)
+$:.unshift File.expand_path("../../", __FILE__)
 
 # Load in the supporting files for our tests
 require "support/shared/base_context"

@@ -38,6 +38,10 @@ module Vagrant
 
         # Make all sources an array.
         data = [data] if !data.kind_of?(Array)
+
+        # Clear the cache for this key only if the data is different
+        @proc_cache.delete(name) if @sources[name] && @sources[name] != data
+
         @sources[name] = data
       end
 

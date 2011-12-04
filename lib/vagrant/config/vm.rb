@@ -71,10 +71,6 @@ module Vagrant
         push_proc(&block)
       end
 
-      def has_multi_vms?
-        !defined_vms.empty?
-      end
-
       def defined_vms
         @defined_vms ||= {}
       end

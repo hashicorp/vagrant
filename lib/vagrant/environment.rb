@@ -9,7 +9,7 @@ module Vagrant
   # access to the VMs, CLI, etc. all in the scope of this environment.
   class Environment
     HOME_SUBDIRS = ["tmp", "boxes", "logs"]
-    DEFAULT_VM = :default
+    DEFAULT_VM = "default"
     DEFAULT_HOME = "~/.vagrant.d"
 
     # Parent environment (in the case of multi-VMs)
@@ -439,13 +439,27 @@ module Vagrant
       # to load the configuration in two-passes. We do this because the
       # first pass is used to determine the box for the VM. The second pass
       # is used to also load the box Vagrantfile.
-      vm_configs = global.vm.defined_vm_keys.map do |vm_name|
+      defined_vm_keys = global.vm.defined_vm_keys.dup
+      defined_vms     = global.vm.defined_vms.dup
+
+      # If this isn't a multi-VM environment, then setup the default VM
+      # to simply be our configuration.
+      if defined_vm_keys.empty?
+        defined_vm_keys << DEFAULT_VM
+        defined_vms[DEFAULT_VM] = Config::VMConfig::SubVM.new
+      end
+
+      vm_configs = defined_vm_keys.map do |vm_name|
+        @logger.debug("Loading configuration for VM: #{vm_name}")
+
+        subvm = defined_vms[vm_name]
+
         # First pass, first run.
-        config = inner_load[vm_name]
+        config = inner_load[subvm]
 
         # Second pass, with the box
-        config = inner_load[global.vm.defined_vms[vm_name], config.vm.box]
-        config.vm.name = vm_name
+        config = inner_load[subvm, config.vm.box]
+        config.vm.name = vm_name.to_s
 
         # Return the final configuration for this VM
         config
