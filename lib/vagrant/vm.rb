@@ -7,42 +7,18 @@ module Vagrant
     attr_reader :env
     attr_reader :name
     attr_reader :vm
+    attr_reader :config
 
-    class << self
-      # Finds a virtual machine by a given UUID and either returns
-      # a Vagrant::VM object or returns nil.
-      def find(uuid, env=nil, name=nil)
-        vm = VirtualBox::VM.find(uuid)
-        new(:vm => vm, :env => env, :name => name)
-      end
-    end
-
-    def initialize(opts=nil)
-      defaults = {
-        :vm => nil,
-        :env => nil,
-        :name => nil
-      }
-
-      opts = defaults.merge(opts || {})
-
-      @vm = opts[:vm]
-      @name = opts[:name]
+    def initialize(name, env, config, vm=nil)
       @logger = Log4r::Logger.new("vagrant::vm")
 
-      if !opts[:env].nil?
-        # We have an environment, so we create a new child environment
-        # specifically for this VM. This step will load any custom
-        # config and such.
-        @env = Vagrant::Environment.new({
-          :cwd => opts[:env].cwd,
-          :parent => opts[:env],
-          :vm => self
-        }).load!
+      @name   = name
+      @vm     = vm
+      @env    = env
+      @config = config
 
-        # Load the associated system.
-        load_system!
-      end
+      # Load the associated system.
+      load_system!
 
       @loaded_system_distro = false
     end
@@ -53,7 +29,7 @@ module Vagrant
     #
     # **This method should never be called manually.**
     def load_system!(system=nil)
-      system ||= env.config.vm.system
+      system ||= config.vm.system
       @logger.info("Loading system: #{system}")
 
       if system.is_a?(Class)

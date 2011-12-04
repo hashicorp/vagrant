@@ -484,15 +484,16 @@ module Vagrant
 
       # Load the VM UUIDs from the local data store
       (local_data[:active] || {}).each do |name, uuid|
-        result[name.to_sym] = Vagrant::VM.find(uuid, self, name.to_sym)
+        vm = VirtualBox::VM.find(uuid)
+        result[name.to_sym] = Vagrant::VM.new(name.to_sym,
+                                              self,
+                                              config.for_vm(name.to_s),
+                                              vm)
       end
 
-      # For any VMs which aren't created, create a blank VM instance for
-      # them
-      all_keys = config.vm.defined_vm_keys
-      all_keys = [DEFAULT_VM] if all_keys.empty?
-      all_keys.each do |name|
-        result[name] = Vagrant::VM.new(:name => name, :env => self) if !result.has_key?(name)
+      # For any VMs which aren't created, create a blank VM instance for them.
+      config.vms.each do |name|
+        result[name] = Vagrant::VM.new(name, self, config.for_vm(name)) if !result.has_key?(name)
       end
 
       result

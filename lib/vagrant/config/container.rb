@@ -8,6 +8,7 @@ module Vagrant
     # be immutable.
     class Container
       attr_reader :global
+      attr_reader :vms
 
       # Initializes the configuration container.
       #
@@ -16,10 +17,12 @@ module Vagrant
       # @param [Array] vms Array of VM configurations.
       def initialize(global, vms)
         @global = global
-        @vms    = {}
+        @vms    = []
+        @vm_configs = {}
 
         vms.each do |vm_config|
-          @vms[vm_config.vm.name] = vm_config
+          @vms << vm_config.vm.name
+          @vm_configs[vm_config.vm.name] = vm_config
         end
       end
 
@@ -27,7 +30,7 @@ module Vagrant
       # The values for this configuration are usually pertinent to a
       # single virtual machine and do not affect the system globally.
       def for_vm(name)
-        @vms[name]
+        @vm_configs[name]
       end
     end
   end
