@@ -1,5 +1,5 @@
 module Vagrant
-  class Config
+  module Config
     # This class is the "top" configure class, which handles registering
     # other configuration classes as well as validation of all configured
     # classes. This is the object which is returned by {Environment#config}

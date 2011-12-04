@@ -1,5 +1,5 @@
 module Vagrant
-  class Config
+  module Config
     # The base class for all configuration classes. This implements
     # basic things such as the environment instance variable which all
     # config classes need as well as a basic `to_json` implementation.
