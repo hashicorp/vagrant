@@ -7,25 +7,23 @@ require 'vagrant/cli'
 logger = Log4r::Logger.new("vagrant::bin::vagrant")
 logger.info("`vagrant` invoked: #{ARGV.inspect}")
 
+# These will be the options that are passed to initialze the Vagrant
+# environment.
+opts = {}
+
+# Disable color if the proper argument was passed
+if !$stdout.tty? || ARGV.include?("--no-color")
+  opts[:ui_class] = Vagrant::UI::Basic
+else
+  opts[:ui_class] = Vagrant::UI::Colored
+end
+
 # Create the environment, which is the cwd of wherever the
 # `vagrant` command was invoked from
 logger.debug("Creating Vagrant environment")
-env = Vagrant::Environment.new
+env = Vagrant::Environment.new(opts)
 
 begin
-  # Disable color if the proper argument was passed
-  ui = nil
-  if !$stdout.tty? || ARGV.include?("--no-color")
-    ui = Vagrant::UI::Basic.new(env)
-  else
-    ui = Vagrant::UI::Colored.new(env)
-  end
-
-  # Set the UI early in case any errors are raised, and load
-  # the config immediately, so we gather any new commands from
-  # plugins
-  env.ui = ui
-
   # Load the environment
   logger.debug("Loading environment")
   env.load!

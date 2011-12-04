@@ -63,7 +63,8 @@ module Vagrant
         :vm => nil,
         :cwd => nil,
         :vagrantfile_name => nil,
-        :lock_path => nil
+        :lock_path => nil,
+        :ui_class => nil
       }.merge(opts || {})
 
       # Set the default working directory to look for the vagrantfile
@@ -75,9 +76,13 @@ module Vagrant
       opts[:vagrantfile_name] ||= ["Vagrantfile", "vagrantfile"]
       opts[:vagrantfile_name] = [opts[:vagrantfile_name]] if !opts[:vagrantfile_name].is_a?(Array)
 
-      opts.each do |key, value|
-        instance_variable_set("@#{key}".to_sym, opts[key])
-      end
+      # Set instance variables for all the configuration parameters.
+      @parent = opts[:parent]
+      @vm     = opts[:vm]
+      @cwd    = opts[:cwd]
+      @vagrantfile_name = opts[:vagrantfile_name]
+      @lock_path = opts[:lock_path]
+      @ui_class  = opts[:ui_class]
 
       @loaded = false
       @lock_acquired = false
@@ -245,7 +250,8 @@ module Vagrant
         result.env = self
         result
       else
-        UI::Silent.new(self)
+        ui_class = @ui_class || UI::Silent
+        ui_class.new(self)
       end
     end
 
