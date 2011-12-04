@@ -1,17 +1,19 @@
 require 'vagrant/config/base'
 require 'vagrant/config/loader'
-# require 'vagrant/config/error_recorder'
+require 'vagrant/config/error_recorder'
 require 'vagrant/config/top'
 
 # # The built-in configuration classes
-# require 'vagrant/config/vagrant'
-# require 'vagrant/config/ssh'
-# require 'vagrant/config/nfs'
-# require 'vagrant/config/vm'
-# require 'vagrant/config/package'
+require 'vagrant/config/vagrant'
+require 'vagrant/config/ssh'
+require 'vagrant/config/nfs'
+require 'vagrant/config/vm'
+require 'vagrant/config/package'
 
 module Vagrant
   module Config
+    autoload :Container, 'vagrant/config/container'
+
     CONFIGURE_MUTEX = Mutex.new
 
     # This is the method which is called by all Vagrantfiles to configure Vagrant.

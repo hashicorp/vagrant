@@ -1,5 +1,5 @@
 module Vagrant
-  class Config
+  module Config
     class VagrantConfig < Base
       configures :vagrant
 

@@ -1,5 +1,5 @@
 module Vagrant
-  class Config
+  module Config
     class VMConfig < Base
       # Represents a single sub-VM in a multi-VM environment.
       class SubVM

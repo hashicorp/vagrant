@@ -1,5 +1,5 @@
 module Vagrant
-  class Config
+  module Config
     class VMConfig < Base
       # Represents a single configured provisioner for a VM.
       class Provisioner

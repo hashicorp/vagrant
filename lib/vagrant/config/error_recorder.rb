@@ -1,5 +1,5 @@
 module Vagrant
-  class Config
+  module Config
     # A class which is passed into the various {Base#validate} methods and
     # can be used as a helper to add error messages about a single config
     # class.

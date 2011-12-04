@@ -2,7 +2,7 @@ require 'vagrant/config/vm/sub_vm'
 require 'vagrant/config/vm/provisioner'
 
 module Vagrant
-  class Config
+  module Config
     class VMConfig < Base
       configures :vm
 

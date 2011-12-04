@@ -43,19 +43,28 @@ module Vagrant
       # This loads the configured sources in the configured order and returns
       # an actual configuration object that is ready to be used.
       def load
+        @logger.debug("Loading configuration in order: #{@load_order.inspect}")
+
         unknown_sources = @sources.keys - @load_order
         if !unknown_sources.empty?
           # TODO: Raise exception here perhaps.
           @logger.error("Unknown config sources: #{unknown_sources.inspect}")
         end
 
+        top = Top.new
+
         @load_order.each do |key|
           @sources[key].each do |source|
+            @logger.debug("Loading from: #{key}")
             procs_for_source(source).each do |proc|
-              # TODO: Call the proc with a configuration object.
+              proc.call(top)
             end
           end
         end
+
+        @logger.debug("Configuration loaded successfully")
+
+        top
       end
 
       protected
@@ -65,7 +74,7 @@ module Vagrant
       # the configuration object and are expected to mutate this
       # configuration object.
       def procs_for_source(source)
-        return source if source.is_a?(Proc)
+        return [source] if source.is_a?(Proc)
 
         # Assume all string sources are actually pathnames
         source = Pathname.new(source) if source.is_a?(String)

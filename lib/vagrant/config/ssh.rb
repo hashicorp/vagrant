@@ -1,5 +1,5 @@
 module Vagrant
-  class Config
+  module Config
     class SSHConfig < Base
       configures :ssh
 

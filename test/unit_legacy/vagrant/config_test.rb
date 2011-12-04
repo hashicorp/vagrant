@@ -5,20 +5,6 @@ class ConfigTest < Test::Unit::TestCase
     @klass = Vagrant::Config
   end
 
-  context "with the class" do
-    should "allow access to the last proc" do
-      foo = mock("object")
-      foo.expects(:call).once
-
-      @klass.run { |config| foo.call }
-      value = @klass.last_proc.first
-      assert value.is_a?(Proc)
-      value.call(nil)
-
-      assert @klass.last_proc.nil?
-    end
-  end
-
   context "with an instance" do
     setup do
       @instance = @klass.new
