@@ -16,12 +16,13 @@ module Vagrant
     extend Forwardable
     def_delegators :@boxes, :length, :each
 
-    # The environment this box collection belongs to
-    attr_reader :env
+    # The directory that the boxes are being searched for.
+    attr_reader :directory
 
-    def initialize(env)
-      @env = env
-      @boxes = []
+    # Initializes the class to search for boxes in the given directory.
+    def initialize(directory)
+      @directory = directory
+      @boxes     = []
 
       reload!
     end
@@ -41,9 +42,10 @@ module Vagrant
     def reload!
       @boxes.clear
 
-      Dir.open(env.boxes_path) do |dir|
+      Dir.open(@directory) do |dir|
         dir.each do |d|
-          next if d == "." || d == ".." || !File.directory?(env.boxes_path.join(d))
+          next if d == "." || d == ".." || !@directory.join(d).directory?
+          # TODO: env????
           @boxes << Box.new(env, d)
         end
       end

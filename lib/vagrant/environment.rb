@@ -80,7 +80,6 @@ module Vagrant
       @logger = Log4r::Logger.new("vagrant::environment")
       @logger.info("Environment initialized (#{self})")
       @logger.info("  - cwd: #{cwd}")
-      @logger.info("  - vm: #{vm}")
     end
 
     #---------------------------------------------------------------
@@ -147,7 +146,7 @@ module Vagrant
     #
     # @return [BoxCollection]
     def boxes
-      @_boxes ||= BoxCollection.new(self)
+      @_boxes ||= BoxCollection.new(boxes_path)
     end
 
     # Returns the VMs associated with this environment.
@@ -299,7 +298,7 @@ module Vagrant
     # will trigger the environment to load if it hasn't loaded yet (see
     # {#load!}).
     #
-    # @return [Config::Top]
+    # @return [Config::Container]
     def config
       load! if !loaded?
       @config

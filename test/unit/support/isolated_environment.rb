@@ -50,15 +50,15 @@ module Unit
       end
     end
 
-    def box(name, vagrantfile_contents)
+    def box(name, vagrantfile_contents="")
       box_dir = boxes_dir.join(name)
-      box_dir.mkdir
+      box_dir.mkpath
       vagrantfile(vagrantfile_contents, box_dir)
     end
 
     def boxes_dir
       dir = @homedir.join("boxes")
-      dir.mkdir
+      dir.mkpath
       dir
     end
   end

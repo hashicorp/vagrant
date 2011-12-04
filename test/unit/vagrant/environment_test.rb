@@ -7,6 +7,9 @@ require "support/tempdir"
 describe Vagrant::Environment do
   include_context "unit"
 
+  let(:home_path) { Pathname.new(Tempdir.new.path) }
+  let(:instance)  { described_class.new(:home_path => home_path) }
+
   describe "current working directory" do
     it "is the cwd by default" do
       described_class.new.cwd.should == Pathname.new(Dir.pwd)
@@ -35,10 +38,13 @@ describe Vagrant::Environment do
     end
   end
 
-  describe "loading configuration" do
-    let(:home_path) { Pathname.new(Tempdir.new.path) }
-    let(:instance)  { described_class.new(:home_path => home_path) }
+  it "has a box collection pointed to the proper directory" do
+    collection = instance.boxes
+    collection.should be_kind_of(Vagrant::BoxCollection)
+    collection.directory.should == instance.boxes_path
+  end
 
+  describe "loading configuration" do
     it "should load global configuration" do
       environment = isolated_environment do |env|
         env.vagrantfile(<<-VF)
