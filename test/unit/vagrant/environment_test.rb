@@ -62,7 +62,7 @@ VF
       end
 
       env = environment.create_vagrant_env
-      env.config.for_vm("default").vm.name.should == "default"
+      env.config.for_vm(:default).vm.name.should == :default
     end
 
     it "should load VM configuration with multiple VMs" do
@@ -81,8 +81,8 @@ VF
       end
 
       env = environment.create_vagrant_env
-      env.config.for_vm("foo").ssh.port.should == 100
-      env.config.for_vm("bar").ssh.port.should == 200
+      env.config.for_vm(:foo).ssh.port.should == 100
+      env.config.for_vm(:bar).ssh.port.should == 200
     end
 
     it "should load box configuration" do
@@ -101,7 +101,7 @@ VF
       end
 
       env = environment.create_vagrant_env
-      env.config.for_vm("default").ssh.port.should == 100
+      env.config.for_vm(:default).ssh.port.should == 100
     end
   end
 

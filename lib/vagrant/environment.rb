@@ -9,7 +9,7 @@ module Vagrant
   # access to the VMs, CLI, etc. all in the scope of this environment.
   class Environment
     HOME_SUBDIRS = ["tmp", "boxes", "logs"]
-    DEFAULT_VM = "default"
+    DEFAULT_VM = :default
     DEFAULT_HOME = "~/.vagrant.d"
 
     # Parent environment (in the case of multi-VMs)
@@ -452,7 +452,7 @@ module Vagrant
 
         # Second pass, with the box
         config = inner_load[subvm, boxes.find(config.vm.box)]
-        config.vm.name = vm_name.to_s
+        config.vm.name = vm_name
 
         # Return the final configuration for this VM
         config
@@ -487,7 +487,7 @@ module Vagrant
         vm = VirtualBox::VM.find(uuid)
         result[name.to_sym] = Vagrant::VM.new(name.to_sym,
                                               self,
-                                              config.for_vm(name.to_s),
+                                              config.for_vm(name.to_sym),
                                               vm)
       end
 
