@@ -18,7 +18,7 @@ describe Vagrant::Action::Step do
       input :foo
     end
 
-    expect { step_class.new.call({}) }.to raise_error(ArgumentError)
+    expect { step_class.new.call }.to raise_error(ArgumentError)
   end
 
   it "calls a custom method if given" do
@@ -31,27 +31,39 @@ describe Vagrant::Action::Step do
     step_class.new.call({}, :method => :prepare).should == { :foo => 12 }
   end
 
-  it "raises an exception if missing outputs" do
-    step_class = Class.new(described_class) do
-      output :foo
-
-      def execute
-        return :bar => 12
+  describe "outputs" do
+    it "return an empty hash if no outputs are specified" do
+      step_class = Class.new(described_class) do
+        def execute
+          return 12
+        end
       end
+
+      step_class.new.call.should == {}
     end
 
-    expect { step_class.new.call({}) }.to raise_error(RuntimeError)
-  end
+    it "raises an exception if missing outputs" do
+      step_class = Class.new(described_class) do
+        output :foo
 
-  it "does nothing if missing outputs but we disabled validating" do
-    step_class = Class.new(described_class) do
-      output :foo
-
-      def execute
-        return :bar => 12
+        def execute
+          return :bar => 12
+        end
       end
+
+      expect { step_class.new.call }.to raise_error(RuntimeError)
     end
 
-    step_class.new.call({}, :validate_output => false).should == { :bar => 12 }
+    it "does nothing if missing outputs but we disabled validating" do
+      step_class = Class.new(described_class) do
+        output :foo
+
+        def execute
+          return :bar => 12
+        end
+      end
+
+      step_class.new.call({}, :validate_output => false).should == { :bar => 12 }
+    end
   end
 end

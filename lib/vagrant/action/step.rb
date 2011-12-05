@@ -33,9 +33,15 @@ module Vagrant
 
       # Validates that the output matches the specification provided, and
       # raises a RuntimeError if it does not.
-      def self.validate_output(value)
+      def self.process_output(value)
+        # The return value must be a Hash, so we just coerce it to that.
+        value = {} if !value.kind_of?(Hash)
+
+        # Verify that we have all the outputs
         missing = outputs - value.keys
         raise RuntimeError, "Missing output keys: #{missing}" if !missing.empty?
+
+        return value
       end
 
       # This calls the step with the given parameters, and returns a hash
@@ -49,7 +55,7 @@ module Vagrant
       # @option options [Boolean] :validate_output Whether to validate the
       #   output or not.
       # @return [Hash] Output
-      def call(params, options=nil)
+      def call(params={}, options=nil)
         options = {
           :method => :execute,
           :validate_output => true
@@ -61,8 +67,9 @@ module Vagrant
         # Call the actual implementation
         results = send(options[:method])
 
-        # Validate the outputs
-        self.class.validate_output(results) if options[:validate_output]
+        # Validate the outputs if it is enabled and the list of configured
+        # outputs is not empty.
+        results = self.class.process_output(results) if options[:validate_output]
 
         # Return the final results
         results

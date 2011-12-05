@@ -56,6 +56,7 @@ module Vagrant
   #
   class Action
     autoload :Environment, 'vagrant/action/environment'
+    autoload :MultiStep,   'vagrant/action/multistep'
     autoload :Step,        'vagrant/action/step'
     autoload :Warden,      'vagrant/action/warden'
 
