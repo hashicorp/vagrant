@@ -87,7 +87,13 @@ module Vagrant
       end
 
       # Yield our session for executing
-      return yield session if block_given?
+      
+      if block_given?
+        until session.exec!("echo hello") == "hello\n"
+          sleep 1
+        end
+        return yield session
+      end    
     rescue Errno::ECONNREFUSED
       raise Errors::SSHConnectionRefused
     end
