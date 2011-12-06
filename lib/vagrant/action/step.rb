@@ -3,13 +3,23 @@ module Vagrant
     # A step is a callable action that Vagrant uses to build up
     # more complex actions sequences.
     #
-    # A step is really just a reimplementation of a "function"
-    # within the runtime of Ruby. A step advertises parameters
-    # that it requires (inputs), as well as return values (outputs).
-    # The `Step` class handles validating that all the required
-    # parameters are set on the step as well as can validate the
-    # return values.
+    # A step must specify the inputs it requires and the outputs
+    # it will return, and can implement two methods: `enter` and
+    # `exit` (both are optional, but a step is useless without
+    # at least one).
+    #
+    # The inputs are guaranteed to be ready only by the time
+    # `enter` is called and are available as instance variables.
+    # `enter` is called first.
+    #
+    # `exit` is called at some point after `enter` (the exact time
+    # is not guarateed) and is given one parameter: `error` which
+    # is non-nil if an exception was raised at some point during
+    # or after `enter` was called. The return value of `exit` does
+    # nothing.
     class Step
+      class UnsatisfiedRequirementsError < RuntimeError; end
+
       # The keys given to this will be required by the step. Each key
       # should be a symbol.
       def self.input(*keys)
@@ -55,24 +65,51 @@ module Vagrant
       # @option options [Boolean] :validate_output Whether to validate the
       #   output or not.
       # @return [Hash] Output
-      def call(params={}, options=nil)
-        options = {
-          :method => :execute,
-          :validate_output => true
-        }.merge(options || {})
-
-        # Set and validate the inputs
-        set_inputs(params)
-
+      def call(params={})
         # Call the actual implementation
-        results = send(options[:method])
+        results = nil
+        begin
+          results = call_enter(params)
+        rescue UnsatisfiedRequirementsError
+          # This doesn't get an `exit` call called since enter
+          # was never even called in this case.
+          raise
+        rescue Exception => e
+          call_exit(e)
+          raise
+        end
 
-        # Validate the outputs if it is enabled and the list of configured
-        # outputs is not empty.
-        results = self.class.process_output(results) if options[:validate_output]
+        # No exception occurred if we reach this point. Call exit.
+        call_exit(nil)
 
         # Return the final results
         results
+      end
+
+      # This method will only call the `enter` method for the step.
+      #
+      # The parameters given here will be validated as the inputs for
+      # the step and used to call `enter`. The results of `enter` will
+      # be validated as the outputs and returned.
+      #
+      # @param [Hash] inputs
+      # @return [Hash]
+      def call_enter(inputs={})
+        # Set and validate the inputs
+        set_inputs(inputs)
+
+        # Call the actual enter call
+        results = nil
+        results = send(:enter) if respond_to?(:enter)
+
+        # Validate the outputs if it is enabled and the list of configured
+        # outputs is not empty.
+        self.class.process_output(results)
+      end
+
+      # This method will call `exit` with the given error.
+      def call_exit(error)
+        send(:exit, error) if respond_to?(:exit)
       end
 
       protected
@@ -85,7 +122,7 @@ module Vagrant
       def set_inputs(params)
         inputs = self.class.inputs
         remaining = inputs - params.keys
-        raise ArgumentError, "Missing parameters: #{remaining}" if !remaining.empty?
+        raise UnsatisfiedRequirementsError, "Missing parameters: #{remaining}" if !remaining.empty?
 
         inputs.each do |key|
           instance_variable_set("@#{key}", params[key])
