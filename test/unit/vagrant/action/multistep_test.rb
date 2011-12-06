@@ -6,7 +6,7 @@ describe Vagrant::Action::MultiStep do
       input  :obj
       output :obj
 
-      def execute
+      def enter
         @obj << "A"
         return :obj => @obj
       end
@@ -16,7 +16,7 @@ describe Vagrant::Action::MultiStep do
       input  :obj
       output :result
 
-      def execute
+      def enter
         return :result => (@obj << "B")
       end
     end
@@ -31,7 +31,7 @@ describe Vagrant::Action::MultiStep do
 
   it "should allow for custom inputs to pass to specific steps" do
     step_A = Class.new(Vagrant::Action::Step) do
-      def execute
+      def enter
         # Do nothing.
       end
     end
@@ -39,7 +39,7 @@ describe Vagrant::Action::MultiStep do
     step_B = Class.new(Vagrant::Action::Step) do
       input :obj
 
-      def execute
+      def enter
         @obj << "B"
       end
     end
@@ -58,7 +58,7 @@ describe Vagrant::Action::MultiStep do
     step_A = Class.new(Vagrant::Action::Step) do
       output :foo
 
-      def execute
+      def enter
         return :foo => "A"
       end
     end
@@ -67,7 +67,7 @@ describe Vagrant::Action::MultiStep do
       input  :from
       output :value
 
-      def execute
+      def enter
         return :value => @from
       end
     end
