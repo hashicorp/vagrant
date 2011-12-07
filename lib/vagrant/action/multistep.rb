@@ -121,8 +121,9 @@ module Vagrant
 
         # For each step, call it with proper inputs, using the output
         # of that call as inputs to the next.
-        step_outputs = {}
-        steps.inject(params) do |inputs, data|
+        entered_steps = []
+        step_outputs  = {}
+        result = steps.inject(params) do |inputs, data|
           name, step, mappings = data
 
           # If we have inputs to remap, remap them.
@@ -139,11 +140,26 @@ module Vagrant
 
           # Call the actual step, using the results for the next
           # iteration.
-          step_outputs[name] = step.call(inputs)
+          entered_steps << step
+          begin
+            step_outputs[name] = step.call_enter(inputs)
+          rescue Exception => e
+            entered_steps.reverse.each do |s|
+              s.call_exit(e)
+            end
+
+            raise
+          end
 
           # Return a shallow dup of the results
           step_outputs[name].dup
         end
+
+        entered_steps.reverse.each do |s|
+          s.call_exit(nil)
+        end
+
+        result
       end
 
       protected

@@ -173,4 +173,61 @@ describe Vagrant::Action::MultiStep do
     g = described_class.new
     expect { g.step step_A, g.input(:foo) => :input_B }.to raise_error(ArgumentError)
   end
+
+  it "should call the enter methods in order, and the exit in reverse order" do
+    step = Class.new(Vagrant::Action::Step) do
+      input  :key
+      input  :data
+      output :data
+
+      def enter
+        @data << @key
+        return :data => @data
+      end
+
+      def exit(error)
+        @data << @key
+      end
+    end
+
+    g = described_class.new
+    g.step step
+    g.step :two, step, g.input(:key2) => :key
+    g.step :three, step, g.input(:key3) => :key
+    result = g.call(:data => [], :key => "1", :key2 => "2", :key3 => "3")
+    result[:data].should == %W[1 2 3 3 2 1]
+  end
+
+  it "should halt the steps and call exit with the error if an error occurs" do
+    step = Class.new(Vagrant::Action::Step) do
+      input  :key
+      input  :data
+      output :data
+
+      def enter
+        @data << @key
+        raise Exception, "E" if @data.last == "2"
+        return :data => @data
+      end
+
+      def exit(error)
+        prefix = error ? error.message : ""
+        @data << "#{prefix}#{@key}"
+      end
+    end
+
+    g = described_class.new
+    g.step step
+    g.step :two, step, g.input(:key2) => :key
+    g.step :three, step, g.input(:key3) => :key
+
+    # Run the actual steps
+    data = []
+    expect do
+      result = g.call(:data => data, :key => "1", :key2 => "2", :key3 => "3")
+    end.to raise_error(Exception)
+
+    # Verify the result hit the methods in the proper order
+    data.should == %W[1 2 E2 E1]
+  end
 end
