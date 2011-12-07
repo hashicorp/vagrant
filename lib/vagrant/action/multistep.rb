@@ -67,6 +67,8 @@ module Vagrant
         maps = {}
         maps = extra_inputs.pop if extra_inputs.last.kind_of?(Hash)
 
+        # Go over each extra input and handle the mapping. This is typically
+        # syntactic sugar.
         extra_inputs.each do |direct|
           if direct.is_a?(Symbol)
             # Symbols are assumed to be inputs to this group
@@ -74,6 +76,21 @@ module Vagrant
           end
 
           maps[direct] = direct.variable
+        end
+
+        # Turn the pure symbols into mapping from last steps
+        maps.keys.each do |from|
+          if from.kind_of?(Symbol)
+            new_from = output(@step_names.last, from)
+            maps[new_from] = maps.delete(from)
+          end
+        end
+
+        # Verify that all the mappings are correctly satisfied.
+        maps.each do |from, to|
+          if !mapping_satisfied?(step_class, from, to)
+            raise ArgumentError, "Mapping from #{from.variable} to #{to} fails."
+          end
         end
 
         # Append the step
@@ -119,6 +136,24 @@ module Vagrant
           # Return a shallow dup of the results
           step_outputs[name].dup
         end
+      end
+
+      protected
+
+      def mapping_satisfied?(step, from, to)
+        # If the step inputs don't contain to then we fail
+        return false if !step.inputs.include?(to)
+
+        if from.kind_of?(GroupInput)
+          # We assume that inputs from the group are satisfied since
+          # it has to come in.
+          return true
+        elsif from.kind_of?(StepOutput)
+          # Verify that the outputs of the step exist to map.
+          return @steps[from.name][0].outputs.include?(from.variable)
+        end
+
+        true
       end
     end
   end

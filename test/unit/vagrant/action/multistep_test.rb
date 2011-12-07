@@ -136,4 +136,27 @@ describe Vagrant::Action::MultiStep do
     g = described_class.new
     expect { g.step :foo }.to raise_error(ArgumentError)
   end
+
+  it "should not allow remapping from outputs that don't exist" do
+    step_A = Class.new(Vagrant::Action::Step) do
+      output :output_A
+    end
+
+    step_B = Class.new(Vagrant::Action::Step) do
+      input :input_B
+    end
+
+    g = described_class.new
+    g.step step_A
+    expect { g.step step_B, :output_B => :input_B }.to raise_error(ArgumentError)
+  end
+
+  it "should not allow remapping to inputs that don't exist" do
+    step_A = Class.new(Vagrant::Action::Step) do
+      input :input_A
+    end
+
+    g = described_class.new
+    expect { g.step step_A, g.input(:foo) => :input_B }.to raise_error(ArgumentError)
+  end
 end
