@@ -78,10 +78,22 @@ module Vagrant
           maps[direct] = direct.variable
         end
 
+        # Take the missing inputs and map them together. For example
+        # the input of ':a' maps directly to the previous output of ':a'
+        (step_class.inputs - maps.values).each do |input|
+          maps[input] = input
+        end
+
         # Turn the pure symbols into mapping from last steps
         maps.keys.each do |from|
           if from.kind_of?(Symbol)
-            new_from = output(@step_names.last, from)
+            new_from = nil
+            if @step_names.last.nil?
+              new_from = input(from)
+            else
+              new_from = output(@step_names.last, from)
+            end
+
             maps[new_from] = maps.delete(from)
           end
         end
@@ -122,10 +134,6 @@ module Vagrant
             elsif from.kind_of?(StepOutput)
               # Step outputs get their data from a previous step's output.
               inputs[to] = step_outputs[from.name][from.variable]
-            else
-              # A basic remapping remaps the previous steps outputs to an
-              # input for this step.
-              inputs[to] = inputs.delete(from)
             end
           end
 
