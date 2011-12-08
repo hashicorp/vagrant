@@ -6,6 +6,7 @@
     logging is silent.
   - Linux uses `shutdown -h` instead of `halt` to hopefully more consistently
     power off the system. [GH-575]
+  - Tweaks to SSH to hopefully be more reliable in coming up.
 
 ## 0.8.8 (December 1, 2011)
 
