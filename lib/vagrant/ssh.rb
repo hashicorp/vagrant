@@ -76,6 +76,7 @@ module Vagrant
 
       # Connect to SSH and gather the session
       session = retryable(:tries => env.config.ssh.max_tries, :on => exceptions) do
+        sleep 4 # this or issue #391, #455, etc.
         connection = Net::SSH.start(env.config.ssh.host,
                                     env.config.ssh.username,
                                     opts.merge( :keys => [env.config.ssh.private_key_path],
@@ -83,7 +84,8 @@ module Vagrant
                                                 :user_known_hosts_file => [],
                                                 :paranoid => false,
                                                 :config => false))
-        SSH::Session.new(connection, env)
+         sleep 4 # this or issue #391, #455, etc.
+       SSH::Session.new(connection, env)
       end
 
       # Yield our session for executing
