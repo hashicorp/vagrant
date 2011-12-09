@@ -216,7 +216,13 @@ module Vagrant
     #
     # @return [Action::Registry]
     def action_registry
-      @action_registry ||= Action::Registry.new
+      return @action_registry if defined?(@action_registry)
+
+      # The action registry hasn't been loaded yet, so load it
+      # and setup the built-in actions with it.
+      @action_registry = Action::Registry.new
+      Vagrant::Action.builtin!(@action_registry)
+      @action_registry
     end
 
     # Loads on initial access and reads data from the global data store.

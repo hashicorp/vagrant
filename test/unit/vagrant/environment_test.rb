@@ -44,6 +44,18 @@ describe Vagrant::Environment do
     collection.directory.should == instance.boxes_path
   end
 
+  it "has an action runner" do
+    instance.action_runner.should be_kind_of(Vagrant::Action::Runner)
+  end
+
+  it "has an action registry" do
+    instance.action_registry.should be_kind_of(Vagrant::Action::Registry)
+  end
+
+  it "should have the built-in actions in the registry" do
+    instance.action_registry.get(:provision).should_not be_nil
+  end
+
   describe "loading configuration" do
     it "should load global configuration" do
       environment = isolated_environment do |env|
