@@ -3,7 +3,6 @@ require 'log4r'
 require 'vagrant/util/busy'
 
 # TODO:
-# * env.ui
 # * env.lock
 
 module Vagrant
@@ -31,13 +30,14 @@ module Vagrant
         # Run the action chain in a busy block, marking the environment as
         # interrupted if a SIGINT occurs, and exiting cleanly once the
         # chain has been run.
+        ui = environment[:ui] if environment.has_key?(:ui)
         int_callback = lambda do
           if environment.interrupted?
-            env.ui.error I18n.t("vagrant.actions.runner.exit_immediately")
+            ui.error I18n.t("vagrant.actions.runner.exit_immediately") if ui
             abort
           end
 
-          env.ui.warn I18n.t("vagrant.actions.runner.waiting_cleanup") if !@@reported_interrupt
+          ui.warn I18n.t("vagrant.actions.runner.waiting_cleanup") if ui && !@@reported_interrupt
           environment.interrupt!
           @@reported_interrupt = true
         end
