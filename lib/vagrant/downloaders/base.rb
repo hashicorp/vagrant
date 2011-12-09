@@ -9,6 +9,11 @@ module Vagrant
         @ui = ui
       end
 
+      # Tests whether a URL matches this download. Subclasses must
+      # override this and return `true` for any URLs they wish to
+      # handle.
+      def self.match?(url); false; end
+
       # Called prior to execution so any error checks can be done
       def prepare(source_url); end
 
