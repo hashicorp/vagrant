@@ -5,6 +5,7 @@ module Vagrant
     # all the necessary Vagrant libraries are loaded. Hopefully
     # in the future this will no longer be necessary with autoloading.
     def self.builtin!
+      return
       # provision - Provisions a running VM
       register(:provision, Builder.new do
         use VM::CheckAccessible
@@ -109,7 +110,7 @@ module Vagrant
       # Other callbacks. There will be more of these in the future. For
       # now, these are limited to what are needed internally.
       register(:before_action_run, Builder.new do
-        use General::Validate
+#        use General::Validate
       end)
     end
   end

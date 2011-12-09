@@ -5,7 +5,7 @@ module Vagrant
 
       desc "add NAME URI", "Add a box to the system"
       def add(name, uri)
-        Box.add(env, name, uri)
+        env.boxes.add(name, uri)
       end
 
       desc "remove NAME", "Remove a box from the system"

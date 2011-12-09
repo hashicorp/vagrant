@@ -146,7 +146,7 @@ module Vagrant
     #
     # @return [BoxCollection]
     def boxes
-      @_boxes ||= BoxCollection.new(boxes_path)
+      @_boxes ||= BoxCollection.new(boxes_path, action_runner)
     end
 
     # Returns the VMs associated with this environment.
@@ -205,12 +205,18 @@ module Vagrant
       @host ||= Hosts::Base.load(self, config.vagrant.host)
     end
 
-    # Returns the {Action} class for this environment which allows actions
-    # to be executed (middleware chains) in the context of this environment.
+    # Action runner for executing actions in the context of this environment.
     #
-    # @return [Action]
-    def actions
-      @actions ||= Action.new(self)
+    # @return [Action::Runner]
+    def action_runner
+      @action_runner ||= Action::Runner.new(action_registry)
+    end
+
+    # Action registry for registering new actions with this environment.
+    #
+    # @return [Action::Registry]
+    def action_registry
+      @action_registry ||= Action::Registry.new
     end
 
     # Loads on initial access and reads data from the global data store.

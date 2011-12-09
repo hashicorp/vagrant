@@ -4,7 +4,8 @@ describe Vagrant::BoxCollection do
   include_context "unit"
 
   let(:environment) { isolated_environment }
-  let(:instance)    { described_class.new(environment.boxes_dir) }
+  let(:action_runner) { double("action runner") }
+  let(:instance)    { described_class.new(environment.boxes_dir, action_runner) }
 
   it "should list all available boxes" do
     # No boxes yet.
@@ -28,5 +29,19 @@ describe Vagrant::BoxCollection do
       result.should be_kind_of(Vagrant::Box)
       result.name.should == "foo"
     end
+  end
+
+  it "should add the box" do
+    name = "foo"
+    url  = "bar"
+
+    # Test the invocation of the action runner with the proper name
+    # and parameters. We leave the testing of the actual stack to
+    # acceptance tests, and individual pieces to unit tests of each
+    # step.
+    options = { :box_name => name, :box_url => url }
+    action_runner.should_receive(:run).with(:box_add, options)
+
+    instance.add(name, url)
   end
 end

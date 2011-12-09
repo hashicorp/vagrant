@@ -37,14 +37,6 @@ module Vagrant
       directory.join(env.config.vm.box_ovf)
     end
 
-    # Begins the process of adding a box to the vagrant installation. This
-    # method requires that `name` and `uri` be set. The logic of this method
-    # is kicked out to the `box_add` registered middleware.
-    def add
-      raise Errors::BoxAlreadyExists, :name => name if File.directory?(directory)
-      env.actions.run(:box_add, { "box" => self, "validate" => false })
-    end
-
     # Begins the process of destroying this box. This cannot be undone!
     def destroy
       env.actions.run(:box_remove, { "box" => self, "validate" => false })
