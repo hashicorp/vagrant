@@ -209,7 +209,7 @@ module Vagrant
     #
     # @return [Action::Runner]
     def action_runner
-      @action_runner ||= Action::Runner.new(action_registry)
+      @action_runner ||= Action::Runner.new(action_registry, :ui => @ui)
     end
 
     # Action registry for registering new actions with this environment.

@@ -44,16 +44,28 @@ describe Vagrant::Environment do
     collection.directory.should == instance.boxes_path
   end
 
-  it "has an action runner" do
-    instance.action_runner.should be_kind_of(Vagrant::Action::Runner)
+  describe "action runner" do
+    it "has an action runner" do
+      instance.action_runner.should be_kind_of(Vagrant::Action::Runner)
+    end
+
+    it "has a `ui` in the globals" do
+      result = nil
+      callable = lambda { |env| result = env[:ui] }
+
+      instance.action_runner.run(callable)
+      result.should eql(instance.ui)
+    end
   end
 
-  it "has an action registry" do
-    instance.action_registry.should be_kind_of(Vagrant::Action::Registry)
-  end
+  describe "action registry" do
+    it "has an action registry" do
+      instance.action_registry.should be_kind_of(Vagrant::Action::Registry)
+    end
 
-  it "should have the built-in actions in the registry" do
-    instance.action_registry.get(:provision).should_not be_nil
+    it "should have the built-in actions in the registry" do
+      instance.action_registry.get(:provision).should_not be_nil
+    end
   end
 
   describe "loading configuration" do
