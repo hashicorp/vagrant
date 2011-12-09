@@ -5,11 +5,8 @@ module Vagrant
     class Base
       include Vagrant::Util
 
-      # The environment which this downloader is operating.
-      attr_reader :env
-
-      def initialize(env)
-        @env = env
+      def initialize(ui)
+        @ui = ui
       end
 
       # Called prior to execution so any error checks can be done

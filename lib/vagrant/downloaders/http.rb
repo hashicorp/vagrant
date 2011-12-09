@@ -27,7 +27,7 @@ module Vagrant
         end
 
         http.start do |h|
-          env.ui.info I18n.t("vagrant.downloaders.http.download", :url => source_url)
+          @ui.info I18n.t("vagrant.downloaders.http.download", :url => source_url)
 
           headers = nil
           if uri.user && uri.password
@@ -56,8 +56,8 @@ module Vagrant
               # Progress reporting is limited to every 25 segments just so
               # we're not constantly updating
               if segment_count % 25 == 0
-                env.ui.clear_line
-                env.ui.report_progress(progress, total)
+                @ui.clear_line
+                @ui.report_progress(progress, total)
                 segment_count = 0
               end
 
@@ -66,7 +66,7 @@ module Vagrant
             end
 
             # Clear the line one last time so that the progress meter disappears
-            env.ui.clear_line
+            @ui.clear_line
           end
         end
       rescue SocketError

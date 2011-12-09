@@ -37,8 +37,8 @@ module Vagrant
             # Use the class if it matches the given URI or if this
             # is the last class...
             if classes.length == (i + 1) || klass.match?(@env["box_url"])
-              @env.ui.info I18n.t("vagrant.actions.box.download.with", :class => klass.to_s)
-              @downloader = klass.new(@env)
+              @env[:ui].info I18n.t("vagrant.actions.box.download.with", :class => klass.to_s)
+              @downloader = klass.new(@env[:ui])
               break
             end
           end
@@ -60,7 +60,7 @@ module Vagrant
 
         def recover(env)
           if temp_path && File.exist?(temp_path)
-            env.ui.info I18n.t("vagrant.actions.box.download.cleaning")
+            env[:ui].info I18n.t("vagrant.actions.box.download.cleaning")
             File.unlink(temp_path)
           end
         end
@@ -72,7 +72,7 @@ module Vagrant
         end
 
         def box_temp_path
-          @env.env.tmp_path.join(BASENAME + Time.now.to_i.to_s)
+          @env[:tmp_path].join(BASENAME + Time.now.to_i.to_s)
         end
 
         def download_to(f)
