@@ -135,6 +135,8 @@ module Vagrant
             elsif from.kind_of?(StepOutput)
               # Step outputs get their data from a previous step's output.
               inputs[to] = step_outputs[from.name][from.variable]
+            else
+              raise ArgumentError, "Unknown type of remapping."
             end
           end
 
