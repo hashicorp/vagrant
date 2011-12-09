@@ -40,4 +40,15 @@ describe Vagrant::Action::Runner do
     instance.run(callable, "data" => "foo")
     result.should == "foo"
   end
+
+  it "should pass global options into the hash" do
+    result = nil
+    callable = lambda do |env|
+      result = env["data"]
+    end
+
+    instance = described_class.new(registry, "data" => "bar")
+    instance.run(callable)
+    result.should == "bar"
+  end
 end

@@ -11,8 +11,9 @@ module Vagrant
     class Runner
       @@reported_interrupt = false
 
-      def initialize(registry)
+      def initialize(registry, globals=nil)
         @registry = registry
+        @globals  = globals || {}
         @logger   = Log4r::Logger.new("vagrant::action::runner")
       end
 
@@ -24,6 +25,7 @@ module Vagrant
 
         # Create the initial environment with the options given
         environment = Environment.new
+        environment.merge!(@globals)
         environment.merge!(options || {})
 
         # Run the action chain in a busy block, marking the environment as
