@@ -7,10 +7,7 @@ module Vagrant
   # is kicked out to middlewares.
   class Box
     # The name of the box.
-    attr_accessor :name
-
-    # The URI for a new box. This is not available for existing boxes.
-    attr_accessor :uri
+    attr_reader :name
 
     # The directory where this box is stored
     attr_reader :directory
@@ -21,14 +18,15 @@ module Vagrant
     #
     # **Note:** This method does not actually _create_ the box, but merely
     # returns a new, abstract representation of it. To add a box, see {#add}.
-    def initialize(name, directory)
-      @name      = name
-      @directory = directory
+    def initialize(name, directory, action_runner)
+      @name          = name
+      @directory     = directory
+      @action_runner = action_runner
     end
 
     # Begins the process of destroying this box. This cannot be undone!
     def destroy
-      env.actions.run(:box_remove, { "box" => self, "validate" => false })
+      @action_runner.run(:box_remove, { :box_name => @name, :box_directory => @directory })
     end
 
     # Begins sequence to repackage this box.

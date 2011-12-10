@@ -47,7 +47,7 @@ module Vagrant
       Dir.open(@directory) do |dir|
         dir.each do |d|
           next if d == "." || d == ".." || !@directory.join(d).directory?
-          @boxes << Box.new(d, @directory.join(d))
+          @boxes << Box.new(d, @directory.join(d), @action_runner)
         end
       end
     end
