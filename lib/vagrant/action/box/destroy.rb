@@ -1,7 +1,7 @@
 require 'fileutils'
 
 module Vagrant
-  class Action
+  module Action
     module Box
       class Destroy
         def initialize(app, env)

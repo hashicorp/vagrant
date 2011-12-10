@@ -1,5 +1,5 @@
 module Vagrant
-  class Action
+  module Action
     module General
       # Simply validates the configuration of the current Vagrant
       # environment.

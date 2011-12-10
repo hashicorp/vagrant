@@ -1,5 +1,5 @@
 module Vagrant
-  class Action
+  module Action
     module VM
       # Networking middleware for Vagrant. This enables host only
       # networking on VMs if configured as such.

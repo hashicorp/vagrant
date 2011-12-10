@@ -1,7 +1,7 @@
 require 'vagrant/action/general/package'
 
 module Vagrant
-  class Action
+  module Action
     module VM
       # A subclass of {General::Package} which simply makes sure that
       # the package directory is set to the directory which the VM

@@ -1,10 +1,8 @@
-require 'log4r'
-
 require 'vagrant/action/builder'
 require 'vagrant/action/builtin'
 
 module Vagrant
-  class Action
+  module Action
     autoload :Environment, 'vagrant/action/environment'
     autoload :Registry,    'vagrant/action/registry'
     autoload :Runner,      'vagrant/action/runner'

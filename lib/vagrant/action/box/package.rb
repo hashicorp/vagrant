@@ -1,7 +1,7 @@
 require 'vagrant/action/general/package'
 
 module Vagrant
-  class Action
+  module Action
     module Box
       # Packages a box which has already been unpackaged (such as
       # for the `vagrant box repackage` command) by leveraging the

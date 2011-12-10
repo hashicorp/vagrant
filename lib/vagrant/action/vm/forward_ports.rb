@@ -1,7 +1,7 @@
 require File.join(File.dirname(__FILE__), 'forward_ports_helpers')
 
 module Vagrant
-  class Action
+  module Action
     module VM
       class ForwardPorts
         include ForwardPortsHelpers

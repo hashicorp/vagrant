@@ -1,5 +1,5 @@
 module Vagrant
-  class Action
+  module Action
     # This is the action registry, which stores action steps indexed
     # by a unique name. These registry names can be used to call actions
     # via the `Runner` class.

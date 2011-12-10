@@ -1,5 +1,5 @@
 module Vagrant
-  class Action
+  module Action
     module VM
       # Puts a generated Vagrantfile into the package directory so that
       # it can be included in the package.

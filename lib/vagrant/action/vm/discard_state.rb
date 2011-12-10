@@ -1,5 +1,5 @@
 module Vagrant
-  class Action
+  module Action
     module VM
       # Discards the saved state of the VM if its saved. If its
       # not saved, does nothing.

@@ -1,7 +1,7 @@
 require File.expand_path("../nfs_helpers", __FILE__)
 
 module Vagrant
-  class Action
+  module Action
     module VM
       class ClearNFSExports
         include NFSHelpers

@@ -1,5 +1,5 @@
 module Vagrant
-  class Action
+  module Action
     module Box
       class Download
         BASENAME = "box"

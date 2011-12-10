@@ -1,5 +1,5 @@
 module Vagrant
-  class Action
+  module Action
     module VM
       class Boot
         def initialize(app, env)

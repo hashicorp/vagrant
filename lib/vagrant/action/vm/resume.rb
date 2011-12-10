@@ -1,5 +1,5 @@
 module Vagrant
-  class Action
+  module Action
     module VM
       class Resume
         def initialize(app, env)

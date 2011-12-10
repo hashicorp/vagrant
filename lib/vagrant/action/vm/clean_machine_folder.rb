@@ -1,7 +1,7 @@
 require 'fileutils'
 
 module Vagrant
-  class Action
+  module Action
     module VM
       # Cleans up the VirtualBox machine folder for any ".xml-prev"
       # files which VirtualBox may have left over. This is a bug in

@@ -1,7 +1,7 @@
 require 'fileutils'
 
 module Vagrant
-  class Action
+  module Action
     module VM
       class Export
         attr_reader :temp_dir

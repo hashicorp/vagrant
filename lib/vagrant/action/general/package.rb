@@ -2,7 +2,7 @@ require 'fileutils'
 require 'archive/tar/minitar'
 
 module Vagrant
-  class Action
+  module Action
     module General
       # A general packaging (tar) middleware. Given the following options,
       # it will do the right thing:

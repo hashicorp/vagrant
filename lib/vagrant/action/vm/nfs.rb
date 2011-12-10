@@ -1,7 +1,7 @@
 require File.expand_path("../nfs_helpers", __FILE__)
 
 module Vagrant
-  class Action
+  module Action
     module VM
       # Enables NFS based shared folders. `nfsd` must already be installed
       # on the host machine, and NFS client must already be installed on

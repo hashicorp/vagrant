@@ -1,5 +1,5 @@
 module Vagrant
-  class Action
+  module Action
     # Registers the builtin actions with a specific registry.
     #
     # These are the pre-built action sequences that are shipped with

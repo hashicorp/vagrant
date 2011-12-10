@@ -1,5 +1,5 @@
 module Vagrant
-  class Action
+  module Action
     # Action builder which provides a nice DSL for building up
     # a middleware sequence for Vagrant actions. This code is based
     # heavily off of `Rack::Builder` and `ActionDispatch::MiddlewareStack`

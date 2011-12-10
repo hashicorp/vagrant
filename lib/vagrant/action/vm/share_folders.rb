@@ -1,5 +1,5 @@
 module Vagrant
-  class Action
+  module Action
     module VM
       class ShareFolders
         def initialize(app, env)

@@ -6,7 +6,7 @@ require 'vagrant/util/busy'
 # * env.lock
 
 module Vagrant
-  class Action
+  module Action
     class Runner
       @@reported_interrupt = false
 

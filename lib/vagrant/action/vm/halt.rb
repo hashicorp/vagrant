@@ -1,5 +1,5 @@
 module Vagrant
-  class Action
+  module Action
     module VM
       class Halt
         def initialize(app, env, options=nil)

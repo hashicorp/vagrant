@@ -1,5 +1,5 @@
 module Vagrant
-  class Action
+  module Action
     module VM
       # Helper methods for forwarding ports. Requires that the environment
       # is set to the `@env` instance variable.

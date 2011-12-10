@@ -1,7 +1,7 @@
 require "log4r"
 
 module Vagrant
-  class Action
+  module Action
     # The action warden is a middleware which injects itself between
     # every other middleware, watching for exceptions which are raised
     # and performing proper cleanup on every action by calling the `recover`

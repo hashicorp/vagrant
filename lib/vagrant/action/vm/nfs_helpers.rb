@@ -1,5 +1,5 @@
 module Vagrant
-  class Action
+  module Action
     module VM
       module NFSHelpers
         def clear_nfs_exports(env)

@@ -1,5 +1,5 @@
 module Vagrant
-  class Action
+  module Action
     module VM
       # Middleware which verifies that the VM has the proper guest additions
       # installed and prints a warning if they're not detected or if the

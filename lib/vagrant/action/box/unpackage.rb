@@ -2,7 +2,7 @@ require 'fileutils'
 require 'archive/tar/minitar'
 
 module Vagrant
-  class Action
+  module Action
     module Box
       # Unpackages a downloaded box to a given directory with a given
       # name.
