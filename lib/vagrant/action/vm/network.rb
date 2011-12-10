@@ -67,7 +67,7 @@ module Vagrant
         def assign_network
           @env[:ui].info I18n.t("vagrant.actions.vm.network.preparing")
 
-          @env.[:vm].config.vm.network_options.compact.each do |network_options|
+          @env[:vm].config.vm.network_options.compact.each do |network_options|
             adapter = @env["vm"].vm.network_adapters[network_options[:adapter]]
             adapter.enabled = true
             adapter.attachment_type = :host_only
