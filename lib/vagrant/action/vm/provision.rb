@@ -18,7 +18,7 @@ module Vagrant
 
           # Take prepared provisioners and run the provisioning
           provisioners.each do |instance|
-            @env.ui.info I18n.t("vagrant.actions.vm.provision.beginning", :provisioner => instance.class)
+            @env[:ui].info I18n.t("vagrant.actions.vm.provision.beginning", :provisioner => instance.class)
             instance.provision!
           end
         end

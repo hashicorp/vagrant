@@ -111,7 +111,7 @@ module Vagrant
 
         # Uses the system class to mount the NFS folders.
         def mount_folders
-          @env.ui.info I18n.t("vagrant.actions.vm.nfs.mounting")
+          @env[:ui].info I18n.t("vagrant.actions.vm.nfs.mounting")
 
           # Only mount the folders which have a guest path specified
           am_folders = folders.select { |name, folder| folder[:guestpath] }

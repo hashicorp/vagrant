@@ -9,9 +9,9 @@ module Vagrant
         end
 
         def call(env)
-          if env["vm"].created? && env["vm"].vm.saved?
-            env.ui.info I18n.t("vagrant.actions.vm.discard_state.discarding")
-            env["vm"].vm.discard_state
+          if env[:vm].created? && env[:vm].vm.saved?
+            env[:ui].info I18n.t("vagrant.actions.vm.discard_state.discarding")
+            env[:vm].vm.discard_state
           end
 
           @app.call(env)
