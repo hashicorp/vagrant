@@ -34,8 +34,8 @@ module Vagrant
       end
 
       def enable_host_only_network(net_options)
-        device = "#{vm.env.config.solaris.device}#{net_options[:adapter]}"
-        su_cmd = vm.env.config.solaris.suexec_cmd
+        device = "#{vm.config.solaris.device}#{net_options[:adapter]}"
+        su_cmd = vm.config.solaris.suexec_cmd
         ifconfig_cmd = "#{su_cmd} /sbin/ifconfig #{device}"
         vm.ssh.execute do |ssh|
           ssh.exec!("#{ifconfig_cmd} plumb")
@@ -46,7 +46,7 @@ module Vagrant
       end
 
       def change_host_name(name)
-        su_cmd = vm.env.config.solaris.suexec_cmd
+        su_cmd = vm.config.solaris.suexec_cmd
         vm.ssh.execute do |ssh|
           # Only do this if the hostname is not already set
           if !ssh.test?("#{su_cmd} hostname | grep '#{name}'")
@@ -72,7 +72,7 @@ module Vagrant
           last_error = nil
           while vm.vm.state != :powered_off
             begin
-              ssh.exec!("#{vm.env.config.solaris.suexec_cmd} /usr/sbin/poweroff")
+              ssh.exec!("#{vm.config.solaris.suexec_cmd} /usr/sbin/poweroff")
             rescue IOError => e
               # Save the last error; if it's not shutdown in a reasonable amount
               # of attempts we will re-raise the error so it's not hidden for
@@ -81,7 +81,7 @@ module Vagrant
             end
 
             count += 1
-            if count >= vm.env.config.solaris.halt_timeout
+            if count >= vm.config.solaris.halt_timeout
               # Check for last error and re-raise it
               if last_error != nil
                 raise last_error
@@ -92,21 +92,21 @@ module Vagrant
             end
 
             # Still opportunities remaining; sleep and loop
-            sleep vm.env.config.solaris.halt_check_interval
+            sleep vm.config.solaris.halt_check_interval
           end # while
         end # do
       end
 
       def mount_shared_folder(ssh, name, guestpath, owner, group)
         # Create the shared folder
-        ssh.exec!("#{vm.env.config.solaris.suexec_cmd} mkdir -p #{guestpath}")
+        ssh.exec!("#{vm.config.solaris.suexec_cmd} mkdir -p #{guestpath}")
 
         # Mount the folder with the proper owner/group
         options = "-o uid=`id -u #{owner}`,gid=`id -g #{group}`"
-        ssh.exec!("#{vm.env.config.solaris.suexec_cmd} /sbin/mount -F vboxfs #{options} #{name} #{guestpath}")
+        ssh.exec!("#{vm.config.solaris.suexec_cmd} /sbin/mount -F vboxfs #{options} #{name} #{guestpath}")
 
         # chown the folder to the proper owner/group
-        ssh.exec!("#{vm.env.config.solaris.suexec_cmd} chown `id -u #{owner}`:`id -g #{group}` #{guestpath}")
+        ssh.exec!("#{vm.config.solaris.suexec_cmd} chown `id -u #{owner}`:`id -g #{group}` #{guestpath}")
       end
     end
   end

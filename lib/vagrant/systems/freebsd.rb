@@ -38,8 +38,8 @@ module Vagrant
         while vm.vm.state != :powered_off
           count += 1
 
-          return if count >= vm.env.config.freebsd.halt_timeout
-          sleep vm.env.config.freebsd.halt_check_interval
+          return if count >= vm.config.freebsd.halt_timeout
+          sleep vm.config.freebsd.halt_check_interval
         end
       end
 
@@ -48,7 +48,7 @@ module Vagrant
       #   ssh.exec!("sudo mkdir -p #{guestpath}")
       #   # Using a custom mount method here; could use improvement.
       #   ssh.exec!("sudo mount -t vboxfs v-root #{guestpath}")
-      #   ssh.exec!("sudo chown #{vm.env.config.ssh.username} #{guestpath}")
+      #   ssh.exec!("sudo chown #{vm.config.ssh.username} #{guestpath}")
       # end
 
       def mount_nfs(ip, folders)
