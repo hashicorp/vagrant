@@ -23,7 +23,7 @@ describe "vagrant box" do
   it "gives an error if the file doesn't exist" do
     result = execute("vagrant", "box", "add", "foo", "/tmp/nope/nope/nope/nonono.box")
     result.should_not be_success
-    result.stdout.should match_output(:box_path_doesnt_exist)
+    result.stderr.should match_output(:box_path_doesnt_exist)
   end
 
   it "gives an error if the file is not a valid box" do
@@ -34,7 +34,7 @@ describe "vagrant box" do
 
     result = execute("vagrant", "box", "add", "foo", invalid.to_s)
     result.should_not be_success
-    result.stdout.should match_output(:box_invalid)
+    result.stderr.should match_output(:box_invalid)
   end
 
   it "can add a box from an HTTP server" do
