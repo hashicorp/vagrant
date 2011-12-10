@@ -51,4 +51,15 @@ describe Vagrant::Action::Runner do
     instance.run(callable)
     result.should == "bar"
   end
+
+  it "should yield the block passed to the init method to get lazy loaded globals" do
+    result = nil
+    callable = lambda do |env|
+      result = env["data"]
+    end
+
+    instance = described_class.new(registry) { { "data" => "bar" } }
+    instance.run(callable)
+    result.should == "bar"
+  end
 end

@@ -31,7 +31,7 @@ module Vagrant
 
     # Begins sequence to repackage this box.
     def repackage(options=nil)
-      env.actions.run(:box_repackage, { "box" => self, "validate" => false }.merge(options || {}))
+      @action_runner.run(:box_repackage, { :box_name => @name, :box_directory => @directory })
     end
 
     # Implemented for comparison with other boxes. Comparison is implemented

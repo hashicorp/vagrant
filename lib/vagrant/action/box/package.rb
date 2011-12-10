@@ -10,7 +10,7 @@ module Vagrant
         # Alias instead of calling super for testability
         alias_method :general_call, :call
         def call(env)
-          env["package.directory"] = env["box"].directory
+          env["package.directory"] = env["box_directory"]
           general_call(env)
         end
       end

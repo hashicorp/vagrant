@@ -20,7 +20,7 @@ module Vagrant
         def initialize(app, env)
           @app = app
           @env = env
-          @env["package.output"] ||= env["config"].package.name
+          @env["package.output"] ||= env["global_config"].package.name
           @env["package.include"] ||= []
           @env["package.vagrantfile"] ||= nil
         end
@@ -70,7 +70,7 @@ module Vagrant
         # the actual box
         def copy_include_files
           files_to_copy.each do |from, to|
-            @env.ui.info I18n.t("vagrant.actions.general.package.packaging", :file => from)
+            @env[:ui].info I18n.t("vagrant.actions.general.package.packaging", :file => from)
             FileUtils.mkdir_p(to.parent)
 
             # Copy direcotry contents recursively.
@@ -84,7 +84,7 @@ module Vagrant
 
         # Compress the exported file into a package
         def compress
-          @env.ui.info I18n.t("vagrant.actions.general.package.compressing", :tar_path => tar_path)
+          @env[:ui].info I18n.t("vagrant.actions.general.package.compressing", :tar_path => tar_path)
           File.open(tar_path, Platform.tar_file_options) do |tar|
             Archive::Tar::Minitar::Output.open(tar) do |output|
               begin

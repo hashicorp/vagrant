@@ -20,4 +20,15 @@ describe Vagrant::Box do
 
     instance.destroy
   end
+
+  it "can repackage itself" do
+    # Simply test the messages to the action runner
+    options = {
+      :box_name => name,
+      :box_directory => directory
+    }
+    action_runner.should_receive(:run).with(:box_repackage, options)
+
+    instance.repackage
+  end
 end
