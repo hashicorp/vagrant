@@ -17,12 +17,13 @@ module Vagrant
             # Add the box then reload the box collection so that it becomes
             # aware of it.
             env[:ui].info I18n.t("vagrant.actions.vm.check_box.not_found", :name => box_name)
-            Vagrant::Box.add(env.env, box_name, box_url)
-            env["boxes"].reload!
+            env[:box_collection].add(box_name, box_url)
+            env[:box_collection].reload!
 
             # Reload the configuration for all our VMs, since this box
             # may be used for other VMs.
-            env.env.vms.each do |name, vm|
+            # TODO: This doesn't work properly
+            env[:vm].env.vms.each do |name, vm|
               vm.env.reload_config!
             end
           end

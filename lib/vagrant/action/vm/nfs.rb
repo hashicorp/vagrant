@@ -62,7 +62,7 @@ module Vagrant
               # Duplicate the options, set the hostpath, and set disabled on the original
               # options so the ShareFolders middleware doesn't try to mount it.
               acc[key] = opts.dup
-              acc[key][:hostpath] = File.expand_path(opts[:hostpath], @env.env.root_path)
+              acc[key][:hostpath] = File.expand_path(opts[:hostpath], @env[:root_path])
               opts[:disabled] = true
             end
 
