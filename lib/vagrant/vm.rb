@@ -75,7 +75,7 @@ module Vagrant
     # On the initial call, this will initialize the object. On
     # subsequent calls it will reuse the existing object.
     def ssh
-      @ssh ||= SSH.new(env)
+      @ssh ||= SSH.new(self)
     end
 
     # Returns a boolean true if the VM has been created, otherwise

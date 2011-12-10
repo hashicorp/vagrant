@@ -14,12 +14,8 @@ module Vagrant
     include Util::Retryable
     include Util::SafeExec
 
-    # Reference back up to the environment which this SSH object belongs
-    # to
-    attr_accessor :env
-
-    def initialize(environment)
-      @env = environment
+    def initialize(vm)
+      @vm     = vm
       @logger = Log4r::Logger.new("vagrant::ssh")
     end
 
@@ -28,7 +24,7 @@ module Vagrant
     # of options which override the configuration values.
     def connect(opts={})
       if Util::Platform.windows?
-        raise Errors::SSHUnavailableWindows, :key_path => env.config.ssh.private_key_path,
+        raise Errors::SSHUnavailableWindows, :key_path => private_key_path,
                                              :ssh_port => port(opts)
       end
 
@@ -37,7 +33,7 @@ module Vagrant
       options = {}
       options[:port] = port(opts)
       [:host, :username, :private_key_path].each do |param|
-        options[param] = opts[param] || env.config.ssh.send(param)
+        options[param] = opts[param] || @vm.config.ssh.send(param)
       end
 
       check_key_permissions(options[:private_key_path])
@@ -46,9 +42,9 @@ module Vagrant
       command_options = ["-p #{options[:port]}", "-o UserKnownHostsFile=/dev/null",
                          "-o StrictHostKeyChecking=no", "-o IdentitiesOnly=yes",
                          "-i #{options[:private_key_path]}", "-o LogLevel=ERROR"]
-      command_options << "-o ForwardAgent=yes" if env.config.ssh.forward_agent
+      command_options << "-o ForwardAgent=yes" if @vm.config.ssh.forward_agent
 
-      if env.config.ssh.forward_x11
+      if @vm.config.ssh.forward_x11
         # Both are required so that no warnings are shown regarding X11
         command_options << "-o ForwardX11=yes"
         command_options << "-o ForwardX11Trusted=yes"
@@ -63,29 +59,29 @@ module Vagrant
     # a Net::SSH object which can be used to execute remote commands.
     def execute(opts={})
       # Check the key permissions to avoid SSH hangs
-      check_key_permissions(env.config.ssh.private_key_path)
+      check_key_permissions(private_key_path)
 
       # Merge in any additional options
       opts = opts.dup
-      opts[:forward_agent] = true if env.config.ssh.forward_agent
+      opts[:forward_agent] = true if @vm.config.ssh.forward_agent
       opts[:port] ||= port
 
-      @logger.info("Connecting to SSH: #{env.config.ssh.host} #{opts[:port]}")
+      @logger.info("Connecting to SSH: #{@vm.config.ssh.host} #{opts[:port]}")
 
       # The exceptions which are acceptable to retry on during
       # attempts to connect to SSH
       exceptions = [Errno::ECONNREFUSED, Net::SSH::Disconnect]
 
       # Connect to SSH and gather the session
-      session = retryable(:tries => env.config.ssh.max_tries, :on => exceptions) do
-        connection = Net::SSH.start(env.config.ssh.host,
-                                    env.config.ssh.username,
-                                    opts.merge( :keys => [env.config.ssh.private_key_path],
+      session = retryable(:tries => @vm.config.ssh.max_tries, :on => exceptions) do
+        connection = Net::SSH.start(@vm.config.ssh.host,
+                                    @vm.config.ssh.username,
+                                    opts.merge( :keys => [private_key_path],
                                                 :keys_only => true,
                                                 :user_known_hosts_file => [],
                                                 :paranoid => false,
                                                 :config => false))
-        SSH::Session.new(connection, env)
+        SSH::Session.new(connection, @vm)
       end
 
       # Yield our session for executing
@@ -116,8 +112,8 @@ module Vagrant
       ssh_port = port
 
       require 'timeout'
-      Timeout.timeout(env.config.ssh.timeout) do
-        execute(:timeout => env.config.ssh.timeout, :port => ssh_port) do |ssh|
+      Timeout.timeout(@vm.config.ssh.timeout) do
+        execute(:timeout => @vm.config.ssh.timeout, :port => ssh_port) do |ssh|
           # We run a basic command to test that the shell is up and
           # ready to receive commands. Only then is our SSH connection
           # truly "up"
@@ -170,20 +166,20 @@ module Vagrant
       return opts[:port] if opts[:port]
 
       # Check if a port was specified in the config
-      return env.config.ssh.port if env.config.ssh.port
+      return @vm.config.ssh.port if @vm.config.ssh.port
 
       # Check if we have an SSH forwarded port
       pnum_by_name = nil
       pnum_by_destination = nil
-      env.vm.vm.network_adapters.each do |na|
+      @vm.vm.network_adapters.each do |na|
         # Look for the port number by name...
         pnum_by_name = na.nat_driver.forwarded_ports.detect do |fp|
-          fp.name == env.config.ssh.forwarded_port_key
+          fp.name == @vm.config.ssh.forwarded_port_key
         end
 
         # Look for the port number by destination...
         pnum_by_destination = na.nat_driver.forwarded_ports.detect do |fp|
-          fp.guestport == env.config.ssh.forwarded_port_destination
+          fp.guestport == @vm.config.ssh.forwarded_port_destination
         end
 
         # pnum_by_name is what we're looking for here, so break early
@@ -196,6 +192,10 @@ module Vagrant
 
       # This should NEVER happen.
       raise Errors::SSHPortNotDetected
+    end
+
+    def private_key_path
+      File.expand_path(@vm.config.ssh.private_key_path, @vm.env.root_path)
     end
   end
 end

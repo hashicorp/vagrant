@@ -7,11 +7,10 @@ module Vagrant
       include Util::Retryable
 
       attr_reader :session
-      attr_reader :env
 
-      def initialize(session, env)
+      def initialize(session, vm)
         @session = session
-        @env = env
+        @vm      = vm
       end
 
       # Executes a given command and simply returns true/false if the
@@ -34,7 +33,7 @@ module Vagrant
       # of `sudo`.
       def sudo!(commands, options=nil, &block)
         channel = session.open_channel do |ch|
-          ch.exec("sudo -H #{env.config.ssh.shell} -l") do |ch2, success|
+          ch.exec("sudo -H #{@vm.config.ssh.shell} -l") do |ch2, success|
             # Set the terminal
             ch2.send_data "export TERM=vt100\n"
 
@@ -61,9 +60,9 @@ module Vagrant
       # the actual `exec!` implementation, except that this
       # implementation also reports `:exit_status` to the block if given.
       def exec!(commands, options=nil, &block)
-        retryable(:tries => env.config.ssh.max_tries, :on => [IOError, Net::SSH::Disconnect], :sleep => 1.0) do
+        retryable(:tries => @vm.config.ssh.max_tries, :on => [IOError, Net::SSH::Disconnect], :sleep => 1.0) do
           metach = session.open_channel do |ch|
-            ch.exec("#{env.config.ssh.shell} -l") do |ch2, success|
+            ch.exec("#{@vm.config.ssh.shell} -l") do |ch2, success|
               # Set the terminal
               ch2.send_data "export TERM=vt100\n"
 
