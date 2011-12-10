@@ -63,8 +63,8 @@ module Vagrant
       registry.register(:reload) do
         Builder.new do
           use VM::CheckAccessible
-          use Action[:halt]
-          use Action[:start]
+          use registry.get(:halt)
+          use registry.get(:start)
         end
       end
 
@@ -76,7 +76,7 @@ module Vagrant
           use VM::Import
           use VM::MatchMACAddress
           use VM::CheckGuestAdditions
-          use Action[:start]
+          use registry.get(:start)
         end
       end
 
@@ -84,7 +84,7 @@ module Vagrant
       registry.register(:destroy) do
         Builder.new do
           use VM::CheckAccessible
-          use Action[:halt], :force => true
+          use registry.get(:halt), :force => true
           use VM::ProvisionerCleanup
           use VM::ClearNFSExports
           use VM::Destroy
@@ -97,7 +97,7 @@ module Vagrant
       registry.register(:package) do
         Builder.new do
           use VM::CheckAccessible
-          use Action[:halt]
+          use registry.get(:halt)
           use VM::ClearForwardedPorts
           use VM::ClearSharedFolders
           use VM::Modify

@@ -141,7 +141,7 @@ module Vagrant
 
         # Checks if there are any NFS enabled shared folders.
         def nfs_enabled?
-          @env["config"].vm.shared_folders.each do |key, opts|
+          @env[:vm].config.vm.shared_folders.each do |key, opts|
             return true if opts[:nfs]
           end
 

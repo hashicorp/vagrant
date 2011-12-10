@@ -12,7 +12,7 @@ module Vagrant
             raise Errors::NetworkNotImplemented
           end
 
-          env["config"].vm.network_options.compact.each do |network_options|
+          env[:vm].config.vm.network_options.compact.each do |network_options|
             raise Errors::NetworkCollision if !verify_no_bridge_collision(network_options)
           end
         end
@@ -24,10 +24,10 @@ module Vagrant
           @app.call(env)
 
           if enable_network?
-            @env.ui.info I18n.t("vagrant.actions.vm.network.enabling")
+            @env[:ui].info I18n.t("vagrant.actions.vm.network.enabling")
 
             # Prepare for new networks...
-            options = @env.env.config.vm.network_options.compact
+            options = @env[:vm].config.vm.network_options.compact
             options.each do |network_options|
               @env["vm"].system.prepare_host_only_network(network_options)
             end
@@ -59,7 +59,7 @@ module Vagrant
         end
 
         def enable_network?
-          !@env.env.config.vm.network_options.compact.empty?
+          !@env[:vm].config.vm.network_options.compact.empty?
         end
 
         # Enables and assigns the host only network to the proper

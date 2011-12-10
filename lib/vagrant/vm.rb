@@ -7,6 +7,7 @@ module Vagrant
     attr_reader :env
     attr_reader :name
     attr_reader :vm
+    attr_reader :box
     attr_reader :config
 
     def initialize(name, env, config, vm=nil)
@@ -16,6 +17,7 @@ module Vagrant
       @vm     = vm
       @env    = env
       @config = config
+      @box    = env.boxes.find(config.vm.box)
 
       # Load the associated system.
       load_system!
@@ -112,11 +114,11 @@ module Vagrant
     end
 
     def package(options=nil)
-      env.actions.run(:package, { "validate" => false }.merge(options || {}))
+      run_action(:package, { "validate" => false }.merge(options || {}))
     end
 
     def up(options=nil)
-      env.actions.run(:up, options)
+      run_action(:up, options)
     end
 
     def start(options=nil)
@@ -124,31 +126,31 @@ module Vagrant
       return if @vm.running?
       return resume if @vm.saved?
 
-      env.actions.run(:start, options)
+      run_action(:start, options)
     end
 
     def halt(options=nil)
-      env.actions.run(:halt, options)
+      run_action(:halt, options)
     end
 
     def reload
-      env.actions.run(:reload)
+      run_action(:reload)
     end
 
     def provision
-      env.actions.run(:provision)
+      run_action(:provision)
     end
 
     def destroy
-      env.actions.run(:destroy)
+      run_action(:destroy)
     end
 
     def suspend
-      env.actions.run(:suspend)
+      run_action(:suspend)
     end
 
     def resume
-      env.actions.run(:resume)
+      run_action(:resume)
     end
 
     def saved?
@@ -156,5 +158,11 @@ module Vagrant
     end
 
     def powered_off?; @vm.powered_off? end
+
+    protected
+
+    def run_action(name, options=nil)
+      env.action_runner.run(name, { :vm => self }.merge(options || {}))
+    end
   end
 end

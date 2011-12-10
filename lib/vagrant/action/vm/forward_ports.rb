@@ -22,7 +22,7 @@ module Vagrant
         # This method checks for any forwarded ports on the host below
         # 1024, which causes the forwarded ports to fail.
         def threshold_check
-          @env.env.config.vm.forwarded_ports.each do |name, options|
+          @env[:vm].config.vm.forwarded_ports.each do |name, options|
             if options[:hostport] <= 1024
               @env.ui.warn I18n.t("vagrant.actions.vm.forward_ports.privileged_ports")
               return
@@ -36,7 +36,7 @@ module Vagrant
         # automatically if the port is configured to do so.
         def external_collision_check
           existing = used_ports
-          @env.env.config.vm.forwarded_ports.each do |name, options|
+          @env[:vm].config.vm.forwarded_ports.each do |name, options|
             if existing.include?(options[:hostport].to_i)
               handle_collision(name, options, existing)
             end
