@@ -70,8 +70,8 @@ module Vagrant
                                       :guest_path => data[:guestpath]))
 
                 # Calculate the owner and group
-                owner = data[:owner] || @env["config"].ssh.username
-                group = data[:group] || @env["config"].ssh.username
+                owner = data[:owner] || @env[:vm].config.ssh.username
+                group = data[:group] || @env[:vm].config.ssh.username
 
                 # Mount the actual folder
                 @env[:vm].system.mount_shared_folder(ssh, name, data[:guestpath], owner, group)
