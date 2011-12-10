@@ -91,7 +91,7 @@ module Vagrant
     #
     # @return [Pathname]
     def dotfile_path
-      root_path.join(config.vagrant.dotfile_name) rescue nil
+      root_path.join(config.global.vagrant.dotfile_name)
     end
 
     # The path to the home directory and converted into a Pathname object.
