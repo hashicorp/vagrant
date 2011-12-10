@@ -7,7 +7,7 @@ module Vagrant
       attr_accessor :host
       attr_accessor :ssh_session_cache
 
-      def validate(errors)
+      def validate(env, errors)
         [:dotfile_name, :host].each do |field|
           errors.add(I18n.t("vagrant.config.common.error_empty", :field => field)) if !instance_variable_get("@#{field}".to_sym)
         end

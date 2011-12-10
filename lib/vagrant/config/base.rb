@@ -29,14 +29,6 @@ module Vagrant
         end
       end
 
-      # A helper to access the environment that this configuration is for.
-      # This is obtained by getting the env from the {Top}.
-      #
-      # @return [Vagrant::Envrionment]
-      def env
-        top.env
-      end
-
       # Allows setting options from a hash. By default this simply calls
       # the `#{key}=` method on the config class with the value, which is
       # the expected behavior most of the time.
@@ -51,7 +43,7 @@ module Vagrant
       # method and add any errors to the `errors` object given.
       #
       # @param [ErrorRecorder] errors
-      def validate(errors); end
+      def validate(env, errors); end
 
       # Converts the configuration to a raw hash by calling `#to_hash`
       # on all instance variables (if it can) and putting them into
@@ -76,7 +68,7 @@ module Vagrant
       # Returns the instance variables as a hash of key-value pairs.
       def instance_variables_hash
         instance_variables.inject({}) do |acc, iv|
-          acc[iv.to_s[1..-1]] = instance_variable_get(iv) unless [:@env, :@top].include?(iv.to_sym)
+          acc[iv.to_s[1..-1]] = instance_variable_get(iv) unless iv.to_sym == :@top
           acc
         end
       end

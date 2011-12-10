@@ -9,9 +9,6 @@ module Vagrant
     class Top < Base
       @@configures = {} if !defined?(@@configures)
 
-      # The environment that this configuration is for.
-      attr_reader :env
-
       class << self
         # The list of registered configuration classes as well as the key
         # they're registered under.
@@ -27,14 +24,12 @@ module Vagrant
         end
       end
 
-      def initialize(env=nil)
+      def initialize
         self.class.configures_list.each do |key, klass|
           config = klass.new
           config.top = self
           instance_variable_set("@#{key}".to_sym, config)
         end
-
-        @env = env
       end
 
       # Validates the configuration classes of this instance and raises an
@@ -42,13 +37,13 @@ module Vagrant
       # class, the method you want to implement is {Base#validate}. This is
       # the method that checks all the validation, not one which defines
       # validation rules.
-      def validate!
+      def validate!(env)
         # Validate each of the configured classes and store the results into
         # a hash.
         errors = self.class.configures_list.inject({}) do |container, data|
           key, _ = data
           recorder = ErrorRecorder.new
-          send(key.to_sym).validate(recorder)
+          send(key.to_sym).validate(env, recorder)
           container[key.to_sym] = recorder if !recorder.errors.empty?
           container
         end

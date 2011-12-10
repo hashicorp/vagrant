@@ -8,6 +8,7 @@ module Vagrant
       # provision - Provisions a running VM
       registry.register(:provision) do
         Builder.new do
+          use General::Validate
           use VM::CheckAccessible
           use VM::Provision
         end
@@ -17,6 +18,7 @@ module Vagrant
       # environment.
       registry.register(:start) do
         Builder.new do
+          use General::Validate
           use VM::CheckAccessible
           use VM::CleanMachineFolder
           use VM::ClearForwardedPorts
@@ -37,6 +39,7 @@ module Vagrant
       # a restart if fails.
       registry.register(:halt) do
         Builder.new do
+          use General::Validate
           use VM::CheckAccessible
           use VM::DiscardState
           use VM::Halt
@@ -46,6 +49,7 @@ module Vagrant
       # suspend - Suspends the VM
       registry.register(:suspend) do
         Builder.new do
+          use General::Validate
           use VM::CheckAccessible
           use VM::Suspend
         end
@@ -54,6 +58,7 @@ module Vagrant
       # resume - Resume a VM
       registry.register(:resume) do
         Builder.new do
+          use General::Validate
           use VM::CheckAccessible
           use VM::Resume
         end
@@ -62,6 +67,7 @@ module Vagrant
       # reload - Halts then restarts the VM
       registry.register(:reload) do
         Builder.new do
+          use General::Validate
           use VM::CheckAccessible
           use registry.get(:halt)
           use registry.get(:start)
@@ -71,6 +77,7 @@ module Vagrant
       # up - Imports, prepares, then starts a fresh VM.
       registry.register(:up) do
         Builder.new do
+          use General::Validate
           use VM::CheckAccessible
           use VM::CheckBox
           use VM::Import
@@ -83,6 +90,7 @@ module Vagrant
       # destroy - Halts, cleans up, and destroys an existing VM
       registry.register(:destroy) do
         Builder.new do
+          use General::Validate
           use VM::CheckAccessible
           use registry.get(:halt), :force => true
           use VM::ProvisionerCleanup
@@ -96,6 +104,7 @@ module Vagrant
       # package - Export and package the VM
       registry.register(:package) do
         Builder.new do
+          use General::Validate
           use VM::CheckAccessible
           use registry.get(:halt)
           use VM::ClearForwardedPorts
@@ -129,12 +138,6 @@ module Vagrant
           use Box::Package
         end
       end
-
-      # Other callbacks. There will be more of these in the future. For
-      # now, these are limited to what are needed internally.
-#      registry.register(:before_action_run, Builder.new do
-#        use General::Validate
-#      end)
     end
   end
 end

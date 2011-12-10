@@ -36,7 +36,7 @@ module Vagrant
           block.call(@config) if block
         end
 
-        def validate(errors)
+        def validate(env, errors)
           if !provisioner
             # If we don't have a provisioner then the whole thing is invalid.
             errors.add(I18n.t("vagrant.config.vm.provisioner_not_found", :shortcut => shortcut))

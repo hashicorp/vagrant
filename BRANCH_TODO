@@ -1,6 +1,5 @@
 This is a TODO file for only this branch (config-overhaul)
 
-* Config validation
 * Only allow one kind of vagrantfile to be loaded (i.e. if both
   Vagrantfile and vagrantfile exist, throw an error)
 * Nicer error if can't setup home directory
