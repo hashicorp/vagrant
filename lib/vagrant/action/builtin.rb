@@ -83,6 +83,7 @@ module Vagrant
           use VM::Import
           use VM::MatchMACAddress
           use VM::CheckGuestAdditions
+          use VM::DefaultName
           use registry.get(:start)
         end
       end

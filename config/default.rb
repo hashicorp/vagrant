@@ -21,12 +21,6 @@ Vagrant::Config.run do |config|
   config.vm.boot_mode = "vrdp"
   config.vm.system = :linux
 
-  config.vm.customize do |vm|
-    # Make VM name the name of the containing folder by default
-    # TODO
-    # vm.name = File.basename(config.env.cwd) + "_#{Time.now.to_i}"
-  end
-
   # Share the root folder. This can then be overridden by
   # other Vagrantfiles, if they wish.
   config.vm.share_folder("v-root", "/vagrant", ".")
