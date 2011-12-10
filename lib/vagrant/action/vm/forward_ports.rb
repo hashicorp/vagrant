@@ -24,7 +24,7 @@ module Vagrant
         def threshold_check
           @env[:vm].config.vm.forwarded_ports.each do |name, options|
             if options[:hostport] <= 1024
-              @env.ui.warn I18n.t("vagrant.actions.vm.forward_ports.privileged_ports")
+              @env[:ui].warn I18n.t("vagrant.actions.vm.forward_ports.privileged_ports")
               return
             end
           end
@@ -58,12 +58,12 @@ module Vagrant
           # Get the auto port range and get rid of the used ports and
           # ports which are being used in other forwards so we're just
           # left with available ports.
-          range = @env.env.config.vm.auto_port_range.to_a
-          range -= @env.env.config.vm.forwarded_ports.collect { |n, o| o[:hostport].to_i }
+          range = @env[:vm].config.vm.auto_port_range.to_a
+          range -= @env[:vm].config.vm.forwarded_ports.collect { |n, o| o[:hostport].to_i }
           range -= existing_ports
 
           if range.empty?
-            raise Errors::ForwardPortAutolistEmpty, :vm_name => @env["vm"].name,
+            raise Errors::ForwardPortAutolistEmpty, :vm_name => @env[:vm].name,
                                                     :name => name,
                                                     :host_port => options[:hostport].to_s,
                                                     :guest_port => options[:guestport].to_s
@@ -75,9 +75,9 @@ module Vagrant
           existing_ports << options[:hostport]
 
           # Notify the user
-          @env.ui.info(I18n.t("vagrant.actions.vm.forward_ports.fixed_collision",
-                       :name => name,
-                       :new_port => options[:hostport]))
+          @env[:ui].info(I18n.t("vagrant.actions.vm.forward_ports.fixed_collision",
+                                :name => name,
+                                :new_port => options[:hostport]))
         end
 
         #--------------------------------------------------------------
@@ -87,7 +87,7 @@ module Vagrant
           @env = env
 
           proc = lambda do |vm|
-            env.ui.info I18n.t("vagrant.actions.vm.forward_ports.forwarding")
+            env[:ui].info I18n.t("vagrant.actions.vm.forward_ports.forwarding")
             forward_ports(vm)
           end
 
@@ -96,7 +96,7 @@ module Vagrant
         end
 
         def forward_ports(vm)
-          @env.env.config.vm.forwarded_ports.each do |name, options|
+          @env[:vm].config.vm.forwarded_ports.each do |name, options|
             adapter = options[:adapter]
             message_attributes = {
               :name => name,
@@ -109,10 +109,10 @@ module Vagrant
             # Host-only or Bridged networking don't require port-forwarding and establishing forwarded ports on these
             # attachment types has uncertain behaviour.
             if vm.network_adapters[adapter].attachment_type == :nat
-              @env.ui.info(I18n.t("vagrant.actions.vm.forward_ports.forwarding_entry", message_attributes))
+              @env[:ui].info(I18n.t("vagrant.actions.vm.forward_ports.forwarding_entry", message_attributes))
               forward_port(vm, name, options)
             else
-              @env.ui.info(I18n.t("vagrant.actions.vm.forward_ports.non_nat", message_attributes))
+              @env[:ui].info(I18n.t("vagrant.actions.vm.forward_ports.non_nat", message_attributes))
             end
           end
         end

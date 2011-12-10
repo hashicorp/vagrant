@@ -31,8 +31,7 @@ module Vagrant
             return if env["vagrant.error"].is_a?(Errors::VagrantError)
 
             # Interrupted, destroy the VM
-            # TODO
-            # env[:action_runner].run(:destroy)
+            env[:action_runner].run(:destroy, env)
           end
         end
       end

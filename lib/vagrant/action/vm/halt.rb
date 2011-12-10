@@ -8,12 +8,12 @@ module Vagrant
         end
 
         def call(env)
-          if env["vm"].created? && env["vm"].vm.running?
-            env["vm"].system.halt if !env["force"]
+          if env[:vm].created? && env[:vm].vm.running?
+            env[:vm].system.halt if !env["force"]
 
-            if env["vm"].vm.state(true) != :powered_off
-              env.ui.info I18n.t("vagrant.actions.vm.halt.force")
-              env["vm"].vm.stop
+            if env[:vm].vm.state(true) != :powered_off
+              env[:ui].info I18n.t("vagrant.actions.vm.halt.force")
+              env[:vm].vm.stop
             end
 
             # Sleep for a second to verify that the VM properly

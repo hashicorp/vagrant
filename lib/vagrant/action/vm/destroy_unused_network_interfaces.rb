@@ -16,7 +16,7 @@ module Vagrant
 
             # Destroy it if there is nothing attached
             if iface.attached_vms.empty?
-              env.ui.info I18n.t("vagrant.actions.vm.destroy_network.destroying")
+              env[:ui].info I18n.t("vagrant.actions.vm.destroy_network.destroying")
               iface.destroy
             end
           end

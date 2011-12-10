@@ -18,16 +18,16 @@ module Vagrant
         end
 
         def boot
-          @env.ui.info I18n.t("vagrant.actions.vm.boot.booting")
-          @env["vm"].vm.start(@env.env.config.vm.boot_mode)
+          @env[:ui].info I18n.t("vagrant.actions.vm.boot.booting")
+          @env[:vm].vm.start(@env[:vm].config.vm.boot_mode)
         end
 
         def wait_for_boot
-          @env.ui.info I18n.t("vagrant.actions.vm.boot.waiting")
+          @env[:ui].info I18n.t("vagrant.actions.vm.boot.waiting")
 
-          @env["config"].ssh.max_tries.to_i.times do |i|
-            if @env["vm"].ssh.up?
-              @env.ui.info I18n.t("vagrant.actions.vm.boot.ready")
+          @env[:vm].config.ssh.max_tries.to_i.times do |i|
+            if @env[:vm].ssh.up?
+              @env[:ui].info I18n.t("vagrant.actions.vm.boot.ready")
               return true
             end
 
@@ -38,7 +38,7 @@ module Vagrant
             sleep 2 if !@env["vagrant.test"]
           end
 
-          @env.ui.error I18n.t("vagrant.actions.vm.boot.failed")
+          @env[:ui].error I18n.t("vagrant.actions.vm.boot.failed")
           false
         end
       end

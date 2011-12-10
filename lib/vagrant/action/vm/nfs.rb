@@ -42,7 +42,7 @@ module Vagrant
         end
 
         def recover(env)
-          clear_nfs_exports(env) if env["vm"].created?
+          clear_nfs_exports(env) if env[:vm].created?
         end
 
         # Returns the folders which are to be synced via NFS.
@@ -55,7 +55,7 @@ module Vagrant
         # task.
         def extract_folders
           # Load the NFS enabled shared folders
-          @folders = @env["config"].vm.shared_folders.inject({}) do |acc, data|
+          @folders = @env[:vm].config.vm.shared_folders.inject({}) do |acc, data|
             key, opts = data
 
             if opts[:nfs]
@@ -91,7 +91,7 @@ module Vagrant
 
           # The options on the hash get priority, then the default
           # values
-          value = opts.has_key?(key) ? opts[key] : @env["config"].nfs.send(key)
+          value = opts.has_key?(key) ? opts[key] : @env[:vm].config.nfs.send(key)
           return value if value != :auto
 
           # Get UID/GID from folder if we've made it this far
@@ -104,9 +104,9 @@ module Vagrant
         # involves adding a line to `/etc/exports` for this VM, but it is
         # up to the host class to define the specific behavior.
         def export_folders
-          @env.ui.info I18n.t("vagrant.actions.vm.nfs.exporting")
+          @env[:ui].info I18n.t("vagrant.actions.vm.nfs.exporting")
 
-          @env["host"].nfs_export(guest_ip, folders)
+          @env[:host].nfs_export(guest_ip, folders)
         end
 
         # Uses the system class to mount the NFS folders.
@@ -116,14 +116,14 @@ module Vagrant
           # Only mount the folders which have a guest path specified
           am_folders = folders.select { |name, folder| folder[:guestpath] }
           am_folders = Hash[*am_folders.flatten] if am_folders.is_a?(Array)
-          @env["vm"].system.mount_nfs(host_ip, Hash[am_folders])
+          @env[:vm].system.mount_nfs(host_ip, Hash[am_folders])
         end
 
         # Returns the IP address of the first host only network adapter
         #
         # @return [String]
         def host_ip
-          interface = @env["vm"].vm.network_adapters.find do |adapter|
+          interface = @env[:vm].config.vm.network_adapters.find do |adapter|
             adapter.host_interface_object
           end
 
@@ -136,7 +136,7 @@ module Vagrant
         #
         # @return [String]
         def guest_ip
-          @env["config"].vm.network_options[1][:ip]
+          @env[:vm].config.vm.network_options[1][:ip]
         end
 
         # Checks if there are any NFS enabled shared folders.
@@ -150,9 +150,9 @@ module Vagrant
 
         # Verifies that the host is set and supports NFS.
         def verify_settings
-          raise Errors::NFSHostRequired if @env["host"].nil?
-          raise Errors::NFSNotSupported if !@env["host"].nfs?
-          raise Errors::NFSNoHostNetwork if @env["config"].vm.network_options.empty?
+          raise Errors::NFSHostRequired if @env[:host].nil?
+          raise Errors::NFSNotSupported if !@env[:host].nfs?
+          raise Errors::NFSNoHostNetwork if @env[:vm].config.vm.network_options.empty?
         end
       end
     end
