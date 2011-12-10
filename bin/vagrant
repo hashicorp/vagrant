@@ -7,6 +7,10 @@ require 'vagrant/cli'
 logger = Log4r::Logger.new("vagrant::bin::vagrant")
 logger.info("`vagrant` invoked: #{ARGV.inspect}")
 
+# Stdout/stderr should not buffer output
+$stdout.sync = true
+$stderr.sync = true
+
 # These will be the options that are passed to initialze the Vagrant
 # environment.
 opts = {}
