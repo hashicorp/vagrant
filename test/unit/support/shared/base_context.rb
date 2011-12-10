@@ -25,6 +25,6 @@ shared_context "unit" do
       f.flush
     end
 
-    return Pathname.new(f.path)
+    return Pathname.new(f)
   end
 end
