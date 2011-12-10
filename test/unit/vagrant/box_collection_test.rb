@@ -31,6 +31,11 @@ describe Vagrant::BoxCollection do
     end
   end
 
+  it "should throw an error if the box already exists when adding" do
+    environment.box("foo")
+    expect { instance.add("foo", "bar") }.to raise_error(Vagrant::Errors::BoxAlreadyExists)
+  end
+
   it "should add the box" do
     name = "foo"
     url  = "bar"

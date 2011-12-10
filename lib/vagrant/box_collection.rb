@@ -33,6 +33,8 @@ module Vagrant
     # Adds a box to this collection with the given name and located
     # at the given URL.
     def add(name, url)
+      raise Errors::BoxAlreadyExists, :name => name if find(name)
+
       @action_runner.run(:box_add,
                          :box_name => name,
                          :box_url => url,
