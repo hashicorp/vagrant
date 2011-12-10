@@ -73,7 +73,7 @@ namespace :acceptance do
   desc "Generates the configuration for acceptance tests from current source."
   task :config, :box_dir do |t, args|
     require File.expand_path("../../lib/vagrant/version", __FILE__)
-    require File.expand_path('../../test/acceptance/support/tempdir', __FILE__)
+    require File.expand_path('../../test/support/tempdir', __FILE__)
 
     # Get the directory for the boxes
     box_dir = Pathname.new(args[:box_dir] || File.expand_path("../../test/tmp/boxes", __FILE__))
