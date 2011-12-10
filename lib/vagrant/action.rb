@@ -3,17 +3,59 @@ require 'log4r'
 require 'vagrant/action/builder'
 require 'vagrant/action/builtin'
 
-# The builtin middlewares
-require 'vagrant/action/box'
-require 'vagrant/action/env'
-require 'vagrant/action/general'
-require 'vagrant/action/vm'
-
 module Vagrant
   class Action
     autoload :Environment, 'vagrant/action/environment'
     autoload :Registry,    'vagrant/action/registry'
     autoload :Runner,      'vagrant/action/runner'
     autoload :Warden,      'vagrant/action/warden'
+
+    module Box
+      autoload :Destroy,   'vagrant/action/box/destroy'
+      autoload :Download,  'vagrant/action/box/download'
+      autoload :Package,   'vagrant/action/box/package'
+      autoload :Unpackage, 'vagrant/action/box/unpackage'
+      autoload :Verify,    'vagrant/action/box/verify'
+    end
+
+    module Env
+      autoload :Set, 'vagrant/action/env/set'
+    end
+
+    module General
+      autoload :Package,  'vagrant/action/general/package'
+      autoload :Validate, 'vagrant/action/general/validate'
+    end
+
+    module VM
+      autoload :Boot,                'vagrant/action/vm/boot'
+      autoload :CheckAccessible,     'vagrant/action/vm/check_accessible'
+      autoload :CheckBox,            'vagrant/action/vm/check_box'
+      autoload :CheckGuestAdditions, 'vagrant/action/vm/check_guest_additions'
+      autoload :CleanMachineFolder,  'vagrant/action/vm/clean_machine_folder'
+      autoload :ClearForwardedPorts, 'vagrant/action/vm/clear_forwarded_ports'
+      autoload :ClearNFSExports,     'vagrant/action/vm/clear_nfs_exports'
+      autoload :ClearSharedFolders,  'vagrant/action/vm/clear_shared_folders'
+      autoload :Customize,           'vagrant/action/vm/customize'
+      autoload :Destroy,             'vagrant/action/vm/destroy'
+      autoload :DestroyUnusedNetworkInterfaces, 'vagrant/action/vm/destroy_unused_network_interfaces'
+      autoload :DiscardState,        'vagrant/action/vm/discard_state'
+      autoload :Export,              'vagrant/action/vm/export'
+      autoload :ForwardPorts,        'vagrant/action/vm/forward_ports'
+      autoload :Halt,                'vagrant/action/vm/halt'
+      autoload :HostName,            'vagrant/action/vm/host_name'
+      autoload :Import,              'vagrant/action/vm/import'
+      autoload :MatchMACAddress,     'vagrant/action/vm/match_mac_address'
+      autoload :Modify,              'vagrant/action/vm/modify'
+      autoload :Network,             'vagrant/action/vm/network'
+      autoload :NFS,                 'vagrant/action/vm/nfs'
+      autoload :Package,             'vagrant/action/vm/package'
+      autoload :PackageVagrantfile,  'vagrant/action/vm/package_vagrantfile'
+      autoload :Provision,           'vagrant/action/vm/provision'
+      autoload :ProvisionerCleanup,  'vagrant/action/vm/provisioner_cleanup'
+      autoload :Resume,              'vagrant/action/vm/resume'
+      autoload :ShareFolders,        'vagrant/action/vm/share_folders'
+      autoload :Suspend,             'vagrant/action/vm/suspend'
+    end
   end
 end
