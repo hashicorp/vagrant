@@ -91,6 +91,7 @@ module Vagrant
     #
     # @return [Pathname]
     def dotfile_path
+      return nil if !root_path
       root_path.join(config.global.vagrant.dotfile_name)
     end
 
