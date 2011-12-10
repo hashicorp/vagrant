@@ -26,17 +26,6 @@ module Vagrant
       @directory = directory
     end
 
-    # Returns path to the OVF file of the box. The OVF file is an open
-    # virtual machine file which contains specifications of the exported
-    # virtual machine this box contains.
-    #
-    # This will only be valid once the box is imported.
-    #
-    # @return [String]
-    def ovf_file
-      directory.join(env.config.vm.box_ovf)
-    end
-
     # Begins the process of destroying this box. This cannot be undone!
     def destroy
       env.actions.run(:box_remove, { "box" => self, "validate" => false })

@@ -39,7 +39,11 @@ describe Vagrant::BoxCollection do
     # and parameters. We leave the testing of the actual stack to
     # acceptance tests, and individual pieces to unit tests of each
     # step.
-    options = { :box_name => name, :box_url => url }
+    options = {
+      :box_name => name,
+      :box_url => url,
+      :box_directory => instance.directory.join(name)
+    }
     action_runner.should_receive(:run).with(:box_add, options)
 
     instance.add(name, url)

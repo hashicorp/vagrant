@@ -37,16 +37,18 @@ module Vagrant
         end
 
         def setup_box_directory
-          raise Errors::BoxAlreadyExists, :name => @env["box"].name if File.directory?(@env["box"].directory)
+          if File.directory?(@env["box_directory"])
+            raise Errors::BoxAlreadyExists, :name => @env["box_name"]
+          end
 
-          FileUtils.mkdir_p(@env["box"].directory)
-          @box_directory = @env["box"].directory
+          FileUtils.mkdir_p(@env["box_directory"])
+          @box_directory = @env["box_directory"]
         end
 
         def decompress
-          Dir.chdir(@env["box"].directory) do
-            @env.ui.info I18n.t("vagrant.actions.box.unpackage.extracting")
-            Archive::Tar::Minitar.unpack(@env["download.temp_path"], @env["box"].directory.to_s)
+          Dir.chdir(@env["box_directory"]) do
+            @env[:ui].info I18n.t("vagrant.actions.box.unpackage.extracting")
+            Archive::Tar::Minitar.unpack(@env["download.temp_path"], @env["box_directory"].to_s)
           end
         end
       end

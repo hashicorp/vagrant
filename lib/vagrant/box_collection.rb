@@ -33,7 +33,10 @@ module Vagrant
     # Adds a box to this collection with the given name and located
     # at the given URL.
     def add(name, url)
-      @action_runner.run(:box_add, :box_name => name, :box_url => url)
+      @action_runner.run(:box_add,
+                         :box_name => name,
+                         :box_url => url,
+                         :box_directory => @directory.join(name))
     end
 
     # Loads the list of all boxes from the source. This modifies the

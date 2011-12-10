@@ -15,7 +15,6 @@ Vagrant::Config.run do |config|
   config.ssh.forward_x11 = false
 
   config.vm.auto_port_range = (2200..2250)
-  config.vm.box_ovf = "box.ovf"
   config.vm.box_url = nil
   config.vm.base_mac = nil
   config.vm.forward_port("ssh", 22, 2222, :auto => true)

@@ -12,7 +12,6 @@ module Vagrant
       attr_accessor :auto_port_range
       attr_accessor :box
       attr_accessor :box_url
-      attr_accessor :box_ovf
       attr_accessor :base_mac
       attr_accessor :boot_mode
       attr_accessor :host_name

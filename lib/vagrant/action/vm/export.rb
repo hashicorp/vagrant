@@ -44,7 +44,7 @@ module Vagrant
         end
 
         def ovf_path
-          File.join(@env["export.temp_dir"], @env.env.config.vm.box_ovf)
+          File.join(@env["export.temp_dir"], "box.ovf")
         end
       end
     end
