@@ -5,13 +5,11 @@ require "rspec/autorun"
 # classes to test.
 require "vagrant"
 
-# Add this directory to the load path, since it just makes
-# everything else easier.
-$:.unshift File.expand_path("../", __FILE__)
+# Add the test directory to the load path
 $:.unshift File.expand_path("../../", __FILE__)
 
 # Load in helpers
-require "support/shared/base_context"
+require "unit/support/shared/base_context"
 
 # Do not buffer output
 $stdout.sync = true

@@ -1,4 +1,4 @@
-require "support/output"
+require "acceptance/support/output"
 
 # This creates a matcher that is used to match against certain
 # Vagrant output. Vagrant output is not what is being tested,

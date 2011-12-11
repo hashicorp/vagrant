@@ -1,5 +1,5 @@
 require File.expand_path("../base", __FILE__)
-require "support/shared/command_examples"
+require "acceptance/support/shared/command_examples"
 
 describe "vagrant suspend" do
   include_context "acceptance"

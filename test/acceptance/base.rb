@@ -3,16 +3,14 @@ require "rspec/autorun"
 
 require "log4r"
 
-# Add this directory to the load path, since it just makes
-# everything else so much easier.
-$:.unshift File.expand_path("../", __FILE__)
+# Add the test directory to the load path
 $:.unshift File.expand_path("../../", __FILE__)
 
 # Load in the supporting files for our tests
-require "support/shared/base_context"
-require "support/config"
-require "support/virtualbox"
-require "support/matchers/match_output"
+require "acceptance/support/shared/base_context"
+require "acceptance/support/config"
+require "acceptance/support/virtualbox"
+require "acceptance/support/matchers/match_output"
 
 # Do not buffer output
 $stdout.sync = true

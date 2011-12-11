@@ -1,5 +1,5 @@
 require File.expand_path("../base", __FILE__)
-require "support/matchers/have_color"
+require "acceptance/support/matchers/have_color"
 
 describe "vagrant and color output" do
   include_context "acceptance"

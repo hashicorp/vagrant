@@ -1,6 +1,6 @@
-require "support/isolated_environment"
-require "support/output"
-require "support/virtualbox"
+require "acceptance/support/isolated_environment"
+require "acceptance/support/output"
+require "acceptance/support/virtualbox"
 
 shared_context "acceptance" do
   # Setup variables for the loggers of this test. These can be used to

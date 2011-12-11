@@ -1,44 +1,21 @@
-require "fileutils"
-require "pathname"
-
 require "log4r"
 require "childprocess"
 
-require "support/tempdir"
-require "support/virtualbox"
+require "acceptance/support/virtualbox"
+require "support/isolated_environment"
 
 module Acceptance
   # This class manages an isolated environment for Vagrant to
   # run in. It creates a temporary directory to act as the
   # working directory as well as sets a custom home directory.
-  class IsolatedEnvironment
-    attr_reader :homedir
-    attr_reader :workdir
-
-    # Initializes an isolated environment. You can pass in some
-    # options here to configure runing custom applications in place
-    # of others as well as specifying environmental variables.
-    #
-    # @param [Hash] apps A mapping of application name (such as "vagrant")
-    #   to an alternate full path to the binary to run.
-    # @param [Hash] env Additional environmental variables to inject
-    #   into the execution environments.
+  class IsolatedEnvironment < ::IsolatedEnvironment
     def initialize(apps=nil, env=nil)
+      super()
+
       @logger = Log4r::Logger.new("acceptance::isolated_environment")
 
       @apps = apps || {}
       @env  = env || {}
-
-      # Create a temporary directory for our work
-      @tempdir = Tempdir.new("vagrant")
-      @logger.info("Initialize isolated environment: #{@tempdir.path}")
-
-      # Setup the home and working directories
-      @homedir = Pathname.new(File.join(@tempdir.path, "home"))
-      @workdir = Pathname.new(File.join(@tempdir.path, "work"))
-
-      @homedir.mkdir
-      @workdir.mkdir
 
       # Set the home directory and virtualbox home directory environmental
       # variables so that Vagrant and VirtualBox see the proper paths here.
@@ -149,9 +126,8 @@ module Acceptance
       # environment.
       delete_virtual_machines if VirtualBox.find_vboxsvc
 
-      # Delete the temporary directory
-      @logger.info("Removing isolated environment: #{@tempdir.path}")
-      FileUtils.rm_rf(@tempdir.path)
+      # Let the parent handle cleaning up
+      super
     end
 
     def delete_virtual_machines

@@ -1,6 +1,6 @@
 require "tempfile"
 
-require "support/isolated_environment"
+require "unit/support/isolated_environment"
 
 shared_context "unit" do
   # This creates an isolated environment so that Vagrant doesn't
