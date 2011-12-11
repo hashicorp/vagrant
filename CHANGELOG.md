@@ -1,3 +1,8 @@
+## 0.8.9 (December 10, 2011)
+
+  - Revert the SSH tweaks made in 0.8.8. It affected stability
+    that I'd rather not test in a patch release.
+
 ## 0.8.8 (December 1, 2011)
 
   - Mount shared folders shortest to longest to avoid mounting
