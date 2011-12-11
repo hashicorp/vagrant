@@ -163,7 +163,7 @@ module Vagrant
     #
     # @return [Array<VM>]
     def vms_ordered
-      @vms_enum ||= config.vm.defined_vm_keys.map { |name| @vms[name] }
+      @vms_enum ||= config.global.vm.defined_vm_keys.map { |name| @vms[name] }
     end
 
     # Returns the primary VM associated with this environment. This
@@ -356,9 +356,11 @@ module Vagrant
     end
 
     # Reloads the configuration of this environment.
-    def reload_config!
+    def reload!
       @config = nil
+      @vms    = nil
       load_config!
+      load_vms!
       self
     end
 

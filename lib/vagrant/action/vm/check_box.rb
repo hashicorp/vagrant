@@ -20,12 +20,9 @@ module Vagrant
             env[:box_collection].add(box_name, box_url)
             env[:box_collection].reload!
 
-            # Reload the configuration for all our VMs, since this box
-            # may be used for other VMs.
-            # TODO: This doesn't work properly
-            env[:vm].env.vms.each do |name, vm|
-              vm.env.reload_config!
-            end
+            # Reload the environment and set the VM to be the new loaded VM.
+            env[:vm].env.reload!
+            env[:vm] = env[:vm].env.vms[env[:vm].name]
           end
 
           @app.call(env)
