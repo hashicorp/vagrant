@@ -468,11 +468,6 @@ module Vagrant
                                                  DEFAULT_HOME))
       @logger.info("Home path: #{@home_path}")
 
-      if !@home_path.readable? || !@home_path.writable?
-        @logger.error("Home directory not accessible")
-        raise Errors::HomeDirectoryNotAccessible, :home_path => @home_path.to_s
-      end
-
       # Setup the array of necessary home directories
       dirs = [@home_path]
       dirs += HOME_SUBDIRS.collect { |subdir| @home_path.join(subdir) }
@@ -481,8 +476,12 @@ module Vagrant
       dirs.each do |dir|
         next if File.directory?(dir)
 
-        @logger.info("Creating: #{dir}")
-        FileUtils.mkdir_p(dir)
+        begin
+          @logger.info("Creating: #{dir}")
+          FileUtils.mkdir_p(dir)
+        rescue Errno::EACCES
+          raise Errors::HomeDirectoryNotAccessible, :home_path => @home_path.to_s
+        end
       end
     end
 
