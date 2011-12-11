@@ -432,6 +432,10 @@ en:
             A box already exists under the name of '%{name}'. This may or may
             not be the same box you are trying to add. Please use another name
             or remove the previous box then try to add it again.
+          untar_failure: |-
+            Failed to untar the box file. This is usually because you're
+            attempting to add a box that isn't a valid box file. Please
+            double check that the box file is properly packaged.
         verify:
           verifying: "Verifying box..."
           failed: |-

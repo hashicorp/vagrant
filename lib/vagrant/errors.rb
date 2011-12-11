@@ -118,6 +118,11 @@ module Vagrant
       error_key(:does_not_exist, "vagrant.actions.vm.check_box")
     end
 
+    class BoxUnpackageFailure < VagrantError
+      status_code(57)
+      error_key(:untar_failure, "vagrant.actions.box.unpackage")
+    end
+
     class BoxVerificationFailed < VagrantError
       status_code(15)
       error_key(:failed, "vagrant.actions.box.verify")

@@ -48,7 +48,11 @@ module Vagrant
         def decompress
           Dir.chdir(@env["box_directory"]) do
             @env[:ui].info I18n.t("vagrant.actions.box.unpackage.extracting")
-            Archive::Tar::Minitar.unpack(@env["download.temp_path"], @env["box_directory"].to_s)
+            begin
+              Archive::Tar::Minitar.unpack(@env["download.temp_path"], @env["box_directory"].to_s)
+            rescue SystemCallError
+              raise Errors::BoxUnpackageFailure
+            end
           end
         end
       end
