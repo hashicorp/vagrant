@@ -357,11 +357,11 @@ module Vagrant
 
     # Reloads the configuration of this environment.
     def reload!
-      @config = nil
-      @vms    = nil
+      # Reload the configuration
       load_config!
-      load_vms!
-      self
+
+      # Clear the VMs because this can now be diferent due to configuration
+      @vms = nil
     end
 
     # Loads this environment's configuration and stores it in the {#config}

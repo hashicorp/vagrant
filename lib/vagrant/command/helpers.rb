@@ -28,6 +28,16 @@ module Vagrant
           [vm]
         end
       end
+
+      # This will yield for each target VM to the command. The VM is guaranteed
+      # to be loaded on each iteration.
+      def with_target_vms
+        target_vms.each do |old_vm|
+          # We get a new VM here to avoid potentially stale VMs
+          vm = env.vms[old_vm.name]
+          yield vm
+        end
+      end
     end
   end
 end

@@ -5,7 +5,7 @@ module Vagrant
       register "up", "Creates the Vagrant environment"
 
       def execute
-        target_vms.each do |vm|
+        with_target_vms do |vm|
           if vm.created?
             vm.env.ui.info I18n.t("vagrant.commands.up.vm_created")
             vm.start("provision.enabled" => options[:provision])
