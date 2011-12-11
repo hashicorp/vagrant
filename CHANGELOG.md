@@ -4,6 +4,8 @@
     to make debugging issues easier. To enable logging, set the VAGRANT_LOG
     environmental variable to the log level you wish to see. By default,
     logging is silent.
+  - Linux uses `shutdown -h` instead of `halt` to hopefully more consistently
+    power off the system. [GH-575]
 
 ## 0.8.8 (December 1, 2011)
 
