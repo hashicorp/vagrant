@@ -8,7 +8,7 @@
     power off the system. [GH-575]
   - Tweaks to SSH to hopefully be more reliable in coming up.
 
-## 0.8.9 (December 10, 2011)
+## 0.8.10 (December 10, 2011)
 
   - Revert the SSH tweaks made in 0.8.8. It affected stability
 

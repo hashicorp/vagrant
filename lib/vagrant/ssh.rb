@@ -120,7 +120,7 @@ module Vagrant
         execute(:timeout => @vm.config.ssh.timeout, :port => ssh_port) { |ssh| }
       end
 
-      false
+      true
     rescue Net::SSH::AuthenticationFailed
       raise Errors::SSHAuthenticationFailed
     rescue Timeout::Error, Errno::ECONNREFUSED, Net::SSH::Disconnect,
