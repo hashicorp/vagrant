@@ -123,11 +123,16 @@ module Vagrant
         env.ui.info I18n.t("vagrant.provisioners.puppet.running_puppet", :manifest => config.computed_manifest_file)
 
         vm.ssh.execute do |ssh|
+          last_data="" # hack for JRuby
           ssh.sudo! commands do |ch, type, data|
             if type == :exit_status
               ssh.check_exit_status(data, commands)
+            elsif last_data.include?("notice: Finished catalog run in")
+              # hack for JRuby
+              return
             else
               env.ui.info(data)
+              last_data=data unless data.strip.empty? # hack for JRuby
             end
           end
         end
