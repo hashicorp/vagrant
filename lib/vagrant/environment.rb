@@ -484,6 +484,5 @@ module Vagrant
         end
       end
     end
-
   end
 end
