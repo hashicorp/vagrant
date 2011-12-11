@@ -159,10 +159,22 @@ module Vagrant
 
     def powered_off?; @vm.powered_off? end
 
+    def ui
+      return @_ui if defined?(@_ui)
+      @_ui = @env.ui.dup
+      @_ui.resource = @name
+      @_ui
+    end
+
     protected
 
     def run_action(name, options=nil)
-      env.action_runner.run(name, { :vm => self }.merge(options || {}))
+      options = {
+        :vm => self,
+        :ui => ui
+      }.merge(options || {})
+
+      env.action_runner.run(name, options)
     end
   end
 end

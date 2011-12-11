@@ -72,7 +72,7 @@ module Vagrant
       @home_path = opts[:home_path]
 
       ui_class = opts[:ui_class] || UI::Silent
-      @ui      = ui_class.new(self)
+      @ui      = ui_class.new("vagrant")
 
       @loaded = false
       @lock_acquired = false

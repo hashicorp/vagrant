@@ -10,11 +10,11 @@ module Vagrant
     # * `error`
     # * `success`
     class Interface
-      attr_accessor :env
+      attr_accessor :resource
 
-      def initialize(env)
-        @env    = env
-        @logger = Log4r::Logger.new("vagrant::ui::interface")
+      def initialize(resource)
+        @logger   = Log4r::Logger.new("vagrant::ui::interface")
+        @resource = resource
       end
 
       [:warn, :error, :info, :success].each do |method|
@@ -89,7 +89,7 @@ module Vagrant
       # This is called by `say` to format the message for output.
       def format_message(type, message, opts=nil)
         opts ||= {}
-        message = "[#{env.resource}] #{message}" if opts[:prefix]
+        message = "[#{@resource}] #{message}" if opts[:prefix]
         message
       end
     end
