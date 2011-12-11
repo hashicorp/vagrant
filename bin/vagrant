@@ -22,12 +22,13 @@ else
   opts[:ui_class] = Vagrant::UI::Colored
 end
 
-# Create the environment, which is the cwd of wherever the
-# `vagrant` command was invoked from
-logger.debug("Creating Vagrant environment")
-env = Vagrant::Environment.new(opts)
-
+env = nil
 begin
+  # Create the environment, which is the cwd of wherever the
+  # `vagrant` command was invoked from
+  logger.debug("Creating Vagrant environment")
+  env = Vagrant::Environment.new(opts)
+
   # Load the environment
   logger.debug("Loading environment")
   env.load!
@@ -40,8 +41,14 @@ rescue Vagrant::Errors::VagrantError => e
   logger.error(e.message)
   logger.error(e.backtrace.join("\n"))
 
-  opts = { :prefix => false }
-  env.ui.error e.message, opts if e.message
+  if env
+    opts = { :prefix => false }
+    env.ui.error e.message, opts if e.message
+  else
+    $stderr.puts "Vagrant failed to initialize at a very early stage:\n\n"
+    $stderr.puts e.message
+  end
+
   exit e.status_code if e.respond_to?(:status_code)
   exit 999 # An error occurred with no status code defined
 end

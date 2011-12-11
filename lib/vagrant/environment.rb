@@ -21,6 +21,10 @@ module Vagrant
     # The {UI} object to communicate with the outside world.
     attr_reader :ui
 
+    # The directory to the "home" folder that Vagrant will use to store
+    # global state.
+    attr_reader :home_path
+
     #---------------------------------------------------------------
     # Class Methods
     #---------------------------------------------------------------
@@ -80,6 +84,9 @@ module Vagrant
       @logger = Log4r::Logger.new("vagrant::environment")
       @logger.info("Environment initialized (#{self})")
       @logger.info("  - cwd: #{cwd}")
+
+      # Setup the home directory
+      setup_home_path
     end
 
     #---------------------------------------------------------------
@@ -93,23 +100,6 @@ module Vagrant
     def dotfile_path
       return nil if !root_path
       root_path.join(config.global.vagrant.dotfile_name)
-    end
-
-    # The path to the home directory and converted into a Pathname object.
-    #
-    # @return [Pathname]
-    def home_path
-      return @_home_path if defined?(@_home_path)
-
-      @_home_path ||= Pathname.new(File.expand_path(@home_path ||
-                                                    ENV["VAGRANT_HOME"] ||
-                                                    DEFAULT_HOME))
-      @logger.info("Home path: #{@_home_path}")
-
-      # Make sure the home directory is properly setup
-      load_home_directory!
-
-      @_home_path
     end
 
     # The path to the Vagrant tmp directory
@@ -446,22 +436,6 @@ module Vagrant
       @config = Config::Container.new(global, vm_configs)
     end
 
-    # Loads the home directory path and creates the necessary subdirectories
-    # within the home directory if they're not already created.
-    def load_home_directory!
-      # Setup the array of necessary home directories
-      dirs = [home_path]
-      dirs += HOME_SUBDIRS.collect { |subdir| home_path.join(subdir) }
-
-      # Go through each required directory, creating it if it doesn't exist
-      dirs.each do |dir|
-        next if File.directory?(dir)
-
-        @logger.info("Creating: #{dir}")
-        FileUtils.mkdir_p(dir)
-      end
-    end
-
     # Loads the persisted VM (if it exists) for this environment.
     def load_vms!
       result = {}
@@ -484,5 +458,33 @@ module Vagrant
 
       result
     end
+
+    # This sets the `@home_path` variable properly.
+    #
+    # @return [Pathname]
+    def setup_home_path
+      @home_path = Pathname.new(File.expand_path(@home_path ||
+                                                 ENV["VAGRANT_HOME"] ||
+                                                 DEFAULT_HOME))
+      @logger.info("Home path: #{@home_path}")
+
+      if !@home_path.readable? || !@home_path.writable?
+        @logger.error("Home directory not accessible")
+        raise Errors::HomeDirectoryNotAccessible, :home_path => @home_path.to_s
+      end
+
+      # Setup the array of necessary home directories
+      dirs = [@home_path]
+      dirs += HOME_SUBDIRS.collect { |subdir| @home_path.join(subdir) }
+
+      # Go through each required directory, creating it if it doesn't exist
+      dirs.each do |dir|
+        next if File.directory?(dir)
+
+        @logger.info("Creating: #{dir}")
+        FileUtils.mkdir_p(dir)
+      end
+    end
+
   end
 end

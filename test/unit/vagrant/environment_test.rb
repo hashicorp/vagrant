@@ -36,6 +36,12 @@ describe Vagrant::Environment do
       expected = Pathname.new(File.expand_path(described_class::DEFAULT_HOME))
       described_class.new.home_path.should == expected
     end
+
+    it "throws an exception if inaccessible" do
+      expect {
+        described_class.new(:home_path => "/")
+      }.to raise_error(Vagrant::Errors::HomeDirectoryNotAccessible)
+    end
   end
 
   it "has a box collection pointed to the proper directory" do

@@ -163,6 +163,11 @@ module Vagrant
       error_key(:home_dir_migration_failed)
     end
 
+    class HomeDirectoryNotAccessible < VagrantError
+      status_code(55)
+      error_key(:home_dir_not_accessible)
+    end
+
     class ForwardPortAutolistEmpty < VagrantError
       status_code(27)
       error_key(:auto_empty, "vagrant.actions.vm.forward_ports")

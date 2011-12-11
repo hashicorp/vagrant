@@ -43,6 +43,11 @@ en:
         may run at any given time to avoid problems with VirtualBox inconsistencies
         occurring. Please wait for the other instance of Vagrant to end and then
         try again.
+      home_dir_not_accessible: |-
+        The home directory you specified is not accessible. The home
+        directory that Vagrant uses must be both readable and writable.
+
+        You specified: %{home_path}
       interrupted: "Vagrant exited after cleanup due to external interrupt."
       multi_vm_required: "A multi-vm environment is required for name specification to this command."
       multi_vm_target_required: "`vagrant %{command}` requires a specific VM name to target in a multi-VM environment."
