@@ -8,7 +8,7 @@ module Vagrant
   # defined as basically a folder with a "Vagrantfile." This class allows
   # access to the VMs, CLI, etc. all in the scope of this environment.
   class Environment
-    HOME_SUBDIRS = ["tmp", "boxes", "logs"]
+    HOME_SUBDIRS = ["tmp", "boxes"]
     DEFAULT_VM = :default
     DEFAULT_HOME = "~/.vagrant.d"
 
@@ -24,6 +24,12 @@ module Vagrant
     # The directory to the "home" folder that Vagrant will use to store
     # global state.
     attr_reader :home_path
+
+    # The directory where temporary files for Vagrant go.
+    attr_reader :tmp_path
+
+    # The directory where boxes are stored.
+    attr_reader :boxes_path
 
     #---------------------------------------------------------------
     # Class Methods
@@ -87,6 +93,8 @@ module Vagrant
 
       # Setup the home directory
       setup_home_path
+      @tmp_path = @home_path.join("tmp")
+      @boxes_path = @home_path.join("boxes")
     end
 
     #---------------------------------------------------------------
@@ -100,37 +108,6 @@ module Vagrant
     def dotfile_path
       return nil if !root_path
       root_path.join(config.global.vagrant.dotfile_name)
-    end
-
-    # The path to the Vagrant tmp directory
-    #
-    # @return [Pathname]
-    def tmp_path
-      home_path.join("tmp")
-    end
-
-    # The path to the Vagrant boxes directory
-    #
-    # @return [Pathname]
-    def boxes_path
-      home_path.join("boxes")
-    end
-
-    # Path to the Vagrant logs directory
-    #
-    # @return [Pathname]
-    def log_path
-      home_path.join("logs")
-    end
-
-    # Returns the name of the resource which this environment represents.
-    # The resource is the VM name if there is a VM it represents, otherwise
-    # it defaults to "vagrant"
-    #
-    # @return [String]
-    def resource
-      result = vm.name rescue nil
-      result || "vagrant"
     end
 
     # Returns the collection of boxes for the environment.
