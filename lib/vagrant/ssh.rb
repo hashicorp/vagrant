@@ -104,6 +104,12 @@ module Vagrant
           scp.upload!(from, to)
         end
       end
+    rescue Net::SCP::Error
+      # If we get the exit code of 127, then this means SCP is unavailable.
+      raise Errors::SCPUnavailable if e.message =~ /\(127\)/
+
+      # Otherwise, just raise the error up
+      raise
     end
 
     # Checks if this environment's machine is up (i.e. responding to SSH).

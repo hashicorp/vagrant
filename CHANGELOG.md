@@ -7,6 +7,7 @@
   - Linux uses `shutdown -h` instead of `halt` to hopefully more consistently
     power off the system. [GH-575]
   - Tweaks to SSH to hopefully be more reliable in coming up.
+  - Helpful error message when SCP is unavailable in the guest. [GH-568]
 
 ## 0.8.10 (December 10, 2011)
 

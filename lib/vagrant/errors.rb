@@ -245,6 +245,11 @@ module Vagrant
       error_key(:dotfile_error, "vagrant.actions.vm.persist")
     end
 
+    class SCPUnavailable < VagrantError
+      status_code(56)
+      error_key(:scp_unavailable)
+    end
+
     class SSHAuthenticationFailed < VagrantError
       status_code(11)
       error_key(:ssh_authentication_failed)

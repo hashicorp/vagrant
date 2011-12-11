@@ -52,6 +52,9 @@ en:
       multi_vm_required: "A multi-vm environment is required for name specification to this command."
       multi_vm_target_required: "`vagrant %{command}` requires a specific VM name to target in a multi-VM environment."
       no_env: "No Vagrant environment detected. Run `vagrant init` to set one up."
+      scp_unavailable: |-
+        SSH server on the guest doesn't support SCP. Please install the necessary
+        software to enable SCP on your guest operating system.
       ssh_authentication_failed: |-
         SSH authentication failed! This is typically caused by the public/private
         keypair for the SSH user not being properly set on the guest VM. Please
