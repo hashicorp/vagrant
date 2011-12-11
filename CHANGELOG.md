@@ -8,6 +8,10 @@
     power off the system. [GH-575]
   - Tweaks to SSH to hopefully be more reliable in coming up.
 
+## 0.8.9 (December 10, 2011)
+
+  - Revert the SSH tweaks made in 0.8.8. It affected stability
+
 ## 0.8.8 (December 1, 2011)
 
   - Mount shared folders shortest to longest to avoid mounting
