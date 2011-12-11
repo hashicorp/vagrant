@@ -115,12 +115,7 @@ module Vagrant
 
       require 'timeout'
       Timeout.timeout(env.config.ssh.timeout) do
-        execute(:timeout => env.config.ssh.timeout, :port => ssh_port) do |ssh|
-          # We run a basic command to test that the shell is up and
-          # ready to receive commands. Only then is our SSH connection
-          # truly "up"
-          return ssh.exec!("echo hello") == "hello\n"
-        end
+        execute(:timeout => env.config.ssh.timeout, :port => ssh_port) { |ssh| }
       end
 
       false
