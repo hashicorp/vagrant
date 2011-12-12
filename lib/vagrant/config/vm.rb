@@ -135,7 +135,7 @@ module Vagrant
           if prov.shortcut == :chef_server
             errors.add(I18n.t("vagrant.config.vm.provisioner_chef_server_changed"))
           else
-            prov.validate(errors)
+            prov.validate(env, errors)
           end
         end
       end

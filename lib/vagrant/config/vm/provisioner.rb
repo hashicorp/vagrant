@@ -48,7 +48,7 @@ module Vagrant
           end
 
           # Pass on validation to the provisioner config
-          config.validate(errors) if config
+          config.validate(env, errors) if config
         end
       end
     end
