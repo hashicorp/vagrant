@@ -43,8 +43,22 @@ module Vagrant
     @source_root ||= Pathname.new(File.expand_path('../../', __FILE__))
   end
 
+  # Global registry of available host classes and shortcut symbols
+  # associated with them.
+  #
+  # This registry is used to look up the shorcuts for `config.vagrant.host`,
+  # or to query all hosts for automatically detecting the host system.
+  # The registry is global to all of Vagrant.
   def self.hosts
     @hosts ||= Registry.new
+  end
+
+  # Global registry of available guest classes and shortcut symbols
+  # associated with them.
+  #
+  # This registry is used to look up the shortcuts for `config.vm.guest`.
+  def self.guests
+    @guests ||= Registry.new
   end
 end
 
@@ -52,11 +66,22 @@ end
 I18n.load_path << File.expand_path("templates/locales/en.yml", Vagrant.source_root)
 
 # Register the built-in hosts
-Vagrant.hosts.register(:arch) { Vagrant::Hosts::Arch }
+Vagrant.hosts.register(:arch)    { Vagrant::Hosts::Arch }
 Vagrant.hosts.register(:freebsd) { Vagrant::Hosts::FreeBSD }
-Vagrant.hosts.register(:fedora) { Vagrant::Hosts::Fedora }
-Vagrant.hosts.register(:linux) { Vagrant::Hosts::Linux }
-Vagrant.hosts.register(:bsd) { Vagrant::Hosts::BSD }
+Vagrant.hosts.register(:fedora)  { Vagrant::Hosts::Fedora }
+Vagrant.hosts.register(:linux)   { Vagrant::Hosts::Linux }
+Vagrant.hosts.register(:bsd)     { Vagrant::Hosts::BSD }
+
+# Register the built-in guests
+Vagrant.guests.register(:arch)    { Vagrant::Systems::Arch }
+Vagrant.guests.register(:debian)  { Vagrant::Systems::Debian }
+Vagrant.guests.register(:freebsd) { Vagrant::Systems::FreeBSD }
+Vagrant.guests.register(:gentoo)  { Vagrant::Systems::Gentoo }
+Vagrant.guests.register(:linux)   { Vagrant::Systems::Linux }
+Vagrant.guests.register(:redhat)  { Vagrant::Systems::Redhat }
+Vagrant.guests.register(:solaris) { Vagrant::Systems::Solaris }
+Vagrant.guests.register(:suse)    { Vagrant::Systems::Suse }
+Vagrant.guests.register(:ubuntu)  { Vagrant::Systems::Ubuntu }
 
 # Load the things which must be loaded before anything else.
 require 'vagrant/command'
