@@ -1,6 +1,7 @@
 require File.expand_path("../../base", __FILE__)
-
 require "pathname"
+
+require "vagrant/util/file_mode"
 
 require "support/tempdir"
 
@@ -41,6 +42,17 @@ describe Vagrant::Environment do
       expect {
         described_class.new(:home_path => "/")
       }.to raise_error(Vagrant::Errors::HomeDirectoryNotAccessible)
+    end
+  end
+
+  describe "copying the private SSH key" do
+    it "copies the SSH key into the home directory" do
+      env = isolated_environment
+      instance = described_class.new(:home_path => env.homedir)
+
+      pk = env.homedir.join("insecure_private_key")
+      pk.should be_exist
+      Vagrant::Util::FileMode.from_octal(pk.stat.mode).should == "600"
     end
   end
 

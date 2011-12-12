@@ -10,7 +10,6 @@ Vagrant::Config.run do |config|
   config.ssh.forwarded_port_destination = 22
   config.ssh.max_tries = 100
   config.ssh.timeout = 7
-  config.ssh.private_key_path = File.expand_path("keys/vagrant", Vagrant.source_root)
   config.ssh.forward_agent = false
   config.ssh.forward_x11 = false
 

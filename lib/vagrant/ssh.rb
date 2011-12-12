@@ -32,7 +32,8 @@ module Vagrant
 
       options = {}
       options[:port] = port(opts)
-      [:host, :username, :private_key_path].each do |param|
+      options[:private_key_path] = private_key_path
+      [:host, :username].each do |param|
         options[param] = opts[param] || @vm.config.ssh.send(param)
       end
 
@@ -200,7 +201,8 @@ module Vagrant
     end
 
     def private_key_path
-      File.expand_path(@vm.config.ssh.private_key_path, @vm.env.root_path)
+      path = @vm.config.ssh.private_key_path || @vm.env.default_private_key_path
+      File.expand_path(path, @vm.env.root_path)
     end
   end
 end

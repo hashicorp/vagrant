@@ -9,6 +9,8 @@
   - Tweaks to SSH to hopefully be more reliable in coming up.
   - Helpful error message when SCP is unavailable in the guest. [GH-568]
   - Error message for improperly packaged box files. [GH-198]
+  - Copy insecure private key to user-owned directory so even
+    `sudo` installed Vagrant installations work. [GH-580]
 
 ## 0.8.10 (December 10, 2011)
 

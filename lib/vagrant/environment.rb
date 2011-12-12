@@ -3,6 +3,8 @@ require 'fileutils'
 
 require 'log4r'
 
+require 'vagrant/util/file_mode'
+
 module Vagrant
   # Represents a single Vagrant environment. A "Vagrant environment" is
   # defined as basically a folder with a "Vagrantfile." This class allows
@@ -30,6 +32,9 @@ module Vagrant
 
     # The directory where boxes are stored.
     attr_reader :boxes_path
+
+    # The path to the default private key
+    attr_reader :default_private_key_path
 
     #---------------------------------------------------------------
     # Class Methods
@@ -95,6 +100,10 @@ module Vagrant
       setup_home_path
       @tmp_path = @home_path.join("tmp")
       @boxes_path = @home_path.join("boxes")
+
+      # Setup the default private key
+      @default_private_key_path = @home_path.join("insecure_private_key")
+      copy_insecure_private_key
     end
 
     #---------------------------------------------------------------
@@ -459,6 +468,28 @@ module Vagrant
         rescue Errno::EACCES
           raise Errors::HomeDirectoryNotAccessible, :home_path => @home_path.to_s
         end
+      end
+    end
+
+    protected
+
+    # This method copies the private key into the home directory if it
+    # doesn't already exist.
+    #
+    # This must be done because `ssh` requires that the key is chmod
+    # 0600, but if Vagrant is installed as a separate user, then the
+    # effective uid won't be able to read the key. So the key is copied
+    # to the home directory and chmod 0600.
+    def copy_insecure_private_key
+      if !@default_private_key_path.exist?
+        @logger.info("Copying private key to home directory")
+        FileUtils.cp(File.expand_path("keys/vagrant", Vagrant.source_root),
+                     @default_private_key_path)
+      end
+
+      if Util::FileMode.from_octal(@default_private_key_path.stat.mode) != "600"
+        @logger.info("Changing permissions on private key to 0600")
+        @default_private_key_path.chmod(0600)
       end
     end
   end
