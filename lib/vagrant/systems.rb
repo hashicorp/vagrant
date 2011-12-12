@@ -10,4 +10,6 @@ require 'vagrant/systems/gentoo'
 require 'vagrant/systems/redhat'
 require 'vagrant/systems/suse'
 require 'vagrant/systems/ubuntu'
+
+require 'vagrant/systems/windows'
 require 'vagrant/systems/arch'

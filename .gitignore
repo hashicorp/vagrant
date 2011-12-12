@@ -44,3 +44,4 @@ doc/
 # IDE junk
 .idea/*
 *.iml
+*.swp

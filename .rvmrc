@@ -1,0 +1,13 @@
+rvm use 1.9.2
+if ! rvm gemset list | grep -q 'vagrant-dev'; then
+    rvm gemset create vagrant-dev
+fi
+
+rvm use 1.9.2@vagrant-dev
+
+if ! gem list | grep -q bundler; then
+    gem install bundler
+    bundle install
+fi
+
+alias vagrant="bundle exec vagrant"

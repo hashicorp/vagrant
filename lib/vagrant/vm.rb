@@ -48,6 +48,7 @@ module Vagrant
           :suse    => Systems::Suse,
           :linux   => Systems::Linux,
           :solaris => Systems::Solaris,
+          :windows => Systems::Windows,
           :arch    => Systems::Arch
         }
 
