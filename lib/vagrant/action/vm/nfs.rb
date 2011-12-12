@@ -123,7 +123,7 @@ module Vagrant
         #
         # @return [String]
         def host_ip
-          interface = @env[:vm].config.vm.network_adapters.find do |adapter|
+          interface = @env[:vm].vm.network_adapters.find do |adapter|
             adapter.host_interface_object
           end
 
