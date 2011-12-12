@@ -51,16 +51,16 @@ end
 # # Default I18n to load the en locale
 I18n.load_path << File.expand_path("templates/locales/en.yml", Vagrant.source_root)
 
-# Load the things which must be loaded before anything else.
-require 'vagrant/command'
-require 'vagrant/provisioners'
-require 'vagrant/systems'
-require 'vagrant/version'
-Vagrant::Plugin.load!
-
 # Register the built-in hosts
 Vagrant.hosts.register(:arch) { Vagrant::Hosts::Arch }
 Vagrant.hosts.register(:freebsd) { Vagrant::Hosts::FreeBSD }
 Vagrant.hosts.register(:fedora) { Vagrant::Hosts::Fedora }
 Vagrant.hosts.register(:linux) { Vagrant::Hosts::Linux }
 Vagrant.hosts.register(:bsd) { Vagrant::Hosts::BSD }
+
+# Load the things which must be loaded before anything else.
+require 'vagrant/command'
+require 'vagrant/provisioners'
+require 'vagrant/systems'
+require 'vagrant/version'
+Vagrant::Plugin.load!
