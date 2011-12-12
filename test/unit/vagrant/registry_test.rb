@@ -1,13 +1,13 @@
-require File.expand_path("../../../base", __FILE__)
+require File.expand_path("../../base", __FILE__)
 
-describe Vagrant::Action::Registry do
+describe Vagrant::Registry do
   let(:instance) { described_class.new }
 
-  it "should return nil for nonexistent actions" do
+  it "should return nil for nonexistent items" do
     instance.get("foo").should be_nil
   end
 
-  it "should register an action without calling the block yet" do
+  it "should register an item without calling the block yet" do
     expect do
       instance.register("foo") do
         raise Exception, "BOOM!"
@@ -15,7 +15,7 @@ describe Vagrant::Action::Registry do
     end.to_not raise_error
   end
 
-  it "should call and return the result of a block when asking for the action" do
+  it "should call and return the result of a block when asking for the ite" do
     object = Object.new
     instance.register("foo") do
       object

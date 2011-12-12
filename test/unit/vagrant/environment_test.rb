@@ -78,7 +78,7 @@ describe Vagrant::Environment do
 
   describe "action registry" do
     it "has an action registry" do
-      instance.action_registry.should be_kind_of(Vagrant::Action::Registry)
+      instance.action_registry.should be_kind_of(Vagrant::Registry)
     end
 
     it "should have the built-in actions in the registry" do

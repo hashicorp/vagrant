@@ -30,6 +30,7 @@ module Vagrant
   autoload :Errors,        'vagrant/errors'
   autoload :Hosts,         'vagrant/hosts'
   autoload :Plugin,        'vagrant/plugin'
+  autoload :Registry,      'vagrant/registry'
   autoload :SSH,           'vagrant/ssh'
   autoload :TestHelpers,   'vagrant/test_helpers'
   autoload :UI,            'vagrant/ui'

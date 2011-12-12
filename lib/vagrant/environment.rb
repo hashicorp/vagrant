@@ -200,13 +200,13 @@ module Vagrant
 
     # Action registry for registering new actions with this environment.
     #
-    # @return [Action::Registry]
+    # @return [Registry]
     def action_registry
       return @action_registry if defined?(@action_registry)
 
       # The action registry hasn't been loaded yet, so load it
       # and setup the built-in actions with it.
-      @action_registry = Action::Registry.new
+      @action_registry = Registry.new
       Vagrant::Action.builtin!(@action_registry)
       @action_registry
     end

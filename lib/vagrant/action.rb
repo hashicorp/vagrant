@@ -4,7 +4,6 @@ require 'vagrant/action/builtin'
 module Vagrant
   module Action
     autoload :Environment, 'vagrant/action/environment'
-    autoload :Registry,    'vagrant/action/registry'
     autoload :Runner,      'vagrant/action/runner'
     autoload :Warden,      'vagrant/action/warden'
 
