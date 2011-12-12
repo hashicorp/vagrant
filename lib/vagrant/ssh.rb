@@ -117,6 +117,8 @@ module Vagrant
     #
     # @return [Boolean]
     def up?
+      @logger.debug("Checking whether SSH is up")
+
       # We have to determine the port outside of the block since it uses
       # API calls which can only be used from the main thread in JRuby on
       # Windows
@@ -127,11 +129,13 @@ module Vagrant
         execute(:timeout => @vm.config.ssh.timeout, :port => ssh_port) { |ssh| }
       end
 
+      @logger.info("SSH is up!")
       true
     rescue Net::SSH::AuthenticationFailed
       raise Errors::SSHAuthenticationFailed
     rescue Timeout::Error, Errno::ECONNREFUSED, Net::SSH::Disconnect,
-           Errors::SSHConnectionRefused
+           Errors::SSHConnectionRefused => e
+      @logger.info("SSH not up: #{e.inspect}")
       return false
     end
 
