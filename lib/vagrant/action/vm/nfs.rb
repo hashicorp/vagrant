@@ -106,7 +106,7 @@ module Vagrant
         def export_folders
           @env[:ui].info I18n.t("vagrant.actions.vm.nfs.exporting")
 
-          @env[:host].nfs_export(guest_ip, folders)
+          @env[:host].nfs_export(@env[:vm].uuid, guest_ip, folders)
         end
 
         # Uses the system class to mount the NFS folders.
