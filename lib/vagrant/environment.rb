@@ -197,9 +197,10 @@ module Vagrant
     def action_runner
       @action_runner ||= Action::Runner.new(action_registry) do |env|
         {
-          :global_config  => config.global,
           :action_runner  => action_runner,
           :box_collection => boxes,
+          :global_config  => config.global,
+          :host           => host,
           :root_path      => root_path,
           :tmp_path       => tmp_path,
           :ui             => @ui

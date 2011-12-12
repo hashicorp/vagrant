@@ -383,7 +383,7 @@ en:
           host_required: |-
             A host class is required for NFS shared folders. By default, these
             are auto-detected, but can be overridden with `config.vagrant.host`.
-            There is currently not host class loaded.
+            There is currently no host class loaded.
           no_host_network: |-
             NFS shared folders requires that host only networking is enabled.
             Please enable host only networking via `config.vm.network`.
