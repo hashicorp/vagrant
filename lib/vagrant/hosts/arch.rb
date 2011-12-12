@@ -1,13 +1,17 @@
 module Vagrant
   module Hosts
     class Arch < Linux
-      def nfs_export(ip, folders)
+      def self.match?
+        File.exist?("/etc/rc.conf") && File.exist?("/etc/pacman.conf")
+      end
+
+      def nfs_export(id, ip, folders)
         output = TemplateRenderer.render('nfs/exports_linux',
-                                         :uuid => env.vm.uuid,
+                                         :uuid => id,
                                          :ip => ip,
                                          :folders => folders)
 
-        env.ui.info I18n.t("vagrant.hosts.arch.nfs_export.prepare")
+        @ui.info I18n.t("vagrant.hosts.arch.nfs_export.prepare")
         sleep 0.5
 
         output.split("\n").each do |line|

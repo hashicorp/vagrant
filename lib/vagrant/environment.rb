@@ -179,7 +179,16 @@ module Vagrant
     #
     # @return [Hosts::Base]
     def host
-      @host ||= Hosts::Base.load(self, config.vagrant.host)
+      return @host if defined?(@host)
+
+      # Attempt to figure out the host class. Note that the order
+      # matters here, so please don't touch. Specifically: The symbol
+      # check is done after the detect check because the symbol check
+      # will return nil, and we don't want to trigger a detect load.
+      host_klass = config.global.vagrant.host
+      host_klass = Hosts.detect(Vagrant.hosts) if host_klass.nil? || host_klass == :detect
+      host_klass = Vagrant.hosts.get(host_klass) if host_klass.is_a?(Symbol)
+      @host ||= host_klass.new(@ui)
     end
 
     # Action runner for executing actions in the context of this environment.

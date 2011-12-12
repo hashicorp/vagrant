@@ -35,5 +35,15 @@ module Vagrant
         yield key, get(key)
       end
     end
+
+    # Converts this registry to a hash
+    def to_hash
+      result = {}
+      self.each do |key, value|
+        result[key] = value
+      end
+
+      result
+    end
   end
 end

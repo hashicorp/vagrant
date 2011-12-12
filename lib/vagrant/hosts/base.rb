@@ -1,54 +1,39 @@
 module Vagrant
   module Hosts
-    # Base class representing a host machine. These classes
-    # define methods which may have host-specific (Mac OS X, Windows,
-    # Linux, etc) behavior. The class is automatically determined by
-    # default but may be explicitly set via `config.vagrant.host`.
+    # Interface for classes which house behavior that is specific
+    # to the host OS that is running Vagrant.
+    #
+    # By default, Vagrant will attempt to choose the best option
+    # for your machine, but the host may also be explicitly set
+    # via the `config.vagrant.host` parameter.
     class Base
-      # The {Environment} which this host belongs to.
-      attr_reader :env
-
-      # Loads the proper host for the given value. If the value is nil
-      # or is the symbol `:detect`, then the host class will be detected
-      # using the `RUBY_PLATFORM` constant.
+      # This returns true/false depending on if the current running system
+      # matches the host class.
       #
-      # @param [Environment] env
-      # @param [String] klass
-      # @return [Base]
-      def self.load(env, klass)
-        klass = detect if klass.nil? || klass == :detect
-        return nil if !klass
-        return klass.new(env)
-      end
-
-      # Detects the proper host class for current platform and returns
-      # the class.
-      #
-      # @return [Class]
-      def self.detect
-        [BSD, Linux].each do |type|
-          result = type.distro_dispatch
-          return result if result
-        end
-
-        nil
-      rescue Exception
+      # @return [Boolean]
+      def self.match?
         nil
       end
 
-      # This must be implemented by subclasses to dispatch to the proper
-      # distro-specific class for the host. If this returns nil then it is
-      # an invalid host class.
-      def self.distro_dispatch
-        nil
+      # The precedence of the host when checking for matches. This is to
+      # allow certain host such as generic OS's ("Linux", "BSD", etc.)
+      # to be specified last.
+      #
+      # The hosts with the higher numbers will be checked first.
+      #
+      # If you're implementing a basic host, you can probably ignore this.
+      def self.precedence
+        5
       end
 
-      # Initialzes a new host. This method shouldn't be called directly,
-      # typically, since it will be called by {Environment#load!}.
+      # Initializes a new host class.
       #
-      # @param [Environment] env
-      def initialize(env)
-        @env = env
+      # The only required parameter is a UI object so that the host
+      # objects have some way to communicate with the outside world.
+      #
+      # @param [UI] ui UI for the hosts to output to.
+      def initialize(ui)
+        @ui = ui
       end
 
       # Returns true of false denoting whether or not this host supports
@@ -60,16 +45,19 @@ module Vagrant
         false
       end
 
-      # Exports the given hash of folders via NFS. This method will raise
-      # an {Vagrant::Action::ActionException} if anything goes wrong.
+      # Exports the given hash of folders via NFS.
       #
+      # @param [String] id A unique ID that is guaranteed to be unique to
+      #   match these sets of folders.
       # @param [String] ip IP of the guest machine.
       # @param [Hash] folders Shared folders to sync.
-      def nfs_export(ip, folders)
+      def nfs_export(id, ip, folders)
       end
 
-      # Cleans up the exports for the current VM.
-      def nfs_cleanup
+      # Cleans up the exports for the given ID.
+      #
+      # @param [String] id A unique ID to identify the folder set to cleanup.
+      def nfs_cleanup(id)
       end
     end
   end

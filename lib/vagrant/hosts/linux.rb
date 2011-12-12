@@ -7,18 +7,14 @@ module Vagrant
       include Util
       include Util::Retryable
 
-      def self.distro_dispatch
-        return nil if !Util::Platform.linux?
-        return Arch if File.exist?("/etc/rc.conf") && File.exist?("/etc/pacman.conf")
+      def self.match?
+        Util::Platform.linux?
+      end
 
-        if File.exist?("/etc/redhat-release")
-          # Check if we have a known redhat release
-          File.open("/etc/redhat-release") do |f|
-            return Fedora if f.gets =~ /^Fedora/
-          end
-        end
-
-        return self
+      def self.precedence
+        # Set a lower precedence because this is a generic OS. We
+        # want specific distros to match first.
+        2
       end
 
       def initialize(*args)
@@ -34,13 +30,13 @@ module Vagrant
         end
       end
 
-      def nfs_export(ip, folders)
+      def nfs_export(id, ip, folders)
         output = TemplateRenderer.render('nfs/exports_linux',
-                                         :uuid => env.vm.uuid,
+                                         :uuid => id,
                                          :ip => ip,
                                          :folders => folders)
 
-        env.ui.info I18n.t("vagrant.hosts.linux.nfs_export.prepare")
+        @ui.info I18n.t("vagrant.hosts.linux.nfs_export.prepare")
         sleep 0.5
 
         output.split("\n").each do |line|
@@ -54,14 +50,14 @@ module Vagrant
         system("sudo #{@nfs_server_binary} restart")
       end
 
-      def nfs_cleanup
+      def nfs_cleanup(id)
         return if !File.exist?("/etc/exports")
-        system("cat /etc/exports | grep 'VAGRANT-BEGIN: #{env.vm.uuid}' > /dev/null 2>&1")
+        system("cat /etc/exports | grep 'VAGRANT-BEGIN: #{id}' > /dev/null 2>&1")
 
         if $?.to_i == 0
           # Use sed to just strip out the block of code which was inserted
           # by Vagrant
-          system("sudo sed -e '/^# VAGRANT-BEGIN: #{env.vm.uuid}/,/^# VAGRANT-END: #{env.vm.uuid}/ d' -ibak /etc/exports")
+          system("sudo sed -e '/^# VAGRANT-BEGIN: #{id}/,/^# VAGRANT-END: #{id}/ d' -ibak /etc/exports")
         end
       end
     end

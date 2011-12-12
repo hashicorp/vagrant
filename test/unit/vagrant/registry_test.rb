@@ -43,4 +43,14 @@ describe Vagrant::Registry do
     keys.sort.should == ["bar", "foo"]
     values.sort.should == ["barvalue", "foovalue"]
   end
+
+  it "should be able to convert to a hash" do
+    instance.register("foo", "foovalue")
+    instance.register("bar", "barvalue")
+
+    result = instance.to_hash
+    result.should be_a(Hash)
+    result["foo"].should == "foovalue"
+    result["bar"].should == "barvalue"
+  end
 end

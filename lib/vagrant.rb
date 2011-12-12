@@ -42,6 +42,10 @@ module Vagrant
   def self.source_root
     @source_root ||= Pathname.new(File.expand_path('../../', __FILE__))
   end
+
+  def self.hosts
+    @hosts ||= Registry.new
+  end
 end
 
 # # Default I18n to load the en locale
@@ -53,3 +57,10 @@ require 'vagrant/provisioners'
 require 'vagrant/systems'
 require 'vagrant/version'
 Vagrant::Plugin.load!
+
+# Register the built-in hosts
+Vagrant.hosts.register(:arch) { Vagrant::Hosts::Arch }
+Vagrant.hosts.register(:freebsd) { Vagrant::Hosts::FreeBSD }
+Vagrant.hosts.register(:fedora) { Vagrant::Hosts::Fedora }
+Vagrant.hosts.register(:linux) { Vagrant::Hosts::Linux }
+Vagrant.hosts.register(:bsd) { Vagrant::Hosts::BSD }
