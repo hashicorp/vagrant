@@ -15,7 +15,8 @@ module Vagrant
     #
     # If an action by the given name already exists then it will be
     # overwritten.
-    def register(key, &block)
+    def register(key, value=nil, &block)
+      block = lambda { value } if value
       @actions[key] = block
     end
 
@@ -26,6 +27,13 @@ module Vagrant
     def get(key)
       return nil if !@actions.has_key?(key)
       @actions[key].call
+    end
+
+    # Iterate over the keyspace.
+    def each(&block)
+      @actions.each do |key, _|
+        yield key, get(key)
+      end
     end
   end
 end
