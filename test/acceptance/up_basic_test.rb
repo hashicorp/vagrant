@@ -45,14 +45,4 @@ describe "vagrant up", "basics" do
     assert_execute("vagrant", "ssh", "-c", "touch /vagrant/foo")
     foofile.exist?.should be, "'foo' should exist since it was touched in the shared folder"
   end
-
-=begin
-
-TODO:
-
-  should "destroy a running virtual machine"
-  should "save then restore a virtual machine using `vagrant up`"
-  should "halt then start a virtual machine using `vagrant up`"
-
-=end
 end
