@@ -16,11 +16,7 @@ module Vagrant
           @args = nil
         end
 
-        def expanded_path
-          Pathname.new(path).expand_path(env.root_path) if path
-        end
-
-        def validate(errors)
+        def validate(env, errors)
           super
 
           # Validate that the parameters are properly set
@@ -31,6 +27,7 @@ module Vagrant
           end
 
           # Validate the existence of a script to upload
+          expanded_path = Pathname.new(path).expand_path(env.root_path)
           if path && !expanded_path.file?
             errors.add(I18n.t("vagrant.provisioners.shell.path_invalid", :path => expanded_path))
           end
@@ -53,7 +50,7 @@ module Vagrant
       def with_script_file
         if config.path
           # Just yield the path to that file...
-          yield config.expanded_path
+          yield Pathname.new(config.path).expand_path(env[:root_path])
           return
         end
 
@@ -77,15 +74,15 @@ module Vagrant
 
         with_script_file do |path|
           # Upload the script to the VM
-          vm.ssh.upload!(path.to_s, config.upload_path)
+          env[:vm].ssh.upload!(path.to_s, config.upload_path)
 
           # Execute it with sudo
-          vm.ssh.execute do |ssh|
+          env[:vm].ssh.execute do |ssh|
             ssh.sudo!(commands) do |ch, type, data|
               if type == :exit_status
                 ssh.check_exit_status(data, commands)
               else
-                env.ui.info(data)
+                env[:ui].info(data)
               end
             end
           end

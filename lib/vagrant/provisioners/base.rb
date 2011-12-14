@@ -7,9 +7,9 @@ module Vagrant
     class Base
       include Vagrant::Util
 
-      # The environment which provisioner is running in. This is a
-      # {Vagrant::Action::Environment}
-      attr_reader :action_env
+      # The environment which provisioner is running in. This is the
+      # action environment, not a Vagrant::Environment.
+      attr_reader :env
 
       # The configuration for this provisioner. This will be an instance of
       # the `Config` class which is part of the provisioner.
@@ -29,23 +29,8 @@ module Vagrant
       end
 
       def initialize(env, config)
-        @action_env = env
+        @env = env
         @config = config
-      end
-
-      # Returns the actual {Vagrant::Environment} which this provisioner
-      # represents.
-      #
-      # @return [Vagrant::Environment]
-      def env
-        action_env.env
-      end
-
-      # Returns the VM which this provisioner is working on.
-      #
-      # @return [Vagrant::VM]
-      def vm
-        env.vm
       end
 
       # This is the method called to "prepare" the provisioner. This is called
