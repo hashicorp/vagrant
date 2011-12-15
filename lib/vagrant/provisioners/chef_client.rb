@@ -29,7 +29,7 @@ module Vagrant
           @encrypted_data_bag_secret = "/tmp/encrypted_data_bag_secret"
         end
 
-        def validate(errors)
+        def validate(env, errors)
           super
 
           errors.add(I18n.t("vagrant.config.chef.server_url_empty")) if !chef_server_url || chef_server_url.strip == ""

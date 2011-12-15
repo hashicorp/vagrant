@@ -23,7 +23,7 @@ module Vagrant
           @nfs = false
         end
 
-        def validate(errors)
+        def validate(env, errors)
           super
 
           errors.add(I18n.t("vagrant.config.chef.cookbooks_path_empty")) if !cookbooks_path || [cookbooks_path].flatten.empty?

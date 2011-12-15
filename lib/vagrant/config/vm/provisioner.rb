@@ -1,3 +1,5 @@
+require 'log4r'
+
 module Vagrant
   module Config
     class VMConfig < Base
@@ -8,11 +10,14 @@ module Vagrant
         attr_reader :config
 
         def initialize(shortcut, options=nil, &block)
+          @logger = Log4r::Logger.new("vagrant::config::vm::provisioner")
+          @logger.debug("Provisioner config: #{shortcut}")
           @shortcut = shortcut
           @provisioner = shortcut
           @provisioner = Vagrant.provisioners.get(shortcut) if shortcut.is_a?(Symbol)
           @config = nil
 
+          @logger.info("Provisioner class: #{provisioner}")
           configure(options, &block) if @provisioner
         end
 
@@ -21,6 +26,7 @@ module Vagrant
           config_class = @provisioner.config_class
           return if !config_class
 
+          @logger.debug("Configuring provisioner with: #{config_class}")
           @config = config_class.new
           @config.set_options(options) if options
           block.call(@config) if block
