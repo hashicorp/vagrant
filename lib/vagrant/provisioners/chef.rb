@@ -17,10 +17,11 @@ module Vagrant
       end
 
       def verify_binary(binary)
-        vm.ssh.execute do |ssh|
+        env[:vm].ssh.execute do |ssh|
           # Checks for the existence of chef binary and error if it
           # doesn't exist.
-          ssh.sudo!("which #{binary}", :error_class => ChefError, :_key => :chef_not_detected, :binary => binary)
+          ssh.sudo!("which #{binary}", :error_class => ChefError,
+                    :_key => :chef_not_detected, :binary => binary)
         end
       end
 
@@ -32,7 +33,7 @@ module Vagrant
       end
 
       def chown_provisioning_folder
-        vm.ssh.execute do |ssh|
+        env[:vm].ssh.execute do |ssh|
           ssh.sudo!("mkdir -p #{config.provisioning_path}")
           ssh.sudo!("chown #{env.config.ssh.username} #{config.provisioning_path}")
         end
@@ -50,17 +51,18 @@ module Vagrant
           :no_proxy => config.no_proxy
         }.merge(template_vars))
 
-        vm.ssh.upload!(StringIO.new(config_file), File.join(config.provisioning_path, filename))
+        env[:vm].ssh.upload!(StringIO.new(config_file),
+                             File.join(config.provisioning_path, filename))
       end
 
       def setup_json
-        env.ui.info I18n.t("vagrant.provisioners.chef.json")
+        env[:ui].info I18n.t("vagrant.provisioners.chef.json")
 
         # Set up our configuration that is passed to the attributes by default
-        data = { :config => env.config.to_hash }
+        data = { :config => env[:global_config].to_hash }
 
         # Add our default share directory if it exists
-        default_share = env.config.vm.shared_folders["v-root"]
+        default_share = env[:vm].config.vm.shared_folders["v-root"]
         data[:directory] = default_share[:guestpath] if default_share
 
         # And wrap it under the "vagrant" namespace
@@ -72,7 +74,7 @@ module Vagrant
 
         json = data.to_json
 
-        vm.ssh.upload!(StringIO.new(json), File.join(config.provisioning_path, "dna.json"))
+        env[:vm].ssh.upload!(StringIO.new(json), File.join(config.provisioning_path, "dna.json"))
       end
     end
 

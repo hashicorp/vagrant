@@ -60,22 +60,22 @@ module Vagrant
       end
 
       def create_client_key_folder
-        env.ui.info I18n.t("vagrant.provisioners.chef.client_key_folder")
+        env[:ui].info I18n.t("vagrant.provisioners.chef.client_key_folder")
         path = Pathname.new(config.client_key_path)
 
-        vm.ssh.execute do |ssh|
+        env[:vm].ssh.execute do |ssh|
           ssh.sudo!("mkdir -p #{path.dirname}")
         end
       end
 
       def upload_validation_key
-        env.ui.info I18n.t("vagrant.provisioners.chef.upload_validation_key")
-        vm.ssh.upload!(validation_key_path, guest_validation_key_path)
+        env[:ui].info I18n.t("vagrant.provisioners.chef.upload_validation_key")
+        env[:vm].ssh.upload!(validation_key_path, guest_validation_key_path)
       end
 
       def upload_encrypted_data_bag_secret
-        env.ui.info I18n.t("vagrant.provisioners.chef.upload_encrypted_data_bag_secret_key")
-        vm.ssh.upload!(encrypted_data_bag_secret_key_path, config.encrypted_data_bag_secret)
+        env[:ui].info I18n.t("vagrant.provisioners.chef.upload_encrypted_data_bag_secret_key")
+        env[:vm].ssh.upload!(encrypted_data_bag_secret_key_path, config.encrypted_data_bag_secret)
       end
 
       def setup_server_config
@@ -96,24 +96,24 @@ module Vagrant
         command_env = config.binary_env ? "#{config.binary_env} " : ""
         command = "#{command_env}#{chef_binary_path("chef-client")} -c #{config.provisioning_path}/client.rb -j #{config.provisioning_path}/dna.json"
 
-        env.ui.info I18n.t("vagrant.provisioners.chef.running_client")
-        vm.ssh.execute do |ssh|
+        env[:ui].info I18n.t("vagrant.provisioners.chef.running_client")
+        env[:vm].ssh.execute do |ssh|
           ssh.sudo!(command) do |channel, type, data|
             if type == :exit_status
               ssh.check_exit_status(data, command)
             else
-              env.ui.info("#{data}: #{type}")
+              env[:ui].info("#{data}: #{type}")
             end
           end
         end
       end
 
       def validation_key_path
-        File.expand_path(config.validation_key_path, env.root_path)
+        File.expand_path(config.validation_key_path, env[:root_path])
       end
 
       def encrypted_data_bag_secret_key_path
-        File.expand_path(config.encrypted_data_bag_secret_key_path, env.root_path)
+        File.expand_path(config.encrypted_data_bag_secret_key_path, env[:root_path])
       end
 
       def guest_validation_key_path
