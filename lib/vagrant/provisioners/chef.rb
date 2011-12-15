@@ -35,7 +35,7 @@ module Vagrant
       def chown_provisioning_folder
         env[:vm].ssh.execute do |ssh|
           ssh.sudo!("mkdir -p #{config.provisioning_path}")
-          ssh.sudo!("chown #{env.config.ssh.username} #{config.provisioning_path}")
+          ssh.sudo!("chown #{env[:vm].config.ssh.username} #{config.provisioning_path}")
         end
       end
 
