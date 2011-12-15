@@ -60,6 +60,14 @@ module Vagrant
   def self.guests
     @guests ||= Registry.new
   end
+
+  # Global registry of provisioners.
+  #
+  # This registry is used to look up the provisioners provided for
+  # `config.vm.provision`.
+  def self.provisioners
+    @provisioners ||= Registry.new
+  end
 end
 
 # # Default I18n to load the en locale
@@ -82,6 +90,13 @@ Vagrant.guests.register(:redhat)  { Vagrant::Systems::Redhat }
 Vagrant.guests.register(:solaris) { Vagrant::Systems::Solaris }
 Vagrant.guests.register(:suse)    { Vagrant::Systems::Suse }
 Vagrant.guests.register(:ubuntu)  { Vagrant::Systems::Ubuntu }
+
+# Register the built-in provisioners
+Vagrant.provisioners.register(:chef_solo)     { Vagrant::Provisioners::ChefSolo }
+Vagrant.provisioners.register(:chef_client)   { Vagrant::Provisioners::ChefClient }
+Vagrant.provisioners.register(:puppet)        { Vagrant::Provisioners::Puppet }
+Vagrant.provisioners.register(:puppet_server) { Vagrant::Provisioners::PuppetServer }
+Vagrant.provisioners.register(:shell)         { Vagrant::Provisioners::Shell }
 
 # Load the things which must be loaded before anything else.
 require 'vagrant/command'

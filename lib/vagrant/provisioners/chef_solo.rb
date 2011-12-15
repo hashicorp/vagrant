@@ -2,8 +2,6 @@ module Vagrant
   module Provisioners
     # This class implements provisioning via chef-solo.
     class ChefSolo < Chef
-      register :chef_solo
-
       extend Util::Counter
       include Util::Counter
 
@@ -34,6 +32,10 @@ module Vagrant
       attr_reader :cookbook_folders
       attr_reader :role_folders
       attr_reader :data_bags_folders
+
+      def self.config_class
+        Config
+      end
 
       def prepare
         @cookbook_folders = expanded_folders(config.cookbooks_path, "cookbooks")

@@ -5,8 +5,6 @@ module Vagrant
     # This class implements provisioning via chef-client, allowing provisioning
     # with a chef server.
     class ChefClient < Chef
-      register :chef_client
-
       class Config < Chef::Config
         attr_accessor :chef_server_url
         attr_accessor :validation_key_path
@@ -36,6 +34,10 @@ module Vagrant
           errors.add(I18n.t("vagrant.config.chef.validation_key_path")) if !validation_key_path
           errors.add(I18n.t("vagrant.config.chef.run_list_empty")) if @run_list && @run_list.empty?
         end
+      end
+
+      def self.config_class
+        Config
       end
 
       def prepare

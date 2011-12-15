@@ -3,35 +3,25 @@ module Vagrant
     class VMConfig < Base
       # Represents a single configured provisioner for a VM.
       class Provisioner
-        attr_reader :top
         attr_reader :shortcut
         attr_reader :provisioner
         attr_reader :config
 
-        def initialize(top, shortcut, options=nil, &block)
-          @top = top
+        def initialize(shortcut, options=nil, &block)
           @shortcut = shortcut
           @provisioner = shortcut
-          @provisioner = Provisioners::Base.registered[shortcut] if shortcut.is_a?(Symbol)
+          @provisioner = Vagrant.provisioners.get(shortcut) if shortcut.is_a?(Symbol)
           @config = nil
 
-          configure(options, &block)
+          configure(options, &block) if @provisioner
         end
 
         # Configures the provisioner if it can (if it is valid).
         def configure(options=nil, &block)
-          # We don't want ancestors to be searched. This is the default in 1.8,
-          # but not in 1.9, hence this hackery.
-          const_args = ["Config"]
-          const_args << false if RUBY_VERSION >= "1.9"
+          config_class = @provisioner.config_class
+          return if !config_class
 
-          # We assume that every provisioner has a `Config` class beneath
-          # it for configuring.
-          return if !@provisioner || !@provisioner.const_defined?(*const_args)
-
-          # Instantiate the config class and configure it
-          @config = @provisioner.const_get(*const_args).new
-          @config.top = top
+          @config = config_class.new
           @config.set_options(options) if options
           block.call(@config) if block
         end

@@ -1,9 +1,10 @@
 module Vagrant
   module Provisioners
     # The base class for a "provisioner." A provisioner is responsible for
-    # provisioning a Vagrant system. This has been abstracted out to provide
-    # support for multiple solutions such as Chef Solo, Chef Client, and
-    # Puppet.
+    # provisioning a Vagrant system.
+    #
+    # This has been abstracted out so it is easy to provide support for
+    # multiple solutions.
     class Base
       include Vagrant::Util
 
@@ -15,23 +16,14 @@ module Vagrant
       # the `Config` class which is part of the provisioner.
       attr_reader :config
 
-      # Registers a provisioner with a given shortcut. This allows that provisioner
-      # to be referenced with the shortcut.
-      #
-      # @param [Symbol] shortcut
-      def self.register(shortcut)
-        registered[shortcut] = self
-      end
-
-      # Returns the provisioner associated with the given shortcut.
-      def self.registered
-        @@registered ||= {}
-      end
-
       def initialize(env, config)
         @env = env
         @config = config
       end
+
+      # This method is expected to return a class that is used for configuration
+      # for the provisioner.
+      def self.config_class; end
 
       # This is the method called to "prepare" the provisioner. This is called
       # before any actions are run by the action runner (see {Vagrant::Actions::Runner}).

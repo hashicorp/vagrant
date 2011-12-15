@@ -1,8 +1,6 @@
 module Vagrant
   module Provisioners
     class Shell < Base
-      register :shell
-
       class Config < Vagrant::Config::Base
         attr_accessor :inline
         attr_accessor :path
@@ -45,6 +43,10 @@ module Vagrant
             errors.add(I18n.t("vagrant.provisioners.shell.args_not_string"))
           end
         end
+      end
+
+      def self.config_class
+        Config
       end
 
       # This method yields the path to a script to upload and execute

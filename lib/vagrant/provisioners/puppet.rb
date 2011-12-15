@@ -5,8 +5,6 @@ module Vagrant
     end
 
     class Puppet < Base
-      register :puppet
-
       class Config < Vagrant::Config::Base
         attr_accessor :manifest_file
         attr_accessor :manifests_path
@@ -67,6 +65,10 @@ module Vagrant
             end
           end
         end
+      end
+
+      def self.config_class
+        Config
       end
 
       def prepare

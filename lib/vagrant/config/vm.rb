@@ -63,7 +63,7 @@ module Vagrant
       end
 
       def provision(name, options=nil, &block)
-        @provisioners << Provisioner.new(top, name, options, &block)
+        @provisioners << Provisioner.new(name, options, &block)
       end
 
       def customize(&block)

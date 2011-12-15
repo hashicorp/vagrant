@@ -5,8 +5,6 @@ module Vagrant
     end
 
     class PuppetServer < Base
-      register :puppet_server
-
       class Config < Vagrant::Config::Base
         attr_accessor :puppet_server
         attr_accessor :puppet_node
@@ -17,6 +15,10 @@ module Vagrant
           @puppet_node = "puppet_node"
           @options = []
         end
+      end
+
+      def self.config_class
+        Config
       end
 
       def provision!
