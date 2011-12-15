@@ -27,9 +27,12 @@ module Vagrant
           end
 
           # Validate the existence of a script to upload
-          expanded_path = Pathname.new(path).expand_path(env.root_path)
-          if path && !expanded_path.file?
-            errors.add(I18n.t("vagrant.provisioners.shell.path_invalid", :path => expanded_path))
+          if path
+            expanded_path = Pathname.new(path).expand_path(env.root_path)
+            if !expanded_path.file?
+              errors.add(I18n.t("vagrant.provisioners.shell.path_invalid",
+                                :path => expanded_path))
+            end
           end
 
           # There needs to be a path to upload the script to
