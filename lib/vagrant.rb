@@ -30,6 +30,7 @@ module Vagrant
   autoload :Errors,        'vagrant/errors'
   autoload :Hosts,         'vagrant/hosts'
   autoload :Plugin,        'vagrant/plugin'
+  autoload :Provisioners,  'vagrant/provisioners'
   autoload :Registry,      'vagrant/registry'
   autoload :SSH,           'vagrant/ssh'
   autoload :TestHelpers,   'vagrant/test_helpers'
@@ -100,7 +101,6 @@ Vagrant.provisioners.register(:shell)         { Vagrant::Provisioners::Shell }
 
 # Load the things which must be loaded before anything else.
 require 'vagrant/command'
-require 'vagrant/provisioners'
 require 'vagrant/systems'
 require 'vagrant/version'
 Vagrant::Plugin.load!

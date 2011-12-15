@@ -1,3 +1,5 @@
+require 'vagrant/provisioners/chef'
+
 module Vagrant
   module Provisioners
     # This class implements provisioning via chef-solo.
