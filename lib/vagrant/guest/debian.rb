@@ -1,5 +1,5 @@
 module Vagrant
-  module Systems
+  module Guest
     class Debian < Linux
       def prepare_host_only_network(net_options=nil)
         # Remove any previous host only network additions to the

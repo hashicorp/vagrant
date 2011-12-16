@@ -28,6 +28,7 @@ module Vagrant
   autoload :Downloaders,   'vagrant/downloaders'
   autoload :Environment,   'vagrant/environment'
   autoload :Errors,        'vagrant/errors'
+  autoload :Guest,         'vagrant/guest'
   autoload :Hosts,         'vagrant/hosts'
   autoload :Plugin,        'vagrant/plugin'
   autoload :Provisioners,  'vagrant/provisioners'
@@ -98,15 +99,15 @@ Vagrant.hosts.register(:linux)   { Vagrant::Hosts::Linux }
 Vagrant.hosts.register(:bsd)     { Vagrant::Hosts::BSD }
 
 # Register the built-in guests
-Vagrant.guests.register(:arch)    { Vagrant::Systems::Arch }
-Vagrant.guests.register(:debian)  { Vagrant::Systems::Debian }
-Vagrant.guests.register(:freebsd) { Vagrant::Systems::FreeBSD }
-Vagrant.guests.register(:gentoo)  { Vagrant::Systems::Gentoo }
-Vagrant.guests.register(:linux)   { Vagrant::Systems::Linux }
-Vagrant.guests.register(:redhat)  { Vagrant::Systems::Redhat }
-Vagrant.guests.register(:solaris) { Vagrant::Systems::Solaris }
-Vagrant.guests.register(:suse)    { Vagrant::Systems::Suse }
-Vagrant.guests.register(:ubuntu)  { Vagrant::Systems::Ubuntu }
+Vagrant.guests.register(:arch)    { Vagrant::Guest::Arch }
+Vagrant.guests.register(:debian)  { Vagrant::Guest::Debian }
+Vagrant.guests.register(:freebsd) { Vagrant::Guest::FreeBSD }
+Vagrant.guests.register(:gentoo)  { Vagrant::Guest::Gentoo }
+Vagrant.guests.register(:linux)   { Vagrant::Guest::Linux }
+Vagrant.guests.register(:redhat)  { Vagrant::Guest::Redhat }
+Vagrant.guests.register(:solaris) { Vagrant::Guest::Solaris }
+Vagrant.guests.register(:suse)    { Vagrant::Guest::Suse }
+Vagrant.guests.register(:ubuntu)  { Vagrant::Guest::Ubuntu }
 
 # Register the built-in provisioners
 Vagrant.provisioners.register(:chef_solo)     { Vagrant::Provisioners::ChefSolo }
@@ -116,12 +117,11 @@ Vagrant.provisioners.register(:puppet_server) { Vagrant::Provisioners::PuppetSer
 Vagrant.provisioners.register(:shell)         { Vagrant::Provisioners::Shell }
 
 # Register the built-in systems
-Vagrant.config_keys.register(:freebsd) { Vagrant::Provisioners::FreeBSD::FreeBSDConfig }
-Vagrant.config_keys.register(:linux)   { Vagrant::Provisioners::Linux::LinuxConfig }
-Vagrant.config_keys.register(:solaris) { Vagrant::Provisioners::Solaris::SolarisConfig }
+Vagrant.config_keys.register(:freebsd) { Vagrant::Guest::FreeBSD::FreeBSDConfig }
+Vagrant.config_keys.register(:linux)   { Vagrant::Guest::Linux::LinuxConfig }
+Vagrant.config_keys.register(:solaris) { Vagrant::Guest::Solaris::SolarisConfig }
 
 # Load the things which must be loaded before anything else.
 require 'vagrant/command'
-require 'vagrant/systems'
 require 'vagrant/version'
 Vagrant::Plugin.load!

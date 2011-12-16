@@ -1,6 +1,6 @@
 module Vagrant
-  module Systems
-    class Linux < Vagrant::Systems::Base
+  module Guest
+    class Linux < Vagrant::Guest::Base
       class LinuxError < Errors::VagrantError
         error_namespace("vagrant.systems.linux")
       end

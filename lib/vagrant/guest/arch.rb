@@ -1,5 +1,5 @@
 module Vagrant
-  module Systems
+  module Guest
     class Arch < Linux
       def change_host_name(name)
         vm.ssh.execute do |ssh|

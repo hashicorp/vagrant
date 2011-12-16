@@ -1,8 +1,8 @@
-require 'vagrant/systems/linux/error'
-require 'vagrant/systems/linux/config'
+require 'vagrant/guest/linux/error'
+require 'vagrant/guest/linux/config'
 
 module Vagrant
-  module Systems
+  module Guest
     class Linux < Base
       def distro_dispatch
         vm.ssh.execute do |ssh|

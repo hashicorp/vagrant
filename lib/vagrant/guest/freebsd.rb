@@ -1,5 +1,5 @@
 module Vagrant
-  module Systems
+  module Guest
     # A general Vagrant system implementation for "freebsd".
     #
     # Contributed by Kenneth Vestergaard <kvs@binarysolutions.dk>

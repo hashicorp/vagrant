@@ -1,5 +1,5 @@
 module Vagrant
-  module Systems
+  module Guest
     # A general Vagrant system implementation for "solaris".
     #
     # Contributed by Blake Irvin <b.irvin@modcloth.com>

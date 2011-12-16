@@ -1,7 +1,7 @@
-require 'vagrant/systems/debian'
+require 'vagrant/guest/debian'
 
 module Vagrant
-  module Systems
+  module Guest
     class Ubuntu < Debian
       def change_host_name(name)
         vm.ssh.execute do |ssh|
