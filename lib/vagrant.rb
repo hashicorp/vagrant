@@ -44,6 +44,15 @@ module Vagrant
     @source_root ||= Pathname.new(File.expand_path('../../', __FILE__))
   end
 
+  # Global registry of config keys that are available.
+  #
+  # This registry is used to look up the keys for `config` objects.
+  # For example, `config.vagrant` looks up the `:vagrant` config key
+  # for the configuration class to use.
+  def self.config_keys
+    @config_keys ||= Registry.new
+  end
+
   # Global registry of available host classes and shortcut symbols
   # associated with them.
   #
@@ -74,6 +83,13 @@ end
 # # Default I18n to load the en locale
 I18n.load_path << File.expand_path("templates/locales/en.yml", Vagrant.source_root)
 
+# Registry the build-in config keys
+Vagrant.config_keys.register(:vagrant) { Vagrant::Config::VagrantConfig }
+Vagrant.config_keys.register(:ssh)     { Vagrant::Config::SSHConfig }
+Vagrant.config_keys.register(:nfs)     { Vagrant::Config::NFSConfig }
+Vagrant.config_keys.register(:vm)      { Vagrant::Config::VMConfig }
+Vagrant.config_keys.register(:package) { Vagrant::Config::PackageConfig }
+
 # Register the built-in hosts
 Vagrant.hosts.register(:arch)    { Vagrant::Hosts::Arch }
 Vagrant.hosts.register(:freebsd) { Vagrant::Hosts::FreeBSD }
@@ -98,6 +114,11 @@ Vagrant.provisioners.register(:chef_client)   { Vagrant::Provisioners::ChefClien
 Vagrant.provisioners.register(:puppet)        { Vagrant::Provisioners::Puppet }
 Vagrant.provisioners.register(:puppet_server) { Vagrant::Provisioners::PuppetServer }
 Vagrant.provisioners.register(:shell)         { Vagrant::Provisioners::Shell }
+
+# Register the built-in systems
+Vagrant.config_keys.register(:freebsd) { Vagrant::Provisioners::FreeBSD::FreeBSDConfig }
+Vagrant.config_keys.register(:linux)   { Vagrant::Provisioners::Linux::LinuxConfig }
+Vagrant.config_keys.register(:solaris) { Vagrant::Provisioners::Solaris::SolarisConfig }
 
 # Load the things which must be loaded before anything else.
 require 'vagrant/command'

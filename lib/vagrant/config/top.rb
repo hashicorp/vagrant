@@ -7,28 +7,23 @@ module Vagrant
     #
     # If you're looking to create your own configuration class, see {Base}.
     class Top < Base
-      @@configures = {} if !defined?(@@configures)
-
-      class << self
-        # The list of registered configuration classes as well as the key
-        # they're registered under.
-        def configures_list
-          @@configures ||= {}
-        end
-
-        # Registers a configuration class with the given key. This method shouldn't
-        # be called. Instead, inherit from {Base} and call {Base.configures}.
-        def configures(key, klass)
-          configures_list[key] = klass
-          attr_reader key.to_sym
-        end
+      def initialize
+        @keys = {}
       end
 
-      def initialize
-        self.class.configures_list.each do |key, klass|
-          config = klass.new
-          config.top = self
-          instance_variable_set("@#{key}".to_sym, config)
+      # We use method_missing as a way to get the configuration that is used
+      # for Vagrant and load the proper configuration classes for each.
+      def method_missing(name, *args)
+        return @keys[name] if @keys.has_key?(name)
+
+        config_klass = Vagrant.config_keys.get(name.to_sym)
+        if config_klass
+          # Instantiate the class and return the instance
+          @keys[name] = config_klass.new
+          return @keys[name]
+        else
+          # Super it up to probably raise a NoMethodError
+          super
         end
       end
 
@@ -40,10 +35,10 @@ module Vagrant
       def validate!(env)
         # Validate each of the configured classes and store the results into
         # a hash.
-        errors = self.class.configures_list.inject({}) do |container, data|
-          key, _ = data
+        errors = @keys.inject({}) do |container, data|
+          key, instance = data
           recorder = ErrorRecorder.new
-          send(key.to_sym).validate(env, recorder)
+          instance.validate(env, recorder)
           container[key.to_sym] = recorder if !recorder.errors.empty?
           container
         end

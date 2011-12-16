@@ -9,8 +9,6 @@ module Vagrant
       # generally, Vagrant tries to make almost every aspect of its execution
       # configurable, and this assists that goal.
       class FreeBSDConfig < Vagrant::Config::Base
-        configures :freebsd
-
         attr_accessor :halt_timeout
         attr_accessor :halt_check_interval
 

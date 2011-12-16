@@ -4,8 +4,6 @@ require 'vagrant/config/vm/provisioner'
 module Vagrant
   module Config
     class VMConfig < Base
-      configures :vm
-
       include Util::StackedProcRunner
 
       attr_accessor :name

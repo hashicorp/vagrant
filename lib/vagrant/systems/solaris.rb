@@ -9,8 +9,6 @@ module Vagrant
       # generally, Vagrant tries to make almost every aspect of its execution
       # configurable, and this assists that goal.
       class SolarisConfig < Vagrant::Config::Base
-        configures :solaris
-
         attr_accessor :halt_timeout
         attr_accessor :halt_check_interval
         # This sets the command to use to execute items as a superuser. sudo is default

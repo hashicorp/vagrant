@@ -1,8 +1,6 @@
 module Vagrant
   module Config
     class SSHConfig < Base
-      configures :ssh
-
       attr_accessor :username
       attr_accessor :host
       attr_accessor :forwarded_port_key

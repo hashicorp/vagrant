@@ -1,18 +1,16 @@
-require 'vagrant/config/base'
-require 'vagrant/config/loader'
-require 'vagrant/config/error_recorder'
-require 'vagrant/config/top'
-
-# # The built-in configuration classes
-require 'vagrant/config/vagrant'
-require 'vagrant/config/ssh'
-require 'vagrant/config/nfs'
-require 'vagrant/config/vm'
-require 'vagrant/config/package'
-
 module Vagrant
   module Config
-    autoload :Container, 'vagrant/config/container'
+    autoload :Base,          'vagrant/config/base'
+    autoload :Container,     'vagrant/config/container'
+    autoload :ErrorRecorder, 'vagrant/config/error_recorder'
+    autoload :Loader,        'vagrant/config/loader'
+    autoload :Top,           'vagrant/config/top'
+
+    autoload :NFSConfig,     'vagrant/config/nfs'
+    autoload :PackageConfig, 'vagrant/config/package'
+    autoload :SSHConfig,     'vagrant/config/ssh'
+    autoload :VagrantConfig, 'vagrant/config/vagrant'
+    autoload :VMConfig,      'vagrant/config/vm'
 
     CONFIGURE_MUTEX = Mutex.new
 
