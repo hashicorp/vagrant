@@ -45,7 +45,7 @@ en:
         try again.
       guest:
         invalid_class: |-
-          The specified guest class does not inherit from `Vagrant::Systems::Base`.
+          The specified guest class does not inherit from `Vagrant::Guest::Base`.
           The specified guest class must inherit from this class.
 
           The specified guest class was: %{guest}
