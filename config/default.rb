@@ -18,7 +18,7 @@ Vagrant::Config.run do |config|
   config.vm.base_mac = nil
   config.vm.forward_port("ssh", 22, 2222, :auto => true)
   config.vm.boot_mode = "vrdp"
-  config.vm.system = :linux
+  config.vm.guest = :linux
 
   # Share the root folder. This can then be overridden by
   # other Vagrantfiles, if they wish.

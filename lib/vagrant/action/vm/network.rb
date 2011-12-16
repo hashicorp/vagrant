@@ -29,12 +29,12 @@ module Vagrant
             # Prepare for new networks...
             options = @env[:vm].config.vm.network_options.compact
             options.each do |network_options|
-              @env["vm"].system.prepare_host_only_network(network_options)
+              @env["vm"].guest.prepare_host_only_network(network_options)
             end
 
             # Then enable the networks...
             options.each do |network_options|
-              @env["vm"].system.enable_host_only_network(network_options)
+              @env["vm"].guest.enable_host_only_network(network_options)
             end
           end
         end

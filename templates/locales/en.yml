@@ -43,6 +43,18 @@ en:
         may run at any given time to avoid problems with VirtualBox inconsistencies
         occurring. Please wait for the other instance of Vagrant to end and then
         try again.
+      guest:
+        invalid_class: |-
+          The specified system does not inherit from `Vagrant::Systems::Base`. The
+          specified system class must inherit from this class.
+
+          The specified system class was: %{system}
+        unknown_type: |-
+          The specified system type is unknown: %{system}. Please change this
+          to a proper value.
+        unspecified: |-
+          A VM system type must be specified! This is done via the `config.vm.system`
+          configuration value. Please read the documentation online for more information.
       home_dir_not_accessible: |-
         The home directory you specified is not accessible. The home
         directory that Vagrant uses must be both readable and writable.
@@ -103,18 +115,6 @@ en:
 
           http://vagrantup.com/docs/getting-started/setup/windows.html
 
-      system:
-        invalid_class: |-
-          The specified system does not inherit from `Vagrant::Systems::Base`. The
-          specified system class must inherit from this class.
-
-          The specified system class was: %{system}
-        unknown_type: |-
-          The specified system type is unknown: %{system}. Please change this
-          to a proper value.
-        unspecified: |-
-          A VM system type must be specified! This is done via the `config.vm.system`
-          configuration value. Please read the documentation online for more information.
       vagrantfile_syntax_error: |-
         There is a syntax error in the following Vagrantfile. The syntax error
         message is reproduced below for convenience:

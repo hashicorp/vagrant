@@ -4,6 +4,8 @@
     to make debugging issues easier. To enable logging, set the VAGRANT_LOG
     environmental variable to the log level you wish to see. By default,
     logging is silent.
+  - `system` renamed to `guest` throughout the source. Any `config.vm.system`
+    configurations must be changed to `config.vm.guest`
   - Linux uses `shutdown -h` instead of `halt` to hopefully more consistently
     power off the system. [GH-575]
   - Tweaks to SSH to hopefully be more reliable in coming up.

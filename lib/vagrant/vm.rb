@@ -19,44 +19,43 @@ module Vagrant
       @config = config
       @box    = env.boxes.find(config.vm.box)
 
-      # Load the associated system.
-      load_system!
-
-      @loaded_system_distro = false
+      # Load the associated guest.
+      load_guest!
+      @loaded_guest_distro = false
     end
 
-    # Loads the system associated with the VM. The system class is
+    # Loads the guest associated with the VM. The guest class is
     # responsible for OS-specific functionality. More information
-    # can be found by reading the documentation on {Vagrant::Systems::Base}.
+    # can be found by reading the documentation on {Vagrant::Guest::Base}.
     #
     # **This method should never be called manually.**
-    def load_system!(system=nil)
-      system ||= config.vm.system
-      @logger.info("Loading system: #{system}")
+    def load_guest!(guest=nil)
+      guest ||= config.vm.guest
+      @logger.info("Loading guest: #{guest}")
 
-      if system.is_a?(Class)
-        raise Errors::VMSystemError, :_key => :invalid_class, :system => system.to_s if !(system <= Systems::Base)
-        @system = system.new(self)
-      elsif system.is_a?(Symbol)
-        system_klass = Vagrant.guests.get(system)
-        raise Errors::VMSystemError, :_key => :unknown_type, :system => system.to_s if !system_klass
-        @system = system_klass.new(self)
+      if guest.is_a?(Class)
+        raise Errors::VMGuestError, :_key => :invalid_class, :system => guest.to_s if !(guest <= Systems::Base)
+        @guest = guest.new(self)
+      elsif guest.is_a?(Symbol)
+        guest_klass = Vagrant.guests.get(guest)
+        raise Errors::VMGuestError, :_key => :unknown_type, :system => guest.to_s if !guest_klass
+        @guest = guest_klass.new(self)
       else
-        raise Errors::VMSystemError, :unspecified
+        raise Errors::VMGuestError, :unspecified
       end
     end
 
-    # Returns the system for this VM, loading the distro of the system if
+    # Returns the guest for this VM, loading the distro of the system if
     # we can.
-    def system
-      if !@loaded_system_distro && created? && vm.running?
-        # Load the system distro for the first time
-        result = @system.distro_dispatch
-        load_system!(result)
-        @loaded_system_distro = true
+    def guest
+      if !@loaded_guest_distro && created? && vm.running?
+        # Load the guest distro for the first time
+        result = @guest.distro_dispatch
+        load_guest!(result)
+        @loaded_guest_distro = true
       end
 
-      @system
+      @guest
     end
 
     # Access the {Vagrant::SSH} object associated with this VM.

@@ -17,7 +17,7 @@ module Vagrant
       attr_reader :shared_folders
       attr_reader :network_options
       attr_reader :provisioners
-      attr_accessor :system
+      attr_accessor :guest
 
       def initialize
         @forwarded_ports = {}
