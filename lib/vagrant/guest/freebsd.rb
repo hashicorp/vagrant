@@ -20,11 +20,11 @@ module Vagrant
 
       # Here for whenever it may be used.
       class FreeBSDError < Errors::VagrantError
-        error_namespace("vagrant.systems.freebsd")
+        error_namespace("vagrant.guest.freebsd")
       end
 
       def halt
-        vm.env.ui.info I18n.t("vagrant.systems.freebsd.attempting_halt")
+        vm.env.ui.info I18n.t("vagrant.guest.freebsd.attempting_halt")
         vm.ssh.execute do |ssh|
           ssh.exec!("sudo shutdown -p now")
         end

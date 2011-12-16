@@ -25,7 +25,7 @@ module Vagrant
 
       # Here for whenever it may be used.
       class SolarisError < Errors::VagrantError
-        error_namespace("vagrant.systems.solaris")
+        error_namespace("vagrant.guest.solaris")
       end
 
       def prepare_host_only_network(net_options=nil)
@@ -61,7 +61,7 @@ module Vagrant
       #
       # does not exist in /etc/user_attr. TODO
       def halt
-        vm.env.ui.info I18n.t("vagrant.systems.solaris.attempting_halt")
+        vm.env.ui.info I18n.t("vagrant.guest.solaris.attempting_halt")
         vm.ssh.execute do |ssh|
           # Wait until the VM's state is actually powered off. If this doesn't
           # occur within a reasonable amount of time (15 seconds by default),

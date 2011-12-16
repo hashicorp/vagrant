@@ -22,7 +22,7 @@ module Vagrant
       end
 
       def halt
-        vm.env.ui.info I18n.t("vagrant.systems.linux.attempting_halt")
+        vm.env.ui.info I18n.t("vagrant.guest.linux.attempting_halt")
         vm.ssh.execute do |ssh|
           ssh.exec!("sudo shutdown -h now")
         end

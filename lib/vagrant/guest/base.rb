@@ -16,7 +16,7 @@ module Vagrant
     # changes will be noted on release notes.**
     class Base
       class BaseError < Errors::VagrantError
-        error_namespace("vagrant.systems.base")
+        error_namespace("vagrant.guest.base")
       end
 
       include Vagrant::Util
