@@ -51,7 +51,7 @@ module Vagrant
         folders.each do |name, opts|
           vm.ssh.execute do |ssh|
             ssh.exec!("sudo mkdir -p #{opts[:guestpath]}")
-            ssh.exec!("sudo mount #{ip}:'#{opts[:hostpath]}' #{opts[:guestpath]}", :_error_class => LinuxError, :_key => :mount_nfs_fail)
+            ssh.exec!("sudo mount -o vers=#{opts[:version]} #{ip}:'#{opts[:hostpath]}' #{opts[:guestpath]}", :_error_class => LinuxError, :_key => :mount_nfs_fail)
           end
         end
       end
