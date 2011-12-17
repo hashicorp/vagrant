@@ -1,3 +1,5 @@
+require 'optparse'
+
 module Vagrant
   # Manages the command line interface to Vagrant.
   class CLI < Command::Base
@@ -15,7 +17,26 @@ module Vagrant
                      :prefix => false)
 
         return
+      elsif @main_args.include?("-h") || @main_args.include?("--help")
+        # Help is next in short-circuiting everything. Print
+        # the help and exit.
+        return help
       end
+    end
+
+    # This prints the help for the CLI out.
+    def help
+      # We use the optionparser for this. Its just easier. We don't use
+      # an optionparser above because I don't think the performance hits
+      # of creating a whole object are worth checking only a couple flags.
+      opts = OptionParser.new do |opts|
+        opts.banner = "Usage: vagrant [-v] [-h] command [<args>]"
+        opts.separator ""
+        opts.on("-v", "--version", "Print the version and exit.")
+        opts.on("-h", "--help", "Print this help.")
+      end
+
+      @env.ui.info(opts.help, :prefix => false)
     end
   end
 end
