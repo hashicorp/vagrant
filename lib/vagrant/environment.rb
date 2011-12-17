@@ -172,7 +172,7 @@ module Vagrant
     #     env.cli("package", "--vagrantfile", "Vagrantfile")
     #
     def cli(*args)
-      CLI.start(args.flatten, :env => self)
+      CLI.new(args.flatten, self).execute
     end
 
     # Returns the host object associated with this environment.

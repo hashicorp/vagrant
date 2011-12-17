@@ -33,8 +33,8 @@ begin
   logger.debug("Loading environment")
   env.load!
 
-  # Kick start the CLI
-  Vagrant::CLI.start(ARGV, :env => env)
+  # Execute the CLI interface
+  env.cli(ARGV)
 rescue Vagrant::Errors::VagrantError => e
   logger.error("Vagrant experienced an error! Details:")
   logger.error(e.inspect)

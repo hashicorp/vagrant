@@ -23,6 +23,7 @@ module Vagrant
   autoload :Box,           'vagrant/box'
   autoload :BoxCollection, 'vagrant/box_collection'
   autoload :CLI,           'vagrant/cli'
+  autoload :Command,       'vagrant/command'
   autoload :Config,        'vagrant/config'
   autoload :DataStore,     'vagrant/data_store'
   autoload :Downloaders,   'vagrant/downloaders'
@@ -122,6 +123,5 @@ Vagrant.config_keys.register(:linux)   { Vagrant::Guest::Linux::LinuxConfig }
 Vagrant.config_keys.register(:solaris) { Vagrant::Guest::Solaris::SolarisConfig }
 
 # Load the things which must be loaded before anything else.
-require 'vagrant/command'
 require 'vagrant/version'
 Vagrant::Plugin.load!
