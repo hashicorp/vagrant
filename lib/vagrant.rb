@@ -95,6 +95,7 @@ I18n.load_path << File.expand_path("templates/locales/en.yml", Vagrant.source_ro
 
 # Register the built-in commands
 Vagrant.commands.register(:destroy) { Vagrant::Command::Destroy }
+Vagrant.commands.register(:halt) { Vagrant::Command::Halt }
 Vagrant.commands.register(:up) { Vagrant::Command::Up }
 
 # Register the built-in config keys

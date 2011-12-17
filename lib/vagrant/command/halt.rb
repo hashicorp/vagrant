@@ -1,15 +1,33 @@
+require 'optparse'
+
 module Vagrant
   module Command
-    class HaltCommand < NamedBase
-      class_option :force, :type => :boolean, :default => false, :aliases => "-f"
-      register "halt", "Halt the running VMs in the environment"
-
+    class Halt < Base
       def execute
-        target_vms.each do |vm|
+        options = {}
+
+        opts = OptionParser.new do |opts|
+          opts.banner = "Usage: vagrant halt [vm-name] [--force] [-h]"
+
+          opts.separator ""
+
+          opts.on("-f", "--force", "Force shut down (equivalent of pulling power)") do |f|
+            options[:force] = f
+          end
+        end
+
+        # Parse the options
+        argv = parse_options(opts)
+        return if !argv
+
+        @logger.debug("Halt command: #{argv.inspect} #{options.inspect}")
+        with_target_vms(argv[0]) do |vm|
           if vm.created?
-            vm.halt(options)
+            @logger.info("Halting #{vm.name}")
+            vm.halt(:force => options[:force])
           else
-            vm.env.ui.info I18n.t("vagrant.commands.common.vm_not_created")
+            @logger.info("Not halting #{vm.name}, since not created.")
+            vm.ui.info I18n.t("vagrant.commands.common.vm_not_created")
           end
         end
       end
