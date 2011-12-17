@@ -1,13 +1,24 @@
+require 'optparse'
+
 module Vagrant
   module Command
-    class DestroyCommand < NamedBase
-      register "destroy", "Destroy the environment, deleting the created virtual machines"
-
+    class Destroy < Base
       def execute
-        target_vms.each do |vm|
+        opts = OptionParser.new do |opts|
+          opts.banner = "Usage: vagrant destroy [vm-name]"
+        end
+
+        # Parse the options
+        argv = parse_options(opts)
+        return if !argv
+
+        @logger.debug("'Destroy' each target VM...")
+        with_target_vms(argv[0]) do |vm|
           if vm.created?
+            @logger.info("Destroying: #{vm.name}")
             vm.destroy
           else
+            @logger.info("Not destroying #{vm.name}, since it isn't created.")
             vm.env.ui.info I18n.t("vagrant.commands.common.vm_not_created")
           end
         end

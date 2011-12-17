@@ -25,6 +25,11 @@ describe Vagrant::Command::Base do
       result.should == ["foo"]
     end
 
+    it "creates an option parser if none is given" do
+      result = klass.new(["foo"], nil).parse_options(nil)
+      result.should == ["foo"]
+    end
+
     ["-h", "--help"].each do |help_string|
       it "returns nil and prints the help if '#{help_string}' is given" do
         instance = klass.new([help_string], nil)

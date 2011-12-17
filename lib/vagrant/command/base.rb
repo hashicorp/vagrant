@@ -31,10 +31,13 @@ module Vagrant
       #
       # If this method returns `nil`, then you should assume that help
       # was printed and parsing failed.
-      def parse_options(opts)
+      def parse_options(opts=nil)
         # Creating a shallow copy of the arguments so the OptionParser
         # doesn't destroy the originals.
         argv = @argv.dup
+
+        # Default opts to a blank optionparser if none is given
+        opts ||= OptionParser.new
 
         # Add the help option, which must be on every command.
         opts.on_tail("-h", "--help", "Print this help") do
