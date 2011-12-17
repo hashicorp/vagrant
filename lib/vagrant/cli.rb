@@ -48,6 +48,20 @@ module Vagrant
         opts.separator ""
         opts.on("-v", "--version", "Print the version and exit.")
         opts.on("-h", "--help", "Print this help.")
+        opts.separator ""
+        opts.separator "Available subcommands:"
+
+        # Add the available subcommands as separators in order to print them
+        # out as well.
+        keys = []
+        Vagrant.commands.each { |key, value| keys << key }
+
+        keys.sort.each do |key|
+          opts.separator "     #{key}"
+        end
+
+        opts.separator ""
+        opts.separator "For help on any individual command run `vagrant COMMAND -h`"
       end
 
       @env.ui.info(opts.help, :prefix => false)
