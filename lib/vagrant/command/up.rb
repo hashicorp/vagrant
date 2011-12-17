@@ -14,15 +14,11 @@ module Vagrant
           opts.on("--[no-]provision", "Enable or disable provisioning") do |p|
             options[:provision] = p
           end
-
-          opts.on("-h", "--help", "Print this help") do
-            puts opts.help
-            return
-          end
         end
 
         # Parse the options
         argv = parse_options(opts)
+        return if !argv
 
         # Go over each VM and bring it up
         @logger.debug("'Up' each target VM...")

@@ -23,11 +23,30 @@ module Vagrant
       # Parses the options given an OptionParser instance.
       #
       # This is a convenience method that properly handles duping the
-      # originally argv array so that it is not destroyed. That is all.
+      # originally argv array so that it is not destroyed.
+      #
+      # This method will also automatically detect "-h" and "--help"
+      # and print help. And if any invalid options are detected, the help
+      # will be printed, as well.
+      #
+      # If this method returns `nil`, then you should assume that help
+      # was printed and parsing failed.
       def parse_options(opts)
+        # Creating a shallow copy of the arguments so the OptionParser
+        # doesn't destroy the originals.
         argv = @argv.dup
+
+        # Add the help option, which must be on every command.
+        opts.on_tail("-h", "--help", "Print this help") do
+          puts opts.help
+          return nil
+        end
+
         opts.parse!(argv)
         return argv
+      rescue OptionParser::InvalidOption
+        puts opts.help
+        return nil
       end
 
       # Yields a VM for each target VM for the command.

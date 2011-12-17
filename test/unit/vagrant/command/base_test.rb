@@ -24,6 +24,20 @@ describe Vagrant::Command::Base do
       options[:f].should be
       result.should == ["foo"]
     end
+
+    ["-h", "--help"].each do |help_string|
+      it "returns nil and prints the help if '#{help_string}' is given" do
+        instance = klass.new([help_string], nil)
+        instance.should_receive(:puts)
+        instance.parse_options(OptionParser.new).should be_nil
+      end
+    end
+
+    it "returns nil if invalid options are given" do
+      instance = klass.new(["-f"], nil)
+      instance.should_receive(:puts)
+      instance.parse_options(OptionParser.new).should be_nil
+    end
   end
 
   describe "target VMs" do
