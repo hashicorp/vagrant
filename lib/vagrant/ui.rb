@@ -99,16 +99,18 @@ module Vagrant
     # but is up to the user of the class to verify this is the case.
     class Colored < Basic
       # Terminal colors
-      CLEAR  = "\e[0m"
-      YELLOW = "\e[33m"
-      RED    = "\e[31m"
-      GREEN  = "\e[32m"
+      COLORS = {
+        :clear  => "\e[0m",
+        :red    => "\e[31m",
+        :green  => "\e[32m",
+        :yellow => "\e[33m"
+      }
 
       # Mapping between type of message and the color to output
       COLOR_MAP = {
-        :warn    => YELLOW,
-        :error   => RED,
-        :success => GREEN
+        :warn    => COLORS[:yellow],
+        :error   => COLORS[:red],
+        :success => COLORS[:green]
       }
 
       # This is called by `say` to format the message for output.
@@ -116,8 +118,15 @@ module Vagrant
         # Get the format of the message before adding color.
         message = super
 
-        # Colorize the message if there is a color for this type of message
-        message = "#{COLOR_MAP[type]}#{message}#{CLEAR}" if COLOR_MAP[type]
+        # Colorize the message if there is a color for this type of message,
+        # either specified by the options or via the default color map.
+        if opts.has_key?(:color)
+          color   = COLORS[opts[:color]]
+          message = "#{color}#{message}#{COLORS[:clear]}"
+        else
+          message = "#{COLOR_MAP[type]}#{message}#{COLORS[:clear]}" if COLOR_MAP[type]
+        end
+
         message
       end
     end

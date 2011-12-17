@@ -133,7 +133,12 @@ module Vagrant
             if type == :exit_status
               ssh.check_exit_status(data, command)
             else
-              env[:ui].info("#{data}: #{type}")
+              # Output the data with the proper color based on the stream.
+              color = type == :stdout ? :green : :red
+
+              # Note: Be sure to chomp the data to avoid the newlines that the
+              # Chef outputs.
+              env[:ui].info(data.chomp, :color => color, :prefix => false)
             end
           end
         end

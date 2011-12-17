@@ -13,6 +13,8 @@
   - Error message for improperly packaged box files. [GH-198]
   - Copy insecure private key to user-owned directory so even
     `sudo` installed Vagrant installations work. [GH-580]
+  - Provisioner stdout/stderr is now color coded based on stdout/stderr.
+    stdout is green, stderr is red. [GH-595]
 
 ## 0.8.10 (December 10, 2011)
 
