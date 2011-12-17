@@ -99,6 +99,7 @@ Vagrant.commands.register(:halt) { Vagrant::Command::Halt }
 Vagrant.commands.register(:provision) { Vagrant::Command::Provision }
 Vagrant.commands.register(:reload) { Vagrant::Command::Reload }
 Vagrant.commands.register(:resume) { Vagrant::Command::Resume }
+Vagrant.commands.register(:suspend) { Vagrant::Command::Suspend }
 Vagrant.commands.register(:up) { Vagrant::Command::Up }
 
 # Register the built-in config keys
