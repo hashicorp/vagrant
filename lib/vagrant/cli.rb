@@ -30,7 +30,7 @@ module Vagrant
 
       # If we reached this far then we must have a subcommand. If not,
       # then we also just print the help and exit.
-      command_class = Vagrant.commands.get(@sub_command.to_sym)
+      command_class = Vagrant.commands.get(@sub_command.to_sym) if @sub_command
       return help if !command_class || !@sub_command
       @logger.debug("Invoking command class: #{command_class} #{@sub_args.inspect}")
 
