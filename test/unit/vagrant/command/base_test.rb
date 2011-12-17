@@ -1,12 +1,94 @@
 require File.expand_path("../../../base", __FILE__)
+require 'optparse'
 
 describe Vagrant::Command::Base do
+  describe "parsing options" do
+    let(:klass) do
+      Class.new(described_class) do
+        # Make the method public since it is normally protected
+        public :parse_options
+      end
+    end
+
+    it "returns the remaining arguments" do
+      options = {}
+      opts = OptionParser.new do |opts|
+        opts.on("-f") do |f|
+          options[:f] = f
+        end
+      end
+
+      result = klass.new(["-f", "foo"], nil).parse_options(opts)
+
+      # Check the results
+      options[:f].should be
+      result.should == ["foo"]
+    end
+  end
+
+  describe "target VMs" do
+    let(:klass) do
+      Class.new(described_class) do
+        # Make the method public since it is normally protected
+        public :with_target_vms
+      end
+    end
+
+    let(:environment) { double("environment") }
+    let(:instance)    { klass.new([], environment) }
+
+    it "should raise an exception if a name is given in a non-multivm environment" do
+      environment.stub(:multivm?).and_return(false)
+
+      expect { instance.with_target_vms("foo") }.
+        to raise_error(Vagrant::Errors::MultiVMEnvironmentRequired)
+    end
+
+    it "should yield every VM in order is no name is given" do
+      foo_vm = double("foo")
+      foo_vm.stub(:name).and_return("foo")
+
+      bar_vm = double("bar")
+      bar_vm.stub(:name).and_return("bar")
+
+      environment.stub(:multivm? => true,
+                       :vms => { "foo" => foo_vm, "bar" => bar_vm },
+                       :vms_ordered => [foo_vm, bar_vm])
+
+      vms = []
+      instance.with_target_vms do |vm|
+        vms << vm
+      end
+
+      vms.should == [foo_vm, bar_vm]
+    end
+
+    it "raises an exception if the named VM doesn't exist" do
+      environment.stub(:multivm? => true, :vms => {})
+
+      expect { instance.with_target_vms("foo") }.
+        to raise_error(Vagrant::Errors::VMNotFoundError)
+    end
+
+    it "yields the given VM if a name is given" do
+      foo_vm = double("foo")
+      foo_vm.stub(:name).and_return(:foo)
+
+      environment.stub(:multivm? => true,
+                       :vms => { :foo => foo_vm, :bar => nil })
+
+      vms = []
+      instance.with_target_vms("foo") { |vm| vms << vm }
+      vms.should == [foo_vm]
+    end
+  end
+
   describe "splitting the main and subcommand args" do
     let(:instance) do
       Class.new(described_class) do
-        # Make the method public since it is normal protected
+        # Make the method public since it is normally protected
         public :split_main_and_subcommand
-      end.new
+      end.new(nil, nil)
     end
 
     it "should work when given all 3 parts" do
@@ -27,6 +109,11 @@ describe Vagrant::Command::Base do
     it "should work when given only a subcommand" do
       result = instance.split_main_and_subcommand(["status"])
       result.should == [[], "status", []]
+    end
+
+    it "works when there are other non-flag args after the subcommand" do
+      result = instance.split_main_and_subcommand(["-v", "box", "add", "-h"])
+      result.should == [["-v"], "box", ["add", "-h"]]
     end
   end
 end

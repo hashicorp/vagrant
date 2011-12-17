@@ -46,6 +46,14 @@ module Vagrant
     @source_root ||= Pathname.new(File.expand_path('../../', __FILE__))
   end
 
+  # Global registry of commands that are available via the CLI.
+  #
+  # This registry is used to look up the sub-commands that are available
+  # to Vagrant.
+  def self.commands
+    @commands ||= Registry.new
+  end
+
   # Global registry of config keys that are available.
   #
   # This registry is used to look up the keys for `config` objects.
@@ -85,7 +93,10 @@ end
 # # Default I18n to load the en locale
 I18n.load_path << File.expand_path("templates/locales/en.yml", Vagrant.source_root)
 
-# Registry the build-in config keys
+# Register the built-in commands
+Vagrant.commands.register(:up) { Vagrant::Command::Up }
+
+# Register the built-in config keys
 Vagrant.config_keys.register(:vagrant) { Vagrant::Config::VagrantConfig }
 Vagrant.config_keys.register(:ssh)     { Vagrant::Config::SSHConfig }
 Vagrant.config_keys.register(:nfs)     { Vagrant::Config::NFSConfig }

@@ -1,11 +1,16 @@
+require 'log4r'
 require 'optparse'
 
 module Vagrant
   # Manages the command line interface to Vagrant.
   class CLI < Command::Base
     def initialize(argv, env)
-      @env  = env
+      super
+
+      @logger = Log4r::Logger.new("vagrant::cli")
       @main_args, @sub_command, @sub_args = split_main_and_subcommand(argv)
+
+      @logger.info("CLI: #{@main_args.inspect} #{@sub_command.inspect} #{@sub_args.inspect}")
     end
 
     def execute
@@ -22,9 +27,18 @@ module Vagrant
         # the help and exit.
         return help
       end
+
+      # If we reached this far then we must have a subcommand. If not,
+      # then we also just print the help and exit.
+      command_class = Vagrant.commands.get(@sub_command.to_sym)
+      return help if !command_class || !@sub_command
+      @logger.debug("Invoking command class: #{command_class} #{@sub_args.inspect}")
+
+      # Initialize and execute the command class.
+      command_class.new(@sub_args, @env).execute
     end
 
-    # This prints the help for the CLI out.
+    # This prints out the help for the CLI.
     def help
       # We use the optionparser for this. Its just easier. We don't use
       # an optionparser above because I don't think the performance hits

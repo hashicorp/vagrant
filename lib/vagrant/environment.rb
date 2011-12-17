@@ -139,6 +139,7 @@ module Vagrant
     #
     # @return [Array<VM>]
     def vms_ordered
+      return @vms.values if !multivm?
       @vms_enum ||= config.global.vm.defined_vm_keys.map { |name| @vms[name] }
     end
 

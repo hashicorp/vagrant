@@ -1,7 +1,62 @@
+require 'log4r'
+
 module Vagrant
   module Command
+    # Base class for any CLI commands.
+    #
+    # This class provides documentation on the interface as well as helper
+    # functions that a command has.
     class Base
+      def initialize(argv, env)
+        @argv = argv
+        @env  = env
+        @logger = Log4r::Logger.new("vagrant::command::#{self.class.to_s.downcase}")
+      end
+
+      # This is what is called on the class to actually execute it. Any
+      # subclasses should implement this method and do any option parsing
+      # and validation here.
+      def execute; end
+
       protected
+
+      # Parses the options given an OptionParser instance.
+      #
+      # This is a convenience method that properly handles duping the
+      # originally argv array so that it is not destroyed. That is all.
+      def parse_options(opts)
+        argv = @argv.dup
+        opts.parse!(argv)
+        return argv
+      end
+
+      # Yields a VM for each target VM for the command.
+      #
+      # This is a convenience method for easily implementing methods that
+      # take a target VM (in the case of multi-VM) or every VM if no
+      # specific VM name is specified.
+      #
+      # @param [String] name The name of the VM. Nil if every VM.
+      def with_target_vms(name=nil)
+        # First determine the proper array of VMs.
+        vms = []
+        if name
+          raise Errors::MultiVMEnvironmentRequired if !@env.multivm?
+          vms << @env.vms[name.to_sym]
+          raise Errors::VMNotFoundError, :name => name if !vms[0]
+        else
+          vms = @env.vms_ordered
+        end
+
+        # Go through each VM and yield it!
+        vms.each do |old_vm|
+          # We get a new VM from the environment here to avoid potentially
+          # stale VMs (if there was a config reload on the environment
+          # or something).
+          vm = @env.vms[old_vm.name]
+          yield vm
+        end
+      end
 
       # This method will split the argv given into three parts: the
       # flags to this command, the subcommand, and the flags to the
@@ -36,6 +91,10 @@ module Vagrant
             main_args   = argv[0, i]
             sub_command = argv[i]
             sub_args    = argv[i + 1, argv.length - i + 1]
+
+            # Break so we don't find the next non flag and shift our
+            # main args.
+            break
           end
         end
 

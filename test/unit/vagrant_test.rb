@@ -5,6 +5,10 @@ describe Vagrant do
     described_class.source_root.should == Pathname.new(File.expand_path("../../../", __FILE__))
   end
 
+  it "has a registry for commands" do
+    described_class.commands.should be_a(Vagrant::Registry)
+  end
+
   it "has a registry for config keys" do
     described_class.config_keys.should be_a(Vagrant::Registry)
   end
