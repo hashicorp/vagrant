@@ -48,8 +48,7 @@ module Vagrant
       # the JSON is parsed back, it can be loaded back into the proper class.
       # See {json_create}.
       def to_json(*a)
-        result = { 'json_class' => self.class.name }
-        result.merge(instance_variables_hash).to_json(*a)
+        instance_variables_hash.to_json(*a)
       end
 
       # Returns the instance variables as a hash of key-value pairs.
