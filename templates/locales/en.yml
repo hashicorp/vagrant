@@ -115,6 +115,9 @@ en:
 
           http://vagrantup.com/docs/getting-started/setup/windows.html
 
+      vagrantfile_exists: |-
+        `Vagrantfile` already exists in this directory. Remove it before
+        running `vagrant init`.
       vagrantfile_syntax_error: |-
         There is a syntax error in the following Vagrantfile. The syntax error
         message is reproduced below for convenience:
@@ -197,6 +200,12 @@ en:
         vm_not_running: "VM is not currently running. Please bring it up to run this command."
       box:
         no_installed_boxes: "There are no installed boxes! Use `vagrant box add` to add some."
+      init:
+        success: |-
+          A `Vagrantfile` has been placed in this directory. You are now
+          ready to `vagrant up` your first virtual environment! Please read
+          the comments in the Vagrantfile as well as documentation on
+          `vagrantup.com` for more information on using Vagrant.
       status:
         aborted: |-
           The VM is in an aborted state. This means that it was abruptly

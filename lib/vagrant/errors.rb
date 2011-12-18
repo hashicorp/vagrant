@@ -290,6 +290,11 @@ module Vagrant
       error_key(:interrupted)
     end
 
+    class VagrantfileExistsError < VagrantError
+      status_code(58)
+      error_key(:vagrantfile_exists)
+    end
+
     class VagrantfileSyntaxError < VagrantError
       status_code(41)
       error_key(:vagrantfile_syntax_error)

@@ -1,13 +1,36 @@
+require 'optparse'
+
+require 'vagrant/util/template_renderer'
+
 module Vagrant
   module Command
-    class InitCommand < Base
-      argument :box_name, :type => :string, :optional => true, :default => "base"
-      argument :box_url, :type => :string, :optional => true
-      source_root File.expand_path("templates/commands/init", Vagrant.source_root)
-      register "init [box_name] [box_url]", "Initializes the current folder for Vagrant usage"
-
+    class Init < Base
       def execute
-        template "Vagrantfile.erb", env.cwd.join("Vagrantfile")
+        options = {}
+
+        opts = OptionParser.new do |opts|
+          opts.banner = "Usage: vagrant init [box-name] [box-url]"
+        end
+
+        # Parse the options
+        argv = parse_options(opts)
+        return if !argv
+
+        save_path = @env.cwd.join("Vagrantfile")
+        raise Errors::VagrantfileExistsError if save_path.exist?
+
+        template_path = ::Vagrant.source_root.join("templates/commands/init/Vagrantfile")
+        contents = Vagrant::Util::TemplateRenderer.render(template_path,
+                                                          :box_name => argv[0] || "base",
+                                                          :box_url => argv[1])
+
+        # Write out the contents
+        save_path.open("w+") do |f|
+          f.write(contents)
+        end
+
+        @env.ui.info(I18n.t("vagrant.commands.init.success"),
+                     :prefix => false)
       end
     end
   end

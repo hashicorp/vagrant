@@ -97,6 +97,7 @@ I18n.load_path << File.expand_path("templates/locales/en.yml", Vagrant.source_ro
 Vagrant.commands.register(:box)          { Vagrant::Command::Box }
 Vagrant.commands.register(:destroy)      { Vagrant::Command::Destroy }
 Vagrant.commands.register(:halt)         { Vagrant::Command::Halt }
+Vagrant.commands.register(:init)         { Vagrant::Command::Init }
 Vagrant.commands.register(:package)      { Vagrant::Command::Package }
 Vagrant.commands.register(:provision)    { Vagrant::Command::Provision }
 Vagrant.commands.register(:reload)       { Vagrant::Command::Reload }
