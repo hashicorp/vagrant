@@ -33,7 +33,7 @@ module Acceptance
     # Tests that the output says there is no Vagrantfile, and as such
     # can't do whatever we requested Vagrant to do.
     def no_vagrantfile
-      @text =~ /^No Vagrant environment detected/
+      @text =~ /^A Vagrant environment is required/
     end
 
     # Tests that the output contains a specific Vagrant version.

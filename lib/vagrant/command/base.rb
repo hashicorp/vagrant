@@ -60,6 +60,9 @@ module Vagrant
       #
       # @param [String] name The name of the VM. Nil if every VM.
       def with_target_vms(name=nil)
+        # Using VMs requires a Vagrant environment to be properly setup
+        raise Errors::NoEnvironmentError if !@env.root_path
+
         # First determine the proper array of VMs.
         vms = []
         if name

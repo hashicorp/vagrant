@@ -53,8 +53,20 @@ describe Vagrant::Command::Base do
       end
     end
 
-    let(:environment) { double("environment") }
+    let(:environment) do
+      env = double("environment")
+      env.stub(:root_path => "foo")
+      env
+    end
+
     let(:instance)    { klass.new([], environment) }
+
+    it "should raise an exception if a root_path is not available" do
+      environment.stub(:root_path => nil)
+
+      expect { instance.with_target_vms }.
+        to raise_error(Vagrant::Errors::NoEnvironmentError)
+    end
 
     it "should raise an exception if a name is given in a non-multivm environment" do
       environment.stub(:multivm?).and_return(false)
