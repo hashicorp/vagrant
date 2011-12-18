@@ -6,6 +6,8 @@
     logging is silent.
   - `system` renamed to `guest` throughout the source. Any `config.vm.system`
     configurations must be changed to `config.vm.guest`
+  - Removed Thor as a dependency for the command line interfaces. This resulted
+    in general speed increases across all command line commands.
   - Linux uses `shutdown -h` instead of `halt` to hopefully more consistently
     power off the system. [GH-575]
   - Tweaks to SSH to hopefully be more reliable in coming up.
