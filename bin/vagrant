@@ -17,6 +17,9 @@ opts = {}
 
 # Disable color if the proper argument was passed
 if !$stdout.tty? || ARGV.include?("--no-color")
+  # Delete the argument from the list so that it doesn't cause any
+  # invalid arguments down the road.
+  ARGV.delete("--no-color")
   opts[:ui_class] = Vagrant::UI::Basic
 else
   opts[:ui_class] = Vagrant::UI::Colored
