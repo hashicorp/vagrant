@@ -1,33 +1,69 @@
+require 'optparse'
+
 module Vagrant
   module Command
-    class PackageCommand < NamedBase
-      class_option :base, :type => :string, :default => nil
-      class_option :output, :type => :string, :default => nil
-      class_option :include, :type => :array, :default => nil
-      class_option :vagrantfile, :type => :string, :default => nil
-      register "package", "Package a Vagrant environment for distribution"
-
+    class Package < Base
       def execute
-        return package_base if options[:base]
-        package_target
+        options = {}
+
+        opts = OptionParser.new do |opts|
+          opts.banner = "Usage: vagrant package [vm-name] [--base name] [--output name.box]"
+          opts.separator "                       [--include one,two,three] [--vagrantfile file]"
+
+          opts.separator ""
+
+          opts.on("--base NAME", "Name of a VM in virtualbox to package as a base box") do |b|
+            options[:base] = b
+          end
+
+          opts.on("--output NAME", "Name of the file to output") do |o|
+            options[:output] = o
+          end
+
+          opts.on("--include x,y,z", Array, "Additional files to package with the box.") do |i|
+            options[:include] = i
+          end
+
+          opts.on("--vagrantfile file", "Vagrantfile to package with the box.") do |v|
+            options[:vagrantfile] = v
+          end
+        end
+
+        # Parse the options
+        argv = parse_options(opts)
+        return if !argv
+
+        @logger.debug("package options: #{options.inspect}")
+        if options[:base]
+          package_base(options)
+        else
+          package_target(argv[0], options)
+        end
       end
 
       protected
 
-      def package_base
-        vm = VM.find(options[:base], env)
+      def package_base(options)
+        vm = VM.find(options[:base], @env)
         raise Errors::BaseVMNotFound, :name => options[:base] if !vm.created?
-        package_vm(vm)
+        @logger.debug("Packaging base VM: #{vm.name}")
+        package_vm(vm, options)
       end
 
-      def package_target
-        raise Errors::MultiVMTargetRequired, :command => "package" if target_vms.length > 1
-        vm = target_vms.first
-        raise Errors::VMNotCreatedError if !vm.created?
-        package_vm(vm)
+      def package_target(name, options)
+        if @env.multivm? && name.nil?
+          # In a multi-VM environment, a name is required.
+          raise Errors::MultiVMTargetRequired, :command => "package"
+        end
+
+        with_target_vms(name) do |vm|
+          raise Errors::VMNotCreatedError if !vm.created?
+          @logger.debug("Packaging VM: #{vm.name}")
+          package_vm(vm, options)
+        end
       end
 
-      def package_vm(vm)
+      def package_vm(vm, options)
         opts = options.inject({}) do |acc, data|
           k,v = data
           acc["package.#{k}"] = v
