@@ -360,7 +360,13 @@ module Vagrant
       config_loader = Config::Loader.new
       config_loader.load_order = [:default, :box, :home, :root, :vm]
 
-      inner_load = lambda do |subvm=nil, box=nil|
+      inner_load = lambda do |*args|
+        # This is for Ruby 1.8.7 compatibility. Ruby 1.8.7 doesn't allow
+        # default arguments for lambdas, so we get around by doing a *args
+        # and setting the args here.
+        subvm = args[0]
+        box   = args[1]
+
         # Default Vagrantfile first. This is the Vagrantfile that ships
         # with Vagrant.
         config_loader.set(:default, File.expand_path("config/default.rb", Vagrant.source_root))
