@@ -2,6 +2,11 @@ module Vagrant
   module Command
     autoload :Base,      'vagrant/command/base'
 
+    autoload :Box, 'vagrant/command/box'
+    autoload :BoxAdd, 'vagrant/command/box_add'
+    autoload :BoxRemove, 'vagrant/command/box_remove'
+    autoload :BoxRepackage, 'vagrant/command/box_repackage'
+    autoload :BoxList, 'vagrant/command/box_list'
     autoload :Destroy, 'vagrant/command/destroy'
     autoload :Halt, 'vagrant/command/halt'
     autoload :Package, 'vagrant/command/package'
