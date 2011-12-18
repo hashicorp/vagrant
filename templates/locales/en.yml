@@ -244,18 +244,6 @@ en:
           VM, run `vagrant status NAME`.
       up:
         vm_created: "VM already created. Booting if it's not already running..."
-      upgrade_to_060:
-        already_done: "Environment appears to already be upgraded to 0.6.0. Doing nothing!"
-        ask: "Are you sure you want to execute this command?"
-        backing_up: "Backing up previous .vagrant file..."
-        complete: "Environment upgraded to 0.6.0 successfully."
-        info: |-
-          This command will upgrade the current environment from a pre-0.6.0
-          environment to a 0.6.x compatible environment. Running this command
-          multiple times should be okay. This command will make a backup file
-          prior to making any changes. Therefore, if anything goes wrong, then
-          restore that file to ".vagrant" in the same directory as the Vagrantfile.
-        quit: "Not executing this command by user request. Quitting..."
       version:
         output: "Vagrant version %{version}"
 
