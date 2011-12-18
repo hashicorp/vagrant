@@ -17,6 +17,7 @@
     `sudo` installed Vagrant installations work. [GH-580]
   - Provisioner stdout/stderr is now color coded based on stdout/stderr.
     stdout is green, stderr is red. [GH-595]
+  - "--no-provision" once again works for certain commands. [GH-591]
 
 ## 0.8.10 (December 10, 2011)
 
