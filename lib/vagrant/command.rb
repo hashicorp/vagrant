@@ -8,6 +8,7 @@ module Vagrant
     autoload :Provision, 'vagrant/command/provision'
     autoload :Reload, 'vagrant/command/reload'
     autoload :Resume, 'vagrant/command/resume'
+    autoload :SSH, 'vagrant/command/ssh'
     autoload :Suspend, 'vagrant/command/suspend'
     autoload :Up, 'vagrant/command/up'
   end
