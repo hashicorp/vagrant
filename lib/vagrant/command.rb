@@ -10,6 +10,7 @@ module Vagrant
     autoload :Resume, 'vagrant/command/resume'
     autoload :SSH, 'vagrant/command/ssh'
     autoload :SSHConfig, 'vagrant/command/ssh_config'
+    autoload :Status, 'vagrant/command/status'
     autoload :Suspend, 'vagrant/command/suspend'
     autoload :Up, 'vagrant/command/up'
   end

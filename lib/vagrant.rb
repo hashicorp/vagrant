@@ -102,6 +102,7 @@ Vagrant.commands.register(:reload) { Vagrant::Command::Reload }
 Vagrant.commands.register(:resume) { Vagrant::Command::Resume }
 Vagrant.commands.register(:ssh) { Vagrant::Command::SSH }
 Vagrant.commands.register(:"ssh-config") { Vagrant::Command::SSHConfig }
+Vagrant.commands.register(:status) { Vagrant::Command::Status }
 Vagrant.commands.register(:suspend) { Vagrant::Command::Suspend }
 Vagrant.commands.register(:up) { Vagrant::Command::Up }
 
