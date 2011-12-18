@@ -94,18 +94,18 @@ end
 I18n.load_path << File.expand_path("templates/locales/en.yml", Vagrant.source_root)
 
 # Register the built-in commands
-Vagrant.commands.register(:box) { Vagrant::Command::Box }
-Vagrant.commands.register(:destroy) { Vagrant::Command::Destroy }
-Vagrant.commands.register(:halt) { Vagrant::Command::Halt }
-Vagrant.commands.register(:package) { Vagrant::Command::Package }
-Vagrant.commands.register(:provision) { Vagrant::Command::Provision }
-Vagrant.commands.register(:reload) { Vagrant::Command::Reload }
-Vagrant.commands.register(:resume) { Vagrant::Command::Resume }
-Vagrant.commands.register(:ssh) { Vagrant::Command::SSH }
+Vagrant.commands.register(:box)          { Vagrant::Command::Box }
+Vagrant.commands.register(:destroy)      { Vagrant::Command::Destroy }
+Vagrant.commands.register(:halt)         { Vagrant::Command::Halt }
+Vagrant.commands.register(:package)      { Vagrant::Command::Package }
+Vagrant.commands.register(:provision)    { Vagrant::Command::Provision }
+Vagrant.commands.register(:reload)       { Vagrant::Command::Reload }
+Vagrant.commands.register(:resume)       { Vagrant::Command::Resume }
+Vagrant.commands.register(:ssh)          { Vagrant::Command::SSH }
 Vagrant.commands.register(:"ssh-config") { Vagrant::Command::SSHConfig }
-Vagrant.commands.register(:status) { Vagrant::Command::Status }
-Vagrant.commands.register(:suspend) { Vagrant::Command::Suspend }
-Vagrant.commands.register(:up) { Vagrant::Command::Up }
+Vagrant.commands.register(:status)       { Vagrant::Command::Status }
+Vagrant.commands.register(:suspend)      { Vagrant::Command::Suspend }
+Vagrant.commands.register(:up)           { Vagrant::Command::Up }
 
 # Register the built-in config keys
 Vagrant.config_keys.register(:vagrant) { Vagrant::Config::VagrantConfig }
