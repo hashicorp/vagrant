@@ -10,13 +10,9 @@ module Vagrant
           raise Errors::VMBaseMacNotSpecified if !env[:vm].config.vm.base_mac
 
           # Create the proc which we want to use to modify the virtual machine
-          proc = lambda do |vm|
-            env[:ui].info I18n.t("vagrant.actions.vm.match_mac.matching")
-            vm.network_adapters.first.mac_address = env[:vm].config.vm.base_mac
-          end
-
-          # Add the proc to the modification chain
-          env["vm.modify"].call(proc)
+          env[:ui].info I18n.t("vagrant.actions.vm.match_mac.matching")
+          env[:vm].driver.set_mac_address(env[:vm].uuid,
+                                          env[:vm].config.vm.base_mac)
 
           @app.call(env)
         end

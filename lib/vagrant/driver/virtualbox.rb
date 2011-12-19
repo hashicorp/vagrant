@@ -24,14 +24,11 @@ module Vagrant
 
       # Imports the VM with the given path to the OVF file. It returns
       # the UUID as a string.
-      def import(ovf)
-        output = execute("import", ovf)
-        if output =~ /VM name "(.+?)"/
-          name = $1.to_s
-          output = execute("list", "vms")
-          if output =~ /^"#{name}" {(.+?)}$/
-            return $1.to_s
-          end
+      def import(ovf, name)
+        execute("import", ovf, "--vsys", "0", "--vmname", name)
+        output = execute("list", "vms")
+        if output =~ /^"#{name}" {(.+?)}$/
+          return $1.to_s
         end
 
         nil
@@ -60,6 +57,11 @@ module Vagrant
         end
 
         nil
+      end
+
+      # This sets the MAC address for a network adapter.
+      def set_mac_address(uuid, mac)
+        execute("modifyvm", uuid, "--macaddress1", mac)
       end
 
       protected

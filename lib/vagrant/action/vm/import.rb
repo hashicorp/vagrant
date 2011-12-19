@@ -10,8 +10,9 @@ module Vagrant
           env[:ui].info I18n.t("vagrant.actions.vm.import.importing", :name => env[:vm].box.name)
 
           # Import the virtual machine
+          name = File.basename(env[:vm].env.cwd) + "_#{Time.now.to_i}"
           ovf_file = env[:vm].box.directory.join("box.ovf").to_s
-          env[:vm].uuid = env[:vm].driver.import(ovf_file) do |progress|
+          env[:vm].uuid = env[:vm].driver.import(ovf_file, name) do |progress|
             env[:ui].clear_line
             env[:ui].report_progress(progress.percent, 100, false)
           end
