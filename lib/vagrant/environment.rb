@@ -418,20 +418,9 @@ module Vagrant
     def load_vms!
       result = {}
 
-      # Load the VM UUIDs from the local data store
-      (local_data[:active] || {}).each do |name, uuid|
-        vm = VirtualBox::VM.find(uuid)
-        result[name.to_sym] = Vagrant::VM.new(name.to_sym,
-                                              self,
-                                              config.for_vm(name.to_sym),
-                                              vm)
-      end
-
-      # For any VMs which aren't created, create a blank VM instance for them.
+      # Load all the virtual machine instances.
       config.vms.each do |name|
-        if !result.has_key?(name)
-          result[name] = Vagrant::VM.new(name, self, config.for_vm(name))
-        end
+        result[name] = Vagrant::VM.new(name, self, config.for_vm(name))
       end
 
       result

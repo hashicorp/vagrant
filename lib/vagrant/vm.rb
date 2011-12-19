@@ -11,15 +11,19 @@ module Vagrant
     attr_reader :config
     attr_reader :driver
 
-    def initialize(name, env, config, vm=nil)
+    def initialize(name, env, config)
       @logger = Log4r::Logger.new("vagrant::vm")
 
       @name   = name
-      @vm     = vm
+      @vm     = nil
       @env    = env
       @config = config
       @box    = env.boxes.find(config.vm.box)
       @driver = Driver::VirtualBox.new
+
+      # Look for the VM if it exists
+      active = env.local_data[:active] || {}
+      @vm = VirtualBox::VM.find(active[@name.to_s]) if active[@name.to_s]
 
       # Load the associated guest.
       load_guest!
