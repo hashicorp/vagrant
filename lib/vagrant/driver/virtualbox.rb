@@ -22,14 +22,63 @@ module Vagrant
         end
       end
 
+      # Imports the VM with the given path to the OVF file. It returns
+      # the UUID as a string.
+      def import(ovf)
+        output = execute("import", ovf)
+        if output =~ /VM name "(.+?)"/
+          name = $1.to_s
+          output = execute("list", "vms")
+          if output =~ /^"#{name}" {(.+?)}$/
+            return $1.to_s
+          end
+        end
+
+        nil
+      end
+
+      # This deletes the VM with the given name.
+      def delete(uuid)
+        execute("unregistervm", uuid, "--delete")
+      end
+
+      # This reads the guest additions version for a VM.
+      def guest_additions_version(uuid)
+        output = execute("guestproperty", "get", uuid, "/VirtualBox/GuestAdd/Version")
+        return $1.to_s if output =~ /^Value: (.+?)$/
+        return nil
+      end
+
+      # This reads the state for the given UUID. The state of the VM
+      # will be returned as a symbol.
+      def read_state(uuid)
+        output = execute("showvminfo", uuid, "--machinereadable")
+        if output =~ /^name="<inaccessible>"$/
+          return :inaccessible
+        elsif output =~ /^VMState="(.+?)"$/
+          return $1.to_sym
+        end
+
+        nil
+      end
+
       protected
 
       # This returns the version of VirtualBox that is running.
       #
       # @return [String]
       def read_version
-        result = Subprocess.execute("VBoxManage", "--version")
-        result.stdout.split("r")[0]
+        execute("--version").split("r")[0]
+      end
+
+      # Execute the given subcommand for VBoxManage and return the output.
+      def execute(*command)
+        # TODO: Detect failures and handle them
+        r = Subprocess.execute("VBoxManage", *command)
+        if r.exit_code != 0
+          raise Exception, "FAILURE: #{r.stderr}"
+        end
+        r.stdout
       end
     end
   end

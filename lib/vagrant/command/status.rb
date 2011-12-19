@@ -17,17 +17,8 @@ module Vagrant
         state = nil
         results = []
         with_target_vms(argv[0]) do |vm|
-          if vm.created?
-            if vm.vm.accessible?
-              state = vm.vm.state.to_s
-            else
-              state = "inaccessible"
-            end
-          else
-            state = "not_created"
-          end
-
-          results << "#{vm.name.to_s.ljust(25)}#{state.gsub("_", " ")}"
+          state = vm.state.to_s if !state
+          results << "#{vm.name.to_s.ljust(25)}#{vm.state.to_s.gsub("_", " ")}"
         end
 
         state = results.length == 1 ? state : "listing"

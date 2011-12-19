@@ -227,13 +227,15 @@ en:
         not_created: |-
           The environment has not yet been created. Run `vagrant up` to
           create the environment.
-        powered_off: The VM is powered off. To restart the VM, simply run `vagrant up`
+        poweroff: |-
+          The VM is powered off. To restart the VM, simply run `vagrant up`
         running: |-
           The VM is running. To stop this VM, you can run `vagrant halt` to
           shut it down forcefully, or you can run `vagrant suspend` to simply
           suspend the virtual machine. In either case, to restart it again,
           simply run `vagrant up`.
-        saved: To resume this VM, simply run `vagrant up`.
+        saved: |-
+          To resume this VM, simply run `vagrant up`.
         stuck: |-
           The VM is "stuck!" This is a very rare state which means that
           VirtualBox is unable to recover the current state of the VM.

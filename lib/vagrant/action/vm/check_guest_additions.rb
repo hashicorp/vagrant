@@ -12,20 +12,20 @@ module Vagrant
         def call(env)
           # Use the raw interface for now, while the virtualbox gem
           # doesn't support guest properties (due to cross platform issues)
-          version = env[:vm].vm.interface.get_guest_property_value("/VirtualBox/GuestAdd/Version")
+          version = env[:vm].driver.guest_additions_version(env[:vm].uuid)
           if version.empty?
             env[:ui].warn I18n.t("vagrant.actions.vm.check_guest_additions.not_detected")
           else
             # Strip the -OSE/_OSE off from the guest additions and the virtual box
             # version since all the matters are that the version _numbers_ match up.
-            guest_version, vb_version = [version, VirtualBox.version].map do |v|
+            guest_version, vb_version = [version, env[:vm].driver.version].map do |v|
               v.gsub(/[-_]ose/i, '')
             end
 
             if guest_version != vb_version
               env[:ui].warn(I18n.t("vagrant.actions.vm.check_guest_additions.version_mismatch",
                                    :guest_version => version,
-                                   :virtualbox_version => VirtualBox.version))
+                                   :virtualbox_version => vb_version))
             end
           end
 

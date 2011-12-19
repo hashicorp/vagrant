@@ -8,10 +8,10 @@ module Vagrant
         end
 
         def call(env)
-          if env[:vm].created? && env[:vm].vm.running?
+          if env[:vm].state == :running
             env[:vm].guest.halt if !env["force"]
 
-            if env[:vm].vm.state(true) != :powered_off
+            if env[:vm].state != :poweredoff
               env[:ui].info I18n.t("vagrant.actions.vm.halt.force")
               env[:vm].vm.stop
             end
