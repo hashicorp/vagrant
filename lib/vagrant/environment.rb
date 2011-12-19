@@ -36,27 +36,6 @@ module Vagrant
     # The path to the default private key
     attr_reader :default_private_key_path
 
-    #---------------------------------------------------------------
-    # Class Methods
-    #---------------------------------------------------------------
-    class << self
-      # Verifies that VirtualBox is installed and that the version of
-      # VirtualBox installed is high enough.
-      def check_virtualbox!
-        version = VirtualBox.version
-        raise Errors::VirtualBoxNotDetected if version.nil?
-        raise Errors::VirtualBoxInvalidVersion, :version => version.to_s if version.to_f < 4.1 || version.to_f >= 4.2
-      rescue Errors::VirtualBoxNotDetected
-        # On 64-bit Windows, show a special error. This error is a subclass
-        # of VirtualBoxNotDetected, so libraries which use Vagrant can just
-        # rescue VirtualBoxNotDetected.
-        raise Errors::VirtualBoxNotDetected_Win64 if Util::Platform.windows? && Util::Platform.bit64?
-
-        # Otherwise, reraise the old error
-        raise
-      end
-    end
-
     # Initializes a new environment with the given options. The options
     # is a hash where the main available key is `cwd`, which defines where
     # the environment represents. There are other options available but
@@ -331,10 +310,6 @@ module Vagrant
     def load!
       if !loaded?
         @loaded = true
-
-        @logger.info("Environment not loaded. Checking virtual box version...")
-        self.class.check_virtualbox!
-
         @logger.info("Loading configuration...")
         load_config!
       end

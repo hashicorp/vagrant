@@ -9,6 +9,7 @@ module Vagrant
     attr_reader :vm
     attr_reader :box
     attr_reader :config
+    attr_reader :driver
 
     def initialize(name, env, config, vm=nil)
       @logger = Log4r::Logger.new("vagrant::vm")
@@ -18,6 +19,7 @@ module Vagrant
       @env    = env
       @config = config
       @box    = env.boxes.find(config.vm.box)
+      @driver = Driver::VirtualBox.new
 
       # Load the associated guest.
       load_guest!

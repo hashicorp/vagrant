@@ -10,6 +10,7 @@ if ENV["VAGRANT_LOG"]
 end
 
 require 'pathname'
+require 'childprocess'
 require 'json'
 require 'i18n'
 require 'virtualbox'
@@ -27,6 +28,7 @@ module Vagrant
   autoload :Config,        'vagrant/config'
   autoload :DataStore,     'vagrant/data_store'
   autoload :Downloaders,   'vagrant/downloaders'
+  autoload :Driver,        'vagrant/driver'
   autoload :Environment,   'vagrant/environment'
   autoload :Errors,        'vagrant/errors'
   autoload :Guest,         'vagrant/guest'
