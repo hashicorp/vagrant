@@ -20,12 +20,13 @@ module Vagrant
       @env    = env
       @config = config
       @box    = env.boxes.find(config.vm.box)
-      @driver = Driver::VirtualBox.new
 
-      # Look for the VM if it exists
+      # Load the UUID if its saved.
       active = env.local_data[:active] || {}
       @uuid = active[@name.to_s]
-      # @vm = VirtualBox::VM.find(@uuid) if @uuid
+
+      # Reload ourselves to get the state
+      reload!
 
       # Load the associated guest.
       load_guest!
@@ -78,7 +79,7 @@ module Vagrant
     # @return [Symbol]
     def state
       return :not_created if !@uuid
-      state = @driver.read_state(@uuid)
+      state = @driver.read_state
       return :not_created if !state
       return state
     end
@@ -96,8 +97,6 @@ module Vagrant
     # to persist the VM. Otherwise, it will remove itself from the
     # local data (if it exists).
     def uuid=(value)
-      @uuid = value
-
       env.local_data[:active] ||= {}
       if value
         env.local_data[:active][name.to_s] = value
@@ -108,10 +107,14 @@ module Vagrant
       # Commit the local data so that the next time vagrant is initialized,
       # it realizes the VM exists
       env.local_data.commit
+
+      # Store the uuid and reload the instance
+      @uuid = value
+      reload!
     end
 
     def reload!
-      @vm = VirtualBox::VM.find(@vm.uuid)
+      @driver = Driver::VirtualBox.new(@uuid)
     end
 
     def package(options=nil)

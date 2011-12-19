@@ -12,7 +12,7 @@ module Vagrant
         def call(env)
           # Use the raw interface for now, while the virtualbox gem
           # doesn't support guest properties (due to cross platform issues)
-          version = env[:vm].driver.guest_additions_version(env[:vm].uuid)
+          version = env[:vm].driver.read_guest_additions_version
           if !version
             env[:ui].warn I18n.t("vagrant.actions.vm.check_guest_additions.not_detected")
           else

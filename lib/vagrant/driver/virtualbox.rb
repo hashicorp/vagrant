@@ -10,7 +10,9 @@ module Vagrant
       # The version of virtualbox that is running.
       attr_reader :version
 
-      def initialize
+      def initialize(uuid)
+        @uuid = uuid
+
         # Read and assign the version of VirtualBox we know which
         # specific driver to instantiate.
         begin
@@ -35,21 +37,21 @@ module Vagrant
       end
 
       # This deletes the VM with the given name.
-      def delete(uuid)
-        execute("unregistervm", uuid, "--delete")
+      def delete
+        execute("unregistervm", @uuid, "--delete")
       end
 
       # This reads the guest additions version for a VM.
-      def guest_additions_version(uuid)
-        output = execute("guestproperty", "get", uuid, "/VirtualBox/GuestAdd/Version")
+      def read_guest_additions_version
+        output = execute("guestproperty", "get", @uuid, "/VirtualBox/GuestAdd/Version")
         return $1.to_s if output =~ /^Value: (.+?)$/
         return nil
       end
 
       # This reads the state for the given UUID. The state of the VM
       # will be returned as a symbol.
-      def read_state(uuid)
-        output = execute("showvminfo", uuid, "--machinereadable")
+      def read_state
+        output = execute("showvminfo", @uuid, "--machinereadable")
         if output =~ /^name="<inaccessible>"$/
           return :inaccessible
         elsif output =~ /^VMState="(.+?)"$/
@@ -60,8 +62,8 @@ module Vagrant
       end
 
       # This sets the MAC address for a network adapter.
-      def set_mac_address(uuid, mac)
-        execute("modifyvm", uuid, "--macaddress1", mac)
+      def set_mac_address(mac)
+        execute("modifyvm", @uuid, "--macaddress1", mac)
       end
 
       protected

@@ -8,7 +8,7 @@ module Vagrant
 
         def call(env)
           env[:ui].info I18n.t("vagrant.actions.vm.destroy.destroying")
-          env[:vm].driver.delete(env[:vm].uuid)
+          env[:vm].driver.delete
           env[:vm].uuid = nil
 
           @app.call(env)
