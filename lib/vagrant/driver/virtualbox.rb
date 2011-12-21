@@ -146,6 +146,17 @@ module Vagrant
         return nil
       end
 
+      # This reads the folder where VirtualBox places it's VMs.
+      def read_machine_folder
+        execute("list", "systemproperties").split("\n").each do |line|
+          if line =~ /^Default machine folder:\s+(.+?)$/
+            return $1.to_s
+          end
+        end
+
+        nil
+      end
+
       # This reads the state for the given UUID. The state of the VM
       # will be returned as a symbol.
       def read_state

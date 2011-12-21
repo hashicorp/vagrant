@@ -13,12 +13,12 @@ module Vagrant
         end
 
         def call(env)
-          clean_machine_folder
+          clean_machine_folder(env[:vm].driver.read_machine_folder)
           @app.call(env)
         end
 
-        def clean_machine_folder
-          folder = File.join(VirtualBox::Global.global.system_properties.default_machine_folder, "*")
+        def clean_machine_folder(machine_folder)
+          folder = File.join(machine_folder, "*")
 
           # Small safeguard against potentially unwanted rm-rf, since the default
           # machine folder will typically always be greater than 10 characters long.
