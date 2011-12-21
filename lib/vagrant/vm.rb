@@ -127,7 +127,7 @@ module Vagrant
 
     def start(options=nil)
       return if state == :running
-      return resume if @vm.saved?
+      return resume if state == :saved
 
       run_action(:start, options)
     end
