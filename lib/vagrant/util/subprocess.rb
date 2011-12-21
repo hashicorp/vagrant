@@ -65,27 +65,34 @@ module Vagrant
 
           # Check the readers to see if they're ready
           if !readers.empty?
-            begin
-              readers.each do |r|
-                data = r.read_nonblock(1024)
-                io_name = r == stdout ? :stdout : :stderr
-                @logger.debug(data)
-
-                if io_name == :stderr && io_data[r] == "" && data =~ /Errno::ENOENT/
-                  # This is how we detect that a process failed to start on
-                  # Linux. Hacky, but it works fairly well.
-                  raise ProcessFailedToStart
+            readers.each do |r|
+              data = ""
+              while true
+                begin
+                  data << r.read_nonblock(1024)
+                rescue IO::WaitReadable
+                  # This just means the IO wasn't actually ready and we
+                  # should wait some more. No problem! Just pass on through...
+                rescue EOFError
+                  # Process exited, most likely. We're done here.
+                  break
                 end
-
-                io_data[r] += data
-                yield io_name, data if block_given?
               end
-            rescue IO::WaitReadable
-              # This just means the IO wasn't actually ready and we
-              # should wait some more. No problem! Just pass on through...
-            rescue EOFError
-              # Process exited, most likely. We're done here.
-              break
+
+              # We don't need to do anything if the data is empty
+              next if data.empty?
+
+              io_name = r == stdout ? :stdout : :stderr
+              @logger.debug(data)
+
+              if io_name == :stderr && io_data[r] == "" && data =~ /Errno::ENOENT/
+                # This is how we detect that a process failed to start on
+                # Linux. Hacky, but it works fairly well.
+                raise ProcessFailedToStart
+              end
+
+              io_data[r] += data
+              yield io_name, data if block_given?
             end
           end
 
