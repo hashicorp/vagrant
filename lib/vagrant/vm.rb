@@ -57,7 +57,7 @@ module Vagrant
     # Returns the guest for this VM, loading the distro of the system if
     # we can.
     def guest
-      if !@loaded_guest_distro && created? && vm.running?
+      if !@loaded_guest_distro && state == :running
         # Load the guest distro for the first time
         result = @guest.distro_dispatch
         load_guest!(result)
