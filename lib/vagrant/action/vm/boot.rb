@@ -19,7 +19,7 @@ module Vagrant
 
         def boot
           @env[:ui].info I18n.t("vagrant.actions.vm.boot.booting")
-          @env[:vm].vm.start(@env[:vm].config.vm.boot_mode)
+          @env[:vm].driver.start(@env[:vm].config.vm.boot_mode)
         end
 
         def wait_for_boot

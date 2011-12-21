@@ -35,6 +35,16 @@ module Vagrant
         execute("modifyvm", @uuid, *args) if !args.empty?
       end
 
+      # This clears all the shared folders that have been set
+      # on the virtual machine.
+      def clear_shared_folders
+        execute("showvminfo", @uuid, "--machinereadable").split("\n").each do |line|
+          if line =~ /^SharedFolderNameMachineMapping\d+="(.+?)"$/
+            execute("sharedfolder", "remove", @uuid, "--name", $1.to_s)
+          end
+        end
+      end
+
       # This deletes the VM with the given name.
       def delete
         execute("unregistervm", @uuid, "--delete")
@@ -49,8 +59,8 @@ module Vagrant
       #
       #     {
       #       :name => "foo",
-      #       :host_port => 8500,
-      #       :guest_port => 80,
+      #       :hostport => 8500,
+      #       :guestport => 80,
       #       :adapter => 1,
       #       :protocol => "tcp"
       #     }
@@ -66,9 +76,9 @@ module Vagrant
           pf_builder = [options[:name],
                         options[:protocol] || "tcp",
                         "",
-                        options[:host_port],
+                        options[:hostport],
                         "",
-                        options[:guest_port]]
+                        options[:guestport]]
 
           args.concat(["--natpf#{options[:adapter] || 1}",
                        pf_builder.join(",")])
@@ -87,6 +97,35 @@ module Vagrant
         end
 
         nil
+      end
+
+      # This returns a list of the forwarded ports in the form
+      # of `[nic, name, hostport, guestport]`.
+      #
+      # @return [Array<Array>]
+      def read_forwarded_ports(uuid=nil, active_only=false)
+        uuid ||= @uuid
+
+        results = []
+        current_nic = nil
+        execute("showvminfo", uuid, "--machinereadable").split("\n").each do |line|
+          # This is how we find the nic that a FP is attached to,
+          # since this comes first.
+          current_nic = $1.to_i if line =~ /^nic(\d+)=".+?"$/
+
+          # If we care about active VMs only, then we check the state
+          # to verify the VM is running.
+          if active_only && line =~ /^VMState="(.+?)"$/ && $1.to_s != "running"
+            return []
+          end
+
+          # Parse out the forwarded port information
+          if line =~ /^Forwarding.+?="(.+?),.+?,.*?,(.+?),.*?,(.+?)"$/
+            results << [current_nic, $1.to_s, $2.to_i, $3.to_i]
+          end
+        end
+
+        results
       end
 
       # This reads the guest additions version for a VM.
@@ -129,34 +168,32 @@ module Vagrant
         execute("modifyvm", @uuid, "--macaddress1", mac)
       end
 
-      protected
-
-      # This returns a list of the forwarded ports in the form
-      # of `[nic, name, hostport, guestport]`.
+      # Sets up the shared folder metadata for a virtual machine.
       #
-      # @return [Array<Array>]
-      def read_forwarded_ports(uuid, active_only=false)
-        results = []
-        current_nic = nil
-        execute("showvminfo", uuid, "--machinereadable").split("\n").each do |line|
-          # This is how we find the nic that a FP is attached to,
-          # since this comes first.
-          current_nic = $1.to_i if line =~ /^nic(\d+)=".+?"$/
-
-          # If we care about active VMs only, then we check the state
-          # to verify the VM is running.
-          if active_only && line =~ /^VMState="(.+?)"$/ && $1.to_s != "running"
-            return []
-          end
-
-          # Parse out the forwarded port information
-          if line =~ /^Forwarding.+?="(.+?),.+?,.*?,(.+?),.*?,(.+?)"$/
-            results << [current_nic, $1.to_s, $2.to_i, $3.to_i]
-          end
+      # The structure of a folder definition should be the following:
+      #
+      #     {
+      #       :name => "foo",
+      #       :hostpath => "/foo/bar"
+      #     }
+      #
+      # @param [Array<Hash>] folders An array of folder definitions to
+      # setup.
+      def share_folders(folders)
+        folders.each do |folder|
+          execute("sharedfolder", "add", @uuid, "--name",
+                  folder[:name], "--hostpath", folder[:hostpath])
         end
-
-        results
       end
+
+      # Starts the virtual machine in the given mode.
+      #
+      # @param [String] mode Mode to boot the VM: either "headless" or "gui"
+      def start(mode)
+        execute("startvm", @uuid, "--type", mode.to_s)
+      end
+
+      protected
 
       # This returns the version of VirtualBox that is running.
       #

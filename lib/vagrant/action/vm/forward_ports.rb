@@ -118,20 +118,6 @@ module Vagrant
 
           @env[:vm].driver.forward_ports(ports)
         end
-
-        #--------------------------------------------------------------
-        # General Helpers
-        #--------------------------------------------------------------
-
-        # Forwards a port.
-        def forward_port(vm, name, options)
-          port = VirtualBox::NATForwardedPort.new
-          port.name = name
-          port.guestport = options[:guestport]
-          port.hostport = options[:hostport]
-          port.protocol = options[:protocol] || :tcp
-          vm.network_adapters[options[:adapter]].nat_driver.forwarded_ports << port
-        end
       end
     end
   end

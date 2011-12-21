@@ -180,15 +180,14 @@ module Vagrant
       # Check if we have an SSH forwarded port
       pnum_by_name = nil
       pnum_by_destination = nil
-      @vm.vm.network_adapters.each do |na|
-        # Look for the port number by name...
-        pnum_by_name = na.nat_driver.forwarded_ports.detect do |fp|
-          fp.name == @vm.config.ssh.forwarded_port_key
+      @vm.driver.read_forwarded_ports.each do |_, name, hostport, guestport|
+        # Record the forwarded port if we find it by name
+        if name == @vm.config.ssh.forwarded_port_key
+          pnum_by_name = hostport
         end
 
-        # Look for the port number by destination...
-        pnum_by_destination = na.nat_driver.forwarded_ports.detect do |fp|
-          fp.guestport == @vm.config.ssh.forwarded_port_destination
+        if guestport == @vm.config.ssh.forwarded_port_destination
+          pnum_by_destination = hostport
         end
 
         # pnum_by_name is what we're looking for here, so break early
@@ -196,8 +195,8 @@ module Vagrant
         break if pnum_by_name
       end
 
-      return pnum_by_name.hostport if pnum_by_name
-      return pnum_by_destination.hostport if pnum_by_destination
+      return pnum_by_name if pnum_by_name
+      return pnum_by_destination if pnum_by_destination
 
       # This should NEVER happen.
       raise Errors::SSHPortNotDetected

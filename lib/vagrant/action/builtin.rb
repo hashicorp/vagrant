@@ -29,8 +29,9 @@ module Vagrant
           use VM::ShareFolders
           use VM::HostName
           use VM::Network
-          use VM::Customize
-          use VM::Modify
+# TODO: Bring back some sort of "customize" feature.
+#          use VM::Customize
+#          use VM::Modify
           use VM::Boot
         end
       end
