@@ -52,6 +52,28 @@ module Vagrant
         execute("unregistervm", @uuid, "--delete")
       end
 
+      # Deletes any host only networks that aren't being used for anything.
+      def delete_unused_host_only_networks
+        networks = []
+        execute("list", "hostonlyifs").split("\n").each do |line|
+          networks << $1.to_s if line =~ /^Name:\s+(.+?)$/
+        end
+
+        execute("list", "vms").split("\n").each do |line|
+          if line =~ /^".+?"\s+{(.+?)}$/
+            execute("showvminfo", $1.to_s, "--machinereadable").split("\n").each do |info|
+              if info =~ /^hostonlyadapter\d+="(.+?)"$/
+                networks.delete($1.to_s)
+              end
+            end
+          end
+        end
+
+        networks.each do |name|
+          execute("hostonlyif", "remove", name)
+        end
+      end
+
       # Forwards a set of ports for a VM.
       #
       # This will not affect any previously set forwarded ports,

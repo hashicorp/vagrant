@@ -9,17 +9,7 @@ module Vagrant
         end
 
         def call(env)
-          # Destroy all the host only network adapters which are empty.
-          VirtualBox::Global.global(true).host.network_interfaces.each do |iface|
-            # We only care about host only interfaces
-            next if iface.interface_type != :host_only
-
-            # Destroy it if there is nothing attached
-            if iface.attached_vms.empty?
-              env[:ui].info I18n.t("vagrant.actions.vm.destroy_network.destroying")
-              iface.destroy
-            end
-          end
+          env[:vm].driver.delete_unused_host_only_networks
 
           # Continue along
           @app.call(env)
