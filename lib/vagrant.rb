@@ -13,7 +13,6 @@ require 'pathname'
 require 'childprocess'
 require 'json'
 require 'i18n'
-require 'virtualbox'
 
 # OpenSSL must be loaded here since when it is loaded via `autoload`
 # there are issues with ciphers not being properly loaded.
