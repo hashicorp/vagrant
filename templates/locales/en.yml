@@ -124,6 +124,13 @@ en:
         message is reproduced below for convenience:
 
         %{file}
+      vboxmanage_error: |-
+        There was an error executing the following command with VBoxManage:
+
+        %{command}
+
+        For more information on the failure, enable detailed logging with
+        VAGRANT_LOG.
       virtualbox_invalid_version: |-
         Vagrant has detected that you have VirtualBox version %{version} installed!
         Vagrant requires that you use at least VirtualBox version 4.1. Please install

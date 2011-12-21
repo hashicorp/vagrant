@@ -300,6 +300,11 @@ module Vagrant
       error_key(:vagrantfile_syntax_error)
     end
 
+    class VBoxManageError < VagrantError
+      status_code(59)
+      error_key(:vboxmanage_error)
+    end
+
     class VirtualBoxInvalidVersion < VagrantError
       status_code(17)
       error_key(:virtualbox_invalid_version)

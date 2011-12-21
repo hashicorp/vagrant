@@ -267,8 +267,7 @@ module Vagrant
         # If the command was a failure, then raise an exception that is
         # nicely handled by Vagrant.
         if r.exit_code != 0
-          # TODO: Inherit from VagrantError
-          raise Exception, "FAILURE: #{r.stderr}"
+          raise Errors::VBoxManageError, :command => command.inspect
         end
 
         # Return the output
