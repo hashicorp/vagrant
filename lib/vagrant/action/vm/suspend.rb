@@ -7,9 +7,9 @@ module Vagrant
         end
 
         def call(env)
-          if env[:vm].vm.running?
+          if env[:vm].state == :running
             env[:ui].info I18n.t("vagrant.actions.vm.suspend.suspending")
-            env[:vm].vm.save_state
+            env[:vm].driver.suspend
           end
 
           @app.call(env)

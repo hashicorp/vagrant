@@ -1,3 +1,4 @@
+require 'log4r'
 require 'vagrant/util/subprocess'
 
 module Vagrant
@@ -11,6 +12,7 @@ module Vagrant
       attr_reader :version
 
       def initialize(uuid)
+        @logger = Log4r::Logger.new("vagrant::driver::virtualbox")
         @uuid = uuid
 
         # Read and assign the version of VirtualBox we know which
@@ -111,6 +113,8 @@ module Vagrant
       def read_forwarded_ports(uuid=nil, active_only=false)
         uuid ||= @uuid
 
+        @logger.debug("read_forward_ports: uuid=#{uuid} active_only=#{active_only}")
+
         results = []
         current_nic = nil
         execute("showvminfo", uuid, "--machinereadable").split("\n").each do |line|
@@ -126,7 +130,9 @@ module Vagrant
 
           # Parse out the forwarded port information
           if line =~ /^Forwarding.+?="(.+?),.+?,.*?,(.+?),.*?,(.+?)"$/
-            results << [current_nic, $1.to_s, $2.to_i, $3.to_i]
+            result = [current_nic, $1.to_s, $2.to_i, $3.to_i]
+            @logger.debug("  - #{result.inspect}")
+            results << result
           end
         end
 
@@ -196,6 +202,11 @@ module Vagrant
       # @param [String] mode Mode to boot the VM: either "headless" or "gui"
       def start(mode)
         execute("startvm", @uuid, "--type", mode.to_s)
+      end
+
+      # Suspends the virtual machine.
+      def suspend
+        execute("controlvm", @uuid, "savestate")
       end
 
       protected
