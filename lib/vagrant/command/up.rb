@@ -4,7 +4,7 @@ module Vagrant
   module Command
     class Up < Base
       def execute
-        options = {}
+        options = { :provision => true }
 
         opts = OptionParser.new do |opts|
           opts.banner = "Usage: vagrant up [vm-name] [--[no-]provision] [-h]"
