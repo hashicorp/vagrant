@@ -8,10 +8,10 @@ module Vagrant
         end
 
         def call(env)
-          begin
-            @env[:ui].info I18n.t("vagrant.actions.box.verify.verifying")
-            VirtualBox::Appliance.new(env["box_directory"].join("box.ovf").to_s)
-          rescue Exception
+          @env[:ui].info I18n.t("vagrant.actions.box.verify.verifying")
+
+          driver = Driver::VirtualBox.new(nil)
+          if !driver.verify_image(env["box_directory"].join("box.ovf").to_s)
             raise Errors::BoxVerificationFailed
           end
 

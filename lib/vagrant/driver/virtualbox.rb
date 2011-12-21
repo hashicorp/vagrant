@@ -242,6 +242,14 @@ module Vagrant
         execute("controlvm", @uuid, "savestate")
       end
 
+      # Verifies that an image can be imported properly.
+      #
+      # @return [Boolean]
+      def verify_image(path)
+        r = raw("import", path.to_s, "--dry-run")
+        return r.exit_code == 0
+      end
+
       protected
 
       # This returns the version of VirtualBox that is running.
@@ -253,12 +261,23 @@ module Vagrant
 
       # Execute the given subcommand for VBoxManage and return the output.
       def execute(*command)
-        # TODO: Detect failures and handle them
-        r = Subprocess.execute("VBoxManage", *command)
+        # Execute the command
+        r = raw(*command)
+
+        # If the command was a failure, then raise an exception that is
+        # nicely handled by Vagrant.
         if r.exit_code != 0
+          # TODO: Inherit from VagrantError
           raise Exception, "FAILURE: #{r.stderr}"
         end
+
+        # Return the output
         r.stdout
+      end
+
+      # Executes a command and returns the raw result object.
+      def raw(*command)
+        Subprocess.execute("VBoxManage", *command)
       end
     end
   end
