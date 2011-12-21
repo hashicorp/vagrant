@@ -1,11 +1,7 @@
-require File.join(File.dirname(__FILE__), 'forward_ports_helpers')
-
 module Vagrant
   module Action
     module VM
       class ForwardPorts
-        include ForwardPortsHelpers
-
         def initialize(app,env)
           @app = app
           @env = env
@@ -35,7 +31,7 @@ module Vagrant
         # report the collisions detected or will attempt to fix them
         # automatically if the port is configured to do so.
         def external_collision_check
-          existing = used_ports
+          existing = @env[:vm].driver.read_used_ports
           @env[:vm].config.vm.forwarded_ports.each do |name, options|
             if existing.include?(options[:hostport].to_i)
               handle_collision(name, options, existing)
@@ -86,35 +82,41 @@ module Vagrant
         def call(env)
           @env = env
 
-          proc = lambda do |vm|
-            env[:ui].info I18n.t("vagrant.actions.vm.forward_ports.forwarding")
-            forward_ports(vm)
-          end
+          env[:ui].info I18n.t("vagrant.actions.vm.forward_ports.forwarding")
+          forward_ports(env[:vm])
 
-          env["vm.modify"].call(proc)
           @app.call(env)
         end
 
         def forward_ports(vm)
+          ports = []
+
           @env[:vm].config.vm.forwarded_ports.each do |name, options|
-            adapter = options[:adapter]
+            adapter = options[:adapter] + 1
             message_attributes = {
               :name => name,
               :guest_port => options[:guestport],
               :host_port => options[:hostport],
-              :adapter => adapter + 1
+              :adapter => adapter
             }
 
-            # Assuming the only reason to establish port forwarding is because the VM is using Virtualbox NAT networking.
-            # Host-only or Bridged networking don't require port-forwarding and establishing forwarded ports on these
-            # attachment types has uncertain behaviour.
-            if vm.network_adapters[adapter].attachment_type == :nat
-              @env[:ui].info(I18n.t("vagrant.actions.vm.forward_ports.forwarding_entry", message_attributes))
-              forward_port(vm, name, options)
-            else
-              @env[:ui].info(I18n.t("vagrant.actions.vm.forward_ports.non_nat", message_attributes))
-            end
+            # Assuming the only reason to establish port forwarding is
+            # because the VM is using Virtualbox NAT networking. Host-only
+            # bridged networking don't require port-forwarding and establishing
+            # forwarded ports on these attachment types has uncertain behaviour.
+            @env[:ui].info(I18n.t("vagrant.actions.vm.forward_ports.forwarding_entry",
+                                    message_attributes))
+
+            # Add the options to the ports array to send to the driver later
+            ports << options.merge(:name => name, :adapter => adapter)
+
+            # TODO: Check for non-nat again... This was removed during the VBoxManage
+            # transition but should be brought back.
+            # @env[:ui].info(I18n.t("vagrant.actions.vm.forward_ports.non_nat",
+            # message_attributes))
           end
+
+          @env[:vm].driver.forward_ports(ports)
         end
 
         #--------------------------------------------------------------
