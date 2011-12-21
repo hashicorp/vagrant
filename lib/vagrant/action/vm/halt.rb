@@ -13,7 +13,7 @@ module Vagrant
 
             if env[:vm].state != :poweredoff
               env[:ui].info I18n.t("vagrant.actions.vm.halt.force")
-              env[:vm].vm.stop
+              env[:vm].driver.halt
             end
 
             # Sleep for a second to verify that the VM properly

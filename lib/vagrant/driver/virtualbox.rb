@@ -87,6 +87,11 @@ module Vagrant
         execute("modifyvm", @uuid, *args)
       end
 
+      # Halts the virtual machine.
+      def halt
+        execute("controlvm", @uuid, "poweroff")
+      end
+
       # Imports the VM with the given path to the OVF file. It returns
       # the UUID as a string.
       def import(ovf, name)
