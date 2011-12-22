@@ -91,6 +91,8 @@ module Vagrant
         def forward_ports(vm)
           ports = []
 
+          interfaces = @env[:vm].driver.read_network_interfaces
+
           @env[:vm].config.vm.forwarded_ports.each do |name, options|
             adapter = options[:adapter] + 1
             message_attributes = {
@@ -107,13 +109,16 @@ module Vagrant
             @env[:ui].info(I18n.t("vagrant.actions.vm.forward_ports.forwarding_entry",
                                     message_attributes))
 
+            # Port forwarding requires the network interface to be a NAT interface,
+            # so verify that that is the case.
+            if interfaces[adapter][:type] != "nat"
+              @env[:ui].info(I18n.t("vagrant.actions.vm.forward_ports.non_nat",
+                                    message_attributes))
+              next
+            end
+
             # Add the options to the ports array to send to the driver later
             ports << options.merge(:name => name, :adapter => adapter)
-
-            # TODO: Check for non-nat again... This was removed during the VBoxManage
-            # transition but should be brought back.
-            # @env[:ui].info(I18n.t("vagrant.actions.vm.forward_ports.non_nat",
-            # message_attributes))
           end
 
           @env[:vm].driver.forward_ports(ports)

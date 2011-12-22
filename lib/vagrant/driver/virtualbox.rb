@@ -227,13 +227,6 @@ module Vagrant
         results
       end
 
-      # This reads the guest additions version for a VM.
-      def read_guest_additions_version
-        output = execute("guestproperty", "get", @uuid, "/VirtualBox/GuestAdd/Version")
-        return $1.to_s if output =~ /^Value: (.+?)$/
-        return nil
-      end
-
       # This reads the list of host only networks.
       def read_bridged_interfaces
         execute("list", "bridgedifs").split("\n\n").collect do |block|
@@ -254,6 +247,13 @@ module Vagrant
           # Return the info to build up the results
           info
         end
+      end
+
+      # This reads the guest additions version for a VM.
+      def read_guest_additions_version
+        output = execute("guestproperty", "get", @uuid, "/VirtualBox/GuestAdd/Version")
+        return $1.to_s if output =~ /^Value: (.+?)$/
+        return nil
       end
 
       # Reads and returns the available host only interfaces.
@@ -284,6 +284,23 @@ module Vagrant
         end
 
         nil
+      end
+
+      # This reads the network interfaces and returns various information
+      # about them.
+      #
+      # @return [Hash]
+      def read_network_interfaces
+        nics = {}
+        execute("showvminfo", @uuid, "--machinereadable").split("\n").each do |line|
+          if line =~ /^nic(\d+)="(.+?)"$/
+            nics[$1.to_i] = {
+              :type => $2.to_s
+            }
+          end
+        end
+
+        nics
       end
 
       # This reads the state for the given UUID. The state of the VM
