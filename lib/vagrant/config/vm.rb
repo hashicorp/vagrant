@@ -146,12 +146,7 @@ do before is certainly still possible with `VBoxManage` as well.
 
         # Each provisioner can validate itself
         provisioners.each do |prov|
-          # TODO: Remove at some point
-          if prov.shortcut == :chef_server
-            errors.add(I18n.t("vagrant.config.vm.provisioner_chef_server_changed"))
-          else
-            prov.validate(env, errors)
-          end
+          prov.validate(env, errors)
         end
       end
     end
