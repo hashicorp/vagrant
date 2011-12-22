@@ -179,7 +179,7 @@ module Vagrant
                 current = $1.to_i
                 if current > last
                   last = current
-                  yield current
+                  yield current if block_given?
                 end
               end
             end
