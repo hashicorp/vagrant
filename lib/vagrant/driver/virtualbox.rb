@@ -5,8 +5,15 @@ module Vagrant
   module Driver
     # This class contains the logic to drive VirtualBox.
     class VirtualBox
+      # This is raised if the VM is not found when initializing a driver
+      # with a UUID.
+      class VMNotFound < StandardError; end
+
       # Include this so we can use `Subprocess` more easily.
       include Vagrant::Util
+
+      # The UUID of the virtual machine we represent
+      attr_reader :uuid
 
       # The version of virtualbox that is running.
       attr_reader :version
@@ -14,6 +21,13 @@ module Vagrant
       def initialize(uuid)
         @logger = Log4r::Logger.new("vagrant::driver::virtualbox")
         @uuid = uuid
+
+        if @uuid
+          # Verify the VM exists, and if it doesn't, then don't worry
+          # about it (mark the UUID as nil)
+          r = raw("showvminfo", @uuid)
+          raise VMNotFound if r.exit_code != 0
+        end
 
         # Read and assign the version of VirtualBox we know which
         # specific driver to instantiate.

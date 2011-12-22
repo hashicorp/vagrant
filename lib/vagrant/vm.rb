@@ -114,7 +114,14 @@ module Vagrant
     end
 
     def reload!
-      @driver = Driver::VirtualBox.new(@uuid)
+      begin
+        @driver = Driver::VirtualBox.new(@uuid)
+      rescue Driver::VirtualBox::VMNotFound
+        # Clear the UUID since this VM doesn't exist. Note that this calls
+        # back into `reload!` but shouldn't ever result in infinite
+        # recursion since `@uuid` will be nil.
+        self.uuid = nil
+      end
     end
 
     def package(options=nil)
