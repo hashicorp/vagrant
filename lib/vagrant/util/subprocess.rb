@@ -105,10 +105,15 @@ module Vagrant
         # amount of text between the time we last read data and when the
         # process exited.
         [stdout, stderr].each do |io|
+          # Read the extra data, ignoring if there isn't any
           extra_data = read_io(io)
+          next if extra_data == ""
+
+          # Log it out and accumulate
           @logger.debug(extra_data)
           io_data[io] += extra_data
 
+          # Yield to any listeners any remaining data
           io_name = io == stdout ? :stdout : :stderr
           yield io_name, extra_data if block_given?
         end
