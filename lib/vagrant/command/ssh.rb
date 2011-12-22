@@ -26,8 +26,8 @@ module Vagrant
         with_target_vms(argv[0]) do |vm|
           # Basic checks that are required for proper SSH
           raise Errors::VMNotCreatedError if !vm.created?
-          raise Errors::VMInaccessible if !vm.vm.accessible?
-          raise Errors::VMNotRunningError if !vm.vm.running?
+          raise Errors::VMInaccessible if !vm.state == :inaccessible
+          raise Errors::VMNotRunningError if vm.state != :running
 
           if options[:command]
             ssh_execute(vm, options[:command])
