@@ -334,6 +334,11 @@ module Vagrant
       error_key(:no_base_mac, "vagrant.actions.vm.match_mac")
     end
 
+    class VMCustomizationFailed < VagrantError
+      status_code(61)
+      error_key(:failure, "vagrant.actions.vm.customize")
+    end
+
     class VMFailedToBoot < VagrantError
       status_code(21)
       error_key(:failed_to_boot, "vagrant.actions.vm.boot")

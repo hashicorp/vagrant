@@ -18,7 +18,13 @@ module Vagrant
                 arg
               end
 
-              env[:vm].driver.execute_command(processed_command)
+              result = env[:vm].driver.execute_command(processed_command)
+              if result.exit_code != 0
+                raise Errors::VMCustomizationFailed, {
+                  :command => processed_command.inspect,
+                  :error   => result.stderr
+                }
+              end
             end
           end
 

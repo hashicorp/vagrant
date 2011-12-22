@@ -76,7 +76,7 @@ module Vagrant
 
       # Executes a raw command.
       def execute_command(command)
-        execute(*command)
+        raw(*command)
       end
 
       # Forwards a set of ports for a VM.

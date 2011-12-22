@@ -313,6 +313,16 @@ en:
         clear_shared_folders:
           deleting: Cleaning previously set shared folders...
         customize:
+          failure: |-
+            A customization command failed:
+
+            %{command}
+
+            The following error was experienced:
+
+            %{error}
+
+            Please fix this customization and try again.
           running: Running any VM customizations...
         destroy:
           destroying: Destroying VM and associated drives...
