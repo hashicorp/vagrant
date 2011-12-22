@@ -33,6 +33,7 @@ module Vagrant
       autoload :ClearForwardedPorts, 'vagrant/action/vm/clear_forwarded_ports'
       autoload :ClearNFSExports,     'vagrant/action/vm/clear_nfs_exports'
       autoload :ClearSharedFolders,  'vagrant/action/vm/clear_shared_folders'
+      autoload :Customize,           'vagrant/action/vm/customize'
       autoload :Destroy,             'vagrant/action/vm/destroy'
       autoload :DestroyUnusedNetworkInterfaces, 'vagrant/action/vm/destroy_unused_network_interfaces'
       autoload :DiscardState,        'vagrant/action/vm/discard_state'

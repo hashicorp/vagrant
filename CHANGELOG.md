@@ -1,5 +1,9 @@
 ## 0.9.0 (unreleased)
 
+  - `config.vm.customize` now takes a command to send to `VBoxManage`, so any
+    arbitrary command can be sent. The older style of passing a block no longer
+    works and Vagrant will give a proper error message if it notices this old-style
+    being used.
   - Logging. The entire Vagrant source has had logging sprinkled throughout
     to make debugging issues easier. To enable logging, set the VAGRANT_LOG
     environmental variable to the log level you wish to see. By default,

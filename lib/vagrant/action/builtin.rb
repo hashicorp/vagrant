@@ -29,6 +29,7 @@ module Vagrant
           use VM::ShareFolders
           use VM::HostName
           use VM::Network
+          use VM::Customize
           use VM::Boot
         end
       end

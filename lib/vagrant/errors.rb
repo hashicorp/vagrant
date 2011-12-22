@@ -138,6 +138,11 @@ module Vagrant
       error_key(:config_validation)
     end
 
+    class DeprecationError < VagrantError
+      status_code(60)
+      error_key(:deprecation)
+    end
+
     class DotfileIsDirectory < VagrantError
       status_code(46)
       error_key(:dotfile_is_directory)

@@ -74,6 +74,11 @@ module Vagrant
         end
       end
 
+      # Executes a raw command.
+      def execute_command(command)
+        execute(*command)
+      end
+
       # Forwards a set of ports for a VM.
       #
       # This will not affect any previously set forwarded ports,
@@ -171,7 +176,7 @@ module Vagrant
       # This reads the folder where VirtualBox places it's VMs.
       def read_machine_folder
         execute("list", "systemproperties").split("\n").each do |line|
-          if line =~ /^Default machine folder:\s+(.+?)$/
+          if line =~ /^Default machine folder:\s+(.+?)$/i
             return $1.to_s
           end
         end
