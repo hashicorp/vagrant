@@ -8,10 +8,6 @@ module Vagrant
           @app = app
           @env = env
 
-          if enable_network? && Util::Platform.windows? && Util::Platform.bit64?
-            raise Errors::NetworkNotImplemented
-          end
-
           env[:vm].config.vm.network_options.compact.each do |network_options|
             raise Errors::NetworkCollision if !verify_no_bridge_collision(network_options)
           end
@@ -42,17 +38,8 @@ module Vagrant
         # Verifies that there is no collision with a bridged network interface
         # for the given network options.
         def verify_no_bridge_collision(net_options)
-          interfaces = VirtualBox::Global.global.host.network_interfaces
-          interfaces.each do |ni|
-            next if ni.interface_type == :host_only
-
-            result = if net_options[:name]
-              true if net_options[:name] == ni.name
-            else
-              true if matching_network?(ni, net_options)
-            end
-
-            return false if result
+          @env[:vm].driver.read_bridged_interfaces.each do |interface|
+            return false if matching_network?(interface, net_options)
           end
 
           true
@@ -67,51 +54,75 @@ module Vagrant
         def assign_network
           @env[:ui].info I18n.t("vagrant.actions.vm.network.preparing")
 
+          networks = @env[:vm].driver.read_host_only_interfaces
+          adapters = []
+
+          # Build the networks and the list of adapters we need to enable
           @env[:vm].config.vm.network_options.compact.each do |network_options|
-            adapter = @env["vm"].vm.network_adapters[network_options[:adapter]]
-            adapter.enabled = true
-            adapter.attachment_type = :host_only
-            adapter.host_only_interface = network_name(network_options)
-            adapter.mac_address = network_options[:mac].gsub(':', '') if network_options[:mac]
-            adapter.save
+            network = find_matching_network(networks, network_options)
+
+            if !network
+              # It is an error case if a specific name was given but the network
+              # doesn't exist.
+              if network_options[:name]
+                raise Errors::NetworkNotFound, :name => network_options[:name]
+              end
+
+              # Otherwise, we create a new network and put the net network
+              # in the list of available networks so other network definitions
+              # can use it!
+              network = create_network(network_options)
+              networks << network
+            end
+
+            adapters << {
+              :adapter  => network_options[:adapter] + 1,
+              :type     => :hostonly,
+              :hostonly => network[:name],
+              :mac_address => network_options[:mac]
+            }
           end
+
+          # Enable the host only adapters!
+          @env[:vm].driver.enable_adapters(adapters)
         end
 
-        # Returns the name of the proper host only network, or creates
-        # it if it does not exist. Vagrant determines if the host only
-        # network exists by comparing the netmask and the IP.
-        def network_name(net_options)
-          # First try to find a matching network
-          interfaces = VirtualBox::Global.global.host.network_interfaces
-          interfaces.each do |ni|
-            # Ignore non-host only interfaces which may also match,
-            # since they're not valid options.
-            next if ni.interface_type != :host_only
-
-            if net_options[:name]
-              return ni.name if net_options[:name] == ni.name
-            else
-              return ni.name if matching_network?(ni, net_options)
+        # This looks through a list of available host only networks and
+        # finds a matching network.
+        #
+        # If one is not available, `nil` is returned.
+        def find_matching_network(networks, needle_options)
+          networks.each do |network|
+            if needle_options[:name] && needle_options[:name] == network[:name]
+              return network
+            elsif matching_network?(network, needle_options)
+              return network
             end
           end
 
-          raise Errors::NetworkNotFound, :name => net_options[:name] if net_options[:name]
+          nil
+        end
 
-          # One doesn't exist, create it.
-          @env[:ui].info I18n.t("vagrant.actions.vm.network.creating")
+        # Creates a host only network with the given options and returns
+        # the hash of the options it was created with.
+        #
+        # @return [Hash]
+        def create_network(network_options)
+          # Create the options for the host only network, specifically
+          # figuring out the host only network IP based on the netmask.
+          options = network_options.merge({
+            :ip => network_ip(network_options[:ip], network_options[:netmask])
+          })
 
-          ni = interfaces.create
-          ni.enable_static(network_ip(net_options[:ip], net_options[:netmask]),
-                           net_options[:netmask])
-          ni.name
+          @env[:vm].driver.create_host_only_network(options)
         end
 
         # Tests if a network matches the given options by applying the
         # netmask to the IP of the network and also to the IP of the
         # virtual machine and see if they match.
         def matching_network?(interface, net_options)
-          interface.network_mask == net_options[:netmask] &&
-            apply_netmask(interface.ip_address, interface.network_mask) ==
+          interface[:netmask] == net_options[:netmask] &&
+            apply_netmask(interface[:ip], interface[:netmask]) ==
             apply_netmask(net_options[:ip], net_options[:netmask])
         end
 

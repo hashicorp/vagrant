@@ -47,6 +47,25 @@ module Vagrant
         end
       end
 
+      # Creates a host only network with the given options.
+      def create_host_only_network(options)
+        # Create the interface
+        execute("hostonlyif", "create") =~ /^Interface '(.+?)' was successfully created$/
+        name = $1.to_s
+
+        # Configure it
+        execute("hostonlyif", "ipconfig", name,
+                "--ip", options[:ip],
+                "--netmask", options[:netmask])
+
+        # Return the details
+        return {
+          :name => name,
+          :ip   => options[:ip],
+          :netmask => options[:netmask]
+        }
+      end
+
       # This deletes the VM with the given name.
       def delete
         execute("unregistervm", @uuid, "--delete")
@@ -77,6 +96,26 @@ module Vagrant
       # Executes a raw command.
       def execute_command(command)
         raw(*command)
+      end
+
+      # Enables network adapters on this virtual machine.
+      def enable_adapters(adapters)
+        args = []
+        adapters.each do |adapter|
+          args.concat(["--nic#{adapter[:adapter]}", adapter[:type].to_s])
+
+          if adapter[:hostonly]
+            args.concat(["--hostonlyadapter#{adapter[:adapter]}",
+                         adapter[:hostonly]])
+          end
+
+          if adapter[:mac_address]
+            args.concat(["--macaddress#{adapter[:adapter]}",
+                         adapter[:mac_address]])
+          end
+        end
+
+        execute("modifyvm", @uuid, *args)
       end
 
       # Forwards a set of ports for a VM.
@@ -171,6 +210,47 @@ module Vagrant
         output = execute("guestproperty", "get", @uuid, "/VirtualBox/GuestAdd/Version")
         return $1.to_s if output =~ /^Value: (.+?)$/
         return nil
+      end
+
+      # This reads the list of host only networks.
+      def read_bridged_interfaces
+        execute("list", "bridgedifs").split("\n\n").collect do |block|
+          info = {}
+
+          block.split("\n").each do |line|
+            if line =~ /^Name:\s+(.+?)$/
+              info[:name] = $1.to_s
+            elsif line =~ /^IPAddress:\s+(.+?)$/
+              info[:ip] = $1.to_s
+            elsif line =~ /^NetworkMask:\s+(.+?)$/
+              info[:netmask] = $1.to_s
+            elsif line =~ /^Status:\s+(.+?)$/
+              info[:status] = $1.to_s
+            end
+          end
+
+          # Return the info to build up the results
+          info
+        end
+      end
+
+      # Reads and returns the available host only interfaces.
+      def read_host_only_interfaces
+        execute("list", "hostonlyifs").split("\n\n").collect do |block|
+          info = {}
+
+          block.split("\n").each do |line|
+            if line =~ /^Name:\s+(.+?)$/
+              info[:name] = $1.to_s
+            elsif line =~ /^IPAddress:\s+(.+?)$/
+              info[:ip] = $1.to_s
+            elsif line =~ /^NetworkMask:\s+(.+?)$/
+              info[:netmask] = $1.to_s
+            end
+          end
+
+          info
+        end
       end
 
       # This reads the folder where VirtualBox places it's VMs.

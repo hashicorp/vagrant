@@ -208,13 +208,6 @@ module Vagrant
       error_key(:not_found, "vagrant.actions.vm.network")
     end
 
-    # Note: This is a temporary error for Windows users while host-only
-    # networking doesn't quite work.
-    class NetworkNotImplemented < VagrantError
-      status_code(49)
-      error_key(:windows_not_implemented, "vagrant.actions.vm.network")
-    end
-
     class NFSHostRequired < VagrantError
       status_code(31)
       error_key(:host_required, "vagrant.actions.vm.nfs")

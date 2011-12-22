@@ -397,11 +397,6 @@ en:
             host only network for you. Alternatively, please create the
             specified network manually.
           preparing: "Preparing host only network..."
-          windows_not_implemented: |-
-            Host only networking is currently broken on Windows due to a bug
-            in jruby-win32ole. When the bug is fixed, a patch release for Vagrant
-            will be released to remove this error. Until then, please just use
-            forwarded ports.
         nfs:
           host_required: |-
             A host class is required for NFS shared folders. By default, these
