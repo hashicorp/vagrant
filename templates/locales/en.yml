@@ -153,18 +153,6 @@ en:
         Vagrant uses the `VBoxManage` binary that ships with VirtualBox, and requires
         this to be available on the PATH. If VirtualBox is installed, please find the
         `VBoxManage` binary and add it to the PATH environmental variable.
-      virtualbox_not_detected_win64: |-
-        Vagrant could not detect VirtualBox! Make sure VirtualBox is properly installed
-        with version 4.0.0 or higher.
-
-        Additionally, it appears you're on 64-bit Windows. If this is the case, and
-        VirtualBox is properly installed with the correct version, then please make
-        sure you're running Vagrant via JRuby on a 64-bit Java runtime. For more
-        information on how to set this up and how to verify it is properly setup,
-        please view the guide online at:
-
-          http://vagrantup.com/docs/getting-started/setup/windows_x64.html
-
       vm_creation_required: "VM must be created before running this command. Run `vagrant up` first."
       vm_inaccessible: |-
         Your VM has become "inaccessible." Unfortunately, this is a critical error

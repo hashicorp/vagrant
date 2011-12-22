@@ -313,15 +313,6 @@ module Vagrant
       error_key(:virtualbox_not_detected)
     end
 
-    # Note that this is a subclass of VirtualBoxNotDetected, so developers
-    # who script Vagrant or use it as a library in any way can rescue from
-    # "VirtualBoxNotDetected" and catch both errors, which represent the
-    # same thing. This subclass simply has a specialized error message.
-    class VirtualBoxNotDetected_Win64 < VirtualBoxNotDetected
-      status_code(48)
-      error_key(:virtualbox_not_detected_win64)
-    end
-
     class VMBaseMacNotSpecified < VagrantError
       status_code(47)
       error_key(:no_base_mac, "vagrant.actions.vm.match_mac")
