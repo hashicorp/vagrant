@@ -28,7 +28,7 @@ describe "vagrant halt" do
 
     # Assert that the VM is no longer running
     result = assert_execute("vagrant", "status")
-    result.stdout.should match_output(:status, "default", "powered off")
+    result.stdout.should match_output(:status, "default", "poweroff")
   end
 
   it "is able to force halt a running virtual machine" do
@@ -44,7 +44,7 @@ describe "vagrant halt" do
 
     # Assert that the VM is no longer running
     result = assert_execute("vagrant", "status")
-    result.stdout.should match_output(:status, "default", "powered off")
+    result.stdout.should match_output(:status, "default", "poweroff")
   end
 
   it "is able to come back up after the machine has been halted" do
@@ -57,7 +57,7 @@ describe "vagrant halt" do
 
     # Assert that the VM is no longer running
     result = assert_execute("vagrant", "status")
-    result.stdout.should match_output(:status, "default", "powered off")
+    result.stdout.should match_output(:status, "default", "poweroff")
 
     assert_execute("vagrant", "up")
 

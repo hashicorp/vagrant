@@ -23,10 +23,10 @@ if Acceptance::VirtualBox.find_vboxsvc
 end
 
 # Enable logging if requested
-if ENV["ACCEPTANCE_LOGGING"]
+if ENV["ACCEPTANCE_LOG"]
   logger = Log4r::Logger.new("acceptance")
   logger.outputters = Log4r::Outputter.stdout
-  logger.level = Log4r.const_get(ENV["ACCEPTANCE_LOGGING"].upcase)
+  logger.level = Log4r.const_get(ENV["ACCEPTANCE_LOG"].upcase)
   logger = nil
 end
 

@@ -11,7 +11,7 @@ module Vagrant
           if env[:vm].state == :running
             env[:vm].guest.halt if !env["force"]
 
-            if env[:vm].state != :poweredoff
+            if env[:vm].state != :poweroff
               env[:ui].info I18n.t("vagrant.actions.vm.halt.force")
               env[:vm].driver.halt
             end

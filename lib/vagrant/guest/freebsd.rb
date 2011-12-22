@@ -33,7 +33,7 @@ module Vagrant
         # occur within a reasonable amount of time (15 seconds by default),
         # then simply return and allow Vagrant to kill the machine.
         count = 0
-        while vm.state != :powered_off
+        while vm.state != :poweroff
           count += 1
 
           return if count >= vm.config.freebsd.halt_timeout
