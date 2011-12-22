@@ -14,7 +14,7 @@ module Vagrant
           ovf_file = env[:vm].box.directory.join("box.ovf").to_s
           env[:vm].uuid = env[:vm].driver.import(ovf_file, name) do |progress|
             env[:ui].clear_line
-            env[:ui].report_progress(progress.percent, 100, false)
+            env[:ui].report_progress(progress, 100, false)
           end
 
           # Clear the line one last time since the progress meter doesn't disappear

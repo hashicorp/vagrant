@@ -73,7 +73,7 @@ module Vagrant
               next if data.empty?
 
               io_name = r == stdout ? :stdout : :stderr
-              @logger.debug(data)
+              @logger.debug("#{io_name}: #{data}")
 
               if io_name == :stderr && io_data[r] == "" && data =~ /Errno::ENOENT/
                 # This is how we detect that a process failed to start on

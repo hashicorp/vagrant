@@ -163,7 +163,29 @@ module Vagrant
       # Imports the VM with the given path to the OVF file. It returns
       # the UUID as a string.
       def import(ovf, name)
-        execute("import", ovf, "--vsys", "0", "--vmname", name)
+        total = ""
+        last  = 0
+        execute("import", ovf, "--vsys", "0", "--vmname", name) do |type, data|
+          if type == :stderr
+            # Append the data so we can see the full view
+            total << data
+
+            # Break up the lines. We can't get the progress until we see an "OK"
+            lines = total.split("\n")
+            if lines.include?("OK.")
+              # The progress of the import will be in the last line. Do a greedy
+              # regular expression to find what we're looking for.
+              if lines.last =~ /.+(\d{2})%/
+                current = $1.to_i
+                if current > last
+                  last = current
+                  yield current
+                end
+              end
+            end
+          end
+        end
+
         output = execute("list", "vms")
         if output =~ /^"#{name}" {(.+?)}$/
           return $1.to_s
@@ -350,9 +372,9 @@ module Vagrant
       end
 
       # Execute the given subcommand for VBoxManage and return the output.
-      def execute(*command)
+      def execute(*command, &block)
         # Execute the command
-        r = raw(*command)
+        r = raw(*command, &block)
 
         # If the command was a failure, then raise an exception that is
         # nicely handled by Vagrant.
@@ -365,8 +387,8 @@ module Vagrant
       end
 
       # Executes a command and returns the raw result object.
-      def raw(*command)
-        Subprocess.execute("VBoxManage", *command)
+      def raw(*command, &block)
+        Subprocess.execute("VBoxManage", *command, &block)
       end
     end
   end
