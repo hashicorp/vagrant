@@ -150,11 +150,9 @@ en:
         for any announcements of newer versions.
       virtualbox_not_detected: |-
         Vagrant could not detect VirtualBox! Make sure VirtualBox is properly installed.
-        If VirtualBox is installed, it may be an incorrect version. Vagrant currently
-        requires VirtualBox 4.1.x. Please install the proper version to continue.
-
-        If you have an older or newer version of VirtualBox, please make sure you're
-        using the proper version of Vagrant. Ask the mailing list if you have questions.
+        Vagrant uses the `VBoxManage` binary that ships with VirtualBox, and requires
+        this to be available on the PATH. If VirtualBox is installed, please find the
+        `VBoxManage` binary and add it to the PATH environmental variable.
       virtualbox_not_detected_win64: |-
         Vagrant could not detect VirtualBox! Make sure VirtualBox is properly installed
         with version 4.0.0 or higher.
