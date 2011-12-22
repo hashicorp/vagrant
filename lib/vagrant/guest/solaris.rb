@@ -68,7 +68,7 @@ module Vagrant
           # then simply return and allow Vagrant to kill the machine.
           count = 0
           last_error = nil
-          while vm.vm.state != :powered_off
+          while vm.state != :powered_off
             begin
               ssh.exec!("#{vm.config.solaris.suexec_cmd} /usr/sbin/poweroff")
             rescue IOError => e

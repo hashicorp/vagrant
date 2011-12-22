@@ -22,7 +22,7 @@ module Vagrant
 
       def execute
         # Build the ChildProcess
-        @logger.debug("Starting process: #{@command.inspect}")
+        @logger.info("Starting process: #{@command.inspect}")
         process = ChildProcess.build(*@command)
 
         # Create the pipes so we can read the output in real time as

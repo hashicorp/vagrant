@@ -203,7 +203,12 @@ module Vagrant
         ports = []
         execute("list", "vms").split("\n").each do |line|
           if line =~ /^".+?" \{(.+?)\}$/
-            read_forwarded_ports($1.to_s, true).each do |_, _, hostport, _|
+            uuid = $1.to_s
+
+            # Ignore our own used ports
+            next if uuid == @uuid
+
+            read_forwarded_ports(uuid, true).each do |_, _, hostport, _|
               ports << hostport
             end
           end
