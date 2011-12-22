@@ -66,18 +66,8 @@ module Vagrant
           # Check the readers to see if they're ready
           if !readers.empty?
             readers.each do |r|
-              data = ""
-              while true
-                begin
-                  data << r.read_nonblock(1024)
-                rescue IO::WaitReadable
-                  # This just means the IO wasn't actually ready and we
-                  # should wait some more. No problem! Just pass on through...
-                rescue EOFError
-                  # Process exited, most likely. We're done here.
-                  break
-                end
-              end
+              # Read from the IO object
+              data = read_io(r)
 
               # We don't need to do anything if the data is empty
               next if data.empty?
@@ -111,8 +101,47 @@ module Vagrant
         process.poll_for_exit(32000)
         @logger.debug("Exit status: #{process.exit_code}")
 
+        # Read the final output data, since it is possible we missed a small
+        # amount of text between the time we last read data and when the
+        # process exited.
+        [stdout, stderr].each do |io|
+          extra_data = read_io(io)
+          @logger.debug(extra_data)
+          io_data[io] += extra_data
+
+          io_name = io == stdout ? :stdout : :stderr
+          yield io_name, extra_data if block_given?
+        end
+
         # Return an exit status container
         return Result.new(process.exit_code, io_data[stdout], io_data[stderr])
+      end
+
+      protected
+
+      # Reads data from an IO object while it can, returning the data it reads.
+      # When it encounters a case when it can't read anymore, it returns the
+      # data.
+      #
+      # @return [String]
+      def read_io(io)
+        data = ""
+
+        while true
+          begin
+            data << io.read_nonblock(1024)
+          rescue IO::WaitReadable, EOFError
+            # An IO::WaitReadable means there may be more IO but this
+            # IO object is not ready to be read from yet. No problem,
+            # we read as much as we can, so we break.
+
+            # An `EOFError`, on the other hand, means this IO object
+            # is done! We still just break out.
+            break
+          end
+        end
+
+        data
       end
 
       # An error which occurs when a process fails to start.
