@@ -8,7 +8,7 @@ describe "vagrant init" do
     vagrantfile.exist?.should_not be, "Vagrantfile shouldn't exist initially"
 
     result = execute("vagrant", "init")
-    result.should be_success
+    result.should succeed
     vagrantfile.exist?.should be, "Vagrantfile should exist"
   end
 
@@ -16,7 +16,7 @@ describe "vagrant init" do
     vagrantfile = environment.workdir.join("Vagrantfile")
 
     result = execute("vagrant", "init", "foo")
-    result.should be_success
+    result.should succeed
     vagrantfile.read.should match(/config.vm.box = "foo"$/)
   end
 
@@ -24,7 +24,7 @@ describe "vagrant init" do
     vagrantfile = environment.workdir.join("Vagrantfile")
 
     result = execute("vagrant", "init", "foo", "bar")
-    result.should be_success
+    result.should succeed
 
     contents = vagrantfile.read
     contents.should match(/config.vm.box = "foo"$/)

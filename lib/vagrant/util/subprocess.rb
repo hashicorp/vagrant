@@ -16,11 +16,16 @@ module Vagrant
       end
 
       def initialize(*command)
+        @options = command.last.is_a?(Hash) ? command.pop : {}
         @command = command
         @logger  = Log4r::Logger.new("vagrant::util::subprocess")
       end
 
       def execute
+        # Get the timeout, if we have one
+        timeout = @options[:timeout]
+        workdir = @options[:workdir] || Dir.pwd
+
         # Build the ChildProcess
         @logger.info("Starting process: #{@command.inspect}")
         process = ChildProcess.build(*@command)
@@ -33,9 +38,18 @@ module Vagrant
         process.io.stderr = stderr_writer
         process.duplex = true
 
+        # Set the environment on the process if we must
+        if @options[:env]
+          @options[:env].each do |k, v|
+            process.environment[k] = v
+          end
+        end
+
         # Start the process
         begin
-          process.start
+          Dir.chdir(workdir) do
+            process.start
+          end
         rescue Exception => e
           if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
             if e.is_a?(NativeException)
@@ -58,10 +72,16 @@ module Vagrant
         # Create a dictionary to store all the output we see.
         io_data = { stdout => "", stderr => "" }
 
+        # Record the start time for timeout purposes
+        start_time = Time.now.to_i
+
         @logger.debug("Selecting on IO")
         while true
-          results = IO.select([stdout, stderr], [process.io.stdin], nil, 5)
+          results = IO.select([stdout, stderr], [process.io.stdin], nil, timeout || 5)
           readers, writers = results
+
+          # Check if we have exceeded our timeout
+          raise TimeoutExceeded, process.pid if timeout && (Time.now.to_i - start_time) > timeout
 
           # Check the readers to see if they're ready
           if !readers.empty?
@@ -98,7 +118,16 @@ module Vagrant
         end
 
         # Wait for the process to end.
-        process.poll_for_exit(32000)
+        begin
+          remaining = (timeout || 32000) - (Time.now.to_i - start_time)
+          remaining = 0 if remaining < 0
+          @logger.debug("Waiting for process to exit. Remaining to timeout: #{remaining}")
+
+          process.poll_for_exit(remaining)
+        rescue ChildProcess::TimeoutError
+          raise TimeoutExceeded, process.pid
+        end
+
         @logger.debug("Exit status: #{process.exit_code}")
 
         # Read the final output data, since it is possible we missed a small
@@ -170,6 +199,17 @@ module Vagrant
 
       # An error which occurs when a process fails to start.
       class ProcessFailedToStart < StandardError; end
+
+      # An error which occurs when the process doesn't end within
+      # the given timeout.
+      class TimeoutExceeded < StandardError
+        attr_reader :pid
+
+        def initialize(pid)
+          super()
+          @pid = pid
+        end
+      end
 
       # Container class to store the results of executing a subprocess.
       class Result

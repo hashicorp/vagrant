@@ -13,7 +13,7 @@ describe "vagrant box" do
 
     # Add the box, which we expect to succeed
     result = execute("vagrant", "box", "add", "foo", box_path("default"))
-    result.should be_success
+    result.should succeed
 
     # Verify that the box now shows up in the list of available boxes
     result = execute("vagrant", "box", "list")
@@ -22,7 +22,7 @@ describe "vagrant box" do
 
   it "gives an error if the file doesn't exist" do
     result = execute("vagrant", "box", "add", "foo", "/tmp/nope/nope/nope/nonono.box")
-    result.should_not be_success
+    result.should_not succeed
     result.stderr.should match_output(:box_path_doesnt_exist)
   end
 
@@ -33,7 +33,7 @@ describe "vagrant box" do
     end
 
     result = execute("vagrant", "box", "add", "foo", invalid.to_s)
-    result.should_not be_success
+    result.should_not succeed
     result.stderr.should match_output(:box_invalid)
   end
 
@@ -49,7 +49,7 @@ describe "vagrant box" do
     execute("vagrant", "box", "add", "foo", box_path("default"))
     execute("vagrant", "box", "remove", "foo")
     result = execute("vagrant", "box", "list")
-    result.should be_success
+    result.should succeed
     result.stdout.should match_output(:no_boxes)
   end
 

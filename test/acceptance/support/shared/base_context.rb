@@ -45,7 +45,7 @@ shared_context "acceptance" do
   # exit status was successful.
   def assert_execute(*args, &block)
     result = execute(*args, &block)
-    assert(result.success?, "expected '#{args.join(" ")}' to succeed")
+    assert(result.exit_code == 0, "expected '#{args.join(" ")}' to succeed")
     result
   end
 

@@ -11,6 +11,7 @@ require "acceptance/support/shared/base_context"
 require "acceptance/support/config"
 require "acceptance/support/virtualbox"
 require "acceptance/support/matchers/match_output"
+require "acceptance/support/matchers/succeed"
 
 # Do not buffer output
 $stdout.sync = true

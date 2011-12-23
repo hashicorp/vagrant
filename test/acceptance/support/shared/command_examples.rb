@@ -9,7 +9,7 @@ shared_examples "a command that requires a Vagrantfile" do |*args|
 
   it "fails if no Vagrantfile is found" do
     result = execute(*command)
-    result.should_not be_success
+    result.should_not succeed
     result.stderr.should match_output(:no_vagrantfile)
   end
 end
@@ -27,7 +27,7 @@ shared_examples "a command that requires a virtual machine" do |*args|
     assert_execute("vagrant", "init")
 
     result = execute(*command)
-    result.should_not be_success
+    result.should_not succeed
     result.stderr.should match_output(:error_vm_must_be_created)
   end
 end
