@@ -169,10 +169,10 @@ module Vagrant
             # since we use some Ruby 1.9 specific exceptions.
 
             breakable = false
-            if e.instance_of?(EOFError)
+            if e.is_a?(EOFError)
               # An `EOFError` means this IO object is done!
               breakable = true
-            elsif defined?(IO::WaitReadable) && e.instance_of?(IO::WaitReadable)
+            elsif defined?(IO::WaitReadable) && e.is_a?(IO::WaitReadable)
               # IO::WaitReadable is only available on Ruby 1.9+
 
               # An IO::WaitReadable means there may be more IO but this
@@ -180,10 +180,8 @@ module Vagrant
               # we read as much as we can, so we break.
               breakable = true
             elsif e.is_a?(Errno::EAGAIN)
-              # Otherwise, we catch all syscall errors. This is most certainly
-              # not correct since we should only be catching a few, but I do
-              # not know the exact errors to listen for, and they may not
-              # be defined on certain platforms.
+              # Otherwise, we just look for the EAGAIN error which should be
+              # all that IO::WaitReadable does in Ruby 1.9.
               breakable = true
             end
 
