@@ -40,8 +40,6 @@ module Vagrant
     # Commits any changes to the data to disk. Even if the data
     # hasn't changed, it will be reserialized and written to disk.
     def commit
-      return if !file_path
-
       clean_nil_and_empties
 
       if empty?
