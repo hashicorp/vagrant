@@ -13,10 +13,4 @@ describe Vagrant::Action::Environment do
     instance["foo"] = "bar"
     instance[:foo].should == "bar"
   end
-
-  it "should keep track of interrupted state" do
-    instance.should_not be_interrupted
-    instance.interrupt!
-    instance.should be_interrupted
-  end
 end
