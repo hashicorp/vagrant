@@ -135,14 +135,33 @@ module Vagrant
         while true
           begin
             data << io.read_nonblock(1024)
-          rescue IO::WaitReadable, EOFError
-            # An IO::WaitReadable means there may be more IO but this
-            # IO object is not ready to be read from yet. No problem,
-            # we read as much as we can, so we break.
+          rescue Exception => e
+            # The catch-all rescue here is to support multiple Ruby versions,
+            # since we use some Ruby 1.9 specific exceptions.
 
-            # An `EOFError`, on the other hand, means this IO object
-            # is done! We still just break out.
-            break
+            breakable = false
+            if e.instance_of?(EOFError)
+              # An `EOFError` means this IO object is done!
+              breakable = true
+            elsif defined?(IO::WaitReadable) && e.instance_of?(IO::WaitReadable)
+              # IO::WaitReadable is only available on Ruby 1.9+
+
+              # An IO::WaitReadable means there may be more IO but this
+              # IO object is not ready to be read from yet. No problem,
+              # we read as much as we can, so we break.
+              breakable = true
+            elsif e.is_a?(Errno::EAGAIN)
+              # Otherwise, we catch all syscall errors. This is most certainly
+              # not correct since we should only be catching a few, but I do
+              # not know the exact errors to listen for, and they may not
+              # be defined on certain platforms.
+              breakable = true
+            end
+
+            # Break out if we're supposed to. Otherwise re-raise the error
+            # because it is a real problem.
+            break if breakable
+            raise
           end
         end
 
