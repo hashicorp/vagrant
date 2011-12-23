@@ -33,7 +33,7 @@ module Vagrant
 
             # Return true so that the vm_failed_to_boot error doesn't
             # get shown
-            return true if @env.interrupted?
+            return true if @env[:interrupted]
 
             sleep 2 if !@env["vagrant.test"]
           end
