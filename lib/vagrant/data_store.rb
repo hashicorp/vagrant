@@ -1,3 +1,5 @@
+require 'log4r'
+
 module Vagrant
   # The Vagrant data store is a key-value store which is persisted
   # as JSON in a local file which is specified in the initializer.
@@ -16,6 +18,9 @@ module Vagrant
     attr_reader :file_path
 
     def initialize(file_path)
+      @logger    = Log4r::Logger.new("vagrant::datastore")
+      @logger.info("Created: #{file_path}")
+
       @file_path = file_path
       return if !file_path
 
@@ -27,7 +32,7 @@ module Vagrant
             merge!(JSON.parse(f.read))
           rescue JSON::ParserError
             # Ignore if the data is invalid in the file.
-            # TODO: Log here.
+            @logger.error("Data store contained invalid JSON. Ignoring.")
           end
         end
       end
@@ -42,9 +47,11 @@ module Vagrant
 
       if empty?
         # Delete the file since an empty data store is not useful
-        File.delete(file_path) if File.file?(file_path)
+        @logger.info("Deleting data store since we're empty: #{@file_path}")
+        File.delete(@file_path) if File.file?(@file_path)
       else
-        File.open(file_path, "w") { |f| f.write(to_json) }
+        @logger.info("Committing data to data store: #{@file_path}")
+        File.open(@file_path, "w") { |f| f.write(to_json) }
       end
     end
 
