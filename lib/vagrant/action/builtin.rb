@@ -20,9 +20,9 @@ module Vagrant
         Builder.new do
           use General::Validate
           use VM::CheckAccessible
-          use VM::CheckPortCollisions, :port_collision_handler => :correct
           use VM::CleanMachineFolder
           use VM::ClearForwardedPorts
+          use VM::CheckPortCollisions, :port_collision_handler => :correct
           use VM::ForwardPorts
           use VM::Provision
           use VM::NFS
