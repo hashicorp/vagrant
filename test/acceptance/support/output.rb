@@ -42,7 +42,7 @@ module Acceptance
     end
 
     def resume_port_collision
-      @text =~ //
+      @text =~ /^This VM cannot be resumed, because the forwarded ports/
     end
 
     # This checks that the VM with the given `vm_name` has the

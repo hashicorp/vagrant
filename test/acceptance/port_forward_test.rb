@@ -92,7 +92,7 @@ VFILE
   it "refuses to resume if there is a port collision" do
     # The two environments need to share a VBOX_USER_HOME so that the
     # VM's go into the same place.
-    env_vars     = { "VBOX_USER_HOME" => Tempdir.new("vagrant").to_s }
+    env_vars     = { "VBOX_USER_HOME" => Tempdir.new("vagrant").path }
     environment  = new_environment(env_vars)
     environment2 = new_environment(env_vars)
 
@@ -115,7 +115,7 @@ VFILE
       # result in an error.
       result = environment.execute("vagrant", "up")
       result.should_not succeed
-      result.should match_output(:resume_port_collision)
+      result.stderr.should match_output(:resume_port_collision)
     ensure
       environment.close
       environment2.close
