@@ -71,6 +71,12 @@ en:
       no_env: |-
         A Vagrant environment is required to run this command. Run `vagrant init`
         to set one up.
+      port_collision_resume: |-
+        This VM cannot be resumed, because the forwarded ports would collide with
+        another running virtual machine. Normally, Vagrant will attempt to fix this
+        for you but VirtualBox only allows forwarded ports to change if the VM is
+        powered off. Therefore, please reload your VM or halt the other running
+        VMs to continue.
       scp_unavailable: |-
         SSH server on the guest doesn't support SCP. Please install the necessary
         software to enable SCP on your guest operating system.

@@ -59,6 +59,7 @@ module Vagrant
         Builder.new do
           use General::Validate
           use VM::CheckAccessible
+          use VM::CheckPortCollisions
           use VM::Resume
         end
       end

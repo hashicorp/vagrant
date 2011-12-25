@@ -188,6 +188,11 @@ module Vagrant
       error_key(:collision_error, "vagrant.actions.vm.forward_ports")
     end
 
+    class ForwardPortCollisionResume < VagrantError
+      status_code(62)
+      error_key(:port_collision_resume)
+    end
+
     class MultiVMEnvironmentRequired < VagrantError
       status_code(5)
       error_key(:multi_vm_required)

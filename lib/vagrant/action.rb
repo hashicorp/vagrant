@@ -29,6 +29,7 @@ module Vagrant
       autoload :CheckAccessible,     'vagrant/action/vm/check_accessible'
       autoload :CheckBox,            'vagrant/action/vm/check_box'
       autoload :CheckGuestAdditions, 'vagrant/action/vm/check_guest_additions'
+      autoload :CheckPortCollisions, 'vagrant/action/vm/check_port_collisions'
       autoload :CleanMachineFolder,  'vagrant/action/vm/clean_machine_folder'
       autoload :ClearForwardedPorts, 'vagrant/action/vm/clear_forwarded_ports'
       autoload :ClearNFSExports,     'vagrant/action/vm/clear_nfs_exports'
