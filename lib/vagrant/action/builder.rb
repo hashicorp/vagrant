@@ -38,10 +38,12 @@ module Vagrant
       #
       # @param [Class] middleware The middleware class
       def use(middleware, *args, &block)
-        if middleware.kind_of?(Builder)
-          # Prepend with a environment setter if args are given
-          self.use(Env::Set, *args, &block) if !args.empty? && args.first.is_a?(Hash)
+        # Prepend with a environment setter if args are given
+        if !args.empty? && args.first.is_a?(Hash) && middleware != Env::Set
+          self.use(Env::Set, args.shift, &block)
+        end
 
+        if middleware.kind_of?(Builder)
           # Merge in the other builder's stack into our own
           self.stack.concat(middleware.stack)
         else
