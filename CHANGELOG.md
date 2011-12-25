@@ -22,6 +22,8 @@
   - Provisioner stdout/stderr is now color coded based on stdout/stderr.
     stdout is green, stderr is red. [GH-595]
   - "--no-provision" once again works for certain commands. [GH-591]
+  - Resuming a VM from a saved state will show an error message if there
+    would be port collisions. [GH-602]
 
 ## 0.8.10 (December 10, 2011)
 
