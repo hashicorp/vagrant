@@ -24,7 +24,7 @@ class IsolatedEnvironment
   # @param [Hash] env Additional environmental variables to inject
   #   into the execution environments.
   def initialize
-    @logger = Log4r::Logger.new("isolated_environment")
+    @logger = Log4r::Logger.new("test::isolated_environment")
 
     # Create a temporary directory for our work
     @tempdir = Tempdir.new("vagrant")

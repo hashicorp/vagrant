@@ -6,14 +6,22 @@ require "uri"
 require "vagrant/util/retryable"
 
 require "acceptance/support/shared/command_examples"
+require "support/tempdir"
 
 describe "vagrant port forwarding" do
   include Vagrant::Util::Retryable
 
   include_context "acceptance"
 
-  it "forwards ports properly" do
+  def initialize_environment(env=nil)
     require_box("default")
+
+    env ||= environment
+    env.execute("vagrant", "box", "add", "base", box_path("default")).should succeed
+  end
+
+  it "forwards ports properly" do
+    initialize_environment
 
     guest_port = 3000
     host_port  = 5000
@@ -27,7 +35,6 @@ end
 VFILE
     end
 
-    assert_execute("vagrant", "box", "add", "base", box_path("default"))
     assert_execute("vagrant", "up")
 
     thr = nil
@@ -47,6 +54,38 @@ VFILE
     ensure
       # The server needs to die. This is how.
       thr.kill if thr
+    end
+  end
+
+  it "detects and corrects port collisions" do
+    # The two environments need to share a VBOX_USER_HOME so that the
+    # VM's go into the same place.
+    env_vars     = { "VBOX_USER_HOME" => Tempdir.new("vagrant").to_s }
+    environment  = new_environment(env_vars)
+    environment2 = new_environment(env_vars)
+
+    # For this test we create two isolated environments and `vagrant up`
+    # in each. SSH would collide, so this verifies that it won't!
+    begin
+      initialize_environment(environment)
+      initialize_environment(environment2)
+
+      # Build both environments up.
+      environment.execute("vagrant", "init").should succeed
+      environment.execute("vagrant", "up").should succeed
+      environment2.execute("vagrant", "init").should succeed
+      environment2.execute("vagrant", "up").should succeed
+
+      # Touch files in both environments
+      environment.execute("vagrant", "ssh", "-c", "touch /vagrant/foo").should succeed
+      environment2.execute("vagrant", "ssh", "-c", "touch /vagrant/bar").should succeed
+
+      # Verify that the files exist in each folder, properly
+      environment.workdir.join("foo").exist?.should be
+      environment2.workdir.join("bar").exist?.should be
+    ensure
+      environment.close
+      environment2.close
     end
   end
 end

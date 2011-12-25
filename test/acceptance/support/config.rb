@@ -11,7 +11,7 @@ module Acceptance
     attr_reader :box_directory
 
     def initialize(path)
-      @logger = Log4r::Logger.new("acceptance::config")
+      @logger = Log4r::Logger.new("test::acceptance::config")
       @logger.info("Loading configuration from: #{path}")
       options = YAML.load_file(path)
       @logger.info("Loaded: #{options.inspect}")

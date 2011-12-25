@@ -14,15 +14,15 @@ module Acceptance
     def initialize(apps=nil, env=nil)
       super()
 
-      @logger = Log4r::Logger.new("acceptance::isolated_environment")
+      @logger = Log4r::Logger.new("test::acceptance::isolated_environment")
 
-      @apps = apps || {}
-      @env  = env || {}
+      @apps = apps.clone || {}
+      @env  = env.clone || {}
 
       # Set the home directory and virtualbox home directory environmental
       # variables so that Vagrant and VirtualBox see the proper paths here.
-      @env["HOME"] = @homedir.to_s
-      @env["VBOX_USER_HOME"] = @homedir.to_s
+      @env["HOME"] ||= @homedir.to_s
+      @env["VBOX_USER_HOME"] ||= @homedir.to_s
     end
 
     # Executes a command in the context of this isolated environment.
@@ -31,8 +31,6 @@ module Acceptance
     def execute(command, *argN)
       # Create the command
       command = replace_command(command)
-
-      @logger.info("Executing: #{[command].concat(argN).inspect}")
 
       # Determine the options
       options = argN.last.is_a?(Hash) ? argN.pop : {}
@@ -45,6 +43,7 @@ module Acceptance
       argN << options
 
       # Execute, logging out the stdout/stderr as we get it
+      @logger.info("Executing: #{[command].concat(argN).inspect}")
       Vagrant::Util::Subprocess.execute(command, *argN) do |type, data|
         @logger.debug("#{type}: #{data}") if type == :stdout || type == :stderr
         yield type, data if block_given?

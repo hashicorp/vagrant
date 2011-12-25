@@ -25,7 +25,7 @@ end
 
 # Enable logging if requested
 if ENV["ACCEPTANCE_LOG"]
-  logger = Log4r::Logger.new("acceptance")
+  logger = Log4r::Logger.new("test")
   logger.outputters = Log4r::Outputter.stdout
   logger.level = Log4r.const_get(ENV["ACCEPTANCE_LOG"].upcase)
   logger = nil

@@ -7,7 +7,7 @@ shared_context "acceptance" do
   # create more verbose logs for tests which can be useful in the case
   # that a test fails.
   let(:logger_name) { "logger" }
-  let(:logger) { Log4r::Logger.new("acceptance::#{logger_name}") }
+  let(:logger) { Log4r::Logger.new("test::acceptance::#{logger_name}") }
 
   # This is the global configuration given by the acceptance test
   # configurations.
@@ -18,10 +18,7 @@ shared_context "acceptance" do
   # to replace "vagrant" with the proper path to Vagrant as well
   # as tell the isolated environment about custom environmental
   # variables to pass in.
-  let!(:environment) do
-    apps = { "vagrant" => config.vagrant_path }
-    Acceptance::IsolatedEnvironment.new(apps, config.env)
-  end
+  let!(:environment) { new_environment }
 
   before(:each) do
     # Wait for VBoxSVC to disappear, since each test requires its
@@ -31,6 +28,16 @@ shared_context "acceptance" do
 
   after(:each) do
     environment.close
+  end
+
+  # Creates a new isolated environment instance each time it is called.
+  #
+  # @return [Acceptance::IsolatedEnvironment]
+  def new_environment(env=nil)
+    apps = { "vagrant" => config.vagrant_path }
+    env  = config.env.merge(env || {})
+
+    Acceptance::IsolatedEnvironment.new(apps, env)
   end
 
   # Executes the given command in the context of the isolated environment.
