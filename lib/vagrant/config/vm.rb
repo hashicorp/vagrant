@@ -35,7 +35,7 @@ module Vagrant
           :auto       => false
         }.merge(options || {})
 
-        forwarded_ports[name] = options
+        forwarded_ports[name.to_s] = options
       end
 
       def share_folder(name, guestpath, hostpath, opts=nil)

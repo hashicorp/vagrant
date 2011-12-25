@@ -15,9 +15,21 @@ module Vagrant
           # Figure out how we handle port collisions. By default we error.
           handler  = env[:port_collision_handler] || :error
 
+          # Read our forwarded ports, if we have any, to override what
+          # we have configured.
+          current = {}
+          env[:vm].driver.read_forwarded_ports.each do |nic, name, hostport, guestport|
+            current[name] = hostport.to_i
+          end
+
           existing = env[:vm].driver.read_used_ports
           env[:vm].config.vm.forwarded_ports.each do |name, options|
-            if existing.include?(options[:hostport].to_i)
+            # Use the proper port, whether that be the configured port or the
+            # port that is currently on use of the VM.
+            hostport = options[:hostport].to_i
+            hostport = current[name] if current.has_key?(name)
+
+            if existing.include?(hostport)
               # We have a collision! Handle it
               send("handle_#{handler}".to_sym, name, options, existing)
             end
