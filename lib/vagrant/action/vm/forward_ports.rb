@@ -4,15 +4,22 @@ module Vagrant
       class ForwardPorts
         def initialize(app,env)
           @app = app
-          @env = env
-
-          threshold_check
         end
 
         #--------------------------------------------------------------
-        # Prepare Helpers - These functions are not involved in actually
-        # executing the action
+        # Execution
         #--------------------------------------------------------------
+        def call(env)
+          @env = env
+
+          # Warn if we're port forwarding to any privileged ports...
+          threshold_check
+
+          env[:ui].info I18n.t("vagrant.actions.vm.forward_ports.forwarding")
+          forward_ports(env[:vm])
+
+          @app.call(env)
+        end
 
         # This method checks for any forwarded ports on the host below
         # 1024, which causes the forwarded ports to fail.
@@ -23,18 +30,6 @@ module Vagrant
               return
             end
           end
-        end
-
-        #--------------------------------------------------------------
-        # Execution
-        #--------------------------------------------------------------
-        def call(env)
-          @env = env
-
-          env[:ui].info I18n.t("vagrant.actions.vm.forward_ports.forwarding")
-          forward_ports(env[:vm])
-
-          @app.call(env)
         end
 
         def forward_ports(vm)
