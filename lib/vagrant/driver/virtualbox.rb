@@ -107,6 +107,11 @@ module Vagrant
         end
       end
 
+      # Discards any saved state associated with this VM.
+      def discard_saved_state
+        execute("discardstate", @uuid)
+      end
+
       # Executes a raw command.
       def execute_command(command)
         raw(*command)

@@ -11,7 +11,7 @@ module Vagrant
         def call(env)
           if env[:vm].state == :saved
             env[:ui].info I18n.t("vagrant.actions.vm.discard_state.discarding")
-            env[:vm].vm.discard_state
+            env[:vm].driver.discard_saved_state
           end
 
           @app.call(env)
