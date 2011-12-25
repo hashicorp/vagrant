@@ -86,7 +86,7 @@ module Acceptance
         sleep 0.5
 
         result = execute("VBoxManage", "unregistervm", data[:uuid], "--delete")
-        raise Exception, "VM unregistration failed!" if result.exit_status != 0
+        raise Exception, "VM unregistration failed!" if result.exit_code != 0
       end
 
       @logger.info("Removed all virtual machines")
