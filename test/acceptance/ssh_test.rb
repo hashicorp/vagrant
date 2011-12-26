@@ -32,8 +32,13 @@ describe "vagrant ssh" do
     assert_execute("vagrant", "init")
     assert_execute("vagrant", "up")
 
-    result = assert_execute("vagrant", "ssh", "-c", "echo foo")
+    result = execute("vagrant", "ssh", "-c", "echo foo")
+    result.exit_code.should == 0
     result.stdout.should == "foo\n"
+
+    result = execute("vagrant", "ssh", "-c", "foooooooooo")
+    result.exit_code.should == 127
+    #result.stderr.should =~ /foooooooooo: command not found/
   end
 
   # TODO:

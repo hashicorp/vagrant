@@ -40,16 +40,23 @@ module Vagrant
       protected
 
       def ssh_execute(vm, command=nil)
+        exit_status = 0
+
         @logger.debug("Executing command: #{command}")
         vm.ssh.execute do |ssh|
           ssh.exec!(command) do |channel, type, data|
-            if type != :exit_status
+            if type == :exit_status
+              exit_status = data.to_i
+            else
               # Print the SSH output as it comes in, but don't prefix it and don't
               # force a new line so that the output is properly preserved
               vm.ui.info(data.to_s, :prefix => false, :new_line => false)
             end
           end
         end
+
+        # Exit with the exit status we got from executing the command
+        exit exit_status
       end
 
       def ssh_connect(vm)

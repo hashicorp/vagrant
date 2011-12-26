@@ -24,6 +24,8 @@
   - "--no-provision" once again works for certain commands. [GH-591]
   - Resuming a VM from a saved state will show an error message if there
     would be port collisions. [GH-602]
+  - `vagrant ssh -c` will now exit with the same exit code as the command
+    run. [GH-598]
 
 ## 0.8.10 (December 10, 2011)
 
