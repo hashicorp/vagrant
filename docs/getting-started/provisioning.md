@@ -70,6 +70,10 @@ The manifest file will contain the required Puppet configuration, for example:
 # Basic Puppet Apache manifest
 
 class lucid32 {
+  exec { 'apt-get update':
+    command => '/usr/bin/apt-get update'
+  }
+
   package { "apache2":
     ensure => present,
   }
