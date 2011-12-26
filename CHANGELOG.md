@@ -26,6 +26,8 @@
     would be port collisions. [GH-602]
   - `vagrant ssh -c` will now exit with the same exit code as the command
     run. [GH-598]
+  - `vagrant ssh -c` will not send stderr to stderr and stdout to stdout
+    on the host machine, instead of all output to stdout.
 
 ## 0.8.10 (December 10, 2011)
 

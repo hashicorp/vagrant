@@ -48,9 +48,16 @@ module Vagrant
             if type == :exit_status
               exit_status = data.to_i
             else
+              # Determine the proper channel to send the output onto depending
+              # on the type of data we are receiving.
+              channel = type == :stdout ? :out : :error
+
               # Print the SSH output as it comes in, but don't prefix it and don't
               # force a new line so that the output is properly preserved
-              vm.ui.info(data.to_s, :prefix => false, :new_line => false)
+              vm.ui.info(data.to_s,
+                         :prefix => false,
+                         :new_line => false,
+                         :channel => channel)
             end
           end
         end

@@ -38,7 +38,7 @@ describe "vagrant ssh" do
 
     result = execute("vagrant", "ssh", "-c", "foooooooooo")
     result.exit_code.should == 127
-    #result.stderr.should =~ /foooooooooo: command not found/
+    result.stderr.should =~ /foooooooooo: command not found/
   end
 
   # TODO:

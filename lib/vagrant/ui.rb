@@ -80,7 +80,7 @@ module Vagrant
 
         # Determine the proper IO channel to send this message
         # to based on the type of the message
-        channel = type == :error ? $stderr : $stdout
+        channel = type == :error || opts[:channel] == :error ? $stderr : $stdout
 
         # Output!
         channel.send(printer, format_message(type, message, opts))
