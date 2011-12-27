@@ -106,6 +106,7 @@ module Vagrant
       registry.register(:package) do
         Builder.new do
           use General::Validate
+          use VM::SetupPackageFiles
           use VM::CheckAccessible
           use registry.get(:halt)
           use VM::ClearForwardedPorts

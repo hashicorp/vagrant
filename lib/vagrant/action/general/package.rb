@@ -19,19 +19,15 @@ module Vagrant
 
         def initialize(app, env)
           @app = app
-          @env = env
-          @env["package.output"] ||= env["global_config"].package.name
-          @env["package.include"] ||= []
-          @env["package.vagrantfile"] ||= nil
+
+          env["package.files"]  ||= {}
+          env["package.output"] ||= env["global_config"].package.name
         end
 
         def call(env)
           @env = env
 
           raise Errors::PackageOutputExists if File.exist?(tar_path)
-          raise Errors::PackageRequiresDirectory if !@env["package.directory"] || !File.directory?(@env["package.directory"])
-
-          verify_files_to_copy
           compress
 
           @app.call(env)
@@ -46,30 +42,11 @@ module Vagrant
 					end
         end
 
-        def files_to_copy
-          package_dir = Pathname.new(@env["package.directory"]).join("include")
-
-          files = @env["package.include"].inject({}) do |acc, file|
-            source = Pathname.new(file)
-            acc[file] = source.relative? ? package_dir.join(source) : package_dir.join(source.basename)
-            acc
-          end
-
-          files[@env["package.vagrantfile"]] = package_dir.join("_Vagrantfile") if @env["package.vagrantfile"]
-          files
-        end
-
-        def verify_files_to_copy
-          files_to_copy.each do |file, _|
-            raise Errors::PackageIncludeMissing, :file => file if !File.exist?(file)
-          end
-        end
-
         # This method copies the include files (passed in via command line)
         # to the temporary directory so they are included in a sub-folder within
         # the actual box
         def copy_include_files
-          files_to_copy.each do |from, to|
+          env["package.files"].each do |from, to|
             @env[:ui].info I18n.t("vagrant.actions.general.package.packaging", :file => from)
             FileUtils.mkdir_p(to.parent)
 

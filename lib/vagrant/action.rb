@@ -52,6 +52,7 @@ module Vagrant
       autoload :ProvisionerCleanup,  'vagrant/action/vm/provisioner_cleanup'
       autoload :Resume,              'vagrant/action/vm/resume'
       autoload :ShareFolders,        'vagrant/action/vm/share_folders'
+      autoload :SetupPackageFiles,   'vagrant/action/vm/setup_package_files'
       autoload :Suspend,             'vagrant/action/vm/suspend'
     end
   end
