@@ -59,7 +59,9 @@ module Vagrant
       # specific VM name is specified.
       #
       # @param [String] name The name of the VM. Nil if every VM.
-      def with_target_vms(name=nil)
+      # @param [Boolean] single_target If true, then an exception will be
+      #   raised if more than one target is found.
+      def with_target_vms(name=nil, single_target=false)
         # Using VMs requires a Vagrant environment to be properly setup
         raise Errors::NoEnvironmentError if !@env.root_path
 
@@ -72,6 +74,9 @@ module Vagrant
         else
           vms = @env.vms_ordered
         end
+
+        # Make sure we're only working with one VM if single target
+        raise Errors::MultiVMTargetRequired if single_target && vms.length != 1
 
         # Go through each VM and yield it!
         vms.each do |old_vm|

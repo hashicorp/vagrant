@@ -51,12 +51,7 @@ module Vagrant
       end
 
       def package_target(name, options)
-        if @env.multivm? && name.nil?
-          # In a multi-VM environment, a name is required.
-          raise Errors::MultiVMTargetRequired, :command => "package"
-        end
-
-        with_target_vms(name) do |vm|
+        with_target_vms(name, true) do |vm|
           raise Errors::VMNotCreatedError if !vm.created?
           @logger.debug("Packaging VM: #{vm.name}")
           package_vm(vm, options)

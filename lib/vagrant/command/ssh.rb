@@ -19,11 +19,8 @@ module Vagrant
         argv = parse_options(opts)
         return if !argv
 
-        # SSH always requires a target VM
-        raise Errors::MultiVMTargetRequired, :command => "ssh" if @env.multivm? && !argv[0]
-
         # Execute the actual SSH
-        with_target_vms(argv[0]) do |vm|
+        with_target_vms(argv[0], true) do |vm|
           # Basic checks that are required for proper SSH
           raise Errors::VMNotCreatedError if !vm.created?
           raise Errors::VMInaccessible if !vm.state == :inaccessible
