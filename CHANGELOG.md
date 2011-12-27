@@ -28,6 +28,7 @@
     run. [GH-598]
   - `vagrant ssh -c` will now send stderr to stderr and stdout to stdout
     on the host machine, instead of all output to stdout.
+  - Vagrant can now be interrupted during the "importing" step.
 
 ## 0.8.10 (December 10, 2011)
 

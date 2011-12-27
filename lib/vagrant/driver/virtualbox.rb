@@ -1,4 +1,5 @@
 require 'log4r'
+require 'vagrant/util/busy'
 require 'vagrant/util/subprocess'
 
 module Vagrant
@@ -21,6 +22,9 @@ module Vagrant
       def initialize(uuid)
         @logger = Log4r::Logger.new("vagrant::driver::virtualbox")
         @uuid = uuid
+
+        # This flag is used to keep track of interrupted state (SIGINT)
+        @interrupted = false
 
         if @uuid
           # Verify the VM exists, and if it doesn't, then don't worry
@@ -415,7 +419,11 @@ module Vagrant
         # If the command was a failure, then raise an exception that is
         # nicely handled by Vagrant.
         if r.exit_code != 0
-          raise Errors::VBoxManageError, :command => command.inspect
+          if @interrupted
+            @logger.info("Exit code != 0, but interrupted. Ignoring.")
+          else
+            raise Errors::VBoxManageError, :command => command.inspect
+          end
         end
 
         # Return the output
@@ -424,7 +432,14 @@ module Vagrant
 
       # Executes a command and returns the raw result object.
       def raw(*command, &block)
-        Subprocess.execute("VBoxManage", *command, &block)
+        int_callback = lambda do
+          @interrupted = true
+          @logger.info("Interrupted.")
+        end
+
+        Util::Busy.busy(int_callback) do
+          Subprocess.execute("VBoxManage", *command, &block)
+        end
       end
     end
   end

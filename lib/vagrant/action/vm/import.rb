@@ -21,6 +21,10 @@ module Vagrant
           # immediately.
           env[:ui].clear_line
 
+          # If we got interrupted, then the import could have been
+          # interrupted and its not a big deal. Just return out.
+          return if env[:interrupted]
+
           # Flag as erroneous and return if import failed
           raise Errors::VMImportFailure if !env[:vm].uuid
 
