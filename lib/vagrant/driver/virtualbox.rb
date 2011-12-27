@@ -37,7 +37,7 @@ module Vagrant
         # specific driver to instantiate.
         begin
           @version = read_version
-        rescue Subprocess::ProcessFailedToStart
+        rescue Subprocess::LaunchError
           # This means that VirtualBox was not found, so we raise this
           # error here.
           raise Errors::VirtualBoxNotDetected

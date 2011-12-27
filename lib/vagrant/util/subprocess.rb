@@ -50,16 +50,10 @@ module Vagrant
           Dir.chdir(workdir) do
             process.start
           end
-        rescue Exception => e
-          if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
-            if e.is_a?(NativeException)
-              # This usually means that the process failed to start, so we
-              # raise that error.
-              raise ProcessFailedToStart
-            end
-          end
-
-          raise
+        rescue ChildProcess::LaunchError
+          # Raise our own version of the error so that users of the class
+          # don't need to be aware of ChildProcess
+          raise LaunchError
         end
 
         # Make sure the stdin does not buffer
@@ -94,12 +88,6 @@ module Vagrant
 
               io_name = r == stdout ? :stdout : :stderr
               @logger.debug("#{io_name}: #{data}")
-
-              if io_name == :stderr && io_data[r] == "" && data =~ /Errno::ENOENT/
-                # This is how we detect that a process failed to start on
-                # Linux. Hacky, but it works fairly well.
-                raise ProcessFailedToStart
-              end
 
               io_data[r] += data
               yield io_name, data if block_given?
@@ -195,8 +183,8 @@ module Vagrant
         data
       end
 
-      # An error which occurs when a process fails to start.
-      class ProcessFailedToStart < StandardError; end
+      # An error which raises when a process fails to start
+      class LaunchError < StandardError; end
 
       # An error which occurs when the process doesn't end within
       # the given timeout.
