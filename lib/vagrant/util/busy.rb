@@ -46,7 +46,7 @@ module Vagrant
 
         # Fires all the registered callbacks.
         def fire_callbacks
-          registered.each { |r| r.call }
+          registered.reverse.each { |r| r.call }
         end
 
         # Helper method to get access to the class variable. This is mostly
