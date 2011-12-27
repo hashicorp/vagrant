@@ -24,7 +24,7 @@ module Vagrant
       end
 
       def halt
-        vm.env.ui.info I18n.t("vagrant.guest.freebsd.attempting_halt")
+        vm.ui.info I18n.t("vagrant.guest.freebsd.attempting_halt")
         vm.ssh.execute do |ssh|
           ssh.exec!("sudo shutdown -p now")
         end

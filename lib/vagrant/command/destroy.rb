@@ -19,7 +19,7 @@ module Vagrant
             vm.destroy
           else
             @logger.info("Not destroying #{vm.name}, since it isn't created.")
-            vm.env.ui.info I18n.t("vagrant.commands.common.vm_not_created")
+            vm.ui.info I18n.t("vagrant.commands.common.vm_not_created")
           end
         end
       end
