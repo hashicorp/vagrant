@@ -68,6 +68,10 @@ module Vagrant
       def finalize_action(action, env)
         klass, args, block = action
 
+        # Default the arguments to an empty array. Otherwise in Ruby 1.8
+        # a `nil` args will actually pass `nil` into the class.
+        args ||= []
+
         if klass.is_a?(Class)
           # A action klass which is to be instantiated with the
           # app, env, and any arguments given

@@ -175,7 +175,7 @@ module Vagrant
     #
     # @return [Action::Runner]
     def action_runner
-      @action_runner ||= Action::Runner.new(action_registry) do |env|
+      @action_runner ||= Action::Runner.new(action_registry) do
         {
           :action_runner  => action_runner,
           :box_collection => boxes,
