@@ -1,9 +1,12 @@
+require 'vagrant/util/template_renderer'
+
 module Vagrant
   module Action
     module VM
       # Puts a generated Vagrantfile into the package directory so that
       # it can be included in the package.
       class PackageVagrantfile
+        # For TemplateRenderer
         include Util
 
         def initialize(app, env)
