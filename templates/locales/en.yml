@@ -166,8 +166,12 @@ en:
         with VirtualBox that Vagrant can not cleanly recover from. Please open VirtualBox
         and clear out your inaccessible virtual machines or find a way to fix
         them.
-      vm_not_found: "A VM by the name of %{name} was not found."
-      vm_not_running: "VM must be running to open SSH connection."
+      vm_no_match: |-
+        No virtual machines matched the regular expression given.
+      vm_not_found: |-
+        A VM by the name of %{name} was not found.
+      vm_not_running: |-
+        VM must be running to open SSH connection.
 
 #-------------------------------------------------------------------------------
 # Translations for config validation errors

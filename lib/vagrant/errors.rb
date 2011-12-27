@@ -348,6 +348,11 @@ module Vagrant
       error_key(:vm_inaccessible)
     end
 
+    class VMNoMatchError < VagrantError
+      status_code(63)
+      error_key(:vm_no_match)
+    end
+
     class VMNotCreatedError < VagrantError
       status_code(6)
       error_key(:vm_creation_required)

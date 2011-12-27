@@ -69,8 +69,22 @@ module Vagrant
         vms = []
         if name
           raise Errors::MultiVMEnvironmentRequired if !@env.multivm?
-          vms << @env.vms[name.to_sym]
-          raise Errors::VMNotFoundError, :name => name if !vms[0]
+
+          if name =~ /^\/(.+?)\/$/
+            # This is a regular expression name, so we convert to a regular
+            # expression and allow that sort of matching.
+            regex = Regexp.new($1.to_s)
+
+            @env.vms.each do |name, vm|
+              vms << vm if name =~ regex
+            end
+
+            raise Errors::VMNoMatchError if vms.empty?
+          else
+            # String name, just look for a specific VM
+            vms << @env.vms[name.to_sym]
+            raise Errors::VMNotFoundError, :name => name if !vms[0]
+          end
         else
           vms = @env.vms_ordered
         end
