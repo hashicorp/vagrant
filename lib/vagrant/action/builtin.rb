@@ -110,7 +110,6 @@ module Vagrant
           use registry.get(:halt)
           use VM::ClearForwardedPorts
           use VM::ClearSharedFolders
-          use VM::Modify
           use VM::Export
           use VM::PackageVagrantfile
           use VM::Package
