@@ -106,7 +106,7 @@ do before is certainly still possible with `VBoxManage` as well.
         # Add the SubVM to the hash of defined VMs
         defined_vms[name] ||= SubVM.new
         defined_vms[name].options.merge!(options)
-        defined_vms[name].push_proc(&block)
+        defined_vms[name].push_proc(&block) if block
       end
 
       def validate(env, errors)
