@@ -14,13 +14,6 @@ module Vagrant
         end
 
         def call(env)
-          raise Errors::PackageRequiresDirectory if !env["package.directory"] ||
-            !File.directory?(env["package.directory"])
-
-          # Create a pathname to the directory that will store the files
-          # we wish to include with the box.
-          include_directory = Pathname.new(env["package.directory"]).join("include")
-
           files = {}
           env["package.include"].each do |file|
             source = Pathname.new(file)
@@ -31,9 +24,9 @@ module Vagrant
             # include directory. Kind of strange, but seems to match what people
             # expect based on history.
             if source.relative?
-              dest = include_directory.join(source)
+              dest = source
             else
-              dest = include_directory.join(source.basename)
+              dest = source.basename
             end
 
             # Assign the mapping
@@ -42,7 +35,7 @@ module Vagrant
 
           if env["package.vagrantfile"]
             # Vagrantfiles are treated special and mapped to a specific file
-            files[env["package.vagrantfile"]] = include_directory.join("_Vagrantfile")
+            files[env["package.vagrantfile"]] = "_Vagrantfile"
           end
 
           # Verify the mapping

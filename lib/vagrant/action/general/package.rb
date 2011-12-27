@@ -28,6 +28,9 @@ module Vagrant
           @env = env
 
           raise Errors::PackageOutputExists if File.exist?(tar_path)
+          raise Errors::PackageRequiresDirectory if !env["package.directory"] ||
+            !File.directory?(env["package.directory"])
+
           compress
 
           @app.call(env)
@@ -46,7 +49,12 @@ module Vagrant
         # to the temporary directory so they are included in a sub-folder within
         # the actual box
         def copy_include_files
-          env["package.files"].each do |from, to|
+          include_directory = Pathname.new(@env["package.directory"]).join("include")
+
+          @env["package.files"].each do |from, dest|
+            # We place the file in the include directory
+            to = include_directory.join(dest)
+
             @env[:ui].info I18n.t("vagrant.actions.general.package.packaging", :file => from)
             FileUtils.mkdir_p(to.parent)
 

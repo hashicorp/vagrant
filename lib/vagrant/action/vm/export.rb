@@ -14,7 +14,7 @@ module Vagrant
         def call(env)
           @env = env
 
-          raise Errors::VMPowerOffToPackage if !@env["vm"].vm.powered_off?
+          raise Errors::VMPowerOffToPackage if @env["vm"].state != :poweroff
 
           setup_temp_dir
           export
@@ -38,7 +38,7 @@ module Vagrant
 
         def export
           @env[:ui].info I18n.t("vagrant.actions.vm.export.exporting")
-          @env["vm"].vm.export(ovf_path) do |progress|
+          @env["vm"].driver.export(ovf_path) do |progress|
             @env[:ui].report_progress(progress.percent, 100, false)
           end
         end

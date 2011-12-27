@@ -116,11 +116,6 @@ module Vagrant
         execute("discardstate", @uuid)
       end
 
-      # Executes a raw command.
-      def execute_command(command)
-        raw(*command)
-      end
-
       # Enables network adapters on this virtual machine.
       def enable_adapters(adapters)
         args = []
@@ -139,6 +134,19 @@ module Vagrant
         end
 
         execute("modifyvm", @uuid, *args)
+      end
+
+      # Executes a raw command.
+      def execute_command(command)
+        raw(*command)
+      end
+
+      # Exports the virtual machine to the given path.
+      #
+      # @param [String] path Path to the OVF file.
+      def export(path)
+        # TODO: Progress
+        execute("export", @uuid, "--output", path.to_s)
       end
 
       # Forwards a set of ports for a VM.
@@ -296,6 +304,15 @@ module Vagrant
 
           info
         end
+      end
+
+      # Reads the MAC address of the first network interface.
+      def read_mac_address
+        execute("showvminfo", @uuid, "--machinereadable").split("\n").each do |line|
+          return $1.to_s if line =~ /^macaddress1="(.+?)"$/
+        end
+
+        nil
       end
 
       # This reads the folder where VirtualBox places it's VMs.
