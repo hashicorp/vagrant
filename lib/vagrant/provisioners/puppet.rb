@@ -46,7 +46,7 @@ module Vagrant
           end
         end
 
-        def validate(errors)
+        def validate(env, errors)
           super
 
           # Manifests path/file validation
