@@ -6,31 +6,36 @@ module Vagrant
       class Network
         def initialize(app, env)
           @app = app
-          @env = env
-
-          env[:vm].config.vm.network_options.compact.each do |network_options|
-            raise Errors::NetworkCollision if !verify_no_bridge_collision(network_options)
-          end
         end
 
         def call(env)
           @env = env
-          assign_network if enable_network?
+
+          networks = env[:vm].config.vm.network_options.compact
+
+          # Verify that none of the networks collide with a bridged
+          # interface, because this will cause problems.
+          networks.each do |network_options|
+            raise Errors::NetworkCollision if !verify_no_bridge_collision(network_options)
+          end
+
+          # Create the network interfaces on the VM if we need to
+          assign_network(networks) if !networks.empty?
 
           @app.call(env)
 
-          if enable_network?
+          # Enable the network interfaces
+          if !networks.empty?
             @env[:ui].info I18n.t("vagrant.actions.vm.network.enabling")
 
             # Prepare for new networks...
-            options = @env[:vm].config.vm.network_options.compact
-            options.each do |network_options|
-              @env["vm"].guest.prepare_host_only_network(network_options)
+            networks.each do |network_options|
+              @env[:vm].guest.prepare_host_only_network(network_options)
             end
 
             # Then enable the networks...
-            options.each do |network_options|
-              @env["vm"].guest.enable_host_only_network(network_options)
+            networks.each do |network_options|
+              @env[:vm].guest.enable_host_only_network(network_options)
             end
           end
         end
@@ -45,23 +50,19 @@ module Vagrant
           true
         end
 
-        def enable_network?
-          !@env[:vm].config.vm.network_options.compact.empty?
-        end
-
         # Enables and assigns the host only network to the proper
         # adapter on the VM, and saves the adapter.
-        def assign_network
+        def assign_network(networks)
           @env[:ui].info I18n.t("vagrant.actions.vm.network.preparing")
 
-          networks = @env[:vm].driver.read_host_only_interfaces
+          host_only_interfaces = @env[:vm].driver.read_host_only_interfaces
           adapters = []
 
           # Build the networks and the list of adapters we need to enable
-          @env[:vm].config.vm.network_options.compact.each do |network_options|
-            network = find_matching_network(networks, network_options)
+          networks.each do |network_options|
+            interface = find_matching_network(host_only_interfaces, network_options)
 
-            if !network
+            if !interface
               # It is an error case if a specific name was given but the network
               # doesn't exist.
               if network_options[:name]
@@ -71,14 +72,14 @@ module Vagrant
               # Otherwise, we create a new network and put the net network
               # in the list of available networks so other network definitions
               # can use it!
-              network = create_network(network_options)
-              networks << network
+              interface = create_network(network_options)
+              host_only_interfaces << interface
             end
 
             adapters << {
               :adapter  => network_options[:adapter] + 1,
               :type     => :hostonly,
-              :hostonly => network[:name],
+              :hostonly => interface[:name],
               :mac_address => network_options[:mac]
             }
           end
