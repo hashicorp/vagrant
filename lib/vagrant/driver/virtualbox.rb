@@ -97,7 +97,7 @@ module Vagrant
         end
 
         execute("list", "vms").split("\n").each do |line|
-          if line =~ /^".+?"\s+{(.+?)}$/
+          if line =~ /^".+?"\s+\{(.+?)\}$/
             execute("showvminfo", $1.to_s, "--machinereadable").split("\n").each do |info|
               if info =~ /^hostonlyadapter\d+="(.+?)"$/
                 networks.delete($1.to_s)
