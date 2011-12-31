@@ -56,7 +56,7 @@ module Vagrant
               results << {
                 :ip      => ip,
                 :netmask => "255.255.255.0",
-                :adapter => nil,
+                :adapter => 1,
                 :mac     => nil,
                 :name    => nil
               }.merge(options)
@@ -107,16 +107,8 @@ module Vagrant
               @logger.debug("Created network: #{interface[:name]}")
             end
 
-            # Now that we have an interface, we need to figure out an adapter to
-            # enable this on, if it wasn't explicitly given.
-            adapter = network_options[:adapter]
-            if !adapter
-              # TODO: Automatically determine adapter
-              adapter = 1
-            end
-
             adapters << {
-              :adapter  => adapter + 1,
+              :adapter  => network_options[:adapter] + 1,
               :type     => :hostonly,
               :hostonly => interface[:name],
               :mac_address => network_options[:mac]
