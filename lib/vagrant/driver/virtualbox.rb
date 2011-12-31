@@ -334,9 +334,23 @@ module Vagrant
         nics = {}
         execute("showvminfo", @uuid, "--machinereadable").split("\n").each do |line|
           if line =~ /^nic(\d+)="(.+?)"$/
-            nics[$1.to_i] = {
-              :type => $2.to_s
-            }
+            adapter = $1.to_i
+            type    = $2.to_s
+
+            nics[adapter] ||= {}
+            nics[adapter][:type] = type
+          elsif line =~ /^hostonlyadapter(\d+)="(.+?)"$/
+            adapter = $1.to_i
+            network = $2.to_s
+
+            nics[adapter] ||= {}
+            nics[adapter][:hostonly] = network
+          elsif line =~ /^bridgeadapter(\d+)="(.+?)"$/
+            adapter = $1.to_i
+            network = $2.to_s
+
+            nics[adapter] ||= {}
+            nics[adapter][:bridge] = network
           end
         end
 

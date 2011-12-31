@@ -1,3 +1,5 @@
+require 'log4r'
+
 module Vagrant
   module Action
     module VM
@@ -5,6 +7,8 @@ module Vagrant
       # networking on VMs if configured as such.
       class Network
         def initialize(app, env)
+          @logger = Log4r::Logger.new("vagrant::action::vm::network")
+
           @app = app
         end
 
@@ -12,6 +16,7 @@ module Vagrant
           @env = env
 
           networks = host_only_networks
+          @logger.debug("Must configure #{networks.length} host only networks")
 
           # Verify that none of the networks collide with a bridged
           # interface, because this will cause problems.
@@ -51,7 +56,7 @@ module Vagrant
               results << {
                 :ip      => ip,
                 :netmask => "255.255.255.0",
-                :adapter => 1,
+                :adapter => nil,
                 :mac     => nil,
                 :name    => nil
               }.merge(options)
@@ -81,9 +86,12 @@ module Vagrant
 
           # Build the networks and the list of adapters we need to enable
           networks.each do |network_options|
+            @logger.debug("Searching for matching network: #{network_options[:ip]}")
             interface = find_matching_network(host_only_interfaces, network_options)
 
             if !interface
+              @logger.debug("Network not found. Creating if we can.")
+
               # It is an error case if a specific name was given but the network
               # doesn't exist.
               if network_options[:name]
@@ -95,10 +103,20 @@ module Vagrant
               # can use it!
               interface = create_network(network_options)
               host_only_interfaces << interface
+
+              @logger.debug("Created network: #{interface[:name]}")
+            end
+
+            # Now that we have an interface, we need to figure out an adapter to
+            # enable this on, if it wasn't explicitly given.
+            adapter = network_options[:adapter]
+            if !adapter
+              # TODO: Automatically determine adapter
+              adapter = 1
             end
 
             adapters << {
-              :adapter  => network_options[:adapter] + 1,
+              :adapter  => adapter + 1,
               :type     => :hostonly,
               :hostonly => interface[:name],
               :mac_address => network_options[:mac]
@@ -106,6 +124,7 @@ module Vagrant
           end
 
           # Enable the host only adapters!
+          @logger.info("Enabling host only network adapters")
           @env[:vm].driver.enable_adapters(adapters)
         end
 
