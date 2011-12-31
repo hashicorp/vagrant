@@ -4,6 +4,8 @@
     of argument. Previously where you had `config.vm.network "33.33.33.10"` you
     should now put `config.vm.network :hostonly, "33.33.33.10"`. This is in order
     to support bridged networking, as well.
+  - Bridged networking. `config.vm.network` with `:bridged` as the option will
+    setup a bridged network.
   - `config.vm.customize` now takes a command to send to `VBoxManage`, so any
     arbitrary command can be sent. The older style of passing a block no longer
     works and Vagrant will give a proper error message if it notices this old-style
