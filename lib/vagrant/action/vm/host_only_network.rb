@@ -5,7 +5,7 @@ module Vagrant
     module VM
       # Networking middleware for Vagrant. This enables host only
       # networking on VMs if configured as such.
-      class Network
+      class HostOnlyNetwork
         def initialize(app, env)
           @logger = Log4r::Logger.new("vagrant::action::vm::network")
 
