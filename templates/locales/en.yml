@@ -35,7 +35,6 @@ en:
         You are using a feature that has been removed in this version. Explanation:
 
         %{message}
-
         Note that this error message will not appear in the next version of Vagrant.
       dotfile_is_directory: |-
         The local file Vagrant uses to store data ".vagrant" already exists

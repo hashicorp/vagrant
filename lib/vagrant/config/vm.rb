@@ -49,6 +49,19 @@ module Vagrant
       end
 
       def network(type, *args)
+        if !type.kind_of?(Symbol)
+          raise Errors::DeprecationError, :message => <<-MESSAGE
+`config.vm.network` changed in 0.9.0 where the first argument is
+now the type of network and the remaining arguments are options for
+that type. For example, host only networks are now configured like
+so:
+
+    config.vm.network :hostonly, "172.24.24.24"
+
+Please change your configurations to match this new syntax.
+          MESSAGE
+        end
+
         @networks << [type, args]
       end
 
