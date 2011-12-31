@@ -7,7 +7,7 @@ module Vagrant
       # networking on VMs if configured as such.
       class HostOnlyNetwork
         def initialize(app, env)
-          @logger = Log4r::Logger.new("vagrant::action::vm::network")
+          @logger = Log4r::Logger.new("vagrant::action::vm::hostonly_network")
 
           @app = app
         end
@@ -31,7 +31,7 @@ module Vagrant
 
           # Enable the network interfaces
           if !networks.empty?
-            @env[:ui].info I18n.t("vagrant.actions.vm.network.enabling")
+            @env[:ui].info I18n.t("vagrant.actions.vm.host_only_network.enabling")
 
             # Prepare for new networks...
             networks.each do |network_options|
@@ -79,7 +79,7 @@ module Vagrant
         # Enables and assigns the host only network to the proper
         # adapter on the VM, and saves the adapter.
         def assign_network(networks)
-          @env[:ui].info I18n.t("vagrant.actions.vm.network.preparing")
+          @env[:ui].info I18n.t("vagrant.actions.vm.host_only_network.preparing")
 
           host_only_interfaces = @env[:vm].driver.read_host_only_interfaces
           adapters = []

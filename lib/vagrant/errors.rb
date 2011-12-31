@@ -205,12 +205,12 @@ module Vagrant
 
     class NetworkCollision < VagrantError
       status_code(29)
-      error_key(:collides, "vagrant.actions.vm.network")
+      error_key(:collides, "vagrant.actions.vm.host_only_network")
     end
 
     class NetworkNotFound < VagrantError
       status_code(30)
-      error_key(:not_found, "vagrant.actions.vm.network")
+      error_key(:not_found, "vagrant.actions.vm.host_only_network")
     end
 
     class NFSHostRequired < VagrantError

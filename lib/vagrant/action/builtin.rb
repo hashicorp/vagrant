@@ -29,6 +29,7 @@ module Vagrant
           use VM::ClearSharedFolders
           use VM::ShareFolders
           use VM::HostName
+          use VM::BridgedNetwork
           use VM::HostOnlyNetwork
           use VM::Customize
           use VM::Boot

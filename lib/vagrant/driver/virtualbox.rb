@@ -122,6 +122,11 @@ module Vagrant
         adapters.each do |adapter|
           args.concat(["--nic#{adapter[:adapter]}", adapter[:type].to_s])
 
+          if adapter[:bridge]
+            args.concat(["--bridgeadapter#{adapter[:adapter]}",
+                         adapter[:bridge]])
+          end
+
           if adapter[:hostonly]
             args.concat(["--hostonlyadapter#{adapter[:adapter]}",
                          adapter[:hostonly]])

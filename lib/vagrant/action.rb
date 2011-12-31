@@ -26,6 +26,7 @@ module Vagrant
 
     module VM
       autoload :Boot,                'vagrant/action/vm/boot'
+      autoload :BridgedNetwork,      'vagrant/action/vm/bridged_network'
       autoload :CheckAccessible,     'vagrant/action/vm/check_accessible'
       autoload :CheckBox,            'vagrant/action/vm/check_box'
       autoload :CheckGuestAdditions, 'vagrant/action/vm/check_guest_additions'
