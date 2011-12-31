@@ -42,8 +42,10 @@ module Vagrant
             @env[:ui].info I18n.t("vagrant.actions.vm.bridged_networking.enabling")
 
             # Prepare for new networks
+            @env[:vm].guest.prepare_bridged_networks(networks)
 
             # Enable the networks
+            @env[:vm].guest.enable_bridged_networks(networks)
           end
         end
 

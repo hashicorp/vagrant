@@ -79,8 +79,22 @@ module Vagrant
       # @param [Hash] net_options The options for the network.
       def enable_host_only_network(net_options); end
 
+      # Prepares the guest for bridged networks.
+      #
+      # @param [Array] networks Array of networks to prepare for.
+      def prepare_bridged_networks(networks)
+        raise BaseError, :_key => :unsupported_host_only
+      end
+
+      # Enable bridged networks on a guest.
+      #
+      # @param [Array] networks Array of networks to prepare for.
+      def enable_bridged_networks(networks)
+        raise BaseError, :_key => :unsupported_bridged
+      end
+
       def change_host_name(name)
-        raise BaseError, :_key => :unsupported_host_name
+        raise BaseError, :_key => :unsupported_bridged
       end
     end
   end
