@@ -191,7 +191,13 @@ en:
         boot_mode_invalid: "Boot mode must be one of: headless or gui"
         box_missing: "A box must be specified."
         box_not_found: "The box '%{name}' could not be found."
-        network_ip_invalid: "The host only network IP '%{ip}' is invalid."
+        network_invalid: |-
+          The network type '%{type}' is not valid. Please use
+          'hostonly' or 'bridged'.
+        network_ip_required: |-
+          Host only networks require an IP as an argument.
+        network_ip_invalid: |-
+          The host only network IP '%{ip}' is invalid.
         network_ip_ends_one: |-
           The host only network IP '%{ip}' must not end in a 1, as this
           is reserved for the host machine.

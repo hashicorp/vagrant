@@ -13,7 +13,7 @@ module Vagrant
       attr_accessor :host_name
       attr_reader :forwarded_ports
       attr_reader :shared_folders
-      attr_reader :network_options
+      attr_reader :networks
       attr_reader :provisioners
       attr_reader :customizations
       attr_accessor :guest
@@ -21,7 +21,7 @@ module Vagrant
       def initialize
         @forwarded_ports = {}
         @shared_folders = {}
-        @network_options = []
+        @networks = []
         @provisioners = []
         @customizations = []
       end
@@ -48,16 +48,8 @@ module Vagrant
         }.merge(opts || {})
       end
 
-      def network(ip, options=nil)
-        options = {
-          :ip => ip,
-          :netmask => "255.255.255.0",
-          :adapter => 1,
-          :mac => nil,
-          :name => nil
-        }.merge(options || {})
-
-        @network_options[options[:adapter]] = options
+      def network(type, *args)
+        @networks << [type, args]
       end
 
       def provision(name, options=nil, &block)
@@ -130,17 +122,34 @@ do before is certainly still possible with `VBoxManage` as well.
         end
 
         # Validate some basic networking
-        network_options.each do |options|
-          next if !options
+        #
+        # TODO: One day we need to abstract this out, since in the future
+        # providers other than VirtualBox will not be able to satisfy
+        # all types of networks.
+        networks.each do |type, args|
+          if type == :hostonly
+            # Validate the host-only network
+            ip      = args[0]
+            options = args[1] || {}
 
-          ip = options[:ip].split(".")
+            if !ip
+              errors.add(I18n.t("vagrant.config.vm.network_ip_required"))
+            else
+              ip_parts = ip.split(".")
 
-          if ip.length != 4
-            errors.add(I18n.t("vagrant.config.vm.network_ip_invalid",
-                              :ip => options[:ip]))
-          elsif ip.last == "1"
-            errors.add(I18n.t("vagrant.config.vm.network_ip_ends_one",
-                              :ip => options[:ip]))
+              if ip_parts.length != 4
+                errors.add(I18n.t("vagrant.config.vm.network_ip_invalid",
+                                  :ip => ip))
+              elsif ip_parts.last == "1"
+                errors.add(I18n.t("vagrant.config.vm.network_ip_ends_one",
+                                  :ip => ip))
+              end
+            end
+          elsif type == :bridged
+          else
+            # Invalid network type
+            errors.add(I18n.t("vagrant.config.vm.network_invalid",
+                              :type => type.to_s))
           end
         end
 

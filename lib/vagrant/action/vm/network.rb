@@ -11,7 +11,7 @@ module Vagrant
         def call(env)
           @env = env
 
-          networks = env[:vm].config.vm.network_options.compact
+          networks = host_only_networks
 
           # Verify that none of the networks collide with a bridged
           # interface, because this will cause problems.
@@ -38,6 +38,27 @@ module Vagrant
               @env[:vm].guest.enable_host_only_network(network_options)
             end
           end
+        end
+
+        # Returns an array of the network options for host only networks.
+        def host_only_networks
+          results = []
+          @env[:vm].config.vm.networks.each do |type, args|
+            if type == :hostonly
+              ip      = args[0]
+              options = args[1] || {}
+
+              results << {
+                :ip      => ip,
+                :netmask => "255.255.255.0",
+                :adapter => 1,
+                :mac     => nil,
+                :name    => nil
+              }.merge(options)
+            end
+          end
+
+          results
         end
 
         # Verifies that there is no collision with a bridged network interface
