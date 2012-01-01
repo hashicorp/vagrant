@@ -12,7 +12,7 @@ implementations.
 There is an implementation for every major OS type such as generic Linux, Debian,
 Ubuntu, FreeBSD, etc.
 
-<div class="info">
+<div class="alert-message block-message grey notice">
   <h3>This topic is for advanced users</h3>
   <p>
     The following topic is for <em>advanced</em> users. The majority of Vagrant users
