@@ -7,14 +7,14 @@ module Vagrant
         vm.ssh.execute do |ssh|
           # Clear out any previous entries
           ssh.exec!("sudo touch #{network_scripts_dir}/ifcfg-eth#{net_options[:adapter]}")
-          ssh.exec!("sudo sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' #{network_scripts_dir}/ifcfg-eth#{net_options[:adapter]} > /tmp/vagrant-ifcfg-eth#{net_options[:adapter]}")
+          ssh.exec!("sudo sed -e '/^#VAGRANT-BEGIN-HOSTONLY/,/^#VAGRANT-END-HOSTONLY/ d' #{network_scripts_dir}/ifcfg-eth#{net_options[:adapter]} > /tmp/vagrant-ifcfg-eth#{net_options[:adapter]}")
           ssh.exec!("sudo su -c 'cat /tmp/vagrant-ifcfg-eth#{net_options[:adapter]} > #{network_scripts_dir}/ifcfg-eth#{net_options[:adapter]}'")
         end
       end
 
       def enable_host_only_network(net_options)
-        entry = TemplateRenderer.render('network_entry_redhat', :net_options => net_options)
-
+        entry = TemplateRenderer.render('guests/redhat/network_hostonly',
+                                        :net_options => net_options)
         vm.ssh.upload!(StringIO.new(entry), "/tmp/vagrant-network-entry")
 
         vm.ssh.execute do |ssh|

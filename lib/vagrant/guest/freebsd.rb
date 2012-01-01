@@ -63,13 +63,13 @@ module Vagrant
         # interface file.
         vm.ssh.execute do |ssh|
           # Clear out any previous entries
-          ssh.exec!("sudo sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/rc.conf > /tmp/rc.conf")
+          ssh.exec!("sudo sed -e '/^#VAGRANT-BEGIN-HOSTONLY/,/^#VAGRANT-END-HOSTONLY/ d' /etc/rc.conf > /tmp/rc.conf")
           ssh.exec!("sudo mv /tmp/rc.conf /etc/rc.conf")
         end
       end
 
       def enable_host_only_network(net_options)
-        entry = "#VAGRANT-BEGIN\nifconfig_em#{net_options[:adapter]}=\"inet #{net_options[:ip]} netmask #{net_options[:netmask]}\"\n#VAGRANT-END\n"
+        entry = "#VAGRANT-BEGIN-HOSTONLY\nifconfig_em#{net_options[:adapter]}=\"inet #{net_options[:ip]} netmask #{net_options[:netmask]}\"\n#VAGRANT-END-HOSTONLY\n"
         vm.ssh.upload!(StringIO.new(entry), "/tmp/vagrant-network-entry")
 
         vm.ssh.execute do |ssh|
