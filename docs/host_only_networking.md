@@ -30,11 +30,11 @@ setup using host-only networking.
 ## Assigning an IP
 
 Assigning an IP to a virtual machine using Vagrant is simple enough,
-using a single function within the Vagrantfile:
+using a single configuration directive within the Vagrantfile:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.vm.network("33.33.33.10")
+  config.vm.network :hostonly, "33.33.33.10"
 end
 {% endhighlight %}
 
@@ -66,7 +66,7 @@ is shown below:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.vm.network("33.33.34.10", :netmask => "255.255.0.0")
+  config.vm.network :hostonly, "33.33.34.10", :netmask => "255.255.0.0"
 end
 {% endhighlight %}
 
