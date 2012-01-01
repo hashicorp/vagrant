@@ -55,7 +55,10 @@ module Vagrant
             if type == :bridged
               options = args[0] || {}
 
-              results << { :adapter => 2 }.merge(options)
+              results << {
+                :adapter => 2,
+                :mac     => nil
+              }.merge(options)
             end
           end
 
@@ -84,9 +87,10 @@ module Vagrant
 
           networks.each do |options|
             adapters << {
-              :adapter => options[:adapter] + 1,
-              :type    => :bridged,
-              :bridge  => options[:bridge]
+              :adapter     => options[:adapter] + 1,
+              :type        => :bridged,
+              :bridge      => options[:bridge],
+              :mac_address => options[:mac]
             }
           end
 
