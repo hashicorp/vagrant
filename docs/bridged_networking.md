@@ -57,7 +57,7 @@ information.
   </p>
 </div>
 
-## Determing the IP of the Virtual Machine
+## Determining the IP of the Virtual Machine
 
 Unlike [host-only networks](/docs/host_only_networking.html), Vagrant does
 not know the IP that the bridged network will receive a priori. Instead,
@@ -70,5 +70,17 @@ it is easy to see what the IP address of the bridged adapter is:
 
 {% highlight bash %}
 $ ifconfig
-TODO
+...
+
+eth2      Link encap:Ethernet  HWaddr 08:00:27:df:63:62
+          inet addr:192.168.1.3  Bcast:192.168.1.255  Mask:255.255.255.0
+          inet6 addr: fe80::a00:27ff:fedf:6362/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:24 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:20 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:4380 (4.3 KB)  TX bytes:2088 (2.0 KB)
 {% endhighlight %}
+
+In the above output, we can see that `eth2` has an IP address of
+`192.168.1.3`. This is the IP address of the bridged adapter.
