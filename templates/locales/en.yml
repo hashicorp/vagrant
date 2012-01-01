@@ -281,6 +281,8 @@ en:
             Failed to connect to VM via SSH. Please verify the VM successfully booted
             by looking at the VirtualBox GUI.
         bridged_networking:
+          available: |-
+            Available bridged network interfaces:
           bridging: |-
             Bridging adapter #%{adapter} to '%{bridge}'
           enabling: |-

@@ -17,7 +17,7 @@ module Vagrant
         @resource = resource
       end
 
-      [:warn, :error, :info, :success].each do |method|
+      [:ask, :warn, :error, :info, :success].each do |method|
         define_method(method) do |message, *opts|
           # Log normal console messages
           @logger.info { "#{method}: #{message}" }
@@ -46,6 +46,21 @@ module Vagrant
             say(#{method.inspect}, message, *args)
           end
         CODE
+      end
+
+      def ask(message, opts=nil)
+        super(message)
+
+        # Setup the options so that the new line is suppressed
+        opts ||= {}
+        opts[:new_line] = false if !opts.has_key?(:new_line)
+        opts[:prefix]   = false if !opts.has_key?(:prefix)
+
+        # Output the data
+        say(:info, message, opts)
+
+        # Get the results and chomp off the newline
+        STDIN.gets.chomp
       end
 
       # This is used to output progress reports to the UI.

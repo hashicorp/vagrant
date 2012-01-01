@@ -68,12 +68,31 @@ module Vagrant
         def determine_bridged_interface(networks)
           bridgedifs = @env[:vm].driver.read_bridged_interfaces
 
+          # Output all the interfaces that are available for choices
+          @env[:ui].info I18n.t("vagrant.actions.vm.bridged_networking.available",
+                                :prefix => false)
+
+          bridgedifs.each_index do |index|
+            interface = bridgedifs[index]
+
+            @env[:ui].info("#{index + 1}) #{interface[:name]}", :prefix => false)
+          end
+
+          valid = Range.new(1, bridgedifs.length)
+
           results = []
           networks.each do |network|
-            # TODO: Allow choosing the bridged interface. For now, we just use the
-            # first one blindly.
+            option  = nil
+            while !valid.include?(option)
+              option = @env[:ui].ask("What network should adapter #{network[:adapter]} bridge to? ")
+
+              # We need the numeric value since it will be an index
+              option = option.to_i
+            end
+
+            # Duplicate the options so that we return a new dictionary
             options = network.dup
-            options[:bridge] = bridgedifs[0][:name]
+            options[:bridge] = bridgedifs[option - 1][:name]
             @logger.info("Bridging #{options[:adapter]} => #{options[:bridge]}")
 
             results << options
