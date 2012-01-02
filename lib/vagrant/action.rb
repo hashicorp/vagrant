@@ -33,6 +33,7 @@ module Vagrant
       autoload :CheckPortCollisions, 'vagrant/action/vm/check_port_collisions'
       autoload :CleanMachineFolder,  'vagrant/action/vm/clean_machine_folder'
       autoload :ClearForwardedPorts, 'vagrant/action/vm/clear_forwarded_ports'
+      autoload :ClearNetworkInterfaces, 'vagrant/action/vm/clear_network_interfaces'
       autoload :ClearNFSExports,     'vagrant/action/vm/clear_nfs_exports'
       autoload :ClearSharedFolders,  'vagrant/action/vm/clear_shared_folders'
       autoload :Customize,           'vagrant/action/vm/customize'
