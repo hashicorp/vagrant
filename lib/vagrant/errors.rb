@@ -203,6 +203,11 @@ module Vagrant
       error_key(:multi_vm_target_required)
     end
 
+    class NetworkAdapterCollision < VagrantError
+      status_code(65)
+      error_key(:adapter_collision, "vagrant.actions.vm.network")
+    end
+
     class NetworkCollision < VagrantError
       status_code(29)
       error_key(:collides, "vagrant.actions.vm.host_only_network")

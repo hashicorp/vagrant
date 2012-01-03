@@ -46,6 +46,9 @@ module Vagrant
           @logger.debug("Assigning adapter locations...")
           assign_adapter_locations(adapters)
 
+          # Verify that our adapters are good just prior to enabling them.
+          verify_adapters(adapters)
+
           # Create all the network interfaces
           @logger.info("Enabling adapters...")
           env[:ui].info I18n.t("vagrant.actions.vm.network.preparing")
@@ -97,6 +100,17 @@ module Vagrant
               # Otherwise, assign as the adapter the next available item
               adapter[:adapter] = available.shift
             end
+          end
+        end
+
+        # Verifies that the adapter configurations look good. This will
+        # raise an exception in the case that any errors occur.
+        def verify_adapters(adapters)
+          # Verify that there are no collisions in the adapters being used.
+          used = Set.new
+          adapters.each do |adapter|
+            raise Errors::NetworkAdapterCollision if used.include?(adapter[:adapter])
+            used.add(adapter[:adapter])
           end
         end
 

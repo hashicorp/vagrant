@@ -395,6 +395,10 @@ en:
             MAC address is typically up to the box and box maintiner. Please contact
             the relevant person to solve this issue.
         network:
+          adapter_collision: |-
+            More than one network have been assigned to the same adapter. At
+            this point this error is actually indicative of an internal error
+            within Vagrant. Please report this as a bug.
           configuring: |-
             Configuring and enabling network interfaces...
           no_adapters: |-
