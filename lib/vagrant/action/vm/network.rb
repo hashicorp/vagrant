@@ -41,29 +41,33 @@ module Vagrant
             networks << network
           end
 
-          # Automatically assign an adapter number to any adapters
-          # that aren't explicitly set.
-          @logger.debug("Assigning adapter locations...")
-          assign_adapter_locations(adapters)
+          if !adapters.empty?
+            # Automatically assign an adapter number to any adapters
+            # that aren't explicitly set.
+            @logger.debug("Assigning adapter locations...")
+            assign_adapter_locations(adapters)
 
-          # Verify that our adapters are good just prior to enabling them.
-          verify_adapters(adapters)
+            # Verify that our adapters are good just prior to enabling them.
+            verify_adapters(adapters)
 
-          # Create all the network interfaces
-          @logger.info("Enabling adapters...")
-          env[:ui].info I18n.t("vagrant.actions.vm.network.preparing")
-          env[:vm].driver.enable_adapters(adapters)
+            # Create all the network interfaces
+            @logger.info("Enabling adapters...")
+            env[:ui].info I18n.t("vagrant.actions.vm.network.preparing")
+            env[:vm].driver.enable_adapters(adapters)
+          end
 
           # Continue the middleware chain. We're done with our VM
           # setup until after it is booted.
           @app.call(env)
 
-          # Determine the interface numbers for the guest.
-          assign_interface_numbers(networks, adapters)
+          if !adapters.empty?
+            # Determine the interface numbers for the guest.
+            assign_interface_numbers(networks, adapters)
 
-          # Configure all the network interfaces on the guest.
-          env[:ui].info I18n.t("vagrant.actions.vm.network.configuring")
-          env[:vm].guest.configure_networks(networks)
+            # Configure all the network interfaces on the guest.
+            env[:ui].info I18n.t("vagrant.actions.vm.network.configuring")
+            env[:vm].guest.configure_networks(networks)
+          end
         end
 
         # This method assigns the adapter to use for the adapter.
