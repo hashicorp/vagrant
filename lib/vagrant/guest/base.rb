@@ -47,7 +47,9 @@ module Vagrant
       #
       # If when this method returns, the machine's state isn't "powered_off,"
       # Vagrant will proceed to forcefully shut the machine down.
-      def halt; end
+      def halt
+        raise BaseError, :_key => :unsupported_halt
+      end
 
       # Mounts a shared folder. This method is called by the shared
       # folder action with an open SSH session (passed in as `ssh`).
@@ -60,11 +62,15 @@ module Vagrant
       # @param [String] name The name of the shared folder.
       # @param [String] guestpath The path on the machine which the user
       #   wants the folder mounted.
-      def mount_shared_folder(ssh, name, guestpath, owner, group); end
+      def mount_shared_folder(ssh, name, guestpath, owner, group)
+        raise BaseError, :_key => :unsupported_shared_folder
+      end
 
       # Mounts a shared folder via NFS. This assumes that the exports
       # via the host are already done.
-      def mount_nfs(ip, folders); end
+      def mount_nfs(ip, folders)
+        raise BaseError, :_key => :unsupported_nfs
+      end
 
       # Configures the given list of networks on the virtual machine.
       #
@@ -79,9 +85,14 @@ module Vagrant
       #   :interface => 1
       # }
       #
-      def configure_networks(networks); end
+      def configure_networks(networks)
+        raise BaseError, :_key => :unsupported_configure_networks
+      end
 
-      def change_host_name(name); end
+      # Called to change the hostname of the virtual machine.
+      def change_host_name(name)
+        raise BaseError, :_key => :unsupported_host_name
+      end
     end
   end
 end
