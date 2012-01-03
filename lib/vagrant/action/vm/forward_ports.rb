@@ -55,7 +55,7 @@ module Vagrant
 
             # Port forwarding requires the network interface to be a NAT interface,
             # so verify that that is the case.
-            if interfaces[adapter][:type] != "nat"
+            if interfaces[adapter][:type] != :nat
               @env[:ui].info(I18n.t("vagrant.actions.vm.forward_ports.non_nat",
                                     message_attributes))
               next

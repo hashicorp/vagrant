@@ -340,7 +340,7 @@ module Vagrant
         execute("showvminfo", @uuid, "--machinereadable").split("\n").each do |line|
           if line =~ /^nic(\d+)="(.+?)"$/
             adapter = $1.to_i
-            type    = $2.to_s
+            type    = $2.to_sym
 
             nics[adapter] ||= {}
             nics[adapter][:type] = type

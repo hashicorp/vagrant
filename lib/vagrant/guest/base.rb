@@ -66,36 +66,22 @@ module Vagrant
       # via the host are already done.
       def mount_nfs(ip, folders); end
 
-      # Prepares the system for host only networks. This is called
-      # once prior to any `enable_host_only_network` calls.
-      def prepare_host_only_network(net_options=nil)
-        raise BaseError, :_key => :unsupported_host_only
-      end
-
-      # Setup the system by adding a new host only network. This
-      # method should configure and bring up the interface for the
-      # given options.
+      # Configures the given list of networks on the virtual machine.
       #
-      # @param [Hash] net_options The options for the network.
-      def enable_host_only_network(net_options); end
-
-      # Prepares the guest for bridged networks.
+      # The networks parameter will be an array of hashes where the hashes
+      # represent the configuration of a network interface. The structure
+      # of the hash will be roughly the following:
       #
-      # @param [Array] networks Array of networks to prepare for.
-      def prepare_bridged_networks(networks)
-        raise BaseError, :_key => :unsupported_host_only
-      end
-
-      # Enable bridged networks on a guest.
+      # {
+      #   :type      => :static,
+      #   :ip        => "33.33.33.10",
+      #   :netmask   => "255.255.255.0",
+      #   :interface => 1
+      # }
       #
-      # @param [Array] networks Array of networks to prepare for.
-      def enable_bridged_networks(networks)
-        raise BaseError, :_key => :unsupported_bridged
-      end
+      def configure_networks(networks); end
 
-      def change_host_name(name)
-        raise BaseError, :_key => :unsupported_bridged
-      end
+      def change_host_name(name); end
     end
   end
 end

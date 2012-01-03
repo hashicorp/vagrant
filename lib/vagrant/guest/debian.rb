@@ -1,49 +1,49 @@
+require 'set'
+
+require 'vagrant/util/template_renderer'
+
 module Vagrant
   module Guest
     class Debian < Linux
-      def prepare_host_only_network(net_options=nil)
-        # Remove any previous host only network additions to the interface file.
+      # Make the TemplateRenderer top-level
+      include Vagrant::Util
+
+      def configure_networks(networks)
+        # First, remove any previous network modifications
+        # from the interface file.
         vm.ssh.execute do |ssh|
-          ssh.exec!("sudo sed -e '/^#VAGRANT-BEGIN-HOSTONLY/,/^#VAGRANT-END-HOSTONLY/ d' /etc/network/interfaces > /tmp/vagrant-network-interfaces")
+          ssh.exec!("sudo sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/network/interfaces > /tmp/vagrant-network-interfaces")
           ssh.exec!("sudo su -c 'cat /tmp/vagrant-network-interfaces > /etc/network/interfaces'")
         end
-      end
 
-      def enable_host_only_network(net_options)
-        entry = TemplateRenderer.render('guests/debian/network_hostonly',
-                                        :net_options => net_options)
-        vm.ssh.upload!(StringIO.new(entry), "/tmp/vagrant-network-entry")
-
-        vm.ssh.execute do |ssh|
-          ssh.exec!("sudo /sbin/ifdown eth#{net_options[:adapter]} 2> /dev/null")
-          ssh.exec!("sudo su -c 'cat /tmp/vagrant-network-entry >> /etc/network/interfaces'")
-          ssh.exec!("sudo /sbin/ifup eth#{net_options[:adapter]}")
+        # Accumulate the configurations to add to the interfaces file as
+        # well as what interfaces we're actually configuring since we use that
+        # later.
+        interfaces = Set.new
+        entries = []
+        networks.each do |network|
+          interfaces.add(network[:interface])
+          entries << TemplateRenderer.render("guests/debian/network_#{network[:type]}",
+                                             :options => network)
         end
-      end
 
-      def prepare_bridged_networks(networks)
-        # Remove any previous bridged network additions to the interface file.
-        vm.ssh.execute do |ssh|
-          ssh.exec!("sudo sed -e '/^#VAGRANT-BEGIN-BRIDGED/,/^#VAGRANT-END-BRIDGED/ d' /etc/network/interfaces > /tmp/vagrant-network-interfaces")
-          ssh.exec!("sudo su -c 'cat /tmp/vagrant-network-interfaces > /etc/network/interfaces'")
-        end
-      end
-
-      def enable_bridged_networks(networks)
-        entry = TemplateRenderer.render('guests/debian/network_bridged',
-                                        :networks => networks)
-
-        vm.ssh.upload!(StringIO.new(entry), "/tmp/vagrant-network-entry")
+        # Perform the careful dance necessary to to reconfigure
+        # the network interfaces
+        vm.ssh.upload!(StringIO.new(entries.join("\n")), "/tmp/vagrant-network-entry")
 
         vm.ssh.execute do |ssh|
-          networks.each do |network|
-            ssh.exec!("sudo /sbin/ifdown eth#{network[:adapter]} 2> /dev/null")
+          # Bring down all the interfaces we're reconfiguring. By bringing down
+          # each specifically, we avoid reconfiguring eth0 (the NAT interface) so
+          # SSH never dies.
+          interfaces.each do |interface|
+            ssh.exec!("sudo /sbin/ifdown eth#{interface} 2> /dev/null")
           end
 
           ssh.exec!("sudo su -c 'cat /tmp/vagrant-network-entry >> /etc/network/interfaces'")
 
-          networks.each do |network|
-            ssh.exec!("sudo /sbin/ifup eth#{network[:adapter]}")
+          # Bring back up each network interface, reconfigured
+          interfaces.each do |interface|
+            ssh.exec!("sudo /sbin/ifup eth#{interface}")
           end
         end
       end

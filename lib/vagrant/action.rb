@@ -26,7 +26,6 @@ module Vagrant
 
     module VM
       autoload :Boot,                'vagrant/action/vm/boot'
-      autoload :BridgedNetwork,      'vagrant/action/vm/bridged_network'
       autoload :CheckAccessible,     'vagrant/action/vm/check_accessible'
       autoload :CheckBox,            'vagrant/action/vm/check_box'
       autoload :CheckGuestAdditions, 'vagrant/action/vm/check_guest_additions'
@@ -46,7 +45,7 @@ module Vagrant
       autoload :HostName,            'vagrant/action/vm/host_name'
       autoload :Import,              'vagrant/action/vm/import'
       autoload :MatchMACAddress,     'vagrant/action/vm/match_mac_address'
-      autoload :HostOnlyNetwork,     'vagrant/action/vm/host_only_network'
+      autoload :Network,             'vagrant/action/vm/network'
       autoload :NFS,                 'vagrant/action/vm/nfs'
       autoload :Package,             'vagrant/action/vm/package'
       autoload :PackageVagrantfile,  'vagrant/action/vm/package_vagrantfile'
