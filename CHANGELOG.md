@@ -4,6 +4,7 @@
     of argument. Previously where you had `config.vm.network "33.33.33.10"` you
     should now put `config.vm.network :hostonly, "33.33.33.10"`. This is in order
     to support bridged networking, as well.
+  - `config.vm.forward_port` no longer requires a name parameter.
   - Bridged networking. `config.vm.network` with `:bridged` as the option will
     setup a bridged network.
   - `config.vm.customize` now takes a command to send to `VBoxManage`, so any

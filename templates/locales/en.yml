@@ -369,7 +369,8 @@ en:
 
           fixed_collision: Fixed port collision '%{name}'. Now on port %{new_port}.
           forwarding: Forwarding ports...
-          forwarding_entry: "-- %{name}: %{guest_port} => %{host_port} (adapter %{adapter})"
+          forwarding_entry: |-
+            -- %{guest_port} => %{host_port} (adapter %{adapter})
           non_nat: |-
             VirtualBox adapter #%{adapter} not configured as "NAT". Skipping: '%{name}'.
           privileged_ports: |-

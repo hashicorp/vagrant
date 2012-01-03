@@ -33,13 +33,13 @@ module Vagrant
         end
 
         def forward_ports(vm)
+          counter = 0
           ports = []
 
           interfaces = @env[:vm].driver.read_network_interfaces
 
           @env[:vm].config.vm.forwarded_ports.each do |name, options|
             message_attributes = {
-              :name => name,
               :guest_port => options[:guestport],
               :host_port => options[:hostport],
               :adapter => options[:adapter]
@@ -54,14 +54,23 @@ module Vagrant
 
             # Port forwarding requires the network interface to be a NAT interface,
             # so verify that that is the case.
-            if interfaces[adapter][:type] != :nat
+            if interfaces[options[:adapter]][:type] != :nat
               @env[:ui].info(I18n.t("vagrant.actions.vm.forward_ports.non_nat",
                                     message_attributes))
               next
             end
 
+            # VirtualBox requires a unique name for the forwarded port, so we
+            # will give it one.
+            name = options[:name]
+            if !name
+              # Auto-generate the name based on a counter of every forwarded port
+              name = "fp#{counter}"
+              counter += 1
+            end
+
             # Add the options to the ports array to send to the driver later
-            ports << options.merge(:name => name, :adapter => adapter)
+            ports << options.merge(:name => name, :adapter => options[:adapter])
           end
 
           @env[:vm].driver.forward_ports(ports)

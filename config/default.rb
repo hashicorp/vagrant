@@ -16,7 +16,7 @@ Vagrant::Config.run do |config|
   config.vm.auto_port_range = (2200..2250)
   config.vm.box_url = nil
   config.vm.base_mac = nil
-  config.vm.forward_port("ssh", 22, 2222, :auto => true)
+  config.vm.forward_port 22, 2222, :name => "ssh", :auto => true
   config.vm.boot_mode = "headless"
   config.vm.guest = :linux
 

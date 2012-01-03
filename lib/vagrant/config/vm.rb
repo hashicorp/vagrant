@@ -26,12 +26,26 @@ module Vagrant
         @customizations = []
       end
 
-      def forward_port(name, guestport, hostport, options=nil)
+      def forward_port(guestport, hostport, options=nil)
+        if !guestport.kind_of?(Integer)
+          raise Errors::DeprecationError, :message => <<-MESSAGE
+`config.vm.forward_port` changed in 0.9.0 where the required name
+argument is now removed. Vagrant will now automatically generate
+a unique name for your forwarded port. For example, to forward
+port 80 to port 8080 you now do the following:
+
+    config.vm.forward_port 80, 8080
+
+Please change your configurations to match this new syntax.
+          MESSAGE
+        end
+
         options = {
+          :name       => nil,
           :guestport  => guestport,
           :hostport   => hostport,
           :protocol   => :tcp,
-          :adapter    => 0,
+          :adapter    => 1,
           :auto       => false
         }.merge(options || {})
 
