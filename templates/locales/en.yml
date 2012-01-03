@@ -396,9 +396,9 @@ en:
             the relevant person to solve this issue.
         network:
           adapter_collision: |-
-            More than one network have been assigned to the same adapter. At
-            this point this error is actually indicative of an internal error
-            within Vagrant. Please report this as a bug.
+            More than one network have been assigned to the same adapter. Please
+            make sure your networks you've configured in your Vagrantfile do not
+            overlap.
           configuring: |-
             Configuring and enabling network interfaces...
           no_adapters: |-
