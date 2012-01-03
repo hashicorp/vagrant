@@ -23,15 +23,15 @@ module Vagrant
           end
 
           existing = env[:vm].driver.read_used_ports
-          env[:vm].config.vm.forwarded_ports.each do |name, options|
+          env[:vm].config.vm.forwarded_ports.each do |options|
             # Use the proper port, whether that be the configured port or the
             # port that is currently on use of the VM.
             hostport = options[:hostport].to_i
-            hostport = current[name] if current.has_key?(name)
+            hostport = current[options[:name]] if current.has_key?(options[:name])
 
             if existing.include?(hostport)
               # We have a collision! Handle it
-              send("handle_#{handler}".to_sym, name, options, existing)
+              send("handle_#{handler}".to_sym, options, existing)
             end
           end
 
@@ -39,17 +39,19 @@ module Vagrant
         end
 
         # Handles a port collision by raising an exception.
-        def handle_error(name, options, existing_ports)
+        def handle_error(options, existing_ports)
           raise Errors::ForwardPortCollisionResume
         end
 
         # Handles a port collision by attempting to fix it.
-        def handle_correct(name, options, existing_ports)
+        def handle_correct(options, existing_ports)
+          # We need to keep this for messaging purposes
+          original_hostport = options[:hostport]
+
           if !options[:auto]
             # Auto fixing is disabled for this port forward, so we
             # must throw an error so the user can fix it.
-            raise Errors::ForwardPortCollision, :name => name,
-                                                :host_port => options[:hostport].to_s,
+            raise Errors::ForwardPortCollision, :host_port => options[:hostport].to_s,
                                                 :guest_port => options[:guestport].to_s
           end
 
@@ -62,7 +64,6 @@ module Vagrant
 
           if range.empty?
             raise Errors::ForwardPortAutolistEmpty, :vm_name => @env[:vm].name,
-                                                    :name => name,
                                                     :host_port => options[:hostport].to_s,
                                                     :guest_port => options[:guestport].to_s
           end
@@ -74,7 +75,8 @@ module Vagrant
 
           # Notify the user
           @env[:ui].info(I18n.t("vagrant.actions.vm.forward_ports.fixed_collision",
-                                :name => name,
+                                :host_port => original_hostport.to_s,
+                                :guest_port => options[:guestport].to_s,
                                 :new_port => options[:hostport]))
         end
       end

@@ -355,19 +355,20 @@ en:
             auto-correction range are all also used.
 
             VM: %{vm_name}
-            Forwarded port: %{name} (%{guest_port} => %{host_port})
+            Forwarded port: %{guest_port} => %{host_port}
           collision_error: |-
             Vagrant cannot forward the specified ports on this VM, since they
             would collide with another VirtualBox virtual machine's forwarded
-            ports! The '%{name}' forwarded port (%{host_port}) is already in use on the host
+            ports! The forwarded port to %{host_port} is already in use on the host
             machine.
 
             To fix this, modify your current projects Vagrantfile to use another
             port. Example, where '1234' would be replaced by a unique host port:
 
-              config.vm.forward_port("%{name}", %{guest_port}, 1234)
+              config.vm.forward_port %{guest_port}, 1234
 
-          fixed_collision: Fixed port collision '%{name}'. Now on port %{new_port}.
+          fixed_collision: |-
+            Fixed port collision for %{guest_port} => %{host_port}. Now on port %{new_port}.
           forwarding: Forwarding ports...
           forwarding_entry: |-
             -- %{guest_port} => %{host_port} (adapter %{adapter})

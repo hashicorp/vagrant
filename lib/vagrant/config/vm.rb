@@ -19,7 +19,7 @@ module Vagrant
       attr_accessor :guest
 
       def initialize
-        @forwarded_ports = {}
+        @forwarded_ports = []
         @shared_folders = {}
         @networks = []
         @provisioners = []
@@ -40,16 +40,14 @@ Please change your configurations to match this new syntax.
           MESSAGE
         end
 
-        options = {
-          :name       => nil,
+        @forwarded_ports << {
+          :name       => "#{guestport.to_s(32)}-#{hostport.to_s(32)}",
           :guestport  => guestport,
           :hostport   => hostport,
           :protocol   => :tcp,
           :adapter    => 1,
           :auto       => false
         }.merge(options || {})
-
-        forwarded_ports[name.to_s] = options
       end
 
       def share_folder(name, guestpath, hostpath, opts=nil)

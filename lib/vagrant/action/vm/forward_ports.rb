@@ -24,7 +24,7 @@ module Vagrant
         # This method checks for any forwarded ports on the host below
         # 1024, which causes the forwarded ports to fail.
         def threshold_check
-          @env[:vm].config.vm.forwarded_ports.each do |name, options|
+          @env[:vm].config.vm.forwarded_ports.each do |options|
             if options[:hostport] <= 1024
               @env[:ui].warn I18n.t("vagrant.actions.vm.forward_ports.privileged_ports")
               return
@@ -33,12 +33,11 @@ module Vagrant
         end
 
         def forward_ports(vm)
-          counter = 0
           ports = []
 
           interfaces = @env[:vm].driver.read_network_interfaces
 
-          @env[:vm].config.vm.forwarded_ports.each do |name, options|
+          @env[:vm].config.vm.forwarded_ports.each do |options|
             message_attributes = {
               :guest_port => options[:guestport],
               :host_port => options[:hostport],
@@ -60,17 +59,8 @@ module Vagrant
               next
             end
 
-            # VirtualBox requires a unique name for the forwarded port, so we
-            # will give it one.
-            name = options[:name]
-            if !name
-              # Auto-generate the name based on a counter of every forwarded port
-              name = "fp#{counter}"
-              counter += 1
-            end
-
             # Add the options to the ports array to send to the driver later
-            ports << options.merge(:name => name, :adapter => options[:adapter])
+            ports << options.merge(:name => options[:name], :adapter => options[:adapter])
           end
 
           @env[:vm].driver.forward_ports(ports)
