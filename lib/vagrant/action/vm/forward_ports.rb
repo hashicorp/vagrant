@@ -38,12 +38,11 @@ module Vagrant
           interfaces = @env[:vm].driver.read_network_interfaces
 
           @env[:vm].config.vm.forwarded_ports.each do |name, options|
-            adapter = options[:adapter] + 1
             message_attributes = {
               :name => name,
               :guest_port => options[:guestport],
               :host_port => options[:hostport],
-              :adapter => adapter
+              :adapter => options[:adapter]
             }
 
             # Assuming the only reason to establish port forwarding is
