@@ -90,6 +90,11 @@ module Vagrant
           adapters.each do |adapter|
             # Ignore the adapters that already have been assigned
             if !adapter[:adapter]
+              # If we have no available adapters, then that is an exceptional
+              # event.
+              raise Errors::NetworkNoAdapters if available.empty?
+
+              # Otherwise, assign as the adapter the next available item
               adapter[:adapter] = available.shift
             end
           end

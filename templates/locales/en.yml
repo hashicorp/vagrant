@@ -395,10 +395,15 @@ en:
             MAC address is typically up to the box and box maintiner. Please contact
             the relevant person to solve this issue.
         network:
-          preparing: |-
-            Preparing network interfaces based on configuration...
           configuring: |-
             Configuring and enabling network interfaces...
+          no_adapters: |-
+            No available adapters on the virtual machine were found to accomodate
+            for all configured networks. VirtualBox virtual machines have 8
+            network interfaces available usually, so please lower the number of
+            networks to below 8.
+          preparing: |-
+            Preparing network interfaces based on configuration...
         host_only_network:
           collides: |-
             The specified host network collides with a non-hostonly network!
