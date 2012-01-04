@@ -16,9 +16,9 @@ module Vagrant
           end
           opts.on(
             "-p",
-            "Act like plain old 'ssh <my vm>', no extra flags"
-          ) do |c|
-            options[:port_only] = c
+            "Act more like vanilla 'ssh <vm>'"
+          ) do |p|
+            options[:port_only] = p
           end
         end
 
