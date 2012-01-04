@@ -27,10 +27,8 @@ The following is a list of tasks which are delegated to guest classes:
 * **Halting** - Shutting down the machine gracefully
 * **Mounting Shared Folders** - Creating, mounting, and setting up the permissions
   for shared folders.
-* **Enabling Host Only Networks** - Preparing and enabling host only networks on
-  specified interfaces.
-* **Enabling Bridged Networks** - Preparing and enabling bridged networks on
-  specified interfaces.
+* **Configuring Network Interfaces** - Configuring network interfaces via static
+  configuration, DHCP, etc.
 
 This list will surely grow as Vagrant grows. For now, to implement a custom operating
 system implementation, only the above two features need to be implemented.
