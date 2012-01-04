@@ -13,6 +13,7 @@ module Vagrant
         attr_accessor :options
 
         def initialize
+
           @manifest_file = nil
           @manifests_path = "manifests"
           @module_path = nil
@@ -23,7 +24,7 @@ module Vagrant
         # Returns the manifests path expanded relative to the root path of the
         # environment.
         def expanded_manifests_path
-          Pathname.new(manifests_path).expand_path(env.root_path)
+          Pathname.new(manifests_path).expand_path(@env.root_path)
         end
 
         # Returns the manifest file if set otherwise returns the box name pp file
@@ -42,12 +43,14 @@ module Vagrant
           paths = module_path
           paths = [paths] if !paths.is_a?(Array)
           paths.map do |path|
-            Pathname.new(path).expand_path(env.root_path)
+            Pathname.new(path).expand_path(@env.root_path)
           end
         end
 
         def validate(env, errors)
-          super
+          super env, errors
+
+          @env = env
 
           # Manifests path/file validation
           if !expanded_manifests_path.directory?
@@ -83,7 +86,7 @@ module Vagrant
       end
 
       def share_manifests
-        env.config.vm.share_folder("manifests", manifests_guest_path, config.expanded_manifests_path)
+        env[:vm].config.vm.share_folder("manifests", manifests_guest_path, config.expanded_manifests_path)
       end
 
       def share_module_paths
@@ -91,7 +94,7 @@ module Vagrant
         @module_paths.each do |from, to|
           # Sorry for the cryptic key here, but VirtualBox has a strange limit on
           # maximum size for it and its something small (around 10)
-          env.config.vm.share_folder("v-pp-m#{count}", to, from)
+          env[:vm].config.vm.share_folder("v-pp-m#{count}", to, from)
           count += 1
         end
       end
@@ -108,7 +111,7 @@ module Vagrant
       end
 
       def verify_binary(binary)
-        vm.ssh.execute do |ssh|
+        env[:vm].ssh.execute do |ssh|
           ssh.sudo!("which #{binary}", :error_class => PuppetError, :_key => :puppet_not_detected, :binary => binary)
         end
       end
@@ -122,9 +125,9 @@ module Vagrant
         commands = ["cd #{manifests_guest_path}",
                     "puppet apply #{options}"]
 
-        env.ui.info I18n.t("vagrant.provisioners.puppet.running_puppet", :manifest => config.computed_manifest_file)
+        env[:ui].info I18n.t("vagrant.provisioners.puppet.running_puppet", :manifest => config.computed_manifest_file)
 
-        vm.ssh.execute do |ssh|
+        env[:vm].ssh.execute do |ssh|
           ssh.sudo! commands do |ch, type, data|
             if type == :exit_status
               ssh.check_exit_status(data, commands)
@@ -142,3 +145,4 @@ module Vagrant
     end
   end
 end
+
