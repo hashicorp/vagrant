@@ -21,7 +21,7 @@ module Vagrant
 
         with_target_vms(argv[0], true) do |vm|
           raise Errors::VMNotCreatedError if !vm.created?
-          raise Errors::VMInaccessible if !vm.vm.accessible?
+          raise Errors::VMInaccessible if !vm.state == :inaccessible
 
           # We need to fix the file permissions of the key if they aren't set
           # properly, otherwise if the user attempts to SSH in, it won't work!
