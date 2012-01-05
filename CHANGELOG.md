@@ -20,6 +20,9 @@
   - All Vagrant commands that take a VM name in a Multi-VM environment
     can now be given a regular expression. If the name starts and ends with a "/"
     then it is assumed to be a regular expression. [GH-573]
+  - Added a "--plain" flag to `vagrant ssh` which will cause Vagrant to not
+    perform any authentication. It will simply `ssh` into the proper IP and
+    port of the virtual machine.
   - Removed Thor as a dependency for the command line interfaces. This resulted
     in general speed increases across all command line commands.
   - Linux uses `shutdown -h` instead of `halt` to hopefully more consistently

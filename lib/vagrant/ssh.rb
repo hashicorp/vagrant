@@ -33,7 +33,10 @@ module Vagrant
 
       raise Errors::SSHUnavailable if !Kernel.system("which ssh > /dev/null 2>&1")
 
-      port_only = opts[:port_only]
+      # If plain mode is enabled then we don't do any authentication (we don't
+      # set a user or an identity file)
+      plain_mode = options[:plain_mode]
+
       options = {}
       options[:port] = port(opts)
       options[:private_key_path] = private_key_path
@@ -47,7 +50,7 @@ module Vagrant
       command_options = ["-p #{options[:port]}", "-o UserKnownHostsFile=/dev/null",
                          "-o StrictHostKeyChecking=no", "-o IdentitiesOnly=yes",
                          "-o LogLevel=ERROR"]
-      command_options << "-i #{options[:private_key_path]}" unless port_only
+      command_options << "-i #{options[:private_key_path]}" if !plain_mode
       command_options << "-o ForwardAgent=yes" if @vm.config.ssh.forward_agent
 
       if @vm.config.ssh.forward_x11
@@ -57,7 +60,7 @@ module Vagrant
       end
 
       host_string = options[:host]
-      host_string = "#{options[:username]}@" + host_string unless port_only
+      host_string = "#{options[:username]}@#{host_string}" if !plain_mode
       command = "ssh #{command_options.join(" ")} #{host_string}".strip
       @logger.info("Invoking SSH: #{command}")
       safe_exec(command)
