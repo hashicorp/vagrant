@@ -14,6 +14,9 @@ module Vagrant
           opts.on("-c", "--command COMMAND", "Execute an SSH command directly.") do |c|
             options[:command] = c
           end
+          opts.on("-p", "--plain", "Plain mode, leaves authentication up to user.") do |p|
+            options[:plain_mode] = p
+          end
         end
 
         argv = parse_options(opts)
@@ -29,7 +32,7 @@ module Vagrant
           if options[:command]
             ssh_execute(vm, options[:command])
           else
-            ssh_connect(vm)
+            ssh_connect(vm, { :plain_mode => options[:plain_mode] })
           end
         end
       end
@@ -63,9 +66,9 @@ module Vagrant
         exit exit_status
       end
 
-      def ssh_connect(vm)
+      def ssh_connect(vm, opts)
         @logger.debug("`exec` into ssh prompt")
-        vm.ssh.connect
+        vm.ssh.connect(opts)
       end
     end
   end

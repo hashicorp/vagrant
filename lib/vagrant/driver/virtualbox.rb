@@ -1,5 +1,6 @@
 require 'log4r'
 require 'vagrant/util/busy'
+require 'vagrant/util/platform'
 require 'vagrant/util/subprocess'
 
 module Vagrant
@@ -25,6 +26,21 @@ module Vagrant
 
         # This flag is used to keep track of interrupted state (SIGINT)
         @interrupted = false
+
+        # Set the path to VBoxManage
+        @vboxmanage_path = "VBoxManage"
+
+        if Util::Platform.windows?
+          @logger.debug("Windows. Trying VBOX_INSTALL_PATH for VBoxManage")
+
+          # On Windows, we use the VBOX_INSTALL_PATH environmental
+          # variable to find VBoxManage.
+          if ENV.has_key?("VBOX_INSTALL_PATH")
+            @vboxmanage_path = "#{ENV["VBOX_INSTALL_PATH"]}\VBoxManage.exe"
+          end
+        end
+
+        @logger.info("VBoxManage path: #{@vboxmanage_path}")
 
         if @uuid
           # Verify the VM exists, and if it doesn't, then don't worry
@@ -444,7 +460,14 @@ module Vagrant
       #
       # @return [String]
       def read_version
-        execute("--version").split("r")[0]
+        # The version string is usually in one of the following formats:
+        #
+        # * 4.1.8r1234
+        # * 4.1.8r1234_OSE
+        # * 4.1.8_MacPortsr1234
+        #
+        # Below accounts for all of these:
+        execute("--version").split("_")[0].split("r")[0]
       end
 
       # Execute the given subcommand for VBoxManage and return the output.
@@ -474,7 +497,7 @@ module Vagrant
         end
 
         Util::Busy.busy(int_callback) do
-          Subprocess.execute("VBoxManage", *command, &block)
+          Subprocess.execute(@vboxmanage_path, *command, &block)
         end
       end
     end

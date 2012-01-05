@@ -22,7 +22,7 @@ module Vagrant
 
         # Returns the manifests path expanded relative to the root path of the
         # environment.
-        def expanded_manifests_path
+        def expanded_manifests_path(env)
           Pathname.new(manifests_path).expand_path(env.root_path)
         end
 
@@ -34,7 +34,7 @@ module Vagrant
 
         # Returns the module paths as an array of paths expanded relative to the
         # root path.
-        def expanded_module_paths
+        def expanded_module_paths(env)
           return [] if !module_path
 
           # Get all the paths and expand them relative to the root path, returning
@@ -47,19 +47,23 @@ module Vagrant
         end
 
         def validate(env, errors)
-          super
+          # Calculate the manifests and module paths based on env
+          this_expanded_manifests_path = expanded_manifests_path(env)
+          this_expanded_module_paths = expanded_module_paths(env)
 
           # Manifests path/file validation
-          if !expanded_manifests_path.directory?
-            errors.add(I18n.t("vagrant.provisioners.puppet.manifests_path_missing", :path => expanded_manifests_path))
+          if !this_expanded_manifests_path.directory?
+            errors.add(I18n.t("vagrant.provisioners.puppet.manifests_path_missing",
+                              :path => this_expanded_manifests_path))
           else
-            if !expanded_manifests_path.join(computed_manifest_file).file?
-              errors.add(I18n.t("vagrant.provisioners.puppet.manifest_missing", :manifest => computed_manifest_file))
+            if !this_expanded_manifests_path.join(computed_manifest_file).file?
+              errors.add(I18n.t("vagrant.provisioners.puppet.manifest_missing",
+                                :manifest => computed_manifest_file))
             end
           end
 
           # Module paths validation
-          expanded_module_paths.each do |path|
+          this_expanded_module_paths.each do |path|
             if !path.directory?
               errors.add(I18n.t("vagrant.provisioners.puppet.module_path_missing", :path => path))
             end
@@ -72,6 +76,10 @@ module Vagrant
       end
 
       def prepare
+        # Calculate the paths we're going to use based on the environment
+        @expanded_manifests_path = config.expanded_manifests_path(env)
+        @expanded_module_paths   = config.expanded_module_paths(env)
+
         set_module_paths
         share_manifests
         share_module_paths
@@ -83,7 +91,7 @@ module Vagrant
       end
 
       def share_manifests
-        env.config.vm.share_folder("manifests", manifests_guest_path, config.expanded_manifests_path)
+        env[:vm].config.vm.share_folder("manifests", manifests_guest_path, @expanded_manifests_path)
       end
 
       def share_module_paths
@@ -91,14 +99,14 @@ module Vagrant
         @module_paths.each do |from, to|
           # Sorry for the cryptic key here, but VirtualBox has a strange limit on
           # maximum size for it and its something small (around 10)
-          env.config.vm.share_folder("v-pp-m#{count}", to, from)
+          env[:vm].config.vm.share_folder("v-pp-m#{count}", to, from)
           count += 1
         end
       end
 
       def set_module_paths
         @module_paths = {}
-        config.expanded_module_paths.each_with_index do |path, i|
+        @expanded_module_paths.each_with_index do |path, i|
           @module_paths[path] = File.join(config.pp_path, "modules-#{i}")
         end
       end
@@ -108,7 +116,7 @@ module Vagrant
       end
 
       def verify_binary(binary)
-        vm.ssh.execute do |ssh|
+        env[:vm].ssh.execute do |ssh|
           ssh.sudo!("which #{binary}", :error_class => PuppetError, :_key => :puppet_not_detected, :binary => binary)
         end
       end
@@ -122,9 +130,9 @@ module Vagrant
         commands = ["cd #{manifests_guest_path}",
                     "puppet apply #{options}"]
 
-        env.ui.info I18n.t("vagrant.provisioners.puppet.running_puppet", :manifest => config.computed_manifest_file)
+        env[:ui].info I18n.t("vagrant.provisioners.puppet.running_puppet", :manifest => config.computed_manifest_file)
 
-        vm.ssh.execute do |ssh|
+        env[:vm].ssh.execute do |ssh|
           ssh.sudo! commands do |ch, type, data|
             if type == :exit_status
               ssh.check_exit_status(data, commands)
@@ -142,3 +150,4 @@ module Vagrant
     end
   end
 end
+
