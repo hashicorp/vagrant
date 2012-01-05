@@ -59,7 +59,7 @@ module Vagrant
           # ports which are being used in other forwards so we're just
           # left with available ports.
           range = @env[:vm].config.vm.auto_port_range.to_a
-          range -= @env[:vm].config.vm.forwarded_ports.collect { |n, o| o[:hostport].to_i }
+          range -= @env[:vm].config.vm.forwarded_ports.collect { |opts| opts[:hostport].to_i }
           range -= existing_ports
 
           if range.empty?
