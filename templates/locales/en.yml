@@ -170,7 +170,8 @@ en:
       vm_not_found: |-
         A VM by the name of %{name} was not found.
       vm_not_running: |-
-        VM must be running to open SSH connection.
+        VM must be running to open SSH connection. Run `vagrant up`
+        to start the virtual machine.
 
 #-------------------------------------------------------------------------------
 # Translations for config validation errors
