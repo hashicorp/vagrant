@@ -13,7 +13,6 @@ module Vagrant
         attr_accessor :options
 
         def initialize
-
           @manifest_file = nil
           @manifests_path = "manifests"
           @module_path = nil
@@ -23,8 +22,8 @@ module Vagrant
 
         # Returns the manifests path expanded relative to the root path of the
         # environment.
-        def expanded_manifests_path
-          Pathname.new(manifests_path).expand_path(@env.root_path)
+        def expanded_manifests_path(env)
+          Pathname.new(manifests_path).expand_path(env.root_path)
         end
 
         # Returns the manifest file if set otherwise returns the box name pp file
@@ -35,7 +34,7 @@ module Vagrant
 
         # Returns the module paths as an array of paths expanded relative to the
         # root path.
-        def expanded_module_paths
+        def expanded_module_paths(env)
           return [] if !module_path
 
           # Get all the paths and expand them relative to the root path, returning
@@ -43,26 +42,28 @@ module Vagrant
           paths = module_path
           paths = [paths] if !paths.is_a?(Array)
           paths.map do |path|
-            Pathname.new(path).expand_path(@env.root_path)
+            Pathname.new(path).expand_path(env.root_path)
           end
         end
 
         def validate(env, errors)
-          super env, errors
-
-          @env = env
+          # Calculate the manifests and module paths based on env
+          this_expanded_manifests_path = expanded_manifests_path(env)
+          this_expanded_module_paths = expanded_module_paths(env)
 
           # Manifests path/file validation
-          if !expanded_manifests_path.directory?
-            errors.add(I18n.t("vagrant.provisioners.puppet.manifests_path_missing", :path => expanded_manifests_path))
+          if !this_expanded_manifests_path.directory?
+            errors.add(I18n.t("vagrant.provisioners.puppet.manifests_path_missing",
+                              :path => this_expanded_manifests_path))
           else
-            if !expanded_manifests_path.join(computed_manifest_file).file?
-              errors.add(I18n.t("vagrant.provisioners.puppet.manifest_missing", :manifest => computed_manifest_file))
+            if !this_expanded_manifests_path.join(computed_manifest_file).file?
+              errors.add(I18n.t("vagrant.provisioners.puppet.manifest_missing",
+                                :manifest => computed_manifest_file))
             end
           end
 
           # Module paths validation
-          expanded_module_paths.each do |path|
+          this_expanded_module_paths.each do |path|
             if !path.directory?
               errors.add(I18n.t("vagrant.provisioners.puppet.module_path_missing", :path => path))
             end
@@ -75,6 +76,10 @@ module Vagrant
       end
 
       def prepare
+        # Calculate the paths we're going to use based on the environment
+        @expanded_manifests_path = config.expanded_manifests_path(env)
+        @expanded_module_paths   = config.expanded_module_paths(env)
+
         set_module_paths
         share_manifests
         share_module_paths
@@ -86,7 +91,7 @@ module Vagrant
       end
 
       def share_manifests
-        env[:vm].config.vm.share_folder("manifests", manifests_guest_path, config.expanded_manifests_path)
+        env[:vm].config.vm.share_folder("manifests", manifests_guest_path, @expanded_manifests_path)
       end
 
       def share_module_paths
@@ -101,7 +106,7 @@ module Vagrant
 
       def set_module_paths
         @module_paths = {}
-        config.expanded_module_paths.each_with_index do |path, i|
+        @expanded_module_paths.each_with_index do |path, i|
           @module_paths[path] = File.join(config.pp_path, "modules-#{i}")
         end
       end
