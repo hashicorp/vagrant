@@ -59,8 +59,14 @@ module Vagrant
               next
             end
 
-            # Add the options to the ports array to send to the driver later
-            ports << options.merge(:name => options[:name], :adapter => options[:adapter])
+            index = ports.find_index {|i| i[:guestport] == options[:guestport] }
+            if (index.nil?)
+              # Add the options to the ports array to send to the driver later
+              ports << options.merge(:name => options[:name], :adapter => options[:adapter])
+            else
+              # Replace the entry in ports
+              ports[index] = options
+            end
           end
 
           @env[:vm].driver.forward_ports(ports)
