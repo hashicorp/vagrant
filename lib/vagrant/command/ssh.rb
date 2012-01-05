@@ -14,6 +14,12 @@ module Vagrant
           opts.on("-c", "--command COMMAND", "Execute an SSH command directly.") do |c|
             options[:command] = c
           end
+          opts.on(
+            "-p",
+            "Act more like vanilla 'ssh <vm>'"
+          ) do |p|
+            options[:port_only] = p
+          end
         end
 
         argv = parse_options(opts)
@@ -29,7 +35,7 @@ module Vagrant
           if options[:command]
             ssh_execute(vm, options[:command])
           else
-            ssh_connect(vm)
+            ssh_connect(vm, {:port_only => options[:port_only]})
           end
         end
       end
@@ -63,9 +69,9 @@ module Vagrant
         exit exit_status
       end
 
-      def ssh_connect(vm)
+      def ssh_connect(vm, opts)
         @logger.debug("`exec` into ssh prompt")
-        vm.ssh.connect
+        vm.ssh.connect(opts)
       end
     end
   end

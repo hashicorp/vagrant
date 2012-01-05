@@ -22,6 +22,9 @@ module Vagrant
     # Connects to the environment's virtual machine, replacing the ruby
     # process with an SSH process. This method optionally takes a hash
     # of options which override the configuration values.
+    # One specific option, :port_only, if set to true, will cause this method
+    # to skip filling in some default values, such as private_key_path and
+    # username.
     def connect(opts={})
       if Util::Platform.windows?
         raise Errors::SSHUnavailableWindows, :key_path => private_key_path,
@@ -30,6 +33,7 @@ module Vagrant
 
       raise Errors::SSHUnavailable if !Kernel.system("which ssh > /dev/null 2>&1")
 
+      port_only = opts[:port_only]
       options = {}
       options[:port] = port(opts)
       options[:private_key_path] = private_key_path
@@ -42,7 +46,8 @@ module Vagrant
       # Command line options
       command_options = ["-p #{options[:port]}", "-o UserKnownHostsFile=/dev/null",
                          "-o StrictHostKeyChecking=no", "-o IdentitiesOnly=yes",
-                         "-i #{options[:private_key_path]}", "-o LogLevel=ERROR"]
+                         "-o LogLevel=ERROR"]
+      command_options << "-i #{options[:private_key_path]}" unless port_only
       command_options << "-o ForwardAgent=yes" if @vm.config.ssh.forward_agent
 
       if @vm.config.ssh.forward_x11
@@ -51,7 +56,9 @@ module Vagrant
         command_options << "-o ForwardX11Trusted=yes"
       end
 
-      command = "ssh #{command_options.join(" ")} #{options[:username]}@#{options[:host]}".strip
+      host_string = options[:host]
+      host_string = "#{options[:username]}@" + host_string unless port_only
+      command = "ssh #{command_options.join(" ")} #{host_string}".strip
       @logger.info("Invoking SSH: #{command}")
       safe_exec(command)
     end
