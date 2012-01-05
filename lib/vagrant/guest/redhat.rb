@@ -13,29 +13,25 @@ module Vagrant
         # well as what interfaces we're actually configuring since we use that
         # later.
         interfaces = Set.new
-
-        # Since redhat/centos uses a single file for each interface,
-        # we must loop through for each network assigned
         networks.each do |network|
           interfaces.add(network[:interface])
 
-          # First, remove any previous network modifications
-          # from the interface file.
+          # Remove any previous vagrant configuration in this network interface's
+          # configuration files.
           vm.ssh.execute do |ssh|
             ssh.exec!("sudo touch #{network_scripts_dir}/ifcfg-eth#{network[:interface]}")
             ssh.exec!("sudo sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' #{network_scripts_dir}/ifcfg-eth#{network[:interface]} > /tmp/vagrant-ifcfg-eth#{network[:interface]}")
             ssh.exec!("sudo su -c 'cat /tmp/vagrant-ifcfg-eth#{network[:interface]} > #{network_scripts_dir}/ifcfg-eth#{network[:interface]}'")
           end
 
-          entry = ""
-          entry << TemplateRenderer.render("guests/redhat/network_#{network[:type]}",
-                                               :options => network)
-
-          # Perform the careful dance necessary to to reconfigure
-          # the network interfaces
+          # Render and upload the network entry file to a deterministic
+          # temporary location.
+          entry = TemplateRenderer.render("guests/redhat/network_#{network[:type]}",
+                                          :options => network)
           vm.ssh.upload!(StringIO.new(entry), "/tmp/vagrant-network-entry_#{network[:interface]}")
         end
 
+        # Perform the careful dance necessary to reconfigure the network interfaces
         vm.ssh.execute do |ssh|
           # Bring down all the interfaces we're reconfiguring. By bringing down
           # each specifically, we avoid reconfiguring eth0 (the NAT interface) so

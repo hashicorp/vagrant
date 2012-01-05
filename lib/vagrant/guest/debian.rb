@@ -27,7 +27,7 @@ module Vagrant
                                              :options => network)
         end
 
-        # Perform the careful dance necessary to to reconfigure
+        # Perform the careful dance necessary to reconfigure
         # the network interfaces
         vm.ssh.upload!(StringIO.new(entries.join("\n")), "/tmp/vagrant-network-entry")
 
