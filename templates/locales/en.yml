@@ -159,7 +159,8 @@ en:
         Vagrant uses the `VBoxManage` binary that ships with VirtualBox, and requires
         this to be available on the PATH. If VirtualBox is installed, please find the
         `VBoxManage` binary and add it to the PATH environmental variable.
-      vm_creation_required: "VM must be created before running this command. Run `vagrant up` first."
+      vm_creation_required: |-
+        VM must be created before running this command. Run `vagrant up` first.
       vm_inaccessible: |-
         Your VM has become "inaccessible." Unfortunately, this is a critical error
         with VirtualBox that Vagrant can not cleanly recover from. Please open VirtualBox
