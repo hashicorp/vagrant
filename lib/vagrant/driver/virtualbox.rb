@@ -444,7 +444,14 @@ module Vagrant
       #
       # @return [String]
       def read_version
-        execute("--version").split("r")[0]
+        # The version string is usually in one of the following formats:
+        #
+        # * 4.1.8r1234
+        # * 4.1.8r1234_OSE
+        # * 4.1.8_MacPortsr1234
+        #
+        # Below accounts for all of these:
+        execute("--version").split("_")[0].split("r")[0]
       end
 
       # Execute the given subcommand for VBoxManage and return the output.
