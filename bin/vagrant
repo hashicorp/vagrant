@@ -2,6 +2,7 @@
 require 'log4r'
 require 'vagrant'
 require 'vagrant/cli'
+require 'vagrant/util/platform'
 
 # Create a logger right away
 logger = Log4r::Logger.new("vagrant::bin::vagrant")
@@ -15,8 +16,10 @@ $stderr.sync = true
 # environment.
 opts = {}
 
-# Disable color if the proper argument was passed
-if !$stdout.tty? || ARGV.include?("--no-color")
+# Disable color if the proper argument was passed or if we're
+# on Windows since the default Windows terminal doesn't support
+# colors.
+if !$stdout.tty? || ARGV.include?("--no-color") || Vagrant::Util::Platform.windows?
   # Delete the argument from the list so that it doesn't cause any
   # invalid arguments down the road.
   ARGV.delete("--no-color")
