@@ -1,0 +1,177 @@
+require 'timeout'
+
+require 'log4r'
+require 'net/ssh'
+require 'net/scp'
+
+require 'vagrant/util/file_mode'
+require 'vagrant/util/platform'
+require 'vagrant/util/retryable'
+
+module Vagrant
+  module Communication
+    # Provides communication with the VM via SSH.
+    class SSH
+      include Util::Retryable
+
+      def initialize(vm)
+        @vm     = vm
+        @logger = Log4r::Logger.new("vagrant::communication::ssh")
+      end
+
+      def ready?
+        @logger.debug("Checking whether SSH is ready...")
+
+        Timeout.timeout(@vm.config.ssh.timeout) do
+          connect
+        end
+
+        # If we reached this point then we successfully connected
+        @logger.info("SSH is ready!")
+        true
+      rescue Timeout::Error, Errors::SSHConnectionRefused, Net::SSH::Disconnect => e
+        # The above errors represent various reasons that SSH may not be
+        # ready yet. Return false.
+        @logger.info("SSH not up: #{e.inspect}")
+        return false
+      end
+
+      def execute(command, &block)
+        # Connect via SSH and execute the command in the shell.
+        connect do |connection|
+          shell_execute(connection, command, &block)
+        end
+      end
+
+      def sudo(command, &block)
+        # Connect ia SSH and execute the command with super-user
+        # privileges in a shell.
+        connect do |connection|
+          shell_execute(connection, command, true, &block)
+        end
+      end
+
+      def upload(from, to)
+        # Do an SCP-based upload...
+        connect do |connection|
+          scp = Net::SCP.new(connection)
+          scp.upload!(from, to)
+        end
+      end
+
+      protected
+
+      # Opens an SSH connection and yields it to a block.
+      def connect
+        ssh_info = @vm.ssh_info
+
+        # Build the options we'll use to initiate the connection via Net::SSH
+        opts = {
+          :port                  => ssh_info[:port],
+          :keys                  => [ssh_info[:private_key_path]],
+          :keys_only             => true,
+          :user_known_hosts_file => [],
+          :paranoid              => false,
+          :config                => false,
+          :forward_agent         => ssh_info[:forward_agent]
+        }
+
+        # Check that the private key permissions are valid
+        check_key_permissions(ssh_info[:private_key_path])
+
+        # Connect to SSH, giving it a few tries
+        @logger.debug("Connecting to SSH: #{ssh_info[:host]}:#{ssh_info[:port]}")
+        exceptions = [Errno::ECONNREFUSED, Net::SSH::Disconnect]
+        connection = retryable(:tries => @vm.config.ssh.max_tries, :on => exceptions) do
+          Net::SSH.start(ssh_info[:host], ssh_info[:username], opts)
+        end
+
+        # This is hacky but actually helps with some issues where
+        # Net::SSH is simply not robust enough to handle... see
+        # issue #391, #455, etc.
+        sleep 4
+
+        # Yield the connection that is ready to be used and
+        # return the value of the block
+        return yield connection if block_given?
+      rescue Net::SSH::AuthenticationFailed
+        # This happens if authentication failed. We wrap the error in our
+        # own exception.
+        raise Errors::SSHAuthenticationFailed
+      rescue Errno::ECONNREFUSED
+        # This is raised if we failed to connect the max amount of times
+        raise Errors::SSHConnectionRefused
+      ensure
+        # Be sure the connection is always closed
+        connection.close if connection && !connection.closed?
+      end
+
+      # Executes the command on an SSH connection within a login shell.
+      def shell_execute(connection, command, sudo=false)
+        exit_status = nil
+
+        # Determine the shell to execute. If we are using `sudo` then we
+        # need to wrap the shell in a `sudo` call.
+        shell = "#{@vm.config.ssh.shell} -l"
+        shell = "sudo -H #{shell}" if sudo
+
+        # Open the channel so we can execute or command
+        channel = connection.open_channel do |ch|
+          ch.exec(shell) do |ch2, _|
+            # Setup the channel callbacks so we can get data and exit status
+            ch2.on_data do |ch3, data|
+              yield :stdout, data if block_given?
+            end
+
+            ch2.on_extended_data do |ch3, type, data|
+              yield :stderr, data if block_given?
+            end
+
+            ch2.on_request("exit-status") do |ch3, data|
+              exit_status = data.read_long
+              yield :exit_status, exit_status if block_given?
+            end
+
+            # Set the terminal
+            ch2.send_data "export TERM=vt100\n"
+
+            # Output the command
+            ch2.send_data "#{command}\n"
+
+            # Remember to exit or this channel will hang open
+            ch2.send_data "exit\n"
+          end
+        end
+
+        # Wait for the channel to complete
+        channel.wait
+
+        # Return the final exit status
+        return exit_status
+      end
+
+      # Checks the file permissions for a private key, resetting them
+      # if needed.
+      def check_key_permissions(key_path)
+        # Windows systems don't have this issue
+        return if Util::Platform.windows?
+
+        @logger.debug("Checking key permissions: #{key_path}")
+        stat = File.stat(key_path)
+
+        if stat.owned? && Util::FileMode.from_octal(stat.mode) != "600"
+          @logger.info("Attempting to correct key permissions to 0600")
+          File.chmod(0600, key_path)
+
+          if Util::FileMode.from_octal(stat.mode) != "600"
+            raise Errors::SSHKeyBadPermissions, :key_path => key_path
+          end
+        end
+      rescue Errno::EPERM
+        # This shouldn't happen since we verified we own the file, but
+        # it is possible in theory, so we raise an error.
+        raise Errors::SSHKeyBadPermissions, :key_path => key_path
+      end
+    end
+  end
+end

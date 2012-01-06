@@ -24,6 +24,7 @@ module Vagrant
   autoload :BoxCollection, 'vagrant/box_collection'
   autoload :CLI,           'vagrant/cli'
   autoload :Command,       'vagrant/command'
+  autoload :Communication, 'vagrant/communication'
   autoload :Config,        'vagrant/config'
   autoload :DataStore,     'vagrant/data_store'
   autoload :Downloaders,   'vagrant/downloaders'

@@ -74,6 +74,28 @@ module Vagrant
       @ssh ||= SSH.new(self)
     end
 
+    # Returns a hash of information necessary for accessing this
+    # virtual machine via SSH.
+    #
+    # @return [Hash]
+    def ssh_info
+      results = {
+        :host          => config.ssh.host,
+        :port          => config.ssh.port || driver.ssh_port,
+        :username      => config.ssh.username,
+        :forward_agent => config.ssh.forward_agent,
+        :forward_x11   => config.ssh.forward_x11
+      }
+
+      # Determine the private key path, which is either set by the
+      # configuration or uses just the built-in insecure key.
+      pk_path = config.ssh.private_key_path || env.default_private_key_path
+      results[:private_key_path] = File.expand_path(pk_path, env.root_path)
+
+      # Return the results
+      return results
+    end
+
     # Returns the state of the VM as a symbol.
     #
     # @return [Symbol]
