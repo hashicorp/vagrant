@@ -87,6 +87,10 @@ module Vagrant
         :forward_x11   => config.ssh.forward_x11
       }
 
+      # This can happen if no port is set and for some reason Vagrant
+      # can't detect an SSH port.
+      raise Errors::SSHPortNotDetected if !results[:port]
+
       # Determine the private key path, which is either set by the
       # configuration or uses just the built-in insecure key.
       pk_path = config.ssh.private_key_path || env.default_private_key_path
