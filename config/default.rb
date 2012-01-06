@@ -6,8 +6,7 @@ Vagrant::Config.run do |config|
 
   config.ssh.username = "vagrant"
   config.ssh.host = "127.0.0.1"
-  config.ssh.forwarded_port_key = "ssh"
-  config.ssh.forwarded_port_destination = 22
+  config.ssh.guest_port = 22
   config.ssh.max_tries = 100
   config.ssh.timeout = 10
   config.ssh.forward_agent = false

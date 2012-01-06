@@ -434,6 +434,16 @@ module Vagrant
         end
       end
 
+      # This reads the SSH port from the VM.
+      def ssh_port(expected_port)
+        # Look for the forwarded port only by comparing the guest port
+        read_forwarded_ports.each do |_, _, hostport, guestport|
+          return hostport if guestport == expected_port
+        end
+
+        nil
+      end
+
       # Starts the virtual machine in the given mode.
       #
       # @param [String] mode Mode to boot the VM: either "headless" or "gui"

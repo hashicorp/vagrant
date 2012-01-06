@@ -81,7 +81,7 @@ module Vagrant
     def ssh_info
       results = {
         :host          => config.ssh.host,
-        :port          => config.ssh.port || driver.ssh_port,
+        :port          => config.ssh.port || driver.ssh_port(config.ssh.guest_port),
         :username      => config.ssh.username,
         :forward_agent => config.ssh.forward_agent,
         :forward_x11   => config.ssh.forward_x11
