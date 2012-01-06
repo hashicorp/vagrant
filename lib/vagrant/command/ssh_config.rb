@@ -32,7 +32,7 @@ module Vagrant
             :ssh_host => vm.config.ssh.host,
             :ssh_user => vm.config.ssh.username,
             :ssh_port => vm.ssh.port,
-            :private_key_path => vm.config.ssh.private_key_path,
+            :private_key_path => vm.ssh.private_key_path,
             :forward_agent => vm.config.ssh.forward_agent,
             :forward_x11   => vm.config.ssh.forward_x11
           }))
