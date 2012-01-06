@@ -35,7 +35,7 @@ module Vagrant
 
       # If plain mode is enabled then we don't do any authentication (we don't
       # set a user or an identity file)
-      plain_mode = options[:plain_mode]
+      plain_mode = opts[:plain_mode]
 
       options = {}
       options[:port] = port(opts)
