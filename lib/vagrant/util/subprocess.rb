@@ -1,6 +1,8 @@
 require 'childprocess'
 require 'log4r'
 
+require 'vagrant/util/platform'
+
 module Vagrant
   module Util
     # Execute a command in a subprocess, gathering the results and
@@ -10,6 +12,9 @@ module Vagrant
     # from the subprocess in real time, by simply passing a block to
     # the execute method.
     class Subprocess
+      # The chunk size for reading from subprocess IO.
+      READ_CHUNK_SIZE = 4096
+
       # Convenience method for executing a method.
       def self.execute(*command, &block)
         new(*command).execute(&block)
@@ -151,7 +156,15 @@ module Vagrant
 
         while true
           begin
-            data << io.read_nonblock(1024)
+            if Platform.windows?
+              # Windows doesn't support non-blocking reads on
+              # file descriptors or pipes so we have to get
+              # a bit more creative.
+              data << io.readpartial(READ_CHUNK_SIZE)
+            else
+              # Do a simple non-blocking read on the IO object
+              data << io.read_nonblock(READ_CHUNK_SIZE)
+            end
           rescue Exception => e
             # The catch-all rescue here is to support multiple Ruby versions,
             # since we use some Ruby 1.9 specific exceptions.
