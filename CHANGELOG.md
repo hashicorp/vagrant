@@ -11,6 +11,13 @@
     arbitrary command can be sent. The older style of passing a block no longer
     works and Vagrant will give a proper error message if it notices this old-style
     being used.
+  - `config.ssh.forwarded_port_key` is gone. Vagrant no longer cares about
+    forwarded port names for any reason. Please use `config.ssh.guest_port`
+    (more below).
+  - `config.ssh.forwarded_port_destination` has been replaced by
+    `config.ssh.guest_port` which more accurately reflects what it is
+    used for. Vagrant will automatically scan forwarded ports that match the
+    guest port to find the SSH port.
   - Logging. The entire Vagrant source has had logging sprinkled throughout
     to make debugging issues easier. To enable logging, set the VAGRANT_LOG
     environmental variable to the log level you wish to see. By default,
