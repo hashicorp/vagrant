@@ -1,3 +1,5 @@
+require 'tempfile'
+
 module Vagrant
   module Provisioners
     class Shell < Base
@@ -15,8 +17,6 @@ module Vagrant
         end
 
         def validate(env, errors)
-          super
-
           # Validate that the parameters are properly set
           if path && inline
             errors.add(I18n.t("vagrant.provisioners.shell.path_and_inline_set"))
