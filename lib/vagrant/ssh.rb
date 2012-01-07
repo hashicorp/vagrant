@@ -5,9 +5,8 @@ require 'vagrant/util/platform'
 require 'vagrant/util/safe_exec'
 
 module Vagrant
-  # Manages SSH access to a specific environment. Allows an environment to
-  # replace the process with SSH itself, run a specific set of commands,
-  # upload files, or even check if a host is up.
+  # Manages SSH connection information as well as allows opening an
+  # SSH connection.
   class SSH
     include Util::SafeExec
 
@@ -47,12 +46,12 @@ module Vagrant
     end
 
     # Connects to the environment's virtual machine, replacing the ruby
-    # process with an SSH process. This method optionally takes a hash
-    # of options which override the configuration values.
-    # One specific option, :port_only, if set to true, will cause this method
-    # to skip filling in some default values, such as private_key_path and
-    # username.
-    def connect(opts={})
+    # process with an SSH process.
+    #
+    # @param [Hash] opts Options hash
+    # @options opts [Boolean] :plain_mode If True, doesn't authenticate with
+    #   the machine, only connects, allowing the user to connect.
+    def exec(opts={})
       # Get the SSH information and cache it here
       ssh_info = info
 

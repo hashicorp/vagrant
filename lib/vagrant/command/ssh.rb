@@ -68,7 +68,7 @@ module Vagrant
 
       def ssh_connect(vm, opts)
         @logger.debug("`exec` into ssh prompt")
-        vm.ssh.connect(opts)
+        vm.ssh.exec(opts)
       end
     end
   end
