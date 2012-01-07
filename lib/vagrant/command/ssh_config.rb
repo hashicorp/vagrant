@@ -35,7 +35,7 @@ module Vagrant
           }
 
           # Render the template and output directly to STDOUT
-          $stdout.puts(Util::TemplateRenderer.render("ssh_config", variables)
+          $stdout.puts(Util::TemplateRenderer.render("ssh_config", variables))
         end
       end
     end
