@@ -28,9 +28,9 @@ Gem::Specification.new do |s|
   s.add_development_dependency "minitest", "~> 2.5.1"
   s.add_development_dependency "mocha"
   #s.add_development_dependency "sys-proctable", "~> 0.9.0"
-  s.add_development_dependency "rspec-core", "~> 2.7.1"
-  s.add_development_dependency "rspec-expectations", "~> 2.7.0"
-  s.add_development_dependency "rspec-mocks", "~> 2.7.0"
+  s.add_development_dependency "rspec-core", "~> 2.8.0"
+  s.add_development_dependency "rspec-expectations", "~> 2.8.0"
+  s.add_development_dependency "rspec-mocks", "~> 2.8.0"
 
   s.files         = `git ls-files`.split("\n")
   s.executables   = `git ls-files`.split("\n").map{|f| f =~ /^bin\/(.*)/ ? $1 : nil}.compact
