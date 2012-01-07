@@ -57,6 +57,12 @@ module Vagrant
           scp = Net::SCP.new(connection)
           scp.upload!(from, to)
         end
+      rescue Net::SCP::Error => e
+        # If we get the exit code of 127, then this means SCP is unavailable.
+        raise Errors::SCPUnavailable if e.message =~ /\(127\)/
+
+        # Otherwise, just raise the error up
+        raise
       end
 
       protected
@@ -77,7 +83,7 @@ module Vagrant
         }
 
         # Check that the private key permissions are valid
-        check_key_permissions(ssh_info[:private_key_path])
+        @vm.ssh.check_key_permissions(ssh_info[:private_key_path])
 
         # Connect to SSH, giving it a few tries
         @logger.debug("Connecting to SSH: #{ssh_info[:host]}:#{ssh_info[:port]}")
@@ -148,29 +154,6 @@ module Vagrant
 
         # Return the final exit status
         return exit_status
-      end
-
-      # Checks the file permissions for a private key, resetting them
-      # if needed.
-      def check_key_permissions(key_path)
-        # Windows systems don't have this issue
-        return if Util::Platform.windows?
-
-        @logger.debug("Checking key permissions: #{key_path}")
-        stat = File.stat(key_path)
-
-        if stat.owned? && Util::FileMode.from_octal(stat.mode) != "600"
-          @logger.info("Attempting to correct key permissions to 0600")
-          File.chmod(0600, key_path)
-
-          if Util::FileMode.from_octal(stat.mode) != "600"
-            raise Errors::SSHKeyBadPermissions, :key_path => key_path
-          end
-        end
-      rescue Errno::EPERM
-        # This shouldn't happen since we verified we own the file, but
-        # it is possible in theory, so we raise an error.
-        raise Errors::SSHKeyBadPermissions, :key_path => key_path
       end
     end
   end

@@ -23,7 +23,7 @@ module Vagrant
           raise Errors::VMNotCreatedError if !vm.created?
           raise Errors::VMInaccessible if !vm.state == :inaccessible
 
-          ssh_info  = vm.ssh_info
+          ssh_info  = vm.ssh.info
           variables = {
             :host_key => options[:host] || vm.name || "vagrant",
             :ssh_host => ssh_info[:host],
