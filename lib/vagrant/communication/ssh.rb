@@ -11,7 +11,7 @@ require 'vagrant/util/retryable'
 module Vagrant
   module Communication
     # Provides communication with the VM via SSH.
-    class SSH
+    class SSH < Base
       include Util::Retryable
 
       def initialize(vm)
