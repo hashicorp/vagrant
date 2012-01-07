@@ -42,7 +42,7 @@ and use it.
       end
 
       def validate(env, errors)
-        [:username, :host, :forwarded_port_key, :max_tries, :timeout].each do |field|
+        [:username, :host, :max_tries, :timeout].each do |field|
           errors.add(I18n.t("vagrant.config.common.error_empty", :field => field)) if !instance_variable_get("@#{field}".to_sym)
         end
 
