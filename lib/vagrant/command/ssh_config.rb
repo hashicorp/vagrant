@@ -23,19 +23,19 @@ module Vagrant
           raise Errors::VMNotCreatedError if !vm.created?
           raise Errors::VMInaccessible if !vm.state == :inaccessible
 
-          # We need to fix the file permissions of the key if they aren't set
-          # properly, otherwise if the user attempts to SSH in, it won't work!
-          vm.ssh.check_key_permissions(vm.ssh.private_key_path)
-
-          $stdout.puts(Util::TemplateRenderer.render("ssh_config", {
+          ssh_info  = vm.ssh_info
+          variables = {
             :host_key => options[:host] || vm.name || "vagrant",
-            :ssh_host => vm.config.ssh.host,
-            :ssh_user => vm.config.ssh.username,
-            :ssh_port => vm.ssh.port,
-            :private_key_path => vm.ssh.private_key_path,
-            :forward_agent => vm.config.ssh.forward_agent,
-            :forward_x11   => vm.config.ssh.forward_x11
-          }))
+            :ssh_host => ssh_info[:host],
+            :ssh_port => ssh_info[:port],
+            :ssh_user => ssh_info[:username],
+            :private_key_path => ssh_info[:private_key_path],
+            :forward_agent => ssh_info[:forward_agent],
+            :forward_x11   => ssh_info[:forward_x11]
+          }
+
+          # Render the template and output directly to STDOUT
+          $stdout.puts(Util::TemplateRenderer.render("ssh_config", variables)
         end
       end
     end

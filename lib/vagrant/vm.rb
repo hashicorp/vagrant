@@ -96,6 +96,8 @@ module Vagrant
       pk_path = config.ssh.private_key_path || env.default_private_key_path
       results[:private_key_path] = File.expand_path(pk_path, env.root_path)
 
+      # TODO: Check and fix key permissions
+
       # Return the results
       return results
     end
