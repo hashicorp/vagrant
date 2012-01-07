@@ -49,36 +49,34 @@ module Vagrant
         def mount_shared_folders
           @env[:ui].info I18n.t("vagrant.actions.vm.share_folders.mounting")
 
-          @env["vm"].ssh.execute do |ssh|
-            # short guestpaths first, so we don't step on ourselves
-            folders = shared_folders.sort_by do |name, data|
-              if data[:guestpath]
-                data[:guestpath].length
-              else
-                # A long enough path to just do this at the end.
-                10000
-              end
+          # short guestpaths first, so we don't step on ourselves
+          folders = shared_folders.sort_by do |name, data|
+            if data[:guestpath]
+              data[:guestpath].length
+            else
+              # A long enough path to just do this at the end.
+              10000
             end
+          end
 
-            # Go through each folder and mount
-            folders.each do |name, data|
-              if data[:guestpath]
-                # Guest path specified, so mount the folder to specified point
-                @env[:ui].info(I18n.t("vagrant.actions.vm.share_folders.mounting_entry",
-                                      :name => name,
-                                      :guest_path => data[:guestpath]))
+          # Go through each folder and mount
+          folders.each do |name, data|
+            if data[:guestpath]
+              # Guest path specified, so mount the folder to specified point
+              @env[:ui].info(I18n.t("vagrant.actions.vm.share_folders.mounting_entry",
+                                    :name => name,
+                                    :guest_path => data[:guestpath]))
 
-                # Calculate the owner and group
-                owner = data[:owner] || @env[:vm].config.ssh.username
-                group = data[:group] || @env[:vm].config.ssh.username
+              # Calculate the owner and group
+              owner = data[:owner] || @env[:vm].config.ssh.username
+              group = data[:group] || @env[:vm].config.ssh.username
 
-                # Mount the actual folder
-                @env[:vm].guest.mount_shared_folder(ssh, name, data[:guestpath], owner, group)
-              else
-                # If no guest path is specified, then automounting is disabled
-                @env[:ui].info(I18n.t("vagrant.actions.vm.share_folders.nomount_entry",
-                                      :name => name))
-              end
+              # Mount the actual folder
+              @env[:vm].guest.mount_shared_folder(name, data[:guestpath], owner, group)
+            else
+              # If no guest path is specified, then automounting is disabled
+              @env[:ui].info(I18n.t("vagrant.actions.vm.share_folders.nomount_entry",
+                                    :name => name))
             end
           end
         end

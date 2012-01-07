@@ -54,6 +54,12 @@ module Vagrant
       end
     end
 
+    # Returns a channel object to communicate with the virtual
+    # machine.
+    def channel
+      @channel ||= Communication::SSH.new(self)
+    end
+
     # Returns the guest for this VM, loading the distro of the system if
     # we can.
     def guest
@@ -67,9 +73,8 @@ module Vagrant
       @guest
     end
 
-    # Access the {Vagrant::SSH} object associated with this VM.
-    # On the initial call, this will initialize the object. On
-    # subsequent calls it will reuse the existing object.
+    # Access the {Vagrant::SSH} object associated with this VM, which
+    # is used to get SSH credentials with the virtual machine.
     def ssh
       @ssh ||= SSH.new(self)
     end

@@ -51,18 +51,17 @@ module Vagrant
         raise BaseError, :_key => :unsupported_halt
       end
 
-      # Mounts a shared folder. This method is called by the shared
-      # folder action with an open SSH session (passed in as `ssh`).
+      # Mounts a shared folder.
+      #
       # This method should create, mount, and properly set permissions
       # on the shared folder. This method should also properly
       # adhere to any configuration values such as `shared_folder_uid`
       # on `config.vm`.
       #
-      # @param [Object] ssh The Net::SSH session.
       # @param [String] name The name of the shared folder.
       # @param [String] guestpath The path on the machine which the user
       #   wants the folder mounted.
-      def mount_shared_folder(ssh, name, guestpath, owner, group)
+      def mount_shared_folder(name, guestpath, owner, group)
         raise BaseError, :_key => :unsupported_shared_folder
       end
 

@@ -69,7 +69,7 @@ module Vagrant
 
       # Opens an SSH connection and yields it to a block.
       def connect
-        ssh_info = @vm.ssh_info
+        ssh_info = @vm.ssh.info
 
         # Build the options we'll use to initiate the connection via Net::SSH
         opts = {

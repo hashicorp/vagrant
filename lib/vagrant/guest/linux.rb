@@ -5,17 +5,15 @@ module Vagrant
   module Guest
     class Linux < Base
       def distro_dispatch
-        vm.ssh.execute do |ssh|
-          if ssh.test?("cat /etc/debian_version")
-            return :debian if ssh.test?("cat /proc/version | grep 'Debian'")
-            return :ubuntu if ssh.test?("cat /proc/version | grep 'Ubuntu'")
-          end
-
-          return :gentoo if ssh.test?("cat /etc/gentoo-release")
-          return :redhat if ssh.test?("cat /etc/redhat-release")
-          return :suse if ssh.test?("cat /etc/SuSE-release")
-          return :arch if ssh.test?("cat /etc/arch-release")
+        if @vm.channel.execute("cat /etc/debian_version") == 0
+          return :debian if @vm.channel.execute("cat /proc/version | grep 'Debian'") == 0
+          return :ubuntu if @vm.channel.execute("cat /proc/version | grep 'Ubuntu'") == 0
         end
+
+        return :gentoo if @vm.channel.execute("cat /etc/gentoo-release") == 0
+        return :redhat if @vm.channel.execute("cat /etc/redhat-release") == 0
+        return :suse if @vm.channel.execute("cat /etc/SuSE-release") == 0
+        return :arch if @vm.channel.execute("cat /etc/arch-release") == 0
 
         # Can't detect the distro, assume vanilla linux
         nil
@@ -39,10 +37,10 @@ module Vagrant
         end
       end
 
-      def mount_shared_folder(ssh, name, guestpath, owner, group)
-        ssh.exec!("sudo mkdir -p #{guestpath}")
-        mount_folder(ssh, name, guestpath, owner, group)
-        ssh.exec!("sudo chown `id -u #{owner}`:`id -g #{group}` #{guestpath}")
+      def mount_shared_folder(name, guestpath, owner, group)
+        @vm.channel.sudo("mkdir -p #{guestpath}")
+        mount_folder(name, guestpath, owner, group)
+        @vm.channel.sudo("chown `id -u #{owner}`:`id -g #{group}` #{guestpath}")
       end
 
       def mount_nfs(ip, folders)
@@ -59,18 +57,18 @@ module Vagrant
       #-------------------------------------------------------------------
       # "Private" methods which assist above methods
       #-------------------------------------------------------------------
-      def mount_folder(ssh, name, guestpath, owner, group, sleeptime=5)
+      def mount_folder(name, guestpath, owner, group, sleeptime=5)
         # Determine the permission string to attach to the mount command
         options = "-o uid=`id -u #{owner}`,gid=`id -g #{group}`"
 
         attempts = 0
         while true
-          result = ssh.exec!("sudo mount -t vboxsf #{options} #{name} #{guestpath}") do |ch, type, data|
-            # net/ssh returns the value in ch[:result] (based on looking at source)
-            ch[:result] = !!(type == :stderr && data =~ /No such device/i)
+          success = true
+          @vm.channel.sudo("mount -t vboxsf #{options} #{name} #{guestpath}") do |type, data|
+            success = false if type == :stderr && data =~ /No such device/i
           end
 
-          break unless result
+          break if success
 
           attempts += 1
           raise LinuxError, :mount_fail if attempts >= 10
