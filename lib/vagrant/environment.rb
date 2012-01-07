@@ -168,6 +168,10 @@ module Vagrant
       host_klass = config.global.vagrant.host
       host_klass = Hosts.detect(Vagrant.hosts) if host_klass.nil? || host_klass == :detect
       host_klass = Vagrant.hosts.get(host_klass) if host_klass.is_a?(Symbol)
+
+      # If no host class is detected, we use the base class.
+      host_klass ||= Hosts::Base
+
       @host ||= host_klass.new(@ui)
     end
 
