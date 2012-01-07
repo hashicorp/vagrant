@@ -17,12 +17,12 @@ module Vagrant
       end
 
       def verify_binary(binary)
-        env[:vm].ssh.execute do |ssh|
-          # Checks for the existence of chef binary and error if it
-          # doesn't exist.
-          ssh.sudo!("which #{binary}", :error_class => ChefError,
-                    :_key => :chef_not_detected, :binary => binary)
-        end
+        # Checks for the existence of chef binary and error if it
+        # doesn't exist.
+        env[:vm].channel.sudo("which #{binary}",
+                              :error_class => ChefError,
+                              :error_key => :chef_not_detected,
+                              :binary => binary)
       end
 
       # Returns the path to the Chef binary, taking into account the
@@ -33,10 +33,8 @@ module Vagrant
       end
 
       def chown_provisioning_folder
-        env[:vm].ssh.execute do |ssh|
-          ssh.sudo!("mkdir -p #{config.provisioning_path}")
-          ssh.sudo!("chown #{env[:vm].config.ssh.username} #{config.provisioning_path}")
-        end
+        env[:vm].channel.sudo("mkdir -p #{config.provisioning_path}")
+        env[:vm].channel.sudo("chown #{env[:vm].config.ssh.username} #{config.provisioning_path}")
       end
 
       def setup_config(template, filename, template_vars)
@@ -51,8 +49,8 @@ module Vagrant
           :no_proxy => config.no_proxy
         }.merge(template_vars))
 
-        env[:vm].ssh.upload!(StringIO.new(config_file),
-                             File.join(config.provisioning_path, filename))
+        env[:vm].channel.upload(StringIO.new(config_file),
+                                File.join(config.provisioning_path, filename))
       end
 
       def setup_json
@@ -74,7 +72,8 @@ module Vagrant
 
         json = data.to_json
 
-        env[:vm].ssh.upload!(StringIO.new(json), File.join(config.provisioning_path, "dna.json"))
+        env[:vm].channel.upload(StringIO.new(json),
+                                File.join(config.provisioning_path, "dna.json"))
       end
     end
 

@@ -43,23 +43,17 @@ module Vagrant
         exit_status = 0
 
         @logger.debug("Executing command: #{command}")
-        vm.ssh.execute do |ssh|
-          ssh.exec!(command) do |channel, type, data|
-            if type == :exit_status
-              exit_status = data.to_i
-            else
-              # Determine the proper channel to send the output onto depending
-              # on the type of data we are receiving.
-              channel = type == :stdout ? :out : :error
+        exit_status = vm.channel.execute(command) do |type, data|
+          # Determine the proper channel to send the output onto depending
+          # on the type of data we are receiving.
+          channel = type == :stdout ? :out : :error
 
-              # Print the SSH output as it comes in, but don't prefix it and don't
-              # force a new line so that the output is properly preserved
-              vm.ui.info(data.to_s,
-                         :prefix => false,
-                         :new_line => false,
-                         :channel => channel)
-            end
-          end
+          # Print the SSH output as it comes in, but don't prefix it and don't
+          # force a new line so that the output is properly preserved
+          vm.ui.info(data.to_s,
+                     :prefix => false,
+                     :new_line => false,
+                     :channel => channel)
         end
 
         # Exit with the exit status we got from executing the command

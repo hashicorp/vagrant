@@ -36,19 +36,37 @@ module Vagrant
         return false
       end
 
-      def execute(command, &block)
+      def execute(command, opts=nil, &block)
+        opts = {
+          :error_check => true,
+          :error_class => Errors::VagrantError,
+          :error_key   => :ssh_bad_exit_status,
+          :command     => command,
+          :sudo        => false
+        }.merge(opts || {})
+
         # Connect via SSH and execute the command in the shell.
-        connect do |connection|
-          shell_execute(connection, command, &block)
+        exit_status = connect do |connection|
+          shell_execute(connection, command, opts[:sudo], &block)
         end
+
+        # Check for any errors
+        if opts[:error_check] && exit_status != 0
+          # The error classes expect the translation key to be _key,
+          # but that makes for an ugly configuration parameter, so we
+          # set it here from `error_key`
+          error_opts = opts.merge(:_key => opts[:error_key])
+          raise opts[:error_class], error_opts
+        end
+
+        # Return the exit status
+        exit_status
       end
 
-      def sudo(command, &block)
-        # Connect ia SSH and execute the command with super-user
-        # privileges in a shell.
-        connect do |connection|
-          shell_execute(connection, command, true, &block)
-        end
+      def sudo(command, opts=nil, &block)
+        # Run `execute` but with the `sudo` option.
+        opts = { :sudo => true }.merge(opts || {})
+        execute(command, opts, &block)
       end
 
       def upload(from, to)

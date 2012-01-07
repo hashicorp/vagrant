@@ -5,15 +5,15 @@ module Vagrant
   module Guest
     class Linux < Base
       def distro_dispatch
-        if @vm.channel.execute("cat /etc/debian_version") == 0
-          return :debian if @vm.channel.execute("cat /proc/version | grep 'Debian'") == 0
-          return :ubuntu if @vm.channel.execute("cat /proc/version | grep 'Ubuntu'") == 0
+        if @vm.channel.test("cat /etc/debian_version")
+          return :debian if @vm.channel.test("cat /proc/version | grep 'Debian'")
+          return :ubuntu if @vm.channel.test("cat /proc/version | grep 'Ubuntu'")
         end
 
-        return :gentoo if @vm.channel.execute("cat /etc/gentoo-release") == 0
-        return :redhat if @vm.channel.execute("cat /etc/redhat-release") == 0
-        return :suse if @vm.channel.execute("cat /etc/SuSE-release") == 0
-        return :arch if @vm.channel.execute("cat /etc/arch-release") == 0
+        return :gentoo if @vm.channel.test("cat /etc/gentoo-release")
+        return :redhat if @vm.channel.test("cat /etc/redhat-release")
+        return :suse if @vm.channel.test("cat /etc/SuSE-release")
+        return :arch if @vm.channel.test("cat /etc/arch-release")
 
         # Can't detect the distro, assume vanilla linux
         nil
@@ -21,9 +21,7 @@ module Vagrant
 
       def halt
         vm.ui.info I18n.t("vagrant.guest.linux.attempting_halt")
-        vm.ssh.execute do |ssh|
-          ssh.exec!("sudo shutdown -h now")
-        end
+        vm.channel.sudo("shutdown -h now")
 
         # Wait until the VM's state is actually powered off. If this doesn't
         # occur within a reasonable amount of time (15 seconds by default),
@@ -47,10 +45,10 @@ module Vagrant
         # TODO: Maybe check for nfs support on the guest, since its often
         # not installed by default
         folders.each do |name, opts|
-          vm.ssh.execute do |ssh|
-            ssh.exec!("sudo mkdir -p #{opts[:guestpath]}")
-            ssh.exec!("sudo mount #{ip}:'#{opts[:hostpath]}' #{opts[:guestpath]}", :_error_class => LinuxError, :_key => :mount_nfs_fail)
-          end
+          vm.channel.sudo("mkdir -p #{opts[:guestpath]}")
+          vm.channel.sudo("mount #{ip}:'#{opts[:hostpath]}' #{opts[:guestpath]}",
+                          :error_class => LinuxError,
+                          :error_key => :mount_nfs_fail)
         end
       end
 

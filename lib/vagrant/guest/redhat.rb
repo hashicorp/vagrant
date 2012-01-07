@@ -18,59 +18,24 @@ module Vagrant
 
           # Remove any previous vagrant configuration in this network interface's
           # configuration files.
-          vm.ssh.execute do |ssh|
-            ssh.exec!("sudo touch #{network_scripts_dir}/ifcfg-eth#{network[:interface]}")
-            ssh.exec!("sudo sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' #{network_scripts_dir}/ifcfg-eth#{network[:interface]} > /tmp/vagrant-ifcfg-eth#{network[:interface]}")
-            ssh.exec!("sudo su -c 'cat /tmp/vagrant-ifcfg-eth#{network[:interface]} > #{network_scripts_dir}/ifcfg-eth#{network[:interface]}'")
-          end
+          vm.channel.sudo("touch #{network_scripts_dir}/ifcfg-eth#{network[:interface]}")
+          vm.channel.sudo("sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' #{network_scripts_dir}/ifcfg-eth#{network[:interface]} > /tmp/vagrant-ifcfg-eth#{network[:interface]}")
+          vm.channel.sudo("cat /tmp/vagrant-ifcfg-eth#{network[:interface]} > #{network_scripts_dir}/ifcfg-eth#{network[:interface]}")
 
           # Render and upload the network entry file to a deterministic
           # temporary location.
           entry = TemplateRenderer.render("guests/redhat/network_#{network[:type]}",
                                           :options => network)
-          vm.ssh.upload!(StringIO.new(entry), "/tmp/vagrant-network-entry_#{network[:interface]}")
+          vm.channel.upload(StringIO.new(entry), "/tmp/vagrant-network-entry_#{network[:interface]}")
         end
 
-        # Perform the careful dance necessary to reconfigure the network interfaces
-        vm.ssh.execute do |ssh|
-          # Bring down all the interfaces we're reconfiguring. By bringing down
-          # each specifically, we avoid reconfiguring eth0 (the NAT interface) so
-          # SSH never dies.
-          interfaces.each do |interface|
-            ssh.exec!("sudo /sbin/ifdown eth#{interface} 2> /dev/null")
-            ssh.exec!("sudo su -c 'cat /tmp/vagrant-network-entry_#{interface} >> #{network_scripts_dir}/ifcfg-eth#{interface}'")
-            # Bring back up each network interface, reconfigured
-            ssh.exec!("sudo /sbin/ifup eth#{interface}")
-          end
-        end
-      end
-
-      def prepare_bridged_networks(networks)
-        # Remove any previous bridged network additions from the
-        # interface file.
-        vm.ssh.execute do |ssh|
-          networks.each do |network|
-            # Clear out any previous entries
-            ssh.exec!("sudo touch #{network_scripts_dir}/ifcfg-eth#{network[:adapter]}")
-            ssh.exec!("sudo sed -e '/^#VAGRANT-BEGIN-BRIDGED/,/^#VAGRANT-END-BRIDGED/ d' #{network_scripts_dir}/ifcfg-eth#{network[:adapter]} > /tmp/vagrant-ifcfg-eth#{network[:adapter]}")
-            ssh.exec!("sudo su -c 'cat /tmp/vagrant-ifcfg-eth#{network[:adapter]} > #{network_scripts_dir}/ifcfg-eth#{network[:adapter]}'")
-          end
-        end
-      end
-
-      def enable_bridged_networks(networks)
-        entry = TemplateRenderer.render('guests/redhat/network_bridged',
-                                        :networks => networks)
-
-        vm.ssh.upload!(StringIO.new(entry), "/tmp/vagrant-network-entry")
-
-        vm.ssh.execute do |ssh|
-          networks.each do |network|
-            interface_up = ssh.test?("/sbin/ifconfig eth#{network[:adapter]} | grep 'inet addr:'")
-            ssh.exec!("sudo /sbin/ifdown eth#{network[:adapter]} 2> /dev/null") if interface_up
-            ssh.exec!("sudo su -c 'cat /tmp/vagrant-network-entry >> #{network_scripts_dir}/ifcfg-eth#{network[:adapter]}'")
-            ssh.exec!("sudo /sbin/ifup eth#{network[:adapter]}")
-          end
+        # Bring down all the interfaces we're reconfiguring. By bringing down
+        # each specifically, we avoid reconfiguring eth0 (the NAT interface) so
+        # SSH never dies.
+        interfaces.each do |interface|
+          vm.channel.sudo("/sbin/ifdown eth#{interface} 2> /dev/null")
+          vm.channel.sudo("cat /tmp/vagrant-network-entry_#{interface} >> #{network_scripts_dir}/ifcfg-eth#{interface}")
+          vm.channel.sudo("/sbin/ifup eth#{interface}")
         end
       end
 
@@ -83,13 +48,11 @@ module Vagrant
       end
 
       def change_host_name(name)
-        vm.ssh.execute do |ssh|
-          # Only do this if the hostname is not already set
-          if !ssh.test?("sudo hostname | grep '#{name}'")
-            ssh.exec!("sudo sed -i 's/\\(HOSTNAME=\\).*/\\1#{name}/' /etc/sysconfig/network")
-            ssh.exec!("sudo hostname #{name}")
-            ssh.exec!("sudo sed -i 's@^\\(127[.]0[.]0[.]1[[:space:]]\\+\\)@\\1#{name} #{name.split('.')[0]} @' /etc/hosts")
-          end
+        # Only do this if the hostname is not already set
+        if !vm.channel.test("sudo hostname | grep '#{name}'")
+          vm.channel.sudo("sed -i 's/\\(HOSTNAME=\\).*/\\1#{name}/' /etc/sysconfig/network")
+          vm.channel.sudo("hostname #{name}")
+          vm.channel.sudo("sed -i 's@^\\(127[.]0[.]0[.]1[[:space:]]\\+\\)@\\1#{name} #{name.split('.')[0]} @' /etc/hosts")
         end
       end
     end

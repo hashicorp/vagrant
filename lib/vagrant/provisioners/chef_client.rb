@@ -63,19 +63,18 @@ module Vagrant
         env[:ui].info I18n.t("vagrant.provisioners.chef.client_key_folder")
         path = Pathname.new(config.client_key_path)
 
-        env[:vm].ssh.execute do |ssh|
-          ssh.sudo!("mkdir -p #{path.dirname}")
-        end
+        env[:vm].channel.sudo("mkdir -p #{path.dirname}")
       end
 
       def upload_validation_key
         env[:ui].info I18n.t("vagrant.provisioners.chef.upload_validation_key")
-        env[:vm].ssh.upload!(validation_key_path, guest_validation_key_path)
+        env[:vm].channel.upload(validation_key_path, guest_validation_key_path)
       end
 
       def upload_encrypted_data_bag_secret
         env[:ui].info I18n.t("vagrant.provisioners.chef.upload_encrypted_data_bag_secret_key")
-        env[:vm].ssh.upload!(encrypted_data_bag_secret_key_path, config.encrypted_data_bag_secret)
+        env[:vm].channel.upload(encrypted_data_bag_secret_key_path,
+                                config.encrypted_data_bag_secret)
       end
 
       def setup_server_config
@@ -97,19 +96,13 @@ module Vagrant
         command = "#{command_env}#{chef_binary_path("chef-client")} -c #{config.provisioning_path}/client.rb -j #{config.provisioning_path}/dna.json"
 
         env[:ui].info I18n.t("vagrant.provisioners.chef.running_client")
-        env[:vm].ssh.execute do |ssh|
-          ssh.sudo!(command) do |channel, type, data|
-            if type == :exit_status
-              ssh.check_exit_status(data, command)
-            else
-              # Output the data with the proper color based on the stream.
-              color = type == :stdout ? :green : :red
+        vm.channel.sudo(command) do |type, data|
+          # Output the data with the proper color based on the stream.
+          color = type == :stdout ? :green : :red
 
-              # Note: Be sure to chomp the data to avoid the newlines that the
-              # Chef outputs.
-              env[:ui].info(data.chomp, :color => color, :prefix => false)
-            end
-          end
+          # Note: Be sure to chomp the data to avoid the newlines that the
+          # Chef outputs.
+          env[:ui].info(data.chomp, :color => color, :prefix => false)
         end
       end
 

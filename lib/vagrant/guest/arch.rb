@@ -2,16 +2,15 @@ module Vagrant
   module Guest
     class Arch < Linux
       def change_host_name(name)
-        vm.ssh.execute do |ssh|
-          # Only do this if the hostname is not already set
-          if !ssh.test?("sudo hostname | grep '#{name}'")
-            ssh.exec!("sudo sed -i 's/\\(HOSTNAME=\\).*/\\1#{name}/' /etc/rc.conf")
-            ssh.exec!("sudo hostname #{name}")
-            ssh.exec!("sudo sed -i 's@^\\(127[.]0[.]0[.]1[[:space:]]\\+\\)@\\1#{name} @' /etc/hosts")
-          end
+        # Only do this if the hostname is not already set
+        if !vm.channel.test("sudo hostname | grep '#{name}'")
+          vm.channel.sudo("sed -i 's/\\(HOSTNAME=\\).*/\\1#{name}/' /etc/rc.conf")
+          vm.channel.sudo("hostname #{name}")
+          vm.channel.sudo("sed -i 's@^\\(127[.]0[.]0[.]1[[:space:]]\\+\\)@\\1#{name} @' /etc/hosts")
         end
       end
 
+      # TODO: Convert these to the new format
       def prepare_host_only_network(net_options=nil)
         vm.ssh.execute do |ssh|
           ssh.exec!("sudo sed -e '/^#VAGRANT-BEGIN-HOSTONLY/,/^#VAGRANT-END-HOSTONLY/ d' /etc/rc.conf > /tmp/vagrant-network-interfaces")

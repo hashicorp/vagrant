@@ -128,19 +128,13 @@ module Vagrant
         command = "#{command_env}#{chef_binary_path("chef-solo")} -c #{config.provisioning_path}/solo.rb -j #{config.provisioning_path}/dna.json"
 
         env[:ui].info I18n.t("vagrant.provisioners.chef.running_solo")
-        env[:vm].ssh.execute do |ssh|
-          ssh.sudo!(command) do |channel, type, data|
-            if type == :exit_status
-              ssh.check_exit_status(data, command)
-            else
-              # Output the data with the proper color based on the stream.
-              color = type == :stdout ? :green : :red
+        env[:vm].channel.sudo(command) do |type, data|
+          # Output the data with the proper color based on the stream.
+          color = type == :stdout ? :green : :red
 
-              # Note: Be sure to chomp the data to avoid the newlines that the
-              # Chef outputs.
-              env[:ui].info(data.chomp, :color => color, :prefix => false)
-            end
-          end
+          # Note: Be sure to chomp the data to avoid the newlines that the
+          # Chef outputs.
+          env[:ui].info(data.chomp, :color => color, :prefix => false)
         end
       end
 

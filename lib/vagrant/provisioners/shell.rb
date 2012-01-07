@@ -75,26 +75,20 @@ module Vagrant
       def provision!
         args = ""
         args = " #{config.args}" if config.args
-        commands = ["chmod +x #{config.upload_path}", "#{config.upload_path}#{args}"]
+        command = "chmod +x #{config.upload_path} && #{config.upload_path}#{args}"
 
         with_script_file do |path|
           # Upload the script to the VM
-          env[:vm].ssh.upload!(path.to_s, config.upload_path)
+          env[:vm].channel.upload(path.to_s, config.upload_path)
 
           # Execute it with sudo
-          env[:vm].ssh.execute do |ssh|
-            ssh.sudo!(commands) do |ch, type, data|
-              if type == :exit_status
-                ssh.check_exit_status(data, commands)
-              else
-                # Output the data with the proper color based on the stream.
-                color = type == :stdout ? :green : :red
+          env[:vm].channel.sudo(command) do |ch, type, data|
+            # Output the data with the proper color based on the stream.
+            color = type == :stdout ? :green : :red
 
-                # Note: Be sure to chomp the data to avoid the newlines that the
-                # Chef outputs.
-                env[:ui].info(data.chomp, :color => color, :prefix => false)
-              end
-            end
+            # Note: Be sure to chomp the data to avoid the newlines that the
+            # Chef outputs.
+            env[:ui].info(data.chomp, :color => color, :prefix => false)
           end
         end
       end

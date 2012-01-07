@@ -45,15 +45,13 @@ module Vagrant
 
       def change_host_name(name)
         su_cmd = vm.config.solaris.suexec_cmd
-        vm.ssh.execute do |ssh|
-          # Only do this if the hostname is not already set
-          if !ssh.test?("#{su_cmd} hostname | grep '#{name}'")
-            ssh.exec!("#{su_cmd} sh -c \"echo '#{name}' > /etc/nodename\"")
-            ssh.exec!("#{su_cmd} uname -S #{name}")
-          end
+
+        # Only do this if the hostname is not already set
+        if !vm.channel.test("#{su_cmd} hostname | grep '#{name}'")
+          vm.channel.execute("#{su_cmd} sh -c \"echo '#{name}' > /etc/nodename\"")
+          vm.channel.execute("#{su_cmd} uname -S #{name}")
         end
       end
-
 
       # There should be an exception raised if the line
       #
@@ -62,49 +60,48 @@ module Vagrant
       # does not exist in /etc/user_attr. TODO
       def halt
         vm.ui.info I18n.t("vagrant.guest.solaris.attempting_halt")
-        vm.ssh.execute do |ssh|
-          # Wait until the VM's state is actually powered off. If this doesn't
-          # occur within a reasonable amount of time (15 seconds by default),
-          # then simply return and allow Vagrant to kill the machine.
-          count = 0
-          last_error = nil
-          while vm.state != :poweroff
-            begin
-              ssh.exec!("#{vm.config.solaris.suexec_cmd} /usr/sbin/poweroff")
-            rescue IOError => e
-              # Save the last error; if it's not shutdown in a reasonable amount
-              # of attempts we will re-raise the error so it's not hidden for
-              # all time
-              last_error = e
-            end
 
-            count += 1
-            if count >= vm.config.solaris.halt_timeout
-              # Check for last error and re-raise it
-              if last_error != nil
-                raise last_error
-              else
-                # Otherwise, just return
-                return
-              end
-            end
+        # Wait until the VM's state is actually powered off. If this doesn't
+        # occur within a reasonable amount of time (15 seconds by default),
+        # then simply return and allow Vagrant to kill the machine.
+        count = 0
+        last_error = nil
+        while vm.state != :poweroff
+          begin
+            vm.channel.execute("#{vm.config.solaris.suexec_cmd} /usr/sbin/poweroff")
+          rescue IOError => e
+            # Save the last error; if it's not shutdown in a reasonable amount
+            # of attempts we will re-raise the error so it's not hidden for
+            # all time
+            last_error = e
+          end
 
-            # Still opportunities remaining; sleep and loop
-            sleep vm.config.solaris.halt_check_interval
-          end # while
-        end # do
+          count += 1
+          if count >= vm.config.solaris.halt_timeout
+            # Check for last error and re-raise it
+            if last_error != nil
+              raise last_error
+            else
+              # Otherwise, just return
+              return
+            end
+          end
+
+          # Still opportunities remaining; sleep and loop
+          sleep vm.config.solaris.halt_check_interval
+        end # while
       end
 
-      def mount_shared_folder(ssh, name, guestpath, owner, group)
+      def mount_shared_folder(name, guestpath, owner, group)
         # Create the shared folder
-        ssh.exec!("#{vm.config.solaris.suexec_cmd} mkdir -p #{guestpath}")
+        vm.channel.execute("#{vm.config.solaris.suexec_cmd} mkdir -p #{guestpath}")
 
         # Mount the folder with the proper owner/group
         options = "-o uid=`id -u #{owner}`,gid=`id -g #{group}`"
-        ssh.exec!("#{vm.config.solaris.suexec_cmd} /sbin/mount -F vboxfs #{options} #{name} #{guestpath}")
+        vm.channel.execute("#{vm.config.solaris.suexec_cmd} /sbin/mount -F vboxfs #{options} #{name} #{guestpath}")
 
         # chown the folder to the proper owner/group
-        ssh.exec!("#{vm.config.solaris.suexec_cmd} chown `id -u #{owner}`:`id -g #{group}` #{guestpath}")
+        vm.channel.execute("#{vm.config.solaris.suexec_cmd} chown `id -u #{owner}`:`id -g #{group}` #{guestpath}")
       end
     end
   end

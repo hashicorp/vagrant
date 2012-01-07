@@ -25,9 +25,7 @@ module Vagrant
 
       def halt
         vm.ui.info I18n.t("vagrant.guest.freebsd.attempting_halt")
-        vm.ssh.execute do |ssh|
-          ssh.exec!("sudo shutdown -p now")
-        end
+        vm.channel.sudo("shutdown -p now")
 
         # Wait until the VM's state is actually powered off. If this doesn't
         # occur within a reasonable amount of time (15 seconds by default),
@@ -51,10 +49,8 @@ module Vagrant
 
       def mount_nfs(ip, folders)
         folders.each do |name, opts|
-          vm.ssh.execute do |ssh|
-            ssh.exec!("sudo mkdir -p #{opts[:guestpath]}")
-            ssh.exec!("sudo mount #{ip}:#{opts[:hostpath]} #{opts[:guestpath]}")
-          end
+          vm.channel.sudo("mkdir -p #{opts[:guestpath]}")
+          vm.channel.sudo("mount #{ip}:#{opts[:hostpath]} #{opts[:guestpath]}")
         end
       end
 

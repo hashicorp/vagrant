@@ -31,13 +31,25 @@ module Vagrant
       # @yieldparam [String] type Type of the output, `:stdout`, `:stderr`, etc.
       # @yieldparam [String] data Data for the given output.
       # @return [Integer] Exit code of the command.
-      def execute(command)
+      def execute(command, opts=nil)
       end
 
       # Execute a comand with super user privileges.
       #
       # See #execute for parameter information.
-      def sudo(command)
+      def sudo(command, opts=nil)
+      end
+
+      # Executes a command and returns a boolean statement if it was successful
+      # or not.
+      #
+      # This is implemented by default as expecting `execute` to return 0.
+      def test(command, opts=nil)
+        # Disable error checking no matter what
+        opts = (opts || {}).merge(:error_check => false)
+
+        # Successful if the exit status is 0
+        execute(command, opts) == 0
       end
     end
   end
