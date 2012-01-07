@@ -2,6 +2,7 @@ module Vagrant
   module Config
     class SSHConfig < Base
       attr_accessor :username
+      attr_accessor :password
       attr_accessor :host
       attr_accessor :port
       attr_accessor :guest_port

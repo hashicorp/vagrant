@@ -1,3 +1,5 @@
+require 'tempfile'
+
 module Vagrant
   module Provisioners
     # This class is a base class where the common functionality shared between
@@ -49,8 +51,13 @@ module Vagrant
           :no_proxy => config.no_proxy
         }.merge(template_vars))
 
-        env[:vm].channel.upload(StringIO.new(config_file),
-                                File.join(config.provisioning_path, filename))
+        # Create a temporary file to store the data so we
+        # can upload it
+        temp = Tempfile.new("vagrant")
+        temp.write(config_file)
+        temp.close
+
+        env[:vm].channel.upload(temp.path, File.join(config.provisioning_path, filename))
       end
 
       def setup_json
@@ -72,8 +79,13 @@ module Vagrant
 
         json = data.to_json
 
-        env[:vm].channel.upload(StringIO.new(json),
-                                File.join(config.provisioning_path, "dna.json"))
+        # Create a temporary file to store the data so we
+        # can upload it
+        temp = Tempfile.new("vagrant")
+        temp.write(json)
+        temp.close
+
+        env[:vm].channel.upload(temp.path, File.join(config.provisioning_path, "dna.json"))
       end
     end
 

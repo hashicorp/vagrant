@@ -153,7 +153,6 @@ module Vagrant
 
             ch2.on_request("exit-status") do |ch3, data|
               exit_status = data.read_long
-              yield :exit_status, exit_status if block_given?
             end
 
             # Set the terminal

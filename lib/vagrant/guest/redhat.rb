@@ -26,7 +26,12 @@ module Vagrant
           # temporary location.
           entry = TemplateRenderer.render("guests/redhat/network_#{network[:type]}",
                                           :options => network)
-          vm.channel.upload(StringIO.new(entry), "/tmp/vagrant-network-entry_#{network[:interface]}")
+
+          temp = Tempfile.new("vagrant")
+          temp.write(entry)
+          temp.close
+
+          vm.channel.upload(temp.path, "/tmp/vagrant-network-entry_#{network[:interface]}")
         end
 
         # Bring down all the interfaces we're reconfiguring. By bringing down

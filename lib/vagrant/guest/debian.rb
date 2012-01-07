@@ -1,4 +1,5 @@
 require 'set'
+require 'tempfile'
 
 require 'vagrant/util/template_renderer'
 
@@ -27,7 +28,11 @@ module Vagrant
 
         # Perform the careful dance necessary to reconfigure
         # the network interfaces
-        vm.channel.upload(StringIO.new(entries.join("\n")), "/tmp/vagrant-network-entry")
+        temp = Tempfile.new("vagrant")
+        temp.write(entries.join("\n"))
+        temp.close
+
+        vm.channel.upload(temp.path, "/tmp/vagrant-network-entry")
 
         # Bring down all the interfaces we're reconfiguring. By bringing down
         # each specifically, we avoid reconfiguring eth0 (the NAT interface) so
