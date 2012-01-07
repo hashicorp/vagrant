@@ -59,8 +59,6 @@ module Vagrant
       #
       # does not exist in /etc/user_attr. TODO
       def halt
-        vm.ui.info I18n.t("vagrant.guest.solaris.attempting_halt")
-
         # Wait until the VM's state is actually powered off. If this doesn't
         # occur within a reasonable amount of time (15 seconds by default),
         # then simply return and allow Vagrant to kill the machine.

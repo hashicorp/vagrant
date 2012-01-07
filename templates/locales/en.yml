@@ -386,7 +386,10 @@ en:
             the port forwarding doesn't work. If any problems occur, please try a
             port higher than 1024.
         halt:
-          force: Forcing shutdown of VM...
+          force: |-
+            Forcing shutdown of VM...
+          graceful: |-
+            Attempting graceful shutdown of VM...
         host_name:
           setting: "Setting host name..."
         import:
@@ -627,7 +630,6 @@ en:
           back the logic necessary to set this up. Please report a bug as well as the
           box you're using.
       linux:
-        attempting_halt: "Attempting graceful shutdown of linux..."
         mount_fail: "Failed to mount shared folders. `vboxsf` was not available."
         mount_nfs_fail: |-
           Mounting NFS shared folders failed. This is most often caused by the NFS
@@ -635,9 +637,3 @@ en:
           that the NFS client software is properly installed, and consult any resources
           specific to the linux distro you're using for more information on how to
           do this.
-
-      solaris:
-        attempting_halt: "Attempting graceful shutdown of solaris..."
-
-      freebsd:
-        attempting_halt: "Attempting graceful shutdown of FreeBSD..."

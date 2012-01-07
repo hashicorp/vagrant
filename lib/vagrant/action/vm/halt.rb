@@ -9,7 +9,10 @@ module Vagrant
 
         def call(env)
           if env[:vm].state == :running
-            env[:vm].guest.halt if !env["force"]
+            if !env["force"]
+              env[:ui].info I18n.t("vagrant.actions.vm.halt.graceful")
+              env[:vm].guest.halt
+            end
 
             if env[:vm].state != :poweroff
               env[:ui].info I18n.t("vagrant.actions.vm.halt.force")

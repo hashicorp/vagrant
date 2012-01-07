@@ -20,7 +20,6 @@ module Vagrant
       end
 
       def halt
-        vm.ui.info I18n.t("vagrant.guest.linux.attempting_halt")
         vm.channel.sudo("shutdown -h now")
 
         # Wait until the VM's state is actually powered off. If this doesn't
