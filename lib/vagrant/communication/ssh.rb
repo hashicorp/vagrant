@@ -87,6 +87,26 @@ module Vagrant
 
       # Opens an SSH connection and yields it to a block.
       def connect
+        if @connection && !@connection.closed?
+          # There is a chance that the socket is closed despite us checking
+          # 'closed?' above. To test this we need to send data through the
+          # socket.
+          begin
+            @connection.exec!("")
+          rescue IOError
+            @logger.info("Connection has been closed. Not re-using.")
+            @connection = nil
+          end
+
+          # If the @connection is still around, then it is valid,
+          # and we use it.
+          if @connection
+            @logger.info("Re-using SSH connection.")
+            return yield @connection if block_given?
+            return
+          end
+        end
+
         ssh_info = @vm.ssh.info
 
         # Build the options we'll use to initiate the connection via Net::SSH
@@ -104,11 +124,13 @@ module Vagrant
         @vm.ssh.check_key_permissions(ssh_info[:private_key_path])
 
         # Connect to SSH, giving it a few tries
-        @logger.debug("Connecting to SSH: #{ssh_info[:host]}:#{ssh_info[:port]}")
+        @logger.info("Connecting to SSH: #{ssh_info[:host]}:#{ssh_info[:port]}")
         exceptions = [Errno::ECONNREFUSED, Net::SSH::Disconnect]
         connection = retryable(:tries => @vm.config.ssh.max_tries, :on => exceptions) do
           Net::SSH.start(ssh_info[:host], ssh_info[:username], opts)
         end
+
+        @connection = connection
 
         # This is hacky but actually helps with some issues where
         # Net::SSH is simply not robust enough to handle... see
@@ -127,7 +149,7 @@ module Vagrant
         raise Errors::SSHConnectionRefused
       ensure
         # Be sure the connection is always closed
-        connection.close if connection && !connection.closed?
+        # connection.close if connection && !connection.closed?
       end
 
       # Executes the command on an SSH connection within a login shell.
