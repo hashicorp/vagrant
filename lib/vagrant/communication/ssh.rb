@@ -17,6 +17,7 @@ module Vagrant
       def initialize(vm)
         @vm     = vm
         @logger = Log4r::Logger.new("vagrant::communication::ssh")
+        @connection = nil
       end
 
       def ready?
