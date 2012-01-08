@@ -226,6 +226,12 @@ module Vagrant
       def verify_image(path)
       end
 
+      # Checks if a VM with the given UUID exists.
+      #
+      # @return [Boolean]
+      def vm_exists?(uuid)
+      end
+
       protected
 
       # Execute the given subcommand for VBoxManage and return the output.
