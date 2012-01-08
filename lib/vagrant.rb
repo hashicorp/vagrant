@@ -1,12 +1,27 @@
 # Enable logging if it is requested. We do this before
 # anything else so that we can setup the output before
 # any logging occurs.
-if ENV["VAGRANT_LOG"]
+if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
   require 'log4r'
-  logger = Log4r::Logger.new("vagrant")
-  logger.outputters = Log4r::Outputter.stdout
-  logger.level = Log4r.const_get(ENV["VAGRANT_LOG"].upcase)
-  logger = nil
+
+  level = nil
+  begin
+    level = Log4r.const_get(ENV["VAGRANT_LOG"].upcase)
+  rescue NameError
+    # This means that the logging constant wasn't found,
+    # which is fine. We just keep `level` as `nil`. But
+    # we tell the user.
+    $stderr.puts "Invalid VAGRANT_LOG level is set: #{ENV["VAGRANT_LOG"}"
+  end
+
+  # Set the logging level on all "vagrant" namespaced
+  # logs as long as we have a valid level.
+  if level
+    logger = Log4r::Logger.new("vagrant")
+    logger.outputters = Log4r::Outputter.stdout
+    logger.level = level
+    logger = nil
+  end
 end
 
 require 'pathname'
