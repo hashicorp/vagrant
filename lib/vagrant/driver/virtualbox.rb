@@ -45,13 +45,6 @@ module Vagrant
 
         @logger.info("VBoxManage path: #{@vboxmanage_path}")
 
-        if @uuid
-          # Verify the VM exists, and if it doesn't, then don't worry
-          # about it (mark the UUID as nil)
-          r = raw("showvminfo", @uuid)
-          raise VMNotFound if r.exit_code != 0
-        end
-
         # Read and assign the version of VirtualBox we know which
         # specific driver to instantiate.
         begin
@@ -60,6 +53,13 @@ module Vagrant
           # This means that VirtualBox was not found, so we raise this
           # error here.
           raise Errors::VirtualBoxNotDetected
+        end
+
+        if @uuid
+          # Verify the VM exists, and if it doesn't, then don't worry
+          # about it (mark the UUID as nil)
+          r = raw("showvminfo", @uuid)
+          raise VMNotFound if r.exit_code != 0
         end
       end
 
