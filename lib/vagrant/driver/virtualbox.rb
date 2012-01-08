@@ -41,7 +41,25 @@ module Vagrant
         end
 
         # Instantiate the proper version driver for VirtualBox
-        driver_klass = VirtualBox_4_1
+        @logger.debug("Finding driver for VirtualBox version: #{@version}")
+        driver_map   = {
+          "4.0" => VirtualBox_4_0,
+          "4.1" => VirtualBox_4_1
+        }
+
+        driver_klass = nil
+        driver_map.each do |key, klass|
+          if @version.start_with?(key)
+            driver_klass = klass
+            break
+          end
+        end
+
+        if !driver_klass
+          supported_versions = driver_map.keys.sort.join(", ")
+          raise Errors::VirtualBoxInvalidVersion, :supported_versions => supported_versions
+        end
+
         @logger.info("Using VirtualBox driver: #{driver_klass}")
         @driver = driver_klass.new(@uuid)
 

@@ -147,16 +147,11 @@ en:
         For more information on the failure, enable detailed logging with
         VAGRANT_LOG.
       virtualbox_invalid_version: |-
-        Vagrant has detected that you have VirtualBox version %{version} installed!
-        Vagrant requires that you use at least VirtualBox version 4.1. Please install
-        a more recent version of VirtualBox to continue.
+        Vagrant has detected that you have a version of VirtualBox installed
+        that is not supported. Please install one of the supported versions
+        listed below to use Vagrant:
 
-        Early versions of Vagrant support earlier versions of VirtualBox. Specifically,
-        the 0.7.x series supports VirtualBox 4.0.x and the 0.6.x series supports VirtualBox
-        3.2.x. Please use the version you need.
-
-        Any newer versions may not be supported yet. Please check the mailing list
-        for any announcements of newer versions.
+        %{supported_versions}
       virtualbox_not_detected: |-
         Vagrant could not detect VirtualBox! Make sure VirtualBox is properly installed.
         Vagrant uses the `VBoxManage` binary that ships with VirtualBox, and requires
