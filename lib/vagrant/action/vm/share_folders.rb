@@ -1,15 +1,20 @@
+require 'pathname'
+
+require 'log4r'
+
 module Vagrant
   module Action
     module VM
       class ShareFolders
         def initialize(app, env)
-          @app = app
-          @env = env
+          @logger = Log4r::Logger.new("vagrant::action::vm::share_folders")
+          @app    = app
         end
 
         def call(env)
           @env = env
 
+          prepare_folders
           create_metadata
 
           @app.call(env)
@@ -29,6 +34,20 @@ module Vagrant
             value = value.dup
             acc[key] = value
             acc
+          end
+        end
+
+        # Prepares the shared folders by verifying they exist and creating them
+        # if they don't.
+        def prepare_folders
+          shared_folders.each do |name, options|
+            hostpath = Pathname.new(options[:hostpath]).expand_path(@env[:root_path])
+
+            if !hostpath.directory? && options[:create]
+              # Host path doesn't exist, so let's create it.
+              @logger.debug("Host path doesn't exist, creating: #{hostpath}")
+              hostpath.mkpath
+            end
           end
         end
 

@@ -31,6 +31,8 @@
   - Added a "--plain" flag to `vagrant ssh` which will cause Vagrant to not
     perform any authentication. It will simply `ssh` into the proper IP and
     port of the virtual machine.
+  - If a shared folder now has a `:create` flag set to `true`, the path on the
+    host will be created if it doesn't exist.
   - Removed Thor as a dependency for the command line interfaces. This resulted
     in general speed increases across all command line commands.
   - Linux uses `shutdown -h` instead of `halt` to hopefully more consistently

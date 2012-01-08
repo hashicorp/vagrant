@@ -1,3 +1,5 @@
+require 'pathname'
+
 require 'vagrant/config/vm/sub_vm'
 require 'vagrant/config/vm/provisioner'
 
@@ -52,8 +54,9 @@ Please change your configurations to match this new syntax.
 
       def share_folder(name, guestpath, hostpath, opts=nil)
         @shared_folders[name] = {
-          :guestpath => guestpath,
-          :hostpath => hostpath,
+          :guestpath => guestpath.to_s,
+          :hostpath => hostpath.to_s,
+          :create => false,
           :owner => nil,
           :group => nil,
           :nfs   => false
@@ -133,7 +136,9 @@ do before is certainly still possible with `VBoxManage` as well.
         errors.add(I18n.t("vagrant.config.vm.base_mac_invalid")) if env.boxes.find(box) && !base_mac
 
         shared_folders.each do |name, options|
-          if !File.directory?(File.expand_path(options[:hostpath].to_s, env.root_path))
+          hostpath = Pathname.new(options[:hostpath]).expand_path(env.root_path)
+
+          if !hostpath.directory? && !options[:create]
             errors.add(I18n.t("vagrant.config.vm.shared_folder_hostpath_missing",
                        :name => name,
                        :path => options[:hostpath]))
