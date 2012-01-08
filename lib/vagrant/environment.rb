@@ -350,24 +350,22 @@ module Vagrant
         # with Vagrant.
         config_loader.set(:default, File.expand_path("config/default.rb", Vagrant.source_root))
 
-        vagrantfile_name.each do |rootfile|
-          if box
-            # We load the box Vagrantfile
-            box_vagrantfile = box.directory.join(rootfile)
-            config_loader.set(:box, box_vagrantfile) if box_vagrantfile.exist?
-          end
+        if box
+          # We load the box Vagrantfile
+          box_vagrantfile = find_vagrantfile(box.directory)
+          config_loader.set(:box, box_vagrantfile) if box_vagrantfile
+        end
 
-          if home_path
-            # Load the home Vagrantfile
-            home_vagrantfile = home_path.join(rootfile)
-            config_loader.set(:home, home_vagrantfile) if home_vagrantfile.exist?
-          end
+        if home_path
+          # Load the home Vagrantfile
+          home_vagrantfile = find_vagrantfile(home_path)
+          config_loader.set(:home, home_vagrantfile) if home_vagrantfile
+        end
 
-          if root_path
-            # Load the Vagrantfile in this directory
-            root_vagrantfile = root_path.join(rootfile)
-            config_loader.set(:root, root_vagrantfile) if root_vagrantfile.exist?
-          end
+        if root_path
+          # Load the Vagrantfile in this directory
+          root_vagrantfile = find_vagrantfile(root_path)
+          config_loader.set(:root, root_vagrantfile) if root_vagrantfile
         end
 
         if subvm
@@ -476,6 +474,36 @@ module Vagrant
         @logger.info("Changing permissions on private key to 0600")
         @default_private_key_path.chmod(0600)
       end
+    end
+
+    # Finds the Vagrantfile in the given directory.
+    #
+    # This will raise an error if multiple matching Vagrantfiles are found.
+    # This can only occur on case sensitive file systems, but if there is a
+    # `Vagrantfile` and a `vagrantfile` it is not clear which Vagrant will
+    # load, so an error must be raised.
+    #
+    # @param [Pathname] path Path to search in.
+    # @return [Pathname]
+    def find_vagrantfile(search_path)
+      path = nil
+      @vagrantfile_name.each do |vagrantfile|
+        current_path = search_path.join(vagrantfile)
+
+        # If the path exists, then we verify we haven't found a match before,
+        # then we set the path we've found.
+        if current_path.exist?
+          # We also test if current_path == path because on case insensitive
+          # file systems, it will look like multiple exist.
+          if path && current_path == path
+            raise Errors::MultiVagrantfileFound, :directory => search_path.to_s
+          end
+
+          path = current_path
+        end
+      end
+
+      path
     end
   end
 end

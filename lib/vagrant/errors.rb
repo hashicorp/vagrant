@@ -193,6 +193,11 @@ module Vagrant
       error_key(:port_collision_resume)
     end
 
+    class MultiVagrantfileFound < VagrantError
+      status_code(67)
+      error_key(:multi_vagrantfile_found)
+    end
+
     class MultiVMEnvironmentRequired < VagrantError
       status_code(5)
       error_key(:multi_vm_required)
