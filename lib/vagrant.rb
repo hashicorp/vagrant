@@ -11,7 +11,7 @@ if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
     # This means that the logging constant wasn't found,
     # which is fine. We just keep `level` as `nil`. But
     # we tell the user.
-    $stderr.puts "Invalid VAGRANT_LOG level is set: #{ENV["VAGRANT_LOG"}"
+    $stderr.puts "Invalid VAGRANT_LOG level is set: #{ENV["VAGRANT_LOG"]}"
   end
 
   # Set the logging level on all "vagrant" namespaced
