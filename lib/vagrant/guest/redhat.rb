@@ -1,4 +1,5 @@
 require 'set'
+require 'tempfile'
 
 require 'vagrant/util/template_renderer'
 
@@ -46,7 +47,7 @@ module Vagrant
 
       # The path to the directory with the network configuration scripts.
       # This is pulled out into its own directory since there are other
-      # operationg systems (SuSE) which behave similarly but with a different
+      # operating systems (SuSE) which behave similarly but with a different
       # path to the network scripts.
       def network_scripts_dir
         '/etc/sysconfig/network-scripts'
