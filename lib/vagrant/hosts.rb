@@ -1,11 +1,12 @@
 module Vagrant
   module Hosts
-    autoload :Base,  'vagrant/hosts/base'
-    autoload :Arch,  'vagrant/hosts/arch'
-    autoload :BSD,   'vagrant/hosts/bsd'
-    autoload :FreeBSD,'vagrant/hosts/freebsd'
-    autoload :Fedora, 'vagrant/hosts/fedora'
-    autoload :Linux, 'vagrant/hosts/linux'
+    autoload :Base,    'vagrant/hosts/base'
+    autoload :Arch,    'vagrant/hosts/arch'
+    autoload :BSD,     'vagrant/hosts/bsd'
+    autoload :FreeBSD, 'vagrant/hosts/freebsd'
+    autoload :Fedora,  'vagrant/hosts/fedora'
+    autoload :Linux,   'vagrant/hosts/linux'
+    autoload :Windows, 'vagrant/hosts/windows'
 
     # This method detects the correct host based on the `match?` methods
     # implemented in the registered hosts.

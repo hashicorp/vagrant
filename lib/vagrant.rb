@@ -137,10 +137,11 @@ Vagrant.config_keys.register(:package) { Vagrant::Config::PackageConfig }
 
 # Register the built-in hosts
 Vagrant.hosts.register(:arch)    { Vagrant::Hosts::Arch }
-Vagrant.hosts.register(:freebsd) { Vagrant::Hosts::FreeBSD }
-Vagrant.hosts.register(:fedora)  { Vagrant::Hosts::Fedora }
-Vagrant.hosts.register(:linux)   { Vagrant::Hosts::Linux }
 Vagrant.hosts.register(:bsd)     { Vagrant::Hosts::BSD }
+Vagrant.hosts.register(:fedora)  { Vagrant::Hosts::Fedora }
+Vagrant.hosts.register(:freebsd) { Vagrant::Hosts::FreeBSD }
+Vagrant.hosts.register(:linux)   { Vagrant::Hosts::Linux }
+Vagrant.hosts.register(:windows) { Vagrant::Hosts::Windows }
 
 # Register the built-in guests
 Vagrant.guests.register(:arch)    { Vagrant::Guest::Arch }
