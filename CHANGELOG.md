@@ -1,5 +1,6 @@
 ## 0.9.0 (unreleased)
 
+  - VirtualBox 4.0 support backported in addition to supporting VirtualBox 4.1.
   - `config.vm.network` syntax changed so that the first argument is now the type
     of argument. Previously where you had `config.vm.network "33.33.33.10"` you
     should now put `config.vm.network :hostonly, "33.33.33.10"`. This is in order
