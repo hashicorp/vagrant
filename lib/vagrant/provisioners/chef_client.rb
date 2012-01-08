@@ -78,7 +78,7 @@ module Vagrant
       end
 
       def setup_server_config
-        setup_config("chef_server_client", "client.rb", {
+        setup_config("provisioners/chef_client/client", "client.rb", {
           :node_name => config.node_name,
           :chef_server_url => config.chef_server_url,
           :validation_client_name => config.validation_client_name,
