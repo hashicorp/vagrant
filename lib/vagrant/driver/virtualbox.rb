@@ -498,8 +498,9 @@ module Vagrant
           end
         end
 
-        # Return the output
-        r.stdout
+        # Return the output, making sure to replace any Windows-style
+        # newlines with Unix-style.
+        r.stdout.gsub("\r\n", "\n")
       end
 
       # Executes a command and returns the raw result object.
