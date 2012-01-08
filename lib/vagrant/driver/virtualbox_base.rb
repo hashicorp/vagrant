@@ -128,7 +128,7 @@ module Vagrant
       # @param [String] ovf Path to the OVF file.
       # @param [String] name Name of the VM.
       # @return [String] UUID of the imported VM.
-      def import
+      def import(ovf, name)
       end
 
       # Returns a list of forwarded ports for a VM.

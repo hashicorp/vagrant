@@ -7,6 +7,8 @@ module Vagrant
     # Driver for VirtualBox 4.1.x
     class VirtualBox_4_1 < VirtualBoxBase
       def initialize(uuid)
+        super()
+
         @logger = Log4r::Logger.new("vagrant::driver::virtualbox_4_1")
         @uuid = uuid
       end
@@ -343,7 +345,7 @@ module Vagrant
       end
 
       def vm_exists?(uuid)
-        raw("showvminfo", uuid).exit_code != 0
+        raw("showvminfo", uuid).exit_code == 0
       end
     end
   end

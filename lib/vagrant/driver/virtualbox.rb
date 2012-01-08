@@ -41,7 +41,9 @@ module Vagrant
         end
 
         # Instantiate the proper version driver for VirtualBox
-        @driver = VirtualBox_4_1.new(@uuid)
+        driver_klass = VirtualBox_4_1
+        @logger.info("Using VirtualBox driver: #{driver_klass}")
+        @driver = driver_klass.new(@uuid)
 
         if @uuid
           # Verify the VM exists, and if it doesn't, then don't worry
@@ -61,6 +63,7 @@ module Vagrant
                                :export,
                                :forward_ports,
                                :halt,
+                               :import,
                                :read_forwarded_ports,
                                :read_bridged_interfaces,
                                :read_guest_additions_version,
