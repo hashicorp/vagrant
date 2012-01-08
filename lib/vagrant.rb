@@ -2,7 +2,10 @@
 # anything else so that we can setup the output before
 # any logging occurs.
 if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
+  # Require Log4r and define the levels we'll be using
   require 'log4r'
+  require 'log4r/config'
+  Log4r.define_levels(*Log4r::Log4rConfig::LogLevels)
 
   level = nil
   begin
