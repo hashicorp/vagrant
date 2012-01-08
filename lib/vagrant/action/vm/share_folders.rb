@@ -46,7 +46,12 @@ module Vagrant
             if !hostpath.directory? && options[:create]
               # Host path doesn't exist, so let's create it.
               @logger.debug("Host path doesn't exist, creating: #{hostpath}")
-              hostpath.mkpath
+
+              begin
+                hostpath.mkpath
+              rescue Errno::EACCES
+                raise Errors::SharedFolderCreateFailed, :path => hostpath.to_s
+              end
             end
           end
         end

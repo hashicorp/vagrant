@@ -268,6 +268,11 @@ module Vagrant
       error_key(:scp_unavailable)
     end
 
+    class SharedFolderCreateFailed < VagrantError
+      status_code(66)
+      error_key(:shared_folder_create_failed)
+    end
+
     class SSHAuthenticationFailed < VagrantError
       status_code(11)
       error_key(:ssh_authentication_failed)

@@ -80,6 +80,14 @@ en:
       scp_unavailable: |-
         SSH server on the guest doesn't support SCP. Please install the necessary
         software to enable SCP on your guest operating system.
+      shared_folder_create_failed: |-
+        Failed to create the following shared folder on the host system. This is
+        usually because Vagrant does not have sufficient permissions to create
+        the folder.
+
+        %{path}
+
+        Please create the folder manually or specify another path to share.
       ssh_authentication_failed: |-
         SSH authentication failed! This is typically caused by the public/private
         keypair for the SSH user not being properly set on the guest VM. Please
