@@ -42,7 +42,12 @@ module Vagrant
         end
 
         def recover(env)
-          clear_nfs_exports(env) if env[:vm].created?
+          # Ignore any VagrantErrors, because they were expected and
+          # will cause the VM to stick around.
+          return if env["vagrant.error"].is_a?(Errors::VagrantError)
+
+          # Otherwise, clear the NFS exports.
+          clear_nfs_exports(env)
         end
 
         # Returns the folders which are to be synced via NFS.
