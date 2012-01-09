@@ -151,6 +151,26 @@ VF
       env = environment.create_vagrant_env
       env.config.for_vm(:default).ssh.port.should == 100
     end
+
+    it "should error if the box has an ambiguous Vagrantfile" do
+      environment = isolated_environment do |env|
+        env.vagrantfile(<<-VF)
+Vagrant::Config.run do |config|
+  config.vm.box = "base"
+end
+VF
+
+        # Create two Vagrantfiles. The normal one and a Vagrantfile2
+        box_dir = env.box("base", "")
+        box_dir.join("Vagrantfile2").open("w") do |f|
+          f.write("")
+        end
+      end
+
+      env = environment.create_vagrant_env(:vagrantfile_name => ["Vagrantfile", "Vagrantfile2"])
+      expect { env.config }.
+        to raise_error(Vagrant::Errors::MultiVagrantfileFound)
+    end
   end
 
   describe "ui" do

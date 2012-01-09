@@ -7,8 +7,13 @@ require "support/isolated_environment"
 
 module Unit
   class IsolatedEnvironment < ::IsolatedEnvironment
-    def create_vagrant_env
-      Vagrant::Environment.new(:cwd => @workdir, :home_path => @homedir)
+    def create_vagrant_env(options=nil)
+      options = {
+        :cwd => @workdir,
+        :home_path => @homedir
+      }.merge(options || {})
+
+      Vagrant::Environment.new(options)
     end
 
     def vagrantfile(contents, root=nil)
@@ -22,6 +27,7 @@ module Unit
       box_dir = boxes_dir.join(name)
       box_dir.mkpath
       vagrantfile(vagrantfile_contents, box_dir)
+      box_dir
     end
 
     def boxes_dir

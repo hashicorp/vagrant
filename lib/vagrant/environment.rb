@@ -495,7 +495,7 @@ module Vagrant
         if current_path.exist?
           # We also test if current_path == path because on case insensitive
           # file systems, it will look like multiple exist.
-          if path && current_path == path
+          if path && current_path != path
             raise Errors::MultiVagrantfileFound, :directory => search_path.to_s
           end
 
