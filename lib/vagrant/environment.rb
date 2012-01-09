@@ -478,32 +478,15 @@ module Vagrant
 
     # Finds the Vagrantfile in the given directory.
     #
-    # This will raise an error if multiple matching Vagrantfiles are found.
-    # This can only occur on case sensitive file systems, but if there is a
-    # `Vagrantfile` and a `vagrantfile` it is not clear which Vagrant will
-    # load, so an error must be raised.
-    #
     # @param [Pathname] path Path to search in.
     # @return [Pathname]
     def find_vagrantfile(search_path)
-      path = nil
       @vagrantfile_name.each do |vagrantfile|
         current_path = search_path.join(vagrantfile)
-
-        # If the path exists, then we verify we haven't found a match before,
-        # then we set the path we've found.
-        if current_path.exist?
-          # We also test if current_path == path because on case insensitive
-          # file systems, it will look like multiple exist.
-          if path && current_path != path
-            raise Errors::MultiVagrantfileFound, :directory => search_path.to_s
-          end
-
-          path = current_path
-        end
+        return current_path if current_path.exist?
       end
 
-      path
+      nil
     end
   end
 end

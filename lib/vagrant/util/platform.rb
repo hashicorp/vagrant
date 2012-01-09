@@ -1,4 +1,5 @@
 require 'rbconfig'
+require 'tempfile'
 
 module Vagrant
   module Util

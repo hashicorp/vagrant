@@ -64,14 +64,8 @@ en:
         directory that Vagrant uses must be both readable and writable.
 
         You specified: %{home_path}
-      interrupted: "Vagrant exited after cleanup due to external interrupt."
-      multi_vagrantfile_found: |-
-        Multiple Vagrantfiles were found in the following directory. This usually
-        occurs when multiple Vagrantfiles with different casing are found. For
-        example: Vagrantfile and vagrantfile. Because the behavior in this case
-        is undefined, please fix it so that there is only one matching Vagrantfile.
-
-        %{directory}
+      interrupted: |-
+        Vagrant exited after cleanup due to external interrupt.
       multi_vm_required: |-
         A multi-vm environment is required for name specification to this command.
       multi_vm_target_required: |-
