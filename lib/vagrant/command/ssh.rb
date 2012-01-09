@@ -43,7 +43,7 @@ module Vagrant
         exit_status = 0
 
         @logger.debug("Executing command: #{command}")
-        exit_status = vm.channel.execute(command) do |type, data|
+        exit_status = vm.channel.execute(command, :error_check => false) do |type, data|
           # Determine the proper channel to send the output onto depending
           # on the type of data we are receiving.
           channel = type == :stdout ? :out : :error
