@@ -223,6 +223,11 @@ module Vagrant
       error_key(:no_adapters, "vagrant.actions.vm.network")
     end
 
+    class NetworkDHCPAlreadyAttached < VagrantError
+      status_code(68)
+      error_key(:dhcp_already_attached, "vagrant.actions.vm.network")
+    end
+
     class NetworkNotFound < VagrantError
       status_code(30)
       error_key(:not_found, "vagrant.actions.vm.host_only_network")

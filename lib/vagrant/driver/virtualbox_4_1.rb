@@ -53,7 +53,8 @@ module Vagrant
         return {
           :name => name,
           :ip   => options[:adapter_ip],
-          :netmask => options[:netmask]
+          :netmask => options[:netmask],
+          :dhcp => nil
         }
       end
 
@@ -235,6 +236,26 @@ module Vagrant
       end
 
       def read_host_only_interfaces
+        dhcp = {}
+        execute("list", "dhcpservers").split("\n\n").each do |block|
+          info = {}
+
+          block.split("\n").each do |line|
+            if line =~ /^NetworkName:\s+HostInterfaceNetworking-(.+?)$/
+              info[:network] = $1.to_s
+            elsif line =~ /^IP:\s+(.+?)$/
+              info[:ip] = $1.to_s
+            elsif line =~ /^lowerIPAddress:\s+(.+?)$/
+              info[:lower] = $1.to_s
+            elsif line =~ /^upperIPAddress:\s+(.+?)$/
+              info[:upper] = $1.to_s
+            end
+          end
+
+          # Set the DHCP info
+          dhcp[info[:network]] = info
+        end
+
         execute("list", "hostonlyifs").split("\n\n").collect do |block|
           info = {}
 
@@ -247,6 +268,9 @@ module Vagrant
               info[:netmask] = $1.to_s
             end
           end
+
+          # Set the DHCP info if it exists
+          info[:dhcp] = dhcp[info[:name]] if dhcp[info[:name]]
 
           info
         end

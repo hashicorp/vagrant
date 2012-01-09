@@ -227,12 +227,21 @@ module Vagrant
           end
 
           if config[:type] == :dhcp
-            # TODO: Check that there isn't another DHCP server on this network
-            # that is different.
+            # Check that if there is a DHCP server attached on our interface,
+            # then it is identical. Otherwise, we can't set it.
+            if interface[:dhcp]
+              valid = interface[:dhcp][:ip] == config[:dhcp_ip] &&
+                interface[:dhcp][:lower] == config[:dhcp_lower] &&
+                interface[:dhcp][:upper] == config[:dhcp_upper]
 
-            # Configure the DHCP server for the network.
-            @logger.debug("Creating a DHCP server...")
-            @env[:vm].driver.create_dhcp_server(interface[:name], config)
+              raise Errors::NetworkDHCPAlreadyAttached if !valid
+
+              @logger.debug("DHCP server already properly configured")
+            else
+              # Configure the DHCP server for the network.
+              @logger.debug("Creating a DHCP server...")
+              @env[:vm].driver.create_dhcp_server(interface[:name], config)
+            end
           end
 
           return {
