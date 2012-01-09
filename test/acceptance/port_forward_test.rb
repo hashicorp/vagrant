@@ -30,7 +30,7 @@ describe "vagrant port forwarding" do
       f.puts(<<VFILE)
 Vagrant::Config.run do |config|
   config.vm.box = "base"
-  config.vm.forward_port "foo", #{guest_port}, #{host_port}
+  config.vm.forward_port #{guest_port}, #{host_port}
 end
 VFILE
     end
