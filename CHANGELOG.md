@@ -8,6 +8,8 @@
   - `config.vm.forward_port` no longer requires a name parameter.
   - Bridged networking. `config.vm.network` with `:bridged` as the option will
     setup a bridged network.
+  - Host only networks can be configured with DHCP now. Specify `:dhcp` as
+    the IP and it will be done.
   - `config.vm.customize` now takes a command to send to `VBoxManage`, so any
     arbitrary command can be sent. The older style of passing a block no longer
     works and Vagrant will give a proper error message if it notices this old-style
