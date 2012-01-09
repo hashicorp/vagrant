@@ -12,7 +12,7 @@ namespace :acceptance do
   desc "Downloads the boxes required for running the acceptance tests."
   task :boxes, :directory do |t, args|
     # Create the directory where the boxes will be downloaded
-    box_dir = Pathname.new(args[:directory] || File.expand_path("../../test/tmp/boxes", __FILE__))
+    box_dir = Pathname.new(args[:directory] || File.expand_path("../../boxes", __FILE__))
     box_dir.mkpath
     puts "Boxes will be placed in: #{box_dir}"
 
@@ -76,7 +76,7 @@ namespace :acceptance do
     require File.expand_path('../../test/support/tempdir', __FILE__)
 
     # Get the directory for the boxes
-    box_dir = Pathname.new(args[:box_dir] || File.expand_path("../../test/tmp/boxes", __FILE__))
+    box_dir = Pathname.new(args[:box_dir] || File.expand_path("../../boxes", __FILE__))
 
     # Generate the binstubs for the Vagrant binary
     tempdir = Tempdir.new
