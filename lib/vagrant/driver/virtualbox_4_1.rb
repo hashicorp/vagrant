@@ -30,6 +30,15 @@ module Vagrant
         end
       end
 
+      def create_dhcp_server(network, options)
+        execute("dhcpserver", "add", "--ifname", network,
+                "--ip", options[:dhcp_ip],
+                "--netmask", options[:netmask],
+                "--lowerip", options[:dhcp_lower],
+                "--upperip", options[:dhcp_upper],
+                "--enable")
+      end
+
       def create_host_only_network(options)
         # Create the interface
         execute("hostonlyif", "create") =~ /^Interface '(.+?)' was successfully created$/
@@ -37,13 +46,13 @@ module Vagrant
 
         # Configure it
         execute("hostonlyif", "ipconfig", name,
-                "--ip", options[:ip],
+                "--ip", options[:adapter_ip],
                 "--netmask", options[:netmask])
 
         # Return the details
         return {
           :name => name,
-          :ip   => options[:ip],
+          :ip   => options[:adapter_ip],
           :netmask => options[:netmask]
         }
       end
@@ -69,6 +78,12 @@ module Vagrant
         end
 
         networks.each do |name|
+          # First try to remove any DHCP servers attached. We use `raw` because
+          # it is okay if this fails. It usually means that a DHCP server was
+          # never attached.
+          raw("dhcpserver", "remove", "--ifname", name)
+
+          # Delete the actual host only network interface.
           execute("hostonlyif", "remove", name)
         end
       end

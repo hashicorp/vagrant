@@ -155,7 +155,14 @@ module Vagrant
           ip      = args[0]
           options = args[1] || {}
 
+          # Determine if we're dealing with a static IP or a DHCP-served IP.
+          type    = ip == :dhcp ? :dhcp : :static
+
+          # Default IP is in the 20-bit private network block for DHCP based networks
+          ip = "172.28.128.1" if type == :dhcp
+
           options = {
+            :type    => type,
             :ip      => ip,
             :netmask => "255.255.255.0",
             :adapter => nil,
@@ -166,6 +173,34 @@ module Vagrant
           # Verify that this hostonly network wouldn't conflict with any
           # bridged interfaces
           verify_no_bridge_collision(options)
+
+          # Get the network address and IP parts which are used for many
+          # default calculations
+          netaddr  = network_address(options[:ip], options[:netmask])
+          ip_parts = netaddr.split(".").map { |i| i.to_i }
+
+          # Calculate the adapter IP, which we assume is the IP ".1" at the
+          # end usually.
+          adapter_ip    = ip_parts.dup
+          adapter_ip[3] += 1
+          options[:adapter_ip] ||= adapter_ip.join(".")
+
+          if type == :dhcp
+            # Calculate the DHCP server IP, which is the network address
+            # with the final octet + 2. So "172.28.0.0" turns into "172.28.0.2"
+            dhcp_ip    = ip_parts.dup
+            dhcp_ip[3] += 2
+            options[:dhcp_ip] ||= dhcp_ip.join(".")
+
+            # Calculate the lower and upper bound for the DHCP server
+            dhcp_lower    = ip_parts.dup
+            dhcp_lower[3] += 3
+            options[:dhcp_lower] ||= dhcp_lower.join(".")
+
+            dhcp_upper    = ip_parts.dup
+            dhcp_upper[3] = 254
+            options[:dhcp_upper] ||= dhcp_upper.join(".")
+          end
 
           # Return the hostonly network configuration
           return options
@@ -191,6 +226,15 @@ module Vagrant
             @logger.debug("Created network: #{interface[:name]}")
           end
 
+          if config[:type] == :dhcp
+            # TODO: Check that there isn't another DHCP server on this network
+            # that is different.
+
+            # Configure the DHCP server for the network.
+            @logger.debug("Creating a DHCP server...")
+            @env[:vm].driver.create_dhcp_server(interface[:name], config)
+          end
+
           return {
             :adapter     => config[:adapter],
             :type        => :hostonly,
@@ -201,7 +245,7 @@ module Vagrant
 
         def hostonly_network_config(config)
           return {
-            :type    => :static,
+            :type    => config[:type],
             :ip      => config[:ip],
             :netmask => config[:netmask]
           }
@@ -210,18 +254,10 @@ module Vagrant
         # Creates a new hostonly network that matches the network requested
         # by the given host-only network configuration.
         def create_hostonly_network(config)
-          # First we need to determine a good IP for the host machine
-          # of this interface. We choose to use the network address
-          # plus 1, which is usually what is expected.
-          netaddr = network_address(config[:ip], config[:netmask])
-          parts   = netaddr.split(".").map { |i| i.to_i }
-          parts[3] += 1
-          ip      = parts.join(".")
-
           # Create the options that are going to be used to create our
           # new network.
           options = config.dup
-          options[:ip] = ip
+          options[:ip] = options[:adapter_ip]
 
           @env[:vm].driver.create_host_only_network(options)
         end

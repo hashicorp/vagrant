@@ -157,7 +157,9 @@ do before is certainly still possible with `VBoxManage` as well.
         # providers other than VirtualBox will not be able to satisfy
         # all types of networks.
         networks.each do |type, args|
-          if type == :hostonly
+          if type == :hostonly && args[0] == :dhcp
+            # Valid. There is no real way this can be invalid at the moment.
+          elsif type == :hostonly
             # Validate the host-only network
             ip      = args[0]
             options = args[1] || {}

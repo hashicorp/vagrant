@@ -47,6 +47,13 @@ module Vagrant
       def clear_shared_folders
       end
 
+      # Creates a DHCP server for a host only network.
+      #
+      # @param [String] network Name of the host-only network.
+      # @param [Hash] options Options for the DHCP server.
+      def create_dhcp_server(network, options)
+      end
+
       # Creates a host only network with the given options.
       #
       # @param [Hash] options Options to create the host only network.

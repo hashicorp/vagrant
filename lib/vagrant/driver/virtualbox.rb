@@ -72,6 +72,7 @@ module Vagrant
 
       def_delegators :@driver, :clear_forwarded_ports,
                                :clear_shared_folders,
+                               :create_dhcp_server,
                                :create_host_only_network,
                                :delete,
                                :delete_unused_host_only_networks,
