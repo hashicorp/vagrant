@@ -1,3 +1,6 @@
+require "fileutils"
+require "pathname"
+
 require "log4r"
 require "childprocess"
 
@@ -11,6 +14,8 @@ module Acceptance
   # run in. It creates a temporary directory to act as the
   # working directory as well as sets a custom home directory.
   class IsolatedEnvironment < ::IsolatedEnvironment
+    SKELETON_DIR = Pathname.new(File.expand_path("../../skeletons", __FILE__))
+
     def initialize(apps=nil, env=nil)
       super()
 
@@ -23,6 +28,16 @@ module Acceptance
       # variables so that Vagrant and VirtualBox see the proper paths here.
       @env["HOME"] ||= @homedir.to_s
       @env["VBOX_USER_HOME"] ||= @homedir.to_s
+    end
+
+    # Copies a skeleton into this isolated environment. This is useful
+    # for testing environments that require a complex setup.
+    #
+    # @param [String] name Name of the skeleton in the skeletons/ directory.
+    def skeleton!(name)
+      # Copy all the files into the home directory
+      source = Dir.glob(SKELETON_DIR.join(name).join("*").to_s)
+      FileUtils.cp_r(source, @workdir.to_s)
     end
 
     # Executes a command in the context of this isolated environment.
@@ -60,6 +75,8 @@ module Acceptance
       # Let the parent handle cleaning up
       super
     end
+
+    protected
 
     def delete_virtual_machines
       # Delete all virtual machines
