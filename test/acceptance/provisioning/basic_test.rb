@@ -24,4 +24,21 @@ vf
     result_file = environment.workdir.join("results")
     result_file.exist?.should_not be
   end
+
+  it "only uses the provisioners specified with `--provision-with`" do
+    # Skeleton for multiple provisioners
+    environment.skeleton!("provisioner_multi")
+
+    # Setup the basic environment
+    require_box("default")
+    assert_execute("vagrant", "box", "add", "base", box_path("default"))
+
+    # Bring up the VM, only using the shell provisioner
+    assert_execute("vagrant", "up", "--provision-with", "shell")
+
+    # Verify the file the shell provisioner made is there, but not the
+    # Chef one.
+    environment.workdir.join("shell").exist?.should be
+    environment.workdir.join("chef_solo").exist?.should_not be
+  end
 end

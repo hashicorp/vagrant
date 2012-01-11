@@ -37,6 +37,8 @@
     host will be created if it doesn't exist.
   - Added `--force` flag to `box add`, which will overwite any existing boxes
     if they exist. [GH-631]
+  - Added `--provision-with` to `up` which configures what provisioners run,
+    by shortcut. [GH-367]
   - Removed Thor as a dependency for the command line interfaces. This resulted
     in general speed increases across all command line commands.
   - Linux uses `shutdown -h` instead of `halt` to hopefully more consistently
