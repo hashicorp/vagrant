@@ -82,7 +82,7 @@ module Vagrant
         # Calculate the paths we're going to use based on the environment
         @expanded_manifests_path = config.expanded_manifests_path(env[:root_path])
         @expanded_module_paths   = config.expanded_module_paths(env[:root_path])
-        @manifest_file           = @expanded_manifests_path.join(config.manifest_file)
+        @manifest_file           = File.join(manifests_guest_path, config.manifest_file)
 
         set_module_paths
         share_manifests

@@ -27,6 +27,8 @@
     logging is silent.
   - `system` renamed to `guest` throughout the source. Any `config.vm.system`
     configurations must be changed to `config.vm.guest`
+  - Puppet provisioner no longer defaults manifest to "box.pp." Instead, it
+    is now "default.pp"
   - All Vagrant commands that take a VM name in a Multi-VM environment
     can now be given a regular expression. If the name starts and ends with a "/"
     then it is assumed to be a regular expression. [GH-573]
