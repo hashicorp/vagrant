@@ -598,6 +598,11 @@ en:
         running_puppet: "Running Puppet with %{manifest}..."
         manifest_missing: "The Puppet %{manifest} manifest is missing. You cannot configure this box."
         manifests_path_missing: "The manifests path specified for Puppet does not exist: %{path}"
+        missing_shared_folders: |-
+          Shared folders that Puppet requires are missing on the virtual machine.
+          This is usually due to configuration changing after already booting the
+          machine. The fix is to run a `vagrant reload` so that the proper shared
+          folders will prepared and mounted on the VM.
         module_path_missing: "The configured module path doesn't exist: %{path}"
 
       puppet_server:

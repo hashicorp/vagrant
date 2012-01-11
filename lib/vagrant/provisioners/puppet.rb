@@ -86,6 +86,15 @@ module Vagrant
       end
 
       def provision!
+        # Check that the shared folders are properly shared
+        check = [manifests_guest_path]
+        @module_paths.each do |host_path, guest_path|
+          check << guest_path
+        end
+
+        verify_shared_folders(check)
+
+        # Verify Puppet is installed and run it
         verify_binary("puppet")
         run_puppet_client
       end
@@ -139,6 +148,15 @@ module Vagrant
           # Note: Be sure to chomp the data to avoid the newlines that the
           # Chef outputs.
           env[:ui].info(data.chomp, :color => color, :prefix => false)
+        end
+      end
+
+      def verify_shared_folders(folders)
+        folders.each do |folder|
+          @logger.debug("Checking for shared folder: #{folder}")
+          if !env[:vm].channel.test("test -d #{folder}")
+            raise PuppetError, :missing_shared_folders
+          end
         end
       end
     end
