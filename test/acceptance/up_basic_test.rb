@@ -45,4 +45,33 @@ describe "vagrant up", "basics" do
     assert_execute("vagrant", "ssh", "-c", "touch /vagrant/foo")
     foofile.exist?.should be, "'foo' should exist since it was touched in the shared folder"
   end
+
+  it "should create a shared folder if the :create flag is set" do
+    initialize_valid_environment
+
+    # Setup the custom Vagrantfile
+    environment.workdir.join("Vagrantfile").open("w+") do |f|
+      f.write(<<-VF)
+Vagrant::Config.run do |config|
+  config.vm.box = "base"
+  config.vm.share_folder "v-root", "/vagrant", "./data", :create => true
+end
+VF
+    end
+
+    data_dir = environment.workdir.join("data")
+
+    # Verify the directory doesn't exist prior, for sanity
+    data_dir.exist?.should_not be
+
+    # Bring up the VM
+    assert_execute("vagrant", "up")
+
+    # Verify the directory exists
+    data_dir.should be_directory
+
+    # Touch a file and verify it is shared
+    assert_execute("vagrant", "ssh", "-c", "touch /vagrant/foo")
+    data_dir.join("foo").exist?.should be
+  end
 end
