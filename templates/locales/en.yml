@@ -596,7 +596,8 @@ en:
           installed on this guest. Puppet provisioning can not continue without
           Puppet properly installed.
         running_puppet: "Running Puppet with %{manifest}..."
-        manifest_missing: "The Puppet %{manifest} manifest is missing. You cannot configure this box."
+        manifest_missing: |-
+          The Puppet %{manifest} manifest is missing. You cannot configure this box.
         manifests_path_missing: "The manifests path specified for Puppet does not exist: %{path}"
         missing_shared_folders: |-
           Shared folders that Puppet requires are missing on the virtual machine.

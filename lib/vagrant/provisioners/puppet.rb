@@ -1,3 +1,5 @@
+require "log4r"
+
 module Vagrant
   module Provisioners
     class PuppetError < Vagrant::Errors::VagrantError
@@ -26,12 +28,6 @@ module Vagrant
           Pathname.new(manifests_path).expand_path(env.root_path)
         end
 
-        # Returns the manifest file if set otherwise returns the box name pp file
-        # which may or may not exist.
-        def computed_manifest_file
-          manifest_file || "#{top.vm.box}.pp"
-        end
-
         # Returns the module paths as an array of paths expanded relative to the
         # root path.
         def expanded_module_paths(env)
@@ -55,11 +51,6 @@ module Vagrant
           if !this_expanded_manifests_path.directory?
             errors.add(I18n.t("vagrant.provisioners.puppet.manifests_path_missing",
                               :path => this_expanded_manifests_path))
-          else
-            if !this_expanded_manifests_path.join(computed_manifest_file).file?
-              errors.add(I18n.t("vagrant.provisioners.puppet.manifest_missing",
-                                :manifest => computed_manifest_file))
-            end
           end
 
           # Module paths validation
@@ -75,10 +66,21 @@ module Vagrant
         Config
       end
 
+      def initialize(env, config)
+        super
+
+        @logger = Log4r::Logger.new("vagrant::provisioners::puppet")
+      end
+
       def prepare
         # Calculate the paths we're going to use based on the environment
-        @expanded_manifests_path = config.expanded_manifests_path(env)
-        @expanded_module_paths   = config.expanded_module_paths(env)
+        @expanded_manifests_path = config.expanded_manifests_path(env[:vm].env)
+        @expanded_module_paths   = config.expanded_module_paths(env[:vm].env)
+        @manifest_file           = config.manifest_file || "#{env[:vm].config.vm.box}.pp"
+
+        if !@expanded_manifests_path.join(@manifest_file).exist?
+          raise PuppetError, :manifest_missing, :manifest => @manifest_file
+        end
 
         set_module_paths
         share_manifests
@@ -134,12 +136,13 @@ module Vagrant
       def run_puppet_client
         options = [config.options].flatten
         options << "--modulepath '#{@module_paths.values.join(':')}'" if !@module_paths.empty?
-        options << config.computed_manifest_file
+        options << @manifest_file
         options = options.join(" ")
 
         command = "cd #{manifests_guest_path} && puppet apply #{options}"
 
-        env[:ui].info I18n.t("vagrant.provisioners.puppet.running_puppet", :manifest => config.computed_manifest_file)
+        env[:ui].info I18n.t("vagrant.provisioners.puppet.running_puppet",
+                             :manifest => @manifest_file)
 
         env[:vm].channel.sudo(command) do |type, data|
           # Output the data with the proper color based on the stream.
