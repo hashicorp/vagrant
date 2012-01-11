@@ -128,9 +128,9 @@ module Vagrant
       error_key(:failed, "vagrant.actions.box.verify")
     end
 
-    class CLIMissingEnvironment < VagrantError
+    class CLIInvalidOptions < VagrantError
       status_code(1)
-      error_key(:cli_missing_env)
+      error_key(:cli_invalid_options)
     end
 
     class ConfigValidationFailed < VagrantError

@@ -26,6 +26,11 @@ en:
       puppetd_not_detected: |-
         The `puppetd` binary was not found on the VM is required for Puppet Server provisioning.
         Please verify that Puppet is installed and that the binary is available on the PATH.
+      cli_invalid_options: |-
+        An invalid option was specified. The help for this command
+        is available below.
+
+        %{help}
       config_validation: |-
         There was a problem with the configuration of Vagrant. The error message(s)
         are printed below:

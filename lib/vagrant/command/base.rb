@@ -48,8 +48,7 @@ module Vagrant
         opts.parse!(argv)
         return argv
       rescue OptionParser::InvalidOption
-        puts opts.help
-        return nil
+        raise Errors::CLIInvalidOptions, :help => opts.help.chomp
       end
 
       # Yields a VM for each target VM for the command.
