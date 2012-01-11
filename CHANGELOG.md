@@ -50,6 +50,8 @@
     `sudo` installed Vagrant installations work. [GH-580]
   - Provisioner stdout/stderr is now color coded based on stdout/stderr.
     stdout is green, stderr is red. [GH-595]
+  - Chef solo now prompts users to run a `reload` if shared folders
+    are not found on the VM. [GH-253]
   - "--no-provision" once again works for certain commands. [GH-591]
   - Resuming a VM from a saved state will show an error message if there
     would be port collisions. [GH-602]

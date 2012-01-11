@@ -7,7 +7,8 @@ module Vagrant
         def initialize(app, env)
           @logger = Log4r::Logger.new("vagrant::action::vm::provision")
           @app = app
-          @env["provision.enabled"] = true if !env.has_key?("provision.enabled")
+
+          env["provision.enabled"] = true if !env.has_key?("provision.enabled")
         end
 
         def call(env)

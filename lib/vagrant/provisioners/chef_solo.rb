@@ -1,3 +1,5 @@
+require "log4r"
+
 require 'vagrant/provisioners/chef'
 
 module Vagrant
@@ -39,6 +41,11 @@ module Vagrant
         Config
       end
 
+      def initialize(env, config)
+        super
+        @logger = Log4r::Logger.new("vagrant::provisioners::chef_solo")
+      end
+
       def prepare
         @cookbook_folders = expanded_folders(config.cookbooks_path, "cookbooks")
         @role_folders = expanded_folders(config.roles_path, "roles")
@@ -50,6 +57,19 @@ module Vagrant
       end
 
       def provision!
+        # Verify that the proper shared folders exist.
+        check = []
+        [@cookbook_folders, @role_folders, @data_bags_folders].each do |folders|
+          folders.each do |type, local_path, remote_path|
+            # We only care about checking folders that have a local path, meaning
+            # they were shared from the local machine, rather than assumed to
+            # exist on the VM.
+            check << remote_path if local_path
+          end
+        end
+
+        verify_shared_folders(check)
+
         verify_binary(chef_binary_path("chef-solo"))
         chown_provisioning_folder
         setup_json
@@ -137,6 +157,17 @@ module Vagrant
           env[:ui].info(data.chomp, :color => color, :prefix => false)
         end
       end
+
+      def verify_shared_folders(folders)
+        folders.each do |folder|
+          @logger.debug("Checking for shared folder: #{folder}")
+          if !env[:vm].channel.test("test -d #{folder}")
+            raise ChefError, :missing_shared_folders
+          end
+        end
+      end
+
+      protected
 
       # Extracts only the remote paths from a list of folders
       def guest_paths(folders)
