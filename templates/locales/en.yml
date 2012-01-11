@@ -597,7 +597,10 @@ en:
           Puppet properly installed.
         running_puppet: "Running Puppet with %{manifest}..."
         manifest_missing: |-
-          The Puppet %{manifest} manifest is missing. You cannot configure this box.
+          The configured Puppet manifest is missing. Please specify a path to an
+          existing manifest:
+
+          %{manifest}
         manifests_path_missing: "The manifests path specified for Puppet does not exist: %{path}"
         missing_shared_folders: |-
           Shared folders that Puppet requires are missing on the virtual machine.
