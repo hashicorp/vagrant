@@ -35,6 +35,8 @@
     port of the virtual machine.
   - If a shared folder now has a `:create` flag set to `true`, the path on the
     host will be created if it doesn't exist.
+  - Added `--force` flag to `box add`, which will overwite any existing boxes
+    if they exist. [GH-631]
   - Removed Thor as a dependency for the command line interfaces. This resulted
     in general speed increases across all command line commands.
   - Linux uses `shutdown -h` instead of `halt` to hopefully more consistently

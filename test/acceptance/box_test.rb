@@ -32,6 +32,16 @@ describe "vagrant box" do
     result.stderr.should match_output(:box_already_exists, "foo")
   end
 
+  it "overwrites a box when adding with `--force`" do
+    require_box("default")
+
+    # Add the box, which we expect to succeed
+    assert_execute("vagrant", "box", "add", "foo", box_path("default"))
+
+    # Adding it again should not succeed
+    assert_execute("vagrant", "box", "add", "foo", box_path("default"), "--force")
+  end
+
   it "gives an error if the file doesn't exist" do
     result = execute("vagrant", "box", "add", "foo", "/tmp/nope/nope/nope/nonono.box")
     result.should_not succeed
