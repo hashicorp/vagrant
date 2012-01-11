@@ -1,4 +1,4 @@
-require File.expand_path("../base", __FILE__)
+require File.expand_path("../../base", __FILE__)
 
 require "net/http"
 require "uri"
