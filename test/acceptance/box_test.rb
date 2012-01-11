@@ -20,6 +20,18 @@ describe "vagrant box" do
     result.stdout.should match_output(:box_installed, "foo")
   end
 
+  it "errors if attempting to add a box with the same name" do
+    require_box("default")
+
+    # Add the box, which we expect to succeed
+    assert_execute("vagrant", "box", "add", "foo", box_path("default"))
+
+    # Adding it again should not succeed
+    result = execute("vagrant", "box", "add", "foo", box_path("default"))
+    result.should_not succeed
+    result.stderr.should match_output(:box_already_exists, "foo")
+  end
+
   it "gives an error if the file doesn't exist" do
     result = execute("vagrant", "box", "add", "foo", "/tmp/nope/nope/nope/nonono.box")
     result.should_not succeed

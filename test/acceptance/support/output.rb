@@ -8,6 +8,10 @@ module Acceptance
       @text = text
     end
 
+    def box_already_exists(name)
+      @text =~ /^A box already exists under the name of '#{name}'/
+    end
+
     # Checks that an error message was outputted about the box
     # being added being invalid.
     def box_invalid
