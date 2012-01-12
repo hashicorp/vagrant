@@ -7,6 +7,8 @@ module Vagrant
     #
     # If you're looking to create your own configuration class, see {Base}.
     class Top < Base
+      attr_reader :keys
+
       def initialize(registry=nil)
         @keys = {}
         @registry = registry || Vagrant.config_keys
@@ -26,6 +28,24 @@ module Vagrant
           # Super it up to probably raise a NoMethodError
           super
         end
+      end
+
+      # Custom implementation to merge each key separately.
+      def merge(other)
+        result = self.class.new
+        @keys.each do |key, value|
+          result.keys[key] = value.merge(other.send(key))
+        end
+
+        other.keys.each do |key, value|
+          if !@keys.has_key?(key)
+            # This is a key that the other configuration class has
+            # that we don't, so just copy it in.
+            result.keys[key] = value.dup
+          end
+        end
+
+        result
       end
 
       # Validates the configuration classes of this instance and raises an
