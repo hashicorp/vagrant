@@ -15,7 +15,7 @@ module Vagrant
 
       def download!(source_url, destination_file)
         @ui.info I18n.t("vagrant.downloaders.file.download")
-        FileUtils.cp(source_url, destination_file.path)
+        FileUtils.cp(::File.expand_path(source_url), destination_file.path)
       end
     end
   end
