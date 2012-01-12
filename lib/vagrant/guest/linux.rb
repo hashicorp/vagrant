@@ -34,10 +34,10 @@ module Vagrant
         end
       end
 
-      def mount_shared_folder(name, guestpath, owner, group)
+      def mount_shared_folder(name, guestpath, options)
         @vm.channel.sudo("mkdir -p #{guestpath}")
-        mount_folder(name, guestpath, owner, group)
-        @vm.channel.sudo("chown `id -u #{owner}`:`id -g #{group}` #{guestpath}")
+        mount_folder(name, guestpath, options)
+        @vm.channel.sudo("chown `id -u #{options[:owner]}`:`id -g #{options[:group]}` #{guestpath}")
       end
 
       def mount_nfs(ip, folders)
@@ -54,9 +54,9 @@ module Vagrant
       #-------------------------------------------------------------------
       # "Private" methods which assist above methods
       #-------------------------------------------------------------------
-      def mount_folder(name, guestpath, owner, group, sleeptime=5)
+      def mount_folder(name, guestpath, options)
         # Determine the permission string to attach to the mount command
-        options = "-o uid=`id -u #{owner}`,gid=`id -g #{group}`"
+        options = "-o uid=`id -u #{options[:owner]}`,gid=`id -g #{options[:group]}`"
 
         attempts = 0
         while true
@@ -69,7 +69,7 @@ module Vagrant
 
           attempts += 1
           raise LinuxError, :mount_fail if attempts >= 10
-          sleep sleeptime
+          sleep 5
         end
       end
     end

@@ -61,7 +61,9 @@ module Vagrant
       # @param [String] name The name of the shared folder.
       # @param [String] guestpath The path on the machine which the user
       #   wants the folder mounted.
-      def mount_shared_folder(name, guestpath, owner, group)
+      # @param [Hash] options Additional options for the shared folder
+      #   which can be honored.
+      def mount_shared_folder(name, guestpath, options)
         raise BaseError, :_key => :unsupported_shared_folder
       end
 

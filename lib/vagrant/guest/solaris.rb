@@ -90,7 +90,11 @@ module Vagrant
         end # while
       end
 
-      def mount_shared_folder(name, guestpath, owner, group)
+      def mount_shared_folder(name, guestpath, options)
+        # These are just far easier to use than the full options syntax
+        owner = options[:owner]
+        group = options[:group]
+
         # Create the shared folder
         vm.channel.execute("#{vm.config.solaris.suexec_cmd} mkdir -p #{guestpath}")
 

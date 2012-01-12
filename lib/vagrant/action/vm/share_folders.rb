@@ -91,12 +91,15 @@ module Vagrant
                                     :name => name,
                                     :guest_path => data[:guestpath]))
 
+              # Dup the data so we can pass it to the guest API
+              data = data.dup
+
               # Calculate the owner and group
-              owner = data[:owner] || @env[:vm].config.ssh.username
-              group = data[:group] || @env[:vm].config.ssh.username
+              data[:owner] ||= @env[:vm].config.ssh.username
+              data[:group] ||= @env[:vm].config.ssh.username
 
               # Mount the actual folder
-              @env[:vm].guest.mount_shared_folder(name, data[:guestpath], owner, group)
+              @env[:vm].guest.mount_shared_folder(name, data[:guestpath], data)
             else
               # If no guest path is specified, then automounting is disabled
               @env[:ui].info(I18n.t("vagrant.actions.vm.share_folders.nomount_entry",
