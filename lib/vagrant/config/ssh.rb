@@ -15,11 +15,8 @@ module Vagrant
 
       def initialize
         @shell            = "bash"
-        @port             = nil
-        @guest_port       = nil
         @forward_agent    = false
         @forward_x11      = false
-        @private_key_path = nil
       end
 
       def forwarded_port_key=(value)

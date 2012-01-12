@@ -362,6 +362,8 @@ module Vagrant
       end
 
       def ssh_port(expected_port)
+        @logger.debug("Searching for SSH port: #{expected_port.inspect}")
+
         # Look for the forwarded port only by comparing the guest port
         read_forwarded_ports.each do |_, _, hostport, guestport|
           return hostport if guestport == expected_port
