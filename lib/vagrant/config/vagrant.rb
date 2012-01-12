@@ -3,7 +3,6 @@ module Vagrant
     class VagrantConfig < Base
       attr_accessor :dotfile_name
       attr_accessor :host
-      attr_accessor :ssh_session_cache
 
       def validate(env, errors)
         [:dotfile_name, :host].each do |field|
