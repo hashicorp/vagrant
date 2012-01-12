@@ -38,10 +38,10 @@ describe Vagrant::Command::Base do
       end
     end
 
-    it "returns nil if invalid options are given" do
+    it "raises an error if invalid options are given" do
       instance = klass.new(["-f"], nil)
-      instance.should_receive(:puts)
-      instance.parse_options(OptionParser.new).should be_nil
+      expect { instance.parse_options(OptionParser.new) }.
+        to raise_error(Vagrant::Errors::CLIInvalidOptions)
     end
   end
 
