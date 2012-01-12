@@ -76,8 +76,6 @@ module Acceptance
       super
     end
 
-    protected
-
     def delete_virtual_machines
       # Delete all virtual machines
       @logger.debug("Finding all virtual machines")
