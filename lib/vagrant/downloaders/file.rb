@@ -6,7 +6,7 @@ module Vagrant
     # simply does a file copy.
     class File < Base
       def self.match?(uri)
-        ::File.exists?(uri)
+        ::File.file?(::File.expand_path(uri))
       end
 
       def prepare(source_url)
