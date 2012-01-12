@@ -25,6 +25,20 @@ module Vagrant
         end
       end
 
+      # Merge another configuration object into this one.
+      #
+      # @param [Object] other The other configuration object to merge from,
+      #   this must be the same type of object as this one.
+      # @return [Object] The merged object.
+      def merge(other)
+        result = self.class.new
+        instance_variables_hash.merge(other.instance_variables_hash).each do |key, value|
+          result.instance_variable_set("@#{key}".to_sym, value)
+        end
+
+        result
+      end
+
       # Called by {Top} after the configuration is loaded to validate
       # the configuaration objects. Subclasses should implement this
       # method and add any errors to the `errors` object given.
@@ -54,7 +68,7 @@ module Vagrant
       # Returns the instance variables as a hash of key-value pairs.
       def instance_variables_hash
         instance_variables.inject({}) do |acc, iv|
-          acc[iv.to_s[1..-1]] = instance_variable_get(iv) unless iv.to_sym == :@top
+          acc[iv.to_s[1..-1]] = instance_variable_get(iv)
           acc
         end
       end

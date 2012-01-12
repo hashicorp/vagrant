@@ -20,6 +20,7 @@ module Vagrant
         @logger  = Log4r::Logger.new("vagrant::config::loader")
         @sources = {}
         @proc_cache = {}
+        @config_cache = {}
       end
 
       # Set the configuration data for the given name.
@@ -70,21 +71,26 @@ module Vagrant
         end
 
         # Create the top-level configuration which will hold all the config.
-        top = Top.new
+        result = Top.new
 
         @load_order.each do |key|
           next if !@sources.has_key?(key)
 
           @sources[key].each do |proc|
-            @logger.debug("Loading from: #{key}")
+            if !@config_cache.has_key?(proc)
+              @logger.debug("Loading from: #{key} (evaluating)")
+              current = Top.new
+              proc.call(current)
+              @config_cache[proc] = current
+            end
 
-            # Call each proc with the top-level configuration.
-            proc.call(top)
+            # Merge in the results of this proc's configuration
+            result = result.merge(@config_cache[proc])
           end
         end
 
         @logger.debug("Configuration loaded successfully")
-        top
+        result
       end
 
       protected
