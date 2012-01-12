@@ -31,11 +31,11 @@ module Vagrant
       # Custom merge method since some keys here are merged differently.
       def merge(other)
         result = super
-        result.forwarded_ports = @forwarded_ports + other.forwarded_ports
-        result.shared_folders  = @shared_folders.merge(other.shared_folders)
-        result.networks        = @networks + other.networks
-        result.provisioners    = @provisioners + other.provisioners
-        result.customizations  = @customizations + other.customizations
+        result.instance_variable_set(:@forwarded_ports, @forwarded_ports + other.forwarded_ports)
+        result.instance_variable_set(:@shared_folders, @shared_folders.merge(other.shared_folders))
+        result.instance_variable_set(:@networks, @networks + other.networks)
+        result.instance_variable_set(:@provisioners, @provisioners + other.provisioners)
+        result.instance_variable_set(:@customizations, @customizations + other.customizations)
         result
       end
 
