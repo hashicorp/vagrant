@@ -33,7 +33,7 @@ vf
     require_box("default")
     assert_execute("vagrant", "box", "add", "base", box_path("default"))
 
-    # Bring up the VM, only using the shell provisioner
+    # Bring up the VM
     assert_execute("vagrant", "up")
 
     # Verify the file the shell provisioner made is there, but not the
