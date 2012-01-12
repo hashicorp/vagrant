@@ -61,6 +61,8 @@
     run. [GH-598]
   - `vagrant ssh -c` will now send stderr to stderr and stdout to stdout
     on the host machine, instead of all output to stdout.
+  - `vagrant box add` path now accepts unexpanded shell paths such as
+    `~/foo` and will properly expand them. [GH-633]
   - Vagrant can now be interrupted during the "importing" step.
   - NFS exports will no longer be cleared when an expected error occurs. [GH-577]
 
