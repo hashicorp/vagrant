@@ -56,13 +56,13 @@ module Vagrant
       #-------------------------------------------------------------------
       def mount_folder(name, guestpath, options)
         # Determine the permission string to attach to the mount command
-        options = "-o uid=`id -u #{options[:owner]}`,gid=`id -g #{options[:group]}`"
-        options += ",#{options[:extra]}" if options[:extra]
+        mount_options = "-o uid=`id -u #{options[:owner]}`,gid=`id -g #{options[:group]}`"
+        mount_options += ",#{options[:extra]}" if options[:extra]
 
         attempts = 0
         while true
           success = true
-          @vm.channel.sudo("mount -t vboxsf #{options} #{name} #{guestpath}") do |type, data|
+          @vm.channel.sudo("mount -t vboxsf #{mount_options} #{name} #{guestpath}") do |type, data|
             success = false if type == :stderr && data =~ /No such device/i
           end
 
