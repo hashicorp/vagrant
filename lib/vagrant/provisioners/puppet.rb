@@ -17,7 +17,6 @@ module Vagrant
         def initialize
           @manifest_file = "default.pp"
           @manifests_path = "manifests"
-          @module_path = nil
           @pp_path = "/tmp/vagrant-puppet"
           @options = []
         end

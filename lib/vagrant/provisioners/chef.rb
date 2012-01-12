@@ -115,19 +115,8 @@ module Vagrant
         attr_writer :run_list
 
         def initialize
-          @provisioning_path = nil
           @log_level = :info
           @json = {}
-          @http_proxy = nil
-          @http_proxy_user = nil
-          @http_proxy_pass = nil
-          @https_proxy = nil
-          @https_proxy_user = nil
-          @https_proxy_pass = nil
-          @no_proxy = nil
-          @binary_path = nil
-          @binary_env = nil
-          @run_list = nil
         end
 
         # This returns the json that is merged with the defaults and the

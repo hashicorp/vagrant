@@ -25,7 +25,6 @@ module Vagrant
           @client_key_path = "/etc/chef/client.pem"
           @file_cache_path = "/srv/chef/file_store"
           @file_backup_path = "/srv/chef/cache"
-          @encrypted_data_bag_secret_key_path = nil
           @encrypted_data_bag_secret = "/tmp/encrypted_data_bag_secret"
         end
 

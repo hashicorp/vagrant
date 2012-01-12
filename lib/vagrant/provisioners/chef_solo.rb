@@ -20,8 +20,6 @@ module Vagrant
           super
 
           @cookbooks_path = ["cookbooks", [:vm, "cookbooks"]]
-          @roles_path = nil
-          @data_bags_path = nil
           @nfs = false
         end
 

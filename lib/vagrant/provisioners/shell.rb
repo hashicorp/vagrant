@@ -10,10 +10,7 @@ module Vagrant
         attr_accessor :args
 
         def initialize
-          @inline = nil
-          @path = nil
           @upload_path = "/tmp/vagrant-shell"
-          @args = nil
         end
 
         def validate(env, errors)
