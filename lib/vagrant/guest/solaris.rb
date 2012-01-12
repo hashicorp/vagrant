@@ -100,6 +100,7 @@ module Vagrant
 
         # Mount the folder with the proper owner/group
         options = "-o uid=`id -u #{owner}`,gid=`id -g #{group}`"
+        options += ",#{options[:extra]}" if options[:extra]
         vm.channel.execute("#{vm.config.solaris.suexec_cmd} /sbin/mount -F vboxfs #{options} #{name} #{guestpath}")
 
         # chown the folder to the proper owner/group

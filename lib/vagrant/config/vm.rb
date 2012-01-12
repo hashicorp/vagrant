@@ -70,7 +70,8 @@ Please change your configurations to match this new syntax.
           :create => false,
           :owner => nil,
           :group => nil,
-          :nfs   => false
+          :nfs   => false,
+          :extra => nil
         }.merge(opts || {})
       end
 
