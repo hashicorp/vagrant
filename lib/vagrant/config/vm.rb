@@ -28,6 +28,17 @@ module Vagrant
         @customizations = []
       end
 
+      # Custom merge method since some keys here are merged differently.
+      def merge(other)
+        result = super
+        result.forwarded_ports = @forwarded_ports + other.forwarded_ports
+        result.shared_folders  = @shared_folders.merge(other.shared_folders)
+        result.networks        = @networks + other.networks
+        result.provisioners    = @provisioners + other.provisioners
+        result.customizations  = @customizations + other.customizations
+        result
+      end
+
       def forward_port(guestport, hostport, options=nil)
         if !guestport.kind_of?(Integer)
           raise Errors::DeprecationError, :message => <<-MESSAGE
