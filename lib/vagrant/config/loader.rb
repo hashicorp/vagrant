@@ -33,16 +33,29 @@ module Vagrant
       # At this point, no configuration is actually loaded. Note that calling
       # `set` multiple times with the same name will override any previously
       # set values. In this way, the last set data for a given name wins.
-      def set(name, data)
-        @logger.debug("Set #{name.inspect} = #{data.inspect}")
+      def set(name, sources)
+        @logger.debug("Set #{name.inspect} = #{sources.inspect}")
 
-        # Make all sources an array.
-        data = [data] if !data.kind_of?(Array)
+        # Sources should be an array
+        sources = [sources] if !sources.kind_of?(Array)
 
-        # Clear the cache for this key only if the data is different
-        @proc_cache.delete(name) if @sources[name] && @sources[name] != data
+        # Gather the procs for every source, since that is what we care about.
+        procs = []
+        sources.each do |source|
+          if !@proc_cache.has_key?(source)
+            # Load the procs for this source and cache them. This caching
+            # avoids the issue where a file may have side effects when loading
+            # and loading it multiple times causes unexpected behavior.
+            @logger.debug("Populating proc cache for #{source.inspect}")
+            @proc_cache[source] = procs_for_source(source)
+          end
 
-        @sources[name] = data
+          # Add on to the array of procs we're going to use
+          procs.concat(@proc_cache[source])
+        end
+
+        # Set this source by name.
+        @sources[name] = procs
       end
 
       # This loads the configured sources in the configured order and returns
@@ -62,20 +75,11 @@ module Vagrant
         @load_order.each do |key|
           next if !@sources.has_key?(key)
 
-          @sources[key].each do |source|
+          @sources[key].each do |proc|
             @logger.debug("Loading from: #{key}")
 
-            # Load the procs, caching them by the source key. This makes
-            # sure that files are only loaded once, for example. The reason
-            # for this is because people may put side-effect code in their
-            # Vagrantfiles. This assures that the side effect only occurs
-            # once (which is what they expect)
-            @proc_cache[key] ||= procs_for_source(source)
-
             # Call each proc with the top-level configuration.
-            @proc_cache[key].each do |proc|
-              proc.call(top)
-            end
+            proc.call(top)
           end
         end
 
