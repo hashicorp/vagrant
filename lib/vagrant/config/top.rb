@@ -7,8 +7,9 @@ module Vagrant
     #
     # If you're looking to create your own configuration class, see {Base}.
     class Top < Base
-      def initialize
+      def initialize(registry=nil)
         @keys = {}
+        @registry = registry || Vagrant.config_keys
       end
 
       # We use method_missing as a way to get the configuration that is used
@@ -16,7 +17,7 @@ module Vagrant
       def method_missing(name, *args)
         return @keys[name] if @keys.has_key?(name)
 
-        config_klass = Vagrant.config_keys.get(name.to_sym)
+        config_klass = @registry.get(name.to_sym)
         if config_klass
           # Instantiate the class and return the instance
           @keys[name] = config_klass.new
