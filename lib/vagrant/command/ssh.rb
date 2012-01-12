@@ -7,7 +7,7 @@ module Vagrant
         options = {}
 
         opts = OptionParser.new do |opts|
-          opts.banner = "Usage: vagrant ssh [vm-name] [-c command]"
+          opts.banner = "Usage: vagrant ssh [vm-name] [-c command] [-- extra ssh args]"
 
           opts.separator ""
 
@@ -19,8 +19,21 @@ module Vagrant
           end
         end
 
+        # Parse the options and return if we don't have any target.
         argv = parse_options(opts)
         return if !argv
+
+        # Parse out the extra args to send to SSH, which is everything
+        # after the "--"
+        ssh_args = ARGV.drop_while { |i| i != "--" }
+        ssh_args = ssh_args[1..-1]
+        options[:ssh_args] = ssh_args
+
+        # If the remaining arguments ARE the SSH arguments, then just
+        # clear it out. This happens because optparse returns what is
+        # after the "--" as remaining ARGV, and Vagrant can think it is
+        # a multi-vm name (wrong!)
+        argv = [] if argv == ssh_args
 
         # Execute the actual SSH
         with_target_vms(argv[0], true) do |vm|
@@ -32,7 +45,12 @@ module Vagrant
           if options[:command]
             ssh_execute(vm, options[:command])
           else
-            ssh_connect(vm, { :plain_mode => options[:plain_mode] })
+            opts = {
+              :plain_mode => options[:plain_mode],
+              :extra_args => options[:ssh_args]
+            }
+
+            ssh_connect(vm, opts)
           end
         end
       end

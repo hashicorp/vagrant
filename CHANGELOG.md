@@ -43,6 +43,8 @@
     by shortcut. [GH-367]
   - Arbitrary mount options can be passed with `:extra` to any shared
     folders. [GH-551]
+  - Options passed after a `--` to `vagrant ssh` are now passed directly to
+    `ssh`. [GH-554]
   - Removed Thor as a dependency for the command line interfaces. This resulted
     in general speed increases across all command line commands.
   - Linux uses `shutdown -h` instead of `halt` to hopefully more consistently

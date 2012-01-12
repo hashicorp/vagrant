@@ -79,6 +79,9 @@ module Vagrant
       command_options << "-i #{options[:private_key_path]}" if !plain_mode
       command_options << "-o ForwardAgent=yes" if ssh_info[:forward_agent]
 
+      # If there are extra options, then we append those
+      command_options.concat(opts[:extra_args]) if opts[:extra_args]
+
       if ssh_info[:forward_x11]
         # Both are required so that no warnings are shown regarding X11
         command_options << "-o ForwardX11=yes"
