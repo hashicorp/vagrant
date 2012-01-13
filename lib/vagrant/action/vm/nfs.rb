@@ -1,5 +1,3 @@
-require File.expand_path("../nfs_helpers", __FILE__)
-
 module Vagrant
   module Action
     module VM
@@ -32,7 +30,6 @@ module Vagrant
 
           if !folders.empty?
             prepare_folders
-            clear_nfs_exports(env)
             export_folders
           end
 

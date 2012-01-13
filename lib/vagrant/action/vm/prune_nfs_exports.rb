@@ -1,17 +1,17 @@
-require File.expand_path("../nfs_helpers", __FILE__)
-
 module Vagrant
   module Action
     module VM
-      class ClearNFSExports
-        include NFSHelpers
-
+      class PruneNFSExports
         def initialize(app, env)
           @app = app
         end
 
         def call(env)
-          clear_nfs_exports(env)
+          if env[:host]
+            valid_ids = env[:vm].driver.read_vms
+            env[:host].nfs_prune(valid_ids)
+          end
+
           @app.call(env)
         end
       end

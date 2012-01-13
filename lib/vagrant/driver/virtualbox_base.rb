@@ -197,6 +197,13 @@ module Vagrant
       def read_used_ports
       end
 
+      # Returns a list of all UUIDs of virtual machines currently
+      # known by VirtualBox.
+      #
+      # @return [Array<String>]
+      def read_vms
+      end
+
       # Sets the MAC address of the first network adapter.
       #
       # @param [String] mac MAC address without any spaces/hyphens.

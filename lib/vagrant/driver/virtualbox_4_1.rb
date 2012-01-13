@@ -350,6 +350,17 @@ module Vagrant
         ports
       end
 
+      def read_vms
+        results = []
+        execute("list", "vms").split("\n").each do |line|
+          if line =~ /^".+?" \{(.+?)\}$/
+            results << $1.to_s
+          end
+        end
+
+        results
+      end
+
       def set_mac_address(mac)
         execute("modifyvm", @uuid, "--macaddress1", mac)
       end

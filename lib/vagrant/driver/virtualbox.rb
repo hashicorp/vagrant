@@ -92,6 +92,7 @@ module Vagrant
                                :read_network_interfaces,
                                :read_state,
                                :read_used_ports,
+                               :read_vms,
                                :set_mac_address,
                                :share_folders,
                                :ssh_port,

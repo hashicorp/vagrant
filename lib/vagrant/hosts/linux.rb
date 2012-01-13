@@ -1,3 +1,5 @@
+require 'log4r'
+
 require 'vagrant/util/platform'
 
 module Vagrant
@@ -20,6 +22,7 @@ module Vagrant
       def initialize(*args)
         super
 
+        @logger = Log4r::Logger.new("vagrant::hosts::linux")
         @nfs_server_binary = "/etc/init.d/nfs-kernel-server"
       end
 
@@ -39,6 +42,8 @@ module Vagrant
         @ui.info I18n.t("vagrant.hosts.linux.nfs_export.prepare")
         sleep 0.5
 
+        nfs_cleanup(id)
+
         output.split("\n").each do |line|
           # This should only ask for administrative permission once, even
           # though its executed in multiple subshells.
@@ -49,6 +54,23 @@ module Vagrant
         # is not starting
         system("sudo #{@nfs_server_binary} restart")
       end
+
+      def nfs_prune(valid_ids)
+        @logger.info("Pruning invalid NFS entries...")
+
+        File.read("/etc/exports").lines.each do |line|
+          if line =~ /^# VAGRANT-BEGIN: (.+?)$/
+            if valid_ids.include?($1.to_s)
+              @logger.debug("Valid ID: #{$1.to_s}")
+            else
+              @logger.info("Invalid ID, pruning: #{$1.to_s}")
+              nfs_cleanup($1.to_s)
+            end
+          end
+        end
+      end
+
+      protected
 
       def nfs_cleanup(id)
         return if !File.exist?("/etc/exports")

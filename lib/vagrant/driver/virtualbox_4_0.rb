@@ -350,6 +350,17 @@ module Vagrant
         ports
       end
 
+      def read_vms
+        results = []
+        execute("list", "vms").split("\n").each do |line|
+          if line =~ /^".+?" \{(.+?)\}$/
+            results << $1.to_s
+          end
+        end
+
+        results
+      end
+
       def set_mac_address(mac)
         execute("modifyvm", @uuid, "--macaddress1", mac)
       end
@@ -362,6 +373,8 @@ module Vagrant
       end
 
       def ssh_port(expected_port)
+        @logger.debug("Searching for SSH port: #{expected_port.inspect}")
+
         # Look for the forwarded port only by comparing the guest port
         read_forwarded_ports.each do |_, _, hostport, guestport|
           return hostport if guestport == expected_port

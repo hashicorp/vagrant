@@ -54,10 +54,12 @@ module Vagrant
       def nfs_export(id, ip, folders)
       end
 
-      # Cleans up the exports for the given ID.
+      # Prunes any NFS exports made by Vagrant which aren't in the set
+      # of valid ids given.
       #
-      # @param [String] id A unique ID to identify the folder set to cleanup.
-      def nfs_cleanup(id)
+      # @param [Array<String>] valid_ids Valid IDs that should not be
+      #   pruned.
+      def nfs_prune(valid_ids)
       end
     end
   end
