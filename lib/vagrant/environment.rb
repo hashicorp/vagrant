@@ -4,6 +4,7 @@ require 'fileutils'
 require 'log4r'
 
 require 'vagrant/util/file_mode'
+require 'vagrant/util/platform'
 
 module Vagrant
   # Represents a single Vagrant environment. A "Vagrant environment" is
@@ -470,9 +471,13 @@ module Vagrant
                      @default_private_key_path)
       end
 
-      if Util::FileMode.from_octal(@default_private_key_path.stat.mode) != "600"
-        @logger.info("Changing permissions on private key to 0600")
-        @default_private_key_path.chmod(0600)
+      if !Util::Platform.windows?
+        # On Windows, permissions don't matter as much, so don't worry
+        # about doing chmod.
+        if Util::FileMode.from_octal(@default_private_key_path.stat.mode) != "600"
+          @logger.info("Changing permissions on private key to 0600")
+          @default_private_key_path.chmod(0600)
+        end
       end
     end
 

@@ -132,20 +132,14 @@ en:
         guest port value, or specify an explicit SSH port with `config.ssh.port`.
       ssh_unavailable: "`ssh` binary could not be found. Is an SSH client installed?"
       ssh_unavailable_windows: |-
-        `vagrant ssh` isn't available on the Windows platform. The
-        vagrant.ppk file for use with Putty is available at:
+        `vagrant ssh` isn't available on the Windows platform. You are still able
+        to SSH into the virtual machine if you get a Windows SSH client (such as
+        PuTTY). The authentication information is shown below:
 
-          %{key_path}.ppk
-
-        To use this create a new Putty session for `vagrant@localhost`
-        on port `%{ssh_port}`, in the Connection>SSH>Auth
-        configuration section navigate to the vagrant.ppk file,
-        select it, save the session for later use, and connect.
-
-        For a more detailed guide please consult:
-
-          http://vagrantup.com/docs/getting-started/setup/windows.html
-
+        Host: %{host}
+        Port: %{port}
+        Username: %{username}
+        Private key: %{key_path}
       vagrantfile_exists: |-
         `Vagrantfile` already exists in this directory. Remove it before
         running `vagrant init`.

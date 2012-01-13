@@ -56,8 +56,10 @@ module Vagrant
       ssh_info = info
 
       if Util::Platform.windows?
-        raise Errors::SSHUnavailableWindows, :key_path => ssh_info[:private_key_path],
-                                             :ssh_port => ssh_info[:port]
+        raise Errors::SSHUnavailableWindows, :host => ssh_info[:host],
+                                             :port => ssh_info[:port],
+                                             :username => ssh_info[:username,
+                                             :key_path => ssh_info[:private_key_path]
       end
 
       raise Errors::SSHUnavailable if !Kernel.system("which ssh > /dev/null 2>&1")
