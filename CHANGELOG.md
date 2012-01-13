@@ -47,6 +47,9 @@
     `ssh`. [GH-554]
   - Ubuntu guests will now emit a `vagrant-mounted` upstart event after shared
     folders are mounted.
+  - `attempts` is a new option on chef client and chef solo provisioners. This
+    will run the provisioner multiple times until erroring about failing
+    convergence. [GH-282]
   - Removed Thor as a dependency for the command line interfaces. This resulted
     in general speed increases across all command line commands.
   - Linux uses `shutdown -h` instead of `halt` to hopefully more consistently

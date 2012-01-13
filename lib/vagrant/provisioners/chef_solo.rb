@@ -145,15 +145,28 @@ module Vagrant
         command_env = config.binary_env ? "#{config.binary_env} " : ""
         command = "#{command_env}#{chef_binary_path("chef-solo")} -c #{config.provisioning_path}/solo.rb -j #{config.provisioning_path}/dna.json"
 
-        env[:ui].info I18n.t("vagrant.provisioners.chef.running_solo")
-        env[:vm].channel.sudo(command) do |type, data|
-          # Output the data with the proper color based on the stream.
-          color = type == :stdout ? :green : :red
+        config.attempts.times do |attempt|
+          if attempt == 0
+            env[:ui].info I18n.t("vagrant.provisioners.chef.running_solo")
+          else
+            env[:ui].info I18n.t("vagrant.provisioners.chef.running_solo_again")
+          end
 
-          # Note: Be sure to chomp the data to avoid the newlines that the
-          # Chef outputs.
-          env[:ui].info(data.chomp, :color => color, :prefix => false)
+          exit_status = env[:vm].channel.sudo(command, :error_check => false) do |type, data|
+            # Output the data with the proper color based on the stream.
+            color = type == :stdout ? :green : :red
+
+            # Note: Be sure to chomp the data to avoid the newlines that the
+            # Chef outputs.
+            env[:ui].info(data.chomp, :color => color, :prefix => false)
+          end
+
+          # There is no need to run Chef again if it converges
+          return if exit_status == 0
         end
+
+        # If we reached this point then Chef never converged! Error.
+        raise ChefError, :no_convergence
       end
 
       def verify_shared_folders(folders)

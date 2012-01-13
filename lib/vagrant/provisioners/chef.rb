@@ -112,11 +112,13 @@ module Vagrant
         attr_accessor :no_proxy
         attr_accessor :binary_path
         attr_accessor :binary_env
+        attr_accessor :attempts
         attr_writer :run_list
 
         def initialize
-          @log_level = :info
+          @attempts = 1
           @json = {}
+          @log_level = :info
         end
 
         # This returns the json that is merged with the defaults and the
