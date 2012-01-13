@@ -49,10 +49,10 @@ in pre-existing project folders.
 <div class="alert-message block-message grey notice">
   <h3>What about PHP? Python? Java?</h3>
   <p>
-    To keep this getting started guide simple and as general as possible,
-    uses an HTML-based project as an example, but Vagrant doesn't make
+    To keep this getting started guide as simple and as general as possible,
+    we use an HTML-based project as an example, but Vagrant doesn't make
     any assumptions about the type of project you're developing. It should
-    be clear after going through the getting started guide on how to use Vagrant
-    with other types of web projects.
+    be clear after going through the getting started guide that Vagrant is
+    usable with any type of web project.
   </p>
 </div>
