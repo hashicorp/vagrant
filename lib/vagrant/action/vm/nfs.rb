@@ -60,19 +60,19 @@ module Vagrant
         # task.
         def extract_folders
           # Load the NFS enabled shared folders
-          @folders = {}
-          @env[:vm].config.vm.shared_folders.each do |name, opts|
+          @folders = @env[:vm].config.vm.shared_folders.inject({}) do |acc, data|
+            key, opts = data
+
             if opts[:nfs]
               # Duplicate the options, set the hostpath, and set disabled on the original
               # options so the ShareFolders middleware doesn't try to mount it.
-              opts = opts.dup
-              opts[:hostpath] = File.expand_path(opts[:hostpath], @env[:root_path])
+              acc[key] = opts.dup
+              acc[key][:hostpath] = File.expand_path(opts[:hostpath], @env[:root_path])
               opts[:disabled] = true
-              @folders[key] = opts
             end
-          end
 
-          @folders
+            acc
+          end
         end
 
         # Prepares the settings for the NFS folders, such as setting the

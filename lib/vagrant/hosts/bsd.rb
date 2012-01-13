@@ -56,10 +56,14 @@ module Vagrant
         return if !File.exist?("/etc/exports")
 
         retryable(:tries => 10, :on => TypeError) do
-          # Use sed to just strip out the block of code which was inserted
-          # by Vagrant, and restart NFS.
-          system("sudo sed -e '/^# VAGRANT-BEGIN: #{id}/,/^# VAGRANT-END: #{id}/ d' -ibak /etc/exports")
-          system(@nfs_restart_command)
+          system("cat /etc/exports | grep 'VAGRANT-BEGIN: #{id}' > /dev/null 2>&1")
+
+          if $?.to_i == 0
+            # Use sed to just strip out the block of code which was inserted
+            # by Vagrant, and restart NFS.
+            system("sudo sed -e '/^# VAGRANT-BEGIN: #{id}/,/^# VAGRANT-END: #{id}/ d' -ibak /etc/exports")
+            system(@nfs_restart_command)
+          end
         end
       end
     end
