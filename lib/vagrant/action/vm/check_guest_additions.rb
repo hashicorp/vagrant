@@ -22,7 +22,7 @@ module Vagrant
               v.gsub(/[-_]ose/i, '')
             end
 
-            if guest_version != vb_version
+            if guest_version.split("_").first != vb_version
               env[:ui].warn(I18n.t("vagrant.actions.vm.check_guest_additions.version_mismatch",
                                    :guest_version => version,
                                    :virtualbox_version => vb_version))
