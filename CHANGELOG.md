@@ -45,6 +45,8 @@
     folders. [GH-551]
   - Options passed after a `--` to `vagrant ssh` are now passed directly to
     `ssh`. [GH-554]
+  - Ubuntu guests will now emit a `vagrant-mounted` upstart event after shared
+    folders are mounted.
   - Removed Thor as a dependency for the command line interfaces. This resulted
     in general speed increases across all command line commands.
   - Linux uses `shutdown -h` instead of `halt` to hopefully more consistently
