@@ -58,7 +58,7 @@ module Vagrant
       if Util::Platform.windows?
         raise Errors::SSHUnavailableWindows, :host => ssh_info[:host],
                                              :port => ssh_info[:port],
-                                             :username => ssh_info[:username,
+                                             :username => ssh_info[:username],
                                              :key_path => ssh_info[:private_key_path]
       end
 
