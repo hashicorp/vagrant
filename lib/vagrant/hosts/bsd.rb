@@ -40,7 +40,7 @@ module Vagrant
 
         # The sleep ensures that the output is truly flushed before any `sudo`
         # commands are issued.
-        @ui.info I18n.t("vagrant.hosts.bsd.nfs_export.prepare")
+        @ui.info I18n.t("vagrant.hosts.bsd.nfs_export")
         sleep 0.5
 
         # First, clean up the old entry
@@ -60,11 +60,19 @@ module Vagrant
       def nfs_prune(valid_ids)
         @logger.info("Pruning invalid NFS entries...")
 
+        output = false
+
         File.read("/etc/exports").lines.each do |line|
           if line =~ /^# VAGRANT-BEGIN: (.+?)$/
             if valid_ids.include?($1.to_s)
               @logger.debug("Valid ID: #{$1.to_s}")
             else
+              if !output
+                # We want to warn the user but we only want to output once
+                @ui.info I18n.t("vagrant.hosts.bsd.nfs_prune")
+                output = true
+              end
+
               @logger.info("Invalid ID, pruning: #{$1.to_s}")
               nfs_cleanup($1.to_s)
             end

@@ -541,12 +541,15 @@ en:
 
     hosts:
       bsd:
-        nfs_export:
-          prepare: "Preparing to edit /etc/exports. Administrator privileges will be required..."
+        nfs_export: |-
+          Preparing to edit /etc/exports. Administrator privileges will be required...
+        nfs_prune: |-
+          Pruning invalid NFS exports. Administrator privileges will be required...
       linux:
-        nfs_export:
-          prepare: "Preparing to edit /etc/exports. Administrator privileges will be required..."
-
+        nfs_export: |-
+          Preparing to edit /etc/exports. Administrator privileges will be required...
+        nfs_prune: |-
+          Pruning invalid NFS exports. Administrator privileges will be required...
       arch:
         nfs_export:
           prepare: "Preparing to edit /etc/exports. Administrator privileges will be required..."
