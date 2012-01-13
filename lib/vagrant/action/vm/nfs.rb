@@ -14,8 +14,6 @@ module Vagrant
       #      folder.
       #
       class NFS
-        include NFSHelpers
-
         def initialize(app,env)
           @app = app
           @env = env
