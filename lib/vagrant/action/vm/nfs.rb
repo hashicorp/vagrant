@@ -132,12 +132,17 @@ module Vagrant
         #
         # @return [String]
         def host_ip
-          interface = @env[:vm].vm.network_adapters.find do |adapter|
-            adapter.host_interface_object
+          @env[:vm].driver.read_network_interfaces.each do |adapter, opts|
+            if opts[:type] == :hostonly
+              @env[:vm].driver.read_host_only_interfaces.each do |interface|
+                if interface[:name] == opts[:hostonly]
+                  return interface[:ip]
+                end
+              end
+            end
           end
 
-          return nil if !interface
-          interface.host_interface_object.ip_address
+          nil
         end
 
         # Returns the IP address of the guest by looking at the first
@@ -145,7 +150,13 @@ module Vagrant
         #
         # @return [String]
         def guest_ip
-          @env[:vm].config.vm.network_options[1][:ip]
+          @env[:vm].config.vm.networks.each do |type, args|
+            if type == :hostonly && args[0].is_a?(String)
+              return args[0]
+            end
+          end
+
+          nil
         end
 
         # Checks if there are any NFS enabled shared folders.
@@ -161,7 +172,7 @@ module Vagrant
         def verify_settings
           raise Errors::NFSHostRequired if @env[:host].nil?
           raise Errors::NFSNotSupported if !@env[:host].nfs?
-          raise Errors::NFSNoHostNetwork if @env[:vm].config.vm.network_options.empty?
+          raise Errors::NFSNoHostNetwork if !guest_ip
         end
       end
     end
