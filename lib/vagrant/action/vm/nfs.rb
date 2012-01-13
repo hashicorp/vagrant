@@ -110,7 +110,6 @@ module Vagrant
         # up to the host class to define the specific behavior.
         def export_folders
           @env[:ui].info I18n.t("vagrant.actions.vm.nfs.exporting")
-
           @env[:host].nfs_export(@env[:vm].uuid, guest_ip, folders)
         end
 
@@ -119,9 +118,14 @@ module Vagrant
           @env[:ui].info I18n.t("vagrant.actions.vm.nfs.mounting")
 
           # Only mount the folders which have a guest path specified
-          am_folders = folders.select { |name, folder| folder[:guestpath] }
-          am_folders = Hash[*am_folders.flatten] if am_folders.is_a?(Array)
-          @env[:vm].guest.mount_nfs(host_ip, Hash[am_folders])
+          mount_folders = {}
+          folders.each do |name, opts|
+            if opts[:guestpath]
+              mount_folders[name] = opts.dup
+            end
+          end
+
+          @env[:vm].guest.mount_nfs(host_ip, mount_folders)
         end
 
         # Returns the IP address of the first host only network adapter
