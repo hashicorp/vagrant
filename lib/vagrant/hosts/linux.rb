@@ -52,13 +52,10 @@ module Vagrant
 
       def nfs_cleanup(id)
         return if !File.exist?("/etc/exports")
-        system("cat /etc/exports | grep 'VAGRANT-BEGIN: #{id}' > /dev/null 2>&1")
 
-        if $?.to_i == 0
-          # Use sed to just strip out the block of code which was inserted
-          # by Vagrant
-          system("sudo sed -e '/^# VAGRANT-BEGIN: #{id}/,/^# VAGRANT-END: #{id}/ d' -ibak /etc/exports")
-        end
+        # Use sed to just strip out the block of code which was inserted
+        # by Vagrant
+        system("sudo sed -e '/^# VAGRANT-BEGIN: #{id}/,/^# VAGRANT-END: #{id}/ d' -ibak /etc/exports")
       end
     end
   end
