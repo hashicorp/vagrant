@@ -95,7 +95,7 @@ module Vagrant
         command = "#{command_env}#{chef_binary_path("chef-client")} -c #{config.provisioning_path}/client.rb -j #{config.provisioning_path}/dna.json"
 
         env[:ui].info I18n.t("vagrant.provisioners.chef.running_client")
-        vm.channel.sudo(command) do |type, data|
+        env[:vm].channel.sudo(command) do |type, data|
           # Output the data with the proper color based on the stream.
           color = type == :stdout ? :green : :red
 
