@@ -105,6 +105,8 @@ module Vagrant
               @env[:ui].info(I18n.t("vagrant.actions.vm.share_folders.nomount_entry",
                                     :name => name))
             end
+            # Emit an event for Upstart configs
+            ssh.exec!("[ -x /sbin/initctl ] && sudo /sbin/initctl emit vagrant-mounted")
           end
         end
       end
