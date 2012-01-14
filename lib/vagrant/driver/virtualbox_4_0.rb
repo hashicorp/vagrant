@@ -231,7 +231,14 @@ module Vagrant
 
       def read_guest_additions_version
         output = execute("guestproperty", "get", @uuid, "/VirtualBox/GuestAdd/Version")
-        return $1.to_s if output =~ /^Value: (.+?)$/
+        if output =~ /^Value: (.+?)$/
+          # Split the version by _ since some distro versions modify it
+          # to look like this: 4.1.2_ubuntu, and the distro part isn't
+          # too important.
+          value = $1.to_s
+          return value.split("_").first
+        end
+
         return nil
       end
 
