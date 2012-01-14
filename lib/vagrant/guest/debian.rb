@@ -50,9 +50,9 @@ module Vagrant
       end
 
       def change_host_name(name)
-        if !vm.channel.test("sudo hostname | grep '#{name}'")
-          vm.channel.sudo("sed -i 's@^\\(127[.]0[.]1[.]1[[:space:]]\\+\\)@\\1#{name} #{name.split('.')[0]} @' /etc/hosts")
-          vm.channel.sudo("sed -i 's/.*$/#{name}/' /etc/hostname")
+        if !vm.channel.test?("hostname --fqdn | grep '^#{name}$' || hostname --short | grep '^#{name}$'")
+          vm.channel.sudo("sed -r -i 's/^(127[.]0[.]1[.]1[[:space:]]+).*$/\\1#{name} #{name.split('.')[0]}/' /etc/hosts")
+          vm.channel.sudo("sed -i 's/.*$/#{name.split('.')[0]}/' /etc/hostname")
           vm.channel.sudo("hostname -F /etc/hostname")
         end
       end
