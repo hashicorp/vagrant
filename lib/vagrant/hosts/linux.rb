@@ -56,6 +56,8 @@ module Vagrant
       end
 
       def nfs_prune(valid_ids)
+        return if !File.exist?("/etc/exports")
+
         @logger.info("Pruning invalid NFS entries...")
 
         output = false
