@@ -44,7 +44,7 @@ module Vagrant
       protected
 
       def package_base(options)
-        vm = VM.find(options[:base], @env)
+        vm = VM.new(options[:base], @env, @env.config.global, :base => true)
         raise Errors::BaseVMNotFound, :name => options[:base] if !vm.created?
         @logger.debug("Packaging base VM: #{vm.name}")
         package_vm(vm, options)

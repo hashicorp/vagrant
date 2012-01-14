@@ -12,7 +12,7 @@ module Vagrant
     attr_reader :config
     attr_reader :driver
 
-    def initialize(name, env, config)
+    def initialize(name, env, config, opts=nil)
       @logger = Log4r::Logger.new("vagrant::vm")
 
       @name   = name
@@ -21,9 +21,15 @@ module Vagrant
       @config = config
       @box    = env.boxes.find(config.vm.box)
 
-      # Load the UUID if its saved.
-      active = env.local_data[:active] || {}
-      @uuid = active[@name.to_s]
+      opts ||= {}
+      if opts[:base]
+        # The name is the ID we use.
+        @uuid = name
+      else
+        # Load the UUID if its saved.
+        active = env.local_data[:active] || {}
+        @uuid = active[@name.to_s]
+      end
 
       # Reload ourselves to get the state
       reload!
