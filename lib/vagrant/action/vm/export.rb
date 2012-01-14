@@ -38,9 +38,14 @@ module Vagrant
 
         def export
           @env[:ui].info I18n.t("vagrant.actions.vm.export.exporting")
-          @env["vm"].driver.export(ovf_path) do |progress|
+          @env[:vm].driver.export(ovf_path) do |progress|
+            @env[:ui].clear_line
             @env[:ui].report_progress(progress.percent, 100, false)
           end
+
+          # Clear the line a final time so the next data can appear
+          # alone on the line.
+          @env[:ui].clear_line
         end
 
         def ovf_path
