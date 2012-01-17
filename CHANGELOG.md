@@ -1,4 +1,4 @@
-## 0.9.0 (unreleased)
+## 0.9.0 (January 17, 2012)
 
   - VirtualBox 4.0 support backported in addition to supporting VirtualBox 4.1.
   - `config.vm.network` syntax changed so that the first argument is now the type
