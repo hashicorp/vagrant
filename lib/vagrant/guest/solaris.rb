@@ -28,18 +28,21 @@ module Vagrant
         error_namespace("vagrant.guest.solaris")
       end
 
-      def prepare_host_only_network(net_options=nil)
-      end
+      def configure_networks(networks)
+        networks.each do |network|
+          device = "#{vm.config.solaris.device}#{network[:interface]}"
+          su_cmd = vm.config.solaris.suexec_cmd
+          ifconfig_cmd = "#{su_cmd} /sbin/ifconfig #{device}"
 
-      def enable_host_only_network(net_options)
-        device = "#{vm.config.solaris.device}#{net_options[:adapter]}"
-        su_cmd = vm.config.solaris.suexec_cmd
-        ifconfig_cmd = "#{su_cmd} /sbin/ifconfig #{device}"
-        vm.ssh.execute do |ssh|
-          ssh.exec!("#{ifconfig_cmd} plumb")
-          ssh.exec!("#{ifconfig_cmd} inet #{net_options[:ip]} netmask #{net_options[:netmask]}")
-          ssh.exec!("#{ifconfig_cmd} up")
-          ssh.exec!("#{su_cmd} sh -c \"echo '#{net_options[:ip]}' > /etc/hostname.#{device}\"")
+          vm.channel.execute("#{ifconfig_cmd} plumb")
+
+          if network[:type].to_sym == :static
+            vm.channel.execute("#{ifconfig_cmd} inet #{network[:ip]} netmask #{network[:netmask]}")
+            vm.channel.execute("#{ifconfig_cmd} up")
+            vm.channel.execute("#{su_cmd} sh -c \"echo '#{network[:ip]}' > /etc/hostname.#{device}\"")
+          elsif network[:type].to_sym == :dhcp
+            vm.channel.execute("#{ifconfig_cmd} dhcp start")
+          end
         end
       end
 
