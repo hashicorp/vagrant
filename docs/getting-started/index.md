@@ -26,19 +26,7 @@ VirtualBox runs on **Windows**, **Mac OS X**, **Linux**, and **Solaris**.
 
 Here is a link directly to the [download page](http://www.virtualbox.org/wiki/Downloads).
 
-<div class="alert-message block-message grey notice">
-  <h3>Version 4.1.x!</h3>
-  <p>
-    Vagrant requires VirtualBox version 4.1.x (meaning 4.1.0, 4.1.1, etc.). If your package
-    manager is still stuck on version 4.0 or lower, then download the 4.1 installation package from
-    the official VirtualBox <a href="http://www.virtualbox.org/wiki/Downloads">download page.</a>
-  </p>
-  <p>
-    If you have no choice but to use an earlier version of VirtualBox, you can use
-    earlier versions of Vagrant which work with them. For VirtualBox 4.0, this is the 0.7.x
-    line, and for VirtualBox 3.2.x, this is the 0.6.x line.
-  </p>
-</div>
+Vagrant currently supports VirtualBox 4.0.x and 4.1.x.
 
 ## Setting up Ruby and RubyGems
 

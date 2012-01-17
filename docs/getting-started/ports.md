@@ -29,16 +29,15 @@ in the Vagrantfile, like so:
 {% highlight ruby %}
 Vagrant::Config.run do |config|
   # Forward guest port 80 to host port 4567 and name the mapping "web"
-  config.vm.forward_port("web", 80, 4567)
+  config.vm.forward_port 80, 4567
 end
 {% endhighlight %}
 
-`forward_port` is a method which takes three arguments:
+`forward_port` is a method which takes two arguments:
 
-* **name** - A name of the mapping. This name must be unique, otherwise
-  if its repeated it will be overwritten. This name is only used internally.
-* **guest port** - The port on the virtual machine
-* **host port** - The port on your local machine you want forwarded
+* **guest port** - The port on the virtual machine.
+* **host port** - The port on your local machine you want to use to access
+  the guest port.
 
 ## Applying Forwarded Ports
 

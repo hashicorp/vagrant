@@ -13,7 +13,7 @@ join this network.
 Vagrant allows users to assign a static IP to a VM, which is then
 setup using host-only networking.
 
-<div class="info">
+<div class="alert-message block-message grey notice">
   <h3>Supported Operating Systems</h3>
   <p>
     Since setting up host-only networking requires configuring the OS to
@@ -22,7 +22,7 @@ setup using host-only networking.
   </p>
   <p>
     If you'd like another OS supported, you can add it yourself using a
-    <a href="/docs/systems.html">custom system</a> or you can get in touch
+    <a href="/docs/guests.html">custom guest</a> or you can get in touch
     with a Vagrant developer and assist us in adding it to the core.
   </p>
 </div>
@@ -30,18 +30,18 @@ setup using host-only networking.
 ## Assigning an IP
 
 Assigning an IP to a virtual machine using Vagrant is simple enough,
-using a single function within the Vagrantfile:
+using a single configuration directive within the Vagrantfile:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.vm.network("33.33.33.10")
+  config.vm.network :hostonly, "33.33.33.10"
 end
 {% endhighlight %}
 
 The above will setup the VM with that specific IP. It is up to the user
 to make sure that no static IPs will collide with other virtual machines.
 
-<div class="info">
+<div class="alert-message block-message grey notice">
   <h3>Avoid Router-only IPs</h3>
   <p>
     Some IP/subnets are reserved by routers, and if the static IP you attempt to
@@ -66,7 +66,7 @@ is shown below:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.vm.network("33.33.34.10", :netmask => "255.255.0.0")
+  config.vm.network :hostonly, "33.33.34.10", :netmask => "255.255.0.0"
 end
 {% endhighlight %}
 

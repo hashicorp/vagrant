@@ -43,6 +43,7 @@ $ sudo gem update --system
 
 By default, VirtualBox installed via Ubuntu's package repositories
 will be "VirtualBox Open Source Edition (OSE)." Vagrant may work with
-this edition (as long as its version 3.1+), but it is not officially
-supported. It is recommended that you download the installation package
-from the [VirtualBox website](http://virtualbox.org) for the full version.
+this edition (as long as the version is currently supported by
+Vagrant), but it is not officially supported. It is recommended that you
+download the installation package from the [VirtualBox website](http://virtualbox.org)
+for the full version.

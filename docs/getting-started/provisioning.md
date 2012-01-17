@@ -58,18 +58,23 @@ details on this can be found in the [chef solo documentation](/docs/provisioners
 
 ## Configuring Puppet and the Vagrant
 
-Alternatively, you can use Puppet to configure Apache.  To do this we create a directory called `manifests`
-(in the root where your Vagrantfile is located) and create a file to hold our Puppet configuration, for example `lucid.pp`.
+Alternatively, you can use Puppet to configure Apache.  To do this we create
+a directory called `manifests` (in the root where your Vagrantfile is located)
+and create a file to hold our Puppet configuration, for example `default.pp`.
 
-Note both the path and file name are configurable but Vagrant will default to `manifests/vm.box.pp` where vm.box is the name
-of the box being configured.
+Note both the path and file name are configurable but Vagrant will default
+to `manifests/default.pp`.
 
 The manifest file will contain the required Puppet configuration, for example:
 
 {% highlight ruby %}
 # Basic Puppet Apache manifest
 
-class lucid32 {
+class default {
+  exec { 'apt-get update':
+    command => '/usr/bin/apt-get update'
+  }
+
   package { "apache2":
     ensure => present,
   }
@@ -80,7 +85,7 @@ class lucid32 {
   }
 }
 
-include lucid32
+include default
 {% endhighlight %}
 
 We then add support in the Vagrantfile to support Puppet provisioning:
