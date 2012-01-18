@@ -3,6 +3,7 @@
   - Clearer invalid log level error. [GH-645]
   - Fix exception raised with NFS `recover` method.
   - Fix `ui` `NoMethodError` exception in puppet server.
+  - Fix `vagrant box help` on Ruby 1.8.7. [GH-647]
 
 ## 0.9.0 (January 17, 2012)
 
