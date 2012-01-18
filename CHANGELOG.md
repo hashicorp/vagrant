@@ -1,4 +1,4 @@
-## 0.9.1 (unreleased)
+## 0.9.1 (January 18, 2012)
 
   - Use `ifconfig device down` instead of `ifdown`. [GH-649]
   - Clearer invalid log level error. [GH-645]
