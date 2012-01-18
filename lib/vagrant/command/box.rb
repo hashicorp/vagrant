@@ -41,7 +41,7 @@ module Vagrant
           # Add the available subcommands as separators in order to print them
           # out as well.
           keys = []
-          @subcommands.each { |key, value| keys << key }
+          @subcommands.each { |key, value| keys << key.to_s }
 
           keys.sort.each do |key|
             opts.separator "     #{key}"
