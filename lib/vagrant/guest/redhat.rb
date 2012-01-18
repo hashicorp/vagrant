@@ -39,7 +39,7 @@ module Vagrant
         # each specifically, we avoid reconfiguring eth0 (the NAT interface) so
         # SSH never dies.
         interfaces.each do |interface|
-          vm.channel.sudo("/sbin/ifdown eth#{interface} 2> /dev/null")
+          vm.channel.sudo("/sbin/ifconfig eth#{interface} down 2> /dev/null")
           vm.channel.sudo("cat /tmp/vagrant-network-entry_#{interface} >> #{network_scripts_dir}/ifcfg-eth#{interface}")
           vm.channel.sudo("/sbin/ifup eth#{interface}")
         end
