@@ -1,5 +1,6 @@
 ## 0.9.1 (unreleased)
 
+  - Use `ifconfig device down` instead of `ifdown`. [GH-649]
   - Clearer invalid log level error. [GH-645]
   - Fix exception raised with NFS `recover` method.
   - Fix `ui` `NoMethodError` exception in puppet server.
