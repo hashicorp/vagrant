@@ -44,9 +44,14 @@ module Vagrant
 
         command = "puppetd #{options} --server #{config.puppet_server} --certname #{cn}"
 
-        env.ui.info I18n.t("vagrant.provisioners.puppet_server.running_puppetd")
+        env[:ui].info I18n.t("vagrant.provisioners.puppet_server.running_puppetd")
         env[:vm].channel.sudo(command) do |type, data|
-          env.ui.info(data)
+          # Output the data with the proper color based on the stream.
+          color = type == :stdout ? :green : :red
+
+          # Note: Be sure to chomp the data to avoid the newlines that the
+          # Chef outputs.
+          env[:ui].info(data.chomp, :color => color, :prefix => false)
         end
       end
     end
