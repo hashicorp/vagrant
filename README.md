@@ -10,7 +10,7 @@ Vagrant is a tool for building and distributing virtualized development environm
 By providing automated creation and provisioning of virtual machines using [Oracle’s VirtualBox](http://www.virtualbox.org),
 Vagrant provides the tools to create and configure lightweight, reproducible, and portable
 virtual environments. For more information, see the part of the getting started guide
-on “[Why Vagrant?](http://vagrantup.com/docs/getting-started/index.html)”
+on “[Why Vagrant?](http://vagrantup.com/docs/getting-started/why.html)”
 
 ## Quick Start
 
