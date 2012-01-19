@@ -1,6 +1,7 @@
 ## 0.9.2 (unreleased)
 
   - Fix `forward_agent` not working when outside of blocks. [GH-651]
+  - Fix issue causing custom guest implementations to not load properly.
 
 ## 0.9.1 (January 18, 2012)
 
