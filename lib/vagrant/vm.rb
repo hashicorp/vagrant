@@ -49,7 +49,7 @@ module Vagrant
       @logger.info("Loading guest: #{guest}")
 
       if guest.is_a?(Class)
-        raise Errors::VMGuestError, :_key => :invalid_class, :system => guest.to_s if !(guest <= Systems::Base)
+        raise Errors::VMGuestError, :_key => :invalid_class, :system => guest.to_s if !(guest <= Guest::Base)
         @guest = guest.new(self)
       elsif guest.is_a?(Symbol)
         guest_klass = Vagrant.guests.get(guest)
