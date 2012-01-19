@@ -167,13 +167,19 @@ module Vagrant
           ch.exec(shell) do |ch2, _|
             # Setup the channel callbacks so we can get data and exit status
             ch2.on_data do |ch3, data|
-              # Filter out the clear screen command
-              data.gsub!("\e[H", "")
-              yield :stdout, data if block_given?
+              if block_given?
+                # Filter out the clear screen command
+                data.gsub!("\e[H", "")
+                yield :stdout, data
+              end
             end
 
             ch2.on_extended_data do |ch3, type, data|
-              yield :stderr, data if block_given?
+              if block_given?
+                # Filter out the clear screen command
+                data.gsub!("\e[H", "")
+                yield :stderr, data
+              end
             end
 
             ch2.on_request("exit-status") do |ch3, data|
