@@ -13,12 +13,6 @@ module Vagrant
       attr_accessor :forward_x11
       attr_accessor :shell
 
-      def initialize
-        @shell            = "bash"
-        @forward_agent    = false
-        @forward_x11      = false
-      end
-
       def forwarded_port_key=(value)
         raise Errors::DeprecationError, :message => <<-MESSAGE
 `config.ssh.forwarded_port_key` is now gone. You must now use
