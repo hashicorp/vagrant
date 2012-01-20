@@ -86,9 +86,9 @@ end
 ## SSH Commands
 
 Perhaps you want to write a rake task that does some commands within the
-virtual server setup? This can be done through the `ssh` accessor of any
-VM within the environment, which is an instance of `Vagrant::SSH`. `Vagrant::SSH`
-is simply a wrapper around `Net::SSH`.
+virtual server setup? This can be done through the `channel` accessor of any
+VM within the environment which provides a communication channel to execute
+commands within the virtual machine.
 
 The following example is a useful example showing how to create a graceful
 shutdown command:
@@ -97,10 +97,8 @@ shutdown command:
 task :graceful_down do
   env = Vagrant::Environment.new
   raise "Must run `vagrant up`" if !env.primary_vm.created?
-  raise "Must be running!" if !env.primary_vm.vm.running?
-  env.primary_vm.ssh.execute do |ssh|
-    ssh.exec!("sudo halt")
-  end
+  raise "Must be running!" if env.primary_vm.state != :running
+  env.primary_vm.channel.sudo("halt")
 end
 {% endhighlight %}
 
@@ -111,9 +109,7 @@ access the VMs through the `vms` array on the environment:
 task :graceful_down do
   env = Vagrant::Environment.new
   env.vms.each do |vm|
-    vm.ssh.execute do |ssh|
-      ssh.exec!("sudo halt")
-    end
+    vm.channel.sudo("halt")
   end
 end
 {% endhighlight %}
