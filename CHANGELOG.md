@@ -4,6 +4,8 @@
   - Fix issue causing custom guest implementations to not load properly.
   - Filter clear screen character out of output on SSH.
   - Log output now goes on `stderr`, since it is utility information.
+  - Get rid of case where a `NoMethodError` could be raised while
+    determining VirtualBox version. [GH-658]
 
 ## 0.9.1 (January 18, 2012)
 

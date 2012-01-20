@@ -33,7 +33,7 @@ module Vagrant
         # Read and assign the version of VirtualBox we know which
         # specific driver to instantiate.
         begin
-          @version = read_version
+          @version = read_version || ""
         rescue Subprocess::LaunchError
           # This means that VirtualBox was not found, so we raise this
           # error here.
@@ -113,8 +113,13 @@ module Vagrant
         # * 4.1.8r1234_OSE
         # * 4.1.8_MacPortsr1234
         #
-        # Below accounts for all of these:
-        execute("--version").split("_")[0].split("r")[0]
+        # Below accounts for all of these.
+
+        # Note: We split this into multiple lines because apparently "".split("_")
+        # is [], so we have to check for an empty array in between.
+        parts = execute("--version").split("_")
+        return nil if parts.empty?
+        parts[0].split("r")[0]
       end
     end
   end
