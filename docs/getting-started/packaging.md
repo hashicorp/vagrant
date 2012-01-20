@@ -35,7 +35,7 @@ box. Name the file `Vagrantfile.pkg` and put the following contents in it:
 {% highlight ruby %}
 Vagrant::Config.run do |config|
   # Forward apache
-  config.vm.forward_port("web", 80, 8080)
+  config.vm.forward_port 80, 8080
 end
 {% endhighlight %}
 
