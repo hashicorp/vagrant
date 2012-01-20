@@ -8,6 +8,8 @@
     determining VirtualBox version. [GH-658]
   - Debian/Ubuntu uses `ifdown` again, instead of `ifconfig xxx down`, since
     the behavior seems different/wrong.
+  - Give a nice error if `:vagrant` is used as a JSON key, since Vagrant
+    uses this. [GH-661]
 
 ## 0.9.1 (January 18, 2012)
 
