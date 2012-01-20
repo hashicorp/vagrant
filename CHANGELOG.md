@@ -1,3 +1,7 @@
+## 0.9.3 (unreleased)
+
+
+
 ## 0.9.2 (January 20, 2012)
 
   - Support shell expansions in shared folder guest paths again. [GH-656]
