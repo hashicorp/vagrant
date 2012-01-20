@@ -125,14 +125,10 @@ created with vagrant. The default Vagrantfile that is packaged with Vagrant itse
 port 22 on the guest for ssh. Example usage of this is shown below:
 
 {% highlight ruby %}
-config.vm.forward_port("web", 80, 8080)
-config.vm.forward_port("ftp", 21, 4567)
-config.vm.forward_port("ssh", 22, 2222, :auto => true)
+config.vm.forward_port(80, 8080)
+config.vm.forward_port(21, 4567)
+config.vm.forward_port(22, 2222, :auto => true)
 {% endhighlight %}
-
-The first parameter of the `forward_port` method is simply a key used internally to reference the
-forwarded port. It doesn't affect the actual ports forwarded at all. The above example could've
-changed `web` to `fluffy bananas` and it still would've worked fine.
 
 The final parameter is a hash of options which can be used to configure details of the forwarded
 ports. `:adapter` allows you to specify which network adapter to forward the ports on. And if `:auto`
