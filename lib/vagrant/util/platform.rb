@@ -44,6 +44,11 @@ module Vagrant
           !bit64?
         end
 
+        def terminal_supports_colors?
+           !$stdout.tty? || ARGV.include?("--no-color") || 
+             (Vagrant::Util::Platform.windows? ? ENV['ansicon'] : false)
+        end
+
         def tar_file_options
           # create, write only, fail if the file exists, binary if windows
           File::WRONLY | File::EXCL | File::CREAT | (windows? ? File::BINARY : 0)
