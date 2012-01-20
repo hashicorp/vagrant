@@ -314,29 +314,40 @@ module Vagrant
         def bridged_adapter(config)
           bridgedifs = @env[:vm].driver.read_bridged_interfaces
 
-          # Output all the interfaces that are available as choices
-          @env[:ui].info I18n.t("vagrant.actions.vm.bridged_networking.available",
-                                :prefix => false)
-          bridgedifs.each_index do |index|
-            interface = bridgedifs[index]
-            @env[:ui].info("#{index + 1}) #{interface[:name]}", :prefix => false)
+          chosen_bridge = nil
+          if bridgedifs.length == 1
+            # One bridgable interface? Just use it.
+            chosen_bridge = bridgedifs[0][:name]
+          else
+            # More than one bridgable interface requires a user decision, so
+            # show options to choose from.
+            @env[:ui].info I18n.t("vagrant.actions.vm.bridged_networking.available",
+                                  :prefix => false)
+            bridgedifs.each_index do |index|
+              interface = bridgedifs[index]
+              @env[:ui].info("#{index + 1}) #{interface[:name]}", :prefix => false)
+            end
+
+            # The range of valid choices
+            valid = Range.new(1, bridgedifs.length)
+
+            # The choice that the user has chosen as the bridging interface
+            choice = nil
+            while !valid.include?(choice)
+              choice = @env[:ui].ask("What interface should the network bridge to? ")
+              choice = choice.to_i
+            end
+
+            chosen_bridge = bridgedifs[choice - 1][:name]
           end
 
-          # The range of valid choices
-          valid = Range.new(1, bridgedifs.length)
-
-          # The choice that the user has chosen as the bridging interface
-          choice = nil
-          while !valid.include?(choice)
-            choice = @env[:ui].ask("What interface should the network bridge to? ")
-            choice = choice.to_i
-          end
+          @logger.info("Bridging adapter #{config[:adapter]} to #{bridge}")
 
           # Given the choice we can now define the adapter we're using
           return {
             :adapter     => config[:adapter],
             :type        => :bridged,
-            :bridge      => bridgedifs[choice - 1][:name],
+            :bridge      => chosen_bridge,
             :mac_address => config[:mac]
           }
         end

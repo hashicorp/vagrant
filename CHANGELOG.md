@@ -13,6 +13,8 @@
     the behavior seems different/wrong.
   - Give a nice error if `:vagrant` is used as a JSON key, since Vagrant
     uses this. [GH-661]
+  - If there is only one bridgable interface, use that without asking
+    the user. [GH-655]
 
 ## 0.9.1 (January 18, 2012)
 
