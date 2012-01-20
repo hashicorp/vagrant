@@ -1,9 +1,17 @@
+require 'log4r'
+
 require 'vagrant/guest/linux/error'
 require 'vagrant/guest/linux/config'
 
 module Vagrant
   module Guest
     class Linux < Base
+      def initialize(*args)
+        super
+
+        @logger = Log4r::Logger.new("vagrant::guest::linux")
+      end
+
       def distro_dispatch
         if @vm.channel.test("cat /etc/debian_version")
           return :debian if @vm.channel.test("cat /proc/version | grep 'Debian'")
@@ -20,17 +28,17 @@ module Vagrant
       end
 
       def halt
-        vm.channel.sudo("shutdown -h now")
+        @vm.channel.sudo("shutdown -h now")
 
         # Wait until the VM's state is actually powered off. If this doesn't
         # occur within a reasonable amount of time (15 seconds by default),
         # then simply return and allow Vagrant to kill the machine.
         count = 0
-        while vm.state != :poweroff
+        while @vm.state != :poweroff
           count += 1
 
-          return if count >= vm.config.linux.halt_timeout
-          sleep vm.config.linux.halt_check_interval
+          return if count >= @vm.config.linux.halt_timeout
+          sleep @vm.config.linux.halt_check_interval
         end
       end
 
@@ -54,6 +62,7 @@ module Vagrant
 
         # Chomp off the newline if it exists
         real_guestpath = real_guestpath.chomp
+        @logger.debug("Shell expanded guest path: #{real_guestpath}")
 
         @vm.channel.sudo("mkdir -p #{real_guestpath}")
         mount_folder(name, real_guestpath, options)
@@ -64,8 +73,8 @@ module Vagrant
         # TODO: Maybe check for nfs support on the guest, since its often
         # not installed by default
         folders.each do |name, opts|
-          vm.channel.sudo("mkdir -p #{opts[:guestpath]}")
-          vm.channel.sudo("mount #{ip}:'#{opts[:hostpath]}' #{opts[:guestpath]}",
+          @vm.channel.sudo("mkdir -p #{opts[:guestpath]}")
+          @vm.channel.sudo("mount #{ip}:'#{opts[:hostpath]}' #{opts[:guestpath]}",
                           :error_class => LinuxError,
                           :error_key => :mount_nfs_fail)
         end
