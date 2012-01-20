@@ -66,7 +66,6 @@ module Vagrant
         def prepare_folders
           @folders = @folders.inject({}) do |acc, data|
             key, opts = data
-            opts[:nfs] = {} if !opts.is_a?(Hash)
             opts[:map_uid] = prepare_permission(:uid, opts)
             opts[:map_gid] = prepare_permission(:gid, opts)
 
