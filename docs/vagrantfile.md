@@ -105,16 +105,20 @@ and updating operating system configuration to accommodate changing mac addresse
 force a predetermined mac address at vm creation. This setting is also only useful for those creating boxes
 for distribution.
 
-`config.vm.customize` is a method which takes a block or lambda and allows you to customize the virtual machine
-which Vagrant creates. The block is passed a [VirtualBox::VM](http://mitchellh.github.com/virtualbox/VirtualBox/VM.html)
-object as its only parameter, and is automatically saved afterwards. Example:
+`config.vm.customize` is a method which takes an array of arguments to send to
+`VBoxManage`.
+
+Example:
 
 {% highlight ruby %}
-config.vm.customize do |vm|
-  vm.memory_size = 512
-  vm.name = "My Project VM"
-end
+config.vm.customize [
+  "modifyvm", :id,
+  "--name", "My Project VM",
+  "--memory", "512"
+]
 {% endhighlight %}
+
+The above will run `VBoxManage modifyvm 1234 --name 'My Project VM' --memory 512` where "1234" is the ID of your current virtual machine. Anything you could do before is certainly still possible with `VBoxManage` as well.
 
 `config.vm.define` is a method which allows you to define a new VM for a multi-VM environment. Since
 this is a huge topic in itself, please read its dedicated documentation page for more details.
