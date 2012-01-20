@@ -34,9 +34,6 @@ module Vagrant
     # The directory where boxes are stored.
     attr_reader :boxes_path
 
-    # The path to the default private key
-    attr_reader :default_private_key_path
-
     # Initializes a new environment with the given options. The options
     # is a hash where the main available key is `cwd`, which defines where
     # the environment represents. There are other options available but
@@ -83,6 +80,7 @@ module Vagrant
 
       # Setup the default private key
       @default_private_key_path = @home_path.join("insecure_private_key")
+      @default_private_key_path_putty = @home_path.join("insecure_private_key.ppk")
       copy_insecure_private_key
     end
 
@@ -97,6 +95,14 @@ module Vagrant
     def dotfile_path
       return nil if !root_path
       root_path.join(config.global.vagrant.dotfile_name)
+    end
+
+    
+    # The path to the default private key
+    def default_private_key_path
+      Util::Platform.has_ssh_client? ? 
+        @default_private_key_path :
+        @default_private_key_path_putty
     end
 
     # Returns the collection of boxes for the environment.
@@ -469,6 +475,12 @@ module Vagrant
         @logger.info("Copying private key to home directory")
         FileUtils.cp(File.expand_path("keys/vagrant", Vagrant.source_root),
                      @default_private_key_path)
+      end
+
+      if Util::Platform.windows? && !@default_private_key_path_putty.exist?
+        @logger.info("Copying private key for Putty to home directory")
+        FileUtils.cp(File.expand_path("keys/vagrant.ppk", Vagrant.source_root),
+                     @default_private_key_path_putty)
       end
 
       if !Util::Platform.windows?
