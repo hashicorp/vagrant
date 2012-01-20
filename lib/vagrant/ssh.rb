@@ -56,13 +56,15 @@ module Vagrant
       ssh_info = info
 
       if Util::Platform.windows?
-        raise Errors::SSHUnavailableWindows, :host => ssh_info[:host],
-                                             :port => ssh_info[:port],
-                                             :username => ssh_info[:username],
-                                             :key_path => ssh_info[:private_key_path]
+        if !Kernel.system("which ssh.exe > nul 2>&1")        
+          raise Errors::SSHUnavailableWindows, :host => ssh_info[:host],
+                                               :port => ssh_info[:port],
+                                               :username => ssh_info[:username],
+                                               :key_path => ssh_info[:private_key_path]
+        end
+      else
+        raise Errors::SSHUnavailable if !Kernel.system("which ssh > /dev/null 2>&1")
       end
-
-      raise Errors::SSHUnavailable if !Kernel.system("which ssh > /dev/null 2>&1")
 
       # If plain mode is enabled then we don't do any authentication (we don't
       # set a user or an identity file)
