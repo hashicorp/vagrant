@@ -1,6 +1,6 @@
 ## 0.9.3 (unreleased)
 
-  - Proper error handling for not enough arguments to `box add`.
+  - Proper error handling for not enough arguments to `box` commands.
 
 ## 0.9.2 (January 20, 2012)
 

@@ -13,6 +13,7 @@ module Vagrant
         # Parse the options
         argv = parse_options(opts)
         return if !argv
+        raise Errors::CLIInvalidUsage, :help => opts.help.chomp if argv.length < 1
 
         b = @env.boxes.find(argv[0])
         raise Errors::BoxNotFound, :name => argv[0] if !b
