@@ -44,6 +44,13 @@ module Vagrant
           !bit64?
         end
 
+        # Returns boolean noting whether ssh client exists on this platform.
+        def has_ssh_client?
+          Util::Platform.windows? ?
+            Kernel.system("which ssh.exe > nul 2>&1") :
+            Kernel.system("which ssh > /dev/null 2>&1")
+        end
+
         def tar_file_options
           # create, write only, fail if the file exists, binary if windows
           File::WRONLY | File::EXCL | File::CREAT | (windows? ? File::BINARY : 0)
