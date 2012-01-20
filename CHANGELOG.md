@@ -6,6 +6,8 @@
   - Log output now goes on `stderr`, since it is utility information.
   - Get rid of case where a `NoMethodError` could be raised while
     determining VirtualBox version. [GH-658]
+  - Debian/Ubuntu uses `ifdown` again, instead of `ifconfig xxx down`, since
+    the behavior seems different/wrong.
 
 ## 0.9.1 (January 18, 2012)
 
