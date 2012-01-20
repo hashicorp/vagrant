@@ -39,6 +39,14 @@ module Vagrant
         result
       end
 
+      def system=(value)
+        raise Errors::DeprecationError, :message => <<-MESSAGE
+`config.vm.system` has changed to `config.vm.guest` in Vagrant 0.9,
+since this is more clear about the use of the configuration key.
+Please change all references of `config.vm.system` to `config.vm.guest`.
+        MESSAGE
+      end
+
       def forward_port(guestport, hostport, options=nil)
         if !guestport.kind_of?(Integer)
           raise Errors::DeprecationError, :message => <<-MESSAGE
