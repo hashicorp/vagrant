@@ -71,6 +71,8 @@ module Vagrant
       end
 
       def upload(from, to)
+        @logger.debug("Uploading: #{from} to #{to}")
+
         # Do an SCP-based upload...
         connect do |connection|
           scp = Net::SCP.new(connection)
@@ -102,7 +104,7 @@ module Vagrant
           # If the @connection is still around, then it is valid,
           # and we use it.
           if @connection
-            @logger.info("Re-using SSH connection.")
+            @logger.debug("Re-using SSH connection.")
             return yield @connection if block_given?
             return
           end
@@ -148,13 +150,11 @@ module Vagrant
       rescue Errno::ECONNREFUSED
         # This is raised if we failed to connect the max amount of times
         raise Errors::SSHConnectionRefused
-      ensure
-        # Be sure the connection is always closed
-        # connection.close if connection && !connection.closed?
       end
 
       # Executes the command on an SSH connection within a login shell.
       def shell_execute(connection, command, sudo=false)
+        @logger.info("Execute: #{command} (sudo=#{sudo.inspect})")
         exit_status = nil
 
         # Determine the shell to execute. If we are using `sudo` then we
@@ -170,6 +170,7 @@ module Vagrant
               if block_given?
                 # Filter out the clear screen command
                 data.gsub!("\e[H", "")
+                @logger.debug("stdout: #{data}")
                 yield :stdout, data
               end
             end
@@ -178,12 +179,14 @@ module Vagrant
               if block_given?
                 # Filter out the clear screen command
                 data.gsub!("\e[H", "")
+                @logger.debug("stderr: #{data}")
                 yield :stderr, data
               end
             end
 
             ch2.on_request("exit-status") do |ch3, data|
               exit_status = data.read_long
+              @logger.debug("Exit status: #{exit_status}")
             end
 
             # Set the terminal
