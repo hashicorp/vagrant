@@ -69,7 +69,7 @@ module Vagrant
         stderr_writer.close
 
         # Create a dictionary to store all the output we see.
-        io_data = { stdout => "", stderr => "" }
+        io_data = { :stdout => "", :stderr => "" }
 
         # Record the start time for timeout purposes
         start_time = Time.now.to_i
@@ -94,7 +94,7 @@ module Vagrant
               io_name = r == stdout ? :stdout : :stderr
               @logger.debug("#{io_name}: #{data}")
 
-              io_data[r] += data
+              io_data[io_name] += data
               yield io_name, data if block_given?
             end
           end
@@ -133,15 +133,15 @@ module Vagrant
 
           # Log it out and accumulate
           @logger.debug(extra_data)
-          io_data[io] += extra_data
+          io_name = io == stdout ? :stdout : :stderr
+          io_data[io_name] += extra_data
 
           # Yield to any listeners any remaining data
-          io_name = io == stdout ? :stdout : :stderr
           yield io_name, extra_data if block_given?
         end
 
         # Return an exit status container
-        return Result.new(process.exit_code, io_data[stdout], io_data[stderr])
+        return Result.new(process.exit_code, io_data[:stdout], io_data[:stderr])
       end
 
       protected
