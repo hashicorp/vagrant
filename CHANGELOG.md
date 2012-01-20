@@ -3,6 +3,7 @@
   - Fix `forward_agent` not working when outside of blocks. [GH-651]
   - Fix issue causing custom guest implementations to not load properly.
   - Filter clear screen character out of output on SSH.
+  - Log output now goes on `stderr`, since it is utility information.
 
 ## 0.9.1 (January 18, 2012)
 

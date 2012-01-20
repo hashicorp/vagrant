@@ -35,7 +35,7 @@ if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
   # logs as long as we have a valid level.
   if level
     logger = Log4r::Logger.new("vagrant")
-    logger.outputters = Log4r::Outputter.stdout
+    logger.outputters = Log4r::Outputter.stderr
     logger.level = level
     logger = nil
   end
