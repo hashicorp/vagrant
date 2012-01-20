@@ -19,7 +19,7 @@ opts = {}
 # Disable color if the proper argument was passed or if we're
 # on Windows since the default Windows terminal doesn't support
 # colors.
-if !Vagrant::Util::Platform.terminal_supports_colors?
+if ARGV.include?("--no-color") || !$stdout.tty? || !Vagrant::Util::Platform.terminal_supports_colors?
   # Delete the argument from the list so that it doesn't cause any
   # invalid arguments down the road.
   ARGV.delete("--no-color")

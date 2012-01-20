@@ -15,7 +15,7 @@
     uses this. [GH-661]
   - If there is only one bridgable interface, use that without asking
     the user. [GH-655]
-
+  - The shell will have color output if ANSICON is installed on Windows. [GH-666]
 ## 0.9.1 (January 18, 2012)
 
   - Use `ifconfig device down` instead of `ifdown`. [GH-649]
