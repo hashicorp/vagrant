@@ -18,15 +18,13 @@ module Vagrant
         attr_accessor :encrypted_data_bag_secret_key_path
         attr_accessor :encrypted_data_bag_secret
 
-        def initialize
-          super
-
-          @validation_client_name = "chef-validator"
-          @client_key_path = "/etc/chef/client.pem"
-          @file_cache_path = "/srv/chef/file_store"
-          @file_backup_path = "/srv/chef/cache"
-          @encrypted_data_bag_secret = "/tmp/encrypted_data_bag_secret"
-        end
+        # Provide defaults in such a way that they won't override the instance
+        # variable. This is so merging continues to work properly.
+        def validation_client_name; @validation_client_name || "chef-validator"; end
+        def client_key_path; @client_key_path || "/etc/chef/client.pem"; end
+        def file_cache_path; @file_cache_path || "/srv/chef/file_store"; end
+        def file_backup_path; @file_backup_path || "/srv/chef/cache"; end
+        def encrypted_data_bag_secret; @encrypted_data_bag_secret || "/tmp/encrypted_data_bag_secret"; end
 
         def validate(env, errors)
           super

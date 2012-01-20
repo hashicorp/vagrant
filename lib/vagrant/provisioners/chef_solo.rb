@@ -16,11 +16,14 @@ module Vagrant
         attr_accessor :recipe_url
         attr_accessor :nfs
 
-        def initialize
-          super
+        # Provide defaults in such a way that they won't override the instance
+        # variable. This is so merging continues to work properly.
+        def cookbooks_path
+          @cookbooks_path || ["cookbooks", [:vm, "cookbooks"]]
+        end
 
-          @cookbooks_path = ["cookbooks", [:vm, "cookbooks"]]
-          @nfs = false
+        def nfs
+          @nfs || false
         end
 
         def validate(env, errors)

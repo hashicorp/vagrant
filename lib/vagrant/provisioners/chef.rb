@@ -115,11 +115,11 @@ module Vagrant
         attr_accessor :attempts
         attr_writer :run_list
 
-        def initialize
-          @attempts = 1
-          @json = {}
-          @log_level = :info
-        end
+        # Provide defaults in such a way that they won't override the instance
+        # variable. This is so merging continues to work properly.
+        def attempts; @attempts || 1; end
+        def json; @json ||= {}; end
+        def log_level; @log_level || :info; end
 
         # This returns the json that is merged with the defaults and the
         # user set data.
