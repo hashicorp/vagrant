@@ -105,16 +105,20 @@ and updating operating system configuration to accommodate changing mac addresse
 force a predetermined mac address at vm creation. This setting is also only useful for those creating boxes
 for distribution.
 
-`config.vm.customize` is a method which takes a block or lambda and allows you to customize the virtual machine
-which Vagrant creates. The block is passed a [VirtualBox::VM](http://mitchellh.github.com/virtualbox/VirtualBox/VM.html)
-object as its only parameter, and is automatically saved afterwards. Example:
+`config.vm.customize` is a method which takes an array of arguments to send to
+`VBoxManage`.
+
+Example:
 
 {% highlight ruby %}
-config.vm.customize do |vm|
-  vm.memory_size = 512
-  vm.name = "My Project VM"
-end
+config.vm.customize [
+  "modifyvm", :id,
+  "--name", "My Project VM",
+  "--memory", "512"
+]
 {% endhighlight %}
+
+The above will run `VBoxManage modifyvm 1234 --name 'My Project VM' --memory 512` where "1234" is the ID of your current virtual machine. Anything you could do before is certainly still possible with `VBoxManage` as well.
 
 `config.vm.define` is a method which allows you to define a new VM for a multi-VM environment. Since
 this is a huge topic in itself, please read its dedicated documentation page for more details.
@@ -125,14 +129,10 @@ created with vagrant. The default Vagrantfile that is packaged with Vagrant itse
 port 22 on the guest for ssh. Example usage of this is shown below:
 
 {% highlight ruby %}
-config.vm.forward_port("web", 80, 8080)
-config.vm.forward_port("ftp", 21, 4567)
-config.vm.forward_port("ssh", 22, 2222, :auto => true)
+config.vm.forward_port(80, 8080)
+config.vm.forward_port(21, 4567)
+config.vm.forward_port(22, 2222, :auto => true)
 {% endhighlight %}
-
-The first parameter of the `forward_port` method is simply a key used internally to reference the
-forwarded port. It doesn't affect the actual ports forwarded at all. The above example could've
-changed `web` to `fluffy bananas` and it still would've worked fine.
 
 The final parameter is a hash of options which can be used to configure details of the forwarded
 ports. `:adapter` allows you to specify which network adapter to forward the ports on. And if `:auto`
