@@ -31,6 +31,11 @@ en:
         is available below.
 
         %{help}
+      cli_invalid_usage: |-
+        This command was not invoked properly. The help for this command is
+        available below.
+
+        %{help}
       config_validation: |-
         There was a problem with the configuration of Vagrant. The error message(s)
         are printed below:

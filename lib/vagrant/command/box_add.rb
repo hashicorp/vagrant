@@ -18,6 +18,7 @@ module Vagrant
         # Parse the options
         argv = parse_options(opts)
         return if !argv
+        raise Errors::CLIInvalidUsage, :help => opts.help.chomp if argv.length < 2
 
         # If we're force adding, then be sure to destroy any existing box if it
         # exists.

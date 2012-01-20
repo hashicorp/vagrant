@@ -128,6 +128,11 @@ module Vagrant
       error_key(:failed, "vagrant.actions.box.verify")
     end
 
+    class CLIInvalidUsage < VagrantError
+      status_code(69)
+      error_key(:cli_invalid_usage)
+    end
+
     class CLIInvalidOptions < VagrantError
       status_code(1)
       error_key(:cli_invalid_options)
