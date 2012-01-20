@@ -1,6 +1,8 @@
 ## 0.9.2 (unreleased)
 
   - Support shell expansions in shared folder guest paths again. [GH-656]
+  - Fix issue where Chef solo always expected the host to have a
+    "cookbooks" folder in their directory. [GH-638]
   - Fix `forward_agent` not working when outside of blocks. [GH-651]
   - Fix issue causing custom guest implementations to not load properly.
   - Filter clear screen character out of output on SSH.

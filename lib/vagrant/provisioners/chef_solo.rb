@@ -16,10 +16,23 @@ module Vagrant
         attr_accessor :recipe_url
         attr_accessor :nfs
 
+        def initialize
+          super
+
+          @__default = ["cookbooks", [:vm, "cookbooks"]]
+        end
+
         # Provide defaults in such a way that they won't override the instance
         # variable. This is so merging continues to work properly.
         def cookbooks_path
-          @cookbooks_path || ["cookbooks", [:vm, "cookbooks"]]
+          @cookbooks_path || _default_cookbook_path
+        end
+
+        # This stores a reference to the default cookbook path which is used
+        # later. Do not use this publicly. I apologize for not making it
+        # "protected" but it has to be called by Vagrant internals later.
+        def _default_cookbook_path
+          @__default
         end
 
         def nfs
@@ -86,16 +99,27 @@ module Vagrant
         # path element which contains the folder location (:host or :vm)
         paths = [paths] if paths.is_a?(String) || paths.first.is_a?(Symbol)
 
-        paths.map do |path|
+        results = []
+        paths.each do |path|
           path = [:host, path] if !path.is_a?(Array)
           type, path = path
 
           # Create the local/remote path based on whether this is a host
           # or VM path.
           local_path = nil
-          local_path = File.expand_path(path, env[:root_path]) if type == :host
           remote_path = nil
           if type == :host
+            # Get the expanded path that the host path points to
+            local_path = File.expand_path(path, env[:root_path])
+
+            # Super hacky but if we're expanded the default cookbook paths,
+            # and one of the host paths doesn't exist, then just ignore it,
+            # because that is fine.
+            if paths.equal?(config._default_cookbook_path) && !File.directory?(local_path)
+              @logger.info("'cookbooks' folder doesn't exist on defaults. Ignoring.")
+              next
+            end
+
             # Path exists on the host, setup the remote path
             remote_path = "#{config.provisioning_path}/chef-solo-#{get_and_update_counter(:cookbooks_path)}"
           else
@@ -113,9 +137,11 @@ module Vagrant
           # If we have specified a folder name to append then append it
           remote_path += "/#{appended_folder}" if appended_folder
 
-          # Return the result
-          [type, local_path, remote_path]
+          # Append the result
+          results << [type, local_path, remote_path]
         end
+
+        results
       end
 
       # Shares the given folders with the given prefix. The folders should
