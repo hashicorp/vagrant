@@ -1,4 +1,4 @@
-## 0.9.2 (unreleased)
+## 0.9.2 (January 20, 2012)
 
   - Support shell expansions in shared folder guest paths again. [GH-656]
   - Fix issue where Chef solo always expected the host to have a
