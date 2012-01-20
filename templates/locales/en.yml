@@ -669,6 +669,11 @@ en:
           back the logic necessary to set this up. Please report a bug as well as the
           box you're using.
       linux:
+        guestpath_expand_fail: |-
+          Vagrant failed to determine the shell expansion of the guest path
+          for one of your shared folders. This is an extremely rare error case
+          and most likely indicates an unusual configuration of the guest system.
+          Please report a bug with your Vagrantfile.
         mount_fail: "Failed to mount shared folders. `vboxsf` was not available."
         mount_nfs_fail: |-
           Mounting NFS shared folders failed. This is most often caused by the NFS

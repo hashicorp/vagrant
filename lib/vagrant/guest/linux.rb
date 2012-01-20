@@ -35,9 +35,29 @@ module Vagrant
       end
 
       def mount_shared_folder(name, guestpath, options)
-        @vm.channel.sudo("mkdir -p #{guestpath}")
-        mount_folder(name, guestpath, options)
-        @vm.channel.sudo("chown `id -u #{options[:owner]}`:`id -g #{options[:group]}` #{guestpath}")
+        # Determine the real guest path. Since we use a `sudo` shell everywhere
+        # else, things like '~' don't expand properly in shared folders. We have
+        # to `echo` here to get that path.
+        real_guestpath = nil
+        @vm.channel.execute("echo #{guestpath}") do |type, data|
+          if type == :stdout
+            real_guestpath ||= ""
+            real_guestpath += data
+          end
+        end
+
+        if !real_guestpath
+          # Really strange error case if this happens. Let's throw an error,
+          # tell the user to check the echo output.
+          raise LinuxError, :_key => :guestpath_expand_fail
+        end
+
+        # Chomp off the newline if it exists
+        real_guestpath = real_guestpath.chomp
+
+        @vm.channel.sudo("mkdir -p #{real_guestpath}")
+        mount_folder(name, real_guestpath, options)
+        @vm.channel.sudo("chown `id -u #{options[:owner]}`:`id -g #{options[:group]}` #{real_guestpath}")
       end
 
       def mount_nfs(ip, folders)
