@@ -33,7 +33,12 @@ module Vagrant
       def merge(other)
         result = self.class.new
         instance_variables_hash.merge(other.instance_variables_hash).each do |key, value|
-          result.instance_variable_set("@#{key}".to_sym, value)
+          # Ignore keys that start with a double underscore. This allows
+          # configuration classes to still hold around internal state
+          # that isn't propagated.
+          if !key.start_with?("__")
+            result.instance_variable_set("@#{key}".to_sym, value)
+          end
         end
 
         result

@@ -22,4 +22,26 @@ describe Vagrant::Config::Base do
     result.one.should == 2
     result.two.should == 5
   end
+
+  it "doesn't merge values that start with a double underscore" do
+    bar_class = Class.new(foo_class) do
+      @@counter = 0
+      def initialize
+        @__test = @@counter
+        @@counter += 1
+      end
+    end
+
+    one = bar_class.new
+    one.one = 2
+    one.two = 1
+
+    two = bar_class.new
+    two.two = 5
+
+    # Verify the counters
+    one.instance_variable_get(:@__test).should == 0
+    two.instance_variable_get(:@__test).should == 1
+    one.merge(two).instance_variable_get(:@__test).should == 2
+  end
 end
