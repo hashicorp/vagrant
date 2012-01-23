@@ -47,7 +47,7 @@ module Vagrant
         # else, things like '~' don't expand properly in shared folders. We have
         # to `echo` here to get that path.
         real_guestpath = nil
-        @vm.channel.execute("echo -n #{guestpath}") do |type, data|
+        @vm.channel.execute("printf #{guestpath}") do |type, data|
           if type == :stdout
             real_guestpath ||= ""
             real_guestpath += data
