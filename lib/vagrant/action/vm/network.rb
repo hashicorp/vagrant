@@ -298,7 +298,7 @@ module Vagrant
 
           @env[:vm].driver.read_bridged_interfaces.each do |interface|
             that_netaddr = network_address(interface[:ip], interface[:netmask])
-            raise Errors::NetworkCollision if this_netaddr == that_netaddr
+            raise Errors::NetworkCollision if this_netaddr == that_netaddr && interface[:status] != "Down"
           end
         end
 
