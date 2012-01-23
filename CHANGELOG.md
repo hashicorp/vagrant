@@ -3,6 +3,8 @@
   - Proper error handling for not enough arguments to `box` commands.
   - Fix issue causing crashes with bridged networking. [GH-673]
   - Ignore host only network interfaces that are "down." [GH-675]
+  - Use "printf" instead of "echo" to determine shell expanded files paths
+    which is more generally POSIX compliant. [GH-676]
 
 ## 0.9.2 (January 20, 2012)
 
