@@ -341,7 +341,7 @@ module Vagrant
             chosen_bridge = bridgedifs[choice - 1][:name]
           end
 
-          @logger.info("Bridging adapter #{config[:adapter]} to #{bridge}")
+          @logger.info("Bridging adapter #{config[:adapter]} to #{chosen_bridge}")
 
           # Given the choice we can now define the adapter we're using
           return {
