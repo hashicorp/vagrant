@@ -168,8 +168,9 @@ module Vagrant
             # Setup the channel callbacks so we can get data and exit status
             ch2.on_data do |ch3, data|
               if block_given?
-                # Filter out the clear screen command
+                # Filter out the clear/reset screen commands
                 data.gsub!("\e[H", "")
+                data.gsub!("\e[J", "")
                 @logger.debug("stdout: #{data}")
                 yield :stdout, data
               end
