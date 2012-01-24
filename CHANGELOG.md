@@ -1,4 +1,4 @@
-## 0.9.3 (unreleased)
+## 0.9.3 (January 24, 2012)
 
   - Proper error handling for not enough arguments to `box` commands.
   - Fix issue causing crashes with bridged networking. [GH-673]
