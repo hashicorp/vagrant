@@ -25,10 +25,11 @@ describe Vagrant::Config::Base do
 
   it "doesn't merge values that start with a double underscore" do
     bar_class = Class.new(foo_class) do
-      @@counter = 0
+      class_variable_set(:@@counter, 0)
+
       def initialize
-        @__test = @@counter
-        @@counter += 1
+        @__test = self.class.send(:class_variable_get, :@@counter)
+        self.class.send(:class_variable_set, :@@counter, @__test + 1)
       end
     end
 
