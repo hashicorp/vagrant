@@ -273,6 +273,8 @@ module Vagrant
               info[:ip] = $1.to_s
             elsif line =~ /^NetworkMask:\s+(.+?)$/
               info[:netmask] = $1.to_s
+            elsif line =~ /^Status:\s+(.+?)$/
+                info[:status] = $1.to_s
             end
           end
 
