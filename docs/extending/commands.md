@@ -7,93 +7,60 @@ title: Extending Vagrant - Commands
 Commands are the command-line actions invoked via the `vagrant`
 binary or via the `Environment#cli` method if you want to invoke
 them programmatically. The plugin API allows you to define new commands
-easily. There are two kinds of commands available:
+easily.
 
-* Single - These are single commands like `vagrant up`.
-* Group - These are commands which have subcommands, such as `vagrant box`,
-  which has `vagrant box list`, `vagrant box add`, etc.
+Vagrant commands are nothing special. They're simply classes that respond
+to a single method `execute` and inherit from 'Vagrant::Command::Base`
+which provides common extra helpers which assist in error
+handling and having your commands behave more "vagrant-like," such as
+automatically requiring a VM name in the case of a multi-VM setup.
 
-This page will detail how to create both kinds of commands, which is just
-a matter of inheriting from a specific base class and setting some options.
+## A Simple Command
 
-The command API is built on top of [Thor](http://github.com/wycats/thor),
-so you automatically get the benefits of command line option parsing, a nice
-shell API for colored output and asking for input, etc.
-
-## Single Command
-
-To create a single command, inherit from `Vagrant::Command::Base` and at
-the very least, specify a description and register the command with Vagrant.
-When this command is executed, _all public methods_ are executed in the order
-they're defined, so if you want code that doesn't execute automatically,
-be sure to make it `protected` or `private`. An example command `hello` is
-shown below:
+Let's first show a simple example that merely outputs some data to
+`stdout`.
 
 {% highlight ruby %}
 class SayHelloCommand < Vagrant::Command::Base
-  register "hello", "Says hello then goodbye"
-
-  def hello
+  def execute
     puts "HELLO!"
   end
-
-  def goodbye
-    puts "GOODBYE!"
-  end
 end
+
+Vagrant.commands.register(:hello) { SayHelloCommand }
 {% endhighlight %}
-
-Important notes:
-
-* The `register` command is **the most important**! It is what registers the
-  command with the actual binary. Without this call, the command won't be
-  available.
 
 Given the above, the usage and output is shown below:
 
 {% highlight bash %}
 $ vagrant hello
 HELLO!
-GOODBYE!
 $
 {% endhighlight %}
 
-## Group Command
+Notice that writing such a basic command is trivial. Also note the
+important step of registering the command. Every command you write must
+be registered with Vagrant globally. The name with which you register
+the command becomes the command line shortcut to execute the command.
+In the above example, we used `hello` as the name. The class of the
+command is expected to be the result of a block to the `register`
+function. The reason that this is a block is so that you may lazy-load
+the class if you want, to improve performance.
 
-To create group commands, which are commands with subcommands, inherit from
-`Vagrant::Command::GroupBase`. With a group command, each public method is
-a separate task. An example is shown below, which is a spin off the above
-example, where the "hello" and "goodbye" output is separated into two tasks:
+## Available Helpers
 
-{% highlight ruby %}
-class SayCommand < Vagrant::Command::GroupBase
-  register "say", "Says either hello or goodbye."
+Some helpers are available when you inherit from `Vagrant::Command::Base`:
 
-  desc "hello", "Says hello"
-  def hello
-    puts "HELLO!"
-  end
+* `parse_options` - This parses the arguments of the command against the
+  given `OptionParser` instance (a class of Ruby's standard library). This
+  will automatically provide help text via the `--help` flag, and will raise
+  a human-friendly error in the face of any invalid flags.
+* `with_target_vms` - Given a name (or nil), this will yield to the block with
+  a `Vagrant::VM` object so you can perform some task on it. This helper makes
+  it trivial to seamlessly support both multi-VM and single-VM Vagrant environments.
+* `split_main_and_subcommand` - This assists in splitting the arguments to the
+  command in order to support further subcommands. This is how commands such as
+  `vagrant box add` are implemented.
 
-  desc "goodbye", "Says goodbye"
-  def goodbye
-    puts "GOODBYE!"
-  end
-end
-{% endhighlight %}
-
-Important notes:
-
-* Each individual public method must have a `desc` which describes its
-  usage and what the task does.
-* The `register` description is given when `vagrant` is called alone or
-  when the help is shown.
-
-Given the above, the usage and output is shown below:
-
-{% highlight bash %}
-$ vagrant say hello
-HELLO!
-$ vagrant say goodbye
-GOODBYE!
-$
-{% endhighlight %}
+Note that the best examples of the above helpers can be seen by simply reading
+the [source code of the commands that ship with Vagrant]("https://github.com/mitchellh/vagrant/tree/master/lib/vagrant/command").
