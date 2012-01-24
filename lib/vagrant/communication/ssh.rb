@@ -4,6 +4,7 @@ require 'log4r'
 require 'net/ssh'
 require 'net/scp'
 
+require 'vagrant/util/ansi_escape_code_remover'
 require 'vagrant/util/file_mode'
 require 'vagrant/util/platform'
 require 'vagrant/util/retryable'
@@ -12,6 +13,7 @@ module Vagrant
   module Communication
     # Provides communication with the VM via SSH.
     class SSH < Base
+      include Util::ANSIEscapeCodeRemover
       include Util::Retryable
 
       def initialize(vm)
@@ -169,7 +171,7 @@ module Vagrant
             ch2.on_data do |ch3, data|
               if block_given?
                 # Filter out the clear screen command
-                data.gsub!("\e[H", "")
+                data = remove_ansi_escape_codes(data)
                 @logger.debug("stdout: #{data}")
                 yield :stdout, data
               end
@@ -178,7 +180,7 @@ module Vagrant
             ch2.on_extended_data do |ch3, type, data|
               if block_given?
                 # Filter out the clear screen command
-                data.gsub!("\e[H", "")
+                data = remove_ansi_escape_codes(data)
                 @logger.debug("stderr: #{data}")
                 yield :stderr, data
               end
