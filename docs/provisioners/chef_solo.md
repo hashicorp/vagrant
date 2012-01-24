@@ -93,22 +93,18 @@ Every chef cookbook has access to the `node` variable which is a hash containing
 server-specific configuration options which can be used to control provisioning.
 By default, Vagrant JSON configuration looks like the following:
 
-{% highlight json %}
+{% highlight javascript %}
 {
   :instance_role => "vagrant",
   :vagrant => {
     :config => { ... }, # Full Vagrant config
-    :directory => "/vagrant" # Or wherever configured project directory is
   }
 }
 {% endhighlight %}
 
 This JSON configuration is specifically thought out such that the `instance_role`
 key could be used so that cookbooks could be shared between production and development,
-possibly tweaking paths or configuration based on the `instance_role`. And
-`directory` is useful if you're setting up a VirtualHost for a web server,
-for example, and need to set the path to the public directory within your
-`directory`.
+possibly tweaking paths or configuration based on the `instance_role`.
 
 But sometimes, cookbooks need additional, custom JSON configuration. For this
 you can specify additional JSON data in the Vagrantfile:
