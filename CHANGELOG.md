@@ -6,6 +6,8 @@
     configure it on the guest. [GH-663]
   - NFS shared folder guest paths can now contain shell expansion characters
     such as `~`.
+  - NFS shared folders with a `:create` flag will have their host folders
+    properly created if they don't exist. [GH-667]
 
 ## 0.9.3 (January 24, 2012)
 

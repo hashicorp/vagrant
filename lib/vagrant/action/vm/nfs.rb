@@ -1,3 +1,8 @@
+require 'fileutils'
+require 'pathname'
+
+require 'log4r'
+
 module Vagrant
   module Action
     module VM
@@ -15,6 +20,7 @@ module Vagrant
       #
       class NFS
         def initialize(app,env)
+          @logger = Log4r::Logger.new("vagrant::action::vm::nfs")
           @app = app
           @env = env
 
@@ -46,18 +52,35 @@ module Vagrant
         # task.
         def extract_folders
           # Load the NFS enabled shared folders
-          @folders = @env[:vm].config.vm.shared_folders.inject({}) do |acc, data|
-            key, opts = data
-
+          @folders = {}
+          @env[:vm].config.vm.shared_folders.each do |key, opts|
             if opts[:nfs]
               # Duplicate the options, set the hostpath, and set disabled on the original
               # options so the ShareFolders middleware doesn't try to mount it.
-              acc[key] = opts.dup
-              acc[key][:hostpath] = File.expand_path(opts[:hostpath], @env[:root_path])
+              folder = opts.dup
+              hostpath = Pathname.new(opts[:hostpath]).expand_path(@env[:root_path])
+
+              if !hostpath.directory? && opts[:create]
+                # Host path doesn't exist, so let's create it.
+                @logger.debug("Host path doesn't exist, creating: #{hostpath}")
+
+                begin
+                  FileUtils.mkpath(hostpath)
+                rescue Errno::EACCES
+                  raise Errors::SharedFolderCreateFailed, :path => hostpath.to_s
+                end
+              end
+
+              # Set the hostpath now that it exists.
+              folder[:hostpath] = hostpath.to_s
+
+              # Assign the folder to our instance variable for later use
+              @folders[key] = folder
+
+              # Disable the folder so that regular shared folders don't try to
+              # mount it.
               opts[:disabled] = true
             end
-
-            acc
           end
         end
 
