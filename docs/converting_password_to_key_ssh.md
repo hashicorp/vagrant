@@ -4,10 +4,10 @@ title: Documentation - Converting to Key-Based SSH
 ---
 # Converting Box to Key-Based SSH
 
-With the release of Vagrant `0.2.x`, Vagrant no longer supports password
-based SSH. Previously, Vagrant _only_ supported password based SSH, which
-means that every box built for `0.1.x` no longer works! But this isn't a
-problem, since its _very easy_ to change the box to allow it to work with
+With the release of Vagrant `0.2.x`, Vagrant no longer supports
+password-based SSH. Previously, Vagrant _only_ supported password based SSH,
+which means that every box built for `0.1.x` no longer works! But this isn't
+a problem, since its _very easy_ to change the box to allow it to work with
 key-based SSH.
 
 <div class="info">

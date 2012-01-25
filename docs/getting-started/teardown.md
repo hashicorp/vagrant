@@ -59,3 +59,7 @@ your environment will be rebuilt.
 The benefit of this is that your disk space is completely restored to
 pre-VM state, saving you about 1 GB on average. The cost is that you must
 wait for a full rebuild when you `vagrant up` again.
+
+Typically you would not destroy the environment of an active project, unless
+disk space is really at a premium. Instead, most users choose to suspend or
+halt their projects instead.

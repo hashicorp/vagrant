@@ -24,7 +24,7 @@ subcommands, just run `vagrant` alone, and it'll list them out for you.
 
 ## The Vagrantfile
 
-A Vagrantfile is to Vagrant as a Makefile is to Make. The Vagrantfile exists at the root
+A `Vagrantfile` is to Vagrant as a `Makefile` is to Make. The `Vagrantfile` exists at the root
 of any Vagrant project and is used to configure and specify the behavior of
 Vagrant and the virtual machine it creates. A basic Vagrantfile is embedded below
 so you can get a brief idea of how it looks:

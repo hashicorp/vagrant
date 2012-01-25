@@ -39,7 +39,7 @@ $ vagrant box add lucid32 http://files.vagrantup.com/lucid32.box
 {% endhighlight %}
 
 Installed boxes are global to the current vagrant installation. This
-means that once the lucid32 box has been added, it can be used by
+means that once the `lucid32` box has been added, it can be used by
 multiple projects at the same time. Each project uses the box as a _base_ only, so once the
 project VM is created, modifications can be made without affecting other
 projects which may use the same box.
@@ -52,8 +52,8 @@ the filename and logical name are equal in this case.
 
 ## Removing Boxes
 
-Just as easily as they're added, boxes can be removed as well. The following
-is an example command to remove a box.
+Just as easily as they're added, boxes can be removed as well (but note that
+deletion is permanent). The following is an example command to remove a box.
 
 {% highlight bash %}
 $ vagrant box remove my_box
