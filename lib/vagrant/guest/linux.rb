@@ -43,9 +43,38 @@ module Vagrant
       end
 
       def mount_shared_folder(name, guestpath, options)
-        # Determine the real guest path. Since we use a `sudo` shell everywhere
-        # else, things like '~' don't expand properly in shared folders. We have
-        # to `echo` here to get that path.
+        real_guestpath = expanded_guest_path(guestpath)
+        @logger.debug("Shell expanded guest path: #{real_guestpath}")
+
+        @vm.channel.sudo("mkdir -p #{real_guestpath}")
+        mount_folder(name, real_guestpath, options)
+        @vm.channel.sudo("chown `id -u #{options[:owner]}`:`id -g #{options[:group]}` #{real_guestpath}")
+      end
+
+      def mount_nfs(ip, folders)
+        # TODO: Maybe check for nfs support on the guest, since its often
+        # not installed by default
+        folders.each do |name, opts|
+          # Expand the guestpath, so we can handle things like "~/vagrant"
+          real_guestpath = expanded_guest_path(opts[:guestpath])
+
+          # Do the actual creating and mounting
+          @vm.channel.sudo("mkdir -p #{real_guestpath}")
+          @vm.channel.sudo("mount #{ip}:'#{opts[:hostpath]}' #{real_guestpath}",
+                          :error_class => LinuxError,
+                          :error_key => :mount_nfs_fail)
+        end
+      end
+
+      protected
+
+      # Determine the real guest path. Since we use a `sudo` shell everywhere
+      # else, things like '~' don't expand properly in shared folders. We have
+      # to `echo` here to get that path.
+      #
+      # @param [String] guestpath The unexpanded guest path.
+      # @return [String] The expanded guestpath
+      def expanded_guest_path(guestpath)
         real_guestpath = nil
         @vm.channel.execute("printf #{guestpath}") do |type, data|
           if type == :stdout
@@ -60,29 +89,10 @@ module Vagrant
           raise LinuxError, :_key => :guestpath_expand_fail
         end
 
-        # Chomp off the newline if it exists
-        real_guestpath = real_guestpath.chomp
-        @logger.debug("Shell expanded guest path: #{real_guestpath}")
-
-        @vm.channel.sudo("mkdir -p #{real_guestpath}")
-        mount_folder(name, real_guestpath, options)
-        @vm.channel.sudo("chown `id -u #{options[:owner]}`:`id -g #{options[:group]}` #{real_guestpath}")
+        # Chomp the string so that any trailing newlines are killed
+        return real_guestpath.chomp
       end
 
-      def mount_nfs(ip, folders)
-        # TODO: Maybe check for nfs support on the guest, since its often
-        # not installed by default
-        folders.each do |name, opts|
-          @vm.channel.sudo("mkdir -p #{opts[:guestpath]}")
-          @vm.channel.sudo("mount #{ip}:'#{opts[:hostpath]}' #{opts[:guestpath]}",
-                          :error_class => LinuxError,
-                          :error_key => :mount_nfs_fail)
-        end
-      end
-
-      #-------------------------------------------------------------------
-      # "Private" methods which assist above methods
-      #-------------------------------------------------------------------
       def mount_folder(name, guestpath, options)
         # Determine the permission string to attach to the mount command
         mount_options = "-o uid=`id -u #{options[:owner]}`,gid=`id -g #{options[:group]}`"
