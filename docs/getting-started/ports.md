@@ -33,6 +33,8 @@ Vagrant::Config.run do |config|
 end
 {% endhighlight %}
 
+<!-- Where is it being named "web"? -->
+
 `forward_port` is a method which takes two arguments:
 
 * **guest port** - The port on the virtual machine.

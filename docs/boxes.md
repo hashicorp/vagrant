@@ -69,7 +69,7 @@ save it to `package.box` in the current working directory.
 
 Note that `vagrant package` will not include the Vagrantfile or any files other
 than the exported virtual machine. If you wish to include additional files or a
-Vagrantfile, use the `--include` and/or `--vagrantfile` options, respecitvely.
+Vagrantfile, use the `--include` and/or `--vagrantfile` options, respectively.
 An example below:
 
 {% highlight bash %}
