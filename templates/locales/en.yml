@@ -166,6 +166,10 @@ en:
         listed below to use Vagrant:
 
         %{supported_versions}
+      virtualbox_kernel_module_not_loaded: |-
+        VirtualBox is complaining that the kernel module is not loaded. Please
+        run `VBoxManage --version` to see the error message which should contain
+        instructions on how to fix this error.
       virtualbox_not_detected: |-
         Vagrant could not detect VirtualBox! Make sure VirtualBox is properly installed.
         Vagrant uses the `VBoxManage` binary that ships with VirtualBox, and requires

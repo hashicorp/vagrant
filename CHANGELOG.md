@@ -1,6 +1,7 @@
 ## 0.9.4 (unreleased)
 
   - Match VM names that have parens, brackets, etc.
+  - Detect when the VirtualBox kernel module is not loaded and error. [GH-677]
 
 ## 0.9.3 (January 24, 2012)
 

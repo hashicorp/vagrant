@@ -343,6 +343,11 @@ module Vagrant
       error_key(:virtualbox_not_detected)
     end
 
+    class VirtualBoxKernelModuleNotLoaded < VagrantError
+      status_code(70)
+      error_key(:virtualbox_kernel_module_not_loaded)
+    end
+
     class VMBaseMacNotSpecified < VagrantError
       status_code(47)
       error_key(:no_base_mac, "vagrant.actions.vm.match_mac")
