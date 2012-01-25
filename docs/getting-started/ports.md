@@ -28,12 +28,10 @@ in the Vagrantfile, like so:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  # Forward guest port 80 to host port 4567 and name the mapping "web"
+  # Forward guest port 80 to host port 4567
   config.vm.forward_port 80, 4567
 end
 {% endhighlight %}
-
-<!-- Where is it being named "web"? -->
 
 `forward_port` is a method which takes two arguments:
 

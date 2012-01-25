@@ -69,7 +69,3 @@ any Vagrant environment, the above is all any developer will need to create
 their development environment! Note that the above snippet does actually
 create a fully functional 512MB virtual machine running Ubuntu in the
 background, although the machine doesn't do much in this state.
-
-The first command will download a large file with a VirtualBox image and 
-vagrant configuration information, and unpack it in a `~/.vagrant.d`
-directory. This is a VM that is used as the basis for VirtualBox instances.

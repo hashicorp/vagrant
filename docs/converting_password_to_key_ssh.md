@@ -86,5 +86,3 @@ $ vagrant package --include Vagrantfile
 This should spit out a `package.box` file in the current working directory which
 you can now re-add to your system and use. It should be a drop-in replacement for
 your previously broken box.
-
-<!-- The current working directory should be a vagrant project directory right? -->
