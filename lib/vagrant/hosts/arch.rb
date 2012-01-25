@@ -5,6 +5,11 @@ module Vagrant
         File.exist?("/etc/rc.conf") && File.exist?("/etc/pacman.conf")
       end
 
+      # Normal, mid-range precedence.
+      def self.precedence
+        5
+      end
+
       def nfs_export(id, ip, folders)
         output = TemplateRenderer.render('nfs/exports_linux',
                                          :uuid => id,

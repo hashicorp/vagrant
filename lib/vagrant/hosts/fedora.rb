@@ -15,6 +15,11 @@ module Vagrant
         false
       end
 
+      # Normal, mid-range precedence.
+      def self.precedence
+        5
+      end
+
       def initialize(*args)
         super
 

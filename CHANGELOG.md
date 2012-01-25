@@ -8,6 +8,8 @@
     such as `~`.
   - NFS shared folders with a `:create` flag will have their host folders
     properly created if they don't exist. [GH-667]
+  - Fix the precedence for Arch, Ubuntu, and FreeBSD host classes so
+    they are properly detected. [GH-683]
 
 ## 0.9.3 (January 24, 2012)
 
