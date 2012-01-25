@@ -45,6 +45,8 @@ module Vagrant
       autoload :Import,              'vagrant/action/vm/import'
       autoload :MatchMACAddress,     'vagrant/action/vm/match_mac_address'
       autoload :Network,             'vagrant/action/vm/network'
+      autoload :DOMAIN,              'vagrant/action/vm/domain'
+      autoload :PruneDOMAIN,         'vagrant/action/vm/prune_domain'
       autoload :NFS,                 'vagrant/action/vm/nfs'
       autoload :Package,             'vagrant/action/vm/package'
       autoload :PackageVagrantfile,  'vagrant/action/vm/package_vagrantfile'

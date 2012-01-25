@@ -13,6 +13,7 @@ module Vagrant
       attr_accessor :base_mac
       attr_accessor :boot_mode
       attr_accessor :host_name
+      attr_accessor :domains
       attr_reader :forwarded_ports
       attr_reader :shared_folders
       attr_reader :networks
