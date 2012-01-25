@@ -2,6 +2,8 @@
 
   - Match VM names that have parens, brackets, etc.
   - Detect when the VirtualBox kernel module is not loaded and error. [GH-677]
+  - Set `:auto_config` to false on any networking option to not automatically
+    configure it on the guest. [GH-663]
 
 ## 0.9.3 (January 24, 2012)
 

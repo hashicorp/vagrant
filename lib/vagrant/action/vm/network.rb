@@ -37,8 +37,12 @@ module Vagrant
             adapters << adapter
 
             # Get the network configuration
-            network = send("#{type}_network_config", config)
-            networks << network
+            if config[:auto_config]
+              network = send("#{type}_network_config", config)
+              networks << network
+            else
+              @logger.info("Auto config disabled, not configuring: #{type}")
+            end
           end
 
           if !adapters.empty?
@@ -167,7 +171,8 @@ module Vagrant
             :netmask => "255.255.255.0",
             :adapter => nil,
             :mac     => nil,
-            :name    => nil
+            :name    => nil,
+            :auto_config => true
           }.merge(options)
 
           # Verify that this hostonly network wouldn't conflict with any
@@ -307,7 +312,8 @@ module Vagrant
 
           return {
             :adapter => nil,
-            :mac     => nil
+            :mac     => nil,
+            :auto_config => true
           }.merge(options)
         end
 
