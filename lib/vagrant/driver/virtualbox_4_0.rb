@@ -172,7 +172,7 @@ module Vagrant
         end
 
         output = execute("list", "vms")
-        if output =~ /^"#{name}" \{(.+?)\}$/
+        if output =~ /^"#{Regexp.escape(name)}" \{(.+?)\}$/
           return $1.to_s
         end
 

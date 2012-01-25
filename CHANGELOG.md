@@ -1,6 +1,6 @@
 ## 0.9.4 (unreleased)
 
-
+  - Match VM names that have parens, brackets, etc.
 
 ## 0.9.3 (January 24, 2012)
 
