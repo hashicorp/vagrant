@@ -13,7 +13,7 @@ module Vagrant
     def self.detect(registry)
       # Sort the hosts by their precedence
       host_klasses = registry.to_hash.values
-      host_klasses = host_klasses.sort_by { |a| a.precedence }.reverse
+      host_klasses = host_klasses.sort_by { |a| a.precedence }
 
       # Test for matches and return the host class that matches
       host_klasses.each do |klass|
