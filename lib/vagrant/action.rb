@@ -35,6 +35,7 @@ module Vagrant
       autoload :ClearNetworkInterfaces, 'vagrant/action/vm/clear_network_interfaces'
       autoload :ClearSharedFolders,  'vagrant/action/vm/clear_shared_folders'
       autoload :Customize,           'vagrant/action/vm/customize'
+      autoload :DefaultName,         'vagrant/action/vm/default_name'
       autoload :Destroy,             'vagrant/action/vm/destroy'
       autoload :DestroyUnusedNetworkInterfaces, 'vagrant/action/vm/destroy_unused_network_interfaces'
       autoload :DiscardState,        'vagrant/action/vm/discard_state'

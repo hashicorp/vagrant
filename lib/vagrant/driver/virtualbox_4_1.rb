@@ -147,11 +147,15 @@ module Vagrant
         execute("controlvm", @uuid, "poweroff")
       end
 
-      def import(ovf, name)
+      def import(ovf)
+        output = ""
         total = ""
         last  = 0
-        execute("import", ovf, "--vsys", "0", "--vmname", name) do |type, data|
-          if type == :stderr
+        execute("import", ovf) do |type, data|
+          if type == :stdout
+            # Keep track of the stdout so that we can get the VM name
+            output << data
+          elsif type == :stderr
             # Append the data so we can see the full view
             total << data
 
@@ -170,6 +174,14 @@ module Vagrant
             end
           end
         end
+
+        # Find the name of the VM name
+        if output !~ /Suggested VM name "(.+?)"/
+          @logger.error("Couldn't find VM name in the output.")
+          return nil
+        end
+
+        name = $1.to_s
 
         output = execute("list", "vms")
         if output =~ /^"#{Regexp.escape(name)}" \{(.+?)\}$/
@@ -372,6 +384,10 @@ module Vagrant
 
       def set_mac_address(mac)
         execute("modifyvm", @uuid, "--macaddress1", mac)
+      end
+
+      def set_name(name)
+        execute("modifyvm", @uuid, "--name", name)
       end
 
       def share_folders(folders)

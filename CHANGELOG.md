@@ -10,6 +10,8 @@
     properly created if they don't exist. [GH-667]
   - Fix the precedence for Arch, Ubuntu, and FreeBSD host classes so
     they are properly detected. [GH-683]
+  - Fix issue where VM import sometimes made strange VirtualBox folder
+    layouts. [GH-669]
 
 ## 0.9.3 (January 24, 2012)
 

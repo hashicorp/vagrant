@@ -94,6 +94,7 @@ module Vagrant
                                :read_used_ports,
                                :read_vms,
                                :set_mac_address,
+                               :set_name,
                                :share_folders,
                                :ssh_port,
                                :start,
