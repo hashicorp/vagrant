@@ -101,13 +101,17 @@ module Vagrant
         # Create the shared folder
         vm.channel.execute("#{vm.config.solaris.suexec_cmd} mkdir -p #{guestpath}")
 
+        # We have to use this `id` command instead of `/usr/bin/id` since this
+        # one accepts the "-u" and "-g" flags.
+        id_cmd        = "/usr/xpg4/bin/id"
+
         # Mount the folder with the proper owner/group
-        mount_options = "-o uid=`id -u #{owner}`,gid=`id -g #{group}`"
+        mount_options = "-o uid=`#{id_cmd} -u #{owner}`,gid=`#{id_cmd} -g #{group}`"
         mount_options += ",#{options[:extra]}" if options[:extra]
         vm.channel.execute("#{vm.config.solaris.suexec_cmd} /sbin/mount -F vboxfs #{mount_options} #{name} #{guestpath}")
 
         # chown the folder to the proper owner/group
-        vm.channel.execute("#{vm.config.solaris.suexec_cmd} chown `id -u #{owner}`:`id -g #{group}` #{guestpath}")
+        vm.channel.execute("#{vm.config.solaris.suexec_cmd} chown `#{id_cmd} -u #{owner}`:`#{id_cmd} -g #{group}` #{guestpath}")
       end
     end
   end
