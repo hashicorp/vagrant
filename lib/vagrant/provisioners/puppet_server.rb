@@ -29,7 +29,7 @@ module Vagrant
       def verify_binary(binary)
         env[:vm].channel.sudo("which #{binary}",
                               :error_class => PuppetServerError,
-                              :error_key => :puppetd_not_detected,
+                              :error_key => :not_detected,
                               :binary => binary)
       end
 

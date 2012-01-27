@@ -16,12 +16,6 @@ en:
     errors:
       base_vm_not_found: The base VM with the name '%{name}' was not found.
       box_not_found: Box '%{name}' could not be found.
-      puppet_not_detected: |-
-        The `puppet` binary was not found on the VM and is required for Puppet provisioning.
-        Please verify that Puppet is installed and that the binary is available on the PATH.
-      puppetd_not_detected: |-
-        The `puppetd` binary was not found on the VM is required for Puppet Server provisioning.
-        Please verify that Puppet is installed and that the binary is available on the PATH.
       cli_invalid_options: |-
         An invalid option was specified. The help for this command
         is available below.
