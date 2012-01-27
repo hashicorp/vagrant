@@ -13,6 +13,7 @@
   - Fix issue where VM import sometimes made strange VirtualBox folder
     layouts. [GH-669]
   - Call proper `id` command on Solaris. [GH-679]
+  - More accurate VBoxManage error detection.
 
 ## 0.9.3 (January 24, 2012)
 
