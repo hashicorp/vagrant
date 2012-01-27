@@ -79,6 +79,7 @@ Please change your configurations to match this new syntax.
           :owner => nil,
           :group => nil,
           :nfs   => false,
+          :transient => false,
           :extra => nil
         }.merge(opts || {})
       end

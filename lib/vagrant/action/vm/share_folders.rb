@@ -63,7 +63,8 @@ module Vagrant
           shared_folders.each do |name, data|
             folders << {
               :name => name,
-              :hostpath => File.expand_path(data[:hostpath], @env[:root_path])
+              :hostpath => File.expand_path(data[:hostpath], @env[:root_path]),
+              :transient => data[:transient]
             }
           end
 
