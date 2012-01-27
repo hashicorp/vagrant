@@ -392,8 +392,12 @@ module Vagrant
 
       def share_folders(folders)
         folders.each do |folder|
-          execute("sharedfolder", "add", @uuid, "--name",
-                  folder[:name], "--hostpath", folder[:hostpath])
+          args = ["--name",
+                  folder[:name],
+                  "--hostpath",
+                  folder[:hostpath]]
+          args << "--transient" if folder.has_key?(:transient) && folder[:transient]
+          execute("sharedfolder", "add", @uuid, *args)
         end
       end
 
