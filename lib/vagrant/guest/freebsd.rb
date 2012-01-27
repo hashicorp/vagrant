@@ -38,7 +38,10 @@ module Vagrant
         end
       end
 
-      # TODO: Error/warning about this.
+      # TODO: vboxsf is currently unsupported in FreeBSD, if you are able to
+      # help out with this project, please contact vbox@FreeBSD.org
+      #
+      # See: http://wiki.freebsd.org/VirtualBox/ToDo
       # def mount_shared_folder(ssh, name, guestpath)
       #   ssh.exec!("sudo mkdir -p #{guestpath}")
       #   # Using a custom mount method here; could use improvement.
