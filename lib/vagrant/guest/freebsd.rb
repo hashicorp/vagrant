@@ -53,23 +53,18 @@ module Vagrant
         end
       end
 
-      def prepare_host_only_network(net_options=nil)
+      def configure_networks(networks)
         # Remove any previous host only network additions to the
         # interface file.
-        vm.ssh.execute do |ssh|
-          # Clear out any previous entries
-          ssh.exec!("sudo sed -e '/^#VAGRANT-BEGIN-HOSTONLY/,/^#VAGRANT-END-HOSTONLY/ d' /etc/rc.conf > /tmp/rc.conf")
-          ssh.exec!("sudo mv /tmp/rc.conf /etc/rc.conf")
-        end
-      end
+        vm.channel.sudo("sed -e '/^#VAGRANT-BEGIN-HOSTONLY/,/^#VAGRANT-END-HOSTONLY/ d' /etc/rc.conf > /tmp/rc.conf")
+        vm.channel.sudo("mv /tmp/rc.conf /etc/rc.conf")
 
-      def enable_host_only_network(net_options)
-        entry = "#VAGRANT-BEGIN-HOSTONLY\nifconfig_em#{net_options[:adapter]}=\"inet #{net_options[:ip]} netmask #{net_options[:netmask]}\"\n#VAGRANT-END-HOSTONLY\n"
-        vm.ssh.upload!(StringIO.new(entry), "/tmp/vagrant-network-entry")
+        networks.each do |network|
+          entry = "#VAGRANT-BEGIN-HOSTONLY\nifconfig_em#{network[:interface]}=\"inet #{network[:ip]} netmask #{network[:netmask]}\"\n#VAGRANT-END-HOSTONLY\n"
+          vm.channel.upload(StringIO.new(entry), "/tmp/vagrant-network-entry")
 
-        vm.ssh.execute do |ssh|
-          ssh.exec!("sudo su -m root -c 'cat /tmp/vagrant-network-entry >> /etc/rc.conf'")
-          ssh.exec!("sudo ifconfig em#{net_options[:adapter]} inet #{net_options[:ip]} netmask #{net_options[:netmask]}")
+          vm.channel.sudo("su -m root -c 'cat /tmp/vagrant-network-entry >> /etc/rc.conf'")
+          vm.channel.sudo("ifconfig em#{network[:interface]} inet #{network[:ip]} netmask #{network[:netmask]}")
         end
       end
     end
