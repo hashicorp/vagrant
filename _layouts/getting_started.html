@@ -44,13 +44,19 @@
 
   <div class="span9">
     {{ content }}
+
+    <ul class="pager">
     {% if page.previous_url and page.previous %}
-    <a href="{{ page.previous_url }}">&larr; {{ page.previous }}</a> &middot;
+        <li class="previous">
+            <a href="{{ page.previous_url }}">&larr; {{ page.previous }}</a>
+        </li>
     {% endif %}
-    {{ page.current }}
     {% if page.next_url and page.next %}
-    &middot; <a href="{{ page.next_url }}">{{ page.next }} &rarr;</a>
+        <li class="next">
+            <a href="{{ page.next_url }}">{{ page.next }} &rarr;</a>
+        </li>
     {% endif %}
+    </ul>
   </div>
 </div>
 {% include footer.html %}
