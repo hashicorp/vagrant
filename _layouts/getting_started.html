@@ -1,70 +1,48 @@
 {% include header.html %}
 <div class="row">
-  <div class="span4 Module sidebar">
-    <div class="alert-message block-message grey">
-    <ol>
-      {% if page.url == '/docs/getting-started/index.html' %}
-      <li>Overview</li>
-      {% else %}
-      <li><a href="/docs/getting-started/index.html">Overview</a></li>
-      {% endif %}
-      {% if page.url == '/docs/getting-started/why.html' %}
-      <li>Why Vagrant?</li>
-      {% else %}
-      <li><a href="/docs/getting-started/why.html">Why Vagrant?</a></li>
-      {% endif %}
-      {% if page.url == '/docs/getting-started/introduction.html' %}
-      <li>Introduction</li>
-      {% else %}
-      <li><a href="/docs/getting-started/introduction.html">Introduction</a></li>
-      {% endif %}
-      {% if page.url == '/docs/getting-started/setup.html' %}
-      <li>Project Setup</li>
-      {% else %}
-      <li><a href="/docs/getting-started/setup.html">Project Setup</a></li>
-      {% endif %}
-      {% if page.url == '/docs/getting-started/boxes.html' %}
-      <li>Boxes</li>
-      {% else %}
-      <li><a href="/docs/getting-started/boxes.html">Boxes</a></li>
-      {% endif %}
-      {% if page.url == '/docs/getting-started/ssh.html' %}
-      <li>SSH</li>
-      {% else %}
-      <li><a href="/docs/getting-started/ssh.html">SSH</a></li>
-      {% endif %}
-      {% if page.url == '/docs/getting-started/provisioning.html' %}
-      <li>Provisioning</li>
-      {% else %}
-      <li><a href="/docs/getting-started/provisioning.html">Provisioning</a></li>
-      {% endif %}
-      {% if page.url == '/docs/getting-started/ports.html' %}
-      <li>Port Forwarding</li>
-      {% else %}
-      <li><a href="/docs/getting-started/ports.html">Port Forwarding</a></li>
-      {% endif %}
-      {% if page.url == '/docs/getting-started/packaging.html' %}
-      <li>Packaging</li>
-      {% else %}
-      <li><a href="/docs/getting-started/packaging.html">Packaging</a></li>
-      {% endif %}
-      {% if page.url == '/docs/getting-started/teardown.html' %}
-      <li>Teardown</li>
-      {% else %}
-      <li><a href="/docs/getting-started/teardown.html">Teardown</a></li>
-      {% endif %}
-      {% if page.url == '/docs/getting-started/rebuild.html' %}
-      <li>Rebuild Instantly</li>
-      {% else %}
-      <li><a href="/docs/getting-started/rebuild.html">Rebuild Instantly</a></li>
-      {% endif %}
-    </ol>
+  <div class="span3 Module sidebar">
+    <div class="well" style="padding: 8px 0px;">
+    <ul class="nav list">
+      <li{% if page.current == 'Overview' %} class="active"{% endif %}>
+        <a href="/docs/getting-started/index.html">Overview</a>
+      </li>
+      <li{% if page.current == 'Why Vagrant?' %} class="active"{% endif %}>
+        <a href="/docs/getting-started/why.html">Why Vagrant?</a>
+      </li>
+      <li{% if page.current == 'Introduction' %} class="active"{% endif %}>
+        <a href="/docs/getting-started/introduction.html">Introduction</a>
+      </li>
+      <li{% if page.current == 'Project Setup' %} class="active"{% endif %}>
+        <a href="/docs/getting-started/setup.html">Project Setup</a>
+      </li>
+      <li{% if page.current == 'Boxes' %} class="active"{% endif %}>
+        <a href="/docs/getting-started/boxes.html">Boxes</a>
+      </li>
+      <li{% if page.current == 'SSH' %} class="active"{% endif %}>
+        <a href="/docs/getting-started/ssh.html">SSH</a>
+      </li>
+      <li{% if page.current == 'Provisioning' %} class="active"{% endif %}>
+        <a href="/docs/getting-started/provisioning.html">Provisioning</a>
+      </li>
+      <li{% if page.current == 'Port Forwarding' %} class="active"{% endif %}>
+        <a href="/docs/getting-started/ports.html">Port Forwarding</a>
+      </li>
+      <li{% if page.current == 'Packaging' %} class="active"{% endif %}>
+        <a href="/docs/getting-started/packaging.html">Packaging</a>
+      </li>
+      <li{% if page.current == 'Teardown' %} class="active"{% endif %}>
+        <a href="/docs/getting-started/teardown.html">Teardown</a>
+      </li>
+      <li{% if page.current == 'Rebuild Instantly' %} class="active"{% endif %}>
+        <a href="/docs/getting-started/rebuild.html">Rebuild Instantly</a>
+      </li>
+    </ul>
     </div>
 
     {% include block_beta_warning.html %}
   </div>
 
-  <div class="span12">
+  <div class="span9">
     {{ content }}
     {% if page.previous_url and page.previous %}
     <a href="{{ page.previous_url }}">&larr; {{ page.previous }}</a> &middot;
