@@ -29,7 +29,7 @@ class SayHelloMiddleware
   end
 
   def call(env)
-    env["ui"].info "Hello!"
+    env[:ui].info "Hello!"
     @app.call(env)
   end
 end
@@ -101,7 +101,7 @@ middleware (note that in practice this is a _really_ bad idea). An example
 of this is shown below:
 
 {% highlight ruby %}
-Vagrant::Action[:up].swap(Vagrant::Action::VM::ForwardPort, SayHello)
+Vagrant.actions[:up].swap(Vagrant::Action::VM::ForwardPort, SayHello)
 {% endhighlight %}
 
 Easy, isn't it? Now if you were to run `vagrant up`, instead of forwarding
