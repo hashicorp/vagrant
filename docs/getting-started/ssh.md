@@ -30,7 +30,7 @@ $ vagrant ssh
 vagrant@vagrantup:~$
 {% endhighlight %}
 
-<div class="alert-message block-message grey notice">
+<div class="alert alert-block alert-notice">
   <h3>Using Microsoft Windows?</h3>
   <p>
     An SSH client is generally not distributed with Windows by default. Because of this,
