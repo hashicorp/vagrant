@@ -91,7 +91,7 @@ module Vagrant
             key, opts = data
             opts[:map_uid] = prepare_permission(:uid, opts)
             opts[:map_gid] = prepare_permission(:gid, opts)
-            opts[:version] ||= 3
+            opts[:nfs_version] ||= 3
 
             acc[key] = opts
             acc
