@@ -26,7 +26,6 @@ Vagrant::Config.run do |config|
 
   config.nfs.map_uid = :auto
   config.nfs.map_gid = :auto
-  config.nfs.version = 3
 
   config.package.name = 'package.box'
 end
