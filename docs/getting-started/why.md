@@ -14,19 +14,19 @@ Web developers use virtual environments every day with their web applications. F
 solutions such as EngineYard and Heroku, virtualization is the tool of choice for easy deployment and infrastructure management.
 Vagrant aims to take those very same principles and put them to work in the heart of the application lifecycle.
 By providing easy to configure, lightweight, reproducible, and portable virtual machines targeted at
-development environments, Vagrant helps maximize your productivity and flexibility.
+development environments, Vagrant helps maximize the productivity and flexibility of you and your team.
 
 Vagrant is a development tool which stands on the shoulders of giants, using tried and
 proven technologies to achieve its magic. Vagrant uses [Oracle's VirtualBox](http://www.virtualbox.org)
 to create its virtual machines and then uses [Chef](http://www.opscode.com/chef) or [Puppet](http://www.puppetlabs.com/puppet)  to provision them.
 
-## Benefits of Vagrant
+## Benefits of Using Vagrant
 
 ### For Solo Developers
 
 Maintaining consistent development environments over multiple projects is simply an
 unfeasible task for a modern web developer. Each project depends on its own libraries,
-message queue systems, databases, framework, and more, each with their own versions.
+message queue systems, databases, frameworks, and more, each with their own versions.
 In addition to the dependencies, running all these on a single home machine and remembering
 to turn it all off at the end of the day or when working on other projects is also unfeasible.
 Vagrant gives you the tools to build unique development environments for each project once

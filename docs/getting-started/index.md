@@ -12,7 +12,7 @@ Vagrant uses [Oracle's VirtualBox](http://www.virtualbox.org)
 to build configurable, lightweight, and portable virtual machines dynamically.
 The first couple pages serve to introduce you to Vagrant and what it has
 to offer while the rest of the guide is a technical walkthrough for building a
-fully functional Ruby on Rails development environment. The getting started
+fully functional web development environment. The getting started
 guide concludes by explaining how to package the newly created vagrant environment
 so other developers can get up and running in just a couple commands.
 
