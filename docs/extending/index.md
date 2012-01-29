@@ -8,7 +8,7 @@ While plugins are easy to write and understand, extending Vagrant gets its
 own section so that more time could be spent on the details of plugins, to
 better guide developers in creating customized Vagrant functionality.
 
-<div class="info">
+<div class="alert alert-block alert-notice">
   <h3>Plugin API is still growing!</h3>
   <p>
     Plugins are new as of Vagrant 0.6,

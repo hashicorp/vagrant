@@ -2,7 +2,7 @@
 layout: about
 title: About Vagrant
 ---
-<div class="alert-message warning">
+<div class="alert alert-block alert-info">
   <strong>Note:</strong> This page talks about the Vagrant project itself.
   If instead you're looking for documentation on what Vagrant is and how
   to get started, please view the <a href="/docs/getting-started/index.html">
