@@ -1,4 +1,4 @@
-## 0.9.4 (unreleased)
+## 0.9.4 (January 28, 2012)
 
   - Important internal changes to middlewares that make plugin developer's
     lives much easier. [GH-684]
