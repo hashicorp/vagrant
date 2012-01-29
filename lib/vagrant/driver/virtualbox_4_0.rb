@@ -116,7 +116,6 @@ module Vagrant
           if adapter[:nic_type]
             args.concat(["--nictype#{adapter[:adapter]}", adapter[:nic_type].to_s])
           end
-
         end
 
         execute("modifyvm", @uuid, *args)
