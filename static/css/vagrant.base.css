@@ -77,6 +77,10 @@ pre > code {
   border: none
 }
 
+ul.nav.list > li {
+  line-height: 1.3em;
+}
+
 .alert-notice {
   color: #555;
   background-color: whiteSmoke;
