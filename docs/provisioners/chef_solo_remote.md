@@ -51,7 +51,7 @@ end
 
 You may also use an array to specify multiple cookbook paths.
 
-<div class="alert-message block-message grey notice">
+<div class="alert alert-block alert-notice">
   <h3>Mixing Host and VM Cookbook Paths</h3>
   <p>
     You can also mix together host and VM cookbook paths. This allows

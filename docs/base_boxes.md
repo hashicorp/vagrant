@@ -4,7 +4,7 @@ title: Documentation - Base Boxes
 ---
 # Base Boxes
 
-<div class="info">
+<div class="alert alert-block alert-notice">
   <h3>This topic is for advanced users</h3>
   <p>
     The following topic is for <em>advanced</em> users. The majority of Vagrant users
@@ -28,7 +28,7 @@ requirements of a base box are as follows:
 The above are absolutely _required_ of a base box in order to work properly with Vagrant.
 The versions of those requirements however are up to you, as long as they are working properly.
 
-<div class="info">
+<div class="alert alert-block alert-notice">
   <h3>What about password-based SSH? Why public/private keys?</h3>
   <p>
     While Vagrant was initially released with password-based SSH support, this proved
@@ -63,7 +63,7 @@ device it is bridged to, which is unknown.
 Now go ahead and boot up the Virtual Machine, insert the DVD or attach the ISO file
 you're installing the operating system from, and follow the install procedure.
 
-<div class="info">
+<div class="alert alert-block alert-notice">
   <h3>Size does matter!</h3>
   <p>
     Having an environment you can send and have others boot up is really neat,
@@ -84,7 +84,7 @@ you're installing the operating system from, and follow the install procedure.
   </ul>
 </div>
 
-<div class="info">
+<div class="alert alert-block alert-notice">
   <h3>Convention over Configuration</h3>
   <p>
     Choice is a good thing, so just about everything in Vagrant can be changed.
@@ -130,7 +130,7 @@ Then restart sudo using `/etc/init.d/sudo restart` (command may defer on operati
 Finally, verify that sudo works without a password, but running `exit` out of the root
 account, then `sudo which sudo`. You should get output similar to `/usr/bin/sudo`.
 
-<div class="info">
+<div class="alert alert-block alert-notice">
   <h3>Disable <code>requiretty</code></h3>
   <p>
     Some distros automatically enabled <code>requiretty</code> within the sudo
@@ -203,7 +203,7 @@ If this box is meant to be private, we recommend you create your own custom
 pair of keys and set that up. Users of your box can then specify the private key
 you created by setting `config.ssh.private_key_path`.
 
-<div class="info">
+<div class="alert alert-block alert-notice">
   <h3>Additional SSH Tweaks</h3>
   <p>
     In order to keep SSH access speedy even when your host computer can't

@@ -42,7 +42,7 @@ Vagrant::Config.run do |config|
 end
 {% endhighlight %}
 
-<div class="alert-message block-message grey notice">
+<div class="alert alert-block alert-notice">
   <h3>Multiple Cookbook Paths</h3>
   <p>
     You can also specify multiple cookbook paths by making the configuration an

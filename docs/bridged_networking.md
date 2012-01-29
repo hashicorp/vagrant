@@ -13,7 +13,7 @@ other machine.
 Vagrant exposes this feature in a straightforward and easy to use
 way.
 
-<div class="alert-message block-message grey notice">
+<div class="alert alert-block alert-notice">
   <h3>Supported Operating Systems</h3>
   <p>
     Since setting up bridged networking requires configuring the OS to
@@ -44,7 +44,7 @@ Vagrant will always setup this bridged interface as adapter #3 on
 the virtual machine. This can be overridden as well, see below for more
 information.
 
-<div class="alert-message block-message grey notice">
+<div class="alert alert-block alert-notice">
   <h3>Not All Networks Work!</h3>
   <p>
     Some networks will not work properly with bridged networking. Specifically,

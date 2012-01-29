@@ -97,7 +97,7 @@ class FooProvisioner < Vagrant::Provisioners::Base
 end
 {% endhighlight %}
 
-<div class="alert-message block-message grey notice">
+<div class="alert alert-block alert-notice">
   <h3>`env.config` versus `config`</h3>
   <p>
     In the example towards the top, we used <code>env.config</code>, but directly

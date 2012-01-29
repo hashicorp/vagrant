@@ -57,7 +57,7 @@ Before enabling NFS shared folders, there are two main requirements:
 * The VM must have NFS support installed. Almost all distributions of linux/bsd
   operating systems have this available through their respective package manager.
 
-<div class="info">
+<div class="alert alert-block alert-notice">
   <h3>Disclaimer / Warning</h3>
   <p>
     Vagrant must edit system files on the host in order to configure NFS.

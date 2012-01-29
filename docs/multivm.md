@@ -99,7 +99,7 @@ For more details on how to do things such as creating separate networks,
 joining the same network from separate Vagrantfiles, etc. please read
 the [host-only networking](/docs/host_only_networking.html) page.
 
-<div class="info">
+<div class="alert alert-block alert-notice">
   <h3>All ports are open!</h3>
   <p>
     When assigning a static IP like the above, VirtualBox makes no attempt

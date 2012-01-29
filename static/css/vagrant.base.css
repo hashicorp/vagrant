@@ -77,21 +77,9 @@ pre > code {
   border: none
 }
 
-.alert-message a {
-  font-weight: normal;
-  color: #0069D6;
-}
-
-.alert-message.block-message.grey {
+.alert-notice {
+  color: #555;
   background-color: whiteSmoke;
-  border-color: #CCC;
-}
-
-.alert-message.block-message.grey p {
-  margin-bottom: 9px;
-}
-
-.alert-message.block-message.notice {
   background-image: url(/static/images/icons/error.png);
   background-position: 10px 10px;
   background-repeat: no-repeat;

@@ -13,7 +13,7 @@ join this network.
 Vagrant allows users to assign a static IP to a VM, which is then
 setup using host-only networking.
 
-<div class="alert-message block-message grey notice">
+<div class="alert alert-block alert-notice">
   <h3>Supported Operating Systems</h3>
   <p>
     Since setting up host-only networking requires configuring the OS to
@@ -41,7 +41,7 @@ end
 The above will setup the VM with that specific IP. It is up to the user
 to make sure that no static IPs will collide with other virtual machines.
 
-<div class="alert-message block-message grey notice">
+<div class="alert alert-block alert-notice">
   <h3>Avoid Router-only IPs</h3>
   <p>
     Some IP/subnets are reserved by routers, and if the static IP you attempt to
