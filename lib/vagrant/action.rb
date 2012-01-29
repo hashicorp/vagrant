@@ -1,8 +1,8 @@
 require 'vagrant/action/builder'
-require 'vagrant/action/builtin'
 
 module Vagrant
   module Action
+    autoload :Builtin,     'vagrant/action/builtin'
     autoload :Environment, 'vagrant/action/environment'
     autoload :Runner,      'vagrant/action/runner'
     autoload :Warden,      'vagrant/action/warden'

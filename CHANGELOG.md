@@ -1,5 +1,7 @@
 ## 0.9.4 (unreleased)
 
+  - Important internal changes to middlewares that make plugin developer's
+    lives much easier. [GH-684]
   - Match VM names that have parens, brackets, etc.
   - Detect when the VirtualBox kernel module is not loaded and error. [GH-677]
   - Set `:auto_config` to false on any networking option to not automatically
