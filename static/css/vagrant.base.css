@@ -74,6 +74,7 @@ pre, code {
 
 pre > code {
   background-color: #fefbf3;
+  border: none
 }
 
 .alert-message a {
