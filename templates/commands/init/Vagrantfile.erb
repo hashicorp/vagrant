@@ -21,6 +21,10 @@ Vagrant::Config.run do |config|
   # any other machines on the same network, but cannot be accessed (through this
   # network interface) by any external networks.
   # config.vm.network :hostonly, "33.33.33.10"
+  #
+  # set domain to /etc/hosts
+  # config.vm.domains = 'testdomain.com test2domain.ru'
+  #
 
   # Assign this VM to a bridged network, allowing you to connect directly to a
   # network using the host's network device. This makes the VM appear as another
