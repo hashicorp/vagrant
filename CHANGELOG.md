@@ -1,6 +1,7 @@
 ## 0.9.5 (unreleased)
 
-
+  - Fix crashing case when all network options are `:auto_config false`.
+    [GH-689]
 
 ## 0.9.4 (January 28, 2012)
 

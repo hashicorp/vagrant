@@ -64,7 +64,7 @@ module Vagrant
           # setup until after it is booted.
           @app.call(env)
 
-          if !adapters.empty?
+          if !adapters.empty? && !networks.empty?
             # Determine the interface numbers for the guest.
             assign_interface_numbers(networks, adapters)
 
