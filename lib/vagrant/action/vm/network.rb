@@ -64,7 +64,7 @@ module Vagrant
           # setup until after it is booted.
           @app.call(env)
 
-          if !adapters.empty?
+          if !adapters.empty? && !networks.empty?
             # Determine the interface numbers for the guest.
             assign_interface_numbers(networks, adapters)
 
@@ -354,7 +354,8 @@ module Vagrant
             :adapter     => config[:adapter],
             :type        => :bridged,
             :bridge      => chosen_bridge,
-            :mac_address => config[:mac]
+            :mac_address => config[:mac],
+            :nic_type    => config[:nic_type],
           }
         end
 

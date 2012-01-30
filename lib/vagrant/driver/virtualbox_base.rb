@@ -260,6 +260,14 @@ module Vagrant
           else
             raise Errors::VBoxManageError, :command => command.inspect
           end
+        else
+          # Sometimes, VBoxManage fails but doesn't actual return a non-zero
+          # exit code. For this we inspect the output and determine if an error
+          # occurred.
+          if r.stderr =~ /VBoxManage: error:/
+            @logger.info("VBoxManage error text found, assuming error.")
+            raise Errors::VBoxManageError, :command => command.inspect
+          end
         end
 
         # Return the output, making sure to replace any Windows-style

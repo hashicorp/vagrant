@@ -197,13 +197,10 @@ module Vagrant
     #
     # @return [Registry]
     def action_registry
-      return @action_registry if defined?(@action_registry)
-
-      # The action registry hasn't been loaded yet, so load it
-      # and setup the built-in actions with it.
-      @action_registry = Registry.new
-      Vagrant::Action.builtin!(@action_registry)
-      @action_registry
+      # For now we return the global built-in actions registry. In the future
+      # we may want to create an isolated registry that inherits from this
+      # global one, but for now there isn't a use case that calls for it.
+      Vagrant.actions
     end
 
     # Loads on initial access and reads data from the global data store.

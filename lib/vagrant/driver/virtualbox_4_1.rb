@@ -112,6 +112,10 @@ module Vagrant
             args.concat(["--macaddress#{adapter[:adapter]}",
                          adapter[:mac_address]])
           end
+
+          if adapter[:nic_type]
+            args.concat(["--nictype#{adapter[:adapter]}", adapter[:nic_type].to_s])
+          end
         end
 
         execute("modifyvm", @uuid, *args)
@@ -392,8 +396,12 @@ module Vagrant
 
       def share_folders(folders)
         folders.each do |folder|
-          execute("sharedfolder", "add", @uuid, "--name",
-                  folder[:name], "--hostpath", folder[:hostpath])
+          args = ["--name",
+                  folder[:name],
+                  "--hostpath",
+                  folder[:hostpath]]
+          args << "--transient" if folder.has_key?(:transient) && folder[:transient]
+          execute("sharedfolder", "add", @uuid, *args)
         end
       end
 

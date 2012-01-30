@@ -60,7 +60,7 @@ module Vagrant
 
           # Do the actual creating and mounting
           @vm.channel.sudo("mkdir -p #{real_guestpath}")
-          @vm.channel.sudo("mount #{ip}:'#{opts[:hostpath]}' #{real_guestpath}",
+          @vm.channel.sudo("mount -o vers=#{opts[:nfs_version]} #{ip}:'#{opts[:hostpath]}' #{real_guestpath}",
                           :error_class => LinuxError,
                           :error_key => :mount_nfs_fail)
         end

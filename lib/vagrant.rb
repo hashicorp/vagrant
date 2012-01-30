@@ -74,6 +74,12 @@ module Vagrant
   autoload :Util,          'vagrant/util'
   autoload :VM,            'vagrant/vm'
 
+  # Returns a `Vagrant::Registry` object that contains all the built-in
+  # middleware stacks.
+  def self.actions
+    @actions ||= Vagrant::Action::Builtin.new
+  end
+
   # The source root is the path to the root directory of
   # the Vagrant gem.
   def self.source_root

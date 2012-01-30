@@ -20,13 +20,31 @@ describe Vagrant::Registry do
     end.to_not raise_error
   end
 
-  it "should call and return the result of a block when asking for the ite" do
+  it "should call and return the result of a block when asking for the item" do
     object = Object.new
     instance.register("foo") do
       object
     end
 
     instance.get("foo").should eql(object)
+  end
+
+  it "should be able to get the item with []" do
+    object = Object.new
+    instance.register("foo") { object }
+
+    instance["foo"].should eql(object)
+  end
+
+  it "should cache the result of the item so they can be modified" do
+    # Make the proc generate a NEW array each time
+    instance.register("foo") { [] }
+
+    # Test that modifying the result modifies the actual cached
+    # value. This verifies we're caching.
+    instance.get("foo").should == []
+    instance.get("foo") << "value"
+    instance.get("foo").should == ["value"]
   end
 
   it "should be enumerable" do
