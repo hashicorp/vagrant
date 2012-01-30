@@ -24,6 +24,7 @@ module Vagrant
 
         @logger = Log4r::Logger.new("vagrant::hosts::bsd")
         @nfs_restart_command = "sudo nfsd restart"
+        @nfs_exports_template = "nfs/exports"
       end
 
       def nfs?
@@ -33,7 +34,7 @@ module Vagrant
       end
 
       def nfs_export(id, ip, folders)
-        output = TemplateRenderer.render('nfs/exports',
+        output = TemplateRenderer.render(@nfs_exports_template,
                                          :uuid => id,
                                          :ip => ip,
                                          :folders => folders)

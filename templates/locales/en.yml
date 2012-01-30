@@ -554,6 +554,10 @@ en:
       arch:
         nfs_export:
           prepare: "Preparing to edit /etc/exports. Administrator privileges will be required..."
+      freebsd:
+        nfs_whitespace: |-
+          FreeBSD hosts do not support sharing directories with whitespace in
+          their path. Please adjust your path accordingly.
 
     provisioners:
       chef:
