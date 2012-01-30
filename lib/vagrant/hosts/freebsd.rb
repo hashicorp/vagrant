@@ -4,6 +4,10 @@ module Vagrant
   module Hosts
     # Represents a FreeBSD host
     class FreeBSD < BSD
+      class FreeBSDHostError < Errors::VagrantError
+        error_namespace("vagrant.hosts.freebsd")
+      end
+
       include Util
       include Util::Retryable
 
@@ -16,10 +20,21 @@ module Vagrant
         5
       end
 
+      def nfs_export(id, ip, folders)
+        folders.each do |folder_name, folder_values|
+          if folder_values[:hostpath] =~ /\s+/
+            raise FreeBSDHostError, :_key => :nfs_whitespace
+          end
+        end
+
+        super
+      end
+
       def initialize(*args)
         super
 
         @nfs_restart_command = "sudo /etc/rc.d/mountd onereload"
+        @nfs_exports_template = "nfs/exports_freebsd"
       end
     end
   end
