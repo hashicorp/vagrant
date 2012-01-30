@@ -12,6 +12,7 @@ module Vagrant
       attr_accessor :forward_agent
       attr_accessor :forward_x11
       attr_accessor :shell
+      attr_accessor :enable_ansi_colors
 
       def forwarded_port_key=(value)
         raise Errors::DeprecationError, :message => <<-MESSAGE

@@ -171,7 +171,7 @@ module Vagrant
             ch2.on_data do |ch3, data|
               if block_given?
                 # Filter out the clear screen command
-                data = remove_ansi_escape_codes(data)
+                data = remove_ansi_escape_codes(data) unless @vm.config.ssh.enable_ansi_colors
                 @logger.debug("stdout: #{data}")
                 yield :stdout, data
               end
@@ -180,7 +180,7 @@ module Vagrant
             ch2.on_extended_data do |ch3, type, data|
               if block_given?
                 # Filter out the clear screen command
-                data = remove_ansi_escape_codes(data)
+                data = remove_ansi_escape_codes(data) unless @vm.config.ssh.enable_ansi_colors
                 @logger.debug("stderr: #{data}")
                 yield :stderr, data
               end
