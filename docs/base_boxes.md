@@ -12,11 +12,11 @@ title: Documentation - Base Boxes
     operating system. People wishing to distribute changes to an existing base box should
     see the <a href="/docs/getting-started/packaging.html">packaging guide</a>. If you
     continue with this guide, you will need a decent knowledge of the command line and
-    the specific command lines tools available on the system you are installing.
+    the specific command line tools available on the system you are installing.
   </p>
 </div>
 
-There are a special category of boxes in Vagrant known as a "base boxes". These boxes
+There is a special category of boxes in Vagrant known as a "base boxes". These boxes
 are ones which contain the bare bones necessary for Vagrant to function. The basic
 requirements of a base box are as follows:
 
@@ -103,7 +103,7 @@ you're installing the operating system from, and follow the install procedure.
 
 ### Setup Permissions
 
-Once the Virtual Machine is created, boot it up if it isn't already. Then lets
+Once the Virtual Machine is created, boot it up if it isn't already. Then let's
 start by making sure the default account has proper permissions. Specifically,
 the main user should have **password-less `sudo` privileges**. We do this by
 running `su` and entering the root password you entered during the installation
@@ -126,14 +126,15 @@ assign the main user to that group (on Debian and Ubuntu systems, this is done w
 the `groupadd` and `usermod` utilities. Consult the documentation for the commands your
 operating system uses).
 
-Then restart sudo using `/etc/init.d/sudo restart` (command may defer on operating systems).
-Finally, verify that sudo works without a password, but running `exit` out of the root
-account, then `sudo which sudo`. You should get output similar to `/usr/bin/sudo`.
+Then restart sudo using `/etc/init.d/sudo restart` (command may differ depending on
+operating system). Finally, verify that sudo works without a password, but running
+`exit` out of the root account, then `sudo which sudo`. You should get output similar
+to `/usr/bin/sudo`.
 
 <div class="alert alert-block alert-notice">
   <h3>Disable <code>requiretty</code></h3>
   <p>
-    Some distros automatically enabled <code>requiretty</code> within the sudo
+    Some distros automatically enable <code>requiretty</code> within the sudo
     configuration. If so, there will be a line that looks like <code>Defaults requiretty</code>.
     Make sure this line is commented, otherwise Vagrant will fail.
   </p>
@@ -141,7 +142,7 @@ account, then `sudo which sudo`. You should get output similar to `/usr/bin/sudo
 
 ### Install VirtualBox Guest Additions
 
-Now we have the permissions, lets gets shared folders and port forwarding working so we
+Now we have the permissions, let's gets shared folders and port forwarding working so we
 can harness the full power Vagrant has to offer. There are various guides across the
 internet explaining how to set up the Virtualbox Guest Additions, but for most unix-based
 systems, the following will work just fine.
@@ -183,7 +184,7 @@ We need to setup the software Vagrant relies on. The _required_ software is list
 * **SSH**
 
 These are typically straightforward to install using the operating systems default package
-management tools, so the details won't be gone into here. If promoted, make sure that the
+management tools, so the details won't be gone into here. If prompted, make sure that the
 SSH package is set to use **basic username/password authentication** and write down the
 username/password for later.
 
