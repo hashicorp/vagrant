@@ -12,6 +12,7 @@ Vagrant::Config.run do |config|
   config.ssh.forward_agent = false
   config.ssh.forward_x11 = false
   config.ssh.shell = "bash"
+  config.ssh.enable_ansi_colors = true
 
   config.vm.auto_port_range = (2200..2250)
   config.vm.box_url = nil
