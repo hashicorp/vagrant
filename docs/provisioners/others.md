@@ -47,9 +47,7 @@ is shown below:
 {% highlight ruby %}
 class FooProvisioner < Vagrant::Provisioners::Base
   def provision!
-    vm.ssh.execute do |ssh|
-      ssh.exec!("sudo foo-provision")
-    end
+    env[:vm].channel.execute("sudo foo-provision")
   end
 end
 {% endhighlight %}
