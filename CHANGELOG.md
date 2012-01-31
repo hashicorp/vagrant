@@ -5,6 +5,7 @@
   - Type of network adapter can be specified with `:nic_type`. [GH-690]
   - The NFS version can be specified with the `:nfs_version` option
     on shared folders. [GH-557]
+  - Greatly improved FreeBSD guest and host support. [GH-695]
 
 ## 0.9.4 (January 28, 2012)
 
