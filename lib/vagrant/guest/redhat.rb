@@ -41,7 +41,7 @@ module Vagrant
         interfaces.each do |interface|
           vm.channel.sudo("/sbin/ifconfig eth#{interface} down 2> /dev/null")
           vm.channel.sudo("cat /tmp/vagrant-network-entry_#{interface} >> #{network_scripts_dir}/ifcfg-eth#{interface}")
-          vm.channel.sudo("/sbin/ifup eth#{interface}")
+          vm.channel.sudo("/sbin/ifconfig eth#{interface} up 2> /dev/null")
         end
       end
 
