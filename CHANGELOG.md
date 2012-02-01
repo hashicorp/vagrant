@@ -6,6 +6,8 @@
   - The NFS version can be specified with the `:nfs_version` option
     on shared folders. [GH-557]
   - Greatly improved FreeBSD guest and host support. [GH-695]
+  - Fix instability with RedHat guests and host only and bridged networks.
+    [GH-698]
 
 ## 0.9.4 (January 28, 2012)
 
