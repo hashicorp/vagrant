@@ -319,7 +319,8 @@ module Vagrant
 
         def bridged_adapter(config)
           bridgedifs = @env[:vm].driver.read_bridged_interfaces
-
+          bridgedifs.delete_if { |interface| interface[:status] == "Down" }
+              
           chosen_bridge = nil
           if bridgedifs.length == 1
             # One bridgable interface? Just use it.
