@@ -8,6 +8,8 @@
   - Greatly improved FreeBSD guest and host support. [GH-695]
   - Fix instability with RedHat guests and host only and bridged networks.
     [GH-698]
+  - When using bridged networking, only list the network interfaces
+    that are up as choices. [GH-701]
 
 ## 0.9.4 (January 28, 2012)
 
