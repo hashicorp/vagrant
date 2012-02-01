@@ -78,8 +78,11 @@ module Vagrant
     # given vagrant environment. This allows for testing of middlewares.
     def action_env(v_env = nil)
       v_env ||= vagrant_env
+      # duplicate the Vagrant::Environment ui and get the default vm object
+      # for the new action environment from the first pair in the vms list
+      opts = {:ui => v_env.ui.dup, :vm => v_env.vms.first.last}
       app = lambda { |env| }
-      env = Vagrant::Action::Environment.new(v_env)
+      env = Vagrant::Action::Environment.new(opts)
       env["vagrant.test"] = true
       [app, env]
     end
