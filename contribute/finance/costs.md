@@ -3,6 +3,7 @@ layout: contribute
 title: Contribute Financially - Costs
 
 section: finance
+current: Current Costs
 ---
 # What does Vagrant use the money for?
 

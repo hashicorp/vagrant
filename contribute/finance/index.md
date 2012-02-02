@@ -3,6 +3,7 @@ layout: contribute
 title: Contribute Financially
 
 section: finance
+current: Contribute Financially
 ---
 # Contribute to Vagrant Financially
 

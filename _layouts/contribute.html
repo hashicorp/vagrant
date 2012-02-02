@@ -30,11 +30,21 @@
 					<a href="/contribute/code/index.html">Overview</a>
 				</li>
 				{% elsif page.section == "finance" %}
-				<li><a href="/contribute/finance/index.html">Overview</a></li>
-				<li><a href="/contribute/finance/costs.html">Current Costs</a></li>
-				<li><a href="/contribute/finance/feature.html">Pay for a Feature</a></li>
-				<li><a href="/contribute/finance/sponsor.html">Sponsor Vagrant</a></li>
-				<li><a href="/contribute/finance/donate.html">Donate</a></li>
+				<li{% if page.current == 'Contribute Financially' %} class="active" {% endif %}>
+					<a href="/contribute/finance/index.html">Overview</a>
+				</li>
+				<li{% if page.current == 'Current Costs' %} class="active" {% endif %}>
+					<a href="/contribute/finance/costs.html">Current Costs</a>
+				</li>
+				<li{% if page.current == 'Pay for a Feature' %} class="active" {% endif %}>
+					<a href="/contribute/finance/feature.html">Pay for a Feature</a>
+				</li>
+				<li{% if page.current == 'Sponsor Vagrant' %} class="active" {% endif %}>
+					<a href="/contribute/finance/sponsor.html">Sponsor Vagrant</a>
+				</li>
+				<li{% if page.current == 'Donate' %} class="active" {% endif %}>
+					<a href="/contribute/finance/donate.html">Donate</a>
+				</li>
 				{% else %}
 				<li class="active"><a href="/contribute/index.html">Overview</a></li>
 				<li><a href="/contribute/documentation/index.html">Documentation</a></li>
