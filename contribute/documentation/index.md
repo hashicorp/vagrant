@@ -3,6 +3,7 @@ layout: contribute
 title: Contribute Documentation
 
 section: docs
+current: Overview
 ---
 # Contribute to Vagrant: Documentation
 

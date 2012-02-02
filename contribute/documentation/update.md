@@ -3,6 +3,7 @@ layout: contribute
 title: Contribute Documentation - Update the Site
 
 section: docs
+current: Update the Site
 ---
 # Update the Site With Your Changes
 

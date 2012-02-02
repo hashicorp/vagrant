@@ -3,6 +3,7 @@ layout: contribute
 title: Contribute Documentation - Run the Site
 
 section: docs
+current: Run the Site
 ---
 # Run the Vagrant Website Locally
 

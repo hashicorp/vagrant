@@ -1,6 +1,8 @@
 ---
 layout: contribute
 title: Contribute to Vagrant
+
+current: Contribute
 ---
 # Contribute to Vagrant
 
