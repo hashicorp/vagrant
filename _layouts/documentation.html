@@ -3,10 +3,17 @@
 	<div class="span3 Module sidebar">
 		<div class="well" style="padding: 8px 0px;">
 			<ul class="nav nav-list">
-				<li><a href="/docs/index.html">Overview</a></li>
-				<li><a href="/docs/commands.html">Commands</a></li>
-				<li><a href="/docs/vagrantfile.html">Vagrantfile</a></li>
-				<li><a href="/docs/provisioners.html">Provisioners</a>
+				<li{% if page.current == 'Overview' %} class="active"{% endif %}>
+				<a href="/docs/index.html">Overview</a>
+				</li>
+				<li{% if page.current == 'Commands' %} class="active"{% endif %}>
+				<a href="/docs/commands.html">Commands</a>
+				</li>
+				<li{% if page.current == 'FOO' %} class="active"{% endif %}>
+				<a href="/docs/vagrantfile.html">Vagrantfile</a>
+				</li>
+				<li{% if page.current == 'FOO' %} class="active"{% endif %}>
+				<a href="/docs/provisioners.html">Provisioners</a>
 				<ul>
 					<li><a href="/docs/provisioners/introduction.html">Introduction</a></li>
 					<li><a href="/docs/provisioners/chef_solo.html">Chef Solo</a></li>
@@ -18,15 +25,33 @@
 					<li><a href="/docs/provisioners/others.html">Others</a></li>
 				</ul>
 				</li>
-				<li><a href="/docs/boxes.html">Boxes</a></li>
-				<li><a href="/docs/multivm.html">Multi-VM Environments</a></li>
-				<li><a href="/docs/host_only_networking.html">Host-Only Networking</a></li>
-				<li><a href="/docs/bridged_networking.html">Bridged Networking</a></li>
-				<li><a href="/docs/nfs.html">NFS Shared Folders</a></li>
-				<li><a href="/docs/base_boxes.html">Base Boxes</a></li>
-				<li><a href="/docs/guests.html">Guest-specific Behavior</a></li>
-				<li><a href="/docs/plugins.html">Plugins</a></li>
-				<li><a href="/docs/rake.html">Rake Integration</a></li>
+				<li{% if page.current == 'FOO' %} class="active"{% endif %}>
+				<a href="/docs/boxes.html">Boxes</a>
+				</li>
+				<li{% if page.current == 'FOO' %} class="active"{% endif %}>
+				<a href="/docs/multivm.html">Multi-VM Environments</a>
+				</li>
+				<li{% if page.current == 'FOO' %} class="active"{% endif %}>
+				<a href="/docs/host_only_networking.html">Host-Only Networking</a>
+				</li>
+				<li{% if page.current == 'FOO' %} class="active"{% endif %}>
+				<a href="/docs/bridged_networking.html">Bridged Networking</a>
+				</li>
+				<li{% if page.current == 'FOO' %} class="active"{% endif %}>
+				<a href="/docs/nfs.html">NFS Shared Folders</a>
+				</li>
+				<li{% if page.current == 'FOO' %} class="active"{% endif %}>
+				<a href="/docs/base_boxes.html">Base Boxes</a>
+				</li>
+				<li{% if page.current == 'FOO' %} class="active"{% endif %}>
+				<a href="/docs/guests.html">Guest-specific Behavior</a>
+				</li>
+				<li{% if page.current == 'FOO' %} class="active"{% endif %}>
+				<a href="/docs/plugins.html">Plugins</a>
+				</li>
+				<li{% if page.current == 'FOO' %} class="active"{% endif %}>
+				<a href="/docs/rake.html">Rake Integration</a>
+				</li>
 			</ul>
 		</div>
 	</div>
