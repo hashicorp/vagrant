@@ -160,6 +160,7 @@ Vagrant.hosts.register(:arch)    { Vagrant::Hosts::Arch }
 Vagrant.hosts.register(:bsd)     { Vagrant::Hosts::BSD }
 Vagrant.hosts.register(:fedora)  { Vagrant::Hosts::Fedora }
 Vagrant.hosts.register(:freebsd) { Vagrant::Hosts::FreeBSD }
+Vagrant.hosts.register(:gentoo)  { Vagrant::Hosts::Gentoo }
 Vagrant.hosts.register(:linux)   { Vagrant::Hosts::Linux }
 Vagrant.hosts.register(:windows) { Vagrant::Hosts::Windows }
 

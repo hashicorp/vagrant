@@ -7,6 +7,7 @@ module Vagrant
     autoload :BSD,     'vagrant/hosts/bsd'
     autoload :FreeBSD, 'vagrant/hosts/freebsd'
     autoload :Fedora,  'vagrant/hosts/fedora'
+    autoload :Gentoo,  'vagrant/hosts/gentoo'
     autoload :Linux,   'vagrant/hosts/linux'
     autoload :Windows, 'vagrant/hosts/windows'
 

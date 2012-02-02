@@ -7,6 +7,7 @@
   - Fix crashing case if there are no ports to forward.
   - Fix issue surrounding improper configuration of host only networks on
     RedHat guests. [GH-719]
+  - NFS should work properly on Gentoo. [GH-706]
 
 ## 0.9.5 (February 5, 2012)
 
