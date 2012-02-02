@@ -12,7 +12,7 @@ module Vagrant
 
         def initialize
           @puppet_server = "puppet"
-          @puppet_node = "puppet_node"
+          @puppet_node = nil
           @options = []
         end
       end
@@ -37,14 +37,16 @@ module Vagrant
         options = config.options
         options = options.join(" ") if options.is_a?(Array)
         if config.puppet_node
-          cn = config.puppet_node
+          cn = "--certname #{config.puppet_node}"
+        elsif env[:vm].config.vm.host_name
+	  cn = ""
         else
-          cn = env[:vm].config.vm.box
+          cn = "--certname #{env[:vm].config.vm.box}"
         end
 
-        command = "puppetd #{options} --server #{config.puppet_server} --certname #{cn}"
+        command = "puppetd #{options} --server #{config.puppet_server} #{cn}"
 
-        env[:ui].info I18n.t("vagrant.provisioners.puppet_server.running_puppetd")
+        env[:ui].info I18n.t("vagrant.provisioners.puppet_server.running_puppetd" + command)
         env[:vm].channel.sudo(command) do |type, data|
           env[:ui].info(data.chomp, :prefix => false)
         end
