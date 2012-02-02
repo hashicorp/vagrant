@@ -1,17 +1,23 @@
 {% include header.html %}
 <div class="row">
-  <div class="span3 Module sidebar">
-    <div class="well" style="padding: 8px; 0px;">
-    <ul class="nav nav-list">
-      <li><a href="/about.html">About Vagrant</a></li>
-      <li><a href="/sponsors.html">Project Sponsors</a></li>
-      <li><a href="https://github.com/mitchellh/vagrant">Vagrant on GitHub</a></li>
-    </ul>
-    </div>
-  </div>
+	<div class="span3 Module sidebar">
+		<div class="well" style="padding: 8px 0px;">
+			<ul class="nav nav-list">
+				<li{% if page.current == 'About' %} class="active"{% endif %}>
+					<a href="/about.html">About Vagrant</a>
+				</li>
+				<li{% if page.current == 'Project Sponsors' %} class="active"{% endif %}>
+					<a href="/sponsors.html">Project Sponsors</a>
+				</li>
+				<li>
+					<a href="https://github.com/mitchellh/vagrant">Vagrant on GitHub</a>
+				</li>
+			</ul>
+		</div>
+	</div>
 
-  <div class="span9">
-    {{ content }}
-  </div>
+	<div class="span9">
+		{{ content }}
+	</div>
 </div>
 {% include footer.html %}

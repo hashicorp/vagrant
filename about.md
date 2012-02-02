@@ -1,6 +1,8 @@
 ---
 layout: about
 title: About Vagrant
+
+current: About
 ---
 <div class="alert alert-block alert-info">
   <strong>Note:</strong> This page talks about the Vagrant project itself.

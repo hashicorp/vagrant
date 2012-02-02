@@ -1,6 +1,8 @@
 ---
 layout: about
 title: Vagrant - Sponsors
+
+current: Project Sponsors
 ---
 # Vagrant Project Sponsors
 
