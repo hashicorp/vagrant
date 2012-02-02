@@ -26,7 +26,9 @@
 					<a href="/contribute/documentation/contribute.html">Contribute your changes!</a>
 				</li>
 				{% elsif page.section == "code" %}
-				<li><a href="/contribute/code/index.html">Overview</a></li>
+				<li{% if page.current == 'Contribute Code' %} class="active"{% endif %}>
+					<a href="/contribute/code/index.html">Overview</a>
+				</li>
 				{% elsif page.section == "finance" %}
 				<li><a href="/contribute/finance/index.html">Overview</a></li>
 				<li><a href="/contribute/finance/costs.html">Current Costs</a></li>
