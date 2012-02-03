@@ -36,7 +36,6 @@ module Vagrant
             puts "caught SIGINT, shutting down"
             `taskkill /F /T /PID #{pid}` if windows?
           end
-          stdin.close
           [
            Thread.new(stdout) {|stdout_io|
              @logger.debug("Selecting on IO")
@@ -45,7 +44,6 @@ module Vagrant
                io_data[:stdout] += data
                yield :stdout, data if block_given?
              end
-             stdout_io.close
            },
 
            Thread.new(stderr) {|stderr_io|
