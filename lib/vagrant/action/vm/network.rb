@@ -326,6 +326,7 @@ module Vagrant
           if bridgedifs.length == 1
             # One bridgable interface? Just use it.
             chosen_bridge = bridgedifs[0][:name]
+            @logger.debug("Only one bridged interface available. Using it by default.")
           else
             # More than one bridgable interface requires a user decision, so
             # show options to choose from.
