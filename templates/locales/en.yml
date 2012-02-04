@@ -383,7 +383,8 @@ en:
           forwarding_entry: |-
             -- %{guest_port} => %{host_port} (adapter %{adapter})
           non_nat: |-
-            VirtualBox adapter #%{adapter} not configured as "NAT". Skipping: '%{name}'.
+            VirtualBox adapter #%{adapter} not configured as "NAT". Skipping port
+            forwards on this adapter.
           privileged_ports: |-
             You are trying to forward to privileged ports (ports <= 1024). Most
             operating systems restrict this to only privileged process (typically
