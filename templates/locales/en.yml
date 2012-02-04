@@ -299,6 +299,9 @@ en:
             Enabling bridged network...
           preparing: |-
             Preparing bridged networking...
+          specific_not_found: |-
+            Specific bridge '%{bridge}' not found. You may be asked to specify
+            which network to bridge to.
         check_box:
           not_found: Box %{name} was not found. Fetching box from specified URL...
           not_specified: |-

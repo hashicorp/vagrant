@@ -12,6 +12,8 @@
     that are up as choices. [GH-701]
   - More intelligent handling of the `certname` option for puppet
     server. [GH-702]
+  - You may now explicitly set the network to bridge to in the Vagrantfile
+    using the `:bridge` parameter. [GH-655]
 
 ## 0.9.4 (January 28, 2012)
 
