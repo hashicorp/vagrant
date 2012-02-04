@@ -55,7 +55,7 @@ module Vagrant
 
         command = "puppetd #{options} --server #{config.puppet_server}"
 
-        env[:ui].info I18n.t("vagrant.provisioners.puppet_server.running_puppetd" + command)
+        env[:ui].info I18n.t("vagrant.provisioners.puppet_server.running_puppetd")
         env[:vm].channel.sudo(command) do |type, data|
           env[:ui].info(data.chomp, :prefix => false)
         end
