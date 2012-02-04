@@ -10,11 +10,8 @@ module Vagrant
         attr_accessor :puppet_node
         attr_accessor :options
 
-        def initialize
-          @puppet_server = "puppet"
-          @puppet_node = nil
-          @options = []
-        end
+        def puppet_server; @puppet_server || "puppet"; end
+        def options; @options ||= []; end
       end
 
       def self.config_class
