@@ -10,6 +10,8 @@
     [GH-698]
   - When using bridged networking, only list the network interfaces
     that are up as choices. [GH-701]
+  - More intelligent handling of the `certname` option for puppet
+    server. [GH-702]
 
 ## 0.9.4 (January 28, 2012)
 
