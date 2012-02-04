@@ -64,10 +64,6 @@ module Vagrant
         # Make sure the stdin does not buffer
         process.io.stdin.sync = true
 
-        # Close the writer pipes, since we're just reading
-        stdout_writer.close
-        stderr_writer.close
-
         # Create a dictionary to store all the output we see.
         io_data = { :stdout => "", :stderr => "" }
 
@@ -120,6 +116,10 @@ module Vagrant
         rescue ChildProcess::TimeoutError
           raise TimeoutExceeded, process.pid
         end
+        
+        # Close the writer pipes, since we're just reading
+        stdout_writer.close
+        stderr_writer.close
 
         @logger.debug("Exit status: #{process.exit_code}")
 
