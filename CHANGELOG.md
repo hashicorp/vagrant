@@ -1,6 +1,6 @@
 ## 0.9.6 (unreleased)
 
-
+  - Fix strange issue with inconsistent childprocess reads on JRuby. [GH-711]
 
 ## 0.9.5 (February 5, 2012)
 
