@@ -15,7 +15,6 @@ module Vagrant
         matchers = [/\e\[\d*[ABCD]/,       # Matches things like \e[4D
                     /\e\[(\d*;)?\d*[HF]/,  # Matches \e[1;2H or \e[H
                     /\e\[(s|u|2J|K)/,      # Matches \e[s, \e[2J, etc.
-                    /\e\[(\d*;){0,2}\d*m/, # Matches color escapes: \e[32m
                     /\e\[=\d*[hl]/,        # Matches \e[=24h
                     /\e\[\?[1-9][hl]/,     # Matches \e[?2h
                     /\e\[20[hl]/,          # Matches \e[20l]

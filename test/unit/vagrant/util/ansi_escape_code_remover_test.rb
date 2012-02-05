@@ -11,7 +11,6 @@ describe Vagrant::Util::ANSIEscapeCodeRemover do
 
   it "should remove ANSI escape codes" do
     klass.remove_ansi_escape_codes("\e[Hyo").should == "yo"
-    klass.remove_ansi_escape_codes("\e[38myo").should == "yo"
   end
 end
 
