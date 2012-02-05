@@ -116,6 +116,10 @@ module Vagrant
         rescue ChildProcess::TimeoutError
           raise TimeoutExceeded, process.pid
         end
+        
+        # Close the writer pipes, since we're just reading
+        stdout_writer.close
+        stderr_writer.close
 
         @logger.debug("Exit status: #{process.exit_code}")
 
