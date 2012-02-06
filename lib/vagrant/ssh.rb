@@ -75,26 +75,26 @@ module Vagrant
       options[:private_key_path] = ssh_info[:private_key_path]
 
       # Command line options
-      command_options = ["-p #{options[:port]}", "-o UserKnownHostsFile=/dev/null",
-                         "-o StrictHostKeyChecking=no", "-o IdentitiesOnly=yes",
-                         "-o LogLevel=ERROR"]
-      command_options << "-i #{options[:private_key_path]}" if !plain_mode
-      command_options << "-o ForwardAgent=yes" if ssh_info[:forward_agent]
+      command_options = ["-p", options[:port].to_s, "-o", "UserKnownHostsFile=/dev/null",
+                         "-o", "StrictHostKeyChecking=no", "-o", "IdentitiesOnly=yes",
+                         "-o", "LogLevel=ERROR"]
+      command_options += ["-i", options[:private_key_path]] if !plain_mode
+      command_options += ["-o", "ForwardAgent=yes"] if ssh_info[:forward_agent]
 
       # If there are extra options, then we append those
       command_options.concat(opts[:extra_args]) if opts[:extra_args]
 
       if ssh_info[:forward_x11]
         # Both are required so that no warnings are shown regarding X11
-        command_options << "-o ForwardX11=yes"
-        command_options << "-o ForwardX11Trusted=yes"
+        command_options += ["-o", "ForwardX11=yes"]
+        command_options += ["-o", "ForwardX11Trusted=yes"]
       end
 
       host_string = options[:host]
       host_string = "#{options[:username]}@#{host_string}" if !plain_mode
-      command = "ssh #{command_options.join(" ")} #{host_string}".strip
-      @logger.info("Invoking SSH: #{command}")
-      safe_exec(command)
+      command_options << host_string
+      @logger.info("Invoking SSH: #{command_options.inspect}")
+      safe_exec("ssh", *command_options)
     end
 
     # Checks the file permissions for a private key, resetting them

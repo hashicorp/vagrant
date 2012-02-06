@@ -7,7 +7,7 @@ module Vagrant
     # thread. In that case, `safe_exec` automatically falls back to
     # forking.
     module SafeExec
-      def safe_exec(command)
+      def safe_exec(command, *args)
         # Create a list of things to rescue from. Since this is OS
         # specific, we need to do some defined? checks here to make
         # sure they exist.
@@ -20,7 +20,7 @@ module Vagrant
         begin
           pid = nil
           pid = fork if fork_instead
-          Kernel.exec(command) if pid.nil?
+          Kernel.exec(command, *args) if pid.nil?
           Process.wait(pid) if pid
         rescue *rescue_from
           # We retried already, raise the issue and be done
