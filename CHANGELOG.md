@@ -4,6 +4,7 @@
   - `vagrant ssh` does a direct `exec()` syscall now instead of going through
     the shell. This makes it so things like shell expansion oddities no longer
     cause problems. [GH-715]
+  - Fix crashing case if there are no ports to forward.
 
 ## 0.9.5 (February 5, 2012)
 

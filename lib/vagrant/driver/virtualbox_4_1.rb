@@ -144,7 +144,7 @@ module Vagrant
                        pf_builder.join(",")])
         end
 
-        execute("modifyvm", @uuid, *args)
+        execute("modifyvm", @uuid, *args) if !args.empty?
       end
 
       def halt

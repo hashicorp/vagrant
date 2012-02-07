@@ -81,7 +81,10 @@ module Vagrant
             ports << options.merge(:name => options[:name], :adapter => options[:adapter])
           end
 
-          @env[:vm].driver.forward_ports(ports)
+          if !ports.empty?
+            # We only need to forward ports if there are any to forward
+            @env[:vm].driver.forward_ports(ports)
+          end
         end
       end
     end
