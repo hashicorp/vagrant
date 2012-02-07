@@ -9,14 +9,8 @@ module Vagrant
   # (for debugging), the list of loaded plugins is stored in the {plugins}
   # array.
   class Plugin
-    # The array of loaded plugins.
+    # The array of gem specifications that were loaded as plugins.
     @@plugins = []
-
-    # The gemspec of this plugin. This is an actual gemspec object.
-    attr_reader :gemspec
-
-    # The path to the `vagrant_init.rb` file which was loaded for this plugin.
-    attr_reader :file
 
     # Loads all the plugins for Vagrant. Plugins are currently
     # gems which have a "vagrant_init.rb" somewhere on their
@@ -46,6 +40,11 @@ module Vagrant
         specs = Gem::VERSION >= "1.6.0" ? source.latest_specs(true) : source.latest_specs
 
         specs.each do |spec|
+          if @@plugins.include?(spec)
+            logger.debug("Plugin already loaded, not loading again: #{spec.name}")
+            next
+          end
+
           # If this gem depends on Vagrant, verify this is a valid release of
           # Vagrant for this gem to load into.
           vagrant_dep = spec.dependencies.find { |d| d.name == "vagrant" }
@@ -65,7 +64,8 @@ module Vagrant
           next if !file
 
           logger.info("Loading plugin: #{spec.name} (#{spec.version})")
-          @@plugins << new(spec, file)
+          @@plugins << spec
+          load file
         end
 
         logger.info("Loaded #{@@plugins.length} plugins.")
@@ -77,15 +77,5 @@ module Vagrant
     #
     # @return [Array]
     def self.plugins; @@plugins; end
-
-    # Initializes a new plugin, given a Gemspec and the path to the
-    # gem's `vagrant_init.rb` file. This should never be called manually.
-    # Instead {load!} creates all the instances.
-    def initialize(spec, file)
-      @gemspec = spec
-      @file = file
-
-      load file
-    end
   end
 end

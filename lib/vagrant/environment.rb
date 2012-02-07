@@ -88,6 +88,9 @@ module Vagrant
       # Setup the default private key
       @default_private_key_path = @home_path.join("insecure_private_key")
       copy_insecure_private_key
+
+      # Load the plugins
+      load_plugins
     end
 
     #---------------------------------------------------------------
@@ -493,6 +496,18 @@ module Vagrant
       end
 
       nil
+    end
+
+    # Loads the Vagrant plugins by properly setting up RubyGems so that
+    # our private gem repository is on the path.
+    def load_plugins
+      # Add our private gem path to the gem path and reset the paths
+      # that Rubygems knows about.
+      ENV["GEM_PATH"] = "#{@gems_path}:#{ENV["GEM_PATH"]}"
+      ::Gem.clear_paths
+
+      # Load the plugins
+      Plugin.load!
     end
   end
 end
