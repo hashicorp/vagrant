@@ -34,15 +34,13 @@ module Vagrant
 
           vm.channel.upload(temp.path, "/tmp/vagrant-network-entry_#{network[:interface]}")
         end
-
-        # Bring down all the interfaces we're reconfiguring. By bringing down
-        # each specifically, we avoid reconfiguring eth0 (the NAT interface) so
-        # SSH never dies.
+        
+        # After reconfiguring the interfaces restart them all.
+        # Do not use ifdown/ifconfig down because this would kill ssh
         interfaces.each do |interface|
-          vm.channel.sudo("/sbin/ifconfig eth#{interface} down 2> /dev/null")
           vm.channel.sudo("cat /tmp/vagrant-network-entry_#{interface} >> #{network_scripts_dir}/ifcfg-eth#{interface}")
-          vm.channel.sudo("/sbin/ifconfig eth#{interface} up 2> /dev/null")
         end
+        vm.channel.sudo("/etc/init.d/network restart")
       end
 
       # The path to the directory with the network configuration scripts.
