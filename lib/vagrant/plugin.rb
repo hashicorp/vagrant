@@ -1,5 +1,7 @@
 require "rubygems"
 
+require "log4r"
+
 module Vagrant
   # Represents a single plugin and also manages loading plugins from
   # RubyGems. If a plugin has a `vagrant_init.rb` file somewhere on its
@@ -21,6 +23,9 @@ module Vagrant
     # load path. This file is loaded to kick off the load sequence
     # for that plugin.
     def self.load!
+      logger = Log4r::Logger.new("vagrant::plugin")
+      logger.info("Searching and loading any available plugins...")
+
       # Our version is used for checking dependencies
       our_version = Gem::Version.create(Vagrant::VERSION)
 
@@ -44,7 +49,10 @@ module Vagrant
           # If this gem depends on Vagrant, verify this is a valid release of
           # Vagrant for this gem to load into.
           vagrant_dep = spec.dependencies.find { |d| d.name == "vagrant" }
-          next if vagrant_dep && !vagrant_dep.requirement.satisfied_by?(our_version)
+          if vagrant_dep && !vagrant_dep.requirement.satisfied_by?(our_version)
+            logger.debug("Plugin Vagrant dependency mismatch: #{spec.name} (#{spec.version})")
+            next
+          end
 
           # Find a vagrant_init.rb to verify if this is a plugin
           file = nil
@@ -55,8 +63,12 @@ module Vagrant
           end
 
           next if !file
+
+          logger.info("Loading plugin: #{spec.name} (#{spec.version})")
           @@plugins << new(spec, file)
         end
+
+        logger.info("Loaded #{@@plugins.length} plugins.")
       end
     end
 
