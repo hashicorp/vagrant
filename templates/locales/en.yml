@@ -47,6 +47,12 @@ en:
         may run at any given time to avoid problems with VirtualBox inconsistencies
         occurring. Please wait for the other instance of Vagrant to end and then
         try again.
+      gem_command_in_bundler: |-
+        You cannot run the `vagrant gem` command while in a bundler environment.
+        Bundler messes around quite a bit with the RubyGem load paths and gems
+        installed via `vagrant gem` are excluded by Bundler.
+
+        Instead, please include your Vagrant plugins in your Gemfile itself.
       guest:
         invalid_class: |-
           The specified guest class does not inherit from `Vagrant::Guest::Base`.

@@ -173,6 +173,11 @@ module Vagrant
       error_key(:environment_locked)
     end
 
+    class GemCommandInBundler < VagrantError
+      status_code(71)
+      error_key(:gem_command_in_bundler)
+    end
+
     class HomeDirectoryMigrationFailed < VagrantError
       status_code(53)
       error_key(:home_dir_migration_failed)
