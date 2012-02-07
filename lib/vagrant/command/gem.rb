@@ -15,6 +15,14 @@ module Vagrant
           end
         end
 
+        # If the user needs some help, we add our own little message at the
+        # top so that they're aware of what `vagrant gem` is doing, really.
+        if @argv.empty? || @argv.include?("-h") || @argv.include?("--help")
+          @env.ui.info(I18n.t("vagrant.commands.gem.help_preamble"),
+                       :prefix => false)
+          puts
+        end
+
         # We just proxy the arguments onto a real RubyGems command
         # but change `GEM_HOME` so that the gems are installed into
         # our own private gem folder.
