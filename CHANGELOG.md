@@ -8,6 +8,8 @@
     a Vagrant environment is loaded. I don't anticipate this causing any
     problems but it is a backwards incompatible change should a plugin
     depend on this (but I don't see any reason why they would).
+  - `vagrant destroy` now asks for confirmation by default. This can be
+    overridden with the `--force` flag. [GH-699]
 
 ## 0.9.6 (February 7, 2012)
 
