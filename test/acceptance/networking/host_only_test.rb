@@ -26,12 +26,12 @@ describe "vagrant host only networking" do
       f.puts(<<VFILE)
 Vagrant::Config.run do |config|
   config.vm.box = "base"
-  config.vm.network :hostonly, "33.33.33.10"
+  config.vm.network :hostonly, "192.168.33.10"
 end
 VFILE
     end
 
     assert_execute("vagrant", "up")
-    assert_host_to_vm_network("http://33.33.33.10:8000/", 8000)
+    assert_host_to_vm_network("http://192.168.33.10:8000/", 8000)
   end
 end

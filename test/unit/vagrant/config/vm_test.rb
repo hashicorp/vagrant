@@ -34,15 +34,15 @@ describe Vagrant::Config::VMConfig do
 
   it "merges by appending networks" do
     a = described_class.new
-    a.network :hostonly, "33.33.33.10"
+    a.network :hostonly, "192.168.33.10"
 
     b = described_class.new
-    b.network :hostonly, "33.33.33.11"
+    b.network :hostonly, "192.168.33.11"
 
     c = a.merge(b)
     c.networks.length.should == 2
-    c.networks[0].should == [:hostonly, ["33.33.33.10"]]
-    c.networks[1].should == [:hostonly, ["33.33.33.11"]]
+    c.networks[0].should == [:hostonly, ["192.168.33.10"]]
+    c.networks[1].should == [:hostonly, ["192.168.33.11"]]
   end
 
   it "merges by appending provisioners" do
