@@ -81,7 +81,7 @@ module Vagrant
       #
       # {
       #   :type      => :static,
-      #   :ip        => "33.33.33.10",
+      #   :ip        => "192.168.33.10",
       #   :netmask   => "255.255.255.0",
       #   :interface => 1
       # }
