@@ -1,6 +1,13 @@
 ## 1.0.0 (unreleased)
 
-
+  - `vagrant gem` should now be used to install Vagrant plugins that are
+    gems. This installs the gems to a private gem folder that Vagrant adds
+    to its own load path. This isolates Vagrant-related gems from system
+    gems.
+  - Plugin loading no longer happens right when Vagrant is loaded, but when
+    a Vagrant environment is loaded. I don't anticipate this causing any
+    problems but it is a backwards incompatible change should a plugin
+    depend on this (but I don't see any reason why they would).
 
 ## 0.9.6 (February 7, 2012)
 

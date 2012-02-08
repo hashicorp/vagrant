@@ -11,7 +11,7 @@ module Vagrant
   # defined as basically a folder with a "Vagrantfile." This class allows
   # access to the VMs, CLI, etc. all in the scope of this environment.
   class Environment
-    HOME_SUBDIRS = ["tmp", "boxes"]
+    HOME_SUBDIRS = ["tmp", "boxes", "gems"]
     DEFAULT_VM = :default
     DEFAULT_HOME = "~/.vagrant.d"
 
@@ -33,6 +33,9 @@ module Vagrant
 
     # The directory where boxes are stored.
     attr_reader :boxes_path
+
+    # The path where the plugins are stored (gems)
+    attr_reader :gems_path
 
     # The path to the default private key
     attr_reader :default_private_key_path
@@ -80,10 +83,14 @@ module Vagrant
       setup_home_path
       @tmp_path = @home_path.join("tmp")
       @boxes_path = @home_path.join("boxes")
+      @gems_path  = @home_path.join("gems")
 
       # Setup the default private key
       @default_private_key_path = @home_path.join("insecure_private_key")
       copy_insecure_private_key
+
+      # Load the plugins
+      load_plugins
     end
 
     #---------------------------------------------------------------
@@ -489,6 +496,18 @@ module Vagrant
       end
 
       nil
+    end
+
+    # Loads the Vagrant plugins by properly setting up RubyGems so that
+    # our private gem repository is on the path.
+    def load_plugins
+      # Add our private gem path to the gem path and reset the paths
+      # that Rubygems knows about.
+      ENV["GEM_PATH"] = "#{@gems_path}:#{ENV["GEM_PATH"]}"
+      ::Gem.clear_paths
+
+      # Load the plugins
+      Plugin.load!
     end
   end
 end

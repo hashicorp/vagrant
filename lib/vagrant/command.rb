@@ -8,6 +8,7 @@ module Vagrant
     autoload :BoxRepackage, 'vagrant/command/box_repackage'
     autoload :BoxList,      'vagrant/command/box_list'
     autoload :Destroy,      'vagrant/command/destroy'
+    autoload :Gem,          'vagrant/command/gem'
     autoload :Halt,         'vagrant/command/halt'
     autoload :Init,         'vagrant/command/init'
     autoload :Package,      'vagrant/command/package'

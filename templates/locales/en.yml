@@ -47,6 +47,12 @@ en:
         may run at any given time to avoid problems with VirtualBox inconsistencies
         occurring. Please wait for the other instance of Vagrant to end and then
         try again.
+      gem_command_in_bundler: |-
+        You cannot run the `vagrant gem` command while in a bundler environment.
+        Bundler messes around quite a bit with the RubyGem load paths and gems
+        installed via `vagrant gem` are excluded by Bundler.
+
+        Instead, please include your Vagrant plugins in your Gemfile itself.
       guest:
         invalid_class: |-
           The specified guest class does not inherit from `Vagrant::Guest::Base`.
@@ -225,6 +231,13 @@ en:
         vm_not_running: "VM is not currently running. Please bring it up to run this command."
       box:
         no_installed_boxes: "There are no installed boxes! Use `vagrant box add` to add some."
+      gem:
+        help_preamble: |-
+          `vagrant gem` is used to install Vagrant plugins via the RubyGems
+          system. In fact, `vagrant gem` is just a frontend to the actual `gem`
+          interface, with the difference being that Vagrant sets up a custom
+          directory where gems are installed so that they are isolated from your
+          system gems.
       init:
         success: |-
           A `Vagrantfile` has been placed in this directory. You are now
