@@ -1,12 +1,8 @@
-require 'pathname'
-
 module Vagrant
   module Hosts
     class Gentoo < Linux
       def self.match?
-        release_file = Pathname.new("/etc/gentoo-release")
-
-        return release_file.exist?
+        return File.exists?("/etc/gentoo-release")
       end
 
       # Normal, mid-range precedence.
