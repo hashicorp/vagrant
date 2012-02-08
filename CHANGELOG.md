@@ -1,4 +1,4 @@
-## 0.9.6 (unreleased)
+## 0.9.6 (February 7, 2012)
 
   - Fix strange issue with inconsistent childprocess reads on JRuby. [GH-711]
   - `vagrant ssh` does a direct `exec()` syscall now instead of going through
