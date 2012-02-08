@@ -4,8 +4,15 @@ module Vagrant
   module Command
     class Destroy < Base
       def execute
+        options = {}
+
         opts = OptionParser.new do |opts|
           opts.banner = "Usage: vagrant destroy [vm-name]"
+          opts.separator ""
+
+          opts.on("-f", "--force", "Destroy without confirmation.") do |f|
+            options[:force] = f
+          end
         end
 
         # Parse the options
@@ -15,10 +22,20 @@ module Vagrant
         @logger.debug("'Destroy' each target VM...")
         with_target_vms(argv[0]) do |vm|
           if vm.created?
-            choice = @env.ui.ask(I18n.t("vagrant.commands.destroy.confirmation",
-                                        :name => vm.name))
+            # Boolean whether we should actually go through with the destroy
+            # or not. This is true only if the "--force" flag is set or if the
+            # user confirms it.
+            do_destroy = false
 
-            if choice.upcase == "Y"
+            if options[:force]
+              do_destroy = true
+            else
+              choice = @env.ui.ask(I18n.t("vagrant.commands.destroy.confirmation",
+                                          :name => vm.name))
+              do_destroy = choice.upcase == "Y"
+            end
+
+            if do_destroy
               @logger.info("Destroying: #{vm.name}")
               vm.destroy
             else
