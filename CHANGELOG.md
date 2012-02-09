@@ -11,6 +11,8 @@
   - `vagrant destroy` now asks for confirmation by default. This can be
     overridden with the `--force` flag. [GH-699]
   - Fix issue with Puppet config inheritance. [GH-722]
+  - Fix issue where starting a VM on some systems was incorrectly treated
+    as failing. [GH-720]
 
 ## 0.9.6 (February 7, 2012)
 

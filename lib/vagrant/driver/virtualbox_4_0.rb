@@ -417,7 +417,17 @@ module Vagrant
       end
 
       def start(mode)
-        execute("startvm", @uuid, "--type", mode.to_s)
+        command = ["startvm", @uuid, "--type", mode.to_s]
+        r = raw(*command)
+
+        if r.exit_code == 0 || r.stdout =~ /VM ".+?" has been successfully started/
+          # Some systems return an exit code 1 for some reason. For that
+          # we depend on the output.
+          return true
+        end
+
+        # If we reached this point then it didn't work out.
+        raise Errors::VBoxManageError, :command => command.inspect
       end
 
       def suspend
