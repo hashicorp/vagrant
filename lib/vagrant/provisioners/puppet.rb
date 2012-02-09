@@ -14,12 +14,10 @@ module Vagrant
         attr_accessor :pp_path
         attr_accessor :options
 
-        def initialize
-          @manifest_file = "default.pp"
-          @manifests_path = "manifests"
-          @pp_path = "/tmp/vagrant-puppet"
-          @options = []
-        end
+        def manifest_file; @manifest_file || "default.pp"; end
+        def manifests_path; @manifests_path || "manifests"; end
+        def pp_path; @pp_path || "/tmp/vagrant-puppet"; end
+        def options; @options ||= []; end
 
         # Returns the manifests path expanded relative to the root path of the
         # environment.

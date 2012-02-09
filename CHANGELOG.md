@@ -10,6 +10,7 @@
     depend on this (but I don't see any reason why they would).
   - `vagrant destroy` now asks for confirmation by default. This can be
     overridden with the `--force` flag. [GH-699]
+  - Fix issue with Puppet config inheritance. [GH-722]
 
 ## 0.9.6 (February 7, 2012)
 
