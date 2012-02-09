@@ -14,6 +14,11 @@
   - Fix issue where starting a VM on some systems was incorrectly treated
     as failing. [GH-720]
 
+## 0.9.7 (February 9, 2012)
+
+  - Fix regression where all subprocess IO simply didn't work with
+    Windows. [GH-721]
+
 ## 0.9.6 (February 7, 2012)
 
   - Fix strange issue with inconsistent childprocess reads on JRuby. [GH-711]
