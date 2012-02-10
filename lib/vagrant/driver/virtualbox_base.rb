@@ -245,8 +245,6 @@ module Vagrant
       def vm_exists?(uuid)
       end
 
-      protected
-
       # Execute the given subcommand for VBoxManage and return the output.
       def execute(*command, &block)
         # Execute the command
