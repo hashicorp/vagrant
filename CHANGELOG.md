@@ -1,3 +1,8 @@
+## 0.9.7 (unreleased)
+
+  - Fix regression where all subprocess IO simply didn't work with
+    Windows. [GH-721]
+
 ## 0.9.6 (February 7, 2012)
 
   - Fix strange issue with inconsistent childprocess reads on JRuby. [GH-711]

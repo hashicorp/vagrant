@@ -64,6 +64,14 @@ module Vagrant
         # Make sure the stdin does not buffer
         process.io.stdin.sync = true
 
+        if RUBY_PLATFORM != "java"
+          # On Java, we have to close after. See down the method...
+          # Otherwise, we close the writers right here, since we're
+          # not on the writing side.
+          stdout_writer.close
+          stderr_writer.close
+        end
+
         # Create a dictionary to store all the output we see.
         io_data = { :stdout => "", :stderr => "" }
 
@@ -136,11 +144,12 @@ module Vagrant
           yield io_name, extra_data if block_given?
         end
 
-        # Close the writer pipes. Note that we do this so late (after the process
-        # has quit) to work around an issue with childprocess and JRuby. It is
-        # bizarre but it works.
-        stdout_writer.close
-        stderr_writer.close
+        if RUBY_PLATFORM == "java"
+          # On JRuby, we need to close the writers after the process,
+          # for some reason. See GH-711.
+          stdout_writer.close
+          stderr_writer.close
+        end
 
         # Return an exit status container
         return Result.new(process.exit_code, io_data[:stdout], io_data[:stderr])
