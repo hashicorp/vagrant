@@ -1,4 +1,4 @@
-## 0.9.7 (unreleased)
+## 0.9.7 (February 9, 2012)
 
   - Fix regression where all subprocess IO simply didn't work with
     Windows. [GH-721]
