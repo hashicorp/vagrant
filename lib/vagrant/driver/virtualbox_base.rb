@@ -2,6 +2,7 @@ require 'log4r'
 
 require 'vagrant/util/busy'
 require 'vagrant/util/platform'
+require 'vagrant/util/retryable'
 require 'vagrant/util/subprocess'
 
 module Vagrant
@@ -13,6 +14,7 @@ module Vagrant
     class VirtualBoxBase
       # Include this so we can use `Subprocess` more easily.
       include Vagrant::Util
+      include Vagrant::Util::Retryable
 
       def initialize
         @logger = Log4r::Logger.new("vagrant::driver::virtualbox_base")
@@ -247,24 +249,36 @@ module Vagrant
 
       # Execute the given subcommand for VBoxManage and return the output.
       def execute(*command, &block)
-        # Execute the command
-        r = raw(*command, &block)
+        # Get the options hash if it exists
+        opts = {}
+        opts = command.pop if command.last.is_a?(Hash)
 
-        # If the command was a failure, then raise an exception that is
-        # nicely handled by Vagrant.
-        if r.exit_code != 0
-          if @interrupted
-            @logger.info("Exit code != 0, but interrupted. Ignoring.")
+        tries = 0
+        tries = 3 if opts[:retryable]
+
+        # Variable to store our execution result
+        r = nil
+
+        retryable(:on => Errors::VBoxManageError, :tries => tries, :sleep => 1) do
+          # Execute the command
+          r = raw(*command, &block)
+
+          # If the command was a failure, then raise an exception that is
+          # nicely handled by Vagrant.
+          if r.exit_code != 0
+            if @interrupted
+              @logger.info("Exit code != 0, but interrupted. Ignoring.")
+            else
+              raise Errors::VBoxManageError, :command => command.inspect
+            end
           else
-            raise Errors::VBoxManageError, :command => command.inspect
-          end
-        else
-          # Sometimes, VBoxManage fails but doesn't actual return a non-zero
-          # exit code. For this we inspect the output and determine if an error
-          # occurred.
-          if r.stderr =~ /VBoxManage: error:/
-            @logger.info("VBoxManage error text found, assuming error.")
-            raise Errors::VBoxManageError, :command => command.inspect
+            # Sometimes, VBoxManage fails but doesn't actual return a non-zero
+            # exit code. For this we inspect the output and determine if an error
+            # occurred.
+            if r.stderr =~ /VBoxManage: error:/
+              @logger.info("VBoxManage error text found, assuming error.")
+              raise Errors::VBoxManageError, :command => command.inspect
+            end
           end
         end
 

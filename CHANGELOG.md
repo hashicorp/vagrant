@@ -15,6 +15,8 @@
     as failing. [GH-720]
   - It is now an error to specify the packaging `output` as a directory. [GH-730]
   - Unix-style line endings are used properly for guest OS. [GH-727]
+  - Retry certain VirtualBox operations, since they intermittently fail.
+    [GH-726]
 
 ## 0.9.7 (February 9, 2012)
 
