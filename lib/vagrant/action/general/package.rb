@@ -27,6 +27,7 @@ module Vagrant
         def call(env)
           @env = env
 
+          raise Errors::PackageOutputDirectory if File.directory?(tar_path)
           raise Errors::PackageOutputExists if File.exist?(tar_path)
           raise Errors::PackageRequiresDirectory if !env["package.directory"] ||
             !File.directory?(env["package.directory"])
@@ -37,12 +38,14 @@ module Vagrant
         end
 
         def recover(env)
-          # Don't delete the tar_path if the error is that the output already
-          # exists, since this will nuke the user's previous file.
-          if !env["vagrant.error"].is_a?(Errors::PackageOutputExists)
-            # Cleanup any packaged files if the packaging failed at some point.
-            File.delete(tar_path) if File.exist?(tar_path)
+          # There are certain exceptions that we don't delete the file for.
+          ignore_exc = [Errors::PackageOutputDirectory, Errors::PackageOutputExists]
+          ignore_exc.each do |exc|
+            return if env["vagrant.error"].is_a?(exc)
           end
+
+          # Cleanup any packaged files if the packaging failed at some point.
+          File.delete(tar_path) if File.exist?(tar_path)
         end
 
         # This method copies the include files (passed in via command line)
@@ -90,7 +93,7 @@ module Vagrant
 
         # Path to the final box output file
         def tar_path
-          File.join(FileUtils.pwd, @env["package.output"])
+          File.expand_path(@env["package.output"], FileUtils.pwd)
         end
       end
     end

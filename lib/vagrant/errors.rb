@@ -263,6 +263,11 @@ module Vagrant
       error_key(:include_file_missing, "vagrant.actions.general.package")
     end
 
+    class PackageOutputDirectory < VagrantError
+      status_code(72)
+      error_key(:output_is_directory, "vagrant.actions.general.package")
+    end
+
     class PackageOutputExists < VagrantError
       status_code(16)
       error_key(:output_exists, "vagrant.actions.general.package")

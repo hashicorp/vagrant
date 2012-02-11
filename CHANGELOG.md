@@ -13,6 +13,7 @@
   - Fix issue with Puppet config inheritance. [GH-722]
   - Fix issue where starting a VM on some systems was incorrectly treated
     as failing. [GH-720]
+  - It is now an error to specify the packaging `output` as a directory. [GH-730]
 
 ## 0.9.7 (February 9, 2012)
 

@@ -540,6 +540,9 @@ en:
           output_exists: |-
             The specified file to save the package as already exists. Please
             remove this file or specify a different file name for outputting.
+          output_is_directory: |-
+            The specified output is a directory. Please specify a path including
+            a filename.
           requires_directory: |-
             A directory was not specified to package. This should never happen
             and is a result of an internal inconsistency.
