@@ -10,7 +10,7 @@ them programmatically. The plugin API allows you to define new commands
 easily.
 
 Vagrant commands are nothing special. They're simply classes that respond
-to a single method `execute` and inherit from 'Vagrant::Command::Base`
+to a single method `execute` and inherit from `Vagrant::Command::Base`
 which provides common extra helpers which assist in error
 handling and having your commands behave more "vagrant-like," such as
 automatically requiring a VM name in the case of a multi-VM setup.
@@ -63,4 +63,4 @@ Some helpers are available when you inherit from `Vagrant::Command::Base`:
   `vagrant box add` are implemented.
 
 Note that the best examples of the above helpers can be seen by simply reading
-the [source code of the commands that ship with Vagrant]("https://github.com/mitchellh/vagrant/tree/master/lib/vagrant/command").
+the [source code of the commands that ship with Vagrant](https://github.com/mitchellh/vagrant/tree/master/lib/vagrant/command).
