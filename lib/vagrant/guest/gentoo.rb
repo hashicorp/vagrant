@@ -1,6 +1,5 @@
 require 'tempfile'
 
-require 'vagrant/util/line_ending_helpers'
 require 'vagrant/util/template_renderer'
 
 module Vagrant
@@ -8,7 +7,6 @@ module Vagrant
     class Gentoo < Linux
       # Make the TemplateRenderer top-level
       include Vagrant::Util
-      include Vagrant::Util::LineEndingHelpers
 
       def configure_networks(networks)
         # Remove any previous host only network additions to the interface file
@@ -20,11 +18,9 @@ module Vagrant
           entry = TemplateRenderer.render("guests/gentoo/network_#{network[:type]}",
                                           :options => network)
 
-          # Convert to proper lineendings
-          entry = dos_to_unix(entry)
-
           # Upload the entry to a temporary location
           temp = Tempfile.new("vagrant")
+          temp.binmode
           temp.write(entry)
           temp.close
 

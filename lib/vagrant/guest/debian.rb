@@ -1,7 +1,6 @@
 require 'set'
 require 'tempfile'
 
-require 'vagrant/util/line_ending_helpers'
 require 'vagrant/util/template_renderer'
 
 module Vagrant
@@ -9,7 +8,6 @@ module Vagrant
     class Debian < Linux
       # Make the TemplateRenderer top-level
       include Vagrant::Util
-      include Vagrant::Util::LineEndingHelpers
 
       def configure_networks(networks)
         # First, remove any previous network modifications
@@ -27,14 +25,13 @@ module Vagrant
           entry = TemplateRenderer.render("guests/debian/network_#{network[:type]}",
                                           :options => network)
 
-          # Convert line endings properly and save
-          entry = dos_to_unix(entry)
           entries << entry
         end
 
         # Perform the careful dance necessary to reconfigure
         # the network interfaces
         temp = Tempfile.new("vagrant")
+        temp.binmode
         temp.write(entries.join("\n"))
         temp.close
 

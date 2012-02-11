@@ -8,7 +8,7 @@ module Vagrant
         super
 
         # Emit an upstart event if upstart is available
-        @vm.channel.sudo("[ -x /sbin/initctl ] && /sbin/initctl emit vagrant-mounted MOUNTPOINT=#{guestpath}")
+        vm.channel.sudo("[ -x /sbin/initctl ] && /sbin/initctl emit vagrant-mounted MOUNTPOINT=#{guestpath}")
       end
 
       def change_host_name(name)

@@ -1,7 +1,6 @@
 require 'set'
 require 'tempfile'
 
-require 'vagrant/util/line_ending_helpers'
 require 'vagrant/util/template_renderer'
 
 module Vagrant
@@ -9,7 +8,6 @@ module Vagrant
     class Redhat < Linux
       # Make the TemplateRenderer top-level
       include Vagrant::Util
-      include Vagrant::Util::LineEndingHelpers
 
       def configure_networks(networks)
         # Accumulate the configurations to add to the interfaces file as
@@ -30,10 +28,8 @@ module Vagrant
           entry = TemplateRenderer.render("guests/redhat/network_#{network[:type]}",
                                           :options => network)
 
-          # Convert line endings to unix-style
-          entry = dos_to_unix(entry)
-
           temp = Tempfile.new("vagrant")
+          temp.binmode
           temp.write(entry)
           temp.close
 
