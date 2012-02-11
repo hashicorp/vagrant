@@ -1,9 +1,16 @@
 require 'set'
 require 'tempfile'
 
+require 'vagrant/util/line_ending_helpers'
+require 'vagrant/util/template_renderer'
+
 module Vagrant
   module Guest
     class Arch < Linux
+      # Make the TemplateRenderer top-level
+      include Vagrant::Util
+      include Vagrant::Util::LineEndingHelpers
+
       def change_host_name(name)
         # Only do this if the hostname is not already set
         if !vm.channel.test("sudo hostname | grep '#{name}'")
@@ -23,8 +30,12 @@ module Vagrant
         entries = []
         networks.each do |network|
           interfaces.add(network[:interface])
-          entries << TemplateRenderer.render("guests/arch/network_#{network[:type]}",
-                                             :options => network)
+          entry = TemplateRenderer.render("guests/arch/network_#{network[:type]}",
+                                          :options => network)
+
+          # Convert to proper line endings
+          entry = dos_to_unix(entry)
+          entries << entry
         end
 
         # Perform the careful dance necessary to reconfigure
