@@ -14,6 +14,7 @@
   - Fix issue where starting a VM on some systems was incorrectly treated
     as failing. [GH-720]
   - It is now an error to specify the packaging `output` as a directory. [GH-730]
+  - Unix-style line endings are used properly for guest OS. [GH-727]
 
 ## 0.9.7 (February 9, 2012)
 
