@@ -36,7 +36,7 @@ module Vagrant
         argv = [] if argv == ssh_args
 
         # Execute the actual SSH
-        with_target_vms(argv[0], true) do |vm|
+        with_target_vms(argv[0], :single_target => true) do |vm|
           # Basic checks that are required for proper SSH
           raise Errors::VMNotCreatedError if !vm.created?
           raise Errors::VMInaccessible if !vm.state == :inaccessible

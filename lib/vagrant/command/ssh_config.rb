@@ -19,7 +19,7 @@ module Vagrant
         argv = parse_options(opts)
         return if !argv
 
-        with_target_vms(argv[0], true) do |vm|
+        with_target_vms(argv[0], :single_target => true) do |vm|
           raise Errors::VMNotCreatedError if !vm.created?
           raise Errors::VMInaccessible if !vm.state == :inaccessible
 

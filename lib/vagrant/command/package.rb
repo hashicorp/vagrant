@@ -51,7 +51,7 @@ module Vagrant
       end
 
       def package_target(name, options)
-        with_target_vms(name, true) do |vm|
+        with_target_vms(name, :single_target => true) do |vm|
           raise Errors::VMNotCreatedError if !vm.created?
           @logger.debug("Packaging VM: #{vm.name}")
           package_vm(vm, options)
