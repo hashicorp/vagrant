@@ -1,8 +1,12 @@
 ---
 layout: documentation
 title: Documentation - Provisioners - Puppet
+
+current: Provisioners
 ---
 # Puppet Provisioning
+
+**Provisioner key:** `:puppet`
 
 [Puppet](http://www.puppetlabs.com/puppet) allows you to provision your virtual machines with Puppet manifests.  It
 runs in a stand-alone mode that doesn't require a Puppet server.
@@ -14,41 +18,25 @@ is covered in detail around the web, but a good place to start is the [Puppet La
 
 First, Vagrant needs to know where the Puppet manifests are located. By default, Vagrant will
 look in the `manifests` directory relative to the root of the project directory (where
-the project's Vagrantfile is located). The `manifests` should contain a file for each box to be configured,
-the default assumes a file named after the value of config.vm.box option:
+the project's Vagrantfile is located). In addition to knowing where to find the manifests,
+Puppet needs to know the name of the file to run.
 
 Both the file and path can be configured using the `manifest_file` and `manifests_path` options in your
-Vagrantfile configuration file, for example:
+Vagrantfile configuration file. For example:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
   config.vm.provision :puppet do |puppet|
-    puppet.manifests_path = "puppetmanifests"
-    puppet.manifest_file = "newbox.pp"
+    puppet.manifests_path = "manifests"
+    puppet.manifest_file = "my_manifest.pp"
   end
 end
 {% endhighlight %}
 
-## Configuring the manifests
+The manifests path will be expanded relative to the directory where the
+`Vagrantfile` is.
 
-Creating a basic manifest is simple, for example:
-
-{% highlight ruby %}
-# Basic Puppet manifests
-
-class lucid32 {
-  package { "apache2":
-    ensure => present,
-  }
-
-  service { "apache2":
-    ensure => running,
-    require => Package["apache2"],
-  }
-}
-
-include lucid32
-{% endhighlight %}
+This is all that is needed if you only use basic manifests.
 
 ## Modules
 
@@ -82,6 +70,22 @@ include apache
 When the provisioner runs, it will automatically mount your modules folder and
 configure Puppet to know where they are so they can be loaded.
 
+## Setting Additional Options
+
+You can also specify additional options to be passed to Puppet using the `options` variable.
+
+{% highlight ruby %}
+Vagrant::Config.run do |config|
+  config.vm.provision :puppet, :options => ["--modulepath", "modules"]
+end
+{% endhighlight %}
+
+You can also pass options as strings:
+
+{% highlight ruby %}
+  config.vm.provision :puppet, :options => "--verbose --debug"
+{% endhighlight %}
+
 ## Configuring the Puppet Provisioning Path
 
 In order to run Puppet, Vagrant has to mount the specified manifests directory as a
@@ -97,26 +101,3 @@ end
 
 This folder is created for provisioning purposes and destroyed once provisioning
 is complete.
-
-## Setting Additional Options
-
-You can also specify additional options to be passed to Puppet using the `options` variable.
-
-{% highlight ruby %}
-Vagrant::Config.run do |config|
-  config.vm.provision :puppet, :options => ["--modulepath","modules"]
-end
-{% endhighlight %}
-
-You can also pass options as strings:
-
-{% highlight ruby %}
-  config.vm.provision :puppet, :options => "--verbose --debug"
-{% endhighlight %}
-
-## Enabling and Executing
-
-If you are building a VM from scratch, run `vagrant up` and provisioning
-will automatically occur. If you already have a running VM and don't want to rebuild
-everything from scratch, run `vagrant reload` and it will restart the VM, without completely
-destroying the environment first, allowing the import step to be skipped.

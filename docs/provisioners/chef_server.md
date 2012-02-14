@@ -1,8 +1,12 @@
 ---
 layout: documentation
 title: Documentation - Provisioners - Chef Server
+
+current: Provisioners
 ---
 # Chef Server Provisioning
+
+**Provisioner key:** `:chef_server`
 
 [Chef Server](http://wiki.opscode.com/display/chef/Chef+Server) allows you to provision your
 virtual machine without having to keep the cookbooks within the repository itself. There are
@@ -115,10 +119,3 @@ Vagrant::Config.run do |config|
   end
 end
 {% endhighlight %}
-
-## Enabling and Executing
-
-If you are building a VM from scratch, run `vagrant up` and provisioning
-will automatically occur. If you already have a running VM and don't want to rebuild
-everything from scratch, run `vagrant reload` and provisioning will automatically
-occur.
