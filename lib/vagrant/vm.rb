@@ -131,7 +131,7 @@ module Vagrant
         # Clear the UUID since this VM doesn't exist. Note that this calls
         # back into `reload!` but shouldn't ever result in infinite
         # recursion since `@uuid` will be nil.
-        self.uuid = nil
+        @uuid = nil
       end
     end
 

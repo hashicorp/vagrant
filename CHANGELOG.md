@@ -17,6 +17,8 @@
   - Unix-style line endings are used properly for guest OS. [GH-727]
   - Retry certain VirtualBox operations, since they intermittently fail.
     [GH-726]
+  - Fix issue where Vagrant would sometimes "lose" a VM if an exception
+    occurred. [GH-725]
 
 ## 0.9.7 (February 9, 2012)
 
