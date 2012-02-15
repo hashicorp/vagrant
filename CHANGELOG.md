@@ -21,6 +21,7 @@
     occurred. [GH-725]
   - `vagrant destroy` destroys virtual machines in reverse order. [GH-739]
   - Add an `fsid` option to Linux NFS exports. [GH-736]
+  - Fix edge case where an exception could be raised in networking code. [GH-742]
 
 ## 0.9.7 (February 9, 2012)
 

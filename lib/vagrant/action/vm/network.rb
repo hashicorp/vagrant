@@ -37,12 +37,9 @@ module Vagrant
             adapters << adapter
 
             # Get the network configuration
-            if config[:auto_config]
-              network = send("#{type}_network_config", config)
-              networks << network
-            else
-              @logger.info("Auto config disabled, not configuring: #{type}")
-            end
+            network = send("#{type}_network_config", config)
+            network[:_auto_config] = true if config[:auto_config]
+            networks << network
           end
 
           if !adapters.empty?
@@ -68,9 +65,11 @@ module Vagrant
             # Determine the interface numbers for the guest.
             assign_interface_numbers(networks, adapters)
 
-            # Configure all the network interfaces on the guest.
+            # Configure all the network interfaces on the guest. We only
+            # want to configure the networks that have `auto_config` setup.
+            networks_to_configure = networks.select { |n| n[:_auto_config] }
             env[:ui].info I18n.t("vagrant.actions.vm.network.configuring")
-            env[:vm].guest.configure_networks(networks)
+            env[:vm].guest.configure_networks(networks_to_configure)
           end
         end
 
