@@ -20,6 +20,7 @@
   - Fix issue where Vagrant would sometimes "lose" a VM if an exception
     occurred. [GH-725]
   - `vagrant destroy` destroys virtual machines in reverse order. [GH-739]
+  - Add an `fsid` option to Linux NFS exports. [GH-736]
 
 ## 0.9.7 (February 9, 2012)
 

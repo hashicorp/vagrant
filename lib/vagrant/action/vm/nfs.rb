@@ -1,3 +1,4 @@
+require 'digest/md5'
 require 'fileutils'
 require 'pathname'
 
@@ -92,6 +93,12 @@ module Vagrant
             opts[:map_uid] = prepare_permission(:uid, opts)
             opts[:map_gid] = prepare_permission(:gid, opts)
             opts[:nfs_version] ||= 3
+
+            # The poor man's UUID. An MD5 hash here is sufficient since
+            # we need a 32 character "uuid" to represent the filesystem
+            # of an export. Hashing the host path is safe because two of
+            # the same host path will hash to the same fsid.
+            opts[:uuid]    = Digest::MD5.hexdigest(opts[:hostpath])
 
             acc[key] = opts
             acc

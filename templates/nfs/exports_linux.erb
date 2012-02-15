@@ -1,5 +1,5 @@
 # VAGRANT-BEGIN: <%= uuid %>
 <% folders.each do |name, opts| %>
-"<%= opts[:hostpath] %>" <%= ip %>(rw,no_subtree_check,all_squash<% if opts[:map_uid] %>,anonuid=<%= opts[:map_uid] %><% end %><% if opts[:map_gid] %>,anongid=<%= opts[:map_gid] %><% end %>)
+"<%= opts[:hostpath] %>" <%= ip %>(rw,no_subtree_check,all_squash<% if opts[:map_uid] %>,anonuid=<%= opts[:map_uid] %><% end %><% if opts[:map_gid] %>,anongid=<%= opts[:map_gid] %><% end %>,fsid=<%= opts[:uuid] %>)
 <% end %>
 # VAGRANT-END: <%= uuid %>
