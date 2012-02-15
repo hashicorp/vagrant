@@ -78,9 +78,10 @@ you're installing the operating system from, and follow the install procedure.
       desktop environment was a whole 1 GB.</li>
     <li>Clear the system cache before you export at the end. You don't need tmp
       files, or cached system packages. In the case of Debian or Ubuntu based
-      operating systems, you can clean the cache with `apt-get clean`.</li>
-    <li>Where possible, avoid installing all the documentation. When installing
-      RubyGems for example, append `--no-rdoc --no-ri` to the install commands.</li>
+      operating systems, you can clean the cache with <code>apt-get clean</code>.</li>
+    <li>Either keep RubyGems from installing documentation, using <code>--no-rdoc --no-ri</code>
+      or consider removing all documentation afterwards using
+      <code>rm -r "$(gem env gemdir)"/doc/*</code>.</li>
   </ul>
 </div>
 
