@@ -1,6 +1,8 @@
 ---
 layout: documentation
 title: Documentation - Bridged Networking
+
+current: Bridged Networking
 ---
 # Bridged Networking
 
@@ -48,8 +50,8 @@ information.
   <h3>Not All Networks Work!</h3>
   <p>
     Some networks will not work properly with bridged networking. Specifically,
-    I've found that hotel networks, airport networks, and generally and public-shared
-    networks have configurations in place that bridging does not work.
+    I've found that hotel networks, airport networks, and generally public-shared
+    networks have configurations in place such that bridging does not work.
   </p>
   <p>
     You can tell if the bridged networking worked successfully by seeing if the

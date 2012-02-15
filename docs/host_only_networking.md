@@ -1,6 +1,8 @@
 ---
 layout: documentation
 title: Documentation - Host-Only Networking
+
+current: Host-Only Networking
 ---
 # Host-Only Networking
 
@@ -17,8 +19,9 @@ setup using host-only networking.
   <h3>Supported Operating Systems</h3>
   <p>
     Since setting up host-only networking requires configuring the OS to
-    use the new interface, this is a system-specific behavior. Currently,
-    Vagrant supports Debian/Ubuntu, Gentoo, and RedHat.
+    use the new interface, this is a system-specific behavior. Try to
+    use host only networking with your machine. Vagrant will raise a proper
+    error if things don't appear to be working.
   </p>
   <p>
     If you'd like another OS supported, you can add it yourself using a
@@ -34,7 +37,7 @@ using a single configuration directive within the Vagrantfile:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.vm.network :hostonly, "33.33.33.10"
+  config.vm.network :hostonly, "192.168.50.4"
 end
 {% endhighlight %}
 
@@ -42,12 +45,13 @@ The above will setup the VM with that specific IP. It is up to the user
 to make sure that no static IPs will collide with other virtual machines.
 
 <div class="alert alert-block alert-notice">
-  <h3>Avoid Router-only IPs</h3>
+  <h3>Avoid Using Common Subnets</h3>
   <p>
-    Some IP/subnets are reserved by routers, and if the static IP you attempt to
-    use conflicts with your router, it may fail to work for no obvious reason.
-    The IPs are typically `192.168.0.x` and `10.0.0.x`. This is why the examples
-    use `33.33.33.x`, which has been found to be very reliable.
+    The host-only network must not collide with any other active networks.
+    If it does, then the routing tables on your computer may not properly
+    route the network traffic to the correct subnet. Vagrant will attempt
+    to detect when this may happen, but this situation should still be actively
+    avoided.
   </p>
 </div>
 
