@@ -1,18 +1,22 @@
 ---
 layout: documentation
 title: Documentation - Boxes
+
+current: Boxes
 ---
 # Boxes
 
-A Vagrant "box" is the term used to describe a packaged Vagrant
-environment. A box is a portable file which can be used by others
-to quickly get a virtual environment up and running. A box must
-contain the necessary files for the VirtualBox VM and may optionally
-include a Vagrantfile.
+A "box" is the base image used to create a virtual environment with
+Vagrant. It is meant to be a portable file which can be used by
+others on any platform that Vagrant runs in order to bring up a
+running virtual environment. The `vagrant box` utility provides
+all the power for managing boxes, and `vagrant package` is used
+to create boxes.
 
-Boxes are also required as a base for all vagrant projects. The
-`vagrant box` utility provides all the power for managing boxes.
-`vagrant package` is used to create a box from a vagrant project.
+Boxes provide only the base image for Vagrant. The moment you run
+`vagrant up`, the box is copied so that it can be modified for that
+virtual machine. Therefore, it is safe to remove or update the box
+after a virtual machine has been created.
 
 ## Installing a Box
 
@@ -34,6 +38,8 @@ vagrant install, and they are stored at `~/.vagrant.d/boxes` on the local filesy
 **Note:** The default Vagrantfile created with `vagrant init` defaults to
 using a box named "base." This is why in the getting started guide, the
 first few commands tell you to add a box named "base" to the project.
+However, the name of the box is not significant in any way other than to
+logically identify the box in a Vagrantfile or from the command line.
 
 ## Removing a Box
 
