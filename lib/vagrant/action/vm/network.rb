@@ -308,6 +308,7 @@ module Vagrant
 
         def bridged_config(args)
           options = args[0] || {}
+          options = {} if !options.is_a?(Hash)
 
           return {
             :adapter => nil,
