@@ -1,6 +1,8 @@
 ---
 layout: documentation
 title: Documentation - Guest-specific Behavior
+
+current: Guests
 ---
 # Guest-specific Behavior
 

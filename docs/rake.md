@@ -1,6 +1,8 @@
 ---
 layout: documentation
 title: Documentation - Rake Integration
+
+current: Rake Integration
 ---
 # Rake Integration
 

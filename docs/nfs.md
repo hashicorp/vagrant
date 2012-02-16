@@ -1,14 +1,16 @@
 ---
 layout: documentation
 title: Documentation - NFS Shared Folders
+
+current: NFS
 ---
 # NFS Shared Folders
 
-Its been a long known issue that VirtualBox shared folder performance
+Its a long known issue that VirtualBox shared folder performance
 degrades quickly as the number of files in the shared folder increases.
 As a project reaches 1000+ files, doing simple things like running unit
 tests or even just running an app server can be many orders of magnitude
-slow (e.g. from 5 seconds to over 5 minutes).
+slower than on a native filesystem (e.g. from 5 seconds to over 5 minutes).
 
 If you're seeing this sort of performance drop-off in your shared folders,
 <a href="http://en.wikipedia.org/wiki/Network_File_System_(protocol)">NFS</a> shared

@@ -1,6 +1,8 @@
 ---
 layout: documentation
 title: Documentation - Base Boxes
+
+current: Base Boxes
 ---
 # Base Boxes
 
