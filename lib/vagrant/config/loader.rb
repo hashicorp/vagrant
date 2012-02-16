@@ -82,6 +82,8 @@ module Vagrant
               current = Top.new
               proc.call(current)
               @config_cache[proc] = current
+            else
+              @logger.debug("Loading from: #{key} (cache)")
             end
 
             # Merge in the results of this proc's configuration
