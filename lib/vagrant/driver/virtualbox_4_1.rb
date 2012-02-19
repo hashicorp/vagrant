@@ -108,6 +108,9 @@ module Vagrant
           if adapter[:hostonly]
             args.concat(["--hostonlyadapter#{adapter[:adapter]}",
                          adapter[:hostonly]])
+            # enable DNS proxy
+            # http://www.virtualbox.org/manual/ch09.html#nat-adv-dns
+            args.concat(["--natdnsproxy1", "on"])
           end
 
           if adapter[:mac_address]
