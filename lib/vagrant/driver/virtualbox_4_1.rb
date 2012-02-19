@@ -440,6 +440,12 @@ module Vagrant
         execute("controlvm", @uuid, "savestate")
       end
 
+      def verify!
+        # This command sometimes fails if kernel drivers aren't properly loaded
+        # so we just run the command and verify that it succeeded.
+        execute("list", "hostonlyifs")
+      end
+
       def verify_image(path)
         r = raw("import", path.to_s, "--dry-run")
         return r.exit_code == 0

@@ -20,6 +20,7 @@ module Vagrant
     end
 
     module General
+      autoload :CheckVirtualbox, 'vagrant/action/general/check_virtualbox'
       autoload :Package,  'vagrant/action/general/package'
       autoload :Validate, 'vagrant/action/general/validate'
     end

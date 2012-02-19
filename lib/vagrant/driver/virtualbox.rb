@@ -99,6 +99,7 @@ module Vagrant
                                :ssh_port,
                                :start,
                                :suspend,
+                               :verify!,
                                :verify_image,
                                :vm_exists?
 

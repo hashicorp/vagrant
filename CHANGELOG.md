@@ -23,6 +23,7 @@
   - Add an `fsid` option to Linux NFS exports. [GH-736]
   - Fix edge case where an exception could be raised in networking code. [GH-742]
   - Add missing translation for the "guru meditation" state. [GH-745]
+  - Check that VirtualBox exists before certain commands. [GH-746]
 
 ## 0.9.7 (February 9, 2012)
 

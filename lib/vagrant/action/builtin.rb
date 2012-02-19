@@ -20,6 +20,7 @@ module Vagrant
         # provision - Provisions a running VM
         register(:provision) do
           Builder.new do
+            use General::CheckVirtualbox
             use General::Validate
             use VM::CheckAccessible
             use VM::Provision
@@ -30,6 +31,7 @@ module Vagrant
         # environment.
         register(:start) do
           Builder.new do
+            use General::CheckVirtualbox
             use General::Validate
             use VM::CheckAccessible
             use VM::CleanMachineFolder
@@ -53,6 +55,7 @@ module Vagrant
         # a restart if fails.
         register(:halt) do
           Builder.new do
+            use General::CheckVirtualbox
             use General::Validate
             use VM::CheckAccessible
             use VM::DiscardState
@@ -63,6 +66,7 @@ module Vagrant
         # suspend - Suspends the VM
         register(:suspend) do
           Builder.new do
+            use General::CheckVirtualbox
             use General::Validate
             use VM::CheckAccessible
             use VM::Suspend
@@ -72,6 +76,7 @@ module Vagrant
         # resume - Resume a VM
         register(:resume) do
           Builder.new do
+            use General::CheckVirtualbox
             use General::Validate
             use VM::CheckAccessible
             use VM::CheckPortCollisions
@@ -82,6 +87,7 @@ module Vagrant
         # reload - Halts then restarts the VM
         register(:reload) do
           Builder.new do
+            use General::CheckVirtualbox
             use General::Validate
             use VM::CheckAccessible
             use registry.get(:halt)
@@ -92,6 +98,7 @@ module Vagrant
         # up - Imports, prepares, then starts a fresh VM.
         register(:up) do
           Builder.new do
+            use General::CheckVirtualbox
             use General::Validate
             use VM::CheckAccessible
             use VM::CheckBox
@@ -106,6 +113,7 @@ module Vagrant
         # destroy - Halts, cleans up, and destroys an existing VM
         register(:destroy) do
           Builder.new do
+            use General::CheckVirtualbox
             use General::Validate
             use VM::CheckAccessible
             use registry.get(:halt), :force => true
@@ -120,6 +128,7 @@ module Vagrant
         # package - Export and package the VM
         register(:package) do
           Builder.new do
+            use General::CheckVirtualbox
             use General::Validate
             use VM::SetupPackageFiles
             use VM::CheckAccessible
@@ -135,6 +144,7 @@ module Vagrant
         # box_add - Download and add a box.
         register(:box_add) do
           Builder.new do
+            use General::CheckVirtualbox
             use Box::Download
             use Box::Unpackage
             use Box::Verify

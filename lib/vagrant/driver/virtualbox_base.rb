@@ -234,6 +234,12 @@ module Vagrant
       def suspend
       end
 
+      # Verifies that the driver is ready to accept work.
+      #
+      # This should raise a VagrantError if things are not ready.
+      def verify!
+      end
+
       # Verifies that an image can be imported properly.
       #
       # @param [String] path Path to an OVF file.
