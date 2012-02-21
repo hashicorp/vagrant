@@ -57,7 +57,9 @@ module Vagrant
         temp.write(config_file)
         temp.close
 
-        env[:vm].channel.upload(temp.path, File.join(config.provisioning_path, filename))
+        remote_file = File.join(config.provisioning_path, filename)
+        env[:vm].channel.sudo("rm #{remote_file}", :error_check => false)
+        env[:vm].channel.upload(temp.path, remote_file)
       end
 
       def setup_json
