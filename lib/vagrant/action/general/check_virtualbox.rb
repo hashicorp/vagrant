@@ -8,7 +8,18 @@ module Vagrant
         end
 
         def call(env)
-          env[:vm].driver.verify!
+          # Certain actions may not actually have a VM, and thus no
+          # driver, so we have to be clever about obtaining an instance
+          # of the driver.
+          driver = nil
+          driver = env[:vm].driver if env[:vm]
+          driver = Driver::VirtualBox.new(nil) if !driver
+
+          # Verify that it is ready to go! This will raise an exception
+          # if anything goes wrong.
+          driver.verify!
+
+          # Carry on.
           @app.call(env)
         end
       end
