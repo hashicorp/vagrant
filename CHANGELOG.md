@@ -25,6 +25,8 @@
   - Add missing translation for the "guru meditation" state. [GH-745]
   - Check that VirtualBox exists before certain commands. [GH-746]
   - NIC type can be defined for host-only network adapters. [GH-750]
+  - Fix issue where re-running chef-client would sometimes cause
+    problems due to file permissions. [GH-748]
 
 ## 0.9.7 (February 9, 2012)
 
