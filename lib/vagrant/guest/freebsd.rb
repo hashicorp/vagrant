@@ -70,6 +70,13 @@ module Vagrant
           vm.channel.sudo("ifconfig em#{network[:interface]} inet #{network[:ip]} netmask #{network[:netmask]}")
         end
       end
+
+     def change_host_name(name)
+       if !vm.channel.test("hostname -f | grep '^#{name}$' || hostname -s | grep '^#{name}$'")
+         vm.channel.sudo("sed -i '' 's/hostname=.*$/hostname=#{name}/' /etc/rc.conf")
+         vm.channel.sudo("hostname #{name}")
+       end
+     end
     end
   end
 end
