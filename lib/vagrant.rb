@@ -1,9 +1,10 @@
+require 'log4r'
+
 # Enable logging if it is requested. We do this before
 # anything else so that we can setup the output before
 # any logging occurs.
 if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
   # Require Log4r and define the levels we'll be using
-  require 'log4r'
   require 'log4r/config'
   Log4r.define_levels(*Log4r::Log4rConfig::LogLevels)
 
@@ -52,6 +53,7 @@ require 'openssl'
 
 # Always make the version available
 require 'vagrant/version'
+Log4r::Logger.new("vagrant::global").info("Vagrant version: #{Vagrant::VERSION}")
 
 module Vagrant
   autoload :Action,        'vagrant/action'
