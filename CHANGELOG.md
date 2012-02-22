@@ -27,6 +27,7 @@
   - NIC type can be defined for host-only network adapters. [GH-750]
   - Fix issue where re-running chef-client would sometimes cause
     problems due to file permissions. [GH-748]
+  - FreeBSD guests can now have their hostnames changed. [GH-757]
 
 ## 0.9.7 (February 9, 2012)
 
