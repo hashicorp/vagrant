@@ -55,10 +55,20 @@ Once the middleware is built, it can be run on the environment using the
 Vagrant environment object is already loaded into `env`:
 
 {% highlight ruby %}
-env.actions.run(SayHelloMiddleware)
+env.action_runner.run(SayHelloMiddleware)
 {% endhighlight %}
 
 That's it! This will run the middleware given.
+
+Note that middleware usually wants to modify a specific VM or expects
+to run in the context of a specific VM. The `VM` objects also have a
+`run_action` method which will run a middleware with the `:vm` item
+in the middleware environment set to the VM object. For example, to
+run a middleware in the context of the primary VM:
+
+{% highlight ruby %}
+env.primary_vm.run_action(SayHelloMiddleware)
+{% endhighlight %}
 
 ## Creating a Middleware Stack
 
@@ -89,7 +99,7 @@ registered under the name `:say_hello`.
 Finally, running this stack is equally easy:
 
 {% highlight ruby %}
-env.actions.run(:say_hello)
+env.action_runner.run(:say_hello)
 {% endhighlight %}
 
 ## Modifying an Existing Middleware Stack
