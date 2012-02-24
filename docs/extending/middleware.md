@@ -1,6 +1,8 @@
 ---
 layout: extending
 title: Extending Vagrant - Middleware
+
+current: Middleware
 ---
 # Middleware
 

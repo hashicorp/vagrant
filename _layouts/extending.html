@@ -1,21 +1,35 @@
 {% include header.html %}
 <div class="row">
-  <div class="span3 Module sidebar">
-    <div class="well" style="padding: 8px 0px;">
-    <ul class="nav nav-list">
-      <li><a href="/docs/extending/index.html">Overview</a></li>
-      <li><a href="/docs/extending/types.html">Types of Plugins</a></li>
-      <li><a href="/docs/extending/objects.html">Vagrant Objects</a></li>
-      <li><a href="/docs/extending/commands.html">Commands</a></li>
-      <li><a href="/docs/extending/configuration.html">Configuration</a></li>
-      <li><a href="/docs/extending/middleware.html">Middleware</a></li>
-      <li><a href="/docs/extending/i18n.html">I18n</a></li>
-    </ul>
-    </div>
-  </div>
+	<div class="span3 Module sidebar">
+		<div class="well" style="padding: 8px 0px;">
+			<ul class="nav nav-list">
+				<li{% if page.current == 'Overview' %} class="active"{% endif %}>
+				<a href="/docs/extending/index.html">Overview</a>
+				</li>
+				<li{% if page.current == 'Types of Plugins' %} class="active"{% endif %}>
+				<a href="/docs/extending/types.html">Types of Plugins</a>
+				</li>
+				<li{% if page.current == 'Vagrant Objects' %} class="active"{% endif %}>
+				<a href="/docs/extending/objects.html">Vagrant Objects</a>
+				</li>
+				<li{% if page.current == 'Commands' %} class="active"{% endif %}>
+				<a href="/docs/extending/commands.html">Commands</a>
+				</li>
+				<li{% if page.current == 'Configuration' %} class="active"{% endif %}>
+				<a href="/docs/extending/configuration.html">Configuration</a>
+				</li>
+				<li{% if page.current == 'Middleware' %} class="active"{% endif %}>
+				<a href="/docs/extending/middleware.html">Middleware</a>
+				</li>
+				<li{% if page.current == 'I18n' %} class="active"{% endif %}>
+				<a href="/docs/extending/i18n.html">I18n</a>
+				</li>
+			</ul>
+		</div>
+	</div>
 
-  <div class="span9">
-    {{ content }}
-  </div>
+	<div class="span9">
+		{{ content }}
+	</div>
 </div>
 {% include footer.html %}
