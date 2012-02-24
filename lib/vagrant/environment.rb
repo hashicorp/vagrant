@@ -138,7 +138,7 @@ module Vagrant
     def primary_vm
       return vms.values.first if !multivm?
 
-      config.vm.defined_vms.each do |name, subvm|
+      config.global.vm.defined_vms.each do |name, subvm|
         return vms[name] if subvm.options[:primary]
       end
 

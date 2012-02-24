@@ -30,6 +30,8 @@
   - FreeBSD guests can now have their hostnames changed. [GH-757]
   - FreeBSD guests now support host only networking and bridged networking. [GH-762]
   - `VM#run_action` is now public so plugin-devs can hook into it.
+  - Fix crashing bug when attempting to run commands on the "primary"
+    VM in a multi-VM environment. [GH-761]
 
 ## 0.9.7 (February 9, 2012)
 

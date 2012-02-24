@@ -86,6 +86,26 @@ describe Vagrant::Environment do
     end
   end
 
+  describe "primary VM" do
+    it "should be the only VM if not a multi-VM environment" do
+      instance.primary_vm.should == instance.vms.values.first
+    end
+
+    it "should be the VM marked as the primary" do
+      environment = isolated_environment do |env|
+        env.vagrantfile(<<-VF)
+Vagrant::Config.run do |config|
+  config.vm.define :foo
+  config.vm.define :bar, :primary => true
+end
+VF
+      end
+
+      env = environment.create_vagrant_env
+      env.primary_vm.should == env.vms[:bar]
+    end
+  end
+
   describe "loading configuration" do
     it "should load global configuration" do
       environment = isolated_environment do |env|
