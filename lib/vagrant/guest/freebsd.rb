@@ -1,3 +1,5 @@
+require 'vagrant/util/template_renderer'
+
 module Vagrant
   module Guest
     # A general Vagrant system implementation for "freebsd".
@@ -57,17 +59,19 @@ module Vagrant
       end
 
       def configure_networks(networks)
-        # Remove any previous host only network additions to the
-        # interface file.
-        vm.channel.sudo("sed -e '/^#VAGRANT-BEGIN-HOSTONLY/,/^#VAGRANT-END-HOSTONLY/ d' /etc/rc.conf > /tmp/rc.conf")
-        vm.channel.sudo("mv /tmp/rc.conf /etc/rc.conf")
+        # Remove any previous network additions to the configuration file.
+        vm.channel.sudo("sed -i '' -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/rc.conf")
 
         networks.each do |network|
-          entry = "#VAGRANT-BEGIN-HOSTONLY\nifconfig_em#{network[:interface]}=\"inet #{network[:ip]} netmask #{network[:netmask]}\"\n#VAGRANT-END-HOSTONLY\n"
+          entry = TemplateRenderer.render("guests/freebsd/network_#{network[:type]}",
+                                          :options => network)
           vm.channel.upload(StringIO.new(entry), "/tmp/vagrant-network-entry")
-
           vm.channel.sudo("su -m root -c 'cat /tmp/vagrant-network-entry >> /etc/rc.conf'")
-          vm.channel.sudo("ifconfig em#{network[:interface]} inet #{network[:ip]} netmask #{network[:netmask]}")
+          if network[:type].to_sym == :static
+            vm.channel.sudo("ifconfig em#{network[:interface]} inet #{network[:ip]} netmask #{network[:netmask]}")
+          elsif network[:type].to_sym == :dhcp
+            vm.channel.sudo("dhclient em#{network[:interface]}")
+          end
         end
       end
 
