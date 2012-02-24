@@ -181,8 +181,6 @@ module Vagrant
       @_ui
     end
 
-    protected
-
     def run_action(name, options=nil)
       options = {
         :vm => self,
