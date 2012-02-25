@@ -39,28 +39,7 @@ module Vagrant
         result
       end
 
-      def system=(value)
-        raise Errors::DeprecationError, :message => <<-MESSAGE
-`config.vm.system` has changed to `config.vm.guest` in Vagrant 0.9,
-since this is more clear about the use of the configuration key.
-Please change all references of `config.vm.system` to `config.vm.guest`.
-        MESSAGE
-      end
-
       def forward_port(guestport, hostport, options=nil)
-        if !guestport.kind_of?(Integer)
-          raise Errors::DeprecationError, :message => <<-MESSAGE
-`config.vm.forward_port` changed in 0.9.0 where the required name
-argument is now removed. Vagrant will now automatically generate
-a unique name for your forwarded port. For example, to forward
-port 80 to port 8080 you now do the following:
-
-    config.vm.forward_port 80, 8080
-
-Please change your configurations to match this new syntax.
-          MESSAGE
-        end
-
         @forwarded_ports << {
           :name       => "#{guestport.to_s(32)}-#{hostport.to_s(32)}",
           :guestport  => guestport,
@@ -85,19 +64,6 @@ Please change your configurations to match this new syntax.
       end
 
       def network(type, *args)
-        if !type.kind_of?(Symbol)
-          raise Errors::DeprecationError, :message => <<-MESSAGE
-`config.vm.network` changed in 0.9.0 where the first argument is
-now the type of network and the remaining arguments are options for
-that type. For example, host only networks are now configured like
-so:
-
-    config.vm.network :hostonly, "172.24.24.24"
-
-Please change your configurations to match this new syntax.
-          MESSAGE
-        end
-
         @networks << [type, args]
       end
 
@@ -109,20 +75,6 @@ Please change your configurations to match this new syntax.
       # It is only defaulted to nil so that the deprecation error
       # can be properly shown.
       def customize(command=nil)
-        if block_given?
-          raise Errors::DeprecationError, :message => <<-MESSAGE
-`config.vm.customize` now takes an array of arguments to send to
-`VBoxManage` instead of having a block which gets a virtual machine
-object. Example of the new usage:
-
-    config.vm.customize ["modifyvm", :id, "--memory", "1024"]
-
-The above will run `VBoxManage modifyvm 1234 --memory 1024` where
-"1234" is the ID of your current virtual machine. Anything you could
-do before is certainly still possible with `VBoxManage` as well.
-          MESSAGE
-        end
-
         @customizations << command if command
       end
 
