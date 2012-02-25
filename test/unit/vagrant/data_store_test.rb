@@ -64,4 +64,16 @@ describe Vagrant::DataStore do
     # The file should no longer exist
     db_file.should_not be_exist
   end
+
+  it "works if the DB file is nil" do
+    store = described_class.new(nil)
+    store[:foo] = "bar"
+    store[:foo].should == "bar"
+  end
+
+  it "throws an exception if attempting to commit a data store with no file" do
+    store = described_class.new(nil)
+    expect { store.commit }.
+      to raise_error(StandardError)
+  end
 end

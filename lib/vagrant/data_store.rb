@@ -21,25 +21,34 @@ module Vagrant
 
     def initialize(file_path)
       @logger    = Log4r::Logger.new("vagrant::datastore")
-      @logger.info("Created: #{file_path}")
 
-      @file_path = Pathname.new(file_path)
+      if file_path
+        @logger.info("Created: #{file_path}")
 
-      if @file_path.exist?
-        raise Errors::DotfileIsDirectory if @file_path.directory?
+        @file_path = Pathname.new(file_path)
+        if @file_path.exist?
+          raise Errors::DotfileIsDirectory if @file_path.directory?
 
-        begin
-          merge!(JSON.parse(@file_path.read))
-        rescue JSON::ParserError
-          # Ignore if the data is invalid in the file.
-          @logger.error("Data store contained invalid JSON. Ignoring.")
+          begin
+            merge!(JSON.parse(@file_path.read))
+          rescue JSON::ParserError
+            # Ignore if the data is invalid in the file.
+            @logger.error("Data store contained invalid JSON. Ignoring.")
+          end
         end
+      else
+        @logger.info("No file path. In-memory data store.")
+        @file_path = nil
       end
     end
 
     # Commits any changes to the data to disk. Even if the data
     # hasn't changed, it will be reserialized and written to disk.
     def commit
+      if !@file_path
+        raise StandardError, "In-memory data stores can't be committed."
+      end
+
       clean_nil_and_empties
 
       if empty?
