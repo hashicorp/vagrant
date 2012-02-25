@@ -13,11 +13,13 @@ module Vagrant
         attr_accessor :module_path
         attr_accessor :pp_path
         attr_accessor :options
+        attr_accessor :facter
 
         def manifest_file; @manifest_file || "default.pp"; end
         def manifests_path; @manifests_path || "manifests"; end
         def pp_path; @pp_path || "/tmp/vagrant-puppet"; end
         def options; @options ||= []; end
+        def facter; @facter ||= {}; end
 
         # Returns the manifests path expanded relative to the root path of the
         # environment.
@@ -138,7 +140,18 @@ module Vagrant
         options << @manifest_file
         options = options.join(" ")
 
-        command = "cd #{manifests_guest_path} && puppet apply #{options}"
+        # Build up the custom facts if we have any
+        facter = ""
+        if !config.facter.empty?
+          facts = []
+          config.facter.each do |key, value|
+            facts << "FACTER_#{key}='#{value}'"
+          end
+
+          facter = "#{facts.join(" ")} "
+        end
+
+        command = "cd #{manifests_guest_path} && #{facter}puppet apply #{options}"
 
         env[:ui].info I18n.t("vagrant.provisioners.puppet.running_puppet",
                              :manifest => @manifest_file)
