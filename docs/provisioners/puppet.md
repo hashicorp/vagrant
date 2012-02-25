@@ -86,6 +86,20 @@ You can also pass options as strings:
   config.vm.provision :puppet, :options => "--verbose --debug"
 {% endhighlight %}
 
+## Overriding Facts
+
+Puppet uses [Facter](http://puppetlabs.com/puppet/related-projects/facter/) to quickly
+gather information about the nodes that Puppet runs on. Sometimes, for testing or because
+you don't like what Facter determined, you want to override the values that it
+collects. Vagrant exposes an easy way to do this:
+
+{% highlight ruby %}
+  config.vm.provision :puppet, :facter => { "operatingsystem" => "Debian" }
+{% endhighlight %}
+
+The above will override the `$operatingsystem` variable that you normally get access
+to in Puppet manifests from Facter with "Debian."
+
 ## Configuring the Puppet Provisioning Path
 
 In order to run Puppet, Vagrant has to mount the specified manifests directory as a
