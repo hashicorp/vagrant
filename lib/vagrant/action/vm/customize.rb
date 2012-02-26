@@ -15,7 +15,7 @@ module Vagrant
             customizations.each do |command|
               processed_command = command.collect do |arg|
                 arg = env[:vm].uuid if arg == :id
-                arg
+                arg.to_s
               end
 
               result = env[:vm].driver.execute_command(processed_command)
