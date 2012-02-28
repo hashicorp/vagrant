@@ -1,5 +1,6 @@
 require 'childprocess'
 require 'log4r'
+require 'thread'
 
 require 'vagrant/util/platform'
 
@@ -26,7 +27,7 @@ module Vagrant
         @logger  = Log4r::Logger.new("vagrant::util::subprocess")
       end
 
-      def execute
+      def execute(&block)
         # Get the timeout, if we have one
         timeout = @options[:timeout]
         workdir = @options[:workdir] || Dir.pwd
@@ -74,6 +75,22 @@ module Vagrant
 
         # Create a dictionary to store all the output we see.
         io_data = { :stdout => "", :stderr => "" }
+        
+        # create asynchronous stream readers to handle process's stdout & stderr
+        pending = Hash[ [ :stdout, :stderr ].map { |stream|
+          queue = Queue.new
+          [ stream, { 
+            :queue  => queue,
+            :thread => Thread.new do
+              @logger.debug("started #{stream} dequeuing thread")
+              begin
+                read_block = queue.deq
+                @logger.debug("reading from #{stream} ...")
+                read_block.call() if defined? read_block.call
+              end until read_block == :QUEUE_EMPTY
+            end
+          } ]
+        } ]
 
         # Record the start time for timeout purposes
         start_time = Time.now.to_i
@@ -89,17 +106,21 @@ module Vagrant
           # Check the readers to see if they're ready
           if !readers.empty?
             readers.each do |r|
-              # Read from the IO object
-              data = read_io(r)
-
-              # We don't need to do anything if the data is empty
-              next if data.empty?
-
               io_name = r == stdout ? :stdout : :stderr
-              @logger.debug("#{io_name}: #{data}")
+              queue = pending[io_name][:queue]
+              @logger.debug("queuing a read from #{io_name}")
+              queue << Proc.new do
+                # Read from the IO object
+                data = read_io(r)
 
-              io_data[io_name] += data
-              yield io_name, data if block_given?
+                # We don't need to do anything if the data is empty
+                next if data.empty?
+
+                @logger.debug("#{io_name}: #{data}")
+
+                io_data[io_name] += data
+                block[io_name, data] unless block.nil?
+              end
             end
           end
 
@@ -113,7 +134,11 @@ module Vagrant
             yield :stdin, process.io.stdin if block_given?
           end
         end
-
+        
+        # tell the asynchronous stream readers to finish
+        pending.each { |stream, hash| hash[:queue].enq(:QUEUE_EMPTY) }
+        pending.each { |stream, hash| hash[:thread].join }
+        
         # Wait for the process to end.
         begin
           remaining = (timeout || 32000) - (Time.now.to_i - start_time)
