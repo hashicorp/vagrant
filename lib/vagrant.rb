@@ -165,6 +165,7 @@ Vagrant.config_keys.register(:package) { Vagrant::Config::PackageConfig }
 Vagrant.hosts.register(:arch)    { Vagrant::Hosts::Arch }
 Vagrant.hosts.register(:bsd)     { Vagrant::Hosts::BSD }
 Vagrant.hosts.register(:fedora)  { Vagrant::Hosts::Fedora }
+Vagrant.hosts.register(:opensuse)  { Vagrant::Hosts::OpenSUSE }
 Vagrant.hosts.register(:freebsd) { Vagrant::Hosts::FreeBSD }
 Vagrant.hosts.register(:gentoo)  { Vagrant::Hosts::Gentoo }
 Vagrant.hosts.register(:linux)   { Vagrant::Hosts::Linux }
