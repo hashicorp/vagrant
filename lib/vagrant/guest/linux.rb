@@ -13,6 +13,18 @@ module Vagrant
       end
 
       def distro_dispatch
+        # cannot return from within execute block (LocalJumpError)
+        result = nil
+
+        if @vm.channel.test("cat /etc/os-release")
+          @vm.channel.execute("cat /etc/os-release | grep ^ID") do |type, data|
+            next if data.chomp.empty?
+            result = data.chomp.gsub(/^ID="?([^"]*)"?/, '\1').to_sym if type == :stdout
+          end
+        end
+
+        return result if result
+
         if @vm.channel.test("cat /etc/debian_version")
           return :debian if @vm.channel.test("cat /proc/version | grep 'Debian'")
           return :ubuntu if @vm.channel.test("cat /proc/version | grep 'Ubuntu'")
