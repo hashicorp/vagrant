@@ -171,6 +171,15 @@ module Vagrant
               # Windows doesn't support non-blocking reads on
               # file descriptors or pipes so we have to get
               # a bit more creative.
+
+              # Check if data is actually ready on this IO device.
+              # We have to do this since `readpartial` will actually block
+              # until data is available, which can cause blocking forever
+              # in some cases.
+              results = IO.select([io], nil, nil, 1)
+              break if !results || results[0].empty?
+
+              # Read!
               data << io.readpartial(READ_CHUNK_SIZE)
             else
               # Do a simple non-blocking read on the IO object
