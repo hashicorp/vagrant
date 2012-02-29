@@ -24,6 +24,9 @@ module Vagrant
         # Configures the provisioner if it can (if it is valid).
         def configure(options=nil, &block)
           config_class = @provisioner.config_class
+          if !config_class && defined? @provisioner::Config
+            config_class = @provisioner::Config
+          end
           return if !config_class
 
           @logger.debug("Configuring provisioner with: #{config_class}")
