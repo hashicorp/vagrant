@@ -307,7 +307,7 @@ en:
       vm:
         boot:
           booting: Booting VM...
-          waiting: Waiting for VM to boot. This can take a few minutes.
+          waiting: Waiting for VM to boot. This can take a few hours.
           ready: VM booted and ready for use!
           failed: Failed to connect to VM!
           failed_to_boot: |-
