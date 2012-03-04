@@ -19,6 +19,7 @@ module Vagrant
         end
 
         return :gentoo if @vm.channel.test("cat /etc/gentoo-release")
+        return :fedora if @vm.channel.test("grep 'Fedora release 16' /etc/redhat-release")
         return :redhat if @vm.channel.test("cat /etc/redhat-release")
         return :suse if @vm.channel.test("cat /etc/SuSE-release")
         return :arch if @vm.channel.test("cat /etc/arch-release")
