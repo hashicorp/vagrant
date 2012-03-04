@@ -52,7 +52,6 @@ option.
 	<li><a href="/docs/config/nfs/map_gid.html">config.nfs.map_gid</a></li>
 	<li><a href="/docs/config/package/name.html">config.package.name</a></li>
 	<li><a href="/docs/config/ssh/username.html">config.ssh.username</a></li>
-	<li><a href="/docs/config/ssh/password.html">config.ssh.password</a></li>
 	<li><a href="/docs/config/ssh/host.html">config.ssh.host</a></li>
 	<li><a href="FOO">config.ssh.port</a></li>
 	<li><a href="FOO">config.ssh.guest_port</a></li>
