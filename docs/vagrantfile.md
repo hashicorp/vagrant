@@ -72,7 +72,7 @@ option.
 	<li><a href="/docs/config/vm/define.html">config.vm.define</a></li>
 	<li><a href="/docs/config/vm/forward_port.html">config.vm.forward_port</a></li>
 	<li><a href="/docs/config/vm/guest.html">config.vm.guest</a></li>
-	<li><a href="FOO">config.vm.host_name</a></li>
+	<li><a href="/docs/config/vm/host_name.html">config.vm.host_name</a></li>
 	<li><a href="FOO">config.vm.name</a></li>
 	<li><a href="FOO">config.vm.network</a></li>
 	<li><a href="FOO">config.vm.provision</a></li>
