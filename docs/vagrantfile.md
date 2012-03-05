@@ -61,8 +61,8 @@ option.
 	<li><a href="/docs/config/ssh/forward_agent.html">config.ssh.forward_agent</a></li>
 	<li><a href="/docs/config/ssh/forward_x11.html">config.ssh.forward_x11</a></li>
 	<li><a href="/docs/config/ssh/shell.html">config.ssh.shell</a></li>
-	<li><a href="FOO">config.vagrant.dotfile_name</a></li>
-	<li><a href="FOO">config.vagrant.host</a></li>
+	<li><a href="/docs/config/vagrant/dotfile_name.html">config.vagrant.dotfile_name</a></li>
+	<li><a href="/docs/config/vagrant/host.html">config.vagrant.host</a></li>
 	<li><a href="FOO">config.vm.auto_port_range</a></li>
 	<li><a href="FOO">config.vm.base_mac</a></li>
 	<li><a href="FOO">config.vm.boot_mode</a></li>
