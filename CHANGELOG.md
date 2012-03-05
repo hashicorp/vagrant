@@ -37,6 +37,7 @@
   - Automatically convert all arguments to `customize` to strings.
   - openSUSE host system. [GH-766]
   - Fix subprocess IO deadlock which would occur on Windows. [GH-765]
+  - Fedora 16 guest support. [GH-772]
 
 ## 0.9.7 (February 9, 2012)
 

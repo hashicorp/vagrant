@@ -174,11 +174,11 @@ Vagrant.hosts.register(:windows) { Vagrant::Hosts::Windows }
 # Register the built-in guests
 Vagrant.guests.register(:arch)    { Vagrant::Guest::Arch }
 Vagrant.guests.register(:debian)  { Vagrant::Guest::Debian }
+Vagrant.guests.register(:fedora)  { Vagrant::Guest::Fedora }
 Vagrant.guests.register(:freebsd) { Vagrant::Guest::FreeBSD }
 Vagrant.guests.register(:gentoo)  { Vagrant::Guest::Gentoo }
 Vagrant.guests.register(:linux)   { Vagrant::Guest::Linux }
 Vagrant.guests.register(:redhat)  { Vagrant::Guest::Redhat }
-Vagrant.guests.register(:fedora)  { Vagrant::Guest::Fedora }
 Vagrant.guests.register(:solaris) { Vagrant::Guest::Solaris }
 Vagrant.guests.register(:suse)    { Vagrant::Guest::Suse }
 Vagrant.guests.register(:ubuntu)  { Vagrant::Guest::Ubuntu }
