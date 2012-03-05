@@ -74,6 +74,6 @@ option.
 	<li><a href="/docs/config/vm/guest.html">config.vm.guest</a></li>
 	<li><a href="/docs/config/vm/host_name.html">config.vm.host_name</a></li>
 	<li><a href="/docs/config/vm/network.html">config.vm.network</a></li>
-	<li><a href="FOO">config.vm.provision</a></li>
-	<li><a href="FOO">config.vm.share_folder</a></li>
+	<li><a href="/docs/config/vm/provision.html">config.vm.provision</a></li>
+	<li><a href="/docs/config/vm/share_folder.html">config.vm.share_folder</a></li>
 </ul>
