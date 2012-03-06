@@ -36,6 +36,10 @@ operating system procedures. On Windows and Mac OS X, the `vagrant` command shou
 automatically be placed on your `PATH`. On other systems, you must add `/opt/vagrant/bin`
 to your `PATH`.
 
+If a Vagrant package is not available for your platform, you can also install
+using [RubyGems](http://rubygems.org/gems/vagrant) via a `gem install vagrant`.
+But note that the packages are the preferred and best supported method of installation.
+
 ## Your First Vagrant Virtual Environment
 
 <pre>
