@@ -30,13 +30,22 @@ $ vagrant ssh
 vagrant@vagrantup:~$
 {% endhighlight %}
 
-<div class="alert-message block-message grey notice">
+<div class="alert alert-block alert-notice">
   <h3>Using Microsoft Windows?</h3>
   <p>
     An SSH client is generally not distributed with Windows by default. Because of this,
     if you are on Windows, Vagrant will instead output SSH authentication info
     which you can use with your favorite SSH client, such as
     <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/">PuTTY</a>.
+  </p>
+  <p>
+    PuTTY may not reconize the <code>insecure_private_key</code> provided by
+    vagrant as a valid private key.  To remedy this, first grab the 
+    <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html">PuTTYgen app</a>.  
+    Then use PuTTYgen and import the <code>insecure_private_key</code> (found
+    in the .vagrant.d dir in your home directory) and save a ppk file from that
+    private key.  Use the ppk file instead of the default one when SSHing into
+    your vagrant box.
   </p>
 </div>
 

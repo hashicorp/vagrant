@@ -1,16 +1,23 @@
 ---
 layout: documentation
 title: Documentation - Provisioners - Chef Solo
+
+current: Provisioners
 ---
 # Chef Solo Provisioning
 
+**Provisioner key:** `:chef_solo`
+
 [Chef Solo](http://wiki.opscode.com/display/chef/Chef+Solo) allows you to provision your virtual
 machine with [Chef Cookbooks](http://wiki.opscode.com/display/chef/Cookbooks) without requiring a
-[Chef Server](http://wiki.opscode.com/display/chef/Chef+Server). At a very basic level, [chef](http://www.opscode.com/chef/)
+[Chef Server](http://wiki.opscode.com/display/chef/Chef+Server). At a very basic level, [Chef](http://www.opscode.com/chef/)
 is an open source systems integration framework which automates tasks through programmable "cookbooks."
 This page will not go into the details of creating custom chef cookbooks, since that
 is covered in detail around the web, but a good place to start is the [opscode cookbooks repository](http://github.com/opscode/cookbooks)
-which contains cookbooks for most of the popular server software already made.
+which contains cookbooks for most of the popular server software already made. Note
+that sometimes the cookbooks from the Opscode repository may not work directly
+"out of the box," and proper Chef support channels should be used if this occurs,
+since they are more knowledgable in general on that topic.
 
 ## Setting the Cookbooks Path
 
@@ -25,7 +32,6 @@ apache2/
 passenger_apache2/
 rails/
 sqlite/
-vagrant_main/
 {% endhighlight %}
 
 Basically, the cookbooks directory should immediately contain all the folders of the
@@ -42,47 +48,47 @@ Vagrant::Config.run do |config|
 end
 {% endhighlight %}
 
-<div class="alert-message block-message grey notice">
-  <h3>Multiple Cookbook Paths</h3>
-  <p>
-    You can also specify multiple cookbook paths by making the configuration an
-    array of file paths. Note that the working directory while running Vagrant will always
-    be the directory which contains the Vagrantfile, therefore file paths will always
-    be expanded relative to that working directory.
+You can also specify multiple cookbook paths by making the configuration an
+array of file paths. Note that the working directory while running Vagrant will always
+be the directory which contains the Vagrantfile, therefore file paths will always
+be expanded relative to that working directory.
 
-<pre>
+{% highlight ruby %}
 Vagrant::Config.run do |config|
   config.vm.provision :chef_solo do |chef|
     chef.cookbooks_path = ["cookbooks", "~/company/cookbooks"]
   end
 end
-</pre>
-  </p>
-</div>
-
-## Configuring the Main Cookbook
-
-By default, Vagrant has an empty run list, or the list of recipes or roles for
-Chef to run. We've setup a `vagrant_main` cookbook above which we'll make our
-entrypoint. The default recipe for this cookbook is shown below:
-
-{% highlight ruby %}
-# vagrant_main cookbook
-# This cookbook includes and sets up a server with apache, mysql,
-# rails, and passenger.
-#
-require_recipe "apache2"
-require_recipe "mysql"
-require_recipe "rails"
-require_recipe "passenger_apache2::mod_rails"
 {% endhighlight %}
 
-Then, we must tell Vagrant to use this cookbook:
+And finally, somewhat of an advanced feature, but also sometimes needed: If
+the virtual machine already has cookbooks somewhere inside of it, you may
+specific folders _within the virtual machine_ which contain cookbooks using
+a special syntax:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
   config.vm.provision :chef_solo do |chef|
-    chef.add_recipe("vagrant_main")
+    chef.cookbooks_path = ["cookbooks", [:vm, "/usr/local/cookbooks"]]
+  end
+end
+{% endhighlight %}
+
+The above tells Vagrant that there are cookbooks in the "cookbooks" folder
+relative to the project root as well as the "/usr/local/cookbooks" directory
+on the virtual machine itself.
+
+## Specifying the Run List
+
+By default, Vagrant has an empty run list, or the list of recipes or roles for
+Chef to run. You need to explicitly specify the run list for Vagrant using
+some basic configuration:
+
+{% highlight ruby %}
+Vagrant::Config.run do |config|
+  config.vm.provision :chef_solo do |chef|
+    chef.add_recipe("apache")
+    chef.add_recipe("php")
   end
 end
 {% endhighlight %}
@@ -137,6 +143,35 @@ Vagrant::Config.run do |config|
 end
 {% endhighlight %}
 
+## Data Bags
+
+Chef solo also supports [data bags](http://wiki.opscode.com/display/chef/Data+Bags),
+which are arbitrary JSON documents that can be searched and loaded by Chef recipes.
+Vagrant exposes this functionality completely as well through similar configuration:
+
+{% highlight ruby %}
+Vagrant::Config.run do |config|
+  config.vm.provision :chef_solo do |chef|
+    chef.data_bags_path = "data_bags"
+  end
+end
+{% endhighlight %}
+
+The data bags directory is expected to be the proper layout that Chef expects
+and documents.
+
+## Downloading Packaged Cookbooks
+
+Chef solo supports using cookbooks which are [downloaded from a URL](http://wiki.opscode.com/display/chef/Chef+Solo#ChefSolo-RunningfromaURL). You can also do this with Vagrant:
+
+{% highlight ruby %}
+Vagrant::Config.run do |config|
+  config.vm.provision :chef_solo do |chef|
+    chef.recipe_url = "http://files.mycompany.com/cookbooks.tar.gz"
+  end
+end
+{% endhighlight %}
+
 ## Configuring the Temporary Path
 
 In order to run chef, Vagrant has to mount the specified cookbooks directory as a
@@ -154,12 +189,3 @@ end
 
 This folder is created for provisioning purposes and destroyed once provisioning
 is complete.
-
-## Enabling and Executing
-
-By calling `config.vm.provision` with `:chef_solo`, chef solo based provisioning
-will be enabled and ran during a VM setup. If you are building a VM from scratch,
-run `vagrant up` and provisioning will automatically occur. If you already have
-a running VM and don't want to rebuild everything from scratch, run `vagrant reload`
-and it will restart the VM, without completely destroying the environment first,
-allowing the import step to be skipped.

@@ -12,7 +12,7 @@ Vagrant uses [Oracle's VirtualBox](http://www.virtualbox.org)
 to build configurable, lightweight, and portable virtual machines dynamically.
 The first couple pages serve to introduce you to Vagrant and what it has
 to offer while the rest of the guide is a technical walkthrough for building a
-fully functional Ruby on Rails development environment. The getting started
+fully functional web development environment. The getting started
 guide concludes by explaining how to package the newly created vagrant environment
 so other developers can get up and running in just a couple commands.
 
@@ -21,38 +21,24 @@ so other developers can get up and running in just a couple commands.
 Vagrant depends on [Oracle's VirtualBox](http://www.virtualbox.org) to create all of
 it's virtual environments. VirtualBox is a general-purpose full virtualizer for
 x86 hardware. Targeted at server, desktop and embedded use, it is now the only
-professional-quality virtualization solution that is also Open Source Software.
+professional-quality virtualization solution that is also open source software.
 VirtualBox runs on **Windows**, **Mac OS X**, **Linux**, and **Solaris**.
 
 Here is a link directly to the [download page](http://www.virtualbox.org/wiki/Downloads).
 
 Vagrant currently supports VirtualBox 4.0.x and 4.1.x.
 
-## Setting up Ruby and RubyGems
-
-Although Vagrant is written in Ruby, web developers from many different languages
-come to use it (Python, Java, Clojure, etc.). Therefore, if you've never setup Ruby
-or RubyGems before, please check out our basic guides, written for different
-popular operating systems listed below:
-
-* [Windows](/docs/getting-started/setup/windows.html)
-* [Mac OS X](/docs/getting-started/setup/mac.html)
-* [Ubuntu](/docs/getting-started/setup/ubuntu.html)
-
-Is your OS not listed above? Feel free ask for help via our [support channels](/support.html).
-Or if you figure it out on your own, let us know how and we'll gladly update the
-website.
-
 ## Install Vagrant
 
-Vagrant is packaged as a [RubyGem](http://rubygems.org/). Since Vagrant is written
-in Ruby and RubyGems is a standard part of most Ruby installations, RubyGems is the
-quickest and easiest way to distribute Vagrant to the masses, and it can be installed
-just as easily:
+To install Vagrant, download the appropriate package or installer from the
+[downloads page](http://downloads.vagrantup.com), and install it using standard
+operating system procedures. On Windows and Mac OS X, the `vagrant` command should
+automatically be placed on your `PATH`. On other systems, you must add `/opt/vagrant/bin`
+to your `PATH`.
 
-<pre>
-$ gem install vagrant
-</pre>
+If a Vagrant package is not available for your platform, you can also install
+using [RubyGems](http://rubygems.org/gems/vagrant) via a `gem install vagrant`.
+But note that the packages are the preferred and best supported method of installation.
 
 ## Your First Vagrant Virtual Environment
 

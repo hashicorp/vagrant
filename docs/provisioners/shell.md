@@ -1,8 +1,12 @@
 ---
 layout: documentation
 title: Documentation - Provisioners - Shell
+
+current: Provisioners
 ---
 # Shell Provisioner
+
+**Provisioner key:** `:shell`
 
 The shell provisioner is the most basic provisioner, and allows you to
 upload and execute a shell script as the root user in the VM.
@@ -67,10 +71,3 @@ Vagrant::Config.run do |config|
   end
 end
 {% endhighlight %}
-
-## Enabling and Executing
-
-As with all other provisioners, adding the `config.vm.provision` line
-to the Vagrantfile enables this provisioner. By running `vagrant up`,
-`vagrant reload`, or `vagrant provision` (depending on the situation),
-the provisioner will be executed.

@@ -1,14 +1,16 @@
 ---
 layout: documentation
 title: Documentation - NFS Shared Folders
+
+current: NFS
 ---
 # NFS Shared Folders
 
-Its been a long known issue that VirtualBox shared folder performance
+Its a long known issue that VirtualBox shared folder performance
 degrades quickly as the number of files in the shared folder increases.
 As a project reaches 1000+ files, doing simple things like running unit
 tests or even just running an app server can be many orders of magnitude
-slow (e.g. from 5 seconds to over 5 minutes).
+slower than on a native filesystem (e.g. from 5 seconds to over 5 minutes).
 
 If you're seeing this sort of performance drop-off in your shared folders,
 <a href="http://en.wikipedia.org/wiki/Network_File_System_(protocol)">NFS</a> shared
@@ -57,7 +59,7 @@ Before enabling NFS shared folders, there are two main requirements:
 * The VM must have NFS support installed. Almost all distributions of linux/bsd
   operating systems have this available through their respective package manager.
 
-<div class="info">
+<div class="alert alert-block alert-notice">
   <h3>Disclaimer / Warning</h3>
   <p>
     Vagrant must edit system files on the host in order to configure NFS.

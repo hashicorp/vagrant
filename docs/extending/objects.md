@@ -1,6 +1,8 @@
 ---
 layout: extending
 title: Extending Vagrant - Vagrant Objects
+
+current: Vagrant Objects
 ---
 # Vagrant Objects
 

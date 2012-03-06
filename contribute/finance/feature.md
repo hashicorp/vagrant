@@ -3,6 +3,7 @@ layout: contribute
 title: Contribute Financially - Pay for a Feature
 
 section: finance
+current: Pay for a Feature
 ---
 # Pay for a Feature or Bug Fix
 

@@ -1,6 +1,8 @@
 ---
 layout: extending
 title: Extending Vagrant - Types of Plugins
+
+current: Types of Plugins
 ---
 # Types of Plugins
 
@@ -57,5 +59,7 @@ RubyGems, versioning is available, easy for users to upgrade their plugins.
 
 **Cons:** Implicit loading, not packaged with your project.
 
-Note that as a gem, its easy to package these with your project using a
-tool such as [Bundler](http://gembundler.com).
+Note if you use the gem packaging, the plugin will have to be installed
+with Vagrant using the `vagrant gem` command. This is because Vagrant packages
+and installers ship with a completely isolated RubyGems installation and never
+actually references your global RubyGems installation you may have.

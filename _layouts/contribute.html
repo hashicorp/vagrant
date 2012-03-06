@@ -1,44 +1,66 @@
 {% include header.html %}
 <div class="row">
-  <div class="span4 Module sidebar">
-    {% if page.section %}
-    <div class="alert-message block-message grey">
-      <a href="/contribute/index.html">&laquo; Contribute to Vagrant</a>
-    </div>
-    {% endif %}
+	<div class="span3 Module sidebar">
+		{% if page.section %}
+		<div class="well">
+			<a href="/contribute/index.html">&laquo; Contribute to Vagrant</a>
+		</div>
+		{% endif %}
 
-    <div class="alert-message block-message grey">
-    <ol>
-      {% if page.section == "docs" %}
-      <li><a href="/contribute/documentation/index.html">Overview</a></li>
-      <li><a href="/contribute/documentation/code.html">Get the code</a></li>
-      <li><a href="/contribute/documentation/run.html">Run the site</a></li>
-      <li><a href="/contribute/documentation/update.html">Update the site</a></li>
-      <li><a href="/contribute/documentation/contribute.html">Contribute your changes!</a></li>
-      {% elsif page.section == "code" %}
-      <li><a href="/contribute/code/index.html">Overview</a></li>
-      {% elsif page.section == "finance" %}
-      <li><a href="/contribute/finance/index.html">Overview</a></li>
-      <li><a href="/contribute/finance/costs.html">Current Costs</a></li>
-      <li><a href="/contribute/finance/feature.html">Pay for a Feature</a></li>
-      <li><a href="/contribute/finance/sponsor.html">Sponsor Vagrant</a></li>
-      <li><a href="/contribute/finance/donate.html">Donate</a></li>
-      {% else %}
-      <li><a href="/contribute/index.html">Overview</a></li>
-      <li><a href="/contribute/documentation/index.html">Documentation</a></li>
-      <li><a href="/contribute/code/index.html">Code</a></li>
-      <li><a href="/contribute/finance/index.html">Finance</a></li>
-      {% endif %}
-    </ol>
-    </div>
+		<div class="well" style="padding: 8px 0px;">
+			<ul class="nav nav-list">
+				{% if page.section == "docs" %}
+				<li{% if page.current == 'Overview' %} class="active"{% endif %}>
+					<a href="/contribute/documentation/index.html">Overview</a>
+				</li>
+				<li{% if page.current == 'Get the Code' %} class="active"{% endif %}>
+					<a href="/contribute/documentation/code.html">Get the code</a>
+				</li>
+				<li{% if page.current == 'Run the Site' %} class="active"{% endif %}>
+					<a href="/contribute/documentation/run.html">Run the site</a>
+				</li>
+				<li{% if page.current == 'Update the Site' %} class="active"{% endif %}>
+					<a href="/contribute/documentation/update.html">Update the site</a>
+				</li>
+				<li{% if page.current == 'Contribute your Changes' %} class="active"{% endif %}>
+					<a href="/contribute/documentation/contribute.html">Contribute your changes!</a>
+				</li>
+				{% elsif page.section == "code" %}
+				<li{% if page.current == 'Contribute Code' %} class="active"{% endif %}>
+					<a href="/contribute/code/index.html">Overview</a>
+				</li>
+				{% elsif page.section == "finance" %}
+				<li{% if page.current == 'Contribute Financially' %} class="active" {% endif %}>
+					<a href="/contribute/finance/index.html">Overview</a>
+				</li>
+				<li{% if page.current == 'Current Costs' %} class="active" {% endif %}>
+					<a href="/contribute/finance/costs.html">Current Costs</a>
+				</li>
+				<li{% if page.current == 'Pay for a Feature' %} class="active" {% endif %}>
+					<a href="/contribute/finance/feature.html">Pay for a Feature</a>
+				</li>
+				<li{% if page.current == 'Sponsor Vagrant' %} class="active" {% endif %}>
+					<a href="/contribute/finance/sponsor.html">Sponsor Vagrant</a>
+				</li>
+				<li{% if page.current == 'Donate' %} class="active" {% endif %}>
+					<a href="/contribute/finance/donate.html">Donate</a>
+				</li>
+				{% else %}
+				<li class="active"><a href="/contribute/index.html">Overview</a></li>
+				<li><a href="/contribute/documentation/index.html">Documentation</a></li>
+				<li><a href="/contribute/code/index.html">Code</a></li>
+				<li><a href="/contribute/finance/index.html">Finance</a></li>
+				{% endif %}
+			</ul>
+		</div>
 
-    <div class="alert-message block-message info">
-      <a href="https://github.com/mitchellh/vagrant">Vagrant on GitHub</a>
-    </div>
-  </div>
+		<div class="well">
+			<a href="https://github.com/mitchellh/vagrant">Vagrant on GitHub</a>
+		</div>
+	</div>
 
-  <div class="span12">
-    {{ content }}
-  </div>
+	<div class="span9">
+		{{ content }}
+	</div>
 </div>
 {% include footer.html %}

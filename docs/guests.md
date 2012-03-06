@@ -1,6 +1,8 @@
 ---
 layout: documentation
 title: Documentation - Guest-specific Behavior
+
+current: Guests
 ---
 # Guest-specific Behavior
 
@@ -12,7 +14,7 @@ implementations.
 There is an implementation for every major OS type such as generic Linux, Debian,
 Ubuntu, FreeBSD, etc.
 
-<div class="alert-message block-message grey notice">
+<div class="alert alert-block alert-notice">
   <h3>This topic is for advanced users</h3>
   <p>
     The following topic is for <em>advanced</em> users. The majority of Vagrant users

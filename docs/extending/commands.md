@@ -1,6 +1,8 @@
 ---
 layout: extending
 title: Extending Vagrant - Commands
+
+current: Commands
 ---
 # Commands
 

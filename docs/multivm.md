@@ -1,6 +1,8 @@
 ---
 layout: documentation
 title: Documentation - Multi-VM Environments
+
+current: Multi-VM
 ---
 # Multi-VM Environments
 
@@ -11,8 +13,7 @@ Multi-VM environments:
 
 * Accurately modeling a separate _web_ and _database_ server within the
   same development environment.
-* Running separate _web_ and _worker_ servers, for example a server which
-  handles media transcoding.
+* Modeling a cluster of machines, and how they behave together.
 * Testing an interface, such as API calls or a chat interface.
 * Testing a load balancer configuration, or the effects of "unplugging"
   a machine.
@@ -36,12 +37,12 @@ probably already used to. A small example is shown below:
 Vagrant::Config.run do |config|
   config.vm.define :web do |web_config|
     web_config.vm.box = "web"
-    web_config.vm.forward_port("http", 80, 8080)
+    web_config.vm.forward_port 80, 8080
   end
 
   config.vm.define :db do |db_config|
     db_config.vm.box = "db"
-    db_config.vm.forward_port("db", 3306, 3306)
+    db_config.vm.forward_port 3306, 3306
   end
 end
 {% endhighlight %}
@@ -76,19 +77,19 @@ With multiple VMs up and running, the next step is to support inter-VM
 communication so that, say, a web server can talk to its associated database
 server.
 
-This communication is done through [host-only networking](/docs/host_only_networking.html). There is an entire page dedicated to the topic, but a relatively simple
+This communication is typically done through [host-only networking](/docs/host_only_networking.html). There is an entire page dedicated to the topic, but a relatively simple
 example is given below, based on the example given earlier:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
   config.vm.define :web do |web_config|
     # ...
-    web_config.vm.network("192.168.1.10")
+    web_config.vm.network :hostonly, "192.168.1.10"
   end
 
   config.vm.define :db do |db_config|
     # ...
-    db_config.vm.network("192.168.1.11")
+    db_config.vm.network :hostonly, "192.168.1.11"
   end
 end
 {% endhighlight ruby %}
@@ -99,7 +100,7 @@ For more details on how to do things such as creating separate networks,
 joining the same network from separate Vagrantfiles, etc. please read
 the [host-only networking](/docs/host_only_networking.html) page.
 
-<div class="info">
+<div class="alert alert-block alert-notice">
   <h3>All ports are open!</h3>
   <p>
     When assigning a static IP like the above, VirtualBox makes no attempt

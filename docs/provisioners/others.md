@@ -1,14 +1,19 @@
 ---
 layout: documentation
 title: Documentation - Provisioners - Others
+
+current: Provisioners
 ---
 # Provisioning with Other Tools
 
-Of course, we understand that not everyone uses [Chef](http://www.opscode.com/chef)
-or [Puppet](http://www.puppetlabs.com/puppet). Vagrant allows for custom
-provisioners to easily be written and used in place (or alongside) the
-built-in ones by extending the `Vagrant::Provisioners::Base` class and
-using that class as the provisioner.
+Although Vagrant ships standard with some of the most popular provisioning
+options, there will always be new tools and other options that are used.
+Vagrant allows for custom provisioners to easily be written and used in
+place or alongside the built-in ones. To use a custom provisioner, some
+Ruby knowledge is necessary.
+
+Custom provisioners are created by inheriting a class from `Vagrant::Provisioners::Base`
+and using that class as the provisioner.
 
 ## Creating Your Own Provisioner
 
@@ -24,14 +29,17 @@ Neither methods take any arguments.
 ### The `prepare` Method
 
 The `prepare` method can be used to configure any shared folders or to verify
-settings. An example implementation of the prepare method is shown below:
+settings. When `prepare` is called, the virtual machine may or may not be
+running, so no communication should be done. Instead, the goal of the method
+is for any additional configuration or validation that needs to be done.
+An example implementation of the prepare method is shown below:
 
 {% highlight ruby %}
 class FooProvisioner < Vagrant::Provisioners::Base
   def prepare
     # Maybe we need to share a folder?
-    env.config.vm.share_folder("foo-folder", "/tmp/foo-provisioning",
-                                             "/path/to/host/folder")
+    env[:vm].config.vm.share_folder("foo-folder", "/tmp/foo-provisioning",
+                                                  "/path/to/host/folder")
   end
 end
 {% endhighlight %}
@@ -41,15 +49,13 @@ end
 The `provision!` method is called when the VM is ready to be provisioned.
 At this point, the VM can be assumed to be booted and running with the
 shared folders setup. During this method, the provisioner should SSH and
-do any commands it is required to do to provision. An example implementation
+run any commands it requires for provisioning. An example implementation
 is shown below:
 
 {% highlight ruby %}
 class FooProvisioner < Vagrant::Provisioners::Base
   def provision!
-    vm.ssh.execute do |ssh|
-      ssh.exec!("sudo foo-provision")
-    end
+    env[:vm].channel.execute("sudo foo-provision")
   end
 end
 {% endhighlight %}
@@ -63,16 +69,20 @@ is shown below:
 
 {% highlight ruby %}
 class FooProvisioner < Vagrant::Provisioners::Base
-  # Vagrant automatically finds a class named "Config" namespaced
-  # beneath the provisioner, and uses it!
   class Config < Vagrant::Config::Base
     attr_accessor :chunky_bacon
+  end
+
+  def self.config_class
+    Config
   end
 end
 {% endhighlight %}
 
-Vagrant automatically finds a class named `Config` within the namespace
-of your provisioner and will use it to configure the provisioner. Example:
+Vagrant calls the class-level `config_class` method on the provisioner to
+ask the provisioner for the configuration class. In the above case, the
+inner `Config` class is returned to Vagrant. Once Vagrant knows about the
+configuration class, it is able to be used just like any other provisioner:
 
 {% highlight ruby %}
 require 'foo_provisioner'
@@ -97,7 +107,7 @@ class FooProvisioner < Vagrant::Provisioners::Base
 end
 {% endhighlight %}
 
-<div class="alert-message block-message grey notice">
+<div class="alert alert-block alert-notice">
   <h3>`env.config` versus `config`</h3>
   <p>
     In the example towards the top, we used <code>env.config</code>, but directly

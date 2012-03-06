@@ -1,49 +1,47 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-  <title>Vagrant - {{ page.title }}</title>
+	<head>
+		<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+		<title>Vagrant - {{ page.title }}</title>
 
-  <meta name="description" content="Create and manage virtualized development environments." />
+		<link rel="icon" type="image/png" href="/static/images/favicon.png" />
+		<meta name="description" content="Create and manage virtualized development environments." />
 
-  <link rel="stylesheet" href="/static/css/bootstrap-1.4.0.min.css" type="text/css" media="screen" />
-  <link rel="stylesheet" href="/static/css/syntax.css" type="text/css" media="screen" />
-  <link rel="stylesheet" href="/static/css/vagrant.base.css" type="text/css" media="screen" />
-  <script type="text/javascript">
-      var _gaq = _gaq || [];
-      _gaq.push(['_setAccount', 'UA-15091924-1']);
-      _gaq.push(['_setDomainName', 'vagrantup.com']);
-      _gaq.push(['_trackPageview']);
+		<link rel="stylesheet" href="/static/css/bootstrap.css" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/static/css/syntax.css" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/static/css/vagrant.base.css" type="text/css" media="screen" />
+		<script type="text/javascript">
+			var _gaq = _gaq || [];
+			_gaq.push(['_setAccount', 'UA-15091924-1']);
+			_gaq.push(['_setDomainName', 'vagrantup.com']);
+			_gaq.push(['_trackPageview']);
 
-      (function() {
-       var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-       ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-       var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-       })();
-   </script>
+			(function() {
+			 var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			 ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			 var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+			 })();
+</script>
 </head>
 <body>
-  <div class="container">
-    <div class="row Header">
-      <div class="span4 Module logo">
-        <h1><a href="/">Vagrant</a></h1>
-      </div>
-      <div class="span12">
-        <div class="Module navigation">
-          <ul>
-            <li><a href="/">home</a></li>
-            <li><a href="/docs/getting-started/index.html">get started</a></li>
-            <li><a href="/docs/index.html">documentation</a></li>
-            <li><a href="/support.html">support</a></li>
-            <li><a href="/about.html">about</a></li>
-            <li><a href="/contribute/index.html">contribute</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
+	<div class="container">
+		<div class="row Header{% if page.layout != 'homepage' %} with-border{% endif %}">
+			<div class="span3 Module logo">
+				<h1><a href="/">Vagrant</a></h1>
+			</div>
+			<div class="span9">
+				<div class="Module navigation">
+					<ul>
+						<li><a href="/">home</a></li>
+						<li><a href="/docs/getting-started/index.html">get started</a></li>
+						<li><a href="/docs/index.html">documentation</a></li>
+						<li><a href="/support.html">support</a></li>
+						<li><a href="/about.html">about</a></li>
+						<li><a href="/contribute/index.html">contribute</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
 
-    <div class="row">
-      <div class="span16">
-        <div class="alert-message block-message success">
-          Vagrant 0.9.0 has been released. Check out the <a href="/docs/changes/changes_08x_09x.html">changes in this release</a>.
-        </div>
+		<div class="row">
+			<div class="span12">

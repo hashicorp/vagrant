@@ -12,7 +12,7 @@ next_url: /docs/getting-started/rebuild.html
 
 We now have a fully functional virtual machine which can be used
 for basic web development. We've packaged this virtual machine up
-and we've given it to other members of our team. But now lets say its time to
+and we've given it to other members of our team. But now let's say its time to
 switch gears, maybe work on another project, maybe go out to lunch,
 or maybe just go home. What do we do to clean up our development
 environment?

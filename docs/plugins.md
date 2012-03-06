@@ -1,6 +1,8 @@
 ---
 layout: documentation
 title: Documentation - Plugins
+
+current: Plugins
 ---
 # Plugins
 

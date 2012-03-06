@@ -3,6 +3,7 @@ layout: contribute
 title: Contribute Documentation - Contribute Your Changes
 
 section: docs
+current: Contribute your Changes
 ---
 # Contribute Your Changes
 
