@@ -23,7 +23,7 @@ module Vagrant
       # The version of virtualbox that is running.
       attr_reader :version
 
-      def initialize(uuid)
+      def initialize(uuid=nil)
         # Setup the base
         super()
 
