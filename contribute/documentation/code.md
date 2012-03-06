@@ -12,9 +12,8 @@ main Vagrant source repository. [This branch can be viewed here](https://github.
 the `docs` branch:
 
 {% highlight bash %}
-$ git clone git://github.com/mitchellh/vagrant.git
+$ git clone -b docs git://github.com/mitchellh/vagrant.git
 $ cd vagrant
-$ git checkout docs
 {% endhighlight %}
 
 At this point, if you look at the files available, you should start
