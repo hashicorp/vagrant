@@ -1,4 +1,4 @@
-## 1.0.0 (unreleased)
+## 1.0.0 (March 5, 2012)
 
   - `vagrant gem` should now be used to install Vagrant plugins that are
     gems. This installs the gems to a private gem folder that Vagrant adds
