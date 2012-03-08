@@ -30,8 +30,15 @@ module Vagrant
             if options[:force]
               do_destroy = true
             else
-              choice = @env.ui.ask(I18n.t("vagrant.commands.destroy.confirmation",
-                                          :name => vm.name))
+              choice = nil
+              begin
+                choice = @env.ui.ask(I18n.t("vagrant.commands.destroy.confirmation",
+                                            :name => vm.name))
+              rescue Errors::UIExpectsTTY
+                # We raise a more specific error but one which basically
+                # means the same thing.
+                raise Errors::DestroyRequiresForce
+              end
               do_destroy = choice.upcase == "Y"
             end
 

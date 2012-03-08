@@ -148,6 +148,11 @@ module Vagrant
       error_key(:deprecation)
     end
 
+    class DestroyRequiresForce < VagrantError
+      status_code(74)
+      error_key(:destroy_requires_force)
+    end
+
     class DotfileIsDirectory < VagrantError
       status_code(46)
       error_key(:dotfile_is_directory)

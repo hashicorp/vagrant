@@ -2,6 +2,8 @@
 
   - Add missing `rubygems` require in `environment.rb` to avoid
     possible load errors. [GH-781]
+  - `vagrant destroy` shows a nice error when called without a
+    TTY (and hence can't confirm). [GH-779]
 
 ## 1.0.0 (March 6, 2012)
 
