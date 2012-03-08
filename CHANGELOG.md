@@ -5,6 +5,8 @@
     possible load errors. [GH-781]
   - `vagrant destroy` shows a nice error when called without a
     TTY (and hence can't confirm). [GH-779]
+  - Fix an issue with the `:vagrantfile_name` option to `Vagrant::Environment`
+    not working properly. [GH-778]
 
 ## 1.0.0 (March 6, 2012)
 

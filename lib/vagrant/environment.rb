@@ -59,10 +59,11 @@ module Vagrant
       opts[:cwd] ||= Dir.pwd
       opts[:cwd] = Pathname.new(opts[:cwd])
 
-      # Set the default vagrantfile name, which can be either Vagrantfile
-      # or vagrantfile (capital for backwards compatibility)
-      opts[:vagrantfile_name] ||= ["Vagrantfile", "vagrantfile"]
+      # Set the Vagrantfile name up. We append "Vagrantfile" and "vagrantfile" so that
+      # those continue to work as well, but anything custom will take precedence.
+      opts[:vagrantfile_name] ||= []
       opts[:vagrantfile_name] = [opts[:vagrantfile_name]] if !opts[:vagrantfile_name].is_a?(Array)
+      opts[:vagrantfile_name] += ["Vagrantfile", "vagrantfile"]
 
       # Set instance variables for all the configuration parameters.
       @cwd    = opts[:cwd]
