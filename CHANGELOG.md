@@ -1,5 +1,6 @@
 ## 1.0.1 (unreleased)
 
+  - Fix crashing issue which manifested itself in multi-VM environments.
   - Add missing `rubygems` require in `environment.rb` to avoid
     possible load errors. [GH-781]
   - `vagrant destroy` shows a nice error when called without a
