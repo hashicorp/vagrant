@@ -2,6 +2,7 @@ require 'pathname'
 require 'fileutils'
 
 require 'log4r'
+require 'rubygems'  # This is needed for plugin loading below.
 
 require 'vagrant/util/file_mode'
 require 'vagrant/util/platform'

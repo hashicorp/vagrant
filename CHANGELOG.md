@@ -1,3 +1,8 @@
+## 1.0.1 (unreleased)
+
+  - Add missing `rubygems` require in `environment.rb` to avoid
+    possible load errors. [GH-781]
+
 ## 1.0.0 (March 6, 2012)
 
   - `vagrant gem` should now be used to install Vagrant plugins that are
