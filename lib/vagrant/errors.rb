@@ -323,6 +323,11 @@ module Vagrant
       error_key(:ssh_unavailable_windows)
     end
 
+    class UIExpectsTTY < VagrantError
+      status_code(73)
+      error_key(:ui_expects_tty)
+    end
+
     class VagrantInterrupt < VagrantError
       status_code(40)
       error_key(:interrupted)

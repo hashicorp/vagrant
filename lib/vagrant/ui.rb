@@ -51,6 +51,9 @@ module Vagrant
       def ask(message, opts=nil)
         super(message)
 
+        # We can't ask questions when the output isn't a TTY.
+        raise Errors::UIExpectsTTY if !$stdin.tty?
+
         # Setup the options so that the new line is suppressed
         opts ||= {}
         opts[:new_line] = false if !opts.has_key?(:new_line)
@@ -60,7 +63,7 @@ module Vagrant
         say(:info, message, opts)
 
         # Get the results and chomp off the newline
-        STDIN.gets.chomp
+        $stdin.gets.chomp
       end
 
       # This is used to output progress reports to the UI.
