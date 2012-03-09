@@ -11,6 +11,7 @@
     something other than the current directory.
   - Downloading boxes from servers that don't send a content-length
     now works properly. [GH-788]
+  - The `:facter` option now works for puppet server. [GH-790]
 
 ## 1.0.0 (March 6, 2012)
 

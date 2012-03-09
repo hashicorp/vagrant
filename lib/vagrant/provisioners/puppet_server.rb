@@ -9,7 +9,9 @@ module Vagrant
         attr_accessor :puppet_server
         attr_accessor :puppet_node
         attr_accessor :options
+        attr_accessor :facter
 
+        def facter; @facter ||= {}; end
         def puppet_server; @puppet_server || "puppet"; end
         def options; @options ||= []; end
       end
@@ -53,7 +55,18 @@ module Vagrant
         options += ["--certname", cn] if cn
         options = options.join(" ")
 
-        command = "puppetd #{options} --server #{config.puppet_server}"
+        # Build up the custom facts if we have any
+        facter = ""
+        if !config.facter.empty?
+          facts = []
+          config.facter.each do |key, value|
+            facts << "FACTER_#{key}='#{value}'"
+          end
+
+          facter = "#{facts.join(" ")} "
+        end
+
+        command = "#{facter}puppetd #{options} --server #{config.puppet_server}"
 
         env[:ui].info I18n.t("vagrant.provisioners.puppet_server.running_puppetd")
         env[:vm].channel.sudo(command) do |type, data|
