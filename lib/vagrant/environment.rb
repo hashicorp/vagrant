@@ -59,6 +59,7 @@ module Vagrant
       opts[:cwd] ||= ENV["VAGRANT_CWD"] if ENV.has_key?("VAGRANT_CWD")
       opts[:cwd] ||= Dir.pwd
       opts[:cwd] = Pathname.new(opts[:cwd])
+      raise Errors::EnvironmentNonExistentCWD if !opts[:cwd].directory?
 
       # Set the Vagrantfile name up. We append "Vagrantfile" and "vagrantfile" so that
       # those continue to work as well, but anything custom will take precedence.

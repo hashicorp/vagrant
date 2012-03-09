@@ -173,6 +173,11 @@ module Vagrant
       error_key(:status_error, "vagrant.downloaders.http")
     end
 
+    class EnvironmentNonExistentCWD < VagrantError
+      status_code(75)
+      error_key(:environment_non_existent_cwd)
+    end
+
     class EnvironmentLockedError < VagrantError
       status_code(52)
       error_key(:environment_locked)
