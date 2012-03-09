@@ -78,7 +78,7 @@ module Vagrant
       # to the UI. Send `clear_line` to clear the line to show
       # a continuous progress meter.
       def report_progress(progress, total, show_parts=true)
-        if total and not total == 0
+        if total && total > 0
           percent = (progress.to_f / total.to_f) * 100
           line    = "Progress: #{percent.to_i}%"
           line   << " (#{progress} / #{total})" if show_parts

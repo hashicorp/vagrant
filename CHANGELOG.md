@@ -9,6 +9,8 @@
     not working properly. [GH-778]
   - `VAGRANT_CWD` environmental variable can be used to set the CWD to
     something other than the current directory.
+  - Downloading boxes from servers that don't send a content-length
+    now works properly. [GH-788]
 
 ## 1.0.0 (March 6, 2012)
 
