@@ -20,6 +20,10 @@ describe Vagrant::Environment do
       instance = described_class.new(:cwd => "foobarbaz")
       instance.cwd.should == Pathname.new("foobarbaz")
     end
+
+    it "is set to the environmental variable VAGRANT_CWD" do
+      pending "A good temporary ENV thing"
+    end
   end
 
   describe "home path" do

@@ -56,6 +56,7 @@ module Vagrant
       }.merge(opts || {})
 
       # Set the default working directory to look for the vagrantfile
+      opts[:cwd] ||= ENV["VAGRANT_CWD"] if ENV.has_key?("VAGRANT_CWD")
       opts[:cwd] ||= Dir.pwd
       opts[:cwd] = Pathname.new(opts[:cwd])
 

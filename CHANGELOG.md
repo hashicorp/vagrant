@@ -7,6 +7,8 @@
     TTY (and hence can't confirm). [GH-779]
   - Fix an issue with the `:vagrantfile_name` option to `Vagrant::Environment`
     not working properly. [GH-778]
+  - `VAGRANT_CWD` environmental variable can be used to set the CWD to
+    something other than the current directory.
 
 ## 1.0.0 (March 6, 2012)
 
