@@ -12,6 +12,8 @@
   - Downloading boxes from servers that don't send a content-length
     now works properly. [GH-788]
   - The `:facter` option now works for puppet server. [GH-790]
+  - The `--no-provision` and `--provision-with` flags are available to
+    `vagrant reload` now.
 
 ## 1.0.0 (March 6, 2012)
 

@@ -1,13 +1,18 @@
 require 'optparse'
 
+require 'vagrant/command/start_mixins'
+
 module Vagrant
   module Command
     class Reload < Base
+      include StartMixins
+
       def execute
         options = {}
-
         opts = OptionParser.new do |opts|
           opts.banner = "Usage: vagrant reload [vm-name]"
+          opts.separator ""
+          build_start_options(opts, options)
         end
 
         # Parse the options
@@ -18,7 +23,7 @@ module Vagrant
         with_target_vms(argv[0]) do |vm|
           if vm.created?
             @logger.info("Reloading: #{vm.name}")
-            vm.reload
+            vm.reload(options)
           else
             @logger.info("Not created: #{vm.name}. Not reloading.")
             vm.ui.info I18n.t("vagrant.commands.common.vm_not_created")

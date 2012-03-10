@@ -156,8 +156,8 @@ module Vagrant
       run_action(:halt, options)
     end
 
-    def reload
-      run_action(:reload)
+    def reload(options=nil)
+      run_action(:reload, options)
     end
 
     def provision
