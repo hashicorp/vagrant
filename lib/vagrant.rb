@@ -178,6 +178,7 @@ Vagrant.guests.register(:fedora)  { Vagrant::Guest::Fedora }
 Vagrant.guests.register(:freebsd) { Vagrant::Guest::FreeBSD }
 Vagrant.guests.register(:gentoo)  { Vagrant::Guest::Gentoo }
 Vagrant.guests.register(:linux)   { Vagrant::Guest::Linux }
+Vagrant.guests.register(:openbsd) { Vagrant::Guest::OpenBSD }
 Vagrant.guests.register(:redhat)  { Vagrant::Guest::Redhat }
 Vagrant.guests.register(:solaris) { Vagrant::Guest::Solaris }
 Vagrant.guests.register(:suse)    { Vagrant::Guest::Suse }

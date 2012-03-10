@@ -14,6 +14,7 @@
   - The `:facter` option now works for puppet server. [GH-790]
   - The `--no-provision` and `--provision-with` flags are available to
     `vagrant reload` now.
+  - `:openbsd` guest which supports only halting at the moment. [GH-773]
 
 ## 1.0.0 (March 6, 2012)
 

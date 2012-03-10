@@ -9,6 +9,7 @@ module Vagrant
     autoload :FreeBSD, 'vagrant/guest/freebsd'
     autoload :Gentoo,  'vagrant/guest/gentoo'
     autoload :Linux,   'vagrant/guest/linux'
+    autoload :OpenBSD, 'vagrant/guest/openbsd'
     autoload :Redhat,  'vagrant/guest/redhat'
     autoload :Solaris, 'vagrant/guest/solaris'
     autoload :Suse,    'vagrant/guest/suse'
