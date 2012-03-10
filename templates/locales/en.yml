@@ -283,6 +283,11 @@ en:
         not_created: |-
           The environment has not yet been created. Run `vagrant up` to
           create the environment.
+        paused: |-
+          The VM is paused. This VM may have been paused via the VirtualBox
+          GUI or the VBoxManage command line interface. To unpause, please
+          use the VirtualBox GUI and/or VBoxManage command line interface so
+          that vagrant would be able to control the VM again.
         poweroff: |-
           The VM is powered off. To restart the VM, simply run `vagrant up`
         running: |-
