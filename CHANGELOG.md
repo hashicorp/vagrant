@@ -1,4 +1,4 @@
-## 1.0.1 (unreleased)
+## 1.0.1 (March 11, 2012)
 
   - Fix crashing issue which manifested itself in multi-VM environments.
   - Add missing `rubygems` require in `environment.rb` to avoid
