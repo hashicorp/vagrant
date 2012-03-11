@@ -16,7 +16,7 @@ module Vagrant
 
         state = nil
         results = []
-        with_target_vms(argv[0]) do |vm|
+        with_target_vms(argv) do |vm|
           state = vm.state.to_s if !state
           results << "#{vm.name.to_s.ljust(25)}#{vm.state.to_s.gsub("_", " ")}"
         end

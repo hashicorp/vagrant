@@ -21,7 +21,7 @@ module Vagrant
 
         # Go over each VM and bring it up
         @logger.debug("'Up' each target VM...")
-        with_target_vms(argv[0]) do |vm|
+        with_target_vms(argv) do |vm|
           if vm.created?
             @logger.info("Booting: #{vm.name}")
             vm.ui.info I18n.t("vagrant.commands.up.vm_created")
