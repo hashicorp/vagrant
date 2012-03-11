@@ -59,7 +59,7 @@ end
 ## Script Arguments
 
 You can also pass arguments to the script via the `args` configuration
-parameter. The `args` are expected to be a string that woudl be typed
+parameter. The `args` are expected to be a string that would be typed
 as-is onto the command line, so be sure to escape anything which should
 be escaped. Example:
 
