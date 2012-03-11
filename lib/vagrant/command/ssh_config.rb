@@ -11,7 +11,7 @@ module Vagrant
 
           opts.separator ""
 
-          opts.on("-h", "--host COMMAND", "Name the host for the config..") do |h|
+          opts.on("--host COMMAND", "Name the host for the config..") do |h|
             options[:host] = h
           end
         end

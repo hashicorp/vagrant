@@ -15,6 +15,8 @@
   - The `--no-provision` and `--provision-with` flags are available to
     `vagrant reload` now.
   - `:openbsd` guest which supports only halting at the moment. [GH-773]
+  - `ssh-config -h` now shows help, instead of assuming a host is being
+    specified. For host, you can still use `--host`. [GH-793]
 
 ## 1.0.0 (March 6, 2012)
 
