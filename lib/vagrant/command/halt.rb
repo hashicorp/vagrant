@@ -21,7 +21,7 @@ module Vagrant
         return if !argv
 
         @logger.debug("Halt command: #{argv.inspect} #{options.inspect}")
-        with_target_vms(argv[0]) do |vm|
+        with_target_vms(argv) do |vm|
           if vm.created?
             @logger.info("Halting #{vm.name}")
             vm.halt(:force => options[:force])

@@ -16,7 +16,8 @@ module Vagrant
 
         # Go over each VM and provision!
         @logger.debug("'provision' each target VM...")
-        with_target_vms(argv[0]) do |vm|
+        with_target_vms(argv) do |vm|
+          
           if vm.created?
             if vm.state == :running
               @logger.info("Provisioning: #{vm.name}")

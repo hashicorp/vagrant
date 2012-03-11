@@ -64,7 +64,7 @@ module Vagrant
       # @param [String] name The name of the VM. Nil if every VM.
       # @param [Boolean] single_target If true, then an exception will be
       #   raised if more than one target is found.
-      def with_target_vms(name=nil, options=nil)
+      def with_target_vms(names=nil, options=nil)
         # Using VMs requires a Vagrant environment to be properly setup
         raise Errors::NoEnvironmentError if !@env.root_path
 
@@ -73,28 +73,30 @@ module Vagrant
 
         # First determine the proper array of VMs.
         vms = []
-        if name
-          raise Errors::MultiVMEnvironmentRequired if !@env.multivm?
+        if names.length > 0
+          names.each do |name|
+            raise Errors::MultiVMEnvironmentRequired if !@env.multivm?
 
-          if name =~ /^\/(.+?)\/$/
-            # This is a regular expression name, so we convert to a regular
-            # expression and allow that sort of matching.
-            regex = Regexp.new($1.to_s)
+            if name =~ /^\/(.+?)\/$/
+              # This is a regular expression name, so we convert to a regular
+              # expression and allow that sort of matching.
+              regex = Regexp.new($1.to_s)
 
-            @env.vms.each do |name, vm|
-              vms << vm if name =~ regex
+              @env.vms.each do |name, vm|
+                vms << vm if name =~ regex
+              end
+
+              raise Errors::VMNoMatchError if vms.empty?
+            else
+              # String name, just look for a specific VM
+              vms << @env.vms[name.to_sym]
+              raise Errors::VMNotFoundError, :name => name if !vms[0]
             end
-
-            raise Errors::VMNoMatchError if vms.empty?
-          else
-            # String name, just look for a specific VM
-            vms << @env.vms[name.to_sym]
-            raise Errors::VMNotFoundError, :name => name if !vms[0]
           end
         else
           vms = @env.vms_ordered
         end
-
+  
         # Make sure we're only working with one VM if single target
         raise Errors::MultiVMTargetRequired if options[:single_target] && vms.length != 1
 

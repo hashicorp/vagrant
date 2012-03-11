@@ -15,7 +15,7 @@ module Vagrant
         return if !argv
 
         @logger.debug("'resume' each target VM...")
-        with_target_vms(argv[0]) do |vm|
+        with_target_vms(argv) do |vm|
           if vm.created?
             @logger.info("Resume: #{vm.name}")
             vm.resume

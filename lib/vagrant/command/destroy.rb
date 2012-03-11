@@ -20,7 +20,7 @@ module Vagrant
         return if !argv
 
         @logger.debug("'Destroy' each target VM...")
-        with_target_vms(argv[0], :reverse => true) do |vm|
+        with_target_vms(argv, :reverse => true) do |vm|
           if vm.created?
             # Boolean whether we should actually go through with the destroy
             # or not. This is true only if the "--force" flag is set or if the
