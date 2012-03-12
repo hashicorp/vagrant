@@ -1,5 +1,9 @@
 ## 1.0.1 (March 11, 2012)
 
+  - Installers are now bundled with Ruby 1.9.3p125. Previously they were
+    bundled with 1.9.3p0. This actually fixes some IO issues with Windows.
+  - Windows installer now outputs a `vagrant` binary that will work in msys
+    or Cygwin environments.
   - Fix crashing issue which manifested itself in multi-VM environments.
   - Add missing `rubygems` require in `environment.rb` to avoid
     possible load errors. [GH-781]
