@@ -22,14 +22,9 @@ module Vagrant
       @box    = env.boxes.find(config.vm.box)
 
       opts ||= {}
-      if opts[:base]
-        # The name is the ID we use.
-        @uuid = name
-      else
-        # Load the UUID if its saved.
-        active = env.local_data[:active] || {}
-        @uuid = active[@name.to_s]
-      end
+      # Load the UUID if its saved.
+      active = env.local_data[:active] || {}
+      @uuid = active[@name.to_s]
 
       # Reload ourselves to get the state
       reload!
