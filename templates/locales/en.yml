@@ -124,6 +124,10 @@ en:
         permissions on the following file to 0600 and then try running this command again:
 
         %{key_path}
+      ssh_key_type_not_supported: |-
+        The private key you're attempting to use with this Vagrant box uses
+        an unsupported encryption type. The SSH library Vagrant uses does not support
+        this key type. Please use `ssh-rsa` or `ssh-dss` instead.
       ssh_port_not_detected: |-
         Vagrant couldn't determine the SSH port for your VM! Vagrant attempts to
         automatically find a forwarded port that matches your `config.ssh.guest_port`

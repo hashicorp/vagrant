@@ -129,10 +129,24 @@ module Vagrant
         @vm.ssh.check_key_permissions(ssh_info[:private_key_path])
 
         # Connect to SSH, giving it a few tries
-        @logger.info("Connecting to SSH: #{ssh_info[:host]}:#{ssh_info[:port]}")
-        exceptions = [Errno::ECONNREFUSED, Net::SSH::Disconnect]
-        connection = retryable(:tries => @vm.config.ssh.max_tries, :on => exceptions) do
-          Net::SSH.start(ssh_info[:host], ssh_info[:username], opts)
+        connection = nil
+        begin
+          @logger.info("Connecting to SSH: #{ssh_info[:host]}:#{ssh_info[:port]}")
+          exceptions = [Errno::ECONNREFUSED, Net::SSH::Disconnect]
+          connection = retryable(:tries => @vm.config.ssh.max_tries, :on => exceptions) do
+            Net::SSH.start(ssh_info[:host], ssh_info[:username], opts)
+          end
+        rescue Net::SSH::AuthenticationFailed
+          # This happens if authentication failed. We wrap the error in our
+          # own exception.
+          raise Errors::SSHAuthenticationFailed
+        rescue Errno::ECONNREFUSED
+          # This is raised if we failed to connect the max amount of times
+          raise Errors::SSHConnectionRefused
+        rescue NotImplementedError
+          # This is raised if a private key type that Net-SSH doesn't support
+          # is used. Show a nicer error.
+          raise Errors::SSHKeyTypeNotSupported
         end
 
         @connection = connection
@@ -145,14 +159,7 @@ module Vagrant
         # Yield the connection that is ready to be used and
         # return the value of the block
         return yield connection if block_given?
-      rescue Net::SSH::AuthenticationFailed
-        # This happens if authentication failed. We wrap the error in our
-        # own exception.
-        raise Errors::SSHAuthenticationFailed
-      rescue Errno::ECONNREFUSED
-        # This is raised if we failed to connect the max amount of times
-        raise Errors::SSHConnectionRefused
-      end
+     end
 
       # Executes the command on an SSH connection within a login shell.
       def shell_execute(connection, command, sudo=false)

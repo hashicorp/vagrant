@@ -2,6 +2,7 @@
 
   - Provisioners will still mount folders and such if `--no-provision` is
     used, so that `vagrant provision` works. [GH-803]
+  - Nicer error message if an unsupported SSH key type is used. [GH-805]
 
 ## 1.0.1 (March 11, 2012)
 

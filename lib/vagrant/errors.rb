@@ -318,6 +318,11 @@ module Vagrant
       error_key(:ssh_key_bad_permissions)
     end
 
+    class SSHKeyTypeNotSupported < VagrantError
+      status_code(76)
+      error_key(:ssh_key_type_not_supported)
+    end
+
     class SSHPortNotDetected < VagrantError
       status_code(50)
       error_key(:ssh_port_not_detected)
