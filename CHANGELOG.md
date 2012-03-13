@@ -1,3 +1,8 @@
+## 1.0.2 (unreleased)
+
+  - Provisioners will still mount folders and such if `--no-provision` is
+    used, so that `vagrant provision` works. [GH-803]
+
 ## 1.0.1 (March 11, 2012)
 
   - Installers are now bundled with Ruby 1.9.3p125. Previously they were
