@@ -6,6 +6,8 @@ cookbook_path <%= cookbooks_path.inspect %>
 role_path <%= roles_path.inspect %>
 log_level <%= log_level.inspect %>
 
+encrypted_data_bag_secret "<%= encrypted_data_bag_secret %>"
+
 <% if data_bags_path -%>
 data_bag_path <%= data_bags_path.inspect %>
 <% end %>
