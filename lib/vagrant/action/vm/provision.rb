@@ -19,12 +19,10 @@ module Vagrant
           # We set this here so that even if this value is changed in the future,
           # it stays constant to what we expect here in this moment.
           enabled = env["provision.enabled"]
-          if enabled
-            # Instantiate and prepare the provisioners. Preparation must happen here
-            # so that shared folders and such can properly take effect.
-            provisioners = enabled_provisioners
-            provisioners.map { |p| p.prepare }
-          end
+          # Instantiate and prepare the provisioners. Preparation must happen here
+          # so that shared folders and such can properly take effect.
+          provisioners = enabled_provisioners
+          provisioners.map { |p| p.prepare }
 
           @app.call(env)
 
