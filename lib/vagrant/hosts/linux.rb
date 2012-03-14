@@ -63,9 +63,9 @@ module Vagrant
         output = false
 
         File.read("/etc/exports").lines.each do |line|
-          if line =~ /^# VAGRANT-BEGIN: (.+?)$/
-            if valid_ids.include?($1.to_s)
-              @logger.debug("Valid ID: #{$1.to_s}")
+          if id = line[/^# VAGRANT-BEGIN: (.+?)$/, 1]
+            if valid_ids.include?(id)
+              @logger.debug("Valid ID: #{id}")
             else
               if !output
                 # We want to warn the user but we only want to output once
@@ -73,8 +73,8 @@ module Vagrant
                 output = true
               end
 
-              @logger.info("Invalid ID, pruning: #{$1.to_s}")
-              nfs_cleanup($1.to_s)
+              @logger.info("Invalid ID, pruning: #{id}")
+              nfs_cleanup(id)
             end
           end
         end

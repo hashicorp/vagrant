@@ -33,7 +33,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rspec-mocks", "~> 2.8.0"
 
   s.files         = `git ls-files`.split("\n")
-  s.executables   = `git ls-files`.split("\n").map{|f| f =~ /^bin\/(.*)/ ? $1 : nil}.compact
+  s.executables   = `git ls-files`.split("\n").map{|f| f[/^bin\/(.*)/, 1]}.compact
   s.require_path  = 'lib'
 end
 
