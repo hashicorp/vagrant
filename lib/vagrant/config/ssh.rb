@@ -18,7 +18,7 @@ module Vagrant
           errors.add(I18n.t("vagrant.config.common.error_empty", :field => field)) if !instance_variable_get("@#{field}".to_sym)
         end
 
-        if private_key_path && !File.file?(private_key_path)
+        if private_key_path && !File.file?(File.expand_path(private_key_path))
           errors.add(I18n.t("vagrant.config.ssh.private_key_missing", :path => private_key_path))
         end
       end
