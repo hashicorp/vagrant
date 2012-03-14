@@ -81,10 +81,10 @@ module Vagrant
           names.each do |name|
             raise Errors::MultiVMEnvironmentRequired if !@env.multivm?
 
-            if name =~ /^\/(.+?)\/$/
+            if pattern = name[/^\/(.+?)\/$/, 1]
               # This is a regular expression name, so we convert to a regular
               # expression and allow that sort of matching.
-              regex = Regexp.new($1.to_s)
+              regex = Regexp.new(pattern)
 
               @env.vms.each do |name, vm|
                 vms << vm if name =~ regex
