@@ -4,6 +4,8 @@
     used, so that `vagrant provision` works. [GH-803]
   - Nicer error message if an unsupported SSH key type is used. [GH-805]
   - Gentoo guests can now have their host names changed. [GH-796]
+  - Relative paths can be used for the `config.ssh.private_key_path`
+    setting. [GH-808]
 
 ## 1.0.1 (March 11, 2012)
 
