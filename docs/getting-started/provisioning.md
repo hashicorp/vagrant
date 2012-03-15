@@ -70,7 +70,7 @@ The manifest file will contain the required Puppet configuration, for example:
 {% highlight ruby %}
 # Basic Puppet Apache manifest
 
-class default {
+class apache {
   exec { 'apt-get update':
     command => '/usr/bin/apt-get update'
   }
@@ -85,7 +85,7 @@ class default {
   }
 }
 
-include default
+include apache
 {% endhighlight %}
 
 We then add support in the Vagrantfile to support Puppet provisioning:
