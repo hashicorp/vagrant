@@ -10,10 +10,22 @@ module Vagrant
         attr_accessor :puppet_node
         attr_accessor :options
         attr_accessor :facter
+        attr_accessor :client_certificate
+        attr_accessor :client_private_key
 
         def facter; @facter ||= {}; end
         def puppet_server; @puppet_server || "puppet"; end
         def options; @options ||= []; end
+
+        def validate(env, errors)
+          if (client_private_key && !client_certificate) ||
+            (!client_private_key && client_certificate)
+            errors.add(I18n.t("vagrant.provisioners.puppet_server.cert_and_key"))
+          end
+          if (client_private_key || client_certificate) && !puppet_node
+            errors.add(I18n.t("vagrant.provisioners.puppet_server.cert_requires_node"))
+          end
+        end
       end
 
       def self.config_class
@@ -22,6 +34,7 @@ module Vagrant
 
       def provision!
         verify_binary("puppetd")
+        setup_ssl
         run_puppetd_client
       end
 
@@ -30,6 +43,36 @@ module Vagrant
                               :error_class => PuppetServerError,
                               :error_key => :not_detected,
                               :binary => binary)
+      end
+
+      def with_pem_file(name)
+        file = Tempfile.new(name.to_s)
+        begin
+          file.write(config.send(name).gsub(/^ */m, ''))
+          file.fsync
+          yield file.path
+        ensure
+          file.close
+          file.unlink
+        end
+      end
+
+      def setup_ssl
+        if config.client_certificate && config.client_private_key
+          cn = config.puppet_node
+
+          # will fail but creates the /var/lib/puppet/ssl directory tree
+          env[:vm].channel.sudo("puppet agent --certname #{cn} --test; true")
+
+          with_pem_file :client_certificate do |path|
+            env[:vm].channel.upload(path.to_s, "/tmp/#{cn}.pem")
+            env[:vm].channel.sudo("mv /tmp/#{cn}.pem /var/lib/puppet/ssl/certs/#{cn}.pem")
+          end
+          with_pem_file :client_private_key do |path|
+            env[:vm].channel.upload(path.to_s, "/tmp/#{cn}.pem")
+            env[:vm].channel.sudo("mv /tmp/#{cn}.pem /var/lib/puppet/ssl/private_keys/#{cn}.pem")
+          end
+        end
       end
 
       def run_puppetd_client

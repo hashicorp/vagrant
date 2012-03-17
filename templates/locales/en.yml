@@ -676,6 +676,12 @@ en:
           installed on this guest. Puppet provisioning can not continue without
           Puppet properly installed.
         running_puppetd: "Running Puppet agent..."
+        cert_requires_node: |-
+          Certificate and private key provisioning require `config.puppet_server.puppet_node` to
+          be set.
+        cert_and_key: |-
+          Both `config.puppet_server.client_certificate` and
+          `config.puppet_server.client_private_key` need to be defined or none should be.
 
       shell:
         args_not_string: "Shell provisioner `args` must be a string."
