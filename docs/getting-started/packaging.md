@@ -48,9 +48,14 @@ $ vagrant package --vagrantfile Vagrantfile.pkg
 {% endhighlight %}
 
 `vagrant package` takes the virtual environment from the current project
-and packages it into a `package.box` file in the same directory. The additional
-options tell it to include the newly created Vagrantfile with it, so that
-users of the box will already have port forwarding setup.
+and packages it into a `package.box` file in the same directory. The
+`--vagrantfile` option tells `vagrant package` to include the port
+forwarding lines in `Vagrantfile.pkg` inside the box, so that VMs
+created using the box will automatically have port forwarding configured
+for them, without the user having to edit their VM's `Vagrantfile`
+(Boxes have their own `Vagrantfile` -- for more details on how this
+works, see the [documentation for
+Vagrantfiles](http://vagrantup.com/docs/vagrantfile.html)).
 
 ## Distributing the Box
 
