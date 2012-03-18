@@ -59,9 +59,9 @@ to make sure that no static IPs will collide with other virtual machines.
 
 By default, Vagrant uses a netmask of `255.255.255.0`. This means that
 as long as the first three parts of the IP are equivalent, VMs will join
-the same network. So if two VMs are created with IPs `33.33.33.10` and
-`33.33.33.11`, they will be networked together. However, if a VM is
-created with an IP of `33.33.34.10`, it will be on a separate network
+the same network. So if two VMs are created with IPs `10.11.12.13` and
+`10.11.12.14`, they will be networked together. However, if a VM is
+created with an IP of `10.11.20.21`, it will be on a separate network
 and will not be able to communicate with the other VMs.
 
 A custom netmask can also be used, although a netmask of `255.255.255.0`
@@ -70,7 +70,7 @@ is shown below:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.vm.network :hostonly, "33.33.34.10", :netmask => "255.255.0.0"
+  config.vm.network :hostonly, "10.11.12.13", :netmask => "255.255.0.0"
 end
 {% endhighlight %}
 

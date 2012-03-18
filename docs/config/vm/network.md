@@ -21,12 +21,12 @@ Host only neworks can be defined by providing only a simple IP:
 {% highlight ruby %}
 Vagrant::Config.run do |config|
   # ...
-  config.vm.network :hostonly, "33.33.33.10"
+  config.vm.network :hostonly, "10.11.12.13"
 end
 {% endhighlight %}
 
 This will configure a host only network on the virtual machine
-that is assigned a static IP of "33.33.33.10."
+that is assigned a static IP of "10.11.12.13."
 
 Other options are available for host only networks and may be
 passed in as an options hash for the 3rd parameter. The available
