@@ -1,5 +1,7 @@
 require "log4r"
 
+require "vagrant/util/safe_puts"
+
 module Vagrant
   module UI
     # Vagrant UIs handle communication with the outside world (typically
@@ -43,6 +45,8 @@ module Vagrant
     # This is a UI implementation that outputs the text as is. It
     # doesn't add any color.
     class Basic < Interface
+      include Util::SafePuts
+
       # Use some light meta-programming to create the various methods to
       # output text to the UI. These all delegate the real functionality
       # to `say`.
@@ -112,7 +116,8 @@ module Vagrant
         channel = type == :error || opts[:channel] == :error ? $stderr : $stdout
 
         # Output!
-        channel.send(printer, format_message(type, message, opts))
+        safe_puts(format_message(type, message, opts),
+                  :io => channel, :printer => printer)
       end
 
       # This is called by `say` to format the message for output.

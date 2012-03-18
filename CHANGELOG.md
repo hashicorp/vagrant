@@ -8,6 +8,7 @@
     setting. [GH-808]
   - `vagrant ssh` now works on Solaris, where `IdentitiesOnly` was not
     an available option. [GH-820]
+  - Output works properly in the face of broken pipes. [GH-819]
 
 ## 1.0.1 (March 11, 2012)
 

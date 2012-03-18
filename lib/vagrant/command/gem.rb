@@ -1,9 +1,13 @@
 require "rubygems"
 require "rubygems/gem_runner"
 
+require "vagrant/util/safe_puts"
+
 module Vagrant
   module Command
     class Gem < Base
+      include Util::SafePuts
+
       def execute
         # Bundler sets up its own custom gem load paths such that our
         # own gems are never loaded. Therefore, give an error if a user
@@ -20,7 +24,7 @@ module Vagrant
         if @argv.empty? || @argv.include?("-h") || @argv.include?("--help")
           @env.ui.info(I18n.t("vagrant.commands.gem.help_preamble"),
                        :prefix => false)
-          puts
+          safe_puts
         end
 
         # We just proxy the arguments onto a real RubyGems command

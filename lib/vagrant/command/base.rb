@@ -1,5 +1,7 @@
 require 'log4r'
 
+require "vagrant/util/safe_puts"
+
 module Vagrant
   module Command
     # Base class for any CLI commands.
@@ -7,6 +9,8 @@ module Vagrant
     # This class provides documentation on the interface as well as helper
     # functions that a command has.
     class Base
+      include Util::SafePuts
+
       def initialize(argv, env)
         @argv = argv
         @env  = env
@@ -41,7 +45,7 @@ module Vagrant
 
         # Add the help option, which must be on every command.
         opts.on_tail("-h", "--help", "Print this help") do
-          puts opts.help
+          safe_puts(opts.help)
           return nil
         end
 

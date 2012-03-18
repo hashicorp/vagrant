@@ -1,8 +1,12 @@
 require 'optparse'
 
+require "vagrant/util/safe_puts"
+
 module Vagrant
   module Command
     class SSHConfig < Base
+      include Util::SafePuts
+
       def execute
         options = {}
 
@@ -36,7 +40,7 @@ module Vagrant
 
           # Render the template and output directly to STDOUT
           template = "commands/ssh_config/config"
-          $stdout.puts(Util::TemplateRenderer.render(template, variables))
+          safe_puts(Util::TemplateRenderer.render(template, variables))
         end
       end
     end
