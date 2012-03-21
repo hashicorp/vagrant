@@ -53,8 +53,9 @@ module Vagrant
 
       def mount_nfs(ip, folders)
         folders.each do |name, opts|
+          readonly = opts[:readonly] ? '-r' : ''
           vm.channel.sudo("mkdir -p #{opts[:guestpath]}")
-          vm.channel.sudo("mount #{ip}:#{opts[:hostpath]} #{opts[:guestpath]}")
+          vm.channel.sudo("mount #{readonly} #{ip}:#{opts[:hostpath]} #{opts[:guestpath]}")
         end
       end
 

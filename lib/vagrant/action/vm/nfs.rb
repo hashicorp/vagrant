@@ -88,18 +88,20 @@ module Vagrant
         # Prepares the settings for the NFS folders, such as setting the
         # options on the NFS folders.
         def prepare_folders
+          rdonly = @env[:vm].config.nfs.readonly
+
           @folders = @folders.inject({}) do |acc, data|
             key, opts = data
             opts[:map_uid] = prepare_permission(:uid, opts)
             opts[:map_gid] = prepare_permission(:gid, opts)
             opts[:nfs_version] ||= 3
+            opts[:readonly] = opts.has_key?(:readonly) ? opts[:readonly] : rdonly
 
             # The poor man's UUID. An MD5 hash here is sufficient since
             # we need a 32 character "uuid" to represent the filesystem
             # of an export. Hashing the host path is safe because two of
             # the same host path will hash to the same fsid.
             opts[:uuid]    = Digest::MD5.hexdigest(opts[:hostpath])
-
             acc[key] = opts
             acc
           end
