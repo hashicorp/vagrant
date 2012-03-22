@@ -46,6 +46,7 @@ module Vagrant
             use VM::HostName
             use VM::ClearNetworkInterfaces
             use VM::Network
+            use VM::SaneDefaults
             use VM::Customize
             use VM::Boot
           end

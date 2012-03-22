@@ -54,6 +54,7 @@ module Vagrant
       autoload :ProvisionerCleanup,  'vagrant/action/vm/provisioner_cleanup'
       autoload :PruneNFSExports,     'vagrant/action/vm/prune_nfs_exports'
       autoload :Resume,              'vagrant/action/vm/resume'
+      autoload :SaneDefaults,        'vagrant/action/vm/sane_defaults'
       autoload :ShareFolders,        'vagrant/action/vm/share_folders'
       autoload :SetupPackageFiles,   'vagrant/action/vm/setup_package_files'
       autoload :Suspend,             'vagrant/action/vm/suspend'
