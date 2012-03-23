@@ -71,6 +71,10 @@ module Vagrant
         # Setup the options hash
         options ||= {}
 
+        # Require that names be an array
+        names ||= []
+        names = [names] if !names.is_a?(Array)
+
         # First determine the proper array of VMs.
         vms = []
         if names.length > 0
@@ -96,7 +100,7 @@ module Vagrant
         else
           vms = @env.vms_ordered
         end
-  
+
         # Make sure we're only working with one VM if single target
         raise Errors::MultiVMTargetRequired if options[:single_target] && vms.length != 1
 
