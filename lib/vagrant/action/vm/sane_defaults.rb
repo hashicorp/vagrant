@@ -21,6 +21,14 @@ module Vagrant
           ]
           env[:vm].driver.execute_command(command)
 
+          # Enable the DNS proxy while in NAT mode.  This shields the guest
+          # VM from external DNS changs on the host machine.
+          command = [
+            "modifyvm", env[:vm].uuid,
+            "--natdnsproxy1", "on"
+          ]
+          env[:vm].driver.execute_command(command)
+
           @app.call(env)
         end
       end
