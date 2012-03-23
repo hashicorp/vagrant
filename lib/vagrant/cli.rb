@@ -34,8 +34,10 @@ module Vagrant
       return help if !command_class || !@sub_command
       @logger.debug("Invoking command class: #{command_class} #{@sub_args.inspect}")
 
-      # Initialize and execute the command class.
-      command_class.new(@sub_args, @env).execute
+      # Initialize and execute the command class, returning the exit status.
+      result = command_class.new(@sub_args, @env).execute
+      result = 0 if !result.is_a?(Fixnum)
+      return result
     end
 
     # This prints out the help for the CLI.

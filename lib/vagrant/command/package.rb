@@ -39,7 +39,10 @@ module Vagrant
         else
           package_target(argv[0], options)
         end
-      end
+
+        # Success, exit status 0
+        0
+       end
 
       protected
 

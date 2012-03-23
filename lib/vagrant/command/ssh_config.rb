@@ -42,7 +42,10 @@ module Vagrant
           template = "commands/ssh_config/config"
           safe_puts(Util::TemplateRenderer.render(template, variables))
         end
-      end
+
+        # Success, exit status 0
+        0
+       end
     end
   end
 end

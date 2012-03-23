@@ -27,7 +27,10 @@ module Vagrant
                             :states => results.join("\n"),
                             :message => I18n.t("vagrant.commands.status.#{state}")),
                      :prefix => false)
-      end
+
+        # Success, exit status 0
+        0
+       end
     end
   end
 end

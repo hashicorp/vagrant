@@ -31,7 +31,10 @@ module Vagrant
 
         @env.ui.info(I18n.t("vagrant.commands.init.success"),
                      :prefix => false)
-      end
+
+        # Success, exit status 0
+        0
+       end
     end
   end
 end

@@ -53,7 +53,10 @@ module Vagrant
             ssh_connect(vm, opts)
           end
         end
-      end
+
+        # Success, exit status 0
+        0
+       end
 
       protected
 

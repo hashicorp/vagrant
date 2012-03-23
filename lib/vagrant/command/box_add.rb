@@ -28,6 +28,9 @@ module Vagrant
         end
 
         @env.boxes.add(argv[0], argv[1])
+
+        # Success, exit status 0
+        0
       end
     end
   end

@@ -18,7 +18,10 @@ module Vagrant
         b = @env.boxes.find(argv[0])
         raise Errors::BoxNotFound, :name => argv[0] if !b
         b.destroy
-      end
+
+        # Success, exit status 0
+        0
+       end
     end
   end
 end

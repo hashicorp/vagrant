@@ -29,7 +29,10 @@ module Vagrant
             vm.ui.info I18n.t("vagrant.commands.common.vm_not_created")
           end
         end
-      end
+
+        # Success, exit status 0
+        0
+       end
     end
   end
 end

@@ -31,7 +31,10 @@ module Vagrant
             vm.up(options)
           end
         end
-      end
+
+        # Success, exit status 0
+        0
+       end
     end
   end
 end

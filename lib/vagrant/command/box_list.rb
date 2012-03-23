@@ -19,7 +19,10 @@ module Vagrant
           return @env.ui.warn(I18n.t("vagrant.commands.box.no_installed_boxes"), :prefix => false)
         end
         boxes.each { |b| @env.ui.info(b.name, :prefix => false) }
-      end
+
+        # Success, exit status 0
+        0
+       end
     end
   end
 end
