@@ -53,7 +53,7 @@ which is why `env["ui"]` can be accessed on the hash.
 ## Running a Middleware
 
 Once the middleware is built, it can be run on the environment using the
-`env.actions` object. An example is shown below, which assumes that the
+`env.action_runner` object. An example is shown below, which assumes that the
 Vagrant environment object is already loaded into `env`:
 
 {% highlight ruby %}
