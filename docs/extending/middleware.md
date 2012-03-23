@@ -88,14 +88,14 @@ say_hello = Vagrant::Action::Builder.new do
   use SayHelloMiddleware
 end
 
-Vagrant::Action.register :say_hello, say_hello
+Vagrant.actions.register :say_hello, say_hello
 {% endhighlight %}
 
 First, we use `Vagrant::Action::Builder` to build up a sequence of
 middlewares. The `use` method adds that middleware class to the
 sequence.
 
-Then, by calling `Vagrant::Action.register`, the builder instance is
+Then, by calling `Vagrant.actions.register`, the builder instance is
 registered under the name `:say_hello`.
 
 Finally, running this stack is equally easy:
