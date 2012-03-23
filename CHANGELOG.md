@@ -15,6 +15,8 @@
     working when you switch networks. [GH-834]
   - Checking for port forwarding collisions also checks for other applications
     that are potentially listening on that port as well. [GH-821]
+  - Multiple VM names can be specified for the various commands now. For
+    example: `vagrant up web db service`. [GH-795]
 
 ## 1.0.1 (March 11, 2012)
 
