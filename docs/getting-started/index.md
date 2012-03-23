@@ -19,7 +19,7 @@ so other developers can get up and running in just a couple commands.
 ## Get VirtualBox
 
 Vagrant depends on [Oracle's VirtualBox](http://www.virtualbox.org) to create all of
-it's virtual environments. VirtualBox is a general-purpose full virtualizer for
+its virtual environments. VirtualBox is a general-purpose full virtualizer for
 x86 hardware. Targeted at server, desktop and embedded use, it is a
 professional-quality virtualization solution that is also open source software.
 VirtualBox runs on **Windows**, **Mac OS X**, **Linux**, and **Solaris**.
@@ -49,7 +49,7 @@ $ vagrant up
 </pre>
 
 While the rest of the getting started guide will focus on explaining how to
-build a fully functional virtual machine to serve rails applications, you
+build a fully functional virtual machine to serve Rails applications, you
 should get used to the above snippet of code. After the initial setup of
 any Vagrant environment, the above is all any developer will need to create
 their development environment! Note that the above snippet does actually
