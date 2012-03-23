@@ -100,7 +100,7 @@ module Vagrant
         else
           vms = @env.vms_ordered
         end
-
+  
         # Make sure we're only working with one VM if single target
         raise Errors::MultiVMTargetRequired if options[:single_target] && vms.length != 1
 
