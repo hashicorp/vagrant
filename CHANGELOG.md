@@ -13,6 +13,8 @@
   - Chef-solo provisioner now supports encrypted data bags. [GH-816]
   - Enable the NAT DNS proxy by default, allowing your DNS to continue
     working when you switch networks. [GH-834]
+  - Checking for port forwarding collisions also checks for other applications
+    that are potentially listening on that port as well. [GH-821]
 
 ## 1.0.1 (March 11, 2012)
 
