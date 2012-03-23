@@ -52,9 +52,8 @@ module Vagrant
 
         # Start the process
         begin
-          Dir.chdir(workdir) do
-            process.start
-          end
+          Dir.chdir(workdir) if File.expand_path(workdir) != Dir.pwd
+          process.start
         rescue ChildProcess::LaunchError
           # Raise our own version of the error so that users of the class
           # don't need to be aware of ChildProcess
