@@ -15,6 +15,10 @@ module Vagrant
         attr_accessor :data_bags_path
         attr_accessor :recipe_url
         attr_accessor :nfs
+        attr_accessor :encrypted_data_bag_secret_key_path
+        attr_accessor :encrypted_data_bag_secret
+
+        def encrypted_data_bag_secret; @encrypted_data_bag_secret || "/tmp/encrypted_data_bag_secret"; end
 
         def initialize
           super
@@ -86,6 +90,7 @@ module Vagrant
 
         verify_binary(chef_binary_path("chef-solo"))
         chown_provisioning_folder
+        upload_encrypted_data_bag_secret if config.encrypted_data_bag_secret_key_path
         setup_json
         setup_solo_config
         run_chef_solo
@@ -155,6 +160,12 @@ module Vagrant
         end
       end
 
+      def upload_encrypted_data_bag_secret
+        env[:ui].info I18n.t("vagrant.provisioners.chef.upload_encrypted_data_bag_secret_key")
+        env[:vm].channel.upload(encrypted_data_bag_secret_key_path,
+                                config.encrypted_data_bag_secret)
+      end
+
       def setup_solo_config
         cookbooks_path = guest_paths(@cookbook_folders)
         roles_path = guest_paths(@role_folders).first
@@ -167,6 +178,7 @@ module Vagrant
           :recipe_url => config.recipe_url,
           :roles_path => roles_path,
           :data_bags_path => data_bags_path,
+          :encrypted_data_bag_secret => config.encrypted_data_bag_secret,
         })
       end
 
@@ -205,6 +217,10 @@ module Vagrant
             raise ChefError, :missing_shared_folders
           end
         end
+      end
+
+      def encrypted_data_bag_secret_key_path
+        File.expand_path(config.encrypted_data_bag_secret_key_path, env[:root_path])
       end
 
       protected
