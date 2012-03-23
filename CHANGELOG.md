@@ -10,6 +10,7 @@
     an available option. [GH-820]
   - Output works properly in the face of broken pipes. [GH-819]
   - Enable Host IO Cache on the SATA controller by default.
+  - Chef-solo provisioner now supports encrypted data bags. [GH-816]
 
 ## 1.0.1 (March 11, 2012)
 
