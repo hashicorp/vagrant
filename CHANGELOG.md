@@ -1,4 +1,4 @@
-## 1.0.2 (unreleased)
+## 1.0.2 (March 25, 2012)
 
   - Provisioners will still mount folders and such if `--no-provision` is
     used, so that `vagrant provision` works. [GH-803]
