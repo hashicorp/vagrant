@@ -331,6 +331,11 @@ en:
           failed_to_boot: |-
             Failed to connect to VM via SSH. Please verify the VM successfully booted
             by looking at the VirtualBox GUI.
+          failed_to_run: |-
+            The VM failed to remain in the "running" state while attempting to boot.
+            This is normally caused by a misconfiguration or host system incompatibilities.
+            Please open the VirtualBox GUI and attempt to boot the virtual machine
+            manually to get a more informative error message.
         bridged_networking:
           available: |-
             Available bridged network interfaces:

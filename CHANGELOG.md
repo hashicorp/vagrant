@@ -17,6 +17,8 @@
     that are potentially listening on that port as well. [GH-821]
   - Multiple VM names can be specified for the various commands now. For
     example: `vagrant up web db service`. [GH-795]
+  - More robust error handling if a VM fails to boot. The error message
+    is much clearer now. [GH-825]
 
 ## 1.0.1 (March 11, 2012)
 

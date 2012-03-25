@@ -393,6 +393,11 @@ module Vagrant
       error_key(:failed_to_boot, "vagrant.actions.vm.boot")
     end
 
+    class VMFailedToRun < VagrantError
+      status_code(77)
+      error_key(:failed_to_run, "vagrant.actions.vm.boot")
+    end
+
     class VMGuestError < VagrantError
       status_code(39)
       error_namespace("vagrant.errors.guest")
