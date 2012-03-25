@@ -21,17 +21,21 @@ module Vagrant
                             :version => Vagrant::VERSION),
                      :prefix => false)
 
-        return
+        return 0
       elsif @main_args.include?("-h") || @main_args.include?("--help")
         # Help is next in short-circuiting everything. Print
         # the help and exit.
-        return help
+        help
+        return 0
       end
 
       # If we reached this far then we must have a subcommand. If not,
       # then we also just print the help and exit.
       command_class = Vagrant.commands.get(@sub_command.to_sym) if @sub_command
-      return help if !command_class || !@sub_command
+      if !command_class || !@sub_command
+        help
+        return 0
+      end
       @logger.debug("Invoking command class: #{command_class} #{@sub_args.inspect}")
 
       # Initialize and execute the command class, returning the exit status.
