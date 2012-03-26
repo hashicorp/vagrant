@@ -219,7 +219,7 @@ module Vagrant
           end
 
           # Parse out the forwarded port information
-          if matcher = line =~ /^Forwarding.+?="(.+?),.+?,.*?,(.+?),.*?,(.+?)"$/
+          if matcher = /^Forwarding.+?="(.+?),.+?,.*?,(.+?),.*?,(.+?)"$/.match(line)
             result = [current_nic, matcher[1], matcher[2].to_i, matcher[3].to_i]
             @logger.debug("  - #{result.inspect}")
             results << result
@@ -331,19 +331,19 @@ module Vagrant
         nics = {}
         info = execute("showvminfo", @uuid, "--machinereadable", :retryable => true)
         info.split("\n").each do |line|
-          if matcher = line =~ /^nic(\d+)="(.+?)"$/
+          if matcher = /^nic(\d+)="(.+?)"$/.match(line)
             adapter = matcher[1].to_i
             type    = matcher[2].to_sym
 
             nics[adapter] ||= {}
             nics[adapter][:type] = type
-          elsif matcher = line =~ /^hostonlyadapter(\d+)="(.+?)"$/
+          elsif matcher = /^hostonlyadapter(\d+)="(.+?)"$/.match(line)
             adapter = matcher[1].to_i
             network = matcher[2].to_s
 
             nics[adapter] ||= {}
             nics[adapter][:hostonly] = network
-          elsif matcher = line =~ /^bridgeadapter(\d+)="(.+?)"$/
+          elsif matcher = /^bridgeadapter(\d+)="(.+?)"$/.match(line)
             adapter = matcher[1].to_i
             network = matcher[2].to_s
 
