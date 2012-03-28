@@ -37,7 +37,7 @@ will be available at `/foo/bar/hello.html`. Simple!
 If instead of modifying specific page content you're modifying
 a part of the layout (a part of the page that is consistent
 across multiple pages, like the navigation bar on the top),
-then you'll probably need to modify HTMl directly.
+then you'll probably need to modify HTML directly.
 
 The layouts are available in the `_layouts` directory, and
 the exact layout for a page can be found by reading the
