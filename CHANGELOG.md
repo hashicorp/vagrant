@@ -1,6 +1,6 @@
 ## 1.1.0 (unreleased)
 
-
+  - Improve the SSH "ready?" check. [GH-841]
 
 ## 1.0.2 (March 25, 2012)
 

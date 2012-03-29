@@ -117,6 +117,11 @@ en:
         If that doesn't work, destroy your VM and recreate it with a `vagrant destroy`
         followed by a `vagrant up`. If that doesn't work, contact a Vagrant
         maintainer (support channels listed on the website) for more assistance.
+      ssh_connection_timeout: |-
+        Vagrant timed out while attempting to connect via SSH. This usually
+        means that the VM booted, but there are issues with the SSH configuration
+        or network connectivity issues. Please try to `vagrant reload` or
+        `vagrant up` again.
       ssh_key_bad_permissions: |-
         The private key to connect to this box via SSH has invalid permissions
         set on it. The permissions of the private key should be set to 0600, otherwise SSH will

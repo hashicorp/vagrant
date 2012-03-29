@@ -313,6 +313,11 @@ module Vagrant
       error_key(:ssh_connection_refused)
     end
 
+    class SSHConnectionTimeout < VagrantError
+      status_code(78)
+      error_key(:ssh_connection_timeout)
+    end
+
     class SSHKeyBadPermissions < VagrantError
       status_code(12)
       error_key(:ssh_key_bad_permissions)
