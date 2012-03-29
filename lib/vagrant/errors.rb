@@ -383,6 +383,11 @@ module Vagrant
       error_key(:virtualbox_kernel_module_not_loaded)
     end
 
+    class VirtualBoxInstallIncomplete < VagrantError
+      status_code(79)
+      error_key(:virtualbox_install_incomplete)
+    end
+
     class VMBaseMacNotSpecified < VagrantError
       status_code(47)
       error_key(:no_base_mac, "vagrant.actions.vm.match_mac")
