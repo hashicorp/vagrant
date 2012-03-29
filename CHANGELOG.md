@@ -1,6 +1,7 @@
 ## 1.1.0 (unreleased)
 
   - Improve the SSH "ready?" check. [GH-841]
+  - Detect when the VirtualBox installation is incomplete and error.
 
 ## 1.0.2 (March 25, 2012)
 
