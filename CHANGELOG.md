@@ -2,6 +2,7 @@
 
   - Improve the SSH "ready?" check. [GH-841]
   - Human friendly error if connection times out for HTTP downloads. [GH-849]
+  - Detect when the VirtualBox installation is incomplete and error. [GH-846]
 
 ## 1.0.2 (March 25, 2012)
 
