@@ -389,7 +389,7 @@ module Vagrant
     end
 
     class VirtualBoxInstallIncomplete < VagrantError
-      status_code(79)
+      status_code(80)
       error_key(:virtualbox_install_incomplete)
     end
 
