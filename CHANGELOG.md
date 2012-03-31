@@ -1,6 +1,7 @@
 ## 1.1.0 (unreleased)
 
   - Improve the SSH "ready?" check. [GH-841]
+  - Human friendly error if connection times out for HTTP downloads. [GH-849]
 
 ## 1.0.2 (March 25, 2012)
 
