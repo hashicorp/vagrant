@@ -173,6 +173,7 @@ module Vagrant
               # The progress of the import will be in the last line. Do a greedy
               # regular expression to find what we're looking for.
               if current = lines.last[/.+(\d{2})%/, 1]
+                current = current.to_i
                 if current > last
                   last = current
                   yield current if block_given?
