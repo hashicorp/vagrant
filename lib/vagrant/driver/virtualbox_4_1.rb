@@ -386,7 +386,7 @@ module Vagrant
       def read_vms
         results = []
         execute("list", "vms", :retryable => true).split("\n").each do |line|
-          if vm line[/^".+?" \{(.+?)\}$/, 1]
+          if vm = line[/^".+?" \{(.+?)\}$/, 1]
             results << vm
           end
         end
