@@ -91,13 +91,12 @@ module Vagrant
           @folders = @folders.inject({}) do |acc, data|
             key, opts = data
             opts[:general] = [:rw, :no_subtree_check]
+            opts[:general] << :sync if @env[:vm].config.nfs.sync
+            opts[:general] << @env[:vm].config.nfs.user_id_mapping || :all_squash
 
             opts[:map_uid] = prepare_permission(:uid, opts)
             opts[:map_gid] = prepare_permission(:gid, opts)
             opts[:nfs_version] ||= 3
-            opts[:user_id_mapping] = @env[:vm].config.nfs.user_id_mapping || :all_squash
-            opts[:general] << :sync if @env[:vm].config.nfs.sync
-
             # The poor man's UUID. An MD5 hash here is sufficient since
             # we need a 32 character "uuid" to represent the filesystem
             # of an export. Hashing the host path is safe because two of
