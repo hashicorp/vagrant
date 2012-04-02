@@ -79,7 +79,7 @@ module Vagrant
                          "-o", "StrictHostKeyChecking=no", "-o", "LogLevel=ERROR"]
 
       # Solaris/OpenSolaris/Illumos uses SunSSH which doesn't support the IdentitiesOnly option
-      command_options += ["-o", "IdentitiesOnly=yes"] unless Util::Platform.solaris?
+      command_options += ["-o", "IdentitiesOnly=yes"] if !Util::Platform.solaris?
 
       command_options += ["-i", options[:private_key_path]] if !plain_mode
       command_options += ["-o", "ForwardAgent=yes"] if ssh_info[:forward_agent]
