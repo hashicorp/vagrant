@@ -7,6 +7,7 @@ Host <%= host_key %>
   PasswordAuthentication no
   IdentityFile <%= private_key_path %>
   IdentitiesOnly yes
+  LogLevel QUIET
 <% if forward_agent -%>
   ForwardAgent yes
 <% end -%>
