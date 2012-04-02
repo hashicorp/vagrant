@@ -172,7 +172,7 @@ module Vagrant
             if lines.include?("OK.")
               # The progress of the import will be in the last line. Do a greedy
               # regular expression to find what we're looking for.
-              if current = lines.last[/.+(\d{2})%/, 1]
+              if current = lines.last[/.+(\d{2})%/, 1].to_i
                 if current > last
                   last = current
                   yield current if block_given?
@@ -385,7 +385,7 @@ module Vagrant
       def read_vms
         results = []
         execute("list", "vms", :retryable => true).split("\n").each do |line|
-          if vm line[/^".+?" \{(.+?)\}$/, 1]
+          if vm = line[/^".+?" \{(.+?)\}$/, 1]
             results << vm
           end
         end
