@@ -22,6 +22,7 @@ module Vagrant
           vm.channel.sudo("touch #{network_scripts_dir}/ifcfg-eth#{network[:interface]}")
           vm.channel.sudo("sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' #{network_scripts_dir}/ifcfg-eth#{network[:interface]} > /tmp/vagrant-ifcfg-eth#{network[:interface]}")
           vm.channel.sudo("cat /tmp/vagrant-ifcfg-eth#{network[:interface]} > #{network_scripts_dir}/ifcfg-eth#{network[:interface]}")
+          vm.channel.sudo("rm /tmp/vagrant-ifcfg-eth#{network[:interface]}")
 
           # Render and upload the network entry file to a deterministic
           # temporary location.
@@ -42,6 +43,7 @@ module Vagrant
         interfaces.each do |interface|
           vm.channel.sudo("/sbin/ifdown eth#{interface} 2> /dev/null", :error_check => false)
           vm.channel.sudo("cat /tmp/vagrant-network-entry_#{interface} >> #{network_scripts_dir}/ifcfg-eth#{interface}")
+          vm.channel.sudo("rm /tmp/vagrant-network-entry_#{interface}")
           vm.channel.sudo("/sbin/ifup eth#{interface} 2> /dev/null")
         end
       end
