@@ -14,6 +14,7 @@ module Vagrant
         # from the interface file.
         vm.channel.sudo("sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/network/interfaces > /tmp/vagrant-network-interfaces")
         vm.channel.sudo("su -c 'cat /tmp/vagrant-network-interfaces > /etc/network/interfaces'")
+        vm.channel.sudo("rm /tmp/vagrant-network-interfaces")
 
         # Accumulate the configurations to add to the interfaces file as
         # well as what interfaces we're actually configuring since we use that
@@ -45,6 +46,7 @@ module Vagrant
         end
 
         vm.channel.sudo("cat /tmp/vagrant-network-entry >> /etc/network/interfaces")
+        vm.channel.sudo("rm /tmp/vagrant-network-entry")
 
         # Bring back up each network interface, reconfigured
         interfaces.each do |interface|

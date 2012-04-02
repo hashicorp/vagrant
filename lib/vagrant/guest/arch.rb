@@ -22,6 +22,7 @@ module Vagrant
         # Remove previous Vagrant-managed network interfaces
         vm.channel.sudo("sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/rc.conf > /tmp/vagrant-network-interfaces")
         vm.channel.sudo("cat /tmp/vagrant-network-interfaces > /etc/rc.conf")
+        vm.channel.sudo("rm /tmp/vagrant-network-interfaces")
 
         # Configure the network interfaces
         interfaces = Set.new
@@ -45,6 +46,7 @@ module Vagrant
 
         # Reconfigure the network interfaces
         vm.channel.sudo("cat /tmp/vagrant-network-entry >> /etc/rc.conf")
+        vm.channel.sudo("rm /tmp/vagrant-network-entry")
         vm.channel.sudo("/etc/rc.d/network restart")
 
         interfaces.each do |interface|
