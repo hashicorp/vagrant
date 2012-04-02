@@ -70,6 +70,7 @@ module Vagrant
             networks_to_configure = networks.select { |n| n[:_auto_config] }
             env[:ui].info I18n.t("vagrant.actions.vm.network.configuring")
             env[:vm].guest.configure_networks(networks_to_configure)
+            env[:vm].channel.sudo("su -c 'rm /tmp/vagrant-*'")
           end
         end
 
