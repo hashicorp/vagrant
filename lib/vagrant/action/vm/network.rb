@@ -315,7 +315,8 @@ module Vagrant
             :adapter => nil,
             :mac     => nil,
             :bridge  => nil,
-            :auto_config => true
+            :auto_config => true,
+            :use_dhcp_assigned_default_route => false
           }.merge(options)
         end
 
