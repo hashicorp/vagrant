@@ -389,13 +389,14 @@ module Vagrant
             :type        => :bridged,
             :bridge      => chosen_bridge,
             :mac_address => config[:mac],
-            :nic_type    => config[:nic_type],
+            :nic_type    => config[:nic_type]
           }
         end
 
         def bridged_network_config(config)
           return {
-            :type => :dhcp
+            :type => :dhcp,
+            :use_dhcp_assigned_default_route => config[:use_dhcp_assigned_default_route]
           }
         end
       end
