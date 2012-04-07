@@ -122,7 +122,12 @@ end
 
 ## Cleanup
 
-When you provision your Vagrant virtual machine with Chef server, it creates a new [Chef Node](http://wiki.opscode.com/display/chef/Nodes) entry (named `vagrant`) and [Chef Client](http://wiki.opscode.com/display/chef/Chef+Client) entry (also named `vagrant`)on  the Chef server. After you tear down your virtual machine, you must explicitly delete these entries from the server before you provision a new one:
+When you provision your Vagrant virtual machine with Chef server, it creates a
+new [Chef Node](http://wiki.opscode.com/display/chef/Nodes) entry (named
+`vagrant`) and [Chef Client](http://wiki.opscode.com/display/chef/Chef+Client)
+entry (also named `vagrant`)on  the Chef server. After you tear down your
+virtual machine, you must explicitly delete these entries from the server
+before you provision a new one:
 
 {% highlight bash %}
 $ knife node delete vagrant
