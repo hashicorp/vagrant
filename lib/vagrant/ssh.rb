@@ -80,7 +80,7 @@ module Vagrant
 
       # Solaris/OpenSolaris/Illumos uses SunSSH which doesn't support the IdentitiesOnly option
       # (Also don't use it in plain mode, it'll skip user agents.)
-      command_options += ["-o", "IdentitiesOnly=yes"] if !Util::Platform.solaris? || plain_mode
+      command_options += ["-o", "IdentitiesOnly=yes"] if !(Util::Platform.solaris? || plain_mode)
 
       command_options += ["-i", options[:private_key_path]] if !plain_mode
       command_options += ["-o", "ForwardAgent=yes"] if ssh_info[:forward_agent]
