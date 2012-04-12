@@ -8,12 +8,16 @@ module Vagrant
         end
 
         def call(env)
-          if env[:vm].state == :running
-            if !env["force"]
+          current_state = env[:vm].state
+          if current_state == :running || current_state == :gurumeditation
+            # If the VM is running and we're not forcing, we can
+            # attempt a graceful shutdown
+            if current_state == :running && !env["force"]
               env[:ui].info I18n.t("vagrant.actions.vm.halt.graceful")
               env[:vm].guest.halt
             end
 
+            # If we're not powered off now, then force it
             if env[:vm].state != :poweroff
               env[:ui].info I18n.t("vagrant.actions.vm.halt.force")
               env[:vm].driver.halt

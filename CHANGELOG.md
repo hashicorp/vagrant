@@ -4,6 +4,8 @@
   - Human friendly error if connection times out for HTTP downloads. [GH-849]
   - Detect when the VirtualBox installation is incomplete and error. [GH-846]
   - Use `LogLevel QUIET` for SSH to suppress the known hosts warning. [GH-847]
+  - VMs in the "guru meditation" state can be destroyed now using
+    `vagrant destroy`.
 
 ## 1.0.2 (March 25, 2012)
 
