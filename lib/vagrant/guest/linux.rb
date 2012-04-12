@@ -102,7 +102,11 @@ module Vagrant
         attempts = 0
         while true
           success = true
-          @vm.channel.sudo("mount -t vboxsf #{mount_options} #{name} #{guestpath}") do |type, data|
+          @vm.channel.sudo("mount -t vboxsf #{mount_options} #{name} #{guestpath}",
+                          :error_class => LinuxError,
+                          :error_key => :mount_folder_fail,
+                          :name => name,
+                          :host_path => options[:hostpath]) do |type, data|
             success = false if type == :stderr && data =~ /No such device/i
           end
 
