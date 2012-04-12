@@ -40,6 +40,8 @@ module Vagrant
       end
 
       def setup_config(template, filename, template_vars)
+        setup_custom_configuration if config.custom_configuration_path
+
         config_file = TemplateRenderer.render(template, {
           :log_level => config.log_level.to_sym,
           :http_proxy => config.http_proxy,
@@ -48,18 +50,15 @@ module Vagrant
           :https_proxy => config.https_proxy,
           :https_proxy_user => config.https_proxy_user,
           :https_proxy_pass => config.https_proxy_pass,
-          :no_proxy => config.no_proxy
+          :no_proxy => config.no_proxy,
+          :custom_configuration => config.custom_configuration_path
         }.merge(template_vars))
 
-        # Create a temporary file to store the data so we
-        # can upload it
-        temp = Tempfile.new("vagrant")
-        temp.write(config_file)
-        temp.close
+        temp_path = temp(config_file)
 
         remote_file = File.join(config.provisioning_path, filename)
         env[:vm].channel.sudo("rm #{remote_file}", :error_check => false)
-        env[:vm].channel.upload(temp.path, remote_file)
+        env[:vm].channel.upload(temp_path, remote_file)
       end
 
       def setup_json
@@ -81,13 +80,22 @@ module Vagrant
 
         json = data.to_json
 
-        # Create a temporary file to store the data so we
-        # can upload it
-        temp = Tempfile.new("vagrant")
-        temp.write(json)
-        temp.close
+        temp_path = temp(json)
 
-        env[:vm].channel.upload(temp.path, File.join(config.provisioning_path, "dna.json"))
+        env[:vm].channel.upload(temp_path, File.join(config.provisioning_path, "dna.json"))
+      end
+
+      def setup_custom_configuration
+        env[:vm].channel.upload(config.custom_configuration_path, File.join(config.provisioning_path, 'chef-custom-configuration.rb'))
+      end
+
+      # Create a temporary file to store the data so we
+      # can upload it
+      def temp(data)
+        temp = Tempfile.new("vagrant")
+        temp.write(data)
+        temp.close
+        temp.path
       end
     end
 
@@ -115,6 +123,7 @@ module Vagrant
         attr_accessor :binary_path
         attr_accessor :binary_env
         attr_accessor :attempts
+        attr_accessor :custom_configuration_path
         attr_writer :run_list
 
         # Provide defaults in such a way that they won't override the instance
