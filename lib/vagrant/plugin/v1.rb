@@ -32,10 +32,35 @@ module Vagrant
         get_or_set(:description, value)
       end
 
+      # Defines additional configuration keys to be available in the
+      # Vagrantfile. The configuration class should be returned by a
+      # block passed to this method. This is done to ensure that the class
+      # is lazy loaded, so if your class inherits from any classes that
+      # are specific to Vagrant 1.0, then the plugin can still be defined
+      # without breaking anything in future versions of Vagrant.
+      #
+      # @param [String] name Configuration key.
+      def self.config(name=UNSET_VALUE, &block)
+        data[:config] ||= Registry.new
+
+        # Register a new config class only if a name was given.
+        data[:config].register(name, &block) if name != UNSET_VALUE
+
+        # Return the registry
+        data[:config]
+      end
+
       protected
 
       # Sentinel value denoting that a value has not been set.
       UNSET_VALUE = Object.new
+
+      # Returns the internal data associated with this plugin.
+      #
+      # @return [Hash]
+      def self.data
+        @data ||= {}
+      end
 
       # Helper method that will set a value if a value is given, or otherwise
       # return the already set value.
@@ -44,13 +69,11 @@ module Vagrant
       # @param [Object] value Value to store.
       # @return [Object] Stored value.
       def self.get_or_set(key, value=UNSET_VALUE)
-        @data ||= {}
-
         # If no value is to be set, then return the value we have already set
-        return @data[key] if value.eql?(UNSET_VALUE)
+        return data[key] if value.eql?(UNSET_VALUE)
 
         # Otherwise set the value
-        @data[key] = value
+        data[key] = value
       end
 
       # Registers the plugin. This makes the plugin actually work with
