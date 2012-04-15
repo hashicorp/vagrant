@@ -91,6 +91,22 @@ module Vagrant
     @source_root ||= Pathname.new(File.expand_path('../../', __FILE__))
   end
 
+  # Returns a superclass to use when creating a plugin for Vagrant.
+  # Given a specific version, this returns a proper superclass to use
+  # to register plugins for that version.
+  #
+  # Plugins should subclass the class returned by this method, and will
+  # be registered as soon as they have a name associated with them.
+  #
+  # @return [Class]
+  def self.plugin(version)
+    # We only support version 1 right now.
+    return Plugin::V1 if version == "1"
+
+    # Raise an error that the plugin version is invalid
+    raise ArgumentError, "Invalid plugin version API: #{version}"
+  end
+
   # Global registry of commands that are available via the CLI.
   #
   # This registry is used to look up the sub-commands that are available

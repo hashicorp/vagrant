@@ -24,4 +24,15 @@ describe Vagrant do
   it "has a registry for provisioners" do
     described_class.provisioners.should be_a(Vagrant::Registry)
   end
+
+  describe "plugin superclass" do
+    it "returns the proper class for version 1" do
+      described_class.plugin("1").should == Vagrant::Plugin::V1
+    end
+
+    it "raises an exception if an unsupported version is given" do
+      expect { described_class.plugin("88") }.
+        to raise_error(ArgumentError)
+    end
+  end
 end

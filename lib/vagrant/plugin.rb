@@ -9,6 +9,9 @@ module Vagrant
   # (for debugging), the list of loaded plugins is stored in the {plugins}
   # array.
   class Plugin
+    # XXX: Make Plugin a module at some point
+    autoload :V1, 'vagrant/plugin/v1'
+
     # The array of gem specifications that were loaded as plugins.
     @@plugins = []
 
