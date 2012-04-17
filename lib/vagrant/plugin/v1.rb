@@ -18,7 +18,7 @@ module Vagrant
       # @return [String] The name of the plugin.
       def self.name(name=UNSET_VALUE)
         # The plugin should be registered if we're setting a real name on it
-        register!(self) if name != UNSET_VALUE
+        register! if name != UNSET_VALUE
 
         # Get or set the value
         get_or_set(:name, name)
@@ -44,10 +44,36 @@ module Vagrant
         data[:config] ||= Registry.new
 
         # Register a new config class only if a name was given.
-        data[:config].register(name, &block) if name != UNSET_VALUE
+        data[:config].register(name.to_sym, &block) if name != UNSET_VALUE
 
         # Return the registry
         data[:config]
+      end
+
+      # Registers the plugin. This makes the plugin actually work with
+      # Vagrant. Prior to registering, the plugin is merely a skeleton.
+      def self.register!(plugin=nil)
+        plugin ||= self
+
+        # Register only on the root class
+        return V1.register!(plugin) if self != V1
+
+        # Register it into the list
+        @registry ||= []
+        @registry << plugin if !@registry.include?(plugin)
+      end
+
+      # This unregisters the plugin. Note that to re-register the plugin
+      # you must call `register!` again.
+      def self.unregister!(plugin=nil)
+        plugin ||= self
+
+        # Unregister only on the root class
+        return V1.unregister!(plugin) if self != V1
+
+        # Unregister it from the registry
+        @registry ||= []
+        @registry.delete(plugin)
       end
 
       protected
@@ -74,17 +100,6 @@ module Vagrant
 
         # Otherwise set the value
         data[key] = value
-      end
-
-      # Registers the plugin. This makes the plugin actually work with
-      # Vagrant. Prior to registering, the plugin is merely a skeleton.
-      def self.register!(plugin)
-        # Register only on the root class
-        return V1.register!(plugin) if self != V1
-
-        # Register it into the list
-        @registry ||= []
-        @registry << plugin if !@registry.include?(plugin)
       end
     end
   end

@@ -6,6 +6,8 @@ module Vagrant
     autoload :Loader,        'vagrant/config/loader'
     autoload :Top,           'vagrant/config/top'
 
+    autoload :V1,            'vagrant/config/v1'
+
     autoload :NFSConfig,     'vagrant/config/nfs'
     autoload :PackageConfig, 'vagrant/config/package'
     autoload :SSHConfig,     'vagrant/config/ssh'
