@@ -154,6 +154,19 @@ end
 # # Default I18n to load the en locale
 I18n.load_path << File.expand_path("templates/locales/en.yml", Vagrant.source_root)
 
+# Load the core plugins that ship with Vagrant
+Vagrant.source_root.join("plugins").each_child do |directory|
+  # We only care about directories
+  next if !directory.directory?
+
+  # We only care if there is a plugin file within the directory
+  plugin_file = directory.join("plugin.rb")
+  next if !plugin_file.file?
+
+  # Load the plugin!
+  load(plugin_file)
+end
+
 # Register the built-in commands
 Vagrant.commands.register(:box)          { Vagrant::Command::Box }
 Vagrant.commands.register(:destroy)      { Vagrant::Command::Destroy }

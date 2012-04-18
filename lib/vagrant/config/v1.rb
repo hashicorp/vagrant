@@ -1,3 +1,4 @@
+require "vagrant/config/v1/base"
 require "vagrant/config/v1/root"
 
 module Vagrant
