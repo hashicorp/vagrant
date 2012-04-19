@@ -402,7 +402,7 @@ module Vagrant
       # to simply be our configuration.
       if defined_vm_keys.empty?
         defined_vm_keys << DEFAULT_VM
-        defined_vms[DEFAULT_VM] = Config::VMConfig::SubVM.new
+        defined_vms[DEFAULT_VM] = VagrantPlugins::Kernel::VagrantConfigSubVM.new
       end
 
       vm_configs = defined_vm_keys.map do |vm_name|

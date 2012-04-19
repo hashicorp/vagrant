@@ -8,12 +8,6 @@ module Vagrant
 
     autoload :V1,            'vagrant/config/v1'
 
-    autoload :NFSConfig,     'vagrant/config/nfs'
-    autoload :PackageConfig, 'vagrant/config/package'
-    autoload :SSHConfig,     'vagrant/config/ssh'
-    autoload :VagrantConfig, 'vagrant/config/vagrant'
-    autoload :VMConfig,      'vagrant/config/vm'
-
     CONFIGURE_MUTEX = Mutex.new
 
     # This is the method which is called by all Vagrantfiles to configure Vagrant.
