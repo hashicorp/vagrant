@@ -1,13 +1,13 @@
 require 'vagrant/util/template_renderer'
 
-module Vagrant
-  module Guest
+module VagrantPlugins
+  module GuestFreeBSD
     # A general Vagrant system implementation for "freebsd".
     #
     # Contributed by Kenneth Vestergaard <kvs@binarysolutions.dk>
-    class FreeBSD < Base
+    class Guest < Vagrant::Guest::Base
       # Here for whenever it may be used.
-      class FreeBSDError < Errors::VagrantError
+      class FreeBSDError < Vagrant::Errors::VagrantError
         error_namespace("vagrant.guest.freebsd")
       end
 

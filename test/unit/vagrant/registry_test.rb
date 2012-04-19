@@ -47,6 +47,12 @@ describe Vagrant::Registry do
     instance.get("foo").should == ["value"]
   end
 
+  it "should be able to check if a key exists" do
+    instance.register("foo", "bar")
+    instance.should have_key("foo")
+    instance.should_not have_key("bar")
+  end
+
   it "should be enumerable" do
     instance.register("foo", "foovalue")
     instance.register("bar", "barvalue")

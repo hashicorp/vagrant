@@ -50,6 +50,20 @@ module Vagrant
         data[:config]
       end
 
+      # Defines an additionally available guest implementation with
+      # the given key.
+      #
+      # @param [String] name Name of the guest.
+      def self.guest(name=UNSET_VALUE, &block)
+        data[:guests] ||= Registry.new
+
+        # Register a new guest class only if a name was given
+        data[:guests].register(name.to_sym, &block) if name != UNSET_VALUE
+
+        # Return the registry
+        data[:guests]
+      end
+
       # Registers the plugin. This makes the plugin actually work with
       # Vagrant. Prior to registering, the plugin is merely a skeleton.
       def self.register!(plugin=nil)

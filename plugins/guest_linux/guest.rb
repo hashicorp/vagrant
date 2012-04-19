@@ -2,9 +2,13 @@ require 'log4r'
 
 require 'vagrant/guest/linux/error'
 
-module Vagrant
-  module Guest
-    class Linux < Base
+module VagrantPlugins
+  module GuestLinux
+    class Guest < Vagrant::Guest::Base
+      class LinuxError < Vagrant::Errors::VagrantError
+        error_namespace("vagrant.guest.linux")
+      end
+
       def initialize(*args)
         super
 

@@ -52,7 +52,15 @@ module Vagrant
         raise Errors::VMGuestError, :_key => :invalid_class, :guest => guest.to_s if !(guest <= Guest::Base)
         @guest = guest.new(self)
       elsif guest.is_a?(Symbol)
-        guest_klass = Vagrant.guests.get(guest)
+        # Look for the guest as a registered plugin
+        guest_klass = nil
+        Vagrant.plugin("1").registered.each do |plugin|
+          if plugin.guest.has_key?(guest)
+            guest_klass = plugin.guest[guest]
+            break
+          end
+        end
+
         raise Errors::VMGuestError, :_key => :unknown_type, :guest => guest.to_s if !guest_klass
         @guest = guest_klass.new(self)
       else
