@@ -70,8 +70,8 @@ module Vagrant
           @logger.error("Unknown config sources: #{unknown_sources.inspect}")
         end
 
-        # Create the top-level configuration which will hold all the config.
-        result = Top.new
+        # This will hold our result
+        result = V1.init
 
         @load_order.each do |key|
           next if !@sources.has_key?(key)
@@ -79,15 +79,14 @@ module Vagrant
           @sources[key].each do |proc|
             if !@config_cache.has_key?(proc)
               @logger.debug("Loading from: #{key} (evaluating)")
-              current = Top.new
-              proc.call(current)
+              current = V1.load(proc)
               @config_cache[proc] = current
             else
               @logger.debug("Loading from: #{key} (cache)")
             end
 
-            # Merge in the results of this proc's configuration
-            result = result.merge(@config_cache[proc])
+            # Merge the configurations
+            result = V1.merge(result, @config_cache[proc])
           end
         end
 

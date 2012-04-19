@@ -5,6 +5,13 @@ module Vagrant
   module Config
     # This is the "version 1" configuration loader.
     class V1
+      # Returns a bare empty configuration object.
+      #
+      # @return [V1::Root]
+      def self.init
+        new_root_object
+      end
+
       # Loads the configuration for the given proc and returns a configuration
       # object.
       #

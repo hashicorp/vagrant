@@ -31,10 +31,13 @@ module VagrantPlugins
 
       def validate(env, errors)
         [:username, :host, :max_tries, :timeout].each do |field|
-          errors.add(I18n.t("vagrant.config.common.error_empty", :field => field)) if !instance_variable_get("@#{field}".to_sym)
+          value = instance_variable_get("@#{field}".to_sym)
+          if value == UNSET_VALUE || !value
+            errors.add(I18n.t("vagrant.config.common.error_empty", :field => field))
+          end
         end
 
-        if private_key_path && !File.file?(File.expand_path(private_key_path, env.root_path))
+        if private_key_path && private_key_path != UNSET_VALUE && !File.file?(File.expand_path(private_key_path, env.root_path))
           errors.add(I18n.t("vagrant.config.ssh.private_key_missing", :path => private_key_path))
         end
       end

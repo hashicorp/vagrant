@@ -3,6 +3,13 @@ require File.expand_path("../../../base", __FILE__)
 describe Vagrant::Config::V1 do
   include_context "unit"
 
+  describe "empty" do
+    it "returns an empty configuration object" do
+      result = described_class.init
+      result.should be_kind_of(Vagrant::Config::V1::Root)
+    end
+  end
+
   describe "loading" do
     it "should configure with all plugin config keys loaded" do
       # Register a plugin for our test
