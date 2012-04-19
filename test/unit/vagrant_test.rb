@@ -5,10 +5,6 @@ describe Vagrant do
     described_class.source_root.should == Pathname.new(File.expand_path("../../../", __FILE__))
   end
 
-  it "has a registry for commands" do
-    described_class.commands.should be_a(Vagrant::Registry)
-  end
-
   describe "plugin superclass" do
     it "returns the proper class for version 1" do
       described_class.plugin("1").should == Vagrant::Plugin::V1

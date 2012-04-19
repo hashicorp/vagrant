@@ -31,7 +31,14 @@ module Vagrant
 
       # If we reached this far then we must have a subcommand. If not,
       # then we also just print the help and exit.
-      command_class = Vagrant.commands.get(@sub_command.to_sym) if @sub_command
+      command_class = nil
+      Vagrant.plugin("1").registered.each do |plugin|
+        if plugin.command.has_key?(@sub_command.to_sym)
+          command_class = plugin.command.get(@sub_command.to_sym)
+          break
+        end
+      end
+
       if !command_class || !@sub_command
         help
         return 0
@@ -60,7 +67,11 @@ module Vagrant
         # Add the available subcommands as separators in order to print them
         # out as well.
         keys = []
-        Vagrant.commands.each { |key, value| keys << key.to_s }
+        Vagrant.plugin("1").registered.each do |plugin|
+          plugin.command.each do |key, _|
+            keys << key
+          end
+        end
 
         keys.sort.each do |key|
           opts.separator "     #{key}"

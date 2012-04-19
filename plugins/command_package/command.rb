@@ -1,8 +1,8 @@
 require 'optparse'
 
-module Vagrant
-  module Command
-    class Package < Base
+module VagrantPlugins
+  module CommandPackage
+    class Command < Vagrant::Command::Base
       def execute
         options = {}
 
@@ -47,15 +47,15 @@ module Vagrant
       protected
 
       def package_base(options)
-        vm = VM.new(options[:base], @env, @env.config.global, :base => true)
-        raise Errors::BaseVMNotFound, :name => options[:base] if !vm.created?
+        vm = Vagrant::VM.new(options[:base], @env, @env.config.global, :base => true)
+        raise Vagrant::Errors::BaseVMNotFound, :name => options[:base] if !vm.created?
         @logger.debug("Packaging base VM: #{vm.name}")
         package_vm(vm, options)
       end
 
       def package_target(name, options)
         with_target_vms(name, :single_target => true) do |vm|
-          raise Errors::VMNotCreatedError if !vm.created?
+          raise Vagrant::Errors::VMNotCreatedError if !vm.created?
           @logger.debug("Packaging VM: #{vm.name}")
           package_vm(vm, options)
         end

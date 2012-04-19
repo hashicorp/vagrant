@@ -2,10 +2,10 @@ require 'optparse'
 
 require "vagrant/util/safe_puts"
 
-module Vagrant
-  module Command
-    class SSHConfig < Base
-      include Util::SafePuts
+module VagrantPlugins
+  module CommandSSHConfig
+    class Command < Vagrant::Command::Base
+      include Vagrant::Util::SafePuts
 
       def execute
         options = {}
@@ -24,8 +24,8 @@ module Vagrant
         return if !argv
 
         with_target_vms(argv, :single_target => true) do |vm|
-          raise Errors::VMNotCreatedError if !vm.created?
-          raise Errors::VMInaccessible if !vm.state == :inaccessible
+          raise Vagrant::Errors::VMNotCreatedError if !vm.created?
+          raise Vagrant::Errors::VMInaccessible if !vm.state == :inaccessible
 
           ssh_info  = vm.ssh.info
           variables = {
@@ -40,7 +40,7 @@ module Vagrant
 
           # Render the template and output directly to STDOUT
           template = "commands/ssh_config/config"
-          safe_puts(Util::TemplateRenderer.render(template, variables))
+          safe_puts(Vagrant::Util::TemplateRenderer.render(template, variables))
         end
 
         # Success, exit status 0

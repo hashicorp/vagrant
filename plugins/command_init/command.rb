@@ -2,9 +2,9 @@ require 'optparse'
 
 require 'vagrant/util/template_renderer'
 
-module Vagrant
-  module Command
-    class Init < Base
+module VagrantPlugins
+  module CommandInit
+    class Command < Vagrant::Command::Base
       def execute
         options = {}
 
@@ -17,7 +17,7 @@ module Vagrant
         return if !argv
 
         save_path = @env.cwd.join("Vagrantfile")
-        raise Errors::VagrantfileExistsError if save_path.exist?
+        raise Vagrant::Errors::VagrantfileExistsError if save_path.exist?
 
         template_path = ::Vagrant.source_root.join("templates/commands/init/Vagrantfile")
         contents = Vagrant::Util::TemplateRenderer.render(template_path,

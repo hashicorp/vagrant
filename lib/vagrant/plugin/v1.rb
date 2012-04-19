@@ -40,6 +40,21 @@ module Vagrant
         get_or_set(:description, value)
       end
 
+      # Defines additional command line commands available by key. The key
+      # becomes the subcommand, so if you register a command "foo" then
+      # "vagrant foo" becomes available.
+      #
+      # @param [String] name Subcommand key.
+      def self.command(name=UNSET_VALUE, &block)
+        data[:command] ||= Registry.new
+
+        # Register a new command class only if a name was given.
+        data[:command].register(name.to_sym, &block) if name != UNSET_VALUE
+
+        # Return the registry
+        data[:command]
+      end
+
       # Defines additional configuration keys to be available in the
       # Vagrantfile. The configuration class should be returned by a
       # block passed to this method. This is done to ensure that the class

@@ -1,8 +1,8 @@
 require 'optparse'
 
-module Vagrant
-  module Command
-    class SSH < Base
+module VagrantPlugins
+  module CommandSSH
+    class Command < Vagrant::Command::Base
       def execute
         options = {}
 
@@ -38,9 +38,9 @@ module Vagrant
         # Execute the actual SSH
         with_target_vms(argv, :single_target => true) do |vm|
           # Basic checks that are required for proper SSH
-          raise Errors::VMNotCreatedError if !vm.created?
-          raise Errors::VMInaccessible if !vm.state == :inaccessible
-          raise Errors::VMNotRunningError if vm.state != :running
+          raise Vagrant::Errors::VMNotCreatedError if !vm.created?
+          raise Vagrant::Errors::VMInaccessible if !vm.state == :inaccessible
+          raise Vagrant::Errors::VMNotRunningError if vm.state != :running
 
           if options[:command]
             ssh_execute(vm, options[:command])

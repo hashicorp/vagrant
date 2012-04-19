@@ -23,6 +23,34 @@ describe Vagrant::Plugin::V1 do
     plugin.description.should == "bar"
   end
 
+  describe "commands" do
+    it "should register command classes" do
+      plugin = Class.new(described_class) do
+        command("foo") { "bar" }
+      end
+
+      plugin.command[:foo].should == "bar"
+    end
+
+    it "should lazily register command classes" do
+      # Below would raise an error if the value of the command class was
+      # evaluated immediately. By asserting that this does not raise an
+      # error, we verify that the value is actually lazily loaded
+      plugin = nil
+      expect {
+        plugin = Class.new(described_class) do
+        command("foo") { raise StandardError, "FAIL!" }
+        end
+      }.to_not raise_error
+
+      # Now verify when we actually get the command key that
+      # a proper error is raised.
+      expect {
+        plugin.command[:foo]
+      }.to raise_error(StandardError)
+    end
+  end
+
   describe "configuration" do
     it "should register configuration classes" do
       plugin = Class.new(described_class) do

@@ -1,8 +1,8 @@
 require 'optparse'
 
-module Vagrant
-  module Command
-    class Halt < Base
+module VagrantPlugins
+  module CommandHalt
+    class Command < Vagrant::Command::Base
       def execute
         options = {}
 

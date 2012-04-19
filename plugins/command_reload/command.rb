@@ -2,9 +2,9 @@ require 'optparse'
 
 require 'vagrant/command/start_mixins'
 
-module Vagrant
-  module Command
-    class Reload < Base
+module VagrantPlugins
+  module CommandReload
+    class Command < Vagrant::Command::Base
       include StartMixins
 
       def execute

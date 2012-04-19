@@ -1,8 +1,6 @@
-require 'optparse'
-
-module Vagrant
-  module Command
-    class Destroy < Base
+module VagrantPlugins
+  module CommandDestroy
+    class Command < Vagrant::Command::Base
       def execute
         options = {}
 
@@ -34,10 +32,10 @@ module Vagrant
               begin
                 choice = @env.ui.ask(I18n.t("vagrant.commands.destroy.confirmation",
                                             :name => vm.name))
-              rescue Errors::UIExpectsTTY
+              rescue Vagrant::Errors::UIExpectsTTY
                 # We raise a more specific error but one which basically
                 # means the same thing.
-                raise Errors::DestroyRequiresForce
+                raise Vagrant::Errors::DestroyRequiresForce
               end
               do_destroy = choice.upcase == "Y"
             end

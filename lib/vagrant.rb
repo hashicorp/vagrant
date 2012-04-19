@@ -106,14 +106,6 @@ module Vagrant
     # Raise an error that the plugin version is invalid
     raise ArgumentError, "Invalid plugin version API: #{version}"
   end
-
-  # Global registry of commands that are available via the CLI.
-  #
-  # This registry is used to look up the sub-commands that are available
-  # to Vagrant.
-  def self.commands
-    @commands ||= Registry.new
-  end
 end
 
 # # Default I18n to load the en locale
@@ -131,19 +123,3 @@ Vagrant.source_root.join("plugins").each_child do |directory|
   # Load the plugin!
   load(plugin_file)
 end
-
-# Register the built-in commands
-Vagrant.commands.register(:box)          { Vagrant::Command::Box }
-Vagrant.commands.register(:destroy)      { Vagrant::Command::Destroy }
-Vagrant.commands.register(:gem)          { Vagrant::Command::Gem }
-Vagrant.commands.register(:halt)         { Vagrant::Command::Halt }
-Vagrant.commands.register(:init)         { Vagrant::Command::Init }
-Vagrant.commands.register(:package)      { Vagrant::Command::Package }
-Vagrant.commands.register(:provision)    { Vagrant::Command::Provision }
-Vagrant.commands.register(:reload)       { Vagrant::Command::Reload }
-Vagrant.commands.register(:resume)       { Vagrant::Command::Resume }
-Vagrant.commands.register(:ssh)          { Vagrant::Command::SSH }
-Vagrant.commands.register(:"ssh-config") { Vagrant::Command::SSHConfig }
-Vagrant.commands.register(:status)       { Vagrant::Command::Status }
-Vagrant.commands.register(:suspend)      { Vagrant::Command::Suspend }
-Vagrant.commands.register(:up)           { Vagrant::Command::Up }

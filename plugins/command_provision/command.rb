@@ -1,8 +1,8 @@
 require 'optparse'
 
-module Vagrant
-  module Command
-    class Provision < Base
+module VagrantPlugins
+  module CommandProvision
+    class Command < Vagrant::Command::Base
       def execute
         options = {}
 
@@ -17,7 +17,7 @@ module Vagrant
         # Go over each VM and provision!
         @logger.debug("'provision' each target VM...")
         with_target_vms(argv) do |vm|
-          
+
           if vm.created?
             if vm.state == :running
               @logger.info("Provisioning: #{vm.name}")

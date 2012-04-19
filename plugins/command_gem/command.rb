@@ -3,10 +3,10 @@ require "rubygems/gem_runner"
 
 require "vagrant/util/safe_puts"
 
-module Vagrant
-  module Command
-    class Gem < Base
-      include Util::SafePuts
+module VagrantPlugins
+  module CommandGem
+    class Command < Vagrant::Command::Base
+      include Vagrant::Util::SafePuts
 
       def execute
         # Bundler sets up its own custom gem load paths such that our
