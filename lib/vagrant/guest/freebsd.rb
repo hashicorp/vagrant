@@ -6,20 +6,6 @@ module Vagrant
     #
     # Contributed by Kenneth Vestergaard <kvs@binarysolutions.dk>
     class FreeBSD < Base
-      # A custom config class which will be made accessible via `config.freebsd`
-      # This is not necessary for all system implementers, of course. However,
-      # generally, Vagrant tries to make almost every aspect of its execution
-      # configurable, and this assists that goal.
-      class FreeBSDConfig < Vagrant::Config::Base
-        attr_accessor :halt_timeout
-        attr_accessor :halt_check_interval
-
-        def initialize
-          @halt_timeout = 30
-          @halt_check_interval = 1
-        end
-      end
-
       # Here for whenever it may be used.
       class FreeBSDError < Errors::VagrantError
         error_namespace("vagrant.guest.freebsd")

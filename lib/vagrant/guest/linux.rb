@@ -1,7 +1,6 @@
 require 'log4r'
 
 require 'vagrant/guest/linux/error'
-require 'vagrant/guest/linux/config'
 
 module Vagrant
   module Guest

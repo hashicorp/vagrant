@@ -4,25 +4,6 @@ module Vagrant
     #
     # Contributed by Blake Irvin <b.irvin@modcloth.com>
     class Solaris < Base
-      # A custom config class which will be made accessible via `config.solaris`
-      # This is not necessary for all system implementers, of course. However,
-      # generally, Vagrant tries to make almost every aspect of its execution
-      # configurable, and this assists that goal.
-      class SolarisConfig < Vagrant::Config::Base
-        attr_accessor :halt_timeout
-        attr_accessor :halt_check_interval
-        # This sets the command to use to execute items as a superuser. sudo is default
-        attr_accessor :suexec_cmd
-        attr_accessor :device
-
-        def initialize
-          @halt_timeout = 30
-          @halt_check_interval = 1
-          @suexec_cmd = 'sudo'
-          @device = "e1000g"
-        end
-      end
-
       # Here for whenever it may be used.
       class SolarisError < Errors::VagrantError
         error_namespace("vagrant.guest.solaris")

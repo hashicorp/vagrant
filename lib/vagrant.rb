@@ -115,15 +115,6 @@ module Vagrant
     @commands ||= Registry.new
   end
 
-  # Global registry of config keys that are available.
-  #
-  # This registry is used to look up the keys for `config` objects.
-  # For example, `config.vagrant` looks up the `:vagrant` config key
-  # for the configuration class to use.
-  def self.config_keys
-    @config_keys ||= Registry.new
-  end
-
   # Global registry of available host classes and shortcut symbols
   # associated with them.
   #
@@ -183,13 +174,6 @@ Vagrant.commands.register(:status)       { Vagrant::Command::Status }
 Vagrant.commands.register(:suspend)      { Vagrant::Command::Suspend }
 Vagrant.commands.register(:up)           { Vagrant::Command::Up }
 
-# Register the built-in config keys
-Vagrant.config_keys.register(:vagrant) { Vagrant::Config::VagrantConfig }
-Vagrant.config_keys.register(:ssh)     { Vagrant::Config::SSHConfig }
-Vagrant.config_keys.register(:nfs)     { Vagrant::Config::NFSConfig }
-Vagrant.config_keys.register(:vm)      { Vagrant::Config::VMConfig }
-Vagrant.config_keys.register(:package) { Vagrant::Config::PackageConfig }
-
 # Register the built-in hosts
 Vagrant.hosts.register(:arch)    { Vagrant::Hosts::Arch }
 Vagrant.hosts.register(:bsd)     { Vagrant::Hosts::BSD }
@@ -219,8 +203,3 @@ Vagrant.provisioners.register(:chef_client)   { Vagrant::Provisioners::ChefClien
 Vagrant.provisioners.register(:puppet)        { Vagrant::Provisioners::Puppet }
 Vagrant.provisioners.register(:puppet_server) { Vagrant::Provisioners::PuppetServer }
 Vagrant.provisioners.register(:shell)         { Vagrant::Provisioners::Shell }
-
-# Register the built-in systems
-Vagrant.config_keys.register(:freebsd) { Vagrant::Guest::FreeBSD::FreeBSDConfig }
-Vagrant.config_keys.register(:linux)   { Vagrant::Guest::Linux::LinuxConfig }
-Vagrant.config_keys.register(:solaris) { Vagrant::Guest::Solaris::SolarisConfig }

@@ -9,10 +9,6 @@ describe Vagrant do
     described_class.commands.should be_a(Vagrant::Registry)
   end
 
-  it "has a registry for config keys" do
-    described_class.config_keys.should be_a(Vagrant::Registry)
-  end
-
   it "has a registry for hosts" do
     described_class.hosts.should be_a(Vagrant::Registry)
   end
