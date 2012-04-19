@@ -15,29 +15,13 @@ module VagrantPlugins
       attr_accessor :forward_x11
       attr_accessor :shell
 
-      def initialize
-        @username         = UNSET_VALUE
-        @password         = UNSET_VALUE
-        @host             = UNSET_VALUE
-        @port             = UNSET_VALUE
-        @guest_port       = UNSET_VALUE
-        @max_tries        = UNSET_VALUE
-        @timeout          = UNSET_VALUE
-        @private_key_path = UNSET_VALUE
-        @forward_agent    = UNSET_VALUE
-        @forward_x11      = UNSET_VALUE
-        @shell            = UNSET_VALUE
-      end
-
       def validate(env, errors)
         [:username, :host, :max_tries, :timeout].each do |field|
           value = instance_variable_get("@#{field}".to_sym)
-          if value == UNSET_VALUE || !value
-            errors.add(I18n.t("vagrant.config.common.error_empty", :field => field))
-          end
+          errors.add(I18n.t("vagrant.config.common.error_empty", :field => field)) if !value
         end
 
-        if private_key_path && private_key_path != UNSET_VALUE && !File.file?(File.expand_path(private_key_path, env.root_path))
+        if private_key_path && !File.file?(File.expand_path(private_key_path, env.root_path))
           errors.add(I18n.t("vagrant.config.ssh.private_key_missing", :path => private_key_path))
         end
       end
