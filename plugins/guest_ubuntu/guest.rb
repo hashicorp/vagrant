@@ -1,8 +1,6 @@
-require 'vagrant/guest/debian'
-
-module Vagrant
-  module Guest
-    class Ubuntu < Debian
+module VagrantPlugins
+  module GuestUbuntu
+    class Guest < VagrantPlugins::GuestDebian::Guest
       def mount_shared_folder(name, guestpath, options)
         # Mount it like normal
         super

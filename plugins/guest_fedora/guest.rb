@@ -3,9 +3,9 @@ require 'tempfile'
 
 require 'vagrant/util/template_renderer'
 
-module Vagrant
-  module Guest
-    class Fedora < Linux
+module VagrantPlugins
+  module GuestFedora
+    class Guest < VagrantPlugins::GuestLinux::Guest
       # Make the TemplateRenderer top-level
       include Vagrant::Util
 

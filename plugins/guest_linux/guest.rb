@@ -1,7 +1,5 @@
 require 'log4r'
 
-require 'vagrant/guest/linux/error'
-
 module VagrantPlugins
   module GuestLinux
     class Guest < Vagrant::Guest::Base

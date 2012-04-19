@@ -3,9 +3,9 @@ require 'tempfile'
 
 require 'vagrant/util/template_renderer'
 
-module Vagrant
-  module Guest
-    class Redhat < Linux
+module VagrantPlugins
+  module GuestRedHat
+    class Guest < VagrantPlugins::GuestLinux::Guest
       # Make the TemplateRenderer top-level
       include Vagrant::Util
 

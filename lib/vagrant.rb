@@ -125,14 +125,6 @@ module Vagrant
     @hosts ||= Registry.new
   end
 
-  # Global registry of available guest classes and shortcut symbols
-  # associated with them.
-  #
-  # This registry is used to look up the shortcuts for `config.vm.guest`.
-  def self.guests
-    @guests ||= Registry.new
-  end
-
   # Global registry of provisioners.
   #
   # This registry is used to look up the provisioners provided for
@@ -183,19 +175,6 @@ Vagrant.hosts.register(:freebsd) { Vagrant::Hosts::FreeBSD }
 Vagrant.hosts.register(:gentoo)  { Vagrant::Hosts::Gentoo }
 Vagrant.hosts.register(:linux)   { Vagrant::Hosts::Linux }
 Vagrant.hosts.register(:windows) { Vagrant::Hosts::Windows }
-
-# Register the built-in guests
-Vagrant.guests.register(:arch)    { Vagrant::Guest::Arch }
-Vagrant.guests.register(:debian)  { Vagrant::Guest::Debian }
-Vagrant.guests.register(:fedora)  { Vagrant::Guest::Fedora }
-Vagrant.guests.register(:freebsd) { Vagrant::Guest::FreeBSD }
-Vagrant.guests.register(:gentoo)  { Vagrant::Guest::Gentoo }
-Vagrant.guests.register(:linux)   { Vagrant::Guest::Linux }
-Vagrant.guests.register(:openbsd) { Vagrant::Guest::OpenBSD }
-Vagrant.guests.register(:redhat)  { Vagrant::Guest::Redhat }
-Vagrant.guests.register(:solaris) { Vagrant::Guest::Solaris }
-Vagrant.guests.register(:suse)    { Vagrant::Guest::Suse }
-Vagrant.guests.register(:ubuntu)  { Vagrant::Guest::Ubuntu }
 
 # Register the built-in provisioners
 Vagrant.provisioners.register(:chef_solo)     { Vagrant::Provisioners::ChefSolo }

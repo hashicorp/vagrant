@@ -13,10 +13,6 @@ describe Vagrant do
     described_class.hosts.should be_a(Vagrant::Registry)
   end
 
-  it "has a registry for guests" do
-    described_class.guests.should be_a(Vagrant::Registry)
-  end
-
   it "has a registry for provisioners" do
     described_class.provisioners.should be_a(Vagrant::Registry)
   end
