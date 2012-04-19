@@ -32,10 +32,12 @@ module Vagrant
       # If we reached this far then we must have a subcommand. If not,
       # then we also just print the help and exit.
       command_class = nil
-      Vagrant.plugin("1").registered.each do |plugin|
-        if plugin.command.has_key?(@sub_command.to_sym)
-          command_class = plugin.command.get(@sub_command.to_sym)
-          break
+      if @sub_command
+        Vagrant.plugin("1").registered.each do |plugin|
+          if plugin.command.has_key?(@sub_command.to_sym)
+            command_class = plugin.command.get(@sub_command.to_sym)
+            break
+          end
         end
       end
 

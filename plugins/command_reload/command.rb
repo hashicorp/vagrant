@@ -5,7 +5,7 @@ require 'vagrant/command/start_mixins'
 module VagrantPlugins
   module CommandReload
     class Command < Vagrant::Command::Base
-      include StartMixins
+      include Vagrant::Command::StartMixins
 
       def execute
         options = {}
