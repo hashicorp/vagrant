@@ -72,6 +72,19 @@ module Vagrant
         data[:guests]
       end
 
+      # Registers additional provisioners to be available.
+      #
+      # @param [String] name Name of the provisioner.
+      def self.provisioner(name=UNSET_VALUE, &block)
+        data[:provisioners] ||= Registry.new
+
+        # Register a new provisioner class only if a name was given
+        data[:provisioners].register(name.to_sym, &block) if name != UNSET_VALUE
+
+        # Return the registry
+        data[:provisioners]
+      end
+
       # Registers the plugin. This makes the plugin actually work with
       # Vagrant. Prior to registering, the plugin is merely a skeleton.
       def self.register!(plugin=nil)

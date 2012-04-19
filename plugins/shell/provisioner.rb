@@ -1,8 +1,9 @@
-require 'tempfile'
+require "pathname"
+require "tempfile"
 
-module Vagrant
-  module Provisioners
-    class Shell < Base
+module VagrantPlugins
+  module Shell
+    class Provisioner < Vagrant::Provisioners::Base
       class Config < Vagrant::Config::Base
         attr_accessor :inline
         attr_accessor :path

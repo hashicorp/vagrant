@@ -124,14 +124,6 @@ module Vagrant
   def self.hosts
     @hosts ||= Registry.new
   end
-
-  # Global registry of provisioners.
-  #
-  # This registry is used to look up the provisioners provided for
-  # `config.vm.provision`.
-  def self.provisioners
-    @provisioners ||= Registry.new
-  end
 end
 
 # # Default I18n to load the en locale
@@ -175,10 +167,3 @@ Vagrant.hosts.register(:freebsd) { Vagrant::Hosts::FreeBSD }
 Vagrant.hosts.register(:gentoo)  { Vagrant::Hosts::Gentoo }
 Vagrant.hosts.register(:linux)   { Vagrant::Hosts::Linux }
 Vagrant.hosts.register(:windows) { Vagrant::Hosts::Windows }
-
-# Register the built-in provisioners
-Vagrant.provisioners.register(:chef_solo)     { Vagrant::Provisioners::ChefSolo }
-Vagrant.provisioners.register(:chef_client)   { Vagrant::Provisioners::ChefClient }
-Vagrant.provisioners.register(:puppet)        { Vagrant::Provisioners::Puppet }
-Vagrant.provisioners.register(:puppet_server) { Vagrant::Provisioners::PuppetServer }
-Vagrant.provisioners.register(:shell)         { Vagrant::Provisioners::Shell }

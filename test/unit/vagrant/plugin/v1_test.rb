@@ -79,6 +79,34 @@ describe Vagrant::Plugin::V1 do
     end
   end
 
+  describe "provisioners" do
+    it "should register provisioner classes" do
+      plugin = Class.new(described_class) do
+        provisioner("foo") { "bar" }
+      end
+
+      plugin.provisioner[:foo].should == "bar"
+    end
+
+    it "should lazily register provisioner classes" do
+      # Below would raise an error if the value of the config class was
+      # evaluated immediately. By asserting that this does not raise an
+      # error, we verify that the value is actually lazily loaded
+      plugin = nil
+      expect {
+        plugin = Class.new(described_class) do
+          provisioner("foo") { raise StandardError, "FAIL!" }
+        end
+      }.to_not raise_error
+
+      # Now verify when we actually get the configuration key that
+      # a proper error is raised.
+      expect {
+        plugin.provisioner[:foo]
+      }.to raise_error(StandardError)
+    end
+  end
+
   describe "plugin registration" do
     it "should have no registered plugins" do
       described_class.registered.should be_empty

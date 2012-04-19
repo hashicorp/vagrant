@@ -13,8 +13,18 @@ module VagrantPlugins
         @logger.debug("Provisioner config: #{shortcut}")
         @shortcut = shortcut
         @provisioner = shortcut
-        @provisioner = Vagrant.provisioners.get(shortcut) if shortcut.is_a?(Symbol)
         @config = nil
+
+        # If the shorcut is a symbol, we look through the registered
+        # plugins to see if any define a provisioner we want.
+        if shortcut.is_a?(Symbol)
+          Vagrant.plugin("1").registered.each do |plugin|
+            if plugin.provisioner.has_key?(shortcut)
+              @provisioner = plugin.provisioner[shortcut]
+              break
+            end
+          end
+        end
 
         @logger.info("Provisioner class: #{provisioner}")
         configure(options, &block) if @provisioner
