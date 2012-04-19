@@ -1,7 +1,11 @@
+require "log4r"
+
 module Vagrant
   class Plugin
     # The superclass for version 1 plugins.
     class V1
+      LOGGER = Log4r::Logger.new("vagrant::plugin::v1")
+
       # Returns a list of registered plugins for this version.
       #
       # @return [Array]
@@ -17,11 +21,15 @@ module Vagrant
       # @param [String] name Name of the plugin.
       # @return [String] The name of the plugin.
       def self.name(name=UNSET_VALUE)
+        # Get or set the value first, so we have a name for logging when
+        # we register.
+        result = get_or_set(:name, name)
+
         # The plugin should be registered if we're setting a real name on it
         register! if name != UNSET_VALUE
 
-        # Get or set the value
-        get_or_set(:name, name)
+        # Return the result
+        result
       end
 
       # Sets a human-friendly descrition of the plugin.
@@ -74,7 +82,10 @@ module Vagrant
 
         # Register it into the list
         @registry ||= []
-        @registry << plugin if !@registry.include?(plugin)
+        if !@registry.include?(plugin)
+          LOGGER.info("Registered plugin: #{plugin.name}")
+          @registry << plugin
+        end
       end
 
       # This unregisters the plugin. Note that to re-register the plugin
@@ -87,7 +98,10 @@ module Vagrant
 
         # Unregister it from the registry
         @registry ||= []
-        @registry.delete(plugin)
+        if @registry.include?(plugin)
+          LOGGER.info("Unregistered: #{plugin.name}")
+          @registry.delete(plugin)
+        end
       end
 
       protected
