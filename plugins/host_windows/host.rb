@@ -1,10 +1,10 @@
 require 'vagrant/util/platform'
 
-module Vagrant
-  module Hosts
-    class Windows < Base
+module VagrantPlugins
+  module HostWindows
+    class Host < Vagrant::Hosts::Base
       def self.match?
-        Util::Platform.windows?
+        Vagrant::Util::Platform.windows?
       end
 
       # Windows does not support NFS

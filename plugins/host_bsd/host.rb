@@ -2,15 +2,15 @@ require 'log4r'
 
 require 'vagrant/util/platform'
 
-module Vagrant
-  module Hosts
+module VagrantPlugins
+  module HostBSD
     # Represents a BSD host, such as FreeBSD and Darwin (Mac OS X).
-    class BSD < Base
-      include Util
-      include Util::Retryable
+    class Host < Vagrant::Hosts::Base
+      include Vagrant::Util
+      include Vagrant::Util::Retryable
 
       def self.match?
-        Util::Platform.darwin? || Util::Platform.bsd?
+        Vagrant::Util::Platform.darwin? || Vagrant::Util::Platform.bsd?
       end
 
       def self.precedence

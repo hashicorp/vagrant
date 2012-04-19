@@ -114,16 +114,6 @@ module Vagrant
   def self.commands
     @commands ||= Registry.new
   end
-
-  # Global registry of available host classes and shortcut symbols
-  # associated with them.
-  #
-  # This registry is used to look up the shorcuts for `config.vagrant.host`,
-  # or to query all hosts for automatically detecting the host system.
-  # The registry is global to all of Vagrant.
-  def self.hosts
-    @hosts ||= Registry.new
-  end
 end
 
 # # Default I18n to load the en locale
@@ -157,13 +147,3 @@ Vagrant.commands.register(:"ssh-config") { Vagrant::Command::SSHConfig }
 Vagrant.commands.register(:status)       { Vagrant::Command::Status }
 Vagrant.commands.register(:suspend)      { Vagrant::Command::Suspend }
 Vagrant.commands.register(:up)           { Vagrant::Command::Up }
-
-# Register the built-in hosts
-Vagrant.hosts.register(:arch)    { Vagrant::Hosts::Arch }
-Vagrant.hosts.register(:bsd)     { Vagrant::Hosts::BSD }
-Vagrant.hosts.register(:fedora)  { Vagrant::Hosts::Fedora }
-Vagrant.hosts.register(:opensuse)  { Vagrant::Hosts::OpenSUSE }
-Vagrant.hosts.register(:freebsd) { Vagrant::Hosts::FreeBSD }
-Vagrant.hosts.register(:gentoo)  { Vagrant::Hosts::Gentoo }
-Vagrant.hosts.register(:linux)   { Vagrant::Hosts::Linux }
-Vagrant.hosts.register(:windows) { Vagrant::Hosts::Windows }

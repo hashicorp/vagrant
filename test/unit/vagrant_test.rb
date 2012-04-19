@@ -9,10 +9,6 @@ describe Vagrant do
     described_class.commands.should be_a(Vagrant::Registry)
   end
 
-  it "has a registry for hosts" do
-    described_class.hosts.should be_a(Vagrant::Registry)
-  end
-
   describe "plugin superclass" do
     it "returns the proper class for version 1" do
       described_class.plugin("1").should == Vagrant::Plugin::V1

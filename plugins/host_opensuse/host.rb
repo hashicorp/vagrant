@@ -1,14 +1,14 @@
-require 'pathname'
+require "pathname"
 
-module Vagrant
-  module Hosts
-    class Fedora < Linux
+module VagrantPlugins
+  module HostOpenSUSE
+    class Host < VagrantPlugins::HostLinux::Host
       def self.match?
-        release_file = Pathname.new("/etc/redhat-release")
+        release_file = Pathname.new("/etc/SuSE-release")
 
         if release_file.exist?
           release_file.open("r") do |f|
-            return true if f.gets =~ /^Fedora/
+            return true if f.gets =~ /^openSUSE/
           end
         end
 
@@ -23,7 +23,7 @@ module Vagrant
       def initialize(*args)
         super
 
-        @nfs_server_binary = "/etc/init.d/nfs"
+        @nfs_server_binary = "/etc/init.d/nfsserver"
       end
     end
   end

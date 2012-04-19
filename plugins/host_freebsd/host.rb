@@ -1,18 +1,17 @@
 require 'vagrant/util/platform'
 
-module Vagrant
-  module Hosts
-    # Represents a FreeBSD host
-    class FreeBSD < BSD
-      class FreeBSDHostError < Errors::VagrantError
+module VagrantPlugins
+  module HostFreeBSD
+    class Host < VagrantPlugins::HostBSD::Host
+      class FreeBSDHostError < Vagrant::Errors::VagrantError
         error_namespace("vagrant.hosts.freebsd")
       end
 
-      include Util
-      include Util::Retryable
+      include Vagrant::Util
+      include Vagrant::Util::Retryable
 
       def self.match?
-        Util::Platform.freebsd?
+        Vagrant::Util::Platform.freebsd?
       end
 
       # Normal, mid-range precedence.

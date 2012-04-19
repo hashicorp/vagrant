@@ -2,15 +2,15 @@ require 'log4r'
 
 require 'vagrant/util/platform'
 
-module Vagrant
-  module Hosts
+module VagrantPlugins
+  module HostLinux
     # Represents a Linux based host, such as Ubuntu.
-    class Linux < Base
-      include Util
-      include Util::Retryable
+    class Host < Vagrant::Hosts::Base
+      include Vagrant::Util
+      include Vagrant::Util::Retryable
 
       def self.match?
-        Util::Platform.linux?
+        Vagrant::Util::Platform.linux?
       end
 
       def self.precedence

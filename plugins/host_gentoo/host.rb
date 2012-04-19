@@ -1,6 +1,6 @@
-module Vagrant
-  module Hosts
-    class Gentoo < Linux
+module VagrantPlugins
+  module HostGentoo
+    class Host < VagrantPlugins::HostLinux::Host
       def self.match?
         return File.exists?("/etc/gentoo-release")
       end

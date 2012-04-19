@@ -1,6 +1,6 @@
-module Vagrant
-  module Hosts
-    class Arch < Linux
+module VagrantPlugins
+  module HostArch
+    class Host < VagrantPlugins::HostLinux::Host
       def self.match?
         File.exist?("/etc/rc.conf") && File.exist?("/etc/pacman.conf")
       end

@@ -178,7 +178,15 @@ module Vagrant
       # check is done after the detect check because the symbol check
       # will return nil, and we don't want to trigger a detect load.
       host_klass = config.global.vagrant.host
-      host_klass = Hosts.detect(Vagrant.hosts) if host_klass.nil? || host_klass == :detect
+      if host_klass.nil? || host_klass == :detect
+        hosts = {}
+        Vagrant.plugin("1").registered.each do |plugin|
+          hosts = hosts.merge(plugin.host.to_hash)
+        end
+
+        # Get the flattened list of available hosts
+        host_klass = Hosts.detect(hosts)
+      end
       host_klass = Vagrant.hosts.get(host_klass) if host_klass.is_a?(Symbol)
 
       # If no host class is detected, we use the base class.

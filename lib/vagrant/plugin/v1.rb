@@ -72,6 +72,20 @@ module Vagrant
         data[:guests]
       end
 
+      # Defines an additionally available host implementation with
+      # the given key.
+      #
+      # @param [String] name Name of the host.
+      def self.host(name=UNSET_VALUE, &block)
+        data[:hosts] ||= Registry.new
+
+        # Register a new host class only if a name was given
+        data[:hosts].register(name.to_sym, &block) if name != UNSET_VALUE
+
+        # Return the registry
+        data[:hosts]
+      end
+
       # Registers additional provisioners to be available.
       #
       # @param [String] name Name of the provisioner.
