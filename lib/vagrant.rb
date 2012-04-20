@@ -111,15 +111,31 @@ end
 # # Default I18n to load the en locale
 I18n.load_path << File.expand_path("templates/locales/en.yml", Vagrant.source_root)
 
-# Load the core plugins that ship with Vagrant
-Vagrant.source_root.join("plugins").each_child do |directory|
+# A lambda that knows how to load plugins from a single directory.
+plugin_load_proc = lambda do |directory|
   # We only care about directories
+  return false if !directory.directory?
+
+  # If there is a plugin file in the top-level directory, then load
+  # that up.
+  plugin_file = directory.join("plugin.rb")
+  if plugin_file.file?
+    load(plugin_file)
+    return true
+  end
+end
+
+# Go through the `plugins` directory and attempt to load any plugins. The
+# plugins are allowed to be in a directory in `plugins` or at most one
+# directory deep within the plugins directory. So a plugin can be at
+# `plugins/foo` or also at `plugins/foo/bar`, but no deeper.
+Vagrant.source_root.join("plugins").each_child do |directory|
+  # Ignore non-directories
   next if !directory.directory?
 
-  # We only care if there is a plugin file within the directory
-  plugin_file = directory.join("plugin.rb")
-  next if !plugin_file.file?
+  # Load from this directory, and exit if we successfully loaded a plugin
+  next if plugin_load_proc.call(directory)
 
-  # Load the plugin!
-  load(plugin_file)
+  # Otherwise, attempt to load from sub-directories
+  directory.each_child(&plugin_load_proc)
 end
