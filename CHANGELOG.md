@@ -1,5 +1,10 @@
 ## 1.1.0 (unreleased)
 
+  - New plugin system which adds much more structure and stability to
+    the overall API. The goal of this system is to make it easier to write
+    powerful plugins for Vagrant while providing a backwards-compatible API
+    so that plugins will always _load_ (though they will almost certainly
+    not be _functional_ in future versions of Vagrant).
   - Improve the SSH "ready?" check. [GH-841]
   - Human friendly error if connection times out for HTTP downloads. [GH-849]
   - Detect when the VirtualBox installation is incomplete and error. [GH-846]
