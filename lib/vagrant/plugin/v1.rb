@@ -1,7 +1,7 @@
 require "log4r"
 
 module Vagrant
-  class Plugin
+  module Plugin
     # The superclass for version 1 plugins.
     class V1
       LOGGER = Log4r::Logger.new("vagrant::plugin::v1")
