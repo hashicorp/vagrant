@@ -1,11 +1,11 @@
 require 'optparse'
 
-require 'vagrant/command/start_mixins'
-
 module VagrantPlugins
   module CommandReload
     class Command < Vagrant::Command::Base
-      include Vagrant::Command::StartMixins
+      # We assume that the `up` plugin exists and that we'll have access
+      # to this.
+      include Vagrant::CommandUp::StartMixins
 
       def execute
         options = {}

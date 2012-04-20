@@ -1,11 +1,9 @@
 require 'optparse'
 
-require 'vagrant/command/start_mixins'
-
 module VagrantPlugins
   module CommandUp
     class Command < Vagrant::Command::Base
-      include Vagrant::Command::StartMixins
+      include StartMixins
 
       def execute
         options = {}

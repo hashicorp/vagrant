@@ -1,5 +1,5 @@
-module Vagrant
-  module Command
+module VagrantPlugins
+  module CommandUp
     module StartMixins
       # This adds the standard `start` command line flags to the given
       # OptionParser, storing the result in the `options` dictionary.
