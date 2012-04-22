@@ -9,7 +9,7 @@ module VagrantPlugins
 
           @main_args, @sub_command, @sub_args = split_main_and_subcommand(argv)
 
-          @subcommands = Registry.new
+          @subcommands = Vagrant::Registry.new
           @subcommands.register(:add)       { Add }
           @subcommands.register(:list)      { List }
           @subcommands.register(:remove)    { Remove }

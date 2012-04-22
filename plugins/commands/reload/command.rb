@@ -5,7 +5,7 @@ module VagrantPlugins
     class Command < Vagrant::Command::Base
       # We assume that the `up` plugin exists and that we'll have access
       # to this.
-      include Vagrant::CommandUp::StartMixins
+      include VagrantPlugins::CommandUp::StartMixins
 
       def execute
         options = {}
