@@ -328,7 +328,7 @@ ul.nav.list > li {
 
 .company-logos {
   background: url('/static/images/comp.png') no-repeat;
-  height:318px;
+  height:350px;
   width:300px;
   position: relative;
   float: right;
