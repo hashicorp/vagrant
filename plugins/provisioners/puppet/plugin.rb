@@ -1,7 +1,7 @@
 require "vagrant"
 
 module VagrantPlugins
-  module Pupppet
+  module Puppet
     module Provisioner
       autoload :Puppet,   File.expand_path("../provisioner/puppet", __FILE__)
       autoload :PuppetServer, File.expand_path("../provisioner/puppet_server", __FILE__)

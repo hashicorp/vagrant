@@ -6,7 +6,7 @@ module VagrantPlugins
         error_namespace(I18N_NAMESPACE)
       end
 
-      class PuppetServer < Base
+      class PuppetServer < Vagrant::Provisioners::Base
         class Config < Vagrant::Config::Base
           attr_accessor :puppet_server
           attr_accessor :puppet_node
