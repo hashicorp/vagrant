@@ -35,6 +35,11 @@ module Vagrant
             # get shown
             return true if @env[:interrupted]
 
+            # If the VM is not starting or running, something went wrong
+            # and we need to show a useful error.
+            state = @env[:vm].state
+            raise Errors::VMFailedToRun if state != :starting && state != :running
+
             sleep 2 if !@env["vagrant.test"]
           end
 

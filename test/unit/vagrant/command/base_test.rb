@@ -33,7 +33,7 @@ describe Vagrant::Command::Base do
     ["-h", "--help"].each do |help_string|
       it "returns nil and prints the help if '#{help_string}' is given" do
         instance = klass.new([help_string], nil)
-        instance.should_receive(:puts)
+        instance.should_receive(:safe_puts)
         instance.parse_options(OptionParser.new).should be_nil
       end
     end

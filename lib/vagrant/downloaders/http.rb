@@ -68,6 +68,8 @@ module Vagrant
             @ui.clear_line
           end
         end
+      rescue Errno::ETIMEDOUT
+        raise Errors::DownloaderHTTPConnectTimeout
       rescue SocketError
         raise Errors::DownloaderHTTPSocketError
       end

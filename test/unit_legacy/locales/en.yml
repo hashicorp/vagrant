@@ -1,8 +1,0 @@
-en:
-  vagrant:
-    test:
-      errors:
-        test_key: This is a test key
-        test_key_with_interpolation: This is a test key that says %{key}
-      alternate:
-        test_key: This is an alternate

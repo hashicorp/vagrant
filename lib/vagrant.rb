@@ -91,107 +91,51 @@ module Vagrant
     @source_root ||= Pathname.new(File.expand_path('../../', __FILE__))
   end
 
-  # Global registry of commands that are available via the CLI.
+  # Returns a superclass to use when creating a plugin for Vagrant.
+  # Given a specific version, this returns a proper superclass to use
+  # to register plugins for that version.
   #
-  # This registry is used to look up the sub-commands that are available
-  # to Vagrant.
-  def self.commands
-    @commands ||= Registry.new
-  end
+  # Plugins should subclass the class returned by this method, and will
+  # be registered as soon as they have a name associated with them.
+  #
+  # @return [Class]
+  def self.plugin(version)
+    # We only support version 1 right now.
+    return Plugin::V1 if version == "1"
 
-  # Global registry of config keys that are available.
-  #
-  # This registry is used to look up the keys for `config` objects.
-  # For example, `config.vagrant` looks up the `:vagrant` config key
-  # for the configuration class to use.
-  def self.config_keys
-    @config_keys ||= Registry.new
-  end
-
-  # Global registry of available host classes and shortcut symbols
-  # associated with them.
-  #
-  # This registry is used to look up the shorcuts for `config.vagrant.host`,
-  # or to query all hosts for automatically detecting the host system.
-  # The registry is global to all of Vagrant.
-  def self.hosts
-    @hosts ||= Registry.new
-  end
-
-  # Global registry of available guest classes and shortcut symbols
-  # associated with them.
-  #
-  # This registry is used to look up the shortcuts for `config.vm.guest`.
-  def self.guests
-    @guests ||= Registry.new
-  end
-
-  # Global registry of provisioners.
-  #
-  # This registry is used to look up the provisioners provided for
-  # `config.vm.provision`.
-  def self.provisioners
-    @provisioners ||= Registry.new
+    # Raise an error that the plugin version is invalid
+    raise ArgumentError, "Invalid plugin version API: #{version}"
   end
 end
 
 # # Default I18n to load the en locale
 I18n.load_path << File.expand_path("templates/locales/en.yml", Vagrant.source_root)
 
-# Register the built-in commands
-Vagrant.commands.register(:box)          { Vagrant::Command::Box }
-Vagrant.commands.register(:destroy)      { Vagrant::Command::Destroy }
-Vagrant.commands.register(:gem)          { Vagrant::Command::Gem }
-Vagrant.commands.register(:halt)         { Vagrant::Command::Halt }
-Vagrant.commands.register(:init)         { Vagrant::Command::Init }
-Vagrant.commands.register(:package)      { Vagrant::Command::Package }
-Vagrant.commands.register(:provision)    { Vagrant::Command::Provision }
-Vagrant.commands.register(:reload)       { Vagrant::Command::Reload }
-Vagrant.commands.register(:resume)       { Vagrant::Command::Resume }
-Vagrant.commands.register(:ssh)          { Vagrant::Command::SSH }
-Vagrant.commands.register(:"ssh-config") { Vagrant::Command::SSHConfig }
-Vagrant.commands.register(:status)       { Vagrant::Command::Status }
-Vagrant.commands.register(:suspend)      { Vagrant::Command::Suspend }
-Vagrant.commands.register(:up)           { Vagrant::Command::Up }
+# A lambda that knows how to load plugins from a single directory.
+plugin_load_proc = lambda do |directory|
+  # We only care about directories
+  return false if !directory.directory?
 
-# Register the built-in config keys
-Vagrant.config_keys.register(:vagrant) { Vagrant::Config::VagrantConfig }
-Vagrant.config_keys.register(:ssh)     { Vagrant::Config::SSHConfig }
-Vagrant.config_keys.register(:nfs)     { Vagrant::Config::NFSConfig }
-Vagrant.config_keys.register(:vm)      { Vagrant::Config::VMConfig }
-Vagrant.config_keys.register(:package) { Vagrant::Config::PackageConfig }
+  # If there is a plugin file in the top-level directory, then load
+  # that up.
+  plugin_file = directory.join("plugin.rb")
+  if plugin_file.file?
+    load(plugin_file)
+    return true
+  end
+end
 
-# Register the built-in hosts
-Vagrant.hosts.register(:arch)    { Vagrant::Hosts::Arch }
-Vagrant.hosts.register(:bsd)     { Vagrant::Hosts::BSD }
-Vagrant.hosts.register(:fedora)  { Vagrant::Hosts::Fedora }
-Vagrant.hosts.register(:opensuse)  { Vagrant::Hosts::OpenSUSE }
-Vagrant.hosts.register(:freebsd) { Vagrant::Hosts::FreeBSD }
-Vagrant.hosts.register(:gentoo)  { Vagrant::Hosts::Gentoo }
-Vagrant.hosts.register(:linux)   { Vagrant::Hosts::Linux }
-Vagrant.hosts.register(:windows) { Vagrant::Hosts::Windows }
+# Go through the `plugins` directory and attempt to load any plugins. The
+# plugins are allowed to be in a directory in `plugins` or at most one
+# directory deep within the plugins directory. So a plugin can be at
+# `plugins/foo` or also at `plugins/foo/bar`, but no deeper.
+Vagrant.source_root.join("plugins").each_child do |directory|
+  # Ignore non-directories
+  next if !directory.directory?
 
-# Register the built-in guests
-Vagrant.guests.register(:arch)    { Vagrant::Guest::Arch }
-Vagrant.guests.register(:debian)  { Vagrant::Guest::Debian }
-Vagrant.guests.register(:fedora)  { Vagrant::Guest::Fedora }
-Vagrant.guests.register(:freebsd) { Vagrant::Guest::FreeBSD }
-Vagrant.guests.register(:gentoo)  { Vagrant::Guest::Gentoo }
-Vagrant.guests.register(:linux)   { Vagrant::Guest::Linux }
-Vagrant.guests.register(:openbsd) { Vagrant::Guest::OpenBSD }
-Vagrant.guests.register(:redhat)  { Vagrant::Guest::Redhat }
-Vagrant.guests.register(:solaris) { Vagrant::Guest::Solaris }
-Vagrant.guests.register(:suse)    { Vagrant::Guest::Suse }
-Vagrant.guests.register(:ubuntu)  { Vagrant::Guest::Ubuntu }
+  # Load from this directory, and exit if we successfully loaded a plugin
+  next if plugin_load_proc.call(directory)
 
-# Register the built-in provisioners
-Vagrant.provisioners.register(:chef_solo)     { Vagrant::Provisioners::ChefSolo }
-Vagrant.provisioners.register(:chef_client)   { Vagrant::Provisioners::ChefClient }
-Vagrant.provisioners.register(:puppet)        { Vagrant::Provisioners::Puppet }
-Vagrant.provisioners.register(:puppet_server) { Vagrant::Provisioners::PuppetServer }
-Vagrant.provisioners.register(:shell)         { Vagrant::Provisioners::Shell }
-
-# Register the built-in systems
-Vagrant.config_keys.register(:freebsd) { Vagrant::Guest::FreeBSD::FreeBSDConfig }
-Vagrant.config_keys.register(:linux)   { Vagrant::Guest::Linux::LinuxConfig }
-Vagrant.config_keys.register(:solaris) { Vagrant::Guest::Solaris::SolarisConfig }
+  # Otherwise, attempt to load from sub-directories
+  directory.each_child(&plugin_load_proc)
+end

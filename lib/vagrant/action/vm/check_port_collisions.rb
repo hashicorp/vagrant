@@ -1,9 +1,13 @@
+require "vagrant/util/is_port_open"
+
 module Vagrant
   module Action
     module VM
       # Action that checks to make sure there are no forwarded port collisions,
       # and raises an exception if there is.
       class CheckPortCollisions
+        include Util::IsPortOpen
+
         def initialize(app, env)
           @app = app
         end
@@ -29,7 +33,7 @@ module Vagrant
             hostport = options[:hostport].to_i
             hostport = current[options[:name]] if current.has_key?(options[:name])
 
-            if existing.include?(hostport)
+            if existing.include?(hostport) || is_port_open?("localhost", hostport)
               # We have a collision! Handle it
               send("handle_#{handler}".to_sym, options, existing)
             end

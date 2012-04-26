@@ -25,8 +25,8 @@ module Vagrant
       def clear_shared_folders
         info = execute("showvminfo", @uuid, "--machinereadable", :retryable => true)
         info.split("\n").each do |line|
-          if line =~ /^SharedFolderNameMachineMapping\d+="(.+?)"$/
-            execute("sharedfolder", "remove", @uuid, "--name", $1.to_s)
+          if folder = line[/^SharedFolderNameMachineMapping\d+="(.+?)"$/, 1]
+            execute("sharedfolder", "remove", @uuid, "--name", folder)
           end
         end
       end
@@ -42,8 +42,8 @@ module Vagrant
 
       def create_host_only_network(options)
         # Create the interface
-        execute("hostonlyif", "create") =~ /^Interface '(.+?)' was successfully created$/
-        name = $1.to_s
+        interface = execute("hostonlyif", "create")
+        name = interface[/^Interface '(.+?)' was successfully created$/, 1]
 
         # Configure it
         execute("hostonlyif", "ipconfig", name,
@@ -66,15 +66,17 @@ module Vagrant
       def delete_unused_host_only_networks
         networks = []
         execute("list", "hostonlyifs").split("\n").each do |line|
-          networks << $1.to_s if line =~ /^Name:\s+(.+?)$/
+          if network = line[/^Name:\s+(.+?)$/, 1]
+            networks << network
+          end
         end
 
         execute("list", "vms").split("\n").each do |line|
-          if line =~ /^".+?"\s+\{(.+?)\}$/
-            info = execute("showvminfo", $1.to_s, "--machinereadable", :retryable => true)
+          if vm = line[/^".+?"\s+\{(.+?)\}$/, 1]
+            info = execute("showvminfo", vm, "--machinereadable", :retryable => true)
             info.split("\n").each do |line|
-              if line =~ /^hostonlyadapter\d+="(.+?)"$/
-                networks.delete($1.to_s)
+              if adapter = line[/^hostonlyadapter\d+="(.+?)"$/, 1]
+                networks.delete(adapter)
               end
             end
           end
@@ -170,8 +172,8 @@ module Vagrant
             if lines.include?("OK.")
               # The progress of the import will be in the last line. Do a greedy
               # regular expression to find what we're looking for.
-              if lines.last =~ /.+(\d{2})%/
-                current = $1.to_i
+              if current = lines.last[/.+(\d{2})%/, 1]
+                current = current.to_i
                 if current > last
                   last = current
                   yield current if block_given?
@@ -182,16 +184,15 @@ module Vagrant
         end
 
         # Find the name of the VM name
-        if output !~ /Suggested VM name "(.+?)"/
+        name = output[/Suggested VM name "(.+?)"/, 1]
+        if !name
           @logger.error("Couldn't find VM name in the output.")
           return nil
         end
 
-        name = $1.to_s
-
         output = execute("list", "vms")
-        if output =~ /^"#{Regexp.escape(name)}" \{(.+?)\}$/
-          return $1.to_s
+        if existing_vm = output[/^"#{Regexp.escape(name)}" \{(.+?)\}$/, 1]
+          return existing_vm
         end
 
         nil
@@ -208,17 +209,19 @@ module Vagrant
         info.split("\n").each do |line|
           # This is how we find the nic that a FP is attached to,
           # since this comes first.
-          current_nic = $1.to_i if line =~ /^nic(\d+)=".+?"$/
+          if nic = line[/^nic(\d+)=".+?"$/, 1]
+            current_nic = nic.to_i
+          end
 
           # If we care about active VMs only, then we check the state
           # to verify the VM is running.
-          if active_only && line =~ /^VMState="(.+?)"$/ && $1.to_s != "running"
+          if active_only && (state = line[/^VMState="(.+?)"$/, 1] and state != "running")
             return []
           end
 
           # Parse out the forwarded port information
-          if line =~ /^Forwarding.+?="(.+?),.+?,.*?,(.+?),.*?,(.+?)"$/
-            result = [current_nic, $1.to_s, $2.to_i, $3.to_i]
+          if matcher = /^Forwarding.+?="(.+?),.+?,.*?,(.+?),.*?,(.+?)"$/.match(line)
+            result = [current_nic, matcher[1], matcher[2].to_i, matcher[3].to_i]
             @logger.debug("  - #{result.inspect}")
             results << result
           end
@@ -232,14 +235,14 @@ module Vagrant
           info = {}
 
           block.split("\n").each do |line|
-            if line =~ /^Name:\s+(.+?)$/
-              info[:name] = $1.to_s
-            elsif line =~ /^IPAddress:\s+(.+?)$/
-              info[:ip] = $1.to_s
-            elsif line =~ /^NetworkMask:\s+(.+?)$/
-              info[:netmask] = $1.to_s
-            elsif line =~ /^Status:\s+(.+?)$/
-              info[:status] = $1.to_s
+            if name = line[/^Name:\s+(.+?)$/, 1]
+              info[:name] = name
+            elsif ip = line[/^IPAddress:\s+(.+?)$/, 1]
+              info[:ip] = ip
+            elsif netmask = line[/^NetworkMask:\s+(.+?)$/, 1]
+              info[:netmask] = netmask
+            elsif status = line[/^Status:\s+(.+?)$/, 1]
+              info[:status] = status
             end
           end
 
@@ -251,11 +254,10 @@ module Vagrant
       def read_guest_additions_version
         output = execute("guestproperty", "get", @uuid, "/VirtualBox/GuestAdd/Version",
                          :retryable => true)
-        if output =~ /^Value: (.+?)$/
+        if value = output[/^Value: (.+?)$/, 1]
           # Split the version by _ since some distro versions modify it
           # to look like this: 4.1.2_ubuntu, and the distro part isn't
           # too important.
-          value = $1.to_s
           return value.split("_").first
         end
 
@@ -268,14 +270,14 @@ module Vagrant
           info = {}
 
           block.split("\n").each do |line|
-            if line =~ /^NetworkName:\s+HostInterfaceNetworking-(.+?)$/
-              info[:network] = $1.to_s
-            elsif line =~ /^IP:\s+(.+?)$/
-              info[:ip] = $1.to_s
-            elsif line =~ /^lowerIPAddress:\s+(.+?)$/
-              info[:lower] = $1.to_s
-            elsif line =~ /^upperIPAddress:\s+(.+?)$/
-              info[:upper] = $1.to_s
+            if network = line[/^NetworkName:\s+HostInterfaceNetworking-(.+?)$/, 1]
+              info[:network] = network
+            elsif ip = line[/^IP:\s+(.+?)$/, 1]
+              info[:ip] = ip
+            elsif lower = line[/^lowerIPAddress:\s+(.+?)$/, 1]
+              info[:lower] = lower
+            elsif upper = line[/^upperIPAddress:\s+(.+?)$/, 1]
+              info[:upper] = upper
             end
           end
 
@@ -287,14 +289,14 @@ module Vagrant
           info = {}
 
           block.split("\n").each do |line|
-            if line =~ /^Name:\s+(.+?)$/
-              info[:name] = $1.to_s
-            elsif line =~ /^IPAddress:\s+(.+?)$/
-              info[:ip] = $1.to_s
-            elsif line =~ /^NetworkMask:\s+(.+?)$/
-              info[:netmask] = $1.to_s
-            elsif line =~ /^Status:\s+(.+?)$/
-              info[:status] = $1.to_s
+            if name = line[/^Name:\s+(.+?)$/, 1]
+              info[:name] = name
+            elsif ip = line[/^IPAddress:\s+(.+?)$/, 1]
+              info[:ip] = ip
+            elsif netmask = line[/^NetworkMask:\s+(.+?)$/, 1]
+              info[:netmask] = netmask
+            elsif status = line[/^Status:\s+(.+?)$/, 1]
+              info[:status] = status
             end
           end
 
@@ -308,7 +310,9 @@ module Vagrant
       def read_mac_address
         info = execute("showvminfo", @uuid, "--machinereadable", :retryable => true)
         info.split("\n").each do |line|
-          return $1.to_s if line =~ /^macaddress1="(.+?)"$/
+          if mac = line[/^macaddress1="(.+?)"$/, 1]
+            return mac
+          end
         end
 
         nil
@@ -316,8 +320,8 @@ module Vagrant
 
       def read_machine_folder
         execute("list", "systemproperties", :retryable => true).split("\n").each do |line|
-          if line =~ /^Default machine folder:\s+(.+?)$/i
-            return $1.to_s
+          if folder = line[/^Default machine folder:\s+(.+?)$/i, 1]
+            return folder
           end
         end
 
@@ -328,21 +332,21 @@ module Vagrant
         nics = {}
         info = execute("showvminfo", @uuid, "--machinereadable", :retryable => true)
         info.split("\n").each do |line|
-          if line =~ /^nic(\d+)="(.+?)"$/
-            adapter = $1.to_i
-            type    = $2.to_sym
+          if matcher = /^nic(\d+)="(.+?)"$/.match(line)
+            adapter = matcher[1].to_i
+            type    = matcher[2].to_sym
 
             nics[adapter] ||= {}
             nics[adapter][:type] = type
-          elsif line =~ /^hostonlyadapter(\d+)="(.+?)"$/
-            adapter = $1.to_i
-            network = $2.to_s
+          elsif matcher = /^hostonlyadapter(\d+)="(.+?)"$/.match(line)
+            adapter = matcher[1].to_i
+            network = matcher[2].to_s
 
             nics[adapter] ||= {}
             nics[adapter][:hostonly] = network
-          elsif line =~ /^bridgeadapter(\d+)="(.+?)"$/
-            adapter = $1.to_i
-            network = $2.to_s
+          elsif matcher = /^bridgeadapter(\d+)="(.+?)"$/.match(line)
+            adapter = matcher[1].to_i
+            network = matcher[2].to_s
 
             nics[adapter] ||= {}
             nics[adapter][:bridge] = network
@@ -356,8 +360,8 @@ module Vagrant
         output = execute("showvminfo", @uuid, "--machinereadable", :retryable => true)
         if output =~ /^name="<inaccessible>"$/
           return :inaccessible
-        elsif output =~ /^VMState="(.+?)"$/
-          return $1.to_sym
+        elsif state = output[/^VMState="(.+?)"$/, 1]
+          return state.to_sym
         end
 
         nil
@@ -366,9 +370,7 @@ module Vagrant
       def read_used_ports
         ports = []
         execute("list", "vms", :retryable => true).split("\n").each do |line|
-          if line =~ /^".+?" \{(.+?)\}$/
-            uuid = $1.to_s
-
+          if uuid = line[/^".+?" \{(.+?)\}$/, 1]
             # Ignore our own used ports
             next if uuid == @uuid
 
@@ -384,8 +386,8 @@ module Vagrant
       def read_vms
         results = []
         execute("list", "vms", :retryable => true).split("\n").each do |line|
-          if line =~ /^".+?" \{(.+?)\}$/
-            results << $1.to_s
+          if vm = line[/^".+?" \{(.+?)\}$/, 1]
+            results << vm
           end
         end
 
