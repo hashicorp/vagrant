@@ -9,6 +9,7 @@ Host <%= host_key %>
   IdentityFile <%= private_key_path %>
 <% end %>
   IdentitiesOnly yes
+  LogLevel QUIET
 <% if forward_agent -%>
   ForwardAgent yes
 <% end -%>

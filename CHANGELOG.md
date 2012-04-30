@@ -1,3 +1,17 @@
+## 1.1.0 (unreleased)
+
+  - New plugin system which adds much more structure and stability to
+    the overall API. The goal of this system is to make it easier to write
+    powerful plugins for Vagrant while providing a backwards-compatible API
+    so that plugins will always _load_ (though they will almost certainly
+    not be _functional_ in future versions of Vagrant).
+  - Improve the SSH "ready?" check. [GH-841]
+  - Human friendly error if connection times out for HTTP downloads. [GH-849]
+  - Detect when the VirtualBox installation is incomplete and error. [GH-846]
+  - Use `LogLevel QUIET` for SSH to suppress the known hosts warning. [GH-847]
+  - VMs in the "guru meditation" state can be destroyed now using
+    `vagrant destroy`.
+
 ## 1.0.2 (March 25, 2012)
 
   - Provisioners will still mount folders and such if `--no-provision` is

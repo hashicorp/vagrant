@@ -25,16 +25,15 @@ module Vagrant
       def ready?
         @logger.debug("Checking whether SSH is ready...")
 
-        Timeout.timeout(@vm.config.ssh.timeout) do
-          connect
-        end
+        # Attempt to connect. This will raise an exception if it fails.
+        connect
 
         # If we reached this point then we successfully connected
         @logger.info("SSH is ready!")
         true
-      rescue Timeout::Error, Errors::SSHConnectionRefused, Net::SSH::Disconnect => e
-        # The above errors represent various reasons that SSH may not be
-        # ready yet. Return false.
+      rescue Errors::VagrantError => e
+        # We catch a `VagrantError` which would signal that something went
+        # wrong expectedly in the `connect`, which means we didn't connect.
         @logger.info("SSH not up: #{e.inspect}")
         return false
       end
@@ -133,11 +132,16 @@ module Vagrant
         # Connect to SSH, giving it a few tries
         connection = nil
         begin
-          @logger.info("Connecting to SSH: #{ssh_info[:host]}:#{ssh_info[:port]}")
-          exceptions = [Errno::ECONNREFUSED, Net::SSH::Disconnect]
+          exceptions = [Errno::ECONNREFUSED, Net::SSH::Disconnect, Timeout::Error]
           connection = retryable(:tries => @vm.config.ssh.max_tries, :on => exceptions) do
-            Net::SSH.start(ssh_info[:host], ssh_info[:username], opts)
+            Timeout.timeout(@vm.config.ssh.timeout) do
+              @logger.info("Attempting to connect to SSH: #{ssh_info[:host]}:#{ssh_info[:port]}")
+              Net::SSH.start(ssh_info[:host], ssh_info[:username], opts)
+            end
           end
+        rescue Timeout::Error
+          # This happens if we continued to timeout when attempting to connect.
+          raise Errors::SSHConnectionTimeout
         rescue Net::SSH::AuthenticationFailed
           # This happens if authentication failed. We wrap the error in our
           # own exception.

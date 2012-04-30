@@ -1,7 +1,7 @@
 require File.expand_path("../../base", __FILE__)
 
 describe Vagrant::Hosts do
-  let(:registry) { Vagrant::Registry.new }
+  let(:registry) { Hash.new }
 
   it "detects the host that matches true" do
     foo_klass = Class.new(Vagrant::Hosts::Base) do
@@ -12,8 +12,8 @@ describe Vagrant::Hosts do
       def self.match?; true; end
     end
 
-    registry.register(:foo, foo_klass)
-    registry.register(:bar, bar_klass)
+    registry[:foo] = foo_klass
+    registry[:bar] = bar_klass
 
     described_class.detect(registry).should == bar_klass
   end
@@ -28,8 +28,8 @@ describe Vagrant::Hosts do
       def self.precedence; 9; end
     end
 
-    registry.register(:foo, foo_klass)
-    registry.register(:bar, bar_klass)
+    registry[:foo] = foo_klass
+    registry[:bar] = bar_klass
 
     described_class.detect(registry).should == bar_klass
   end

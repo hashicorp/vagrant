@@ -122,6 +122,12 @@ module Vagrant
         output = execute("--version")
         if output =~ /vboxdrv kernel module is not loaded/
           raise Errors::VirtualBoxKernelModuleNotLoaded
+        elsif output =~ /Please install/
+          # Check for installation incomplete warnings, for example:
+          # "WARNING: The character device /dev/vboxdrv does not
+          # exist. Please install the virtualbox-ose-dkms package and
+          # the appropriate headers, most likely linux-headers-generic."
+           raise Errors::VirtualBoxInstallIncomplete
         end
 
         parts = output.split("_")

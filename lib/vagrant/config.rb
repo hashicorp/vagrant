@@ -6,11 +6,7 @@ module Vagrant
     autoload :Loader,        'vagrant/config/loader'
     autoload :Top,           'vagrant/config/top'
 
-    autoload :NFSConfig,     'vagrant/config/nfs'
-    autoload :PackageConfig, 'vagrant/config/package'
-    autoload :SSHConfig,     'vagrant/config/ssh'
-    autoload :VagrantConfig, 'vagrant/config/vagrant'
-    autoload :VMConfig,      'vagrant/config/vm'
+    autoload :V1,            'vagrant/config/v1'
 
     CONFIGURE_MUTEX = Mutex.new
 

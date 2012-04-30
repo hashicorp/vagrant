@@ -163,6 +163,11 @@ module Vagrant
       error_key(:file_missing, "vagrant.downloaders.file")
     end
 
+    class DownloaderHTTPConnectTimeout < VagrantError
+      status_code(79)
+      error_key(:connection_timeout, "vagrant.downloaders.http")
+    end
+
     class DownloaderHTTPSocketError < VagrantError
       status_code(38)
       error_key(:socket_error, "vagrant.downloaders.http")
@@ -313,6 +318,11 @@ module Vagrant
       error_key(:ssh_connection_refused)
     end
 
+    class SSHConnectionTimeout < VagrantError
+      status_code(78)
+      error_key(:ssh_connection_timeout)
+    end
+
     class SSHKeyBadPermissions < VagrantError
       status_code(12)
       error_key(:ssh_key_bad_permissions)
@@ -376,6 +386,11 @@ module Vagrant
     class VirtualBoxKernelModuleNotLoaded < VagrantError
       status_code(70)
       error_key(:virtualbox_kernel_module_not_loaded)
+    end
+
+    class VirtualBoxInstallIncomplete < VagrantError
+      status_code(80)
+      error_key(:virtualbox_install_incomplete)
     end
 
     class VMBaseMacNotSpecified < VagrantError

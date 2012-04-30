@@ -84,10 +84,10 @@ module Vagrant
 
       # Command line options
       command_options = ["-p", options[:port].to_s, "-o", "UserKnownHostsFile=/dev/null",
-                         "-o", "StrictHostKeyChecking=no", "-o", "LogLevel=ERROR"]
+                         "-o", "StrictHostKeyChecking=no", "-o", "LogLevel=QUIET"]
 
       # Solaris/OpenSolaris/Illumos uses SunSSH which doesn't support the IdentitiesOnly option
-      command_options += ["-o", "IdentitiesOnly=yes"] unless Util::Platform.solaris?
+      command_options += ["-o", "IdentitiesOnly=yes"] if !Util::Platform.solaris?
 
       if !plain_mode then
         if ! (options[:private_key_paths].nil? || options[:private_key_paths].empty?) then
