@@ -117,7 +117,7 @@ module Vagrant
         # Build the options we'll use to initiate the connection via Net::SSH
         opts = {
           :port                  => ssh_info[:port],
-          :keys                  => [ssh_info[:private_key_path]],
+          :keys                  => ssh_info[:private_key_paths],
           :keys_only             => true,
           :user_known_hosts_file => [],
           :paranoid              => false,
@@ -126,7 +126,9 @@ module Vagrant
         }
 
         # Check that the private key permissions are valid
-        @vm.ssh.check_key_permissions(ssh_info[:private_key_path])
+        ssh_info[:private_key_paths].each do |private_key_path|
+          @vm.ssh.check_key_permissions(private_key_path)
+        end
 
         # Connect to SSH, giving it a few tries
         connection = nil

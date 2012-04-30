@@ -45,8 +45,8 @@ and you're welcome to give it a shot. The following is an example showing how to
 
 ### Dependencies and Unit Tests
 
-To hack on vagrant, you'll need [bundler](http://github.com/carlhuda/bundler) which can
-be installed with a simple `gem install bundler`. Afterwords, do the following:
+To hack on vagrant, you'll need ruby 1.9.1 or later and [bundler](http://github.com/carlhuda/bundler)
+which can be installed with a simple `gem install bundler`. Afterwords, do the following:
 
     bundle install
     rake

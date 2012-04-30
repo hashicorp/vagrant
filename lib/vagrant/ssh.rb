@@ -32,14 +32,22 @@ module Vagrant
       # can't detect an SSH port.
       raise Errors::SSHPortNotDetected if !results[:port]
 
-      # Determine the private key path, which is either set by the
+      # Determine the private key paths, which are either set by the
       # configuration or uses just the built-in insecure key.
-      pk_path = @vm.config.ssh.private_key_path || @vm.env.default_private_key_path
-      results[:private_key_path] = File.expand_path(pk_path, @vm.env.root_path)
+      pk_paths = if @vm.config.ssh.private_key_paths.nil? || @vm.config.ssh.private_key_paths.empty? then
+                   [@vm.env.default_private_key_path]
+                 else
+                   @vm.config.ssh.private_key_paths
+                 end
+      results[:private_key_paths] = pk_paths.map do |pk_path|
+        File.expand_path(pk_path, @vm.env.root_path)
+      end
 
       # We need to check and fix the private key permissions
       # to make sure that SSH gets a key with 0600 perms.
-      check_key_permissions(results[:private_key_path])
+      results[:private_key_paths].each do |private_key_path|
+        check_key_permissions(private_key_path)
+      end
 
       # Return the results
       return results
@@ -59,7 +67,7 @@ module Vagrant
         raise Errors::SSHUnavailableWindows, :host => ssh_info[:host],
                                              :port => ssh_info[:port],
                                              :username => ssh_info[:username],
-                                             :key_path => ssh_info[:private_key_path]
+                                             :key_paths => ssh_info[:private_key_paths]
       end
 
       raise Errors::SSHUnavailable if !Kernel.system("which ssh > /dev/null 2>&1")
@@ -72,7 +80,7 @@ module Vagrant
       options[:host] = ssh_info[:host]
       options[:port] = ssh_info[:port]
       options[:username] = ssh_info[:username]
-      options[:private_key_path] = ssh_info[:private_key_path]
+      options[:private_key_paths] = ssh_info[:private_key_paths]
 
       # Command line options
       command_options = ["-p", options[:port].to_s, "-o", "UserKnownHostsFile=/dev/null",
@@ -81,7 +89,13 @@ module Vagrant
       # Solaris/OpenSolaris/Illumos uses SunSSH which doesn't support the IdentitiesOnly option
       command_options += ["-o", "IdentitiesOnly=yes"] unless Util::Platform.solaris?
 
-      command_options += ["-i", options[:private_key_path]] if !plain_mode
+      if !plain_mode then
+        if ! (options[:private_key_paths].nil? || options[:private_key_paths].empty?) then
+          options[:private_key_paths].each do |private_key_path|
+            command_options += ["-i", private_key_path]
+          end
+        end
+      end
       command_options += ["-o", "ForwardAgent=yes"] if ssh_info[:forward_agent]
 
       # If there are extra options, then we append those
