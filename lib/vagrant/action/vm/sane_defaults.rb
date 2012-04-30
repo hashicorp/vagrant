@@ -28,7 +28,7 @@ module Vagrant
           ]
           attempt_and_log(command, "Enabling the Host I/O cache on the SATA controller...")
 
-          case IO.read("/etc/resolv.conf")
+          case begin IO.read("/etc/resolv.conf") rescue nil end
           when /^nameserver 127\.0\.0\.1$/ then
             # The use of both natdnsproxy and natdnshostresolver break on newest ubunt 12.04
             # that uses resolvconf with localhost. When used VirtualBox will give the client
