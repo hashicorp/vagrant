@@ -91,7 +91,7 @@ module VagrantPlugins
           env[:vm].channel.upload(temp.path, File.join(config.provisioning_path, "dna.json"))
         end
 
-        class ChefError < Errors::VagrantError
+        class ChefError < Vagrant::Errors::VagrantError
           error_namespace("vagrant.provisioners.chef")
         end
 
