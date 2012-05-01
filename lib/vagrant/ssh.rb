@@ -113,6 +113,7 @@ module Vagrant
         @logger.info("Attempting to correct key permissions to 0600")
         File.chmod(0600, key_path)
 
+        stat = File.stat(key_path)
         if Util::FileMode.from_octal(stat.mode) != "600"
           raise Errors::SSHKeyBadPermissions, :key_path => key_path
         end
