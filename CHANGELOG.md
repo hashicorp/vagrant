@@ -11,6 +11,9 @@
   - Use `LogLevel QUIET` for SSH to suppress the known hosts warning. [GH-847]
   - VMs in the "guru meditation" state can be destroyed now using
     `vagrant destroy`.
+  - Fix issue where changing SSH key permissions didn't properly work. [GH-911]
+  - Disable the NAT DNS proxy when the DNS server is already proxied to
+    localhost on Linux machines. This fixes issues with 12.04. [GH-909]
 
 ## 1.0.2 (March 25, 2012)
 
