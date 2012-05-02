@@ -1,3 +1,9 @@
+## 1.0.3 (unreleased)
+
+  - Don't enable NAT DNS proxy on machines where resolv.conf already points
+    to localhost. This allows Vagrant to work once again with Ubuntu
+    12.04. [GH-909]
+
 ## 1.0.2 (March 25, 2012)
 
   - Provisioners will still mount folders and such if `--no-provision` is
