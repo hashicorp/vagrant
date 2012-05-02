@@ -1,4 +1,4 @@
-## 1.0.3 (unreleased)
+## 1.0.3 (May 1, 2012)
 
   - Don't enable NAT DNS proxy on machines where resolv.conf already points
     to localhost. This allows Vagrant to work once again with Ubuntu
