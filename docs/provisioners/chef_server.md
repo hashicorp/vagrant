@@ -119,3 +119,25 @@ Vagrant::Config.run do |config|
   end
 end
 {% endhighlight %}
+
+## Cleanup
+
+When you provision your Vagrant virtual machine with Chef server, it creates a
+new [Chef Node](http://wiki.opscode.com/display/chef/Nodes) entry and
+[Chef Client](http://wiki.opscode.com/display/chef/Chef+Client)
+entry on the Chef server, using the hostname of the machine (e.g.,
+`vagrant-ubuntu-oneiric`). After you tear down your virtual machine, you must
+explicitly delete these entries from the Chef server before you provision a
+new one with Chef server. For example, using knife:
+
+{% highlight bash %}
+$ knife node delete vagrant-ubuntu-oneiric
+$ knife client delete vagrant-ubuntu-oneiric
+{% endhighlight %}
+
+If you fail to do so, you will get the following error when trying to
+provision a new virtual machine with the same hostname:
+
+{% highlight bash %}
+HTTP Request Returned 409 Conflict: Client already exists.
+{% endhighlight %}
