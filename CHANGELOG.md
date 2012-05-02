@@ -15,6 +15,12 @@
   - Disable the NAT DNS proxy when the DNS server is already proxied to
     localhost on Linux machines. This fixes issues with 12.04. [GH-909]
 
+## 1.0.3 (May 1, 2012)
+
+  - Don't enable NAT DNS proxy on machines where resolv.conf already points
+    to localhost. This allows Vagrant to work once again with Ubuntu
+    12.04. [GH-909]
+
 ## 1.0.2 (March 25, 2012)
 
   - Provisioners will still mount folders and such if `--no-provision` is
