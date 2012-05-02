@@ -15,16 +15,15 @@ describe Vagrant::SSH do
 
     let(:ssh_instance) { Vagrant::SSH.new(double) }
 
-    before(:each) do
-      key_path.open("w") do |f|
-        f.write("hello!")
-      end
-
-      key_path.chmod(0644)
-    end
-
     it "should not raise an exception if we set a keyfile permission correctly" do
-      ssh_instance.check_key_permissions(key_path)
+      # Write some stuff to our key file and chmod it to some
+      # incorrect permissions.
+      key_path.open("w") { |f| f.write("hello!") }
+      key_path.chmod(0644)
+
+      # This should work!
+      expect { ssh_instance.check_key_permissions(key_path) }.
+        to_not raise_error
     end
   end
 end
