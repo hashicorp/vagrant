@@ -66,21 +66,8 @@ module VagrantPlugins
         def setup_json
           env[:ui].info I18n.t("vagrant.provisioners.chef.json")
 
-          # Set up our configuration that is passed to the attributes by default
-          data = { :config => env[:global_config].to_hash }
-
-          # Add our default share directory if it exists
-          default_share = env[:vm].config.vm.shared_folders["v-root"]
-          data[:directory] = default_share[:guestpath] if default_share
-
-          # And wrap it under the "vagrant" namespace
-          data = { :vagrant => data }
-
-          # Merge with the "extra data" which isn't put under the
-          # vagrant namespace by default
-          data.merge!(config.merged_json)
-
-          json = data.to_json
+          # Get the JSON that we're going to expose to Chef
+          json = config.merged_json.to_json
 
           # Create a temporary file to store the data so we
           # can upload it
