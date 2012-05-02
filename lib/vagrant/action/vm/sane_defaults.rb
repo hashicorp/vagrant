@@ -28,13 +28,25 @@ module Vagrant
           ]
           attempt_and_log(command, "Enabling the Host I/O cache on the SATA controller...")
 
-          # Enable the DNS proxy while in NAT mode.  This shields the guest
-          # VM from external DNS changs on the host machine.
-          command = [
-            "modifyvm", env[:vm].uuid,
-            "--natdnsproxy1", "on"
-          ]
-          attempt_and_log(command, "Enable the NAT DNS proxy on adapter 1...")
+          case begin IO.read("/etc/resolv.conf") rescue nil end
+          when /^nameserver 127\.0\.0\.1$/ then
+            # The use of both natdnsproxy and natdnshostresolver break on newest ubunt 12.04
+            # that uses resolvconf with localhost. When used VirtualBox will give the client
+            # dns server 10.0.2.3, while not binding to that address itself.
+            # Therefore disable this feature if host uses the resolvconf server 127.0.0.1
+            command = [ "modifyvm", env[:vm].uuid, "--natdnsproxy1", "off" ]
+            attempt_and_log(command, "Disable the NAT DNS proxy on adapter 1...")
+            command = [ "modifyvm", env[:vm].uuid, "--natdnshostresolver1", "off" ]
+            attempt_and_log(command, "Disable the NAT DNS resolver on adapter 1...")
+          else
+            # Enable the DNS proxy while in NAT mode.  This shields the guest
+            # VM from external DNS changs on the host machine.
+            command = [
+              "modifyvm", env[:vm].uuid,
+              "--natdnsproxy1", "on"
+            ]
+            attempt_and_log(command, "Enable the NAT DNS proxy on adapter 1...")
+          end
 
           @app.call(env)
         end
