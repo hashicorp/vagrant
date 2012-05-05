@@ -34,4 +34,6 @@ accepted options are:
   try to change the host port if it finds it would collide with any
   other forwarded port. If this is `false` (default) then an error
   will be shown instead.
+* `:protocol` - This allows specifying the protocol that the forwarded port
+  will use. The default protocol, if none is specified, is `:tcp`.
 
