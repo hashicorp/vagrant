@@ -15,6 +15,7 @@ module Vagrant
     HOME_SUBDIRS = ["tmp", "boxes", "gems"]
     DEFAULT_VM = :default
     DEFAULT_HOME = "~/.vagrant.d"
+    DEFAULT_RC = "~/.vagrantrc"
 
     # The `cwd` that this environment represents
     attr_reader :cwd
@@ -519,7 +520,15 @@ module Vagrant
       ::Gem.clear_paths
 
       # Load the plugins
-      # XXX: TODO
+      rc_path = File.expand_path(ENV["VAGRANT_RC"] || DEFAULT_RC)
+      if File.file?(rc_path)
+        # We use a `require` here instead of a load so the same file will
+        # only be loaded once.
+        @logger.debug("Loading RC file: #{rc_path}")
+        require rc_path
+      else
+        @logger.debug("RC file not found. Not loading: #{rc_path}")
+      end
     end
   end
 end
