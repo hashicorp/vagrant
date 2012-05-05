@@ -135,7 +135,7 @@ module Vagrant
 
           # Make a first pass to assign interface numbers by adapter location
           vm_adapters = @env[:vm].driver.read_network_interfaces
-          vm_adapters.each do |number, adapter|
+          vm_adapters.sort.each do |number, adapter|
             if adapter[:type] != :none
               # Not used, so assign the interface number and increment
               adapter_to_interface[number] = current
