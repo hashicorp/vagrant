@@ -35,3 +35,29 @@ for the new kernel through the `vboxadd` initscript, like so:
 
     sudo /etc/init.d/vboxadd setup
 
+
+## Networking Slowness
+
+Networking slowness can be intermittent.
+There are some known issues with suspending the host computer causing problems. 
+You should be able to fix that by halting the VM and re-starting it.
+
+There are also several possible DNS culprits that you can fix:
+
+
+### internal resolution
+
+In Ubuntu, for example, there are bugs with mdns.
+These can be resolved by disabling it.
+The most [nuclear approach](http://www.jedi.be/blog/2011/03/28/using-vagrant-as-a-team/) would be:
+
+    sudo apt-get remove libavahi-common3
+
+### ipv6
+
+You can try disabling ipv6 in your web browser and see if that helps.
+
+### web server resolution 
+
+The ruby web server webrick is the web server used by default for the development mode of Rails and also used by some other ruby projects.
+There is a [webrick setting to fix dns lookup](http://nowfromhome.com/virtualbox-slow-network-from-windows-host-to-linux-guest/). Or you can use an alternative web server such as unicorn.
