@@ -519,7 +519,7 @@ module Vagrant
       ::Gem.clear_paths
 
       # Load the plugins
-      Plugin::GemLoader.load!
+      # XXX: TODO
     end
   end
 end
