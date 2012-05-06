@@ -23,6 +23,18 @@ describe Vagrant::Plugin::V1 do
     plugin.description.should == "bar"
   end
 
+  describe "action hooks" do
+    it "should register action hooks" do
+      plugin = Class.new(described_class) do
+        action_hook("foo") { "bar" }
+      end
+
+      hooks = plugin.action_hook("foo")
+      hooks.length.should == 1
+      hooks[0].call.should == "bar"
+    end
+  end
+
   describe "commands" do
     it "should register command classes" do
       plugin = Class.new(described_class) do

@@ -40,6 +40,24 @@ module Vagrant
         get_or_set(:description, value)
       end
 
+      # Registers a callback to be called when a specific action sequence
+      # is run. This allows plugin authors to hook into things like VM
+      # bootup, VM provisioning, etc.
+      #
+      # @param [Symbol] name Name of the action.
+      # @return [Array] List of the hooks for the given action.
+      def self.action_hook(name, &block)
+        # Get the list of hooks for the given hook name
+        data[:action_hooks] ||= {}
+        hooks = data[:action_hooks][name.to_sym] ||= []
+
+        # Return the list if we don't have a block
+        return hooks if !block_given?
+
+        # Otherwise add the block to the list of hooks for this action.
+        hooks << block
+      end
+
       # Defines additional command line commands available by key. The key
       # becomes the subcommand, so if you register a command "foo" then
       # "vagrant foo" becomes available.
@@ -116,6 +134,9 @@ module Vagrant
 
       # Registers the plugin. This makes the plugin actually work with
       # Vagrant. Prior to registering, the plugin is merely a skeleton.
+      #
+      # This shouldn't be called by the general public. Plugins are automatically
+      # registered when they are given a name.
       def self.register!(plugin=nil)
         plugin ||= self
 
