@@ -62,3 +62,5 @@ options are:
 * `:bridge` - The full name of the network to bridge to. If this is specified,
   then Vagrant will not ask the user.
 * `:mac` - The MAC address to assign to this network adapter.
+* `:use_dhcp_assigned_default_route` - Whether or not to remove the default route assigned to the interface
+  via DHCP. If true, then leave the route, otherwise delete it.
