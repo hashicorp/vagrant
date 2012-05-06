@@ -101,6 +101,7 @@ module Vagrant
       def index(object)
         stack.each_with_index do |item, i|
           return i if item[0] == object
+          return i if item[0].respond_to?(:name) && item[0].name == object
         end
 
         nil
