@@ -36,7 +36,14 @@ if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
   # logs as long as we have a valid level.
   if level
     logger = Log4r::Logger.new("vagrant")
-    logger.outputters = Log4r::Outputter.stderr
+    out =  Log4r::Outputter.stderr  
+
+    #pattern of "[%l %c] %d :: %m" for instance will give you timing details
+    if ENV["VAGRANT_LOG_FORMAT"]  && ENV["VAGRANT_LOG_FORMAT"] != ""
+        out.formatter = Log4r::PatternFormatter.new(:pattern => ENV["VAGRANT_LOG_FORMAT"])
+    end
+ 
+    logger.outputters = out
     logger.level = level
     logger = nil
   end
