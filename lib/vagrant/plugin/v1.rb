@@ -91,6 +91,17 @@ module Vagrant
         data[:config]
       end
 
+      # Defines an "easy command," which is a command with limited
+      # functionality but far less boilerplate required over traditional
+      # commands. Easy commands let you make basic commands quickly and
+      # easily.
+      #
+      # @param [String] name Name of the command, how it will be invoked
+      #   on the command line.
+      def self.easy_command(name, &block)
+        command(name) { EasyCommand.create(name, &block) }
+      end
+
       # Defines an additionally available guest implementation with
       # the given key.
       #

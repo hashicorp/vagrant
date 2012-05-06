@@ -91,6 +91,17 @@ describe Vagrant::Plugin::V1 do
     end
   end
 
+  describe "easy commands" do
+    it "should register with the commands" do
+      plugin = Class.new(described_class) do
+        easy_command("foo") {}
+      end
+
+      # Check that the command class subclasses the easy command base
+      plugin.command[:foo].should < Vagrant::EasyCommand::Base
+    end
+  end
+
   describe "guests" do
     it "should register guest classes" do
       plugin = Class.new(described_class) do
