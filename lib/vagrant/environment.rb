@@ -1,5 +1,6 @@
-require 'pathname'
 require 'fileutils'
+require 'pathname'
+require 'set'
 
 require 'log4r'
 require 'rubygems'  # This is needed for plugin loading below.
@@ -41,6 +42,10 @@ module Vagrant
 
     # The path to the default private key
     attr_reader :default_private_key_path
+
+    # This is a set of the vagrantrc files already loaded so that they
+    # are only loaded once.
+    @@loaded_rc = Set.new
 
     # Initializes a new environment with the given options. The options
     # is a hash where the main available key is `cwd`, which defines where
@@ -521,11 +526,9 @@ module Vagrant
 
       # Load the plugins
       rc_path = File.expand_path(ENV["VAGRANT_RC"] || DEFAULT_RC)
-      if File.file?(rc_path)
-        # We use a `require` here instead of a load so the same file will
-        # only be loaded once.
+      if File.file?(rc_path) && @@loaded_rc.add?(rc_path)
         @logger.debug("Loading RC file: #{rc_path}")
-        require rc_path
+        load rc_path
       else
         @logger.debug("RC file not found. Not loading: #{rc_path}")
       end
