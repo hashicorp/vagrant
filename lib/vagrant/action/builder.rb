@@ -57,6 +57,7 @@ module Vagrant
       # given middleware object.
       def insert(index, middleware, *args, &block)
         index = self.index(index) unless index.is_a?(Integer)
+        raise "no such middleware to insert before: #{index.inspect}" unless index
         stack.insert(index, [middleware, args, block])
       end
 

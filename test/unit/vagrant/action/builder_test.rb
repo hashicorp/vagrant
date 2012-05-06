@@ -113,7 +113,12 @@ describe Vagrant::Action::Builder do
       data[:data].should == [1, 2, 3]
     end
 
-    it "raises an exception if an invalid object given" do
+    it "raises an exception if an invalid object given for insert" do
+      expect { instance.insert "object", appender_proc(1) }.
+        to raise_error(RuntimeError)
+    end
+
+    it "raises an exception if an invalid object given for insert_after" do
       expect { instance.insert_after "object", appender_proc(1) }.
         to raise_error(RuntimeError)
     end
