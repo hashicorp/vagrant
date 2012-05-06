@@ -48,8 +48,14 @@ and you're welcome to give it a shot. The following is an example showing how to
 To hack on vagrant, you'll need [bundler](http://github.com/carlhuda/bundler) which can
 be installed with a simple `gem install bundler`. Afterwords, do the following:
 
+
     bundle install
     rake
+
+If you want to make a local gem you need to do
+    bundle exec rake clean
+
+
 
 This will run the unit test suite, which should come back all green! Then you're good to go!
 
