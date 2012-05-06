@@ -11,6 +11,13 @@ module Vagrant
       # This is thrown when a command name given is invalid.
       class InvalidCommandName < Error; end
 
+      # This is thrown when a hook "position" is invalid.
+      class InvalidEasyHookPosition < Error; end
+
+      # Special marker that can be used for action hooks that matches
+      # all action sequences.
+      ALL_ACTIONS = :__all_actions__
+
       LOGGER = Log4r::Logger.new("vagrant::plugin::v1")
 
       # Returns a list of registered plugins for this version.
@@ -103,6 +110,27 @@ module Vagrant
 
         # Return the registry
         data[:config]
+      end
+
+      # Defines an "easy hook," which gives an easier interface to hook
+      # into action sequences.
+      def self.easy_hook(position, name, &block)
+        if ![:before, :after].include?(position)
+          raise InvalidEasyHookPosition, "must be :before, :after"
+        end
+
+        # This is the command sent to sequences to insert
+        insert_method = "insert_#{position}".to_sym
+
+        # Create the hook
+        hook = Easy.create_hook(&block)
+
+        # Define an action hook that listens to all actions and inserts
+        # the hook properly if the sequence contains what we're looking for
+        action_hook(ALL_ACTIONS) do |seq|
+          index = seq.index(name)
+          seq.send(insert_method, index, hook) if index
+        end
       end
 
       # Defines an "easy command," which is a command with limited

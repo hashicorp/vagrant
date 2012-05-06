@@ -93,8 +93,6 @@ module Vagrant
         to_app(env).call(env)
       end
 
-      protected
-
       # Returns the numeric index for the given middleware object.
       #
       # @param [Object] object The item to find the index for
@@ -107,6 +105,8 @@ module Vagrant
 
         nil
       end
+
+      protected
 
       # Returns the current stack of middlewares. You probably won't
       # need to use this directly, and it's recommended that you don't.

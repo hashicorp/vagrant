@@ -12,5 +12,17 @@ module Vagrant
       command.configure(name, &block)
       command
     end
+
+    # This creates a new easy hook. This should not be called by the
+    # general public. Instead, use the plugin interface.
+    #
+    # @return [Proc]
+    def self.create_hook(&block)
+      # Create a lambda which simply calls the plugin with the operations
+      lambda do |env|
+        ops = Operations.new(env[:vm])
+        block.call(ops)
+      end
+    end
   end
 end

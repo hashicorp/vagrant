@@ -2,6 +2,11 @@ module Vagrant
   module Action
     module VM
       class Import
+        # The name for easy reference
+        def self.name
+          :import
+        end
+
         def initialize(app, env)
           @app = app
         end
