@@ -109,16 +109,6 @@ describe Vagrant::Plugin::V1 do
       # Check that the command class subclasses the easy command base
       plugin.command[:foo].should < Vagrant::Easy::CommandBase
     end
-
-    it "should support registering multiple unique commands" do
-      plugins = %w(foo bar baz).map do |cmd|
-        [cmd, Vagrant::Easy.create_command(cmd)]
-      end
-
-      plugins.each do |cmd, plugin|
-        plugin.instance_variable_get(:@command).should == cmd
-      end
-    end
   end
 
   describe "guests" do
