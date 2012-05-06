@@ -16,6 +16,19 @@ module Vagrant
         @vm = vm
       end
 
+      # Download a file from the remote virtual machine. If `to` is nil, then
+      # the contents are returned as a string.
+      #
+      # @param [String] from Path on the remote VM to download.
+      # @param [String] to Path to a local file to save to.
+      # @return [String] File contents if `to` is nil.
+      def download(from, to=nil)
+        raise Errors::VMNotRunningError if @vm.state != :running
+
+        @logger.info("download: #{from} => #{to}")
+        @vm.channel.download(from, to)
+      end
+
       # Runs a command on the local machine. This will return an object where
       # you can access the `exit_code`, `stdout`, and `stderr` easiy:
       #
@@ -69,6 +82,8 @@ module Vagrant
       # @param [String] from Path to a local file or an IO object.
       # @param [String] to Path where to upload to.
       def upload(from, to)
+        raise Errors::VMNotRunningError if @vm.state != :running
+
         # If we're dealing with an IO object, then save it to a temporary
         # file and upload that. We define `temp = nil` here so that it
         # doesn't go out of scope and get GC'd until after the method

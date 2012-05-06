@@ -71,20 +71,20 @@ module Vagrant
         execute(command, opts, &block)
       end
 
+      def download(from, to=nil)
+        @logger.debug("Downloading: #{from} to #{to}")
+
+        scp_connect do |scp|
+          scp.download!(from, to)
+        end
+      end
+
       def upload(from, to)
         @logger.debug("Uploading: #{from} to #{to}")
 
-        # Do an SCP-based upload...
-        connect do |connection|
-          scp = Net::SCP.new(connection)
+        scp_connect do |scp|
           scp.upload!(from, to)
         end
-      rescue Net::SCP::Error => e
-        # If we get the exit code of 127, then this means SCP is unavailable.
-        raise Errors::SCPUnavailable if e.message =~ /\(127\)/
-
-        # Otherwise, just raise the error up
-        raise
       end
 
       protected
@@ -218,6 +218,22 @@ module Vagrant
 
         # Return the final exit status
         return exit_status
+      end
+
+      # Opens an SCP connection and yields it so that you can download
+      # and upload files.
+      def scp_connect
+        # Connect to SCP and yield the SCP object
+        connect do |connection|
+          scp = Net::SCP.new(connection)
+          return yield scp
+        end
+      rescue Net::SCP::Error => e
+        # If we get the exit code of 127, then this means SCP is unavailable.
+        raise Errors::SCPUnavailable if e.message =~ /\(127\)/
+
+        # Otherwise, just raise the error up
+        raise
       end
     end
   end

@@ -17,6 +17,13 @@ module Vagrant
       def ready?
       end
 
+      # Download a file from the virtual machine to the local machine.
+      #
+      # @param [String] from Path of the file on the virtual machine.
+      # @param [String] to Path to where to save the remote file.
+      def download(from, to)
+      end
+
       # Upload a file to the virtual machine.
       #
       # @param [String] from Path to a file to upload.
