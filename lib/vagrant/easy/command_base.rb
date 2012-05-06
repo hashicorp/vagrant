@@ -5,9 +5,6 @@ module Vagrant
     # Base class for all easy commands. This contains the basic code
     # that knows how to run the easy commands.
     class CommandBase < Vagrant::Command::Base
-      @command = nil
-      @runner  = nil
-
       # This is called by the {EasyCommand.create} method when creating
       # an easy command to set the invocation command.
       def self.configure(name, &block)
@@ -18,7 +15,9 @@ module Vagrant
       def initialize(*args, &block)
         super
 
-        @logger = Log4r::Logger.new("vagrant::easy_command::#{@command}")
+        @command = self.class.instance_variable_get(:@command)
+        @runner  = self.class.instance_variable_get(:@runner)
+        @logger  = Log4r::Logger.new("vagrant::easy_command::#{@command}")
       end
 
       def execute
