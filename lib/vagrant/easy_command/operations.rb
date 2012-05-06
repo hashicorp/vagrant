@@ -1,4 +1,5 @@
 require "ostruct"
+require "tempfile"
 
 require "log4r"
 
@@ -56,6 +57,34 @@ module Vagrant
       def sudo(command)
         @logger.info("sudo: #{command}")
         remote_command(:sudo, command)
+      end
+
+      # Uploads a file to the virtual machine.
+      #
+      # Note that the `to` path must have proper permissions setup so that the
+      # SSH user can upload to it. If it does not, then you should upload
+      # to a location you do have permission to, then use {#sudo} to move
+      # it.
+      #
+      # @param [String] from Path to a local file or an IO object.
+      # @param [String] to Path where to upload to.
+      def upload(from, to)
+        # If we're dealing with an IO object, then save it to a temporary
+        # file and upload that. We define `temp = nil` here so that it
+        # doesn't go out of scope and get GC'd until after the method
+        # closes.
+        temp = nil
+        if from.is_a?(IO)
+          temp = Tempfile.new("vagrant")
+          temp.write(from)
+          temp.close
+
+          from = temp.path
+        end
+
+        # Perform the upload
+        @logger.info("upload: #{from} => #{to}")
+        @vm.channel.upload(from, to)
       end
 
       protected
