@@ -20,6 +20,8 @@
     localhost on Linux machines. This fixes issues with 12.04. [GH-909]
   - Fix issue where Vagrant didn't properly detect VBoxManage on Windows
     if VBOX_INSTALL_PATH contained multiple paths. [GH-885]
+  - All `vagrant` commands that can take a target VM name can take one even
+    if you're not in a multi-VM environment. [GH-894]
 
 ## 1.0.3 (May 1, 2012)
 
