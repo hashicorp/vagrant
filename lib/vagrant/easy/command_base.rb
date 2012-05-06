@@ -1,10 +1,10 @@
 require "log4r"
 
 module Vagrant
-  module EasyCommand
+  module Easy
     # Base class for all easy commands. This contains the basic code
     # that knows how to run the easy commands.
-    class Base < Vagrant::Command::Base
+    class CommandBase < Vagrant::Command::Base
       @@command = nil
       @@runner  = nil
 

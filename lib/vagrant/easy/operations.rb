@@ -6,13 +6,13 @@ require "log4r"
 require "vagrant/util/subprocess"
 
 module Vagrant
-  module EasyCommand
+  module Easy
     # This class contains all the "operations" that easy commands are able
     # to run. An instance of this is class is what is sent into the callback
     # for all easy commands.
     class Operations
       def initialize(vm)
-        @logger = Log4r::Logger.new("vagrant::easy_command::operations")
+        @logger = Log4r::Logger.new("vagrant::easy::operations")
         @vm = vm
       end
 

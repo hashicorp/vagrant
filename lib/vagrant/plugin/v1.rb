@@ -113,7 +113,7 @@ module Vagrant
       # @param [String] name Name of the command, how it will be invoked
       #   on the command line.
       def self.easy_command(name, &block)
-        command(name) { EasyCommand.create(name, &block) }
+        command(name) { Easy.create_command(name, &block) }
       end
 
       # Defines an additionally available guest implementation with
