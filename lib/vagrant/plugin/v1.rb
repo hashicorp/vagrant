@@ -4,6 +4,13 @@ module Vagrant
   module Plugin
     # The superclass for version 1 plugins.
     class V1
+      # Exceptions that can be thrown within the plugin interface all
+      # inherit from this parent exception.
+      class Error < StandardError; end
+
+      # This is thrown when a command name given is invalid.
+      class InvalidCommandName < Error; end
+
       LOGGER = Log4r::Logger.new("vagrant::plugin::v1")
 
       # Returns a list of registered plugins for this version.
@@ -65,6 +72,11 @@ module Vagrant
       # @param [String] name Subcommand key.
       def self.command(name=UNSET_VALUE, &block)
         data[:command] ||= Registry.new
+
+        # Validate the name of the command
+        if name.to_s !~ /^[-a-z0-9]/i
+          raise InvalidCommandName, "Commands can only contain letters, numbers, and hyphens"
+        end
 
         # Register a new command class only if a name was given.
         data[:command].register(name.to_sym, &block) if name != UNSET_VALUE
