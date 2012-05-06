@@ -7,7 +7,8 @@
     not be _functional_ in future versions of Vagrant).
   - Plugins no longer "autoload" by simply gem installing them. This increases
     Vagrant's initial startup time considerably. To replace this, you must now
-    explicitly require plugins in the `~/.vagrantrc` file.
+    explicitly require plugins in the `~/.vagrantrc` file, using
+    `Vagrant.require_plugin`.
   - Improve the SSH "ready?" check. [GH-841]
   - Human friendly error if connection times out for HTTP downloads. [GH-849]
   - Detect when the VirtualBox installation is incomplete and error. [GH-846]

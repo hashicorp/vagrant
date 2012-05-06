@@ -107,6 +107,22 @@ module Vagrant
     # Raise an error that the plugin version is invalid
     raise ArgumentError, "Invalid plugin version API: #{version}"
   end
+
+  # This should be used instead of Ruby's built-in `require` in order to
+  # load a Vagrant plugin. This will load the given plugin by first doing
+  # a normal `require`, giving a nice error message if things go wrong,
+  # and second by verifying that a Vagrant plugin was actually defined in
+  # the process.
+  #
+  # @param [String] name Name of the plugin to load.
+  def self.require_plugin(name)
+    # Attempt the normal require
+    begin
+      require name
+    rescue LoadError
+      raise Errors::PluginLoadError, :plugin => name
+    end
+  end
 end
 
 # # Default I18n to load the en locale
