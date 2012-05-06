@@ -107,7 +107,7 @@ describe Vagrant::Plugin::V1 do
       end
 
       # Check that the command class subclasses the easy command base
-      plugin.command[:foo].should < Vagrant::EasyCommand::Base
+      plugin.command[:foo].should < Vagrant::Easy::CommandBase
     end
   end
 
