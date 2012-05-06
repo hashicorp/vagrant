@@ -44,6 +44,15 @@ describe Vagrant::Plugin::V1 do
       plugin.command[:foo].should == "bar"
     end
 
+    ["spaces bad", "sym^bols"].each do |bad|
+      it "should not allow bad command name: #{bad}" do
+        plugin = Class.new(described_class)
+
+        expect { plugin.command(bad) {} }.
+          to raise_error(Vagrant::Plugin::V1::InvalidCommandName)
+      end
+    end
+
     it "should lazily register command classes" do
       # Below would raise an error if the value of the command class was
       # evaluated immediately. By asserting that this does not raise an

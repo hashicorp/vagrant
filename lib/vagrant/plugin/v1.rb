@@ -73,13 +73,15 @@ module Vagrant
       def self.command(name=UNSET_VALUE, &block)
         data[:command] ||= Registry.new
 
-        # Validate the name of the command
-        if name.to_s !~ /^[-a-z0-9]/i
-          raise InvalidCommandName, "Commands can only contain letters, numbers, and hyphens"
-        end
+        if name != UNSET_VALUE
+          # Validate the name of the command
+          if name.to_s !~ /^[-a-z0-9]+$/i
+            raise InvalidCommandName, "Commands can only contain letters, numbers, and hyphens"
+          end
 
-        # Register a new command class only if a name was given.
-        data[:command].register(name.to_sym, &block) if name != UNSET_VALUE
+          # Register a new command class only if a name was given.
+          data[:command].register(name.to_sym, &block)
+        end
 
         # Return the registry
         data[:command]
