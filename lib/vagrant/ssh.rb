@@ -32,14 +32,22 @@ module Vagrant
       # can't detect an SSH port.
       raise Errors::SSHPortNotDetected if !results[:port]
 
-      # Determine the private key path, which is either set by the
+      # Determine the private key paths, which are either set by the
       # configuration or uses just the built-in insecure key.
-      pk_path = @vm.config.ssh.private_key_path || @vm.env.default_private_key_path
-      results[:private_key_path] = File.expand_path(pk_path, @vm.env.root_path)
+      pk_paths = if @vm.config.ssh.private_key_path.nil? || @vm.config.ssh.private_key_path.empty? then
+                   [@vm.env.default_private_key_path]
+                 else
+                   @vm.config.ssh.private_key_path
+                 end
+      results[:private_key_path] = pk_paths.map do |pk_path|
+        File.expand_path(pk_path, @vm.env.root_path)
+      end
 
       # We need to check and fix the private key permissions
       # to make sure that SSH gets a key with 0600 perms.
-      check_key_permissions(results[:private_key_path])
+      results[:private_key_path].each do |private_key_path|
+        check_key_permissions(private_key_path)
+      end
 
       # Return the results
       return results
@@ -82,7 +90,13 @@ module Vagrant
       # (Also don't use it in plain mode, it'll skip user agents.)
       command_options += ["-o", "IdentitiesOnly=yes"] if !(Util::Platform.solaris? || plain_mode)
 
-      command_options += ["-i", options[:private_key_path]] if !plain_mode
+      if !plain_mode then
+        if ! (options[:private_key_path].nil? || options[:private_key_path].empty?) then
+          options[:private_key_path].each do |private_key_path|
+            command_options += ["-i", private_key_path]
+          end
+        end
+      end
       command_options += ["-o", "ForwardAgent=yes"] if ssh_info[:forward_agent]
 
       # If there are extra options, then we append those

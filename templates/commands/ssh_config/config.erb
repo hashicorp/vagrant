@@ -5,7 +5,9 @@ Host <%= host_key %>
   UserKnownHostsFile /dev/null
   StrictHostKeyChecking no
   PasswordAuthentication no
-  IdentityFile <%= private_key_path %>
+<% private_key_path.each do |path| %>
+  IdentityFile <%= path %>
+<% end %>
   IdentitiesOnly yes
   LogLevel QUIET
 <% if forward_agent -%>
