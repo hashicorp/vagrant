@@ -34,18 +34,18 @@ module Vagrant
 
       # Determine the private key paths, which are either set by the
       # configuration or uses just the built-in insecure key.
-      pk_paths = if @vm.config.ssh.private_key_paths.nil? || @vm.config.ssh.private_key_paths.empty? then
+      pk_paths = if @vm.config.ssh.private_key_path.nil? || @vm.config.ssh.private_key_path.empty? then
                    [@vm.env.default_private_key_path]
                  else
-                   @vm.config.ssh.private_key_paths
+                   @vm.config.ssh.private_key_path
                  end
-      results[:private_key_paths] = pk_paths.map do |pk_path|
+      results[:private_key_path] = pk_paths.map do |pk_path|
         File.expand_path(pk_path, @vm.env.root_path)
       end
 
       # We need to check and fix the private key permissions
       # to make sure that SSH gets a key with 0600 perms.
-      results[:private_key_paths].each do |private_key_path|
+      results[:private_key_path].each do |private_key_path|
         check_key_permissions(private_key_path)
       end
 
@@ -67,7 +67,7 @@ module Vagrant
         raise Errors::SSHUnavailableWindows, :host => ssh_info[:host],
                                              :port => ssh_info[:port],
                                              :username => ssh_info[:username],
-                                             :key_paths => ssh_info[:private_key_paths]
+                                             :key_path => ssh_info[:private_key_path]
       end
 
       raise Errors::SSHUnavailable if !Kernel.system("which ssh > /dev/null 2>&1")
@@ -80,7 +80,7 @@ module Vagrant
       options[:host] = ssh_info[:host]
       options[:port] = ssh_info[:port]
       options[:username] = ssh_info[:username]
-      options[:private_key_paths] = ssh_info[:private_key_paths]
+      options[:private_key_path] = ssh_info[:private_key_path]
 
       # Command line options
       command_options = ["-p", options[:port].to_s, "-o", "UserKnownHostsFile=/dev/null",
@@ -90,8 +90,8 @@ module Vagrant
       command_options += ["-o", "IdentitiesOnly=yes"] if !Util::Platform.solaris?
 
       if !plain_mode then
-        if ! (options[:private_key_paths].nil? || options[:private_key_paths].empty?) then
-          options[:private_key_paths].each do |private_key_path|
+        if ! (options[:private_key_path].nil? || options[:private_key_path].empty?) then
+          options[:private_key_path].each do |private_key_path|
             command_options += ["-i", private_key_path]
           end
         end

@@ -33,7 +33,7 @@ module VagrantPlugins
             :ssh_host => ssh_info[:host],
             :ssh_port => ssh_info[:port],
             :ssh_user => ssh_info[:username],
-            :private_key_paths => ssh_info[:private_key_paths],
+            :private_key_path => ssh_info[:private_key_path],
             :forward_agent => ssh_info[:forward_agent],
             :forward_x11   => ssh_info[:forward_x11]
           }

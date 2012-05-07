@@ -203,7 +203,7 @@ VF
         end})
       end
       env = environment.create_vagrant_env
-      env.config.for_vm(:default).ssh.private_key_paths.should == [tmp_file.path.to_s]
+      env.config.for_vm(:default).ssh.private_key_path.should == [tmp_file.path.to_s]
       tmp_file.close
       tmp_file.unlink
     end
@@ -217,19 +217,19 @@ VF
         end})
       end
       env = environment.create_vagrant_env
-      env.config.for_vm(:default).ssh.private_key_paths.should == [tmp_file1.path,tmp_file2.path]
+      env.config.for_vm(:default).ssh.private_key_path.should == [tmp_file1.path,tmp_file2.path]
       [tmp_file1,tmp_file2].each{|tmp_file| tmp_file.close; tmp_file.unlink}
     end
-    it "should accept parameter private_key_paths" do
+    it "should accept parameter private_key_path" do
       tmp_file1 = Tempfile.new("private_key")
       tmp_file2 = Tempfile.new("private_key")
       environment = isolated_environment do |env|
         env.vagrantfile(%{Vagrant::Config.run do |config|
-          config.ssh.private_key_paths=["#{tmp_file1.path}","#{tmp_file2.path}"]
+          config.ssh.private_key_path=["#{tmp_file1.path}","#{tmp_file2.path}"]
         end})
       end
       env = environment.create_vagrant_env
-      env.config.for_vm(:default).ssh.private_key_paths.should == [tmp_file1.path,tmp_file2.path]
+      env.config.for_vm(:default).ssh.private_key_path.should == [tmp_file1.path,tmp_file2.path]
       [tmp_file1,tmp_file2].each{|tmp_file| tmp_file.close; tmp_file.unlink}
     end
   end

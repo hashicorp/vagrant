@@ -223,6 +223,7 @@ en:
         validation_key_path: "Validation key path must be valid path to your chef server validation key."
       ssh:
         private_key_missing: "`private_key_path` file must exist: %{path}"
+        private_key_invalid_format: "`private_key_path` must be a path or an array of paths, but is: %{klass}"
       vm:
         base_mac_invalid: "Base MAC address for eth0/NAT must be set. Contact box maintainer for more information."
         boot_mode_invalid: "Boot mode must be one of: headless or gui"
