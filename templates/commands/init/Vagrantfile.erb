@@ -21,6 +21,18 @@ Vagrant::Config.run do |config|
   # any other machines on the same network, but cannot be accessed (through this
   # network interface) by any external networks.
   # config.vm.network :hostonly, "192.168.33.10"
+  # Or use dhcp which will make the host only network in virtual box create a dhcp server as well
+  # config.vm.network :hostonly, :dhcp
+
+
+  # Add some additional ips.  Please not at least on centos, it's highly recommended that you set a hostname if you do this,
+  # as if you don't you can spend and interminable amount of time having sudo work
+  # config.vm.host_name = 'myname.vagrant'
+  # config.vm.network :hostonly, :dhcp, :adapter => 2
+  # This next one is for osx, I don't know why I can't just name en1, but if you don't match the correct output vagrant will prompt
+  # for which network you wish to connect to and you can cut and paste the exact description into here
+  # config.vm.network :bridged, :adapter => 3, :bridge => "en1: Wi-Fi (AirPort)"
+ 
 
   # Assign this VM to a bridged network, allowing you to connect directly to a
   # network using the host's network device. This makes the VM appear as another
