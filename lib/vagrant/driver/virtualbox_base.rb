@@ -31,10 +31,24 @@ module Vagrant
           # On Windows, we use the VBOX_INSTALL_PATH environmental
           # variable to find VBoxManage.
           if ENV.has_key?("VBOX_INSTALL_PATH")
-            # The path usually ends with a \ but we make sure here
+            # Get the path.
             path = ENV["VBOX_INSTALL_PATH"]
-            path += "\\" if !path.end_with?("\\")
-            @vboxmanage_path = "#{path}VBoxManage.exe"
+            @logger.debug("VBOX_INSTALL_PATH value: #{path}")
+
+            # There can actually be multiple paths in here, so we need to
+            # split by the separator ";" and see which is a good one.
+            path.split(";").each do |single|
+              # Make sure it ends with a \
+              single += "\\" if !single.end_with?("\\")
+
+              # If the executable exists, then set it as the main path
+              # and break out
+              vboxmanage = "#{path}VBoxManage.exe"
+              if File.file?(vboxmanage)
+                @vboxmanage_path = vboxmanage
+                break
+              end
+            end
           end
         end
 

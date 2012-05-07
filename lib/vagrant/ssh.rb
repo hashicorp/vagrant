@@ -87,7 +87,8 @@ module Vagrant
                          "-o", "StrictHostKeyChecking=no", "-o", "LogLevel=QUIET"]
 
       # Solaris/OpenSolaris/Illumos uses SunSSH which doesn't support the IdentitiesOnly option
-      command_options += ["-o", "IdentitiesOnly=yes"] if !Util::Platform.solaris?
+      # (Also don't use it in plain mode, it'll skip user agents.)
+      command_options += ["-o", "IdentitiesOnly=yes"] if !(Util::Platform.solaris? || plain_mode)
 
       if !plain_mode then
         if ! (options[:private_key_path].nil? || options[:private_key_path].empty?) then
@@ -127,6 +128,7 @@ module Vagrant
         @logger.info("Attempting to correct key permissions to 0600")
         File.chmod(0600, key_path)
 
+        stat = File.stat(key_path)
         if Util::FileMode.from_octal(stat.mode) != "600"
           raise Errors::SSHKeyBadPermissions, :key_path => key_path
         end

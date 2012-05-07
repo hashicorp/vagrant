@@ -4,6 +4,20 @@ module Vagrant
   module Plugin
     # The superclass for version 1 plugins.
     class V1
+      # Exceptions that can be thrown within the plugin interface all
+      # inherit from this parent exception.
+      class Error < StandardError; end
+
+      # This is thrown when a command name given is invalid.
+      class InvalidCommandName < Error; end
+
+      # This is thrown when a hook "position" is invalid.
+      class InvalidEasyHookPosition < Error; end
+
+      # Special marker that can be used for action hooks that matches
+      # all action sequences.
+      ALL_ACTIONS = :__all_actions__
+
       LOGGER = Log4r::Logger.new("vagrant::plugin::v1")
 
       # Returns a list of registered plugins for this version.
@@ -40,6 +54,24 @@ module Vagrant
         get_or_set(:description, value)
       end
 
+      # Registers a callback to be called when a specific action sequence
+      # is run. This allows plugin authors to hook into things like VM
+      # bootup, VM provisioning, etc.
+      #
+      # @param [Symbol] name Name of the action.
+      # @return [Array] List of the hooks for the given action.
+      def self.action_hook(name, &block)
+        # Get the list of hooks for the given hook name
+        data[:action_hooks] ||= {}
+        hooks = data[:action_hooks][name.to_sym] ||= []
+
+        # Return the list if we don't have a block
+        return hooks if !block_given?
+
+        # Otherwise add the block to the list of hooks for this action.
+        hooks << block
+      end
+
       # Defines additional command line commands available by key. The key
       # becomes the subcommand, so if you register a command "foo" then
       # "vagrant foo" becomes available.
@@ -48,8 +80,15 @@ module Vagrant
       def self.command(name=UNSET_VALUE, &block)
         data[:command] ||= Registry.new
 
-        # Register a new command class only if a name was given.
-        data[:command].register(name.to_sym, &block) if name != UNSET_VALUE
+        if name != UNSET_VALUE
+          # Validate the name of the command
+          if name.to_s !~ /^[-a-z0-9]+$/i
+            raise InvalidCommandName, "Commands can only contain letters, numbers, and hyphens"
+          end
+
+          # Register a new command class only if a name was given.
+          data[:command].register(name.to_sym, &block)
+        end
 
         # Return the registry
         data[:command]
@@ -71,6 +110,38 @@ module Vagrant
 
         # Return the registry
         data[:config]
+      end
+
+      # Defines an "easy hook," which gives an easier interface to hook
+      # into action sequences.
+      def self.easy_hook(position, name, &block)
+        if ![:before, :after].include?(position)
+          raise InvalidEasyHookPosition, "must be :before, :after"
+        end
+
+        # This is the command sent to sequences to insert
+        insert_method = "insert_#{position}".to_sym
+
+        # Create the hook
+        hook = Easy.create_hook(&block)
+
+        # Define an action hook that listens to all actions and inserts
+        # the hook properly if the sequence contains what we're looking for
+        action_hook(ALL_ACTIONS) do |seq|
+          index = seq.index(name)
+          seq.send(insert_method, index, hook) if index
+        end
+      end
+
+      # Defines an "easy command," which is a command with limited
+      # functionality but far less boilerplate required over traditional
+      # commands. Easy commands let you make basic commands quickly and
+      # easily.
+      #
+      # @param [String] name Name of the command, how it will be invoked
+      #   on the command line.
+      def self.easy_command(name, &block)
+        command(name) { Easy.create_command(name, &block) }
       end
 
       # Defines an additionally available guest implementation with
@@ -116,6 +187,9 @@ module Vagrant
 
       # Registers the plugin. This makes the plugin actually work with
       # Vagrant. Prior to registering, the plugin is merely a skeleton.
+      #
+      # This shouldn't be called by the general public. Plugins are automatically
+      # registered when they are given a name.
       def self.register!(plugin=nil)
         plugin ||= self
 

@@ -298,6 +298,11 @@ module Vagrant
       error_key(:dotfile_error, "vagrant.actions.vm.persist")
     end
 
+    class PluginLoadError < VagrantError
+      status_code(81)
+      error_key(:plugin_load_error)
+    end
+
     class SCPUnavailable < VagrantError
       status_code(56)
       error_key(:scp_unavailable)
