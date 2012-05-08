@@ -43,9 +43,9 @@ module Vagrant
             use VM::NFS
             use VM::ClearSharedFolders
             use VM::ShareFolders
-            use VM::HostName
             use VM::ClearNetworkInterfaces
             use VM::Network
+            use VM::HostName
             use VM::SaneDefaults
             use VM::Customize
             use VM::Boot
