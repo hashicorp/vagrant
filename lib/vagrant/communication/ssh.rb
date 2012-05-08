@@ -120,9 +120,6 @@ module Vagrant
           :keys                  => [ssh_info[:private_key_path]],
           :keys_only             => true,
           :user_known_hosts_file => [],
-          #Would actually like to set :logger => @logger but one expect the Logger library, the other uses log4r
-          #and I got too lazy/am not good enough at ruby modules to write a clean adapater class
-          :verbose                => @logger.level,
           :paranoid              => false,
           :config                => false,
           :forward_agent         => ssh_info[:forward_agent]
