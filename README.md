@@ -50,6 +50,7 @@ be installed with a simple `gem install bundler`. Afterwords, do the following:
 
     bundle install
     rake
+    bundle exec bin/vagrant help
 
 This will run the unit test suite, which should come back all green! Then you're good to go!
 
