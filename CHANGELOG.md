@@ -5,6 +5,10 @@
     powerful plugins for Vagrant while providing a backwards-compatible API
     so that plugins will always _load_ (though they will almost certainly
     not be _functional_ in future versions of Vagrant).
+  - Plugins no longer "autoload" by simply gem installing them. This increases
+    Vagrant's initial startup time considerably. To replace this, you must now
+    explicitly require plugins in the `~/.vagrantrc` file, using
+    `Vagrant.require_plugin`.
   - Improve the SSH "ready?" check. [GH-841]
   - Human friendly error if connection times out for HTTP downloads. [GH-849]
   - Detect when the VirtualBox installation is incomplete and error. [GH-846]
@@ -14,6 +18,10 @@
   - Fix issue where changing SSH key permissions didn't properly work. [GH-911]
   - Disable the NAT DNS proxy when the DNS server is already proxied to
     localhost on Linux machines. This fixes issues with 12.04. [GH-909]
+  - Fix issue where Vagrant didn't properly detect VBoxManage on Windows
+    if VBOX_INSTALL_PATH contained multiple paths. [GH-885]
+  - All `vagrant` commands that can take a target VM name can take one even
+    if you're not in a multi-VM environment. [GH-894]
 
 ## 1.0.3 (May 1, 2012)
 

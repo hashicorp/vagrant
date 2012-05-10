@@ -73,6 +73,19 @@ describe Vagrant::Action::Builder do
       data[:data].should == [2, 1]
     end
 
+    it "can insert by name" do
+      # Create the proc then make sure it has a name
+      bar_proc = appender_proc(2)
+      def bar_proc.name; :bar; end
+
+      instance.use appender_proc(1)
+      instance.use bar_proc
+      instance.insert_before :bar, appender_proc(3)
+      instance.call(data)
+
+      data[:data].should == [1, 3, 2]
+    end
+
     it "can insert next to a previous object" do
       proc2 = appender_proc(2)
       instance.use appender_proc(1)
@@ -100,7 +113,12 @@ describe Vagrant::Action::Builder do
       data[:data].should == [1, 2, 3]
     end
 
-    it "raises an exception if an invalid object given" do
+    it "raises an exception if an invalid object given for insert" do
+      expect { instance.insert "object", appender_proc(1) }.
+        to raise_error(RuntimeError)
+    end
+
+    it "raises an exception if an invalid object given for insert_after" do
       expect { instance.insert_after "object", appender_proc(1) }.
         to raise_error(RuntimeError)
     end

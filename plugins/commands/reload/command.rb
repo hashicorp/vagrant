@@ -10,7 +10,7 @@ module VagrantPlugins
       def execute
         options = {}
 
-          opts = OptionParser.new do |opts|
+        opts = OptionParser.new do |opts|
           opts.banner = "Usage: vagrant reload [vm-name]"
           opts.separator ""
           build_start_options(opts, options)

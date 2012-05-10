@@ -15,4 +15,17 @@ describe Vagrant do
         to raise_error(ArgumentError)
     end
   end
+
+  describe "requiring plugins" do
+    it "should require the plugin given" do
+      # For now, just require a stdlib
+      expect { described_class.require_plugin "set" }.
+        to_not raise_error
+    end
+
+    it "should raise an error if the file doesn't exist" do
+      expect { described_class.require_plugin("i_dont_exist") }.
+        to raise_error(Vagrant::Errors::PluginLoadError)
+    end
+  end
 end

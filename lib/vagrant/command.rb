@@ -79,8 +79,6 @@ module Vagrant
         vms = []
         if names.length > 0
           names.each do |name|
-            raise Errors::MultiVMEnvironmentRequired if !@env.multivm?
-
             if pattern = name[/^\/(.+?)\/$/, 1]
               # This is a regular expression name, so we convert to a regular
               # expression and allow that sort of matching.

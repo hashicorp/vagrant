@@ -1,8 +1,8 @@
-require 'pathname'
 require 'fileutils'
+require 'pathname'
+require 'set'
 
 require 'log4r'
-require 'rubygems'  # This is needed for plugin loading below.
 
 require 'vagrant/util/file_mode'
 require 'vagrant/util/platform'
@@ -15,6 +15,7 @@ module Vagrant
     HOME_SUBDIRS = ["tmp", "boxes", "gems"]
     DEFAULT_VM = :default
     DEFAULT_HOME = "~/.vagrant.d"
+    DEFAULT_RC = "~/.vagrantrc"
 
     # The `cwd` that this environment represents
     attr_reader :cwd
@@ -40,6 +41,10 @@ module Vagrant
 
     # The path to the default private key
     attr_reader :default_private_key_path
+
+    # This is a set of the vagrantrc files already loaded so that they
+    # are only loaded once.
+    @@loaded_rc = Set.new
 
     # Initializes a new environment with the given options. The options
     # is a hash where the main available key is `cwd`, which defines where
@@ -519,7 +524,13 @@ module Vagrant
       ::Gem.clear_paths
 
       # Load the plugins
-      Plugin::GemLoader.load!
+      rc_path = File.expand_path(ENV["VAGRANT_RC"] || DEFAULT_RC)
+      if File.file?(rc_path) && @@loaded_rc.add?(rc_path)
+        @logger.debug("Loading RC file: #{rc_path}")
+        load rc_path
+      else
+        @logger.debug("RC file not found. Not loading: #{rc_path}")
+      end
     end
   end
 end

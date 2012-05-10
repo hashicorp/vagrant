@@ -68,13 +68,6 @@ describe Vagrant::Command::Base do
         to raise_error(Vagrant::Errors::NoEnvironmentError)
     end
 
-    it "should raise an exception if a name is given in a non-multivm environment" do
-      environment.stub(:multivm?).and_return(false)
-
-      expect { instance.with_target_vms("foo") }.
-        to raise_error(Vagrant::Errors::MultiVMEnvironmentRequired)
-    end
-
     it "should yield every VM in order is no name is given" do
       foo_vm = double("foo")
       foo_vm.stub(:name).and_return("foo")

@@ -83,6 +83,9 @@ en:
       no_env: |-
         A Vagrant environment is required to run this command. Run `vagrant init`
         to set one up.
+      plugin_load_error: |-
+        The plugin "%{plugin}" could not be found. Please make sure that it is
+        properly installed via `vagrant gem`.
       port_collision_resume: |-
         This VM cannot be resumed, because the forwarded ports would collide with
         another running virtual machine. Normally, Vagrant will attempt to fix this

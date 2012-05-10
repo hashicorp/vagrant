@@ -23,6 +23,18 @@ describe Vagrant::Plugin::V1 do
     plugin.description.should == "bar"
   end
 
+  describe "action hooks" do
+    it "should register action hooks" do
+      plugin = Class.new(described_class) do
+        action_hook("foo") { "bar" }
+      end
+
+      hooks = plugin.action_hook("foo")
+      hooks.length.should == 1
+      hooks[0].call.should == "bar"
+    end
+  end
+
   describe "commands" do
     it "should register command classes" do
       plugin = Class.new(described_class) do
@@ -30,6 +42,15 @@ describe Vagrant::Plugin::V1 do
       end
 
       plugin.command[:foo].should == "bar"
+    end
+
+    ["spaces bad", "sym^bols"].each do |bad|
+      it "should not allow bad command name: #{bad}" do
+        plugin = Class.new(described_class)
+
+        expect { plugin.command(bad) {} }.
+          to raise_error(Vagrant::Plugin::V1::InvalidCommandName)
+      end
     end
 
     it "should lazily register command classes" do
@@ -76,6 +97,17 @@ describe Vagrant::Plugin::V1 do
       expect {
         plugin.config[:foo]
       }.to raise_error(StandardError)
+    end
+  end
+
+  describe "easy commands" do
+    it "should register with the commands" do
+      plugin = Class.new(described_class) do
+        easy_command("foo") {}
+      end
+
+      # Check that the command class subclasses the easy command base
+      plugin.command[:foo].should < Vagrant::Easy::CommandBase
     end
   end
 
