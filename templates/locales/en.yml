@@ -151,7 +151,8 @@ en:
       ssh_unavailable_windows: |-
         `vagrant ssh` isn't available on the Windows platform. You are still able
         to SSH into the virtual machine if you get a Windows SSH client (such as
-        PuTTY). The authentication information is shown below:
+        PuTTY) or a Windows program that contains an SSH client (such as Cygwin,
+        MinGW or Git). The authentication information is shown below:
 
         Host: %{host}
         Port: %{port}

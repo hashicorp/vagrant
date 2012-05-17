@@ -58,7 +58,15 @@ module Vagrant
 
       # Ensure the platform supports ssh. On Windows there are several programs which
       # include ssh, notably git, mingw and cygwin, but make sure ssh is in the path!
-      raise Errors::SSHUnavailable if !Util::FileUtil.which("ssh")
+      if !Util::FileUtil.which("ssh")
+        if Util::Platform.windows?
+          raise Errors::SSHUnavailableWindows, :host => ssh_info[:host],
+                                               :port => ssh_info[:port],
+                                               :username => ssh_info[:username],
+                                               :key_path => ssh_info[:private_key_path]
+        end
+        raise Errors::SSHUnavailable 
+      end
 
       # If plain mode is enabled then we don't do any authentication (we don't
       # set a user or an identity file)
