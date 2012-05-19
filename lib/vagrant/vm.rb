@@ -82,6 +82,7 @@ module Vagrant
         result = @guest.distro_dispatch
         load_guest!(result)
         @loaded_guest_distro = true
+        @logger.info("Guest class: #{@guest.class}")
       end
 
       @guest
