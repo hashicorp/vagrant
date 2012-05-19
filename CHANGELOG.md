@@ -22,6 +22,8 @@
     if VBOX_INSTALL_PATH contained multiple paths. [GH-885]
   - All `vagrant` commands that can take a target VM name can take one even
     if you're not in a multi-VM environment. [GH-894]
+  - Hostname is set before networks are setup to avoid very slow `sudo`
+    speeds on CentOS. [GH-922]
 
 ## 1.0.3 (May 1, 2012)
 
