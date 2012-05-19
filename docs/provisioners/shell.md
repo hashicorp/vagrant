@@ -41,7 +41,7 @@ Vagrant::Config.run do |config|
 end
 {% endhighlight %}
 
-This will cauase the `test.sh` file to be executed. Vagrant also shuttles
+This will cause the `test.sh` file to be executed. Vagrant also shuttles
 the stderr and stdout output to the host console for your convenience.
 
 ## Inline Scripts
