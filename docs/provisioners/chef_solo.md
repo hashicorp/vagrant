@@ -13,9 +13,10 @@ machine with [Chef Cookbooks](http://wiki.opscode.com/display/chef/Cookbooks) wi
 [Chef Server](http://wiki.opscode.com/display/chef/Chef+Server). At a very basic level, [Chef](http://www.opscode.com/chef/)
 is an open source systems integration framework which automates tasks through programmable "cookbooks."
 This page will not go into the details of creating custom chef cookbooks, since that
-is covered in detail around the web, but a good place to start is the [opscode cookbooks repository](http://github.com/opscode/cookbooks)
+is covered in detail around the web, but a good place to start is the
+[opscode-cookbooks organization](https://github.com/opscode-cookbooks)
 which contains cookbooks for most of the popular server software already made. Note
-that sometimes the cookbooks from the Opscode repository may not work directly
+that sometimes these cookbooks may not work directly
 "out of the box," and proper Chef support channels should be used if this occurs,
 since they are more knowledgable in general on that topic.
 
