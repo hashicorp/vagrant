@@ -24,6 +24,7 @@
     if you're not in a multi-VM environment. [GH-894]
   - Hostname is set before networks are setup to avoid very slow `sudo`
     speeds on CentOS. [GH-922]
+  - Fix typo in setting host name for Gentoo guests. [GH-931]
 
 ## 1.0.3 (May 1, 2012)
 
