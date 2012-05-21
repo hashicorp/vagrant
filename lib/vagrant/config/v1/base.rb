@@ -1,6 +1,6 @@
 module Vagrant
   module Config
-    class V1
+    class V1 < VersionBase
       # Base class for configuration keys. It is not required to inherit
       # from this class but this class provides useful helpers that config
       # classes may wish to use.

@@ -70,8 +70,12 @@ module Vagrant
           @logger.error("Unknown config sources: #{unknown_sources.inspect}")
         end
 
+        # Get the current version config class to use
+        current_version = Config::VERSIONS_ORDER.last
+        current_config_klass = Config::VERSIONS.get(current_version)
+
         # This will hold our result
-        result = V1.init
+        result = current_config_klass.init
 
         @load_order.each do |key|
           next if !@sources.has_key?(key)
@@ -79,14 +83,14 @@ module Vagrant
           @sources[key].each do |proc|
             if !@config_cache.has_key?(proc)
               @logger.debug("Loading from: #{key} (evaluating)")
-              current = V1.load(proc)
+              current = current_config_klass.load(proc)
               @config_cache[proc] = current
             else
               @logger.debug("Loading from: #{key} (cache)")
             end
 
             # Merge the configurations
-            result = V1.merge(result, @config_cache[proc])
+            result = current_config_klass.merge(result, @config_cache[proc])
           end
         end
 

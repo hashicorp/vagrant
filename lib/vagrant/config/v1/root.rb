@@ -1,6 +1,6 @@
 module Vagrant
   module Config
-    class V1
+    class V1 < VersionBase
       # This is the root configuration class. An instance of this is what
       # is passed into version 1 Vagrant configuration blocks.
       class Root

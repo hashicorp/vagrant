@@ -1,10 +1,11 @@
+require "vagrant/config/version_base"
 require "vagrant/config/v1/base"
 require "vagrant/config/v1/root"
 
 module Vagrant
   module Config
     # This is the "version 1" configuration loader.
-    class V1
+    class V1 < VersionBase
       # Returns a bare empty configuration object.
       #
       # @return [V1::Root]
