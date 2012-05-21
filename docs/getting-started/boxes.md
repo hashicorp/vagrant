@@ -26,7 +26,7 @@ can create a box, and packaging will be covered specifically in the
 ## Getting a Base Box
 
 We've already packaged a base box which has a bare bones installation
-of Ubuntu Lucid (10.04) 32-bit. Note that if you already downloaded
+of Ubuntu Precise (12.04) 32-bit. Note that if you already downloaded
 this box from the [overview page](/docs/getting-started/index.html) you
 do not have to download it again.
 
@@ -35,16 +35,16 @@ HTTP URL. Begin running the following command so it can begin downloading
 while box installation is covered in more detail:
 
 {% highlight bash %}
-$ vagrant box add lucid32 http://files.vagrantup.com/lucid32.box
+$ vagrant box add precise32 http://files.vagrantup.com/precise32.box
 {% endhighlight %}
 
 Installed boxes are global to the current vagrant installation. This
-means that once the `lucid32` box has been added, it can be used by
+means that once the `precise32` box has been added, it can be used by
 multiple projects at the same time. Each project uses the box as a _base_ only, so once the
 project VM is created, modifications can be made without affecting other
 projects which may use the same box.
 
-Note that the box is given its own name, in this case "lucid32." This name
+Note that the box is given its own name, in this case "precise32". This name
 is used throughout Vagrant to reference that box from this point forward.
 The URL is only used when adding, but never again. And the filename of the
 box means nothing to the logical name given. It is simply a coincidence that
@@ -76,7 +76,7 @@ the contents should be self-explanatory:
 
 {% highlight ruby %}
 Vagrant::Config.run do |config|
-  config.vm.box = "lucid32"
+  config.vm.box = "precise32"
 end
 {% endhighlight %}
 

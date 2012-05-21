@@ -43,8 +43,8 @@ But note that the packages are the preferred and best supported method of instal
 ## Your First Vagrant Virtual Environment
 
 <pre>
-$ vagrant box add lucid32 http://files.vagrantup.com/lucid32.box
-$ vagrant init lucid32
+$ vagrant box add precise32 http://files.vagrantup.com/precise32.box
+$ vagrant init precise32
 $ vagrant up
 </pre>
 
