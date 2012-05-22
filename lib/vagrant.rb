@@ -92,6 +92,18 @@ module Vagrant
     @source_root ||= Pathname.new(File.expand_path('../../', __FILE__))
   end
 
+  # Configure a Vagrant environment. The version specifies the version
+  # of the configuration that is expected by the block. The block, based
+  # on that version, configures the environment.
+  #
+  # Note that the block isn't run immediately. Instead, the configuration
+  # block is stored until later, and is run when an environment is loaded.
+  #
+  # @param [String] version Version of the configuration
+  def self.configure(version, &block)
+    Config.run(version, &block)
+  end
+
   # Returns a superclass to use when creating a plugin for Vagrant.
   # Given a specific version, this returns a proper superclass to use
   # to register plugins for that version.

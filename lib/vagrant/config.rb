@@ -32,10 +32,10 @@ module Vagrant
     #
     # Note that the block is not run immediately. Instead, it's proc is stored
     # away for execution later.
-    def self.run(&block)
+    def self.run(version="1", &block)
       # Store it for later
       @last_procs ||= []
-      @last_procs << block
+      @last_procs << [version, block]
     end
 
     # This is a method which will yield to a block and will capture all

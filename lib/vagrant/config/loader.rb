@@ -80,11 +80,10 @@ module Vagrant
         @load_order.each do |key|
           next if !@sources.has_key?(key)
 
-          @sources[key].each do |proc|
+          @sources[key].each do |version, proc|
             if !@config_cache.has_key?(proc)
               @logger.debug("Loading from: #{key} (evaluating)")
-              current = current_config_klass.load(proc)
-              @config_cache[proc] = current
+              @config_cache[proc] = current_config_klass.load(proc)
             else
               @logger.debug("Loading from: #{key} (cache)")
             end
@@ -105,7 +104,11 @@ module Vagrant
       # the configuration object and are expected to mutate this
       # configuration object.
       def procs_for_source(source)
-        return [source] if source.is_a?(Proc)
+        # If the source is just a proc, we assume it is for the latest
+        # version of the configuration. This may be an ill assumption,
+        # but it made building the initial version of multi-versioned
+        # configuration easy to support the old sub-VM stuff.
+        return [[Config::VERSIONS_ORDER.last, source]] if source.is_a?(Proc)
 
         # Assume all string sources are actually pathnames
         source = Pathname.new(source) if source.is_a?(String)
