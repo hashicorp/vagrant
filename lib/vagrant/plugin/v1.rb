@@ -72,6 +72,19 @@ module Vagrant
         hooks << block
       end
 
+      # The given block will be called when this plugin is activated. The
+      # activation block should be used to load any of the classes used by
+      # the plugin other than the plugin definition itself. Vagrant only
+      # guarantees that the plugin definition will remain backwards
+      # compatible, but not any other classes (such as command base classes
+      # or so on). Therefore, to avoid crashing future versions of Vagrant,
+      # these classes should be placed in separate files and loaded in the
+      # activation block.
+      def self.activated(&block)
+        data[:activation_block] = block if block_given?
+        data[:activation_block]
+      end
+
       # Defines additional command line commands available by key. The key
       # becomes the subcommand, so if you register a command "foo" then
       # "vagrant foo" becomes available.
@@ -183,6 +196,18 @@ module Vagrant
 
         # Return the registry
         data[:provisioners]
+      end
+
+      # Activates the current plugin. This shouldn't be called publicly.
+      def self.activate!
+        if !data[:activated_called]
+          LOGGER.info("Activating plugin: #{self.name}")
+          data[:activated_called] = true
+
+          # Call the activation block
+          block = activated
+          block.call if block
+        end
       end
 
       # Registers the plugin. This makes the plugin actually work with

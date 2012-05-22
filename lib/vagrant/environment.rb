@@ -100,6 +100,9 @@ module Vagrant
 
       # Load the plugins
       load_plugins
+
+      # Activate the plugins
+      activate_plugins
     end
 
     #---------------------------------------------------------------
@@ -395,6 +398,10 @@ module Vagrant
           config_loader.set(:vm, subvm.proc_stack)
         end
 
+        # We activate plugins here because the files which we're loading
+        # configuration from may have defined new plugins as well.
+        activate_plugins
+
         # Execute the configuration stack and store the result as the final
         # value in the config ivar.
         config_loader.load
@@ -513,6 +520,14 @@ module Vagrant
       end
 
       nil
+    end
+
+    # This finds all the current plugins and activates them. This is an
+    # idempotent call so it is safe to call this as much as you need.
+    def activate_plugins
+      Vagrant.plugin("1").registered.each do |plugin|
+        plugin.activate!
+      end
     end
 
     # Loads the Vagrant plugins by properly setting up RubyGems so that

@@ -35,6 +35,34 @@ describe Vagrant::Plugin::V1 do
     end
   end
 
+  describe "activation block" do
+    it "should have no activation block by default" do
+      plugin = Class.new(described_class)
+      plugin.activated.should be_nil
+    end
+
+    it "should be able to set and get the activation block" do
+      plugin = Class.new(described_class) do
+        activated do
+          42
+        end
+      end
+
+      plugin.activated.call.should == 42
+    end
+
+    it "should activate when `activate!` is called" do
+      plugin = Class.new(described_class) do
+        activated do
+          raise NotImplementedError
+        end
+      end
+
+      expect { plugin.activate! }.to raise_error(NotImplementedError)
+      expect { plugin.activate! }.to_not raise_error
+    end
+  end
+
   describe "commands" do
     it "should register command classes" do
       plugin = Class.new(described_class) do
