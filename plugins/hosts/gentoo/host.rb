@@ -1,3 +1,7 @@
+require "vagrant"
+
+require Vagrant.source_root.join("plugins/hosts/linux/host")
+
 module VagrantPlugins
   module HostGentoo
     class Host < VagrantPlugins::HostLinux::Host

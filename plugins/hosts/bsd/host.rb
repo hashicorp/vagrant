@@ -1,5 +1,6 @@
 require 'log4r'
 
+require "vagrant"
 require 'vagrant/util/platform'
 
 module VagrantPlugins

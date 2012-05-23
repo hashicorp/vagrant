@@ -1,3 +1,4 @@
+require "vagrant"
 require 'vagrant/util/platform'
 
 module VagrantPlugins

@@ -1,4 +1,7 @@
+require "vagrant"
 require 'vagrant/util/platform'
+
+require Vagrant.source_root.join("plugins/hosts/bsd/host")
 
 module VagrantPlugins
   module HostFreeBSD

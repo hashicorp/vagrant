@@ -1,5 +1,9 @@
 require "pathname"
 
+require "vagrant"
+
+require Vagrant.source_root.join("plugins/hosts/linux/host")
+
 module VagrantPlugins
   module HostOpenSUSE
     class Host < VagrantPlugins::HostLinux::Host
