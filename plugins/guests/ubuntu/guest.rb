@@ -1,3 +1,7 @@
+require "vagrant"
+
+require Vagrant.source_root.join("plugins/guests/debian/guest")
+
 module VagrantPlugins
   module GuestUbuntu
     class Guest < VagrantPlugins::GuestDebian::Guest

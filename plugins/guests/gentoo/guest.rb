@@ -1,6 +1,9 @@
 require 'tempfile'
 
+require "vagrant"
 require 'vagrant/util/template_renderer'
+
+require Vagrant.source_root.join("plugins/guests/linux/guest")
 
 module VagrantPlugins
   module GuestGentoo

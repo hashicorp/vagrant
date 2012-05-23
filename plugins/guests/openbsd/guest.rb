@@ -1,3 +1,7 @@
+require "vagrant"
+
+require Vagrant.source_root.join("plugins/guests/linux/guest")
+
 module VagrantPlugins
   module GuestOpenBSD
     class Guest < VagrantPlugins::GuestLinux::Guest

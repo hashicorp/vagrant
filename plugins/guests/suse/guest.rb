@@ -1,3 +1,7 @@
+require "vagrant"
+
+require Vagrant.source_root.join("plugins/guests/redhat/guest")
+
 module VagrantPlugins
   module GuestSuse
     class Guest < VagrantPlugins::GuestRedHat::Guest

@@ -1,5 +1,7 @@
 require 'log4r'
 
+require "vagrant"
+
 module VagrantPlugins
   module GuestLinux
     class Guest < Vagrant::Guest::Base

@@ -1,3 +1,5 @@
+require "vagrant"
+
 module VagrantPlugins
   module GuestSolaris
     # A general Vagrant system implementation for "solaris".
