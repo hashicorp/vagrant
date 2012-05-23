@@ -1,5 +1,9 @@
 require 'optparse'
 
+require "vagrant"
+
+require File.expand_path("../start_mixins", __FILE__)
+
 module VagrantPlugins
   module CommandUp
     class Command < Vagrant::Command::Base

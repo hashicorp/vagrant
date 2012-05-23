@@ -9,11 +9,10 @@ module VagrantPlugins
       in this environment.
       DESC
 
-      activated do
+      command("status") do
         require File.expand_path("../command", __FILE__)
+        Command
       end
-
-      command("status") { Command }
     end
   end
 end

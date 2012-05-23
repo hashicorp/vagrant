@@ -9,11 +9,10 @@ module VagrantPlugins
       RubyGems into the Vagrant environment.
       DESC
 
-      activated do
+      command("gem") do
         require File.expand_path("../command", __FILE__)
+        Command
       end
-
-      command("gem") { Command }
     end
   end
 end

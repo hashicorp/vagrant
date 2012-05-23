@@ -8,11 +8,10 @@ module VagrantPlugins
       The `ssh` command provides SSH access to the virtual machine.
       DESC
 
-      activated do
+      command("ssh") do
         require File.expand_path("../command", __FILE__)
+        Command
       end
-
-      command("ssh") { Command }
     end
   end
 end

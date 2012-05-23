@@ -6,15 +6,10 @@ module VagrantPlugins
       name "box command"
       description "The `box` command gives you a way to manage boxes."
 
-      activated do
+      command("box") do
         require File.expand_path("../command/root", __FILE__)
-        require File.expand_path("../command/add", __FILE__)
-        require File.expand_path("../command/list", __FILE__)
-        require File.expand_path("../command/remove", __FILE__)
-        require File.expand_path("../command/repackage", __FILE__)
+        Command::Root
       end
-
-      command("box") { Command::Root }
     end
   end
 end

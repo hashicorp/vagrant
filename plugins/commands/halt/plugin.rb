@@ -8,11 +8,10 @@ module VagrantPlugins
       The `halt` command halts your virtual machine.
       DESC
 
-      activated do
+      command("halt") do
         require File.expand_path("../command", __FILE__)
+        Command
       end
-
-      command("halt") { Command }
     end
   end
 end

@@ -8,11 +8,10 @@ module VagrantPlugins
       The `suspend` command suspends a running virtual machine.
       DESC
 
-      activated do
+      command("suspend") do
         require File.expand_path("../command", __FILE__)
+        Command
       end
-
-      command("suspend") { Command }
     end
   end
 end

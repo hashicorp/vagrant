@@ -9,11 +9,10 @@ module VagrantPlugins
       environment and package it into a box file.
       DESC
 
-      activated do
+      command("package") do
         require File.expand_path("../command", __FILE__)
+        Command
       end
-
-      command("package") { Command }
     end
   end
 end

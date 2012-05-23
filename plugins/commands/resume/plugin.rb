@@ -8,11 +8,10 @@ module VagrantPlugins
       The `resume` command resumes a suspend virtual machine.
       DESC
 
-      activated do
+      command("resume") do
         require File.expand_path("../command", __FILE__)
+        Command
       end
-
-      command("resume") { Command }
     end
   end
 end

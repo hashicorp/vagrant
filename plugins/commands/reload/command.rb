@@ -1,5 +1,9 @@
 require 'optparse'
 
+require "vagrant"
+
+require Vagrant.source_root.join("plugins/commands/up/start_mixins")
+
 module VagrantPlugins
   module CommandReload
     class Command < Vagrant::Command::Base

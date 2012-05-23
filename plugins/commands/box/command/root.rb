@@ -10,10 +10,25 @@ module VagrantPlugins
           @main_args, @sub_command, @sub_args = split_main_and_subcommand(argv)
 
           @subcommands = Vagrant::Registry.new
-          @subcommands.register(:add)       { Add }
-          @subcommands.register(:list)      { List }
-          @subcommands.register(:remove)    { Remove }
-          @subcommands.register(:repackage) { Repackage }
+          @subcommands.register(:add) do
+            require File.expand_path("../add", __FILE__)
+            Add
+          end
+
+          @subcommands.register(:list) do
+            require File.expand_path("../list", __FILE__)
+            List
+          end
+
+          @subcommands.register(:remove) do
+            require File.expand_path("../remove", __FILE__)
+            Remove
+          end
+
+          @subcommands.register(:repackage) do
+            require File.expand_path("../repackage", __FILE__)
+            Repackage
+          end
         end
 
         def execute

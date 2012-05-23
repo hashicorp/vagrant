@@ -9,11 +9,10 @@ module VagrantPlugins
       that can be used to quickly SSH into your virtual machine.
       DESC
 
-      activated do
+      command("ssh-config") do
         require File.expand_path("../command", __FILE__)
+        Command
       end
-
-      command("ssh-config") { Command }
     end
   end
 end

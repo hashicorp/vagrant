@@ -9,11 +9,10 @@ module VagrantPlugins
       configuration of the Vagrantfile.
       DESC
 
-      activated do
+      command("provision") do
         require File.expand_path("../command", __FILE__)
+        Command
       end
-
-      command("provision") { Command }
     end
   end
 end

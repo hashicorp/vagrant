@@ -6,11 +6,10 @@ module VagrantPlugins
       name "destroy command"
       description "The `destroy` command destroys your virtual machines."
 
-      activated do
+      command("destroy") do
         require File.expand_path("../command", __FILE__)
+        Command
       end
-
-      command("destroy") { Command }
     end
   end
 end

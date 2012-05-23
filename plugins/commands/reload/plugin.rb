@@ -9,11 +9,10 @@ module VagrantPlugins
       the Vagrantfile, and bring it back up.
       DESC
 
-      activated do
+      command("reload") do
         require File.expand_path("../command", __FILE__)
+        Command
       end
-
-      command("reload") { Command }
     end
   end
 end

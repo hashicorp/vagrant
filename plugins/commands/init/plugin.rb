@@ -9,11 +9,10 @@ module VagrantPlugins
       Vagrant-managed environment.
       DESC
 
-      activated do
+      command("init") do
         require File.expand_path("../command", __FILE__)
+        Command
       end
-
-      command("init") { Command }
     end
   end
 end
