@@ -2,8 +2,6 @@ require "vagrant"
 
 module VagrantPlugins
   module Shell
-    autoload :Provisioner, File.expand_path("../provisioner", __FILE__)
-
     class Plugin < Vagrant.plugin("1")
       name "shell"
       description <<-DESC
@@ -11,7 +9,10 @@ module VagrantPlugins
       shell scripts.
       DESC
 
-      provisioner("shell") { Provisioner }
+      provisioner("shell") do
+        require File.expand_path("../provisioner", __FILE__)
+        Provisioner
+      end
     end
   end
 end

@@ -2,11 +2,6 @@ require "vagrant"
 
 module VagrantPlugins
   module Pupppet
-    module Provisioner
-      autoload :Puppet,   File.expand_path("../provisioner/puppet", __FILE__)
-      autoload :PuppetServer, File.expand_path("../provisioner/puppet_server", __FILE__)
-    end
-
     class Plugin < Vagrant.plugin("1")
       name "puppet"
       description <<-DESC
@@ -14,8 +9,15 @@ module VagrantPlugins
       Puppet either using `puppet apply` or a Puppet server.
       DESC
 
-      provisioner("puppet")        { Provisioner::Puppet }
-      provisioner("puppet_server") { Provisioner::PuppetServer }
+      provisioner("puppet") do
+        require File.expand_path("../provisioner/puppet", __FILE__)
+        Provisioner::Puppet
+      end
+
+      provisioner("puppet_server") do
+        require File.expand_path("../provisioner/puppet_server", __FILE__)
+        Provisioner::PuppetServer
+      end
     end
   end
 end
