@@ -10,7 +10,7 @@ Vagrant.configure("1") do |config|
   config.ssh.timeout = 10
   config.ssh.forward_agent = false
   config.ssh.forward_x11 = false
-  config.ssh.shell = "bash"
+  config.ssh.shell = "bash -l"
 
   config.vm.auto_port_range = (2200..2250)
   config.vm.box_url = nil

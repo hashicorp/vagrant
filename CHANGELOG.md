@@ -25,6 +25,7 @@
   - Hostname is set before networks are setup to avoid very slow `sudo`
     speeds on CentOS. [GH-922]
   - Fix typo in setting host name for Gentoo guests. [GH-931]
+  - `config.ssh.shell` now includes the flags to pass to it, such as `-l` [GH-917]
 
 ## 1.0.3 (May 1, 2012)
 

@@ -172,8 +172,7 @@ module Vagrant
 
         # Determine the shell to execute. If we are using `sudo` then we
         # need to wrap the shell in a `sudo` call.
-        shell = "#{@vm.config.ssh.shell} -l"
-        shell = "sudo -H #{shell}" if sudo
+        shell = "sudo -H #{@vm.config.ssh.shell}" if sudo
 
         # Open the channel so we can execute or command
         channel = connection.open_channel do |ch|
