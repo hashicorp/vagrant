@@ -28,6 +28,14 @@ module VagrantPlugins
         save_path.open("w+") do |f|
           f.write(contents)
         end
+        
+        # Copy include files
+        $inducle_dir = @env.boxes_path.join(Pathname.new(argv[0]).join("include"))
+        Dir.foreach($inducle_dir.to_s) do |entry| 
+            if entry != "_Vagrantfile" && entry != "." && entry !=".."                
+                FileUtils.cp($inducle_dir.join(entry),@env.cwd.to_s)
+            end 
+        end
 
         @env.ui.info(I18n.t("vagrant.commands.init.success"),
                      :prefix => false)
