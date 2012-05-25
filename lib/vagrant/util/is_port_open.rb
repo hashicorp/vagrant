@@ -29,7 +29,7 @@ module Vagrant
           # to connect.
           return true
         end
-      rescue Timeout::Error, Errno::ECONNREFUSED, Errno::EHOSTUNREACH
+      rescue Timeout::Error, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::ENETUNREACH
         # Any of the above exceptions signal that the port is closed.
         return false
       end
