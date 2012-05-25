@@ -4,5 +4,8 @@ auto eth<%= options[:interface] %>
 iface eth<%= options[:interface] %> inet dhcp
 <% if !options[:use_dhcp_assigned_default_route] %>
     post-up route del default dev $IFACE
+<% else %>
+    # needed as some newer distribution do not properly load routes, ubuntu 12.04
+    post-up dhclient $IFACE
 <% end %>
 #VAGRANT-END
