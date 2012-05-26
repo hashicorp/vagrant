@@ -63,9 +63,9 @@ module Vagrant
 
             # Copy direcotry contents recursively.
             if File.directory?(from)
-              FileUtils.cp_r(Dir.glob(from), to.parent)
+              FileUtils.cp_r(Dir.glob(from), to.parent, {:preserve => True})
             else
-              FileUtils.cp(from, to)
+              FileUtils.cp(from, to, {:preserve => True})
             end
           end
         end
