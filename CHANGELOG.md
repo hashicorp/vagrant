@@ -26,6 +26,7 @@
     speeds on CentOS. [GH-922]
   - Fix typo in setting host name for Gentoo guests. [GH-931]
   - `config.ssh.shell` now includes the flags to pass to it, such as `-l` [GH-917]
+  - The check for whether a port is open or not is more complete. [GH-948]
 
 ## 1.0.3 (May 1, 2012)
 
