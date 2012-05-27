@@ -1,5 +1,5 @@
 ---
-layout: documentation
+layout: default
 title: Changes - 0.5.x to 0.6.x
 ---
 # Changes from Vagrant 0.5.x to 0.6.x
