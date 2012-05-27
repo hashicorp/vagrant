@@ -1,5 +1,5 @@
 ---
-layout: documentation
+layout: default
 title: Changes - 0.3.x to 0.4.x
 ---
 # Changes in Vagrant 0.4.x

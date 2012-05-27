@@ -1,5 +1,5 @@
 ---
-layout: documentation
+layout: default
 title: Changes - 0.2.x to 0.3.x
 ---
 # Changes from Version 0.2.x to 0.3.x
