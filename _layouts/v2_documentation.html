@@ -1,0 +1,81 @@
+{% include header.html %}
+<div class="row">
+	<div class="span12">
+		<div class="alert alert-block">
+			<h4 class="alert-heading">Documentation for the Vagrant Experimental Series (1.x)</h4>
+			<p>
+				You're viewing the documentation for the <strong>experimental</strong>
+				version of Vagrant (the 1.x series). The current stable series is
+				1.0.x and the <a href="/v1">documentation can be found here</a>. You
+				can learn more about the <a href="/version_scheme.html">Vagrant versioning
+				scheme here</a>.
+			</p>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="span3 Module sidebar">
+		<div class="well" style="padding: 8px 0px;">
+			<ul class="nav nav-list">
+				<li{% if page.current == 'Overview' %} class="active"{% endif %}>
+				<a href="/v2/docs/index.html">Overview</a>
+				</li>
+				<li{% if page.current == 'Commands' %} class="active"{% endif %}>
+				<a href="/v2/docs/commands.html">Commands</a>
+				</li>
+				<li{% if page.current == 'Vagrantfile' %} class="active"{% endif %}>
+				<a href="/v2/docs/vagrantfile.html">Vagrantfile</a>
+				</li>
+				<li{% if page.current == 'Provisioners' %} class="active"{% endif %}>
+				<a href="/v2/docs/provisioners.html">Provisioners</a>
+				<ul>
+					<li><a href="/v2/docs/provisioners/chef_solo.html">Chef Solo</a></li>
+					<li><a href="/v2/docs/provisioners/chef_server.html">Chef Server</a></li>
+					<li><a href="/v2/docs/provisioners/puppet.html">Puppet</a></li>
+					<li><a href="/v2/docs/provisioners/puppet_server.html">Puppet Server</a></li>
+					<li><a href="/v2/docs/provisioners/shell.html">Shell</a></li>
+					<li><a href="/v2/docs/provisioners/others.html">Others</a></li>
+				</ul>
+				</li>
+				<li{% if page.current == 'Boxes' %} class="active"{% endif %}>
+				<a href="/v2/docs/boxes.html">Boxes</a>
+				</li>
+				<li{% if page.current == 'Multi-VM' %} class="active"{% endif %}>
+				<a href="/v2/docs/multivm.html">Multi-VM Environments</a>
+				</li>
+				<li{% if page.current == 'Host-Only Networking' %} class="active"{% endif %}>
+				<a href="/v2/docs/host_only_networking.html">Host-Only Networking</a>
+				</li>
+				<li{% if page.current == 'Bridged Networking' %} class="active"{% endif %}>
+				<a href="/v2/docs/bridged_networking.html">Bridged Networking</a>
+				</li>
+				<li{% if page.current == 'NFS' %} class="active"{% endif %}>
+				<a href="/v2/docs/nfs.html">NFS Shared Folders</a>
+				</li>
+				<li{% if page.current == 'Base Boxes' %} class="active"{% endif %}>
+				<a href="/v2/docs/base_boxes.html">Base Boxes</a>
+				</li>
+				<li{% if page.current == 'Guests' %} class="active"{% endif %}>
+				<a href="/v2/docs/guests.html">Guest-specific Behavior</a>
+				</li>
+				<li{% if page.current == 'Plugins' %} class="active"{% endif %}>
+				<a href="/v2/docs/plugins.html">Plugins</a>
+				</li>
+				<li{% if page.current == 'Rake Integration' %} class="active"{% endif %}>
+				<a href="/v2/docs/rake.html">Rake Integration</a>
+				</li>
+				<li{% if page.current == 'Debugging' %} class="active"{% endif %}>
+				<a href="/v2/docs/debugging.html">Debugging</a>
+				</li>
+				<li{% if page.current == 'Troubleshooting' %} class="active"{% endif %}>
+				<a href="/v2/docs/troubleshooting.html">Troubleshooting</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="span9">
+		{{ content }}
+	</div>
+</div>
+{% include footer.html %}

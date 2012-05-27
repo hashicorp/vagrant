@@ -81,6 +81,12 @@ ul.nav.list > li {
   line-height: 1.3em;
 }
 
+.alert-heading {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: bold;
+  text-rendering: optimizelegibility;
+}
+
 .alert-notice {
   color: #555;
   background-color: whiteSmoke;
