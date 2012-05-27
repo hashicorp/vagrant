@@ -55,8 +55,8 @@ first-class citizens. The powers of plugins:
   new steps for the `up` sequence.
 
 The method by which plugins are installed and used is covered in the
-[plugins documentation](/docs/plugins.html). For a full guide on extending
-vagrant, see [the "Extending Vagrant" page](/docs/extending/index.html).
+[plugins documentation](/v1/docs/plugins.html). For a full guide on extending
+vagrant, see [the "Extending Vagrant" page](/v1/docs/extending/index.html).
 
 **Note:** The plugin API is not finalized. But please make plugins! Your
 experiences will help guide the plugin API to a final state.

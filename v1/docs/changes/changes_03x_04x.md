@@ -31,7 +31,7 @@ Vagrant::Config.run do |config|
 end
 {% endhighlight %}
 
-For more information, please read the page on [multi-VM environments](/docs/multivm.html).
+For more information, please read the page on [multi-VM environments](/v1/docs/multivm.html).
 
 ## Host Only Networking
 
@@ -48,7 +48,7 @@ Vagrant::Config.run do |config|
 end
 {% endhighlight %}
 
-For more information, read the page on [host only networking](/docs/host_only_networking.html).
+For more information, read the page on [host only networking](/v1/docs/host_only_networking.html).
 
 ## Automatic Port Collision Fixes
 
@@ -60,7 +60,7 @@ To deal with this, Vagrant can now automatically resolve any port collisions
 which are detected.
 
 For an example and more information, please view the `config.vm.forward_port`
-documentation on the [Vagrantfile page](/docs/vagrantfile.html#config-vm-forwardport).
+documentation on the [Vagrantfile page](/v1/docs/vagrantfile.html#config-vm-forwardport).
 
 ## New Abstraction: Systems
 
@@ -70,7 +70,7 @@ a specific system class, which is then configured within the Vagrantfile.
 Vagrant ships with a general Linux system which should cover the majority
 of users and is the default system.
 
-For more information, please read the [systems documentation](/docs/systems.html).
+For more information, please read the [systems documentation](/v1/docs/systems.html).
 
 ## Minor Changes
 

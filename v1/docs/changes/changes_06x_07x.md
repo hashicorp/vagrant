@@ -73,15 +73,15 @@ end
 {% endhighlight %}
 
 Really! This provisioner actually can run with no configuration just fine. But
-you'll probably want to learn more. So check out the [standalone puppet](/docs/provisioners/puppet.html)
-and [puppet server](/docs/provisioners/puppet_server.html) docs for more
+you'll probably want to learn more. So check out the [standalone puppet](/v1/docs/provisioners/puppet.html)
+and [puppet server](/v1/docs/provisioners/puppet_server.html) docs for more
 information.
 
 The `lucid32` and `lucid64` base boxes now have puppet pre-installed as well.
 
 ## Gentoo and RedHat Host-Only Networking
 
-[Host-Only Networking](/docs/host_only_networking.html) has up until now been
+[Host-Only Networking](/v1/docs/host_only_networking.html) has up until now been
 been restricted to Ubuntu/Debian users. But thanks to work done by [Tino Breddin](http://github.com/tolbrino)
 and [Michael Bearne](https://github.com/michaelbearne), Vagrant now supports
 Gentoo and RedHat host-only networks as well.
@@ -90,7 +90,7 @@ You shouldn't have to do anything special for this to work. Vagrant is
 now able to detect what distro of linux your VM has, and uses the appropriate
 OS-specific code to manage host only networks.
 
-For more information on host only networks, please [read the documentation](/docs/host_only_networking.html).
+For more information on host only networks, please [read the documentation](/v1/docs/host_only_networking.html).
 
 ## Thanks Contributors!
 

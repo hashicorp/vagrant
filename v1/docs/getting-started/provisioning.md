@@ -21,7 +21,7 @@ later).
 Luckily, Vagrant comes with provisioning built right into the software by
 using [chef](http://www.opscode.com/chef), either [chef solo](http://wiki.opscode.com/display/chef/Chef+Solo)
 and [chef server](http://wiki.opscode.com/display/chef/Chef+Server), or [Puppet](http://www.puppetlabs.com/puppet) or
-you can also [extend vagrant](/docs/provisioners/others.html) to support more provisioners, but this is an advanced topic
+you can also [extend vagrant](/v1/docs/provisioners/others.html) to support more provisioners, but this is an advanced topic
 which we won't cover here.
 
 For our basic HTML website, we're going to show you how to use both Chef or Puppet provisioning to setup Apache
@@ -54,7 +54,7 @@ end
 Note that while we use a URL to download the cookbooks for this getting
 started project, you can also put cookbooks in a local directory, which is
 nice for storing your cookbooks in version control with your project. More
-details on this can be found in the [chef solo documentation](/docs/provisioners/chef_solo.html).
+details on this can be found in the [chef solo documentation](/v1/docs/provisioners/chef_solo.html).
 
 ## Configuring Puppet and the Vagrant
 
@@ -99,7 +99,7 @@ Vagrant::Config.run do |config|
 end
 {% endhighlight %}
 
-Alternatively you can run Puppet in client-server mode by enabling the `:puppet_server` provisioner.  See the [Puppet Server](/docs/provisioners/puppet_server.html) documentation for more details.
+Alternatively you can run Puppet in client-server mode by enabling the `:puppet_server` provisioner.  See the [Puppet Server](/v1/docs/provisioners/puppet_server.html) documentation for more details.
 
 **Note:** The Puppet example above is not quite equivalent to the Chef example,
 Apache isn't properly configured to serve our `/vagrant` directory. The main

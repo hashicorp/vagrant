@@ -17,8 +17,8 @@ and using that class as the provisioner.
 
 ## Creating Your Own Provisioner
 
-The [Chef Solo](/docs/provisioners/chef_solo.html), [Chef Server](/docs/provisioners/chef_server.html), and
-[Puppet](/docs/provisioners/puppet.html) provisioners aren't anything special; they simply inherit from the
+The [Chef Solo](/v1/docs/provisioners/chef_solo.html), [Chef Server](/v1/docs/provisioners/chef_server.html), and
+[Puppet](/v1/docs/provisioners/puppet.html) provisioners aren't anything special; they simply inherit from the
 `Vagrant::Provisioners::Base` class. They are also given a special ruby symbol shortcut
 such as `:chef_solo` and `:puppet` since they are built into Vagrant, but thats only for ease of use.
 

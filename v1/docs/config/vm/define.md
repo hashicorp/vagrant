@@ -8,8 +8,8 @@ current: Vagrantfile
 
 Configuration key: `config.vm.define`
 
-This is used to define a VM in a [multi-VM environment](/docs/multivm.html).
-Please see the [multi-VM documentation](/docs/multivm.html) to learn more about
+This is used to define a VM in a [multi-VM environment](/v1/docs/multivm.html).
+Please see the [multi-VM documentation](/v1/docs/multivm.html) to learn more about
 multi-VMs. The rest of the documentation for this configuration directive will
 assume basic knowledge of this feature.
 

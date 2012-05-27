@@ -61,7 +61,7 @@ information.
 
 ## Determining the IP of the Virtual Machine
 
-Unlike [host-only networks](/docs/host_only_networking.html), Vagrant does
+Unlike [host-only networks](/v1/docs/host_only_networking.html), Vagrant does
 not know the IP that the bridged network will receive a priori. Instead,
 it is up to your network to lease your virtual machine an IP via DHCP.
 Because of this, the IP address can only be determined by SSHing into

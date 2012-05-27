@@ -21,13 +21,13 @@ and also allows customizable bases to build projects from.
 The bases that Vagrant builds off are packaged as "boxes," which are
 basically tar packages in a specific format for Vagrant use. Anybody
 can create a box, and packaging will be covered specifically in the
-[packaging](/docs/getting-started/packaging.html) section.
+[packaging](/v1/docs/getting-started/packaging.html) section.
 
 ## Getting a Base Box
 
 We've already packaged a base box which has a bare bones installation
 of Ubuntu Lucid (10.04) 32-bit. Note that if you already downloaded
-this box from the [overview page](/docs/getting-started/index.html) you
+this box from the [overview page](/v1/docs/getting-started/index.html) you
 do not have to download it again.
 
 Vagrant supports adding boxes from both the local filesystem and an

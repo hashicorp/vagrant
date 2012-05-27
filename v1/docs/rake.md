@@ -104,7 +104,7 @@ task :graceful_down do
 end
 {% endhighlight %}
 
-Additionally, if you're in a [multi-VM environment](/docs/multivm.html), you can
+Additionally, if you're in a [multi-VM environment](/v1/docs/multivm.html), you can
 access the VMs through the `vms` array on the environment:
 
 {% highlight ruby %}

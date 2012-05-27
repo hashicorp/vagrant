@@ -18,7 +18,7 @@ any text editor you prefer on Windows.
 
 **Windows support is very beta. Its known to work on Windows XP and Windows 7. Windows Vista is untested.**
 
-For a quick-start guide on Windows, see our [Windows setup guide](/docs/getting-started/setup/windows.html).
+For a quick-start guide on Windows, see our [Windows setup guide](/v1/docs/getting-started/setup/windows.html).
 
 ## `vagrant` Command Changes
 

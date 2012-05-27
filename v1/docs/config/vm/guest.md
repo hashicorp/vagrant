@@ -16,4 +16,4 @@ or configuring the network. Vagrant includes support for many well
 known guest operating systems and this configuration option specifies
 what guest OS will be installed. By default this is set to `:linux`.
 
-For more information, please read the [documentation on guest-specific behavior](/docs/guests.html).
+For more information, please read the [documentation on guest-specific behavior](/v1/docs/guests.html).

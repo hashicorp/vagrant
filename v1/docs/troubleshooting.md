@@ -7,7 +7,7 @@ current: Troubleshooting
 # Troubleshooting
 
 Fixes for some common problems are denoted on this page. If the suggestions on
-this page don't work, try [using Vagrant's debug log](/docs/debugging.html) or
+this page don't work, try [using Vagrant's debug log](/v1/docs/debugging.html) or
 [asking for support](/support.html).
 
 ## Mount error on v-root: /vagrant

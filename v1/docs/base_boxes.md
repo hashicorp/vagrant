@@ -53,7 +53,7 @@ except for some specific guidelines to follow:
 * Make sure the default memory allocation is _not too high_. Most people don't want
   to download a box to find it using 1 GB of RAM. We typically set it at 360 MB to
   start, since that is the size of most small slices. The RAM is configurable by the
-  user at run-time using their [Vagrantfile](/docs/vagrantfile.html).
+  user at run-time using their [Vagrantfile](/v1/docs/vagrantfile.html).
 * Disable audio, usb, etc. controllers unless they're needed. Most applications
   don't need to play music! So save resources by disabling these features.
 

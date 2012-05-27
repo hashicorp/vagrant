@@ -12,8 +12,8 @@ The shell provisioner is the most basic provisioner, and allows you to
 upload and execute a shell script as the root user in the VM.
 
 This is ideal for new users to Vagrant who don't want to deal with
-the burden of learning an advanced system such as [Puppet](/docs/provisioners/puppet.html)
-or [Chef](/docs/provisioners/chef_solo.html), or perhaps for users
+the burden of learning an advanced system such as [Puppet](/v1/docs/provisioners/puppet.html)
+or [Chef](/v1/docs/provisioners/chef_solo.html), or perhaps for users
 who want to use this in addition to Chef or Puppet to perform some
 task before or after that provisioner runs.
 

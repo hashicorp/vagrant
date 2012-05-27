@@ -34,7 +34,7 @@ The support options are:
 * `:create` - If set to `true` and the host path doesn't exist, Vagrant
   will automatically attempt to create it. Default: `false`
 * `:nfs` - If set to `true`, then the shared folder will be shared using
-  NFS. For more information, read about [NFS shared folders](/docs/nfs.html).
+  NFS. For more information, read about [NFS shared folders](/v1/docs/nfs.html).
 * `:transient` - If set to `true`, then the shared folder definition will
   not be persisted across restarts.
 

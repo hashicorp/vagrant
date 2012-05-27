@@ -42,7 +42,7 @@ Vagrant now includes two [insecure keys](http://github.com/mitchellh/vagrant/tre
 to authenticate to public boxes. Public boxes should allow SSH access to the `vagrant`
 user via the public insecure key, and Vagrant by default will use the private
 insecure key to attempt to access a virtual machine. For more information on
-converting boxes to use the new SSH authentication, read the [converting box to key-based SSH](/docs/converting_password_to_key_ssh.html) page.
+converting boxes to use the new SSH authentication, read the [converting box to key-based SSH](/v1/docs/converting_password_to_key_ssh.html) page.
 
 For users who require more security, they are welcome to use their own keypair
 with their box. Vagrant has the `config.ssh.private_key_path` configuration for
@@ -70,7 +70,7 @@ Vagrant::Config.run do |config|
 end
 {% endhighlight %}
 
-For more information on the new provisioners, read the detailed [provisioners](/docs/provisioners.html) section.
+For more information on the new provisioners, read the detailed [provisioners](/v1/docs/provisioners.html) section.
 
 <a name="enhanced-chef-support"> </a>
 ## Enhanced Chef Support, including Chef Server Support
@@ -84,7 +84,7 @@ For Chef Solo, Vagrant now supports multiple cookbooks paths by setting
 
 In addition to Chef Solo, Vagrant now comes with support for Chef Server built-in.
 Exact details on how to use chef server with Vagrant are explained on the
-[chef server provisioning](/docs/provisioners/chef_server.html) page.
+[chef server provisioning](/v1/docs/provisioners/chef_server.html) page.
 
 <a name="port-collision-detection"> </a>
 ## Port Collision Detection

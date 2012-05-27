@@ -44,7 +44,7 @@ Therefore, Vagrant 0.5 comes with built-in support for setting up and mounting
 NFS shared folders. If you're finding that your shared folders are becoming
 much slower than your native file system, I recommend you switch to using NFS.
 
-More details, including benchmarks, can be found at the [NFS documentation page](/docs/nfs.html).
+More details, including benchmarks, can be found at the [NFS documentation page](/v1/docs/nfs.html).
 
 ## SIGINT (Ctrl-C) Finally Works
 

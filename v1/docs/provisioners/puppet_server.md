@@ -11,7 +11,7 @@ current: Provisioners
 If you use a [Puppet](http://puppetlabs.com/puppet) server, then Vagrant can
 register itself as a node on the server and use the configuration that server
 has to configure your virtual machine. If you're just getting started with
-Puppet, you should instead be using the standalone [Puppet provisioner](/docs/provisioners/puppet.html).
+Puppet, you should instead be using the standalone [Puppet provisioner](/v1/docs/provisioners/puppet.html).
 
 This page will not go into the details of creating a Puppet server or Puppet
 manifests, since that is covered in detail around the web, but a good place to

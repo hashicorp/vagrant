@@ -10,8 +10,8 @@ Configuration key: `config.vm.network`
 
 This configuration directive is used to configure networks
 available on the virtual machine. Currently, two types of networks
-can be used: [host-only](/docs/host_only_networking.html) and
-[bridged](/docs/bridged_networking.html). The rest of this documentation
+can be used: [host-only](/v1/docs/host_only_networking.html) and
+[bridged](/v1/docs/bridged_networking.html). The rest of this documentation
 page will assume basic knowledge of these features.
 
 ## Host Only Networks

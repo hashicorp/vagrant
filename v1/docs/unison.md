@@ -104,5 +104,5 @@ these failures, check the log files which are typically dumped in
 the user's home directory.
 
 There are other options which are configurable as well. Please see
-the [Vagrantfile](/docs/vagrantfile.html) page for more information
+the [Vagrantfile](/v1/docs/vagrantfile.html) page for more information
 on these.

@@ -77,7 +77,7 @@ With multiple VMs up and running, the next step is to support inter-VM
 communication so that, say, a web server can talk to its associated database
 server.
 
-This communication is typically done through [host-only networking](/docs/host_only_networking.html). There is an entire page dedicated to the topic, but a relatively simple
+This communication is typically done through [host-only networking](/v1/docs/host_only_networking.html). There is an entire page dedicated to the topic, but a relatively simple
 example is given below, based on the example given earlier:
 
 {% highlight ruby %}
@@ -98,7 +98,7 @@ The above assigns a static IP to both the web and database VMs. This
 static IP can then be used to communicate directly to the other VMs.
 For more details on how to do things such as creating separate networks,
 joining the same network from separate Vagrantfiles, etc. please read
-the [host-only networking](/docs/host_only_networking.html) page.
+the [host-only networking](/v1/docs/host_only_networking.html) page.
 
 <div class="alert alert-block alert-notice">
   <h3>All ports are open!</h3>

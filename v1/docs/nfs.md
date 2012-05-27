@@ -93,6 +93,6 @@ NFS.
 ## NFS customization
 
 [NFS exports](http://linux.die.net/man/5/exports) have quite a few configurable
-options. Some of these are exposed via the [Vagrantfile](/docs/vagrantfile.html).
+options. Some of these are exposed via the [Vagrantfile](/v1/docs/vagrantfile.html).
 If you find an option you'd like exposed, please report a GitHub issue and
 we'll try to add it ASAP.

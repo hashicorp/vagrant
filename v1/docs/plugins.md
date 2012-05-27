@@ -41,5 +41,5 @@ what you have to do.
 ## Developing Plugins
 
 If you're interested in developing plugins, we've setup a comprehensive
-set of documentation at [extending Vagrant](/docs/extending/index.html).
+set of documentation at [extending Vagrant](/v1/docs/extending/index.html).
 Also, if you run into any problems, please access any of our [support lines](/support.html)!
