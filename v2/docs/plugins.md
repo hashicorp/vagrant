@@ -6,40 +6,22 @@ current: Plugins
 ---
 # Plugins
 
-Vagrant comes with many great features to get distributable development
-environments up and running. But sometimes you need to change the way
-Vagrant works or add new functionality which may or may not make sense
-to merge back into Vagrant core. As of Vagrant 0.6, this problem is solved
-through the use of _plugins_.
+Vagrant provides a fully supported plugin interface in order to allow
+users to modify or extend the features of Vagrant. Plugins are powerful,
+first-class citizens and even much of the core of Vagrant is
+[built using plugins](https://github.com/mitchellh/vagrant/tree/master/plugins).
+What can plugins do?
 
-Plugins are powerful, first-class citizens which extend Vagrant using
-an exposed and supported API. What can plugins do?
-
-* Add new commands to the `vagrant` binary, such as `vagrant my_plugin`
+* Add new commands to the `vagrant` command, such as `vagrant my-great-plugin`
 * Modify the functionality of existing commands, such as adding new
-  functionality when `vagrant up` is called.
-* Add new configuration classes fr custom `config.my_plugin` style
-  configuration in Vagrantfiles.
+  behavior when `vagrant up` is called.
+* Add new configuration classes so that your plugin can be configured
+  using a Vagrantfile, for example with `config.my_plugin`.
+* Add new provisioners, such as Chef or Puppet.
+* Add new guest or host classes, so that Vagrant can work on new systems
+  that the released version may not support yet.
 
-## Using Plugins
+For more information, read up on [how to use plugins](/v2/docs/plugins/using.html).
 
-Installing plugins is a snap, and doesn't take more than a few
-seconds.
-
-Please refer to the documentation of any plugin you wish to use for
-information on how to use it, but in general there are two methods
-of installation:
-
-1. Downloading a library or gem and manually `require`ing it in
-   a project Vagrantfile.
-2. Installing a gem which automatically hooks into Vagrant. With
-   this option you don't have to do anything.
-
-Please refer to any plugin's documentation for more information on
-what you have to do.
-
-## Developing Plugins
-
-If you're interested in developing plugins, we've setup a comprehensive
-set of documentation at [extending Vagrant](/v2/docs/extending/index.html).
-Also, if you run into any problems, please access any of our [support lines](/support.html)!
+If you're interested in developing your own plugins, you'll want to
+head over to the [writing plugins](/v2/docs/plugins/writing.html) page.
