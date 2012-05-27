@@ -25,11 +25,11 @@ their general usage is similar.
 The available provisioners that come standard with Vagrant are:
 
 <ul>
-	<li><a href="/docs/provisioners/chef_solo.html">Chef Solo</a></li>
-	<li><a href="/docs/provisioners/chef_server.html">Chef Server</a></li>
-	<li><a href="/docs/provisioners/puppet.html">Puppet Standalone</a></li>
-	<li><a href="/docs/provisioners/puppet_server.html">Puppet Server</a></li>
-	<li><a href="/docs/provisioners/shell.html">Shell</a></li>
+	<li><a href="/v1/docs/provisioners/chef_solo.html">Chef Solo</a></li>
+	<li><a href="/v1/docs/provisioners/chef_server.html">Chef Server</a></li>
+	<li><a href="/v1/docs/provisioners/puppet.html">Puppet Standalone</a></li>
+	<li><a href="/v1/docs/provisioners/puppet_server.html">Puppet Server</a></li>
+	<li><a href="/v1/docs/provisioners/shell.html">Shell</a></li>
 </ul>
 
 <br />

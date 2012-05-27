@@ -24,7 +24,7 @@ way.
   </p>
   <p>
     If you'd like another OS supported, you can add it yourself using a
-    <a href="/docs/guests.html">custom guest</a> or you can get in touch
+    <a href="/v1/docs/guests.html">custom guest</a> or you can get in touch
     with a Vagrant developer and assist us in adding it to the core.
   </p>
 </div>

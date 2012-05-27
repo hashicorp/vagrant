@@ -12,7 +12,7 @@ current: Base Boxes
     The following topic is for <em>advanced</em> users. The majority of Vagrant users
     will never have to do this. Therefore, only continue if you want to create a custom
     operating system. People wishing to distribute changes to an existing base box should
-    see the <a href="/docs/getting-started/packaging.html">packaging guide</a>. If you
+    see the <a href="/v1/docs/getting-started/packaging.html">packaging guide</a>. If you
     continue with this guide, you will need a decent knowledge of the command line and
     the specific command line tools available on the system you are installing.
   </p>

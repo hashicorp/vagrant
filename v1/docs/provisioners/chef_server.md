@@ -18,7 +18,7 @@ chef server to provision your development environment.
   <p>
     If you're unfamiliar with <a href="http://www.opscode.com/chef/">Chef</a> or if you're
     just getting started with it, a chef server is probably a bit too much for what you need,
-    for now. In this case, you should use <a href="/docs/provisioners/chef_solo.html">Chef Solo</a>
+    for now. In this case, you should use <a href="/v1/docs/provisioners/chef_solo.html">Chef Solo</a>
     provisioning to start, then move on to chef server later.
   </p>
 </div>
