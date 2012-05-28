@@ -4,9 +4,9 @@ title: Getting Started - Provisioning
 
 current: Provisioning
 previous: SSH
-previous_url: /docs/getting-started/ssh.html
+previous_url: /v2/docs/getting-started/ssh.html
 next: Port Forwarding
-next_url: /docs/getting-started/ports.html
+next_url: /v2/docs/getting-started/ports.html
 ---
 # Provisioning
 

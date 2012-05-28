@@ -4,9 +4,9 @@ title: Getting Started - Boxes
 
 current: Boxes
 previous: Project Setup
-previous_url: /docs/getting-started/setup.html
+previous_url: /v2/docs/getting-started/setup.html
 next: SSH
-next_url: /docs/getting-started/ssh.html
+next_url: /v2/docs/getting-started/ssh.html
 ---
 # Boxes
 
