@@ -15,6 +15,45 @@
 </div>
 <div class="row">
 	<div class="span3 Module sidebar">
+		{% if page.section %}
+		<div class="well">
+			<a href="/v2/docs/index.html">&laquo; Documentation</a>
+		</div>
+		{% endif %}
+
+		{% if page.section == "plugins" %}
+		<div class="well" style="padding: 8px 0px;">
+			<ul class="nav nav-list">
+				<li{% if page.current == 'Overview' %} class="active"{% endif %}>
+				<a href="/v2/docs/plugins/writing/index.html">Overview</a>
+				</li>
+				<li{% if page.current == 'Definition' %} class="active"{% endif %}>
+				<a href="/v2/docs/plugins/writing/definition.html">Plugin Definition</a>
+				</li>
+				<li{% if page.current == 'Easy Plugins' %} class="active"{% endif %}>
+				<a href="/v2/docs/plugins/writing/easy.html">Easy Plugins</a>
+				</li>
+				<li{% if page.current == 'Commands' %} class="active"{% endif %}>
+				<a href="/v2/docs/plugins/writing/commands.html">Commands</a>
+				</li>
+				<li{% if page.current == 'Configuration' %} class="active"{% endif %}>
+				<a href="/v2/docs/plugins/writing/configuration.html">Configuration Keys</a>
+				</li>
+				<li{% if page.current == 'Guests' %} class="active"{% endif %}>
+				<a href="/v2/docs/plugins/writing/guests.html">Guests</a>
+				</li>
+				<li{% if page.current == 'Hosts' %} class="active"{% endif %}>
+				<a href="/v2/docs/plugins/writing/hosts.html">Hosts</a>
+				</li>
+				<li{% if page.current == 'Provisioners' %} class="active"{% endif %}>
+				<a href="/v2/docs/plugins/writing/provisioners.html">Provisioners</a>
+				</li>
+				<li{% if page.current == 'Packaging' %} class="active"{% endif %}>
+				<a href="/v2/docs/plugins/writing/packaging.html">Packaging</a>
+				</li>
+			</ul>
+		</div>
+		{% else %}
 		<div class="well" style="padding: 8px 0px;">
 			<ul class="nav nav-list">
 				<li{% if page.current == 'Overview' %} class="active"{% endif %}>
@@ -62,7 +101,7 @@
 				<a href="/v2/docs/plugins.html">Plugins</a>
 				<ul>
 					<li><a href="/v2/docs/plugins/using.html">Using Plugins</a></li>
-					<li><a href="/v2/docs/plugins/writing.html">Writing Plugins</a></li>
+					<li><a href="/v2/docs/plugins/writing/index.html">Writing Plugins</a></li>
 				</ul>
 				</li>
 				<li{% if page.current == 'Rake Integration' %} class="active"{% endif %}>
@@ -76,6 +115,7 @@
 				</li>
 			</ul>
 		</div>
+		{% endif %}
 	</div>
 
 	<div class="span9">
