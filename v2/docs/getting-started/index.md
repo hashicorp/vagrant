@@ -4,7 +4,7 @@ title: Getting Started
 
 current: Overview
 next: Why Vagrant?
-next_url: /docs/getting-started/why.html
+next_url: /v2/docs/getting-started/why.html
 ---
 # Getting Started with Vagrant
 

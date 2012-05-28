@@ -4,9 +4,9 @@ title: Getting Started - Teardown
 
 current: Teardown
 previous: Packaging
-previous_url: /docs/getting-started/packaging.html
+previous_url: /v2/docs/getting-started/packaging.html
 next: Rebuild Instantly
-next_url: /docs/getting-started/rebuild.html
+next_url: /v2/docs/getting-started/rebuild.html
 ---
 # Teardown
 
