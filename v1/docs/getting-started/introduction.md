@@ -4,9 +4,9 @@ title: Getting Started - Introduction
 
 current: Introduction
 previous: Why Vagrant?
-previous_url: /docs/getting-started/why.html
+previous_url: /v1/docs/getting-started/why.html
 next: Project Setup
-next_url: /docs/getting-started/setup.html
+next_url: /v1/docs/getting-started/setup.html
 ---
 # Introduction
 

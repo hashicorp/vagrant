@@ -4,9 +4,9 @@ title: Getting Started - Project Setup
 
 current: Project Setup
 previous: Introduction
-previous_url: /docs/getting-started/introduction.html
+previous_url: /v1/docs/getting-started/introduction.html
 next: Boxes
-next_url: /docs/getting-started/boxes.html
+next_url: /v1/docs/getting-started/boxes.html
 ---
 # Project Setup
 

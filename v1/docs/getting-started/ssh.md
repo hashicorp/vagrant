@@ -4,9 +4,9 @@ title: Getting Started - SSH
 
 current: SSH
 previous: Boxes
-previous_url: /docs/getting-started/boxes.html
+previous_url: /v1/docs/getting-started/boxes.html
 next: Provisioning
-next_url: /docs/getting-started/provisioning.html
+next_url: /v1/docs/getting-started/provisioning.html
 ---
 # SSH
 

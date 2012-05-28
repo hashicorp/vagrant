@@ -4,9 +4,9 @@ title: Getting Started - Why Vagrant?
 
 current: Why Vagrant?
 previous: Overview
-previous_url: /docs/getting-started/index.html
+previous_url: /v1/docs/getting-started/index.html
 next: Introduction
-next_url: /docs/getting-started/introduction.html
+next_url: /v1/docs/getting-started/introduction.html
 ---
 # Why Vagrant?
 

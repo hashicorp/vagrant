@@ -4,9 +4,9 @@ title: Getting Started - Port Forwarding
 
 current: Port Forwarding
 previous: Provisioning
-previous_url: /docs/getting-started/provisioning.html
+previous_url: /v1/docs/getting-started/provisioning.html
 next: Packaging
-next_url: /docs/getting-started/packaging.html
+next_url: /v1/docs/getting-started/packaging.html
 ---
 # Port Forwarding
 

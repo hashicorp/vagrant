@@ -4,7 +4,7 @@ title: Getting Started - Rebuild Instantly
 
 current: Rebuild Instantly
 previous: Teardown
-previous_url: /docs/getting-started/teardown.html
+previous_url: /v1/docs/getting-started/teardown.html
 ---
 # Rebuild Instantly
 

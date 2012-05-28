@@ -4,9 +4,9 @@ title: Getting Started - Packaging
 
 current: Packaging
 previous: Port Forwarding
-previous_url: /docs/getting-started/ports.html
+previous_url: /v1/docs/getting-started/ports.html
 next: Teardown
-next_url: /docs/getting-started/teardown.html
+next_url: /v1/docs/getting-started/teardown.html
 ---
 # Packaging
 
