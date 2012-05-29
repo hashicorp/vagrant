@@ -22,38 +22,19 @@ module VagrantPlugins
       end
 
       def configure_networks(networks)
-        # Remove previous Vagrant-managed network interfaces
-        vm.channel.sudo("sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/rc.conf > /tmp/vagrant-network-interfaces")
-        vm.channel.sudo("cat /tmp/vagrant-network-interfaces > /etc/rc.conf")
-        vm.channel.sudo("rm /tmp/vagrant-network-interfaces")
-
-        # Configure the network interfaces
-        interfaces = Set.new
-        entries = []
         networks.each do |network|
           interfaces.add(network[:interface])
-          entry = TemplateRenderer.render("guests/arch/network_#{network[:type]}",
-                                          :options => network)
 
-          entries << entry
-        end
+          entry = TemplateRenderer.render("guests/arch/network_#{network[:type]}", :options => network)
 
-        # Perform the careful dance necessary to reconfigure
-        # the network interfaces
-        temp = Tempfile.new("vagrant")
-        temp.binmode
-        temp.write(entries.join("\n"))
-        temp.close
+          temp = Tempfile.new("vagrant")
+          temp.binmode
+          temp.write(entry)
+          temp.close
 
-        vm.channel.upload(temp.path, "/tmp/vagrant-network-entry")
-
-        # Reconfigure the network interfaces
-        vm.channel.sudo("cat /tmp/vagrant-network-entry >> /etc/rc.conf")
-        vm.channel.sudo("rm /tmp/vagrant-network-entry")
-        vm.channel.sudo("/etc/rc.d/network restart")
-
-        interfaces.each do |interface|
-          vm.channel.sudo("dhcpcd -k eth#{interface} && dhcpcd eth#{interface} && sleep 3")
+          vm.channel.upload(temp.path, temp.path)
+          vm.channel.sudo("mv #{temp.path} /etc/network.d/interfaces/eth#{network[:interface]}")
+          vm.channel.sudo("netcfg interfaces/eth#{interface}")
         end
       end
     end
