@@ -29,6 +29,7 @@
   - The check for whether a port is open or not is more complete. [GH-948]
   - Files that are included with `vagrant package --include` now properly
     preserve file attributes on earlier versions of Ruby. [GH-951]
+  - SSH uses LogLevel FATAL so that errors are still shown.
 
 ## 1.0.3 (May 1, 2012)
 
