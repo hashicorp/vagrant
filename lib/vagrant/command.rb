@@ -100,7 +100,11 @@ module Vagrant
         end
 
         # Make sure we're only working with one VM if single target
-        raise Errors::MultiVMTargetRequired if options[:single_target] && vms.length != 1
+        if options[:single_target] && vms.length != 1
+          vm = @env.primary_vm
+          raise Errors::MultiVMTargetRequired if !vm
+          vms = [vm]
+        end
 
         # If we asked for reversed ordering, then reverse it
         vms.reverse! if options[:reverse]
