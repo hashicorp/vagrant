@@ -30,6 +30,8 @@
     preserve file attributes on earlier versions of Ruby. [GH-951]
   - SSH uses LogLevel FATAL so that errors are still shown.
   - Multiple interfaces now work with Arch linux guests. [GH-957]
+  - Fix issue where subprocess execution would always spin CPU of Ruby
+    process to 100%. [GH-832]
 
 ## 1.0.3 (May 1, 2012)
 
