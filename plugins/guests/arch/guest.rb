@@ -34,7 +34,7 @@ module VagrantPlugins
 
           vm.channel.upload(temp.path, temp.path)
           vm.channel.sudo("mv #{temp.path} /etc/network.d/interfaces/eth#{network[:interface]}")
-          vm.channel.sudo("netcfg interfaces/eth#{interface}")
+          vm.channel.sudo("netcfg interfaces/eth#{network[:interface]}")
         end
       end
     end
