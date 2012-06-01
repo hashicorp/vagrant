@@ -5,10 +5,9 @@
     powerful plugins for Vagrant while providing a backwards-compatible API
     so that plugins will always _load_ (though they will almost certainly
     not be _functional_ in future versions of Vagrant).
-  - Plugins no longer "autoload" by simply gem installing them. This increases
-    Vagrant's initial startup time considerably. To replace this, you must now
-    explicitly require plugins in the `~/.vagrantrc` file, using
-    `Vagrant.require_plugin`.
+  - Plugins installed as gems no longer "autoload". You must now explicitly
+    require plugins in the `~/.vagrantrc` file, using `Vagrant.require_plugin`.
+    This decreases Vagrant's initial startup time considerably.
   - Improve the SSH "ready?" check. [GH-841]
   - Human friendly error if connection times out for HTTP downloads. [GH-849]
   - Detect when the VirtualBox installation is incomplete and error. [GH-846]
