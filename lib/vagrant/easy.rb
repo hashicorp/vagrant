@@ -1,6 +1,7 @@
 module Vagrant
   module Easy
     autoload :CommandBase, "vagrant/easy/command_base"
+    autoload :CommandAPI,  "vagrant/easy/command_api"
     autoload :Operations,  "vagrant/easy/operations"
 
     # This creates a new easy command. This typically is not called

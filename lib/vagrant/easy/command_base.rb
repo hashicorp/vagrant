@@ -44,14 +44,26 @@ module Vagrant
         end
 
         # Parse the options
-        argv = parse_options(opts)
-        return if !argv
+        argv = nil
+        begin
+          argv = parse_options(opts)
+        rescue Errors::CLIInvalidOptions
+          # This means that an invalid flag such as "--foo" was passed.
+          # We usually show the help at this point (in built-in commands),
+          # but since we don't know what our implementation does, we just
+          # pass the flags through now.
+          argv = @argv.dup
+        end
+
+        # If argv is nil then `parse_options` halted execution and we
+        # halt our own execution here.
+        return 0 if !argv
 
         # Run the action for each VM.
         @logger.info("Running easy command: #{@command}")
-        with_target_vms(argv) do |vm|
+        with_target_vms do |vm|
           @logger.debug("Running easy command for VM: #{vm.name}")
-          @runner.call(Operations.new(vm))
+          @runner.call(CommandAPI.new(vm, argv))
         end
 
         # Exit status 0 every time for now
