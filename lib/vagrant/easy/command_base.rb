@@ -59,9 +59,14 @@ module Vagrant
         # halt our own execution here.
         return 0 if !argv
 
+        # The Multi-VM argument is the first argument as long as the
+        # first argument is not a flag.
+        names = nil
+        names = argv[0] if argv[0] !~ /^-/
+
         # Run the action for each VM.
         @logger.info("Running easy command: #{@command}")
-        with_target_vms do |vm|
+        with_target_vms(names) do |vm|
           @logger.debug("Running easy command for VM: #{vm.name}")
           @runner.call(CommandAPI.new(vm, argv))
         end
