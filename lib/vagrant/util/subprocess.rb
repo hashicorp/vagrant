@@ -29,7 +29,26 @@ module Vagrant
       def execute
         # Get the timeout, if we have one
         timeout = @options[:timeout]
+
+        # Get the working directory
         workdir = @options[:workdir] || Dir.pwd
+
+        # Get what we're interested in being notified about
+        notify  = @options[:notify] || []
+        notify  = [notify] if !notify.is_a?(Array)
+        if notify.empty? && block_given?
+          # If a block is given, subscribers must be given, otherwise the
+          # block is never called. This is usually NOT what you want, so this
+          # is an error.
+          message = "A list of notify subscriptions must be given if a block is given"
+          raise ArgumentError, message
+        end
+
+        # Let's get some more useful booleans that we access a lot so
+        # we're not constantly calling an `include` check
+        notify_stderr = notify.include?(:stderr)
+        notify_stdin  = notify.include?(:stdin)
+        notify_stdout = notify.include?(:stdout)
 
         # Build the ChildProcess
         @logger.info("Starting process: #{@command.inspect}")
@@ -80,7 +99,8 @@ module Vagrant
 
         @logger.debug("Selecting on IO")
         while true
-          results = IO.select([stdout, stderr], [process.io.stdin], nil, timeout || 5)
+          writers = notify_stdin ? [process.io.stdin] : []
+          results = IO.select([stdout, stderr], writers, nil, timeout || 5)
           readers, writers = results
 
           # Check if we have exceeded our timeout

@@ -63,7 +63,7 @@ module Vagrant
           end
         end
 
-        Vagrant::Util::Subprocess.execute(command, &block)
+        Vagrant::Util::Subprocess.execute(command, :notify => [:stdout, :stderr], &block)
       end
 
       # Run a shell command within the VM. The command will run within a

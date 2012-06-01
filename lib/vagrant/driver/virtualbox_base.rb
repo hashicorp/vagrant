@@ -314,6 +314,9 @@ module Vagrant
           @logger.info("Interrupted.")
         end
 
+        # Append in the options for subprocess
+        command << { :notify => [:stdout, :stderr] }
+
         Util::Busy.busy(int_callback) do
           Subprocess.execute(@vboxmanage_path, *command, &block)
         end
