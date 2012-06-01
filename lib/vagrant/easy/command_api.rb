@@ -1,4 +1,5 @@
 require "delegate"
+require "optparse"
 
 require "vagrant/easy/operations"
 
@@ -14,6 +15,51 @@ module Vagrant
 
         @argv = argv
         @vm   = vm
+      end
+
+      # Gets the value of an argument from the command line. Many arguments
+      # can be given as a parameter and the first matching one will be returned.
+      #
+      # @return [String]
+      def arg(*names)
+        # Mangle the names a bit to add "=VALUE" to every flag.
+        names = names.map do |name|
+          "#{name}=VALUE"
+        end
+
+        # Create a basic option parser
+        parser = OptionParser.new
+
+        # Add on a matcher for this thing
+        result = nil
+        parser.on(*names) do |value|
+          result = value
+        end
+
+        begin
+          parser.parse!(@argv.dup)
+        rescue OptionParser::MissingArgument
+          # Missing argument means the argument existed but had no data,
+          # so we mark it as an empty string
+          result = ""
+        rescue OptionParser::InvalidOption
+          # Ignore!
+        end
+
+        # Return the results
+        result
+      end
+
+      # Returns any extra arguments that are past a "--" on the command line.
+      #
+      # @return [String]
+      def arg_extra
+        # Split the arguments and remove the "--"
+        remaining = @argv.drop_while { |v| v != "--" }
+        remaining.shift
+
+        # Return the remaining arguments
+        remaining.join(" ")
       end
 
       # Outputs an error message to the UI.
