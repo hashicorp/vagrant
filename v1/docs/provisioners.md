@@ -12,7 +12,7 @@ for the most common choices supported out of the box with Vagrant, but it is als
 possible to add your own very easily as long as you know a little Ruby.
 
 Provisioners allow you to easily setup your virtual machine with everything it
-needs to run your software. Of course, provisioning is completely option. If you
+needs to run your software. Of course, provisioning is completely optional. If you
 want to install all the software on your virtual machine by hand, then that is your
 choice. But provisioning is an important part of making virtual machine creation
 repeatable, and the scripts made for provisioning can typically be used to setup
