@@ -29,6 +29,7 @@
   - Files that are included with `vagrant package --include` now properly
     preserve file attributes on earlier versions of Ruby. [GH-951]
   - SSH uses LogLevel FATAL so that errors are still shown.
+  - Multiple interfaces now work with Arch linux guests. [GH-957]
 
 ## 1.0.3 (May 1, 2012)
 
