@@ -1,6 +1,8 @@
 require "delegate"
 require "optparse"
 
+require "log4r"
+
 require "vagrant/easy/operations"
 
 module Vagrant
@@ -13,8 +15,9 @@ module Vagrant
       def initialize(vm, argv)
         super(Operations.new(vm))
 
-        @argv = argv
-        @vm   = vm
+        @logger = Log4r::Logger.new("vagrant::easy::command_api")
+        @argv   = argv
+        @vm     = vm
       end
 
       # Gets the value of an argument from the command line. Many arguments
@@ -22,6 +25,8 @@ module Vagrant
       #
       # @return [String]
       def arg(*names)
+        @logger.info("reading args: #{names.inspect}")
+
         # Mangle the names a bit to add "=VALUE" to every flag.
         names = names.map do |name|
           "#{name}=VALUE"
