@@ -37,6 +37,8 @@ module Vagrant
         end
 
         begin
+          # The `dup` is required in @argv because the OptionParser
+          # modifies it in place as it finds matching arguments.
           parser.parse!(@argv.dup)
         rescue OptionParser::MissingArgument
           # Missing argument means the argument existed but had no data,
