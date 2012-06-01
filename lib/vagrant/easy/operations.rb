@@ -44,9 +44,26 @@ module Vagrant
       # runtimes such as CRuby and JRuby.
       #
       # @param [String] command Command to run
-      def local(command)
+      # @param [Hash] options Additional options
+      def local(command, options=nil)
         @logger.info("local: #{command}")
-        Vagrant::Util::Subprocess.execute(command)
+
+        block   = nil
+        options = { :echo => true }.merge(options || {})
+
+        if options[:echo]
+          # If we're echoing data, then setup the block that sends the
+          # data to the UI.
+          block = Proc.new do |type, data|
+            if type == :stdout || type == :stderr
+              @vm.ui.info(data.to_s,
+                          :prefix => false,
+                          :new_line => false)
+            end
+          end
+        end
+
+        Vagrant::Util::Subprocess.execute(command, &block)
       end
 
       # Run a shell command within the VM. The command will run within a
