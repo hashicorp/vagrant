@@ -46,9 +46,10 @@ module Vagrant
 
         # Let's get some more useful booleans that we access a lot so
         # we're not constantly calling an `include` check
-        notify_stderr = notify.include?(:stderr)
+        notify_table = {}
+        notify_table[:stderr] = notify.include?(:stderr)
+        notify_table[:stdout] = notify.include?(:stdout)
         notify_stdin  = notify.include?(:stdin)
-        notify_stdout = notify.include?(:stdout)
 
         # Build the ChildProcess
         @logger.info("Starting process: #{@command.inspect}")
@@ -107,7 +108,7 @@ module Vagrant
           raise TimeoutExceeded, process.pid if timeout && (Time.now.to_i - start_time) > timeout
 
           # Check the readers to see if they're ready
-          if !readers.empty?
+          if readers && !readers.empty?
             readers.each do |r|
               # Read from the IO object
               data = read_io(r)
@@ -119,7 +120,7 @@ module Vagrant
               @logger.debug("#{io_name}: #{data}")
 
               io_data[io_name] += data
-              yield io_name, data if block_given?
+              yield io_name, data if block_given? && notify_table[io_name]
             end
           end
 
