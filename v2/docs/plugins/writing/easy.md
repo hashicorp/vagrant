@@ -31,7 +31,7 @@ class VagrantMake < Vagrant.plugin("1")
   name "vagrant-make"
 
   easy_command "make" do |api|
-    task = api.argv[0]
+    task = api.arg_extra
     api.run("cd /vagrant && make #{task}")
   end
 end
@@ -43,20 +43,19 @@ two lines of code! The easy command component is registered using the
 it will be invoked with `vagrant`, along with a Ruby block that takes a
 single parameter `api` which has the easy command API.
 
-The easy command API has the following methods or attributes:
-
-* `argv` - An attribute containing an array of the command line arguments
-  ignoring `vagrant` and your command name. So if the example was invoked
-  with `vagrant make foo bar` then `argv` will be `["foo", "bar"]`.
-* `run` - This is a method which takes a single command to execute on the
-  remote machine. This will output all stdout/stderr from the command through
-  to the host console, unless the `:echo => false` flag is sent as a second
-  parameter.
-* TODO
+The documentation for the easy command API can
+[be found here](http://rubydoc.info/github/mitchellh/vagrant/master/Vagrant/Easy/CommandAPI).
 
 As you can see, easy commands take away much of the boilerplate associated
 with creating a [traditional custom command](/v2/docs/plugins/writing/commands.html),
 allowing you to focus on the logic of your command with minimal Ruby knowledge.
+
+**Multi-VM**: Easy commands work with multi-VM as well. With the above
+example, if we had a Vagrant environment that defined two virtual machines:
+`web` and `db`, we could run `make` on the DB machine by calling
+`vagrant make db`. If we wanted to run a specific make task, then we can
+do that too: `vagrant make db -- test`. The command comes after a `--` because
+the plugin uses `arg_extra` which evalutes to the arguments after the `--`.
 
 ## Easy Hooks
 
