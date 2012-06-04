@@ -12,7 +12,7 @@ module Vagrant
 
         # If the PATHEXT variable is empty, we're on *nix and need to find the exact filename
         exts = nil
-        if ENV['PATHEXT'].nil?
+        if !Util::Platform.windows? || ENV['PATHEXT'].nil?
           exts = ['']
         # On Windows: if filename contains an extension, we must match that exact filename
         elsif File.extname(cmd).length != 0
