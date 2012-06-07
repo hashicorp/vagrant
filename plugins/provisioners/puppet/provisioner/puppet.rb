@@ -118,9 +118,9 @@ module VagrantPlugins
         end
 
         def set_module_paths
-          @module_paths = {}
+          @module_paths = []
           @expanded_module_paths.each_with_index do |path, i|
-            @module_paths[path] = File.join(config.pp_path, "modules-#{i}")
+            @module_paths << [path, File.join(config.pp_path, "modules-#{i}"]
           end
         end
 
@@ -137,7 +137,8 @@ module VagrantPlugins
 
         def run_puppet_client
           options = [config.options].flatten
-          options << "--modulepath '#{@module_paths.values.join(':')}'" if !@module_paths.empty?
+          module_paths = @module_paths.map { |_, to| to }
+          options << "--modulepath '#{module_paths.join(':')}'" if !@module_paths.empty?
           options << @manifest_file
           options = options.join(" ")
 
