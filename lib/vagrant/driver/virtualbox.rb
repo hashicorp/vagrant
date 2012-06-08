@@ -88,6 +88,7 @@ module Vagrant
                                :read_guest_additions_version,
                                :read_host_only_interfaces,
                                :read_mac_address,
+                               :read_mac_addresses,
                                :read_machine_folder,
                                :read_network_interfaces,
                                :read_state,
