@@ -32,6 +32,8 @@
   - Multiple interfaces now work with Arch linux guests. [GH-957]
   - Fix issue where subprocess execution would always spin CPU of Ruby
     process to 100%. [GH-832]
+  - Fix issue where shell provisioner would sometimes never end. [GH-968]
+  - FIx issue where puppet would reorder module paths. [GH-964]
 
 ## 1.0.3 (May 1, 2012)
 
