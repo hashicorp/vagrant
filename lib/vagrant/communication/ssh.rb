@@ -210,6 +210,9 @@ module Vagrant
 
             # Remember to exit or this channel will hang open
             ch2.send_data "exit\n"
+
+            # Send eof to let server know we're done
+            ch2.eof!
           end
         end
 
