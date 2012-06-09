@@ -41,7 +41,7 @@ module Vagrant
         interfaces.each do |interface|
           vm.channel.sudo("/sbin/ifdown p7p#{interface} 2> /dev/null", :error_check => false)
           vm.channel.sudo("cat /tmp/vagrant-network-entry_#{interface} >> #{network_scripts_dir}/ifcfg-p7p#{interface}")
-          vm.channel.sudo("/sbin/ifup p7p#{interface} 2> /dev/null")
+          vm.channel.sudo("/sbin/ifup p7p#{interface} 2> /dev/null", :error_check => false)
         end
       end
 
