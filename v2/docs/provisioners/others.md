@@ -101,7 +101,7 @@ both the `prepare` and the `provision!` method:
 class FooProvisioner < Vagrant::Provisioners::Base
   def provision!
     if config.foo.chunky_bacon
-      env.ui.info "Chunky bacon is on."
+      env[:ui].info "Chunky bacon is on."
     end
   end
 end
