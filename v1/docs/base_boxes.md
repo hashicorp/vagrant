@@ -189,7 +189,7 @@ We need to setup the software Vagrant relies on. The _required_ software is list
 
 * **Ruby** - Use the dev package so mkmf is present for Chef to compile
 * **RubyGems** - To install the Chef gem
-* **Puppet** - To install Puppet
+* **Puppet** - To install Puppet (also ensure that a 'puppet' group is present!)
 * **Chef** gem - For provisioning support (gem install chef)
 * **SSH**
 
