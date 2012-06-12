@@ -115,7 +115,7 @@ module Vagrant
     # @return [Pathname]
     def dotfile_path
       return nil if !root_path
-      root_path.join(config.global.vagrant.dotfile_name)
+      root_path.join(File.expand_path(config.global.vagrant.dotfile_name))
     end
 
     # Returns the collection of boxes for the environment.
