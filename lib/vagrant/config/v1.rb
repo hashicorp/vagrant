@@ -76,6 +76,10 @@ module Vagrant
         # Get all the registered plugins
         config_map = {}
         Vagrant.plugin("1").registered.each do |plugin|
+          # Activate the plugin since we're about to use it
+          plugin.activate!
+
+          # Get all the available configuration keys and add them to the map
           plugin.config.each do |key, klass|
             config_map[key] = klass
           end
