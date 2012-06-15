@@ -6,7 +6,7 @@ require File.expand_path("../vm_provisioner", __FILE__)
 require File.expand_path("../vm_subvm", __FILE__)
 
 module VagrantPlugins
-  module Kernel
+  module Kernel_V1
     class VMConfig < Vagrant::Config::V1::Base
       attr_accessor :name
       attr_accessor :auto_port_range

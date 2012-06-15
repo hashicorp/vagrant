@@ -1,7 +1,7 @@
 require "vagrant"
 
 module VagrantPlugins
-  module Kernel
+  module Kernel_V1
     class SSHConfig < Vagrant::Config::V1::Base
       attr_accessor :username
       attr_accessor :password

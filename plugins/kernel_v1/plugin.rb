@@ -1,7 +1,7 @@
 require "vagrant"
 
 module VagrantPlugins
-  module Kernel
+  module Kernel_V1
     # This is the "kernel" of Vagrant and contains the configuration classes
     # that make up the core of Vagrant.
     class Plugin < Vagrant.plugin("1")

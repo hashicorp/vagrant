@@ -1,7 +1,7 @@
 require "vagrant/util/stacked_proc_runner"
 
 module VagrantPlugins
-  module Kernel
+  module Kernel_V1
     # Represents a single sub-VM in a multi-VM environment.
     class VagrantConfigSubVM
       include Vagrant::Util::StackedProcRunner

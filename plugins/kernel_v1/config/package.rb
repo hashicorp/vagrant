@@ -1,7 +1,7 @@
 require "vagrant"
 
 module VagrantPlugins
-  module Kernel
+  module Kernel_V1
     class PackageConfig < Vagrant::Config::V1::Base
       attr_accessor :name
     end

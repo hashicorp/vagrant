@@ -1,7 +1,7 @@
 require 'log4r'
 
 module VagrantPlugins
-  module Kernel
+  module Kernel_V1
     # Represents a single configured provisioner for a VM.
     class VagrantConfigProvisioner
       attr_reader :shortcut
