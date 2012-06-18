@@ -221,13 +221,13 @@ en:
         box_not_found: "The box '%{name}' could not be found."
         network_invalid: |-
           The network type '%{type}' is not valid. Please use
-          'hostonly' or 'bridged'.
+          'hostonly', 'bridged' or 'intnet'.
         network_ip_required: |-
-          Host only networks require an IP as an argument.
+          Host only or internal networks require an IP as an argument.
         network_ip_invalid: |-
-          The host only network IP '%{ip}' is invalid.
+          The host only or internal network IP '%{ip}' is invalid.
         network_ip_ends_one: |-
-          The host only network IP '%{ip}' must not end in a 1, as this
+          The host only or internal network IP '%{ip}' must not end in a 1, as this
           is reserved for the host machine.
         shared_folder_hostpath_missing: "Shared folder host path for '%{name}' doesn't exist: %{path}"
         shared_folder_nfs_owner_group: |-

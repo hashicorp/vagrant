@@ -132,8 +132,8 @@ module Vagrant
         networks.each do |type, args|
           if type == :hostonly && args[0] == :dhcp
             # Valid. There is no real way this can be invalid at the moment.
-          elsif type == :hostonly
-            # Validate the host-only network
+          elsif type == :hostonly || type == :intnet
+            # Validate the host-only|intnet network
             ip      = args[0]
             options = args[1] || {}
 
