@@ -1,9 +1,39 @@
 require File.expand_path("../../../base", __FILE__)
 
+require "vagrant/registry"
+
 describe Vagrant::Config::Loader do
   include_context "unit"
 
-  let(:instance) { described_class.new }
+  # This is just a dummy implementation of a configuraiton loader which
+  # simply acts on hashes.
+  let(:test_loader) do
+    Class.new do
+      def self.init
+        {}
+      end
+
+      def self.load(proc)
+        init.tap do |obj|
+          proc.call(obj)
+        end
+      end
+
+      def self.merge(old, new)
+        old.merge(new)
+      end
+    end
+  end
+
+  let(:versions) do
+    Vagrant::Registry.new.tap do |r|
+      r.register("1") { test_loader }
+    end
+  end
+
+  let(:version_order) { ["1"] }
+
+  let(:instance) { described_class.new(versions, version_order) }
 
   it "should ignore non-existent load order keys" do
     instance.load_order = [:foo]
@@ -12,20 +42,20 @@ describe Vagrant::Config::Loader do
 
   it "should load and return the configuration" do
     proc = Proc.new do |config|
-      config.vagrant.dotfile_name = "foo"
+      config[:foo] = "yep"
     end
 
     instance.load_order = [:proc]
     instance.set(:proc, proc)
     config = instance.load
 
-    config.vagrant.dotfile_name.should == "foo"
+    config[:foo].should == "yep"
   end
 
   it "should only run the same proc once" do
     count = 0
     proc = Proc.new do |config|
-      config.vagrant.dotfile_name = "foo"
+      config[:foo] = "yep"
       count += 1
     end
 
@@ -36,7 +66,7 @@ describe Vagrant::Config::Loader do
       result = instance.load
 
       # Verify the config result
-      result.vagrant.dotfile_name.should == "foo"
+      result[:foo].should == "yep"
 
       # Verify the count is only one
       count.should == 1

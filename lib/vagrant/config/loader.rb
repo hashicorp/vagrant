@@ -16,11 +16,21 @@ module Vagrant
       # configuration is loaded. For examples, see the class documentation.
       attr_accessor :load_order
 
-      def initialize
-        @logger  = Log4r::Logger.new("vagrant::config::loader")
-        @sources = {}
-        @proc_cache = {}
-        @config_cache = {}
+      # Initializes a configuration loader.
+      #
+      # @param [Registry] versions A registry of the available versions and
+      #   their associated loaders.
+      # @param [Array] version_order An array of the order of the versions
+      #   in the registry. This is used to determine if upgrades are
+      #   necessary. Additionally, the last version in this order is always
+      #   considered the "current" version.
+      def initialize(versions, version_order)
+        @logger        = Log4r::Logger.new("vagrant::config::loader")
+        @config_cache  = {}
+        @proc_cache    = {}
+        @sources       = {}
+        @versions      = versions
+        @version_order = version_order
       end
 
       # Set the configuration data for the given name.
@@ -71,8 +81,8 @@ module Vagrant
         end
 
         # Get the current version config class to use
-        current_version = Config::VERSIONS_ORDER.last
-        current_config_klass = Config::VERSIONS.get(current_version)
+        current_version = @version_order.last
+        current_config_klass = @versions.get(current_version)
 
         # This will hold our result
         result = current_config_klass.init
@@ -108,7 +118,7 @@ module Vagrant
         # version of the configuration. This may be an ill assumption,
         # but it made building the initial version of multi-versioned
         # configuration easy to support the old sub-VM stuff.
-        return [[Config::VERSIONS_ORDER.last, source]] if source.is_a?(Proc)
+        return [[@version_order.last, source]] if source.is_a?(Proc)
 
         # Assume all string sources are actually pathnames
         source = Pathname.new(source) if source.is_a?(String)

@@ -361,7 +361,7 @@ module Vagrant
     # to load the Vagrantfile into that context.
     def load_config!
       # Initialize the config loader
-      config_loader = Config::Loader.new
+      config_loader = Config::Loader.new(Config::VERSIONS, Config::VERSIONS_ORDER)
       config_loader.load_order = [:default, :box, :home, :root, :vm]
 
       inner_load = lambda do |*args|
