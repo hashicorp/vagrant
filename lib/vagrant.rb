@@ -158,7 +158,7 @@ end
 # plugins are allowed to be in a directory in `plugins` or at most one
 # directory deep within the plugins directory. So a plugin can be at
 # `plugins/foo` or also at `plugins/foo/bar`, but no deeper.
-Vagrant.source_root.join("plugins").each_child do |directory|
+Vagrant.source_root.join("plugins").children(true).each do |directory|
   # Ignore non-directories
   next if !directory.directory?
 
@@ -166,5 +166,5 @@ Vagrant.source_root.join("plugins").each_child do |directory|
   next if plugin_load_proc.call(directory)
 
   # Otherwise, attempt to load from sub-directories
-  directory.each_child(&plugin_load_proc)
+  directory.children(true).each(&plugin_load_proc)
 end
