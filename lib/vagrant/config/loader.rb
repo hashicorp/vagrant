@@ -103,8 +103,8 @@ module Vagrant
           end
         end
 
-        @logger.debug("Configuration loaded successfully")
-        result
+        @logger.debug("Configuration loaded successfully, finalizing and returning")
+        current_config_klass.finalize(result)
       end
 
       protected

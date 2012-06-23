@@ -11,7 +11,7 @@ describe Vagrant::Config::Loader do
   # This is just a dummy implementation of a configuraiton loader which
   # simply acts on hashes.
   let(:test_loader) do
-    Class.new do
+    Class.new(Vagrant::Config::VersionBase) do
       def self.init
         {}
       end
@@ -53,6 +53,26 @@ describe Vagrant::Config::Loader do
     config = instance.load
 
     config[:foo].should == "yep"
+  end
+
+  it "should finalize the configuration" do
+    # Create the finalize method on our loader
+    def test_loader.finalize(obj)
+      obj[:finalized] = true
+      obj
+    end
+
+    # Basic configuration proc
+    proc = lambda do |config|
+      config[:foo] = "yep"
+    end
+
+    # Run the actual configuration and assert that we get the proper result
+    instance.load_order = [:proc]
+    instance.set(:proc, [[current_version, proc]])
+    config = instance.load
+    config[:foo].should == "yep"
+    config[:finalized].should == true
   end
 
   it "should only run the same proc once" do

@@ -16,6 +16,19 @@ module Vagrant
         raise NotImplementedError
       end
 
+      # This is called just before configuration loading is complete of
+      # a potentially completely-merged value to perform final touch-ups
+      # to the configuration, if required.
+      #
+      # This is an optional method to implement. The default implementation
+      # will simply return the same object.
+      #
+      # @param [Object] obj Final configuration object.
+      # @param [Object] Finalized configuration object.
+      def self.finalize(obj)
+        obj
+      end
+
       # Loads the configuration for the given proc and returns a configuration
       # object. The return value is treated as an opaque object, so it can be
       # anything you'd like. The return value is the object that is passed
