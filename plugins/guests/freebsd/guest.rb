@@ -51,7 +51,14 @@ module VagrantPlugins
         networks.each do |network|
           entry = TemplateRenderer.render("guests/freebsd/network_#{network[:type]}",
                                           :options => network)
-          vm.channel.upload(StringIO.new(entry), "/tmp/vagrant-network-entry")
+
+          # Write the entry to a temporary location
+          temp = Tempfile.new("vagrant")
+          temp.binmode
+          temp.write(entry)
+          temp.close
+
+          vm.channel.upload(temp.path, "/tmp/vagrant-network-entry")
           vm.channel.sudo("su -m root -c 'cat /tmp/vagrant-network-entry >> /etc/rc.conf'")
           vm.channel.sudo("rm /tmp/vagrant-network-entry")
 
