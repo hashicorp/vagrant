@@ -303,6 +303,11 @@ module Vagrant
       error_key(:plugin_load_error)
     end
 
+    class SCPPermissionDenied < VagrantError
+      status_code(82)
+      error_key(:scp_permission_denied)
+    end
+
     class SCPUnavailable < VagrantError
       status_code(56)
       error_key(:scp_unavailable)

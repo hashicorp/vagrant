@@ -34,6 +34,8 @@
     process to 100%. [GH-832]
   - Fix issue where shell provisioner would sometimes never end. [GH-968]
   - FIx issue where puppet would reorder module paths. [GH-964]
+  - Human-friendly error is raised if there are permission issues when
+    using SCP to upload files. [GH-924]
 
 ## 1.0.3 (May 1, 2012)
 
