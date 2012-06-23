@@ -395,7 +395,7 @@ module Vagrant
 
         if subvm
           # We have subvm configuration, so set that up as well.
-          config_loader.set(:vm, subvm.proc_stack)
+          config_loader.set(:vm, subvm.config_procs)
         end
 
         # We activate plugins here because the files which we're loading

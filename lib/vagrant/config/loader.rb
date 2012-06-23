@@ -114,30 +114,42 @@ module Vagrant
       # the configuration object and are expected to mutate this
       # configuration object.
       def procs_for_source(source)
-        # If the source is just a proc, we assume it is for the latest
-        # version of the configuration. This may be an ill assumption,
-        # but it made building the initial version of multi-versioned
-        # configuration easy to support the old sub-VM stuff.
-        return [[@version_order.last, source]] if source.is_a?(Proc)
+        # Convert all pathnames to strings so we just have their path
+        source = source.to_s if source.is_a?(Pathname)
 
-        # Assume all string sources are actually pathnames
-        source = Pathname.new(source) if source.is_a?(String)
+        if source.is_a?(Array)
+          # An array must be formatted as [version, proc], so verify
+          # that and then return it
+          raise ArgumentError, "String source must have format [version, proc]" if source.length != 2
 
-        if source.is_a?(Pathname)
-          @logger.debug("Load procs for pathname: #{source.inspect}")
-
-          begin
-            return Config.capture_configures do
-              Kernel.load source
-            end
-          rescue SyntaxError => e
-            # Report syntax errors in a nice way.
-            raise Errors::VagrantfileSyntaxError, :file => e.message
-          end
+          # Return it as an array since we're expected to return an array
+          # of [version, proc] pairs, but an array source only has one.
+          return [source]
+        elsif source.is_a?(String)
+          # Strings are considered paths, so load them
+          return procs_for_path(source)
+        else
+          raise ArgumentError, "Unknown configuration source: #{source.inspect}"
         end
-
-        raise Exception, "Unknown configuration source: #{source.inspect}"
       end
+
+      # This returns an array of `Proc` objects for the given path source.
+      #
+      # @param [String] path Path to the file which contains the proper
+      #   `Vagrant.configure` calls.
+      # @return [Array<Proc>]
+      def procs_for_path(path)
+        @logger.debug("Load procs for pathname: #{path}")
+
+        begin
+          return Config.capture_configures do
+            Kernel.load path
+          end
+        rescue SyntaxError => e
+          # Report syntax errors in a nice way.
+          raise Errors::VagrantfileSyntaxError, :file => e.message
+        end
+       end
     end
   end
 end

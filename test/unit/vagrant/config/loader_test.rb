@@ -5,6 +5,9 @@ require "vagrant/registry"
 describe Vagrant::Config::Loader do
   include_context "unit"
 
+  # This is the current version of configuration for the tests.
+  let(:current_version) { version_order.last }
+
   # This is just a dummy implementation of a configuraiton loader which
   # simply acts on hashes.
   let(:test_loader) do
@@ -46,7 +49,7 @@ describe Vagrant::Config::Loader do
     end
 
     instance.load_order = [:proc]
-    instance.set(:proc, proc)
+    instance.set(:proc, [[current_version, proc]])
     config = instance.load
 
     config[:foo].should == "yep"
@@ -60,7 +63,7 @@ describe Vagrant::Config::Loader do
     end
 
     instance.load_order = [:proc]
-    instance.set(:proc, proc)
+    instance.set(:proc, [[current_version, proc]])
 
     5.times do
       result = instance.load
