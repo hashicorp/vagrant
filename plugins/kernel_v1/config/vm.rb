@@ -8,6 +8,8 @@ require File.expand_path("../vm_subvm", __FILE__)
 module VagrantPlugins
   module Kernel_V1
     class VMConfig < Vagrant::Config::V1::Base
+      DEFAULT_VM_NAME = :default
+
       attr_accessor :name
       attr_accessor :auto_port_range
       attr_accessor :box
@@ -99,9 +101,23 @@ module VagrantPlugins
         defined_vm_keys << name
 
         # Add the SubVM to the hash of defined VMs
-        defined_vms[name] ||= VagrantConfigSubVM.new
+        if !defined_vms[name]
+          # If it hasn't been defined before, then create the sub-VM configuration
+          # and configure it so that it has the proper name.
+          defined_vms[name] ||= VagrantConfigSubVM.new
+          defined_vms[name].push_proc do |config|
+            config.vm.name = name
+          end
+        end
+
         defined_vms[name].options.merge!(options)
         defined_vms[name].push_proc(&block) if block
+      end
+
+      def finalize!
+        # If we haven't defined a single VM, then we need to define a
+        # default VM which just inherits the rest of the configuration.
+        define(DEFAULT_VM_NAME) if defined_vm_keys.empty?
       end
 
       def validate(env, errors)

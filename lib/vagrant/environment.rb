@@ -13,7 +13,6 @@ module Vagrant
   # access to the VMs, CLI, etc. all in the scope of this environment.
   class Environment
     HOME_SUBDIRS = ["tmp", "boxes", "gems"]
-    DEFAULT_VM = :default
     DEFAULT_HOME = "~/.vagrant.d"
     DEFAULT_RC = "~/.vagrantrc"
 
@@ -163,7 +162,7 @@ module Vagrant
     #
     # @return [Bool]
     def multivm?
-      vms.length > 1 || vms.keys.first != DEFAULT_VM
+      vms.length > 1
     end
 
     # Makes a call to the CLI with the given arguments as if they
@@ -418,13 +417,6 @@ module Vagrant
       defined_vm_keys = global.vm.defined_vm_keys.dup
       defined_vms     = global.vm.defined_vms.dup
 
-      # If this isn't a multi-VM environment, then setup the default VM
-      # to simply be our configuration.
-      if defined_vm_keys.empty?
-        defined_vm_keys << DEFAULT_VM
-        defined_vms[DEFAULT_VM] = nil
-      end
-
       vm_configs = defined_vm_keys.map do |vm_name|
         @logger.debug("Loading configuration for VM: #{vm_name}")
 
@@ -434,11 +426,7 @@ module Vagrant
         config = inner_load[subvm]
 
         # Second pass, with the box
-        config = inner_load[subvm, boxes.find(config.vm.box)]
-        config.vm.name = vm_name
-
-        # Return the final configuration for this VM
-        config
+        inner_load[subvm, boxes.find(config.vm.box)]
       end
 
       # Finally, we have our configuration. Set it and forget it.

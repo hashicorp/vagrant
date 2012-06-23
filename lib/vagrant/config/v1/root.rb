@@ -30,6 +30,15 @@ module Vagrant
           end
         end
 
+        # Called to finalize this object just prior to it being used by
+        # the Vagrant system. The "!" signifies that this is expected to
+        # mutate itself.
+        def finalize!
+          @keys.each do |_key, instance|
+            instance.finalize!
+          end
+        end
+
         # Validates the configuration classes of this instance and raises an
         # exception if they are invalid. If you are implementing a custom configuration
         # class, the method you want to implement is {Base#validate}. This is

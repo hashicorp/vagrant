@@ -5,6 +5,15 @@ module Vagrant
       # from this class but this class provides useful helpers that config
       # classes may wish to use.
       class Base
+        # This is called as a last-minute hook that allows the configuration
+        # object to finalize itself before it will be put into use. This is
+        # a useful place to do some defaults in the case the user didn't
+        # configure something or so on.
+        #
+        # The configuration object is expected to mutate itself.
+        def finalize!
+        end
+
         # Merge another configuration object into this one. This assumes that
         # the other object is the same class as this one.
         #

@@ -13,6 +13,17 @@ module Vagrant
         new_root_object
       end
 
+      # Finalizes the configuration by making sure there is at least
+      # one VM defined in it.
+      def self.finalize(config)
+        # Call the `#finalize` method on each of the configuration keys.
+        # They're expected to modify themselves in our case.
+        config.finalize!
+
+        # Return the object
+        config
+      end
+
       # Loads the configuration for the given proc and returns a configuration
       # object.
       #

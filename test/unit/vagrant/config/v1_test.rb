@@ -10,6 +10,43 @@ describe Vagrant::Config::V1 do
     end
   end
 
+  describe "finalizing" do
+    it "should call `#finalize` on the configuration object" do
+      # Register a plugin for our test
+      plugin_class = Class.new(Vagrant.plugin("1")) do
+        name "test"
+        config "foo" do
+          Class.new do
+            attr_accessor :bar
+
+            def finalize!
+              @bar = "finalized"
+            end
+          end
+        end
+      end
+
+      # Create the proc we're testing
+      config_proc = Proc.new do |config|
+        config.foo.bar = "value"
+      end
+
+      begin
+        # Test that it works properly
+        config = described_class.load(config_proc)
+        config.foo.bar.should == "value"
+
+        # Finalize it
+        described_class.finalize(config)
+        config.foo.bar.should == "finalized"
+      ensure
+        # We have to unregister the plugin so that future tests
+        # aren't mucked up.
+        plugin_class.unregister!
+      end
+    end
+  end
+
   describe "loading" do
     it "should configure with all plugin config keys loaded" do
       # Register a plugin for our test

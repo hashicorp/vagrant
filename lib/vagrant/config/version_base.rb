@@ -23,6 +23,10 @@ module Vagrant
       # This is an optional method to implement. The default implementation
       # will simply return the same object.
       #
+      # This will ONLY be called if this is the version that is being
+      # used. In the case that an `upgrade` is called, this will never
+      # be called.
+      #
       # @param [Object] obj Final configuration object.
       # @param [Object] Finalized configuration object.
       def self.finalize(obj)
