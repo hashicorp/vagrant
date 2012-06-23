@@ -93,7 +93,7 @@ module Vagrant
 
         # Otherwise, it is a permission denied, so let's raise a proper
         # exception
-        raise Errors::SCPPermissionDenied, :path => from
+        raise Errors::SCPPermissionDenied, :path => from.to_s
       end
 
       protected
