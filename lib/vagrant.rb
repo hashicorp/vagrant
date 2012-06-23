@@ -143,14 +143,14 @@ I18n.load_path << File.expand_path("templates/locales/en.yml", Vagrant.source_ro
 # A lambda that knows how to load plugins from a single directory.
 plugin_load_proc = lambda do |directory|
   # We only care about directories
-  return false if !directory.directory?
+  next false if !directory.directory?
 
   # If there is a plugin file in the top-level directory, then load
   # that up.
   plugin_file = directory.join("plugin.rb")
   if plugin_file.file?
     load(plugin_file)
-    return true
+    next true
   end
 end
 
