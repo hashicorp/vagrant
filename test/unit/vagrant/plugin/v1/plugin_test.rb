@@ -1,6 +1,6 @@
-require File.expand_path("../../../base", __FILE__)
+require File.expand_path("../../../../base", __FILE__)
 
-describe Vagrant::Plugin::V1 do
+describe Vagrant::Plugin::V1::Plugin do
   after(:each) do
     # We want to make sure that the registered plugins remains empty
     # after each test.

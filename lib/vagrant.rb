@@ -53,7 +53,8 @@ require 'openssl'
 
 # Always make the version available
 require 'vagrant/version'
-Log4r::Logger.new("vagrant::global").info("Vagrant version: #{Vagrant::VERSION}")
+global_logger = Log4r::Logger.new("vagrant::global")
+global_logger.info("Vagrant version: #{Vagrant::VERSION}")
 
 module Vagrant
   autoload :Action,        'vagrant/action'
@@ -114,7 +115,7 @@ module Vagrant
   # @return [Class]
   def self.plugin(version)
     # We only support version 1 right now.
-    return Plugin::V1 if version == "1"
+    return Plugin::V1::Plugin if version == "1"
 
     # Raise an error that the plugin version is invalid
     raise ArgumentError, "Invalid plugin version API: #{version}"
@@ -137,7 +138,7 @@ module Vagrant
   end
 end
 
-# # Default I18n to load the en locale
+# Default I18n to load the en locale
 I18n.load_path << File.expand_path("templates/locales/en.yml", Vagrant.source_root)
 
 # A lambda that knows how to load plugins from a single directory.
@@ -149,6 +150,7 @@ plugin_load_proc = lambda do |directory|
   # that up.
   plugin_file = directory.join("plugin.rb")
   if plugin_file.file?
+    global_logger.debug("Loading core plugin: #{plugin_file}")
     load(plugin_file)
     next true
   end
