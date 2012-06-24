@@ -57,6 +57,24 @@ module Vagrant
       def self.merge(old, new)
         raise NotImplementedError
       end
+
+      # This is called if a previous version of configuration needs to be
+      # upgraded to this version. Each version of configuration should know
+      # how to upgrade the version immediately prior to it. This should be
+      # a best effort upgrade that makes many assumptions. The goal is for
+      # this to work in almost every case, but perhaps with some warnings.
+      # The return value for this is a 3-tuple: `[object, warnings, errors]`,
+      # where `object` is the upgraded configuration object, `warnings` is
+      # an array of warning messages, and `errors` is an array of error
+      # messages.
+      #
+      # @param [Object] old The version of the configuration object just
+      #   prior to this one.
+      # @return [Array] The 3-tuple result. Please see the above documentation
+      #   for more information on the exact structure of this object.
+      def self.upgrade(old)
+        raise NotImplementedError
+      end
     end
   end
 end

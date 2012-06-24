@@ -81,7 +81,7 @@ module Vagrant
         end
 
         # Get the current version config class to use
-        current_version = @version_order.last
+        current_version      = @version_order.last
         current_config_klass = @versions.get(current_version)
 
         # This will hold our result
@@ -93,7 +93,40 @@ module Vagrant
           @sources[key].each do |version, proc|
             if !@config_cache.has_key?(proc)
               @logger.debug("Loading from: #{key} (evaluating)")
-              @config_cache[proc] = current_config_klass.load(proc)
+
+              # Get the proper version loader for this version and load
+              version_loader = @versions.get(version)
+              version_config = version_loader.load(proc)
+
+              # If this version is not the current version, then we need
+              # to upgrade to the latest version.
+              if version != current_version
+                @logger.debug("Upgrading config from #{version} to #{current_version}")
+                version_index = @version_order.index(version)
+                current_index = @version_order.index(current_version)
+
+                (version_index + 1).upto(current_index) do |index|
+                  next_version = @version_order[index]
+                  @logger.debug("Upgrading config to version #{next_version}")
+
+                  # Get the loader of this version and ask it to upgrade
+                  loader = @versions.get(next_version)
+                  upgrade_result = loader.upgrade(version_config)
+
+                  # XXX: Do something with the warning/error messages
+                  warnings = upgrade_result[1]
+                  errors   = upgrade_result[2]
+                  @logger.debug("Upgraded to version #{next_version} with " +
+                                "#{warnings.length} warnings and " +
+                                "#{errors.length} errors")
+
+                  # Store the new upgraded version
+                  version_config = upgrade_result[0]
+                end
+              end
+
+              # Cache the results for this proc
+              @config_cache[proc] = version_config
             else
               @logger.debug("Loading from: #{key} (cache)")
             end

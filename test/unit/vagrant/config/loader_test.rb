@@ -38,95 +38,125 @@ describe Vagrant::Config::Loader do
 
   let(:instance) { described_class.new(versions, version_order) }
 
-  it "should ignore non-existent load order keys" do
-    instance.load_order = [:foo]
-    instance.load
-  end
-
-  it "should load and return the configuration" do
-    proc = Proc.new do |config|
-      config[:foo] = "yep"
+  describe "basic loading" do
+    it "should ignore non-existent load order keys" do
+      instance.load_order = [:foo]
+      instance.load
     end
 
-    instance.load_order = [:proc]
-    instance.set(:proc, [[current_version, proc]])
-    config = instance.load
+    it "should load and return the configuration" do
+      proc = Proc.new do |config|
+        config[:foo] = "yep"
+      end
 
-    config[:foo].should == "yep"
-  end
+      instance.load_order = [:proc]
+      instance.set(:proc, [[current_version, proc]])
+      config = instance.load
 
-  it "should finalize the configuration" do
-    # Create the finalize method on our loader
-    def test_loader.finalize(obj)
-      obj[:finalized] = true
-      obj
-    end
-
-    # Basic configuration proc
-    proc = lambda do |config|
-      config[:foo] = "yep"
-    end
-
-    # Run the actual configuration and assert that we get the proper result
-    instance.load_order = [:proc]
-    instance.set(:proc, [[current_version, proc]])
-    config = instance.load
-    config[:foo].should == "yep"
-    config[:finalized].should == true
-  end
-
-  it "should only run the same proc once" do
-    count = 0
-    proc = Proc.new do |config|
-      config[:foo] = "yep"
-      count += 1
-    end
-
-    instance.load_order = [:proc]
-    instance.set(:proc, [[current_version, proc]])
-
-    5.times do
-      result = instance.load
-
-      # Verify the config result
-      result[:foo].should == "yep"
-
-      # Verify the count is only one
-      count.should == 1
+      config[:foo].should == "yep"
     end
   end
 
-  it "should only load configuration files once" do
-    $_config_data = 0
+  describe "finalization" do
+    it "should finalize the configuration" do
+      # Create the finalize method on our loader
+      def test_loader.finalize(obj)
+        obj[:finalized] = true
+        obj
+      end
 
-    # We test both setting a file multiple times as well as multiple
-    # loads, since both should not cache the data.
-    file = temporary_file("$_config_data += 1")
-    instance.load_order = [:file]
-    5.times { instance.set(:file, file) }
-    5.times { instance.load }
+      # Basic configuration proc
+      proc = lambda do |config|
+        config[:foo] = "yep"
+      end
 
-    $_config_data.should == 1
+      # Run the actual configuration and assert that we get the proper result
+      instance.load_order = [:proc]
+      instance.set(:proc, [[current_version, proc]])
+      config = instance.load
+      config[:foo].should == "yep"
+      config[:finalized].should == true
+    end
   end
 
-  it "should not clear the cache if setting to the same value multiple times" do
-    $_config_data = 0
+  describe "upgrading" do
+    it "should do an upgrade to the latest version" do
+      test_loader_v2 = Class.new(test_loader) do
+        def self.upgrade(old)
+          new = old.dup
+          new[:v2] = true
 
-    file = temporary_file("$_config_data += 1")
+          [new, [], []]
+        end
+      end
 
-    instance.load_order = [:proc]
-    instance.set(:proc, file)
-    5.times { instance.load }
+      versions.register("2") { test_loader_v2 }
+      version_order << "2"
 
-    instance.set(:proc, file)
-    5.times { instance.load }
-
-    $_config_data.should == 1
+      # Load a version 1 proc, and verify it is upgraded to version 2
+      proc = lambda { |config| config[:foo] = "yep" }
+      instance.load_order = [:proc]
+      instance.set(:proc, [["1", proc]])
+      config = instance.load
+      config[:foo].should == "yep"
+      config[:v2].should == true
+    end
   end
 
-  it "should raise proper error if there is a syntax error in a Vagrantfile" do
-    instance.load_order = [:file]
-    expect { instance.set(:file, temporary_file("Vagrant:^Config")) }.
-      to raise_exception(Vagrant::Errors::VagrantfileSyntaxError)
+  describe "loading edge cases" do
+    it "should only run the same proc once" do
+      count = 0
+      proc = Proc.new do |config|
+        config[:foo] = "yep"
+        count += 1
+      end
+
+      instance.load_order = [:proc]
+      instance.set(:proc, [[current_version, proc]])
+
+      5.times do
+        result = instance.load
+
+        # Verify the config result
+        result[:foo].should == "yep"
+
+        # Verify the count is only one
+        count.should == 1
+      end
+    end
+
+    it "should only load configuration files once" do
+      $_config_data = 0
+
+      # We test both setting a file multiple times as well as multiple
+      # loads, since both should not cache the data.
+      file = temporary_file("$_config_data += 1")
+      instance.load_order = [:file]
+      5.times { instance.set(:file, file) }
+      5.times { instance.load }
+
+      $_config_data.should == 1
+    end
+
+    it "should not clear the cache if setting to the same value multiple times" do
+      $_config_data = 0
+
+      file = temporary_file("$_config_data += 1")
+
+      instance.load_order = [:proc]
+      instance.set(:proc, file)
+      5.times { instance.load }
+
+      instance.set(:proc, file)
+      5.times { instance.load }
+
+      $_config_data.should == 1
+    end
+
+    it "should raise proper error if there is a syntax error in a Vagrantfile" do
+      instance.load_order = [:file]
+      expect { instance.set(:file, temporary_file("Vagrant:^Config")) }.
+        to raise_exception(Vagrant::Errors::VagrantfileSyntaxError)
+    end
   end
 end
