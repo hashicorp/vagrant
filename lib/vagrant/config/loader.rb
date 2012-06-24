@@ -101,7 +101,7 @@ module Vagrant
               # If this version is not the current version, then we need
               # to upgrade to the latest version.
               if version != current_version
-                @logger.debug("Upgrading config from #{version} to #{current_version}")
+                @logger.debug("Upgrading config from version #{version} to #{current_version}")
                 version_index = @version_order.index(version)
                 current_index = @version_order.index(current_version)
 
