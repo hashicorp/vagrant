@@ -9,6 +9,7 @@ require "vagrant"
 $:.unshift File.expand_path("../../", __FILE__)
 
 # Load in helpers
+require "support/tempdir"
 require "unit/support/shared/base_context"
 
 # Do not buffer output
@@ -19,3 +20,7 @@ $stderr.sync = true
 RSpec.configure do |c|
   c.expect_with :rspec, :stdlib
 end
+
+# Configure VAGRANT_CWD so that the tests never find an actual
+# Vagrantfile anywhere, or at least this minimizes those chances.
+ENV["VAGRANT_CWD"] = Tempdir.new.path

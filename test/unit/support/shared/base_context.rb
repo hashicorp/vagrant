@@ -27,4 +27,23 @@ shared_context "unit" do
 
     return Pathname.new(f.path)
   end
+
+  # This helper provides temporary environmental variable changes.
+  def with_temp_env(environment)
+    # Build up the new environment, preserving the old values so we
+    # can replace them back in later.
+    old_env = {}
+    environment.each do |key, value|
+      old_env[key] = ENV[key]
+      ENV[key]     = value
+    end
+
+    # Call the block, returning its return value
+    return yield
+  ensure
+    # Reset the environment no matter what
+    old_env.each do |key, value|
+      ENV[key] = value
+    end
+  end
 end

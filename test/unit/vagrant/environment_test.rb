@@ -13,7 +13,9 @@ describe Vagrant::Environment do
 
   describe "current working directory" do
     it "is the cwd by default" do
-      described_class.new.cwd.should == Pathname.new(Dir.pwd)
+      with_temp_env("VAGRANT_CWD" => nil) do
+        described_class.new.cwd.should == Pathname.new(Dir.pwd)
+      end
     end
 
     it "is set to the cwd given" do
@@ -23,7 +25,12 @@ describe Vagrant::Environment do
     end
 
     it "is set to the environmental variable VAGRANT_CWD" do
-      pending "A good temporary ENV thing"
+      directory = File.dirname(__FILE__)
+      instance = with_temp_env("VAGRANT_CWD" => directory) do
+        described_class.new
+      end
+
+      instance.cwd.should == Pathname.new(directory)
     end
 
     it "raises an exception if the CWD doesn't exist" do
