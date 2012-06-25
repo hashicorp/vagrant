@@ -83,7 +83,7 @@ module VagrantPlugins
         end
 
          # This is the configuration which is available through `config.chef`
-        class Config < Vagrant::Config::Base
+        class Config < Vagrant::Plugin::V1::Config
           # Shared config
           attr_accessor :node_name
           attr_accessor :provisioning_path

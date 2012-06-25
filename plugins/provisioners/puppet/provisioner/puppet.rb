@@ -8,7 +8,7 @@ module VagrantPlugins
       end
 
       class Puppet < Vagrant::Provisioners::Base
-        class Config < Vagrant::Config::Base
+        class Config < Vagrant::Plugin::V1::Config
           attr_accessor :manifest_file
           attr_accessor :manifests_path
           attr_accessor :module_path
@@ -120,7 +120,7 @@ module VagrantPlugins
         def set_module_paths
           @module_paths = []
           @expanded_module_paths.each_with_index do |path, i|
-            @module_paths << [path, File.join(config.pp_path, "modules-#{i}"]
+            @module_paths << [path, File.join(config.pp_path, "modules-#{i}")]
           end
         end
 

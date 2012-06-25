@@ -6,7 +6,7 @@ module VagrantPlugins
       end
 
       class PuppetServer < Base
-        class Config < Vagrant::Config::Base
+        class Config < Vagrant::Plugin::V1::Config
           attr_accessor :puppet_server
           attr_accessor :puppet_node
           attr_accessor :options

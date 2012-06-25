@@ -1,6 +1,6 @@
 module VagrantPlugins
   module GuestFreeBSD
-    class Config < Vagrant::Config::Base
+    class Config < Vagrant::Plugin::V1::Config
       attr_accessor :halt_timeout
       attr_accessor :halt_check_interval
 
