@@ -654,7 +654,7 @@ en:
           Shared folders that Chef requires are missing on the virtual machine.
           This is usually due to configuration changing after already booting the
           machine. The fix is to run a `vagrant reload` so that the proper shared
-          folders will prepared and mounted on the VM.
+          folders will be prepared and mounted on the VM.
         no_convergence: |-
           Chef never successfully completed! Any errors should be visible in the
           output above. Please fix your recipes so that they properly complete.
@@ -692,7 +692,7 @@ en:
           Shared folders that Puppet requires are missing on the virtual machine.
           This is usually due to configuration changing after already booting the
           machine. The fix is to run a `vagrant reload` so that the proper shared
-          folders will prepared and mounted on the VM.
+          folders will be prepared and mounted on the VM.
         module_path_missing: "The configured module path doesn't exist: %{path}"
 
       puppet_server:
