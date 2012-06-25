@@ -39,7 +39,7 @@ vagrant@vagrantup:~$
     <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/">PuTTY</a>.
   </p>
   <p>
-    PuTTY may not reconize the <code>insecure_private_key</code> provided by
+    PuTTY may not recognize the <code>insecure_private_key</code> provided by
     vagrant as a valid private key.  To remedy this, first grab the 
     <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html">PuTTYgen app</a>.  
     Then use PuTTYgen and import the <code>insecure_private_key</code> (found
