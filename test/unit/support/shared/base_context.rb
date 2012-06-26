@@ -3,6 +3,12 @@ require "tempfile"
 require "unit/support/isolated_environment"
 
 shared_context "unit" do
+  before(:each) do
+    # Create a thing to store our temporary files so that they aren't
+    # unlinked right away.
+    @_temp_files = []
+  end
+
   # This creates an isolated environment so that Vagrant doesn't
   # muck around with your real system during unit tests.
   #
@@ -24,6 +30,10 @@ shared_context "unit" do
       f.write(contents)
       f.flush
     end
+
+    # Store the tempfile in an instance variable so that it is not
+    # garbage collected, so that the tempfile is not unlinked.
+    @_temp_files << f
 
     return Pathname.new(f.path)
   end
