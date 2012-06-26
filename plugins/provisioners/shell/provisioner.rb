@@ -3,7 +3,7 @@ require "tempfile"
 
 module VagrantPlugins
   module Shell
-    class Provisioner < Vagrant::Provisioners::Base
+    class Provisioner < Vagrant::Plugin::V1::Provisioner
       class Config < Vagrant::Plugin::V1::Config
         attr_accessor :inline
         attr_accessor :path

@@ -6,17 +6,13 @@ module VagrantPlugins
       # This class is a base class where the common functionality shared between
       # chef-solo and chef-client provisioning are stored. This is **not an actual
       # provisioner**. Instead, {ChefSolo} or {ChefServer} should be used.
-      class Base < Vagrant::Provisioners::Base
+      class Base < Vagrant::Plugin::V1::Provisioner
         include Vagrant::Util::Counter
 
         def initialize(env, config)
           super
 
           config.provisioning_path ||= "/tmp/vagrant-chef-#{get_and_update_counter(:provisioning_path)}"
-        end
-
-        def prepare
-          raise ChefError, :invalid_provisioner
         end
 
         def verify_binary(binary)

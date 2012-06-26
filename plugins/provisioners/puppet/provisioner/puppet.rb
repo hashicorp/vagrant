@@ -7,7 +7,7 @@ module VagrantPlugins
         error_namespace("vagrant.provisioners.puppet")
       end
 
-      class Puppet < Vagrant::Provisioners::Base
+      class Puppet < Vagrant::Plugin::V1::Provisioner
         class Config < Vagrant::Plugin::V1::Config
           attr_accessor :manifest_file
           attr_accessor :manifests_path
