@@ -48,7 +48,7 @@ module VagrantPlugins
           return
         end
 
-        if !(provisioner <= Vagrant::Plugin::V1::Provisioner)
+        if !(provisioner <= Vagrant.plugin("1", :provisioner))
           errors.add(I18n.t("vagrant.config.vm.provisioner_invalid_class", :shortcut => shortcut))
         end
 

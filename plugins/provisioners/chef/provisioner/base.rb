@@ -6,7 +6,7 @@ module VagrantPlugins
       # This class is a base class where the common functionality shared between
       # chef-solo and chef-client provisioning are stored. This is **not an actual
       # provisioner**. Instead, {ChefSolo} or {ChefServer} should be used.
-      class Base < Vagrant::Plugin::V1::Provisioner
+      class Base < Vagrant.plugin("1", :provisioner)
         include Vagrant::Util::Counter
 
         def initialize(env, config)
