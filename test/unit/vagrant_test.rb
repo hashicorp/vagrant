@@ -12,6 +12,7 @@ describe Vagrant do
       end
 
       it "returns the proper components for version 1" do
+        described_class.plugin("1", :command).should == Vagrant::Plugin::V1::Command
         described_class.plugin("1", :config).should == Vagrant::Plugin::V1::Config
         described_class.plugin("1", :provisioner).should == Vagrant::Plugin::V1::Provisioner
       end

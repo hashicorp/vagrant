@@ -3,7 +3,7 @@ require 'optparse'
 module VagrantPlugins
   module CommandBox
     module Command
-      class Root < Vagrant::Command::Base
+      class Root < Vagrant.plugin("1", :command)
         def initialize(argv, env)
           super
 

@@ -86,8 +86,9 @@ module Vagrant
   # These are the various plugin versions and their components in
   # a lazy loaded Hash-like structure.
   c = PLUGIN_COMPONENTS = Registry.new
-  c.register(:"1") { Plugin::V1::Plugin }
-  c.register([:"1", :config]) { Plugin::V1::Config }
+  c.register(:"1")                 { Plugin::V1::Plugin }
+  c.register([:"1", :command])     { Plugin::V1::Command }
+  c.register([:"1", :config])      { Plugin::V1::Config }
   c.register([:"1", :provisioner]) { Plugin::V1::Provisioner }
 
   # Returns a `Vagrant::Registry` object that contains all the built-in

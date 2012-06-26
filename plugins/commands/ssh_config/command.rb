@@ -4,7 +4,7 @@ require "vagrant/util/safe_puts"
 
 module VagrantPlugins
   module CommandSSHConfig
-    class Command < Vagrant::Command::Base
+    class Command < Vagrant.plugin("1", :command)
       include Vagrant::Util::SafePuts
 
       def execute

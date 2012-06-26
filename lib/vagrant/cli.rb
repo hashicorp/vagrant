@@ -3,7 +3,7 @@ require 'optparse'
 
 module Vagrant
   # Manages the command line interface to Vagrant.
-  class CLI < Command::Base
+  class CLI < Vagrant.plugin("1", :command)
     def initialize(argv, env)
       super
 

@@ -1,6 +1,6 @@
 module VagrantPlugins
   module CommandDestroy
-    class Command < Vagrant::Command::Base
+    class Command < Vagrant.plugin("1", :command)
       def execute
         options = {}
 

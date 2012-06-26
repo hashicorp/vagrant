@@ -2,7 +2,7 @@ require 'optparse'
 
 module VagrantPlugins
   module CommandSuspend
-    class Command < Vagrant::Command::Base
+    class Command < Vagrant.plugin("1", :command)
       def execute
         options = {}
 

@@ -4,7 +4,7 @@ module Vagrant
   module Easy
     # Base class for all easy commands. This contains the basic code
     # that knows how to run the easy commands.
-    class CommandBase < Vagrant::Command::Base
+    class CommandBase < Vagrant.plugin("1", :command)
       # This is the command that this easy command responds to
       attr_reader :command
 

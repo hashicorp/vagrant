@@ -4,7 +4,7 @@ require 'vagrant/util/template_renderer'
 
 module VagrantPlugins
   module CommandInit
-    class Command < Vagrant::Command::Base
+    class Command < Vagrant.plugin("1", :command)
       def execute
         options = {}
 

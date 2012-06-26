@@ -1,7 +1,7 @@
-require File.expand_path("../../../base", __FILE__)
+require File.expand_path("../../../../base", __FILE__)
 require 'optparse'
 
-describe Vagrant::Command::Base do
+describe Vagrant::Plugin::V1::Command do
   describe "parsing options" do
     let(:klass) do
       Class.new(described_class) do
