@@ -7,6 +7,7 @@ module Vagrant
     module V1
       autoload :Config, "vagrant/plugin/v1/config"
       autoload :Plugin, "vagrant/plugin/v1/plugin"
+      autoload :Provisioner, "vagrant/plugin/v1/provisioner"
     end
   end
 end

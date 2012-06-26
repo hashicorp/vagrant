@@ -56,6 +56,10 @@ require 'vagrant/version'
 global_logger = Log4r::Logger.new("vagrant::global")
 global_logger.info("Vagrant version: #{Vagrant::VERSION}")
 
+# We need these components always so instead of an autoload we
+# just require them explicitly here.
+require "vagrant/registry"
+
 module Vagrant
   autoload :Action,        'vagrant/action'
   autoload :Box,           'vagrant/box'
@@ -73,12 +77,18 @@ module Vagrant
   autoload :Guest,         'vagrant/guest'
   autoload :Hosts,         'vagrant/hosts'
   autoload :Plugin,        'vagrant/plugin'
-  autoload :Registry,      'vagrant/registry'
   autoload :SSH,           'vagrant/ssh'
   autoload :TestHelpers,   'vagrant/test_helpers'
   autoload :UI,            'vagrant/ui'
   autoload :Util,          'vagrant/util'
   autoload :VM,            'vagrant/vm'
+
+  # These are the various plugin versions and their components in
+  # a lazy loaded Hash-like structure.
+  c = PLUGIN_COMPONENTS = Registry.new
+  c.register(:"1") { Plugin::V1::Plugin }
+  c.register([:"1", :config]) { Plugin::V1::Config }
+  c.register([:"1", :provisioner]) { Plugin::V1::Provisioner }
 
   # Returns a `Vagrant::Registry` object that contains all the built-in
   # middleware stacks.
@@ -108,16 +118,30 @@ module Vagrant
   # Given a specific version, this returns a proper superclass to use
   # to register plugins for that version.
   #
-  # Plugins should subclass the class returned by this method, and will
-  # be registered as soon as they have a name associated with them.
+  # Optionally, if you give a specific component, then it will return
+  # the proper superclass for that component as well.
+  #
+  # Plugins and plugin components should subclass the classes returned by
+  # this method. This method lets Vagrant core control these superclasses
+  # and change them over time without affecting plugins. For example, if
+  # the V1 superclass happens to be "Vagrant::V1," future versions of
+  # Vagrant may move it to "Vagrant::Plugins::V1" and plugins will not be
+  # affected.
   #
   # @return [Class]
-  def self.plugin(version)
-    # We only support version 1 right now.
-    return Plugin::V1::Plugin if version == "1"
+  def self.plugin(version, component=nil)
+    # Build up the key and return a result
+    key    = version.to_sym
+    key    = [key, component.to_sym] if component
+    result = PLUGIN_COMPONENTS.get(key)
 
-    # Raise an error that the plugin version is invalid
-    raise ArgumentError, "Invalid plugin version API: #{version}"
+    # If we found our component then we return that
+    return result if result
+
+    # If we didn't find a result, then raise an exception, depending
+    # on if we got a component or not.
+    raise ArgumentError, "Plugin superclass not found for version/component: " +
+      "#{version} #{component}"
   end
 
   # This should be used instead of Ruby's built-in `require` in order to

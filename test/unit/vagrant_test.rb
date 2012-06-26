@@ -6,8 +6,15 @@ describe Vagrant do
   end
 
   describe "plugin superclass" do
-    it "returns the proper class for version 1" do
-      described_class.plugin("1").should == Vagrant::Plugin::V1::Plugin
+    describe "v1" do
+      it "returns the proper class for version 1" do
+        described_class.plugin("1").should == Vagrant::Plugin::V1::Plugin
+      end
+
+      it "returns the proper components for version 1" do
+        described_class.plugin("1", :config).should == Vagrant::Plugin::V1::Config
+        described_class.plugin("1", :provisioner).should == Vagrant::Plugin::V1::Provisioner
+      end
     end
 
     it "raises an exception if an unsupported version is given" do
