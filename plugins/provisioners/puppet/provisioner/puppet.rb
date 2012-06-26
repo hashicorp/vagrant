@@ -8,7 +8,7 @@ module VagrantPlugins
       end
 
       class Puppet < Vagrant::Plugin::V1::Provisioner
-        class Config < Vagrant::Plugin::V1::Config
+        class Config < Vagrant.plugin("1", :config)
           attr_accessor :manifest_file
           attr_accessor :manifests_path
           attr_accessor :module_path

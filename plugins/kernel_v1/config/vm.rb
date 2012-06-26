@@ -7,7 +7,7 @@ require File.expand_path("../vm_subvm", __FILE__)
 
 module VagrantPlugins
   module Kernel_V1
-    class VMConfig < Vagrant::Plugin::V1::Config
+    class VMConfig < Vagrant.plugin("1", :config)
       DEFAULT_VM_NAME = :default
 
       attr_accessor :name

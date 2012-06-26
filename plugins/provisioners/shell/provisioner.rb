@@ -4,7 +4,7 @@ require "tempfile"
 module VagrantPlugins
   module Shell
     class Provisioner < Vagrant::Plugin::V1::Provisioner
-      class Config < Vagrant::Plugin::V1::Config
+      class Config < Vagrant.plugin("1", :config)
         attr_accessor :inline
         attr_accessor :path
         attr_accessor :upload_path

@@ -2,7 +2,7 @@ require "vagrant"
 
 module VagrantPlugins
   module Kernel_V1
-    class SSHConfig < Vagrant::Plugin::V1::Config
+    class SSHConfig < Vagrant.plugin("1", :config)
       attr_accessor :username
       attr_accessor :password
       attr_accessor :host

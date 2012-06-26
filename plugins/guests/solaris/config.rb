@@ -1,6 +1,6 @@
 module VagrantPlugins
   module GuestSolaris
-    class Config < Vagrant::Plugin::V1::Config
+    class Config < Vagrant.plugin("1", :config)
       attr_accessor :halt_timeout
       attr_accessor :halt_check_interval
       # This sets the command to use to execute items as a superuser. sudo is default
