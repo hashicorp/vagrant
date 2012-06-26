@@ -5,7 +5,7 @@ module VagrantPlugins
     # A general Vagrant system implementation for "solaris".
     #
     # Contributed by Blake Irvin <b.irvin@modcloth.com>
-    class Guest < Vagrant::Guest::Base
+    class Guest < Vagrant.plugin("1", :guest)
       # Here for whenever it may be used.
       class SolarisError < Vagrant::Errors::VagrantError
         error_namespace("vagrant.guest.solaris")

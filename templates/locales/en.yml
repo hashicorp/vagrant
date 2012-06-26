@@ -59,8 +59,8 @@ en:
         Instead, please include your Vagrant plugins in your Gemfile itself.
       guest:
         invalid_class: |-
-          The specified guest class does not inherit from `Vagrant::Guest::Base`.
-          The specified guest class must inherit from this class.
+          The specified guest class does not inherit from a proper guest
+          component class. The guest class must inherit from this.
 
           The specified guest class was: %{guest}
         unknown_type: |-

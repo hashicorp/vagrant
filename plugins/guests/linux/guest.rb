@@ -4,7 +4,7 @@ require "vagrant"
 
 module VagrantPlugins
   module GuestLinux
-    class Guest < Vagrant::Guest::Base
+    class Guest < Vagrant.plugin("1", :guest)
       class LinuxError < Vagrant::Errors::VagrantError
         error_namespace("vagrant.guest.linux")
       end

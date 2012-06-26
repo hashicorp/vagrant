@@ -49,7 +49,7 @@ module Vagrant
       @logger.info("Loading guest: #{guest}")
 
       if guest.is_a?(Class)
-        raise Errors::VMGuestError, :_key => :invalid_class, :guest => guest.to_s if !(guest <= Guest::Base)
+        raise Errors::VMGuestError, :_key => :invalid_class, :guest => guest.to_s if !(guest <= Vagrant.plugin("1", :guest))
         @guest = guest.new(self)
       elsif guest.is_a?(Symbol)
         # Look for the guest as a registered plugin
