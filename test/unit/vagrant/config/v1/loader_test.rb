@@ -1,6 +1,6 @@
-require File.expand_path("../../../base", __FILE__)
+require File.expand_path("../../../../base", __FILE__)
 
-describe Vagrant::Config::V1 do
+describe Vagrant::Config::V1::Loader do
   include_context "unit"
 
   describe "empty" do

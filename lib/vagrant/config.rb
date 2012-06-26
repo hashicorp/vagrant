@@ -18,7 +18,7 @@ module Vagrant
     # versions are available, mapped by the version string used in
     # `Vagrant.configure` calls.
     VERSIONS = Registry.new
-    VERSIONS.register("1") { V1 }
+    VERSIONS.register("1") { V1::Loader }
 
     # This is the order of versions. This is used by the loader to figure out
     # how to "upgrade" versions up to the desired (current) version. The
