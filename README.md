@@ -15,10 +15,8 @@ on “[Why Vagrant?](http://vagrantup.com/docs/getting-started/why.html)”
 ## Quick Start
 
 First, make sure your development machine has [VirtualBox](http://www.virtualbox.org)
-installed. The setup from that point forward is very easy, since Vagrant is simply
-a rubygem.
-
-    gem install vagrant
+installed. After this, [download the appropriate Vagrant package for your OS](http://downloads.vagrantup.com) and install that. If you're not on Mac OS X or Windows, you'll need
+to add `/opt/vagrant/bin` to your `PATH`. After this, you're ready to go!
 
 To build your first virtual environment:
 
