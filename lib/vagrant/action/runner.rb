@@ -59,7 +59,7 @@ module Vagrant
         # Go through all the registered plugins and get all the hooks
         # for this sequence.
         Vagrant.plugin("1").registered.each do |plugin|
-          hooks  = plugin.action_hook(Vagrant::Plugin::V1::ALL_ACTIONS)
+          hooks  = plugin.action_hook(Vagrant::Plugin::V1::Plugin::ALL_ACTIONS)
           hooks += plugin.action_hook(id)
 
           hooks.each do |hook|
