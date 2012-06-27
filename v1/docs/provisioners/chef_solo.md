@@ -122,7 +122,7 @@ Vagrant::Config.run do |config|
     chef.json = {
       :load_limit => 42,
       :chunky_bacon => true
-    })
+    }
   end
 end
 {% endhighlight %}
