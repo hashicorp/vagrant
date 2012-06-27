@@ -102,7 +102,8 @@ module Vagrant
         while true
           writers = notify_stdin ? [process.io.stdin] : []
           results = IO.select([stdout, stderr], writers, nil, timeout || 5)
-          readers, writers = results
+          readers = results[0]
+          writers = results[1]
 
           # Check if we have exceeded our timeout
           raise TimeoutExceeded, process.pid if timeout && (Time.now.to_i - start_time) > timeout
@@ -130,7 +131,7 @@ module Vagrant
           break if process.exited?
 
           # Check the writers to see if they're ready, and notify any listeners
-          if !writers.empty?
+          if writers && !writers.empty?
             yield :stdin, process.io.stdin if block_given?
           end
         end
