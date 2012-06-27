@@ -6,7 +6,7 @@ require 'vagrant/util/platform'
 module VagrantPlugins
   module HostLinux
     # Represents a Linux based host, such as Ubuntu.
-    class Host < Vagrant::Hosts::Base
+    class Host < Vagrant.plugin("1", :host)
       include Vagrant::Util
       include Vagrant::Util::Retryable
 

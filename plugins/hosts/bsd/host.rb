@@ -6,7 +6,7 @@ require 'vagrant/util/platform'
 module VagrantPlugins
   module HostBSD
     # Represents a BSD host, such as FreeBSD and Darwin (Mac OS X).
-    class Host < Vagrant::Hosts::Base
+    class Host < Vagrant.plugin("1", :host)
       include Vagrant::Util
       include Vagrant::Util::Retryable
 

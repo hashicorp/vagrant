@@ -176,7 +176,7 @@ module Vagrant
 
     # Returns the host object associated with this environment.
     #
-    # @return [Hosts::Base]
+    # @return [Class]
     def host
       return @host if defined?(@host)
 
@@ -194,10 +194,9 @@ module Vagrant
         # Get the flattened list of available hosts
         host_klass = Hosts.detect(hosts)
       end
-      host_klass = Vagrant.hosts.get(host_klass) if host_klass.is_a?(Symbol)
 
       # If no host class is detected, we use the base class.
-      host_klass ||= Hosts::Base
+      host_klass ||= Vagrant.plugin("1", :host)
 
       @host ||= host_klass.new(@ui)
     end

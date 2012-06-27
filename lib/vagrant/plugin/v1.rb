@@ -8,6 +8,7 @@ module Vagrant
       autoload :Command, "vagrant/plugin/v1/command"
       autoload :Config, "vagrant/plugin/v1/config"
       autoload :Guest,  "vagrant/plugin/v1/guest"
+      autoload :Host,   "vagrant/plugin/v1/host"
       autoload :Plugin, "vagrant/plugin/v1/plugin"
       autoload :Provisioner, "vagrant/plugin/v1/provisioner"
     end

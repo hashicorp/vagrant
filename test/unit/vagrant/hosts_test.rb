@@ -2,13 +2,14 @@ require File.expand_path("../../base", __FILE__)
 
 describe Vagrant::Hosts do
   let(:registry) { Hash.new }
+  let(:base_class) { Vagrant::Plugin::V1::Host }
 
   it "detects the host that matches true" do
-    foo_klass = Class.new(Vagrant::Hosts::Base) do
+    foo_klass = Class.new(base_class) do
       def self.match?; false; end
     end
 
-    bar_klass = Class.new(Vagrant::Hosts::Base) do
+    bar_klass = Class.new(base_class) do
       def self.match?; true; end
     end
 
@@ -19,11 +20,11 @@ describe Vagrant::Hosts do
   end
 
   it "detects the host that matches true with the highest precedence first" do
-    foo_klass = Class.new(Vagrant::Hosts::Base) do
+    foo_klass = Class.new(base_class) do
       def self.match?; true; end
     end
 
-    bar_klass = Class.new(Vagrant::Hosts::Base) do
+    bar_klass = Class.new(base_class) do
       def self.match?; true; end
       def self.precedence; 9; end
     end

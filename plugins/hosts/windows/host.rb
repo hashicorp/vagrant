@@ -3,7 +3,7 @@ require 'vagrant/util/platform'
 
 module VagrantPlugins
   module HostWindows
-    class Host < Vagrant::Hosts::Base
+    class Host < Vagrant.plugin("1", :host)
       def self.match?
         Vagrant::Util::Platform.windows?
       end

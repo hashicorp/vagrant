@@ -90,6 +90,7 @@ module Vagrant
   c.register([:"1", :command])     { Plugin::V1::Command }
   c.register([:"1", :config])      { Plugin::V1::Config }
   c.register([:"1", :guest])       { Plugin::V1::Guest }
+  c.register([:"1", :host])        { Plugin::V1::Host }
   c.register([:"1", :provisioner]) { Plugin::V1::Provisioner }
 
   # Returns a `Vagrant::Registry` object that contains all the built-in
