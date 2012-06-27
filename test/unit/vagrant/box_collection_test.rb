@@ -3,9 +3,9 @@ require File.expand_path("../../base", __FILE__)
 describe Vagrant::BoxCollection do
   include_context "unit"
 
-  let(:environment) { isolated_environment }
+  let(:environment)   { isolated_environment }
   let(:action_runner) { double("action runner") }
-  let(:instance)    { described_class.new(environment.boxes_dir, action_runner) }
+  let(:instance)      { described_class.new(environment.boxes_dir, action_runner) }
 
   it "should list all available boxes" do
     # No boxes yet.

@@ -63,6 +63,7 @@ require "vagrant/registry"
 module Vagrant
   autoload :Action,        'vagrant/action'
   autoload :Box,           'vagrant/box'
+  autoload :Box2,          'vagrant/box2'
   autoload :BoxCollection, 'vagrant/box_collection'
   autoload :CLI,           'vagrant/cli'
   autoload :Command,       'vagrant/command'

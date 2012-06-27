@@ -1,5 +1,6 @@
 require "tempfile"
 
+require "support/tempdir"
 require "unit/support/isolated_environment"
 
 shared_context "unit" do
@@ -23,6 +24,8 @@ shared_context "unit" do
 
   # This helper creates a temporary file and returns a Pathname
   # object pointed to it.
+  #
+  # @return [Pathname]
   def temporary_file(contents=nil)
     f = Tempfile.new("vagrant-unit")
 
@@ -36,6 +39,20 @@ shared_context "unit" do
     @_temp_files << f
 
     return Pathname.new(f.path)
+  end
+
+  # This creates a temporary directory and returns a {Pathname}
+  # pointing to it.
+  #
+  # @return [Pathname]
+  def temporary_dir
+    # Create a temporary directory and append it to the instance
+    # variabe so that it isn't garbage collected and deleted
+    d = Tempdir.new("vagrant-unit")
+    @_temp_files << d
+
+    # Return the pathname
+    return Pathname.new(d.path)
   end
 
   # This helper provides temporary environmental variable changes.
