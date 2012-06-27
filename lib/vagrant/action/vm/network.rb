@@ -259,9 +259,10 @@ module Vagrant
 
         def hostonly_network_config(config)
           return {
-            :type    => config[:type],
-            :ip      => config[:ip],
-            :netmask => config[:netmask]
+            :type       => config[:type],
+            :adapter_ip => config[:adapter_ip],
+            :ip         => config[:ip],
+            :netmask    => config[:netmask]
           }
         end
 
