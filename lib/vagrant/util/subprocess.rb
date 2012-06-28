@@ -102,6 +102,7 @@ module Vagrant
         while true
           writers = notify_stdin ? [process.io.stdin] : []
           results = IO.select([stdout, stderr], writers, nil, timeout || 5)
+          results ||= []
           readers = results[0]
           writers = results[1]
 
