@@ -123,6 +123,10 @@ module Vagrant
       error_key(:untar_failure, "vagrant.actions.box.unpackage")
     end
 
+    class BoxUpgradeRequired < VagrantError
+      error_key(:box_upgrade_required)
+    end
+
     class BoxVerificationFailed < VagrantError
       status_code(15)
       error_key(:failed, "vagrant.actions.box.verify")
