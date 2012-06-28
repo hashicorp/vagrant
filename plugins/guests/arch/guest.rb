@@ -12,6 +12,14 @@ module VagrantPlugins
       # Make the TemplateRenderer top-level
       include Vagrant::Util
 
+      def mount_shared_folder(name, guestpath, options)
+        # Mount it like normal
+        super
+
+        # Start an rc job with the name of the mounted folder so it can trigger any other jobs needed internally after the mount is complete.
+        vm.channel.sudo("[ -x /etc/rc.d/vagrant-mounted ] && MOUNTPOINT=#{guestpath} /etc/rc.d/vagrant-mounted start || echo 'No /etc/rc.d/vagrant-mounted hook available to run, skipping.'")
+      end
+
       def change_host_name(name)
         # Only do this if the hostname is not already set
         if !vm.channel.test("sudo hostname | grep '#{name}'")
