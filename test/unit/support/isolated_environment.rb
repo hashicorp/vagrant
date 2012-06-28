@@ -32,11 +32,23 @@ module Unit
     end
 
     def box(name, vagrantfile_contents="")
+      # Create the box directory
       box_dir = boxes_dir.join(name)
       box_dir.mkpath
+
+      # Create the "box.ovf" file because that is how Vagrant heuristically
+      # determines a box is a V1 box.
+      box_dir.join("box.ovf").open("w") { |f| f.write("") }
+
+      # Populate the vagrantfile
       vagrantfile(vagrantfile_contents, box_dir)
+
+      # Return the directory
       box_dir
     end
+
+    # Create an alias because "box" makes a V1 box, so "box1"
+    alias :box1 :box
 
     # Creates a fake box to exist in this environment.
     #
