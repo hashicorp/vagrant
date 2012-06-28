@@ -20,6 +20,12 @@ module Vagrant
     # @Param [String] provider Provider that the box implements.
     # @return [Box] The box found, or `nil` if not found.
     def find(name, provider)
+      # First look directly for the box we're asking for.
+      box_directory = @directory.join(name, provider.to_s, "metadata.json")
+      return Box2.new(name, provider, box_directory.dirname) if box_directory.file?
+
+      # Didn't find it, return nil
+      nil
     end
   end
 end

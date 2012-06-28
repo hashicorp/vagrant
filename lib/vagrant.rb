@@ -65,6 +65,7 @@ module Vagrant
   autoload :Box,           'vagrant/box'
   autoload :Box2,          'vagrant/box2'
   autoload :BoxCollection, 'vagrant/box_collection'
+  autoload :BoxCollection2, 'vagrant/box_collection2'
   autoload :CLI,           'vagrant/cli'
   autoload :Command,       'vagrant/command'
   autoload :Communication, 'vagrant/communication'
