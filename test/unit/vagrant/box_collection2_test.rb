@@ -55,9 +55,7 @@ describe Vagrant::BoxCollection2 do
 
     it "should throw an exception if it is a v1 box" do
       # Create a V1 box
-      box_dir = environment.boxes_dir.join("foo")
-      box_dir.mkpath
-      box_dir.join("box.ovf").open("w") { |f| f.write("") }
+      environment.box1("foo")
 
       # Test!
       expect { instance.find("foo", :virtualbox) }.
