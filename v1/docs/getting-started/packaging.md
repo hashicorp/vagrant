@@ -67,7 +67,7 @@ created using the box will automatically have port forwarding configured
 for them, without the user having to edit their VM's `Vagrantfile`
 (Boxes have their own `Vagrantfile` -- for more details on how this
 works, see the [documentation for
-Vagrantfiles](http://vagrantup.com/docs/vagrantfile.html)).
+Vagrantfiles](http://vagrantup.com/v1/docs/vagrantfile.html)).
 
 ## Distributing the Box
 
