@@ -1,9 +1,14 @@
 require "fileutils"
 require "pathname"
+require "tempfile"
 
+require "archive/tar/minitar"
 require "log4r"
 
+require "vagrant/util/platform"
+
 require "support/isolated_environment"
+require "support/tempdir"
 
 module Unit
   class IsolatedEnvironment < ::IsolatedEnvironment
@@ -68,6 +73,60 @@ module Unit
 
       # Return the box directory
       box_dir
+    end
+
+    # This creates a "box" file with the given name and provider.
+    #
+    # @param [String] name Name of the box.
+    # @param [Symbol] provider Provider for the box.
+    # @return [Pathname] Path to the newly created box.
+    def box2_file(name, provider)
+      # This is the metadata we want to store in our file
+      metadata = {
+        "type"     => "v2_box",
+        "provider" => provider
+      }
+
+      # Create a temporary directory to store our data we will tar up
+      td_source = Tempdir.new
+      td_dest   = Tempdir.new
+
+      # Store the temporary directory so it is not deleted until
+      # this instance is garbage collected.
+      @_box2_file_temp ||= []
+      @_box2_file_temp << td_dest
+
+      # The source as a Pathname, which is easier to work with
+      source = Pathname.new(td_source.path)
+
+      # The destination file
+      result = Pathname.new(td_dest.path).join("temporary.box")
+
+      File.open(result, Vagrant::Util::Platform.tar_file_options) do |tar|
+        Archive::Tar::Minitar::Output.open(tar) do |output|
+          begin
+            # Switch to the source directory so that Archive::Tar::Minitar
+            # can tar things up.
+            current_dir = FileUtils.pwd
+            FileUtils.cd(source)
+
+            # Put the metadata.json in here.
+            source.join("metadata.json").open("w") do |f|
+              f.write(JSON.generate(metadata))
+            end
+
+            # Add all the files
+            Dir.glob(File.join(".", "**", "*")).each do |entry|
+              Archive::Tar::Minitar.pack_file(entry, output)
+            end
+          ensure
+            FileUtils.cd(current_dir)
+          end
+        end
+      end
+
+      # Resulting box
+      result
     end
 
     def boxes_dir

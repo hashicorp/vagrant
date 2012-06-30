@@ -9,6 +9,22 @@ describe Vagrant::BoxCollection2 do
   let(:environment) { isolated_environment }
   let(:instance)    { described_class.new(environment.boxes_dir) }
 
+  describe "adding" do
+    it "should add a valid box to the system" do
+      box_path = environment.box2_file("foo", :virtualbox)
+
+      # Add the box
+      box = instance.add(box_path, "foo", :virtualbox)
+      box.should be_kind_of(box_class)
+      box.name.should == "foo"
+      box.provider.should == :virtualbox
+
+      # Verify we can find it as well
+      box = instance.find("foo", :virtualbox)
+      box.should_not be_nil
+    end
+  end
+
   describe "listing all" do
     it "should return an empty array when no boxes are there" do
       instance.all.should == []

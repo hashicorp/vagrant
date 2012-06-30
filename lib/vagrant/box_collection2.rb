@@ -1,5 +1,6 @@
 require "digest/sha1"
 
+require "archive/tar/minitar"
 require "log4r"
 
 module Vagrant
@@ -17,6 +18,36 @@ module Vagrant
     def initialize(directory)
       @directory = directory
       @logger    = Log4r::Logger.new("vagrant::box_collection")
+    end
+
+    # This adds a new box to the system.
+    #
+    # There are some exceptional cases:
+    #
+    # Preconditions:
+    # * File given in `path` must exist.
+    #
+    # @param [Pathname] path Path to the box file on disk.
+    # @param [String] name Logical name for the box.
+    # @param [Symbol] provider The provider that the box should be for. This
+    #   will be verified with the `metadata.json` file in the box and is
+    #   meant as a basic check.
+    def add(path, name, provider)
+      box_dir = @directory.join(name, provider.to_s)
+      @logger.debug("Adding box: #{path}")
+      @logger.debug("Box directory: #{box_dir}")
+
+      # Create the directory that'll store our box
+      box_dir.mkpath
+
+      # Change directory to the box directory and unpackage the tar
+      Dir.chdir(box_dir) do
+        @logger.debug("Unpacking box file into box directory...")
+        Archive::Tar::Minitar.unpack(path.to_s, box_dir.to_s)
+      end
+
+      # Return the box
+      find(name, provider)
     end
 
     # This returns an array of all the boxes on the system, given by
