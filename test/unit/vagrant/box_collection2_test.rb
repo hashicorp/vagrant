@@ -62,4 +62,35 @@ describe Vagrant::BoxCollection2 do
         to raise_error(Vagrant::Errors::BoxUpgradeRequired)
     end
   end
+
+  describe "upgrading" do
+    it "should upgrade a V1 box to V2" do
+      # Create a V1 box
+      environment.box1("foo")
+
+      # Verify that only a V1 box exists
+      expect { instance.find("foo", :virtualbox) }.
+        to raise_error(Vagrant::Errors::BoxUpgradeRequired)
+
+      # Upgrade the box
+      instance.upgrade("foo").should be
+
+      # Verify the box exists
+      box = instance.find("foo", :virtualbox)
+      box.should_not be_nil
+      box.name.should == "foo"
+    end
+
+    it "should raise a BoxNotFound exception if a non-existent box is upgraded" do
+      expect { instance.upgrade("i-dont-exist") }.
+        to raise_error(Vagrant::Errors::BoxNotFound)
+    end
+
+    it "should return true if we try to upgrade a V2 box" do
+      # Create a V2 box
+      environment.box2("foo", :vmware)
+
+      instance.upgrade("foo").should be
+    end
+  end
 end

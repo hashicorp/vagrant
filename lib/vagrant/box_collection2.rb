@@ -1,3 +1,5 @@
+require "digest/sha1"
+
 require "log4r"
 
 module Vagrant
@@ -87,6 +89,53 @@ module Vagrant
       # Didn't find it, return nil
       @logger.info("Box not found: #{name} (#{provider})")
       nil
+    end
+
+    # Upgrades a V1 box with the given name to a V2 box. If a box with the
+    # given name doesn't exist, then a `BoxNotFound` exception will be raised.
+    # If the given box is found but is not a V1 box then `true` is returned
+    # because this just works fine.
+    #
+    # @return [Boolean] `true` otherwise an exception is raised.
+    def upgrade(name)
+      box_dir = @directory.join(name)
+
+      # If the box doesn't exist at all, raise an exception
+      raise Errors::BoxNotFound, :name => name if !box_dir.directory?
+
+      if v1_box?(name)
+        # First, we create a temporary directory within the box to store
+        # the intermediary moved files. We randomize this in case there is
+        # already a directory named "virtualbox" in here for some reason.
+        temp_dir = box_dir.join("vagrant-#{Digest::SHA1.hexdigest(name)}")
+
+        # Make the temporary directory
+        temp_dir.mkpath
+
+        # Move all the things into the temporary directory
+        box_dir.children(true).each do |child|
+          # Don't move the temp_dir
+          next if child == temp_dir
+
+          # Move every other directory into the temporary directory
+          FileUtils.mv(child, temp_dir.join(child.basename))
+        end
+
+        # If there is no metadata.json file, make one, since this is how
+        # we determine if the box is a V2 box.
+        metadata_file = temp_dir.join("metadata.json")
+        if !metadata_file.file?
+          metadata_file.open("w") do |f|
+            f.write(JSON.generate({}))
+          end
+        end
+
+        # Rename the temporary directory to the provider.
+        temp_dir.rename(box_dir.join("virtualbox"))
+      end
+
+      # We did it! Or the v1 box didn't exist so it doesn't matter.
+      return true
     end
 
     protected
