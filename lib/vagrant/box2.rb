@@ -1,3 +1,5 @@
+require "json"
+
 module Vagrant
   # Represents a "box," which is a package Vagrant environment that is used
   # as a base image when creating a new guest machine.
@@ -22,6 +24,12 @@ module Vagrant
     # @return [Pathname]
     attr_reader :directory
 
+    # This is the metadata for the box. This is read from the "metadata.json"
+    # file that all boxes require.
+    #
+    # @return [Hash]
+    attr_reader :metadata
+
     # This is used to initialize a box.
     #
     # @param [String] name Logical name of the box.
@@ -32,6 +40,7 @@ module Vagrant
       @name      = name
       @provider  = provider
       @directory = directory
+      @metadata  = JSON.parse(directory.join("metadata.json").read)
     end
 
     # This deletes the box. This is NOT undoable.

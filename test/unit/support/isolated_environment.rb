@@ -63,7 +63,7 @@ module Unit
       # Create a metadata.json file
       box_metadata_file = box_dir.join("metadata.json")
       box_metadata_file.open("w") do |f|
-        f.write("")
+        f.write("{}")
       end
 
       # Return the box directory

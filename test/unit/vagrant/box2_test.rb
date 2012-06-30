@@ -5,9 +5,11 @@ require "pathname"
 describe Vagrant::Box2 do
   include_context "unit"
 
+  let(:environment)   { isolated_environment }
+
   let(:name)          { "foo" }
   let(:provider)      { :virtualbox }
-  let(:directory)     { temporary_dir }
+  let(:directory)     { environment.box2("foo", :virtualbox) }
   let(:instance)      { described_class.new(name, provider, directory) }
 
   it "provides the name" do
@@ -20,6 +22,18 @@ describe Vagrant::Box2 do
 
   it "provides the directory" do
     instance.directory.should == directory
+  end
+
+  it "provides the metadata associated with a box" do
+    data = { "foo" => "bar" }
+
+    # Write the metadata
+    directory.join("metadata.json").open("w") do |f|
+      f.write(JSON.generate(data))
+    end
+
+    # Verify the metadata
+    instance.metadata.should == data
   end
 
   describe "destroying" do
@@ -35,11 +49,14 @@ describe Vagrant::Box2 do
     end
 
     it "should not error destroying a non-existent box" do
+      # Get the instance so that it is instantiated
+      box = instance
+
       # Delete the directory
       directory.rmtree
 
       # Destroy it
-      instance.destroy!.should be
+      box.destroy!.should be
     end
   end
 
