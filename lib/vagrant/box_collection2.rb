@@ -98,16 +98,20 @@ module Vagrant
     #
     # @return [Boolean] `true` otherwise an exception is raised.
     def upgrade(name)
+      @logger.debug("Upgrade request for box: #{name}")
       box_dir = @directory.join(name)
 
       # If the box doesn't exist at all, raise an exception
       raise Errors::BoxNotFound, :name => name if !box_dir.directory?
 
       if v1_box?(name)
+        @logger.debug("V1 box #{name} found. Upgrading!")
+
         # First, we create a temporary directory within the box to store
         # the intermediary moved files. We randomize this in case there is
         # already a directory named "virtualbox" in here for some reason.
         temp_dir = box_dir.join("vagrant-#{Digest::SHA1.hexdigest(name)}")
+        @logger.debug("Temporary directory for upgrading: #{temp_dir}")
 
         # Make the temporary directory
         temp_dir.mkpath
@@ -118,6 +122,7 @@ module Vagrant
           next if child == temp_dir
 
           # Move every other directory into the temporary directory
+          @logger.debug("Copying to upgrade directory: #{child}")
           FileUtils.mv(child, temp_dir.join(child.basename))
         end
 
@@ -132,6 +137,7 @@ module Vagrant
 
         # Rename the temporary directory to the provider.
         temp_dir.rename(box_dir.join("virtualbox"))
+        @logger.info("Box '#{name}' upgraded from V1 to V2.")
       end
 
       # We did it! Or the v1 box didn't exist so it doesn't matter.
