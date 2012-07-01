@@ -66,7 +66,7 @@ options for a provisioner are documented on their respective pages, but configur
 follows the same format for each.
 
 For basic key-value options, you can simply append a hash when enabling the provisioner,
-where the keys of the has are the configuration keys, and the values of course are
+where the keys of the hash are the configuration keys, and the values of course are
 the values for that key. Example:
 
 {% highlight ruby %}
