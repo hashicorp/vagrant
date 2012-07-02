@@ -23,6 +23,9 @@ module Vagrant
     # This adds a new box to the system.
     #
     # There are some exceptional cases:
+    # * BoxAlreadyExists - The box you're attempting to add already exists.
+    # * BoxProviderDoesntMatch - If the given box provider doesn't match the
+    #   actual box provider in the untarred box.
     #
     # Preconditions:
     # * File given in `path` must exist.
@@ -33,9 +36,14 @@ module Vagrant
     #   will be verified with the `metadata.json` file in the box and is
     #   meant as a basic check.
     def add(path, name, provider)
+      @logger.debug("Adding box: #{name} (#{provider}) from #{path}")
+      if find(name, provider)
+        @logger.error("Box already exists, can't add: #{name} #{provider}")
+        raise Errors::BoxAlreadyExists, :name => name, :provider => provider
+      end
+
       box_dir = @directory.join(name, provider.to_s)
-      @logger.debug("Adding box: #{path}")
-      @logger.debug("Box directory: #{box_dir}")
+      @logger.debug("New box directory: #{box_dir}")
 
       # Create the directory that'll store our box
       box_dir.mkpath
