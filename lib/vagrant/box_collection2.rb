@@ -26,6 +26,8 @@ module Vagrant
     # * BoxAlreadyExists - The box you're attempting to add already exists.
     # * BoxProviderDoesntMatch - If the given box provider doesn't match the
     #   actual box provider in the untarred box.
+    # * BoxUpgradeRequired - You're attempting to add a box when there is a
+    #   V1 box with the same name that must first be upgraded.
     #
     # Preconditions:
     # * File given in `path` must exist.

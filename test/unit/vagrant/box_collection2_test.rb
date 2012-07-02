@@ -37,6 +37,18 @@ describe Vagrant::BoxCollection2 do
         to raise_error(Vagrant::Errors::BoxAlreadyExists)
     end
 
+    it "should raise an exception if you're attempting to add a box that exists as a V1 box" do
+      prev_box_name = "foo"
+
+      # Create the V1 box
+      environment.box1(prev_box_name)
+
+      # Attempt to add some V2 box with the same name
+      box_path = environment.box2_file(:vmware)
+      expect { instance.add(box_path, prev_box_name, :vmware) }.
+        to raise_error(Vagrant::Errors::BoxUpgradeRequired)
+    end
+
     it "should raise an exception and not add the box if the provider doesn't match" do
       box_name      = "foo"
       good_provider = :virtualbox
