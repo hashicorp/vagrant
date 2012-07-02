@@ -26,6 +26,7 @@ module Vagrant
     # * BoxAlreadyExists - The box you're attempting to add already exists.
     # * BoxProviderDoesntMatch - If the given box provider doesn't match the
     #   actual box provider in the untarred box.
+    # * BoxUnpackageFailure - An invalid tar file.
     # * BoxUpgradeRequired - You're attempting to add a box when there is a
     #   V1 box with the same name that must first be upgraded.
     #
@@ -53,7 +54,11 @@ module Vagrant
       # Change directory to the box directory and unpackage the tar
       Dir.chdir(box_dir) do
         @logger.debug("Unpacking box file into box directory...")
-        Archive::Tar::Minitar.unpack(path.to_s, box_dir.to_s)
+        begin
+          Archive::Tar::Minitar.unpack(path.to_s, box_dir.to_s)
+        rescue SystemCallError
+          raise Errors::BoxUnpackageFailure
+        end
       end
 
       # Find the box we just added

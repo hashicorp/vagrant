@@ -65,6 +65,10 @@ describe Vagrant::BoxCollection2 do
       # Verify the box doesn't exist
       instance.find(box_name, bad_provider).should be_nil
     end
+
+    it "should raise an exception if you add an invalid box file" do
+      pending "I don't know how to generate an invalid tar."
+    end
   end
 
   describe "listing all" do
