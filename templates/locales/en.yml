@@ -16,6 +16,11 @@ en:
     errors:
       base_vm_not_found: The base VM with the name '%{name}' was not found.
       box_not_found: Box '%{name}' could not be found.
+      box_provider_doesnt_match: |-
+        The box you attempted to add doesn't match the provider you specified.
+
+        Provider expected: %{expected}
+        Provider of box: %{actual}
       box_upgrade_required: |-
         The box '%{name}' is still stored on disk in the Vagrant 1.0.x
         format. This box must be upgraded in order to work properly with

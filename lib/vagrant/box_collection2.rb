@@ -46,8 +46,24 @@ module Vagrant
         Archive::Tar::Minitar.unpack(path.to_s, box_dir.to_s)
       end
 
+      # Find the box we just added
+      box = find(name, provider)
+
+      # Verify that the provider matches. If not, then we need to rollback
+      box_provider = box.metadata["provider"]
+      if box_provider.to_sym != provider
+        @logger.error("Added box provider doesnt match expected: #{box_provider}")
+
+        # Delete the directory
+        @logger.debug("Deleting the added box directory...")
+        box_dir.rmtree
+
+        # Raise an exception
+        raise Errors::BoxProviderDoesntMatch, :expected => provider, :actual => box_provider
+      end
+
       # Return the box
-      find(name, provider)
+      box
     end
 
     # This returns an array of all the boxes on the system, given by

@@ -11,7 +11,7 @@ describe Vagrant::BoxCollection2 do
 
   describe "adding" do
     it "should add a valid box to the system" do
-      box_path = environment.box2_file("foo", :virtualbox)
+      box_path = environment.box2_file(:virtualbox)
 
       # Add the box
       box = instance.add(box_path, "foo", :virtualbox)
@@ -22,6 +22,23 @@ describe Vagrant::BoxCollection2 do
       # Verify we can find it as well
       box = instance.find("foo", :virtualbox)
       box.should_not be_nil
+    end
+
+    it "should raise an exception and not add the box if the provider doesn't match" do
+      box_name      = "foo"
+      good_provider = :virtualbox
+      bad_provider  = :vmware
+
+      # Create a VirtualBox box file
+      box_path = environment.box2_file(good_provider)
+
+      # Add the box but with an invalid provider, verify we get the proper
+      # error.
+      expect { instance.add(box_path, box_name, bad_provider) }.
+        to raise_error(Vagrant::Errors::BoxProviderDoesntMatch)
+
+      # Verify the box doesn't exist
+      instance.find(box_name, bad_provider).should be_nil
     end
   end
 

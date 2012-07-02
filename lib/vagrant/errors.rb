@@ -113,6 +113,10 @@ module Vagrant
       error_key(:not_specified, "vagrant.actions.vm.check_box")
     end
 
+    class BoxProviderDoesntMatch < VagrantError
+      error_key(:box_provider_doesnt_match)
+    end
+
     class BoxSpecifiedDoesntExist < VagrantError
       status_code(23)
       error_key(:does_not_exist, "vagrant.actions.vm.check_box")

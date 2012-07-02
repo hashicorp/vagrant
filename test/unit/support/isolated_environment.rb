@@ -75,12 +75,11 @@ module Unit
       box_dir
     end
 
-    # This creates a "box" file with the given name and provider.
+    # This creates a "box" file with the given provider.
     #
-    # @param [String] name Name of the box.
     # @param [Symbol] provider Provider for the box.
     # @return [Pathname] Path to the newly created box.
-    def box2_file(name, provider)
+    def box2_file(provider)
       # This is the metadata we want to store in our file
       metadata = {
         "type"     => "v2_box",
