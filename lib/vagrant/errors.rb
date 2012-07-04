@@ -333,6 +333,11 @@ module Vagrant
       error_key(:ssh_connection_timeout)
     end
 
+    class SSHDisconnected < VagrantError
+      status_code(83)
+      error_key(:ssh_disconnected)
+    end
+
     class SSHKeyBadPermissions < VagrantError
       status_code(12)
       error_key(:ssh_key_bad_permissions)

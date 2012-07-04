@@ -153,6 +153,12 @@ module Vagrant
           # This happens if authentication failed. We wrap the error in our
           # own exception.
           raise Errors::SSHAuthenticationFailed
+        rescue Net::SSH::Disconnect
+          # This happens if the remote server unexpectedly closes the
+          # connection. This is usually raised when SSH is running on the
+          # other side but can't properly setup a connection. This is
+          # usually a server-side issue.
+          raise Errors::SSHDisconnected
         rescue Errno::ECONNREFUSED
           # This is raised if we failed to connect the max amount of times
           raise Errors::SSHConnectionRefused
