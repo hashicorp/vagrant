@@ -28,6 +28,16 @@ describe Vagrant::BoxCollection do
       box.should_not be_nil
     end
 
+    it "should add a box without specifying a provider" do
+      box_path = environment.box2_file(:vmware)
+
+      # Add the box
+      box = instance.add(box_path, "foo")
+      box.should be_kind_of(box_class)
+      box.name.should == "foo"
+      box.provider.should == :vmware
+    end
+
     it "should raise an exception if the box already exists" do
       prev_box_name = "foo"
       prev_box_provider = :virtualbox
@@ -38,6 +48,19 @@ describe Vagrant::BoxCollection do
       # Attempt to add the box with the same name
       box_path = environment.box2_file(prev_box_provider)
       expect { instance.add(box_path, prev_box_name, prev_box_provider) }.
+        to raise_error(Vagrant::Errors::BoxAlreadyExists)
+    end
+
+    it "should raise an exception if the box already exists and no provider is given" do
+      # Create some box file
+      box_name = "foo"
+      box_path = environment.box2_file(:vmware)
+
+      # Add it once, successfully
+      expect { instance.add(box_path, box_name) }.to_not raise_error
+
+      # Add it again, and fail!
+      expect { instance.add(box_path, box_name) }.
         to raise_error(Vagrant::Errors::BoxAlreadyExists)
     end
 

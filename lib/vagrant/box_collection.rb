@@ -1,4 +1,5 @@
 require "digest/sha1"
+require "tmpdir"
 
 require "archive/tar/minitar"
 require "log4r"
@@ -39,48 +40,75 @@ module Vagrant
     # @param [String] name Logical name for the box.
     # @param [Symbol] provider The provider that the box should be for. This
     #   will be verified with the `metadata.json` file in the box and is
-    #   meant as a basic check.
-    def add(path, name, provider)
-      @logger.debug("Adding box: #{name} (#{provider}) from #{path}")
-      if find(name, provider)
-        @logger.error("Box already exists, can't add: #{name} #{provider}")
-        raise Errors::BoxAlreadyExists, :name => name, :provider => provider
-      end
-
-      box_dir = @directory.join(name, provider.to_s)
-      @logger.debug("New box directory: #{box_dir}")
-
-      # Create the directory that'll store our box
-      box_dir.mkpath
-
-      # Change directory to the box directory and unpackage the tar
-      Dir.chdir(box_dir) do
-        @logger.debug("Unpacking box file into box directory...")
-        begin
-          Archive::Tar::Minitar.unpack(path.to_s, box_dir.to_s)
-        rescue SystemCallError
-          raise Errors::BoxUnpackageFailure
+    #   meant as a basic check. If this isn't given, then whatever provider
+    #   the box represents will be added.
+    def add(path, name, provider=nil)
+      # A helper to check if a box exists. We store this in a variable
+      # since we call it multiple times.
+      check_box_exists = lambda do |box_provider|
+        if find(name, box_provider)
+          @logger.error("Box already exists, can't add: #{name} #{box_provider}")
+          raise Errors::BoxAlreadyExists, :name => name, :provider => box_provider
         end
       end
 
-      # Find the box we just added
-      box = find(name, provider)
+      log_provider = provider ? provider : "any provider"
+      @logger.debug("Adding box: #{name} (#{log_provider}) from #{path}")
 
-      # Verify that the provider matches. If not, then we need to rollback
-      box_provider = box.metadata["provider"]
-      if box_provider.to_sym != provider
-        @logger.error("Added box provider doesnt match expected: #{box_provider}")
+      # Verify the box doesn't exist early if we're given a provider. This
+      # can potentially speed things up considerably since we don't need
+      # to unpack any files.
+      check_box_exists.call(provider) if provider
 
-        # Delete the directory
-        @logger.debug("Deleting the added box directory...")
-        box_dir.rmtree
+      # Create a temporary directory since we're not sure at this point if
+      # the box we're unpackaging already exists (if no provider was given)
+      Dir.mktmpdir("vagrant-") do |temp_dir|
+        # Extract the box into a temporary directory.
+        @logger.debug("Unpacking box into temporary directory: #{temp_dir}")
 
-        # Raise an exception
-        raise Errors::BoxProviderDoesntMatch, :expected => provider, :actual => box_provider
+        begin
+          Archive::Tar::Minitar.unpack(path.to_s, temp_dir)
+        rescue SystemCallError
+          raise Errors::BoxUnpackageFailure
+        end
+
+        # Verify that the box we just added matches the provider
+        # we expected.
+        box = Box.new(name, provider, Pathname.new(temp_dir))
+
+        # Verify that the provider matches. If not, then we error and never
+        # move to the final location.
+        box_provider = box.metadata["provider"]
+        if provider
+          # Verify that the given provider matches what the box has.
+          if box_provider.to_sym != provider
+            @logger.error("Added box provider doesnt match expected: #{box_provider}")
+            raise Errors::BoxProviderDoesntMatch, :expected => provider, :actual => box_provider
+          end
+        else
+          # We weren't given a provider, so store this one.
+          provider = box_provider.to_sym
+
+          # Verify the box doesn't already exist
+          check_box_exists.call(provider)
+        end
+
+        # Create the directory that'll store our box
+        final_dir = @directory.join(name, provider.to_s)
+        @logger.debug("Final box directory: #{final_dir}")
+        final_dir.mkpath
+
+        # Move to the final destination
+        File.rename(temp_dir, final_dir.to_s)
+
+        # Recreate the directory. This avoids a bug in Ruby where `mktmpdir`
+        # cleanup doesn't check if the directory is already gone. Ruby bug
+        # #6715: http://bugs.ruby-lang.org/issues/6715
+        Dir.mkdir(temp_dir, 0700)
       end
 
       # Return the box
-      box
+      find(name, provider)
     end
 
     # This returns an array of all the boxes on the system, given by
