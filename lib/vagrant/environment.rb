@@ -121,7 +121,7 @@ module Vagrant
     #
     # @return [BoxCollection]
     def boxes
-      @_boxes ||= BoxCollection.new(boxes_path, action_runner)
+      @_boxes ||= BoxCollection.new(boxes_path)
     end
 
     # Returns the VMs associated with this environment.
@@ -425,7 +425,9 @@ module Vagrant
         config = inner_load[subvm]
 
         # Second pass, with the box
-        inner_load[subvm, boxes.find(config.vm.box)]
+        box = nil
+        box = boxes.find(config.vm.box, :virtualbox) if config.vm.box
+        inner_load[subvm, box]
       end
 
       # Finally, we have our configuration. Set it and forget it.

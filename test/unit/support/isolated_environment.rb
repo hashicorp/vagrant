@@ -60,7 +60,12 @@ module Unit
     # @param [String] name Name of the box
     # @param [Symbol] provider Provider the box was built for.
     # @return [Pathname] Path to the box directory.
-    def box2(name, provider)
+    def box2(name, provider, options=nil)
+      # Default options
+      options = {
+        :vagrantfile => ""
+      }.merge(options || {})
+
       # Make the box directory
       box_dir = boxes_dir.join(name, provider.to_s)
       box_dir.mkpath
@@ -69,6 +74,12 @@ module Unit
       box_metadata_file = box_dir.join("metadata.json")
       box_metadata_file.open("w") do |f|
         f.write("{}")
+      end
+
+      # Create a Vagrantfile
+      box_vagrantfile = box_dir.join("Vagrantfile")
+      box_vagrantfile.open("w") do |f|
+        f.write(options[:vagrantfile])
       end
 
       # Return the box directory

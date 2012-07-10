@@ -191,7 +191,7 @@ Vagrant::Config.run do |config|
 end
 VF
 
-        env.box("base", <<-VF)
+        env.box2("base", :virtualbox, :vagrantfile => <<-VF)
 Vagrant::Config.run do |config|
   config.ssh.port = 100
 end

@@ -19,7 +19,8 @@ module Vagrant
       @vm     = nil
       @env    = env
       @config = config
-      @box    = env.boxes.find(config.vm.box)
+      @box    = nil
+      @box    = env.boxes.find(config.vm.box, :virtualbox) if config.vm.box
 
       opts ||= {}
       if opts[:base]
