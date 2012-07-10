@@ -36,7 +36,7 @@ module Vagrant
 
             # Use the class if it matches the given URI or if this
             # is the last class...
-            if classes.length == (i + 1) || klass.match?(@env["box_url"])
+            if classes.length == (i + 1) || klass.match?(@env[:box_url])
               @env[:ui].info I18n.t("vagrant.actions.box.download.with", :class => klass.to_s)
               @downloader = klass.new(@env[:ui])
               break
@@ -47,14 +47,14 @@ module Vagrant
           # just in case for now.
           raise Errors::BoxDownloadUnknownType if !@downloader
 
-          @downloader.prepare(@env["box_url"])
+          @downloader.prepare(@env[:box_url])
           true
         end
 
         def download
           with_tempfile do |tempfile|
             download_to(tempfile)
-            @temp_path = @env["download.temp_path"] = tempfile.path
+            @temp_path = @env[:box_download_temp_path] = tempfile.path
           end
         end
 
@@ -76,7 +76,7 @@ module Vagrant
         end
 
         def download_to(f)
-          @downloader.download!(@env["box_url"], f)
+          @downloader.download!(@env[:box_url], f)
         end
       end
     end

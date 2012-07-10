@@ -147,7 +147,7 @@ module Vagrant
           Builder.new do
             use General::CheckVirtualbox
             use Box::Download
-            use Box::Unpackage
+            use Box::Add
             use Box::Verify
           end
         end

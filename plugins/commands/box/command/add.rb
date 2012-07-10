@@ -24,11 +24,16 @@ module VagrantPlugins
           # If we're force adding, then be sure to destroy any existing box if it
           # exists.
           if options[:force]
-            existing = @env.boxes.find(argv[0])
-            existing.destroy if existing
+            existing = @env.boxes.find(argv[0], :virtualbox)
+            existing.destroy! if existing
           end
 
-          @env.boxes.add(argv[0], argv[1])
+          # Invoke the "box_add" middleware sequence.
+          @env.action_runner.run(:box_add, {
+            :box_name     => argv[0],
+            :box_provider => :virtualbox,
+            :box_url      => argv[1]
+          })
 
           # Success, exit status 0
           0

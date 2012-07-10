@@ -8,10 +8,9 @@ module Vagrant
     autoload :Warden,      'vagrant/action/warden'
 
     module Box
-      autoload :Destroy,   'vagrant/action/box/destroy'
+      autoload :Add,       'vagrant/action/box/add'
       autoload :Download,  'vagrant/action/box/download'
       autoload :Package,   'vagrant/action/box/package'
-      autoload :Unpackage, 'vagrant/action/box/unpackage'
       autoload :Verify,    'vagrant/action/box/verify'
     end
 
