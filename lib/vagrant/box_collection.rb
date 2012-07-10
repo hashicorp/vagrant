@@ -63,18 +63,25 @@ module Vagrant
       # Create a temporary directory since we're not sure at this point if
       # the box we're unpackaging already exists (if no provider was given)
       Dir.mktmpdir("vagrant-") do |temp_dir|
+        temp_dir = Pathname.new(temp_dir)
+
         # Extract the box into a temporary directory.
         @logger.debug("Unpacking box into temporary directory: #{temp_dir}")
-
         begin
-          Archive::Tar::Minitar.unpack(path.to_s, temp_dir)
+          Archive::Tar::Minitar.unpack(path.to_s, temp_dir.to_s)
         rescue SystemCallError
           raise Errors::BoxUnpackageFailure
         end
 
+        # If we get a V1 box, we want to update it in place
+        if v1_box?(temp_dir)
+          @logger.debug("Added box is a V1 box. Upgrading in place.")
+          temp_dir = v1_upgrade(temp_dir)
+        end
+
         # Get an instance of the box we just added before it is finalized
         # in the system so we can inspect and use its metadata.
-        box = Box.new(name, provider, Pathname.new(temp_dir))
+        box = Box.new(name, provider, temp_dir)
 
         # Get the provider, since we'll need that to at the least add it
         # to the system or check that it matches what is given to us.
@@ -174,7 +181,7 @@ module Vagrant
       # To determine if it is a V1 box we just do a simple heuristic
       # based approach.
       @logger.info("Searching for V1 box: #{name}")
-      if v1_box?(name)
+      if v1_box?(@directory.join(name))
         @logger.warn("V1 box found: #{name}")
         raise Errors::BoxUpgradeRequired, :name => name
       end
@@ -197,36 +204,11 @@ module Vagrant
       # If the box doesn't exist at all, raise an exception
       raise Errors::BoxNotFound, :name => name if !box_dir.directory?
 
-      if v1_box?(name)
+      if v1_box?(box_dir)
         @logger.debug("V1 box #{name} found. Upgrading!")
 
-        # First, we create a temporary directory within the box to store
-        # the intermediary moved files. We randomize this in case there is
-        # already a directory named "virtualbox" in here for some reason.
-        temp_dir = box_dir.join("vagrant-#{Digest::SHA1.hexdigest(name)}")
-        @logger.debug("Temporary directory for upgrading: #{temp_dir}")
-
-        # Make the temporary directory
-        temp_dir.mkpath
-
-        # Move all the things into the temporary directory
-        box_dir.children(true).each do |child|
-          # Don't move the temp_dir
-          next if child == temp_dir
-
-          # Move every other directory into the temporary directory
-          @logger.debug("Copying to upgrade directory: #{child}")
-          FileUtils.mv(child, temp_dir.join(child.basename))
-        end
-
-        # If there is no metadata.json file, make one, since this is how
-        # we determine if the box is a V2 box.
-        metadata_file = temp_dir.join("metadata.json")
-        if !metadata_file.file?
-          metadata_file.open("w") do |f|
-            f.write(JSON.generate({}))
-          end
-        end
+        # First we actually perform the upgrade
+        temp_dir = v1_upgrade(box_dir)
 
         # Rename the temporary directory to the provider.
         temp_dir.rename(box_dir.join("virtualbox"))
@@ -239,13 +221,56 @@ module Vagrant
 
     protected
 
-    # This checks if the given name represents a V1 box on the system.
+    # This checks if the given directory represents a V1 box on the
+    # system.
     #
+    # @param [Pathname] dir Directory where the box is unpacked.
     # @return [Boolean]
-    def v1_box?(name)
+    def v1_box?(dir)
       # We detect a V1 box given by whether there is a "box.ovf" which
       # is a heuristic but is pretty accurate.
-      @directory.join(name, "box.ovf").file?
+      dir.join("box.ovf").file?
+    end
+
+    # This upgrades the V1 box contained unpacked in the given directory
+    # and returns the directory of the upgraded version. This is
+    # _destructive_ to the contents of the old directory. That is, the
+    # contents of the old V1 box will be destroyed or moved.
+    #
+    # Preconditions:
+    # * `dir` is a valid V1 box. Verify with {#v1_box?}
+    #
+    # @param [Pathname] dir Directory where the V1 box is unpacked.
+    # @return [Pathname] Path to the unpackaged V2 box.
+    def v1_upgrade(dir)
+      @logger.debug("Upgrading box in directory: #{dir}")
+
+      temp_dir = Pathname.new(Dir.mktmpdir("vagrant-"))
+      @logger.debug("Temporary directory for upgrading: #{temp_dir}")
+
+      # Move all the things into the temporary directory
+      dir.children(true).each do |child|
+        # Don't move the temp_dir
+        next if child == temp_dir
+
+        # Move every other directory into the temporary directory
+        @logger.debug("Copying to upgrade directory: #{child}")
+        FileUtils.mv(child, temp_dir.join(child.basename))
+      end
+
+      # If there is no metadata.json file, make one, since this is how
+      # we determine if the box is a V2 box.
+      metadata_file = temp_dir.join("metadata.json")
+      if !metadata_file.file?
+        metadata_file.open("w") do |f|
+          f.write(JSON.generate({
+            :provider => "virtualbox"
+          }))
+        end
+      end
+
+      # Return the temporary directory
+      temp_dir
     end
   end
 end

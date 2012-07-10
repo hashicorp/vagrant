@@ -38,6 +38,17 @@ describe Vagrant::BoxCollection do
       box.provider.should == :vmware
     end
 
+    it "should add a V1 box" do
+      # Create a V1 box.
+      box_path = environment.box1_file
+
+      # Add the box
+      box = instance.add(box_path, "foo")
+      box.should be_kind_of(box_class)
+      box.name.should == "foo"
+      box.provider.should == :virtualbox
+    end
+
     it "should raise an exception if the box already exists" do
       prev_box_name = "foo"
       prev_box_provider = :virtualbox

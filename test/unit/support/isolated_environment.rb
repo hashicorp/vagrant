@@ -86,6 +86,52 @@ module Unit
       box_dir
     end
 
+    # This creates a "box" file that is a valid V1 box.
+    #
+    # @return [Pathname] Path to the newly created box.
+    def box1_file
+      # Create a temporary directory to store our data we will tar up
+      td_source = Tempdir.new
+      td_dest   = Tempdir.new
+
+      # Store the temporary directory so it is not deleted until
+      # this instance is garbage collected.
+      @_box2_file_temp ||= []
+      @_box2_file_temp << td_dest
+
+      # The source as a Pathname, which is easier to work with
+      source = Pathname.new(td_source.path)
+
+      # The destination file
+      result = Pathname.new(td_dest.path).join("temporary.box")
+
+      File.open(result, Vagrant::Util::Platform.tar_file_options) do |tar|
+        Archive::Tar::Minitar::Output.open(tar) do |output|
+          begin
+            # Switch to the source directory so that Archive::Tar::Minitar
+            # can tar things up.
+            current_dir = FileUtils.pwd
+            FileUtils.cd(source)
+
+            # Put a "box.ovf" in there.
+            source.join("box.ovf").open("w") do |f|
+              f.write("FOO!")
+            end
+
+            # Add all the files
+            Dir.glob(File.join(".", "**", "*")).each do |entry|
+              Archive::Tar::Minitar.pack_file(entry, output)
+            end
+          ensure
+            FileUtils.cd(current_dir)
+          end
+        end
+      end
+
+      # Resulting box
+      result
+    end
+
     # This creates a "box" file with the given provider.
     #
     # @param [Symbol] provider Provider for the box.
