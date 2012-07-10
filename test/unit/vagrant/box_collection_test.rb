@@ -83,7 +83,7 @@ describe Vagrant::BoxCollection do
 
       # Attempt to add some V2 box with the same name
       box_path = environment.box2_file(:vmware)
-      expect { instance.add(box_path, prev_box_name, :vmware) }.
+      expect { instance.add(box_path, prev_box_name) }.
         to raise_error(Vagrant::Errors::BoxUpgradeRequired)
     end
 

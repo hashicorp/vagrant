@@ -60,6 +60,10 @@ module Vagrant
       # to unpack any files.
       check_box_exists.call(provider) if provider
 
+      # Verify that a V1 box doesn't exist. If it does, then we signal
+      # to the user that we need an upgrade.
+      raise Errors::BoxUpgradeRequired, :name => name if v1_box?(@directory.join(name))
+
       # Create a temporary directory since we're not sure at this point if
       # the box we're unpackaging already exists (if no provider was given)
       Dir.mktmpdir("vagrant-") do |temp_dir|
