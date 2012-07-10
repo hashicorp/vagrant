@@ -8,17 +8,17 @@ module VagrantPlugins
           options = {}
 
           opts = OptionParser.new do |opts|
-            opts.banner = "Usage: vagrant box remove <name>"
+            opts.banner = "Usage: vagrant box remove <name> <provider>"
           end
 
           # Parse the options
           argv = parse_options(opts)
           return if !argv
-          raise Vagrant::Errors::CLIInvalidUsage, :help => opts.help.chomp if argv.length < 1
+          raise Vagrant::Errors::CLIInvalidUsage, :help => opts.help.chomp if argv.length < 2
 
-          b = @env.boxes.find(argv[0])
+          b = @env.boxes.find(argv[0], argv[1].to_sym)
           raise Vagrant::Errors::BoxNotFound, :name => argv[0] if !b
-          b.destroy
+          b.destroy!
 
           # Success, exit status 0
           0
