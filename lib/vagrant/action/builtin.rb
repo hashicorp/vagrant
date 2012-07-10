@@ -152,13 +152,6 @@ module Vagrant
           end
         end
 
-        # box_remove - Removes/deletes a box.
-        register(:box_remove) do
-          Builder.new do
-            use Box::Destroy
-          end
-        end
-
         # box_repackage - Repackages a box.
         register(:box_repackage) do
           Builder.new do
