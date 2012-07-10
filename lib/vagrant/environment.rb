@@ -426,7 +426,16 @@ module Vagrant
 
         # Second pass, with the box
         box = nil
-        box = boxes.find(config.vm.box, :virtualbox) if config.vm.box
+
+        begin
+          box = boxes.find(config.vm.box, :virtualbox) if config.vm.box
+        rescue Errors::BoxUpgradeRequired
+          # Upgrade the box if we must.
+          @logger.info("Upgrading box during config load: #{config.vm.box}")
+          boxes.upgrade(config.vm.box)
+          retry
+        end
+
         inner_load[subvm, box]
       end
 

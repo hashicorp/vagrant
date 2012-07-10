@@ -72,13 +72,14 @@ module Vagrant
           raise Errors::BoxUnpackageFailure
         end
 
-        # Verify that the box we just added matches the provider
-        # we expected.
+        # Get an instance of the box we just added before it is finalized
+        # in the system so we can inspect and use its metadata.
         box = Box.new(name, provider, Pathname.new(temp_dir))
 
-        # Verify that the provider matches. If not, then we error and never
-        # move to the final location.
+        # Get the provider, since we'll need that to at the least add it
+        # to the system or check that it matches what is given to us.
         box_provider = box.metadata["provider"]
+
         if provider
           # Verify that the given provider matches what the box has.
           if box_provider.to_sym != provider
