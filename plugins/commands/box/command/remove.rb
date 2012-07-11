@@ -16,7 +16,14 @@ module VagrantPlugins
           return if !argv
           raise Vagrant::Errors::CLIInvalidUsage, :help => opts.help.chomp if argv.length < 2
 
-          b = @env.boxes.find(argv[0], argv[1].to_sym)
+          b = nil
+          begin
+            b = @env.boxes.find(argv[0], argv[1].to_sym)
+          rescue Vagrant::Errors::BoxUpgradeRequired
+            @env.boxes.upgrade(argv[0])
+            retry
+          end
+
           raise Vagrant::Errors::BoxNotFound, :name => argv[0] if !b
           b.destroy!
 

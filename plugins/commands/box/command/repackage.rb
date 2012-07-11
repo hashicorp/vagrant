@@ -21,8 +21,15 @@ module VagrantPlugins
           box_provider = argv[1].to_sym
 
           # Verify the box exists that we want to repackage
-          box = @env.boxes.find(box_name, box_provider)
-          raise Vagrant::Errors::BoxNotFound, :name => box_name if !b
+          box = nil
+          begin
+            box = @env.boxes.find(box_name, box_provider)
+          rescue Vagrant::Errors::BoxUpgradeRequired
+            @env.boxes.upgrade(box_name)
+            retry
+          end
+
+          raise Vagrant::Errors::BoxNotFound, :name => box_name if !box
 
           # Repackage the box
           output_path = File.expand_path(@env.config.global.package.name, FileUtils.pwd)

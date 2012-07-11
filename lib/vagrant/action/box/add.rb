@@ -12,7 +12,17 @@ module Vagrant
 
         def call(env)
           @env[:ui].info I18n.t("vagrant.actions.box.add.adding", :name => env[:box_name])
-          env[:box_collection].add(env[:box_download_temp_path], env[:box_name])
+
+          begin
+            env[:box_collection].add(env[:box_download_temp_path], env[:box_name])
+          rescue Vagrant::Errors::BoxUpgradeRequired
+            # Upgrade the box
+            env[:box_collection].upgrade(env[:box_name])
+
+            # Try adding it again
+            retry
+          end
+
           @app.call(env)
         end
       end
