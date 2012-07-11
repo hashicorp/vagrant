@@ -151,13 +151,6 @@ module Vagrant
             use Box::Verify
           end
         end
-
-        # box_repackage - Repackages a box.
-        register(:box_repackage) do
-          Builder.new do
-            use Box::Package
-          end
-        end
       end
     end
   end

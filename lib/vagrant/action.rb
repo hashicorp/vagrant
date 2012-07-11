@@ -10,7 +10,6 @@ module Vagrant
     module Box
       autoload :Add,       'vagrant/action/box/add'
       autoload :Download,  'vagrant/action/box/download'
-      autoload :Package,   'vagrant/action/box/package'
       autoload :Verify,    'vagrant/action/box/verify'
     end
 
