@@ -1,5 +1,6 @@
 {% include header.html %}
 
+<div class="Module homepage">
 	<div class="featured-module">
 		<div class="featured-text">
 			<h2 class="home title">Virtualized development made easy.</h2>
@@ -12,42 +13,39 @@
 		<div id="dirty-hippie"></div>
 	</div>
 
-	<div class="h-module">
-		<div class="text-module fleft">
-			<h2 class="home heading">Why Vagrant Changes Everything</h2>
-			<p class="home paragraph medium">Vagrant lowers development environment setup time, maximizes <a href="http://www.12factor.net/dev-prod-parity">dev/prod parity</a>, and makes the "works on my machine" excuse a relic of the past.</p>
+	<div class="content row">
+		<div class="left-bar span7">
+			<div class="content-block">
+				<h2>Why Vagrant Changes Everything</h2>
+				<p><strong>Vagrant lowers development environment setup time, maximizes <a href="http://www.12factor.net/dev-prod-parity">dev/prod parity</a>, and makes the "works on my machine" excuse a relic of the past.</strong></p>
 
-			<p class="home paragraph">Developers no longer need to worry about setting up complicated infrastructure components. Projects with conflicting dependencies can each get their own sandbox -- keeping a developer's workstation free of the hacks needed for multiple versions of software to coexist.</p>
+				<p>Developers no longer need to worry about setting up complicated infrastructure components. Projects with conflicting dependencies can each get their own sandbox -- keeping a developer's workstation free of the hacks needed for multiple versions of software to coexist.</p>
 
-			<p class="home paragraph">Operations engineers can no longer need to worry about developers having a different local setup from production.  They can experiment and test their configuration management changes before going live.</p>
+				<p>Operations engineers can no longer need to worry about developers having a different local setup from production.  They can experiment and test their configuration management changes before going live.</p>
 
-			<p class="home paragraph">Not convinced? Read more about <a href="/v1/docs/getting-started/why.html">why Vagrant is right for you</a>.</p>
-		</div>
+				<p>Not convinced? Read more about <a href="/v1/docs/getting-started/why.html">why Vagrant is right for you</a>.</p>
+			</div>
 
-		<div class="company-logos"></div>
-	</div>
+			<div class="content-block">
+				<h2>Setup Your First Instance</h2>
+				<p>Vagrant is so easy to use that you can get your first virtual machine up and running in just 3 easy steps:</p>
 
-	<div class="h-module h-last">
-		<div class="text-module fleft">
-			<h2 class="home heading">Setup Your First Instance</h2>
-			<p class="home paragraph medium">Vagrant is so easy to use that you can get your first virtual machine up and running in just 3 easy steps:</p>
+				<div class="term">
+					<ul>
+						<li><span class="deep-blue">$</span> vagrant box add base http://files.vagrantup.com/lucid32.box</li>
+						<li><span class="deep-blue">$</span> vagrant init</li>
+						<li><span class="deep-blue">$</span> vagrant up</li>
+					</ul>
+				</div>
 
-			<div class="term">
-				<ul>
-					<li><span class="deep-blue">$</span> vagrant box add base http://files.vagrantup.com/lucid32.box</li>
-					<li><span class="deep-blue">$</span> vagrant init</li>
-					<li><span class="deep-blue">$</span> vagrant up</li>
-				</ul>
+				<p>Ready to move on? Continue to the <a href="/v1/docs/getting-started/index.html">getting started guide</a>.</p>
 			</div>
 		</div>
 
-		<div class="moveon">
-			<span>Ready to move on?</span>
-			<ul>
-				<a class="no-underline" href="/v1/docs/getting-started/index.html"><li class="list-button">Get Started  <span class="arrow">&rarr;</span></li></a>
-				<a class="no-underline" href="/support.html"><li class="list-button">Support  <span class="arrow">&rarr;</span></li></a>
-			</ul>
+		<div class="right-bar span4">
+			<img src="/static/images/comp.png" alt="Companies Using Vagrant" />
 		</div>
 	</div>
+</div>
 
 {% include footer.html %}

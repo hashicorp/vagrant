@@ -187,13 +187,6 @@ ul.nav.list > li {
   width: 540px;
 }
 
-.home {
-  letter-spacing: 0;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-}
-
 .home.title {
   color: #fff;
   line-height: 1.5;
@@ -290,40 +283,9 @@ ul.nav.list > li {
   width: 330px;
 }
 
-.text-module {
-  width: 580px;
-}
-
-.h-module {
-  padding-left: 40px;
-  padding-top: 40px;
-  clear: both;
-}
-
-.h-last {
-  clear: both;
-  margin-bottom: 270px;
-}
-
-
-.text-module.fleft {
-  float: left;
-  position: relative;
-}
-
 .home.heading {
   font-size: 34px;
   font-weight: 600;
-}
-
-.home.paragraph {
-  width: 580px;
-  overflow: hidden;
-  margin-top: 20px;
-}
-
-.home.paragraph.medium {
-  font-weight: 500;
 }
 
 .company-logos {
@@ -337,8 +299,9 @@ ul.nav.list > li {
 
 .term {
   background-color: black;
-  margin-top: 27px;
-  width: 580px;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  width: 540px;
 
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
@@ -363,32 +326,6 @@ ul.nav.list > li {
 
 .deep-blue {
   color: #73c5dd;
-}
-
-.moveon {
-  height: 102px;
-  width:300px;
-  position: relative;
-  float: right;
-
-  text-align: center;
-
-  margin-top: 132px;
-}
-
-.moveon ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.moveon li {
-  position: relative;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 5px;
-  padding-top: 3px;
-  padding-bottom: 3px;
 }
 
 .list-button {
@@ -426,4 +363,34 @@ ul.nav.list > li {
 
 .no-underline:hover {
   text-decoration: none;
+}
+
+/*
+ * Modules
+ * */
+.Module.homepage,
+.Module.homepage h1,
+.Module.homepage h2,
+.Module.homepage h3,
+.Module.homepage h4 {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    letter-spacing: 0;
+}
+
+.Module.homepage .content-block {
+    margin-bottom: 40px;
+}
+
+.Module.homepage .content h2 {
+    font-size: 34px;
+    font-weight: 600;
+}
+
+.Module.homepage .content .left-bar {
+    margin-left: 60px;
+    margin-right: 40px;
+}
+
+.Module.homepage .content > * {
+    margin-top: 35px;
 }
