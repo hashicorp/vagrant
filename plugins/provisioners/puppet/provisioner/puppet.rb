@@ -100,7 +100,7 @@ module VagrantPlugins
 
           # Verify Puppet is installed and run it
           verify_binary("puppet")
-          run_puppet_client
+          run_puppet_apply
         end
 
         def share_manifests
@@ -135,7 +135,7 @@ module VagrantPlugins
                                 :binary => binary)
         end
 
-        def run_puppet_client
+        def run_puppet_apply
           options = [config.options].flatten
           module_paths = @module_paths.map { |_, to| to }
           options << "--modulepath '#{module_paths.join(':')}'" if !@module_paths.empty?
