@@ -3,6 +3,7 @@ require "pathname"
 require "tempfile"
 
 require "archive/tar/minitar"
+require "json"
 require "log4r"
 
 require "vagrant/util/platform"
@@ -73,7 +74,9 @@ module Unit
       # Create a metadata.json file
       box_metadata_file = box_dir.join("metadata.json")
       box_metadata_file.open("w") do |f|
-        f.write("{}")
+        f.write(JSON.generate({
+          :provider => provider.to_s
+        }))
       end
 
       # Create a Vagrantfile

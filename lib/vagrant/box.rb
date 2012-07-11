@@ -1,4 +1,10 @@
+require 'fileutils'
+
+require 'archive/tar/minitar'
 require "json"
+require "log4r"
+
+require "vagrant/util/platform"
 
 module Vagrant
   # Represents a "box," which is a package Vagrant environment that is used
@@ -38,6 +44,8 @@ module Vagrant
       @provider  = provider
       @directory = directory
       @metadata  = JSON.parse(directory.join("metadata.json").read)
+
+      @logger = Log4r::Logger.new("vagrant::box")
     end
 
     # This deletes the box. This is NOT undoable.
@@ -50,6 +58,41 @@ module Vagrant
     rescue Errno::ENOENT
       # This means the directory didn't exist. Not a problem.
       return true
+    end
+
+    # This repackages this box and outputs it to the given path.
+    #
+    # @param [Pathname] path The full path (filename included) of where
+    #   to output this box.
+    # @return [Boolean] true if this succeeds.
+    def repackage(path)
+      @logger.debug("Repackaging box '#{@name}' to: #{path}")
+
+      path.open(Util::Platform.tar_file_options) do |f|
+        Archive::Tar::Minitar::Output.open(f) do |output|
+          # Store the current working directory since we need to change
+          # for the tar library.
+          current_dir = FileUtils.pwd
+
+          begin
+            FileUtils.cd(@directory)
+
+            # Find all the files in our current directory and tar it up!
+            Dir.glob(File.join(".", "**", "*")).each do |entry|
+              @logger.debug("Packing file: #{entry}")
+              Archive::Tar::Minitar.pack_file(entry, output)
+            end
+          ensure
+            # Make sure we always cd back into our previous working
+            # directory.
+            FileUtils.cd(current_dir)
+          end
+        end
+      end
+
+      @logger.info("Repackaged box '#{@name}' successfully: #{path}")
+
+      true
     end
 
     # Implemented for comparison with other boxes. Comparison is

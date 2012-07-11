@@ -7,6 +7,8 @@ describe Vagrant::Box do
 
   let(:environment)   { isolated_environment }
 
+  let(:box_collection) { Vagrant::BoxCollection.new(environment.boxes_dir) }
+
   let(:name)          { "foo" }
   let(:provider)      { :virtualbox }
   let(:directory)     { environment.box2("foo", :virtualbox) }
@@ -57,6 +59,27 @@ describe Vagrant::Box do
 
       # Destroy it
       box.destroy!.should be
+    end
+  end
+
+  describe "repackaging" do
+    it "should repackage the box" do
+      test_file_contents = "hello, world!"
+
+      # Put a file in the box directory to verify it is packaged properly
+      # later.
+      directory.join("test_file").open("w") do |f|
+        f.write(test_file_contents)
+      end
+
+      # Repackage our box to some temporary directory
+      box_output_path = temporary_dir.join("package.box")
+      instance.repackage(box_output_path).should be
+
+      # Let's now add this box again under a different name, and then
+      # verify that we get the proper result back.
+      new_box = box_collection.add(box_output_path, "foo2")
+      new_box.directory.join("test_file").read.should == test_file_contents
     end
   end
 
