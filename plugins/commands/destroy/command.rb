@@ -32,6 +32,10 @@ module VagrantPlugins
               begin
                 choice = @env.ui.ask(I18n.t("vagrant.commands.destroy.confirmation",
                                             :name => vm.name))
+              rescue Interrupt
+                # Ctrl-C was pressed (or SIGINT). We just exit immediately
+                # with a non-zero exit status.
+                return 1
               rescue Vagrant::Errors::UIExpectsTTY
                 # We raise a more specific error but one which basically
                 # means the same thing.

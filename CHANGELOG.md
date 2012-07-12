@@ -36,6 +36,8 @@
   - FIx issue where puppet would reorder module paths. [GH-964]
   - Human-friendly error is raised if there are permission issues when
     using SCP to upload files. [GH-924]
+  - When console input is asked for (destroying a VM, bridged interfaces, etc.),
+    keystrokes such as ctrl-D and ctrl-C are more gracefully handled. [GH-1017]
 
 ## 1.0.3 (May 1, 2012)
 
