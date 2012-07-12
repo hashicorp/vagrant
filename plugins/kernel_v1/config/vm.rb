@@ -122,9 +122,9 @@ module VagrantPlugins
 
       def validate(env, errors)
         errors.add(I18n.t("vagrant.config.vm.box_missing")) if !box
-        errors.add(I18n.t("vagrant.config.vm.box_not_found", :name => box)) if box && !box_url && !env.boxes.find(box)
+        errors.add(I18n.t("vagrant.config.vm.box_not_found", :name => box)) if box && !box_url && !env.boxes.find(box, :virtualbox)
         errors.add(I18n.t("vagrant.config.vm.boot_mode_invalid")) if ![:headless, :gui].include?(boot_mode.to_sym)
-        errors.add(I18n.t("vagrant.config.vm.base_mac_invalid")) if env.boxes.find(box) && !base_mac
+        errors.add(I18n.t("vagrant.config.vm.base_mac_invalid")) if env.boxes.find(box, :virtualbox) && !base_mac
 
         shared_folders.each do |name, options|
           hostpath = Pathname.new(options[:hostpath]).expand_path(env.root_path)

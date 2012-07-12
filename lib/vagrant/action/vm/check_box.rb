@@ -10,7 +10,7 @@ module Vagrant
           box_name = env[:vm].config.vm.box
           raise Errors::BoxNotSpecified if !box_name
 
-          if !env[:box_collection].find(box_name)
+          if !env[:box_collection].find(box_name, :virtualbox)
             box_url = env[:vm].config.vm.box_url
             raise Errors::BoxSpecifiedDoesntExist, :name => box_name if !box_url
 
