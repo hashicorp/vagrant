@@ -507,7 +507,7 @@ module Vagrant
     def load_plugins
       # Add our private gem path to the gem path and reset the paths
       # that Rubygems knows about.
-      ENV["GEM_PATH"] = "#{@gems_path}:#{ENV["GEM_PATH"]}"
+      ENV["GEM_PATH"] = "#{@gems_path}#{::File::PATH_SEPARATOR}#{ENV["GEM_PATH"]}"
       ::Gem.clear_paths
 
       # Load the plugins
