@@ -43,8 +43,16 @@ begin
                "\n" +
                "This message will be removed when this version is officially released.",
                :prefix => false)
-  result = env.ui.ask("If you're sure you'd like to continue, type 'Y' and then enter: ")
-  exit 0 if result && result.upcase != "Y"
+  result = nil
+  begin
+    result = env.ui.ask("If you're sure you'd like to continue, type 'Y' and then enter: ")
+  rescue Interrupt
+    result = nil
+  rescue Vagrant::Errors::UIExpectsTTY
+    result = nil
+  end
+
+  exit 0 if !result || result.upcase != "Y"
 
   # Load the environment
   logger.debug("Loading environment")

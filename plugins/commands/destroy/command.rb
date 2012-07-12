@@ -29,6 +29,7 @@ module VagrantPlugins
               do_destroy = true
             else
               choice = nil
+
               begin
                 choice = @env.ui.ask(I18n.t("vagrant.commands.destroy.confirmation",
                                             :name => vm.name))
@@ -41,6 +42,7 @@ module VagrantPlugins
                 # means the same thing.
                 raise Vagrant::Errors::DestroyRequiresForce
               end
+
               do_destroy = choice.upcase == "Y"
             end
 
