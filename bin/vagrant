@@ -35,6 +35,15 @@ begin
   logger.debug("Creating Vagrant environment")
   env = Vagrant::Environment.new(opts)
 
+  # XXX: This is temporary and should be removed prior to release.
+  env.ui.warn("You're using a development version of Vagrant. Once you begin\n" +
+               "using this release, you will _not_ be able to downgrade back\n" +
+               "to 1.0.x. Note that this only affects your computer. Other users\n" +
+               "of Vagrantfiles you create can continue to use 1.0.x without issue.",
+               :prefix => false)
+  result = env.ui.ask("If you're sure you'd like to continue, type 'Y' and then enter: ")
+  exit 0 if result && result.upcase != "Y"
+
   # Load the environment
   logger.debug("Loading environment")
   env.load!
