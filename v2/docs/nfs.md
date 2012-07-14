@@ -51,8 +51,10 @@ native VM file system performance throughout the day.
 
 ## Prerequisites
 
-Before enabling NFS shared folders, there are two main requirements:
+Before enabling NFS shared folders, these prerequisites need met:
 
+* The Vagrantfile must be configured to use
+  [host-only networking](host_only_networking.html) with a static IP.
 * The host machine must have `nfsd` installed, the NFS server
   daemon. This comes pre-installed on Mac OS X 10.5+ (Leopard and higher),
   and is typically a simple package install away on Linux systems.
