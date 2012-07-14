@@ -12,8 +12,8 @@ the host machine. The network created by host-only networking is private
 to the VMs involved and the host machine. The outside world cannot
 join this network.
 
-Vagrant allows users to assign a static IP to a VM, which is then
-setup using host-only networking.
+Vagrant allows users to assign a static IP or a dynamic IP via DHCP to a VM,
+which is then setup using host-only networking.
 
 <div class="alert alert-block alert-notice">
   <h3>Supported Operating Systems</h3>
@@ -30,7 +30,7 @@ setup using host-only networking.
   </p>
 </div>
 
-## Assigning an IP
+## Assigning a Static IP
 
 Assigning an IP to a virtual machine using Vagrant is simple enough,
 using a single configuration directive within the Vagrantfile:
@@ -54,6 +54,26 @@ to make sure that no static IPs will collide with other virtual machines.
     avoided.
   </p>
 </div>
+
+## Assigning a Dynamic IP via DHCP
+
+Assigning an IP to your VM using DHCP is done with the `:dhcp` flag:
+
+{% highlight ruby %}
+Vagrant::Config.run do |config|
+  config.vm.network :hostonly, :dhcp
+end
+{% endhighlight %}
+
+You can also specify the range of IPs from which the dynamic IP is chosen:
+
+{% highlight ruby %}
+Vagrant::Config.run do |config|
+  config.vm.network :hostonly, :dhcp, :ip => "33.33.33.1"
+end
+{% endhighlight %}
+
+The above will setup the DHCP server so that the IPs are served on "33.33.33.0/24"
 
 ## Multiple Networks
 
