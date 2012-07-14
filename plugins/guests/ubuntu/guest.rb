@@ -18,6 +18,7 @@ module VagrantPlugins
           vm.channel.sudo("sed -i 's/.*$/#{name}/' /etc/hostname")
           vm.channel.sudo("sed -i 's@^\\(127[.]0[.]1[.]1[[:space:]]\\+\\)@\\1#{name} #{name.split('.')[0]} @' /etc/hosts")
           vm.channel.sudo("service hostname start")
+          vm.channel.sudo("hostname --fqdn > /etc/mailname")
         end
       end
     end
