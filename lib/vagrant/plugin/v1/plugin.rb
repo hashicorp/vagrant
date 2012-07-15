@@ -181,6 +181,19 @@ module Vagrant
           data[:hosts]
         end
 
+        # Registers additional providers to be available.
+        #
+        # @param [Symbol] name Name of the provider.
+        def self.provider(name=UNSET_VALUE, &block)
+          data[:providers] ||= Registry.new
+
+          # Register a new provider class only if a name was given
+          data[:providers].register(name.to_sym, &block) if name != UNSET_VALUE
+
+          # Return the registry
+          data[:providers]
+        end
+
         # Registers additional provisioners to be available.
         #
         # @param [String] name Name of the provisioner.
