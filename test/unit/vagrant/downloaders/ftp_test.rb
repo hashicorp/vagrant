@@ -1,0 +1,22 @@
+require File.expand_path("../../../base", __FILE__)
+
+describe Vagrant::Downloaders::FTP do
+  let(:ui) { double("ui") }
+  let(:instance) { described_class.new(ui) }
+
+  describe "matching" do
+    it "should match FTP URLs" do
+      described_class.match?("ftp://google.com/foo.box").should be
+      described_class.match?("ftp://foo:bar@google.com/foo.box").should be
+      described_class.match?("FTP://google.com:8500/foo.box").should be
+    end
+
+    it "should not match non-FTP URLs" do
+      described_class.match?("http://google.com/foo.box").should_not be
+    end
+  end
+
+  describe "downloading" do
+    # Integration tests only.
+  end
+end

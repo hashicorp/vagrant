@@ -186,6 +186,31 @@ module Vagrant
       error_key(:status_error, "vagrant.downloaders.http")
     end
 
+    class DownloaderFTPError < VagrantError
+      # TODO: status_code
+      error_key(:unknown_error, "vagrant.downloaders.ftp")
+    end
+
+    class DownloaderFTPConnError < VagrantError
+      # TODO: status_code
+      error_key(:conn_error, "vagrant.downloaders.ftp")
+    end
+
+    class DownloaderFTPBadPathError < VagrantError
+      # TODO: status_code
+      error_key(:bad_path, "vagrant.downloaders.ftp")
+    end
+
+    class DownloaderFTPAuthError < VagrantError
+      # TODO: status_code
+      error_key(:auth_error, "vagrant.downloaders.ftp")
+    end
+
+    class DownloaderFTPServerFault < VagrantError
+      # TODO: status_code
+      error_key(:server_fault, "vagrant.downloaders.ftp")
+    end
+
     class EnvironmentNonExistentCWD < VagrantError
       status_code(75)
       error_key(:environment_non_existent_cwd)

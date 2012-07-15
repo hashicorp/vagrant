@@ -5,11 +5,15 @@ describe Vagrant::Downloaders::HTTP do
   let(:instance) { described_class.new(ui) }
 
   describe "matching" do
-    it "should match URLs" do
+    it "should match HTTP URLs" do
       described_class.match?("http://google.com/foo.box").should be
       described_class.match?("https://google.com/foo.box").should be
       described_class.match?("http://foo:bar@google.com/foo.box").should be
       described_class.match?("http://google.com:8500/foo.box").should be
+    end
+
+    it "should not match FTP URLs" do
+      described_class.match?("ftp://google.com/foo.box").should_not be
     end
   end
 

@@ -11,7 +11,8 @@ module Vagrant
       def self.match?(uri)
         # URI.parse barfs on '<drive letter>:\\files \on\ windows'
         extracted = URI.extract(uri).first
-        extracted && extracted.include?(uri)
+        extracted && extracted.include?(uri) &&
+          URI.parse(extracted).scheme.downcase =~ /^https?$/
       end
 
       def download!(source_url, destination_file)

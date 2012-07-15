@@ -622,6 +622,27 @@ en:
 
           Please verify that the box exists and is accessible. Also verify that
           this computer is properly connected to the internet.
+      ftp:
+        download: "Downloading box: %{url}"
+        conn_error: |-
+          Vagrant failed to connect to the FTP host.
+          Please check your internet settings and ensure the FTP server is accessible.
+          Note that Vagrant currently cannot utilize FTP proxy.
+        auth_error: |-
+          FTP Authentication failed.
+          Please check your FTP username and password in the box URL and try again.
+        bad_path: |-
+          Unable to find box file on the FTP server.
+          Please check your box url which might contains typo.
+        server_fault: |-
+          There's something wrong with the FTP server: %{message}
+          You might want to contact the administrator of the FTP server for help.
+        unknown_error: |-
+          Bad FTP response: %{message}
+
+          Please verify that the box exists and is accessible. Also verify that
+          this computer is properly connected to the internet.
+
 
     hosts:
       bsd:
