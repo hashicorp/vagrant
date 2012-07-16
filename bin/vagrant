@@ -36,13 +36,16 @@ begin
   env = Vagrant::Environment.new(opts)
 
   # XXX: This is temporary and should be removed prior to release.
-  env.ui.warn("You're using a development version of Vagrant. Once you begin\n" +
-               "using this release, you will _not_ be able to downgrade back\n" +
-               "to 1.0.x. Note that this only affects your computer. Other users\n" +
-               "of Vagrantfiles you create can continue to use 1.0.x without issue.\n" +
-               "\n" +
-               "This message will be removed when this version is officially released.",
-               :prefix => false)
+  env.ui.warn("You're using a development version of Vagrant. This version\n" +
+              "makes structural changes to the `~/vagrant.d` folder such that\n" +
+              "you will be _unable_ to downgrade back to a 1.0.x release. This\n" +
+              "affects all Vagrant environments on your computer. Other users\n" +
+              "of Vagrantfiles you create and use can continue to use 1.0.x without\n" +
+              "issue so long as it is on a computer that has never run this\n" +
+              "development version.\n" +
+              "\n" +
+              "This message will be removed when this version is officially released.",
+              :prefix => false)
   result = nil
   begin
     result = env.ui.ask("If you're sure you'd like to continue, type 'Y' and then enter: ")
