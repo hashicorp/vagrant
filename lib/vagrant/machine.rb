@@ -35,6 +35,11 @@ module Vagrant
     # @param [Environment] env The environment that this machine is a
     #   part of.
     def initialize(name, provider_cls, config, box, env)
+      @logger   = Log4r::Logger.new("vagrant::machine")
+      @logger.debug("Initializing machine: #{name}")
+      @logger.debug("  - Provider: #{provider_cls}")
+      @logger.debug("  - Box: #{box}")
+
       @name     = name
       @box      = box
       @config   = config
@@ -47,6 +52,8 @@ module Vagrant
     #
     # @param [Symbol] name Name of the action to run.
     def action(name)
+      @logger.debug("Calling action: #{name} on provider #{@provider}")
+
       # Get the callable from the provider.
       callable = @provider.action(name)
 
