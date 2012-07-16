@@ -376,6 +376,10 @@ module Vagrant
       error_key(:ui_expects_tty)
     end
 
+    class UnimplementedProviderAction < VagrantError
+      error_key(:unimplemented_provider_action)
+    end
+
     class VagrantInterrupt < VagrantError
       status_code(40)
       error_key(:interrupted)

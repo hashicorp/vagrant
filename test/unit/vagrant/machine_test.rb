@@ -12,9 +12,10 @@ describe Vagrant::Machine do
   end
   let(:box)      { Object.new }
   let(:config)   { Object.new }
-  let(:environment) { isolated_environment }
+  let(:env)      { test_env.create_vagrant_env }
+  let(:test_env) { isolated_environment }
 
-  let(:instance) { described_class.new(name, provider_cls, config, box, environment) }
+  let(:instance) { described_class.new(name, provider_cls, config, box, env) }
 
   describe "initialization" do
     it "should initialize the provider with the machine object" do
@@ -30,10 +31,10 @@ describe Vagrant::Machine do
         machine.name.should == name
         machine.config.should eql(config)
         machine.box.should eql(box)
-        machine.env.should eql(environment)
+        machine.env.should eql(env)
       end
 
-      instance = described_class.new(name, provider_cls, config, box, environment)
+      instance = described_class.new(name, provider_cls, config, box, env)
       received_machine.should eql(instance)
     end
   end
@@ -52,7 +53,39 @@ describe Vagrant::Machine do
     end
 
     it "should provide access to the environment" do
-      instance.env.should eql(environment)
+      instance.env.should eql(env)
+    end
+  end
+
+  describe "actions" do
+    it "should be able to run an action that exists" do
+      action_name = :up
+      called      = false
+      callable    = lambda { |_env| called = true }
+
+      provider.should_receive(:action).with(action_name).and_return(callable)
+      instance.action(:up)
+      called.should be
+    end
+
+    it "should provide the machine in the environment" do
+      action_name = :up
+      machine     = nil
+      callable    = lambda { |env| machine = env[:machine] }
+
+      provider.stub(:action).with(action_name).and_return(callable)
+      instance.action(:up)
+
+      machine.should eql(instance)
+    end
+
+    it "should raise an exception if the action is not implemented" do
+      action_name = :up
+
+      provider.stub(:action).with(action_name).and_return(nil)
+
+      expect { instance.action(action_name) }.
+        to raise_error(Vagrant::Errors::UnimplementedProviderAction)
     end
   end
 

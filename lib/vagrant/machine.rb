@@ -42,6 +42,26 @@ module Vagrant
       @provider = provider_cls.new(self)
     end
 
+    # This calls an action on the provider. The provider may or may not
+    # actually implement the action.
+    #
+    # @param [Symbol] name Name of the action to run.
+    def action(name)
+      # Get the callable from the provider.
+      callable = @provider.action(name)
+
+      # If this action doesn't exist on the provider, then an exception
+      # must be raised.
+      if callable.nil?
+        raise Errors::UnimplementedProviderAction,
+          :action => name,
+          :provider => @provider.to_s
+      end
+
+      # Run the action with the action runner on the environment
+      @env.action_runner.run(callable, :machine => self)
+    end
+
     # Returns the state of this machine. The state is queried from the
     # backing provider, so it can be any arbitrary symbol.
     #

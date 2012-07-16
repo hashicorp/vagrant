@@ -182,6 +182,11 @@ en:
         a TTY. Most actions in Vagrant that require a TTY have configuration
         switches to disable this requirement. Please do that or run Vagrant
         with TTY.
+      unimplemented_provider_action: |-
+        Vagrant attempted to call the action '%{action}' on the provider
+        '%{provider}', but this provider doesn't support this action. This
+        is probably a bug in either the provider or the plugin calling this
+        action, and should be reported.
       vagrantfile_exists: |-
         `Vagrantfile` already exists in this directory. Remove it before
         running `vagrant init`.
