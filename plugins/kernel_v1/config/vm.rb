@@ -62,6 +62,7 @@ module VagrantPlugins
           :owner => nil,
           :group => nil,
           :nfs   => false,
+          :nfs_mount_options => [],
           :transient => false,
           :extra => nil
         }.merge(opts || {})
