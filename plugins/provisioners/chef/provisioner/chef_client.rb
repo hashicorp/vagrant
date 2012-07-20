@@ -27,7 +27,7 @@ module VagrantPlugins
           def file_cache_path; @file_cache_path || "/srv/chef/file_store"; end
           def file_backup_path; @file_backup_path || "/srv/chef/cache"; end
           def encrypted_data_bag_secret; @encrypted_data_bag_secret || "/tmp/encrypted_data_bag_secret"; end
-          def log_location; @log_location || STDOUT; end
+          def log_location; @log_location || 'STDOUT'; end
 
           def validate(env, errors)
             super
