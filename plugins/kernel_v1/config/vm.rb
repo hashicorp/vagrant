@@ -72,7 +72,7 @@ module VagrantPlugins
       end
 
       def provision(name, options=nil, &block)
-        @provisioners << VagrantConfigProvisioner.new(name, options, &block)
+       @provisioners << VagrantConfigProvisioner.new(name, options, &block)
       end
 
       # TODO: This argument should not be `nil` in the future.

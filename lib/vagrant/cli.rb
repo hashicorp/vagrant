@@ -71,7 +71,7 @@ module Vagrant
         keys = []
         Vagrant.plugin("1").registered.each do |plugin|
           plugin.command.each do |key, _|
-            keys << key
+            keys << key.to_s
           end
         end
 

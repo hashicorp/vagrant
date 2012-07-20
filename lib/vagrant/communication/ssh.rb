@@ -83,7 +83,7 @@ module Vagrant
         @logger.debug("Uploading: #{from} to #{to}")
 
         scp_connect do |scp|
-          scp.upload!(from, to)
+          scp.upload!(from, to, :recursive => true)
         end
       rescue RuntimeError => e
         # Net::SCP raises a runtime error for this so the only way we have
