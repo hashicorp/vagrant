@@ -183,6 +183,7 @@ Vagrant.guests.register(:redhat)  { Vagrant::Guest::Redhat }
 Vagrant.guests.register(:solaris) { Vagrant::Guest::Solaris }
 Vagrant.guests.register(:suse)    { Vagrant::Guest::Suse }
 Vagrant.guests.register(:ubuntu)  { Vagrant::Guest::Ubuntu }
+Vagrant.guests.register(:windows)  { Vagrant::Guest::Windows }
 
 # Register the built-in provisioners
 Vagrant.provisioners.register(:chef_solo)     { Vagrant::Provisioners::ChefSolo }
@@ -195,3 +196,4 @@ Vagrant.provisioners.register(:shell)         { Vagrant::Provisioners::Shell }
 Vagrant.config_keys.register(:freebsd) { Vagrant::Guest::FreeBSD::FreeBSDConfig }
 Vagrant.config_keys.register(:linux)   { Vagrant::Guest::Linux::LinuxConfig }
 Vagrant.config_keys.register(:solaris) { Vagrant::Guest::Solaris::SolarisConfig }
+Vagrant.config_keys.register(:windows) { Vagrant::Guest::Windows::WindowsConfig }

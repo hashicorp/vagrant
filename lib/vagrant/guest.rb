@@ -14,5 +14,6 @@ module Vagrant
     autoload :Solaris, 'vagrant/guest/solaris'
     autoload :Suse,    'vagrant/guest/suse'
     autoload :Ubuntu,  'vagrant/guest/ubuntu'
+    autoload :Windows, 'vagrant/guest/windows'
   end
 end
