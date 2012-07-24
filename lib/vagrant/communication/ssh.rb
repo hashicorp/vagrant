@@ -72,14 +72,14 @@ module Vagrant
         execute(command, opts, &block)
       end
 
-      def upload(from, to)
+      def upload(from, to, options={}, &block)
         @logger.debug("Uploading: #{from} to #{to}")
 
         # Do an SCP-based upload...
         connect do |connection|
           # Open file read only to fix issue #1036
           scp = Net::SCP.new(connection)
-          scp.upload!(File.open(from, "r"), to)
+          scp.upload!(File.open(from, "r"), to, options, &block)
         end
       rescue Net::SCP::Error => e
         # If we get the exit code of 127, then this means SCP is unavailable.
