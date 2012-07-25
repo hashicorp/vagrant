@@ -12,10 +12,23 @@ describe Vagrant::Machine do
   end
   let(:box)      { Object.new }
   let(:config)   { Object.new }
-  let(:env)      { test_env.create_vagrant_env }
+  let(:env)      do
+    # We need to create a Vagrantfile so that this test environment
+    # has a proper root path
+    test_env.vagrantfile("")
+
+    # Create the Vagrant::Environment instance
+    test_env.create_vagrant_env
+  end
+
   let(:test_env) { isolated_environment }
 
-  let(:instance) { described_class.new(name, provider_cls, config, box, env) }
+  let(:instance) { new_instance }
+
+  # Returns a new instance with the test data
+  def new_instance
+    described_class.new(name, provider_cls, config, box, env)
+  end
 
   describe "initialization" do
     it "should initialize the provider with the machine object" do
@@ -86,6 +99,22 @@ describe Vagrant::Machine do
 
       expect { instance.action(action_name) }.
         to raise_error(Vagrant::Errors::UnimplementedProviderAction)
+    end
+  end
+
+  describe "setting the ID" do
+    it "should not have an ID by default" do
+      instance.id.should be_nil
+    end
+
+    it "should set an ID" do
+      instance.id = "bar"
+      instance.id.should == "bar"
+    end
+
+    it "should persist the ID" do
+      instance.id = "foo"
+      new_instance.id.should == "foo"
     end
   end
 

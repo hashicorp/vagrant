@@ -114,7 +114,7 @@ module Vagrant
     # @return [Pathname]
     def dotfile_path
       return nil if !root_path
-      root_path.join(File.expand_path(config.global.vagrant.dotfile_name))
+      root_path.join(config.global.vagrant.dotfile_name)
     end
 
     # Returns the collection of boxes for the environment.
@@ -445,11 +445,22 @@ module Vagrant
 
     # Loads the persisted VM (if it exists) for this environment.
     def load_vms!
-      result = {}
+      # This is hardcoded for now.
+      provider = nil
+      Vagrant.plugin("1").registered.each do |plugin|
+        provider = plugin.provider.get(:virtualbox)
+        break if provider
+      end
+
+      raise "VirtualBox provider not found." if !provider
 
       # Load all the virtual machine instances.
+      result = {}
       config.vms.each do |name|
-        result[name] = Vagrant::VM.new(name, self, config.for_vm(name))
+        vm_config = config.for_vm(name)
+        box       = boxes.find(vm_config.vm.box, :virtualbox)
+
+        result[name] = Vagrant::Machine.new(name, provider, vm_config, box, self)
       end
 
       result

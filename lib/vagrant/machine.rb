@@ -20,6 +20,13 @@ module Vagrant
     # @return [Environment]
     attr_reader :env
 
+    # ID of the machine. This ID comes from the provider and is not
+    # guaranteed to be of any particular format except that it is
+    # a string.
+    #
+    # @return [String]
+    attr_reader :id
+
     # Name of the machine. This is assigned by the Vagrantfile.
     #
     # @return [String]
@@ -45,6 +52,10 @@ module Vagrant
       @config   = config
       @env      = env
       @provider = provider_cls.new(self)
+
+      # Read the ID, which is usually in local storage
+      @id = nil
+      @id = @env.local_data[:active][@name] if @env.local_data[:active]
     end
 
     # This calls an action on the provider. The provider may or may not
@@ -67,6 +78,34 @@ module Vagrant
 
       # Run the action with the action runner on the environment
       @env.action_runner.run(callable, :machine => self)
+    end
+
+    # This sets the unique ID associated with this machine. This will
+    # persist this ID so that in the future Vagrant will be able to find
+    # this machine again. The unique ID must be absolutely unique to the
+    # virtual machine, and can be used by providers for finding the
+    # actual machine associated with this instance.
+    #
+    # **WARNING:** Only providers should ever use this method.
+    #
+    # @param [String] value The ID.
+    def id=(value)
+      @env.local_data[:active] ||= {}
+
+      if value
+        # Set the value
+        @env.local_data[:active][@name] = value
+      else
+        # Delete it from the active hash
+        @env.local_data[:active].delete(@name)
+      end
+
+      # Commit the local data so that the next time Vagrant is initialized,
+      # it realizes the VM exists (or doesn't).
+      @env.local_data.commit
+
+      # Store the ID locally
+      @id = value
     end
 
     # Returns the state of this machine. The state is queried from the
