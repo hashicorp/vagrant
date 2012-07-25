@@ -5,7 +5,6 @@ module Vagrant
     #
     # This has been abstracted out so it is easy to provide support for
     # multiple solutions.
-    # Mandar trial
     class Base
       include Vagrant::Util
 
