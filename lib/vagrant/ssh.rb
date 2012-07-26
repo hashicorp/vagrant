@@ -25,8 +25,7 @@ module Vagrant
         :port          => @vm.config.ssh.port || @vm.driver.ssh_port(@vm.config.ssh.guest_port),
         :username      => @vm.config.ssh.username,
         :forward_agent => @vm.config.ssh.forward_agent,
-        :forward_x11   => @vm.config.ssh.forward_x11,
-        :password      => @vm.config.ssh.password
+        :forward_x11   => @vm.config.ssh.forward_x11
       }
 
       # This can happen if no port is set and for some reason Vagrant
@@ -77,7 +76,7 @@ module Vagrant
 
       # Command line options
       command_options = ["-p", options[:port].to_s, "-o", "UserKnownHostsFile=/dev/null",
-                         "-o", "StrictHostKeyChecking=no", "-o", "LogLevel=FATAL", "-p", options[:password].to_s]
+                         "-o", "StrictHostKeyChecking=no", "-o", "LogLevel=FATAL"]
 
       # Solaris/OpenSolaris/Illumos uses SunSSH which doesn't support the IdentitiesOnly option
       # (Also don't use it in plain mode, it'll skip user agents.)

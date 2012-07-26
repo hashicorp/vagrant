@@ -89,6 +89,7 @@ module Vagrant
         # Net::SCP raises a runtime error for this so the only way we have
         # to really catch this exception is to check the message to see if
         # it is something we care about. If it isn't, we re-raise.
+        print e.message.to_s
         raise if e.message !~ /Permission denied/
 
         # Otherwise, it is a permission denied, so let's raise a proper
