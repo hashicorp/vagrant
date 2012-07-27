@@ -2,7 +2,6 @@ require "vagrant"
 
 module VagrantPlugins
   module Pupppet
-    
     class Plugin < Vagrant.plugin("1")
       name "puppet"
       description <<-DESC
@@ -12,12 +11,12 @@ module VagrantPlugins
 
       provisioner("puppet") do
         require File.expand_path("../provisioner/puppet", __FILE__)
-        Puppet::Provisioner::Puppet
+        Provisioner::Puppet
       end
 
       provisioner("puppet_server") do
         require File.expand_path("../provisioner/puppet_server", __FILE__)
-        Puppet::Provisioner::PuppetServer
+        Provisioner::PuppetServer
       end
     end
   end

@@ -102,7 +102,7 @@ module VagrantPlugins
           
           verify_shared_folders(check)  if config.with_ssh == false
           if config.with_ssh
-            copy_folders
+            scp_resources
           end
           # Verify Puppet is installed and run it
           verify_binary("puppet")
@@ -178,7 +178,7 @@ module VagrantPlugins
           end
         end
         
-        def copy_folders
+        def scp_resources
           env[:vm].channel.sudo("if [ ! -d #{manifests_guest_path} ];then mkdir -p #{manifests_guest_path}; fi")
           env[:vm].channel.sudo("chmod -R a+wr #{manifests_guest_path}")
           env[:vm].channel.upload(@expanded_manifests_path.to_s + "/#{config.manifest_file}", manifests_guest_path)
