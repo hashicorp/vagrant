@@ -19,6 +19,9 @@ module VagrantPlugins
 
         @logger.debug("'Destroy' each target VM...")
         with_target_vms(argv, :reverse => true) do |vm|
+          vm.action(:destroy)
+          next
+
           if vm.created?
             # Boolean whether we should actually go through with the destroy
             # or not. This is true only if the "--force" flag is set or if the

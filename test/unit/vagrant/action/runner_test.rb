@@ -1,13 +1,7 @@
 require File.expand_path("../../../base", __FILE__)
 
 describe Vagrant::Action::Runner do
-  let(:registry) do
-    d = double("registry")
-    d.stub(:get)
-    d
-  end
-
-  let(:instance) { described_class.new(registry) }
+  let(:instance) { described_class.new }
 
   it "should raise an error if an invalid callable is given" do
     expect { instance.run(7) }.to raise_error(ArgumentError, /must be a callable/)
@@ -47,7 +41,7 @@ describe Vagrant::Action::Runner do
       result = env["data"]
     end
 
-    instance = described_class.new(registry, "data" => "bar")
+    instance = described_class.new("data" => "bar")
     instance.run(callable)
     result.should == "bar"
   end
@@ -58,7 +52,7 @@ describe Vagrant::Action::Runner do
       result = env["data"]
     end
 
-    instance = described_class.new(registry) { { "data" => "bar" } }
+    instance = described_class.new { { "data" => "bar" } }
     instance.run(callable)
     result.should == "bar"
   end

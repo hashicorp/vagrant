@@ -93,16 +93,6 @@ describe Vagrant::Environment do
     end
   end
 
-  describe "action registry" do
-    it "has an action registry" do
-      instance.action_registry.should be_kind_of(Vagrant::Registry)
-    end
-
-    it "should have the built-in actions in the registry" do
-      instance.action_registry.get(:provision).should_not be_nil
-    end
-  end
-
   describe "primary VM" do
     it "should be the only VM if not a multi-VM environment" do
       instance.primary_vm.should == instance.vms.values.first

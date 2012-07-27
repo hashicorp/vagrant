@@ -15,6 +15,8 @@ module VagrantPlugins
       end
     end
 
+    autoload :Action, File.expand_path("../action", __FILE__)
+
     # Drop some autoloads in here to optimize the performance of loading
     # our drivers only when they are needed.
     module Driver
