@@ -183,8 +183,6 @@ module VagrantPlugins
           env[:vm].channel.sudo("chmod -R a+wr #{manifests_guest_path}")
           env[:vm].channel.upload(@expanded_manifests_path.to_s + "/#{config.manifest_file}", manifests_guest_path)
           @module_paths.each do |from, to|
-            print "from" + from.to_s
-            print "to" + to.to_s
             env[:vm].channel.sudo("if [ ! -d #{to.to_s} ];then mkdir -p #{to.to_s}; fi")
             env[:vm].channel.sudo("chmod -R a+wr #{to.to_s}")
             env[:vm].channel.upload(from.to_s, to.to_s)
