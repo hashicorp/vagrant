@@ -9,20 +9,14 @@ module Vagrant
     #
     # Building an action sequence is very easy:
     #
-    #     app = Vagrant::Action::Builder.new do
-    #       use MiddlewareA
-    #       use MiddlewareB
+    #     app = Vagrant::Action::Builder.new.tap do |b|
+    #       b.use MiddlewareA
+    #       b.use MiddlewareB
     #     end
     #
     #     Vagrant::Action.run(app)
     #
     class Builder
-      # Initializes the builder. An optional block can be passed which
-      # will be evaluated in the context of the instance.
-      def initialize(&block)
-        instance_eval(&block) if block_given?
-      end
-
       # Returns a mergeable version of the builder. If `use` is called with
       # the return value of this method, then the stack will merge, instead
       # of being treated as a separate single middleware.
