@@ -45,6 +45,10 @@ module Vagrant
         # We place a process lock around every action that is called
         @logger.info("Running action: #{callable_id}")
         Util::Busy.busy(int_callback) { callable.call(environment) }
+
+        # Return the environment in case there are things in there that
+        # the caller wants to use.
+        environment
       end
     end
   end

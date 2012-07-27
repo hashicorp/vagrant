@@ -25,6 +25,18 @@ describe Vagrant::Action::Runner do
     expect { instance.run(callable) }.to raise_error(Exception, "BOOM")
   end
 
+  it "should return the resulting environment" do
+    callable = lambda do |env|
+      env[:data] = "value"
+
+      # Return nil so we can make sure it isn't using this return value
+      nil
+    end
+
+    result = instance.run(callable)
+    result[:data].should == "value"
+  end
+
   it "should pass options into hash given to callable" do
     result = nil
     callable = lambda do |env|
