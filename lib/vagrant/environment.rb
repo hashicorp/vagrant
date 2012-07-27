@@ -205,7 +205,7 @@ module Vagrant
     #
     # @return [Action::Runner]
     def action_runner
-      @action_runner ||= Action::Runner.new(action_registry) do
+      @action_runner ||= Action::Runner.new do
         {
           :action_runner  => action_runner,
           :box_collection => boxes,
@@ -216,16 +216,6 @@ module Vagrant
           :ui             => @ui
         }
       end
-    end
-
-    # Action registry for registering new actions with this environment.
-    #
-    # @return [Registry]
-    def action_registry
-      # For now we return the global built-in actions registry. In the future
-      # we may want to create an isolated registry that inherits from this
-      # global one, but for now there isn't a use case that calls for it.
-      Vagrant.actions
     end
 
     # Loads on initial access and reads data from the global data store.

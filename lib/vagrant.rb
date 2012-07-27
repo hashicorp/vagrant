@@ -95,12 +95,6 @@ module Vagrant
   c.register([:"1", :provider])    { Plugin::V1::Provider }
   c.register([:"1", :provisioner]) { Plugin::V1::Provisioner }
 
-  # Returns a `Vagrant::Registry` object that contains all the built-in
-  # middleware stacks.
-  def self.actions
-    @actions ||= Vagrant::Action::Builtin.new
-  end
-
   # The source root is the path to the root directory of
   # the Vagrant gem.
   def self.source_root
