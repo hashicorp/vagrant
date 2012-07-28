@@ -16,6 +16,7 @@ module Vagrant
     # and are thus available to all plugins as a "standard library" of sorts.
     module Builtin
       autoload :Call, "vagrant/action/builtin/call"
+      autoload :Confirm, "vagrant/action/builtin/confirm"
     end
 
     module Env
