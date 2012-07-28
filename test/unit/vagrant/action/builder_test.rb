@@ -50,18 +50,6 @@ describe Vagrant::Action::Builder do
       two.call(data)
       data[:one].should == true
     end
-
-    it "should be able to set additional variables when using" do
-      data  = { }
-      proc1 = Proc.new { |env| env[:data] += 1 }
-
-      # Build the first builder
-      one   = described_class.new
-      one.use proc1, :data => 5
-      one.call(data)
-
-      data[:data].should == 6
-    end
   end
 
   context "inserting" do
