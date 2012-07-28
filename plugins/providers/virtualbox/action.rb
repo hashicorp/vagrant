@@ -16,25 +16,25 @@ module VagrantPlugins
       def self.action_destroy
         Vagrant::Action::Builder.new.tap do |b|
           b.use CheckVirtualbox
-          b.use Call, Created do |env, created, b2|
-            if created
+          b.use Call, Created do |env1, b2|
+            if env1[:result]
               # If the VM is created, then we confirm that we want to
               # destroy it.
               message = I18n.t("vagrant.commands.destroy.confirmation",
                                :name => env[:machine].name)
               confirm = Vagrant::Action::Builder.build(Confirm, message)
 
-              b2.use Call, confirm do |_env, confirmed, b3|
-                if confirmed
+              b2.use Call, confirm do |env2, b3|
+                if env2[:result]
                   b3.use Vagrant::Action::General::Validate
                   b3.use CheckAccessible
                 else
-                  env[:ui].info I18n.t("vagrant.commands.destroy.will_not_destroy",
+                  env2[:ui].info I18n.t("vagrant.commands.destroy.will_not_destroy",
                                        :name => env[:machine.name])
                 end
               end
             else
-              env[:ui].info I18n.t("vagrant.commands.common.vm_not_created")
+              env1[:ui].info I18n.t("vagrant.commands.common.vm_not_created")
             end
           end
         end

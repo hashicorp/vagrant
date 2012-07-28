@@ -3,17 +3,16 @@ module Vagrant
     module Builtin
       # This middleware class allows a sort of "conditional" run within
       # a single middlware sequence. It takes another middleware runnable,
-      # runs it with the same environment, then yields the result to a block,
+      # runs it with the same environment, then yields the resulting env to a block,
       # allowing that block to determine the next course of action in the
       # middleware sequence.
       #
       # The first argument to this middleware sequence is anywhere middleware
       # runnable, whether it be a class, lambda, or something else that
       # responds to `call`. This middleware runnable is run with the same
-      # environment as this class. The "result" of the run is expected to be
-      # placed in `env[:result]`.
+      # environment as this class.
       #
-      # After running, {Call} takes `env[:result]` and yields it to a block
+      # After running, {Call} takes the environment and yields it to a block
       # given to initialize the class, along with an instance of {Builder}.
       # The result is used to build up a new sequence on the given builder.
       # This builder is then run.
@@ -40,7 +39,7 @@ module Vagrant
 
           # Build our new builder based on the result
           builder = Builder.new
-          @block.call(new_env, new_env[:result], builder)
+          @block.call(new_env, builder)
 
           # Run the result with our new environment
           final_env = runner.run(builder, new_env)

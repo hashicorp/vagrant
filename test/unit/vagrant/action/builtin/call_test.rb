@@ -4,36 +4,25 @@ describe Vagrant::Action::Builtin::Call do
   let(:app) { lambda { |env| } }
   let(:env) { {} }
 
-  it "should yield the result to the block" do
+  it "should yield the env to the block" do
     received = nil
 
     callable = lambda do |env|
       env[:result] = "value"
     end
 
-    described_class.new(app, env, callable) do |_env, result, builder|
-      received = result
+    described_class.new(app, env, callable) do |env, builder|
+      received = env[:result]
     end.call({})
 
     received.should == "value"
-  end
-
-  it "should give a nil result if no result is given" do
-    received = 42
-    callable = lambda { |env| }
-
-    described_class.new(app, env, callable) do |_env, result, builder|
-      received = result
-    end.call({})
-
-    received.should be_nil
   end
 
   it "should call the callable with the original environment" do
     received = nil
     callable = lambda { |env| received = env[:foo] }
 
-    described_class.new(app, env, callable) do |_env, result, builder|
+    described_class.new(app, env, callable) do |_env, _builder|
       # Nothing.
     end.call({ :foo => :bar })
 
@@ -45,7 +34,7 @@ describe Vagrant::Action::Builtin::Call do
     callable = lambda { |env| }
     next_step = lambda { |env| received = "value" }
 
-    described_class.new(app, env, callable) do |_env, result, builder|
+    described_class.new(app, env, callable) do |_env, builder|
       builder.use next_step
     end.call({})
 
@@ -57,21 +46,10 @@ describe Vagrant::Action::Builtin::Call do
     callable = lambda { |env| }
     next_step = lambda { |env| received = env[:foo] }
 
-    described_class.new(app, env, callable) do |_env, result, builder|
+    described_class.new(app, env, callable) do |_env, builder|
       builder.use next_step
     end.call({ :foo => :bar })
 
     received.should == :bar
-  end
-
-  it "should yield the environment" do
-    received = nil
-    callable = lambda { |env| env[:foo] = "value" }
-
-    described_class.new(app, env, callable) do |env, _result, _builder|
-      received = env[:foo]
-    end.call({})
-
-    received.should == "value"
   end
 end
