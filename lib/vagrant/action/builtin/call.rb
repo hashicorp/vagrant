@@ -40,7 +40,7 @@ module Vagrant
 
           # Build our new builder based on the result
           builder = Builder.new
-          @block.call(new_env[:result], builder)
+          @block.call(new_env, new_env[:result], builder)
 
           # Run the result with our new environment
           final_env = runner.run(builder, new_env)

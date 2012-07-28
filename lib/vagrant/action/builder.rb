@@ -17,6 +17,15 @@ module Vagrant
     #     Vagrant::Action.run(app)
     #
     class Builder
+      # This is a shortcut for a middleware sequence with only one item
+      # in it. For a description of the arguments and the documentation, please
+      # see {#use} instead.
+      #
+      # @return [Builder]
+      def self.build(middleware, *args, &block)
+        new.use(middleware, *args, &block)
+      end
+
       # Returns a mergeable version of the builder. If `use` is called with
       # the return value of this method, then the stack will merge, instead
       # of being treated as a separate single middleware.

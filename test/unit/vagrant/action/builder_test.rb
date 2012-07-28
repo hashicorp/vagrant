@@ -10,6 +10,18 @@ describe Vagrant::Action::Builder do
     Proc.new { |env| env[:data] << data }
   end
 
+  context "build" do
+    it "should provide build as a shortcut for basic sequences" do
+      data = {}
+      proc = Proc.new { |env| env[:data] = true }
+
+      instance = described_class.build(proc)
+      instance.call(data)
+
+      data[:data].should == true
+    end
+  end
+
   context "basic `use`" do
     it "should add items to the stack and make them callable" do
       data = {}

@@ -18,7 +18,7 @@ module Vagrant
 
       def run(callable_id, options=nil)
         callable = callable_id
-        callable = Builder.new.use(callable_id) if callable_id.kind_of?(Class)
+        callable = Builder.build(callable_id) if callable_id.kind_of?(Class)
         raise ArgumentError, "Argument to run must be a callable object or registered action." if !callable || !callable.respond_to?(:call)
 
         # Create the initial environment with the options given
