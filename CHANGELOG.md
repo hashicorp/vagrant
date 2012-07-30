@@ -1,3 +1,7 @@
+## 1.0.4 (unreleased)
+
+  - Correct `ssh-config` help to use `--host`, not `-h`.
+
 ## 1.0.3 (May 1, 2012)
 
   - Don't enable NAT DNS proxy on machines where resolv.conf already points

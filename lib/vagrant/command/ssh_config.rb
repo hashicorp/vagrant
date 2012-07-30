@@ -11,11 +11,11 @@ module Vagrant
         options = {}
 
         opts = OptionParser.new do |opts|
-          opts.banner = "Usage: vagrant ssh-config [vm-name] [-h name]"
+          opts.banner = "Usage: vagrant ssh-config [vm-name] [--host name]"
 
           opts.separator ""
 
-          opts.on("--host COMMAND", "Name the host for the config..") do |h|
+          opts.on("--host NAME", "Name the host for the config..") do |h|
             options[:host] = h
           end
         end
