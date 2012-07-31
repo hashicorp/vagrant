@@ -336,9 +336,9 @@ module Vagrant
     # method calls its other methods is very particular.
     def load!
       if !loaded?
-        @loaded = true
         @logger.info("Loading configuration...")
         load_config!
+        @loaded = true
       end
 
       self
