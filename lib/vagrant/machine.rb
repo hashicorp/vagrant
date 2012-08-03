@@ -43,19 +43,22 @@ module Vagrant
     #   part of.
     def initialize(name, provider_cls, config, box, env)
       @logger   = Log4r::Logger.new("vagrant::machine")
-      @logger.debug("Initializing machine: #{name}")
-      @logger.debug("  - Provider: #{provider_cls}")
-      @logger.debug("  - Box: #{box}")
+      @logger.info("Initializing machine: #{name}")
+      @logger.info("  - Provider: #{provider_cls}")
+      @logger.info("  - Box: #{box}")
 
       @name     = name
       @box      = box
       @config   = config
       @env      = env
-      @provider = provider_cls.new(self)
 
       # Read the ID, which is usually in local storage
       @id = nil
-      @id = @env.local_data[:active][@name] if @env.local_data[:active]
+      @id = @env.local_data[:active][@name.to_s] if @env.local_data[:active]
+
+      # Initializes the provider last so that it has access to all the
+      # state we setup on this machine.
+      @provider = provider_cls.new(self)
     end
 
     # This calls an action on the provider. The provider may or may not

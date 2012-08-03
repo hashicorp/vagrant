@@ -31,24 +31,71 @@ describe Vagrant::Machine do
   end
 
   describe "initialization" do
-    it "should initialize the provider with the machine object" do
-      received_machine = nil
+    describe "provider initialization" do
+      # This is a helper that generates a test for provider intialization.
+      # This is a separate helper method because it takes a block that can
+      # be used to have additional tests on the received machine.
+      #
+      # @yield [machine] Yields the machine that the provider initialization
+      #   method received so you can run additional tests on it.
+      def provider_init_test
+        received_machine = nil
 
-      provider_cls = double("provider_cls")
-      provider_cls.should_receive(:new) do |machine|
-        # Store this for later so we can verify that it is the
-        # one we expected to receive.
-        received_machine = machine
+        provider_cls = double("provider_cls")
+        provider_cls.should_receive(:new) do |machine|
+          # Store this for later so we can verify that it is the
+          # one we expected to receive.
+          received_machine = machine
 
-        # Verify the machine is fully ready to be used.
-        machine.name.should == name
-        machine.config.should eql(config)
-        machine.box.should eql(box)
-        machine.env.should eql(env)
+          # Sanity check
+          machine.should be
+
+          # Yield our machine if we want to do additional tests
+          yield machine if block_given?
+        end
+
+        # Initialize a new machine and verify that we properly receive
+        # the machine we expect.
+        instance = described_class.new(name, provider_cls, config, box, env)
+        received_machine.should eql(instance)
       end
 
-      instance = described_class.new(name, provider_cls, config, box, env)
-      received_machine.should eql(instance)
+      it "should initialize with the machine object" do
+        # Just run the blank test
+        provider_init_test
+      end
+
+      it "should have the machine name setup" do
+        provider_init_test do |machine|
+          machine.name.should == name
+        end
+      end
+
+      it "should have the machine configuration" do
+        provider_init_test do |machine|
+          machine.config.should eql(config)
+        end
+      end
+
+      it "should have the box" do
+        provider_init_test do |machine|
+          machine.box.should eql(box)
+        end
+      end
+
+      it "should have the environment" do
+        provider_init_test do |machine|
+          machine.env.should eql(env)
+        end
+      end
+
+      it "should have access to the ID" do
+        instance.id = "foo"
+
+        provider_init_test do |machine|
+          machine.id.should == "foo"
+        end
+      end
     end
   end
 
