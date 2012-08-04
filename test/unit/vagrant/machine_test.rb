@@ -96,6 +96,12 @@ describe Vagrant::Machine do
           machine.id.should == "foo"
         end
       end
+
+      it "should NOT have access to the provider" do
+        provider_init_test do |machine|
+          machine.provider.should be_nil
+        end
+      end
     end
   end
 
@@ -114,6 +120,10 @@ describe Vagrant::Machine do
 
     it "should provide access to the environment" do
       instance.env.should eql(env)
+    end
+
+    it "should provide access to the provider" do
+      instance.provider.should eql(provider)
     end
   end
 

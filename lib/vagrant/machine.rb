@@ -32,6 +32,11 @@ module Vagrant
     # @return [String]
     attr_reader :name
 
+    # The provider backing this machine.
+    #
+    # @return [Object]
+    attr_reader :provider
+
     # Initialize a new machine.
     #
     # @param [String] name Name of the virtual machine.

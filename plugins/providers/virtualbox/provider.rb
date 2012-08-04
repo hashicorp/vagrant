@@ -1,6 +1,8 @@
 module VagrantPlugins
   module ProviderVirtualBox
     class Provider < Vagrant.plugin("1", :provider)
+      attr_reader :driver
+
       def initialize(machine)
         @machine = machine
         @driver  = Driver::Meta.new(@machine.id)

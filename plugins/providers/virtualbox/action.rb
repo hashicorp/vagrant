@@ -7,6 +7,8 @@ module VagrantPlugins
       autoload :CheckVirtualbox, File.expand_path("../action/check_virtualbox", __FILE__)
       autoload :Created, File.expand_path("../action/created", __FILE__)
       autoload :DestroyConfirm, File.expand_path("../action/destroy_confirm", __FILE__)
+      autoload :DiscardState, File.expand_path("../action/discard_state", __FILE__)
+      autoload :Halt, File.expand_path("../action/halt", __FILE__)
       autoload :MessageNotCreated, File.expand_path("../action/message_not_created", __FILE__)
       autoload :MessageWillNotDestroy, File.expand_path("../action/message_will_not_destroy", __FILE__)
 
