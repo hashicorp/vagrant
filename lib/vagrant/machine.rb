@@ -70,6 +70,9 @@ module Vagrant
     # actually implement the action.
     #
     # @param [Symbol] name Name of the action to run.
+    # @param [Hash] extra_env This data will be passed into the action runner
+    #   as extra data set on the environment hash for the middleware
+    #   runner.
     def action(name, extra_env=nil)
       @logger.debug("Calling action: #{name} on provider #{@provider}")
 

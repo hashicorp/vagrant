@@ -6,8 +6,8 @@ module Vagrant
     # This issue causes `exec` to fail if there is more than one system
     # thread. In that case, `safe_exec` automatically falls back to
     # forking.
-    module SafeExec
-      def safe_exec(command, *args)
+    class SafeExec
+      def self.exec(command, *args)
         # Create a list of things to rescue from. Since this is OS
         # specific, we need to do some defined? checks here to make
         # sure they exist.

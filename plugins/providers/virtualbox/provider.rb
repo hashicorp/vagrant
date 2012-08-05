@@ -18,14 +18,19 @@ module VagrantPlugins
         nil
       end
 
-      # Returns a human-friendly string version of this provider which
-      # includes the machine's ID that this provider represents, if it
-      # has one.
-      #
-      # @return [String]
-      def to_s
-        id = @machine.id ? @machine.id : "new VM"
-        "VirtualBox (#{id})"
+      # Returns the SSH info for accessing the VirtualBox VM.
+      def ssh_info
+        # If the VM is not created then we cannot possibly SSH into it, so
+        # we return nil.
+        return nil if state == :not_created
+
+        # Return what we know. The host is always "127.0.0.1" because
+        # VirtualBox VMs are always local. The port we try to discover
+        # by reading the forwarded ports.
+        return {
+          :host => "127.0.0.1",
+          :port => @driver.ssh_port(@machine.config.ssh.guest_port)
+        }
       end
 
       # Return the state of VirtualBox virtual machine by actually
@@ -37,6 +42,16 @@ module VagrantPlugins
         state = @driver.read_state
         return :unknown if !state
         state
+      end
+
+      # Returns a human-friendly string version of this provider which
+      # includes the machine's ID that this provider represents, if it
+      # has one.
+      #
+      # @return [String]
+      def to_s
+        id = @machine.id ? @machine.id : "new VM"
+        "VirtualBox (#{id})"
       end
     end
   end

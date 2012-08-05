@@ -38,9 +38,9 @@ module VagrantPlugins
         # Execute the actual SSH
         with_target_vms(argv, :single_target => true) do |vm|
           # Basic checks that are required for proper SSH
-          raise Vagrant::Errors::VMNotCreatedError if !vm.created?
-          raise Vagrant::Errors::VMInaccessible if !vm.state == :inaccessible
-          raise Vagrant::Errors::VMNotRunningError if vm.state != :running
+          # raise Vagrant::Errors::VMNotCreatedError if !vm.created?
+          # raise Vagrant::Errors::VMInaccessible if !vm.state == :inaccessible
+          # raise Vagrant::Errors::VMNotRunningError if vm.state != :running
 
           if options[:command]
             ssh_execute(vm, options[:command])
@@ -50,7 +50,7 @@ module VagrantPlugins
               :extra_args => options[:ssh_args]
             }
 
-            ssh_connect(vm, opts)
+            vm.action(:ssh, :ssh_opts => opts)
           end
         end
 

@@ -4,6 +4,8 @@ module VagrantPlugins
   module ProviderVirtualBox
     module Action
       autoload :CheckAccessible, File.expand_path("../action/check_accessible", __FILE__)
+      autoload :CheckCreated, File.expand_path("../action/check_created", __FILE__)
+      autoload :CheckRunning, File.expand_path("../action/check_running", __FILE__)
       autoload :CheckVirtualbox, File.expand_path("../action/check_virtualbox", __FILE__)
       autoload :Created, File.expand_path("../action/created", __FILE__)
       autoload :DestroyConfirm, File.expand_path("../action/destroy_confirm", __FILE__)
@@ -53,6 +55,17 @@ module VagrantPlugins
               b2.use MessageNotCreated
             end
           end
+        end
+      end
+
+      # This is the action that will exec into an SSH shell.
+      def self.action_ssh
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use CheckVirtualbox
+          b.use CheckCreated
+          b.use CheckAccessible
+          b.use CheckRunning
+          b.use SSHExec
         end
       end
     end

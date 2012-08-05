@@ -10,8 +10,6 @@ module Vagrant
     # helpers don't depend on any part of Vagrant except what is given
     # via the parameters.
     class SSH
-      include SafeExec
-
       LOGGER = Log4r::Logger.new("vagrant::util::ssh")
 
       # Checks that the permissions for a private key are valid, and fixes
@@ -53,7 +51,7 @@ module Vagrant
       #   required please see the documentation of {Machine#ssh_info}.
       # @param [Hash] opts These are additional options that are supported
       #   by exec.
-      def exec(ssh_info, opts={})
+      def self.exec(ssh_info, opts={})
         # If we're running Windows, raise an exception since we currently
         # still don't support exec-ing into SSH. In the future this should
         # certainly be possible if we can detect we're in an environment that
@@ -98,7 +96,7 @@ module Vagrant
         end
 
         # If we're not in plain mode, attach the private key path.
-        command_options += ["-i", options[:private_key_path]] if !plain_mode
+        command_options += ["-i", options[:private_key_path].to_s] if !plain_mode
 
         if ssh_info[:forward_x11]
           # Both are required so that no warnings are shown regarding X11
@@ -113,8 +111,8 @@ module Vagrant
         command_options << host_string
 
         # Invoke SSH with all our options
-        @logger.info("Invoking SSH: #{command_options.inspect}")
-        safe_exec("ssh", *command_options)
+        LOGGER.info("Invoking SSH: #{command_options.inspect}")
+        SafeExec.exec("ssh", *command_options)
       end
     end
   end
