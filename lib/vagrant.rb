@@ -78,7 +78,6 @@ module Vagrant
   autoload :Hosts,         'vagrant/hosts'
   autoload :Machine,       'vagrant/machine'
   autoload :Plugin,        'vagrant/plugin'
-  autoload :SSH,           'vagrant/ssh'
   autoload :TestHelpers,   'vagrant/test_helpers'
   autoload :UI,            'vagrant/ui'
   autoload :Util,          'vagrant/util'
