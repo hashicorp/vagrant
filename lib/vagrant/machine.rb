@@ -70,7 +70,7 @@ module Vagrant
     # actually implement the action.
     #
     # @param [Symbol] name Name of the action to run.
-    def action(name)
+    def action(name, extra_env=nil)
       @logger.debug("Calling action: #{name} on provider #{@provider}")
 
       # Get the callable from the provider.
@@ -85,7 +85,8 @@ module Vagrant
       end
 
       # Run the action with the action runner on the environment
-      @env.action_runner.run(callable, :machine => self)
+      env = { :machine => self }.merge(extra_env || {})
+      @env.action_runner.run(callable, env)
     end
 
     # This sets the unique ID associated with this machine. This will

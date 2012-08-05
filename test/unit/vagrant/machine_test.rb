@@ -149,6 +149,17 @@ describe Vagrant::Machine do
       machine.should eql(instance)
     end
 
+    it "should pass any extra options to the environment" do
+      action_name = :up
+      foo         = nil
+      callable    = lambda { |env| foo = env[:foo] }
+
+      provider.stub(:action).with(action_name).and_return(callable)
+      instance.action(:up, :foo => :bar)
+
+      foo.should == :bar
+    end
+
     it "should raise an exception if the action is not implemented" do
       action_name = :up
 
