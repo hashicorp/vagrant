@@ -116,6 +116,60 @@ module Vagrant
       @id = value
     end
 
+    # This returns the SSH info for accessing this machine. This SSH info
+    # is queried from the underlying provider. This method returns `nil` if
+    # the machine is not ready for SSH communication.
+    #
+    # The structure of the resulting hash is guaranteed to contain the
+    # following structure, although it may return other keys as well
+    # not documented here:
+    #
+    #     {
+    #       :host => "1.2.3.4",
+    #       :port => "22",
+    #       :username => "mitchellh",
+    #       :private_key_path => "/path/to/my/key"
+    #     }
+    #
+    # Note that Vagrant makes no guarantee that this info works or is
+    # correct. This is simply the data that the provider gives us or that
+    # is configured via a Vagrantfile. It is still possible after this
+    # point when attempting to connect via SSH to get authentication
+    # errors.
+    #
+    # @return [Hash] SSH information.
+    def ssh_info
+      # First, ask the provider for their information. If the provider
+      # returns nil, then the machine is simply not ready for SSH, and
+      # we return nil as well.
+      info = @provider.ssh_info
+      return nil if info.nil?
+
+      # Delete out the nil entries.
+      info.dup.each do |key, value|
+        info.delete(key) if value.nil?
+      end
+
+      # Next, we default some fields if they weren't given to us by
+      # the provider.
+      info[:host] = @config.ssh.host if @config.ssh.host
+      info[:port] = @config.ssh.port if @config.ssh.port
+      info[:username] = @config.ssh.username if @config.ssh.username
+
+      # We also set some fields that are purely controlled by Varant
+      info[:forward_agent] = @config.ssh.forward_agent
+      info[:forward_x11]   = @config.ssh.forward_x11
+
+      # Set the private key path. If a specific private key is given in
+      # the Vagrantfile we set that. Otherwise, we use the default (insecure)
+      # private key, but only if the provider didn't give us one.
+      info[:private_key_path] = @config.ssh.private_key_path if @config.ssh.private_key_path
+      info[:private_key_path] = @env.default_private_key_path if !info[:private_key_path]
+
+      # Return the final compiled SSH info data
+      info
+    end
+
     # Returns the state of this machine. The state is queried from the
     # backing provider, so it can be any arbitrary symbol.
     #

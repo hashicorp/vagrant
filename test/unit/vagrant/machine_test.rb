@@ -11,7 +11,7 @@ describe Vagrant::Machine do
     obj
   end
   let(:box)      { Object.new }
-  let(:config)   { Object.new }
+  let(:config)   { env.config.global }
   let(:env)      do
     # We need to create a Vagrantfile so that this test environment
     # has a proper root path
@@ -172,6 +172,73 @@ describe Vagrant::Machine do
     it "should persist the ID" do
       instance.id = "foo"
       new_instance.id.should == "foo"
+    end
+  end
+
+  describe "ssh info" do
+    describe "with the provider returning nil" do
+      it "should return nil if the provider returns nil" do
+        provider.should_receive(:ssh_info).and_return(nil)
+        instance.ssh_info.should be_nil
+      end
+    end
+
+    describe "with the provider returning data" do
+      let(:provider_ssh_info) { {} }
+
+      before(:each) do
+        provider.should_receive(:ssh_info).and_return(provider_ssh_info)
+      end
+
+      [:host, :port, :username].each do |type|
+        it "should return the provider data if not configured in Vagrantfile" do
+          provider_ssh_info[type] = "foo"
+          instance.config.ssh.send("#{type}=", nil)
+
+          instance.ssh_info[type].should == "foo"
+        end
+
+        it "should return the Vagrantfile value over the provider data if given" do
+          provider_ssh_info[type] = "foo"
+          instance.config.ssh.send("#{type}=", "bar")
+
+          instance.ssh_info[type].should == "bar"
+        end
+      end
+
+      it "should set the configured forward agent settings" do
+        provider_ssh_info[:forward_agent] = true
+        instance.config.ssh.forward_agent = false
+
+        instance.ssh_info[:forward_agent].should == false
+      end
+
+      it "should set the configured forward X11 settings" do
+        provider_ssh_info[:forward_x11] = true
+        instance.config.ssh.forward_x11 = false
+
+        instance.ssh_info[:forward_x11].should == false
+      end
+
+      it "should return the provider private key if given" do
+        provider_ssh_info[:private_key_path] = "foo"
+
+        instance.ssh_info[:private_key_path].should == "foo"
+      end
+
+      it "should return the configured SSH key path if set" do
+        provider_ssh_info[:private_key_path] = "foo"
+        instance.config.ssh.private_key_path = "bar"
+
+        instance.ssh_info[:private_key_path].should == "bar"
+      end
+
+      it "should return the default private key path if provider and config doesn't have one" do
+        provider_ssh_info[:private_key_path] = nil
+        instance.config.ssh.private_key_path = nil
+
+        instance.ssh_info[:private_key_path].should == instance.env.default_private_key_path
+      end
     end
   end
 

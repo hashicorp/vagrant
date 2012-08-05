@@ -21,6 +21,31 @@ module Vagrant
           nil
         end
 
+        # This should return a hash of information that explains how to
+        # SSH into the machine. If the machine is not at a point where
+        # SSH is even possible, then `nil` should be returned.
+        #
+        # The general structure of this returned hash should be the
+        # following:
+        #
+        #     {
+        #       :host => "1.2.3.4",
+        #       :port => "22",
+        #       :username => "mitchellh",
+        #       :private_key_path => "/path/to/my/key"
+        #     }
+        #
+        # **Note:** Vagrant only supports private key based authentication,
+        # mainly for the reason that there is no easy way to exec into an
+        # `ssh` prompt with a password, whereas we can pass a private key
+        # via commandline.
+        #
+        # @return [Hash] SSH information. For the structure of this hash
+        #   read the accompanying documentation for this method.
+        def ssh_info
+          nil
+        end
+
         # This should return the state of the machine within this provider.
         # The state can be any symbol.
         #
