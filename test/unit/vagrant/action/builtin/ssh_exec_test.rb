@@ -11,12 +11,36 @@ describe Vagrant::Action::Builtin::SSHExec do
     result
   end
   let(:machine_ssh_info) { {} }
+  let(:ssh_klass) { Vagrant::Util::SSH }
+
+  before(:each) do
+    # Stub the methods so that even if we test incorrectly, no side
+    # effects actually happen.
+    ssh_klass.stub(:check_key_permissions)
+    ssh_klass.stub(:exec)
+  end
 
   it "should check key permissions then exec" do
-    pending
+    ssh_klass.should_receive(:check_key_permissions).
+      with(machine_ssh_info[:private_key_path]).
+      once.
+      ordered
+
+    ssh_klass.should_receive(:exec).
+      with(machine_ssh_info, nil).
+      once.
+      ordered
+
+    described_class.new(app, env).call(env)
   end
 
   it "should exec with the options given in `ssh_opts`" do
-    pending
+    ssh_opts = { :foo => :bar }
+
+    ssh_klass.should_receive(:exec).
+      with(machine_ssh_info, ssh_opts)
+
+    env[:ssh_opts] = ssh_opts
+    described_class.new(app, env).call(env)
   end
 end

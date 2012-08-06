@@ -28,8 +28,7 @@ module Vagrant
           SSH.check_key_permissions(info[:private_key_path])
 
           # Exec!
-          # XXX: Options given in env
-          SSH.exec(info)
+          SSH.exec(info, env[:ssh_opts])
         end
       end
     end
