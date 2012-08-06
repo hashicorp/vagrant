@@ -20,6 +20,15 @@ describe Vagrant::Action::Builtin::SSHExec do
     ssh_klass.stub(:exec)
   end
 
+  it "should raise an exception if SSH is not ready" do
+    not_ready_machine = double("machine")
+    not_ready_machine.stub(:ssh_info).and_return(nil)
+
+    env[:machine] = not_ready_machine
+    expect { described_class.new(app, env).call(env) }.
+      to raise_error(Vagrant::Errors::SSHNotReady)
+  end
+
   it "should check key permissions then exec" do
     ssh_klass.should_receive(:check_key_permissions).
       with(machine_ssh_info[:private_key_path]).

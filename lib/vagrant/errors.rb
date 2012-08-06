@@ -356,6 +356,10 @@ module Vagrant
       error_key(:ssh_key_type_not_supported)
     end
 
+    class SSHNotReady < VagrantError
+      error_key(:ssh_not_ready)
+    end
+
     class SSHPortNotDetected < VagrantError
       status_code(50)
       error_key(:ssh_port_not_detected)

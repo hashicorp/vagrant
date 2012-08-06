@@ -21,8 +21,10 @@ module Vagrant
         def call(env)
           # Grab the SSH info from the machine
           info = env[:machine].ssh_info
-          # XXX: Raise an exception if info is nil, since that means that
-          # SSH is not ready.
+
+          # If the result is nil, then the machine is telling us that it is
+          # not yet ready for SSH, so we raise this exception.
+          raise Errors::SSHNotReady if info.nil?
 
           # Check the SSH key permissions
           SSH.check_key_permissions(info[:private_key_path])
