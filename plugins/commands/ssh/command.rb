@@ -50,6 +50,7 @@ module VagrantPlugins
               :extra_args => options[:ssh_args]
             }
 
+            @logger.debug("Invoking `ssh` action on machine")
             vm.action(:ssh, :ssh_opts => opts)
           end
         end
@@ -79,11 +80,6 @@ module VagrantPlugins
 
         # Exit with the exit status we got from executing the command
         exit exit_status
-      end
-
-      def ssh_connect(vm, opts)
-        @logger.debug("`exec` into ssh prompt")
-        vm.ssh.exec(opts)
       end
     end
   end
