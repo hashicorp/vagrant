@@ -85,14 +85,16 @@ module Vagrant
 
   # These are the various plugin versions and their components in
   # a lazy loaded Hash-like structure.
-  c = PLUGIN_COMPONENTS = Registry.new
-  c.register(:"1")                 { Plugin::V1::Plugin }
-  c.register([:"1", :command])     { Plugin::V1::Command }
-  c.register([:"1", :config])      { Plugin::V1::Config }
-  c.register([:"1", :guest])       { Plugin::V1::Guest }
-  c.register([:"1", :host])        { Plugin::V1::Host }
-  c.register([:"1", :provider])    { Plugin::V1::Provider }
-  c.register([:"1", :provisioner]) { Plugin::V1::Provisioner }
+  PLUGIN_COMPONENTS = Registry.new.tap do |c|
+    c.register(:"1")                  { Plugin::V1::Plugin }
+    c.register([:"1", :command])      { Plugin::V1::Command }
+    c.register([:"1", :communicator]) { Plugin::V1::Communicator }
+    c.register([:"1", :config])       { Plugin::V1::Config }
+    c.register([:"1", :guest])        { Plugin::V1::Guest }
+    c.register([:"1", :host])         { Plugin::V1::Host }
+    c.register([:"1", :provider])     { Plugin::V1::Provider }
+    c.register([:"1", :provisioner])  { Plugin::V1::Provisioner }
+  end
 
   # The source root is the path to the root directory of
   # the Vagrant gem.

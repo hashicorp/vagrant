@@ -6,6 +6,7 @@ module Vagrant
   module Plugin
     module V1
       autoload :Command, "vagrant/plugin/v1/command"
+      autoload :Communicator, "vagrant/plugin/v1/communicator"
       autoload :Config, "vagrant/plugin/v1/config"
       autoload :Guest,  "vagrant/plugin/v1/guest"
       autoload :Host,   "vagrant/plugin/v1/host"

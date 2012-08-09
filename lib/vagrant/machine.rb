@@ -92,6 +92,25 @@ module Vagrant
       @env.action_runner.run(callable, env)
     end
 
+    # Returns a communication object for executing commands on the remote
+    # machine. Note that the _exact_ semantics of this are up to the
+    # communication provider itself. Despite this, the semantics are expected
+    # to be consistent across operating systems. For example, all linux-based
+    # systems should have similar communication (usually a shell). All
+    # Windows systems should have similar communication as well. Therefore,
+    # prior to communicating with the machine, users of this method are
+    # expected to check the guest OS to determine their behavior.
+    #
+    # This method will _always_ return some valid communication object.
+    # The `ready?` API can be used on the object to check if communication
+    # is actually ready.
+    #
+    # @return [Object]
+    def communicate
+      # For now, we always return SSH. In the future, we'll abstract
+      # this and allow plugins to define new methods of communication.
+    end
+
     # This sets the unique ID associated with this machine. This will
     # persist this ID so that in the future Vagrant will be able to find
     # this machine again. The unique ID must be absolutely unique to the
