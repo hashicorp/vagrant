@@ -8,17 +8,23 @@ require 'vagrant/util/ansi_escape_code_remover'
 require 'vagrant/util/file_mode'
 require 'vagrant/util/platform'
 require 'vagrant/util/retryable'
+require 'vagrant/util/ssh'
 
-module Vagrant
-  module Communication
-    # Provides communication with the VM via SSH.
-    class SSH < Base
+module VagrantPlugins
+  module CommunicatorSSH
+    # This class provides communication with the VM via SSH.
+    class Communicator < Vagrant.plugin("1", :communicator)
       include Util::ANSIEscapeCodeRemover
       include Util::Retryable
 
-      def initialize(vm)
-        @vm     = vm
-        @logger = Log4r::Logger.new("vagrant::communication::ssh")
+      def self.match?(machine)
+        # All machines are currently expected to have SSH.
+        true
+      end
+
+      def initialize(machine)
+        @machine = machine
+        @logger  = Log4r::Logger.new("vagrant::communication::ssh")
         @connection = nil
       end
 
@@ -31,7 +37,7 @@ module Vagrant
         # If we reached this point then we successfully connected
         @logger.info("SSH is ready!")
         true
-      rescue Errors::VagrantError => e
+      rescue Vagrant::Errors::VagrantError => e
         # We catch a `VagrantError` which would signal that something went
         # wrong expectedly in the `connect`, which means we didn't connect.
         @logger.info("SSH not up: #{e.inspect}")
@@ -41,7 +47,7 @@ module Vagrant
       def execute(command, opts=nil, &block)
         opts = {
           :error_check => true,
-          :error_class => Errors::VagrantError,
+          :error_class => Vagrant::Errors::VagrantError,
           :error_key   => :ssh_bad_exit_status,
           :command     => command,
           :sudo        => false
@@ -93,7 +99,7 @@ module Vagrant
 
         # Otherwise, it is a permission denied, so let's raise a proper
         # exception
-        raise Errors::SCPPermissionDenied, :path => from.to_s
+        raise Vagrant::Errors::SCPPermissionDenied, :path => from.to_s
       end
 
       protected
@@ -120,7 +126,8 @@ module Vagrant
           end
         end
 
-        ssh_info = @vm.ssh.info
+        # XXX: We need to raise some exception if SSH is not ready
+        ssh_info = @machine.ssh_info
 
         # Build the options we'll use to initiate the connection via Net::SSH
         opts = {
@@ -134,38 +141,38 @@ module Vagrant
         }
 
         # Check that the private key permissions are valid
-        @vm.ssh.check_key_permissions(ssh_info[:private_key_path])
+        Vagrant::Util::SSH.check_key_permissions(ssh_info[:private_key_path])
 
         # Connect to SSH, giving it a few tries
         connection = nil
         begin
           exceptions = [Errno::ECONNREFUSED, Net::SSH::Disconnect, Timeout::Error]
-          connection = retryable(:tries => @vm.config.ssh.max_tries, :on => exceptions) do
-            Timeout.timeout(@vm.config.ssh.timeout) do
+          connection = retryable(:tries => @machine.config.ssh.max_tries, :on => exceptions) do
+            Timeout.timeout(@machine.config.ssh.timeout) do
               @logger.info("Attempting to connect to SSH: #{ssh_info[:host]}:#{ssh_info[:port]}")
               Net::SSH.start(ssh_info[:host], ssh_info[:username], opts)
             end
           end
         rescue Timeout::Error
           # This happens if we continued to timeout when attempting to connect.
-          raise Errors::SSHConnectionTimeout
+          raise Vagrant::Errors::SSHConnectionTimeout
         rescue Net::SSH::AuthenticationFailed
           # This happens if authentication failed. We wrap the error in our
           # own exception.
-          raise Errors::SSHAuthenticationFailed
+          raise Vagrant::Errors::SSHAuthenticationFailed
         rescue Net::SSH::Disconnect
           # This happens if the remote server unexpectedly closes the
           # connection. This is usually raised when SSH is running on the
           # other side but can't properly setup a connection. This is
           # usually a server-side issue.
-          raise Errors::SSHDisconnected
+          raise Vagrant::Errors::SSHDisconnected
         rescue Errno::ECONNREFUSED
           # This is raised if we failed to connect the max amount of times
-          raise Errors::SSHConnectionRefused
+          raise Vagrant::Errors::SSHConnectionRefused
         rescue NotImplementedError
           # This is raised if a private key type that Net-SSH doesn't support
           # is used. Show a nicer error.
-          raise Errors::SSHKeyTypeNotSupported
+          raise Vagrant::Errors::SSHKeyTypeNotSupported
         end
 
         @connection = connection
@@ -178,7 +185,7 @@ module Vagrant
         # Yield the connection that is ready to be used and
         # return the value of the block
         return yield connection if block_given?
-     end
+      end
 
       # Executes the command on an SSH connection within a login shell.
       def shell_execute(connection, command, sudo=false)
@@ -187,7 +194,7 @@ module Vagrant
 
         # Determine the shell to execute. If we are using `sudo` then we
         # need to wrap the shell in a `sudo` call.
-        shell = @vm.config.ssh.shell
+        shell = @machine.config.ssh.shell
         shell = "sudo -H #{shell}" if sudo
 
         # Open the channel so we can execute or command
@@ -248,7 +255,7 @@ module Vagrant
         end
       rescue Net::SCP::Error => e
         # If we get the exit code of 127, then this means SCP is unavailable.
-        raise Errors::SCPUnavailable if e.message =~ /\(127\)/
+        raise Vagrant::Errors::SCPUnavailable if e.message =~ /\(127\)/
 
         # Otherwise, just raise the error up
         raise
