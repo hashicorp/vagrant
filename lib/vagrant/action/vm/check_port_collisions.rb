@@ -33,7 +33,7 @@ module Vagrant
             hostport = options[:hostport].to_i
             hostport = current[options[:name]] if current.has_key?(options[:name])
 
-            if existing.include?(hostport) || is_port_open?("localhost", hostport)
+            if existing.include?(hostport) || is_port_open?("127.0.0.1", hostport)
               # We have a collision! Handle it
               send("handle_#{handler}".to_sym, options, existing)
             end

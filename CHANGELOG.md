@@ -38,6 +38,8 @@
     using SCP to upload files. [GH-924]
   - When console input is asked for (destroying a VM, bridged interfaces, etc.),
     keystrokes such as ctrl-D and ctrl-C are more gracefully handled. [GH-1017]
+  - Fixed bug where port check would use "localhost" on systems where
+    "localhost" is not available. [GH-1057]
 
 ## 1.0.3 (May 1, 2012)
 
