@@ -113,7 +113,7 @@ middleware (note that in practice this is a _really_ bad idea). An example
 of this is shown below:
 
 {% highlight ruby %}
-Vagrant.actions[:up].swap(Vagrant::Action::VM::ForwardPort, SayHello)
+Vagrant.actions[:up].replace(Vagrant::Action::VM::ForwardPort, SayHello)
 {% endhighlight %}
 
 Easy, isn't it? Now if you were to run `vagrant up`, instead of forwarding
