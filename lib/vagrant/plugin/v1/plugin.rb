@@ -103,6 +103,24 @@ module Vagrant
           data[:command]
         end
 
+        # Defines additional communicators to be available. Communicators
+        # should be returned by a block passed to this method. This is done
+        # to ensure that the class is lazy loaded, so if your class inherits
+        # from or uses any Vagrant internals specific to Vagrant 1.0, then
+        # the plugin can still be defined without breaking anything in future
+        # versions of Vagrant.
+        #
+        # @param [String] name Communicator name.
+        def self.communicator(name=UNSET_VALUE, &block)
+          data[:communicator] ||= Registry.new
+
+          # Register a new communicator class only if a name was given.
+          data[:communicator].register(name.to_sym, &block) if name != UNSET_VALUE
+
+          # Return the registry
+          data[:communicator]
+        end
+
         # Defines additional configuration keys to be available in the
         # Vagrantfile. The configuration class should be returned by a
         # block passed to this method. This is done to ensure that the class

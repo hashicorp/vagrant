@@ -109,6 +109,7 @@ module Vagrant
     def communicate
       # For now, we always return SSH. In the future, we'll abstract
       # this and allow plugins to define new methods of communication.
+
     end
 
     # This sets the unique ID associated with this machine. This will
