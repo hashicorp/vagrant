@@ -14,8 +14,8 @@ module VagrantPlugins
   module CommunicatorSSH
     # This class provides communication with the VM via SSH.
     class Communicator < Vagrant.plugin("1", :communicator)
-      include Util::ANSIEscapeCodeRemover
-      include Util::Retryable
+      include Vagrant::Util::ANSIEscapeCodeRemover
+      include Vagrant::Util::Retryable
 
       def self.match?(machine)
         # All machines are currently expected to have SSH.

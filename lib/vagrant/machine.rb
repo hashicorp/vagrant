@@ -107,9 +107,20 @@ module Vagrant
     #
     # @return [Object]
     def communicate
-      # For now, we always return SSH. In the future, we'll abstract
-      # this and allow plugins to define new methods of communication.
+      if !@communicator
+        # For now, we always return SSH. In the future, we'll abstract
+        # this and allow plugins to define new methods of communication.
+        Vagrant.plugin("1").registered.each do |plugin|
+          klass = plugin.communicator[:ssh]
+          if klass
+            # This plugin has the SSH communicator, use it.
+            @communicator = klass.new(self)
+            break
+          end
+        end
+      end
 
+      @communicator
     end
 
     # This sets the unique ID associated with this machine. This will

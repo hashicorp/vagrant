@@ -170,6 +170,17 @@ describe Vagrant::Machine do
     end
   end
 
+  describe "communicator" do
+    it "should always return the SSH communicator" do
+      instance.communicate.should be_kind_of(VagrantPlugins::CommunicatorSSH::Communicator)
+    end
+
+    it "should memoize the result" do
+      obj = instance.communicate
+      instance.communicate.should eql(obj)
+    end
+  end
+
   describe "setting the ID" do
     it "should not have an ID by default" do
       instance.id.should be_nil
