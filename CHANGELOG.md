@@ -40,6 +40,8 @@
     keystrokes such as ctrl-D and ctrl-C are more gracefully handled. [GH-1017]
   - Fixed bug where port check would use "localhost" on systems where
     "localhost" is not available. [GH-1057]
+  - Sending a SIGINT (Ctrl-C) very early on when executing `vagrant` no
+    longer results in an ugly stack trace.
 
 ## 1.0.3 (May 1, 2012)
 
