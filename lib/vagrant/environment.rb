@@ -104,6 +104,14 @@ module Vagrant
       activate_plugins
     end
 
+    # Return a human-friendly string for pretty printed or inspected
+    # instances.
+    #
+    # @return [String]
+    def inspect
+      "#<#{self.class}: #{@cwd}>"
+    end
+
     #---------------------------------------------------------------
     # Helpers
     #---------------------------------------------------------------

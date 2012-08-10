@@ -151,6 +151,14 @@ module Vagrant
       @id = value
     end
 
+    # This returns a clean inspect value so that printing the value via
+    # a pretty print (`p`) results in a readable value.
+    #
+    # @return [String]
+    def inspect
+      "#<#{self.class}: #{@name} (#{@provider.class})>"
+    end
+
     # This returns the SSH info for accessing this machine. This SSH info
     # is queried from the underlying provider. This method returns `nil` if
     # the machine is not ready for SSH communication.
