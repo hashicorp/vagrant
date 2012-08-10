@@ -68,6 +68,17 @@ module VagrantPlugins
           b.use SSHExec
         end
       end
+
+      # This is the action that will run a single SSH command.
+      def self.action_ssh_run
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use CheckVirtualbox
+          b.use CheckCreated
+          b.use CheckAccessible
+          b.use CheckRunning
+          b.use SSHRun
+        end
+      end
     end
   end
 end

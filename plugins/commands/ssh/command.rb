@@ -37,13 +37,10 @@ module VagrantPlugins
 
         # Execute the actual SSH
         with_target_vms(argv, :single_target => true) do |vm|
-          # Basic checks that are required for proper SSH
-          # raise Vagrant::Errors::VMNotCreatedError if !vm.created?
-          # raise Vagrant::Errors::VMInaccessible if !vm.state == :inaccessible
-          # raise Vagrant::Errors::VMNotRunningError if vm.state != :running
-
           if options[:command]
-            ssh_execute(vm, options[:command])
+            # XXX: Exit with proper exit status
+            @logger.debug("Executing single command on remote machine: #{options[:command]}")
+            vm.action(:ssh_run, :ssh_run_command => options[:command])
           else
             opts = {
               :plain_mode => options[:plain_mode],
@@ -57,29 +54,6 @@ module VagrantPlugins
 
         # Success, exit status 0
         0
-       end
-
-      protected
-
-      def ssh_execute(vm, command=nil)
-        exit_status = 0
-
-        @logger.debug("Executing command: #{command}")
-        exit_status = vm.channel.execute(command, :error_check => false) do |type, data|
-          # Determine the proper channel to send the output onto depending
-          # on the type of data we are receiving.
-          channel = type == :stdout ? :out : :error
-
-          # Print the SSH output as it comes in, but don't prefix it and don't
-          # force a new line so that the output is properly preserved
-          vm.ui.info(data.to_s,
-                     :prefix => false,
-                     :new_line => false,
-                     :channel => channel)
-        end
-
-        # Exit with the exit status we got from executing the command
-        exit exit_status
       end
     end
   end
