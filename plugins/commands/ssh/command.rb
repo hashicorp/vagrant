@@ -38,9 +38,13 @@ module VagrantPlugins
         # Execute the actual SSH
         with_target_vms(argv, :single_target => true) do |vm|
           if options[:command]
-            # XXX: Exit with proper exit status
             @logger.debug("Executing single command on remote machine: #{options[:command]}")
-            vm.action(:ssh_run, :ssh_run_command => options[:command])
+            env = vm.action(:ssh_run, :ssh_run_command => options[:command])
+
+            # Exit with the exit status of the command or a 0 if we didn't
+            # get one.
+            exit_status = env[:ssh_run_exit_status] || 0
+            return exit_status
           else
             opts = {
               :plain_mode => options[:plain_mode],
@@ -49,11 +53,13 @@ module VagrantPlugins
 
             @logger.debug("Invoking `ssh` action on machine")
             vm.action(:ssh, :ssh_opts => opts)
+
+            # We should never reach this point, since the point of `ssh`
+            # is to exec into the proper SSH shell, but we'll just return
+            # an exit status of 0 anyways.
+            return 0
           end
         end
-
-        # Success, exit status 0
-        0
       end
     end
   end
