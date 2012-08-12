@@ -123,6 +123,16 @@ module Vagrant
       @communicator
     end
 
+    # Returns a guest implementation for this machine. The guest implementation
+    # knows how to do guest-OS specific tasks, such as configuring networks,
+    # mounting folders, etc.
+    #
+    # @return [Object]
+    def guest
+      raise Errors::MachineGuestNotReady if !communicator.ready?
+      # XXX: Todo
+    end
+
     # This sets the unique ID associated with this machine. This will
     # persist this ID so that in the future Vagrant will be able to find
     # this machine again. The unique ID must be absolutely unique to the

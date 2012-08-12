@@ -85,6 +85,10 @@ en:
         You specified: %{home_path}
       interrupted: |-
         Vagrant exited after cleanup due to external interrupt.
+      machine_guest_not_ready: |-
+        Guest-specific operations were attempted on a machine that is not
+        ready for guest communication. This should not happen and a bug
+        should be reported.
       multi_vm_required: |-
         A multi-vm environment is required for name specification to this command.
       multi_vm_target_required: |-

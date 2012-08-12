@@ -191,6 +191,25 @@ describe Vagrant::Machine do
     end
   end
 
+  describe "guest implementation" do
+    let(:communicator) do
+      result = double("communicator")
+      result.stub(:ready?).and_return(true)
+      result
+    end
+
+    before(:each) do
+      instance.stub(:communicator).and_return(communicator)
+    end
+
+    it "should raise an exception if communication is not ready" do
+      communicator.should_receive(:ready?).and_return(false)
+
+      expect { instance.guest }.
+        to raise_error(Vagrant::Errors::MachineGuestNotReady)
+    end
+  end
+
   describe "setting the ID" do
     it "should not have an ID by default" do
       instance.id.should be_nil

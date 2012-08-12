@@ -226,6 +226,10 @@ module Vagrant
       error_key(:port_collision_resume)
     end
 
+    class MachineGuestNotReady < VagrantError
+      error_key(:machine_guest_not_ready)
+    end
+
     class MultiVMEnvironmentRequired < VagrantError
       status_code(5)
       error_key(:multi_vm_required)
