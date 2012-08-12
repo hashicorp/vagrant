@@ -160,6 +160,16 @@ describe Vagrant::Machine do
       foo.should == :bar
     end
 
+    it "should return the environment as a result" do
+      action_name = :up
+      callable    = lambda { |env| env[:result] = "FOO" }
+
+      provider.stub(:action).with(action_name).and_return(callable)
+      result = instance.action(action_name)
+
+      result[:result].should == "FOO"
+    end
+
     it "should raise an exception if the action is not implemented" do
       action_name = :up
 
