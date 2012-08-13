@@ -249,6 +249,24 @@ describe Vagrant::Machine do
       config.vm.guest = :parent
       instance.guest.should be_kind_of(guest_child)
     end
+
+    it "should protect against loops in the distro dispatch" do
+      # Create the classes and dispatch the parent into the child
+      guest_parent = Class.new(Vagrant.plugin("1", :guest)) do
+        def distro_dispatch
+          :parent
+        end
+      end
+
+      # Register the classes
+      register_plugin do |p|
+        p.guest(:parent) { guest_parent }
+      end
+
+      # Test that the result is the child
+      config.vm.guest = :parent
+      instance.guest.should be_kind_of(guest_parent)
+     end
   end
 
   describe "setting the ID" do
