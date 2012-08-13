@@ -17,9 +17,9 @@ module VagrantPlugins
             end
 
             # If we're not powered off now, then force it
-            if env[:machine].state != :poweroff
+            if env[:machine].provider.state != :poweroff
               env[:ui].info I18n.t("vagrant.actions.vm.halt.force")
-              env[:machine].driver.halt
+              env[:machine].provider.halt
             end
 
             # Sleep for a second to verify that the VM properly

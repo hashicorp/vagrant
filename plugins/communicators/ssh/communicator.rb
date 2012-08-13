@@ -85,6 +85,11 @@ module VagrantPlugins
         end
       end
 
+      def test(command, opts=nil)
+        opts = { :error_check => false }.merge(opts || {})
+        execute(command, opts) == 0
+      end
+
       def upload(from, to)
         @logger.debug("Uploading: #{from} to #{to}")
 

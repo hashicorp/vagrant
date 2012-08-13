@@ -83,6 +83,15 @@ module Vagrant
         # @see #execute
         def sudo(command, opts=nil)
         end
+
+        # Executes a command and returns true if the command succeeded,
+        # and false otherwise. By default, this executes as a normal user,
+        # and it is up to the communicator implementation if they expose an
+        # option for running tests as an administrator.
+        #
+        # @see #execute
+        def test(command, opts=nil)
+        end
       end
     end
   end

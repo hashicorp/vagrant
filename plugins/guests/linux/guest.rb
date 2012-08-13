@@ -16,23 +16,25 @@ module VagrantPlugins
       end
 
       def distro_dispatch
-        if @vm.channel.test("cat /etc/debian_version")
-          return :debian if @vm.channel.test("cat /proc/version | grep 'Debian'")
-          return :ubuntu if @vm.channel.test("cat /proc/version | grep 'Ubuntu'")
-        end
+        @vm.communicate.tap do |comm|
+          if comm.test("cat /etc/debian_version") == 0
+            return :debian if comm.test("cat /proc/version | grep 'Debian'") == 0
+            return :ubuntu if comm.test("cat /proc/version | grep 'Ubuntu'") == 0
+          end
 
-        return :gentoo if @vm.channel.test("cat /etc/gentoo-release")
-        return :fedora if @vm.channel.test("grep 'Fedora release 16' /etc/redhat-release")
-        return :redhat if @vm.channel.test("cat /etc/redhat-release")
-        return :suse if @vm.channel.test("cat /etc/SuSE-release")
-        return :arch if @vm.channel.test("cat /etc/arch-release")
+          return :gentoo if comm.test("cat /etc/gentoo-release") == 0
+          return :fedora if comm.test("grep 'Fedora release 16' /etc/redhat-release") == 0
+          return :redhat if comm.test("cat /etc/redhat-release") == 0
+          return :suse if comm.test("cat /etc/SuSE-release") == 0
+          return :arch if comm.test("cat /etc/arch-release") == 0
+        end
 
         # Can't detect the distro, assume vanilla linux
         nil
       end
 
       def halt
-        @vm.channel.sudo("shutdown -h now")
+        @vm.communicate.sudo("shutdown -h now")
 
         # Wait until the VM's state is actually powered off. If this doesn't
         # occur within a reasonable amount of time (15 seconds by default),
