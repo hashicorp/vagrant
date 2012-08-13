@@ -13,13 +13,13 @@ module VagrantPlugins
             # attempt a graceful shutdown
             if current_state == :running && !env["force"]
               env[:ui].info I18n.t("vagrant.actions.vm.halt.graceful")
-              env[:vm].guest.halt
+              env[:machine].guest.halt
             end
 
             # If we're not powered off now, then force it
-            if env[:vm].state != :poweroff
+            if env[:machine].state != :poweroff
               env[:ui].info I18n.t("vagrant.actions.vm.halt.force")
-              env[:vm].driver.halt
+              env[:machine].driver.halt
             end
 
             # Sleep for a second to verify that the VM properly

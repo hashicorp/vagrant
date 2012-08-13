@@ -199,7 +199,7 @@ describe Vagrant::Machine do
     end
 
     before(:each) do
-      instance.stub(:communicator).and_return(communicator)
+      instance.stub(:communicate).and_return(communicator)
     end
 
     it "should raise an exception if communication is not ready" do
@@ -207,6 +207,47 @@ describe Vagrant::Machine do
 
       expect { instance.guest }.
         to raise_error(Vagrant::Errors::MachineGuestNotReady)
+    end
+
+    it "should return the configured guest" do
+      test_guest = Class.new(Vagrant.plugin("1", :guest))
+
+      register_plugin do |p|
+        p.guest(:test) { test_guest }
+      end
+
+      config.vm.guest = :test
+
+      result = instance.guest
+      result.should be_kind_of(test_guest)
+    end
+
+    it "should raise an exception if it can't find the configured guest" do
+      config.vm.guest = :bad
+
+      expect { instance.guest }.
+        to raise_error(Vagrant::Errors::VMGuestError)
+    end
+
+    it "should distro dispatch to the most specific guest" do
+      # Create the classes and dispatch the parent into the child
+      guest_parent = Class.new(Vagrant.plugin("1", :guest)) do
+        def distro_dispatch
+          :child
+        end
+      end
+
+      guest_child  = Class.new(Vagrant.plugin("1", :guest))
+
+      # Register the classes
+      register_plugin do |p|
+        p.guest(:parent) { guest_parent }
+        p.guest(:child)  { guest_child }
+      end
+
+      # Test that the result is the child
+      config.vm.guest = :parent
+      instance.guest.should be_kind_of(guest_child)
     end
   end
 

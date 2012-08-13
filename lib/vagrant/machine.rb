@@ -129,8 +129,21 @@ module Vagrant
     #
     # @return [Object]
     def guest
-      raise Errors::MachineGuestNotReady if !communicator.ready?
-      # XXX: Todo
+      raise Errors::MachineGuestNotReady if !communicate.ready?
+
+      # Load the initial guest.
+      guest = load_guest(config.vm.guest)
+
+      # Loop and distro dispatch while there are distros.
+      while true
+        distro = guest.distro_dispatch
+        break if !distro
+
+        guest = load_guest(distro)
+      end
+
+      # Return the result
+      guest
     end
 
     # This sets the unique ID associated with this machine. This will
@@ -229,6 +242,33 @@ module Vagrant
     # @return [Symbol]
     def state
       @provider.state
+    end
+
+    protected
+
+    # Given a guest name (such as `:windows`), this will load the associated
+    # guest implementation and return an instance.
+    #
+    # @param [Symbol] guest The name of the guest implementation.
+    # @return [Object]
+    def load_guest(guest)
+      @logger.info("Loading guest: #{guest}")
+
+      klass = nil
+      Vagrant.plugin("1").registered.each do |plugin|
+        if plugin.guest.has_key?(guest)
+          klass = plugin.guest[guest]
+          break
+        end
+      end
+
+      if klass.nil?
+        raise Errors::VMGuestError,
+          :_key  => :unknown_type,
+          :guest => guest.to_s
+      end
+
+      return klass.new(self)
     end
   end
 end
