@@ -52,9 +52,9 @@ module VagrantPlugins
         real_guestpath = expanded_guest_path(guestpath)
         @logger.debug("Shell expanded guest path: #{real_guestpath}")
 
-        @vm.channel.sudo("mkdir -p #{real_guestpath}")
+        @vm.communicate.sudo("mkdir -p #{real_guestpath}")
         mount_folder(name, real_guestpath, options)
-        @vm.channel.sudo("chown `id -u #{options[:owner]}`:`id -g #{options[:group]}` #{real_guestpath}")
+        @vm.communicate.sudo("chown `id -u #{options[:owner]}`:`id -g #{options[:group]}` #{real_guestpath}")
       end
 
       def mount_nfs(ip, folders)
@@ -65,8 +65,8 @@ module VagrantPlugins
           real_guestpath = expanded_guest_path(opts[:guestpath])
 
           # Do the actual creating and mounting
-          @vm.channel.sudo("mkdir -p #{real_guestpath}")
-          @vm.channel.sudo("mount -o vers=#{opts[:nfs_version]} #{ip}:'#{opts[:hostpath]}' #{real_guestpath}",
+          @vm.communicate.sudo("mkdir -p #{real_guestpath}")
+          @vm.communicate.sudo("mount -o vers=#{opts[:nfs_version]} #{ip}:'#{opts[:hostpath]}' #{real_guestpath}",
                           :error_class => LinuxError,
                           :error_key => :mount_nfs_fail)
         end
@@ -82,7 +82,7 @@ module VagrantPlugins
       # @return [String] The expanded guestpath
       def expanded_guest_path(guestpath)
         real_guestpath = nil
-        @vm.channel.execute("printf #{guestpath}") do |type, data|
+        @vm.communicate.execute("printf #{guestpath}") do |type, data|
           if type == :stdout
             real_guestpath ||= ""
             real_guestpath += data
@@ -107,7 +107,7 @@ module VagrantPlugins
         attempts = 0
         while true
           success = true
-          @vm.channel.sudo("mount -t vboxsf #{mount_options} #{name} #{guestpath}") do |type, data|
+          @vm.communicate.sudo("mount -t vboxsf #{mount_options} #{name} #{guestpath}") do |type, data|
             success = false if type == :stderr && data =~ /No such device/i
           end
 
