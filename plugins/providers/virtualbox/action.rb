@@ -13,6 +13,7 @@ module VagrantPlugins
       autoload :Halt, File.expand_path("../action/halt", __FILE__)
       autoload :MessageNotCreated, File.expand_path("../action/message_not_created", __FILE__)
       autoload :MessageWillNotDestroy, File.expand_path("../action/message_will_not_destroy", __FILE__)
+      autoload :Suspend, File.expand_path("../action/suspend", __FILE__)
 
       # Include the built-in modules so that we can use them as top-level
       # things.
@@ -77,6 +78,22 @@ module VagrantPlugins
           b.use CheckAccessible
           b.use CheckRunning
           b.use SSHRun
+        end
+      end
+
+      # This is the action that is primarily responsible for suspending
+      # the virtual machine.
+      def self.action_suspend
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use CheckVirtualbox
+          b.use Call, Created do |env, b2|
+            if env[:result]
+              b2.use CheckAccessible
+              b2.use Suspend
+            else
+              b2.use MessageNotCreated
+            end
+          end
         end
       end
     end
