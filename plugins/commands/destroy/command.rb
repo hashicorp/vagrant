@@ -4,11 +4,11 @@ module VagrantPlugins
       def execute
         options = {}
 
-        opts = OptionParser.new do |opts|
-          opts.banner = "Usage: vagrant destroy [vm-name]"
-          opts.separator ""
+        opts = OptionParser.new do |o|
+          o.banner = "Usage: vagrant destroy [vm-name]"
+          o.separator ""
 
-          opts.on("-f", "--force", "Destroy without confirmation.") do |f|
+          o.on("-f", "--force", "Destroy without confirmation.") do |f|
             options[:force] = f
           end
         end

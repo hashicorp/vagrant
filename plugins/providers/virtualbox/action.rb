@@ -37,6 +37,8 @@ module VagrantPlugins
               if env2[:result]
                 b3.use Vagrant::Action::General::Validate
                 b3.use CheckAccessible
+                b3.use EnvSet, :force => true
+                b3.use action_halt
               else
                 b3.use MessageWillNotDestroy
               end
