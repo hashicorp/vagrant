@@ -3,8 +3,10 @@ require "vagrant/action/builder"
 module VagrantPlugins
   module ProviderVirtualBox
     module Action
+      autoload :Boot, File.expand_path("../action/boot", __FILE__)
       autoload :CheckAccessible, File.expand_path("../action/check_accessible", __FILE__)
       autoload :CheckCreated, File.expand_path("../action/check_created", __FILE__)
+      autoload :CheckPortCollisions, File.expand_path("../action/check_port_collisions", __FILE__)
       autoload :CheckRunning, File.expand_path("../action/check_running", __FILE__)
       autoload :CheckVirtualbox, File.expand_path("../action/check_virtualbox", __FILE__)
       autoload :Created, File.expand_path("../action/created", __FILE__)
@@ -13,6 +15,7 @@ module VagrantPlugins
       autoload :Halt, File.expand_path("../action/halt", __FILE__)
       autoload :MessageNotCreated, File.expand_path("../action/message_not_created", __FILE__)
       autoload :MessageWillNotDestroy, File.expand_path("../action/message_will_not_destroy", __FILE__)
+      autoload :Resume, File.expand_path("../action/resume", __FILE__)
       autoload :Suspend, File.expand_path("../action/suspend", __FILE__)
 
       # Include the built-in modules so that we can use them as top-level
@@ -52,6 +55,23 @@ module VagrantPlugins
               b2.use CheckAccessible
               b2.use DiscardState
               b2.use Halt
+            else
+              b2.use MessageNotCreated
+            end
+          end
+        end
+      end
+
+      # This is the action that is primarily responsible for resuming
+      # suspended machines.
+      def self.action_resume
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use CheckVirtualbox
+          b.use Call, Created do |env, b2|
+            if env[:result]
+              b2.use CheckAccessible
+              b2.use CheckPortCollisions
+              b2.use Resume
             else
               b2.use MessageNotCreated
             end
