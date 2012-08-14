@@ -164,8 +164,10 @@ en:
         The provider for this Vagrant-managed machine is reporting that it
         is not yet ready for SSH. Depending on your provider this can carry
         different meanings. Make sure your machine is created and running and
-        try again. If you continue to get this error message, please view the
-        documentation for the provider you're using.
+        try again. Additionally, check the output of `vagrant status` to verify
+        that the machine is in the state that you expect. If you continue to
+        get this error message, please view the documentation for the provider
+        you're using.
       ssh_port_not_detected: |-
         Vagrant couldn't determine the SSH port for your VM! Vagrant attempts to
         automatically find a forwarded port that matches your `config.ssh.guest_port`
