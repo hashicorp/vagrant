@@ -38,6 +38,8 @@ module VagrantPlugins
       #
       # @return [Symbol]
       def state
+        # XXX: What happens if we destroy the VM but the UUID is still
+        # set here?
         return :not_created if !@driver.uuid
         state = @driver.read_state
         return :unknown if !state

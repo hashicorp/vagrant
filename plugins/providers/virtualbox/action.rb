@@ -9,12 +9,17 @@ module VagrantPlugins
       autoload :CheckPortCollisions, File.expand_path("../action/check_port_collisions", __FILE__)
       autoload :CheckRunning, File.expand_path("../action/check_running", __FILE__)
       autoload :CheckVirtualbox, File.expand_path("../action/check_virtualbox", __FILE__)
+      autoload :CleanMachineFolder, File.expand_path("../action/clean_machine_folder", __FILE__)
       autoload :Created, File.expand_path("../action/created", __FILE__)
+      autoload :Destroy, File.expand_path("../action/destroy", __FILE__)
       autoload :DestroyConfirm, File.expand_path("../action/destroy_confirm", __FILE__)
+      autoload :DestroyUnusedNetworkInterfaces, File.expand_path("../action/destroy_unused_network_interfaces", __FILE__)
       autoload :DiscardState, File.expand_path("../action/discard_state", __FILE__)
       autoload :Halt, File.expand_path("../action/halt", __FILE__)
       autoload :MessageNotCreated, File.expand_path("../action/message_not_created", __FILE__)
       autoload :MessageWillNotDestroy, File.expand_path("../action/message_will_not_destroy", __FILE__)
+      autoload :ProvisionerCleanup, File.expand_path("../action/provisioner_cleanup", __FILE__)
+      autoload :PruneNFSExports, File.expand_path("../action/prune_nfs_exports", __FILE__)
       autoload :Resume, File.expand_path("../action/resume", __FILE__)
       autoload :Suspend, File.expand_path("../action/suspend", __FILE__)
 
@@ -39,6 +44,11 @@ module VagrantPlugins
                 b3.use CheckAccessible
                 b3.use EnvSet, :force => true
                 b3.use action_halt
+                b3.use ProvisionerCleanup
+                b3.use PruneNFSExports
+                b3.use Destroy
+                b3.use CleanMachineFolder
+                b3.use DestroyUnusedNetworkInterfaces
               else
                 b3.use MessageWillNotDestroy
               end
