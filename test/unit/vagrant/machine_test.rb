@@ -283,6 +283,17 @@ describe Vagrant::Machine do
       instance.id = "foo"
       new_instance.id.should == "foo"
     end
+
+    it "should delete the ID" do
+      instance.id = "foo"
+
+      second = new_instance
+      second.id.should == "foo"
+      second.id = nil
+
+      third = new_instance
+      third.id.should be_nil
+    end
   end
 
   describe "ssh info" do

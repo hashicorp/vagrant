@@ -1,11 +1,24 @@
+require "log4r"
+
 module VagrantPlugins
   module ProviderVirtualBox
     class Provider < Vagrant.plugin("1", :provider)
       attr_reader :driver
 
       def initialize(machine)
+        @logger  = Log4r::Logger.new("vagrant::provider::virtualbox")
         @machine = machine
-        @driver  = Driver::Meta.new(@machine.id)
+
+        begin
+          @logger.debug("Instantiating the driver for machine ID: #{@machine.id.inspect}")
+          @driver  = Driver::Meta.new(@machine.id)
+        rescue Driver::Meta::VMNotFound
+          # The virtual machine doesn't exist, so we probably have a stale
+          # ID. Just clear the id out of the machine and reload it.
+          @logger.debug("VM not found! Clearing saved machine ID and reloading.")
+          @machine.id = nil
+          retry
+        end
       end
 
       # @see Vagrant::Plugin::V1::Provider#action
