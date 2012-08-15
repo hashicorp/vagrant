@@ -10,17 +10,28 @@ module VagrantPlugins
       autoload :CheckRunning, File.expand_path("../action/check_running", __FILE__)
       autoload :CheckVirtualbox, File.expand_path("../action/check_virtualbox", __FILE__)
       autoload :CleanMachineFolder, File.expand_path("../action/clean_machine_folder", __FILE__)
+      autoload :ClearForwardedPorts, File.expand_path("../action/clear_forwarded_ports", __FILE__)
+      autoload :ClearNetworkInterfaces, File.expand_path("../action/clear_network_interfaces", __FILE__)
+      autoload :ClearSharedFolders, File.expand_path("../action/clear_shared_folders", __FILE__)
       autoload :Created, File.expand_path("../action/created", __FILE__)
+      autoload :Customize, File.expand_path("../action/customize", __FILE__)
       autoload :Destroy, File.expand_path("../action/destroy", __FILE__)
       autoload :DestroyConfirm, File.expand_path("../action/destroy_confirm", __FILE__)
       autoload :DestroyUnusedNetworkInterfaces, File.expand_path("../action/destroy_unused_network_interfaces", __FILE__)
       autoload :DiscardState, File.expand_path("../action/discard_state", __FILE__)
+      autoload :ForwardPorts, File.expand_path("../action/forward_ports", __FILE__)
       autoload :Halt, File.expand_path("../action/halt", __FILE__)
+      autoload :HostName, File.expand_path("../action/host_name", __FILE__)
       autoload :MessageNotCreated, File.expand_path("../action/message_not_created", __FILE__)
       autoload :MessageWillNotDestroy, File.expand_path("../action/message_will_not_destroy", __FILE__)
+      autoload :Network, File.expand_path("../action/network", __FILE__)
+      autoload :NFS, File.expand_path("../action/nfs", __FILE__)
+      autoload :Provision, File.expand_path("../action/provision", __FILE__)
       autoload :ProvisionerCleanup, File.expand_path("../action/provisioner_cleanup", __FILE__)
       autoload :PruneNFSExports, File.expand_path("../action/prune_nfs_exports", __FILE__)
       autoload :Resume, File.expand_path("../action/resume", __FILE__)
+      autoload :SaneDefaults, File.expand_path("../action/sane_defaults", __FILE__)
+      autoload :ShareFolders, File.expand_path("../action/share_folders", __FILE__)
       autoload :Suspend, File.expand_path("../action/suspend", __FILE__)
 
       # Include the built-in modules so that we can use them as top-level
@@ -74,6 +85,25 @@ module VagrantPlugins
         end
       end
 
+      # This action is responsible for reloading the machine, which
+      # brings it down, sucks in new configuration, and brings the
+      # machine back up with the new configuration.
+      def self.action_reload
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use CheckVirtualbox
+          b.use Call, Created do |env1, b2|
+            if !env1[:result]
+              b2.use MessageNotCreated
+              next
+            end
+
+            b2.use Vagrant::Action::General::Validate
+            b2.use action_halt
+            b2.use action_start
+          end
+        end
+      end
+
       # This is the action that is primarily responsible for resuming
       # suspended machines.
       def self.action_resume
@@ -110,6 +140,31 @@ module VagrantPlugins
           b.use CheckAccessible
           b.use CheckRunning
           b.use SSHRun
+        end
+      end
+
+      # This action starts a VM, assuming it is already imported and exists.
+      # A precondition of this action is that the VM exists.
+      def self.action_start
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use CheckVirtualbox
+          b.use Vagrant::Action::General::Validate
+          b.use CheckAccessible
+          b.use CleanMachineFolder
+          b.use ClearForwardedPorts
+          b.use EnvSet, :port_collision_handler => :correct
+          b.use ForwardPorts
+          b.use Provision
+          b.use PruneNFSExports
+          b.use NFS
+          b.use ClearSharedFolders
+          b.use ShareFolders
+          b.use ClearNetworkInterfaces
+          b.use Network
+          b.use HostName
+          b.use SaneDefaults
+          b.use Customize
+          b.use Boot
         end
       end
 
