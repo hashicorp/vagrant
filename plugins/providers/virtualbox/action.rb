@@ -22,7 +22,9 @@ module VagrantPlugins
       autoload :ForwardPorts, File.expand_path("../action/forward_ports", __FILE__)
       autoload :Halt, File.expand_path("../action/halt", __FILE__)
       autoload :HostName, File.expand_path("../action/host_name", __FILE__)
+      autoload :IsRunning, File.expand_path("../action/is_running", __FILE__)
       autoload :MessageNotCreated, File.expand_path("../action/message_not_created", __FILE__)
+      autoload :MessageNotRunning, File.expand_path("../action/message_not_running", __FILE__)
       autoload :MessageWillNotDestroy, File.expand_path("../action/message_will_not_destroy", __FILE__)
       autoload :Network, File.expand_path("../action/network", __FILE__)
       autoload :NFS, File.expand_path("../action/nfs", __FILE__)
@@ -80,6 +82,30 @@ module VagrantPlugins
               b2.use Halt
             else
               b2.use MessageNotCreated
+            end
+          end
+        end
+      end
+
+      # This action just runs the provisioners on the machine.
+      def self.action_provision
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use CheckVirtualbox
+          b.use Vagrant::Action::General::Validate
+          b.use Call, Created do |env1, b2|
+            if !env1[:result]
+              b2.use MessageNotCreated
+              next
+            end
+
+            b2.use Call, IsRunning do |env2, b3|
+              if !env2[:result]
+                b3.use MessageNotRunning
+                next
+              end
+
+              b3.use CheckAccessible
+              b3.use Provision
             end
           end
         end
