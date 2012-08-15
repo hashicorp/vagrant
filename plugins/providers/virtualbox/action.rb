@@ -5,7 +5,9 @@ module VagrantPlugins
     module Action
       autoload :Boot, File.expand_path("../action/boot", __FILE__)
       autoload :CheckAccessible, File.expand_path("../action/check_accessible", __FILE__)
+      autoload :CheckBox, File.expand_path("../action/check_box", __FILE__)
       autoload :CheckCreated, File.expand_path("../action/check_created", __FILE__)
+      autoload :CheckGuestAdditions, File.expand_path("../action/check_guest_additions", __FILE__)
       autoload :CheckPortCollisions, File.expand_path("../action/check_port_collisions", __FILE__)
       autoload :CheckRunning, File.expand_path("../action/check_running", __FILE__)
       autoload :CheckVirtualbox, File.expand_path("../action/check_virtualbox", __FILE__)
@@ -15,6 +17,7 @@ module VagrantPlugins
       autoload :ClearSharedFolders, File.expand_path("../action/clear_shared_folders", __FILE__)
       autoload :Created, File.expand_path("../action/created", __FILE__)
       autoload :Customize, File.expand_path("../action/customize", __FILE__)
+      autoload :DefaultName, File.expand_path("../action/default_name", __FILE__)
       autoload :Destroy, File.expand_path("../action/destroy", __FILE__)
       autoload :DestroyConfirm, File.expand_path("../action/destroy_confirm", __FILE__)
       autoload :DestroyUnusedNetworkInterfaces, File.expand_path("../action/destroy_unused_network_interfaces", __FILE__)
@@ -22,7 +25,10 @@ module VagrantPlugins
       autoload :ForwardPorts, File.expand_path("../action/forward_ports", __FILE__)
       autoload :Halt, File.expand_path("../action/halt", __FILE__)
       autoload :HostName, File.expand_path("../action/host_name", __FILE__)
+      autoload :Import, File.expand_path("../action/import", __FILE__)
       autoload :IsRunning, File.expand_path("../action/is_running", __FILE__)
+      autoload :IsSaved, File.expand_path("../action/is_saved", __FILE__)
+      autoload :MatchMACAddress, File.expand_path("../action/match_mac_address", __FILE__)
       autoload :MessageNotCreated, File.expand_path("../action/message_not_created", __FILE__)
       autoload :MessageNotRunning, File.expand_path("../action/message_not_running", __FILE__)
       autoload :MessageWillNotDestroy, File.expand_path("../action/message_will_not_destroy", __FILE__)
@@ -39,6 +45,29 @@ module VagrantPlugins
       # Include the built-in modules so that we can use them as top-level
       # things.
       include Vagrant::Action::Builtin
+
+      # This action boots the VM, assuming the VM is in a state that requires
+      # a bootup (i.e. not saved).
+      def self.action_boot
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use CheckAccessible
+          b.use CleanMachineFolder
+          b.use ClearForwardedPorts
+          b.use EnvSet, :port_collision_handler => :correct
+          b.use ForwardPorts
+          b.use Provision
+          b.use PruneNFSExports
+          b.use NFS
+          b.use ClearSharedFolders
+          b.use ShareFolders
+          b.use ClearNetworkInterfaces
+          b.use Network
+          b.use HostName
+          b.use SaneDefaults
+          b.use Customize
+          b.use Boot
+        end
+      end
 
       # This is the action that is primarily responsible for completely
       # freeing the resources of the underlying virtual machine.
@@ -175,22 +204,21 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           b.use CheckVirtualbox
           b.use Vagrant::Action::General::Validate
-          b.use CheckAccessible
-          b.use CleanMachineFolder
-          b.use ClearForwardedPorts
-          b.use EnvSet, :port_collision_handler => :correct
-          b.use ForwardPorts
-          b.use Provision
-          b.use PruneNFSExports
-          b.use NFS
-          b.use ClearSharedFolders
-          b.use ShareFolders
-          b.use ClearNetworkInterfaces
-          b.use Network
-          b.use HostName
-          b.use SaneDefaults
-          b.use Customize
-          b.use Boot
+          b.use Call, IsRunning do |env, b2|
+            # If the VM is running, then our work here is done, exit
+            next if env[:result]
+
+            b2.use Call, IsSaved do |env2, b3|
+              if env2[:result]
+                # The VM is saved, so just resume it
+                b3.use action_resume
+              else
+                # The VM is not saved, so we must have to boot it up
+                # like normal. Boot!
+                b3.use action_boot
+              end
+            end
+          end
         end
       end
 
@@ -207,6 +235,27 @@ module VagrantPlugins
               b2.use MessageNotCreated
             end
           end
+        end
+      end
+
+      # This action brings the machine up from nothing, including importing
+      # the box, configuring metadata, and booting.
+      def self.action_up
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use CheckVirtualbox
+          b.use Vagrant::Action::General::Validate
+          b.use Call, Created do |env, b2|
+            # If the VM is NOT created yet, then do the setup steps
+            if !env[:result]
+              b2.use CheckAccessible
+              b2.use CheckBox
+              b2.use Import
+              b2.use CheckGuestAdditions
+              b2.use DefaultName
+              b2.use MatchMACAddress
+            end
+          end
+          b.use action_start
         end
       end
     end

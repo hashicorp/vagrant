@@ -184,6 +184,10 @@ module Vagrant
 
       # Store the ID locally
       @id = value
+
+      # Notify the provider that the ID changed in case it needs to do
+      # any accounting from it.
+      @provider.machine_id_changed
     end
 
     # This returns a clean inspect value so that printing the value via

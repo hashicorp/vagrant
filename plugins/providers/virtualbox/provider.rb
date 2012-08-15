@@ -9,16 +9,9 @@ module VagrantPlugins
         @logger  = Log4r::Logger.new("vagrant::provider::virtualbox")
         @machine = machine
 
-        begin
-          @logger.debug("Instantiating the driver for machine ID: #{@machine.id.inspect}")
-          @driver  = Driver::Meta.new(@machine.id)
-        rescue Driver::Meta::VMNotFound
-          # The virtual machine doesn't exist, so we probably have a stale
-          # ID. Just clear the id out of the machine and reload it.
-          @logger.debug("VM not found! Clearing saved machine ID and reloading.")
-          @machine.id = nil
-          retry
-        end
+        # This method will load in our driver, so we call it now to
+        # initialize it.
+        machine_id_changed
       end
 
       # @see Vagrant::Plugin::V1::Provider#action
@@ -29,6 +22,23 @@ module VagrantPlugins
         action_method = "action_#{name}"
         return Action.send(action_method) if Action.respond_to?(action_method)
         nil
+      end
+
+      # If the machine ID changed, then we need to rebuild our underlying
+      # driver.
+      def machine_id_changed
+        id = @machine.id
+
+        begin
+          @logger.debug("Instantiating the driver for machine ID: #{@machine.id.inspect}")
+          @driver = Driver::Meta.new(id)
+        rescue Driver::Meta::VMNotFound
+          # The virtual machine doesn't exist, so we probably have a stale
+          # ID. Just clear the id out of the machine and reload it.
+          @logger.debug("VM not found! Clearing saved machine ID and reloading.")
+          id = nil
+          retry
+        end
       end
 
       # Returns the SSH info for accessing the VirtualBox VM.

@@ -90,6 +90,10 @@ describe Vagrant::Machine do
       end
 
       it "should have access to the ID" do
+        # Stub this because #id= calls it.
+        provider.stub(:machine_id_changed)
+
+        # Set the ID on the previous instance so that it is persisted
         instance.id = "foo"
 
         provider_init_test do |machine|
@@ -270,6 +274,10 @@ describe Vagrant::Machine do
   end
 
   describe "setting the ID" do
+    before(:each) do
+      provider.stub(:machine_id_changed)
+    end
+
     it "should not have an ID by default" do
       instance.id.should be_nil
     end
@@ -277,6 +285,12 @@ describe Vagrant::Machine do
     it "should set an ID" do
       instance.id = "bar"
       instance.id.should == "bar"
+    end
+
+    it "should notify the machine that the ID changed" do
+      provider.should_receive(:machine_id_changed).once
+
+      instance.id = "bar"
     end
 
     it "should persist the ID" do

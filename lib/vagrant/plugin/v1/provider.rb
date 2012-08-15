@@ -21,6 +21,15 @@ module Vagrant
           nil
         end
 
+        # This method is called if the underying machine ID changes. Providers
+        # can use this method to load in new data for the actual backing
+        # machine or to realize that the machine is now gone (the ID can
+        # become `nil`). No parameters are given, since the underlying machine
+        # is simply the machine instance given to this object. And no
+        # return value is necessary.
+        def machine_id_changed
+        end
+
         # This should return a hash of information that explains how to
         # SSH into the machine. If the machine is not at a point where
         # SSH is even possible, then `nil` should be returned.
