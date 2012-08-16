@@ -22,6 +22,7 @@ module VagrantPlugins
       autoload :DestroyConfirm, File.expand_path("../action/destroy_confirm", __FILE__)
       autoload :DestroyUnusedNetworkInterfaces, File.expand_path("../action/destroy_unused_network_interfaces", __FILE__)
       autoload :DiscardState, File.expand_path("../action/discard_state", __FILE__)
+      autoload :Export, File.expand_path("../action/export", __FILE__)
       autoload :ForwardPorts, File.expand_path("../action/forward_ports", __FILE__)
       autoload :Halt, File.expand_path("../action/halt", __FILE__)
       autoload :HostName, File.expand_path("../action/host_name", __FILE__)
@@ -34,11 +35,14 @@ module VagrantPlugins
       autoload :MessageWillNotDestroy, File.expand_path("../action/message_will_not_destroy", __FILE__)
       autoload :Network, File.expand_path("../action/network", __FILE__)
       autoload :NFS, File.expand_path("../action/nfs", __FILE__)
+      autoload :Package, File.expand_path("../action/package", __FILE__)
+      autoload :PackageVagrantfile, File.expand_path("../action/package_vagrantfile", __FILE__)
       autoload :Provision, File.expand_path("../action/provision", __FILE__)
       autoload :ProvisionerCleanup, File.expand_path("../action/provisioner_cleanup", __FILE__)
       autoload :PruneNFSExports, File.expand_path("../action/prune_nfs_exports", __FILE__)
       autoload :Resume, File.expand_path("../action/resume", __FILE__)
       autoload :SaneDefaults, File.expand_path("../action/sane_defaults", __FILE__)
+      autoload :SetupPackageFiles, File.expand_path("../action/setup_package_files", __FILE__)
       autoload :ShareFolders, File.expand_path("../action/share_folders", __FILE__)
       autoload :Suspend, File.expand_path("../action/suspend", __FILE__)
 
@@ -112,6 +116,28 @@ module VagrantPlugins
             else
               b2.use MessageNotCreated
             end
+          end
+        end
+      end
+
+      # This action packages the virtual machine into a single box file.
+      def self.action_package
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use CheckVirtualbox
+          b.use Call, Created do |env1, b2|
+            if !env1[:result]
+              b2.use MessageNotCreated
+              next
+            end
+
+            b2.use SetupPackageFiles
+            b2.use CheckAccessible
+            b2.use action_halt
+            b2.use ClearForwardedPorts
+            b2.use ClearSharedFolders
+            b2.use Export
+            b2.use PackageVagrantfile
+            b2.use Package
           end
         end
       end
