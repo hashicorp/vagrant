@@ -19,6 +19,7 @@ module Vagrant
         proxy_uri = resolve_proxy(uri)
 
         http = Net::HTTP.new(uri.host, uri.port, proxy_uri.host, proxy_uri.port, proxy_uri.user, proxy_uri.password)
+        http.read_timeout = nil # Disable the read timeout, just let it try to download
 
         if uri.scheme == "https"
           http.use_ssl = true
