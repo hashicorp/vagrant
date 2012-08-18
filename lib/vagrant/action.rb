@@ -22,6 +22,11 @@ module Vagrant
       autoload :Validate, 'vagrant/action/general/validate'
     end
 
+    # This is the action that will add a box from a URL. This middleware
+    # sequence is built-in to Vagrant. Plugins can hook into this like any
+    # other middleware sequence. This is particularly useful for provider
+    # plugins, which can hook in to do things like verification of boxes
+    # that are downloaded.
     def self.action_box_add
       Builder.new.tap do |b|
         b.use Builtin::BoxAdd
