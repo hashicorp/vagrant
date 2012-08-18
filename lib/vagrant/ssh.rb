@@ -55,15 +55,18 @@ module Vagrant
       # Get the SSH information and cache it here
       ssh_info = info
 
-      if Util::Platform.windows?
-        raise Errors::SSHUnavailableWindows, :host => ssh_info[:host],
-                                             :port => ssh_info[:port],
-                                             :username => ssh_info[:username],
-                                             :key_path => ssh_info[:private_key_path]
+	  if Util::Platform.windows?
+		# works well with http://miked.ict.rave.ac.uk/display/sshwindows/OpenSSH+for+Windows
+		if !Kernel.system("ssh -V > NUL 2>&1")
+		  raise Errors::SSHUnavailableWindows, :host => ssh_info[:host],
+											   :port => ssh_info[:port],
+											   :username => ssh_info[:username],
+											   :key_path => ssh_info[:private_key_path]
+		end
+	  else
+		raise Errors::SSHUnavailable if !Kernel.system("which ssh > /dev/null 2>&1")
       end
-
-      raise Errors::SSHUnavailable if !Kernel.system("which ssh > /dev/null 2>&1")
-
+	  
       # If plain mode is enabled then we don't do any authentication (we don't
       # set a user or an identity file)
       plain_mode = opts[:plain_mode]
