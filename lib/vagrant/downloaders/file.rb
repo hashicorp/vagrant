@@ -9,11 +9,9 @@ module Vagrant
         ::File.file?(::File.expand_path(uri))
       end
 
-      def prepare(source_url)
-        raise Errors::DownloaderFileDoesntExist if !::File.file?(::File.expand_path(source_url))
-      end
-
       def download!(source_url, destination_file)
+        raise Errors::DownloaderFileDoesntExist if !::File.file?(::File.expand_path(source_url))
+
         @ui.info I18n.t("vagrant.downloaders.file.download")
         FileUtils.cp(::File.expand_path(source_url), destination_file.path)
       end
