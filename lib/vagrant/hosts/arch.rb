@@ -2,7 +2,7 @@ module Vagrant
   module Hosts
     class Arch < Linux
       def self.match?
-        File.exist?("/etc/rc.conf") && File.exist?("/etc/pacman.conf")
+        File.exist?("/etc/os-release") && File.read("/etc/os-release") =~ /arch linux/i
       end
 
       # Normal, mid-range precedence.
@@ -25,11 +25,21 @@ module Vagrant
           system(%Q[sudo su root -c "echo '#{line}' >> /etc/exports"])
         end
 
-        # We run restart here instead of "update" just in case nfsd
-        # is not starting
-        system("sudo /etc/rc.d/rpcbind restart")
-        system("sudo /etc/rc.d/nfs-common restart")
-        system("sudo /etc/rc.d/nfs-server restart")
+        # We run restart here instead of "update" just in case the
+        # services are not yet started
+        if systemd?
+          system("sudo systemctl restart nfsd.service rpc-idmapd.service rpc-mountd.service rpcbind.service")
+        else
+          system("sudo /etc/rc.d/rpcbind restart")
+          system("sudo /etc/rc.d/nfs-common restart")
+          system("sudo /etc/rc.d/nfs-server restart")
+        end
+      end
+
+      private
+
+      def systemd?
+        system("which systemctl &>/dev/null")
       end
     end
   end
