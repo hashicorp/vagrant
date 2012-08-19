@@ -103,6 +103,20 @@ module Vagrant
           data[:command]
         end
 
+
+        # Writes configuration data in to the data dictionary
+        # @param [String] name Configuration key
+        # @param [Symbol] symbol the symbol to update in the data dictionary
+        def self.write_data(symbol, name=UNSET_VALUE, &block)
+          data[symbol] ||= Registry.new
+
+          # Register a new config class only if a name was given.
+          data[symbol].register(name.to_sym, &block) if name != UNSET_VALUE
+
+          # Return the registry
+          data[symbol]
+        end
+
         # Defines additional configuration keys to be available in the
         # Vagrantfile. The configuration class should be returned by a
         # block passed to this method. This is done to ensure that the class
@@ -112,13 +126,7 @@ module Vagrant
         #
         # @param [String] name Configuration key.
         def self.config(name=UNSET_VALUE, &block)
-          data[:config] ||= Registry.new
-
-          # Register a new config class only if a name was given.
-          data[:config].register(name.to_sym, &block) if name != UNSET_VALUE
-
-          # Return the registry
-          data[:config]
+          self.write_data(:config,name,&block)
         end
 
         # Defines an "easy hook," which gives an easier interface to hook
@@ -158,13 +166,7 @@ module Vagrant
         #
         # @param [String] name Name of the guest.
         def self.guest(name=UNSET_VALUE, &block)
-          data[:guests] ||= Registry.new
-
-          # Register a new guest class only if a name was given
-          data[:guests].register(name.to_sym, &block) if name != UNSET_VALUE
-
-          # Return the registry
-          data[:guests]
+          self.write_data(:guests, name, &block)
         end
 
         # Defines an additionally available host implementation with
@@ -206,12 +208,10 @@ module Vagrant
           end
         end
 
-        # Registers the plugin. This makes the plugin actually work with
-        # Vagrant. Prior to registering, the plugin is merely a skeleton.
-        #
-        # This shouldn't be called by the general public. Plugins are automatically
-        # registered when they are given a name.
-        def self.register!(plugin=nil)
+
+        # Handles  plugin registration and deregistration
+        # Should not be called by the outside world
+        def self.modify_registry(plugin=nil, register=true)
           plugin ||= self
 
           # Register only on the root class
@@ -220,25 +220,29 @@ module Vagrant
           # Register it into the list
           @registry ||= []
           if !@registry.include?(plugin)
-            LOGGER.info("Registered plugin: #{plugin.name}")
-            @registry << plugin
+            if register
+              LOGGER.info("Registered plugin: #{plugin.name}")
+              @registry << plugin
+            else
+              LOGGER.info("Unregistered: #{plugin.name}")
+              @registry.delete(plugin)
+            end
           end
+        end
+
+        # Registers the plugin. This makes the plugin actually work with
+        # Vagrant. Prior to registering, the plugin is merely a skeleton.
+        #
+        # This shouldn't be called by the general public. Plugins are automatically
+        # registered when they are given a name.
+        def self.register!(plugin=nil)
+          self.modify_registry(plugin, true)
         end
 
         # This unregisters the plugin. Note that to re-register the plugin
         # you must call `register!` again.
         def self.unregister!(plugin=nil)
-          plugin ||= self
-
-          # Unregister only on the root class
-          return ROOT_CLASS.unregister!(plugin) if self != ROOT_CLASS
-
-          # Unregister it from the registry
-          @registry ||= []
-          if @registry.include?(plugin)
-            LOGGER.info("Unregistered: #{plugin.name}")
-            @registry.delete(plugin)
-          end
+          self.modify_registry(plugin, false)
         end
 
         protected
