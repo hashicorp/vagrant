@@ -208,12 +208,10 @@ module Vagrant
           end
         end
 
-        # Registers the plugin. This makes the plugin actually work with
-        # Vagrant. Prior to registering, the plugin is merely a skeleton.
-        #
-        # This shouldn't be called by the general public. Plugins are automatically
-        # registered when they are given a name.
-        def self.register!(plugin=nil)
+
+        # Handles  plugin registration and deregistration
+        # Should not be called by the outside world
+        def self.modify_registry(plugin=nil, register=true)
           plugin ||= self
 
           # Register only on the root class
@@ -222,25 +220,29 @@ module Vagrant
           # Register it into the list
           @registry ||= []
           if !@registry.include?(plugin)
-            LOGGER.info("Registered plugin: #{plugin.name}")
-            @registry << plugin
+            if register
+              LOGGER.info("Registered plugin: #{plugin.name}")
+              @registry << plugin
+            else
+              LOGGER.info("Unregistered: #{plugin.name}")
+              @registry.delete(plugin)
+            end
           end
+        end
+
+        # Registers the plugin. This makes the plugin actually work with
+        # Vagrant. Prior to registering, the plugin is merely a skeleton.
+        #
+        # This shouldn't be called by the general public. Plugins are automatically
+        # registered when they are given a name.
+        def self.register!(plugin=nil)
+          self.modify_registry(plugin, true)
         end
 
         # This unregisters the plugin. Note that to re-register the plugin
         # you must call `register!` again.
         def self.unregister!(plugin=nil)
-          plugin ||= self
-
-          # Unregister only on the root class
-          return ROOT_CLASS.unregister!(plugin) if self != ROOT_CLASS
-
-          # Unregister it from the registry
-          @registry ||= []
-          if @registry.include?(plugin)
-            LOGGER.info("Unregistered: #{plugin.name}")
-            @registry.delete(plugin)
-          end
+          self.modify_registry(plugin, false)
         end
 
         protected
