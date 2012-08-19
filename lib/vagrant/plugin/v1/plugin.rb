@@ -103,6 +103,20 @@ module Vagrant
           data[:command]
         end
 
+
+        # Writes configuration data in to the data dictionary
+        # @param [String] name Configuration key
+        # @param [Symbol] symbol the symbol to update in the data dictionary
+        def self.write_data(symbol, name=UNSET_VALUE, &block)
+          data[symbol] ||= Registry.new
+
+          # Register a new config class only if a name was given.
+          data[symbol].register(name.to_sym, &block) if name != UNSET_VALUE
+
+          # Return the registry
+          data[symbol]
+        end
+
         # Defines additional configuration keys to be available in the
         # Vagrantfile. The configuration class should be returned by a
         # block passed to this method. This is done to ensure that the class
@@ -112,13 +126,7 @@ module Vagrant
         #
         # @param [String] name Configuration key.
         def self.config(name=UNSET_VALUE, &block)
-          data[:config] ||= Registry.new
-
-          # Register a new config class only if a name was given.
-          data[:config].register(name.to_sym, &block) if name != UNSET_VALUE
-
-          # Return the registry
-          data[:config]
+          self.write_data(:config,name,&block)
         end
 
         # Defines an "easy hook," which gives an easier interface to hook
@@ -158,13 +166,7 @@ module Vagrant
         #
         # @param [String] name Name of the guest.
         def self.guest(name=UNSET_VALUE, &block)
-          data[:guests] ||= Registry.new
-
-          # Register a new guest class only if a name was given
-          data[:guests].register(name.to_sym, &block) if name != UNSET_VALUE
-
-          # Return the registry
-          data[:guests]
+          self.write_data(:guests, name, &block)
         end
 
         # Defines an additionally available host implementation with
