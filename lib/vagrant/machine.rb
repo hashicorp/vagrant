@@ -47,15 +47,15 @@ module Vagrant
     # @param [Environment] env The environment that this machine is a
     #   part of.
     def initialize(name, provider_cls, config, box, env)
-      @logger   = Log4r::Logger.new("vagrant::machine")
+      @logger = Log4r::Logger.new("vagrant::machine")
       @logger.info("Initializing machine: #{name}")
       @logger.info("  - Provider: #{provider_cls}")
       @logger.info("  - Box: #{box}")
 
-      @name     = name
-      @box      = box
-      @config   = config
-      @env      = env
+      @name   = name
+      @box    = box
+      @config = config
+      @env    = env
 
       # Read the ID, which is usually in local storage
       @id = nil
