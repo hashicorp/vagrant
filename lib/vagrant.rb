@@ -80,7 +80,6 @@ module Vagrant
   autoload :TestHelpers,   'vagrant/test_helpers'
   autoload :UI,            'vagrant/ui'
   autoload :Util,          'vagrant/util'
-  autoload :VM,            'vagrant/vm'
 
   # These are the various plugin versions and their components in
   # a lazy loaded Hash-like structure.
