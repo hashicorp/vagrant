@@ -8,8 +8,18 @@ require "support/tempdir"
 describe Vagrant::Environment do
   include_context "unit"
 
-  let(:home_path) { Pathname.new(Tempdir.new.path) }
-  let(:instance)  { described_class.new(:home_path => home_path) }
+  let(:env) do
+    isolated_environment.tap do |e|
+      e.box2("base", :virtualbox)
+      e.vagrantfile <<-VF
+      Vagrant.configure("1") do |config|
+        config.vm.box = "base"
+      end
+      VF
+    end
+  end
+
+  let(:instance)  { env.create_vagrant_env }
 
   describe "current working directory" do
     it "is the cwd by default" do
@@ -102,6 +112,7 @@ describe Vagrant::Environment do
       environment = isolated_environment do |env|
         env.vagrantfile(<<-VF)
 Vagrant::Config.run do |config|
+  config.vm.box = "base"
   config.vm.define :foo
   config.vm.define :bar, :primary => true
 end
