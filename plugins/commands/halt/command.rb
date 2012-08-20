@@ -22,13 +22,8 @@ module VagrantPlugins
 
         @logger.debug("Halt command: #{argv.inspect} #{options.inspect}")
         with_target_vms(argv) do |vm|
-          if vm.created?
-            @logger.info("Halting #{vm.name}")
-            vm.halt(:force => options[:force])
-          else
-            @logger.info("Not halting #{vm.name}, since not created.")
-            vm.ui.info I18n.t("vagrant.commands.common.vm_not_created")
-          end
+          # XXX: "force"
+          vm.action(:halt)
         end
 
         # Success, exit status 0

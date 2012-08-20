@@ -10,12 +10,11 @@ module VagrantPlugins
       def execute
         options = {}
 
-        opts = OptionParser.new do |opts|
-          opts.banner = "Usage: vagrant ssh-config [vm-name] [--host name]"
+        opts = OptionParser.new do |o|
+          o.banner = "Usage: vagrant ssh-config [vm-name] [--host name]"
+          o.separator ""
 
-          opts.separator ""
-
-          opts.on("--host NAME", "Name the host for the config..") do |h|
+          o.on("--host COMMAND", "Name the host for the config..") do |h|
             options[:host] = h
           end
         end
@@ -23,13 +22,12 @@ module VagrantPlugins
         argv = parse_options(opts)
         return if !argv
 
-        with_target_vms(argv, :single_target => true) do |vm|
-          raise Vagrant::Errors::VMNotCreatedError if !vm.created?
-          raise Vagrant::Errors::VMInaccessible if !vm.state == :inaccessible
+        with_target_vms(argv, :single_target => true) do |machine|
+          ssh_info = machine.ssh_info
+          raise Vagrant::Errors::SSHNotReady if ssh_info.nil?
 
-          ssh_info  = vm.ssh.info
           variables = {
-            :host_key => options[:host] || vm.name || "vagrant",
+            :host_key => options[:host] || machine.name || "vagrant",
             :ssh_host => ssh_info[:host],
             :ssh_port => ssh_info[:port],
             :ssh_user => ssh_info[:username],
@@ -45,7 +43,7 @@ module VagrantPlugins
 
         # Success, exit status 0
         0
-       end
+      end
     end
   end
 end

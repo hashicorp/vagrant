@@ -226,6 +226,10 @@ module Vagrant
       error_key(:port_collision_resume)
     end
 
+    class MachineGuestNotReady < VagrantError
+      error_key(:machine_guest_not_ready)
+    end
+
     class MultiVMEnvironmentRequired < VagrantError
       status_code(5)
       error_key(:multi_vm_required)
@@ -356,6 +360,10 @@ module Vagrant
       error_key(:ssh_key_type_not_supported)
     end
 
+    class SSHNotReady < VagrantError
+      error_key(:ssh_not_ready)
+    end
+
     class SSHPortNotDetected < VagrantError
       status_code(50)
       error_key(:ssh_port_not_detected)
@@ -374,6 +382,10 @@ module Vagrant
     class UIExpectsTTY < VagrantError
       status_code(73)
       error_key(:ui_expects_tty)
+    end
+
+    class UnimplementedProviderAction < VagrantError
+      error_key(:unimplemented_provider_action)
     end
 
     class VagrantInterrupt < VagrantError

@@ -100,6 +100,34 @@ describe Vagrant::Plugin::V1::Plugin do
     end
   end
 
+  describe "communicators" do
+    it "should register communicator classes" do
+      plugin = Class.new(described_class) do
+        communicator("foo") { "bar" }
+      end
+
+      plugin.communicator[:foo].should == "bar"
+    end
+
+    it "should lazily register communicator classes" do
+      # Below would raise an error if the value of the class was
+      # evaluated immediately. By asserting that this does not raise an
+      # error, we verify that the value is actually lazily loaded
+      plugin = nil
+      expect {
+        plugin = Class.new(described_class) do
+        communicator("foo") { raise StandardError, "FAIL!" }
+        end
+      }.to_not raise_error
+
+      # Now verify when we actually get the configuration key that
+      # a proper error is raised.
+      expect {
+        plugin.communicator[:foo]
+      }.to raise_error(StandardError)
+    end
+  end
+
   describe "configuration" do
     it "should register configuration classes" do
       plugin = Class.new(described_class) do
@@ -191,6 +219,34 @@ describe Vagrant::Plugin::V1::Plugin do
       # a proper error is raised.
       expect {
         plugin.host[:foo]
+      }.to raise_error(StandardError)
+    end
+  end
+
+  describe "providers" do
+    it "should register provider classes" do
+      plugin = Class.new(described_class) do
+        provider("foo") { "bar" }
+      end
+
+      plugin.provider[:foo].should == "bar"
+    end
+
+    it "should lazily register provider classes" do
+      # Below would raise an error if the value of the config class was
+      # evaluated immediately. By asserting that this does not raise an
+      # error, we verify that the value is actually lazily loaded
+      plugin = nil
+      expect {
+        plugin = Class.new(described_class) do
+          provider("foo") { raise StandardError, "FAIL!" }
+        end
+      }.to_not raise_error
+
+      # Now verify when we actually get the configuration key that
+      # a proper error is raised.
+      expect {
+        plugin.provider[:foo]
       }.to raise_error(StandardError)
     end
   end
