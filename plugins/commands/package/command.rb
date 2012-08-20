@@ -47,8 +47,17 @@ module VagrantPlugins
       protected
 
       def package_base(options)
-        vm = Vagrant::VM.new(options[:base], @env, @env.config.global, :base => true)
-        raise Vagrant::Errors::BaseVMNotFound, :name => options[:base] if !vm.created?
+        # XXX: This whole thing is hardcoded and very temporary. The whole
+        # `vagrant package --base` process is deprecated for something much
+        # better in the future. We just hardcode this to keep VirtualBox working
+        # for now.
+        provider = nil
+        Vagrant.plugin("1").registered.each do |plugin|
+          provider = plugin.provider.get(:virtualbox)
+          break if provider
+        end
+
+        vm = Vagrant::Machine.new(options[:base], provider, @env.config.global, nil, @env, true)
         @logger.debug("Packaging base VM: #{vm.name}")
         package_vm(vm, options)
       end

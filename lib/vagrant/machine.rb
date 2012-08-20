@@ -46,7 +46,7 @@ module Vagrant
     # @param [Box] box The box that is backing this virtual machine.
     # @param [Environment] env The environment that this machine is a
     #   part of.
-    def initialize(name, provider_cls, config, box, env)
+    def initialize(name, provider_cls, config, box, env, base=false)
       @logger = Log4r::Logger.new("vagrant::machine")
       @logger.info("Initializing machine: #{name}")
       @logger.info("  - Provider: #{provider_cls}")
@@ -59,7 +59,13 @@ module Vagrant
 
       # Read the ID, which is usually in local storage
       @id = nil
-      @id = @env.local_data[:active][@name.to_s] if @env.local_data[:active]
+
+      # XXX: This is temporary. This will be removed very soon.
+      if base
+        @id = name
+      else
+        @id = @env.local_data[:active][@name.to_s] if @env.local_data[:active]
+      end
 
       # Initializes the provider last so that it has access to all the
       # state we setup on this machine.
