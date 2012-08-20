@@ -104,7 +104,7 @@ module VagrantPlugins
         end
 
         def share_manifests
-          env[:vm].config.vm.share_folder("manifests", manifests_guest_path, @expanded_manifests_path)
+          env[:machine].config.vm.share_folder("manifests", manifests_guest_path, @expanded_manifests_path)
         end
 
         def share_module_paths
@@ -112,7 +112,7 @@ module VagrantPlugins
           @module_paths.each do |from, to|
             # Sorry for the cryptic key here, but VirtualBox has a strange limit on
             # maximum size for it and its something small (around 10)
-            env[:vm].config.vm.share_folder("v-pp-m#{count}", to, from)
+            env[:machine].config.vm.share_folder("v-pp-m#{count}", to, from)
             count += 1
           end
         end
@@ -129,10 +129,10 @@ module VagrantPlugins
         end
 
         def verify_binary(binary)
-          env[:vm].channel.sudo("which #{binary}",
-                                :error_class => PuppetError,
-                                :error_key => :not_detected,
-                                :binary => binary)
+          env[:machine].communicate.sudo("which #{binary}",
+                                         :error_class => PuppetError,
+                                         :error_key => :not_detected,
+                                         :binary => binary)
         end
 
         def run_puppet_apply
@@ -158,7 +158,7 @@ module VagrantPlugins
           env[:ui].info I18n.t("vagrant.provisioners.puppet.running_puppet",
                                :manifest => @manifest_file)
 
-          env[:vm].channel.sudo(command) do |type, data|
+          env[:machine].communicate.sudo(command) do |type, data|
             env[:ui].info(data.chomp, :prefix => false)
           end
         end
@@ -166,7 +166,7 @@ module VagrantPlugins
         def verify_shared_folders(folders)
           folders.each do |folder|
             @logger.debug("Checking for shared folder: #{folder}")
-            if !env[:vm].channel.test("test -d #{folder}")
+            if !env[:machine].communicate.test("test -d #{folder}")
               raise PuppetError, :missing_shared_folders
             end
           end

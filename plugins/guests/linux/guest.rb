@@ -17,16 +17,16 @@ module VagrantPlugins
 
       def distro_dispatch
         @vm.communicate.tap do |comm|
-          if comm.test("cat /etc/debian_version") == 0
-            return :debian if comm.test("cat /proc/version | grep 'Debian'") == 0
-            return :ubuntu if comm.test("cat /proc/version | grep 'Ubuntu'") == 0
+          if comm.test("cat /etc/debian_version")
+            return :debian if comm.test("cat /proc/version | grep 'Debian'")
+            return :ubuntu if comm.test("cat /proc/version | grep 'Ubuntu'")
           end
 
-          return :gentoo if comm.test("cat /etc/gentoo-release") == 0
-          return :fedora if comm.test("grep 'Fedora release 16' /etc/redhat-release") == 0
-          return :redhat if comm.test("cat /etc/redhat-release") == 0
-          return :suse if comm.test("cat /etc/SuSE-release") == 0
-          return :arch if comm.test("cat /etc/arch-release") == 0
+          return :gentoo if comm.test("cat /etc/gentoo-release")
+          return :fedora if comm.test("grep 'Fedora release 16' /etc/redhat-release")
+          return :redhat if comm.test("cat /etc/redhat-release")
+          return :suse if comm.test("cat /etc/SuSE-release")
+          return :arch if comm.test("cat /etc/arch-release")
         end
 
         # Can't detect the distro, assume vanilla linux
