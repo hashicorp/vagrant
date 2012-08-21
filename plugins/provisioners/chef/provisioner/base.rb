@@ -20,10 +20,10 @@ module VagrantPlugins
         def verify_binary(binary)
           # Checks for the existence of chef binary and error if it
           # doesn't exist.
-          env[:vm].channel.sudo("which #{binary}",
-                                :error_class => ChefError,
-                                :error_key => :chef_not_detected,
-                                :binary => binary)
+          env[:machine].communicate.sudo("which #{binary}",
+                                         :error_class => ChefError,
+                                         :error_key => :chef_not_detected,
+                                         :binary => binary)
         end
 
         # Returns the path to the Chef binary, taking into account the
@@ -34,8 +34,10 @@ module VagrantPlugins
         end
 
         def chown_provisioning_folder
-          env[:vm].channel.sudo("mkdir -p #{config.provisioning_path}")
-          env[:vm].channel.sudo("chown #{env[:vm].config.ssh.username} #{config.provisioning_path}")
+          env[:machine].communicate.tap do |comm|
+            comm.sudo("mkdir -p #{config.provisioning_path}")
+            comm.sudo("chown #{env[:machine].config.ssh.username} #{config.provisioning_path}")
+          end
         end
 
         def setup_config(template, filename, template_vars)
@@ -57,8 +59,10 @@ module VagrantPlugins
           temp.close
 
           remote_file = File.join(config.provisioning_path, filename)
-          env[:vm].channel.sudo("rm #{remote_file}", :error_check => false)
-          env[:vm].channel.upload(temp.path, remote_file)
+          env[:machine].communicate.tap do |comm|
+            comm.sudo("rm #{remote_file}", :error_check => false)
+            comm.upload(temp.path, remote_file)
+          end
         end
 
         def setup_json
@@ -73,7 +77,7 @@ module VagrantPlugins
           temp.write(json)
           temp.close
 
-          env[:vm].channel.upload(temp.path, File.join(config.provisioning_path, "dna.json"))
+          env[:machine].communicate.upload(temp.path, File.join(config.provisioning_path, "dna.json"))
         end
 
         class ChefError < Vagrant::Errors::VagrantError

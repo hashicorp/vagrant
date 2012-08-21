@@ -155,16 +155,17 @@ module VagrantPlugins
         def share_folders(prefix, folders)
           folders.each do |type, local_path, remote_path|
             if type == :host
-              env[:vm].config.vm.share_folder("v-#{prefix}-#{self.class.get_and_update_counter(:shared_folder)}",
-                                              remote_path, local_path, :nfs => config.nfs)
+              env[:machine].config.vm.share_folder(
+                "v-#{prefix}-#{self.class.get_and_update_counter(:shared_folder)}",
+                remote_path, local_path, :nfs => config.nfs)
             end
           end
         end
 
         def upload_encrypted_data_bag_secret
           env[:ui].info I18n.t("vagrant.provisioners.chef.upload_encrypted_data_bag_secret_key")
-          env[:vm].channel.upload(encrypted_data_bag_secret_key_path,
-                                  config.encrypted_data_bag_secret)
+          env[:machine].communicate.upload(encrypted_data_bag_secret_key_path,
+                                           config.encrypted_data_bag_secret)
         end
 
         def setup_solo_config
@@ -194,7 +195,7 @@ module VagrantPlugins
               env[:ui].info I18n.t("vagrant.provisioners.chef.running_solo_again")
             end
 
-            exit_status = env[:vm].channel.sudo(command, :error_check => false) do |type, data|
+            exit_status = env[:machine].communicate.sudo(command, :error_check => false) do |type, data|
               # Output the data with the proper color based on the stream.
               color = type == :stdout ? :green : :red
 
@@ -214,7 +215,7 @@ module VagrantPlugins
         def verify_shared_folders(folders)
           folders.each do |folder|
             @logger.debug("Checking for shared folder: #{folder}")
-            if !env[:vm].channel.test("test -d #{folder}")
+            if !env[:machine].communicate.test("test -d #{folder}")
               raise ChefError, :missing_shared_folders
             end
           end
