@@ -1,8 +1,27 @@
 require "tempfile"
 
+require "support/tempdir"
 require "unit/support/isolated_environment"
 
 shared_context "unit" do
+  before(:each) do
+    # State to store the list of registered plugins that we have to
+    # unregister later.
+    @_plugins = []
+
+    # Create a thing to store our temporary files so that they aren't
+    # unlinked right away.
+    @_temp_files = []
+  end
+
+  after(:each) do
+    # Unregister each of the plugins we have may have temporarily
+    # registered for the duration of this test.
+    @_plugins.each do |plugin|
+      plugin.unregister!
+    end
+  end
+
   # This creates an isolated environment so that Vagrant doesn't
   # muck around with your real system during unit tests.
   #
@@ -15,8 +34,24 @@ shared_context "unit" do
     env
   end
 
+  # This registers a Vagrant plugin for the duration of a single test.
+  # This will yield a new plugin class that you can then call the
+  # public plugin methods on.
+  #
+  # @yield [plugin] Yields the plugin class for you to call the public
+  #   API that you need to.
+  def register_plugin
+    plugin = Class.new(Vagrant.plugin("1"))
+    plugin.name("Test Plugin #{plugin.inspect}")
+    yield plugin if block_given?
+    @_plugins << plugin
+    plugin
+  end
+
   # This helper creates a temporary file and returns a Pathname
   # object pointed to it.
+  #
+  # @return [Pathname]
   def temporary_file(contents=nil)
     f = Tempfile.new("vagrant-unit")
 
@@ -25,6 +60,43 @@ shared_context "unit" do
       f.flush
     end
 
+    # Store the tempfile in an instance variable so that it is not
+    # garbage collected, so that the tempfile is not unlinked.
+    @_temp_files << f
+
     return Pathname.new(f.path)
+  end
+
+  # This creates a temporary directory and returns a {Pathname}
+  # pointing to it.
+  #
+  # @return [Pathname]
+  def temporary_dir
+    # Create a temporary directory and append it to the instance
+    # variabe so that it isn't garbage collected and deleted
+    d = Tempdir.new("vagrant-unit")
+    @_temp_files << d
+
+    # Return the pathname
+    return Pathname.new(d.path)
+  end
+
+  # This helper provides temporary environmental variable changes.
+  def with_temp_env(environment)
+    # Build up the new environment, preserving the old values so we
+    # can replace them back in later.
+    old_env = {}
+    environment.each do |key, value|
+      old_env[key] = ENV[key]
+      ENV[key]     = value
+    end
+
+    # Call the block, returning its return value
+    return yield
+  ensure
+    # Reset the environment no matter what
+    old_env.each do |key, value|
+      ENV[key] = value
+    end
   end
 end

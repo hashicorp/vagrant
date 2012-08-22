@@ -1,4 +1,10 @@
 #!/usr/bin/env ruby
+
+# Trap interrupts to quit cleanly. This will be overriden at some point
+# by Vagrant. This is made to catch any interrupts while Vagrant is
+# initializing which have historically resulted in stack traces.
+Signal.trap("INT") { exit 1 }
+
 require 'log4r'
 require 'vagrant'
 require 'vagrant/cli'
@@ -34,6 +40,28 @@ begin
   # `vagrant` command was invoked from
   logger.debug("Creating Vagrant environment")
   env = Vagrant::Environment.new(opts)
+
+  # XXX: This is temporary and should be removed prior to release.
+  env.ui.warn("You're using a development version of Vagrant. This version\n" +
+              "makes structural changes to the `~/.vagrant.d` folder such that\n" +
+              "you will be _unable_ to downgrade back to a 1.0.x release. This\n" +
+              "affects all Vagrant environments on your computer. Other users\n" +
+              "of Vagrantfiles you create and use can continue to use 1.0.x without\n" +
+              "issue so long as it is on a computer that has never run this\n" +
+              "development version.\n" +
+              "\n" +
+              "This message will be removed when this version is officially released.",
+              :prefix => false)
+  result = nil
+  begin
+    result = env.ui.ask("If you're sure you'd like to continue, type 'Y' and then enter: ")
+  rescue Interrupt
+    result = nil
+  rescue Vagrant::Errors::UIExpectsTTY
+    result = nil
+  end
+
+  exit 0 if !result || result.upcase != "Y"
 
   # Load the environment
   logger.debug("Loading environment")

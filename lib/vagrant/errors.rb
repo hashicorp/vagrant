@@ -113,6 +113,10 @@ module Vagrant
       error_key(:not_specified, "vagrant.actions.vm.check_box")
     end
 
+    class BoxProviderDoesntMatch < VagrantError
+      error_key(:box_provider_doesnt_match)
+    end
+
     class BoxSpecifiedDoesntExist < VagrantError
       status_code(23)
       error_key(:does_not_exist, "vagrant.actions.vm.check_box")
@@ -121,6 +125,10 @@ module Vagrant
     class BoxUnpackageFailure < VagrantError
       status_code(57)
       error_key(:untar_failure, "vagrant.actions.box.unpackage")
+    end
+
+    class BoxUpgradeRequired < VagrantError
+      error_key(:box_upgrade_required)
     end
 
     class BoxVerificationFailed < VagrantError
@@ -161,6 +169,11 @@ module Vagrant
     class DownloaderFileDoesntExist < VagrantError
       status_code(37)
       error_key(:file_missing, "vagrant.downloaders.file")
+    end
+
+    class DownloaderHTTPConnectTimeout < VagrantError
+      status_code(79)
+      error_key(:connection_timeout, "vagrant.downloaders.http")
     end
 
     class DownloaderHTTPSocketError < VagrantError
@@ -211,6 +224,10 @@ module Vagrant
     class ForwardPortCollisionResume < VagrantError
       status_code(62)
       error_key(:port_collision_resume)
+    end
+
+    class MachineGuestNotReady < VagrantError
+      error_key(:machine_guest_not_ready)
     end
 
     class MultiVMEnvironmentRequired < VagrantError
@@ -293,6 +310,16 @@ module Vagrant
       error_key(:dotfile_error, "vagrant.actions.vm.persist")
     end
 
+    class PluginLoadError < VagrantError
+      status_code(81)
+      error_key(:plugin_load_error)
+    end
+
+    class SCPPermissionDenied < VagrantError
+      status_code(82)
+      error_key(:scp_permission_denied)
+    end
+
     class SCPUnavailable < VagrantError
       status_code(56)
       error_key(:scp_unavailable)
@@ -313,6 +340,16 @@ module Vagrant
       error_key(:ssh_connection_refused)
     end
 
+    class SSHConnectionTimeout < VagrantError
+      status_code(78)
+      error_key(:ssh_connection_timeout)
+    end
+
+    class SSHDisconnected < VagrantError
+      status_code(83)
+      error_key(:ssh_disconnected)
+    end
+
     class SSHKeyBadPermissions < VagrantError
       status_code(12)
       error_key(:ssh_key_bad_permissions)
@@ -321,6 +358,10 @@ module Vagrant
     class SSHKeyTypeNotSupported < VagrantError
       status_code(76)
       error_key(:ssh_key_type_not_supported)
+    end
+
+    class SSHNotReady < VagrantError
+      error_key(:ssh_not_ready)
     end
 
     class SSHPortNotDetected < VagrantError
@@ -341,6 +382,10 @@ module Vagrant
     class UIExpectsTTY < VagrantError
       status_code(73)
       error_key(:ui_expects_tty)
+    end
+
+    class UnimplementedProviderAction < VagrantError
+      error_key(:unimplemented_provider_action)
     end
 
     class VagrantInterrupt < VagrantError
@@ -376,6 +421,11 @@ module Vagrant
     class VirtualBoxKernelModuleNotLoaded < VagrantError
       status_code(70)
       error_key(:virtualbox_kernel_module_not_loaded)
+    end
+
+    class VirtualBoxInstallIncomplete < VagrantError
+      status_code(80)
+      error_key(:virtualbox_install_incomplete)
     end
 
     class VMBaseMacNotSpecified < VagrantError

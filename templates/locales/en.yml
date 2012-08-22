@@ -16,6 +16,15 @@ en:
     errors:
       base_vm_not_found: The base VM with the name '%{name}' was not found.
       box_not_found: Box '%{name}' could not be found.
+      box_provider_doesnt_match: |-
+        The box you attempted to add doesn't match the provider you specified.
+
+        Provider expected: %{expected}
+        Provider of box: %{actual}
+      box_upgrade_required: |-
+        The box '%{name}' is still stored on disk in the Vagrant 1.0.x
+        format. This box must be upgraded in order to work properly with
+        this version of Vagrant.
       cli_invalid_options: |-
         An invalid option was specified. The help for this command
         is available below.
@@ -59,8 +68,8 @@ en:
         Instead, please include your Vagrant plugins in your Gemfile itself.
       guest:
         invalid_class: |-
-          The specified guest class does not inherit from `Vagrant::Guest::Base`.
-          The specified guest class must inherit from this class.
+          The specified guest class does not inherit from a proper guest
+          component class. The guest class must inherit from this.
 
           The specified guest class was: %{guest}
         unknown_type: |-
@@ -76,6 +85,10 @@ en:
         You specified: %{home_path}
       interrupted: |-
         Vagrant exited after cleanup due to external interrupt.
+      machine_guest_not_ready: |-
+        Guest-specific operations were attempted on a machine that is not
+        ready for guest communication. This should not happen and a bug
+        should be reported.
       multi_vm_required: |-
         A multi-vm environment is required for name specification to this command.
       multi_vm_target_required: |-
@@ -83,12 +96,21 @@ en:
       no_env: |-
         A Vagrant environment is required to run this command. Run `vagrant init`
         to set one up.
+      plugin_load_error: |-
+        The plugin "%{plugin}" could not be found. Please make sure that it is
+        properly installed via `vagrant gem`.
       port_collision_resume: |-
         This VM cannot be resumed, because the forwarded ports would collide with
         another running virtual machine. Normally, Vagrant will attempt to fix this
         for you but VirtualBox only allows forwarded ports to change if the VM is
         powered off. Therefore, please reload your VM or halt the other running
         VMs to continue.
+      scp_permission_denied: |-
+        Failed to upload a file to the guest VM via SCP due to a permissions
+        error. This is normally because the user running Vagrant doesn't have
+        read permission on the file. Please set proper permissions on the file:
+
+        %{path}
       scp_unavailable: |-
         SSH server on the guest doesn't support SCP. Please install the necessary
         software to enable SCP on your guest operating system.
@@ -117,6 +139,16 @@ en:
         If that doesn't work, destroy your VM and recreate it with a `vagrant destroy`
         followed by a `vagrant up`. If that doesn't work, contact a Vagrant
         maintainer (support channels listed on the website) for more assistance.
+      ssh_connection_timeout: |-
+        Vagrant timed out while attempting to connect via SSH. This usually
+        means that the VM booted, but there are issues with the SSH configuration
+        or network connectivity issues. Please try to `vagrant reload` or
+        `vagrant up` again.
+      ssh_disconnected: |-
+        The SSH connection was unexpectedly closed by the remote end. This
+        usually indicates that SSH within the guest machine was unable to
+        properly start up. Please boot the VM in GUI mode to check whether
+        it is booting properly.
       ssh_key_bad_permissions: |-
         The private key to connect to this box via SSH has invalid permissions
         set on it. The permissions of the private key should be set to 0600, otherwise SSH will
@@ -128,6 +160,14 @@ en:
         The private key you're attempting to use with this Vagrant box uses
         an unsupported encryption type. The SSH library Vagrant uses does not support
         this key type. Please use `ssh-rsa` or `ssh-dss` instead.
+      ssh_not_ready: |-
+        The provider for this Vagrant-managed machine is reporting that it
+        is not yet ready for SSH. Depending on your provider this can carry
+        different meanings. Make sure your machine is created and running and
+        try again. Additionally, check the output of `vagrant status` to verify
+        that the machine is in the state that you expect. If you continue to
+        get this error message, please view the documentation for the provider
+        you're using.
       ssh_port_not_detected: |-
         Vagrant couldn't determine the SSH port for your VM! Vagrant attempts to
         automatically find a forwarded port that matches your `config.ssh.guest_port`
@@ -154,6 +194,11 @@ en:
         a TTY. Most actions in Vagrant that require a TTY have configuration
         switches to disable this requirement. Please do that or run Vagrant
         with TTY.
+      unimplemented_provider_action: |-
+        Vagrant attempted to call the action '%{action}' on the provider
+        '%{provider}', but this provider doesn't support this action. This
+        is probably a bug in either the provider or the plugin calling this
+        action, and should be reported.
       vagrantfile_exists: |-
         `Vagrantfile` already exists in this directory. Remove it before
         running `vagrant init`.
@@ -177,6 +222,10 @@ en:
         %{supported_versions}
       virtualbox_kernel_module_not_loaded: |-
         VirtualBox is complaining that the kernel module is not loaded. Please
+        run `VBoxManage --version` to see the error message which should contain
+        instructions on how to fix this error.
+      virtualbox_install_incomplete: |-
+        VirtualBox is complaining that the installation is incomplete. Please
         run `VBoxManage --version` to see the error message which should contain
         instructions on how to fix this error.
       virtualbox_not_detected: |-
@@ -233,7 +282,9 @@ en:
         shared_folder_nfs_owner_group: |-
           Shared folder '%{name}': NFS does not support the owner/group settings.
         provisioner_not_found: "The provisioner '%{shortcut}' doesn't exist."
-        provisioner_invalid_class: "The provisioner '%{shortcut}' must inherit from `Vagrant::Provisioners::Base`."
+        provisioner_invalid_class: |-
+          The provisioner '%{shortcut}' must inherit from
+          `Vagrant::Plugin::V1::Provisioner`."
 
 #-------------------------------------------------------------------------------
 # Translations for commands. e.g. `vagrant x`
@@ -537,22 +588,15 @@ en:
           suspending: Saving VM state and suspending execution...
 
       box:
+        add:
+          adding: |-
+            Extracting box...
         destroy:
           destroying: "Deleting box '%{name}'..."
         download:
           with: "Downloading with %{class}..."
           cleaning: "Cleaning up downloaded box..."
           unknown_type: "Unknown or unsupported URI type given for box download."
-        unpackage:
-          extracting: "Extracting box..."
-          already_exists: |-
-            A box already exists under the name of '%{name}'. This may or may
-            not be the same box you are trying to add. Please use another name
-            or remove the previous box then try to add it again.
-          untar_failure: |-
-            Failed to untar the box file. This is usually because you're
-            attempting to add a box that isn't a valid box file. Please
-            double check that the box file is properly packaged.
         verify:
           verifying: "Verifying box..."
           failed: |-
@@ -582,6 +626,9 @@ en:
         download: "Copying box to temporary location..."
         file_missing: "The specified path to a file doesn't exist."
       http:
+        connection_timeout: |-
+          Vagrant timed out while attempting to connect to the HTTP host.
+          Please check your internet and proxy settings and try again.
         download: "Downloading box: %{url}"
         socket_error: |-
           An error occurred while trying to download the specified box. This most
@@ -626,14 +673,11 @@ en:
         running_client_again: "Running chef-client again (failed to converge)..."
         running_solo: "Running chef-solo..."
         running_solo_again: "Running chef-solo again (failed to converge)..."
-        invalid_provisioner: |-
-          Vagrant::Provisioners::Chef is not a valid provisioner! Use
-          ChefSolo or ChefClient instead.
         missing_shared_folders: |-
           Shared folders that Chef requires are missing on the virtual machine.
           This is usually due to configuration changing after already booting the
           machine. The fix is to run a `vagrant reload` so that the proper shared
-          folders will prepared and mounted on the VM.
+          folders will be prepared and mounted on the VM.
         no_convergence: |-
           Chef never successfully completed! Any errors should be visible in the
           output above. Please fix your recipes so that they properly complete.
@@ -671,7 +715,7 @@ en:
           Shared folders that Puppet requires are missing on the virtual machine.
           This is usually due to configuration changing after already booting the
           machine. The fix is to run a `vagrant reload` so that the proper shared
-          folders will prepared and mounted on the VM.
+          folders will be prepared and mounted on the VM.
         module_path_missing: "The configured module path doesn't exist: %{path}"
 
       puppet_server:

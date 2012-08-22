@@ -8,12 +8,24 @@ require "support/tempdir"
 describe Vagrant::Environment do
   include_context "unit"
 
-  let(:home_path) { Pathname.new(Tempdir.new.path) }
-  let(:instance)  { described_class.new(:home_path => home_path) }
+  let(:env) do
+    isolated_environment.tap do |e|
+      e.box2("base", :virtualbox)
+      e.vagrantfile <<-VF
+      Vagrant.configure("1") do |config|
+        config.vm.box = "base"
+      end
+      VF
+    end
+  end
+
+  let(:instance)  { env.create_vagrant_env }
 
   describe "current working directory" do
     it "is the cwd by default" do
-      described_class.new.cwd.should == Pathname.new(Dir.pwd)
+      with_temp_env("VAGRANT_CWD" => nil) do
+        described_class.new.cwd.should == Pathname.new(Dir.pwd)
+      end
     end
 
     it "is set to the cwd given" do
@@ -23,7 +35,12 @@ describe Vagrant::Environment do
     end
 
     it "is set to the environmental variable VAGRANT_CWD" do
-      pending "A good temporary ENV thing"
+      directory = File.dirname(__FILE__)
+      instance = with_temp_env("VAGRANT_CWD" => directory) do
+        described_class.new
+      end
+
+      instance.cwd.should == Pathname.new(directory)
     end
 
     it "raises an exception if the CWD doesn't exist" do
@@ -86,16 +103,6 @@ describe Vagrant::Environment do
     end
   end
 
-  describe "action registry" do
-    it "has an action registry" do
-      instance.action_registry.should be_kind_of(Vagrant::Registry)
-    end
-
-    it "should have the built-in actions in the registry" do
-      instance.action_registry.get(:provision).should_not be_nil
-    end
-  end
-
   describe "primary VM" do
     it "should be the only VM if not a multi-VM environment" do
       instance.primary_vm.should == instance.vms.values.first
@@ -105,6 +112,7 @@ describe Vagrant::Environment do
       environment = isolated_environment do |env|
         env.vagrantfile(<<-VF)
 Vagrant::Config.run do |config|
+  config.vm.box = "base"
   config.vm.define :foo
   config.vm.define :bar, :primary => true
 end
@@ -176,7 +184,7 @@ VF
       env.config.for_vm(:bar).ssh.port.should == 200
     end
 
-    it "should load box configuration" do
+    it "should load a V1 vagrant box" do
       environment = isolated_environment do |env|
         env.vagrantfile(<<-VF)
 Vagrant::Config.run do |config|
@@ -185,6 +193,25 @@ end
 VF
 
         env.box("base", <<-VF)
+Vagrant::Config.run do |config|
+  config.ssh.port = 100
+end
+VF
+      end
+
+      env = environment.create_vagrant_env
+      env.config.for_vm(:default).ssh.port.should == 100
+    end
+
+    it "should load box configuration" do
+      environment = isolated_environment do |env|
+        env.vagrantfile(<<-VF)
+Vagrant::Config.run do |config|
+  config.vm.box = "base"
+end
+VF
+
+        env.box2("base", :virtualbox, :vagrantfile => <<-VF)
 Vagrant::Config.run do |config|
   config.ssh.port = 100
 end

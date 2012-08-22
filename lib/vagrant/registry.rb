@@ -32,6 +32,13 @@ module Vagrant
     end
     alias :[] :get
 
+    # Checks if the given key is registered with the registry.
+    #
+    # @return [Boolean]
+    def has_key?(key)
+      @actions.has_key?(key)
+    end
+
     # Iterate over the keyspace.
     def each(&block)
       @actions.each do |key, _|

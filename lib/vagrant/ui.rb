@@ -73,8 +73,11 @@ module Vagrant
         # Output the data
         say(:info, message, opts)
 
-        # Get the results and chomp off the newline
-        $stdin.gets.chomp
+        # Get the results and chomp off the newline. We do a logical OR
+        # here because `gets` can return a nil, for example in the case
+        # that ctrl-D is pressed on the input.
+        input = $stdin.gets || ""
+        input.chomp
       end
 
       # This is used to output progress reports to the UI.

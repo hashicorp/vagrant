@@ -10,8 +10,7 @@ module Vagrant
     class Runner
       @@reported_interrupt = false
 
-      def initialize(registry, globals=nil, &block)
-        @registry     = registry
+      def initialize(globals=nil, &block)
         @globals      = globals || {}
         @lazy_globals = block
         @logger       = Log4r::Logger.new("vagrant::action::runner")
@@ -19,8 +18,7 @@ module Vagrant
 
       def run(callable_id, options=nil)
         callable = callable_id
-        callable = Builder.new.use(callable_id) if callable_id.kind_of?(Class)
-        callable = @registry.get(callable_id) if callable_id.kind_of?(Symbol)
+        callable = Builder.build(callable_id) if callable_id.kind_of?(Class)
         raise ArgumentError, "Argument to run must be a callable object or registered action." if !callable || !callable.respond_to?(:call)
 
         # Create the initial environment with the options given
@@ -47,6 +45,10 @@ module Vagrant
         # We place a process lock around every action that is called
         @logger.info("Running action: #{callable_id}")
         Util::Busy.busy(int_callback) { callable.call(environment) }
+
+        # Return the environment in case there are things in there that
+        # the caller wants to use.
+        environment
       end
     end
   end

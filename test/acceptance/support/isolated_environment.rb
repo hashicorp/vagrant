@@ -51,7 +51,8 @@ module Acceptance
       options = argN.last.is_a?(Hash) ? argN.pop : {}
       options = {
         :workdir => @workdir,
-        :env     => @env
+        :env     => @env,
+        :notify  => [:stdin, :stderr, :stdout]
       }.merge(options)
 
       # Add the options to be passed on
@@ -59,7 +60,7 @@ module Acceptance
 
       # Execute, logging out the stdout/stderr as we get it
       @logger.info("Executing: #{[command].concat(argN).inspect}")
-      Vagrant::Util::Subprocess.execute(command, *argN) do |type, data|
+      Vagrant::Util::Subprocess.execute(command *argN) do |type, data|
         @logger.debug("#{type}: #{data}") if type == :stdout || type == :stderr
         yield type, data if block_given?
       end
