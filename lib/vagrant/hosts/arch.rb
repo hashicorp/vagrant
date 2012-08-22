@@ -19,6 +19,8 @@ module Vagrant
         @ui.info I18n.t("vagrant.hosts.arch.nfs_export.prepare")
         sleep 0.5
 
+        nfs_cleanup(id)
+
         output.split("\n").each do |line|
           # This should only ask for administrative permission once, even
           # though its executed in multiple subshells.
