@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'uri'
 
 module Vagrant
   module Downloaders
@@ -6,7 +7,8 @@ module Vagrant
     # simply does a file copy.
     class File < Base
       def self.match?(uri)
-        ::File.file?(::File.expand_path(uri))
+        extracted = URI.extract(uri, "file")
+        (extracted && extracted.include?(uri)) || ::File.file?(::File.expand_path(uri))
       end
 
       def download!(source_url, destination_file)
