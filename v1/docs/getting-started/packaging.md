@@ -91,6 +91,6 @@ $ vagrant up
 
 At this point, they should have a fully functional environment which exactly
 mirrors the environment set up in previous steps of the guide. Notice that
-they didn't have to do do provisioning, or set up anything on their system
+they didn't have to do provisioning or set up anything on their system
 (other than Vagrant), etc. Distributing development environments has never
 been so easy.
