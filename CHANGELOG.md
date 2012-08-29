@@ -4,6 +4,7 @@
   - Use "127.0.0.1" instead of "localhost" for port checking to fix problem
     where "localhost" is not properly setup. [GH-1057]
   - Disable read timeout on Net::HTTP to avoid `rbuf_fill` error. [GH-1072]
+  - Retry SSH on `EHOSTUNREACH` errors.
 
 ## 1.0.3 (May 1, 2012)
 
