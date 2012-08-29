@@ -42,6 +42,8 @@
     "localhost" is not available. [GH-1057]
   - Sending a SIGINT (Ctrl-C) very early on when executing `vagrant` no
     longer results in an ugly stack trace.
+  - SSH retries in the face of a `EHOSTUNREACH` error, improving the robustness
+    that SSHing succeeds when booting a machine.
 
 ## 1.0.3 (May 1, 2012)
 

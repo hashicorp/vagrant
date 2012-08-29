@@ -151,7 +151,16 @@ module VagrantPlugins
         # Connect to SSH, giving it a few tries
         connection = nil
         begin
-          exceptions = [Errno::ECONNREFUSED, Net::SSH::Disconnect, Timeout::Error]
+          # These are the exceptions that we retry because they represent
+          # errors that are generally fixed from a retry and don't
+          # necessarily represent immediate failure cases.
+          exceptions = [
+            Errno::ECONNREFUSED,
+            Errno::EHOSTUNREACH,
+            Net::SSH::Disconnect,
+            Timeout::Error
+          ]
+
           connection = retryable(:tries => @machine.config.ssh.max_tries, :on => exceptions) do
             Timeout.timeout(@machine.config.ssh.timeout) do
               @logger.info("Attempting to connect to SSH: #{ssh_info[:host]}:#{ssh_info[:port]}")
