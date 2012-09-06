@@ -81,9 +81,20 @@ class SshTest < Test::Unit::TestCase
     end
 
     context "checking windows" do
-      should "error and exit if the platform is windows" do
-        Vagrant::Util::Platform.stubs(:windows?).returns(true)
-        assert_raises(Vagrant::Errors::SSHUnavailableWindows) { @ssh.connect }
+      context "on windows" do
+        setup do
+          Vagrant::Util::Platform.stubs(:windows?).returns(true)
+        end
+
+        should "error and exit if the platform is windows and no ssh" do
+          Kernel.stubs(:system).returns(1)
+          assert_raises(Vagrant::Errors::SSHUnavailableWindows) { @ssh.connect }
+        end
+
+        should "not error if cygwin ssh is present" do
+          Kernel.stubs(:system).returns(1)
+        assert_nothing_raised { @ssh.connect }
+        end
       end
 
       should "not error and exit if the platform is anything other that windows" do
