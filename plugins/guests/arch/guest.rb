@@ -14,10 +14,10 @@ module VagrantPlugins
 
       def change_host_name(name)
         # Only do this if the hostname is not already set
-        if !vm.channel.test("sudo hostname | grep '#{name}'")
-          vm.channel.sudo("sed -i 's/\\(HOSTNAME=\\).*/\\1#{name}/' /etc/rc.conf")
-          vm.channel.sudo("hostname #{name}")
-          vm.channel.sudo("sed -i 's@^\\(127[.]0[.]0[.]1[[:space:]]\\+\\)@\\1#{name} @' /etc/hosts")
+        if !vm.communicate.test("sudo hostname | grep '#{name}'")
+          vm.communicate.sudo("sed -i 's/\\(HOSTNAME=\\).*/\\1#{name}/' /etc/rc.conf")
+          vm.communicate.sudo("hostname #{name}")
+          vm.communicate.sudo("sed -i 's@^\\(127[.]0[.]0[.]1[[:space:]]\\+\\)@\\1#{name} @' /etc/hosts")
         end
       end
 
@@ -31,9 +31,9 @@ module VagrantPlugins
           temp.write(entry)
           temp.close
 
-          vm.channel.upload(temp.path, "/tmp/vagrant_network")
-          vm.channel.sudo("mv /tmp/vagrant_network /etc/network.d/interfaces/eth#{network[:interface]}")
-          vm.channel.sudo("netcfg interfaces/eth#{network[:interface]}")
+          vm.communicate.upload(temp.path, "/tmp/vagrant_network")
+          vm.communicate.sudo("mv /tmp/vagrant_network /etc/network.d/interfaces/eth#{network[:interface]}")
+          vm.communicate.sudo("netcfg interfaces/eth#{network[:interface]}")
         end
       end
     end
