@@ -8,7 +8,13 @@ module Vagrant
     class File < Base
       def self.match?(uri)
         extracted = URI.extract(uri, "file")
-        (extracted && extracted.include?(uri)) || ::File.file?(::File.expand_path(uri))
+
+        # We match if we got a file URI. It doesn't matter here if the file
+        # doesn't exist because we check again later as well.
+        return true if extracted && extracted.include?(uri)
+
+        # Otherwise we match if the file exists
+        return ::File.file?(::File.expand_path(uri))
       end
 
       def download!(source_url, destination_file)

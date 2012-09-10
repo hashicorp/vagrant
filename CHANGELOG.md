@@ -47,6 +47,7 @@
   - Add missing translation for "saving" state on VirtualBox. [GH-1110]
   - Proper error message if the remote end unexpectedly resets the connection
     while downloading a box over HTTP. [GH-1090]
+  - Allow "file://" URLs for box URLs. [GH-1087]
 
 ## 1.0.3 (May 1, 2012)
 
