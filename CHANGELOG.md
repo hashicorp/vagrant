@@ -38,6 +38,16 @@
     using SCP to upload files. [GH-924]
   - When console input is asked for (destroying a VM, bridged interfaces, etc.),
     keystrokes such as ctrl-D and ctrl-C are more gracefully handled. [GH-1017]
+  - Fixed bug where port check would use "localhost" on systems where
+    "localhost" is not available. [GH-1057]
+  - Sending a SIGINT (Ctrl-C) very early on when executing `vagrant` no
+    longer results in an ugly stack trace.
+  - SSH retries in the face of a `EHOSTUNREACH` error, improving the robustness
+    that SSHing succeeds when booting a machine.
+  - Add missing translation for "saving" state on VirtualBox. [GH-1110]
+  - Proper error message if the remote end unexpectedly resets the connection
+    while downloading a box over HTTP. [GH-1090]
+  - Allow "file://" URLs for box URLs. [GH-1087]
 
 ## 1.0.3 (May 1, 2012)
 

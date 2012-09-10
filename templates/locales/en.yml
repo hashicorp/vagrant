@@ -85,6 +85,10 @@ en:
         You specified: %{home_path}
       interrupted: |-
         Vagrant exited after cleanup due to external interrupt.
+      machine_guest_not_ready: |-
+        Guest-specific operations were attempted on a machine that is not
+        ready for guest communication. This should not happen and a bug
+        should be reported.
       multi_vm_required: |-
         A multi-vm environment is required for name specification to this command.
       multi_vm_target_required: |-
@@ -156,6 +160,14 @@ en:
         The private key you're attempting to use with this Vagrant box uses
         an unsupported encryption type. The SSH library Vagrant uses does not support
         this key type. Please use `ssh-rsa` or `ssh-dss` instead.
+      ssh_not_ready: |-
+        The provider for this Vagrant-managed machine is reporting that it
+        is not yet ready for SSH. Depending on your provider this can carry
+        different meanings. Make sure your machine is created and running and
+        try again. Additionally, check the output of `vagrant status` to verify
+        that the machine is in the state that you expect. If you continue to
+        get this error message, please view the documentation for the provider
+        you're using.
       ssh_port_not_detected: |-
         Vagrant couldn't determine the SSH port for your VM! Vagrant attempts to
         automatically find a forwarded port that matches your `config.ssh.guest_port`
@@ -182,6 +194,11 @@ en:
         a TTY. Most actions in Vagrant that require a TTY have configuration
         switches to disable this requirement. Please do that or run Vagrant
         with TTY.
+      unimplemented_provider_action: |-
+        Vagrant attempted to call the action '%{action}' on the provider
+        '%{provider}', but this provider doesn't support this action. This
+        is probably a bug in either the provider or the plugin calling this
+        action, and should be reported.
       vagrantfile_exists: |-
         `Vagrantfile` already exists in this directory. Remove it before
         running `vagrant init`.
@@ -279,7 +296,7 @@ en:
       box:
         no_installed_boxes: "There are no installed boxes! Use `vagrant box add` to add some."
       destroy:
-        confirmation: "Are you sure you want to destroy the '%{name}' VM? [Y/N] "
+        confirmation: "Are you sure you want to destroy the '%{name}' VM? [y/N] "
         will_not_destroy: |-
           The VM '%{name}' will not be destroyed, since the confirmation
           was declined.
@@ -333,6 +350,10 @@ en:
           shut it down forcefully, or you can run `vagrant suspend` to simply
           suspend the virtual machine. In either case, to restart it again,
           simply run `vagrant up`.
+        saving: |-
+          The VM is currently saving its state. In a few moments this state
+          should transition to "saved." Please run `vagrant status` again
+          in a few seconds.
         saved: |-
           To resume this VM, simply run `vagrant up`.
         stuck: |-
@@ -609,6 +630,11 @@ en:
         download: "Copying box to temporary location..."
         file_missing: "The specified path to a file doesn't exist."
       http:
+        connection_reset: |-
+          The remote server unexpectedly closed the connection. Vagrant was
+          unable to finish downloading the box. Please try again. If this
+          problem persists, please try downloading the box manually outside
+          of Vagrant, then adding the box from the filesystem.
         connection_timeout: |-
           Vagrant timed out while attempting to connect to the HTTP host.
           Please check your internet and proxy settings and try again.

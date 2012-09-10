@@ -16,23 +16,25 @@ module VagrantPlugins
       end
 
       def distro_dispatch
-        if @vm.channel.test("cat /etc/debian_version")
-          return :debian if @vm.channel.test("cat /proc/version | grep 'Debian'")
-          return :ubuntu if @vm.channel.test("cat /proc/version | grep 'Ubuntu'")
-        end
+        @vm.communicate.tap do |comm|
+          if comm.test("cat /etc/debian_version")
+            return :debian if comm.test("cat /proc/version | grep 'Debian'")
+            return :ubuntu if comm.test("cat /proc/version | grep 'Ubuntu'")
+          end
 
-        return :gentoo if @vm.channel.test("cat /etc/gentoo-release")
-        return :fedora if @vm.channel.test("grep 'Fedora release 16' /etc/redhat-release")
-        return :redhat if @vm.channel.test("cat /etc/redhat-release")
-        return :suse if @vm.channel.test("cat /etc/SuSE-release")
-        return :arch if @vm.channel.test("cat /etc/arch-release")
+          return :gentoo if comm.test("cat /etc/gentoo-release")
+          return :fedora if comm.test("grep 'Fedora release 16' /etc/redhat-release")
+          return :redhat if comm.test("cat /etc/redhat-release")
+          return :suse if comm.test("cat /etc/SuSE-release")
+          return :arch if comm.test("cat /etc/arch-release")
+        end
 
         # Can't detect the distro, assume vanilla linux
         nil
       end
 
       def halt
-        @vm.channel.sudo("shutdown -h now")
+        @vm.communicate.sudo("shutdown -h now")
 
         # Wait until the VM's state is actually powered off. If this doesn't
         # occur within a reasonable amount of time (15 seconds by default),
@@ -50,9 +52,9 @@ module VagrantPlugins
         real_guestpath = expanded_guest_path(guestpath)
         @logger.debug("Shell expanded guest path: #{real_guestpath}")
 
-        @vm.channel.sudo("mkdir -p #{real_guestpath}")
+        @vm.communicate.sudo("mkdir -p #{real_guestpath}")
         mount_folder(name, real_guestpath, options)
-        @vm.channel.sudo("chown `id -u #{options[:owner]}`:`id -g #{options[:group]}` #{real_guestpath}")
+        @vm.communicate.sudo("chown `id -u #{options[:owner]}`:`id -g #{options[:group]}` #{real_guestpath}")
       end
 
       def mount_nfs(ip, folders)
@@ -72,8 +74,8 @@ module VagrantPlugins
           end
 
           # Do the actual creating and mounting
-          @vm.channel.sudo("mkdir -p #{real_guestpath}")
-          @vm.channel.sudo("mount -o 'vers=#{opts[:nfs_version]},#{nfs_mount_options}' #{ip}:'#{opts[:hostpath]}' #{real_guestpath}",
+          @vm.communicate.sudo("mkdir -p #{real_guestpath}")
+          @vm.communicate.sudo("mount -o 'vers=#{opts[:nfs_version]},#{nfs_mount_options}' #{ip}:'#{opts[:hostpath]}' #{real_guestpath}",
                           :error_class => LinuxError,
                           :error_key => :mount_nfs_fail)
         end
@@ -89,7 +91,7 @@ module VagrantPlugins
       # @return [String] The expanded guestpath
       def expanded_guest_path(guestpath)
         real_guestpath = nil
-        @vm.channel.execute("printf #{guestpath}") do |type, data|
+        @vm.communicate.execute("printf #{guestpath}") do |type, data|
           if type == :stdout
             real_guestpath ||= ""
             real_guestpath += data
@@ -114,7 +116,7 @@ module VagrantPlugins
         attempts = 0
         while true
           success = true
-          @vm.channel.sudo("mount -t vboxsf #{mount_options} #{name} #{guestpath}") do |type, data|
+          @vm.communicate.sudo("mount -t vboxsf #{mount_options} #{name} #{guestpath}") do |type, data|
             success = false if type == :stderr && data =~ /No such device/i
           end
 

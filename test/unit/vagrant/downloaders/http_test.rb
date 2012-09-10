@@ -11,6 +11,10 @@ describe Vagrant::Downloaders::HTTP do
       described_class.match?("http://foo:bar@google.com/foo.box").should be
       described_class.match?("http://google.com:8500/foo.box").should be
     end
+
+    it "should not match file:// URIs" do
+      described_class.match?("file://#{__FILE__}").should_not be
+    end
   end
 
   describe "downloading" do

@@ -1,7 +1,7 @@
 require "vagrant"
 
 module VagrantPlugins
-  module Pupppet
+  module Puppet
     class Plugin < Vagrant.plugin("1")
       name "puppet"
       description <<-DESC

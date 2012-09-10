@@ -104,6 +104,14 @@ module Vagrant
       activate_plugins
     end
 
+    # Return a human-friendly string for pretty printed or inspected
+    # instances.
+    #
+    # @return [String]
+    def inspect
+      "#<#{self.class}: #{@cwd}>"
+    end
+
     #---------------------------------------------------------------
     # Helpers
     #---------------------------------------------------------------
@@ -114,7 +122,7 @@ module Vagrant
     # @return [Pathname]
     def dotfile_path
       return nil if !root_path
-      root_path.join(File.expand_path(config.global.vagrant.dotfile_name))
+      root_path.join(config.global.vagrant.dotfile_name)
     end
 
     # Returns the collection of boxes for the environment.
@@ -205,7 +213,7 @@ module Vagrant
     #
     # @return [Action::Runner]
     def action_runner
-      @action_runner ||= Action::Runner.new(action_registry) do
+      @action_runner ||= Action::Runner.new do
         {
           :action_runner  => action_runner,
           :box_collection => boxes,
@@ -216,16 +224,6 @@ module Vagrant
           :ui             => @ui
         }
       end
-    end
-
-    # Action registry for registering new actions with this environment.
-    #
-    # @return [Registry]
-    def action_registry
-      # For now we return the global built-in actions registry. In the future
-      # we may want to create an isolated registry that inherits from this
-      # global one, but for now there isn't a use case that calls for it.
-      Vagrant.actions
     end
 
     # Loads on initial access and reads data from the global data store.
@@ -445,11 +443,22 @@ module Vagrant
 
     # Loads the persisted VM (if it exists) for this environment.
     def load_vms!
-      result = {}
+      # This is hardcoded for now.
+      provider = nil
+      Vagrant.plugin("1").registered.each do |plugin|
+        provider = plugin.provider.get(:virtualbox)
+        break if provider
+      end
+
+      raise "VirtualBox provider not found." if !provider
 
       # Load all the virtual machine instances.
+      result = {}
       config.vms.each do |name|
-        result[name] = Vagrant::VM.new(name, self, config.for_vm(name))
+        vm_config = config.for_vm(name)
+        box       = boxes.find(vm_config.vm.box, :virtualbox)
+
+        result[name] = Vagrant::Machine.new(name, provider, vm_config, box, self)
       end
 
       result
