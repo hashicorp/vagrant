@@ -296,7 +296,7 @@ en:
       box:
         no_installed_boxes: "There are no installed boxes! Use `vagrant box add` to add some."
       destroy:
-        confirmation: "Are you sure you want to destroy the '%{name}' VM? [Y/N] "
+        confirmation: "Are you sure you want to destroy the '%{name}' VM? [y/N] "
         will_not_destroy: |-
           The VM '%{name}' will not be destroyed, since the confirmation
           was declined.
