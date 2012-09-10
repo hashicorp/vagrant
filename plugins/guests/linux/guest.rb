@@ -63,7 +63,13 @@ module VagrantPlugins
           real_guestpath = expanded_guest_path(opts[:guestpath])
 
           # Expand nfs mount options
-          nfs_mount_options = opts[:nfs_mount_options].join(",")
+          if opts[:nfs].is_a?(String)
+            nfs_mount_options = opts[:nfs]
+          elsif opts[:nfs].respond_to?("each")
+            nfs_mount_options = opts[:nfs].join(",")
+          else
+            nfs_mount_options = ""
+          end
 
           # Do the actual creating and mounting
           @vm.channel.sudo("mkdir -p #{real_guestpath}")
