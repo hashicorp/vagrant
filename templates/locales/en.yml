@@ -299,6 +299,10 @@ en:
           shut it down forcefully, or you can run `vagrant suspend` to simply
           suspend the virtual machine. In either case, to restart it again,
           simply run `vagrant up`.
+        saving: |-
+          The VM is currently saving its state. In a few moments this state
+          should transition to "saved." Please run `vagrant status` again
+          in a few seconds.
         saved: |-
           To resume this VM, simply run `vagrant up`.
         stuck: |-
