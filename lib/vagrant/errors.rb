@@ -171,6 +171,10 @@ module Vagrant
       error_key(:file_missing, "vagrant.downloaders.file")
     end
 
+    class DownloaderHTTPConnectReset < VagrantError
+      error_key(:connection_reset, "vagrant.downloaders.http")
+    end
+
     class DownloaderHTTPConnectTimeout < VagrantError
       status_code(79)
       error_key(:connection_timeout, "vagrant.downloaders.http")

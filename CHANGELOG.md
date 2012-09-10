@@ -45,6 +45,8 @@
   - SSH retries in the face of a `EHOSTUNREACH` error, improving the robustness
     that SSHing succeeds when booting a machine.
   - Add missing translation for "saving" state on VirtualBox. [GH-1110]
+  - Proper error message if the remote end unexpectedly resets the connection
+    while downloading a box over HTTP. [GH-1090]
 
 ## 1.0.3 (May 1, 2012)
 

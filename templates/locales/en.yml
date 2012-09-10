@@ -630,6 +630,11 @@ en:
         download: "Copying box to temporary location..."
         file_missing: "The specified path to a file doesn't exist."
       http:
+        connection_reset: |-
+          The remote server unexpectedly closed the connection. Vagrant was
+          unable to finish downloading the box. Please try again. If this
+          problem persists, please try downloading the box manually outside
+          of Vagrant, then adding the box from the filesystem.
         connection_timeout: |-
           Vagrant timed out while attempting to connect to the HTTP host.
           Please check your internet and proxy settings and try again.
