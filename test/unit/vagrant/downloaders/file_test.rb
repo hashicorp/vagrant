@@ -37,6 +37,10 @@ describe Vagrant::Downloaders::File do
         ENV["HOME"] = old_home
       end
     end
+
+    it "should match file:// URIs" do
+      described_class.match?("file://#{__FILE__}").should be
+    end
   end
 
   describe "downloading" do
