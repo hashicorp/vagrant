@@ -71,7 +71,7 @@ which have already been spun up will continue to function properly.
 
 Now that the lucid box has been successfully added to the Vagrant installation,
 we need to tell our project to use it as a base. This is done through the Vagrantfile.
-Open the Vagrantfile and paste the following contents into it. The functional of
+Open the Vagrantfile and paste the following contents into it. The function of
 the contents should be self-explanatory:
 
 {% highlight ruby %}
