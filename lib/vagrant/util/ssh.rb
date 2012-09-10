@@ -57,6 +57,15 @@ module Vagrant
         # certainly be possible if we can detect we're in an environment that
         # supports it.
         if Platform.windows?
+          # ideally, a parameter should be added into the Vagrantfile ?
+          # - putty.exe has to be reachable from the PATH env. var
+          # - pageant must be running with the vagrant_insecure ssh public key loaded
+          # - ssh key has to be converted to putty's .ppk format with puttygen in order to be loaded by pageant
+          # an alternative to pageant is to specify the ssh key with putty's "-i <file.ppk>" switch, but this still requires converting it with puttygen
+        	cmd = "putty -ssh #{ssh_info[:username]}@#{ssh_info[:host]} -P #{ssh_info[:port].to_s}"
+      		puts "Trying to run "+cmd
+      		raise Errors::SSHUnavailable if !Kernel.system(cmd)
+      		return
           raise Errors::SSHUnavailableWindows,
             :host => ssh_info[:host],
             :port => ssh_info[:port],
