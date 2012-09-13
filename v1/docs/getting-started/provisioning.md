@@ -86,6 +86,15 @@ class apache {
 }
 
 include apache
+
+file { "/var/www/index.html":
+  ensure => present,
+  source => "/vagrant/index.html",
+  owner => "root",
+  group => "root",
+  require => Class['apache'],
+}
+
 {% endhighlight %}
 
 We then add support in the Vagrantfile to support Puppet provisioning:
