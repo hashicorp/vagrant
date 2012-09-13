@@ -140,9 +140,9 @@ module VagrantPlugins
           ports.each do |options|
             pf_builder = [options[:name],
               options[:protocol] || "tcp",
-              "",
+              options[:hostip] || "",
               options[:hostport],
-              "",
+              options[:guestip] || "",
               options[:guestport]]
 
             args.concat(["--natpf#{options[:adapter] || 1}",
