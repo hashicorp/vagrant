@@ -1,5 +1,6 @@
 ## 1.0.4 (unreleased)
 
+  - VirtualBox 4.2 driver. [GH-1120]
   - Correct `ssh-config` help to use `--host`, not `-h`.
   - Use "127.0.0.1" instead of "localhost" for port checking to fix problem
     where "localhost" is not properly setup. [GH-1057]
