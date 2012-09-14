@@ -1,4 +1,4 @@
-## 1.0.4 (unreleased)
+## 1.0.4 (September 13, 2012)
 
   - VirtualBox 4.2 driver. [GH-1120]
   - Correct `ssh-config` help to use `--host`, not `-h`.
