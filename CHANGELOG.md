@@ -1,5 +1,6 @@
 ## 1.1.0 (unreleased)
 
+  - VirtualBox 4.2 support.
   - New plugin system which adds much more structure and stability to
     the overall API. The goal of this system is to make it easier to write
     powerful plugins for Vagrant while providing a backwards-compatible API

@@ -42,7 +42,8 @@ module VagrantPlugins
           @logger.debug("Finding driver for VirtualBox version: #{@version}")
           driver_map   = {
             "4.0" => Version_4_0,
-            "4.1" => Version_4_1
+            "4.1" => Version_4_1,
+            "4.2" => Version_4_2
           }
 
           driver_klass = nil
