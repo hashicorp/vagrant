@@ -53,7 +53,7 @@ end
 {% endhighlight %}
 
 The path given as the value to the configuration is expanded relative to the project
-directory if its a relative path. If its an absolute path, then it is taken as is.
+directory if it's a relative path. If it's an absolute path, then it is taken as is.
 
 ## Specifying the Run List
 

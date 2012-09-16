@@ -8,8 +8,8 @@ previous_url: /v1/docs/getting-started/teardown.html
 ---
 # Rebuild Instantly
 
-Let's assume its time to work on that web project again. Maybe
-its the next day at work, maybe its the next _year_ at work, but
+Let's assume it's time to work on that web project again. Maybe
+it's the next day at work, maybe it's the next _year_ at work, but
 your boss wants you to work on that web project again. Worried
 about dependencies? Software versions mismatched maybe?
 

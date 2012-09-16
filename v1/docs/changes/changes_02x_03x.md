@@ -16,7 +16,7 @@ Vagrant now officially supports Windows as a host machine. Web developers stuck 
 Windows can now develop in linux environments while continuing to use RubyMine or
 any text editor you prefer on Windows.
 
-**Windows support is very beta. Its known to work on Windows XP and Windows 7. Windows Vista is untested.**
+**Windows support is very beta. It's known to work on Windows XP and Windows 7. Windows Vista is untested.**
 
 For a quick-start guide on Windows, see our [Windows setup guide](/v1/docs/getting-started/setup/windows.html).
 
@@ -67,7 +67,7 @@ Now, if you want to use a "karmic" box, for example, just run `vagrant init karm
 
 Importing and exporting VMs now have a nice progress bar (similar to HTTP
 box adding). You can visually see the progress of these operations, instead
-of blindly waiting for a few minutes. Its a minor change, but it has made
+of blindly waiting for a few minutes. It's a minor change, but it has made
 using Vagrant that much more enjoyable.
 
 This change was made possible to do a massive change in

@@ -59,7 +59,7 @@ class MyConfig < Vagrant::Config::Base
 end
 {% endhighlight %}
 
-Pretty weak validations, I admit! But its up to you to decide how
+Pretty weak validations, I admit! But it's up to you to decide how
 detailed to get. Vagrant will automatically run these validations
 after all the configuration is loaded, and will display a nicely formatted
 error in the case validation fails.

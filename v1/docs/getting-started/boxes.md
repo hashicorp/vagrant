@@ -87,7 +87,7 @@ has been done, etc. We literally just have one line of configuration in our Vagr
 But even so, we already have a fully functional virtual machine. You can see for yourself
 by running `vagrant up` which will create the environment. After a few minutes, you should
 have a fully running virtual machine. We haven't yet forwarded any ports and we haven't covered
-SSH yet, so you'll just have to take our word that its working for now. Finally,
+SSH yet, so you'll just have to take our word that it's working for now. Finally,
 when you're finished verifying the virtual machine, you can destroy everything with a
 `vagrant destroy`.
 
