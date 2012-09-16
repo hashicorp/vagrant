@@ -12,7 +12,7 @@ next_url: /v1/docs/getting-started/rebuild.html
 
 We now have a fully functional virtual machine which can be used
 for basic web development. We've packaged this virtual machine up
-and we've given it to other members of our team. But now let's say its time to
+and we've given it to other members of our team. But now let's say it's time to
 switch gears, maybe work on another project, maybe go out to lunch,
 or maybe just go home. What do we do to clean up our development
 environment?
@@ -43,7 +43,7 @@ Another option is to _halt the virtual machine_ by running `vagrant halt`.
 This will attempt a graceful shutdown of your VM (such as issuing a `halt`
 in a linux machine) and wait for it to shut down. To resume working again,
 issue a `vagrant up`, which will reboot the machine but will not repeat
-the import sequence (since its already imported).
+the import sequence (since it's already imported).
 
 The main benefit of this is it allows you to cleanly shut down your VM,
 and allow it from a cold state again. The cost is that you still pay

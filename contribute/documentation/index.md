@@ -10,7 +10,7 @@ current: Overview
 One of the biggest reasons for Vagrant's success has been decent
 documentation. The website has an easy getting started guide, in depth
 documentation for those who want it, and an in depth contribution guide
-here for people like you! But its difficult to cover 100% of a project
+here for people like you! But it's difficult to cover 100% of a project
 in documentation, and sometimes documentation does get out of date. For
 the developers behind Vagrant, it is often difficult to keep up with
 features added and removed, specific notes for certain Vagrant use cases,

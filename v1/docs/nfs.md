@@ -6,7 +6,7 @@ current: NFS
 ---
 # NFS Shared Folders
 
-Its a long known issue that VirtualBox shared folder performance
+It's a long known issue that VirtualBox shared folder performance
 degrades quickly as the number of files in the shared folder increases.
 As a project reaches 1000+ files, doing simple things like running unit
 tests or even just running an app server can be many orders of magnitude
