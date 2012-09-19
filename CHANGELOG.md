@@ -1,3 +1,8 @@
+## 1.0.5 (unreleased)
+
+  - Work around a critical bug in VirtualBox 4.2.0 on Windows that
+    causes Vagrant to not work. [GH-1130]
+
 ## 1.0.4 (September 13, 2012)
 
   - VirtualBox 4.2 driver. [GH-1120]

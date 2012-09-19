@@ -1,6 +1,7 @@
 require 'log4r'
 
 require 'vagrant/driver/virtualbox_base'
+require 'vagrant/util/platform'
 
 module Vagrant
   module Driver
@@ -11,6 +12,19 @@ module Vagrant
 
         @logger = Log4r::Logger.new("vagrant::driver::virtualbox_4_2")
         @uuid = uuid
+
+        # "Jank mode." VirtualBox 4.2.0 has a horrendous bug where
+        # showvminfo with `--machinereadable` doesn't return proper output.
+        # In this case, Vagrant works around it by using equally horrendous
+        # regular expressions for the non-machine-readable output of
+        # showvminfo. This, ladies and gentlemen, is jank mode.
+        @jank_mode = false
+        if Util::Platform.windows?
+          if execute("--version").start_with?("4.2.0r")
+            @logger.info("Windows with v4.2.0. Jank mode engage.")
+            @jank_mode = true
+          end
+        end
       end
 
       def clear_forwarded_ports
@@ -23,6 +37,8 @@ module Vagrant
       end
 
       def clear_shared_folders
+        return jank_clear_shared_folders if @jank_mode
+
         info = execute("showvminfo", @uuid, "--machinereadable", :retryable => true)
         info.split("\n").each do |line|
           if line =~ /^SharedFolderNameMachineMapping\d+="(.+?)"$/
@@ -71,10 +87,17 @@ module Vagrant
 
         execute("list", "vms").split("\n").each do |line|
           if line =~ /^".+?"\s+\{(.+?)\}$/
-            info = execute("showvminfo", $1.to_s, "--machinereadable", :retryable => true)
-            info.split("\n").each do |line|
-              if line =~ /^hostonlyadapter\d+="(.+?)"$/
-                networks.delete($1.to_s)
+            if @jank_mode
+              adapters = jank_read_hostonly_adapters($1.to_s)
+              adapters.each do |adapter|
+                networks.delete(adapter)
+              end
+            else
+              info = execute("showvminfo", $1.to_s, "--machinereadable", :retryable => true)
+              info.split("\n").each do |info_line|
+                if info_line =~ /^hostonlyadapter\d+="(.+?)"$/
+                  networks.delete($1.to_s)
+                end
               end
             end
           end
@@ -199,8 +222,9 @@ module Vagrant
 
       def read_forwarded_ports(uuid=nil, active_only=false)
         uuid ||= @uuid
-
         @logger.debug("read_forward_ports: uuid=#{uuid} active_only=#{active_only}")
+
+        return jank_read_forwarded_ports(uuid, active_only) if @jank_mode
 
         results = []
         current_nic = nil
@@ -306,6 +330,8 @@ module Vagrant
       end
 
       def read_mac_address
+        return jank_read_mac_address if @jank_mode
+
         info = execute("showvminfo", @uuid, "--machinereadable", :retryable => true)
         info.split("\n").each do |line|
           return $1.to_s if line =~ /^macaddress1="(.+?)"$/
@@ -325,6 +351,8 @@ module Vagrant
       end
 
       def read_network_interfaces
+        return jank_read_network_interfaces if @jank_mode
+
         nics = {}
         info = execute("showvminfo", @uuid, "--machinereadable", :retryable => true)
         info.split("\n").each do |line|
@@ -353,6 +381,8 @@ module Vagrant
       end
 
       def read_state
+        return jank_read_state if @jank_mode
+
         output = execute("showvminfo", @uuid, "--machinereadable", :retryable => true)
         if output =~ /^name="<inaccessible>"$/
           return :inaccessible
@@ -453,6 +483,122 @@ module Vagrant
 
       def vm_exists?(uuid)
         raw("showvminfo", uuid).exit_code == 0
+      end
+
+      protected
+
+      # JANK MODE METHODS:
+      #
+      # All the methods below are created to work around a horrendous
+      # bug in VirtualBox 4.2.0 on Windows where "showvminfo --machinereadable"
+      # doesn't output enough data. So, instead, on Windows we use the plain
+      # "showvminfo" and parse the human readable output.
+
+      def jank_clear_shared_folders
+        info = execute("showvminfo", @uuid, :retryable => true)
+
+        # Get the shared folders part
+        info = info.drop_while { |line| line !~ /^Shared folders:/i }
+        info = info.take_while { |line| line != "" && line !~ /^Name:/i }
+
+        # Find all the shared folders and delete them all
+        info.split("\n").each do |line|
+          if line =~ /^Name: '(.+?)'/
+            execute("sharedfolder", "remove", @uuid, "--name", $1.to_s)
+          end
+        end
+      end
+
+      def jank_read_forwarded_ports(uuid, active_only)
+        results = []
+
+        info = execute("showvminfo", uuid, :retryable => true)
+        info.split("\n").each do |line|
+          # If we care about active VMs only, then we check the state
+          # to verify the VM is running.
+          if active_only && line =~ /^State:\s+(.+?) \(.+?\)$/ && $1.to_s != "running"
+            return []
+          end
+
+          # Parse out the forwarded port information
+          if line =~ /^NIC (\d) Rule\(\d\):\s+name = (.+?), protocol = .+?, host ip = .*?, host port = (.+?), guest ip = .*?, guest port = (.+?)$/
+            result = [$1.to_i, $2.to_s, $3.to_i, $4.to_i]
+            @logger.debug("  - #{result.inspect}")
+            results << result
+          end
+        end
+
+        results
+      end
+
+      def jank_read_hostonly_adapters(uuid)
+        adapters = []
+
+        nics = jank_read_network_interfaces(uuid)
+        nics.each do |adapter, data|
+          if data[:type] == :hostonly
+            adapters << data[:hostonly]
+          end
+        end
+
+        adapters
+      end
+
+      def jank_read_mac_address
+        info = execute("showvminfo", @uuid, :retryable => true)
+        info.split("\n").each do |line|
+          return $1.to_s if line =~ /^NIC 1:\s+MAC: (.+?),/
+        end
+
+        nil
+      end
+
+      def jank_read_network_interfaces(uuid=nil)
+        uuid ||= @uuid
+        nics = {}
+        info = execute("showvminfo", uuid, :retryable => true)
+        info.split("\n").each do |line|
+          if line =~ /^NIC (\d):\s+MAC: .+?, Attachment: (.+?), Cable/
+            adapter = $1.to_i
+            long_type = $2.to_s
+
+            type = nil
+            data = nil
+            if long_type == "NAT"
+              type = :nat
+            elsif long_type =~ /^Host-only Interface '(.+?)'$/i
+              type = :hostonly
+              data = $1.to_s
+            elsif long_type =~ /^Bridged Interface '(.+?)'$/i
+              type = :bridge
+              data = $1.to_s
+            end
+
+            nics[adapter] ||= {}
+            nics[adapter][:type] = type
+            nics[adapter][:hostonly] = data if type == :hostonly
+            nics[adapter][:bridge] = data if type == :bridge
+          end
+        end
+
+        nics
+      end
+
+      def jank_read_state
+        output = execute("showvminfo", @uuid, :retryable => true)
+        if output =~ /^Name:\s+<inaccessible>$/
+          return :inaccessible
+        elsif output =~ /^State:\s+(.+?) \(.+?\)$/
+          # Silly edge cases for a jank mode. This probably doesn't
+          # cover every case, but if we can get Vagrant MOSTLY working
+          # with this buggy version of VirtualBox on Windows, I'll be
+          # quite happy.
+          state = $1.to_s.downcase.gsub(" ", "")
+          state = "poweroff" if state == "poweredoff"
+          return state.to_sym
+        end
+
+        nil
       end
     end
   end
