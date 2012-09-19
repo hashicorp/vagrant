@@ -4,6 +4,7 @@
     causes Vagrant to not work. [GH-1130]
   - Plugin loading works better on Windows by using the proper
     file path separator.
+  - NFS works on Fedora 16+. [GH-1140]
 
 ## 1.0.4 (September 13, 2012)
 
