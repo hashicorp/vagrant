@@ -498,11 +498,12 @@ module Vagrant
         info = execute("showvminfo", @uuid, :retryable => true)
 
         # Get the shared folders part
+        info = info.split("\n")
         info = info.drop_while { |line| line !~ /^Shared folders:/i }
         info = info.take_while { |line| line != "" && line !~ /^Name:/i }
 
         # Find all the shared folders and delete them all
-        info.split("\n").each do |line|
+        info.each do |line|
           if line =~ /^Name: '(.+?)'/
             execute("sharedfolder", "remove", @uuid, "--name", $1.to_s)
           end
