@@ -10,15 +10,6 @@ module Vagrant
         5
       end
 
-      # rewriting nfs? here since my system shows the filesystem as nfs
-      # or nfs4, not nfsd... is the Linux host broken?
-      def nfs?
-        retryable(:tries => 10, :on => TypeError) do
-          # Check procfs to see if NFS is a supported filesystem
-          system("cat /proc/filesystems | grep -q nfs 2>/dev/null")
-        end
-      end
-
       def nfs_export(id, ip, folders)
         output = TemplateRenderer.render('nfs/exports_linux',
                                          :uuid => id,
