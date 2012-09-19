@@ -16,7 +16,7 @@ extensibility wasn't an initial design goal, but was a positive side
 effect from Vagrant's modular design. After seeing the possibilities
 this provides, we've decided future versions of Vagrant will attempt to
 provide developers with more tools to ease the process of extending
-Vagrant. For now, however, its still completely possible to power Vagrant
+Vagrant. For now, however, it's still completely possible to power Vagrant
 through Rake or any other Ruby-based script.
 
 ## Loading Vagrant

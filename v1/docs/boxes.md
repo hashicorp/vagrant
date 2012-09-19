@@ -21,7 +21,7 @@ after a virtual machine has been created.
 ## Installing a Box
 
 Boxes can be installed from the filesystem or via HTTP (note that
-if you're interested, its quite easy to extend this to support more
+if you're interested, it's quite easy to extend this to support more
 protocols). No matter the source, the installation method is the same.
 The following adds a box named `lucid32` to a local vagrant
 installation:

@@ -18,7 +18,7 @@ title: Documentation - Unison Shared Folder Syncing
   </p>
 </div>
 
-Its been a long known issue that VirtualBox shared folder performance
+It's been a long known issue that VirtualBox shared folder performance
 degrades quickly as the number of files in the shared folder increases.
 As a project reaches thousands of files, doing simple things like running
 unit tests or even just running an app server can be many orders
@@ -56,7 +56,7 @@ Unison is available on most operating systems through their respective
 package managers. For example, on Ubuntu, you can install unison with
 a simple `sudo apt-get install unison`.
 
-Its recommended that you install unison and package that box for the future
+It's recommended that you install unison and package that box for the future
 so you don't need to install unison every time you wish to use shared
 folder syncing.
 
@@ -89,7 +89,7 @@ was marked to be synced. The steps below are taken:
 2. Unison is configured on a cron to sync the folder to the original
    guest path: `/vagrant`.
 3. The syncing script runs in the background constantly (with the cron
-   verifying its running every minute) to sync the two folders. Any
+   verifying it's running every minute) to sync the two folders. Any
    app servers, unit test runners, etc, should use the syncced folder:
    `/vagrant` and _not_ the VirtualBox shared folder.
 

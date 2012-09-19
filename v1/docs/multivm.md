@@ -69,7 +69,7 @@ In a single VM environment, `vagrant up` starts that VM. In a multi-VM environme
 
 This pattern follows for every other command as well, although some don't implement
 the "every VM" functionality when it doesn't make sense, such as `vagrant ssh`, which
-requires that a VM name be specified if its in a multi-VM environment.
+requires that a VM name be specified if it's in a multi-VM environment.
 
 ## Communication Between VMs
 
