@@ -43,7 +43,7 @@ module Vagrant
         end
       end
 
-      private
+      protected
 
       # This tests to see if systemd is used on the system. This is used
       # in newer versions of Arch, and requires a change in behavior.
