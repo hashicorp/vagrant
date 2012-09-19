@@ -1,4 +1,4 @@
-## 1.0.5 (unreleased)
+## 1.0.5 (September 18, 2012)
 
   - Work around a critical bug in VirtualBox 4.2.0 on Windows that
     causes Vagrant to not work. [GH-1130]
