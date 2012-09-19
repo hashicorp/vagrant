@@ -2,6 +2,8 @@
 
   - Work around a critical bug in VirtualBox 4.2.0 on Windows that
     causes Vagrant to not work. [GH-1130]
+  - Plugin loading works better on Windows by using the proper
+    file path separator.
 
 ## 1.0.4 (September 13, 2012)
 
