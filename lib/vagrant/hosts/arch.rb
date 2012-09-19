@@ -28,13 +28,13 @@ module Vagrant
         end
 
         if systemd?
-          # call start to be nice. this will be a no-op if things are
-          # already running. then use exportfs to pick up the changes we
+          # Call start to be nice. This will be a no-op if things are
+          # already running. Then use exportfs to pick up the changes we
           # just made.
           system("sudo systemctl start nfsd.service rpc-idmapd.service rpc-mountd.service rpcbind.service")
           system("sudo exportfs -r")
         else
-          # the restarting of services when we might not need to can be
+          # The restarting of services when we might not need to can be
           # considered evil, but this will be obviated by systemd soon
           # enough anyway.
           system("sudo /etc/rc.d/rpcbind restart")
@@ -45,8 +45,10 @@ module Vagrant
 
       private
 
+      # This tests to see if systemd is used on the system. This is used
+      # in newer versions of Arch, and requires a change in behavior.
       def systemd?
-        system("which systemctl &>/dev/null")
+        Kernel.system("which systemctl &>/dev/null")
       end
     end
   end

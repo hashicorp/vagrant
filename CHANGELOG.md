@@ -5,6 +5,7 @@
   - Plugin loading works better on Windows by using the proper
     file path separator.
   - NFS works on Fedora 16+. [GH-1140]
+  - NFS works with newer versions of Arch hosts that use systemd. [GH-1142]
 
 ## 1.0.4 (September 13, 2012)
 
