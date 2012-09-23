@@ -36,6 +36,17 @@ for the new kernel through the `vboxadd` initscript, like so:
     sudo /etc/init.d/vboxadd setup
 
 
+## Using Vagrant with Upstart in Production. 
+
+If you are looking to have your vagrant box start your production server when it boots and you are trying to use upstart, you will need to wait for the shared directory to mount before you start the server.  For instance, if you are using ubuntu 10.04 and Passenger standalone and you get an error like the following:
+
+    /vagrant/passenger.3000.pid.lock (Errno::EACCES)
+
+    This could be because you are trying to run Passenger in a directory that has not been mounted yet.  The solution is to change your upstart script to start when the vagrant-mounted been emitted: 
+
+    start on vagrant-mounted
+
+
 ## Networking Slowness
 
 Networking slowness can be intermittent.
