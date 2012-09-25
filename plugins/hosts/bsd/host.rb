@@ -49,10 +49,14 @@ module VagrantPlugins
         nfs_cleanup(id)
 
         # Output the rendered template into the exports
-        output.split("\n").each do |line|
-          line = line.gsub('"', '\"')
-          system(%Q[sudo su root -c "echo '#{line}' >> /etc/exports"])
-        end
+        # now we need to escape some chars to make sure sed will work
+        # we know we make use of double-quotes, parenthesis, and multiple lines. So we are going to handle those cases
+        output = output.gsub("\"", "\\\"")
+        output = output.gsub("(", "\\(")
+        output = output.gsub(")", "\\)")
+        output = output.gsub("\n", "\\\n")
+        sed_command = "sudo sed -e '$a#{output}' -ibak /etc/exports"
+        system(sed_command)
 
         # We run restart here instead of "update" just in case nfsd
         # is not starting
