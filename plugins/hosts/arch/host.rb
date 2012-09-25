@@ -23,6 +23,9 @@ module VagrantPlugins
         @ui.info I18n.t("vagrant.hosts.arch.nfs_export.prepare")
         sleep 0.5
 
+        # This should only ask for administrative permission only once
+        # You can use configure /etc/sudoers.d to avoid having to enter the password
+
         nfs_cleanup(id)
 
         # now we need to escape some chars to make sure sed will work

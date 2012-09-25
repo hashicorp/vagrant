@@ -42,6 +42,9 @@ module VagrantPlugins
 
         @ui.info I18n.t("vagrant.hosts.linux.nfs_export")
         sleep 0.5
+        
+        # This should only ask for administrative permission only once
+        # You can use configure /etc/sudoers.d to avoid having to enter the password
 
         nfs_cleanup(id)
 
@@ -53,7 +56,7 @@ module VagrantPlugins
         output = output.gsub("\n", "\\\n")
         sed_command = "sudo sed -e '$a#{output}' -ibak /etc/exports"
         system(sed_command)
-		
+
         # We run restart here instead of "update" just in case nfsd
         # is not starting
         system("sudo #{@nfs_server_binary} restart")

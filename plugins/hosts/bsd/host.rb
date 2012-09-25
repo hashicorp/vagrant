@@ -45,6 +45,9 @@ module VagrantPlugins
         @ui.info I18n.t("vagrant.hosts.bsd.nfs_export")
         sleep 0.5
 
+        # This should only ask for administrative permission only once
+        # You can use configure /etc/sudoers.d to avoid having to enter the password
+
         # First, clean up the old entry
         nfs_cleanup(id)
 
