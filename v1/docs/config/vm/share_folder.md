@@ -49,3 +49,19 @@ NFS shared folders:
   the folder.
 * `:nfs_version` - This is the NFS version that will be used as the format
   for the mount.
+
+## Caveats
+
+There is a [VirtualBox bug][sendfile bug] related to "sendfile" which can 
+result in corrupted or non-updating files. You should disable "sendfile" 
+in any web servers you have running.
+
+In Nginx:
+
+    sendfile off;
+
+In Apache:
+
+    EnableSendfile Off
+
+[sendfile bug]: https://github.com/mitchellh/vagrant/issues/351#issuecomment-1339640
