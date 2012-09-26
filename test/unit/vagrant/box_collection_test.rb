@@ -135,6 +135,11 @@ describe Vagrant::BoxCollection do
       results = instance.all.sort
       results.should == [["bar", :virtualbox, :v1], ["foo", :vmware]]
     end
+
+    it 'does not raise an exception when a file appears in the boxes dir' do
+      Tempfile.new('a_file', environment.boxes_dir)
+      expect { instance.all }.to_not raise_error
+    end
   end
 
   describe "finding" do
