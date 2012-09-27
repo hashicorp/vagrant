@@ -52,8 +52,8 @@ NFS shared folders:
 
 ## Caveats
 
-There is a [VirtualBox bug][sendfile bug] related to "sendfile" which can 
-result in corrupted or non-updating files. You should disable "sendfile" 
+There is a [VirtualBox bug][sendfile bug] related to "sendfile" which can
+result in corrupted or non-updating files. You should disable "sendfile"
 in any web servers you have running.
 
 In Nginx:
