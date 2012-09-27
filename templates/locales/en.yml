@@ -593,8 +593,14 @@ en:
 
       box:
         unpackage:
-          untar_failure: "Untar box failure..."
-          already_exists: "Box already exists"
+          untar_failure: |-
+            The box failed to untar properly. Please verify that the box
+            file you're trying to add is not corrupted and try again.
+          already_exists: |-
+            The box you're attempting to add already exits:
+
+            Name: %{name}
+            Provider: %{provider}
         add:
           adding: |-
             Extracting box...
