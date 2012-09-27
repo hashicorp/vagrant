@@ -11,6 +11,24 @@ module Vagrant
   class BoxCollection
     # The directory where the boxes in this collection are stored.
     #
+    # A box collection matches a very specific folder structure that Vagrant
+    # expects in order to easily manage and modify boxes. The folder structure
+    # is the following:
+    #
+    #     COLLECTION_ROOT/BOX_NAME/PROVIDER/metadata.json
+    #
+    # Where:
+    #
+    #   * COLLECTION_ROOT - This is the root of the box collection, and is
+    #     the directory given to the initializer.
+    #   * BOX_NAME - The name of the box. This is a logical name given by
+    #     the user of Vagrant.
+    #   * PROVIDER - The provider that the box was built for (VirtualBox,
+    #     VMWare, etc.).
+    #   * metadata.json - A simple JSON file that at the bare minimum
+    #     contains a "provider" key that matches the provider for the
+    #     box. This metadata JSON, however, can contain anything.
+    #
     # @return [Pathname]
     attr_reader :directory
 
@@ -134,6 +152,8 @@ module Vagrant
 
       @logger.debug("Finding all boxes in: #{@directory}")
       @directory.children(true).each do |child|
+        # Ignore non-directories, since files are not interesting to
+        # us in our folder structure.
         next if !child.directory?
 
         box_name = child.basename.to_s
