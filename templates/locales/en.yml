@@ -592,6 +592,9 @@ en:
           suspending: Saving VM state and suspending execution...
 
       box:
+        unpackage:
+          untar_failure: "Untar box failure..."
+          already_exists: "Box already exists"
         add:
           adding: |-
             Extracting box...
