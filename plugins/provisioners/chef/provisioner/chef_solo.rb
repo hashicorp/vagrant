@@ -186,7 +186,8 @@ module VagrantPlugins
 
         def run_chef_solo
           command_env = config.binary_env ? "#{config.binary_env} " : ""
-          command = "#{command_env}#{chef_binary_path("chef-solo")} -c #{config.provisioning_path}/solo.rb -j #{config.provisioning_path}/dna.json"
+          command_args = config.arguments ? " #{config.arguments}" : ""
+          command = "#{command_env}#{chef_binary_path("chef-solo")} -c #{config.provisioning_path}/solo.rb -j #{config.provisioning_path}/dna.json #{command_args}"
 
           config.attempts.times do |attempt|
             if attempt == 0
