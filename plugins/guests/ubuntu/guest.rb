@@ -13,6 +13,17 @@ module VagrantPlugins
         vm.communicate.sudo("[ -x /sbin/initctl ] && /sbin/initctl emit vagrant-mounted MOUNTPOINT=#{guestpath}")
       end
 
+      def mount_nfs(ip, folders)
+        # Mount it like normal
+        super
+
+        # Emit an upstart events if upstart is available
+        folders.each do |name, opts|
+          real_guestpath = expanded_guest_path(opts[:guestpath])
+          vm.channel.sudo("[ -x /sbin/initctl ] && /sbin/initctl emit vagrant-mounted MOUNTPOINT=#{real_guestpath}")
+        end
+      end
+
       def change_host_name(name)
         vm.communicate.tap do |comm|
           if !comm.test("sudo hostname | grep '#{name}'")
