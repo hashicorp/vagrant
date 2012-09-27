@@ -133,7 +133,9 @@ module Vagrant
       results = []
 
       @logger.debug("Finding all boxes in: #{@directory}")
-      @directory.children(true).select(&:directory?).each do |child|
+      @directory.children(true).each do |child|
+        next if !child.directory?
+
         box_name = child.basename.to_s
 
         # If this is a V1 box, we still return that name, but specify
