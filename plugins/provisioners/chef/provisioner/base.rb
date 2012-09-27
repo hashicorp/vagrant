@@ -101,6 +101,7 @@ module VagrantPlugins
           attr_accessor :binary_path
           attr_accessor :binary_env
           attr_accessor :attempts
+          attr_accessor :arguments
           attr_writer :run_list
 
           # Provide defaults in such a way that they won't override the instance
