@@ -50,6 +50,8 @@
     while downloading a box over HTTP. [GH-1090]
   - Allow "file://" URLs for box URLs. [GH-1087]
   - Emit "vagrant-mount" upstart event when NFS shares are mounted. [GH-1118]
+  - Chef JSON configuration output is now pretty-printed to be
+    human readable. [GH-1146]
 
 ## 1.0.3 (May 1, 2012)
 
