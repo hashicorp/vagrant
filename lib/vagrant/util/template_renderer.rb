@@ -71,6 +71,13 @@ module Vagrant
         Erubis::Eruby.new(template, :trim => true).result(binding)
       end
 
+      # Escapes quote characters in a string.
+      #
+      # @return [String]
+      def escape_quotes(text)
+        text.gsub(/["']/) { |m| "\\#{m}" }
+      end
+
       # Returns the full path to the template, taking into accoun the gem directory
       # and adding the `.erb` extension to the end.
       #
