@@ -86,6 +86,8 @@ module Vagrant
       protected
 
       def escape_quotes(text)
+        # backslashes are escaped too so that we can escape already escaped strings
+        # for example, when passing escaped file paths to shell commands
         text.gsub(/["'\\]/) { |m| "\\#{m}" }
       end
 
