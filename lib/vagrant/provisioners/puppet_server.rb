@@ -66,7 +66,7 @@ module Vagrant
           facter = "#{facts.join(" ")} "
         end
 
-        command = "#{facter}puppetd #{options} --server #{config.puppet_server}"
+        command = "#{facter}puppetd #{options} --server #{config.puppet_server} --detailed-exitcodes || [ $? -eq 2 ]"
 
         env[:ui].info I18n.t("vagrant.provisioners.puppet_server.running_puppetd")
         env[:vm].channel.sudo(command) do |type, data|
