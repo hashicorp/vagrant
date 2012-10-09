@@ -36,4 +36,8 @@ accepted options are:
   will be shown instead.
 * `:protocol` - This allows specifying the protocol that the forwarded port
   will use. The default protocol, if none is specified, is `:tcp`.
+* `:hostip` - This allows specifying the IP on the host side of the forwarded port.
+  Defaults to all hosts interfaces.
+* `:guestip` - This allows specifying the IP on the guest side of the forwarded port.
+  Defaults to all guests interfaces.
 
