@@ -94,7 +94,8 @@ module VagrantPlugins
         @logger.debug("Uploading: #{from} to #{to}")
 
         scp_connect do |scp|
-          scp.upload!(from, to)
+	  # Open file read only to fix issue [GH-1036]
+          scp.upload!(File.open(from, "r"), to)
         end
       rescue RuntimeError => e
         # Net::SCP raises a runtime error for this so the only way we have
