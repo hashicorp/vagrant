@@ -29,13 +29,13 @@ module VagrantPlugins
           begin
             contents = File.read("/etc/resolv.conf")
 
-            if contents =~ /^nameserver 127\.0\.0\.1$/ or
-                contents =~ /^nameserver 127\.0\.1\.1$/
+            if contents =~ /^nameserver 127\.0\.(0|1)\.1$/
               # The use of both natdnsproxy and natdnshostresolver break on
               # Ubuntu 12.04 and 12.10 that uses resolvconf with localhost. When used
               # VirtualBox will give the client dns server 10.0.2.3, while
               # not binding to that address itself. Therefore disable this
-              # feature if host uses the resolvconf server 127.0.0.1 or 127.0.0.1
+              # feature if host uses the resolvconf server 127.0.0.1 or
+              # 127.0.1.1
               @logger.info("Disabling DNS proxy since resolv.conf contains 127.0.0.1 or 127.0.1.1")
               enable_dns_proxy = false
             end
