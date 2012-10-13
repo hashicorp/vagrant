@@ -5,6 +5,7 @@
   - Check for proper exit codes for Puppet, since multiple exit codes
     can mean success. [GH-1180]
   - Fix issue where DNS doesn't resolve properly for 12.10. [GH-1176]
+  - Allow hostname to be a substring of the box name for Ubuntu [GH-1163]
 
 ## 1.0.5 (September 18, 2012)
 
