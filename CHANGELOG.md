@@ -6,6 +6,8 @@
     can mean success. [GH-1180]
   - Fix issue where DNS doesn't resolve properly for 12.10. [GH-1176]
   - Allow hostname to be a substring of the box name for Ubuntu [GH-1163]
+  - Use `puppet agent` instead of `puppetd` to be Puppet 3.x
+    compatible. [GH-1169]
 
 ## 1.0.5 (September 18, 2012)
 
