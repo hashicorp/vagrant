@@ -4,6 +4,7 @@
   - SSH upload opens file to stream which fixes strange upload issues.
   - Check for proper exit codes for Puppet, since multiple exit codes
     can mean success. [GH-1180]
+  - Fix issue where DNS doesn't resolve properly for 12.10. [GH-1176]
 
 ## 1.0.5 (September 18, 2012)
 

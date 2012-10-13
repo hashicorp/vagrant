@@ -32,7 +32,7 @@ module Vagrant
           begin
             contents = File.read("/etc/resolv.conf")
 
-            if contents =~ /^nameserver 127\.0\.0\.1$/
+            if contents =~ /^nameserver 127\.0\.(0|1)\.1$/
               # The use of both natdnsproxy and natdnshostresolver break on
               # Ubuntu 12.04 that uses resolvconf with localhost. When used
               # VirtualBox will give the client dns server 10.0.2.3, while
