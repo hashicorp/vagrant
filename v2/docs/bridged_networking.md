@@ -46,6 +46,28 @@ Vagrant will always setup this bridged interface as adapter #3 on
 the virtual machine. This can be overridden as well, see below for more
 information.
 
+### Specifying a Bridged Network interface
+
+Sometimes you may want to specify the host's network interface in your `Vagrantfile`.
+This can help an individual speed up launch time for a VM, due to bypassing the prompt,
+however sharing the `Vagrantfile` with this set can have unexpected results, since other
+systems may not have the same adapters, or may be named differently.
+
+You may inspect the bridged adapters VirtualBox can use by running:
+
+{% highlight bash %}
+$ VBoxManage list bridgedifs | grep ^Name
+Name:            en0: Wi-Fi (AirPort)
+{% endhighlight %}
+
+Then you may use the `Name` value in your `Vagrantfile`:
+
+{% highlight ruby %}
+Vagrant::Config.run do |config|
+  config.vm.network :bridged, :bridge => "en0: Wi-Fi (AirPort)"
+end
+{% endhighlight %}
+
 <div class="alert alert-block alert-notice">
   <h3>Not All Networks Work!</h3>
   <p>
