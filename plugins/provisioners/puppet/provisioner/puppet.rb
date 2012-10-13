@@ -153,7 +153,7 @@ module VagrantPlugins
             facter = "#{facts.join(" ")} "
           end
 
-          command = "cd #{manifests_guest_path} && #{facter}puppet apply #{options}"
+          command = "cd #{manifests_guest_path} && #{facter}puppet apply #{options} --detailed-exitcodes || [ $? -eq 2 ]"
 
           env[:ui].info I18n.t("vagrant.provisioners.puppet.running_puppet",
                                :manifest => @manifest_file)
