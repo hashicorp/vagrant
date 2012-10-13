@@ -26,7 +26,7 @@ module VagrantPlugins
 
       def change_host_name(name)
         vm.communicate.tap do |comm|
-          if !comm.test("sudo hostname | grep '#{name}'")
+          if !comm.test("[ `sudo hostname` = '#{name}' ]")
             comm.sudo("sed -i 's/.*$/#{name}/' /etc/hostname")
             comm.sudo("sed -i 's@^\\(127[.]0[.]1[.]1[[:space:]]\\+\\)@\\1#{name} #{name.split('.')[0]} @' /etc/hosts")
             comm.sudo("service hostname start")
