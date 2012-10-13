@@ -59,6 +59,10 @@ module Vagrant
         # Otherwise we have an inline script, we need to Tempfile it,
         # and handle it specially...
         file = Tempfile.new('vagrant-shell')
+        # Unless you set binmode, on a Windows host the shell script will
+        # have CRLF line endings instead of LF line endings, causing havoc
+        # when the guest executes it
+        file.binmode
         begin
           file.write(config.inline)
           file.fsync
