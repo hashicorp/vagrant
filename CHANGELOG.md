@@ -2,6 +2,8 @@
 
   - Shell provisioner outputs proper line endings on Windows [GH-1164]
   - SSH upload opens file to stream which fixes strange upload issues.
+  - Check for proper exit codes for Puppet, since multiple exit codes
+    can mean success. [GH-1180]
 
 ## 1.0.5 (September 18, 2012)
 
