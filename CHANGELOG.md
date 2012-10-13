@@ -1,3 +1,8 @@
+## 1.0.6 (unreleased)
+
+  - Shell provisioner outputs proper line endings on Windows [GH-1164]
+  - SSH upload opens file to stream which fixes strange upload issues.
+
 ## 1.0.5 (September 18, 2012)
 
   - Work around a critical bug in VirtualBox 4.2.0 on Windows that
