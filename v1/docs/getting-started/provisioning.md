@@ -83,17 +83,16 @@ class apache {
     ensure => running,
     require => Package["apache2"],
   }
+
+  file { '/var/www':
+    ensure => link,
+    target => "/vagrant",
+    notify => Service['apache2'],
+    force  => true
+  }
 }
 
 include apache
-
-file { "/var/www/index.html":
-  ensure => present,
-  source => "/vagrant/index.html",
-  owner => "root",
-  group => "root",
-  require => Class['apache'],
-}
 
 {% endhighlight %}
 
