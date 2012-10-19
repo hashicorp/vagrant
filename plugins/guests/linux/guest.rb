@@ -64,9 +64,18 @@ module VagrantPlugins
           # Expand the guestpath, so we can handle things like "~/vagrant"
           real_guestpath = expanded_guest_path(opts[:guestpath])
 
+          # Expand nfs mount options
+          if opts[:nfs].is_a?(String)
+            nfs_mount_options = opts[:nfs]
+          elsif opts[:nfs].respond_to?("each")
+            nfs_mount_options = opts[:nfs].join(",")
+          else
+            nfs_mount_options = ""
+          end
+
           # Do the actual creating and mounting
           @vm.communicate.sudo("mkdir -p #{real_guestpath}")
-          @vm.communicate.sudo("mount -o vers=#{opts[:nfs_version]} #{ip}:'#{opts[:hostpath]}' #{real_guestpath}",
+          @vm.communicate.sudo("mount -o 'vers=#{opts[:nfs_version]},#{nfs_mount_options}' #{ip}:'#{opts[:hostpath]}' #{real_guestpath}",
                           :error_class => LinuxError,
                           :error_key => :mount_nfs_fail)
         end
