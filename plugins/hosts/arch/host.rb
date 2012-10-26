@@ -6,7 +6,16 @@ module VagrantPlugins
   module HostArch
     class Host < VagrantPlugins::HostLinux::Host
       def self.match?
-        File.exist?("/etc/rc.conf") && File.exist?("/etc/pacman.conf")
+        File.exist?("/etc/arch-release")
+      end
+
+      def self.nfs?
+        # HostLinux checks for nfsd which returns false unless the
+        # services are actively started. This leads to a misleading
+        # error message. Checking for nfs (no d) seems to work
+        # regardless. Also fixes useless use of cat, regex, and
+        # redirection.
+        Kernel.system("grep -Fq nfs /proc/filesystems")
       end
 
       # Normal, mid-range precedence.
