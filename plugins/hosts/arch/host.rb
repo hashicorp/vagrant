@@ -61,7 +61,7 @@ module VagrantPlugins
       # This tests to see if systemd is used on the system. This is used
       # in newer versions of Arch, and requires a change in behavior.
       def systemd?
-        Kernel.system("which systemctl &>/dev/null")
+        `ps -o comm= 1`.chomp == 'systemd'
       end
     end
   end
