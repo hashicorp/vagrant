@@ -61,17 +61,17 @@ module VagrantPlugins
           env[:ui].info I18n.t("vagrant.provisioners.chef.client_key_folder")
           path = Pathname.new(config.client_key_path)
 
-          env[:vm].channel.sudo("mkdir -p #{path.dirname}")
+          env[:machine].communicate.sudo("mkdir -p #{path.dirname}")
         end
 
         def upload_validation_key
           env[:ui].info I18n.t("vagrant.provisioners.chef.upload_validation_key")
-          env[:vm].channel.upload(validation_key_path, guest_validation_key_path)
+          env[:machine].communicate.upload(validation_key_path, guest_validation_key_path)
         end
 
         def upload_encrypted_data_bag_secret
           env[:ui].info I18n.t("vagrant.provisioners.chef.upload_encrypted_data_bag_secret_key")
-          env[:vm].channel.upload(encrypted_data_bag_secret_key_path,
+          env[:machine].communicate.upload(encrypted_data_bag_secret_key_path,
                                   config.encrypted_data_bag_secret)
         end
 
@@ -101,7 +101,7 @@ module VagrantPlugins
               env[:ui].info I18n.t("vagrant.provisioners.chef.running_client_again")
             end
 
-            exit_status = env[:vm].channel.sudo(command) do |type, data|
+            exit_status = env[:machine].communicate.sudo(command, :error_check => false) do |type, data|
               # Output the data with the proper color based on the stream.
               color = type == :stdout ? :green : :red
 
