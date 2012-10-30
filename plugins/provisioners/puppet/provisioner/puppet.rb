@@ -159,7 +159,8 @@ module VagrantPlugins
                                :manifest => @manifest_file)
 
           env[:machine].communicate.sudo(command) do |type, data|
-            env[:ui].info(data.chomp, :prefix => false)
+            data.chomp!
+            env[:ui].info(data, :prefix => false) if !data.empty?
           end
         end
 
