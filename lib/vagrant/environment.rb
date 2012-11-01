@@ -316,6 +316,14 @@ module Vagrant
       @config
     end
 
+    # Set the configuration object represented by this environment.
+    #
+    # @return [Config::Container]
+
+    def config=(config)
+      @config = config
+    end
+
     #---------------------------------------------------------------
     # Load Methods
     #---------------------------------------------------------------
