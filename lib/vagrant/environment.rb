@@ -23,7 +23,7 @@ module Vagrant
     attr_reader :vagrantfile_name
 
     # The {UI} object to communicate with the outside world.
-    attr_reader :ui
+    attr_accessor :ui
 
     # The directory to the "home" folder that Vagrant will use to store
     # global state.
