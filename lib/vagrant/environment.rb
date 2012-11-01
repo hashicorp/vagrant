@@ -80,7 +80,6 @@ module Vagrant
       ui_class = opts[:ui_class] || UI::Silent
       @ui      = ui_class.new("vagrant")
 
-      @loaded = false
       @lock_acquired = false
 
       @logger = Log4r::Logger.new("vagrant::environment")
@@ -326,7 +325,7 @@ module Vagrant
     #
     # @return [Bool]
     def loaded?
-      !!@loaded
+      !!@config
     end
 
     # Loads this entire environment, setting up the instance variables
@@ -334,7 +333,6 @@ module Vagrant
     # method calls its other methods is very particular.
     def load!
       if !loaded?
-        @loaded = true
         @logger.info("Loading configuration...")
         load_config!
       end
