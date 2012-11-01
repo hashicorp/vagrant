@@ -424,12 +424,12 @@ module Vagrant
       # Second pass, with the box
       if config.vm.box and box = find_and_upgrade(config.vm.box)
         config = push_configuration(
-                    config_loader, 
-                    base_config.merge(
-                      :vm => subvm.config_procs, 
-                      :box => find_vagrantfile(box.directory)
-                    )
-                  )
+                   config_loader, 
+                   base_config.merge(
+                     :vm => subvm.config_procs, 
+                     :box => find_vagrantfile(box.directory)
+                   )
+                 )
       end
 
       return config
