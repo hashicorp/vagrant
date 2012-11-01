@@ -414,6 +414,14 @@ module Vagrant
       @config = Config::Container.new(global, vm_configs)
     end
 
+    #
+    # Load a given configuration for a VM; accepts the config_loader object, a
+    # base configuration that is a hash that follows the parameters supplied to
+    # push_configuration, a key which is an arbitrary symbol which names the
+    # vm, and a subvm object which complies with the subvm interface.
+    #
+    # @return [VagrantPlugins::Kernel_V1::VMConfig]
+    #
     def load_config_for_vm(config_loader, base_config, load_key, subvm)
       # First pass, first run.
       config = push_configuration(
@@ -435,6 +443,12 @@ module Vagrant
       return config
     end
 
+    #
+    # Locates a box based on its name. If that box indicates that it needs to
+    # be upgraded, this method logs the action and does it automatically.
+    #
+    # @return [Vagrant::Box]
+    #
     def find_and_upgrade(box)
       boxes.find(box, :virtualbox)
     rescue Errors::BoxUpgradeRequired
