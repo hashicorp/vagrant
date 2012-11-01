@@ -403,37 +403,20 @@ module Vagrant
       # Finally, we have our configuration. Set it and forget it.
       @config = Config::Container.new(global, vm_configs)
     end
-    
+  
     #
-    # Performs the load cascade necessary for aggregating all the Vagrant
-    # configurations.
+    # This is a convenience method to push arbitrary configuration into the
+    # environment. Per the interface Config::Loader provides, the key of the
+    # second argument is a symbol which refers to a stack (see
+    # Config::Loader#load_order=) indicating the order in which it'll be
+    # loaded. The value is a string, which indicates a filename to be read, or
+    # an array of Proc objects which will be merged into the configuration. You
+    # may supply many values, or just one to "append" to the configuration and
+    # re-evaluate it.
     #
-    def inner_load(config_loader, subvm=nil, box=nil)
-      # Default Vagrantfile first. This is the Vagrantfile that ships
-      # with Vagrant.
-      config_loader.set(:default, File.expand_path("config/default.rb", Vagrant.source_root))
-
-      if box
-        # We load the box Vagrantfile
-        box_vagrantfile = find_vagrantfile(box.directory)
-        config_loader.set(:box, box_vagrantfile) if box_vagrantfile
-      end
-
-      if home_path
-        # Load the home Vagrantfile
-        home_vagrantfile = find_vagrantfile(home_path)
-        config_loader.set(:home, home_vagrantfile) if home_vagrantfile
-      end
-
-      if root_path
-        # Load the Vagrantfile in this directory
-        root_vagrantfile = find_vagrantfile(root_path)
-        config_loader.set(:root, root_vagrantfile) if root_vagrantfile
-      end
-
-      if subvm
-        # We have subvm configuration, so set that up as well.
-        config_loader.set(:vm, subvm.config_procs)
+    def push_configuration(config_loader, config_definition)
+      config_definition.each do |key, location|
+        config_loader.set(key, location)
       end
 
       # We activate plugins here because the files which we're loading
@@ -445,6 +428,43 @@ module Vagrant
       config_loader.load
     end
 
+    #
+    # Performs the load cascade necessary for aggregating all the Vagrant
+    # configurations.
+    #
+    def inner_load(config_loader, subvm=nil, box=nil)
+      to_load = { }
+
+      # Default Vagrantfile first. This is the Vagrantfile that ships
+      # with Vagrant.
+
+      to_load[:default] = File.expand_path("config/default.rb", Vagrant.source_root)
+
+      if box
+        # We load the box Vagrantfile
+        box_vagrantfile = find_vagrantfile(box.directory)
+        to_load[:box] = box_vagrantfile if box_vagrantfile
+      end
+
+      if home_path
+        # Load the home Vagrantfile
+        home_vagrantfile = find_vagrantfile(home_path)
+        to_load[:home] = home_vagrantfile if home_vagrantfile
+      end
+
+      if root_path
+        # Load the Vagrantfile in this directory
+        root_vagrantfile = find_vagrantfile(root_path)
+        to_load[:root] = root_vagrantfile if root_vagrantfile
+      end
+
+      if subvm
+        # We have subvm configuration, so set that up as well.
+        to_load[:vm] = subvm.config_procs
+      end
+
+      push_configuration(config_loader, to_load)
+    end
 
     # Loads the persisted VM (if it exists) for this environment.
     def load_vms!
