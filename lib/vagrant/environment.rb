@@ -386,22 +386,22 @@ module Vagrant
         config = inner_load(config_loader, subvm)
 
         # Second pass, with the box
-        box = nil
-
-        begin
-          box = boxes.find(config.vm.box, :virtualbox) if config.vm.box
-        rescue Errors::BoxUpgradeRequired
-          # Upgrade the box if we must.
-          @logger.info("Upgrading box during config load: #{config.vm.box}")
-          boxes.upgrade(config.vm.box)
-          retry
-        end
+        box = find_and_upgrade(config.vm.box) if config.vm.box
 
         inner_load(config_loader, subvm, box)
       end
 
       # Finally, we have our configuration. Set it and forget it.
       @config = Config::Container.new(global, vm_configs)
+    end
+
+    def find_and_upgrade(box)
+      boxes.find(box, :virtualbox)
+    rescue Errors::BoxUpgradeRequired
+      # Upgrade the box if we must.
+      @logger.info("Upgrading box during config load: #{box}")
+      boxes.upgrade(box)
+      retry
     end
   
     #
