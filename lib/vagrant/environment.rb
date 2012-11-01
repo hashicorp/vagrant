@@ -366,52 +366,9 @@ module Vagrant
       config_loader = Config::Loader.new(Config::VERSIONS, Config::VERSIONS_ORDER)
       config_loader.load_order = [:default, :box, :home, :root, :vm]
 
-      inner_load = lambda do |*args|
-        # This is for Ruby 1.8.7 compatibility. Ruby 1.8.7 doesn't allow
-        # default arguments for lambdas, so we get around by doing a *args
-        # and setting the args here.
-        subvm = args[0]
-        box   = args[1]
-
-        # Default Vagrantfile first. This is the Vagrantfile that ships
-        # with Vagrant.
-        config_loader.set(:default, File.expand_path("config/default.rb", Vagrant.source_root))
-
-        if box
-          # We load the box Vagrantfile
-          box_vagrantfile = find_vagrantfile(box.directory)
-          config_loader.set(:box, box_vagrantfile) if box_vagrantfile
-        end
-
-        if home_path
-          # Load the home Vagrantfile
-          home_vagrantfile = find_vagrantfile(home_path)
-          config_loader.set(:home, home_vagrantfile) if home_vagrantfile
-        end
-
-        if root_path
-          # Load the Vagrantfile in this directory
-          root_vagrantfile = find_vagrantfile(root_path)
-          config_loader.set(:root, root_vagrantfile) if root_vagrantfile
-        end
-
-        if subvm
-          # We have subvm configuration, so set that up as well.
-          config_loader.set(:vm, subvm.config_procs)
-        end
-
-        # We activate plugins here because the files which we're loading
-        # configuration from may have defined new plugins as well.
-        activate_plugins
-
-        # Execute the configuration stack and store the result as the final
-        # value in the config ivar.
-        config_loader.load
-      end
-
       # For the global configuration, we only need to load the configuration
       # in a single pass, since nothing is conditional on the configuration.
-      global = inner_load.call
+      global = inner_load(config_loader)
 
       # For each virtual machine represented by this environment, we have
       # to load the configuration in two-passes. We do this because the
@@ -426,7 +383,7 @@ module Vagrant
         subvm = defined_vms[vm_name]
 
         # First pass, first run.
-        config = inner_load[subvm]
+        config = inner_load(config_loader, subvm)
 
         # Second pass, with the box
         box = nil
@@ -440,12 +397,54 @@ module Vagrant
           retry
         end
 
-        inner_load[subvm, box]
+        inner_load(config_loader, subvm, box)
       end
 
       # Finally, we have our configuration. Set it and forget it.
       @config = Config::Container.new(global, vm_configs)
     end
+    
+    #
+    # Performs the load cascade necessary for aggregating all the Vagrant
+    # configurations.
+    #
+    def inner_load(config_loader, subvm=nil, box=nil)
+      # Default Vagrantfile first. This is the Vagrantfile that ships
+      # with Vagrant.
+      config_loader.set(:default, File.expand_path("config/default.rb", Vagrant.source_root))
+
+      if box
+        # We load the box Vagrantfile
+        box_vagrantfile = find_vagrantfile(box.directory)
+        config_loader.set(:box, box_vagrantfile) if box_vagrantfile
+      end
+
+      if home_path
+        # Load the home Vagrantfile
+        home_vagrantfile = find_vagrantfile(home_path)
+        config_loader.set(:home, home_vagrantfile) if home_vagrantfile
+      end
+
+      if root_path
+        # Load the Vagrantfile in this directory
+        root_vagrantfile = find_vagrantfile(root_path)
+        config_loader.set(:root, root_vagrantfile) if root_vagrantfile
+      end
+
+      if subvm
+        # We have subvm configuration, so set that up as well.
+        config_loader.set(:vm, subvm.config_procs)
+      end
+
+      # We activate plugins here because the files which we're loading
+      # configuration from may have defined new plugins as well.
+      activate_plugins
+
+      # Execute the configuration stack and store the result as the final
+      # value in the config ivar.
+      config_loader.load
+    end
+
 
     # Loads the persisted VM (if it exists) for this environment.
     def load_vms!
@@ -497,7 +496,7 @@ module Vagrant
     end
 
     protected
-
+   
     # This method copies the private key into the home directory if it
     # doesn't already exist.
     #
