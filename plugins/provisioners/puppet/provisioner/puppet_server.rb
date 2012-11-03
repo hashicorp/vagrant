@@ -71,7 +71,8 @@ module VagrantPlugins
 
           env[:ui].info I18n.t("vagrant.provisioners.puppet_server.running_puppetd")
           env[:vm].channel.sudo(command) do |type, data|
-            env[:ui].info(data.chomp, :prefix => false)
+            data.chomp!
+            env[:ui].info(data, :prefix => false) if !data.empty?
           end
         end
       end
