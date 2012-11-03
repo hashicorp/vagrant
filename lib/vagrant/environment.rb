@@ -23,7 +23,7 @@ module Vagrant
     attr_reader :vagrantfile_name
 
     # The {UI} object to communicate with the outside world.
-    attr_reader :ui
+    attr_accessor :ui
 
     # The directory to the "home" folder that Vagrant will use to store
     # global state.
@@ -80,7 +80,6 @@ module Vagrant
       ui_class = opts[:ui_class] || UI::Silent
       @ui      = ui_class.new("vagrant")
 
-      @loaded = false
       @lock_acquired = false
 
       @logger = Log4r::Logger.new("vagrant::environment")
@@ -317,6 +316,14 @@ module Vagrant
       @config
     end
 
+    # Set the configuration object represented by this environment.
+    #
+    # @return [Config::Container]
+
+    def config=(config)
+      @config = config
+    end
+
     #---------------------------------------------------------------
     # Load Methods
     #---------------------------------------------------------------
@@ -326,7 +333,7 @@ module Vagrant
     #
     # @return [Bool]
     def loaded?
-      !!@loaded
+      !!@config
     end
 
     # Loads this entire environment, setting up the instance variables
@@ -334,9 +341,8 @@ module Vagrant
     # method calls its other methods is very particular.
     def load!
       if !loaded?
-        @loaded = true
         @logger.info("Loading configuration...")
-        load_config!
+        load_config! { |*args| load_config_for_vm(*args) }
       end
 
       self
@@ -345,7 +351,7 @@ module Vagrant
     # Reloads the configuration of this environment.
     def reload!
       # Reload the configuration
-      load_config!
+      load_config! { |*args| load_config_for_vm(*args) }
 
       # Clear the VMs because this can now be diferent due to configuration
       @vms = nil
@@ -355,57 +361,38 @@ module Vagrant
     # variable. The configuration loaded by this method is specified to
     # this environment, meaning that it will use the given root directory
     # to load the Vagrantfile into that context.
-    def load_config!
+    #
+    # It accepts a parameter which represents the basic configuration for
+    # vagrant, a hash of key/value parameters that are fed to
+    # push_configuration(). If this is omitted, defaults are supplied.
+    def load_config!(base_config=nil)
       # Initialize the config loader
       config_loader = Config::Loader.new(Config::VERSIONS, Config::VERSIONS_ORDER)
       config_loader.load_order = [:default, :box, :home, :root, :vm]
 
-      inner_load = lambda do |*args|
-        # This is for Ruby 1.8.7 compatibility. Ruby 1.8.7 doesn't allow
-        # default arguments for lambdas, so we get around by doing a *args
-        # and setting the args here.
-        subvm = args[0]
-        box   = args[1]
-
-        # Default Vagrantfile first. This is the Vagrantfile that ships
-        # with Vagrant.
-        config_loader.set(:default, File.expand_path("config/default.rb", Vagrant.source_root))
-
-        if box
-          # We load the box Vagrantfile
-          box_vagrantfile = find_vagrantfile(box.directory)
-          config_loader.set(:box, box_vagrantfile) if box_vagrantfile
-        end
+      unless base_config
+        base_config = { }
 
         if home_path
           # Load the home Vagrantfile
           home_vagrantfile = find_vagrantfile(home_path)
-          config_loader.set(:home, home_vagrantfile) if home_vagrantfile
+          base_config[:home] = home_vagrantfile if home_vagrantfile
         end
 
         if root_path
           # Load the Vagrantfile in this directory
           root_vagrantfile = find_vagrantfile(root_path)
-          config_loader.set(:root, root_vagrantfile) if root_vagrantfile
+          base_config[:root] = root_vagrantfile if root_vagrantfile
         end
-
-        if subvm
-          # We have subvm configuration, so set that up as well.
-          config_loader.set(:vm, subvm.config_procs)
-        end
-
-        # We activate plugins here because the files which we're loading
-        # configuration from may have defined new plugins as well.
-        activate_plugins
-
-        # Execute the configuration stack and store the result as the final
-        # value in the config ivar.
-        config_loader.load
       end
-
-      # For the global configuration, we only need to load the configuration
+      
+      # This is the Vagrantfile that ships with Vagrant.
+      # 
+      # For the base configuration, we only need to load the configuration
       # in a single pass, since nothing is conditional on the configuration.
-      global = inner_load.call
+      base_config[:default] = File.expand_path("config/default.rb", Vagrant.source_root)
+
+      global = push_configuration(config_loader, base_config)
 
       # For each virtual machine represented by this environment, we have
       # to load the configuration in two-passes. We do this because the
@@ -414,31 +401,85 @@ module Vagrant
       defined_vm_keys = global.vm.defined_vm_keys.dup
       defined_vms     = global.vm.defined_vms.dup
 
-      vm_configs = defined_vm_keys.map do |vm_name|
-        @logger.debug("Loading configuration for VM: #{vm_name}")
-
-        subvm = defined_vms[vm_name]
-
-        # First pass, first run.
-        config = inner_load[subvm]
-
-        # Second pass, with the box
-        box = nil
-
-        begin
-          box = boxes.find(config.vm.box, :virtualbox) if config.vm.box
-        rescue Errors::BoxUpgradeRequired
-          # Upgrade the box if we must.
-          @logger.info("Upgrading box during config load: #{config.vm.box}")
-          boxes.upgrade(config.vm.box)
-          retry
+      vm_configs = []
+      
+      config_loader.load_order.each do |load_key|
+        defined_vm_keys.each do |vm_name|
+          @logger.debug("Loading configuration for VM: #{vm_name}")
+          vm_configs.push(yield(config_loader, base_config, load_key, defined_vms[vm_name]))
         end
-
-        inner_load[subvm, box]
       end
 
       # Finally, we have our configuration. Set it and forget it.
       @config = Config::Container.new(global, vm_configs)
+    end
+
+    #
+    # Load a given configuration for a VM; accepts the config_loader object, a
+    # base configuration that is a hash that follows the parameters supplied to
+    # push_configuration, a key which is an arbitrary symbol which names the
+    # vm, and a subvm object which complies with the subvm interface.
+    #
+    # @return [VagrantPlugins::Kernel_V1::VMConfig]
+    #
+    def load_config_for_vm(config_loader, base_config, load_key, subvm)
+      # First pass, first run.
+      config = push_configuration(
+        config_loader, 
+        base_config.merge(:vm => subvm.config_procs)
+      )
+
+      # Second pass, with the box
+      if config.vm.box and box = find_and_upgrade(config.vm.box)
+        config = push_configuration(
+                   config_loader, 
+                   base_config.merge(
+                     :vm => subvm.config_procs, 
+                     :box => find_vagrantfile(box.directory)
+                   )
+                 )
+      end
+
+      return config
+    end
+
+    #
+    # Locates a box based on its name. If that box indicates that it needs to
+    # be upgraded, this method logs the action and does it automatically.
+    #
+    # @return [Vagrant::Box]
+    #
+    def find_and_upgrade(box)
+      boxes.find(box, :virtualbox)
+    rescue Errors::BoxUpgradeRequired
+      # Upgrade the box if we must.
+      @logger.info("Upgrading box during config load: #{box}")
+      boxes.upgrade(box)
+      retry
+    end
+  
+    #
+    # This is a convenience method to push arbitrary configuration into the
+    # environment. Per the interface Config::Loader provides, the key of the
+    # second argument is a symbol which refers to a stack (see
+    # Config::Loader#load_order=) indicating the order in which it'll be
+    # loaded. The value is a string, which indicates a filename to be read, or
+    # an array of Proc objects which will be merged into the configuration. You
+    # may supply many values, or just one to "append" to the configuration and
+    # re-evaluate it.
+    #
+    def push_configuration(config_loader, config_definition)
+      config_definition.each do |key, location|
+        config_loader.set(key, location)
+      end
+
+      # We activate plugins here because the files which we're loading
+      # configuration from may have defined new plugins as well.
+      activate_plugins
+
+      # Execute the configuration stack and store the result as the final
+      # value in the config ivar.
+      config_loader.load
     end
 
     # Loads the persisted VM (if it exists) for this environment.
@@ -491,7 +532,7 @@ module Vagrant
     end
 
     protected
-
+   
     # This method copies the private key into the home directory if it
     # doesn't already exist.
     #
