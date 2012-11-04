@@ -25,6 +25,7 @@ module Vagrant
     # current version is always considered to be the last version in this
     # list.
     VERSIONS_ORDER = ["1"]
+    CURRENT_VERSION = VERSIONS_ORDER.last
 
     # This is the method which is called by all Vagrantfiles to configure Vagrant.
     # This method expects a block which accepts a single argument representing

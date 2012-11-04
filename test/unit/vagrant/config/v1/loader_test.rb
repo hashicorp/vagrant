@@ -1,3 +1,5 @@
+require "ostruct"
+
 require File.expand_path("../../../../base", __FILE__)
 
 describe Vagrant::Config::V1::Loader do
@@ -8,12 +10,44 @@ describe Vagrant::Config::V1::Loader do
       result = described_class.init
       result.should be_kind_of(Vagrant::Config::V1::Root)
     end
+
+    it "returns an object with all configuration keys loaded if V1" do
+      # Make sure we're version 1
+      stub_const("Vagrant::Config::CURRENT_VERSION", "1")
+
+      # Register some config classes.
+      register_plugin do |p|
+        p.config("foo") { OpenStruct }
+        p.config("bar", true) { OpenStruct }
+      end
+
+      # Test that we have all keys
+      result = described_class.init
+      result.foo.should be_kind_of(OpenStruct)
+      result.bar.should be_kind_of(OpenStruct)
+    end
+
+    it "returns only upgradable config objects if not V1" do
+      # Make sure we're NOT version 1
+      stub_const("Vagrant::Config::CURRENT_VERSION", "2")
+
+      # Register some config classes.
+      register_plugin do |p|
+        p.config("foo") { OpenStruct }
+        p.config("bar", true) { OpenStruct }
+      end
+
+      # Test that we have all keys
+      result = described_class.init
+      result.bar.should be_kind_of(OpenStruct)
+      expect { result.foo }.to raise_error(NoMethodError)
+    end
   end
 
   describe "finalizing" do
     it "should call `#finalize` on the configuration object" do
       # Register a plugin for our test
-      plugin_class = register_plugin do |plugin|
+      register_plugin do |plugin|
         plugin.name "test"
         plugin.config "foo" do
           Class.new do
@@ -44,13 +78,8 @@ describe Vagrant::Config::V1::Loader do
   describe "loading" do
     it "should configure with all plugin config keys loaded" do
       # Register a plugin for our test
-      plugin_class = register_plugin do |plugin|
-        plugin.name "test"
-        plugin.config "foo" do
-          Class.new do
-            attr_accessor :bar
-          end
-        end
+      register_plugin do |plugin|
+        plugin.config("foo") { OpenStruct }
       end
 
       # Create the proc we're testing

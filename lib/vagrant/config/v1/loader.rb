@@ -84,10 +84,16 @@ module Vagrant
         protected
 
         def self.new_root_object
-          # Get all the registered configuration objects and use them.
-          config_map = {}
-          Vagrant.plugin("1").manager.config.each do |key, klass|
-            config_map[key] = klass
+          # Get all the registered configuration objects and use them. If
+          # we're currently on version 1, then we load all the config objects,
+          # otherwise we load only the upgrade safe ones, since we're
+          # obviously being loaded for an upgrade.
+          config_map = nil
+          plugin_manager = Vagrant.plugin("1").manager
+          if Config::CURRENT_VERSION == "1"
+            config_map = plugin_manager.config
+          else
+            config_map = plugin_manager.config_upgrade_safe
           end
 
           # Create the configuration root object
