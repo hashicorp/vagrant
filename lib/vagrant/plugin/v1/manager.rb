@@ -42,6 +42,25 @@ module Vagrant
           result
         end
 
+        # This returns all the registered configuration classes that were
+        # marked as "upgrade safe."
+        #
+        # @return [Hash]
+        def config_upgrade_safe
+          result = {}
+
+          @registered.each do |plugin|
+            configs = plugin.data[:config_upgrade_safe]
+            if configs
+              configs.each do |key|
+                result[key] = plugin.config.get(key)
+              end
+            end
+          end
+
+          result
+        end
+
         # This returns all the registered guests.
         #
         # @return [Hash]

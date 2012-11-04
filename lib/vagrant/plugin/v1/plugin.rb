@@ -126,7 +126,16 @@ module Vagrant
           data[:config] ||= Registry.new
 
           # Register a new config class only if a name was given.
-          data[:config].register(name.to_sym, &block) if name != UNSET_VALUE
+          if name != UNSET_VALUE
+            data[:config].register(name.to_sym, &block)
+
+            # If we were told this is an upgrade safe configuration class
+            # then we add it to the set.
+            if upgrade_safe
+              data[:config_upgrade_safe] ||= Set.new
+              data[:config_upgrade_safe].add(name.to_sym)
+            end
+          end
 
           # Return the registry
           data[:config]
@@ -218,17 +227,18 @@ module Vagrant
           data[:provisioners]
         end
 
-        protected
-
-        # Sentinel value denoting that a value has not been set.
-        UNSET_VALUE = Object.new
-
-        # Returns the internal data associated with this plugin.
+        # Returns the internal data associated with this plugin. This
+        # should NOT be called by the general public.
         #
         # @return [Hash]
         def self.data
           @data ||= {}
         end
+
+        protected
+
+        # Sentinel value denoting that a value has not been set.
+        UNSET_VALUE = Object.new
 
         # Helper method that will set a value if a value is given, or otherwise
         # return the already set value.
