@@ -84,13 +84,10 @@ module Vagrant
         protected
 
         def self.new_root_object
-          # Get all the registered plugins
+          # Get all the registered configuration objects and use them.
           config_map = {}
-          Vagrant.plugin("1").registered.each do |plugin|
-            # Get all the available configuration keys and add them to the map
-            plugin.config.each do |key, klass|
-              config_map[key] = klass
-            end
+          Vagrant.plugin("1").manager.config.each do |key, klass|
+            config_map[key] = klass
           end
 
           # Create the configuration root object

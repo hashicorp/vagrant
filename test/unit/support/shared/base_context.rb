@@ -18,7 +18,7 @@ shared_context "unit" do
     # Unregister each of the plugins we have may have temporarily
     # registered for the duration of this test.
     @_plugins.each do |plugin|
-      plugin.unregister!
+      Vagrant.plugin("1").manager.unregister(plugin)
     end
   end
 

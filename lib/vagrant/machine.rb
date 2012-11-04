@@ -116,14 +116,8 @@ module Vagrant
       if !@communicator
         # For now, we always return SSH. In the future, we'll abstract
         # this and allow plugins to define new methods of communication.
-        Vagrant.plugin("1").registered.each do |plugin|
-          klass = plugin.communicator[:ssh]
-          if klass
-            # This plugin has the SSH communicator, use it.
-            @communicator = klass.new(self)
-            break
-          end
-        end
+        klass = Vagrant.plugin("1").manager.communicators[:ssh]
+        @communicator = klass.new(self)
       end
 
       @communicator
@@ -276,13 +270,7 @@ module Vagrant
     def load_guest(guest)
       @logger.info("Loading guest: #{guest}")
 
-      klass = nil
-      Vagrant.plugin("1").registered.each do |plugin|
-        if plugin.guest.has_key?(guest)
-          klass = plugin.guest[guest]
-          break
-        end
-      end
+      klass = Vagrant.plugin("1").manager.guests[guest]
 
       if klass.nil?
         raise Errors::VMGuestError,

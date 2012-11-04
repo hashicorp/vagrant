@@ -13,9 +13,9 @@ describe Vagrant::Config::V1::Loader do
   describe "finalizing" do
     it "should call `#finalize` on the configuration object" do
       # Register a plugin for our test
-      plugin_class = Class.new(Vagrant.plugin("1")) do
-        name "test"
-        config "foo" do
+      plugin_class = register_plugin do |plugin|
+        plugin.name "test"
+        plugin.config "foo" do
           Class.new do
             attr_accessor :bar
 
@@ -31,28 +31,22 @@ describe Vagrant::Config::V1::Loader do
         config.foo.bar = "value"
       end
 
-      begin
-        # Test that it works properly
-        config = described_class.load(config_proc)
-        config.foo.bar.should == "value"
+      # Test that it works properly
+      config = described_class.load(config_proc)
+      config.foo.bar.should == "value"
 
-        # Finalize it
-        described_class.finalize(config)
-        config.foo.bar.should == "finalized"
-      ensure
-        # We have to unregister the plugin so that future tests
-        # aren't mucked up.
-        plugin_class.unregister!
-      end
+      # Finalize it
+      described_class.finalize(config)
+      config.foo.bar.should == "finalized"
     end
   end
 
   describe "loading" do
     it "should configure with all plugin config keys loaded" do
       # Register a plugin for our test
-      plugin_class = Class.new(Vagrant.plugin("1")) do
-        name "test"
-        config "foo" do
+      plugin_class = register_plugin do |plugin|
+        plugin.name "test"
+        plugin.config "foo" do
           Class.new do
             attr_accessor :bar
           end
@@ -64,15 +58,9 @@ describe Vagrant::Config::V1::Loader do
         config.foo.bar = "value"
       end
 
-      begin
-        # Test that it works properly
-        config = described_class.load(config_proc)
-        config.foo.bar.should == "value"
-      ensure
-        # We have to unregister the plugin so that future tests
-        # aren't mucked up.
-        plugin_class.unregister!
-      end
+      # Test that it works properly
+      config = described_class.load(config_proc)
+      config.foo.bar.should == "value"
     end
   end
 

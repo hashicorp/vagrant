@@ -10,6 +10,7 @@ module Vagrant
       autoload :Config, "vagrant/plugin/v1/config"
       autoload :Guest,  "vagrant/plugin/v1/guest"
       autoload :Host,   "vagrant/plugin/v1/host"
+      autoload :Manager, "vagrant/plugin/v1/manager"
       autoload :Plugin, "vagrant/plugin/v1/plugin"
       autoload :Provider, "vagrant/plugin/v1/provider"
       autoload :Provisioner, "vagrant/plugin/v1/provisioner"

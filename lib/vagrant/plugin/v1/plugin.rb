@@ -16,11 +16,11 @@ module Vagrant
         # from within methods which are probably in subclasses.
         ROOT_CLASS = self
 
-        # Returns a list of registered plugins for this version.
+        # This returns the manager for all V1 plugins.
         #
-        # @return [Array]
-        def self.registered
-          @registry || []
+        # @return [V1::Manager]
+        def self.manager
+          @manager ||= Manager.new
         end
 
         # Set the name of the plugin. The moment that this is called, the
@@ -36,7 +36,7 @@ module Vagrant
           result = get_or_set(:name, name)
 
           # The plugin should be registered if we're setting a real name on it
-          register! if name != UNSET_VALUE
+          Plugin.manager.register(self) if name != UNSET_VALUE
 
           # Return the result
           result
@@ -116,7 +116,13 @@ module Vagrant
         # without breaking anything in future versions of Vagrant.
         #
         # @param [String] name Configuration key.
-        def self.config(name=UNSET_VALUE, &block)
+        # @param [Boolean] upgrade_safe If this is true, then this configuration
+        #   key is safe to load during an upgrade, meaning that it depends
+        #   on NO Vagrant internal classes. Do _not_ set this to true unless
+        #   you really know what you're doing, since you can cause Vagrant
+        #   to crash (although Vagrant will output a user-friendly error
+        #   message if this were to happen).
+        def self.config(name=UNSET_VALUE, upgrade_safe=false, &block)
           data[:config] ||= Registry.new
 
           # Register a new config class only if a name was given.
@@ -210,41 +216,6 @@ module Vagrant
 
           # Return the registry
           data[:provisioners]
-        end
-
-        # Registers the plugin. This makes the plugin actually work with
-        # Vagrant. Prior to registering, the plugin is merely a skeleton.
-        #
-        # This shouldn't be called by the general public. Plugins are automatically
-        # registered when they are given a name.
-        def self.register!(plugin=nil)
-          plugin ||= self
-
-          # Register only on the root class
-          return ROOT_CLASS.register!(plugin) if self != ROOT_CLASS
-
-          # Register it into the list
-          @registry ||= []
-          if !@registry.include?(plugin)
-            LOGGER.info("Registered plugin: #{plugin.name}")
-            @registry << plugin
-          end
-        end
-
-        # This unregisters the plugin. Note that to re-register the plugin
-        # you must call `register!` again.
-        def self.unregister!(plugin=nil)
-          plugin ||= self
-
-          # Unregister only on the root class
-          return ROOT_CLASS.unregister!(plugin) if self != ROOT_CLASS
-
-          # Unregister it from the registry
-          @registry ||= []
-          if @registry.include?(plugin)
-            LOGGER.info("Unregistered: #{plugin.name}")
-            @registry.delete(plugin)
-          end
         end
 
         protected

@@ -191,10 +191,7 @@ module Vagrant
       # will return nil, and we don't want to trigger a detect load.
       host_klass = config.global.vagrant.host
       if host_klass.nil? || host_klass == :detect
-        hosts = {}
-        Vagrant.plugin("1").registered.each do |plugin|
-          hosts = hosts.merge(plugin.host.to_hash)
-        end
+        hosts = Vagrant.plugin("1").manager.hosts
 
         # Get the flattened list of available hosts
         host_klass = Hosts.detect(hosts)
@@ -437,11 +434,7 @@ module Vagrant
     # Loads the persisted VM (if it exists) for this environment.
     def load_vms!
       # This is hardcoded for now.
-      provider = nil
-      Vagrant.plugin("1").registered.each do |plugin|
-        provider = plugin.provider.get(:virtualbox)
-        break if provider
-      end
+      provider = Vagrant.plugin("1").manager.providers[:virtualbox]
 
       raise "VirtualBox provider not found." if !provider
 
