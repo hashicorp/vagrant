@@ -48,7 +48,6 @@ describe Vagrant::Config::V1::Loader do
     it "should call `#finalize` on the configuration object" do
       # Register a plugin for our test
       register_plugin do |plugin|
-        plugin.name "test"
         plugin.config "foo" do
           Class.new do
             attr_accessor :bar
