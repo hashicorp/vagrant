@@ -6,9 +6,6 @@ module VagrantPlugins
       name "Fedora guest"
       description "Fedora guest support."
 
-      activated do
-      end
-
       guest("fedora") do
         require File.expand_path("../guest", __FILE__)
         Guest
