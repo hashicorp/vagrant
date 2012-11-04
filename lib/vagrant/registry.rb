@@ -2,33 +2,29 @@ module Vagrant
   # Register components in a single location that can be queried.
   #
   # This allows certain components (such as guest systems, configuration
-  # pieces, etc.) to be registered and queried.
+  # pieces, etc.) to be registered and queried, lazily.
   class Registry
     def initialize
-      @actions = {}
+      @items = {}
       @results_cache = {}
     end
 
-    # Register a callable by key.
+    # Register a key with a lazy-loaded value.
     #
-    # The callable should be given in a block which will be lazily evaluated
-    # when the action is needed.
-    #
-    # If an action by the given name already exists then it will be
-    # overwritten.
-    def register(key, value=nil, &block)
-      block = lambda { value } if value
-      @actions[key] = block
+    # If a key with the given name already exists, it is overwritten.
+    def register(key, &block)
+      raise ArgumentError, "block required" if !block_given?
+      @items[key] = block
     end
 
-    # Get an action by the given key.
+    # Get a value by the given key.
     #
-    # This will evaluate the block given to `register` and return the resulting
-    # action stack.
+    # This will evaluate the block given to `register` and return the
+    # resulting value.
     def get(key)
-      return nil if !@actions.has_key?(key)
+      return nil if !@items.has_key?(key)
       return @results_cache[key] if @results_cache.has_key?(key)
-      @results_cache[key] = @actions[key].call
+      @results_cache[key] = @items[key].call
     end
     alias :[] :get
 
@@ -36,12 +32,12 @@ module Vagrant
     #
     # @return [Boolean]
     def has_key?(key)
-      @actions.has_key?(key)
+      @items.has_key?(key)
     end
 
     # Iterate over the keyspace.
     def each(&block)
-      @actions.each do |key, _|
+      @items.each do |key, _|
         yield key, get(key)
       end
     end

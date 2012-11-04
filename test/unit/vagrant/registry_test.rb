@@ -8,7 +8,7 @@ describe Vagrant::Registry do
   end
 
   it "should register a simple key/value" do
-    instance.register("foo", "value")
+    instance.register("foo") { "value" }
     instance.get("foo").should == "value"
   end
 
@@ -18,6 +18,11 @@ describe Vagrant::Registry do
         raise Exception, "BOOM!"
       end
     end.to_not raise_error
+  end
+
+  it "should raise an error if no block is given" do
+    expect { instance.register("foo") }.
+      to raise_error(ArgumentError)
   end
 
   it "should call and return the result of a block when asking for the item" do
@@ -48,14 +53,14 @@ describe Vagrant::Registry do
   end
 
   it "should be able to check if a key exists" do
-    instance.register("foo", "bar")
+    instance.register("foo") { "bar" }
     instance.should have_key("foo")
     instance.should_not have_key("bar")
   end
 
   it "should be enumerable" do
-    instance.register("foo", "foovalue")
-    instance.register("bar", "barvalue")
+    instance.register("foo") { "foovalue" }
+    instance.register("bar") { "barvalue" }
 
     keys   = []
     values = []
@@ -69,8 +74,8 @@ describe Vagrant::Registry do
   end
 
   it "should be able to convert to a hash" do
-    instance.register("foo", "foovalue")
-    instance.register("bar", "barvalue")
+    instance.register("foo") { "foovalue" }
+    instance.register("bar") { "barvalue" }
 
     result = instance.to_hash
     result.should be_a(Hash)
