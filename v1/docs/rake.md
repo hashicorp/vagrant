@@ -90,7 +90,7 @@ end
 Perhaps you want to write a rake task that does some commands within the
 virtual server setup? This can be done through the `channel` accessor of any
 VM within the environment which provides a communication channel to execute
-commands within the virtual machine, as either the `root` or `vagrant` users.
+commands within the virtual machine, as either the `root` or `SSH` users.
 
 ### As the `root` user
 
@@ -119,10 +119,11 @@ task :graceful_down do
 end
 {% endhighlight %}
 
-### As the `vagrant` user
+### As the `SSH` user
 
-You can use the `execute` call to have the command executed as the `vagrant` user
-inside the VM. The following example shows how to update a Git repository that is
+You can use the `execute` call to have the command executed as the `SSH` user
+inside the VM. The default is the `vagrant` user, but this is configurable. The
+following example shows how to update a Git repository that is
 inside the Virtual Machine rather than mounted via the file system:
 
 {% highlight ruby %}
