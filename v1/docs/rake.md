@@ -90,10 +90,13 @@ end
 Perhaps you want to write a rake task that does some commands within the
 virtual server setup? This can be done through the `channel` accessor of any
 VM within the environment which provides a communication channel to execute
-commands within the virtual machine.
+commands within the virtual machine, as either the `root` or `SSH` users.
 
-The following example is a useful example showing how to create a graceful
-shutdown command:
+### As the `root` user
+
+You can use the `sudo` call to have the command executed as the `root` user 
+inside the VM. The following example is a useful example showing how to create 
+a graceful shutdown command:
 
 {% highlight ruby %}
 task :graceful_down do
@@ -113,5 +116,21 @@ task :graceful_down do
   env.vms.each do |vm|
     vm.channel.sudo("halt")
   end
+end
+{% endhighlight %}
+
+### As the `SSH` user
+
+You can use the `execute` call to have the command executed as the `SSH` user
+inside the VM. The default is the `vagrant` user, but this is configurable. The
+following example shows how to update a Git repository that is
+inside the Virtual Machine rather than mounted via the file system:
+
+{% highlight ruby %}
+task :update_repo do
+  env = Vagrant::Environment.new
+  raise "Must run `vagrant up`" if !env.primary_vm.created?
+  raise "Must be running!" if env.primary_vm.state != :running
+  env.primary_vm.channel.execute("cd /home/vagrant/test-repo && git pull origin master")
 end
 {% endhighlight %}
