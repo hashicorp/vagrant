@@ -2,7 +2,7 @@ require "log4r"
 
 module VagrantPlugins
   module ProviderVirtualBox
-    class Provider < Vagrant.plugin("1", :provider)
+    class Provider < Vagrant.plugin("2", :provider)
       attr_reader :driver
 
       def initialize(machine)

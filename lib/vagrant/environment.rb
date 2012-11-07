@@ -434,7 +434,7 @@ module Vagrant
     # Loads the persisted VM (if it exists) for this environment.
     def load_vms!
       # This is hardcoded for now.
-      provider = Vagrant.plugin("1").manager.providers[:virtualbox]
+      provider = Vagrant.plugin("2").manager.providers[:virtualbox]
 
       raise "VirtualBox provider not found." if !provider
 

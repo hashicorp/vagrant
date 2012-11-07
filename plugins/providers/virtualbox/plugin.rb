@@ -2,7 +2,7 @@ require "vagrant"
 
 module VagrantPlugins
   module ProviderVirtualBox
-    class Plugin < Vagrant.plugin("1")
+    class Plugin < Vagrant.plugin("2")
       name "VirtualBox provider"
       description <<-EOF
       The VirtualBox provider allows Vagrant to manage and control
