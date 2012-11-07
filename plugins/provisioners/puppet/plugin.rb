@@ -2,7 +2,7 @@ require "vagrant"
 
 module VagrantPlugins
   module Puppet
-    class Plugin < Vagrant.plugin("1")
+    class Plugin < Vagrant.plugin("2")
       name "puppet"
       description <<-DESC
       Provides support for provisioning your virtual machines with

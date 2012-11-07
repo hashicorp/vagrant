@@ -2,7 +2,7 @@ require "vagrant"
 
 module VagrantPlugins
   module Shell
-    class Plugin < Vagrant.plugin("1")
+    class Plugin < Vagrant.plugin("2")
       name "shell"
       description <<-DESC
       Provides support for provisioning your virtual machines with

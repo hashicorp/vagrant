@@ -5,8 +5,8 @@ module VagrantPlugins
         error_namespace("vagrant.provisioners.puppet_server")
       end
 
-      class PuppetServer < Vagrant.plugin("1", :provisioner)
-        class Config < Vagrant.plugin("1", :config)
+      class PuppetServer < Vagrant.plugin("2", :provisioner)
+        class Config < Vagrant.plugin("2", :config)
           attr_accessor :puppet_server
           attr_accessor :puppet_node
           attr_accessor :options
