@@ -13,7 +13,7 @@ require 'vagrant/util/ssh'
 module VagrantPlugins
   module CommunicatorSSH
     # This class provides communication with the VM via SSH.
-    class Communicator < Vagrant.plugin("1", :communicator)
+    class Communicator < Vagrant.plugin("2", :communicator)
       include Vagrant::Util::ANSIEscapeCodeRemover
       include Vagrant::Util::Retryable
 

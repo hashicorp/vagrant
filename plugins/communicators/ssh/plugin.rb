@@ -2,7 +2,7 @@ require "vagrant"
 
 module VagrantPlugins
   module CommunicatorSSH
-    class Plugin < Vagrant.plugin("1")
+    class Plugin < Vagrant.plugin("2")
       name "ssh communiator"
       description <<-DESC
       This plugin allows Vagrant to communicate with remote machines using
