@@ -1,6 +1,6 @@
 module VagrantPlugins
   module GuestLinux
-    class Config < Vagrant.plugin("1", :config)
+    class Config < Vagrant.plugin("2", :config)
       attr_accessor :halt_timeout
       attr_accessor :halt_check_interval
 

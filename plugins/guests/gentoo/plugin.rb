@@ -2,7 +2,7 @@ require "vagrant"
 
 module VagrantPlugins
   module GuestGentoo
-    class Plugin < Vagrant.plugin("1")
+    class Plugin < Vagrant.plugin("2")
       name "Gentoo guest"
       description "Gentoo guest support."
 

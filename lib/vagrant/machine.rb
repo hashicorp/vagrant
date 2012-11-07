@@ -270,7 +270,7 @@ module Vagrant
     def load_guest(guest)
       @logger.info("Loading guest: #{guest}")
 
-      klass = Vagrant.plugin("1").manager.guests[guest]
+      klass = Vagrant.plugin("2").manager.guests[guest]
 
       if klass.nil?
         raise Errors::VMGuestError,
