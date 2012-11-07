@@ -214,7 +214,7 @@ describe Vagrant::Machine do
     end
 
     it "should return the configured guest" do
-      test_guest = Class.new(Vagrant.plugin("1", :guest))
+      test_guest = Class.new(Vagrant.plugin("2", :guest))
 
       register_plugin do |p|
         p.guest(:test) { test_guest }
@@ -235,13 +235,13 @@ describe Vagrant::Machine do
 
     it "should distro dispatch to the most specific guest" do
       # Create the classes and dispatch the parent into the child
-      guest_parent = Class.new(Vagrant.plugin("1", :guest)) do
+      guest_parent = Class.new(Vagrant.plugin("2", :guest)) do
         def distro_dispatch
           :child
         end
       end
 
-      guest_child  = Class.new(Vagrant.plugin("1", :guest))
+      guest_child  = Class.new(Vagrant.plugin("2", :guest))
 
       # Register the classes
       register_plugin do |p|
@@ -256,7 +256,7 @@ describe Vagrant::Machine do
 
     it "should protect against loops in the distro dispatch" do
       # Create the classes and dispatch the parent into the child
-      guest_parent = Class.new(Vagrant.plugin("1", :guest)) do
+      guest_parent = Class.new(Vagrant.plugin("2", :guest)) do
         def distro_dispatch
           :parent
         end
