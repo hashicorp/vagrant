@@ -2,7 +2,7 @@ require "vagrant"
 
 module VagrantPlugins
   module HostBSD
-    class Plugin < Vagrant.plugin("1")
+    class Plugin < Vagrant.plugin("2")
       name "BSD host"
       description "BSD host support."
 
