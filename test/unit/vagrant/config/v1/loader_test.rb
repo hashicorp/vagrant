@@ -5,6 +5,11 @@ require File.expand_path("../../../../base", __FILE__)
 describe Vagrant::Config::V1::Loader do
   include_context "unit"
 
+  before(:each) do
+    # Force the V1 loader to believe that we are in V1
+    stub_const("Vagrant::Config::CURRENT_VERSION", "1")
+  end
+
   describe "empty" do
     it "returns an empty configuration object" do
       result = described_class.init
