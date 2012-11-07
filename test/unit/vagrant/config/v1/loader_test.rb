@@ -21,7 +21,7 @@ describe Vagrant::Config::V1::Loader do
       stub_const("Vagrant::Config::CURRENT_VERSION", "1")
 
       # Register some config classes.
-      register_plugin do |p|
+      register_plugin("1") do |p|
         p.config("foo") { OpenStruct }
         p.config("bar", true) { OpenStruct }
       end
@@ -37,7 +37,7 @@ describe Vagrant::Config::V1::Loader do
       stub_const("Vagrant::Config::CURRENT_VERSION", "2")
 
       # Register some config classes.
-      register_plugin do |p|
+      register_plugin("1") do |p|
         p.config("foo") { OpenStruct }
         p.config("bar", true) { OpenStruct }
       end
@@ -52,7 +52,7 @@ describe Vagrant::Config::V1::Loader do
   describe "finalizing" do
     it "should call `#finalize` on the configuration object" do
       # Register a plugin for our test
-      register_plugin do |plugin|
+      register_plugin("1") do |plugin|
         plugin.config "foo" do
           Class.new do
             attr_accessor :bar
@@ -82,7 +82,7 @@ describe Vagrant::Config::V1::Loader do
   describe "loading" do
     it "should configure with all plugin config keys loaded" do
       # Register a plugin for our test
-      register_plugin do |plugin|
+      register_plugin("1") do |plugin|
         plugin.config("foo") { OpenStruct }
       end
 
