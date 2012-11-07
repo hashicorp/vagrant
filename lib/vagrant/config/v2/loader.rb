@@ -98,8 +98,8 @@ module Vagrant
           # otherwise we load only the upgrade safe ones, since we're
           # obviously being loaded for an upgrade.
           config_map = nil
-          plugin_manager = Vagrant.plugin("1").manager
-          if Config::CURRENT_VERSION == "1"
+          plugin_manager = Vagrant.plugin("2").manager
+          if Config::CURRENT_VERSION == "2"
             config_map = plugin_manager.config
           else
             config_map = plugin_manager.config_upgrade_safe

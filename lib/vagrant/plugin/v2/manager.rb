@@ -113,6 +113,19 @@ module Vagrant
           providers
         end
 
+        # This returns all registered provisioners.
+        #
+        # @return [Hash]
+        def provisioners
+          results = {}
+
+          @registered.each do |plugin|
+            results.merge!(plugin.provisioner.to_hash)
+          end
+
+          results
+        end
+
         # This registers a plugin. This should _NEVER_ be called by the public
         # and should only be called from within Vagrant. Vagrant will
         # automatically register V2 plugins when a name is set on the
