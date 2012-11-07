@@ -14,6 +14,19 @@ module Vagrant
           @registered = []
         end
 
+        # This returns all the registered commands.
+        #
+        # @return [Hash]
+        def commands
+          result = {}
+
+          @registered.each do |plugin|
+            result.merge!(plugin.command.to_hash)
+          end
+
+          result
+        end
+
         # This returns all the registered communicators.
         #
         # @return [Hash]

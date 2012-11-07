@@ -3,7 +3,7 @@ require 'optparse'
 
 module Vagrant
   # Manages the command line interface to Vagrant.
-  class CLI < Vagrant.plugin("1", :command)
+  class CLI < Vagrant.plugin("2", :command)
     def initialize(argv, env)
       super
 
@@ -33,12 +33,7 @@ module Vagrant
       # then we also just print the help and exit.
       command_class = nil
       if @sub_command
-        Vagrant.plugin("1").registered.each do |plugin|
-          if plugin.command.has_key?(@sub_command.to_sym)
-            command_class = plugin.command.get(@sub_command.to_sym)
-            break
-          end
-        end
+        command_class = Vagrant.plugin("2").manager.commands[@sub_command.to_sym]
       end
 
       if !command_class || !@sub_command
@@ -69,10 +64,8 @@ module Vagrant
         # Add the available subcommands as separators in order to print them
         # out as well.
         keys = []
-        Vagrant.plugin("1").registered.each do |plugin|
-          plugin.command.each do |key, _|
-            keys << key
-          end
+        Vagrant.plugin("2").manager.commands.each do |key, _|
+          keys << key
         end
 
         keys.sort.each do |key|

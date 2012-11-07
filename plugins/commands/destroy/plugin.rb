@@ -2,7 +2,7 @@ require "vagrant"
 
 module VagrantPlugins
   module CommandDestroy
-    class Plugin < Vagrant.plugin("1")
+    class Plugin < Vagrant.plugin("2")
       name "destroy command"
       description "The `destroy` command destroys your virtual machines."
 

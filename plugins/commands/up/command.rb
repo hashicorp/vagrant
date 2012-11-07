@@ -6,7 +6,7 @@ require File.expand_path("../start_mixins", __FILE__)
 
 module VagrantPlugins
   module CommandUp
-    class Command < Vagrant.plugin("1", :command)
+    class Command < Vagrant.plugin("2", :command)
       include StartMixins
 
       def execute

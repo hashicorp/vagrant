@@ -2,7 +2,7 @@ require "vagrant"
 
 module VagrantPlugins
   module CommandGem
-    class Plugin < Vagrant.plugin("1")
+    class Plugin < Vagrant.plugin("2")
       name "gem command"
       description <<-DESC
       Provides an interface to RubyGems that can be used to install

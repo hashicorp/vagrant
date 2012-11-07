@@ -3,7 +3,7 @@ require 'optparse'
 module VagrantPlugins
   module CommandBox
     module Command
-      class Add < Vagrant.plugin("1", :command)
+      class Add < Vagrant.plugin("2", :command)
         def execute
           options = {}
 

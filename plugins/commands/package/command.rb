@@ -2,7 +2,7 @@ require 'optparse'
 
 module VagrantPlugins
   module CommandPackage
-    class Command < Vagrant.plugin("1", :command)
+    class Command < Vagrant.plugin("2", :command)
       def execute
         options = {}
 
@@ -52,7 +52,7 @@ module VagrantPlugins
         # better in the future. We just hardcode this to keep VirtualBox working
         # for now.
         provider = nil
-        Vagrant.plugin("1").registered.each do |plugin|
+        Vagrant.plugin("2").registered.each do |plugin|
           provider = plugin.provider.get(:virtualbox)
           break if provider
         end

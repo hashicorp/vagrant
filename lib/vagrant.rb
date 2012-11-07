@@ -92,6 +92,15 @@ module Vagrant
     c.register([:"1", :host])         { Plugin::V1::Host }
     c.register([:"1", :provider])     { Plugin::V1::Provider }
     c.register([:"1", :provisioner])  { Plugin::V1::Provisioner }
+
+    c.register(:"2")                  { Plugin::V2::Plugin }
+    c.register([:"2", :command])      { Plugin::V2::Command }
+    c.register([:"2", :communicator]) { Plugin::V2::Communicator }
+    c.register([:"2", :config])       { Plugin::V2::Config }
+    c.register([:"2", :guest])        { Plugin::V2::Guest }
+    c.register([:"2", :host])         { Plugin::V2::Host }
+    c.register([:"2", :provider])     { Plugin::V2::Provider }
+    c.register([:"2", :provisioner])  { Plugin::V2::Provisioner }
   end
 
   # The source root is the path to the root directory of

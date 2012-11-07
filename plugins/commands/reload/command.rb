@@ -6,7 +6,7 @@ require Vagrant.source_root.join("plugins/commands/up/start_mixins")
 
 module VagrantPlugins
   module CommandReload
-    class Command < Vagrant.plugin("1", :command)
+    class Command < Vagrant.plugin("2", :command)
       # We assume that the `up` plugin exists and that we'll have access
       # to this.
       include VagrantPlugins::CommandUp::StartMixins
