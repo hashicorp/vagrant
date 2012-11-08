@@ -81,29 +81,32 @@ module Vagrant
           V2::Root.new(config_map, keys)
         end
 
-        # Upgrade a V1 configuration to a V2 configuration.
+        # Upgrade a V1 configuration to a V2 configuration. We do this by
+        # creating a V2 configuration, and calling "upgrade" on each of the
+        # V1 configurations, expecting them to set the right settings on the
+        # new root.
         #
         # @param [V1::Root] old
         # @return [Array] A 3-tuple result.
         def self.upgrade(old)
-          # TODO: Actually do an upgrade. For now we just return V1.
-          [old, [], []]
+          # Get a new root
+          root = new_root_object
+
+          # Go through the old keys and upgrade them if they can be
+          old.__internal_state["keys"].each do |_, old_value|
+            if old_value.respond_to?(:upgrade)
+              old_value.upgrade(root)
+            end
+          end
+
+          [root, [], []]
         end
 
         protected
 
         def self.new_root_object
-          # Get all the registered configuration objects and use them. If
-          # we're currently on version 1, then we load all the config objects,
-          # otherwise we load only the upgrade safe ones, since we're
-          # obviously being loaded for an upgrade.
-          config_map = nil
-          plugin_manager = Vagrant.plugin("2").manager
-          if Config::CURRENT_VERSION == "2"
-            config_map = plugin_manager.config
-          else
-            config_map = plugin_manager.config_upgrade_safe
-          end
+          # Get all the registered plugins for V2
+          config_map = Vagrant.plugin("2").manager.config
 
           # Create the configuration root object
           V2::Root.new(config_map)

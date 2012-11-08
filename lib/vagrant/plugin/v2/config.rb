@@ -2,7 +2,7 @@ module Vagrant
   module Plugin
     module V2
       # This is the base class for a configuration key defined for
-      # V1. Any configuration key plugins for V1 should inherit from this
+      # V2. Any configuration key plugins for V2 should inherit from this
       # class.
       class Config
         # This is called as a last-minute hook that allows the configuration
