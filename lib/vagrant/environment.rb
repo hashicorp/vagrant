@@ -138,6 +138,8 @@ module Vagrant
     #   backed by.
     # @return [Machine]
     def machine(name, provider)
+      # Compose the cache key of the name and provider, and return from
+      # the cache if we have that.
       cache_key = [name, provider]
       @machines ||= {}
       return @machines[cache_key] if @machines.has_key?(cache_key)
@@ -153,6 +155,9 @@ module Vagrant
       end
 
       box = boxes.find(vm_config.vm.box, provider)
+
+      # Create the machine and cache it for future calls. This will also
+      # return the machine from this method.
       @machines[cache_key] = Machine.new(name, provider_cls, vm_config, box, self)
     end
 
