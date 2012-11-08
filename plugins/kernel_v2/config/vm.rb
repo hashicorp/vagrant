@@ -2,6 +2,7 @@ require "pathname"
 
 require "vagrant"
 
+require File.expand_path("../vm_provider", __FILE__)
 require File.expand_path("../vm_provisioner", __FILE__)
 require File.expand_path("../vm_subvm", __FILE__)
 
@@ -20,6 +21,7 @@ module VagrantPlugins
       attr_reader :forwarded_ports
       attr_reader :shared_folders
       attr_reader :networks
+      attr_reader :providers
       attr_reader :provisioners
       attr_reader :customizations
       attr_accessor :guest
@@ -28,6 +30,7 @@ module VagrantPlugins
         @forwarded_ports = []
         @shared_folders = {}
         @networks = []
+        @providers = []
         @provisioners = []
         @customizations = []
       end
@@ -69,6 +72,13 @@ module VagrantPlugins
 
       def network(type, *args)
         @networks << [type, args]
+      end
+
+      # Configures a provider for this VM.
+      #
+      # @param [Symbol] name The name of the provider.
+      def provider(name)
+        @providers << VagrantConfigProvider.new(name)
       end
 
       def provision(name, options=nil, &block)
