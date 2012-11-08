@@ -138,6 +138,10 @@ module Vagrant
     #   backed by.
     # @return [Machine]
     def machine(name, provider)
+      cache_key = [name, provider]
+      @machines ||= {}
+      return @machines[cache_key] if @machines.has_key?(cache_key)
+
       vm_config = config.for_vm(name)
       if !vm_config
         raise Errors::MachineNotFound, :name => name, :provider => provider
@@ -149,7 +153,7 @@ module Vagrant
       end
 
       box = boxes.find(vm_config.vm.box, provider)
-      Machine.new(name, provider_cls, vm_config, box, self)
+      @machines[cache_key] = Machine.new(name, provider_cls, vm_config, box, self)
     end
 
     # This returns a list of the configured machines for this environment.

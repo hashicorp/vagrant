@@ -238,12 +238,20 @@ VF
   end
 
   describe "getting a machine" do
+    # A helper to register a provider for use in tests.
+    def register_provider(name)
+      provider_cls = Class.new(Vagrant.plugin("2", :provider))
+
+      register_plugin("2") do |p|
+        p.provider(name) { provider_cls }
+      end
+
+      provider_cls
+    end
+
     it "should return a machine object with the correct provider" do
       # Create a provider
-      foo_provider = Class.new(Vagrant.plugin("2", :provider))
-      register_plugin("2") do |p|
-        p.provider("foo") { foo_provider }
-      end
+      foo_provider = register_provider("foo")
 
       # Create the configuration
       isolated_env = isolated_environment do |e|
@@ -261,6 +269,33 @@ VF
       machine.should be_kind_of(Vagrant::Machine)
       machine.name.should == :foo
       machine.provider.should be_kind_of(foo_provider)
+    end
+
+    it "should cache the machine objects by name and provider" do
+      # Create a provider
+      foo_provider = register_provider("foo")
+      bar_provider = register_provider("bar")
+
+      # Create the configuration
+      isolated_env = isolated_environment do |e|
+        e.vagrantfile(<<-VF)
+Vagrant.configure("2") do |config|
+  config.vm.box = "base"
+  config.vm.define "vm1"
+  config.vm.define "vm2"
+end
+VF
+      end
+
+      env = isolated_env.create_vagrant_env
+      vm1_foo = env.machine(:vm1, :foo)
+      vm1_bar = env.machine(:vm1, :bar)
+      vm2_foo = env.machine(:vm2, :foo)
+
+      vm1_foo.should eql(env.machine(:vm1, :foo))
+      vm1_bar.should eql(env.machine(:vm1, :bar))
+      vm1_foo.should_not eql(vm1_bar)
+      vm2_foo.should eql(env.machine(:vm2, :foo))
     end
 
     it "should raise an error if the VM is not found" do
