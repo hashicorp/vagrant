@@ -163,7 +163,6 @@ module VagrantPlugins
           elsif type == :hostonly
             # Validate the host-only network
             ip      = args[0]
-            options = args[1] || {}
 
             if !ip
               errors.add(I18n.t("vagrant.config.vm.network_ip_required"))

@@ -12,9 +12,15 @@ module VagrantPlugins
       def execute
         options = {}
         opts = OptionParser.new do |o|
-          o.banner = "Usage: vagrant up [vm-name] [--[no-]provision] [-h]"
+          o.banner = "Usage: vagrant up [vm-name] [--[no-]provision] [--provider provider] [-h]"
           o.separator ""
+
           build_start_options(o, options)
+
+          o.on("--provider provider", String,
+               "Back the machine with a specific provider.") do |provider|
+            options["provider"] = provider
+          end
         end
 
         # Parse the options

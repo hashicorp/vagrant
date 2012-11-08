@@ -234,6 +234,10 @@ module Vagrant
       error_key(:machine_guest_not_ready)
     end
 
+    class MachineNotFound < VagrantError
+      error_key(:machine_not_found)
+    end
+
     class MultiVMEnvironmentRequired < VagrantError
       status_code(5)
       error_key(:multi_vm_required)
@@ -312,6 +316,10 @@ module Vagrant
     class PersistDotfileExists < VagrantError
       status_code(34)
       error_key(:dotfile_error, "vagrant.actions.vm.persist")
+    end
+
+    class ProviderNotFound < VagrantError
+      error_key(:provider_not_found)
     end
 
     class PluginLoadError < VagrantError

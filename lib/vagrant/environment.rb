@@ -129,6 +129,38 @@ module Vagrant
       @_boxes ||= BoxCollection.new(boxes_path)
     end
 
+    # This returns a machine with the proper provider for this environment.
+    # The machine named by `name` must be in this environment.
+    #
+    # @param [Symbol] name Name of the machine (as configured in the
+    #   Vagrantfile).
+    # @param [Symbol] provider The provider that this machine should be
+    #   backed by.
+    # @return [Machine]
+    def machine(name, provider)
+      vm_config = config.for_vm(name)
+      if !vm_config
+        raise Errors::MachineNotFound, :name => name, :provider => provider
+      end
+
+      provider_cls = Vagrant.plugin("2").manager.providers[provider]
+      if !provider_cls
+        raise Errors::ProviderNotFound, :machine => name, :provider => provider
+      end
+
+      box = boxes.find(vm_config.vm.box, provider)
+      Machine.new(name, provider_cls, vm_config, box, self)
+    end
+
+    # This returns a list of the configured machines for this environment.
+    # Each of the names returned by this method is valid to be used with
+    # the {#machine} method.
+    #
+    # @return [Array<Symbol>] Configured machine names.
+    def machine_names
+      config.vms
+    end
+
     # Returns the VMs associated with this environment.
     #
     # @return [Hash<Symbol,VM>]

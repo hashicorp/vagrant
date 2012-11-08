@@ -236,4 +236,71 @@ VF
       instance.ui.should be_kind_of(CustomUI)
     end
   end
+
+  describe "getting a machine" do
+    it "should return a machine object with the correct provider" do
+      # Create a provider
+      foo_provider = Class.new(Vagrant.plugin("2", :provider))
+      register_plugin("2") do |p|
+        p.provider("foo") { foo_provider }
+      end
+
+      # Create the configuration
+      isolated_env = isolated_environment do |e|
+        e.vagrantfile(<<-VF)
+Vagrant.configure("2") do |config|
+  config.vm.box = "base"
+  config.vm.define "foo"
+end
+VF
+      end
+
+      # Verify that we can get the machine
+      env = isolated_env.create_vagrant_env
+      machine = env.machine(:foo, :foo)
+      machine.should be_kind_of(Vagrant::Machine)
+      machine.name.should == :foo
+      machine.provider.should be_kind_of(foo_provider)
+    end
+
+    it "should raise an error if the VM is not found" do
+      expect { instance.machine("i-definitely-dont-exist", :virtualbox) }.
+        to raise_error(Vagrant::Errors::MachineNotFound)
+    end
+
+    it "should raise an error if the provider is not found" do
+      expect { instance.machine(:default, :lol_no) }.
+        to raise_error(Vagrant::Errors::ProviderNotFound)
+    end
+  end
+
+  describe "getting machine names" do
+    it "should return the default machine if no multi-VM is used" do
+      # Create the config
+      isolated_env = isolated_environment do |e|
+        e.vagrantfile(<<-VF)
+Vagrant.configure("2") do |config|
+end
+VF
+      end
+
+      env = isolated_env.create_vagrant_env
+      env.machine_names.should == [:default]
+    end
+
+    it "should return the machine names in order" do
+      # Create the config
+      isolated_env = isolated_environment do |e|
+        e.vagrantfile(<<-VF)
+Vagrant.configure("2") do |config|
+  config.vm.define "foo"
+  config.vm.define "bar"
+end
+VF
+      end
+
+      env = isolated_env.create_vagrant_env
+      env.machine_names.should == [:foo, :bar]
+    end
+  end
 end
