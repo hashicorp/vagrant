@@ -1,4 +1,4 @@
-Vagrant.configure("1") do |config|
+Vagrant.configure("2") do |config|
   # default config goes here
   config.vagrant.dotfile_name = ".vagrant"
   config.vagrant.host = :detect

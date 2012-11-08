@@ -12,7 +12,7 @@ describe Vagrant::Environment do
     isolated_environment.tap do |e|
       e.box2("base", :virtualbox)
       e.vagrantfile <<-VF
-      Vagrant.configure("1") do |config|
+      Vagrant.configure("2") do |config|
         config.vm.box = "base"
       end
       VF
@@ -111,7 +111,7 @@ describe Vagrant::Environment do
     it "should be the VM marked as the primary" do
       environment = isolated_environment do |env|
         env.vagrantfile(<<-VF)
-Vagrant::Config.run do |config|
+Vagrant.configure("2") do |config|
   config.vm.box = "base"
   config.vm.define :foo
   config.vm.define :bar, :primary => true
@@ -128,7 +128,7 @@ VF
     it "should load global configuration" do
       environment = isolated_environment do |env|
         env.vagrantfile(<<-VF)
-Vagrant::Config.run do |config|
+Vagrant.configure("2") do |config|
   config.vagrant.dotfile_name = "foo"
 end
 VF
@@ -141,7 +141,7 @@ VF
     it "should load from a custom Vagrantfile" do
       environment = isolated_environment do |env|
         env.file("non_standard_name", <<-VF)
-Vagrant::Config.run do |config|
+Vagrant.configure("2") do |config|
   config.vagrant.dotfile_name = "custom"
 end
 VF
@@ -154,7 +154,7 @@ VF
     it "should load VM configuration" do
       environment = isolated_environment do |env|
         env.vagrantfile(<<-VF)
-Vagrant::Config.run do |config|
+Vagrant.configure("2") do |config|
   config.vagrant.dotfile_name = "foo"
 end
 VF
@@ -167,7 +167,7 @@ VF
     it "should load VM configuration with multiple VMs" do
       environment = isolated_environment do |env|
         env.vagrantfile(<<-VF)
-Vagrant::Config.run do |config|
+Vagrant.configure("2") do |config|
   config.vm.define :foo do |vm|
     vm.ssh.port = 100
   end
@@ -187,13 +187,13 @@ VF
     it "should load a V1 vagrant box" do
       environment = isolated_environment do |env|
         env.vagrantfile(<<-VF)
-Vagrant::Config.run do |config|
+Vagrant.configure("2") do |config|
   config.vm.box = "base"
 end
 VF
 
         env.box("base", <<-VF)
-Vagrant::Config.run do |config|
+Vagrant.configure("2") do |config|
   config.ssh.port = 100
 end
 VF
@@ -206,13 +206,13 @@ VF
     it "should load box configuration" do
       environment = isolated_environment do |env|
         env.vagrantfile(<<-VF)
-Vagrant::Config.run do |config|
+Vagrant.configure("2") do |config|
   config.vm.box = "base"
 end
 VF
 
         env.box2("base", :virtualbox, :vagrantfile => <<-VF)
-Vagrant::Config.run do |config|
+Vagrant.configure("2") do |config|
   config.ssh.port = 100
 end
 VF
