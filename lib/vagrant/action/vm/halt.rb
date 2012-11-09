@@ -12,6 +12,7 @@ module Vagrant
             if !env["force"]
               env[:ui].info I18n.t("vagrant.actions.vm.halt.graceful")
               env[:vm].guest.halt
+              env[:vm].channel.close
             end
 
             if env[:vm].state != :poweroff
