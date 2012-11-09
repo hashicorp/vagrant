@@ -170,45 +170,21 @@ module Vagrant
       config.vms
     end
 
-    # Returns the VMs associated with this environment.
-    #
-    # @return [Hash<Symbol,VM>]
-    def vms
-      load! if !loaded?
-      @vms ||= load_vms!
-    end
-
-    # Returns the VMs associated with this environment, in the order
-    # that they were defined.
-    #
-    # @return [Array<VM>]
-    def vms_ordered
-      return @vms.values if !multivm?
-      @vms_enum ||= config.global.vm.defined_vm_keys.map { |name| @vms[name] }
-    end
-
     # Returns the primary VM associated with this environment. This
     # method is only applicable for multi-VM environments. This can
     # potentially be nil if no primary VM is specified.
     #
     # @return [VM]
-    def primary_vm
-      return vms.values.first if !multivm?
+    def primary_machine
+      if machine_names.length == 1
+        return machine(machine_names[0], :virtualbox)
+      end
 
       config.global.vm.defined_vms.each do |name, subvm|
-        return vms[name] if subvm.options[:primary]
+        return machine(name, :virtualbox) if subvm.options[:primary]
       end
 
       nil
-    end
-
-    # Returns a boolean whether this environment represents a multi-VM
-    # environment or not. This will work even when called on child
-    # environments.
-    #
-    # @return [Bool]
-    def multivm?
-      vms.length > 1
     end
 
     # Makes a call to the CLI with the given arguments as if they
@@ -470,25 +446,6 @@ module Vagrant
 
       # Finally, we have our configuration. Set it and forget it.
       @config = Config::Container.new(global, vm_configs)
-    end
-
-    # Loads the persisted VM (if it exists) for this environment.
-    def load_vms!
-      # This is hardcoded for now.
-      provider = Vagrant.plugin("2").manager.providers[:virtualbox]
-
-      raise "VirtualBox provider not found." if !provider
-
-      # Load all the virtual machine instances.
-      result = {}
-      config.vms.each do |name|
-        vm_config = config.for_vm(name)
-        box       = boxes.find(vm_config.vm.box, :virtualbox)
-
-        result[name] = Vagrant::Machine.new(name, provider, vm_config, box, self)
-      end
-
-      result
     end
 
     # This sets the `@home_path` variable properly.

@@ -75,7 +75,7 @@ module Vagrant
           names = [names] if !names.is_a?(Array)
 
           # First determine the proper array of VMs.
-          vms = []
+          machines = []
           if names.length > 0
             names.each do |name|
               if pattern = name[/^\/(.+?)\/$/, 1]
@@ -83,38 +83,40 @@ module Vagrant
                 # expression and allow that sort of matching.
                 regex = Regexp.new(pattern)
 
-                @env.vms.each do |vm_name, vm|
-                  vms << vm if vm_name =~ regex
+                @env.machine_names.each do |machine_name|
+                  if machine_name =~ regex
+                    machines << @env.machine(machine_name, :virtualbox)
+                  end
                 end
 
-                raise Errors::VMNoMatchError if vms.empty?
+                raise Errors::VMNoMatchError if machines.empty?
               else
                 # String name, just look for a specific VM
-                vms << @env.vms[name.to_sym]
-                raise Errors::VMNotFoundError, :name => name if !vms[0]
+                machines << @env.machine(name.to_sym, :virtualbox)
+                raise Errors::VMNotFoundError, :name => name if !machines[0]
               end
             end
           else
-            vms = @env.vms_ordered
+            # No name was given, so we return every VM in the order
+            # configured.
+            machines = @env.machine_names.map do |machine_name|
+              @env.machine(machine_name, :virtualbox)
+            end
           end
 
           # Make sure we're only working with one VM if single target
-          if options[:single_target] && vms.length != 1
-            vm = @env.primary_vm
-            raise Errors::MultiVMTargetRequired if !vm
-            vms = [vm]
+          if options[:single_target] && machines.length != 1
+            primary = @env.primary_machine
+            raise Errors::MultiVMTargetRequired if !primary
+            machines = [primary]
           end
 
           # If we asked for reversed ordering, then reverse it
-          vms.reverse! if options[:reverse]
+          machines.reverse! if options[:reverse]
 
           # Go through each VM and yield it!
-          vms.each do |old_vm|
-            # We get a new VM from the environment here to avoid potentially
-            # stale VMs (if there was a config reload on the environment
-            # or something).
-            vm = @env.vms[old_vm.name]
-            yield vm
+          machines.each do |machine|
+            yield machine
           end
         end
 

@@ -103,12 +103,12 @@ describe Vagrant::Environment do
     end
   end
 
-  describe "primary VM" do
-    it "should be the only VM if not a multi-VM environment" do
-      instance.primary_vm.should == instance.vms.values.first
+  describe "primary machine" do
+    it "should be the only machine if not a multi-machine environment" do
+      instance.primary_machine.name.should == instance.machine_names.first
     end
 
-    it "should be the VM marked as the primary" do
+    it "should be the machine marked as the primary" do
       environment = isolated_environment do |env|
         env.vagrantfile(<<-VF)
 Vagrant.configure("2") do |config|
@@ -120,7 +120,7 @@ VF
       end
 
       env = environment.create_vagrant_env
-      env.primary_vm.should == env.vms[:bar]
+      env.primary_machine.name.should == :bar
     end
   end
 
