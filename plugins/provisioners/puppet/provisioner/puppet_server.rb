@@ -11,10 +11,14 @@ module VagrantPlugins
           attr_accessor :puppet_node
           attr_accessor :options
           attr_accessor :facter
+          attr_accessor :pre_commands
+          attr_accessor :post_commands
 
           def facter; @facter ||= {}; end
           def puppet_server; @puppet_server || "puppet"; end
           def options; @options ||= []; end
+          def pre_commands; @pre_commands ||= []; end
+          def post_commands; @post_commands ||= []; end
         end
 
         def self.config_class
@@ -67,7 +71,11 @@ module VagrantPlugins
             facter = "#{facts.join(" ")} "
           end
 
-          command = "#{facter}puppet agent #{options} --server #{config.puppet_server} --detailed-exitcodes || [ $? -eq 2 ]"
+          commands = Array.new
+          commands.push(config.pre_commands) if !config.pre_commands.empty?
+          commands.push("#{facter}puppet agent #{options} --server #{config.puppet_server} --detailed-exitcodes || [ $? -eq 2 ]")
+          commands.push(config.post_commands) if !config.post_commands.empty?
+          command = commands.join("&&")
 
           env[:ui].info I18n.t("vagrant.provisioners.puppet_server.running_puppetd")
           env[:vm].channel.sudo(command) do |type, data|
