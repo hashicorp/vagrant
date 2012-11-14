@@ -12,10 +12,6 @@ module Vagrant
     # set later always overrides those set earlier; this is how
     # configuration "scoping" is implemented.
     class Loader
-      # This is an array of symbols specifying the order in which
-      # configuration is loaded. For examples, see the class documentation.
-      attr_accessor :load_order
-
       # Initializes a configuration loader.
       #
       # @param [Registry] versions A registry of the available versions and
@@ -69,12 +65,16 @@ module Vagrant
         @sources[name] = procs
       end
 
-      # This loads the configured sources in the configured order and returns
+      # This loads the configuration sources in the given order and returns
       # an actual configuration object that is ready to be used.
-      def load
-        @logger.debug("Loading configuration in order: #{@load_order.inspect}")
+      #
+      # @param [Array<Symbol>] order The order of configuration to load.
+      # @return [Object] The configuration object. This is different for
+      #   each configuration version.
+      def load(order)
+        @logger.debug("Loading configuration in order: #{order.inspect}")
 
-        unknown_sources = @sources.keys - @load_order
+        unknown_sources = @sources.keys - order
         if !unknown_sources.empty?
           # TODO: Raise exception here perhaps.
           @logger.error("Unknown config sources: #{unknown_sources.inspect}")
@@ -87,7 +87,7 @@ module Vagrant
         # This will hold our result
         result = current_config_klass.init
 
-        @load_order.each do |key|
+        order.each do |key|
           next if !@sources.has_key?(key)
 
           @sources[key].each do |version, proc|
@@ -182,7 +182,7 @@ module Vagrant
           # Report syntax errors in a nice way.
           raise Errors::VagrantfileSyntaxError, :file => e.message
         end
-       end
+      end
     end
   end
 end
