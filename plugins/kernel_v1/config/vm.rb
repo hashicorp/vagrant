@@ -122,13 +122,13 @@ module VagrantPlugins
 
       # Upgrade to a V2 configuration
       def upgrade(new)
-        new.vm.auto_port_range = self.auto_port_range
-        new.vm.base_mac = self.base_mac
-        new.vm.boot_mode = self.boot_mode
-        new.vm.box = self.box
-        new.vm.box_url = self.box_url
-        new.vm.guest = self.guest
-        new.vm.host_name = self.host_name
+        new.vm.auto_port_range = self.auto_port_range if self.auto_port_range
+        new.vm.base_mac        = self.base_mac if self.base_mac
+        new.vm.boot_mode       = self.boot_mode if self.boot_mode
+        new.vm.box             = self.box if self.box
+        new.vm.box_url         = self.box_url if self.box_url
+        new.vm.guest           = self.guest if self.guest
+        new.vm.host_name       = self.host_name if self.host_name
 
         # XXX: Warning: `vm.name` is useless now
       end
