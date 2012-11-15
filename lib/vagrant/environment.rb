@@ -147,12 +147,18 @@ module Vagrant
     #   backed by.
     # @return [Machine]
     def machine(name, provider)
+      @logger.info("Getting machine: #{name} (#{provider})")
+
       # Compose the cache key of the name and provider, and return from
       # the cache if we have that.
       cache_key = [name, provider]
       @machines ||= {}
-      return @machines[cache_key] if @machines.has_key?(cache_key)
+      if @machines.has_key?(cache_key)
+        @logger.info("Returning cached machine: #{name} (#{provider})")
+        return @machines[cache_key]
+      end
 
+      @logger.info("Uncached load of machine.")
       sub_vm = config_global.vm.defined_vms[name]
       if !sub_vm
         raise Errors::MachineNotFound, :name => name, :provider => provider
@@ -189,6 +195,7 @@ module Vagrant
         if box_vagrantfile
           # The box has a custom Vagrantfile, so we load that into the config
           # as well.
+          @logger.info("Box exists with Vagrantfile. Reloading machine config.")
           box_config_key = "box_#{box.name}_#{box.provider}".to_sym
           @config_loader.set(box_config_key, box_vagrantfile)
           config = @config_loader.load([:default, box_config_key, :home, :root, vm_config_key])
