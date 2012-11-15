@@ -5,6 +5,13 @@ module Vagrant
       # V2. Any configuration key plugins for V2 should inherit from this
       # class.
       class Config
+        # This constant represents an unset value. This is useful so it is
+        # possible to know the difference between a configuration value that
+        # was never set, and a value that is nil (explicitly). Best practice
+        # is to initialize all variables to this value, then the {#merge}
+        # method below will "just work" in many cases.
+        UNSET_VALUE = Object.new
+
         # This is called as a last-minute hook that allows the configuration
         # object to finalize itself before it will be put into use. This is
         # a useful place to do some defaults in the case the user didn't
@@ -43,7 +50,9 @@ module Vagrant
               # configuration classes to still hold around internal state
               # that isn't propagated.
               if !key.to_s.start_with?("@__")
-                result.instance_variable_set(key, obj.instance_variable_get(key))
+                # Don't set the value if it is the unset value, either.
+                value = obj.instance_variable_get(key)
+                result.instance_variable_set(key, value) if value != UNSET_VALUE
               end
             end
           end
