@@ -198,18 +198,22 @@ module Vagrant
         return Box.new(name, provider, box_directory.dirname)
       end
 
-      # Check if a V1 version of this box exists, and if so, raise an
-      # exception notifying the caller that the box exists but needs
-      # to be upgraded. We don't do the upgrade here because it can be
-      # a fairly intensive activity and don't want to immediately degrade
-      # user performance on a find.
-      #
-      # To determine if it is a V1 box we just do a simple heuristic
-      # based approach.
-      @logger.info("Searching for V1 box: #{name}")
-      if v1_box?(@directory.join(name))
-        @logger.warn("V1 box found: #{name}")
-        raise Errors::BoxUpgradeRequired, :name => name
+      # If we're looking for a VirtualBox box, then we check if there is
+      # a V1 box.
+      if provider == :virtualbox
+        # Check if a V1 version of this box exists, and if so, raise an
+        # exception notifying the caller that the box exists but needs
+        # to be upgraded. We don't do the upgrade here because it can be
+        # a fairly intensive activity and don't want to immediately degrade
+        # user performance on a find.
+        #
+        # To determine if it is a V1 box we just do a simple heuristic
+        # based approach.
+        @logger.info("Searching for V1 box: #{name}")
+        if v1_box?(@directory.join(name))
+          @logger.warn("V1 box found: #{name}")
+          raise Errors::BoxUpgradeRequired, :name => name
+        end
       end
 
       # Didn't find it, return nil

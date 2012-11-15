@@ -168,6 +168,14 @@ describe Vagrant::BoxCollection do
       expect { instance.find("foo", :virtualbox) }.
         to raise_error(Vagrant::Errors::BoxUpgradeRequired)
     end
+
+    it "should return nil if there is a V1 box but we're looking for another provider" do
+      # Create a V1 box
+      environment.box1("foo")
+
+      # Test
+      instance.find("foo", :another_provider).should be_nil
+    end
   end
 
   describe "upgrading" do
