@@ -11,7 +11,7 @@ describe Vagrant::Machine do
     obj
   end
   let(:box)      { Object.new }
-  let(:config)   { env.config.global }
+  let(:config)   { env.config_global }
   let(:env)      do
     # We need to create a Vagrantfile so that this test environment
     # has a proper root path
