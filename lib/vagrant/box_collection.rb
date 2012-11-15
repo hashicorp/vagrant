@@ -194,7 +194,7 @@ module Vagrant
       box_directory = @directory.join(name, provider.to_s, "metadata.json")
       @logger.info("Searching for box: #{name} (#{provider}) in #{box_directory}")
       if box_directory.file?
-        @logger.debug("Box found: #{name} (#{provider})")
+        @logger.info("Box found: #{name} (#{provider})")
         return Box.new(name, provider, box_directory.dirname)
       end
 
