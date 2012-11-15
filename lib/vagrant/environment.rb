@@ -368,6 +368,8 @@ module Vagrant
     # loader is cached so that prior Vagrantfiles aren't loaded multiple
     # times.
     def initialize_config
+      @logger.info("Initialzing config...")
+
       home_vagrantfile = nil
       root_vagrantfile = nil
       home_vagrantfile = find_vagrantfile(home_path) if home_path

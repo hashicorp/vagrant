@@ -41,7 +41,7 @@ module Vagrant
       # `set` multiple times with the same name will override any previously
       # set values. In this way, the last set data for a given name wins.
       def set(name, sources)
-        @logger.debug("Set #{name.inspect} = #{sources.inspect}")
+        @logger.info("Set #{name.inspect} = #{sources.inspect}")
 
         # Sources should be an array
         sources = [sources] if !sources.kind_of?(Array)
@@ -72,7 +72,7 @@ module Vagrant
       # @return [Object] The configuration object. This is different for
       #   each configuration version.
       def load(order)
-        @logger.debug("Loading configuration in order: #{order.inspect}")
+        @logger.info("Loading configuration in order: #{order.inspect}")
 
         unknown_sources = @sources.keys - order
         if !unknown_sources.empty?
