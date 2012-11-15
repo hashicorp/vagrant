@@ -16,6 +16,12 @@ module Vagrant
     DEFAULT_HOME = "~/.vagrant.d"
     DEFAULT_RC = "~/.vagrantrc"
 
+    # This is the global config, comprised of loading configuration from
+    # the default, home, and root Vagrantfiles. This configuration is only
+    # really useful for reading the list of virtual machines, since each
+    # individual VM can override _most_ settings.
+    attr_reader :config_global
+
     # The `cwd` that this environment represents
     attr_reader :cwd
 
@@ -99,6 +105,9 @@ module Vagrant
 
       # Load the plugins
       load_plugins
+
+      # Initialize the configuration. This will load our global configuration.
+      initialize_config
     end
 
     # Return a human-friendly string for pretty printed or inspected
@@ -119,7 +128,7 @@ module Vagrant
     # @return [Pathname]
     def dotfile_path
       return nil if !root_path
-      root_path.join(config.global.vagrant.dotfile_name)
+      root_path.join(config_global.vagrant.dotfile_name)
     end
 
     # Returns the collection of boxes for the environment.
@@ -144,8 +153,8 @@ module Vagrant
       @machines ||= {}
       return @machines[cache_key] if @machines.has_key?(cache_key)
 
-      vm_config = config.for_vm(name)
-      if !vm_config
+      sub_vm = config_global.vm.defined_vms[name]
+      if !sub_vm
         raise Errors::MachineNotFound, :name => name, :provider => provider
       end
 
@@ -154,11 +163,36 @@ module Vagrant
         raise Errors::ProviderNotFound, :machine => name, :provider => provider
       end
 
-      box = boxes.find(vm_config.vm.box, provider)
+      # Build the machine configuration. This requires two passes: The first pass
+      # loads in the machine sub-configuration. Since this can potentially
+      # define a new box to base the machine from, we then make a second pass
+      # with the box Vagrantfile (if it has one).
+      vm_config_key = "vm_#{name}".to_sym
+      @config_loader.set(vm_config_key, sub_vm.config_procs)
+      config = @config_loader.load([:default, :home, :root, vm_config_key])
+
+      box = nil
+      begin
+        box = boxes.find(config.vm.box, provider)
+      rescue Errors::BoxUpgradeRequired
+        # Upgrade the box if we must
+        @logger.info("Upgrading box during config load: #{config.vm.box}")
+        boxes.upgrade(config.vm.box)
+        retry
+      end
+
+      box_vagrantfile = find_vagrantfile(box.directory)
+      if box_vagrantfile
+        # The box has a custom Vagrantfile, so we load that into the config
+        # as well.
+        box_config_key = "box_#{box.name}_#{box.provider}".to_sym
+        @config_loader.set(box_config_key, box_vagrantfile)
+        config = @config_loader.load([:default, box_config_key, :home, :root, vm_config_key])
+      end
 
       # Create the machine and cache it for future calls. This will also
       # return the machine from this method.
-      @machines[cache_key] = Machine.new(name, provider_cls, vm_config, box, self)
+      @machines[cache_key] = Machine.new(name, provider_cls, config, box, self)
     end
 
     # This returns a list of the configured machines for this environment.
@@ -167,7 +201,7 @@ module Vagrant
     #
     # @return [Array<Symbol>] Configured machine names.
     def machine_names
-      config.vms
+      config_global.vm.defined_vm_keys.dup
     end
 
     # Returns the primary VM associated with this environment. This
@@ -180,7 +214,7 @@ module Vagrant
         return machine(machine_names[0], :virtualbox)
       end
 
-      config.global.vm.defined_vms.each do |name, subvm|
+      config_global.vm.defined_vms.each do |name, subvm|
         return machine(name, :virtualbox) if subvm.options[:primary]
       end
 
@@ -206,7 +240,7 @@ module Vagrant
       # matters here, so please don't touch. Specifically: The symbol
       # check is done after the detect check because the symbol check
       # will return nil, and we don't want to trigger a detect load.
-      host_klass = config.global.vagrant.host
+      host_klass = config_global.vagrant.host
       if host_klass.nil? || host_klass == :detect
         hosts = Vagrant.plugin("2").manager.hosts
 
@@ -228,7 +262,7 @@ module Vagrant
         {
           :action_runner  => action_runner,
           :box_collection => boxes,
-          :global_config  => config.global,
+          :global_config  => config_global,
           :host           => host,
           :root_path      => root_path,
           :tmp_path       => tmp_path,
@@ -315,137 +349,32 @@ module Vagrant
     end
 
     #---------------------------------------------------------------
-    # Config Methods
-    #---------------------------------------------------------------
-
-    # The configuration object represented by this environment. This
-    # will trigger the environment to load if it hasn't loaded yet (see
-    # {#load!}).
-    #
-    # @return [Config::Container]
-    def config
-      load! if !loaded?
-      @config
-    end
-
-    #---------------------------------------------------------------
     # Load Methods
     #---------------------------------------------------------------
 
-    # Returns a boolean representing if the environment has been
-    # loaded or not.
-    #
-    # @return [Bool]
-    def loaded?
-      !!@loaded
-    end
+    # This initializes the config loader for this environment. The config
+    # loader is cached so that prior Vagrantfiles aren't loaded multiple
+    # times.
+    def initialize_config
+      home_vagrantfile = nil
+      root_vagrantfile = nil
+      home_vagrantfile = find_vagrantfile(home_path) if home_path
+      root_vagrantfile = find_vagrantfile(root_path) if root_path
 
-    # Loads this entire environment, setting up the instance variables
-    # such as `vm`, `config`, etc. on this environment. The order this
-    # method calls its other methods is very particular.
-    def load!
-      if !loaded?
-        @loaded = true
-        @logger.info("Loading configuration...")
-        load_config!
-      end
+      # Create the configuration loader and set the sources that are global.
+      # We use this to load the configuration, and the list of machines we are
+      # managing. Then, the actual individual configuration is loaded for
+      # each {#machine} call.
+      @config_loader = Config::Loader.new(Config::VERSIONS, Config::VERSIONS_ORDER)
+      @config_loader.set(:default, File.expand_path("config/default.rb", Vagrant.source_root))
+      @config_loader.set(:home, home_vagrantfile) if home_vagrantfile
+      @config_loader.set(:root, root_vagrantfile) if root_vagrantfile
 
-      self
-    end
+      # Make the initial call to get the "global" config. This is mostly
+      # only useful to get the list of machines that we are managing.
+      @config_global = @config_loader.load([:default, :home, :root])
 
-    # Reloads the configuration of this environment.
-    def reload!
-      # Reload the configuration
-      load_config!
-
-      # Clear the VMs because this can now be diferent due to configuration
-      @vms = nil
-    end
-
-    # Loads this environment's configuration and stores it in the {#config}
-    # variable. The configuration loaded by this method is specified to
-    # this environment, meaning that it will use the given root directory
-    # to load the Vagrantfile into that context.
-    def load_config!
-      # Initialize the config loader
-      config_loader = Config::Loader.new(Config::VERSIONS, Config::VERSIONS_ORDER)
-      config_loader.load_order = [:default, :box, :home, :root, :vm]
-
-      inner_load = lambda do |*args|
-        # This is for Ruby 1.8.7 compatibility. Ruby 1.8.7 doesn't allow
-        # default arguments for lambdas, so we get around by doing a *args
-        # and setting the args here.
-        subvm = args[0]
-        box   = args[1]
-
-        # Default Vagrantfile first. This is the Vagrantfile that ships
-        # with Vagrant.
-        config_loader.set(:default, File.expand_path("config/default.rb", Vagrant.source_root))
-
-        if box
-          # We load the box Vagrantfile
-          box_vagrantfile = find_vagrantfile(box.directory)
-          config_loader.set(:box, box_vagrantfile) if box_vagrantfile
-        end
-
-        if home_path
-          # Load the home Vagrantfile
-          home_vagrantfile = find_vagrantfile(home_path)
-          config_loader.set(:home, home_vagrantfile) if home_vagrantfile
-        end
-
-        if root_path
-          # Load the Vagrantfile in this directory
-          root_vagrantfile = find_vagrantfile(root_path)
-          config_loader.set(:root, root_vagrantfile) if root_vagrantfile
-        end
-
-        if subvm
-          # We have subvm configuration, so set that up as well.
-          config_loader.set(:vm, subvm.config_procs)
-        end
-
-        # Execute the configuration stack and store the result as the final
-        # value in the config ivar.
-        config_loader.load
-      end
-
-      # For the global configuration, we only need to load the configuration
-      # in a single pass, since nothing is conditional on the configuration.
-      global = inner_load.call
-
-      # For each virtual machine represented by this environment, we have
-      # to load the configuration in two-passes. We do this because the
-      # first pass is used to determine the box for the VM. The second pass
-      # is used to also load the box Vagrantfile.
-      defined_vm_keys = global.vm.defined_vm_keys.dup
-      defined_vms     = global.vm.defined_vms.dup
-
-      vm_configs = defined_vm_keys.map do |vm_name|
-        @logger.debug("Loading configuration for VM: #{vm_name}")
-
-        subvm = defined_vms[vm_name]
-
-        # First pass, first run.
-        config = inner_load[subvm]
-
-        # Second pass, with the box
-        box = nil
-
-        begin
-          box = boxes.find(config.vm.box, :virtualbox) if config.vm.box
-        rescue Errors::BoxUpgradeRequired
-          # Upgrade the box if we must.
-          @logger.info("Upgrading box during config load: #{config.vm.box}")
-          boxes.upgrade(config.vm.box)
-          retry
-        end
-
-        inner_load[subvm, box]
-      end
-
-      # Finally, we have our configuration. Set it and forget it.
-      @config = Config::Container.new(global, vm_configs)
+      # Old order: default, box, home, root, vm
     end
 
     # This sets the `@home_path` variable properly.

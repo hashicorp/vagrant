@@ -117,6 +117,8 @@ Vagrant.configure("2") do |config|
   config.vm.define :bar, :primary => true
 end
 VF
+
+        env.box2("base", :virtualbox)
       end
 
       env = environment.create_vagrant_env
@@ -135,7 +137,7 @@ VF
       end
 
       env = environment.create_vagrant_env
-      env.config.global.vagrant.dotfile_name.should == "foo"
+      env.config_global.vagrant.dotfile_name.should == "foo"
     end
 
     it "should load from a custom Vagrantfile" do
@@ -148,79 +150,9 @@ VF
       end
 
       env = environment.create_vagrant_env(:vagrantfile_name => "non_standard_name")
-      env.config.global.vagrant.dotfile_name.should == "custom"
+      env.config_global.vagrant.dotfile_name.should == "custom"
     end
 
-    it "should load VM configuration" do
-      environment = isolated_environment do |env|
-        env.vagrantfile(<<-VF)
-Vagrant.configure("2") do |config|
-  config.vagrant.dotfile_name = "foo"
-end
-VF
-      end
-
-      env = environment.create_vagrant_env
-      env.config.for_vm(:default).vm.name.should == :default
-    end
-
-    it "should load VM configuration with multiple VMs" do
-      environment = isolated_environment do |env|
-        env.vagrantfile(<<-VF)
-Vagrant.configure("2") do |config|
-  config.vm.define :foo do |vm|
-    vm.ssh.port = 100
-  end
-
-  config.vm.define :bar do |vm|
-    vm.ssh.port = 200
-  end
-end
-VF
-      end
-
-      env = environment.create_vagrant_env
-      env.config.for_vm(:foo).ssh.port.should == 100
-      env.config.for_vm(:bar).ssh.port.should == 200
-    end
-
-    it "should load a V1 vagrant box" do
-      environment = isolated_environment do |env|
-        env.vagrantfile(<<-VF)
-Vagrant.configure("2") do |config|
-  config.vm.box = "base"
-end
-VF
-
-        env.box("base", <<-VF)
-Vagrant.configure("2") do |config|
-  config.ssh.port = 100
-end
-VF
-      end
-
-      env = environment.create_vagrant_env
-      env.config.for_vm(:default).ssh.port.should == 100
-    end
-
-    it "should load box configuration" do
-      environment = isolated_environment do |env|
-        env.vagrantfile(<<-VF)
-Vagrant.configure("2") do |config|
-  config.vm.box = "base"
-end
-VF
-
-        env.box2("base", :virtualbox, :vagrantfile => <<-VF)
-Vagrant.configure("2") do |config|
-  config.ssh.port = 100
-end
-VF
-      end
-
-      env = environment.create_vagrant_env
-      env.config.for_vm(:default).ssh.port.should == 100
-    end
   end
 
   describe "ui" do
@@ -261,6 +193,8 @@ Vagrant.configure("2") do |config|
   config.vm.define "foo"
 end
 VF
+
+        e.box2("base", :foo)
       end
 
       # Verify that we can get the machine
@@ -285,6 +219,9 @@ Vagrant.configure("2") do |config|
   config.vm.define "vm2"
 end
 VF
+
+        e.box2("base", :foo)
+        e.box2("base", :bar)
       end
 
       env = isolated_env.create_vagrant_env
@@ -296,6 +233,75 @@ VF
       vm1_bar.should eql(env.machine(:vm1, :bar))
       vm1_foo.should_not eql(vm1_bar)
       vm2_foo.should eql(env.machine(:vm2, :foo))
+    end
+
+    it "should load the machine configuration" do
+      register_provider("foo")
+
+      environment = isolated_environment do |env|
+        env.vagrantfile(<<-VF)
+Vagrant.configure("2") do |config|
+  config.ssh.port = 1
+  config.vagrant.dotfile_name = "foo"
+  config.vm.box = "base"
+
+  config.vm.define "vm1" do |inner|
+    inner.ssh.port = 100
+  end
+end
+VF
+
+        env.box2("base", :foo)
+      end
+
+      env = environment.create_vagrant_env
+      machine = env.machine(:vm1, :foo)
+      machine.config.ssh.port.should == 100
+      machine.config.vagrant.dotfile_name.should == "foo"
+    end
+
+    it "should load a machine configured with a V1 box" do
+      register_provider("foo")
+
+      environment = isolated_environment do |env|
+        env.vagrantfile(<<-VF)
+Vagrant.configure("2") do |config|
+  config.vm.box = "base"
+end
+VF
+
+        env.box("base", <<-VF)
+Vagrant.configure("2") do |config|
+  config.ssh.port = 100
+end
+VF
+      end
+
+      env = environment.create_vagrant_env
+      machine = env.machine(:default, :virtualbox)
+      machine.config.ssh.port.should == 100
+    end
+
+    it "should load the box configuration for a V2 box" do
+      register_provider("foo")
+
+      environment = isolated_environment do |env|
+        env.vagrantfile(<<-VF)
+Vagrant.configure("2") do |config|
+  config.vm.box = "base"
+end
+VF
+
+        env.box2("base", :foo, :vagrantfile => <<-VF)
+Vagrant.configure("2") do |config|
+  config.ssh.port = 100
+end
+VF
+      end
+
+      env = environment.create_vagrant_env
+      machine = env.machine(:default, :foo)
+      machine.config.ssh.port.should == 100
     end
 
     it "should raise an error if the VM is not found" do
