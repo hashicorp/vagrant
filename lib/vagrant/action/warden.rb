@@ -19,6 +19,7 @@ module Vagrant
         @stack = []
         @actions = actions.map { |m| finalize_action(m, env) }
         @logger  = Log4r::Logger.new("vagrant::action::warden")
+        @last_error = nil
       end
 
       def call(env)
@@ -37,7 +38,13 @@ module Vagrant
           # we just exit immediately.
           raise
         rescue Exception => e
-          @logger.error("Error occurred: #{e}")
+          # We guard this so that the Warden only outputs this once for
+          # an exception that bubbles up.
+          if e != @last_error
+            @logger.error("Error occurred: #{e}")
+            @last_error = e
+          end
+
           env["vagrant.error"] = e
 
           # Something went horribly wrong. Start the rescue chain then
