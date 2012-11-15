@@ -477,13 +477,13 @@ en:
             VM: %{vm_name}
             Forwarded port: %{guest_port} => %{host_port}
           collision_error: |-
-            Vagrant cannot forward the specified ports on this VM, since they
-            would collide with another VirtualBox virtual machine's forwarded
-            ports! The forwarded port to %{host_port} is already in use on the host
-            machine.
+            Vagrant cannot forward the guest port %{guest_port} to the host port %{host_port}.
 
-            To fix this, modify your current projects Vagrantfile to use another
-            port. Example, where '1234' would be replaced by a unique host port:
+            The host port could already be in use, or it would collide with another VirtualBox
+            virtual machine's forwarded ports.
+
+            To fix this, free up the host port or change your Vagrantfile to use another one.
+            Example, where '1234' would be replaced by a unique host port:
 
               config.vm.forward_port %{guest_port}, 1234
 
