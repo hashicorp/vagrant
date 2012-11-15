@@ -235,6 +235,22 @@ VF
       vm2_foo.should eql(env.machine(:vm2, :foo))
     end
 
+    it "should load a machine without a box" do
+      register_provider("foo")
+
+      environment = isolated_environment do |env|
+        env.vagrantfile(<<-VF)
+Vagrant.configure("2") do |config|
+  config.vm.box = "i-dont-exist"
+end
+VF
+      end
+
+      env = environment.create_vagrant_env
+      machine = env.machine(:default, :foo)
+      machine.box.should be_nil
+    end
+
     it "should load the machine configuration" do
       register_provider("foo")
 

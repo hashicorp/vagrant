@@ -181,13 +181,18 @@ module Vagrant
         retry
       end
 
-      box_vagrantfile = find_vagrantfile(box.directory)
-      if box_vagrantfile
-        # The box has a custom Vagrantfile, so we load that into the config
-        # as well.
-        box_config_key = "box_#{box.name}_#{box.provider}".to_sym
-        @config_loader.set(box_config_key, box_vagrantfile)
-        config = @config_loader.load([:default, box_config_key, :home, :root, vm_config_key])
+      # If a box was found, then we attempt to load the Vagrantfile for
+      # that box. We don't require a box since we allow providers to download
+      # boxes and so on.
+      if box
+        box_vagrantfile = find_vagrantfile(box.directory)
+        if box_vagrantfile
+          # The box has a custom Vagrantfile, so we load that into the config
+          # as well.
+          box_config_key = "box_#{box.name}_#{box.provider}".to_sym
+          @config_loader.set(box_config_key, box_vagrantfile)
+          config = @config_loader.load([:default, box_config_key, :home, :root, vm_config_key])
+        end
       end
 
       # Create the machine and cache it for future calls. This will also
