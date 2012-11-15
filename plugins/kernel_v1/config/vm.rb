@@ -120,66 +120,17 @@ module VagrantPlugins
         define(DEFAULT_VM_NAME) if defined_vm_keys.empty?
       end
 
-      def validate(env, errors)
-        errors.add(I18n.t("vagrant.config.vm.box_missing")) if !box
-        errors.add(I18n.t("vagrant.config.vm.box_not_found", :name => box)) if box && !box_url && !env.boxes.find(box, :virtualbox)
-        errors.add(I18n.t("vagrant.config.vm.boot_mode_invalid")) if ![:headless, :gui].include?(boot_mode.to_sym)
-        errors.add(I18n.t("vagrant.config.vm.base_mac_invalid")) if env.boxes.find(box, :virtualbox) && !base_mac
+      # Upgrade to a V2 configuration
+      def upgrade(new)
+        new.vm.auto_port_range = self.auto_port_range
+        new.vm.base_mac = self.base_mac
+        new.vm.boot_mode = self.boot_mode
+        new.vm.box = self.box
+        new.vm.box_url = self.box_url
+        new.vm.guest = self.guest
+        new.vm.host_name = self.host_name
 
-        shared_folders.each do |name, options|
-          hostpath = Pathname.new(options[:hostpath]).expand_path(env.root_path)
-
-          if !hostpath.directory? && !options[:create]
-            errors.add(I18n.t("vagrant.config.vm.shared_folder_hostpath_missing",
-                       :name => name,
-                       :path => options[:hostpath]))
-          end
-
-          if options[:nfs] && (options[:owner] || options[:group])
-            # Owner/group don't work with NFS
-            errors.add(I18n.t("vagrant.config.vm.shared_folder_nfs_owner_group",
-                              :name => name))
-          end
-        end
-
-        # Validate some basic networking
-        #
-        # TODO: One day we need to abstract this out, since in the future
-        # providers other than VirtualBox will not be able to satisfy
-        # all types of networks.
-        networks.each do |type, args|
-          if type == :hostonly && args[0] == :dhcp
-            # Valid. There is no real way this can be invalid at the moment.
-          elsif type == :hostonly
-            # Validate the host-only network
-            ip      = args[0]
-            options = args[1] || {}
-
-            if !ip
-              errors.add(I18n.t("vagrant.config.vm.network_ip_required"))
-            else
-              ip_parts = ip.split(".")
-
-              if ip_parts.length != 4
-                errors.add(I18n.t("vagrant.config.vm.network_ip_invalid",
-                                  :ip => ip))
-              elsif ip_parts.last == "1"
-                errors.add(I18n.t("vagrant.config.vm.network_ip_ends_one",
-                                  :ip => ip))
-              end
-            end
-          elsif type == :bridged
-          else
-            # Invalid network type
-            errors.add(I18n.t("vagrant.config.vm.network_invalid",
-                              :type => type.to_s))
-          end
-        end
-
-        # Each provisioner can validate itself
-        provisioners.each do |prov|
-          prov.validate(env, errors)
-        end
+        # XXX: Warning: `vm.name` is useless now
       end
     end
   end

@@ -11,12 +11,12 @@ module VagrantPlugins
     class VMConfig < Vagrant.plugin("2", :config)
       DEFAULT_VM_NAME = :default
 
-      attr_accessor :name
       attr_accessor :auto_port_range
-      attr_accessor :box
-      attr_accessor :box_url
       attr_accessor :base_mac
       attr_accessor :boot_mode
+      attr_accessor :box
+      attr_accessor :box_url
+      attr_accessor :guest
       attr_accessor :host_name
       attr_reader :forwarded_ports
       attr_reader :shared_folders
@@ -24,7 +24,6 @@ module VagrantPlugins
       attr_reader :providers
       attr_reader :provisioners
       attr_reader :customizations
-      attr_accessor :guest
 
       def initialize
         @forwarded_ports = []
@@ -112,12 +111,7 @@ module VagrantPlugins
 
         # Add the SubVM to the hash of defined VMs
         if !defined_vms[name]
-          # If it hasn't been defined before, then create the sub-VM configuration
-          # and configure it so that it has the proper name.
           defined_vms[name] ||= VagrantConfigSubVM.new
-          defined_vms[name].push_proc do |config|
-            config.vm.name = name
-          end
         end
 
         defined_vms[name].options.merge!(options)
