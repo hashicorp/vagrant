@@ -63,10 +63,6 @@ begin
 
   exit 0 if !result || result.upcase != "Y"
 
-  # Load the environment
-  logger.debug("Loading environment")
-  env.load!
-
   # Execute the CLI interface, and exit with the proper error code
   exit(env.cli(ARGV))
 rescue Vagrant::Errors::VagrantError => e
