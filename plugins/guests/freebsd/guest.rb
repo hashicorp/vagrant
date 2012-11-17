@@ -40,7 +40,7 @@ module VagrantPlugins
       def mount_nfs(ip, folders)
         folders.each do |name, opts|
           vm.channel.sudo("mkdir -p #{opts[:guestpath]}")
-          vm.channel.sudo("mount #{ip}:#{opts[:hostpath]} #{opts[:guestpath]}")
+          vm.channel.sudo("mount '#{ip}:#{opts[:hostpath]}' '#{opts[:guestpath]}'")
         end
       end
 
