@@ -2,6 +2,8 @@ require "set"
 
 require "log4r"
 
+require "vagrant/plugin/v2/components"
+
 module Vagrant
   module Plugin
     module V2
@@ -23,6 +25,13 @@ module Vagrant
         # @return [V2::Manager]
         def self.manager
           @manager ||= Manager.new
+        end
+
+        # Returns the {Components} for this plugin.
+        #
+        # @return [Components]
+        def self.components
+          @components ||= Components.new
         end
 
         # Set the name of the plugin. The moment that this is called, the
@@ -118,24 +127,21 @@ module Vagrant
         # without breaking anything in future versions of Vagrant.
         #
         # @param [String] name Configuration key.
-        # @param [Boolean] upgrade_safe If this is true, then this configuration
-        #   key is safe to load during an upgrade, meaning that it depends
-        #   on NO Vagrant internal classes. Do _not_ set this to true unless
-        #   you really know what you're doing, since you can cause Vagrant
-        #   to crash (although Vagrant will output a user-friendly error
-        #   message if this were to happen).
-        def self.config(name=UNSET_VALUE, upgrade_safe=false, &block)
+        # XXX: Document options hash
+        def self.config(name=UNSET_VALUE, options=nil, &block)
           data[:config] ||= Registry.new
 
           # Register a new config class only if a name was given.
           if name != UNSET_VALUE
-            data[:config].register(name.to_sym, &block)
+            options ||= {}
 
-            # If we were told this is an upgrade safe configuration class
-            # then we add it to the set.
-            if upgrade_safe
-              data[:config_upgrade_safe] ||= Set.new
-              data[:config_upgrade_safe].add(name.to_sym)
+            if options[:provider]
+              # This config is for a specific provider. Register it as
+              # a provider config component.
+              components.provider_configs.register(name.to_sym, &block)
+            else
+              # This is a generic configuration plugin, register it as such.
+              data[:config].register(name.to_sym, &block)
             end
           end
 

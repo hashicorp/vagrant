@@ -126,6 +126,14 @@ describe Vagrant::Plugin::V2::Plugin do
         plugin.config[:foo]
       }.to raise_error(StandardError)
     end
+
+    it "should register configuration classes for providers" do
+      plugin = Class.new(described_class) do
+        config("foo", :provider => true) { "bar" }
+      end
+
+      plugin.components.provider_configs[:foo].should == "bar"
+    end
   end
 
   describe "easy commands" do

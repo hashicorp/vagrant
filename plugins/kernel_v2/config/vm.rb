@@ -29,7 +29,7 @@ module VagrantPlugins
         @forwarded_ports = []
         @shared_folders = {}
         @networks = []
-        @providers = []
+        @providers = {}
         @provisioners = []
         @customizations = []
       end
@@ -76,8 +76,9 @@ module VagrantPlugins
       # Configures a provider for this VM.
       #
       # @param [Symbol] name The name of the provider.
-      def provider(name)
-        @providers << VagrantConfigProvider.new(name)
+      def provider(name, &block)
+        # TODO: Error if a provider is defined multiple times.
+        @providers[name] = VagrantConfigProvider.new(name, block)
       end
 
       def provision(name, options=nil, &block)

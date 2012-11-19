@@ -45,22 +45,6 @@ describe Vagrant::Plugin::V2::Manager do
     instance.config[:bar].should == "baz"
   end
 
-  it "should enumerate registered upgrade safe config classes" do
-    pA = plugin do |p|
-      p.config("foo", true) { "bar" }
-    end
-
-    pB = plugin do |p|
-      p.config("bar") { "baz" }
-    end
-
-    instance.register(pA)
-    instance.register(pB)
-
-    instance.config_upgrade_safe.length.should == 1
-    instance.config_upgrade_safe[:foo].should == "bar"
-  end
-
   it "should enumerate registered guest classes" do
     pA = plugin do |p|
       p.guest("foo") { "bar" }
@@ -110,5 +94,23 @@ describe Vagrant::Plugin::V2::Manager do
     instance.providers.length.should == 2
     instance.providers[:foo].should == "bar"
     instance.providers[:bar].should == "baz"
+  end
+
+  it "provides the collection of registered provider configs" do
+    pA = plugin do |p|
+      p.config("foo", :provider => true) { "foo" }
+    end
+
+    pB = plugin do |p|
+      p.config("bar", :provider => true) { "bar" }
+      p.config("baz") { "baz" }
+    end
+
+    instance.register(pA)
+    instance.register(pB)
+
+    instance.provider_configs.length.should == 2
+    instance.provider_configs[:foo].should == "foo"
+    instance.provider_configs[:bar].should == "bar"
   end
 end

@@ -1,5 +1,8 @@
 require "log4r"
 
+# We don't autoload components because if we're loading anything in the
+# V2 namespace anyways, then we're going to need the Components class.
+require "vagrant/plugin/v2/components"
 require "vagrant/plugin/v2/errors"
 
 module Vagrant
