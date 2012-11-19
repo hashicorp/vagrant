@@ -4,7 +4,10 @@ module VagrantPlugins
   module CommandDestroy
     class Plugin < Vagrant.plugin("2")
       name "destroy command"
-      description "The `destroy` command destroys your virtual machines."
+      description <<-DESC
+      The `destroy` command deletes and removes the files and record of your virtual machines.
+      All data is lost and a new VM will have to be created using `up`
+      DESC
 
       command("destroy") do
         require File.expand_path("../command", __FILE__)
