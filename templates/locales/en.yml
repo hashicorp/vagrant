@@ -616,6 +616,8 @@ en:
           with: "Downloading with %{class}..."
           cleaning: "Cleaning up downloaded box..."
           unknown_type: "Unknown or unsupported URI type given for box download."
+          http_username: "HTTP Username: "
+          http_password: "HTTP Password: "
         verify:
           verifying: "Verifying box..."
           failed: |-
