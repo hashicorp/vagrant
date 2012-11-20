@@ -8,6 +8,9 @@
   - Allow hostname to be a substring of the box name for Ubuntu [GH-1163]
   - Use `puppet agent` instead of `puppetd` to be Puppet 3.x
     compatible. [GH-1169]
+  - Work around bug in VirtualBox exposed by bug in OS X 10.8 where
+    VirtualBox executables couldn't handle garbage being injected into
+    stdout by OS X.
 
 ## 1.0.5 (September 18, 2012)
 
