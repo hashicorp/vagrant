@@ -27,7 +27,7 @@ module Vagrant
         end
 
         http.start do |h|
-          @ui.info I18n.t("vagrant.downloaders.http.download", :url => source_url)
+          @ui.info I18n.t("vagrant.downloaders.http.download", :url => uri_without_userinfo(uri))
 
           headers = nil
           if uri.user && uri.password
@@ -40,6 +40,8 @@ module Vagrant
               # TODO: Error on some redirect limit
               download!(response["Location"], destination_file)
               return
+            elsif response.is_a?(Net::HTTPUnauthorized)
+              raise Errors::DownloaderHTTPUnauthorized, :url => uri_without_userinfo(uri)
             elsif !response.is_a?(Net::HTTPOK)
               raise Errors::DownloaderHTTPStatusError, :status => response.code
             end
@@ -95,6 +97,11 @@ module Vagrant
         end
 
         URI.parse(proxy_string)
+      end
+
+      # Mask HTTP authentication information from URI's string output
+      def uri_without_userinfo (source_uri)
+        source_uri.to_s.gsub(":#{source_uri.password}@", ':<secret>@')
       end
     end
   end

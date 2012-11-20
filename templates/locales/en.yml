@@ -663,6 +663,8 @@ en:
 
           Please verify that the box exists and is accessible. Also verify that
           this computer is properly connected to the internet.
+        unauthorized: |-
+          %{url} requires HTTP authentication to continue.
 
     hosts:
       bsd:
