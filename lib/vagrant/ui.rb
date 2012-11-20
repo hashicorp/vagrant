@@ -40,6 +40,8 @@ module Vagrant
         # Silent can't do this, obviously.
         raise Errors::UIExpectsTTY
       end
+
+      alias_method :ask_secret, :ask
     end
 
     # This is a UI implementation that outputs the text as is. It
@@ -78,6 +80,22 @@ module Vagrant
         # that ctrl-D is pressed on the input.
         input = $stdin.gets || ""
         input.chomp
+      end
+
+      # `ask` for input without input displayed to the screen.
+      #
+      # Input will be supressed for UNIX-like environments only. Un-supported
+      # environments will display a warning, but will still allow
+      # the user to enter input.
+      def ask_secret(message, opts = nil)
+        if $stdin.tty? && system('stty -echo -icanon')
+          response = ask(message, opts)
+          system('stty echo icanon')
+          puts
+          response
+        else
+          ask("(Warning: input will be displayed) #{message}" , opts)
+        end
       end
 
       # This is used to output progress reports to the UI.
