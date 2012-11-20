@@ -21,7 +21,17 @@ module Vagrant
           # access it.
           @temp_path = env[:tmp_path].join("box" + Time.now.to_i.to_s)
           File.open(@temp_path, Vagrant::Util::Platform.tar_file_options) do |f|
-            downloader.download!(env[:box_url], f)
+            begin
+              downloader.download!(env[:box_url], f)
+            rescue Errors::DownloaderHTTPUnauthorized => e
+              env[:ui].warn e
+
+              uri = URI.parse(env[:box_url])
+              uri.user = env[:ui].ask I18n.t("vagrant.actions.box.download.http_username")
+              uri.password = env[:ui].ask_secret I18n.t("vagrant.actions.box.download.http_password")
+              env[:box_url] = uri.to_s
+              retry
+            end
           end
 
           # Add the box

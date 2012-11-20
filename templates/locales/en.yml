@@ -616,6 +616,8 @@ en:
           with: "Downloading with %{class}..."
           cleaning: "Cleaning up downloaded box..."
           unknown_type: "Unknown or unsupported URI type given for box download."
+          http_username: "HTTP Username: "
+          http_password: "HTTP Password: "
         verify:
           verifying: "Verifying box..."
           failed: |-
@@ -663,6 +665,8 @@ en:
 
           Please verify that the box exists and is accessible. Also verify that
           this computer is properly connected to the internet.
+        unauthorized: |-
+          %{url} requires HTTP authentication to continue.
 
     hosts:
       bsd:
