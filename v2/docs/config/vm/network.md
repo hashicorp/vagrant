@@ -62,3 +62,7 @@ options are:
 * `:bridge` - The full name of the network to bridge to. If this is specified,
   then Vagrant will not ask the user.
 * `:mac` - The MAC address to assign to this network adapter.
+
+A valid config line for OsX could be something like this:
+
+    config.vm.network :bridged, :bridge => 'en0: Ethernet'
