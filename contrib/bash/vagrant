@@ -1,0 +1,103 @@
+# -*- mode: shell-script; sh-basic-offset: 2; indent-tabs-mode: nil -*-
+# ex: ts=2 sw=2 et filetype=sh
+#
+# Bash-completion for vagrant.
+#
+# Installation: copy this file to /etc/bash_completion.d/vagrant or include
+# it in your ~/.bash_completion file.
+#
+# Author: Marc Fournier <marc.fournier@camptocamp.com>
+#
+have vagrant &&
+_vagrant() {
+
+  COMPREPLY=()
+  local cur=${COMP_WORDS[COMP_CWORD]}
+  local prev=${COMP_WORDS[COMP_CWORD-1]}
+  local curcmd=${COMP_WORDS[1]}
+
+  local help="--help"
+  local force="--force"
+
+  if [ $COMP_CWORD -eq 1 ]; then
+
+    # complete only to a subset of sub-commands if no Vagrantfile is present
+    # in current working directory.
+    local commands="box init package gem"
+    test -e ./Vagrantfile && \
+      commands=$(vagrant --help | awk '/^     /{print $1}')
+    COMPREPLY=($(compgen -W "${commands} ${help} --version" -- "$cur"))
+
+  elif [ $COMP_CWORD -gt 1 ]; then
+    case $curcmd in
+
+      box)
+        if [ "${prev}" = "${curcmd}" ]; then
+          COMPREPLY=($(compgen -W "add list remove repackage ${help}" -- "$cur"))
+        else
+          case $prev in
+            remove|repackage)
+              local boxes=$(vagrant box list)
+              COMPREPLY=($(compgen -W "${boxes} ${help}" -- "$cur"))
+            ;;
+            add)
+              COMPREPLY=($(compgen -W "${force} ${help}" -- "$cur"))
+            ;;
+          esac
+        fi
+      ;;
+
+      reload|up|ssh|ssh-config|destroy|halt|provision|resume|status)
+        local params=""
+        local vms=""
+        case $curcmd in
+          reload|up)    params="--provision --no-provision --provision-with" ;;
+          ssh)          params="--command --plain" ;;
+          ssh-config)   params="--host" ;;
+          destroy|halt) params="${force}" ;;
+        esac
+
+        # only complete node names if running in a multi-vm environment
+        test -e ./Vagrantfile && \
+          vmcount=$(egrep '^\s+\w+.vm.box\s*=' Vagrantfile | wc -l)
+
+        if [ "$vmcount" -le 1 ]; then
+          COMPREPLY=($(compgen -W "${params} ${help}" -- "$cur"))
+        else
+          vms=$(vagrant status | awk '/^\w+\s{2,}/ { print $1; }')
+          COMPREPLY=($(compgen -W "${params} ${vms} ${help}" -- "$cur"))
+        fi
+      ;;
+
+      init)
+        local boxes=$(vagrant box list)
+        COMPREPLY=($(compgen -W "${boxes} ${help}" -- "$cur"))
+      ;;
+
+      package)
+        local params="--base --output --include --vagrantfile"
+        case $prev in
+          --base)
+            # complete to VMs returned by VBoxManage
+            # could be improved to work with other providers
+            local baseimgs=$(VBoxManage list vms | awk '{ gsub(/"/, ""); print $1 }')
+          ;;
+          --include|--vagrantfile)
+            # complete to the list of available files
+            local compargs="-A file"
+          ;;
+        esac
+        COMPREPLY=($(compgen -W "${params} ${baseimgs} ${help}" ${compargs} -- "$cur"))
+      ;;
+
+      gem)
+        # try to complete using common rubygems completion function names,
+        # use the first one found.
+        for i in _gem191 _gem18 _gem _rubygem; do
+          COMPREPLY=($(compgen -F ${i} -- "$cur" 2>/dev/null)) && break
+        done
+      ;;
+    esac
+  fi
+}
+[ -n "${have:-}" ] && complete -F _vagrant vagrant
