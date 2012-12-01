@@ -38,7 +38,7 @@ Gem::Specification.new do |s|
   # this gemspec is, and parsing out the ignored files from the gitignore.
   # Note that the entire gitignore(5) syntax is not supported, specifically
   # the "!" syntax, but it should mostly work correctly.
-  root_path      = File.expand_path("../", __FILE__)
+  root_path      = File.dirname(__FILE__)
   all_files      = Dir.chdir(root_path) { Dir.glob("**/{*,.*}") }
   all_files.reject! { |file| [".", ".."].include?(File.basename(file)) }
   gitignore_path = File.join(root_path, ".gitignore")
