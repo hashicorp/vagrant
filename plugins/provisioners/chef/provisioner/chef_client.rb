@@ -1,4 +1,5 @@
 require 'pathname'
+require 'tmpdir'
 
 require File.expand_path("../base", __FILE__)
 
@@ -71,8 +72,10 @@ module VagrantPlugins
 
         def upload_encrypted_data_bag_secret
           env[:ui].info I18n.t("vagrant.provisioners.chef.upload_encrypted_data_bag_secret_key")
-          env[:machine].communicate.upload(encrypted_data_bag_secret_key_path,
-                                  config.encrypted_data_bag_secret)
+	  tmp_filename = File.join(Dir.tmpdir, ('a'..'z').to_a.shuffle[0,32].join + '.encrypted_data_bag_secret')
+          env[:machine].communicate.upload(encrypted_data_bag_secret_key_path, tmp_filename)
+          env[:machine].communicate.sudo("/bin/mv -f #{tmp_filename} #{config.encrypted_data_bag_secret}")
+          env[:machine].communicate.sudo("/bin/rm -f #{tmp_filename}")
         end
 
         def setup_server_config
