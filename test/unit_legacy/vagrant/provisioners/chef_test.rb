@@ -160,6 +160,17 @@ class ChefProvisionerTest < Test::Unit::TestCase
 
       @action.setup_config(@template, @filename, custom)
     end
+
+    should "allow custom formatting setting" do
+      Vagrant::Util::TemplateRenderer.expects(:render).returns("foo").with() do |template, vars|
+        assert vars.has_key?(:formatter)
+        assert_equal @config.formatter.to_sym, vars[:formatter]
+        true
+      end
+
+      @action.setup_config(@template, @filename, custom)
+    end
+
   end
 
   context "generating and uploading json" do
