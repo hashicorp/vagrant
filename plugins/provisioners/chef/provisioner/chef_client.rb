@@ -139,7 +139,7 @@ module VagrantPlugins
               chef_client = chef_resource.load(host_name)
               chef_client.destroy
             rescue Exception => e
-              env[:ui].info "Could not destroy #{chef_resource} #{host_name}: #{e.message}"
+              env[:ui].warn "Could not destroy #{chef_resource} #{host_name}: #{e.message}"
             end
           end
         end
