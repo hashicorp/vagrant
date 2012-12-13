@@ -18,7 +18,7 @@ an exposed and supported API. What can plugins do?
 * Add new commands to the `vagrant` binary, such as `vagrant my_plugin`
 * Modify the functionality of existing commands, such as adding new
   functionality when `vagrant up` is called.
-* Add new configuration classes fr custom `config.my_plugin` style
+* Add new configuration classes from custom `config.my_plugin` style
   configuration in Vagrantfiles.
 
 ## Using Plugins
