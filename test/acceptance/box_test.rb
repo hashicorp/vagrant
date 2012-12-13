@@ -29,7 +29,7 @@ describe "vagrant box" do
     # Adding it again should not succeed
     result = execute("vagrant", "box", "add", "foo", box_path("default"))
     result.should_not succeed
-    result.stderr.should match_output(:box_already_exists, "foo")
+    result.stderr.should match_output(:box_already_exists, "foo", "virtualbox")
   end
 
   it "overwrites a box when adding with `--force`" do
