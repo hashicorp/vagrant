@@ -25,8 +25,8 @@ module Acceptance
     end
 
     # Tests that the box with given name is installed.
-    def box_installed(name)
-      @text =~ /^#{name}$/
+    def box_installed(name, provider)
+      @text =~ /^#{name} \(#{provider}\)$/
     end
 
     # Tests that the output says there are no installed boxes.

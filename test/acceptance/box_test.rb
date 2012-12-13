@@ -17,7 +17,7 @@ describe "vagrant box" do
 
     # Verify that the box now shows up in the list of available boxes
     result = execute("vagrant", "box", "list")
-    result.stdout.should match_output(:box_installed, "foo")
+    result.stdout.should match_output(:box_installed, "foo", "virtualbox")
   end
 
   it "errors if attempting to add a box with the same name" do
