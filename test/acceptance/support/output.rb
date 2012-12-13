@@ -8,8 +8,8 @@ module Acceptance
       @text = text
     end
 
-    def box_already_exists(name)
-      @text =~ /^A box already exists under the name of '#{name}'/
+    def box_already_exists(name, provider)
+      @text =~ /^The box you're attempting to add already exits:\n\n *Name: #{name}\n *Provider: #{provider}$/
     end
 
     # Checks that an error message was outputted about the box
@@ -25,8 +25,8 @@ module Acceptance
     end
 
     # Tests that the box with given name is installed.
-    def box_installed(name)
-      @text =~ /^#{name}$/
+    def box_installed(name, provider)
+      @text =~ /^#{name} \(#{provider}\)$/
     end
 
     # Tests that the output says there are no installed boxes.

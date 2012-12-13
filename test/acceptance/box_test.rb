@@ -17,7 +17,7 @@ describe "vagrant box" do
 
     # Verify that the box now shows up in the list of available boxes
     result = execute("vagrant", "box", "list")
-    result.stdout.should match_output(:box_installed, "foo")
+    result.stdout.should match_output(:box_installed, "foo", "virtualbox")
   end
 
   it "errors if attempting to add a box with the same name" do
@@ -29,7 +29,7 @@ describe "vagrant box" do
     # Adding it again should not succeed
     result = execute("vagrant", "box", "add", "foo", box_path("default"))
     result.should_not succeed
-    result.stderr.should match_output(:box_already_exists, "foo")
+    result.stderr.should match_output(:box_already_exists, "foo", "virtualbox")
   end
 
   it "overwrites a box when adding with `--force`" do
@@ -49,6 +49,7 @@ describe "vagrant box" do
   end
 
   it "gives an error if the file is not a valid box" do
+    pending("Need to write VirtualBox plugin to hook into the action sequence and add verification.")
     invalid = environment.workdir.join("nope.txt")
     invalid.open("w+") do |f|
       f.write("INVALID!")
@@ -69,7 +70,7 @@ describe "vagrant box" do
     # Add the box, remove the box, then verify that the box no longer
     # shows up in the list of available boxes.
     execute("vagrant", "box", "add", "foo", box_path("default"))
-    execute("vagrant", "box", "remove", "foo")
+    execute("vagrant", "box", "remove", "foo", "virtualbox")
     result = execute("vagrant", "box", "list")
     result.should succeed
     result.stdout.should match_output(:no_boxes)
@@ -84,7 +85,7 @@ describe "vagrant box" do
     # Add the box, repackage it, and verify that a package.box is
     # dumped of relatively similar size.
     execute("vagrant", "box", "add", "foo", box_path("default"))
-    execute("vagrant", "box", "repackage", "foo")
+    execute("vagrant", "box", "repackage", "foo", "virtualbox")
 
     # By default, repackage should dump into package.box into the CWD
     repackaged_file = environment.workdir.join("package.box")
