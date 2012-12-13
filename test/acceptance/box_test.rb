@@ -49,6 +49,7 @@ describe "vagrant box" do
   end
 
   it "gives an error if the file is not a valid box" do
+    pending("Need to write VirtualBox plugin to hook into the action sequence and add verification.")
     invalid = environment.workdir.join("nope.txt")
     invalid.open("w+") do |f|
       f.write("INVALID!")
