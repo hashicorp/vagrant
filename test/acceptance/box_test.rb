@@ -70,7 +70,7 @@ describe "vagrant box" do
     # Add the box, remove the box, then verify that the box no longer
     # shows up in the list of available boxes.
     execute("vagrant", "box", "add", "foo", box_path("default"))
-    execute("vagrant", "box", "remove", "foo")
+    execute("vagrant", "box", "remove", "foo", "virtualbox")
     result = execute("vagrant", "box", "list")
     result.should succeed
     result.stdout.should match_output(:no_boxes)
