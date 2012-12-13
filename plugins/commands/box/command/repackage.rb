@@ -33,7 +33,7 @@ module VagrantPlugins
 
           # Repackage the box
           output_path = File.expand_path(@env.config.global.package.name, FileUtils.pwd)
-          box.repackage(output_path)
+          box.repackage(Pathname.new(output_path))
 
           # Success, exit status 0
           0

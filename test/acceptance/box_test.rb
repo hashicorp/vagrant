@@ -85,7 +85,7 @@ describe "vagrant box" do
     # Add the box, repackage it, and verify that a package.box is
     # dumped of relatively similar size.
     execute("vagrant", "box", "add", "foo", box_path("default"))
-    execute("vagrant", "box", "repackage", "foo")
+    execute("vagrant", "box", "repackage", "foo", "virtualbox")
 
     # By default, repackage should dump into package.box into the CWD
     repackaged_file = environment.workdir.join("package.box")
