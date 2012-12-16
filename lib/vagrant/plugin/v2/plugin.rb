@@ -1,4 +1,5 @@
 require "log4r"
+require "set"
 
 module Vagrant
   module Plugin
