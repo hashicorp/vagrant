@@ -113,7 +113,7 @@ end
     In the example towards the top, we used <code>env.config</code>, but directly
     above we used <code>config</code>. What's the difference? <code>env.config</code>
     refers to the global config for the VM from the Vagrantfile. <code>config</code>
-    fefers only to the provisioner-specific configuration.
+    refers only to the provisioner-specific configuration.
   </p>
 </div>
 
