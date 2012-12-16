@@ -310,6 +310,7 @@ module Vagrant
         # by just reading stdout and don't expect the OS to just inject
         # garbage into it.
         old_dyld_lib_path = ENV.delete("DYLD_LIBRARY_PATH")
+        old_ld_lib_path   = ENV.delete("LD_LIBRARY_PATH")
 
         Util::Busy.busy(int_callback) do
           Subprocess.execute(@vboxmanage_path, *command, &block)
@@ -318,6 +319,7 @@ module Vagrant
         # Reset the library path if it was set before. See above comments
         # for more information on why this was unset in the first place.
         ENV["DYLD_LIBRARY_PATH"] = old_dyld_lib_path if old_dyld_lib_path
+        ENV["LD_LIBRARY_PATH"]   = old_ld_lib_path if old_ld_lib_path
       end
     end
   end
