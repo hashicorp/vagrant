@@ -64,7 +64,7 @@ end
 
 And finally, somewhat of an advanced feature, but also sometimes needed: If
 the virtual machine already has cookbooks somewhere inside of it, you may
-specific folders _within the virtual machine_ which contain cookbooks using
+specify folders _within the virtual machine_ which contain cookbooks using
 a special syntax:
 
 {% highlight ruby %}
