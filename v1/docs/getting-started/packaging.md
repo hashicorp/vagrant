@@ -39,18 +39,6 @@ Vagrant::Config.run do |config|
 end
 {% endhighlight %}
 
-<div class="info">
-  <h3>What's with the MAC address?</h3>
-  <p>
-    When an OS is installed, it typically sets up the MAC address associated
-    with the <code>eth0</code> network interface, which allows the VM to connect to the
-    internet. But when importing a base, VirtualBox changes the MAC address
-    to something new, which breaks <code>eth0</code>. The MAC address of the base must
-    be persisted in the box Vagrantfile so that Vagrant can setup the MAC address
-    to ensure internet connectivity.
-  </p>
-</div>
-
 ## Packaging the Project
 
 Run the following code to package the environment up:
