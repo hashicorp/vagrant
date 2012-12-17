@@ -308,14 +308,20 @@ module Vagrant
         end
 
         def bridged_config(args)
-          options = args[0] || {}
-          options = {} if !options.is_a?(Hash)
+          ip      = args[0]
+          options = args[1] || {}
+
+          type    = (ip == :dhcp or ip == nil) ? :dhcp : :static
+          netmask = options[:netmask] ? options[:netmask] : "255.255.255.0"
 
           return {
-            :adapter => nil,
-            :mac     => nil,
-            :bridge  => nil,
-            :auto_config => true
+              :type    => type,
+              :ip      => ip,
+              :netmask => netmask,
+              :adapter => nil,
+              :mac     => nil,
+              :bridge  => nil,
+              :auto_config => true,
           }.merge(options)
         end
 
@@ -393,9 +399,17 @@ module Vagrant
         end
 
         def bridged_network_config(config)
-          return {
-            :type => :dhcp
-          }
+          if config[:type] == :static
+            return {
+                :type => :static,
+                :ip => config[:ip],
+                :netmask => config[:netmask]
+            }
+          else
+            return {
+                :type => :dhcp,
+            }
+          end
         end
       end
     end
