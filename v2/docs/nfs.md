@@ -64,7 +64,7 @@ Before enabling NFS shared folders, there are two main requirements:
   <p>
     Vagrant must edit system files on the host in order to configure NFS.
     Therefore, at some point during the <code>vagrant up</code> sequence,
-    you will be prompted by your system for administrator priveleges (via
+    you will be prompted by your system for administrator privileges (via
     the typical <code>sudo</code> command).
   </p>
   <p>
