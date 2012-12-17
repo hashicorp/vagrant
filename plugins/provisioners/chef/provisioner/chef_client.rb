@@ -143,7 +143,7 @@ module VagrantPlugins
           node_name = (config.node_name || env[:vm].config.vm.host_name)
           env[:ui].info I18n.t("vagrant.provisioners.chef.deleting_from_server",
                               :deletable => deletable, :name => node_name)
-          Kernel.system("knife #{deletable} delete --yes #{node_name}")
+          Kernel.system("knife #{deletable} delete --yes #{node_name} > /dev/null 2>&1")
         end
       end
     end
