@@ -18,6 +18,8 @@ module VagrantPlugins
           attr_accessor :environment
           attr_accessor :encrypted_data_bag_secret_key_path
           attr_accessor :encrypted_data_bag_secret
+          attr_accessor :delete_client
+          attr_accessor :delete_node
 
           # Provide defaults in such a way that they won't override the instance
           # variable. This is so merging continues to work properly.
@@ -26,6 +28,8 @@ module VagrantPlugins
           def file_cache_path; @file_cache_path || "/srv/chef/file_store"; end
           def file_backup_path; @file_backup_path || "/srv/chef/cache"; end
           def encrypted_data_bag_secret; @encrypted_data_bag_secret || "/tmp/encrypted_data_bag_secret"; end
+          def delete_client; @delete_client || true; end
+          def delete_node; @delete_node || true; end
 
           def validate(env, errors)
             super
@@ -128,6 +132,18 @@ module VagrantPlugins
 
         def guest_validation_key_path
           File.join(config.provisioning_path, "validation.pem")
+        end
+
+        def cleanup
+          delete_from_chef_server('client') if config.delete_client
+          delete_from_chef_server('node') if config.delete_node
+        end
+
+        def delete_from_chef_server(deletable)
+          node_name = (config.node_name || env[:vm].config.vm.host_name)
+          env[:ui].info I18n.t("vagrant.provisioners.chef.deleting_from_server",
+                              :deletable => deletable, :name => node_name)
+          Kernel.system("knife #{deletable} delete --yes #{node_name} > /dev/null 2>&1")
         end
       end
     end
