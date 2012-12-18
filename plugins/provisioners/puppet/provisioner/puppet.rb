@@ -15,12 +15,14 @@ module VagrantPlugins
           attr_accessor :pp_path
           attr_accessor :options
           attr_accessor :facter
-
+          attr_accessor :with_ssh
+          
           def manifest_file; @manifest_file || "default.pp"; end
           def manifests_path; @manifests_path || "manifests"; end
           def pp_path; @pp_path || "/tmp/vagrant-puppet"; end
           def options; @options ||= []; end
           def facter; @facter ||= {}; end
+          def with_ssh; @with_ssh ||= false; end
 
           # Returns the manifests path expanded relative to the root path of the
           # environment.
@@ -85,8 +87,10 @@ module VagrantPlugins
           @manifest_file           = File.join(manifests_guest_path, config.manifest_file)
 
           set_module_paths
-          share_manifests
-          share_module_paths
+          if !config.with_ssh
+            share_manifests
+            share_module_paths
+          end
         end
 
         def provision!
@@ -95,9 +99,11 @@ module VagrantPlugins
           @module_paths.each do |host_path, guest_path|
             check << guest_path
           end
-
-          verify_shared_folders(check)
-
+          
+          verify_shared_folders(check)  if config.with_ssh == false
+          if config.with_ssh
+            scp_resources
+          end
           # Verify Puppet is installed and run it
           verify_binary("puppet")
           run_puppet_apply
@@ -170,6 +176,17 @@ module VagrantPlugins
             if !env[:machine].communicate.test("test -d #{folder}")
               raise PuppetError, :missing_shared_folders
             end
+          end
+        end
+        
+        def scp_resources
+          env[:vm].channel.sudo("if [ ! -d #{manifests_guest_path} ];then mkdir -p #{manifests_guest_path}; fi")
+          env[:vm].channel.sudo("chmod -R a+wr #{manifests_guest_path}")
+          env[:vm].channel.upload(@expanded_manifests_path.to_s + "/#{config.manifest_file}", manifests_guest_path)
+          @module_paths.each do |from, to|
+            env[:vm].channel.sudo("if [ ! -d #{to.to_s} ];then mkdir -p #{to.to_s}; fi")
+            env[:vm].channel.sudo("chmod -R a+wr #{to.to_s}")
+            env[:vm].channel.upload(from.to_s, to.to_s)
           end
         end
       end
