@@ -2,7 +2,7 @@ require "vagrant"
 
 module VagrantPlugins
   module GuestSolaris
-    class Plugin < Vagrant.plugin("1")
+    class Plugin < Vagrant.plugin("2")
       name "Solaris guest."
       description "Solaris guest support."
 

@@ -2,7 +2,7 @@ require "vagrant"
 
 module VagrantPlugins
   module GuestSuse
-    class Plugin < Vagrant.plugin("1")
+    class Plugin < Vagrant.plugin("2")
       name "SUSE guest"
       description "SUSE guest support."
 

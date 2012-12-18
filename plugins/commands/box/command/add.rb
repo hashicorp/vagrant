@@ -3,15 +3,15 @@ require 'optparse'
 module VagrantPlugins
   module CommandBox
     module Command
-      class Add < Vagrant.plugin("1", :command)
+      class Add < Vagrant.plugin("2", :command)
         def execute
           options = {}
 
-          opts = OptionParser.new do |opts|
-            opts.banner = "Usage: vagrant box add <name> <url>"
-            opts.separator ""
+          opts = OptionParser.new do |o|
+            o.banner = "Usage: vagrant box add <name> <url>"
+            o.separator ""
 
-            opts.on("-f", "--force", "Overwrite an existing box if it exists.") do |f|
+            o.on("-f", "--force", "Overwrite an existing box if it exists.") do |f|
               options[:force] = f
             end
           end
@@ -28,8 +28,7 @@ module VagrantPlugins
             existing.destroy! if existing
           end
 
-          # Invoke the "box_add" middleware sequence.
-          @env.action_runner.run(:box_add, {
+          @env.action_runner.run(Vagrant::Action.action_box_add, {
             :box_name     => argv[0],
             :box_provider => :virtualbox,
             :box_url      => argv[1]

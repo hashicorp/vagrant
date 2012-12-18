@@ -28,6 +28,23 @@ module VagrantPlugins
         super
 
         @nfs_server_binary = "/etc/init.d/nfs"
+
+        # On Fedora 16+, systemd replaced init.d, so we have to use the
+        # proper NFS binary. This checks to see if we need to do that.
+        release_file = Pathname.new("/etc/redhat-release")
+        begin
+          release_file.open("r") do |f|
+            version_number = /Fedora release ([0-9]+)/.match(f.gets)[1].to_i
+            if version_number >= 16
+              # "service nfs-server" will redirect properly to systemctl
+              # when "service nfs-server restart" is called.
+              @nfs_server_binary = "/usr/sbin/service nfs-server"
+            end
+          end
+        rescue Errno::ENOENT
+          # File doesn't exist, not a big deal, assume we're on a
+          # lower version.
+        end
       end
     end
   end

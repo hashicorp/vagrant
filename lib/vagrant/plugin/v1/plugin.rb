@@ -1,3 +1,5 @@
+require "set"
+
 require "log4r"
 
 module Vagrant
@@ -16,11 +18,11 @@ module Vagrant
         # from within methods which are probably in subclasses.
         ROOT_CLASS = self
 
-        # Returns a list of registered plugins for this version.
+        # This returns the manager for all V1 plugins.
         #
-        # @return [Array]
-        def self.registered
-          @registry || []
+        # @return [V1::Manager]
+        def self.manager
+          @manager ||= Manager.new
         end
 
         # Set the name of the plugin. The moment that this is called, the
@@ -36,7 +38,7 @@ module Vagrant
           result = get_or_set(:name, name)
 
           # The plugin should be registered if we're setting a real name on it
-          register! if name != UNSET_VALUE
+          Plugin.manager.register(self) if name != UNSET_VALUE
 
           # Return the result
           result
@@ -68,19 +70,6 @@ module Vagrant
           hooks << block
         end
 
-        # The given block will be called when this plugin is activated. The
-        # activation block should be used to load any of the classes used by
-        # the plugin other than the plugin definition itself. Vagrant only
-        # guarantees that the plugin definition will remain backwards
-        # compatible, but not any other classes (such as command base classes
-        # or so on). Therefore, to avoid crashing future versions of Vagrant,
-        # these classes should be placed in separate files and loaded in the
-        # activation block.
-        def self.activated(&block)
-          data[:activation_block] = block if block_given?
-          data[:activation_block]
-        end
-
         # Defines additional command line commands available by key. The key
         # becomes the subcommand, so if you register a command "foo" then
         # "vagrant foo" becomes available.
@@ -103,6 +92,24 @@ module Vagrant
           data[:command]
         end
 
+        # Defines additional communicators to be available. Communicators
+        # should be returned by a block passed to this method. This is done
+        # to ensure that the class is lazy loaded, so if your class inherits
+        # from or uses any Vagrant internals specific to Vagrant 1.0, then
+        # the plugin can still be defined without breaking anything in future
+        # versions of Vagrant.
+        #
+        # @param [String] name Communicator name.
+        def self.communicator(name=UNSET_VALUE, &block)
+          data[:communicator] ||= Registry.new
+
+          # Register a new communicator class only if a name was given.
+          data[:communicator].register(name.to_sym, &block) if name != UNSET_VALUE
+
+          # Return the registry
+          data[:communicator]
+        end
+
         # Defines additional configuration keys to be available in the
         # Vagrantfile. The configuration class should be returned by a
         # block passed to this method. This is done to ensure that the class
@@ -111,11 +118,26 @@ module Vagrant
         # without breaking anything in future versions of Vagrant.
         #
         # @param [String] name Configuration key.
-        def self.config(name=UNSET_VALUE, &block)
+        # @param [Boolean] upgrade_safe If this is true, then this configuration
+        #   key is safe to load during an upgrade, meaning that it depends
+        #   on NO Vagrant internal classes. Do _not_ set this to true unless
+        #   you really know what you're doing, since you can cause Vagrant
+        #   to crash (although Vagrant will output a user-friendly error
+        #   message if this were to happen).
+        def self.config(name=UNSET_VALUE, upgrade_safe=false, &block)
           data[:config] ||= Registry.new
 
           # Register a new config class only if a name was given.
-          data[:config].register(name.to_sym, &block) if name != UNSET_VALUE
+          if name != UNSET_VALUE
+            data[:config].register(name.to_sym, &block)
+
+            # If we were told this is an upgrade safe configuration class
+            # then we add it to the set.
+            if upgrade_safe
+              data[:config_upgrade_safe] ||= Set.new
+              data[:config_upgrade_safe].add(name.to_sym)
+            end
+          end
 
           # Return the registry
           data[:config]
@@ -181,6 +203,19 @@ module Vagrant
           data[:hosts]
         end
 
+        # Registers additional providers to be available.
+        #
+        # @param [Symbol] name Name of the provider.
+        def self.provider(name=UNSET_VALUE, &block)
+          data[:providers] ||= Registry.new
+
+          # Register a new provider class only if a name was given
+          data[:providers].register(name.to_sym, &block) if name != UNSET_VALUE
+
+          # Return the registry
+          data[:providers]
+        end
+
         # Registers additional provisioners to be available.
         #
         # @param [String] name Name of the provisioner.
@@ -194,64 +229,18 @@ module Vagrant
           data[:provisioners]
         end
 
-        # Activates the current plugin. This shouldn't be called publicly.
-        def self.activate!
-          if !data[:activated_called]
-            LOGGER.info("Activating plugin: #{self.name}")
-            data[:activated_called] = true
-
-            # Call the activation block
-            block = activated
-            block.call if block
-          end
-        end
-
-        # Registers the plugin. This makes the plugin actually work with
-        # Vagrant. Prior to registering, the plugin is merely a skeleton.
+        # Returns the internal data associated with this plugin. This
+        # should NOT be called by the general public.
         #
-        # This shouldn't be called by the general public. Plugins are automatically
-        # registered when they are given a name.
-        def self.register!(plugin=nil)
-          plugin ||= self
-
-          # Register only on the root class
-          return ROOT_CLASS.register!(plugin) if self != ROOT_CLASS
-
-          # Register it into the list
-          @registry ||= []
-          if !@registry.include?(plugin)
-            LOGGER.info("Registered plugin: #{plugin.name}")
-            @registry << plugin
-          end
-        end
-
-        # This unregisters the plugin. Note that to re-register the plugin
-        # you must call `register!` again.
-        def self.unregister!(plugin=nil)
-          plugin ||= self
-
-          # Unregister only on the root class
-          return ROOT_CLASS.unregister!(plugin) if self != ROOT_CLASS
-
-          # Unregister it from the registry
-          @registry ||= []
-          if @registry.include?(plugin)
-            LOGGER.info("Unregistered: #{plugin.name}")
-            @registry.delete(plugin)
-          end
+        # @return [Hash]
+        def self.data
+          @data ||= {}
         end
 
         protected
 
         # Sentinel value denoting that a value has not been set.
         UNSET_VALUE = Object.new
-
-        # Returns the internal data associated with this plugin.
-        #
-        # @return [Hash]
-        def self.data
-          @data ||= {}
-        end
 
         # Helper method that will set a value if a value is given, or otherwise
         # return the already set value.

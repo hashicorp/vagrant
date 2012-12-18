@@ -1,4 +1,10 @@
 #!/usr/bin/env ruby
+
+# Trap interrupts to quit cleanly. This will be overriden at some point
+# by Vagrant. This is made to catch any interrupts while Vagrant is
+# initializing which have historically resulted in stack traces.
+Signal.trap("INT") { exit 1 }
+
 require 'log4r'
 require 'vagrant'
 require 'vagrant/cli'

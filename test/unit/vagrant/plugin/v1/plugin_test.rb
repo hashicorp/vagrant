@@ -4,7 +4,7 @@ describe Vagrant::Plugin::V1::Plugin do
   after(:each) do
     # We want to make sure that the registered plugins remains empty
     # after each test.
-    described_class.registered.clear
+    described_class.manager.reset!
   end
 
   it "should be able to set and get the name" do
@@ -32,34 +32,6 @@ describe Vagrant::Plugin::V1::Plugin do
       hooks = plugin.action_hook("foo")
       hooks.length.should == 1
       hooks[0].call.should == "bar"
-    end
-  end
-
-  describe "activation block" do
-    it "should have no activation block by default" do
-      plugin = Class.new(described_class)
-      plugin.activated.should be_nil
-    end
-
-    it "should be able to set and get the activation block" do
-      plugin = Class.new(described_class) do
-        activated do
-          42
-        end
-      end
-
-      plugin.activated.call.should == 42
-    end
-
-    it "should activate when `activate!` is called" do
-      plugin = Class.new(described_class) do
-        activated do
-          raise NotImplementedError
-        end
-      end
-
-      expect { plugin.activate! }.to raise_error(NotImplementedError)
-      expect { plugin.activate! }.to_not raise_error
     end
   end
 
@@ -96,6 +68,34 @@ describe Vagrant::Plugin::V1::Plugin do
       # a proper error is raised.
       expect {
         plugin.command[:foo]
+      }.to raise_error(StandardError)
+    end
+  end
+
+  describe "communicators" do
+    it "should register communicator classes" do
+      plugin = Class.new(described_class) do
+        communicator("foo") { "bar" }
+      end
+
+      plugin.communicator[:foo].should == "bar"
+    end
+
+    it "should lazily register communicator classes" do
+      # Below would raise an error if the value of the class was
+      # evaluated immediately. By asserting that this does not raise an
+      # error, we verify that the value is actually lazily loaded
+      plugin = nil
+      expect {
+        plugin = Class.new(described_class) do
+        communicator("foo") { raise StandardError, "FAIL!" }
+        end
+      }.to_not raise_error
+
+      # Now verify when we actually get the configuration key that
+      # a proper error is raised.
+      expect {
+        plugin.communicator[:foo]
       }.to raise_error(StandardError)
     end
   end
@@ -195,6 +195,34 @@ describe Vagrant::Plugin::V1::Plugin do
     end
   end
 
+  describe "providers" do
+    it "should register provider classes" do
+      plugin = Class.new(described_class) do
+        provider("foo") { "bar" }
+      end
+
+      plugin.provider[:foo].should == "bar"
+    end
+
+    it "should lazily register provider classes" do
+      # Below would raise an error if the value of the config class was
+      # evaluated immediately. By asserting that this does not raise an
+      # error, we verify that the value is actually lazily loaded
+      plugin = nil
+      expect {
+        plugin = Class.new(described_class) do
+          provider("foo") { raise StandardError, "FAIL!" }
+        end
+      }.to_not raise_error
+
+      # Now verify when we actually get the configuration key that
+      # a proper error is raised.
+      expect {
+        plugin.provider[:foo]
+      }.to raise_error(StandardError)
+    end
+  end
+
   describe "provisioners" do
     it "should register provisioner classes" do
       plugin = Class.new(described_class) do
@@ -224,8 +252,10 @@ describe Vagrant::Plugin::V1::Plugin do
   end
 
   describe "plugin registration" do
+    let(:manager) { described_class.manager }
+
     it "should have no registered plugins" do
-      described_class.registered.should be_empty
+      manager.registered.should be_empty
     end
 
     it "should register a plugin when a name is set" do
@@ -233,7 +263,7 @@ describe Vagrant::Plugin::V1::Plugin do
         name "foo"
       end
 
-      described_class.registered.should == [plugin]
+      manager.registered.should == [plugin]
     end
 
     it "should register a plugin only once" do
@@ -242,7 +272,7 @@ describe Vagrant::Plugin::V1::Plugin do
         name "bar"
       end
 
-      described_class.registered.should == [plugin]
+      manager.registered.should == [plugin]
     end
   end
 end

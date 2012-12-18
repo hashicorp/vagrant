@@ -2,29 +2,29 @@ require 'optparse'
 
 module VagrantPlugins
   module CommandPackage
-    class Command < Vagrant.plugin("1", :command)
+    class Command < Vagrant.plugin("2", :command)
       def execute
         options = {}
 
-        opts = OptionParser.new do |opts|
-          opts.banner = "Usage: vagrant package [vm-name] [--base name] [--output name.box]"
-          opts.separator "                       [--include one,two,three] [--vagrantfile file]"
+        opts = OptionParser.new do |o|
+          o.banner = "Usage: vagrant package [vm-name] [--base name] [--output name.box]"
+          o.separator "                       [--include one,two,three] [--vagrantfile file]"
 
-          opts.separator ""
+          o.separator ""
 
-          opts.on("--base NAME", "Name of a VM in virtualbox to package as a base box") do |b|
+          o.on("--base NAME", "Name of a VM in virtualbox to package as a base box") do |b|
             options[:base] = b
           end
 
-          opts.on("--output NAME", "Name of the file to output") do |o|
-            options[:output] = o
+          o.on("--output NAME", "Name of the file to output") do |output|
+            options[:output] = output
           end
 
-          opts.on("--include x,y,z", Array, "Additional files to package with the box.") do |i|
+          o.on("--include x,y,z", Array, "Additional files to package with the box.") do |i|
             options[:include] = i
           end
 
-          opts.on("--vagrantfile file", "Vagrantfile to package with the box.") do |v|
+          o.on("--vagrantfile file", "Vagrantfile to package with the box.") do |v|
             options[:vagrantfile] = v
           end
         end
@@ -42,20 +42,28 @@ module VagrantPlugins
 
         # Success, exit status 0
         0
-       end
+      end
 
       protected
 
       def package_base(options)
-        vm = Vagrant::VM.new(options[:base], @env, @env.config.global, :base => true)
-        raise Vagrant::Errors::BaseVMNotFound, :name => options[:base] if !vm.created?
+        # XXX: This whole thing is hardcoded and very temporary. The whole
+        # `vagrant package --base` process is deprecated for something much
+        # better in the future. We just hardcode this to keep VirtualBox working
+        # for now.
+        provider = nil
+        Vagrant.plugin("2").registered.each do |plugin|
+          provider = plugin.provider.get(:virtualbox)
+          break if provider
+        end
+
+        vm = Vagrant::Machine.new(options[:base], provider, @env.config.global, nil, @env, true)
         @logger.debug("Packaging base VM: #{vm.name}")
         package_vm(vm, options)
       end
 
       def package_target(name, options)
         with_target_vms(name, :single_target => true) do |vm|
-          raise Vagrant::Errors::VMNotCreatedError if !vm.created?
           @logger.debug("Packaging VM: #{vm.name}")
           package_vm(vm, options)
         end
@@ -68,7 +76,7 @@ module VagrantPlugins
           acc
         end
 
-        vm.package(opts)
+        vm.action(:package, opts)
       end
     end
   end

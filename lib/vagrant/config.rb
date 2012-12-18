@@ -9,6 +9,7 @@ module Vagrant
     autoload :VersionBase,   'vagrant/config/version_base'
 
     autoload :V1,            'vagrant/config/v1'
+    autoload :V2,            'vagrant/config/v2'
 
     # This is a mutex used to guarantee that only one thread can load
     # procs at any given time.
@@ -19,12 +20,14 @@ module Vagrant
     # `Vagrant.configure` calls.
     VERSIONS = Registry.new
     VERSIONS.register("1") { V1::Loader }
+    VERSIONS.register("2") { V2::Loader }
 
     # This is the order of versions. This is used by the loader to figure out
     # how to "upgrade" versions up to the desired (current) version. The
     # current version is always considered to be the last version in this
     # list.
-    VERSIONS_ORDER = ["1"]
+    VERSIONS_ORDER = ["1", "2"]
+    CURRENT_VERSION = VERSIONS_ORDER.last
 
     # This is the method which is called by all Vagrantfiles to configure Vagrant.
     # This method expects a block which accepts a single argument representing

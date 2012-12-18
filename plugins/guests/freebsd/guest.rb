@@ -5,7 +5,7 @@ module VagrantPlugins
     # A general Vagrant system implementation for "freebsd".
     #
     # Contributed by Kenneth Vestergaard <kvs@binarysolutions.dk>
-    class Guest < Vagrant.plugin("1", :guest)
+    class Guest < Vagrant.plugin("2", :guest)
       # Here for whenever it may be used.
       class FreeBSDError < Vagrant::Errors::VagrantError
         error_namespace("vagrant.guest.freebsd")

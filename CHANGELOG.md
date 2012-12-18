@@ -38,6 +38,38 @@
     using SCP to upload files. [GH-924]
   - When console input is asked for (destroying a VM, bridged interfaces, etc.),
     keystrokes such as ctrl-D and ctrl-C are more gracefully handled. [GH-1017]
+  - Fixed bug where port check would use "localhost" on systems where
+    "localhost" is not available. [GH-1057]
+  - Sending a SIGINT (Ctrl-C) very early on when executing `vagrant` no
+    longer results in an ugly stack trace.
+  - SSH retries in the face of a `EHOSTUNREACH` error, improving the robustness
+    that SSHing succeeds when booting a machine.
+  - Add missing translation for "saving" state on VirtualBox. [GH-1110]
+  - Proper error message if the remote end unexpectedly resets the connection
+    while downloading a box over HTTP. [GH-1090]
+  - Allow "file://" URLs for box URLs. [GH-1087]
+  - Emit "vagrant-mount" upstart event when NFS shares are mounted. [GH-1118]
+  - Chef JSON configuration output is now pretty-printed to be
+    human readable. [GH-1146]
+
+## 1.0.5 (September 18, 2012)
+
+  - Work around a critical bug in VirtualBox 4.2.0 on Windows that
+    causes Vagrant to not work. [GH-1130]
+  - Plugin loading works better on Windows by using the proper
+    file path separator.
+  - NFS works on Fedora 16+. [GH-1140]
+  - NFS works with newer versions of Arch hosts that use systemd. [GH-1142]
+
+## 1.0.4 (September 13, 2012)
+
+  - VirtualBox 4.2 driver. [GH-1120]
+  - Correct `ssh-config` help to use `--host`, not `-h`.
+  - Use "127.0.0.1" instead of "localhost" for port checking to fix problem
+    where "localhost" is not properly setup. [GH-1057]
+  - Disable read timeout on Net::HTTP to avoid `rbuf_fill` error. [GH-1072]
+  - Retry SSH on `EHOSTUNREACH` errors.
+  - Add missing translation for "saving" state. [GH-1110]
 
 ## 1.0.3 (May 1, 2012)
 

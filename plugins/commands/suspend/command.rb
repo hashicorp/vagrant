@@ -2,12 +2,10 @@ require 'optparse'
 
 module VagrantPlugins
   module CommandSuspend
-    class Command < Vagrant.plugin("1", :command)
+    class Command < Vagrant.plugin("2", :command)
       def execute
-        options = {}
-
-        opts = OptionParser.new do |opts|
-          opts.banner = "Usage: vagrant suspend [vm-name]"
+        opts = OptionParser.new do |o|
+          o.banner = "Usage: vagrant suspend [vm-name]"
         end
 
         # Parse the options
@@ -16,18 +14,12 @@ module VagrantPlugins
 
         @logger.debug("'suspend' each target VM...")
         with_target_vms(argv) do |vm|
-          if vm.created?
-            @logger.info("Suspending: #{vm.name}")
-            vm.suspend
-          else
-            @logger.info("Not created: #{vm.name}. Not suspending.")
-            vm.ui.info I18n.t("vagrant.commands.common.vm_not_created")
-          end
+          vm.action(:suspend)
         end
 
         # Success, exit status 0
         0
-       end
+      end
     end
   end
 end

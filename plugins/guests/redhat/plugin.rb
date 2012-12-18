@@ -2,7 +2,7 @@ require "vagrant"
 
 module VagrantPlugins
   module GuestRedHat
-    class Plugin < Vagrant.plugin("1")
+    class Plugin < Vagrant.plugin("2")
       name "RedHat guest"
       description "RedHat guest support."
 

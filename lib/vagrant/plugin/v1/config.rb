@@ -78,6 +78,17 @@ module Vagrant
           end
         end
 
+        # This is called to upgrade this V1 config to V2. The parameter given
+        # is the full V2 configuration object, so you can do anything to it
+        # that you want.
+        #
+        # No return value is expected, modifications should be made directly
+        # to the new V2 object.
+        #
+        # @param [V2::Root] new
+        def upgrade(new)
+        end
+
         # Called after the configuration is finalized and loaded to validate
         # this object.
         #

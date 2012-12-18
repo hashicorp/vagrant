@@ -171,6 +171,10 @@ module Vagrant
       error_key(:file_missing, "vagrant.downloaders.file")
     end
 
+    class DownloaderHTTPConnectReset < VagrantError
+      error_key(:connection_reset, "vagrant.downloaders.http")
+    end
+
     class DownloaderHTTPConnectTimeout < VagrantError
       status_code(79)
       error_key(:connection_timeout, "vagrant.downloaders.http")
@@ -224,6 +228,14 @@ module Vagrant
     class ForwardPortCollisionResume < VagrantError
       status_code(62)
       error_key(:port_collision_resume)
+    end
+
+    class MachineGuestNotReady < VagrantError
+      error_key(:machine_guest_not_ready)
+    end
+
+    class MachineNotFound < VagrantError
+      error_key(:machine_not_found)
     end
 
     class MultiVMEnvironmentRequired < VagrantError
@@ -306,6 +318,10 @@ module Vagrant
       error_key(:dotfile_error, "vagrant.actions.vm.persist")
     end
 
+    class ProviderNotFound < VagrantError
+      error_key(:provider_not_found)
+    end
+
     class PluginLoadError < VagrantError
       status_code(81)
       error_key(:plugin_load_error)
@@ -356,6 +372,10 @@ module Vagrant
       error_key(:ssh_key_type_not_supported)
     end
 
+    class SSHNotReady < VagrantError
+      error_key(:ssh_not_ready)
+    end
+
     class SSHPortNotDetected < VagrantError
       status_code(50)
       error_key(:ssh_port_not_detected)
@@ -374,6 +394,10 @@ module Vagrant
     class UIExpectsTTY < VagrantError
       status_code(73)
       error_key(:ui_expects_tty)
+    end
+
+    class UnimplementedProviderAction < VagrantError
+      error_key(:unimplemented_provider_action)
     end
 
     class VagrantInterrupt < VagrantError

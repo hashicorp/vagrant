@@ -4,26 +4,11 @@
 # Vagrant stuff
 acceptance_config.yml
 boxes/*
-test/buildbot/config.cfg
-test/buildbot/env
-test/buildbot/master/http.log
-test/buildbot/master/master.cfg.sample
-test/buildbot/master/twistd.log
-test/buildbot/master/twistd.pid
-test/buildbot/master/state.sqlite
-test/buildbot/master/osx-*/
-test/buildbot/master/linux-*/
-test/buildbot/master/win-*/
-test/buildbot/slave/twistd.hostname
-test/buildbot/slave/twistd.log
-test/buildbot/slave/twistd.pid
-test/buildbot/slave/osx-*/
-test/buildbot/slave/linux-*/
-test/buildbot/slave/win-*/
 Vagrantfile
 .vagrant
 
 # Bundler/Rubygems
+*.gem
 .bundle
 pkg/*
 tags

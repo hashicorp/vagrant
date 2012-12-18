@@ -2,7 +2,7 @@ require 'optparse'
 
 module VagrantPlugins
   module CommandSSH
-    class Command < Vagrant.plugin("1", :command)
+    class Command < Vagrant.plugin("2", :command)
       def execute
         options = {}
 
@@ -37,53 +37,29 @@ module VagrantPlugins
 
         # Execute the actual SSH
         with_target_vms(argv, :single_target => true) do |vm|
-          # Basic checks that are required for proper SSH
-          raise Vagrant::Errors::VMNotCreatedError if !vm.created?
-          raise Vagrant::Errors::VMInaccessible if !vm.state == :inaccessible
-          raise Vagrant::Errors::VMNotRunningError if vm.state != :running
-
           if options[:command]
-            ssh_execute(vm, options[:command])
+            @logger.debug("Executing single command on remote machine: #{options[:command]}")
+            env = vm.action(:ssh_run, :ssh_run_command => options[:command])
+
+            # Exit with the exit status of the command or a 0 if we didn't
+            # get one.
+            exit_status = env[:ssh_run_exit_status] || 0
+            return exit_status
           else
             opts = {
               :plain_mode => options[:plain_mode],
               :extra_args => options[:ssh_args]
             }
 
-            ssh_connect(vm, opts)
+            @logger.debug("Invoking `ssh` action on machine")
+            vm.action(:ssh, :ssh_opts => opts)
+
+            # We should never reach this point, since the point of `ssh`
+            # is to exec into the proper SSH shell, but we'll just return
+            # an exit status of 0 anyways.
+            return 0
           end
         end
-
-        # Success, exit status 0
-        0
-       end
-
-      protected
-
-      def ssh_execute(vm, command=nil)
-        exit_status = 0
-
-        @logger.debug("Executing command: #{command}")
-        exit_status = vm.channel.execute(command, :error_check => false) do |type, data|
-          # Determine the proper channel to send the output onto depending
-          # on the type of data we are receiving.
-          channel = type == :stdout ? :out : :error
-
-          # Print the SSH output as it comes in, but don't prefix it and don't
-          # force a new line so that the output is properly preserved
-          vm.ui.info(data.to_s,
-                     :prefix => false,
-                     :new_line => false,
-                     :channel => channel)
-        end
-
-        # Exit with the exit status we got from executing the command
-        exit exit_status
-      end
-
-      def ssh_connect(vm, opts)
-        @logger.debug("`exec` into ssh prompt")
-        vm.ssh.exec(opts)
       end
     end
   end

@@ -2,7 +2,7 @@ require "vagrant"
 
 module VagrantPlugins
   module GuestFreeBSD
-    class Plugin < Vagrant.plugin("1")
+    class Plugin < Vagrant.plugin("2")
       name "FreeBSD guest"
       description "FreeBSD guest support."
 

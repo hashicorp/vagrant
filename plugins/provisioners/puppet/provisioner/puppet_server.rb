@@ -5,8 +5,8 @@ module VagrantPlugins
         error_namespace("vagrant.provisioners.puppet_server")
       end
 
-      class PuppetServer < Vagrant.plugin("1", :provisioner)
-        class Config < Vagrant.plugin("1", :config)
+      class PuppetServer < Vagrant.plugin("2", :provisioner)
+        class Config < Vagrant.plugin("2", :config)
           attr_accessor :puppet_server
           attr_accessor :puppet_node
           attr_accessor :options
@@ -67,11 +67,12 @@ module VagrantPlugins
             facter = "#{facts.join(" ")} "
           end
 
-          command = "#{facter}puppet agent #{options} --server #{config.puppet_server}"
+          command = "#{facter}puppet agent #{options} --server #{config.puppet_server} --detailed-exitcodes || [ $? -eq 2 ]"
 
           env[:ui].info I18n.t("vagrant.provisioners.puppet_server.running_puppetd")
           env[:vm].channel.sudo(command) do |type, data|
-            env[:ui].info(data.chomp, :prefix => false)
+            data.chomp!
+            env[:ui].info(data, :prefix => false) if !data.empty?
           end
         end
       end

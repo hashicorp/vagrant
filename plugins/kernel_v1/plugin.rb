@@ -11,20 +11,34 @@ module VagrantPlugins
       basic functionality of Vagrant version 1.
       DESC
 
-      activated do
+      # Core configuration keys provided by the kernel. Note that all
+      # the kernel configuration classes are marked as _upgrade safe_ (the
+      # true 2nd param). This means that these can be loaded in ANY version
+      # of the core of Vagrant.
+      config("ssh", true) do
         require File.expand_path("../config/ssh", __FILE__)
-        require File.expand_path("../config/nfs", __FILE__)
-        require File.expand_path("../config/package", __FILE__)
-        require File.expand_path("../config/vagrant", __FILE__)
-        require File.expand_path("../config/vm", __FILE__)
+        SSHConfig
       end
 
-      # Core configuration keys provided by the kernel.
-      config("ssh")     { SSHConfig }
-      config("nfs")     { NFSConfig }
-      config("package") { PackageConfig }
-      config("vagrant") { VagrantConfig }
-      config("vm")      { VMConfig }
+      config("nfs", true) do
+        require File.expand_path("../config/nfs", __FILE__)
+        NFSConfig
+      end
+
+      config("package", true) do
+        require File.expand_path("../config/package", __FILE__)
+        PackageConfig
+      end
+
+      config("vagrant", true) do
+        require File.expand_path("../config/vagrant", __FILE__)
+        VagrantConfig
+      end
+
+      config("vm", true) do
+        require File.expand_path("../config/vm", __FILE__)
+        VMConfig
+      end
     end
   end
 end

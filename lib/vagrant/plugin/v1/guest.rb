@@ -27,9 +27,8 @@ module Vagrant
         # Vagrant can successfully SSH into the machine) to give the system a chance
         # to determine the distro and return a distro-specific system.
         #
-        # **Warning:** If a return value which subclasses from {Base} is
-        # returned, Vagrant will use it as the new system instance for the
-        # class.
+        # If this method returns nil, then this instance is assumed to be
+        # the most specific guest implementation.
         def distro_dispatch
         end
 

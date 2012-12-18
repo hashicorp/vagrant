@@ -8,10 +8,6 @@ describe Vagrant::Downloaders::Base do
     described_class.match?("foo").should_not be
   end
 
-  it "should implement `prepare`" do
-    instance.prepare("foo").should be_nil
-  end
-
   it "should implement `download!`" do
     instance.download!("foo", "bar").should be_nil
   end

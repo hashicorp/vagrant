@@ -2,7 +2,7 @@ require "vagrant"
 
 module VagrantPlugins
   module HostArch
-    class Plugin < Vagrant.plugin("1")
+    class Plugin < Vagrant.plugin("2")
       name "Arch host"
       description "Arch host support."
 

@@ -2,7 +2,7 @@ require "vagrant"
 
 module VagrantPlugins
   module HostGentoo
-    class Plugin < Vagrant.plugin("1")
+    class Plugin < Vagrant.plugin("2")
       name "Gentoo host"
       description "Gentoo host support."
 

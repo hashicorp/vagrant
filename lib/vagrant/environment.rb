@@ -99,9 +99,14 @@ module Vagrant
 
       # Load the plugins
       load_plugins
+    end
 
-      # Activate the plugins
-      activate_plugins
+    # Return a human-friendly string for pretty printed or inspected
+    # instances.
+    #
+    # @return [String]
+    def inspect
+      "#<#{self.class}: #{@cwd}>"
     end
 
     #---------------------------------------------------------------
@@ -114,7 +119,7 @@ module Vagrant
     # @return [Pathname]
     def dotfile_path
       return nil if !root_path
-      root_path.join(File.expand_path(config.global.vagrant.dotfile_name))
+      root_path.join(config.global.vagrant.dotfile_name)
     end
 
     # Returns the collection of boxes for the environment.
@@ -122,6 +127,47 @@ module Vagrant
     # @return [BoxCollection]
     def boxes
       @_boxes ||= BoxCollection.new(boxes_path)
+    end
+
+    # This returns a machine with the proper provider for this environment.
+    # The machine named by `name` must be in this environment.
+    #
+    # @param [Symbol] name Name of the machine (as configured in the
+    #   Vagrantfile).
+    # @param [Symbol] provider The provider that this machine should be
+    #   backed by.
+    # @return [Machine]
+    def machine(name, provider)
+      # Compose the cache key of the name and provider, and return from
+      # the cache if we have that.
+      cache_key = [name, provider]
+      @machines ||= {}
+      return @machines[cache_key] if @machines.has_key?(cache_key)
+
+      vm_config = config.for_vm(name)
+      if !vm_config
+        raise Errors::MachineNotFound, :name => name, :provider => provider
+      end
+
+      provider_cls = Vagrant.plugin("2").manager.providers[provider]
+      if !provider_cls
+        raise Errors::ProviderNotFound, :machine => name, :provider => provider
+      end
+
+      box = boxes.find(vm_config.vm.box, provider)
+
+      # Create the machine and cache it for future calls. This will also
+      # return the machine from this method.
+      @machines[cache_key] = Machine.new(name, provider_cls, vm_config, box, self)
+    end
+
+    # This returns a list of the configured machines for this environment.
+    # Each of the names returned by this method is valid to be used with
+    # the {#machine} method.
+    #
+    # @return [Array<Symbol>] Configured machine names.
+    def machine_names
+      config.vms
     end
 
     # Returns the VMs associated with this environment.
@@ -186,17 +232,14 @@ module Vagrant
       # will return nil, and we don't want to trigger a detect load.
       host_klass = config.global.vagrant.host
       if host_klass.nil? || host_klass == :detect
-        hosts = {}
-        Vagrant.plugin("1").registered.each do |plugin|
-          hosts = hosts.merge(plugin.host.to_hash)
-        end
+        hosts = Vagrant.plugin("2").manager.hosts
 
         # Get the flattened list of available hosts
         host_klass = Hosts.detect(hosts)
       end
 
       # If no host class is detected, we use the base class.
-      host_klass ||= Vagrant.plugin("1", :host)
+      host_klass ||= Vagrant.plugin("2", :host)
 
       @host ||= host_klass.new(@ui)
     end
@@ -205,7 +248,7 @@ module Vagrant
     #
     # @return [Action::Runner]
     def action_runner
-      @action_runner ||= Action::Runner.new(action_registry) do
+      @action_runner ||= Action::Runner.new do
         {
           :action_runner  => action_runner,
           :box_collection => boxes,
@@ -216,16 +259,6 @@ module Vagrant
           :ui             => @ui
         }
       end
-    end
-
-    # Action registry for registering new actions with this environment.
-    #
-    # @return [Registry]
-    def action_registry
-      # For now we return the global built-in actions registry. In the future
-      # we may want to create an isolated registry that inherits from this
-      # global one, but for now there isn't a use case that calls for it.
-      Vagrant.actions
     end
 
     # Loads on initial access and reads data from the global data store.
@@ -396,10 +429,6 @@ module Vagrant
           config_loader.set(:vm, subvm.config_procs)
         end
 
-        # We activate plugins here because the files which we're loading
-        # configuration from may have defined new plugins as well.
-        activate_plugins
-
         # Execute the configuration stack and store the result as the final
         # value in the config ivar.
         config_loader.load
@@ -445,11 +474,18 @@ module Vagrant
 
     # Loads the persisted VM (if it exists) for this environment.
     def load_vms!
-      result = {}
+      # This is hardcoded for now.
+      provider = Vagrant.plugin("2").manager.providers[:virtualbox]
+
+      raise "VirtualBox provider not found." if !provider
 
       # Load all the virtual machine instances.
+      result = {}
       config.vms.each do |name|
-        result[name] = Vagrant::VM.new(name, self, config.for_vm(name))
+        vm_config = config.for_vm(name)
+        box       = boxes.find(vm_config.vm.box, :virtualbox)
+
+        result[name] = Vagrant::Machine.new(name, provider, vm_config, box, self)
       end
 
       result
@@ -518,14 +554,6 @@ module Vagrant
       end
 
       nil
-    end
-
-    # This finds all the current plugins and activates them. This is an
-    # idempotent call so it is safe to call this as much as you need.
-    def activate_plugins
-      Vagrant.plugin("1").registered.each do |plugin|
-        plugin.activate!
-      end
     end
 
     # Loads the Vagrant plugins by properly setting up RubyGems so that

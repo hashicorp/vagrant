@@ -66,7 +66,6 @@ module Vagrant
   autoload :BoxCollection, 'vagrant/box_collection'
   autoload :CLI,           'vagrant/cli'
   autoload :Command,       'vagrant/command'
-  autoload :Communication, 'vagrant/communication'
   autoload :Config,        'vagrant/config'
   autoload :DataStore,     'vagrant/data_store'
   autoload :Downloaders,   'vagrant/downloaders'
@@ -76,27 +75,32 @@ module Vagrant
   autoload :Errors,        'vagrant/errors'
   autoload :Guest,         'vagrant/guest'
   autoload :Hosts,         'vagrant/hosts'
+  autoload :Machine,       'vagrant/machine'
   autoload :Plugin,        'vagrant/plugin'
-  autoload :SSH,           'vagrant/ssh'
   autoload :TestHelpers,   'vagrant/test_helpers'
   autoload :UI,            'vagrant/ui'
   autoload :Util,          'vagrant/util'
-  autoload :VM,            'vagrant/vm'
 
   # These are the various plugin versions and their components in
   # a lazy loaded Hash-like structure.
-  c = PLUGIN_COMPONENTS = Registry.new
-  c.register(:"1")                 { Plugin::V1::Plugin }
-  c.register([:"1", :command])     { Plugin::V1::Command }
-  c.register([:"1", :config])      { Plugin::V1::Config }
-  c.register([:"1", :guest])       { Plugin::V1::Guest }
-  c.register([:"1", :host])        { Plugin::V1::Host }
-  c.register([:"1", :provisioner]) { Plugin::V1::Provisioner }
+  PLUGIN_COMPONENTS = Registry.new.tap do |c|
+    c.register(:"1")                  { Plugin::V1::Plugin }
+    c.register([:"1", :command])      { Plugin::V1::Command }
+    c.register([:"1", :communicator]) { Plugin::V1::Communicator }
+    c.register([:"1", :config])       { Plugin::V1::Config }
+    c.register([:"1", :guest])        { Plugin::V1::Guest }
+    c.register([:"1", :host])         { Plugin::V1::Host }
+    c.register([:"1", :provider])     { Plugin::V1::Provider }
+    c.register([:"1", :provisioner])  { Plugin::V1::Provisioner }
 
-  # Returns a `Vagrant::Registry` object that contains all the built-in
-  # middleware stacks.
-  def self.actions
-    @actions ||= Vagrant::Action::Builtin.new
+    c.register(:"2")                  { Plugin::V2::Plugin }
+    c.register([:"2", :command])      { Plugin::V2::Command }
+    c.register([:"2", :communicator]) { Plugin::V2::Communicator }
+    c.register([:"2", :config])       { Plugin::V2::Config }
+    c.register([:"2", :guest])        { Plugin::V2::Guest }
+    c.register([:"2", :host])         { Plugin::V2::Host }
+    c.register([:"2", :provider])     { Plugin::V2::Provider }
+    c.register([:"2", :provisioner])  { Plugin::V2::Provisioner }
   end
 
   # The source root is the path to the root directory of

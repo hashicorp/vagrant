@@ -2,12 +2,10 @@ require 'optparse'
 
 module VagrantPlugins
   module CommandResume
-    class Command < Vagrant.plugin("1", :command)
+    class Command < Vagrant.plugin("2", :command)
       def execute
-        options = {}
-
-        opts = OptionParser.new do |opts|
-          opts.banner = "Usage: vagrant resume [vm-name]"
+        opts = OptionParser.new do |o|
+          o.banner = "Usage: vagrant resume [vm-name]"
         end
 
         # Parse the options
@@ -15,19 +13,13 @@ module VagrantPlugins
         return if !argv
 
         @logger.debug("'resume' each target VM...")
-        with_target_vms(argv) do |vm|
-          if vm.created?
-            @logger.info("Resume: #{vm.name}")
-            vm.resume
-          else
-            @logger.info("Not created: #{vm.name}. Not resuming.")
-            vm.ui.info I18n.t("vagrant.commands.common.vm_not_created")
-          end
+        with_target_vms(argv) do |machine|
+          machine.action(:resume)
         end
 
         # Success, exit status 0
         0
-       end
+      end
     end
   end
 end

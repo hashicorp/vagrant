@@ -6,7 +6,7 @@ require Vagrant.source_root.join("plugins/commands/up/start_mixins")
 
 module VagrantPlugins
   module CommandReload
-    class Command < Vagrant.plugin("1", :command)
+    class Command < Vagrant.plugin("2", :command)
       # We assume that the `up` plugin exists and that we'll have access
       # to this.
       include VagrantPlugins::CommandUp::StartMixins
@@ -14,10 +14,10 @@ module VagrantPlugins
       def execute
         options = {}
 
-        opts = OptionParser.new do |opts|
-          opts.banner = "Usage: vagrant reload [vm-name]"
-          opts.separator ""
-          build_start_options(opts, options)
+        opts = OptionParser.new do |o|
+          o.banner = "Usage: vagrant reload [vm-name]"
+          o.separator ""
+          build_start_options(o, options)
         end
 
         # Parse the options
@@ -25,19 +25,13 @@ module VagrantPlugins
         return if !argv
 
         @logger.debug("'reload' each target VM...")
-        with_target_vms(argv) do |vm|
-          if vm.created?
-            @logger.info("Reloading: #{vm.name}")
-            vm.reload(options)
-          else
-            @logger.info("Not created: #{vm.name}. Not reloading.")
-            vm.ui.info I18n.t("vagrant.commands.common.vm_not_created")
-          end
+        with_target_vms(argv) do |machine|
+          machine.action(:reload)
         end
 
         # Success, exit status 0
         0
-       end
+      end
     end
   end
 end

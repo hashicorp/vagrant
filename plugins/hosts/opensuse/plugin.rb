@@ -2,7 +2,7 @@ require "vagrant"
 
 module VagrantPlugins
   module HostOpenSUSE
-    class Plugin < Vagrant.plugin("1")
+    class Plugin < Vagrant.plugin("2")
       name "OpenSUSE host"
       description "OpenSUSE host support."
 

@@ -10,7 +10,7 @@ module Vagrant
     class HTTP < Base
       def self.match?(uri)
         # URI.parse barfs on '<drive letter>:\\files \on\ windows'
-        extracted = URI.extract(uri).first
+        extracted = URI.extract(uri, ['http', 'https']).first
         extracted && extracted.include?(uri)
       end
 
@@ -69,6 +69,8 @@ module Vagrant
             @ui.clear_line
           end
         end
+      rescue Errno::ECONNRESET
+        raise Errors::DownloaderHTTPConnectReset
       rescue Errno::ETIMEDOUT
         raise Errors::DownloaderHTTPConnectTimeout
       rescue SocketError

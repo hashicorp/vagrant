@@ -2,7 +2,7 @@ require "vagrant"
 
 module VagrantPlugins
   module GuestDebian
-    class Plugin < Vagrant.plugin("1")
+    class Plugin < Vagrant.plugin("2")
       name "Debian guest"
       description "Debian guest support."
 

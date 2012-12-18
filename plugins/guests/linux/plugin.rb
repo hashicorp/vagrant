@@ -2,7 +2,7 @@ require "vagrant"
 
 module VagrantPlugins
   module GuestLinux
-    class Plugin < Vagrant.plugin("1")
+    class Plugin < Vagrant.plugin("2")
       name "Linux guest."
       description "Linux guest support."
 
