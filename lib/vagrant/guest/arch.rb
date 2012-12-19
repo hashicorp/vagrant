@@ -31,6 +31,18 @@ module Vagrant
             vm.channel.sudo("sed -i 's@^\\(127[.]0[.]0[.]1[[:space:]]\\+\\)@\\1#{name} @' /etc/hosts")
           end
         end
+
+        def configure_networks(networks)
+          networks.each do |network|
+            case network[:type]
+            when :static
+              vm.channel.sudo("ip addr add #{network[:ip]}/#{network[:netmask]} dev eth#{network[:interface]}")
+              vm.channel.sudo("ip link set dev eth#{network[:interface]} up")
+            when :dhcp
+              vm.channel.sudo("systemctl start dhcpcd@eth#{network[:interface]}")
+            end
+          end
+        end
       end
 
       module SysVInit
