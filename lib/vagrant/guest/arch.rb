@@ -57,6 +57,8 @@ module Vagrant
             return if count >= vm.config.linux.halt_timeout
             sleep vm.config.linux.halt_check_interval
           end
+        rescue IOError
+          raise Errors::SSHConnectionClosed.new
         end
       end
 
