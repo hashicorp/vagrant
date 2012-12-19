@@ -8,7 +8,22 @@ module Vagrant
     class Arch < Linux
       def initialize(*args)
         super
-        extend SysVInit
+        if systemd?
+          extend Systemd
+        else
+          extend SysVInit
+        end
+      end
+
+      def systemd?
+        vm.channel.test("which systemctl &>/dev/null")
+      end
+      protected :systemd?
+
+      module Systemd
+        # Make the TemplateRenderer top-level
+        include Vagrant::Util
+
       end
 
       module SysVInit
