@@ -121,9 +121,11 @@ describe Vagrant::BoxCollection do
       environment.box2("bar", :ec2)
 
       # Verify some output
-      results = instance.all.sort
+      results = instance.all
       results.length.should == 3
-      results.should == [["foo", :virtualbox], ["foo", :vmware], ["bar", :ec2]].sort
+      results.include?(["foo", :virtualbox]).should be
+      results.include?(["foo", :vmware]).should be
+      results.include?(["bar", :ec2]).should be
     end
 
     it "should return V1 boxes as well" do
