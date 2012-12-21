@@ -1,4 +1,4 @@
-## 1.0.6 (unreleased)
+## 1.0.6 (December 21, 2012)
 
   - Shell provisioner outputs proper line endings on Windows [GH-1164]
   - SSH upload opens file to stream which fixes strange upload issues.
