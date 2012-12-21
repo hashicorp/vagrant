@@ -97,6 +97,14 @@ describe Vagrant::Environment do
   end
 
   describe "primary VM" do
+    before do
+      # This is really nasty but we do this to remove the dependency on
+      # having VirtualBox installed to run tests.
+      Vagrant::Driver::VirtualBox.stub(:new) do |uuid|
+        double("vm-#{uuid}")
+      end
+    end
+
     it "should be the only VM if not a multi-VM environment" do
       instance.primary_vm.should == instance.vms.values.first
     end
