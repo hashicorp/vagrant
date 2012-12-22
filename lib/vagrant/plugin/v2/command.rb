@@ -110,7 +110,7 @@ module Vagrant
 
           # Make sure we're only working with one VM if single target
           if options[:single_target] && machines.length != 1
-            primary = @env.primary_machine
+            primary = @env.primary_machine(provider)
             raise Errors::MultiVMTargetRequired if !primary
             machines = [primary]
           end

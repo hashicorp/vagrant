@@ -111,7 +111,7 @@ describe Vagrant::Environment do
 
   describe "primary machine" do
     it "should be the only machine if not a multi-machine environment" do
-      instance.primary_machine.name.should == instance.machine_names.first
+      instance.primary_machine(:virtualbox).name.should == instance.machine_names.first
     end
 
     it "should be the machine marked as the primary" do
@@ -128,7 +128,7 @@ VF
       end
 
       env = environment.create_vagrant_env
-      env.primary_machine.name.should == :bar
+      env.primary_machine(:virtualbox).name.should == :bar
     end
   end
 

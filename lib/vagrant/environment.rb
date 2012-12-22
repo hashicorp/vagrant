@@ -230,14 +230,15 @@ module Vagrant
     # method is only applicable for multi-VM environments. This can
     # potentially be nil if no primary VM is specified.
     #
+    # @param [Symbol] provider The provider to back the primary machine.
     # @return [VM]
-    def primary_machine
+    def primary_machine(provider)
       if machine_names.length == 1
-        return machine(machine_names[0], :virtualbox)
+        return machine(machine_names[0], provider)
       end
 
       config_global.vm.defined_vms.each do |name, subvm|
-        return machine(name, :virtualbox) if subvm.options[:primary]
+        return machine(name, provider) if subvm.options[:primary]
       end
 
       nil
