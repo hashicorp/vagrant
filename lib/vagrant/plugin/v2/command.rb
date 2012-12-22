@@ -61,8 +61,9 @@ module Vagrant
         # specific VM name is specified.
         #
         # @param [String] name The name of the VM. Nil if every VM.
-        # @param [Boolean] single_target If true, then an exception will be
-        #   raised if more than one target is found.
+        # @param [Hash] options Additional tweakable settings.
+        # @option options [Boolean] :single_target If true, then an
+        #   exception will be raised if more than one target is found.
         def with_target_vms(names=nil, options=nil)
           # Using VMs requires a Vagrant environment to be properly setup
           raise Errors::NoEnvironmentError if !@env.root_path
@@ -73,6 +74,9 @@ module Vagrant
           # Require that names be an array
           names ||= []
           names = [names] if !names.is_a?(Array)
+
+          # The provider that we'll be loading up.
+          provider = @env.default_provider
 
           # First determine the proper array of VMs.
           machines = []
@@ -85,14 +89,14 @@ module Vagrant
 
                 @env.machine_names.each do |machine_name|
                   if machine_name =~ regex
-                    machines << @env.machine(machine_name, :virtualbox)
+                    machines << @env.machine(machine_name, provider)
                   end
                 end
 
                 raise Errors::VMNoMatchError if machines.empty?
               else
                 # String name, just look for a specific VM
-                machines << @env.machine(name.to_sym, :virtualbox)
+                machines << @env.machine(name.to_sym, provider)
                 raise Errors::VMNotFoundError, :name => name if !machines[0]
               end
             end
@@ -100,7 +104,7 @@ module Vagrant
             # No name was given, so we return every VM in the order
             # configured.
             machines = @env.machine_names.map do |machine_name|
-              @env.machine(machine_name, :virtualbox)
+              @env.machine(machine_name, provider)
             end
           end
 

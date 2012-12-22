@@ -122,6 +122,16 @@ module Vagrant
     # Helpers
     #---------------------------------------------------------------
 
+    # This returns the provider name for the default provider for this
+    # environment. The provider returned is currently hardcoded to "virtualbox"
+    # but one day should be a detected valid, best-case provider for this
+    # environment.
+    #
+    # @return [Symbol] Name of the default provider.
+    def default_provider
+      :virtualbox
+    end
+
     # The path to the `dotfile`, which contains the persisted UUID of
     # the VM if it exists.
     #

@@ -72,6 +72,12 @@ describe Vagrant::Environment do
     end
   end
 
+  describe "default provider" do
+    it "should return virtualbox" do
+      instance.default_provider.should == :virtualbox
+    end
+  end
+
   describe "copying the private SSH key" do
     it "copies the SSH key into the home directory" do
       env = isolated_environment

@@ -53,8 +53,11 @@ describe Vagrant::Plugin::V2::Command do
       end
     end
 
+    let(:default_provider) { :virtualbox }
+
     let(:environment) do
       env = double("environment")
+      env.stub(:default_provider => default_provider)
       env.stub(:root_path => "foo")
       env
     end
@@ -76,8 +79,8 @@ describe Vagrant::Plugin::V2::Command do
       bar_vm.stub(:name).and_return("bar")
 
       environment.stub(:machine_names => [:foo, :bar])
-      environment.stub(:machine).with(:foo, :virtualbox).and_return(foo_vm)
-      environment.stub(:machine).with(:bar, :virtualbox).and_return(bar_vm)
+      environment.stub(:machine).with(:foo, default_provider).and_return(foo_vm)
+      environment.stub(:machine).with(:bar, default_provider).and_return(bar_vm)
 
       vms = []
       instance.with_target_vms do |vm|
@@ -98,7 +101,7 @@ describe Vagrant::Plugin::V2::Command do
     it "yields the given VM if a name is given" do
       foo_vm = double("foo")
 
-      environment.stub(:machine).with(:foo, :virtualbox).and_return(foo_vm)
+      environment.stub(:machine).with(:foo, default_provider).and_return(foo_vm)
 
       vms = []
       instance.with_target_vms("foo") { |vm| vms << vm }
