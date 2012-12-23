@@ -49,21 +49,25 @@ module Vagrant
 
           # Something went horribly wrong. Start the rescue chain then
           # reraise the exception to properly kick us out of limbo here.
-          begin_rescue(env)
+          recover(env)
           raise
         end
       end
 
-      # Begins the recovery sequence for all middlewares which have run.
-      # It does this by calling `recover` (if it exists) on each middleware
-      # which has already run, in reverse order.
-      def begin_rescue(env)
+      # We implement the recover method ourselves in case a Warden is
+      # embedded within another Warden. To recover, we just do our own
+      # recovery process on our stack.
+      def recover(env)
+        @logger.info("Beginning recovery process...")
+
         @stack.each do |act|
           if act.respond_to?(:recover)
             @logger.info("Calling recover: #{act}")
             act.recover(env)
           end
         end
+
+        @logger.info("Recovery complete.")
 
         # Clear stack so that warden down the middleware chain doesn't
         # rescue again.

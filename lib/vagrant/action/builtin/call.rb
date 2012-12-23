@@ -29,6 +29,7 @@ module Vagrant
           @app      = app
           @callable = callable
           @block    = block
+          @child_app = nil
         end
 
         def call(env)
@@ -42,10 +43,16 @@ module Vagrant
           @block.call(new_env, builder)
 
           # Run the result with our new environment
-          final_env = runner.run(builder, new_env)
+          @child_app = builder.to_app(new_env)
+          final_env = runner.run(@child_app, new_env)
 
           # Call the next step using our final environment
           @app.call(final_env)
+        end
+
+        def recover(env)
+          # Call back into our compiled application and recover it.
+          @child_app.recover(env) if @child_app
         end
       end
     end

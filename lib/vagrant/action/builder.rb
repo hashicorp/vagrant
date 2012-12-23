@@ -104,16 +104,6 @@ module Vagrant
         nil
       end
 
-      protected
-
-      # Returns the current stack of middlewares. You probably won't
-      # need to use this directly, and it's recommended that you don't.
-      #
-      # @return [Array]
-      def stack
-        @stack ||= []
-      end
-
       # Converts the builder stack to a runnable action sequence.
       #
       # @param [Vagrant::Action::Environment] env The action environment
@@ -122,6 +112,16 @@ module Vagrant
         # Wrap the middleware stack with the Warden to provide a consistent
         # and predictable behavior upon exceptions.
         Warden.new(stack.dup, env)
+      end
+
+      protected
+
+      # Returns the current stack of middlewares. You probably won't
+      # need to use this directly, and it's recommended that you don't.
+      #
+      # @return [Array]
+      def stack
+        @stack ||= []
       end
     end
   end
