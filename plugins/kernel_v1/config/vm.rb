@@ -75,9 +75,10 @@ module VagrantPlugins
         @provisioners << VagrantConfigProvisioner.new(name, options, &block)
       end
 
-      # TODO: This argument should not be `nil` in the future.
-      # It is only defaulted to nil so that the deprecation error
-      # can be properly shown.
+      # This argument is nil only because the old style was deprecated and
+      # we didn't want to break Vagrantfiles. This was never removed and
+      # since we've moved onto V2 configuration, we might as well keep this
+      # around forever.
       def customize(command=nil)
         @customizations << command if command
       end
