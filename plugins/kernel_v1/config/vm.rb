@@ -130,6 +130,14 @@ module VagrantPlugins
         new.vm.guest           = self.guest if self.guest
         new.vm.host_name       = self.host_name if self.host_name
 
+        # If we have VM customizations, then we enable them on the
+        # VirtualBox provider on the new VM.
+        if self.customizations.length > 0
+          self.customizations.each do |customization|
+            new.vm.providers[:virtualbox].config.customize(customization)
+          end
+        end
+
         # XXX: Warning: `vm.name` is useless now
       end
     end
