@@ -28,8 +28,12 @@ module VagrantPlugins
         @forwarded_ports = []
         @shared_folders = {}
         @networks = []
-        @providers = {}
         @provisioners = []
+
+        # The providers hash defaults any key to a provider object
+        @providers = Hash.new do |hash, key|
+          hash[key] = VagrantConfigProvider.new(key, nil)
+        end
       end
 
       # Custom merge method since some keys here are merged differently.

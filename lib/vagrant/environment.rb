@@ -213,9 +213,7 @@ module Vagrant
       end
 
       # Get the provider configuration from the final loaded configuration
-      vm_provider = config.vm.providers[provider]
-      provider_config = nil
-      provider_config = vm_provider.config if vm_provider
+      provider_config = config.vm.providers[provider].config
 
       # Create the machine and cache it for future calls. This will also
       # return the machine from this method.
