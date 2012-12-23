@@ -7,6 +7,9 @@ require File.expand_path("../vm_subvm", __FILE__)
 
 module VagrantPlugins
   module Kernel_V1
+    # This is the Version 1.0.x Vagrant VM configuration. This is
+    # _outdated_ and exists purely to be upgraded over to the new V2
+    # format.
     class VMConfig < Vagrant.plugin("1", :config)
       DEFAULT_VM_NAME = :default
 
@@ -72,7 +75,7 @@ module VagrantPlugins
       end
 
       def provision(name, options=nil, &block)
-        @provisioners << VagrantConfigProvisioner.new(name, options, &block)
+        @provisioners << [name, options, block]
       end
 
       # This argument is nil only because the old style was deprecated and
@@ -151,7 +154,10 @@ module VagrantPlugins
           new.vm.network(type, *args)
         end
 
-        # TODO: Provisioners
+        # Provisioners
+        self.provisioners.each do |name, options, block|
+          new.vm.provision(name, options, &block)
+        end
 
         # Shared folders
         self.shared_folders.each do |name, sf|
