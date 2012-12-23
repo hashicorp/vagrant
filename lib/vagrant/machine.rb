@@ -80,7 +80,7 @@ module Vagrant
     #   as extra data set on the environment hash for the middleware
     #   runner.
     def action(name, extra_env=nil)
-      @logger.debug("Calling action: #{name} on provider #{@provider}")
+      @logger.info("Calling action: #{name} on provider #{@provider}")
 
       # Get the callable from the provider.
       callable = @provider.action(name)

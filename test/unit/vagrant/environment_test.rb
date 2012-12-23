@@ -111,7 +111,7 @@ describe Vagrant::Environment do
 
   describe "primary machine" do
     it "should be the only machine if not a multi-machine environment" do
-      instance.primary_machine(:virtualbox).name.should == instance.machine_names.first
+      instance.primary_machine(:dummy).name.should == instance.machine_names.first
     end
 
     it "should be the machine marked as the primary" do
@@ -128,7 +128,7 @@ VF
       end
 
       env = environment.create_vagrant_env
-      env.primary_machine(:virtualbox).name.should == :bar
+      env.primary_machine(:dummy).name.should == :bar
     end
   end
 
@@ -280,28 +280,6 @@ VF
       machine = env.machine(:vm1, :foo)
       machine.config.ssh.port.should == 100
       machine.config.vagrant.dotfile_name.should == "foo"
-    end
-
-    it "should load a machine configured with a V1 box" do
-      register_provider("foo")
-
-      environment = isolated_environment do |env|
-        env.vagrantfile(<<-VF)
-Vagrant.configure("2") do |config|
-  config.vm.box = "base"
-end
-VF
-
-        env.box("base", <<-VF)
-Vagrant.configure("2") do |config|
-  config.ssh.port = 100
-end
-VF
-      end
-
-      env = environment.create_vagrant_env
-      machine = env.machine(:default, :virtualbox)
-      machine.config.ssh.port.should == 100
     end
 
     it "should load the box configuration for a V2 box" do
