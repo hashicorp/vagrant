@@ -37,9 +37,11 @@ module VagrantPlugins
             return if env["vagrant.error"].is_a?(Vagrant::Errors::VagrantError)
 
             # Interrupted, destroy the VM. We note that we don't want to
-            # validate the configuration here.
+            # validate the configuration here, and we don't want to confirm
+            # we want to destroy.
             destroy_env = env.clone
             destroy_env[:validate] = false
+            destroy_env[:force_confirm_destroy] = true
             env[:action_runner].run(Action.action_destroy, destroy_env)
           end
         end
