@@ -9,15 +9,25 @@ module Vagrant
         # For documentation, read the description of the {Confirm} class.
         #
         # @param [String] message The message to ask the user.
-        def initialize(app, env, message)
+        # @param [Symbol] force_key The key that if present and true in
+        #   the environment hash will skip the confirmation question.
+        def initialize(app, env, message, force_key=nil)
           @app      = app
           @message  = message
+          @force_key = force_key
         end
 
         def call(env)
-          # Ask the user the message and store the result
           choice = nil
-          choice = env[:ui].ask(@message)
+
+          # If we have a force key set and we're forcing, then set
+          # the result to "Y"
+          choice = "Y" if @force_key && env[@force_key]
+
+          # If we haven't chosen yes, then ask the user via TTY
+          choice = env[:ui].ask(@message) if !choice
+
+          # The result is only true if the user said "Y"
           env[:result] = choice && choice.upcase == "Y"
 
           @app.call(env)
