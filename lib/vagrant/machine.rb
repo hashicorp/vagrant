@@ -37,25 +37,33 @@ module Vagrant
     # @return [Object]
     attr_reader :provider
 
+    # The provider-specific configuration for this machine.
+    #
+    # @return [Object]
+    attr_reader :provider_config
+
     # Initialize a new machine.
     #
     # @param [String] name Name of the virtual machine.
     # @param [Class] provider The provider backing this machine. This is
     #   currently expected to be a V1 `provider` plugin.
+    # @param [Object] provider_config The provider-specific configuration for
+    #   this machine.
     # @param [Object] config The configuration for this machine.
     # @param [Box] box The box that is backing this virtual machine.
     # @param [Environment] env The environment that this machine is a
     #   part of.
-    def initialize(name, provider_cls, config, box, env, base=false)
+    def initialize(name, provider_cls, provider_config, config, box, env, base=false)
       @logger = Log4r::Logger.new("vagrant::machine")
       @logger.info("Initializing machine: #{name}")
       @logger.info("  - Provider: #{provider_cls}")
       @logger.info("  - Box: #{box}")
 
-      @name   = name
       @box    = box
       @config = config
       @env    = env
+      @name   = name
+      @provider_config = provider_config
 
       # Read the ID, which is usually in local storage
       @id = nil

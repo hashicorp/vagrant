@@ -10,6 +10,7 @@ describe Vagrant::Machine do
     obj.stub(:new => provider)
     obj
   end
+  let(:provider_config) { Object.new }
   let(:box)      { Object.new }
   let(:config)   { env.config_global }
   let(:env)      do
@@ -27,7 +28,7 @@ describe Vagrant::Machine do
 
   # Returns a new instance with the test data
   def new_instance
-    described_class.new(name, provider_cls, config, box, env)
+    described_class.new(name, provider_cls, provider_config, config, box, env)
   end
 
   describe "initialization" do
@@ -56,7 +57,7 @@ describe Vagrant::Machine do
 
         # Initialize a new machine and verify that we properly receive
         # the machine we expect.
-        instance = described_class.new(name, provider_cls, config, box, env)
+        instance = described_class.new(name, provider_cls, provider_config, config, box, env)
         received_machine.should eql(instance)
       end
 

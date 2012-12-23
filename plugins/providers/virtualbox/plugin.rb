@@ -9,9 +9,14 @@ module VagrantPlugins
       VirtualBox-based virtual machines.
       EOF
 
-      provider("virtualbox") do
+      provider(:virtualbox) do
         require File.expand_path("../provider", __FILE__)
         Provider
+      end
+
+      config(:virtualbox, :provider => :virtualbox) do
+        require File.expand_path("../config", __FILE__)
+        Config
       end
     end
 

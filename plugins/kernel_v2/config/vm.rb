@@ -23,7 +23,6 @@ module VagrantPlugins
       attr_reader :networks
       attr_reader :providers
       attr_reader :provisioners
-      attr_reader :customizations
 
       def initialize
         @forwarded_ports = []
@@ -31,7 +30,6 @@ module VagrantPlugins
         @networks = []
         @providers = {}
         @provisioners = []
-        @customizations = []
       end
 
       # Custom merge method since some keys here are merged differently.
@@ -41,7 +39,6 @@ module VagrantPlugins
         result.instance_variable_set(:@shared_folders, @shared_folders.merge(other.shared_folders))
         result.instance_variable_set(:@networks, @networks + other.networks)
         result.instance_variable_set(:@provisioners, @provisioners + other.provisioners)
-        result.instance_variable_set(:@customizations, @customizations + other.customizations)
         result
       end
 
@@ -83,13 +80,6 @@ module VagrantPlugins
 
       def provision(name, options=nil, &block)
         @provisioners << VagrantConfigProvisioner.new(name, options, &block)
-      end
-
-      # TODO: This argument should not be `nil` in the future.
-      # It is only defaulted to nil so that the deprecation error
-      # can be properly shown.
-      def customize(command=nil)
-        @customizations << command if command
       end
 
       def defined_vms

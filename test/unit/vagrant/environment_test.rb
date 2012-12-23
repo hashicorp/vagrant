@@ -177,11 +177,15 @@ VF
 
   describe "getting a machine" do
     # A helper to register a provider for use in tests.
-    def register_provider(name)
+    def register_provider(name, config_class=nil)
       provider_cls = Class.new(Vagrant.plugin("2", :provider))
 
       register_plugin("2") do |p|
         p.provider(name) { provider_cls }
+
+        if config_class
+          p.config(name, :provider => name) { config_class }
+        end
       end
 
       provider_cls
@@ -209,6 +213,40 @@ VF
       machine.should be_kind_of(Vagrant::Machine)
       machine.name.should == :foo
       machine.provider.should be_kind_of(foo_provider)
+      machine.provider_config.should be_nil
+    end
+
+    it "should return a machine object with the machine configuration" do
+      # Create a provider
+      foo_config = Class.new do
+        attr_accessor :value
+      end
+
+      foo_provider = register_provider("foo", foo_config)
+
+      # Create the configuration
+      isolated_env = isolated_environment do |e|
+        e.vagrantfile(<<-VF)
+Vagrant.configure("2") do |config|
+  config.vm.box = "base"
+  config.vm.define "foo"
+
+  config.vm.provider :foo do |fooconfig|
+    fooconfig.value = 100
+  end
+end
+VF
+
+        e.box2("base", :foo)
+      end
+
+      # Verify that we can get the machine
+      env = isolated_env.create_vagrant_env
+      machine = env.machine(:foo, :foo)
+      machine.should be_kind_of(Vagrant::Machine)
+      machine.name.should == :foo
+      machine.provider.should be_kind_of(foo_provider)
+      machine.provider_config.value.should == 100
     end
 
     it "should cache the machine objects by name and provider" do
