@@ -62,6 +62,8 @@ module Vagrant
         #
         # @param [String] name The name of the VM. Nil if every VM.
         # @param [Hash] options Additional tweakable settings.
+        # @option options [Boolean] :reverse If true, the resulting order
+        #   of machines is reversed.
         # @option options [Boolean] :single_target If true, then an
         #   exception will be raised if more than one target is found.
         def with_target_vms(names=nil, options=nil)
