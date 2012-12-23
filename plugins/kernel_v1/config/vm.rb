@@ -12,17 +12,17 @@ module VagrantPlugins
 
       attr_accessor :name
       attr_accessor :auto_port_range
-      attr_accessor :box
-      attr_accessor :box_url
       attr_accessor :base_mac
       attr_accessor :boot_mode
+      attr_accessor :box
+      attr_accessor :box_url
+      attr_accessor :guest
       attr_accessor :host_name
+      attr_reader :customizations
       attr_reader :forwarded_ports
-      attr_reader :shared_folders
       attr_reader :networks
       attr_reader :provisioners
-      attr_reader :customizations
-      attr_accessor :guest
+      attr_reader :shared_folders
 
       def initialize
         @forwarded_ports = []
@@ -133,10 +133,33 @@ module VagrantPlugins
 
         # If we have VM customizations, then we enable them on the
         # VirtualBox provider on the new VM.
-        if self.customizations.length > 0
-          self.customizations.each do |customization|
-            new.vm.providers[:virtualbox].config.customize(customization)
-          end
+        self.customizations.each do |customization|
+          new.vm.providers[:virtualbox].config.customize(customization)
+        end
+
+        # Take all the defined forwarded ports and re-define them
+        self.forwarded_ports.each do |fp|
+          options   = fp.dup
+          guestport = options.delete(:guestport)
+          hostport  = options.delete(:hostport)
+
+          new.vm.forward_port(guestport, hostport, options)
+        end
+
+        # Re-define all networks.
+        self.networks.each do |type, args|
+          new.vm.network(type, *args)
+        end
+
+        # TODO: Provisioners
+
+        # Shared folders
+        self.shared_folders.each do |name, sf|
+          options = sf.dup
+          guestpath = options.delete(:guestpath)
+          hostpath = options.delete(:hostpath)
+
+          new.vm.share_folder(name, guestpath, hostpath, options)
         end
 
         # XXX: Warning: `vm.name` is useless now
