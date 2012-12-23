@@ -19,30 +19,17 @@ module VagrantPlugins
         @config = nil
         @logger = Log4r::Logger.new("vagrant::config::vm::provider")
 
-        # If we were given a block to configure with, then let's try
-        # to do that.
-        load_config(block) if block
-      end
-
-      protected
-
-      # This takes the config block given to define the provider and
-      # attempts to turn this into a real configuration object. If the
-      # provider plugin is not found then it is simply ignored. This allows
-      # people to share Vagrantfiles that have configuration for providers
-      # which may not be setup on every user's system.
-      #
-      # @param [Proc] config_proc
-      def load_config(config_proc)
+        # Attempt to find the configuration class for this provider and
+        # load the configuration.
         config_class = Vagrant.plugin("2").manager.provider_configs[@name]
         if !config_class
-          @logger.info("Provider config for #{@name} not found, ignoring that config.")
+          @logger.info("Provider config for #{@name} not found, ignoring config.")
           return
         end
 
         @logger.info("Configuring provider #{@name} with #{config_class}")
         @config = config_class.new
-        config_proc.call(@config)
+        block.call(@config) if block
       end
     end
   end
