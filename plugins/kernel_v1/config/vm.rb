@@ -33,17 +33,7 @@ module VagrantPlugins
         @networks = []
         @provisioners = []
         @customizations = []
-      end
-
-      # Custom merge method since some keys here are merged differently.
-      def merge(other)
-        result = super
-        result.instance_variable_set(:@forwarded_ports, @forwarded_ports + other.forwarded_ports)
-        result.instance_variable_set(:@shared_folders, @shared_folders.merge(other.shared_folders))
-        result.instance_variable_set(:@networks, @networks + other.networks)
-        result.instance_variable_set(:@provisioners, @provisioners + other.provisioners)
-        result.instance_variable_set(:@customizations, @customizations + other.customizations)
-        result
+        @define_calls = []
       end
 
       def forward_port(guestport, hostport, options=nil)
@@ -86,36 +76,8 @@ module VagrantPlugins
         @customizations << command if command
       end
 
-      def defined_vms
-        @defined_vms ||= {}
-      end
-
-      # This returns the keys of the sub-vms in the order they were
-      # defined.
-      def defined_vm_keys
-        @defined_vm_keys ||= []
-      end
-
       def define(name, options=nil, &block)
-        name = name.to_sym
-        options ||= {}
-
-        # Add the name to the array of VM keys. This array is used to
-        # preserve the order in which VMs are defined.
-        defined_vm_keys << name
-
-        # Add the SubVM to the hash of defined VMs
-        if !defined_vms[name]
-          # If it hasn't been defined before, then create the sub-VM configuration
-          # and configure it so that it has the proper name.
-          defined_vms[name] ||= VagrantConfigSubVM.new
-          defined_vms[name].push_proc do |config|
-            config.vm.name = name
-          end
-        end
-
-        defined_vms[name].options.merge!(options)
-        defined_vms[name].push_proc(&block) if block
+        @define_calls << [name, options, block]
       end
 
       def finalize!
@@ -166,6 +128,11 @@ module VagrantPlugins
           hostpath = options.delete(:hostpath)
 
           new.vm.share_folder(name, guestpath, hostpath, options)
+        end
+
+        # Defined sub-VMs
+        @define_calls.each do |name, options, block|
+          new.vm.define(name, options, &block)
         end
 
         # XXX: Warning: `vm.name` is useless now
