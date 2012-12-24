@@ -2,9 +2,6 @@ require "pathname"
 
 require "vagrant"
 
-require File.expand_path("../vm_provisioner", __FILE__)
-require File.expand_path("../vm_subvm", __FILE__)
-
 module VagrantPlugins
   module Kernel_V1
     # This is the Version 1.0.x Vagrant VM configuration. This is
