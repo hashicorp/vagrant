@@ -1,5 +1,14 @@
 ## 1.1.0 (unreleased)
 
+FEATURES:
+
+  - Groundwork for **providers**, alternate backends for Vagrant that
+    allow Vagrant to power systems other than VirtualBox. Much improvement
+    and change will come to this throughout the 1.x lifecycle. The API
+    will continue to change, features will be added, and more. Specifically,
+    in this release, a robust system for handling shared folders and
+    networks is not introduced, so new providers shouldn't yet support this.
+    A system will come into place in future releases.
   - New plugin system which adds much more structure and stability to
     the overall API. The goal of this system is to make it easier to write
     powerful plugins for Vagrant while providing a backwards-compatible API
@@ -8,10 +17,39 @@
   - Plugins installed as gems no longer "autoload". You must now explicitly
     require plugins in the `~/.vagrantrc` file, using `Vagrant.require_plugin`.
     This decreases Vagrant's initial startup time considerably.
+  - Allow "file://" URLs for box URLs. [GH-1087]
+  - Emit "vagrant-mount" upstart event when NFS shares are mounted. [GH-1118]
+
+BACKWARDS INCOMPATIBILITIES:
+
+  - Vagrantfiles from 1.0.x that _do not use_ any plugins are fully
+    backwards compatible. If plugins are used, they must be removed prior
+    to upgrading. The new plugin system in place will avoid this issue in
+    the future.
+  - Lots of changes introduced in the form of a new configuration version and
+    format, but this is opt-in. Old Vagrantfile format continues to be supported,
+    as promised. To use the new features that will be introduced throughout
+    the 1.x series, you'll have to upgrade at some point.
+
+IMPROVEMENTS / BUG FIXES:
+
   - Improve the SSH "ready?" check. [GH-841]
   - Human friendly error if connection times out for HTTP downloads. [GH-849]
   - Detect when the VirtualBox installation is incomplete and error. [GH-846]
   - Use `LogLevel QUIET` for SSH to suppress the known hosts warning. [GH-847]
+  - All `vagrant` commands that can take a target VM name can take one even
+    if you're not in a multi-VM environment. [GH-894]
+  - Hostname is set before networks are setup to avoid very slow `sudo`
+    speeds on CentOS. [GH-922]
+  - `config.ssh.shell` now includes the flags to pass to it, such as `-l` [GH-917]
+  - The check for whether a port is open or not is more complete. [GH-948]
+  - SSH uses LogLevel FATAL so that errors are still shown.
+  - Sending a SIGINT (Ctrl-C) very early on when executing `vagrant` no
+    longer results in an ugly stack trace.
+  - Chef JSON configuration output is now pretty-printed to be
+    human readable. [GH-1146]
+  - SSH retries in the face of a `EHOSTUNREACH` error, improving the robustness
+    that SSHing succeeds when booting a machine.
   - VMs in the "guru meditation" state can be destroyed now using
     `vagrant destroy`.
   - Fix issue where changing SSH key permissions didn't properly work. [GH-911]
@@ -19,38 +57,23 @@
     localhost on Linux machines. This fixes issues with 12.04. [GH-909]
   - Fix issue where Vagrant didn't properly detect VBoxManage on Windows
     if VBOX_INSTALL_PATH contained multiple paths. [GH-885]
-  - All `vagrant` commands that can take a target VM name can take one even
-    if you're not in a multi-VM environment. [GH-894]
-  - Hostname is set before networks are setup to avoid very slow `sudo`
-    speeds on CentOS. [GH-922]
   - Fix typo in setting host name for Gentoo guests. [GH-931]
-  - `config.ssh.shell` now includes the flags to pass to it, such as `-l` [GH-917]
-  - The check for whether a port is open or not is more complete. [GH-948]
   - Files that are included with `vagrant package --include` now properly
     preserve file attributes on earlier versions of Ruby. [GH-951]
-  - SSH uses LogLevel FATAL so that errors are still shown.
   - Multiple interfaces now work with Arch linux guests. [GH-957]
   - Fix issue where subprocess execution would always spin CPU of Ruby
     process to 100%. [GH-832]
   - Fix issue where shell provisioner would sometimes never end. [GH-968]
-  - FIx issue where puppet would reorder module paths. [GH-964]
-  - Human-friendly error is raised if there are permission issues when
-    using SCP to upload files. [GH-924]
+  - Fix issue where puppet would reorder module paths. [GH-964]
   - When console input is asked for (destroying a VM, bridged interfaces, etc.),
     keystrokes such as ctrl-D and ctrl-C are more gracefully handled. [GH-1017]
   - Fixed bug where port check would use "localhost" on systems where
     "localhost" is not available. [GH-1057]
-  - Sending a SIGINT (Ctrl-C) very early on when executing `vagrant` no
-    longer results in an ugly stack trace.
-  - SSH retries in the face of a `EHOSTUNREACH` error, improving the robustness
-    that SSHing succeeds when booting a machine.
   - Add missing translation for "saving" state on VirtualBox. [GH-1110]
   - Proper error message if the remote end unexpectedly resets the connection
     while downloading a box over HTTP. [GH-1090]
-  - Allow "file://" URLs for box URLs. [GH-1087]
-  - Emit "vagrant-mount" upstart event when NFS shares are mounted. [GH-1118]
-  - Chef JSON configuration output is now pretty-printed to be
-    human readable. [GH-1146]
+  - Human-friendly error is raised if there are permission issues when
+    using SCP to upload files. [GH-924]
 
 ## 1.0.5 (September 18, 2012)
 
