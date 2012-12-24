@@ -62,6 +62,9 @@ module Vagrant
         #
         # @param [String] name The name of the VM. Nil if every VM.
         # @param [Hash] options Additional tweakable settings.
+        # @option options [Symbol] :provider The provider to back the
+        #   machines with. All machines will be backed with this
+        #   provider. If none is given, a sensible default is chosen.
         # @option options [Boolean] :reverse If true, the resulting order
         #   of machines is reversed.
         # @option options [Boolean] :single_target If true, then an
@@ -78,7 +81,7 @@ module Vagrant
           names = [names] if !names.is_a?(Array)
 
           # The provider that we'll be loading up.
-          provider = @env.default_provider
+          provider = (options[:provider] || @env.default_provider).to_sym
 
           # First determine the proper array of VMs.
           machines = []

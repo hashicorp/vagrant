@@ -107,6 +107,17 @@ describe Vagrant::Plugin::V2::Command do
       instance.with_target_vms("foo") { |vm| vms << vm }
       vms.should == [foo_vm]
     end
+
+    it "yields the given VM with proper provider if given" do
+      foo_vm = double("foo")
+      provider = :foobarbaz
+
+      environment.stub(:machine).with(:foo, provider).and_return(foo_vm)
+
+      vms = []
+      instance.with_target_vms("foo", :provider => provider) { |vm| vms << vm }
+      vms.should == [foo_vm]
+    end
   end
 
   describe "splitting the main and subcommand args" do

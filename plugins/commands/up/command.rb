@@ -19,7 +19,7 @@ module VagrantPlugins
 
           o.on("--provider provider", String,
                "Back the machine with a specific provider.") do |provider|
-            options["provider"] = provider
+            options[:provider] = provider
           end
         end
 
@@ -29,7 +29,7 @@ module VagrantPlugins
 
         # Go over each VM and bring it up
         @logger.debug("'Up' each target VM...")
-        with_target_vms(argv) do |machine|
+        with_target_vms(argv, :provider => options[:provider]) do |machine|
           machine.action(:up)
         end
 
