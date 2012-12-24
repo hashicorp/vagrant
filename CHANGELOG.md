@@ -1,5 +1,16 @@
 ## 1.1.0 (unreleased)
 
+BACKWARDS INCOMPATIBILITIES:
+
+  - Vagrantfiles from 1.0.x that _do not use_ any plugins are fully
+    backwards compatible. If plugins are used, they must be removed prior
+    to upgrading. The new plugin system in place will avoid this issue in
+    the future.
+  - Lots of changes introduced in the form of a new configuration version and
+    format, but this is opt-in. Old Vagrantfile format continues to be supported,
+    as promised. To use the new features that will be introduced throughout
+    the 1.x series, you'll have to upgrade at some point.
+
 FEATURES:
 
   - Groundwork for **providers**, alternate backends for Vagrant that
@@ -19,17 +30,6 @@ FEATURES:
     This decreases Vagrant's initial startup time considerably.
   - Allow "file://" URLs for box URLs. [GH-1087]
   - Emit "vagrant-mount" upstart event when NFS shares are mounted. [GH-1118]
-
-BACKWARDS INCOMPATIBILITIES:
-
-  - Vagrantfiles from 1.0.x that _do not use_ any plugins are fully
-    backwards compatible. If plugins are used, they must be removed prior
-    to upgrading. The new plugin system in place will avoid this issue in
-    the future.
-  - Lots of changes introduced in the form of a new configuration version and
-    format, but this is opt-in. Old Vagrantfile format continues to be supported,
-    as promised. To use the new features that will be introduced throughout
-    the 1.x series, you'll have to upgrade at some point.
 
 IMPROVEMENTS / BUG FIXES:
 
