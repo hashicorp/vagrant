@@ -1,7 +1,5 @@
 require "pathname"
 
-require "vagrant"
-
 module VagrantPlugins
   module Kernel_V1
     # This is the Version 1.0.x Vagrant VM configuration. This is
