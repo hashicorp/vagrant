@@ -4,10 +4,8 @@ module VagrantPlugins
   module CommandStatus
     class Command < Vagrant.plugin("2", :command)
       def execute
-        options = {}
-
-        opts = OptionParser.new do |opts|
-          opts.banner = "Usage: vagrant status [vm-name]"
+        opts = OptionParser.new do |o|
+          o.banner = "Usage: vagrant status [machine-name]"
         end
 
         # Parse the options
@@ -16,9 +14,9 @@ module VagrantPlugins
 
         state = nil
         results = []
-        with_target_vms(argv) do |vm|
-          state = vm.state.to_s if !state
-          results << "#{vm.name.to_s.ljust(25)}#{vm.state.to_s.gsub("_", " ")}"
+        with_target_vms(argv) do |machine|
+          state = machine.state.to_s if !state
+          results << "#{machine.name.to_s.ljust(25)}#{machine.state.to_s.gsub("_", " ")}"
         end
 
         state = results.length == 1 ? state : "listing"

@@ -336,7 +336,7 @@ en:
           VirtualBox, moving to a new computer, etc. Please consult VirtualBox
           for how to handle this issue.
         output: |-
-          Current VM states:
+          Current machine states:
 
           %{states}
 
