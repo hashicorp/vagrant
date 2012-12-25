@@ -3,8 +3,12 @@ module VagrantPlugins
     class Config < Vagrant.plugin("2", :config)
       attr_reader :customizations
 
+      # If set to `true`, then VirtualBox will be launched with a GUI.
+      attr_accessor :gui
+
       def initialize
         @customizations = []
+        @gui = UNSET_VALUE
       end
 
       # Customize the VM by calling `VBoxManage` with the given

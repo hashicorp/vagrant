@@ -9,9 +9,11 @@ module VagrantPlugins
         def call(env)
           @env = env
 
+          boot_mode = @env[:machine].provider_config.gui ? "gui" : "headless"
+
           # Start up the VM and wait for it to boot.
           env[:ui].info I18n.t("vagrant.actions.vm.boot.booting")
-          env[:machine].provider.driver.start(@env[:machine].config.vm.boot_mode)
+          env[:machine].provider.driver.start(boot_mode)
           raise Errors::VMFailedToBoot if !wait_for_boot
 
           @app.call(env)
@@ -41,7 +43,6 @@ module VagrantPlugins
           @env[:ui].error I18n.t("vagrant.actions.vm.boot.failed")
           false
         end
-
       end
     end
   end

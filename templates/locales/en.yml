@@ -271,7 +271,6 @@ en:
         private_key_missing: "`private_key_path` file must exist: %{path}"
       vm:
         base_mac_invalid: "Base MAC address for eth0/NAT must be set. Contact box maintainer for more information."
-        boot_mode_invalid: "Boot mode must be one of: headless or gui"
         box_missing: "A box must be specified."
         box_not_found: "The box '%{name}' could not be found."
         network_invalid: |-
