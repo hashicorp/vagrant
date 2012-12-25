@@ -26,6 +26,13 @@ module VagrantPlugins
       def customize(command)
         @customizations << command
       end
+
+      # This is the hook that is called to finalize the object before it
+      # is put into use.
+      def finalize!
+        # Default is to not show a GUI
+        @gui = false if @gui == UNSET_VALUE
+      end
     end
   end
 end
