@@ -30,6 +30,7 @@ module VagrantPlugins
         @logger.info("Configuring provider #{@name} with #{config_class}")
         @config = config_class.new
         block.call(@config) if block
+        @config.finalize!
       end
     end
   end
