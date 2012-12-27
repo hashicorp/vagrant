@@ -452,6 +452,13 @@ module Vagrant
 
       @logger.info("Local data path: #{@local_data_path}")
 
+      # If the local data path is a file, then we are probably seeing an
+      # old (V1) "dotfile." In this case, we upgrade it. The upgrade process
+      # will remove the old data file if it is successful.
+      if @local_data_path.file?
+        upgrade_v1_dotfile(@local_data_path)
+      end
+
       begin
         @logger.debug("Creating: #{@local_data_path}")
         FileUtils.mkdir_p(@local_data_path)
@@ -516,6 +523,17 @@ module Vagrant
       else
         @logger.debug("RC file not found. Not loading: #{rc_path}")
       end
+    end
+
+    # This upgrades a Vagrant 1.0.x "dotfile" to the new V2 format.
+    #
+    # This is a destructive process. Once the upgrade is complete, the
+    # old dotfile is removed, and the environment becomes incompatible for
+    # Vagrant 1.0 environments.
+    #
+    # @param [Pathname] path The path to the dotfile
+    def upgrade_v1_dotfile(path)
+      raise "V1 environment detected. An auto-upgrade process will be made soon."
     end
   end
 end
