@@ -1,3 +1,5 @@
+require "pathname"
+
 require File.expand_path("../../base", __FILE__)
 
 describe Vagrant::Machine do
@@ -13,6 +15,7 @@ describe Vagrant::Machine do
   let(:provider_config) { Object.new }
   let(:box)      { Object.new }
   let(:config)   { env.config_global }
+  let(:data_dir) { Pathname.new(Tempdir.new.path) }
   let(:env)      do
     # We need to create a Vagrantfile so that this test environment
     # has a proper root path
@@ -28,7 +31,8 @@ describe Vagrant::Machine do
 
   # Returns a new instance with the test data
   def new_instance
-    described_class.new(name, provider_cls, provider_config, config, box, env)
+    described_class.new(name, provider_cls, provider_config,
+                        config, data_dir, box, env)
   end
 
   describe "initialization" do
@@ -57,7 +61,8 @@ describe Vagrant::Machine do
 
         # Initialize a new machine and verify that we properly receive
         # the machine we expect.
-        instance = described_class.new(name, provider_cls, provider_config, config, box, env)
+        instance = described_class.new(name, provider_cls, provider_config,
+                                       config, data_dir, box, env)
         received_machine.should eql(instance)
       end
 

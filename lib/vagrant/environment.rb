@@ -223,10 +223,15 @@ module Vagrant
       # Get the provider configuration from the final loaded configuration
       provider_config = config.vm.providers[provider].config
 
+      # Determine the machine data directory and pass it to the machine.
+      # XXX: Permissions error here.
+      machine_data_path = @local_data_path.join("machines/#{name}/#{provider}")
+      FileUtils.mkdir_p(machine_data_path)
+
       # Create the machine and cache it for future calls. This will also
       # return the machine from this method.
       @machines[cache_key] = Machine.new(name, provider_cls, provider_config,
-                                         config, box, self)
+                                         config, machine_data_path, box, self)
     end
 
     # This returns a list of the configured machines for this environment.
@@ -315,16 +320,6 @@ module Vagrant
     # @return [DataStore]
     def global_data
       @global_data ||= DataStore.new(File.expand_path("global_data.json", home_path))
-    end
-
-    # Loads (on initial access) and reads data from the local data
-    # store. This file is always at the root path as the file "~/.vagrant"
-    # and contains a JSON dump of a hash. See {DataStore} for more
-    # information.
-    #
-    # @return [DataStore]
-    def local_data
-      @local_data ||= DataStore.new(@local_data_path.join("environment_data"))
     end
 
     # The root path is the path where the top-most (loaded last)
