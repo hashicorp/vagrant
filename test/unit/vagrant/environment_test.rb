@@ -23,19 +23,22 @@ describe Vagrant::Environment do
 
   describe "current working directory" do
     it "is the cwd by default" do
-      with_temp_env("VAGRANT_CWD" => nil) do
-        described_class.new.cwd.should == Pathname.new(Dir.pwd)
+      temp_dir = Tempdir.new.path
+      Dir.chdir(temp_dir) do
+        with_temp_env("VAGRANT_CWD" => nil) do
+          described_class.new.cwd.should == Pathname.new(Dir.pwd)
+        end
       end
     end
 
     it "is set to the cwd given" do
-      directory = File.dirname(__FILE__)
+      directory = Tempdir.new.path
       instance = described_class.new(:cwd => directory)
       instance.cwd.should == Pathname.new(directory)
     end
 
     it "is set to the environmental variable VAGRANT_CWD" do
-      directory = File.dirname(__FILE__)
+      directory = Tempdir.new.path
       instance = with_temp_env("VAGRANT_CWD" => directory) do
         described_class.new
       end
@@ -69,6 +72,24 @@ describe Vagrant::Environment do
       expect {
         described_class.new(:home_path => "/")
       }.to raise_error(Vagrant::Errors::HomeDirectoryNotAccessible)
+    end
+  end
+
+  describe "local data path" do
+    it "is set to the proper default" do
+      default = instance.root_path.join(described_class::DEFAULT_LOCAL_DATA)
+      instance.local_data_path.should == default
+    end
+
+    it "is expanded relative to the cwd" do
+      instance = described_class.new(:local_data_path => "foo")
+      instance.local_data_path.should == instance.cwd.join("foo")
+    end
+
+    it "is set to the given value" do
+      dir = Tempdir.new.path
+      instance = described_class.new(:local_data_path => dir)
+      instance.local_data_path.to_s.should == dir
     end
   end
 
@@ -137,26 +158,26 @@ VF
       environment = isolated_environment do |env|
         env.vagrantfile(<<-VF)
 Vagrant.configure("2") do |config|
-  config.vagrant.dotfile_name = "foo"
+  config.ssh.port = 200
 end
 VF
       end
 
       env = environment.create_vagrant_env
-      env.config_global.vagrant.dotfile_name.should == "foo"
+      env.config_global.ssh.port.should == 200
     end
 
     it "should load from a custom Vagrantfile" do
       environment = isolated_environment do |env|
         env.file("non_standard_name", <<-VF)
 Vagrant.configure("2") do |config|
-  config.vagrant.dotfile_name = "custom"
+  config.ssh.port = 200
 end
 VF
       end
 
       env = environment.create_vagrant_env(:vagrantfile_name => "non_standard_name")
-      env.config_global.vagrant.dotfile_name.should == "custom"
+      env.config_global.ssh.port.should == 200
     end
 
   end
@@ -302,7 +323,6 @@ VF
         env.vagrantfile(<<-VF)
 Vagrant.configure("2") do |config|
   config.ssh.port = 1
-  config.vagrant.dotfile_name = "foo"
   config.vm.box = "base"
 
   config.vm.define "vm1" do |inner|
@@ -317,7 +337,7 @@ VF
       env = environment.create_vagrant_env
       machine = env.machine(:vm1, :foo)
       machine.config.ssh.port.should == 100
-      machine.config.vagrant.dotfile_name.should == "foo"
+      machine.config.vm.box.should == "base"
     end
 
     it "should load the box configuration for a V2 box" do

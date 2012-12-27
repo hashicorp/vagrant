@@ -230,6 +230,10 @@ module Vagrant
       error_key(:port_collision_resume)
     end
 
+    class LocalDataDirectoryNotAccessible < VagrantError
+      error_key(:local_data_dir_not_accessible)
+    end
+
     class MachineGuestNotReady < VagrantError
       error_key(:machine_guest_not_ready)
     end

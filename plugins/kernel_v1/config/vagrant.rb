@@ -12,8 +12,9 @@ module VagrantPlugins
       end
 
       def upgrade(new)
-        new.vagrant.dotfile_name = @dotfile_name if @dotfile_name != UNSET_VALUE
         new.vagrant.host = @host if @host != UNSET_VALUE
+
+        # TODO: Warn that "dotfile_name" is gone in V2
       end
     end
   end

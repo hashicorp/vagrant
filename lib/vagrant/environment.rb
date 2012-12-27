@@ -12,8 +12,8 @@ module Vagrant
   # defined as basically a folder with a "Vagrantfile." This class allows
   # access to the VMs, CLI, etc. all in the scope of this environment.
   class Environment
-    HOME_SUBDIRS = ["tmp", "boxes", "gems"]
     DEFAULT_HOME = "~/.vagrant.d"
+    DEFAULT_LOCAL_DATA = ".vagrant"
     DEFAULT_RC = "~/.vagrantrc"
 
     # This is the global config, comprised of loading configuration from
@@ -34,6 +34,10 @@ module Vagrant
     # The directory to the "home" folder that Vagrant will use to store
     # global state.
     attr_reader :home_path
+
+    # The directory to the directory where local, environment-specific
+    # data is stored.
+    attr_reader :local_data_path
 
     # The directory where temporary files for Vagrant go.
     attr_reader :tmp_path
@@ -59,10 +63,11 @@ module Vagrant
     def initialize(opts=nil)
       opts = {
         :cwd => nil,
-        :vagrantfile_name => nil,
+        :home_path => nil,
+        :local_data_path => nil,
         :lock_path => nil,
         :ui_class => nil,
-        :home_path => nil
+        :vagrantfile_name => nil
       }.merge(opts || {})
 
       # Set the default working directory to look for the vagrantfile
@@ -71,6 +76,9 @@ module Vagrant
       opts[:cwd] = Pathname.new(opts[:cwd])
       raise Errors::EnvironmentNonExistentCWD if !opts[:cwd].directory?
 
+      # Set the default ui class
+      opts[:ui_class] ||= UI::Silent
+
       # Set the Vagrantfile name up. We append "Vagrantfile" and "vagrantfile" so that
       # those continue to work as well, but anything custom will take precedence.
       opts[:vagrantfile_name] ||= []
@@ -78,15 +86,12 @@ module Vagrant
       opts[:vagrantfile_name] += ["Vagrantfile", "vagrantfile"]
 
       # Set instance variables for all the configuration parameters.
-      @cwd    = opts[:cwd]
+      @cwd              = opts[:cwd]
+      @home_path        = opts[:home_path]
+      @lock_path        = opts[:lock_path]
       @vagrantfile_name = opts[:vagrantfile_name]
-      @lock_path = opts[:lock_path]
-      @home_path = opts[:home_path]
+      @ui               = opts[:ui_class].new("vagrant")
 
-      ui_class = opts[:ui_class] || UI::Silent
-      @ui      = ui_class.new("vagrant")
-
-      @loaded = false
       @lock_acquired = false
 
       @logger = Log4r::Logger.new("vagrant::environment")
@@ -95,9 +100,21 @@ module Vagrant
 
       # Setup the home directory
       setup_home_path
-      @tmp_path = @home_path.join("tmp")
+      @tmp_path   = @home_path.join("tmp")
       @boxes_path = @home_path.join("boxes")
       @gems_path  = @home_path.join("gems")
+
+      # Setup the local data directory. If a configuration path is given,
+      # then it is expanded relative to the working directory. Otherwise,
+      # we use the default which is expanded relative to the root path.
+      @local_data_path = nil
+      if opts[:local_data_path]
+        @local_data_path = Pathname.new(File.expand_path(opts[:local_data_path], @cwd))
+      elsif !root_path.nil?
+        @local_data_path = root_path.join(DEFAULT_LOCAL_DATA)
+      end
+
+      setup_local_data_path
 
       # Setup the default private key
       @default_private_key_path = @home_path.join("insecure_private_key")
@@ -130,15 +147,6 @@ module Vagrant
     # @return [Symbol] Name of the default provider.
     def default_provider
       :virtualbox
-    end
-
-    # The path to the `dotfile`, which contains the persisted UUID of
-    # the VM if it exists.
-    #
-    # @return [Pathname]
-    def dotfile_path
-      return nil if !root_path
-      root_path.join(config_global.vagrant.dotfile_name)
     end
 
     # Returns the collection of boxes for the environment.
@@ -215,10 +223,15 @@ module Vagrant
       # Get the provider configuration from the final loaded configuration
       provider_config = config.vm.providers[provider].config
 
+      # Determine the machine data directory and pass it to the machine.
+      # XXX: Permissions error here.
+      machine_data_path = @local_data_path.join("machines/#{name}/#{provider}")
+      FileUtils.mkdir_p(machine_data_path)
+
       # Create the machine and cache it for future calls. This will also
       # return the machine from this method.
       @machines[cache_key] = Machine.new(name, provider_cls, provider_config,
-                                         config, box, self)
+                                         config, machine_data_path, box, self)
     end
 
     # This returns a list of the configured machines for this environment.
@@ -296,27 +309,6 @@ module Vagrant
           :ui             => @ui
         }
       end
-    end
-
-    # Loads on initial access and reads data from the global data store.
-    # The global data store is global to Vagrant everywhere (in every environment),
-    # so it can be used to store system-wide information. Note that "system-wide"
-    # typically means "for this user" since the location of the global data
-    # store is in the home directory.
-    #
-    # @return [DataStore]
-    def global_data
-      @global_data ||= DataStore.new(File.expand_path("global_data.json", home_path))
-    end
-
-    # Loads (on initial access) and reads data from the local data
-    # store. This file is always at the root path as the file "~/.vagrant"
-    # and contains a JSON dump of a hash. See {DataStore} for more
-    # information.
-    #
-    # @return [DataStore]
-    def local_data
-      @local_data ||= DataStore.new(dotfile_path)
     end
 
     # The root path is the path where the top-most (loaded last)
@@ -415,9 +407,11 @@ module Vagrant
                                                  DEFAULT_HOME))
       @logger.info("Home path: #{@home_path}")
 
-      # Setup the array of necessary home directories
-      dirs = [@home_path]
-      dirs += HOME_SUBDIRS.collect { |subdir| @home_path.join(subdir) }
+      # Setup the list of child directories that need to be created if they
+      # don't already exist.
+      dirs    = [@home_path]
+      subdirs = ["tmp", "boxes", "gems"]
+      dirs    += subdirs.collect { |subdir| @home_path.join(subdir) }
 
       # Go through each required directory, creating it if it doesn't exist
       dirs.each do |dir|
@@ -429,6 +423,32 @@ module Vagrant
         rescue Errno::EACCES
           raise Errors::HomeDirectoryNotAccessible, :home_path => @home_path.to_s
         end
+      end
+    end
+
+    # This creates the local data directory and show an error if it
+    # couldn't properly be created.
+    def setup_local_data_path
+      if @local_data_path.nil?
+        @logger.warn("No local data path is set. Local data cannot be stored.")
+        return
+      end
+
+      @logger.info("Local data path: #{@local_data_path}")
+
+      # If the local data path is a file, then we are probably seeing an
+      # old (V1) "dotfile." In this case, we upgrade it. The upgrade process
+      # will remove the old data file if it is successful.
+      if @local_data_path.file?
+        upgrade_v1_dotfile(@local_data_path)
+      end
+
+      begin
+        @logger.debug("Creating: #{@local_data_path}")
+        FileUtils.mkdir_p(@local_data_path)
+      rescue Errno::EACCES
+        raise Errors::LocalDataDirectoryNotAccessible,
+          :local_data_path => @local_data_path.to_s
       end
     end
 
@@ -487,6 +507,17 @@ module Vagrant
       else
         @logger.debug("RC file not found. Not loading: #{rc_path}")
       end
+    end
+
+    # This upgrades a Vagrant 1.0.x "dotfile" to the new V2 format.
+    #
+    # This is a destructive process. Once the upgrade is complete, the
+    # old dotfile is removed, and the environment becomes incompatible for
+    # Vagrant 1.0 environments.
+    #
+    # @param [Pathname] path The path to the dotfile
+    def upgrade_v1_dotfile(path)
+      raise "V1 environment detected. An auto-upgrade process will be made soon."
     end
   end
 end

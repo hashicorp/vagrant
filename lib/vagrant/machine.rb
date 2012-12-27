@@ -15,6 +15,11 @@ module Vagrant
     # @return [Object]
     attr_reader :config
 
+    # Directory where machine-specific data can be stored.
+    #
+    # @return [Pathname]
+    attr_reader :data_dir
+
     # The environment that this machine is a part of.
     #
     # @return [Environment]
@@ -50,19 +55,23 @@ module Vagrant
     # @param [Object] provider_config The provider-specific configuration for
     #   this machine.
     # @param [Object] config The configuration for this machine.
+    # @param [Pathname] data_dir The directory where machine-specific data
+    #   can be stored. This directory is ensured to exist.
     # @param [Box] box The box that is backing this virtual machine.
     # @param [Environment] env The environment that this machine is a
     #   part of.
-    def initialize(name, provider_cls, provider_config, config, box, env, base=false)
+    def initialize(name, provider_cls, provider_config, config, data_dir, box, env, base=false)
       @logger = Log4r::Logger.new("vagrant::machine")
       @logger.info("Initializing machine: #{name}")
       @logger.info("  - Provider: #{provider_cls}")
       @logger.info("  - Box: #{box}")
+      @logger.info("  - Data dir: #{data_dir}")
 
-      @box    = box
-      @config = config
-      @env    = env
-      @name   = name
+      @box             = box
+      @config          = config
+      @data_dir        = data_dir
+      @env             = env
+      @name            = name
       @provider_config = provider_config
 
       # Read the ID, which is usually in local storage
@@ -72,7 +81,10 @@ module Vagrant
       if base
         @id = name
       else
-        @id = @env.local_data[:active][@name.to_s] if @env.local_data[:active]
+        # Read the id file from the data directory if it exists as the
+        # ID for the pre-existing physical representation of this machine.
+        id_file = @data_dir.join("id")
+        @id = id_file.read if id_file.file?
       end
 
       # Initializes the provider last so that it has access to all the
@@ -176,19 +188,19 @@ module Vagrant
     #
     # @param [String] value The ID.
     def id=(value)
-      @env.local_data[:active] ||= {}
+      # The file that will store the id if we have one. This allows the
+      # ID to persist across Vagrant runs.
+      id_file = @data_dir.join("id")
 
       if value
-        # Set the value
-        @env.local_data[:active][@name] = value
+        # Write the "id" file with the id given.
+        id_file.open("w+") do |f|
+          f.write(value)
+        end
       else
-        # Delete it from the active hash
-        @env.local_data[:active].delete(@name)
+        # Delete the file, since the machine is now destroyed
+        id_file.delete
       end
-
-      # Commit the local data so that the next time Vagrant is initialized,
-      # it realizes the VM exists (or doesn't).
-      @env.local_data.commit
 
       # Store the ID locally
       @id = value
