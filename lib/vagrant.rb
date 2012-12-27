@@ -67,7 +67,6 @@ module Vagrant
   autoload :CLI,           'vagrant/cli'
   autoload :Command,       'vagrant/command'
   autoload :Config,        'vagrant/config'
-  autoload :DataStore,     'vagrant/data_store'
   autoload :Downloaders,   'vagrant/downloaders'
   autoload :Driver,        'vagrant/driver'
   autoload :Easy,          'vagrant/easy'

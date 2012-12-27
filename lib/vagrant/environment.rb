@@ -311,17 +311,6 @@ module Vagrant
       end
     end
 
-    # Loads on initial access and reads data from the global data store.
-    # The global data store is global to Vagrant everywhere (in every environment),
-    # so it can be used to store system-wide information. Note that "system-wide"
-    # typically means "for this user" since the location of the global data
-    # store is in the home directory.
-    #
-    # @return [DataStore]
-    def global_data
-      @global_data ||= DataStore.new(File.expand_path("global_data.json", home_path))
-    end
-
     # The root path is the path where the top-most (loaded last)
     # Vagrantfile resides. It can be considered the project root for
     # this environment.
