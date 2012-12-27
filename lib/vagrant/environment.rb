@@ -12,7 +12,6 @@ module Vagrant
   # defined as basically a folder with a "Vagrantfile." This class allows
   # access to the VMs, CLI, etc. all in the scope of this environment.
   class Environment
-    HOME_SUBDIRS = ["tmp", "boxes", "gems"]
     DEFAULT_HOME = "~/.vagrant.d"
     DEFAULT_RC = "~/.vagrantrc"
 
@@ -415,9 +414,11 @@ module Vagrant
                                                  DEFAULT_HOME))
       @logger.info("Home path: #{@home_path}")
 
-      # Setup the array of necessary home directories
-      dirs = [@home_path]
-      dirs += HOME_SUBDIRS.collect { |subdir| @home_path.join(subdir) }
+      # Setup the list of child directories that need to be created if they
+      # don't already exist.
+      dirs    = [@home_path]
+      subdirs = ["tmp", "boxes", "gems"]
+      dirs    += subdirs.collect { |subdir| @home_path.join(subdir) }
 
       # Go through each required directory, creating it if it doesn't exist
       dirs.each do |dir|
