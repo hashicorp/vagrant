@@ -85,6 +85,13 @@ en:
         You specified: %{home_path}
       interrupted: |-
         Vagrant exited after cleanup due to external interrupt.
+      local_data_dir_not_accessible: |-
+        The directory Vagrant will use to store local environment-specific
+        state is not accessible. The directory specified as the local data
+        directory must be both readable and writable for the user that is
+        running Vagrant.
+
+        Local data directory: %{local_data_path}
       machine_guest_not_ready: |-
         Guest-specific operations were attempted on a machine that is not
         ready for guest communication. This should not happen and a bug

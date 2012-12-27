@@ -13,6 +13,7 @@ module Vagrant
   # access to the VMs, CLI, etc. all in the scope of this environment.
   class Environment
     DEFAULT_HOME = "~/.vagrant.d"
+    DEFAULT_LOCAL_DATA = ".vagrant"
     DEFAULT_RC = "~/.vagrantrc"
 
     # This is the global config, comprised of loading configuration from
@@ -33,6 +34,10 @@ module Vagrant
     # The directory to the "home" folder that Vagrant will use to store
     # global state.
     attr_reader :home_path
+
+    # The directory to the directory where local, environment-specific
+    # data is stored.
+    attr_reader :local_data_path
 
     # The directory where temporary files for Vagrant go.
     attr_reader :tmp_path
@@ -58,10 +63,11 @@ module Vagrant
     def initialize(opts=nil)
       opts = {
         :cwd => nil,
-        :vagrantfile_name => nil,
+        :home_path => nil,
+        :local_data_path => nil,
         :lock_path => nil,
         :ui_class => nil,
-        :home_path => nil
+        :vagrantfile_name => nil
       }.merge(opts || {})
 
       # Set the default working directory to look for the vagrantfile
@@ -70,6 +76,9 @@ module Vagrant
       opts[:cwd] = Pathname.new(opts[:cwd])
       raise Errors::EnvironmentNonExistentCWD if !opts[:cwd].directory?
 
+      # Set the default ui class
+      opts[:ui_class] ||= UI::Silent
+
       # Set the Vagrantfile name up. We append "Vagrantfile" and "vagrantfile" so that
       # those continue to work as well, but anything custom will take precedence.
       opts[:vagrantfile_name] ||= []
@@ -77,15 +86,12 @@ module Vagrant
       opts[:vagrantfile_name] += ["Vagrantfile", "vagrantfile"]
 
       # Set instance variables for all the configuration parameters.
-      @cwd    = opts[:cwd]
+      @cwd              = opts[:cwd]
+      @home_path        = opts[:home_path]
+      @lock_path        = opts[:lock_path]
       @vagrantfile_name = opts[:vagrantfile_name]
-      @lock_path = opts[:lock_path]
-      @home_path = opts[:home_path]
+      @ui               = opts[:ui_class].new("vagrant")
 
-      ui_class = opts[:ui_class] || UI::Silent
-      @ui      = ui_class.new("vagrant")
-
-      @loaded = false
       @lock_acquired = false
 
       @logger = Log4r::Logger.new("vagrant::environment")
@@ -94,9 +100,21 @@ module Vagrant
 
       # Setup the home directory
       setup_home_path
-      @tmp_path = @home_path.join("tmp")
+      @tmp_path   = @home_path.join("tmp")
       @boxes_path = @home_path.join("boxes")
       @gems_path  = @home_path.join("gems")
+
+      # Setup the local data directory. If a configuration path is given,
+      # then it is expanded relative to the working directory. Otherwise,
+      # we use the default which is expanded relative to the root path.
+      @local_data_path = nil
+      if opts[:local_data_path]
+        @local_data_path = Pathname.new(File.expand_path(opts[:local_data_path], @cwd))
+      elsif !root_path.nil?
+        @local_data_path = root_path.join(DEFAULT_LOCAL_DATA)
+      end
+
+      setup_local_data_path
 
       # Setup the default private key
       @default_private_key_path = @home_path.join("insecure_private_key")
@@ -129,15 +147,6 @@ module Vagrant
     # @return [Symbol] Name of the default provider.
     def default_provider
       :virtualbox
-    end
-
-    # The path to the `dotfile`, which contains the persisted UUID of
-    # the VM if it exists.
-    #
-    # @return [Pathname]
-    def dotfile_path
-      return nil if !root_path
-      root_path.join(config_global.vagrant.dotfile_name)
     end
 
     # Returns the collection of boxes for the environment.
@@ -315,7 +324,7 @@ module Vagrant
     #
     # @return [DataStore]
     def local_data
-      @local_data ||= DataStore.new(dotfile_path)
+      @local_data ||= DataStore.new(@local_data_path.join("environment_data"))
     end
 
     # The root path is the path where the top-most (loaded last)
@@ -430,6 +439,25 @@ module Vagrant
         rescue Errno::EACCES
           raise Errors::HomeDirectoryNotAccessible, :home_path => @home_path.to_s
         end
+      end
+    end
+
+    # This creates the local data directory and show an error if it
+    # couldn't properly be created.
+    def setup_local_data_path
+      if @local_data_path.nil?
+        @logger.warn("No local data path is set. Local data cannot be stored.")
+        return
+      end
+
+      @logger.info("Local data path: #{@local_data_path}")
+
+      begin
+        @logger.debug("Creating: #{@local_data_path}")
+        FileUtils.mkdir_p(@local_data_path)
+      rescue Errno::EACCES
+        raise Errors::LocalDataDirectoryNotAccessible,
+          :local_data_path => @local_data_path.to_s
       end
     end
 
