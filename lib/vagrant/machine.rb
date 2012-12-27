@@ -65,6 +65,7 @@ module Vagrant
       @logger.info("Initializing machine: #{name}")
       @logger.info("  - Provider: #{provider_cls}")
       @logger.info("  - Box: #{box}")
+      @logger.info("  - Data dir: #{data_dir}")
 
       @box             = box
       @config          = config
