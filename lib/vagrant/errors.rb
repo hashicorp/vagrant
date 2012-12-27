@@ -166,6 +166,10 @@ module Vagrant
       error_key(:dotfile_is_directory)
     end
 
+    class DotfileUpgradeJSONError < VagrantError
+      error_key(:dotfile_upgrade_json_error)
+    end
+
     class DownloaderFileDoesntExist < VagrantError
       status_code(37)
       error_key(:file_missing, "vagrant.downloaders.file")

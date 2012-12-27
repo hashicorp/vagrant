@@ -1,5 +1,7 @@
 require File.expand_path("../../base", __FILE__)
+require "json"
 require "pathname"
+require "tempfile"
 
 require "vagrant/util/file_mode"
 
@@ -90,6 +92,55 @@ describe Vagrant::Environment do
       dir = Tempdir.new.path
       instance = described_class.new(:local_data_path => dir)
       instance.local_data_path.to_s.should == dir
+    end
+
+    describe "upgrading V1 dotfiles" do
+      let(:v1_dotfile_tempfile) { Tempfile.new("vagrant") }
+      let(:v1_dotfile)          { Pathname.new(v1_dotfile_tempfile.path) }
+      let(:local_data_path)     { v1_dotfile_tempfile.path }
+      let(:instance) { described_class.new(:local_data_path => local_data_path) }
+
+      it "should be fine if dotfile is empty" do
+        v1_dotfile.open("w+") do |f|
+          f.write("")
+        end
+
+        expect { instance }.to_not raise_error
+        Pathname.new(local_data_path).should be_directory
+      end
+
+      it "should upgrade all active VMs" do
+        active_vms = {
+          "foo" => "foo_id",
+          "bar" => "bar_id"
+        }
+
+        v1_dotfile.open("w+") do |f|
+          f.write(JSON.dump({
+            "active" => active_vms
+          }))
+        end
+
+        expect { instance }.to_not raise_error
+
+        local_data_pathname = Pathname.new(local_data_path)
+        foo_id_file = local_data_pathname.join("machines/foo/virtualbox/id")
+        foo_id_file.should be_file
+        foo_id_file.read.should == "foo_id"
+
+        bar_id_file = local_data_pathname.join("machines/bar/virtualbox/id")
+        bar_id_file.should be_file
+        bar_id_file.read.should == "bar_id"
+      end
+
+      it "should raise an error if invalid JSON" do
+        v1_dotfile.open("w+") do |f|
+          f.write("bad")
+        end
+
+        expect { instance }.
+          to raise_error(Vagrant::Errors::DotfileUpgradeJSONError)
+      end
     end
   end
 
@@ -239,7 +290,7 @@ VF
 
     it "should return a machine object with the machine configuration" do
       # Create a provider
-      foo_config = Class.new do
+      foo_config = Class.new(Vagrant.plugin("2", :config)) do
         attr_accessor :value
       end
 

@@ -9,6 +9,17 @@ en:
 
         Old: %{old}
         New: %{new}
+      upgraded_v1_dotfile: |-
+        A Vagrant 1.0.x state file was found for this environment. Vagrant has
+        gone ahead and auto-upgraded this to the latest format. Everything
+        should continue working as normal. Beware, however, that older versions
+        of Vagrant may no longer be used with this environment.
+
+        However, in case anything went wrong, the old dotfile was backed up
+        to the location below. If everything is okay, it is safe to remove
+        this backup.
+
+        Backup: %{backup_path}
 
 #-------------------------------------------------------------------------------
 # Translations for exception classes
@@ -55,6 +66,24 @@ en:
         this command in another directory. If you aren't in a home directory,
         then please rename ".vagrant" to something else, or configure Vagrant
         to use another filename by modifying `config.vagrant.dotfile_name`.
+      dotfile_upgrade_json_error: |-
+        A Vagrant 1.0.x local state file was found. Vagrant is able to upgrade
+        this to the latest format automatically, however various checks are
+        put in place to verify data isn't incorrectly deleted. In this case,
+        the old state file was not valid JSON. Vagrant 1.0.x would store state
+        as valid JSON, meaning that this file was probably tampered with or
+        manually edited. Vagrant's auto-upgrade process cannot continue in this
+        case.
+
+        In most cases, this can be resolve by simply removing the state file.
+        Note however though that if Vagrant was previously managing virtual
+        machines, they may be left in an "orphan" state. That is, if they are
+        running or exist, they'll have to manually be removed.
+
+        If you're unsure what to do, ask the Vagrant mailing list or contact
+        support.
+
+        State file path: %{state_file}
       environment_locked: |-
         An instance of Vagrant is already running. Only one instance of Vagrant
         may run at any given time to avoid problems with VirtualBox inconsistencies

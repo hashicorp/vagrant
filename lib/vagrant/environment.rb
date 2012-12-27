@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'json'
 require 'pathname'
 require 'set'
 
@@ -517,7 +518,61 @@ module Vagrant
     #
     # @param [Pathname] path The path to the dotfile
     def upgrade_v1_dotfile(path)
-      raise "V1 environment detected. An auto-upgrade process will be made soon."
+      @logger.info("Upgrading V1 dotfile to V2 directory structure...")
+
+      # First, verify the file isn't empty. If it is an empty file, we
+      # just delete it and go on with life.
+      contents = path.read.strip
+      if contents.strip == ""
+        @logger.info("V1 dotfile was empty. Removing and moving on.")
+        path.delete
+        return
+      end
+
+      # Otherwise, verify there is valid JSON in here since a Vagrant
+      # environment would always ensure valid JSON. This is a sanity check
+      # to make sure we don't nuke a dotfile that is not ours...
+      @logger.debug("Attempting to parse JSON of V1 file")
+      json_data = nil
+      begin
+        json_data = JSON.parse(contents)
+        @logger.debug("JSON parsed successfully. Things are okay.")
+      rescue JSON::ParserError
+        # The file could've been tampered with since Vagrant 1.0.x is
+        # supposed to ensure that the contents are valid JSON. Show an error.
+        raise Errors::DotfileUpgradeJSONError,
+          :state_file => path.to_s
+      end
+
+      # Alright, let's upgrade this guy to the new structure. Start by
+      # backing up the old dotfile.
+      backup_file = path.dirname.join(".vagrant.v1.#{Time.now.to_i}")
+      @logger.info("Renaming old dotfile to: #{backup_file}")
+      path.rename(backup_file)
+
+      # Now, we create the actual local data directory. This should succeed
+      # this time since we renamed the old conflicting V1.
+      setup_local_data_path
+
+      if json_data["active"]
+        @logger.debug("Upgrading to V2 style for each active VM")
+        json_data["active"].each do |name, id|
+          @logger.info("Upgrading dotfile: #{name} (#{id})")
+
+          # Create the machine configuration directory
+          directory = @local_data_path.join("machines/#{name}/virtualbox")
+          FileUtils.mkdir_p(directory)
+
+          # Write the ID file
+          directory.join("id").open("w+") do |f|
+            f.write(id)
+          end
+        end
+      end
+
+      # Upgrade complete! Let the user know
+      @ui.info(I18n.t("vagrant.general.upgraded_v1_dotfile",
+                     :backup_path => backup_file.to_s))
     end
   end
 end
