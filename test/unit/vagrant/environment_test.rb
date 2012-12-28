@@ -23,6 +23,30 @@ describe Vagrant::Environment do
 
   let(:instance)  { env.create_vagrant_env }
 
+  describe "active machines" do
+    it "should be empty if the machines folder doesn't exist" do
+      folder = instance.local_data_path.join("machines")
+      folder.should_not be_exist
+
+      instance.active_machines.should be_empty
+    end
+
+    it "should return the name and provider of active machines" do
+      machines = instance.local_data_path.join("machines")
+
+      # Valid machine, with "foo" and virtualbox
+      machine_foo = machines.join("foo/virtualbox")
+      machine_foo.mkpath
+      machine_foo.join("id").open("w+") { |f| f.write("") }
+
+      # Invalid machine (no ID)
+      machine_bar = machines.join("bar/virtualbox")
+      machine_bar.mkpath
+
+      instance.active_machines.should == [["foo", :virtualbox]]
+    end
+  end
+
   describe "current working directory" do
     it "is the cwd by default" do
       temp_dir = Tempdir.new.path

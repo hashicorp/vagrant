@@ -140,6 +140,51 @@ module Vagrant
     # Helpers
     #---------------------------------------------------------------
 
+    # Returns a list of machines that this environment is currently
+    # managing that physically have been created.
+    #
+    # An "active" machine is a machine that Vagrant manages that has
+    # been created. The machine itself may be in any state such as running,
+    # suspended, etc. but if a machine is "active" then it exists.
+    #
+    # Note that the machines in this array may no longer be present in
+    # the Vagrantfile of this environment. In this case the machine can
+    # be considered an "orphan." Determining which machines are orphan
+    # and which aren't is not currently a supported feature, but will
+    # be in a future version.
+    #
+    # @return [Array<String, Symbol>]
+    def active_machines
+      machine_folder = @local_data_path.join("machines")
+
+      # If the machine folder is not a directory then we just return
+      # an empty array since no active machines exist.
+      return [] if !machine_folder.directory?
+
+      # Traverse the machines folder accumulate a result
+      result = []
+
+      machine_folder.children(true).each do |name_folder|
+        # If this isn't a directory then it isn't a machine
+        next if !name_folder.directory?
+
+        name = name_folder.basename.to_s
+        name_folder.children(true).each do |provider_folder|
+          # If this isn't a directory then it isn't a provider
+          next if !provider_folder.directory?
+
+          # If this machine doesn't have an ID, then ignore
+          next if !provider_folder.join("id").file?
+
+          provider = provider_folder.basename.to_s.to_sym
+          result << [name, provider]
+        end
+      end
+
+      # Return the results
+      result
+    end
+
     # This returns the provider name for the default provider for this
     # environment. The provider returned is currently hardcoded to "virtualbox"
     # but one day should be a detected valid, best-case provider for this
