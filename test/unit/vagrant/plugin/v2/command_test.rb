@@ -157,6 +157,26 @@ describe Vagrant::Plugin::V2::Command do
       instance.with_target_vms(name, :provider => provider) { |vm| vms << vm }
       vms.should == [vmware_vm]
     end
+
+    it "should use the default provider if none is given and none are active" do
+      name = :foo
+      machine = double("machine")
+
+      environment.stub(:machine).with(name, default_provider).and_return(machine)
+      machine.stub(:name => name, :provider => default_provider)
+
+      results = []
+      instance.with_target_vms(name) { |m| results << m }
+      results.should == [machine]
+    end
+
+    it "should use the primary machine with the active provider" do
+      pending
+    end
+
+    it "should use the primary machine with the default provider" do
+      pending
+    end
   end
 
   describe "splitting the main and subcommand args" do
