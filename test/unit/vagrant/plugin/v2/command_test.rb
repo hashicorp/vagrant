@@ -171,11 +171,34 @@ describe Vagrant::Plugin::V2::Command do
     end
 
     it "should use the primary machine with the active provider" do
-      pending
+      name = :foo
+      provider = :vmware
+      vmware_vm = double("vmware_vm")
+
+      environment.stub(:active_machines => [[name, provider]])
+      environment.stub(:machine).with(name, provider).and_return(vmware_vm)
+      environment.stub(:machine_names => [])
+      environment.stub(:primary_machine_name => name)
+      vmware_vm.stub(:name => name, :provider => provider)
+
+      vms = []
+      instance.with_target_vms(nil, :single_target => true) { |vm| vms << vm }
+      vms.should == [vmware_vm]
     end
 
     it "should use the primary machine with the default provider" do
-      pending
+      name = :foo
+      machine = double("machine")
+
+      environment.stub(:active_machines => [])
+      environment.stub(:machine).with(name, default_provider).and_return(machine)
+      environment.stub(:machine_names => [])
+      environment.stub(:primary_machine_name => name)
+      machine.stub(:name => name, :provider => default_provider)
+
+      vms = []
+      instance.with_target_vms(nil, :single_target => true) { |vm| vms << machine }
+      vms.should == [machine]
     end
   end
 

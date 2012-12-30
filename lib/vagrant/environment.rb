@@ -289,21 +289,22 @@ module Vagrant
       config_global.vm.defined_vm_keys.dup
     end
 
-    # Returns the primary VM associated with this environment. This
-    # method is only applicable for multi-VM environments. This can
-    # potentially be nil if no primary VM is specified.
+    # This returns the name of the machine that is the "primary." In the
+    # case of  a single-machine environment, this is just the single machine
+    # name. In the case of a multi-machine environment, then this can
+    # potentially be nil if no primary machine is specified.
     #
-    # @param [Symbol] provider The provider to back the primary machine.
-    # @return [VM]
-    def primary_machine(provider)
-      if machine_names.length == 1
-        return machine(machine_names[0], provider)
-      end
+    # @return [Symbol]
+    def primary_machine_name
+      # If it is a single machine environment, then return the name
+      return machine_names.first if machine_names.length == 1
 
+      # If it is a multi-machine environment, then return the primary
       config_global.vm.defined_vms.each do |name, subvm|
-        return machine(name, provider) if subvm.options[:primary]
+        return name if subvm.options[:primary]
       end
 
+      # If no primary was specified, nil it is
       nil
     end
 

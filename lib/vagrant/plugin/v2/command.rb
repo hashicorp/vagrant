@@ -167,9 +167,9 @@ module Vagrant
           # Make sure we're only working with one VM if single target
           if options[:single_target] && machines.length != 1
             @logger.debug("Using primary machine since single target")
-            primary = @env.primary_machine(provider)
-            raise Errors::MultiVMTargetRequired if !primary
-            machines = [primary]
+            primary_name = @env.primary_machine_name
+            raise Errors::MultiVMTargetRequired if !primary_name
+            machines = [get_machine.call(primary_name)]
           end
 
           # If we asked for reversed ordering, then reverse it
