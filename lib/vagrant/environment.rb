@@ -168,7 +168,7 @@ module Vagrant
         # If this isn't a directory then it isn't a machine
         next if !name_folder.directory?
 
-        name = name_folder.basename.to_s
+        name = name_folder.basename.to_s.to_sym
         name_folder.children(true).each do |provider_folder|
           # If this isn't a directory then it isn't a provider
           next if !provider_folder.directory?

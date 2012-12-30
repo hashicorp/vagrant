@@ -43,7 +43,7 @@ describe Vagrant::Environment do
       machine_bar = machines.join("bar/virtualbox")
       machine_bar.mkpath
 
-      instance.active_machines.should == [["foo", :virtualbox]]
+      instance.active_machines.should == [[:foo, :virtualbox]]
     end
   end
 
