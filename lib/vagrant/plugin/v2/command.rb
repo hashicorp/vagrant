@@ -70,6 +70,10 @@ module Vagrant
         # @option options [Boolean] :single_target If true, then an
         #   exception will be raised if more than one target is found.
         def with_target_vms(names=nil, options=nil)
+          @logger.debug("Getting target VMs for command. Arguments:")
+          @logger.debug(" -- names: #{names.inspect}")
+          @logger.debug(" -- options: #{options.inspect}")
+
           # Using VMs requires a Vagrant environment to be properly setup
           raise Errors::NoEnvironmentError if !@env.root_path
 
@@ -88,6 +92,8 @@ module Vagrant
           if names.length > 0
             names.each do |name|
               if pattern = name[/^\/(.+?)\/$/, 1]
+                @logger.debug("Finding machines that match regex: #{pattern}")
+
                 # This is a regular expression name, so we convert to a regular
                 # expression and allow that sort of matching.
                 regex = Regexp.new(pattern)
@@ -101,6 +107,7 @@ module Vagrant
                 raise Errors::VMNoMatchError if machines.empty?
               else
                 # String name, just look for a specific VM
+                @logger.debug("Finding machine that match name: #{name}")
                 machines << @env.machine(name.to_sym, provider)
                 raise Errors::VMNotFoundError, :name => name if !machines[0]
               end
@@ -108,6 +115,7 @@ module Vagrant
           else
             # No name was given, so we return every VM in the order
             # configured.
+            @logger.debug("Loading all machines...")
             machines = @env.machine_names.map do |machine_name|
               @env.machine(machine_name, provider)
             end
@@ -115,6 +123,7 @@ module Vagrant
 
           # Make sure we're only working with one VM if single target
           if options[:single_target] && machines.length != 1
+            @logger.debug("Using primary machine since single target")
             primary = @env.primary_machine(provider)
             raise Errors::MultiVMTargetRequired if !primary
             machines = [primary]
@@ -125,6 +134,7 @@ module Vagrant
 
           # Go through each VM and yield it!
           machines.each do |machine|
+            @logger.info("With machine: #{machine.name} (#{machine.provider.inspect})")
             yield machine
           end
         end
