@@ -84,8 +84,51 @@ module Vagrant
           names ||= []
           names = [names] if !names.is_a?(Array)
 
-          # The provider that we'll be loading up.
-          provider = (options[:provider] || @env.default_provider).to_sym
+          # This is a helper that gets a single machine with the proper
+          # provider. The "proper provider" in this case depends on what was
+          # given:
+          #
+          #   * If a provider was explicitly specified, then use that provider.
+          #     But if an active machine exists with a DIFFERENT provider,
+          #     then throw an error (for now), since we don't yet support
+          #     bringing up machines with different providers.
+          #
+          #   * If no provider was specified, then use the active machine's
+          #     provider if it exists, otherwise use the default provider.
+          #
+          get_machine = lambda do |name|
+            # Check for an active machine with the same name
+            provider_to_use = options[:provider]
+
+            @env.active_machines.each do |active_name, active_provider|
+              if name == active_name
+                # We found an active machine with the same name
+
+                if provider_to_use && provider_to_use != active_provider
+                  # We found an active machine with a provider that doesn't
+                  # match the requested provider. Show an error.
+                  raise Errors::ActiveMachineWithDifferentProvider,
+                    :name => active_name.to_s,
+                    :active_provider => active_provider.to_s,
+                    :requested_provider => provider_to_use.to_s
+                else
+                  # Use this provider and exit out of the loop. One of the
+                  # invariants [for now] is that there shouldn't be machines
+                  # with multiple providers.
+                  @logger.info("Active machine found with name #{active_name}. " +
+                               "Using provider: #{active_provider}")
+                  provider_to_use = active_provider
+                  break
+                end
+              end
+            end
+
+            # Use the default provider if nothing else
+            provider_to_use ||= @env.default_provider
+
+            # Get the right machine with the right provider
+            @env.machine(name, provider_to_use)
+          end
 
           # First determine the proper array of VMs.
           machines = []
@@ -100,7 +143,7 @@ module Vagrant
 
                 @env.machine_names.each do |machine_name|
                   if machine_name =~ regex
-                    machines << @env.machine(machine_name, provider)
+                    machines << get_machine.call(machine_name)
                   end
                 end
 
@@ -108,7 +151,7 @@ module Vagrant
               else
                 # String name, just look for a specific VM
                 @logger.debug("Finding machine that match name: #{name}")
-                machines << @env.machine(name.to_sym, provider)
+                machines << get_machine.call(name.to_sym)
                 raise Errors::VMNotFoundError, :name => name if !machines[0]
               end
             end
@@ -117,7 +160,7 @@ module Vagrant
             # configured.
             @logger.debug("Loading all machines...")
             machines = @env.machine_names.map do |machine_name|
-              @env.machine(machine_name, provider)
+              get_machine.call(machine_name)
             end
           end
 

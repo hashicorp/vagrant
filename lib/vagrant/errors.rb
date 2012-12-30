@@ -88,6 +88,10 @@ module Vagrant
       end
     end
 
+    class ActiveMachineWithDifferentProvider < VagrantError
+      error_key(:active_machine_with_different_provider)
+    end
+
     class BaseVMNotFound < VagrantError
       status_code(18)
       error_key(:base_vm_not_found)

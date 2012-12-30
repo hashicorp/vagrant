@@ -57,6 +57,7 @@ describe Vagrant::Plugin::V2::Command do
 
     let(:environment) do
       env = double("environment")
+      env.stub(:active_machines => [])
       env.stub(:default_provider => default_provider)
       env.stub(:root_path => "foo")
       env
@@ -73,10 +74,10 @@ describe Vagrant::Plugin::V2::Command do
 
     it "should yield every VM in order is no name is given" do
       foo_vm = double("foo")
-      foo_vm.stub(:name).and_return("foo")
+      foo_vm.stub(:name => "foo", :provider => :foobarbaz)
 
       bar_vm = double("bar")
-      bar_vm.stub(:name).and_return("bar")
+      bar_vm.stub(:name => "bar", :provider => :foobarbaz)
 
       environment.stub(:machine_names => [:foo, :bar])
       environment.stub(:machine).with(:foo, default_provider).and_return(foo_vm)
@@ -100,6 +101,7 @@ describe Vagrant::Plugin::V2::Command do
 
     it "yields the given VM if a name is given" do
       foo_vm = double("foo")
+      foo_vm.stub(:name => "foo", :provider => :foobarbaz)
 
       environment.stub(:machine).with(:foo, default_provider).and_return(foo_vm)
 
@@ -112,11 +114,48 @@ describe Vagrant::Plugin::V2::Command do
       foo_vm = double("foo")
       provider = :foobarbaz
 
+      foo_vm.stub(:name => "foo", :provider => provider)
       environment.stub(:machine).with(:foo, provider).and_return(foo_vm)
 
       vms = []
       instance.with_target_vms("foo", :provider => provider) { |vm| vms << vm }
       vms.should == [foo_vm]
+    end
+
+    it "should raise an exception if an active machine exists with a different provider" do
+      name = :foo
+
+      environment.stub(:active_machines => [[name, :vmware]])
+      expect { instance.with_target_vms(name, :provider => :foo) }.
+        to raise_error Vagrant::Errors::ActiveMachineWithDifferentProvider
+    end
+
+    it "should default to the active machine provider if no explicit provider requested" do
+      name = :foo
+      provider = :vmware
+      vmware_vm = double("vmware_vm")
+
+      environment.stub(:active_machines => [[name, provider]])
+      environment.stub(:machine).with(name, provider).and_return(vmware_vm)
+      vmware_vm.stub(:name => name, :provider => provider)
+
+      vms = []
+      instance.with_target_vms(name) { |vm| vms << vm }
+      vms.should == [vmware_vm]
+    end
+
+    it "should use the explicit provider if it maches the active machine" do
+      name = :foo
+      provider = :vmware
+      vmware_vm = double("vmware_vm")
+
+      environment.stub(:active_machines => [[name, provider]])
+      environment.stub(:machine).with(name, provider).and_return(vmware_vm)
+      vmware_vm.stub(:name => name, :provider => provider)
+
+      vms = []
+      instance.with_target_vms(name, :provider => provider) { |vm| vms << vm }
+      vms.should == [vmware_vm]
     end
   end
 

@@ -25,6 +25,16 @@ en:
 # Translations for exception classes
 #-------------------------------------------------------------------------------
     errors:
+      active_machine_with_different_provider: |-
+        An active machine was found with a different provider. Vagrant
+        currently allows each machine to be brought up with only a single
+        provider at a time. A future version will remove this limitation.
+        Until then, please destroy the existing machine to up with a new
+        provider.
+
+        Machine name: %{name}
+        Active provider: %{active_provider}
+        Requested provider: %{requested_provider}
       base_vm_not_found: The base VM with the name '%{name}' was not found.
       box_not_found: Box '%{name}' could not be found.
       box_provider_doesnt_match: |-
