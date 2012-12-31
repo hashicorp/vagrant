@@ -98,7 +98,8 @@ module Vagrant
           #
           get_machine = lambda do |name|
             # Check for an active machine with the same name
-            provider_to_use = options[:provider].to_sym
+            provider_to_use = options[:provider]
+            provider_to_use = provider_to_use.to_sym if provider_to_use
 
             @env.active_machines.each do |active_name, active_provider|
               if name == active_name
