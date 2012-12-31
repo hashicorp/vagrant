@@ -140,7 +140,7 @@ describe Vagrant::Plugin::V2::Command do
       vmware_vm.stub(:name => name, :provider => provider)
 
       vms = []
-      instance.with_target_vms(name) { |vm| vms << vm }
+      instance.with_target_vms(name.to_s) { |vm| vms << vm }
       vms.should == [vmware_vm]
     end
 
@@ -154,7 +154,7 @@ describe Vagrant::Plugin::V2::Command do
       vmware_vm.stub(:name => name, :provider => provider)
 
       vms = []
-      instance.with_target_vms(name, :provider => provider) { |vm| vms << vm }
+      instance.with_target_vms(name.to_s, :provider => provider) { |vm| vms << vm }
       vms.should == [vmware_vm]
     end
 
@@ -166,7 +166,7 @@ describe Vagrant::Plugin::V2::Command do
       machine.stub(:name => name, :provider => default_provider)
 
       results = []
-      instance.with_target_vms(name) { |m| results << m }
+      instance.with_target_vms(name.to_s) { |m| results << m }
       results.should == [machine]
     end
 
