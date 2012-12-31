@@ -126,7 +126,7 @@ describe Vagrant::Plugin::V2::Command do
       name = :foo
 
       environment.stub(:active_machines => [[name, :vmware]])
-      expect { instance.with_target_vms(name, :provider => :foo) }.
+      expect { instance.with_target_vms(name.to_s, :provider => :foo) }.
         to raise_error Vagrant::Errors::ActiveMachineWithDifferentProvider
     end
 
