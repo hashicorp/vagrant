@@ -66,10 +66,16 @@ module Vagrant
       @channel ||= Communication::SSH.new(self)
     end
 
+    # Returns true if the guest was given as a class, as specified
+    # at http://docs.vagrantup.com/v1/docs/guests.html
+    def guest_class_given?
+      config.vm.guest.is_a?(Class)
+    end
+
     # Returns the guest for this VM, loading the distro of the system if
     # we can.
     def guest
-      if !@loaded_guest_distro && state == :running
+      if !guest_class_given? && !@loaded_guest_distro && state == :runningq
         # Load the guest distro for the first time
         result = @guest.distro_dispatch
         load_guest!(result)
