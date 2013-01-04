@@ -32,7 +32,8 @@ module VagrantPlugins
           # approach.
           guest_port_mapping = {}
           @env[:machine].config.vm.forwarded_ports.each do |options|
-            guest_port_mapping[options[:guestport]] = options
+            key = options[:protocol].to_s + options[:guestport].to_s
+            guest_port_mapping[key] = options
           end
 
           # Return the values, since the order doesn't really matter
