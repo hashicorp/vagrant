@@ -73,8 +73,8 @@ module VagrantPlugins
           execute("list", "vms").split("\n").each do |line|
             if line =~ /^".+?"\s+\{(.+?)\}$/
               info = execute("showvminfo", $1.to_s, "--machinereadable", :retryable => true)
-              info.split("\n").each do |line|
-                if line =~ /^hostonlyadapter\d+="(.+?)"$/
+              info.split("\n").each do |inner_line|
+                if inner_line =~ /^hostonlyadapter\d+="(.+?)"$/
                   networks.delete($1.to_s)
                 end
               end
