@@ -194,6 +194,7 @@ module VagrantPlugins
           b.use Call, Created do |env, b2|
             if env[:result]
               b2.use CheckAccessible
+              b2.use EnvSet, :port_collision_handler => :error
               b2.use CheckPortCollisions
               b2.use Resume
             else
