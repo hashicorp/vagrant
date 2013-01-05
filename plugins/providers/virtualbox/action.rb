@@ -58,6 +58,7 @@ module VagrantPlugins
           b.use CleanMachineFolder
           b.use ClearForwardedPorts
           b.use EnvSet, :port_collision_handler => :correct
+          b.use CheckPortCollisions
           b.use ForwardPorts
           b.use Provision
           b.use PruneNFSExports
