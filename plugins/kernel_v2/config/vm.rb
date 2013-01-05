@@ -143,39 +143,6 @@ module VagrantPlugins
           end
         end
 
-        # Validate some basic networking
-        #
-        # TODO: One day we need to abstract this out, since in the future
-        # providers other than VirtualBox will not be able to satisfy
-        # all types of networks.
-        networks.each do |type, args|
-          if type == :hostonly && args[0] == :dhcp
-            # Valid. There is no real way this can be invalid at the moment.
-          elsif type == :hostonly
-            # Validate the host-only network
-            ip      = args[0]
-
-            if !ip
-              errors.add(I18n.t("vagrant.config.vm.network_ip_required"))
-            else
-              ip_parts = ip.split(".")
-
-              if ip_parts.length != 4
-                errors.add(I18n.t("vagrant.config.vm.network_ip_invalid",
-                                  :ip => ip))
-              elsif ip_parts.last == "1"
-                errors.add(I18n.t("vagrant.config.vm.network_ip_ends_one",
-                                  :ip => ip))
-              end
-            end
-          elsif type == :bridged
-          else
-            # Invalid network type
-            errors.add(I18n.t("vagrant.config.vm.network_invalid",
-                              :type => type.to_s))
-          end
-        end
-
         # Each provisioner can validate itself
         provisioners.each do |prov|
           prov.validate(env, errors)
