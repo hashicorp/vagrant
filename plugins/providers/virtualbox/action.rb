@@ -66,7 +66,7 @@ module VagrantPlugins
           b.use ClearSharedFolders
           b.use ShareFolders
           b.use ClearNetworkInterfaces
-          b.use Network
+          #b.use Network
           b.use HostName
           b.use SaneDefaults
           b.use Customize
