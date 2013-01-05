@@ -30,5 +30,9 @@ module VagrantPlugins
       autoload :Version_4_1, File.expand_path("../driver/version_4_1", __FILE__)
       autoload :Version_4_2, File.expand_path("../driver/version_4_2", __FILE__)
     end
+
+    module Model
+      autoload :ForwardedPort, File.expand_path("../model/forwarded_port", __FILE__)
+    end
   end
 end
