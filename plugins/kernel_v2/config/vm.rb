@@ -45,17 +45,6 @@ module VagrantPlugins
         result
       end
 
-      def forward_port(guestport, hostport, options=nil)
-        @forwarded_ports << {
-          :name       => "#{guestport.to_s(32)}-#{hostport.to_s(32)}",
-          :guestport  => guestport,
-          :hostport   => hostport,
-          :protocol   => :tcp,
-          :adapter    => 1,
-          :auto       => false
-        }.merge(options || {})
-      end
-
       def share_folder(name, guestpath, hostpath, opts=nil)
         @shared_folders[name] = {
           :guestpath => guestpath.to_s,
@@ -69,6 +58,21 @@ module VagrantPlugins
         }.merge(opts || {})
       end
 
+      # Define a way to access the machine via a network. This exposes a
+      # high-level abstraction for networking that may not directly map
+      # 1-to-1 for every provider. For example, AWS has no equivalent to
+      # "port forwarding." But most providers will attempt to implement this
+      # in a way that behaves similarly.
+      #
+      # `type` can be one of:
+      #
+      #   * `:forwarded_port` - A port that is accessible via localhost
+      #     that forwards into the machine.
+      #   * `:private_network` - The machine gets an IP that is not directly
+      #     publicly accessible, but ideally accessible from this machine.
+      #   * `:public_network` - The machine gets an IP on a shared network.
+      #
+      # @param [Symbol] type Type of network
       def network(type, *args)
         @networks << [type, args]
       end

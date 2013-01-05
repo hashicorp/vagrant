@@ -107,7 +107,7 @@ module VagrantPlugins
           guestport = options.delete(:guestport)
           hostport  = options.delete(:hostport)
 
-          new.vm.forward_port(guestport, hostport, options)
+          new.vm.network(:forwarded_port, guestport, hostport, options)
         end
 
         # Re-define all networks.

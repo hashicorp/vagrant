@@ -14,8 +14,10 @@ Vagrant.configure("2") do |config|
   config.vm.auto_port_range = (2200..2250)
   config.vm.box_url = nil
   config.vm.base_mac = nil
-  config.vm.forward_port 22, 2222, :name => "ssh", :auto => true
   config.vm.guest = :linux
+
+  # Share SSH locally by default
+  config.vm.network :forwarded_port, 22, 2222, :id => "ssh", :auto => true
 
   # Share the root folder. This can then be overridden by
   # other Vagrantfiles, if they wish.
