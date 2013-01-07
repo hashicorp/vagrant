@@ -23,7 +23,7 @@ module VagrantPlugins
           end
 
           return :gentoo if comm.test("cat /etc/gentoo-release")
-          return :fedora if comm.test("grep 'Fedora release 16' /etc/redhat-release")
+          return :fedora if comm.test("grep 'Fedora release 1[678]' /etc/redhat-release")
           return :redhat if comm.test("cat /etc/redhat-release")
           return :suse if comm.test("cat /etc/SuSE-release")
           return :arch if comm.test("cat /etc/arch-release")
