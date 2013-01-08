@@ -24,6 +24,13 @@ module Vagrant
         # Make the TemplateRenderer top-level
         include Vagrant::Util
 
+        def change_host_name(name)
+          # Only do this if the hostname is not already set
+          if !vm.channel.test("sudo hostname | grep '#{name}'")
+            vm.channel.sudo("hostnamectl set-hostname #{name}")
+            vm.channel.sudo("sed -i 's@^\\(127[.]0[.]0[.]1[[:space:]]\\+\\)@\\1#{name} @' /etc/hosts")
+          end
+        end
       end
 
       module SysVInit
