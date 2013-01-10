@@ -57,15 +57,17 @@ module Vagrant
         # certainly be possible if we can detect we're in an environment that
         # supports it.
         if Platform.windows?
-          raise Errors::SSHUnavailableWindows,
-            :host => ssh_info[:host],
-            :port => ssh_info[:port],
-            :username => ssh_info[:username],
-            :key_path => ssh_info[:private_key_path]
-        end
-
-        # Verify that we have SSH available on the system.
-        raise Errors::SSHUnavailable if !Kernel.system("which ssh > /dev/null 2>&1")
+          # mysys like msysGit have working version of ssh
+          if !Kernel.system("where ssh > NUL 2>&1")
+            raise Errors::SSHUnavailableWindows, :host => ssh_info[:host],
+                                                 :port => ssh_info[:port],
+                                                 :username => ssh_info[:username],
+                                                 :key_path => ssh_info[:private_key_path]
+          end                                             
+        else                                     
+          # Verify that we have SSH available on the system.
+          raise Errors::SSHUnavailable if !Kernel.system("which ssh > /dev/null 2>&1")
+        end          
 
         # If plain mode is enabled then we don't do any authentication (we don't
         # set a user or an identity file)
