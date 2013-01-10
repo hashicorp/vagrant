@@ -1,5 +1,3 @@
-require "pathname"
-
 module VagrantPlugins
   module Kernel_V1
     # This is the Version 1.0.x Vagrant VM configuration. This is
@@ -17,13 +15,11 @@ module VagrantPlugins
       attr_accessor :guest
       attr_accessor :host_name
       attr_reader :customizations
-      attr_reader :forwarded_ports
       attr_reader :networks
       attr_reader :provisioners
       attr_reader :shared_folders
 
       def initialize
-        @forwarded_ports = []
         @shared_folders = {}
         @networks = []
         @provisioners = []
@@ -32,14 +28,13 @@ module VagrantPlugins
       end
 
       def forward_port(guestport, hostport, options=nil)
-        @forwarded_ports << {
-          :name       => "#{guestport.to_s(32)}-#{hostport.to_s(32)}",
-          :guestport  => guestport,
-          :hostport   => hostport,
-          :protocol   => :tcp,
-          :adapter    => 1,
-          :auto       => false
-        }.merge(options || {})
+        # Build up the network options for V2
+        network_options = {}
+        network_options[:virtualbox__adapter] = options[:adapter]
+        network_options[:virtualbox__protocol] = options[:protocol]
+
+        # Just append the forwarded port to the networks
+        @networks << [:forwarded_port, guestport, hostport, network_options]
       end
 
       def share_folder(name, guestpath, hostpath, opts=nil)
@@ -99,15 +94,6 @@ module VagrantPlugins
         # VirtualBox provider on the new VM.
         self.customizations.each do |customization|
           new.vm.providers[:virtualbox].config.customize(customization)
-        end
-
-        # Take all the defined forwarded ports and re-define them
-        self.forwarded_ports.each do |fp|
-          options   = fp.dup
-          guestport = options.delete(:guestport)
-          hostport  = options.delete(:hostport)
-
-          new.vm.network(:forwarded_port, guestport, hostport, options)
         end
 
         # Re-define all networks.
