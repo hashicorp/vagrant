@@ -202,6 +202,14 @@ module VagrantPlugins
         return yield connection if block_given?
       end
 
+      # Fetches the name of the socket that will be used
+      # for ssh_agent forwarding (nedded in case we use sudo)
+      def fetch_auth_socket
+        execute("echo $SSH_AUTH_SOCK") do |type,data|
+          return data.chomp
+        end
+      end
+
       # Executes the command on an SSH connection within a login shell.
       def shell_execute(connection, command, sudo=false)
         @logger.info("Execute: #{command} (sudo=#{sudo.inspect})")
@@ -241,6 +249,9 @@ module VagrantPlugins
 
             # Set the terminal
             ch2.send_data "export TERM=vt100\n"
+
+            # Set SSH_AUTH_SOCK in case we are in sudo and ssh_forward_agent is set
+            ch2.send_data "export SSH_AUTH_SOCK=#{fetch_auth_socket}\n" if @machine.ssh_info[:forward_agent] && sudo
 
             # Output the command
             ch2.send_data "#{command}\n"
