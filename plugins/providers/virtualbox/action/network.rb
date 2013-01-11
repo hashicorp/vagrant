@@ -3,6 +3,7 @@ require "set"
 require "log4r"
 
 require "vagrant/util/network_ip"
+require "vagrant/util/scoped_hash_override"
 
 module VagrantPlugins
   module ProviderVirtualBox
@@ -14,6 +15,7 @@ module VagrantPlugins
       # This handles all the `config.vm.network` configurations.
       class Network
         include Vagrant::Util::NetworkIP
+        include Vagrant::Util::ScopedHashOverride
 
         def initialize(app, env)
           @logger = Log4r::Logger.new("vagrant::plugins::virtualbox::network")
@@ -43,9 +45,10 @@ module VagrantPlugins
             options = nil
             options = args.last if args.last.is_a?(Hash)
             options ||= {}
+            options = scoped_hash_override(options, :virtualbox)
 
             # Figure out the slot that this adapter will go into
-            slot = options[:virtualbox__adapter]
+            slot = options[:adapter]
             if !slot
               if available_slots.empty?
                 # TODO: Error that we have no room for this adapter
@@ -59,13 +62,13 @@ module VagrantPlugins
             if type == :private_network
               # private_network = hostonly
 
-              config_args = [args[0]]
-              data = [:hostonly, config_args]
+              config_args = [args[0], options]
+              data        = [:hostonly, config_args]
             elsif type == :public_network
               # public_network = bridged
 
-              config_args = []
-              data = [:bridged, config_args]
+              config_args = [options]
+              data        = [:bridged, config_args]
             end
 
             # Store it!

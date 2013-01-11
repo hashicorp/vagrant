@@ -18,6 +18,11 @@ module Vagrant
     #
     module ScopedHashOverride
       def scoped_hash_override(original, scope)
+        # Convert the scope to a string in case a symbol was given since
+        # we use string comparisons for everything.
+        scope = scope.to_s
+
+        # Shallow copy the hash for the result
         result = original.dup
 
         original.each do |key, value|
