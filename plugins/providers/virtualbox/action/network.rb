@@ -246,7 +246,9 @@ module VagrantPlugins
             :adapter_ip  => adapter_ip,
             :auto_config => options[:auto_config],
             :ip          => ip,
+            :mac         => nil,
             :netmask     => options[:netmask],
+            :nic_type    => nil,
             :type        => :static
           }
         end
@@ -271,8 +273,10 @@ module VagrantPlugins
 
           return {
             :adapter  => config[:adapter],
-            :type     => :hostonly,
-            :hostonly => interface[:name]
+            :hostonly => interface[:name],
+            :mac      => config[:mac],
+            :nic_type => config[:nic_type],
+            :type     => :hostonly
           }
         end
 
