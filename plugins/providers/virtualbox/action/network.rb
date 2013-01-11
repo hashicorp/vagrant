@@ -120,6 +120,96 @@ module VagrantPlugins
           end
         end
 
+        def bridged_config(args)
+          return {
+            :auto_config                     => true,
+            :bridge                          => nil,
+            :mac                             => nil,
+            :nic_type                        => nil,
+            :use_dhcp_assigned_default_route => false
+          }.merge(args[0] || {})
+        end
+
+        def bridged_adapter(config)
+          # Find the bridged interfaces that are available
+          bridgedifs = @env[:machine].provider.driver.read_bridged_interfaces
+          bridgedifs.delete_if { |interface| interface[:status] == "Down" }
+
+          # The name of the chosen bridge interface will be assigned to this
+          # variable.
+          chosen_bridge = nil
+
+          if config[:bridge]
+            @logger.debug("Bridge was directly specified in config, searching for: #{config[:bridge]}")
+
+            # Search for a matching bridged interface
+            bridgedifs.each do |interface|
+              if interface[:name].downcase == config[:bridge].downcase
+                @logger.debug("Specific bridge found as configured in the Vagrantfile. Using it.")
+                chosen_bridge = interface[:name]
+                break
+              end
+            end
+
+            # If one wasn't found, then we notify the user here.
+            if !chosen_bridge
+              @env[:ui].info I18n.t("vagrant.actions.vm.bridged_networking.specific_not_found",
+                                    :bridge => config[:bridge])
+            end
+          end
+
+          # If we still don't have a bridge chosen (this means that one wasn't
+          # specified in the Vagrantfile, or the bridge specified in the Vagrantfile
+          # wasn't found), then we fall back to the normal means of searchign for a
+          # bridged network.
+          if !chosen_bridge
+            if bridgedifs.length == 1
+              # One bridgable interface? Just use it.
+              chosen_bridge = bridgedifs[0][:name]
+              @logger.debug("Only one bridged interface available. Using it by default.")
+            else
+              # More than one bridgable interface requires a user decision, so
+              # show options to choose from.
+              @env[:ui].info I18n.t("vagrant.actions.vm.bridged_networking.available",
+                                    :prefix => false)
+              bridgedifs.each_index do |index|
+                interface = bridgedifs[index]
+                @env[:ui].info("#{index + 1}) #{interface[:name]}", :prefix => false)
+              end
+
+              # The range of valid choices
+              valid = Range.new(1, bridgedifs.length)
+
+              # The choice that the user has chosen as the bridging interface
+              choice = nil
+              while !valid.include?(choice)
+                choice = @env[:ui].ask("What interface should the network bridge to? ")
+                choice = choice.to_i
+              end
+
+              chosen_bridge = bridgedifs[choice - 1][:name]
+            end
+          end
+
+          @logger.info("Bridging adapter #{config[:adapter]} to #{chosen_bridge}")
+
+          # Given the choice we can now define the adapter we're using
+          return {
+            :adapter     => config[:adapter],
+            :type        => :bridged,
+            :bridge      => chosen_bridge,
+            :mac_address => config[:mac],
+            :nic_type    => config[:nic_type]
+          }
+        end
+
+        def bridged_network_config(config)
+          return {
+            :type => :dhcp,
+            :use_dhcp_assigned_default_route => config[:use_dhcp_assigned_default_route]
+          }
+        end
+
         def hostonly_config(args)
           ip      = args[0]
           options = {
