@@ -11,7 +11,7 @@ Vagrant.configure("2") do |config|
   config.ssh.forward_x11 = false
   config.ssh.shell = "bash -l"
 
-  config.vm.auto_port_range = (2200..2250)
+  config.vm.usable_port_range = (2200..2250)
   config.vm.box_url = nil
   config.vm.base_mac = nil
   config.vm.guest = :linux

@@ -9,6 +9,11 @@ module VagrantPlugins
         # @return [Integer]
         attr_reader :adapter
 
+        # If true, this port should be auto-corrected.
+        #
+        # @return [Boolean]
+        attr_reader :auto_correct
+
         # The unique ID for the forwarded port.
         #
         # @return [String]
@@ -35,8 +40,17 @@ module VagrantPlugins
           @host_port  = host_port
 
           options ||= {}
+          @auto_correct = true
+          @auto_correct = options[:auto_correct] if options.has_key?(:auto_correct)
           @adapter  = options[:adapter] || 1
           @protocol = options[:protocol] || "tcp"
+        end
+
+        # This corrects the host port and changes it to the given new port.
+        #
+        # @param [Integer] new_port The new port
+        def correct_host_port(new_port)
+          @host_port = new_port
         end
       end
     end

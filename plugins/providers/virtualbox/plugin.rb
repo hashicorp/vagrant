@@ -34,5 +34,9 @@ module VagrantPlugins
     module Model
       autoload :ForwardedPort, File.expand_path("../model/forwarded_port", __FILE__)
     end
+
+    module Util
+      autoload :CompileForwardedPorts, File.expand_path("../util/compile_forwarded_ports", __FILE__)
+    end
   end
 end

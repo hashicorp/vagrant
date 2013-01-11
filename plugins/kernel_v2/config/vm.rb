@@ -11,12 +11,12 @@ module VagrantPlugins
     class VMConfig < Vagrant.plugin("2", :config)
       DEFAULT_VM_NAME = :default
 
-      attr_accessor :auto_port_range
       attr_accessor :base_mac
       attr_accessor :box
       attr_accessor :box_url
       attr_accessor :guest
       attr_accessor :host_name
+      attr_accessor :usable_port_range
       attr_reader :forwarded_ports
       attr_reader :shared_folders
       attr_reader :networks
