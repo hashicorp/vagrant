@@ -23,6 +23,7 @@ module VagrantPlugins
       autoload :DestroyUnusedNetworkInterfaces, File.expand_path("../action/destroy_unused_network_interfaces", __FILE__)
       autoload :DiscardState, File.expand_path("../action/discard_state", __FILE__)
       autoload :Export, File.expand_path("../action/export", __FILE__)
+      autoload :ForwardPorts, File.expand_path("../action/forward_ports", __FILE__)
       autoload :Halt, File.expand_path("../action/halt", __FILE__)
       autoload :HostName, File.expand_path("../action/host_name", __FILE__)
       autoload :Import, File.expand_path("../action/import", __FILE__)
@@ -65,6 +66,7 @@ module VagrantPlugins
           b.use ShareFolders
           b.use ClearNetworkInterfaces
           b.use Network
+          b.use ForwardPorts
           b.use HostName
           b.use SaneDefaults
           b.use Customize
