@@ -51,7 +51,7 @@ module VagrantPlugins
             slot = options[:adapter]
             if !slot
               if available_slots.empty?
-                # TODO: Error that we have no room for this adapter
+                raise Vagrant::Errors::VirtualBoxNoRoomForHighLevelNetwork
               end
 
               slot = available_slots.shift
