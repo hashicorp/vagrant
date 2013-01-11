@@ -75,6 +75,7 @@ module VagrantPlugins
 
           @logger.info("Determining adapters and compiling network configuration...")
           adapters = []
+          networks = []
           network_adapters_config.each do |slot, data|
             type = data[0]
             args = data[1]
@@ -84,14 +85,17 @@ module VagrantPlugins
             # Get the normalized configuration for this type
             config = send("#{type}_config", args)
             config[:adapter] = slot
-
             @logger.debug("Normalized configuration: #{config.inspect}")
 
             # Get the VirtualBox adapter configuration
             adapter = send("#{type}_adapter", config)
             adapters << adapter
-
             @logger.debug("Adapter configuration: #{adapter.inspect}")
+
+            # Get the network configuration
+            network = send("#{type}_network_config", config)
+            network[:auto_config] = config[:auto_config]
+            networks << network
           end
 
           if !adapters.empty?
@@ -104,13 +108,23 @@ module VagrantPlugins
           # Continue the middleware chain.
           @app.call(env)
 
-          # TODO: Configure running-VM networks
+          # If we have networks to configure, then we configure it now, since
+          # that requires the machine to be up and running.
+          if !adapters.empty? && !networks.empty?
+            assign_interface_numbers(networks, adapters)
+
+            # Only configure the networks the user requested us to configure
+            networks_to_configure = networks.select { |n| n[:auto_config] }
+            env[:ui].info I18n.t("vagrant.actions.vm.network.configuring")
+            env[:machine].guest.configure_networks(networks_to_configure)
+          end
         end
 
         def hostonly_config(args)
           ip      = args[0]
           options = {
-            :netmask => "255.255.255.0"
+            :auto_config => true,
+            :netmask     => "255.255.255.0"
           }.merge(args[1] || {})
 
           # Calculate our network address for the given IP/netmask
@@ -139,10 +153,11 @@ module VagrantPlugins
           options[:adapter_ip] ||= adapter_ip.join(".")
 
           return {
-            :adapter_ip => adapter_ip,
-            :ip         => ip,
-            :netmask    => options[:netmask],
-            :type       => :static
+            :adapter_ip  => adapter_ip,
+            :auto_config => options[:auto_config],
+            :ip          => ip,
+            :netmask     => options[:netmask],
+            :type        => :static
           }
         end
 
@@ -171,8 +186,19 @@ module VagrantPlugins
           }
         end
 
+        def hostonly_network_config(config)
+          return {
+            :type       => config[:type],
+            :adapter_ip => config[:adapter_ip],
+            :ip         => config[:ip],
+            :netmask    => config[:netmask]
+          }
+        end
+
         def nat_config(options)
-          return {}
+          return {
+            :auto_config => false
+          }
         end
 
         def nat_adapter(config)
@@ -180,6 +206,46 @@ module VagrantPlugins
             :adapter => config[:adapter],
             :type    => :nat,
           }
+        end
+
+        def nat_network_config(config)
+          return {}
+        end
+
+        #-----------------------------------------------------------------
+        # Misc. helpers
+        #-----------------------------------------------------------------
+        # Assigns the actual interface number of a network based on the
+        # enabled NICs on the virtual machine.
+        #
+        # This interface number is used by the guest to configure the
+        # NIC on the guest VM.
+        #
+        # The networks are modified in place by adding an ":interface"
+        # field to each.
+        def assign_interface_numbers(networks, adapters)
+          current = 0
+          adapter_to_interface = {}
+
+          # Make a first pass to assign interface numbers by adapter location
+          vm_adapters = @env[:machine].provider.driver.read_network_interfaces
+          vm_adapters.sort.each do |number, adapter|
+            if adapter[:type] != :none
+              # Not used, so assign the interface number and increment
+              adapter_to_interface[number] = current
+              current += 1
+            end
+          end
+
+          # Make a pass through the adapters to assign the :interface
+          # key to each network configuration.
+          adapters.each_index do |i|
+            adapter = adapters[i]
+            network = networks[i]
+
+            # Figure out the interface number by simple lookup
+            network[:interface] = adapter_to_interface[adapter[:adapter]]
+          end
         end
 
         #-----------------------------------------------------------------
