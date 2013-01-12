@@ -8,11 +8,16 @@ module VagrantPlugins
           options = {}
 
           opts = OptionParser.new do |o|
-            o.banner = "Usage: vagrant box add <name> <url>"
+            o.banner = "Usage: vagrant box add <name> <url> [--provider provider] [-h]"
             o.separator ""
 
             o.on("-f", "--force", "Overwrite an existing box if it exists.") do |f|
               options[:force] = f
+            end
+
+            o.on("--provider provider", String,
+                 "The provider that backs the box.") do |p|
+              options[:provider] = p
             end
           end
 
@@ -30,7 +35,7 @@ module VagrantPlugins
 
           @env.action_runner.run(Vagrant::Action.action_box_add, {
             :box_name     => argv[0],
-            :box_provider => :virtualbox,
+            :box_provider => options[:provider].to_sym,
             :box_url      => argv[1]
           })
 
