@@ -184,6 +184,9 @@ module VagrantPlugins
         rescue Errno::ECONNREFUSED
           # This is raised if we failed to connect the max amount of times
           raise Vagrant::Errors::SSHConnectionRefused
+        rescue Errno::EHOSTDOWN
+          # This is raised if we get an ICMP DestinationUnknown error.
+          raise Vagrant::Errors::SSHHostDown
         rescue NotImplementedError
           # This is raised if a private key type that Net-SSH doesn't support
           # is used. Show a nicer error.

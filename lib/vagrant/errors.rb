@@ -374,6 +374,10 @@ module Vagrant
       error_key(:ssh_disconnected)
     end
 
+    class SSHHostDown < VagrantError
+      error_key(:ssh_host_down)
+    end
+
     class SSHKeyBadPermissions < VagrantError
       status_code(12)
       error_key(:ssh_key_bad_permissions)

@@ -201,6 +201,10 @@ en:
         usually indicates that SSH within the guest machine was unable to
         properly start up. Please boot the VM in GUI mode to check whether
         it is booting properly.
+      ssh_host_down: |-
+        While attempting to connect with SSH, a "host is down" (EHOSTDOWN)
+        error was received. Please verify your SSH settings are correct
+        and try again.
       ssh_key_bad_permissions: |-
         The private key to connect to this box via SSH has invalid permissions
         set on it. The permissions of the private key should be set to 0600, otherwise SSH will
