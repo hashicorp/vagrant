@@ -11,12 +11,12 @@ module VagrantPlugins
     class VMConfig < Vagrant.plugin("2", :config)
       DEFAULT_VM_NAME = :default
 
-      attr_accessor :auto_port_range
       attr_accessor :base_mac
       attr_accessor :box
       attr_accessor :box_url
       attr_accessor :guest
       attr_accessor :host_name
+      attr_accessor :usable_port_range
       attr_reader :forwarded_ports
       attr_reader :shared_folders
       attr_reader :networks
@@ -45,17 +45,6 @@ module VagrantPlugins
         result
       end
 
-      def forward_port(guestport, hostport, options=nil)
-        @forwarded_ports << {
-          :name       => "#{guestport.to_s(32)}-#{hostport.to_s(32)}",
-          :guestport  => guestport,
-          :hostport   => hostport,
-          :protocol   => :tcp,
-          :adapter    => 1,
-          :auto       => false
-        }.merge(options || {})
-      end
-
       def share_folder(name, guestpath, hostpath, opts=nil)
         @shared_folders[name] = {
           :guestpath => guestpath.to_s,
@@ -69,6 +58,21 @@ module VagrantPlugins
         }.merge(opts || {})
       end
 
+      # Define a way to access the machine via a network. This exposes a
+      # high-level abstraction for networking that may not directly map
+      # 1-to-1 for every provider. For example, AWS has no equivalent to
+      # "port forwarding." But most providers will attempt to implement this
+      # in a way that behaves similarly.
+      #
+      # `type` can be one of:
+      #
+      #   * `:forwarded_port` - A port that is accessible via localhost
+      #     that forwards into the machine.
+      #   * `:private_network` - The machine gets an IP that is not directly
+      #     publicly accessible, but ideally accessible from this machine.
+      #   * `:public_network` - The machine gets an IP on a shared network.
+      #
+      # @param [Symbol] type Type of network
       def network(type, *args)
         @networks << [type, args]
       end
@@ -136,39 +140,6 @@ module VagrantPlugins
             # Owner/group don't work with NFS
             errors.add(I18n.t("vagrant.config.vm.shared_folder_nfs_owner_group",
                               :name => name))
-          end
-        end
-
-        # Validate some basic networking
-        #
-        # TODO: One day we need to abstract this out, since in the future
-        # providers other than VirtualBox will not be able to satisfy
-        # all types of networks.
-        networks.each do |type, args|
-          if type == :hostonly && args[0] == :dhcp
-            # Valid. There is no real way this can be invalid at the moment.
-          elsif type == :hostonly
-            # Validate the host-only network
-            ip      = args[0]
-
-            if !ip
-              errors.add(I18n.t("vagrant.config.vm.network_ip_required"))
-            else
-              ip_parts = ip.split(".")
-
-              if ip_parts.length != 4
-                errors.add(I18n.t("vagrant.config.vm.network_ip_invalid",
-                                  :ip => ip))
-              elsif ip_parts.last == "1"
-                errors.add(I18n.t("vagrant.config.vm.network_ip_ends_one",
-                                  :ip => ip))
-              end
-            end
-          elsif type == :bridged
-          else
-            # Invalid network type
-            errors.add(I18n.t("vagrant.config.vm.network_invalid",
-                              :type => type.to_s))
           end
         end
 

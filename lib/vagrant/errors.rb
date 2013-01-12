@@ -437,6 +437,10 @@ module Vagrant
       error_key(:virtualbox_invalid_version)
     end
 
+    class VirtualBoxNoRoomForHighLevelNetwork < VagrantError
+      error_key(:virtualbox_no_room_for_high_level_network)
+    end
+
     class VirtualBoxNotDetected < VagrantError
       status_code(8)
       error_key(:virtualbox_not_detected)

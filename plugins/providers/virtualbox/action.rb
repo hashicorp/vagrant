@@ -58,7 +58,7 @@ module VagrantPlugins
           b.use CleanMachineFolder
           b.use ClearForwardedPorts
           b.use EnvSet, :port_collision_handler => :correct
-          b.use ForwardPorts
+          b.use CheckPortCollisions
           b.use Provision
           b.use PruneNFSExports
           b.use NFS
@@ -66,6 +66,7 @@ module VagrantPlugins
           b.use ShareFolders
           b.use ClearNetworkInterfaces
           b.use Network
+          b.use ForwardPorts
           b.use HostName
           b.use SaneDefaults
           b.use Customize
@@ -193,6 +194,7 @@ module VagrantPlugins
           b.use Call, Created do |env, b2|
             if env[:result]
               b2.use CheckAccessible
+              b2.use EnvSet, :port_collision_handler => :error
               b2.use CheckPortCollisions
               b2.use Resume
             else
