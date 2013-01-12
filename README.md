@@ -1,4 +1,4 @@
-# Vagrant
+# Vagrant [![Build Status](https://travis-ci.org/mitchellh/vagrant.png?branch=master "Master branch")](https://travis-ci.org/mitchellh/vagrant) [![Build Status](https://travis-ci.org/mitchellh/vagrant.png?branch=1-0-stable "1-0-stable branch")](https://travis-ci.org/mitchellh/vagrant)
 
 * Website: [http://vagrantup.com](http://vagrantup.com)
 * Source: [https://github.com/mitchellh/vagrant](https://github.com/mitchellh/vagrant)
