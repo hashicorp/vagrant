@@ -23,7 +23,7 @@ describe Vagrant::Plugin::V2::Manager do
     instance.register(pA)
     instance.register(pB)
 
-    instance.communicators.length.should == 2
+    instance.communicators.to_hash.length.should == 2
     instance.communicators[:foo].should == "bar"
     instance.communicators[:bar].should == "baz"
   end
@@ -40,7 +40,7 @@ describe Vagrant::Plugin::V2::Manager do
     instance.register(pA)
     instance.register(pB)
 
-    instance.config.length.should == 2
+    instance.config.to_hash.length.should == 2
     instance.config[:foo].should == "bar"
     instance.config[:bar].should == "baz"
   end
@@ -57,7 +57,7 @@ describe Vagrant::Plugin::V2::Manager do
     instance.register(pA)
     instance.register(pB)
 
-    instance.guests.length.should == 2
+    instance.guests.to_hash.length.should == 2
     instance.guests[:foo].should == "bar"
     instance.guests[:bar].should == "baz"
   end
@@ -74,7 +74,7 @@ describe Vagrant::Plugin::V2::Manager do
     instance.register(pA)
     instance.register(pB)
 
-    instance.hosts.length.should == 2
+    instance.hosts.to_hash.length.should == 2
     instance.hosts[:foo].should == "bar"
     instance.hosts[:bar].should == "baz"
   end
@@ -91,7 +91,7 @@ describe Vagrant::Plugin::V2::Manager do
     instance.register(pA)
     instance.register(pB)
 
-    instance.providers.length.should == 2
+    instance.providers.to_hash.length.should == 2
     instance.providers[:foo].should == "bar"
     instance.providers[:bar].should == "baz"
   end

@@ -329,7 +329,7 @@ module Vagrant
       # will return nil, and we don't want to trigger a detect load.
       host_klass = config_global.vagrant.host
       if host_klass.nil? || host_klass == :detect
-        hosts = Vagrant.plugin("2").manager.hosts
+        hosts = Vagrant.plugin("2").manager.hosts.to_hash
 
         # Get the flattened list of available hosts
         host_klass = Hosts.detect(hosts)
