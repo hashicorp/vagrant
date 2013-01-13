@@ -98,10 +98,10 @@ module Vagrant
         #
         # @return [Hash]
         def provider_configs
-          configs = {}
+          configs = Registry.new
 
           @registered.each do |plugin|
-            configs.merge!(plugin.components.configs[:provider].to_hash)
+            configs.merge!(plugin.components.configs[:provider])
           end
 
           configs

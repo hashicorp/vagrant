@@ -109,7 +109,7 @@ describe Vagrant::Plugin::V2::Manager do
     instance.register(pA)
     instance.register(pB)
 
-    instance.provider_configs.length.should == 2
+    instance.provider_configs.to_hash.length.should == 2
     instance.provider_configs[:foo].should == "foo"
     instance.provider_configs[:bar].should == "bar"
   end
