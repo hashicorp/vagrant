@@ -37,7 +37,6 @@ module VagrantPlugins
       autoload :NFS, File.expand_path("../action/nfs", __FILE__)
       autoload :Package, File.expand_path("../action/package", __FILE__)
       autoload :PackageVagrantfile, File.expand_path("../action/package_vagrantfile", __FILE__)
-      autoload :Provision, File.expand_path("../action/provision", __FILE__)
       autoload :ProvisionerCleanup, File.expand_path("../action/provisioner_cleanup", __FILE__)
       autoload :PruneNFSExports, File.expand_path("../action/prune_nfs_exports", __FILE__)
       autoload :Resume, File.expand_path("../action/resume", __FILE__)

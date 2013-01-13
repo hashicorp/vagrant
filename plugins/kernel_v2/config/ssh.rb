@@ -16,7 +16,7 @@ module VagrantPlugins
       attr_accessor :shell
 
       def validate(env, errors)
-        [:username, :host, :max_tries, :timeout].each do |field|
+        [:username, :max_tries, :timeout].each do |field|
           value = instance_variable_get("@#{field}".to_sym)
           errors.add(I18n.t("vagrant.config.common.error_empty", :field => field)) if !value
         end

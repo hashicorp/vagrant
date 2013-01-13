@@ -13,6 +13,7 @@ module Vagrant
       autoload :Call,    "vagrant/action/builtin/call"
       autoload :Confirm, "vagrant/action/builtin/confirm"
       autoload :EnvSet,  "vagrant/action/builtin/env_set"
+      autoload :Provision, "vagrant/action/builtin/provision"
       autoload :SSHExec, "vagrant/action/builtin/ssh_exec"
       autoload :SSHRun,  "vagrant/action/builtin/ssh_run"
     end
