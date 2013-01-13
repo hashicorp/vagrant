@@ -51,7 +51,13 @@ module VagrantPlugins
       end
 
       def network(type, *args)
-        @networks << [type, args]
+        if type == :hostonly
+          @networks << [:private_network, args]
+        elsif type == :bridged
+          @networks << [:public_network, args]
+        else
+          @networks << [:unknown, type]
+        end
       end
 
       def provision(name, options=nil, &block)
@@ -98,6 +104,11 @@ module VagrantPlugins
 
         # Re-define all networks.
         self.networks.each do |type, args|
+          if type == :unknown
+            # TODO: Warn that we don't know what the heck this is.
+            next
+          end
+
           new.vm.network(type, *args)
         end
 
