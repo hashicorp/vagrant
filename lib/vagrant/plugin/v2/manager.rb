@@ -47,7 +47,7 @@ module Vagrant
           result = {}
 
           @registered.each do |plugin|
-            plugin.config.each do |key, klass|
+            plugin.components.configs[:top].each do |key, klass|
               result[key] = klass
             end
           end
@@ -101,7 +101,7 @@ module Vagrant
           configs = {}
 
           @registered.each do |plugin|
-            configs.merge!(plugin.components.provider_configs.to_hash)
+            configs.merge!(plugin.components.configs[:provider].to_hash)
           end
 
           configs

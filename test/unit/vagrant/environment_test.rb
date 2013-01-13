@@ -297,7 +297,7 @@ VF
         p.provider(name) { provider_cls }
 
         if config_class
-          p.config(name, :provider => name) { config_class }
+          p.config(name, :provider) { config_class }
         end
       end
 
