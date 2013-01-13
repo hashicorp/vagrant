@@ -42,6 +42,22 @@ module Vagrant
       end
     end
 
+    # Merge one registry with another and return a completely new
+    # registry. Note that the result cache is completely busted, so
+    # any gets on the new registry will result in a cache miss.
+    def merge(other)
+      self.class.new.tap do |result|
+        result.merge!(self)
+        result.merge!(other)
+      end
+    end
+
+    # Like #{merge} but merges into self.
+    def merge!(other)
+      @items.merge!(other.__internal_state[:items])
+      self
+    end
+
     # Converts this registry to a hash
     def to_hash
       result = {}
@@ -50,6 +66,13 @@ module Vagrant
       end
 
       result
+    end
+
+    def __internal_state
+      {
+        :items => @items,
+        :results_cache => @results_cache
+      }
     end
   end
 end

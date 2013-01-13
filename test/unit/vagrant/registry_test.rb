@@ -82,4 +82,47 @@ describe Vagrant::Registry do
     result["foo"].should == "foovalue"
     result["bar"].should == "barvalue"
   end
+
+  describe "merging" do
+    it "should merge in another registry" do
+      one = described_class.new
+      two = described_class.new
+
+      one.register("foo") { raise "BOOM!" }
+      two.register("bar") { raise "BAM!" }
+
+      three = one.merge(two)
+      expect { three["foo"] }.to raise_error("BOOM!")
+      expect { three["bar"] }.to raise_error("BAM!")
+    end
+
+    it "should NOT merge in the cache" do
+      one = described_class.new
+      two = described_class.new
+
+      one.register("foo") { [] }
+      one["foo"] << 1
+
+      two.register("bar") { [] }
+      two["bar"] << 2
+
+      three = one.merge(two)
+      three["foo"].should == []
+      three["bar"].should == []
+    end
+  end
+
+  describe "merge!" do
+    it "should merge into self" do
+      one = described_class.new
+      two = described_class.new
+
+      one.register("foo") { "foo" }
+      two.register("bar") { "bar" }
+
+      one.merge!(two)
+      one["foo"].should == "foo"
+      one["bar"].should == "bar"
+    end
+  end
 end
