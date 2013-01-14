@@ -14,7 +14,7 @@ module VagrantPlugins
           raise ChefError, :server_url_required if @config.chef_server_url.nil?
         end
 
-        def provision!
+        def provision
           verify_binary(chef_binary_path("chef-client"))
           chown_provisioning_folder
           create_client_key_folder
