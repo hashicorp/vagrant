@@ -1,30 +1,30 @@
 # Vagrant
 
-* Website: [http://vagrantup.com](http://vagrantup.com)
+* Website: [http://www.vagrantup.com](http://www.vagrantup.com)
 * Source: [https://github.com/mitchellh/vagrant](https://github.com/mitchellh/vagrant)
 * IRC: `#vagrant` on Freenode
 * Mailing list: [Google Groups](http://groups.google.com/group/vagrant-up)
 
-Vagrant is a tool for building and distributing virtualized development environments.
+Vagrant is a tool for building and distributing development environments.
 
-By providing automated creation and provisioning of virtual machines using [Oracle’s VirtualBox](http://www.virtualbox.org),
-Vagrant provides the tools to create and configure lightweight, reproducible, and portable
-virtual environments. For more information, see the part of the getting started guide
-on “[Why Vagrant?](http://vagrantup.com/v1/docs/getting-started/why.html)”
+Vagrant provides the framework and configuration format to create and
+manage complete portable development environments. These development
+environments can live on your computer or in the cloud, and are portable
+between Windows, Mac OS X, and Linux.
 
 ## Quick Start
 
 First, make sure your development machine has [VirtualBox](http://www.virtualbox.org)
-installed. After this, [download the appropriate Vagrant package for your OS](http://downloads.vagrantup.com) and install that. If you're not on Mac OS X or Windows, you'll need
+installed. After this, [download and install the appropriate Vagrant package for your OS](http://downloads.vagrantup.com). If you're not on Mac OS X or Windows, you'll need
 to add `/opt/vagrant/bin` to your `PATH`. After this, you're ready to go!
 
 To build your first virtual environment:
 
-    vagrant init lucid32 http://files.vagrantup.com/lucid32.box
+    vagrant init precise32 http://files.vagrantup.com/precise32.box
     vagrant up
 
 Note: The above `vagrant up` command will also trigger Vagrant to download the
-`lucid32` box via the specified URL. Vagrant only does this if it detects that
+`precise32` box via the specified URL. Vagrant only does this if it detects that
 the box doesn't already exist on your system.
 
 ## Getting Started Guide
