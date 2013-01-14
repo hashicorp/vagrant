@@ -91,6 +91,17 @@ module Vagrant
           end
         end
 
+        # This returns all the config classes for the various provisioners.
+        #
+        # @return [Registry]
+        def provisioner_configs
+          Registry.new.tap do |result|
+            @registered.each do |plugin|
+              result.merge!(plugin.components.configs[:provisioner])
+            end
+          end
+        end
+
         # This returns all registered provisioners.
         #
         # @return [Hash]
