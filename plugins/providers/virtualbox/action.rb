@@ -37,7 +37,6 @@ module VagrantPlugins
       autoload :NFS, File.expand_path("../action/nfs", __FILE__)
       autoload :Package, File.expand_path("../action/package", __FILE__)
       autoload :PackageVagrantfile, File.expand_path("../action/package_vagrantfile", __FILE__)
-      autoload :ProvisionerCleanup, File.expand_path("../action/provisioner_cleanup", __FILE__)
       autoload :PruneNFSExports, File.expand_path("../action/prune_nfs_exports", __FILE__)
       autoload :Resume, File.expand_path("../action/resume", __FILE__)
       autoload :SaneDefaults, File.expand_path("../action/sane_defaults", __FILE__)
@@ -57,8 +56,8 @@ module VagrantPlugins
           b.use CleanMachineFolder
           b.use ClearForwardedPorts
           b.use EnvSet, :port_collision_handler => :correct
-          b.use CheckPortCollisions
           b.use Provision
+          b.use CheckPortCollisions
           b.use PruneNFSExports
           b.use NFS
           b.use ClearSharedFolders
@@ -90,7 +89,6 @@ module VagrantPlugins
                 b3.use CheckAccessible
                 b3.use EnvSet, :force => true
                 b3.use action_halt
-                b3.use ProvisionerCleanup
                 b3.use PruneNFSExports
                 b3.use Destroy
                 b3.use CleanMachineFolder

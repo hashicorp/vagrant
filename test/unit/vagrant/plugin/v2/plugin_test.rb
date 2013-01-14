@@ -106,7 +106,7 @@ describe Vagrant::Plugin::V2::Plugin do
         config("foo") { "bar" }
       end
 
-      plugin.config[:foo].should == "bar"
+      plugin.components.configs[:top][:foo].should == "bar"
     end
 
     it "should lazily register configuration classes" do
@@ -123,16 +123,16 @@ describe Vagrant::Plugin::V2::Plugin do
       # Now verify when we actually get the configuration key that
       # a proper error is raised.
       expect {
-        plugin.config[:foo]
+        plugin.components.configs[:top][:foo]
       }.to raise_error(StandardError)
     end
 
     it "should register configuration classes for providers" do
       plugin = Class.new(described_class) do
-        config("foo", :provider => true) { "bar" }
+        config("foo", :provider) { "bar" }
       end
 
-      plugin.components.provider_configs[:foo].should == "bar"
+      plugin.components.configs[:provider][:foo].should == "bar"
     end
   end
 

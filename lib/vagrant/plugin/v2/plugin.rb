@@ -128,25 +128,10 @@ module Vagrant
         #
         # @param [String] name Configuration key.
         # XXX: Document options hash
-        def self.config(name=UNSET_VALUE, options=nil, &block)
-          data[:config] ||= Registry.new
-
-          # Register a new config class only if a name was given.
-          if name != UNSET_VALUE
-            options ||= {}
-
-            if options[:provider]
-              # This config is for a specific provider. Register it as
-              # a provider config component.
-              components.provider_configs.register(name.to_sym, &block)
-            else
-              # This is a generic configuration plugin, register it as such.
-              data[:config].register(name.to_sym, &block)
-            end
-          end
-
-          # Return the registry
-          data[:config]
+        def self.config(name, scope=nil, &block)
+          scope ||= :top
+          components.configs[scope].register(name.to_sym, &block)
+          nil
         end
 
         # Defines an "easy hook," which gives an easier interface to hook

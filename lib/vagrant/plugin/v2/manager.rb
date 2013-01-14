@@ -18,106 +18,99 @@ module Vagrant
         #
         # @return [Hash]
         def commands
-          result = {}
-
-          @registered.each do |plugin|
-            result.merge!(plugin.command.to_hash)
+          Registry.new.tap do |result|
+            @registered.each do |plugin|
+              result.merge!(plugin.command)
+            end
           end
-
-          result
         end
 
         # This returns all the registered communicators.
         #
         # @return [Hash]
         def communicators
-          result = {}
-
-          @registered.each do |plugin|
-            result.merge!(plugin.communicator.to_hash)
+          Registry.new.tap do |result|
+            @registered.each do |plugin|
+              result.merge!(plugin.communicator)
+            end
           end
-
-          result
         end
 
         # This returns all the registered configuration classes.
         #
         # @return [Hash]
         def config
-          result = {}
-
-          @registered.each do |plugin|
-            plugin.config.each do |key, klass|
-              result[key] = klass
+          Registry.new.tap do |result|
+            @registered.each do |plugin|
+              result.merge!(plugin.components.configs[:top])
             end
           end
-
-          result
         end
 
         # This returns all the registered guests.
         #
         # @return [Hash]
         def guests
-          result = {}
-
-          @registered.each do |plugin|
-            result.merge!(plugin.guest.to_hash)
+          Registry.new.tap do |result|
+            @registered.each do |plugin|
+              result.merge!(plugin.guest)
+            end
           end
-
-          result
         end
 
         # This returns all registered host classes.
         #
         # @return [Hash]
         def hosts
-          hosts = {}
-
-          @registered.each do |plugin|
-            hosts.merge!(plugin.host.to_hash)
+          Registry.new.tap do |result|
+            @registered.each do |plugin|
+              result.merge!(plugin.host)
+            end
           end
-
-          hosts
         end
 
         # This returns all registered providers.
         #
         # @return [Hash]
         def providers
-          providers = {}
-
-          @registered.each do |plugin|
-            providers.merge!(plugin.provider.to_hash)
+          Registry.new.tap do |result|
+            @registered.each do |plugin|
+              result.merge!(plugin.provider)
+            end
           end
-
-          providers
         end
 
         # This returns all the config classes for the various providers.
         #
         # @return [Hash]
         def provider_configs
-          configs = {}
-
-          @registered.each do |plugin|
-            configs.merge!(plugin.components.provider_configs.to_hash)
+          Registry.new.tap do |result|
+            @registered.each do |plugin|
+              result.merge!(plugin.components.configs[:provider])
+            end
           end
+        end
 
-          configs
+        # This returns all the config classes for the various provisioners.
+        #
+        # @return [Registry]
+        def provisioner_configs
+          Registry.new.tap do |result|
+            @registered.each do |plugin|
+              result.merge!(plugin.components.configs[:provisioner])
+            end
+          end
         end
 
         # This returns all registered provisioners.
         #
         # @return [Hash]
         def provisioners
-          results = {}
-
-          @registered.each do |plugin|
-            results.merge!(plugin.provisioner.to_hash)
+          Registry.new.tap do |result|
+            @registered.each do |plugin|
+              result.merge!(plugin.provisioner)
+            end
           end
-
-          results
         end
 
         # This registers a plugin. This should _NEVER_ be called by the public

@@ -142,11 +142,6 @@ module VagrantPlugins
                               :name => name))
           end
         end
-
-        # Each provisioner can validate itself
-        provisioners.each do |prov|
-          prov.validate(env, errors)
-        end
       end
     end
   end

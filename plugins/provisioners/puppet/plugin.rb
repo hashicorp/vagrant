@@ -9,12 +9,22 @@ module VagrantPlugins
       Puppet either using `puppet apply` or a Puppet server.
       DESC
 
-      provisioner("puppet") do
+      config(:puppet, :provisioner) do
+        require File.expand_path("../config/puppet", __FILE__)
+        Config::Puppet
+      end
+
+      config(:puppet_server, :provisioner) do
+        require File.expand_path("../config/puppet_server", __FILE__)
+        Config::PuppetServer
+      end
+
+      provisioner(:puppet) do
         require File.expand_path("../provisioner/puppet", __FILE__)
         Provisioner::Puppet
       end
 
-      provisioner("puppet_server") do
+      provisioner(:puppet_server) do
         require File.expand_path("../provisioner/puppet_server", __FILE__)
         Provisioner::PuppetServer
       end

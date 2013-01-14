@@ -4,45 +4,42 @@ module Vagrant
       # This is the base class for a provisioner for the V2 API. A provisioner
       # is primarily responsible for installing software on a Vagrant guest.
       class Provisioner
-        # The environment which provisioner is running in. This is the
-        # action environment, not a Vagrant::Environment.
-        attr_reader :env
-
-        # The configuration for this provisioner. This will be an instance of
-        # the `Config` class which is part of the provisioner.
+        attr_reader :machine
         attr_reader :config
 
-        def initialize(env, config)
-          @env    = env
-          @config = config
-        end
-
-        # This method is expected to return a class that is used for
-        # configuring the provisioner. This return value is expected to be
-        # a subclass of {Config}.
+        # Initializes the provisioner with the machine that it will be
+        # provisioning along with the provisioner configuration (if there
+        # is any).
         #
-        # @return [Config]
-        def self.config_class
+        # The provisioner should _not_ do anything at this point except
+        # initialize internal state.
+        #
+        # @param [Machine] machine The machine that this will be provisioning.
+        # @param [Object] config Provisioner configuration, if one was set.
+        def initialize(machine, config)
+          @machine = machine
+          @config  = config
         end
 
-        # This is the method called to "prepare" the provisioner. This is called
-        # before any actions are run by the action runner (see {Vagrant::Actions::Runner}).
-        # This can be used to setup shared folders, forward ports, etc. Whatever is
-        # necessary on a "meta" level.
+        # Called with the root configuration of the machine so the provisioner
+        # can add some configuration on top of the machine.
+        #
+        # During this step, and this step only, the provisioner should modify
+        # the root machine configuration to add any additional features it
+        # may need. Examples include sharing folders, networking, and so on.
+        # This step is guaranteed to be called before any of those steps are
+        # done so the provisioner may do that.
         #
         # No return value is expected.
-        def prepare
+        def configure(root_config)
         end
 
-        # This is the method called to provision the system. This method
-        # is expected to do whatever necessary to provision the system (create files,
-        # SSH, etc.)
-        def provision!
-        end
-
-        # This is the method called to when the system is being destroyed
-        # and allows the provisioners to engage in any cleanup tasks necessary.
-        def cleanup
+        # This is the method called when the actual provisioning should be
+        # done. The communicator is guaranteed to be ready at this point,
+        # and any shared folders or networks are already setup.
+        #
+        # No return value is expected.
+        def provision
         end
       end
     end

@@ -14,7 +14,7 @@ module VagrantPlugins
         Provider
       end
 
-      config(:virtualbox, :provider => :virtualbox) do
+      config(:virtualbox, :provider) do
         require File.expand_path("../config", __FILE__)
         Config
       end

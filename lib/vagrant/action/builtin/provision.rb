@@ -18,11 +18,14 @@ module Vagrant
         def call(env)
           # Get all the configured provisioners
           provisioners = env[:machine].config.vm.provisioners.map do |provisioner|
-            provisioner.provisioner.new(env, provisioner.config)
+            klass = Vagrant.plugin("2").manager.provisioners[provisioner.name]
+            klass.new(env[:machine], provisioner.config)
           end
 
-          # Instantiate and prepare them.
-          provisioners.map { |p| p.prepare }
+          # Ask the provisioners to modify the configuration if needed
+          provisioners.each do |p|
+            p.configure(env[:machine].config)
+          end
 
           # Continue, we need the VM to be booted.
           @app.call(env)
@@ -32,7 +35,7 @@ module Vagrant
             env[:ui].info(I18n.t("vagrant.actions.vm.provision.beginning",
                                  :provisioner => p.class))
 
-            p.provision!
+            p.provision
           end
         end
       end
