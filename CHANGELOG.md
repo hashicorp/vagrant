@@ -75,6 +75,20 @@ IMPROVEMENTS / BUG FIXES:
   - Human-friendly error is raised if there are permission issues when
     using SCP to upload files. [GH-924]
 
+## 1.0.6 (December 21, 2012)
+
+  - Shell provisioner outputs proper line endings on Windows [GH-1164]
+  - SSH upload opens file to stream which fixes strange upload issues.
+  - Check for proper exit codes for Puppet, since multiple exit codes
+    can mean success. [GH-1180]
+  - Fix issue where DNS doesn't resolve properly for 12.10. [GH-1176]
+  - Allow hostname to be a substring of the box name for Ubuntu [GH-1163]
+  - Use `puppet agent` instead of `puppetd` to be Puppet 3.x
+    compatible. [GH-1169]
+  - Work around bug in VirtualBox exposed by bug in OS X 10.8 where
+    VirtualBox executables couldn't handle garbage being injected into
+    stdout by OS X.
+
 ## 1.0.5 (September 18, 2012)
 
   - Work around a critical bug in VirtualBox 4.2.0 on Windows that
