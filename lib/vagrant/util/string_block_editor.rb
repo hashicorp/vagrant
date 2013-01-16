@@ -64,11 +64,11 @@ module Vagrant
         # Insert the new block into the value
         new_block = <<BLOCK
 # VAGRANT-BEGIN: #{key}
-#{value}
+#{value.chomp}
 # VAGRANT-END: #{key}
 BLOCK
 
-        @value << "#{new_block}"
+        @value << new_block
       end
     end
   end
