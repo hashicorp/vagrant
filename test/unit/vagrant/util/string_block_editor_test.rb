@@ -55,6 +55,26 @@ DATA
     end
   end
 
+  describe "#get" do
+    let(:data) do
+      <<DATA
+# VAGRANT-BEGIN: bar
+content
+# VAGRANT-END: bar
+DATA
+    end
+
+    it "should get the value" do
+      instance = described_class.new(data)
+      instance.get("bar").should == "content"
+    end
+
+    it "should get nil for nonexistent values" do
+      instance = described_class.new(data)
+      instance.get("baz").should be_nil
+    end
+  end
+
   describe "#insert" do
     it "should insert the given key and value" do
       data = <<DATA

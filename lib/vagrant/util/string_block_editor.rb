@@ -36,7 +36,7 @@ module Vagrant
       #
       # @return [<Array<String>]
       def keys
-        regexp = /^#\s*VAGRANT-BEGIN:\s*(.+?)$(.*)^#\s*VAGRANT-END:\s(\1)$/m
+        regexp = /^#\s*VAGRANT-BEGIN:\s*(.+?)$\r?\n?(.*)$\r?\n?^#\s*VAGRANT-END:\s(\1)$/m
         @value.scan(regexp).map do |match|
           match[0]
         end
@@ -48,11 +48,20 @@ module Vagrant
         @value.gsub!(regexp, "")
       end
 
+      # This gets the value of the block with the given key.
+      def get(key)
+        regexp = /^#\s*VAGRANT-BEGIN:\s*#{key}$\r?\n?(.*?)\r?\n?^#\s*VAGRANT-END:\s*#{key}$\r?\n?/m
+        match  = regexp.match(@value)
+        return nil if !match
+        match[1]
+      end
+
       # This inserts a block with the given key and value.
       #
       # @param [String] key
       # @param [String] value
       def insert(key, value)
+        # Insert the new block into the value
         new_block = <<BLOCK
 # VAGRANT-BEGIN: #{key}
 #{value}
