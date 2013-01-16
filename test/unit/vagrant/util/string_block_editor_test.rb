@@ -84,7 +84,7 @@ content
 DATA
 
       new_data = <<DATA
-#{data}
+#{data.chomp}
 # VAGRANT-BEGIN: foo
 value
 # VAGRANT-END: foo

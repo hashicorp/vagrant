@@ -68,7 +68,7 @@ module Vagrant
 # VAGRANT-END: #{key}
 BLOCK
 
-        @value << "\n#{new_block}"
+        @value << "#{new_block}"
       end
     end
   end
