@@ -64,7 +64,7 @@ module Vagrant
         # Insert the new block into the value
         new_block = <<BLOCK
 # VAGRANT-BEGIN: #{key}
-#{value.chomp}
+#{value.strip}
 # VAGRANT-END: #{key}
 BLOCK
 
