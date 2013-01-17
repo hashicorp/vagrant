@@ -168,7 +168,7 @@ module VagrantPlugins
               Net::SSH.start(ssh_info[:host], ssh_info[:username], opts)
             end
           end
-        rescue Timeout::Error
+        rescue Errno::ETIMEDOUT, Timeout::Error
           # This happens if we continued to timeout when attempting to connect.
           raise Vagrant::Errors::SSHConnectionTimeout
         rescue Net::SSH::AuthenticationFailed
