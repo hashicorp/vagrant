@@ -33,9 +33,13 @@ module VagrantPlugins
             existing.destroy! if existing
           end
 
+          # Get the provider if one was set
+          provider = nil
+          provider = options[:provider].to_sym if options[:provider]
+
           @env.action_runner.run(Vagrant::Action.action_box_add, {
             :box_name     => argv[0],
-            :box_provider => options[:provider].to_sym,
+            :box_provider => provider,
             :box_url      => argv[1]
           })
 
