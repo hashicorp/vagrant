@@ -1,3 +1,5 @@
+require "vagrant/config/v2/util"
+
 module Vagrant
   module Config
     module V2
@@ -54,14 +56,14 @@ module Vagrant
               # we merge them into our total errors list.
               result = instance.validate(machine)
               if result && !result.empty?
-                result.each do |key, value|
-                  if !value.empty?
-                    errors[key] ||= []
-                    errors[key] += value
-                  end
-                end
+                errors = Util.merge_errors(errors, result)
               end
             end
+          end
+
+          # Go through and delete empty keys
+          errors.keys.each do |key|
+            errors.delete(key) if errors[key].empty?
           end
 
           errors
