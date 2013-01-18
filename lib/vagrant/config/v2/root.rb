@@ -39,24 +39,30 @@ module Vagrant
           end
         end
 
-        # Validates the configuration classes of this instance and raises an
-        # exception if they are invalid. If you are implementing a custom configuration
-        # class, the method you want to implement is {Base#validate}. This is
-        # the method that checks all the validation, not one which defines
-        # validation rules.
-        def validate!(env)
-          # Validate each of the configured classes and store the results into
-          # a hash.
-          errors = @keys.inject({}) do |container, data|
-            key, instance = data
-            recorder = ErrorRecorder.new
-            instance.validate(env, recorder)
-            container[key.to_sym] = recorder if !recorder.errors.empty?
-            container
+        # This validates the configuration and returns a hash of error
+        # messages by section. If there are no errors, an empty hash
+        # is returned.
+        #
+        # @param [Environment] env
+        # @return [Hash]
+        def validate(env)
+          # Go through each of the configuration keys and validate
+          errors = {}
+          @keys.each do |_key, instance|
+            if instance.respond_to?(:validate)
+              # Validate this single item, and if we have errors then
+              # we merge them into our total errors list.
+              result = instance.validate(env)
+              if result && !result.empty?
+                result.each do |key, value|
+                  errors[key] ||= []
+                  errors[key] += value
+                end
+              end
+            end
           end
 
-          return if errors.empty?
-          raise Errors::ConfigValidationFailed, :messages => Util::TemplateRenderer.render("config/validation_failed", :errors => errors)
+          errors
         end
 
         # Returns the internal state of the root object. This is used
