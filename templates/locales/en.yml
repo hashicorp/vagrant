@@ -56,11 +56,6 @@ en:
         available below.
 
         %{help}
-      deprecation: |-
-        You are using a feature that has been removed in this version. Explanation:
-
-        %{message}
-        Note that this error message will not appear in the next version of Vagrant.
       destroy_requires_force: |-
         Destroy doesn't have a TTY to ask for confirmation. Please pass the
         `--force` flag to force a destroy, otherwise attach a TTY so that
