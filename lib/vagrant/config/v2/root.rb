@@ -45,14 +45,14 @@ module Vagrant
         #
         # @param [Environment] env
         # @return [Hash]
-        def validate(env)
+        def validate(machine)
           # Go through each of the configuration keys and validate
           errors = {}
           @keys.each do |_key, instance|
             if instance.respond_to?(:validate)
               # Validate this single item, and if we have errors then
               # we merge them into our total errors list.
-              result = instance.validate(env)
+              result = instance.validate(machine)
               if result && !result.empty?
                 result.each do |key, value|
                   if !value.empty?

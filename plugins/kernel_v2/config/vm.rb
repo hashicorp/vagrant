@@ -122,16 +122,14 @@ module VagrantPlugins
         define(DEFAULT_VM_NAME) if defined_vm_keys.empty?
       end
 
-      def validate(env)
+      def validate(machine)
         errors = []
         errors << I18n.t("vagrant.config.vm.box_missing") if !box
         errors << I18n.t("vagrant.config.vm.box_not_found", :name => box) if \
-          box && !box_url && !env.boxes.find(box, :virtualbox)
-        errors << I18n.t("vagrant.config.vm.base_mac_invalid") if \
-          env.boxes.find(box, :virtualbox) && !base_mac
+          box && !box_url && !machine.box
 
         shared_folders.each do |name, options|
-          hostpath = Pathname.new(options[:hostpath]).expand_path(env.root_path)
+          hostpath = Pathname.new(options[:hostpath]).expand_path(machine.env.root_path)
 
           if !hostpath.directory? && !options[:create]
             errors << I18n.t("vagrant.config.vm.shared_folder_hostpath_missing",
