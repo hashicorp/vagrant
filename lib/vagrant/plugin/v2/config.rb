@@ -90,12 +90,10 @@ module Vagrant
         # Called after the configuration is finalized and loaded to validate
         # this object.
         #
-        # @param [Environment] env Vagrant::Environment object of the
-        #   environment that this configuration has been loaded into. This
-        #   gives you convenient access to things like the the root path
-        #   and so on.
-        # @param [ErrorRecorder] errors
-        def validate(env, errors)
+        # @param [Machine] machine Access to the machine that is being
+        #   validated.
+        # @return [Hash]
+        def validate(machine)
         end
       end
     end

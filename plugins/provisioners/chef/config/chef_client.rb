@@ -22,12 +22,16 @@ module VagrantPlugins
         def file_backup_path; @file_backup_path || "/srv/chef/cache"; end
         def encrypted_data_bag_secret; @encrypted_data_bag_secret || "/tmp/encrypted_data_bag_secret"; end
 
-        def validate(env, errors)
-          super
+        def validate(machine)
+          errors = []
+          errors << I18n.t("vagrant.config.chef.server_url_empty") if \
+            !chef_server_url || chef_server_url.strip == ""
+          errors << I18n.t("vagrant.config.chef.validation_key_path") if \
+            !validation_key_path
+          errors << I18n.t("vagrant.config.chef.run_list_empty") if \
+            @run_list && @run_list.empty?
 
-          errors.add(I18n.t("vagrant.config.chef.server_url_empty")) if !chef_server_url || chef_server_url.strip == ""
-          errors.add(I18n.t("vagrant.config.chef.validation_key_path")) if !validation_key_path
-          errors.add(I18n.t("vagrant.config.chef.run_list_empty")) if @run_list && @run_list.empty?
+          { "chef client provisioner" => errors }
         end
       end
     end
