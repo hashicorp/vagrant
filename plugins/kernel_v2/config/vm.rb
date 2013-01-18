@@ -148,12 +148,10 @@ module VagrantPlugins
         # We're done with VM level errors so prepare the section
         errors = { "vm" => errors }
 
-        # Validate providers
-        @providers.each do |_name, vm_provider|
-          if vm_provider.config
-            provider_errors = vm_provider.config.validate(machine)
-            errors = Vagrant::Config::V2::Util.merge_errors(errors, provider_errors)
-          end
+        # Validate only the _active_ provider
+        if machine.provider_config
+          provider_errors = machine.provider_config.validate(machine)
+          errors = Vagrant::Config::V2::Util.merge_errors(errors, provider_errors)
         end
 
         # Validate provisioners
