@@ -1,6 +1,7 @@
 require "pathname"
 
 require "vagrant"
+require "vagrant/config/v2/util"
 
 require File.expand_path("../vm_provider", __FILE__)
 require File.expand_path("../vm_provisioner", __FILE__)
@@ -144,7 +145,26 @@ module VagrantPlugins
           end
         end
 
-        { "vm" => errors }
+        # We're done with VM level errors so prepare the section
+        errors = { "vm" => errors }
+
+        # Validate providers
+        @providers.each do |_name, vm_provider|
+          if vm_provider.config
+            provider_errors = vm_provider.config.validate(machine)
+            errors = Vagrant::Config::V2::Util.merge_errors(errors, provider_errors)
+          end
+        end
+
+        # Validate provisioners
+        @provisioners.each do |vm_provisioner|
+          if vm_provisioner.config
+            provisioner_errors = vm_provisioner.config.validate(machine)
+            errors = Vagrant::Config::V2::Util.merge_errors(errors, provisioner_errors)
+          end
+        end
+
+        errors
       end
     end
   end
