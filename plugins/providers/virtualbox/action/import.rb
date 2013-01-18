@@ -40,7 +40,7 @@ module VagrantPlugins
             # validate the configuration here, and we don't want to confirm
             # we want to destroy.
             destroy_env = env.clone
-            destroy_env[:validate] = false
+            destroy_env[:config_validate] = false
             destroy_env[:force_confirm_destroy] = true
             env[:action_runner].run(Action.action_destroy, destroy_env)
           end

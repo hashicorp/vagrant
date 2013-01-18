@@ -150,6 +150,10 @@ module Vagrant
       error_key(:cli_invalid_options)
     end
 
+    class ConfigInvalid < VagrantError
+      error_key(:config_invalid)
+    end
+
     class DestroyRequiresForce < VagrantError
       status_code(74)
       error_key(:destroy_requires_force)

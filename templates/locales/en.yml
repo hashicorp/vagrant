@@ -56,6 +56,11 @@ en:
         available below.
 
         %{help}
+      config_invalid: |-
+        There are errors in the configuration of this machine. Please fix
+        the following errors and try again:
+
+        %{errors}
       destroy_requires_force: |-
         Destroy doesn't have a TTY to ask for confirmation. Please pass the
         `--force` flag to force a destroy, otherwise attach a TTY so that
