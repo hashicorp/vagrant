@@ -35,29 +35,34 @@ module VagrantPlugins
           end
         end
 
-        def validate(env, errors)
+        def validate(machine)
+          errors = []
+
           # Calculate the manifests and module paths based on env
-          this_expanded_manifests_path = expanded_manifests_path(env.root_path)
-          this_expanded_module_paths = expanded_module_paths(env.root_path)
+          this_expanded_manifests_path = expanded_manifests_path(machine.env.root_path)
+          this_expanded_module_paths = expanded_module_paths(machine.env.root_path)
 
           # Manifests path/file validation
           if !this_expanded_manifests_path.directory?
-            errors.add(I18n.t("vagrant.provisioners.puppet.manifests_path_missing",
-                              :path => this_expanded_manifests_path))
+            errors << I18n.t("vagrant.provisioners.puppet.manifests_path_missing",
+                             :path => this_expanded_manifests_path)
           else
             expanded_manifest_file = this_expanded_manifests_path.join(manifest_file)
             if !expanded_manifest_file.file?
-              errors.add(I18n.t("vagrant.provisioners.puppet.manifest_missing",
-                                :manifest => expanded_manifest_file.to_s))
+              errors << I18n.t("vagrant.provisioners.puppet.manifest_missing",
+                               :manifest => expanded_manifest_file.to_s)
             end
           end
 
           # Module paths validation
           this_expanded_module_paths.each do |path|
             if !path.directory?
-              errors.add(I18n.t("vagrant.provisioners.puppet.module_path_missing", :path => path))
+              errors << I18n.t("vagrant.provisioners.puppet.module_path_missing",
+                               :path => path)
             end
           end
+
+          { "puppet provisioner" => errors }
         end
       end
     end
