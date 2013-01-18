@@ -150,11 +150,6 @@ module Vagrant
       error_key(:cli_invalid_options)
     end
 
-    class ConfigValidationFailed < VagrantError
-      status_code(42)
-      error_key(:config_validation)
-    end
-
     class DeprecationError < VagrantError
       status_code(60)
       error_key(:deprecation)

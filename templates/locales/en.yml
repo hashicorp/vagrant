@@ -56,11 +56,6 @@ en:
         available below.
 
         %{help}
-      config_validation: |-
-        There was a problem with the configuration of Vagrant. The error message(s)
-        are printed below:
-
-        %{messages}
       deprecation: |-
         You are using a feature that has been removed in this version. Explanation:
 
