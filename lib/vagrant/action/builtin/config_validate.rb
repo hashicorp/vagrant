@@ -14,7 +14,7 @@ module Vagrant
           if !env.has_key?(:config_validate) || env[:config_validate]
             errors = env[:machine].config.validate(env[:machine])
 
-            if errors
+            if errors && !errors.empty?
               raise Errors::ConfigInvalid,
                 :errors => Util::TemplateRenderer.render(
                   "config/validation_failed",
