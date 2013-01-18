@@ -55,8 +55,10 @@ module Vagrant
               result = instance.validate(env)
               if result && !result.empty?
                 result.each do |key, value|
-                  errors[key] ||= []
-                  errors[key] += value
+                  if !value.empty?
+                    errors[key] ||= []
+                    errors[key] += value
+                  end
                 end
               end
             end

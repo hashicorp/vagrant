@@ -73,5 +73,16 @@ describe Vagrant::Config::V2::Root do
 
       instance.validate(env).should == expected_errors
     end
+
+    it "shouldn't count empty keys" do
+      errors = { "foo" => [] }
+      env    = { "errors" => errors }
+      foo    = instance.foo
+      def foo.validate(env)
+        env["errors"]
+      end
+
+      instance.validate(env).should == {}
+    end
   end
 end
