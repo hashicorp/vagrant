@@ -26,6 +26,13 @@ module Vagrant
     # The `cwd` that this environment represents
     attr_reader :cwd
 
+    # The persistent data directory where global data can be stored. It
+    # is up to the creator of the data in this directory to properly
+    # remove it when it is no longer needed.
+    #
+    # @return [Pathname]
+    attr_reader :data_dir
+
     # The valid name for a Vagrantfile for this environment.
     attr_reader :vagrantfile_name
 
@@ -101,9 +108,10 @@ module Vagrant
 
       # Setup the home directory
       setup_home_path
-      @tmp_path   = @home_path.join("tmp")
       @boxes_path = @home_path.join("boxes")
+      @data_dir   = @home_path.join("data")
       @gems_path  = @home_path.join("gems")
+      @tmp_path   = @home_path.join("tmp")
 
       # Setup the local data directory. If a configuration path is given,
       # then it is expanded relative to the working directory. Otherwise,
@@ -457,7 +465,7 @@ module Vagrant
       # Setup the list of child directories that need to be created if they
       # don't already exist.
       dirs    = [@home_path]
-      subdirs = ["tmp", "boxes", "gems"]
+      subdirs = ["boxes", "data", "gems", "tmp"]
       dirs    += subdirs.collect { |subdir| @home_path.join(subdir) }
 
       # Go through each required directory, creating it if it doesn't exist
