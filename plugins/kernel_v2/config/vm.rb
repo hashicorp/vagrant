@@ -122,26 +122,31 @@ module VagrantPlugins
         define(DEFAULT_VM_NAME) if defined_vm_keys.empty?
       end
 
-      def validate(env, errors)
-        errors.add(I18n.t("vagrant.config.vm.box_missing")) if !box
-        errors.add(I18n.t("vagrant.config.vm.box_not_found", :name => box)) if box && !box_url && !env.boxes.find(box, :virtualbox)
-        errors.add(I18n.t("vagrant.config.vm.base_mac_invalid")) if env.boxes.find(box, :virtualbox) && !base_mac
+      def validate(env)
+        errors = []
+        errors << I18n.t("vagrant.config.vm.box_missing") if !box
+        errors << I18n.t("vagrant.config.vm.box_not_found", :name => box) if \
+          box && !box_url && !env.boxes.find(box, :virtualbox)
+        errors << I18n.t("vagrant.config.vm.base_mac_invalid") if \
+          env.boxes.find(box, :virtualbox) && !base_mac
 
         shared_folders.each do |name, options|
           hostpath = Pathname.new(options[:hostpath]).expand_path(env.root_path)
 
           if !hostpath.directory? && !options[:create]
-            errors.add(I18n.t("vagrant.config.vm.shared_folder_hostpath_missing",
+            errors << I18n.t("vagrant.config.vm.shared_folder_hostpath_missing",
                        :name => name,
-                       :path => options[:hostpath]))
+                       :path => options[:hostpath])
           end
 
           if options[:nfs] && (options[:owner] || options[:group])
             # Owner/group don't work with NFS
-            errors.add(I18n.t("vagrant.config.vm.shared_folder_nfs_owner_group",
-                              :name => name))
+            errors << I18n.t("vagrant.config.vm.shared_folder_nfs_owner_group",
+                              :name => name)
           end
         end
+
+        { "vm" => errors }
       end
     end
   end

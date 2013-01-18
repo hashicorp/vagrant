@@ -306,7 +306,7 @@ en:
 #-------------------------------------------------------------------------------
     config:
       common:
-        error_empty: "`%{field}` must be filled in."
+        error_empty: "`%{field}` must be not be empty."
       chef:
         cookbooks_path_empty: "Must specify a cookbooks path for chef solo."
         run_list_empty: "Run list must not be empty."
