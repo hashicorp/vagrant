@@ -85,7 +85,7 @@ module VagrantPlugins
 
             b2.use Call, DestroyConfirm do |env2, b3|
               if env2[:result]
-                b3.use Vagrant::Action::General::Validate
+                b3.use ConfigValidate
                 b3.use CheckAccessible
                 b3.use EnvSet, :force => true
                 b3.use action_halt
@@ -144,7 +144,7 @@ module VagrantPlugins
       def self.action_provision
         Vagrant::Action::Builder.new.tap do |b|
           b.use CheckVirtualbox
-          b.use Vagrant::Action::General::Validate
+          b.use ConfigValidate
           b.use Call, Created do |env1, b2|
             if !env1[:result]
               b2.use MessageNotCreated
@@ -176,7 +176,7 @@ module VagrantPlugins
               next
             end
 
-            b2.use Vagrant::Action::General::Validate
+            b2.use ConfigValidate
             b2.use action_halt
             b2.use action_start
           end
@@ -228,7 +228,7 @@ module VagrantPlugins
       def self.action_start
         Vagrant::Action::Builder.new.tap do |b|
           b.use CheckVirtualbox
-          b.use Vagrant::Action::General::Validate
+          b.use ConfigValidate
           b.use Call, IsRunning do |env, b2|
             # If the VM is running, then our work here is done, exit
             next if env[:result]
@@ -268,7 +268,7 @@ module VagrantPlugins
       def self.action_up
         Vagrant::Action::Builder.new.tap do |b|
           b.use CheckVirtualbox
-          b.use Vagrant::Action::General::Validate
+          b.use ConfigValidate
           b.use Call, Created do |env, b2|
             # If the VM is NOT created yet, then do the setup steps
             if !env[:result]

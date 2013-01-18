@@ -31,4 +31,58 @@ describe Vagrant::Config::V2::Root do
       "keys"       => {}
     }
   end
+
+  describe "validation" do
+    let(:instance) do
+      map = { :foo => Object, :bar => Object }
+      described_class.new(map)
+    end
+
+    it "should return nil if valid" do
+      instance.validate({}).should == {}
+    end
+
+    it "should return errors if invalid" do
+      errors = { "foo" => ["errors!"] }
+      env    = { "errors" => errors }
+      foo    = instance.foo
+      def foo.validate(env)
+        env["errors"]
+      end
+
+      instance.validate(env).should == errors
+    end
+
+    it "should merge errors via array concat if matching keys" do
+      errors = { "foo" => ["errors!"] }
+      env    = { "errors" => errors }
+      foo    = instance.foo
+      bar    = instance.bar
+      def foo.validate(env)
+        env["errors"]
+      end
+
+      def bar.validate(env)
+        env["errors"].merge({ "bar" => ["bar"] })
+      end
+
+      expected_errors = {
+        "foo" => ["errors!", "errors!"],
+        "bar" => ["bar"]
+      }
+
+      instance.validate(env).should == expected_errors
+    end
+
+    it "shouldn't count empty keys" do
+      errors = { "foo" => [] }
+      env    = { "errors" => errors }
+      foo    = instance.foo
+      def foo.validate(env)
+        env["errors"]
+      end
+
+      instance.validate(env).should == {}
+    end
+  end
 end

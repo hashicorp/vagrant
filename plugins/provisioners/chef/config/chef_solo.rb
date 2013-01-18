@@ -37,11 +37,14 @@ module VagrantPlugins
           @nfs || false
         end
 
-        def validate(env, errors)
-          super
+        def validate(machine)
+          errors = []
+          errors << I18n.t("vagrant.config.chef.cookbooks_path_empty") if \
+            !cookbooks_path || [cookbooks_path].flatten.empty?
+          errors << I18n.t("vagrant.config.chef.run_list_empty") if \
+            !run_list || run_list.empty?
 
-          errors.add(I18n.t("vagrant.config.chef.cookbooks_path_empty")) if !cookbooks_path || [cookbooks_path].flatten.empty?
-          errors.add(I18n.t("vagrant.config.chef.run_list_empty")) if !run_list || run_list.empty?
+          { "chef solo provisioner" => errors }
         end
       end
     end

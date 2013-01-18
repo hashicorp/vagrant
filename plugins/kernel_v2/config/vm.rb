@@ -1,6 +1,7 @@
 require "pathname"
 
 require "vagrant"
+require "vagrant/config/v2/util"
 
 require File.expand_path("../vm_provider", __FILE__)
 require File.expand_path("../vm_provisioner", __FILE__)
@@ -122,26 +123,50 @@ module VagrantPlugins
         define(DEFAULT_VM_NAME) if defined_vm_keys.empty?
       end
 
-      def validate(env, errors)
-        errors.add(I18n.t("vagrant.config.vm.box_missing")) if !box
-        errors.add(I18n.t("vagrant.config.vm.box_not_found", :name => box)) if box && !box_url && !env.boxes.find(box, :virtualbox)
-        errors.add(I18n.t("vagrant.config.vm.base_mac_invalid")) if env.boxes.find(box, :virtualbox) && !base_mac
+      def validate(machine)
+        errors = []
+        errors << I18n.t("vagrant.config.vm.box_missing") if !box
+        errors << I18n.t("vagrant.config.vm.box_not_found", :name => box) if \
+          box && !box_url && !machine.box
 
         shared_folders.each do |name, options|
-          hostpath = Pathname.new(options[:hostpath]).expand_path(env.root_path)
+          hostpath = Pathname.new(options[:hostpath]).expand_path(machine.env.root_path)
 
           if !hostpath.directory? && !options[:create]
-            errors.add(I18n.t("vagrant.config.vm.shared_folder_hostpath_missing",
+            errors << I18n.t("vagrant.config.vm.shared_folder_hostpath_missing",
                        :name => name,
-                       :path => options[:hostpath]))
+                       :path => options[:hostpath])
           end
 
           if options[:nfs] && (options[:owner] || options[:group])
             # Owner/group don't work with NFS
-            errors.add(I18n.t("vagrant.config.vm.shared_folder_nfs_owner_group",
-                              :name => name))
+            errors << I18n.t("vagrant.config.vm.shared_folder_nfs_owner_group",
+                              :name => name)
           end
         end
+
+        # We're done with VM level errors so prepare the section
+        errors = { "vm" => errors }
+
+        # Validate only the _active_ provider
+        if machine.provider_config
+          provider_errors = machine.provider_config.validate(machine)
+          if provider_errors
+            errors = Vagrant::Config::V2::Util.merge_errors(errors, provider_errors)
+          end
+        end
+
+        # Validate provisioners
+        @provisioners.each do |vm_provisioner|
+          if vm_provisioner.config
+            provisioner_errors = vm_provisioner.config.validate(machine)
+            if provisioner_errors
+              errors = Vagrant::Config::V2::Util.merge_errors(errors, provisioner_errors)
+            end
+          end
+        end
+
+        errors
       end
     end
   end

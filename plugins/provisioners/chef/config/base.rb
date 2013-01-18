@@ -52,12 +52,6 @@ module VagrantPlugins
             run_list << name
         end
 
-        def validate(env, errors)
-          super
-
-          errors.add(I18n.t("vagrant.config.chef.vagrant_as_json_key")) if json.has_key?(:vagrant)
-        end
-
         def instance_variables_hash
           # Overridden so that the 'json' key could be removed, since its just
           # merged into the config anyways

@@ -56,16 +56,11 @@ en:
         available below.
 
         %{help}
-      config_validation: |-
-        There was a problem with the configuration of Vagrant. The error message(s)
-        are printed below:
+      config_invalid: |-
+        There are errors in the configuration of this machine. Please fix
+        the following errors and try again:
 
-        %{messages}
-      deprecation: |-
-        You are using a feature that has been removed in this version. Explanation:
-
-        %{message}
-        Note that this error message will not appear in the next version of Vagrant.
+        %{errors}
       destroy_requires_force: |-
         Destroy doesn't have a TTY to ask for confirmation. Please pass the
         `--force` flag to force a destroy, otherwise attach a TTY so that
@@ -316,13 +311,11 @@ en:
 #-------------------------------------------------------------------------------
     config:
       common:
-        error_empty: "`%{field}` must be filled in."
+        error_empty: "`%{field}` must be not be empty."
       chef:
         cookbooks_path_empty: "Must specify a cookbooks path for chef solo."
         run_list_empty: "Run list must not be empty."
         server_url_empty: "Chef server URL must be populated."
-        vagrant_as_json_key: |-
-          `vagrant` cannot be a JSON key, because it is used by Vagrant already.
         validation_key_path: "Validation key path must be valid path to your chef server validation key."
       ssh:
         private_key_missing: "`private_key_path` file must exist: %{path}"

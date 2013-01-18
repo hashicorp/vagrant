@@ -4,7 +4,6 @@ module Vagrant
   module Config
     autoload :Base,          'vagrant/config/base'
     autoload :Container,     'vagrant/config/container'
-    autoload :ErrorRecorder, 'vagrant/config/error_recorder'
     autoload :Loader,        'vagrant/config/loader'
     autoload :VersionBase,   'vagrant/config/version_base'
 
