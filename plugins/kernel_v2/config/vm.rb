@@ -151,14 +151,18 @@ module VagrantPlugins
         # Validate only the _active_ provider
         if machine.provider_config
           provider_errors = machine.provider_config.validate(machine)
-          errors = Vagrant::Config::V2::Util.merge_errors(errors, provider_errors)
+          if provider_errors
+            errors = Vagrant::Config::V2::Util.merge_errors(errors, provider_errors)
+          end
         end
 
         # Validate provisioners
         @provisioners.each do |vm_provisioner|
           if vm_provisioner.config
             provisioner_errors = vm_provisioner.config.validate(machine)
-            errors = Vagrant::Config::V2::Util.merge_errors(errors, provisioner_errors)
+            if provisioner_errors
+              errors = Vagrant::Config::V2::Util.merge_errors(errors, provisioner_errors)
+            end
           end
         end
 
