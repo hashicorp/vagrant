@@ -28,7 +28,7 @@ module VagrantPlugins
 
         # Success, exit status 0
         0
-       end
+      end
     end
   end
 end
