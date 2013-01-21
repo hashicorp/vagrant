@@ -7,7 +7,7 @@ module VagrantPlugins
         end
 
         def call(env)
-          current_state = env[:machine].provider.state
+          current_state = env[:machine].provider.state.id
           if current_state == :running || current_state == :gurumeditation
             # If the VM is running and we're not forcing, we can
             # attempt a graceful shutdown
@@ -17,7 +17,7 @@ module VagrantPlugins
             end
 
             # If we're not powered off now, then force it
-            if env[:machine].provider.state != :poweroff
+            if env[:machine].provider.state.id != :poweroff
               env[:ui].info I18n.t("vagrant.actions.vm.halt.force")
               env[:machine].provider.driver.halt
             end

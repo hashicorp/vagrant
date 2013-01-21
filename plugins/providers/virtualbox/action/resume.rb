@@ -7,7 +7,7 @@ module VagrantPlugins
         end
 
         def call(env)
-          if env[:machine].provider.state == :saved
+          if env[:machine].provider.state.id == :saved
             env[:ui].info I18n.t("vagrant.actions.vm.resume.resuming")
             env[:action_runner].run(Boot, env)
           end

@@ -63,10 +63,19 @@ module VagrantPlugins
       def state
         # XXX: What happens if we destroy the VM but the UUID is still
         # set here?
-        return :not_created if !@driver.uuid
-        state = @driver.read_state
-        return :unknown if !state
-        state
+
+        # Determine the ID of the state here.
+        state_id = nil
+        state_id = :not_created if !@driver.uuid
+        state_id = @driver.read_state if !state_id
+        state_id = :unknown if !state_id
+
+        # Translate into short/long descriptions
+        short = state_id.to_s.gsub("_", " ")
+        long  = I18n.t("vagrant.commands.status.#{state_id}")
+
+        # Return the state
+        Vagrant::MachineState.new(state_id, short, long)
       end
 
       # Returns a human-friendly string version of this provider which

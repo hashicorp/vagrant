@@ -34,7 +34,7 @@ module VagrantPlugins
 
             # If the VM is not starting or running, something went wrong
             # and we need to show a useful error.
-            state = @env[:machine].provider.state
+            state = @env[:machine].provider.state.id
             raise Errors::VMFailedToRun if state != :starting && state != :running
 
             sleep 2 if !@env["vagrant.test"]

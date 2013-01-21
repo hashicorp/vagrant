@@ -15,15 +15,15 @@ module VagrantPlugins
         state = nil
         results = []
         with_target_vms(argv) do |machine|
-          state = machine.state.to_s if !state
-          results << "#{machine.name.to_s.ljust(25)}#{machine.state.to_s.gsub("_", " ")}"
+          state = machine.state if !state
+          results << "#{machine.name.to_s.ljust(25)}#{machine.state.short_description}"
         end
 
         state = results.length == 1 ? state : "listing"
 
         @env.ui.info(I18n.t("vagrant.commands.status.output",
                             :states => results.join("\n"),
-                            :message => I18n.t("vagrant.commands.status.#{state}")),
+                            :message => state.long_description),
                      :prefix => false)
 
         # Success, exit status 0
