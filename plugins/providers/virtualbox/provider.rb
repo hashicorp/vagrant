@@ -71,8 +71,8 @@ module VagrantPlugins
         state_id = :unknown if !state_id
 
         # Translate into short/long descriptions
-        short = state_id.to_s
-        long  = I18n.t("vagrant.commands.state.#{state_id}")
+        short = state_id.to_s.gsub("_", " ")
+        long  = I18n.t("vagrant.commands.status.#{state_id}")
 
         # Return the state
         Vagrant::MachineState.new(state_id, short, long)
