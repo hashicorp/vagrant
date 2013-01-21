@@ -385,10 +385,16 @@ describe Vagrant::Machine do
 
   describe "state" do
     it "should query state from the provider" do
-      state = :running
+      state = Vagrant::MachineState.new(:id, "short", "long")
 
       provider.should_receive(:state).and_return(state)
-      instance.state.should == state
+      instance.state.id.should == :id
+    end
+
+    it "should raise an exception if a MachineState is not returned" do
+      provider.should_receive(:state).and_return(:old_school)
+      expect { instance.state }.
+        to raise_error(Vagrant::Errors::MachineStateInvalid)
     end
   end
 end

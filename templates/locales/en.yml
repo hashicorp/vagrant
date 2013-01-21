@@ -145,6 +145,12 @@ en:
       machine_not_found: |-
         The machine with the name '%{name}' was not found configured for
         this Vagrant environment.
+      machine_state_invalid: |-
+        An internal error has occurred! The provider of the machine you're
+        trying to work with reported an invalid state. This is a bug with
+        the provider you're using, and not with Vagrant itself or with
+        any configuration you may have done. Please report this bug to
+        the proper location.
       multi_vm_required: |-
         A multi-vm environment is required for name specification to this command.
       multi_vm_target_required: |-

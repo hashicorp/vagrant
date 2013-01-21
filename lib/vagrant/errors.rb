@@ -248,6 +248,10 @@ module Vagrant
       error_key(:machine_not_found)
     end
 
+    class MachineStateInvalid < VagrantError
+      error_key(:machine_state_invalid)
+    end
+
     class MultiVMEnvironmentRequired < VagrantError
       status_code(5)
       error_key(:multi_vm_required)

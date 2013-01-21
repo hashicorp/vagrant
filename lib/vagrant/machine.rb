@@ -277,7 +277,9 @@ module Vagrant
     #
     # @return [Symbol]
     def state
-      @provider.state
+      result = @provider.state
+      raise Errors::MachineStateInvalid if !result.is_a?(MachineState)
+      result
     end
 
     protected
