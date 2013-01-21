@@ -128,6 +128,8 @@ describe Vagrant::Config::V2::Loader do
 
         def upgrade(new)
           new.foo.value = value * 2
+
+          [["foo"], ["bar"]]
         end
       end
 
@@ -142,6 +144,8 @@ describe Vagrant::Config::V2::Loader do
 
       data = described_class.upgrade(old)
       data[0].foo.value.should == 10
+      data[1].should == ["foo"]
+      data[2].should == ["bar"]
     end
   end
 end

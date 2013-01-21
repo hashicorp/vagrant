@@ -131,7 +131,14 @@ module VagrantPlugins
           new.vm.define(name, options, &block)
         end
 
-        # XXX: Warning: `vm.name` is useless now
+        # If name is used, warn that it has no effect anymore
+        warnings = []
+        if @name
+          warnings << "`config.vm.name` has no effect anymore. Names are derived\n" +
+            "directly from any `config.vm.define` calls."
+        end
+
+        [warnings, []]
       end
     end
   end

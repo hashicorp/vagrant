@@ -1,6 +1,15 @@
 en:
   vagrant:
     general:
+      config_upgrade_messages: |-
+        There were warnings and/or errors while loading your Vagrantfile.
+        Your Vagrantfile was written for an earlier version of Vagrant,
+        and while Vagrant does the best it can to remain backwards
+        compatible, there are some cases where things have changed
+        significantly enough to warrant a message. These messages are
+        shown below.
+
+        %{output}
       moving_home_dir: "Moving old Vagrant home directory to new location: %{directory}"
       home_dir_migration_failed: |-
         Both an old and new Vagrant home directory exist. Only the new one will
@@ -61,6 +70,9 @@ en:
         the following errors and try again:
 
         %{errors}
+      config_upgrade_errors: |-
+        Because there were errors upgrading your Vagrantfiles, Vagrant
+        can no longer continue. Please fix the errors above and try again.
       destroy_requires_force: |-
         Destroy doesn't have a TTY to ask for confirmation. Please pass the
         `--force` flag to force a destroy, otherwise attach a TTY so that

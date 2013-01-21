@@ -87,6 +87,11 @@ module Vagrant
         # This will hold our result
         result = current_config_klass.init
 
+        # Keep track of the warnings and errors that may come from
+        # upgrading the Vagrantfiles
+        warnings = []
+        errors   = []
+
         order.each do |key|
           next if !@sources.has_key?(key)
 
@@ -97,6 +102,11 @@ module Vagrant
               # Get the proper version loader for this version and load
               version_loader = @versions.get(version)
               version_config = version_loader.load(proc)
+
+              # Store the errors/warnings associated with loading this
+              # configuration. We'll store these for later.
+              version_warnings = []
+              version_errors   = []
 
               # If this version is not the current version, then we need
               # to upgrade to the latest version.
@@ -114,30 +124,40 @@ module Vagrant
                   upgrade_result = loader.upgrade(version_config)
 
                   # XXX: Do something with the warning/error messages
-                  warnings = upgrade_result[1]
-                  errors   = upgrade_result[2]
+                  this_warnings = upgrade_result[1]
+                  this_errors   = upgrade_result[2]
                   @logger.debug("Upgraded to version #{next_version} with " +
-                                "#{warnings.length} warnings and " +
-                                "#{errors.length} errors")
+                                "#{this_warnings.length} warnings and " +
+                                "#{this_errors.length} errors")
+
+                  # Append loading this to the version warnings and errors
+                  version_warnings += this_warnings
+                  version_errors   += this_errors
 
                   # Store the new upgraded version
                   version_config = upgrade_result[0]
                 end
               end
 
-              # Cache the results for this proc
-              @config_cache[proc] = version_config
+              # Cache the loaded configuration along with any warnings
+              # or errors so that they can be retrieved later.
+              @config_cache[proc] = [version_config, version_warnings, version_errors]
             else
               @logger.debug("Loading from: #{key} (cache)")
             end
 
             # Merge the configurations
-            result = current_config_klass.merge(result, @config_cache[proc])
+            cache_data = @config_cache[proc]
+            result = current_config_klass.merge(result, cache_data[0])
+
+            # Append the total warnings/errors
+            warnings += cache_data[1]
+            errors   += cache_data[2]
           end
         end
 
         @logger.debug("Configuration loaded successfully, finalizing and returning")
-        current_config_klass.finalize(result)
+        [current_config_klass.finalize(result), warnings, errors]
       end
 
       protected

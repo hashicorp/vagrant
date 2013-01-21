@@ -247,7 +247,8 @@ module Vagrant
       # with the box Vagrantfile (if it has one).
       vm_config_key = "vm_#{name}".to_sym
       @config_loader.set(vm_config_key, sub_vm.config_procs)
-      config = @config_loader.load([:default, :home, :root, vm_config_key])
+      config, config_warnings, config_errors = \
+        @config_loader.load([:default, :home, :root, vm_config_key])
 
       box = nil
       begin
@@ -270,7 +271,8 @@ module Vagrant
           @logger.info("Box exists with Vagrantfile. Reloading machine config.")
           box_config_key = "box_#{box.name}_#{box.provider}".to_sym
           @config_loader.set(box_config_key, box_vagrantfile)
-          config = @config_loader.load([:default, box_config_key, :home, :root, vm_config_key])
+          config, config_warnings, config_errors = \
+            @config_loader.load([:default, box_config_key, :home, :root, vm_config_key])
         end
       end
 
@@ -281,6 +283,22 @@ module Vagrant
       # XXX: Permissions error here.
       machine_data_path = @local_data_path.join("machines/#{name}/#{provider}")
       FileUtils.mkdir_p(machine_data_path)
+
+      # If there were warnings or errors we want to output them
+      if !config_warnings.empty? || !config_errors.empty?
+        # The color of the output depends on whether we have warnings
+        # or errors...
+        level  = config_errors.empty? ? :warn : :error
+        output = Util::TemplateRenderer.render(
+          "config/messages",
+          :warnings => config_warnings,
+          :errors => config_errors).chomp
+        @ui.send(level, I18n.t("vagrant.general.config_upgrade_messages",
+                              :output => output))
+
+        # If we had errors, then we bail
+        raise Errors::ConfigUpgradeErrors if !config_errors.empty?
+      end
 
       # Create the machine and cache it for future calls. This will also
       # return the machine from this method.
@@ -448,7 +466,8 @@ module Vagrant
 
       # Make the initial call to get the "global" config. This is mostly
       # only useful to get the list of machines that we are managing.
-      @config_global = @config_loader.load([:default, :home, :root])
+      # Because of this, we ignore any warnings or errors.
+      @config_global, _ = @config_loader.load([:default, :home, :root])
 
       # Old order: default, box, home, root, vm
     end

@@ -49,9 +49,11 @@ describe Vagrant::Config::Loader do
       end
 
       instance.set(:proc, [[current_version, proc]])
-      config = instance.load([:proc])
+      config, warnings, errors = instance.load([:proc])
 
       config[:foo].should == "yep"
+      warnings.should == []
+      errors.should == []
     end
   end
 
@@ -70,7 +72,7 @@ describe Vagrant::Config::Loader do
 
       # Run the actual configuration and assert that we get the proper result
       instance.set(:proc, [[current_version, proc]])
-      config = instance.load([:proc])
+      config, _ = instance.load([:proc])
       config[:foo].should == "yep"
       config[:finalized].should == true
     end
@@ -93,9 +95,32 @@ describe Vagrant::Config::Loader do
       # Load a version 1 proc, and verify it is upgraded to version 2
       proc = lambda { |config| config[:foo] = "yep" }
       instance.set(:proc, [["1", proc]])
-      config = instance.load([:proc])
+      config, _ = instance.load([:proc])
       config[:foo].should == "yep"
       config[:v2].should == true
+    end
+
+    it "should keep track of warnings and errors" do
+      test_loader_v2 = Class.new(test_loader) do
+        def self.upgrade(old)
+          new = old.dup
+          new[:v2] = true
+
+          [new, ["foo!"], ["bar!"]]
+        end
+      end
+
+      versions.register("2") { test_loader_v2 }
+      version_order << "2"
+
+      # Load a version 1 proc, and verify it is upgraded to version 2
+      proc = lambda { |config| config[:foo] = "yep" }
+      instance.set(:proc, [["1", proc]])
+      config, warnings, errors = instance.load([:proc])
+      config[:foo].should == "yep"
+      config[:v2].should == true
+      warnings.should == ["foo!"]
+      errors.should == ["bar!"]
     end
   end
 
@@ -110,7 +135,7 @@ describe Vagrant::Config::Loader do
       instance.set(:proc, [[current_version, proc]])
 
       5.times do
-        result = instance.load([:proc])
+        result, _ = instance.load([:proc])
 
         # Verify the config result
         result[:foo].should == "yep"

@@ -154,6 +154,10 @@ module Vagrant
       error_key(:config_invalid)
     end
 
+    class ConfigUpgradeErrors < VagrantError
+      error_key(:config_upgrade_errors)
+    end
+
     class DestroyRequiresForce < VagrantError
       status_code(74)
       error_key(:destroy_requires_force)

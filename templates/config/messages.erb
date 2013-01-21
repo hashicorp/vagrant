@@ -1,0 +1,14 @@
+<% if !warnings.empty? -%>
+Warnings:
+<% warnings.each do |warning| -%>
+* <%= warning %>
+<% end -%>
+
+<% end -%>
+<% if !errors.empty? -%>
+Errors:
+<% errors.each do |error| -%>
+* <%= error %>
+<% end -%>
+
+<% end -%>

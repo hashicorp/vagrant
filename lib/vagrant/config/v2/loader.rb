@@ -92,14 +92,24 @@ module Vagrant
           # Get a new root
           root = new_root_object
 
+          # Store the warnings/errors
+          warnings = []
+          errors   = []
+
           # Go through the old keys and upgrade them if they can be
           old.__internal_state["keys"].each do |_, old_value|
             if old_value.respond_to?(:upgrade)
-              old_value.upgrade(root)
+              result = old_value.upgrade(root)
+
+              # Sanity check to guard against random return values
+              if result.is_a?(Array)
+                warnings += result[0]
+                errors   += result[1]
+              end
             end
           end
 
-          [root, [], []]
+          [root, warnings, errors]
         end
 
         protected
