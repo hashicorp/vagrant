@@ -56,9 +56,10 @@ module Vagrant
         end
 
         # This should return the state of the machine within this provider.
-        # The state can be any symbol.
+        # The state must be an instance of {MachineState}. Please read the
+        # documentation of that class for more information.
         #
-        # @return [Symbol]
+        # @return [MachineState]
         def state
           nil
         end
