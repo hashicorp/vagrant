@@ -75,6 +75,7 @@ module Vagrant
   autoload :Guest,         'vagrant/guest'
   autoload :Hosts,         'vagrant/hosts'
   autoload :Machine,       'vagrant/machine'
+  autoload :MachineState,  'vagrant/machine_state'
   autoload :Plugin,        'vagrant/plugin'
   autoload :TestHelpers,   'vagrant/test_helpers'
   autoload :UI,            'vagrant/ui'
