@@ -7,7 +7,7 @@ module VagrantPlugins
         end
 
         def call(env)
-          if env[:machine].state == :inaccessible
+          if env[:machine].state.id == :inaccessible
             # The VM we are attempting to manipulate is inaccessible. This
             # is a very bad situation and can only be fixed by the user. It
             # also prohibits us from actually doing anything with the virtual

@@ -9,7 +9,7 @@ module VagrantPlugins
         end
 
         def call(env)
-          if env[:machine].state == :not_created
+          if env[:machine].state.id == :not_created
             raise Vagrant::Errors::VMNotCreatedError
           end
 

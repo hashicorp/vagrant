@@ -33,7 +33,7 @@ module VagrantPlugins
         end
 
         def recover(env)
-          if env[:machine].provider.state != :not_created
+          if env[:machine].provider.state.id != :not_created
             return if env["vagrant.error"].is_a?(Vagrant::Errors::VagrantError)
 
             # Interrupted, destroy the VM. We note that we don't want to
