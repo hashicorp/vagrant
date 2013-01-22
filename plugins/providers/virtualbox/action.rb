@@ -111,7 +111,7 @@ module VagrantPlugins
               b2.use CheckAccessible
               b2.use DiscardState
               b2.use Call, GracefulHalt, :poweroff, :running do |env2, b3|
-                if !env[:result]
+                if !env2[:result]
                   b3.use ForcedHalt
                 end
               end
