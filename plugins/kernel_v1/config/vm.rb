@@ -28,6 +28,8 @@ module VagrantPlugins
       end
 
       def forward_port(guestport, hostport, options=nil)
+        options ||= {}
+
         # Build up the network options for V2
         network_options = {}
         network_options[:virtualbox__adapter] = options[:adapter]
