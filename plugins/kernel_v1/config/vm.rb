@@ -36,7 +36,7 @@ module VagrantPlugins
         network_options[:virtualbox__protocol] = options[:protocol]
 
         # Just append the forwarded port to the networks
-        @networks << [:forwarded_port, guestport, hostport, network_options]
+        @networks << [:forwarded_port, [guestport, hostport, network_options]]
       end
 
       def share_folder(name, guestpath, hostpath, opts=nil)
