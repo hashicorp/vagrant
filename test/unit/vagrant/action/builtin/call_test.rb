@@ -53,6 +53,26 @@ describe Vagrant::Action::Builtin::Call do
     received.should == :bar
   end
 
+  it "should instantiate the callable with the extra args" do
+    env = {}
+
+    callable = Class.new do
+      def initialize(app, env, arg)
+        env[:arg] = arg
+      end
+
+      def call(env); end
+    end
+
+    result = nil
+    instance = described_class.new(app, env, callable, :foo) do |inner_env, _builder|
+      result = inner_env[:arg]
+    end
+    instance.call(env)
+
+    result.should == :foo
+  end
+
   it "should call the recover method for the sequence in an error" do
     # Basic variables
     callable = lambda { |env| }

@@ -15,6 +15,8 @@ module VagrantPlugins
       attr_accessor :base_mac
       attr_accessor :box
       attr_accessor :box_url
+      attr_accessor :graceful_halt_retry_count
+      attr_accessor :graceful_halt_retry_interval
       attr_accessor :guest
       attr_accessor :host_name
       attr_accessor :usable_port_range
@@ -25,10 +27,12 @@ module VagrantPlugins
       attr_reader :provisioners
 
       def initialize
-        @forwarded_ports = []
-        @shared_folders = {}
-        @networks = []
-        @provisioners = []
+        @forwarded_ports              = []
+        @graceful_halt_retry_count    = UNSET_VALUE
+        @graceful_halt_retry_interval = UNSET_VALUE
+        @shared_folders               = {}
+        @networks                     = []
+        @provisioners                 = []
 
         # The providers hash defaults any key to a provider object
         @providers = Hash.new do |hash, key|

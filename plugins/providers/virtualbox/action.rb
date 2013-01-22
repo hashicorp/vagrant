@@ -23,8 +23,8 @@ module VagrantPlugins
       autoload :DestroyUnusedNetworkInterfaces, File.expand_path("../action/destroy_unused_network_interfaces", __FILE__)
       autoload :DiscardState, File.expand_path("../action/discard_state", __FILE__)
       autoload :Export, File.expand_path("../action/export", __FILE__)
+      autoload :ForcedHalt, File.expand_path("../action/forced_halt", __FILE__)
       autoload :ForwardPorts, File.expand_path("../action/forward_ports", __FILE__)
-      autoload :Halt, File.expand_path("../action/halt", __FILE__)
       autoload :HostName, File.expand_path("../action/host_name", __FILE__)
       autoload :Import, File.expand_path("../action/import", __FILE__)
       autoload :IsRunning, File.expand_path("../action/is_running", __FILE__)
@@ -110,7 +110,11 @@ module VagrantPlugins
             if env[:result]
               b2.use CheckAccessible
               b2.use DiscardState
-              b2.use Halt
+              b2.use Call, GracefulHalt, :poweroff, :running do |env2, b3|
+                if !env[:result]
+                  b3.use ForcedHalt
+                end
+              end
             else
               b2.use MessageNotCreated
             end
