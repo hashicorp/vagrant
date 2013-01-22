@@ -87,7 +87,7 @@ module VagrantPlugins
               if env2[:result]
                 b3.use ConfigValidate
                 b3.use CheckAccessible
-                b3.use EnvSet, :force => true
+                b3.use EnvSet, :force_halt => true
                 b3.use action_halt
                 b3.use PruneNFSExports
                 b3.use Destroy
