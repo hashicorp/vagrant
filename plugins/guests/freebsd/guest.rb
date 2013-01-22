@@ -13,17 +13,6 @@ module VagrantPlugins
 
       def halt
         vm.channel.sudo("shutdown -p now")
-
-        # Wait until the VM's state is actually powered off. If this doesn't
-        # occur within a reasonable amount of time (15 seconds by default),
-        # then simply return and allow Vagrant to kill the machine.
-        count = 0
-        while vm.state != :poweroff
-          count += 1
-
-          return if count >= vm.config.freebsd.halt_timeout
-          sleep vm.config.freebsd.halt_check_interval
-        end
       end
 
       # TODO: vboxsf is currently unsupported in FreeBSD, if you are able to
