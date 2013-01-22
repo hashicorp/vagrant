@@ -57,6 +57,12 @@ module Vagrant
             # The result of this matters on whether we reached our
             # proper target state or not.
             env[:result] = env[:machine].state.id == @target_state
+
+            if env[:result]
+              @logger.info("Gracefully halted.")
+            else
+              @logger.info("Graceful halt failed.")
+            end
           end
 
           @app.call(env)
