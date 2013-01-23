@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.rubyforge_project         = "vagrant"
 
   s.add_dependency "archive-tar-minitar", "= 0.5.2"
-  s.add_dependency "childprocess", "~> 0.3.1"
+  s.add_dependency "childprocess", "~> 0.3.7"
   s.add_dependency "erubis", "~> 2.7.0"
   s.add_dependency "i18n", "~> 0.6.0"
   s.add_dependency "json", "~> 1.6.6"
