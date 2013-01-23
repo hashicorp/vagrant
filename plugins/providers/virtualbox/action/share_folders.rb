@@ -88,7 +88,6 @@ module VagrantPlugins
             if data[:guestpath]
               # Guest path specified, so mount the folder to specified point
               @env[:ui].info(I18n.t("vagrant.actions.vm.share_folders.mounting_entry",
-                                    :name => id,
                                     :guest_path => data[:guestpath]))
 
               # Dup the data so we can pass it to the guest API
@@ -103,7 +102,7 @@ module VagrantPlugins
             else
               # If no guest path is specified, then automounting is disabled
               @env[:ui].info(I18n.t("vagrant.actions.vm.share_folders.nomount_entry",
-                                    :name => id))
+                                    :host_path => data[:hostpath]))
             end
           end
         end

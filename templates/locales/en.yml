@@ -661,8 +661,8 @@ en:
         share_folders:
           creating: Creating shared folders metadata...
           mounting: Mounting shared folders...
-          mounting_entry: "-- %{name}: %{guest_path}"
-          nomount_entry: "-- %{name}: Automounting disabled."
+          mounting_entry: "-- %{guest_path}"
+          nomount_entry: "-- Automounting disabled: %{host_path}"
         suspend:
           suspending: Saving VM state and suspending execution...
 
