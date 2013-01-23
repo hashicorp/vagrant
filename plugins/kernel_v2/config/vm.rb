@@ -65,12 +65,10 @@ module VagrantPlugins
       def synced_folder(hostpath, guestpath, options=nil)
         options ||= {}
         options[:id] ||= guestpah
+        options[:guestpath] = guestpath
+        options[:hostpath]  = hostpath
 
-        @synced_folders[options[:id]] = {
-          :guestpath => guestpath,
-          :hostpath  => hostpath,
-          :options   => options
-        }
+        @synced_folders[options[:id]] = options
       end
 
       # Define a way to access the machine via a network. This exposes a
@@ -143,19 +141,18 @@ module VagrantPlugins
         errors << I18n.t("vagrant.config.vm.box_not_found", :name => box) if \
           box && !box_url && !machine.box
 
-        @synced_folders.each do |id, data|
-          options  = data[:options]
-          hostpath = Pathname.new(data[:hostpath]).expand_path(machine.env.root_path)
+        @synced_folders.each do |id, options|
+          hostpath = Pathname.new(options[:hostpath]).expand_path(machine.env.root_path)
 
           if !hostpath.directory? && !options[:create]
             errors << I18n.t("vagrant.config.vm.shared_folder_hostpath_missing",
-                             :path => data[:hostpath])
+                             :path => options[:hostpath])
           end
 
           if options[:nfs] && (options[:owner] || options[:group])
             # Owner/group don't work with NFS
             errors << I18n.t("vagrant.config.vm.shared_folder_nfs_owner_group",
-                             :path => data[:hostpath])
+                             :path => options[:hostpath])
           end
         end
 
