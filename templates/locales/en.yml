@@ -351,9 +351,11 @@ en:
         network_ip_ends_one: |-
           The host only network IP '%{ip}' must not end in a 1, as this
           is reserved for the host machine.
-        shared_folder_hostpath_missing: "Shared folder host path for '%{name}' doesn't exist: %{path}"
+        shared_folder_hostpath_missing: |-
+          The host path of the shared folder is missing: %{path}
         shared_folder_nfs_owner_group: |-
-          Shared folder '%{name}': NFS does not support the owner/group settings.
+          Shared folder that have NFS enabled do no support owner/group
+          attributes. Host path: %{path}
         provisioner_not_found: "The provisioner '%{shortcut}' doesn't exist."
         provisioner_invalid_class: |-
           The provisioner '%{shortcut}' must inherit from

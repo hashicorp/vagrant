@@ -21,7 +21,7 @@ module VagrantPlugins
       attr_accessor :host_name
       attr_accessor :usable_port_range
       attr_reader :forwarded_ports
-      attr_reader :shared_folders
+      attr_reader :synced_folders
       attr_reader :networks
       attr_reader :providers
       attr_reader :provisioners
@@ -30,7 +30,7 @@ module VagrantPlugins
         @forwarded_ports              = []
         @graceful_halt_retry_count    = UNSET_VALUE
         @graceful_halt_retry_interval = UNSET_VALUE
-        @shared_folders               = {}
+        @synced_folders               = {}
         @networks                     = []
         @provisioners                 = []
 
@@ -44,23 +44,33 @@ module VagrantPlugins
       def merge(other)
         result = super
         result.instance_variable_set(:@forwarded_ports, @forwarded_ports + other.forwarded_ports)
-        result.instance_variable_set(:@shared_folders, @shared_folders.merge(other.shared_folders))
+        result.instance_variable_set(:@synced_folders, @synced_folders.merge(other.synced_folders))
         result.instance_variable_set(:@networks, @networks + other.networks)
         result.instance_variable_set(:@provisioners, @provisioners + other.provisioners)
         result
       end
 
-      def share_folder(name, guestpath, hostpath, opts=nil)
-        @shared_folders[name] = {
-          :guestpath => guestpath.to_s,
-          :hostpath => hostpath.to_s,
-          :create => false,
-          :owner => nil,
-          :group => nil,
-          :nfs   => false,
-          :transient => false,
-          :extra => nil
-        }.merge(opts || {})
+      # Defines a synced folder pair. This pair of folders will be synced
+      # to/from the machine. Note that if the machine you're using doesn't
+      # support multi-directional syncing (perhaps an rsync backed synced
+      # folder) then the host is always synced to the guest but guest data
+      # may not be synced back to the host.
+      #
+      # @param [String] hostpath Path to the host folder to share. If this
+      #   is a relative path, it is relative to the location of the
+      #   Vagrantfile.
+      # @param [String] guestpath Path on the guest to mount the shared
+      #   folder.
+      # @param [Hash] options Additional options.
+      def synced_folder(hostpath, guestpath, options=nil)
+        options ||= {}
+        options[:id] ||= guestpah
+
+        @synced_folders[options[:id]] = {
+          :guestpath => guestpath,
+          :hostpath  => hostpath,
+          :options   => options
+        }
       end
 
       # Define a way to access the machine via a network. This exposes a
@@ -133,19 +143,19 @@ module VagrantPlugins
         errors << I18n.t("vagrant.config.vm.box_not_found", :name => box) if \
           box && !box_url && !machine.box
 
-        shared_folders.each do |name, options|
-          hostpath = Pathname.new(options[:hostpath]).expand_path(machine.env.root_path)
+        @synced_folders.each do |id, data|
+          options  = data[:options]
+          hostpath = Pathname.new(data[:hostpath]).expand_path(machine.env.root_path)
 
           if !hostpath.directory? && !options[:create]
             errors << I18n.t("vagrant.config.vm.shared_folder_hostpath_missing",
-                       :name => name,
-                       :path => options[:hostpath])
+                             :path => data[:hostpath])
           end
 
           if options[:nfs] && (options[:owner] || options[:group])
             # Owner/group don't work with NFS
             errors << I18n.t("vagrant.config.vm.shared_folder_nfs_owner_group",
-                              :name => name)
+                             :path => data[:hostpath])
           end
         end
 
