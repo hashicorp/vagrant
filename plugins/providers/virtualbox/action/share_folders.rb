@@ -25,22 +25,20 @@ module VagrantPlugins
         # This method returns an actual list of VirtualBox shared
         # folders to create and their proper path.
         def shared_folders
-          @env[:machine].config.vm.shared_folders.inject({}) do |acc, data|
-            key, value = data
+          {}.tap do |result|
+            @env[:machine].config.vm.synced_folders.each do |id, data|
+              next if data[:disabled]
 
-            next acc if value[:disabled]
-
-            # This to prevent overwriting the actual shared folders data
-            value = value.dup
-            acc[key] = value
-            acc
+              # This to prevent overwriting the actual shared folders data
+              result[id] = data.dup
+            end
           end
         end
 
         # Prepares the shared folders by verifying they exist and creating them
         # if they don't.
         def prepare_folders
-          shared_folders.each do |name, options|
+          shared_folders.each do |id, options|
             hostpath = Pathname.new(options[:hostpath]).expand_path(@env[:root_path])
 
             if !hostpath.directory? && options[:create]
@@ -61,9 +59,9 @@ module VagrantPlugins
           @env[:ui].info I18n.t("vagrant.actions.vm.share_folders.creating")
 
           folders = []
-          shared_folders.each do |name, data|
+          shared_folders.each do |id, data|
             folders << {
-              :name => name,
+              :name => id,
               :hostpath => File.expand_path(data[:hostpath], @env[:root_path]),
               :transient => data[:transient]
             }
@@ -76,7 +74,7 @@ module VagrantPlugins
           @env[:ui].info I18n.t("vagrant.actions.vm.share_folders.mounting")
 
           # short guestpaths first, so we don't step on ourselves
-          folders = shared_folders.sort_by do |name, data|
+          folders = shared_folders.sort_by do |id, data|
             if data[:guestpath]
               data[:guestpath].length
             else
@@ -86,11 +84,10 @@ module VagrantPlugins
           end
 
           # Go through each folder and mount
-          folders.each do |name, data|
+          folders.each do |id, data|
             if data[:guestpath]
               # Guest path specified, so mount the folder to specified point
               @env[:ui].info(I18n.t("vagrant.actions.vm.share_folders.mounting_entry",
-                                    :name => name,
                                     :guest_path => data[:guestpath]))
 
               # Dup the data so we can pass it to the guest API
@@ -101,11 +98,11 @@ module VagrantPlugins
               data[:group] ||= @env[:machine].config.ssh.username
 
               # Mount the actual folder
-              @env[:machine].guest.mount_shared_folder(name, data[:guestpath], data)
+              @env[:machine].guest.mount_shared_folder(id, data[:guestpath], data)
             else
               # If no guest path is specified, then automounting is disabled
               @env[:ui].info(I18n.t("vagrant.actions.vm.share_folders.nomount_entry",
-                                    :name => name))
+                                    :host_path => data[:hostpath]))
             end
           end
         end

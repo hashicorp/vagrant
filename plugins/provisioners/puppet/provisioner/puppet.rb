@@ -28,15 +28,15 @@ module VagrantPlugins
           end
 
           # Share the manifests directory with the guest
-          root_config.vm.share_folder(
-            "manifests", manifests_guest_path, @expanded_manifests_path)
+          root_config.vm.synced_folder(
+            @expanded_manifests_path, manifests_guest_path)
 
           # Share the module paths
           count = 0
           @module_paths.each do |from, to|
             # Sorry for the cryptic key here, but VirtualBox has a strange limit on
             # maximum size for it and its something small (around 10)
-            root_config.vm.share_folder("v-pp-m#{count}", to, from)
+            root_config.vm.synced_folder(from, to)
             count += 1
           end
         end

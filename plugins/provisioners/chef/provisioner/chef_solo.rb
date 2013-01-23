@@ -111,9 +111,10 @@ module VagrantPlugins
         def share_folders(root_config, prefix, folders)
           folders.each do |type, local_path, remote_path|
             if type == :host
-              root_config.vm.share_folder(
-                "v-#{prefix}-#{self.class.get_and_update_counter(:shared_folder)}",
-                remote_path, local_path, :nfs => @config.nfs)
+              root_config.vm.synced_folder(
+                local_path, remote_path,
+                :id =>  "v-#{prefix}-#{self.class.get_and_update_counter(:shared_folder)}",
+                :nfs => @config.nfs)
             end
           end
         end

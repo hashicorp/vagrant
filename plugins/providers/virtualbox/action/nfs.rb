@@ -42,7 +42,7 @@ module VagrantPlugins
         def extract_folders
           # Load the NFS enabled shared folders
           @folders = {}
-          @env[:machine].config.vm.shared_folders.each do |key, opts|
+          @env[:machine].config.vm.synced_folders.each do |id, opts|
             if opts[:nfs]
               # Duplicate the options, set the hostpath, and set disabled on the original
               # options so the ShareFolders middleware doesn't try to mount it.
@@ -65,7 +65,7 @@ module VagrantPlugins
               folder[:hostpath] = hostpath.to_s
 
               # Assign the folder to our instance variable for later use
-              @folders[key] = folder
+              @folders[id] = folder
 
               # Disable the folder so that regular shared folders don't try to
               # mount it.
@@ -78,7 +78,7 @@ module VagrantPlugins
         # options on the NFS folders.
         def prepare_folders
           @folders = @folders.inject({}) do |acc, data|
-            key, opts = data
+            id, opts = data
             opts[:map_uid] = prepare_permission(:uid, opts)
             opts[:map_gid] = prepare_permission(:gid, opts)
             opts[:nfs_version] ||= 3
@@ -89,7 +89,7 @@ module VagrantPlugins
             # the same host path will hash to the same fsid.
             opts[:uuid]    = Digest::MD5.hexdigest(opts[:hostpath])
 
-            acc[key] = opts
+            acc[id] = opts
             acc
           end
         end
@@ -166,8 +166,8 @@ module VagrantPlugins
 
         # Checks if there are any NFS enabled shared folders.
         def nfs_enabled?
-          @env[:machine].config.vm.shared_folders.each do |key, opts|
-            return true if opts[:nfs]
+          @env[:machine].config.vm.synced_folders.each do |id, options|
+            return true if options[:nfs]
           end
 
           false
