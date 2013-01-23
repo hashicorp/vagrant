@@ -121,11 +121,12 @@ module VagrantPlugins
 
         # Shared folders
         self.shared_folders.each do |name, sf|
-          options = sf.dup
-          guestpath = options.delete(:guestpath)
-          hostpath = options.delete(:hostpath)
+          options      = sf.dup
+          options[:id] = name
+          guestpath    = options.delete(:guestpath)
+          hostpath     = options.delete(:hostpath)
 
-          new.vm.share_folder(name, guestpath, hostpath, options)
+          new.vm.synced_folder(hostpath, guestpath, options)
         end
 
         # Defined sub-VMs
