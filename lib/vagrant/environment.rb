@@ -446,6 +446,11 @@ module Vagrant
                                                  DEFAULT_HOME))
       @logger.info("Home path: #{@home_path}")
 
+      # If the setup_version file exists, then we can't load because we're
+      # not forward compatible. It means they ran a future version of Vagrant.
+      raise Errors::IncompatibleWithFutureVersion, :path => @home_path.to_s if \
+        @home_path.join("setup_version").file?
+
       # Setup the array of necessary home directories
       dirs = [@home_path]
       dirs += HOME_SUBDIRS.collect { |subdir| @home_path.join(subdir) }

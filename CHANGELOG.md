@@ -1,3 +1,8 @@
+## 1.0.7 (unreleased)
+
+  - Detect if a newer version of Vagrant ran and error if it did,
+    because we're not forward-compatible.
+
 ## 1.0.6 (December 21, 2012)
 
   - Shell provisioner outputs proper line endings on Windows [GH-1164]

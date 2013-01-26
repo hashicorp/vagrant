@@ -198,6 +198,10 @@ module Vagrant
       error_key(:home_dir_not_accessible)
     end
 
+    class IncompatibleWithFutureVersion < VagrantError
+      error_key(:incompatible_with_future_version)
+    end
+
     class ForwardPortAutolistEmpty < VagrantError
       status_code(27)
       error_key(:auto_empty, "vagrant.actions.vm.forward_ports")

@@ -74,6 +74,18 @@ en:
         directory that Vagrant uses must be both readable and writable.
 
         You specified: %{home_path}
+      incompatible_with_future_version: |-
+        It appears that you've ran a newer version of Vagrant on this
+        computer. Unfortunately, newer versions of Vagrant change internal
+        directory layouts that cause older versions to break. This version
+        of Vagrant cannot properly run.
+
+        If you'd like to start from a clean state, please remove the
+        Vagrant state directory: %{path}
+
+        Warning that this will remove all your boxes and potentially corrupt
+        existing Vagrant environments that were running based on the future
+        version.
       interrupted: |-
         Vagrant exited after cleanup due to external interrupt.
       multi_vm_required: |-
