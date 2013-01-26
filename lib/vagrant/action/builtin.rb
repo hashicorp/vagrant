@@ -49,6 +49,7 @@ module Vagrant
             use VM::SaneDefaults
             use VM::Customize
             use VM::Boot
+            use VM::CheckGuestAdditions
           end
         end
 
@@ -104,7 +105,6 @@ module Vagrant
             use VM::CheckAccessible
             use VM::CheckBox
             use VM::Import
-            use VM::CheckGuestAdditions
             use VM::DefaultName
             use VM::MatchMACAddress
             use registry.get(:start)

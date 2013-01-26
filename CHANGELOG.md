@@ -2,6 +2,7 @@
 
   - Detect if a newer version of Vagrant ran and error if it did,
     because we're not forward-compatible.
+  - Check for guest additions version AFTER booting. [GH-1179]
 
 ## 1.0.6 (December 21, 2012)
 
