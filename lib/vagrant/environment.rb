@@ -498,6 +498,16 @@ module Vagrant
           raise Errors::HomeDirectoryNotAccessible, :home_path => @home_path.to_s
         end
       end
+
+      # Create the version file to mark the version of the home directory
+      # we're using.
+      version_file = @home_path.join("setup_version")
+      if !version_file.file?
+        @logger.debug("Setting up the version file.")
+        version_file.open("w") do |f|
+          f.write("1.1")
+        end
+      end
     end
 
     # This creates the local data directory and show an error if it
