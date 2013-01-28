@@ -103,6 +103,14 @@ module Vagrant
     c.register([:"2", :provisioner])  { Plugin::V2::Provisioner }
   end
 
+  # This returns a true/false showing whether we're running from the
+  # environment setup by the Vagrant installers.
+  #
+  # @return [Boolean]
+  def self.in_installer?
+    !!ENV["VAGRANT_INSTALLER_ENV"]
+  end
+
   # The source root is the path to the root directory of
   # the Vagrant gem.
   def self.source_root

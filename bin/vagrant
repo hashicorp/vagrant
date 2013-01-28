@@ -41,6 +41,9 @@ begin
   logger.debug("Creating Vagrant environment")
   env = Vagrant::Environment.new(opts)
 
+  # If we're not in the installer, warn.
+  env.ui.warn(I18n.t("vagrant.general.not_in_installer")) if !Vagrant.in_installer?
+
   # Execute the CLI interface, and exit with the proper error code
   exit(env.cli(ARGV))
 rescue Vagrant::Errors::VagrantError => e
