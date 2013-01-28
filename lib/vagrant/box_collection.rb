@@ -1,8 +1,9 @@
 require "digest/sha1"
 require "tmpdir"
 
-require "archive/tar/minitar"
 require "log4r"
+
+require "vagrant/util/subprocess"
 
 module Vagrant
   # Represents a collection a boxes found on disk. This provides methods
@@ -89,11 +90,10 @@ module Vagrant
 
         # Extract the box into a temporary directory.
         @logger.debug("Unpacking box into temporary directory: #{temp_dir}")
-        begin
-          Archive::Tar::Minitar.unpack(path.to_s, temp_dir.to_s)
-        rescue SystemCallError
-          raise Errors::BoxUnpackageFailure
-        end
+        result = Util::Subprocess.execute(
+          "bsdtar", "-v", "-x", "-C", temp_dir.to_s, "-f", path.to_s)
+        raise Errors::BoxUnpackageFailure, :output => result.stderr.to_s \
+          if result.exit_code != 0
 
         # If we get a V1 box, we want to update it in place
         if v1_box?(temp_dir)

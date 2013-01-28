@@ -669,8 +669,11 @@ en:
       box:
         unpackage:
           untar_failure: |-
-            The box failed to untar properly. Please verify that the box
-            file you're trying to add is not corrupted and try again.
+            The box failed to unpackage properly. Please verify that the box
+            file you're trying to add is not corrupted and try again. The
+            output from attempting to unpackage (if any):
+
+            %{output}
           already_exists: |-
             The box you're attempting to add already exits:
 
