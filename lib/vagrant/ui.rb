@@ -126,6 +126,10 @@ module Vagrant
         message = "[#{@resource}] #{message}" if opts[:prefix]
         message
       end
+
+      def deprecated(message)
+        warn("[DEPRECATED] #{message}")
+      end
     end
 
     # This is a UI implementation that outputs color for various types
