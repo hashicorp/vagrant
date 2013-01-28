@@ -2,11 +2,11 @@ require "fileutils"
 require "pathname"
 require "tempfile"
 
-require "archive/tar/minitar"
 require "json"
 require "log4r"
 
 require "vagrant/util/platform"
+require "vagrant/util/subprocess"
 
 require "support/isolated_environment"
 require "support/tempdir"
@@ -108,27 +108,17 @@ module Unit
       # The destination file
       result = Pathname.new(td_dest.path).join("temporary.box")
 
-      File.open(result, Vagrant::Util::Platform.tar_file_options) do |tar|
-        Archive::Tar::Minitar::Output.open(tar) do |output|
-          begin
-            # Switch to the source directory so that Archive::Tar::Minitar
-            # can tar things up.
-            current_dir = FileUtils.pwd
-            FileUtils.cd(source)
+      # Put a "box.ovf" in there.
+      source.join("box.ovf").open("w") do |f|
+        f.write("FOO!")
+      end
 
-            # Put a "box.ovf" in there.
-            source.join("box.ovf").open("w") do |f|
-              f.write("FOO!")
-            end
+      Dir.chdir(source) do
+        # Find all the files in our current directory and tar it up!
+        files = Dir.glob(File.join(".", "**", "*"))
 
-            # Add all the files
-            Dir.glob(File.join(".", "**", "*")).each do |entry|
-              Archive::Tar::Minitar.pack_file(entry, output)
-            end
-          ensure
-            FileUtils.cd(current_dir)
-          end
-        end
+        # Package!
+        Vagrant::Util::Subprocess.execute("bsdtar", "-czf", result.to_s, *files)
       end
 
       # Resulting box
@@ -161,27 +151,17 @@ module Unit
       # The destination file
       result = Pathname.new(td_dest.path).join("temporary.box")
 
-      File.open(result, Vagrant::Util::Platform.tar_file_options) do |tar|
-        Archive::Tar::Minitar::Output.open(tar) do |output|
-          begin
-            # Switch to the source directory so that Archive::Tar::Minitar
-            # can tar things up.
-            current_dir = FileUtils.pwd
-            FileUtils.cd(source)
+      # Put the metadata.json in here.
+      source.join("metadata.json").open("w") do |f|
+        f.write(JSON.generate(metadata))
+      end
 
-            # Put the metadata.json in here.
-            source.join("metadata.json").open("w") do |f|
-              f.write(JSON.generate(metadata))
-            end
+      Dir.chdir(source) do
+        # Find all the files in our current directory and tar it up!
+        files = Dir.glob(File.join(".", "**", "*"))
 
-            # Add all the files
-            Dir.glob(File.join(".", "**", "*")).each do |entry|
-              Archive::Tar::Minitar.pack_file(entry, output)
-            end
-          ensure
-            FileUtils.cd(current_dir)
-          end
-        end
+        # Package!
+        Vagrant::Util::Subprocess.execute("bsdtar", "-czf", result.to_s, *files)
       end
 
       # Resulting box
