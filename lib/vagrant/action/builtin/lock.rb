@@ -1,3 +1,5 @@
+require "log4r"
+
 module Vagrant
   module Action
     module Builtin
@@ -6,6 +8,7 @@ module Vagrant
       class Lock
         def initialize(app, env, options=nil)
           @app     = app
+          @logger  = Log4r::Logger.new("vagrant::action::builtin::lock")
           @options ||= options || {}
           raise ArgumentError, "Please specify a lock path" if !@options[:path]
           raise ArgumentError, "Please specify an exception." if !@options[:exception]
@@ -25,6 +28,7 @@ module Vagrant
               # The file locking fails only if it returns "false." If it
               # succeeds it returns a 0, so we must explicitly check for
               # the proper error case.
+              @logger.info("Locking: #{lock_path}")
               if f.flock(File::LOCK_EX | File::LOCK_NB) === false
                 exception = @options[:exception]
                 exception = exception.call(env) if exception.is_a?(Proc)
@@ -37,7 +41,9 @@ module Vagrant
                 env[env_key] = true
                 @app.call(env)
               ensure
+                @logger.info("Unlocking: #{lock_path}")
                 env[env_key] = false
+                f.flock(File::LOCK_UN)
               end
             end
           else
