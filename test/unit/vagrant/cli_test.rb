@@ -1,5 +1,4 @@
 describe Vagrant::CLI do
-
   describe "parsing options" do
     let(:klass) do
       Class.new(described_class)
@@ -24,8 +23,5 @@ describe Vagrant::CLI do
       result = klass.new(["destroy"], environment).execute
       result.should == 0
     end
-
   end
-    
 end
-
