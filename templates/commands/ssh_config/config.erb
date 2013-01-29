@@ -5,7 +5,7 @@ Host <%= host_key %>
   UserKnownHostsFile /dev/null
   StrictHostKeyChecking no
   PasswordAuthentication no
-  IdentityFile <%= private_key_path %>
+  IdentityFile "<%= private_key_path %>"
   IdentitiesOnly yes
 <% if forward_agent -%>
   ForwardAgent yes
