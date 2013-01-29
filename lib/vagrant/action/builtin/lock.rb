@@ -13,6 +13,8 @@ module Vagrant
 
         def call(env)
           lock_path = @options[:path]
+          lock_path = lock_path.call(env) if lock_path.is_a?(Proc)
+
           env_key   = "has_lock_#{lock_path}"
 
           if !env[env_key]
@@ -24,7 +26,9 @@ module Vagrant
               # succeeds it returns a 0, so we must explicitly check for
               # the proper error case.
               if f.flock(File::LOCK_EX | File::LOCK_NB) === false
-                raise @options[:exception]
+                exception = @options[:exception]
+                exception = exception.call(env) if exception.is_a?(Proc)
+                raise exception
               end
 
               # Set that we gained the lock and call deeper into the

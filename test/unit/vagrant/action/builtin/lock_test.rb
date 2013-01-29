@@ -29,6 +29,37 @@ describe Vagrant::Action::Builtin::Lock do
       to_not raise_error
   end
 
+  it "should allow the path to be a proc" do
+    inner_acquire = true
+    app = lambda do |env|
+      File.open(lock_path, "w+") do |f|
+        inner_acquire = f.flock(File::LOCK_EX | File::LOCK_NB)
+      end
+    end
+
+    options[:path] = lambda { |env| lock_path }
+
+    instance = described_class.new(app, env, options)
+    instance.call(env)
+
+    inner_acquire.should == false
+  end
+
+  it "should allow the exception to be a proc" do
+    exception = options[:exception]
+    options[:exception] = lambda { |env| exception }
+
+    File.open(lock_path, "w+") do |f|
+      # Acquire lock
+      f.flock(File::LOCK_EX | File::LOCK_NB).should == 0
+
+      # Test!
+      instance = described_class.new(app, env, options)
+      expect { instance.call(env) }.
+        to raise_error(exception)
+    end
+  end
+
   it "should call the middleware with the lock held" do
     inner_acquire = true
     app = lambda do |env|
