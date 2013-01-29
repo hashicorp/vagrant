@@ -5,13 +5,13 @@ module VagrantPlugins
     class Command < Vagrant.plugin("2", :command)
       def execute
         options = {}
+        options[:force] = false
 
-        opts = OptionParser.new do |opts|
-          opts.banner = "Usage: vagrant halt [vm-name] [--force] [-h]"
+        opts = OptionParser.new do |o|
+          o.banner = "Usage: vagrant halt [vm-name] [--force] [-h]"
+          o.separator ""
 
-          opts.separator ""
-
-          opts.on("-f", "--force", "Force shut down (equivalent of pulling power)") do |f|
+          o.on("-f", "--force", "Force shut down (equivalent of pulling power)") do |f|
             options[:force] = f
           end
         end
@@ -22,13 +22,12 @@ module VagrantPlugins
 
         @logger.debug("Halt command: #{argv.inspect} #{options.inspect}")
         with_target_vms(argv) do |vm|
-          # XXX: "force"
-          vm.action(:halt)
+          vm.action(:halt, :force_halt => options[:force])
         end
 
         # Success, exit status 0
         0
-       end
+      end
     end
   end
 end
