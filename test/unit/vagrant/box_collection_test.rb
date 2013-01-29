@@ -2,7 +2,6 @@ require File.expand_path("../../base", __FILE__)
 
 require "pathname"
 require 'tempfile'
-require 'archive/tar/minitar'
 
 describe Vagrant::BoxCollection do
   include_context "unit"
@@ -112,11 +111,6 @@ describe Vagrant::BoxCollection do
       CHECKSUM_LENGTH = 8
 
       Tempfile.new(['vagrant_testing', '.tar']) do |f|
-        # Create a temp tar file
-        Archive::Tar::Minitar.pack('test', f)
-
-        # Minitar closes the Tempfile so reopen it
-        f = File.open(f.path, "wb")
         # Corrupt the tar by writing over the checksum field
         f.seek(CHECKSUM_OFFSET)
         f.write("\0"*CHECKSUM_LENGTH)
