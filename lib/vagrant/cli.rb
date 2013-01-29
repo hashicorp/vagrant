@@ -38,7 +38,7 @@ module Vagrant
 
       if !command_class || !@sub_command
         help
-        return 0
+        return 1
       end
       @logger.debug("Invoking command class: #{command_class} #{@sub_args.inspect}")
 
