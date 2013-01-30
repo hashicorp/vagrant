@@ -217,14 +217,21 @@ module Vagrant
     #   Vagrantfile).
     # @param [Symbol] provider The provider that this machine should be
     #   backed by.
+    # @param [Boolean] refresh If true, then if there is a cached version
+    #   it is reloaded.
     # @return [Machine]
-    def machine(name, provider)
+    def machine(name, provider, refresh=false)
       @logger.info("Getting machine: #{name} (#{provider})")
 
       # Compose the cache key of the name and provider, and return from
       # the cache if we have that.
       cache_key = [name, provider]
       @machines ||= {}
+      if refresh
+        @logger.info("Refreshing machine (busting cache): #{name} (#{provider})")
+        @machines.delete(cache_key)
+      end
+
       if @machines.has_key?(cache_key)
         @logger.info("Returning cached machine: #{name} (#{provider})")
         return @machines[cache_key]

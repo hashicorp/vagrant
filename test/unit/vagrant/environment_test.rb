@@ -454,6 +454,30 @@ VF
       machine.config.ssh.port.should == 100
     end
 
+    it "should reload the cache if refresh is set" do
+      # Create a provider
+      foo_provider = register_provider("foo")
+
+      # Create the configuration
+      isolated_env = isolated_environment do |e|
+        e.vagrantfile(<<-VF)
+Vagrant.configure("2") do |config|
+  config.vm.box = "base"
+end
+VF
+
+        e.box2("base", :foo)
+      end
+
+      env = isolated_env.create_vagrant_env
+      vm1 = env.machine(:default, :foo)
+      vm2 = env.machine(:default, :foo, true)
+      vm3 = env.machine(:default, :foo)
+
+      vm1.should_not eql(vm2)
+      vm2.should eql(vm3)
+    end
+
     it "should raise an error if the VM is not found" do
       expect { instance.machine("i-definitely-dont-exist", :virtualbox) }.
         to raise_error(Vagrant::Errors::MachineNotFound)

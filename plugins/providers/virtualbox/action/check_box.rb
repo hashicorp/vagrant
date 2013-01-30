@@ -25,7 +25,7 @@ module VagrantPlugins
 
             # Reload the environment and set the VM to be the new loaded VM.
             env[:machine] = env[:machine].env.machine(
-              env[:machine].name, env[:machine].provider_name)
+              env[:machine].name, env[:machine].provider_name, true)
           end
 
           @app.call(env)
