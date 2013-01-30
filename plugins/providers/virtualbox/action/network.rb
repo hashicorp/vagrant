@@ -246,7 +246,7 @@ module VagrantPlugins
           options[:adapter_ip] ||= adapter_ip.join(".")
 
           return {
-            :adapter_ip  => adapter_ip,
+            :adapter_ip  => options[:adapter_ip],
             :auto_config => options[:auto_config],
             :ip          => ip,
             :mac         => nil,
