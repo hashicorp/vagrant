@@ -156,7 +156,7 @@ module VagrantPlugins
         # @return [String]
         def guest_ip
           @env[:machine].config.vm.networks.each do |type, args|
-            if type == :hostonly && args[0].is_a?(String)
+            if type == :private_network && args[0].is_a?(String)
               return args[0]
             end
           end
