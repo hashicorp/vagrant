@@ -20,7 +20,7 @@ module VagrantPlugins
         # Emit an upstart events if upstart is available
         folders.each do |name, opts|
           real_guestpath = expanded_guest_path(opts[:guestpath])
-          vm.channel.sudo("[ -x /sbin/initctl ] && /sbin/initctl emit vagrant-mounted MOUNTPOINT=#{real_guestpath}")
+          vm.communicate.sudo("[ -x /sbin/initctl ] && /sbin/initctl emit vagrant-mounted MOUNTPOINT=#{real_guestpath}")
         end
       end
 

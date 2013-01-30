@@ -17,14 +17,14 @@ module VagrantPlugins
           su_cmd = vm.config.solaris.suexec_cmd
           ifconfig_cmd = "#{su_cmd} /sbin/ifconfig #{device}"
 
-          vm.channel.execute("#{ifconfig_cmd} plumb")
+          vm.communicate.execute("#{ifconfig_cmd} plumb")
 
           if network[:type].to_sym == :static
-            vm.channel.execute("#{ifconfig_cmd} inet #{network[:ip]} netmask #{network[:netmask]}")
-            vm.channel.execute("#{ifconfig_cmd} up")
-            vm.channel.execute("#{su_cmd} sh -c \"echo '#{network[:ip]}' > /etc/hostname.#{device}\"")
+            vm.communicate.execute("#{ifconfig_cmd} inet #{network[:ip]} netmask #{network[:netmask]}")
+            vm.communicate.execute("#{ifconfig_cmd} up")
+            vm.communicate.execute("#{su_cmd} sh -c \"echo '#{network[:ip]}' > /etc/hostname.#{device}\"")
           elsif network[:type].to_sym == :dhcp
-            vm.channel.execute("#{ifconfig_cmd} dhcp start")
+            vm.communicate.execute("#{ifconfig_cmd} dhcp start")
           end
         end
       end
@@ -33,9 +33,9 @@ module VagrantPlugins
         su_cmd = vm.config.solaris.suexec_cmd
 
         # Only do this if the hostname is not already set
-        if !vm.channel.test("#{su_cmd} hostname | grep '#{name}'")
-          vm.channel.execute("#{su_cmd} sh -c \"echo '#{name}' > /etc/nodename\"")
-          vm.channel.execute("#{su_cmd} uname -S #{name}")
+        if !vm.communicate.test("#{su_cmd} hostname | grep '#{name}'")
+          vm.communicate.execute("#{su_cmd} sh -c \"echo '#{name}' > /etc/nodename\"")
+          vm.communicate.execute("#{su_cmd} uname -S #{name}")
         end
       end
 
@@ -45,7 +45,7 @@ module VagrantPlugins
       #
       # does not exist in /etc/user_attr. TODO
       def halt
-        vm.channel.execute("#{vm.config.solaris.suexec_cmd} /usr/sbin/poweroff")
+        vm.communicate.execute("#{vm.config.solaris.suexec_cmd} /usr/sbin/poweroff")
       end
 
       def mount_shared_folder(name, guestpath, options)
@@ -54,7 +54,7 @@ module VagrantPlugins
         group = options[:group]
 
         # Create the shared folder
-        vm.channel.execute("#{vm.config.solaris.suexec_cmd} mkdir -p #{guestpath}")
+        vm.communicate.execute("#{vm.config.solaris.suexec_cmd} mkdir -p #{guestpath}")
 
         # We have to use this `id` command instead of `/usr/bin/id` since this
         # one accepts the "-u" and "-g" flags.
@@ -63,10 +63,10 @@ module VagrantPlugins
         # Mount the folder with the proper owner/group
         mount_options = "-o uid=`#{id_cmd} -u #{owner}`,gid=`#{id_cmd} -g #{group}`"
         mount_options += ",#{options[:extra]}" if options[:extra]
-        vm.channel.execute("#{vm.config.solaris.suexec_cmd} /sbin/mount -F vboxfs #{mount_options} #{name} #{guestpath}")
+        vm.communicate.execute("#{vm.config.solaris.suexec_cmd} /sbin/mount -F vboxfs #{mount_options} #{name} #{guestpath}")
 
         # chown the folder to the proper owner/group
-        vm.channel.execute("#{vm.config.solaris.suexec_cmd} chown `#{id_cmd} -u #{owner}`:`#{id_cmd} -g #{group}` #{guestpath}")
+        vm.communicate.execute("#{vm.config.solaris.suexec_cmd} chown `#{id_cmd} -u #{owner}`:`#{id_cmd} -g #{group}` #{guestpath}")
       end
     end
   end

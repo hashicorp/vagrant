@@ -13,9 +13,9 @@ module VagrantPlugins
 
       def configure_networks(networks)
         # Remove any previous host only network additions to the interface file
-        vm.channel.sudo("sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/conf.d/net > /tmp/vagrant-network-interfaces")
-        vm.channel.sudo("cat /tmp/vagrant-network-interfaces > /etc/conf.d/net")
-        vm.channel.sudo("rm /tmp/vagrant-network-interfaces")
+        vm.communicate.sudo("sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/conf.d/net > /tmp/vagrant-network-interfaces")
+        vm.communicate.sudo("cat /tmp/vagrant-network-interfaces > /etc/conf.d/net")
+        vm.communicate.sudo("rm /tmp/vagrant-network-interfaces")
 
         # Configure each network interface
         networks.each do |network|
@@ -28,22 +28,22 @@ module VagrantPlugins
           temp.write(entry)
           temp.close
 
-          vm.channel.upload(temp.path, "/tmp/vagrant-network-entry")
+          vm.communicate.upload(temp.path, "/tmp/vagrant-network-entry")
 
           # Configure the interface
-          vm.channel.sudo("ln -fs /etc/init.d/net.lo /etc/init.d/net.eth#{network[:interface]}")
-          vm.channel.sudo("/etc/init.d/net.eth#{network[:interface]} stop 2> /dev/null")
-          vm.channel.sudo("cat /tmp/vagrant-network-entry >> /etc/conf.d/net")
-          vm.channel.sudo("rm /tmp/vagrant-network-entry")
-          vm.channel.sudo("/etc/init.d/net.eth#{network[:interface]} start")
+          vm.communicate.sudo("ln -fs /etc/init.d/net.lo /etc/init.d/net.eth#{network[:interface]}")
+          vm.communicate.sudo("/etc/init.d/net.eth#{network[:interface]} stop 2> /dev/null")
+          vm.communicate.sudo("cat /tmp/vagrant-network-entry >> /etc/conf.d/net")
+          vm.communicate.sudo("rm /tmp/vagrant-network-entry")
+          vm.communicate.sudo("/etc/init.d/net.eth#{network[:interface]} start")
         end
       end
 
       def change_host_name(name)
-        if !vm.channel.test("sudo hostname --fqdn | grep '#{name}'")
-          vm.channel.sudo("echo 'hostname=#{name.split('.')[0]}' > /etc/conf.d/hostname")
-          vm.channel.sudo("sed -i 's@^\\(127[.]0[.]0[.]1[[:space:]]\\+\\)@\\1#{name} #{name.split('.')[0]} @' /etc/hosts")
-          vm.channel.sudo("hostname #{name.split('.')[0]}")
+        if !vm.communicate.test("sudo hostname --fqdn | grep '#{name}'")
+          vm.communicate.sudo("echo 'hostname=#{name.split('.')[0]}' > /etc/conf.d/hostname")
+          vm.communicate.sudo("sed -i 's@^\\(127[.]0[.]0[.]1[[:space:]]\\+\\)@\\1#{name} #{name.split('.')[0]} @' /etc/hosts")
+          vm.communicate.sudo("hostname #{name.split('.')[0]}")
         end
       end
     end

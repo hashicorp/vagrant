@@ -12,7 +12,7 @@ module VagrantPlugins
       end
 
       def halt
-        vm.channel.sudo("shutdown -p now")
+        vm.communicate.sudo("shutdown -p now")
       end
 
       # TODO: vboxsf is currently unsupported in FreeBSD, if you are able to
@@ -28,14 +28,14 @@ module VagrantPlugins
 
       def mount_nfs(ip, folders)
         folders.each do |name, opts|
-          vm.channel.sudo("mkdir -p #{opts[:guestpath]}")
-          vm.channel.sudo("mount #{ip}:#{opts[:hostpath]} #{opts[:guestpath]}")
+          vm.communicate.sudo("mkdir -p #{opts[:guestpath]}")
+          vm.communicate.sudo("mount #{ip}:#{opts[:hostpath]} #{opts[:guestpath]}")
         end
       end
 
       def configure_networks(networks)
         # Remove any previous network additions to the configuration file.
-        vm.channel.sudo("sed -i '' -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/rc.conf")
+        vm.communicate.sudo("sed -i '' -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/rc.conf")
 
         networks.each do |network|
           entry = TemplateRenderer.render("guests/freebsd/network_#{network[:type]}",
@@ -47,22 +47,22 @@ module VagrantPlugins
           temp.write(entry)
           temp.close
 
-          vm.channel.upload(temp.path, "/tmp/vagrant-network-entry")
-          vm.channel.sudo("su -m root -c 'cat /tmp/vagrant-network-entry >> /etc/rc.conf'")
-          vm.channel.sudo("rm /tmp/vagrant-network-entry")
+          vm.communicate.upload(temp.path, "/tmp/vagrant-network-entry")
+          vm.communicate.sudo("su -m root -c 'cat /tmp/vagrant-network-entry >> /etc/rc.conf'")
+          vm.communicate.sudo("rm /tmp/vagrant-network-entry")
 
           if network[:type].to_sym == :static
-            vm.channel.sudo("ifconfig em#{network[:interface]} inet #{network[:ip]} netmask #{network[:netmask]}")
+            vm.communicate.sudo("ifconfig em#{network[:interface]} inet #{network[:ip]} netmask #{network[:netmask]}")
           elsif network[:type].to_sym == :dhcp
-            vm.channel.sudo("dhclient em#{network[:interface]}")
+            vm.communicate.sudo("dhclient em#{network[:interface]}")
           end
         end
       end
 
      def change_host_name(name)
-       if !vm.channel.test("hostname -f | grep '^#{name}$' || hostname -s | grep '^#{name}$'")
-         vm.channel.sudo("sed -i '' 's/^hostname=.*$/hostname=#{name}/' /etc/rc.conf")
-         vm.channel.sudo("hostname #{name}")
+       if !vm.communicate.test("hostname -f | grep '^#{name}$' || hostname -s | grep '^#{name}$'")
+         vm.communicate.sudo("sed -i '' 's/^hostname=.*$/hostname=#{name}/' /etc/rc.conf")
+         vm.communicate.sudo("hostname #{name}")
        end
      end
     end

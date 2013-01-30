@@ -6,7 +6,7 @@ module VagrantPlugins
   module GuestOpenBSD
     class Guest < VagrantPlugins::GuestLinux::Guest
       def halt
-        vm.channel.sudo("shutdown -p -h now")
+        vm.communicate.sudo("shutdown -p -h now")
       end
     end
   end
