@@ -302,7 +302,7 @@ module Vagrant
 
       # Create the machine and cache it for future calls. This will also
       # return the machine from this method.
-      @machines[cache_key] = Machine.new(name, provider_cls, provider_config,
+      @machines[cache_key] = Machine.new(name, provider, provider_cls, provider_config,
                                          config, machine_data_path, box, self)
     end
 

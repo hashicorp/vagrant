@@ -13,6 +13,7 @@ describe Vagrant::Machine do
     obj
   end
   let(:provider_config) { Object.new }
+  let(:provider_name) { :test }
   let(:box)      { Object.new }
   let(:config)   { env.config_global }
   let(:data_dir) { Pathname.new(Tempdir.new.path) }
@@ -31,7 +32,7 @@ describe Vagrant::Machine do
 
   # Returns a new instance with the test data
   def new_instance
-    described_class.new(name, provider_cls, provider_config,
+    described_class.new(name, provider_name, provider_cls, provider_config,
                         config, data_dir, box, env)
   end
 
@@ -61,7 +62,7 @@ describe Vagrant::Machine do
 
         # Initialize a new machine and verify that we properly receive
         # the machine we expect.
-        instance = described_class.new(name, provider_cls, provider_config,
+        instance = described_class.new(name, provider_name, provider_cls, provider_config,
                                        config, data_dir, box, env)
         received_machine.should eql(instance)
       end
