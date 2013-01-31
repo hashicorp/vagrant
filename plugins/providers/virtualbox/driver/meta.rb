@@ -93,6 +93,7 @@ module VagrantPlugins
           :read_state,
           :read_used_ports,
           :read_vms,
+          :resume,
           :set_mac_address,
           :set_name,
           :share_folders,

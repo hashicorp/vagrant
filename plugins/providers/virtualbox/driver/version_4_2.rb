@@ -423,6 +423,11 @@ module VagrantPlugins
           nil
         end
 
+        def resume
+          @logger.debug("Resuming paused VM...")
+          execute("controlvm", @uuid, "resume")
+        end
+
         def start(mode)
           command = ["startvm", @uuid, "--type", mode.to_s]
           r = raw(*command)

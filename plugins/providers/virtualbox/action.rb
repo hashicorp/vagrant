@@ -27,6 +27,7 @@ module VagrantPlugins
       autoload :ForwardPorts, File.expand_path("../action/forward_ports", __FILE__)
       autoload :HostName, File.expand_path("../action/host_name", __FILE__)
       autoload :Import, File.expand_path("../action/import", __FILE__)
+      autoload :IsPaused, File.expand_path("../action/is_paused", __FILE__)
       autoload :IsRunning, File.expand_path("../action/is_running", __FILE__)
       autoload :IsSaved, File.expand_path("../action/is_saved", __FILE__)
       autoload :MatchMACAddress, File.expand_path("../action/match_mac_address", __FILE__)
@@ -110,6 +111,12 @@ module VagrantPlugins
             if env[:result]
               b2.use CheckAccessible
               b2.use DiscardState
+
+              b2.use Call, IsPaused do |env2, b3|
+                next if !env2[:result]
+                b3.use Resume
+              end
+
               b2.use Call, GracefulHalt, :poweroff, :running do |env2, b3|
                 if !env2[:result]
                   b3.use ForcedHalt
@@ -241,10 +248,18 @@ module VagrantPlugins
               if env2[:result]
                 # The VM is saved, so just resume it
                 b3.use action_resume
-              else
+                next
+              end
+
+              b3.use Call, IsPaused do |env3, b4|
+                if env3[:result]
+                  b4.use Resume
+                  next
+                end
+
                 # The VM is not saved, so we must have to boot it up
                 # like normal. Boot!
-                b3.use action_boot
+                b4.use action_boot
               end
             end
           end

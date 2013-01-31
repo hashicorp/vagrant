@@ -7,7 +7,12 @@ module VagrantPlugins
         end
 
         def call(env)
-          if env[:machine].provider.state.id == :saved
+          current_state = env[:machine].provider.state.id
+
+          if current_state == :paused
+            env[:ui].info I18n.t("vagrant.actions.vm.resume.unpausing")
+            env[:machine].provider.driver.resume
+          elsif current_state == :saved
             env[:ui].info I18n.t("vagrant.actions.vm.resume.resuming")
             env[:action_runner].run(Boot, env)
           end
