@@ -251,7 +251,14 @@ module VagrantPlugins
             ch2.send_data "export TERM=vt100\n"
 
             # Set SSH_AUTH_SOCK in case we are in sudo and ssh_forward_agent is set
-            ch2.send_data "export SSH_AUTH_SOCK=#{fetch_auth_socket}\n" if @machine.ssh_info[:forward_agent] && sudo
+            if @machine.ssh_info[:forward_agent] && sudo
+              auth_socket = fetch_auth_socket
+              if auth_socket == ""
+                @logger.warn("No SSH_AUTH_SOCK variable set. Are you sure you have ssh agent forwarding enabled?")
+              else
+                ch2.send_data "export SSH_AUTH_SOCK=#{auth_socket}\n"
+              end
+            end
 
             # Output the command
             ch2.send_data "#{command}\n"
