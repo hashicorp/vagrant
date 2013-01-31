@@ -561,9 +561,9 @@ en:
             Forwarded port: %{guest_port} => %{host_port}
           collision_error: |-
             Vagrant cannot forward the specified ports on this VM, since they
-            would collide with another VirtualBox virtual machine's forwarded
-            ports! The forwarded port to %{host_port} is already in use on the host
-            machine.
+            would collide with some other application that is already listening
+            on these ports. The forwarded port to %{host_port} is already in use
+            on the host machine.
 
             To fix this, modify your current projects Vagrantfile to use another
             port. Example, where '1234' would be replaced by a unique host port:
