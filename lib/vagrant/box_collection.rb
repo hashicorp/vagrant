@@ -85,7 +85,7 @@ module Vagrant
 
       # Create a temporary directory since we're not sure at this point if
       # the box we're unpackaging already exists (if no provider was given)
-      Dir.mktmpdir("vagrant-") do |temp_dir|
+      Dir.mktmpdir(["vagrant-tmp-", provider.to_s]) do |temp_dir|
         temp_dir = Pathname.new(temp_dir)
 
         # Extract the box into a temporary directory.
