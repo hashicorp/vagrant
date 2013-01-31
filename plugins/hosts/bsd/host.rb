@@ -50,8 +50,8 @@ module VagrantPlugins
 
         # Output the rendered template into the exports
         output.split("\n").each do |line|
-          line = line.gsub('"', '\"')
-          system(%Q[sudo su root -c "echo '#{line}' >> /etc/exports"])
+          command = %Q[echo "#{escape_quotes(line)}" >> /etc/exports]
+          system(%Q[sudo su root -c "#{escape_quotes(command)}"])
         end
 
         # We run restart here instead of "update" just in case nfsd
@@ -85,6 +85,12 @@ module VagrantPlugins
       end
 
       protected
+
+      def escape_quotes(text)
+        # backslashes are escaped too so that we can escape already escaped strings
+        # for example, when passing escaped file paths to shell commands
+        text.gsub(/["'\\]/) { |m| "\\#{m}" }
+      end
 
       def nfs_cleanup(id)
         return if !File.exist?("/etc/exports")

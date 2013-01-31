@@ -55,7 +55,7 @@ module VagrantPlugins
 
           # Do the actual creating and mounting
           @vm.communicate.sudo("mkdir -p #{real_guestpath}")
-          @vm.communicate.sudo("mount -o vers=#{opts[:nfs_version]} #{ip}:'#{opts[:hostpath]}' #{real_guestpath}",
+          @vm.communicate.sudo(%Q[mount -o vers=#{opts[:nfs_version]} #{ip}:"#{opts[:hostpath].gsub('"', '\"')}" #{real_guestpath}],
                           :error_class => LinuxError,
                           :error_key => :mount_nfs_fail)
         end
