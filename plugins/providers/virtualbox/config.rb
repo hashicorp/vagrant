@@ -18,6 +18,12 @@ module VagrantPlugins
       # @return [Boolean]
       attr_accessor :gui
 
+      # This should be set to the name of the machine in the VirtualBox
+      # GUI.
+      #
+      # @return [String]
+      attr_accessor :name
+
       # The defined network adapters.
       #
       # @return [Hash]
@@ -26,6 +32,7 @@ module VagrantPlugins
       def initialize
         @auto_nat_dns_proxy = UNSET_VALUE
         @customizations   = []
+        @name             = UNSET_VALUE
         @network_adapters = {}
         @gui              = UNSET_VALUE
 
@@ -66,6 +73,9 @@ module VagrantPlugins
 
         # Default is to not show a GUI
         @gui = false if @gui == UNSET_VALUE
+
+        # The default name is just nothing, and we default it
+        @name = nil if @name == UNSET_VALUE
       end
     end
   end

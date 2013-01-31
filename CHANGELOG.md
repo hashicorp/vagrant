@@ -34,6 +34,8 @@ FEATURES:
     false will not attempt to automatically manage NAT DNS proxy settings
     with VirtualBox. [GH-1313]
   - `vagrant provision` accepts the `--provision-with` flag [GH-1167]
+  - Set the name of VirtualBox machines with `virtualbox.name` in the
+    VirtualBox provider config. [GH-1126]
 
 IMPROVEMENTS / BUG FIXES:
 

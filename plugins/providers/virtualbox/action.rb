@@ -17,7 +17,6 @@ module VagrantPlugins
       autoload :ClearSharedFolders, File.expand_path("../action/clear_shared_folders", __FILE__)
       autoload :Created, File.expand_path("../action/created", __FILE__)
       autoload :Customize, File.expand_path("../action/customize", __FILE__)
-      autoload :DefaultName, File.expand_path("../action/default_name", __FILE__)
       autoload :Destroy, File.expand_path("../action/destroy", __FILE__)
       autoload :DestroyConfirm, File.expand_path("../action/destroy_confirm", __FILE__)
       autoload :DestroyUnusedNetworkInterfaces, File.expand_path("../action/destroy_unused_network_interfaces", __FILE__)
@@ -41,6 +40,7 @@ module VagrantPlugins
       autoload :PruneNFSExports, File.expand_path("../action/prune_nfs_exports", __FILE__)
       autoload :Resume, File.expand_path("../action/resume", __FILE__)
       autoload :SaneDefaults, File.expand_path("../action/sane_defaults", __FILE__)
+      autoload :SetName, File.expand_path("../action/set_name", __FILE__)
       autoload :SetupPackageFiles, File.expand_path("../action/setup_package_files", __FILE__)
       autoload :ShareFolders, File.expand_path("../action/share_folders", __FILE__)
       autoload :Suspend, File.expand_path("../action/suspend", __FILE__)
@@ -295,7 +295,7 @@ module VagrantPlugins
               b2.use CheckBox
               b2.use Import
               b2.use CheckGuestAdditions
-              b2.use DefaultName
+              b2.use SetName
               b2.use MatchMACAddress
             end
           end
