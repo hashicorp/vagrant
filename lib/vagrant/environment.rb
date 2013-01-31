@@ -17,12 +17,6 @@ module Vagrant
     DEFAULT_LOCAL_DATA = ".vagrant"
     DEFAULT_RC = "~/.vagrantrc"
 
-    # This is the global config, comprised of loading configuration from
-    # the default, home, and root Vagrantfiles. This configuration is only
-    # really useful for reading the list of virtual machines, since each
-    # individual VM can override _most_ settings.
-    attr_reader :config_global
-
     # The `cwd` that this environment represents
     attr_reader :cwd
 
@@ -131,9 +125,6 @@ module Vagrant
 
       # Load the plugins
       load_plugins
-
-      # Initialize the configuration. This will load our global configuration.
-      initialize_config
     end
 
     # Return a human-friendly string for pretty printed or inspected
@@ -208,6 +199,42 @@ module Vagrant
     # @return [BoxCollection]
     def boxes
       @_boxes ||= BoxCollection.new(boxes_path)
+    end
+
+    # This is the global config, comprised of loading configuration from
+    # the default, home, and root Vagrantfiles. This configuration is only
+    # really useful for reading the list of virtual machines, since each
+    # individual VM can override _most_ settings.
+    #
+    # This is lazy-loaded upon first use.
+    #
+    # @return [Object]
+    def config_global
+      return @config_global if @config_global
+
+      @logger.info("Initialzing config...")
+
+      home_vagrantfile = nil
+      root_vagrantfile = nil
+      home_vagrantfile = find_vagrantfile(home_path) if home_path
+      root_vagrantfile = find_vagrantfile(root_path) if root_path
+
+      # Create the configuration loader and set the sources that are global.
+      # We use this to load the configuration, and the list of machines we are
+      # managing. Then, the actual individual configuration is loaded for
+      # each {#machine} call.
+      @config_loader = Config::Loader.new(Config::VERSIONS, Config::VERSIONS_ORDER)
+      @config_loader.set(:default, File.expand_path("config/default.rb", Vagrant.source_root))
+      @config_loader.set(:home, home_vagrantfile) if home_vagrantfile
+      @config_loader.set(:root, root_vagrantfile) if root_vagrantfile
+
+      # Make the initial call to get the "global" config. This is mostly
+      # only useful to get the list of machines that we are managing.
+      # Because of this, we ignore any warnings or errors.
+      @config_global, _ = @config_loader.load([:default, :home, :root])
+
+      # Return the config
+      @config_global
     end
 
     # This returns a machine with the proper provider for this environment.
@@ -450,34 +477,6 @@ module Vagrant
     #---------------------------------------------------------------
     # Load Methods
     #---------------------------------------------------------------
-
-    # This initializes the config loader for this environment. The config
-    # loader is cached so that prior Vagrantfiles aren't loaded multiple
-    # times.
-    def initialize_config
-      @logger.info("Initialzing config...")
-
-      home_vagrantfile = nil
-      root_vagrantfile = nil
-      home_vagrantfile = find_vagrantfile(home_path) if home_path
-      root_vagrantfile = find_vagrantfile(root_path) if root_path
-
-      # Create the configuration loader and set the sources that are global.
-      # We use this to load the configuration, and the list of machines we are
-      # managing. Then, the actual individual configuration is loaded for
-      # each {#machine} call.
-      @config_loader = Config::Loader.new(Config::VERSIONS, Config::VERSIONS_ORDER)
-      @config_loader.set(:default, File.expand_path("config/default.rb", Vagrant.source_root))
-      @config_loader.set(:home, home_vagrantfile) if home_vagrantfile
-      @config_loader.set(:root, root_vagrantfile) if root_vagrantfile
-
-      # Make the initial call to get the "global" config. This is mostly
-      # only useful to get the list of machines that we are managing.
-      # Because of this, we ignore any warnings or errors.
-      @config_global, _ = @config_loader.load([:default, :home, :root])
-
-      # Old order: default, box, home, root, vm
-    end
 
     # This sets the `@home_path` variable properly.
     #
