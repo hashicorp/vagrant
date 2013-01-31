@@ -201,6 +201,9 @@ module Vagrant
             # Report syntax errors in a nice way.
             raise Errors::VagrantfileSyntaxError, :file => e.message
           rescue Exception => e
+            @logger.error("Vagrantfile load error: #{e.message}")
+            @logger.error(e.backtrace.join("\n"))
+
             # Report the generic exception
             raise Errors::VagrantfileLoadError,
               :path => path,
