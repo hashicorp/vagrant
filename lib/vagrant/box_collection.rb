@@ -1,5 +1,6 @@
 require "digest/sha1"
 require "tmpdir"
+require "fileutils"
 
 require "log4r"
 
@@ -127,11 +128,14 @@ module Vagrant
 
         # Create the directory that'll store our box
         final_dir = @directory.join(name, provider.to_s)
+        # For compatibility with cross-device FileUtils.mv we need to make sure *not to create the full path here.
+        almost_final_dir = @directory.join(name)
         @logger.debug("Final box directory: #{final_dir}")
-        final_dir.mkpath
+        almost_final_dir.mkpath
 
         # Move to the final destination
-        File.rename(temp_dir, final_dir.to_s)
+        @logger.debug("Moving #{temp_dir} to #{final_dir}")
+        FileUtils.mv(temp_dir, final_dir.to_s)
 
         # Recreate the directory. This avoids a bug in Ruby where `mktmpdir`
         # cleanup doesn't check if the directory is already gone. Ruby bug
