@@ -16,6 +16,10 @@ module Vagrant
         end
 
         def call(env)
+          # Check if we're even provisioning things.
+          enabled = true
+          enabled = env[:provision_enabled] if env.has_key?(:provision_enabled)
+
           # Get all the configured provisioners
           provisioners = env[:machine].config.vm.provisioners.map do |provisioner|
             klass = Vagrant.plugin("2").manager.provisioners[provisioner.name]
@@ -30,12 +34,14 @@ module Vagrant
           # Continue, we need the VM to be booted.
           @app.call(env)
 
-          # Actually provision
-          provisioners.each do |p|
-            env[:ui].info(I18n.t("vagrant.actions.vm.provision.beginning",
-                                 :provisioner => p.class))
+          # Actually provision if we enabled it
+          if enabled
+            provisioners.each do |p|
+              env[:ui].info(I18n.t("vagrant.actions.vm.provision.beginning",
+                                   :provisioner => p.class))
 
-            p.provision
+              p.provision
+            end
           end
         end
       end
