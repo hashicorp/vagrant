@@ -77,6 +77,8 @@ IMPROVEMENTS / BUG FIXES:
     while downloading a box over HTTP. [GH-1090]
   - Human-friendly error is raised if there are permission issues when
     using SCP to upload files. [GH-924]
+  - Box adding doesn't use `/tmp` anymore which can avoid some cross-device
+    copy issues. [GH-1199]
 
 ## 1.0.6 (December 21, 2012)
 

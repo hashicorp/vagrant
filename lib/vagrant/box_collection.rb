@@ -10,6 +10,8 @@ module Vagrant
   # for accessing/finding individual boxes, adding new boxes, or deleting
   # boxes.
   class BoxCollection
+    TEMP_PREFIX = "vagrant-box-add-temp-"
+
     # The directory where the boxes in this collection are stored.
     #
     # A box collection matches a very specific folder structure that Vagrant
@@ -85,7 +87,7 @@ module Vagrant
 
       # Create a temporary directory since we're not sure at this point if
       # the box we're unpackaging already exists (if no provider was given)
-      Dir.mktmpdir(["vagrant-tmp-", provider.to_s]) do |temp_dir|
+      Dir.mktmpdir(TEMP_PREFIX, directory.to_s) do |temp_dir|
         temp_dir = Pathname.new(temp_dir)
 
         # Extract the box into a temporary directory.
@@ -157,6 +159,10 @@ module Vagrant
         next if !child.directory?
 
         box_name = child.basename.to_s
+
+        # Ignore anything that matches the temporary prefix (crazy
+        # race condition might be possible)
+        next if box_name =~ /^#{TEMP_PREFIX}/
 
         # If this is a V1 box, we still return that name, but specify
         # that the box is a V1 box.
