@@ -18,7 +18,7 @@ module VagrantPlugins
 
         parser.on("--provision-with x,y,z", Array,
                 "Enable only certain provisioners, by type.") do |list|
-          options[:provision_types] = list
+          options[:provision_types] = list.map { |type| type.to_sym }
         end
       end
     end
