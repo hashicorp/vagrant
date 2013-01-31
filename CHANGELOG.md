@@ -33,6 +33,7 @@ FEATURES:
   - Add a VirtualBox provider config `auto_nat_dns_proxy` which when set to
     false will not attempt to automatically manage NAT DNS proxy settings
     with VirtualBox. [GH-1313]
+  - `vagrant provision` accepts the `--provision-with` flag [GH-1167]
 
 IMPROVEMENTS / BUG FIXES:
 
