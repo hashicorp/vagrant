@@ -30,7 +30,7 @@ module VagrantPlugins
         # Go over each VM and bring it up
         @logger.debug("'Up' each target VM...")
         with_target_vms(argv, :provider => options[:provider]) do |machine|
-          machine.action(:up)
+          machine.action(:up, options)
         end
 
         # Success, exit status 0

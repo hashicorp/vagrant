@@ -26,7 +26,7 @@ module VagrantPlugins
 
         @logger.debug("'reload' each target VM...")
         with_target_vms(argv) do |machine|
-          machine.action(:reload)
+          machine.action(:reload, options)
         end
 
         # Success, exit status 0
