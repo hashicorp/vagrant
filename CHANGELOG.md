@@ -5,6 +5,7 @@
   - Check for guest additions version AFTER booting. [GH-1179]
   - Quote IdentityFile in `ssh-config` so private keys with spaces in
     the path work. [GH-1322]
+  - Fix issue where multiple Puppet module paths can be re-ordered [GH-964]
 
 ## 1.0.6 (December 21, 2012)
 
