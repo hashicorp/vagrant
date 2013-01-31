@@ -79,6 +79,7 @@ IMPROVEMENTS / BUG FIXES:
     using SCP to upload files. [GH-924]
   - Box adding doesn't use `/tmp` anymore which can avoid some cross-device
     copy issues. [GH-1199]
+  - Vagrant works properly in folders with strange characters. [GH-1223]
 
 ## 1.0.6 (December 21, 2012)
 
