@@ -194,13 +194,18 @@ module Vagrant
       def procs_for_path(path)
         @logger.debug("Load procs for pathname: #{path}")
 
-        begin
-          return Config.capture_configures do
+        return Config.capture_configures do
+          begin
             Kernel.load path
+          rescue SyntaxError => e
+            # Report syntax errors in a nice way.
+            raise Errors::VagrantfileSyntaxError, :file => e.message
+          rescue Exception => e
+            # Report the generic exception
+            raise Errors::VagrantfileLoadError,
+              :path => path,
+              :message => e.message
           end
-        rescue SyntaxError => e
-          # Report syntax errors in a nice way.
-          raise Errors::VagrantfileSyntaxError, :file => e.message
         end
       end
     end

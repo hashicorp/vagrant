@@ -175,5 +175,10 @@ describe Vagrant::Config::Loader do
       expect { instance.set(:file, temporary_file("Vagrant:^Config")) }.
         to raise_exception(Vagrant::Errors::VagrantfileSyntaxError)
     end
+
+    it "should raise a proper error if there is a problem with the Vagrantfile" do
+      expect { instance.set(:file, temporary_file("foo")) }.
+        to raise_exception(Vagrant::Errors::VagrantfileLoadError)
+    end
   end
 end

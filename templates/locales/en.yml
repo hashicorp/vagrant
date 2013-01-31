@@ -278,6 +278,13 @@ en:
       vagrantfile_exists: |-
         `Vagrantfile` already exists in this directory. Remove it before
         running `vagrant init`.
+      vagrantfile_load_error: |-
+        There was an error loading a Vagrantfile. The file being loaded
+        and the error message are shown below. This is usually caused by
+        a syntax error.
+
+        Path: %{path}
+        Message: %{message}
       vagrantfile_syntax_error: |-
         There is a syntax error in the following Vagrantfile. The syntax error
         message is reproduced below for convenience:

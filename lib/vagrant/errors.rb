@@ -428,6 +428,10 @@ module Vagrant
       error_key(:vagrantfile_exists)
     end
 
+    class VagrantfileLoadError < VagrantError
+      error_key(:vagrantfile_load_error)
+    end
+
     class VagrantfileSyntaxError < VagrantError
       status_code(41)
       error_key(:vagrantfile_syntax_error)
