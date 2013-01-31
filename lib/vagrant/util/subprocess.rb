@@ -101,7 +101,7 @@ module Vagrant
         @logger.debug("Selecting on IO")
         while true
           writers = notify_stdin ? [process.io.stdin] : []
-          results = IO.select([stdout, stderr], writers, nil, timeout || 5)
+          results = IO.select([stdout, stderr], writers, nil, timeout || 0.1)
           results ||= []
           readers = results[0]
           writers = results[1]
@@ -199,7 +199,7 @@ module Vagrant
               # We have to do this since `readpartial` will actually block
               # until data is available, which can cause blocking forever
               # in some cases.
-              results = IO.select([io], nil, nil, 1)
+              results = IO.select([io], nil, nil, 0.1)
               break if !results || results[0].empty?
 
               # Read!
