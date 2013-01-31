@@ -235,7 +235,10 @@ en:
       ssh_key_type_not_supported: |-
         The private key you're attempting to use with this Vagrant box uses
         an unsupported encryption type. The SSH library Vagrant uses does not support
-        this key type. Please use `ssh-rsa` or `ssh-dss` instead.
+        this key type. Please use `ssh-rsa` or `ssh-dss` instead. Note that
+        sometimes keys in your ssh-agent can interfere with this as well,
+        so verify the keys are valid there in addition to standard
+        file paths.
       ssh_not_ready: |-
         The provider for this Vagrant-managed machine is reporting that it
         is not yet ready for SSH. Depending on your provider this can carry
