@@ -69,8 +69,7 @@ module VagrantPlugins
 
         def run_puppet_apply
           options = [config.options].flatten
-          module_paths = @module_paths.map { |_, to| to }
-          options << "--modulepath '#{module_paths.join(':')}'" if !@module_paths.empty?
+          options << "--modulepath '#{full_module_path}'" if !@module_paths.empty?
           options << @manifest_file
           options = options.join(" ")
 
@@ -104,6 +103,13 @@ module VagrantPlugins
             end
           end
         end
+
+        private
+          def full_module_path
+            default_puppet_module_path = @machine.communicate('puppet config print modulepath').chomp
+            module_paths = @module_paths.map { |_, to| to }
+            module_paths.join(':') << ':' << default_puppet_module_path
+          end
       end
     end
   end
