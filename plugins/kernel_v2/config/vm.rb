@@ -115,6 +115,7 @@ module VagrantPlugins
       def define(name, options=nil, &block)
         name = name.to_sym
         options ||= {}
+        options[:config_version] ||= "2"
 
         # Add the name to the array of VM keys. This array is used to
         # preserve the order in which VMs are defined.
@@ -126,7 +127,7 @@ module VagrantPlugins
         end
 
         defined_vms[name].options.merge!(options)
-        defined_vms[name].push_proc(&block) if block
+        defined_vms[name].config_procs << [options[:config_version], block] if block
       end
 
       def finalize!

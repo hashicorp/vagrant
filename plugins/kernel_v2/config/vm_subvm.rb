@@ -6,20 +6,17 @@ module VagrantPlugins
     class VagrantConfigSubVM
       include Vagrant::Util::StackedProcRunner
 
+      # Returns an array of the configuration procs in [version, proc]
+      # format.
+      #
+      # @return [Array]
+      attr_reader :config_procs
+
       attr_reader :options
 
       def initialize
-        @options = {}
-      end
-
-      # This returns an array of the procs to configure this VM, with
-      # the proper version pre-pended for the configuration loader.
-      #
-      # @return [Array]
-      def config_procs
-        proc_stack.map do |proc|
-          ["2", proc]
-        end
+        @config_procs = []
+        @options      = {}
       end
     end
   end

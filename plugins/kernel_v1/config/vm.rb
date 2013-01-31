@@ -75,6 +75,10 @@ module VagrantPlugins
       end
 
       def define(name, options=nil, &block)
+        # Force the V1 config on these calls
+        options ||= {}
+        options[:config_version] = "1"
+
         @define_calls << [name, options, block]
       end
 
