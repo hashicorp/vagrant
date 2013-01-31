@@ -9,7 +9,7 @@ module VagrantPlugins
       def build_start_options(parser, options)
         # Setup the defaults
         options[:provision_enabled] = true
-        options["provision.types"] = nil
+        options[:provision_types] = nil
 
         # Add the options
         parser.on("--[no-]provision", "Enable or disable provisioning") do |p|
@@ -18,7 +18,7 @@ module VagrantPlugins
 
         parser.on("--provision-with x,y,z", Array,
                 "Enable only certain provisioners, by type.") do |list|
-          options["provision.types"] = list
+          options[:provision_types] = list
         end
       end
     end

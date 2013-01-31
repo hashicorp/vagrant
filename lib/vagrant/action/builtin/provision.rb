@@ -20,10 +20,20 @@ module Vagrant
           enabled = true
           enabled = env[:provision_enabled] if env.has_key?(:provision_enabled)
 
+          # This keeps track of a mapping between provisioner and type
+          type_map = {}
+
           # Get all the configured provisioners
           provisioners = env[:machine].config.vm.provisioners.map do |provisioner|
-            klass = Vagrant.plugin("2").manager.provisioners[provisioner.name]
-            klass.new(env[:machine], provisioner.config)
+            # Instantiate the provisioner
+            klass  = Vagrant.plugin("2").manager.provisioners[provisioner.name]
+            result = klass.new(env[:machine], provisioner.config)
+
+            # Store in the type map so that --provision-with works properly
+            type_map[result] = provisioner.name
+
+            # Return the result
+            result
           end
 
           # Ask the provisioners to modify the configuration if needed
@@ -37,6 +47,9 @@ module Vagrant
           # Actually provision if we enabled it
           if enabled
             provisioners.each do |p|
+              next if env[:provision_types] && \
+                !env[:provision_types].include?(type_map[p])
+
               env[:ui].info(I18n.t("vagrant.actions.vm.provision.beginning",
                                    :provisioner => p.class))
 
