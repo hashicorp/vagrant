@@ -30,6 +30,9 @@ FEATURES:
     This decreases Vagrant's initial startup time considerably.
   - Allow "file://" URLs for box URLs. [GH-1087]
   - Emit "vagrant-mount" upstart event when NFS shares are mounted. [GH-1118]
+  - Add a VirtualBox provider config `auto_nat_dns_proxy` which when set to
+    false will not attempt to automatically manage NAT DNS proxy settings
+    with VirtualBox. [GH-1313]
 
 IMPROVEMENTS / BUG FIXES:
 

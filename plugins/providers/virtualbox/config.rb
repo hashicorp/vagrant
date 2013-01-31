@@ -1,6 +1,13 @@
 module VagrantPlugins
   module ProviderVirtualBox
     class Config < Vagrant.plugin("2", :config)
+      # Vagrant by default will make "smart" decisions to enable/disable
+      # the NAT DNS proxy. If this is set to `true`, then the DNS proxy
+      # will not be enabled, and it is up to the end user to do it.
+      #
+      # @return [Boolean]
+      attr_accessor :auto_nat_dns_proxy
+
       # An array of customizations to make on the VM prior to booting it.
       #
       # @return [Array]
@@ -17,6 +24,7 @@ module VagrantPlugins
       attr_reader :network_adapters
 
       def initialize
+        @auto_nat_dns_proxy = UNSET_VALUE
         @customizations   = []
         @network_adapters = {}
         @gui              = UNSET_VALUE
@@ -53,6 +61,9 @@ module VagrantPlugins
       # This is the hook that is called to finalize the object before it
       # is put into use.
       def finalize!
+        # Default is to auto the DNS proxy
+        @auto_nat_dns_proxy = true if @auto_nat_dns_proxy == UNSET_VALUE
+
         # Default is to not show a GUI
         @gui = false if @gui == UNSET_VALUE
       end
