@@ -383,10 +383,10 @@ module VagrantPlugins
         end
 
         def read_vms
-          results = []
+          results = {}
           execute("list", "vms", :retryable => true).split("\n").each do |line|
-            if line =~ /^".+?" \{(.+?)\}$/
-              results << $1.to_s
+            if line =~ /^"(.+?)" \{(.+?)\}$/
+              results[$1.to_s] = $2.to_s
             end
           end
 

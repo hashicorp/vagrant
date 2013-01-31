@@ -501,6 +501,10 @@ module Vagrant
       error_key(:vm_inaccessible)
     end
 
+    class VMNameExists < VagrantError
+      error_key(:vm_name_exists)
+    end
+
     class VMNoMatchError < VagrantError
       status_code(63)
       error_key(:vm_no_match)

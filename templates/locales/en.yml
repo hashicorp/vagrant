@@ -333,6 +333,10 @@ en:
         with VirtualBox that Vagrant can not cleanly recover from. Please open VirtualBox
         and clear out your inaccessible virtual machines or find a way to fix
         them.
+      vm_name_exists: |-
+        A VirtualBox machine with the name '%{name}' already exists.
+        Please use another name or delete the machine with the existing
+        name, and try again.
       vm_no_match: |-
         No virtual machines matched the regular expression given.
       vm_not_found: |-
@@ -682,6 +686,9 @@ en:
           mounting: Mounting shared folders...
           mounting_entry: "-- %{guest_path}"
           nomount_entry: "-- Automounting disabled: %{host_path}"
+        set_name:
+          setting_name: |-
+            Setting the name of the VM...
         suspend:
           suspending: Saving VM state and suspending execution...
 

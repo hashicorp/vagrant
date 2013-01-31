@@ -240,6 +240,7 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           b.use CheckVirtualbox
           b.use ConfigValidate
+          b.use SetName
           b.use Call, IsRunning do |env, b2|
             # If the VM is running, then our work here is done, exit
             next if env[:result]
@@ -295,7 +296,6 @@ module VagrantPlugins
               b2.use CheckBox
               b2.use Import
               b2.use CheckGuestAdditions
-              b2.use SetName
               b2.use MatchMACAddress
             end
           end
