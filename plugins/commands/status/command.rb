@@ -19,11 +19,16 @@ module VagrantPlugins
           results << "#{machine.name.to_s.ljust(25)}#{machine.state.short_description}"
         end
 
-        state = results.length == 1 ? state : "listing"
+        message = nil
+        if results.length == 1
+          message = state.long_description
+        else
+          message = I18n.t("vagrant.commands.status.listing")
+        end
 
         @env.ui.info(I18n.t("vagrant.commands.status.output",
                             :states => results.join("\n"),
-                            :message => state.long_description),
+                            :message => message),
                      :prefix => false)
 
         # Success, exit status 0
