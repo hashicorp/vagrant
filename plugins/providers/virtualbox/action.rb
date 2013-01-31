@@ -55,6 +55,7 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           b.use CheckAccessible
           b.use CleanMachineFolder
+          b.use SetName
           b.use ClearForwardedPorts
           b.use EnvSet, :port_collision_handler => :correct
           b.use Provision
@@ -240,7 +241,6 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           b.use CheckVirtualbox
           b.use ConfigValidate
-          b.use SetName
           b.use Call, IsRunning do |env, b2|
             # If the VM is running, then our work here is done, exit
             next if env[:result]
