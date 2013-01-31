@@ -29,7 +29,7 @@ module VagrantPlugins
       def mount_nfs(ip, folders)
         folders.each do |name, opts|
           vm.communicate.sudo("mkdir -p #{opts[:guestpath]}")
-          vm.communicate.sudo("mount #{ip}:#{opts[:hostpath]} #{opts[:guestpath]}")
+          vm.communicate.sudo("mount '#{ip}:#{opts[:hostpath]}' '#{opts[:guestpath]}'")
         end
       end
 
