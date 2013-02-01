@@ -500,7 +500,12 @@ en:
             Specific bridge '%{bridge}' not found. You may be asked to specify
             which network to bridge to.
         check_box:
-          not_found: Box %{name} was not found. Fetching box from specified URL...
+          not_found: |-
+            Box '%{name}' was not found. Fetching box from specified URL for
+            the provider '%{provider}'. Note that if the URL does not have
+            a box for this provider, you should interrupt Vagrant now and add
+            the box yourself. Otherwise Vagrant will attempt to download the
+            full box prior to discovering this error.
           not_specified: |-
             No base box was specified! A base box is required as a staring point
             for every vagrant virtual machine. Please specify one in your Vagrantfile

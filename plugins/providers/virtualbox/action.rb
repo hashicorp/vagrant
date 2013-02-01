@@ -5,7 +5,6 @@ module VagrantPlugins
     module Action
       autoload :Boot, File.expand_path("../action/boot", __FILE__)
       autoload :CheckAccessible, File.expand_path("../action/check_accessible", __FILE__)
-      autoload :CheckBox, File.expand_path("../action/check_box", __FILE__)
       autoload :CheckCreated, File.expand_path("../action/check_created", __FILE__)
       autoload :CheckGuestAdditions, File.expand_path("../action/check_guest_additions", __FILE__)
       autoload :CheckPortCollisions, File.expand_path("../action/check_port_collisions", __FILE__)
@@ -293,7 +292,7 @@ module VagrantPlugins
             # If the VM is NOT created yet, then do the setup steps
             if !env[:result]
               b2.use CheckAccessible
-              b2.use CheckBox
+              b2.use HandleBoxUrl
               b2.use Import
               b2.use CheckGuestAdditions
               b2.use MatchMACAddress

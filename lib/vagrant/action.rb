@@ -15,6 +15,7 @@ module Vagrant
       autoload :ConfigValidate, "vagrant/action/builtin/config_validate"
       autoload :EnvSet,  "vagrant/action/builtin/env_set"
       autoload :GracefulHalt, "vagrant/action/builtin/graceful_halt"
+      autoload :HandleBoxUrl, "vagrant/action/builtin/handle_box_url"
       autoload :Lock, "vagrant/action/builtin/lock"
       autoload :Provision, "vagrant/action/builtin/provision"
       autoload :SSHExec, "vagrant/action/builtin/ssh_exec"
