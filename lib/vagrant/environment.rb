@@ -490,7 +490,7 @@ module Vagrant
       # Setup the list of child directories that need to be created if they
       # don't already exist.
       dirs    = [@home_path]
-      subdirs = ["boxes", "data", "gems", "tmp"]
+      subdirs = ["boxes", "data", "gems", "rgloader", "tmp"]
       dirs    += subdirs.collect { |subdir| @home_path.join(subdir) }
 
       # Go through each required directory, creating it if it doesn't exist
@@ -513,6 +513,13 @@ module Vagrant
         version_file.open("w") do |f|
           f.write("1.1")
         end
+      end
+
+      # Create the rgloader/loader file so we can use encoded files.
+      loader_file = @home_path.join("rgloader", "loader.rb")
+      if !loader_file.file?
+        source_loader = Vagrant.source_root.join("templates/rgloader.rb")
+        FileUtils.cp(source_loader.to_s, loader_file.to_s)
       end
     end
 
