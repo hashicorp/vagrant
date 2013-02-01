@@ -157,6 +157,7 @@ module VagrantPlugins
           # necessarily represent immediate failure cases.
           exceptions = [
             Errno::ECONNREFUSED,
+            Errno::ECONNRESET,
             Errno::EHOSTUNREACH,
             Net::SSH::Disconnect,
             Timeout::Error
