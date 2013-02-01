@@ -221,21 +221,17 @@ module VagrantPlugins
           ch.exec(shell) do |ch2, _|
             # Setup the channel callbacks so we can get data and exit status
             ch2.on_data do |ch3, data|
-              if block_given?
-                # Filter out the clear screen command
-                data = remove_ansi_escape_codes(data)
-                @logger.debug("stdout: #{data}")
-                yield :stdout, data
-              end
+              # Filter out the clear screen command
+              data = remove_ansi_escape_codes(data)
+              @logger.debug("stdout: #{data}")
+              yield :stdout, data if block_given?
             end
 
             ch2.on_extended_data do |ch3, type, data|
-              if block_given?
-                # Filter out the clear screen command
-                data = remove_ansi_escape_codes(data)
-                @logger.debug("stderr: #{data}")
-                yield :stderr, data
-              end
+              # Filter out the clear screen command
+              data = remove_ansi_escape_codes(data)
+              @logger.debug("stderr: #{data}")
+              yield :stderr, data if block_given?
             end
 
             ch2.on_request("exit-status") do |ch3, data|
