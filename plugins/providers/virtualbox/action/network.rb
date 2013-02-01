@@ -36,7 +36,7 @@ module VagrantPlugins
           end
 
           @logger.debug("Available slots for high-level adapters: #{available_slots.inspect}")
-          @logger.info("Determinging network adapters required for high-level configuration...")
+          @logger.info("Determining network adapters required for high-level configuration...")
           available_slots = available_slots.to_a.sort
           env[:machine].config.vm.networks.each do |type, args|
             # We only handle private and public networks
