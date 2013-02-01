@@ -464,7 +464,8 @@ en:
           above with their current state. For more information about a specific
           VM, run `vagrant status NAME`.
       up:
-        vm_created: "VM already created. Booting if it's not already running..."
+        upping: |-
+          Bringing machine '%{name}' up with '%{provider}' provider...
       version:
         output: "Vagrant version %{version}"
 
