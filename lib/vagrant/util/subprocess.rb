@@ -159,9 +159,9 @@ module Vagrant
           next if extra_data == ""
 
           # Log it out and accumulate
-          @logger.debug(extra_data)
           io_name = io == stdout ? :stdout : :stderr
           io_data[io_name] += extra_data
+          @logger.debug("#{io_name}: #{extra_data}")
 
           # Yield to any listeners any remaining data
           yield io_name, extra_data if block_given?
