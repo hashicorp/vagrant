@@ -200,6 +200,13 @@ module Vagrant
           rescue SyntaxError => e
             # Report syntax errors in a nice way.
             raise Errors::VagrantfileSyntaxError, :file => e.message
+          rescue SystemExit
+            # Continue raising that exception...
+            raise
+          rescue Vagrant::Errors::VagrantError
+            # Continue raising known Vagrant errors since they already
+            # contain well worded error messages and context.
+            raise
           rescue Exception => e
             @logger.error("Vagrantfile load error: #{e.message}")
             @logger.error(e.backtrace.join("\n"))
