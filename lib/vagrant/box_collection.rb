@@ -131,7 +131,7 @@ module Vagrant
         final_dir.mkpath
 
         # Move to the final destination
-        File.rename(temp_dir, final_dir.to_s)
+        FileUtils.mv(temp_dir, final_dir.to_s)
 
         # Recreate the directory. This avoids a bug in Ruby where `mktmpdir`
         # cleanup doesn't check if the directory is already gone. Ruby bug
