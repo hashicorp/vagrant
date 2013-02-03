@@ -19,6 +19,11 @@ module VagrantPlugins
             require_relative "list"
             List
           end
+
+          @subcommands.register(:uninstall) do
+            require_relative "uninstall"
+            Uninstall
+          end
         end
 
         def execute

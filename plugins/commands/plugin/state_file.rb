@@ -33,6 +33,14 @@ module VagrantPlugins
         @data["installed"]
       end
 
+      # Remove a plugin that is installed from the state file.
+      #
+      # @param [String] name The name of the plugin.
+      def remove_plugin(name)
+        @data["installed"].delete(name)
+        save!
+      end
+
       # This saves the state back into the state file.
       def save!
         # Scrub some fields

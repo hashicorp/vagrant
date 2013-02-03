@@ -419,6 +419,8 @@ en:
       plugin:
         installing: |-
           Installing the '%{name}' plugin...
+        uninstalling: |-
+          Uninstalling the '%{name}' plugin...
       status:
         aborted: |-
           The VM is in an aborted state. This means that it was abruptly
