@@ -5,10 +5,8 @@ module VagrantPlugins
     module Command
       class Remove < Vagrant.plugin("2", :command)
         def execute
-          options = {}
-
-          opts = OptionParser.new do |opts|
-            opts.banner = "Usage: vagrant box remove <name> <provider>"
+          opts = OptionParser.new do |o|
+            o.banner = "Usage: vagrant box remove <name> <provider>"
           end
 
           # Parse the options
@@ -25,6 +23,9 @@ module VagrantPlugins
           end
 
           raise Vagrant::Errors::BoxNotFound, :name => argv[0] if !b
+          @env.ui.info(I18n.t("vagrant.commands.box.removing",
+                              :name => argv[0],
+                              :provider => argv[1]))
           b.destroy!
 
           # Success, exit status 0
