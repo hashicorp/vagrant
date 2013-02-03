@@ -172,7 +172,7 @@ en:
         %{output}
       plugin_load_error: |-
         The plugin "%{plugin}" could not be found. Please make sure that it is
-        properly installed via `vagrant gem`.
+        properly installed via `vagrant plugin`.
       port_collision_resume: |-
         This VM cannot be resumed, because the forwarded ports would collide with
         another running virtual machine. Normally, Vagrant will attempt to fix this
@@ -403,13 +403,6 @@ en:
         will_not_destroy: |-
           The VM '%{name}' will not be destroyed, since the confirmation
           was declined.
-      gem:
-        help_preamble: |-
-          `vagrant gem` is used to install Vagrant plugins via the RubyGems
-          system. In fact, `vagrant gem` is just a frontend to the actual `gem`
-          interface, with the difference being that Vagrant sets up a custom
-          directory where gems are installed so that they are isolated from your
-          system gems.
       init:
         success: |-
           A `Vagrantfile` has been placed in this directory. You are now
