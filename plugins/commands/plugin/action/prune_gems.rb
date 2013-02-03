@@ -120,7 +120,8 @@ module VagrantPlugins
 
           # Figure out the gems we need to prune
           prune_specs = all_specs - good_specs
-          @logger.info("Gems to prune: #{prune_specs.inspect}")
+          @logger.debug("Gems to prune: #{prune_specs.inspect}")
+          @logger.info("Pruning #{prune_specs.length} gems.")
 
           if prune_specs.length > 0
             env[:gem_helper].with_environment do
