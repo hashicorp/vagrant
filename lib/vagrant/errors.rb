@@ -340,6 +340,10 @@ module Vagrant
       error_key(:plugin_gem_error)
     end
 
+    class PluginInstallBadEntryPoint < VagrantError
+      error_key(:plugin_install_bad_entry_point)
+    end
+
     class PluginLoadError < VagrantError
       status_code(81)
       error_key(:plugin_load_error)

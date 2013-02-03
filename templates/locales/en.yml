@@ -170,6 +170,11 @@ en:
         manage Vagrant plugins. The output of the errors are shown below:
 
         %{output}
+      plugin_install_bad_entry_point: |-
+        Attempting to load the plugin '%{name}' failed, because
+        the entry point doesn't exist. The entry point attempted was
+        '%{entry_point}'. If this is not correct, please manually
+        specify an `--entry-point` when installing the plugin.
       plugin_load_error: |-
         The plugin "%{plugin}" could not be found. Please make sure that it is
         properly installed via `vagrant plugin`.
@@ -412,6 +417,8 @@ en:
       plugin:
         no_plugins: |-
           No plugins installed.
+        installed: |-
+          Installed the '%{name}' plugin!
         installing: |-
           Installing the '%{name}' plugin. This can take a few minutes...
         uninstalling: |-
