@@ -87,7 +87,7 @@ module Vagrant
 
       # Create a temporary directory since we're not sure at this point if
       # the box we're unpackaging already exists (if no provider was given)
-      Dir.mktmpdir(TEMP_PREFIX, directory.to_s) do |temp_dir|
+      Dir.mktmpdir(TEMP_PREFIX) do |temp_dir|
         temp_dir = Pathname.new(temp_dir)
 
         # Extract the box into a temporary directory.
@@ -125,13 +125,20 @@ module Vagrant
           check_box_exists.call(provider)
         end
 
-        # Create the directory that'll store our box
-        final_dir = @directory.join(name, provider.to_s)
-        @logger.debug("Final box directory: #{final_dir}")
-        final_dir.mkpath
+        # Create the directory for this box, not including the provider
+        box_dir = @directory.join(name)
+        box_dir.mkpath
+        @logger.debug("Box directory: #{box_dir}")
 
-        # Move to the final destination
-        File.rename(temp_dir, final_dir.to_s)
+        # This is the final directory we'll move it to
+        final_dir = box_dir.join(provider.to_s)
+        if final_dir.exist?
+          @logger.debug("Removing existing provider directory...")
+          final_dir.rmtree
+        end
+
+        # Move to final destination
+        FileUtils.mv(temp_dir.to_s, final_dir.to_s)
 
         # Recreate the directory. This avoids a bug in Ruby where `mktmpdir`
         # cleanup doesn't check if the directory is already gone. Ruby bug
@@ -159,10 +166,6 @@ module Vagrant
         next if !child.directory?
 
         box_name = child.basename.to_s
-
-        # Ignore anything that matches the temporary prefix (crazy
-        # race condition might be possible)
-        next if box_name =~ /^#{TEMP_PREFIX}/
 
         # If this is a V1 box, we still return that name, but specify
         # that the box is a V1 box.
@@ -247,7 +250,7 @@ module Vagrant
         temp_dir = v1_upgrade(box_dir)
 
         # Rename the temporary directory to the provider.
-        temp_dir.rename(box_dir.join("virtualbox"))
+        FileUtils.mv(temp_dir.to_s, box_dir.join("virtualbox").to_s)
         @logger.info("Box '#{name}' upgraded from V1 to V2.")
       end
 
