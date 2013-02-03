@@ -336,6 +336,10 @@ module Vagrant
       error_key(:provider_not_found)
     end
 
+    class PluginGemError < VagrantError
+      error_key(:plugin_gem_error)
+    end
+
     class PluginLoadError < VagrantError
       status_code(81)
       error_key(:plugin_load_error)

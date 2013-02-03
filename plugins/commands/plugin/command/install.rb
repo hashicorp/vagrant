@@ -16,6 +16,7 @@ module VagrantPlugins
 
           # Install the gem
           @env.action_runner.run(Action.action_install, {
+            :gem_helper => GemHelper.new(@env.gems_path),
             :plugin_name => argv[0],
             :plugin_state_file => StateFile.new(@env.data_dir.join("plugins.json"))
           })

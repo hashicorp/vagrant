@@ -17,23 +17,10 @@ module VagrantPlugins
         def call(env)
           plugin_name = env[:plugin_name]
 
-          # First, install the gem
-          begin
-            # Set the GEM_HOME so that it is installed into our local gems path
-            old_gem_home = ENV["GEM_HOME"]
-            ENV["GEM_HOME"] = env[:gems_path].to_s
-            p ENV["GEM_PATH"]
-            @logger.debug("Set GEM_HOME to: #{ENV["GEM_HOME"]}")
-
-            @logger.info("Installing gem: #{plugin_name}")
-            env[:ui].info(
-              I18n.t("vagrant.commands.plugin.installing", :name => plugin_name))
-            Gem.clear_paths
-            Gem::GemRunner.new.run(
-              ["install", plugin_name, "--no-ri", "--no-rdoc"])
-          ensure
-            ENV["GEM_HOME"] = old_gem_home
-          end
+          # Install the gem
+          env[:ui].info(I18n.t("vagrant.commands.plugin.installing",
+                               :name => plugin_name))
+          env[:gem_helper].cli(["install", plugin_name, "--no-ri", "--no-rdoc"])
 
           # Mark that we installed the gem
           env[:plugin_state_file].add_plugin(plugin_name)

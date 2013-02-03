@@ -165,6 +165,11 @@ en:
       no_env: |-
         A Vagrant environment is required to run this command. Run `vagrant init`
         to set one up.
+      plugin_gem_error: |-
+        An error occurred within RubyGems, the underlying system used to
+        manage Vagrant plugins. The output of the errors are shown below:
+
+        %{output}
       plugin_load_error: |-
         The plugin "%{plugin}" could not be found. Please make sure that it is
         properly installed via `vagrant gem`.
