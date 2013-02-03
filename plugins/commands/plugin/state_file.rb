@@ -10,15 +10,17 @@ module VagrantPlugins
 
         @data = {}
         @data = JSON.parse(@path.read) if @path.exist?
+        @data["installed"] ||= []
       end
 
       # Add a plugin that is installed to the state file.
       #
       # @param [String] name The name of the plugin
       def add_plugin(name)
-        @data["installed"] ||= []
-        @data["installed"] << name
-        save!
+        if !@data["installed"].include?(name)
+          @data["installed"] << name
+          save!
+        end
       end
 
       # This returns a list of installed plugins according to the state
@@ -27,12 +29,15 @@ module VagrantPlugins
       #
       # @return [Array<String>]
       def installed_plugins
-        @data["installed"] ||= []
         @data["installed"]
       end
 
       # This saves the state back into the state file.
       def save!
+        # Scrub some fields
+        @data["installed"].uniq!
+
+        # Save
         @path.open("w+") do |f|
           f.write(JSON.dump(@data))
         end
