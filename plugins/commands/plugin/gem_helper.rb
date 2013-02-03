@@ -33,7 +33,8 @@ module VagrantPlugins
         # This means that something forced an exit within RubyGems.
         # We capture this to check whether it succeeded or not by
         # checking the "exit_code"
-        raise Vagrant::Errors::PluginGemError, :output => gem_ui.errs.string.chomp if e != 0
+        raise Vagrant::Errors::PluginGemError,
+          :output => gem_ui.errs.string.chomp if e.exit_code != 0
       ensure
         # Restore the old GEM_HOME
         ENV["GEM_HOME"] = old_gem_home
