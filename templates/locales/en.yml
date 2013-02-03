@@ -178,6 +178,8 @@ en:
       plugin_load_error: |-
         The plugin "%{plugin}" could not be found. Please make sure that it is
         properly installed via `vagrant plugin`.
+      plugin_load_failed: |-
+        Failed to load the "%{plugin}" plugin. View logs for more details.
       port_collision_resume: |-
         This VM cannot be resumed, because the forwarded ports would collide with
         another running virtual machine. Normally, Vagrant will attempt to fix this

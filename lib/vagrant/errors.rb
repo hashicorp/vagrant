@@ -349,6 +349,10 @@ module Vagrant
       error_key(:plugin_load_error)
     end
 
+    class PluginLoadFailed < VagrantError
+      error_key(:plugin_load_failed)
+    end
+
     class SCPPermissionDenied < VagrantError
       status_code(82)
       error_key(:scp_permission_denied)

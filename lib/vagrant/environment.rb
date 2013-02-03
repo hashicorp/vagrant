@@ -610,7 +610,11 @@ module Vagrant
         data = JSON.parse(plugins_json_file.read)
         data["installed"].each do |plugin|
           @logger.info("Loading plugin from JSON: #{plugin}")
-          Vagrant.require_plugin(plugin)
+          begin
+            Vagrant.require_plugin(plugin)
+          rescue Errors::PluginLoadFailed => e
+            @ui.error(e.message)
+          end
         end
       end
     end
