@@ -1,4 +1,5 @@
 require "rubygems"
+require "rubygems/user_interaction"
 require "rubygems/uninstaller"
 require "set"
 
