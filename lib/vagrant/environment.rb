@@ -32,6 +32,9 @@ module Vagrant
     # The {UI} object to communicate with the outside world.
     attr_reader :ui
 
+    # This is the UI class to use when creating new UIs.
+    attr_reader :ui_class
+
     # The directory to the "home" folder that Vagrant will use to store
     # global state.
     attr_reader :home_path
@@ -92,6 +95,7 @@ module Vagrant
       @lock_path        = opts[:lock_path]
       @vagrantfile_name = opts[:vagrantfile_name]
       @ui               = opts[:ui_class].new
+      @ui_class         = opts[:ui_class]
 
       @lock_acquired = false
 
