@@ -208,7 +208,7 @@ module Vagrant
         end
       else
         # Delete the file, since the machine is now destroyed
-        id_file.delete
+        id_file.delete if id_file.file?
       end
 
       # Store the ID locally
