@@ -55,7 +55,7 @@ module VagrantPlugins
         # Clear paths so that it reads the new GEM_HOME setting
         Gem.clear_paths
 
-        yield
+        return yield
       ensure
         # Restore the old GEM_HOME
         ENV["GEM_HOME"] = old_gem_home
