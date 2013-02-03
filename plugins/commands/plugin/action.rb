@@ -10,6 +10,7 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           b.use BundlerCheck
           b.use InstallGem
+          b.use PruneGems
         end
       end
 
@@ -26,6 +27,7 @@ module VagrantPlugins
       autoload :BundlerCheck, action_root.join("bundler_check")
       autoload :InstallGem, action_root.join("install_gem")
       autoload :ListPlugins, action_root.join("list_plugins")
+      autoload :PruneGems, action_root.join("prune_gems")
     end
   end
 end
