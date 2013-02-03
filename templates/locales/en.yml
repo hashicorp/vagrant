@@ -114,11 +114,11 @@ en:
         occurring. Please wait for the other instance of Vagrant to end and then
         try again.
       gem_command_in_bundler: |-
-        You cannot run the `vagrant gem` command while in a bundler environment.
-        Bundler messes around quite a bit with the RubyGem load paths and gems
-        installed via `vagrant gem` are excluded by Bundler.
-
-        Instead, please include your Vagrant plugins in your Gemfile itself.
+        You cannot run the `vagrant plugin` command while in a bundler environment.
+        This should generally never happen unless Vagrant is installed outside
+        of the official installers or another gem is wrongly attempting to
+        use Vagrant internals directly. Please properly install Vagrant to
+        fix this. If this error persists, please contact support.
       guest:
         invalid_class: |-
           The specified guest class does not inherit from a proper guest
@@ -165,6 +165,11 @@ en:
       no_env: |-
         A Vagrant environment is required to run this command. Run `vagrant init`
         to set one up.
+      plugin_gem_error: |-
+        An error occurred within RubyGems, the underlying system used to
+        manage Vagrant plugins. The output of the errors are shown below:
+
+        %{output}
       plugin_load_error: |-
         The plugin "%{plugin}" could not be found. Please make sure that it is
         properly installed via `vagrant gem`.
@@ -411,6 +416,13 @@ en:
           ready to `vagrant up` your first virtual environment! Please read
           the comments in the Vagrantfile as well as documentation on
           `vagrantup.com` for more information on using Vagrant.
+      plugin:
+        no_plugins: |-
+          No plugins installed.
+        installing: |-
+          Installing the '%{name}' plugin. This can take a few minutes...
+        uninstalling: |-
+          Uninstalling the '%{name}' plugin...
       status:
         aborted: |-
           The VM is in an aborted state. This means that it was abruptly

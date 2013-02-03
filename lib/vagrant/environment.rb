@@ -15,7 +15,6 @@ module Vagrant
   class Environment
     DEFAULT_HOME = "~/.vagrant.d"
     DEFAULT_LOCAL_DATA = ".vagrant"
-    DEFAULT_RC = "~/.vagrantrc"
 
     # The `cwd` that this environment represents
     attr_reader :cwd
@@ -411,6 +410,7 @@ module Vagrant
           :box_collection => boxes,
           :global_config  => config_global,
           :host           => host,
+          :gems_path      => gems_path,
           :root_path      => root_path,
           :tmp_path       => tmp_path,
           :ui             => @ui
@@ -591,18 +591,27 @@ module Vagrant
     # Loads the Vagrant plugins by properly setting up RubyGems so that
     # our private gem repository is on the path.
     def load_plugins
+      if ENV["VAGRANT_NO_PLUGINS"]
+        # If this key exists, then we don't load any plugins. It is a "safe
+        # mode" of sorts.
+        @logger.warn("VAGRANT_NO_PLUGINS is set. Not loading 3rd party plugins.")
+        return
+      end
+
       # Add our private gem path to the gem path and reset the paths
       # that Rubygems knows about.
       ENV["GEM_PATH"] = "#{@gems_path}#{::File::PATH_SEPARATOR}#{ENV["GEM_PATH"]}"
       ::Gem.clear_paths
 
       # Load the plugins
-      rc_path = File.expand_path(ENV["VAGRANT_RC"] || DEFAULT_RC)
-      if File.file?(rc_path) && @@loaded_rc.add?(rc_path)
-        @logger.debug("Loading RC file: #{rc_path}")
-        load rc_path
-      else
-        @logger.debug("RC file not found. Not loading: #{rc_path}")
+      plugins_json_file = @home_path.join("plugins.json")
+      @logger.debug("Loading plugins from: #{plugins_json_file}")
+      if plugins_json_file.file?
+        data = JSON.parse(plugins_json_file.read)
+        data["installed"].each do |plugin|
+          @logger.info("Loading plugin from JSON: #{plugin}")
+          Vagrant.require_plugin(plugin)
+        end
       end
     end
 
