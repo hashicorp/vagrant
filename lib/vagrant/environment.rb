@@ -91,7 +91,7 @@ module Vagrant
       @home_path        = opts[:home_path]
       @lock_path        = opts[:lock_path]
       @vagrantfile_name = opts[:vagrantfile_name]
-      @ui               = opts[:ui_class].new("vagrant")
+      @ui               = opts[:ui_class].new
 
       @lock_acquired = false
 
