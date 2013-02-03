@@ -15,7 +15,6 @@ module Vagrant
   class Environment
     DEFAULT_HOME = "~/.vagrant.d"
     DEFAULT_LOCAL_DATA = ".vagrant"
-    DEFAULT_RC = "~/.vagrantrc"
 
     # The `cwd` that this environment represents
     attr_reader :cwd
@@ -598,12 +597,14 @@ module Vagrant
       ::Gem.clear_paths
 
       # Load the plugins
-      rc_path = File.expand_path(ENV["VAGRANT_RC"] || DEFAULT_RC)
-      if File.file?(rc_path) && @@loaded_rc.add?(rc_path)
-        @logger.debug("Loading RC file: #{rc_path}")
-        load rc_path
-      else
-        @logger.debug("RC file not found. Not loading: #{rc_path}")
+      plugins_json_file = @home_path.join("plugins.json")
+      @logger.debug("Loading plugins from: #{plugins_json_file}")
+      if plugins_json_file.file?
+        data = JSON.parse(plugins_json_file.read)
+        data["installed"].each do |plugin|
+          @logger.info("Loading plugin from JSON: #{plugin}")
+          Vagrant.require_plugin(plugin)
+        end
       end
     end
 
