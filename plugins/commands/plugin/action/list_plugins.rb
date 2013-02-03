@@ -25,14 +25,23 @@ module VagrantPlugins
             Gem::Specification.find_all
           end
 
-          # Go through each spec and if it is an installed plugin, then
-          # output it. This means that both the installed state and
-          # gem match up.
+          # Get the latest version of the installed plugins
+          installed_map = {}
           specs.each do |spec|
-            if installed.include?(spec.name)
-              # TODO: Formatting
-              env[:ui].info spec.name
-            end
+            # Ignore specs that aren't in our installed list
+            next if !installed.include?(spec.name)
+
+            # If we already have a newer version in our list of installed,
+            # then ignore it
+            next if installed_map.has_key?(spec.name) &&
+              installed_map[spec.name].version >= spec.version
+
+            installed_map[spec.name] = spec
+          end
+
+          # Output!
+          installed_map.values.each do |spec|
+            env[:ui].info "#{spec.name} (#{spec.version})"
           end
 
           @app.call(env)
