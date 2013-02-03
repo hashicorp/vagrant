@@ -57,7 +57,10 @@ module VagrantPlugins
         # Clear paths so that it reads the new GEM_HOME setting
         Gem.paths = ENV
 
-        return yield
+        # Use a silent UI so that we have no output
+        Gem::DefaultUserInteraction.use_ui(Gem::SilentUI.new) do
+          return yield
+        end
       ensure
         # Restore the old GEM_* settings
         ENV["GEM_HOME"] = old_gem_home
