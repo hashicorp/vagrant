@@ -40,8 +40,12 @@ module VagrantPlugins
           end
 
           # Output!
-          installed_map.values.each do |spec|
-            env[:ui].info "#{spec.name} (#{spec.version})"
+          if installed_map.empty?
+            env[:ui].info(I18n.t("vagrant.commands.plugin.no_plugins"))
+          else
+            installed_map.values.each do |spec|
+              env[:ui].info "#{spec.name} (#{spec.version})"
+            end
           end
 
           @app.call(env)

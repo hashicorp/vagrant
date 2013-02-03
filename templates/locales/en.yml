@@ -417,6 +417,8 @@ en:
           the comments in the Vagrantfile as well as documentation on
           `vagrantup.com` for more information on using Vagrant.
       plugin:
+        no_plugins: |-
+          No plugins installed.
         installing: |-
           Installing the '%{name}' plugin. This can take a few minutes...
         uninstalling: |-
