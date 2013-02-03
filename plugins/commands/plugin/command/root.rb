@@ -10,6 +10,10 @@ module VagrantPlugins
           @main_args, @sub_command, @sub_args = split_main_and_subcommand(argv)
 
           @subcommands = Vagrant::Registry.new
+          @subcommands.register(:install) do
+            require_relative "install"
+            Install
+          end
         end
 
         def execute

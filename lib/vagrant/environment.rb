@@ -411,6 +411,7 @@ module Vagrant
           :box_collection => boxes,
           :global_config  => config_global,
           :host           => host,
+          :gems_path      => gems_path,
           :root_path      => root_path,
           :tmp_path       => tmp_path,
           :ui             => @ui

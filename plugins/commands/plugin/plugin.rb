@@ -14,5 +14,8 @@ DESC
         Command::Root
       end
     end
+
+    autoload :Action, File.expand_path("../action", __FILE__)
+    autoload :StateFile, File.expand_path("../state_file", __FILE__)
   end
 end
