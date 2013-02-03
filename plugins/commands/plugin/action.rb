@@ -30,6 +30,7 @@ module VagrantPlugins
           b.use PruneGems
         end
       end
+
       # The autoload farm
       action_root = Pathname.new(File.expand_path("../action", __FILE__))
       autoload :BundlerCheck, action_root.join("bundler_check")
