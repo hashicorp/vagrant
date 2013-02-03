@@ -11,7 +11,7 @@ module VagrantPlugins
         def action(callable, env=nil)
           env = {
             :gem_helper => GemHelper.new(@env.gems_path),
-            :plugin_state_file => StateFile.new(@env.data_dir.join("plugins.json"))
+            :plugin_state_file => StateFile.new(@env.home_path.join("plugins.json"))
           }.merge(env || {})
 
           @env.action_runner.run(callable, env)
