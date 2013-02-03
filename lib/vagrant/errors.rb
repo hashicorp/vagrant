@@ -344,6 +344,10 @@ module Vagrant
       error_key(:plugin_install_bad_entry_point)
     end
 
+    class PluginInstallNotFound < VagrantError
+      error_key(:plugin_install_not_found)
+    end
+
     class PluginLoadError < VagrantError
       status_code(81)
       error_key(:plugin_load_error)

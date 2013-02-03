@@ -22,7 +22,13 @@ module VagrantPlugins
                                :name => plugin_name))
           installed_gems = env[:gem_helper].with_environment do
             installer = Gem::DependencyInstaller.new(:document => [])
-            installer.install(plugin_name)
+
+            begin
+              installer.install(plugin_name)
+            rescue Gem::GemNotFoundException
+              raise Vagrant::Errors::PluginInstallNotFound,
+                :name => plugin_name
+            end
           end
 
           # The plugin spec is the last installed gem since RubyGems

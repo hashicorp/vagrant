@@ -175,6 +175,9 @@ en:
         the entry point doesn't exist. The entry point attempted was
         '%{entry_point}'. If this is not correct, please manually
         specify an `--entry-point` when installing the plugin.
+      plugin_install_not_found: |-
+        The plugin '%{name}' could not be found in local or remote
+        repositories. Please check the name of the plugin and try again.
       plugin_load_error: |-
         The plugin "%{plugin}" could not be found. Please make sure that it is
         properly installed via `vagrant plugin`.
