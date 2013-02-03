@@ -19,8 +19,9 @@ module VagrantPlugins
       def add_plugin(name)
         if !@data["installed"].include?(name)
           @data["installed"] << name
-          save!
         end
+
+        save!
       end
 
       # This returns a list of installed plugins according to the state
@@ -35,6 +36,7 @@ module VagrantPlugins
       # This saves the state back into the state file.
       def save!
         # Scrub some fields
+        @data["installed"].sort!
         @data["installed"].uniq!
 
         # Save
