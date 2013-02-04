@@ -26,6 +26,11 @@ module VagrantPlugins
         # Clear paths so that it reads the new GEM_HOME setting
         Gem.paths = ENV
 
+        # Clear the sources so that installation uses custom sources
+        old_sources = Gem.sources
+        Gem.sources = Gem.default_sources
+        Gem.sources << "http://gems.hashicorp.com"
+
         # Use a silent UI so that we have no output
         Gem::DefaultUserInteraction.use_ui(Gem::SilentUI.new) do
           return yield
@@ -36,7 +41,8 @@ module VagrantPlugins
         ENV["GEM_PATH"] = old_gem_path
 
         # Reset everything
-        Gem.paths = ENV
+        Gem.paths   = ENV
+        Gem.sources = old_sources.to_a
       end
     end
   end
