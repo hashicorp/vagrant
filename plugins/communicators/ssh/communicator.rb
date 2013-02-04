@@ -1,3 +1,5 @@
+require 'logger'
+require 'stringio'
 require 'timeout'
 
 require 'log4r'
