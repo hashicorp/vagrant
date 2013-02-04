@@ -43,7 +43,8 @@ module VagrantPlugins
           FileUtils.cp(license_file, final_path)
 
           # Installed!
-          env[:ui].success(I18n.t("vagrant.commands.plugin.installed_license"))
+          env[:ui].success(I18n.t("vagrant.commands.plugin.installed_license",
+                                 :name => env[:plugin_name]))
 
           @app.call(env)
         end
