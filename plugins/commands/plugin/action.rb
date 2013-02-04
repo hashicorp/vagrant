@@ -14,6 +14,14 @@ module VagrantPlugins
         end
       end
 
+      # This middleware sequence licenses paid addons.
+      def self.action_license
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use BundlerCheck
+          b.use LicensePlugin
+        end
+      end
+
       # This middleware sequence will list all installed plugins.
       def self.action_list
         Vagrant::Action::Builder.new.tap do |b|

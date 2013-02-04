@@ -299,6 +299,10 @@ module Vagrant
       error_key(:plugin_install_bad_entry_point)
     end
 
+    class PluginInstallLicenseNotFound < VagrantError
+      error_key(:plugin_install_license_not_found)
+    end
+
     class PluginInstallNotFound < VagrantError
       error_key(:plugin_install_not_found)
     end
@@ -309,6 +313,10 @@ module Vagrant
 
     class PluginLoadFailed < VagrantError
       error_key(:plugin_load_failed)
+    end
+
+    class PluginNotFound < VagrantError
+      error_key(:plugin_not_found)
     end
 
     class SCPPermissionDenied < VagrantError

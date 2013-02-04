@@ -175,6 +175,10 @@ en:
         the entry point doesn't exist. The entry point attempted was
         '%{entry_point}'. If this is not correct, please manually
         specify an `--entry-point` when installing the plugin.
+      plugin_install_license_not_found: |-
+        The license file to install could not be found. Please verify
+        the path you gave is correct. The path to the license file given
+        was: '%{path}'
       plugin_install_not_found: |-
         The plugin '%{name}' could not be found in local or remote
         repositories. Please check the name of the plugin and try again.
@@ -183,6 +187,9 @@ en:
         properly installed via `vagrant plugin`.
       plugin_load_failed: |-
         Failed to load the "%{plugin}" plugin. View logs for more details.
+      plugin_not_found: |-
+        The plugin '%{name}' could not be found. Please install this plugin
+        prior to attempting to do anything with it.
       port_collision_resume: |-
         This VM cannot be resumed, because the forwarded ports would collide with
         another running virtual machine. Normally, Vagrant will attempt to fix this
@@ -420,6 +427,10 @@ en:
           the comments in the Vagrantfile as well as documentation on
           `vagrantup.com` for more information on using Vagrant.
       plugin:
+        installed_license: |-
+          The license for '%{name}' was successfully installed!
+        installing_license: |-
+          Installing license for '%{name}'...
         no_plugins: |-
           No plugins installed.
         installed: |-

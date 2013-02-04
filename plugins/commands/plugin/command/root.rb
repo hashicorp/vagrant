@@ -15,6 +15,11 @@ module VagrantPlugins
             Install
           end
 
+          @subcommands.register(:license) do
+            require_relative "license"
+            License
+          end
+
           @subcommands.register(:list) do
             require_relative "list"
             List
