@@ -1,3 +1,5 @@
+require "log4r"
+
 module Vagrant
   module Util
     module Retryable
@@ -8,12 +10,16 @@ module Vagrant
       # This code is adapted slightly from the following blog post:
       # http://blog.codefront.net/2008/01/14/retrying-code-blocks-in-ruby-on-exceptions-whatever/
       def retryable(opts=nil)
-        opts = { :tries => 1, :on => Exception }.merge(opts || {})
+        logger = nil
+        opts   = { :tries => 1, :on => Exception }.merge(opts || {})
 
         begin
           return yield
-        rescue *opts[:on]
+        rescue *opts[:on] => e
           if (opts[:tries] -= 1) > 0
+            logger = Log4r::Logger.new("vagrant::util::retryable")
+            logger.info("Retryable exception raised: #{e.inspect}")
+
             sleep opts[:sleep].to_f if opts[:sleep]
             retry
           end
