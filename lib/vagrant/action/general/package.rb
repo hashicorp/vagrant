@@ -78,13 +78,17 @@ module Vagrant
           # Copy over the included files
           copy_include_files
 
+          # Get the output path. We have to do this up here so that the
+          # pwd returns the proper thing.
+          output_path = tar_path.to_s
+
           # Switch into that directory and package everything up
           Dir.chdir(@env["package.directory"]) do
             # Find all the files in our current directory and tar it up!
             files = Dir.glob(File.join(".", "**", "*"))
 
             # Package!
-            Util::Subprocess.execute("bsdtar", "-czf", tar_path.to_s, *files)
+            Util::Subprocess.execute("bsdtar", "-czf", output_path, *files)
           end
         end
 
