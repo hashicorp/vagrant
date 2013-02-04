@@ -101,10 +101,13 @@ module Vagrant
             "-o", "ForwardX11Trusted=yes"]
         end
 
-        # Configurables -- extra_args should always be last due to the way the ssh args parser works;
-        # e.g. if the user wants to use the -t option, any shell command(s) she'd like to run on the
-        # remote server would have to be the last part of the 'ssh' command:
-        # $: ssh localhost -t -p 2222 "cd mydirectory; bash"
+        # Configurables -- extra_args should always be last due to the way the
+        # ssh args parser works. e.g. if the user wants to use the -t option,
+        # any shell command(s) she'd like to run on the remote server would
+        # have to be the last part of the 'ssh' command:
+        #
+        #   $ ssh localhost -t -p 2222 "cd mydirectory; bash"
+        #
         # Without having extra_args be last, the user loses this ability
         command_options += ["-o", "ForwardAgent=yes"] if ssh_info[:forward_agent]
         command_options.concat(opts[:extra_args]) if opts[:extra_args]
