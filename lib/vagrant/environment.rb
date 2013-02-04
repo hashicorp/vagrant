@@ -415,6 +415,7 @@ module Vagrant
           :global_config  => config_global,
           :host           => host,
           :gems_path      => gems_path,
+          :home_path      => home_path,
           :root_path      => root_path,
           :tmp_path       => tmp_path,
           :ui             => @ui
