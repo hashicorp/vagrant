@@ -137,13 +137,14 @@ module VagrantPlugins
 
         # Build the options we'll use to initiate the connection via Net::SSH
         opts = {
-          :port                  => ssh_info[:port],
+          :auth_methods          => ["none", "publickey", "hostbased", "password"],
+          :config                => false,
+          :forward_agent         => ssh_info[:forward_agent],
           :keys                  => [ssh_info[:private_key_path]],
           :keys_only             => true,
-          :user_known_hosts_file => [],
           :paranoid              => false,
-          :config                => false,
-          :forward_agent         => ssh_info[:forward_agent]
+          :port                  => ssh_info[:port],
+          :user_known_hosts_file => []
         }
 
         # Check that the private key permissions are valid
