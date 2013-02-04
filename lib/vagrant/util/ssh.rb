@@ -84,10 +84,6 @@ module Vagrant
           "-o", "StrictHostKeyChecking=no",
           "-o", "UserKnownHostsFile=/dev/null"]
 
-        # Configurables
-        command_options += ["-o", "ForwardAgent=yes"] if ssh_info[:forward_agent]
-        command_options.concat(opts[:extra_args]) if opts[:extra_args]
-
         # Solaris/OpenSolaris/Illumos uses SunSSH which doesn't support the
         # IdentitiesOnly option. Also, we don't enable it in plain mode so
         # that SSH properly searches our identities and tries to do it itself.
@@ -105,10 +101,18 @@ module Vagrant
             "-o", "ForwardX11Trusted=yes"]
         end
 
+        # Configurables -- extra_args should always be last due to the way the ssh args parser works;
+        # e.g. if the user wants to use the -t option, any shell command(s) she'd like to run on the
+        # remote server would have to be the last part of the 'ssh' command:
+        # $: ssh localhost -t -p 2222 "cd mydirectory; bash"
+        # Without having extra_args be last, the user loses this ability
+        command_options += ["-o", "ForwardAgent=yes"] if ssh_info[:forward_agent]
+        command_options.concat(opts[:extra_args]) if opts[:extra_args]
+
         # Build up the host string for connecting
         host_string = options[:host]
         host_string = "#{options[:username]}@#{host_string}" if !plain_mode
-        command_options << host_string
+        command_options.unshift(host_string)
 
         # Invoke SSH with all our options
         LOGGER.info("Invoking SSH: #{command_options.inspect}")
