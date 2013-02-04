@@ -128,19 +128,12 @@ module VagrantPlugins
             env[:gem_helper].with_environment do
               prune_specs.each do |prune_spec|
                 uninstaller = Gem::Uninstaller.new(prune_spec.name, {
+                  :all         => true,
                   :executables => true,
                   :force       => true,
+                  :ignore      => true,
                   :version     => prune_spec.version.version
                 })
-
-                # This is sad, but there is no way to force this to be true
-                # so I just monkey-patch here. Vagrant has a pretty strict
-                # version check on the RubyGems version so this should be okay.
-                # In the future, let's try to get a pull request into RubyGems
-                # to fix this.
-                def uninstaller.ask_if_ok(spec)
-                  true
-                end
 
                 @logger.info("Uninstalling: #{prune_spec.name} (#{prune_spec.version})")
                 uninstaller.uninstall
