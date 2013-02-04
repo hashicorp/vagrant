@@ -170,8 +170,25 @@ module VagrantPlugins
           @logger.info("Attempting SSH. Retries: #{retries}. Timeout: #{timeout}")
           connection = retryable(:tries => retries, :on => exceptions) do
             Timeout.timeout(timeout) do
-              @logger.info("Attempting to connect to SSH: #{ssh_info[:host]}:#{ssh_info[:port]}")
-              Net::SSH.start(ssh_info[:host], ssh_info[:username], opts)
+              begin
+                # This logger will get the Net-SSH log data for us.
+                ssh_logger_io = StringIO.new
+                ssh_logger    = Logger.new(ssh_logger_io)
+
+                # Setup logging for connections
+                connect_opts = opts.merge({
+                  :logger  => ssh_logger,
+                  :verbose => :debug
+                })
+
+                @logger.info("Attempting to connect to SSH: #{ssh_info[:host]}:#{ssh_info[:port]}")
+                Net::SSH.start(ssh_info[:host], ssh_info[:username], connect_opts)
+              ensure
+                # Make sure we output the connection log
+                @logger.debug("== Net-SSH connection debug-level log START ==")
+                @logger.debug(ssh_logger_io.string)
+                @logger.debug("== Net-SSH connection debug-level log END ==")
+              end
             end
           end
         rescue Errno::ETIMEDOUT, Timeout::Error
