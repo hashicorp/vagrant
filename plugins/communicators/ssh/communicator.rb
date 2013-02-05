@@ -1,4 +1,5 @@
 require 'logger'
+require 'pathname'
 require 'stringio'
 require 'timeout'
 
@@ -150,7 +151,7 @@ module VagrantPlugins
         }
 
         # Check that the private key permissions are valid
-        Vagrant::Util::SSH.check_key_permissions(ssh_info[:private_key_path])
+        Vagrant::Util::SSH.check_key_permissions(Pathname.new(ssh_info[:private_key_path]))
 
         # Connect to SSH, giving it a few tries
         connection = nil
