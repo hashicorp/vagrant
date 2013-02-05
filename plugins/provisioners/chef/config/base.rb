@@ -6,6 +6,7 @@ module VagrantPlugins
         attr_accessor :node_name
         attr_accessor :provisioning_path
         attr_accessor :log_level
+        attr_accessor :verbose_logging
         attr_accessor :json
         attr_accessor :http_proxy
         attr_accessor :http_proxy_user
@@ -25,6 +26,7 @@ module VagrantPlugins
         def attempts; @attempts || 1; end
         def json; @json ||= {}; end
         def log_level; @log_level || :info; end
+        def verbose_logging; @verbose_logging || true; end
 
         # This returns the json that is merged with the defaults and the
         # user set data.
