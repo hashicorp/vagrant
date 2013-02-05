@@ -36,7 +36,7 @@ module VagrantPlugins
 
         # The providers hash defaults any key to a provider object
         @providers = Hash.new do |hash, key|
-          hash[key] = VagrantConfigProvider.new(key, nil)
+          hash[key] = VagrantConfigProvider.new(key)
         end
       end
 
@@ -94,8 +94,7 @@ module VagrantPlugins
       #
       # @param [Symbol] name The name of the provider.
       def provider(name, &block)
-        # TODO: Error if a provider is defined multiple times.
-        @providers[name] = VagrantConfigProvider.new(name, block)
+        @providers[name].add_config_block(block) if block_given?
       end
 
       def provision(name, options=nil, &block)
@@ -134,6 +133,11 @@ module VagrantPlugins
         # If we haven't defined a single VM, then we need to define a
         # default VM which just inherits the rest of the configuration.
         define(DEFAULT_VM_NAME) if defined_vm_keys.empty?
+
+        # Compile all the provider configurations
+        @providers.each do |name, config|
+          config.finalize!
+        end
       end
 
       def validate(machine)
