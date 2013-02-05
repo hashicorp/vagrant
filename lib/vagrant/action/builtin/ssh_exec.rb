@@ -1,3 +1,5 @@
+require "pathname"
+
 require "vagrant/util/ssh"
 
 module Vagrant
@@ -26,8 +28,10 @@ module Vagrant
           # not yet ready for SSH, so we raise this exception.
           raise Errors::SSHNotReady if info.nil?
 
-          # Check the SSH key permissions
-          SSH.check_key_permissions(info[:private_key_path])
+          if info[:private_key_path]
+            # Check the SSH key permissions
+            SSH.check_key_permissions(Pathname.new(info[:private_key_path]))
+          end
 
           # Exec!
           SSH.exec(info, env[:ssh_opts])
