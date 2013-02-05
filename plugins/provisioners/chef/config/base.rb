@@ -21,6 +21,7 @@ module VagrantPlugins
         attr_accessor :run_list
         attr_accessor :file_cache_path
         attr_accessor :file_backup_path
+        attr_accessor :verbose_logging
 
         def initialize
           super
@@ -42,6 +43,7 @@ module VagrantPlugins
           @provisioning_path = UNSET_VALUE
           @file_cache_path   = UNSET_VALUE
           @file_backup_path  = UNSET_VALUE
+          @verbose_logging   = UNSET_VALUE
 
           @json              = {}
           @run_list          = []
@@ -65,6 +67,7 @@ module VagrantPlugins
           @provisioning_path = nil if @provisioning_path == UNSET_VALUE
           @file_backup_path  = "/var/chef/backup" if @file_backup_path == UNSET_VALUE
           @file_cache_path   = "/var/chef/cache" if @file_cache_path == UNSET_VALUE
+          @verbose_logging   = false if @verbose_logging == UNSET_VALUE
 
           # Make sure the log level is a symbol
           @log_level = @log_level.to_sym
