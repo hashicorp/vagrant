@@ -3,7 +3,6 @@ require "pathname"
 require "vagrant"
 require "vagrant/config/v2/util"
 
-require File.expand_path("../vm_provider", __FILE__)
 require File.expand_path("../vm_provisioner", __FILE__)
 require File.expand_path("../vm_subvm", __FILE__)
 
@@ -23,7 +22,6 @@ module VagrantPlugins
       attr_reader :forwarded_ports
       attr_reader :synced_folders
       attr_reader :networks
-      attr_reader :providers
       attr_reader :provisioners
 
       def initialize
@@ -34,20 +32,31 @@ module VagrantPlugins
         @networks                     = []
         @provisioners                 = []
 
-        # The providers hash defaults any key to a provider object
-        @providers = Hash.new do |hash, key|
-          hash[key] = VagrantConfigProvider.new(key)
-        end
+        # Internal state
+        @__compiled_provider_configs = {}
+        @__finalized = false
+        @__providers = {}
       end
 
       # Custom merge method since some keys here are merged differently.
       def merge(other)
-        result = super
-        result.instance_variable_set(:@forwarded_ports, @forwarded_ports + other.forwarded_ports)
-        result.instance_variable_set(:@synced_folders, @synced_folders.merge(other.synced_folders))
-        result.instance_variable_set(:@networks, @networks + other.networks)
-        result.instance_variable_set(:@provisioners, @provisioners + other.provisioners)
-        result
+        super.tap do |result|
+          result.instance_variable_set(:@forwarded_ports, @forwarded_ports + other.forwarded_ports)
+          result.instance_variable_set(:@synced_folders, @synced_folders.merge(other.synced_folders))
+          result.instance_variable_set(:@networks, @networks + other.networks)
+          result.instance_variable_set(:@provisioners, @provisioners + other.provisioners)
+
+          # Merge the providers by prepending any configuration blocks we
+          # have for providers onto the new configuration.
+          other_providers = other.instance_variable_get(:@__providers)
+          new_providers   = @__providers.dup
+          other_providers.each do |key, blocks|
+            new_providers[key] ||= []
+            new_providers[key] += blocks
+          end
+
+          result.instance_variable_set(:@__providers, new_providers)
+        end
       end
 
       # Defines a synced folder pair. This pair of folders will be synced
@@ -94,7 +103,8 @@ module VagrantPlugins
       #
       # @param [Symbol] name The name of the provider.
       def provider(name, &block)
-        @providers[name].add_config_block(block) if block_given?
+        @__providers[name] ||= []
+        @__providers[name] << block if block_given?
       end
 
       def provision(name, options=nil, &block)
@@ -129,15 +139,42 @@ module VagrantPlugins
         defined_vms[name].config_procs << [options[:config_version], block] if block
       end
 
+      #-------------------------------------------------------------------
+      # Internal methods, don't call these.
+      #-------------------------------------------------------------------
+
       def finalize!
         # If we haven't defined a single VM, then we need to define a
         # default VM which just inherits the rest of the configuration.
         define(DEFAULT_VM_NAME) if defined_vm_keys.empty?
 
         # Compile all the provider configurations
-        @providers.each do |name, config|
+        @__providers.each do |name, blocks|
+          # Find the configuration class for this provider
+          config_class = Vagrant.plugin("2").manager.provider_configs[name]
+          next if !config_class
+
+          # Load it up
+          config = config_class.new
+          blocks.each { |b| b.call(config) }
           config.finalize!
+
+          # Store it for retrieval later
+          @__compiled_provider_configs[name] = config
         end
+
+        # Flag that we finalized
+        @__finalized = true
+      end
+
+      # This returns the compiled provider-specific configurationf or the
+      # given provider.
+      #
+      # @param [Symbol] name Name of the provider.
+      def get_provider_config(name)
+        raise "Must finalize first." if !@__finalized
+
+        @__compiled_provider_configs[name]
       end
 
       def validate(machine)

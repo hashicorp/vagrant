@@ -314,7 +314,7 @@ module Vagrant
       end
 
       # Get the provider configuration from the final loaded configuration
-      provider_config = config.vm.providers[provider].config
+      provider_config = config.vm.get_provider_config(provider)
 
       # Determine the machine data directory and pass it to the machine.
       # XXX: Permissions error here.
