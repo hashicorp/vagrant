@@ -274,8 +274,16 @@ module Vagrant
       # Set the private key path. If a specific private key is given in
       # the Vagrantfile we set that. Otherwise, we use the default (insecure)
       # private key, but only if the provider didn't give us one.
-      info[:private_key_path] = @config.ssh.private_key_path if @config.ssh.private_key_path
-      info[:private_key_path] = @env.default_private_key_path if !info[:private_key_path]
+      if @config.ssh.private_key_path
+        info[:private_key_path] = @config.ssh.private_key_path
+      end
+
+      if !info[:private_key_path]
+        info[:private_key_path] = @env.default_private_key_path
+      end
+
+      # Expand the private key path relative to the root path
+      info[:private_key_path] = File.expand_path(info[:private_key_path], @env.root_path)
 
       # Return the final compiled SSH info data
       info
