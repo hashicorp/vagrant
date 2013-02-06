@@ -10,9 +10,6 @@ module Vagrant
 
       # This is thrown when a command name given is invalid.
       class InvalidCommandName < Error; end
-
-      # This is thrown when a hook "position" is invalid.
-      class InvalidEasyHookPosition < Error; end
     end
   end
 end

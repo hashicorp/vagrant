@@ -143,38 +143,6 @@ module Vagrant
           data[:config]
         end
 
-        # Defines an "easy hook," which gives an easier interface to hook
-        # into action sequences.
-        def self.easy_hook(position, name, &block)
-          if ![:before, :after].include?(position)
-            raise InvalidEasyHookPosition, "must be :before, :after"
-          end
-
-          # This is the command sent to sequences to insert
-          insert_method = "insert_#{position}".to_sym
-
-          # Create the hook
-          hook = Easy.create_hook(&block)
-
-          # Define an action hook that listens to all actions and inserts
-          # the hook properly if the sequence contains what we're looking for
-          action_hook(ALL_ACTIONS) do |seq|
-            index = seq.index(name)
-            seq.send(insert_method, index, hook) if index
-          end
-        end
-
-        # Defines an "easy command," which is a command with limited
-        # functionality but far less boilerplate required over traditional
-        # commands. Easy commands let you make basic commands quickly and
-        # easily.
-        #
-        # @param [String] name Name of the command, how it will be invoked
-        #   on the command line.
-        def self.easy_command(name, &block)
-          command(name) { Easy.create_command(name, &block) }
-        end
-
         # Defines an additionally available guest implementation with
         # the given key.
         #

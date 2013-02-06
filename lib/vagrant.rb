@@ -69,7 +69,6 @@ module Vagrant
   autoload :Config,        'vagrant/config'
   autoload :Downloaders,   'vagrant/downloaders'
   autoload :Driver,        'vagrant/driver'
-  autoload :Easy,          'vagrant/easy'
   autoload :Environment,   'vagrant/environment'
   autoload :Errors,        'vagrant/errors'
   autoload :Guest,         'vagrant/guest'
