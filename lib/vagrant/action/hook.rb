@@ -33,18 +33,34 @@ module Vagrant
         @append_hooks  = []
       end
 
+      # Add a middleware before an existing middleware.
+      #
+      # @param [Class] existing The existing middleware.
+      # @param [Class] new The new middleware.
       def before(existing, new)
         @before_hooks[existing] << new
       end
 
+      # Add a middleware after an existing middleware.
+      #
+      # @param [Class] existing The existing middleware.
+      # @param [Class] new The new middleware.
       def after(existing, new)
         @after_hooks[existing] << new
       end
 
+      # Append a middleware to the end of the stack. Note that if the
+      # middleware sequence ends early, then the new middleware won't
+      # be run.
+      #
+      # @param [Class] new The middleware to append.
       def append(new)
         @append_hooks << new
       end
 
+      # Prepend a middleware to the beginning of the stack.
+      #
+      # @param [Class] new The new middleware to prepend.
       def prepend(new)
         @prepend_hooks << new
       end
