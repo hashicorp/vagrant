@@ -14,6 +14,17 @@ module Vagrant
           @registered = []
         end
 
+        # This returns all the action hooks.
+        #
+        # @return [Array]
+        def action_hooks
+          [].tap do |result|
+            @registered.each do |plugin|
+              result += plugin.components.action_hooks
+            end
+          end
+        end
+
         # This returns all the registered commands.
         #
         # @return [Hash]

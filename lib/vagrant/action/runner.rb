@@ -27,6 +27,19 @@ module Vagrant
         environment.merge!(@lazy_globals.call) if @lazy_globals
         environment.merge!(options || {})
 
+        # Setup the action hooks
+        hooks = Vagrant.plugin("2").manager.action_hooks
+        if !hooks.empty?
+          @logger.info("Preparing hooks for middleware sequence...")
+          env[:action_hooks] = hooks.map do |hook_proc|
+            Hook.new.tap do |h|
+              hook_proc.call(h)
+            end
+          end
+
+          @logger.info("#{env[:action_hooks].length} hooks defined.")
+        end
+
         # Run the action chain in a busy block, marking the environment as
         # interrupted if a SIGINT occurs, and exiting cleanly once the
         # chain has been run.
