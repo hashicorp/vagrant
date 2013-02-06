@@ -340,8 +340,8 @@ describe Vagrant::Machine do
           instance.ssh_info[type].should == "foo"
         end
 
-        it "should return the Vagrantfile value over the provider data if given" do
-          provider_ssh_info[type] = "foo"
+        it "should return the Vagrantfile value if provider data not given" do
+          provider_ssh_info[type] = nil
           instance.config.ssh.send("#{type}=", "bar")
 
           instance.ssh_info[type].should == "bar"
@@ -369,7 +369,7 @@ describe Vagrant::Machine do
       end
 
       it "should return the configured SSH key path if set" do
-        provider_ssh_info[:private_key_path] = "/foo"
+        provider_ssh_info[:private_key_path] = nil
         instance.config.ssh.private_key_path = "/bar"
 
         instance.ssh_info[:private_key_path].should == "/bar"
@@ -384,7 +384,7 @@ describe Vagrant::Machine do
         end
 
         it "should with the config private key path" do
-          provider_ssh_info[:private_key_path] = "~/foo"
+          provider_ssh_info[:private_key_path] = nil
           instance.config.ssh.private_key_path = "~/bar"
 
           instance.ssh_info[:private_key_path].should ==
