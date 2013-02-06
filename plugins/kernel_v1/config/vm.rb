@@ -90,6 +90,8 @@ module VagrantPlugins
 
       # Upgrade to a V2 configuration
       def upgrade(new)
+        warnings = []
+
         new.vm.base_mac          = self.base_mac if self.base_mac
         new.vm.box               = self.box if self.box
         new.vm.box_url           = self.box_url if self.box_url
@@ -111,7 +113,7 @@ module VagrantPlugins
         # Re-define all networks.
         self.networks.each do |type, args|
           if type == :unknown
-            # TODO: Warn that we don't know what the heck this is.
+            warnings << "Unknown network type '#{args}' will be ignored."
             next
           end
 
@@ -139,7 +141,6 @@ module VagrantPlugins
         end
 
         # If name is used, warn that it has no effect anymore
-        warnings = []
         if @name
           warnings << "`config.vm.name` has no effect anymore. Names are derived\n" +
             "directly from any `config.vm.define` calls."
