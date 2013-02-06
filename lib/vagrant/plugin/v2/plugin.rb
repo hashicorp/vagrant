@@ -65,18 +65,12 @@ module Vagrant
         # is run. This allows plugin authors to hook into things like VM
         # bootup, VM provisioning, etc.
         #
-        # @param [Symbol] name Name of the action.
+        # @param [String] name Name of the action.
         # @return [Array] List of the hooks for the given action.
         def self.action_hook(name, &block)
-          # Get the list of hooks for the given hook name
-          data[:action_hooks] ||= {}
-          hooks = data[:action_hooks][name.to_sym] ||= []
+          # The name is currently not used but we want it for the future.
 
-          # Return the list if we don't have a block
-          return hooks if !block_given?
-
-          # Otherwise add the block to the list of hooks for this action.
-          hooks << block
+          components.action_hooks << block
         end
 
         # Defines additional command line commands available by key. The key

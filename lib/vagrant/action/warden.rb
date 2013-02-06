@@ -16,9 +16,9 @@ module Vagrant
       attr_accessor :actions, :stack
 
       def initialize(actions, env)
-        @stack = []
-        @actions = actions.map { |m| finalize_action(m, env) }
-        @logger  = Log4r::Logger.new("vagrant::action::warden")
+        @stack      = []
+        @actions    = actions.map { |m| finalize_action(m, env) }
+        @logger     = Log4r::Logger.new("vagrant::action::warden")
         @last_error = nil
       end
 
