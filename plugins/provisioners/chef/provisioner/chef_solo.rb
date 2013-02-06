@@ -55,8 +55,6 @@ module VagrantPlugins
 
         # Converts paths to a list of properly expanded paths with types.
         def expanded_folders(paths, appended_folder=nil)
-          return [] if paths.nil?
-
           # Convert the path to an array if it is a string or just a single
           # path element which contains the folder location (:host or :vm)
           paths = [paths] if paths.is_a?(String) || paths.first.is_a?(Symbol)
