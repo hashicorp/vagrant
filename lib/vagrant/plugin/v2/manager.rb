@@ -18,11 +18,13 @@ module Vagrant
         #
         # @return [Array]
         def action_hooks
-          [].tap do |result|
-            @registered.each do |plugin|
-              result += plugin.components.action_hooks
-            end
+          result = []
+
+          @registered.each do |plugin|
+            result += plugin.components.action_hooks
           end
+
+          result
         end
 
         # This returns all the registered commands.
