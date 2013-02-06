@@ -123,7 +123,6 @@ module Vagrant
                   loader = @versions.get(next_version)
                   upgrade_result = loader.upgrade(version_config)
 
-                  # XXX: Do something with the warning/error messages
                   this_warnings = upgrade_result[1]
                   this_errors   = upgrade_result[2]
                   @logger.debug("Upgraded to version #{next_version} with " +
