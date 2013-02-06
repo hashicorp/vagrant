@@ -29,7 +29,7 @@ describe Vagrant::Plugin::V2::Plugin do
         action_hook("foo") { "bar" }
       end
 
-      hooks = plugin.action_hook("foo")
+      hooks = plugin.components.action_hooks
       hooks.length.should == 1
       hooks[0].call.should == "bar"
     end
