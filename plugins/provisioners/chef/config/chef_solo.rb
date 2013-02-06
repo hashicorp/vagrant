@@ -12,29 +12,28 @@ module VagrantPlugins
         attr_accessor :encrypted_data_bag_secret_key_path
         attr_accessor :encrypted_data_bag_secret
 
-        def encrypted_data_bag_secret; @encrypted_data_bag_secret || "/tmp/encrypted_data_bag_secret"; end
-
         def initialize
           super
 
-          @__default = ["cookbooks", [:vm, "cookbooks"]]
+          @cookbooks_path            = UNSET_VALUE
+          @encrypted_data_bag_secret = UNSET_VALUE
+          @nfs                       = UNSET_VALUE
         end
 
-        # Provide defaults in such a way that they won't override the instance
-        # variable. This is so merging continues to work properly.
-        def cookbooks_path
-          @cookbooks_path || _default_cookbook_path
-        end
+        def finalize!
+          if @cookbooks_path == UNSET_VALUE
+            @cookbooks_path = [[:host, "cookbooks"], [:vm, "cookbooks"]]
+          end
 
-        # This stores a reference to the default cookbook path which is used
-        # later. Do not use this publicly. I apologize for not making it
-        # "protected" but it has to be called by Vagrant internals later.
-        def _default_cookbook_path
-          @__default
-        end
+          # Make sure all the paths are the proper format
+          @cookbooks_path.map! do |path|
+            path = [:host, path] if !path.is_a?(Array)
+            path
+          end
 
-        def nfs
-          @nfs || false
+          @encrypted_data_bag_secret = "/tmp/encrypted_data_bag_secret" if \
+            @encrypted_data_bag_secret == UNSET_VALUE
+          @nfs = false if @nfs == UNSET_VALUE
         end
 
         def validate(machine)
@@ -43,6 +42,16 @@ module VagrantPlugins
             !cookbooks_path || [cookbooks_path].flatten.empty?
           errors << I18n.t("vagrant.config.chef.run_list_empty") if \
             !run_list || run_list.empty?
+
+          @cookbooks_path.each do |type, path|
+            next if type != :host
+            expanded_path = File.expand_path(path, machine.env.root_path)
+
+            if !File.exist?(expanded_path)
+              errors << I18n.t("vagrant.config.chef.cookbooks_path_missing",
+                              :path => expanded_path)
+            end
+          end
 
           { "chef solo provisioner" => errors }
         end

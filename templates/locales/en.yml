@@ -377,6 +377,8 @@ en:
         error_empty: "`%{field}` must be not be empty."
       chef:
         cookbooks_path_empty: "Must specify a cookbooks path for chef solo."
+        cookbooks_path_missing: |-
+          Cookbook path doesn't exist: %{path}
         run_list_empty: "Run list must not be empty."
         server_url_empty: "Chef server URL must be populated."
         validation_key_path: "Validation key path must be valid path to your chef server validation key."

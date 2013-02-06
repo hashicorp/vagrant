@@ -62,10 +62,7 @@ module VagrantPlugins
           paths = [paths] if paths.is_a?(String) || paths.first.is_a?(Symbol)
 
           results = []
-          paths.each do |path|
-            path = [:host, path] if !path.is_a?(Array)
-            type, path = path
-
+          paths.each do |type, path|
             # Create the local/remote path based on whether this is a host
             # or VM path.
             local_path = nil
@@ -73,14 +70,6 @@ module VagrantPlugins
             if type == :host
               # Get the expanded path that the host path points to
               local_path = File.expand_path(path, @machine.env.root_path)
-
-              # Super hacky but if we're expanded the default cookbook paths,
-              # and one of the host paths doesn't exist, then just ignore it,
-              # because that is fine.
-              if paths.equal?(@config._default_cookbook_path) && !File.directory?(local_path)
-                @logger.info("'cookbooks' folder doesn't exist on defaults. Ignoring.")
-                next
-              end
 
               # Path exists on the host, setup the remote path
               remote_path = "#{@config.provisioning_path}/chef-solo-#{get_and_update_counter(:cookbooks_path)}"
