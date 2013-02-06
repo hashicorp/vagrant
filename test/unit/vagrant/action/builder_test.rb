@@ -9,6 +9,13 @@ describe Vagrant::Action::Builder do
     Proc.new { |env| env[:data] << data }
   end
 
+  context "copying" do
+    it "should copy the stack" do
+      copy = subject.dup
+      copy.stack.object_id.should_not == subject.stack.object_id
+    end
+  end
+
   context "build" do
     it "should provide build as a shortcut for basic sequences" do
       data = {}
@@ -168,6 +175,22 @@ describe Vagrant::Action::Builder do
       subject.call(data)
 
       data[:data].should == [2]
+    end
+  end
+
+  describe "action hooks" do
+    it "applies them properly" do
+      hook = double("hook")
+      hook.stub(:apply) do |builder|
+        builder.use appender_proc(2)
+      end
+
+      data[:action_hooks] = [hook]
+
+      subject.use appender_proc(1)
+      subject.call(data)
+
+      data[:data].should == [1, 2]
     end
   end
 end
