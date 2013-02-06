@@ -1,5 +1,6 @@
 require File.expand_path("../../../base", __FILE__)
 
+require "vagrant/action/builder"
 require "vagrant/action/hook"
 
 describe Vagrant::Action::Hook do
@@ -47,6 +48,21 @@ describe Vagrant::Action::Hook do
       subject.prepend(2)
 
       subject.prepend_hooks.should == [1, 2]
+    end
+  end
+
+  describe "applying" do
+    let(:builder) { Vagrant::Action::Builder.new }
+
+    it "should build the proper stack" do
+      subject.prepend("1")
+      subject.append("9")
+      subject.after("1", "2")
+      subject.before("9", "8")
+
+      subject.apply(builder)
+
+      builder.stack.map(&:first).should == %w[1 2 8 9]
     end
   end
 end

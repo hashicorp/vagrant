@@ -64,6 +64,40 @@ module Vagrant
       def prepend(new)
         @prepend_hooks << new
       end
+
+      # This applies the given hook to a builder. This should not be
+      # called directly.
+      #
+      # @param [Builder] builder
+      def apply(builder)
+        # Prepends first
+        @prepend_hooks.each do |klass|
+          builder.insert(0, klass)
+        end
+
+        # Appends
+        @append_hooks.each do |klass|
+          builder.use(klass)
+        end
+
+        # Before hooks
+        @before_hooks.each do |key, list|
+          next if !builder.index(key)
+
+          list.each do |klass|
+            builder.insert_before(key, klass)
+          end
+        end
+
+        # After hooks
+        @after_hooks.each do |key, list|
+          next if !builder.index(key)
+
+          list.each do |klass|
+            builder.insert_after(key, klass)
+          end
+        end
+      end
     end
   end
 end
