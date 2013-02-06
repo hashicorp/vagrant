@@ -174,7 +174,19 @@ module VagrantPlugins
       def get_provider_config(name)
         raise "Must finalize first." if !@__finalized
 
-        @__compiled_provider_configs[name]
+        result = @__compiled_provider_configs[name]
+
+        # If no compiled configuration was found, then we try to just
+        # use the default configuration from the plugin.
+        if !result
+          config_class = Vagrant.plugin("2").manager.provider_configs[name]
+          if config_class
+            result = config_class.new
+            result.finalize!
+          end
+        end
+
+        return result
       end
 
       def validate(machine)
