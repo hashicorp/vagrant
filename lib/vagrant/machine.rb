@@ -263,9 +263,9 @@ module Vagrant
 
       # Next, we default some fields if they weren't given to us by
       # the provider.
-      info[:host] = @config.ssh.host if @config.ssh.host
-      info[:port] = @config.ssh.port if @config.ssh.port
-      info[:username] = @config.ssh.username if @config.ssh.username
+      info[:host] ||= @config.ssh.host if @config.ssh.host
+      info[:port] ||= @config.ssh.port if @config.ssh.port
+      info[:username] ||= @config.ssh.username if @config.ssh.username
 
       # We also set some fields that are purely controlled by Varant
       info[:forward_agent] = @config.ssh.forward_agent
@@ -274,12 +274,12 @@ module Vagrant
       # Set the private key path. If a specific private key is given in
       # the Vagrantfile we set that. Otherwise, we use the default (insecure)
       # private key, but only if the provider didn't give us one.
-      if @config.ssh.private_key_path
-        info[:private_key_path] = @config.ssh.private_key_path
-      end
-
       if !info[:private_key_path]
-        info[:private_key_path] = @env.default_private_key_path
+        if @config.ssh.private_key_path
+          info[:private_key_path] = @config.ssh.private_key_path
+        else
+          info[:private_key_path] = @env.default_private_key_path
+        end
       end
 
       # Expand the private key path relative to the root path
