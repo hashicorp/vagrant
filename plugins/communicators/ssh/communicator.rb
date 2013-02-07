@@ -215,6 +215,10 @@ module VagrantPlugins
         rescue Errno::ECONNREFUSED
           # This is raised if we failed to connect the max amount of times
           raise Vagrant::Errors::SSHConnectionRefused
+        rescue Errno::ECONNRESET
+          # This is raised if we failed to connect the max number of times
+          # due to an ECONNRESET.
+          raise Vagrant::Errors::SSHConnectionReset
         rescue Errno::EHOSTDOWN
           # This is raised if we get an ICMP DestinationUnknown error.
           raise Vagrant::Errors::SSHHostDown

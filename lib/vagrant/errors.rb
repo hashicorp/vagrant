@@ -339,6 +339,10 @@ module Vagrant
       error_key(:ssh_connection_refused)
     end
 
+    class SSHConnectionReset < VagrantError
+      error_key(:ssh_connection_reset)
+    end
+
     class SSHConnectionTimeout < VagrantError
       error_key(:ssh_connection_timeout)
     end
