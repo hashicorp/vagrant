@@ -46,7 +46,8 @@ module VagrantPlugins
 
           # Tell the user
           env[:ui].success(I18n.t("vagrant.commands.plugin.installed",
-                                  :name => plugin_spec.name))
+                                  :name => plugin_spec.name,
+                                  :version => plugin_spec.version.to_s))
 
           # Continue
           @app.call(env)

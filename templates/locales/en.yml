@@ -438,7 +438,7 @@ en:
         no_plugins: |-
           No plugins installed.
         installed: |-
-          Installed the '%{name}' plugin!
+          Installed the plugin '%{name} (%{version})'!
         installing: |-
           Installing the '%{name}' plugin. This can take a few minutes...
         uninstalling: |-
