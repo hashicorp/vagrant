@@ -6,6 +6,8 @@
   - Quote IdentityFile in `ssh-config` so private keys with spaces in
     the path work. [GH-1322]
   - Fix issue where multiple Puppet module paths can be re-ordered [GH-964]
+  - Shell provisioner won't hang on Windows anymore due to unclosed
+    tempfile. [GH-1040]
 
 ## 1.0.6 (December 21, 2012)
 
