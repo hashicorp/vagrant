@@ -100,14 +100,20 @@ module VagrantPlugins
         new.vm.usable_port_range = self.auto_port_range if self.auto_port_range
 
         if self.boot_mode
-          # Enable the GUI if the boot mode is GUI.
-          new.vm.providers[:virtualbox].config.gui = (self.boot_mode.to_s == "gui")
+          new.vm.provider :virtualbox do |vb|
+            # Enable the GUI if the boot mode is GUI.
+            vb.gui = (self.boot_mode.to_s == "gui")
+          end
         end
 
         # If we have VM customizations, then we enable them on the
         # VirtualBox provider on the new VM.
-        self.customizations.each do |customization|
-          new.vm.providers[:virtualbox].config.customize(customization)
+        if !self.customizations.empty?
+          new.vm.provider :virtualbox do |vb|
+            self.customizations.each do |customization|
+              vb.customize(customization)
+            end
+          end
         end
 
         # Re-define all networks.
