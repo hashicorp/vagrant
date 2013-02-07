@@ -109,6 +109,10 @@ module VagrantPlugins
         # If we have VM customizations, then we enable them on the
         # VirtualBox provider on the new VM.
         if !self.customizations.empty?
+          warnings << "`config.vm.customize` calls are VirtualBox-specific. If you're\n" +
+            "using any other provide, you'll have to find provider-specific configuration\n" +
+            "to translate to manually in your Vagrantfile."
+
           new.vm.provider :virtualbox do |vb|
             self.customizations.each do |customization|
               vb.customize(customization)
