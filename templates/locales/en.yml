@@ -886,6 +886,11 @@ en:
           Puppet properly installed.
         running_puppetd: "Running Puppet agent..."
 
+      scpupload:
+        no_dest_file: "SCPupload destination must be specified."
+        no_source_file: "SCPupload source must be specified."
+        path_invalid: "SCP upload source file %{path} must exist"
+
       shell:
         args_not_string: "Shell provisioner `args` must be a string."
         path_and_inline_set: "Only one of `path` or `inline` may be set."
