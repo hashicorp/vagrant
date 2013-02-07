@@ -121,8 +121,9 @@ module Vagrant
 
       # Run the action with the action runner on the environment
       env = {
-        :machine => self,
-        :ui => @env.ui_class.new(@name)
+        :machine        => self,
+        :machine_action => name,
+        :ui             => @env.ui_class.new(@name)
       }.merge(extra_env || {})
       @env.action_runner.run(callable, env)
     end
