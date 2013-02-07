@@ -54,6 +54,7 @@ module VagrantPlugins
         begin
           file.write(config.inline)
           file.fsync
+          file.close
           yield file.path
         ensure
           file.close
