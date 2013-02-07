@@ -50,8 +50,11 @@ module Vagrant
           @child_app = builder.to_app(new_env)
           final_env = runner.run(@child_app, new_env)
 
+          # Merge the environment into our original environment
+          env.merge!(final_env)
+
           # Call the next step using our final environment
-          @app.call(final_env)
+          @app.call(env)
         end
 
         def recover(env)

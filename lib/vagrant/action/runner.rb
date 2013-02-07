@@ -23,7 +23,7 @@ module Vagrant
         raise ArgumentError, "Argument to run must be a callable object or registered action." if !callable || !callable.respond_to?(:call)
 
         # Create the initial environment with the options given
-        environment = Environment.new
+        environment = {}
         environment.merge!(@globals)
         environment.merge!(@lazy_globals.call) if @lazy_globals
         environment.merge!(options || {})

@@ -18,6 +18,17 @@ describe Vagrant::Action::Builtin::Call do
     received.should == "value"
   end
 
+  it "should update the original env with any changes" do
+    callable = lambda { |env| }
+    next_step = lambda { |env| env[:inner] = true }
+
+    described_class.new(app, env, callable) do |_env, builder|
+      builder.use next_step
+    end.call(env)
+
+    env[:inner].should == true
+  end
+
   it "should call the callable with the original environment" do
     received = nil
     callable = lambda { |env| received = env[:foo] }
