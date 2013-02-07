@@ -50,12 +50,19 @@ module Vagrant
               next if env[:provision_types] && \
                 !env[:provision_types].include?(type_map[p])
 
-              env[:ui].info(I18n.t("vagrant.actions.vm.provision.beginning",
-                                   :provisioner => p.class))
-
-              p.provision
+              run_provisioner(p)
             end
           end
+        end
+
+        # This is pulled out into a seperate method so that users can
+        # subclass and implement custom behavior if they'd like around
+        # this step.
+        def run_provisioner(p)
+          env[:ui].info(I18n.t("vagrant.actions.vm.provision.beginning",
+                               :provisioner => p.class))
+
+          p.provision
         end
       end
     end
