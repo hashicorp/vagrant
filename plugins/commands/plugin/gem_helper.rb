@@ -1,4 +1,5 @@
 require "rubygems"
+require "rubygems/config_file"
 require "rubygems/gem_runner"
 
 require "log4r"
@@ -26,6 +27,11 @@ module VagrantPlugins
         # Clear paths so that it reads the new GEM_HOME setting
         Gem.paths = ENV
 
+        # Set a custom configuration to avoid loading ~/.gemrc loads and
+        # /etc/gemrc and so on.
+        old_config = Gem.configuration
+        Gem.configuration = NilGemConfig.new
+
         # Clear the sources so that installation uses custom sources
         old_sources = Gem.sources
         Gem.sources = Gem.default_sources
@@ -41,8 +47,27 @@ module VagrantPlugins
         ENV["GEM_PATH"] = old_gem_path
 
         # Reset everything
+        Gem.configuration = old_config
         Gem.paths   = ENV
         Gem.sources = old_sources.to_a
+      end
+
+      # This is pretty hacky but it is a custom implementatin of
+      # Gem::ConfigFile so that we don't load any gemrc files.
+      class NilGemConfig < Gem::ConfigFile
+        def initialize
+          # We _can not_ `super` here because that can really mess up
+          # some other configuration state. We need to just set everything
+          # directly.
+
+          @api_keys       = {}
+          @args           = []
+          @backtrace      = false
+          @bulk_threshold = 1000
+          @hash           = {}
+          @update_sources = true
+          @verbose        = true
+        end
       end
     end
   end
