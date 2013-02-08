@@ -1,3 +1,5 @@
+require "log4r"
+
 require "vagrant/util/platform"
 
 module Vagrant
@@ -7,7 +9,8 @@ module Vagrant
       # given box collection.
       class BoxAdd
         def initialize(app, env)
-          @app = app
+          @app    = app
+          @logger = Log4r::Logger.new("vagrant::action::builtin::box_add")
         end
 
         def call(env)
@@ -20,6 +23,7 @@ module Vagrant
           # path as an instance variable so that the `#recover` method can
           # access it.
           @temp_path = env[:tmp_path].join("box" + Time.now.to_i.to_s)
+          @logger.info("Downloading box to: #{@temp_path}")
           File.open(@temp_path, Vagrant::Util::Platform.tar_file_options) do |f|
             downloader.download!(env[:box_url], f)
           end
