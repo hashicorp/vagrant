@@ -33,9 +33,9 @@ module VagrantPlugins
       autoload :MessageNotRunning, File.expand_path("../action/message_not_running", __FILE__)
       autoload :MessageWillNotDestroy, File.expand_path("../action/message_will_not_destroy", __FILE__)
       autoload :Network, File.expand_path("../action/network", __FILE__)
-      autoload :NFS, File.expand_path("../action/nfs", __FILE__)
       autoload :Package, File.expand_path("../action/package", __FILE__)
       autoload :PackageVagrantfile, File.expand_path("../action/package_vagrantfile", __FILE__)
+      autoload :PrepareNFSSettings, File.expand_path("../action/prepare_nfs_settings", __FILE__)
       autoload :PruneNFSExports, File.expand_path("../action/prune_nfs_exports", __FILE__)
       autoload :Resume, File.expand_path("../action/resume", __FILE__)
       autoload :SaneDefaults, File.expand_path("../action/sane_defaults", __FILE__)
@@ -61,6 +61,7 @@ module VagrantPlugins
           b.use CheckPortCollisions
           b.use PruneNFSExports
           b.use NFS
+          b.use PrepareNFSSettings
           b.use ClearSharedFolders
           b.use ShareFolders
           b.use ClearNetworkInterfaces

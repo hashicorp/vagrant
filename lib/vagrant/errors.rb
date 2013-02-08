@@ -251,16 +251,12 @@ module Vagrant
       error_key(:not_found, "vagrant.actions.vm.host_only_network")
     end
 
-    class NFSHostRequired < VagrantError
-      error_key(:host_required, "vagrant.actions.vm.nfs")
+    class NFSNoGuestIP < VagrantError
+      error_key(:nfs_no_guest_ip)
     end
 
-    class NFSNotSupported < VagrantError
-      error_key(:not_supported, "vagrant.actions.vm.nfs")
-    end
-
-    class NFSNoHostNetwork < VagrantError
-      error_key(:no_host_network, "vagrant.actions.vm.nfs")
+    class NFSNoHostIP < VagrantError
+      error_key(:nfs_no_host_ip)
     end
 
     class NoEnvironmentError < VagrantError

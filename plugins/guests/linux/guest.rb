@@ -1,10 +1,13 @@
 require 'log4r'
 
 require "vagrant"
+require "vagrant/util/retryable"
 
 module VagrantPlugins
   module GuestLinux
     class Guest < Vagrant.plugin("2", :guest)
+      include Vagrant::Util::Retryable
+
       class LinuxError < Vagrant::Errors::VagrantError
         error_namespace("vagrant.guest.linux")
       end
@@ -55,9 +58,12 @@ module VagrantPlugins
 
           # Do the actual creating and mounting
           @vm.communicate.sudo("mkdir -p #{real_guestpath}")
-          @vm.communicate.sudo("mount -o vers=#{opts[:nfs_version]} #{ip}:'#{opts[:hostpath]}' #{real_guestpath}",
-                          :error_class => LinuxError,
-                          :error_key => :mount_nfs_fail)
+
+          retryable(:on => LinuxError, :tries => 3, :sleep => 1) do
+            @vm.communicate.sudo("mount -o vers=#{opts[:nfs_version]} #{ip}:'#{opts[:hostpath]}' #{real_guestpath}",
+                                 :error_class => LinuxError,
+                                   :error_key => :mount_nfs_fail)
+          end
         end
       end
 

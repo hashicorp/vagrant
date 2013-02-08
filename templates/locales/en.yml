@@ -162,6 +162,12 @@ en:
         A multi-vm environment is required for name specification to this command.
       multi_vm_target_required: |-
         This command requires a specific VM name to target in a multi-VM environment.
+      nfs_no_guest_ip: |-
+        No guest IP was given to the Vagrant core NFS helper. This is an
+        internal error that should be reported as a bug.
+      nfs_no_host_ip: |-
+        No host IP was given to the Vagrant core NFS helper. This is
+        an internal error that should be reported as a bug.
       no_env: |-
         A Vagrant environment is required to run this command. Run `vagrant init`
         to set one up in this directory, or change to a directory with a
@@ -406,6 +412,15 @@ en:
         network_ip_ends_one: |-
           The host only network IP '%{ip}' must not end in a 1, as this
           is reserved for the host machine.
+        nfs_not_supported: |-
+          It appears your machine doesn't support NFS, or there is not an
+          adapter to enable NFS on this machine for Vagrant. Please verify
+          that `nfsd` is installed on your machine, and try again. If you're
+          on Windows, NFS isn't supported. If the problem persists, please
+          contact Vagrant support.
+        nfs_requires_host: |-
+          Using NFS shared folders requires a host to be specified
+          using `config.vagrant.host`.
         shared_folder_hostpath_missing: |-
           The host path of the shared folder is missing: %{path}
         shared_folder_nfs_owner_group: |-
@@ -697,18 +712,6 @@ en:
             specified network manually.
           preparing: "Preparing host only network..."
         nfs:
-          host_required: |-
-            A host class is required for NFS shared folders. By default, these
-            are auto-detected, but can be overridden with `config.vagrant.host`.
-            There is currently no host class loaded.
-          no_host_network: |-
-            NFS shared folders requires that host only networking is enabled
-            with a static IP. Please enable host only network and assign a
-            static IP via `config.vm.network`.
-          not_supported: |-
-            The host class is reporting that NFS is not supported by this host,
-            or `nfsd` may not be installed. Please verify that `nfsd` is installed
-            on your machine, and retry.
           exporting: Exporting NFS shared folders...
           mounting: Mounting NFS shared folders...
         persist:

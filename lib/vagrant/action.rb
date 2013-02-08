@@ -16,6 +16,7 @@ module Vagrant
       autoload :GracefulHalt, "vagrant/action/builtin/graceful_halt"
       autoload :HandleBoxUrl, "vagrant/action/builtin/handle_box_url"
       autoload :Lock, "vagrant/action/builtin/lock"
+      autoload :NFS, "vagrant/action/builtin/nfs"
       autoload :Provision, "vagrant/action/builtin/provision"
       autoload :SSHExec, "vagrant/action/builtin/ssh_exec"
       autoload :SSHRun,  "vagrant/action/builtin/ssh_run"

@@ -195,6 +195,7 @@ module VagrantPlugins
         errors << I18n.t("vagrant.config.vm.box_not_found", :name => box) if \
           box && !box_url && !machine.box
 
+        has_nfs = false
         @synced_folders.each do |id, options|
           hostpath = Pathname.new(options[:hostpath]).expand_path(machine.env.root_path)
 
@@ -203,10 +204,23 @@ module VagrantPlugins
                              :path => options[:hostpath])
           end
 
-          if options[:nfs] && (options[:owner] || options[:group])
-            # Owner/group don't work with NFS
-            errors << I18n.t("vagrant.config.vm.shared_folder_nfs_owner_group",
-                             :path => options[:hostpath])
+          if options[:nfs]
+            has_nfs = true
+
+            if options[:owner] || options[:group]
+              # Owner/group don't work with NFS
+              errors << I18n.t("vagrant.config.vm.shared_folder_nfs_owner_group",
+                               :path => options[:hostpath])
+            end
+          end
+        end
+
+        if has_nfs
+          if !machine.env.host
+            errors << I18n.t("vagrant.config.vm.nfs_requires_host")
+          else
+            errors << I18n.t("vagrant.config.vm.nfs_not_supported") if \
+              !machine.env.host.nfs?
           end
         end
 
