@@ -49,6 +49,7 @@ module VagrantPlugins
         def setup_config(template, filename, template_vars)
           config_file = Vagrant::Util::TemplateRenderer.render(template, {
             :log_level        => @config.log_level.to_sym,
+            :verbose_logging  => @config.verbose_logging,
             :http_proxy       => @config.http_proxy,
             :http_proxy_user  => @config.http_proxy_user,
             :http_proxy_pass  => @config.http_proxy_pass,
