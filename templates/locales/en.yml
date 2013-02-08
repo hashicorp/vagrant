@@ -164,7 +164,8 @@ en:
         This command requires a specific VM name to target in a multi-VM environment.
       no_env: |-
         A Vagrant environment is required to run this command. Run `vagrant init`
-        to set one up.
+        to set one up in this directory, or change to a directory with a
+        Vagrantfile and try again.
       plugin_gem_error: |-
         An error occurred within RubyGems, the underlying system used to
         manage Vagrant plugins. The output of the errors are shown below:
