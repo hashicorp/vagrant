@@ -396,6 +396,9 @@ en:
         run_list_empty: "Run list must not be empty."
         server_url_empty: "Chef server URL must be populated."
         validation_key_path: "Validation key path must be valid path to your chef server validation key."
+      root:
+        bad_key: |-
+          Unknown configuration section '%{key}'.
       ssh:
         private_key_missing: "`private_key_path` file must exist: %{path}"
       vm:

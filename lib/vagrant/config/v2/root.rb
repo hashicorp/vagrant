@@ -1,3 +1,6 @@
+require "ostruct"
+require "set"
+
 require "vagrant/config/v2/util"
 
 module Vagrant
@@ -11,8 +14,9 @@ module Vagrant
         #
         # @param [Hash] config_map Map of key to config class.
         def initialize(config_map, keys=nil)
-          @keys       = keys || {}
-          @config_map = config_map
+          @keys              = keys || {}
+          @config_map        = config_map
+          @missing_key_calls = Set.new
         end
 
         # We use method_missing as a way to get the configuration that is
@@ -27,8 +31,9 @@ module Vagrant
             @keys[name] = config_klass.new
             return @keys[name]
           else
-            # Super it up to probably raise a NoMethodError
-            super
+            # Record access to a missing key as an error
+            @missing_key_calls.add(name.to_s)
+            return OpenStruct.new
           end
         end
 
@@ -66,6 +71,13 @@ module Vagrant
             errors.delete(key) if errors[key].empty?
           end
 
+          # If we have missing keys, record those as errors
+          if !@missing_key_calls.empty?
+            errors["Vagrant"] = @missing_key_calls.to_a.sort.map do |key|
+              I18n.t("vagrant.config.root.bad_key", :key => key)
+            end
+          end
+
           errors
         end
 
@@ -75,9 +87,18 @@ module Vagrant
         # clashes with potential configuration keys.
         def __internal_state
           {
-            "config_map" => @config_map,
-            "keys"       => @keys
+            "config_map"        => @config_map,
+            "keys"              => @keys,
+            "missing_key_calls" => @missing_key_calls
           }
+        end
+
+        # This sets the internal state. This is used by the core to do some
+        # merging logic and shouldn't be used by the general public.
+        def __set_internal_state(state)
+          @config_map        = state["config_map"] if state.has_key?("config_map")
+          @keys              = state["keys"] if state.has_key?("keys")
+          @missing_key_calls = state["missing_key_calls"] if state.has_key?("missing_key_calls")
         end
       end
     end

@@ -1,3 +1,5 @@
+require "set"
+
 require File.expand_path("../../../../base", __FILE__)
 
 describe Vagrant::Config::V2::Root do
@@ -13,9 +15,10 @@ describe Vagrant::Config::V2::Root do
     instance.foo.should eql(foo)
   end
 
-  it "should raise a proper NoMethodError if a config key doesn't exist" do
+  it "record a missing key call if invalid key used" do
     instance = described_class.new({})
-    expect { instance.foo }.to raise_error(NoMethodError)
+    expect { instance.foo }.to_not raise_error
+    instance.__internal_state["missing_key_calls"].include?("foo").should be
   end
 
   it "can be created with initial state" do
@@ -27,8 +30,9 @@ describe Vagrant::Config::V2::Root do
     map      = { "foo" => Object, "bar" => Object }
     instance = described_class.new(map)
     instance.__internal_state.should == {
-      "config_map" => map,
-      "keys"       => {}
+      "config_map"        => map,
+      "keys"              => {},
+      "missing_key_calls" => Set.new
     }
   end
 
