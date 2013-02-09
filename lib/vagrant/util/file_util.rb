@@ -1,24 +1,31 @@
+require "vagrant/util/platform"
+
 module Vagrant
   module Util
     class FileUtil
-      # Cross-platform way of finding an executable in the $PATH.
+      # Cross-platform way of finding an executable in the PATH.
       #
       #   which('ruby') #=> /usr/bin/ruby
-      #   by http://stackoverflow.com/users/11687/mislav
       #
       # This code is adapted from the following post by mislav:
       #   http://stackoverflow.com/questions/2108727/which-in-ruby-checking-if-program-exists-in-path-from-ruby
+      #
+      # @param [String] cmd The command to search for in the PATH.
+      # @return [String] The full path to the executable or `nil` if not found.
       def self.which(cmd)
-
-        # If the PATHEXT variable is empty, we're on *nix and need to find the exact filename
         exts = nil
-        if !Util::Platform.windows? || ENV['PATHEXT'].nil?
+
+        if !Platform.windows? || ENV['PATHEXT'].nil?
+          # If the PATHEXT variable is empty, we're on *nix and need to find
+          # the exact filename
           exts = ['']
-        # On Windows: if filename contains an extension, we must match that exact filename
         elsif File.extname(cmd).length != 0
+          # On Windows: if filename contains an extension, we must match that
+          # exact filename
           exts = ['']
-        # On Windows: otherwise try to match all possible executable file extensions (.EXE .COM .BAT etc.)
         else
+          # On Windows: otherwise try to match all possible executable file
+          # extensions (.EXE .COM .BAT etc.)
           exts = ENV['PATHEXT'].split(';')
         end
 
@@ -28,7 +35,7 @@ module Vagrant
             return exe if File.executable? exe
           end
         end
-        
+
         return nil
       end
     end
