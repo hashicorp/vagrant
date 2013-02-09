@@ -36,6 +36,8 @@ FEATURES:
   - `vagrant provision` accepts the `--provision-with` flag [GH-1167]
   - Set the name of VirtualBox machines with `virtualbox.name` in the
     VirtualBox provider config. [GH-1126]
+  - `vagrant ssh` will execute an `ssh` binary on Windows if it is on
+    your PATH. [GH-933]
 
 IMPROVEMENTS / BUG FIXES:
 
