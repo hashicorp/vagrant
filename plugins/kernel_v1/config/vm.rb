@@ -142,6 +142,16 @@ module VagrantPlugins
           guestpath    = options.delete(:guestpath)
           hostpath     = options.delete(:hostpath)
 
+          # This was the name of the old default /vagrant shared folder.
+          # We warn the use that this changed, but also silently change
+          # it to try to make things work properly.
+          if options[:id] == "v-root"
+            warnings << "The 'v-root' shared folders have been renamed to 'vagrant-root'.\n" +
+              "Assuming you meant 'vagrant-root'..."
+
+            options[:id] = "vagrant-root"
+          end
+
           new.vm.synced_folder(hostpath, guestpath, options)
         end
 
