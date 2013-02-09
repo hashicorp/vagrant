@@ -1,9 +1,9 @@
 require "log4r"
 
-require "vagrant/util/file_util"
 require "vagrant/util/file_mode"
 require "vagrant/util/platform"
 require "vagrant/util/safe_exec"
+require "vagrant/util/which"
 
 module Vagrant
   module Util
@@ -55,7 +55,7 @@ module Vagrant
       def self.exec(ssh_info, opts={})
         # Ensure the platform supports ssh. On Windows there are several programs which
         # include ssh, notably git, mingw and cygwin, but make sure ssh is in the path!
-        if !FileUtil.which("ssh")
+        if !Which.which("ssh")
           if Platform.windows?
             raise Errors::SSHUnavailableWindows,
               :host => ssh_info[:host],

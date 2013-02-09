@@ -2,7 +2,7 @@ require "vagrant/util/platform"
 
 module Vagrant
   module Util
-    class FileUtil
+    class Which
       # Cross-platform way of finding an executable in the PATH.
       #
       #   which('ruby') #=> /usr/bin/ruby
