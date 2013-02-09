@@ -89,6 +89,10 @@ module VagrantPlugins
       def nfs_cleanup(id)
         return if !File.exist?("/etc/exports")
 
+        # Escape sed-sensitive characters:
+        id = id.gsub("/", "\\/")
+        id = id.gsub(".", "\\.")
+
         # Use sed to just strip out the block of code which was inserted
         # by Vagrant, and restart NFS.
         system("sudo sed -e '/^# VAGRANT-BEGIN: #{id}/,/^# VAGRANT-END: #{id}/ d' -ibak /etc/exports")
