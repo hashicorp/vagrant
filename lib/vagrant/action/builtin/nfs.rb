@@ -30,9 +30,6 @@ module Vagrant
           # Used by prepare_permission, so we need to save it
           @env = env
 
-          raise Errors::NFSNoHostIP if !env[:nfs_host_ip]
-          raise Errors::NFSNoGuestIP if !env[:nfs_machine_ip]
-
           folders = {}
           env[:machine].config.vm.synced_folders.each do |id, opts|
             # If this synced folder doesn't enable NFS, ignore it.
@@ -60,6 +57,9 @@ module Vagrant
           end
 
           if !folders.empty?
+            raise Errors::NFSNoHostIP if !env[:nfs_host_ip]
+            raise Errors::NFSNoGuestIP if !env[:nfs_machine_ip]
+
             # Prepare the folder, this means setting up various options
             # and such on the folder itself.
             folders.each { |id, opts| prepare_folder(opts) }
