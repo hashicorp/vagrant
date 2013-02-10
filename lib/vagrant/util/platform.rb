@@ -15,7 +15,7 @@ module Vagrant
         end
 
         def cygwin?
-	  platform.include?("cygwin")
+          platform.include?("cygwin")
         end
 
         [:darwin, :bsd, :freebsd, :linux, :solaris].each do |type|
