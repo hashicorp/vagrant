@@ -12,7 +12,10 @@ module VagrantPlugins
 
           # Import the virtual machine
           ovf_file = env[:machine].box.directory.join("box.ovf").to_s
-          env[:machine].id = env[:machine].provider.driver.import(ovf_file) do |progress|
+          if Vagrant::Util::Platform.cygwin?
+            ovf_file = `cygpath -w #{ovf_file}`.chomp
+          end
+	  env[:machine].id = env[:machine].provider.driver.import(ovf_file) do |progress|
             env[:ui].clear_line
             env[:ui].report_progress(progress, 100, false)
           end
