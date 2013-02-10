@@ -15,7 +15,7 @@ module VagrantPlugins
           if Vagrant::Util::Platform.cygwin?
             ovf_file = `cygpath -w #{ovf_file}`.chomp
           end
-          env[:machine].id = env[:machine].provider.driver.import(ovf_file) do |progress|
+	  env[:machine].id = env[:machine].provider.driver.import(ovf_file) do |progress|
             env[:ui].clear_line
             env[:ui].report_progress(progress, 100, false)
           end
