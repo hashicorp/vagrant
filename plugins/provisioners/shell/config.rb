@@ -5,9 +5,11 @@ module VagrantPlugins
       attr_accessor :path
       attr_accessor :upload_path
       attr_accessor :args
+      attr_accessor :privileged
 
       def initialize
         @upload_path = "/tmp/vagrant-shell"
+        @privileged  = true
       end
 
       def validate(machine)
