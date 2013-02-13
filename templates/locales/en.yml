@@ -337,8 +337,8 @@ en:
 
         %{command}
 
-        For more information on the failure, enable detailed logging with
-        VAGRANT_LOG.
+        For more information on the failure, enable detailed logging by setting
+        the environment variable VAGRANT_LOG to DEBUG.
       virtualbox_invalid_version: |-
         Vagrant has detected that you have a version of VirtualBox installed
         that is not supported. Please install one of the supported versions
