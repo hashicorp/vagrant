@@ -19,13 +19,11 @@ module VagrantPlugins
       attr_accessor :guest
       attr_accessor :host_name
       attr_accessor :usable_port_range
-      attr_reader :forwarded_ports
       attr_reader :synced_folders
       attr_reader :networks
       attr_reader :provisioners
 
       def initialize
-        @forwarded_ports              = []
         @graceful_halt_retry_count    = UNSET_VALUE
         @graceful_halt_retry_interval = UNSET_VALUE
         @synced_folders               = {}
@@ -41,7 +39,6 @@ module VagrantPlugins
       # Custom merge method since some keys here are merged differently.
       def merge(other)
         super.tap do |result|
-          result.instance_variable_set(:@forwarded_ports, @forwarded_ports + other.forwarded_ports)
           result.instance_variable_set(:@synced_folders, @synced_folders.merge(other.synced_folders))
           result.instance_variable_set(:@networks, @networks + other.networks)
           result.instance_variable_set(:@provisioners, @provisioners + other.provisioners)
