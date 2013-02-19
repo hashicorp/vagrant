@@ -165,6 +165,7 @@ module VagrantPlugins
           # errors that are generally fixed from a retry and don't
           # necessarily represent immediate failure cases.
           exceptions = [
+            Errno::EADDRINUSE,
             Errno::ECONNREFUSED,
             Errno::ECONNRESET,
             Errno::EHOSTUNREACH,
