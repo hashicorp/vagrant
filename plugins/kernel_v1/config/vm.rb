@@ -55,6 +55,8 @@ module VagrantPlugins
       def network(type, *args)
         if type == :hostonly
           @networks << [:private_network, args]
+		elsif type == :intnet
+          @networks << [:internal_network, args]
         elsif type == :bridged
           @networks << [:public_network, args]
         else

@@ -40,7 +40,7 @@ module VagrantPlugins
           available_slots = available_slots.to_a.sort
           env[:machine].config.vm.networks.each do |type, args|
             # We only handle private and public networks
-            next if type != :private_network && type != :public_network
+            next if type != :private_network && type != :public_network && type != :internal_network
 
             options = nil
             options = args.last if args.last.is_a?(Hash)
@@ -64,6 +64,11 @@ module VagrantPlugins
 
               config_args = [args[0], options]
               data        = [:hostonly, config_args]
+			elsif type == :internal_network
+              # private_network = hostonly
+
+              config_args = [args[0], options]
+              data        = [:intnet, config_args]
             elsif type == :public_network
               # public_network = bridged
 
@@ -307,6 +312,41 @@ module VagrantPlugins
 
         def nat_network_config(config)
           return {}
+        end
+		
+		##Internal Networking. Added by aaa572 based on pull request #982
+		 def intnet_config(args)
+          ip = args[0]
+          options = args[1] || {}
+            
+          return {
+            :type => "static",
+            :ip => ip,
+            :netmask => "255.255.255.0",
+            :adapter => nil,
+            :mac => nil,
+            :name => nil,
+            :auto_config => true
+          }.merge(options)
+        end
+
+        def intnet_adapter(config)
+          @logger.info("Setup internal network: #{config[:ip]}")
+
+          return {
+            :adapter => config[:adapter],
+            :type => :intnet,
+            :mac_address => config[:mac],
+            :nic_type => config[:nic_type]
+          }
+        end
+
+        def intnet_network_config(config)
+          return {
+            :type => config[:type],
+            :ip => config[:ip],
+            :netmask => config[:netmask]
+          }
         end
 
         #-----------------------------------------------------------------
