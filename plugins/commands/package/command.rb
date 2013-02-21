@@ -51,12 +51,7 @@ module VagrantPlugins
         # `vagrant package --base` process is deprecated for something much
         # better in the future. We just hardcode this to keep VirtualBox working
         # for now.
-        provider = nil
-        Vagrant.plugin("2").registered.each do |plugin|
-          provider = plugin.provider.get(:virtualbox)
-          break if provider
-        end
-
+        provider = Vagrant.plugin("2").manager.providers[:virtualbox]
         vm = Vagrant::Machine.new(options[:base], provider, @env.config.global, nil, @env, true)
         @logger.debug("Packaging base VM: #{vm.name}")
         package_vm(vm, options)
