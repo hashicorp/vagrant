@@ -55,10 +55,6 @@ module Vagrant
     # The path to the default private key
     attr_reader :default_private_key_path
 
-    # This is a set of the vagrantrc files already loaded so that they
-    # are only loaded once.
-    @@loaded_rc = Set.new
-
     # Initializes a new environment with the given options. The options
     # is a hash where the main available key is `cwd`, which defines where
     # the environment represents. There are other options available but
