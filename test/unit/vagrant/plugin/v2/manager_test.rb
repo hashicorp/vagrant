@@ -11,6 +11,47 @@ describe Vagrant::Plugin::V2::Manager do
     p
   end
 
+  describe "#action_hooks" do
+    it "should contain globally registered hooks" do
+      pA = plugin do |p|
+        p.action_hook("foo") { "bar" }
+      end
+
+      pB = plugin do |p|
+        p.action_hook("bar") { "baz" }
+      end
+
+      instance.register(pA)
+      instance.register(pB)
+
+      result = instance.action_hooks(nil)
+      result.length.should == 2
+      result[0].call.should == "bar"
+      result[1].call.should == "baz"
+    end
+
+    it "should contain specific hooks with globally registered hooks" do
+      pA = plugin do |p|
+        p.action_hook("foo") { "bar" }
+        p.action_hook("foo", :foo) { "bar_foo" }
+        p.action_hook("foo", :bar) { "bar_bar" }
+      end
+
+      pB = plugin do |p|
+        p.action_hook("bar") { "baz" }
+      end
+
+      instance.register(pA)
+      instance.register(pB)
+
+      result = instance.action_hooks(:foo)
+      result.length.should == 3
+      result[0].call.should == "bar"
+      result[1].call.should == "bar_foo"
+      result[2].call.should == "baz"
+    end
+  end
+
   it "should enumerate registered communicator classes" do
     pA = plugin do |p|
       p.communicator("foo") { "bar" }

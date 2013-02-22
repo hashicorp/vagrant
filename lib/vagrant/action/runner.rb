@@ -29,7 +29,7 @@ module Vagrant
         environment.merge!(options || {})
 
         # Setup the action hooks
-        hooks = Vagrant.plugin("2").manager.action_hooks
+        hooks = Vagrant.plugin("2").manager.action_hooks(environment[:action_name])
         if !hooks.empty?
           @logger.info("Preparing hooks for middleware sequence...")
           environment[:action_hooks] = hooks.map do |hook_proc|

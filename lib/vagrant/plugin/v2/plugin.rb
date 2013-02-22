@@ -66,11 +66,14 @@ module Vagrant
         # bootup, VM provisioning, etc.
         #
         # @param [String] name Name of the action.
+        # @param [Symbol] hook_name The location to hook. If this isn't
+        #   set, every middleware action is hooked.
         # @return [Array] List of the hooks for the given action.
-        def self.action_hook(name, &block)
+        def self.action_hook(name, hook_name=nil, &block)
           # The name is currently not used but we want it for the future.
 
-          components.action_hooks << block
+          hook_name ||= ALL_ACTIONS
+          components.action_hooks[hook_name] << block
         end
 
         # Defines additional command line commands available by key. The key

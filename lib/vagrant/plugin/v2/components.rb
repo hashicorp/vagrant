@@ -8,7 +8,7 @@ module Vagrant
       class Components
         # This contains all the action hooks.
         #
-        # @return [Array<Proc>]
+        # @return [Hash<Symbol, Array>]
         attr_reader :action_hooks
 
         # This contains all the configuration plugins by scope.
@@ -17,7 +17,8 @@ module Vagrant
         attr_reader :configs
 
         def initialize
-          @action_hooks = []
+          # The action hooks hash defaults to []
+          @action_hooks = Hash.new { |h, k| h[k] = [] }
 
           # Create the configs hash which defaults to a registry
           @configs = Hash.new { |h, k| h[k] = Registry.new }

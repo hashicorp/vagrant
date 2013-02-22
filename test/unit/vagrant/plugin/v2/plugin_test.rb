@@ -24,12 +24,24 @@ describe Vagrant::Plugin::V2::Plugin do
   end
 
   describe "action hooks" do
-    it "should register action hooks" do
+    it "should register on all actions by default" do
       plugin = Class.new(described_class) do
         action_hook("foo") { "bar" }
       end
 
-      hooks = plugin.components.action_hooks
+      hooks_registry = plugin.components.action_hooks
+      hooks = hooks_registry[described_class.const_get("ALL_ACTIONS")]
+      hooks.length.should == 1
+      hooks[0].call.should == "bar"
+    end
+
+    it "should register for a specific action by default" do
+      plugin = Class.new(described_class) do
+        action_hook("foo", :bar) { "bar" }
+      end
+
+      hooks_registry = plugin.components.action_hooks
+      hooks = hooks_registry[:bar]
       hooks.length.should == 1
       hooks[0].call.should == "bar"
     end

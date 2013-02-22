@@ -17,11 +17,12 @@ module Vagrant
         # This returns all the action hooks.
         #
         # @return [Array]
-        def action_hooks
+        def action_hooks(hook_name)
           result = []
 
           @registered.each do |plugin|
-            result += plugin.components.action_hooks
+            result += plugin.components.action_hooks[Plugin::ALL_ACTIONS]
+            result += plugin.components.action_hooks[hook_name]
           end
 
           result
