@@ -170,6 +170,14 @@ module Vagrant
     begin
       require name
     rescue Exception => e
+      # Since this is a rare case, we create a one-time logger here
+      # in order to output the error
+      logger = Log4r::Logger.new("vagrant::root")
+      logger.error("Failed to load plugin: #{name}")
+      logger.error(" -- Error: #{e.inspect}")
+      logger.error(" -- Backtrace:")
+      logger.error(e.backtrace.join("\n"))
+
       # If it is a LoadError we first try to see if it failed loading
       # the top-level entrypoint. If so, then we report a different error.
       if e.is_a?(LoadError)
@@ -180,14 +188,6 @@ module Vagrant
           raise Errors::PluginLoadError, :plugin => name
         end
       end
-
-      # Since this is a rare case, we create a one-time logger here
-      # in order to output the error
-      logger = Log4r::Logger.new("vagrant::root")
-      logger.error("Failed to load plugin: #{name}")
-      logger.error(" -- Error: #{e.inspect}")
-      logger.error(" -- Backtrace:")
-      logger.error(e.backtrace.join("\n"))
 
       # And raise an error itself
       raise Errors::PluginLoadFailed, :plugin => name
