@@ -246,7 +246,10 @@ module Vagrant
     def hook(name)
       @logger.info("Running hook: #{name}")
       callable = Action::Builder.new
-      action_runner.run(callable, :action_name => name)
+      action_runner.run(
+        callable,
+        :action_name => name,
+        :env => self)
     end
 
     # This returns a machine with the proper provider for this environment.
