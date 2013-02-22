@@ -244,6 +244,7 @@ module Vagrant
     #
     # @param [Symbol] name Name of the hook.
     def hook(name)
+      @logger.info("Running hook: #{name}")
       callable = Proc.new {}
       action_runner.run(callable, :action_name => name)
     end
