@@ -121,6 +121,7 @@ module Vagrant
 
       # Run the action with the action runner on the environment
       env = {
+        :action_name    => "machine_action_#{name}".to_sym,
         :machine        => self,
         :machine_action => name,
         :ui             => @env.ui_class.new(@name)
