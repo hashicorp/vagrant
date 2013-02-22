@@ -300,6 +300,13 @@ VF
     end
   end
 
+  describe "#unload" do
+    it "should run the unload hook" do
+      instance.should_receive(:hook).with(:environment_unload).once
+      instance.unload
+    end
+  end
+
   describe "getting a machine" do
     # A helper to register a provider for use in tests.
     def register_provider(name, config_class=nil)

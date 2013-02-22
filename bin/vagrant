@@ -45,7 +45,13 @@ begin
   env.ui.warn(I18n.t("vagrant.general.not_in_installer")) if !Vagrant.in_installer?
 
   # Execute the CLI interface, and exit with the proper error code
-  exit(env.cli(ARGV))
+  exit_status = env.cli(ARGV)
+
+  # Unload the environment so cleanup can be done
+  env.unload
+
+  # Exit with the exit status from our CLI command
+  exit(exit_status)
 rescue Vagrant::Errors::VagrantError => e
   logger.error("Vagrant experienced an error! Details:")
   logger.error(e.inspect)

@@ -379,6 +379,18 @@ module Vagrant
       nil
     end
 
+    # Unload the environment, running completion hooks. The environment
+    # should not be used after this (but CAN be, technically). It is
+    # recommended to always immediately set the variable to `nil` after
+    # running this so you can't accidentally run any more methods. Example:
+    #
+    #     env.unload
+    #     env = nil
+    #
+    def unload
+      hook(:environment_unload)
+    end
+
     # Makes a call to the CLI with the given arguments as if they
     # came from the real command line (sometimes they do!). An example:
     #
