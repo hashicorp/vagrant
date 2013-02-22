@@ -169,9 +169,18 @@ module Vagrant
     # Attempt the normal require
     begin
       require name
-    rescue LoadError
-      raise Errors::PluginLoadError, :plugin => name
     rescue Exception => e
+      # If it is a LoadError we first try to see if it failed loading
+      # the top-level entrypoint. If so, then we report a different error.
+      if e.is_a?(LoadError)
+        # Parse the message in order to get what failed to load, and
+        # add some extra protection around if the message is different.
+        parts = e.to_s.split(" -- ", 2)
+        if parts.length == 2 && parts[1] == name
+          raise Errors::PluginLoadError, :plugin => name
+        end
+      end
+
       # Since this is a rare case, we create a one-time logger here
       # in order to output the error
       logger = Log4r::Logger.new("vagrant::root")
