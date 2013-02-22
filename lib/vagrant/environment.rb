@@ -124,6 +124,9 @@ module Vagrant
 
       # Load the plugins
       load_plugins
+
+      # Call the environment load hooks
+      hook(:environment_load)
     end
 
     # Return a human-friendly string for pretty printed or inspected
@@ -234,6 +237,15 @@ module Vagrant
 
       # Return the config
       @config_global
+    end
+
+    # This defines a hook point where plugin action hooks that are registered
+    # against the given name will be run in the context of this environment.
+    #
+    # @param [Symbol] name Name of the hook.
+    def hook(name)
+      callable = Proc.new {}
+      action_runner.run(callable, :action_name => name)
     end
 
     # This returns a machine with the proper provider for this environment.

@@ -205,6 +205,18 @@ describe Vagrant::Environment do
     end
   end
 
+  describe "#hook" do
+    it "should call the action runner with the proper hook" do
+      hook_name = :foo
+
+      instance.action_runner.should_receive(:run).with do |callable, env|
+        env[:action_name].should == hook_name
+      end
+
+      instance.hook(hook_name)
+    end
+  end
+
   describe "primary machine name" do
     it "should be the only machine if not a multi-machine environment" do
       instance.primary_machine_name.should == instance.machine_names.first
