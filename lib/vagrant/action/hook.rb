@@ -37,16 +37,16 @@ module Vagrant
       #
       # @param [Class] existing The existing middleware.
       # @param [Class] new The new middleware.
-      def before(existing, new)
-        @before_hooks[existing] << new
+      def before(existing, new, *args, &block)
+        @before_hooks[existing] << [new, args, block]
       end
 
       # Add a middleware after an existing middleware.
       #
       # @param [Class] existing The existing middleware.
       # @param [Class] new The new middleware.
-      def after(existing, new)
-        @after_hooks[existing] << new
+      def after(existing, new, *args, &block)
+        @after_hooks[existing] << [new, args, block]
       end
 
       # Append a middleware to the end of the stack. Note that if the
@@ -54,15 +54,15 @@ module Vagrant
       # be run.
       #
       # @param [Class] new The middleware to append.
-      def append(new)
-        @append_hooks << new
+      def append(new, *args, &block)
+        @append_hooks << [new, args, block]
       end
 
       # Prepend a middleware to the beginning of the stack.
       #
       # @param [Class] new The new middleware to prepend.
-      def prepend(new)
-        @prepend_hooks << new
+      def prepend(new, *args, &block)
+        @prepend_hooks << [new, args, block]
       end
 
       # This applies the given hook to a builder. This should not be
@@ -71,21 +71,21 @@ module Vagrant
       # @param [Builder] builder
       def apply(builder)
         # Prepends first
-        @prepend_hooks.each do |klass|
-          builder.insert(0, klass)
+        @prepend_hooks.each do |klass, args, block|
+          builder.insert(0, klass, *args, &block)
         end
 
         # Appends
-        @append_hooks.each do |klass|
-          builder.use(klass)
+        @append_hooks.each do |klass, args, block|
+          builder.use(klass, *args, &block)
         end
 
         # Before hooks
         @before_hooks.each do |key, list|
           next if !builder.index(key)
 
-          list.each do |klass|
-            builder.insert_before(key, klass)
+          list.each do |klass, args, block|
+            builder.insert_before(key, klass, *args, &block)
           end
         end
 
@@ -93,8 +93,8 @@ module Vagrant
         @after_hooks.each do |key, list|
           next if !builder.index(key)
 
-          list.each do |klass|
-            builder.insert_after(key, klass)
+          list.each do |klass, args, block|
+            builder.insert_after(key, klass, *args, &block)
           end
         end
       end
