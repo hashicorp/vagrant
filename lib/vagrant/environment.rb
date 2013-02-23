@@ -82,8 +82,10 @@ module Vagrant
       # Set the Vagrantfile name up. We append "Vagrantfile" and "vagrantfile" so that
       # those continue to work as well, but anything custom will take precedence.
       opts[:vagrantfile_name] ||= []
-      opts[:vagrantfile_name] = [opts[:vagrantfile_name]] if !opts[:vagrantfile_name].is_a?(Array)
-      opts[:vagrantfile_name] += ["Vagrantfile", "vagrantfile"]
+      opts[:vagrantfile_name] = [opts[:vagrantfile_name]] if \
+        !opts[:vagrantfile_name].is_a?(Array)
+      opts[:vagrantfile_name] = ["Vagrantfile", "vagrantfile"] if \
+        opts[:vagrantfile_name].empty?
 
       # Set instance variables for all the configuration parameters.
       @cwd              = opts[:cwd]
