@@ -398,7 +398,7 @@ module VagrantPlugins
         end
 
         def set_name(name)
-          execute("modifyvm", @uuid, "--name", name)
+          execute("modifyvm", @uuid, "--name", name, :retryable => true)
         end
 
         def share_folders(folders)
