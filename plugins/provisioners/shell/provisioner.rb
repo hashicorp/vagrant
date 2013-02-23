@@ -14,8 +14,7 @@ module VagrantPlugins
           @machine.communicate.tap do |comm|
             comm.upload(path.to_s, config.upload_path)
 
-            # Execute it with sudo
-            comm.sudo(command) do |type, data|
+            comm.execute(command, {:sudo => config.privileged}) do |type, data|
               if [:stderr, :stdout].include?(type)
                 # Output the data with the proper color based on the stream.
                 color = type == :stdout ? :green : :red
