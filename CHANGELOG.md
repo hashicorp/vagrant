@@ -38,6 +38,8 @@ FEATURES:
     VirtualBox provider config. [GH-1126]
   - `vagrant ssh` will execute an `ssh` binary on Windows if it is on
     your PATH. [GH-933]
+  - The environmental variable `VAGRANT_VAGRANTFILE` can be used to
+    specify an alternate Vagrantfile filename.
 
 IMPROVEMENTS / BUG FIXES:
 

@@ -284,6 +284,21 @@ VF
       env.config_global.ssh.port.should == 200
     end
 
+    it "should load from a custom Vagrantfile specified by env var" do
+      environment = isolated_environment do |env|
+        env.file("some_other_name", <<-VF)
+Vagrant.configure("2") do |config|
+  config.ssh.port = 400
+end
+VF
+      end
+
+      env = with_temp_env("VAGRANT_VAGRANTFILE" => "some_other_name") do
+        environment.create_vagrant_env
+      end
+
+      env.config_global.ssh.port.should == 400
+    end
   end
 
   describe "ui" do
