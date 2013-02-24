@@ -14,7 +14,10 @@ module Vagrant
         extracted && extracted.include?(uri)
       end
 
-      def download!(source_url, destination_file)
+      def download!(source_url, destination_file, redirect_num = 10)
+        #To do: Raise this as Errors::DownloaderHTTPStatusError or something
+        raise ArgumentError, 'too many HTTP redirects' if limit == 0
+
         uri = URI.parse(source_url)
         proxy_uri = resolve_proxy(uri)
 
@@ -37,8 +40,8 @@ module Vagrant
           h.request_get(uri.request_uri, headers) do |response|
             if response.is_a?(Net::HTTPRedirection)
               # Follow the HTTP redirect.
-              # TODO: Error on some redirect limit
-              download!(response["Location"], destination_file)
+              warn "redirected to #{response["Location"]}"
+              download!(response["Location"], destination_file, redirect_num - 1)
               return
             elsif !response.is_a?(Net::HTTPOK)
               raise Errors::DownloaderHTTPStatusError, :status => response.code
