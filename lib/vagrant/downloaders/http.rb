@@ -16,7 +16,7 @@ module Vagrant
 
       def download!(source_url, destination_file, redirect_num = 10)
         #To do: Raise this as Errors::DownloaderHTTPStatusError or something
-        raise ArgumentError, 'too many HTTP redirects' if limit == 0
+        raise ArgumentError, 'too many HTTP redirects' if redirect_num == 0
 
         uri = URI.parse(source_url)
         proxy_uri = resolve_proxy(uri)
