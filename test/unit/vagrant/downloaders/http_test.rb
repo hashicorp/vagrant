@@ -15,6 +15,22 @@ describe Vagrant::Downloaders::HTTP do
     it "should not match file:// URIs" do
       described_class.match?("file://#{__FILE__}").should_not be
     end
+
+    it "should not match file:// URIs" do
+      described_class.match?("file://#{__FILE__}").should_not be
+    end
+  end
+
+  describe "redirects" do
+
+    it "should show error when redirects limit reached" do
+      expect { instance.download!('http://google.com', 'w', 0) }.
+        to raise_error('too many HTTP redirects')
+    end
+
+    it "constant 301 redirect should raise error" do
+      pending
+    end
   end
 
   describe "downloading" do
