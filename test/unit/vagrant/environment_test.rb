@@ -215,6 +215,12 @@ describe Vagrant::Environment do
 
       instance.hook(hook_name)
     end
+
+    it "should return the result of the action runner run" do
+      instance.action_runner.should_receive(:run).and_return(:foo)
+
+      instance.hook(:bar).should == :foo
+    end
   end
 
   describe "primary machine name" do
