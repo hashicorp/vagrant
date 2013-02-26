@@ -2,6 +2,7 @@ require File.expand_path("../../base", __FILE__)
 require "json"
 require "pathname"
 require "tempfile"
+require "tmpdir"
 
 require "vagrant/util/file_mode"
 
@@ -86,7 +87,13 @@ describe Vagrant::Environment do
     end
 
     it "is set to the environmental variable VAGRANT_HOME" do
-      pending "A good temporary ENV thing"
+      Dir.mktmpdir do |dir|
+        instance = with_temp_env("VAGRANT_HOME" => dir) do
+          described_class.new
+        end
+
+        instance.home_path.should == Pathname.new(dir)
+      end
     end
 
     it "is set to the DEFAULT_HOME by default" do
