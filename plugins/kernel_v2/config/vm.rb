@@ -178,6 +178,22 @@ module VagrantPlugins
         # default VM which just inherits the rest of the configuration.
         define(DEFAULT_VM_NAME) if defined_vm_keys.empty?
 
+        # Do some defaults for networks
+        @__networks.each do |type, args|
+          if type == :forwarded_port
+            options = args.last
+
+            # If the last argument isn't an option hash, add it on.
+            if !options.is_a?(Hash)
+              options = {}
+              args    << options
+            end
+
+            # Set the default name
+            options[:id] = "#{args[0].to_s(32)}-#{args[1].to_s(32)}"
+          end
+        end
+
         # Compile all the provider configurations
         @__providers.each do |name, blocks|
           # Find the configuration class for this provider

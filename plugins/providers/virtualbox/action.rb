@@ -7,7 +7,6 @@ module VagrantPlugins
       autoload :CheckAccessible, File.expand_path("../action/check_accessible", __FILE__)
       autoload :CheckCreated, File.expand_path("../action/check_created", __FILE__)
       autoload :CheckGuestAdditions, File.expand_path("../action/check_guest_additions", __FILE__)
-      autoload :CheckPortCollisions, File.expand_path("../action/check_port_collisions", __FILE__)
       autoload :CheckRunning, File.expand_path("../action/check_running", __FILE__)
       autoload :CheckVirtualbox, File.expand_path("../action/check_virtualbox", __FILE__)
       autoload :CleanMachineFolder, File.expand_path("../action/clean_machine_folder", __FILE__)
@@ -36,6 +35,7 @@ module VagrantPlugins
       autoload :Package, File.expand_path("../action/package", __FILE__)
       autoload :PackageVagrantfile, File.expand_path("../action/package_vagrantfile", __FILE__)
       autoload :PrepareNFSSettings, File.expand_path("../action/prepare_nfs_settings", __FILE__)
+      autoload :PrepareForwardedPortCollisionParams, File.expand_path("../action/prepare_forwarded_port_collision_params", __FILE__)
       autoload :PruneNFSExports, File.expand_path("../action/prune_nfs_exports", __FILE__)
       autoload :Resume, File.expand_path("../action/resume", __FILE__)
       autoload :SaneDefaults, File.expand_path("../action/sane_defaults", __FILE__)
@@ -56,9 +56,10 @@ module VagrantPlugins
           b.use CleanMachineFolder
           b.use SetName
           b.use ClearForwardedPorts
-          b.use EnvSet, :port_collision_handler => :correct
           b.use Provision
-          b.use CheckPortCollisions
+          b.use EnvSet, :port_collision_repair => true
+          b.use PrepareForwardedPortCollisionParams
+          b.use HandleForwardedPortCollisions
           b.use PruneNFSExports
           b.use NFS
           b.use PrepareNFSSettings
@@ -203,8 +204,9 @@ module VagrantPlugins
           b.use Call, Created do |env, b2|
             if env[:result]
               b2.use CheckAccessible
-              b2.use EnvSet, :port_collision_handler => :error
-              b2.use CheckPortCollisions
+              b2.use EnvSet, :port_collision_repair => false
+              b2.use PrepareForwardedPortCollisionParams
+              b2.use HandleForwardedPortCollisions
               b2.use Resume
             else
               b2.use MessageNotCreated
