@@ -6,8 +6,6 @@ require "tmpdir"
 
 require "vagrant/util/file_mode"
 
-require "support/tempdir"
-
 describe Vagrant::Environment do
   include_context "unit"
 
@@ -50,27 +48,30 @@ describe Vagrant::Environment do
 
   describe "current working directory" do
     it "is the cwd by default" do
-      temp_dir = Tempdir.new.path
-      Dir.chdir(temp_dir) do
-        with_temp_env("VAGRANT_CWD" => nil) do
-          described_class.new.cwd.should == Pathname.new(Dir.pwd)
+      Dir.mktmpdir do |temp_dir|
+        Dir.chdir(temp_dir) do
+          with_temp_env("VAGRANT_CWD" => nil) do
+            described_class.new.cwd.should == Pathname.new(Dir.pwd)
+          end
         end
       end
     end
 
     it "is set to the cwd given" do
-      directory = Tempdir.new.path
-      instance = described_class.new(:cwd => directory)
-      instance.cwd.should == Pathname.new(directory)
+      Dir.mktmpdir do |directory|
+        instance = described_class.new(:cwd => directory)
+        instance.cwd.should == Pathname.new(directory)
+      end
     end
 
     it "is set to the environmental variable VAGRANT_CWD" do
-      directory = Tempdir.new.path
-      instance = with_temp_env("VAGRANT_CWD" => directory) do
-        described_class.new
-      end
+      Dir.mktmpdir do |directory|
+        instance = with_temp_env("VAGRANT_CWD" => directory) do
+          described_class.new
+        end
 
-      instance.cwd.should == Pathname.new(directory)
+        instance.cwd.should == Pathname.new(directory)
+      end
     end
 
     it "raises an exception if the CWD doesn't exist" do
@@ -81,9 +82,10 @@ describe Vagrant::Environment do
 
   describe "home path" do
     it "is set to the home path given" do
-      dir = Tempdir.new.path
-      instance = described_class.new(:home_path => dir)
-      instance.home_path.should == Pathname.new(dir)
+      Dir.mktmpdir do |dir|
+        instance = described_class.new(:home_path => dir)
+        instance.home_path.should == Pathname.new(dir)
+      end
     end
 
     it "is set to the environmental variable VAGRANT_HOME" do
@@ -120,9 +122,10 @@ describe Vagrant::Environment do
     end
 
     it "is set to the given value" do
-      dir = Tempdir.new.path
-      instance = described_class.new(:local_data_path => dir)
-      instance.local_data_path.to_s.should == dir
+      Dir.mktmpdir do |dir|
+        instance = described_class.new(:local_data_path => dir)
+        instance.local_data_path.to_s.should == dir
+      end
     end
 
     describe "upgrading V1 dotfiles" do
