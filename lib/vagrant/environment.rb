@@ -216,7 +216,7 @@ module Vagrant
     def config_global
       return @config_global if @config_global
 
-      @logger.info("Initialzing config...")
+      @logger.info("Initializing config...")
 
       home_vagrantfile = nil
       root_vagrantfile = nil
