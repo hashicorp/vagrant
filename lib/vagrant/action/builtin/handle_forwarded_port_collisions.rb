@@ -17,6 +17,12 @@ module Vagrant
       #     port collisions. If false, it will raise an exception when
       #     there is a collision.
       #
+      #   * `:port_collision_extra_in_use` - An array of ports that are
+      #     considered in use.
+      #
+      #   * `:port_collision_remap` - A hash remapping certain host ports
+      #     to other host ports.
+      #
       class HandleForwardedPortCollisions
         include Util::IsPortOpen
 
@@ -28,11 +34,18 @@ module Vagrant
         def call(env)
           @logger.debug("Detecting any forwarded port collisions...")
 
+          # Get the extra ports we consider in use
+          extra_in_use = env[:port_collision_extra_in_use] || []
+
+          # Get the remap
+          remap = env[:port_collision_remap] || {}
+
           # Determine the handler we'll use if we have any port collisions
           repair = !!env[:port_collision_repair]
 
           # Determine a list of usable ports for repair
           usable_ports = Set.new(env[:machine].config.vm.usable_port_range)
+          usable_ports.subtract(extra_in_use)
 
           # Pass one, remove all defined host ports from usable ports
           with_forwarded_ports do |args|
@@ -41,14 +54,17 @@ module Vagrant
 
           # Pass two, detect/handle any collisions
           with_forwarded_ports do |args|
-            # Get the host port of this forwarded port
-            # TODO: handle overrides in the case that an existing VM is
-            # already running with auto-corrected ports.
             guest_port = args[0]
             host_port  = args[1]
 
+            if remap[host_port]
+              remap_port = remap[host_port]
+              @logger.debug("Remap port override: #{host_port} => #{remap_port}")
+              host_port = remap_port
+            end
+
             # If the port is open (listening for TCP connections)
-            if is_port_open?("127.0.0.1", host_port)
+            if extra_in_use.include?(host_port) || is_port_open?("127.0.0.1", host_port)
               if !repair
                 raise Errors::ForwardPortCollision,
                   :guest_port => guest_port.to_s,
