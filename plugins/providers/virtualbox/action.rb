@@ -22,7 +22,6 @@ module VagrantPlugins
       autoload :Export, File.expand_path("../action/export", __FILE__)
       autoload :ForcedHalt, File.expand_path("../action/forced_halt", __FILE__)
       autoload :ForwardPorts, File.expand_path("../action/forward_ports", __FILE__)
-      autoload :HostName, File.expand_path("../action/host_name", __FILE__)
       autoload :Import, File.expand_path("../action/import", __FILE__)
       autoload :IsPaused, File.expand_path("../action/is_paused", __FILE__)
       autoload :IsRunning, File.expand_path("../action/is_running", __FILE__)
@@ -68,7 +67,7 @@ module VagrantPlugins
           b.use ClearNetworkInterfaces
           b.use Network
           b.use ForwardPorts
-          b.use HostName
+          b.use SetHostname
           b.use SaneDefaults
           b.use Customize
           b.use Boot

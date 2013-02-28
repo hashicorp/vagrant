@@ -665,8 +665,8 @@ en:
             Forcing shutdown of VM...
           graceful: |-
             Attempting graceful shutdown of VM...
-        host_name:
-          setting: "Setting host name..."
+        hostname:
+          setting: "Setting hostname..."
         import:
           importing: Importing base box '%{name}'...
           failure: |-
