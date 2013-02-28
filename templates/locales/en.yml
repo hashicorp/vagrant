@@ -397,6 +397,10 @@ en:
         run_list_empty: "Run list must not be empty."
         server_url_empty: "Chef server URL must be populated."
         validation_key_path: "Validation key path must be valid path to your chef server validation key."
+      loader:
+        bad_v1_key: |-
+          Unknown configuration section '%{key}'. If this section was part of
+          a Vagrant 1.0.x plugin, note that 1.0.x plugins are incompatible with 1.1+.
       root:
         bad_key: |-
           Unknown configuration section '%{key}'.

@@ -119,6 +119,10 @@ module Vagrant
             end
           end
 
+          old.__internal_state["missing_key_calls"].to_a.sort.each do |key|
+            warnings << I18n.t("vagrant.config.loader.bad_v1_key", :key => key)
+          end
+
           [root, warnings, errors]
         end
 
