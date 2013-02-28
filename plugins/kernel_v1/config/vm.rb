@@ -96,7 +96,7 @@ module VagrantPlugins
         new.vm.box               = self.box if self.box
         new.vm.box_url           = self.box_url if self.box_url
         new.vm.guest             = self.guest if self.guest
-        new.vm.host_name         = self.host_name if self.host_name
+        new.vm.hostname          = self.host_name if self.host_name
         new.vm.usable_port_range = self.auto_port_range if self.auto_port_range
 
         if self.boot_mode

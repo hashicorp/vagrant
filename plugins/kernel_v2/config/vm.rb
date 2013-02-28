@@ -17,7 +17,7 @@ module VagrantPlugins
       attr_accessor :graceful_halt_retry_count
       attr_accessor :graceful_halt_retry_interval
       attr_accessor :guest
-      attr_accessor :host_name
+      attr_accessor :hostname
       attr_accessor :usable_port_range
       attr_reader :synced_folders
       attr_reader :provisioners
@@ -25,6 +25,7 @@ module VagrantPlugins
       def initialize
         @graceful_halt_retry_count    = UNSET_VALUE
         @graceful_halt_retry_interval = UNSET_VALUE
+        @hostname                     = UNSET_VALUE
         @synced_folders               = {}
         @provisioners                 = []
 
