@@ -19,9 +19,9 @@ module VagrantPlugins
             # Strip of any -OSE or _OSE and read only the first two parts
             # of the version such as "4.2" in "4.2.0"
             versions.map! do |v|
-              v = v.gsub(/[-_]ose/i, '')
+              v     = v.gsub(/[-_]ose/i, '')
               match = /^(\d+\.\d+)\.(\d+)/.match(v)
-              v = match[1] if match
+              v     = match[1] if match
               v
             end
 
