@@ -589,11 +589,11 @@ en:
             This is not an error message; everything may continue to work properly,
             in which case you may ignore this message.
           version_mismatch: |-
-            The guest additions on this VM do not match the install version of
-            VirtualBox! This may cause things such as forwarded ports, shared
-            folders, and more to not work properly. If any of those things fail on
-            this machine, please update the guest additions and repackage the
-            box.
+            The guest additions on this VM do not match the installed version of
+            VirtualBox! In most cases this is fine, but in rare cases it can
+            cause things such as shared folders to not work properly. If you see
+            shared folder errors, please update the guest additions within the
+            virtual machine and reload your VM.
 
             Guest Additions Version: %{guest_version}
             VirtualBox Version: %{virtualbox_version}
