@@ -45,7 +45,6 @@ describe Vagrant::Config::V1::Loader do
       # Test that we have all keys
       result = described_class.init
       result.bar.should be_kind_of(OpenStruct)
-      expect { result.foo }.to raise_error(NoMethodError)
     end
   end
 
