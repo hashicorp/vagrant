@@ -21,7 +21,7 @@ describe Vagrant::Config::V2::Root do
     instance.__internal_state["missing_key_calls"].include?("foo").should be
   end
 
-  it "returns an OpenStruct for a missing key" do
+  it "returns a dummy config for a missing key" do
     instance = described_class.new({})
     expect { instance.foo.foo = "bar" }.to_not raise_error
   end
