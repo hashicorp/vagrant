@@ -1,4 +1,3 @@
-require "ostruct"
 require "set"
 
 module Vagrant
@@ -31,7 +30,7 @@ module Vagrant
           else
             # Record access to a missing key as an error
             @missing_key_calls.add(name.to_s)
-            return OpenStruct.new
+            return DummyConfig.new
           end
         end
 
