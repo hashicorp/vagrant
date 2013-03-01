@@ -143,6 +143,10 @@ module Vagrant
       error_key(:config_upgrade_errors)
     end
 
+    class CopyPrivateKeyFailed < VagrantError
+      error_key(:copy_private_key_failed)
+    end
+
     class DestroyRequiresForce < VagrantError
       error_key(:destroy_requires_force)
     end

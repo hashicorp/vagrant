@@ -80,6 +80,14 @@ en:
       config_upgrade_errors: |-
         Because there were errors upgrading your Vagrantfiles, Vagrant
         can no longer continue. Please fix the errors above and try again.
+      copy_private_key_failed: |-
+        Vagrant failed to copy the default insecure private key into your
+        home directory. This is usually caused by a permissions error.
+        Please make sure the permissions of the source is readable and
+        the destination is writable.
+
+        Source: %{source}
+        Destination: %{destination}
       destroy_requires_force: |-
         Destroy doesn't have a TTY to ask for confirmation. Please pass the
         `--force` flag to force a destroy, otherwise attach a TTY so that

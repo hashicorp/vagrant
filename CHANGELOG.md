@@ -88,6 +88,8 @@ IMPROVEMENTS / BUG FIXES:
     copy issues. [GH-1199]
   - Vagrant works properly in folders with strange characters. [GH-1223]
   - Vagrant properly handles "paused" VirtualBox machines. [GH-1184]
+  - Better behavior around permissions issues when copying insecure
+    private key. [GH-580]
 
 ## 1.0.6 (December 21, 2012)
 

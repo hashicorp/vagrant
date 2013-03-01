@@ -592,8 +592,17 @@ module Vagrant
     def copy_insecure_private_key
       if !@default_private_key_path.exist?
         @logger.info("Copying private key to home directory")
-        FileUtils.cp(File.expand_path("keys/vagrant", Vagrant.source_root),
-                     @default_private_key_path)
+
+        source      = File.expand_path("keys/vagrant", Vagrant.source_root)
+        destination = @default_private_key_path
+
+        begin
+          FileUtils.cp(source, destination)
+        rescue Errno::EACCES
+          raise Errors::CopyPrivateKeyFailed,
+            :source => source,
+            :destination => destination
+        end
       end
 
       if !Util::Platform.windows?
