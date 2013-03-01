@@ -34,6 +34,17 @@ else
   opts[:ui_class] = Vagrant::UI::Colored
 end
 
+# This is kind of hacky, and I'd love to find a better way to do this, but
+# if we're accessing the plugin interface, we want to NOT load plugins
+# for this run, because they can actually interfere with the function
+# of the plugin interface.
+ARGV.each do |arg|
+  if !arg.start_with?("-")
+    ENV["VAGRANT_NO_PLUGINS"] = "1" if arg == "plugin"
+    break
+  end
+end
+
 env = nil
 begin
   # Create the environment, which is the cwd of wherever the
