@@ -110,7 +110,7 @@ module VagrantPlugins
         # VirtualBox provider on the new VM.
         if !self.customizations.empty?
           warnings << "`config.vm.customize` calls are VirtualBox-specific. If you're\n" +
-            "using any other provide, you'll have to find provider-specific configuration\n" +
+            "using any other provider, you'll have to find provider-specific configuration\n" +
             "to translate to manually in your Vagrantfile."
 
           new.vm.provider :virtualbox do |vb|
