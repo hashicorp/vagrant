@@ -20,23 +20,21 @@ module VagrantPlugins
           # Get the list of installed plugins according to the state file
           installed = Set.new(env[:plugin_state_file].installed_plugins)
 
-          # Get the actual specifications of installed gems
-          specs = env[:gem_helper].with_environment do
-            Gem::Specification.find_all
-          end
-
-          # Get the latest version of the installed plugins
+          # Go through the plugins installed in this environment and
+          # get the latest version of each.
           installed_map = {}
-          specs.each do |spec|
-            # Ignore specs that aren't in our installed list
-            next if !installed.include?(spec.name)
+          env[:gem_helper].with_environment do
+            Gem::Specification.find_all.each do |spec|
+              # Ignore specs that aren't in our installed list
+              next if !installed.include?(spec.name)
 
-            # If we already have a newer version in our list of installed,
-            # then ignore it
-            next if installed_map.has_key?(spec.name) &&
-              installed_map[spec.name].version >= spec.version
+              # If we already have a newer version in our list of installed,
+              # then ignore it
+              next if installed_map.has_key?(spec.name) &&
+                installed_map[spec.name].version >= spec.version
 
-            installed_map[spec.name] = spec
+              installed_map[spec.name] = spec
+            end
           end
 
           # Output!
