@@ -42,9 +42,11 @@ if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
   end
 end
 
-require 'pathname'
-require 'childprocess'
 require 'json'
+require 'pathname'
+require 'stringio'
+
+require 'childprocess'
 require 'i18n'
 
 # OpenSSL must be loaded here since when it is loaded via `autoload`
@@ -166,6 +168,12 @@ module Vagrant
   #
   # @param [String] name Name of the plugin to load.
   def self.require_plugin(name)
+    # Redirect stdout/stderr so that we can output it in our own way.
+    previous_stderr = $stderr
+    previous_stdout = $stdout
+    $stderr = StringIO.new
+    $stdout = StringIO.new
+
     # Attempt the normal require
     begin
       require name
@@ -189,9 +197,23 @@ module Vagrant
         end
       end
 
+      # Get the string data out from the stdout/stderr captures
+      stderr = $stderr.string
+      stdout = $stdout.string
+      if !stderr.empty? || !stdout.empty?
+        raise Errors::PluginLoadFailedWithOutput,
+          :plugin => name,
+          :stderr => stderr,
+          :stdout => stdout
+      end
+
       # And raise an error itself
-      raise Errors::PluginLoadFailed, :plugin => name
+      raise Errors::PluginLoadFailed,
+        :plugin => name
     end
+  ensure
+    $stderr = previous_stderr
+    $stdout = previous_stdout
   end
 end
 

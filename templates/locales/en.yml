@@ -196,6 +196,13 @@ en:
         continue to show when you use `plugin install` with a 1.0.x plugin.
       plugin_load_failed: |-
         Failed to load the "%{plugin}" plugin. View logs for more details.
+      plugin_load_failed_with_output: |-
+        Failed to load the "%{plugin}" plugin. The output from loading
+        the plugin is shown below. View the logs for complete details.
+
+        stdout: %{stdout}
+
+        stderr: %{stderr}
       plugin_not_found: |-
         The plugin '%{name}' could not be found. Please install this plugin
         prior to attempting to do anything with it.
