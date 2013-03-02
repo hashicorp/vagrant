@@ -1,4 +1,5 @@
 require "pathname"
+require "securerandom"
 
 require "vagrant"
 require "vagrant/config/v2/util"
@@ -32,50 +33,16 @@ module VagrantPlugins
         # Internal state
         @__compiled_provider_configs = {}
         @__finalized = false
-        @__networks  = []
+        @__networks  = {}
         @__providers = {}
       end
 
       # Custom merge method since some keys here are merged differently.
       def merge(other)
         super.tap do |result|
+          result.instance_variable_set(:@__networks, @__networks + other.networks)
           result.instance_variable_set(:@synced_folders, @synced_folders.merge(other.synced_folders))
           result.instance_variable_set(:@provisioners, @provisioners + other.provisioners)
-
-          # Merge the networks by prepending any networks we have onto the new
-          # configuration, except allow overriding by the other configuration
-          # by `:id`.
-          other_networks = other.instance_variable_get(:@__networks)
-          new_networks   = @__networks.dup
-          other_networks.each do |type, args|
-            opts = {}
-            opts = args.last if args.last.is_a?(Hash)
-
-            # If an ID is set, then we try to override it if it exists
-            # in the previously set networks.
-            if opts[:id]
-              new_networks.each_index do |index|
-                _, new_args = new_networks[index]
-                new_opts    = {}
-                new_opts    = new_args.last if new_args.last.is_a?(Hash)
-
-                if new_opts[:id] == opts[:id]
-                  # Merge the options hash
-                  args[args.length - 1] = opts.merge(new_opts)
-
-                  # Delete the existing network
-                  new_networks.delete_at(index)
-                  break
-                end
-              end
-            end
-
-            # If the network wasn't found or there was no ID set, then
-            # we just append it to the array of networks
-            new_networks << [type, args]
-          end
-
-          result.instance_variable_set(:@__networks, new_networks)
 
           # Merge the providers by prepending any configuration blocks we
           # have for providers onto the new configuration.
@@ -126,8 +93,12 @@ module VagrantPlugins
       #   * `:public_network` - The machine gets an IP on a shared network.
       #
       # @param [Symbol] type Type of network
-      def network(type, *args)
-        @__networks << [type, args]
+      # @param [Hash] options Options for the network.
+      def network(type, options=nil)
+        options ||= {}
+        id      = options[:id] || SecureRandom.uuid
+        @__networks[id] ||= {}
+        @__networks[id].merge!(options)
       end
 
       # Configures a provider for this VM.
@@ -178,22 +149,6 @@ module VagrantPlugins
         # If we haven't defined a single VM, then we need to define a
         # default VM which just inherits the rest of the configuration.
         define(DEFAULT_VM_NAME) if defined_vm_keys.empty?
-
-        # Do some defaults for networks
-        @__networks.each do |type, args|
-          if type == :forwarded_port
-            options = args.last
-
-            # If the last argument isn't an option hash, add it on.
-            if !options.is_a?(Hash)
-              options = {}
-              args    << options
-            end
-
-            # Set the default name
-            options[:id] = "#{args[0].to_s(32)}-#{args[1].to_s(32)}"
-          end
-        end
 
         # Compile all the provider configurations
         @__providers.each do |name, blocks|
