@@ -157,6 +157,9 @@ module VagrantPlugins
       #-------------------------------------------------------------------
 
       def finalize!
+        # Defaults
+        @hostname = nil if @hostname == UNSET_VALUE
+
         # If we haven't defined a single VM, then we need to define a
         # default VM which just inherits the rest of the configuration.
         define(DEFAULT_VM_NAME) if defined_vm_keys.empty?
