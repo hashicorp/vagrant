@@ -444,6 +444,8 @@ en:
         nfs_requires_host: |-
           Using NFS shared folders requires a host to be specified
           using `config.vagrant.host`.
+        network_fp_requires_ports: |-
+          Forwarded port definitions require a "host" and "guest" value
         shared_folder_hostpath_missing: |-
           The host path of the shared folder is missing: %{path}
         shared_folder_nfs_owner_group: |-

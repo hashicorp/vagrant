@@ -245,6 +245,17 @@ module VagrantPlugins
           end
         end
 
+        # Validate networks
+        has_fp_port_error = false
+        networks.each do |type, options|
+          if type == :forwarded_port
+            if !has_fp_port_error && (!options[:guest] || !options[:host])
+              errors << I18n.t("vagrant.config.vm.network_fp_requires_ports")
+              has_fp_port_error = true
+            end
+          end
+        end
+
         # We're done with VM level errors so prepare the section
         errors = { "vm" => errors }
 
