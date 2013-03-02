@@ -11,14 +11,12 @@ module VagrantPlugins
         def compile_forwarded_ports(config)
           mappings = {}
 
-          config.vm.networks.each do |type, args|
+          config.vm.networks.each do |type, options|
             if type == :forwarded_port
-              guest_port = args[0]
-              host_port  = args[1]
-              options    = args[2] || {}
+              guest_port = options[:guest]
+              host_port  = options[:host]
               options    = scoped_hash_override(options, :virtualbox)
-              id         = options[:id] ||
-                "#{guest_port.to_s(32)}-#{host_port.to_s(32)}"
+              id         = options[:id]
 
               mappings[host_port] =
                 Model::ForwardedPort.new(id, host_port, guest_port, options)

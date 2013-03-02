@@ -15,12 +15,11 @@ module VagrantPlugins
           remap = {}
           env[:port_collision_remap] = remap
           env[:machine].provider.driver.read_forwarded_ports.each do |_nic, name, hostport, _guestport|
-            env[:machine].config.vm.networks.each do |type, args|
+            env[:machine].config.vm.networks.each do |type, options|
               next if type != :forwarded_port
 
               # If the ID matches the name of the forwarded port, then
               # remap.
-              options = args.last
               if options[:id] == name
                 remap[name] = hostport
                 break

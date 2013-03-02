@@ -38,13 +38,10 @@ module VagrantPlugins
           @logger.debug("Available slots for high-level adapters: #{available_slots.inspect}")
           @logger.info("Determining network adapters required for high-level configuration...")
           available_slots = available_slots.to_a.sort
-          env[:machine].config.vm.networks.each do |type, args|
+          env[:machine].config.vm.networks.each do |type, options|
             # We only handle private and public networks
             next if type != :private_network && type != :public_network
 
-            options = nil
-            options = args.last if args.last.is_a?(Hash)
-            options ||= {}
             options = scoped_hash_override(options, :virtualbox)
 
             # Figure out the slot that this adapter will go into
@@ -61,14 +58,10 @@ module VagrantPlugins
             data = nil
             if type == :private_network
               # private_network = hostonly
-
-              config_args = [args[0], options]
-              data        = [:hostonly, config_args]
+              data        = [:hostonly, options]
             elsif type == :public_network
               # public_network = bridged
-
-              config_args = [options]
-              data        = [:bridged, config_args]
+              data        = [:bridged, options]
             end
 
             # Store it!
@@ -80,13 +73,13 @@ module VagrantPlugins
           adapters = []
           networks = []
           network_adapters_config.each do |slot, data|
-            type = data[0]
-            args = data[1]
+            type    = data[0]
+            options = data[1]
 
             @logger.info("Network slot #{slot}. Type: #{type}.")
 
             # Get the normalized configuration for this type
-            config = send("#{type}_config", args)
+            config = send("#{type}_config", options)
             config[:adapter] = slot
             @logger.debug("Normalized configuration: #{config.inspect}")
 
@@ -123,14 +116,14 @@ module VagrantPlugins
           end
         end
 
-        def bridged_config(args)
+        def bridged_config(options)
           return {
             :auto_config                     => true,
             :bridge                          => nil,
             :mac                             => nil,
             :nic_type                        => nil,
             :use_dhcp_assigned_default_route => false
-          }.merge(args[0] || {})
+          }.merge(options || {})
         end
 
         def bridged_adapter(config)
@@ -213,15 +206,14 @@ module VagrantPlugins
           }
         end
 
-        def hostonly_config(args)
-          ip      = args[0]
+        def hostonly_config(options)
           options = {
             :auto_config => true,
             :netmask     => "255.255.255.0"
-          }.merge(args[1] || {})
+          }.merge(options)
 
           # Calculate our network address for the given IP/netmask
-          netaddr  = network_address(ip, options[:netmask])
+          netaddr  = network_address(options[:ip], options[:netmask])
 
           # Verify that a host-only network subnet would not collide
           # with a bridged networking interface.
@@ -248,7 +240,7 @@ module VagrantPlugins
           return {
             :adapter_ip  => options[:adapter_ip],
             :auto_config => options[:auto_config],
-            :ip          => ip,
+            :ip          => options[:ip],
             :mac         => nil,
             :netmask     => options[:netmask],
             :nic_type    => nil,

@@ -48,14 +48,14 @@ module Vagrant
           usable_ports.subtract(extra_in_use)
 
           # Pass one, remove all defined host ports from usable ports
-          with_forwarded_ports(env) do |args|
-            usable_ports.delete(args[1])
+          with_forwarded_ports(env) do |options|
+            usable_ports.delete(options[:host])
           end
 
           # Pass two, detect/handle any collisions
-          with_forwarded_ports(env) do |args|
-            guest_port = args[0]
-            host_port  = args[1]
+          with_forwarded_ports(env) do |options|
+            guest_port = options[:guest]
+            host_port  = options[:host]
 
             if remap[host_port]
               remap_port = remap[host_port]
@@ -86,7 +86,7 @@ module Vagrant
               usable_ports.delete(repaired_port)
 
               # Modify the args in place
-              args[1] = repaired_port
+              options[:host] = repaired_port
 
               @logger.info("Repaired FP collision: #{host_port} to #{repaired_port}")
 
@@ -104,11 +104,11 @@ module Vagrant
         protected
 
         def with_forwarded_ports(env)
-          env[:machine].config.vm.networks.each do |type, args|
+          env[:machine].config.vm.networks.each do |type, options|
             # Ignore anything but forwarded ports
             next if type != :forwarded_port
 
-            yield args
+            yield options
           end
         end
       end
