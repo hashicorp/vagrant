@@ -40,7 +40,9 @@ module VagrantPlugins
       # Custom merge method since some keys here are merged differently.
       def merge(other)
         super.tap do |result|
-          result.instance_variable_set(:@__networks, @__networks.merge(other.networks))
+          other_networks = other.instance_variable_get(:@__networks)
+
+          result.instance_variable_set(:@__networks, @__networks.merge(other_networks))
           result.instance_variable_set(:@synced_folders, @synced_folders.merge(other.synced_folders))
           result.instance_variable_set(:@provisioners, @provisioners + other.provisioners)
 
@@ -107,7 +109,7 @@ module VagrantPlugins
         end
 
         # Merge in the latest settings and set the internal state
-        @__networks[id] ||= [type, options]
+        @__networks[id] = [type, options]
       end
 
       # Configures a provider for this VM.

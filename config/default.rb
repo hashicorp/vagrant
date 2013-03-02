@@ -19,8 +19,8 @@ Vagrant.configure("2") do |config|
 
   # Share SSH locally by default
   config.vm.network :forwarded_port,
-    host: 22,
-    guest: 2222,
+    guest: 22,
+    host: 2222,
     id: "ssh",
     auto_correct: true
 
