@@ -40,7 +40,7 @@ module VagrantPlugins
       # Custom merge method since some keys here are merged differently.
       def merge(other)
         super.tap do |result|
-          result.instance_variable_set(:@__networks, @__networks + other.networks)
+          result.instance_variable_set(:@__networks, @__networks.merge(other.networks))
           result.instance_variable_set(:@synced_folders, @synced_folders.merge(other.synced_folders))
           result.instance_variable_set(:@provisioners, @provisioners + other.provisioners)
 
