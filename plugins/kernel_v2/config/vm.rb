@@ -97,8 +97,17 @@ module VagrantPlugins
       def network(type, options=nil)
         options ||= {}
         id      = options[:id] || SecureRandom.uuid
-        @__networks[id] ||= {}
-        @__networks[id].merge!(options)
+
+        # Scope the ID by type so that different types can share IDs
+        id      = "#{type}-#{id}"
+
+        # Merge in the previous settings if we have them.
+        if @__networks.has_key?(id)
+          options = @__networks[id][1].merge(options)
+        end
+
+        # Merge in the latest settings and set the internal state
+        @__networks[id] ||= [type, options]
       end
 
       # Configures a provider for this VM.
@@ -193,7 +202,7 @@ module VagrantPlugins
 
       # This returns the list of networks configured.
       def networks
-        @__networks.dup
+        @__networks.values
       end
 
       def validate(machine)
