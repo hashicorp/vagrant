@@ -11,7 +11,58 @@ module VagrantPlugins
     class Guest < VagrantPlugins::GuestLinux::Guest
       def initialize(*args)
         super
-        extend SysVInit
+        if systemd?
+          extend Systemd
+        else
+          extend SysVInit
+        end
+      end
+
+      def systemd?
+        vm.communicate.test("which systemctl &>/dev/null")
+      end
+      protected :systemd?
+
+      module Systemd
+        # Make the TemplateRenderer top-level
+        include Vagrant::Util
+
+        def change_host_name(name)
+          # Only do this if the hostname is not already set
+          if !vm.communicate.test("sudo hostname | grep '#{name}'")
+            vm.communicate.sudo("hostnamectl set-hostname '#{name}'")
+            vm.communicate.sudo("hostname '#{name}'")
+          end
+        end
+
+        def configure_networks(networks)
+          networks.each do |network|
+            case network[:type]
+            when :static
+              vm.communicate.sudo("ip addr add #{network[:ip]}/#{network[:netmask]} dev eth#{network[:interface]}")
+              vm.communicate.sudo("ip link set dev eth#{network[:interface]} up")
+            when :dhcp
+              vm.communicate.sudo("systemctl start dhcpcd@eth#{network[:interface]}")
+            end
+          end
+        end
+
+        def halt
+          vm.communicate.sudo("systemctl poweroff")
+
+          # Wait until the VM's state is actually powered off. If this doesn't
+          # occur within a reasonable amount of time (15 seconds by default),
+          # then simply return and allow Vagrant to kill the machine.
+          count = 0
+          while vm.state != :poweroff
+            count += 1
+
+            return if count >= vm.config.linux.halt_timeout
+            sleep vm.config.linux.halt_check_interval
+          end
+        rescue IOError
+          raise Vagrant::Errors::SSHDisconnected.new
+        end
       end
 
       module SysVInit
