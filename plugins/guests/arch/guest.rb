@@ -15,9 +15,8 @@ module VagrantPlugins
       def change_host_name(name)
         # Only do this if the hostname is not already set
         if !vm.communicate.test("sudo hostname | grep '#{name}'")
-          vm.communicate.sudo("sed -i 's/\\(HOSTNAME=\\).*/\\1#{name}/' /etc/rc.conf")
-          vm.communicate.sudo("hostname #{name}")
-          vm.communicate.sudo("sed -i 's@^\\(127[.]0[.]0[.]1[[:space:]]\\+\\)@\\1#{name} @' /etc/hosts")
+          vm.communicate.sudo("hostnamectl set-hostname '#{name}'")
+          vm.communicate.sudo("hostname '#{name}'")
         end
       end
 
