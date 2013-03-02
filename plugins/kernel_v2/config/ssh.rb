@@ -4,7 +4,6 @@ module VagrantPlugins
   module Kernel_V2
     class SSHConfig < Vagrant.plugin("2", :config)
       attr_accessor :username
-      attr_accessor :password
       attr_accessor :host
       attr_accessor :port
       attr_accessor :guest_port

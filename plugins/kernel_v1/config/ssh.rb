@@ -31,7 +31,6 @@ module VagrantPlugins
 
       def upgrade(new)
         new.ssh.username         = @username if @username != UNSET_VALUE
-        new.ssh.password         = @password if @password != UNSET_VALUE
         new.ssh.host             = @host if @host != UNSET_VALUE
         new.ssh.port             = @port if @port != UNSET_VALUE
         new.ssh.guest_port       = @guest_port if @guest_port != UNSET_VALUE
