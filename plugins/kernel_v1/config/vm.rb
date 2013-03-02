@@ -127,7 +127,18 @@ module VagrantPlugins
             next
           end
 
-          new.vm.network(type, *args)
+          options = {}
+          options = args.pop.dup if args.last.is_a?(Hash)
+
+          # Determine the extra options we need to set for each type
+          if type == :forwarded_port
+            options[:guest] = args[0]
+            options[:host]  = args[1]
+          elsif type == :private_network
+            options[:ip] = args[0]
+          end
+
+          new.vm.network(type, options)
         end
 
         # Provisioners
