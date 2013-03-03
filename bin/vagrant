@@ -55,11 +55,13 @@ begin
   # If we're not in the installer, warn.
   env.ui.warn(I18n.t("vagrant.general.not_in_installer")) if !Vagrant.in_installer?
 
-  # Execute the CLI interface, and exit with the proper error code
-  exit_status = env.cli(ARGV)
-
-  # Unload the environment so cleanup can be done
-  env.unload
+  begin
+    # Execute the CLI interface, and exit with the proper error code
+    exit_status = env.cli(ARGV)
+  ensure
+    # Unload the environment so cleanup can be done
+    env.unload
+  end
 
   # Exit with the exit status from our CLI command
   exit(exit_status)
