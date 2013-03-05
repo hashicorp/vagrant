@@ -82,19 +82,34 @@ module Vagrant
       # This method respects the "http_proxy" and "no_proxy" environmental
       # variables so that HTTP proxies can properly be used with Vagrant.
       def resolve_proxy(source_uri)
-        proxy_string = ENV["http_proxy"] || ""
-        if !proxy_string.empty? && ENV.has_key?("no_proxy")
-          # Respect the "no_proxy" environmental variable which contains a list
-          # of hosts that a proxy should not be used for.
-          ENV["no_proxy"].split(",").each do |host|
-            if source_uri.host =~ /#{Regexp.quote(host.strip)}$/
-              proxy_string = ""
-              break
+        # Get the proper proxy key depending on the scheme of the box URL
+        proxy_key    = "#{source_uri.scheme}_proxy".downcase
+        proxy_string = ENV[proxy_key] || ENV[proxy_key.upcase] || ""
+
+        if !proxy_string.empty?
+          # Make sure the proxy string starts with a protocol so that
+          # URI.parse works properly below.
+          proxy_string = "http://#{proxy_string}" if !proxy_string.include?("://")
+
+          if ENV.has_key?("no_proxy")
+            # Respect the "no_proxy" environmental variable which contains a list
+            # of hosts that a proxy should not be used for.
+            ENV["no_proxy"].split(",").each do |host|
+              if source_uri.host =~ /#{Regexp.quote(host.strip)}$/
+                proxy_string = ""
+                break
+              end
             end
           end
         end
 
-        URI.parse(proxy_string)
+        begin
+          URI.parse(proxy_string)
+        rescue URI::InvalidURIError
+          # If we have an invalid URI, we assume the proxy is invalid,
+          # so we don't use a proxy.
+          URI.parse("")
+        end
       end
     end
   end
