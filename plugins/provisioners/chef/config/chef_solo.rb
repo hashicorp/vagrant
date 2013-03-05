@@ -29,6 +29,10 @@ module VagrantPlugins
             @cookbooks_path = [[:host, "cookbooks"], [:vm, "cookbooks"]]
           end
 
+          # Make sure the path is an array.
+          @cookbooks_path = [@cookbooks_path] if \
+            !@cookbooks_path.is_a?(Array) || @cookbooks_path.first.is_a?(Symbol)
+
           # Make sure all the paths are the proper format
           @cookbooks_path.map! do |path|
             path = [:host, path] if !path.is_a?(Array)
