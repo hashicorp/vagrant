@@ -665,8 +665,11 @@ en:
             To fix this, modify your current projects Vagrantfile to use another
             port. Example, where '1234' would be replaced by a unique host port:
 
-              config.vm.forward_port %{guest_port}, 1234
+              config.vm.network :forwarded_port, guest: %{guest_port}, host: 1234
 
+            Sometimes, Vagrant will attempt to auto-correct this for you. In this
+            case, Vagrant was unable to. This is usually because the guest machine
+            is in a state which doesn't allow modifying port forwarding.
           fixed_collision: |-
             Fixed port collision for %{guest_port} => %{host_port}. Now on port %{new_port}.
           forwarding: Forwarding ports...
