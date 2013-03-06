@@ -140,8 +140,10 @@ module VagrantPlugins
           end
         end
 
-        # XXX: We need to raise some exception if SSH is not ready
+        # Get the SSH info for the machine, raise an exception if the
+        # provider is saying that SSH is not ready.
         ssh_info = @machine.ssh_info
+        raise Vagrant::Errors::SSHNotReady if ssh_info.nil?
 
         # Build the options we'll use to initiate the connection via Net::SSH
         opts = {
