@@ -9,6 +9,7 @@
   - Shell provisioner won't hang on Windows anymore due to unclosed
     tempfile. [GH-1040]
   - Retry setting default VM name, since it sometimes fails first time. [GH-1368]
+  - Support setting hostname on Suse [GH-1063]
 
 ## 1.0.6 (December 21, 2012)
 
