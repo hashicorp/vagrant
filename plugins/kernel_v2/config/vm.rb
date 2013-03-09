@@ -243,6 +243,8 @@ module VagrantPlugins
         errors << I18n.t("vagrant.config.vm.box_missing") if !box
         errors << I18n.t("vagrant.config.vm.box_not_found", :name => box) if \
           box && !box_url && !machine.box
+        errors << I18n.t("vagrant.config.vm.hostname_invalid_characters") if \
+          @hostname && @hostname !~ /^[-.a-z0-9]+$/i
 
         has_nfs = false
         @synced_folders.each do |id, options|

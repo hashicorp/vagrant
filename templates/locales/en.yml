@@ -425,6 +425,9 @@ en:
         base_mac_invalid: "Base MAC address for eth0/NAT must be set. Contact box maintainer for more information."
         box_missing: "A box must be specified."
         box_not_found: "The box '%{name}' could not be found."
+        hostname_invalid_characters: |-
+          The hostname set for the VM should only contain letters, numbers,
+          and hyphens.
         network_invalid: |-
           The network type '%{type}' is not valid. Please use
           'hostonly' or 'bridged'.
