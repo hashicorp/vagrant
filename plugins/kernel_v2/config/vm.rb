@@ -32,6 +32,8 @@ module VagrantPlugins
 
         # Internal state
         @__compiled_provider_configs = {}
+        @__defined_vm_keys = []
+        @__defined_vms = {}
         @__finalized = false
         @__networks  = {}
         @__providers = {}
@@ -45,6 +47,32 @@ module VagrantPlugins
           result.instance_variable_set(:@__networks, @__networks.merge(other_networks))
           result.instance_variable_set(:@synced_folders, @synced_folders.merge(other.synced_folders))
           result.instance_variable_set(:@provisioners, @provisioners + other.provisioners)
+
+          # Merge defined VMs by first merging the defined VM keys,
+          # preserving the order in which they were defined.
+          other_defined_vm_keys = other.instance_variable_get(:@__defined_vm_keys)
+          other_defined_vm_keys -= @__defined_vm_keys
+          new_defined_vm_keys   = @__defined_vm_keys + other_defined_vm_keys
+          result.instance_variable_set(:@__defined_vm_keys, new_defined_vm_keys)
+
+          # Merge the actual defined VMs.
+          other_defined_vms = other.instance_variable_get(:@__defined_vms)
+          new_defined_vms   = {}
+
+          @__defined_vms.each do |key, subvm|
+            new_defined_vms[key] = subvm.clone
+          end
+
+          other_defined_vms.each do |key, subvm|
+            if !new_defined_vms.has_key?(key)
+              new_defined_vms[key] = subvm.clone
+            else
+              new_defined_vms[key].config_procs.concat(subvm.config_procs)
+              new_defined_vms[key].options.merge!(subvm.options)
+            end
+          end
+
+          result.instance_variable_set(:@__defined_vms, new_defined_vms)
 
           # Merge the providers by prepending any configuration blocks we
           # have for providers onto the new configuration.
@@ -125,13 +153,13 @@ module VagrantPlugins
       end
 
       def defined_vms
-        @defined_vms ||= {}
+        @__defined_vms
       end
 
       # This returns the keys of the sub-vms in the order they were
       # defined.
       def defined_vm_keys
-        @defined_vm_keys ||= []
+        @__defined_vm_keys
       end
 
       def define(name, options=nil, &block)
@@ -141,15 +169,15 @@ module VagrantPlugins
 
         # Add the name to the array of VM keys. This array is used to
         # preserve the order in which VMs are defined.
-        defined_vm_keys << name
+        @__defined_vm_keys << name
 
         # Add the SubVM to the hash of defined VMs
-        if !defined_vms[name]
-          defined_vms[name] ||= VagrantConfigSubVM.new
+        if !@__defined_vms[name]
+          @__defined_vms[name] = VagrantConfigSubVM.new
         end
 
-        defined_vms[name].options.merge!(options)
-        defined_vms[name].config_procs << [options[:config_version], block] if block
+        @__defined_vms[name].options.merge!(options)
+        @__defined_vms[name].config_procs << [options[:config_version], block] if block
       end
 
       #-------------------------------------------------------------------

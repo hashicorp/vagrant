@@ -18,6 +18,13 @@ module VagrantPlugins
         @config_procs = []
         @options      = {}
       end
+
+      def initialize_copy(other)
+        super
+
+        @config_procs = other.config_procs.clone
+        @options      = other.options.clone
+      end
     end
   end
 end
