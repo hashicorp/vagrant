@@ -101,7 +101,7 @@ module VagrantPlugins
       # @param [Hash] options Additional options.
       def synced_folder(hostpath, guestpath, options=nil)
         options ||= {}
-        options[:id] ||= guestpath
+        options[:id] ||= guestpath.to_s.gsub(/\/$/, '')
         options[:guestpath] = guestpath
         options[:hostpath]  = hostpath
 
