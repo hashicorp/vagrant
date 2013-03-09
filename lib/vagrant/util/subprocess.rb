@@ -75,10 +75,10 @@ module Vagrant
           Dir.chdir(workdir) do
             process.start
           end
-        rescue ChildProcess::LaunchError
+        rescue ChildProcess::LaunchError => ex
           # Raise our own version of the error so that users of the class
           # don't need to be aware of ChildProcess
-          raise LaunchError
+          raise LaunchError.new(ex.message)
         end
 
         # Make sure the stdin does not buffer
