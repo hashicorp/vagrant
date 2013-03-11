@@ -30,6 +30,7 @@ module VagrantPlugins
           return :redhat if comm.test("cat /etc/redhat-release")
           return :suse if comm.test("cat /etc/SuSE-release")
           return :arch if comm.test("cat /etc/arch-release")
+          return :solaris if comm.test("grep 'Solaris' /etc/release")
         end
 
         # Can't detect the distro, assume vanilla linux
