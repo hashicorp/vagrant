@@ -31,7 +31,8 @@ module Vagrant
           # Add the box
           env[:ui].info I18n.t("vagrant.actions.box.add.adding", :name => env[:box_name])
           begin
-            env[:box_collection].add(@temp_path, env[:box_name], env[:box_provider])
+            env[:box_collection].add(
+              @temp_path, env[:box_name], env[:box_provider], env[:box_force])
           rescue Vagrant::Errors::BoxUpgradeRequired
             # Upgrade the box
             env[:box_collection].upgrade(env[:box_name])

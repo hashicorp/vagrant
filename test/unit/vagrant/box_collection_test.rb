@@ -63,6 +63,19 @@ describe Vagrant::BoxCollection do
         to raise_error(Vagrant::Errors::BoxAlreadyExists)
     end
 
+    it "should replace the box if force is specified" do
+      prev_box_name = "foo"
+      prev_box_provider = :vmware
+
+      # Setup the environment with the box pre-added
+      environment.box2(prev_box_name, prev_box_provider)
+
+      # Attempt to add the box with the same name
+      box_path = environment.box2_file(prev_box_provider, metadata: { "replaced" => "yes" })
+      box = instance.add(box_path, prev_box_name, nil, true)
+      box.metadata["replaced"].should == "yes"
+    end
+
     it "should raise an exception if the box already exists and no provider is given" do
       # Create some box file
       box_name = "foo"

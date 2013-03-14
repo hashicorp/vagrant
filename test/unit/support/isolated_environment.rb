@@ -129,12 +129,14 @@ module Unit
     #
     # @param [Symbol] provider Provider for the box.
     # @return [Pathname] Path to the newly created box.
-    def box2_file(provider)
+    def box2_file(provider, options=nil)
+      options ||= {}
+
       # This is the metadata we want to store in our file
       metadata = {
         "type"     => "v2_box",
         "provider" => provider
-      }
+      }.merge(options[:metadata] || {})
 
       # Create a temporary directory to store our data we will tar up
       td_source = Tempdir.new

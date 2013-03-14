@@ -63,14 +63,23 @@ module Vagrant
     #   will be verified with the `metadata.json` file in the box and is
     #   meant as a basic check. If this isn't given, then whatever provider
     #   the box represents will be added.
-    def add(path, name, provider=nil)
+    # @param [Boolean] force If true, any existing box with the same name
+    #   and provider will be replaced.
+    def add(path, name, provider=nil, force=false)
       # A helper to check if a box exists. We store this in a variable
       # since we call it multiple times.
       check_box_exists = lambda do |box_provider|
-        if find(name, box_provider)
+        box = find(name, box_provider)
+        next if !box
+
+        if !force
           @logger.error("Box already exists, can't add: #{name} #{box_provider}")
           raise Errors::BoxAlreadyExists, :name => name, :provider => box_provider
         end
+
+        # We're forcing, so just delete the old box
+        @logger.info("Box already exists, but forcing so removing: #{name} #{box_provider}")
+        box.destroy!
       end
 
       log_provider = provider ? provider : "any provider"
