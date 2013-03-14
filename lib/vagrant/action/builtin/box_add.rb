@@ -30,8 +30,9 @@ module Vagrant
 
           # Add the box
           env[:ui].info I18n.t("vagrant.actions.box.add.adding", :name => env[:box_name])
+          added_box = nil
           begin
-            env[:box_collection].add(
+            added_box = env[:box_collection].add(
               @temp_path, env[:box_name], env[:box_provider], env[:box_force])
           rescue Vagrant::Errors::BoxUpgradeRequired
             # Upgrade the box
@@ -44,6 +45,10 @@ module Vagrant
           # Call the 'recover' method in all cases to clean up the
           # downloaded temporary file.
           recover(env)
+
+          # Success, we added a box!
+          env[:ui].success(
+            I18n.t("vagrant.actions.box.add.added", name: added_box.name, provider: added_box.provider))
 
           # Carry on!
           @app.call(env)

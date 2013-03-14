@@ -792,6 +792,8 @@ en:
         add:
           adding: |-
             Extracting box...
+          added: |-
+            Successfully added box '%{name}' with provider '%{provider}'!
         destroy:
           destroying: "Deleting box '%{name}'..."
         download:
