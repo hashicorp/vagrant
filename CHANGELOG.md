@@ -43,6 +43,8 @@ IMPROVEMENTS / BUG FIXES:
   - Improve the SSH "ready?" check by more gracefully handling timeouts. [GH-841]
   - Human friendly error if connection times out for HTTP downloads. [GH-849]
   - Detect when the VirtualBox installation is incomplete and error. [GH-846]
+  - Detect when kernel modules for VirtualBox need to be installed on Gentoo
+    systems and report a user-friendly error. [GH-710]
   - All `vagrant` commands that can take a target VM name can take one even
     if you're not in a multi-VM environment. [GH-894]
   - Hostname is set before networks are setup to avoid very slow `sudo`
