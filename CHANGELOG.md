@@ -7,7 +7,7 @@ BACKWARDS INCOMPATIBILITIES:
     to upgrading. The new plugin system in place will avoid this issue in
     the future.
   - Lots of changes introduced in the form of a new configuration version and
-    format, but this is opt-in. Old Vagrantfile format continues to be supported,
+    format, but this is _opt-in_. Old Vagrantfile format continues to be supported,
     as promised. To use the new features that will be introduced throughout
     the 1.x series, you'll have to upgrade at some point.
 
@@ -17,17 +17,14 @@ FEATURES:
     allow Vagrant to power systems other than VirtualBox. Much improvement
     and change will come to this throughout the 1.x lifecycle. The API
     will continue to change, features will be added, and more. Specifically,
-    in this release, a robust system for handling shared folders and
-    networks is not introduced, so new providers shouldn't yet support this.
-    A system will come into place in future releases.
+    a revamped system for handling shared folders gracefully across providers
+    will be introduced in a future release.
   - New plugin system which adds much more structure and stability to
     the overall API. The goal of this system is to make it easier to write
     powerful plugins for Vagrant while providing a backwards-compatible API
     so that plugins will always _load_ (though they will almost certainly
     not be _functional_ in future versions of Vagrant).
-  - Plugins installed as gems no longer "autoload". You must now explicitly
-    require plugins in the `~/.vagrantrc` file, using `Vagrant.require_plugin`.
-    This decreases Vagrant's initial startup time considerably.
+  - Plugins are now installed and managed using the `vagrant plugin` interface.
   - Allow "file://" URLs for box URLs. [GH-1087]
   - Emit "vagrant-mount" upstart event when NFS shares are mounted. [GH-1118]
   - Add a VirtualBox provider config `auto_nat_dns_proxy` which when set to
@@ -43,28 +40,25 @@ FEATURES:
 
 IMPROVEMENTS / BUG FIXES:
 
-  - Improve the SSH "ready?" check. [GH-841]
+  - Improve the SSH "ready?" check by more gracefully handling timeouts. [GH-841]
   - Human friendly error if connection times out for HTTP downloads. [GH-849]
   - Detect when the VirtualBox installation is incomplete and error. [GH-846]
-  - Use `LogLevel QUIET` for SSH to suppress the known hosts warning. [GH-847]
   - All `vagrant` commands that can take a target VM name can take one even
     if you're not in a multi-VM environment. [GH-894]
   - Hostname is set before networks are setup to avoid very slow `sudo`
     speeds on CentOS. [GH-922]
   - `config.ssh.shell` now includes the flags to pass to it, such as `-l` [GH-917]
-  - The check for whether a port is open or not is more complete. [GH-948]
+  - The check for whether a port is open or not is more complete by
+    catching ENETUNREACH errors. [GH-948]
   - SSH uses LogLevel FATAL so that errors are still shown.
   - Sending a SIGINT (Ctrl-C) very early on when executing `vagrant` no
     longer results in an ugly stack trace.
   - Chef JSON configuration output is now pretty-printed to be
     human readable. [GH-1146]
-  - SSH retries in the face of a `EHOSTUNREACH` error, improving the robustness
     that SSHing succeeds when booting a machine.
   - VMs in the "guru meditation" state can be destroyed now using
     `vagrant destroy`.
   - Fix issue where changing SSH key permissions didn't properly work. [GH-911]
-  - Disable the NAT DNS proxy when the DNS server is already proxied to
-    localhost on Linux machines. This fixes issues with 12.04. [GH-909]
   - Fix issue where Vagrant didn't properly detect VBoxManage on Windows
     if VBOX_INSTALL_PATH contained multiple paths. [GH-885]
   - Fix typo in setting host name for Gentoo guests. [GH-931]
