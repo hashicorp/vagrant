@@ -40,6 +40,8 @@ FEATURES:
 
 IMPROVEMENTS / BUG FIXES:
 
+  - Vagrant works much better in Cygwin environments on Windows by
+    properly resolving Cygwin paths. [GH-1366]
   - Improve the SSH "ready?" check by more gracefully handling timeouts. [GH-841]
   - Human friendly error if connection times out for HTTP downloads. [GH-849]
   - Detect when the VirtualBox installation is incomplete and error. [GH-846]

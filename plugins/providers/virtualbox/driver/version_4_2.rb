@@ -1,5 +1,7 @@
 require 'log4r'
 
+require "vagrant/util/platform"
+
 require File.expand_path("../base", __FILE__)
 
 module VagrantPlugins
@@ -155,6 +157,8 @@ module VagrantPlugins
         end
 
         def import(ovf)
+          ovf = Vagrant::Util::Platform.platform_path(ovf)
+
           output = ""
           total = ""
           last  = 0
