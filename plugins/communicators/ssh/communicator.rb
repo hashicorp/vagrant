@@ -126,6 +126,9 @@ module VagrantPlugins
           # socket.
           begin
             @connection.exec!("")
+          rescue Errno::EHOSTUNREACH
+            @logger.info("No route to host for connection. Not re-using.")
+            @connection = nil
           rescue IOError
             @logger.info("Connection has been closed. Not re-using.")
             @connection = nil

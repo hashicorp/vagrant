@@ -4,6 +4,7 @@ BUG FIXES:
 
   - Quote keys to StringBlockEditor so keys with spaces, parens, and
     so on work properly.
+  - When there is no route to host for SSH, re-establish a new connection.
 
 ## 1.1.0 (March 14, 2013)
 
