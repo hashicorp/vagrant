@@ -44,12 +44,14 @@ module Vagrant
 
       # This deletes the block with the given key if it exists.
       def delete(key)
+        key    = Regexp.quote(key)
         regexp = /^#\s*VAGRANT-BEGIN:\s*#{key}$.*^#\s*VAGRANT-END:\s*#{key}$\r?\n?/m
         @value.gsub!(regexp, "")
       end
 
       # This gets the value of the block with the given key.
       def get(key)
+        key    = Regexp.quote(key)
         regexp = /^#\s*VAGRANT-BEGIN:\s*#{key}$\r?\n?(.*?)\r?\n?^#\s*VAGRANT-END:\s*#{key}$\r?\n?/m
         match  = regexp.match(@value)
         return nil if !match

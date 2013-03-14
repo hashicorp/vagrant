@@ -1,6 +1,9 @@
 ## 1.1.1 (unreleased)
 
+BUG FIXES:
 
+  - Quote keys to StringBlockEditor so keys with spaces, parens, and
+    so on work properly.
 
 ## 1.1.0 (March 14, 2013)
 
