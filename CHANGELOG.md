@@ -1,5 +1,10 @@
 ## 1.1.1 (unreleased)
 
+IMPROVEMENTS:
+
+  - Don't load plugins on any `vagrant plugin` command, so that errors
+    are avoided. [GH-1418]
+
 BUG FIXES:
 
   - Quote keys to StringBlockEditor so keys with spaces, parens, and

@@ -631,13 +631,6 @@ module Vagrant
     # Loads the Vagrant plugins by properly setting up RubyGems so that
     # our private gem repository is on the path.
     def load_plugins
-      if ENV["VAGRANT_NO_PLUGINS"]
-        # If this key exists, then we don't load any plugins. It is a "safe
-        # mode" of sorts.
-        @logger.warn("VAGRANT_NO_PLUGINS is set. Not loading 3rd party plugins.")
-        return
-      end
-
       # Add our private gem path to the gem path and reset the paths
       # that Rubygems knows about.
       ENV["GEM_PATH"] = "#{@gems_path}#{::File::PATH_SEPARATOR}#{ENV["GEM_PATH"]}"

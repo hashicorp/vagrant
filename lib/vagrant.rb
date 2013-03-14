@@ -168,6 +168,12 @@ module Vagrant
   #
   # @param [String] name Name of the plugin to load.
   def self.require_plugin(name)
+    if ENV["VAGRANT_NO_PLUGINS"]
+      logger = Log4r::Logger.new("vagrant::root")
+      logger.warn("VAGRANT_NO_PLUGINS is set, not loading 3rd party plugin: #{name}")
+      return
+    end
+
     # Redirect stdout/stderr so that we can output it in our own way.
     previous_stderr = $stderr
     previous_stdout = $stdout
@@ -212,8 +218,8 @@ module Vagrant
         :plugin => name
     end
   ensure
-    $stderr = previous_stderr
-    $stdout = previous_stdout
+    $stderr = previous_stderr if previous_stderr
+    $stdout = previous_stdout if previous_stdout
   end
 end
 
