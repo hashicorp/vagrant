@@ -89,6 +89,19 @@ IMPROVEMENTS / BUG FIXES:
   - Better behavior around permissions issues when copying insecure
     private key. [GH-580]
 
+## 1.0.7 (March 13, 2013)
+
+  - Detect if a newer version of Vagrant ran and error if it did,
+    because we're not forward-compatible.
+  - Check for guest additions version AFTER booting. [GH-1179]
+  - Quote IdentityFile in `ssh-config` so private keys with spaces in
+    the path work. [GH-1322]
+  - Fix issue where multiple Puppet module paths can be re-ordered [GH-964]
+  - Shell provisioner won't hang on Windows anymore due to unclosed
+    tempfile. [GH-1040]
+  - Retry setting default VM name, since it sometimes fails first time. [GH-1368]
+  - Support setting hostname on Suse [GH-1063]
+
 ## 1.0.6 (December 21, 2012)
 
   - Shell provisioner outputs proper line endings on Windows [GH-1164]
