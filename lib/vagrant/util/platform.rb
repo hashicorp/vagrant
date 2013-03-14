@@ -14,6 +14,10 @@ module Vagrant
           platform.include?("darwin9")
         end
 
+        def cygwin?
+          platform.include?("cygwin")
+        end
+
         [:darwin, :bsd, :freebsd, :linux, :solaris].each do |type|
           define_method("#{type}?") do
             platform.include?(type.to_s)
