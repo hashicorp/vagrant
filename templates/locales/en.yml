@@ -52,6 +52,15 @@ en:
         Active provider: %{active_provider}
         Requested provider: %{requested_provider}
       base_vm_not_found: The base VM with the name '%{name}' was not found.
+      box_metadata_file_not_found: |-
+        The "metadata.json" file for the box '%{name}' was not found.
+        Boxes require this file in order for Vagrant to determine the
+        provider it was made for. If you made the box, please add a
+        "metadata.json" file to it. If someone else made the box, please
+        notify the box creator that the box is corrupt. Documentation for
+        box file format can be found at the URL below:
+
+        http://docs.vagrantup.com/v2/boxes/format.html
       box_not_found: Box '%{name}' could not be found.
       box_provider_doesnt_match: |-
         The box you attempted to add doesn't match the provider you specified.

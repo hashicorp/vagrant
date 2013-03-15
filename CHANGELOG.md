@@ -11,6 +11,7 @@ BUG FIXES:
     so on work properly.
   - When there is no route to host for SSH, re-establish a new connection.
   - `vagrant package` once again works, no more nil error. [GH-1423]
+  - Human friendly error when "metadata.json" is missing in a box.
 
 ## 1.1.0 (March 14, 2013)
 

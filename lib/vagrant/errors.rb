@@ -99,6 +99,10 @@ module Vagrant
       error_key(:unknown_type, "vagrant.actions.box.download")
     end
 
+    class BoxMetadataFileNotFound < VagrantError
+      error_key(:box_metadata_file_not_found)
+    end
+
     class BoxNotFound < VagrantError
       error_key(:box_not_found)
     end
