@@ -12,6 +12,8 @@ BUG FIXES:
   - When there is no route to host for SSH, re-establish a new connection.
   - `vagrant package` once again works, no more nil error. [GH-1423]
   - Human friendly error when "metadata.json" is missing in a box.
+  - Don't use the full path to the manifest file with the Puppet provisioner
+    because it exposes a bug with Puppet path lookup on VMware.
 
 ## 1.1.0 (March 14, 2013)
 
