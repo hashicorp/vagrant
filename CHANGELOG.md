@@ -14,6 +14,8 @@ BUG FIXES:
   - Human friendly error when "metadata.json" is missing in a box.
   - Don't use the full path to the manifest file with the Puppet provisioner
     because it exposes a bug with Puppet path lookup on VMware.
+  - Fix bug in VirtualBox provider where port forwarding just didn't work if
+    you attempted to forward to a port under 1024. [GH-1421]
 
 ## 1.1.0 (March 14, 2013)
 

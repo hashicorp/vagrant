@@ -21,7 +21,7 @@ module VagrantPlugins
           env[:forwarded_ports].each do |fp|
             if fp.host_port <= 1024
               env[:ui].warn I18n.t("vagrant.actions.vm.forward_ports.privileged_ports")
-              return
+              break
             end
           end
 
