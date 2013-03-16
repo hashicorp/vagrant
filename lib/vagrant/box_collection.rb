@@ -147,12 +147,10 @@ module Vagrant
         end
 
         # Move to final destination
-        FileUtils.mv(temp_dir.to_s, final_dir.to_s)
-
-        # Recreate the directory. This avoids a bug in Ruby where `mktmpdir`
-        # cleanup doesn't check if the directory is already gone. Ruby bug
-        # #6715: http://bugs.ruby-lang.org/issues/6715
-        Dir.mkdir(temp_dir, 0700)
+        final_dir.mkpath
+        temp_dir.children(true).each do |f|
+          FileUtils.mv(f, final_dir.join(f.basename))
+        end
       end
 
       # Return the box
