@@ -4,6 +4,8 @@ IMPROVEMENTS:
 
   - Don't load plugins on any `vagrant plugin` command, so that errors
     are avoided. [GH-1418]
+  - An error will be shown if you forward a port to the same host port
+    multiple times.
 
 BUG FIXES:
 

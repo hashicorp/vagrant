@@ -1,5 +1,6 @@
 require "pathname"
 require "securerandom"
+require "set"
 
 require "vagrant"
 require "vagrant/config/v2/util"
@@ -277,11 +278,22 @@ module VagrantPlugins
 
         # Validate networks
         has_fp_port_error = false
+        fp_host_ports     = Set.new
+
         networks.each do |type, options|
           if type == :forwarded_port
             if !has_fp_port_error && (!options[:guest] || !options[:host])
               errors << I18n.t("vagrant.config.vm.network_fp_requires_ports")
               has_fp_port_error = true
+            end
+
+            if options[:host]
+              if fp_host_ports.include?(options[:host])
+                errors << I18n.t("vagrant.config.vm.network_fp_host_not_unique",
+                                :host => options[:host].to_s)
+              end
+
+              fp_host_ports.add(options[:host])
             end
           end
         end
