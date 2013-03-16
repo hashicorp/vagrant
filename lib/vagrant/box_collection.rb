@@ -148,8 +148,14 @@ module Vagrant
 
         # Move to final destination
         final_dir.mkpath
+
+        # Go through each child and copy them one-by-one. This avoids
+        # an issue where on Windows cross-device directory copies are
+        # failing for some reason. [GH-1424]
         temp_dir.children(true).each do |f|
-          FileUtils.mv(f, final_dir.join(f.basename))
+          destination = final_dir.join(f.basename)
+          @logger.debug("Moving: #{f} => #{destination}")
+          FileUtils.mv(f, destination)
         end
       end
 
