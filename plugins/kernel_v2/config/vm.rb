@@ -138,19 +138,20 @@ module VagrantPlugins
         end
 
         # Merge in the latest settings and set the internal state
-        @__networks[id] = [type, options]
+        @__networks[id] = [type.to_sym, options]
       end
 
       # Configures a provider for this VM.
       #
       # @param [Symbol] name The name of the provider.
       def provider(name, &block)
+        name = name.to_sym
         @__providers[name] ||= []
         @__providers[name] << block if block_given?
       end
 
       def provision(name, options=nil, &block)
-        @provisioners << VagrantConfigProvisioner.new(name, options, &block)
+        @provisioners << VagrantConfigProvisioner.new(name.to_sym, options, &block)
       end
 
       def defined_vms

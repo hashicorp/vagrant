@@ -6,6 +6,8 @@ IMPROVEMENTS:
     are avoided. [GH-1418]
   - An error will be shown if you forward a port to the same host port
     multiple times.
+  - Automatically convert network, provider, and provisioner names to
+    symbols internally in case people define them as strings.
 
 BUG FIXES:
 
