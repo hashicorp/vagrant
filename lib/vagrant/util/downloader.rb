@@ -64,25 +64,24 @@ module Vagrant
               progress_data.gsub!(match[1], "")
 
               # Ignore the first \r and split by whitespace to grab the columns
-              columns = data[1..-1].split(/\s+/)
+              columns = data.strip.split(/\s+/)
 
               # COLUMN DATA:
               #
-              # 0 - blank
-              # 1 - % total
-              # 2 - Total size
-              # 3 - % received
-              # 4 - Received size
-              # 5 - % transferred
-              # 6 - Transferred size
-              # 7 - Average download speed
-              # 8 - Average upload speed
+              # 0 - % total
+              # 1 - Total size
+              # 2 - % received
+              # 3 - Received size
+              # 4 - % transferred
+              # 5 - Transferred size
+              # 6 - Average download speed
+              # 7 - Average upload speed
               # 9 - Total time
-              # 10 - Time spent
-              # 11 - Time left
-              # 12 - Current speed
+              # 9 - Time spent
+              # 10 - Time left
+              # 11 - Current speed
 
-              output = "Progress: #{columns[1]}% (Rate: #{columns[12]}/s, Estimated time remaining: #{columns[11]})"
+              output = "Progress: #{columns[0]}% (Rate: #{columns[11]}/s, Estimated time remaining: #{columns[10]})"
               @ui.clear_line
               @ui.info(output, :new_line => false)
             end
