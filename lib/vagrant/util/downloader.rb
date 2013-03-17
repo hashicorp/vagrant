@@ -1,5 +1,6 @@
 require "log4r"
 
+require "vagrant/util/busy"
 require "vagrant/util/subprocess"
 
 module Vagrant
@@ -10,12 +11,12 @@ module Vagrant
     class Downloader
       def initialize(source, destination, options=nil)
         @logger      = Log4r::Logger.new("vagrant::util::downloader")
-        @source      = source
-        @destination = destination
+        @source      = source.to_s
+        @destination = destination.to_s
 
         # Get the various optional values
-        @options     ||= {}
-        @ui          = @options[:ui]
+        options     ||= {}
+        @ui          = options[:ui]
       end
 
       # This executes the actual download, downloading the source file
@@ -70,10 +71,17 @@ module Vagrant
             # 11 - Time left
             # 12 - Current speed
 
-            output = "Progress: #{columns[1]}% (Rate: #{columns[12]}/s, Estimated time remaining: #{columns[11]}"
+            output = "Progress: #{columns[1]}% (Rate: #{columns[12]}/s, Estimated time remaining: #{columns[11]})"
             @ui.clear_line
             @ui.info(output, :new_line => false)
           end
+        end
+
+        # Create the callback that is called if we are interrupted
+        interrupted  = false
+        int_callback = Proc.new do
+          @logger.info("Downloader interrupted!")
+          interrupted = true
         end
 
         @logger.info("Downloader starting download: ")
@@ -81,13 +89,20 @@ module Vagrant
         @logger.info("  -- Destination: #{@destination}")
 
         # Execute!
-        result = Subprocess.execute("curl", *options, &data_proc)
+        result = Busy.busy(int_callback) do
+          Subprocess.execute("curl", *options, &data_proc)
+        end
+
+        # If the download was interrupted, then raise a specific error
+        raise Errors::DownloaderInterrupted if interrupted
 
         # If it didn't exit successfully, we need to parse the data and
         # show an error message.
         if result.exit_code != 0
-          parts = result.stderr.split(/\ncurl:\s+\(\d+\)\s*/, 2)
-          raise Errors::DownloaderError, :message => parts[1]
+          @logger.warn("Downloader exit code: #{result.exit_code}")
+          parts    = result.stderr.split(/\n*curl:\s+\(\d+\)\s*/, 2)
+          parts[1] ||= ""
+          raise Errors::DownloaderError, :message => parts[1].chomp
         end
 
         # Everything succeeded

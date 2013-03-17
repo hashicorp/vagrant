@@ -131,6 +131,9 @@ en:
         again.
 
         %{message}
+      downloader_interrupted: |-
+        The download was interrupted by an external signal. It did not
+        complete.
       environment_locked: |-
         An instance of Vagrant is already running. Only one instance of Vagrant
         may run at any given time to avoid problems with VirtualBox inconsistencies
@@ -818,9 +821,9 @@ en:
         destroy:
           destroying: "Deleting box '%{name}'..."
         download:
-          with: "Downloading with %{class}..."
           cleaning: "Cleaning up downloaded box..."
-          unknown_type: "Unknown or unsupported URI type given for box download."
+          downloading: "Downloading or copying the box..."
+          interrupted: "Box download was interrupted. Exiting."
         verify:
           verifying: "Verifying box..."
           failed: |-
