@@ -96,6 +96,10 @@ module Vagrant
         # If the download was interrupted, then raise a specific error
         raise Errors::DownloaderInterrupted if interrupted
 
+        # If we're outputting to the UI, clear the output to
+        # avoid lingering progress meters.
+        @ui.clear_line if @ui
+
         # If it didn't exit successfully, we need to parse the data and
         # show an error message.
         if result.exit_code != 0

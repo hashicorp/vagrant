@@ -18,12 +18,18 @@ module Vagrant
           @temp_path = env[:tmp_path].join("box" + Time.now.to_i.to_s)
           @logger.info("Downloading box to: #{@temp_path}")
 
+          url = env[:box_url]
+          if url !~ /^[a-z0-9]+:.*$/i
+            @logger.info("No protocol found on box URL, assuming file:")
+            url = "file:#{url}"
+          end
+
           # Download the box to a temporary path. We store the temporary
           # path as an instance variable so that the `#recover` method can
           # access it.
           env[:ui].info(I18n.t("vagrant.actions.box.download.downloading"))
           begin
-            downloader = Util::Downloader.new(env[:box_url], @temp_path, :ui => env[:ui])
+            downloader = Util::Downloader.new(url, @temp_path, :ui => env[:ui])
             downloader.download!
           rescue Errors::DownloaderInterrupted
             # The downloader was interrupted, so just return, because that
