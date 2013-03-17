@@ -42,38 +42,50 @@ module Vagrant
           # tell us output so we can parse it out.
           options << { :notify => :stderr }
 
+          progress_data = ""
+          progress_regexp = /(\r(.+?))\r/
+
           # Setup the proc that'll receive the real-time data from
           # the downloader.
           data_proc = Proc.new do |type, data|
             # Type will always be "stderr" because that is the only
             # type of data we're subscribed for notifications.
 
-            # If the data doesn't start with a \r then it isn't a progress
-            # notification, so ignore it.
-            next if data[0] != "\r"
+            # Accumulate progress_data
+            progress_data << data
 
-            # Ignore the first \r and split by whitespace to grab the columns
-            columns = data[1..-1].split(/\s+/)
+            while true
+              # If we have a full amount of column data (two "\r") then
+              # we report new progress reports. Otherwise, just keep
+              # accumulating.
+              match = progress_regexp.match(progress_data)
+              break if !match
+              data = match[2]
+              progress_data.gsub!(match[1], "")
 
-            # COLUMN DATA:
-            #
-            # 0 - blank
-            # 1 - % total
-            # 2 - Total size
-            # 3 - % received
-            # 4 - Received size
-            # 5 - % transferred
-            # 6 - Transferred size
-            # 7 - Average download speed
-            # 8 - Average upload speed
-            # 9 - Total time
-            # 10 - Time spent
-            # 11 - Time left
-            # 12 - Current speed
+              # Ignore the first \r and split by whitespace to grab the columns
+              columns = data[1..-1].split(/\s+/)
 
-            output = "Progress: #{columns[1]}% (Rate: #{columns[12]}/s, Estimated time remaining: #{columns[11]})"
-            @ui.clear_line
-            @ui.info(output, :new_line => false)
+              # COLUMN DATA:
+              #
+              # 0 - blank
+              # 1 - % total
+              # 2 - Total size
+              # 3 - % received
+              # 4 - Received size
+              # 5 - % transferred
+              # 6 - Transferred size
+              # 7 - Average download speed
+              # 8 - Average upload speed
+              # 9 - Total time
+              # 10 - Time spent
+              # 11 - Time left
+              # 12 - Current speed
+
+              output = "Progress: #{columns[1]}% (Rate: #{columns[12]}/s, Estimated time remaining: #{columns[11]})"
+              @ui.clear_line
+              @ui.info(output, :new_line => false)
+            end
           end
         end
 
