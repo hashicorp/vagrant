@@ -2,10 +2,14 @@ require "pathname"
 
 require "log4r"
 
+require "vagrant/util/scoped_hash_override"
+
 module VagrantPlugins
   module ProviderVirtualBox
     module Action
       class ShareFolders
+        include Vagrant::Util::ScopedHashOverride
+
         def initialize(app, env)
           @logger = Log4r::Logger.new("vagrant::action::vm::share_folders")
           @app    = app
@@ -27,8 +31,13 @@ module VagrantPlugins
         def shared_folders
           {}.tap do |result|
             @env[:machine].config.vm.synced_folders.each do |id, data|
+              data = scoped_hash_override(data, :virtualbox)
+
               # Ignore NFS shared folders
               next if data[:nfs]
+
+              # Ignore disabled shared folders
+              next if data[:disabled]
 
               # This to prevent overwriting the actual shared folders data
               result[id] = data.dup
