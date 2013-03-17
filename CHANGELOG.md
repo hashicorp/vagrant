@@ -1,6 +1,9 @@
 ## 1.2.0 (unreleased)
 
+IMPROVEMENTS:
 
+  - By adding the "disabled" boolean flag to synced folders you can disable
+    them altogether. [GH-1004]
 
 ## 1.1.6 (April 3, 2013)
 
