@@ -69,7 +69,6 @@ module Vagrant
   autoload :CLI,           'vagrant/cli'
   autoload :Command,       'vagrant/command'
   autoload :Config,        'vagrant/config'
-  autoload :Downloaders,   'vagrant/downloaders'
   autoload :Driver,        'vagrant/driver'
   autoload :Environment,   'vagrant/environment'
   autoload :Errors,        'vagrant/errors'
