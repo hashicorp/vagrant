@@ -87,11 +87,7 @@ module Vagrant
         # show an error message.
         if result.exit_code != 0
           parts = result.stderr.split(/\ncurl:\s+\(\d+\)\s*/, 2)
-
-          # If the length is correct, we properly parsed an error message
-          if parts.length == 2
-            # TODO: Raise the error
-          end
+          raise Errors::DownloaderError, :message => parts[1]
         end
 
         # Everything succeeded
