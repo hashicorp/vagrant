@@ -8,6 +8,7 @@ IMPROVEMENTS:
     multiple times.
   - Automatically convert network, provider, and provisioner names to
     symbols internally in case people define them as strings.
+  - Using newer versions of net-ssh and net-scp. [GH-1436]
 
 BUG FIXES:
 
