@@ -163,6 +163,10 @@ module Vagrant
       error_key(:dotfile_upgrade_json_error)
     end
 
+    class DownloaderError < VagrantError
+      error_key(:downloader_error)
+    end
+
     class DownloaderFileDoesntExist < VagrantError
       error_key(:file_missing, "vagrant.downloaders.file")
     end
