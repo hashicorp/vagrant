@@ -22,6 +22,8 @@ BUG FIXES:
   - Fix bug in VirtualBox provider where port forwarding just didn't work if
     you attempted to forward to a port under 1024. [GH-1421]
   - Fix cross-device box adds for Windows. [GH-1424]
+  - Fix minor issues with defaults of configuration of the shell
+    provisioner.
 
 ## 1.1.0 (March 14, 2013)
 

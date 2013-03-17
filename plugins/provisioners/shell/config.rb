@@ -7,7 +7,16 @@ module VagrantPlugins
       attr_accessor :args
 
       def initialize
-        @upload_path = "/tmp/vagrant-shell"
+        @args        = []
+        @inline      = UNSET_VALUE
+        @path        = UNSET_VALUE
+        @upload_path = UNSET_VALUE
+      end
+
+      def finalize!
+        @inline      = nil if @inline == UNSET_VALUE
+        @path        = nil if @path == UNSET_VALUE
+        @upload_path = "/tmp/vagrant-shell" if @upload_path == UNSET_VALUE
       end
 
       def validate(machine)
