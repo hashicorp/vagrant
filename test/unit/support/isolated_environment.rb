@@ -118,7 +118,7 @@ module Unit
         files = Dir.glob(File.join(".", "**", "*"))
 
         # Package!
-        Vagrant::Util::Subprocess.execute("bsdtar", "-czf", result.to_s, *files)
+        Vagrant::Util::Subprocess.execute("tar", "-czf", result.to_s, *files)
       end
 
       # Resulting box
@@ -163,7 +163,7 @@ module Unit
         files = Dir.glob(File.join(".", "**", "*"))
 
         # Package!
-        Vagrant::Util::Subprocess.execute("bsdtar", "-czf", result.to_s, *files)
+        Vagrant::Util::Subprocess.execute("tar", "-czf", result.to_s, *files)
       end
 
       # Resulting box

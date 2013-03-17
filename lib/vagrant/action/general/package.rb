@@ -88,7 +88,7 @@ module Vagrant
             files = Dir.glob(File.join(".", "**", "*"))
 
             # Package!
-            Util::Subprocess.execute("bsdtar", "-czf", output_path, *files)
+            Util::Subprocess.execute("tar", "-czf", output_path, *files)
           end
         end
 

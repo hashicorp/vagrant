@@ -76,7 +76,7 @@ module Vagrant
         files = Dir.glob(File.join(".", "**", "*"))
 
         # Package!
-        Util::Subprocess.execute("bsdtar", "-czf", path.to_s, *files)
+        Util::Subprocess.execute("tar", "-czf", path.to_s, *files)
       end
 
       @logger.info("Repackaged box '#{@name}' successfully: #{path}")
