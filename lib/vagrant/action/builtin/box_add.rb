@@ -1,5 +1,6 @@
 require "log4r"
 
+require "vagrant/util/downloader"
 require "vagrant/util/platform"
 
 module Vagrant
@@ -14,18 +15,21 @@ module Vagrant
         end
 
         def call(env)
-          # Instantiate the downloader
-          downloader = download_klass(env[:box_url]).new(env[:ui])
-          env[:ui].info I18n.t("vagrant.actions.box.download.with",
-                               :class => downloader.class.to_s)
+          @temp_path = env[:tmp_path].join("box" + Time.now.to_i.to_s)
+          @logger.info("Downloading box to: #{@temp_path}")
 
           # Download the box to a temporary path. We store the temporary
           # path as an instance variable so that the `#recover` method can
           # access it.
-          @temp_path = env[:tmp_path].join("box" + Time.now.to_i.to_s)
-          @logger.info("Downloading box to: #{@temp_path}")
-          File.open(@temp_path, Vagrant::Util::Platform.tar_file_options) do |f|
-            downloader.download!(env[:box_url], f)
+          env[:ui].info(I18n.t("vagrant.actions.box.download.downloading"))
+          begin
+            downloader = Util::Downloader.new(env[:box_url], @temp_path, :ui => env[:ui])
+            downloader.download!
+          rescue Errors::DownloaderInterrupted
+            # The downloader was interrupted, so just return, because that
+            # means we were interrupted as well.
+            env[:ui].info(I18n.t("vagrant.actions.box.download.interrupted"))
+            return
           end
 
           # Add the box
@@ -54,28 +58,8 @@ module Vagrant
           @app.call(env)
         end
 
-        def download_klass(url)
-          # This is hardcoded for now. In the future I'd like to make this
-          # pluginnable as well.
-          classes = [Downloaders::HTTP, Downloaders::File]
-
-          # Find the class to use.
-          classes.each_index do |i|
-            klass = classes[i]
-
-            # Use the class if it matches the given URI or if this
-            # is the last class...
-            return klass if classes.length == (i + 1) || klass.match?(url)
-          end
-
-          # If no downloader knows how to download this file, then we
-          # raise an exception.
-          raise Errors::BoxDownloadUnknownType
-        end
-
         def recover(env)
           if @temp_path && File.exist?(@temp_path)
-            env[:ui].info I18n.t("vagrant.actions.box.download.cleaning")
             File.unlink(@temp_path)
           end
         end
