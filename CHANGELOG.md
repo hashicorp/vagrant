@@ -1,5 +1,11 @@
 ## 1.2.0 (unreleased)
 
+FEATURES:
+
+  - Box downloads are now done via `curl` rather than Ruby's built-in
+    HTTP library. This results in massive speedups, support for SSL
+    verification, FTP downloads, and more.
+
 IMPROVEMENTS:
 
   - By adding the "disabled" boolean flag to synced folders you can disable
