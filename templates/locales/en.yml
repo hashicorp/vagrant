@@ -125,6 +125,12 @@ en:
         support.
 
         State file path: %{state_file}
+      downloader_error: |-
+        An error occurred while downloading the remote file. The error
+        message, if any, is reproduced below. Please fix this error and try
+        again.
+
+        %{message}
       environment_locked: |-
         An instance of Vagrant is already running. Only one instance of Vagrant
         may run at any given time to avoid problems with VirtualBox inconsistencies
