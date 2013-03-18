@@ -10,10 +10,21 @@ module VagrantPlugins
         def call(env)
           @app.call(env)
 
-          env[:nfs_host_ip]    = read_host_ip(env[:machine])
-          env[:nfs_machine_ip] = read_machine_ip(env[:machine])
+          using_nfs = false
+          env[:machine].config.vm.synced_folders.each do |id, opts|
+            if opts[:nfs]
+              using_nfs = true
+              break
+            end
+          end
 
-          raise Vagrant::Errors::NFSNoHostonlyNetwork if !env[:nfs_machine_ip]
+          if using_nfs
+            @logger.info("Using NFS, preparing NFS settings by reading host IP and machine IP")
+            env[:nfs_host_ip]    = read_host_ip(env[:machine])
+            env[:nfs_machine_ip] = read_machine_ip(env[:machine])
+
+            raise Vagrant::Errors::NFSNoHostonlyNetwork if !env[:nfs_machine_ip]
+          end
         end
 
         # Returns the IP address of the first host only network adapter
