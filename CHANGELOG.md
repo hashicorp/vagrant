@@ -24,6 +24,7 @@ BUG FIXES:
   - Fix cross-device box adds for Windows. [GH-1424]
   - Fix minor issues with defaults of configuration of the shell
     provisioner.
+  - Fix Puppet server using "host_name" instead of "hostname" [GH-1444]
 
 ## 1.1.0 (March 14, 2013)
 

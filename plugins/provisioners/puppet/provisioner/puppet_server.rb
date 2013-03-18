@@ -29,7 +29,7 @@ module VagrantPlugins
           if config.puppet_node
             # If a node name is given, we use that directly for the certname
             cn = config.puppet_node
-          elsif @machine.config.vm.host_name
+          elsif @machine.config.vm.hostname
             # If a host name is given, we explicitly set the certname to
             # nil so that the hostname becomes the cert name.
             cn = nil
