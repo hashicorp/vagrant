@@ -4,6 +4,9 @@ BUG FIXES:
 
   - When not specifying a cookbooks_path for chef-solo, an error won't
     be shown if "cookbooks" folder is missing.
+  - Fix typo for exception when no host-only network with NFS. [GH-1448]
+  - Use UNSET_VALUE/nil with args on shell provisioner by default since
+    `[]` was too truthy. [GH-1447]
 
 ## 1.1.1 (March 18, 2013)
 
