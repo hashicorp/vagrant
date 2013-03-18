@@ -1,6 +1,9 @@
 ## 1.1.2 (unreleased)
 
+BUG FIXES:
 
+  - When not specifying a cookbooks_path for chef-solo, an error won't
+    be shown if "cookbooks" folder is missing.
 
 ## 1.1.1 (March 18, 2013)
 
