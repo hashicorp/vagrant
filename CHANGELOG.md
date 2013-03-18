@@ -25,6 +25,8 @@ BUG FIXES:
   - Fix minor issues with defaults of configuration of the shell
     provisioner.
   - Fix Puppet server using "host_name" instead of "hostname" [GH-1444]
+  - Raise a proper error if no hostonly network is found for NFS with
+    VirtualBox. [GH-1437]
 
 ## 1.1.0 (March 14, 2013)
 

@@ -267,6 +267,10 @@ module Vagrant
       error_key(:nfs_no_host_ip)
     end
 
+    class NFSNoHostonlyNetwork < VagrantError
+      error_key(:nfs_no_hostonly_network)
+    end
+
     class NoEnvironmentError < VagrantError
       error_key(:no_env)
     end

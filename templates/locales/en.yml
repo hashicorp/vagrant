@@ -185,6 +185,10 @@ en:
       nfs_no_host_ip: |-
         No host IP was given to the Vagrant core NFS helper. This is
         an internal error that should be reported as a bug.
+      nfs_no_hostonly_network: |-
+        NFS requires a host-only network with a static IP to be created.
+        Please add a host-only network with a static IP to the machine
+        for NFS to work.
       no_env: |-
         A Vagrant environment is required to run this command. Run `vagrant init`
         to set one up in this directory, or change to a directory with a

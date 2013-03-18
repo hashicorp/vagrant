@@ -12,6 +12,8 @@ module VagrantPlugins
 
           env[:nfs_host_ip]    = read_host_ip(env[:machine])
           env[:nfs_machine_ip] = read_machine_ip(env[:machine])
+
+          raise Errors::NFSNoHostonlyNetwork if !env[:nfs_machine_ip]
         end
 
         # Returns the IP address of the first host only network adapter
