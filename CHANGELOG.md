@@ -3,6 +3,7 @@
 BUG FIXES:
 
   - Attempt to re-establish SSH connection on `Net::SSH::Disconnect`
+  - Allow any value that can convert to a string for `Vagrant.plugin`
 
 ## 1.1.2 (March 18, 2013)
 
