@@ -129,6 +129,9 @@ module VagrantPlugins
           rescue Errno::EHOSTUNREACH
             @logger.info("No route to host for connection. Not re-using.")
             @connection = nil
+          rescue Net::SSH::Disconnect
+            @logger.info("SSH disconnected. Not-reusing connection.")
+            @connection = nil
           rescue IOError
             @logger.info("Connection has been closed. Not re-using.")
             @connection = nil

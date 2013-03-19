@@ -1,6 +1,8 @@
 ## 1.1.3 (unreleased)
 
+BUG FIXES:
 
+  - Attempt to re-establish SSH connection on `Net::SSH::Disconnect`
 
 ## 1.1.2 (March 18, 2013)
 
