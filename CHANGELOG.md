@@ -1,5 +1,10 @@
 ## 1.1.3 (unreleased)
 
+IMPROVEMENTS:
+
+  - Puppet apply provisioner now retains the default module path
+    even while specifying custom module paths. [GH-1207]
+
 BUG FIXES:
 
   - Attempt to re-establish SSH connection on `Net::SSH::Disconnect`

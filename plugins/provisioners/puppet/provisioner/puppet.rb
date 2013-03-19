@@ -70,7 +70,14 @@ module VagrantPlugins
         def run_puppet_apply
           options = [config.options].flatten
           module_paths = @module_paths.map { |_, to| to }
-          options << "--modulepath '#{module_paths.join(':')}'" if !@module_paths.empty?
+          if !@module_paths.empty?
+            # Prepend the default module path
+            module_paths.unshift("/etc/puppet/modules")
+
+            # Add the command line switch to add the module path
+            options << "--modulepath '#{module_paths.join(':')}'"
+          end
+
           options << @manifest_file
           options = options.join(" ")
 
