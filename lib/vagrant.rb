@@ -144,11 +144,13 @@ module Vagrant
   # Vagrant may move it to "Vagrant::Plugins::V1" and plugins will not be
   # affected.
   #
+  # @param [String] version
+  # @param [String] component
   # @return [Class]
   def self.plugin(version, component=nil)
     # Build up the key and return a result
-    key    = version.to_sym
-    key    = [key, component.to_sym] if component
+    key    = version.to_s.to_sym
+    key    = [key, component.to_s.to_sym] if component
     result = PLUGIN_COMPONENTS.get(key)
 
     # If we found our component then we return that
