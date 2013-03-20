@@ -61,9 +61,11 @@ module VagrantPlugins
 
           folders = []
           shared_folders.each do |id, data|
+            hostpath = File.expand_path(data[:hostpath], @env[:root_path])
+            hostpath = Vagrant::Util::Platform.platform_path(hostpath)
             folders << {
               :name => id,
-              :hostpath => File.expand_path(data[:hostpath], @env[:root_path]),
+              :hostpath => hostpath,
               :transient => data[:transient]
             }
           end
