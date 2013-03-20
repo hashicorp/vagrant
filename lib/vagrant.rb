@@ -78,7 +78,6 @@ module Vagrant
   autoload :Machine,       'vagrant/machine'
   autoload :MachineState,  'vagrant/machine_state'
   autoload :Plugin,        'vagrant/plugin'
-  autoload :TestHelpers,   'vagrant/test_helpers'
   autoload :UI,            'vagrant/ui'
   autoload :Util,          'vagrant/util'
 
