@@ -4,6 +4,7 @@ IMPROVEMENTS:
 
   - Puppet apply provisioner now retains the default module path
     even while specifying custom module paths. [GH-1207]
+  - Re-added DHCP support for host-only networks. [GH-1466]
 
 BUG FIXES:
 
