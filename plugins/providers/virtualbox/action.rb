@@ -71,6 +71,7 @@ module VagrantPlugins
           b.use SaneDefaults
           b.use Customize
           b.use Boot
+          b.use CheckGuestAdditions
         end
       end
 
@@ -296,7 +297,6 @@ module VagrantPlugins
               b2.use CheckAccessible
               b2.use HandleBoxUrl
               b2.use Import
-              b2.use CheckGuestAdditions
               b2.use MatchMACAddress
             end
           end

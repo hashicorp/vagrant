@@ -8,6 +8,8 @@ IMPROVEMENTS:
   - Ability to specify a plugin version, plugin sources, and
     pre-release versions using `--plugin-version`, `--plugin-source`,
     and `--plugin-prerelease`. [GH-1461]
+  - Move VirtualBox guest addition checks to after the machine
+    boots. [GH-1179]
 
 BUG FIXES:
 
