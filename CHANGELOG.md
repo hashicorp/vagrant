@@ -10,6 +10,7 @@ IMPROVEMENTS:
     and `--plugin-prerelease`. [GH-1461]
   - Move VirtualBox guest addition checks to after the machine
     boots. [GH-1179]
+  - Removed `Vagrant::TestHelpers` because it doesn't really work anymore.
 
 BUG FIXES:
 
