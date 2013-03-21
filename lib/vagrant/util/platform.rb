@@ -69,7 +69,7 @@ module Vagrant
         #
         # @param [String] path
         # @return [String]
-        ddef unix_path(path)
+        def unix_path(path)
           return path if !cygwin?
 
           process = Subprocess.execute("cygpath", "-u", path.to_s)
