@@ -26,8 +26,11 @@ module VagrantPlugins
           env[:ui].info(I18n.t("vagrant.commands.plugin.installing",
                                :name => plugin_name_label))
           installed_gems = env[:gem_helper].with_environment do
-            # Override the list of sources by the ones set on the cmd-line if any
-            Gem.sources = env[:plugin_sources] if env[:plugin_sources]
+            # Override the list of sources by the ones set as a parameter if given
+            if env[:plugin_sources]
+              @logger.info("Custom plugin sources: #{env[:plugin_sources]}")
+              Gem.sources = env[:plugin_sources]
+            end
 
             installer = Gem::DependencyInstaller.new(:document => [], :prerelease => prerelease)
 
