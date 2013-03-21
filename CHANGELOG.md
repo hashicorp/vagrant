@@ -16,6 +16,8 @@ BUG FIXES:
   - Attempt to re-establish SSH connection on `Net::SSH::Disconnect`
   - Allow any value that can convert to a string for `Vagrant.plugin`
   - Chef solo `recipe_url` works properly again. [GH-1467]
+  - Port collision detection works properly in VirtualBox with
+    auto-corrected ports. [GH-1472]
 
 ## 1.1.2 (March 18, 2013)
 

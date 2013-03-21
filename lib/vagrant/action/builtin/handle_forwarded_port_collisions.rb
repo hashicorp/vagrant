@@ -32,7 +32,7 @@ module Vagrant
         end
 
         def call(env)
-          @logger.debug("Detecting any forwarded port collisions...")
+          @logger.info("Detecting any forwarded port collisions...")
 
           # Get the extra ports we consider in use
           extra_in_use = env[:port_collision_extra_in_use] || []
@@ -42,6 +42,11 @@ module Vagrant
 
           # Determine the handler we'll use if we have any port collisions
           repair = !!env[:port_collision_repair]
+
+          # Log out some of our parameters
+          @logger.debug("Extra in use: #{extra_in_use.inspect}")
+          @logger.debug("Remap: #{remap.inspect}")
+          @logger.debug("Repair: #{repair.inspect}")
 
           # Determine a list of usable ports for repair
           usable_ports = Set.new(env[:machine].config.vm.usable_port_range)
