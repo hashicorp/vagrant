@@ -27,8 +27,12 @@ module VagrantPlugins
         end
 
         def finalize!
+          @recipe_url = nil if @recipe_url == UNSET_VALUE
+
           if @cookbooks_path == UNSET_VALUE
-            @cookbooks_path = [[:host, "cookbooks"], [:vm, "cookbooks"]]
+            @cookbooks_path = []
+            @cookbooks_path << [:host, "cookbooks"] if !@recipe_url
+            @cookbooks_path << [:vm, "cookbooks"]
             @__defaulted_cookbooks_path = true
           end
 
@@ -45,7 +49,6 @@ module VagrantPlugins
           @encrypted_data_bag_secret_key_path = nil if \
             @encrypted_data_bag_secret_key_path == UNSET_VALUE
           @nfs = false if @nfs == UNSET_VALUE
-          @recipe_url = nil if @recipe_url == UNSET_VALUE
         end
 
         def validate(machine)
