@@ -209,8 +209,12 @@ module VagrantPlugins
         def hostonly_config(options)
           options = {
             :auto_config => true,
-            :netmask     => "255.255.255.0"
+            :netmask     => "255.255.255.0",
+            :type        => :static
           }.merge(options)
+
+          # Default IP is in the 20-bit private network block for DHCP based networks
+          options[:ip] = "172.28.128.1" if options[:type] == :dhcp
 
           # Calculate our network address for the given IP/netmask
           netaddr  = network_address(options[:ip], options[:netmask])
@@ -237,6 +241,24 @@ module VagrantPlugins
           adapter_ip[3] += 1
           options[:adapter_ip] ||= adapter_ip.join(".")
 
+          dhcp_options = {}
+          if options[:type] == :dhcp
+            # Calculate the DHCP server IP, which is the network address
+            # with the final octet + 2. So "172.28.0.0" turns into "172.28.0.2"
+            dhcp_ip    = ip_parts.dup
+            dhcp_ip[3] += 2
+            dhcp_options[:dhcp_ip] ||= dhcp_ip.join(".")
+
+            # Calculate the lower and upper bound for the DHCP server
+            dhcp_lower    = ip_parts.dup
+            dhcp_lower[3] += 3
+            dhcp_options[:dhcp_lower] ||= dhcp_lower.join(".")
+
+            dhcp_upper    = ip_parts.dup
+            dhcp_upper[3] = 254
+            dhcp_options[:dhcp_upper] ||= dhcp_upper.join(".")
+          end
+
           return {
             :adapter_ip  => options[:adapter_ip],
             :auto_config => options[:auto_config],
@@ -244,8 +266,8 @@ module VagrantPlugins
             :mac         => nil,
             :netmask     => options[:netmask],
             :nic_type    => nil,
-            :type        => :static
-          }
+            :type        => options[:type]
+          }.merge(dhcp_options)
         end
 
         def hostonly_adapter(config)
@@ -264,6 +286,24 @@ module VagrantPlugins
             # Create a new network
             interface = hostonly_create_network(config)
             @logger.info("Created network: #{interface[:name]}")
+          end
+
+          if config[:type] == :dhcp
+            # Check that if there is a DHCP server attached on our interface,
+            # then it is identical. Otherwise, we can't set it.
+            if interface[:dhcp]
+              valid = interface[:dhcp][:ip] == config[:dhcp_ip] &&
+                  interface[:dhcp][:lower] == config[:dhcp_lower] &&
+                  interface[:dhcp][:upper] == config[:dhcp_upper]
+
+              raise Errors::NetworkDHCPAlreadyAttached if !valid
+
+              @logger.debug("DHCP server already properly configured")
+            else
+              # Configure the DHCP server for the network.
+              @logger.debug("Creating a DHCP server...")
+              @env[:machine].provider.driver.create_dhcp_server(interface[:name], config)
+            end
           end
 
           return {
