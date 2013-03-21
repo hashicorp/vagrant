@@ -16,15 +16,23 @@ module VagrantPlugins
 
         def call(env)
           plugin_name = env[:plugin_name]
+          prerelease = env[:plugin_prerelease]
+          version = env[:plugin_version]
 
           # Install the gem
+          plugin_name_label = plugin_name
+          plugin_name_label += ' --prerelease' if prerelease
+          plugin_name_label += " --version \"#{version}\"" if version
           env[:ui].info(I18n.t("vagrant.commands.plugin.installing",
-                               :name => plugin_name))
+                               :name => plugin_name_label))
           installed_gems = env[:gem_helper].with_environment do
-            installer = Gem::DependencyInstaller.new(:document => [])
+            # Override the list of sources by the ones set on the cmd-line if any
+            Gem.sources = env[:plugin_sources] if env[:plugin_sources]
+
+            installer = Gem::DependencyInstaller.new(:document => [], :prerelease => prerelease)
 
             begin
-              installer.install(plugin_name)
+              installer.install(plugin_name, version)
             rescue Gem::GemNotFoundException
               raise Vagrant::Errors::PluginInstallNotFound,
                 :name => plugin_name
