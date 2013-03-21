@@ -17,18 +17,21 @@ module VagrantPlugins
                  "The name of the entry point file for loading the plugin.") do |entry_point|
               options[:entry_point] = entry_point
             end
+
             o.on("--plugin-prerelease",
-                 "Install a prereleased version of the plugin") do |plugin_prerelease|
+                 "Allow prerelease versions of this plugin.") do |plugin_prerelease|
               options[:plugin_prerelease] = plugin_prerelease
             end
+
+            o.on("--plugin-source PLUGIN_SOURCE", String,
+                 "Add a RubyGems repository source") do |plugin_source|
+              options[:plugin_sources] ||= []
+              options[:plugin_sources] << plugin_source
+            end
+
             o.on("--plugin-version PLUGIN_VERSION", String,
                  "Install a specific version of the plugin") do |plugin_version|
               options[:plugin_version] = plugin_version
-            end
-            o.on("--plugin-source PLUGIN_SOURCE", String,
-                 "Add a ruby gem repository") do |plugin_source|
-              options[:plugin_sources] = [] if !options[:plugin_sources]
-              options[:plugin_sources] << plugin_source
             end
           end
 
@@ -40,9 +43,9 @@ module VagrantPlugins
           # Install the gem
           action(Action.action_install, {
             :plugin_entry_point => options[:entry_point],
-            :plugin_prerelease => options[:plugin_prerelease],
-            :plugin_version => options[:plugin_version],
-            :plugin_sources => options[:plugin_sources],
+            :plugin_prerelease  => options[:plugin_prerelease],
+            :plugin_version     => options[:plugin_version],
+            :plugin_sources     => options[:plugin_sources],
             :plugin_name        => argv[0]
           })
 
