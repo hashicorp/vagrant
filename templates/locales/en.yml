@@ -1,6 +1,16 @@
 en:
   vagrant:
     general:
+      batch_unexpected_error: |-
+        An unexpected error ocurred when executing the action on the
+        '%{machine}' machine. Please report this as a bug:
+
+        %{message}
+      batch_vagrant_error: |-
+        An error occurred while executing the action on the '%{machine}'
+        machine. Please handle this error then try again:
+
+        %{message}
       config_upgrade_messages: |-
         There were warnings and/or errors while loading your Vagrantfile.
         Your Vagrantfile was written for an earlier version of Vagrant,
@@ -52,6 +62,11 @@ en:
         Active provider: %{active_provider}
         Requested provider: %{requested_provider}
       base_vm_not_found: The base VM with the name '%{name}' was not found.
+      batch_multi_error: |-
+        An error occurred while executing multiple actions in parallel.
+        Any errors that occurred are shown below.
+
+        %{message}
       box_metadata_file_not_found: |-
         The "metadata.json" file for the box '%{name}' was not found.
         Boxes require this file in order for Vagrant to determine the

@@ -52,6 +52,11 @@ module Vagrant
     # @return [Symbol]
     attr_reader :provider_name
 
+    # The options given to the provider when registering the plugin.
+    #
+    # @return [Hash]
+    attr_reader :provider_options
+
     # Initialize a new machine.
     #
     # @param [String] name Name of the virtual machine.
@@ -59,13 +64,15 @@ module Vagrant
     #   currently expected to be a V1 `provider` plugin.
     # @param [Object] provider_config The provider-specific configuration for
     #   this machine.
+    # @param [Hash] provider_options The provider-specific options from the
+    #   plugin definition.
     # @param [Object] config The configuration for this machine.
     # @param [Pathname] data_dir The directory where machine-specific data
     #   can be stored. This directory is ensured to exist.
     # @param [Box] box The box that is backing this virtual machine.
     # @param [Environment] env The environment that this machine is a
     #   part of.
-    def initialize(name, provider_name, provider_cls, provider_config, config, data_dir, box, env, base=false)
+    def initialize(name, provider_name, provider_cls, provider_config, provider_options, config, data_dir, box, env, base=false)
       @logger = Log4r::Logger.new("vagrant::machine")
       @logger.info("Initializing machine: #{name}")
       @logger.info("  - Provider: #{provider_cls}")
@@ -79,6 +86,7 @@ module Vagrant
       @name            = name
       @provider_config = provider_config
       @provider_name   = provider_name
+      @provider_options = provider_options
 
       # Read the ID, which is usually in local storage
       @id = nil
@@ -124,7 +132,7 @@ module Vagrant
         :action_name    => "machine_action_#{name}".to_sym,
         :machine        => self,
         :machine_action => name,
-        :ui             => @env.ui_class.new(@name)
+        :ui             => @env.ui.scope(@name)
       }.merge(extra_env || {})
       @env.action_runner.run(callable, env)
     end

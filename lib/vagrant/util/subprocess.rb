@@ -1,7 +1,10 @@
+require 'thread'
+
 require 'childprocess'
 require 'log4r'
 
 require 'vagrant/util/platform'
+require 'vagrant/util/safe_chdir'
 
 module Vagrant
   module Util
@@ -72,7 +75,7 @@ module Vagrant
 
         # Start the process
         begin
-          Dir.chdir(workdir) do
+          SafeChdir.safe_chdir(workdir) do
             process.start
           end
         rescue ChildProcess::LaunchError => ex
