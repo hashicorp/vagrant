@@ -210,7 +210,15 @@ describe Vagrant::Plugin::V2::Plugin do
         provider("foo") { "bar" }
       end
 
-      plugin.provider[:foo].should == "bar"
+      plugin.components.providers[:foo].should == ["bar", {}]
+    end
+
+    it "should register provider classes with options" do
+      plugin = Class.new(described_class) do
+        provider("foo", foo: "yep") { "bar" }
+      end
+
+      plugin.components.providers[:foo].should == ["bar", { foo: "yep" }]
     end
 
     it "should lazily register provider classes" do
@@ -227,7 +235,7 @@ describe Vagrant::Plugin::V2::Plugin do
       # Now verify when we actually get the configuration key that
       # a proper error is raised.
       expect {
-        plugin.provider[:foo]
+        plugin.components.providers[:foo]
       }.to raise_error(StandardError)
     end
   end

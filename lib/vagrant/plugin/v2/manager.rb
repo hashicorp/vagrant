@@ -89,7 +89,7 @@ module Vagrant
         def providers
           Registry.new.tap do |result|
             @registered.each do |plugin|
-              result.merge!(plugin.provider)
+              result.merge!(plugin.components.providers)
             end
           end
         end
