@@ -12,11 +12,8 @@ module Vagrant
     # * `error`
     # * `success`
     class Interface
-      attr_accessor :resource
-
-      def initialize(resource=nil)
+      def initialize
         @logger   = Log4r::Logger.new("vagrant::ui::interface")
-        @resource = resource
       end
 
       [:ask, :warn, :error, :info, :success].each do |method|
@@ -29,6 +26,15 @@ module Vagrant
       [:clear_line, :report_progress].each do |method|
         # By default do nothing, these aren't logged
         define_method(method) { |*args| }
+      end
+
+      # Returns a new UI class that is scoped to the given resource name.
+      # Subclasses can then use this scope name to do whatever they please.
+      #
+      # @param [String] scope_name
+      # @return [Interface]
+      def scope(scope_name)
+        self
       end
     end
 
@@ -122,11 +128,38 @@ module Vagrant
                   :io => channel, :printer => printer)
       end
 
+      def scope(scope_name)
+        BasicScope.new(self, scope_name)
+      end
+
       # This is called by `say` to format the message for output.
       def format_message(type, message, opts=nil)
         opts ||= {}
-        message = "[#{@resource}] #{message}" if @resource && opts[:prefix]
+        message = "[#{opts[:scope]}] #{message}" if opts[:scope] && opts[:prefix]
         message
+      end
+    end
+
+    # This implements a scope for the {Basic} UI.
+    class BasicScope < Interface
+      def initialize(ui, scope)
+        super()
+
+        @ui    = ui
+        @scope = scope
+      end
+
+      [:ask, :warn, :error, :info, :success].each do |method|
+        define_method(method) do |message, opts=nil|
+          opts ||= {}
+          opts[:scope] = @scope
+          @ui.send(method, message, opts)
+        end
+      end
+
+      [:clear_line, :report_progress].each do |method|
+        # By default do nothing, these aren't logged
+        define_method(method) { |*args| @ui.send(method, *args) }
       end
     end
 
