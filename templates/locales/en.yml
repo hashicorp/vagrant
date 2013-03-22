@@ -130,6 +130,14 @@ en:
         may run at any given time to avoid problems with VirtualBox inconsistencies
         occurring. Please wait for the other instance of Vagrant to end and then
         try again.
+      forward_port_adapter_not_found: |-
+        The adapter to attach a forwarded port to was not found. Please
+        verify that the given adapter is setup on the machine as a NAT
+        interface.
+
+        Host port: %{host}
+        Guest port: %{guest}
+        Adapter: %{adapter}
       gem_command_in_bundler: |-
         You cannot run the `vagrant plugin` command while in a bundler environment.
         This should generally never happen unless Vagrant is installed outside

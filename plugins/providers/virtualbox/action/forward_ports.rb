@@ -50,6 +50,14 @@ module VagrantPlugins
             @env[:ui].info(I18n.t("vagrant.actions.vm.forward_ports.forwarding_entry",
                                     message_attributes))
 
+            # Verify we have the network interface to attach to
+            if !interfaces[fp.adapter]
+              raise Vagrant::Errors::ForwardPortAdapterNotFound,
+                :adapter => fp.adapter.to_s,
+                :guest => fp.guest_port.to_s,
+                :host => fp.host_port.to_s
+            end
+
             # Port forwarding requires the network interface to be a NAT interface,
             # so verify that that is the case.
             if interfaces[fp.adapter][:type] != :nat

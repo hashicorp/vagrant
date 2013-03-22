@@ -21,6 +21,8 @@ BUG FIXES:
     auto-corrected ports. [GH-1472]
   - Fix obscure error when temp directory is world writable when
     adding boxes.
+  - Improved error handling around network interface detection for
+    VirtualBox [GH-1480]
 
 ## 1.1.2 (March 18, 2013)
 
