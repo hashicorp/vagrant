@@ -1,3 +1,5 @@
+require 'thread'
+
 require 'childprocess'
 require 'log4r'
 
@@ -12,6 +14,8 @@ module Vagrant
     # from the subprocess in real time, by simply passing a block to
     # the execute method.
     class Subprocess
+      @@chdir_lock = Mutex.new
+
       # The chunk size for reading from subprocess IO.
       READ_CHUNK_SIZE = 4096
 
@@ -72,8 +76,10 @@ module Vagrant
 
         # Start the process
         begin
-          Dir.chdir(workdir) do
-            process.start
+          @@chdir_lock.synchronize do
+            Dir.chdir(workdir) do
+              process.start
+            end
           end
         rescue ChildProcess::LaunchError => ex
           # Raise our own version of the error so that users of the class
