@@ -4,7 +4,6 @@ module Vagrant
   module Util
     class SafeChdir
       @@chdir_lock  = Mutex.new
-      @@lock_holder = nil
 
       # Safely changes directory of this process by putting a lock around
       # it so that it is thread safe. This will yield a block and when the
