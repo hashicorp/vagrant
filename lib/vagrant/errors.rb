@@ -91,6 +91,10 @@ module Vagrant
       error_key(:base_vm_not_found)
     end
 
+    class BatchMultiError < VagrantError
+      error_key(:batch_multi_error)
+    end
+
     class BoxAlreadyExists < VagrantError
       error_key(:already_exists, "vagrant.actions.box.unpackage")
     end

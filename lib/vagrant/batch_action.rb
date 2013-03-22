@@ -53,15 +53,61 @@ module Vagrant
       @actions.each do |machine, action, options|
         @logger.info("Starting action: #{machine} #{action} #{options}")
 
-        thread = Thread.new { machine.send(:action, action, options) }
+        # Create the new thread to run our action. This is basically just
+        # calling the action but also contains some error handling in it
+        # as well.
+        thread = Thread.new do
+          Thread.current[:error] = nil
+
+          begin
+            machine.send(:action, action, options)
+          rescue Exception => e
+            # If we're not parallelizing, then raise the error
+            raise if !par
+
+            # Store the exception that will be processed later
+            Thread.current[:error] = e
+          end
+        end
+
+        # Set some attributes on the thread for later
+        thread[:machine] = machine
+
         thread.join if !par
         threads << thread
       end
 
-      # Join the threads, which will return immediately if parallelization
-      # if disabled, because we already joined on them. Otherwise, this
-      # will wait for completion of all threads.
-      threads.map(&:join)
+      errors = []
+
+      threads.each do |thread|
+        # Wait for the thread to complete
+        thread.join
+
+        # If the thread had an error, then store the error to show later
+        if thread[:error]
+          e = thread[:error]
+          # If the error isn't a Vagrant error, then store the backtrace
+          # as well.
+          if !thread[:error].is_a?(Errors::VagrantError)
+            e       = thread[:error]
+            message = e.message
+            message += "\n"
+            message += "\n#{e.backtrace.join("\n")}"
+
+            errors << I18n.t("vagrant.general.batch_unexpected_error",
+                             :machine => thread[:machine].name,
+                             :message => message)
+          else
+            errors << I18n.t("vagrant.general.batch_vagrant_error",
+                             :machine => thread[:machine].name,
+                             :message => thread[:error].message)
+          end
+        end
+      end
+
+      if !errors.empty?
+        raise Errors::BatchMultiError, :message => errors.join("\n\n")
+      end
     end
   end
 end
