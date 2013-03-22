@@ -132,7 +132,7 @@ module Vagrant
         :action_name    => "machine_action_#{name}".to_sym,
         :machine        => self,
         :machine_action => name,
-        :ui             => @env.ui_class.new(@name)
+        :ui             => @env.ui.scope(@name)
       }.merge(extra_env || {})
       @env.action_runner.run(callable, env)
     end
