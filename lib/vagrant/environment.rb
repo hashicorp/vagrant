@@ -195,7 +195,7 @@ module Vagrant
     #
     # @return [Symbol] Name of the default provider.
     def default_provider
-      :virtualbox
+      (ENV['VAGRANT_DEFAULT_PROVIDER'] || :virtualbox).to_sym
     end
 
     # Returns the collection of boxes for the environment.
