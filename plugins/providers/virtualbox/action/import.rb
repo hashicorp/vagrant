@@ -7,6 +7,7 @@ module VagrantPlugins
         end
 
         def call(env)
+          raise "foo"
           env[:ui].info I18n.t("vagrant.actions.vm.import.importing",
                                :name => env[:machine].box.name)
 
