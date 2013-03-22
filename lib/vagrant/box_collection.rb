@@ -96,68 +96,68 @@ module Vagrant
 
       # Create a temporary directory since we're not sure at this point if
       # the box we're unpackaging already exists (if no provider was given)
-      Dir.mktmpdir(TEMP_PREFIX) do |temp_dir|
-        temp_dir = Pathname.new(temp_dir)
+      temp_dir = Pathname.new(Dir.mktmpdir(TEMP_PREFIX))
 
-        # Extract the box into a temporary directory.
-        @logger.debug("Unpacking box into temporary directory: #{temp_dir}")
-        result = Util::Subprocess.execute(
-          "bsdtar", "-v", "-x", "-C", temp_dir.to_s, "-f", path.to_s)
-        raise Errors::BoxUnpackageFailure, :output => result.stderr.to_s \
-          if result.exit_code != 0
+      # Extract the box into a temporary directory.
+      @logger.debug("Unpacking box into temporary directory: #{temp_dir}")
+      result = Util::Subprocess.execute(
+        "bsdtar", "-v", "-x", "-C", temp_dir.to_s, "-f", path.to_s)
+      raise Errors::BoxUnpackageFailure, :output => result.stderr.to_s if result.exit_code != 0
 
-        # If we get a V1 box, we want to update it in place
-        if v1_box?(temp_dir)
-          @logger.debug("Added box is a V1 box. Upgrading in place.")
-          temp_dir = v1_upgrade(temp_dir)
-        end
-
-        # Get an instance of the box we just added before it is finalized
-        # in the system so we can inspect and use its metadata.
-        box = Box.new(name, provider, temp_dir)
-
-        # Get the provider, since we'll need that to at the least add it
-        # to the system or check that it matches what is given to us.
-        box_provider = box.metadata["provider"]
-
-        if provider
-          # Verify that the given provider matches what the box has.
-          if box_provider.to_sym != provider
-            @logger.error("Added box provider doesnt match expected: #{box_provider}")
-            raise Errors::BoxProviderDoesntMatch, :expected => provider, :actual => box_provider
-          end
-        else
-          # We weren't given a provider, so store this one.
-          provider = box_provider.to_sym
-
-          # Verify the box doesn't already exist
-          check_box_exists.call(provider)
-        end
-
-        # Create the directory for this box, not including the provider
-        box_dir = @directory.join(name)
-        box_dir.mkpath
-        @logger.debug("Box directory: #{box_dir}")
-
-        # This is the final directory we'll move it to
-        final_dir = box_dir.join(provider.to_s)
-        if final_dir.exist?
-          @logger.debug("Removing existing provider directory...")
-          final_dir.rmtree
-        end
-
-        # Move to final destination
-        final_dir.mkpath
-
-        # Go through each child and copy them one-by-one. This avoids
-        # an issue where on Windows cross-device directory copies are
-        # failing for some reason. [GH-1424]
-        temp_dir.children(true).each do |f|
-          destination = final_dir.join(f.basename)
-          @logger.debug("Moving: #{f} => #{destination}")
-          FileUtils.mv(f, destination)
-        end
+      # If we get a V1 box, we want to update it in place
+      if v1_box?(temp_dir)
+        @logger.debug("Added box is a V1 box. Upgrading in place.")
+        temp_dir = v1_upgrade(temp_dir)
       end
+
+      # Get an instance of the box we just added before it is finalized
+      # in the system so we can inspect and use its metadata.
+      box = Box.new(name, provider, temp_dir)
+
+      # Get the provider, since we'll need that to at the least add it
+      # to the system or check that it matches what is given to us.
+      box_provider = box.metadata["provider"]
+
+      if provider
+        # Verify that the given provider matches what the box has.
+        if box_provider.to_sym != provider
+          @logger.error("Added box provider doesnt match expected: #{box_provider}")
+          raise Errors::BoxProviderDoesntMatch, :expected => provider, :actual => box_provider
+        end
+      else
+        # We weren't given a provider, so store this one.
+        provider = box_provider.to_sym
+
+        # Verify the box doesn't already exist
+        check_box_exists.call(provider)
+      end
+
+      # Create the directory for this box, not including the provider
+      box_dir = @directory.join(name)
+      box_dir.mkpath
+      @logger.debug("Box directory: #{box_dir}")
+
+      # This is the final directory we'll move it to
+      final_dir = box_dir.join(provider.to_s)
+      if final_dir.exist?
+        @logger.debug("Removing existing provider directory...")
+        final_dir.rmtree
+      end
+
+      # Move to final destination
+      final_dir.mkpath
+
+      # Go through each child and copy them one-by-one. This avoids
+      # an issue where on Windows cross-device directory copies are
+      # failing for some reason. [GH-1424]
+      temp_dir.children(true).each do |f|
+        destination = final_dir.join(f.basename)
+        @logger.debug("Moving: #{f} => #{destination}")
+        FileUtils.mv(f, destination)
+      end
+
+      # Remove the temporary directory
+      temp_dir.rmtree
 
       # Return the box
       find(name, provider)

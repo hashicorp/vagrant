@@ -19,6 +19,8 @@ BUG FIXES:
   - Chef solo `recipe_url` works properly again. [GH-1467]
   - Port collision detection works properly in VirtualBox with
     auto-corrected ports. [GH-1472]
+  - Fix obscure error when temp directory is world writable when
+    adding boxes.
 
 ## 1.1.2 (March 18, 2013)
 
