@@ -2,6 +2,7 @@ require 'fileutils'
 require 'json'
 require 'pathname'
 require 'set'
+require 'thread'
 
 require 'log4r'
 
@@ -94,6 +95,10 @@ module Vagrant
       @vagrantfile_name = opts[:vagrantfile_name]
       @ui               = opts[:ui_class].new
       @ui_class         = opts[:ui_class]
+
+      # This is the batch lock, that enforces that only one {BatchAction}
+      # runs at a time from {#batch}.
+      @batch_lock = Mutex.new
 
       @lock_acquired = false
 
@@ -194,12 +199,14 @@ module Vagrant
     # This handles the case where batch actions are disabled by the
     # VAGRANT_NO_PARALLEL environmental variable.
     def batch
-      BatchAction.new(!!ENV["VAGRANT_NO_PARALLEL"]).tap do |b|
-        # Yield it so that the caller can setup actions
-        yield b
+      @batch_lock.synchronize do
+        BatchAction.new(!!ENV["VAGRANT_NO_PARALLEL"]).tap do |b|
+          # Yield it so that the caller can setup actions
+          yield b
 
-        # And run it!
-        b.run
+          # And run it!
+          b.run
+        end
       end
     end
 
