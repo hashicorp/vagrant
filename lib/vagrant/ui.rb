@@ -1,3 +1,5 @@
+require "thread"
+
 require "log4r"
 
 require "vagrant/util/safe_puts"
@@ -52,6 +54,12 @@ module Vagrant
     # doesn't add any color.
     class Basic < Interface
       include Util::SafePuts
+
+      def initialize
+        super
+
+        @lock = Mutex.new
+      end
 
       # Use some light meta-programming to create the various methods to
       # output text to the UI. These all delegate the real functionality
@@ -123,9 +131,12 @@ module Vagrant
         # to based on the type of the message
         channel = type == :error || opts[:channel] == :error ? $stderr : $stdout
 
-        # Output!
-        safe_puts(format_message(type, message, opts),
-                  :io => channel, :printer => printer)
+        # Output! We wrap this in a lock so that it safely outputs only
+        # one line at a time.
+        @lock.synchronize do
+          safe_puts(format_message(type, message, opts),
+                    :io => channel, :printer => printer)
+        end
       end
 
       def scope(scope_name)
