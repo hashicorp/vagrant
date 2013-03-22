@@ -22,6 +22,8 @@ describe Vagrant::Environment do
 
   let(:instance)  { env.create_vagrant_env }
 
+  subject { instance }
+
   describe "active machines" do
     it "should be empty if the machines folder doesn't exist" do
       folder = instance.local_data_path.join("machines")
@@ -107,6 +109,20 @@ describe Vagrant::Environment do
     it "raises an exception if the CWD doesn't exist" do
       expect { described_class.new(:cwd => "doesntexist") }.
         to raise_error(Vagrant::Errors::EnvironmentNonExistentCWD)
+    end
+  end
+
+  describe "default provider" do
+    it "is virtualbox without any environmental variable" do
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil) do
+        subject.default_provider.should == :virtualbox
+      end
+    end
+
+    it "is whatever the environmental variable is if set" do
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => "foo") do
+        subject.default_provider.should == :foo
+      end
     end
   end
 
