@@ -5,10 +5,12 @@ require File.expand_path("../../base", __FILE__)
 describe Vagrant::BatchAction do
   let(:called_actions) { [] }
   let!(:lock) { Mutex.new }
+  let(:provider_name) { "test" }
   let(:provider_options) { {} }
 
   def new_machine(options)
     double("machine").tap do |m|
+      m.stub(:provider_name => provider_name)
       m.stub(:provider_options => options)
       m.stub(:action) do |action, opts|
         lock.synchronize do

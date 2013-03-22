@@ -188,6 +188,21 @@ module Vagrant
       result
     end
 
+    # This creates a new batch action, yielding it, and then running it
+    # once the block is called.
+    #
+    # This handles the case where batch actions are disabled by the
+    # VAGRANT_NO_PARALLEL environmental variable.
+    def batch
+      BatchAction.new(!!ENV["VAGRANT_NO_PARALLEL"]).tap do |b|
+        # Yield it so that the caller can setup actions
+        yield b
+
+        # And run it!
+        b.run
+      end
+    end
+
     # This returns the provider name for the default provider for this
     # environment. The provider returned is currently hardcoded to "virtualbox"
     # but one day should be a detected valid, best-case provider for this
