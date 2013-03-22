@@ -46,6 +46,36 @@ describe Vagrant::Environment do
     end
   end
 
+  describe "batching" do
+    let(:batch) do
+      double("batch") do |b|
+        b.stub(:run)
+      end
+    end
+
+    context "without the disabling env var" do
+      it "should run without disabling parallelization" do
+        with_temp_env("VAGRANT_NO_PARALLEL" => nil) do
+          Vagrant::BatchAction.should_receive(:new).with(false).and_return(batch)
+          batch.should_receive(:run)
+
+          instance.batch {}
+        end
+      end
+    end
+
+    context "with the disabling env var" do
+      it "should run with disabling parallelization" do
+        with_temp_env("VAGRANT_NO_PARALLEL" => "yes") do
+          Vagrant::BatchAction.should_receive(:new).with(true).and_return(batch)
+          batch.should_receive(:run)
+
+          instance.batch {}
+        end
+      end
+    end
+  end
+
   describe "current working directory" do
     it "is the cwd by default" do
       Dir.mktmpdir do |temp_dir|
