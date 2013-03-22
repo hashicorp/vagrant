@@ -2,6 +2,10 @@
 
 FEATURES:
 
+  - Providers can now parallelize! If they explicitly support it, Vagrant
+    will run "up" and other commands in parallel. For providers such AWS,
+    this means that your instances will come up in parallel. VirtualBox
+    does not support this mode.
   - Box downloads are now done via `curl` rather than Ruby's built-in
     HTTP library. This results in massive speedups, support for SSL
     verification, FTP downloads, and more.
