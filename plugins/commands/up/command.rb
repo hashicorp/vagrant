@@ -31,19 +31,16 @@ module VagrantPlugins
         @logger.debug("'Up' each target VM...")
 
         # Build up the batch job of what we'll do
-        batch = Vagrant::BatchAction.new.tap do |inner_batch|
+        @env.batch do |batch|
           with_target_vms(argv, :provider => options[:provider]) do |machine|
             @env.ui.info(I18n.t(
               "vagrant.commands.up.upping",
               :name => machine.name,
               :provider => machine.provider_name))
 
-            inner_batch.action(machine, :up, options)
+            batch.action(machine, :up, options)
           end
         end
-
-        # Run it!
-        batch.run
 
         # Success, exit status 0
         0
