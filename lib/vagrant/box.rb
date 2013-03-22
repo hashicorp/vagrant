@@ -4,6 +4,7 @@ require "json"
 require "log4r"
 
 require "vagrant/util/platform"
+require "vagrant/util/safe_chdir"
 require "vagrant/util/subprocess"
 
 module Vagrant
@@ -71,7 +72,7 @@ module Vagrant
     def repackage(path)
       @logger.debug("Repackaging box '#{@name}' to: #{path}")
 
-      Dir.chdir(@directory) do
+      Util::SafeChdir.safe_chdir(@directory) do
         # Find all the files in our current directory and tar it up!
         files = Dir.glob(File.join(".", "**", "*"))
 
