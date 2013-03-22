@@ -22,7 +22,7 @@ module Vagrant
       end
 
       def call(env)
-        return if @actions.empty?
+        return false if @actions.empty?
 
         begin
           # Call the next middleware in the sequence, appending to the stack
@@ -30,7 +30,9 @@ module Vagrant
           raise Errors::VagrantInterrupt if env[:interrupted]
           action = @actions.shift
           @logger.info("Calling action: #{action}")
-          @stack.unshift(action).first.call(env)
+          faction = @stack.unshift(action)
+          r = faction.first.call(env)
+          @logger.debug("action return #{r.to_s}")
           raise Errors::VagrantInterrupt if env[:interrupted]
         rescue SystemExit
           # This means that an "exit" or "abort" was called. In these cases,
@@ -45,6 +47,7 @@ module Vagrant
           begin_rescue(env)
           raise
         end
+        return r
       end
 
       # Begins the recovery sequence for all middlewares which have run.
