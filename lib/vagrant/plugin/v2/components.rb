@@ -16,12 +16,18 @@ module Vagrant
         # @return [Hash<Symbol, Registry>]
         attr_reader :configs
 
+        # This contains all the provider plugins by name, and returns
+        # the provider class and options.
+        #
+        # @return [Hash<Symbol, Registry>]
+        attr_reader :providers
+
         def initialize
           # The action hooks hash defaults to []
           @action_hooks = Hash.new { |h, k| h[k] = [] }
 
-          # Create the configs hash which defaults to a registry
           @configs = Hash.new { |h, k| h[k] = Registry.new }
+          @providers = Registry.new
         end
       end
     end

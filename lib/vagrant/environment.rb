@@ -287,10 +287,14 @@ module Vagrant
         raise Errors::MachineNotFound, :name => name, :provider => provider
       end
 
-      provider_cls = Vagrant.plugin("2").manager.providers[provider]
-      if !provider_cls
+      provider_plugin  = Vagrant.plugin("2").manager.providers[provider]
+      if !provider_plugin
         raise Errors::ProviderNotFound, :machine => name, :provider => provider
       end
+
+      # Extra the provider class and options from the plugin data
+      provider_cls     = provider_plugin[0]
+      provider_options = provider_plugin[1]
 
       # Build the machine configuration. This requires two passes: The first pass
       # loads in the machine sub-configuration. Since this can potentially
@@ -356,7 +360,7 @@ module Vagrant
       # Create the machine and cache it for future calls. This will also
       # return the machine from this method.
       @machines[cache_key] = Machine.new(name, provider, provider_cls, provider_config,
-                                         config, machine_data_path, box, self)
+                                         provider_options, config, machine_data_path, box, self)
     end
 
     # This returns a list of the configured machines for this environment.

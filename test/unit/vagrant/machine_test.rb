@@ -14,6 +14,7 @@ describe Vagrant::Machine do
   end
   let(:provider_config) { Object.new }
   let(:provider_name) { :test }
+  let(:provider_options) { {} }
   let(:box)      { Object.new }
   let(:config)   { env.config_global }
   let(:data_dir) { Pathname.new(Tempdir.new.path) }
@@ -30,10 +31,12 @@ describe Vagrant::Machine do
 
   let(:instance) { new_instance }
 
+  subject { instance }
+
   # Returns a new instance with the test data
   def new_instance
     described_class.new(name, provider_name, provider_cls, provider_config,
-                        config, data_dir, box, env)
+                        provider_options, config, data_dir, box, env)
   end
 
   describe "initialization" do
@@ -63,7 +66,7 @@ describe Vagrant::Machine do
         # Initialize a new machine and verify that we properly receive
         # the machine we expect.
         instance = described_class.new(name, provider_name, provider_cls, provider_config,
-                                       config, data_dir, box, env)
+                                       provider_options, config, data_dir, box, env)
         received_machine.should eql(instance)
       end
 
@@ -117,25 +120,13 @@ describe Vagrant::Machine do
   end
 
   describe "attributes" do
-    it "should provide access to the name" do
-      instance.name.should == name
-    end
-
-    it "should provide access to the configuration" do
-      instance.config.should eql(config)
-    end
-
-    it "should provide access to the box" do
-      instance.box.should eql(box)
-    end
-
-    it "should provide access to the environment" do
-      instance.env.should eql(env)
-    end
-
-    it "should provide access to the provider" do
-      instance.provider.should eql(provider)
-    end
+    its(:name)             { should eq(name) }
+    its(:config)           { should eql(config) }
+    its(:box)              { should eql(box) }
+    its(:env)              { should eql(env) }
+    its(:provider)         { should eql(provider) }
+    its(:provider_config)  { should eql(provider_config) }
+    its(:provider_options) { should eq(provider_options) }
   end
 
   describe "actions" do
