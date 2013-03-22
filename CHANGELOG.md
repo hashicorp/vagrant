@@ -14,6 +14,8 @@ IMPROVEMENTS:
 
   - By adding the "disabled" boolean flag to synced folders you can disable
     them altogether. [GH-1004]
+  - Specify the default provider with the `VAGRANT_DEFAULT_PROVIDER`
+    environmental variable. [GH-1478]
 
 ## 1.1.3 (unreleased)
 
