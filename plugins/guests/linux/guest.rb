@@ -29,6 +29,7 @@ module VagrantPlugins
           return :fedora if comm.test("grep 'Fedora release 1[678]' /etc/redhat-release")
           return :redhat if comm.test("cat /etc/redhat-release")
           return :suse if comm.test("cat /etc/SuSE-release")
+          return :pld if comm.test("cat /etc/pld-release")
           return :arch if comm.test("cat /etc/arch-release")
           return :solaris if comm.test("grep 'Solaris' /etc/release")
         end
