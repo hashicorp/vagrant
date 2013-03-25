@@ -11,6 +11,7 @@ IMPROVEMENTS:
   - Move VirtualBox guest addition checks to after the machine
     boots. [GH-1179]
   - Removed `Vagrant::TestHelpers` because it doesn't really work anymore.
+  - Add PLX linux guest support. [GH-1490]
 
 BUG FIXES:
 
