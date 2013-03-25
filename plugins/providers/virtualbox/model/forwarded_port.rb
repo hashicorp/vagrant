@@ -42,7 +42,7 @@ module VagrantPlugins
           options ||= {}
           @auto_correct = true
           @auto_correct = options[:auto_correct] if options.has_key?(:auto_correct)
-          @adapter  = options[:adapter].to_i || 1
+          @adapter  = (options[:adapter] || 1).to_i
           @protocol = options[:protocol] || "tcp"
         end
 
