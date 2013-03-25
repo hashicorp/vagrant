@@ -29,7 +29,7 @@ module Vagrant
         http.start do |h|
           @ui.info I18n.t("vagrant.downloaders.http.download", :url => source_url)
 
-          headers = nil
+          headers = { 'User-Agent' => 'curl/7.29.0'}
           if uri.user && uri.password
             headers = {'Authorization' => 'Basic ' + Base64.encode64(uri.user + ':' + uri.password)}
           end
