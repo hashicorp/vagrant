@@ -1,3 +1,9 @@
+## 1.1.4 (March 25, 2013)
+
+BUG FIXES:
+
+  - Default forwarded port adapter for VirtualBox should be 1.
+
 ## 1.1.3 (March 25, 2013)
 
 IMPROVEMENTS:
