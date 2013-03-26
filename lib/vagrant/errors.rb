@@ -167,6 +167,10 @@ module Vagrant
       error_key(:connection_timeout, "vagrant.downloaders.http")
     end
 
+    class DownloaderRedirectLimit < VagrantError
+      error_key(:redirect_limit, "vagrant.downloaders.http")
+    end
+
     class DownloaderHTTPSocketError < VagrantError
       error_key(:socket_error, "vagrant.downloaders.http")
     end

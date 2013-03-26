@@ -808,6 +808,9 @@ en:
         connection_timeout: |-
           Vagrant timed out while attempting to connect to the HTTP host.
           Please check your internet and proxy settings and try again.
+        redirect_limit: |-
+          Vagrant was re-directed too many times when trying to connect to the
+          HTTP host. Please check the URL and try again.
         download: "Downloading box: %{url}"
         socket_error: |-
           An error occurred while trying to download the specified box. This most

@@ -25,7 +25,7 @@ describe Vagrant::Downloaders::HTTP do
 
     it "should show error when redirects limit reached" do
       expect { instance.download!('http://google.com', 'w', 0) }.
-        to raise_error('too many HTTP redirects')
+        to raise_error(Vagrant::Errors::DownloaderRedirectLimit)
     end
 
     it "constant 301 redirect should raise error" do
