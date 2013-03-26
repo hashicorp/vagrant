@@ -15,10 +15,6 @@ describe Vagrant::Downloaders::HTTP do
     it "should not match file:// URIs" do
       described_class.match?("file://#{__FILE__}").should_not be
     end
-
-    it "should not match file:// URIs" do
-      described_class.match?("file://#{__FILE__}").should_not be
-    end
   end
 
   describe "redirects" do
