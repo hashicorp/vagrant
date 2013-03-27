@@ -27,7 +27,8 @@ module VagrantPlugins
         output = TemplateRenderer.render('nfs/exports_linux',
                                          :uuid => id,
                                          :ip => ip,
-                                         :folders => folders)
+                                         :folders => folders,
+                                         :user => Process.uid)
 
         @ui.info I18n.t("vagrant.hosts.arch.nfs_export.prepare")
         sleep 0.5
