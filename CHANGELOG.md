@@ -1,5 +1,9 @@
 ## 1.1.5 (unreleased)
 
+IMPROVEMENTS:
+
+  - More robust SSH connection close detection.
+
 BUG FIXES:
 
   - Proper error message if invalid provisioner is used. [GH-1515]

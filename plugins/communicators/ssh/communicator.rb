@@ -126,15 +126,10 @@ module VagrantPlugins
           # socket.
           begin
             @connection.exec!("")
-          rescue Errno::EHOSTUNREACH
-            @logger.info("No route to host for connection. Not re-using.")
-            @connection = nil
-          rescue Net::SSH::Disconnect
-            @logger.info("SSH disconnected. Not-reusing connection.")
-            @connection = nil
-          rescue IOError
-            @logger.info("Connection has been closed. Not re-using.")
-            @connection = nil
+          rescue Exception => e
+            @logger.info("Connection errored, not re-using. Will reconnect.")
+            @logger.debug(e.inspect)
+            @conncetion = nil
           end
 
           # If the @connection is still around, then it is valid,
