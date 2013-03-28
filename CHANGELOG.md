@@ -9,6 +9,8 @@ BUG FIXES:
   - Proper error message if invalid provisioner is used. [GH-1515]
   - Don't error on graceful halt if machine just shut down very
     quickly. [GH-1505]
+  - Error message if private key for SSH isn't owned by the proper
+    user. [GH-1503]
 
 ## 1.1.4 (March 25, 2013)
 

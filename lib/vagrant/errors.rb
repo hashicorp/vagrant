@@ -371,6 +371,10 @@ module Vagrant
       error_key(:ssh_host_down)
     end
 
+    class SSHKeyBadOwner < VagrantError
+      error_key(:ssh_key_bad_owner)
+    end
+
     class SSHKeyBadPermissions < VagrantError
       error_key(:ssh_key_bad_permissions)
     end

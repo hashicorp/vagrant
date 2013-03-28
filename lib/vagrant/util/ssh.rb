@@ -27,7 +27,12 @@ module Vagrant
         LOGGER.debug("Checking key permissions: #{key_path}")
         stat = key_path.stat
 
-        if stat.owned? && FileMode.from_octal(stat.mode) != "600"
+        if !stat.owned?
+          # The SSH key must be owned by ourselves
+          raise Errors::SSHKeyBadOwner, :key_path => key_path
+        end
+
+        if FileMode.from_octal(stat.mode) != "600"
           LOGGER.info("Attempting to correct key permissions to 0600")
           key_path.chmod(0600)
 

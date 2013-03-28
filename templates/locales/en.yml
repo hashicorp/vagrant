@@ -299,6 +299,13 @@ en:
         While attempting to connect with SSH, a "host is down" (EHOSTDOWN)
         error was received. Please verify your SSH settings are correct
         and try again.
+      ssh_key_bad_owner: |-
+        The private key to connect to the machine via SSH must be owned
+        by the user running Vagrant. This is a strict requirement from
+        SSH itself. Please fix the following key to be owned by the user
+        running Vagrant:
+
+        %{key_path}
       ssh_key_bad_permissions: |-
         The private key to connect to this box via SSH has invalid permissions
         set on it. The permissions of the private key should be set to 0600, otherwise SSH will
