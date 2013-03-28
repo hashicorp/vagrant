@@ -45,7 +45,12 @@ module VagrantPlugins
       #
       # does not exist in /etc/user_attr. TODO
       def halt
-        vm.communicate.execute("#{vm.config.solaris.suexec_cmd} /usr/sbin/poweroff")
+        begin
+          vm.communicate.execute("#{vm.config.solaris.suexec_cmd} /usr/sbin/poweroff")
+        rescue IOError
+          # Ignore, this probably means connection closed because it
+          # shut down.
+        end
       end
 
       def mount_shared_folder(name, guestpath, options)

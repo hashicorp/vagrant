@@ -39,7 +39,12 @@ module VagrantPlugins
       end
 
       def halt
-        @vm.communicate.sudo("shutdown -h now")
+        begin
+          @vm.communicate.sudo("shutdown -h now")
+        rescue IOError
+          # Do nothing, because it probably means the machine shut down
+          # and SSH connection was lost.
+        end
       end
 
       def mount_shared_folder(name, guestpath, options)

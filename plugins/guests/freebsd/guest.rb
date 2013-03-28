@@ -12,7 +12,12 @@ module VagrantPlugins
       end
 
       def halt
-        vm.communicate.sudo("shutdown -p now")
+        begin
+          vm.communicate.sudo("shutdown -p now")
+        rescue IOError
+          # Do nothing because SSH connection closed and it probably
+          # means the VM just shut down really fast.
+        end
       end
 
       # TODO: vboxsf is currently unsupported in FreeBSD, if you are able to

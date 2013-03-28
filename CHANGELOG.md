@@ -7,6 +7,8 @@ IMPROVEMENTS:
 BUG FIXES:
 
   - Proper error message if invalid provisioner is used. [GH-1515]
+  - Don't error on graceful halt if machine just shut down very
+    quickly. [GH-1505]
 
 ## 1.1.4 (March 25, 2013)
 
