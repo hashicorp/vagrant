@@ -472,15 +472,13 @@ en:
           Forwarded port '%{host}' (host port) is declared multiple times
         network_fp_requires_ports: |-
           Forwarded port definitions require a "host" and "guest" value
+        provisioner_not_found: |-
+          The '%{name}' provisioner could not be found.
         shared_folder_hostpath_missing: |-
           The host path of the shared folder is missing: %{path}
         shared_folder_nfs_owner_group: |-
           Shared folder that have NFS enabled do no support owner/group
           attributes. Host path: %{path}
-        provisioner_not_found: "The provisioner '%{shortcut}' doesn't exist."
-        provisioner_invalid_class: |-
-          The provisioner '%{shortcut}' must inherit from
-          `Vagrant::Plugin::V1::Provisioner`."
 
 #-------------------------------------------------------------------------------
 # Translations for commands. e.g. `vagrant x`

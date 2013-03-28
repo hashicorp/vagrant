@@ -312,6 +312,12 @@ module VagrantPlugins
 
         # Validate provisioners
         @provisioners.each do |vm_provisioner|
+          if vm_provisioner.invalid?
+            errors["vm"] << I18n.t("vagrant.config.vm.provisioner_not_found",
+                                   :name => vm_provisioner.name)
+            next
+          end
+
           if vm_provisioner.config
             provisioner_errors = vm_provisioner.config.validate(machine)
             if provisioner_errors

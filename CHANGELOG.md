@@ -1,6 +1,8 @@
 ## 1.1.5 (unreleased)
 
+BUG FIXES:
 
+  - Proper error message if invalid provisioner is used. [GH-1515]
 
 ## 1.1.4 (March 25, 2013)
 

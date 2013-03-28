@@ -19,13 +19,15 @@ module VagrantPlugins
         @logger = Log4r::Logger.new("vagrant::config::vm::provisioner")
         @logger.debug("Provisioner defined: #{name}")
 
-        @config = nil
-        @name   = name
+        @config  = nil
+        @invalid = false
+        @name    = name
 
         # Attempt to find the configuration class for this provider
         # if it exists and load the configuration.
         config_class = Vagrant.plugin("2").manager.provisioner_configs[@name]
         if !config_class
+          @invalid = true
           @logger.info("Provisioner config for '#{@name}' not found. Ignoring config.")
           return
         end
@@ -34,6 +36,14 @@ module VagrantPlugins
         @config.set_options(options) if options
         block.call(@config) if block
         @config.finalize!
+      end
+
+      # Returns whether the provisioner used was invalid or not. A provisioner
+      # is invalid if it can't be found.
+      #
+      # @return [Boolean]
+      def invalid?
+        @invalid
       end
     end
   end
