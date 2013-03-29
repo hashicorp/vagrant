@@ -6,6 +6,8 @@ IMPROVEMENTS:
   - Don't load `vagrant plugin` installed plugins when in a Bundler
     environment. This happens during plugin development. This will make
     Vagrant errors much quieter when developing plugins.
+  - Vagrant will detect Bundler environments, make assumptions that you're
+    developing plugins, and will quiet its error output a bit.
 
 BUG FIXES:
 
