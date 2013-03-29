@@ -249,8 +249,25 @@ module VagrantPlugins
           @hostname && @hostname !~ /^[-.a-z0-9]+$/i
 
         has_nfs = false
+        used_guest_paths = Set.new
         @synced_folders.each do |id, options|
-          hostpath = Pathname.new(options[:hostpath]).expand_path(machine.env.root_path)
+          # If the shared folder is disabled then don't worry about validating it
+          next if options[:disabled]
+
+          guestpath = Pathname.new(options[:guestpath])
+          hostpath  = Pathname.new(options[:hostpath]).expand_path(machine.env.root_path)
+
+          if guestpath.relative?
+            errors << I18n.t("vagrant.config.vm.shared_folder_guestpath_relative",
+                             :path => options[:guestpath])
+          else
+            if used_guest_paths.include?(options[:guestpath])
+              errors << I18n.t("vagrant.config.vm.shared_folder_guestpath_duplicate",
+                               :path => options[:guestpath])
+            end
+
+            used_guest_paths.add(options[:guestpath])
+          end
 
           if !hostpath.directory? && !options[:create]
             errors << I18n.t("vagrant.config.vm.shared_folder_hostpath_missing",

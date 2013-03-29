@@ -486,6 +486,11 @@ en:
           Forwarded port definitions require a "host" and "guest" value
         provisioner_not_found: |-
           The '%{name}' provisioner could not be found.
+        shared_folder_guestpath_duplicate: |-
+          A shared folder guest path is used multiple times. Shared
+          folders must all map to a unique guest path: %{path}
+        shared_folder_guestpath_relative: |-
+          The shared folder guest path must be absolute: %{path}
         shared_folder_hostpath_missing: |-
           The host path of the shared folder is missing: %{path}
         shared_folder_nfs_owner_group: |-

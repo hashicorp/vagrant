@@ -8,6 +8,7 @@ IMPROVEMENTS:
     Vagrant errors much quieter when developing plugins.
   - Vagrant will detect Bundler environments, make assumptions that you're
     developing plugins, and will quiet its error output a bit.
+  - More comprehensive synced folder configuration validation.
 
 BUG FIXES:
 
