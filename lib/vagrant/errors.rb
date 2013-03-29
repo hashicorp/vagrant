@@ -427,6 +427,10 @@ module Vagrant
       error_key(:vboxmanage_error)
     end
 
+    class VBoxManageNotFoundError < VagrantError
+      error_key(:vboxmanage_not_found_error)
+    end
+
     class VirtualBoxInvalidVersion < VagrantError
       error_key(:virtualbox_invalid_version)
     end

@@ -288,6 +288,8 @@ module VagrantPlugins
             if r.exit_code != 0
               if @interrupted
                 @logger.info("Exit code != 0, but interrupted. Ignoring.")
+              elsif r.exit_code == 126
+                raise Vagrant::Errors::VBoxManageNotFoundError
               else
                 raise Vagrant::Errors::VBoxManageError, :command => command.inspect
               end

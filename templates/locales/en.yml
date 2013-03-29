@@ -387,6 +387,11 @@ en:
 
         For more information on the failure, enable detailed logging by setting
         the environment variable VAGRANT_LOG to DEBUG.
+      vboxmanage_not_found_error: |-
+        The "VBoxManage" command or one of its dependencies could not
+        be found. Please verify VirtualBox is properly installed. You can verify
+        everything is okay by running "VBoxManage --version" and verifying
+        that the VirtualBox version is outputted.
       virtualbox_invalid_version: |-
         Vagrant has detected that you have a version of VirtualBox installed
         that is not supported. Please install one of the supported versions

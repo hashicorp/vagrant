@@ -18,6 +18,8 @@ BUG FIXES:
   - Error message if private key for SSH isn't owned by the proper
     user. [GH-1503]
   - Don't error too early when `config.vm.box` is not properly set.
+  - Show a human-friendly error if VBoxManage is not found (exit
+    status 126). [GH-934]
 
 ## 1.1.4 (March 25, 2013)
 
