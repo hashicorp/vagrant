@@ -636,6 +636,16 @@ module Vagrant
       ENV["GEM_PATH"] = "#{@gems_path}#{::File::PATH_SEPARATOR}#{ENV["GEM_PATH"]}"
       ::Gem.clear_paths
 
+      # If we're in a Bundler environment, don't load plugins. This only
+      # happens in plugin development environments.
+      if defined?(Bundler)
+        require 'bundler/shared_helpers'
+        if Bundler::SharedHelpers.in_bundle?
+          @logger.warn("In a bundler environment, not loading environment plugins!")
+          return
+        end
+      end
+
       # Load the plugins
       plugins_json_file = @home_path.join("plugins.json")
       @logger.debug("Loading plugins from: #{plugins_json_file}")

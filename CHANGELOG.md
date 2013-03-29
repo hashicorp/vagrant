@@ -3,6 +3,9 @@
 IMPROVEMENTS:
 
   - More robust SSH connection close detection.
+  - Don't load `vagrant plugin` installed plugins when in a Bundler
+    environment. This happens during plugin development. This will make
+    Vagrant errors much quieter when developing plugins.
 
 BUG FIXES:
 
