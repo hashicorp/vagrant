@@ -289,6 +289,9 @@ module VagrantPlugins
               if @interrupted
                 @logger.info("Exit code != 0, but interrupted. Ignoring.")
               elsif r.exit_code == 126
+                # This exit code happens if VBoxManage is on the PATH,
+                # but another executable it tries to execute is missing.
+                # This is usually indicative of a corrupted VirtualBox install.
                 raise Vagrant::Errors::VBoxManageNotFoundError
               else
                 raise Vagrant::Errors::VBoxManageError, :command => command.inspect
