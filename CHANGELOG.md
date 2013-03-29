@@ -17,6 +17,7 @@ BUG FIXES:
     quickly. [GH-1505]
   - Error message if private key for SSH isn't owned by the proper
     user. [GH-1503]
+  - Don't error too early when `config.vm.box` is not properly set.
 
 ## 1.1.4 (March 25, 2013)
 
