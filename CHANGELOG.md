@@ -20,6 +20,7 @@ BUG FIXES:
   - Don't error too early when `config.vm.box` is not properly set.
   - Show a human-friendly error if VBoxManage is not found (exit
     status 126). [GH-934]
+  - Action hook prepend/append will only prepend or append once.
 
 ## 1.1.4 (March 25, 2013)
 
