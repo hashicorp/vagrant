@@ -23,11 +23,16 @@ module VagrantPlugins
         @invalid = false
         @name    = name
 
+        # Attempt to find the provisioner...
+        if !Vagrant.plugin("2").manager.provisioners[name]
+          @logger.warn("Provisioner '#{name}' not found.")
+          @invalid = true
+        end
+
         # Attempt to find the configuration class for this provider
         # if it exists and load the configuration.
         config_class = Vagrant.plugin("2").manager.provisioner_configs[@name]
         if !config_class
-          @invalid = true
           @logger.info("Provisioner config for '#{@name}' not found. Ignoring config.")
           return
         end
