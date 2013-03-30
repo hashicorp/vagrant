@@ -191,6 +191,16 @@ describe Vagrant::Action::Builder do
       subject.call(data)
 
       data[:data].should == [1, 2]
+      data[:action_hooks_already_ran].should == true
+    end
+
+    it "applies without prepend/append if it has already" do
+      hook = double("hook")
+      hook.should_receive(:apply).with(anything, { :no_prepend_or_append => true }).once
+
+      data[:action_hooks] = [hook]
+      data[:action_hooks_already_ran] = true
+      subject.call(data)
     end
   end
 end
