@@ -8,7 +8,11 @@ module VagrantPlugins
           options = {}
 
           opts = OptionParser.new do |opts|
-            opts.banner = "Usage: vagrant box list"
+            opts.banner = "Usage: vagrant box list [-t]"
+          end
+
+          opts.on_tail("-t", "Output in machine-readable format") do |c|
+            options[:command] = "t"
           end
 
           # Parse the options
@@ -23,13 +27,14 @@ module VagrantPlugins
           # Find the longest box name
           longest_box = boxes.max_by { |x| x[0].length }
           longest_box_length = longest_box[0].length
+          separator =  options[:command] == "t" ? ["+",","] : [:ljust, longest_box_length]
 
           # Go through each box and output the information about it. We
           # ignore the "v1" param for now since I'm not yet sure if its
           # important for the user to know what boxes need to be upgraded
           # and which don't, since we plan on doing that transparently.
           boxes.each do |name, provider, _v1|
-            @env.ui.info("#{name.ljust(longest_box_length)} (#{provider})", :prefix => false)
+            @env.ui.info("#{name.send(*separator)} (#{provider})", :prefix => false)
           end
 
           # Success, exit status 0
