@@ -168,6 +168,7 @@ module VagrantPlugins
           # errors that are generally fixed from a retry and don't
           # necessarily represent immediate failure cases.
           exceptions = [
+            Errno::EACCES,
             Errno::EADDRINUSE,
             Errno::ECONNREFUSED,
             Errno::ECONNRESET,
@@ -203,6 +204,9 @@ module VagrantPlugins
               end
             end
           end
+        rescue Errno::EACCES
+          # This happens on connect() for unknown reasons yet...
+          raise Vagrant::Errors::SSHConnectEACCES
         rescue Errno::ETIMEDOUT, Timeout::Error
           # This happens if we continued to timeout when attempting to connect.
           raise Vagrant::Errors::SSHConnectionTimeout

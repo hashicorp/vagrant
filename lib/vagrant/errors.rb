@@ -351,6 +351,10 @@ module Vagrant
       error_key(:ssh_authentication_failed)
     end
 
+    class SSHConnectEACCES < VagrantError
+      error_key(:ssh_connect_eacces)
+    end
+
     class SSHConnectionRefused < VagrantError
       error_key(:ssh_connection_refused)
     end

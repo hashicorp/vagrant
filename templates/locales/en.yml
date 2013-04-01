@@ -276,6 +276,11 @@ en:
         Vagrant assumes that this means the command failed!
 
         %{command}
+      ssh_connect_eacces: |-
+        SSH is getting permission denied errors when attempting to connect
+        to the IP for SSH. This is usually caused by network rules and not being
+        able to connect to the specified IP. Please try changing the IP on
+        which the guest machine binds to for SSH.
       ssh_connection_refused: |-
         SSH connection was refused! This usually happens if the VM failed to
         boot properly. Some steps to try to fix this: First, try reloading your
