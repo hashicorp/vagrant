@@ -386,12 +386,12 @@ en:
 
         %{file}
       vboxmanage_error: |-
-        There was an error executing the following command with VBoxManage:
+        There was an error while executing `VBoxManage`, a CLI used by Vagrant
+        for controlling VirtualBox. The command and stderr is shown below.
 
-        %{command}
+        Command: %{command}
 
-        For more information on the failure, enable detailed logging by setting
-        the environment variable VAGRANT_LOG to DEBUG.
+        Stderr: %{stderr}
       vboxmanage_not_found_error: |-
         The "VBoxManage" command or one of its dependencies could not
         be found. Please verify VirtualBox is properly installed. You can verify

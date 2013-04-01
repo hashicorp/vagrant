@@ -9,6 +9,8 @@ IMPROVEMENTS:
   - Vagrant will detect Bundler environments, make assumptions that you're
     developing plugins, and will quiet its error output a bit.
   - More comprehensive synced folder configuration validation.
+  - VBoxManage errors now show the output from the command so that
+    users can potentially know what is wrong.
 
 BUG FIXES:
 
