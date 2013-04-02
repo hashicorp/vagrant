@@ -24,6 +24,7 @@ BUG FIXES:
     status 126). [GH-934]
   - Action hook prepend/append will only prepend or append once.
   - Retry SSH on Errno::EACCES.
+  - Show an error if an invalid network type is used.
 
 ## 1.1.4 (March 25, 2013)
 

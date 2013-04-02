@@ -494,6 +494,8 @@ en:
           Forwarded port '%{host}' (host port) is declared multiple times
         network_fp_requires_ports: |-
           Forwarded port definitions require a "host" and "guest" value
+        network_type_invalid: |-
+          Network type '%{type}' is invalid. Please use a valid network type.
         provisioner_not_found: |-
           The '%{name}' provisioner could not be found.
         shared_folder_guestpath_duplicate: |-

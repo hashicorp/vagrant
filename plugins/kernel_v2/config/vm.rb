@@ -297,8 +297,14 @@ module VagrantPlugins
         # Validate networks
         has_fp_port_error = false
         fp_host_ports     = Set.new
+        valid_network_types = [:forwarded_port, :private_network, :public_network]
 
         networks.each do |type, options|
+          if !valid_network_types.include?(type)
+            errors << I18n.t("vagrant.config.vm.network_type_invalid",
+                            :type => type.to_s)
+          end
+
           if type == :forwarded_port
             if !has_fp_port_error && (!options[:guest] || !options[:host])
               errors << I18n.t("vagrant.config.vm.network_fp_requires_ports")
