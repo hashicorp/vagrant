@@ -69,7 +69,7 @@ module VagrantPlugins
               # Get the expanded path that the host path points to
               local_path = File.expand_path(path, @machine.env.root_path)
 
-              if local_path.exist?
+              if File.exist?(local_path)
                 # Path exists on the host, setup the remote path
                 remote_path = "#{@config.provisioning_path}/chef-solo-#{get_and_update_counter(:cookbooks_path)}"
               else
