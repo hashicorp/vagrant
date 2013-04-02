@@ -25,6 +25,7 @@ BUG FIXES:
   - Action hook prepend/append will only prepend or append once.
   - Retry SSH on Errno::EACCES.
   - Show an error if an invalid network type is used.
+  - Don't share Chef solo folder if it doesn't exist on host.
 
 ## 1.1.4 (March 25, 2013)
 
