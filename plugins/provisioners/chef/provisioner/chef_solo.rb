@@ -74,6 +74,7 @@ module VagrantPlugins
                 remote_path = "#{@config.provisioning_path}/chef-solo-#{get_and_update_counter(:cookbooks_path)}"
               else
                 @logger.warn("Chef path doesn't exist, not sharing: #{local_path}")
+                next
               end
             else
               # Path already exists on the virtual machine. Expand it
