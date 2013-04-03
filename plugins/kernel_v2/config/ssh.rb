@@ -40,8 +40,12 @@ module VagrantPlugins
         @username         = nil if @username == UNSET_VALUE
       end
 
+      def to_s
+        "SSH"
+      end
+
       def validate(machine)
-        errors = []
+        errors = _detected_errors
 
         [:max_tries, :timeout].each do |field|
           value = instance_variable_get("@#{field}".to_sym)
@@ -54,7 +58,7 @@ module VagrantPlugins
         end
 
         # Return the errors
-        { "ssh" => errors }
+        { to_s => errors }
       end
     end
   end

@@ -21,7 +21,7 @@ module VagrantPlugins
       end
 
       def validate(machine)
-        errors = []
+        errors = _detected_errors
 
         # Validate that the parameters are properly set
         if path && inline

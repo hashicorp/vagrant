@@ -1,3 +1,5 @@
+require "set"
+
 module Vagrant
   module Plugin
     module V2
@@ -57,7 +59,25 @@ module Vagrant
             end
           end
 
+          # Persist through the set of invalid methods
+          this_invalid  = @__invalid_methods || Set.new
+          other_invalid = other.instance_variable_get(:"@__invalid_methods") || Set.new
+          result.instance_variable_set(:"@__invalid_methods", this_invalid + other_invalid)
+
           result
+        end
+
+        # Capture all bad configuration calls and save them for an error
+        # message later during validation.
+        def method_missing(name, *args, &block)
+          name = name.to_s
+          name = name[0...-1] if name.end_with?("=")
+
+          @__invalid_methods ||= Set.new
+          @__invalid_methods.add(name)
+
+          # Return the dummy object so that anything else works
+          ::Vagrant::Config::V2::DummyConfig.new
         end
 
         # Allows setting options from a hash. By default this simply calls
@@ -79,6 +99,11 @@ module Vagrant
           instance_variables_hash.to_json(*a)
         end
 
+        # A default to_s implementation.
+        def to_s
+          self.class.to_s
+        end
+
         # Returns the instance variables as a hash of key-value pairs.
         def instance_variables_hash
           instance_variables.inject({}) do |acc, iv|
@@ -94,6 +119,16 @@ module Vagrant
         #   validated.
         # @return [Hash]
         def validate(machine)
+          return { self.to_s => _detected_errors }
+        end
+
+        # This returns any automatically detected errors.
+        #
+        # @return [Array<String>]
+        def _detected_errors
+          return [] if !@__invalid_methods || @__invalid_methods.empty?
+          return [I18n.t("vagrant.config.common.bad_field",
+                         :fields => @__invalid_methods.to_a.sort.join(", "))]
         end
       end
     end
