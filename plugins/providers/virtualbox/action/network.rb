@@ -241,24 +241,26 @@ module VagrantPlugins
 
           # Calculate the adapter IP, which we assume is the IP ".1" at
           # the end usually.
-          adapter_ip    = ip_parts.dup
-          adapter_ip[3] += 1
-          options[:adapter_ip] ||= adapter_ip.join(".")
-
+          options[:adapter_ip] ||= begin
+                                     adapter_ip = ip_parts.dup
+                                     adapter_ip[3] += 1
+                                     adapter_ip.join(".")
+                                   end
           dhcp_options = {}
           if options[:type] == :dhcp
+            adapter_ip_parts = network_address(options[:adapter_ip], options[:netmask]).split(".").map { |i| i.to_i }
             # Calculate the DHCP server IP, which is the network address
             # with the final octet + 2. So "172.28.0.0" turns into "172.28.0.2"
-            dhcp_ip    = ip_parts.dup
+            dhcp_ip    = adapter_ip_parts.dup
             dhcp_ip[3] += 2
             dhcp_options[:dhcp_ip] ||= dhcp_ip.join(".")
 
             # Calculate the lower and upper bound for the DHCP server
-            dhcp_lower    = ip_parts.dup
+            dhcp_lower    = adapter_ip_parts.dup
             dhcp_lower[3] += 3
             dhcp_options[:dhcp_lower] ||= dhcp_lower.join(".")
 
-            dhcp_upper    = ip_parts.dup
+            dhcp_upper    = adapter_ip_parts.dup
             dhcp_upper[3] = 254
             dhcp_options[:dhcp_upper] ||= dhcp_upper.join(".")
           end
