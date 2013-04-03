@@ -1,3 +1,10 @@
+## 1.1.6 (April 3, 2013)
+
+BUG FIXES:
+
+  - Fix SSH re-use connection logic to drop connection if an
+    error occurs.
+
 ## 1.1.5 (April 2, 2013)
 
 IMPROVEMENTS:

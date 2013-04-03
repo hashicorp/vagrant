@@ -129,7 +129,7 @@ module VagrantPlugins
           rescue Exception => e
             @logger.info("Connection errored, not re-using. Will reconnect.")
             @logger.debug(e.inspect)
-            @conncetion = nil
+            @connection = nil
           end
 
           # If the @connection is still around, then it is valid,
