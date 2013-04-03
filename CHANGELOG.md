@@ -9,6 +9,12 @@ FEATURES:
   - Box downloads are now done via `curl` rather than Ruby's built-in
     HTTP library. This results in massive speedups, support for SSL
     verification, FTP downloads, and more.
+  - `config.vm.provider` now takes an optional second parameter to the block,
+    allowing you to override any configuration value. These overrides are
+    applied last, and therefore override any other configuration value.
+    Note that while this feature is available, the "Vagrant way" is instead
+    to use box manifests to ensure that the "box" for every provider matches,
+    so these sorts of overrides are unnecessary.
 
 IMPROVEMENTS:
 

@@ -355,6 +355,17 @@ module Vagrant
         end
       end
 
+      # If there are provider overrides for the machine, then we run
+      # those as well.
+      provider_overrides = config.vm.get_provider_overrides(provider)
+      if provider_overrides.length > 0
+        @logger.info("Applying #{provider_overrides.length} provider overrides. Reloading config.")
+        provider_override_key = "vm_#{name}_#{config.vm.box}_#{provider}".to_sym
+        @config_loader.set(provider_override_key, provider_overrides)
+        config, config_warnings, config_errors = \
+          @config_loader.load([:default, box_config_key, :home, :root, vm_config_key, provider_override_key])
+      end
+
       # Get the provider configuration from the final loaded configuration
       provider_config = config.vm.get_provider_config(provider)
 

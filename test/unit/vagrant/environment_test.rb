@@ -550,6 +550,29 @@ VF
       machine.config.ssh.port.should == 100
     end
 
+    it "should load the provider override if set" do
+      register_provider("bar")
+      register_provider("foo")
+
+      isolated_env = isolated_environment do |e|
+        e.vagrantfile(<<-VF)
+Vagrant.configure("2") do |config|
+  config.vm.box = "foo"
+
+  config.vm.provider :foo do |_, c|
+    c.vm.box = "bar"
+  end
+end
+VF
+      end
+
+      env = isolated_env.create_vagrant_env
+      foo_vm = env.machine(:default, :foo)
+      bar_vm = env.machine(:default, :bar)
+      foo_vm.config.vm.box.should == "bar"
+      bar_vm.config.vm.box.should == "foo"
+    end
+
     it "should reload the cache if refresh is set" do
       # Create a provider
       foo_provider = register_provider("foo")
