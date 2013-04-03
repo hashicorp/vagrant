@@ -23,6 +23,10 @@ IMPROVEMENTS:
   - Specify the default provider with the `VAGRANT_DEFAULT_PROVIDER`
     environmental variable. [GH-1478]
 
+BUG FIXES:
+
+  - The `:mac` option for host-only networks is respected. [GH-1536]
+
 ## 1.1.6 (April 3, 2013)
 
 BUG FIXES:
