@@ -15,11 +15,6 @@ module VagrantPlugins
       # "kernel_v1", none of these configuration classes are upgradable.
       # This is by design, since we can't be sure if they're upgradable
       # until another version is available.
-      config("downloader") do
-        require File.expand_path("../config/downloader", __FILE__)
-        DownloaderConfig
-      end
-
       config("ssh") do
         require File.expand_path("../config/ssh", __FILE__)
         SSHConfig
