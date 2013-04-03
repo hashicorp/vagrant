@@ -24,12 +24,16 @@ module Vagrant
             url = "file:#{url}"
           end
 
+          downloader_options = {}
+          downloader_options[:insecure] = env[:box_download_insecure]
+          downloader_options[:ui] = env[:ui]
+
           # Download the box to a temporary path. We store the temporary
           # path as an instance variable so that the `#recover` method can
           # access it.
           env[:ui].info(I18n.t("vagrant.actions.box.download.downloading"))
           begin
-            downloader = Util::Downloader.new(url, @temp_path, :ui => env[:ui])
+            downloader = Util::Downloader.new(url, @temp_path, downloader_options)
             downloader.download!
           rescue Errors::DownloaderInterrupted
             # The downloader was interrupted, so just return, because that

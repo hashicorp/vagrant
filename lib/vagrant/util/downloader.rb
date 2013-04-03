@@ -16,6 +16,7 @@ module Vagrant
 
         # Get the various optional values
         options     ||= {}
+        @insecure    = options[:insecure]
         @ui          = options[:ui]
       end
 
@@ -29,9 +30,11 @@ module Vagrant
         # Build the list of parameters to execute with cURL
         options = [
           "--fail",
-          "--output", @destination,
-          @source
+          "--output", @destination
         ]
+
+        options << "--insecure" if @insecure
+        options << @source
 
         # This variable can contain the proc that'll be sent to
         # the subprocess execute.

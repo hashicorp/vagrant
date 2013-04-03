@@ -15,6 +15,10 @@ module VagrantPlugins
               options[:force] = f
             end
 
+            o.on("--insecure", "If set, SSL certs will not be validated.") do |i|
+              options[:insecure] = i
+            end
+
             o.on("--provider provider", String,
                  "The provider that backs the box.") do |p|
               options[:provider] = p
@@ -34,7 +38,8 @@ module VagrantPlugins
             :box_name     => argv[0],
             :box_provider => provider,
             :box_url      => argv[1],
-            :box_force    => options[:force]
+            :box_force    => options[:force],
+            :box_download_insecure => options[:insecure],
           })
 
           # Success, exit status 0
