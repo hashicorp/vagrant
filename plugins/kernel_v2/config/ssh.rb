@@ -13,6 +13,7 @@ module VagrantPlugins
       attr_accessor :forward_agent
       attr_accessor :forward_x11
       attr_accessor :shell
+      attr_accessor :proxy_command
 
       def validate(machine)
         errors = []
