@@ -1,6 +1,4 @@
 Vagrant.configure("2") do |config|
-  config.downloader.insecure = false
-
   config.vagrant.host = :detect
 
   config.ssh.username = "vagrant"
