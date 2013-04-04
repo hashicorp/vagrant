@@ -255,8 +255,15 @@ module VagrantPlugins
 
         # Determine the shell to execute. If we are using `sudo` then we
         # need to wrap the shell in a `sudo` call.
+        #set -x -v ;which sudo > /dev/null 2>&1;is_found=$?;sudo_cmd='';[ $is_found == 0 ] && sudo_cmd='sudo -H';eval $sudo_cmd ls
         shell = @machine.config.ssh.shell
-        shell = "sudo -H #{shell}" if sudo
+        #su_wrapper = "set -x -v;" # helps debug
+        su_wrapper = ""
+        su_wrapper += "which sudo > /dev/null 2>&1;"
+        su_wrapper += "is_found=$?;"
+        su_wrapper += "sudo_cmd='';"
+        su_wrapper += "[ $is_found == 0 ] && sudo_cmd='sudo -H';eval $sudo_cmd "
+        shell = "#{su_wrapper}#{shell}" if sudo
 
         # Open the channel so we can execute or command
         channel = connection.open_channel do |ch|
