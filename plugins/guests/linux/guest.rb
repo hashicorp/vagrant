@@ -32,6 +32,7 @@ module VagrantPlugins
           return :pld if comm.test("cat /etc/pld-release")
           return :arch if comm.test("cat /etc/arch-release")
           return :solaris if comm.test("grep 'Solaris' /etc/release")
+          return :cygwin if comm.test("uname -o > /tmp/release;grep 'Cygwin' /tmp/release")
         end
 
         # Can't detect the distro, assume vanilla linux
