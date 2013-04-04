@@ -1,3 +1,6 @@
+require 'set'
+require 'tempfile'
+
 require "vagrant/util/template_renderer"
 
 module VagrantPlugins

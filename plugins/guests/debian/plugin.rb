@@ -15,6 +15,11 @@ module VagrantPlugins
         require_relative "cap/configure_networks"
         Cap::ConfigureNetworks
       end
+
+      guest_capability("debian", "change_host_name") do
+        require_relative "cap/change_host_name"
+        Cap::ChangeHostName
+      end
     end
   end
 end
