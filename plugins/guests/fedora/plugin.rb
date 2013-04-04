@@ -6,14 +6,9 @@ module VagrantPlugins
       name "Fedora guest"
       description "Fedora guest support."
 
-      guest("fedora", "linux") do
+      guest("fedora", "redhat") do
         require File.expand_path("../guest", __FILE__)
         Guest
-      end
-
-      guest_capability("fedora", "change_host_name") do
-        require_relative "cap/change_host_name"
-        Cap::ChangeHostName
       end
 
       guest_capability("fedora", "configure_networks") do

@@ -7,7 +7,7 @@ module VagrantPlugins
   module GuestFedora
     module Cap
       class ConfigureNetworks
-        include Vagrant::Util
+        extend Vagrant::Util
 
         def self.configure_networks(machine, networks)
           network_scripts_dir = machine.guest.capability("network_scripts_dir")
@@ -20,10 +20,10 @@ module VagrantPlugins
 
             # Remove any previous vagrant configuration in this network
             # interface's configuration files.
-            vm.communicate.sudo("touch #{network_scripts_dir}/ifcfg-p7p#{network[:interface]}")
-            vm.communicate.sudo("sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' #{network_scripts_dir}/ifcfg-p7p#{network[:interface]} > /tmp/vagrant-ifcfg-p7p#{network[:interface]}")
-            vm.communicate.sudo("cat /tmp/vagrant-ifcfg-p7p#{network[:interface]} > #{network_scripts_dir}/ifcfg-p7p#{network[:interface]}")
-            vm.communicate.sudo("rm /tmp/vagrant-ifcfg-p7p#{network[:interface]}")
+            machine.communicate.sudo("touch #{network_scripts_dir}/ifcfg-p7p#{network[:interface]}")
+            machine.communicate.sudo("sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' #{network_scripts_dir}/ifcfg-p7p#{network[:interface]} > /tmp/vagrant-ifcfg-p7p#{network[:interface]}")
+            machine.communicate.sudo("cat /tmp/vagrant-ifcfg-p7p#{network[:interface]} > #{network_scripts_dir}/ifcfg-p7p#{network[:interface]}")
+            machine.communicate.sudo("rm /tmp/vagrant-ifcfg-p7p#{network[:interface]}")
 
             # Render and upload the network entry file to a deterministic
             # temporary location.
@@ -35,17 +35,17 @@ module VagrantPlugins
             temp.write(entry)
             temp.close
 
-            vm.communicate.upload(temp.path, "/tmp/vagrant-network-entry_#{network[:interface]}")
+            machine.communicate.upload(temp.path, "/tmp/vagrant-network-entry_#{network[:interface]}")
           end
 
           # Bring down all the interfaces we're reconfiguring. By bringing down
           # each specifically, we avoid reconfiguring p7p (the NAT interface) so
           # SSH never dies.
           interfaces.each do |interface|
-            vm.communicate.sudo("/sbin/ifdown p7p#{interface} 2> /dev/null", :error_check => false)
-            vm.communicate.sudo("cat /tmp/vagrant-network-entry_#{interface} >> #{network_scripts_dir}/ifcfg-p7p#{interface}")
-            vm.communicate.sudo("rm /tmp/vagrant-network-entry_#{interface}")
-            vm.communicate.sudo("/sbin/ifup p7p#{interface} 2> /dev/null")
+            machine.communicate.sudo("/sbin/ifdown p7p#{interface} 2> /dev/null", :error_check => false)
+            machine.communicate.sudo("cat /tmp/vagrant-network-entry_#{interface} >> #{network_scripts_dir}/ifcfg-p7p#{interface}")
+            machine.communicate.sudo("rm /tmp/vagrant-network-entry_#{interface}")
+            machine.communicate.sudo("/sbin/ifup p7p#{interface} 2> /dev/null")
           end
         end
       end

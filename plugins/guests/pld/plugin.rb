@@ -10,6 +10,11 @@ module VagrantPlugins
         require File.expand_path("../guest", __FILE__)
         Guest
       end
+
+      guest_capability("pld", "network_scripts_dir") do
+        require_relative "cap/network_scripts_dir"
+        Cap::NetworkScriptsDir
+      end
     end
   end
 end
