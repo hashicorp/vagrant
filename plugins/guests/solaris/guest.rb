@@ -11,6 +11,10 @@ module VagrantPlugins
         error_namespace("vagrant.guest.solaris")
       end
 
+      def detect?(machine)
+        machine.communicate.test("grep 'Solaris' /etc/release")
+      end
+
       def configure_networks(networks)
         networks.each do |network|
           device = "#{vm.config.solaris.device}#{network[:interface]}"

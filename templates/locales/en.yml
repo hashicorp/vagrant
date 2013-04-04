@@ -173,18 +173,12 @@ en:
         of the official installers or another gem is wrongly attempting to
         use Vagrant internals directly. Please properly install Vagrant to
         fix this. If this error persists, please contact support.
-      guest:
-        invalid_class: |-
-          The specified guest class does not inherit from a proper guest
-          component class. The guest class must inherit from this.
-
-          The specified guest class was: %{guest}
-        unknown_type: |-
-          The specified guest type is unknown: %{guest}. Please change this
-          to a proper value.
-        unspecified: |-
-          A VM guest type must be specified! This is done via the `config.vm.guest`
-          configuration value. Please read the documentation online for more information.
+      guest_not_detected: |-
+        The guest operating system of the machine could not be detected!
+        Vagrant requires this knowledge to perform specific tasks such
+        as mounting shared folders and configuring networks. Please add
+        the ability to detect this guest operating system to Vagrant
+        by creating a plugin or reporting a bug.
       home_dir_not_accessible: |-
         The home directory you specified is not accessible. The home
         directory that Vagrant uses must be both readable and writable.

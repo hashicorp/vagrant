@@ -227,6 +227,10 @@ module Vagrant
       error_key(:port_collision_resume)
     end
 
+    class GuestNotDetected < VagrantError
+      error_key(:guest_not_detected)
+    end
+
     class LocalDataDirectoryNotAccessible < VagrantError
       error_key(:local_data_dir_not_accessible)
     end

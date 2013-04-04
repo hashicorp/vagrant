@@ -67,7 +67,7 @@ module Vagrant
         def guests
           Registry.new.tap do |result|
             @registered.each do |plugin|
-              result.merge!(plugin.guest)
+              result.merge!(plugin.components.guests)
             end
           end
         end

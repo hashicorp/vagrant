@@ -12,6 +12,10 @@ module VagrantPlugins
       # Make the TemplateRenderer top-level
       include Vagrant::Util
 
+      def detect?(machine)
+        machine.communicate.test("cat /proc/version | grep 'Debian'")
+      end
+
       def configure_networks(networks)
         # First, remove any previous network modifications
         # from the interface file.

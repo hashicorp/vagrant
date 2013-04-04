@@ -5,6 +5,10 @@ require Vagrant.source_root.join("plugins/guests/debian/guest")
 module VagrantPlugins
   module GuestUbuntu
     class Guest < VagrantPlugins::GuestDebian::Guest
+      def detect?(machine)
+        machine.communicate.test("cat /proc/version | grep 'Ubuntu'")
+      end
+
       def mount_shared_folder(name, guestpath, options)
         # Mount it like normal
         super

@@ -11,6 +11,10 @@ module VagrantPlugins
       # Make the TemplateRenderer top-level
       include Vagrant::Util
 
+      def detect?(machine)
+        machine.communicate.test("cat /etc/gentoo-release")
+      end
+
       def configure_networks(networks)
         # Remove any previous host only network additions to the interface file
         vm.communicate.sudo("sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/conf.d/net > /tmp/vagrant-network-interfaces")

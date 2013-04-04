@@ -12,6 +12,10 @@ module VagrantPlugins
       # Make the TemplateRenderer top-level
       include Vagrant::Util
 
+      def detect?(machine)
+        machine.communicate.test("cat /etc/arch-release")
+      end
+
       def change_host_name(name)
         # Only do this if the hostname is not already set
         if !vm.communicate.test("sudo hostname | grep '#{name}'")

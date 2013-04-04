@@ -6,7 +6,7 @@ module VagrantPlugins
       name "OpenBSD guest"
       description "OpenBSD guest support."
 
-      guest("openbsd") do
+      guest("openbsd", "linux") do
         require File.expand_path("../guest", __FILE__)
         Guest
       end

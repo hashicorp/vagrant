@@ -6,7 +6,7 @@ module VagrantPlugins
       name "Gentoo guest"
       description "Gentoo guest support."
 
-      guest("gentoo") do
+      guest("gentoo", "linux") do
         require File.expand_path("../guest", __FILE__)
         Guest
       end

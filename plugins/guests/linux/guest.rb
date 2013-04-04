@@ -18,6 +18,11 @@ module VagrantPlugins
         @logger = Log4r::Logger.new("vagrant::guest::linux")
       end
 
+      def detect?(machine)
+        # TODO: Linux detection
+        false
+      end
+
       def distro_dispatch
         @vm.communicate.tap do |comm|
           if comm.test("cat /etc/debian_version")

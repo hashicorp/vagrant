@@ -6,7 +6,7 @@ module VagrantPlugins
       name "PLD Linux guest"
       description "PLD Linux guest support."
 
-      guest("pld") do
+      guest("pld", "redhat") do
         require File.expand_path("../guest", __FILE__)
         Guest
       end

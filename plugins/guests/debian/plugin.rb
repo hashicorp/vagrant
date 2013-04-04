@@ -6,7 +6,7 @@ module VagrantPlugins
       name "Debian guest"
       description "Debian guest support."
 
-      guest("debian") do
+      guest("debian", "linux") do
         require File.expand_path("../guest", __FILE__)
         Guest
       end

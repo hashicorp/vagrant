@@ -124,7 +124,6 @@ module Vagrant
         # without breaking anything in future versions of Vagrant.
         #
         # @param [String] name Configuration key.
-        # XXX: Document options hash
         def self.config(name, scope=nil, &block)
           scope ||= :top
           components.configs[scope].register(name.to_sym, &block)
@@ -135,14 +134,14 @@ module Vagrant
         # the given key.
         #
         # @param [String] name Name of the guest.
-        def self.guest(name=UNSET_VALUE, &block)
-          data[:guests] ||= Registry.new
+        # @param [String] parent Name of the parent guest (if any)
+        def self.guest(name=UNSET_VALUE, parent=nil, &block)
+          components.guests.register(name.to_sym) do
+            parent = parent.to_sym if parent
 
-          # Register a new guest class only if a name was given
-          data[:guests].register(name.to_sym, &block) if name != UNSET_VALUE
-
-          # Return the registry
-          data[:guests]
+            [block.call, parent]
+          end
+          nil
         end
 
         # Defines an additionally available host implementation with

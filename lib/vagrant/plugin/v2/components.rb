@@ -16,6 +16,11 @@ module Vagrant
         # @return [Hash<Symbol, Registry>]
         attr_reader :configs
 
+        # This contains all the guests and their parents.
+        #
+        # @return [Registry<Symbol, Array<Class, Symbol>>]
+        attr_reader :guests
+
         # This contains all the provider plugins by name, and returns
         # the provider class and options.
         #
@@ -27,6 +32,7 @@ module Vagrant
           @action_hooks = Hash.new { |h, k| h[k] = [] }
 
           @configs = Hash.new { |h, k| h[k] = Registry.new }
+          @guests  = Registry.new
           @providers = Registry.new
         end
       end

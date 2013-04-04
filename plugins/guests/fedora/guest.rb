@@ -12,6 +12,10 @@ module VagrantPlugins
       # Make the TemplateRenderer top-level
       include Vagrant::Util
 
+      def detect?(machine)
+        machine.communicate.test("grep 'Fedora release 1[678]' /etc/redhat-release")
+      end
+
       def configure_networks(networks)
         # Accumulate the configurations to add to the interfaces file as well
         # as what interfaces we're actually configuring since we use that later.

@@ -6,7 +6,7 @@ module VagrantPlugins
       name "Arch guest"
       description "Arch guest support."
 
-      guest("arch") do
+      guest("arch", "linux") do
         require File.expand_path("../guest", __FILE__)
         Guest
       end

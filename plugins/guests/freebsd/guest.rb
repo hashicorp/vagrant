@@ -11,6 +11,11 @@ module VagrantPlugins
         error_namespace("vagrant.guest.freebsd")
       end
 
+      def detect?(machine)
+        # TODO: FreeBSD detection
+        false
+      end
+
       def halt
         begin
           vm.communicate.sudo("shutdown -p now")

@@ -6,7 +6,7 @@ module VagrantPlugins
       name "RedHat guest"
       description "RedHat guest support."
 
-      guest("redhat") do
+      guest("redhat", "linux") do
         require File.expand_path("../guest", __FILE__)
         Guest
       end

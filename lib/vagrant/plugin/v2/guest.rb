@@ -1,35 +1,21 @@
 module Vagrant
   module Plugin
     module V2
-      # The base class for a guest. A guest represents an installed system
-      # within a machine that Vagrant manages. There are some portions of
-      # Vagrant which are OS-specific such as mountaing shared folders and
-      # halting the machine, and this abstraction allows the implementation
-      # for these to be seperate from the core of Vagrant.
+      # A base class for a guest OS. A guest OS is responsible for detecting
+      # that the guest operating system running within the machine. The guest
+      # can then be extended with various "guest capabilities" which are their
+      # own form of plugin.
+      #
+      # The guest class itself is only responsible for detecting itself,
+      # and may provide helpers for the capabilties.
       class Guest
-        class BaseError < Errors::VagrantError
-          error_namespace("vagrant.guest.base")
-        end
-
-        include Vagrant::Util
-
-        # The VM which this system is tied to.
-        attr_reader :vm
-
-        # Initializes the system. Any subclasses MUST make sure this
-        # method is called on the parent. Therefore, if a subclass overrides
-        # `initialize`, then you must call `super`.
-        def initialize(vm)
-          @vm = vm
-        end
-
-        # This method is automatically called when the system is available (when
-        # Vagrant can successfully SSH into the machine) to give the system a chance
-        # to determine the distro and return a distro-specific system.
+        # This method is called when the machine is booted and has communication
+        # capabilities in order to detect whether this guest operating system
+        # is running within the machine.
         #
-        # If this method returns nil, then this instance is assumed to be
-        # the most specific guest implementation.
-        def distro_dispatch
+        # @return [Boolean]
+        def guest?(machine)
+          false
         end
 
         # Halt the machine. This method should gracefully shut down the
