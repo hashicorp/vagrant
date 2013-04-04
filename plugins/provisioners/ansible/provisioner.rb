@@ -23,7 +23,10 @@ module VagrantPlugins
         command = (%w(ansible-playbook) << options << config.playbook).flatten
         
         # Write stdout and stderr data, since it's the regular Ansible output
-        command << { :notify => [:stdout, :stderr] }
+        command << {
+          :env => { "ANSIBLE_FORCE_COLOR" => "true" },
+          :notify => [:stdout, :stderr]
+        }
         Vagrant::Util::Subprocess.execute(*command) do |type, data|
           puts "#{data}" if type == :stdout || type == :stderr
           yield type, data if block_given?
