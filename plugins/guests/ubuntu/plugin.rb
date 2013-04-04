@@ -10,6 +10,11 @@ module VagrantPlugins
         require File.expand_path("../guest", __FILE__)
         Guest
       end
+
+      guest_capability("ubuntu", "change_host_name") do
+        require_relative "cap/change_host_name"
+        Cap::ChangeHostName
+      end
     end
   end
 end
