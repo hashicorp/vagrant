@@ -170,7 +170,7 @@ module Vagrant
     # knows how to do guest-OS specific tasks, such as configuring networks,
     # mounting folders, etc.
     #
-    # @return [Object]
+    # @return [Guest]
     def guest
       raise Errors::MachineGuestNotReady if !communicate.ready?
       @guest.detect! if !@guest.ready?
