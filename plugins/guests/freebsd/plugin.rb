@@ -6,11 +6,6 @@ module VagrantPlugins
       name "FreeBSD guest"
       description "FreeBSD guest support."
 
-      config("freebsd") do
-        require File.expand_path("../config", __FILE__)
-        Config
-      end
-
       guest("freebsd")  do
         require File.expand_path("../guest", __FILE__)
         Guest
