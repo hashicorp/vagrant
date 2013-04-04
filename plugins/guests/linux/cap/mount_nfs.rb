@@ -1,8 +1,12 @@
+require "vagrant/util/retryable"
+
 module VagrantPlugins
   module GuestLinux
     module Cap
       class MountNFS
-        def self.mount_nfs(machine, ip, folders)
+        extend Vagrant::Util::Retryable
+
+        def self.mount_nfs_folder(machine, ip, folders)
           folders.each do |name, opts|
             # Expand the guest path so we can handle things like "~/vagrant"
             expanded_guest_path = machine.guest.capability(

@@ -146,9 +146,15 @@ module Vagrant
     # @param [Symbol] cap_name
     # @return [Module]
     def capability_module(cap_name)
+      @logger.debug("Searching for cap: #{cap_name}")
       @chain.each do |guest_name, guest|
+        @logger.debug("Checking in: #{guest_name}")
         caps = @capabilities[guest_name]
-        return caps[cap_name] if caps && caps.has_key?(cap_name)
+
+        if caps && caps.has_key?(cap_name)
+          @logger.debug("Found cap: #{cap_name} in #{guest_name}")
+          return caps[cap_name]
+        end
       end
 
       nil
