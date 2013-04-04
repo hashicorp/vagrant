@@ -10,6 +10,11 @@ module VagrantPlugins
         require File.expand_path("../guest", __FILE__)
         Guest
       end
+
+      guest_capability("debian", "configure_networks") do
+        require_relative "cap/configure_networks"
+        Cap::ConfigureNetworks
+      end
     end
   end
 end
