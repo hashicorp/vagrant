@@ -66,6 +66,14 @@ en:
         Machine name: %{name}
         Active provider: %{active_provider}
         Requested provider: %{requested_provider}
+      ansible_playbook_app_not_found: |-
+        The "ansible-playbook" program could not be found! Please verify
+        that "ansible-playbook" is available on the PATH of your host
+        system, and try again.
+
+        If you haven't installed Ansible yet, please install Ansible
+        on your system. Vagrant can't do this for you in a safe, automated
+        way. Please see ansible.cc for more info.
       base_vm_not_found: The base VM with the name '%{name}' was not found.
       batch_multi_error: |-
         An error occurred while executing multiple actions in parallel.

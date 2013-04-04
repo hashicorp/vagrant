@@ -87,6 +87,10 @@ module Vagrant
       error_key(:active_machine_with_different_provider)
     end
 
+    class AnsiblePlaybookAppNotFound < VagrantError
+      error_key(:ansible_playbook_app_not_found)
+    end
+
     class BaseVMNotFound < VagrantError
       error_key(:base_vm_not_found)
     end
