@@ -109,7 +109,7 @@ module Vagrant
 
     # Executes the capability with the given name, optionally passing
     # more arguments onwards to the capability.
-    def capability(cap_name)
+    def capability(cap_name, *args)
       @logger.info("Execute capability: #{cap_name} (#{@chain[0][0]})")
       cap_mod = capability_module(cap_name)
       if !cap_mod
@@ -127,7 +127,7 @@ module Vagrant
           :guest => @chain[0][0].to_s
       end
 
-      cap_method.call
+      cap_method.call(*args)
     end
 
     # This returns whether the guest is ready to work. If this returns

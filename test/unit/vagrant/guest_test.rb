@@ -17,8 +17,8 @@ describe Vagrant::Guest do
 
     cap = Class.new do
       if !options[:corrupt]
-        define_method(capability) do
-          raise "cap: #{capability}"
+        define_method(capability) do |*args|
+          raise "cap: #{capability} #{args.inspect}"
         end
       end
     end
@@ -58,7 +58,14 @@ describe Vagrant::Guest do
       register_capability(:bar, :test)
 
       expect { subject.capability(:test) }.
-        to raise_error(RuntimeError, "cap: test")
+        to raise_error(RuntimeError, "cap: test []")
+    end
+
+    it "executes the capability with arguments" do
+      register_capability(:bar, :test)
+
+      expect { subject.capability(:test, 1) }.
+        to raise_error(RuntimeError, "cap: test [1]")
     end
 
     it "raises an exception if the capability doesn't exist" do
