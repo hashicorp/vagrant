@@ -127,7 +127,7 @@ module Vagrant
           :guest => @chain[0][0].to_s
       end
 
-      cap_method.call(*args)
+      cap_method.call(@machine, *args)
     end
 
     # This returns whether the guest is ready to work. If this returns

@@ -7,7 +7,11 @@ describe Vagrant::Guest do
 
   let(:capabilities) { {} }
   let(:guests)  { {} }
-  let(:machine) { double("machine") }
+  let(:machine) do
+    double("machine").tap do |m|
+      m.stub(:inspect => "machine")
+    end
+  end
 
   subject { described_class.new(machine, guests, capabilities) }
 
@@ -58,14 +62,14 @@ describe Vagrant::Guest do
       register_capability(:bar, :test)
 
       expect { subject.capability(:test) }.
-        to raise_error(RuntimeError, "cap: test []")
+        to raise_error(RuntimeError, "cap: test [machine]")
     end
 
     it "executes the capability with arguments" do
       register_capability(:bar, :test)
 
       expect { subject.capability(:test, 1) }.
-        to raise_error(RuntimeError, "cap: test [1]")
+        to raise_error(RuntimeError, "cap: test [machine, 1]")
     end
 
     it "raises an exception if the capability doesn't exist" do

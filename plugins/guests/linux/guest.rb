@@ -52,15 +52,6 @@ module VagrantPlugins
         end
       end
 
-      def mount_shared_folder(name, guestpath, options)
-        real_guestpath = expanded_guest_path(guestpath)
-        @logger.debug("Shell expanded guest path: #{real_guestpath}")
-
-        @vm.communicate.sudo("mkdir -p #{real_guestpath}")
-        mount_folder(name, real_guestpath, options)
-        @vm.communicate.sudo("chown `id -u #{options[:owner]}`:`id -g #{options[:group]}` #{real_guestpath}")
-      end
-
       def mount_nfs(ip, folders)
         # TODO: Maybe check for nfs support on the guest, since its often
         # not installed by default
@@ -104,26 +95,6 @@ module VagrantPlugins
 
         # Chomp the string so that any trailing newlines are killed
         return real_guestpath.chomp
-      end
-
-      def mount_folder(name, guestpath, options)
-        # Determine the permission string to attach to the mount command
-        mount_options = "-o uid=`id -u #{options[:owner]}`,gid=`id -g #{options[:group]}`"
-        mount_options += ",#{options[:extra]}" if options[:extra]
-
-        attempts = 0
-        while true
-          success = true
-          @vm.communicate.sudo("mount -t vboxsf #{mount_options} #{name} #{guestpath}") do |type, data|
-            success = false if type == :stderr && data =~ /No such device/i
-          end
-
-          break if success
-
-          attempts += 1
-          raise LinuxError, :mount_fail if attempts >= 10
-          sleep 5
-        end
       end
     end
   end

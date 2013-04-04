@@ -15,6 +15,16 @@ module VagrantPlugins
         require File.expand_path("../guest", __FILE__)
         Guest
       end
+
+      guest_capability("linux", "shell_expand_guest_path") do
+        require_relative "cap/shell_expand_guest_path"
+        Cap::ShellExpandGuestPath
+      end
+
+      guest_capability("linux", "mount_virtualbox_shared_folder") do
+        require_relative "cap/mount_virtualbox_shared_folder"
+        Cap::MountVirtualBoxSharedFolder
+      end
     end
   end
 end
