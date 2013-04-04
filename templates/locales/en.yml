@@ -204,6 +204,18 @@ en:
         running Vagrant.
 
         Local data directory: %{local_data_path}
+      linux_mount_failed: |-
+        Failed to mount folders in Linux guest. This is usually beacuse
+        the "vboxsf" file system is not available. Please verify that
+        the guest additions are properly installed in the guest and
+        can work properly. The command attempted was:
+
+        %{command}
+      linux_shell_expand_failed: |-
+        Vagrant failed to determine the shell expansion of the guest path
+        for one of your shared folders. This is an extremely rare error case
+        and most likely indicates an unusual configuration of the guest system.
+        Please report a bug with your Vagrantfile.
       machine_guest_not_ready: |-
         Guest-specific operations were attempted on a machine that is not
         ready for guest communication. This should not happen and a bug
@@ -1066,7 +1078,6 @@ en:
           for one of your shared folders. This is an extremely rare error case
           and most likely indicates an unusual configuration of the guest system.
           Please report a bug with your Vagrantfile.
-        mount_fail: "Failed to mount shared folders. `vboxsf` was not available."
         mount_nfs_fail: |-
           Mounting NFS shared folders failed. This is most often caused by the NFS
           client software not being installed on the guest machine. Please verify

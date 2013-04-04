@@ -8,39 +8,9 @@ module VagrantPlugins
     class Guest < Vagrant.plugin("2", :guest)
       include Vagrant::Util::Retryable
 
-      class LinuxError < Vagrant::Errors::VagrantError
-        error_namespace("vagrant.guest.linux")
-      end
-
-      def initialize(*args)
-        super
-
-        @logger = Log4r::Logger.new("vagrant::guest::linux")
-      end
-
       def detect?(machine)
         # TODO: Linux detection
         false
-      end
-
-      def distro_dispatch
-        @vm.communicate.tap do |comm|
-          if comm.test("cat /etc/debian_version")
-            return :debian if comm.test("cat /proc/version | grep 'Debian'")
-            return :ubuntu if comm.test("cat /proc/version | grep 'Ubuntu'")
-          end
-
-          return :gentoo if comm.test("cat /etc/gentoo-release")
-          return :fedora if comm.test("grep 'Fedora release 1[678]' /etc/redhat-release")
-          return :redhat if comm.test("cat /etc/redhat-release")
-          return :suse if comm.test("cat /etc/SuSE-release")
-          return :pld if comm.test("cat /etc/pld-release")
-          return :arch if comm.test("cat /etc/arch-release")
-          return :solaris if comm.test("grep 'Solaris' /etc/release")
-        end
-
-        # Can't detect the distro, assume vanilla linux
-        nil
       end
 
       def halt

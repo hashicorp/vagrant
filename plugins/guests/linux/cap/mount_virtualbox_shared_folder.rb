@@ -26,8 +26,7 @@ module VagrantPlugins
             break if success
 
             attempts += 1
-            # TODO: Nicer exception
-            raise "Mount failed"
+            raise Vagrant::Errors::LinuxMountFailed, :command => mount_command
             sleep 2
           end
 
