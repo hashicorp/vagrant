@@ -19,6 +19,7 @@ FEATURES:
     This new abstraction allows plugins to define "capabilities" that
     certain guest operating systems can implement. This allows greater
     flexibility in doing guest-specific behavior.
+  - Ansible provisioner support. [GH-1465]
 
 IMPROVEMENTS:
 
