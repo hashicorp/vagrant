@@ -29,12 +29,17 @@ module VagrantPlugins
 
         # Go over each VM and bring it up
         @logger.debug("'Up' each target VM...")
-        with_target_vms(argv, :provider => options[:provider]) do |machine|
-          @env.ui.info(I18n.t(
-            "vagrant.commands.up.upping",
-            :name => machine.name,
-            :provider => machine.provider_name))
-          machine.action(:up, options)
+
+        # Build up the batch job of what we'll do
+        @env.batch do |batch|
+          with_target_vms(argv, :provider => options[:provider]) do |machine|
+            @env.ui.info(I18n.t(
+              "vagrant.commands.up.upping",
+              :name => machine.name,
+              :provider => machine.provider_name))
+
+            batch.action(machine, :up, options)
+          end
         end
 
         # Success, exit status 0

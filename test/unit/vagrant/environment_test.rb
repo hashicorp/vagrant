@@ -22,6 +22,8 @@ describe Vagrant::Environment do
 
   let(:instance)  { env.create_vagrant_env }
 
+  subject { instance }
+
   describe "active machines" do
     it "should be empty if the machines folder doesn't exist" do
       folder = instance.local_data_path.join("machines")
@@ -43,6 +45,36 @@ describe Vagrant::Environment do
       machine_bar.mkpath
 
       instance.active_machines.should == [[:foo, :virtualbox]]
+    end
+  end
+
+  describe "batching" do
+    let(:batch) do
+      double("batch") do |b|
+        b.stub(:run)
+      end
+    end
+
+    context "without the disabling env var" do
+      it "should run without disabling parallelization" do
+        with_temp_env("VAGRANT_NO_PARALLEL" => nil) do
+          Vagrant::BatchAction.should_receive(:new).with(false).and_return(batch)
+          batch.should_receive(:run)
+
+          instance.batch {}
+        end
+      end
+    end
+
+    context "with the disabling env var" do
+      it "should run with disabling parallelization" do
+        with_temp_env("VAGRANT_NO_PARALLEL" => "yes") do
+          Vagrant::BatchAction.should_receive(:new).with(true).and_return(batch)
+          batch.should_receive(:run)
+
+          instance.batch {}
+        end
+      end
     end
   end
 
@@ -77,6 +109,20 @@ describe Vagrant::Environment do
     it "raises an exception if the CWD doesn't exist" do
       expect { described_class.new(:cwd => "doesntexist") }.
         to raise_error(Vagrant::Errors::EnvironmentNonExistentCWD)
+    end
+  end
+
+  describe "default provider" do
+    it "is virtualbox without any environmental variable" do
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil) do
+        subject.default_provider.should == :virtualbox
+      end
+    end
+
+    it "is whatever the environmental variable is if set" do
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => "foo") do
+        subject.default_provider.should == :foo
+      end
     end
   end
 
@@ -502,6 +548,29 @@ VF
       env = environment.create_vagrant_env
       machine = env.machine(:default, :foo)
       machine.config.ssh.port.should == 100
+    end
+
+    it "should load the provider override if set" do
+      register_provider("bar")
+      register_provider("foo")
+
+      isolated_env = isolated_environment do |e|
+        e.vagrantfile(<<-VF)
+Vagrant.configure("2") do |config|
+  config.vm.box = "foo"
+
+  config.vm.provider :foo do |_, c|
+    c.vm.box = "bar"
+  end
+end
+VF
+      end
+
+      env = isolated_env.create_vagrant_env
+      foo_vm = env.machine(:default, :foo)
+      bar_vm = env.machine(:default, :bar)
+      foo_vm.config.vm.box.should == "bar"
+      bar_vm.config.vm.box.should == "foo"
     end
 
     it "should reload the cache if refresh is set" do

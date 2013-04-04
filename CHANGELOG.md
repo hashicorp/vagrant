@@ -1,4 +1,41 @@
-## 1.1.5 (unreleased)
+## 1.2.0 (unreleased)
+
+FEATURES:
+
+  - Providers can now parallelize! If they explicitly support it, Vagrant
+    will run "up" and other commands in parallel. For providers such AWS,
+    this means that your instances will come up in parallel. VirtualBox
+    does not support this mode.
+  - Box downloads are now done via `curl` rather than Ruby's built-in
+    HTTP library. This results in massive speedups, support for SSL
+    verification, FTP downloads, and more.
+  - `config.vm.provider` now takes an optional second parameter to the block,
+    allowing you to override any configuration value. These overrides are
+    applied last, and therefore override any other configuration value.
+    Note that while this feature is available, the "Vagrant way" is instead
+    to use box manifests to ensure that the "box" for every provider matches,
+    so these sorts of overrides are unnecessary.
+
+IMPROVEMENTS:
+
+  - By adding the "disabled" boolean flag to synced folders you can disable
+    them altogether. [GH-1004]
+  - Specify the default provider with the `VAGRANT_DEFAULT_PROVIDER`
+    environmental variable. [GH-1478]
+  - Invalid settings are now caught and shown in a user-friendly way. [GH-1484]
+
+BUG FIXES:
+
+  - The `:mac` option for host-only networks is respected. [GH-1536]
+
+## 1.1.6 (April 3, 2013)
+
+BUG FIXES:
+
+  - Fix SSH re-use connection logic to drop connection if an
+    error occurs.
+
+## 1.1.5 (April 2, 2013)
 
 IMPROVEMENTS:
 
@@ -24,6 +61,8 @@ BUG FIXES:
     status 126). [GH-934]
   - Action hook prepend/append will only prepend or append once.
   - Retry SSH on Errno::EACCES.
+  - Show an error if an invalid network type is used.
+  - Don't share Chef solo folder if it doesn't exist on host.
 
 ## 1.1.4 (March 25, 2013)
 

@@ -91,12 +91,12 @@ module Vagrant
       error_key(:base_vm_not_found)
     end
 
-    class BoxAlreadyExists < VagrantError
-      error_key(:already_exists, "vagrant.actions.box.unpackage")
+    class BatchMultiError < VagrantError
+      error_key(:batch_multi_error)
     end
 
-    class BoxDownloadUnknownType < VagrantError
-      error_key(:unknown_type, "vagrant.actions.box.download")
+    class BoxAlreadyExists < VagrantError
+      error_key(:already_exists, "vagrant.actions.box.unpackage")
     end
 
     class BoxMetadataFileNotFound < VagrantError
@@ -161,6 +161,14 @@ module Vagrant
 
     class DotfileUpgradeJSONError < VagrantError
       error_key(:dotfile_upgrade_json_error)
+    end
+
+    class DownloaderError < VagrantError
+      error_key(:downloader_error)
+    end
+
+    class DownloaderInterrupted < DownloaderError
+      error_key(:downloader_interrupted)
     end
 
     class DownloaderFileDoesntExist < VagrantError

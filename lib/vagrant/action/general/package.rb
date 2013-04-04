@@ -1,5 +1,6 @@
 require 'fileutils'
 
+require 'vagrant/util/safe_chdir'
 require 'vagrant/util/subprocess'
 
 module Vagrant
@@ -83,7 +84,7 @@ module Vagrant
           output_path = tar_path.to_s
 
           # Switch into that directory and package everything up
-          Dir.chdir(@env["package.directory"]) do
+          Util::SafeChdir.safe_chdir(@env["package.directory"]) do
             # Find all the files in our current directory and tar it up!
             files = Dir.glob(File.join(".", "**", "*"))
 

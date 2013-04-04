@@ -33,6 +33,7 @@ module VagrantPlugins
 
         # Internal state
         @__compiled_provider_configs = {}
+        @__compiled_provider_overrides = {}
         @__defined_vm_keys = []
         @__defined_vms = {}
         @__finalized = false
@@ -196,17 +197,32 @@ module VagrantPlugins
 
         # Compile all the provider configurations
         @__providers.each do |name, blocks|
+          # If we don't have any configuration blocks, then ignore it
+          next if blocks.empty?
+
           # Find the configuration class for this provider
           config_class = Vagrant.plugin("2").manager.provider_configs[name]
-          next if !config_class
+          config_class ||= Vagrant::Config::V2::DummyConfig
 
           # Load it up
-          config = config_class.new
-          blocks.each { |b| b.call(config) }
+          config    = config_class.new
+          overrides = []
+
+          blocks.each do |b|
+            b.call(config, Vagrant::Config::V2::DummyConfig.new)
+
+            # If the block takes two arguments, then we store the second
+            # one away for overrides later.
+            if b.arity == 2
+              overrides << b.curry[Vagrant::Config::V2::DummyConfig.new]
+            end
+          end
+
           config.finalize!
 
           # Store it for retrieval later
-          @__compiled_provider_configs[name] = config
+          @__compiled_provider_configs[name]   = config
+          @__compiled_provider_overrides[name] = overrides
         end
 
         # Flag that we finalized
@@ -235,13 +251,24 @@ module VagrantPlugins
         return result
       end
 
+      # This returns a list of VM configurations that are overrides
+      # for this provider.
+      #
+      # @param [Symbol] name Name of the provider
+      # @return [Array<Proc>]
+      def get_provider_overrides(name)
+        (@__compiled_provider_overrides[name] || []).map do |p|
+          ["2", p]
+        end
+      end
+
       # This returns the list of networks configured.
       def networks
         @__networks.values
       end
 
       def validate(machine)
-        errors = []
+        errors = _detected_errors
         errors << I18n.t("vagrant.config.vm.box_missing") if !box
         errors << I18n.t("vagrant.config.vm.box_not_found", :name => box) if \
           box && !box_url && !machine.box
@@ -297,8 +324,14 @@ module VagrantPlugins
         # Validate networks
         has_fp_port_error = false
         fp_host_ports     = Set.new
+        valid_network_types = [:forwarded_port, :private_network, :public_network]
 
         networks.each do |type, options|
+          if !valid_network_types.include?(type)
+            errors << I18n.t("vagrant.config.vm.network_type_invalid",
+                            :type => type.to_s)
+          end
+
           if type == :forwarded_port
             if !has_fp_port_error && (!options[:guest] || !options[:host])
               errors << I18n.t("vagrant.config.vm.network_fp_requires_ports")

@@ -1,6 +1,16 @@
 en:
   vagrant:
     general:
+      batch_unexpected_error: |-
+        An unexpected error ocurred when executing the action on the
+        '%{machine}' machine. Please report this as a bug:
+
+        %{message}
+      batch_vagrant_error: |-
+        An error occurred while executing the action on the '%{machine}'
+        machine. Please handle this error then try again:
+
+        %{message}
       config_upgrade_messages: |-
         There were warnings and/or errors while loading your Vagrantfile.
         Your Vagrantfile was written for an earlier version of Vagrant,
@@ -57,6 +67,11 @@ en:
         Active provider: %{active_provider}
         Requested provider: %{requested_provider}
       base_vm_not_found: The base VM with the name '%{name}' was not found.
+      batch_multi_error: |-
+        An error occurred while executing multiple actions in parallel.
+        Any errors that occurred are shown below.
+
+        %{message}
       box_metadata_file_not_found: |-
         The "metadata.json" file for the box '%{name}' was not found.
         Boxes require this file in order for Vagrant to determine the
@@ -130,6 +145,15 @@ en:
         support.
 
         State file path: %{state_file}
+      downloader_error: |-
+        An error occurred while downloading the remote file. The error
+        message, if any, is reproduced below. Please fix this error and try
+        again.
+
+        %{message}
+      downloader_interrupted: |-
+        The download was interrupted by an external signal. It did not
+        complete.
       environment_locked: |-
         An instance of Vagrant is already running. Only one instance of Vagrant
         may run at any given time to avoid problems with VirtualBox inconsistencies
@@ -447,6 +471,7 @@ en:
 #-------------------------------------------------------------------------------
     config:
       common:
+        bad_field: "The following settings don't exist: %{fields}"
         error_empty: "`%{field}` must be not be empty."
       chef:
         cookbooks_path_empty: "Must specify a cookbooks path for chef solo."
@@ -494,6 +519,8 @@ en:
           Forwarded port '%{host}' (host port) is declared multiple times
         network_fp_requires_ports: |-
           Forwarded port definitions require a "host" and "guest" value
+        network_type_invalid: |-
+          Network type '%{type}' is invalid. Please use a valid network type.
         provisioner_not_found: |-
           The '%{name}' provisioner could not be found.
         shared_folder_guestpath_duplicate: |-
@@ -845,9 +872,9 @@ en:
         destroy:
           destroying: "Deleting box '%{name}'..."
         download:
-          with: "Downloading with %{class}..."
           cleaning: "Cleaning up downloaded box..."
-          unknown_type: "Unknown or unsupported URI type given for box download."
+          downloading: "Downloading or copying the box..."
+          interrupted: "Box download was interrupted. Exiting."
         verify:
           verifying: "Verifying box..."
           failed: |-

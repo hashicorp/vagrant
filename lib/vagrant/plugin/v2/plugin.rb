@@ -162,14 +162,12 @@ module Vagrant
         # Registers additional providers to be available.
         #
         # @param [Symbol] name Name of the provider.
-        def self.provider(name=UNSET_VALUE, &block)
-          data[:providers] ||= Registry.new
+        def self.provider(name=UNSET_VALUE, options=nil, &block)
+          components.providers.register(name.to_sym) do
+            [block.call, options || {}]
+          end
 
-          # Register a new provider class only if a name was given
-          data[:providers].register(name.to_sym, &block) if name != UNSET_VALUE
-
-          # Return the registry
-          data[:providers]
+          nil
         end
 
         # Registers additional provisioners to be available.

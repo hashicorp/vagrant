@@ -126,15 +126,15 @@ describe Vagrant::Plugin::V2::Manager do
     end
 
     pB = plugin do |p|
-      p.provider("bar") { "baz" }
+      p.provider("bar", foo: "bar") { "baz" }
     end
 
     instance.register(pA)
     instance.register(pB)
 
     instance.providers.to_hash.length.should == 2
-    instance.providers[:foo].should == "bar"
-    instance.providers[:bar].should == "baz"
+    instance.providers[:foo].should == ["bar", {}]
+    instance.providers[:bar].should == ["baz", { foo: "bar" }]
   end
 
   it "provides the collection of registered provider configs" do

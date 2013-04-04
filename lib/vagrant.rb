@@ -64,12 +64,12 @@ require "vagrant/registry"
 
 module Vagrant
   autoload :Action,        'vagrant/action'
+  autoload :BatchAction,   'vagrant/batch_action'
   autoload :Box,           'vagrant/box'
   autoload :BoxCollection, 'vagrant/box_collection'
   autoload :CLI,           'vagrant/cli'
   autoload :Command,       'vagrant/command'
   autoload :Config,        'vagrant/config'
-  autoload :Downloaders,   'vagrant/downloaders'
   autoload :Driver,        'vagrant/driver'
   autoload :Environment,   'vagrant/environment'
   autoload :Errors,        'vagrant/errors'

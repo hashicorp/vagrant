@@ -2,6 +2,7 @@ require 'fileutils'
 require 'json'
 require 'pathname'
 require 'set'
+require 'thread'
 
 require 'log4r'
 
@@ -94,6 +95,10 @@ module Vagrant
       @vagrantfile_name = opts[:vagrantfile_name]
       @ui               = opts[:ui_class].new
       @ui_class         = opts[:ui_class]
+
+      # This is the batch lock, that enforces that only one {BatchAction}
+      # runs at a time from {#batch}.
+      @batch_lock = Mutex.new
 
       @lock_acquired = false
 
@@ -188,6 +193,23 @@ module Vagrant
       result
     end
 
+    # This creates a new batch action, yielding it, and then running it
+    # once the block is called.
+    #
+    # This handles the case where batch actions are disabled by the
+    # VAGRANT_NO_PARALLEL environmental variable.
+    def batch
+      @batch_lock.synchronize do
+        BatchAction.new(!!ENV["VAGRANT_NO_PARALLEL"]).tap do |b|
+          # Yield it so that the caller can setup actions
+          yield b
+
+          # And run it!
+          b.run
+        end
+      end
+    end
+
     # This returns the provider name for the default provider for this
     # environment. The provider returned is currently hardcoded to "virtualbox"
     # but one day should be a detected valid, best-case provider for this
@@ -195,7 +217,7 @@ module Vagrant
     #
     # @return [Symbol] Name of the default provider.
     def default_provider
-      :virtualbox
+      (ENV['VAGRANT_DEFAULT_PROVIDER'] || :virtualbox).to_sym
     end
 
     # Returns the collection of boxes for the environment.
@@ -287,10 +309,14 @@ module Vagrant
         raise Errors::MachineNotFound, :name => name, :provider => provider
       end
 
-      provider_cls = Vagrant.plugin("2").manager.providers[provider]
-      if !provider_cls
+      provider_plugin  = Vagrant.plugin("2").manager.providers[provider]
+      if !provider_plugin
         raise Errors::ProviderNotFound, :machine => name, :provider => provider
       end
+
+      # Extra the provider class and options from the plugin data
+      provider_cls     = provider_plugin[0]
+      provider_options = provider_plugin[1]
 
       # Build the machine configuration. This requires two passes: The first pass
       # loads in the machine sub-configuration. Since this can potentially
@@ -329,6 +355,17 @@ module Vagrant
         end
       end
 
+      # If there are provider overrides for the machine, then we run
+      # those as well.
+      provider_overrides = config.vm.get_provider_overrides(provider)
+      if provider_overrides.length > 0
+        @logger.info("Applying #{provider_overrides.length} provider overrides. Reloading config.")
+        provider_override_key = "vm_#{name}_#{config.vm.box}_#{provider}".to_sym
+        @config_loader.set(provider_override_key, provider_overrides)
+        config, config_warnings, config_errors = \
+          @config_loader.load([:default, box_config_key, :home, :root, vm_config_key, provider_override_key])
+      end
+
       # Get the provider configuration from the final loaded configuration
       provider_config = config.vm.get_provider_config(provider)
 
@@ -356,7 +393,7 @@ module Vagrant
       # Create the machine and cache it for future calls. This will also
       # return the machine from this method.
       @machines[cache_key] = Machine.new(name, provider, provider_cls, provider_config,
-                                         config, machine_data_path, box, self)
+                                         provider_options, config, machine_data_path, box, self)
     end
 
     # This returns a list of the configured machines for this environment.

@@ -52,7 +52,7 @@ module VagrantPlugins
         end
 
         def validate(machine)
-          errors = []
+          errors = _detected_errors
           errors << I18n.t("vagrant.config.chef.cookbooks_path_empty") if \
             !cookbooks_path || [cookbooks_path].flatten.empty?
           errors << I18n.t("vagrant.config.chef.run_list_empty") if \

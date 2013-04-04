@@ -209,6 +209,7 @@ module VagrantPlugins
         def hostonly_config(options)
           options = {
             :auto_config => true,
+            :mac         => nil,
             :netmask     => "255.255.255.0",
             :type        => :static
           }.merge(options)
@@ -263,7 +264,7 @@ module VagrantPlugins
             :adapter_ip  => options[:adapter_ip],
             :auto_config => options[:auto_config],
             :ip          => options[:ip],
-            :mac         => nil,
+            :mac         => options[:mac],
             :netmask     => options[:netmask],
             :nic_type    => nil,
             :type        => options[:type]

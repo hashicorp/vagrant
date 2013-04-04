@@ -1,5 +1,4 @@
 Vagrant.configure("2") do |config|
-  # default config goes here
   config.vagrant.host = :detect
 
   config.ssh.username = "vagrant"
