@@ -19,9 +19,15 @@ module VagrantPlugins
         options << "--sudo-user=#{config.sudo_user}" if config.sudo_user
         options << "--verbose" if config.verbose
         
+        # Assemble the full ansible-playbook command
         command = (%w(ansible-playbook) << options << config.playbook).flatten
         
-        Vagrant::Util::SafeExec.exec(*command)
+        # Write stdout and stderr data, since it's the regular Ansible output
+        command << { :notify => [:stdout, :stderr] }
+        Vagrant::Util::Subprocess.execute(*command) do |type, data|
+          puts "#{data}" if type == :stdout || type == :stderr
+          yield type, data if block_given?
+        end
       end
     end
   end
