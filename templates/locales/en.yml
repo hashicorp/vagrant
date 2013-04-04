@@ -1017,7 +1017,9 @@ en:
         upload_path_not_set: "`upload_path` must be set for the shell provisioner."
       
       ansible:
-        no_playbook: "`playbook` must be set for the ansible provisioner."
+        no_playbook: "`playbook` must be set for the Ansible provisioner."
+        playbook_path_invalid: "`playbook` for the Ansible provisioner does not exist on the host system: %{path}"
+        inventory_file_path_invalid: "`inventory_file` for the Ansible provisioner does not exist on the host system: %{path}"
 
     guest:
       base:
