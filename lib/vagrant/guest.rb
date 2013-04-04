@@ -104,12 +104,30 @@ module Vagrant
     #
     # @return [Boolean]
     def capability?(cap_name)
-      @chain.each do |guest_name, guest|
-        caps = @capabilities[guest_name]
-        return true if caps && caps.has_key?(cap_name)
+      !capability_module(cap_name).nil?
+    end
+
+    # Executes the capability with the given name, optionally passing
+    # more arguments onwards to the capability.
+    def capability(cap_name)
+      @logger.info("Execute capability: #{cap_name} (#{@chain[0][0]})")
+      cap_mod = capability_module(cap_name)
+      if !cap_mod
+        raise Errors::GuestCapabilityNotFound,
+          :cap => cap_name.to_s,
+          :guest => @chain[0][0].to_s
       end
 
-      false
+      cap_method = nil
+      begin
+        cap_method = cap_mod.method(cap_name)
+      rescue NameError
+        raise Errors::GuestCapabilityInvalid,
+          :cap => cap_name.to_s,
+          :guest => @chain[0][0].to_s
+      end
+
+      cap_method.call
     end
 
     # This returns whether the guest is ready to work. If this returns
@@ -119,6 +137,21 @@ module Vagrant
     # @return [Boolean]
     def ready?
       !@chain.empty?
+    end
+
+    protected
+
+    # Returns the registered module for a capability with the given name.
+    #
+    # @param [Symbol] cap_name
+    # @return [Module]
+    def capability_module(cap_name)
+      @chain.each do |guest_name, guest|
+        caps = @capabilities[guest_name]
+        return caps[cap_name] if caps && caps.has_key?(cap_name)
+      end
+
+      nil
     end
   end
 end

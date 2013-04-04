@@ -173,6 +173,17 @@ en:
         of the official installers or another gem is wrongly attempting to
         use Vagrant internals directly. Please properly install Vagrant to
         fix this. If this error persists, please contact support.
+      guest_capability_invalid: |-
+        The registered guest capability '%{cap}' for the
+        detected guest OS '%{guest}' is invalid. The capability does
+        not implement the proper method. This is a bug with Vagrant or the
+        plugin that implements this capability. Please report a bug.
+      guest_capability_not_found: |-
+        Vagrant attempted to execute the capability '%{cap}'
+        on the detect guest OS '%{guest}', but the guest doesn't
+        support that capability. This capability is required for your
+        configuration of Vagrant. Please either reconfigure Vagrant to
+        avoid this capability or fix the issue by creating the capability.
       guest_not_detected: |-
         The guest operating system of the machine could not be detected!
         Vagrant requires this knowledge to perform specific tasks such

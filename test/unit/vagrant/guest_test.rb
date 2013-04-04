@@ -12,9 +12,14 @@ describe Vagrant::Guest do
   subject { described_class.new(machine, guests, capabilities) }
 
   # This registers a capability with a specific guest
-  def register_capability(guest, capability)
+  def register_capability(guest, capability, options=nil)
+    options ||= {}
+
     cap = Class.new do
-      define_method(capability) do
+      if !options[:corrupt]
+        define_method(capability) do
+          raise "cap: #{capability}"
+        end
       end
     end
 
@@ -39,6 +44,34 @@ describe Vagrant::Guest do
     end
 
     guests[name] = [guest, parent]
+  end
+
+  describe "#capability" do
+    before :each do
+      register_guest(:foo, nil, true)
+      register_guest(:bar, :foo, true)
+
+      subject.detect!
+    end
+
+    it "executes the capability" do
+      register_capability(:bar, :test)
+
+      expect { subject.capability(:test) }.
+        to raise_error(RuntimeError, "cap: test")
+    end
+
+    it "raises an exception if the capability doesn't exist" do
+      expect { subject.capability(:what_is_this_i_dont_even) }.
+        to raise_error(Vagrant::Errors::GuestCapabilityNotFound)
+    end
+
+    it "raises an exception if the method doesn't exist on the module" do
+      register_capability(:bar, :test_is_corrupt, corrupt: true)
+
+      expect { subject.capability(:test_is_corrupt) }.
+        to raise_error(Vagrant::Errors::GuestCapabilityInvalid)
+    end
   end
 
   describe "#capability?" do

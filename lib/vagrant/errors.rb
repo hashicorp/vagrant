@@ -227,6 +227,14 @@ module Vagrant
       error_key(:port_collision_resume)
     end
 
+    class GuestCapabilityInvalid < VagrantError
+      error_key(:guest_capability_invalid)
+    end
+
+    class GuestCapabilityNotFound < VagrantError
+      error_key(:guest_capability_not_found)
+    end
+
     class GuestNotDetected < VagrantError
       error_key(:guest_not_detected)
     end
