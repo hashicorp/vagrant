@@ -10,12 +10,12 @@ module VagrantPlugins
       DESC
 
       config(:ansible, :provisioner) do
-        require_relative "config"
+        require File.expand_path("../config", __FILE__)
         Config
       end
 
       provisioner(:ansible) do
-        require_relative "provisioner"
+        require File.expand_path("../provisioner", __FILE__)
         Provisioner
       end
     end
