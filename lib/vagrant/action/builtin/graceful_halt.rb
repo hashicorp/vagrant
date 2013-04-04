@@ -44,7 +44,7 @@ module Vagrant
           # checked above.
           if graceful
             env[:ui].info I18n.t("vagrant.actions.vm.halt.graceful")
-            env[:machine].guest.halt
+            env[:machine].guest.capability(:halt)
 
             @logger.debug("Waiting for target graceful halt state: #{@target_state}")
             count = 0

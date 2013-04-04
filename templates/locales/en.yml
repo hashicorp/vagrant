@@ -211,6 +211,12 @@ en:
         can work properly. The command attempted was:
 
         %{command}
+      linux_nfs_mount_failed: |-
+        Mounting NFS shared folders failed. This is most often caused by the NFS
+        client software not being installed on the guest machine. Please verify
+        that the NFS client software is properly installed, and consult any resources
+        specific to the linux distro you're using for more information on how to
+        do this.
       linux_shell_expand_failed: |-
         Vagrant failed to determine the shell expansion of the guest path
         for one of your shared folders. This is an extremely rare error case
@@ -1032,12 +1038,3 @@ en:
         no_path_or_inline: "One of `path` or `inline` must be set."
         path_invalid: "`path` for shell provisioner does not exist on the host system: %{path}"
         upload_path_not_set: "`upload_path` must be set for the shell provisioner."
-
-    guest:
-      linux:
-        mount_nfs_fail: |-
-          Mounting NFS shared folders failed. This is most often caused by the NFS
-          client software not being installed on the guest machine. Please verify
-          that the NFS client software is properly installed, and consult any resources
-          specific to the linux distro you're using for more information on how to
-          do this.

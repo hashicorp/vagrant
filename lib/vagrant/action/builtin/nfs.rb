@@ -78,7 +78,8 @@ module Vagrant
             end
 
             # Mount them!
-            env[:machine].guest.mount_nfs(env[:nfs_host_ip], mount_folders)
+            env[:machine].guest.capability(
+              :mount_nfs, env[:nfs_host_ip], mount_folders)
           end
         end
 

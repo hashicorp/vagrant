@@ -243,6 +243,10 @@ module Vagrant
       error_key(:linux_mount_failed)
     end
 
+    class LinuxNFSMountFailed < VagrantError
+      error_key(:linux_nfs_mount_failed)
+    end
+
     class LinuxShellExpandFailed < VagrantError
       error_key(:linux_shell_expand_failed)
     end

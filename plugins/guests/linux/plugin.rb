@@ -16,9 +16,19 @@ module VagrantPlugins
         Guest
       end
 
+      guest_capability("linux", "halt") do
+        require_relative "cap/halt"
+        Cap::Halt
+      end
+
       guest_capability("linux", "shell_expand_guest_path") do
         require_relative "cap/shell_expand_guest_path"
         Cap::ShellExpandGuestPath
+      end
+
+      guest_capability("linux", "mount_nfs_folder") do
+        require_relative "cap/mount_nfs"
+        Cap::MountNFS
       end
 
       guest_capability("linux", "mount_virtualbox_shared_folder") do
