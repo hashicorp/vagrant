@@ -15,6 +15,10 @@ FEATURES:
     Note that while this feature is available, the "Vagrant way" is instead
     to use box manifests to ensure that the "box" for every provider matches,
     so these sorts of overrides are unnecessary.
+  - A new "guest capabilities" system to replace the old "guest" system.
+    This new abstraction allows plugins to define "capabilities" that
+    certain guest operating systems can implement. This allows greater
+    flexibility in doing guest-specific behavior.
 
 IMPROVEMENTS:
 
