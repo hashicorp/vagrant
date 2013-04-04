@@ -1034,50 +1034,7 @@ en:
         upload_path_not_set: "`upload_path` must be set for the shell provisioner."
 
     guest:
-      base:
-        unsupported_configure_networks: |-
-          Networking features require support that is dependent on the operating
-          system running within the guest virtual machine. Vagrant has built-in support
-          for many operating systems: Debian, Ubuntu, Gentoo, and RedHat. The distro
-          of your VM couldn't be detected or doesn't support networking features.
-
-          Most of the time this is simply due to the fact that no one has contributed
-          back the logic necessary to set this up. Please report a bug as well as the
-          box you're using.
-        unsupported_host_name: |-
-          Setting host name is currently only supported on Debian, Ubuntu and RedHat.
-          If you'd like your guest OS to be supported, please open a ticket on the
-          project.
-        unsupported_nfs: |-
-          Vagrant doesn't support mounting NFS shared folders for your specific
-          guest operating system yet, or possibly couldn't properly detect the
-          operating system on the VM.
-
-          Most of the time this is simply due to the fact that no one has contributed
-          back the logic necessary to set this up. Please report a bug as well as the
-          box you're using.
-        unsupported_halt: |-
-          Vagrant doesn't support graceful shutdowns for your specific
-          guest operating system yet, or possibly couldn't properly detect the
-          operating system on the VM.
-
-          Most of the time this is simply due to the fact that no one has contributed
-          back the logic necessary to set this up. Please report a bug as well as the
-          box you're using.
-        unsupported_shared_folder: |-
-          Vagrant doesn't support mounting shared folders for your specific
-          guest operating system yet, or possibly couldn't properly detect the
-          operating system on the VM.
-
-          Most of the time this is simply due to the fact that no one has contributed
-          back the logic necessary to set this up. Please report a bug as well as the
-          box you're using.
       linux:
-        guestpath_expand_fail: |-
-          Vagrant failed to determine the shell expansion of the guest path
-          for one of your shared folders. This is an extremely rare error case
-          and most likely indicates an unusual configuration of the guest system.
-          Please report a bug with your Vagrantfile.
         mount_nfs_fail: |-
           Mounting NFS shared folders failed. This is most often caused by the NFS
           client software not being installed on the guest machine. Please verify
