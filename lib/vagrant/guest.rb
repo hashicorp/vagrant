@@ -19,11 +19,19 @@ module Vagrant
   class Guest
     attr_reader :chain
 
-    def initialize(machine, guests)
-      @logger  = Log4r::Logger.new("vagrant::guest")
-      @chain   = []
-      @guests  = guests
-      @machine = machine
+    # The name of the guest OS. This is available after {#detect!} is
+    # called.
+    #
+    # @return [Symbol]
+    attr_reader :name
+
+    def initialize(machine, guests, capabilities)
+      @logger       = Log4r::Logger.new("vagrant::guest")
+      @capabilities = capabilities
+      @chain        = []
+      @guests       = guests
+      @machine      = machine
+      @name         = nil
     end
 
     # This will detect the proper guest OS for the machine and set up
@@ -63,15 +71,18 @@ module Vagrant
 
             if guest.detect?(@machine)
               @logger.info("Detected: #{name}!")
-              @chain << guest
+              @chain << [name, guest]
+              @name = name
 
               # Build the proper chain of parents if there are any.
               # This allows us to do "inheritence" of capabilities later
               if guest_info[1]
-                parent_info = @guests[guest_info[1]]
+                parent_name = guest_info[1]
+                parent_info = @guests[parent_name]
                 while parent_info
-                  @chain << parent_info[0].new
-                  parent_info = @guests[parent_info[1]]
+                  @chain << [parent_name, parent_info[0].new]
+                  parent_name = parent_info[1]
+                  parent_info = @guests[parent_name]
                 end
               end
 
@@ -87,6 +98,18 @@ module Vagrant
       # We shouldn't reach this point. Ideally we would detect
       # all operating systems.
       raise Errors::GuestNotDetected if @chain.empty?
+    end
+
+    # Tests whether the guest has the named capability.
+    #
+    # @return [Boolean]
+    def capability?(cap_name)
+      @chain.each do |guest_name, guest|
+        caps = @capabilities[guest_name]
+        return true if caps && caps.has_key?(cap_name)
+      end
+
+      false
     end
 
     # This returns whether the guest is ready to work. If this returns

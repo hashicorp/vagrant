@@ -5,10 +5,22 @@ require File.expand_path("../../base", __FILE__)
 describe Vagrant::Guest do
   include_context "unit"
 
+  let(:capabilities) { {} }
   let(:guests)  { {} }
   let(:machine) { double("machine") }
 
-  subject { described_class.new(machine, guests) }
+  subject { described_class.new(machine, guests, capabilities) }
+
+  # This registers a capability with a specific guest
+  def register_capability(guest, capability)
+    cap = Class.new do
+      define_method(capability) do
+      end
+    end
+
+    capabilities[guest] ||= {}
+    capabilities[guest][capability] = cap.new
+  end
 
   # This registers a guest with the class.
   #
@@ -29,6 +41,37 @@ describe Vagrant::Guest do
     guests[name] = [guest, parent]
   end
 
+  describe "#capability?" do
+    before :each do
+      register_guest(:foo, nil, true)
+      register_guest(:bar, :foo, true)
+
+      subject.detect!
+    end
+
+    it "doesn't have unknown capabilities" do
+      subject.capability?(:what_is_this_i_dont_even).should_not be
+    end
+
+    it "doesn't have capabilities registered to other guests" do
+      register_capability(:baz, :test)
+
+      subject.capability?(:test).should_not be
+    end
+
+    it "has capability of detected guest" do
+      register_capability(:bar, :test)
+
+      subject.capability?(:test).should be
+    end
+
+    it "has capability of parent guests" do
+      register_capability(:foo, :test)
+
+      subject.capability?(:test).should be
+    end
+  end
+
   describe "#detect!" do
     it "detects the first match" do
       register_guest(:foo, nil, false)
@@ -36,8 +79,10 @@ describe Vagrant::Guest do
       register_guest(:baz, nil, false)
 
       subject.detect!
+      subject.name.should == :bar
       subject.chain.length.should == 1
-      subject.chain[0].name.should == :bar
+      subject.chain[0][0].should == :bar
+      subject.chain[0][1].name.should == :bar
     end
 
     it "detects those with the most parents first" do
@@ -48,8 +93,10 @@ describe Vagrant::Guest do
       register_guest(:bar2, :foo2, true)
 
       subject.detect!
+      subject.name.should == :baz
       subject.chain.length.should == 3
-      subject.chain.map(&:name).should == [:baz, :bar, :foo]
+      subject.chain.map(&:first).should == [:baz, :bar, :foo]
+      subject.chain.map { |x| x[1] }.map(&:name).should == [:baz, :bar, :foo]
     end
 
     it "raises an exception if no guest can be detected" do
