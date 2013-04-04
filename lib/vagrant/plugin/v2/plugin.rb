@@ -144,6 +144,18 @@ module Vagrant
           nil
         end
 
+        # Defines a capability for the given guest. The block should return
+        # a class/module that has a method with the capability name, ready
+        # to be executed. This means that if it is an instance method,
+        # the block should return an instance of the class.
+        #
+        # @param [String] guest The name of the guest
+        # @param [String] cap The name of the capability
+        def self.guest_capability(guest, cap, &block)
+          components.guest_capabilities[guest.to_sym].register(cap.to_sym, &block)
+          nil
+        end
+
         # Defines an additionally available host implementation with
         # the given key.
         #

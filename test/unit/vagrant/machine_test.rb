@@ -202,6 +202,16 @@ describe Vagrant::Machine do
     end
 
     before(:each) do
+      test_guest = Class.new(Vagrant.plugin("2", :guest)) do
+        def detect?(machine)
+          true
+        end
+      end
+
+      register_plugin do |p|
+        p.guest(:test) { test_guest }
+      end
+
       instance.stub(:communicate).and_return(communicator)
     end
 
@@ -213,18 +223,10 @@ describe Vagrant::Machine do
     end
 
     it "should return the configured guest" do
-      test_guest = Class.new(Vagrant.plugin("2", :guest)) do
-        def detect?(machine)
-          true
-        end
-      end
-
-      register_plugin do |p|
-        p.guest(:test) { test_guest }
-      end
-
       result = instance.guest
-      result.should be_kind_of(test_guest)
+      result.should be_kind_of(Vagrant::Guest)
+      result.ready?.should be
+      result.chain[0][0].should == :test
     end
   end
 

@@ -154,7 +154,7 @@ describe Vagrant::Plugin::V2::Plugin do
         guest("foo") { "bar" }
       end
 
-      plugin.guest[:foo].should == "bar"
+      plugin.components.guests[:foo].should == ["bar", nil]
     end
 
     it "should lazily register guest classes" do

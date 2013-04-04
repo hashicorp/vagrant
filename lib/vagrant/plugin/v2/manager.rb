@@ -72,6 +72,21 @@ module Vagrant
           end
         end
 
+        # This returns all the registered guest capabilities.
+        #
+        # @return [Hash]
+        def guest_capabilities
+          results = Hash.new { |h, k| h[k] = Registry.new }
+
+          @registered.each do |plugin|
+            plugin.components.guest_capabilities.each do |guest, caps|
+              results[guest].merge!(caps)
+            end
+          end
+
+          results
+        end
+
         # This returns all registered host classes.
         #
         # @return [Hash]

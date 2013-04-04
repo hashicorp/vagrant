@@ -83,7 +83,10 @@ module Vagrant
       @config          = config
       @data_dir        = data_dir
       @env             = env
-      @guest           = Guest.new(self)
+      @guest           = Guest.new(
+        self,
+        Vagrant.plugin("2").manager.guests,
+        Vagrant.plugin("2").manager.guest_capabilities)
       @name            = name
       @provider_config = provider_config
       @provider_name   = provider_name
@@ -170,6 +173,7 @@ module Vagrant
     # @return [Object]
     def guest
       raise Errors::MachineGuestNotReady if !communicate.ready?
+      @guest.detect! if !@guest.ready?
       @guest
     end
 
