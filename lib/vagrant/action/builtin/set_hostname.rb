@@ -18,7 +18,7 @@ module Vagrant
           hostname = env[:machine].config.vm.hostname
           if !hostname.nil?
             env[:ui].info I18n.t("vagrant.actions.vm.hostname.setting")
-            env[:machine].guest.change_host_name(hostname)
+            env[:machine].guest.capability(:change_host_name, hostname)
           end
         end
       end

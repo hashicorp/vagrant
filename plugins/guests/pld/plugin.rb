@@ -6,9 +6,14 @@ module VagrantPlugins
       name "PLD Linux guest"
       description "PLD Linux guest support."
 
-      guest("pld") do
+      guest("pld", "redhat") do
         require File.expand_path("../guest", __FILE__)
         Guest
+      end
+
+      guest_capability("pld", "network_scripts_dir") do
+        require_relative "cap/network_scripts_dir"
+        Cap::NetworkScriptsDir
       end
     end
   end

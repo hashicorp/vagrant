@@ -112,7 +112,7 @@ module VagrantPlugins
             # Only configure the networks the user requested us to configure
             networks_to_configure = networks.select { |n| n[:auto_config] }
             env[:ui].info I18n.t("vagrant.actions.vm.network.configuring")
-            env[:machine].guest.configure_networks(networks_to_configure)
+            env[:machine].guest.capability(:configure_networks, networks_to_configure)
           end
         end
 

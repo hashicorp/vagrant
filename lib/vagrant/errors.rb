@@ -227,6 +227,30 @@ module Vagrant
       error_key(:port_collision_resume)
     end
 
+    class GuestCapabilityInvalid < VagrantError
+      error_key(:guest_capability_invalid)
+    end
+
+    class GuestCapabilityNotFound < VagrantError
+      error_key(:guest_capability_not_found)
+    end
+
+    class GuestNotDetected < VagrantError
+      error_key(:guest_not_detected)
+    end
+
+    class LinuxMountFailed < VagrantError
+      error_key(:linux_mount_failed)
+    end
+
+    class LinuxNFSMountFailed < VagrantError
+      error_key(:linux_nfs_mount_failed)
+    end
+
+    class LinuxShellExpandFailed < VagrantError
+      error_key(:linux_shell_expand_failed)
+    end
+
     class LocalDataDirectoryNotAccessible < VagrantError
       error_key(:local_data_dir_not_accessible)
     end

@@ -83,6 +83,10 @@ module Vagrant
       @config          = config
       @data_dir        = data_dir
       @env             = env
+      @guest           = Guest.new(
+        self,
+        Vagrant.plugin("2").manager.guests,
+        Vagrant.plugin("2").manager.guest_capabilities)
       @name            = name
       @provider_config = provider_config
       @provider_name   = provider_name
@@ -166,35 +170,11 @@ module Vagrant
     # knows how to do guest-OS specific tasks, such as configuring networks,
     # mounting folders, etc.
     #
-    # @return [Object]
+    # @return [Guest]
     def guest
       raise Errors::MachineGuestNotReady if !communicate.ready?
-
-      # Load the initial guest.
-      last_guest = config.vm.guest
-      guest      = load_guest(last_guest)
-
-      # Loop and distro dispatch while there are distros.
-      while true
-        distro = guest.distro_dispatch
-        break if !distro
-
-        # This is just some really basic loop detection and avoiding for
-        # guest classes. This is just here to help implementers a bit
-        # avoid a situation that is fairly easy, since if you subclass
-        # a parent which does `distro_dispatch`, you'll end up dispatching
-        # forever.
-        if distro == last_guest
-          @logger.warn("Distro dispatch loop in '#{distro}'. Exiting loop.")
-          break
-        end
-
-        last_guest = distro
-        guest      = load_guest(distro)
-      end
-
-      # Return the result
-      guest
+      @guest.detect! if !@guest.ready?
+      @guest
     end
 
     # This sets the unique ID associated with this machine. This will

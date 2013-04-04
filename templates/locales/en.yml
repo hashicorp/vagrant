@@ -173,18 +173,23 @@ en:
         of the official installers or another gem is wrongly attempting to
         use Vagrant internals directly. Please properly install Vagrant to
         fix this. If this error persists, please contact support.
-      guest:
-        invalid_class: |-
-          The specified guest class does not inherit from a proper guest
-          component class. The guest class must inherit from this.
-
-          The specified guest class was: %{guest}
-        unknown_type: |-
-          The specified guest type is unknown: %{guest}. Please change this
-          to a proper value.
-        unspecified: |-
-          A VM guest type must be specified! This is done via the `config.vm.guest`
-          configuration value. Please read the documentation online for more information.
+      guest_capability_invalid: |-
+        The registered guest capability '%{cap}' for the
+        detected guest OS '%{guest}' is invalid. The capability does
+        not implement the proper method. This is a bug with Vagrant or the
+        plugin that implements this capability. Please report a bug.
+      guest_capability_not_found: |-
+        Vagrant attempted to execute the capability '%{cap}'
+        on the detect guest OS '%{guest}', but the guest doesn't
+        support that capability. This capability is required for your
+        configuration of Vagrant. Please either reconfigure Vagrant to
+        avoid this capability or fix the issue by creating the capability.
+      guest_not_detected: |-
+        The guest operating system of the machine could not be detected!
+        Vagrant requires this knowledge to perform specific tasks such
+        as mounting shared folders and configuring networks. Please add
+        the ability to detect this guest operating system to Vagrant
+        by creating a plugin or reporting a bug.
       home_dir_not_accessible: |-
         The home directory you specified is not accessible. The home
         directory that Vagrant uses must be both readable and writable.
@@ -199,6 +204,24 @@ en:
         running Vagrant.
 
         Local data directory: %{local_data_path}
+      linux_mount_failed: |-
+        Failed to mount folders in Linux guest. This is usually beacuse
+        the "vboxsf" file system is not available. Please verify that
+        the guest additions are properly installed in the guest and
+        can work properly. The command attempted was:
+
+        %{command}
+      linux_nfs_mount_failed: |-
+        Mounting NFS shared folders failed. This is most often caused by the NFS
+        client software not being installed on the guest machine. Please verify
+        that the NFS client software is properly installed, and consult any resources
+        specific to the linux distro you're using for more information on how to
+        do this.
+      linux_shell_expand_failed: |-
+        Vagrant failed to determine the shell expansion of the guest path
+        for one of your shared folders. This is an extremely rare error case
+        and most likely indicates an unusual configuration of the guest system.
+        Please report a bug with your Vagrantfile.
       machine_guest_not_ready: |-
         Guest-specific operations were attempted on a machine that is not
         ready for guest communication. This should not happen and a bug
@@ -1015,56 +1038,3 @@ en:
         no_path_or_inline: "One of `path` or `inline` must be set."
         path_invalid: "`path` for shell provisioner does not exist on the host system: %{path}"
         upload_path_not_set: "`upload_path` must be set for the shell provisioner."
-
-    guest:
-      base:
-        unsupported_configure_networks: |-
-          Networking features require support that is dependent on the operating
-          system running within the guest virtual machine. Vagrant has built-in support
-          for many operating systems: Debian, Ubuntu, Gentoo, and RedHat. The distro
-          of your VM couldn't be detected or doesn't support networking features.
-
-          Most of the time this is simply due to the fact that no one has contributed
-          back the logic necessary to set this up. Please report a bug as well as the
-          box you're using.
-        unsupported_host_name: |-
-          Setting host name is currently only supported on Debian, Ubuntu and RedHat.
-          If you'd like your guest OS to be supported, please open a ticket on the
-          project.
-        unsupported_nfs: |-
-          Vagrant doesn't support mounting NFS shared folders for your specific
-          guest operating system yet, or possibly couldn't properly detect the
-          operating system on the VM.
-
-          Most of the time this is simply due to the fact that no one has contributed
-          back the logic necessary to set this up. Please report a bug as well as the
-          box you're using.
-        unsupported_halt: |-
-          Vagrant doesn't support graceful shutdowns for your specific
-          guest operating system yet, or possibly couldn't properly detect the
-          operating system on the VM.
-
-          Most of the time this is simply due to the fact that no one has contributed
-          back the logic necessary to set this up. Please report a bug as well as the
-          box you're using.
-        unsupported_shared_folder: |-
-          Vagrant doesn't support mounting shared folders for your specific
-          guest operating system yet, or possibly couldn't properly detect the
-          operating system on the VM.
-
-          Most of the time this is simply due to the fact that no one has contributed
-          back the logic necessary to set this up. Please report a bug as well as the
-          box you're using.
-      linux:
-        guestpath_expand_fail: |-
-          Vagrant failed to determine the shell expansion of the guest path
-          for one of your shared folders. This is an extremely rare error case
-          and most likely indicates an unusual configuration of the guest system.
-          Please report a bug with your Vagrantfile.
-        mount_fail: "Failed to mount shared folders. `vboxsf` was not available."
-        mount_nfs_fail: |-
-          Mounting NFS shared folders failed. This is most often caused by the NFS
-          client software not being installed on the guest machine. Please verify
-          that the NFS client software is properly installed, and consult any resources
-          specific to the linux distro you're using for more information on how to
-          do this.

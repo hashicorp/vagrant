@@ -154,7 +154,7 @@ describe Vagrant::Plugin::V2::Plugin do
         guest("foo") { "bar" }
       end
 
-      plugin.guest[:foo].should == "bar"
+      plugin.components.guests[:foo].should == ["bar", nil]
     end
 
     it "should lazily register guest classes" do
@@ -173,6 +173,16 @@ describe Vagrant::Plugin::V2::Plugin do
       expect {
         plugin.guest[:foo]
       }.to raise_error(StandardError)
+    end
+  end
+
+  describe "guest capabilities" do
+    it "should register guest capabilities" do
+      plugin = Class.new(described_class) do
+        guest_capability("foo", "bar") { "baz" }
+      end
+
+      plugin.components.guest_capabilities[:foo][:bar].should == "baz"
     end
   end
 

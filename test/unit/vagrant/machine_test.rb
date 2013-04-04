@@ -197,10 +197,21 @@ describe Vagrant::Machine do
     let(:communicator) do
       result = double("communicator")
       result.stub(:ready?).and_return(true)
+      result.stub(:test).and_return(false)
       result
     end
 
     before(:each) do
+      test_guest = Class.new(Vagrant.plugin("2", :guest)) do
+        def detect?(machine)
+          true
+        end
+      end
+
+      register_plugin do |p|
+        p.guest(:test) { test_guest }
+      end
+
       instance.stub(:communicate).and_return(communicator)
     end
 
@@ -212,63 +223,11 @@ describe Vagrant::Machine do
     end
 
     it "should return the configured guest" do
-      test_guest = Class.new(Vagrant.plugin("2", :guest))
-
-      register_plugin do |p|
-        p.guest(:test) { test_guest }
-      end
-
-      config.vm.guest = :test
-
       result = instance.guest
-      result.should be_kind_of(test_guest)
+      result.should be_kind_of(Vagrant::Guest)
+      result.ready?.should be
+      result.chain[0][0].should == :test
     end
-
-    it "should raise an exception if it can't find the configured guest" do
-      config.vm.guest = :bad
-
-      expect { instance.guest }.
-        to raise_error(Vagrant::Errors::VMGuestError)
-    end
-
-    it "should distro dispatch to the most specific guest" do
-      # Create the classes and dispatch the parent into the child
-      guest_parent = Class.new(Vagrant.plugin("2", :guest)) do
-        def distro_dispatch
-          :child
-        end
-      end
-
-      guest_child  = Class.new(Vagrant.plugin("2", :guest))
-
-      # Register the classes
-      register_plugin do |p|
-        p.guest(:parent) { guest_parent }
-        p.guest(:child)  { guest_child }
-      end
-
-      # Test that the result is the child
-      config.vm.guest = :parent
-      instance.guest.should be_kind_of(guest_child)
-    end
-
-    it "should protect against loops in the distro dispatch" do
-      # Create the classes and dispatch the parent into the child
-      guest_parent = Class.new(Vagrant.plugin("2", :guest)) do
-        def distro_dispatch
-          :parent
-        end
-      end
-
-      # Register the classes
-      register_plugin do |p|
-        p.guest(:parent) { guest_parent }
-      end
-
-      # Test that the result is the child
-      config.vm.guest = :parent
-      instance.guest.should be_kind_of(guest_parent)
-     end
   end
 
   describe "setting the ID" do
