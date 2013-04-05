@@ -34,12 +34,12 @@ module VagrantPlugins
 
       def validate(machine)
         errors = []
-        
+
         # Validate that a playbook path was provided
         if !playbook
           errors << I18n.t("vagrant.provisioners.ansible.no_playbook")
         end
-        
+
         # Validate the existence of said playbook on the host
         if playbook
           expanded_path = Pathname.new(playbook).expand_path(machine.env.root_path)
@@ -48,14 +48,14 @@ module VagrantPlugins
                               :path => expanded_path)
           end
         end
-        
+
         # Validate that extra_vars is a hash, if set
         if extra_vars
-          if not extra_vars.kind_of?(Hash)
+          if !extra_vars.kind_of?(Hash)
             errors << I18n.t("vagrant.provisioners.ansible.extra_vars_not_hash")
           end
         end
-        
+
         # Validate the existence of the inventory_file, if specified
         if inventory_file
           expanded_path = Pathname.new(inventory_file).expand_path(machine.env.root_path)
