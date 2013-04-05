@@ -5,7 +5,7 @@ module VagrantPlugins
         ssh = @machine.ssh_info
 
         options = %W[--private-key=#{ssh[:private_key_path]} --user=#{ssh[:username]}]
-        options << "--extra-vars=\"#{config.extra_vars}\"" if config.extra_vars
+        options << "--extra-vars=" + config.extra_vars.map{|k,v| "#{k}=#{v}"}.join(' ') if config.extra_vars
         options << "--inventory-file=#{config.inventory_file}" if config.inventory_file
         options << "--ask-sudo-pass" if config.ask_sudo_pass
 
