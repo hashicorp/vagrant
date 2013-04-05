@@ -49,6 +49,13 @@ module VagrantPlugins
           end
         end
         
+        # Validate that extra_vars is a hash, if set
+        if extra_vars
+          if not extra_vars.kind_of?(Hash)
+            errors << I18n.t("vagrant.provisioners.ansible.extra_vars_not_hash")
+          end
+        end
+        
         # Validate the existence of the inventory_file, if specified
         if inventory_file
           expanded_path = Pathname.new(inventory_file).expand_path(machine.env.root_path)
