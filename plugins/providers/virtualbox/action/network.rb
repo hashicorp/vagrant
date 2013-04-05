@@ -396,6 +396,7 @@ module VagrantPlugins
           this_netaddr = network_address(config[:ip], config[:netmask])
 
           @env[:machine].provider.driver.read_host_only_interfaces.each do |interface|
+            return interface if config[:adapter_ip] && config[:adapter_ip] == interface[:ip]
             return interface if config[:name] && config[:name] == interface[:name]
             return interface if this_netaddr == \
               network_address(interface[:ip], interface[:netmask])
