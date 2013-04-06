@@ -49,6 +49,7 @@ BUG FIXES:
     that is also in use.
   - Cygwin will always output color by default. Specify `--no-color` to
     override this.
+  - Assume Cygwin has a TTY for asking for input. [GH-1430]
 
 ## 1.1.6 (April 3, 2013)
 

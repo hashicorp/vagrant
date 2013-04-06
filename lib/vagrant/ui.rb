@@ -2,6 +2,7 @@ require "thread"
 
 require "log4r"
 
+require "vagrant/util/platform"
 require "vagrant/util/safe_puts"
 
 module Vagrant
@@ -77,7 +78,7 @@ module Vagrant
         super(message)
 
         # We can't ask questions when the output isn't a TTY.
-        raise Errors::UIExpectsTTY if !$stdin.tty?
+        raise Errors::UIExpectsTTY if !$stdin.tty? && !Vagrant::Util::Platform.cygwin?
 
         # Setup the options so that the new line is suppressed
         opts ||= {}
