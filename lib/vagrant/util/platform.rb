@@ -17,6 +17,9 @@ module Vagrant
         end
 
         def cygwin?
+          return true if ENV["VAGRANT_DETECTED_OS"] &&
+            ENV["VAGRANT_DETECTED_OS"].downcase.include?("cygwin")
+
           platform.include?("cygwin")
         end
 
@@ -67,8 +70,7 @@ module Vagrant
         # output.
         def terminal_supports_colors?
           if windows?
-            return ENV.has_key?("ANSICON") ||
-              ENV["VAGRANT_DETECTED_OS"].downcase.include?("cygwin")
+            return ENV.has_key?("ANSICON") || cygwin?
           end
 
           true
