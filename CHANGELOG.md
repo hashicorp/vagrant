@@ -33,6 +33,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+  - Full Windows support in cmd.exe, PowerShell, Cygwin, and MingW based
+    environments.
   - By adding the "disabled" boolean flag to synced folders you can disable
     them altogether. [GH-1004]
   - Specify the default provider with the `VAGRANT_DEFAULT_PROVIDER`
@@ -45,6 +47,8 @@ BUG FIXES:
   - Don't preserve modified time when untarring boxes. [GH-1539]
   - Forwarded port auto-correct will not auto-correct to a port
     that is also in use.
+  - Cygwin will always output color by default. Specify `--no-color` to
+    override this.
 
 ## 1.1.6 (April 3, 2013)
 

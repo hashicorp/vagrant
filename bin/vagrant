@@ -22,17 +22,32 @@ $stderr.sync = true
 # environment.
 opts = {}
 
-# Disable color if the proper argument was passed or if we're
-# on Windows since the default Windows terminal doesn't support
-# colors.
-if ARGV.include?("--no-color") || !$stdout.tty? || !Vagrant::Util::Platform.terminal_supports_colors?
-  # Delete the argument from the list so that it doesn't cause any
-  # invalid arguments down the road.
+# Disable color in a few cases:
+#
+#   * --no-color is anywhere in our arguments
+#   * STDOUT is not a TTY
+#   * The terminal doesn't support colors (Windows)
+#
+if ARGV.include?("--no-color")
+  # Delete the argument from the list so that it doesn't
+  # cause any invalid arguments down the road.
   ARGV.delete("--no-color")
+
   opts[:ui_class] = Vagrant::UI::Basic
-else
-  opts[:ui_class] = Vagrant::UI::Colored
+elsif !Vagrant::Util::Platform.terminal_supports_colors?
+  opts[:ui_class] = Vagrant::UI::Basic
+elsif !$stdout.tty?
+  # If we're not a TTY, verify we're not in Cygwin. Cygwin always
+  # reports that stdout is not a TTY, when in fact it is.
+  ENV["VAGRANT_DETECTED_OS"] ||= ""
+
+  if !ENV["VAGRANT_DETECTED_OS"].downcase.include?("cygwin")
+    opts[:ui_class] = Vagrant::UI::Basic
+  end
 end
+
+# Default to colored output
+opts[:ui_class] ||= Vagrant::UI::Colored
 
 # This is kind of hacky, and I'd love to find a better way to do this, but
 # if we're accessing the plugin interface, we want to NOT load plugins
