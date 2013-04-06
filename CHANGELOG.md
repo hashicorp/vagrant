@@ -33,6 +33,8 @@ BUG FIXES:
 
   - The `:mac` option for host-only networks is respected. [GH-1536]
   - Don't preserve modified time when untarring boxes. [GH-1539]
+  - Forwarded port auto-correct will not auto-correct to a port
+    that is also in use.
 
 ## 1.1.6 (April 3, 2013)
 

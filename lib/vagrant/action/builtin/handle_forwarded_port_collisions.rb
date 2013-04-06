@@ -78,17 +78,29 @@ module Vagrant
 
               @logger.info("Attempting to repair FP collision: #{host_port}")
 
+              repaired_port = nil
+              while !usable_ports.empty?
+                # Attempt to repair the forwarded port
+                repaired_port = usable_ports.to_a.sort[0]
+                usable_ports.delete(repaired_port)
+
+                # If the port is in use, then we can't use this either...
+                if extra_in_use.include?(repaired_port) || is_port_open?("127.0.0.1", repaired_port)
+                  @logger.info("Reparied port also in use: #{repaired_port}. Trying another...")
+                  next
+                end
+
+                # We have a port so break out
+                break
+              end
+
               # If we have no usable ports then we can't repair
-              if usable_ports.empty?
+              if !repaired_port && usable_ports.empty?
                 raise Errors::ForwardPortAutolistEmpty,
                   :vm_name    => env[:machine].name,
                   :guest_port => guest_port.to_s,
                   :host_port  => host_port.to_s
               end
-
-              # Attempt to repair the forwarded port
-              repaired_port = usable_ports.to_a.sort[0]
-              usable_ports.delete(repaired_port)
 
               # Modify the args in place
               options[:host] = repaired_port
