@@ -1,5 +1,15 @@
 ## 1.2.0 (unreleased)
 
+BACKWARDS INCOMPATIBILITIES:
+
+  - WINDOWS USERS: Vagrant now defaults to using the 'USERPROFILE' environmental
+    variable for the home directory if it is set. This means that the default
+    location for the Vagrant home directory is now `%USERPROFILE%/.vagrant.d`.
+    On Cygwin, this will cause existing Cygwin users to "lose" their boxes.
+    To work around this, either set `VAGRANT_HOME` to your Cygwin ".vagrant.d"
+    folder or move your ".vagrant.d" folder to `USERPROFILE`. The latter is
+    recommended for long-term support.
+
 FEATURES:
 
   - Providers can now parallelize! If they explicitly support it, Vagrant

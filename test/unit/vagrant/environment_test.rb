@@ -144,9 +144,37 @@ describe Vagrant::Environment do
       end
     end
 
-    it "is set to the DEFAULT_HOME by default" do
-      expected = Pathname.new(File.expand_path(described_class::DEFAULT_HOME))
-      described_class.new.home_path.should == expected
+    context "default home path" do
+      before :each do
+        Vagrant::Util::Platform.stub(:windows? => false)
+      end
+
+      it "is set to '~/.vagrant.d' by default" do
+        expected = Pathname.new(File.expand_path("~/.vagrant.d"))
+        described_class.new.home_path.should == expected
+      end
+
+      it "is set to '~/.vagrant.d' if on Windows but no USERPROFILE" do
+        Vagrant::Util::Platform.stub(:windows? => true)
+
+        expected = Pathname.new(File.expand_path("~/.vagrant.d"))
+
+        with_temp_env("USERPROFILE" => nil) do
+          described_class.new.home_path.should == expected
+        end
+      end
+
+      it "is set to '%USERPROFILE%/.vagrant.d' if on Windows and USERPROFILE is set" do
+        Vagrant::Util::Platform.stub(:windows? => true)
+
+        Dir.mktmpdir do |dir|
+          expected = Pathname.new(File.expand_path("#{dir}/.vagrant.d"))
+
+          with_temp_env("USERPROFILE" => dir) do
+            described_class.new.home_path.should == expected
+          end
+        end
+      end
     end
 
     it "throws an exception if inaccessible" do

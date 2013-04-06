@@ -14,7 +14,6 @@ module Vagrant
   # defined as basically a folder with a "Vagrantfile." This class allows
   # access to the VMs, CLI, etc. all in the scope of this environment.
   class Environment
-    DEFAULT_HOME = "~/.vagrant.d"
     DEFAULT_LOCAL_DATA = ".vagrant"
 
     # The `cwd` that this environment represents
@@ -554,7 +553,7 @@ module Vagrant
     def setup_home_path
       @home_path = Pathname.new(File.expand_path(@home_path ||
                                                  ENV["VAGRANT_HOME"] ||
-                                                 DEFAULT_HOME))
+                                                 default_home_path))
       @logger.info("Home path: #{@home_path}")
 
       # Setup the list of child directories that need to be created if they
@@ -652,6 +651,23 @@ module Vagrant
           @default_private_key_path.chmod(0600)
         end
       end
+    end
+
+    # This returns the default home directory path for Vagrant, which
+    # can differ depending on the system.
+    #
+    # @return [Pathname]
+    def default_home_path
+      path = "~/.vagrant.d"
+
+      # On Windows, we default ot the USERPROFILE directory if it
+      # is available. This is more compatible with Cygwin and sharing
+      # the home directory across shells.
+      if Util::Platform.windows? && ENV["USERPROFILE"]
+        path = "#{ENV["USERPROFILE"]}/.vagrant.d"
+      end
+
+      Pathname.new(path)
     end
 
     # Finds the Vagrantfile in the given directory.
