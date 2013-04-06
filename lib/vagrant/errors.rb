@@ -411,6 +411,10 @@ module Vagrant
       error_key(:ssh_host_down)
     end
 
+    class SSHIsPuttyLink < VagrantError
+      error_key(:ssh_is_putty_link)
+    end
+
     class SSHKeyBadOwner < VagrantError
       error_key(:ssh_key_bad_owner)
     end

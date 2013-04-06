@@ -3,6 +3,7 @@ require "log4r"
 require "vagrant/util/file_mode"
 require "vagrant/util/platform"
 require "vagrant/util/safe_exec"
+require "vagrant/util/subprocess"
 require "vagrant/util/which"
 
 module Vagrant
@@ -60,7 +61,8 @@ module Vagrant
       def self.exec(ssh_info, opts={})
         # Ensure the platform supports ssh. On Windows there are several programs which
         # include ssh, notably git, mingw and cygwin, but make sure ssh is in the path!
-        if !Which.which("ssh")
+        ssh_path = Which.which("ssh")
+        if !ssh_path
           if Platform.windows?
             raise Errors::SSHUnavailableWindows,
               :host => ssh_info[:host],
@@ -70,6 +72,19 @@ module Vagrant
           end
 
           raise Errors::SSHUnavailable
+        end
+
+        # On Windows, we need to detect whether SSH is actually "plink"
+        # underneath the covers. In this case, we tell the user.
+        if Platform.windows?
+          r = Subprocess.execute(ssh_path)
+          if r.stdout.include?("PuTTY Link")
+            raise Errors::SSHIsPuttyLink,
+              :host => ssh_info[:host],
+              :port => ssh_info[:port],
+              :username => ssh_info[:username],
+              :key_path => ssh_info[:private_key_path]
+          end
         end
 
         # If plain mode is enabled then we don't do any authentication (we don't

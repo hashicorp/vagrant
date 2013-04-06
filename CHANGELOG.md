@@ -40,6 +40,7 @@ IMPROVEMENTS:
   - Specify the default provider with the `VAGRANT_DEFAULT_PROVIDER`
     environmental variable. [GH-1478]
   - Invalid settings are now caught and shown in a user-friendly way. [GH-1484]
+  - Detect PuTTY Link SSH client on Windows and show an error. [GH-1518]
 
 BUG FIXES:
 

@@ -364,6 +364,16 @@ en:
         While attempting to connect with SSH, a "host is down" (EHOSTDOWN)
         error was received. Please verify your SSH settings are correct
         and try again.
+      ssh_is_putty_link: |-
+        The `ssh` executable found in the PATH is a PuTTY Link SSH client.
+        Vagrant is only compatible with OpenSSH SSH clients. Please install
+        an OpenSSH SSH client or manually SSH in using your existing client
+        using the information below.
+
+        Host: %{host}
+        Port: %{port}
+        Username: %{username}
+        Private key: %{key_path}
       ssh_key_bad_owner: |-
         The private key to connect to the machine via SSH must be owned
         by the user running Vagrant. This is a strict requirement from
