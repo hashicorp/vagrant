@@ -21,7 +21,7 @@ module Vagrant
           url = env[:box_url]
           if url !~ /^[a-z0-9]+:.*$/i
             @logger.info("No protocol found on box URL, assuming file:")
-            url = "file:#{url}"
+            url = "file:#{File.expand_path(url)}"
           end
 
           downloader_options = {}
