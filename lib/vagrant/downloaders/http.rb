@@ -8,10 +8,10 @@ module Vagrant
     # Downloads a file from an HTTP URL to a temporary file. This
     # downloader reports its progress to stdout while downloading.
     class HTTP < Base
-      def self.match?(uri)
-        # URI.parse barfs on '<drive letter>:\\files \on\ windows'
-        extracted = URI.extract(uri).first
-        extracted && extracted.include?(uri)
+      def self.match?(url)
+        uri = URI.parse(url)
+
+        %w[http https].include?(uri.scheme)
       end
 
       def download!(source_url, destination_file)
