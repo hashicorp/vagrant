@@ -44,6 +44,7 @@ IMPROVEMENTS:
   - Invalid settings are now caught and shown in a user-friendly way. [GH-1484]
   - Detect PuTTY Link SSH client on Windows and show an error. [GH-1518]
   - `vagrant ssh` in Cygwin won't output DOS path file warnings.
+  - Add `--rtcuseutc on` as a sane default for VirtualBox. [GH-912]
 
 BUG FIXES:
 

@@ -25,6 +25,10 @@ module VagrantPlugins
           ]
           attempt_and_log(command, "Enabling the Host I/O cache on the SATA controller...")
 
+          # Use rtcuseutc so that the VM sees UTC time.
+          command = ["modifyvm", env[:machine].id, "--rtcuseutc", "on"]
+          attempt_and_log(command, "Enabling rtcuseutc...")
+
           if env[:machine].provider_config.auto_nat_dns_proxy
             @logger.info("Automatically figuring out whether to enable/disable NAT DNS proxy...")
 
