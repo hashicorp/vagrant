@@ -223,7 +223,7 @@ module Vagrant
     #
     # @return [BoxCollection]
     def boxes
-      @_boxes ||= BoxCollection.new(boxes_path)
+      @_boxes ||= BoxCollection.new(boxes_path, temp_dir_root: tmp_path)
     end
 
     # This is the global config, comprised of loading configuration from

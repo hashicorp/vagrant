@@ -39,8 +39,11 @@ module Vagrant
     #
     # @param [Pathname] directory The directory that contains the collection
     #   of boxes.
-    def initialize(directory)
+    def initialize(directory, options=nil)
+      options ||= {}
+
       @directory = directory
+      @temp_root = options[:temp_dir_root]
       @logger    = Log4r::Logger.new("vagrant::box_collection")
     end
 
@@ -299,7 +302,7 @@ module Vagrant
     def v1_upgrade(dir)
       @logger.debug("Upgrading box in directory: #{dir}")
 
-      temp_dir = Pathname.new(Dir.mktmpdir("vagrant-"))
+      temp_dir = Pathname.new(Dir.mktmpdir(TEMP_PREFIX, @temp_root))
       @logger.debug("Temporary directory for upgrading: #{temp_dir}")
 
       # Move all the things into the temporary directory
@@ -333,7 +336,7 @@ module Vagrant
     # @param [String] dir Path to a temporary directory
     # @return [Object] The result of whatever the yield is
     def with_temp_dir(dir=nil)
-      dir ||= Dir.mktmpdir("vagrant-")
+      dir ||= Dir.mktmpdir(TEMP_PREFIX, @temp_root)
       dir = Pathname.new(dir)
 
       yield dir

@@ -60,6 +60,8 @@ BUG FIXES:
     reporting dynamic progress.
   - When using `Builder` instances for hooks, the builders will be
     merged for the proper before/after chain. [GH-1555]
+  - Use the Vagrant temporary directory again for temporary files
+    since they can be quite large and were messing with tmpfs. [GH-1442]
 
 ## 1.1.6 (April 3, 2013)
 
