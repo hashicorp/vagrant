@@ -38,7 +38,7 @@ module Vagrant
       def parse_options(opts=nil)
         # Creating a shallow copy of the arguments so the OptionParser
         # doesn't destroy the originals.
-        argv = @argv.dup
+        argv = @argv.dup.take_while {|a| a != '--'}
 
         # Default opts to a blank optionparser if none is given
         opts ||= OptionParser.new

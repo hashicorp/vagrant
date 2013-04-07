@@ -24,6 +24,14 @@ describe Vagrant::Command::Base do
       options[:f].should be
       result.should == ["foo"]
     end
+    
+    it "ignores 'extra' args" do
+      options = {}
+      opts = OptionParser.new do |opts|
+        result = klass.new(["foo", "bar", "--", "baz"], nil).parse_options(opts)
+        result.should == ["foo", "bar"]
+      end
+    end
 
     it "creates an option parser if none is given" do
       result = klass.new(["foo"], nil).parse_options(nil)
