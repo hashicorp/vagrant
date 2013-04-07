@@ -2,6 +2,7 @@ require "pathname"
 
 require "log4r"
 
+require "vagrant/util/platform"
 require "vagrant/util/scoped_hash_override"
 
 module VagrantPlugins
@@ -70,9 +71,12 @@ module VagrantPlugins
 
           folders = []
           shared_folders.each do |id, data|
+            hostpath = File.expand_path(data[:hostpath], @env[:root_path])
+            hostpath = Vagrant::Util::Platform.cygwin_windows_path(hostpath)
+
             folders << {
               :name => id,
-              :hostpath => File.expand_path(data[:hostpath], @env[:root_path]),
+              :hostpath => hostpath,
               :transient => data[:transient]
             }
           end

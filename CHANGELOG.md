@@ -53,7 +53,8 @@ BUG FIXES:
   - Cygwin will always output color by default. Specify `--no-color` to
     override this.
   - Assume Cygwin has a TTY for asking for input. [GH-1430]
-  - Expand Cygwin paths to Windows paths for calls to VBoxManage.
+  - Expand Cygwin paths to Windows paths for calls to VBoxManage and
+    for VirtualBox shared folders.
 
 ## 1.1.6 (April 3, 2013)
 
