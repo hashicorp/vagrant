@@ -89,6 +89,13 @@ module Vagrant
           raise
       end
 
+      def close
+        unless @connection.nil?
+          @connection.close
+          @logger.info("Connection has been closed.")
+        end
+      end
+
       protected
 
       # Opens an SSH connection and yields it to a block.
