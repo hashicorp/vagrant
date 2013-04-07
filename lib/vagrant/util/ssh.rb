@@ -137,6 +137,10 @@ module Vagrant
         host_string = "#{options[:username]}@#{host_string}" if !plain_mode
         command_options.unshift(host_string)
 
+        # On Cygwin we want to get rid of any DOS file warnings because
+        # we really don't care since both work.
+        ENV["nodosfilewarning"] = "1" if Platform.cygwin?
+
         # Invoke SSH with all our options
         LOGGER.info("Invoking SSH: #{command_options.inspect}")
         SafeExec.exec("ssh", *command_options)
