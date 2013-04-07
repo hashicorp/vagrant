@@ -30,6 +30,8 @@ FEATURES:
     certain guest operating systems can implement. This allows greater
     flexibility in doing guest-specific behavior.
   - Ansible provisioner support. [GH-1465]
+  - Providers can now support multiple box formats by specifying the
+    `box_format:` option.
 
 IMPROVEMENTS:
 

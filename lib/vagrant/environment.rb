@@ -328,13 +328,27 @@ module Vagrant
 
       box = nil
       if config.vm.box
-        begin
-          box = boxes.find(config.vm.box, provider)
-        rescue Errors::BoxUpgradeRequired
-          # Upgrade the box if we must
-          @logger.info("Upgrading box during config load: #{config.vm.box}")
-          boxes.upgrade(config.vm.box)
-          retry
+        # Determine the box formats we support
+        formats = provider_options[:box_format]
+        formats ||= provider
+        formats = [formats] if !formats.is_a?(Array)
+
+        @logger.info("Provider-supported box formats: #{formats.inspect}")
+        formats.each do |format|
+          begin
+            box = boxes.find(config.vm.box, format.to_s)
+          rescue Errors::BoxUpgradeRequired
+            # Upgrade the box if we must
+            @logger.info("Upgrading box during config load: #{config.vm.box}")
+            boxes.upgrade(config.vm.box)
+            retry
+          end
+
+          # If a box was found, we exit
+          if box
+            @logger.info("Box found with format: #{format}")
+            break
+          end
         end
       end
 

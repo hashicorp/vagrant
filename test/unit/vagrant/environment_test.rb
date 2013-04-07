@@ -408,11 +408,11 @@ VF
 
   describe "getting a machine" do
     # A helper to register a provider for use in tests.
-    def register_provider(name, config_class=nil)
+    def register_provider(name, config_class=nil, options=nil)
       provider_cls = Class.new(Vagrant.plugin("2", :provider))
 
       register_plugin("2") do |p|
-        p.provider(name) { provider_cls }
+        p.provider(name, options) { provider_cls }
 
         if config_class
           p.config(name, :provider) { config_class }
@@ -563,6 +563,56 @@ VF
         env.box2("base", :foo, :vagrantfile => <<-VF)
 Vagrant.configure("2") do |config|
   config.ssh.port = 100
+end
+VF
+      end
+
+      env = environment.create_vagrant_env
+      machine = env.machine(:default, :foo)
+      machine.config.ssh.port.should == 100
+    end
+
+    it "should load the box configuration for other formats for a V2 box" do
+      register_provider("foo", nil, box_format: "bar")
+
+      environment = isolated_environment do |env|
+        env.vagrantfile(<<-VF)
+Vagrant.configure("2") do |config|
+  config.vm.box = "base"
+end
+VF
+
+        env.box2("base", :bar, :vagrantfile => <<-VF)
+Vagrant.configure("2") do |config|
+  config.ssh.port = 100
+end
+VF
+      end
+
+      env = environment.create_vagrant_env
+      machine = env.machine(:default, :foo)
+      machine.config.ssh.port.should == 100
+    end
+
+    it "prefer sooner formats when multiple box formats are available" do
+      register_provider("foo", nil, box_format: ["fA", "fB"])
+
+      environment = isolated_environment do |env|
+        env.vagrantfile(<<-VF)
+Vagrant.configure("2") do |config|
+  config.vm.box = "base"
+end
+VF
+
+        env.box2("base", :fA, :vagrantfile => <<-VF)
+Vagrant.configure("2") do |config|
+  config.ssh.port = 100
+end
+VF
+
+        env.box2("base", :fB, :vagrantfile => <<-VF)
+Vagrant.configure("2") do |config|
+  config.ssh.port = 200
 end
 VF
       end
