@@ -58,6 +58,8 @@ BUG FIXES:
     for VirtualBox shared folders.
   - Output the proper clear line text for shells in Cygwin when
     reporting dynamic progress.
+  - When using `Builder` instances for hooks, the builders will be
+    merged for the proper before/after chain. [GH-1555]
 
 ## 1.1.6 (April 3, 2013)
 

@@ -74,7 +74,14 @@ module Vagrant
       def insert(index, middleware, *args, &block)
         index = self.index(index) unless index.is_a?(Integer)
         raise "no such middleware to insert before: #{index.inspect}" unless index
-        stack.insert(index, [middleware, args, block])
+
+        if middleware.kind_of?(Builder)
+          middleware.stack.reverse.each do |stack_item|
+            stack.insert(index, stack_item)
+          end
+        else
+          stack.insert(index, [middleware, args, block])
+        end
       end
 
       alias_method :insert_before, :insert

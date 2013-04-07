@@ -6,7 +6,14 @@ describe Vagrant::Action::Builder do
   # This returns a proc that can be used with the builder
   # that simply appends data to an array in the env.
   def appender_proc(data)
-    Proc.new { |env| env[:data] << data }
+    result = Proc.new { |env| env[:data] << data }
+
+    # Define a to_s on it for helpful output
+    result.define_singleton_method(:to_s) do
+      "<Appender: #{data}>"
+    end
+
+    result
   end
 
   context "copying" do
@@ -117,6 +124,35 @@ describe Vagrant::Action::Builder do
       subject.call(data)
 
       data[:data].should == [1, 2, 3]
+    end
+
+    it "merges middleware stacks of other builders" do
+      wrapper_class = Proc.new do |letter|
+        Class.new do
+          def initialize(app, env)
+            @app = app
+          end
+
+          define_method(:call) do |env|
+            env[:data] << "#{letter}1"
+            @app.call(env)
+            env[:data] << "#{letter}2"
+          end
+        end
+      end
+
+      proc2 = appender_proc(2)
+      subject.use appender_proc(1)
+      subject.use proc2
+
+      builder = described_class.new
+      builder.use wrapper_class.call("A")
+      builder.use wrapper_class.call("B")
+
+      subject.insert(proc2, builder)
+      subject.call(data)
+
+      data[:data].should == [1, "A1", "B1", 2, "B2", "A2"]
     end
 
     it "raises an exception if an invalid object given for insert" do
