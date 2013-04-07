@@ -157,7 +157,7 @@ module VagrantPlugins
         end
 
         def import(ovf)
-          ovf = Vagrant::Util::Platform.platform_path(ovf)
+          ovf = Vagrant::Util::Platform.cygwin_windows_path(ovf)
 
           output = ""
           total = ""
