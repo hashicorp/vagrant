@@ -62,6 +62,19 @@ module Vagrant
         def platform_path(path)
           return path if !cygwin?
 
+          process = Subprocess.execute("cygpath", "-wla", path.to_s)
+          process.stdout.chomp
+        end
+
+        # This takes as input a path as a string and converts it into
+        # a unix path. This is only important
+        # when using the path in shell environments with Cygwin.
+        #
+        # @param [String] path
+        # @return [String]
+        def unix_path(path)
+          return path if !cygwin?
+
           process = Subprocess.execute("cygpath", "-u", path.to_s)
           process.stdout.chomp
         end
