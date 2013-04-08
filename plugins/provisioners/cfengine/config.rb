@@ -7,12 +7,16 @@ module VagrantPlugins
       attr_accessor :deb_repo_file
       attr_accessor :deb_repo_line
       attr_accessor :repo_gpg_key_url
+      attr_accessor :yum_repo_file
+      attr_accessor :yum_repo_url
 
       def initialize
-        @deb_repo_file = UNSET_VALUE
-        @deb_repo_line = UNSET_VALUE
-        @install = UNSET_VALUE
+        @deb_repo_file    = UNSET_VALUE
+        @deb_repo_line    = UNSET_VALUE
+        @install          = UNSET_VALUE
         @repo_gpg_key_url = UNSET_VALUE
+        @yum_repo_file    = UNSET_VALUE
+        @yum_repo_url     = UNSET_VALUE
       end
 
       def finalize!
@@ -29,6 +33,14 @@ module VagrantPlugins
 
         if @repo_gpg_key_url == UNSET_VALUE
           @repo_gpg_key_url = "http://cfengine.com/pub/gpg.key"
+        end
+
+        if @yum_repo_file == UNSET_VALUE
+          @yum_repo_file = "/etc/yum.repos.d/cfengine-community.repo"
+        end
+
+        if @yum_repo_url == UNSET_VALUE
+          @yum_repo_url = "http://cfengine.com/pub/yum/"
         end
       end
     end
