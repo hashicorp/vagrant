@@ -11,6 +11,12 @@ en:
     cfengine_no_bootstrap: |-
       CFEngine doesn't require bootstrap. Not bootstrapping.
 
+    cfengine_config:
+      invalid_mode: |-
+        The mode must be 'bootstrap' or 'singlerun'
+      policy_server_address: |-
+        The policy server address must be set for bootstrapping.
+
     general:
       batch_unexpected_error: |-
         An unexpected error ocurred when executing the action on the

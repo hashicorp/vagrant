@@ -56,6 +56,19 @@ module VagrantPlugins
           @yum_repo_url = "http://cfengine.com/pub/yum/"
         end
       end
+
+      def validate(machine)
+        errors = []
+
+        valid_modes = [:bootstrap, :singlerun]
+        errors << I18n.t("vagrant.cfengine_config.invalid_mode") if !valid_modes.include?(@mode)
+
+        if @mode == :bootstrap
+          errors << I18n.t("vagrant.cfengine_config.policy_server_address") if !@policy_server_address
+        end
+
+        { "CFEngine" => errors }
+      end
     end
   end
 end
