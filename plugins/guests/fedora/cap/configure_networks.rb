@@ -1,12 +1,14 @@
 require "set"
 require "tempfile"
 
+require "vagrant/util/retryable"
 require "vagrant/util/template_renderer"
 
 module VagrantPlugins
   module GuestFedora
     module Cap
       class ConfigureNetworks
+        extend Vagrant::Util::Retryable
         include Vagrant::Util
 
         def self.configure_networks(machine, networks)
@@ -42,10 +44,13 @@ module VagrantPlugins
           # each specifically, we avoid reconfiguring p7p (the NAT interface) so
           # SSH never dies.
           interfaces.each do |interface|
-            machine.communicate.sudo("/sbin/ifdown p7p#{interface} 2> /dev/null", :error_check => false)
-            machine.communicate.sudo("cat /tmp/vagrant-network-entry_#{interface} >> #{network_scripts_dir}/ifcfg-p7p#{interface}")
+            retryable(:on => Vagrant::Errors::VagrantError, :tries => 3, :sleep => 2) do
+              machine.communicate.sudo("/sbin/ifdown p7p#{interface} 2> /dev/null", :error_check => false)
+              machine.communicate.sudo("cat /tmp/vagrant-network-entry_#{interface} >> #{network_scripts_dir}/ifcfg-p7p#{interface}")
+              machine.communicate.sudo("/sbin/ifup p7p#{interface} 2> /dev/null")
+            end
+
             machine.communicate.sudo("rm /tmp/vagrant-network-entry_#{interface}")
-            machine.communicate.sudo("/sbin/ifup p7p#{interface} 2> /dev/null")
           end
         end
       end
