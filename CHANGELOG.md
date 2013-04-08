@@ -32,6 +32,7 @@ FEATURES:
   - Ansible provisioner support. [GH-1465]
   - Providers can now support multiple box formats by specifying the
     `box_format:` option.
+  - CFEngine provisioner support.
 
 IMPROVEMENTS:
 
