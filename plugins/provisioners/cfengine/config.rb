@@ -3,6 +3,7 @@ require "vagrant"
 module VagrantPlugins
   module CFEngine
     class Config < Vagrant.plugin("2", :config)
+      attr_accessor :am_policy_hub
       attr_accessor :extra_agent_args
       attr_accessor :classes
       attr_accessor :deb_repo_file
@@ -18,6 +19,7 @@ module VagrantPlugins
       attr_accessor :yum_repo_url
 
       def initialize
+        @am_policy_hub    = UNSET_VALUE
         @classes          = UNSET_VALUE
         @deb_repo_file    = UNSET_VALUE
         @deb_repo_line    = UNSET_VALUE
@@ -34,6 +36,8 @@ module VagrantPlugins
       end
 
       def finalize!
+        @am_policy_hub = false if @am_policy_hub == UNSET_VALUE
+
         @classes = nil if @classes == UNSET_VALUE
 
         if @deb_repo_file == UNSET_VALUE

@@ -2,6 +2,8 @@ en:
   vagrant:
     cfengine_bootstrapping: |-
       Bootstrapping CFEngine with policy server: %{policy_server}...
+    cfengine_bootstrapping_policy_hub: |-
+      Performing additional bootstrap for policy hubs...
     cfengine_cant_detect: |-
       Vagrant doesn't support detecting whether CFEngine is installed
       for the guest OS running in the machine. Vagrant will assume it is

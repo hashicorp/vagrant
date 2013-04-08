@@ -79,6 +79,14 @@ module VagrantPlugins
                                 policy_server: policy_server_address))
         result = cfagent("--bootstrap --policy-server #{policy_server_address}", error_check: false)
         raise Vagrant::Errors::CFEngineBootstrapFailed if result != 0
+
+        # Policy hubs need to do additional things before they're ready
+        # to accept agents. Force that run now...
+        if @config.am_policy_hub
+          @machine.ui.info(I18n.t("vagrant.cfengine_bootstrapping_policy_hub"))
+          cfagent("-KI -f /var/cfengine/masterfiles/failsafe.cf#{cfagent_classes_args}")
+          cfagent("-KI #{cfagent_classes_args}#{cfagent_extra_args}")
+        end
       end
 
       # This handles verifying the CFEngine installation, installing it
