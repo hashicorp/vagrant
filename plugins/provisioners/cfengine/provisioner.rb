@@ -10,6 +10,11 @@ module VagrantPlugins
         @logger.info("Checking for CFEngine installation...")
         handle_cfengine_installation
 
+        if @config.files_path
+          @machine.ui.info(I18n.t("vagrant.cfengine_installing_files_path"))
+          install_files(Pathname.new(@config.files_path).expand_path(@machine.env.root_path))
+        end
+
         handle_cfengine_bootstrap if @config.mode == :bootstrap
 
         if @config.mode == :single_run
@@ -109,6 +114,17 @@ module VagrantPlugins
             raise Vagrant::Errors::CFEngineInstallFailed
           end
         end
+      end
+
+      # This installs a set of files into the CFEngine folder within
+      # the machine.
+      #
+      # @param [Pathname] local_path
+      def install_files(local_path)
+        @logger.debug("Copying local files to CFEngine: #{local_path}")
+        @machine.communicate.sudo("rm -rf /tmp/cfengine-files")
+        @machine.communicate.upload(local_path.to_s, "/tmp/cfengine-files")
+        @machine.communicate.sudo("cp -R /tmp/cfengine-files/* /var/cfengine")
       end
     end
   end

@@ -10,6 +10,8 @@ en:
       installed and attempt to continue.
     cfengine_installing: |-
       Installing CFEngine onto machine...
+    cfengine_installing_files_path: |-
+      Copying the 'files_path' files...
     cfengine_no_bootstrap: |-
       CFEngine doesn't require bootstrap. Not bootstrapping.
     cfengine_single_run: |-
@@ -20,6 +22,8 @@ en:
     cfengine_config:
       classes_array: |-
         The 'classes' configuration must be an array.
+      files_path_not_directory: |-
+        The 'files_path' must point to a valid directory.
       invalid_mode: |-
         The mode must be 'bootstrap' or 'single_run'
       policy_server_address: |-

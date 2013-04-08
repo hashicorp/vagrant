@@ -1,3 +1,5 @@
+require "pathname"
+
 require "vagrant"
 
 module VagrantPlugins
@@ -8,6 +10,7 @@ module VagrantPlugins
       attr_accessor :classes
       attr_accessor :deb_repo_file
       attr_accessor :deb_repo_line
+      attr_accessor :files_path
       attr_accessor :force_bootstrap
       attr_accessor :install
       attr_accessor :mode
@@ -24,6 +27,7 @@ module VagrantPlugins
         @deb_repo_file    = UNSET_VALUE
         @deb_repo_line    = UNSET_VALUE
         @extra_agent_args = UNSET_VALUE
+        @files_path       = UNSET_VALUE
         @force_bootstrap  = UNSET_VALUE
         @install          = UNSET_VALUE
         @mode             = UNSET_VALUE
@@ -49,6 +53,8 @@ module VagrantPlugins
         end
 
         @extra_agent_args = nil if @extra_agent_args == UNSET_VALUE
+
+        @files_path = nil if @files_path == UNSET_VALUE
 
         @force_bootstrap = false if @force_bootstrap == UNSET_VALUE
 
@@ -89,6 +95,13 @@ module VagrantPlugins
 
         if @classes && !@classes.is_a?(Array)
           errors << I18n.t("vagrant.cfengine_config.classes_array")
+        end
+
+        if @files_path
+          expanded = Pathname.new(@files_path).expand_path(machine.env.root_path)
+          if !expanded.directory?
+            errors << I18n.t("vagrant.cfengine_config.files_path_not_directory")
+          end
         end
 
         if @run_file
