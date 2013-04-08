@@ -4,10 +4,17 @@ en:
       Bootstrapping CFEngine with policy server: %{policy_server}...
     cfengine_bootstrapping_policy_hub: |-
       Performing additional bootstrap for policy hubs...
+    cfengine_cant_autodetect_ip: |-
+      Vagrant was unable to automatically detect the IP address of the
+      running machine to use as the policy server address. Please specify
+      the policy server address manually, or verify that the networks are
+      configured properly internally.
     cfengine_cant_detect: |-
       Vagrant doesn't support detecting whether CFEngine is installed
       for the guest OS running in the machine. Vagrant will assume it is
       installed and attempt to continue.
+    cfengine_detected_ip: |-
+      Detected policy server IP address: %{address}...
     cfengine_installing: |-
       Installing CFEngine onto machine...
     cfengine_installing_files_path: |-

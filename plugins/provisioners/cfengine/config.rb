@@ -90,7 +90,9 @@ module VagrantPlugins
         errors << I18n.t("vagrant.cfengine_config.invalid_mode") if !valid_modes.include?(@mode)
 
         if @mode == :bootstrap
-          errors << I18n.t("vagrant.cfengine_config.policy_server_address") if !@policy_server_address
+          if !@policy_server_address && !@am_policy_hub
+            errors << I18n.t("vagrant.cfengine_config.policy_server_address")
+          end
         end
 
         if @classes && !@classes.is_a?(Array)

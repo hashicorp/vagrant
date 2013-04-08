@@ -139,6 +139,10 @@ module Vagrant
       error_key(:cfengine_bootstrap_failed)
     end
 
+    class CFEngineCantAutodetectIP < VagrantError
+      error_key(:cfengine_cant_autodetect_ip)
+    end
+
     class CFEngineInstallFailed < VagrantError
       error_key(:cfengine_install_failed)
     end

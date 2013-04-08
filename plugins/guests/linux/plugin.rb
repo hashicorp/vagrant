@@ -30,6 +30,11 @@ module VagrantPlugins
         require_relative "cap/mount_virtualbox_shared_folder"
         Cap::MountVirtualBoxSharedFolder
       end
+
+      guest_capability("linux", "read_ip_address") do
+        require_relative "cap/read_ip_address"
+        Cap::ReadIPAddress
+      end
     end
   end
 end

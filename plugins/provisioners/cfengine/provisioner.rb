@@ -79,6 +79,11 @@ module VagrantPlugins
 
         # Needs bootstrap, let's determine the parameters
         policy_server_address = @config.policy_server_address
+        if !policy_server_address
+          policy_server_address = @machine.guest.capability(:read_ip_address)
+          raise Vagrant::Errors::CFEngineCantAutodetectIP if !policy_server_address
+          @machine.ui.info(I18n.t("vagrant.cfengine_detected_ip", address: policy_server_address))
+        end
 
         @machine.ui.info(I18n.t("vagrant.cfengine_bootstrapping",
                                 policy_server: policy_server_address))
