@@ -34,6 +34,7 @@ module VagrantPlugins
         # after the "--" as remaining ARGV, and Vagrant can think it is
         # a multi-vm name (wrong!)
         argv = [] if argv == ssh_args
+        argv = [argv.first] if argv.length > 1
 
         # Execute the actual SSH
         with_target_vms(argv, :single_target => true) do |vm|
