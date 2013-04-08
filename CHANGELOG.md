@@ -49,6 +49,8 @@ IMPROVEMENTS:
   - SSH will send keep-alive packets every 5 seconds by default to
     keep connections alive. Can be disabled with `config.ssh.keep_alive`. [GH-516]
   - Show a message on `vagrant up` if the machine is already running. [GH-1558]
+  - "Running provisioner" output now shoes the provisioner shortcut name,
+    rather than the less-than-helpful class name.
 
 BUG FIXES:
 
