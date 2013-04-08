@@ -1,10 +1,20 @@
+require "log4r"
 require "vagrant"
 
 module VagrantPlugins
   module CFEngine
     class Provisioner < Vagrant.plugin("2", :provisioner)
       def provision
+        @logger = Log4r::Logger.new("vagrant::plugins::cfengine")
+
+        @logger.info("Checking for CFEngine installation...")
         handle_cfengine_installation
+
+        if @config.mode == :bootstrap
+          @logger.info("Bootstrapping CFEngine...")
+          if @machine.guest.capability(:cfengine_needs_bootstrap, @config)
+          end
+        end
       end
 
       protected

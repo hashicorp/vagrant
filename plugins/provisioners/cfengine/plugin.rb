@@ -18,6 +18,11 @@ module VagrantPlugins
         Cap::Debian::CFEngineInstall
       end
 
+      guest_capability("linux", "cfengine_needs_bootstrap") do
+        require_relative "cap/linux/cfengine_needs_bootstrap"
+        Cap::Linux::CFEngineNeedsBootstrap
+      end
+
       guest_capability("linux", "cfengine_installed") do
         require_relative "cap/linux/cfengine_installed"
         Cap::Linux::CFEngineInstalled
