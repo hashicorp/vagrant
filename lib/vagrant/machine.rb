@@ -57,6 +57,11 @@ module Vagrant
     # @return [Hash]
     attr_reader :provider_options
 
+    # The UI for outputting in the scope of this machine.
+    #
+    # @return [UI]
+    attr_reader :ui
+
     # Initialize a new machine.
     #
     # @param [String] name Name of the virtual machine.
@@ -91,6 +96,7 @@ module Vagrant
       @provider_config = provider_config
       @provider_name   = provider_name
       @provider_options = provider_options
+      @ui              = @env.ui.scope(@name)
 
       # Read the ID, which is usually in local storage
       @id = nil
@@ -136,7 +142,7 @@ module Vagrant
         :action_name    => "machine_action_#{name}".to_sym,
         :machine        => self,
         :machine_action => name,
-        :ui             => @env.ui.scope(@name)
+        :ui             => @ui
       }.merge(extra_env || {})
       @env.action_runner.run(callable, env)
     end
