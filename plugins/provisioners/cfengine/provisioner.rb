@@ -21,7 +21,7 @@ module VagrantPlugins
           @machine.ui.info(I18n.t("vagrant.cfengine_single_run_execute"))
           path = Pathname.new(@config.run_file).expand_path(@machine.env.root_path)
           machine.communicate.upload(path.to_s, @config.upload_path)
-          cfagent("-KI -f #{@config.upload_path}#{cfagent_classes_args}")
+          cfagent("-KI -f #{@config.upload_path}#{cfagent_classes_args}#{cfagent_extra_args}")
         end
       end
 
@@ -46,11 +46,21 @@ module VagrantPlugins
 
       # Returns the arguments for the classes configuration if they are
       # set.
+      #
+      # @return [String]
       def cfagent_classes_args
         return "" if !@config.classes
 
         args = @config.classes.map { |c| "-D#{c}" }.join(" ")
         return " #{args}"
+      end
+
+      # Extra arguments for calles to cf-agent.
+      #
+      # @return [String]
+      def cfagent_extra_args
+        return "" if !@config.extra_agent_args
+        return " #{@config.extra_agent_args}"
       end
 
       # This handles checking if the CFEngine installation needs to

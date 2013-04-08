@@ -3,6 +3,7 @@ require "vagrant"
 module VagrantPlugins
   module CFEngine
     class Config < Vagrant.plugin("2", :config)
+      attr_accessor :extra_agent_args
       attr_accessor :classes
       attr_accessor :deb_repo_file
       attr_accessor :deb_repo_line
@@ -20,6 +21,7 @@ module VagrantPlugins
         @classes          = UNSET_VALUE
         @deb_repo_file    = UNSET_VALUE
         @deb_repo_line    = UNSET_VALUE
+        @extra_agent_args = UNSET_VALUE
         @force_bootstrap  = UNSET_VALUE
         @install          = UNSET_VALUE
         @mode             = UNSET_VALUE
@@ -41,6 +43,8 @@ module VagrantPlugins
         if @deb_repo_line == UNSET_VALUE
           @deb_repo_line = "deb http://cfengine.com/pub/apt $(lsb_release -cs) main"
         end
+
+        @extra_agent_args = nil if @extra_agent_args == UNSET_VALUE
 
         @force_bootstrap = false if @force_bootstrap == UNSET_VALUE
 
