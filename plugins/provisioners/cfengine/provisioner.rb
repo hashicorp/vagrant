@@ -11,6 +11,18 @@ module VagrantPlugins
         handle_cfengine_installation
 
         handle_cfengine_bootstrap if @config.mode == :bootstrap
+
+        if @config.mode == :single_run
+          # Just let people know
+          @machine.ui.info(I18n.t("vagrant.cfengine_single_run"))
+        end
+
+        if @config.run_file
+          @machine.ui.info(I18n.t("vagrant.cfengine_single_run_execute"))
+          path = Pathname.new(@config.run_file).expand_path(@machine.env.root_path)
+          machine.communicate.upload(path.to_s, @config.upload_path)
+          cfagent("-KI -f #{@config.upload_path}")
+        end
       end
 
       protected

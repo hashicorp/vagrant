@@ -10,10 +10,14 @@ en:
       Installing CFEngine onto machine...
     cfengine_no_bootstrap: |-
       CFEngine doesn't require bootstrap. Not bootstrapping.
+    cfengine_single_run: |-
+      CFEngine running in "single run" mode. Will execute one file.
+    cfengine_single_run_execute: |-
+      Executing run file for CFEngine...
 
     cfengine_config:
       invalid_mode: |-
-        The mode must be 'bootstrap' or 'singlerun'
+        The mode must be 'bootstrap' or 'single_run'
       policy_server_address: |-
         The policy server address must be set for bootstrapping.
 
