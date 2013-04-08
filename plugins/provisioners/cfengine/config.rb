@@ -8,6 +8,7 @@ module VagrantPlugins
       attr_accessor :force_bootstrap
       attr_accessor :install
       attr_accessor :mode
+      attr_accessor :policy_server_address
       attr_accessor :repo_gpg_key_url
       attr_accessor :yum_repo_file
       attr_accessor :yum_repo_url
@@ -18,6 +19,7 @@ module VagrantPlugins
         @force_bootstrap  = UNSET_VALUE
         @install          = UNSET_VALUE
         @mode             = UNSET_VALUE
+        @policy_server_address = UNSET_VALUE
         @repo_gpg_key_url = UNSET_VALUE
         @yum_repo_file    = UNSET_VALUE
         @yum_repo_url     = UNSET_VALUE
@@ -39,6 +41,8 @@ module VagrantPlugins
 
         @mode = :bootstrap if @mode == UNSET_VALUE
         @mode = @mode.to_sym
+
+        @policy_server_address = nil if @policy_server_address == UNSET_VALUE
 
         if @repo_gpg_key_url == UNSET_VALUE
           @repo_gpg_key_url = "http://cfengine.com/pub/gpg.key"

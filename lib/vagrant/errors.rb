@@ -135,6 +135,10 @@ module Vagrant
       error_key(:failed, "vagrant.actions.box.verify")
     end
 
+    class CFEngineBootstrapFailed < VagrantError
+      error_key(:cfengine_bootstrap_failed)
+    end
+
     class CFEngineInstallFailed < VagrantError
       error_key(:cfengine_install_failed)
     end

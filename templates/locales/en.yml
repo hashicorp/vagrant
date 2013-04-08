@@ -1,11 +1,15 @@
 en:
   vagrant:
+    cfengine_bootstrapping: |-
+      Bootstrapping CFEngine with policy server: %{policy_server}...
     cfengine_cant_detect: |-
       Vagrant doesn't support detecting whether CFEngine is installed
       for the guest OS running in the machine. Vagrant will assume it is
       installed and attempt to continue.
     cfengine_installing: |-
       Installing CFEngine onto machine...
+    cfengine_no_bootstrap: |-
+      CFEngine doesn't require bootstrap. Not bootstrapping.
 
     general:
       batch_unexpected_error: |-
@@ -106,6 +110,9 @@ en:
         The box '%{name}' is still stored on disk in the Vagrant 1.0.x
         format. This box must be upgraded in order to work properly with
         this version of Vagrant.
+      cfengine_bootstrap_failed: |-
+        Failed to bootstrap CFEngine. Please see the output above to
+        see what went wrong and address the issue.
       cfengine_install_failed: |-
         After installing CFEngine, Vagrant still can't detect a proper
         CFEngine installation. Please verify that CFEngine was properly

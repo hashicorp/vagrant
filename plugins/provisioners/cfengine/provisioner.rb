@@ -10,14 +10,45 @@ module VagrantPlugins
         @logger.info("Checking for CFEngine installation...")
         handle_cfengine_installation
 
-        if @config.mode == :bootstrap
-          @logger.info("Bootstrapping CFEngine...")
-          if @machine.guest.capability(:cfengine_needs_bootstrap, @config)
+        handle_cfengine_bootstrap if @config.mode == :bootstrap
+      end
+
+      protected
+
+      # This runs cf-agent with the given arguments.
+      def cfagent(args, options=nil)
+        options ||= {}
+        command = "/var/cfengine/bin/cf-agent #{args}"
+
+        @machine.communicate.sudo(command, error_check: options[:error_check]) do |type, data|
+          if [:stderr, :stdout].include?(type)
+            # Output the data with the proper color based on the stream.
+            color = type == :stdout ? :green : :red
+
+            # Note: Be sure to chomp the data to avoid the newlines that the
+            # Chef outputs.
+            @machine.ui.info(data.chomp, :color => color, :prefix => false)
           end
         end
       end
 
-      protected
+      # This handles checking if the CFEngine installation needs to
+      # be bootstrapped, and bootstraps if it does.
+      def handle_cfengine_bootstrap
+        @logger.info("Bootstrapping CFEngine...")
+        if !@machine.guest.capability(:cfengine_needs_bootstrap, @config)
+          @machine.ui.info(I18n.t("vagrant.cfengine_no_bootstrap"))
+          return
+        end
+
+        # Needs bootstrap, let's determine the parameters
+        policy_server_address = @config.policy_server_address
+
+        @machine.ui.info(I18n.t("vagrant.cfengine_bootstrapping",
+                                policy_server: policy_server_address))
+        result = cfagent("--bootstrap --policy-server #{policy_server_address}", error_check: false)
+        raise Vagrant::Errors::CFEngineBootstrapFailed if result != 0
+      end
 
       # This handles verifying the CFEngine installation, installing it
       # if it was requested, and so on. This method will raise exceptions
