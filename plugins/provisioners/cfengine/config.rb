@@ -3,6 +3,7 @@ require "vagrant"
 module VagrantPlugins
   module CFEngine
     class Config < Vagrant.plugin("2", :config)
+      attr_accessor :classes
       attr_accessor :deb_repo_file
       attr_accessor :deb_repo_line
       attr_accessor :force_bootstrap
@@ -16,6 +17,7 @@ module VagrantPlugins
       attr_accessor :yum_repo_url
 
       def initialize
+        @classes          = UNSET_VALUE
         @deb_repo_file    = UNSET_VALUE
         @deb_repo_line    = UNSET_VALUE
         @force_bootstrap  = UNSET_VALUE
@@ -30,6 +32,8 @@ module VagrantPlugins
       end
 
       def finalize!
+        @classes = nil if @classes == UNSET_VALUE
+
         if @deb_repo_file == UNSET_VALUE
           @deb_repo_file = "/etc/apt/sources.list.d/cfengine-community.list"
         end
@@ -73,6 +77,10 @@ module VagrantPlugins
 
         if @mode == :bootstrap
           errors << I18n.t("vagrant.cfengine_config.policy_server_address") if !@policy_server_address
+        end
+
+        if @classes && !@classes.is_a?(Array)
+          errors << I18n.t("vagrant.cfengine_config.classes_array")
         end
 
         { "CFEngine" => errors }

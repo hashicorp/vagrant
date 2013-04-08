@@ -16,6 +16,8 @@ en:
       Executing run file for CFEngine...
 
     cfengine_config:
+      classes_array: |-
+        The 'classes' configuration must be an array.
       invalid_mode: |-
         The mode must be 'bootstrap' or 'single_run'
       policy_server_address: |-
