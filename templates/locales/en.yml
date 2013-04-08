@@ -1,5 +1,12 @@
 en:
   vagrant:
+    cfengine_cant_detect: |-
+      Vagrant doesn't support detecting whether CFEngine is installed
+      for the guest OS running in the machine. Vagrant will assume it is
+      installed and attempt to continue.
+    cfengine_installing: |-
+      Installing CFEngine onto machine...
+
     general:
       batch_unexpected_error: |-
         An unexpected error ocurred when executing the action on the
@@ -99,6 +106,16 @@ en:
         The box '%{name}' is still stored on disk in the Vagrant 1.0.x
         format. This box must be upgraded in order to work properly with
         this version of Vagrant.
+      cfengine_install_failed: |-
+        After installing CFEngine, Vagrant still can't detect a proper
+        CFEngine installation. Please verify that CFEngine was properly
+        installed, as the installation may have failed.
+      cfengine_not_installed: |-
+        CFEngine appears to not be installed on the guest machine. Vagrant
+        can attempt to install CFEngine for you if you set the "install"
+        setting to "true", but this setting was not set. Please install
+        CFEngine on the guest machine or enable the "install" setting for
+        Vagrant to attempt to install it for you.
       cli_invalid_options: |-
         An invalid option was specified. The help for this command
         is available below.

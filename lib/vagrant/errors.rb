@@ -135,6 +135,14 @@ module Vagrant
       error_key(:failed, "vagrant.actions.box.verify")
     end
 
+    class CFEngineInstallFailed < VagrantError
+      error_key(:cfengine_install_failed)
+    end
+
+    class CFEngineNotInstalled < VagrantError
+      error_key(:cfengine_not_installed)
+    end
+
     class CLIInvalidUsage < VagrantError
       error_key(:cli_invalid_usage)
     end
