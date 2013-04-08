@@ -111,7 +111,7 @@ module Vagrant
     # more arguments onwards to the capability.
     def capability(cap_name, *args)
       @logger.info("Execute capability: #{cap_name} (#{@chain[0][0]})")
-      cap_mod = capability_module(cap_name)
+      cap_mod = capability_module(cap_name.to_sym)
       if !cap_mod
         raise Errors::GuestCapabilityNotFound,
           :cap => cap_name.to_s,
