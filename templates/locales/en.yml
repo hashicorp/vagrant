@@ -24,6 +24,8 @@ en:
         The mode must be 'bootstrap' or 'single_run'
       policy_server_address: |-
         The policy server address must be set for bootstrapping.
+      run_file_not_found: |-
+        The 'run_file' specified could not be found.
 
     general:
       batch_unexpected_error: |-

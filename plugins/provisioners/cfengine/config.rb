@@ -91,6 +91,13 @@ module VagrantPlugins
           errors << I18n.t("vagrant.cfengine_config.classes_array")
         end
 
+        if @run_file
+          expanded = Pathname.new(@run_file).expand_path(machine.env.root_path)
+          if !expanded.file?
+            errors << I18n.t("vagrant.cfengine_config.run_file_not_found")
+          end
+        end
+
         { "CFEngine" => errors }
       end
     end
