@@ -6,7 +6,7 @@ module VagrantPlugins
   module GuestFreeBSD
     module Cap
       class ChangeHostName
-        extend Vagrant::Util
+        include Vagrant::Util
 
         def self.configure_networks(machine, networks)
           machine.communicate.tap do |comm|

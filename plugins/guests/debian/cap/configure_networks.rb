@@ -7,7 +7,7 @@ module VagrantPlugins
   module GuestDebian
     module Cap
       class ConfigureNetworks
-        extend Vagrant::Util
+        include Vagrant::Util
 
         def self.configure_networks(machine, networks)
           machine.communicate.tap do |comm|

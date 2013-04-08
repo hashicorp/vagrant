@@ -7,7 +7,7 @@ module VagrantPlugins
   module GuestFedora
     module Cap
       class ConfigureNetworks
-        extend Vagrant::Util
+        include Vagrant::Util
 
         def self.configure_networks(machine, networks)
           network_scripts_dir = machine.guest.capability("network_scripts_dir")

@@ -6,7 +6,7 @@ module VagrantPlugins
   module GuestFreeBSD
     module Cap
       class ConfigureNetworks
-        extend Vagrant::Util
+        include Vagrant::Util
 
         def self.configure_networks(machine, networks)
           # Remove any previous network additions to the configuration file.
