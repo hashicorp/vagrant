@@ -214,6 +214,9 @@ module VagrantPlugins
             :type        => :static
           }.merge(options)
 
+          # Make sure the type is a symbol
+          options[:type] = options[:type].to_sym
+
           # Default IP is in the 20-bit private network block for DHCP based networks
           options[:ip] = "172.28.128.1" if options[:type] == :dhcp
 
