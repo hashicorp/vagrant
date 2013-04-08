@@ -295,8 +295,28 @@ module VagrantPlugins
           end
         end
 
-        # Wait for the channel to complete
-        channel.wait
+        begin
+          keep_alive = nil
+
+          if @machine.config.ssh.keep_alive
+            # Begin sending keep-alive packets while we wait for the script
+            # to complete. This avoids connections closing on long-running
+            # scripts.
+            keep_alive = Thread.new do
+              loop do
+                sleep 5
+                @logger.debug("Sending SSH keep-alive...")
+                connection.send_global_request("keep-alive@openssh.com")
+              end
+            end
+          end
+
+          # Wait for the channel to complete
+          channel.wait
+        ensure
+          # Kill the keep-alive thread
+          keep_alive.kill if keep_alive
+        end
 
         # Return the final exit status
         return exit_status

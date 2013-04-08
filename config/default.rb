@@ -3,6 +3,7 @@ Vagrant.configure("2") do |config|
 
   config.ssh.username = "vagrant"
   config.ssh.guest_port = 22
+  config.ssh.keep_alive = true
   config.ssh.max_tries = 100
   config.ssh.timeout = 30
   config.ssh.forward_agent = false

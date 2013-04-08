@@ -7,6 +7,7 @@ module VagrantPlugins
       attr_accessor :forward_x11
       attr_accessor :guest_port
       attr_accessor :host
+      attr_accessor :keep_alive
       attr_accessor :max_tries
       attr_accessor :port
       attr_accessor :private_key_path
@@ -19,6 +20,7 @@ module VagrantPlugins
         @forward_x11      = UNSET_VALUE
         @guest_port       = UNSET_VALUE
         @host             = UNSET_VALUE
+        @keep_alive       = UNSET_VALUE
         @max_tries        = UNSET_VALUE
         @port             = UNSET_VALUE
         @private_key_path = UNSET_VALUE
@@ -32,6 +34,7 @@ module VagrantPlugins
         @forward_x11      = false if @forward_x11 == UNSET_VALUE
         @guest_port       = nil if @guest_port == UNSET_VALUE
         @host             = nil if @host == UNSET_VALUE
+        @keep_alive       = false if @keep_alive == UNSET_VALUE
         @max_tries        = nil if @max_tries == UNSET_VALUE
         @port             = nil if @port == UNSET_VALUE
         @private_key_path = nil if @private_key_path == UNSET_VALUE
