@@ -47,6 +47,7 @@ IMPROVEMENTS:
   - Add `--rtcuseutc on` as a sane default for VirtualBox. [GH-912]
   - SSH will send keep-alive packets every 5 seconds by default to
     keep connections alive. Can be disabled with `config.ssh.keep_alive`. [GH-516]
+  - Show a message on `vagrant up` if the machine is already running. [GH-1558]
 
 BUG FIXES:
 
