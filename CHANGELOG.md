@@ -68,6 +68,7 @@ BUG FIXES:
     since they can be quite large and were messing with tmpfs. [GH-1442]
   - Fix issue parsing extra SSH args in `vagrant ssh` in multi-machine
     environments. [GH-1545]
+  - Networks come back up properly on RedHat systems after reboot. [GH-921]
 
 ## 1.1.6 (April 3, 2013)
 
