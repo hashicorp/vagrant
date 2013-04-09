@@ -296,6 +296,22 @@ describe Vagrant::Machine do
 
           instance.ssh_info[type].should == "bar"
         end
+
+        it "should use the default if no override and no provider" do
+          provider_ssh_info[type] = nil
+          instance.config.ssh.send("#{type}=", nil)
+          instance.config.ssh.default.send("#{type}=", "foo")
+
+          instance.ssh_info[type].should == "foo"
+        end
+
+        it "should use the override if set even with a provider" do
+          provider_ssh_info[type] = "baz"
+          instance.config.ssh.send("#{type}=", "bar")
+          instance.config.ssh.default.send("#{type}=", "foo")
+
+          instance.ssh_info[type].should == "bar"
+        end
       end
 
       it "should set the configured forward agent settings" do

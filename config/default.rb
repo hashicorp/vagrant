@@ -1,14 +1,15 @@
 Vagrant.configure("2") do |config|
   config.vagrant.host = :detect
 
-  config.ssh.username = "vagrant"
   config.ssh.guest_port = 22
   config.ssh.keep_alive = true
   config.ssh.max_tries = 100
   config.ssh.timeout = 30
-  config.ssh.forward_agent = false
-  config.ssh.forward_x11 = false
   config.ssh.shell = "bash -l"
+
+  config.ssh.default.username = "vagrant"
+  config.ssh.default.forward_agent = false
+  config.ssh.default.forward_x11 = false
 
   config.vm.usable_port_range = (2200..2250)
   config.vm.box_url = nil

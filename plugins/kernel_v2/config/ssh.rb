@@ -1,46 +1,47 @@
 require "vagrant"
 
+require_relative "ssh_connect"
+
 module VagrantPlugins
   module Kernel_V2
-    class SSHConfig < Vagrant.plugin("2", :config)
-      attr_accessor :forward_agent
-      attr_accessor :forward_x11
+    class SSHConfig < SSHConnectConfig
       attr_accessor :guest_port
-      attr_accessor :host
       attr_accessor :keep_alive
       attr_accessor :max_tries
-      attr_accessor :port
-      attr_accessor :private_key_path
       attr_accessor :shell
       attr_accessor :timeout
-      attr_accessor :username
+
+      attr_reader :default
 
       def initialize
-        @forward_agent    = UNSET_VALUE
-        @forward_x11      = UNSET_VALUE
-        @guest_port       = UNSET_VALUE
-        @host             = UNSET_VALUE
-        @keep_alive       = UNSET_VALUE
-        @max_tries        = UNSET_VALUE
-        @port             = UNSET_VALUE
-        @private_key_path = UNSET_VALUE
-        @shell            = UNSET_VALUE
-        @timeout          = UNSET_VALUE
-        @username         = UNSET_VALUE
+        super
+
+        @guest_port = UNSET_VALUE
+        @keep_alive = UNSET_VALUE
+        @max_tries  = UNSET_VALUE
+        @shell      = UNSET_VALUE
+        @timeout    = UNSET_VALUE
+
+        @default    = SSHConnectConfig.new
+      end
+
+      def merge(other)
+        super.tap do |result|
+          merged_defaults = @default.merge(other.default)
+          result.instance_variable_set(:@default, merged_defaults)
+        end
       end
 
       def finalize!
-        @forward_agent    = false if @forward_agent == UNSET_VALUE
-        @forward_x11      = false if @forward_x11 == UNSET_VALUE
-        @guest_port       = nil if @guest_port == UNSET_VALUE
-        @host             = nil if @host == UNSET_VALUE
-        @keep_alive       = false if @keep_alive == UNSET_VALUE
-        @max_tries        = nil if @max_tries == UNSET_VALUE
-        @port             = nil if @port == UNSET_VALUE
-        @private_key_path = nil if @private_key_path == UNSET_VALUE
-        @shell            = nil if @shell == UNSET_VALUE
-        @timeout          = nil if @timeout == UNSET_VALUE
-        @username         = nil if @username == UNSET_VALUE
+        super
+
+        @guest_port = nil if @guest_port == UNSET_VALUE
+        @keep_alive = false if @keep_alive == UNSET_VALUE
+        @max_tries  = nil if @max_tries == UNSET_VALUE
+        @shell      = nil if @shell == UNSET_VALUE
+        @timeout    = nil if @timeout == UNSET_VALUE
+
+        @default.finalize!
       end
 
       def to_s
@@ -48,20 +49,21 @@ module VagrantPlugins
       end
 
       def validate(machine)
-        errors = _detected_errors
+        errors = super
 
         [:max_tries, :timeout].each do |field|
           value = instance_variable_get("@#{field}".to_sym)
           errors << I18n.t("vagrant.config.common.error_empty", :field => field) if !value
         end
 
-        if private_key_path && \
-          !File.file?(File.expand_path(private_key_path, machine.env.root_path))
-          errors << I18n.t("vagrant.config.ssh.private_key_missing", :path => private_key_path)
-        end
-
         # Return the errors
-        { to_s => errors }
+        result = { to_s => errors }
+
+        # Figure out the errors for the defaults
+        default_errors = @default.validate(machine)
+        result["SSH Defaults"] = default_errors if !default_errors.empty?
+
+        result
       end
     end
   end

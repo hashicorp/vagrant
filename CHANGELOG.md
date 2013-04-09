@@ -33,6 +33,8 @@ FEATURES:
   - Providers can now support multiple box formats by specifying the
     `box_format:` option.
   - CFEngine provisioner support.
+  - `config.ssh.default` settings introduced to set SSH defaults that
+    providers can still override. [GH-1479]
 
 IMPROVEMENTS:
 
@@ -72,6 +74,7 @@ BUG FIXES:
   - Fix issue parsing extra SSH args in `vagrant ssh` in multi-machine
     environments. [GH-1545]
   - Networks come back up properly on RedHat systems after reboot. [GH-921]
+  - `config.ssh` settings override all detected SSH settings (regression). [GH-1479]
 
 ## 1.1.6 (April 3, 2013)
 

@@ -257,11 +257,19 @@ module Vagrant
         info.delete(key) if value.nil?
       end
 
-      # Next, we default some fields if they weren't given to us by
-      # the provider.
-      info[:host] ||= @config.ssh.host if @config.ssh.host
-      info[:port] ||= @config.ssh.port if @config.ssh.port
-      info[:username] ||= @config.ssh.username if @config.ssh.username
+      # We set the defaults
+      info[:forward_agent] ||= @config.ssh.default.forward_agent
+      info[:forward_x11] ||= @config.ssh.default.forward_x11
+      info[:host] ||= @config.ssh.default.host
+      info[:port] ||= @config.ssh.default.port
+      info[:private_key_path] ||= @config.ssh.default.private_key_path
+      info[:username] ||= @config.ssh.default.username
+
+      # We set overrides if they are set. These take precedence over
+      # provider-returned data.
+      info[:host] = @config.ssh.host if @config.ssh.host
+      info[:port] = @config.ssh.port if @config.ssh.port
+      info[:username] = @config.ssh.username if @config.ssh.username
 
       # We also set some fields that are purely controlled by Varant
       info[:forward_agent] = @config.ssh.forward_agent
