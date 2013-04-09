@@ -75,6 +75,8 @@ BUG FIXES:
     environments. [GH-1545]
   - Networks come back up properly on RedHat systems after reboot. [GH-921]
   - `config.ssh` settings override all detected SSH settings (regression). [GH-1479]
+  - `ssh-config` won't raise an exception if the VirtualBox machine
+    is not created. [GH-1562]
 
 ## 1.1.6 (April 3, 2013)
 
