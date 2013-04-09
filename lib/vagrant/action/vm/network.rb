@@ -397,6 +397,40 @@ module Vagrant
             :type => :dhcp
           }
         end
+        
+        def intnet_config(args)
+          ip      = args[0]
+          options = args[1] || {}
+            
+          return {
+            :type    => "static",
+            :ip      => ip,
+            :netmask => "255.255.255.0",
+            :adapter => nil,
+            :mac     => nil,
+            :name    => nil,
+            :auto_config => true
+          }.merge(options)
+        end
+
+        def intnet_adapter(config)
+          @logger.info("Setup internal network: #{config[:ip]}")
+
+          return {
+            :adapter     => config[:adapter],
+            :type        => :intnet,
+            :mac_address => config[:mac],
+            :nic_type    => config[:nic_type]
+          }
+        end
+
+        def intnet_network_config(config)
+          return {
+            :type    => config[:type],
+            :ip      => config[:ip],
+            :netmask => config[:netmask]
+          }
+        end
       end
     end
   end
