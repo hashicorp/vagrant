@@ -56,7 +56,7 @@ module Vagrant
 
       def change_host_name(name)
         # Only do this if the hostname is not already set
-        if !vm.channel.test("sudo hostname | grep '#{name}'")
+        if !vm.channel.test("sudo hostname | grep -x '#{name}'")
           vm.channel.sudo("sed -i 's/\\(HOSTNAME=\\).*/\\1#{name}/' /etc/sysconfig/network")
           vm.channel.sudo("hostname #{name}")
           vm.channel.sudo("sed -i 's@^\\(127[.]0[.]0[.]1[[:space:]]\\+\\)@\\1#{name} #{name.split('.')[0]} @' /etc/hosts")
