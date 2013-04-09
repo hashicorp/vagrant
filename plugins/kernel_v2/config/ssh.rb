@@ -5,6 +5,8 @@ require_relative "ssh_connect"
 module VagrantPlugins
   module Kernel_V2
     class SSHConfig < SSHConnectConfig
+      attr_accessor :forward_agent
+      attr_accessor :forward_x11
       attr_accessor :guest_port
       attr_accessor :keep_alive
       attr_accessor :max_tries
@@ -16,6 +18,8 @@ module VagrantPlugins
       def initialize
         super
 
+        @forward_agent    = UNSET_VALUE
+        @forward_x11      = UNSET_VALUE
         @guest_port = UNSET_VALUE
         @keep_alive = UNSET_VALUE
         @max_tries  = UNSET_VALUE
@@ -35,6 +39,8 @@ module VagrantPlugins
       def finalize!
         super
 
+        @forward_agent = false if @forward_agent == UNSET_VALUE
+        @forward_x11   = false if @forward_x11 == UNSET_VALUE
         @guest_port = nil if @guest_port == UNSET_VALUE
         @keep_alive = false if @keep_alive == UNSET_VALUE
         @max_tries  = nil if @max_tries == UNSET_VALUE
