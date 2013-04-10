@@ -26,6 +26,10 @@ module VagrantPlugins
           @__defaulted_cookbooks_path = false
         end
 
+        #------------------------------------------------------------
+        # Internal methods
+        #------------------------------------------------------------
+
         def finalize!
           @recipe_url = nil if @recipe_url == UNSET_VALUE
 
@@ -57,18 +61,6 @@ module VagrantPlugins
             !cookbooks_path || [cookbooks_path].flatten.empty?
           errors << I18n.t("vagrant.config.chef.run_list_empty") if \
             !run_list || run_list.empty?
-
-          if !@__defaulted_cookbooks_path
-            @cookbooks_path.each do |type, path|
-              next if type != :host
-              expanded_path = File.expand_path(path, machine.env.root_path)
-
-              if !File.exist?(expanded_path)
-                errors << I18n.t("vagrant.config.chef.cookbooks_path_missing",
-                                 :path => expanded_path)
-              end
-            end
-          end
 
           { "chef solo provisioner" => errors }
         end

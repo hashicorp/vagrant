@@ -1042,6 +1042,8 @@ en:
           The chef binary (either `chef-solo` or `chef-client`) was not found on
           the VM and is required for chef provisioning. Please verify that chef
           is installed and that the binary is available on the PATH.
+        cookbook_folder_not_found_warning:
+          "The cookbook path '%{path}' doesn't exist. Ignoring..."
         json: "Generating chef JSON and uploading..."
         client_key_folder: "Creating folder to hold client key..."
         upload_validation_key: "Uploading chef client validation key..."

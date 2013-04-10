@@ -82,6 +82,8 @@ BUG FIXES:
   - Multiple machines defined in the same Vagrantfile with the same
     name will properly merge.
   - More robust hostname checking for RedHat. [GH-1566]
+  - Cookbook path existence for Chef is no longer an error, so that
+    things like librarian and berkshelf plugins work properly. [GH-1570]
 
 ## 1.1.6 (April 3, 2013)
 

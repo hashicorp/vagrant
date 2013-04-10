@@ -73,7 +73,8 @@ module VagrantPlugins
                 # Path exists on the host, setup the remote path
                 remote_path = "#{@config.provisioning_path}/chef-solo-#{get_and_update_counter(:cookbooks_path)}"
               else
-                @logger.warn("Chef path doesn't exist, not sharing: #{local_path}")
+                @machine.ui.warn(I18n.t("vagrant.provisioners.chef.cookbook_folder_not_found_warning",
+                                       path: local_path.to_s))
                 next
               end
             else
