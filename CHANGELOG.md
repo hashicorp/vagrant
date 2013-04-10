@@ -79,6 +79,7 @@ BUG FIXES:
     is not created. [GH-1562]
   - Multiple machines defined in the same Vagrantfile with the same
     name will properly merge.
+  - More robust hostname checking for RedHat. [GH-1566]
 
 ## 1.1.6 (April 3, 2013)
 
