@@ -172,7 +172,7 @@ module VagrantPlugins
 
         # Add the name to the array of VM keys. This array is used to
         # preserve the order in which VMs are defined.
-        @__defined_vm_keys << name
+        @__defined_vm_keys << name if !@__defined_vm_keys.include?(name)
 
         # Add the SubVM to the hash of defined VMs
         if !@__defined_vms[name]

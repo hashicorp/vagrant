@@ -77,6 +77,8 @@ BUG FIXES:
   - `config.ssh` settings override all detected SSH settings (regression). [GH-1479]
   - `ssh-config` won't raise an exception if the VirtualBox machine
     is not created. [GH-1562]
+  - Multiple machines defined in the same Vagrantfile with the same
+    name will properly merge.
 
 ## 1.1.6 (April 3, 2013)
 
