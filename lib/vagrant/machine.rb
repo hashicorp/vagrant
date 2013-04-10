@@ -258,8 +258,6 @@ module Vagrant
       end
 
       # We set the defaults
-      info[:forward_agent] ||= @config.ssh.default.forward_agent
-      info[:forward_x11] ||= @config.ssh.default.forward_x11
       info[:host] ||= @config.ssh.default.host
       info[:port] ||= @config.ssh.default.port
       info[:private_key_path] ||= @config.ssh.default.private_key_path
