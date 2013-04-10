@@ -27,7 +27,7 @@ Vagrant.configure("2") do |config|
 
   # Share the root folder. This can then be overridden by
   # other Vagrantfiles, if they wish.
-  config.vm.synced_folder(".", "/vagrant", :id => "vagrant-root")
+  config.vm.synced_folder ".", "/vagrant"
 
   config.nfs.map_uid = :auto
   config.nfs.map_gid = :auto
