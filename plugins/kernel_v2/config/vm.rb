@@ -133,9 +133,21 @@ module VagrantPlugins
       # @param [Hash] options Options for the network.
       def network(type, options=nil)
         options ||= {}
-        id      = options[:id] || SecureRandom.uuid
+
+        if !options[:id]
+          default_id = nil
+
+          if type == :forwarded_port
+            # For forwarded ports, set the default ID to the
+            # host port so that host ports overwrite each other.
+            default_id = options[:host]
+          end
+
+          options[:id] = default_id || SecureRandom.uuid
+        end
 
         # Scope the ID by type so that different types can share IDs
+        id      = options[:id]
         id      = "#{type}-#{id}"
 
         # Merge in the previous settings if we have them.

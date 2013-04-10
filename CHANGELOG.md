@@ -56,6 +56,8 @@ IMPROVEMENTS:
   - Shared folders with the same guest path will overwrite each other. No
     more shared folder IDs.
   - Shell provisioner outputs script it is running. [GH-1568]
+  - Automatically merge forwarded ports that share the same host
+    port.
 
 BUG FIXES:
 
