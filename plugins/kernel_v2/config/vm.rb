@@ -21,24 +21,23 @@ module VagrantPlugins
       attr_accessor :guest
       attr_accessor :hostname
       attr_accessor :usable_port_range
-      attr_reader :synced_folders
       attr_reader :provisioners
 
       def initialize
         @graceful_halt_retry_count    = UNSET_VALUE
         @graceful_halt_retry_interval = UNSET_VALUE
         @hostname                     = UNSET_VALUE
-        @synced_folders               = {}
         @provisioners                 = []
 
         # Internal state
-        @__compiled_provider_configs = {}
+        @__compiled_provider_configs   = {}
         @__compiled_provider_overrides = {}
-        @__defined_vm_keys = []
-        @__defined_vms = {}
-        @__finalized = false
-        @__networks  = {}
-        @__providers = {}
+        @__defined_vm_keys             = []
+        @__defined_vms                 = {}
+        @__finalized                   = false
+        @__networks                    = {}
+        @__providers                   = {}
+        @__synced_folders              = {}
       end
 
       # Custom merge method since some keys here are merged differently.
@@ -47,7 +46,6 @@ module VagrantPlugins
           other_networks = other.instance_variable_get(:@__networks)
 
           result.instance_variable_set(:@__networks, @__networks.merge(other_networks))
-          result.instance_variable_set(:@synced_folders, @synced_folders.merge(other.synced_folders))
           result.instance_variable_set(:@provisioners, @provisioners + other.provisioners)
 
           # Merge defined VMs by first merging the defined VM keys,
@@ -55,7 +53,6 @@ module VagrantPlugins
           other_defined_vm_keys = other.instance_variable_get(:@__defined_vm_keys)
           other_defined_vm_keys -= @__defined_vm_keys
           new_defined_vm_keys   = @__defined_vm_keys + other_defined_vm_keys
-          result.instance_variable_set(:@__defined_vm_keys, new_defined_vm_keys)
 
           # Merge the actual defined VMs.
           other_defined_vms = other.instance_variable_get(:@__defined_vms)
@@ -74,8 +71,6 @@ module VagrantPlugins
             end
           end
 
-          result.instance_variable_set(:@__defined_vms, new_defined_vms)
-
           # Merge the providers by prepending any configuration blocks we
           # have for providers onto the new configuration.
           other_providers = other.instance_variable_get(:@__providers)
@@ -85,7 +80,18 @@ module VagrantPlugins
             new_providers[key] += blocks
           end
 
+          # Merge synced folders.
+          other_folders = other.instance_variable_get(:@__synced_folders)
+          new_folders = @__synced_folders.dup
+          other_folders.each do |id, options|
+            new_folders[id] ||= {}
+            new_folders[id].merge!(options)
+          end
+
+          result.instance_variable_set(:@__defined_vm_keys, new_defined_vm_keys)
+          result.instance_variable_set(:@__defined_vms, new_defined_vms)
           result.instance_variable_set(:@__providers, new_providers)
+          result.instance_variable_set(:@__synced_folders, new_folders)
         end
       end
 
@@ -103,11 +109,10 @@ module VagrantPlugins
       # @param [Hash] options Additional options.
       def synced_folder(hostpath, guestpath, options=nil)
         options ||= {}
-        options[:id] ||= guestpath.to_s.gsub(/\/$/, '')
-        options[:guestpath] = guestpath
+        options[:guestpath] = guestpath.to_s.gsub(/\/$/, '')
         options[:hostpath]  = hostpath
 
-        @synced_folders[options[:id]] = options
+        @__synced_folders[options[:guestpath]] = options
       end
 
       # Define a way to access the machine via a network. This exposes a
@@ -267,6 +272,11 @@ module VagrantPlugins
         @__networks.values
       end
 
+      # This returns the list of synced folders
+      def synced_folders
+        @__synced_folders
+      end
+
       def validate(machine)
         errors = _detected_errors
         errors << I18n.t("vagrant.config.vm.box_missing") if !box
@@ -277,7 +287,7 @@ module VagrantPlugins
 
         has_nfs = false
         used_guest_paths = Set.new
-        @synced_folders.each do |id, options|
+        @__synced_folders.each do |id, options|
           # If the shared folder is disabled then don't worry about validating it
           next if options[:disabled]
 

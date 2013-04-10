@@ -53,6 +53,8 @@ IMPROVEMENTS:
   - Show a message on `vagrant up` if the machine is already running. [GH-1558]
   - "Running provisioner" output now shoes the provisioner shortcut name,
     rather than the less-than-helpful class name.
+  - Shared folders with the same guest path will overwrite each other. No
+    more shared folder IDs.
 
 BUG FIXES:
 
