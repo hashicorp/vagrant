@@ -2,7 +2,6 @@ require "vagrant/registry"
 
 module Vagrant
   module Config
-    autoload :Base,          'vagrant/config/base'
     autoload :Loader,        'vagrant/config/loader'
     autoload :VersionBase,   'vagrant/config/version_base'
 
