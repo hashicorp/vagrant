@@ -4,8 +4,7 @@ module VagrantPlugins
   module GuestOpenBSD
     class Guest < Vagrant.plugin("2", :guest)
       def detect?(machine)
-        # TODO: OpenBSD detection
-        false
+        machine.communicate.test("uname -s | grep 'OpenBSD'")
       end
     end
   end
