@@ -55,6 +55,7 @@ IMPROVEMENTS:
     rather than the less-than-helpful class name.
   - Shared folders with the same guest path will overwrite each other. No
     more shared folder IDs.
+  - Shell provisioner outputs script it is running. [GH-1568]
 
 BUG FIXES:
 

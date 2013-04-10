@@ -14,6 +14,14 @@ module VagrantPlugins
           @machine.communicate.tap do |comm|
             comm.upload(path.to_s, config.upload_path)
 
+            if config.path
+              @machine.ui.info(I18n.t("vagrant.provisioners.shell.running",
+                                      script: path.to_s))
+            else
+              @machine.ui.info(I18n.t("vagrant.provisioners.shell.running",
+                                      script: "inline script"))
+            end
+
             # Execute it with sudo
             comm.sudo(command) do |type, data|
               if [:stderr, :stdout].include?(type)
