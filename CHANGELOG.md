@@ -87,6 +87,10 @@ BUG FIXES:
   - More robust hostname checking for RedHat. [GH-1566]
   - Cookbook path existence for Chef is no longer an error, so that
     things like librarian and berkshelf plugins work properly. [GH-1570]
+  - Chef solo provisioner uses proper SSH username instead of hardcoded
+    config. [GH-1576]
+  - Shell provisioner takes ownership of uploaded files properly so
+    that they can also be manually executed later. [GH-1576]
 
 ## 1.1.6 (April 3, 2013)
 
