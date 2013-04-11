@@ -52,6 +52,16 @@ module Vagrant
     # @return [Symbol]
     attr_reader :provider_name
 
+    # The options given to the provider when registering the plugin.
+    #
+    # @return [Hash]
+    attr_reader :provider_options
+
+    # The UI for outputting in the scope of this machine.
+    #
+    # @return [UI]
+    attr_reader :ui
+
     # Initialize a new machine.
     #
     # @param [String] name Name of the virtual machine.
@@ -59,13 +69,15 @@ module Vagrant
     #   currently expected to be a V1 `provider` plugin.
     # @param [Object] provider_config The provider-specific configuration for
     #   this machine.
+    # @param [Hash] provider_options The provider-specific options from the
+    #   plugin definition.
     # @param [Object] config The configuration for this machine.
     # @param [Pathname] data_dir The directory where machine-specific data
     #   can be stored. This directory is ensured to exist.
     # @param [Box] box The box that is backing this virtual machine.
     # @param [Environment] env The environment that this machine is a
     #   part of.
-    def initialize(name, provider_name, provider_cls, provider_config, config, data_dir, box, env, base=false)
+    def initialize(name, provider_name, provider_cls, provider_config, provider_options, config, data_dir, box, env, base=false)
       @logger = Log4r::Logger.new("vagrant::machine")
       @logger.info("Initializing machine: #{name}")
       @logger.info("  - Provider: #{provider_cls}")
@@ -76,9 +88,15 @@ module Vagrant
       @config          = config
       @data_dir        = data_dir
       @env             = env
+      @guest           = Guest.new(
+        self,
+        Vagrant.plugin("2").manager.guests,
+        Vagrant.plugin("2").manager.guest_capabilities)
       @name            = name
       @provider_config = provider_config
       @provider_name   = provider_name
+      @provider_options = provider_options
+      @ui              = @env.ui.scope(@name)
 
       # Read the ID, which is usually in local storage
       @id = nil
@@ -124,7 +142,7 @@ module Vagrant
         :action_name    => "machine_action_#{name}".to_sym,
         :machine        => self,
         :machine_action => name,
-        :ui             => @env.ui_class.new(@name)
+        :ui             => @ui
       }.merge(extra_env || {})
       @env.action_runner.run(callable, env)
     end
@@ -158,35 +176,11 @@ module Vagrant
     # knows how to do guest-OS specific tasks, such as configuring networks,
     # mounting folders, etc.
     #
-    # @return [Object]
+    # @return [Guest]
     def guest
       raise Errors::MachineGuestNotReady if !communicate.ready?
-
-      # Load the initial guest.
-      last_guest = config.vm.guest
-      guest      = load_guest(last_guest)
-
-      # Loop and distro dispatch while there are distros.
-      while true
-        distro = guest.distro_dispatch
-        break if !distro
-
-        # This is just some really basic loop detection and avoiding for
-        # guest classes. This is just here to help implementers a bit
-        # avoid a situation that is fairly easy, since if you subclass
-        # a parent which does `distro_dispatch`, you'll end up dispatching
-        # forever.
-        if distro == last_guest
-          @logger.warn("Distro dispatch loop in '#{distro}'. Exiting loop.")
-          break
-        end
-
-        last_guest = distro
-        guest      = load_guest(distro)
-      end
-
-      # Return the result
-      guest
+      @guest.detect! if !@guest.ready?
+      @guest
     end
 
     # This sets the unique ID associated with this machine. This will
@@ -263,11 +257,17 @@ module Vagrant
         info.delete(key) if value.nil?
       end
 
-      # Next, we default some fields if they weren't given to us by
-      # the provider.
-      info[:host] ||= @config.ssh.host if @config.ssh.host
-      info[:port] ||= @config.ssh.port if @config.ssh.port
-      info[:username] ||= @config.ssh.username if @config.ssh.username
+      # We set the defaults
+      info[:host] ||= @config.ssh.default.host
+      info[:port] ||= @config.ssh.default.port
+      info[:private_key_path] ||= @config.ssh.default.private_key_path
+      info[:username] ||= @config.ssh.default.username
+
+      # We set overrides if they are set. These take precedence over
+      # provider-returned data.
+      info[:host] = @config.ssh.host if @config.ssh.host
+      info[:port] = @config.ssh.port if @config.ssh.port
+      info[:username] = @config.ssh.username if @config.ssh.username
 
       # We also set some fields that are purely controlled by Varant
       info[:forward_agent] = @config.ssh.forward_agent

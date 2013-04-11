@@ -69,8 +69,14 @@ module VagrantPlugins
               # Get the expanded path that the host path points to
               local_path = File.expand_path(path, @machine.env.root_path)
 
-              # Path exists on the host, setup the remote path
-              remote_path = "#{@config.provisioning_path}/chef-solo-#{get_and_update_counter(:cookbooks_path)}"
+              if File.exist?(local_path)
+                # Path exists on the host, setup the remote path
+                remote_path = "#{@config.provisioning_path}/chef-solo-#{get_and_update_counter(:cookbooks_path)}"
+              else
+                @machine.ui.warn(I18n.t("vagrant.provisioners.chef.cookbook_folder_not_found_warning",
+                                       path: local_path.to_s))
+                next
+              end
             else
               # Path already exists on the virtual machine. Expand it
               # relative to where we're provisioning.

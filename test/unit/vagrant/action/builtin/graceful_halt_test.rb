@@ -34,7 +34,7 @@ describe Vagrant::Action::Builtin::GracefulHalt do
   it "should do nothing if force is specified" do
     env[:force_halt] = true
 
-    machine_guest.should_not_receive(:halt)
+    machine_guest.should_not_receive(:capability)
 
     described_class.new(app, env, target_state).call(env)
 
@@ -43,7 +43,7 @@ describe Vagrant::Action::Builtin::GracefulHalt do
 
   it "should do nothing if there is an invalid source state" do
     machine_state.stub(:id).and_return(:invalid_source)
-    machine_guest.should_not_receive(:halt)
+    machine_guest.should_not_receive(:capability)
 
     described_class.new(app, env, target_state, :target_source).call(env)
 
@@ -51,7 +51,7 @@ describe Vagrant::Action::Builtin::GracefulHalt do
   end
 
   it "should gracefully halt and wait for the target state" do
-    machine_guest.should_receive(:halt).once
+    machine_guest.should_receive(:capability).with(:halt).once
     machine_state.stub(:id).and_return(target_state)
 
     described_class.new(app, env, target_state).call(env)

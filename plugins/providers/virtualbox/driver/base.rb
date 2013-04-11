@@ -25,7 +25,7 @@ module VagrantPlugins
           # Set the path to VBoxManage
           @vboxmanage_path = "VBoxManage"
 
-          if Vagrant::Util::Platform.windows?
+          if Vagrant::Util::Platform.windows? || Vagrant::Util::Platform.cygwin?
             @logger.debug("Windows. Trying VBOX_INSTALL_PATH for VBoxManage")
 
             # On Windows, we use the VBOX_INSTALL_PATH environmental
@@ -45,7 +45,7 @@ module VagrantPlugins
                 # and break out
                 vboxmanage = "#{path}VBoxManage.exe"
                 if File.file?(vboxmanage)
-                  @vboxmanage_path = vboxmanage
+                  @vboxmanage_path = Vagrant::Util::Platform.cygwin_windows_path(vboxmanage)
                   break
                 end
               end
@@ -279,6 +279,9 @@ module VagrantPlugins
           # Variable to store our execution result
           r = nil
 
+          # If there is an error with VBoxManage, this gets set to true
+          errored = false
+
           retryable(:on => Vagrant::Errors::VBoxManageError, :tries => tries, :sleep => 1) do
             # Execute the command
             r = raw(*command, &block)
@@ -288,8 +291,13 @@ module VagrantPlugins
             if r.exit_code != 0
               if @interrupted
                 @logger.info("Exit code != 0, but interrupted. Ignoring.")
+              elsif r.exit_code == 126
+                # This exit code happens if VBoxManage is on the PATH,
+                # but another executable it tries to execute is missing.
+                # This is usually indicative of a corrupted VirtualBox install.
+                raise Vagrant::Errors::VBoxManageNotFoundError
               else
-                raise Vagrant::Errors::VBoxManageError, :command => command.inspect
+                errored = true
               end
             else
               # Sometimes, VBoxManage fails but doesn't actual return a non-zero
@@ -297,9 +305,17 @@ module VagrantPlugins
               # occurred.
               if r.stderr =~ /VBoxManage: error:/
                 @logger.info("VBoxManage error text found, assuming error.")
-                raise Vagrant::Errors::VBoxManageError, :command => command.inspect
+                errored = true
               end
             end
+          end
+
+          # If there was an error running VBoxManage, show the error and the
+          # output.
+          if errored
+            raise Vagrant::Errors::VBoxManageError,
+              :command => command.inspect,
+              :stderr  => r.stderr
           end
 
           # Return the output, making sure to replace any Windows-style

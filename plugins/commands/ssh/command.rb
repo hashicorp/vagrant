@@ -6,34 +6,31 @@ module VagrantPlugins
       def execute
         options = {}
 
-        opts = OptionParser.new do |opts|
-          opts.banner = "Usage: vagrant ssh [vm-name] [-c command] [-- extra ssh args]"
+        opts = OptionParser.new do |o|
+          o.banner = "Usage: vagrant ssh [vm-name] [-c command] [-- extra ssh args]"
 
-          opts.separator ""
+          o.separator ""
 
-          opts.on("-c", "--command COMMAND", "Execute an SSH command directly.") do |c|
+          o.on("-c", "--command COMMAND", "Execute an SSH command directly.") do |c|
             options[:command] = c
           end
-          opts.on("-p", "--plain", "Plain mode, leaves authentication up to user.") do |p|
+
+          o.on("-p", "--plain", "Plain mode, leaves authentication up to user.") do |p|
             options[:plain_mode] = p
           end
+        end
+
+        # Parse out the extra args to send to SSH, which is everything
+        # after the "--"
+        split_index = @argv.index("--")
+        if split_index
+          options[:ssh_args] = @argv.drop(split_index + 1)
+          @argv              = @argv.take(split_index)
         end
 
         # Parse the options and return if we don't have any target.
         argv = parse_options(opts)
         return if !argv
-
-        # Parse out the extra args to send to SSH, which is everything
-        # after the "--"
-        ssh_args = ARGV.drop_while { |i| i != "--" }
-        ssh_args = ssh_args[1..-1]
-        options[:ssh_args] = ssh_args
-
-        # If the remaining arguments ARE the SSH arguments, then just
-        # clear it out. This happens because optparse returns what is
-        # after the "--" as remaining ARGV, and Vagrant can think it is
-        # a multi-vm name (wrong!)
-        argv = [] if argv == ssh_args
 
         # Execute the actual SSH
         with_target_vms(argv, :single_target => true) do |vm|

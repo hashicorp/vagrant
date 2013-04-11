@@ -15,6 +15,10 @@ module VagrantPlugins
               options[:force] = f
             end
 
+            o.on("--insecure", "If set, SSL certs will not be validated.") do |i|
+              options[:insecure] = i
+            end
+
             o.on("--provider provider", String,
                  "The provider that backs the box.") do |p|
               options[:provider] = p
@@ -26,13 +30,6 @@ module VagrantPlugins
           return if !argv
           raise Vagrant::Errors::CLIInvalidUsage, :help => opts.help.chomp if argv.length < 2
 
-          # If we're force adding, then be sure to destroy any existing box if it
-          # exists.
-          if options[:force]
-            existing = @env.boxes.find(argv[0], :virtualbox)
-            existing.destroy! if existing
-          end
-
           # Get the provider if one was set
           provider = nil
           provider = options[:provider].to_sym if options[:provider]
@@ -40,7 +37,9 @@ module VagrantPlugins
           @env.action_runner.run(Vagrant::Action.action_box_add, {
             :box_name     => argv[0],
             :box_provider => provider,
-            :box_url      => argv[1]
+            :box_url      => argv[1],
+            :box_force    => options[:force],
+            :box_download_insecure => options[:insecure],
           })
 
           # Success, exit status 0

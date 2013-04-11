@@ -154,7 +154,7 @@ describe Vagrant::Plugin::V2::Plugin do
         guest("foo") { "bar" }
       end
 
-      plugin.guest[:foo].should == "bar"
+      plugin.components.guests[:foo].should == ["bar", nil]
     end
 
     it "should lazily register guest classes" do
@@ -173,6 +173,16 @@ describe Vagrant::Plugin::V2::Plugin do
       expect {
         plugin.guest[:foo]
       }.to raise_error(StandardError)
+    end
+  end
+
+  describe "guest capabilities" do
+    it "should register guest capabilities" do
+      plugin = Class.new(described_class) do
+        guest_capability("foo", "bar") { "baz" }
+      end
+
+      plugin.components.guest_capabilities[:foo][:bar].should == "baz"
     end
   end
 
@@ -210,7 +220,15 @@ describe Vagrant::Plugin::V2::Plugin do
         provider("foo") { "bar" }
       end
 
-      plugin.provider[:foo].should == "bar"
+      plugin.components.providers[:foo].should == ["bar", {}]
+    end
+
+    it "should register provider classes with options" do
+      plugin = Class.new(described_class) do
+        provider("foo", foo: "yep") { "bar" }
+      end
+
+      plugin.components.providers[:foo].should == ["bar", { foo: "yep" }]
     end
 
     it "should lazily register provider classes" do
@@ -227,7 +245,7 @@ describe Vagrant::Plugin::V2::Plugin do
       # Now verify when we actually get the configuration key that
       # a proper error is raised.
       expect {
-        plugin.provider[:foo]
+        plugin.components.providers[:foo]
       }.to raise_error(StandardError)
     end
   end

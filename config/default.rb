@@ -1,14 +1,15 @@
 Vagrant.configure("2") do |config|
-  # default config goes here
   config.vagrant.host = :detect
 
-  config.ssh.username = "vagrant"
-  config.ssh.guest_port = 22
-  config.ssh.max_tries = 100
-  config.ssh.timeout = 30
   config.ssh.forward_agent = false
   config.ssh.forward_x11 = false
+  config.ssh.guest_port = 22
+  config.ssh.keep_alive = true
+  config.ssh.max_tries = 100
+  config.ssh.timeout = 30
   config.ssh.shell = "bash -l"
+
+  config.ssh.default.username = "vagrant"
 
   config.vm.usable_port_range = (2200..2250)
   config.vm.box_url = nil
@@ -26,7 +27,7 @@ Vagrant.configure("2") do |config|
 
   # Share the root folder. This can then be overridden by
   # other Vagrantfiles, if they wish.
-  config.vm.synced_folder(".", "/vagrant", :id => "vagrant-root")
+  config.vm.synced_folder ".", "/vagrant"
 
   config.nfs.map_uid = :auto
   config.nfs.map_gid = :auto

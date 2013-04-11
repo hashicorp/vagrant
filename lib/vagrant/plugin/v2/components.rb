@@ -16,12 +16,30 @@ module Vagrant
         # @return [Hash<Symbol, Registry>]
         attr_reader :configs
 
+        # This contains all the guests and their parents.
+        #
+        # @return [Registry<Symbol, Array<Class, Symbol>>]
+        attr_reader :guests
+
+        # This contains all the registered guest capabilities.
+        #
+        # @return [Hash<Symbol, Registry>]
+        attr_reader :guest_capabilities
+
+        # This contains all the provider plugins by name, and returns
+        # the provider class and options.
+        #
+        # @return [Hash<Symbol, Registry>]
+        attr_reader :providers
+
         def initialize
           # The action hooks hash defaults to []
           @action_hooks = Hash.new { |h, k| h[k] = [] }
 
-          # Create the configs hash which defaults to a registry
           @configs = Hash.new { |h, k| h[k] = Registry.new }
+          @guests  = Registry.new
+          @guest_capabilities = Hash.new { |h, k| h[k] = Registry.new }
+          @providers = Registry.new
         end
       end
     end

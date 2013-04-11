@@ -23,7 +23,7 @@ module VagrantPlugins
         def encrypted_data_bag_secret; @encrypted_data_bag_secret || "/tmp/encrypted_data_bag_secret"; end
 
         def validate(machine)
-          errors = []
+          errors = _detected_errors
           errors << I18n.t("vagrant.config.chef.server_url_empty") if \
             !chef_server_url || chef_server_url.strip == ""
           errors << I18n.t("vagrant.config.chef.validation_key_path") if \

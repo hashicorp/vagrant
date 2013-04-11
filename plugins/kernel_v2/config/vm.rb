@@ -1,5 +1,6 @@
 require "pathname"
 require "securerandom"
+require "set"
 
 require "vagrant"
 require "vagrant/config/v2/util"
@@ -20,23 +21,23 @@ module VagrantPlugins
       attr_accessor :guest
       attr_accessor :hostname
       attr_accessor :usable_port_range
-      attr_reader :synced_folders
       attr_reader :provisioners
 
       def initialize
         @graceful_halt_retry_count    = UNSET_VALUE
         @graceful_halt_retry_interval = UNSET_VALUE
         @hostname                     = UNSET_VALUE
-        @synced_folders               = {}
         @provisioners                 = []
 
         # Internal state
-        @__compiled_provider_configs = {}
-        @__defined_vm_keys = []
-        @__defined_vms = {}
-        @__finalized = false
-        @__networks  = {}
-        @__providers = {}
+        @__compiled_provider_configs   = {}
+        @__compiled_provider_overrides = {}
+        @__defined_vm_keys             = []
+        @__defined_vms                 = {}
+        @__finalized                   = false
+        @__networks                    = {}
+        @__providers                   = {}
+        @__synced_folders              = {}
       end
 
       # Custom merge method since some keys here are merged differently.
@@ -45,7 +46,6 @@ module VagrantPlugins
           other_networks = other.instance_variable_get(:@__networks)
 
           result.instance_variable_set(:@__networks, @__networks.merge(other_networks))
-          result.instance_variable_set(:@synced_folders, @synced_folders.merge(other.synced_folders))
           result.instance_variable_set(:@provisioners, @provisioners + other.provisioners)
 
           # Merge defined VMs by first merging the defined VM keys,
@@ -53,7 +53,6 @@ module VagrantPlugins
           other_defined_vm_keys = other.instance_variable_get(:@__defined_vm_keys)
           other_defined_vm_keys -= @__defined_vm_keys
           new_defined_vm_keys   = @__defined_vm_keys + other_defined_vm_keys
-          result.instance_variable_set(:@__defined_vm_keys, new_defined_vm_keys)
 
           # Merge the actual defined VMs.
           other_defined_vms = other.instance_variable_get(:@__defined_vms)
@@ -72,8 +71,6 @@ module VagrantPlugins
             end
           end
 
-          result.instance_variable_set(:@__defined_vms, new_defined_vms)
-
           # Merge the providers by prepending any configuration blocks we
           # have for providers onto the new configuration.
           other_providers = other.instance_variable_get(:@__providers)
@@ -83,7 +80,18 @@ module VagrantPlugins
             new_providers[key] += blocks
           end
 
+          # Merge synced folders.
+          other_folders = other.instance_variable_get(:@__synced_folders)
+          new_folders = @__synced_folders.dup
+          other_folders.each do |id, options|
+            new_folders[id] ||= {}
+            new_folders[id].merge!(options)
+          end
+
+          result.instance_variable_set(:@__defined_vm_keys, new_defined_vm_keys)
+          result.instance_variable_set(:@__defined_vms, new_defined_vms)
           result.instance_variable_set(:@__providers, new_providers)
+          result.instance_variable_set(:@__synced_folders, new_folders)
         end
       end
 
@@ -101,11 +109,10 @@ module VagrantPlugins
       # @param [Hash] options Additional options.
       def synced_folder(hostpath, guestpath, options=nil)
         options ||= {}
-        options[:id] ||= guestpath.to_s.gsub(/\/$/, '')
-        options[:guestpath] = guestpath
+        options[:guestpath] = guestpath.to_s.gsub(/\/$/, '')
         options[:hostpath]  = hostpath
 
-        @synced_folders[options[:id]] = options
+        @__synced_folders[options[:guestpath]] = options
       end
 
       # Define a way to access the machine via a network. This exposes a
@@ -126,9 +133,21 @@ module VagrantPlugins
       # @param [Hash] options Options for the network.
       def network(type, options=nil)
         options ||= {}
-        id      = options[:id] || SecureRandom.uuid
+
+        if !options[:id]
+          default_id = nil
+
+          if type == :forwarded_port
+            # For forwarded ports, set the default ID to the
+            # host port so that host ports overwrite each other.
+            default_id = options[:host]
+          end
+
+          options[:id] = default_id || SecureRandom.uuid
+        end
 
         # Scope the ID by type so that different types can share IDs
+        id      = options[:id]
         id      = "#{type}-#{id}"
 
         # Merge in the previous settings if we have them.
@@ -137,19 +156,20 @@ module VagrantPlugins
         end
 
         # Merge in the latest settings and set the internal state
-        @__networks[id] = [type, options]
+        @__networks[id] = [type.to_sym, options]
       end
 
       # Configures a provider for this VM.
       #
       # @param [Symbol] name The name of the provider.
       def provider(name, &block)
+        name = name.to_sym
         @__providers[name] ||= []
         @__providers[name] << block if block_given?
       end
 
       def provision(name, options=nil, &block)
-        @provisioners << VagrantConfigProvisioner.new(name, options, &block)
+        @provisioners << VagrantConfigProvisioner.new(name.to_sym, options, &block)
       end
 
       def defined_vms
@@ -169,7 +189,7 @@ module VagrantPlugins
 
         # Add the name to the array of VM keys. This array is used to
         # preserve the order in which VMs are defined.
-        @__defined_vm_keys << name
+        @__defined_vm_keys << name if !@__defined_vm_keys.include?(name)
 
         # Add the SubVM to the hash of defined VMs
         if !@__defined_vms[name]
@@ -194,17 +214,32 @@ module VagrantPlugins
 
         # Compile all the provider configurations
         @__providers.each do |name, blocks|
+          # If we don't have any configuration blocks, then ignore it
+          next if blocks.empty?
+
           # Find the configuration class for this provider
           config_class = Vagrant.plugin("2").manager.provider_configs[name]
-          next if !config_class
+          config_class ||= Vagrant::Config::V2::DummyConfig
 
           # Load it up
-          config = config_class.new
-          blocks.each { |b| b.call(config) }
+          config    = config_class.new
+          overrides = []
+
+          blocks.each do |b|
+            b.call(config, Vagrant::Config::V2::DummyConfig.new)
+
+            # If the block takes two arguments, then we store the second
+            # one away for overrides later.
+            if b.arity == 2
+              overrides << b.curry[Vagrant::Config::V2::DummyConfig.new]
+            end
+          end
+
           config.finalize!
 
           # Store it for retrieval later
-          @__compiled_provider_configs[name] = config
+          @__compiled_provider_configs[name]   = config
+          @__compiled_provider_overrides[name] = overrides
         end
 
         # Flag that we finalized
@@ -233,13 +268,29 @@ module VagrantPlugins
         return result
       end
 
+      # This returns a list of VM configurations that are overrides
+      # for this provider.
+      #
+      # @param [Symbol] name Name of the provider
+      # @return [Array<Proc>]
+      def get_provider_overrides(name)
+        (@__compiled_provider_overrides[name] || []).map do |p|
+          ["2", p]
+        end
+      end
+
       # This returns the list of networks configured.
       def networks
         @__networks.values
       end
 
+      # This returns the list of synced folders
+      def synced_folders
+        @__synced_folders
+      end
+
       def validate(machine)
-        errors = []
+        errors = _detected_errors
         errors << I18n.t("vagrant.config.vm.box_missing") if !box
         errors << I18n.t("vagrant.config.vm.box_not_found", :name => box) if \
           box && !box_url && !machine.box
@@ -247,8 +298,25 @@ module VagrantPlugins
           @hostname && @hostname !~ /^[-.a-z0-9]+$/i
 
         has_nfs = false
-        @synced_folders.each do |id, options|
-          hostpath = Pathname.new(options[:hostpath]).expand_path(machine.env.root_path)
+        used_guest_paths = Set.new
+        @__synced_folders.each do |id, options|
+          # If the shared folder is disabled then don't worry about validating it
+          next if options[:disabled]
+
+          guestpath = Pathname.new(options[:guestpath])
+          hostpath  = Pathname.new(options[:hostpath]).expand_path(machine.env.root_path)
+
+          if guestpath.relative?
+            errors << I18n.t("vagrant.config.vm.shared_folder_guestpath_relative",
+                             :path => options[:guestpath])
+          else
+            if used_guest_paths.include?(options[:guestpath])
+              errors << I18n.t("vagrant.config.vm.shared_folder_guestpath_duplicate",
+                               :path => options[:guestpath])
+            end
+
+            used_guest_paths.add(options[:guestpath])
+          end
 
           if !hostpath.directory? && !options[:create]
             errors << I18n.t("vagrant.config.vm.shared_folder_hostpath_missing",
@@ -277,11 +345,28 @@ module VagrantPlugins
 
         # Validate networks
         has_fp_port_error = false
+        fp_host_ports     = Set.new
+        valid_network_types = [:forwarded_port, :private_network, :public_network]
+
         networks.each do |type, options|
+          if !valid_network_types.include?(type)
+            errors << I18n.t("vagrant.config.vm.network_type_invalid",
+                            :type => type.to_s)
+          end
+
           if type == :forwarded_port
             if !has_fp_port_error && (!options[:guest] || !options[:host])
               errors << I18n.t("vagrant.config.vm.network_fp_requires_ports")
               has_fp_port_error = true
+            end
+
+            if options[:host]
+              if fp_host_ports.include?(options[:host])
+                errors << I18n.t("vagrant.config.vm.network_fp_host_not_unique",
+                                :host => options[:host].to_s)
+              end
+
+              fp_host_ports.add(options[:host])
             end
           end
         end
@@ -299,6 +384,12 @@ module VagrantPlugins
 
         # Validate provisioners
         @provisioners.each do |vm_provisioner|
+          if vm_provisioner.invalid?
+            errors["vm"] << I18n.t("vagrant.config.vm.provisioner_not_found",
+                                   :name => vm_provisioner.name)
+            next
+          end
+
           if vm_provisioner.config
             provisioner_errors = vm_provisioner.config.validate(machine)
             if provisioner_errors

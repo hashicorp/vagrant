@@ -97,5 +97,24 @@ describe Vagrant::Action::Hook do
         ["9", [], nil]
       ]
     end
+
+    it "should not prepend or append if disabled" do
+      builder.use("3")
+      builder.use("8")
+
+      subject.prepend("1", 2)
+      subject.append("9")
+      subject.after("3", "4")
+      subject.before("8", "7")
+
+      subject.apply(builder, no_prepend_or_append: true)
+
+      builder.stack.should == [
+        ["3", [], nil],
+        ["4", [], nil],
+        ["7", [], nil],
+        ["8", [], nil]
+      ]
+    end
   end
 end

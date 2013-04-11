@@ -39,8 +39,11 @@ module Vagrant
     #
     # @param [Pathname] directory The directory that contains the collection
     #   of boxes.
-    def initialize(directory)
+    def initialize(directory, options=nil)
+      options ||= {}
+
       @directory = directory
+      @temp_root = options[:temp_dir_root]
       @logger    = Log4r::Logger.new("vagrant::box_collection")
     end
 
@@ -63,14 +66,23 @@ module Vagrant
     #   will be verified with the `metadata.json` file in the box and is
     #   meant as a basic check. If this isn't given, then whatever provider
     #   the box represents will be added.
-    def add(path, name, provider=nil)
+    # @param [Boolean] force If true, any existing box with the same name
+    #   and provider will be replaced.
+    def add(path, name, provider=nil, force=false)
       # A helper to check if a box exists. We store this in a variable
       # since we call it multiple times.
       check_box_exists = lambda do |box_provider|
-        if find(name, box_provider)
+        box = find(name, box_provider)
+        next if !box
+
+        if !force
           @logger.error("Box already exists, can't add: #{name} #{box_provider}")
           raise Errors::BoxAlreadyExists, :name => name, :provider => box_provider
         end
+
+        # We're forcing, so just delete the old box
+        @logger.info("Box already exists, but forcing so removing: #{name} #{box_provider}")
+        box.destroy!
       end
 
       log_provider = provider ? provider : "any provider"
@@ -87,15 +99,12 @@ module Vagrant
 
       # Create a temporary directory since we're not sure at this point if
       # the box we're unpackaging already exists (if no provider was given)
-      Dir.mktmpdir(TEMP_PREFIX) do |temp_dir|
-        temp_dir = Pathname.new(temp_dir)
-
+      with_temp_dir do |temp_dir|
         # Extract the box into a temporary directory.
         @logger.debug("Unpacking box into temporary directory: #{temp_dir}")
         result = Util::Subprocess.execute(
-          "bsdtar", "-v", "-x", "-C", temp_dir.to_s, "-f", path.to_s)
-        raise Errors::BoxUnpackageFailure, :output => result.stderr.to_s \
-          if result.exit_code != 0
+          "bsdtar", "-v", "-x", "-m", "-C", temp_dir.to_s, "-f", path.to_s)
+        raise Errors::BoxUnpackageFailure, :output => result.stderr.to_s if result.exit_code != 0
 
         # If we get a V1 box, we want to update it in place
         if v1_box?(temp_dir)
@@ -103,47 +112,56 @@ module Vagrant
           temp_dir = v1_upgrade(temp_dir)
         end
 
-        # Get an instance of the box we just added before it is finalized
-        # in the system so we can inspect and use its metadata.
-        box = Box.new(name, provider, temp_dir)
+        # We re-wrap ourselves in the safety net in case we upgraded.
+        # If we didn't upgrade, then this is still safe because the
+        # helper will only delete the directory if it exists
+        with_temp_dir(temp_dir) do |final_temp_dir|
+          # Get an instance of the box we just added before it is finalized
+          # in the system so we can inspect and use its metadata.
+          box = Box.new(name, provider, final_temp_dir)
 
-        # Get the provider, since we'll need that to at the least add it
-        # to the system or check that it matches what is given to us.
-        box_provider = box.metadata["provider"]
+          # Get the provider, since we'll need that to at the least add it
+          # to the system or check that it matches what is given to us.
+          box_provider = box.metadata["provider"]
 
-        if provider
-          # Verify that the given provider matches what the box has.
-          if box_provider.to_sym != provider
-            @logger.error("Added box provider doesnt match expected: #{box_provider}")
-            raise Errors::BoxProviderDoesntMatch, :expected => provider, :actual => box_provider
+          if provider
+            # Verify that the given provider matches what the box has.
+            if box_provider.to_sym != provider
+              @logger.error("Added box provider doesnt match expected: #{box_provider}")
+              raise Errors::BoxProviderDoesntMatch, :expected => provider, :actual => box_provider
+            end
+          else
+            # We weren't given a provider, so store this one.
+            provider = box_provider.to_sym
+
+            # Verify the box doesn't already exist
+            check_box_exists.call(provider)
           end
-        else
-          # We weren't given a provider, so store this one.
-          provider = box_provider.to_sym
 
-          # Verify the box doesn't already exist
-          check_box_exists.call(provider)
+          # Create the directory for this box, not including the provider
+          box_dir = @directory.join(name)
+          box_dir.mkpath
+          @logger.debug("Box directory: #{box_dir}")
+
+          # This is the final directory we'll move it to
+          final_dir = box_dir.join(provider.to_s)
+          if final_dir.exist?
+            @logger.debug("Removing existing provider directory...")
+            final_dir.rmtree
+          end
+
+          # Move to final destination
+          final_dir.mkpath
+
+          # Go through each child and copy them one-by-one. This avoids
+          # an issue where on Windows cross-device directory copies are
+          # failing for some reason. [GH-1424]
+          final_temp_dir.children(true).each do |f|
+            destination = final_dir.join(f.basename)
+            @logger.debug("Moving: #{f} => #{destination}")
+            FileUtils.mv(f, destination)
+          end
         end
-
-        # Create the directory for this box, not including the provider
-        box_dir = @directory.join(name)
-        box_dir.mkpath
-        @logger.debug("Box directory: #{box_dir}")
-
-        # This is the final directory we'll move it to
-        final_dir = box_dir.join(provider.to_s)
-        if final_dir.exist?
-          @logger.debug("Removing existing provider directory...")
-          final_dir.rmtree
-        end
-
-        # Move to final destination
-        FileUtils.mv(temp_dir.to_s, final_dir.to_s)
-
-        # Recreate the directory. This avoids a bug in Ruby where `mktmpdir`
-        # cleanup doesn't check if the directory is already gone. Ruby bug
-        # #6715: http://bugs.ruby-lang.org/issues/6715
-        Dir.mkdir(temp_dir, 0700)
       end
 
       # Return the box
@@ -284,7 +302,7 @@ module Vagrant
     def v1_upgrade(dir)
       @logger.debug("Upgrading box in directory: #{dir}")
 
-      temp_dir = Pathname.new(Dir.mktmpdir("vagrant-"))
+      temp_dir = Pathname.new(Dir.mktmpdir(TEMP_PREFIX, @temp_root))
       @logger.debug("Temporary directory for upgrading: #{temp_dir}")
 
       # Move all the things into the temporary directory
@@ -310,6 +328,20 @@ module Vagrant
 
       # Return the temporary directory
       temp_dir
+    end
+
+    # This is a helper that makes sure that our temporary directories
+    # are cleaned up no matter what.
+    #
+    # @param [String] dir Path to a temporary directory
+    # @return [Object] The result of whatever the yield is
+    def with_temp_dir(dir=nil)
+      dir ||= Dir.mktmpdir(TEMP_PREFIX, @temp_root)
+      dir = Pathname.new(dir)
+
+      yield dir
+    ensure
+      dir.rmtree if dir.exist?
     end
   end
 end

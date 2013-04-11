@@ -27,6 +27,7 @@ module VagrantPlugins
       autoload :IsRunning, File.expand_path("../action/is_running", __FILE__)
       autoload :IsSaved, File.expand_path("../action/is_saved", __FILE__)
       autoload :MatchMACAddress, File.expand_path("../action/match_mac_address", __FILE__)
+      autoload :MessageAlreadyRunning, File.expand_path("../action/message_already_running", __FILE__)
       autoload :MessageNotCreated, File.expand_path("../action/message_not_created", __FILE__)
       autoload :MessageNotRunning, File.expand_path("../action/message_not_running", __FILE__)
       autoload :MessageWillNotDestroy, File.expand_path("../action/message_will_not_destroy", __FILE__)
@@ -71,6 +72,7 @@ module VagrantPlugins
           b.use SaneDefaults
           b.use Customize
           b.use Boot
+          b.use CheckGuestAdditions
         end
       end
 
@@ -244,7 +246,10 @@ module VagrantPlugins
           b.use ConfigValidate
           b.use Call, IsRunning do |env, b2|
             # If the VM is running, then our work here is done, exit
-            next if env[:result]
+            if env[:result]
+              b2.use MessageAlreadyRunning
+              next
+            end
 
             b2.use Call, IsSaved do |env2, b3|
               if env2[:result]
@@ -296,7 +301,6 @@ module VagrantPlugins
               b2.use CheckAccessible
               b2.use HandleBoxUrl
               b2.use Import
-              b2.use CheckGuestAdditions
               b2.use MatchMACAddress
             end
           end

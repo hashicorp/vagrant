@@ -14,6 +14,7 @@ describe Vagrant::Machine do
   end
   let(:provider_config) { Object.new }
   let(:provider_name) { :test }
+  let(:provider_options) { {} }
   let(:box)      { Object.new }
   let(:config)   { env.config_global }
   let(:data_dir) { Pathname.new(Tempdir.new.path) }
@@ -30,10 +31,12 @@ describe Vagrant::Machine do
 
   let(:instance) { new_instance }
 
+  subject { instance }
+
   # Returns a new instance with the test data
   def new_instance
     described_class.new(name, provider_name, provider_cls, provider_config,
-                        config, data_dir, box, env)
+                        provider_options, config, data_dir, box, env)
   end
 
   describe "initialization" do
@@ -63,7 +66,7 @@ describe Vagrant::Machine do
         # Initialize a new machine and verify that we properly receive
         # the machine we expect.
         instance = described_class.new(name, provider_name, provider_cls, provider_config,
-                                       config, data_dir, box, env)
+                                       provider_options, config, data_dir, box, env)
         received_machine.should eql(instance)
       end
 
@@ -117,25 +120,13 @@ describe Vagrant::Machine do
   end
 
   describe "attributes" do
-    it "should provide access to the name" do
-      instance.name.should == name
-    end
-
-    it "should provide access to the configuration" do
-      instance.config.should eql(config)
-    end
-
-    it "should provide access to the box" do
-      instance.box.should eql(box)
-    end
-
-    it "should provide access to the environment" do
-      instance.env.should eql(env)
-    end
-
-    it "should provide access to the provider" do
-      instance.provider.should eql(provider)
-    end
+    its(:name)             { should eq(name) }
+    its(:config)           { should eql(config) }
+    its(:box)              { should eql(box) }
+    its(:env)              { should eql(env) }
+    its(:provider)         { should eql(provider) }
+    its(:provider_config)  { should eql(provider_config) }
+    its(:provider_options) { should eq(provider_options) }
   end
 
   describe "actions" do
@@ -206,10 +197,21 @@ describe Vagrant::Machine do
     let(:communicator) do
       result = double("communicator")
       result.stub(:ready?).and_return(true)
+      result.stub(:test).and_return(false)
       result
     end
 
     before(:each) do
+      test_guest = Class.new(Vagrant.plugin("2", :guest)) do
+        def detect?(machine)
+          true
+        end
+      end
+
+      register_plugin do |p|
+        p.guest(:test) { test_guest }
+      end
+
       instance.stub(:communicate).and_return(communicator)
     end
 
@@ -221,63 +223,11 @@ describe Vagrant::Machine do
     end
 
     it "should return the configured guest" do
-      test_guest = Class.new(Vagrant.plugin("2", :guest))
-
-      register_plugin do |p|
-        p.guest(:test) { test_guest }
-      end
-
-      config.vm.guest = :test
-
       result = instance.guest
-      result.should be_kind_of(test_guest)
+      result.should be_kind_of(Vagrant::Guest)
+      result.ready?.should be
+      result.chain[0][0].should == :test
     end
-
-    it "should raise an exception if it can't find the configured guest" do
-      config.vm.guest = :bad
-
-      expect { instance.guest }.
-        to raise_error(Vagrant::Errors::VMGuestError)
-    end
-
-    it "should distro dispatch to the most specific guest" do
-      # Create the classes and dispatch the parent into the child
-      guest_parent = Class.new(Vagrant.plugin("2", :guest)) do
-        def distro_dispatch
-          :child
-        end
-      end
-
-      guest_child  = Class.new(Vagrant.plugin("2", :guest))
-
-      # Register the classes
-      register_plugin do |p|
-        p.guest(:parent) { guest_parent }
-        p.guest(:child)  { guest_child }
-      end
-
-      # Test that the result is the child
-      config.vm.guest = :parent
-      instance.guest.should be_kind_of(guest_child)
-    end
-
-    it "should protect against loops in the distro dispatch" do
-      # Create the classes and dispatch the parent into the child
-      guest_parent = Class.new(Vagrant.plugin("2", :guest)) do
-        def distro_dispatch
-          :parent
-        end
-      end
-
-      # Register the classes
-      register_plugin do |p|
-        p.guest(:parent) { guest_parent }
-      end
-
-      # Test that the result is the child
-      config.vm.guest = :parent
-      instance.guest.should be_kind_of(guest_parent)
-     end
   end
 
   describe "setting the ID" do
@@ -343,6 +293,22 @@ describe Vagrant::Machine do
         it "should return the Vagrantfile value if provider data not given" do
           provider_ssh_info[type] = nil
           instance.config.ssh.send("#{type}=", "bar")
+
+          instance.ssh_info[type].should == "bar"
+        end
+
+        it "should use the default if no override and no provider" do
+          provider_ssh_info[type] = nil
+          instance.config.ssh.send("#{type}=", nil)
+          instance.config.ssh.default.send("#{type}=", "foo")
+
+          instance.ssh_info[type].should == "foo"
+        end
+
+        it "should use the override if set even with a provider" do
+          provider_ssh_info[type] = "baz"
+          instance.config.ssh.send("#{type}=", "bar")
+          instance.config.ssh.default.send("#{type}=", "foo")
 
           instance.ssh_info[type].should == "bar"
         end

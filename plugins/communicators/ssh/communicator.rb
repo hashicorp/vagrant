@@ -126,8 +126,9 @@ module VagrantPlugins
           # socket.
           begin
             @connection.exec!("")
-          rescue IOError
-            @logger.info("Connection has been closed. Not re-using.")
+          rescue Exception => e
+            @logger.info("Connection errored, not re-using. Will reconnect.")
+            @logger.debug(e.inspect)
             @connection = nil
           end
 
@@ -167,6 +168,7 @@ module VagrantPlugins
           # errors that are generally fixed from a retry and don't
           # necessarily represent immediate failure cases.
           exceptions = [
+            Errno::EACCES,
             Errno::EADDRINUSE,
             Errno::ECONNREFUSED,
             Errno::ECONNRESET,
@@ -202,6 +204,9 @@ module VagrantPlugins
               end
             end
           end
+        rescue Errno::EACCES
+          # This happens on connect() for unknown reasons yet...
+          raise Vagrant::Errors::SSHConnectEACCES
         rescue Errno::ETIMEDOUT, Timeout::Error
           # This happens if we continued to timeout when attempting to connect.
           raise Vagrant::Errors::SSHConnectionTimeout
@@ -290,8 +295,28 @@ module VagrantPlugins
           end
         end
 
-        # Wait for the channel to complete
-        channel.wait
+        begin
+          keep_alive = nil
+
+          if @machine.config.ssh.keep_alive
+            # Begin sending keep-alive packets while we wait for the script
+            # to complete. This avoids connections closing on long-running
+            # scripts.
+            keep_alive = Thread.new do
+              loop do
+                sleep 5
+                @logger.debug("Sending SSH keep-alive...")
+                connection.send_global_request("keep-alive@openssh.com")
+              end
+            end
+          end
+
+          # Wait for the channel to complete
+          channel.wait
+        ensure
+          # Kill the keep-alive thread
+          keep_alive.kill if keep_alive
+        end
 
         # Return the final exit status
         return exit_status

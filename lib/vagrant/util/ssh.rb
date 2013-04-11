@@ -3,6 +3,7 @@ require "log4r"
 require "vagrant/util/file_mode"
 require "vagrant/util/platform"
 require "vagrant/util/safe_exec"
+require "vagrant/util/subprocess"
 require "vagrant/util/which"
 
 module Vagrant
@@ -27,7 +28,12 @@ module Vagrant
         LOGGER.debug("Checking key permissions: #{key_path}")
         stat = key_path.stat
 
-        if stat.owned? && FileMode.from_octal(stat.mode) != "600"
+        if !stat.owned?
+          # The SSH key must be owned by ourselves
+          raise Errors::SSHKeyBadOwner, :key_path => key_path
+        end
+
+        if FileMode.from_octal(stat.mode) != "600"
           LOGGER.info("Attempting to correct key permissions to 0600")
           key_path.chmod(0600)
 
@@ -55,7 +61,8 @@ module Vagrant
       def self.exec(ssh_info, opts={})
         # Ensure the platform supports ssh. On Windows there are several programs which
         # include ssh, notably git, mingw and cygwin, but make sure ssh is in the path!
-        if !Which.which("ssh")
+        ssh_path = Which.which("ssh")
+        if !ssh_path
           if Platform.windows?
             raise Errors::SSHUnavailableWindows,
               :host => ssh_info[:host],
@@ -65,6 +72,19 @@ module Vagrant
           end
 
           raise Errors::SSHUnavailable
+        end
+
+        # On Windows, we need to detect whether SSH is actually "plink"
+        # underneath the covers. In this case, we tell the user.
+        if Platform.windows?
+          r = Subprocess.execute(ssh_path)
+          if r.stdout.include?("PuTTY Link")
+            raise Errors::SSHIsPuttyLink,
+              :host => ssh_info[:host],
+              :port => ssh_info[:port],
+              :username => ssh_info[:username],
+              :key_path => ssh_info[:private_key_path]
+          end
         end
 
         # If plain mode is enabled then we don't do any authentication (we don't
@@ -116,6 +136,10 @@ module Vagrant
         host_string = options[:host]
         host_string = "#{options[:username]}@#{host_string}" if !plain_mode
         command_options.unshift(host_string)
+
+        # On Cygwin we want to get rid of any DOS file warnings because
+        # we really don't care since both work.
+        ENV["nodosfilewarning"] = "1" if Platform.cygwin?
 
         # Invoke SSH with all our options
         LOGGER.info("Invoking SSH: #{command_options.inspect}")

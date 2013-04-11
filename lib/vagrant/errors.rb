@@ -87,16 +87,24 @@ module Vagrant
       error_key(:active_machine_with_different_provider)
     end
 
+    class AnsiblePlaybookAppNotFound < VagrantError
+      error_key(:ansible_playbook_app_not_found)
+    end
+
     class BaseVMNotFound < VagrantError
       error_key(:base_vm_not_found)
+    end
+
+    class BatchMultiError < VagrantError
+      error_key(:batch_multi_error)
     end
 
     class BoxAlreadyExists < VagrantError
       error_key(:already_exists, "vagrant.actions.box.unpackage")
     end
 
-    class BoxDownloadUnknownType < VagrantError
-      error_key(:unknown_type, "vagrant.actions.box.download")
+    class BoxMetadataFileNotFound < VagrantError
+      error_key(:box_metadata_file_not_found)
     end
 
     class BoxNotFound < VagrantError
@@ -125,6 +133,22 @@ module Vagrant
 
     class BoxVerificationFailed < VagrantError
       error_key(:failed, "vagrant.actions.box.verify")
+    end
+
+    class CFEngineBootstrapFailed < VagrantError
+      error_key(:cfengine_bootstrap_failed)
+    end
+
+    class CFEngineCantAutodetectIP < VagrantError
+      error_key(:cfengine_cant_autodetect_ip)
+    end
+
+    class CFEngineInstallFailed < VagrantError
+      error_key(:cfengine_install_failed)
+    end
+
+    class CFEngineNotInstalled < VagrantError
+      error_key(:cfengine_not_installed)
     end
 
     class CLIInvalidUsage < VagrantError
@@ -157,6 +181,14 @@ module Vagrant
 
     class DotfileUpgradeJSONError < VagrantError
       error_key(:dotfile_upgrade_json_error)
+    end
+
+    class DownloaderError < VagrantError
+      error_key(:downloader_error)
+    end
+
+    class DownloaderInterrupted < DownloaderError
+      error_key(:downloader_interrupted)
     end
 
     class DownloaderFileDoesntExist < VagrantError
@@ -199,6 +231,10 @@ module Vagrant
       error_key(:home_dir_not_accessible)
     end
 
+    class ForwardPortAdapterNotFound < VagrantError
+      error_key(:forward_port_adapter_not_found)
+    end
+
     class ForwardPortAutolistEmpty < VagrantError
       error_key(:auto_empty, "vagrant.actions.vm.forward_ports")
     end
@@ -209,6 +245,30 @@ module Vagrant
 
     class ForwardPortCollisionResume < VagrantError
       error_key(:port_collision_resume)
+    end
+
+    class GuestCapabilityInvalid < VagrantError
+      error_key(:guest_capability_invalid)
+    end
+
+    class GuestCapabilityNotFound < VagrantError
+      error_key(:guest_capability_not_found)
+    end
+
+    class GuestNotDetected < VagrantError
+      error_key(:guest_not_detected)
+    end
+
+    class LinuxMountFailed < VagrantError
+      error_key(:linux_mount_failed)
+    end
+
+    class LinuxNFSMountFailed < VagrantError
+      error_key(:linux_nfs_mount_failed)
+    end
+
+    class LinuxShellExpandFailed < VagrantError
+      error_key(:linux_shell_expand_failed)
     end
 
     class LocalDataDirectoryNotAccessible < VagrantError
@@ -261,6 +321,10 @@ module Vagrant
 
     class NFSNoHostIP < VagrantError
       error_key(:nfs_no_host_ip)
+    end
+
+    class NFSNoHostonlyNetwork < VagrantError
+      error_key(:nfs_no_hostonly_network)
     end
 
     class NoEnvironmentError < VagrantError
@@ -339,6 +403,10 @@ module Vagrant
       error_key(:ssh_authentication_failed)
     end
 
+    class SSHConnectEACCES < VagrantError
+      error_key(:ssh_connect_eacces)
+    end
+
     class SSHConnectionRefused < VagrantError
       error_key(:ssh_connection_refused)
     end
@@ -357,6 +425,14 @@ module Vagrant
 
     class SSHHostDown < VagrantError
       error_key(:ssh_host_down)
+    end
+
+    class SSHIsPuttyLink < VagrantError
+      error_key(:ssh_is_putty_link)
+    end
+
+    class SSHKeyBadOwner < VagrantError
+      error_key(:ssh_key_bad_owner)
     end
 
     class SSHKeyBadPermissions < VagrantError
@@ -409,6 +485,10 @@ module Vagrant
 
     class VBoxManageError < VagrantError
       error_key(:vboxmanage_error)
+    end
+
+    class VBoxManageNotFoundError < VagrantError
+      error_key(:vboxmanage_not_found_error)
     end
 
     class VirtualBoxInvalidVersion < VagrantError

@@ -21,7 +21,7 @@ module VagrantPlugins
               # If the ID matches the name of the forwarded port, then
               # remap.
               if options[:id] == name
-                remap[name] = hostport
+                remap[options[:host]] = hostport
                 break
               end
             end

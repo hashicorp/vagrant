@@ -2,10 +2,15 @@ require "pathname"
 
 require "log4r"
 
+require "vagrant/util/platform"
+require "vagrant/util/scoped_hash_override"
+
 module VagrantPlugins
   module ProviderVirtualBox
     module Action
       class ShareFolders
+        include Vagrant::Util::ScopedHashOverride
+
         def initialize(app, env)
           @logger = Log4r::Logger.new("vagrant::action::vm::share_folders")
           @app    = app
@@ -27,8 +32,13 @@ module VagrantPlugins
         def shared_folders
           {}.tap do |result|
             @env[:machine].config.vm.synced_folders.each do |id, data|
+              data = scoped_hash_override(data, :virtualbox)
+
               # Ignore NFS shared folders
               next if data[:nfs]
+
+              # Ignore disabled shared folders
+              next if data[:disabled]
 
               # This to prevent overwriting the actual shared folders data
               result[id] = data.dup
@@ -61,9 +71,12 @@ module VagrantPlugins
 
           folders = []
           shared_folders.each do |id, data|
+            hostpath = File.expand_path(data[:hostpath], @env[:root_path])
+            hostpath = Vagrant::Util::Platform.cygwin_windows_path(hostpath)
+
             folders << {
               :name => id,
-              :hostpath => File.expand_path(data[:hostpath], @env[:root_path]),
+              :hostpath => hostpath,
               :transient => data[:transient]
             }
           end
@@ -99,7 +112,8 @@ module VagrantPlugins
               data[:group] ||= @env[:machine].config.ssh.username
 
               # Mount the actual folder
-              @env[:machine].guest.mount_shared_folder(id, data[:guestpath], data)
+              @env[:machine].guest.capability(
+                :mount_virtualbox_shared_folder, id, data[:guestpath], data)
             else
               # If no guest path is specified, then automounting is disabled
               @env[:ui].info(I18n.t("vagrant.actions.vm.share_folders.nomount_entry",

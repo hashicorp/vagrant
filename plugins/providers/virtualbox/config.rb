@@ -77,6 +77,10 @@ module VagrantPlugins
         # The default name is just nothing, and we default it
         @name = nil if @name == UNSET_VALUE
       end
+
+      def to_s
+        "VirtualBox"
+      end
     end
   end
 end

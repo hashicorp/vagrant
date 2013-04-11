@@ -21,7 +21,7 @@ module VagrantPlugins
           env[:forwarded_ports].each do |fp|
             if fp.host_port <= 1024
               env[:ui].warn I18n.t("vagrant.actions.vm.forward_ports.privileged_ports")
-              return
+              break
             end
           end
 
@@ -49,6 +49,14 @@ module VagrantPlugins
             # forwarded ports on these attachment types has uncertain behaviour.
             @env[:ui].info(I18n.t("vagrant.actions.vm.forward_ports.forwarding_entry",
                                     message_attributes))
+
+            # Verify we have the network interface to attach to
+            if !interfaces[fp.adapter]
+              raise Vagrant::Errors::ForwardPortAdapterNotFound,
+                :adapter => fp.adapter.to_s,
+                :guest => fp.guest_port.to_s,
+                :host => fp.host_port.to_s
+            end
 
             # Port forwarding requires the network interface to be a NAT interface,
             # so verify that that is the case.

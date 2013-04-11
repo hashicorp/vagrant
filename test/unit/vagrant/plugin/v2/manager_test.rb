@@ -92,15 +92,32 @@ describe Vagrant::Plugin::V2::Manager do
     end
 
     pB = plugin do |p|
-      p.guest("bar") { "baz" }
+      p.guest("bar", "foo") { "baz" }
     end
 
     instance.register(pA)
     instance.register(pB)
 
     instance.guests.to_hash.length.should == 2
-    instance.guests[:foo].should == "bar"
-    instance.guests[:bar].should == "baz"
+    instance.guests[:foo].should == ["bar", nil]
+    instance.guests[:bar].should == ["baz", :foo]
+  end
+
+  it "should enumerate registered guest capabilities" do
+    pA = plugin do |p|
+      p.guest_capability("foo", "foo") { "bar" }
+    end
+
+    pB = plugin do |p|
+      p.guest_capability("bar", "foo") { "baz" }
+    end
+
+    instance.register(pA)
+    instance.register(pB)
+
+    instance.guest_capabilities.length.should == 2
+    instance.guest_capabilities[:foo][:foo].should == "bar"
+    instance.guest_capabilities[:bar][:foo].should == "baz"
   end
 
   it "should enumerate registered host classes" do
@@ -126,15 +143,15 @@ describe Vagrant::Plugin::V2::Manager do
     end
 
     pB = plugin do |p|
-      p.provider("bar") { "baz" }
+      p.provider("bar", foo: "bar") { "baz" }
     end
 
     instance.register(pA)
     instance.register(pB)
 
     instance.providers.to_hash.length.should == 2
-    instance.providers[:foo].should == "bar"
-    instance.providers[:bar].should == "baz"
+    instance.providers[:foo].should == ["bar", {}]
+    instance.providers[:bar].should == ["baz", { foo: "bar" }]
   end
 
   it "provides the collection of registered provider configs" do

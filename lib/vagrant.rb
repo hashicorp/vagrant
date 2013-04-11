@@ -64,12 +64,12 @@ require "vagrant/registry"
 
 module Vagrant
   autoload :Action,        'vagrant/action'
+  autoload :BatchAction,   'vagrant/batch_action'
   autoload :Box,           'vagrant/box'
   autoload :BoxCollection, 'vagrant/box_collection'
   autoload :CLI,           'vagrant/cli'
   autoload :Command,       'vagrant/command'
   autoload :Config,        'vagrant/config'
-  autoload :Downloaders,   'vagrant/downloaders'
   autoload :Driver,        'vagrant/driver'
   autoload :Environment,   'vagrant/environment'
   autoload :Errors,        'vagrant/errors'
@@ -78,7 +78,6 @@ module Vagrant
   autoload :Machine,       'vagrant/machine'
   autoload :MachineState,  'vagrant/machine_state'
   autoload :Plugin,        'vagrant/plugin'
-  autoload :TestHelpers,   'vagrant/test_helpers'
   autoload :UI,            'vagrant/ui'
   autoload :Util,          'vagrant/util'
 
@@ -144,11 +143,13 @@ module Vagrant
   # Vagrant may move it to "Vagrant::Plugins::V1" and plugins will not be
   # affected.
   #
+  # @param [String] version
+  # @param [String] component
   # @return [Class]
   def self.plugin(version, component=nil)
     # Build up the key and return a result
-    key    = version.to_sym
-    key    = [key, component.to_sym] if component
+    key    = version.to_s.to_sym
+    key    = [key, component.to_s.to_sym] if component
     result = PLUGIN_COMPONENTS.get(key)
 
     # If we found our component then we return that
@@ -168,6 +169,12 @@ module Vagrant
   #
   # @param [String] name Name of the plugin to load.
   def self.require_plugin(name)
+    if ENV["VAGRANT_NO_PLUGINS"]
+      logger = Log4r::Logger.new("vagrant::root")
+      logger.warn("VAGRANT_NO_PLUGINS is set, not loading 3rd party plugin: #{name}")
+      return
+    end
+
     # Redirect stdout/stderr so that we can output it in our own way.
     previous_stderr = $stderr
     previous_stdout = $stdout
@@ -212,8 +219,8 @@ module Vagrant
         :plugin => name
     end
   ensure
-    $stderr = previous_stderr
-    $stdout = previous_stdout
+    $stderr = previous_stderr if previous_stderr
+    $stdout = previous_stdout if previous_stdout
   end
 end
 

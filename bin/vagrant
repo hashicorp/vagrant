@@ -22,17 +22,26 @@ $stderr.sync = true
 # environment.
 opts = {}
 
-# Disable color if the proper argument was passed or if we're
-# on Windows since the default Windows terminal doesn't support
-# colors.
-if ARGV.include?("--no-color") || !$stdout.tty? || !Vagrant::Util::Platform.terminal_supports_colors?
-  # Delete the argument from the list so that it doesn't cause any
-  # invalid arguments down the road.
+# Disable color in a few cases:
+#
+#   * --no-color is anywhere in our arguments
+#   * STDOUT is not a TTY
+#   * The terminal doesn't support colors (Windows)
+#
+if ARGV.include?("--no-color")
+  # Delete the argument from the list so that it doesn't
+  # cause any invalid arguments down the road.
   ARGV.delete("--no-color")
+
   opts[:ui_class] = Vagrant::UI::Basic
-else
-  opts[:ui_class] = Vagrant::UI::Colored
+elsif !Vagrant::Util::Platform.terminal_supports_colors?
+  opts[:ui_class] = Vagrant::UI::Basic
+elsif !$stdout.tty? && !Vagrant::Util::Platform.cygwin?
+    opts[:ui_class] = Vagrant::UI::Basic
 end
+
+# Default to colored output
+opts[:ui_class] ||= Vagrant::UI::Colored
 
 # This is kind of hacky, and I'd love to find a better way to do this, but
 # if we're accessing the plugin interface, we want to NOT load plugins
@@ -52,8 +61,23 @@ begin
   logger.debug("Creating Vagrant environment")
   env = Vagrant::Environment.new(opts)
 
-  # If we're not in the installer, warn.
-  env.ui.warn(I18n.t("vagrant.general.not_in_installer")) if !Vagrant.in_installer?
+  if !Vagrant.in_installer?
+    warned = false
+
+    # If we're in a bundler environment, we assume it is for plugin
+    # development and will let the user know that.
+    if defined?(Bundler)
+      require 'bundler/shared_helpers'
+      if Bundler::SharedHelpers.in_bundle?
+        env.ui.warn(I18n.t("vagrant.general.in_bundler"))
+        env.ui.warn("")
+        warned = true
+      end
+    end
+
+    # If we're not in the installer, warn.
+    env.ui.warn(I18n.t("vagrant.general.not_in_installer")) if !warned
+  end
 
   begin
     # Execute the CLI interface, and exit with the proper error code

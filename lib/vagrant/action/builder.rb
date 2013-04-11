@@ -74,7 +74,14 @@ module Vagrant
       def insert(index, middleware, *args, &block)
         index = self.index(index) unless index.is_a?(Integer)
         raise "no such middleware to insert before: #{index.inspect}" unless index
-        stack.insert(index, [middleware, args, block])
+
+        if middleware.kind_of?(Builder)
+          middleware.stack.reverse.each do |stack_item|
+            stack.insert(index, stack_item)
+          end
+        else
+          stack.insert(index, [middleware, args, block])
+        end
       end
 
       alias_method :insert_before, :insert
@@ -133,9 +140,22 @@ module Vagrant
         if env[:action_hooks]
           builder = self.dup
 
+          # These are the options to pass into hook application.
+          options = {}
+
+          # If we already ran through once and did append/prepends,
+          # then don't do it again.
+          if env[:action_hooks_already_ran]
+            options[:no_prepend_or_append] = true
+          end
+
+          # Specify that we already ran, so in the future we don't repeat
+          # the prepend/append hooks.
+          env[:action_hooks_already_ran] = true
+
           # Apply all the hooks to the new builder instance
           env[:action_hooks].each do |hook|
-            hook.apply(builder)
+            hook.apply(builder, options)
           end
 
           # The stack is now the result of the new builder

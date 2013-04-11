@@ -45,7 +45,7 @@ module VagrantPlugins
       def ssh_info
         # If the VM is not created then we cannot possibly SSH into it, so
         # we return nil.
-        return nil if state == :not_created
+        return nil if state.id == :not_created
 
         # Return what we know. The host is always "127.0.0.1" because
         # VirtualBox VMs are always local. The port we try to discover

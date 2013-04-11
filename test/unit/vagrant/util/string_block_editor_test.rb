@@ -61,17 +61,25 @@ DATA
 # VAGRANT-BEGIN: bar
 content
 # VAGRANT-END: bar
+# VAGRANT-BEGIN: /Users/studio/Projects (studio)/tubes/.vagrant/machines/web/vmware_fusion/vm.vmwarevm
+complex
+# VAGRANT-END: /Users/studio/Projects (studio)/tubes/.vagrant/machines/web/vmware_fusion/vm.vmwarevm
 DATA
     end
 
+    subject { described_class.new(data) }
+
     it "should get the value" do
-      instance = described_class.new(data)
-      instance.get("bar").should == "content"
+      subject.get("bar").should == "content"
     end
 
     it "should get nil for nonexistent values" do
-      instance = described_class.new(data)
-      instance.get("baz").should be_nil
+      subject.get("baz").should be_nil
+    end
+
+    it "should get complicated keys" do
+      result = subject.get("/Users/studio/Projects (studio)/tubes/.vagrant/machines/web/vmware_fusion/vm.vmwarevm")
+      result.should == "complex"
     end
   end
 

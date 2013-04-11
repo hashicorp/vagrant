@@ -69,15 +69,19 @@ module Vagrant
       # called directly.
       #
       # @param [Builder] builder
-      def apply(builder)
-        # Prepends first
-        @prepend_hooks.each do |klass, args, block|
-          builder.insert(0, klass, *args, &block)
-        end
+      def apply(builder, options=nil)
+        options ||= {}
 
-        # Appends
-        @append_hooks.each do |klass, args, block|
-          builder.use(klass, *args, &block)
+        if !options[:no_prepend_or_append]
+          # Prepends first
+          @prepend_hooks.each do |klass, args, block|
+            builder.insert(0, klass, *args, &block)
+          end
+
+          # Appends
+          @append_hooks.each do |klass, args, block|
+            builder.use(klass, *args, &block)
+          end
         end
 
         # Before hooks

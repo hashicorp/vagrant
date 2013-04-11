@@ -1,6 +1,54 @@
 en:
   vagrant:
+    cfengine_bootstrapping: |-
+      Bootstrapping CFEngine with policy server: %{policy_server}...
+    cfengine_bootstrapping_policy_hub: |-
+      Performing additional bootstrap for policy hubs...
+    cfengine_cant_autodetect_ip: |-
+      Vagrant was unable to automatically detect the IP address of the
+      running machine to use as the policy server address. Please specify
+      the policy server address manually, or verify that the networks are
+      configured properly internally.
+    cfengine_cant_detect: |-
+      Vagrant doesn't support detecting whether CFEngine is installed
+      for the guest OS running in the machine. Vagrant will assume it is
+      installed and attempt to continue.
+    cfengine_detected_ip: |-
+      Detected policy server IP address: %{address}...
+    cfengine_installing: |-
+      Installing CFEngine onto machine...
+    cfengine_installing_files_path: |-
+      Copying the 'files_path' files...
+    cfengine_no_bootstrap: |-
+      CFEngine doesn't require bootstrap. Not bootstrapping.
+    cfengine_single_run: |-
+      CFEngine running in "single run" mode. Will execute one file.
+    cfengine_single_run_execute: |-
+      Executing run file for CFEngine...
+
+    cfengine_config:
+      classes_array: |-
+        The 'classes' configuration must be an array.
+      files_path_not_directory: |-
+        The 'files_path' must point to a valid directory.
+      invalid_mode: |-
+        The mode must be 'bootstrap' or 'single_run'
+      policy_server_address: |-
+        The policy server address must be set for bootstrapping.
+      run_file_not_found: |-
+        The 'run_file' specified could not be found.
+
     general:
+      batch_unexpected_error: |-
+        An unexpected error ocurred when executing the action on the
+        '%{machine}' machine. Please report this as a bug:
+
+        %{message}
+      batch_vagrant_error: |-
+        An error occurred while executing the action on the '%{machine}'
+        machine. Please handle this error then try again:
+
+        %{message}
       config_upgrade_messages: |-
         There were warnings and/or errors while loading your Vagrantfile.
         Your Vagrantfile was written for an earlier version of Vagrant,
@@ -18,6 +66,11 @@ en:
 
         Old: %{old}
         New: %{new}
+      in_bundler: |-
+        You appear to be running Vagrant in a Bundler environment. Because
+        Vagrant should be run within installers (outside of Bundler), Vagrant
+        will assume that you're developing plugins and will change its behavior
+        in certain ways to better assist plugin development.
       not_in_installer: |-
         You appear to be running Vagrant outside of the official installers.
         Note that the installers are what ensure that Vagrant has all required
@@ -51,7 +104,29 @@ en:
         Machine name: %{name}
         Active provider: %{active_provider}
         Requested provider: %{requested_provider}
+      ansible_playbook_app_not_found: |-
+        The "ansible-playbook" program could not be found! Please verify
+        that "ansible-playbook" is available on the PATH of your host
+        system, and try again.
+
+        If you haven't installed Ansible yet, please install Ansible
+        on your system. Vagrant can't do this for you in a safe, automated
+        way. Please see ansible.cc for more info.
       base_vm_not_found: The base VM with the name '%{name}' was not found.
+      batch_multi_error: |-
+        An error occurred while executing multiple actions in parallel.
+        Any errors that occurred are shown below.
+
+        %{message}
+      box_metadata_file_not_found: |-
+        The "metadata.json" file for the box '%{name}' was not found.
+        Boxes require this file in order for Vagrant to determine the
+        provider it was made for. If you made the box, please add a
+        "metadata.json" file to it. If someone else made the box, please
+        notify the box creator that the box is corrupt. Documentation for
+        box file format can be found at the URL below:
+
+        http://docs.vagrantup.com/v2/boxes/format.html
       box_not_found: Box '%{name}' could not be found.
       box_provider_doesnt_match: |-
         The box you attempted to add doesn't match the provider you specified.
@@ -62,6 +137,19 @@ en:
         The box '%{name}' is still stored on disk in the Vagrant 1.0.x
         format. This box must be upgraded in order to work properly with
         this version of Vagrant.
+      cfengine_bootstrap_failed: |-
+        Failed to bootstrap CFEngine. Please see the output above to
+        see what went wrong and address the issue.
+      cfengine_install_failed: |-
+        After installing CFEngine, Vagrant still can't detect a proper
+        CFEngine installation. Please verify that CFEngine was properly
+        installed, as the installation may have failed.
+      cfengine_not_installed: |-
+        CFEngine appears to not be installed on the guest machine. Vagrant
+        can attempt to install CFEngine for you if you set the "install"
+        setting to "true", but this setting was not set. Please install
+        CFEngine on the guest machine or enable the "install" setting for
+        Vagrant to attempt to install it for you.
       cli_invalid_options: |-
         An invalid option was specified. The help for this command
         is available below.
@@ -116,29 +204,51 @@ en:
         support.
 
         State file path: %{state_file}
+      downloader_error: |-
+        An error occurred while downloading the remote file. The error
+        message, if any, is reproduced below. Please fix this error and try
+        again.
+
+        %{message}
+      downloader_interrupted: |-
+        The download was interrupted by an external signal. It did not
+        complete.
       environment_locked: |-
         An instance of Vagrant is already running. Only one instance of Vagrant
         may run at any given time to avoid problems with VirtualBox inconsistencies
         occurring. Please wait for the other instance of Vagrant to end and then
         try again.
+      forward_port_adapter_not_found: |-
+        The adapter to attach a forwarded port to was not found. Please
+        verify that the given adapter is setup on the machine as a NAT
+        interface.
+
+        Host port: %{host}
+        Guest port: %{guest}
+        Adapter: %{adapter}
       gem_command_in_bundler: |-
         You cannot run the `vagrant plugin` command while in a bundler environment.
         This should generally never happen unless Vagrant is installed outside
         of the official installers or another gem is wrongly attempting to
         use Vagrant internals directly. Please properly install Vagrant to
         fix this. If this error persists, please contact support.
-      guest:
-        invalid_class: |-
-          The specified guest class does not inherit from a proper guest
-          component class. The guest class must inherit from this.
-
-          The specified guest class was: %{guest}
-        unknown_type: |-
-          The specified guest type is unknown: %{guest}. Please change this
-          to a proper value.
-        unspecified: |-
-          A VM guest type must be specified! This is done via the `config.vm.guest`
-          configuration value. Please read the documentation online for more information.
+      guest_capability_invalid: |-
+        The registered guest capability '%{cap}' for the
+        detected guest OS '%{guest}' is invalid. The capability does
+        not implement the proper method. This is a bug with Vagrant or the
+        plugin that implements this capability. Please report a bug.
+      guest_capability_not_found: |-
+        Vagrant attempted to execute the capability '%{cap}'
+        on the detect guest OS '%{guest}', but the guest doesn't
+        support that capability. This capability is required for your
+        configuration of Vagrant. Please either reconfigure Vagrant to
+        avoid this capability or fix the issue by creating the capability.
+      guest_not_detected: |-
+        The guest operating system of the machine could not be detected!
+        Vagrant requires this knowledge to perform specific tasks such
+        as mounting shared folders and configuring networks. Please add
+        the ability to detect this guest operating system to Vagrant
+        by creating a plugin or reporting a bug.
       home_dir_not_accessible: |-
         The home directory you specified is not accessible. The home
         directory that Vagrant uses must be both readable and writable.
@@ -153,6 +263,24 @@ en:
         running Vagrant.
 
         Local data directory: %{local_data_path}
+      linux_mount_failed: |-
+        Failed to mount folders in Linux guest. This is usually beacuse
+        the "vboxsf" file system is not available. Please verify that
+        the guest additions are properly installed in the guest and
+        can work properly. The command attempted was:
+
+        %{command}
+      linux_nfs_mount_failed: |-
+        Mounting NFS shared folders failed. This is most often caused by the NFS
+        client software not being installed on the guest machine. Please verify
+        that the NFS client software is properly installed, and consult any resources
+        specific to the linux distro you're using for more information on how to
+        do this.
+      linux_shell_expand_failed: |-
+        Vagrant failed to determine the shell expansion of the guest path
+        for one of your shared folders. This is an extremely rare error case
+        and most likely indicates an unusual configuration of the guest system.
+        Please report a bug with your Vagrantfile.
       machine_guest_not_ready: |-
         Guest-specific operations were attempted on a machine that is not
         ready for guest communication. This should not happen and a bug
@@ -176,6 +304,10 @@ en:
       nfs_no_host_ip: |-
         No host IP was given to the Vagrant core NFS helper. This is
         an internal error that should be reported as a bug.
+      nfs_no_hostonly_network: |-
+        NFS requires a host-only network with a static IP to be created.
+        Please add a host-only network with a static IP to the machine
+        for NFS to work.
       no_env: |-
         A Vagrant environment is required to run this command. Run `vagrant init`
         to set one up in this directory, or change to a directory with a
@@ -250,6 +382,11 @@ en:
         Vagrant assumes that this means the command failed!
 
         %{command}
+      ssh_connect_eacces: |-
+        SSH is getting permission denied errors when attempting to connect
+        to the IP for SSH. This is usually caused by network rules and not being
+        able to connect to the specified IP. Please try changing the IP on
+        which the guest machine binds to for SSH.
       ssh_connection_refused: |-
         SSH connection was refused! This usually happens if the VM failed to
         boot properly. Some steps to try to fix this: First, try reloading your
@@ -278,6 +415,23 @@ en:
         While attempting to connect with SSH, a "host is down" (EHOSTDOWN)
         error was received. Please verify your SSH settings are correct
         and try again.
+      ssh_is_putty_link: |-
+        The `ssh` executable found in the PATH is a PuTTY Link SSH client.
+        Vagrant is only compatible with OpenSSH SSH clients. Please install
+        an OpenSSH SSH client or manually SSH in using your existing client
+        using the information below.
+
+        Host: %{host}
+        Port: %{port}
+        Username: %{username}
+        Private key: %{key_path}
+      ssh_key_bad_owner: |-
+        The private key to connect to the machine via SSH must be owned
+        by the user running Vagrant. This is a strict requirement from
+        SSH itself. Please fix the following key to be owned by the user
+        running Vagrant:
+
+        %{key_path}
       ssh_key_bad_permissions: |-
         The private key to connect to this box via SSH has invalid permissions
         set on it. The permissions of the private key should be set to 0600, otherwise SSH will
@@ -348,12 +502,17 @@ en:
 
         %{file}
       vboxmanage_error: |-
-        There was an error executing the following command with VBoxManage:
+        There was an error while executing `VBoxManage`, a CLI used by Vagrant
+        for controlling VirtualBox. The command and stderr is shown below.
 
-        %{command}
+        Command: %{command}
 
-        For more information on the failure, enable detailed logging by setting
-        the environment variable VAGRANT_LOG to DEBUG.
+        Stderr: %{stderr}
+      vboxmanage_not_found_error: |-
+        The "VBoxManage" command or one of its dependencies could not
+        be found. Please verify VirtualBox is properly installed. You can verify
+        everything is okay by running "VBoxManage --version" and verifying
+        that the VirtualBox version is outputted.
       virtualbox_invalid_version: |-
         Vagrant has detected that you have a version of VirtualBox installed
         that is not supported. Please install one of the supported versions
@@ -404,6 +563,7 @@ en:
 #-------------------------------------------------------------------------------
     config:
       common:
+        bad_field: "The following settings don't exist: %{fields}"
         error_empty: "`%{field}` must be not be empty."
       chef:
         cookbooks_path_empty: "Must specify a cookbooks path for chef solo."
@@ -447,23 +607,32 @@ en:
         nfs_requires_host: |-
           Using NFS shared folders requires a host to be specified
           using `config.vagrant.host`.
+        network_fp_host_not_unique: |-
+          Forwarded port '%{host}' (host port) is declared multiple times
         network_fp_requires_ports: |-
           Forwarded port definitions require a "host" and "guest" value
+        network_type_invalid: |-
+          Network type '%{type}' is invalid. Please use a valid network type.
+        provisioner_not_found: |-
+          The '%{name}' provisioner could not be found.
+        shared_folder_guestpath_duplicate: |-
+          A shared folder guest path is used multiple times. Shared
+          folders must all map to a unique guest path: %{path}
+        shared_folder_guestpath_relative: |-
+          The shared folder guest path must be absolute: %{path}
         shared_folder_hostpath_missing: |-
           The host path of the shared folder is missing: %{path}
         shared_folder_nfs_owner_group: |-
           Shared folder that have NFS enabled do no support owner/group
           attributes. Host path: %{path}
-        provisioner_not_found: "The provisioner '%{shortcut}' doesn't exist."
-        provisioner_invalid_class: |-
-          The provisioner '%{shortcut}' must inherit from
-          `Vagrant::Plugin::V1::Provisioner`."
 
 #-------------------------------------------------------------------------------
 # Translations for commands. e.g. `vagrant x`
 #-------------------------------------------------------------------------------
     commands:
       common:
+        vm_already_running: |-
+          VirtualBox VM is already running.
         vm_not_created: "VM not created. Moving on..."
         vm_not_running: "VM is not currently running. Please bring it up to run this command."
       box:
@@ -792,12 +961,14 @@ en:
         add:
           adding: |-
             Extracting box...
+          added: |-
+            Successfully added box '%{name}' with provider '%{provider}'!
         destroy:
           destroying: "Deleting box '%{name}'..."
         download:
-          with: "Downloading with %{class}..."
           cleaning: "Cleaning up downloaded box..."
-          unknown_type: "Unknown or unsupported URI type given for box download."
+          downloading: "Downloading or copying the box..."
+          interrupted: "Box download was interrupted. Exiting."
         verify:
           verifying: "Verifying box..."
           failed: |-
@@ -871,6 +1042,8 @@ en:
           The chef binary (either `chef-solo` or `chef-client`) was not found on
           the VM and is required for chef provisioning. Please verify that chef
           is installed and that the binary is available on the PATH.
+        cookbook_folder_not_found_warning:
+          "The cookbook path '%{path}' doesn't exist. Ignoring..."
         json: "Generating chef JSON and uploading..."
         client_key_folder: "Creating folder to hold client key..."
         upload_validation_key: "Uploading chef client validation key..."
@@ -934,60 +1107,14 @@ en:
 
       shell:
         args_not_string: "Shell provisioner `args` must be a string."
-        path_and_inline_set: "Only one of `path` or `inline` may be set."
         no_path_or_inline: "One of `path` or `inline` must be set."
+        path_and_inline_set: "Only one of `path` or `inline` may be set."
         path_invalid: "`path` for shell provisioner does not exist on the host system: %{path}"
+        running: "Running: %{script}"
         upload_path_not_set: "`upload_path` must be set for the shell provisioner."
 
-    guest:
-      base:
-        unsupported_configure_networks: |-
-          Networking features require support that is dependent on the operating
-          system running within the guest virtual machine. Vagrant has built-in support
-          for many operating systems: Debian, Ubuntu, Gentoo, and RedHat. The distro
-          of your VM couldn't be detected or doesn't support networking features.
-
-          Most of the time this is simply due to the fact that no one has contributed
-          back the logic necessary to set this up. Please report a bug as well as the
-          box you're using.
-        unsupported_host_name: |-
-          Setting host name is currently only supported on Debian, Ubuntu and RedHat.
-          If you'd like your guest OS to be supported, please open a ticket on the
-          project.
-        unsupported_nfs: |-
-          Vagrant doesn't support mounting NFS shared folders for your specific
-          guest operating system yet, or possibly couldn't properly detect the
-          operating system on the VM.
-
-          Most of the time this is simply due to the fact that no one has contributed
-          back the logic necessary to set this up. Please report a bug as well as the
-          box you're using.
-        unsupported_halt: |-
-          Vagrant doesn't support graceful shutdowns for your specific
-          guest operating system yet, or possibly couldn't properly detect the
-          operating system on the VM.
-
-          Most of the time this is simply due to the fact that no one has contributed
-          back the logic necessary to set this up. Please report a bug as well as the
-          box you're using.
-        unsupported_shared_folder: |-
-          Vagrant doesn't support mounting shared folders for your specific
-          guest operating system yet, or possibly couldn't properly detect the
-          operating system on the VM.
-
-          Most of the time this is simply due to the fact that no one has contributed
-          back the logic necessary to set this up. Please report a bug as well as the
-          box you're using.
-      linux:
-        guestpath_expand_fail: |-
-          Vagrant failed to determine the shell expansion of the guest path
-          for one of your shared folders. This is an extremely rare error case
-          and most likely indicates an unusual configuration of the guest system.
-          Please report a bug with your Vagrantfile.
-        mount_fail: "Failed to mount shared folders. `vboxsf` was not available."
-        mount_nfs_fail: |-
-          Mounting NFS shared folders failed. This is most often caused by the NFS
-          client software not being installed on the guest machine. Please verify
-          that the NFS client software is properly installed, and consult any resources
-          specific to the linux distro you're using for more information on how to
-          do this.
+      ansible:
+        no_playbook: "`playbook` must be set for the Ansible provisioner."
+        playbook_path_invalid: "`playbook` for the Ansible provisioner does not exist on the host system: %{path}"
+        inventory_file_path_invalid: "`inventory_file` for the Ansible provisioner does not exist on the host system: %{path}"
+        extra_vars_not_hash: "`extra_vars` for the Ansible provisioner must be a hash"

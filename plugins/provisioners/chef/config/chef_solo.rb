@@ -22,11 +22,22 @@ module VagrantPlugins
           @encrypted_data_bag_secret = UNSET_VALUE
           @encrypted_data_bag_secret_key_path = UNSET_VALUE
           @nfs                       = UNSET_VALUE
+
+          @__defaulted_cookbooks_path = false
         end
 
+        #------------------------------------------------------------
+        # Internal methods
+        #------------------------------------------------------------
+
         def finalize!
+          @recipe_url = nil if @recipe_url == UNSET_VALUE
+
           if @cookbooks_path == UNSET_VALUE
-            @cookbooks_path = [[:host, "cookbooks"], [:vm, "cookbooks"]]
+            @cookbooks_path = []
+            @cookbooks_path << [:host, "cookbooks"] if !@recipe_url
+            @cookbooks_path << [:vm, "cookbooks"]
+            @__defaulted_cookbooks_path = true
           end
 
           @data_bags_path = [] if @data_bags_path == UNSET_VALUE
@@ -42,25 +53,14 @@ module VagrantPlugins
           @encrypted_data_bag_secret_key_path = nil if \
             @encrypted_data_bag_secret_key_path == UNSET_VALUE
           @nfs = false if @nfs == UNSET_VALUE
-          @recipe_url = nil if @recipe_url == UNSET_VALUE
         end
 
         def validate(machine)
-          errors = []
+          errors = _detected_errors
           errors << I18n.t("vagrant.config.chef.cookbooks_path_empty") if \
             !cookbooks_path || [cookbooks_path].flatten.empty?
           errors << I18n.t("vagrant.config.chef.run_list_empty") if \
             !run_list || run_list.empty?
-
-          @cookbooks_path.each do |type, path|
-            next if type != :host
-            expanded_path = File.expand_path(path, machine.env.root_path)
-
-            if !File.exist?(expanded_path)
-              errors << I18n.t("vagrant.config.chef.cookbooks_path_missing",
-                              :path => expanded_path)
-            end
-          end
 
           { "chef solo provisioner" => errors }
         end
