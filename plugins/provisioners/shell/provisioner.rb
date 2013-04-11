@@ -12,6 +12,11 @@ module VagrantPlugins
         with_script_file do |path|
           # Upload the script to the machine
           @machine.communicate.tap do |comm|
+            # Reset upload path permissions for the current ssh user
+            user = @machine.ssh_info[:username]
+            comm.sudo("chown -R #{user} #{config.upload_path}",
+                      :error_check => false)
+
             comm.upload(path.to_s, config.upload_path)
 
             if config.path
