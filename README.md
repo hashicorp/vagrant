@@ -30,7 +30,7 @@ the box doesn't already exist on your system.
 ## Getting Started Guide
 
 To learn how to build a fully functional rails development environment, view the
-[getting started guide](http://vagrantup.com/v1/docs/getting-started/index.html).
+[getting started guide](http://docs.vagrantup.com/v2/getting-started/index.html).
 
 ## Installing the Gem from Git
 
