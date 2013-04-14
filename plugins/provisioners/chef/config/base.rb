@@ -6,6 +6,7 @@ module VagrantPlugins
         attr_accessor :node_name
         attr_accessor :provisioning_path
         attr_accessor :log_level
+        attr_accessor :verbose_logging
         attr_accessor :json
         attr_accessor :http_proxy
         attr_accessor :http_proxy_user
