@@ -1,3 +1,5 @@
+require File.expand_path("../chef_config", __FILE__)
+
 module VagrantPlugins
   module Chef
     module Config
@@ -59,6 +61,12 @@ module VagrantPlugins
           result.delete("json")
           result
         end
+
+        # Returns a hash that has symbolized keys from a chef config file.
+        def chef_config
+          @chef_config ||= ChefConfig.parse
+        end
+        alias_method :knife, :chef_config
       end
     end
   end

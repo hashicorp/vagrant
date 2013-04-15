@@ -21,6 +21,8 @@ module VagrantPlugins
         def file_cache_path; @file_cache_path || "/srv/chef/file_store"; end
         def file_backup_path; @file_backup_path || "/srv/chef/cache"; end
         def encrypted_data_bag_secret; @encrypted_data_bag_secret || "/tmp/encrypted_data_bag_secret"; end
+        def chef_server_url; @chef_server_url || knife[:chef_server_url]; end
+        def validation_key_path; @validation_key_path || knife[:validation_key]; end
 
         def validate(machine)
           errors = _detected_errors
