@@ -5,22 +5,41 @@ module VagrantPlugins
     module Config
       class ChefClient < Base
         attr_accessor :chef_server_url
-        attr_accessor :validation_key_path
-        attr_accessor :validation_client_name
         attr_accessor :client_key_path
-        attr_accessor :file_cache_path
-        attr_accessor :file_backup_path
-        attr_accessor :environment
         attr_accessor :encrypted_data_bag_secret_key_path
         attr_accessor :encrypted_data_bag_secret
+        attr_accessor :environment
+        attr_accessor :file_cache_path
+        attr_accessor :file_backup_path
+        attr_accessor :validation_key_path
+        attr_accessor :validation_client_name
 
-        # Provide defaults in such a way that they won't override the instance
-        # variable. This is so merging continues to work properly.
-        def validation_client_name; @validation_client_name || "chef-validator"; end
-        def client_key_path; @client_key_path || "/etc/chef/client.pem"; end
-        def file_cache_path; @file_cache_path || "/srv/chef/file_store"; end
-        def file_backup_path; @file_backup_path || "/srv/chef/cache"; end
-        def encrypted_data_bag_secret; @encrypted_data_bag_secret || "/tmp/encrypted_data_bag_secret"; end
+        def initialize
+          super
+
+          @chef_server_url                    = UNSET_VALUE
+          @client_key_path                    = UNSET_VALUE
+          @encrypted_data_bag_secret_key_path = UNSET_VALUE
+          @encrypted_data_bag_secret          = UNSET_VALUE
+          @environment                        = UNSET_VALUE
+          @file_cache_path                    = UNSET_VALUE
+          @file_backup_path                   = UNSET_VALUE
+          @validation_key_path                = UNSET_VALUE
+          @validation_client_name             = UNSET_VALUE
+        end
+
+        def finalize!
+          super
+
+          @client_key_path        = "/etc/chef/client.pem" if @client_key_path == UNSET_VALUE
+          @file_backup_path       = "/srv/chef/cache" if @file_backup_path == UNSET_VALUE
+          @file_cache_path        = "/srv/chef/file_store" if @file_cache_path == UNSET_VALUE
+          @validation_client_name = "chef-validator" if @validation_client_name == UNSET_VALUE
+
+          if @encrypted_data_bag_secret == UNSET_VALUE
+            @encrypted_data_bag_secret = "/tmp/encrypted_data_bag_secret"
+          end
+        end
 
         def validate(machine)
           errors = _detected_errors

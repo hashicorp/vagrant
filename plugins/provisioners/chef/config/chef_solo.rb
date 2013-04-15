@@ -31,6 +31,8 @@ module VagrantPlugins
         #------------------------------------------------------------
 
         def finalize!
+          super
+
           @recipe_url = nil if @recipe_url == UNSET_VALUE
 
           if @cookbooks_path == UNSET_VALUE
