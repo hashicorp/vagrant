@@ -1,5 +1,10 @@
 ## 1.2.1 (unreleased)
 
+IMPROVEMENTS:
+
+  - Get rid of arbitrary 4 second sleep when connecting via SSH. The
+    issue it was attempting to work around may be gone now.
+
 BUG FIXES:
 
   - Chef solo run list properly set. [GH-1608]

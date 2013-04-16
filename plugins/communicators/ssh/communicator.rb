@@ -238,11 +238,6 @@ module VagrantPlugins
 
         @connection = connection
 
-        # This is hacky but actually helps with some issues where
-        # Net::SSH is simply not robust enough to handle... see
-        # issue #391, #455, etc.
-        sleep 4
-
         # Yield the connection that is ready to be used and
         # return the value of the block
         return yield connection if block_given?
