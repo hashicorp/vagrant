@@ -75,7 +75,9 @@ module VagrantPlugins
           @machine.env.ui.info I18n.t("vagrant.provisioners.chef.json")
 
           # Get the JSON that we're going to expose to Chef
-          json = JSON.pretty_generate(@config.json)
+          json = @config.json
+          json[:run_list] = @config.run_list if !@config.run_list.empty?
+          json = JSON.pretty_generate(json)
 
           # Create a temporary file to store the data so we
           # can upload it

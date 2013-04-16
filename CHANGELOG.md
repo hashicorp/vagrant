@@ -1,6 +1,8 @@
 ## 1.2.1 (unreleased)
 
+BUG FIXES:
 
+  - Chef solo run list properly set. [GH-1608]
 
 ## 1.2.0 (April 16, 2013)
 

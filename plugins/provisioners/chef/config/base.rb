@@ -61,6 +61,13 @@ module VagrantPlugins
           @log_level = @log_level.to_sym
         end
 
+        def merge(other)
+          super.tap do |result|
+            result.instance_variable_set(:@json, @json.merge(other.json))
+            result.instance_variable_set(:@run_list, (@run_list + other.run_list))
+          end
+        end
+
         # Adds a recipe to the run list
         def add_recipe(name)
           name = "recipe[#{name}]" unless name =~ /^recipe\[(.+?)\]$/
