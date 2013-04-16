@@ -55,7 +55,7 @@ module VagrantPlugins
           @log_level         = :info if @log_level == UNSET_VALUE
           @no_proxy          = nil if @no_proxy == UNSET_VALUE
           @node_name         = nil if @node_name == UNSET_VALUE
-          @provisioning_path = nil if @provisioning_path == UNSET_VALUIE
+          @provisioning_path = nil if @provisioning_path == UNSET_VALUE
 
           # Make sure the log level is a symbol
           @log_level = @log_level.to_sym
