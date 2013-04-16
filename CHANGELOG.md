@@ -1,5 +1,10 @@
 ## 1.2.1 (unreleased)
 
+FEATURES:
+
+  - Add a `--[no-]parallel` flag to `vagrant up` to enable/disable
+    parallelism. Vagrant will parallelize by default.
+
 IMPROVEMENTS:
 
   - Get rid of arbitrary 4 second sleep when connecting via SSH. The

@@ -58,7 +58,7 @@ describe Vagrant::Environment do
     context "without the disabling env var" do
       it "should run without disabling parallelization" do
         with_temp_env("VAGRANT_NO_PARALLEL" => nil) do
-          Vagrant::BatchAction.should_receive(:new).with(false).and_return(batch)
+          Vagrant::BatchAction.should_receive(:new).with(true).and_return(batch)
           batch.should_receive(:run)
 
           instance.batch {}
@@ -67,10 +67,10 @@ describe Vagrant::Environment do
 
       it "should run with disabling parallelization if explicit" do
         with_temp_env("VAGRANT_NO_PARALLEL" => nil) do
-          Vagrant::BatchAction.should_receive(:new).with(true).and_return(batch)
+          Vagrant::BatchAction.should_receive(:new).with(false).and_return(batch)
           batch.should_receive(:run)
 
-          instance.batch(true) {}
+          instance.batch(false) {}
         end
       end
     end
@@ -78,7 +78,7 @@ describe Vagrant::Environment do
     context "with the disabling env var" do
       it "should run with disabling parallelization" do
         with_temp_env("VAGRANT_NO_PARALLEL" => "yes") do
-          Vagrant::BatchAction.should_receive(:new).with(true).and_return(batch)
+          Vagrant::BatchAction.should_receive(:new).with(false).and_return(batch)
           batch.should_receive(:run)
 
           instance.batch {}

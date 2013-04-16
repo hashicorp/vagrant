@@ -6,9 +6,9 @@ module Vagrant
   # This class executes multiple actions as a single batch, parallelizing
   # the action calls if possible.
   class BatchAction
-    def initialize(disable_parallel=false)
+    def initialize(allow_parallel=true)
       @actions          = []
-      @disable_parallel = disable_parallel
+      @allow_parallel   = allow_parallel
       @logger           = Log4r::Logger.new("vagrant::batch_action")
     end
 
@@ -27,14 +27,14 @@ module Vagrant
     # Run all the queued up actions, parallelizing if possible.
     #
     # This will parallelize if and only if the provider of every machine
-    # supports parallelization. Parallelizing can additionally be disabled
-    # by passing the option into the initializer of this class.
+    # supports parallelization and parallelization is possible from
+    # initialization of the class.
     def run
-      par = true
+      par = false
 
-      if @disable_parallel
-        par = false
-        @logger.info("Disabled parallelization by force.")
+      if @allow_parallel
+        par = true
+        @logger.info("Enabling parallelization by default.")
       end
 
       if par

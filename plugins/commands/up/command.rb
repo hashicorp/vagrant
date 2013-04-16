@@ -11,11 +11,18 @@ module VagrantPlugins
 
       def execute
         options = {}
+        options[:parallel] = true
+
         opts = OptionParser.new do |o|
-          o.banner = "Usage: vagrant up [vm-name] [--[no-]provision] [--provider provider] [-h]"
+          o.banner = "Usage: vagrant up [vm-name] [options] [-h]"
           o.separator ""
 
           build_start_options(o, options)
+
+          o.on("--[no-]parallel",
+               "Enable or disable parallelism if provider supports it.") do |parallel|
+            options[:parallel] = parallel
+          end
 
           o.on("--provider provider", String,
                "Back the machine with a specific provider.") do |provider|
@@ -31,7 +38,7 @@ module VagrantPlugins
         @logger.debug("'Up' each target VM...")
 
         # Build up the batch job of what we'll do
-        @env.batch do |batch|
+        @env.batch(options[:parallel]) do |batch|
           with_target_vms(argv, :provider => options[:provider]) do |machine|
             @env.ui.info(I18n.t(
               "vagrant.commands.up.upping",
