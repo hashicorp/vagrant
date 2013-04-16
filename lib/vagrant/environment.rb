@@ -197,9 +197,11 @@ module Vagrant
     #
     # This handles the case where batch actions are disabled by the
     # VAGRANT_NO_PARALLEL environmental variable.
-    def batch
+    def batch(disable_parallel=false)
+      disable_parallel ||= !!ENV["VAGRANT_NO_PARALLEL"]
+
       @batch_lock.synchronize do
-        BatchAction.new(!!ENV["VAGRANT_NO_PARALLEL"]).tap do |b|
+        BatchAction.new(disable_parallel).tap do |b|
           # Yield it so that the caller can setup actions
           yield b
 
