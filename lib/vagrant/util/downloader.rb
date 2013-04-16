@@ -30,6 +30,7 @@ module Vagrant
         # Build the list of parameters to execute with cURL
         options = [
           "--fail",
+          "--location",
           "--max-redirs", "10",
           "--output", @destination
         ]

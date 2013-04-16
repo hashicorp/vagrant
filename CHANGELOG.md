@@ -3,6 +3,7 @@
 BUG FIXES:
 
   - Chef solo run list properly set. [GH-1608]
+  - Follow 30x redirects when downloading boxes. [GH-1607]
 
 ## 1.2.0 (April 16, 2013)
 
