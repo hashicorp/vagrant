@@ -19,7 +19,7 @@ module VagrantPlugins
           chown_provisioning_folder
           create_client_key_folder
           upload_validation_key
-          upload_encrypted_data_bag_secret if @config.encrypted_data_bag_secret_key_path
+          upload_encrypted_data_bag_secret if @config.encrypted_data_bag_secret_key_path.is_a?(String)
           setup_json
           setup_server_config
           run_chef_client
