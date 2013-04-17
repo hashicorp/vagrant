@@ -38,6 +38,16 @@ module Vagrant
         options << "--insecure" if @insecure
         options << @source
 
+        # Specify some options for the subprocess
+        subprocess_options = {}
+
+        # If we're in Vagrant, then we use the packaged CA bundle
+        if Vagrant.in_installer?
+          subprocess_options[:env] ||= {}
+          subprocess_options[:env]["CURL_CA_BUNDLE"] =
+            File.expand_path("cacert.pem", ENV["VAGRANT_INSTALLER_EMBEDDED_DIR"])
+        end
+
         # This variable can contain the proc that'll be sent to
         # the subprocess execute.
         data_proc = nil
@@ -45,7 +55,7 @@ module Vagrant
         if @ui
           # If we're outputting progress, then setup the subprocess to
           # tell us output so we can parse it out.
-          options << { :notify => :stderr }
+          subprocess_options[:notify] = :stderr
 
           progress_data = ""
           progress_regexp = /(\r(.+?))\r/
@@ -92,6 +102,9 @@ module Vagrant
             end
           end
         end
+
+        # Add the subprocess options onto the options we'll execute with
+        options << subprocess_options
 
         # Create the callback that is called if we are interrupted
         interrupted  = false

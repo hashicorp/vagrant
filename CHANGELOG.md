@@ -16,6 +16,8 @@ BUG FIXES:
   - Follow 30x redirects when downloading boxes. [GH-1607]
   - Chef client config defaults are done properly. [GH-1609]
   - VirtualBox mounts shared folders with the proper owner/group. [GH-1611]
+  - Use the Mozilla CA cert bundle for cURL so SSL validation works
+    properly.
 
 ## 1.2.0 (April 16, 2013)
 
