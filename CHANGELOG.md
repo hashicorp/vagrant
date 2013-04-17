@@ -1,4 +1,4 @@
-## 1.2.1 (unreleased)
+## 1.2.1 (April 17, 2013)
 
 FEATURES:
 
