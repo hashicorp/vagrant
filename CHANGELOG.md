@@ -1,6 +1,8 @@
 ## 1.2.2 (unreleased)
 
+BUG FIXES:
 
+  - `vagrant package --base` works again. [GH-1615]
 
 ## 1.2.1 (April 17, 2013)
 
