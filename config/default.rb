@@ -1,5 +1,6 @@
 Vagrant.configure("2") do |config|
   config.vagrant.host = :detect
+  config.vagrant.default_machines = []
 
   config.ssh.forward_agent = false
   config.ssh.forward_x11 = false

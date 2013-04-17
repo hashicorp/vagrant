@@ -72,23 +72,61 @@ describe Vagrant::Plugin::V2::Command do
         to raise_error(Vagrant::Errors::NoEnvironmentError)
     end
 
-    it "should yield every VM in order is no name is given" do
-      foo_vm = double("foo")
-      foo_vm.stub(:name => "foo", :provider => :foobarbaz)
-
-      bar_vm = double("bar")
-      bar_vm.stub(:name => "bar", :provider => :foobarbaz)
-
-      environment.stub(:machine_names => [:foo, :bar])
-      environment.stub(:machine).with(:foo, default_provider).and_return(foo_vm)
-      environment.stub(:machine).with(:bar, default_provider).and_return(bar_vm)
-
-      vms = []
-      instance.with_target_vms do |vm|
-        vms << vm
+    context "when no name is given" do
+      let(:foo_vm) do
+        vm = double("foo")
+        vm.stub(:name => "foo", :provider => :foobarbaz)
+        vm
       end
 
-      vms.should == [foo_vm, bar_vm]
+      let(:bar_vm) do
+        vm = double("bar")
+        vm.stub(:name => "bar", :provider => :foobarbaz)
+        vm
+      end
+
+      before do
+        environment.stub(:machine_names => [:foo, :bar])
+        environment.stub(:machine).with(:foo, default_provider).and_return(foo_vm)
+        environment.stub(:machine).with(:bar, default_provider).and_return(bar_vm)
+      end
+
+      context "when default machines are specified" do
+        before { environment.stub(:default_machines => [:foo]) }
+
+        it "yields the default machines" do
+          vms = []
+          instance.with_target_vms do |vm|
+            vms << vm
+          end
+
+          vms.should == [foo_vm]
+        end
+
+        it "yields every machine if the command is safe for all machines" do
+          vms = []
+          instance.with_target_vms(nil, :safe_for_all_machines => true) do |vm|
+            vms << vm
+          end
+
+          vms.should == [foo_vm, bar_vm]
+        end
+      end
+
+      context "when no default machines are specified" do
+        before do
+          environment.stub(:default_machines) { environment.machine_names }
+        end
+
+        it "yields every machine in order" do
+          vms = []
+          instance.with_target_vms do |vm|
+            vms << vm
+          end
+
+          vms.should == [foo_vm, bar_vm]
+        end
+      end
     end
 
     it "raises an exception if the named VM doesn't exist" do
@@ -179,6 +217,7 @@ describe Vagrant::Plugin::V2::Command do
       environment.stub(:machine).with(name, provider).and_return(vmware_vm)
       environment.stub(:machine_names => [])
       environment.stub(:primary_machine_name => name)
+      environment.stub(:default_machines => [])
       vmware_vm.stub(:name => name, :provider => provider)
 
       vms = []
@@ -194,6 +233,7 @@ describe Vagrant::Plugin::V2::Command do
       environment.stub(:machine).with(name, default_provider).and_return(machine)
       environment.stub(:machine_names => [])
       environment.stub(:primary_machine_name => name)
+      environment.stub(:default_machines => [])
       machine.stub(:name => name, :provider => default_provider)
 
       vms = []

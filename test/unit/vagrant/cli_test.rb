@@ -10,7 +10,7 @@ describe Vagrant::CLI do
       env = double("Vagrant::Environment")
       env.stub(:ui => ui)
       env.stub(:root_path => "foo")
-      env.stub(:machine_names => [])
+      env.stub(:default_machines => [])
       env
     end
 
