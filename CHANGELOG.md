@@ -1,5 +1,10 @@
 ## 1.2.2 (unreleased)
 
+FEATURES:
+
+  - New `DestroyConfirm` built-in middleware for providers so they can
+    more easily conform to the `destroy` action.
+
 IMPROVEMENTS:
 
   - No longer an error if the Chef run list is empty. It is now
