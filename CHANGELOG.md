@@ -1,5 +1,10 @@
 ## 1.2.2 (unreleased)
 
+IMPROVEMENTS:
+
+  - No longer an error if the Chef run list is empty. It is now
+    a warning. [GH-1620]
+
 BUG FIXES:
 
   - `vagrant package --base` works again. [GH-1615]

@@ -61,8 +61,6 @@ module VagrantPlugins
           errors = _detected_errors
           errors << I18n.t("vagrant.config.chef.cookbooks_path_empty") if \
             !cookbooks_path || [cookbooks_path].flatten.empty?
-          errors << I18n.t("vagrant.config.chef.run_list_empty") if \
-            !run_list || run_list.empty?
 
           { "chef solo provisioner" => errors }
         end

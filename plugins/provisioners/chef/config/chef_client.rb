@@ -52,8 +52,6 @@ module VagrantPlugins
             !chef_server_url || chef_server_url.strip == ""
           errors << I18n.t("vagrant.config.chef.validation_key_path") if \
             !validation_key_path
-          errors << I18n.t("vagrant.config.chef.run_list_empty") if \
-            @run_list && @run_list.empty?
 
           { "chef client provisioner" => errors }
         end

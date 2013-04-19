@@ -135,6 +135,10 @@ module VagrantPlugins
         end
 
         def run_chef_solo
+          if @config.run_list && @config.run_list.empty?
+            @machine.ui.warn(I18n.t("vagrant.chef_run_list_empty"))
+          end
+
           command_env = @config.binary_env ? "#{@config.binary_env} " : ""
           command_args = @config.arguments ? " #{@config.arguments}" : ""
           command = "#{command_env}#{chef_binary_path("chef-solo")} -c #{@config.provisioning_path}/solo.rb -j #{@config.provisioning_path}/dna.json #{command_args}"

@@ -25,6 +25,8 @@ en:
       CFEngine running in "single run" mode. Will execute one file.
     cfengine_single_run_execute: |-
       Executing run file for CFEngine...
+    chef_run_list_empty: |-
+      Warning: Chef solo run list is empty. This may not be what you want.
 
     cfengine_config:
       classes_array: |-
@@ -569,7 +571,6 @@ en:
         cookbooks_path_empty: "Must specify a cookbooks path for chef solo."
         cookbooks_path_missing: |-
           Cookbook path doesn't exist: %{path}
-        run_list_empty: "Run list must not be empty."
         server_url_empty: "Chef server URL must be populated."
         validation_key_path: "Validation key path must be valid path to your chef server validation key."
       loader:
