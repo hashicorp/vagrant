@@ -331,7 +331,6 @@ module Vagrant
       # Determine the possible box formats for any boxes and find the box
       box_formats = provider_options[:box_format] || provider
       box = nil
-      box = find_box(config.vm.box, box_formats) if config.vm.box
 
       # Set this variable in order to keep track of if the box changes
       # too many times.
@@ -339,6 +338,8 @@ module Vagrant
       box_changed  = false
 
       load_box_and_overrides = lambda do
+        box = find_box(config.vm.box, box_formats) if config.vm.box
+
         # If a box was found, then we attempt to load the Vagrantfile for
         # that box. We don't require a box since we allow providers to download
         # boxes and so on.
@@ -378,7 +379,6 @@ module Vagrant
           @logger.info("Box changed to: #{config.vm.box}. Reloading configurations.")
           original_box = config.vm.box
           box_changed  = true
-          box          = find_box(config.vm.box, box_formats)
 
           # Recurse so that we reload all the configurations
           load_box_and_overrides.call
