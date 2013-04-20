@@ -120,6 +120,11 @@ en:
         Any errors that occurred are shown below.
 
         %{message}
+      box_config_changing_box: |-
+        While loading the Vagrantfile, the provider override specified
+        a new box. This box, in turn, specified a different box. This isn't
+        allowed, as it could lead to infinite recursion of Vagrant configuration
+        loading. Please fix this.
       box_metadata_file_not_found: |-
         The "metadata.json" file for the box '%{name}' was not found.
         Boxes require this file in order for Vagrant to determine the

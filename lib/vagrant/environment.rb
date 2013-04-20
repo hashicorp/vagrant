@@ -336,6 +336,7 @@ module Vagrant
       # Set this variable in order to keep track of if the box changes
       # too many times.
       original_box = config.vm.box
+      box_changed  = false
 
       load_box_and_overrides = lambda do
         # If a box was found, then we attempt to load the Vagrantfile for
@@ -366,11 +367,17 @@ module Vagrant
         end
 
         if config.vm.box && original_box != config.vm.box
+          if box_changed
+            # We already changed boxes once, so report an error that a
+            # box is attempting to change boxes again.
+            raise Errors::BoxConfigChangingBox
+          end
+
           # The box changed, probably due to the provider override. Let's
           # run the configuration one more time with the new box.
-          # TODO: previous original box
           @logger.info("Box changed to: #{config.vm.box}. Reloading configurations.")
           original_box = config.vm.box
+          box_changed  = true
           box          = find_box(config.vm.box, box_formats)
 
           # Recurse so that we reload all the configurations
