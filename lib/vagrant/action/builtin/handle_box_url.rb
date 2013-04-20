@@ -24,11 +24,17 @@ module Vagrant
               "vagrant.actions.vm.check_box.not_found",
               :name => box_name,
               :provider => env[:machine].provider_name)
-            env[:action_runner].run(Vagrant::Action.action_box_add, {
-              :box_name     => box_name,
-              :box_provider => env[:machine].provider_name,
-              :box_url      => box_url
-            })
+
+            begin
+              env[:action_runner].run(Vagrant::Action.action_box_add, {
+                :box_name     => box_name,
+                :box_provider => env[:machine].provider_name,
+                :box_url      => box_url
+              })
+            rescue Errors::BoxAlreadyExists
+              # Just ignore this, since it means the next part will succeed!
+              # This can happen in a multi-threaded environment.
+            end
 
             # Reload the environment and set the VM to be the new loaded VM.
             env[:machine] = env[:machine].env.machine(
