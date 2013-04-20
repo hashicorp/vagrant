@@ -9,6 +9,8 @@ IMPROVEMENTS:
 
   - No longer an error if the Chef run list is empty. It is now
     a warning. [GH-1620]
+  - Better locking around handling the `box_url` parameter for
+    parallel providers.
 
 BUG FIXES:
 
