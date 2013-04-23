@@ -11,6 +11,7 @@ IMPROVEMENTS:
     a warning. [GH-1620]
   - Better locking around handling the `box_url` parameter for
     parallel providers.
+  - Solaris guest is now properly detected on SmartOS, OmniOS, etc. [GH-1639]
 
 BUG FIXES:
 
