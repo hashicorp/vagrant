@@ -19,8 +19,8 @@ module Vagrant
           @logger.info("Downloading box to: #{@temp_path}")
 
           url = env[:box_url]
-          if url !~ /^[a-z0-9]+:.*$/i
-            @logger.info("No protocol found on box URL, assuming file:")
+          if File.file?(url) || url !~ /^[a-z0-9]+:.*$/i
+            @logger.info("URL is a file or protocol not found and assuming file.")
             file_path = File.expand_path(url)
             file_path = Util::Platform.cygwin_windows_path(file_path)
             url = "file:#{file_path}"

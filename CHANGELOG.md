@@ -22,6 +22,8 @@ BUG FIXES:
     fail to detect the box. [GH-1617]
   - In a multi-machine environment, a box not found won't be downloaded
     multiple times. [GH-1467]
+  - `vagrant box add` with a file path now works correctly on Windows
+    when a drive letter is specified.
 
 ## 1.2.1 (April 17, 2013)
 
