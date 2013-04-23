@@ -24,6 +24,8 @@ BUG FIXES:
     multiple times. [GH-1467]
   - `vagrant box add` with a file path now works correctly on Windows
     when a drive letter is specified.
+  - DOS line endings are converted to Unix line endings for the
+    shell provisioner automatically. [GH-1495]
 
 ## 1.2.1 (April 17, 2013)
 
