@@ -63,6 +63,8 @@ BACKWARDS INCOMPATIBILITIES:
     To work around this, either set `VAGRANT_HOME` to your Cygwin ".vagrant.d"
     folder or move your ".vagrant.d" folder to `USERPROFILE`. The latter is
     recommended for long-term support.
+  - The constant `Vagrant::Environment::VAGRANT_HOME` was removed in favor of
+    `Vagrant::Environment#default_vagrant_home`.
 
 FEATURES:
 
