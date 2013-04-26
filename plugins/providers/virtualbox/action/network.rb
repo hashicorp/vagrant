@@ -118,11 +118,12 @@ module VagrantPlugins
 
         def bridged_config(options)
           return {
-            :auto_config                     => true,
-            :bridge                          => nil,
-            :mac                             => nil,
-            :nic_type                        => nil,
-            :use_dhcp_assigned_default_route => false
+            :auto_config                      => true,
+            :bridge                           => nil,
+            :mac                              => nil,
+            :nic_type                         => nil,
+            :use_dhcp_assigned_default_route  => false,
+            :drop_nat_interface_default_route => false
           }.merge(options || {})
         end
 
@@ -202,7 +203,8 @@ module VagrantPlugins
         def bridged_network_config(config)
           return {
             :type => :dhcp,
-            :use_dhcp_assigned_default_route => config[:use_dhcp_assigned_default_route]
+            :use_dhcp_assigned_default_route  => config[:use_dhcp_assigned_default_route],
+            :drop_nat_interface_default_route => config[:drop_nat_interface_default_route]
           }
         end
 

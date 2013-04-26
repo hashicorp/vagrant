@@ -8,4 +8,8 @@ iface eth<%= options[:interface] %> inet dhcp
     # needed as some newer distribution do not properly load routes, ubuntu 12.04
     post-up dhclient $IFACE
 <% end %>
+<% if options[:drop_nat_interface_default_route] %>
+    post-up route del default dev eth0
+    pre-down route add default dev eth0
+<% end %>
 #VAGRANT-END
