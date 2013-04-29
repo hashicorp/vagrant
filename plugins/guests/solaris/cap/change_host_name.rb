@@ -8,7 +8,7 @@ module VagrantPlugins
           # Only do this if the hostname is not already set
           if !machine.communicate.test("#{su_cmd} hostname | grep '#{name}'")
             machine.communicate.execute("#{su_cmd} sh -c \"echo '#{name}' > /etc/nodename\"")
-            machine.communicate.execute("#{su_cmd} uname -S #{name}")
+            machine.communicate.execute("#{su_cmd} uname -S #{name} || #{su_cmd} hostname #{name}")
           end
         end
       end
