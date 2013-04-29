@@ -303,7 +303,7 @@ module VagrantPlugins
               # Sometimes, VBoxManage fails but doesn't actual return a non-zero
               # exit code. For this we inspect the output and determine if an error
               # occurred.
-              if r.stderr =~ /VBoxManage: error:/
+              if r.stderr =~ /VBoxManage([.a-z]+?): error:/
                 @logger.info("VBoxManage error text found, assuming error.")
                 errored = true
               end

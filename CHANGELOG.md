@@ -1,6 +1,9 @@
 ## 1.2.3 (unreleased)
 
+IMPROVEMENTS:
 
+  - Better VBoxManage error detection on Windows systems. This avoids
+    some major issues where Vagrant would sometimes "lose" your VM. [GH-1669]
 
 ## 1.2.2 (April 23, 2013)
 
