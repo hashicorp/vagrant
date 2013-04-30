@@ -4,6 +4,8 @@ IMPROVEMENTS:
 
   - Better VBoxManage error detection on Windows systems. This avoids
     some major issues where Vagrant would sometimes "lose" your VM. [GH-1669]
+  - Better detection of missing VirtualBox kernel drivers on Linux
+    systems. [GH-1671]
 
 ## 1.2.2 (April 23, 2013)
 

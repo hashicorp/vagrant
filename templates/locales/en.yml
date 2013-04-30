@@ -528,8 +528,8 @@ en:
         %{supported_versions}
       virtualbox_kernel_module_not_loaded: |-
         VirtualBox is complaining that the kernel module is not loaded. Please
-        run `VBoxManage --version` to see the error message which should contain
-        instructions on how to fix this error.
+        run `VBoxManage --version` or open the VirtualBox GUI to see the error
+        message which should contain instructions on how to fix this error.
       virtualbox_install_incomplete: |-
         VirtualBox is complaining that the installation is incomplete. Please
         run `VBoxManage --version` to see the error message which should contain
