@@ -1,5 +1,11 @@
 ## 1.2.3 (unreleased)
 
+FEATURES:
+
+  - Added a `working_directory` configuration option to the Puppet apply
+    provisioner so you can specify the working directory when `puppet` is
+    called, making it friendly to Hiera data and such. [GH-1670]
+
 IMPROVEMENTS:
 
   - Setting hostnames works properly on SmartOS. [GH-1672]

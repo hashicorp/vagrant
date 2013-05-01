@@ -19,12 +19,12 @@ module VagrantPlugins
           root_path = @machine.env.root_path
           @expanded_manifests_path = @config.expanded_manifests_path(root_path)
           @expanded_module_paths   = @config.expanded_module_paths(root_path)
-          @manifest_file           = @config.manifest_file
+          @manifest_file           = File.join(@expanded_manifests_path, @config.manifest_file)
 
           # Setup the module paths
           @module_paths = []
           @expanded_module_paths.each_with_index do |path, i|
-            @module_paths << [path, File.join(config.pp_path, "modules-#{i}")]
+            @module_paths << [path, File.join(config.temp_dir, "modules-#{i}")]
           end
 
           # Share the manifests directory with the guest
@@ -56,7 +56,7 @@ module VagrantPlugins
         end
 
         def manifests_guest_path
-          File.join(config.pp_path, "manifests")
+          File.join(config.temp_dir, "manifests")
         end
 
         def verify_binary(binary)
@@ -92,10 +92,13 @@ module VagrantPlugins
             facter = "#{facts.join(" ")} "
           end
 
-          command = "cd #{manifests_guest_path} && #{facter}puppet apply #{options} --detailed-exitcodes || [ $? -eq 2 ]"
+          command = "#{facter}puppet apply #{options} --detailed-exitcodes || [ $? -eq 2 ]"
+          if config.working_directory
+            command = "cd #{config.working_directory} && #{command}"
+          end
 
           @machine.env.ui.info I18n.t("vagrant.provisioners.puppet.running_puppet",
-                                      :manifest => @manifest_file)
+                                      :manifest => config.manifest_file)
 
           @machine.communicate.sudo(command) do |type, data|
             data.chomp!
