@@ -19,7 +19,7 @@ module VagrantPlugins
           root_path = @machine.env.root_path
           @expanded_manifests_path = @config.expanded_manifests_path(root_path)
           @expanded_module_paths   = @config.expanded_module_paths(root_path)
-          @manifest_file           = File.join(@expanded_manifests_path, @config.manifest_file)
+          @manifest_file           = File.join(manifests_guest_path, @config.manifest_file)
 
           # Setup the module paths
           @module_paths = []
