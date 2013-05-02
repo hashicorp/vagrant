@@ -6,7 +6,7 @@ module VagrantPlugins
   module GuestUbuntu
     class Guest < VagrantPlugins::GuestDebian::Guest
       def detect?(machine)
-        machine.communicate.test("cat /proc/version | grep 'Ubuntu'")
+        machine.communicate.test("cat /etc/issue | grep 'Ubuntu'")
       end
 
       def mount_shared_folder(name, guestpath, options)
