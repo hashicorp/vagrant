@@ -16,6 +16,8 @@ IMPROVEMENTS:
     systems. [GH-1671]
   - More precise detection of Ubuntu/Debian guests so that running Vagrant
     within an LXC container works properly now.
+  - Allow strings in addition to symbols to more places in V1 configuration
+    as well as V2 configuration.
 
 BUG FIXES:
 

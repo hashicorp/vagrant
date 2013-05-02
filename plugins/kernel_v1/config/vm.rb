@@ -53,6 +53,9 @@ module VagrantPlugins
       end
 
       def network(type, *args)
+        # Convert to symbol so we can allow most anything...
+        type = type.to_sym if type
+
         if type == :hostonly
           @networks << [:private_network, args]
         elsif type == :bridged
