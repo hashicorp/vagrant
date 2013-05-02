@@ -3,6 +3,7 @@ module VagrantPlugins
     module Config
       class Puppet < Vagrant.plugin("2", :config)
         attr_accessor :facter
+        attr_accessor :hiera_config_path
         attr_accessor :manifest_file
         attr_accessor :manifests_path
         attr_accessor :module_path
@@ -13,6 +14,7 @@ module VagrantPlugins
         def initialize
           super
 
+          @hiera_config_path = UNSET_VALUE
           @manifest_file     = UNSET_VALUE
           @manifests_path    = UNSET_VALUE
           @module_path       = UNSET_VALUE
@@ -25,6 +27,7 @@ module VagrantPlugins
         def finalize!
           super
 
+          @hiera_config_path = nil if @hiera_config_path == UNSET_VALUE
           @manifest_file  = "default.pp" if @manifest_file == UNSET_VALUE
           @manifests_path = "manifests" if @manifests_path == UNSET_VALUE
           @module_path    = nil if @module_path == UNSET_VALUE

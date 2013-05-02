@@ -52,6 +52,21 @@ module VagrantPlugins
 
           # Verify Puppet is installed and run it
           verify_binary("puppet")
+
+          # Make sure the temporary directory is properly set up
+          @machine.communicate.tap do |comm|
+            comm.sudo("mkdir -p #{config.temp_dir}")
+            comm.sudo("chmod 0777 #{config.temp_dir}")
+          end
+
+          # Upload Hiera configuration if we have it
+          @hiera_config_path = nil
+          if config.hiera_config_path
+            local_hiera_path   = File.expand_path(config.hiera_config_path, @machine.env.root_path)
+            @hiera_config_path = File.join(config.temp_dir, "hiera.yaml")
+            @machine.communicate.upload(local_hiera_path, @hiera_config_path)
+          end
+
           run_puppet_apply
         end
 
@@ -78,6 +93,11 @@ module VagrantPlugins
             options << "--modulepath '#{module_paths.join(':')}'"
           end
 
+          if @hiera_config_path
+            options << "--hiera_config=#{@hiera_config_path}"
+          end
+
+          options << "--detailed-exitcodes"
           options << @manifest_file
           options = options.join(" ")
 
@@ -92,7 +112,7 @@ module VagrantPlugins
             facter = "#{facts.join(" ")} "
           end
 
-          command = "#{facter}puppet apply #{options} --detailed-exitcodes || [ $? -eq 2 ]"
+          command = "#{facter}puppet apply #{options} || [ $? -eq 2 ]"
           if config.working_directory
             command = "cd #{config.working_directory} && #{command}"
           end
