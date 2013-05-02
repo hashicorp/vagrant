@@ -17,6 +17,11 @@ IMPROVEMENTS:
   - More precise detection of Ubuntu/Debian guests so that running Vagrant
     within an LXC container works properly now.
 
+BUG FIXES:
+
+  - Ignore "guest not ready" errors when attempting to graceful halt and
+    carry on checks whether the halt succeeded. [GH-1679]
+
 ## 1.2.2 (April 23, 2013)
 
 FEATURES:
