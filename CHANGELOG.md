@@ -21,6 +21,8 @@ BUG FIXES:
 
   - Ignore "guest not ready" errors when attempting to graceful halt and
     carry on checks whether the halt succeeded. [GH-1679]
+  - Handle the case where a roles path for Chef solo isn't properly
+	defined. [GH-1665]
 
 ## 1.2.2 (April 23, 2013)
 
