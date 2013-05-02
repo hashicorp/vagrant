@@ -14,6 +14,8 @@ IMPROVEMENTS:
     some major issues where Vagrant would sometimes "lose" your VM. [GH-1669]
   - Better detection of missing VirtualBox kernel drivers on Linux
     systems. [GH-1671]
+  - More precise detection of Ubuntu/Debian guests so that running Vagrant
+    within an LXC container works properly now.
 
 ## 1.2.2 (April 23, 2013)
 
