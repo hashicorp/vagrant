@@ -1,5 +1,5 @@
 module VagrantPlugins
-  module GuestSmartOS
+  module GuestOmniOS
     module Cap
       class ChangeHostName
         def self.change_host_name(machine, name)

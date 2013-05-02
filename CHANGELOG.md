@@ -9,7 +9,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
-  - Setting hostnames works properly on SmartOS. [GH-1672]
+  - Setting hostnames works properly on OmniOS. [GH-1672]
   - Better VBoxManage error detection on Windows systems. This avoids
     some major issues where Vagrant would sometimes "lose" your VM. [GH-1669]
   - Better detection of missing VirtualBox kernel drivers on Linux
