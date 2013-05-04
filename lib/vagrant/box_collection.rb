@@ -234,7 +234,7 @@ module Vagrant
 
         # If we're looking for a VirtualBox box, then we check if there is
         # a V1 box.
-        if provider == :virtualbox
+        if provider.to_sym == :virtualbox
           # Check if a V1 version of this box exists, and if so, raise an
           # exception notifying the caller that the box exists but needs
           # to be upgraded. We don't do the upgrade here because it can be

@@ -25,6 +25,8 @@ BUG FIXES:
     carry on checks whether the halt succeeded. [GH-1679]
   - Handle the case where a roles path for Chef solo isn't properly
 	defined. [GH-1665]
+  - Finding V1 boxes now works properly again to avoid "box not found"
+    errors. [GH-1691]
 
 ## 1.2.2 (April 23, 2013)
 
