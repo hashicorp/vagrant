@@ -28,7 +28,7 @@ module VagrantPlugins
             retry
           end
 
-          raise Vagrant::Errors::BoxNotFound, :name => box_name if !box
+          raise Vagrant::Errors::BoxNotFound, :name => box_name, :provider => box_provider if !box
 
           # Repackage the box
           output_path = Pathname.new(File.expand_path(@env.config_global.package.name, FileUtils.pwd))

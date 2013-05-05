@@ -22,7 +22,7 @@ module VagrantPlugins
             retry
           end
 
-          raise Vagrant::Errors::BoxNotFound, :name => argv[0] if !b
+          raise Vagrant::Errors::BoxNotFound, :name => argv[0], :provider => argv[1].to_sym if !b
           @env.ui.info(I18n.t("vagrant.commands.box.removing",
                               :name => argv[0],
                               :provider => argv[1]))
