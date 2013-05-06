@@ -143,7 +143,9 @@ en:
       box_upgrade_required: |-
         The box '%{name}' is still stored on disk in the Vagrant 1.0.x
         format. This box must be upgraded in order to work properly with
-        this version of Vagrant.
+        this version of Vagrant. Or, for a simpler approach - and if your
+        box is in version control - simply nuke that fucker by going into
+        ~/.vagrant.d/boxes and giving it what for. Damn the torpedoes!
       cfengine_bootstrap_failed: |-
         Failed to bootstrap CFEngine. Please see the output above to
         see what went wrong and address the issue.
