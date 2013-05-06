@@ -4,7 +4,13 @@ module VagrantPlugins
       def provision
         ssh = @machine.ssh_info
 
+        # Connect with Vagrant user (unless --user or --private-key are overidden by 'raw_arguments')
         options = %W[--private-key=#{ssh[:private_key_path]} --user=#{ssh[:username]}]
+
+        # Joker! Not (yet) supported arguments can be passed this way.
+        options << "#{config.raw_arguments}" if config.raw_arguments
+
+        # Append Provisioner options (higher precedence):
         options << "--extra-vars=" + config.extra_vars.map{|k,v| "#{k}=#{v}"}.join(' ') if config.extra_vars
         options << "--inventory-file=#{config.inventory_file}" if config.inventory_file
         options << "--ask-sudo-pass" if config.ask_sudo_pass

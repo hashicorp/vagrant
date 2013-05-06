@@ -11,6 +11,9 @@ module VagrantPlugins
       attr_accessor :verbose
       attr_accessor :tags
 
+      # Joker attribute, used to pass unsupported arguments to ansible anyway
+      attr_accessor :raw_arguments
+
       def initialize
         @playbook       = UNSET_VALUE
         @extra_vars     = UNSET_VALUE
@@ -21,6 +24,7 @@ module VagrantPlugins
         @sudo_user      = UNSET_VALUE
         @verbose        = UNSET_VALUE
         @tags           = UNSET_VALUE
+        @raw_arguments  = UNSET_VALUE
       end
 
       def finalize!
@@ -33,6 +37,7 @@ module VagrantPlugins
         @sudo_user      = nil if @sudo_user == UNSET_VALUE
         @verbose        = nil if @verbose == UNSET_VALUE
         @tags           = nil if @tags == UNSET_VALUE
+        @raw_arguments  = nil if @raw_arguments == UNSET_VALUE
       end
 
       def validate(machine)
