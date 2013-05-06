@@ -9,6 +9,7 @@ module VagrantPlugins
       attr_accessor :sudo
       attr_accessor :sudo_user
       attr_accessor :verbose
+      attr_accessor :tags
 
       def initialize
         @playbook       = UNSET_VALUE
@@ -19,6 +20,7 @@ module VagrantPlugins
         @sudo           = UNSET_VALUE
         @sudo_user      = UNSET_VALUE
         @verbose        = UNSET_VALUE
+        @tags           = UNSET_VALUE
       end
 
       def finalize!
@@ -30,6 +32,7 @@ module VagrantPlugins
         @sudo           = nil if @sudo == UNSET_VALUE
         @sudo_user      = nil if @sudo_user == UNSET_VALUE
         @verbose        = nil if @verbose == UNSET_VALUE
+        @tags           = nil if @tags == UNSET_VALUE
       end
 
       def validate(machine)
