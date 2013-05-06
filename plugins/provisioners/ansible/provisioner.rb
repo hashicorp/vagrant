@@ -18,7 +18,15 @@ module VagrantPlugins
         options << "--limit=#{as_list_argument(config.limit)}" if config.limit
         options << "--sudo" if config.sudo
         options << "--sudo-user=#{config.sudo_user}" if config.sudo_user
-        options << "--verbose" if config.verbose
+        if config.verbose
+          if config.verbose.is_a? String
+            if config.verbose =~ /v+$/
+              options << "--#{config.verbose}"
+            end
+          else
+            options << "--verbose"
+          end
+        end
 
         # Assemble the full ansible-playbook command
         command = (%w(ansible-playbook) << options << config.playbook).flatten
