@@ -1,5 +1,8 @@
 module VagrantPlugins
   module Ansible
+    class AnsibleError < Vagrant::Errors::VagrantError
+      error_namespace("vagrant.provisioners.ansible")
+    end
     class Provisioner < Vagrant.plugin("2", :provisioner)
       def provision
         ssh = @machine.ssh_info
@@ -31,11 +34,12 @@ module VagrantPlugins
         }
 
         begin
-          Vagrant::Util::Subprocess.execute(*command) do |type, data|
+          result = Vagrant::Util::Subprocess.execute(*command) do |type, data|
             if type == :stdout || type == :stderr
               @machine.env.ui.info(data.chomp, :prefix => false)
             end
           end
+          raise AnsibleError, :provision_error if result.exit_code != 0
         rescue Vagrant::Util::Subprocess::LaunchError
           raise Vagrant::Errors::AnsiblePlaybookAppNotFound
         end

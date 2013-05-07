@@ -1124,3 +1124,7 @@ en:
         playbook_path_invalid: "`playbook` for the Ansible provisioner does not exist on the host system: %{path}"
         inventory_file_path_invalid: "`inventory_file` for the Ansible provisioner does not exist on the host system: %{path}"
         extra_vars_not_hash: "`extra_vars` for the Ansible provisioner must be a hash"
+        provision_error: |-
+          An error occurred while executing `ansible-playbook`! 
+          Any errors should be visible in the output above.
+
