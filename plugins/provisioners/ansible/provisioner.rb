@@ -21,7 +21,7 @@ module VagrantPlugins
         if config.verbose
           if config.verbose.is_a? String
             if config.verbose =~ /v+$/
-              options << "--#{config.verbose}"
+              options << "-#{config.verbose}"
             end
           else
             options << "--verbose"
