@@ -1,5 +1,5 @@
 module VagrantPlugins
-  module GuestFreeBSD
+  module GuestGentoo
     module Cap
       class ChangeHostName
         def self.change_host_name(machine, name)
