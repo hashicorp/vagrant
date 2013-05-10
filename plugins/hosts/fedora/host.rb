@@ -38,7 +38,7 @@ module VagrantPlugins
             if version_number >= 16
               # "service nfs-server" will redirect properly to systemctl
               # when "service nfs-server restart" is called.
-              @nfs_server_binary = "/usr/sbin/service nfs-server"
+              @nfs_server_binary = "systemctl restart nfs-server.service #"
             end
           end
         rescue Errno::ENOENT
