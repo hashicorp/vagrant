@@ -30,7 +30,7 @@ module VagrantPlugins
       def nfs?
         retryable(:tries => 10, :on => TypeError) do
           # Check procfs to see if NFSd is a supported filesystem
-          system("cat /proc/filesystems | grep nfsd > /dev/null 2>&1")
+          system("cat /proc/filesystems | grep nfs > /dev/null 2>&1")
         end
       end
 
