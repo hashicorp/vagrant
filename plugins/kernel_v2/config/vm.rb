@@ -16,6 +16,7 @@ module VagrantPlugins
       attr_accessor :base_mac
       attr_accessor :box
       attr_accessor :box_url
+      attr_accessor :box_download_insecure
       attr_accessor :graceful_halt_retry_count
       attr_accessor :graceful_halt_retry_interval
       attr_accessor :guest
