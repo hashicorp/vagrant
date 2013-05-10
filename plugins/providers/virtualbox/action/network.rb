@@ -210,6 +210,7 @@ module VagrantPlugins
           options = {
             :auto_config => true,
             :mac         => nil,
+            :nic_type    => nil,
             :netmask     => "255.255.255.0",
             :type        => :static
           }.merge(options)
@@ -269,7 +270,7 @@ module VagrantPlugins
             :ip          => options[:ip],
             :mac         => options[:mac],
             :netmask     => options[:netmask],
-            :nic_type    => nil,
+            :nic_type    => options[:nic_type],
             :type        => options[:type]
           }.merge(dhcp_options)
         end
