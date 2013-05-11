@@ -15,6 +15,17 @@ module VagrantPlugins
         require_relative "cap/change_host_name"
         Cap::ChangeHostName
       end
+
+      guest_capability("ubuntu", "mount_virtualbox_shared_folder") do
+        require_relative "cap/mount_virtualbox_shared_folder"
+        Cap::MountVirtualBoxSharedFolder
+      end
+
+      #I don't know if this works or not
+      #guest_capability("linux", "mount_nfs_folder") do
+      #  require_relative "cap/mount_nfs"
+      #  Cap::MountNFS
+      #end
     end
   end
 end
