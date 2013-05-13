@@ -2,6 +2,8 @@ module VagrantPlugins
   module ProviderVirtualBox
     module Action
       class ForwardPorts
+        include Util::CompileForwardedPorts
+
         def initialize(app, env)
           @app = app
         end
@@ -13,53 +15,32 @@ module VagrantPlugins
           @env = env
 
           # Get the ports we're forwarding
-          ports = forward_port_definitions
+          env[:forwarded_ports] ||= compile_forwarded_ports(env[:machine].config)
 
           # Warn if we're port forwarding to any privileged ports...
-          threshold_check(ports)
+          env[:forwarded_ports].each do |fp|
+            if fp.host_port <= 1024
+              env[:ui].warn I18n.t("vagrant.actions.vm.forward_ports.privileged_ports")
+              break
+            end
+          end
 
           env[:ui].info I18n.t("vagrant.actions.vm.forward_ports.forwarding")
-          forward_ports(ports)
+          forward_ports
 
           @app.call(env)
         end
 
-        # This returns an array of forwarded ports with overrides properly
-        # squashed.
-        def forward_port_definitions
-          # Get all the port mappings in the order they're defined and
-          # organize them by their guestport, taking the "last one wins"
-          # approach.
-          guest_port_mapping = {}
-          @env[:machine].config.vm.forwarded_ports.each do |options|
-            guest_port_mapping[options[:guestport]] = options
-          end
-
-          # Return the values, since the order doesn't really matter
-          guest_port_mapping.values
-        end
-
-        # This method checks for any forwarded ports on the host below
-        # 1024, which causes the forwarded ports to fail.
-        def threshold_check(ports)
-          ports.each do |options|
-            if options[:hostport] <= 1024
-              @env[:ui].warn I18n.t("vagrant.actions.vm.forward_ports.privileged_ports")
-              return
-            end
-          end
-        end
-
-        def forward_ports(mappings)
+        def forward_ports
           ports = []
 
           interfaces = @env[:machine].provider.driver.read_network_interfaces
 
-          mappings.each do |options|
+          @env[:forwarded_ports].each do |fp|
             message_attributes = {
-              :guest_port => options[:guestport],
-              :host_port => options[:hostport],
-              :adapter => options[:adapter]
+              :adapter => fp.adapter,
+              :guest_port => fp.guest_port,
+              :host_port => fp.host_port
             }
 
             # Assuming the only reason to establish port forwarding is
@@ -69,16 +50,30 @@ module VagrantPlugins
             @env[:ui].info(I18n.t("vagrant.actions.vm.forward_ports.forwarding_entry",
                                     message_attributes))
 
+            # Verify we have the network interface to attach to
+            if !interfaces[fp.adapter]
+              raise Vagrant::Errors::ForwardPortAdapterNotFound,
+                :adapter => fp.adapter.to_s,
+                :guest => fp.guest_port.to_s,
+                :host => fp.host_port.to_s
+            end
+
             # Port forwarding requires the network interface to be a NAT interface,
             # so verify that that is the case.
-            if interfaces[options[:adapter]][:type] != :nat
+            if interfaces[fp.adapter][:type] != :nat
               @env[:ui].info(I18n.t("vagrant.actions.vm.forward_ports.non_nat",
                                     message_attributes))
               next
             end
 
             # Add the options to the ports array to send to the driver later
-            ports << options.merge(:name => options[:name], :adapter => options[:adapter])
+            ports << {
+              :adapter   => fp.adapter,
+              :guestport => fp.guest_port,
+              :hostport  => fp.host_port,
+              :name      => fp.id,
+              :protocol  => fp.protocol
+            }
           end
 
           if !ports.empty?

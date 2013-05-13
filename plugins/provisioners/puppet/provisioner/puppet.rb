@@ -7,89 +7,41 @@ module VagrantPlugins
         error_namespace("vagrant.provisioners.puppet")
       end
 
-      class Puppet < Vagrant.plugin("1", :provisioner)
-        class Config < Vagrant.plugin("1", :config)
-          attr_accessor :manifest_file
-          attr_accessor :manifests_path
-          attr_accessor :module_path
-          attr_accessor :pp_path
-          attr_accessor :options
-          attr_accessor :facter
-
-          def manifest_file; @manifest_file || "default.pp"; end
-          def manifests_path; @manifests_path || "manifests"; end
-          def pp_path; @pp_path || "/tmp/vagrant-puppet"; end
-          def options; @options ||= []; end
-          def facter; @facter ||= {}; end
-
-          # Returns the manifests path expanded relative to the root path of the
-          # environment.
-          def expanded_manifests_path(root_path)
-            Pathname.new(manifests_path).expand_path(root_path)
-          end
-
-          # Returns the module paths as an array of paths expanded relative to the
-          # root path.
-          def expanded_module_paths(root_path)
-            return [] if !module_path
-
-            # Get all the paths and expand them relative to the root path, returning
-            # the array of expanded paths
-            paths = module_path
-            paths = [paths] if !paths.is_a?(Array)
-            paths.map do |path|
-              Pathname.new(path).expand_path(root_path)
-            end
-          end
-
-          def validate(env, errors)
-            # Calculate the manifests and module paths based on env
-            this_expanded_manifests_path = expanded_manifests_path(env.root_path)
-            this_expanded_module_paths = expanded_module_paths(env.root_path)
-
-            # Manifests path/file validation
-            if !this_expanded_manifests_path.directory?
-              errors.add(I18n.t("vagrant.provisioners.puppet.manifests_path_missing",
-                                :path => this_expanded_manifests_path))
-            else
-              expanded_manifest_file = this_expanded_manifests_path.join(manifest_file)
-              if !expanded_manifest_file.file?
-                errors.add(I18n.t("vagrant.provisioners.puppet.manifest_missing",
-                                  :manifest => expanded_manifest_file.to_s))
-              end
-            end
-
-            # Module paths validation
-            this_expanded_module_paths.each do |path|
-              if !path.directory?
-                errors.add(I18n.t("vagrant.provisioners.puppet.module_path_missing", :path => path))
-              end
-            end
-          end
-        end
-
-        def self.config_class
-          Config
-        end
-
-        def initialize(env, config)
+      class Puppet < Vagrant.plugin("2", :provisioner)
+        def initialize(machine, config)
           super
 
           @logger = Log4r::Logger.new("vagrant::provisioners::puppet")
         end
 
-        def prepare
+        def configure(root_config)
           # Calculate the paths we're going to use based on the environment
-          @expanded_manifests_path = config.expanded_manifests_path(env[:root_path])
-          @expanded_module_paths   = config.expanded_module_paths(env[:root_path])
-          @manifest_file           = File.join(manifests_guest_path, config.manifest_file)
+          root_path = @machine.env.root_path
+          @expanded_manifests_path = @config.expanded_manifests_path(root_path)
+          @expanded_module_paths   = @config.expanded_module_paths(root_path)
+          @manifest_file           = File.join(manifests_guest_path, @config.manifest_file)
 
-          set_module_paths
-          share_manifests
-          share_module_paths
+          # Setup the module paths
+          @module_paths = []
+          @expanded_module_paths.each_with_index do |path, i|
+            @module_paths << [path, File.join(config.temp_dir, "modules-#{i}")]
+          end
+
+          # Share the manifests directory with the guest
+          root_config.vm.synced_folder(
+            @expanded_manifests_path, manifests_guest_path)
+
+          # Share the module paths
+          count = 0
+          @module_paths.each do |from, to|
+            # Sorry for the cryptic key here, but VirtualBox has a strange limit on
+            # maximum size for it and its something small (around 10)
+            root_config.vm.synced_folder(from, to)
+            count += 1
+          end
         end
 
-        def provision!
+        def provision
           # Check that the shared folders are properly shared
           check = [manifests_guest_path]
           @module_paths.each do |host_path, guest_path|
@@ -100,45 +52,52 @@ module VagrantPlugins
 
           # Verify Puppet is installed and run it
           verify_binary("puppet")
+
+          # Make sure the temporary directory is properly set up
+          @machine.communicate.tap do |comm|
+            comm.sudo("mkdir -p #{config.temp_dir}")
+            comm.sudo("chmod 0777 #{config.temp_dir}")
+          end
+
+          # Upload Hiera configuration if we have it
+          @hiera_config_path = nil
+          if config.hiera_config_path
+            local_hiera_path   = File.expand_path(config.hiera_config_path, @machine.env.root_path)
+            @hiera_config_path = File.join(config.temp_dir, "hiera.yaml")
+            @machine.communicate.upload(local_hiera_path, @hiera_config_path)
+          end
+
           run_puppet_apply
         end
 
-        def share_manifests
-          env[:machine].config.vm.share_folder("manifests", manifests_guest_path, @expanded_manifests_path)
-        end
-
-        def share_module_paths
-          count = 0
-          @module_paths.each do |from, to|
-            # Sorry for the cryptic key here, but VirtualBox has a strange limit on
-            # maximum size for it and its something small (around 10)
-            env[:machine].config.vm.share_folder("v-pp-m#{count}", to, from)
-            count += 1
-          end
-        end
-
-        def set_module_paths
-          @module_paths = []
-          @expanded_module_paths.each_with_index do |path, i|
-            @module_paths << [path, File.join(config.pp_path, "modules-#{i}")]
-          end
-        end
-
         def manifests_guest_path
-          File.join(config.pp_path, "manifests")
+          File.join(config.temp_dir, "manifests")
         end
 
         def verify_binary(binary)
-          env[:machine].communicate.sudo("which #{binary}",
-                                         :error_class => PuppetError,
-                                         :error_key => :not_detected,
-                                         :binary => binary)
+          @machine.communicate.sudo(
+            "which #{binary}",
+            :error_class => PuppetError,
+            :error_key => :not_detected,
+            :binary => binary)
         end
 
         def run_puppet_apply
           options = [config.options].flatten
           module_paths = @module_paths.map { |_, to| to }
-          options << "--modulepath '#{module_paths.join(':')}'" if !@module_paths.empty?
+          if !@module_paths.empty?
+            # Prepend the default module path
+            module_paths.unshift("/etc/puppet/modules")
+
+            # Add the command line switch to add the module path
+            options << "--modulepath '#{module_paths.join(':')}'"
+          end
+
+          if @hiera_config_path
+            options << "--hiera_config=#{@hiera_config_path}"
+          end
+
+          options << "--detailed-exitcodes"
           options << @manifest_file
           options = options.join(" ")
 
@@ -153,20 +112,24 @@ module VagrantPlugins
             facter = "#{facts.join(" ")} "
           end
 
-          command = "cd #{manifests_guest_path} && #{facter}puppet apply #{options}"
+          command = "#{facter}puppet apply #{options} || [ $? -eq 2 ]"
+          if config.working_directory
+            command = "cd #{config.working_directory} && #{command}"
+          end
 
-          env[:ui].info I18n.t("vagrant.provisioners.puppet.running_puppet",
-                               :manifest => @manifest_file)
+          @machine.env.ui.info I18n.t("vagrant.provisioners.puppet.running_puppet",
+                                      :manifest => config.manifest_file)
 
-          env[:machine].communicate.sudo(command) do |type, data|
-            env[:ui].info(data.chomp, :prefix => false)
+          @machine.communicate.sudo(command) do |type, data|
+            data.chomp!
+            @machine.env.ui.info(data, :prefix => false) if !data.empty?
           end
         end
 
         def verify_shared_folders(folders)
           folders.each do |folder|
             @logger.debug("Checking for shared folder: #{folder}")
-            if !env[:machine].communicate.test("test -d #{folder}")
+            if !@machine.communicate.test("test -d #{folder}")
               raise PuppetError, :missing_shared_folders
             end
           end

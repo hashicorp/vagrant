@@ -5,6 +5,13 @@ module Vagrant
       # V1. Any configuration key plugins for V1 should inherit from this
       # class.
       class Config
+        # This constant represents an unset value. This is useful so it is
+        # possible to know the difference between a configuration value that
+        # was never set, and a value that is nil (explicitly). Best practice
+        # is to initialize all variables to this value, then the {#merge}
+        # method below will "just work" in many cases.
+        UNSET_VALUE = Object.new
+
         # This is called as a last-minute hook that allows the configuration
         # object to finalize itself before it will be put into use. This is
         # a useful place to do some defaults in the case the user didn't
@@ -76,6 +83,17 @@ module Vagrant
             acc[iv.to_s[1..-1]] = instance_variable_get(iv)
             acc
           end
+        end
+
+        # This is called to upgrade this V1 config to V2. The parameter given
+        # is the full V2 configuration object, so you can do anything to it
+        # that you want.
+        #
+        # No return value is expected, modifications should be made directly
+        # to the new V2 object.
+        #
+        # @param [V2::Root] new
+        def upgrade(new)
         end
 
         # Called after the configuration is finalized and loaded to validate

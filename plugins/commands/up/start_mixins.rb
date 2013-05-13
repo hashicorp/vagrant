@@ -8,17 +8,17 @@ module VagrantPlugins
       # @param [Hash] options
       def build_start_options(parser, options)
         # Setup the defaults
-        options["provision.enabled"] = true
-        options["provision.types"] = nil
+        options[:provision_enabled] = true
+        options[:provision_types] = nil
 
         # Add the options
         parser.on("--[no-]provision", "Enable or disable provisioning") do |p|
-          options["provision.enabled"] = p
+          options[:provision_enabled] = p
         end
 
         parser.on("--provision-with x,y,z", Array,
                 "Enable only certain provisioners, by type.") do |list|
-          options["provision.types"] = list
+          options[:provision_types] = list.map { |type| type.to_sym }
         end
       end
     end

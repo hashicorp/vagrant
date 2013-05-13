@@ -25,7 +25,7 @@ module VagrantPlugins
           # Set the path to VBoxManage
           @vboxmanage_path = "VBoxManage"
 
-          if Vagrant::Util::Platform.windows?
+          if Vagrant::Util::Platform.windows? || Vagrant::Util::Platform.cygwin?
             @logger.debug("Windows. Trying VBOX_INSTALL_PATH for VBoxManage")
 
             # On Windows, we use the VBOX_INSTALL_PATH environmental
@@ -45,7 +45,7 @@ module VagrantPlugins
                 # and break out
                 vboxmanage = "#{path}VBoxManage.exe"
                 if File.file?(vboxmanage)
-                  @vboxmanage_path = vboxmanage
+                  @vboxmanage_path = Vagrant::Util::Platform.cygwin_windows_path(vboxmanage)
                   break
                 end
               end
@@ -279,6 +279,9 @@ module VagrantPlugins
           # Variable to store our execution result
           r = nil
 
+          # If there is an error with VBoxManage, this gets set to true
+          errored = false
+
           retryable(:on => Vagrant::Errors::VBoxManageError, :tries => tries, :sleep => 1) do
             # Execute the command
             r = raw(*command, &block)
@@ -288,18 +291,40 @@ module VagrantPlugins
             if r.exit_code != 0
               if @interrupted
                 @logger.info("Exit code != 0, but interrupted. Ignoring.")
+              elsif r.exit_code == 126
+                # This exit code happens if VBoxManage is on the PATH,
+                # but another executable it tries to execute is missing.
+                # This is usually indicative of a corrupted VirtualBox install.
+                raise Vagrant::Errors::VBoxManageNotFoundError
               else
-                raise Vagrant::Errors::VBoxManageError, :command => command.inspect
+                errored = true
               end
             else
               # Sometimes, VBoxManage fails but doesn't actual return a non-zero
               # exit code. For this we inspect the output and determine if an error
               # occurred.
-              if r.stderr =~ /VBoxManage: error:/
+
+              if r.stderr =~ /failed to open \/dev\/vboxnetctl/i
+                # This catches an error message that only shows when kernel
+                # drivers aren't properly installed.
+                @logger.error("Error message about unable to open vboxnetctl")
+                raise Vagrant::Errors::VirtualBoxKernelModuleNotLoaded
+              end
+
+              if r.stderr =~ /VBoxManage([.a-z]+?): error:/
+                # This catches the generic VBoxManage error case.
                 @logger.info("VBoxManage error text found, assuming error.")
-                raise Vagrant::Errors::VBoxManageError, :command => command.inspect
+                errored = true
               end
             end
+          end
+
+          # If there was an error running VBoxManage, show the error and the
+          # output.
+          if errored
+            raise Vagrant::Errors::VBoxManageError,
+              :command => command.inspect,
+              :stderr  => r.stderr
           end
 
           # Return the output, making sure to replace any Windows-style
@@ -317,9 +342,26 @@ module VagrantPlugins
           # Append in the options for subprocess
           command << { :notify => [:stdout, :stderr] }
 
+          # The following is a workaround for a combined VirtualBox and
+          # Mac OS X 10.8 bug:
+          #
+          # Remove the DYLD_LIBRARY_PATH environmental variable on Mac. This
+          # is to fix a bug in Mac OS X 10.8 where a warning is printed to the
+          # console if this is set when executing certain programs, which
+          # can cause some VBoxManage commands to break because they work
+          # by just reading stdout and don't expect the OS to just inject
+          # garbage into it.
+          old_dyld_lib_path = ENV.delete("DYLD_LIBRARY_PATH")
+          old_ld_lib_path   = ENV.delete("LD_LIBRARY_PATH")
+
           Vagrant::Util::Busy.busy(int_callback) do
             Vagrant::Util::Subprocess.execute(@vboxmanage_path, *command, &block)
           end
+        ensure
+          # Reset the library path if it was set before. See above comments
+          # for more information on why this was unset in the first place.
+          ENV["DYLD_LIBRARY_PATH"] = old_dyld_lib_path if old_dyld_lib_path
+          ENV["LD_LIBRARY_PATH"]   = old_ld_lib_path if old_ld_lib_path
         end
       end
     end

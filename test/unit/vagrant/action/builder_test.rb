@@ -2,12 +2,25 @@ require File.expand_path("../../../base", __FILE__)
 
 describe Vagrant::Action::Builder do
   let(:data) { { :data => [] } }
-  let(:instance) { described_class.new }
 
   # This returns a proc that can be used with the builder
   # that simply appends data to an array in the env.
   def appender_proc(data)
-    Proc.new { |env| env[:data] << data }
+    result = Proc.new { |env| env[:data] << data }
+
+    # Define a to_s on it for helpful output
+    result.define_singleton_method(:to_s) do
+      "<Appender: #{data}>"
+    end
+
+    result
+  end
+
+  context "copying" do
+    it "should copy the stack" do
+      copy = subject.dup
+      copy.stack.object_id.should_not == subject.stack.object_id
+    end
   end
 
   context "build" do
@@ -15,8 +28,8 @@ describe Vagrant::Action::Builder do
       data = {}
       proc = Proc.new { |env| env[:data] = true }
 
-      instance = described_class.build(proc)
-      instance.call(data)
+      subject = described_class.build(proc)
+      subject.call(data)
 
       data[:data].should == true
     end
@@ -27,8 +40,8 @@ describe Vagrant::Action::Builder do
       data = {}
       proc = Proc.new { |env| env[:data] = true }
 
-      instance.use proc
-      instance.call(data)
+      subject.use proc
+      subject.call(data)
 
       data[:data].should == true
     end
@@ -38,9 +51,9 @@ describe Vagrant::Action::Builder do
       proc1 = Proc.new { |env| env[:one] = true }
       proc2 = Proc.new { |env| env[:two] = true }
 
-      instance.use proc1
-      instance.use proc2
-      instance.call(data)
+      subject.use proc1
+      subject.use proc2
+      subject.call(data)
 
       data[:one].should == true
       data[:two].should == true
@@ -66,9 +79,9 @@ describe Vagrant::Action::Builder do
 
   context "inserting" do
     it "can insert at an index" do
-      instance.use appender_proc(1)
-      instance.insert(0, appender_proc(2))
-      instance.call(data)
+      subject.use appender_proc(1)
+      subject.insert(0, appender_proc(2))
+      subject.call(data)
 
       data[:data].should == [2, 1]
     end
@@ -78,48 +91,77 @@ describe Vagrant::Action::Builder do
       bar_proc = appender_proc(2)
       def bar_proc.name; :bar; end
 
-      instance.use appender_proc(1)
-      instance.use bar_proc
-      instance.insert_before :bar, appender_proc(3)
-      instance.call(data)
+      subject.use appender_proc(1)
+      subject.use bar_proc
+      subject.insert_before :bar, appender_proc(3)
+      subject.call(data)
 
       data[:data].should == [1, 3, 2]
     end
 
     it "can insert next to a previous object" do
       proc2 = appender_proc(2)
-      instance.use appender_proc(1)
-      instance.use proc2
-      instance.insert(proc2, appender_proc(3))
-      instance.call(data)
+      subject.use appender_proc(1)
+      subject.use proc2
+      subject.insert(proc2, appender_proc(3))
+      subject.call(data)
 
       data[:data].should == [1, 3, 2]
     end
 
     it "can insert before" do
-      instance.use appender_proc(1)
-      instance.insert_before 0, appender_proc(2)
-      instance.call(data)
+      subject.use appender_proc(1)
+      subject.insert_before 0, appender_proc(2)
+      subject.call(data)
 
       data[:data].should == [2, 1]
     end
 
     it "can insert after" do
-      instance.use appender_proc(1)
-      instance.use appender_proc(3)
-      instance.insert_after 0, appender_proc(2)
-      instance.call(data)
+      subject.use appender_proc(1)
+      subject.use appender_proc(3)
+      subject.insert_after 0, appender_proc(2)
+      subject.call(data)
 
       data[:data].should == [1, 2, 3]
     end
 
+    it "merges middleware stacks of other builders" do
+      wrapper_class = Proc.new do |letter|
+        Class.new do
+          def initialize(app, env)
+            @app = app
+          end
+
+          define_method(:call) do |env|
+            env[:data] << "#{letter}1"
+            @app.call(env)
+            env[:data] << "#{letter}2"
+          end
+        end
+      end
+
+      proc2 = appender_proc(2)
+      subject.use appender_proc(1)
+      subject.use proc2
+
+      builder = described_class.new
+      builder.use wrapper_class.call("A")
+      builder.use wrapper_class.call("B")
+
+      subject.insert(proc2, builder)
+      subject.call(data)
+
+      data[:data].should == [1, "A1", "B1", 2, "B2", "A2"]
+    end
+
     it "raises an exception if an invalid object given for insert" do
-      expect { instance.insert "object", appender_proc(1) }.
+      expect { subject.insert "object", appender_proc(1) }.
         to raise_error(RuntimeError)
     end
 
     it "raises an exception if an invalid object given for insert_after" do
-      expect { instance.insert_after "object", appender_proc(1) }.
+      expect { subject.insert_after "object", appender_proc(1) }.
         to raise_error(RuntimeError)
     end
   end
@@ -129,9 +171,9 @@ describe Vagrant::Action::Builder do
       proc1 = appender_proc(1)
       proc2 = appender_proc(2)
 
-      instance.use proc1
-      instance.replace proc1, proc2
-      instance.call(data)
+      subject.use proc1
+      subject.replace proc1, proc2
+      subject.call(data)
 
       data[:data].should == [2]
     end
@@ -140,9 +182,9 @@ describe Vagrant::Action::Builder do
       proc1 = appender_proc(1)
       proc2 = appender_proc(2)
 
-      instance.use proc1
-      instance.replace 0, proc2
-      instance.call(data)
+      subject.use proc1
+      subject.replace 0, proc2
+      subject.call(data)
 
       data[:data].should == [2]
     end
@@ -152,10 +194,10 @@ describe Vagrant::Action::Builder do
     it "can delete by object" do
       proc1 = appender_proc(1)
 
-      instance.use proc1
-      instance.use appender_proc(2)
-      instance.delete proc1
-      instance.call(data)
+      subject.use proc1
+      subject.use appender_proc(2)
+      subject.delete proc1
+      subject.call(data)
 
       data[:data].should == [2]
     end
@@ -163,12 +205,38 @@ describe Vagrant::Action::Builder do
     it "can delete by index" do
       proc1 = appender_proc(1)
 
-      instance.use proc1
-      instance.use appender_proc(2)
-      instance.delete 0
-      instance.call(data)
+      subject.use proc1
+      subject.use appender_proc(2)
+      subject.delete 0
+      subject.call(data)
 
       data[:data].should == [2]
+    end
+  end
+
+  describe "action hooks" do
+    it "applies them properly" do
+      hook = double("hook")
+      hook.stub(:apply) do |builder|
+        builder.use appender_proc(2)
+      end
+
+      data[:action_hooks] = [hook]
+
+      subject.use appender_proc(1)
+      subject.call(data)
+
+      data[:data].should == [1, 2]
+      data[:action_hooks_already_ran].should == true
+    end
+
+    it "applies without prepend/append if it has already" do
+      hook = double("hook")
+      hook.should_receive(:apply).with(anything, { :no_prepend_or_append => true }).once
+
+      data[:action_hooks] = [hook]
+      data[:action_hooks_already_ran] = true
+      subject.call(data)
     end
   end
 end

@@ -13,11 +13,6 @@ describe Vagrant::Config::V1::Root do
     instance.foo.should eql(foo)
   end
 
-  it "should raise a proper NoMethodError if a config key doesn't exist" do
-    instance = described_class.new({})
-    expect { instance.foo }.to raise_error(NoMethodError)
-  end
-
   it "can be created with initial state" do
     instance = described_class.new({}, { :foo => "bar" })
     instance.foo.should == "bar"
@@ -28,7 +23,18 @@ describe Vagrant::Config::V1::Root do
     instance = described_class.new(map)
     instance.__internal_state.should == {
       "config_map" => map,
-      "keys"       => {}
+      "keys"       => {},
+      "missing_key_calls" => Set.new
     }
+  end
+
+  it "should record missing key calls" do
+    instance = described_class.new({})
+    instance.foo.bar = false
+
+    keys = instance.__internal_state["missing_key_calls"]
+    keys.should be_kind_of(Set)
+    keys.length.should == 1
+    keys.include?("foo").should be
   end
 end

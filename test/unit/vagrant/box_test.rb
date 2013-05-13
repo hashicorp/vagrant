@@ -14,6 +14,8 @@ describe Vagrant::Box do
   let(:directory)     { environment.box2("foo", :virtualbox) }
   let(:instance)      { described_class.new(name, provider, directory) }
 
+  subject { described_class.new(name, provider, directory) }
+
   it "provides the name" do
     instance.name.should == name
   end
@@ -36,6 +38,17 @@ describe Vagrant::Box do
 
     # Verify the metadata
     instance.metadata.should == data
+  end
+
+  context "without a metadata file" do
+    before :each do
+      directory.join("metadata.json").delete
+    end
+
+    it "should raise an exception" do
+      expect { subject }.
+        to raise_error(Vagrant::Errors::BoxMetadataFileNotFound)
+    end
   end
 
   describe "destroying" do

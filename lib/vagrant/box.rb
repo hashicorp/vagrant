@@ -1,10 +1,11 @@
 require 'fileutils'
 
-require 'archive/tar/minitar'
 require "json"
 require "log4r"
 
 require "vagrant/util/platform"
+require "vagrant/util/safe_chdir"
+require "vagrant/util/subprocess"
 
 module Vagrant
   # Represents a "box," which is a package Vagrant environment that is used
@@ -43,7 +44,10 @@ module Vagrant
       @name      = name
       @provider  = provider
       @directory = directory
-      @metadata  = JSON.parse(directory.join("metadata.json").read)
+
+      metadata_file = directory.join("metadata.json")
+      raise Errors::BoxMetadataFileNotFound, :name => @name if !metadata_file.file?
+      @metadata = JSON.parse(directory.join("metadata.json").read)
 
       @logger = Log4r::Logger.new("vagrant::box")
     end
@@ -68,26 +72,12 @@ module Vagrant
     def repackage(path)
       @logger.debug("Repackaging box '#{@name}' to: #{path}")
 
-      path.open(Util::Platform.tar_file_options) do |f|
-        Archive::Tar::Minitar::Output.open(f) do |output|
-          # Store the current working directory since we need to change
-          # for the tar library.
-          current_dir = FileUtils.pwd
+      Util::SafeChdir.safe_chdir(@directory) do
+        # Find all the files in our current directory and tar it up!
+        files = Dir.glob(File.join(".", "**", "*"))
 
-          begin
-            FileUtils.cd(@directory)
-
-            # Find all the files in our current directory and tar it up!
-            Dir.glob(File.join(".", "**", "*")).each do |entry|
-              @logger.debug("Packing file: #{entry}")
-              Archive::Tar::Minitar.pack_file(entry, output)
-            end
-          ensure
-            # Make sure we always cd back into our previous working
-            # directory.
-            FileUtils.cd(current_dir)
-          end
-        end
+        # Package!
+        Util::Subprocess.execute("bsdtar", "-czf", path.to_s, *files)
       end
 
       @logger.info("Repackaged box '#{@name}' successfully: #{path}")

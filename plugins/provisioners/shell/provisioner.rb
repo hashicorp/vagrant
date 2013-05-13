@@ -3,82 +3,29 @@ require "tempfile"
 
 module VagrantPlugins
   module Shell
-    class Provisioner < Vagrant.plugin("1", :provisioner)
-      class Config < Vagrant.plugin("1", :config)
-        attr_accessor :inline
-        attr_accessor :path
-        attr_accessor :upload_path
-        attr_accessor :args
-
-        def initialize
-          @upload_path = "/tmp/vagrant-shell"
-        end
-
-        def validate(env, errors)
-          # Validate that the parameters are properly set
-          if path && inline
-            errors.add(I18n.t("vagrant.provisioners.shell.path_and_inline_set"))
-          elsif !path && !inline
-            errors.add(I18n.t("vagrant.provisioners.shell.no_path_or_inline"))
-          end
-
-          # Validate the existence of a script to upload
-          if path
-            expanded_path = Pathname.new(path).expand_path(env.root_path)
-            if !expanded_path.file?
-              errors.add(I18n.t("vagrant.provisioners.shell.path_invalid",
-                                :path => expanded_path))
-            end
-          end
-
-          # There needs to be a path to upload the script to
-          if !upload_path
-            errors.add(I18n.t("vagrant.provisioners.shell.upload_path_not_set"))
-          end
-
-          # If there are args and its not a string, that is a problem
-          if args && !args.is_a?(String)
-            errors.add(I18n.t("vagrant.provisioners.shell.args_not_string"))
-          end
-        end
-      end
-
-      def self.config_class
-        Config
-      end
-
-      # This method yields the path to a script to upload and execute
-      # on the remote server. This method will properly clean up the
-      # script file if needed.
-      def with_script_file
-        if config.path
-          # Just yield the path to that file...
-          yield Pathname.new(config.path).expand_path(env[:root_path])
-          return
-        end
-
-        # Otherwise we have an inline script, we need to Tempfile it,
-        # and handle it specially...
-        file = Tempfile.new('vagrant-shell')
-        begin
-          file.write(config.inline)
-          file.fsync
-          yield file.path
-        ensure
-          file.close
-          file.unlink
-        end
-      end
-
-      def provision!
+    class Provisioner < Vagrant.plugin("2", :provisioner)
+      def provision
         args = ""
         args = " #{config.args}" if config.args
         command = "chmod +x #{config.upload_path} && #{config.upload_path}#{args}"
 
         with_script_file do |path|
           # Upload the script to the machine
-          env[:machine].communicate.tap do |comm|
+          @machine.communicate.tap do |comm|
+            # Reset upload path permissions for the current ssh user
+            user = @machine.ssh_info[:username]
+            comm.sudo("chown -R #{user} #{config.upload_path}",
+                      :error_check => false)
+
             comm.upload(path.to_s, config.upload_path)
+
+            if config.path
+              @machine.ui.info(I18n.t("vagrant.provisioners.shell.running",
+                                      script: path.to_s))
+            else
+              @machine.ui.info(I18n.t("vagrant.provisioners.shell.running",
+                                      script: "inline script"))
+            end
 
             # Execute it with sudo
             comm.sudo(command) do |type, data|
@@ -88,10 +35,50 @@ module VagrantPlugins
 
                 # Note: Be sure to chomp the data to avoid the newlines that the
                 # Chef outputs.
-                env[:ui].info(data.chomp, :color => color, :prefix => false)
+                @machine.env.ui.info(data.chomp, :color => color, :prefix => false)
               end
             end
           end
+        end
+      end
+
+      protected
+
+      # This method yields the path to a script to upload and execute
+      # on the remote server. This method will properly clean up the
+      # script file if needed.
+      def with_script_file
+        script = nil
+
+        if config.path
+          # Just yield the path to that file...
+          root_path = @machine.env.root_path
+          script = Pathname.new(config.path).expand_path(root_path).read
+        else
+          # The script is just the inline code...
+          script = config.inline
+        end
+
+        # Replace Windows line endings with Unix ones
+        script.gsub!(/\r\n?$/, "\n")
+
+        # Otherwise we have an inline script, we need to Tempfile it,
+        # and handle it specially...
+        file = Tempfile.new('vagrant-shell')
+
+        # Unless you set binmode, on a Windows host the shell script will
+        # have CRLF line endings instead of LF line endings, causing havoc
+        # when the guest executes it. This fixes [GH-1181].
+        file.binmode
+
+        begin
+          file.write(script)
+          file.fsync
+          file.close
+          yield file.path
+        ensure
+          file.close
+          file.unlink
         end
       end
     end

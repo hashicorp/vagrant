@@ -1,5 +1,7 @@
 require 'log4r'
 
+require "vagrant/util/platform"
+
 require File.expand_path("../base", __FILE__)
 
 module VagrantPlugins
@@ -157,6 +159,8 @@ module VagrantPlugins
         end
 
         def import(ovf)
+          ovf = Vagrant::Util::Platform.cygwin_windows_path(ovf)
+
           output = ""
           total = ""
           last  = 0
@@ -398,10 +402,10 @@ module VagrantPlugins
         end
 
         def read_vms
-          results = []
+          results = {}
           execute("list", "vms", :retryable => true).split("\n").each do |line|
-            if vm = line[/^".+?" \{(.+?)\}$/, 1]
-              results << vm
+            if line =~ /^"(.+?)" \{(.+?)\}$/
+              results[$1.to_s] = $2.to_s
             end
           end
 
@@ -436,6 +440,11 @@ module VagrantPlugins
           end
 
           nil
+        end
+
+        def resume
+          @logger.debug("Resuming paused VM...")
+          execute("controlvm", @uuid, "resume")
         end
 
         def start(mode)

@@ -8,7 +8,7 @@ describe Vagrant::Registry do
   end
 
   it "should register a simple key/value" do
-    instance.register("foo", "value")
+    instance.register("foo") { "value" }
     instance.get("foo").should == "value"
   end
 
@@ -18,6 +18,11 @@ describe Vagrant::Registry do
         raise Exception, "BOOM!"
       end
     end.to_not raise_error
+  end
+
+  it "should raise an error if no block is given" do
+    expect { instance.register("foo") }.
+      to raise_error(ArgumentError)
   end
 
   it "should call and return the result of a block when asking for the item" do
@@ -48,14 +53,14 @@ describe Vagrant::Registry do
   end
 
   it "should be able to check if a key exists" do
-    instance.register("foo", "bar")
+    instance.register("foo") { "bar" }
     instance.should have_key("foo")
     instance.should_not have_key("bar")
   end
 
   it "should be enumerable" do
-    instance.register("foo", "foovalue")
-    instance.register("bar", "barvalue")
+    instance.register("foo") { "foovalue" }
+    instance.register("bar") { "barvalue" }
 
     keys   = []
     values = []
@@ -69,12 +74,55 @@ describe Vagrant::Registry do
   end
 
   it "should be able to convert to a hash" do
-    instance.register("foo", "foovalue")
-    instance.register("bar", "barvalue")
+    instance.register("foo") { "foovalue" }
+    instance.register("bar") { "barvalue" }
 
     result = instance.to_hash
     result.should be_a(Hash)
     result["foo"].should == "foovalue"
     result["bar"].should == "barvalue"
+  end
+
+  describe "merging" do
+    it "should merge in another registry" do
+      one = described_class.new
+      two = described_class.new
+
+      one.register("foo") { raise "BOOM!" }
+      two.register("bar") { raise "BAM!" }
+
+      three = one.merge(two)
+      expect { three["foo"] }.to raise_error("BOOM!")
+      expect { three["bar"] }.to raise_error("BAM!")
+    end
+
+    it "should NOT merge in the cache" do
+      one = described_class.new
+      two = described_class.new
+
+      one.register("foo") { [] }
+      one["foo"] << 1
+
+      two.register("bar") { [] }
+      two["bar"] << 2
+
+      three = one.merge(two)
+      three["foo"].should == []
+      three["bar"].should == []
+    end
+  end
+
+  describe "merge!" do
+    it "should merge into self" do
+      one = described_class.new
+      two = described_class.new
+
+      one.register("foo") { "foo" }
+      two.register("bar") { "bar" }
+
+      one.merge!(two)
+      one["foo"].should == "foo"
+      one["bar"].should == "bar"
+    end
   end
 end

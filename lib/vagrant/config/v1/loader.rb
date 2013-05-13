@@ -59,21 +59,21 @@ module Vagrant
           old_keys = old_state["keys"]
           new_keys = new_state["keys"]
           keys     = {}
-          old_keys.each do |key, old|
+          old_keys.each do |key, old_value|
             if new_keys.has_key?(key)
               # We need to do a merge, which we expect to be available
               # on the config class itself.
-              keys[key] = old.merge(new_keys[key])
+              keys[key] = old_value.merge(new_keys[key])
             else
               # We just take the old value, but dup it so that we can modify.
-              keys[key] = old.dup
+              keys[key] = old_value.dup
             end
           end
 
-          new_keys.each do |key, new|
+          new_keys.each do |key, new_value|
             # Add in the keys that the new class has that we haven't merged.
             if !keys.has_key?(key)
-              keys[key] = new.dup
+              keys[key] = new_value.dup
             end
           end
 
@@ -84,16 +84,16 @@ module Vagrant
         protected
 
         def self.new_root_object
-          # Get all the registered plugins
-          config_map = {}
-          Vagrant.plugin("1").registered.each do |plugin|
-            # Activate the plugin since we're about to use it
-            plugin.activate!
-
-            # Get all the available configuration keys and add them to the map
-            plugin.config.each do |key, klass|
-              config_map[key] = klass
-            end
+          # Get all the registered configuration objects and use them. If
+          # we're currently on version 1, then we load all the config objects,
+          # otherwise we load only the upgrade safe ones, since we're
+          # obviously being loaded for an upgrade.
+          config_map = nil
+          plugin_manager = Vagrant.plugin("1").manager
+          if Config::CURRENT_VERSION == "1"
+            config_map = plugin_manager.config
+          else
+            config_map = plugin_manager.config_upgrade_safe
           end
 
           # Create the configuration root object

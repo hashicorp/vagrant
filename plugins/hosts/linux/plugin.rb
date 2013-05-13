@@ -2,7 +2,7 @@ require "vagrant"
 
 module VagrantPlugins
   module HostLinux
-    class Plugin < Vagrant.plugin("1")
+    class Plugin < Vagrant.plugin("2")
       name "Linux host"
       description "Linux host support."
 

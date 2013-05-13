@@ -2,7 +2,7 @@ require "vagrant"
 
 module VagrantPlugins
   module HostWindows
-    class Plugin < Vagrant.plugin("1")
+    class Plugin < Vagrant.plugin("2")
       name "Windows host"
       description "Windows host support."
 

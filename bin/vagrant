@@ -22,16 +22,36 @@ $stderr.sync = true
 # environment.
 opts = {}
 
-# Disable color if the proper argument was passed or if we're
-# on Windows since the default Windows terminal doesn't support
-# colors.
-if ARGV.include?("--no-color") || !$stdout.tty? || !Vagrant::Util::Platform.terminal_supports_colors?
-  # Delete the argument from the list so that it doesn't cause any
-  # invalid arguments down the road.
+# Disable color in a few cases:
+#
+#   * --no-color is anywhere in our arguments
+#   * STDOUT is not a TTY
+#   * The terminal doesn't support colors (Windows)
+#
+if ARGV.include?("--no-color")
+  # Delete the argument from the list so that it doesn't
+  # cause any invalid arguments down the road.
   ARGV.delete("--no-color")
+
   opts[:ui_class] = Vagrant::UI::Basic
-else
-  opts[:ui_class] = Vagrant::UI::Colored
+elsif !Vagrant::Util::Platform.terminal_supports_colors?
+  opts[:ui_class] = Vagrant::UI::Basic
+elsif !$stdout.tty? && !Vagrant::Util::Platform.cygwin?
+    opts[:ui_class] = Vagrant::UI::Basic
+end
+
+# Default to colored output
+opts[:ui_class] ||= Vagrant::UI::Colored
+
+# This is kind of hacky, and I'd love to find a better way to do this, but
+# if we're accessing the plugin interface, we want to NOT load plugins
+# for this run, because they can actually interfere with the function
+# of the plugin interface.
+ARGV.each do |arg|
+  if !arg.start_with?("-")
+    ENV["VAGRANT_NO_PLUGINS"] = "1" if arg == "plugin"
+    break
+  end
 end
 
 env = nil
@@ -41,34 +61,34 @@ begin
   logger.debug("Creating Vagrant environment")
   env = Vagrant::Environment.new(opts)
 
-  # XXX: This is temporary and should be removed prior to release.
-  env.ui.warn("You're using a development version of Vagrant. This version\n" +
-              "makes structural changes to the `~/.vagrant.d` folder such that\n" +
-              "you will be _unable_ to downgrade back to a 1.0.x release. This\n" +
-              "affects all Vagrant environments on your computer. Other users\n" +
-              "of Vagrantfiles you create and use can continue to use 1.0.x without\n" +
-              "issue so long as it is on a computer that has never run this\n" +
-              "development version.\n" +
-              "\n" +
-              "This message will be removed when this version is officially released.",
-              :prefix => false)
-  result = nil
-  begin
-    result = env.ui.ask("If you're sure you'd like to continue, type 'Y' and then enter: ")
-  rescue Interrupt
-    result = nil
-  rescue Vagrant::Errors::UIExpectsTTY
-    result = nil
+  if !Vagrant.in_installer?
+    warned = false
+
+    # If we're in a bundler environment, we assume it is for plugin
+    # development and will let the user know that.
+    if defined?(Bundler)
+      require 'bundler/shared_helpers'
+      if Bundler::SharedHelpers.in_bundle?
+        env.ui.warn(I18n.t("vagrant.general.in_bundler"))
+        env.ui.warn("")
+        warned = true
+      end
+    end
+
+    # If we're not in the installer, warn.
+    env.ui.warn(I18n.t("vagrant.general.not_in_installer")) if !warned
   end
 
-  exit 0 if !result || result.upcase != "Y"
+  begin
+    # Execute the CLI interface, and exit with the proper error code
+    exit_status = env.cli(ARGV)
+  ensure
+    # Unload the environment so cleanup can be done
+    env.unload
+  end
 
-  # Load the environment
-  logger.debug("Loading environment")
-  env.load!
-
-  # Execute the CLI interface, and exit with the proper error code
-  exit(env.cli(ARGV))
+  # Exit with the exit status from our CLI command
+  exit(exit_status)
 rescue Vagrant::Errors::VagrantError => e
   logger.error("Vagrant experienced an error! Details:")
   logger.error(e.inspect)

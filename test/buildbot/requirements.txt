@@ -1,4 +1,0 @@
-buildbot==0.8.5
-buildbot-slave==0.8.5
-pytest==2.1.0
-vendor/choices-0.4.0.tar.gz

@@ -1,7 +1,10 @@
+require 'thread'
+
 require 'childprocess'
 require 'log4r'
 
 require 'vagrant/util/platform'
+require 'vagrant/util/safe_chdir'
 
 module Vagrant
   module Util
@@ -72,13 +75,13 @@ module Vagrant
 
         # Start the process
         begin
-          Dir.chdir(workdir) do
+          SafeChdir.safe_chdir(workdir) do
             process.start
           end
-        rescue ChildProcess::LaunchError
+        rescue ChildProcess::LaunchError => ex
           # Raise our own version of the error so that users of the class
           # don't need to be aware of ChildProcess
-          raise LaunchError
+          raise LaunchError.new(ex.message)
         end
 
         # Make sure the stdin does not buffer
@@ -101,7 +104,7 @@ module Vagrant
         @logger.debug("Selecting on IO")
         while true
           writers = notify_stdin ? [process.io.stdin] : []
-          results = IO.select([stdout, stderr], writers, nil, timeout || 5)
+          results = IO.select([stdout, stderr], writers, nil, timeout || 0.1)
           results ||= []
           readers = results[0]
           writers = results[1]
@@ -119,7 +122,7 @@ module Vagrant
               next if data.empty?
 
               io_name = r == stdout ? :stdout : :stderr
-              @logger.debug("#{io_name}: #{data}")
+              @logger.debug("#{io_name}: #{data.chomp}")
 
               io_data[io_name] += data
               yield io_name, data if block_given? && notify_table[io_name]
@@ -159,9 +162,9 @@ module Vagrant
           next if extra_data == ""
 
           # Log it out and accumulate
-          @logger.debug(extra_data)
           io_name = io == stdout ? :stdout : :stderr
           io_data[io_name] += extra_data
+          @logger.debug("#{io_name}: #{extra_data.chomp}")
 
           # Yield to any listeners any remaining data
           yield io_name, extra_data if block_given?
@@ -199,7 +202,7 @@ module Vagrant
               # We have to do this since `readpartial` will actually block
               # until data is available, which can cause blocking forever
               # in some cases.
-              results = IO.select([io], nil, nil, 1)
+              results = IO.select([io], nil, nil, 0.1)
               break if !results || results[0].empty?
 
               # Read!

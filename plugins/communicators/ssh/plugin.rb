@@ -2,8 +2,8 @@ require "vagrant"
 
 module VagrantPlugins
   module CommunicatorSSH
-    class Plugin < Vagrant.plugin("1")
-      name "ssh communiator"
+    class Plugin < Vagrant.plugin("2")
+      name "ssh communicator"
       description <<-DESC
       This plugin allows Vagrant to communicate with remote machines using
       SSH as the underlying protocol, powered internally by Ruby's

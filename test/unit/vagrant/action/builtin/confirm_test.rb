@@ -13,6 +13,21 @@ describe Vagrant::Action::Builtin::Confirm do
     end
   end
 
+  it "should set the result to true if force matches" do
+    force_key = :tubes
+    env[force_key] = true
+    described_class.new(app, env, message, force_key).call(env)
+    env[:result].should be
+  end
+
+  it "should ask if force is not true" do
+    force_key = :tubes
+    env[force_key] = false
+    env[:ui].should_receive(:ask).with(message).and_return("nope")
+    described_class.new(app, env, message).call(env)
+    env[:result].should_not be
+  end
+
   it "should set result to false if anything else is given" do
     env[:ui].should_receive(:ask).with(message).and_return("nope")
     described_class.new(app, env, message).call(env)

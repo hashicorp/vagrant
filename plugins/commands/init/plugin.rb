@@ -2,7 +2,7 @@ require "vagrant"
 
 module VagrantPlugins
   module CommandInit
-    class Plugin < Vagrant.plugin("1")
+    class Plugin < Vagrant.plugin("2")
       name "init command"
       description <<-DESC
       The `init` command sets up your working directory to be a

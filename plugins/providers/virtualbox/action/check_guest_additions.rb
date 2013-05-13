@@ -13,11 +13,20 @@ module VagrantPlugins
           if !version
             env[:ui].warn I18n.t("vagrant.actions.vm.check_guest_additions.not_detected")
           else
-            # Strip the -OSE/_OSE off from the guest additions and the virtual box
-            # version since all the matters are that the version _numbers_ match up.
-            guest_version, vb_version = [version, env[:machine].provider.driver.version].map do |v|
-              v.gsub(/[-_]ose/i, '')
+            # Read the versions
+            versions = [version, env[:machine].provider.driver.version]
+
+            # Strip of any -OSE or _OSE and read only the first two parts
+            # of the version such as "4.2" in "4.2.0"
+            versions.map! do |v|
+              v     = v.gsub(/[-_]ose/i, '')
+              match = /^(\d+\.\d+)\.(\d+)/.match(v)
+              v     = match[1] if match
+              v
             end
+
+            guest_version = versions[0]
+            vb_version    = versions[1]
 
             if guest_version != vb_version
               env[:ui].warn(I18n.t("vagrant.actions.vm.check_guest_additions.version_mismatch",

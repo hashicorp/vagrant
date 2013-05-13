@@ -30,8 +30,10 @@ describe Vagrant::Action::Builtin::SSHExec do
   end
 
   it "should check key permissions then exec" do
+    machine_ssh_info[:private_key_path] = "/foo"
+
     ssh_klass.should_receive(:check_key_permissions).
-      with(machine_ssh_info[:private_key_path]).
+      with(Pathname.new(machine_ssh_info[:private_key_path])).
       once.
       ordered
 

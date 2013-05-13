@@ -2,10 +2,11 @@ require "vagrant"
 
 module VagrantPlugins
   module CommandSuspend
-    class Plugin < Vagrant.plugin("1")
+    class Plugin < Vagrant.plugin("2")
       name "suspend command"
       description <<-DESC
-      The `suspend` command suspends a running virtual machine.
+      The `suspend` command suspends execution and puts it to sleep.
+      The command `resume` returns it to running status.
       DESC
 
       command("suspend") do

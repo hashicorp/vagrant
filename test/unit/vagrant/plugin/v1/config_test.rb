@@ -10,6 +10,12 @@ describe Vagrant::Plugin::V1::Config do
     end
   end
 
+  it "has an UNSET_VALUE constant" do
+    value = described_class.const_get("UNSET_VALUE")
+    value.should be_kind_of Object
+    value.should eql(described_class.const_get("UNSET_VALUE"))
+  end
+
   describe "merging" do
     it "should merge by default by simply copying each instance variable" do
       one = foo_class.new

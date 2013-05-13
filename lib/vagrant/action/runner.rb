@@ -1,5 +1,6 @@
 require 'log4r'
 
+require 'vagrant/action/hook'
 require 'vagrant/util/busy'
 
 # TODO:
@@ -22,10 +23,23 @@ module Vagrant
         raise ArgumentError, "Argument to run must be a callable object or registered action." if !callable || !callable.respond_to?(:call)
 
         # Create the initial environment with the options given
-        environment = Environment.new
+        environment = {}
         environment.merge!(@globals)
         environment.merge!(@lazy_globals.call) if @lazy_globals
         environment.merge!(options || {})
+
+        # Setup the action hooks
+        hooks = Vagrant.plugin("2").manager.action_hooks(environment[:action_name])
+        if !hooks.empty?
+          @logger.info("Preparing hooks for middleware sequence...")
+          environment[:action_hooks] = hooks.map do |hook_proc|
+            Hook.new.tap do |h|
+              hook_proc.call(h)
+            end
+          end
+
+          @logger.info("#{environment[:action_hooks].length} hooks defined.")
+        end
 
         # Run the action chain in a busy block, marking the environment as
         # interrupted if a SIGINT occurs, and exiting cleanly once the

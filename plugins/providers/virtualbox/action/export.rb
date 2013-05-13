@@ -13,7 +13,8 @@ module VagrantPlugins
         def call(env)
           @env = env
 
-          raise Vagrant::Errors::VMPowerOffToPackage if @env[:machine].provider.state != :poweroff
+          raise Vagrant::Errors::VMPowerOffToPackage if \
+            @env[:machine].provider.state.id != :poweroff
 
           setup_temp_dir
           export

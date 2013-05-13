@@ -1,0 +1,7 @@
+language: ruby
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq -y bsdtar
+rvm:
+  - 1.9.3
+script: rake test:unit

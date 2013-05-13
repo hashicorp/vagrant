@@ -1,5 +1,7 @@
 require 'fileutils'
-require 'archive/tar/minitar'
+
+require 'vagrant/util/safe_chdir'
+require 'vagrant/util/subprocess'
 
 module Vagrant
   module Action
@@ -21,7 +23,7 @@ module Vagrant
           @app = app
 
           env["package.files"]  ||= {}
-          env["package.output"] ||= env["global_config"].package.name
+          env["package.output"] ||= env[:global_config].package.name
         end
 
         def call(env)
@@ -73,21 +75,21 @@ module Vagrant
         # Compress the exported file into a package
         def compress
           @env[:ui].info I18n.t("vagrant.actions.general.package.compressing", :tar_path => tar_path)
-          File.open(tar_path, Platform.tar_file_options) do |tar|
-            Archive::Tar::Minitar::Output.open(tar) do |output|
-              begin
-                current_dir = FileUtils.pwd
 
-                copy_include_files
+          # Copy over the included files
+          copy_include_files
 
-                FileUtils.cd(@env["package.directory"])
-                Dir.glob(File.join(".", "**", "*")).each do |entry|
-                  Archive::Tar::Minitar.pack_file(entry, output)
-                end
-              ensure
-                FileUtils.cd(current_dir)
-              end
-            end
+          # Get the output path. We have to do this up here so that the
+          # pwd returns the proper thing.
+          output_path = tar_path.to_s
+
+          # Switch into that directory and package everything up
+          Util::SafeChdir.safe_chdir(@env["package.directory"]) do
+            # Find all the files in our current directory and tar it up!
+            files = Dir.glob(File.join(".", "**", "*"))
+
+            # Package!
+            Util::Subprocess.execute("bsdtar", "-czf", output_path, *files)
           end
         end
 

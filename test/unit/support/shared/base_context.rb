@@ -18,7 +18,8 @@ shared_context "unit" do
     # Unregister each of the plugins we have may have temporarily
     # registered for the duration of this test.
     @_plugins.each do |plugin|
-      plugin.unregister!
+      Vagrant.plugin("1").manager.unregister(plugin)
+      Vagrant.plugin("2").manager.unregister(plugin)
     end
   end
 
@@ -40,8 +41,9 @@ shared_context "unit" do
   #
   # @yield [plugin] Yields the plugin class for you to call the public
   #   API that you need to.
-  def register_plugin
-    plugin = Class.new(Vagrant.plugin("1"))
+  def register_plugin(version=nil)
+    version ||= Vagrant::Config::CURRENT_VERSION
+    plugin = Class.new(Vagrant.plugin(version))
     plugin.name("Test Plugin #{plugin.inspect}")
     yield plugin if block_given?
     @_plugins << plugin

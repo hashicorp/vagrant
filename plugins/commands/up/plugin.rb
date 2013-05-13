@@ -2,7 +2,7 @@ require "vagrant"
 
 module VagrantPlugins
   module CommandUp
-    class Plugin < Vagrant.plugin("1")
+    class Plugin < Vagrant.plugin("2")
       name "up command"
       description <<-DESC
       The `up` command brings the virtual environment up and running.

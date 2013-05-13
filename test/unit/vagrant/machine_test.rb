@@ -1,3 +1,5 @@
+require "pathname"
+
 require File.expand_path("../../base", __FILE__)
 
 describe Vagrant::Machine do
@@ -10,8 +12,12 @@ describe Vagrant::Machine do
     obj.stub(:new => provider)
     obj
   end
+  let(:provider_config) { Object.new }
+  let(:provider_name) { :test }
+  let(:provider_options) { {} }
   let(:box)      { Object.new }
-  let(:config)   { env.config.global }
+  let(:config)   { env.config_global }
+  let(:data_dir) { Pathname.new(Tempdir.new.path) }
   let(:env)      do
     # We need to create a Vagrantfile so that this test environment
     # has a proper root path
@@ -25,9 +31,12 @@ describe Vagrant::Machine do
 
   let(:instance) { new_instance }
 
+  subject { instance }
+
   # Returns a new instance with the test data
   def new_instance
-    described_class.new(name, provider_cls, config, box, env)
+    described_class.new(name, provider_name, provider_cls, provider_config,
+                        provider_options, config, data_dir, box, env)
   end
 
   describe "initialization" do
@@ -56,7 +65,8 @@ describe Vagrant::Machine do
 
         # Initialize a new machine and verify that we properly receive
         # the machine we expect.
-        instance = described_class.new(name, provider_cls, config, box, env)
+        instance = described_class.new(name, provider_name, provider_cls, provider_config,
+                                       provider_options, config, data_dir, box, env)
         received_machine.should eql(instance)
       end
 
@@ -110,25 +120,13 @@ describe Vagrant::Machine do
   end
 
   describe "attributes" do
-    it "should provide access to the name" do
-      instance.name.should == name
-    end
-
-    it "should provide access to the configuration" do
-      instance.config.should eql(config)
-    end
-
-    it "should provide access to the box" do
-      instance.box.should eql(box)
-    end
-
-    it "should provide access to the environment" do
-      instance.env.should eql(env)
-    end
-
-    it "should provide access to the provider" do
-      instance.provider.should eql(provider)
-    end
+    its(:name)             { should eq(name) }
+    its(:config)           { should eql(config) }
+    its(:box)              { should eql(box) }
+    its(:env)              { should eql(env) }
+    its(:provider)         { should eql(provider) }
+    its(:provider_config)  { should eql(provider_config) }
+    its(:provider_options) { should eq(provider_options) }
   end
 
   describe "actions" do
@@ -199,10 +197,21 @@ describe Vagrant::Machine do
     let(:communicator) do
       result = double("communicator")
       result.stub(:ready?).and_return(true)
+      result.stub(:test).and_return(false)
       result
     end
 
     before(:each) do
+      test_guest = Class.new(Vagrant.plugin("2", :guest)) do
+        def detect?(machine)
+          true
+        end
+      end
+
+      register_plugin do |p|
+        p.guest(:test) { test_guest }
+      end
+
       instance.stub(:communicate).and_return(communicator)
     end
 
@@ -214,63 +223,11 @@ describe Vagrant::Machine do
     end
 
     it "should return the configured guest" do
-      test_guest = Class.new(Vagrant.plugin("1", :guest))
-
-      register_plugin do |p|
-        p.guest(:test) { test_guest }
-      end
-
-      config.vm.guest = :test
-
       result = instance.guest
-      result.should be_kind_of(test_guest)
+      result.should be_kind_of(Vagrant::Guest)
+      result.ready?.should be
+      result.chain[0][0].should == :test
     end
-
-    it "should raise an exception if it can't find the configured guest" do
-      config.vm.guest = :bad
-
-      expect { instance.guest }.
-        to raise_error(Vagrant::Errors::VMGuestError)
-    end
-
-    it "should distro dispatch to the most specific guest" do
-      # Create the classes and dispatch the parent into the child
-      guest_parent = Class.new(Vagrant.plugin("1", :guest)) do
-        def distro_dispatch
-          :child
-        end
-      end
-
-      guest_child  = Class.new(Vagrant.plugin("1", :guest))
-
-      # Register the classes
-      register_plugin do |p|
-        p.guest(:parent) { guest_parent }
-        p.guest(:child)  { guest_child }
-      end
-
-      # Test that the result is the child
-      config.vm.guest = :parent
-      instance.guest.should be_kind_of(guest_child)
-    end
-
-    it "should protect against loops in the distro dispatch" do
-      # Create the classes and dispatch the parent into the child
-      guest_parent = Class.new(Vagrant.plugin("1", :guest)) do
-        def distro_dispatch
-          :parent
-        end
-      end
-
-      # Register the classes
-      register_plugin do |p|
-        p.guest(:parent) { guest_parent }
-      end
-
-      # Test that the result is the child
-      config.vm.guest = :parent
-      instance.guest.should be_kind_of(guest_parent)
-     end
   end
 
   describe "setting the ID" do
@@ -333,9 +290,25 @@ describe Vagrant::Machine do
           instance.ssh_info[type].should == "foo"
         end
 
-        it "should return the Vagrantfile value over the provider data if given" do
-          provider_ssh_info[type] = "foo"
+        it "should return the Vagrantfile value if provider data not given" do
+          provider_ssh_info[type] = nil
           instance.config.ssh.send("#{type}=", "bar")
+
+          instance.ssh_info[type].should == "bar"
+        end
+
+        it "should use the default if no override and no provider" do
+          provider_ssh_info[type] = nil
+          instance.config.ssh.send("#{type}=", nil)
+          instance.config.ssh.default.send("#{type}=", "foo")
+
+          instance.ssh_info[type].should == "foo"
+        end
+
+        it "should use the override if set even with a provider" do
+          provider_ssh_info[type] = "baz"
+          instance.config.ssh.send("#{type}=", "bar")
+          instance.config.ssh.default.send("#{type}=", "foo")
 
           instance.ssh_info[type].should == "bar"
         end
@@ -356,33 +329,56 @@ describe Vagrant::Machine do
       end
 
       it "should return the provider private key if given" do
-        provider_ssh_info[:private_key_path] = "foo"
+        provider_ssh_info[:private_key_path] = "/foo"
 
-        instance.ssh_info[:private_key_path].should == "foo"
+        instance.ssh_info[:private_key_path].should == "/foo"
       end
 
       it "should return the configured SSH key path if set" do
-        provider_ssh_info[:private_key_path] = "foo"
-        instance.config.ssh.private_key_path = "bar"
+        provider_ssh_info[:private_key_path] = nil
+        instance.config.ssh.private_key_path = "/bar"
 
-        instance.ssh_info[:private_key_path].should == "bar"
+        instance.ssh_info[:private_key_path].should == "/bar"
+      end
+
+      context "expanding path relative to the root path" do
+        it "should with the provider key path" do
+          provider_ssh_info[:private_key_path] = "~/foo"
+
+          instance.ssh_info[:private_key_path].should ==
+            File.expand_path("~/foo", env.root_path)
+        end
+
+        it "should with the config private key path" do
+          provider_ssh_info[:private_key_path] = nil
+          instance.config.ssh.private_key_path = "~/bar"
+
+          instance.ssh_info[:private_key_path].should ==
+            File.expand_path("~/bar", env.root_path)
+        end
       end
 
       it "should return the default private key path if provider and config doesn't have one" do
         provider_ssh_info[:private_key_path] = nil
         instance.config.ssh.private_key_path = nil
 
-        instance.ssh_info[:private_key_path].should == instance.env.default_private_key_path
+        instance.ssh_info[:private_key_path].should == instance.env.default_private_key_path.to_s
       end
     end
   end
 
   describe "state" do
     it "should query state from the provider" do
-      state = :running
+      state = Vagrant::MachineState.new(:id, "short", "long")
 
       provider.should_receive(:state).and_return(state)
-      instance.state.should == state
+      instance.state.id.should == :id
+    end
+
+    it "should raise an exception if a MachineState is not returned" do
+      provider.should_receive(:state).and_return(:old_school)
+      expect { instance.state }.
+        to raise_error(Vagrant::Errors::MachineStateInvalid)
     end
   end
 end

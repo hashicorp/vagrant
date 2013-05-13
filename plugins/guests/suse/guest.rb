@@ -1,12 +1,10 @@
 require "vagrant"
 
-require Vagrant.source_root.join("plugins/guests/redhat/guest")
-
 module VagrantPlugins
   module GuestSuse
-    class Guest < VagrantPlugins::GuestRedHat::Guest
-      def network_scripts_dir
-        '/etc/sysconfig/network/'
+    class Guest < Vagrant.plugin("2", :guest)
+      def detect?(machine)
+        machine.communicate.test("cat /etc/SuSE-release")
       end
     end
   end

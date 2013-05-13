@@ -5,6 +5,10 @@ require Vagrant.source_root.join("plugins/guests/debian/guest")
 module VagrantPlugins
   module GuestUbuntu
     class Guest < VagrantPlugins::GuestDebian::Guest
+      def detect?(machine)
+        machine.communicate.test("cat /etc/issue | grep 'Ubuntu'")
+      end
+
       def mount_shared_folder(name, guestpath, options)
         # Mount it like normal
         super
@@ -20,18 +24,7 @@ module VagrantPlugins
         # Emit an upstart events if upstart is available
         folders.each do |name, opts|
           real_guestpath = expanded_guest_path(opts[:guestpath])
-          vm.channel.sudo("[ -x /sbin/initctl ] && /sbin/initctl emit vagrant-mounted MOUNTPOINT=#{real_guestpath}")
-        end
-      end
-
-      def change_host_name(name)
-        vm.communicate.tap do |comm|
-          if !comm.test("sudo hostname | grep '#{name}'")
-            comm.sudo("sed -i 's/.*$/#{name}/' /etc/hostname")
-            comm.sudo("sed -i 's@^\\(127[.]0[.]1[.]1[[:space:]]\\+\\)@\\1#{name} #{name.split('.')[0]} @' /etc/hosts")
-            comm.sudo("service hostname start")
-            comm.sudo("hostname --fqdn > /etc/mailname")
-          end
+          vm.communicate.sudo("[ -x /sbin/initctl ] && /sbin/initctl emit vagrant-mounted MOUNTPOINT=#{real_guestpath}")
         end
       end
     end

@@ -6,7 +6,7 @@ require Vagrant.source_root.join("plugins/commands/up/start_mixins")
 
 module VagrantPlugins
   module CommandReload
-    class Command < Vagrant.plugin("1", :command)
+    class Command < Vagrant.plugin("2", :command)
       # We assume that the `up` plugin exists and that we'll have access
       # to this.
       include VagrantPlugins::CommandUp::StartMixins
@@ -26,7 +26,7 @@ module VagrantPlugins
 
         @logger.debug("'reload' each target VM...")
         with_target_vms(argv) do |machine|
-          machine.action(:reload)
+          machine.action(:reload, options)
         end
 
         # Success, exit status 0

@@ -2,11 +2,11 @@ require "vagrant"
 
 module VagrantPlugins
   module CommandStatus
-    class Plugin < Vagrant.plugin("1")
+    class Plugin < Vagrant.plugin("2")
       name "status command"
       description <<-DESC
-      The `status` command shows the status of all your virtual machines
-      in this environment.
+      The `status` command shows what the running state (running/saved/..)
+      is of all your virtual machines in this environment.
       DESC
 
       command("status") do

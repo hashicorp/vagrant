@@ -12,10 +12,6 @@ module Vagrant
     # set later always overrides those set earlier; this is how
     # configuration "scoping" is implemented.
     class Loader
-      # This is an array of symbols specifying the order in which
-      # configuration is loaded. For examples, see the class documentation.
-      attr_accessor :load_order
-
       # Initializes a configuration loader.
       #
       # @param [Registry] versions A registry of the available versions and
@@ -45,7 +41,7 @@ module Vagrant
       # `set` multiple times with the same name will override any previously
       # set values. In this way, the last set data for a given name wins.
       def set(name, sources)
-        @logger.debug("Set #{name.inspect} = #{sources.inspect}")
+        @logger.info("Set #{name.inspect} = #{sources.inspect}")
 
         # Sources should be an array
         sources = [sources] if !sources.kind_of?(Array)
@@ -69,12 +65,16 @@ module Vagrant
         @sources[name] = procs
       end
 
-      # This loads the configured sources in the configured order and returns
+      # This loads the configuration sources in the given order and returns
       # an actual configuration object that is ready to be used.
-      def load
-        @logger.debug("Loading configuration in order: #{@load_order.inspect}")
+      #
+      # @param [Array<Symbol>] order The order of configuration to load.
+      # @return [Object] The configuration object. This is different for
+      #   each configuration version.
+      def load(order)
+        @logger.info("Loading configuration in order: #{order.inspect}")
 
-        unknown_sources = @sources.keys - @load_order
+        unknown_sources = @sources.keys - order
         if !unknown_sources.empty?
           # TODO: Raise exception here perhaps.
           @logger.error("Unknown config sources: #{unknown_sources.inspect}")
@@ -87,7 +87,12 @@ module Vagrant
         # This will hold our result
         result = current_config_klass.init
 
-        @load_order.each do |key|
+        # Keep track of the warnings and errors that may come from
+        # upgrading the Vagrantfiles
+        warnings = []
+        errors   = []
+
+        order.each do |key|
           next if !@sources.has_key?(key)
 
           @sources[key].each do |version, proc|
@@ -97,6 +102,11 @@ module Vagrant
               # Get the proper version loader for this version and load
               version_loader = @versions.get(version)
               version_config = version_loader.load(proc)
+
+              # Store the errors/warnings associated with loading this
+              # configuration. We'll store these for later.
+              version_warnings = []
+              version_errors   = []
 
               # If this version is not the current version, then we need
               # to upgrade to the latest version.
@@ -113,31 +123,40 @@ module Vagrant
                   loader = @versions.get(next_version)
                   upgrade_result = loader.upgrade(version_config)
 
-                  # XXX: Do something with the warning/error messages
-                  warnings = upgrade_result[1]
-                  errors   = upgrade_result[2]
+                  this_warnings = upgrade_result[1]
+                  this_errors   = upgrade_result[2]
                   @logger.debug("Upgraded to version #{next_version} with " +
-                                "#{warnings.length} warnings and " +
-                                "#{errors.length} errors")
+                                "#{this_warnings.length} warnings and " +
+                                "#{this_errors.length} errors")
+
+                  # Append loading this to the version warnings and errors
+                  version_warnings += this_warnings
+                  version_errors   += this_errors
 
                   # Store the new upgraded version
                   version_config = upgrade_result[0]
                 end
               end
 
-              # Cache the results for this proc
-              @config_cache[proc] = version_config
+              # Cache the loaded configuration along with any warnings
+              # or errors so that they can be retrieved later.
+              @config_cache[proc] = [version_config, version_warnings, version_errors]
             else
               @logger.debug("Loading from: #{key} (cache)")
             end
 
             # Merge the configurations
-            result = current_config_klass.merge(result, @config_cache[proc])
+            cache_data = @config_cache[proc]
+            result = current_config_klass.merge(result, cache_data[0])
+
+            # Append the total warnings/errors
+            warnings += cache_data[1]
+            errors   += cache_data[2]
           end
         end
 
         @logger.debug("Configuration loaded successfully, finalizing and returning")
-        current_config_klass.finalize(result)
+        [current_config_klass.finalize(result), warnings, errors]
       end
 
       protected
@@ -174,15 +193,30 @@ module Vagrant
       def procs_for_path(path)
         @logger.debug("Load procs for pathname: #{path}")
 
-        begin
-          return Config.capture_configures do
+        return Config.capture_configures do
+          begin
             Kernel.load path
+          rescue SyntaxError => e
+            # Report syntax errors in a nice way.
+            raise Errors::VagrantfileSyntaxError, :file => e.message
+          rescue SystemExit
+            # Continue raising that exception...
+            raise
+          rescue Vagrant::Errors::VagrantError
+            # Continue raising known Vagrant errors since they already
+            # contain well worded error messages and context.
+            raise
+          rescue Exception => e
+            @logger.error("Vagrantfile load error: #{e.message}")
+            @logger.error(e.backtrace.join("\n"))
+
+            # Report the generic exception
+            raise Errors::VagrantfileLoadError,
+              :path => path,
+              :message => e.message
           end
-        rescue SyntaxError => e
-          # Report syntax errors in a nice way.
-          raise Errors::VagrantfileSyntaxError, :file => e.message
         end
-       end
+      end
     end
   end
 end

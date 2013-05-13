@@ -7,7 +7,7 @@ module VagrantPlugins
         end
 
         def call(env)
-          customizations = env[:machine].config.vm.customizations
+          customizations = env[:machine].provider_config.customizations
           if !customizations.empty?
             env[:ui].info I18n.t("vagrant.actions.vm.customize.running")
 
@@ -20,7 +20,7 @@ module VagrantPlugins
 
               result = env[:machine].provider.driver.execute_command(processed_command)
               if result.exit_code != 0
-                raise Errors::VMCustomizationFailed, {
+                raise Vagrant::Errors::VMCustomizationFailed, {
                   :command => processed_command.inspect,
                   :error   => result.stderr
                 }

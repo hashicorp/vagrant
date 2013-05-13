@@ -15,15 +15,31 @@ module VagrantPlugins
       attr_accessor :forward_x11
       attr_accessor :shell
 
-      def validate(env, errors)
-        [:username, :host, :max_tries, :timeout].each do |field|
-          value = instance_variable_get("@#{field}".to_sym)
-          errors.add(I18n.t("vagrant.config.common.error_empty", :field => field)) if !value
-        end
+      def initialize
+        @username         = UNSET_VALUE
+        @password         = UNSET_VALUE
+        @host             = UNSET_VALUE
+        @port             = UNSET_VALUE
+        @guest_port       = UNSET_VALUE
+        @max_tries        = UNSET_VALUE
+        @timeout          = UNSET_VALUE
+        @private_key_path = UNSET_VALUE
+        @forward_agent    = UNSET_VALUE
+        @forward_x11      = UNSET_VALUE
+        @shell            = UNSET_VALUE
+      end
 
-        if private_key_path && !File.file?(File.expand_path(private_key_path, env.root_path))
-          errors.add(I18n.t("vagrant.config.ssh.private_key_missing", :path => private_key_path))
-        end
+      def upgrade(new)
+        new.ssh.username         = @username if @username != UNSET_VALUE
+        new.ssh.host             = @host if @host != UNSET_VALUE
+        new.ssh.port             = @port if @port != UNSET_VALUE
+        new.ssh.guest_port       = @guest_port if @guest_port != UNSET_VALUE
+        new.ssh.max_tries        = @max_tries if @max_tries != UNSET_VALUE
+        new.ssh.timeout          = @timeout if @timeout != UNSET_VALUE
+        new.ssh.private_key_path = @private_key_path if @private_key_path != UNSET_VALUE
+        new.ssh.forward_agent    = @forward_agent if @forward_agent != UNSET_VALUE
+        new.ssh.forward_x11      = @forward_x11 if @forward_x11 != UNSET_VALUE
+        new.ssh.shell            = @shell if @shell != UNSET_VALUE
       end
     end
   end

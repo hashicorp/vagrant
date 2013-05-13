@@ -2,10 +2,10 @@ require "vagrant"
 
 module VagrantPlugins
   module CommandSSH
-    class Plugin < Vagrant.plugin("1")
+    class Plugin < Vagrant.plugin("2")
       name "ssh command"
       description <<-DESC
-      The `ssh` command provides SSH access to the virtual machine.
+      The `ssh` command allows you to SSH in to your running virtual machine.
       DESC
 
       command("ssh") do

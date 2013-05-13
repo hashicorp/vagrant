@@ -2,7 +2,7 @@ require "vagrant"
 
 module VagrantPlugins
   module CommandResume
-    class Plugin < Vagrant.plugin("1")
+    class Plugin < Vagrant.plugin("2")
       name "resume command"
       description <<-DESC
       The `resume` command resumes a suspend virtual machine.

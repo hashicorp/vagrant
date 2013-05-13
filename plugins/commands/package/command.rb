@@ -2,7 +2,7 @@ require 'optparse'
 
 module VagrantPlugins
   module CommandPackage
-    class Command < Vagrant.plugin("1", :command)
+    class Command < Vagrant.plugin("2", :command)
       def execute
         options = {}
 
@@ -51,13 +51,13 @@ module VagrantPlugins
         # `vagrant package --base` process is deprecated for something much
         # better in the future. We just hardcode this to keep VirtualBox working
         # for now.
-        provider = nil
-        Vagrant.plugin("1").registered.each do |plugin|
-          provider = plugin.provider.get(:virtualbox)
-          break if provider
-        end
-
-        vm = Vagrant::Machine.new(options[:base], provider, @env.config.global, nil, @env, true)
+        provider = Vagrant.plugin("2").manager.providers[:virtualbox]
+        vm = Vagrant::Machine.new(
+          options[:base],
+          :virtualbox, provider[0], nil, provider[1],
+          @env.config_global,
+          nil, nil,
+          @env, true)
         @logger.debug("Packaging base VM: #{vm.name}")
         package_vm(vm, options)
       end

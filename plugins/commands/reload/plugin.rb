@@ -2,7 +2,7 @@ require "vagrant"
 
 module VagrantPlugins
   module CommandReload
-    class Plugin < Vagrant.plugin("1")
+    class Plugin < Vagrant.plugin("2")
       name "reload command"
       description <<-DESC
       The `reload` command will halt, reconfigure your machine based on

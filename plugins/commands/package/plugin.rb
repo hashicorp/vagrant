@@ -2,7 +2,7 @@ require "vagrant"
 
 module VagrantPlugins
   module CommandPackage
-    class Plugin < Vagrant.plugin("1")
+    class Plugin < Vagrant.plugin("2")
       name "package command"
       description <<-DESC
       The `package` command will take a previously existing Vagrant

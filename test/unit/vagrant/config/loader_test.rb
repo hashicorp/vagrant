@@ -40,8 +40,7 @@ describe Vagrant::Config::Loader do
 
   describe "basic loading" do
     it "should ignore non-existent load order keys" do
-      instance.load_order = [:foo]
-      instance.load
+      instance.load([:foo])
     end
 
     it "should load and return the configuration" do
@@ -49,11 +48,12 @@ describe Vagrant::Config::Loader do
         config[:foo] = "yep"
       end
 
-      instance.load_order = [:proc]
       instance.set(:proc, [[current_version, proc]])
-      config = instance.load
+      config, warnings, errors = instance.load([:proc])
 
       config[:foo].should == "yep"
+      warnings.should == []
+      errors.should == []
     end
   end
 
@@ -71,9 +71,8 @@ describe Vagrant::Config::Loader do
       end
 
       # Run the actual configuration and assert that we get the proper result
-      instance.load_order = [:proc]
       instance.set(:proc, [[current_version, proc]])
-      config = instance.load
+      config, _ = instance.load([:proc])
       config[:foo].should == "yep"
       config[:finalized].should == true
     end
@@ -95,11 +94,33 @@ describe Vagrant::Config::Loader do
 
       # Load a version 1 proc, and verify it is upgraded to version 2
       proc = lambda { |config| config[:foo] = "yep" }
-      instance.load_order = [:proc]
       instance.set(:proc, [["1", proc]])
-      config = instance.load
+      config, _ = instance.load([:proc])
       config[:foo].should == "yep"
       config[:v2].should == true
+    end
+
+    it "should keep track of warnings and errors" do
+      test_loader_v2 = Class.new(test_loader) do
+        def self.upgrade(old)
+          new = old.dup
+          new[:v2] = true
+
+          [new, ["foo!"], ["bar!"]]
+        end
+      end
+
+      versions.register("2") { test_loader_v2 }
+      version_order << "2"
+
+      # Load a version 1 proc, and verify it is upgraded to version 2
+      proc = lambda { |config| config[:foo] = "yep" }
+      instance.set(:proc, [["1", proc]])
+      config, warnings, errors = instance.load([:proc])
+      config[:foo].should == "yep"
+      config[:v2].should == true
+      warnings.should == ["foo!"]
+      errors.should == ["bar!"]
     end
   end
 
@@ -111,11 +132,10 @@ describe Vagrant::Config::Loader do
         count += 1
       end
 
-      instance.load_order = [:proc]
       instance.set(:proc, [[current_version, proc]])
 
       5.times do
-        result = instance.load
+        result, _ = instance.load([:proc])
 
         # Verify the config result
         result[:foo].should == "yep"
@@ -131,9 +151,8 @@ describe Vagrant::Config::Loader do
       # We test both setting a file multiple times as well as multiple
       # loads, since both should not cache the data.
       file = temporary_file("$_config_data += 1")
-      instance.load_order = [:file]
       5.times { instance.set(:file, file) }
-      5.times { instance.load }
+      5.times { instance.load([:file]) }
 
       $_config_data.should == 1
     end
@@ -143,20 +162,23 @@ describe Vagrant::Config::Loader do
 
       file = temporary_file("$_config_data += 1")
 
-      instance.load_order = [:proc]
       instance.set(:proc, file)
-      5.times { instance.load }
+      5.times { instance.load([:proc]) }
 
       instance.set(:proc, file)
-      5.times { instance.load }
+      5.times { instance.load([:proc]) }
 
       $_config_data.should == 1
     end
 
     it "should raise proper error if there is a syntax error in a Vagrantfile" do
-      instance.load_order = [:file]
       expect { instance.set(:file, temporary_file("Vagrant:^Config")) }.
         to raise_exception(Vagrant::Errors::VagrantfileSyntaxError)
+    end
+
+    it "should raise a proper error if there is a problem with the Vagrantfile" do
+      expect { instance.set(:file, temporary_file("foo")) }.
+        to raise_exception(Vagrant::Errors::VagrantfileLoadError)
     end
   end
 end

@@ -6,7 +6,7 @@ require 'vagrant/util/platform'
 module VagrantPlugins
   module HostBSD
     # Represents a BSD host, such as FreeBSD and Darwin (Mac OS X).
-    class Host < Vagrant.plugin("1", :host)
+    class Host < Vagrant.plugin("2", :host)
       include Vagrant::Util
       include Vagrant::Util::Retryable
 
@@ -88,6 +88,10 @@ module VagrantPlugins
 
       def nfs_cleanup(id)
         return if !File.exist?("/etc/exports")
+
+        # Escape sed-sensitive characters:
+        id = id.gsub("/", "\\/")
+        id = id.gsub(".", "\\.")
 
         # Use sed to just strip out the block of code which was inserted
         # by Vagrant, and restart NFS.

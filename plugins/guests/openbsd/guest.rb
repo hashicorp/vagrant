@@ -1,23 +1,10 @@
 require "vagrant"
 
-require Vagrant.source_root.join("plugins/guests/linux/guest")
-
 module VagrantPlugins
   module GuestOpenBSD
-    class Guest < VagrantPlugins::GuestLinux::Guest
-      def halt
-        vm.channel.sudo("shutdown -p -h now")
-
-        # Wait until the VM's state is actually powered off. If this doesn't
-        # occur within a reasonable amount of time then simply return which
-        # will cause Vagrant to force kill the machine.
-        count = 0
-        while vm.state != :poweroff
-          count += 1
-
-          return if count >= 30
-          sleep 1
-        end
+    class Guest < Vagrant.plugin("2", :guest)
+      def detect?(machine)
+        machine.communicate.test("uname -s | grep 'OpenBSD'")
       end
     end
   end

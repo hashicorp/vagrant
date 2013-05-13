@@ -1,8 +1,9 @@
 module VagrantPlugins
   module CommandDestroy
-    class Command < Vagrant.plugin("1", :command)
+    class Command < Vagrant.plugin("2", :command)
       def execute
         options = {}
+        options[:force] = false
 
         opts = OptionParser.new do |o|
           o.banner = "Usage: vagrant destroy [vm-name]"
@@ -19,7 +20,7 @@ module VagrantPlugins
 
         @logger.debug("'Destroy' each target VM...")
         with_target_vms(argv, :reverse => true) do |vm|
-          vm.action(:destroy)
+          vm.action(:destroy, :force_confirm_destroy => options[:force])
         end
 
         # Success, exit status 0

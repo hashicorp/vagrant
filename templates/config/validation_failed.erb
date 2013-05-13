@@ -1,6 +1,6 @@
-<% errors.each do |key, container| -%>
-<%= key %>:
-<% container.errors.each do |error| -%>
+<% errors.each do |section, list| -%>
+<%= section %>:
+<% list.each do |error| -%>
 * <%= error %>
 <% end -%>
 

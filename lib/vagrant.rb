@@ -42,9 +42,11 @@ if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
   end
 end
 
-require 'pathname'
-require 'childprocess'
 require 'json'
+require 'pathname'
+require 'stringio'
+
+require 'childprocess'
 require 'i18n'
 
 # OpenSSL must be loaded here since when it is loaded via `autoload`
@@ -62,22 +64,20 @@ require "vagrant/registry"
 
 module Vagrant
   autoload :Action,        'vagrant/action'
+  autoload :BatchAction,   'vagrant/batch_action'
   autoload :Box,           'vagrant/box'
   autoload :BoxCollection, 'vagrant/box_collection'
   autoload :CLI,           'vagrant/cli'
   autoload :Command,       'vagrant/command'
   autoload :Config,        'vagrant/config'
-  autoload :DataStore,     'vagrant/data_store'
-  autoload :Downloaders,   'vagrant/downloaders'
   autoload :Driver,        'vagrant/driver'
-  autoload :Easy,          'vagrant/easy'
   autoload :Environment,   'vagrant/environment'
   autoload :Errors,        'vagrant/errors'
   autoload :Guest,         'vagrant/guest'
   autoload :Hosts,         'vagrant/hosts'
   autoload :Machine,       'vagrant/machine'
+  autoload :MachineState,  'vagrant/machine_state'
   autoload :Plugin,        'vagrant/plugin'
-  autoload :TestHelpers,   'vagrant/test_helpers'
   autoload :UI,            'vagrant/ui'
   autoload :Util,          'vagrant/util'
 
@@ -92,6 +92,23 @@ module Vagrant
     c.register([:"1", :host])         { Plugin::V1::Host }
     c.register([:"1", :provider])     { Plugin::V1::Provider }
     c.register([:"1", :provisioner])  { Plugin::V1::Provisioner }
+
+    c.register(:"2")                  { Plugin::V2::Plugin }
+    c.register([:"2", :command])      { Plugin::V2::Command }
+    c.register([:"2", :communicator]) { Plugin::V2::Communicator }
+    c.register([:"2", :config])       { Plugin::V2::Config }
+    c.register([:"2", :guest])        { Plugin::V2::Guest }
+    c.register([:"2", :host])         { Plugin::V2::Host }
+    c.register([:"2", :provider])     { Plugin::V2::Provider }
+    c.register([:"2", :provisioner])  { Plugin::V2::Provisioner }
+  end
+
+  # This returns a true/false showing whether we're running from the
+  # environment setup by the Vagrant installers.
+  #
+  # @return [Boolean]
+  def self.in_installer?
+    !!ENV["VAGRANT_INSTALLER_ENV"]
   end
 
   # The source root is the path to the root directory of
@@ -126,11 +143,13 @@ module Vagrant
   # Vagrant may move it to "Vagrant::Plugins::V1" and plugins will not be
   # affected.
   #
+  # @param [String] version
+  # @param [String] component
   # @return [Class]
   def self.plugin(version, component=nil)
     # Build up the key and return a result
-    key    = version.to_sym
-    key    = [key, component.to_sym] if component
+    key    = version.to_s.to_sym
+    key    = [key, component.to_s.to_sym] if component
     result = PLUGIN_COMPONENTS.get(key)
 
     # If we found our component then we return that
@@ -150,12 +169,58 @@ module Vagrant
   #
   # @param [String] name Name of the plugin to load.
   def self.require_plugin(name)
+    if ENV["VAGRANT_NO_PLUGINS"]
+      logger = Log4r::Logger.new("vagrant::root")
+      logger.warn("VAGRANT_NO_PLUGINS is set, not loading 3rd party plugin: #{name}")
+      return
+    end
+
+    # Redirect stdout/stderr so that we can output it in our own way.
+    previous_stderr = $stderr
+    previous_stdout = $stdout
+    $stderr = StringIO.new
+    $stdout = StringIO.new
+
     # Attempt the normal require
     begin
       require name
-    rescue LoadError
-      raise Errors::PluginLoadError, :plugin => name
+    rescue Exception => e
+      # Since this is a rare case, we create a one-time logger here
+      # in order to output the error
+      logger = Log4r::Logger.new("vagrant::root")
+      logger.error("Failed to load plugin: #{name}")
+      logger.error(" -- Error: #{e.inspect}")
+      logger.error(" -- Backtrace:")
+      logger.error(e.backtrace.join("\n"))
+
+      # If it is a LoadError we first try to see if it failed loading
+      # the top-level entrypoint. If so, then we report a different error.
+      if e.is_a?(LoadError)
+        # Parse the message in order to get what failed to load, and
+        # add some extra protection around if the message is different.
+        parts = e.to_s.split(" -- ", 2)
+        if parts.length == 2 && parts[1] == name
+          raise Errors::PluginLoadError, :plugin => name
+        end
+      end
+
+      # Get the string data out from the stdout/stderr captures
+      stderr = $stderr.string
+      stdout = $stdout.string
+      if !stderr.empty? || !stdout.empty?
+        raise Errors::PluginLoadFailedWithOutput,
+          :plugin => name,
+          :stderr => stderr,
+          :stdout => stdout
+      end
+
+      # And raise an error itself
+      raise Errors::PluginLoadFailed,
+        :plugin => name
     end
+  ensure
+    $stderr = previous_stderr if previous_stderr
+    $stdout = previous_stdout if previous_stdout
   end
 end
 

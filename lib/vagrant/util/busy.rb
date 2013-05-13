@@ -16,7 +16,7 @@ module Vagrant
         # to the callback to behave properly and exit the application.
         def busy(sig_callback)
           register(sig_callback)
-          yield
+          return yield
         ensure
           unregister(sig_callback)
         end

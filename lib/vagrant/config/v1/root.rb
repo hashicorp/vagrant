@@ -1,3 +1,5 @@
+require "set"
+
 module Vagrant
   module Config
     module V1
@@ -9,8 +11,9 @@ module Vagrant
         #
         # @param [Hash] config_map Map of key to config class.
         def initialize(config_map, keys=nil)
-          @keys       = keys || {}
-          @config_map = config_map
+          @keys              = keys || {}
+          @config_map        = config_map
+          @missing_key_calls = Set.new
         end
 
         # We use method_missing as a way to get the configuration that is
@@ -25,8 +28,9 @@ module Vagrant
             @keys[name] = config_klass.new
             return @keys[name]
           else
-            # Super it up to probably raise a NoMethodError
-            super
+            # Record access to a missing key as an error
+            @missing_key_calls.add(name.to_s)
+            return DummyConfig.new
           end
         end
 
@@ -39,34 +43,15 @@ module Vagrant
           end
         end
 
-        # Validates the configuration classes of this instance and raises an
-        # exception if they are invalid. If you are implementing a custom configuration
-        # class, the method you want to implement is {Base#validate}. This is
-        # the method that checks all the validation, not one which defines
-        # validation rules.
-        def validate!(env)
-          # Validate each of the configured classes and store the results into
-          # a hash.
-          errors = @keys.inject({}) do |container, data|
-            key, instance = data
-            recorder = ErrorRecorder.new
-            instance.validate(env, recorder)
-            container[key.to_sym] = recorder if !recorder.errors.empty?
-            container
-          end
-
-          return if errors.empty?
-          raise Errors::ConfigValidationFailed, :messages => Util::TemplateRenderer.render("config/validation_failed", :errors => errors)
-        end
-
         # Returns the internal state of the root object. This is used
         # by outside classes when merging, and shouldn't be called directly.
         # Note the strange method name is to attempt to avoid any name
         # clashes with potential configuration keys.
         def __internal_state
           {
-            "config_map" => @config_map,
-            "keys"       => @keys
+            "config_map"        => @config_map,
+            "keys"              => @keys,
+            "missing_key_calls" => @missing_key_calls
           }
         end
       end
