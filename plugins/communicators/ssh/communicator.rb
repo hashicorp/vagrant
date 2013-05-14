@@ -173,6 +173,7 @@ module VagrantPlugins
             Errno::ECONNREFUSED,
             Errno::ECONNRESET,
             Errno::EHOSTUNREACH,
+            Errno::ENETUNREACH,
             Net::SSH::Disconnect,
             Timeout::Error
           ]
