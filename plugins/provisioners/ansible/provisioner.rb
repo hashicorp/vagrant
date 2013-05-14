@@ -49,7 +49,7 @@ module VagrantPlugins
         end
       end
 
-      private
+      protected
 
       def as_list_argument(v)
         v.kind_of?(Array) ? v.join(',') : v
