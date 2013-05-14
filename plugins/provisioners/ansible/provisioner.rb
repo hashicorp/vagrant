@@ -16,6 +16,7 @@ module VagrantPlugins
         options << "--ask-sudo-pass" if config.ask_sudo_pass
         options << "--tags=#{as_list_argument(config.tags)}" if config.tags
         options << "--limit=#{as_list_argument(config.limit)}" if config.limit
+        options << "--start-at-task=#{config.start_at_task}" if config.start_at_task
         options << "--sudo" if config.sudo
         options << "--sudo-user=#{config.sudo_user}" if config.sudo_user
         if config.verbose
