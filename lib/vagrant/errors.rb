@@ -342,6 +342,11 @@ module Vagrant
       error_key(:ssh_unavailable_windows)
     end
 
+    class SSHConnectionClosed < VagrantError
+      status_code(78)
+      error_key(:ssh_connection_closed)
+    end
+
     class UIExpectsTTY < VagrantError
       status_code(73)
       error_key(:ui_expects_tty)

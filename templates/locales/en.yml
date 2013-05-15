@@ -112,6 +112,8 @@ en:
         %{path}
 
         Please create the folder manually or specify another path to share.
+      ssh_connection_closed: |-
+        The SSH connection was unexpectedly closed.
       ssh_authentication_failed: |-
         SSH authentication failed! This is typically caused by the public/private
         keypair for the SSH user not being properly set on the guest VM. Please
