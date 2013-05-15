@@ -23,3 +23,6 @@ https_proxy <%= https_proxy.inspect %>
 https_proxy_user <%= https_proxy_user.inspect %>
 https_proxy_pass <%= https_proxy_pass.inspect %>
 no_proxy <%= no_proxy.inspect %>
+<% if formatter %>
+formatter          "<%= formatter %>"
+<% end %>

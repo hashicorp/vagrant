@@ -28,5 +28,7 @@ https_proxy_pass <%= https_proxy_pass.inspect %>
 no_proxy <%= no_proxy.inspect %>
 
 pid_file           "/var/run/chef/chef-client.pid"
-
+<% if formatter %>
+formatter          "<%= formatter %>"
+<% end %>
 Mixlib::Log::Formatter.show_time = true

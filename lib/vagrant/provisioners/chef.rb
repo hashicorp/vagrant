@@ -42,6 +42,7 @@ module Vagrant
       def setup_config(template, filename, template_vars)
         config_file = TemplateRenderer.render(template, {
           :log_level => config.log_level.to_sym,
+          :formatter => config.formatter,
           :http_proxy => config.http_proxy,
           :http_proxy_user => config.http_proxy_user,
           :http_proxy_pass => config.http_proxy_pass,
@@ -104,6 +105,7 @@ module Vagrant
         attr_accessor :node_name
         attr_accessor :provisioning_path
         attr_accessor :log_level
+        attr_accessor :formatter
         attr_accessor :json
         attr_accessor :http_proxy
         attr_accessor :http_proxy_user
