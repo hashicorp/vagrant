@@ -328,58 +328,65 @@ module Vagrant
       config, config_warnings, config_errors = \
         @config_loader.load([:default, :home, :root, vm_config_key])
 
+      # Determine the possible box formats for any boxes and find the box
+      box_formats = provider_options[:box_format] || provider
       box = nil
-      if config.vm.box
-        # Determine the box formats we support
-        formats = provider_options[:box_format]
-        formats ||= provider
-        formats = [formats] if !formats.is_a?(Array)
 
-        @logger.info("Provider-supported box formats: #{formats.inspect}")
-        formats.each do |format|
-          begin
-            box = boxes.find(config.vm.box, format.to_s)
-          rescue Errors::BoxUpgradeRequired
-            # Upgrade the box if we must
-            @logger.info("Upgrading box during config load: #{config.vm.box}")
-            boxes.upgrade(config.vm.box)
-            retry
-          end
+      # Set this variable in order to keep track of if the box changes
+      # too many times.
+      original_box = config.vm.box
+      box_changed  = false
 
-          # If a box was found, we exit
-          if box
-            @logger.info("Box found with format: #{format}")
-            break
+      load_box_and_overrides = lambda do
+        box = find_box(config.vm.box, box_formats) if config.vm.box
+
+        # If a box was found, then we attempt to load the Vagrantfile for
+        # that box. We don't require a box since we allow providers to download
+        # boxes and so on.
+        if box
+          box_vagrantfile = find_vagrantfile(box.directory)
+          if box_vagrantfile
+            # The box has a custom Vagrantfile, so we load that into the config
+            # as well.
+            @logger.info("Box exists with Vagrantfile. Reloading machine config.")
+            box_config_key = "box_#{box.name}_#{box.provider}".to_sym
+            @config_loader.set(box_config_key, box_vagrantfile)
+            config, config_warnings, config_errors = \
+              @config_loader.load([:default, box_config_key, :home, :root, vm_config_key])
           end
         end
-      end
 
-      # If a box was found, then we attempt to load the Vagrantfile for
-      # that box. We don't require a box since we allow providers to download
-      # boxes and so on.
-      if box
-        box_vagrantfile = find_vagrantfile(box.directory)
-        if box_vagrantfile
-          # The box has a custom Vagrantfile, so we load that into the config
-          # as well.
-          @logger.info("Box exists with Vagrantfile. Reloading machine config.")
-          box_config_key = "box_#{box.name}_#{box.provider}".to_sym
-          @config_loader.set(box_config_key, box_vagrantfile)
+        # If there are provider overrides for the machine, then we run
+        # those as well.
+        provider_overrides = config.vm.get_provider_overrides(provider)
+        if provider_overrides.length > 0
+          @logger.info("Applying #{provider_overrides.length} provider overrides. Reloading config.")
+          provider_override_key = "vm_#{name}_#{config.vm.box}_#{provider}".to_sym
+          @config_loader.set(provider_override_key, provider_overrides)
           config, config_warnings, config_errors = \
-            @config_loader.load([:default, box_config_key, :home, :root, vm_config_key])
+            @config_loader.load([:default, box_config_key, :home, :root, vm_config_key, provider_override_key])
+        end
+
+        if config.vm.box && original_box != config.vm.box
+          if box_changed
+            # We already changed boxes once, so report an error that a
+            # box is attempting to change boxes again.
+            raise Errors::BoxConfigChangingBox
+          end
+
+          # The box changed, probably due to the provider override. Let's
+          # run the configuration one more time with the new box.
+          @logger.info("Box changed to: #{config.vm.box}. Reloading configurations.")
+          original_box = config.vm.box
+          box_changed  = true
+
+          # Recurse so that we reload all the configurations
+          load_box_and_overrides.call
         end
       end
 
-      # If there are provider overrides for the machine, then we run
-      # those as well.
-      provider_overrides = config.vm.get_provider_overrides(provider)
-      if provider_overrides.length > 0
-        @logger.info("Applying #{provider_overrides.length} provider overrides. Reloading config.")
-        provider_override_key = "vm_#{name}_#{config.vm.box}_#{provider}".to_sym
-        @config_loader.set(provider_override_key, provider_overrides)
-        config, config_warnings, config_errors = \
-          @config_loader.load([:default, box_config_key, :home, :root, vm_config_key, provider_override_key])
-      end
+      # Load the box and overrides configuration
+      load_box_and_overrides.call
 
       # Get the provider configuration from the final loaded configuration
       provider_config = config.vm.get_provider_config(provider)
@@ -398,11 +405,11 @@ module Vagrant
           "config/messages",
           :warnings => config_warnings,
           :errors => config_errors).chomp
-        @ui.send(level, I18n.t("vagrant.general.config_upgrade_messages",
-                              :output => output))
+          @ui.send(level, I18n.t("vagrant.general.config_upgrade_messages",
+                                 :output => output))
 
-        # If we had errors, then we bail
-        raise Errors::ConfigUpgradeErrors if !config_errors.empty?
+          # If we had errors, then we bail
+          raise Errors::ConfigUpgradeErrors if !config_errors.empty?
       end
 
       # Create the machine and cache it for future calls. This will also
@@ -686,6 +693,39 @@ module Vagrant
       Pathname.new(path)
     end
 
+    # This finds a box for the given name and formats, or returns nil
+    # if the box isn't found.
+    #
+    # @param [String] name Name of the box
+    # @param [Array<Symbol>] formats The formats to search for the box.
+    # @return [Box]
+    def find_box(name, formats)
+      # Determine the box formats we support
+      formats = [formats] if !formats.is_a?(Array)
+
+      @logger.info("Provider-supported box formats: #{formats.inspect}")
+      formats.each do |format|
+        box = nil
+
+        begin
+          box = boxes.find(name, format.to_s)
+        rescue Errors::BoxUpgradeRequired
+          # Upgrade the box if we must
+          @logger.info("Upgrading box during config load: #{name}")
+          boxes.upgrade(name)
+          retry
+        end
+
+        # If a box was found, we exit
+        if box
+          @logger.info("Box found with format: #{format}")
+          return box
+        end
+      end
+
+      nil
+    end
+
     # Finds the Vagrantfile in the given directory.
     #
     # @param [Pathname] path Path to search in.
@@ -797,7 +837,7 @@ module Vagrant
 
       # Upgrade complete! Let the user know
       @ui.info(I18n.t("vagrant.general.upgraded_v1_dotfile",
-                     :backup_path => backup_file.to_s))
+                      :backup_path => backup_file.to_s))
     end
   end
 end

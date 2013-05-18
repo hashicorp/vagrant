@@ -303,7 +303,16 @@ module VagrantPlugins
               # Sometimes, VBoxManage fails but doesn't actual return a non-zero
               # exit code. For this we inspect the output and determine if an error
               # occurred.
-              if r.stderr =~ /VBoxManage: error:/
+
+              if r.stderr =~ /failed to open \/dev\/vboxnetctl/i
+                # This catches an error message that only shows when kernel
+                # drivers aren't properly installed.
+                @logger.error("Error message about unable to open vboxnetctl")
+                raise Vagrant::Errors::VirtualBoxKernelModuleNotLoaded
+              end
+
+              if r.stderr =~ /VBoxManage([.a-z]+?): error:/
+                # This catches the generic VBoxManage error case.
                 @logger.info("VBoxManage error text found, assuming error.")
                 errored = true
               end

@@ -53,6 +53,9 @@ module VagrantPlugins
       end
 
       def network(type, *args)
+        # Convert to symbol so we can allow most anything...
+        type = type.to_sym if type
+
         if type == :hostonly
           @networks << [:private_network, args]
         elsif type == :bridged
@@ -110,8 +113,8 @@ module VagrantPlugins
         # VirtualBox provider on the new VM.
         if !self.customizations.empty?
           warnings << "`config.vm.customize` calls are VirtualBox-specific. If you're\n" +
-            "using any other provider, you'll have to find provider-specific configuration\n" +
-            "to translate to manually in your Vagrantfile."
+            "using any other provider, you'll have to use config.vm.provider in a\n" +
+            "v2 configuration block."
 
           new.vm.provider :virtualbox do |vb|
             self.customizations.each do |customization|

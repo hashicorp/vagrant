@@ -25,6 +25,8 @@ en:
       CFEngine running in "single run" mode. Will execute one file.
     cfengine_single_run_execute: |-
       Executing run file for CFEngine...
+    chef_run_list_empty: |-
+      Warning: Chef solo run list is empty. This may not be what you want.
 
     cfengine_config:
       classes_array: |-
@@ -118,6 +120,11 @@ en:
         Any errors that occurred are shown below.
 
         %{message}
+      box_config_changing_box: |-
+        While loading the Vagrantfile, the provider override specified
+        a new box. This box, in turn, specified a different box. This isn't
+        allowed, as it could lead to infinite recursion of Vagrant configuration
+        loading. Please fix this.
       box_metadata_file_not_found: |-
         The "metadata.json" file for the box '%{name}' was not found.
         Boxes require this file in order for Vagrant to determine the
@@ -521,8 +528,8 @@ en:
         %{supported_versions}
       virtualbox_kernel_module_not_loaded: |-
         VirtualBox is complaining that the kernel module is not loaded. Please
-        run `VBoxManage --version` to see the error message which should contain
-        instructions on how to fix this error.
+        run `VBoxManage --version` or open the VirtualBox GUI to see the error
+        message which should contain instructions on how to fix this error.
       virtualbox_install_incomplete: |-
         VirtualBox is complaining that the installation is incomplete. Please
         run `VBoxManage --version` to see the error message which should contain
@@ -569,7 +576,6 @@ en:
         cookbooks_path_empty: "Must specify a cookbooks path for chef solo."
         cookbooks_path_missing: |-
           Cookbook path doesn't exist: %{path}
-        run_list_empty: "Run list must not be empty."
         server_url_empty: "Chef server URL must be populated."
         validation_key_path: "Validation key path must be valid path to your chef server validation key."
       loader:

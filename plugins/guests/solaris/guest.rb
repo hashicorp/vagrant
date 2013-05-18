@@ -7,7 +7,7 @@ module VagrantPlugins
     # Contributed by Blake Irvin <b.irvin@modcloth.com>
     class Guest < Vagrant.plugin("2", :guest)
       def detect?(machine)
-        machine.communicate.test("grep 'Solaris' /etc/release")
+        machine.communicate.test("uname -o | grep Solaris")
       end
     end
   end

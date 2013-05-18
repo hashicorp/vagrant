@@ -103,6 +103,10 @@ module Vagrant
       error_key(:already_exists, "vagrant.actions.box.unpackage")
     end
 
+    class BoxConfigChangingBox < VagrantError
+      error_key(:box_config_changing_box)
+    end
+
     class BoxMetadataFileNotFound < VagrantError
       error_key(:box_metadata_file_not_found)
     end

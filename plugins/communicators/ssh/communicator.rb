@@ -194,7 +194,12 @@ module VagrantPlugins
                   :verbose => :debug
                 })
 
-                @logger.info("Attempting to connect to SSH: #{ssh_info[:host]}:#{ssh_info[:port]}")
+                @logger.info("Attempting to connect to SSH...")
+                @logger.info("  - Host: #{ssh_info[:host]}")
+                @logger.info("  - Port: #{ssh_info[:port]}")
+                @logger.info("  - Username: #{ssh_info[:username]}")
+                @logger.info("  - Key Path: #{ssh_info[:private_key_path]}")
+
                 Net::SSH.start(ssh_info[:host], ssh_info[:username], connect_opts)
               ensure
                 # Make sure we output the connection log

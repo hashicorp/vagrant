@@ -48,12 +48,19 @@ module VagrantPlugins
       # on the remote server. This method will properly clean up the
       # script file if needed.
       def with_script_file
+        script = nil
+
         if config.path
           # Just yield the path to that file...
           root_path = @machine.env.root_path
-          yield Pathname.new(config.path).expand_path(root_path)
-          return
+          script = Pathname.new(config.path).expand_path(root_path).read
+        else
+          # The script is just the inline code...
+          script = config.inline
         end
+
+        # Replace Windows line endings with Unix ones
+        script.gsub!(/\r\n?$/, "\n")
 
         # Otherwise we have an inline script, we need to Tempfile it,
         # and handle it specially...
@@ -65,7 +72,7 @@ module VagrantPlugins
         file.binmode
 
         begin
-          file.write(config.inline)
+          file.write(script)
           file.fsync
           file.close
           yield file.path

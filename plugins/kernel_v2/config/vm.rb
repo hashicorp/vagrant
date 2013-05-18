@@ -31,12 +31,12 @@ module VagrantPlugins
 
         # Internal state
         @__compiled_provider_configs   = {}
-        @__compiled_provider_overrides = {}
         @__defined_vm_keys             = []
         @__defined_vms                 = {}
         @__finalized                   = false
         @__networks                    = {}
         @__providers                   = {}
+        @__provider_overrides          = {}
         @__synced_folders              = {}
       end
 
@@ -80,6 +80,14 @@ module VagrantPlugins
             new_providers[key] += blocks
           end
 
+          # Merge the provider overrides by appending them...
+          other_overrides = other.instance_variable_get(:@__provider_overrides)
+          new_overrides   = @__provider_overrides.dup
+          other_overrides.each do |key, blocks|
+            new_overrides[key] ||= []
+            new_overrides[key] += blocks
+          end
+
           # Merge synced folders.
           other_folders = other.instance_variable_get(:@__synced_folders)
           new_folders = @__synced_folders.dup
@@ -91,6 +99,7 @@ module VagrantPlugins
           result.instance_variable_set(:@__defined_vm_keys, new_defined_vm_keys)
           result.instance_variable_set(:@__defined_vms, new_defined_vms)
           result.instance_variable_set(:@__providers, new_providers)
+          result.instance_variable_set(:@__provider_overrides, new_overrides)
           result.instance_variable_set(:@__synced_folders, new_folders)
         end
       end
@@ -165,7 +174,17 @@ module VagrantPlugins
       def provider(name, &block)
         name = name.to_sym
         @__providers[name] ||= []
-        @__providers[name] << block if block_given?
+        @__provider_overrides[name] ||= []
+
+        if block_given?
+          @__providers[name] << block if block_given?
+
+          # If this block takes two arguments, then we curry it and store
+          # the configuration override for use later.
+          if block.arity == 2
+            @__provider_overrides[name] << block.curry[Vagrant::Config::V2::DummyConfig.new]
+          end
+        end
       end
 
       def provision(name, options=nil, &block)
@@ -223,23 +242,15 @@ module VagrantPlugins
 
           # Load it up
           config    = config_class.new
-          overrides = []
 
           blocks.each do |b|
             b.call(config, Vagrant::Config::V2::DummyConfig.new)
-
-            # If the block takes two arguments, then we store the second
-            # one away for overrides later.
-            if b.arity == 2
-              overrides << b.curry[Vagrant::Config::V2::DummyConfig.new]
-            end
           end
 
           config.finalize!
 
           # Store it for retrieval later
           @__compiled_provider_configs[name]   = config
-          @__compiled_provider_overrides[name] = overrides
         end
 
         # Flag that we finalized
@@ -274,7 +285,7 @@ module VagrantPlugins
       # @param [Symbol] name Name of the provider
       # @return [Array<Proc>]
       def get_provider_overrides(name)
-        (@__compiled_provider_overrides[name] || []).map do |p|
+        (@__provider_overrides[name] || []).map do |p|
           ["2", p]
         end
       end

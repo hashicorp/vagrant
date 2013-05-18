@@ -1,8 +1,61 @@
-## 1.2.2 (unreleased)
+## 1.2.3 (unreleased)
+
+FEATURES:
+
+  - Puppet provisioner now supports Hiera by specifying a `hiera_config_path`.
+  - Added a `working_directory` configuration option to the Puppet apply
+    provisioner so you can specify the working directory when `puppet` is
+    called, making it friendly to Hiera data and such. [GH-1670]
+
+IMPROVEMENTS:
+
+  - Setting hostnames works properly on OmniOS. [GH-1672]
+  - Better VBoxManage error detection on Windows systems. This avoids
+    some major issues where Vagrant would sometimes "lose" your VM. [GH-1669]
+  - Better detection of missing VirtualBox kernel drivers on Linux
+    systems. [GH-1671]
+  - More precise detection of Ubuntu/Debian guests so that running Vagrant
+    within an LXC container works properly now.
+  - Allow strings in addition to symbols to more places in V1 configuration
+    as well as V2 configuration.
+
+BUG FIXES:
+
+  - Ignore "guest not ready" errors when attempting to graceful halt and
+    carry on checks whether the halt succeeded. [GH-1679]
+  - Handle the case where a roles path for Chef solo isn't properly
+	defined. [GH-1665]
+  - Finding V1 boxes now works properly again to avoid "box not found"
+    errors. [GH-1691]
+
+## 1.2.2 (April 23, 2013)
+
+FEATURES:
+
+  - New `DestroyConfirm` built-in middleware for providers so they can
+    more easily conform to the `destroy` action.
+
+IMPROVEMENTS:
+
+  - No longer an error if the Chef run list is empty. It is now
+    a warning. [GH-1620]
+  - Better locking around handling the `box_url` parameter for
+    parallel providers.
+  - Solaris guest is now properly detected on SmartOS, OmniOS, etc. [GH-1639]
+  - Guest addition version detection is more robust, attempting other
+    routes to get the version, and also retrying a few times. [GH-1575]
 
 BUG FIXES:
 
   - `vagrant package --base` works again. [GH-1615]
+  - Box overrides specified in provider config overrides no longer
+    fail to detect the box. [GH-1617]
+  - In a multi-machine environment, a box not found won't be downloaded
+    multiple times. [GH-1467]
+  - `vagrant box add` with a file path now works correctly on Windows
+    when a drive letter is specified.
+  - DOS line endings are converted to Unix line endings for the
+    shell provisioner automatically. [GH-1495]
 
 ## 1.2.1 (April 17, 2013)
 
@@ -36,6 +89,8 @@ BACKWARDS INCOMPATIBILITIES:
     To work around this, either set `VAGRANT_HOME` to your Cygwin ".vagrant.d"
     folder or move your ".vagrant.d" folder to `USERPROFILE`. The latter is
     recommended for long-term support.
+  - The constant `Vagrant::Environment::VAGRANT_HOME` was removed in favor of
+    `Vagrant::Environment#default_vagrant_home`.
 
 FEATURES:
 

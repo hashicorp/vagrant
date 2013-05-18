@@ -193,6 +193,8 @@ module Vagrant
     #
     # @param [String] value The ID.
     def id=(value)
+      @logger.info("New machine ID: #{value.inspect}")
+
       # The file that will store the id if we have one. This allows the
       # ID to persist across Vagrant runs.
       id_file = @data_dir.join("id")

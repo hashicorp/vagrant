@@ -264,6 +264,13 @@ module VagrantPlugins
             return value.split("_").first
           end
 
+          # If we can't get the guest additions version by guest property, try
+          # to get it from the VM info itself.
+          info = execute("showvminfo", @uuid, "--machinereadable", :retryable => true)
+          info.split("\n").each do |line|
+            return $1.to_s if line =~ /^GuestAdditionsVersion="(.+?)"$/
+          end
+
           return nil
         end
 

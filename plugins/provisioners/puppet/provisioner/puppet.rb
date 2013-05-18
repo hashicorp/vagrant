@@ -19,12 +19,12 @@ module VagrantPlugins
           root_path = @machine.env.root_path
           @expanded_manifests_path = @config.expanded_manifests_path(root_path)
           @expanded_module_paths   = @config.expanded_module_paths(root_path)
-          @manifest_file           = @config.manifest_file
+          @manifest_file           = File.join(manifests_guest_path, @config.manifest_file)
 
           # Setup the module paths
           @module_paths = []
           @expanded_module_paths.each_with_index do |path, i|
-            @module_paths << [path, File.join(config.pp_path, "modules-#{i}")]
+            @module_paths << [path, File.join(config.temp_dir, "modules-#{i}")]
           end
 
           # Share the manifests directory with the guest
@@ -52,11 +52,26 @@ module VagrantPlugins
 
           # Verify Puppet is installed and run it
           verify_binary("puppet")
+
+          # Make sure the temporary directory is properly set up
+          @machine.communicate.tap do |comm|
+            comm.sudo("mkdir -p #{config.temp_dir}")
+            comm.sudo("chmod 0777 #{config.temp_dir}")
+          end
+
+          # Upload Hiera configuration if we have it
+          @hiera_config_path = nil
+          if config.hiera_config_path
+            local_hiera_path   = File.expand_path(config.hiera_config_path, @machine.env.root_path)
+            @hiera_config_path = File.join(config.temp_dir, "hiera.yaml")
+            @machine.communicate.upload(local_hiera_path, @hiera_config_path)
+          end
+
           run_puppet_apply
         end
 
         def manifests_guest_path
-          File.join(config.pp_path, "manifests")
+          File.join(config.temp_dir, "manifests")
         end
 
         def verify_binary(binary)
@@ -78,6 +93,11 @@ module VagrantPlugins
             options << "--modulepath '#{module_paths.join(':')}'"
           end
 
+          if @hiera_config_path
+            options << "--hiera_config=#{@hiera_config_path}"
+          end
+
+          options << "--detailed-exitcodes"
           options << @manifest_file
           options = options.join(" ")
 
@@ -92,10 +112,13 @@ module VagrantPlugins
             facter = "#{facts.join(" ")} "
           end
 
-          command = "cd #{manifests_guest_path} && #{facter}puppet apply #{options} --detailed-exitcodes || [ $? -eq 2 ]"
+          command = "#{facter}puppet apply #{options} || [ $? -eq 2 ]"
+          if config.working_directory
+            command = "cd #{config.working_directory} && #{command}"
+          end
 
           @machine.env.ui.info I18n.t("vagrant.provisioners.puppet.running_puppet",
-                                      :manifest => @manifest_file)
+                                      :manifest => config.manifest_file)
 
           @machine.communicate.sudo(command) do |type, data|
             data.chomp!
