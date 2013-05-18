@@ -3,15 +3,14 @@ require 'json'
 module VagrantPlugins
   module Salt
     class Provisioner < Vagrant.plugin("2", :provisioner)
-    
       def provision
         upload_configs
         upload_keys
         run_bootstrap_script
 
-        if @config.seed_master and @config.install_master
-          seed_master
-        end
+        # if @config.seed_master and @config.install_master
+        #   seed_master
+        # end
 
         if @config.accept_keys
           @machine.env.ui.warn "ATTENTION: 'salt.accept_keys' is deprecated. Please use salt.seed_master to upload your minion keys"
@@ -23,7 +22,7 @@ module VagrantPlugins
 
       def seed_master
         @machine.env.ui.info 'Uploading %d keys to /etc/salt/pki/master/minions/' % config.seed_master.length
-        staged_keys = accepted_keys
+        staged_keys = keys('minions_pre')
         @config.seed_master.each do |name, keyfile|
           if staged_keys.include? name
             @machine.env.ui.warn "Accepting staged key: %s" %name
@@ -39,12 +38,12 @@ module VagrantPlugins
       end
 
       # Return a list of accepted keys
-      def accepted_keys
-        out = @machine.communicate.sudo("salt-key -l acc --out json") do |type, output|
+      def keys(group='minions')
+        out = @machine.communicate.sudo("salt-key --out json") do |type, output|
           begin
             if type == :stdout
               out = JSON::load(output)
-              break out['minions']
+              break out[group]
             end
           end
         end
@@ -115,6 +114,17 @@ module VagrantPlugins
           options = "%s -c %s" % [options, config_dir]
         end
 
+        if @config.seed_master and @config.install_master
+          seed_dir = "/tmp/minion-seed-keys"
+          @machine.communicate.sudo("mkdir -p -m777 #{seed_dir}")
+          @config.seed_master.each do |name, keyfile|
+            sourcepath = expanded_path(keyfile).to_s
+            dest = "#{seed_dir}/seed-#{name}.pub"
+            @machine.communicate.upload(sourcepath, dest)   
+          end
+          options = "#{options} -k #{seed_dir}" 
+        end
+
         if configure and !install
           options = "%s -C" % options
         else
@@ -122,6 +132,8 @@ module VagrantPlugins
           if @config.install_master
             options = "%s -M" % options
           end
+
+
 
           if @config.install_syndic
             options = "%s -S" % options
@@ -148,6 +160,11 @@ module VagrantPlugins
       end
 
       ## Actions
+      # Get pillar string to pass with the salt command
+      def get_pillar
+        " pillar='#{@config.pillar_data.to_json}'" if !@config.pillar_data.empty?
+      end
+
       # Copy master and minion configs to VM
       def upload_configs
         if @config.minion_config
@@ -240,7 +257,7 @@ module VagrantPlugins
 
         key_staged = false
 
-        keys = accepted_keys
+        keys = keys()
         if keys.length > 0
           @machine.env.ui.info "Minion keys registered:"
           keys.each do |name|
@@ -283,14 +300,14 @@ module VagrantPlugins
           @machine.env.ui.info "Calling state.highstate... (this may take a while)"
           if @config.install_master
             @machine.communicate.sudo("salt '*' saltutil.sync_all")
-            @machine.communicate.sudo("salt '*' state.highstate --verbose") do |type, data|
+            @machine.communicate.sudo("salt '*' state.highstate --verbose#{get_pillar}") do |type, data|
               if @config.verbose
                 @machine.env.ui.info(data)
               end
             end
           else
             @machine.communicate.sudo("salt-call saltutil.sync_all")
-            @machine.communicate.sudo("salt-call state.highstate -l debug") do |type, data|
+            @machine.communicate.sudo("salt-call state.highstate -l debug#{get_pillar}") do |type, data|
               if @config.verbose
                 @machine.env.ui.info(data)
               end
