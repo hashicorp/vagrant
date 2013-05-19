@@ -200,6 +200,17 @@ module VagrantPlugins
         end
 
         def bridged_network_config(config)
+          if config[:ip]
+            options = {
+                :auto_config => true,
+                :mac         => nil,
+                :netmask     => "255.255.255.0",
+                :type        => :static
+            }.merge(config)
+            options[:type] = options[:type].to_sym
+            return options
+          end
+
           return {
             :type => :dhcp,
             :use_dhcp_assigned_default_route => config[:use_dhcp_assigned_default_route]
