@@ -29,6 +29,7 @@ module Vagrant
           downloader_options = {}
           downloader_options[:insecure] = env[:box_download_insecure]
           downloader_options[:ui] = env[:ui]
+          downloader_options[:client_cert] = env[:box_client_cert]
 
           # Download the box to a temporary path. We store the temporary
           # path as an instance variable so that the `#recover` method can
