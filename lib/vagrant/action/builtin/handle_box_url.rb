@@ -27,8 +27,9 @@ module Vagrant
             # We can assume a box URL is set because the Vagrantfile
             # validation should do this for us. If not, though, we do
             # raise a terrible runtime error.
-            box_name = env[:machine].config.vm.box
-            box_url  = env[:machine].config.vm.box_url
+            box_name        = env[:machine].config.vm.box
+            box_url         = env[:machine].config.vm.box_url
+            box_client_cert = env[:machine].config.vm.client_cert
 
             lock.synchronize do
               # First see if we actually have the box now.
@@ -53,9 +54,10 @@ module Vagrant
 
                 begin
                   env[:action_runner].run(Vagrant::Action.action_box_add, {
-                    :box_name     => box_name,
-                    :box_provider => env[:machine].provider_name,
-                    :box_url      => box_url
+                    :box_name          => box_name,
+                    :box_provider      => env[:machine].provider_name,
+                    :box_url           => box_url,
+                    :box_client_cert   => box_client_cert
                   })
                 rescue Errors::BoxAlreadyExists
                   # Just ignore this, since it means the next part will succeed!
