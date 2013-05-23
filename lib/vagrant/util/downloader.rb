@@ -18,6 +18,7 @@ module Vagrant
         options     ||= {}
         @insecure    = options[:insecure]
         @ui          = options[:ui]
+        @client_cert = options[:client_cert]
       end
 
       # This executes the actual download, downloading the source file
@@ -36,6 +37,7 @@ module Vagrant
         ]
 
         options << "--insecure" if @insecure
+        options << "--cert" << @client_cert if @client_cert
         options << @source
 
         # Specify some options for the subprocess
