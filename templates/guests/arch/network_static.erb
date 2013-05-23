@@ -1,6 +1,5 @@
-CONNECTION='ethernet'
-DESCRIPTION='A basic static ethernet connection'
-INTERFACE='eth<%= options[:interface] %>'
-IP='static'
-ADDR='<%= options[:ip]%>'
-NETMASK='<%= options[:netmask] %>'
+Connection=ethernet
+Description='A basic static ethernet connection'
+Interface=eth<%= options[:interface] %>
+IP=static
+Address=('<%= options[:ip]%>/24')
