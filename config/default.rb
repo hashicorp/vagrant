@@ -3,6 +3,7 @@ Vagrant.configure("2") do |config|
 
   config.ssh.forward_agent = false
   config.ssh.forward_x11 = false
+  config.ssh.request_tty = false
   config.ssh.guest_port = 22
   config.ssh.keep_alive = true
   config.ssh.max_tries = 100

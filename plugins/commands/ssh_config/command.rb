@@ -33,7 +33,8 @@ module VagrantPlugins
             :ssh_user => ssh_info[:username],
             :private_key_path => ssh_info[:private_key_path],
             :forward_agent => ssh_info[:forward_agent],
-            :forward_x11   => ssh_info[:forward_x11]
+            :forward_x11   => ssh_info[:forward_x11],
+            :request_tty   => ssh_info[:request_tty]
           }
 
           # Render the template and output directly to STDOUT

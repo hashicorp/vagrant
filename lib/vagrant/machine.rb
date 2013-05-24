@@ -271,9 +271,10 @@ module Vagrant
       info[:port] = @config.ssh.port if @config.ssh.port
       info[:username] = @config.ssh.username if @config.ssh.username
 
-      # We also set some fields that are purely controlled by Varant
+      # We also set some fields that are purely controlled by Vagrant
       info[:forward_agent] = @config.ssh.forward_agent
       info[:forward_x11]   = @config.ssh.forward_x11
+      info[:request_tty] = @config.ssh.request_tty
 
       # Set the private key path. If a specific private key is given in
       # the Vagrantfile we set that. Otherwise, we use the default (insecure)

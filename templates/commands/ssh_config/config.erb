@@ -14,3 +14,6 @@ Host <%= host_key %>
 <% if forward_x11 -%>
   ForwardX11 yes
 <% end -%>
+<% if request_tty -%>
+  RequestTTY force
+<% end -%>
