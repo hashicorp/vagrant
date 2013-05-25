@@ -27,6 +27,7 @@ BUG FIXES:
 	defined. [GH-1665]
   - Finding V1 boxes now works properly again to avoid "box not found"
     errors. [GH-1691]
+  - Ignore nfs option for config.vm.sync_folder on windows. [GH-1748]
 
 ## 1.2.2 (April 23, 2013)
 

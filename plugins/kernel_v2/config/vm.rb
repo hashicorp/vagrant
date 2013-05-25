@@ -4,6 +4,7 @@ require "set"
 
 require "vagrant"
 require "vagrant/config/v2/util"
+require "vagrant/util/platform"
 
 require File.expand_path("../vm_provisioner", __FILE__)
 require File.expand_path("../vm_subvm", __FILE__)
@@ -120,6 +121,8 @@ module VagrantPlugins
         options ||= {}
         options[:guestpath] = guestpath.to_s.gsub(/\/$/, '')
         options[:hostpath]  = hostpath
+        # ignore nfs option on windows
+        options[:nfs] &&= !Vagrant::Util::Platform.windows?
 
         @__synced_folders[options[:guestpath]] = options
       end
