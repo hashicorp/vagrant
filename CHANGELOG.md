@@ -27,6 +27,7 @@ BUG FIXES:
 	defined. [GH-1665]
   - Finding V1 boxes now works properly again to avoid "box not found"
     errors. [GH-1691]
+  - Setting hostname on SLES 11 works again. [GH-1781]
 
 ## 1.2.2 (April 23, 2013)
 
