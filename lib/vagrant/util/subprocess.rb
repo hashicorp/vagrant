@@ -5,6 +5,7 @@ require 'log4r'
 
 require 'vagrant/util/platform'
 require 'vagrant/util/safe_chdir'
+require 'vagrant/util/which'
 
 module Vagrant
   module Util
@@ -26,10 +27,10 @@ module Vagrant
       def initialize(*command)
         @options = command.last.is_a?(Hash) ? command.pop : {}
         @command = command
-        if Platform.windows?
-          locations = `where #{command[0]}`
-          new_command = "#{locations.split("\n")[0]}"
-          @command[0] = new_command if $?.success? and File.exists?(new_command)
+        @command[0] = Which.which(@command[0])
+        unless @command[0]
+          raise Errors::CommandUnavailableWindows if Platform.windows?
+          raise Errors::CommandUnavailable
         end
         @logger  = Log4r::Logger.new("vagrant::util::subprocess")
       end
