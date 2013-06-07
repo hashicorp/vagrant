@@ -27,9 +27,11 @@ module VagrantPlugins
             @module_paths << [path, File.join(config.temp_dir, "modules-#{i}")]
           end
 
-          # Share the manifests directory with the guest
-          root_config.vm.synced_folder(
-            @expanded_manifests_path, manifests_guest_path)
+          if @config.manifests_guest_path.empty?
+            # Share the manifests directory with the guest
+            root_config.vm.synced_folder(
+              @expanded_manifests_path, manifests_guest_path)
+          end
 
           # Share the module paths
           count = 0
@@ -71,7 +73,11 @@ module VagrantPlugins
         end
 
         def manifests_guest_path
-          File.join(config.temp_dir, "manifests")
+          if @config.manifests_guest_path.empty?
+            File.join(config.temp_dir, "manifests")
+          else 
+            @config.manifests_guest_path
+          end
         end
 
         def verify_binary(binary)
