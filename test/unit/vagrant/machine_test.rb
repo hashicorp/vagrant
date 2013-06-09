@@ -328,6 +328,13 @@ describe Vagrant::Machine do
         instance.ssh_info[:forward_x11].should == false
       end
 
+      it "should set the configured request TTY settings" do
+        provider_ssh_info[:request_tty] = true
+        instance.config.ssh.request_tty = false
+
+        instance.ssh_info[:request_tty].should == false
+      end
+
       it "should return the provider private key if given" do
         provider_ssh_info[:private_key_path] = "/foo"
 

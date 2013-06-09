@@ -130,6 +130,7 @@ module Vagrant
         #
         # Without having extra_args be last, the user loses this ability
         command_options += ["-o", "ForwardAgent=yes"] if ssh_info[:forward_agent]
+        command_options += ["-o", "RequestTTY=force"] if ssh_info[:request_tty]
         command_options.concat(opts[:extra_args]) if opts[:extra_args]
 
         # Build up the host string for connecting

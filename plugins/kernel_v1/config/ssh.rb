@@ -13,6 +13,7 @@ module VagrantPlugins
       attr_accessor :private_key_path
       attr_accessor :forward_agent
       attr_accessor :forward_x11
+      attr_accessor :request_tty
       attr_accessor :shell
 
       def initialize
@@ -26,6 +27,7 @@ module VagrantPlugins
         @private_key_path = UNSET_VALUE
         @forward_agent    = UNSET_VALUE
         @forward_x11      = UNSET_VALUE
+        @request_tty      = UNSET_VALUE
         @shell            = UNSET_VALUE
       end
 
@@ -39,6 +41,7 @@ module VagrantPlugins
         new.ssh.private_key_path = @private_key_path if @private_key_path != UNSET_VALUE
         new.ssh.forward_agent    = @forward_agent if @forward_agent != UNSET_VALUE
         new.ssh.forward_x11      = @forward_x11 if @forward_x11 != UNSET_VALUE
+        new.ssh.request_tty      = @request_tty if @request_tty != UNSET_VALUE
         new.ssh.shell            = @shell if @shell != UNSET_VALUE
       end
     end

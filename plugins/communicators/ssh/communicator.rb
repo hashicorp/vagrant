@@ -260,6 +260,15 @@ module VagrantPlugins
 
         # Open the channel so we can execute or command
         channel = connection.open_channel do |ch|
+          if @machine.config.ssh.request_tty
+            ch.request_pty do |ch2, success|
+              if success
+                @logger.debug("Forced RequestTTY successfully obtained")
+              else
+                @logger.info("Could not obtain required TTY")
+              end
+            end
+          end
           ch.exec(shell) do |ch2, _|
             # Setup the channel callbacks so we can get data and exit status
             ch2.on_data do |ch3, data|
