@@ -10,6 +10,9 @@ The following guidelines for contribution should be followed if you want to subm
 * Submit an [issue ticket](https://github.com/mitchellh/vagrant/issues) for your issue if the is no one yet.
 	* Describe the issue and include steps to reproduce when it's a bug.
 	* Ensure to mention the earliest version that you know is affected.
+  * If you plan on submitting a bug report, please submit debug-level logs along
+    with the report using [gist](https://gist.github.com/) or some other paste
+    service by prepending `VAGRANT_LOG=debug` to your `vagrant` commands.
 * Fork the repository on GitHub
 
 ## Make Changes
