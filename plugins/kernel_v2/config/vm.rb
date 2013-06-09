@@ -385,6 +385,14 @@ module VagrantPlugins
               fp_host_ports.add(options[:host])
             end
           end
+
+          if type == :private_network
+            if options[:type] != :dhcp
+              if !options[:ip]
+                errors << I18n.t("vagrant.config.vm.network_ip_required")
+              end
+            end
+          end
         end
 
         # We're done with VM level errors so prepare the section

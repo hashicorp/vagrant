@@ -36,6 +36,7 @@ BUG FIXES:
   - `config.vm.guest` properly forces guests again. [GH-1800]
   - The `read_ip_address` capability for linux properly reads the IP
     of only the first network interface. [GH-1799]
+  - Validate that an IP is given for a private network. [GH-1788]
 
 ## 1.2.2 (April 23, 2013)
 
