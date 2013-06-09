@@ -20,6 +20,9 @@ IMPROVEMENTS:
     as well as V2 configuration.
   - Add `ARPCHECK=0` to RedHat OS family network configuration. [GH-1815]
   - Add SSH agent forwarding sample to initial Vagrantfile. [GH-1808]
+  - VirtualBox: Only configure networks if there are any to configure.
+    This allows linux's that don't implement this capability to work with
+    Vagrant. [GH-1796]
 
 BUG FIXES:
 
