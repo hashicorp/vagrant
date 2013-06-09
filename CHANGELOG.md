@@ -6,6 +6,7 @@ FEATURES:
   - Added a `working_directory` configuration option to the Puppet apply
     provisioner so you can specify the working directory when `puppet` is
     called, making it friendly to Hiera data and such. [GH-1670]
+  - Ability to specify the host IP to bind forwarded ports to. [GH-1785]
 
 IMPROVEMENTS:
 
@@ -23,6 +24,8 @@ IMPROVEMENTS:
   - VirtualBox: Only configure networks if there are any to configure.
     This allows linux's that don't implement this capability to work with
     Vagrant. [GH-1796]
+  - Default SSH forwarded port now binds to 127.0.0.1 so only local
+    connections are allowed. [GH-1785]
 
 BUG FIXES:
 
