@@ -167,6 +167,8 @@ en:
         available below.
 
         %{help}
+      command_unavailable: "command binary could not be found. Is this application installed?"
+      command_unavailable_windows: "command executable not found in any directories in the %PATH% variable."
       config_invalid: |-
         There are errors in the configuration of this machine. Please fix
         the following errors and try again:
