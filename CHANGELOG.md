@@ -31,6 +31,8 @@ BUG FIXES:
     errors. [GH-1691]
   - Setting hostname on SLES 11 works again. [GH-1781]
   - `config.vm.guest` properly forces guests again. [GH-1800]
+  - The `read_ip_address` capability for linux properly reads the IP
+    of only the first network interface. [GH-1799]
 
 ## 1.2.2 (April 23, 2013)
 
