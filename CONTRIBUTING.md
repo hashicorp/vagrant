@@ -1,13 +1,13 @@
 # How to contribute
 
-I like to encourage you to contribute to the repository.
+We like to encourage you to contribute to the repository.
 This should be as easy as possible for you but there are a few things to consider when contributing.
 The following guidelines for contribution should be followed if you want to submit a pull request.
 
 ## How to prepare
 
 * You need a [GitHub account](https://github.com/signup/free)
-* Submit an [issue ticket](https://github.com/anselmh/modx-boilerplate-evo/issues) for your issue if the is no one yet.
+* Submit an [issue ticket](https://github.com/mitchellh/vagrant/issues) for your issue if the is no one yet.
 	* Describe the issue and include steps to reproduce when it's a bug.
 	* Ensure to mention the earliest version that you know is affected.
 * Fork the repository on GitHub
