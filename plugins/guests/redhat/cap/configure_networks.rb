@@ -28,6 +28,14 @@ module VagrantPlugins
             machine.communicate.sudo("cat /tmp/vagrant-ifcfg-eth#{network[:interface]} > #{network_scripts_dir}/ifcfg-eth#{network[:interface]}")
             machine.communicate.sudo("rm /tmp/vagrant-ifcfg-eth#{network[:interface]}")
 
+            # Add hostname to network so template can access it, if it has been requested
+            # to be included in the DHCP request.
+            if network[:send_hostname_in_dhcp_request] && !machine.config.vm.hostname.nil?
+              network = {
+                  :hostname => machine.config.vm.hostname
+              }.merge(network)
+            end
+
             # Render and upload the network entry file to a deterministic
             # temporary location.
             entry = TemplateRenderer.render("guests/redhat/network_#{network[:type]}",
