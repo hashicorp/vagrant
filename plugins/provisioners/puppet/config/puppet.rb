@@ -65,7 +65,7 @@ module VagrantPlugins
           this_expanded_manifests_path = expanded_manifests_path(machine.env.root_path)
           this_expanded_module_paths = expanded_module_paths(machine.env.root_path)
           
-          if manifests_guest_path.empty?
+          if !manifests_guest_path?
             # Manifests path/file validation
             if !this_expanded_manifests_path.directory? 
                errors << I18n.t("vagrant.provisioners.puppet.manifests_path_missing",

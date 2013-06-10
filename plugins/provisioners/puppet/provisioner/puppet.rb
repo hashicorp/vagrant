@@ -27,7 +27,7 @@ module VagrantPlugins
             @module_paths << [path, File.join(config.temp_dir, "modules-#{i}")]
           end
 
-          if @config.manifests_guest_path.empty?
+          if !@config.manifests_guest_path?
             # Share the manifests directory with the guest
             root_config.vm.synced_folder(
               @expanded_manifests_path, manifests_guest_path)
@@ -73,10 +73,10 @@ module VagrantPlugins
         end
 
         def manifests_guest_path
-          if @config.manifests_guest_path.empty?
-            File.join(config.temp_dir, "manifests")
+          if config.manifests_guest_path
+            return config.manifests_guest_path
           else 
-            @config.manifests_guest_path
+            File.join(config.temp_dir, "manifests")
           end
         end
 
