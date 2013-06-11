@@ -32,13 +32,19 @@ module VagrantPlugins
         @ui.info I18n.t("vagrant.hosts.arch.nfs_export.prepare")
         sleep 0.5
 
+        # This should only ask for administrative permission only once
+        # You can use configure /etc/sudoers.d to avoid having to enter the password
+
         nfs_cleanup(id)
 
-        output.split("\n").each do |line|
-          # This should only ask for administrative permission once, even
-          # though its executed in multiple subshells.
-          system(%Q[sudo su root -c "echo '#{line}' >> /etc/exports"])
-        end
+        # now we need to escape some chars to make sure sed will work
+        # we know we make use of double-quotes, parenthesis, and multiple lines. So we are going to handle those cases
+        output = output.gsub("\"", "\\\"")
+        output = output.gsub("(", "\\(")
+        output = output.gsub(")", "\\)")
+        output = output.gsub("\n", "\\\n")
+        sed_command = "sudo sed -e '$a#{output}' -ibak /etc/exports"
+        system(sed_command)
 
         if systemd?
           # Call start to be nice. This will be a no-op if things are
