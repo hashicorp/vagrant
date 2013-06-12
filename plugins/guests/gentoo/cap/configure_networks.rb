@@ -3,9 +3,9 @@ require "tempfile"
 require "vagrant/util/template_renderer"
 
 module VagrantPlugins
-  module GuestFreeBSD
+  module GuestGentoo
     module Cap
-      class ChangeHostName
+      class ConfigureNetworks
         include Vagrant::Util
 
         def self.configure_networks(machine, networks)
