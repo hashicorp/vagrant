@@ -3,7 +3,7 @@ require "tempfile"
 require "vagrant/util/template_renderer"
 
 module VagrantPlugins
-  module GuestFreeBSD
+  module GuestGentoo
     module Cap
       class ChangeHostName
         include Vagrant::Util
