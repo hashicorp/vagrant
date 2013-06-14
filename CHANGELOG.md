@@ -41,6 +41,7 @@ BUG FIXES:
   - The `read_ip_address` capability for linux properly reads the IP
     of only the first network interface. [GH-1799]
   - Validate that an IP is given for a private network. [GH-1788]
+  - Fix uninitialized constant error for Gentoo plugin. [GH-1698]
 
 ## 1.2.2 (April 23, 2013)
 
