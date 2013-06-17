@@ -87,7 +87,7 @@ module VagrantPlugins
 
         @machine.ui.info(I18n.t("vagrant.cfengine_bootstrapping",
                                 policy_server: policy_server_address))
-        result = cfagent("--bootstrap --policy-server #{policy_server_address}", error_check: false)
+        result = cfagent("--bootstrap #{policy_server_address}", error_check: false)
         raise Vagrant::Errors::CFEngineBootstrapFailed if result != 0
 
         # Policy hubs need to do additional things before they're ready
