@@ -16,7 +16,7 @@
 #       CREATED: 10/15/2012 09:49:37 PM WEST
 #===============================================================================
 set -o nounset                              # Treat unset variables as an error
-ScriptVersion="1.5.4"
+ScriptVersion="1.5.5"
 ScriptName="bootstrap-salt.sh"
 
 #===============================================================================
@@ -145,7 +145,7 @@ usage() {
   -C  Only run the configuration function. This option automaticaly
       bypasses any installation.
   -P  Allow pip based installations. On some distributions the required salt
-      packages or it's dependencies are not available as a package for that
+      packages or its dependencies are not available as a package for that
       distribution. Using this flag allows the script to use pip as a last
       resort method. NOTE: This works for functions which actually implement
       pip based installations.
@@ -153,6 +153,65 @@ usage() {
 
 EOT
 }   # ----------  end of function usage  ----------
+
+#===  FUNCTION  ================================================================
+#         NAME:  __fetch_url
+#  DESCRIPTION:  Retrieves a URL and writes it to a given path
+#===============================================================================
+__fetch_url() {
+    curl --insecure -s -o "$1" "$2" >/dev/null 2>&1 ||
+        wget --no-check-certificate -q -O "$1" "$2" >/dev/null 2>&1 ||
+            fetch -q -o "$1" "$2" >/dev/null 2>&1
+}
+
+#===  FUNCTION  ================================================================
+#         NAME:  __check_config_dir
+#  DESCRIPTION:  Checks the config directory, retrieves URLs if provided.
+#===============================================================================
+__check_config_dir() {
+    CC_DIR_NAME="$1"
+    CC_DIR_BASE=$(basename "${CC_DIR_NAME}")
+
+    case "$CC_DIR_NAME" in
+        http://*|https://*)
+            __fetch_url "/tmp/${CC_DIR_BASE}" "${CC_DIR_NAME}"
+            CC_DIR_NAME="/tmp/${CC_DIR_BASE}"
+            ;;
+        ftp://*)
+            __fetch_url "/tmp/${CC_DIR_BASE}" "${CC_DIR_NAME}"
+            CC_DIR_NAME="/tmp/${CC_DIR_BASE}"
+            ;;
+        *)
+            if [ ! -e "${CC_DIR_NAME}" ]; then
+                echo "null"
+                return 0
+            fi
+            ;;
+    esac
+
+    case "$CC_DIR_NAME" in
+        *.tgz|*.tar.gz)
+            tar -zxf "${CC_DIR_NAME}" -C /tmp
+            CC_DIR_BASE=$(basename ${CC_DIR_BASE} ".tgz")
+            CC_DIR_BASE=$(basename ${CC_DIR_BASE} ".tar.gz")
+            CC_DIR_NAME="/tmp/${CC_DIR_BASE}"
+            ;;
+        *.tbz|*.tar.bz2)
+            tar -xjf "${CC_DIR_NAME}" -C /tmp
+            CC_DIR_BASE=$(basename ${CC_DIR_BASE} ".tbz")
+            CC_DIR_BASE=$(basename ${CC_DIR_BASE} ".tar.bz2")
+            CC_DIR_NAME="/tmp/${CC_DIR_BASE}"
+            ;;
+        *.txz|*.tar.xz)
+            tar -xJf "${CC_DIR_NAME}" -C /tmp
+            CC_DIR_BASE=$(basename ${CC_DIR_BASE} ".txz")
+            CC_DIR_BASE=$(basename ${CC_DIR_BASE} ".tar.xz")
+            CC_DIR_NAME="/tmp/${CC_DIR_BASE}"
+            ;;
+    esac
+
+    echo "${CC_DIR_NAME}"
+}
 
 #-----------------------------------------------------------------------
 #  Handle command line arguments
@@ -177,8 +236,12 @@ do
     v )  echo "$0 -- Version $ScriptVersion"; exit 0    ;;
     n )  COLORS=0; __detect_color_support               ;;
     D )  ECHO_DEBUG=$BS_TRUE                            ;;
-    c )  TEMP_CONFIG_DIR="$OPTARG"
+    c )  TEMP_CONFIG_DIR=$(__check_config_dir "$OPTARG")
          # If the configuration directory does not exist, error out
+         if [ "$TEMP_CONFIG_DIR" = "null" ]; then
+             echoerror "Unsupported URI scheme for $OPTARG"
+             exit 1
+         fi
          if [ ! -d "$TEMP_CONFIG_DIR" ]; then
              echoerror "The configuration directory ${TEMP_CONFIG_DIR} does not exist."
              exit 1
@@ -211,7 +274,13 @@ shift $(($OPTIND-1))
 
 __check_unparsed_options() {
     shellopts="$1"
-    unparsed_options=$( echo "$shellopts" | grep -E '[-]+[[:alnum:]]' )
+    # grep alternative for SunOS
+    if [ -f /usr/xpg4/bin/grep ]; then
+        grep='/usr/xpg4/bin/grep'
+    else
+        grep='grep'
+    fi
+    unparsed_options=$( echo "$shellopts" | ${grep} -E '[-]+[[:alnum:]]' )
     if [ "x$unparsed_options" != "x" ]; then
         usage
         echo
@@ -267,9 +336,14 @@ if [ "$#" -gt 0 ]; then
     echoerror "Too many arguments."
     exit 1
 fi
-
+# whoami alternative for SunOS
+if [ -f /usr/xpg4/bin/id ]; then
+    whoami='/usr/xpg4/bin/id -un'
+else
+    whoami='whoami'
+fi
 # Root permissions are required to run this script
-if [ $(whoami) != "root" ] ; then
+if [ $(${whoami}) != "root" ]; then
     echoerror "Salt requires root privileges to install. Please re-run this script as root."
     exit 1
 fi
@@ -279,7 +353,7 @@ if [ "${CALLER}x" = "${0}x" ]; then
     CALLER="PIPED THROUGH"
 fi
 echoinfo "${CALLER} ${0} -- Version ${ScriptVersion}"
-echowarn "Running the unstable version of ${ScriptName}"
+#echowarn "Running the unstable version of ${ScriptName}"
 
 
 #---  FUNCTION  ----------------------------------------------------------------
@@ -639,6 +713,13 @@ __gather_sunos_system_info() {
                 -e 's;^5\.\([0-9][0-9]*\).*;\1;'
         )
     fi
+
+    if [ "${DISTRO_NAME}" = "SmartOS" ]; then
+        VIRTUAL_TYPE="smartmachine"
+        if [ "$(zonename)" = "global" ]; then
+            VIRTUAL_TYPE="global"
+        fi
+    fi
 }
 
 
@@ -783,7 +864,7 @@ __git_clone_and_checkout() {
             git pull --rebase || return 1
         fi
     else
-        git clone https://github.com/saltstack/salt.git salt || return 1
+        git clone git://github.com/saltstack/salt.git || return 1
         cd $SALT_GIT_CHECKOUT_DIR
         git checkout $GIT_REV || return 1
     fi
@@ -963,7 +1044,7 @@ install_ubuntu_deps() {
 }
 
 install_ubuntu_daily_deps() {
-    apt-get update
+    install_ubuntu_deps
     if [ $DISTRO_MAJOR_VERSION -eq 12 ] && [ $DISTRO_MINOR_VERSION -gt 04 ] || [ $DISTRO_MAJOR_VERSION -gt 12 ]; then
         # Above Ubuntu 12.04 add-apt-repository is in a different package
         __apt_get_noinput software-properties-common || return 1
@@ -1194,91 +1275,112 @@ install_debian_deps() {
 }
 
 install_debian_6_deps() {
-    check_pip_allowed
-    echowarn "PyZMQ will be installed from PyPi in order to compile it against ZMQ3"
-    echowarn "This is required for long term stable minion connections to the master."
-
     # No user interaction, libc6 restart services for example
     export DEBIAN_FRONTEND=noninteractive
 
+    wget -q http://debian.saltstack.com/debian-salt-team-joehealy.gpg.key -O - | apt-key add - || return 1
+
+    if [ $PIP_ALLOWED -eq $BS_TRUE ]; then
+        echowarn "PyZMQ will be installed from PyPI in order to compile it against ZMQ3"
+        echowarn "This is required for long term stable minion connections to the master."
+        echowarn "YOU WILL END UP WILL QUITE A FEW PACKAGES FROM DEBIAN UNSTABLE"
+        echowarn "Sleeping for 3 seconds so you can cancel..."
+        sleep 3
+
+        if [ ! -f /etc/apt/sources.list.d/debian-unstable.list ]; then
+           cat <<_eof > /etc/apt/sources.list.d/debian-unstable.list
+deb http://ftp.debian.org/debian unstable main
+deb-src http://ftp.debian.org/debian unstable main
+_eof
+
+           cat <<_eof > /etc/apt/preferences.d/libzmq3-debian-unstable.pref
+Package: libzmq3
+Pin: release a=unstable
+Pin-Priority: 800
+
+Package: libzmq3-dev
+Pin: release a=unstable
+Pin-Priority: 800
+_eof
+        fi
+
+        apt-get update
+        # We NEED to install the unstable dpkg or mime-support WILL fail to install
+        __apt_get_noinput -t unstable dpkg liblzma5 python mime-support || return 1
+        __apt_get_noinput -t unstable libzmq3 libzmq3-dev || return 1
+        __apt_get_noinput build-essential python-dev python-pip || return 1
+
+        # Saltstack's Unstable Debian repository
+        if [ "x$(grep -R 'debian.saltstack.com' /etc/apt)" = "x" ]; then
+            echo "deb http://debian.saltstack.com/debian unstable main" >> \
+                /etc/apt/sources.list.d/saltstack.list
+        fi
+        return 0
+    fi
+
+    # Debian Backports
     if [ "x$(grep -R 'backports.debian.org' /etc/apt)" = "x" ]; then
         echo "deb http://backports.debian.org/debian-backports squeeze-backports main" >> \
             /etc/apt/sources.list.d/backports.list
     fi
 
-    if [ ! -f /etc/apt/preferences.d/local-salt-backport.pref ]; then
-        # Add madduck's repo since squeeze packages have been deprecated
-        for fname in salt-common salt-master salt-minion salt-syndic salt-doc; do
-            echo "Package: $fname"
-            echo "Pin: release a=squeeze-backports"
-            echo "Pin-Priority: 600"
-            echo
-        done > /etc/apt/preferences.d/local-salt-backport.pref
-
-        cat <<_eof > /etc/apt/sources.list.d/local-madduck-backports.list
-deb http://debian.madduck.net/repo squeeze-backports main
-deb-src http://debian.madduck.net/repo squeeze-backports main
-_eof
-
-        wget -q http://debian.madduck.net/repo/gpg/archive.key -O - | apt-key add - || return 1
+    # Saltstack's Stable Debian repository
+    if [ "x$(grep -R 'squeeze-saltstack' /etc/apt)" = "x" ]; then
+        echo "deb http://debian.saltstack.com/debian squeeze-saltstack main" >> \
+            /etc/apt/sources.list.d/saltstack.list
     fi
-
-    if [ ! -f /etc/apt/sources.list.d/debian-experimental.list ]; then
-        cat <<_eof > /etc/apt/sources.list.d/debian-experimental.list
-deb http://ftp.debian.org/debian experimental main
-deb-src http://ftp.debian.org/debian experimental main
-_eof
-
-        cat <<_eof > /etc/apt/preferences.d/libzmq3-debian-experimental.pref
-Package: libzmq3
-Pin: release a=experimental
-Pin-Priority: 800
-
-Package: libzmq3-dev
-Pin: release a=experimental
-Pin-Priority: 800
-_eof
-    fi
-
-    apt-get update
-    __apt_get_noinput -t experimental libzmq3 libzmq3-dev || return 1
-    __apt_get_noinput build-essential python-dev python-pip || return 1
+    apt-get update || return 1
+    __apt_get_noinput python-zmq || return 1
     return 0
 }
 
 install_debian_7_deps() {
-    check_pip_allowed
-    echowarn "PyZMQ will be installed from PyPi in order to compile it against ZMQ3"
-    echowarn "This is required for long term stable minion connections to the master."
+    # No user interaction, libc6 restart services for example
+    export DEBIAN_FRONTEND=noninteractive
 
-    if [ ! -f /etc/apt/sources.list.d/debian-experimental.list ]; then
-        cat <<_eof > /etc/apt/sources.list.d/debian-experimental.list
-deb http://ftp.debian.org/debian experimental main
-deb-src http://ftp.debian.org/debian experimental main
+    # Saltstack's Stable Debian repository
+    if [ "x$(grep -R 'wheezy-saltstack' /etc/apt)" = "x" ]; then
+        echo "deb http://debian.saltstack.com/debian wheezy-saltstack main" >> \
+            /etc/apt/sources.list.d/saltstack.list
+    fi
+
+    wget -q http://debian.saltstack.com/debian-salt-team-joehealy.gpg.key -O - | apt-key add - || return 1
+
+    if [ $PIP_ALLOWED -eq $BS_TRUE ]; then
+        echowarn "PyZMQ will be installed from PyPI in order to compile it against ZMQ3"
+        echowarn "This is required for long term stable minion connections to the master."
+        echowarn "YOU WILL END UP WILL QUITE A FEW PACKAGES FROM DEBIAN UNSTABLE"
+        echowarn "Sleeping for 3 seconds so you can cancel..."
+        sleep 3
+
+        if [ ! -f /etc/apt/sources.list.d/debian-unstable.list ]; then
+           cat <<_eof > /etc/apt/sources.list.d/debian-unstable.list
+deb http://ftp.debian.org/debian unstable main
+deb-src http://ftp.debian.org/debian unstable main
 _eof
 
-        cat <<_eof > /etc/apt/preferences.d/libzmq3-debian-experimental.pref
+           cat <<_eof > /etc/apt/preferences.d/libzmq3-debian-unstable.pref
 Package: libzmq3
-Pin: release a=experimental
+Pin: release a=unstable
 Pin-Priority: 800
 
 Package: libzmq3-dev
-Pin: release a=experimental
+Pin: release a=unstable
 Pin-Priority: 800
 _eof
-    fi
+        fi
 
-    apt-get update
-    __apt_get_noinput -t experimental libzmq3 libzmq3-dev || return 1
-    __apt_get_noinput build-essential python-dev python-pip || return 1
+        apt-get update
+        __apt_get_noinput -t unstable libzmq3 libzmq3-dev || return 1
+        __apt_get_noinput build-essential python-dev python-pip || return 1
+    else
+        apt-get update || return 1
+        __apt_get_noinput python-zmq || return 1
+    fi
     return 0
 }
 
 install_debian_git_deps() {
-    check_pip_allowed
-    echowarn "PyZMQ will be installed from PyPi in order to compile it against ZMQ3"
-    echowarn "This is required for long term stable minion connections to the master."
-
     # No user interaction, libc6 restart services for example
     export DEBIAN_FRONTEND=noninteractive
 
@@ -1299,19 +1401,32 @@ install_debian_git_deps() {
 }
 
 install_debian_6_git_deps() {
-    install_debian_6_deps || return 1    # Add backports
-    install_debian_git_deps || return 1  # Grab the actual deps
+    install_debian_6_deps || return 1
+    if [ $PIP_ALLOWED -eq $BS_TRUE ]; then
+        easy_install -U Jinja2 || return 1
+        __apt_get_noinput lsb-release python python-pkg-resources python-crypto \
+            python-m2crypto python-yaml msgpack-python python-pip git || return 1
+
+        __git_clone_and_checkout || return 1
+
+        # Let's trigger config_salt()
+        if [ "$TEMP_CONFIG_DIR" = "null" ]; then
+            TEMP_CONFIG_DIR="${SALT_GIT_CHECKOUT_DIR}/conf/"
+            CONFIG_SALT_FUNC="config_salt"
+        fi
+    else
+        install_debian_git_deps || return 1  # Grab the actual deps
+    fi
     return 0
 }
 
 install_debian_7_git_deps() {
-    install_debian_7_deps || return 1    # Add experimental repository for ZMQ3
+    install_debian_7_deps || return 1
     install_debian_git_deps || return 1  # Grab the actual deps
     return 0
 }
 
 __install_debian_stable() {
-    check_pip_allowed
     packages=""
     if [ $INSTALL_MINION -eq $BS_TRUE ]; then
         packages="${packages} salt-minion"
@@ -1324,9 +1439,13 @@ __install_debian_stable() {
     fi
     __apt_get_noinput ${packages} || return 1
 
-    # Building pyzmq from source to build it against libzmq3.
-    # Should override current installation
-    pip install -U pyzmq || return 1
+    if [ $PIP_ALLOWED -eq $BS_TRUE ]; then
+        # Building pyzmq from source to build it against libzmq3.
+        # Should override current installation
+        # Using easy_install instead of pip because at least on Debian 6,
+        # there's no default virtualenv active.
+        easy_install -U pyzmq || return 1
+    fi
 
     return 0
 }
@@ -1337,13 +1456,21 @@ install_debian_6_stable() {
     return 0
 }
 
-install_debian_git() {
-    python setup.py install --install-layout=deb || return 1
-
-    # Building pyzmq from source to build it against libzmq3.
-    # Should override current installation
-    pip install -U pyzmq || return 1
+install_debian_7_stable() {
+    __install_debian_stable || return 1
     return 0
+}
+
+install_debian_git() {
+    if [ $PIP_ALLOWED -eq $BS_TRUE ]; then
+        # Building pyzmq from source to build it against libzmq3.
+        # Should override current installation
+        # Using easy_install instead of pip because at least on Debian 6,
+        # there's no default virtualenv active.
+        easy_install -U pyzmq || return 1
+    fi
+
+    python setup.py install --install-layout=deb || return 1
 }
 
 install_debian_6_git() {
@@ -1784,14 +1911,21 @@ install_amazon_linux_ami_git_post() {
 #
 install_arch_linux_stable_deps() {
     grep '\[salt\]' /etc/pacman.conf >/dev/null 2>&1 || echo '[salt]
-Server = http://intothesaltmine.org/archlinux
+Include = /etc/pacman.d/salt.conf
 ' >> /etc/pacman.conf
+
+    # Create a pacman .d directory so we can just override salt's
+    # included configuration if needed
+    [ -d /etc/pacman.d ] || mkdir -p /etc/pacman.d
+
+    cat <<_eof > /etc/pacman.d/salt.conf
+Server = http://intothesaltmine.org/archlinux
+SigLevel = Optional TrustAll
+_eof
 }
 
 install_arch_linux_git_deps() {
-    grep '\[salt\]' /etc/pacman.conf >/dev/null 2>&1 || echo '[salt]
-Server = http://intothesaltmine.org/archlinux
-' >> /etc/pacman.conf
+    install_arch_linux_stable_deps
 
     pacman -Sy --noconfirm pacman || return 1
     pacman -Sy --noconfirm git python2-crypto python2-distribute \
@@ -1920,28 +2054,36 @@ __freebsd_get_packagesite() {
 }
 
 install_freebsd_9_stable_deps() {
-    __freebsd_get_packagesite
+    if [ ! -x /usr/local/sbin/pkg ]; then
+        __freebsd_get_packagesite
 
-    fetch "${BS_PACKAGESITE}/Latest/pkg.txz" || return 1
-    tar xf ./pkg.txz -s ",/.*/,,g" "*/pkg-static" || return 1
-    ./pkg-static add ./pkg.txz || return 1
-    /usr/local/sbin/pkg2ng || return 1
-    echo "PACKAGESITE: ${BS_PACKAGESITE}" > /usr/local/etc/pkg.conf
+        fetch "${BS_PACKAGESITE}/Latest/pkg.txz" || return 1
+        tar xf ./pkg.txz -s ",/.*/,,g" "*/pkg-static" || return 1
+        ./pkg-static add ./pkg.txz || return 1
+        /usr/local/sbin/pkg2ng || return 1
+        echo "PACKAGESITE: ${BS_PACKAGESITE}" > /usr/local/etc/pkg.conf
+    fi
 
     /usr/local/sbin/pkg install -y swig || return 1
+
+    # Lets set SALT_ETC_DIR to ports default
+    SALT_ETC_DIR=${BS_SALT_ETC_DIR:-/usr/local/etc/salt}
+
     return 0
 }
 
 install_freebsd_git_deps() {
-    __freebsd_get_packagesite
+    if [ ! -x /usr/local/sbin/pkg ]; then
+        __freebsd_get_packagesite
 
-    fetch "${BS_PACKAGESITE}/Latest/pkg.txz" || return 1
-    tar xf ./pkg.txz -s ",/.*/,,g" "*/pkg-static" || return 1
-    ./pkg-static add ./pkg.txz || return 1
-    /usr/local/sbin/pkg2ng || return 1
-    echo "PACKAGESITE: ${BS_PACKAGESITE}" > /usr/local/etc/pkg.conf
+        fetch "${BS_PACKAGESITE}/Latest/pkg.txz" || return 1
+        tar xf ./pkg.txz -s ",/.*/,,g" "*/pkg-static" || return 1
+        ./pkg-static add ./pkg.txz || return 1
+        /usr/local/sbin/pkg2ng || return 1
+        echo "PACKAGESITE: ${BS_PACKAGESITE}" > /usr/local/etc/pkg.conf
+    fi
 
-    /usr/local/sbin/pkg install -y swig || return 1
+    /usr/local/sbin/pkg install -y swig git || return 1
 
     __git_clone_and_checkout || return 1
     # Let's trigger config_salt()
@@ -1959,7 +2101,7 @@ install_freebsd_9_stable() {
 }
 
 install_freebsd_git() {
-    /usr/local/sbin/pkg install -y git sysutils/py-salt || return 1
+    /usr/local/sbin/pkg install -y sysutils/py-salt || return 1
     /usr/local/sbin/pkg delete -y sysutils/py-salt || return 1
 
     /usr/local/bin/python setup.py install || return 1
@@ -2039,11 +2181,11 @@ install_smartos_deps() {
         CONFIG_SALT_FUNC="config_salt"
 
         # Let's download, since they were not provided, the default configuration files
-        if [ ! -f /etc/salt/minion ] && [ ! -f $TEMP_CONFIG_DIR/minion ]; then
+        if [ ! -f $SALT_ETC_DIR/minion ] && [ ! -f $TEMP_CONFIG_DIR/minion ]; then
             curl -sk -o $TEMP_CONFIG_DIR/minion -L \
                 https://raw.github.com/saltstack/salt/develop/conf/minion || return 1
         fi
-        if [ ! -f /etc/salt/master ] && [ ! -f $TEMP_CONFIG_DIR/master ]; then
+        if [ ! -f $SALT_ETC_DIR/master ] && [ ! -f $TEMP_CONFIG_DIR/master ]; then
             curl -sk -o $TEMP_CONFIG_DIR/master -L \
                 https://raw.github.com/saltstack/salt/develop/conf/master || return 1
         fi
@@ -2079,24 +2221,54 @@ install_smartos_git() {
 }
 
 install_smartos_post() {
+    smf_dir="/opt/custom/smf"
     # Install manifest files if needed.
     for fname in minion master syndic; do
+
+        # Skip if not meant to be installed
+        [ $fname = "minion" ] && [ $INSTALL_MINION -eq $BS_FALSE ] && continue
+        [ $fname = "master" ] && [ $INSTALL_MASTER -eq $BS_FALSE ] && continue
+        [ $fname = "syndic" ] && [ $INSTALL_SYNDIC -eq $BS_FALSE ] && continue
+
         svcs network/salt-$fname > /dev/null 2>&1
         if [ $? -eq 1 ]; then
             if [ ! -f $TEMP_CONFIG_DIR/salt-$fname.xml ]; then
-                curl -sk -o $TEMP_CONFIG_DIR/salt-$fname.xml -L https://raw.github.com/saltstack/salt/develop/pkg/solaris/salt-$fname.xml
+                curl -sk -o $TEMP_CONFIG_DIR/salt-$fname.xml -L https://raw.github.com/saltstack/salt/develop/pkg/smartos/salt-$fname.xml
             fi
             svccfg import $TEMP_CONFIG_DIR/salt-$fname.xml
+            if [ "${VIRTUAL_TYPE}" = "global" ]; then
+                if [ ! -d $smf_dir ]; then
+                    mkdir -p $smf_dir && cp $TEMP_CONFIG_DIR/salt-$fname.xml $smf_dir/
+                fi
+                if [ ! -f $smf_dir/salt-$fname.xml ]; then
+                    cp $TEMP_CONFIG_DIR/salt-$fname.xml $smf_dir/
+                fi
+            fi
         fi
     done
 }
 
 install_smartos_git_post() {
+    smf_dir="/opt/custom/smf"
     # Install manifest files if needed.
     for fname in minion master syndic; do
+
+        # Skip if not meant to be installed
+        [ $fname = "minion" ] && [ $INSTALL_MINION -eq $BS_FALSE ] && continue
+        [ $fname = "master" ] && [ $INSTALL_MASTER -eq $BS_FALSE ] && continue
+        [ $fname = "syndic" ] && [ $INSTALL_SYNDIC -eq $BS_FALSE ] && continue
+
         svcs network/salt-$fname > /dev/null 2>&1
         if [ $? -eq 1 ]; then
-            svccfg import ${SALT_GIT_CHECKOUT_DIR}/pkg/solaris/salt-$fname.xml
+            svccfg import ${SALT_GIT_CHECKOUT_DIR}/pkg/smartos/salt-$fname.xml
+            if [ "${VIRTUAL_TYPE}" = "global" ]; then
+                if [ ! -d $smf_dir ]; then
+                    mkdir -p $smf_dir && cp ${SALT_GIT_CHECKOUT_DIR}/pkg/smartos/salt-$fname.xml $smf_dir/
+                fi
+                if [ ! -f $smf_dir/salt-$fname.xml ]; then
+                    cp ${SALT_GIT_CHECKOUT_DIR}/pkg/smartos/salt-$fname.xml $smf_dir/
+                fi
+            fi
         fi
     done
 }
@@ -2134,7 +2306,13 @@ install_opensuse_stable_deps() {
             http://download.opensuse.org/repositories/devel:/languages:/python/${DISTRO_REPO}/devel:languages:python.repo || return 1
     fi
 
-    zypper --gpg-auto-import-keys --non-interactive refresh || return 1
+    zypper --gpg-auto-import-keys --non-interactive refresh
+    exitcode=$?
+    if [ $? -ne 0 ] && [ $? -ne 4 ]; then
+        # If the exit code is not 0, and it's not 4(failed to update a
+        # repository) return a failure. Otherwise continue.
+        return 1
+    fi
     zypper --non-interactive install --auto-agree-with-licenses libzmq3 python \
         python-Jinja2 python-M2Crypto python-PyYAML python-msgpack-python \
         python-pycrypto python-pyzmq || return 1
@@ -2295,7 +2473,7 @@ install_suse_11_stable_deps() {
                 [ $fname = "syndic" ] && fname=master
 
                 # Let's download, since they were not provided, the default configuration files
-                if [ ! -f /etc/salt/$fname ] && [ ! -f $TEMP_CONFIG_DIR/$fname ]; then
+                if [ ! -f $SALT_ETC_DIR/$fname ] && [ ! -f $TEMP_CONFIG_DIR/$fname ]; then
                     curl -sk -o $TEMP_CONFIG_DIR/$fname -L \
                         https://raw.github.com/saltstack/salt/develop/conf/$fname || return 1
                 fi
@@ -2378,6 +2556,110 @@ install_suse_11_restart_daemons() {
 
 ##############################################################################
 #
+#    Gentoo Install Functions.
+#
+
+__gentoo_set_ackeys() {
+    GENTOO_ACKEYS=""
+    if [ ! -e /etc/portage/package.accept_keywords ]; then
+        # This is technically bad, but probably for the best.
+        # We'll assume that they want a file, as that's the default behaviour of portage.
+        # If they really want a folder they'll need to handle that themselves.
+        # We could use the ACCEPT_KEYWORDS environment variable, but that exceeds the minimum requires.
+        GENTOO_ACKEYS="/etc/portage/package.accept_keywords"
+    else
+        if [ -f /etc/portage/package.accept_keywords ]; then
+            GENTOO_ACKEYS="/etc/portage/package.accept_keywords"
+        elif [ -d /etc/portage/package.accept_keywords ]; then
+            GENTOO_ACKEYS="/etc/portage/package.accept_keywords/salt"
+        else
+            # We could use accept_keywords env, but this likely indicates a bigger problem.
+            echo "Error: /etc/portage/package.accept_keywords is neither directory nor file."
+            return 1
+        fi
+    fi
+    return 0
+}
+
+__gentoo_pre_dep() {
+    emerge --sync
+    if [ ! -d /etc/portage ]; then
+        mkdir /etc/portage
+    fi
+    __gentoo_set_ackeys || return 1
+    cat >> ${GENTOO_ACKEYS} << _EOT
+# Keywords added by bootstrap-salt
+# required by salt, based on the 0.15.1 ebuild
+>=dev-python/pycryptopp-0.6.0
+>=dev-python/m2crypto-0.21.1-r1
+>=dev-python/pyyaml-3.10-r1
+>=dev-python/pyzmq-13.1.0
+>=dev-python/msgpack-0.3.0
+_EOT
+}
+__gentoo_post_dep() {
+    cat >> ${GENTOO_ACKEYS} << _EOT
+# End of bootstrap-salt keywords.
+_EOT
+    # the -o option asks it to emerge the deps but not the package.
+    emerge -vo salt
+}
+
+install_gentoo_deps() {
+    __gentoo_pre_dep || return 1
+    echo "app-admin/salt" >> ${GENTOO_ACKEYS}
+    __gentoo_post_dep
+}
+
+install_gentoo_git_deps() {
+    emerge git
+    __gentoo_pre_dep || return 1
+    echo "=app-admin/salt-9999 **" >> ${GENTOO_ACKEYS}
+    __gentoo_post_dep
+}
+
+install_gentoo_stable() {
+    emerge -v salt || return 1
+}
+
+install_gentoo_git() {
+    install_gentoo_stable || return 1
+}
+
+install_gentoo_post() {
+    for fname in minion master syndic; do
+
+        # Skip if not meant to be installed
+        [ $fname = "minion" ] && [ $INSTALL_MINION -eq $BS_FALSE ] && continue
+        [ $fname = "master" ] && [ $INSTALL_MASTER -eq $BS_FALSE ] && continue
+        [ $fname = "syndic" ] && [ $INSTALL_SYNDIC -eq $BS_FALSE ] && continue
+
+        rc-update add salt-$fname default
+        /etc/init.d/salt-$fname start
+    done
+}
+
+install_gentoo_restart_daemons() {
+    for fname in minion master syndic; do
+
+        # Skip if not meant to be installed
+        [ $fname = "minion" ] && [ $INSTALL_MINION -eq $BS_FALSE ] && continue
+        [ $fname = "master" ] && [ $INSTALL_MASTER -eq $BS_FALSE ] && continue
+        [ $fname = "syndic" ] && [ $INSTALL_SYNDIC -eq $BS_FALSE ] && continue
+
+        /etc/init.d/salt-$fname stop > /dev/null 2>&1
+        /etc/init.d/salt-$fname start
+    done
+}
+
+#
+#   End of Gentoo Install Functions.
+#
+##############################################################################
+
+
+##############################################################################
+#
 #   Default minion configuration function. Matches ANY distribution as long as
 #   the -c options is passed.
 #
@@ -2399,7 +2681,7 @@ config_salt() {
 
         # Copy the minions configuration if found
         if [ -f "$TEMP_CONFIG_DIR/minion" ]; then
-            mv "$TEMP_CONFIG_DIR/minion" /etc/salt || return 1
+            mv "$TEMP_CONFIG_DIR/minion" $SALT_ETC_DIR || return 1
             CONFIGURED_ANYTHING=$BS_TRUE
         fi
 
@@ -2423,7 +2705,7 @@ config_salt() {
 
         # Copy the masters configuration if found
         if [ -f "$TEMP_CONFIG_DIR/master" ]; then
-            mv "$TEMP_CONFIG_DIR/master" /etc/salt || return 1
+            mv "$TEMP_CONFIG_DIR/master" $SALT_ETC_DIR || return 1
             CONFIGURED_ANYTHING=$BS_TRUE
         fi
 
@@ -2459,14 +2741,21 @@ config_salt() {
 #
 preseed_master() {
     # Create the PKI directory
-    [ -d $PKI_DIR/minions ] || mkdir -p $PKI_DIR/minions && chmod 700 $PKI_DIR/minions || return 1
+
+    if [ $(ls $TEMP_KEYS_DIR | wc -l) -lt 1 ]; then
+        echoerror "No minion keys were uploaded. Unable to pre-seed master"
+        return 1
+    fi
+
+    SEED_DEST="$PKI_DIR/master/minions"
+    [ -d $SEED_DEST ] || mkdir -p $SEED_DEST && chmod 700 $SEED_DEST || return 1
 
     for keyfile in $(ls $TEMP_KEYS_DIR); do
         src_keyfile="${TEMP_KEYS_DIR}/${keyfile}"
-        dst_keyfile="${PKI_DIR}/minions/${keyfile}"
+        dst_keyfile="${SEED_DEST}/${keyfile}"
 
         # If it's not a file, skip to the next
-        [ ! -f $keyfile_path ] && continue
+        [ ! -f $src_keyfile ] && continue
 
         movefile "$src_keyfile" "$dst_keyfile" || return 1
         chmod 664 $dst_keyfile || return 1
@@ -2493,7 +2782,12 @@ daemons_running() {
         [ $fname = "master" ] && [ $INSTALL_MASTER -eq $BS_FALSE ] && continue
         [ $fname = "syndic" ] && [ $INSTALL_SYNDIC -eq $BS_FALSE ] && continue
 
-        if [ "x$(ps aux | grep -v grep | grep salt-$fname)" = "x" ]; then
+        if [ "${DISTRO_NAME}" = "SmartOS" ]; then
+            if [ "$(svcs -Ho STA salt-$fname)" != "ON" ]; then
+                echoerror "salt-$fname was not found running"
+                FAILED_DAEMONS=$(expr $FAILED_DAEMONS + 1)
+            fi
+        elif [ "x$(ps wwwaux | grep -v grep | grep salt-$fname)" = "x" ]; then
             echoerror "salt-$fname was not found running"
             FAILED_DAEMONS=$(expr $FAILED_DAEMONS + 1)
         fi

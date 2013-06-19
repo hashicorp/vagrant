@@ -30,10 +30,10 @@ module VagrantPlugins
             next
           end
           sourcepath = expanded_path(keyfile).to_s
-          dest = '/tmp/seed-%s.pub' %name 
-          
-          @machine.communicate.upload(sourcepath, dest)   
-          @machine.communicate.sudo("mv /tmp/seed-%s.pub /etc/salt/pki/master/minions/%s" %[name, name])   
+          dest = '/tmp/seed-%s.pub' %name
+
+          @machine.communicate.upload(sourcepath, dest)
+          @machine.communicate.sudo("mv /tmp/seed-%s.pub /etc/salt/pki/master/minions/%s" %[name, name])
         end
       end
 
@@ -49,7 +49,7 @@ module VagrantPlugins
         end
         return out
       end
-      
+
       ## Utilities
       def expanded_path(rel_path)
         Pathname.new(rel_path).expand_path(@machine.env.root_path)
@@ -120,9 +120,9 @@ module VagrantPlugins
           @config.seed_master.each do |name, keyfile|
             sourcepath = expanded_path(keyfile).to_s
             dest = "#{seed_dir}/seed-#{name}.pub"
-            @machine.communicate.upload(sourcepath, dest)   
+            @machine.communicate.upload(sourcepath, dest)
           end
-          options = "#{options} -k #{seed_dir}" 
+          options = "#{options} -k #{seed_dir}"
         end
 
         if configure and !install
@@ -247,12 +247,12 @@ module VagrantPlugins
           @machine.env.ui.info "Salt did not need installing or configuring."
         end
       end
-      
+
       # DEPRECATED
       def accept_keys
         if !@machine.communicate.test("which salt-key")
           @machine.env.ui.info "Salt-key not installed!"
-          return 
+          return
         end
 
         key_staged = false
@@ -290,11 +290,11 @@ module VagrantPlugins
         end
 
         if key_staged
-          @machine.env.ui.info "Adding %s key(s) for minion(s)" %numkeys           
+          @machine.env.ui.info "Adding %s key(s) for minion(s)" %numkeys
           @machine.communicate.sudo("salt-key -A")
         end
       end
-  
+
       def call_highstate
         if @config.run_highstate
           @machine.env.ui.info "Calling state.highstate... (this may take a while)"
