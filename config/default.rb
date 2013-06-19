@@ -16,12 +16,12 @@ Vagrant.configure("2") do |config|
   config.vm.base_mac = nil
   config.vm.graceful_halt_retry_count = 60
   config.vm.graceful_halt_retry_interval = 1
-  config.vm.guest = :linux
 
   # Share SSH locally by default
   config.vm.network :forwarded_port,
     guest: 22,
     host: 2222,
+    host_ip: "127.0.0.1",
     id: "ssh",
     auto_correct: true
 

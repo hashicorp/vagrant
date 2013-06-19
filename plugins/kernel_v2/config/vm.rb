@@ -26,6 +26,7 @@ module VagrantPlugins
       def initialize
         @graceful_halt_retry_count    = UNSET_VALUE
         @graceful_halt_retry_interval = UNSET_VALUE
+        @guest                        = UNSET_VALUE
         @hostname                     = UNSET_VALUE
         @provisioners                 = []
 
@@ -225,7 +226,11 @@ module VagrantPlugins
 
       def finalize!
         # Defaults
+        @guest = nil if @guest == UNSET_VALUE
         @hostname = nil if @hostname == UNSET_VALUE
+
+        # Set the guest properly
+        @guest = @guest.to_sym if @guest
 
         # If we haven't defined a single VM, then we need to define a
         # default VM which just inherits the rest of the configuration.
@@ -378,6 +383,14 @@ module VagrantPlugins
               end
 
               fp_host_ports.add(options[:host])
+            end
+          end
+
+          if type == :private_network
+            if options[:type] != :dhcp
+              if !options[:ip]
+                errors << I18n.t("vagrant.config.vm.network_ip_required")
+              end
             end
           end
         end

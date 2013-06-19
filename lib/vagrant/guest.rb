@@ -69,7 +69,16 @@ module Vagrant
             guest_info = @guests[name]
             guest      = guest_info[0].new
 
-            if guest.detect?(@machine)
+            # If a specific guest was specified, then attempt to use that
+            # guest no matter what. Otherwise, only use it if it was detected.
+            use_this_guest = false
+            if @machine.config.vm.guest.nil?
+              use_this_guest = guest.detect?(@machine)
+            else
+              use_this_guest = @machine.config.vm.guest.to_sym == name.to_sym
+            end
+
+            if use_this_guest
               @logger.info("Detected: #{name}!")
               @chain << [name, guest]
               @name = name

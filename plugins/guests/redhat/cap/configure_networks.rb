@@ -48,7 +48,7 @@ module VagrantPlugins
             retryable(:on => Vagrant::Errors::VagrantError, :tries => 3, :sleep => 2) do
               machine.communicate.sudo("/sbin/ifdown eth#{interface} 2> /dev/null", :error_check => false)
               machine.communicate.sudo("cat /tmp/vagrant-network-entry_#{interface} >> #{network_scripts_dir}/ifcfg-eth#{interface}")
-              machine.communicate.sudo("/sbin/ifup eth#{interface} 2> /dev/null")
+              machine.communicate.sudo("ARPCHECK=no /sbin/ifup eth#{interface} 2> /dev/null")
             end
 
             machine.communicate.sudo("rm /tmp/vagrant-network-entry_#{interface}")

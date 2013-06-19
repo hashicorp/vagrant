@@ -70,6 +70,7 @@ module VagrantPlugins
             ports << {
               :adapter   => fp.adapter,
               :guestport => fp.guest_port,
+              :hostip    => fp.host_ip,
               :hostport  => fp.host_port,
               :name      => fp.id,
               :protocol  => fp.protocol
