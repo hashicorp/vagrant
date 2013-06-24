@@ -29,14 +29,14 @@ module VagrantPlugins
 
           # Share the manifests directory with the guest
           root_config.vm.synced_folder(
-            @expanded_manifests_path, manifests_guest_path)
+            @expanded_manifests_path, manifests_guest_path, :nfs => @config.nfs)
 
           # Share the module paths
           count = 0
           @module_paths.each do |from, to|
             # Sorry for the cryptic key here, but VirtualBox has a strange limit on
             # maximum size for it and its something small (around 10)
-            root_config.vm.synced_folder(from, to)
+            root_config.vm.synced_folder(from, to, :nfs => @config.nfs)
             count += 1
           end
         end
