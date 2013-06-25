@@ -1,4 +1,4 @@
-# Vagrant
+# Vagrant [![Build Status](https://secure.travis-ci.org/mitchellh/vagrant.png)](http://travis-ci.org/mitchellh/vagrant)
 
 * Website: [http://www.vagrantup.com](http://www.vagrantup.com)
 * Source: [https://github.com/mitchellh/vagrant](https://github.com/mitchellh/vagrant)
