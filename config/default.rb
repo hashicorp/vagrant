@@ -23,8 +23,7 @@ Vagrant.configure("2") do |config|
     host: 2222,
     host_ip: "127.0.0.1",
     id: "ssh",
-    auto_correct: true,
-    hostip: "127.0.0.1"
+    auto_correct: true
 
   # Share the root folder. This can then be overridden by
   # other Vagrantfiles, if they wish.
