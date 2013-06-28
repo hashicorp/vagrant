@@ -10,6 +10,9 @@ describe Vagrant::Guest do
   let(:machine) do
     double("machine").tap do |m|
       m.stub(:inspect => "machine")
+      m.stub(:config => double("config"))
+      m.config.stub(:vm => double("vm_config"))
+      m.config.vm.stub(:guest => nil)
     end
   end
 
@@ -141,6 +144,16 @@ describe Vagrant::Guest do
       subject.chain.length.should == 3
       subject.chain.map(&:first).should == [:baz, :bar, :foo]
       subject.chain.map { |x| x[1] }.map(&:name).should == [:baz, :bar, :foo]
+    end
+
+    it "detects the forced guest setting" do
+      register_guest(:foo, nil, false)
+      register_guest(:bar, nil, false)
+
+      machine.config.vm.stub(:guest => :bar)
+
+      subject.detect!
+      subject.name.should == :bar
     end
 
     it "raises an exception if no guest can be detected" do

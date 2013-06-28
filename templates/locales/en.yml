@@ -167,6 +167,14 @@ en:
         available below.
 
         %{help}
+      command_unavailable: |-
+        The executable '%(file)' Vagrant is trying to run was not
+        found in the PATH variable. This is an error. Please verify
+        this software is installed and on the path.
+      command_unavailable_windows: |-
+        The executable '%(file)' Vagrant is trying to run was not
+        found in the %PATH% variable. This is an error. Please verify
+        this software is installed and on the path.
       config_invalid: |-
         There are errors in the configuration of this machine. Please fix
         the following errors and try again:
@@ -613,6 +621,8 @@ en:
         nfs_requires_host: |-
           Using NFS shared folders requires a host to be specified
           using `config.vagrant.host`.
+        network_ip_required: |-
+          An IP is required for a private network.
         network_fp_host_not_unique: |-
           Forwarded port '%{host}' (host port) is declared multiple times
         network_fp_requires_ports: |-
