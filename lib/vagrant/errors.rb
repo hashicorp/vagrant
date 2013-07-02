@@ -163,6 +163,14 @@ module Vagrant
       error_key(:cli_invalid_options)
     end
 
+    class CommandUnavailable < VagrantError
+      error_key(:command_unavailable)
+    end
+
+    class CommandUnavailableWindows < VagrantError
+      error_key(:command_unavailable_windows)
+    end
+
     class ConfigInvalid < VagrantError
       error_key(:config_invalid)
     end

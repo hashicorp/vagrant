@@ -13,8 +13,9 @@ module VagrantPlugins
             temp.close
 
             machine.communicate.upload(temp.path, "/tmp/vagrant_network")
-            machine.communicate.sudo("mv /tmp/vagrant_network /etc/network.d/interfaces/eth#{network[:interface]}")
-            machine.communicate.sudo("netcfg interfaces/eth#{network[:interface]}")
+            machine.communicate.sudo("ln -sf /dev/null /etc/udev/rules.d/80-net-name-slot.rules")
+            machine.communicate.sudo("mv /tmp/vagrant_network /etc/netctl/eth#{network[:interface]}")
+            machine.communicate.sudo("netctl start eth#{network[:interface]}")
           end
         end
       end
