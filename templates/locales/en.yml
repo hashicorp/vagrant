@@ -620,7 +620,7 @@ en:
           Using NFS shared folders requires a host to be specified
           using `config.vagrant.host`.
         network_ip_required: |-
-          Private network & Hostonly networks require an IP as an argument.
+          Private & Hostonly network(s) require an IP as an argument.
         network_fp_host_not_unique: |-
           Forwarded port '%{host}' (host port) is declared multiple times
         network_fp_requires_ports: |-
