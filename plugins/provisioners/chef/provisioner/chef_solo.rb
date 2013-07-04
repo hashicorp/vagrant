@@ -130,7 +130,6 @@ module VagrantPlugins
             :roles_path => roles_path,
             :data_bags_path => data_bags_path,
             :encrypted_data_bag_secret => @config.encrypted_data_bag_secret,
-            :file_cache_path => @config.file_cache_path || @config.provisioning_path,
           })
         end
 

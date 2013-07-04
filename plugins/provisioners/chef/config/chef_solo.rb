@@ -11,7 +11,6 @@ module VagrantPlugins
         attr_accessor :nfs
         attr_accessor :encrypted_data_bag_secret_key_path
         attr_accessor :encrypted_data_bag_secret
-        attr_accessor :file_cache_path
 
         def initialize
           super
@@ -23,7 +22,6 @@ module VagrantPlugins
           @nfs                       = UNSET_VALUE
           @encrypted_data_bag_secret = UNSET_VALUE
           @encrypted_data_bag_secret_key_path = UNSET_VALUE
-          @file_cache_path                    = UNSET_VALUE
 
           @__defaulted_cookbooks_path = false
         end
@@ -57,8 +55,6 @@ module VagrantPlugins
             @encrypted_data_bag_secret == UNSET_VALUE
           @encrypted_data_bag_secret_key_path = nil if \
             @encrypted_data_bag_secret_key_path == UNSET_VALUE
-          @file_cache_path = nil if \
-            @file_cache_path == UNSET_VALUE
         end
 
         def validate(machine)
