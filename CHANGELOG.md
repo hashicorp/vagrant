@@ -27,6 +27,7 @@ IMPROVEMENTS:
   - Default SSH forwarded port now binds to 127.0.0.1 so only local
     connections are allowed. [GH-1785]
   - Use `netctl` for Arch Linux network configuration. [GH-1760]
+  - Add file_cache_path support for chef_solo. [GH-1897]
 
 BUG FIXES:
 
