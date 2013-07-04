@@ -17,6 +17,7 @@ IMPROVEMENTS:
   - Forwarded ports can specify a host IP and guest IP to bind to. [GH-1121]
   - You can now set the "ip" of a private network that uses DHCP. This will
     change the subnet and such that the DHCP server uses.
+  - Add `file_cache_path` support for chef_solo. [GH-1897]
 
 BUG FIXES:
 

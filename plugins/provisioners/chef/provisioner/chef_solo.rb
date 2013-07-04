@@ -128,12 +128,12 @@ module VagrantPlugins
 
           setup_config("provisioners/chef_solo/solo", "solo.rb", {
             :node_name => @config.node_name,
-            :provisioning_path => @config.provisioning_path,
             :cookbooks_path => cookbooks_path,
             :recipe_url => @config.recipe_url,
             :roles_path => roles_path,
             :data_bags_path => data_bags_path,
             :encrypted_data_bag_secret => @config.encrypted_data_bag_secret,
+            :file_cache_path => @config.file_cache_path || @config.provisioning_path,
           })
         end
 
