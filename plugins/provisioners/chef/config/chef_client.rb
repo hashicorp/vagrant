@@ -9,8 +9,6 @@ module VagrantPlugins
         attr_accessor :encrypted_data_bag_secret_key_path
         attr_accessor :encrypted_data_bag_secret
         attr_accessor :environment
-        attr_accessor :file_cache_path
-        attr_accessor :file_backup_path
         attr_accessor :validation_key_path
         attr_accessor :validation_client_name
 
@@ -22,8 +20,6 @@ module VagrantPlugins
           @encrypted_data_bag_secret_key_path = UNSET_VALUE
           @encrypted_data_bag_secret          = UNSET_VALUE
           @environment                        = UNSET_VALUE
-          @file_cache_path                    = UNSET_VALUE
-          @file_backup_path                   = UNSET_VALUE
           @validation_key_path                = UNSET_VALUE
           @validation_client_name             = UNSET_VALUE
         end
@@ -36,8 +32,6 @@ module VagrantPlugins
           @encrypted_data_bag_secret_key_path = nil if @encrypted_data_bag_secret_key_path == UNSET_VALUE
           @encrypted_data_bag_secret          = "/tmp/encrypted_data_bag_secret" if @encrypted_data_bag_secret == UNSET_VALUE
           @environment = nil if @environment == UNSET_VALUE
-          @file_backup_path       = "/srv/chef/cache" if @file_backup_path == UNSET_VALUE
-          @file_cache_path        = "/srv/chef/file_store" if @file_cache_path == UNSET_VALUE
           @validation_client_name = "chef-validator" if @validation_client_name == UNSET_VALUE
           @validation_key_path = nil if @validation_key_path == UNSET_VALUE
         end

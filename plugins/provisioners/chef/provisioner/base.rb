@@ -60,6 +60,9 @@ module VagrantPlugins
 
           config_file = Vagrant::Util::TemplateRenderer.render(template, {
             :custom_configuration => remote_custom_config_path,
+            :file_cache_path => @config.file_cache_path,
+            :file_backup_path => @config.file_backup_path,
+            :log_level        => @config.log_level.to_sym,
             :http_proxy       => @config.http_proxy,
             :http_proxy_user  => @config.http_proxy_user,
             :http_proxy_pass  => @config.http_proxy_pass,
