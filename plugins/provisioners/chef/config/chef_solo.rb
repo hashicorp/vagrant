@@ -19,9 +19,9 @@ module VagrantPlugins
           @data_bags_path            = UNSET_VALUE
           @recipe_url                = UNSET_VALUE
           @roles_path                = UNSET_VALUE
+          @nfs                       = UNSET_VALUE
           @encrypted_data_bag_secret = UNSET_VALUE
           @encrypted_data_bag_secret_key_path = UNSET_VALUE
-          @nfs                       = UNSET_VALUE
 
           @__defaulted_cookbooks_path = false
         end
@@ -50,11 +50,11 @@ module VagrantPlugins
           @data_bags_path = prepare_folders_config(@data_bags_path)
           @roles_path     = prepare_folders_config(@roles_path)
 
+          @nfs = false if @nfs == UNSET_VALUE
           @encrypted_data_bag_secret = "/tmp/encrypted_data_bag_secret" if \
             @encrypted_data_bag_secret == UNSET_VALUE
           @encrypted_data_bag_secret_key_path = nil if \
             @encrypted_data_bag_secret_key_path == UNSET_VALUE
-          @nfs = false if @nfs == UNSET_VALUE
         end
 
         def validate(machine)

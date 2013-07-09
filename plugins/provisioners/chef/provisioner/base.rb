@@ -48,6 +48,8 @@ module VagrantPlugins
 
         def setup_config(template, filename, template_vars)
           config_file = Vagrant::Util::TemplateRenderer.render(template, {
+            :file_cache_path => @config.file_cache_path,
+            :file_backup_path => @config.file_backup_path,
             :log_level        => @config.log_level.to_sym,
             :http_proxy       => @config.http_proxy,
             :http_proxy_user  => @config.http_proxy_user,

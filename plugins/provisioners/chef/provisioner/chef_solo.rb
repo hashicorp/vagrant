@@ -125,7 +125,6 @@ module VagrantPlugins
 
           setup_config("provisioners/chef_solo/solo", "solo.rb", {
             :node_name => @config.node_name,
-            :provisioning_path => @config.provisioning_path,
             :cookbooks_path => cookbooks_path,
             :recipe_url => @config.recipe_url,
             :roles_path => roles_path,

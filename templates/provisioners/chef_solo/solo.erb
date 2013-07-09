@@ -1,7 +1,8 @@
 <% if node_name %>
 node_name "<%= node_name %>"
 <% end %>
-file_cache_path "<%= provisioning_path %>"
+file_cache_path    "<%= file_cache_path %>"
+file_backup_path   "<%= file_backup_path %>"
 cookbook_path <%= cookbooks_path.inspect %>
 <% if roles_path %>
 role_path <%= roles_path.inspect %>
