@@ -27,6 +27,8 @@ IMPROVEMENTS:
   - Default SSH forwarded port now binds to 127.0.0.1 so only local
     connections are allowed. [GH-1785]
   - Use `netctl` for Arch Linux network configuration. [GH-1760]
+  - Improve fedora host detection regular expression. [GH-1913]
+  - SSH shows a proper error on EHOSTUNREACH. [GH-1911]
 
 BUG FIXES:
 
