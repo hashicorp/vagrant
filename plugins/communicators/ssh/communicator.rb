@@ -235,6 +235,9 @@ module VagrantPlugins
         rescue Errno::EHOSTDOWN
           # This is raised if we get an ICMP DestinationUnknown error.
           raise Vagrant::Errors::SSHHostDown
+        rescue Errno::EHOSTUNREACH
+          # This is raised if we can't work out how to route traffic.
+          raise Vagrant::Errors::SSHNoRoute
         rescue NotImplementedError
           # This is raised if a private key type that Net-SSH doesn't support
           # is used. Show a nicer error.
