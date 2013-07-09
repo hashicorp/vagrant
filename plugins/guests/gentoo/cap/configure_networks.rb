@@ -28,8 +28,8 @@ module VagrantPlugins
 
               comm.upload(temp.path, "/tmp/vagrant-network-entry")
 
-              # Configure the interface
-              comm.sudo("ln -fs /etc/init.d/net.lo /etc/init.d/net.eth#{network[:interface]}")
+              # Configure the interface. Use a wildcard as funtoo uses netif.lo and gento net.lo 
+              comm.sudo("ln -fs /etc/init.d/net*.lo /etc/init.d/net.eth#{network[:interface]}")
               comm.sudo("/etc/init.d/net.eth#{network[:interface]} stop 2> /dev/null")
               comm.sudo("cat /tmp/vagrant-network-entry >> /etc/conf.d/net")
               comm.sudo("rm /tmp/vagrant-network-entry")
