@@ -62,7 +62,7 @@ module Vagrant
 
             # Prepare the folder, this means setting up various options
             # and such on the folder itself.
-            folders.each { |id, opts| prepare_folder(opts) }
+            folders.each { |id, opts| prepare_folder(env[:machine].id, opts) }
 
             # Export the folders
             env[:ui].info I18n.t("vagrant.actions.vm.nfs.exporting")
@@ -85,16 +85,15 @@ module Vagrant
 
         protected
 
-        def prepare_folder(opts)
+        def prepare_folder(id, opts)
           opts[:map_uid] = prepare_permission(:uid, opts)
           opts[:map_gid] = prepare_permission(:gid, opts)
           opts[:nfs_version] ||= 3
 
-          # The poor man's UUID. An MD5 hash here is sufficient since
-          # we need a 32 character "uuid" to represent the filesystem
-          # of an export. Hashing the host path is safe because two of
-          # the same host path will hash to the same fsid.
-          opts[:uuid]    = Digest::MD5.hexdigest(opts[:hostpath])
+          # The poor man's UUID. We have to use machine UUID to be
+          # able to identify them on Prune NFS action where valid UUIDs
+          # are being checked. Also, need to remove dashes to make its size 32.
+          opts[:uuid] = id.delete('-')
         end
 
         # Prepares the UID/GID settings for a single folder.

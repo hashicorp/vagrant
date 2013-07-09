@@ -35,36 +35,36 @@ module VagrantPlugins
       end
 
       def nfs_export(id, ip, folders)
-        output = TemplateRenderer.render('nfs/exports_linux',
-                                         :uuid => id,
-                                         :ip => ip,
-                                         :folders => folders)
+        exports = folders.map do |name, opts|
+          # prepare NFS options
+          options = %W(rw no_subtree_check all_squash fsid=#{opts[:uuid]})
+          options << "anonuid=#{opts[:map_uid]}" if opts[:map_uid]
+          options << "anongid=#{opts[:map_gid]}" if opts[:map_gid]
+
+          {
+            :ip      => ip,
+            :host    => opts[:hostpath],
+            :options => options,
+          }
+        end
 
         @ui.info I18n.t("vagrant.hosts.linux.nfs_export")
         sleep 0.5
 
-        nfs_cleanup(id)
-
-        output.split("\n").each do |line|
-          # This should only ask for administrative permission once, even
-          # though its executed in multiple subshells.
-          system(%Q[sudo su root -c "echo '#{line}' >> /etc/exports"])
+        exports.each do |export|
+          system("sudo exportfs -o #{export[:options].join(',')} #{export[:ip]}:#{export[:host]}")
         end
-
-        # We run restart here instead of "update" just in case nfsd
-        # is not starting
-        system("sudo #{@nfs_server_binary} restart")
       end
 
       def nfs_prune(valid_ids)
-        return if !File.exist?("/etc/exports")
-
         @logger.info("Pruning invalid NFS entries...")
-
         output = false
 
-        File.read("/etc/exports").lines.each do |line|
-          if id = line[/^# VAGRANT-BEGIN: (.+?)$/, 1]
+        # remove "-" from machine valid machine id
+        valid_ids = valid_ids.map { |id| id.delete('-') }
+
+        current_exports.each do |export|
+          if id = export[:options][/fsid=([\w\d]+)?/, 1]
             if valid_ids.include?(id)
               @logger.debug("Valid ID: #{id}")
             else
@@ -75,7 +75,7 @@ module VagrantPlugins
               end
 
               @logger.info("Invalid ID, pruning: #{id}")
-              nfs_cleanup(id)
+              nfs_cleanup(export[:ip], export[:host])
             end
           end
         end
@@ -83,12 +83,42 @@ module VagrantPlugins
 
       protected
 
-      def nfs_cleanup(id)
-        return if !File.exist?("/etc/exports")
+      def nfs_cleanup(ip, host)
+        system("sudo exportfs -u #{ip}:#{host}")
+      end
 
-        # Use sed to just strip out the block of code which was inserted
-        # by Vagrant
-        system("sudo sed -e '/^# VAGRANT-BEGIN: #{id}/,/^# VAGRANT-END: #{id}/ d' -ibak /etc/exports")
+      def current_exports
+        exports = `sudo exportfs -v`
+        # exportfs output should be properly parsed
+        #
+        # this is a little bit complicated because folder with long path look like this:
+        #   `sudo exportfs -v`
+        #   #=> "/very_long_path\n\t\t192.168.122.4(rw,all_squash,no_subtree_check,fsid=68f4ad0105a6a490826e8d8861140d84)"
+        #
+        # while short paths look like this:
+        #   `sudo exportfs -v`
+        #   #=> "/short_path      \t192.168.122.153(rw,all_squash,no_subtree_check,fsid=68f4ad0105a6a490826e8d8861140d84)"
+        #
+        # and we need to properly handle both cases
+        exports = exports.split "\n"       # each new line is either folder or ip
+        exports.map! { |e| e.split("\t") } # tab prepends ip
+        exports.flatten!                   # make one-dimensional array
+        exports.select! { |e| !e.empty? }  # remove all empty strings created by splitting with long entries
+        exports.map! &:strip               # make sure there are no leading spaces
+
+        folders = exports.each_slice(2).map(&:first) # array of host paths
+        opts    = exports.each_slice(2).map(&:last)  # array of IP address and options
+        folders.each_with_index.map do |folder, i|
+          # get IP and options froms string like
+          # "192.168.122.167(rw,all_squash,no_subtree_check,fsid=7a99ad461317ed7c6514de3ce64db3e5)"
+          ip_and_opts = opts[i].match(/^(\d+\.\d+\.\d+\.\d+)\((.+)\)$/)
+
+          {
+            :host    => folder,
+            :ip      => ip_and_opts[1],
+            :options => ip_and_opts[2],
+          }
+        end
       end
     end
   end
