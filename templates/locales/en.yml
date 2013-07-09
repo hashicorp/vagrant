@@ -605,8 +605,6 @@ en:
         network_invalid: |-
           The network type '%{type}' is not valid. Please use
           'hostonly' or 'bridged'.
-        network_ip_required: |-
-          Host only networks require an IP as an argument.
         network_ip_invalid: |-
           The host only network IP '%{ip}' is invalid.
         network_ip_ends_one: |-
