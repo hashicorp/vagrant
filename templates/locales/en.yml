@@ -426,6 +426,10 @@ en:
         usually indicates that SSH within the guest machine was unable to
         properly start up. Please boot the VM in GUI mode to check whether
         it is booting properly.
+      ssh_no_route: |-
+        While attempting to connect with SSH, a "no route to host" (EHOSTUNREACH)
+        error was received. Please verify your network settings are correct
+        and try again.
       ssh_host_down: |-
         While attempting to connect with SSH, a "host is down" (EHOSTDOWN)
         error was received. Please verify your SSH settings are correct
