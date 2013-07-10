@@ -1,6 +1,9 @@
 ## 1.2.4 (unreleased)
 
+BUG FIXES:
 
+  - core/nfs: Exporting sub-directories of other exported folders now
+    works properly. [GH-785]
 
 ## 1.2.3 (July 9, 2013)
 
