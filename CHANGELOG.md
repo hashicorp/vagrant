@@ -20,6 +20,8 @@ BUG FIXES:
     may be in the box itself. [GH-1061]
   - NFS synced folders exporting sub-directories of other exported folders now
     works properly. [GH-785]
+  - NFS shared folders properly dereference symlinks so that the real path
+    is used, avoiding mount errors [GH-1101]
 
 ## 1.2.3 (July 9, 2013)
 
