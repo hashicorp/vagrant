@@ -1,5 +1,7 @@
 require "thread"
 
+require "log4r"
+
 module Vagrant
   module Action
     module Builtin
@@ -13,9 +15,16 @@ module Vagrant
 
         def initialize(app, env)
           @app = app
+          @logger = Log4r::Logger.new("vagrant::action::builtin::handle_box_url")
         end
 
         def call(env)
+          if !env[:machine].config.vm.box || !env[:machine].config.vm.box_url
+            @logger.info("Skipping HandleBoxUrl because box or box_url not set.")
+            @app.call(env)
+            return
+          end
+
           if !env[:machine].box
             # Get a "big lock" to make sure that our more fine grained
             # lock access is thread safe.

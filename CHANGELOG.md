@@ -15,7 +15,10 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
-  - core/nfs: Exporting sub-directories of other exported folders now
+  - Boxes downloaded as part of `vagrant up` are now done so _prior_ to
+    config validation. This allows Vagrantfiles to references files that
+    may be in the box itself. [GH-1061]
+  - NFS synced folders exporting sub-directories of other exported folders now
     works properly. [GH-785]
 
 ## 1.2.3 (July 9, 2013)
