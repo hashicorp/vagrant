@@ -11,7 +11,7 @@ module Vagrant
 
         def call(env)
           @logger.info("Setting the default name of the VM")
-          name = env[:root_path].basename.to_s + "_#{Time.now.to_i}"
+          name = (env[:vm].config.vm.host_name || env[:root_path].basename).to_s + "_#{Time.now.to_i}"
           env[:vm].driver.set_name(name)
 
           @app.call(env)
