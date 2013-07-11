@@ -25,6 +25,8 @@ BUG FIXES:
     works properly. [GH-785]
   - NFS shared folders properly dereference symlinks so that the real path
     is used, avoiding mount errors [GH-1101]
+  - SSH channel is closed after the exit status is received, potentially
+    eliminating any SSH hangs. [GH-603]
 
 ## 1.2.3 (July 9, 2013)
 

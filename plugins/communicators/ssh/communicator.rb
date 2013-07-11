@@ -282,6 +282,10 @@ module VagrantPlugins
             ch2.on_request("exit-status") do |ch3, data|
               exit_status = data.read_long
               @logger.debug("Exit status: #{exit_status}")
+
+              # Close the channel, since after the exit status we're
+              # probably done. This fixes up issues with hanging.
+              channel.close
             end
 
             # Set the terminal
