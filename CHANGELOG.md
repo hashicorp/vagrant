@@ -6,6 +6,11 @@ FEATURES:
     setting that accepts a path to a Ruby file to load as part of Chef
     configuration, allowing you to override any setting available. [GH-876]
 
+IMPROVEMENTS:
+
+  - `vagrant destroy` returns exit status 1 if any of the confirmations
+    are declined. [GH-923]
+
 BUG FIXES:
 
   - core/nfs: Exporting sub-directories of other exported folders now

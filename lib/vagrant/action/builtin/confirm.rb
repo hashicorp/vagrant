@@ -29,6 +29,7 @@ module Vagrant
 
           # The result is only true if the user said "Y"
           env[:result] = choice && choice.upcase == "Y"
+          env["#{@force_key}_result".to_sym] = env[:result]
 
           @app.call(env)
         end
