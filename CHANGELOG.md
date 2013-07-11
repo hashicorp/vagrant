@@ -1,5 +1,11 @@
 ## 1.2.4 (unreleased)
 
+FEATURES:
+
+  - Chef solo and client provisioning now support a `custom_config_path`
+    setting that accepts a path to a Ruby file to load as part of Chef
+    configuration, allowing you to override any setting available. [GH-876]
+
 BUG FIXES:
 
   - core/nfs: Exporting sub-directories of other exported folders now

@@ -588,6 +588,8 @@ en:
         cookbooks_path_empty: "Must specify a cookbooks path for chef solo."
         cookbooks_path_missing: |-
           Cookbook path doesn't exist: %{path}
+        custom_config_path_missing: |-
+          Path specified for "custom_config_path" does not exist.
         server_url_empty: "Chef server URL must be populated."
         validation_key_path: "Validation key path must be valid path to your chef server validation key."
       loader:

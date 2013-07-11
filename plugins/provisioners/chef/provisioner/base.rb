@@ -47,14 +47,26 @@ module VagrantPlugins
         end
 
         def setup_config(template, filename, template_vars)
+          # If we have custom configuration, upload it
+          remote_custom_config_path = nil
+          if @config.custom_config_path
+            expanded = File.expand_path(
+              @config.custom_config_path, @machine.env.root_path)
+            remote_custom_config_path = File.join(
+              config.provisioning_path, "custom-config.rb")
+
+            @machine.communicate.upload(expanded, remote_custom_config_path)
+          end
+
           config_file = Vagrant::Util::TemplateRenderer.render(template, {
-            :log_level        => @config.log_level.to_sym,
+            :custom_configuration => remote_custom_config_path,
             :http_proxy       => @config.http_proxy,
             :http_proxy_user  => @config.http_proxy_user,
             :http_proxy_pass  => @config.http_proxy_pass,
             :https_proxy      => @config.https_proxy,
             :https_proxy_user => @config.https_proxy_user,
             :https_proxy_pass => @config.https_proxy_pass,
+            :log_level        => @config.log_level.to_sym,
             :no_proxy         => @config.no_proxy
           }.merge(template_vars))
 
