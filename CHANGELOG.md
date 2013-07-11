@@ -8,6 +8,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+  - `vagrant box remove` works with only the name of the box if that
+    box exists only backed by one provider. [GH-1032]
   - `vagrant destroy` returns exit status 1 if any of the confirmations
     are declined. [GH-923]
 
