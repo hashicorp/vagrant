@@ -59,6 +59,7 @@ module Vagrant
           :group => nil,
           :nfs   => false,
           :transient => false,
+          :automount => false,
           :extra => nil
         }.merge(opts || {})
       end

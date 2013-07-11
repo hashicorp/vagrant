@@ -64,7 +64,8 @@ module Vagrant
             folders << {
               :name => name,
               :hostpath => File.expand_path(data[:hostpath], @env[:root_path]),
-              :transient => data[:transient]
+              :transient => data[:transient],
+              :automount => data[:automount]
             }
           end
 

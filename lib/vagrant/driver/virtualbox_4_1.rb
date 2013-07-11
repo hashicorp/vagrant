@@ -407,6 +407,7 @@ module Vagrant
                   "--hostpath",
                   folder[:hostpath]]
           args << "--transient" if folder.has_key?(:transient) && folder[:transient]
+          args << "--automount" if folder.has_key?(:automount) && folder[:automount]
           execute("sharedfolder", "add", @uuid, *args)
         end
       end

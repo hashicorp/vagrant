@@ -24,6 +24,8 @@
   - Work around bug in VirtualBox exposed by bug in OS X 10.8 where
     VirtualBox executables couldn't handle garbage being injected into
     stdout by OS X.
+  - Shared folders can now be marked for automounting using the `:automount`
+    flag.
 
 ## 1.0.5 (September 18, 2012)
 
