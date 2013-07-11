@@ -43,6 +43,7 @@ module VagrantPlugins
             @env.ui.info(I18n.t(
               "vagrant.commands.up.upping",
               :name => machine.name,
+              :base_box => machine.config.vm.box,
               :provider => machine.provider_name))
 
             batch.action(machine, :up, options)
