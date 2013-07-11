@@ -18,6 +18,8 @@ BUG FIXES:
   - Boxes downloaded as part of `vagrant up` are now done so _prior_ to
     config validation. This allows Vagrantfiles to references files that
     may be in the box itself. [GH-1061]
+  - Chef removes dna.json and encrypted data bag secret file prior to
+    uploading. [GH-1111]
   - NFS synced folders exporting sub-directories of other exported folders now
     works properly. [GH-785]
   - NFS shared folders properly dereference symlinks so that the real path

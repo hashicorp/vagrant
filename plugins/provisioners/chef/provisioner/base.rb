@@ -97,7 +97,11 @@ module VagrantPlugins
           temp.write(json)
           temp.close
 
-          @machine.communicate.upload(temp.path, File.join(@config.provisioning_path, "dna.json"))
+          remote_file = File.join(@config.provisioning_path, "dna.json")
+          @machine.communicate.tap do |comm|
+            comm.sudo("rm #{remote_file}", :error_check => false)
+            comm.upload(temp.path, remote_file)
+          end
         end
       end
     end
