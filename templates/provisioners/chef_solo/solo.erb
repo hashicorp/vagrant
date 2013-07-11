@@ -18,6 +18,14 @@ data_bag_path <%= data_bags_path.inspect %>
 recipe_url "<%= recipe_url %>"
 <% end -%>
 
+<% if environments_path %>
+environment_path <%= environments_path.inspect %>
+<% end -%>
+
+<% if environment %>
+environment "<%= environment %>"
+<% end -%>
+
 http_proxy <%= http_proxy.inspect %>
 http_proxy_user <%= http_proxy_user.inspect %>
 http_proxy_pass <%= http_proxy_pass.inspect %>
