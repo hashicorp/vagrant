@@ -17,6 +17,7 @@ module Vagrant
         attr_accessor :environment
         attr_accessor :encrypted_data_bag_secret_key_path
         attr_accessor :encrypted_data_bag_secret
+        attr_accessor :knife_config
 
         # Provide defaults in such a way that they won't override the instance
         # variable. This is so merging continues to work properly.
@@ -25,6 +26,7 @@ module Vagrant
         def file_cache_path; @file_cache_path || "/srv/chef/file_store"; end
         def file_backup_path; @file_backup_path || "/srv/chef/cache"; end
         def encrypted_data_bag_secret; @encrypted_data_bag_secret || "/tmp/encrypted_data_bag_secret"; end
+        def knife_config; @knife_config || "#{ENV['HOME']}/.chef/knife.rb"; end
 
         def validate(env, errors)
           super
@@ -126,6 +128,24 @@ module Vagrant
 
       def guest_validation_key_path
         File.join(config.provisioning_path, "validation.pem")
+      end
+
+      def destroy(host_name)
+        env[:ui].info "Removing node and client \"#{host_name}\" from Chef server"
+        [::Chef::Node, ::Chef::ApiClient].each do |chef_resource|
+          begin
+            chef_resource = chef_resource.load(host_name)
+            chef_resource.destroy
+          rescue Exception => e
+            env[:ui].warn "Could not destroy #{chef_resource} #{host_name}: #{e.message}"
+          end
+        end
+      end
+
+      def cleanup
+        require 'chef'
+        ::Chef::Config.from_file(config.knife_config)
+        destroy(env[:vm].config.vm.host_name)
       end
     end
   end
