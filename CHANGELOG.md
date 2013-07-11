@@ -12,6 +12,7 @@ IMPROVEMENTS:
     box exists only backed by one provider. [GH-1032]
   - `vagrant destroy` returns exit status 1 if any of the confirmations
     are declined. [GH-923]
+  - Forwarded ports can specify a host IP and guest IP to bind to. [GH-1121]
 
 BUG FIXES:
 
