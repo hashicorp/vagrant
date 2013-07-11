@@ -654,7 +654,7 @@ en:
         vm_already_running: |-
           VirtualBox VM is already running.
         vm_not_created: "VM not created. Moving on..."
-        vm_not_running: "VM is not currently running. Please bring it up to run this command."
+        vm_not_running: "VM is not currently running. Please, first bring it up with `vagrant up` then run this command."
       box:
         remove_must_specify_provider: |-
           Multiple providers were found for the box '%{name}'. Please specify
