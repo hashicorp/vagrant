@@ -22,6 +22,7 @@ FEATURES:
     `knife` if configured to do so.
   - `vagrant up` has a `--no-destroy-on-error` flag that will not destroy
     the VM if a fatal error occurs. [GH-2011]
+  - Support for remote shell provisioning scripts [GH-1787]
 
 IMPROVEMENTS:
 
