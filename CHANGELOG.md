@@ -1,4 +1,35 @@
-## 1.2.3 (unreleased)
+## 1.2.4 (unreleased)
+
+FEATURES:
+
+  - Chef solo and client provisioning now support a `custom_config_path`
+    setting that accepts a path to a Ruby file to load as part of Chef
+    configuration, allowing you to override any setting available. [GH-876]
+
+IMPROVEMENTS:
+
+  - `vagrant box remove` works with only the name of the box if that
+    box exists only backed by one provider. [GH-1032]
+  - `vagrant destroy` returns exit status 1 if any of the confirmations
+    are declined. [GH-923]
+  - Forwarded ports can specify a host IP and guest IP to bind to. [GH-1121]
+
+BUG FIXES:
+
+  - Boxes downloaded as part of `vagrant up` are now done so _prior_ to
+    config validation. This allows Vagrantfiles to references files that
+    may be in the box itself. [GH-1061]
+  - Chef removes dna.json and encrypted data bag secret file prior to
+    uploading. [GH-1111]
+  - NFS synced folders exporting sub-directories of other exported folders now
+    works properly. [GH-785]
+  - NFS shared folders properly dereference symlinks so that the real path
+    is used, avoiding mount errors [GH-1101]
+  - SSH channel is closed after the exit status is received, potentially
+    eliminating any SSH hangs. [GH-603]
+  - Fix regression where VirtualBox detection wasn't working anymore. [GH-1918]
+
+## 1.2.3 (July 9, 2013)
 
 FEATURES:
 
@@ -27,6 +58,8 @@ IMPROVEMENTS:
   - Default SSH forwarded port now binds to 127.0.0.1 so only local
     connections are allowed. [GH-1785]
   - Use `netctl` for Arch Linux network configuration. [GH-1760]
+  - Improve fedora host detection regular expression. [GH-1913]
+  - SSH shows a proper error on EHOSTUNREACH. [GH-1911]
 
 BUG FIXES:
 

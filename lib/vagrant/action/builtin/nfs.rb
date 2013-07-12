@@ -37,7 +37,9 @@ module Vagrant
 
             # Expand the host path, create it if we have to and
             # store away the folder.
-            hostpath = Pathname.new(opts[:hostpath]).expand_path(env[:root_path])
+            hostpath = Pathname.new(opts[:hostpath]).
+              expand_path(env[:root_path]).
+              realpath
 
             if !hostpath.directory? && opts[:create]
               # Host path doesn't exist, so let's create it.

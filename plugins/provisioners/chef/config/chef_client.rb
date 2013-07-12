@@ -44,6 +44,7 @@ module VagrantPlugins
 
         def validate(machine)
           errors = _detected_errors
+          errors.concat(validate_base(machine))
           errors << I18n.t("vagrant.config.chef.server_url_empty") if \
             !chef_server_url || chef_server_url.strip == ""
           errors << I18n.t("vagrant.config.chef.validation_key_path") if \

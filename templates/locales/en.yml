@@ -426,6 +426,10 @@ en:
         usually indicates that SSH within the guest machine was unable to
         properly start up. Please boot the VM in GUI mode to check whether
         it is booting properly.
+      ssh_no_route: |-
+        While attempting to connect with SSH, a "no route to host" (EHOSTUNREACH)
+        error was received. Please verify your network settings are correct
+        and try again.
       ssh_host_down: |-
         While attempting to connect with SSH, a "host is down" (EHOSTDOWN)
         error was received. Please verify your SSH settings are correct
@@ -584,6 +588,8 @@ en:
         cookbooks_path_empty: "Must specify a cookbooks path for chef solo."
         cookbooks_path_missing: |-
           Cookbook path doesn't exist: %{path}
+        custom_config_path_missing: |-
+          Path specified for "custom_config_path" does not exist.
         server_url_empty: "Chef server URL must be populated."
         validation_key_path: "Validation key path must be valid path to your chef server validation key."
       loader:
@@ -648,8 +654,19 @@ en:
         vm_already_running: |-
           VirtualBox VM is already running.
         vm_not_created: "VM not created. Moving on..."
-        vm_not_running: "VM is not currently running. Please bring it up to run this command."
+        vm_not_running: "VM is not currently running. Please, first bring it up with `vagrant up` then run this command."
       box:
+        remove_must_specify_provider: |-
+          Multiple providers were found for the box '%{name}'. Please specify
+          the specific provider for the box you want to remove. The list of
+          providers backing this box is:
+
+          '%{providers}'
+
+          To remove the box for a specific provider, run the following command,
+          filling in PROVIDER with one of the providers above:
+
+          vagrant box remove '%{name}' PROVIDER
         no_installed_boxes: "There are no installed boxes! Use `vagrant box add` to add some."
         removing: |-
           Removing box '%{name}' with provider '%{provider}'...

@@ -19,12 +19,17 @@ module VagrantPlugins
         return if !argv
 
         @logger.debug("'Destroy' each target VM...")
+        declined = false
         with_target_vms(argv, :reverse => true) do |vm|
-          vm.action(:destroy, :force_confirm_destroy => options[:force])
+          action_env = vm.action(
+            :destroy, :force_confirm_destroy => options[:force])
+
+          declined = true if action_env.has_key?(:force_confirm_destroy_result) &&
+            action_env[:force_confirm_destroy_result] == false
         end
 
-        # Success, exit status 0
-        0
+        # Success if no confirms were declined
+        declined ? 1 : 0
       end
     end
   end

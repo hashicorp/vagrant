@@ -6,6 +6,7 @@ module VagrantPlugins
         attr_accessor :attempts
         attr_accessor :binary_path
         attr_accessor :binary_env
+        attr_accessor :custom_config_path
         attr_accessor :http_proxy
         attr_accessor :http_proxy_user
         attr_accessor :http_proxy_pass
@@ -26,6 +27,7 @@ module VagrantPlugins
           @attempts          = UNSET_VALUE
           @binary_path       = UNSET_VALUE
           @binary_env        = UNSET_VALUE
+          @custom_config_path = UNSET_VALUE
           @http_proxy        = UNSET_VALUE
           @http_proxy_user   = UNSET_VALUE
           @http_proxy_pass   = UNSET_VALUE
@@ -46,6 +48,7 @@ module VagrantPlugins
           @attempts          = 1 if @attempts == UNSET_VALUE
           @binary_path       = nil if @binary_path == UNSET_VALUE
           @binary_env        = nil if @binary_env == UNSET_VALUE
+          @custom_config_path = nil if @custom_config_path == UNSET_VALUE
           @http_proxy        = nil if @http_proxy == UNSET_VALUE
           @http_proxy_user   = nil if @http_proxy_user == UNSET_VALUE
           @http_proxy_pass   = nil if @http_proxy_pass == UNSET_VALUE
@@ -66,6 +69,22 @@ module VagrantPlugins
             result.instance_variable_set(:@json, @json.merge(other.json))
             result.instance_variable_set(:@run_list, (@run_list + other.run_list))
           end
+        end
+
+        # Just like the normal configuration "validate" method except that
+        # it returns an array of errors that should be merged into some
+        # other error accumulator.
+        def validate_base(machine)
+          errors = []
+
+          if @custom_config_path
+            expanded = File.expand_path(@custom_config_path, machine.env.root_path)
+            if !File.file?(expanded)
+              errors << I18n.t("vagrant.config.chef.custom_config_path_missing")
+            end
+          end
+
+          errors
         end
 
         # Adds a recipe to the run list

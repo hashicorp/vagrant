@@ -455,6 +455,10 @@ module Vagrant
       error_key(:ssh_key_type_not_supported)
     end
 
+    class SSHNoRoute < VagrantError
+      error_key(:ssh_no_route)
+    end
+
     class SSHNotReady < VagrantError
       error_key(:ssh_not_ready)
     end

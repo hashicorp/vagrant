@@ -235,6 +235,9 @@ module VagrantPlugins
         rescue Errno::EHOSTDOWN
           # This is raised if we get an ICMP DestinationUnknown error.
           raise Vagrant::Errors::SSHHostDown
+        rescue Errno::EHOSTUNREACH
+          # This is raised if we can't work out how to route traffic.
+          raise Vagrant::Errors::SSHNoRoute
         rescue NotImplementedError
           # This is raised if a private key type that Net-SSH doesn't support
           # is used. Show a nicer error.
@@ -279,6 +282,10 @@ module VagrantPlugins
             ch2.on_request("exit-status") do |ch3, data|
               exit_status = data.read_long
               @logger.debug("Exit status: #{exit_status}")
+
+              # Close the channel, since after the exit status we're
+              # probably done. This fixes up issues with hanging.
+              channel.close
             end
 
             # Set the terminal

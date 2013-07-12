@@ -27,7 +27,7 @@ module Vagrant
       def initialize(*command)
         @options = command.last.is_a?(Hash) ? command.pop : {}
         @command = command
-        @command[0] = Which.which(@command[0]) if !File.file? @command[0]
+        @command[0] = Which.which(@command[0]) if !File.file?(@command[0])
         if !@command[0]
           raise Errors::CommandUnavailableWindows, file: command[0] if Platform.windows?
           raise Errors::CommandUnavailable, file: command[0]

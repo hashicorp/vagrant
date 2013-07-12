@@ -35,10 +35,55 @@ module VagrantPlugins
       end
 
       def nfs_export(id, ip, folders)
+        # We need to build up mapping of directories that are enclosed
+        # within each other because the exports file has to have subdirectories
+        # of an exported directory on the same line. e.g.:
+        #
+        #   "/foo" "/foo/bar" ...
+        #   "/bar"
+        #
+        # We build up this mapping within the following hash.
+        @logger.debug("Compiling map of sub-directories for NFS exports...")
+        dirmap = {}
+        folders.each do |_, opts|
+          hostpath = opts[:hostpath]
+
+          found = false
+          dirmap.each do |dirs, diropts|
+            dirs.each do |dir|
+              if dir.start_with?(hostpath) || hostpath.start_with?(dir)
+                # TODO: verify opts and diropts are _identical_, raise an error
+                # if not. NFS mandates subdirectories have identical options.
+                dirs << hostpath
+                found = true
+                break
+              end
+            end
+
+            break if found
+          end
+
+          if !found
+            dirmap[[hostpath]] = opts.dup
+          end
+        end
+
+        # Sort all the keys by length so that the directory closest to
+        # the root is exported first.
+        dirmap.each do |dirs, _|
+          dirs.sort_by! { |d| d.length }
+        end
+
+        @logger.info("Exporting the following for NFS...")
+        dirmap.each do |dirs, opts|
+          @logger.info("NFS DIR: #{dirs.inspect}")
+          @logger.info("NFS OPTS: #{opts.inspect}")
+        end
+
         output = TemplateRenderer.render(@nfs_exports_template,
                                          :uuid => id,
                                          :ip => ip,
-                                         :folders => folders)
+                                         :folders => dirmap)
 
         # The sleep ensures that the output is truly flushed before any `sudo`
         # commands are issued.
