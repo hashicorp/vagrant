@@ -131,7 +131,7 @@ module Vagrant
 
       # Converts the builder stack to a runnable action sequence.
       #
-      # @param [Vagrant::Action::Environment] env The action environment
+      # @param [Hash] env The action environment hash
       # @return [Object] A callable object
       def to_app(env)
         app_stack = nil

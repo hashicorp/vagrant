@@ -32,7 +32,8 @@ module VagrantPlugins
           # specific driver to instantiate.
           begin
             @version = read_version || ""
-          rescue Vagrant::Util::Subprocess::LaunchError
+          rescue Vagrant::Errors::CommandUnavailable,
+            Vagrant::Errors::CommandUnavailableWindows
             # This means that VirtualBox was not found, so we raise this
             # error here.
             raise Vagrant::Errors::VirtualBoxNotDetected

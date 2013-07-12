@@ -3,7 +3,7 @@ module Vagrant
   # class that simply stores a short and long description of the state
   # of a machine.
   #
-  # The state also stores a state "id" which ca be used as a unique
+  # The state also stores a state "id" which can be used as a unique
   # identifier for a state. This should be a symbol. This allows internal
   # code to compare state such as ":not_created" instead of using
   # string comparison.

@@ -30,3 +30,7 @@ no_proxy <%= no_proxy.inspect %>
 pid_file           "/var/run/chef/chef-client.pid"
 
 Mixlib::Log::Formatter.show_time = true
+
+<% if custom_configuration -%>
+load "<%= custom_configuration %>"
+<% end -%>
