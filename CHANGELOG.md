@@ -27,6 +27,7 @@ BUG FIXES:
     is used, avoiding mount errors [GH-1101]
   - SSH channel is closed after the exit status is received, potentially
     eliminating any SSH hangs. [GH-603]
+  - Fix regression where VirtualBox detection wasn't working anymore. [GH-1918]
 
 ## 1.2.3 (July 9, 2013)
 
