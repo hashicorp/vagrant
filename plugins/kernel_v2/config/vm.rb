@@ -362,7 +362,7 @@ module VagrantPlugins
         # Validate networks
         has_fp_port_error = false
         fp_host_ports     = Set.new
-        valid_network_types = [:forwarded_port, :private_network, :public_network]
+        valid_network_types = [:forwarded_port, :private_network, :public_network, :hostonly]
 
         networks.each do |type, options|
           if !valid_network_types.include?(type)
@@ -386,7 +386,7 @@ module VagrantPlugins
             end
           end
 
-          if type == :private_network
+          if type == :private_network || type == :hostonly
             if options[:type] != :dhcp
               if !options[:ip]
                 errors << I18n.t("vagrant.config.vm.network_ip_required")

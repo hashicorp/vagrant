@@ -40,7 +40,7 @@ module VagrantPlugins
           available_slots = available_slots.to_a.sort
           env[:machine].config.vm.networks.each do |type, options|
             # We only handle private and public networks
-            next if type != :private_network && type != :public_network
+            next if type != :private_network && type != :public_network && type != :hostonly
 
             options = scoped_hash_override(options, :virtualbox)
 
@@ -56,12 +56,12 @@ module VagrantPlugins
 
             # Configure it
             data = nil
-            if type == :private_network
+            if type == :private_network || type == :hostonly
               # private_network = hostonly
-              data        = [:hostonly, options]
+              data = [:hostonly, options]
             elsif type == :public_network
               # public_network = bridged
-              data        = [:bridged, options]
+              data = [:bridged, options]
             end
 
             # Store it!
@@ -220,7 +220,7 @@ module VagrantPlugins
           options[:type] = options[:type].to_sym
 
           # Default IP is in the 20-bit private network block for DHCP based networks
-          options[:ip] = "172.28.128.1" if options[:type] == :dhcp
+          options[:ip] = "172.28.128.1" if options[:type] == :dhcp && options[:ip].nil?
 
           # Calculate our network address for the given IP/netmask
           netaddr  = network_address(options[:ip], options[:netmask])

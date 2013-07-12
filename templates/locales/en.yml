@@ -626,7 +626,7 @@ en:
           Using NFS shared folders requires a host to be specified
           using `config.vagrant.host`.
         network_ip_required: |-
-          An IP is required for a private network.
+          Private & Hostonly network(s) require an IP as an argument.
         network_fp_host_not_unique: |-
           Forwarded port '%{host}' (host port) is declared multiple times
         network_fp_requires_ports: |-
@@ -750,7 +750,7 @@ en:
           VM, run `vagrant status NAME`.
       up:
         upping: |-
-          Bringing machine '%{name}' up with '%{provider}' provider...
+          Bringing machine '%{name}' up using base box '%{base_box}' with '%{provider}' as the provider...
       version:
         output: "Vagrant version %{version}"
 
@@ -977,6 +977,9 @@ en:
           suspending: Saving VM state and suspending execution...
 
       box:
+        repackage:
+          tar_failure: |-
+            The TAR command failed
         unpackage:
           untar_failure: |-
             The box failed to unpackage properly. Please verify that the box
