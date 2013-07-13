@@ -13,6 +13,8 @@ IMPROVEMENTS:
   - `vagrant destroy` returns exit status 1 if any of the confirmations
     are declined. [GH-923]
   - Forwarded ports can specify a host IP and guest IP to bind to. [GH-1121]
+  - You can now set the "ip" of a private network that uses DHCP. This will
+    change the subnet and such that the DHCP server uses.
 
 BUG FIXES:
 

@@ -220,7 +220,7 @@ module VagrantPlugins
           options[:type] = options[:type].to_sym
 
           # Default IP is in the 20-bit private network block for DHCP based networks
-          options[:ip] = "172.28.128.1" if options[:type] == :dhcp && options[:ip].nil?
+          options[:ip] = "172.28.128.1" if options[:type] == :dhcp && !options[:ip]
 
           # Calculate our network address for the given IP/netmask
           netaddr  = network_address(options[:ip], options[:netmask])
