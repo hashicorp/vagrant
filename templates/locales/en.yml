@@ -168,11 +168,11 @@ en:
 
         %{help}
       command_unavailable: |-
-        The executable '%(file)' Vagrant is trying to run was not
+        The executable '%{file}' Vagrant is trying to run was not
         found in the PATH variable. This is an error. Please verify
         this software is installed and on the path.
       command_unavailable_windows: |-
-        The executable '%(file)' Vagrant is trying to run was not
+        The executable '%{file}' Vagrant is trying to run was not
         found in the %PATH% variable. This is an error. Please verify
         this software is installed and on the path.
       config_invalid: |-
