@@ -100,6 +100,7 @@ module Vagrant
         # Command line options
         command_options = [
           "-p", options[:port].to_s,
+          "-o", "DSAAuthentication=yes",
           "-o", "LogLevel=FATAL",
           "-o", "StrictHostKeyChecking=no",
           "-o", "UserKnownHostsFile=/dev/null"]

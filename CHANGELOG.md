@@ -37,6 +37,8 @@ BUG FIXES:
   - NFS shared folders with single quotes in their name now work properly. [GH-1166]
   - Debian/Ubuntu request DHCP renewal when hostname changes, which will
     fix issues with FQDN detecting. [GH-1929]
+  - SSH adds the "DSAAuthentication=yes" option in case that is disabled
+    on the user's system. [GH-1900]
 
 ## 1.2.3 (July 9, 2013)
 
