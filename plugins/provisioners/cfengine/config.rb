@@ -20,6 +20,7 @@ module VagrantPlugins
       attr_accessor :upload_path
       attr_accessor :yum_repo_file
       attr_accessor :yum_repo_url
+      attr_accessor :package_name
 
       def initialize
         @am_policy_hub    = UNSET_VALUE
@@ -37,6 +38,7 @@ module VagrantPlugins
         @upload_path      = UNSET_VALUE
         @yum_repo_file    = UNSET_VALUE
         @yum_repo_url     = UNSET_VALUE
+        @package_name     = UNSET_VALUE
       end
 
       def finalize!
@@ -80,6 +82,10 @@ module VagrantPlugins
 
         if @yum_repo_url == UNSET_VALUE
           @yum_repo_url = "http://cfengine.com/pub/yum/"
+        end
+
+        if @package_name == UNSET_VALUE
+            @package_name = "cfengine-community"
         end
       end
 

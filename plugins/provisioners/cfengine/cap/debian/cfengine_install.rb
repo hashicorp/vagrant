@@ -9,7 +9,7 @@ module VagrantPlugins
               comm.sudo("GPGFILE=`tempfile`; wget -O $GPGFILE #{config.repo_gpg_key_url} && apt-key add $GPGFILE; rm -f $GPGFILE")
 
               comm.sudo("apt-get update")
-              comm.sudo("apt-get install -y cfengine-community")
+              comm.sudo("apt-get install -y #{config.package_name}")
             end
           end
         end
