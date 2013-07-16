@@ -14,6 +14,7 @@ module VagrantPlugins
                 comm.sudo("service hostname start")
               end
               comm.sudo("hostname --fqdn > /etc/mailname")
+              comm.sudo("ifdown -a; ifup -a")
             end
           end
         end
