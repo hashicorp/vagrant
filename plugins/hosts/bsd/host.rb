@@ -46,7 +46,8 @@ module VagrantPlugins
         @logger.debug("Compiling map of sub-directories for NFS exports...")
         dirmap = {}
         folders.each do |_, opts|
-          hostpath = opts[:hostpath]
+          hostpath = opts[:hostpath].dup
+          hostpath.gsub!('"', '\"')
 
           found = false
           dirmap.each do |dirs, diropts|
@@ -95,7 +96,8 @@ module VagrantPlugins
 
         # Output the rendered template into the exports
         output.split("\n").each do |line|
-          line = line.gsub('"', '\"')
+          line.gsub!('"', '\"')
+          line.gsub!("'", "'\\\\''")
           system(%Q[sudo su root -c "echo '#{line}' >> /etc/exports"])
         end
 
