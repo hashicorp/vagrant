@@ -985,7 +985,7 @@ en:
 
             %{output}
           already_exists: |-
-            The box you're attempting to add already exits:
+            The box you're attempting to add already exists:
 
             Name: %{name}
             Provider: %{provider}
