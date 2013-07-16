@@ -25,13 +25,12 @@ module Vagrant
       end
 
       def initialize(*command)
-        progname = command[0]
         @options = command.last.is_a?(Hash) ? command.pop : {}
-        @command = command
+        @command = command.dup
         @command[0] = Which.which(@command[0]) if !File.file?(@command[0])
         if !@command[0]
-          raise Errors::CommandUnavailableWindows, file: progname if Platform.windows?
-          raise Errors::CommandUnavailable, file: progname
+          raise Errors::CommandUnavailableWindows, file: command[0] if Platform.windows?
+          raise Errors::CommandUnavailable, file: command[0]
         end
 
         @logger  = Log4r::Logger.new("vagrant::util::subprocess")

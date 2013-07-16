@@ -18,6 +18,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - VBoxManage or any other executable missing from PATH properly
+    reported. Regression from 1.2.2. [GH-1928]
   - Boxes downloaded as part of `vagrant up` are now done so _prior_ to
     config validation. This allows Vagrantfiles to references files that
     may be in the box itself. [GH-1061]
