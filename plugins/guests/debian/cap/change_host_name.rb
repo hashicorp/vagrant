@@ -9,6 +9,7 @@ module VagrantPlugins
               comm.sudo("sed -i 's/.*$/#{name.split('.')[0]}/' /etc/hostname")
               comm.sudo("hostname -F /etc/hostname")
               comm.sudo("hostname --fqdn > /etc/mailname")
+              comm.sudo("ifdown -a; ifup -a")
             end
           end
         end
