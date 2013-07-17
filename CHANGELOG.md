@@ -5,6 +5,7 @@ BUG FIXES:
   - Fix uninitialized constant error when configuring Arch Linux network. [GH-1734]
   - Debian/Ubuntu change hostname works properly if eth0 is configured
     with hot-plugging. [GH-1929]
+  - NFS exports with improper casing on Mac OS X work properly. [GH-1202]
 
 ## 1.2.4 (July 16, 2013)
 

@@ -4,6 +4,8 @@ require 'pathname'
 
 require "log4r"
 
+require 'vagrant/util/platform'
+
 module Vagrant
   module Action
     module Builtin
@@ -40,6 +42,7 @@ module Vagrant
             hostpath = Pathname.new(opts[:hostpath]).
               expand_path(env[:root_path]).
               realpath
+            hostpath = Util::Platform.fs_real_path(hostpath)
 
             if !hostpath.directory? && opts[:create]
               # Host path doesn't exist, so let's create it.
