@@ -1,6 +1,8 @@
 ## 1.2.5 (unreleased)
 
+BUG FIXES:
 
+  - Fix uninitialized constant error when configuring Arch Linux network. [GH-1734]
 
 ## 1.2.4 (July 16, 2013)
 
