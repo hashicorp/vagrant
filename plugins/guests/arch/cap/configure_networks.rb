@@ -1,7 +1,13 @@
+require "tempfile"
+
+require "vagrant/util/template_renderer"
+
 module VagrantPlugins
   module GuestArch
     module Cap
       class ConfigureNetworks
+        include Vagrant::Util
+
         def self.configure_networks(machine, networks)
           networks.each do |network|
             entry = TemplateRenderer.render("guests/arch/network_#{network[:type]}",
