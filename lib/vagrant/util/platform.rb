@@ -1,4 +1,5 @@
 require 'rbconfig'
+require 'tmpdir'
 
 require "vagrant/util/subprocess"
 
@@ -37,6 +38,22 @@ module Vagrant
 
           process = Subprocess.execute("cygpath", "-w", "-l", "-a", path.to_s)
           process.stdout.chomp
+        end
+
+        # This checks if the filesystem is case sensitive. This is not a
+        # 100% correct check, since it is possible that the temporary
+        # directory runs a different filesystem than the root directory.
+        # However, this works in many cases.
+        def fs_case_sensitive?
+          tmp_dir = Dir.mktmpdir("vagrant")
+          tmp_file = File.join(tmp_dir, "FILE")
+          File.open(tmp_file, "w") do |f|
+            f.write("foo")
+          end
+
+          # The filesystem is case sensitive if the lowercased version
+          # of the filename is NOT reported as existing.
+          return !File.file?(File.join(tmp_dir, "file"))
         end
 
         # Returns a boolean noting whether the terminal supports color.
