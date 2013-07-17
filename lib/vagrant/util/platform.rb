@@ -56,6 +56,32 @@ module Vagrant
           return !File.file?(File.join(tmp_dir, "file"))
         end
 
+        # This expands the path and ensures proper casing of each part
+        # of the path.
+        def fs_real_path(path)
+          path = Pathname.new(File.expand_path(path))
+          raise "Path must exist for path expansion" if !path.exist?
+          return path if fs_case_sensitive?
+
+          # Build up all the parts of the path
+          original = []
+          while !path.root?
+            original.unshift(path.basename.to_s)
+            path = path.parent
+          end
+
+          # Traverse each part and join it into the resulting path
+          original.each do |single|
+            Dir.entries(path).each do |entry|
+              if entry.downcase == single.downcase
+                path = path.join(entry)
+              end
+            end
+          end
+
+          path
+        end
+
         # Returns a boolean noting whether the terminal supports color.
         # output.
         def terminal_supports_colors?
