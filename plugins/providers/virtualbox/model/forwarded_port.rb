@@ -24,6 +24,11 @@ module VagrantPlugins
         # @return [String]
         attr_reader :protocol
 
+        # The IP that the forwarded port will connect to on the guest machine.
+        #
+        # @return [String]
+        attr_reader :guest_ip
+
         # The port on the guest to be exposed on the host.
         #
         # @return [Integer]
@@ -48,6 +53,7 @@ module VagrantPlugins
           @auto_correct = true
           @auto_correct = options[:auto_correct] if options.has_key?(:auto_correct)
           @adapter  = (options[:adapter] || 1).to_i
+          @guest_ip = options[:guest_ip] || nil
           @host_ip = options[:host_ip] || nil
           @protocol = options[:protocol] || "tcp"
         end

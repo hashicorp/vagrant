@@ -69,6 +69,7 @@ module VagrantPlugins
             # Add the options to the ports array to send to the driver later
             ports << {
               :adapter   => fp.adapter,
+              :guestip   => fp.guest_ip,
               :guestport => fp.guest_port,
               :hostip    => fp.host_ip,
               :hostport  => fp.host_port,
