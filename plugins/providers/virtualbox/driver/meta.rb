@@ -48,6 +48,7 @@ module VagrantPlugins
           }
 
           if @version.start_with?("4.2.14")
+            # VirtualBox 4.2.14 just doesn't work with Vagrant, so show error
             raise Vagrant::Errors::VirtualBoxBrokenVersion040214
           end
 
