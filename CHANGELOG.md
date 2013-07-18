@@ -22,6 +22,7 @@ BUG FIXES:
   - Default VirtualBox VM name now contains the machine name as defined
     in the Vagrantfile, helping differentiate multi-VM. [GH-1281]
   - NFS works properly on CentOS hosts. [GH-1394]
+  - Solaris guests actually shut down properly. [GH-1506]
 
 ## 1.2.4 (July 16, 2013)
 
