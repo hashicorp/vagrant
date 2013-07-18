@@ -13,6 +13,7 @@ IMPROVEMENTS:
     formatter. [GH-1250]
   - VAGRANT_DOTFILE_PATH environmental variable reintroduces the
     functionality removed in 1.1 from "config.dotfile_name" [GH-1524]
+  - Vagrant will show an error if VirtualBox 4.2.14 is running.
 
 BUG FIXES:
 

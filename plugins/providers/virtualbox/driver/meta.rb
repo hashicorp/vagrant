@@ -47,6 +47,10 @@ module VagrantPlugins
             "4.2" => Version_4_2
           }
 
+          if @version.start_with?("4.2.14")
+            raise Vagrant::Errors::VirtualBoxBrokenVersion040214
+          end
+
           driver_klass = nil
           driver_map.each do |key, klass|
             if @version.start_with?(key)

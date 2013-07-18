@@ -507,6 +507,10 @@ module Vagrant
       error_key(:vboxmanage_not_found_error)
     end
 
+    class VirtualBoxBrokenVersion040214 < VagrantError
+      error_key(:virtualbox_broken_version_040214)
+    end
+
     class VirtualBoxInvalidVersion < VagrantError
       error_key(:virtualbox_invalid_version)
     end

@@ -545,6 +545,11 @@ en:
         be found. Please verify VirtualBox is properly installed. You can verify
         everything is okay by running "VBoxManage --version" and verifying
         that the VirtualBox version is outputted.
+      virtualbox_broken_version_040214: |-
+        Vagrant detected you have VirtualBox 4.2.14 installed. VirtualBox
+        4.2.14 contains a critical bug that causes it to not work with
+        Vagrant. VirtualBox 4.2.16+ fixes this problem. Please upgrade
+        VirtualBox.
       virtualbox_invalid_version: |-
         Vagrant has detected that you have a version of VirtualBox installed
         that is not supported. Please install one of the supported versions
