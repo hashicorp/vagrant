@@ -91,7 +91,11 @@ module VagrantPlugins
 
           # Merge synced folders.
           other_folders = other.instance_variable_get(:@__synced_folders)
-          new_folders = @__synced_folders.dup
+          new_folders = {}
+          @__synced_folders.each do |key, value|
+            new_folders[key] = value.dup
+          end
+
           other_folders.each do |id, options|
             new_folders[id] ||= {}
             new_folders[id].merge!(options)

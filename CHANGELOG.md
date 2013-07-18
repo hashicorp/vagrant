@@ -6,6 +6,8 @@ BUG FIXES:
   - Debian/Ubuntu change hostname works properly if eth0 is configured
     with hot-plugging. [GH-1929]
   - NFS exports with improper casing on Mac OS X work properly. [GH-1202]
+  - Shared folders overriding '/vagrant' in multi-VM environments no
+    longer all just use the last value. [GH-1935]
 
 ## 1.2.4 (July 16, 2013)
 
