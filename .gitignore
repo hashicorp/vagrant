@@ -29,3 +29,9 @@ doc/
 # IDE junk
 .idea/*
 *.iml
+
+# Ruby Managers
+.rbenv
+.ruby-gemset
+.ruby-version
+.rvmrc
