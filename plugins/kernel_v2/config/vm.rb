@@ -142,6 +142,8 @@ module VagrantPlugins
       #   * `:private_network` - The machine gets an IP that is not directly
       #     publicly accessible, but ideally accessible from this machine.
       #   * `:public_network` - The machine gets an IP on a shared network.
+      #   * `:internal_network` - The machine gets an interface on a network
+      #     accessible only from explicitly attached virtual machines.
       #
       # @param [Symbol] type Type of network
       # @param [Hash] options Options for the network.

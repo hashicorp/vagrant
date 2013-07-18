@@ -40,7 +40,7 @@ module VagrantPlugins
           available_slots = available_slots.to_a.sort
           env[:machine].config.vm.networks.each do |type, options|
             # We only handle private and public networks
-            next if type != :private_network && type != :public_network
+            next if ! [ :private_network, :public_network, :internal_network ].include?(type)
 
             options = scoped_hash_override(options, :virtualbox)
 
@@ -62,6 +62,8 @@ module VagrantPlugins
             elsif type == :public_network
               # public_network = bridged
               data        = [:bridged, options]
+            elsif type == :internal_network
+              data        = [:intnet, options]
             end
 
             # Store it!
@@ -405,6 +407,41 @@ module VagrantPlugins
           end
 
           nil
+        end
+
+        def intnet_config(options)
+          options ||= {}
+          ip        = options[:ip]
+            
+          return {
+            :type    => "static",
+            :ip      => ip,
+            :netmask => "255.255.255.0",
+            :adapter => nil,
+            :mac     => nil,
+            :name    => nil,
+            :auto_config => true
+          }.merge(options)
+        end
+
+        def intnet_adapter(config)
+          @logger.info("Setup internal network: #{config[:ip]}")
+
+          return {
+            :adapter     => config[:adapter],
+            :type        => :intnet,
+            :mac_address => config[:mac],
+            :nic_type    => config[:nic_type],
+            :intnet      => config[:name]
+          }
+        end
+
+        def intnet_network_config(config)
+          return {
+            :type    => config[:type],
+            :ip      => config[:ip],
+            :netmask => config[:netmask]
+          }
         end
       end
     end
