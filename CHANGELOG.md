@@ -1,5 +1,10 @@
 ## 1.2.5 (unreleased)
 
+IMPROVEMENTS:
+
+  - Remote commands that fail will now show the stdout/stderr of the
+    command that failed. [GH-1203]
+
 BUG FIXES:
 
   - Fix uninitialized constant error when configuring Arch Linux network. [GH-1734]

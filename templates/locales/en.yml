@@ -397,6 +397,14 @@ en:
         Vagrant assumes that this means the command failed!
 
         %{command}
+
+        Stdout from the command:
+
+        %{stdout}
+
+        Stderr from the command:
+
+        %{stderr}
       ssh_connect_eacces: |-
         SSH is getting permission denied errors when attempting to connect
         to the IP for SSH. This is usually caused by network rules and not being
