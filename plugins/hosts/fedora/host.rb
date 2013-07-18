@@ -12,7 +12,9 @@ module VagrantPlugins
 
         if release_file.exist?
           release_file.open("r") do |f|
-            return true if f.gets =~ /^Fedora/
+            contents = f.gets
+            return true if contents =~ /^Fedora/
+            return true if contents =~ /^CentOS/
           end
         end
 

@@ -21,6 +21,7 @@ BUG FIXES:
   - NFS export allows access from all private networks on the VM. [GH-1204]
   - Default VirtualBox VM name now contains the machine name as defined
     in the Vagrantfile, helping differentiate multi-VM. [GH-1281]
+  - NFS works properly on CentOS hosts. [GH-1394]
 
 ## 1.2.4 (July 16, 2013)
 
