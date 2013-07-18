@@ -1,6 +1,6 @@
-require 'digest/md5'
 require 'fileutils'
 require 'pathname'
+require 'zlib'
 
 require "log4r"
 
@@ -95,11 +95,9 @@ module Vagrant
           opts[:map_gid] = prepare_permission(:gid, opts)
           opts[:nfs_version] ||= 3
 
-          # The poor man's UUID. An MD5 hash here is sufficient since
-          # we need a 32 character "uuid" to represent the filesystem
-          # of an export. Hashing the host path is safe because two of
-          # the same host path will hash to the same fsid.
-          opts[:uuid]    = Digest::MD5.hexdigest(opts[:hostpath])
+          # We use a CRC32 to generate a 32-bit checksum so that the
+          # fsid is compatible with both old and new kernels.
+          opts[:uuid] = Zlib.crc32(opts[:hostpath]).to_s
         end
 
         # Prepares the UID/GID settings for a single folder.

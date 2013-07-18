@@ -8,6 +8,8 @@ BUG FIXES:
   - NFS exports with improper casing on Mac OS X work properly. [GH-1202]
   - Shared folders overriding '/vagrant' in multi-VM environments no
     longer all just use the last value. [GH-1935]
+  - NFS export fsid's are now 32-bit integers, rather than UUIDs. This
+    lets NFS exports work with Linux kernels older than 2.6.20. [GH-1127]
 
 ## 1.2.4 (July 16, 2013)
 
