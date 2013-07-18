@@ -1,5 +1,9 @@
 ## 1.2.5 (unreleased)
 
+FEATURES:
+
+  - `vagrant help <command>` now works. [GH-1578]
+
 IMPROVEMENTS:
 
   - Remote commands that fail will now show the stdout/stderr of the
