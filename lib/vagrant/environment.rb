@@ -74,7 +74,9 @@ module Vagrant
       opts[:cwd] ||= ENV["VAGRANT_CWD"] if ENV.has_key?("VAGRANT_CWD")
       opts[:cwd] ||= Dir.pwd
       opts[:cwd] = Pathname.new(opts[:cwd])
-      raise Errors::EnvironmentNonExistentCWD if !opts[:cwd].directory?
+      if !opts[:cwd].directory?
+        raise Errors::EnvironmentNonExistentCWD, cwd: opts[:cwd].to_s
+      end
 
       # Set the default ui class
       opts[:ui_class] ||= UI::Silent

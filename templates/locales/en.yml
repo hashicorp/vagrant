@@ -233,6 +233,11 @@ en:
         may run at any given time to avoid problems with VirtualBox inconsistencies
         occurring. Please wait for the other instance of Vagrant to end and then
         try again.
+      environment_non_existent_cwd: |-
+        The working directory for Vagrant doesn't exist! This is the
+        specified working directory:
+
+        %{cwd}
       forward_port_adapter_not_found: |-
         The adapter to attach a forwarded port to was not found. Please
         verify that the given adapter is setup on the machine as a NAT
