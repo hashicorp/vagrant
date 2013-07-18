@@ -7,6 +7,8 @@ IMPROVEMENTS:
   - Puppet will run without color if the UI is not colored. [GH-1344]
   - Chef supports the "formatter" configuration for setting the
     formatter. [GH-1250]
+  - VAGRANT_DOTFILE_PATH environmental variable reintroduces the
+    functionality removed in 1.1 from "config.dotfile_name" [GH-1524]
 
 BUG FIXES:
 
