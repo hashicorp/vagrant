@@ -16,6 +16,8 @@ BUG FIXES:
   - NFS export fsid's are now 32-bit integers, rather than UUIDs. This
     lets NFS exports work with Linux kernels older than 2.6.20. [GH-1127]
   - NFS export allows access from all private networks on the VM. [GH-1204]
+  - Default VirtualBox VM name now contains the machine name as defined
+    in the Vagrantfile, helping differentiate multi-VM. [GH-1281]
 
 ## 1.2.4 (July 16, 2013)
 
