@@ -4,6 +4,7 @@ IMPROVEMENTS:
 
   - Remote commands that fail will now show the stdout/stderr of the
     command that failed. [GH-1203]
+  - Puppet will run without color if the UI is not colored. [GH-1344]
 
 BUG FIXES:
 

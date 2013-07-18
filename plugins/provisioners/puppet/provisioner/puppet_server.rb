@@ -40,6 +40,12 @@ module VagrantPlugins
 
           # Add the certname option if there is one
           options += ["--certname", cn] if cn
+
+          # Disable colors if we must
+          if !@machine.env.ui.is_a?(Vagrant::UI::Colored)
+            options << "--no-color"
+          end
+
           options = options.join(" ")
 
           # Build up the custom facts if we have any
