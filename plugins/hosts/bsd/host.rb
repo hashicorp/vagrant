@@ -34,7 +34,7 @@ module VagrantPlugins
         end
       end
 
-      def nfs_export(id, ip, folders)
+      def nfs_export(id, ips, folders)
         # We need to build up mapping of directories that are enclosed
         # within each other because the exports file has to have subdirectories
         # of an exported directory on the same line. e.g.:
@@ -83,7 +83,7 @@ module VagrantPlugins
 
         output = TemplateRenderer.render(@nfs_exports_template,
                                          :uuid => id,
-                                         :ip => ip,
+                                         :ips => ips,
                                          :folders => dirmap)
 
         # The sleep ensures that the output is truly flushed before any `sudo`

@@ -15,6 +15,7 @@ BUG FIXES:
     longer all just use the last value. [GH-1935]
   - NFS export fsid's are now 32-bit integers, rather than UUIDs. This
     lets NFS exports work with Linux kernels older than 2.6.20. [GH-1127]
+  - NFS export allows access from all private networks on the VM. [GH-1204]
 
 ## 1.2.4 (July 16, 2013)
 

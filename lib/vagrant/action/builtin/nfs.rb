@@ -65,13 +65,16 @@ module Vagrant
             raise Errors::NFSNoHostIP if !env[:nfs_host_ip]
             raise Errors::NFSNoGuestIP if !env[:nfs_machine_ip]
 
+            machine_ip = env[:nfs_machine_ip]
+            machine_ip = [machine_ip] if !machine_ip.is_a?(Array)
+
             # Prepare the folder, this means setting up various options
             # and such on the folder itself.
             folders.each { |id, opts| prepare_folder(opts) }
 
             # Export the folders
             env[:ui].info I18n.t("vagrant.actions.vm.nfs.exporting")
-            env[:host].nfs_export(env[:machine].id, env[:nfs_machine_ip], folders)
+            env[:host].nfs_export(env[:machine].id, machine_ip, folders)
 
             # Mount
             env[:ui].info I18n.t("vagrant.actions.vm.nfs.mounting")

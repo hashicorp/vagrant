@@ -50,13 +50,18 @@ module VagrantPlugins
         #
         # @return [String]
         def read_machine_ip(machine)
+          ips = []
           machine.config.vm.networks.each do |type, options|
             if type == :private_network && options[:ip].is_a?(String)
-              return options[:ip]
+              ips << options[:ip]
             end
           end
 
-          nil
+          if ips.empty?
+            return nil
+          end
+
+          ips
         end
       end
     end
