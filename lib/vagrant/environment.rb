@@ -447,6 +447,17 @@ module Vagrant
       nil
     end
 
+    # A list of machines commands should operate on by default. Defaults to
+    # all machines if not set in the config.
+    #
+    # @return [Array<Symbol>] Default machines names.
+    def default_machines
+      defaults = config_global.vagrant.default_machines
+      defaults = [defaults] unless defaults.is_a?(Array)
+      defaults = machine_names if defaults.empty?
+      defaults
+    end
+
     # Unload the environment, running completion hooks. The environment
     # should not be used after this (but CAN be, technically). It is
     # recommended to always immediately set the variable to `nil` after

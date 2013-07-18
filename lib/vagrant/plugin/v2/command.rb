@@ -157,10 +157,19 @@ module Vagrant
               end
             end
           else
-            # No name was given, so we return every VM in the order
-            # configured.
-            @logger.debug("Loading all machines...")
-            machines = @env.machine_names.map do |machine_name|
+            # No name was given, so we return default VMs in the order
+            # configured. If no default machines were specified, or the invoking
+            # command is non-destructive and safe to run against all machines,
+            # all machines are returned instead.
+            @logger.debug("Loading default machines...")
+
+            if options[:safe_for_all_machines]
+              machines_method = :machine_names
+            else
+              machines_method = :default_machines
+            end
+
+            machines = @env.public_send(machines_method).map do |machine_name|
               get_machine.call(machine_name)
             end
           end

@@ -14,7 +14,7 @@ module VagrantPlugins
 
         state = nil
         results = []
-        with_target_vms(argv) do |machine|
+        with_target_vms(argv, :safe_for_all_machines => true) do |machine|
           state = machine.state if !state
           results << "#{machine.name.to_s.ljust(25)} #{machine.state.short_description} (#{machine.provider_name})"
         end
