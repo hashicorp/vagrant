@@ -1006,7 +1006,7 @@ en:
             The box you're attempting to add already exists:
 
             Name: %{name}
-            Provider: %{provider}
+            Provider: %{formats}
         add:
           adding: |-
             Extracting box...

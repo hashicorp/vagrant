@@ -43,9 +43,9 @@ module Vagrant
               # First see if we actually have the box now.
               has_box = false
 
-              formats = env[:machine].provider_options[:box_format] ||
+              box_formats = env[:machine].provider_options[:box_format] ||
                 env[:machine].provider_name
-              if env[:box_collection].find(box_name, formats)
+              if env[:box_collection].find(box_name, box_formats)
                 has_box = true
                 break
               end
@@ -61,7 +61,7 @@ module Vagrant
                 begin
                   env[:action_runner].run(Vagrant::Action.action_box_add, {
                     :box_name     => box_name,
-                    :box_provider => env[:machine].provider_name,
+                    :box_provider => box_formats,
                     :box_url      => box_url
                   })
                 rescue Errors::BoxAlreadyExists

@@ -18,6 +18,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - `box_url` now handles the case where the provider doesn't perfectly
+    match the provider in use, but the provider supports it. [GH-1752]
   - Fix uninitialized constant error when configuring Arch Linux network. [GH-1734]
   - Debian/Ubuntu change hostname works properly if eth0 is configured
     with hot-plugging. [GH-1929]
