@@ -339,7 +339,17 @@ module Vagrant
       box_changed  = false
 
       load_box_and_overrides = lambda do
-        box = find_box(config.vm.box, box_formats) if config.vm.box
+        box = nil
+        if config.vm.box
+          begin
+            box = boxes.find(config.vm.box, box_formats)
+          rescue Errors::BoxUpgradeRequired
+            # Upgrade the box if we must
+            @logger.info("Upgrading box during config load: #{config.vm.box}")
+            boxes.upgrade(config.vm.box)
+            retry
+          end
+        end
 
         # If a box was found, then we attempt to load the Vagrantfile for
         # that box. We don't require a box since we allow providers to download
@@ -692,39 +702,6 @@ module Vagrant
       end
 
       Pathname.new(path)
-    end
-
-    # This finds a box for the given name and formats, or returns nil
-    # if the box isn't found.
-    #
-    # @param [String] name Name of the box
-    # @param [Array<Symbol>] formats The formats to search for the box.
-    # @return [Box]
-    def find_box(name, formats)
-      # Determine the box formats we support
-      formats = [formats] if !formats.is_a?(Array)
-
-      @logger.info("Provider-supported box formats: #{formats.inspect}")
-      formats.each do |format|
-        box = nil
-
-        begin
-          box = boxes.find(name, format.to_s)
-        rescue Errors::BoxUpgradeRequired
-          # Upgrade the box if we must
-          @logger.info("Upgrading box during config load: #{name}")
-          boxes.upgrade(name)
-          retry
-        end
-
-        # If a box was found, we exit
-        if box
-          @logger.info("Box found with format: #{format}")
-          return box
-        end
-      end
-
-      nil
     end
 
     # Finds the Vagrantfile in the given directory.
