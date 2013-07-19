@@ -86,6 +86,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+  - Added provider to BoxNotFound error message.
   - Setting hostnames works properly on OmniOS. [GH-1672]
   - Better VBoxManage error detection on Windows systems. This avoids
     some major issues where Vagrant would sometimes "lose" your VM. [GH-1669]
