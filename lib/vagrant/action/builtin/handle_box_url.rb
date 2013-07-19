@@ -45,11 +45,9 @@ module Vagrant
 
               formats = env[:machine].provider_options[:box_format] ||
                 env[:machine].provider_name
-              [formats].flatten.each do |format|
-                if env[:box_collection].find(box_name, format)
-                  has_box = true
-                  break
-                end
+              if env[:box_collection].find(box_name, formats)
+                has_box = true
+                break
               end
 
               if !has_box
