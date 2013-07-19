@@ -14,6 +14,7 @@ IMPROVEMENTS:
   - VAGRANT_DOTFILE_PATH environmental variable reintroduces the
     functionality removed in 1.1 from "config.dotfile_name" [GH-1524]
   - Vagrant will show an error if VirtualBox 4.2.14 is running.
+  - Added provider to BoxNotFound error message. [GH-1692]
 
 BUG FIXES:
 
@@ -86,7 +87,6 @@ FEATURES:
 
 IMPROVEMENTS:
 
-  - Added provider to BoxNotFound error message.
   - Setting hostnames works properly on OmniOS. [GH-1672]
   - Better VBoxManage error detection on Windows systems. This avoids
     some major issues where Vagrant would sometimes "lose" your VM. [GH-1669]
