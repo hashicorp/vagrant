@@ -261,6 +261,7 @@ module Vagrant
     # If the given box is found but is not a V1 box then `true` is returned
     # because this just works fine.
     #
+    # @param [String] name Name of the box (logical name).
     # @return [Boolean] `true` otherwise an exception is raised.
     def upgrade(name)
       with_collection_lock do
@@ -268,7 +269,7 @@ module Vagrant
         box_dir = @directory.join(name)
 
         # If the box doesn't exist at all, raise an exception
-        raise Errors::BoxNotFound, :name => name if !box_dir.directory?
+        raise Errors::BoxNotFound, :name => name, :provider => "virtualbox" if !box_dir.directory?
 
         if v1_box?(box_dir)
           @logger.debug("V1 box #{name} found. Upgrading!")
