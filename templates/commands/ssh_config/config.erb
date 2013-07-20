@@ -5,7 +5,11 @@ Host <%= host_key %>
   UserKnownHostsFile /dev/null
   StrictHostKeyChecking no
   PasswordAuthentication no
+<% if private_key_path.include?(" ") -%>
   IdentityFile "<%= private_key_path %>"
+<% else -%>
+  IdentityFile <%= private_key_path %>
+<% end -%>
   IdentitiesOnly yes
   LogLevel FATAL
 <% if forward_agent -%>

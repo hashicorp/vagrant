@@ -36,6 +36,8 @@ BUG FIXES:
   - All provisioners only output newlines when the provisioner sends a
     newline. This results in the output looking a lot nicer.
   - Sharing folders works properly if ".profile" contains an echo. [GH-1677]
+  - `vagrant ssh-config` IdentityFile is only wrapped in quotes if it
+    contains a space. [GH-1682]
 
 ## 1.2.4 (July 16, 2013)
 
