@@ -46,6 +46,7 @@ BUG FIXES:
     error properly if they collide. [GH-1701]
   - Retry SSH on ENETUNREACH error. [GH-1732]
   - NFS is silently ignored on Windows. [GH-1748]
+  - Validation so that private network static IP does not end in ".1" [GH-1750]
 
 ## 1.2.4 (July 16, 2013)
 
