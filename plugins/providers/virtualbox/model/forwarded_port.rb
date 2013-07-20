@@ -50,7 +50,7 @@ module VagrantPlugins
           @host_port  = host_port
 
           options ||= {}
-          @auto_correct = true
+          @auto_correct = false
           @auto_correct = options[:auto_correct] if options.has_key?(:auto_correct)
           @adapter  = (options[:adapter] || 1).to_i
           @guest_ip = options[:guest_ip] || nil

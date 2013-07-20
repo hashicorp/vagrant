@@ -40,6 +40,8 @@ BUG FIXES:
   - `vagrant ssh-config` IdentityFile is only wrapped in quotes if it
     contains a space. [GH-1682]
   - Shared folder target path can be a Windows path. [GH-1688]
+  - Forwarded ports don't auto-correct by default, and will raise an
+    error properly if they collide. [GH-1701]
 
 ## 1.2.4 (July 16, 2013)
 
