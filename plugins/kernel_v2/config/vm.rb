@@ -4,6 +4,7 @@ require "set"
 
 require "vagrant"
 require "vagrant/config/v2/util"
+require "vagrant/util/platform"
 
 require File.expand_path("../vm_provisioner", __FILE__)
 require File.expand_path("../vm_subvm", __FILE__)
@@ -263,6 +264,13 @@ module VagrantPlugins
 
           # Store it for retrieval later
           @__compiled_provider_configs[name]   = config
+        end
+
+        @__synced_folders.each do |id, options|
+          # Ignore NFS on Windows
+          if options[:nfs] && Vagrant::Util::Platform.windows?
+            options[:nfs] = false
+          end
         end
 
         # Flag that we finalized
