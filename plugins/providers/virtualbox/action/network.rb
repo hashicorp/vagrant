@@ -243,24 +243,26 @@ module VagrantPlugins
 
           # Calculate the adapter IP, which we assume is the IP ".1" at
           # the end usually.
-          adapter_ip    = ip_parts.dup
-          adapter_ip[3] += 1
-          options[:adapter_ip] ||= adapter_ip.join(".")
-
+          options[:adapter_ip] ||= begin
+                                     adapter_ip = ip_parts.dup
+                                     adapter_ip[3] += 1
+                                     adapter_ip.join(".")
+                                   end
           dhcp_options = {}
           if options[:type] == :dhcp
+            adapter_ip_parts = network_address(options[:adapter_ip], options[:netmask]).split(".").map { |i| i.to_i }
             # Calculate the DHCP server IP, which is the network address
             # with the final octet + 2. So "172.28.0.0" turns into "172.28.0.2"
-            dhcp_ip    = ip_parts.dup
+            dhcp_ip    = adapter_ip_parts.dup
             dhcp_ip[3] += 2
             dhcp_options[:dhcp_ip] ||= dhcp_ip.join(".")
 
             # Calculate the lower and upper bound for the DHCP server
-            dhcp_lower    = ip_parts.dup
+            dhcp_lower    = adapter_ip_parts.dup
             dhcp_lower[3] += 3
             dhcp_options[:dhcp_lower] ||= dhcp_lower.join(".")
 
-            dhcp_upper    = ip_parts.dup
+            dhcp_upper    = adapter_ip_parts.dup
             dhcp_upper[3] = 254
             dhcp_options[:dhcp_upper] ||= dhcp_upper.join(".")
           end
@@ -274,10 +276,11 @@ module VagrantPlugins
             :nic_type    => nil,
             :type        => options[:type]
           }.merge(dhcp_options)
+
         end
 
         def hostonly_adapter(config)
-          @logger.info("Searching for matching hostonly network: #{config[:ip]}")
+          @logger.info("Searching for matching hostonly network: #{config[:adapter_ip]}")
           interface = hostonly_find_matching_network(config)
 
           if !interface
@@ -298,12 +301,8 @@ module VagrantPlugins
             # Check that if there is a DHCP server attached on our interface,
             # then it is identical. Otherwise, we can't set it.
             if interface[:dhcp]
-              valid = interface[:dhcp][:ip] == config[:dhcp_ip] &&
-                  interface[:dhcp][:lower] == config[:dhcp_lower] &&
-                  interface[:dhcp][:upper] == config[:dhcp_upper]
-
-              raise Errors::NetworkDHCPAlreadyAttached if !valid
-
+              valid = interface[:dhcp][:ip] == config[:dhcp_ip]
+              raise Vagrant::Errors::NetworkDHCPAlreadyAttached if !valid
               @logger.debug("DHCP server already properly configured")
             else
               # Configure the DHCP server for the network.
@@ -399,6 +398,7 @@ module VagrantPlugins
           this_netaddr = network_address(config[:ip], config[:netmask])
 
           @env[:machine].provider.driver.read_host_only_interfaces.each do |interface|
+            return interface if config[:adapter_ip] && config[:adapter_ip] == interface[:ip]
             return interface if config[:name] && config[:name] == interface[:name]
             return interface if this_netaddr == \
               network_address(interface[:ip], interface[:netmask])
