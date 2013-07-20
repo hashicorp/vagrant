@@ -186,6 +186,7 @@ module VagrantPlugins
             Errno::EADDRINUSE,
             Errno::ECONNREFUSED,
             Errno::ECONNRESET,
+            Errno::ENETUNREACH,
             Errno::EHOSTUNREACH,
             Net::SSH::Disconnect,
             Timeout::Error

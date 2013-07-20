@@ -44,6 +44,7 @@ BUG FIXES:
   - Shared folder target path can be a Windows path. [GH-1688]
   - Forwarded ports don't auto-correct by default, and will raise an
     error properly if they collide. [GH-1701]
+  - Retry SSH on ENETUNREACH error. [GH-1732]
 
 ## 1.2.4 (July 16, 2013)
 
