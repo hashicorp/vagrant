@@ -16,6 +16,7 @@ module VagrantPlugins
       attr_accessor :base_mac
       attr_accessor :box
       attr_accessor :box_url
+      attr_accessor :box_download_insecure
       attr_accessor :graceful_halt_retry_count
       attr_accessor :graceful_halt_retry_interval
       attr_accessor :guest
@@ -24,6 +25,7 @@ module VagrantPlugins
       attr_reader :provisioners
 
       def initialize
+        @box_download_insecure        = UNSET_VALUE
         @graceful_halt_retry_count    = UNSET_VALUE
         @graceful_halt_retry_interval = UNSET_VALUE
         @guest                        = UNSET_VALUE
@@ -230,6 +232,7 @@ module VagrantPlugins
 
       def finalize!
         # Defaults
+        @box_download_insecure = false if @box_download_insecure == UNSET_VALUE
         @guest = nil if @guest == UNSET_VALUE
         @hostname = nil if @hostname == UNSET_VALUE
 
