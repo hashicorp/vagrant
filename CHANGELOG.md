@@ -33,6 +33,8 @@ BUG FIXES:
     in the Vagrantfile, helping differentiate multi-VM. [GH-1281]
   - NFS works properly on CentOS hosts. [GH-1394]
   - Solaris guests actually shut down properly. [GH-1506]
+  - All provisioners only output newlines when the provisioner sends a
+    newline. This results in the output looking a lot nicer.
 
 ## 1.2.4 (July 16, 2013)
 

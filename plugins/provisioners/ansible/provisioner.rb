@@ -33,7 +33,7 @@ module VagrantPlugins
         begin
           Vagrant::Util::Subprocess.execute(*command) do |type, data|
             if type == :stdout || type == :stderr
-              @machine.env.ui.info(data.chomp, :prefix => false)
+              @machine.env.ui.info(data, :new_line => false, :prefix => false)
             end
           end
         rescue Vagrant::Util::Subprocess::LaunchError
