@@ -326,7 +326,7 @@ module VagrantPlugins
           guestpath = Pathname.new(options[:guestpath])
           hostpath  = Pathname.new(options[:hostpath]).expand_path(machine.env.root_path)
 
-          if guestpath.relative?
+          if guestpath.relative? && guestpath.to_s !~ /^\w+:/
             errors << I18n.t("vagrant.config.vm.shared_folder_guestpath_relative",
                              :path => options[:guestpath])
           else

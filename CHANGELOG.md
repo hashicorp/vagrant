@@ -38,6 +38,7 @@ BUG FIXES:
   - Sharing folders works properly if ".profile" contains an echo. [GH-1677]
   - `vagrant ssh-config` IdentityFile is only wrapped in quotes if it
     contains a space. [GH-1682]
+  - Shared folder target path can be a Windows path. [GH-1688]
 
 ## 1.2.4 (July 16, 2013)
 
