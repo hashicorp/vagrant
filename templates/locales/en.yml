@@ -106,6 +106,9 @@ en:
         Machine name: %{name}
         Active provider: %{active_provider}
         Requested provider: %{requested_provider}
+      ansible_failed: |-
+        Ansible failed to complete successfully. Any error output should be
+        visible above. Please fix these errors and try again.
       ansible_playbook_app_not_found: |-
         The "ansible-playbook" program could not be found! Please verify
         that "ansible-playbook" is available on the PATH of your host

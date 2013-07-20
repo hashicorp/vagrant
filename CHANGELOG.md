@@ -15,6 +15,7 @@ IMPROVEMENTS:
     functionality removed in 1.1 from "config.dotfile_name" [GH-1524]
   - Vagrant will show an error if VirtualBox 4.2.14 is running.
   - Added provider to BoxNotFound error message. [GH-1692]
+  - If Ansible fails to run properly, show an error message. [GH-1699]
 
 BUG FIXES:
 
