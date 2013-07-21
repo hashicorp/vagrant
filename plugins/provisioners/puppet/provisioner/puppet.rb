@@ -126,7 +126,7 @@ module VagrantPlugins
 
           @machine.communicate.sudo(command) do |type, data|
             if !data.empty?
-              @machine.env.ui.info(data, :new_line => false :prefix => false)
+              @machine.env.ui.info(data, :new_line => false, :prefix => false)
             end
           end
         end
