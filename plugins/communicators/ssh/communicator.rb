@@ -306,6 +306,31 @@ module VagrantPlugins
             # Set the terminal
             ch2.send_data "export TERM=vt100\n"
 
+            # Set SSH_AUTH_SOCK if we are in sudo and forwarding agent.
+            # This is to work around often misconfigured boxes where
+            # the SSH_AUTH_SOCK env var is not preserved.
+            if @machine.ssh_info[:forward_agent] && sudo
+              auth_socket = ""
+              execute("echo; printf $SSH_AUTH_SOCK") do |type, data|
+                if type == :stdout
+                  auth_socket += data
+                end
+              end
+
+              if auth_socket != ""
+                # Make sure we only read the last line which should be
+                # the $SSH_AUTH_SOCK env var we printed.
+                auth_socket = auth_socket.split("\n").last.chomp
+              end
+
+              if auth_socket == ""
+                @logger.warn("No SSH_AUTH_SOCK found despite forward_agent being set.")
+              else
+                @logger.info("Setting SSH_AUTH_SOCK remotely: #{auth_socket}")
+                ch2.send_data "export SSH_AUTH_SOCK=#{auth_socket}\n"
+              end
+            end
+
             # Output the command
             ch2.send_data "#{command}\n"
 

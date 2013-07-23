@@ -52,6 +52,9 @@ BUG FIXES:
   - Retry SSH on ENETUNREACH error. [GH-1732]
   - NFS is silently ignored on Windows. [GH-1748]
   - Validation so that private network static IP does not end in ".1" [GH-1750]
+  - With forward agent enabled and sudo being used, Vagrant will automatically
+    discover and set `SSH_AUTH_SOCK` remotely so that forward agent
+    works properly despite misconfigured sudoers. [GH-1307]
 
 ## 1.2.4 (July 16, 2013)
 
