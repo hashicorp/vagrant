@@ -40,6 +40,12 @@ module Vagrant
         # the Vagrant system. The "!" signifies that this is expected to
         # mutate itself.
         def finalize!
+          @config_map.each do |key, klass|
+            if !@keys.has_key?(key)
+              @keys[key] = klass.new
+            end
+          end
+
           @keys.each do |_key, instance|
             instance.finalize!
           end

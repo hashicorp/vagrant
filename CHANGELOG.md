@@ -65,6 +65,7 @@ BUG FIXES:
     works properly despite misconfigured sudoers. [GH-1307]
   - Synced folder paths on Windows containing '\' are replaced with
     '/' internally so that they work properly.
+  - Unused config objects are finalized properly. [GH-1877]
 
 ## 1.2.4 (July 16, 2013)
 
