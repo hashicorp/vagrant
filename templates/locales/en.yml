@@ -42,6 +42,8 @@ en:
 
     virtualbox:
       config:
+        id_in_pre_import: |-
+          The ':id' parameter is not available in "pre-import" customizations.
         invalid_event: |-
           %{event} is not a valid event for customization. Valid events
           are: %{valid_events}

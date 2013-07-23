@@ -93,6 +93,12 @@ module VagrantPlugins
           end
         end
 
+        @customizations.each do |event, command|
+          if event == "pre-import" && command.index(:id)
+            errors << I18n.t("vagrant.virtualbox.config.id_in_pre_import")
+          end
+        end
+
         { "VitualBox Provider" => errors }
       end
 
