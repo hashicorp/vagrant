@@ -69,8 +69,9 @@ module VagrantPlugins
           b.use ForwardPorts
           b.use SetHostname
           b.use SaneDefaults
-          b.use Customize
+          b.use Customize, "pre-boot"
           b.use Boot
+          b.use Customize, "post-boot"
           b.use CheckGuestAdditions
         end
       end
@@ -308,6 +309,7 @@ module VagrantPlugins
             # If the VM is NOT created yet, then do the setup steps
             if !env[:result]
               b2.use CheckAccessible
+              b2.use Customize, "pre-import"
               b2.use Import
               b2.use MatchMACAddress
             end

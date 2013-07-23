@@ -40,6 +40,12 @@ en:
       run_file_not_found: |-
         The 'run_file' specified could not be found.
 
+    virtualbox:
+      config:
+        invalid_event: |-
+          %{event} is not a valid event for customization. Valid events
+          are: %{valid_events}
+
     general:
       batch_unexpected_error: |-
         An unexpected error ocurred when executing the action on the
@@ -862,7 +868,7 @@ en:
             %{error}
 
             Please fix this customization and try again.
-          running: Running any VM customizations...
+          running: Running '%{event}' VM customizations...
         destroy:
           destroying: Destroying VM and associated drives...
         destroy_network:

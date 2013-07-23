@@ -52,8 +52,10 @@ module VagrantPlugins
       #
       # @param [Array] command An array of arguments to pass to
       # VBoxManage.
-      def customize(command)
-        @customizations << command
+      def customize(*command)
+        event   = command.first.is_a?(String) ? command.shift : "pre-boot"
+        command = command[0]
+        @customizations << [event, command]
       end
 
       # This defines a network adapter that will be added to the VirtualBox
@@ -76,6 +78,22 @@ module VagrantPlugins
 
         # The default name is just nothing, and we default it
         @name = nil if @name == UNSET_VALUE
+      end
+
+      def validate(machine)
+        errors = []
+
+        valid_events = ["pre-import", "pre-boot", "post-boot"]
+        @customizations.each do |event, _|
+          if !valid_events.include?(event)
+            errors << I18n.t(
+              "vagrant.virtualbox.config.invalid_event",
+              event: event.to_s,
+              valid_events: valid_events.join(", "))
+          end
+        end
+
+        { "VitualBox Provider" => errors }
       end
 
       def to_s
