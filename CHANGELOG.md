@@ -18,6 +18,8 @@ IMPROVEMENTS:
   - Vagrant will show an error if VirtualBox 4.2.14 is running.
   - Added provider to BoxNotFound error message. [GH-1692]
   - If Ansible fails to run properly, show an error message. [GH-1699]
+  - Adding a box with the `--provider` flag will now allow a box for
+    any of that provider's supported formats.
 
 BUG FIXES:
 
