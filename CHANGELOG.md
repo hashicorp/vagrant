@@ -28,6 +28,9 @@ IMPROVEMENTS:
   - If Ansible fails to run properly, show an error message. [GH-1699]
   - Adding a box with the `--provider` flag will now allow a box for
     any of that provider's supported formats.
+  - NFS mounts enable UDP by default, resulting in higher performance.
+    (Because mount is over local network, packet loss is not an issue)
+   [GH-1706]
 
 BUG FIXES:
 
