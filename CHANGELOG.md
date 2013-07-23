@@ -63,6 +63,8 @@ BUG FIXES:
   - With forward agent enabled and sudo being used, Vagrant will automatically
     discover and set `SSH_AUTH_SOCK` remotely so that forward agent
     works properly despite misconfigured sudoers. [GH-1307]
+  - Synced folder paths on Windows containing '\' are replaced with
+    '/' internally so that they work properly.
 
 ## 1.2.4 (July 16, 2013)
 

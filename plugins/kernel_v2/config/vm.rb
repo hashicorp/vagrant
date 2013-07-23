@@ -125,6 +125,12 @@ module VagrantPlugins
       #   folder.
       # @param [Hash] options Additional options.
       def synced_folder(hostpath, guestpath, options=nil)
+        if Vagrant::Util::Platform.windows?
+          # On Windows, Ruby just uses normal '/' for path seps, so
+          # just replace normal Windows style seps with Unix ones.
+          hostpath.gsub!("\\", "/")
+        end
+
         options ||= {}
         options[:guestpath] = guestpath.to_s.gsub(/\/$/, '')
         options[:hostpath]  = hostpath
