@@ -13,6 +13,14 @@ module VagrantPlugins
       # @return [Array]
       attr_reader :customizations
 
+      # If true, unused network interfaces will automatically be deleted.
+      # This defaults to false because the detection does not work across
+      # multiple users, and because on Windows this operation requires
+      # administrative privileges.
+      #
+      # @return [Boolean]
+      attr_accessor :destroy_unused_network_interfaces
+
       # If set to `true`, then VirtualBox will be launched with a GUI.
       #
       # @return [Boolean]
@@ -32,6 +40,7 @@ module VagrantPlugins
       def initialize
         @auto_nat_dns_proxy = UNSET_VALUE
         @customizations   = []
+        @destroy_unused_network_interfaces = UNSET_VALUE
         @name             = UNSET_VALUE
         @network_adapters = {}
         @gui              = UNSET_VALUE
@@ -72,6 +81,10 @@ module VagrantPlugins
       def finalize!
         # Default is to auto the DNS proxy
         @auto_nat_dns_proxy = true if @auto_nat_dns_proxy == UNSET_VALUE
+
+        if @destroy_unused_network_interfaces == UNSET_VALUE
+          @destroy_unused_network_interfaces = false
+        end
 
         # Default is to not show a GUI
         @gui = false if @gui == UNSET_VALUE

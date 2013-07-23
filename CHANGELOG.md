@@ -8,6 +8,11 @@ FEATURES:
   - VirtualBox VBoxManage customizations can now be specified to run
     pre-boot (the default and existing functionality, pre-import,
     or post-boot. [GH-1247]
+  - VirtualBox no longer destroys unused network interfaces by default.
+    This didn't work across multi-user systems and required admin privileges
+    on Windows, so it has been disabled by default. It can be enabled using
+    the VirtualBox provider-specific `destroy_unused_network_interfaces`
+    configuration by setting it to true. [GH-1324]
 
 IMPROVEMENTS:
 
