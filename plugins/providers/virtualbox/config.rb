@@ -112,7 +112,7 @@ module VagrantPlugins
           end
         end
 
-        { "VitualBox Provider" => errors }
+        { "VirtualBox Provider" => errors }
       end
 
       def to_s
