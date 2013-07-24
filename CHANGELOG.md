@@ -66,6 +66,7 @@ BUG FIXES:
   - Synced folder paths on Windows containing '\' are replaced with
     '/' internally so that they work properly.
   - Unused config objects are finalized properly. [GH-1877]
+  - Private networks work with Fedora guests once again. [GH-1738]
 
 ## 1.2.4 (July 16, 2013)
 
