@@ -42,7 +42,7 @@ module VagrantPlugins
         def chown_provisioning_folder
           @machine.communicate.tap do |comm|
             comm.sudo("mkdir -p #{@config.provisioning_path}")
-            comm.sudo("chown -R #{@machine.ssh_info[:username]} #{@config.provisioning_path}")
+            comm.sudo("chown #{@machine.ssh_info[:username]} #{@config.provisioning_path}")
           end
         end
 
