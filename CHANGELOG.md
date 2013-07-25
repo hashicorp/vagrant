@@ -67,6 +67,8 @@ BUG FIXES:
     '/' internally so that they work properly.
   - Unused config objects are finalized properly. [GH-1877]
   - Private networks work with Fedora guests once again. [GH-1738]
+  - Default internal encoding of strings in Vagrant is now UTF-8, allowing
+    detection of Fedora to work again (which contained a UTF-8 string). [GH-1977]
 
 ## 1.2.4 (July 16, 2013)
 
