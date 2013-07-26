@@ -3,7 +3,7 @@
 FEATURES:
 
   - `vagrant help <command>` now works. [GH-1578]
-  - Added `config.vm.box_download_insecure` to allor the box_url setting
+  - Added `config.vm.box_download_insecure` to allow the box_url setting
     to point to an https site that won't be validated. [GH-1712]
   - VirtualBox VBoxManage customizations can now be specified to run
     pre-boot (the default and existing functionality, pre-import,
