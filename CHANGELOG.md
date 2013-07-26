@@ -1,3 +1,7 @@
+## 1.2.6 (unreleased)
+
+
+
 ## 1.2.5 (July 26, 2013)
 
 FEATURES:
