@@ -726,6 +726,9 @@ en:
           Installing the '%{name}' plugin. This can take a few minutes...
         uninstalling: |-
           Uninstalling the '%{name}' plugin...
+        post_install: |-
+          Post install message from the '%{name}' plugin:
+          %{message}
       status:
         aborted: |-
           The VM is in an aborted state. This means that it was abruptly
