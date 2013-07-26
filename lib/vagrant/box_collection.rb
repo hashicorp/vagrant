@@ -135,7 +135,7 @@ module Vagrant
               found = false
               formats.each do |format|
                 # Verify that the given provider matches what the box has.
-                if box_provider.to_sym == format
+                if box_provider.to_sym == format.to_sym
                   found = true
                   break
                 end
