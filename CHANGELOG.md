@@ -1,6 +1,9 @@
 ## 1.2.6 (unreleased)
 
+BUG FIXES:
 
+  - Box collections with multiple formats work properly by converting
+    the supported formats to symbols. [GH-1990]
 
 ## 1.2.5 (July 26, 2013)
 
