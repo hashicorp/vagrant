@@ -128,7 +128,7 @@ module VagrantPlugins
         if Vagrant::Util::Platform.windows?
           # On Windows, Ruby just uses normal '/' for path seps, so
           # just replace normal Windows style seps with Unix ones.
-          hostpath = hostpath.to_s.gsub!("\\", "/")
+          hostpath = hostpath.to_s.gsub("\\", "/")
         end
 
         options ||= {}
