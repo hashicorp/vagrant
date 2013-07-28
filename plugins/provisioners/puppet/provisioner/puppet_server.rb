@@ -43,7 +43,7 @@ module VagrantPlugins
 
           # Disable colors if we must
           if !@machine.env.ui.is_a?(Vagrant::UI::Colored)
-            options << "--no-color"
+            options << "--color=false"
           end
 
           options = options.join(" ")

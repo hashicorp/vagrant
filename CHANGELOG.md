@@ -4,6 +4,8 @@ BUG FIXES:
 
   - On Windows, properly convert synced folder host path to a string
     so that separator replacement works properly.
+  - Use `--color=false` for no color in Puppet to support older
+    versions properly. [GH-2000]
 
 ## 1.2.6 (July 26, 2013)
 

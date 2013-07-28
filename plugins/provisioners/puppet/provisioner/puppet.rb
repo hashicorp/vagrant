@@ -98,7 +98,7 @@ module VagrantPlugins
           end
 
           if !@machine.env.ui.is_a?(Vagrant::UI::Colored)
-            options << "--no-color"
+            options << "--color=false"
           end
 
           options << "--detailed-exitcodes"
