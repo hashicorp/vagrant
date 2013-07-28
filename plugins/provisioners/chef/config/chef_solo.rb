@@ -22,8 +22,6 @@ module VagrantPlugins
           @nfs                       = UNSET_VALUE
           @encrypted_data_bag_secret = UNSET_VALUE
           @encrypted_data_bag_secret_key_path = UNSET_VALUE
-
-          @__defaulted_cookbooks_path = false
         end
 
         #------------------------------------------------------------
@@ -39,7 +37,6 @@ module VagrantPlugins
             @cookbooks_path = []
             @cookbooks_path << [:host, "cookbooks"] if !@recipe_url
             @cookbooks_path << [:vm, "cookbooks"]
-            @__defaulted_cookbooks_path = true
           end
 
           @data_bags_path = [] if @data_bags_path == UNSET_VALUE
