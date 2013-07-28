@@ -9,6 +9,10 @@ module Vagrant
     # to cURL. cURL is a much more capable and complete download tool than
     # a hand-rolled Ruby library, so we defer to it's expertise.
     class Downloader
+      # Custom user agent provided to cURL so that requests to URL shorteners
+      # are properly tracked.
+      USER_AGENT = "Vagrant cURL Downloader"
+
       def initialize(source, destination, options=nil)
         @logger      = Log4r::Logger.new("vagrant::util::downloader")
         @source      = source.to_s
@@ -32,6 +36,7 @@ module Vagrant
           "--fail",
           "--location",
           "--max-redirs", "10",
+          "--user-agent", USER_AGENT,
           "--output", @destination
         ]
 
