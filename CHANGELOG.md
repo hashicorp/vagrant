@@ -1,6 +1,9 @@
 ## 1.2.7 (unreleased)
 
+BUG FIXES:
 
+  - On Windows, properly convert synced folder host path to a string
+    so that separator replacement works properly.
 
 ## 1.2.6 (July 26, 2013)
 
