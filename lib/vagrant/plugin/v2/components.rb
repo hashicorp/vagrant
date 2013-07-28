@@ -26,6 +26,11 @@ module Vagrant
         # @return [Hash<Symbol, Registry>]
         attr_reader :guest_capabilities
 
+        # This contains all the registered host capabilities.
+        #
+        # @return [Hash<Symbol, Registry>]
+        attr_reader :host_capabilities
+
         # This contains all the provider plugins by name, and returns
         # the provider class and options.
         #
@@ -39,6 +44,7 @@ module Vagrant
           @configs = Hash.new { |h, k| h[k] = Registry.new }
           @guests  = Registry.new
           @guest_capabilities = Hash.new { |h, k| h[k] = Registry.new }
+          @host_capabilities = Hash.new { |h, k| h[k] = Registry.new }
           @providers = Registry.new
         end
       end
