@@ -6,6 +6,7 @@ BUG FIXES:
     so that separator replacement works properly.
   - Use `--color=false` for no color in Puppet to support older
     versions properly. [GH-2000]
+  - Make sure the hostname configuration is a string. [GH-1999]
 
 ## 1.2.6 (July 26, 2013)
 

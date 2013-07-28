@@ -242,6 +242,7 @@ module VagrantPlugins
         @box_download_insecure = false if @box_download_insecure == UNSET_VALUE
         @guest = nil if @guest == UNSET_VALUE
         @hostname = nil if @hostname == UNSET_VALUE
+        @hostname = @hostname.to_s if @hostname
 
         # Set the guest properly
         @guest = @guest.to_sym if @guest
