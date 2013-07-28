@@ -84,7 +84,7 @@ module Vagrant
               @name = name
 
               # Build the proper chain of parents if there are any.
-              # This allows us to do "inheritence" of capabilities later
+              # This allows us to do "inheritance" of capabilities later
               if guest_info[1]
                 parent_name = guest_info[1]
                 parent_info = @guests[parent_name]
