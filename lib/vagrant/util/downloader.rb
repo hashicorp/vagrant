@@ -11,7 +11,7 @@ module Vagrant
     class Downloader
       # Custom user agent provided to cURL so that requests to URL shorteners
       # are properly tracked.
-      USER_AGENT = "Vagrant cURL Downloader"
+      USER_AGENT = "Vagrant/#{VERSION}"
 
       def initialize(source, destination, options=nil)
         @logger      = Log4r::Logger.new("vagrant::util::downloader")
