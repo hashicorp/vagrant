@@ -7,6 +7,8 @@ BUG FIXES:
   - Use `--color=false` for no color in Puppet to support older
     versions properly. [GH-2000]
   - Make sure the hostname configuration is a string. [GH-1999]
+  - cURL downloads now contain a user agent which fixes some
+    issues with downloading Vagrant through proxies. [GH-2003]
 
 ## 1.2.6 (July 26, 2013)
 
