@@ -21,12 +21,14 @@ describe Vagrant::Util::Downloader do
   end
 
   describe "#download!" do
+    let(:curl_options) {
+      ["--fail", "--location", "--max-redirs", "10", "--user-agent", described_class::USER_AGENT, "--output", destination, source, {}]
+    }
+
     context "with a good exit status" do
       let(:exit_code) { 0 }
 
       it "downloads the file and returns true" do
-        curl_options = ["--fail", "--location", "--max-redirs", "10", "--output", destination, source, {}]
-
         Vagrant::Util::Subprocess.should_receive(:execute).
           with("curl", *curl_options).
           and_return(subprocess_result)
@@ -39,8 +41,6 @@ describe Vagrant::Util::Downloader do
       let(:exit_code) { 1 }
 
       it "raises an exception" do
-        curl_options = ["--fail", "--location", "--max-redirs", "10", "--output", destination, source, {}]
-
         Vagrant::Util::Subprocess.should_receive(:execute).
           with("curl", *curl_options).
           and_return(subprocess_result)
