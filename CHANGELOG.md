@@ -9,6 +9,8 @@ BUG FIXES:
   - Make sure the hostname configuration is a string. [GH-1999]
   - cURL downloads now contain a user agent which fixes some
     issues with downloading Vagrant through proxies. [GH-2003]
+  - `vagrant plugin install` will now always properly show the actual
+    installed gem name. [GH-1834]
 
 ## 1.2.6 (July 26, 2013)
 

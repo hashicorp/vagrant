@@ -1,5 +1,6 @@
 require "rubygems"
 require "rubygems/dependency_installer"
+require "rubygems/format"
 
 require "log4r"
 
@@ -18,6 +19,16 @@ module VagrantPlugins
           plugin_name = env[:plugin_name]
           prerelease  = env[:plugin_prerelease]
           version     = env[:plugin_version]
+
+          # Determine the plugin name we'll look for in the installed set
+          # in order to determine the version and all that.
+          find_plugin_name = plugin_name
+          if plugin_name =~ /\.gem$/
+            # If we're installing from a gem file, determine the name
+            # based on the spec in the file.
+            pkg = Gem::Format.from_file_by_path(plugin_name)
+            find_plugin_name = pkg.spec.name
+          end
 
           # Install the gem
           plugin_name_label = plugin_name
@@ -45,7 +56,9 @@ module VagrantPlugins
           # The plugin spec is the last installed gem since RubyGems
           # currently always installed the requested gem last.
           @logger.debug("Installed #{installed_gems.length} gems.")
-          plugin_spec = installed_gems.last
+          plugin_spec = installed_gems.find do |gem|
+            gem.name.downcase == find_plugin_name.downcase
+          end
 
           # Store the installed name so we can uninstall it if things go
           # wrong.
