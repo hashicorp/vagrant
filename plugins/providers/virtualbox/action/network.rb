@@ -39,8 +39,8 @@ module VagrantPlugins
           @logger.info("Determining network adapters required for high-level configuration...")
           available_slots = available_slots.to_a.sort
           env[:machine].config.vm.networks.each do |type, options|
-            # We only handle private and public networks
-            next if type != :private_network && type != :public_network
+            # We only handle private and public networks (and internal_networks for kernal v1
+            next unless [:private_network, :public_network, :internal_network].include? type
 
             options = scoped_hash_override(options, :virtualbox)
 
@@ -57,11 +57,15 @@ module VagrantPlugins
             # Configure it
             data = nil
             if type == :private_network
-              # private_network = hostonly
-              data        = [:hostonly, options]
+              # private_network = :hostonly OR :intnet
+              data        = [env[:machine].provider_config.private_net_type, options]
             elsif type == :public_network
               # public_network = bridged
               data        = [:bridged, options]
+			#kernal v2 creates internal network with :private_network and the :private_net_type = :intnet virutalbox configuration
+			#this section supports v1 where internal network is set directly in the vm.networks configuration.
+			elsif type == :internal_network
+			  data        = [:intnet, options]
             end
 
             # Store it!
@@ -347,6 +351,41 @@ module VagrantPlugins
           return {}
         end
 
+		def intnet_config(options)
+          options ||= {}
+          ip = options[:ip]
+            
+          return {
+            :type => "static",
+            :ip => ip,
+            :netmask => "255.255.255.0",
+            :adapter => nil,
+            :mac => nil,
+            :name => nil,
+            :auto_config => true
+          }.merge(options)
+        end
+
+        def intnet_adapter(config)
+          @logger.info("Setup internal network: #{config[:ip]}")
+
+          return {
+            :adapter => config[:adapter],
+            :type => :intnet,
+            :mac_address => config[:mac],
+            :nic_type => config[:nic_type],
+            :intnet => config[:name]
+          }
+        end
+
+        def intnet_network_config(config)
+          return {
+            :type => config[:type],
+            :ip => config[:ip],
+            :netmask => config[:netmask]
+          }
+        end
+		
         #-----------------------------------------------------------------
         # Misc. helpers
         #-----------------------------------------------------------------
