@@ -1,0 +1,123 @@
+.\" Manpage for vagrant
+.\" Contact mitchell.hashimoto@gmail.com to correct errors or typos.
+.TH man 1 "30 Jul 2013" "1.2.3" "vagrant man page"
+.SH NAME
+vagrant \- build and distribute working environments
+.SH SYNOPSIS
+.B vagrant
+.RB [-h]
+.RB [-v]
+.RB [command]
+.RB [--vagrantfile\ file]
+.RB [machine\ ..]
+.SH DESCRIPTION
+Vagrant is a tool for building and distributing development environments.
+
+By default, \fBvagrant\fP works with Virtual Machines (VMs) created by Virtual Box.
+.SH COMMANDS
+These \fBvagrant\fP commands can be run without specifying a machine, in which
+case they act on the machine or machines specified in the Vagrantfile. 
+.TP
+.BI box\ COMMAND\ [args]\ [options]
+
+Here are the box commands:
+
+.RS 7
+.TP
+.BI add\ NAME\ URL\ [-f|--force]\ [--insecure]\ [--provider\ PROVIDER]
+Adds a new box, using the NAME and the URL.
+
+The force option overwrites an existing box if it exists already.
+Validation of the SSL certificates can be overridden using the insecure option.
+The name of the provider that backs the box can be specified.
+.TP
+.BI list
+Lists all machines currently running on the system, not just from the local
+directory (as vagrant status shows).
+.TP
+.BI remove\ NAME\ PROVIDER
+Remove the named box from the specified provider.
+.TP
+.BI repackage\ NAME\ PROVIDER
+Repackage the named box from the specified provider.
+.RE
+.TP
+.BI destroy
+Destroy the machine - use this when the machine won't be needed again.
+.TP
+.BI halt
+Halt the machine, first by trying to shut it down nicely, then, if that fails,
+by forcing it to shut down.
+.TP
+.BI init\ NAME\ URL
+Initialize a vagrant environment in the current directory. Note that this
+involves a download on the order of hundreds of megabytes and may take some
+time. The local directory .vagrant will be created to store the environment.
+.TP
+.BI package\ --base\ NAME\ --output\ FILE\ [options]
+Package the named machine into the output file.  
+
+Optionally include files x, y and z ([--include x,y,z]), and a named vagrant
+file ([--vagrantfile file]).
+.TP
+.BI plugin\ install\ GEM
+Install the specified Ruby gem as a plugin to vagrant.
+.TP
+.BI provision\ [--provision-with\ x,y,z]
+Run all the provisioning scripts on the machine, or just specified scripts.
+.TP
+.BI reload\ [--[no-]provision]\ [--provision-with\ x,y,z]
+Reload the machine's configuration. This does a shutdown/restart cycle of the
+machine, known in this context as halt/up.
+
+Provisioning can explicitly be enabled or disabled, and specific provisioners
+x, y and z can be specified.
+.TP
+.BI resume 
+Resume the operation of the previously suspended machine.
+.TP
+.BI ssh\ [-c|--command\ COMMAND]\ [-p|--plain]
+Ssh into the machine. This starts a session as the vagrant user; this user has
+sudo privilege.
+
+The command option executes an ssh command directly; the plain option leaves
+the authentication up to the user.
+.TP
+.BI ssh-config\ [--host\ COMMAND]
+Displays the ssh configuration for the machine.  These values can be adjusted
+in the Vagrantfile configuration file.
+
+The host option renames the Host parameter in the output.
+
+Note that the ssh connection uses an insecure private key which should be fine
+for development, but should not be considered secure for a production
+environment.
+.TP
+.BI status
+Show the status of all of the machines.
+.TP
+.BI suspend
+Suspend the operation of the machine.  The suspended machine can be brought
+back to life with either the resume command or the up command.
+.TP
+.BI up
+Boot up the specified machine, whether it's halted or just suspended.
+.SH OPTIONS
+.TP
+.BI -h
+Display basic help for vagrant.
+.TP
+.BI -v
+Display version information for vagrant.
+.TP
+.BI --vagrantfile\ [file]
+Specify a vagrant configuration file different from the default (Vagrantfile).
+.SH SEE ALSO
+VirtualBox
+.SH BUGS
+For information on outstanding issues, please see the Issues page at
+https://github.com/mitchellh/vagrant/issues.
+.SH AUTHOR
+Mitchell Hashimoto (mitchell.hashimoto@gmail.com)
+
+This man page written by Alex Beamish (talexb@gmail.com).
