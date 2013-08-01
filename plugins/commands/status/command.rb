@@ -12,7 +12,7 @@ module VagrantPlugins
         argv = parse_options(opts)
         return if !argv
 
-        max_name_length = 0
+        max_name_length = 25
         with_target_vms(argv) do |machine|
           max_name_length = machine.name.length if machine.name.length > max_name_length
         end
