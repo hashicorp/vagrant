@@ -29,10 +29,10 @@ module VagrantPlugins
       # @return [Hash]
       attr_reader :network_adapters
 	  
-	  # What type of VirtualBox network should be used for :private_network networks?
-	  #
-	  # @return [Symbol]
-	  attr_accessor :private_net_type
+      # What type of VirtualBox network should be used for :private_network networks?
+      #
+      # @return [Symbol]
+      attr_accessor :private_net_type
 
       def initialize
         @auto_nat_dns_proxy = UNSET_VALUE
@@ -40,7 +40,7 @@ module VagrantPlugins
         @name             = UNSET_VALUE
         @network_adapters = {}
         @gui              = UNSET_VALUE
-		@private_net_type = UNSET_VALUE
+		    @private_net_type = UNSET_VALUE
 
         # We require that network adapter 1 is a NAT device.
         network_adapter(1, :nat)

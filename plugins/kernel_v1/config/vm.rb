@@ -60,8 +60,8 @@ module VagrantPlugins
           @networks << [:private_network, args]
         elsif type == :bridged
           @networks << [:public_network, args]
-		elsif type == :intnet
-		  @networks << [:internal_network, args]
+        elsif type == :intnet
+          @networks << [:internal_network, args]
         else
           @networks << [:unknown, type]
         end
@@ -139,21 +139,21 @@ module VagrantPlugins
 
           options = {}
           options = args.pop.dup if args.last.is_a?(Hash)
-		  v2type = type
+          v2type = type
 		  
           # Determine the extra options we need to set for each type
           if type == :forwarded_port
             options[:guest] = args[0]
             options[:host]  = args[1]
           elsif type == :private_network
-			options[:ip] = args[0]
-		  elsif type == :internal_network
-		    new.vm.provider :virtualbox do |vb|
-			  vb.private_net_type = :intnet
-			end
-			options[:ip] = args[0]
-			v2type = :private_network
-	      end
+            options[:ip] = args[0]
+          elsif type == :internal_network
+            new.vm.provider :virtualbox do |vb|
+              vb.private_net_type = :intnet
+            end
+            options[:ip] = args[0]
+            v2type = :private_network
+          end
 
           new.vm.network(v2type, options)
         end

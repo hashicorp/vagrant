@@ -62,10 +62,10 @@ module VagrantPlugins
             elsif type == :public_network
               # public_network = bridged
               data        = [:bridged, options]
-			#kernal v2 creates internal network with :private_network and the :private_net_type = :intnet virutalbox configuration
-			#this section supports v1 where internal network is set directly in the vm.networks configuration.
-			elsif type == :internal_network
-			  data        = [:intnet, options]
+            #kernal v2 creates internal network with :private_network and the :private_net_type = :intnet virutalbox configuration
+            #this section supports v1 where internal network is set directly in the vm.networks configuration.
+            elsif type == :internal_network
+              data        = [:intnet, options]
             end
 
             # Store it!
@@ -351,7 +351,7 @@ module VagrantPlugins
           return {}
         end
 
-		def intnet_config(options)
+        def intnet_config(options)
           options ||= {}
           ip = options[:ip]
             

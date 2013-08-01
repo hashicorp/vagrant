@@ -115,7 +115,7 @@ module VagrantPlugins
                           adapter[:hostonly]])
             end
 			
-			if adapter[:intnet]
+            if adapter[:intnet]
               args.concat(["--intnet#{adapter[:adapter]}",
                           adapter[:intnet]])
             end 
