@@ -1,5 +1,5 @@
 module VagrantPlugins
-  module GuestFreeDarwin
+  module GuestDarwin
     module Cap
       class ChangeHostName
         def self.change_host_name(machine, name)

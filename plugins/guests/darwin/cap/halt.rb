@@ -1,5 +1,5 @@
 module VagrantPlugins
-  module GuestFreeDarwin
+  module GuestDarwin
     module Cap
       class Halt
         def self.halt(machine)

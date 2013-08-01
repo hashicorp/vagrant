@@ -1,7 +1,7 @@
 require "vagrant"
 
 module VagrantPlugins
-  module GuestFreeDarwin
+  module GuestDarwin
     class Plugin < Vagrant.plugin("2")
       name "Darwin guest"
       description "Darwin guest support."

@@ -1,7 +1,7 @@
 require 'vagrant/util/template_renderer'
 
 module VagrantPlugins
-  module GuestFreeDarwin
+  module GuestDarwin
     # A general Vagrant system implementation for "freebsd".
     #
     # Contributed by Kenneth Vestergaard <kvs@binarysolutions.dk>
