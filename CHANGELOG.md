@@ -1,6 +1,9 @@
 ## 1.2.8 (unreleased)
 
+FEATURES:
 
+  - CoreOS guest support. Change host names and configure networks on
+    CoreOS. [GH-2022]
 
 ## 1.2.7 (July 28, 2013)
 
