@@ -1,0 +1,10 @@
+[Unit]
+Description=Clustered etcd
+#After=docker.service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/etcd -c 4001 -s 7001 <% if options[:connect_to] %>-C <%= options[:connect_to] %>:7001<% end %> -d /home/core/etcd
+
+[Install]
+WantedBy=local.target
