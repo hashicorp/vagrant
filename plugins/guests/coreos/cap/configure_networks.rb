@@ -38,11 +38,17 @@ module VagrantPlugins
             end
 
             primary_machine_ip = get_ip.(primary_machine)
-            if get_ip.(machine) == primary_machine_ip
-              entry = TemplateRenderer.render("guests/coreos/etcd.service")
+            current_ip = get_ip.(machine)
+            if current_ip == primary_machine_ip
+              entry = TemplateRenderer.render("guests/coreos/etcd.service", :options => {
+                  :my_ip => current_ip
+                })
             else
-              entry = TemplateRenderer.render("guests/coreos/etcd.service",
-                                              :options => {:connect_to => primary_machine_ip})
+              connection_string = "#{primary_machine_ip}:7001"
+              entry = TemplateRenderer.render("guests/coreos/etcd.service", :options => {
+                :connection_string => connection_string,
+                :my_ip => current_ip
+              })
             end
 
             puts entry
