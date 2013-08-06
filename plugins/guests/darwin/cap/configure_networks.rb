@@ -34,6 +34,7 @@ module VagrantPlugins
             end
           end
           puts devlist
+          File.delete(tmpints)
 
           networks.each do |network|
             intnum = network[:interface]
