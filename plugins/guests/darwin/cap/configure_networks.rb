@@ -41,10 +41,10 @@ module VagrantPlugins
             puts network[:type]
             if network[:type].to_sym == :static
               # network seems 1 indexed - skip NAT interface (en0) also en1 because it seems to not *really* exist on virtualbox?
-              command = "networksetup -setmanual \"#{devlist[intnum+1][:service]}\" #{network[:ip]} #{network[:netmask]}"
+              command = "networksetup -setmanual \"#{devlist[intnum][:service]}\" #{network[:ip]} #{network[:netmask]}"
 
             elsif network[:type].to_sym == :dhcp
-              command = "networksetup -setdhcp \"#{devlist[intnum+1][:service]}\""
+              command = "networksetup -setdhcp \"#{devlist[intnum][:service]}\""
 
             end
 
