@@ -31,6 +31,11 @@ module VagrantPlugins
         Cap::MountNFSFolder
       end
 
+      guest_capability("darwin", "mount_vmware_shared_folder") do
+        require_relative "cap/mount_vmware_shared_folder"
+        Cap::MountVmwareSharedFolder
+      end
+
       guest_capability("darwin", "shell_expand_guest_path") do
         require_relative "cap/shell_expand_guest_path"
         Cap::ShellExpandGuestPath
