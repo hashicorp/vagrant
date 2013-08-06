@@ -33,20 +33,14 @@ module VagrantPlugins
               devlist << devmap
             end
           end
-          puts devlist
           File.delete(tmpints)
 
           networks.each do |network|
-            intnum = network[:interface]
-            puts network[:interface]
-            puts network[:type]
+            service_name = devlist[network[:interface]][:service]
             if network[:type].to_sym == :static
-              # network seems 1 indexed - skip NAT interface (en0) also en1 because it seems to not *really* exist on virtualbox?
-              command = "networksetup -setmanual \"#{devlist[intnum][:service]}\" #{network[:ip]} #{network[:netmask]}"
-
+              command = "networksetup -setmanual \"#{service_name}\" #{network[:ip]} #{network[:netmask]}"
             elsif network[:type].to_sym == :dhcp
-              command = "networksetup -setdhcp \"#{devlist[intnum][:service]}\""
-
+              command = "networksetup -setdhcp \"#{service_name}\""
             end
 
             machine.communicate.sudo(command)
