@@ -136,6 +136,7 @@ module VagrantPlugins
             :node_name => @config.node_name,
             :cookbooks_path => cookbooks_path,
             :environment_path => environments_path,
+            :environment => @config.environment,
             :recipe_url => @config.recipe_url,
             :roles_path => roles_path,
             :data_bags_path => data_bags_path,
@@ -150,7 +151,6 @@ module VagrantPlugins
 
           command_env = @config.binary_env ? "#{@config.binary_env} " : ""
           command_args = @config.arguments ? " #{@config.arguments}" : ""
-          command_args += @config.environment ? " -E #{@config.environment}" : ""
           command = "#{command_env}#{chef_binary_path("chef-solo")} -c #{@config.provisioning_path}/solo.rb -j #{@config.provisioning_path}/dna.json #{command_args}"
 
           @config.attempts.times do |attempt|
