@@ -5,6 +5,8 @@ module VagrantPlugins
     module Config
       class ChefSolo < Base
         attr_accessor :cookbooks_path
+        attr_accessor :environments_path
+        attr_accessor :environment
         attr_accessor :roles_path
         attr_accessor :data_bags_path
         attr_accessor :recipe_url
@@ -16,6 +18,8 @@ module VagrantPlugins
           super
 
           @cookbooks_path            = UNSET_VALUE
+          @environments_path         = UNSET_VALUE
+          @environment               = UNSET_VALUE
           @data_bags_path            = UNSET_VALUE
           @recipe_url                = UNSET_VALUE
           @roles_path                = UNSET_VALUE
@@ -39,19 +43,23 @@ module VagrantPlugins
             @cookbooks_path << [:vm, "cookbooks"]
           end
 
-          @data_bags_path = [] if @data_bags_path == UNSET_VALUE
-          @roles_path     = [] if @roles_path == UNSET_VALUE
+          @environments_path = [] if @environments_path == UNSET_VALUE
+          @data_bags_path    = [] if @data_bags_path == UNSET_VALUE
+          @roles_path        = [] if @roles_path == UNSET_VALUE
 
           # Make sure the path is an array.
-          @cookbooks_path = prepare_folders_config(@cookbooks_path)
-          @data_bags_path = prepare_folders_config(@data_bags_path)
-          @roles_path     = prepare_folders_config(@roles_path)
+          @cookbooks_path    = prepare_folders_config(@cookbooks_path)
+          @environments_path = prepare_folders_config(@environments_path)
+          @data_bags_path    = prepare_folders_config(@data_bags_path)
+          @roles_path        = prepare_folders_config(@roles_path)
 
           @nfs = false if @nfs == UNSET_VALUE
           @encrypted_data_bag_secret = "/tmp/encrypted_data_bag_secret" if \
             @encrypted_data_bag_secret == UNSET_VALUE
           @encrypted_data_bag_secret_key_path = nil if \
             @encrypted_data_bag_secret_key_path == UNSET_VALUE
+          @environment = nil if \
+            @environment == UNSET_VALUE
         end
 
         def validate(machine)

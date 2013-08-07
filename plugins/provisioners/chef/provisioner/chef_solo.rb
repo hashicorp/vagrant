@@ -13,6 +13,7 @@ module VagrantPlugins
         include Vagrant::Util::Counter
 
         attr_reader :cookbook_folders
+        attr_reader :environment_folders
         attr_reader :role_folders
         attr_reader :data_bags_folders
 
@@ -22,11 +23,14 @@ module VagrantPlugins
         end
 
         def configure(root_config)
-          @cookbook_folders  = expanded_folders(@config.cookbooks_path, "cookbooks")
-          @role_folders      = expanded_folders(@config.roles_path, "roles")
-          @data_bags_folders = expanded_folders(@config.data_bags_path, "data_bags")
+          @cookbook_folders    = expanded_folders(@config.cookbooks_path, "cookbooks")
+          @environment_folders = expanded_folders(@config.environments_path,
+                                                  "environments")
+          @role_folders        = expanded_folders(@config.roles_path, "roles")
+          @data_bags_folders   = expanded_folders(@config.data_bags_path, "data_bags")
 
           share_folders(root_config, "csc", @cookbook_folders)
+          share_folders(root_config, "cse", @environment_folders)
           share_folders(root_config, "csr", @role_folders)
           share_folders(root_config, "csdb", @data_bags_folders)
         end
@@ -34,7 +38,8 @@ module VagrantPlugins
         def provision
           # Verify that the proper shared folders exist.
           check = []
-          [@cookbook_folders, @role_folders, @data_bags_folders].each do |folders|
+          [@cookbook_folders, @environment_folders, @role_folders,
+           @data_bags_folders].each do |folders|
             folders.each do |type, local_path, remote_path|
               # We only care about checking folders that have a local path, meaning
               # they were shared from the local machine, rather than assumed to
@@ -123,12 +128,14 @@ module VagrantPlugins
 
         def setup_solo_config
           cookbooks_path = guest_paths(@cookbook_folders)
+          environments_path = guest_paths(@environment_folders).first
           roles_path = guest_paths(@role_folders).first
           data_bags_path = guest_paths(@data_bags_folders).first
 
           setup_config("provisioners/chef_solo/solo", "solo.rb", {
             :node_name => @config.node_name,
             :cookbooks_path => cookbooks_path,
+            :environment_path => environments_path,
             :recipe_url => @config.recipe_url,
             :roles_path => roles_path,
             :data_bags_path => data_bags_path,
@@ -143,6 +150,7 @@ module VagrantPlugins
 
           command_env = @config.binary_env ? "#{@config.binary_env} " : ""
           command_args = @config.arguments ? " #{@config.arguments}" : ""
+          command_args += @config.environment ? " -E #{@config.environment}" : ""
           command = "#{command_env}#{chef_binary_path("chef-solo")} -c #{@config.provisioning_path}/solo.rb -j #{@config.provisioning_path}/dna.json #{command_args}"
 
           @config.attempts.times do |attempt|

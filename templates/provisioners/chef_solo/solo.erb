@@ -4,6 +4,9 @@ node_name "<%= node_name %>"
 file_cache_path    "<%= file_cache_path %>"
 file_backup_path   "<%= file_backup_path %>"
 cookbook_path <%= cookbooks_path.inspect %>
+<% if environment_path %>
+environment_path <%= environment_path.inspect %>
+<% end %>
 <% if roles_path %>
 role_path <%= roles_path.inspect %>
 <% end %>
