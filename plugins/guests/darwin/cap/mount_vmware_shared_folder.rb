@@ -11,18 +11,18 @@ module VagrantPlugins
         def self.mount_vmware_shared_folder(machine, name, guestpath, options)
           machine.communicate.tap do |comm|
             # clear prior symlink
-            if comm.test("sudo test -L \"#{guestpath}\"")
+            if comm.test("test -L \"#{guestpath}\"", :sudo => true)
               comm.sudo("rm \"#{guestpath}\"")
             end
 
             # clear prior directory if exists
-            if comm.test("sudo test -d \"#{guestpath}\"")
+            if comm.test("test -d \"#{guestpath}\"", :sudo => true)
               comm.sudo("rm -Rf \"#{guestpath}\"")
             end
 
             # create intermediate directories if needed
             intermediate_dir = File.dirname(guestpath)
-            if !comm.test("sudo test -d \"#{intermediate_dir}\"")
+            if !comm.test("test -d \"#{intermediate_dir}\"", :sudo => true)
               comm.sudo("mkdir -p \"#{intermediate_dir}\"")
             end
 
