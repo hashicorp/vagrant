@@ -187,6 +187,10 @@ module Vagrant
       error_key(:copy_private_key_failed)
     end
 
+    class DarwinNFSMountFailed < VagrantError
+      error_key(:darwin_nfs_mount_failed)
+    end
+
     class DestroyRequiresForce < VagrantError
       error_key(:destroy_requires_force)
     end
