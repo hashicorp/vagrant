@@ -2,6 +2,7 @@
 
 FEATURES:
 
+  - Mac OS X guest support. [GH-1914]
   - CoreOS guest support. Change host names and configure networks on
     CoreOS. [GH-2022]
 
