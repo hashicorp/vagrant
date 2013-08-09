@@ -5,9 +5,22 @@ module VagrantPlugins
         ssh = @machine.ssh_info
 
         options = %W[--private-key=#{ssh[:private_key_path]} --user=#{ssh[:username]}]
-        options << "--extra-vars=" + config.extra_vars.map{|k,v| "#{k}=#{v}"}.join(' ') if config.extra_vars
         options << "--inventory-file=#{config.inventory_path}" if config.inventory_path
         options << "--ask-sudo-pass" if config.ask_sudo_pass
+
+        if config.extra_vars
+          extra_vars = config.extra_vars.map do |k,v|
+            v = v.gsub('"', '\\"')
+            if v.include?(' ')
+              v = v.gsub("'", "\\'")
+              v = "'#{v}'"
+            end
+
+            "#{k}=#{v}"
+          end
+
+          options << "--extra-vars=\"#{extra_vars.join(" ")}\""
+        end
 
         if config.limit
           if not config.limit.kind_of?(Array)

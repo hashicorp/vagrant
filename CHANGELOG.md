@@ -14,7 +14,7 @@ IMPROVEMENTS:
   - commands/status: cosmetic improvement to better align names and
     statuses [GH-2016]
   - guests/suse: Supports private/public networks. [GH-1689]
-  - plugins/ansible: Ansible `inventory_path` can be a directory now. [GH-2035]
+  - provisioners/ansible: Ansible `inventory_path` can be a directory now. [GH-2035]
 
 BUG FIXES:
 
@@ -23,6 +23,7 @@ BUG FIXES:
    [GH-2026]
   - hosts/fedora: properly detect later CentOS versions. [GH-2008]
   - provisioners/ansible: No longer report failure on every run. [GH-2007]
+  - provisioners/ansible: Properly handle extra vars with spaces. [GH-1984]
 
 ## 1.2.7 (July 28, 2013)
 
