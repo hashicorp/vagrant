@@ -108,7 +108,7 @@ module Vagrant
         # Read the id file from the data directory if it exists as the
         # ID for the pre-existing physical representation of this machine.
         id_file = @data_dir.join("id")
-        @id = id_file.read if id_file.file?
+        @id = id_file.read.chomp if id_file.file?
       end
 
       # Initializes the provider last so that it has access to all the
