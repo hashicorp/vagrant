@@ -40,6 +40,11 @@ module VagrantPlugins
         require_relative "cap/shell_expand_guest_path"
         Cap::ShellExpandGuestPath
       end
+
+      guest_capability("darwin", "verify_vmware_hgfs") do
+        require_relative "cap/verify_vmware_hgfs"
+        Cap::VerifyVmwareHgfs
+      end
     end
   end
 end
