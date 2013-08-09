@@ -3,7 +3,7 @@ module VagrantPlugins
     class Config < Vagrant.plugin("2", :config)
       attr_accessor :playbook
       attr_accessor :extra_vars
-      attr_accessor :inventory_file
+      attr_accessor :inventory_path
       attr_accessor :ask_sudo_pass
       attr_accessor :limit
       attr_accessor :sudo
@@ -13,7 +13,7 @@ module VagrantPlugins
       def initialize
         @playbook       = UNSET_VALUE
         @extra_vars     = UNSET_VALUE
-        @inventory_file = UNSET_VALUE
+        @inventory_path = UNSET_VALUE
         @ask_sudo_pass  = UNSET_VALUE
         @limit          = UNSET_VALUE
         @sudo           = UNSET_VALUE
@@ -24,7 +24,7 @@ module VagrantPlugins
       def finalize!
         @playbook       = nil if @playbook == UNSET_VALUE
         @extra_vars     = nil if @extra_vars == UNSET_VALUE
-        @inventory_file = nil if @inventory_file == UNSET_VALUE
+        @inventory_path = nil if @inventory_path == UNSET_VALUE
         @ask_sudo_pass  = nil if @ask_sudo_pass == UNSET_VALUE
         @limit          = nil if @limit == UNSET_VALUE
         @sudo           = nil if @sudo == UNSET_VALUE
@@ -56,11 +56,11 @@ module VagrantPlugins
           end
         end
 
-        # Validate the existence of the inventory_file, if specified
-        if inventory_file
-          expanded_path = Pathname.new(inventory_file).expand_path(machine.env.root_path)
+        # Validate the existence of the inventory_path, if specified
+        if inventory_path
+          expanded_path = Pathname.new(inventory_path).expand_path(machine.env.root_path)
           if !expanded_path.exist?
-            errors << I18n.t("vagrant.provisioners.ansible.inventory_file_path_invalid",
+            errors << I18n.t("vagrant.provisioners.ansible.inventory_path_invalid",
                               :path => expanded_path)
           end
         end
