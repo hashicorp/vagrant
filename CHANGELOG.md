@@ -8,12 +8,13 @@ FEATURES:
 
 IMPROVEMENTS:
 
-  - Ansible `inventory_path` can be a directory now. [GH-2035]
+  - core: add `--color` to any Vagrant command to FORCE color output. [GH-2027]
   - commands/plugin/install: Post install message of a plugin will be
     shown if available. [GH-1986]
   - commands/status: cosmetic improvement to better align names and
     statuses [GH-2016]
   - guests/suse: Supports private/public networks. [GH-1689]
+  - plugins/ansible: Ansible `inventory_path` can be a directory now. [GH-2035]
 
 BUG FIXES:
 
