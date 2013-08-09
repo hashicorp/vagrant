@@ -74,16 +74,15 @@ module VagrantPlugins
                                   :version => plugin_spec.version.to_s))
 
           # If the plugin's spec includes a post-install message display it
-          if (post_install_message = plugin_spec.post_install_message)
-            post_install_message = if post_install_message.kind_of? Array
-                                     post_install_message.join(" ")
-                                   else
-                                     post_install_message.to_s
-                                   end
+          post_install_message = plugin_spec.post_install_message
+          if post_install_message
+            if post_install_message.is_a?(Array)
+              post_install_message = post_install_message.join(" ")
+            end
 
             env[:ui].info(I18n.t("vagrant.commands.plugin.post_install",
                                  :name => plugin_spec.name,
-                                 :message => post_install_message))
+                                 :message => post_install_message.to_s))
           end
 
           # Continue
