@@ -12,11 +12,16 @@ module VagrantPlugins
         argv = parse_options(opts)
         return if !argv
 
+        max_name_length = 25
+        with_target_vms(argv) do |machine|
+          max_name_length = machine.name.length if machine.name.length > max_name_length
+        end
+
         state = nil
         results = []
         with_target_vms(argv) do |machine|
           state = machine.state if !state
-          results << "#{machine.name.to_s.ljust(25)} #{machine.state.short_description} (#{machine.provider_name})"
+          results << "#{machine.name.to_s.ljust(max_name_length)} #{machine.state.short_description} (#{machine.provider_name})"
         end
 
         message = nil
