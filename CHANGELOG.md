@@ -6,6 +6,10 @@ FEATURES:
   - CoreOS guest support. Change host names and configure networks on
     CoreOS. [GH-2022]
 
+IMPROVEMENTS:
+
+  - Ansible `inventory_path` can be a directory now. [GH-2035]
+
 ## 1.2.7 (July 28, 2013)
 
 BUG FIXES:
