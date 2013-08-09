@@ -59,7 +59,7 @@ module VagrantPlugins
         # Validate the existence of the inventory_file, if specified
         if inventory_file
           expanded_path = Pathname.new(inventory_file).expand_path(machine.env.root_path)
-          if !expanded_path.file?
+          unless expanded_path.file? || expanded_path.directory?
             errors << I18n.t("vagrant.provisioners.ansible.inventory_file_path_invalid",
                               :path => expanded_path)
           end
