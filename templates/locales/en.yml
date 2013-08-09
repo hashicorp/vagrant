@@ -1179,5 +1179,5 @@ en:
       ansible:
         no_playbook: "`playbook` must be set for the Ansible provisioner."
         playbook_path_invalid: "`playbook` for the Ansible provisioner does not exist on the host system: %{path}"
-        inventory_path_invalid: "`inventory_file` for the Ansible provisioner does not exist on the host system: %{path}"
+        inventory_path_invalid: "`inventory_path` for the Ansible provisioner does not exist on the host system: %{path}"
         extra_vars_not_hash: "`extra_vars` for the Ansible provisioner must be a hash"
