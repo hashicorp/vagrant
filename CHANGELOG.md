@@ -17,6 +17,7 @@ BUG FIXES:
   - guests/debian: Force bring up eth0. Fixes hangs on setting hostname.
    [GH-2026]
   - hosts/fedora: properly detect later CentOS versions. [GH-2008]
+  - provisioners/ansible: No longer report failure on every run. [GH-2007]
 
 ## 1.2.7 (July 28, 2013)
 
