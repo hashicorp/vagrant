@@ -10,6 +10,11 @@ IMPROVEMENTS:
 
   - Ansible `inventory_path` can be a directory now. [GH-2035]
 
+BUG FIXES:
+
+  - guests/debian: Force bring up eth0. Fixes hangs on setting hostname.
+   [GH-2026]
+
 ## 1.2.7 (July 28, 2013)
 
 BUG FIXES:
