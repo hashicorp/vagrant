@@ -10,6 +10,7 @@ module VagrantPlugins
       attr_accessor :sudo_user
       attr_accessor :verbose
       attr_accessor :tags
+      attr_accessor :skip_tags
       attr_accessor :start_at_task
 
       # Joker attribute, used to pass unsupported arguments to ansible anyway
@@ -25,6 +26,7 @@ module VagrantPlugins
         @sudo_user      = UNSET_VALUE
         @verbose        = UNSET_VALUE
         @tags           = UNSET_VALUE
+        @skip_tags      = UNSET_VALUE
         @start_at_task  = UNSET_VALUE
         @raw_arguments  = UNSET_VALUE
       end
@@ -39,6 +41,7 @@ module VagrantPlugins
         @sudo_user      = nil if @sudo_user == UNSET_VALUE
         @verbose        = nil if @verbose == UNSET_VALUE
         @tags           = nil if @tags == UNSET_VALUE
+        @skip_tags      = nil if @skip_tags == UNSET_VALUE
         @start_at_task  = nil if @start_at_task == UNSET_VALUE
         @raw_arguments  = nil if @raw_arguments == UNSET_VALUE
       end

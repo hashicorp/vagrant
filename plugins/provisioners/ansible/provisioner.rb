@@ -15,6 +15,7 @@ module VagrantPlugins
         options << "--inventory-file=#{config.inventory_file}" if config.inventory_file
         options << "--ask-sudo-pass" if config.ask_sudo_pass
         options << "--tags=#{as_list_argument(config.tags)}" if config.tags
+        options << "--skip-tags=#{as_list_argument(config.skip_tags)}" if config.skip_tags
         options << "--limit=#{as_list_argument(config.limit)}" if config.limit
         options << "--start-at-task=#{config.start_at_task}" if config.start_at_task
         options << "--sudo" if config.sudo
