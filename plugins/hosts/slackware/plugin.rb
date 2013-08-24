@@ -1,7 +1,7 @@
 require "vagrant"
 
 module VagrantPlugins
-  module HostGentoo
+  module HostSlackware
     class Plugin < Vagrant.plugin("2")
       name "Slackware host"
       description "Slackware and derivertives host support."
