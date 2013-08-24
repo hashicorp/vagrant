@@ -24,7 +24,9 @@ module VagrantPlugins
         super
 
         @logger = Log4r::Logger.new("vagrant::hosts::linux")
-        @nfs_server_binary = "/etc/init.d/nfs-kernel-server"
+        @nfs_apply_command = "/usr/sbin/exportfs -r"
+        @nfs_check_command = "/etc/init.d/nfs-kernel-server status"
+        @nfs_start_command = "/etc/init.d/nfs-kernel-server start"
       end
 
       def nfs?
@@ -51,9 +53,11 @@ module VagrantPlugins
           system(%Q[sudo su root -c "echo '#{line}' >> /etc/exports"])
         end
 
-        # We run restart here instead of "update" just in case nfsd
-        # is not starting
-        system("sudo #{@nfs_server_binary} restart")
+        if nfs_running?
+          system("sudo #{@nfs_apply_command}")
+        else
+          system("sudo #{@nfs_start_command}")
+        end
       end
 
       def nfs_prune(valid_ids)
@@ -82,6 +86,10 @@ module VagrantPlugins
       end
 
       protected
+
+      def nfs_running?
+        system("#{@nfs_check_command}")
+      end
 
       def nfs_cleanup(id)
         return if !File.exist?("/etc/exports")
