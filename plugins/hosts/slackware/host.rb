@@ -6,7 +6,7 @@ module VagrantPlugins
   module HostSlackware
     class Host < VagrantPlugins::HostLinux::Host
       def self.match?
-        return File.exists?("/etc/slackware-release")
+        return File.exists?("/etc/slackware-release") || Dir.glob("/usr/lib/setup/Plamo-*").length > 0
       end
 
       # Normal, mid-range precedence.
@@ -18,7 +18,7 @@ module VagrantPlugins
         super
 
         @nfs_apply_command = "/usr/sbin/exportfs -r"
-        @nfs_check_command = "/etc/rc.d/rc.nfsd status"
+        @nfs_check_command = "pidof nfsd > /dev/null"
         @nfs_start_command = "/etc/rc.d/rc.nfsd start"
       end
     end
