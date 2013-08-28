@@ -36,7 +36,7 @@ module VagrantPlugins
         release_file = Pathname.new("/etc/redhat-release")
         begin
           release_file.open("r") do |f|
-            version_number = /(CentOS|Fedora).*release ([0-9]+)/.match(f.gets)[1].to_i
+            version_number = /(CentOS|Fedora).*release ([0-9]+)/.match(f.gets)[2].to_i
             if version_number >= 16
               # "service nfs-server" will redirect properly to systemctl
               # when "service nfs-server restart" is called.
