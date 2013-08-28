@@ -13,6 +13,8 @@ IMPROVEMENTS:
     shown if available. [GH-1986]
   - commands/status: cosmetic improvement to better align names and
     statuses [GH-2016]
+  - guests/openbsd: support configuring networks, changing host name,
+    and mounting NFS. [GH-2086]
   - guests/suse: Supports private/public networks. [GH-1689]
   - hosts/fedora: Support RHEL as a host. [GH-2088]
   - provisioners/ansible: Ansible `inventory_path` can be a directory now. [GH-2035]
