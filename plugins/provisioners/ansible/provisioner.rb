@@ -32,7 +32,9 @@ module VagrantPlugins
 
         options << "--sudo" if config.sudo
         options << "--sudo-user=#{config.sudo_user}" if config.sudo_user
-        options << "--verbose" if config.verbose
+        if config.verbose
+          options << (config.verbose == :extra ?  "-vvv" :  "--verbose")
+        end
 
         # Assemble the full ansible-playbook command
         command = (%w(ansible-playbook) << options << config.playbook).flatten
