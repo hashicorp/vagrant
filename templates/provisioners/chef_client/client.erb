@@ -33,7 +33,7 @@ pid_file           "/var/run/chef/chef-client.pid"
 Mixlib::Log::Formatter.show_time = true
 
 <% if formatter %>
-formatter "<%= formatter %>"
+add_formatter "<%= formatter %>"
 <% end %>
 
 <% if custom_configuration -%>
