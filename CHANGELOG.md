@@ -14,6 +14,7 @@ IMPROVEMENTS:
   - commands/status: cosmetic improvement to better align names and
     statuses [GH-2016]
   - guests/suse: Supports private/public networks. [GH-1689]
+  - hosts/fedora: Support RHEL as a host. [GH-2088]
   - provisioners/ansible: Ansible `inventory_path` can be a directory now. [GH-2035]
 
 BUG FIXES:
