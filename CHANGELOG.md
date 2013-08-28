@@ -22,6 +22,8 @@ IMPROVEMENTS:
 BUG FIXES:
 
   - core: strip newlines off of ID file values [GH-2024]
+  - core: Multiple forwarded ports with different protocols but the same
+    host port can be specified. [GH-2059]
   - guests/arch: use systemd way of setting host names. [GH-2041]
   - guests/debian: Force bring up eth0. Fixes hangs on setting hostname.
    [GH-2026]
