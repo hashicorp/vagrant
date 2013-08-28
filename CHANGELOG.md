@@ -20,8 +20,10 @@ IMPROVEMENTS:
   - guests/suse: Supports private/public networks. [GH-1689]
   - hosts/fedora: Support RHEL as a host. [GH-2088]
   - provisioners/ansible: Ansible `inventory_path` can be a directory now. [GH-2035]
-  - provisoiners/ansible: Extra verbose option by setting `config.verbose`
+  - provisioners/ansible: Extra verbose option by setting `config.verbose`
     to `extra`. [GH-1979]
+  - provisioners/ansible: `inventory_path` will be auto-generated if not
+    specified. [GH-1907]
 
 BUG FIXES:
 
