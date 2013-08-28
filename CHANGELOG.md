@@ -6,6 +6,7 @@ FEATURES:
   - CoreOS guest support. Change host names and configure networks on
     CoreOS. [GH-2022]
   - Solaris 11 guest support. [GH-2052]
+  - Support for environments in the Chef-solo provisioner. [GH-1915]
 
 IMPROVEMENTS:
 
