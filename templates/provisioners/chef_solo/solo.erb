@@ -29,7 +29,7 @@ https_proxy_pass <%= https_proxy_pass.inspect %>
 no_proxy <%= no_proxy.inspect %>
 
 <% if formatter %>
-formatter "<%= formatter %>"
+add_formatter "<%= formatter %>"
 <% end %>
 
 <% if custom_configuration -%>
