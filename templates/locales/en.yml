@@ -661,6 +661,7 @@ en:
           An IP is required for a private network.
         network_fp_host_not_unique: |-
           Forwarded port '%{host}' (host port) is declared multiple times
+          with the protocol '%{protocol}'.
         network_fp_requires_ports: |-
           Forwarded port definitions require a "host" and "guest" value
         network_type_invalid: |-

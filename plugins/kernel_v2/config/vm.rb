@@ -156,6 +156,7 @@ module VagrantPlugins
       # @param [Hash] options Options for the network.
       def network(type, options=nil)
         options ||= {}
+        options[:protocol] ||= "tcp"
 
         if !options[:id]
           default_id = nil
@@ -163,7 +164,7 @@ module VagrantPlugins
           if type == :forwarded_port
             # For forwarded ports, set the default ID to the
             # host port so that host ports overwrite each other.
-            default_id = options[:host].to_s + (options[:protocol] || "tcp").to_s
+            default_id = "#{options[:protocol]}#{options[:host]}"
           end
 
           options[:id] = default_id || SecureRandom.uuid
@@ -383,7 +384,7 @@ module VagrantPlugins
 
         # Validate networks
         has_fp_port_error = false
-        fp_host_ports_and_protocol  = Set.new
+        fp_used = Set.new
         valid_network_types = [:forwarded_port, :private_network, :public_network]
 
         networks.each do |type, options|
@@ -399,12 +400,14 @@ module VagrantPlugins
             end
 
             if options[:host]
-              if fp_host_ports_and_protocol.include?(options[:host].to_s + (options[:protocol] || "tcp").to_s)
+              key = "#{options[:protocol]}#{options[:host]}"
+              if fp_used.include?(key)
                 errors << I18n.t("vagrant.config.vm.network_fp_host_not_unique",
-                                :host => options[:host].to_s + (options[:protocol] || "tcp").to_s)
+                                :host => options[:host].to_s,
+                                :protocol => options[:protocol].to_s)
               end
 
-              fp_host_ports_and_protocol.add(options[:host].to_s + (options[:protocol] || "tcp").to_s)
+              fp_used.add(key)
             end
           end
 
