@@ -9,6 +9,8 @@ FEATURES:
   - Support for environments in the Chef-solo provisioner. [GH-1915]
   - Provisioners can now define "cleanup" tasks that are executed on
     `vagrant destroy`. [GH-1302]
+  - Chef Client provisioner will now clean up the node/client using
+    `knife` if configured to do so.
 
 IMPROVEMENTS:
 
