@@ -1,4 +1,5 @@
 require 'pathname'
+require 'vagrant/util/subprocess'
 
 require File.expand_path("../base", __FILE__)
 
@@ -108,7 +109,16 @@ module VagrantPlugins
           env[:ui].info(I18n.t(
             "vagrant.provisioners.chef.deleting_from_server",
             deletable: deletable, name: node_name))
-          Kernel.system("knife #{deletable} delete --yes #{node_name} > /dev/null 2>&1")
+
+          command = ["knife", deletable, "delete", "--yes", node_name]
+          r = Vagrant::Util::Subprocess.execute(*command)
+          if r.exit_code != 0
+            env[:ui].error(I18n.t(
+              "vagrant.chef_client_cleanup_failed",
+              deletable: deletable,
+              stdout: r.stdout,
+              stderr: r.stderr))
+          end
         end
       end
     end

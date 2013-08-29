@@ -25,6 +25,14 @@ en:
       CFEngine running in "single run" mode. Will execute one file.
     cfengine_single_run_execute: |-
       Executing run file for CFEngine...
+    chef_client_cleanup_failed: |-
+      Cleaning up the '%{deletable}' for Chef failed. The stdout and
+      stderr are shown below. Vagrant will continue destroying the machine,
+      so please clean up these resources manually.
+
+      stdout: %{stdout}
+
+      stderr: %{stderr}
     chef_run_list_empty: |-
       Warning: Chef solo run list is empty. This may not be what you want.
     provisioner_cleanup: |-
