@@ -33,6 +33,9 @@ en:
       stdout: %{stdout}
 
       stderr: %{stderr}
+    chef_config_knife_not_found: |-
+      The `knife` application was not found! This is required by Vagrant
+      to automatically delete Chef nodes and clients.
     chef_run_list_empty: |-
       Warning: Chef solo run list is empty. This may not be what you want.
     provisioner_cleanup: |-

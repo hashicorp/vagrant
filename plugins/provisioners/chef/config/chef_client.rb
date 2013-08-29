@@ -1,5 +1,7 @@
 require File.expand_path("../base", __FILE__)
 
+require "vagrant/util/which"
+
 module VagrantPlugins
   module Chef
     module Config
@@ -49,6 +51,12 @@ module VagrantPlugins
             !chef_server_url || chef_server_url.strip == ""
           errors << I18n.t("vagrant.config.chef.validation_key_path") if \
             !validation_key_path
+
+          if delete_client || delete_node
+            if !Vagrant::Util::Which.which("knife")
+              errors << I18n.t("vagrant.chef_config_knife_not_found")
+            end
+          end
 
           { "chef client provisioner" => errors }
         end
