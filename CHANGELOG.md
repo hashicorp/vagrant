@@ -33,6 +33,7 @@ BUG FIXES:
   - core: strip newlines off of ID file values [GH-2024]
   - core: Multiple forwarded ports with different protocols but the same
     host port can be specified. [GH-2059]
+  - core: `:nic_type` option for private networks is respected. [GH-1704]
   - guests/arch: use systemd way of setting host names. [GH-2041]
   - guests/debian: Force bring up eth0. Fixes hangs on setting hostname.
    [GH-2026]
@@ -215,7 +216,6 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
-  - The `:nic_type` option for private networks is respected. [GH-1704]
   - Ignore "guest not ready" errors when attempting to graceful halt and
     carry on checks whether the halt succeeded. [GH-1679]
   - Handle the case where a roles path for Chef solo isn't properly
