@@ -171,7 +171,7 @@ module Vagrant
       error_key(:command_unavailable)
     end
 
-    class CommandUnavailableWindows < VagrantError
+    class CommandUnavailableWindows < CommandUnavailable
       error_key(:command_unavailable_windows)
     end
 
