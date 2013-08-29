@@ -278,6 +278,15 @@ module VagrantPlugins
 
         # Open the channel so we can execute or command
         channel = connection.open_channel do |ch|
+          if sudo
+            ch.request_pty do |ch, success|
+              if success
+                @logger.debug("pty successfully obtained")
+              else
+                @logger.debug("could not obtain pty")
+              end
+            end
+          end
           ch.exec(shell) do |ch2, _|
             # Setup the channel callbacks so we can get data and exit status
             ch2.on_data do |ch3, data|
