@@ -97,6 +97,18 @@ module VagrantPlugins
         def guest_validation_key_path
           File.join(@config.provisioning_path, "validation.pem")
         end
+
+        def cleanup
+          delete_from_chef_server('client') if config.delete_client
+          delete_from_chef_server('node') if config.delete_node
+        end
+
+        def delete_from_chef_server(deletable)
+          node_name = (config.node_name || env[:vm].config.vm.host_name)
+          env[:ui].info I18n.t("vagrant.provisioners.chef.deleting_from_server",
+                              :deletable => deletable, :name => node_name)
+          Kernel.system("knife #{deletable} delete --yes #{node_name} > /dev/null 2>&1")
+        end
       end
     end
   end

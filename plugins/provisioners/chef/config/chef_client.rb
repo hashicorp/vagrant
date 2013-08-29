@@ -6,6 +6,8 @@ module VagrantPlugins
       class ChefClient < Base
         attr_accessor :chef_server_url
         attr_accessor :client_key_path
+        attr_accessor :delete_client
+        attr_accessor :delete_node
         attr_accessor :encrypted_data_bag_secret_key_path
         attr_accessor :encrypted_data_bag_secret
         attr_accessor :environment
@@ -17,6 +19,8 @@ module VagrantPlugins
 
           @chef_server_url                    = UNSET_VALUE
           @client_key_path                    = UNSET_VALUE
+          @delete_client                      = UNSET_VALUE
+          @delete_node                        = UNSET_VALUE
           @encrypted_data_bag_secret_key_path = UNSET_VALUE
           @encrypted_data_bag_secret          = UNSET_VALUE
           @environment                        = UNSET_VALUE

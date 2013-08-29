@@ -1145,6 +1145,7 @@ en:
         server_validation_key_doesnt_exist: |-
           The validation key set for `config.chef.validation_key_path` does not exist! This
           file needs to exist so it can be uploaded to the virtual machine.
+        deleting_from_server: "Deleting %{deletable} \"%{name}\" from Chef server..."
 
       puppet:
         not_detected: |-
