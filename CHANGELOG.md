@@ -37,6 +37,8 @@ IMPROVEMENTS:
     and mounting NFS. [GH-2086]
   - guests/suse: Supports private/public networks. [GH-1689]
   - hosts/fedora: Support RHEL as a host. [GH-2088]
+  - providers/virtualbox: "post-boot" customizations will run directly
+    after boot, and before waiting for SSH. [GH-2048]
   - provisioners/ansible: Ansible `inventory_path` can be a directory now. [GH-2035]
   - provisioners/ansible: Extra verbose option by setting `config.verbose`
     to `extra`. [GH-1979]
