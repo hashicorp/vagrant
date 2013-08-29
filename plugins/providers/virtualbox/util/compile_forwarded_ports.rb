@@ -19,6 +19,9 @@ module VagrantPlugins
               options    = scoped_hash_override(options, :virtualbox)
               id         = options[:id]
 
+              # If the forwarded port was marked as disabled, ignore.
+              next if options[:disabled]
+
               mappings[host_port.to_s + protocol.to_s] =
                 Model::ForwardedPort.new(id, host_port, guest_port, options)
             end
