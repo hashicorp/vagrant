@@ -1,5 +1,11 @@
 ## 1.2.8 (unreleased)
 
+BACKWARDS INCOMPATIBILITY:
+
+  - `config.ssh.max_tries` is gone. Instead of maximum tries, Vagrant now
+    uses a simple overall timeout value `config.ssh.timeout` to wait for
+    the machine to boot up.
+
 FEATURES:
 
   - Mac OS X guest support. [GH-1914]
