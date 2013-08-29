@@ -27,6 +27,8 @@ en:
       Executing run file for CFEngine...
     chef_run_list_empty: |-
       Warning: Chef solo run list is empty. This may not be what you want.
+    provisioner_cleanup: |-
+      Running cleanup tasks for '%{name}' provisioner...
 
     cfengine_config:
       classes_array: |-

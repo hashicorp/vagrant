@@ -7,6 +7,8 @@ FEATURES:
     CoreOS. [GH-2022]
   - Solaris 11 guest support. [GH-2052]
   - Support for environments in the Chef-solo provisioner. [GH-1915]
+  - Provisioners can now define "cleanup" tasks that are executed on
+    `vagrant destroy`. [GH-1302]
 
 IMPROVEMENTS:
 

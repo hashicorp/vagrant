@@ -97,6 +97,7 @@ module VagrantPlugins
                 b3.use Destroy
                 b3.use CleanMachineFolder
                 b3.use DestroyUnusedNetworkInterfaces
+                b3.use ProvisionerCleanup
               else
                 b3.use MessageWillNotDestroy
               end

@@ -41,6 +41,12 @@ module Vagrant
         # No return value is expected.
         def provision
         end
+
+        # This is the method called when destroying a machine that allows
+        # for any state related to the machine created by the provisioner
+        # to be cleaned up.
+        def cleanup
+        end
       end
     end
   end

@@ -1,5 +1,7 @@
 require "log4r"
 
+require_relative "mixin_provisioners"
+
 module Vagrant
   module Action
     module Builtin
@@ -10,6 +12,8 @@ module Vagrant
       # can do some setup, and then run again (on the return path) against
       # a running machine.
       class Provision
+        include MixinProvisioners
+
         def initialize(app, env)
           @app    = app
           @logger = Log4r::Logger.new("vagrant::action::builtin::provision")
@@ -20,24 +24,8 @@ module Vagrant
           enabled = true
           enabled = env[:provision_enabled] if env.has_key?(:provision_enabled)
 
-          # This keeps track of a mapping between provisioner and type
-          type_map = {}
-
-          # Get all the configured provisioners
-          provisioners = env[:machine].config.vm.provisioners.map do |provisioner|
-            # Instantiate the provisioner
-            klass  = Vagrant.plugin("2").manager.provisioners[provisioner.name]
-            result = klass.new(env[:machine], provisioner.config)
-
-            # Store in the type map so that --provision-with works properly
-            type_map[result] = provisioner.name
-
-            # Return the result
-            result
-          end
-
           # Ask the provisioners to modify the configuration if needed
-          provisioners.each do |p|
+          provisioner_instances.each do |p|
             p.configure(env[:machine].config)
           end
 
@@ -46,11 +34,11 @@ module Vagrant
 
           # Actually provision if we enabled it
           if enabled
-            provisioners.each do |p|
+            provisioner_instances.each do |p|
               next if env[:provision_types] && \
-                !env[:provision_types].include?(type_map[p])
+                !env[:provision_types].include?(provisioner_type_map[p])
 
-              run_provisioner(env, type_map[p].to_s, p)
+              run_provisioner(env, provisioner_type_map[p].to_s, p)
             end
           end
         end
