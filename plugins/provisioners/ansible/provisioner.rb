@@ -42,7 +42,8 @@ module VagrantPlugins
         # Write stdout and stderr data, since it's the regular Ansible output
         command << {
           :env => { "ANSIBLE_FORCE_COLOR" => "true" },
-          :notify => [:stdout, :stderr]
+          :notify => [:stdout, :stderr],
+          :workdir => @machine.env.root_path.to_s
         }
 
         begin
