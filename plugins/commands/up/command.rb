@@ -11,6 +11,7 @@ module VagrantPlugins
 
       def execute
         options = {}
+        options[:destroy_on_error] = true
         options[:parallel] = true
 
         opts = OptionParser.new do |o|
@@ -18,6 +19,11 @@ module VagrantPlugins
           o.separator ""
 
           build_start_options(o, options)
+
+          o.on("--[no-]destroy-on-error",
+               "Destroy machine if any fatal error happens (default to true).") do |destroy|
+            options[:destroy_on_error] = destroy
+          end
 
           o.on("--[no-]parallel",
                "Enable or disable parallelism if provider supports it.") do |parallel|

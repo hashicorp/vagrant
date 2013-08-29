@@ -36,6 +36,9 @@ module VagrantPlugins
           if env[:machine].provider.state.id != :not_created
             return if env["vagrant.error"].is_a?(Vagrant::Errors::VagrantError)
 
+            # If we're not supposed to destroy on error then just return
+            return if !env[:destroy_on_error]
+
             # Interrupted, destroy the VM. We note that we don't want to
             # validate the configuration here, and we don't want to confirm
             # we want to destroy.

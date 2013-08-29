@@ -11,6 +11,8 @@ FEATURES:
     `vagrant destroy`. [GH-1302]
   - Chef Client provisioner will now clean up the node/client using
     `knife` if configured to do so.
+  - `vagrant up` has a `--no-destroy-on-error` flag that will not destroy
+    the VM if a fatal error occurs. [GH-2011]
 
 IMPROVEMENTS:
 
