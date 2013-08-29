@@ -5,12 +5,14 @@ module VagrantPlugins
       attr_accessor :path
       attr_accessor :upload_path
       attr_accessor :args
+      attr_accessor :privileged
 
       def initialize
         @args        = UNSET_VALUE
         @inline      = UNSET_VALUE
         @path        = UNSET_VALUE
         @upload_path = UNSET_VALUE
+        @privileged  = UNSET_VALUE
       end
 
       def finalize!
@@ -18,6 +20,7 @@ module VagrantPlugins
         @inline      = nil if @inline == UNSET_VALUE
         @path        = nil if @path == UNSET_VALUE
         @upload_path = "/tmp/vagrant-shell" if @upload_path == UNSET_VALUE
+        @privileged  = true if @privileged == UNSET_VALUE
       end
 
       def validate(machine)

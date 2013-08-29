@@ -28,7 +28,7 @@ module VagrantPlugins
             end
 
             # Execute it with sudo
-            comm.sudo(command) do |type, data|
+            comm.execute(command, sudo: config.privileged) do |type, data|
               if [:stderr, :stdout].include?(type)
                 # Output the data with the proper color based on the stream.
                 color = type == :stdout ? :green : :red
