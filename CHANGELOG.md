@@ -11,6 +11,7 @@ FEATURES:
 IMPROVEMENTS:
 
   - core: add `--color` to any Vagrant command to FORCE color output. [GH-2027]
+  - core: "config.vm.host_name" works again, just an alias to hostname.
   - commands/plugin/install: Post install message of a plugin will be
     shown if available. [GH-1986]
   - commands/status: cosmetic improvement to better align names and

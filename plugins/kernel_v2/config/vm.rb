@@ -44,6 +44,12 @@ module VagrantPlugins
         @__synced_folders              = {}
       end
 
+      # This was from V1, but we just kept it here as an alias for hostname
+      # because too many people mess this up.
+      def host_name=(value)
+        @hostname = value
+      end
+
       # Custom merge method since some keys here are merged differently.
       def merge(other)
         super.tap do |result|
