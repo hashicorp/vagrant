@@ -13,8 +13,7 @@ describe Vagrant::Action::Builtin::GracefulHalt do
   let(:machine_config) do
     double("machine_config").tap do |top_config|
       vm_config = double("machien_vm_config")
-      vm_config.stub(:graceful_halt_retry_count => 2)
-      vm_config.stub(:graceful_halt_retry_interval => 0)
+      vm_config.stub(:graceful_halt_timeout => 10)
       top_config.stub(:vm => vm_config)
     end
   end
