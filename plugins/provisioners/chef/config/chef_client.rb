@@ -33,6 +33,8 @@ module VagrantPlugins
 
           @chef_server_url = nil if @chef_server_url == UNSET_VALUE
           @client_key_path        = "/etc/chef/client.pem" if @client_key_path == UNSET_VALUE
+          @delete_client = false if @delete_client == UNSET_VALUE
+          @delete_node = false if @delete_node == UNSET_VALUE
           @encrypted_data_bag_secret_key_path = nil if @encrypted_data_bag_secret_key_path == UNSET_VALUE
           @encrypted_data_bag_secret          = "/tmp/encrypted_data_bag_secret" if @encrypted_data_bag_secret == UNSET_VALUE
           @environment = nil if @environment == UNSET_VALUE
