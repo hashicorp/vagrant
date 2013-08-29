@@ -14,7 +14,7 @@ module Vagrant
           # for interrupts.
           ready_thr = Thread.new do
             Thread.current[:result] = env[:machine].communicate.wait_for_ready(
-              env[:machine].config.ssh.timeout)
+              env[:machine].config.vm.boot_timeout)
           end
 
           # Start a thread that verifies the VM stays in a good state.

@@ -15,6 +15,7 @@ module VagrantPlugins
       DEFAULT_VM_NAME = :default
 
       attr_accessor :base_mac
+      attr_accessor :boot_timeout
       attr_accessor :box
       attr_accessor :box_url
       attr_accessor :box_download_insecure
@@ -25,6 +26,7 @@ module VagrantPlugins
       attr_reader :provisioners
 
       def initialize
+        @boot_timeout                 = UNSET_VALUE
         @box_download_insecure        = UNSET_VALUE
         @graceful_halt_timeout        = UNSET_VALUE
         @guest                        = UNSET_VALUE
@@ -244,6 +246,7 @@ module VagrantPlugins
 
       def finalize!
         # Defaults
+        @boot_timeout = 300 if @boot_timeout == UNSET_VALUE
         @box_download_insecure = false if @box_download_insecure == UNSET_VALUE
         @graceful_halt_timeout = 300 if @graceful_halt_timeout == UNSET_VALUE
         @guest = nil if @guest == UNSET_VALUE
