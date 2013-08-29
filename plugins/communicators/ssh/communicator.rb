@@ -359,7 +359,12 @@ module VagrantPlugins
           end
 
           # Wait for the channel to complete
-          channel.wait
+          begin
+            channel.wait
+          rescue IOError
+            @logger.info("SSH connection unexpected closed. Assuming reboot or something.")
+            exit_status = 0
+          end
         ensure
           # Kill the keep-alive thread
           keep_alive.kill if keep_alive
