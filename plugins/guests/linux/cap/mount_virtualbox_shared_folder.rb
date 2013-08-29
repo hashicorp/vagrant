@@ -7,7 +7,7 @@ module VagrantPlugins
             :shell_expand_guest_path, guestpath)
 
           # Determine the permission string to attach to the mount command
-          mount_options = "-o uid=`id -u #{options[:owner]}`,gid=`id -g #{options[:group]}`"
+          mount_options = "-o uid=`id -u #{options[:owner]}`,gid=`getent group #{options[:group]} | cut -d: -f3`"
           mount_options += ",#{options[:extra]}" if options[:extra]
           mount_command = "mount -t vboxsf #{mount_options} #{name} #{expanded_guest_path}"
 
@@ -32,7 +32,7 @@ module VagrantPlugins
 
           # Chown the directory to the proper user
           machine.communicate.sudo(
-            "chown `id -u #{options[:owner]}`:`id -g #{options[:group]}` #{expanded_guest_path}")
+            "chown `id -u #{options[:owner]}`:`getent group #{options[:group]} | cut -d: -f3` #{expanded_guest_path}")
         end
       end
     end
