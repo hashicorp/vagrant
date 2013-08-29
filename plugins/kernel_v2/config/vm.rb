@@ -18,8 +18,7 @@ module VagrantPlugins
       attr_accessor :box
       attr_accessor :box_url
       attr_accessor :box_download_insecure
-      attr_accessor :graceful_halt_retry_count
-      attr_accessor :graceful_halt_retry_interval
+      attr_accessor :graceful_halt_timeout
       attr_accessor :guest
       attr_accessor :hostname
       attr_accessor :usable_port_range
@@ -27,8 +26,7 @@ module VagrantPlugins
 
       def initialize
         @box_download_insecure        = UNSET_VALUE
-        @graceful_halt_retry_count    = UNSET_VALUE
-        @graceful_halt_retry_interval = UNSET_VALUE
+        @graceful_halt_timeout        = UNSET_VALUE
         @guest                        = UNSET_VALUE
         @hostname                     = UNSET_VALUE
         @provisioners                 = []
@@ -247,6 +245,7 @@ module VagrantPlugins
       def finalize!
         # Defaults
         @box_download_insecure = false if @box_download_insecure == UNSET_VALUE
+        @graceful_halt_timeout = 300 if @graceful_halt_timeout == UNSET_VALUE
         @guest = nil if @guest == UNSET_VALUE
         @hostname = nil if @hostname == UNSET_VALUE
         @hostname = @hostname.to_s if @hostname

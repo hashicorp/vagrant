@@ -1,4 +1,5 @@
 require "log4r"
+require "timeout"
 
 module Vagrant
   module Action
@@ -52,11 +53,14 @@ module Vagrant
             end
 
             @logger.debug("Waiting for target graceful halt state: #{@target_state}")
-            count = 0
-            while env[:machine].state.id != @target_state
-              count += 1
-              return if count >= env[:machine].config.vm.graceful_halt_retry_count
-              sleep env[:machine].config.vm.graceful_halt_retry_interval
+            begin
+              Timeout.timeout(env[:machine].config.vm.graceful_halt_timeout) do
+                while env[:machine].state.id != @target_state
+                  sleep 1
+                end
+              end
+            rescue Timeout::Error
+              # Don't worry about it, we catch the case later.
             end
 
             # The result of this matters on whether we reached our

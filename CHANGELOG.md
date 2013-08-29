@@ -5,6 +5,9 @@ BACKWARDS INCOMPATIBILITY:
   - `config.ssh.max_tries` is gone. Instead of maximum tries, Vagrant now
     uses a simple overall timeout value `config.ssh.timeout` to wait for
     the machine to boot up.
+  - `config.vm.graceful_halt_retry_*` settings are gone. Instead, a single
+    timeout is now used to wait for a graceful halt to work, specified
+    by `config.vm.graceful_halt_timeout`.
 
 FEATURES:
 

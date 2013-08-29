@@ -13,8 +13,7 @@ Vagrant.configure("2") do |config|
   config.vm.usable_port_range = (2200..2250)
   config.vm.box_url = nil
   config.vm.base_mac = nil
-  config.vm.graceful_halt_retry_count = 60
-  config.vm.graceful_halt_retry_interval = 1
+  config.vm.graceful_halt_timeout = 60
 
   # Share SSH locally by default
   config.vm.network :forwarded_port,
