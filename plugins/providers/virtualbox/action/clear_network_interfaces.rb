@@ -12,7 +12,7 @@ module VagrantPlugins
           # excluding the NAT adapter on port 1 which Vagrant always
           # expects to exist.
           adapters = []
-          2.upto(8).each do |i|
+          2.upto(env[:machine].provider.driver.max_network_adapters).each do |i|
             adapters << {
               :adapter => i,
               :type    => :none

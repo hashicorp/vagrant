@@ -58,6 +58,8 @@ BUG FIXES:
   - guests/debian: Force bring up eth0. Fixes hangs on setting hostname.
    [GH-2026]
   - hosts/fedora: properly detect later CentOS versions. [GH-2008]
+  - providers/virtualbox: VirtualBox 4.2 now supports up to 36
+    network adapters. [GH-1886]
   - provisioners/ansible: Execute ansible with a cwd equal to the
     path where the Vagrantfile is. [GH-2051]
   - provisioners/ansible: No longer report failure on every run. [GH-2007]

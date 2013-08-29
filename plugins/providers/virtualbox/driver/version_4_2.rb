@@ -202,6 +202,10 @@ module VagrantPlugins
           nil
         end
 
+        def max_network_adapters
+          36
+        end
+
         def read_forwarded_ports(uuid=nil, active_only=false)
           uuid ||= @uuid
 
