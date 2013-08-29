@@ -39,6 +39,8 @@ BUG FIXES:
   - provisioners/chef: Formatter option works properly. [GH-2058]
   - provisioners/puppet: mount synced folders as root to avoid weirdness
     with Puppet. [GH-2015]
+  - providers/virtualbox: Use `getent` to get the group ID instead of
+    `id` in case the name doesn't have a user. [GH-1801]
 
 ## 1.2.7 (July 28, 2013)
 
