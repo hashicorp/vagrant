@@ -1,3 +1,5 @@
+require "timeout"
+
 module Vagrant
   module Plugin
     module V2
@@ -42,6 +44,25 @@ module Vagrant
         # @return [Boolean]
         def ready?
           false
+        end
+
+        # wait_for_ready waits until the communicator is ready, blocking
+        # until then. It will wait up to the given duration or raise an
+        # exception if something goes wrong.
+        def wait_for_ready(duration)
+          # By default, we implement a naive solution.
+          begin
+            Timeout.timeout(duration) do
+              while true
+                return true if ready?
+                sleep 0.2
+              end
+            end
+          rescue Timeout::Error
+            # We timed out, we failed.
+          end
+
+          return false
         end
 
         # Download a file from the remote machine to the local machine.

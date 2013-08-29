@@ -20,6 +20,8 @@ module Vagrant
         end
 
         def call(env)
+          @env = env
+
           # Check if we're even provisioning things.
           enabled = true
           enabled = env[:provision_enabled] if env.has_key?(:provision_enabled)

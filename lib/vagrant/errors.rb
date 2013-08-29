@@ -543,6 +543,14 @@ module Vagrant
       error_key(:no_base_mac, "vagrant.actions.vm.match_mac")
     end
 
+    class VMBootBadState < VagrantError
+      error_key(:boot_bad_state)
+    end
+
+    class VMBootTimeout < VagrantError
+      error_key(:boot_timeout)
+    end
+
     class VMCustomizationFailed < VagrantError
       error_key(:failure, "vagrant.actions.vm.customize")
     end

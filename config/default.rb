@@ -5,8 +5,7 @@ Vagrant.configure("2") do |config|
   config.ssh.forward_x11 = false
   config.ssh.guest_port = 22
   config.ssh.keep_alive = true
-  config.ssh.max_tries = 100
-  config.ssh.timeout = 30
+  config.ssh.timeout = 300
   config.ssh.shell = "bash -l"
 
   config.ssh.default.username = "vagrant"

@@ -1,5 +1,9 @@
 en:
   vagrant:
+    boot_completed: |-
+      Machine booted and ready!
+    boot_waiting: |-
+      Waiting for machine to boot. This may take a few minutes...
     cfengine_bootstrapping: |-
       Bootstrapping CFEngine with policy server: %{policy_server}...
     cfengine_bootstrapping_policy_hub: |-
@@ -144,6 +148,25 @@ en:
         Any errors that occurred are shown below.
 
         %{message}
+      boot_bad_state: |-
+        The guest machine entered an invalid state while waiting for it
+        to boot. Valid states are '%{valid}'. The machine is in the
+        '%{invalid}' state. Please verify everything is configured
+        properly and try again.
+      boot_timeout: |-
+        Timed out while waiting for the machine to boot. This means that
+        Vagrant was unable to communicate with the guest machine within
+        the configured ("config.ssh.timeout" value) time period. This can
+        mean a number of things.
+
+        If you're using a custom box, make sure that networking is properly
+        working and you're able to connect to the machine. It is a common
+        problem that networking isn't setup properly in these boxes.
+        Verify that authentication configurations are also setup properly,
+        as well.
+
+        If the box appears to be booting properly, you may want to increase
+        the timeout ("config.ssh.timeout") value.
       box_config_changing_box: |-
         While loading the Vagrantfile, the provider override specified
         a new box. This box, in turn, specified a different box. This isn't
@@ -815,9 +838,6 @@ en:
       vm:
         boot:
           booting: Booting VM...
-          waiting: Waiting for VM to boot. This can take a few minutes.
-          ready: VM booted and ready for use!
-          failed: Failed to connect to VM!
           failed_to_boot: |-
             Failed to connect to VM via SSH. Please verify the VM successfully booted
             by looking at the VirtualBox GUI.

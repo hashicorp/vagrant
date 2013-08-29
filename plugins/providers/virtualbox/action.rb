@@ -71,6 +71,7 @@ module VagrantPlugins
           b.use SaneDefaults
           b.use Customize, "pre-boot"
           b.use Boot
+          b.use WaitForCommunicator, [:starting, :running]
           b.use Customize, "post-boot"
           b.use CheckGuestAdditions
         end

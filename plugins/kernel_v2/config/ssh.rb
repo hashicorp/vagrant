@@ -9,7 +9,6 @@ module VagrantPlugins
       attr_accessor :forward_x11
       attr_accessor :guest_port
       attr_accessor :keep_alive
-      attr_accessor :max_tries
       attr_accessor :shell
       attr_accessor :timeout
 
@@ -22,7 +21,6 @@ module VagrantPlugins
         @forward_x11      = UNSET_VALUE
         @guest_port = UNSET_VALUE
         @keep_alive = UNSET_VALUE
-        @max_tries  = UNSET_VALUE
         @shell      = UNSET_VALUE
         @timeout    = UNSET_VALUE
 
@@ -43,7 +41,6 @@ module VagrantPlugins
         @forward_x11   = false if @forward_x11 == UNSET_VALUE
         @guest_port = nil if @guest_port == UNSET_VALUE
         @keep_alive = false if @keep_alive == UNSET_VALUE
-        @max_tries  = nil if @max_tries == UNSET_VALUE
         @shell      = nil if @shell == UNSET_VALUE
         @timeout    = nil if @timeout == UNSET_VALUE
 
@@ -57,7 +54,7 @@ module VagrantPlugins
       def validate(machine)
         errors = super
 
-        [:max_tries, :timeout].each do |field|
+        [:timeout].each do |field|
           value = instance_variable_get("@#{field}".to_sym)
           errors << I18n.t("vagrant.config.common.error_empty", :field => field) if !value
         end
