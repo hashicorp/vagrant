@@ -35,6 +35,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - core: Clean up ".vagrant" folder more effectively.
   - core: strip newlines off of ID file values [GH-2024]
   - core: Multiple forwarded ports with different protocols but the same
     host port can be specified. [GH-2059]
