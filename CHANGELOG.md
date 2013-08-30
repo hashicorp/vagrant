@@ -11,6 +11,7 @@ BACKWARDS INCOMPATIBILITY:
 
 FEATURES:
 
+  - Salt provisioner. [GH-1626]
   - Mac OS X guest support. [GH-1914]
   - CoreOS guest support. Change host names and configure networks on
     CoreOS. [GH-2022]
