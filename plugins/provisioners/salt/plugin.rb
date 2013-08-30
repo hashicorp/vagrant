@@ -1,12 +1,4 @@
-begin
-  require "vagrant"
-rescue LoadError
-  raise "The Vagrant Salt plugin must be run within Vagrant."
-end
-
-if Vagrant::VERSION < "1.1.0"
-  raise "Please install vagrant-salt gem <=0.3.4 for Vagrant < 1.1.0"
-end
+require "vagrant"
 
 module VagrantPlugins
   module Salt
@@ -25,7 +17,6 @@ module VagrantPlugins
         require File.expand_path("../provisioner", __FILE__)
         Provisioner
       end
-
     end
   end
 end
