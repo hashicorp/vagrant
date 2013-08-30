@@ -7,34 +7,7 @@ module VagrantPlugins
         upload_configs
         upload_keys
         run_bootstrap_script
-
-        # if @config.seed_master and @config.install_master
-        #   seed_master
-        # end
-
-        if @config.accept_keys
-          @machine.env.ui.warn "ATTENTION: 'salt.accept_keys' is deprecated. Please use salt.seed_master to upload your minion keys"
-          accept_keys
-        end
-
         call_highstate
-      end
-
-      def seed_master
-        @machine.env.ui.info 'Uploading %d keys to /etc/salt/pki/master/minions/' % config.seed_master.length
-        staged_keys = keys('minions_pre')
-        @config.seed_master.each do |name, keyfile|
-          if staged_keys.include? name
-            @machine.env.ui.warn "Accepting staged key: %s" %name
-            @machine.communicate.sudo("salt-key -a %s" %name)
-            next
-          end
-          sourcepath = expanded_path(keyfile).to_s
-          dest = '/tmp/seed-%s.pub' %name
-
-          @machine.communicate.upload(sourcepath, dest)
-          @machine.communicate.sudo("mv /tmp/seed-%s.pub /etc/salt/pki/master/minions/%s" %[name, name])
-        end
       end
 
       # Return a list of accepted keys
