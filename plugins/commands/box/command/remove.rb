@@ -26,7 +26,7 @@ module VagrantPlugins
             if providers.length > 1
               @env.ui.error(
                 I18n.t("vagrant.commands.box.remove_must_specify_provider",
-                       name: args[0],
+                       name: argv[0],
                        providers: providers.join(", ")))
               return 1
             end
