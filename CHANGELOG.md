@@ -30,6 +30,8 @@ IMPROVEMENTS:
   - core: "config.vm.host_name" works again, just an alias to hostname.
   - core: Reboots via SSH are now handled gracefully (without exception).
   - core: Mark `disabled` as true on forwarded port to disable. [GH-1922]
+  - core: NFS exports are now namespaced by user ID, so pruning NFS won't
+    remove exports from other users. [GH-1511]
   - commands/box/remove: Fix stack trace that happens if no provider
     is specified. [GH-2100]
   - commands/plugin/install: Post install message of a plugin will be
