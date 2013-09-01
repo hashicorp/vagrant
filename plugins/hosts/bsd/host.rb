@@ -84,7 +84,8 @@ module VagrantPlugins
         output = TemplateRenderer.render(@nfs_exports_template,
                                          :uuid => id,
                                          :ips => ips,
-                                         :folders => dirmap)
+                                         :folders => dirmap,
+                                         :user => Process.uid)
 
         # The sleep ensures that the output is truly flushed before any `sudo`
         # commands are issued.
@@ -112,9 +113,10 @@ module VagrantPlugins
         @logger.info("Pruning invalid NFS entries...")
 
         output = false
+        user = Process.uid
 
         File.read("/etc/exports").lines.each do |line|
-          if id = line[/^# VAGRANT-BEGIN: (.+?)$/, 1]
+          if id = line[/^# VAGRANT-BEGIN:( #{user})? ([A-Za-z0-9-]+?)$/, 2]
             if valid_ids.include?(id)
               @logger.debug("Valid ID: #{id}")
             else
@@ -142,9 +144,11 @@ module VagrantPlugins
         id = id.gsub("/", "\\/")
         id = id.gsub(".", "\\.")
 
+        user = Process.uid
+
         # Use sed to just strip out the block of code which was inserted
         # by Vagrant, and restart NFS.
-        system("sudo sed -e '/^# VAGRANT-BEGIN: #{id}/,/^# VAGRANT-END: #{id}/ d' -ibak /etc/exports")
+        system("sudo sed -e '/^# VAGRANT-BEGIN:\\( #{user}\\)\\? #{id}/,/^# VAGRANT-END:\\( #{user}\\)\\? #{id}/ d' -ibak /etc/exports")
       end
     end
   end
