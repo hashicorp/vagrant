@@ -26,6 +26,8 @@ FEATURES:
     `knife` if configured to do so.
   - `vagrant up` has a `--no-destroy-on-error` flag that will not destroy
     the VM if a fatal error occurs. [GH-2011]
+  - NFS: Arbitrary mount options can be specified using the
+   `mount_options` option on synced folders. [GH-1029]
 
 IMPROVEMENTS:
 
