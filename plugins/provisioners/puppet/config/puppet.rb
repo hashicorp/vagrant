@@ -10,6 +10,7 @@ module VagrantPlugins
         attr_accessor :options
         attr_accessor :temp_dir
         attr_accessor :working_directory
+        attr_accessor :nfs
 
         def initialize
           super
@@ -22,6 +23,7 @@ module VagrantPlugins
           @facter            = {}
           @temp_dir          = UNSET_VALUE
           @working_directory = UNSET_VALUE
+          @nfs               = UNSET_VALUE
         end
 
         def finalize!
@@ -33,6 +35,7 @@ module VagrantPlugins
           @module_path    = nil if @module_path == UNSET_VALUE
           @temp_dir       = "/tmp/vagrant-puppet" if @temp_dir == UNSET_VALUE
           @working_directory = nil if @working_directory == UNSET_VALUE
+          @nfs            = false if @nfs == UNSET_VALUE
         end
 
         # Returns the manifests path expanded relative to the root path of the

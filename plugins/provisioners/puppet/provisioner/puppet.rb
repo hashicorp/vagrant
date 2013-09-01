@@ -27,14 +27,18 @@ module VagrantPlugins
             @module_paths << [path, File.join(config.temp_dir, "modules-#{i}")]
           end
 
+          folder_opts = {}
+          folder_opts[:nfs] = true if @config.nfs
+          folder_opts[:owner] = "root" if !folder_opts[:nfs]
+
           # Share the manifests directory with the guest
           root_config.vm.synced_folder(
-            @expanded_manifests_path, manifests_guest_path, { :owner => 'root' } )
+            @expanded_manifests_path, manifests_guest_path, folder_opts)
 
           # Share the module paths
           count = 0
           @module_paths.each do |from, to|
-            root_config.vm.synced_folder(from, to, { :owner => 'root' } )
+            root_config.vm.synced_folder(from, to, folder_opts)
             count += 1
           end
         end

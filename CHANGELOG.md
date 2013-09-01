@@ -56,6 +56,7 @@ IMPROVEMENTS:
     to `extra`. [GH-1979]
   - provisioners/ansible: `inventory_path` will be auto-generated if not
     specified. [GH-1907]
+  - provisioners/puppet: Add `nfs` option to puppet provisioner. [GH-1308]
   - provisioners/shell: Set the `privileged` option to false to run
     without sudo. [GH-1370]
 
