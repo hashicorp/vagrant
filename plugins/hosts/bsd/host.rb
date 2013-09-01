@@ -129,6 +129,8 @@ module VagrantPlugins
             end
           end
         end
+      rescue Errno::EACCES
+        raise Vagrant::Errors::NFSCantReadExports
       end
 
       protected

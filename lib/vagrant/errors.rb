@@ -335,6 +335,10 @@ module Vagrant
       error_key(:not_found, "vagrant.actions.vm.host_only_network")
     end
 
+    class NFSCantReadExports < VagrantError
+      error_key(:nfs_cant_read_exports)
+    end
+
     class NFSNoGuestIP < VagrantError
       error_key(:nfs_no_guest_ip)
     end

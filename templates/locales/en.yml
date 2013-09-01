@@ -365,6 +365,10 @@ en:
         A multi-vm environment is required for name specification to this command.
       multi_vm_target_required: |-
         This command requires a specific VM name to target in a multi-VM environment.
+      nfs_cant_read_exports: |-
+        Vagrant can't read your current NFS exports! The exports file should be
+        readable by any user. This is usually caused by invalid permissions
+        on your NFS exports file. Please fix them and try again.
       nfs_no_guest_ip: |-
         No guest IP was given to the Vagrant core NFS helper. This is an
         internal error that should be reported as a bug.
