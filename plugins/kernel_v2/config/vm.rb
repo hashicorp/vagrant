@@ -379,6 +379,10 @@ module VagrantPlugins
                                :path => options[:hostpath])
             end
           end
+
+          if options[:mount_options] && !options[:mount_options].is_a?(Array)
+            errors << I18n.t("vagrant.config.vm.shared_folder_mount_options_array")
+          end
         end
 
         if has_nfs

@@ -8,6 +8,9 @@ BACKWARDS INCOMPATIBILITY:
   - `config.vm.graceful_halt_retry_*` settings are gone. Instead, a single
     timeout is now used to wait for a graceful halt to work, specified
     by `config.vm.graceful_halt_timeout`.
+  - The ':extra' flag to shared folders for specifying arbitrary mount
+    options has been replaced with the `:mount_options` flag, which is now
+    an array of mount options.
 
 FEATURES:
 

@@ -8,7 +8,10 @@ module VagrantPlugins
 
           # Determine the permission string to attach to the mount command
           mount_options = "-o uid=`id -u #{options[:owner]}`,gid=`getent group #{options[:group]} | cut -d: -f3`"
-          mount_options += ",#{options[:extra]}" if options[:extra]
+          if options[:mount_options]
+            mount_options += ",#{options[:mount_options].join(",")}"
+          end
+
           mount_command = "mount -t vboxsf #{mount_options} #{name} #{expanded_guest_path}"
 
           # Create the guest path if it doesn't exist

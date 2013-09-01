@@ -16,7 +16,10 @@ module VagrantPlugins
 
           # Mount the folder with the proper owner/group
           mount_options = "-o uid=`#{id_cmd} -u #{owner}`,gid=`#{id_cmd} -g #{group}`"
-          mount_options += ",#{options[:extra]}" if options[:extra]
+          if options[:mount_options]
+            mount_options += ",#{options[:mount_options].join(",")}"
+          end
+
           machine.communicate.execute("#{machine.config.solaris.suexec_cmd} /sbin/mount -F vboxfs #{mount_options} #{name} #{guestpath}")
 
           # chown the folder to the proper owner/group
