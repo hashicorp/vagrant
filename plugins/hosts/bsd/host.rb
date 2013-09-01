@@ -148,7 +148,7 @@ module VagrantPlugins
 
         # Use sed to just strip out the block of code which was inserted
         # by Vagrant, and restart NFS.
-        system("sudo sed -e '/^# VAGRANT-BEGIN:\\( #{user}\\)\\? #{id}/,/^# VAGRANT-END:\\( #{user}\\)\\? #{id}/ d' -ibak /etc/exports")
+        system("sudo sed -E -e '/^# VAGRANT-BEGIN:( #{user})? #{id}/,/^# VAGRANT-END:( #{user})? #{id}/ d' -ibak /etc/exports")
       end
     end
   end
