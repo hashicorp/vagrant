@@ -35,6 +35,25 @@ module VagrantPlugins
       end
 
       def nfs_export(id, ips, folders)
+        folders.each do |k, opts|
+          if !opts[:linux__nfs_options]
+            opts[:linux__nfs_options] ||= ["rw", "no_subtree", "check", "all_squash"]
+          end
+
+          # Only automatically set anonuid/anongid if they weren't
+          # explicitly set by the user.
+          hasgid = false
+          hasuid = false
+          opts[:linux__nfs_options].each do |opt|
+            hasgid = !!(opt =~ /^anongid=/) if !hasgid
+            hasuid = !!(opt =~ /^anonuid=/) if !hasuid
+          end
+
+          opts[:linux__nfs_options] << "anonuid=#{opts[:map_uid]}" if !hasuid
+          opts[:linux__nfs_options] << "anongid=#{opts[:map_gid]}" if !hasgid
+          opts[:linux__nfs_options] << "fsid=#{opts[:uuid]}"
+        end
+
         output = TemplateRenderer.render('nfs/exports_linux',
                                          :uuid => id,
                                          :ip => ip,

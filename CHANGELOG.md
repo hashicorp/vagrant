@@ -28,6 +28,8 @@ FEATURES:
     the VM if a fatal error occurs. [GH-2011]
   - NFS: Arbitrary mount options can be specified using the
    `mount_options` option on synced folders. [GH-1029]
+  - NFS: Arbitrary export options can be specified using
+   `bsd__nfs_options` and `linux__nfs_options`. [GH-1029]
 
 IMPROVEMENTS:
 

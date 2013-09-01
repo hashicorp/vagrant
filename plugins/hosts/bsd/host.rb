@@ -75,6 +75,29 @@ module VagrantPlugins
           dirs.sort_by! { |d| d.length }
         end
 
+        # Setup the NFS options
+        dirmap.each do |dirs, opts|
+          if !opts[:bsd__nfs_options]
+            opts[:bsd__nfs_options] = ["alldirs"]
+          end
+
+          hasmapall = false
+          opts[:bsd__nfs_options].each do |opt|
+            if opt =~ /^mapall=/
+              hasmapall = true
+              break
+            end
+          end
+
+          if !hasmapall
+            opts[:bsd__nfs_options] << "mapall=#{opts[:map_uid]}:#{opts[:map_gid]}"
+          end
+
+          opts[:bsd__compiled_nfs_options] = opts[:bsd__nfs_options].map do |opt|
+            "-#{opt}"
+          end.join(" ")
+        end
+
         @logger.info("Exporting the following for NFS...")
         dirmap.each do |dirs, opts|
           @logger.info("NFS DIR: #{dirs.inspect}")
