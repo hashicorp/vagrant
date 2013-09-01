@@ -70,6 +70,7 @@ BUG FIXES:
   - guests/arch: use systemd way of setting host names. [GH-2041]
   - guests/debian: Force bring up eth0. Fixes hangs on setting hostname.
    [GH-2026]
+  - guests/ubuntu: upstart events are properly emitted again. [GH-1717]
   - hosts/bsd: Nicer error if can't read NFS exports. [GH-2038]
   - hosts/fedora: properly detect later CentOS versions. [GH-2008]
   - providers/virtualbox: VirtualBox 4.2 now supports up to 36
