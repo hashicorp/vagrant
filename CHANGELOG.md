@@ -69,6 +69,7 @@ BUG FIXES:
   - provisioners/ansible: Properly handle extra vars with spaces. [GH-1984]
   - provisioners/chef: Formatter option works properly. [GH-2058]
   - provisioners/puppet: mount synced folders as root to avoid weirdness
+  - provisioners/puppet: Run from the correct working directory. [GH-1967]
     with Puppet. [GH-2015]
   - providers/virtualbox: Use `getent` to get the group ID instead of
     `id` in case the name doesn't have a user. [GH-1801]
