@@ -73,6 +73,8 @@ BUG FIXES:
     with Puppet. [GH-2015]
   - providers/virtualbox: Use `getent` to get the group ID instead of
     `id` in case the name doesn't have a user. [GH-1801]
+  - providers/virtualbox: Will only set the default name of the VM on
+    initial `up`. [GH-1817]
 
 ## 1.2.7 (July 28, 2013)
 
