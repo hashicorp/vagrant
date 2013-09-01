@@ -60,7 +60,7 @@ module VagrantPlugins
       end
 
       def setup_inventory_file
-        return config.inventory_file if config.inventory_file
+        return config.inventory_path if config.inventory_path
 
         ssh = @machine.ssh_info
 
