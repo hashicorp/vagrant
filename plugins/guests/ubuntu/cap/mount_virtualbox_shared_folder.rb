@@ -1,4 +1,4 @@
-require_relative '../../linux/cap/mount_virtualbox_shared_folder'
+require Vagrant.source_root.join("plugins/guests/linux/cap/mount_virtualbox_shared_folder")
 
 module VagrantPlugins
   module GuestUbuntu
