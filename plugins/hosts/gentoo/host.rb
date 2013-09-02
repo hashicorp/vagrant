@@ -17,7 +17,9 @@ module VagrantPlugins
       def initialize(*args)
         super
 
-        @nfs_server_binary = "/etc/init.d/nfs"
+        @nfs_apply_command = "/usr/sbin/exportfs -r"
+        @nfs_check_command = "service nfs status"
+        @nfs_start_command = "service nfs start"
       end
     end
   end
