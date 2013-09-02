@@ -192,10 +192,10 @@ module VagrantPlugins
             Timeout::Error
           ]
 
-          retries = @machine.config.ssh.max_tries
-          timeout = @machine.config.ssh.timeout
+          retries = 5
+          timeout = 30
 
-          @logger.info("Attempting SSH. Retries: #{retries}. Timeout: #{timeout}")
+          @logger.info("Attempting SSH connnection...")
           connection = retryable(:tries => retries, :on => exceptions) do
             Timeout.timeout(timeout) do
               begin
