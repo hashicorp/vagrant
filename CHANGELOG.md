@@ -46,6 +46,7 @@ IMPROVEMENTS:
   - core: Mark `disabled` as true on forwarded port to disable. [GH-1922]
   - core: NFS exports are now namespaced by user ID, so pruning NFS won't
     remove exports from other users. [GH-1511]
+  - core: "vagrant -v" no longer loads the Vagrantfile
   - commands/box/remove: Fix stack trace that happens if no provider
     is specified. [GH-2100]
   - commands/plugin/install: Post install message of a plugin will be

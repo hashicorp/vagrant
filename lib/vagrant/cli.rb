@@ -14,15 +14,7 @@ module Vagrant
     end
 
     def execute
-      if @main_args.include?("-v") || @main_args.include?("--version")
-        # Version short-circuits the whole thing. Just print
-        # the version and exit.
-        @env.ui.info(I18n.t("vagrant.commands.version.output",
-                            :version => Vagrant::VERSION),
-                     :prefix => false)
-
-        return 0
-      elsif @main_args.include?("-h") || @main_args.include?("--help")
+      if @main_args.include?("-h") || @main_args.include?("--help")
         # Help is next in short-circuiting everything. Print
         # the help and exit.
         help

@@ -60,6 +60,12 @@ ARGV.each do |arg|
   end
 end
 
+# Fast path the version of Vagrant
+if ARGV.include?("-v") || ARGV.include?("--version")
+  puts "Vagrant v#{Vagrant::VERSION}"
+  exit 0
+end
+
 env = nil
 begin
   # Create the environment, which is the cwd of wherever the
