@@ -71,6 +71,7 @@ BUG FIXES:
   - core: Multiple forwarded ports with different protocols but the same
     host port can be specified. [GH-2059]
   - core: `:nic_type` option for private networks is respected. [GH-1704]
+  - commands/up: provision-with validates the provisioners given. [GH-1957]
   - guests/arch: use systemd way of setting host names. [GH-2041]
   - guests/debian: Force bring up eth0. Fixes hangs on setting hostname.
    [GH-2026]

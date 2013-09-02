@@ -379,6 +379,10 @@ module Vagrant
       error_key(:provider_not_found)
     end
 
+    class ProvisionerFlagInvalid < VagrantError
+      error_key(:provisioner_flag_invalid)
+    end
+
     class PluginGemError < VagrantError
       error_key(:plugin_gem_error)
     end

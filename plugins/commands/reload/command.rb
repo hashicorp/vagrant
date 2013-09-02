@@ -25,6 +25,9 @@ module VagrantPlugins
         argv = parse_options(opts)
         return if !argv
 
+        # Validate the provisioners
+        validate_provisioner_flags!(options)
+
         @logger.debug("'reload' each target VM...")
         with_target_vms(argv) do |machine|
           machine.action(:reload, options)
