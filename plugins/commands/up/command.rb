@@ -13,6 +13,7 @@ module VagrantPlugins
         options = {}
         options[:destroy_on_error] = true
         options[:parallel] = true
+        options[:provision_ignore_sentinel] = false
 
         opts = OptionParser.new do |o|
           o.banner = "Usage: vagrant up [vm-name] [options] [-h]"

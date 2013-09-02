@@ -11,6 +11,9 @@ BACKWARDS INCOMPATIBILITY:
   - The ':extra' flag to shared folders for specifying arbitrary mount
     options has been replaced with the `:mount_options` flag, which is now
     an array of mount options.
+  - `vagrant up` will now only run provisioning by default the first time
+   it is run. Subsequent `reload` or `up` will need to explicitly specify
+   the `--provision` flag to provision. [GH-1776]
 
 FEATURES:
 

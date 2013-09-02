@@ -8,7 +8,6 @@ module VagrantPlugins
       # @param [Hash] options
       def build_start_options(parser, options)
         # Setup the defaults
-        options[:provision_enabled] = true
         options[:provision_types] = nil
 
         # Add the options

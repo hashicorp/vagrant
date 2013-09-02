@@ -15,8 +15,8 @@ module Vagrant
         include MixinProvisioners
 
         def initialize(app, env)
-          @app    = app
-          @logger = Log4r::Logger.new("vagrant::action::builtin::provision")
+          @app             = app
+          @logger          = Log4r::Logger.new("vagrant::action::builtin::provision")
         end
 
         def call(env)
@@ -24,6 +24,25 @@ module Vagrant
 
           # Check if we're even provisioning things.
           enabled = true
+
+          # Check if we already provisioned, and if so, disable the rest
+          ignore_sentinel = true
+          ignore_sentinel = env[:provision_ignore_sentinel] if env.has_key?(:provision_ignore_sentinel)
+          if !ignore_sentinel
+            @logger.info("Checking provisioner sentinel if we should run...")
+            sentinel = env[:machine].data_dir.join("action_provision")
+            if sentinel.file?
+              @logger.info("Sentinel found! Not provisioning.")
+              enabled = false
+            else
+              @logger.info("Sentinel not found.")
+              sentinel.open("w") do |f|
+                f.write(Time.now.to_i.to_s)
+              end
+            end
+          end
+
+          # If we explicitly specified, take that value.
           enabled = env[:provision_enabled] if env.has_key?(:provision_enabled)
 
           # Ask the provisioners to modify the configuration if needed
