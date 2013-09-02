@@ -1,22 +1,12 @@
-require "pathname"
-
 require "vagrant"
 
 require Vagrant.source_root.join("plugins/hosts/linux/host")
 
 module VagrantPlugins
-  module HostOpenSUSE
+  module HostSlackware
     class Host < VagrantPlugins::HostLinux::Host
       def self.match?
-        release_file = Pathname.new("/etc/SuSE-release")
-
-        if release_file.exist?
-          release_file.open("r") do |f|
-            return true if f.gets =~ /^openSUSE/
-          end
-        end
-
-        false
+        return File.exists?("/etc/slackware-release") || Dir.glob("/usr/lib/setup/Plamo-*").length > 0
       end
 
       # Normal, mid-range precedence.
@@ -28,8 +18,8 @@ module VagrantPlugins
         super
 
         @nfs_apply_command = "/usr/sbin/exportfs -r"
-        @nfs_check_command = "service nfsserver status"
-	@nfs_start_command = "service nfsserver start"
+        @nfs_check_command = "pidof nfsd > /dev/null"
+        @nfs_start_command = "/etc/rc.d/rc.nfsd start"
       end
     end
   end
