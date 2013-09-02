@@ -58,6 +58,7 @@ IMPROVEMENTS:
   - hosts/fedora: Support RHEL as a host. [GH-2088]
   - providers/virtualbox: "post-boot" customizations will run directly
     after boot, and before waiting for SSH. [GH-2048]
+  - provisioners/ansible: Many more configuration options. [GH-1697]
   - provisioners/ansible: Ansible `inventory_path` can be a directory now. [GH-2035]
   - provisioners/ansible: Extra verbose option by setting `config.verbose`
     to `extra`. [GH-1979]
