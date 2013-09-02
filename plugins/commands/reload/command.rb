@@ -13,6 +13,7 @@ module VagrantPlugins
 
       def execute
         options = {}
+        options[:provision_ignore_sentinel] = false
 
         opts = OptionParser.new do |o|
           o.banner = "Usage: vagrant reload [vm-name]"
