@@ -17,6 +17,7 @@ BACKWARDS INCOMPATIBILITY:
 
 FEATURES:
 
+  - New command: `vagrant plugin update` to update specific installed plugins.
   - Salt provisioner. [GH-1626]
   - Mac OS X guest support. [GH-1914]
   - CoreOS guest support. Change host names and configure networks on

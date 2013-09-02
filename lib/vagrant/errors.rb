@@ -411,6 +411,10 @@ module Vagrant
       error_key(:plugin_not_found)
     end
 
+    class PluginNotInstalled < VagrantError
+      error_key(:plugin_not_installed)
+    end
+
     class SCPPermissionDenied < VagrantError
       error_key(:scp_permission_denied)
     end

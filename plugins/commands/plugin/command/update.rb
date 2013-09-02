@@ -6,14 +6,14 @@ require_relative "mixin_install_opts"
 module VagrantPlugins
   module CommandPlugin
     module Command
-      class Install < Base
+      class Update < Base
         include MixinInstallOpts
 
         def execute
           options = {}
 
           opts = OptionParser.new do |o|
-            o.banner = "Usage: vagrant plugin install <name> [-h]"
+            o.banner = "Usage: vagrant plugin update <name> [-h]"
             o.separator ""
             build_install_opts(o, options)
           end
@@ -23,8 +23,8 @@ module VagrantPlugins
           return if !argv
           raise Vagrant::Errors::CLIInvalidUsage, :help => opts.help.chomp if argv.length < 1
 
-          # Install the gem
-          action(Action.action_install, {
+          # Update the gem
+          action(Action.action_update, {
             :plugin_entry_point => options[:entry_point],
             :plugin_prerelease  => options[:plugin_prerelease],
             :plugin_version     => options[:plugin_version],

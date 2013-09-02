@@ -417,6 +417,8 @@ en:
       plugin_not_found: |-
         The plugin '%{name}' could not be found. Please install this plugin
         prior to attempting to do anything with it.
+      plugin_not_installed: |-
+        The plugin '%{name}' is not installed. Please install it first.
       port_collision_resume: |-
         This VM cannot be resumed, because the forwarded ports would collide
         with a running program (it could be another virtual machine). Normally,
