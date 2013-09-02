@@ -18,11 +18,11 @@ BACKWARDS INCOMPATIBILITY:
 FEATURES:
 
   - New command: `vagrant plugin update` to update specific installed plugins.
-  - Salt provisioner. [GH-1626]
-  - Mac OS X guest support. [GH-1914]
-  - CoreOS guest support. Change host names and configure networks on
+  - New provisioner: Salt provisioner. [GH-1626]
+  - New guest: Mac OS X guest support. [GH-1914]
+  - New guest: CoreOS guest support. Change host names and configure networks on
     CoreOS. [GH-2022]
-  - Solaris 11 guest support. [GH-2052]
+  - New guest: Solaris 11 guest support. [GH-2052]
   - Support for environments in the Chef-solo provisioner. [GH-1915]
   - Provisioners can now define "cleanup" tasks that are executed on
     `vagrant destroy`. [GH-1302]
@@ -34,6 +34,7 @@ FEATURES:
    `mount_options` option on synced folders. [GH-1029]
   - NFS: Arbitrary export options can be specified using
    `bsd__nfs_options` and `linux__nfs_options`. [GH-1029]
+  - Static IP can now be set on public networks. [GH-1745]
 
 IMPROVEMENTS:
 
