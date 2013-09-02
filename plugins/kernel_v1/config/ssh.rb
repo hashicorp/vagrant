@@ -34,12 +34,12 @@ module VagrantPlugins
         new.ssh.host             = @host if @host != UNSET_VALUE
         new.ssh.port             = @port if @port != UNSET_VALUE
         new.ssh.guest_port       = @guest_port if @guest_port != UNSET_VALUE
-        new.ssh.max_tries        = @max_tries if @max_tries != UNSET_VALUE
-        new.ssh.timeout          = @timeout if @timeout != UNSET_VALUE
         new.ssh.private_key_path = @private_key_path if @private_key_path != UNSET_VALUE
         new.ssh.forward_agent    = @forward_agent if @forward_agent != UNSET_VALUE
         new.ssh.forward_x11      = @forward_x11 if @forward_x11 != UNSET_VALUE
         new.ssh.shell            = @shell if @shell != UNSET_VALUE
+
+        # TODO: Warn that max_tries and timeout are gone
       end
     end
   end
