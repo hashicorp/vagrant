@@ -132,6 +132,13 @@ module Vagrant
     Config.run(version, &block)
   end
 
+  # This checks if a plugin with the given name is installed. This can
+  # be used from the Vagrantfile to easily branch based on plugin
+  # availability.
+  def self.has_plugin?(name)
+    plugin("2").registered.include?(name)
+  end
+
   # Returns a superclass to use when creating a plugin for Vagrant.
   # Given a specific version, this returns a proper superclass to use
   # to register plugins for that version.

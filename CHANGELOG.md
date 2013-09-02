@@ -35,6 +35,8 @@ FEATURES:
   - NFS: Arbitrary export options can be specified using
    `bsd__nfs_options` and `linux__nfs_options`. [GH-1029]
   - Static IP can now be set on public networks. [GH-1745]
+  - Add `Vagrant.has_plugin?` method for use in Vagrantfile to check
+    if a plugin is installed. [GH-1736]
 
 IMPROVEMENTS:
 
