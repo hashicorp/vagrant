@@ -77,7 +77,9 @@ en:
 
         %{message}
       config_upgrade_messages: |-
-        There were warnings and/or errors while loading your Vagrantfile.
+        There were warnings and/or errors while loading your Vagrantfile
+        for the machine '%{name}'.
+
         Your Vagrantfile was written for an earlier version of Vagrant,
         and while Vagrant does the best it can to remain backwards
         compatible, there are some cases where things have changed

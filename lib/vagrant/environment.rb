@@ -420,6 +420,7 @@ module Vagrant
         level  = config_errors.empty? ? :warn : :error
         output = Util::TemplateRenderer.render(
           "config/messages",
+          :name => name,
           :warnings => config_warnings,
           :errors => config_errors).chomp
           @ui.send(level, I18n.t("vagrant.general.config_upgrade_messages",
