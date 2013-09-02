@@ -3,8 +3,13 @@ module VagrantPlugins
     class Provisioner < Vagrant.plugin("2", :provisioner)
       def provision
         ssh = @machine.ssh_info
+
         inventory_file_path = self.setup_inventory_file
         options = %W[--private-key=#{ssh[:private_key_path]} --user=#{ssh[:username]}]
+
+        # Joker! Not (yet) supported arguments can be passed this way.
+        options << "#{config.raw_arguments}" if config.raw_arguments
+
         options << "--inventory-file=#{inventory_file_path}"
         options << "--ask-sudo-pass" if config.ask_sudo_pass
 
@@ -35,6 +40,12 @@ module VagrantPlugins
         if config.verbose
           options << (config.verbose.to_s == "extra" ?  "-vvv" :  "--verbose")
         end
+
+        # Append Provisioner options (higher precedence):
+        options << "--tags=#{as_list_argument(config.tags)}" if config.tags
+        options << "--skip-tags=#{as_list_argument(config.skip_tags)}" if config.skip_tags
+        options << "--limit=#{as_list_argument(config.limit)}" if config.limit
+        options << "--start-at-task=#{config.start_at_task}" if config.start_at_task
 
         # Assemble the full ansible-playbook command
         command = (%w(ansible-playbook) << options << config.playbook).flatten
@@ -73,6 +84,12 @@ module VagrantPlugins
         end
 
         return generated_inventory_file.to_s
+      end
+
+      protected
+
+      def as_list_argument(v)
+        v.kind_of?(Array) ? v.join(',') : v
       end
     end
   end
