@@ -37,6 +37,7 @@ FEATURES:
   - Static IP can now be set on public networks. [GH-1745]
   - Add `Vagrant.has_plugin?` method for use in Vagrantfile to check
     if a plugin is installed. [GH-1736]
+  - Support for remote shell provisioning scripts [GH-1787]
 
 IMPROVEMENTS:
 

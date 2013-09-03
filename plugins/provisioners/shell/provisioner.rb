@@ -1,6 +1,8 @@
 require "pathname"
 require "tempfile"
 
+require "vagrant/util/downloader"
+
 module VagrantPlugins
   module Shell
     class Provisioner < Vagrant.plugin("2", :provisioner)
@@ -52,7 +54,15 @@ module VagrantPlugins
       def with_script_file
         script = nil
 
-        if config.path
+        if config.remote?
+          download_path = @machine.env.tmp_path.join("#{@machine.id}-remote-script")
+          download_path.delete if download_path.file?
+
+          Vagrant::Util::Downloader.new(config.path, download_path).download!
+          script = download_path.read
+
+          download_path.delete
+        elsif config.path
           # Just yield the path to that file...
           root_path = @machine.env.root_path
           script = Pathname.new(config.path).expand_path(root_path).read

@@ -1,3 +1,5 @@
+require 'uri'
+
 module VagrantPlugins
   module Shell
     class Config < Vagrant.plugin("2", :config)
@@ -33,8 +35,8 @@ module VagrantPlugins
           errors << I18n.t("vagrant.provisioners.shell.no_path_or_inline")
         end
 
-        # Validate the existence of a script to upload
-        if path
+        # If it is not an URL, we validate the existence of a script to upload
+        if path && ! remote?
           expanded_path = Pathname.new(path).expand_path(machine.env.root_path)
           if !expanded_path.file?
             errors << I18n.t("vagrant.provisioners.shell.path_invalid",
@@ -53,6 +55,10 @@ module VagrantPlugins
         end
 
         { "shell provisioner" => errors }
+      end
+
+      def remote?
+        path =~ URI::regexp(["ftp", "http", "https"])
       end
     end
   end
