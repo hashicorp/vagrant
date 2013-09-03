@@ -8,6 +8,5 @@ NETMASK=<%= options[:netmask] %>
 DEVICE=eth<%= options[:interface] %>
 <%= options[:gateway] ? "GATEWAY=#{options[:gateway]}" : '' %>
 <%= options[:mac_address] ? "HWADDR=#{options[:mac_address]}" : '' %>
-<%= options[:dns1] ? "DNS1=#{options[:dns1]}" : 'DNS1=8.8.4.4' %>
-<%= options[:dns2] ? "DNS2=#{options[:dns2]}" : 'DNS1=8.8.8.8' %>
+PEERDNS=no
 #VAGRANT-END
