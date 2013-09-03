@@ -1194,6 +1194,11 @@ en:
           file needs to exist so it can be uploaded to the virtual machine.
         deleting_from_server: "Deleting %{deletable} \"%{name}\" from Chef server..."
 
+      file:
+        no_dest_file: "File destination must be specified."
+        no_source_file: "File source must be specified."
+        path_invalid: "File upload source file %{path} must exist"
+
       puppet:
         not_detected: |-
           The `%{binary}` binary appears to not be in the PATH of the guest. This
