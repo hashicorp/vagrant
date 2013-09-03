@@ -12,7 +12,7 @@ Vagrantfile
 .bundle
 pkg/*
 tags
-Gemfile.lock
+/Gemfile.lock
 test/tmp/
 
 # Documentation
