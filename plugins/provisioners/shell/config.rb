@@ -58,7 +58,7 @@ module VagrantPlugins
       end
 
       def remote?
-        path =~ URI::regexp(["ftp", "http", "https"])
+        path =~ URI.regexp(["ftp", "http", "https"])
       end
     end
   end
