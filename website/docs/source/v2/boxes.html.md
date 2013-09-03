@@ -15,7 +15,7 @@ Boxes are [provider-specific](/v2/providers/index.html), so you must obtain
 the proper box depending on what provider you're using.
 
 If you're interested in more details on the exact file format of
-boxes, there is a seperate [page dedicated to that](/v2/boxes/format.html), since
+boxes, there is a separate [page dedicated to that](/v2/boxes/format.html), since
 it is an advanced topic that general users don't need to know.
 
 ## Adding Boxes

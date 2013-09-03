@@ -36,3 +36,17 @@ end
 When DHCP is used, the IP can be determined by using `vagrant ssh` to
 SSH into the machine and using the appropriate command line tool to find
 the IP, such as `ifconfig`.
+
+## Default Network Interface
+
+If more than one network interface is available on the host machine, Vagrant will 
+ask you to choose which interface the virtual machine should bridge to. A default
+interface can be specified by adding a `:bridge` clause to the network definition.
+
+```ruby
+config.vm.network :public_network, :bridge => 'en1: Wi-Fi (AirPort)'
+```
+
+The string identifying the desired interface must exactly match the name of an
+available interface. If it can't be found, Vagrant will ask you to pick 
+from a list of available network interfaces.

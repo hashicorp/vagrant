@@ -17,13 +17,18 @@ a single page of documentation.
 
 ## Inventory File
 
-Out of the box, Ansible can control with multiple systems in your infrastructure at the
-same time. It does this by selecting portions of systems listed in Ansible's inventory
-INI formatted file, which defaults to being located at `/etc/ansible/hosts`. This same
-file can be used with Vagrant, or the `ansible.inventory_file` option can be specified to
-direct Vagrant to use an inventory file dedicated to your Vagrant project. Using this option
-is recommended to avoid accidentally running playbooks against live infrastructure. A simple
-inventory file for use with Vagrant might look like:
+When using Ansible, it needs to know on which machines a given playbook should run. It does
+this by way of an inventory file which lists those machines. In the context of Vagrant,
+there are two ways to approach working with inventory files. The first and simplest option
+is to not provide one to Vagrant at all. Vagrant will generate inventory files for each
+virtual machine it manages, and use them for provisioning machines. Generated inventory files
+are created adjacent to your Vagrantfile, named using the machine names set in your Vagrantfile.
+
+The second option is for situations where you'd like to have more than one virtual machine
+in a single inventory file, perhaps leveraging more complex playbooks or inventory grouping.
+If you provide the `ansible.inventory_path` option referencing a specific inventory file
+dedicated to your Vagrant project, that one will be used instead of generating them.
+Such an inventory file for use with Vagrant might look like:
 
 ```
 [vagrant]
@@ -35,10 +40,6 @@ Where the above IP address is one set in your Vagrantfile:
 ```
 config.vm.network :private_network, ip: "192.168.111.222"
 ```
-
-(While Vagrant does have the IP address of your VM, entering it into an Ansible inventory
-file is preferred so that Ansible's `group_vars` and `host_vars` can be used; Their location
-is derived from the location of the inventory file.)
 
 ## Playbook
 
@@ -52,7 +53,7 @@ if it was updated) the NTP daemon via YUM looks like:
 
 ```
 ---
-- hosts: vagrant
+- hosts: all
   tasks:
     - name: ensure ntpd is at the latest version
       yum: pkg=ntp state=latest
@@ -75,34 +76,30 @@ To run Ansible against your Vagrant guest, the basic Vagrantfile configuration l
 Vagrant.configure("2") do |config|
   config.vm.provision :ansible do |ansible|
     ansible.playbook = "playbook.yml"
-    ansible.inventory_file = "ansible_hosts"
   end
 end
 ```
 
-This causes Vagrant to run the `playbook.yml` playbook against the `vagrant` group in the
-`ansible_hosts` file, both of which are adjacent to the Vagrantfile. Since an Ansible playbook
-can include many files, you may also collect the related files in a directory structure like this:
+This causes Vagrant to run the `playbook.yml` playbook against all hosts in the inventory file.
+Since an Ansible playbook can include many files, you may also collect the related files in
+a directory structure like this:
 
 ```
 $ tree
 .
 |-- Vagrantfile
 |-- provisioning
-|   |-- ansible_hosts
 |   |-- group_vars
-|           |-- vagrant
+|           |-- all
 |   |-- playbook.yml
 ```
 
-In such an arrangement, the `ansible.playbook` and `ansible.inventory_file` options should be
-adjusted accordingly:
+In such an arrangement, the `ansible.playbook` path should be adjusted accordingly:
 
 ```ruby
 Vagrant.configure("2") do |config|
   config.vm.provision :ansible do |ansible|
     ansible.playbook = "provisioning/playbook.yml"
-    ansible.inventory_file = "provisioning/ansible_hosts"
   end
 end
 ```
@@ -125,7 +122,6 @@ These variables take the highest precedence over any other variables.
 by the sudo command.
 * `ansible.ask_sudo_pass` can be set to `true` to require Ansible to prompt for a sudo password.
 * `ansible.limit` can be set to a string or an array of machines or groups from the inventory file
-to further narrow down which hosts are affected. This option is best used in the case where you
-are using an inventory file containing more than just the Vagrant guest.
+to further narrow down which hosts are affected.
 * `ansible.verbose` can be set to `true` to increase Ansible's verbosity to obtain more detailed logging
 during playbook execution.

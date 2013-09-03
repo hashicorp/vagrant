@@ -19,7 +19,7 @@ The main functionality of this command is exposed via even more subcommands:
 
 **Command: `vagrant box add NAME URL`**
 
-This adds a box add the given URL to Vagrant and stores it under the
+This adds a box at the given URL to Vagrant and stores it under the
 logical name `NAME`.
 
 The URL may be a file path or an HTTP URL. For HTTP, basic authentication
