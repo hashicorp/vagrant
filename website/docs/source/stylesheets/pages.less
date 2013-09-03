@@ -1,0 +1,276 @@
+/* page */
+.page { //style all pages
+
+    .page-background { //page background color
+        width: 100%;
+        height: 100%;
+        top: 0;
+        position: fixed;
+        z-index: -5; //keep it in the back
+    } //.background
+
+    .page-contents {
+
+        h1,
+        h2 {
+            text-transform: uppercase;
+            text-align: left;
+            .museo-sans-light;
+        }
+
+        h1 {
+            font-size: 60px;
+            line-height: 70px;
+            margin: (@baseline * 2) 0 @baseline;
+
+            &:first-child {
+                margin-top: 0;
+            } //h1 first child
+        }
+
+        h2 {
+            font-size: 40px;
+            line-height: 45px;
+            margin: (@baseline * 2) 0 @baseline;
+
+            &:first-child {
+                margin-top: @baseline * .5;
+            } //h2 first child
+        } //h2
+    } //page-contents
+
+    /* home */
+    &.home { //style homepage
+
+        h1 {
+            text-align: center;
+        }
+
+        .hero {
+            .padded;
+            background: @gray-background url(/images/vagrant_header_background.png) no-repeat center -80px;
+            text-align: center;
+            border-bottom: 1px solid #c6e0f0;
+
+            .hero-content {
+                top: 50%;
+
+                hgroup {
+                    margin: (@baseline * 4) 0 20px 0;
+
+                    h1 {
+                        color: @purple-text;
+                        margin-bottom: (@baseline * 4);
+                        font-size: 60px;
+                        line-height: 60px;
+                    }
+
+                    h2 {
+                        .museo-sans-light;
+                        color: @blue-text;
+                        font-size: 30px;
+                        line-height: 40px;
+                    }
+
+                } //hero hgroup
+
+            } //hero-content
+
+        } //homepage hero
+
+        .why-vagrant {
+            .padded;
+            background: @light-blue-background url(/images/steps_background.png) center -120px;
+
+
+            h1 {
+                color: @blue-text;
+                text-transform: uppercase;
+                text-align: center;
+                font-size: 40px;
+                line-height: 40px;
+            } //h1
+
+            hgroup {
+                margin: (@baseline * 3) 0;
+
+
+                h3 {
+                    text-align: center;
+                    text-transform: uppercase;
+                    font-size: 40px;
+                    margin-bottom: @baseline;
+                    color: @purple-text;
+                    .museo-sans-light;
+                } //h3
+
+                h4 {
+                    font-size: 20px;
+                    line-height: @baseline * 1.5;
+                    .museo-sans-light;
+                } //h4
+            } //hgroup
+        } //why-vagrant
+
+        .get-started {
+            .padded;
+            .get-started-bg;
+
+            h1 {
+                color: @white;
+
+            }
+
+            pre {
+                padding: 60px 80px 40px;
+                margin: 40px auto;
+                background: fade(@black, 60%);
+            }
+
+            .button {
+                //background: fade(@white, 20%);
+            }
+
+        } //get-started
+
+        .customers {
+            .padded;
+            background-color: @black;
+            border-bottom: 1px solid #333;
+
+            h1 {
+                color: @dark-gray-text;
+                .museo-sans-light
+            }
+
+            .customer-logos {
+                margin-top: @baseline * 3;
+
+                img {
+                    width:100%;
+                    height: auto;
+                    -khtml-opacity: .5;
+                    -moz-opacity: .5;
+                    opacity: .5;
+                    filter: alpha(opacity=50);
+                }
+            }
+
+            ul.customer-logos {
+
+                li {
+
+                    img {
+
+                    } //img
+
+                } //li
+            } //ul.cusotmer-logos
+        }
+
+    } //home
+
+    /* inner	 */
+    &.inner { //style inner pages
+        .inner-bg-large; //sidebar background
+
+        .page-background { //change inner background color!
+            background-color: @gray-background; //page background
+        }
+
+        .page-contents {
+            background-color: @gray-background;
+            .padded;
+        }
+
+        h2 {
+            color: @dark-blue-text;
+
+        }
+
+        p {
+
+        }
+
+    } //inner
+
+    /* docs */
+    &.docs { //style all docs
+        .docs-bg-large; //sidebar background
+
+        .page-background { //change the sidebar background color!
+            background: @white; //page background
+        }
+
+        .page-contents {
+            padding-top: 30px;
+            background-color: @white;
+            padding-bottom: 40px;
+        }
+
+        h1,
+        h2 {
+            color: @docs-blue;
+        }
+
+        h2.steps img {
+            margin-top: -7px;
+        }
+
+        li {
+          letter-spacing: 1px;
+        }
+
+        .alert {
+          margin-top: 20px;
+
+          h3 {
+            font-size: 22px;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+          }
+
+          p {
+            line-height: 26px;
+          }
+        }
+
+        &.docs-home { //style docs-home
+
+
+        } //documentation-home
+
+        &.docs-inner { //style docs-inner
+
+            h3 {
+                color: @docs-blue;
+                text-transform: uppercase;
+                margin: @baseline 0;
+                .museo-sans-light;
+            }
+
+            h4 {
+                line-height: 30px;
+            }
+
+            h5.subhead {
+                .museo-sans-light;
+                color: @purple-text;
+                line-height: @baseline;
+                margin: -10px 0 @baseline;
+            }
+
+            h6.subhead {
+                .museo-sans-regular-italic;
+                color: @dark-gray-text;
+                line-height: @baseline;
+                margin: -10px 0 @baseline;
+                font-size: 15px;
+                //text-transform: uppercase;
+            }
+
+        } //documentation-inner
+
+    } //documentation
+
+} //page

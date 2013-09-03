@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Vagrant Documentation</title>
+
+		<!-- meta -->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<!-- lib styles -->
+		<%= stylesheet_link_tag "bootstrap", "vagrantup" %>
+
+		<!-- lib js -->
+		<%= javascript_include_tag "jquery" %>
+		<%= javascript_include_tag "modernizr" %>
+		<%= javascript_include_tag "bootstrap.min" %>
+		<%= javascript_include_tag "backstretch" %>
+		<%= javascript_include_tag "vagrantup" %>
+
+		<!-- fonts -->
+		<link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+		<script type="text/javascript" src="http://use.typekit.net/xfs6zus.js"></script>
+		<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
+		<!-- Google analytics -->
+	</head>
+	<body>
+		<!-- wrap everything -->
+		<div class="wrapper">
+
+			<!-- nav -->
+
+			<nav class="docs">
+			<!-- vagrant logo -->
+			<a class="vagrant-docs-logo" href="/">Vagrant Documentation</a>
+			<!-- nav -->
+			<ul class="pull-right unstyled">
+				<li><a href="http://www.vagrantup.com/">Home</a></li>
+			</ul>
+			</nav>
+
+			<div class="page docs docs-home">
+				<div class="container">
+					<div class="row">
+
+						<div class="sidebar span3">
+							<!-- get the sidebar nav -->
+							<!-- side nav docs -->
+							<aside class="sidebar-nav">
+
+							<div class="toggle hidden-desktop">
+								<div class="open-close open"></div>
+								<a href="#">Contents</a>
+							</div>
+
+							<ul class="unstyled">
+								<li<%= sidebar_current("overview") %>><a href="/v2/">Overview</a></li>
+
+								<li<%= sidebar_current("why") %>><a href="/v2/why-vagrant/index.html">Why Vagrant?</a></li>
+
+								<li<%= sidebar_current("installation") %>><a href="/v2/installation/index.html">Installation</a></li>
+								<% if sidebar_section == "installation" %>
+								<ul class="sub unstyled">
+									<li<%= sidebar_current("installation-backwards-compatibility") %>><a href="/v2/installation/backwards-compatibility.html">Backwards Compatibility</a></li>
+									<li<%= sidebar_current("installation-upgrading") %>><a href="/v2/installation/upgrading.html">Upgrading</a></li>
+									<li<%= sidebar_current("installation-upgrading-1-0") %>><a href="/v2/installation/upgrading-from-1-0.html">Upgrading from 1.0.x</a></li>
+									<li<%= sidebar_current("installation-uninstallation") %>><a href="/v2/installation/uninstallation.html">Uninstallation</a></li>
+								</ul>
+								<% end %>
+
+								<li<%= sidebar_current("gettingstarted") %>><a href="/v2/getting-started/index.html">Getting Started</a></li>
+								<% if sidebar_section == "gettingstarted" %>
+								<ul class="sub unstyled">
+									<li<%= sidebar_current("gettingstarted-projectsetup") %>><a href="/v2/getting-started/project_setup.html">Project Setup</a></li>
+									<li<%= sidebar_current("gettingstarted-boxes") %>><a href="/v2/getting-started/boxes.html">Boxes</a></li>
+									<li<%= sidebar_current("gettingstarted-up") %>><a href="/v2/getting-started/up.html">Up and SSH</a></li>
+									<li<%= sidebar_current("gettingstarted-syncedfolders") %>><a href="/v2/getting-started/synced_folders.html">Synced Folders</a></li>
+									<li<%= sidebar_current("gettingstarted-provisioning") %>><a href="/v2/getting-started/provisioning.html">Provisioning</a></li>
+									<li<%= sidebar_current("gettingstarted-networking") %>><a href="/v2/getting-started/networking.html">Networking</a></li>
+									<li<%= sidebar_current("gettingstarted-teardown") %>><a href="/v2/getting-started/teardown.html">Teardown</a></li>
+									<li<%= sidebar_current("gettingstarted-rebuild") %>><a href="/v2/getting-started/rebuild.html">Rebuild</a></li>
+									<li<%= sidebar_current("gettingstarted-providers") %>><a href="/v2/getting-started/providers.html">Providers</a></li>
+								</ul>
+								<% end %>
+
+								<li<%= sidebar_current("cli") %>><a href="/v2/cli/index.html">Command-Line Interface</a></li>
+								<% if sidebar_section == "cli" %>
+								<ul class="sub unstyled">
+									<li<%= sidebar_current("cli-box") %>><a href="/v2/cli/box.html">box</a></li>
+									<li<%= sidebar_current("cli-destroy") %>><a href="/v2/cli/destroy.html">destroy</a></li>
+									<li<%= sidebar_current("cli-halt") %>><a href="/v2/cli/halt.html">halt</a></li>
+									<li<%= sidebar_current("cli-init") %>><a href="/v2/cli/init.html">init</a></li>
+									<li<%= sidebar_current("cli-package") %>><a href="/v2/cli/package.html">package</a></li>
+									<li<%= sidebar_current("cli-plugin") %>><a href="/v2/cli/plugin.html">plugin</a></li>
+									<li<%= sidebar_current("cli-provision") %>><a href="/v2/cli/provision.html">provision</a></li>
+									<li<%= sidebar_current("cli-reload") %>><a href="/v2/cli/reload.html">reload</a></li>
+									<li<%= sidebar_current("cli-resume") %>><a href="/v2/cli/resume.html">resume</a></li>
+									<li<%= sidebar_current("cli-ssh") %>><a href="/v2/cli/ssh.html">ssh</a></li>
+									<li<%= sidebar_current("cli-ssh_config") %>><a href="/v2/cli/ssh_config.html">ssh-config</a></li>
+									<li<%= sidebar_current("cli-status") %>><a href="/v2/cli/status.html">status</a></li>
+									<li<%= sidebar_current("cli-suspend") %>><a href="/v2/cli/suspend.html">suspend</a></li>
+									<li<%= sidebar_current("cli-up") %>><a href="/v2/cli/up.html">up</a></li>
+								</ul>
+								<% end %>
+
+								<li <%= sidebar_current("vagrantfile") %>><a href="/v2/vagrantfile/index.html">Vagrantfile</a></li>
+								<% if sidebar_section == "vagrantfile" %>
+								<ul class="sub unstyled">
+									<li<%= sidebar_current("vagrantfile-version") %>><a href="/v2/vagrantfile/version.html">Configuration Version</a></li>
+									<li<%= sidebar_current("vagrantfile-machine") %>><a href="/v2/vagrantfile/machine_settings.html">Machine Settings</a></li>
+									<li<%= sidebar_current("vagrantfile-ssh") %>><a href="/v2/vagrantfile/ssh_settings.html">SSH Settings</a></li>
+									<li<%= sidebar_current("vagrantfile-vagrant") %>><a href="/v2/vagrantfile/vagrant_settings.html">Vagrant Settings</a></li>
+								</ul>
+								<% end %>
+
+								<li<%= sidebar_current("boxes") %>><a href="/v2/boxes.html">Boxes</a></li>
+								<% if sidebar_section == "boxes" %>
+								<ul class="sub unstyled">
+									<li<%= sidebar_current("boxes-format") %>><a href="/v2/boxes/format.html">Box File Format</a></li>
+								</ul>
+								<% end %>
+
+								<li<%= sidebar_current("provisioning") %>><a href="/v2/provisioning/index.html">Provisioning</a></li>
+								<% if sidebar_section == "provisioning" %>
+								<ul class="sub unstyled">
+									<li<%= sidebar_current("provisioning-basic") %>><a href="/v2/provisioning/basic_usage.html">Basic Usage</a></li>
+									<li<%= sidebar_current("provisioning-shell") %>><a href="/v2/provisioning/shell.html">Shell</a></li>
+									<li<%= sidebar_current("provisioning-ansible") %>><a href="/v2/provisioning/ansible.html">Ansible</a></li>
+									<li<%= sidebar_current("provisioning-chefsolo") %>><a href="/v2/provisioning/chef_solo.html">Chef Solo</a></li>
+									<li<%= sidebar_current("provisioning-chefclient") %>><a href="/v2/provisioning/chef_client.html">Chef Client</a></li>
+									<li<%= sidebar_current("provisioning-puppetapply") %>><a href="/v2/provisioning/puppet_apply.html">Puppet Apply</a></li>
+									<li<%= sidebar_current("provisioning-puppetagent") %>><a href="/v2/provisioning/puppet_agent.html">Puppet Agent</a></li>
+								</ul>
+								<% end %>
+
+								<li<%= sidebar_current("networking") %>><a href="/v2/networking/index.html">Networking</a></li>
+								<% if sidebar_section == "networking" %>
+								<ul class="sub unstyled">
+									<li<%= sidebar_current("networking-basic") %>><a href="/v2/networking/basic_usage.html">Basic Usage</a></li>
+									<li<%= sidebar_current("networking-fp") %>><a href="/v2/networking/forwarded_ports.html">Forwarded Ports</a></li>
+									<li<%= sidebar_current("networking-private") %>><a href="/v2/networking/private_network.html">Private Network</a></li>
+									<li<%= sidebar_current("networking-public") %>><a href="/v2/networking/public_network.html">Public Network</a></li>
+								</ul>
+								<% end %>
+
+								<li<%= sidebar_current("syncedfolder") %>><a href="/v2/synced-folders/index.html">Synced Folders</a></li>
+								<% if sidebar_section == "syncedfolder" %>
+								<ul class="sub unstyled">
+									<li<%= sidebar_current("syncedfolder-basic") %>><a href="/v2/synced-folders/basic_usage.html">Basic Usage</a></li>
+									<li<%= sidebar_current("syncedfolder-nfs") %>><a href="/v2/synced-folders/nfs.html">NFS</a></li>
+								</ul>
+								<% end %>
+
+								<li<%= sidebar_current("multimachine") %>><a href="/v2/multi-machine/index.html">Multi-Machine</a></li>
+
+								<li<%= sidebar_current("providers") %>><a href="/v2/providers/index.html">Providers</a></li>
+								<% if sidebar_section == "providers" %>
+								<ul class="sub unstyled">
+									<li<%= sidebar_current("providers-installation") %>><a href="/v2/providers/installation.html">Installation</a></li>
+									<li<%= sidebar_current("providers-basic-usage") %>><a href="/v2/providers/basic_usage.html">Basic Usage</a></li>
+									<li<%= sidebar_current("providers-configuration") %>><a href="/v2/providers/configuration.html">Configuration</a></li>
+									<li<%= sidebar_current("providers-custom") %>><a href="/v2/providers/custom.html">Custom Provider</a></li>
+								</ul> <!-- /.sub -->
+								<% end %>
+
+								<li<%= sidebar_current("virtualbox") %>><a href="/v2/virtualbox/index.html">VirtualBox</a></li>
+								<% if sidebar_section == "virtualbox" %>
+								<ul class="sub unstyled">
+									<li<%= sidebar_current("virtualbox-usage") %>><a href="/v2/virtualbox/usage.html">Usage</a></li>
+									<li<%= sidebar_current("virtualbox-boxes") %>><a href="/v2/virtualbox/boxes.html">Boxes</a></li>
+									<li<%= sidebar_current("virtualbox-configuration") %>><a href="/v2/virtualbox/configuration.html">Configuration</a></li>
+								</ul>
+								<% end %>
+
+								<li<%= sidebar_current("vmware") %>><a href="/v2/vmware/index.html">VMware</a></li>
+								<% if sidebar_section == "vmware" %>
+								<ul class="sub unstyled">
+									<li<%= sidebar_current("vmware-installation") %>><a href="/v2/vmware/installation.html">Installation</a></li>
+									<li<%= sidebar_current("vmware-usage") %>><a href="/v2/vmware/usage.html">Usage</a></li>
+									<li<%= sidebar_current("vmware-boxes") %>><a href="/v2/vmware/boxes.html">Boxes</a></li>
+									<li<%= sidebar_current("vmware-configuration") %>><a href="/v2/vmware/configuration.html">Configuration</a></li>
+									<li<%= sidebar_current("vmware-known-issues") %>><a href="/v2/vmware/known-issues.html">Known Issues</a></li>
+								</ul>
+								<% end %>
+
+								<li<%= sidebar_current("plugins") %>><a href="/v2/plugins/index.html">Plugins</a></li>
+								<% if sidebar_section == "plugins" %>
+								<ul class="sub unstyled">
+									<li<%= sidebar_current("plugins-usage") %>><a href="/v2/plugins/usage.html">Usage</a></li>
+									<li<%= sidebar_current("plugins-development-basics") %>><a href="/v2/plugins/development-basics.html">Plugin Development Basics</a></li>
+									<li<%= sidebar_current("plugins-commands") %>><a href="/v2/plugins/commands.html">Commands</a></li>
+									<li<%= sidebar_current("plugins-configuration") %>><a href="/v2/plugins/configuration.html">Configuration</a></li>
+									<li<%= sidebar_current("plugins-guests") %>><a href="/v2/plugins/guests.html">Guests</a></li>
+									<li<%= sidebar_current("plugins-guestcapabilities") %>><a href="/v2/plugins/guest-capabilities.html">Guest Capabilities</a></li>
+									<li<%= sidebar_current("plugins-hosts") %>><a href="/v2/plugins/hosts.html">Hosts</a></li>
+									<li<%= sidebar_current("plugins-providers") %>><a href="/v2/plugins/providers.html">Providers</a></li>
+									<li<%= sidebar_current("plugins-provisioners") %>><a href="/v2/plugins/provisioners.html">Provisioners</a></li>
+									<li<%= sidebar_current("plugins-packaging") %>><a href="/v2/plugins/packaging.html">Packaging & Distribution</a></li>
+								</ul>
+								<% end %>
+
+								<li<%= sidebar_current("debugging") %>><a href="/v2/debugging.html">Debugging</a></li>
+							</ul>
+							</aside> <!-- /.sidebar -->
+						</div> <!-- /.sidebar -->
+
+						<div class="page-contents span9">
+							<div class="page-background"></div>
+
+							<!-- start page content -->
+							<div class="row">
+								<div class="span8 offset1">
+									<%= yield %>
+								</div> <!-- /.span8 -->
+							</div> <!-- /.row -->
+						</div> <!-- /.page-contents -->
+					</div> <!-- /.row -->
+				</div> <!-- /.container -->
+			</div> <!-- /.page -->
+
+			<!-- footer -->
+			<footer>
+			<div class="container">
+				<div class="row">
+					<div class="span12">
+
+						<ul class="unstyled footer-nav">
+							<li><a href="http://docs.vagrantup.com/">Documentation</a></li>
+							<li><a href="http://www.vagrantup.com/about">About</a></li>
+							<li><a href="http://www.vagrantup.com/support">Support</a></li>
+							<a href="http://downloads.vagrantup.com/">
+								<li class="button inline-button">Download</li>
+							</a>
+						</ul>
+
+						<ul class="unstyled logos">
+							<a href="http://www.vagrantup.com">
+								<li class="vagrant-logo-monochrome"></li>
+							</a>
+							<li><span>by</span></li>
+							<a href="http://www.hashicorp.com">
+								<li class="hashi-logo-monochrome "></li>
+							</a>
+						</ul> <!-- /span -->
+
+					</div> <!-- /span -->
+				</div> <!-- /row -->
+
+				<div class="row">
+					<h6 class="legal">
+						&#169; 2013 HashiCorp
+					</h6>
+				</div> <!-- row -->
+			</div> <!-- container -->
+			</footer>
+
+			<!-- close .wrapper -->
+		</div>
+
+		<!-- load scripts -->
+		<!-- load full-width image into any div with class="big-background -->
+		<script>
+			$(".big-background").backstretch("assets/photos/full_width.jpg");
+		</script>
+	</body>
+</html>

@@ -35,3 +35,8 @@ doc/
 .ruby-gemset
 .ruby-version
 .rvmrc
+
+# Website: docs
+website/docs/.sass-cache
+website/docs/build
+website/docs/Rakefile

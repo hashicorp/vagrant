@@ -1,0 +1,136 @@
+.sidebar { //general styles for the sidebar
+
+    h1 {
+        text-align: left;
+        color: @white;
+        line-height: 60px;
+        margin-bottom: 20px;
+    }
+
+    .button {
+        font-size: 15px;
+        color: @dark-blue-text;
+        letter-spacing: 3px;
+    }
+
+    .toggle {
+        font-size: 20px;
+        .museo-sans-light;
+        color: @white;
+        margin-left: 20px;
+        padding: 20px 0;
+
+        a {
+            display: block;
+            color: @white;
+
+            &:hover {
+                color: @white;
+            }
+        }
+
+        .open-close {
+            background: url(/images/open_close.png) no-repeat 0 0;
+            height: 20px;
+            width: 20px;
+            position: absolute;
+            right: 0;
+            top: 25px;
+        }
+
+    }
+
+    .sidebar-nav { //style all sidebar-navs
+        //position:fixed;
+    }
+
+    ul { //general sidebar list styles
+
+        li { //general sidebar list item styles
+            font-size: 20px;
+            .museo-sans-light;
+
+            a {
+                display: block;
+            } //li a
+
+            &:hover {
+            }
+        } //li
+
+        ul.sub { //subnav list styles
+            border-top: none;
+            list-style-type: none;
+            margin:0 0 5px 0;
+
+            li {
+                padding: 5px 0 5px 20px;
+                font-size: 15px;
+                border: none;
+                border-bottom: none !important;
+            } //ul.sub li
+        } //ul.sub
+
+        @media screen and (min-width: 768px) {
+            display: block !important;
+        } //@media 768px
+
+    } //ul
+
+
+    .inner & { //styles for the inner-page sidebar
+        .padded;
+        position:fixed;
+
+        li.current a {
+            color: @purple;
+        }
+
+        ul { //style inner list
+
+
+            li { //style inner list item
+                color: @dark-blue-text;
+                padding: 20px 0;
+                border-top: 1px solid fade(@white, 40%);
+
+                &:last-child {
+                    border-bottom: none;
+                }
+
+                &.current { //style the current selected list item
+
+                } //current
+            } //li
+        } //ul
+    } //.inner .sidebar
+
+    .docs & { //styles for the documentation sidebar
+
+        li.current a {
+            color: @blue;
+        }
+
+        ul { //style documentation list
+
+            li { //style documentation list items
+                text-transform: capitalize;
+                color: @white;
+                padding: 12px 0;
+                border-top: 1px solid fade(@white, 20%);
+
+                &:first-child {
+                    border-top: none;
+                }
+
+                &:last-child {
+                    border-bottom: none;
+                }
+
+                &.current { //style the current selected list item
+
+                } //current
+            } //li
+        } //ul
+    } //.documentation .sidebar
+} //sidebar
