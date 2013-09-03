@@ -40,3 +40,8 @@ doc/
 website/docs/.sass-cache
 website/docs/build
 website/docs/Rakefile
+
+# Website: www
+website/www/.sass-cache
+website/www/build
+website/www/Rakefile

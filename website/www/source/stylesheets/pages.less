@@ -1,0 +1,467 @@
+/* page */
+.page { //style all pages
+
+    .page-background { //page background color
+        width: 100%;
+        height: 100%;
+        left:50%;
+        top: 0;
+        position: fixed;
+        z-index: 1; //keep it in the back
+    } //.background
+
+    .page-contents {
+
+        h1,
+        h2 {
+            text-transform: uppercase;
+            text-align: left;
+            .museo-sans-light;
+        }
+
+        h1 {
+            font-size: 60px;
+            line-height: 70px;
+            margin: (@baseline * 2) 0 @baseline;
+
+            &:first-child {
+                margin-top: 0;
+            } //h1 first child
+        }
+
+        h2 {
+            font-size: 40px;
+            line-height: 45px;
+            margin: (@baseline * 2) 0 @baseline;
+
+            &:first-child {
+                margin-top: @baseline * .5;
+            } //h2 first child
+        } //h2
+    } //page-contents
+
+    /* home */
+    &.home { //style homepage
+
+        h1 {
+            text-align: center;
+        }
+
+        .hero {
+            .padded;
+            background: @gray-background url(/images/vagrant_header_background.png) no-repeat center -80px;
+            text-align: center;
+            border-bottom: 1px solid #c6e0f0;
+
+            .hero-content {
+                top: 50%;
+
+                hgroup {
+                    margin: (@baseline * 4) 0 20px 0;
+                    text-shadow: 0 1px 10px rgba(255, 255, 255, 0.4);
+
+                    h1 {
+                        color: @purple-text;
+                        margin-bottom: (@baseline * 4);
+                        font-size: 60px;
+                        line-height: 60px;
+                    }
+
+                    h2 {
+                        .museo-sans-light;
+                        color: @blue-text;
+                        font-size: 30px;
+                        line-height: 40px;
+                    }
+
+                } //hero hgroup
+
+            } //hero-content
+
+        } //homepage hero
+
+        .why-vagrant {
+            .padded;
+            background: @light-blue-background url(/images/steps_background.png) center -120px;
+
+
+            h1 {
+                color: @blue-text;
+                text-transform: uppercase;
+                text-align: center;
+                font-size: 40px;
+                line-height: 40px;
+            } //h1
+
+            hgroup {
+                margin: (@baseline * 3) 0;
+                width: 530px;
+
+                h3 {
+                    text-align: center;
+                    text-transform: uppercase;
+                    font-size: 40px;
+                    margin-bottom: @baseline;
+                    color: @purple-text;
+                    .museo-sans-light;
+                } //h3
+
+                h4 {
+                    font-size: 20px;
+                    line-height: @baseline * 1.5;
+                    .museo-sans-light;
+                } //h4
+            } //hgroup
+        } //why-vagrant
+
+        .get-started {
+            .padded;
+            .get-started-bg;
+
+            h1 {
+                color: @white;
+
+            }
+
+            pre {
+                padding: 60px 80px 40px;
+                margin: 40px auto;
+                background: fade(@black, 60%);
+            }
+
+            .button {
+                //background: fade(@white, 20%);
+            }
+
+        } //get-started
+
+        .customers {
+            .padded;
+            background-color: @black;
+            border-bottom: 1px solid #333;
+
+            h1 {
+                color: @dark-gray-text;
+                .museo-sans-light
+            }
+
+            .customer-logos {
+                margin-top: @baseline * 3;
+
+                img {
+                    width:100%;
+                    height: auto;
+                    -khtml-opacity: .5;
+                    -moz-opacity: .5;
+                    opacity: .5;
+                    filter: alpha(opacity=50);
+                }
+            }
+
+            ul.customer-logos {
+
+                li {
+
+                    img {
+
+                    } //img
+
+                } //li
+            } //ul.cusotmer-logos
+        }
+
+    } //home
+
+    /* inner	 */
+    &.inner { //style inner pages
+        .inner-bg-large; //sidebar background
+
+        .page-background { //change inner background color!
+            background-color: @gray-background; //page background
+        }
+
+        .page-contents {
+            background-color: @gray-background;
+            .padded;
+        }
+
+        h2 {
+            color: @dark-blue-text;
+
+        }
+
+        p {
+
+        }
+
+    } //inner
+
+    /* docs */
+    &.docs { //style all docs
+        .docs-bg-large; //sidebar background
+
+        .page-background { //change the sidebar background color!
+            background: @white; //page background
+        }
+
+        .page-contents {
+            .padded;
+            background-color: @white;
+        }
+
+        h1,
+        h2 {
+            color: @docs-blue;
+        }
+
+        h2.steps img {
+            margin-top: -7px;
+        }
+
+        &.docs-home { //style docs-home
+
+
+        } //documentation-home
+
+        &.docs-inner { //style docs-inner
+
+            h3 {
+                color: @docs-blue;
+                text-transform: uppercase;
+                margin: @baseline 0;
+                .museo-sans-light;
+            }
+
+            h4 {
+                line-height: 30px;
+            }
+
+            h5.subhead {
+                .museo-sans-light;
+                color: @purple-text;
+                line-height: @baseline;
+                margin: -10px 0 @baseline;
+            }
+
+            h6.subhead {
+                .museo-sans-regular-italic;
+                color: @dark-gray-text;
+                line-height: @baseline;
+                margin: -10px 0 @baseline;
+                font-size: 15px;
+                //text-transform: uppercase;
+            }
+
+        } //documentation-inner
+
+    } //documentation
+
+
+    &.vmware {
+
+        h1 {
+            text-align: center;
+        }
+
+        .hero {
+            background: @gray-background url(/images/vagrant_vmware_background.png) no-repeat center -20px;
+            text-align: center;
+            border-bottom: 1px solid #c6e0f0;
+            height: 690px;
+
+            .hero-content {
+                top: 50%;
+
+                hgroup {
+                    margin: 375px 0 20px 0;
+
+                    h1 {
+                        color: #FFFFFF;
+                        font-weight: normal;
+                        margin-bottom: 10px;
+                        font-size: 50px;
+                        line-height: 52px;
+                    }
+
+                    h2 {
+                        .museo-sans-light;
+                        color: #48b4fb;
+                        font-size: 22px;
+                        line-height: 28px;
+                    }
+
+                } //hero hgroup
+
+                .button {
+                    font-size: 18px;
+                    margin-top: 0px !important;
+                    padding: 10px 0;
+                }
+
+                #buy-now-button.button {
+                    background-color: #F26C4F;
+                }
+
+            } //hero-content
+
+        } //vmware hero
+
+        .why {
+            .padded;
+            background: @light-blue-background;
+
+
+            h1 {
+                color: @blue-text;
+                text-transform: uppercase;
+                text-align: center;
+                font-size: 40px;
+                line-height: 40px;
+                margin-bottom: 20px;
+            } //h1
+
+            .reasons {
+                h2 {
+                    font-size: 20px;
+                    letter-spacing: 1px;
+                } //h2
+
+                p {
+                    line-height: 28px;
+                } //p
+            }
+
+            .row {
+                margin-bottom: 20px;
+            }
+
+            .row.footnotes {
+                font-size: 12px;
+                margin-bottom: 0px;
+            }
+        } //why
+
+        .pricing {
+            .padded;
+            .get-started-bg;
+
+            color: @white;
+
+            h1 {
+                color: @white;
+
+            }
+
+            pre {
+                padding: 60px 80px 40px;
+                margin: 40px auto;
+                background: fade(@black, 60%);
+            }
+
+            .button {
+                //background: fade(@white, 20%);
+            }
+
+            .buy-form {
+                margin: 0 auto;
+                width: 500px;
+
+                p {
+                    line-height: 28px;
+                }
+
+                .form {
+                    margin-top: 20px;
+
+                    .products {
+                        margin-bottom: 15px;
+                    }
+
+                    label {
+                        font-size: 18px;
+                        margin-bottom: 15px;
+                    }
+
+                    input.text {
+                        border: none;
+                        color: #000000;
+                        letter-spacing: 0px;
+                        height: 40px;
+                        width: 60px;
+                        padding: 5px;
+                        text-align: center;
+                        font-size: 28px;
+                        font-weight: bold;
+                        -webkit-box-shadow:
+                            inset 0 3px 5px rgba(0, 0, 0, 0.4);
+                    }
+
+                    button {
+                        color: @white;
+                        font-size: 22px;
+                        font-weight: bold;
+                        height: 50px;
+                        background-color: #07B15F;
+                        background-image: none;
+                        border: none;
+                        text-shadow: none;
+                        -webkit-box-shadow:
+                            inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                            inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+                        -moz-box-shadow:
+                            inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                            inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+                        -ms-box-shadow:
+                            inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                            inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+                        box-shadow:
+                            inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                            inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+                        padding-right: 15px;
+                    }
+                }
+            }
+
+            .subtext {
+                margin-top: 20px;
+                font-size: 12px;
+                line-height: 16px;
+            }
+        } //.pricing
+
+        .customers {
+            .padded;
+            background-color: @black;
+            border-bottom: 1px solid #333;
+
+            h1 {
+                color: @dark-gray-text;
+                .museo-sans-light
+            }
+
+            .customer-logos {
+                margin-top: @baseline * 3;
+
+                img {
+                    width:100%;
+                    height: auto;
+                    -khtml-opacity: .5;
+                    -moz-opacity: .5;
+                    opacity: .5;
+                    filter: alpha(opacity=50);
+                }
+            }
+
+            ul.customer-logos {
+
+                li {
+
+                    img {
+
+                    } //img
+
+                } //li
+            } //ul.cusotmer-logos
+        }
+    }
+} //page

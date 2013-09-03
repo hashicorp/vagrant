@@ -1,0 +1,34 @@
+<% wrap_layout :layout do %>
+	<div class="page inner">
+		<!-- background color -->
+		<div class="page-background"></div>
+
+		<div class="container">
+			<div class="row">
+
+				<div class="sidebar span3">
+					<!-- side nav -->
+					<aside class="sidebar-nav">
+
+					<!-- page title -->
+					<h1 class="all-caps"><%= current_page.data.sidebar_title || "" %></h1>
+
+					<% if current_page.data.sidebar_template %>
+						<%= partial "sidebar_#{current_page.data.sidebar_template}" %>
+					<% end %>
+					</aside> <!-- /.sidebar -->
+				</div> <!-- /.sidebar -->
+
+				<div class="page-contents span9 offset3">
+					<!-- start page content -->
+					<div class="row">
+						<div class="span7 offset1">
+							<%= yield %>
+						</div> <!-- /span -->
+					</div> <!-- /row -->
+					<!-- end page content -->
+				</div> <!-- /.span8 -->
+			</div> <!-- /.row -->
+		</div> <!-- /.container -->
+	</div> <!-- /.page.inner -->
+<% end %>

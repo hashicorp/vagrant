@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title><%= current_page.data.page_title ? "#{current_page.data.page_title} - " : "" %>Vagrant</title>
+
+		<!-- meta -->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<!-- lib styles -->
+		<%= stylesheet_link_tag "bootstrap", "vagrantup" %>
+
+		<!-- lib js -->
+		<%= javascript_include_tag "jquery" %>
+		<%= javascript_include_tag "modernizr" %>
+		<%= javascript_include_tag "bootstrap.min" %>
+		<%= javascript_include_tag "backstretch" %>
+		<%= javascript_include_tag "vagrantup" %>
+
+		<!-- fonts -->
+		<link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+		<script type="text/javascript" src="http://use.typekit.net/xfs6zus.js"></script>
+		<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
+		<!-- Google analytics -->
+		<script type="text/javascript">
+
+			var _gaq = _gaq || [];
+			_gaq.push(['_setAccount', 'UA-15091924-1']);
+			_gaq.push(['_trackPageview']);
+
+			(function() {
+			 var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			 ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			 var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+			 })();
+
+		 </script>
+	 </head>
+	 <body>
+
+		 <!-- wrap everything -->
+		 <div class="wrapper">
+
+			 <!-- nav -->
+
+			 <nav>
+			 <!-- vagrant logo -->
+			 <a class="vagrant-logo" href="/">Vagrant</a>
+			 <!-- nav -->
+			 <ul class="pull-right unstyled">
+				 <li class="pill"><a href="/vmware">VMware Integration</a></li>
+				 <li><a href="http://downloads.vagrantup.com/">Downloads</a></li>
+				 <li><a href="http://docs.vagrantup.com/">Documentation</a></li>
+				 <li><a href="/support.html">Support</a></li>
+				 <li><a href="/about.html">About</a></li>
+			 </ul>
+			 </nav>
+
+			 <%= yield %>
+
+			 <!-- footer -->
+			 <footer>
+			 <div class="container">
+				 <div class="row">
+					 <div class="span12">
+
+						 <ul class="unstyled footer-nav">
+							 <li><a href="http://docs.vagrantup.com/">Documentation</a></li>
+							 <li><a href="/about.html">About</a></li>
+							 <li><a href="/support.html">Support</a></li>
+							 <a href="http://downloads.vagrantup.com/">
+								 <li class="button inline-button">Download</li>
+							 </a>
+						 </ul>
+
+						 <ul class="unstyled logos">
+							 <a href="http://www.vagrantup.com">
+								 <li class="vagrant-logo-monochrome"></li>
+							 </a>
+							 <li><span>by</span></li>
+							 <a href="http://www.hashicorp.com">
+								 <li class="hashi-logo-monochrome "></li>
+							 </a>
+						 </ul> <!-- /span -->
+
+					 </div> <!-- /span -->
+				 </div> <!-- /row -->
+
+				 <div class="row">
+					 <h6 class="legal">
+						 &#169; 2013 HashiCorp
+					 </h6>
+				 </div> <!-- row -->
+			 </div> <!-- container -->
+			 </footer>
+
+			 <!-- close .wrapper -->
+		 </div>
+
+		 <!-- load scripts -->
+		 <!-- load full-width image into any div with class="big-background -->
+		 <script>
+			 $(".big-background").backstretch("assets/photos/full_width.jpg");
+		 </script>
+	 </body>
+ </html>
+
