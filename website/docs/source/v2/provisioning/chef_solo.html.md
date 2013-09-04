@@ -99,6 +99,8 @@ root if a relative path is given.
 
 **Note:** The name of the role file must be the same as the role name. 
 For example the `web` role must be in the `roles_path` as web.json or web.rb.
+This is required by Chef itself, and isn't a limitation imposed by
+Vagrant.
 
 ## Data Bags
 
