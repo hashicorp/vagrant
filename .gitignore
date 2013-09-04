@@ -4,8 +4,8 @@
 # Vagrant stuff
 acceptance_config.yml
 boxes/*
-Vagrantfile
-.vagrant
+/Vagrantfile
+/.vagrant
 
 # Bundler/Rubygems
 *.gem
