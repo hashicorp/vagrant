@@ -97,6 +97,9 @@ end
 Just like the cookbooks path, the roles path is relative to the project
 root if a relative path is given.
 
+**Note:** The name of the role file must be the same as the role name. 
+For example the `web` role must be in the `roles_path` as web.json or web.rb.
+
 ## Data Bags
 
 [Data bags](http://docs.opscode.com/essentials_data_bags.html) are also
