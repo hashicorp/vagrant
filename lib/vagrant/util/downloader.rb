@@ -7,7 +7,7 @@ module Vagrant
   module Util
     # This class downloads files using various protocols by subprocessing
     # to cURL. cURL is a much more capable and complete download tool than
-    # a hand-rolled Ruby library, so we defer to it's expertise.
+    # a hand-rolled Ruby library, so we defer to its expertise.
     class Downloader
       # Custom user agent provided to cURL so that requests to URL shorteners
       # are properly tracked.
@@ -25,7 +25,7 @@ module Vagrant
       end
 
       # This executes the actual download, downloading the source file
-      # to the destination with the given opens used to initialize this
+      # to the destination with the given options used to initialize this
       # class.
       #
       # If this method returns without an exception, the download
