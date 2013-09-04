@@ -79,7 +79,7 @@ module VagrantPlugins
       end
 
       def validate(machine)
-        errors = []
+        errors = _detected_errors
         if @minion_key || @minion_pub
           if !@minion_key || !@minion_pub
             errors << @minion_pub

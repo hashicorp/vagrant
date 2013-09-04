@@ -90,7 +90,7 @@ module VagrantPlugins
       end
 
       def validate(machine)
-        errors = []
+        errors = _detected_errors
 
         valid_modes = [:bootstrap, :single_run]
         errors << I18n.t("vagrant.cfengine_config.invalid_mode") if !valid_modes.include?(@mode)

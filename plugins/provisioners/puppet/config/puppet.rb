@@ -59,7 +59,7 @@ module VagrantPlugins
         end
 
         def validate(machine)
-          errors = []
+          errors = _detected_errors
 
           # Calculate the manifests and module paths based on env
           this_expanded_manifests_path = expanded_manifests_path(machine.env.root_path)

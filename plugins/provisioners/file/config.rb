@@ -7,7 +7,7 @@ module VagrantPlugins
       attr_accessor :destination
 
       def validate(machine)
-        errors = []
+        errors = _detected_errors
         if !source
           errors << I18n.t("vagrant.provisioners.file.no_source_file")
         end

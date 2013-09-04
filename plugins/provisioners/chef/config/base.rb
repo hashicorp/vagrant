@@ -87,7 +87,7 @@ module VagrantPlugins
         # it returns an array of errors that should be merged into some
         # other error accumulator.
         def validate_base(machine)
-          errors = []
+          errors = _detected_errors
 
           if @custom_config_path
             expanded = File.expand_path(@custom_config_path, machine.env.root_path)

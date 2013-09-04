@@ -47,7 +47,7 @@ module VagrantPlugins
       end
 
       def validate(machine)
-        errors = []
+        errors = _detected_errors
 
         # Validate that a playbook path was provided
         if !playbook

@@ -89,6 +89,7 @@ BUG FIXES:
     network adapters. [GH-1886]
   - provisioners/ansible: Execute ansible with a cwd equal to the
     path where the Vagrantfile is. [GH-2051]
+  - provisioners/all: invalid config keys will be properly reported. [GH-2117]
   - provisioners/ansible: No longer report failure on every run. [GH-2007]
   - provisioners/ansible: Properly handle extra vars with spaces. [GH-1984]
   - provisioners/chef: Formatter option works properly. [GH-2058]
