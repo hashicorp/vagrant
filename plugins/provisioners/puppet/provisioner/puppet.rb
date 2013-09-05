@@ -135,7 +135,7 @@ module VagrantPlugins
         def verify_shared_folders(folders)
           folders.each do |folder|
             @logger.debug("Checking for shared folder: #{folder}")
-            if !@machine.communicate.test("test -d #{folder}")
+            if !@machine.communicate.test("test -d #{folder}", sudo: true)
               raise PuppetError, :missing_shared_folders
             end
           end

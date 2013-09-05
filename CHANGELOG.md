@@ -9,6 +9,8 @@ BUG FIXES:
   - provisioners/chef: Work even with restrictive umask on user. [GH-2121]
   - provisioners/puppet: No more "shared folders cannot be found" error.
     [GH-2134]
+  - provisioners/puppet: Work with restrictive umask on user by testing
+    for folders with sudo. [GH-2121]
 
 ## 1.3.0 (September 5, 2013)
 
