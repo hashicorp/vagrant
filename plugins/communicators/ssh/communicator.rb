@@ -5,6 +5,7 @@ require 'timeout'
 
 require 'log4r'
 require 'net/ssh'
+require 'net/ssh/proxy/command'
 require 'net/scp'
 
 require 'vagrant/util/ansi_escape_code_remover'
@@ -208,6 +209,7 @@ module VagrantPlugins
                   :logger  => ssh_logger,
                   :verbose => :debug
                 })
+                connect_opts[:proxy] = Net::SSH::Proxy::Command.new(ssh_info[:proxy_command]) if ssh_info[:proxy_command]
 
                 @logger.info("Attempting to connect to SSH...")
                 @logger.info("  - Host: #{ssh_info[:host]}")
