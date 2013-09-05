@@ -4,6 +4,8 @@ BUG FIXES:
 
   - core: Fix various issues where using the same options hash in a
     Vagrantfile can cause errors.
+  - core: `VAGRANT_VAGRANTFILE` env var only applies to the project
+    Vagrantfile name. [GH-2130]
   - provisioners/puppet: No more "shared folders cannot be found" error.
     [GH-2134]
 

@@ -581,6 +581,31 @@ VF
       machine.config.ssh.port.should == 100
     end
 
+    it "should load the box configuration for a V2 box and custom Vagrantfile name" do
+      register_provider("foo")
+
+      environment = isolated_environment do |env|
+        env.file("some_other_name", <<-VF)
+Vagrant.configure("2") do |config|
+  config.vm.box = "base"
+end
+VF
+
+        env.box2("base", :foo, :vagrantfile => <<-VF)
+Vagrant.configure("2") do |config|
+  config.ssh.port = 100
+end
+VF
+      end
+
+      env = with_temp_env("VAGRANT_VAGRANTFILE" => "some_other_name") do
+        environment.create_vagrant_env
+      end
+
+      machine = env.machine(:default, :foo)
+      machine.config.ssh.port.should == 100
+    end
+
     it "should load the box configuration for other formats for a V2 box" do
       register_provider("foo", nil, box_format: "bar")
 

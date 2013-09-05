@@ -85,9 +85,8 @@ module Vagrant
       # those continue to work as well, but anything custom will take precedence.
       opts[:vagrantfile_name] ||= ENV["VAGRANT_VAGRANTFILE"] if \
         ENV.has_key?("VAGRANT_VAGRANTFILE")
-      opts[:vagrantfile_name] ||= ["Vagrantfile", "vagrantfile"]
       opts[:vagrantfile_name] = [opts[:vagrantfile_name]] if \
-        !opts[:vagrantfile_name].is_a?(Array)
+        opts[:vagrantfile_name] && !opts[:vagrantfile_name].is_a?(Array)
 
       # Set instance variables for all the configuration parameters.
       @cwd              = opts[:cwd]
@@ -251,7 +250,7 @@ module Vagrant
       home_vagrantfile = nil
       root_vagrantfile = nil
       home_vagrantfile = find_vagrantfile(home_path) if home_path
-      root_vagrantfile = find_vagrantfile(root_path) if root_path
+      root_vagrantfile = find_vagrantfile(root_path, @vagrantfile_name) if root_path
 
       # Create the configuration loader and set the sources that are global.
       # We use this to load the configuration, and the list of machines we are
@@ -539,11 +538,8 @@ module Vagrant
       root_finder = lambda do |path|
         # Note: To remain compatible with Ruby 1.8, we have to use
         # a `find` here instead of an `each`.
-        found = vagrantfile_name.find do |rootfile|
-          File.exist?(File.join(path.to_s, rootfile))
-        end
-
-        return path if found
+        vf = find_vagrantfile(path, @vagrantfile_name)
+        return path if vf
         return nil if path.root? || !File.exist?(path)
         root_finder.call(path.parent)
       end
@@ -715,8 +711,9 @@ module Vagrant
     #
     # @param [Pathname] path Path to search in.
     # @return [Pathname]
-    def find_vagrantfile(search_path)
-      @vagrantfile_name.each do |vagrantfile|
+    def find_vagrantfile(search_path, filenames=nil)
+      filenames ||= ["Vagrantfile", "vagrantfile"]
+      filenames.each do |vagrantfile|
         current_path = search_path.join(vagrantfile)
         return current_path if current_path.exist?
       end
