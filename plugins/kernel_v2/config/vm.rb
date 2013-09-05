@@ -138,6 +138,7 @@ module VagrantPlugins
         end
 
         options ||= {}
+        options = options.dup
         options[:guestpath] = guestpath.to_s.gsub(/\/$/, '')
         options[:hostpath]  = hostpath
 

@@ -36,10 +36,8 @@ module VagrantPlugins
             @expanded_manifests_path, manifests_guest_path, folder_opts)
 
           # Share the module paths
-          count = 0
           @module_paths.each do |from, to|
             root_config.vm.synced_folder(from, to, folder_opts)
-            count += 1
           end
         end
 

@@ -1,6 +1,9 @@
 ## 1.3.1 (unreleased)
 
+BUG FIXES:
 
+  - provisioners/puppet: No more "shared folders cannot be found" error.
+    [GH-2134]
 
 ## 1.3.0 (September 5, 2013)
 
