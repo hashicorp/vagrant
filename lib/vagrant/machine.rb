@@ -281,7 +281,7 @@ module Vagrant
       info[:forward_agent] = @config.ssh.forward_agent
       info[:forward_x11]   = @config.ssh.forward_x11
 
-      # add in provided proxy command config
+      # Add in provided proxy command config
       info[:proxy_command] = @config.ssh.proxy_command if @config.ssh.proxy_command
 
       # Set the private key path. If a specific private key is given in

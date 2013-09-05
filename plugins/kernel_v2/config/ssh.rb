@@ -17,11 +17,12 @@ module VagrantPlugins
       def initialize
         super
 
-        @forward_agent    = UNSET_VALUE
-        @forward_x11      = UNSET_VALUE
-        @guest_port = UNSET_VALUE
-        @keep_alive = UNSET_VALUE
-        @shell      = UNSET_VALUE
+        @forward_agent = UNSET_VALUE
+        @forward_x11   = UNSET_VALUE
+        @guest_port    = UNSET_VALUE
+        @keep_alive    = UNSET_VALUE
+        @proxy_command = UNSET_VALUE
+        @shell         = UNSET_VALUE
 
         @default    = SSHConnectConfig.new
       end
@@ -40,6 +41,7 @@ module VagrantPlugins
         @forward_x11   = false if @forward_x11 == UNSET_VALUE
         @guest_port = nil if @guest_port == UNSET_VALUE
         @keep_alive = false if @keep_alive == UNSET_VALUE
+        @proxy_command = nil if @proxy_command == UNSET_VALUE
         @shell      = nil if @shell == UNSET_VALUE
 
         @default.finalize!

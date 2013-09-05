@@ -209,7 +209,10 @@ module VagrantPlugins
                   :logger  => ssh_logger,
                   :verbose => :debug
                 })
-                connect_opts[:proxy] = Net::SSH::Proxy::Command.new(ssh_info[:proxy_command]) if ssh_info[:proxy_command]
+
+                if ssh_info[:proxy_command]
+                  connect_opts[:proxy] = Net::SSH::Proxy::Command.new(ssh_info[:proxy_command])
+                end
 
                 @logger.info("Attempting to connect to SSH...")
                 @logger.info("  - Host: #{ssh_info[:host]}")

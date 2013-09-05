@@ -122,6 +122,10 @@ module Vagrant
             "-o", "ForwardX11Trusted=yes"]
         end
 
+        if ssh_info[:proxy_command]
+          command_options += ["-o", "ProxyCommand=#{ssh_info[:proxy_command]}"]
+        end
+
         # Configurables -- extra_args should always be last due to the way the
         # ssh args parser works. e.g. if the user wants to use the -t option,
         # any shell command(s) she'd like to run on the remote server would
