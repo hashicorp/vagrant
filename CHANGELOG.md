@@ -7,6 +7,7 @@ BUG FIXES:
   - core: `VAGRANT_VAGRANTFILE` env var only applies to the project
     Vagrantfile name. [GH-2130]
   - provisioners/chef: Work even with restrictive umask on user. [GH-2121]
+  - provisioners/chef: Fix environment validation to be less restrictive.
   - provisioners/puppet: No more "shared folders cannot be found" error.
     [GH-2134]
   - provisioners/puppet: Work with restrictive umask on user by testing

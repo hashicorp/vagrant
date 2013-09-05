@@ -46,7 +46,8 @@ module VagrantPlugins
 
           @data_bags_path    = [] if @data_bags_path == UNSET_VALUE
           @roles_path        = [] if @roles_path == UNSET_VALUE
-          @environments_path = [] if @environments_path == UNSET_VALUE or @recipe_url == nil
+          @environments_path = [] if @environments_path == UNSET_VALUE
+          @environments_path = [@environments_path].flatten
 
           # Make sure the path is an array.
           @cookbooks_path    = prepare_folders_config(@cookbooks_path)
@@ -67,7 +68,7 @@ module VagrantPlugins
           errors << I18n.t("vagrant.config.chef.cookbooks_path_empty") if \
             !cookbooks_path || [cookbooks_path].flatten.empty?
           errors << I18n.t("vagrant.config.chef.environment_path_required") if \
-            environment and (!environments_path || [environments_path].flatten.empty?)
+            environment && environments_path.empty?)
           { "chef solo provisioner" => errors }
         end
 
