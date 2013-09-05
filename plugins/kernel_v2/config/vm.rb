@@ -163,6 +163,7 @@ module VagrantPlugins
       # @param [Hash] options Options for the network.
       def network(type, options=nil)
         options ||= {}
+        options = options.dup
         options[:protocol] ||= "tcp"
 
         if !options[:id]
@@ -226,6 +227,7 @@ module VagrantPlugins
       def define(name, options=nil, &block)
         name = name.to_sym
         options ||= {}
+        options = options.dup
         options[:config_version] ||= "2"
 
         # Add the name to the array of VM keys. This array is used to

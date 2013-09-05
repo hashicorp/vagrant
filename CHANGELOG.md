@@ -2,6 +2,8 @@
 
 BUG FIXES:
 
+  - core: Fix various issues where using the same options hash in a
+    Vagrantfile can cause errors.
   - provisioners/puppet: No more "shared folders cannot be found" error.
     [GH-2134]
 
