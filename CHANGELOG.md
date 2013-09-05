@@ -94,6 +94,8 @@ BUG FIXES:
   - provisioners/ansible: No longer report failure on every run. [GH-2007]
   - provisioners/ansible: Properly handle extra vars with spaces. [GH-1984]
   - provisioners/chef: Formatter option works properly. [GH-2058]
+  - provisioners/chef: Create/chown the provisioning folder before
+    reading contents. [GH-2121]
   - provisioners/puppet: mount synced folders as root to avoid weirdness
   - provisioners/puppet: Run from the correct working directory. [GH-1967]
     with Puppet. [GH-2015]
