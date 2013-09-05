@@ -78,3 +78,4 @@ that Vagrant has set up itself.
 VMX is an undocumented format and there is no official reference for
 the available keys and values. This customization option is exposed for
 people who have knowledge of exactly what they want.
+That said, the most awaited keys are "memsize" and "numvcpus".
