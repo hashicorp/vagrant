@@ -55,6 +55,7 @@ IMPROVEMENTS:
     shown if available. [GH-1986]
   - commands/status: cosmetic improvement to better align names and
     statuses [GH-2016]
+  - communicators/ssh: Support a proxy_command. [GH-1537]
   - guests/openbsd: support configuring networks, changing host name,
     and mounting NFS. [GH-2086]
   - guests/suse: Supports private/public networks. [GH-1689]
