@@ -1,4 +1,4 @@
-## 1.3.0 (unreleased)
+## 1.3.0 (September 5, 2013)
 
 BACKWARDS INCOMPATIBILITY:
 
