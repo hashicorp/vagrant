@@ -1,3 +1,5 @@
+require "json"
+
 module VagrantPlugins
   module Ansible
     class Provisioner < Vagrant.plugin("2", :provisioner)
@@ -14,17 +16,21 @@ module VagrantPlugins
         options << "--ask-sudo-pass" if config.ask_sudo_pass
 
         if config.extra_vars
-          extra_vars = config.extra_vars.map do |k,v|
-            v = v.gsub('"', '\\"')
-            if v.include?(' ')
-              v = v.gsub("'", "\\'")
-              v = "'#{v}'"
+          if self.supports_json_vars
+            options << "--extra-vars=#{config.extra_vars.to_json}"
+          else
+            extra_vars = config.extra_vars.map do |k,v|
+              v = v.gsub('"', '\\"')
+              if v.include?(' ')
+                v = v.gsub("'", "\\'")
+                v = "'#{v}'"
+              end
+
+              "#{k}=#{v}"
             end
 
-            "#{k}=#{v}"
+            options << "--extra-vars=\"#{extra_vars.join(" ")}\""
           end
-
-          options << "--extra-vars=\"#{extra_vars.join(" ")}\""
         end
 
         if config.limit
@@ -84,6 +90,27 @@ module VagrantPlugins
         end
 
         return generated_inventory_file.to_s
+      end
+
+      def supports_json_vars
+        # Init version command
+        command = (%w(ansible-playbook --version)).flatten
+
+        command << {
+          :notify => [:stdout, :stderr],
+          :workdir => @machine.env.root_path.to_s
+        }
+
+        begin
+          result = Vagrant::Util::Subprocess.execute(*command) do |type, data|
+            version = data.split(" ").last.split(".")
+            
+            # JSON supported since 1.2
+            return Integer(version[0]) >= 1 && Integer(version[1]) >= 2
+          end
+
+          raise Vagrant::Errors::AnsibleFailed if result.exit_code != 0
+        end
       end
 
       protected
