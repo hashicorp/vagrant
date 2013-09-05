@@ -10,6 +10,7 @@ module VagrantPlugins
       attr_accessor :guest_port
       attr_accessor :keep_alive
       attr_accessor :shell
+      attr_accessor :proxy_command
 
       attr_reader :default
 
