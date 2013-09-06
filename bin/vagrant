@@ -62,7 +62,7 @@ end
 
 # Fast path the version of Vagrant
 if ARGV.include?("-v") || ARGV.include?("--version")
-  puts "Vagrant v#{Vagrant::VERSION}"
+  puts "Vagrant #{Vagrant::VERSION}"
   exit 0
 end
 
