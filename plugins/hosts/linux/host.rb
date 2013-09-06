@@ -58,7 +58,7 @@ module VagrantPlugins
 
         output = TemplateRenderer.render('nfs/exports_linux',
                                          :uuid => id,
-                                         :ip => ip,
+                                         :ips => ips,
                                          :folders => folders,
                                          :user => Process.uid)
 
