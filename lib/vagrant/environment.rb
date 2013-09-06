@@ -419,11 +419,11 @@ module Vagrant
         level  = config_errors.empty? ? :warn : :error
         output = Util::TemplateRenderer.render(
           "config/messages",
-          :name => name,
           :warnings => config_warnings,
           :errors => config_errors).chomp
-          @ui.send(level, I18n.t("vagrant.general.config_upgrade_messages",
-                                 :output => output))
+        @ui.send(level, I18n.t("vagrant.general.config_upgrade_messages",
+                               name: name,
+                               :output => output))
 
           # If we had errors, then we bail
           raise Errors::ConfigUpgradeErrors if !config_errors.empty?
