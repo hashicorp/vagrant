@@ -68,7 +68,7 @@ module VagrantPlugins
           errors << I18n.t("vagrant.config.chef.cookbooks_path_empty") if \
             !cookbooks_path || [cookbooks_path].flatten.empty?
           errors << I18n.t("vagrant.config.chef.environment_path_required") if \
-            environment && environments_path.empty?)
+            environment && environments_path.empty?
           { "chef solo provisioner" => errors }
         end
 
