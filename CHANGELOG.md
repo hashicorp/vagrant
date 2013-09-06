@@ -1,4 +1,4 @@
-## 1.3.1 (unreleased)
+## 1.3.1 (September 6, 2013)
 
 BUG FIXES:
 
