@@ -1,4 +1,5 @@
 ---
+page_title: "Command Plugins - Plugin Development"
 sidebar_current: "plugins-commands"
 ---
 

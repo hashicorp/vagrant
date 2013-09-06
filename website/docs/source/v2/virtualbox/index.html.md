@@ -1,4 +1,5 @@
 ---
+page_title: "VirtualBox Provider"
 sidebar_current: "virtualbox"
 ---
 

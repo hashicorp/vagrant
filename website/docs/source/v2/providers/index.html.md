@@ -1,4 +1,5 @@
 ---
+page_title: "Providers"
 sidebar_current: "providers"
 ---
 

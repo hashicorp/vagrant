@@ -1,4 +1,5 @@
 ---
+page_title: "Box Format - VMware Provider"
 sidebar_current: "vmware-boxes"
 ---
 

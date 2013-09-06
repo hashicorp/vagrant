@@ -1,4 +1,5 @@
 ---
+page_title: "vagrant status - Command-Line Interface"
 sidebar_current: "cli-status"
 ---
 

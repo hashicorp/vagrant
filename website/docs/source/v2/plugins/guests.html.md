@@ -1,4 +1,5 @@
 ---
+page_title: "Custom Guests - Plugin Development"
 sidebar_current: "plugins-guests"
 ---
 

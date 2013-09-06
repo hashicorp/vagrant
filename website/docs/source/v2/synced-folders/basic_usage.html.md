@@ -1,6 +1,6 @@
 ---
+page_title: "Basic Usage - Synced Folders"
 sidebar_current: "syncedfolder-basic"
-page_title: "Synced Folders - Basic Usage"
 ---
 
 # Basic Usage
@@ -48,5 +48,6 @@ to the SSH user. Sometimes it is preferable to mount folders with a different
 owner and group. It is possible to set these options:
 
 ```ruby
-config.vm.synced_folder "src/", "/srv/website", owner: "root", group: "root"
+config.vm.synced_folder "src/", "/srv/website",
+  owner: "root", group: "root"
 ```

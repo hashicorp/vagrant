@@ -1,4 +1,5 @@
 ---
+page_title: "Basic Usage - Providers"
 sidebar_current: "providers-basic-usage"
 ---
 

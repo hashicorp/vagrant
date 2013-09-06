@@ -1,4 +1,5 @@
 ---
+page_title: "NFS - Synced Folders"
 sidebar_current: "syncedfolder-nfs"
 ---
 
@@ -38,13 +39,13 @@ stop the NFS server daemon.
 
 ## Enabling NFS Synced Folders
 
-To enable NFS, just add the `:nfs => true` flag onto your synced folder:
+To enable NFS, just add the `nfs: true` flag onto your synced folder:
 
 ```ruby
 Vagrant.configure("2") do |config|
   # ...
 
-  config.vm.synced_folder ".", "/vagrant", :nfs => true
+  config.vm.synced_folder ".", "/vagrant", nfs: true
 end
 ```
 

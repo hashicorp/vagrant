@@ -1,4 +1,5 @@
 ---
+page_title: "Custom Provider - Providers"
 sidebar_current: "providers-custom"
 ---
 

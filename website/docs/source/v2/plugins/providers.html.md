@@ -1,4 +1,5 @@
 ---
+page_title: "Custom Providers - Plugin Development"
 sidebar_current: "plugins-providers"
 ---
 

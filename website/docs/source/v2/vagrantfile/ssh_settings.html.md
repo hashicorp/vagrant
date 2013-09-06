@@ -1,4 +1,5 @@
 ---
+page_title: "config.ssh - Vagrantfile"
 sidebar_current: "vagrantfile-ssh"
 ---
 
@@ -33,16 +34,6 @@ is used by some providers to detect forwarded ports for SSH. For example, if
 this is set to 22 (the default), and Vagrant detects a forwarded port to
 port 22 on the guest from port 4567 on the host, Vagrant will attempt
 to use port 4567 to talk to the guest if there is no other option.
-
-<hr>
-
-`config.ssh.max_tries` - Maximum attempts to SSH while waiting for the
-machine to boot. Default is 100.
-
-<hr>
-
-`config.ssh.timeout` - Maximum time to wait while attempting to make
-a single connection via SSH before timing out. Default is 30 seconds.
 
 <hr>
 

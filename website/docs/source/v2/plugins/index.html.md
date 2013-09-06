@@ -1,4 +1,5 @@
 ---
+page_title: "Plugins"
 sidebar_current: "plugins"
 ---
 

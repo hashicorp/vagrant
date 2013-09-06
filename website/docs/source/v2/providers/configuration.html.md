@@ -1,4 +1,5 @@
 ---
+page_title: "Configuration - Providers"
 sidebar_current: "providers-configuration"
 ---
 
@@ -29,7 +30,7 @@ Configuring a specific provider looks like this:
 Vagrant.configure("2") do |config|
   # ... (other config)
 
-  config.vm.provider :virtualbox do |vb|
+  config.vm.provider "virtualbox" do |vb|
     vb.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
   end
 end
@@ -67,7 +68,7 @@ Example:
 Vagrant.configure("2") do |config|
   config.vm.box = "precise64"
 
-  config.vm.provider :vmware_fusion do |v, override|
+  config.vm.provider "vmware_fusion" do |v, override|
     override.vm.box = "precise64_fusion"
   end
 end

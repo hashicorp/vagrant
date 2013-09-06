@@ -1,4 +1,5 @@
 ---
+page_title: "Getting Started"
 sidebar_current: "gettingstarted"
 ---
 

@@ -1,4 +1,5 @@
 ---
+page_title: "Basic Usage - Networking"
 sidebar_current: "networking-basic"
 ---
 
@@ -19,7 +20,7 @@ below defines some port forwarding:
 Vagrant.configure("2") do |config|
   # other config here
 
-  config.vm.network :forwarded_port, guest: 80, host: 8080
+  config.vm.network "forwarded_port", guest: 80, host: 8080
 end
 ```
 

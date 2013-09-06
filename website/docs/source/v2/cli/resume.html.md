@@ -1,4 +1,5 @@
 ---
+page_title: "vagrant resume - Command-Line Interface"
 sidebar_current: "cli-resume"
 ---
 

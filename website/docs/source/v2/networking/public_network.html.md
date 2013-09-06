@@ -1,10 +1,11 @@
 ---
+page_title: "Public Networks - Networking"
 sidebar_current: "networking-public"
 ---
 
 # Public Networks
 
-**Network identifier: `:public_network`**
+**Network identifier: `public_network`**
 
 Public networks are less private than private networks, and the exact
 meaning actually varies from [provider to provider](/v2/providers/index.html),
@@ -29,7 +30,7 @@ via DHCP. In this case, defining a public network is trivially easy:
 
 ```ruby
 Vagrant.configure("2") do |config|
-  config.vm.network :public_network
+  config.vm.network "public_network"
 end
 ```
 
@@ -39,14 +40,14 @@ the IP, such as `ifconfig`.
 
 ## Default Network Interface
 
-If more than one network interface is available on the host machine, Vagrant will 
+If more than one network interface is available on the host machine, Vagrant will
 ask you to choose which interface the virtual machine should bridge to. A default
 interface can be specified by adding a `:bridge` clause to the network definition.
 
 ```ruby
-config.vm.network :public_network, :bridge => 'en1: Wi-Fi (AirPort)'
+config.vm.network "public_network", :bridge => 'en1: Wi-Fi (AirPort)'
 ```
 
 The string identifying the desired interface must exactly match the name of an
-available interface. If it can't be found, Vagrant will ask you to pick 
+available interface. If it can't be found, Vagrant will ask you to pick
 from a list of available network interfaces.

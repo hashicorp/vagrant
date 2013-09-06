@@ -1,4 +1,5 @@
 ---
+page_title: "Custom Hosts - Plugin Development"
 sidebar_current: "plugins-hosts"
 ---
 

@@ -1,4 +1,5 @@
 ---
+page_title: "vagrant box - Command-Line Interface"
 sidebar_current: "cli-box"
 ---
 

@@ -1,10 +1,11 @@
 ---
+page_title: "Private Networks - Networking"
 sidebar_current: "networking-private"
 ---
 
 # Private Networks
 
-**Network identifier: `:private_network`**
+**Network identifier: `private_network`**
 
 Private networks allow you to access your guest machine by some address
 that is not publicly accessible from the global internet. In general, this
@@ -34,7 +35,7 @@ IP. The Vagrantfile for a static IP looks like this:
 
 ```ruby
 Vagrant.configure("2") do |config|
-  config.vm.network :private_network, ip: "192.168.50.4"
+  config.vm.network "private_network", ip: "192.168.50.4"
 end
 ```
 

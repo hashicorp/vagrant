@@ -1,4 +1,5 @@
 ---
+page_title: "config.vagrant - Vagrantfile"
 sidebar_current: "vagrantfile-vagrant"
 ---
 

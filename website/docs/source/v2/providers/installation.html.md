@@ -1,4 +1,5 @@
 ---
+page_title: "Installation - Providers"
 sidebar_current: "providers-installation"
 ---
 

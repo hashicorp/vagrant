@@ -1,4 +1,5 @@
 ---
+page_title: "Configuration - VirtualBox Provider"
 sidebar_current: "virtualbox-configuration"
 ---
 

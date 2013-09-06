@@ -1,4 +1,5 @@
 ---
+page_title: "Installation - VMware Provider"
 sidebar_current: "vmware-installation"
 ---
 

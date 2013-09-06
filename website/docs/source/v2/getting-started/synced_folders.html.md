@@ -1,4 +1,5 @@
 ---
+page_title: "Synced Folders - Getting Started"
 sidebar_current: "gettingstarted-syncedfolders"
 ---
 

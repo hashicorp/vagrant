@@ -1,4 +1,5 @@
 ---
+page_title: "Configuration- VMware Provider"
 sidebar_current: "vmware-configuration"
 ---
 

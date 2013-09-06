@@ -1,4 +1,5 @@
 ---
+page_title: "Multi-Machine"
 sidebar_current: "multimachine"
 ---
 
@@ -35,13 +36,13 @@ configuration. An example shows this best:
 
 ```ruby
 Vagrant.configure("2") do |config|
-  config.vm.provision :shell, :inline => "echo Hello"
+  config.vm.provision "shell", inline: "echo Hello"
 
-  config.vm.define :web do |web|
+  config.vm.define "web" do |web|
     web.vm.box = "apache"
   end
 
-  config.vm.define :db do |db|
+  config.vm.define "db" do |db|
     db.vm.box = "mysql"
   end
 end
@@ -51,7 +52,7 @@ As you can see, `config.vm.define` takes a block with another variable. This
 variable, such as `web` above, is the _exact_ same as the `config` variable,
 except any configuration of the inner variable applies only to the machine
 being defined. Therefore, any configuration on `web` will only affect the
-`:web` machine.
+`web` machine.
 
 And importantly, you can continue to use the `config` object as well. The
 configuration object is loaded and merged before the machine-specific configuration,
@@ -87,3 +88,18 @@ In order to faciliate communication within machines in a multi-machine setup,
 the various [networking](/v2/networking/index.html) options should be used.
 In particular, the [private network](/v2/networking/private_network.html) can
 be used to make a private network between multiple machines and the host.
+
+## Specifying a Primary Machine
+
+You can also specify a _primary machine_. The primary machine will be the
+default machine used when a specific machine in a multi-machine environment
+is not specified.
+
+To specify a default, machine, just mark it primary when defining it. Only
+one primary machine may be specified.
+
+```ruby
+config.vm.define "web", primary: true do |web|
+  # ...
+end
+```

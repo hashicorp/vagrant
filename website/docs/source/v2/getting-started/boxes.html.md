@@ -1,4 +1,5 @@
 ---
+page_title: "Boxes - Getting Started"
 sidebar_current: "gettingstarted-boxes"
 ---
 

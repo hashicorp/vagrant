@@ -1,4 +1,5 @@
 ---
+page_title: "Providers - Getting Started"
 sidebar_current: "gettingstarted-providers"
 ---
 

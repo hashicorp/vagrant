@@ -1,4 +1,5 @@
 ---
+page_title: "vagrant ssh-config - Command-Line Interface"
 sidebar_current: "cli-ssh_config"
 ---
 

@@ -1,4 +1,5 @@
 ---
+page_title: "Provisioning - Getting Started"
 sidebar_current: "gettingstarted-provisioning"
 ---
 
@@ -49,9 +50,11 @@ to the location of the project root (where the Vagrantfile is).
 After everything is configured, just run `vagrant up` to create your
 machine and Vagrant will automatically provision it. You should see
 the output from the shell script appear in your terminal. If the guest
-machine is already running from a previous step, run `vagrant reload`,
+machine is already running from a previous step, run `vagrant reload --provision`,
 which will quickly restart your virtual machine, skipping the initial
-import step.
+import step. The provision flag on the reload command instructs Vagrant to
+run the provisioners, since usually Vagrant will only do this on the first
+`vagrant up`.
 
 After Vagrant completes running, the web server will be up and running.
 You can't see the website from your own browser (yet), but you can verify

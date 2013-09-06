@@ -1,4 +1,5 @@
 ---
+page_title: "config.vm - Vagrantfile"
 sidebar_current: "vagrantfile-machine"
 ---
 
@@ -10,6 +11,11 @@ The settings within `config.vm` modify the configuration of the
 machine that Vagrant manages.
 
 ## Available Settings
+
+`config.vm.boot_timeout` - The time in seconds that Vagrant will wait
+for the machine to boot and be accessible. By default this is 300 seconds.
+
+<hr>
 
 `config.vm.box` - This configures what [box](/v2/boxes/index.html) the
 machine will be brought up against. The value here should match one of
@@ -23,14 +29,9 @@ URL when `vagrant up` is run.
 
 <hr>
 
-`config.vm.graceful_halt_retry_count` - The number of times to retry
-gracefully shutting down the system when `vagrant halt` is called. Defaults
-to 3.
-
-<hr>
-
-`config.vm.graceful_halt_retry_interval` - The amount of time in between
-each retry of attempting to shut down, in seconds. Defaults to 1 second.
+`config.vm.graceful_halt_timeout` - The time in seconds that Vagrant will
+wait for the machine to gracefully halt when `vagrant halt` is called.
+Defaults to 300 seconds.
 
 <hr>
 

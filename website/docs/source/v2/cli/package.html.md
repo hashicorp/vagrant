@@ -1,4 +1,5 @@
 ---
+page_title: "vagrant package - Command-Line Interface"
 sidebar_current: "cli-package"
 ---
 

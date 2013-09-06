@@ -1,4 +1,5 @@
 ---
+page_title: "vagrant suspend - Command-Line Interface"
 sidebar_current: "cli-suspend"
 ---
 

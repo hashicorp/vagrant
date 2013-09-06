@@ -1,4 +1,5 @@
 ---
+page_title: "Packaging and Distribution - Plugin Development"
 sidebar_current: "plugins-packaging"
 ---
 

@@ -1,4 +1,5 @@
 ---
+page_title: "Usage - VirtualBox Provider"
 sidebar_current: "virtualbox-usage"
 ---
 

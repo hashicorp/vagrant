@@ -1,4 +1,5 @@
 ---
+page_title: "Box Format - VirtualBox Provider"
 sidebar_current: "virtualbox-boxes"
 ---
 

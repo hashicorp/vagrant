@@ -1,4 +1,5 @@
 ---
+page_title: "Chef Client - Provisioning"
 sidebar_current: "provisioning-chefclient"
 ---
 
@@ -31,7 +32,7 @@ that the node can register with the Chef server:
 
 ```ruby
 Vagrant.configure("2") do |config|
-  config.vm.provision :chef_client do |chef|
+  config.vm.provision "chef_client" do |chef|
     chef.chef_server_url = "http://mychefserver.com:4000/"
     chef.validation_key_path = "validation.pem"
   end

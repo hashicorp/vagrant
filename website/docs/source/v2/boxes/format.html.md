@@ -1,4 +1,5 @@
 ---
+page_title: "Box File Format"
 sidebar_current: "boxes-format"
 ---
 

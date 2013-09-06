@@ -1,4 +1,5 @@
 ---
+page_title: "Usage - VMware Provider"
 sidebar_current: "vmware-usage"
 ---
 

@@ -1,4 +1,5 @@
 ---
+page_title: "Boxes"
 sidebar_current: "boxes"
 ---
 
@@ -72,14 +73,6 @@ $ vagrant box remove precise64 virtualbox
 ```
 
 The two arguments are the logical name of the box and the provider of the
-box.
-
-<div class="alert alert-info">
-	<h3>Optional Provider Parameter?</h3>
-	<p>
-		A future release of Vagrant will make the provider parameter optional
-		when removing a box. In this case, Vagrant will show a list of
-		boxes that can be removed and ask the user which they want to remove.
-		This is not currently implemented.
-	</p>
-</div>
+box. The second argument (the provider) is optional. If you have only a single
+provider backing that box, it doesn't need to be specified. If you have multiple
+providers backing a box and it isn't specified, Vagrant will show an error.

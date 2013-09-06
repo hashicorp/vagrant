@@ -1,4 +1,5 @@
 ---
+page_title: "Uninstalling Vagrant"
 sidebar_current: "installation-uninstallation"
 ---
 

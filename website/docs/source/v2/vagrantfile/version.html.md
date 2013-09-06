@@ -1,4 +1,5 @@
 ---
+page_title: "Configuration Version - Vagrantfile"
 sidebar_current: "vagrantfile-version"
 ---
 
@@ -13,7 +14,9 @@ If you run `vagrant init` today, the Vagranfile will be in roughly the
 following format:
 
 ```ruby
-Vagrant.configure("2") do |config|
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # ...
 end
 ```

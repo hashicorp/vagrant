@@ -1,4 +1,5 @@
 ---
+page_title: "Synced Folders"
 sidebar_current: "syncedfolder"
 ---
 

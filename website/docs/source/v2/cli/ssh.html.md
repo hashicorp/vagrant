@@ -1,4 +1,5 @@
 ---
+page_title: "vagrant ssh - Command-Line Interface"
 sidebar_current: "cli-ssh"
 ---
 
@@ -16,7 +17,8 @@ any abitrary commands to do things such as reverse tunneling down into the
 ## Options
 
 * `-c COMMAND` or `--command COMMAND` - This executes a single SSH command, prints
-  out the stdout and stderr, and exits.
+  out the stdout and stderr, and exits. stdin will not be functional on this
+  executed command.
 
 * `-p` or `--plain` - This does an SSH without authentication, leaving
   authentication up to the user.

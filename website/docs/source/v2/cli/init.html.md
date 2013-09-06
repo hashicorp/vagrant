@@ -1,4 +1,5 @@
 ---
+page_title: "vagrant init - Command-Line Interface"
 sidebar_current: "cli-init"
 ---
 

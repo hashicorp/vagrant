@@ -1,10 +1,11 @@
 ---
+page_title: "Ansible - Provisioning"
 sidebar_current: "provisioning-ansible"
 ---
 
 # Ansible Provisioner
 
-**Provisioner name: `:ansible`**
+**Provisioner name: `"ansible"`**
 
 The ansible provisioner allows you to provision the guest using
 [Ansible](http://ansible.cc) playbooks.
@@ -48,7 +49,7 @@ which contains the steps that should be run on the guest. Ansible's
 [playbook documentation](http://ansible.cc/docs/playbooks.html) goes into great
 detail on how to author playbooks, and there are a number of
 [best practices](http://ansible.cc/docs/bestpractices.html) that can be applied to use
-Ansible's powerful features effectively. A playbook that installs and starts (or restarts 
+Ansible's powerful features effectively. A playbook that installs and starts (or restarts
 if it was updated) the NTP daemon via YUM looks like:
 
 ```
@@ -74,7 +75,7 @@ To run Ansible against your Vagrant guest, the basic Vagrantfile configuration l
 
 ```ruby
 Vagrant.configure("2") do |config|
-  config.vm.provision :ansible do |ansible|
+  config.vm.provision "ansible" do |ansible|
     ansible.playbook = "playbook.yml"
   end
 end
@@ -98,7 +99,7 @@ In such an arrangement, the `ansible.playbook` path should be adjusted according
 
 ```ruby
 Vagrant.configure("2") do |config|
-  config.vm.provision :ansible do |ansible|
+  config.vm.provision "ansible" do |ansible|
     ansible.playbook = "provisioning/playbook.yml"
   end
 end

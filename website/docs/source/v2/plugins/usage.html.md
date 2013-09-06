@@ -1,4 +1,5 @@
 ---
+page_title: "Plugin Usage - Plugins"
 sidebar_current: "plugins-usage"
 ---
 

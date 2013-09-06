@@ -1,4 +1,5 @@
 ---
+page_title: "VMware Provider"
 sidebar_current: "vmware"
 ---
 

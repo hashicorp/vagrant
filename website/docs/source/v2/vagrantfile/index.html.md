@@ -1,4 +1,5 @@
 ---
+page_title: "Vagrantfile"
 sidebar_current: "vagrantfile"
 ---
 

@@ -1,4 +1,5 @@
 ---
+page_title: "Command-Line Interface"
 sidebar_current: "cli"
 ---
 

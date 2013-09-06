@@ -1,4 +1,5 @@
 ---
+page_title: "Guest Capabilities - Plugin Development"
 sidebar_current: "plugins-guestcapabilities"
 ---
 

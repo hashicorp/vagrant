@@ -1,4 +1,5 @@
 ---
+page_title: "vagrant destroy - Command-Line Interface"
 sidebar_current: "cli-destroy"
 ---
 

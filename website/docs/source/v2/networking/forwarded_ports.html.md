@@ -1,10 +1,11 @@
 ---
+page_title: "Forwarded Ports - Networking"
 sidebar_current: "networking-fp"
 ---
 
 # Forwarded Ports
 
-**Network identifier: `:forwarded_port`**
+**Network identifier: `forwarded_port`**
 
 Forwarded ports allow you to access a port on your host machine and have
 all data forwarded to a port on the guest machine, over either TCP or UDP.
@@ -21,7 +22,7 @@ guest and the port on the host. Example:
 
 ```ruby
 Vagrant.configure("2") do |config|
-  config.vm.network :forwarded_port, guest: 80, host: 8080
+  config.vm.network "forwarded_port", guest: 80, host: 8080
 end
 ```
 
@@ -45,7 +46,7 @@ is easy:
 
 ```
 Vagrant.configure("2") do |config|
-  config.vm.network :forwarded_port, guest: 80, host: 8080,
+  config.vm.network "forwarded_port", guest: 80, host: 8080,
     auto_correct: true
 end
 ```

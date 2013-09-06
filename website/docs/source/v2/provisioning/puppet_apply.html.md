@@ -1,10 +1,11 @@
 ---
+page_title: "Puppet Apply - Provisioning"
 sidebar_current: "provisioning-puppetapply"
 ---
 
 # Puppet Apply Provisioner
 
-**Provisioner name: `:puppet`**
+**Provisioner name: `puppet`**
 
 The Puppet provisioner allows you to provision the guest using
 [Puppet](http://www.puppetlabs.com/puppet), specifically by
@@ -26,7 +27,7 @@ enable it:
 
 ```ruby
 Vagrant.configure("2") do |config|
-  config.vm.provision :puppet
+  config.vm.provision "puppet"
 end
 ```
 
@@ -53,7 +54,7 @@ entry-point with `manifest_file`:
 
 ```ruby
 Vagrant.configure("2") do |config|
-  config.vm.provision :puppet do |puppet|
+  config.vm.provision "puppet" do |puppet|
     puppet.manifests_path = "my_manifests"
     puppet.manifest_file = "default.pp"
   end
@@ -71,7 +72,7 @@ The manifest file is still used as an entry-point.
 
 ```ruby
 Vagrant.configure("2") do |config|
-  config.vm.provision :puppet do |puppet|
+  config.vm.provision "puppet" do |puppet|
     puppet.module_path = "modules"
   end
 end
@@ -87,7 +88,7 @@ can be specified as well:
 
 ```ruby
 Vagrant.configure("2") do |config|
-  config.vm.provision :puppet do |puppet|
+  config.vm.provision "puppet" do |puppet|
     puppet.facter = {
       "vagrant" => "1"
     }
@@ -106,7 +107,7 @@ flags to use:
 
 ```ruby
 Vagrant.configure("2") do |config|
-  config.vm.provision :puppet do |puppet|
+  config.vm.provision "puppet" do |puppet|
     puppet.options = "--verbose --debug"
   end
 end

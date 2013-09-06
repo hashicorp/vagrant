@@ -1,4 +1,5 @@
 ---
+page_title: "vagrant plugin - Command-Line Interface"
 sidebar_current: "cli-plugin"
 ---
 
@@ -15,6 +16,7 @@ of subcommands:
 * `license`
 * `list`
 * `uninstall`
+* `update`
 
 # Plugin Install
 
@@ -22,7 +24,9 @@ of subcommands:
 
 This installs a plugin with the given name or file path. If the name
 is not a path to a file, then the plugin is installed from remote
-repositories, usually [RubyGems](http://rubygems.org).
+repositories, usually [RubyGems](http://rubygems.org). This command will
+also update a plugin if it is already installed, but you can also use
+`vagrant plugin update` for that.
 
 # Plugin License
 
@@ -43,3 +47,10 @@ This lists all installed plugins and their respective versions.
 
 This uninstalls the plugin with the given name. Any dependencies of the
 plugin will also be uninstalled assuming no other plugin needs them.
+
+# Plugin Update
+
+**Command: `vagrant plugin update <name>`**
+
+This updates the plugin with the given name. If the plugin isn't already
+installed, this will not install it.

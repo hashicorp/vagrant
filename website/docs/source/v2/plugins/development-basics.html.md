@@ -1,4 +1,5 @@
 ---
+page_title: "Plugin Development Basics - Plugins"
 sidebar_current: "plugins-development-basics"
 ---
 

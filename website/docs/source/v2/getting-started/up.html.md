@@ -1,4 +1,5 @@
 ---
+page_title: "Up and SSH - Getting Started"
 sidebar_current: "gettingstarted-up"
 ---
 

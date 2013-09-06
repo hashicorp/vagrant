@@ -1,4 +1,5 @@
 ---
+page_title: "Rebuild - Getting Started"
 sidebar_current: "gettingstarted-rebuild"
 ---
 

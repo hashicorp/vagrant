@@ -1,10 +1,11 @@
 ---
+page_title: "Shell Scripts - Provisioning"
 sidebar_current: "provisioning-shell"
 ---
 
 # Shell Provisioner
 
-**Provisioner name: `:shell`**
+**Provisioner name: `"shell"`**
 
 The shell provisioner allows you to upload and execute a script as
 the root user within the guest machine.
@@ -22,8 +23,8 @@ the Vagrantfile. An example is best:
 
 ```ruby
 Vagrant.configure("2") do |config|
-  config.vm.provision :shell,
-    :inline => "echo Hello, World"
+  config.vm.provision "shell",
+    inline: "echo Hello, World"
 end
 ```
 
@@ -40,7 +41,7 @@ date > /etc/vagrant_provisioned_at
 SCRIPT
 
 Vagrant.configure("2") do |config|
-  config.vm.provision :shell, :inline => $script
+  config.vm.provision "shell", inline: $script
 end
 ```
 
@@ -62,7 +63,7 @@ into the guest and execute it. An example:
 
 ```ruby
 Vagrant.configure("2") do |config|
-  config.vm.provision :shell, :path => "script.sh"
+  config.vm.provision "shell", path: "script.sh"
 end
 ```
 
@@ -79,7 +80,7 @@ be sure to properly escape anything:
 
 ```ruby
 Vagrant.configure("2") do |config|
-  config.vm.provision :shell do |s|
+  config.vm.provision "shell" do |s|
     s.inline = "echo $1"
     s.args   = "'hello, world!'"
   end

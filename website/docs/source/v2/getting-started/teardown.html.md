@@ -1,4 +1,5 @@
 ---
+page_title: "Teardown - Getting Started"
 sidebar_current: "gettingstarted-teardown"
 ---
 

@@ -1,4 +1,5 @@
 ---
+page_title: "Custom Configuration - Plugin Development"
 sidebar_current: "plugins-configuration"
 ---
 

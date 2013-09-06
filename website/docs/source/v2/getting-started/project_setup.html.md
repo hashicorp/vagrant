@@ -1,4 +1,5 @@
 ---
+page_title: "Project Setup - Getting Started"
 sidebar_current: "gettingstarted-projectsetup"
 ---
 

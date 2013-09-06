@@ -1,4 +1,5 @@
 ---
+page_title: "Puppet Agent - Provisioning"
 sidebar_current: "provisioning-puppetagent"
 ---
 
