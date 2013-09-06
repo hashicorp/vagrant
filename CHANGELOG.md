@@ -8,6 +8,8 @@ BUG FIXES:
     Vagrantfile name. [GH-2130]
   - core: Fix an issue where the data directory would be deleted too
     quickly in a multi-VM environment.
+  - core: Handle the case where we get an EACCES cleaning up the .vagrant
+    directory.
   - provisioners/chef: Work even with restrictive umask on user. [GH-2121]
   - provisioners/chef: Fix environment validation to be less restrictive.
   - provisioners/puppet: No more "shared folders cannot be found" error.
