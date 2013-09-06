@@ -84,6 +84,9 @@ module Vagrant
           names ||= []
           names = [names] if !names.is_a?(Array)
 
+          # Cache the active machines outside the loop
+          active_machines = @env.active_machines
+
           # This is a helper that gets a single machine with the proper
           # provider. The "proper provider" in this case depends on what was
           # given:
@@ -101,7 +104,7 @@ module Vagrant
             provider_to_use = options[:provider]
             provider_to_use = provider_to_use.to_sym if provider_to_use
 
-            @env.active_machines.each do |active_name, active_provider|
+            active_machines.each do |active_name, active_provider|
               if name == active_name
                 # We found an active machine with the same name
 
