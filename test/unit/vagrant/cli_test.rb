@@ -8,6 +8,7 @@ describe Vagrant::CLI do
       ui = double("UI::Silent")
       ui.stub(:info => "bar")
       env = double("Vagrant::Environment")
+      env.stub(:active_machines => [])
       env.stub(:ui => ui)
       env.stub(:root_path => "foo")
       env.stub(:machine_names => [])
