@@ -28,9 +28,16 @@ module VagrantPlugins
             primary_machine_config = machine.env.active_machines.first
             primary_machine = machine.env.machine(*primary_machine_config, true)
 
-            get_ip = ->(machine) do
-              _, network_config = machine.config.vm.networks.detect { |type, _| type == :private_network}
-              network_config[:ip]
+            get_ip = lambda do |machine|
+              ip = nil
+              machine.config.vm.networks.each do |type, opts|
+                if type == :private_network && opts[:ip]
+                  ip = opts[:ip]
+                  break
+                end
+              end
+
+              ip
             end
 
             primary_machine_ip = get_ip.(primary_machine)

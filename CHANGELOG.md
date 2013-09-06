@@ -11,6 +11,7 @@ BUG FIXES:
   - core: Handle the case where we get an EACCES cleaning up the .vagrant
     directory.
   - core: Fix exception on upgrade warnings from V1 to V2. [GH-2142]
+  - guests/coreos: Proper IP detection. [GH-2146]
   - hosts/linux: NFS exporting works properly again. [GH-2137]
   - provisioners/chef: Work even with restrictive umask on user. [GH-2121]
   - provisioners/chef: Fix environment validation to be less restrictive.
