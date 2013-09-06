@@ -1,4 +1,5 @@
 ---
+page_title: "Installing Vagrant"
 sidebar_current: "installation"
 ---
 

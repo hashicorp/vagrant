@@ -1,4 +1,5 @@
 ---
+page_title: "Backwards Compatibility"
 sidebar_current: "installation-backwards-compatibility"
 ---
 

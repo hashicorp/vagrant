@@ -1,4 +1,5 @@
 ---
+page_title: "Why Vagrant?"
 sidebar_current: "why"
 ---
 

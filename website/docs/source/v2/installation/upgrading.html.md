@@ -1,4 +1,5 @@
 ---
+page_title: "Upgrading Vagrant"
 sidebar_current: "installation-upgrading"
 ---
 
