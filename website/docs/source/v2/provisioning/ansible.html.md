@@ -15,6 +15,15 @@ page will not go into how to use Ansible or how to write Ansible playbooks, sinc
 is a complete deployment and configuration management system that is beyond the scope of
 a single page of documentation.
 
+<div class="alert alert-warn">
+  <p>
+    <strong>Warning:</strong> If you're not familiar with Ansible and Vagrant already,
+    I recommend starting with the <a href="/v2/provisioning/shell.html">shell
+    provisioner</a>. However, if you're comfortable with Vagrant already, Vagrant
+    is a great way to learn Ansible.
+  </p>
+</div>
+
 ## Inventory File
 
 When using Ansible, it needs to know on which machines a given playbook should run. It does
