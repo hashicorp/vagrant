@@ -121,7 +121,11 @@ These variables take the highest precedence over any other variables.
 * `ansible.sudo_user` can be set to a string containing a username on the guest who should be used
 by the sudo command.
 * `ansible.ask_sudo_pass` can be set to `true` to require Ansible to prompt for a sudo password.
-* `ansible.limit` can be set to a string or an array of machines or groups from the inventory file
-to further narrow down which hosts are affected.
-* `ansible.verbose` can be set to `true` to increase Ansible's verbosity to obtain more detailed logging
-during playbook execution.
+* `ansible.limit` can be set to a string or an array of machines or groups from the inventory file to further narrow down which hosts are affected.
+* `ansible.verbose` can be set to `:extra` or `'extra'` to increase Ansible's verbosity to obtain full detailed logging (`-vvv`). Otherwise default verbosity level (`--verbose`) is applied.
+* `ansible.tags` can be set to a string or an array of tags. Only plays, roles and tasks tagged with these values will be executed.
+* `ansible.skip_tags` can be set to a string or an array of tags. Only plays, roles and tasks that *do not match* these values will be executed.
+* `ansible.start_at_task` can be set to a string corresponding to the task name where the playbook provision will start.
+* `ansible.raw_arguments` is an *unsafe wildcard* string that can be used to take advantage of `ansible-playbook` arguments that are not (yet) supported by this Vagrant provisioner plugin. This can be very useful when integrating with bleeding edge Ansible versions. Following precedence rules apply:
+  * Any supported options (described above) will override conflicting `raw_arguments` value (e.g. `--tags` or `--start-at-task`)
+  * Vagrant default user authentication can be overridden via `raw_arguments` (with custom values for `--user` and `--private-key`)
