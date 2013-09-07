@@ -122,7 +122,9 @@ These variables take the highest precedence over any other variables.
 by the sudo command.
 * `ansible.ask_sudo_pass` can be set to `true` to require Ansible to prompt for a sudo password.
 * `ansible.limit` can be set to a string or an array of machines or groups from the inventory file to further narrow down which hosts are affected.
-* `ansible.verbose` can be set to `:extra` or `'extra'` to increase Ansible's verbosity to obtain full detailed logging (`-vvv`). Otherwise default verbosity level (`--verbose`) is applied.
+* `ansible.verbose` can be set to increase Ansible's verbosity to obtain full detailed logging. By default, Vagrant uses Ansible default verbosity (`--verbose` or `-v`). By enabling this option following higher verbosity can be activated:
+  * `'vv'`
+  * `'vvv'`, also aliased as `'extra'`
 * `ansible.tags` can be set to a string or an array of tags. Only plays, roles and tasks tagged with these values will be executed.
 * `ansible.skip_tags` can be set to a string or an array of tags. Only plays, roles and tasks that *do not match* these values will be executed.
 * `ansible.start_at_task` can be set to a string corresponding to the task name where the playbook provision will start.
