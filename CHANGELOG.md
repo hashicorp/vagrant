@@ -1,6 +1,14 @@
 ## 1.3.2 (unreleased)
 
+IMPROVEMENTS:
 
+  - provisioners/ansible: Support more verbosity levels, better documentation.
+    [GH-2153]
+
+BUG FIXES:
+
+  - hosts/fedora: Fix host detection encoding issues. [GH-1977]
+  - hosts/linux: Fix NFS export problems with `no_subtree_check`. [GH-2156]
 
 ## 1.3.1 (September 6, 2013)
 
