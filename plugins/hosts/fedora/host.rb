@@ -11,7 +11,7 @@ module VagrantPlugins
         release_file = Pathname.new("/etc/redhat-release")
 
         if release_file.exist?
-          release_file.open("r") do |f|
+          release_file.open("r:ISO-8859-1:UTF-8") do |f|
             contents = f.gets
             return true if contents =~ /^Fedora/
             return true if contents =~ /^CentOS/
@@ -36,7 +36,7 @@ module VagrantPlugins
         # proper NFS binary. This checks to see if we need to do that.
         release_file = Pathname.new("/etc/redhat-release")
         begin
-          release_file.open("r") do |f|
+          release_file.open("r:ISO-8859-1:UTF-8") do |f|
             version_number = /(CentOS|Fedora|Red Hat Enterprise Linux Server).*release ([0-9]+)/.match(f.gets)[2].to_i
             if version_number >= 16
               # "service nfs-server" will redirect properly to systemctl
