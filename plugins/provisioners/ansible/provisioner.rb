@@ -4,15 +4,13 @@ module VagrantPlugins
       def provision
         ssh = @machine.ssh_info
 
-        inventory_file_path = self.setup_inventory_file
+        # Connect with Vagrant user (unless --user or --private-key are overidden by 'raw_arguments')
         options = %W[--private-key=#{ssh[:private_key_path]} --user=#{ssh[:username]}]
 
         # Joker! Not (yet) supported arguments can be passed this way.
         options << "#{config.raw_arguments}" if config.raw_arguments
 
-        options << "--inventory-file=#{inventory_file_path}"
-        options << "--ask-sudo-pass" if config.ask_sudo_pass
-
+        # Append Provisioner options (higher precedence):
         if config.extra_vars
           extra_vars = config.extra_vars.map do |k,v|
             v = v.gsub('"', '\\"')
@@ -23,25 +21,13 @@ module VagrantPlugins
 
             "#{k}=#{v}"
           end
-
           options << "--extra-vars=\"#{extra_vars.join(" ")}\""
         end
-
-        if config.limit
-          if not config.limit.kind_of?(Array)
-            config.limit = [config.limit]
-          end
-          config.limit = config.limit.join(",")
-          options << "--limit=#{config.limit}"
-        end
-
+        options << "--inventory-file=#{self.setup_inventory_file}"
         options << "--sudo" if config.sudo
         options << "--sudo-user=#{config.sudo_user}" if config.sudo_user
-        if config.verbose
-          options << (config.verbose.to_s == "extra" ?  "-vvv" :  "--verbose")
-        end
-
-        # Append Provisioner options (higher precedence):
+        options << "#{self.get_verbosity_argument}" if config.verbose
+        options << "--ask-sudo-pass" if config.ask_sudo_pass
         options << "--tags=#{as_list_argument(config.tags)}" if config.tags
         options << "--skip-tags=#{as_list_argument(config.skip_tags)}" if config.skip_tags
         options << "--limit=#{as_list_argument(config.limit)}" if config.limit
@@ -70,6 +56,10 @@ module VagrantPlugins
         end
       end
 
+      protected
+
+      # Auto-generate "safe" inventory file based on Vagrantfile,
+      # unless inventory_path is explicitly provided
       def setup_inventory_file
         return config.inventory_path if config.inventory_path
 
@@ -86,7 +76,17 @@ module VagrantPlugins
         return generated_inventory_file.to_s
       end
 
-      protected
+      def get_verbosity_argument
+        if config.verbose.to_s =~ /^v+$/
+          # Hopefully ansible-playbook accepts "silly" arguments like '-vvvvv', as '-vvv'
+          "-#{config.verbose}"
+        elsif config.verbose.to_s == 'extra'
+          '-vvv'
+        else
+          # fall back to default verbosity
+          '--verbose'
+        end
+      end
 
       def as_list_argument(v)
         v.kind_of?(Array) ? v.join(',') : v
