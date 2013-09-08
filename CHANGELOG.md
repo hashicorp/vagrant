@@ -7,6 +7,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - hosts/arch: NFS exporting works properly, no exceptions. [GH-2161]
   - hosts/fedora: Fix host detection encoding issues. [GH-1977]
   - hosts/linux: Fix NFS export problems with `no_subtree_check`. [GH-2156]
 
