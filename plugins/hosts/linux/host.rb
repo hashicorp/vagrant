@@ -39,7 +39,7 @@ module VagrantPlugins
       def nfs_export(id, ips, folders)
         folders.each do |k, opts|
           if !opts[:linux__nfs_options]
-            opts[:linux__nfs_options] ||= ["rw", "no_subtree", "check", "all_squash"]
+            opts[:linux__nfs_options] ||= ["rw", "no_subtree_check", "all_squash"]
           end
 
           # Only automatically set anonuid/anongid if they weren't
