@@ -16,6 +16,15 @@ page will not go into how to use Ansible or how to write Ansible playbooks, sinc
 is a complete deployment and configuration management system that is beyond the scope of
 a single page of documentation.
 
+<div class="alert alert-warn">
+  <p>
+    <strong>Warning:</strong> If you're not familiar with Ansible and Vagrant already,
+    I recommend starting with the <a href="/v2/provisioning/shell.html">shell
+    provisioner</a>. However, if you're comfortable with Vagrant already, Vagrant
+    is a great way to learn Ansible.
+  </p>
+</div>
+
 ## Inventory File
 
 When using Ansible, it needs to know on which machines a given playbook should run. It does
@@ -122,7 +131,13 @@ These variables take the highest precedence over any other variables.
 * `ansible.sudo_user` can be set to a string containing a username on the guest who should be used
 by the sudo command.
 * `ansible.ask_sudo_pass` can be set to `true` to require Ansible to prompt for a sudo password.
-* `ansible.limit` can be set to a string or an array of machines or groups from the inventory file
-to further narrow down which hosts are affected.
-* `ansible.verbose` can be set to `true` to increase Ansible's verbosity to obtain more detailed logging
-during playbook execution.
+* `ansible.limit` can be set to a string or an array of machines or groups from the inventory file to further narrow down which hosts are affected.
+* `ansible.verbose` can be set to increase Ansible's verbosity to obtain full detailed logging. By default, Vagrant uses Ansible default verbosity (`--verbose` or `-v`). By enabling this option following higher verbosity can be activated:
+  * `'vv'`
+  * `'vvv'`, also aliased as `'extra'`
+* `ansible.tags` can be set to a string or an array of tags. Only plays, roles and tasks tagged with these values will be executed.
+* `ansible.skip_tags` can be set to a string or an array of tags. Only plays, roles and tasks that *do not match* these values will be executed.
+* `ansible.start_at_task` can be set to a string corresponding to the task name where the playbook provision will start.
+* `ansible.raw_arguments` is an *unsafe wildcard* string that can be used to take advantage of `ansible-playbook` arguments that are not (yet) supported by this Vagrant provisioner plugin. This can be very useful when integrating with bleeding edge Ansible versions. Following precedence rules apply:
+  * Any supported options (described above) will override conflicting `raw_arguments` value (e.g. `--tags` or `--start-at-task`)
+  * Vagrant default user authentication can be overridden via `raw_arguments` (with custom values for `--user` and `--private-key`)
