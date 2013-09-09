@@ -70,7 +70,6 @@ module VagrantPlugins
             :https_proxy      => @config.https_proxy,
             :https_proxy_user => @config.https_proxy_user,
             :https_proxy_pass => @config.https_proxy_pass,
-            :log_level        => @config.log_level.to_sym,
             :no_proxy         => @config.no_proxy,
             :formatter        => @config.formatter
           }.merge(template_vars))
