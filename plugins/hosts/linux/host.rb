@@ -36,7 +36,7 @@ module VagrantPlugins
         end
       end
 
-      def nfs_export(id, ips, folders)
+      def nfs_opts_setup(folders)
         folders.each do |k, opts|
           if !opts[:linux__nfs_options]
             opts[:linux__nfs_options] ||= ["rw", "no_subtree_check", "all_squash"]
@@ -55,7 +55,10 @@ module VagrantPlugins
           opts[:linux__nfs_options] << "anongid=#{opts[:map_gid]}" if !hasgid
           opts[:linux__nfs_options] << "fsid=#{opts[:uuid]}"
         end
+      end
 
+      def nfs_export(id, ips, folders)
+        nfs_opts_setup(folders)
         output = TemplateRenderer.render('nfs/exports_linux',
                                          :uuid => id,
                                          :ips => ips,
