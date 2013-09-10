@@ -24,6 +24,7 @@ module VagrantPlugins
       end
 
       def nfs_export(id, ips, folders)
+        nfs_opts_setup(folders)
         output = TemplateRenderer.render('nfs/exports_linux',
                                          :uuid => id,
                                          :ips => ips,
