@@ -7,6 +7,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - core: `Guest#capability?` now works with strings as well
   - core: Fix NoMethodError in the new `Vagrant.has_plugin?` method [GH-2189]
   - hosts/arch: NFS exporting works properly, no exceptions. [GH-2161]
   - hosts/fedora: Fix host detection encoding issues. [GH-1977]

@@ -113,7 +113,7 @@ module Vagrant
     #
     # @return [Boolean]
     def capability?(cap_name)
-      !capability_module(cap_name).nil?
+      !capability_module(cap_name.to_sym).nil?
     end
 
     # Executes the capability with the given name, optionally passing
