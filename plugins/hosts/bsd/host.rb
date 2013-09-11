@@ -122,8 +122,6 @@ module VagrantPlugins
         output.split("\n").each do |line|
           line.gsub!('"', '\"')
           line.gsub!("'", "'\\\\''")
-          # system(%Q[sudo su root -c "echo '#{line}' >> /etc/exports"])
-          # Update to Bypass Security Check
           system(%Q[sudo -s -- "echo '#{line}' >> /etc/exports"])
         end
 
