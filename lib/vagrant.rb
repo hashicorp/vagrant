@@ -133,7 +133,7 @@ module Vagrant
   # be used from the Vagrantfile to easily branch based on plugin
   # availability.
   def self.has_plugin?(name)
-    plugin("2").registered.include?(name)
+    plugin("2").manager.registered.any? { |plugin| plugin.name == name }
   end
 
   # Returns a superclass to use when creating a plugin for Vagrant.

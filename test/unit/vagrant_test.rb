@@ -53,4 +53,22 @@ describe Vagrant do
         to raise_error(Vagrant::Errors::PluginLoadFailed)
     end
   end
+
+  describe "has_plugin?" do
+    after(:each) do
+      described_class.plugin('2').manager.reset!
+    end
+
+    it "should return true if the plugin is installed" do
+      plugin = Class.new(described_class.plugin('2')) do
+        name "i_am_installed"
+      end
+
+      described_class.has_plugin?("i_am_installed").should be_true
+    end
+
+    it "should return false if the plugin is not installed" do
+      described_class.has_plugin?("i_dont_exist").should be_false
+    end
+  end
 end
