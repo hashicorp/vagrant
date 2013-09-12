@@ -658,7 +658,7 @@ en:
 #-------------------------------------------------------------------------------
     config:
       common:
-        bad_field: "The following settings don't exist: %{fields}"
+        bad_field: "The following settings shouldn't exist: %{fields}"
         error_empty: "`%{field}` must be not be empty."
       chef:
         cookbooks_path_empty: "Must specify a cookbooks path for chef solo."
