@@ -34,6 +34,8 @@ module Vagrant
             # Otherwise, periodically verify the VM isn't in a bad state.
             while true
               state = env[:machine].provider.state.id
+              # Used to report invalid states
+              Thread.current[:last_known_state] = state
               if !@states.include?(state)
                 Thread.current[:result] = false
                 break
@@ -51,7 +53,7 @@ module Vagrant
           if !states_thr[:result]
             raise Errors::VMBootBadState,
               valid: @states.join(", "),
-              invalid: env[:machine].provider.state.id
+              invalid: states_thr[:last_known_state]
           end
 
           # If it didn't boot, raise an error

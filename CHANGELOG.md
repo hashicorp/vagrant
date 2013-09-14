@@ -7,6 +7,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - core: Report the proper invalid state when waiting for the guest machine
+    to be ready
   - core: `Guest#capability?` now works with strings as well
   - core: Fix NoMethodError in the new `Vagrant.has_plugin?` method [GH-2189]
   - hosts/arch: NFS exporting works properly, no exceptions. [GH-2161]
