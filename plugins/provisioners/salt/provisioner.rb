@@ -59,7 +59,7 @@ module VagrantPlugins
       end
 
       def need_configure
-        @config.minion_config or @config.minion_key
+        @config.minion_config or @config.minion_key or @config.master_config or @config.master_key
       end
 
       def need_install
