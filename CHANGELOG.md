@@ -4,6 +4,7 @@ IMPROVEMENTS:
 
   - provisioners/ansible: Support more verbosity levels, better documentation.
     [GH-2153]
+  - provisioners/ansible: Add `host_key_checking` configuration. [GH-2203]
 
 BUG FIXES:
 
