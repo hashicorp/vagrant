@@ -7,7 +7,7 @@ sidebar_current: "cli-box"
 
 **Command: `vagrant box`**
 
-This is the command used to manage (add, remove, etc.) [boxes](/v2/boxes/index.html).
+This is the command used to manage (add, remove, etc.) [boxes](/v2/boxes.html).
 
 The main functionality of this command is exposed via even more subcommands:
 
