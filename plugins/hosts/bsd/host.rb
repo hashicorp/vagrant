@@ -122,7 +122,7 @@ module VagrantPlugins
         output.split("\n").each do |line|
           line.gsub!('"', '\"')
           line.gsub!("'", "'\\\\''")
-          system(%Q[sudo su root -c "echo '#{line}' >> /etc/exports"])
+          system(%Q[sudo -s -- "echo '#{line}' >> /etc/exports"])
         end
 
         # We run restart here instead of "update" just in case nfsd
