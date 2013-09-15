@@ -15,6 +15,8 @@ BUG FIXES:
   - hosts/arch: NFS exporting works properly, no exceptions. [GH-2161]
   - hosts/fedora: Fix host detection encoding issues. [GH-1977]
   - hosts/linux: Fix NFS export problems with `no_subtree_check`. [GH-2156]
+  - providers/virtualbox: Fix an issue where destroy middlewares weren't
+    being properly called. [GH-2200]
 
 ## 1.3.1 (September 6, 2013)
 

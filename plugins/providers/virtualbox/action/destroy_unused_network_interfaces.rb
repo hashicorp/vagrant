@@ -14,6 +14,7 @@ module VagrantPlugins
             @logger.info("Destroying unused network interfaces...")
             env[:machine].provider.driver.delete_unused_host_only_networks
           end
+
           @app.call(env)
         end
       end
