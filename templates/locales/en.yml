@@ -155,6 +155,12 @@ en:
         to boot. Valid states are '%{valid}'. The machine is in the
         '%{invalid}' state. Please verify everything is configured
         properly and try again.
+
+        If the provider you're using has a GUI that comes with it,
+        it is often helpful to open that and watch the machine, since the
+        GUI often has more helpful error messages than Vagrant can retrieve.
+        For example, if you're using VirtualBox, run `vagrant up` while the
+        VirtualBox GUI is open.
       boot_timeout: |-
         Timed out while waiting for the machine to boot. This means that
         Vagrant was unable to communicate with the guest machine within
