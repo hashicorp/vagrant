@@ -141,3 +141,4 @@ by the sudo command.
 * `ansible.raw_arguments` is an *unsafe wildcard* string that can be used to take advantage of `ansible-playbook` arguments that are not (yet) supported by this Vagrant provisioner plugin. This can be very useful when integrating with bleeding edge Ansible versions. Following precedence rules apply:
   * Any supported options (described above) will override conflicting `raw_arguments` value (e.g. `--tags` or `--start-at-task`)
   * Vagrant default user authentication can be overridden via `raw_arguments` (with custom values for `--user` and `--private-key`)
+* `ansible.host_key_checking` can be set to `false` which will disable host key checking and prevent `"FAILED: (25, 'Inappropriate ioctl for device')"` errors from being reported during provisioner runs.  The default value is `true`, which matches the default behavior of Ansible 1.2.1 and later.
