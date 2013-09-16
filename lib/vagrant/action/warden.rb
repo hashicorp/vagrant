@@ -30,9 +30,10 @@ module Vagrant
           # of "recoverable" middlewares in case something goes wrong!
           raise Errors::VagrantInterrupt if env[:interrupted]
           action = @actions.shift
-          @logger.info("Calling action: #{action}")
+          @logger.info("Calling IN action: #{action}")
           @stack.unshift(action).first.call(env)
           raise Errors::VagrantInterrupt if env[:interrupted]
+          @logger.info("Calling OUT action: #{action}")
         rescue SystemExit
           # This means that an "exit" or "abort" was called. In these cases,
           # we just exit immediately.
