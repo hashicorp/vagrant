@@ -19,6 +19,8 @@ BUG FIXES:
   - hosts/linux: Fix NFS export problems with `no_subtree_check`. [GH-2156]
   - installer/mac: Vagrant works properly when a library conflicts from
     homebrew. [GH-2188]
+  - installer/mac: deb/rpm packages now have an epoch of 1 so that new
+    installers don't appear older. [GH-2179]
   - providers/virtualbox: Fix an issue where destroy middlewares weren't
     being properly called. [GH-2200]
 
