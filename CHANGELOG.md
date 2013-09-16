@@ -15,6 +15,8 @@ BUG FIXES:
   - core: Convert forwarded port parameters to integers. [GH-2173]
   - core: Don't spike CPU to 100% while waiting for machine to boot. [GH-2163]
   - core: Increase timeout for individual SSH connection to 60 seconds. [GH-2163]
+  - core: Call realpath after creating directory so NFS directory creation
+    works. [GH-2196]
   - hosts/arch: NFS exporting works properly, no exceptions. [GH-2161]
   - hosts/bsd: Use only `sudo` for writing NFS exports. This lets NFS
     exports work if you have sudo privs but not `su`. [GH-2191]

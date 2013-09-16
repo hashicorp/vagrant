@@ -40,9 +40,7 @@ module Vagrant
             # Expand the host path, create it if we have to and
             # store away the folder.
             hostpath = Pathname.new(opts[:hostpath]).
-              expand_path(env[:root_path]).
-              realpath
-            hostpath = Util::Platform.fs_real_path(hostpath)
+              expand_path(env[:root_path])
 
             if !hostpath.directory? && opts[:create]
               # Host path doesn't exist, so let's create it.
@@ -55,6 +53,12 @@ module Vagrant
                   :path => hostpath.to_s
               end
             end
+
+            # Determine the real path by expanding symlinks and getting
+            # proper casing. We have to do this after creating it
+            # if it doesn't exist.
+            hostpath = hostpath.realpath
+            hostpath = Util::Platform.fs_real_path(hostpath)
 
             # Set the hostpath back on the options and save it
             opts[:hostpath] = hostpath.to_s
