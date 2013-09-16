@@ -315,26 +315,5 @@ module Vagrant
       raise Errors::MachineStateInvalid if !result.is_a?(MachineState)
       result
     end
-
-    protected
-
-    # Given a guest name (such as `:windows`), this will load the associated
-    # guest implementation and return an instance.
-    #
-    # @param [Symbol] guest The name of the guest implementation.
-    # @return [Object]
-    def load_guest(guest)
-      @logger.info("Loading guest: #{guest}")
-
-      klass = Vagrant.plugin("2").manager.guests[guest]
-
-      if klass.nil?
-        raise Errors::VMGuestError,
-          :_key  => :unknown_type,
-          :guest => guest.to_s
-      end
-
-      return klass.new(self)
-    end
   end
 end
