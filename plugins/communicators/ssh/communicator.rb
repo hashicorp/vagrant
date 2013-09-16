@@ -194,7 +194,7 @@ module VagrantPlugins
           ]
 
           retries = 5
-          timeout = 30
+          timeout = 60
 
           @logger.info("Attempting SSH connnection...")
           connection = retryable(:tries => retries, :on => exceptions) do
