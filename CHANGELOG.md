@@ -12,6 +12,7 @@ BUG FIXES:
     to be ready
   - core: `Guest#capability?` now works with strings as well
   - core: Fix NoMethodError in the new `Vagrant.has_plugin?` method [GH-2189]
+  - core: Convert forwarded port parameters to integers. [GH-2173]
   - hosts/arch: NFS exporting works properly, no exceptions. [GH-2161]
   - hosts/bsd: Use only `sudo` for writing NFS exports. This lets NFS
     exports work if you have sudo privs but not `su`. [GH-2191]

@@ -263,6 +263,14 @@ module VagrantPlugins
         # default VM which just inherits the rest of the configuration.
         define(DEFAULT_VM_NAME) if defined_vm_keys.empty?
 
+        # Clean up some network configurations
+        @__networks.each do |type, opts|
+          if type == :forwarded_port
+            opts[:guest] = opts[:guest].to_i if opts[:guest]
+            opts[:host] = opts[:host].to_i if opts[:host]
+          end
+        end
+
         # Compile all the provider configurations
         @__providers.each do |name, blocks|
           # If we don't have any configuration blocks, then ignore it
