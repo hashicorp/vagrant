@@ -34,12 +34,18 @@ module Vagrant
             # Otherwise, periodically verify the VM isn't in a bad state.
             while true
               state = env[:machine].provider.state.id
+
               # Used to report invalid states
               Thread.current[:last_known_state] = state
+
+              # Check if we have the proper state so we can break out
               if !@states.include?(state)
                 Thread.current[:result] = false
                 break
               end
+
+              # Sleep a bit so we don't hit 100% CPU constantly.
+              sleep 1
             end
           end
 

@@ -55,7 +55,7 @@ module Vagrant
             Timeout.timeout(duration) do
               while true
                 return true if ready?
-                sleep 0.2
+                sleep 0.5
               end
             end
           rescue Timeout::Error
