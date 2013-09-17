@@ -23,38 +23,13 @@ module VagrantPlugins
         5
       end
 
-      def nfs_export(id, ips, folders)
-        nfs_opts_setup(folders)
-        output = TemplateRenderer.render('nfs/exports_linux',
-                                         :uuid => id,
-                                         :ips => ips,
-                                         :folders => folders,
-                                         :user => Process.uid)
-
-        @ui.info I18n.t("vagrant.hosts.arch.nfs_export.prepare")
-        sleep 0.5
-
-        nfs_cleanup(id)
-
-        output.split("\n").each do |line|
-          # This should only ask for administrative permission once, even
-          # though its executed in multiple subshells.
-          system(%Q[sudo su root -c "echo '#{line}' >> /etc/exports"])
-        end
-
+      def initialize
         if systemd?
-          # Call start to be nice. This will be a no-op if things are
-          # already running. Then use exportfs to pick up the changes we
-          # just made.
-          system("sudo systemctl start nfsd.service rpc-idmapd.service rpc-mountd.service rpcbind.service")
-          system("sudo exportfs -r")
+          @nfs_check_command = "/usr/sbin/systemctl status nfsd"
+          @nfs_start_command = "/usr/sbin/systemctl start nfsd rpc-idmapd rpc-mountd rpcbind"
         else
-          # The restarting of services when we might not need to can be
-          # considered evil, but this will be obviated by systemd soon
-          # enough anyway.
-          system("sudo /etc/rc.d/rpcbind restart")
-          system("sudo /etc/rc.d/nfs-common restart")
-          system("sudo /etc/rc.d/nfs-server restart")
+          @nfs_check_command = "/etc/rc.d/nfs-server status"
+          @nfs_start_command = "sh -c 'for s in {rpcbind,nfs-common,nfs-server}; do /etc/rc.d/$s start; done'"
         end
       end
 
