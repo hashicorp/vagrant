@@ -17,6 +17,8 @@ BUG FIXES:
   - core: Increase timeout for individual SSH connection to 60 seconds. [GH-2163]
   - core: Call realpath after creating directory so NFS directory creation
     works. [GH-2196]
+  - guests/linux: Try `id -g` in addition to `getent` for mounting
+    VirtualBox shared folders [GH-2197]
   - hosts/arch: NFS exporting works properly, no exceptions. [GH-2161]
   - hosts/bsd: Use only `sudo` for writing NFS exports. This lets NFS
     exports work if you have sudo privs but not `su`. [GH-2191]
