@@ -23,10 +23,11 @@ module VagrantPlugins
           end
           options << "--extra-vars=\"#{extra_vars.join(" ")}\""
         end
+
         options << "--inventory-file=#{self.setup_inventory_file}"
         options << "--sudo" if config.sudo
         options << "--sudo-user=#{config.sudo_user}" if config.sudo_user
-        options << "#{self.get_verbosity_argument}" if config.verbose
+        options << "#{self.get_verbosity_argument}"
         options << "--ask-sudo-pass" if config.ask_sudo_pass
         options << "--tags=#{as_list_argument(config.tags)}" if config.tags
         options << "--skip-tags=#{as_list_argument(config.skip_tags)}" if config.skip_tags
@@ -38,7 +39,10 @@ module VagrantPlugins
 
         # Write stdout and stderr data, since it's the regular Ansible output
         command << {
-          :env => { "ANSIBLE_FORCE_COLOR" => "true" , "ANSIBLE_HOST_KEY_CHECKING" => "#{config.host_key_checking}" },
+          :env => {
+            "ANSIBLE_FORCE_COLOR" => "true",
+            "ANSIBLE_HOST_KEY_CHECKING" => "#{config.host_key_checking}"
+          },
           :notify => [:stdout, :stderr],
           :workdir => @machine.env.root_path.to_s
         }
@@ -79,12 +83,12 @@ module VagrantPlugins
       def get_verbosity_argument
         if config.verbose.to_s =~ /^v+$/
           # Hopefully ansible-playbook accepts "silly" arguments like '-vvvvv', as '-vvv'
-          "-#{config.verbose}"
+          return "-#{config.verbose}"
         elsif config.verbose.to_s == 'extra'
-          '-vvv'
+          return '-vvv'
         else
           # fall back to default verbosity
-          '--verbose'
+          return '--verbose'
         end
       end
 

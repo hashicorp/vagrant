@@ -30,6 +30,7 @@ BUG FIXES:
     homebrew. [GH-2188]
   - installer/mac: deb/rpm packages now have an epoch of 1 so that new
     installers don't appear older. [GH-2179]
+  - provisioners/ansible: Default output level is now verbose again. [GH-2194]
   - providers/virtualbox: Fix an issue where destroy middlewares weren't
     being properly called. [GH-2200]
 
