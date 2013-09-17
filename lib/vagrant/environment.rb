@@ -709,7 +709,7 @@ module Vagrant
       filenames ||= ["Vagrantfile", "vagrantfile"]
       filenames.each do |vagrantfile|
         current_path = search_path.join(vagrantfile)
-        return current_path if current_path.exist?
+        return current_path if current_path.file?
       end
 
       nil

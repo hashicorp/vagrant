@@ -19,6 +19,8 @@ BUG FIXES:
     works. [GH-2196]
   - core: Don't try to be clever about deleting the machine state
     directory anymore. Manually done in destroy actions. [GH-2201]
+  - core: Find the root Vagrantfile only if Vagrantfile is a file, not
+    a directory. [GH-2216]
   - guests/linux: Try `id -g` in addition to `getent` for mounting
     VirtualBox shared folders [GH-2197]
   - hosts/arch: NFS exporting works properly, no exceptions. [GH-2161]
