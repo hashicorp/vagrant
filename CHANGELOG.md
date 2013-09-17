@@ -1,4 +1,4 @@
-## 1.3.2 (unreleased)
+## 1.3.2 (September 17, 2013)
 
 IMPROVEMENTS:
 
