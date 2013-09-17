@@ -17,6 +17,8 @@ BUG FIXES:
   - core: Increase timeout for individual SSH connection to 60 seconds. [GH-2163]
   - core: Call realpath after creating directory so NFS directory creation
     works. [GH-2196]
+  - core: Don't try to be clever about deleting the machine state
+    directory anymore. Manually done in destroy actions. [GH-2201]
   - guests/linux: Try `id -g` in addition to `getent` for mounting
     VirtualBox shared folders [GH-2197]
   - hosts/arch: NFS exporting works properly, no exceptions. [GH-2161]

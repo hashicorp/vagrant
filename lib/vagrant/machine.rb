@@ -207,16 +207,6 @@ module Vagrant
       else
         # Delete the file, since the machine is now destroyed
         id_file.delete if id_file.file?
-
-        # Delete the entire data directory contents since all state
-        # associated with the VM is now gone.
-        @data_dir.children.each do |child|
-          begin
-            child.rmtree
-          rescue Errno::EACCES
-            @logger.info("EACCESS deleting file: #{child}")
-          end
-        end
       end
 
       # Store the ID locally
