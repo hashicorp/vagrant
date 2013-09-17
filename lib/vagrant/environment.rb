@@ -180,18 +180,12 @@ module Vagrant
           # If this isn't a directory then it isn't a provider
           next if !provider_folder.directory?
 
-          # If this machine doesn't have an ID, then remove the
-          # directory because it shouldn't exist, and ignore.
-          if !provider_folder.join("id").file?
-            provider_folder.rmtree
-            next
-          end
+          # If this machine doesn't have an ID, then ignore
+          next if !provider_folder.join("id").file?
 
           provider = provider_folder.basename.to_s.to_sym
           result << [name, provider]
         end
-
-        name_folder.rmtree if name_folder.children.empty?
       end
 
       # Return the results
