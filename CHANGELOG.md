@@ -1,6 +1,8 @@
 ## 1.3.3 (unreleased)
 
+BUG FIXES:
 
+  - core: Fix issues with dynamic linker not finding symbols on OS X. [GH-2219]
 
 ## 1.3.2 (September 17, 2013)
 

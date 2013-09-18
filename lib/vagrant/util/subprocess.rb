@@ -80,6 +80,19 @@ module Vagrant
           end
         end
 
+        # If we're in the installer and the command is NOT included
+        # in the installer (external), then remove the DYLD_IMPORT_PATH
+        # environmental variable to run into linker issues. [GH-2219]
+        if Vagrant.in_installer?
+          installer_dir = ENV["VAGRANT_INSTALLER_EMBEDDED_DIR"].to_s.downcase
+          if !@command[0].downcase.include?(installer_dir)
+            @logger.info("Command not in the installer. Removing DYLD_LIBRARY_PATH")
+            process.environment["DYLD_LIBRARY_PATH"] = ""
+          else
+            @logger.debug("Command in installer, not touching env vars.")
+          end
+        end
+
         # Start the process
         begin
           SafeChdir.safe_chdir(workdir) do
