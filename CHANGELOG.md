@@ -3,6 +3,7 @@
 BUG FIXES:
 
   - core: Fix issues with dynamic linker not finding symbols on OS X. [GH-2219]
+  - core: Properly clean up machine directories on destroy. [GH-2223]
 
 ## 1.3.2 (September 17, 2013)
 
