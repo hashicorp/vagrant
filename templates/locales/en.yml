@@ -164,7 +164,7 @@ en:
       boot_timeout: |-
         Timed out while waiting for the machine to boot. This means that
         Vagrant was unable to communicate with the guest machine within
-        the configured ("config.ssh.timeout" value) time period. This can
+        the configured ("config.vm.boot_timeout" value) time period. This can
         mean a number of things.
 
         If you're using a custom box, make sure that networking is properly
@@ -174,7 +174,7 @@ en:
         as well.
 
         If the box appears to be booting properly, you may want to increase
-        the timeout ("config.ssh.timeout") value.
+        the timeout ("config.vm.boot_timeout") value.
       box_config_changing_box: |-
         While loading the Vagrantfile, the provider override specified
         a new box. This box, in turn, specified a different box. This isn't
