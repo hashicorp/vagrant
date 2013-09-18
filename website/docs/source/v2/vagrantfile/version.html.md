@@ -10,7 +10,7 @@ to remain [backwards compatible](v2/installation/backwards-compatibility.html)
 with Vagrant 1.0.x Vagrantfiles, while introducing dramatically new features
 and configuration options.
 
-If you run `vagrant init` today, the Vagranfile will be in roughly the
+If you run `vagrant init` today, the Vagrantfile will be in roughly the
 following format:
 
 ```ruby
