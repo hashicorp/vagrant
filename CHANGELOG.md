@@ -4,6 +4,8 @@ BUG FIXES:
 
   - core: Fix issues with dynamic linker not finding symbols on OS X. [GH-2219]
   - core: Properly clean up machine directories on destroy. [GH-2223]
+  - core: Add a timeout to waiting for SSH connection and server headers
+    on SSH. [GH-2226]
 
 ## 1.3.2 (September 17, 2013)
 

@@ -207,6 +207,7 @@ module VagrantPlugins
                 # Setup logging for connections
                 connect_opts = opts.merge({
                   :logger  => ssh_logger,
+                  :timeout => 15,
                   :verbose => :debug
                 })
 
