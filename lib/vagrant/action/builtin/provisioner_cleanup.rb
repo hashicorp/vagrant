@@ -28,6 +28,18 @@ module Vagrant
 
           # Continue, we need the VM to be booted.
           @app.call(env)
+
+          # Clean up sentinel files
+          [ "action_provision",
+            "action_set_name",
+          ].each do |filename|
+            @logger.info("Looking for provisioner sentinel #{filename}")
+            sentinel = env[:machine].data_dir.join(filename)
+            if sentinel.file?
+              @logger.info("Sentinel found! Removing...")
+              sentinel.delete
+            end
+          end
         end
       end
     end
