@@ -73,13 +73,6 @@ module Vagrant
         process.io.stderr = stderr_writer
         process.duplex = true
 
-        # Set the environment on the process if we must
-        if @options[:env]
-          @options[:env].each do |k, v|
-            process.environment[k] = v
-          end
-        end
-
         # If we're in the installer and the command is NOT included
         # in the installer (external), then remove the DYLD_IMPORT_PATH
         # environmental variable to run into linker issues. [GH-2219]
@@ -91,6 +84,13 @@ module Vagrant
               ENV["VAGRANT_ORIGINAL_DYLD_LIBRARY_PATH"]
           else
             @logger.debug("Command in installer, not touching env vars.")
+          end
+        end
+
+        # Set the environment on the process if we must
+        if @options[:env]
+          @options[:env].each do |k, v|
+            process.environment[k] = v
           end
         end
 
