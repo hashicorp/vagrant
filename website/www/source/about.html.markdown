@@ -3,6 +3,7 @@ layout: "inner"
 sidebar_current: "about"
 sidebar_template: "about"
 sidebar_title: "About"
+page_title: "About Vagrant"
 ---
 
 ## About Vagrant
