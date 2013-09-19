@@ -23,7 +23,7 @@ module VagrantPlugins
         5
       end
 
-      def initialize
+      def initialize(*args)
         if systemd?
           @nfs_check_command = "/usr/sbin/systemctl status nfsd"
           @nfs_start_command = "/usr/sbin/systemctl start nfsd rpc-idmapd rpc-mountd rpcbind"
