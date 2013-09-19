@@ -71,8 +71,8 @@ module VagrantPlugins
           script = config.inline
         end
 
-        # Replace Windows line endings with Unix ones
-        script.gsub!(/\r\n?$/, "\n")
+        # Replace Windows line endings with Unix ones unless binary file
+        script.gsub!(/\r\n?$/, "\n") unless config.binary
 
         # Otherwise we have an inline script, we need to Tempfile it,
         # and handle it specially...
