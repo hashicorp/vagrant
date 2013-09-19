@@ -1,6 +1,8 @@
 ## 1.3.4 (unreleased)
 
+BUG FIXES:
 
+  - hosts/arch: Vagrant won't crash on Arch anymore. [GH-2233]
 
 ## 1.3.3 (September 18, 2013)
 
