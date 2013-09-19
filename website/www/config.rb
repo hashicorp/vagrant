@@ -33,6 +33,8 @@
 #   @which_fake_page = "Rendering a fake page with a variable"
 # end
 
+page "/blog_feed.xml", layout: false
+
 ###
 # Helpers
 ###

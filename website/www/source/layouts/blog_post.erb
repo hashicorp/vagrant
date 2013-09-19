@@ -19,7 +19,7 @@
 			<div class="Modules blog-post page-contents span9 offset3">
 				<!-- start page content -->
 				<div class="row">
-					<div class="span7 offset1">
+					<div class="span8 offset1">
 						<article>
 							<div class="meta">
 								<span class="meta date">
@@ -30,7 +30,11 @@
 							<% end %>
 							</div>
 							<h2><%= current_article.title %></h2>
-							<%= yield %>
+							<div class="row">
+								<div class="span7">
+									<%= yield %>
+								</div>
+							</div>
 						</article>
 					</div> <!-- /span -->
 				</div> <!-- /row -->
