@@ -29,7 +29,7 @@ module VagrantPlugins
 
             mount_commands.each do |command|
               machine.communicate.sudo(command) do |type, data|
-                success = false if type == :stderr && data =~ /No such device/i
+                success = (type == :stderr && data =~ /No such device/i)
               end
 
               break if success
