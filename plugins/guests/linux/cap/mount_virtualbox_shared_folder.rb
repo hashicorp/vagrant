@@ -40,7 +40,11 @@ module VagrantPlugins
             break if success
 
             attempts += 1
-            raise Vagrant::Errors::LinuxMountFailed, :command => mount_commands.join("\n")
+            if attempts > 10
+              raise Vagrant::Errors::LinuxMountFailed,
+                command: mount_commands.join("\n")
+            end
+
             sleep 2
           end
 
