@@ -15,6 +15,37 @@ and running quickly and provides a strong alternative for users who aren't
 comfortable with a full configuration management system such as Chef or
 Puppet.
 
+## Options
+
+The shell provisioner takes various options. One of `inline` or `path`
+is required:
+
+* `inline` (string) - Specifies a shell command inline to execute on the
+  remote machine. See the [inline scripts](#inline-scripts) section below
+  for more information.
+
+* `path` (string) - Path to a shell script to upload and execute, relative
+  to the project Vagrantfile.
+
+The remainder of the available options are optional:
+
+* `args` (string) - Arguments to pass to the shell script when executing it
+  as a single string. These arguments must be written as if they were typed
+  directly on the command line, so be sure to escape characters, quote,
+  etc. as needed.
+
+* `binary` (boolean) - Vagrant automatically replaces Windows line endings with
+  Unix line endings. If this is true, then Vagrant will not do this. By default
+  this is "false".
+
+* `privileged` (boolean) - Specifies whether to execute the shell script
+  as a privileged user or not (`sudo`). By default this is "true".
+
+* `upload_path` (string) - Is the remote path where the shell script will
+  be uploaded to. The script is uploaded as the SSH user over SCP, so this
+  location must be writable to that user. By default this is "/tmp/vagrant-shell"
+
+<a name="inline-scripts"></a>
 ## Inline Scripts
 
 Perhaps the easiest way to get started is with an inline script. An
