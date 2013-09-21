@@ -10,6 +10,8 @@ BUG FIXES:
   - core: Don't output `\e[0K` anymore on Windows. [GH-2246]
   - core: Only modify `DYLD_LIBRARY_PATH` on Mac when executing commands
     in the installer context. [GH-2231]
+  - core: Clear `DYLD_LIBRARY_PATH` on Mac if the subprocess is executing
+    a setuid or setgid script. [GH-2243]
   - hosts/arch: Vagrant won't crash on Arch anymore. [GH-2233]
 
 ## 1.3.3 (September 18, 2013)

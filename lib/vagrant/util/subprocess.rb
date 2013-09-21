@@ -85,6 +85,11 @@ module Vagrant
           else
             @logger.debug("Command not in installer, not touching env vars.")
           end
+
+          if File.setuid?(@command[0]) || File.setgid?(@command[0])
+            @logger.info("Command is setuid/setgid, clearing DYLD_LIBRARY_PATH")
+            process.environment["DYLD_LIBRARY_PATH"] = ""
+          end
         end
 
         # Set the environment on the process if we must
