@@ -47,6 +47,12 @@ module VagrantPlugins
         @start_at_task     = nil if @start_at_task == UNSET_VALUE
         @raw_arguments     = nil if @raw_arguments == UNSET_VALUE
         @host_key_checking = nil if @host_key_checking == UNSET_VALUE
+
+        if @extra_vars && @extra_vars.is_a?(Hash)
+          @extra_vars.each do |k, v|
+            @extra_vars[k] = v.to_s
+          end
+        end
       end
 
       def validate(machine)
