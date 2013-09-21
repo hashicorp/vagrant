@@ -1,5 +1,10 @@
 ## 1.3.4 (unreleased)
 
+FEATURES:
+
+  - provisioners/shell: Specify the `binary` option as true and Vagrant won't
+    automatically replace Windows line endings with Unix ones.  [GH-2235]
+
 BUG FIXES:
 
   - core: Don't output `\e[0K` anymore on Windows. [GH-2246]
