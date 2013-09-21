@@ -8,6 +8,7 @@ module VagrantPlugins
       attr_accessor :upload_path
       attr_accessor :args
       attr_accessor :privileged
+      attr_accessor :binary
 
       def initialize
         @args        = UNSET_VALUE
@@ -15,6 +16,7 @@ module VagrantPlugins
         @path        = UNSET_VALUE
         @upload_path = UNSET_VALUE
         @privileged  = UNSET_VALUE
+        @binary      = UNSET_VALUE
       end
 
       def finalize!
@@ -23,6 +25,7 @@ module VagrantPlugins
         @path        = nil if @path == UNSET_VALUE
         @upload_path = "/tmp/vagrant-shell" if @upload_path == UNSET_VALUE
         @privileged  = true if @privileged == UNSET_VALUE
+        @binary      = false if @binary == UNSET_VALUE
       end
 
       def validate(machine)
