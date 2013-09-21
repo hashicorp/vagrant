@@ -48,16 +48,16 @@ module VagrantPlugins
             check << guest_path
           end
 
-          verify_shared_folders(check)
-
-          # Verify Puppet is installed and run it
-          verify_binary("puppet")
-
           # Make sure the temporary directory is properly set up
           @machine.communicate.tap do |comm|
             comm.sudo("mkdir -p #{config.temp_dir}")
             comm.sudo("chmod 0777 #{config.temp_dir}")
           end
+
+          verify_shared_folders(check)
+
+          # Verify Puppet is installed and run it
+          verify_binary("puppet")
 
           # Upload Hiera configuration if we have it
           @hiera_config_path = nil
