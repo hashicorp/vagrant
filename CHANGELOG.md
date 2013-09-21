@@ -15,6 +15,7 @@ BUG FIXES:
   - guests/linux: Don't raise exception right away if mounting fails, allow
     retries. [GH-2234]
   - hosts/arch: Vagrant won't crash on Arch anymore. [GH-2233]
+  - provisioners/puppet: Work with restrictive umask. [GH-2241]
 
 ## 1.3.3 (September 18, 2013)
 
