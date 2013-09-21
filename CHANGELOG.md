@@ -2,6 +2,7 @@
 
 BUG FIXES:
 
+  - core: Don't output `\e[0K` anymore on Windows. [GH-2246]
   - hosts/arch: Vagrant won't crash on Arch anymore. [GH-2233]
 
 ## 1.3.3 (September 18, 2013)

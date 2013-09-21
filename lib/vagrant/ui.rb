@@ -113,7 +113,6 @@ module Vagrant
 
       def clear_line
         reset = "\r"
-        reset += "\e[0K" if Util::Platform.windows? && !Util::Platform.cygwin?
 
         info(reset, :new_line => false)
       end
