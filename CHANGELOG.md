@@ -12,6 +12,7 @@ BUG FIXES:
     in the installer context. [GH-2231]
   - core: Clear `DYLD_LIBRARY_PATH` on Mac if the subprocess is executing
     a setuid or setgid script. [GH-2243]
+  - guests/linux: Fix poor chown command for mounting VirtualBox folders.
   - guests/linux: Don't raise exception right away if mounting fails, allow
     retries. [GH-2234]
   - hosts/arch: Vagrant won't crash on Arch anymore. [GH-2233]
