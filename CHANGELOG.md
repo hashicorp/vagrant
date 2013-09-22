@@ -17,6 +17,8 @@ BUG FIXES:
     retries. [GH-2234]
   - hosts/arch: Vagrant won't crash on Arch anymore. [GH-2233]
   - provisioners/ansibe: Extra vars are converted to strings. [GH-2244]
+  - provisioners/chef: Propagate disabling color if Vagrant has no color
+    enabled. [GH-2246]
   - provisioners/puppet: Work with restrictive umask. [GH-2241]
 
 ## 1.3.3 (September 18, 2013)

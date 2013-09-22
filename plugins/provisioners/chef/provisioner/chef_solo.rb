@@ -144,9 +144,19 @@ module VagrantPlugins
             @machine.ui.warn(I18n.t("vagrant.chef_run_list_empty"))
           end
 
+          options = [
+            "-c #{@config.provisioning_path}/solo.rb",
+            "-j #{@config.provisioning_path}/dna.json"
+          ]
+
+          if !@machine.env.ui.is_a?(Vagrant::UI::Colored)
+            options << "--no-color"
+          end
+
           command_env = @config.binary_env ? "#{@config.binary_env} " : ""
           command_args = @config.arguments ? " #{@config.arguments}" : ""
-          command = "#{command_env}#{chef_binary_path("chef-solo")} -c #{@config.provisioning_path}/solo.rb -j #{@config.provisioning_path}/dna.json #{command_args}"
+          command = "#{command_env}#{chef_binary_path("chef-solo")} " +
+            "#{options.join(" ")} #{command_args}"
 
           @config.attempts.times do |attempt|
             if attempt == 0
