@@ -52,7 +52,7 @@ module VagrantPlugins
           chown_commands = []
           chown_commands << "chown `id -u #{options[:owner]}`:`getent group #{options[:group]} " +
             "| cut -d: -f3` #{expanded_guest_path}"
-          chown_commands << "chown `id -u #{options[:owner]}`:`id -g #{options[:group]} " +
+          chown_commands << "chown `id -u #{options[:owner]}`:`id -g #{options[:group]}` " +
             "#{expanded_guest_path}"
 
           exit_status = machine.communicate.sudo(chown_commands[0], error_check: false)
