@@ -28,7 +28,7 @@ opts = {}
 #   * STDOUT is not a TTY
 #   * The terminal doesn't support colors (Windows)
 #
-if ARGV.include?("--no-color")
+if ARGV.include?("--no-color") or ENV["VAGRANT_NOCOLOR"]
   # Delete the argument from the list so that it doesn't
   # cause any invalid arguments down the road.
   ARGV.delete("--no-color")
