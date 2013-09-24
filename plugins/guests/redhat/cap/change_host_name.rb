@@ -9,6 +9,8 @@ module VagrantPlugins
               comm.sudo("sed -i 's/\\(HOSTNAME=\\).*/\\1#{name}/' /etc/sysconfig/network")
               comm.sudo("hostname #{name}")
               comm.sudo("sed -i 's@^\\(127[.]0[.]0[.]1[[:space:]]\\+\\)@\\1#{name} #{name.split('.')[0]} @' /etc/hosts")
+              comm.sudo("sed -i 's/\\(DHCP_HOSTNAME=\\).*/\\1\"#{name}\"/' /etc/sysconfig/network-scripts/ifcfg-*")
+              comm.sudo("service network restart")
             end
           end
         end
