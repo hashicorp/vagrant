@@ -15,6 +15,7 @@ BUG FIXES:
   - guests/linux: Fix poor chown command for mounting VirtualBox folders.
   - guests/linux: Don't raise exception right away if mounting fails, allow
     retries. [GH-2234]
+  - guests/redhat: Changing hostname changes DHCP_HOSTNAME. [GH-2267]
   - hosts/arch: Vagrant won't crash on Arch anymore. [GH-2233]
   - provisioners/ansibe: Extra vars are converted to strings. [GH-2244]
   - provisioners/chef: Propagate disabling color if Vagrant has no color
