@@ -9,14 +9,17 @@ The Vagrant getting started guide will walk you through your first
 Vagrant project, and show off the basics of the major features Vagrant
 has to offer.
 
-Before diving into your first project, please [install Vagrant](/v2/installation/index.html).
-And if you're curious what benefits Vagrant has to offer, you
+If you're curious what benefits Vagrant has to offer, you
 should also read the ["Why Vagrant?"](/v2/why-vagrant/index.html) page.
 
 The getting started guide will use Vagrant with [VirtualBox](http://www.virtualbox.org),
 since it is free, available on every major platform, and built-in to
 Vagrant. After reading the guide though, don't forget that Vagrant
 can work with [many other providers](/v2/getting-started/providers.html).
+
+Before diving into your first project, please [install Vagrant](/v2/installation/index.html).
+And because we'll be using [VirtualBox](http://www.virtualbox.org) as our
+provider for the getting started guide, please install that as well.
 
 ## Up and Running
 
