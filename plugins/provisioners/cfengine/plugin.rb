@@ -33,6 +33,11 @@ module VagrantPlugins
         Cap::RedHat::CFEngineInstall
       end
 
+      guest_capability("suse", "cfengine_install") do
+        require_relative "cap/suse/cfengine_install"
+        Cap::SuSE::CFEngineInstall
+      end
+
       provisioner(:cfengine) do
         require_relative "provisioner"
         Provisioner
