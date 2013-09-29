@@ -193,6 +193,7 @@ module VagrantPlugins
 
           bootstrap_path = get_bootstrap
           bootstrap_destination = File.join(config_dir, "bootstrap_salt.sh")
+          @machine.communicate.sudo("rm -f %s" % bootstrap_destination)
           @machine.communicate.upload(bootstrap_path.to_s, bootstrap_destination)
           @machine.communicate.sudo("chmod +x %s" % bootstrap_destination)
           bootstrap = @machine.communicate.sudo("%s %s" % [bootstrap_destination, options]) do |type, data|
