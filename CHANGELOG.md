@@ -5,6 +5,10 @@ FEATURES:
   - provisioners/shell: Specify the `binary` option as true and Vagrant won't
     automatically replace Windows line endings with Unix ones.  [GH-2235]
 
+IMPROVEMENTS:
+
+  - guests/suse: Support installing CFEngine. [GH-2273]
+
 BUG FIXES:
 
   - core: Don't output `\e[0K` anymore on Windows. [GH-2246]
