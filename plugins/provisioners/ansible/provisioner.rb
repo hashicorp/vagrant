@@ -41,7 +41,10 @@ module VagrantPlugins
         command << {
           :env => {
             "ANSIBLE_FORCE_COLOR" => "true",
-            "ANSIBLE_HOST_KEY_CHECKING" => "#{config.host_key_checking}"
+            "ANSIBLE_HOST_KEY_CHECKING" => "#{config.host_key_checking}",
+            # Ensure Ansible output isn't buffered so that we receive ouput
+            # on a task-by-task basis.
+            "PYTHONUNBUFFERED" => 1
           },
           :notify => [:stdout, :stderr],
           :workdir => @machine.env.root_path.to_s
