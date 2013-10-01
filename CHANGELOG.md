@@ -25,6 +25,7 @@ BUG FIXES:
   - provisioners/ansibe: Extra vars are converted to strings. [GH-2244]
   - provisioners/chef: Propagate disabling color if Vagrant has no color
     enabled. [GH-2246]
+  - provisioners/chef: Delete from chef server exception fixed. [GH-2300]
   - provisioners/puppet: Work with restrictive umask. [GH-2241]
   - provisioners/salt: Remove bootstrap definition file on each run in
     order to avoid permissions issues. [GH-2290]
