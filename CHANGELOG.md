@@ -22,7 +22,8 @@ BUG FIXES:
     retries. [GH-2234]
   - guests/redhat: Changing hostname changes DHCP_HOSTNAME. [GH-2267]
   - hosts/arch: Vagrant won't crash on Arch anymore. [GH-2233]
-  - provisioners/ansibe: Extra vars are converted to strings. [GH-2244]
+  - provisioners/ansible: Extra vars are converted to strings. [GH-2244]
+  - provisioners/ansible: Output will show up on a task-by-task basis. [GH-2194]
   - provisioners/chef: Propagate disabling color if Vagrant has no color
     enabled. [GH-2246]
   - provisioners/chef: Delete from chef server exception fixed. [GH-2300]
