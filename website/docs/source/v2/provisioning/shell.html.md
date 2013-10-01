@@ -24,8 +24,8 @@ is required:
   remote machine. See the [inline scripts](#inline-scripts) section below
   for more information.
 
-* `path` (string) - Path to a shell script to upload and execute, relative
-  to the project Vagrantfile.
+* `path` (string) - Path to a shell script to upload and execute. It can be a
+  script relative to the project Vagrantfile or a remote script (like a [gist](http://gist.github.com)).
 
 The remainder of the available options are optional:
 
@@ -101,6 +101,15 @@ end
 Relative paths, such as above, are expanded relative to the location
 of the root Vagrantfile for your project. Absolute paths can also be used,
 as well as shortcuts such as `~` (home directory) and `..` (parent directory).
+
+If you use a remote script as part of your provisioning process, you can pass in
+its URL as the `path` argument as well:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.provision "shell", path: "https://example.com/provisioner.sh"
+end
+```
 
 ## Script Arguments
 
