@@ -1,4 +1,4 @@
-## 1.3.4 (unreleased)
+## 1.3.4 (October 2, 2013)
 
 FEATURES:
 
