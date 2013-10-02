@@ -48,6 +48,10 @@ module Vagrant
         error_namespace(namespace) if namespace
       end
 
+      def self.error_message(message)
+        define_method(:error_message) { message }
+      end
+
       def self.error_namespace(namespace)
         define_method(:error_namespace) { namespace }
       end
@@ -55,10 +59,19 @@ module Vagrant
       def initialize(message=nil, *args)
         message = { :_key => message } if message && !message.is_a?(Hash)
         message = { :_key => error_key, :_namespace => error_namespace }.merge(message || {})
-        message = translate_error(message)
+
+        if error_key
+          message = translate_error(message)
+        else
+          message = error_message
+        end
 
         super
       end
+
+      # The error message for this error. This is used if no error_key
+      # is specified for a translatable error message.
+      def error_message; "No error message"; end
 
       # The default error namespace which is used for the error key.
       # This can be overridden here or by calling the "error_namespace"
