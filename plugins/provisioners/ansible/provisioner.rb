@@ -10,7 +10,7 @@ module VagrantPlugins
         # Joker! Not (yet) supported arguments can be passed this way.
         options << "#{config.raw_arguments}" if config.raw_arguments
 
-        # Append Provisioner options (higher precedence):
+        # Append Provisioner options (highest precedence):
         if config.extra_vars
           extra_vars = config.extra_vars.map do |k,v|
             v = v.gsub('"', '\\"')
@@ -90,8 +90,8 @@ module VagrantPlugins
         elsif config.verbose.to_s == 'extra'
           return '-vvv'
         else
-          # fall back to default verbosity
-          return '--verbose'
+          # fall back to default verbosity (which is no verbosity)
+          return ''
         end
       end
 
