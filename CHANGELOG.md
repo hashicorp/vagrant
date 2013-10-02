@@ -16,6 +16,8 @@ BUG FIXES:
     in the installer context. [GH-2231]
   - core: Clear `DYLD_LIBRARY_PATH` on Mac if the subprocess is executing
     a setuid or setgid script. [GH-2243]
+  - core: Defined action hook names can be strings now. They are converted
+    to symbols internally.
   - guests/debian: FQDN is properly set when setting the hostname. [GH-2254]
   - guests/linux: Fix poor chown command for mounting VirtualBox folders.
   - guests/linux: Don't raise exception right away if mounting fails, allow

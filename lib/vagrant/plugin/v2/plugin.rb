@@ -73,7 +73,7 @@ module Vagrant
           # The name is currently not used but we want it for the future.
 
           hook_name ||= ALL_ACTIONS
-          components.action_hooks[hook_name] << block
+          components.action_hooks[hook_name.to_sym] << block
         end
 
         # Defines additional command line commands available by key. The key
