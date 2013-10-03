@@ -90,8 +90,9 @@ module VagrantPlugins
         elsif config.verbose.to_s == 'extra'
           return '-vvv'
         else
-          # fall back to default verbosity (which is no verbosity)
-          return ''
+          # Use default verbose verbosity if no extra-verbose value has been specified
+          # for config.verbose.
+          return '--verbose'
         end
       end
 
