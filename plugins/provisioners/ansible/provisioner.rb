@@ -27,7 +27,7 @@ module VagrantPlugins
         options << "--inventory-file=#{self.setup_inventory_file}"
         options << "--sudo" if config.sudo
         options << "--sudo-user=#{config.sudo_user}" if config.sudo_user
-        options << "#{self.get_verbosity_argument}"
+        options << "#{self.get_verbosity_argument}" if config.verbose
         options << "--ask-sudo-pass" if config.ask_sudo_pass
         options << "--tags=#{as_list_argument(config.tags)}" if config.tags
         options << "--skip-tags=#{as_list_argument(config.skip_tags)}" if config.skip_tags
