@@ -87,8 +87,9 @@ module VagrantPlugins
         if config.verbose.to_s =~ /^v+$/
           # ansible-playbook accepts "silly" arguments like '-vvvvv' as '-vvvv' for now
           return "-#{config.verbose}"
-        elsif config.verbose.to_s == 'extra'
-          return '-vvv'
+        else
+          # safe default, in case input strays
+          return '-v'
         end
       end
 
