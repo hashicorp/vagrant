@@ -25,6 +25,7 @@ module Vagrant
       autoload :SSHExec, "vagrant/action/builtin/ssh_exec"
       autoload :SSHRun,  "vagrant/action/builtin/ssh_run"
       autoload :WaitForCommunicator, "vagrant/action/builtin/wait_for_communicator"
+      autoload :WriteBoxInfo, "vagrant/action/builtin/write_box_info"
     end
 
     module General
@@ -39,6 +40,7 @@ module Vagrant
     def self.action_box_add
       Builder.new.tap do |b|
         b.use Builtin::BoxAdd
+        b.use Builtin::WriteBoxInfo
       end
     end
   end
