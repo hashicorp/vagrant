@@ -135,7 +135,7 @@ by the sudo command.
 * `ansible.verbose` can be set to increase Ansible's verbosity to obtain detailed logging:
   * `'v'`, verbose mode
   * `'vv'`
-  * `'vvv'`, more (aliased as `'extra'`)
+  * `'vvv'`, more
   * `'vvvv'`, connection debugging
 * `ansible.tags` can be set to a string or an array of tags. Only plays, roles and tasks tagged with these values will be executed.
 * `ansible.skip_tags` can be set to a string or an array of tags. Only plays, roles and tasks that *do not match* these values will be executed.
