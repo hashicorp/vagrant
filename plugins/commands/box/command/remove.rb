@@ -1,9 +1,11 @@
 require 'optparse'
 
+require_relative "base"
+
 module VagrantPlugins
   module CommandBox
     module Command
-      class Remove < Vagrant.plugin("2", :command)
+      class Remove < Base
         def execute
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant box remove <name> <provider>"
@@ -34,10 +36,9 @@ module VagrantPlugins
             argv[1] = providers[0] || ""
           end
 
-          @env.action_runner.run(Vagrant::Action.action_box_remove, {
+          action(Vagrant::Action.action_box_remove, {
             :box_name     => argv[0],
-            :box_provider => argv[1],
-            :box_state_file => StateFile.new(@env.home_path.join('boxes.json'))
+            :box_provider => argv[1]
           })
 
           # Success, exit status 0
