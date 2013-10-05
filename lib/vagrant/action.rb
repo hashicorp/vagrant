@@ -8,7 +8,8 @@ module Vagrant
     # Builtin contains middleware classes that are shipped with Vagrant-core
     # and are thus available to all plugins as a "standard library" of sorts.
     module Builtin
-      autoload :BoxAdd,  "vagrant/action/builtin/box_add"
+      autoload :BoxAdd,    "vagrant/action/builtin/box_add"
+      autoload :BoxRemove, "vagrant/action/builtin/box_remove"
       autoload :Call,    "vagrant/action/builtin/call"
       autoload :Confirm, "vagrant/action/builtin/confirm"
       autoload :ConfigValidate, "vagrant/action/builtin/config_validate"
@@ -41,6 +42,15 @@ module Vagrant
       Builder.new.tap do |b|
         b.use Builtin::BoxAdd
         b.use Builtin::WriteBoxInfo
+      end
+    end
+
+    # This is the action that will remove a box given a name (and optionally
+    # a provider). This middleware sequence is built-in to Vagrant. Plugins
+    # can hook into this like any other middleware sequence.
+    def self.action_box_remove
+      Builder.new.tap do |b|
+        b.use Builtin::BoxRemove
       end
     end
   end
