@@ -10,10 +10,14 @@ module VagrantPlugins
         # @param [Hash] env Extra environment hash that is merged in.
         def action(callable, env=nil)
           env = {
-            :box_state_file => StateFile.new(@env.home_path.join("boxes.json"))
+            :box_state_file => box_state_file
           }.merge(env || {})
 
           @env.action_runner.run(callable, env)
+        end
+
+        def box_state_file
+          @box_state_file ||= StateFile.new(@env.home_path.join("boxes.json"))
         end
       end
     end

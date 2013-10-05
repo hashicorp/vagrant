@@ -28,6 +28,20 @@ module VagrantPlugins
         save!
       end
 
+      def box_url(name, provider)
+        box_key = "#{name}-#{provider}"
+
+        box_info = @data["boxes"].fetch(box_key, {})
+        box_info['url'] || 'Unknown'
+      end
+
+      def downloaded_at(name, provider)
+        box_key = "#{name}-#{provider}"
+
+        box_info = @data["boxes"].fetch(box_key, {})
+        box_info['downloaded_at'] || 'Unknown'
+      end
+
       # Remove a box that has been previously downloaded from the state file.
       #
       # @param [Box] box The box that was removed.
