@@ -3,7 +3,8 @@ require "log4r"
 module Vagrant
   module Action
     module Builtin
-      # This middleware will persist some extra information about the base box
+      # This middleware will remove additional information about the base box
+      # from state file
       class RemoveBoxInfo
         def initialize(app, env)
           @app    = app

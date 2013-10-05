@@ -4,6 +4,7 @@ module Vagrant
   module Action
     module Builtin
       # This middleware will persist some extra information about the base box
+      # on a state file
       class WriteBoxInfo
         def initialize(app, env)
           @app    = app
