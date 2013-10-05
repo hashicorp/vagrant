@@ -22,6 +22,7 @@ module Vagrant
       autoload :NFS, "vagrant/action/builtin/nfs"
       autoload :Provision, "vagrant/action/builtin/provision"
       autoload :ProvisionerCleanup, "vagrant/action/builtin/provisioner_cleanup"
+      autoload :RemoveBoxInfo, "vagrant/action/builtin/remove_box_info"
       autoload :SetHostname, "vagrant/action/builtin/set_hostname"
       autoload :SSHExec, "vagrant/action/builtin/ssh_exec"
       autoload :SSHRun,  "vagrant/action/builtin/ssh_run"
@@ -51,6 +52,7 @@ module Vagrant
     def self.action_box_remove
       Builder.new.tap do |b|
         b.use Builtin::BoxRemove
+        b.use Builtin::RemoveBoxInfo
       end
     end
   end

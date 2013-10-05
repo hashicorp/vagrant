@@ -28,6 +28,15 @@ module VagrantPlugins
         save!
       end
 
+      # Remove a box that has been previously downloaded from the state file.
+      #
+      # @param [Box] box The box that was removed.
+      def remove_box(box)
+        box_key = "#{box.name}-#{box.provider}"
+        @data["boxes"].delete(box_key)
+        save!
+      end
+
       # This saves the state back into the state file.
       def save!
         @path.open("w+") do |f|
