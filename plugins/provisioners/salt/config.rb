@@ -13,6 +13,7 @@ module VagrantPlugins
       attr_accessor :master_key
       attr_accessor :master_pub
       attr_accessor :run_highstate
+      attr_accessor :run_overstate
       attr_accessor :always_install
       attr_accessor :bootstrap_script
       attr_accessor :verbose
@@ -36,6 +37,7 @@ module VagrantPlugins
         @master_key = UNSET_VALUE
         @master_pub = UNSET_VALUE
         @run_highstate = UNSET_VALUE
+        @run_overstate = UNSET_VALUE
         @always_install = UNSET_VALUE
         @bootstrap_script = UNSET_VALUE
         @verbose = UNSET_VALUE
@@ -58,6 +60,7 @@ module VagrantPlugins
         @master_key         = nil if @master_key == UNSET_VALUE
         @master_pub         = nil if @master_pub == UNSET_VALUE
         @run_highstate      = nil if @run_highstate == UNSET_VALUE
+        @run_overstate      = nil if @run_overstate == UNSET_VALUE
         @always_install     = nil if @always_install == UNSET_VALUE
         @bootstrap_script   = nil if @bootstrap_script == UNSET_VALUE
         @verbose            = nil if @verbose == UNSET_VALUE

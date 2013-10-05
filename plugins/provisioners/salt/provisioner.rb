@@ -7,6 +7,7 @@ module VagrantPlugins
         upload_configs
         upload_keys
         run_bootstrap_script
+        call_overstate
         call_highstate
       end
 
@@ -220,6 +221,23 @@ module VagrantPlugins
           end
         else
           @machine.env.ui.info "Salt did not need installing or configuring."
+        end
+      end
+      def call_overstate
+        if @config.run_overstate
+            if @config.install_master
+              @machine.env.ui.info "Calling state.overstate... (this may take a while)"
+              @machine.communicate.sudo("salt '*' saltutil.sync_all")
+              @machine.communicate.sudo("salt-run state.over") do |type, data|
+                if @config.verbose
+                  @machine.env.ui.info(data)
+                end
+              end
+            else
+              @machine.env.ui.info "run_overstate does not make sense on a minion. Not running state.overstate."
+            end
+        else
+          @machine.env.ui.info "run_overstate set to false. Not running state.overstate."
         end
       end
 
