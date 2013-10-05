@@ -40,6 +40,7 @@ module VagrantPlugins
             :box_url      => argv[1],
             :box_force    => options[:force],
             :box_download_insecure => options[:insecure],
+            :box_state_file => StateFile.new(@env.home_path.join('boxes.json'))
           })
 
           # Success, exit status 0

@@ -11,5 +11,7 @@ module VagrantPlugins
         Command::Root
       end
     end
+
+    autoload :StateFile, File.expand_path("../state_file", __FILE__)
   end
 end
