@@ -1,6 +1,9 @@
 ## 1.3.5 (unreleased)
 
+BUG FIXES:
 
+  - core: Fix some places where "no error message" errors were being
+    reported when in fact there were errors. [GH-2328]
 
 ## 1.3.4 (October 2, 2013)
 

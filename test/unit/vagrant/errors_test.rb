@@ -17,6 +17,14 @@ describe Vagrant::Errors::VagrantError do
     its("status_code") { should eq(1) }
   end
 
+  describe "passing error key through options" do
+    subject { described_class.new(_key: "test_key") }
+
+    it "should use the translation for the message" do
+      subject.to_s.should == "test value"
+    end
+  end
+
   describe "subclass with error message" do
     let(:klass) do
       Class.new(described_class) do
