@@ -3,6 +3,7 @@
 IMPROVEMENTS:
 
   - guests/redhat: Oracle Linux is now supported. [GH-2329]
+  - provisioners/salt: Support running overstate. [GH-2313]
 
 BUG FIXES:
 
