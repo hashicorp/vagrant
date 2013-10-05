@@ -5,7 +5,7 @@ require "vagrant"
 require Vagrant.source_root.join("plugins/hosts/linux/host")
 
 module VagrantPlugins
-  module HostFedora
+  module HostRedHat
     class Host < VagrantPlugins::HostLinux::Host
       def self.match?
         release_file = Pathname.new("/etc/redhat-release")
