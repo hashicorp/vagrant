@@ -4,6 +4,7 @@ BUG FIXES:
 
   - core: Fix some places where "no error message" errors were being
     reported when in fact there were errors. [GH-2328]
+  - provisioners/ansible: Verbosity won't be blank by default. [GH-2320]
 
 ## 1.3.4 (October 2, 2013)
 
