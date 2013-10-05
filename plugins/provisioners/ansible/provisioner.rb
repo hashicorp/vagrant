@@ -27,7 +27,7 @@ module VagrantPlugins
         options << "--inventory-file=#{self.setup_inventory_file}"
         options << "--sudo" if config.sudo
         options << "--sudo-user=#{config.sudo_user}" if config.sudo_user
-        options << "#{self.get_verbosity_argument}"
+        options << "#{self.get_verbosity_argument}" if config.verbose
         options << "--ask-sudo-pass" if config.ask_sudo_pass
         options << "--tags=#{as_list_argument(config.tags)}" if config.tags
         options << "--skip-tags=#{as_list_argument(config.skip_tags)}" if config.skip_tags
@@ -85,13 +85,11 @@ module VagrantPlugins
 
       def get_verbosity_argument
         if config.verbose.to_s =~ /^v+$/
-          # Hopefully ansible-playbook accepts "silly" arguments like '-vvvvv', as '-vvv'
+          # ansible-playbook accepts "silly" arguments like '-vvvvv' as '-vvvv' for now
           return "-#{config.verbose}"
-        elsif config.verbose.to_s == 'extra'
-          return '-vvv'
         else
-          # fall back to default verbosity (which is no verbosity)
-          return ''
+          # safe default, in case input strays
+          return '-v'
         end
       end
 
