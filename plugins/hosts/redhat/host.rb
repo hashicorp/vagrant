@@ -13,9 +13,10 @@ module VagrantPlugins
         if release_file.exist?
           release_file.open("r:ISO-8859-1:UTF-8") do |f|
             contents = f.gets
-            return true if contents =~ /^Fedora/
-            return true if contents =~ /^CentOS/
-            return true if contents =~ /^Red Hat Enterprise Linux Server/
+            return true if contents =~ /^Fedora/ # Fedora
+            return true if contents =~ /^CentOS/ # CentOS
+            return true if contents =~ /^Enterprise Linux Enterprise Linux/ # Oracle Linux < 5.3
+            return true if contents =~ /^Red Hat Enterprise Linux/ # Red Hat Enterprise Linux and Oracle Linux >= 5.3
           end
         end
 
