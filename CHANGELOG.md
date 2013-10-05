@@ -1,5 +1,9 @@
 ## 1.3.5 (unreleased)
 
+IMPROVEMENTS:
+
+  - guests/redhat: Oracle Linux is now supported. [GH-2329]
+
 BUG FIXES:
 
   - core: Fix some places where "no error message" errors were being
