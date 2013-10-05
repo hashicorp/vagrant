@@ -1,12 +1,12 @@
 require "vagrant"
 
 module VagrantPlugins
-  module HostFedora
+  module HostRedHat
     class Plugin < Vagrant.plugin("2")
-      name "Fedora host"
-      description "Fedora host support."
+      name "Red Hat host"
+      description "Red Hat host support."
 
-      host("fedora") do
+      host("redhat") do
         require File.expand_path("../host", __FILE__)
         Host
       end

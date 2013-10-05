@@ -5,7 +5,7 @@ require "vagrant"
 require Vagrant.source_root.join("plugins/hosts/linux/host")
 
 module VagrantPlugins
-  module HostFedora
+  module HostRedHat
     class Host < VagrantPlugins::HostLinux::Host
       def self.match?
         release_file = Pathname.new("/etc/redhat-release")
@@ -13,9 +13,10 @@ module VagrantPlugins
         if release_file.exist?
           release_file.open("r:ISO-8859-1:UTF-8") do |f|
             contents = f.gets
-            return true if contents =~ /^Fedora/
-            return true if contents =~ /^CentOS/
-            return true if contents =~ /^Red Hat Enterprise Linux Server/
+            return true if contents =~ /^Fedora/ # Fedora
+            return true if contents =~ /^CentOS/ # CentOS
+            return true if contents =~ /^Enterprise Linux Enterprise Linux/ # Oracle Linux < 5.3
+            return true if contents =~ /^Red Hat Enterprise Linux/ # Red Hat Enterprise Linux and Oracle Linux >= 5.3
           end
         end
 
@@ -37,11 +38,14 @@ module VagrantPlugins
         release_file = Pathname.new("/etc/redhat-release")
         begin
           release_file.open("r:ISO-8859-1:UTF-8") do |f|
-            version_number = /(CentOS|Fedora|Red Hat Enterprise Linux Server).*release ([0-9]+)/.match(f.gets)[2].to_i
-            if version_number >= 16
-              # "service nfs-server" will redirect properly to systemctl
-              # when "service nfs-server restart" is called.
-              nfs_server_binary = "/usr/sbin/service nfs-server"
+            fedora_match = /Fedora.* release ([0-9]+)/.match(f.gets)
+            if fedora_match
+              version_number = fedora_match[1].to_i
+              if version_number >= 16
+                # "service nfs-server" will redirect properly to systemctl
+                # when "service nfs-server restart" is called.
+                nfs_server_binary = "/usr/sbin/service nfs-server"
+              end
             end
           end
         rescue Errno::ENOENT
