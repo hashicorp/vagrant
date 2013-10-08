@@ -22,7 +22,7 @@ module VagrantPlugins
               # hosts should resemble:
               # 127.0.0.1   localhost host.fqdn.com host
               # 127.0.1.1   host.fqdn.com host
-              comm.sudo("sed -ri 's@^((\\b[0-9]{1,3}\.){3}[0-9]{1,3})\\b.*(localhost).*$@\\1\\t\\3 #{name} #{name.split('.')[0]}@g' /etc/hosts")
+              comm.sudo("sed -ri 's@^((\\b[0-9]{1,3}\.){3}[0-9]{1,3})\\b.*(localhost).*$@\\1\\t#{name} #{name.split('.')[0]} \\3@g' /etc/hosts")
               comm.sudo("sed -ri 's@^((\\b[0-9]{1,3}\.){3}[0-9]{1,3})\\b.*(precise64).*$@\\1\\t#{name} #{name.split('.')[0]}@g' /etc/hosts")
 
               if comm.test("[ `lsb_release -c -s` = hardy ]")
