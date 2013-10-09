@@ -35,6 +35,7 @@ module VagrantPlugins
                "Back the machine with a specific provider.") do |provider|
             options[:provider] = provider
           end
+          
         end
 
         # Parse the options

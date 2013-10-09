@@ -19,6 +19,10 @@ module VagrantPlugins
                 "Enable only certain provisioners, by type.") do |list|
           options[:provision_types] = list.map { |type| type.to_sym }
         end
+        
+        parser.on("--init-only", "Only initialize the provider") do |i|
+          options[:init_only] = i
+        end
       end
 
       # This validates the provisioner flags and raises an exception
