@@ -98,6 +98,27 @@ end
 
 Now, the `$vagrant` variable in your Puppet manifests will equal "1".
 
+## Configuring Hiera
+
+[Hiera](http://docs.puppetlabs.com/hiera/1/) configuration is also supported.
+`hiera_config_path` specifies the path to the Hiera configuration file stored on
+the host. If the `:datadir` setting in the Hiera configuration file is a
+relative path, `working_directory` should be used to specify the directory in
+the guest that path is relative to.
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.provision "puppet" do |puppet|
+    puppet.hiera_config_path = "hiera.yaml"
+    puppet.working_directory = "/tmp/vagrant-puppet"
+  end
+end
+```
+
+`hiera_config_path` can be relative or absolute. If it is relative, it is
+relative to the project root. `working_directory` is an absolute path within the
+guest.
+
 ## Additional Options
 
 Puppet supports a lot of command-line flags. Basically any setting can
