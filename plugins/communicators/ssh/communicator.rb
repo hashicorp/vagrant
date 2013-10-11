@@ -57,8 +57,18 @@ module VagrantPlugins
         }.merge(opts || {})
 
         # Connect via SSH and execute the command in the shell.
+        stdout = ""
+        stderr = ""
         exit_status = connect do |connection|
-          shell_execute(connection, command, opts[:sudo], &block)
+          shell_execute(connection, command, opts[:sudo]) do |type, data|
+            if type == :stdout
+              stdout += data
+            elsif type == :stderr
+              stderr += data
+            end
+
+            block.call(type, data) if block
+          end
         end
 
         # Check for any errors
@@ -66,7 +76,11 @@ module VagrantPlugins
           # The error classes expect the translation key to be _key,
           # but that makes for an ugly configuration parameter, so we
           # set it here from `error_key`
-          error_opts = opts.merge(:_key => opts[:error_key])
+          error_opts = opts.merge(
+            :_key => opts[:error_key],
+            :stdout => stdout,
+            :stderr => stderr
+          )
           raise opts[:error_class], error_opts
         end
 
@@ -172,6 +186,7 @@ module VagrantPlugins
             Errno::EADDRINUSE,
             Errno::ECONNREFUSED,
             Errno::ECONNRESET,
+            Errno::ENETUNREACH,
             Errno::EHOSTUNREACH,
             Net::SSH::Disconnect,
             Timeout::Error
@@ -290,6 +305,31 @@ module VagrantPlugins
 
             # Set the terminal
             ch2.send_data "export TERM=vt100\n"
+
+            # Set SSH_AUTH_SOCK if we are in sudo and forwarding agent.
+            # This is to work around often misconfigured boxes where
+            # the SSH_AUTH_SOCK env var is not preserved.
+            if @machine.ssh_info[:forward_agent] && sudo
+              auth_socket = ""
+              execute("echo; printf $SSH_AUTH_SOCK") do |type, data|
+                if type == :stdout
+                  auth_socket += data
+                end
+              end
+
+              if auth_socket != ""
+                # Make sure we only read the last line which should be
+                # the $SSH_AUTH_SOCK env var we printed.
+                auth_socket = auth_socket.split("\n").last.chomp
+              end
+
+              if auth_socket == ""
+                @logger.warn("No SSH_AUTH_SOCK found despite forward_agent being set.")
+              else
+                @logger.info("Setting SSH_AUTH_SOCK remotely: #{auth_socket}")
+                ch2.send_data "export SSH_AUTH_SOCK=#{auth_socket}\n"
+              end
+            end
 
             # Output the command
             ch2.send_data "#{command}\n"

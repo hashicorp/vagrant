@@ -1,5 +1,6 @@
 log_level          <%= log_level.inspect %>
 log_location       STDOUT
+verbose_logging    <%= verbose_logging.inspect %>
 <% if node_name %>
 node_name          "<%= node_name %>"
 <% end %>
@@ -30,6 +31,10 @@ no_proxy <%= no_proxy.inspect %>
 pid_file           "/var/run/chef/chef-client.pid"
 
 Mixlib::Log::Formatter.show_time = true
+
+<% if formatter %>
+formatter "<%= formatter %>"
+<% end %>
 
 <% if custom_configuration -%>
 load "<%= custom_configuration %>"

@@ -14,7 +14,7 @@ module VagrantPlugins
 
           # If no name was manually set, then use a default
           if !name
-            prefix = env[:root_path].basename.to_s
+            prefix = "#{env[:root_path].basename.to_s}_#{env[:machine].name}"
             prefix.gsub!(/[^-a-z0-9_]/i, "")
             name = prefix + "_#{Time.now.to_i}"
           end

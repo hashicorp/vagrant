@@ -31,11 +31,13 @@ module VagrantPlugins
         }
 
         begin
-          Vagrant::Util::Subprocess.execute(*command) do |type, data|
+          exit_status = Vagrant::Util::Subprocess.execute(*command) do |type, data|
             if type == :stdout || type == :stderr
-              @machine.env.ui.info(data.chomp, :prefix => false)
+              @machine.env.ui.info(data, :new_line => false, :prefix => false)
             end
           end
+
+          raise Vagrant::Errors::AnsibleFailed if exit_status != 0
         rescue Vagrant::Util::Subprocess::LaunchError
           raise Vagrant::Errors::AnsiblePlaybookAppNotFound
         end

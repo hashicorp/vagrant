@@ -331,6 +331,19 @@ module VagrantPlugins
           nil
         end
 
+        def read_mac_addresses
+          macs = {}
+          info = execute("showvminfo", @uuid, "--machinereadable", :retryable => true)
+          info.split("\n").each do |line|
+            if matcher = /^macaddress(\d+)="(.+?)"$/.match(line)
+              adapter = matcher[1].to_i
+              mac = matcher[2].to_s
+              macs[adapter] = mac
+            end
+          end
+          macs
+        end
+
         def read_machine_folder
           execute("list", "systemproperties", :retryable => true).split("\n").each do |line|
             if line =~ /^Default machine folder:\s+(.+?)$/i

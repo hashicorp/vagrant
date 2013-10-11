@@ -70,7 +70,7 @@ module Vagrant
 
             # If the port is open (listening for TCP connections)
             if extra_in_use.include?(host_port) || is_port_open?("127.0.0.1", host_port)
-              if !repair
+              if !repair || !options[:auto_correct]
                 raise Errors::ForwardPortCollision,
                   :guest_port => guest_port.to_s,
                   :host_port  => host_port.to_s

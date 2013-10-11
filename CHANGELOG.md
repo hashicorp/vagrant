@@ -1,3 +1,75 @@
+## 1.2.5 (unreleased)
+
+FEATURES:
+
+  - `vagrant help <command>` now works. [GH-1578]
+  - Added `config.vm.box_download_insecure` to allor the box_url setting
+    to point to an https site that won't be validated. [GH-1712]
+  - VirtualBox VBoxManage customizations can now be specified to run
+    pre-boot (the default and existing functionality, pre-import,
+    or post-boot. [GH-1247]
+  - VirtualBox no longer destroys unused network interfaces by default.
+    This didn't work across multi-user systems and required admin privileges
+    on Windows, so it has been disabled by default. It can be enabled using
+    the VirtualBox provider-specific `destroy_unused_network_interfaces`
+    configuration by setting it to true. [GH-1324]
+
+IMPROVEMENTS:
+
+  - Remote commands that fail will now show the stdout/stderr of the
+    command that failed. [GH-1203]
+  - Puppet will run without color if the UI is not colored. [GH-1344]
+  - Chef supports the "formatter" configuration for setting the
+    formatter. [GH-1250]
+  - VAGRANT_DOTFILE_PATH environmental variable reintroduces the
+    functionality removed in 1.1 from "config.dotfile_name" [GH-1524]
+  - Vagrant will show an error if VirtualBox 4.2.14 is running.
+  - Added provider to BoxNotFound error message. [GH-1692]
+  - If Ansible fails to run properly, show an error message. [GH-1699]
+  - Adding a box with the `--provider` flag will now allow a box for
+    any of that provider's supported formats.
+  - NFS mounts enable UDP by default, resulting in higher performance.
+    (Because mount is over local network, packet loss is not an issue)
+   [GH-1706]
+
+BUG FIXES:
+
+  - `box_url` now handles the case where the provider doesn't perfectly
+    match the provider in use, but the provider supports it. [GH-1752]
+  - Fix uninitialized constant error when configuring Arch Linux network. [GH-1734]
+  - Debian/Ubuntu change hostname works properly if eth0 is configured
+    with hot-plugging. [GH-1929]
+  - NFS exports with improper casing on Mac OS X work properly. [GH-1202]
+  - Shared folders overriding '/vagrant' in multi-VM environments no
+    longer all just use the last value. [GH-1935]
+  - NFS export fsid's are now 32-bit integers, rather than UUIDs. This
+    lets NFS exports work with Linux kernels older than 2.6.20. [GH-1127]
+  - NFS export allows access from all private networks on the VM. [GH-1204]
+  - Default VirtualBox VM name now contains the machine name as defined
+    in the Vagrantfile, helping differentiate multi-VM. [GH-1281]
+  - NFS works properly on CentOS hosts. [GH-1394]
+  - Solaris guests actually shut down properly. [GH-1506]
+  - All provisioners only output newlines when the provisioner sends a
+    newline. This results in the output looking a lot nicer.
+  - Sharing folders works properly if ".profile" contains an echo. [GH-1677]
+  - `vagrant ssh-config` IdentityFile is only wrapped in quotes if it
+    contains a space. [GH-1682]
+  - Shared folder target path can be a Windows path. [GH-1688]
+  - Forwarded ports don't auto-correct by default, and will raise an
+    error properly if they collide. [GH-1701]
+  - Retry SSH on ENETUNREACH error. [GH-1732]
+  - NFS is silently ignored on Windows. [GH-1748]
+  - Validation so that private network static IP does not end in ".1" [GH-1750]
+  - With forward agent enabled and sudo being used, Vagrant will automatically
+    discover and set `SSH_AUTH_SOCK` remotely so that forward agent
+    works properly despite misconfigured sudoers. [GH-1307]
+  - Synced folder paths on Windows containing '\' are replaced with
+    '/' internally so that they work properly.
+  - Unused config objects are finalized properly. [GH-1877]
+  - Private networks work with Fedora guests once again. [GH-1738]
+  - Default internal encoding of strings in Vagrant is now UTF-8, allowing
+    detection of Fedora to work again (which contained a UTF-8 string). [GH-1977]
+
 ## 1.2.4 (July 16, 2013)
 
 FEATURES:

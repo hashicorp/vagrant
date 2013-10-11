@@ -74,7 +74,9 @@ module Vagrant
       opts[:cwd] ||= ENV["VAGRANT_CWD"] if ENV.has_key?("VAGRANT_CWD")
       opts[:cwd] ||= Dir.pwd
       opts[:cwd] = Pathname.new(opts[:cwd])
-      raise Errors::EnvironmentNonExistentCWD if !opts[:cwd].directory?
+      if !opts[:cwd].directory?
+        raise Errors::EnvironmentNonExistentCWD, cwd: opts[:cwd].to_s
+      end
 
       # Set the default ui class
       opts[:ui_class] ||= UI::Silent
@@ -115,11 +117,10 @@ module Vagrant
       # Setup the local data directory. If a configuration path is given,
       # then it is expanded relative to the working directory. Otherwise,
       # we use the default which is expanded relative to the root path.
-      @local_data_path = nil
+      opts[:local_data_path] ||= ENV["VAGRANT_DOTFILE_PATH"]
+      opts[:local_data_path] ||= root_path.join(DEFAULT_LOCAL_DATA) if !root_path.nil?
       if opts[:local_data_path]
         @local_data_path = Pathname.new(File.expand_path(opts[:local_data_path], @cwd))
-      elsif !root_path.nil?
-        @local_data_path = root_path.join(DEFAULT_LOCAL_DATA)
       end
 
       setup_local_data_path
@@ -338,7 +339,17 @@ module Vagrant
       box_changed  = false
 
       load_box_and_overrides = lambda do
-        box = find_box(config.vm.box, box_formats) if config.vm.box
+        box = nil
+        if config.vm.box
+          begin
+            box = boxes.find(config.vm.box, box_formats)
+          rescue Errors::BoxUpgradeRequired
+            # Upgrade the box if we must
+            @logger.info("Upgrading box during config load: #{config.vm.box}")
+            boxes.upgrade(config.vm.box)
+            retry
+          end
+        end
 
         # If a box was found, then we attempt to load the Vagrantfile for
         # that box. We don't require a box since we allow providers to download
@@ -691,39 +702,6 @@ module Vagrant
       end
 
       Pathname.new(path)
-    end
-
-    # This finds a box for the given name and formats, or returns nil
-    # if the box isn't found.
-    #
-    # @param [String] name Name of the box
-    # @param [Array<Symbol>] formats The formats to search for the box.
-    # @return [Box]
-    def find_box(name, formats)
-      # Determine the box formats we support
-      formats = [formats] if !formats.is_a?(Array)
-
-      @logger.info("Provider-supported box formats: #{formats.inspect}")
-      formats.each do |format|
-        box = nil
-
-        begin
-          box = boxes.find(name, format.to_s)
-        rescue Errors::BoxUpgradeRequired
-          # Upgrade the box if we must
-          @logger.info("Upgrading box during config load: #{name}")
-          boxes.upgrade(name)
-          retry
-        end
-
-        # If a box was found, we exit
-        if box
-          @logger.info("Box found with format: #{format}")
-          return box
-        end
-      end
-
-      nil
     end
 
     # Finds the Vagrantfile in the given directory.

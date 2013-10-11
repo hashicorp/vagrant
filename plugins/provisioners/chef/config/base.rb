@@ -7,6 +7,7 @@ module VagrantPlugins
         attr_accessor :binary_path
         attr_accessor :binary_env
         attr_accessor :custom_config_path
+        attr_accessor :formatter
         attr_accessor :http_proxy
         attr_accessor :http_proxy_user
         attr_accessor :http_proxy_pass
@@ -21,6 +22,7 @@ module VagrantPlugins
         attr_accessor :run_list
         attr_accessor :file_cache_path
         attr_accessor :file_backup_path
+        attr_accessor :verbose_logging
 
         def initialize
           super
@@ -30,6 +32,7 @@ module VagrantPlugins
           @binary_path       = UNSET_VALUE
           @binary_env        = UNSET_VALUE
           @custom_config_path = UNSET_VALUE
+          @formatter         = UNSET_VALUE
           @http_proxy        = UNSET_VALUE
           @http_proxy_user   = UNSET_VALUE
           @http_proxy_pass   = UNSET_VALUE
@@ -42,6 +45,7 @@ module VagrantPlugins
           @provisioning_path = UNSET_VALUE
           @file_cache_path   = UNSET_VALUE
           @file_backup_path  = UNSET_VALUE
+          @verbose_logging   = UNSET_VALUE
 
           @json              = {}
           @run_list          = []
@@ -53,6 +57,7 @@ module VagrantPlugins
           @binary_path       = nil if @binary_path == UNSET_VALUE
           @binary_env        = nil if @binary_env == UNSET_VALUE
           @custom_config_path = nil if @custom_config_path == UNSET_VALUE
+          @formatter         = nil if @formatter == UNSET_VALUE
           @http_proxy        = nil if @http_proxy == UNSET_VALUE
           @http_proxy_user   = nil if @http_proxy_user == UNSET_VALUE
           @http_proxy_pass   = nil if @http_proxy_pass == UNSET_VALUE
@@ -65,6 +70,7 @@ module VagrantPlugins
           @provisioning_path = nil if @provisioning_path == UNSET_VALUE
           @file_backup_path  = "/var/chef/backup" if @file_backup_path == UNSET_VALUE
           @file_cache_path   = "/var/chef/cache" if @file_cache_path == UNSET_VALUE
+          @verbose_logging   = false if @verbose_logging == UNSET_VALUE
 
           # Make sure the log level is a symbol
           @log_level = @log_level.to_sym

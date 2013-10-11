@@ -47,6 +47,11 @@ module VagrantPlugins
             "4.2" => Version_4_2
           }
 
+          if @version.start_with?("4.2.14")
+            # VirtualBox 4.2.14 just doesn't work with Vagrant, so show error
+            raise Vagrant::Errors::VirtualBoxBrokenVersion040214
+          end
+
           driver_klass = nil
           driver_map.each do |key, klass|
             if @version.start_with?(key)

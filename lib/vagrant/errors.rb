@@ -87,6 +87,10 @@ module Vagrant
       error_key(:active_machine_with_different_provider)
     end
 
+    class AnsibleFailed < VagrantError
+      error_key(:ansible_failed)
+    end
+
     class AnsiblePlaybookAppNotFound < VagrantError
       error_key(:ansible_playbook_app_not_found)
     end
@@ -505,6 +509,10 @@ module Vagrant
 
     class VBoxManageNotFoundError < VagrantError
       error_key(:vboxmanage_not_found_error)
+    end
+
+    class VirtualBoxBrokenVersion040214 < VagrantError
+      error_key(:virtualbox_broken_version_040214)
     end
 
     class VirtualBoxInvalidVersion < VagrantError

@@ -40,6 +40,14 @@ en:
       run_file_not_found: |-
         The 'run_file' specified could not be found.
 
+    virtualbox:
+      config:
+        id_in_pre_import: |-
+          The ':id' parameter is not available in "pre-import" customizations.
+        invalid_event: |-
+          %{event} is not a valid event for customization. Valid events
+          are: %{valid_events}
+
     general:
       batch_unexpected_error: |-
         An unexpected error ocurred when executing the action on the
@@ -106,6 +114,9 @@ en:
         Machine name: %{name}
         Active provider: %{active_provider}
         Requested provider: %{requested_provider}
+      ansible_failed: |-
+        Ansible failed to complete successfully. Any error output should be
+        visible above. Please fix these errors and try again.
       ansible_playbook_app_not_found: |-
         The "ansible-playbook" program could not be found! Please verify
         that "ansible-playbook" is available on the PATH of your host
@@ -134,7 +145,7 @@ en:
         box file format can be found at the URL below:
 
         http://docs.vagrantup.com/v2/boxes/format.html
-      box_not_found: Box '%{name}' could not be found.
+      box_not_found: Box '%{name}' with '%{provider}' provider could not be found.
       box_provider_doesnt_match: |-
         The box you attempted to add doesn't match the provider you specified.
 
@@ -233,6 +244,11 @@ en:
         may run at any given time to avoid problems with VirtualBox inconsistencies
         occurring. Please wait for the other instance of Vagrant to end and then
         try again.
+      environment_non_existent_cwd: |-
+        The working directory for Vagrant doesn't exist! This is the
+        specified working directory:
+
+        %{cwd}
       forward_port_adapter_not_found: |-
         The adapter to attach a forwarded port to was not found. Please
         verify that the given adapter is setup on the machine as a NAT
@@ -397,6 +413,14 @@ en:
         Vagrant assumes that this means the command failed!
 
         %{command}
+
+        Stdout from the command:
+
+        %{stdout}
+
+        Stderr from the command:
+
+        %{stderr}
       ssh_connect_eacces: |-
         SSH is getting permission denied errors when attempting to connect
         to the IP for SSH. This is usually caused by network rules and not being
@@ -532,6 +556,11 @@ en:
         be found. Please verify VirtualBox is properly installed. You can verify
         everything is okay by running "VBoxManage --version" and verifying
         that the VirtualBox version is outputted.
+      virtualbox_broken_version_040214: |-
+        Vagrant detected you have VirtualBox 4.2.14 installed. VirtualBox
+        4.2.14 contains a critical bug that causes it to not work with
+        Vagrant. VirtualBox 4.2.16+ fixes this problem. Please upgrade
+        VirtualBox.
       virtualbox_invalid_version: |-
         Vagrant has detected that you have a version of VirtualBox installed
         that is not supported. Please install one of the supported versions
@@ -625,6 +654,9 @@ en:
         nfs_requires_host: |-
           Using NFS shared folders requires a host to be specified
           using `config.vagrant.host`.
+        network_ip_ends_in_one: |-
+          Static IPs cannot end in ".1" since that address is always
+          reserved for the router. Please use another ending.
         network_ip_required: |-
           An IP is required for a private network.
         network_fp_host_not_unique: |-
@@ -838,7 +870,7 @@ en:
             %{error}
 
             Please fix this customization and try again.
-          running: Running any VM customizations...
+          running: Running '%{event}' VM customizations...
         destroy:
           destroying: Destroying VM and associated drives...
         destroy_network:
@@ -988,7 +1020,7 @@ en:
             The box you're attempting to add already exists:
 
             Name: %{name}
-            Provider: %{provider}
+            Provider: %{formats}
         add:
           adding: |-
             Extracting box...

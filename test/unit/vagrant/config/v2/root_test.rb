@@ -41,6 +41,24 @@ describe Vagrant::Config::V2::Root do
     }
   end
 
+  describe "finalization" do
+    it "should finalize un-used keys" do
+      foo_class = Class.new do
+        attr_accessor :foo
+
+        def finalize!
+          @foo = "SET"
+        end
+      end
+
+      map = { :foo => foo_class }
+      instance = described_class.new(map)
+      instance.finalize!
+
+      instance.foo.foo.should == "SET"
+    end
+  end
+
   describe "validation" do
     let(:instance) do
       map = { :foo => Object, :bar => Object }

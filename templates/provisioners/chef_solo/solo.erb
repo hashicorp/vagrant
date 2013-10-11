@@ -8,6 +8,7 @@ cookbook_path <%= cookbooks_path.inspect %>
 role_path <%= roles_path.inspect %>
 <% end %>
 log_level <%= log_level.inspect %>
+verbose_logging    <%= verbose_logging.inspect %>
 
 encrypted_data_bag_secret "<%= encrypted_data_bag_secret %>"
 
@@ -26,6 +27,10 @@ https_proxy <%= https_proxy.inspect %>
 https_proxy_user <%= https_proxy_user.inspect %>
 https_proxy_pass <%= https_proxy_pass.inspect %>
 no_proxy <%= no_proxy.inspect %>
+
+<% if formatter %>
+formatter "<%= formatter %>"
+<% end %>
 
 <% if custom_configuration -%>
 load "<%= custom_configuration %>"

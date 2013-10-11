@@ -42,7 +42,7 @@ module VagrantPlugins
         def chown_provisioning_folder
           @machine.communicate.tap do |comm|
             comm.sudo("mkdir -p #{@config.provisioning_path}")
-            comm.sudo("chown -R #{@machine.ssh_info[:username]} #{@config.provisioning_path}")
+            comm.sudo("chown #{@machine.ssh_info[:username]} #{@config.provisioning_path}")
           end
         end
 
@@ -63,6 +63,7 @@ module VagrantPlugins
             :file_cache_path => @config.file_cache_path,
             :file_backup_path => @config.file_backup_path,
             :log_level        => @config.log_level.to_sym,
+            :verbose_logging  => @config.verbose_logging,
             :http_proxy       => @config.http_proxy,
             :http_proxy_user  => @config.http_proxy_user,
             :http_proxy_pass  => @config.http_proxy_pass,
@@ -70,7 +71,8 @@ module VagrantPlugins
             :https_proxy_user => @config.https_proxy_user,
             :https_proxy_pass => @config.https_proxy_pass,
             :log_level        => @config.log_level.to_sym,
-            :no_proxy         => @config.no_proxy
+            :no_proxy         => @config.no_proxy,
+            :formatter        => @config.formatter
           }.merge(template_vars))
 
           # Create a temporary file to store the data so we

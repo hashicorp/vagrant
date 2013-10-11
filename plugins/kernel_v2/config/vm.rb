@@ -4,6 +4,7 @@ require "set"
 
 require "vagrant"
 require "vagrant/config/v2/util"
+require "vagrant/util/platform"
 
 require File.expand_path("../vm_provisioner", __FILE__)
 require File.expand_path("../vm_subvm", __FILE__)
@@ -16,6 +17,7 @@ module VagrantPlugins
       attr_accessor :base_mac
       attr_accessor :box
       attr_accessor :box_url
+      attr_accessor :box_download_insecure
       attr_accessor :graceful_halt_retry_count
       attr_accessor :graceful_halt_retry_interval
       attr_accessor :guest
@@ -24,6 +26,7 @@ module VagrantPlugins
       attr_reader :provisioners
 
       def initialize
+        @box_download_insecure        = UNSET_VALUE
         @graceful_halt_retry_count    = UNSET_VALUE
         @graceful_halt_retry_interval = UNSET_VALUE
         @guest                        = UNSET_VALUE
@@ -91,7 +94,11 @@ module VagrantPlugins
 
           # Merge synced folders.
           other_folders = other.instance_variable_get(:@__synced_folders)
-          new_folders = @__synced_folders.dup
+          new_folders = {}
+          @__synced_folders.each do |key, value|
+            new_folders[key] = value.dup
+          end
+
           other_folders.each do |id, options|
             new_folders[id] ||= {}
             new_folders[id].merge!(options)
@@ -118,6 +125,12 @@ module VagrantPlugins
       #   folder.
       # @param [Hash] options Additional options.
       def synced_folder(hostpath, guestpath, options=nil)
+        if Vagrant::Util::Platform.windows?
+          # On Windows, Ruby just uses normal '/' for path seps, so
+          # just replace normal Windows style seps with Unix ones.
+          hostpath.gsub!("\\", "/")
+        end
+
         options ||= {}
         options[:guestpath] = guestpath.to_s.gsub(/\/$/, '')
         options[:hostpath]  = hostpath
@@ -226,6 +239,7 @@ module VagrantPlugins
 
       def finalize!
         # Defaults
+        @box_download_insecure = false if @box_download_insecure == UNSET_VALUE
         @guest = nil if @guest == UNSET_VALUE
         @hostname = nil if @hostname == UNSET_VALUE
 
@@ -256,6 +270,13 @@ module VagrantPlugins
 
           # Store it for retrieval later
           @__compiled_provider_configs[name]   = config
+        end
+
+        @__synced_folders.each do |id, options|
+          # Ignore NFS on Windows
+          if options[:nfs] && Vagrant::Util::Platform.windows?
+            options[:nfs] = false
+          end
         end
 
         # Flag that we finalized
@@ -322,7 +343,7 @@ module VagrantPlugins
           guestpath = Pathname.new(options[:guestpath])
           hostpath  = Pathname.new(options[:hostpath]).expand_path(machine.env.root_path)
 
-          if guestpath.relative?
+          if guestpath.relative? && guestpath.to_s !~ /^\w+:/
             errors << I18n.t("vagrant.config.vm.shared_folder_guestpath_relative",
                              :path => options[:guestpath])
           else
@@ -391,6 +412,10 @@ module VagrantPlugins
               if !options[:ip]
                 errors << I18n.t("vagrant.config.vm.network_ip_required")
               end
+            end
+
+            if options[:ip] && options[:ip].end_with?(".1")
+              errors << I18n.t("vagrant.config.vm.network_ip_ends_in_one")
             end
           end
         end

@@ -44,12 +44,23 @@ module Vagrant
             return
           end
 
+          box_formats = env[:box_provider]
+          if box_formats
+            # Determine the formats a box can support and allow the box to
+            # be any of those formats.
+            provider_plugin = Vagrant.plugin("2").manager.providers[env[:box_provider]]
+            if provider_plugin
+              box_formats = provider_plugin[1][:box_format]
+              box_formats ||= env[:box_provider]
+            end
+          end
+
           # Add the box
           env[:ui].info I18n.t("vagrant.actions.box.add.adding", :name => env[:box_name])
           added_box = nil
           begin
             added_box = env[:box_collection].add(
-              @temp_path, env[:box_name], env[:box_provider], env[:box_force])
+              @temp_path, env[:box_name], box_formats, env[:box_force])
           rescue Vagrant::Errors::BoxUpgradeRequired
             # Upgrade the box
             env[:box_collection].upgrade(env[:box_name])

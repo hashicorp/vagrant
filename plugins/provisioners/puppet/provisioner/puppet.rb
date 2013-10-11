@@ -97,6 +97,10 @@ module VagrantPlugins
             options << "--hiera_config=#{@hiera_config_path}"
           end
 
+          if !@machine.env.ui.is_a?(Vagrant::UI::Colored)
+            options << "--no-color"
+          end
+
           options << "--detailed-exitcodes"
           options << @manifest_file
           options = options.join(" ")
@@ -121,8 +125,9 @@ module VagrantPlugins
                                       :manifest => config.manifest_file)
 
           @machine.communicate.sudo(command) do |type, data|
-            data.chomp!
-            @machine.env.ui.info(data, :prefix => false) if !data.empty?
+            if !data.empty?
+              @machine.env.ui.info(data, :new_line => false, :prefix => false)
+            end
           end
         end
 

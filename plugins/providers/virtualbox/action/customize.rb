@@ -2,14 +2,21 @@ module VagrantPlugins
   module ProviderVirtualBox
     module Action
       class Customize
-        def initialize(app, env)
+        def initialize(app, env, event)
           @app = app
+          @event = event
         end
 
         def call(env)
-          customizations = env[:machine].provider_config.customizations
+          customizations = []
+          env[:machine].provider_config.customizations.each do |event, command|
+            if event == @event
+              customizations << command
+            end
+          end
+
           if !customizations.empty?
-            env[:ui].info I18n.t("vagrant.actions.vm.customize.running")
+            env[:ui].info I18n.t("vagrant.actions.vm.customize.running", event: @event)
 
             # Execute each customization command.
             customizations.each do |command|

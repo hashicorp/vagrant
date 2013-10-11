@@ -1,3 +1,6 @@
+# Set the default encoding for Vagrant to UTF-8
+Encoding.default_internal = Encoding::UTF_8
+
 require 'log4r'
 
 # Enable logging if it is requested. We do this before
