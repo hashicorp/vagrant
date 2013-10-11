@@ -47,12 +47,6 @@ module VagrantPlugins
         @start_at_task     = nil if @start_at_task == UNSET_VALUE
         @raw_arguments     = nil if @raw_arguments == UNSET_VALUE
         @host_key_checking = nil if @host_key_checking == UNSET_VALUE
-
-        if @extra_vars && @extra_vars.is_a?(Hash)
-          @extra_vars.each do |k, v|
-            @extra_vars[k] = v.to_s
-          end
-        end
       end
 
       def validate(machine)
@@ -72,10 +66,26 @@ module VagrantPlugins
           end
         end
 
-        # Validate that extra_vars is a hash, if set
+        # Validate that extra_vars is either a hash, or a path to an existing file
         if extra_vars
-          if !extra_vars.kind_of?(Hash)
-            errors << I18n.t("vagrant.provisioners.ansible.extra_vars_not_hash")
+          extra_vars_is_valid = (extra_vars.kind_of?(Hash) or extra_vars.kind_of?(String))
+
+          if extra_vars.kind_of?(String)
+            # Accept the usage of '@' prefix in Vagrantfile (e.g. '@vars.yml' and 'vars.yml' are both supported)
+            extra_vars =~ /^@?(.+)$/
+            extra_vars_path = $1.to_s
+            expanded_path = Pathname.new(extra_vars_path).expand_path(machine.env.root_path)
+            extra_vars_is_valid = expanded_path.exist?
+            if extra_vars_is_valid
+              @extra_vars = '@' + extra_vars_path
+            end
+          end
+
+          if !extra_vars_is_valid
+            errors << I18n.t("vagrant.provisioners.ansible.extra_vars_invalid",
+                              :type  => extra_vars.class.to_s,
+                              :value => extra_vars.to_s
+                            )
           end
         end
 

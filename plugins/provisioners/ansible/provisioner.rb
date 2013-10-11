@@ -11,20 +11,8 @@ module VagrantPlugins
         options << "#{config.raw_arguments}" if config.raw_arguments
 
         # Append Provisioner options (highest precedence):
-        if config.extra_vars
-          extra_vars = config.extra_vars.map do |k,v|
-            v = v.gsub('"', '\\"')
-            if v.include?(' ')
-              v = v.gsub("'", "\\'")
-              v = "'#{v}'"
-            end
-
-            "#{k}=#{v}"
-          end
-          options << "--extra-vars=\"#{extra_vars.join(" ")}\""
-        end
-
         options << "--inventory-file=#{self.setup_inventory_file}"
+        options << "--extra-vars=#{self.get_extra_vars_argument}" if config.extra_vars
         options << "--sudo" if config.sudo
         options << "--sudo-user=#{config.sudo_user}" if config.sudo_user
         options << "#{self.get_verbosity_argument}" if config.verbose
@@ -81,6 +69,16 @@ module VagrantPlugins
         end
 
         return generated_inventory_file.to_s
+      end
+
+      def get_extra_vars_argument
+        if config.extra_vars.kind_of?(String) and config.extra_vars =~ /^@.+$/
+          # A JSON or YAML file is referenced (requires Ansible 1.3+)
+          return config.extra_vars
+        else
+          # Expected to be a Hash after config validation. (extra_vars as JSON requires Ansible 1.2+, while YAML requires Ansible 1.3+)
+          return config.extra_vars.to_json
+        end
       end
 
       def get_verbosity_argument
