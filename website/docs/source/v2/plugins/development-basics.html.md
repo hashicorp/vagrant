@@ -24,7 +24,7 @@ upgrades and use a stable API.
 
 Plugins are written using [Ruby](http://www.ruby-lang.org/en/) and are packaged
 using [RubyGems](http://rubygems.org/). Familiarity with Ruby is required,
-but the [packaging and distribution](#) section should help
+but the [packaging and distribution](/v2/plugins/packaging.html) section should help
 guide you to packaging your plugin into a RubyGem.
 
 ## Plugin Definition
