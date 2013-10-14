@@ -283,6 +283,9 @@ en:
       downloader_interrupted: |-
         The download was interrupted by an external signal. It did not
         complete.
+      download_failed_not_last_box_url: |-
+          An error occurred while downloading the remote file from %{url}. Trying
+          another url.
       environment_locked: |-
         An instance of Vagrant is already running. Only one instance of Vagrant
         may run at any given time to avoid problems with VirtualBox inconsistencies

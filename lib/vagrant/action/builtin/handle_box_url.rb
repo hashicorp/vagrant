@@ -37,8 +37,16 @@ module Vagrant
             # validation should do this for us. If not, though, we do
             # raise a terrible runtime error.
             box_name = env[:machine].config.vm.box
-            box_url  = env[:machine].config.vm.box_url
-            box_download_insecure = env[:machine].config.vm.box_download_insecure
+
+            unless env[:machine].config.vm.box_url.kind_of?(Array)
+              env[:machine].config.vm.box_url = [env[:machine].config.vm.box_url]
+            end
+
+            urls = env[:machine].config.vm.box_url
+
+            unless env[:machine].config.vm.box_download_insecure.kind_of?(Array)
+              env[:machine].config.vm.box_download_insecure = Array.new(urls.size, env[:machine].config.vm.box_download_insecure)
+            end
 
             lock.synchronize do
               # First see if we actually have the box now.
@@ -51,7 +59,7 @@ module Vagrant
                 break
               end
 
-              if !has_box
+              unless has_box
                 # Add the box then reload the box collection so that it becomes
                 # aware of it.
                 env[:ui].info I18n.t(
@@ -59,16 +67,32 @@ module Vagrant
                   :name => box_name,
                   :provider => env[:machine].provider_name)
 
-                begin
-                  env[:action_runner].run(Vagrant::Action.action_box_add, {
-                    :box_download_insecure => box_download_insecure,
-                    :box_name     => box_name,
-                    :box_provider => box_formats,
-                    :box_url      => box_url
-                  })
-                rescue Errors::BoxAlreadyExists
-                  # Just ignore this, since it means the next part will succeed!
-                  # This can happen in a multi-threaded environment.
+                urls.each_with_index do
+                  |box_url, idx|
+                  box_download_insecure = env[:machine].config.vm.box_download_insecure[idx]
+
+                  begin
+                    env[:action_runner].run(Vagrant::Action.action_box_add, {
+                      :box_download_insecure => box_download_insecure,
+                      :box_name     => box_name,
+                      :box_provider => box_formats,
+                      :box_url      => box_url
+                    })
+                  rescue Errors::DownloaderError => e
+                    if urls.size - 1 == idx
+                      raise e
+                    else
+                      env[:ui].warn I18n.t(
+                        "vagrant.errors.download_failed_not_last_box_url",
+                        :name => box_name,
+                        :provider => env[:machine].provider_name,
+                        :url => box_url,
+                        :message => e.message)
+                    end
+                  rescue Errors::BoxAlreadyExists
+                    # Just ignore this, since it means the next part will succeed!
+                    # This can happen in a multi-threaded environment.
+                  end
                 end
               end
             end
