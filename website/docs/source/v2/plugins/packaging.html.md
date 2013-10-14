@@ -5,7 +5,6 @@ sidebar_current: "plugins-packaging"
 
 # Plugin Development: Packaging & Distribution
 
-This page documents how to add new commands to Vagrant, invokable.
 This page documents how to organize the file structure of your plugin
 and distribute it so that it is installable using
 [standard installation methods](/v2/plugins/usage.html).
