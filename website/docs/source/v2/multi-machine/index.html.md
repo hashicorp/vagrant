@@ -95,7 +95,7 @@ You can also specify a _primary machine_. The primary machine will be the
 default machine used when a specific machine in a multi-machine environment
 is not specified.
 
-To specify a default, machine, just mark it primary when defining it. Only
+To specify a default machine, just mark it primary when defining it. Only
 one primary machine may be specified.
 
 ```ruby
