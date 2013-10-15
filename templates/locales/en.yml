@@ -691,7 +691,7 @@ en:
         box_not_found: "The box '%{name}' could not be found."
         hostname_invalid_characters: |-
           The hostname set for the VM should only contain letters, numbers,
-          and hyphens.
+          hyphens or dots. It cannot start with a hyphen or dot.
         network_invalid: |-
           The network type '%{type}' is not valid. Please use
           'hostonly' or 'bridged'.
