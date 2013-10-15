@@ -8,6 +8,13 @@ module VagrantPlugins
 
         def call(env)
           @env = env
+          
+          init_only = false
+          init_only = @env[:init_only] if env.has_key?(:init_only)
+          
+          if init_only
+            raise Vagrant::Errors::InitOnlySet
+          end
 
           boot_mode = @env[:machine].provider_config.gui ? "gui" : "headless"
 

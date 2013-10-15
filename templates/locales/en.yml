@@ -329,6 +329,8 @@ en:
         directory that Vagrant uses must be both readable and writable.
 
         You specified: %{home_path}
+      init_only_set: |-
+        vagrant up was interrupted because --init-only was set 
       interrupted: |-
         Vagrant exited after cleanup due to external interrupt.
       local_data_dir_not_accessible: |-

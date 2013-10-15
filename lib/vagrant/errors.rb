@@ -291,6 +291,10 @@ module Vagrant
     class GuestNotDetected < VagrantError
       error_key(:guest_not_detected)
     end
+    
+    class InitOnlySet < VagrantError
+      error_key(:init_only_set)
+    end
 
     class LinuxMountFailed < VagrantError
       error_key(:linux_mount_failed)
