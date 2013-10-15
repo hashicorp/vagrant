@@ -23,7 +23,7 @@ module VagrantPlugins
               # 127.0.0.1   localhost host.fqdn.com host
               # 127.0.1.1   host.fqdn.com host
               comm.sudo("sed -ri 's@^(([0-9]{1,3}\.){3}[0-9]{1,3})\\s+(localhost)\\b.*$@\\1\\t#{name} #{name.split('.')[0]} \\3@g' /etc/hosts")
-              comm.sudo("sed -ri 's@^(([0-9]{1,3}\.){3}[0-9]{1,3})\\s+(precise64)\\b.*$@\\1\\t#{name} #{name.split('.')[0]}@g' /etc/hosts")
+              comm.sudo("sed -ri 's@^(([0-9]{1,3}\.){3}[0-9]{1,3})\\s+(#{old.split('.')[0]})\\b.*$@\\1\\t#{name} #{name.split('.')[0]}@g' /etc/hosts")
 
               if comm.test("[ `lsb_release -c -s` = hardy ]")
                 # hostname.sh returns 1, so I grep for the right name in /etc/hostname just to have a 0 exitcode
