@@ -27,8 +27,8 @@ module VagrantPlugins
         end
 
         def cleanup
-          delete_from_chef_server('client') if config.delete_client
-          delete_from_chef_server('node') if config.delete_node
+          delete_from_chef_server('client') if @config.delete_client
+          delete_from_chef_server('node') if @config.delete_node
         end
 
         def create_client_key_folder
@@ -105,16 +105,15 @@ module VagrantPlugins
         end
 
         def delete_from_chef_server(deletable)
-          env = @machine.env
-          node_name = config.node_name || env[:vm].config.vm.host_name
-          env[:ui].info(I18n.t(
+          node_name = @config.node_name || @machine.config.vm.host_name
+          @machine.env.ui.info(I18n.t(
             "vagrant.provisioners.chef.deleting_from_server",
             deletable: deletable, name: node_name))
 
           command = ["knife", deletable, "delete", "--yes", node_name]
           r = Vagrant::Util::Subprocess.execute(*command)
           if r.exit_code != 0
-            env[:ui].error(I18n.t(
+            @machine.env.ui.error(I18n.t(
               "vagrant.chef_client_cleanup_failed",
               deletable: deletable,
               stdout: r.stdout,
