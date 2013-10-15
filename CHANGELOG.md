@@ -13,6 +13,7 @@ BUG FIXES:
   - providers/virtualbox: Retryable VBoxManage commands are properly
     retried. [GH-2365]
   - provisioners/ansible: Verbosity won't be blank by default. [GH-2320]
+  - provisioners/salt: Correct master seed file name. [GH-2359]
 
 ## 1.3.4 (October 2, 2013)
 
