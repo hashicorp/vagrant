@@ -2,6 +2,7 @@
 
 FEATURES:
 
+  - VirtualBox 4.3 is now supported. [GH-2374]
   - ESXi is now a supported guest OS. [GH-2347]
 
 IMPROVEMENTS:
