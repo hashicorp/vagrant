@@ -1,5 +1,9 @@
 ## 1.3.5 (unreleased)
 
+FEATURES:
+
+  - ESXi is now a supported guest OS. [GH-2347]
+
 IMPROVEMENTS:
 
   - guests/redhat: Oracle Linux is now supported. [GH-2329]
