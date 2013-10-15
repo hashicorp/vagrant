@@ -14,6 +14,7 @@ BUG FIXES:
   - core: Fix some places where "no error message" errors were being
     reported when in fact there were errors. [GH-2328]
   - core: Disallow hyphens or periods for starting hostnames. [GH-2358]
+  - guests/ubuntu: Setting hostname works properly. [GH-2334]
   - providers/virtualbox: Retryable VBoxManage commands are properly
     retried. [GH-2365]
   - provisioners/ansible: Verbosity won't be blank by default. [GH-2320]
