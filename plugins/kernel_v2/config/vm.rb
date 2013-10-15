@@ -353,7 +353,7 @@ module VagrantPlugins
         errors << I18n.t("vagrant.config.vm.box_not_found", :name => box) if \
           box && !box_url && !machine.box
         errors << I18n.t("vagrant.config.vm.hostname_invalid_characters") if \
-          @hostname && @hostname !~ /^[-.a-z0-9]+$/i
+          @hostname && @hostname !~ /^[a-z0-9][-.a-z0-9]+$/i
 
         has_nfs = false
         used_guest_paths = Set.new
