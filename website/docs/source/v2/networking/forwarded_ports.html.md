@@ -28,6 +28,21 @@ end
 
 This will allow acessing port 80 on the guest via port 8080 on the host.
 
+## Forwarded Port Protocols
+
+By default, any defined port will only forward the TCP protocol. As an optional
+third parameter, you may specify `protocol: 'udp'` in order to pass UDP 
+traffic. If a given port needs to be able to listen to the same port on both 
+protocols, you must define the port twice with each protocol specified, like 
+so:
+
+```
+Vagrant.configure("2") do |config|
+  config.vm.network "forwarded_port", guest: 2003, host: 12003, protocol: 'tcp'
+  config.vm.network "forwarded_port", guest: 2003, host: 12003, protocol: 'udp'
+end
+```
+
 ## Port Collisions and Correction
 
 It is common when running multiple Vagrant machines to unknowingly create
