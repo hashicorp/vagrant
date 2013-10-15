@@ -284,10 +284,10 @@ module VagrantPlugins
           # Variable to store our execution result
           r = nil
 
-          # If there is an error with VBoxManage, this gets set to true
-          errored = false
-
           retryable(:on => Vagrant::Errors::VBoxManageError, :tries => tries, :sleep => 1) do
+            # If there is an error with VBoxManage, this gets set to true
+            errored = false
+            
             # Execute the command
             r = raw(*command, &block)
 
@@ -322,14 +322,14 @@ module VagrantPlugins
                 errored = true
               end
             end
-          end
-
-          # If there was an error running VBoxManage, show the error and the
-          # output.
-          if errored
-            raise Vagrant::Errors::VBoxManageError,
-              :command => command.inspect,
-              :stderr  => r.stderr
+            
+            # If there was an error running VBoxManage, show the error and the
+            # output.
+            if errored
+              raise Vagrant::Errors::VBoxManageError,
+                :command => command.inspect,
+                :stderr  => r.stderr
+            end
           end
 
           # Return the output, making sure to replace any Windows-style
