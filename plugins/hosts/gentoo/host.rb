@@ -18,8 +18,20 @@ module VagrantPlugins
         super
 
         @nfs_apply_command = "/usr/sbin/exportfs -r"
-        @nfs_check_command = "service nfs status"
-        @nfs_start_command = "service nfs start"
+        if systemd?
+          @nfs_check_command = "/usr/bin/systemctl status nfsd"
+          @nfs_start_command = "/usr/bin/systemctl start nfsd rpc-mountd rpcbind"
+        else
+          @nfs_check_command = "/etc/init.d/nfs status"
+          @nfs_start_command = "/etc/init.d/nfs start"
+        end
+      end
+
+      protected
+
+      # Check for systemd presence from current processes.
+      def systemd?
+        `ps -o comm= 1`.chomp == 'systemd'
       end
     end
   end
