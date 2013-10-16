@@ -1,11 +1,9 @@
 require 'optparse'
 
-require_relative "base"
-
 module VagrantPlugins
   module CommandBox
     module Command
-      class Add < Base
+      class Add < Vagrant.plugin("2", :command)
         def execute
           options = {}
 
@@ -36,7 +34,7 @@ module VagrantPlugins
           provider = nil
           provider = options[:provider].to_sym if options[:provider]
 
-          action(Vagrant::Action.action_box_add, {
+          @env.action_runner.run(Vagrant::Action.action_box_add, {
             :box_name     => argv[0],
             :box_provider => provider,
             :box_url      => argv[1],

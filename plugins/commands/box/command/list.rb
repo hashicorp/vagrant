@@ -1,11 +1,9 @@
 require 'optparse'
 
-require_relative "base"
-
 module VagrantPlugins
   module CommandBox
     module Command
-      class List < Base
+      class List < Vagrant.plugin("2", :command)
         def execute
           options = {}
 
@@ -51,8 +49,8 @@ module VagrantPlugins
           boxes.each do |name, provider, _v1|
             extra = ''
             if extra_info
-              extra << "\n  `- URL:  #{box_state_file.box_url(name, provider)}"
-              extra << "\n  `- Date: #{box_state_file.downloaded_at(name, provider)}"
+              extra << "\n  `- URL:  TODO"
+              extra << "\n  `- Date: TODO"
             end
 
             name     = name.ljust(longest_box_length)
