@@ -4,6 +4,7 @@ BUG FIXES:
 
   - guests/ubuntu: "localhost" is preserved when changing hostnames.
     [GH-2383]
+  - hosts/gentoo: Support systemd for NFS startup. [GH-2382]
 
 ## 1.3.5 (October 15, 2013)
 
