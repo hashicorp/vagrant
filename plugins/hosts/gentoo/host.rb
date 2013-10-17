@@ -1,4 +1,5 @@
 require "vagrant"
+require "vagrant/util/subprocess"
 
 require Vagrant.source_root.join("plugins/hosts/linux/host")
 
@@ -31,7 +32,8 @@ module VagrantPlugins
 
       # Check for systemd presence from current processes.
       def systemd?
-        `ps -o comm= 1`.chomp == 'systemd'
+        result = Vagrant::Util::Subprocess.execute("ps", "-o", "comm=", "1")
+        return result.stdout.chomp == "systemd"
       end
     end
   end
