@@ -1,6 +1,9 @@
 ## 1.3.6 (unreleased)
 
+BUG FIXES:
 
+  - guests/ubuntu: "localhost" is preserved when changing hostnames.
+    [GH-2383]
 
 ## 1.3.5 (October 15, 2013)
 
