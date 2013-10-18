@@ -12,7 +12,7 @@ module VagrantPlugins
           group = options[:group]
 
           # Create the shared folder
-          machine.communicate.execute("#{machine.config.solaris.suexec_cmd} mkdir -p #{guestpath}")
+          machine.communicate.execute("#{machine.config.solaris11.suexec_cmd} mkdir -p #{guestpath}")
 
           if owner.is_a? Integer
             mount_uid = owner
@@ -34,10 +34,10 @@ module VagrantPlugins
             mount_options += ",#{options[:mount_options].join(",")}"
           end
 
-          machine.communicate.execute("#{machine.config.solaris.suexec_cmd} /sbin/mount -F vboxfs #{mount_options} #{name} #{guestpath}")
+          machine.communicate.execute("#{machine.config.solaris11.suexec_cmd} /sbin/mount -F vboxfs #{mount_options} #{name} #{guestpath}")
 
           # chown the folder to the proper owner/group
-          machine.communicate.execute("#{machine.config.solaris.suexec_cmd} chown #{mount_uid}:#{mount_gid} #{guestpath}")
+          machine.communicate.execute("#{machine.config.solaris11.suexec_cmd} chown #{mount_uid}:#{mount_gid} #{guestpath}")
         end
       end
     end
