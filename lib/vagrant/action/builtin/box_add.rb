@@ -77,6 +77,9 @@ module Vagrant
           env[:ui].success(
             I18n.t("vagrant.actions.box.add.added", name: box_added.name, provider: box_added.provider))
 
+          # Persists URL used on download and the time it was added
+          write_extra_info(box_added, url)
+
           # Passes on the newly added box to the rest of the middleware chain
           env[:box_added] = box_added
 
@@ -87,6 +90,13 @@ module Vagrant
         def recover(env)
           if @temp_path && File.exist?(@temp_path)
             File.unlink(@temp_path)
+          end
+        end
+
+        def write_extra_info(box_added, url)
+          info = {'url' => url, 'downloaded_at' => Time.now.utc}
+          box_added.directory.join('info.json').open("w+") do |f|
+            f.write(JSON.dump(info))
           end
         end
       end
