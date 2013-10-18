@@ -49,8 +49,7 @@ module VagrantPlugins
           boxes.each do |name, provider, _v1|
             extra = ''
             if extra_info
-              extra << "\n  `- URL:  TODO"
-              extra << "\n  `- Date: TODO"
+              extra << format_extra_info(name.to_s, provider.to_s)
             end
 
             name     = name.ljust(longest_box_length)
@@ -58,6 +57,17 @@ module VagrantPlugins
             box_info = "#{name} #{provider}#{extra}"
 
             @env.ui.info(box_info, :prefix => false)
+          end
+        end
+
+        def format_extra_info(name, provider)
+          info_json = @env.boxes.find(name, provider).directory.join('info.json')
+          if info_json.file?
+            info = JSON.parse(info_json.read)
+            return "\n  `- URL:  #{info['url']}" +
+                   "\n  `- Date: #{info['downloaded_at']}"
+          else
+            return ''
           end
         end
       end
