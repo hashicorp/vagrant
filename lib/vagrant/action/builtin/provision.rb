@@ -68,19 +68,10 @@ module Vagrant
         # subclass and implement custom behavior if they'd like around
         # this step.
         def run_provisioner(env, name, p)
-          hook(:before_provisioner)
-
           env[:ui].info(I18n.t("vagrant.actions.vm.provision.beginning",
                                :provisioner => name))
 
-          p.provision
-
-          hook(:after_provisioner)
-        end
-
-        def hook(name)
-          @logger.info("Running hook: #{name}")
-          callable = Action::Builder.new
+          callable = Builder.new.tap { |b| b.use ProvisionerRun, p }
           action_runner.run(callable, :action_name => name)
         end
 
