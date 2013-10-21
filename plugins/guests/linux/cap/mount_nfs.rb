@@ -12,23 +12,32 @@ module VagrantPlugins
             expanded_guest_path = machine.guest.capability(
               :shell_expand_guest_path, opts[:guestpath])
 
-            # Do the actual creating and mounting
-            machine.communicate.sudo("mkdir -p #{expanded_guest_path}")
+            #check if mounts are already there
+            checkresult = machine.communicate.sudo("cat /etc/mtab | grep '#{expanded_guest_path} '", error_check: false)
 
-            # Mount
-            hostpath = opts[:hostpath].dup
-            hostpath.gsub!("'", "'\\\\''")
+            if checkresult != 0
 
-            # Figure out any options
-            mount_opts = ["vers=#{opts[:nfs_version]}", "udp"]
-            if opts[:mount_options]
-              mount_opts = opts[:mount_options].dup
-            end
+              # Do the actual creating and mounting
+              machine.communicate.sudo("mkdir -p #{expanded_guest_path}")
 
-            mount_command = "mount -o '#{mount_opts.join(",")}' #{ip}:'#{hostpath}' #{expanded_guest_path}"
-            retryable(:on => Vagrant::Errors::LinuxNFSMountFailed, :tries => 5, :sleep => 2) do
-              machine.communicate.sudo(mount_command,
-                                       :error_class => Vagrant::Errors::LinuxNFSMountFailed)
+              # Mount
+              hostpath = opts[:hostpath].dup
+              hostpath.gsub!("'", "'\\\\''")
+
+              # Figure out any options
+              mount_opts = ["vers=#{opts[:nfs_version]}", "udp"]
+              if opts[:mount_options]
+                mount_opts = opts[:mount_options].dup
+              end
+
+              mount_command = "mount -o '#{mount_opts.join(",")}' #{ip}:'#{hostpath}' #{expanded_guest_path}"
+              retryable(:on => Vagrant::Errors::LinuxNFSMountFailed, :tries => 5, :sleep => 2) do
+                machine.communicate.sudo(mount_command,
+                                         :error_class => Vagrant::Errors::LinuxNFSMountFailed)
+              end
+
+  			# add to fstab
+  			machine.communicate.sudo("echo \"#{ip}:#{hostpath} #{expanded_guest_path} nfs #{mount_opts.join(",")} 0 0\" >> /etc/fstab");
             end
           end
         end
