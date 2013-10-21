@@ -72,7 +72,10 @@ module Vagrant
                                :provisioner => name))
 
           callable = Builder.new.tap { |b| b.use ProvisionerRun, p }
-          action_runner.run(callable, :action_name => name)
+          action_runner.run(callable,
+            :action_name   => :provisioner_run,
+            :provider_name => name
+          )
         end
 
         def action_runner
