@@ -2,6 +2,7 @@
 
 BUG FIXES:
 
+  - core: 100% CPU spike when waiting for SSH is fixed. [GH-2401]
   - guests/ubuntu: "localhost" is preserved when changing hostnames.
     [GH-2383]
   - hosts/gentoo: Support systemd for NFS startup. [GH-2382]
