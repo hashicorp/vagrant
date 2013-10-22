@@ -40,7 +40,7 @@ module VagrantPlugins
 
                 success = status == 0 && !no_such_device
                 # add to fstab
-                if success
+                if success && name !~ /^\/tmp/i
                   machine.communicate.sudo("echo \"#{name} #{expanded_guest_path} vboxsf #{mount_options} 0 0\" >> /etc/fstab");
                 end
                 break if success
