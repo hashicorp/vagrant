@@ -1,6 +1,7 @@
 require "thread"
 
 require "log4r"
+require 'io/console'
 
 require "vagrant/util/platform"
 require "vagrant/util/safe_puts"
@@ -91,7 +92,12 @@ module Vagrant
         # Get the results and chomp off the newline. We do a logical OR
         # here because `gets` can return a nil, for example in the case
         # that ctrl-D is pressed on the input.
-        input = $stdin.gets || ""
+        input = if opts[:echo] == false
+          $stdin.noecho(&:gets) || ""
+        else
+          $stdin.gets || ""
+        end
+
         input.chomp
       end
 
