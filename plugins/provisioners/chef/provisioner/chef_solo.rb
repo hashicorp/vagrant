@@ -149,7 +149,7 @@ module VagrantPlugins
             "-j #{@config.provisioning_path}/dna.json"
           ]
 
-          if !@machine.env.ui.is_a?(Vagrant::UI::Colored)
+          if !@machine.env.ui.is_a?(Vagrant::UI::Colored) && !Vagrant::Util::Platform.windows?
             options << "--no-color"
           end
 
