@@ -1,5 +1,9 @@
 ## 1.3.6 (unreleased)
 
+IMPROVEMENTS:
+
+  - providers/virtualbox: Enable symlinks for VirtualBox 4.1. [GH-2414]
+
 BUG FIXES:
 
   - core: 100% CPU spike when waiting for SSH is fixed. [GH-2401]
