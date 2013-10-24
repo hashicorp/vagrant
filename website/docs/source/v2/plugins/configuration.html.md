@@ -148,11 +148,12 @@ class Config < Vagrant.plugin("2", :config)
   # ...
 
   def validate(machine)
+    errors = _detected_errors
     if @widgets <= 5
-      return { "foo" => ["widgets must be greater than 5"] }
+      errors << "widgets must be greater than 5"
     end
 
-    {}
+    { "foo" => errors }
   end
 end
 ```
@@ -161,6 +162,8 @@ The validation method is given a `machine` object, since validation is
 done for each machine that Vagrant is managing. This allows you to
 conditionally validate some keys based on the state of the machine and so on.
 
+The `_detected_errors` method returns any errors already detected by Vagrant, like unknown configuration keys.
+
 The return value is a Ruby Hash object, where the key is a section name,
 and the value is a list of error messages. These will be displayed by
-Vagrant. If there are no errors, an empty hash must be returned.
+Vagrant. The hash must not contain any values if there are no errors.
