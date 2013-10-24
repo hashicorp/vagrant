@@ -162,7 +162,9 @@ The validation method is given a `machine` object, since validation is
 done for each machine that Vagrant is managing. This allows you to
 conditionally validate some keys based on the state of the machine and so on.
 
-The `_detected_errors` method returns any errors already detected by Vagrant, like unknown configuration keys.
+The `_detected_errors` method returns any errors already detected by Vagrant,
+such as unknown configuration keys. This returns an array of error messages,
+so be sure to turn it into the proper Hash object to return later.
 
 The return value is a Ruby Hash object, where the key is a section name,
 and the value is a list of error messages. These will be displayed by
