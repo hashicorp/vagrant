@@ -2,6 +2,8 @@
 
 IMPROVEMENTS:
 
+  - commands/provision: Add `--no-parallel` option to disable provider
+    parallelization if the provider supports it. [GH-2404]
   - providers/virtualbox: Enable symlinks for VirtualBox 4.1. [GH-2414]
 
 BUG FIXES:
