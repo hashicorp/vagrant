@@ -37,7 +37,9 @@ if ARGV.include?("--no-color")
 elsif !Vagrant::Util::Platform.terminal_supports_colors?
   opts[:ui_class] = Vagrant::UI::Basic
 elsif !$stdout.tty? && !Vagrant::Util::Platform.cygwin?
-    opts[:ui_class] = Vagrant::UI::Basic
+  # Cygwin always reports STDOUT is not a TTY, so we only disable
+  # colors if its not a TTY AND its not Cygwin.
+  opts[:ui_class] = Vagrant::UI::Basic
 end
 
 # Also allow users to force colors.
