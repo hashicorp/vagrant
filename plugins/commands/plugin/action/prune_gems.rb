@@ -126,6 +126,10 @@ module VagrantPlugins
 
           if prune_specs.length > 0
             env[:gem_helper].with_environment do
+
+              # due to a bug in rubygems 2.0, we need to load the specifications before removing any
+              Gem::Specification.to_a
+
               prune_specs.each do |prune_spec|
                 uninstaller = Gem::Uninstaller.new(prune_spec.name, {
                   :all         => true,
