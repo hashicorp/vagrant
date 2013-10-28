@@ -8,6 +8,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - core: Make sure machine IDs are always strings. [GH-2434]
   - core: 100% CPU spike when waiting for SSH is fixed. [GH-2401]
   - guests/freebsd: Mounting NFS folders works. [GH-2400]
   - guests/ubuntu: "localhost" is preserved when changing hostnames.
