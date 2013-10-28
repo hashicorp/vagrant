@@ -76,6 +76,14 @@ module VagrantPlugins
         @network_adapters[slot] = [type, args]
       end
 
+      # Shortcut for setting memory size for the virtual machine.
+      # Calls #customize internally.
+      #
+      # @param size [Integer, String] the memory size in MB
+      def memory=(size)
+        customize "pre-boot", ["modifyvm", :id, "--memory", size]
+      end
+
       # This is the hook that is called to finalize the object before it
       # is put into use.
       def finalize!
