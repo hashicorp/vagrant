@@ -57,9 +57,9 @@ module Vagrant
 
           # Add the box
           env[:ui].info I18n.t("vagrant.actions.box.add.adding", :name => env[:box_name])
-          added_box = nil
+          box_added = nil
           begin
-            added_box = env[:box_collection].add(
+            box_added = env[:box_collection].add(
               @temp_path, env[:box_name], box_formats, env[:box_force])
           rescue Vagrant::Errors::BoxUpgradeRequired
             # Upgrade the box
@@ -75,7 +75,13 @@ module Vagrant
 
           # Success, we added a box!
           env[:ui].success(
-            I18n.t("vagrant.actions.box.add.added", name: added_box.name, provider: added_box.provider))
+            I18n.t("vagrant.actions.box.add.added", name: box_added.name, provider: box_added.provider))
+
+          # Persists URL used on download and the time it was added
+          write_extra_info(box_added, url)
+
+          # Passes on the newly added box to the rest of the middleware chain
+          env[:box_added] = box_added
 
           # Carry on!
           @app.call(env)
@@ -84,6 +90,13 @@ module Vagrant
         def recover(env)
           if @temp_path && File.exist?(@temp_path)
             File.unlink(@temp_path)
+          end
+        end
+
+        def write_extra_info(box_added, url)
+          info = {'url' => url, 'downloaded_at' => Time.now.utc}
+          box_added.directory.join('info.json').open("w+") do |f|
+            f.write(JSON.dump(info))
           end
         end
       end
