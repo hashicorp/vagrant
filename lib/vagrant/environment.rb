@@ -272,6 +272,7 @@ module Vagrant
     # against the given name will be run in the context of this environment.
     #
     # @param [Symbol] name Name of the hook.
+    # @param [Action::Runner] action_runner A custom action runner for running hooks.
     def hook(name, runner = action_runner)
       @logger.info("Running hook: #{name}")
       callable = Action::Builder.new
