@@ -37,6 +37,14 @@ $ vagrant up
 ...
 ```
 
+You can also get the debug level output using the `--debug` command line
+option. For example:
+
+```
+$ vagrant up --debug
+...
+```
+
 If you plan on submitting a bug report, please submit debug-level logs
 along with the report using [gist](https://gist.github.com/) or
 some other paste service.
