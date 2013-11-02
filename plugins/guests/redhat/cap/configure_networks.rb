@@ -21,6 +21,11 @@ module VagrantPlugins
           networks.each do |network|
             interfaces.add(network[:interface])
 
+            # Down the interface before munging the config file
+            retryable(:on => Vagrant::Errors::VagrantError, :tries => 3, :sleep => 2) do
+              machine.communicate.sudo("/sbin/ifdown eth#{network[:interface]} 2> /dev/null")
+            end
+
             # Remove any previous vagrant configuration in this network interface's
             # configuration files.
             machine.communicate.sudo("touch #{network_scripts_dir}/ifcfg-eth#{network[:interface]}")
@@ -46,7 +51,8 @@ module VagrantPlugins
           # SSH never dies.
           interfaces.each do |interface|
             retryable(:on => Vagrant::Errors::VagrantError, :tries => 3, :sleep => 2) do
-              machine.communicate.sudo("/sbin/ifdown eth#{interface} 2> /dev/null", :error_check => false)
+              # The interface should already be down
+              machine.communicate.sudo("/sbin/ifdown eth#{interface} 2> /dev/null")
               machine.communicate.sudo("cat /tmp/vagrant-network-entry_#{interface} >> #{network_scripts_dir}/ifcfg-eth#{interface}")
               machine.communicate.sudo("ARPCHECK=no /sbin/ifup eth#{interface} 2> /dev/null")
             end
