@@ -1,7 +1,8 @@
+# encoding: UTF-8
 module VagrantPlugins
   module Chef
     module Config
-      class Base < Vagrant.plugin("2", :config)
+      class Base < Vagrant.plugin('2', :config)
         attr_accessor :arguments
         attr_accessor :attempts
         attr_accessor :binary_path
@@ -68,8 +69,8 @@ module VagrantPlugins
           @no_proxy          = nil if @no_proxy == UNSET_VALUE
           @node_name         = nil if @node_name == UNSET_VALUE
           @provisioning_path = nil if @provisioning_path == UNSET_VALUE
-          @file_backup_path  = "/var/chef/backup" if @file_backup_path == UNSET_VALUE
-          @file_cache_path   = "/var/chef/cache" if @file_cache_path == UNSET_VALUE
+          @file_backup_path  = '/var/chef/backup' if @file_backup_path == UNSET_VALUE
+          @file_cache_path   = '/var/chef/cache' if @file_cache_path == UNSET_VALUE
           @verbose_logging   = false if @verbose_logging == UNSET_VALUE
 
           # Make sure the log level is a symbol
@@ -91,8 +92,8 @@ module VagrantPlugins
 
           if @custom_config_path
             expanded = File.expand_path(@custom_config_path, machine.env.root_path)
-            if !File.file?(expanded)
-              errors << I18n.t("vagrant.config.chef.custom_config_path_missing")
+            unless File.file?(expanded)
+              errors << I18n.t('vagrant.config.chef.custom_config_path_missing')
             end
           end
 

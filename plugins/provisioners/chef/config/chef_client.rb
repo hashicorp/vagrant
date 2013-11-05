@@ -1,6 +1,6 @@
-require File.expand_path("../base", __FILE__)
-
-require "vagrant/util/which"
+# encoding: UTF-8
+require File.expand_path('../base', __FILE__)
+require 'vagrant/util/which'
 
 module VagrantPlugins
   module Chef
@@ -23,7 +23,7 @@ module VagrantPlugins
         attr_accessor :environments_path
         attr_accessor :nodes_path
         attr_accessor :clients_path
-
+        attr_accessor :nfs
 
         def initialize
           super
@@ -38,8 +38,8 @@ module VagrantPlugins
           @validation_key_path                = UNSET_VALUE
           @validation_client_name             = UNSET_VALUE
 
-
           @local_mode                         = UNSET_VALUE
+          @nfs                                = UNSET_VALUE
           @cookbooks_path                     = UNSET_VALUE
           @roles_path                         = UNSET_VALUE
           @data_bags_path                     = UNSET_VALUE
@@ -52,24 +52,25 @@ module VagrantPlugins
           super
 
           @chef_server_url = nil if @chef_server_url == UNSET_VALUE
-          @client_key_path        = "/etc/chef/client.pem" if @client_key_path == UNSET_VALUE
+          @client_key_path = '/etc/chef/client.pem' if @client_key_path == UNSET_VALUE
           @delete_client = false if @delete_client == UNSET_VALUE
           @delete_node = false if @delete_node == UNSET_VALUE
           @encrypted_data_bag_secret_key_path = nil if @encrypted_data_bag_secret_key_path == UNSET_VALUE
-          @encrypted_data_bag_secret          = "/tmp/encrypted_data_bag_secret" if @encrypted_data_bag_secret == UNSET_VALUE
+          @encrypted_data_bag_secret = '/tmp/encrypted_data_bag_secret' if @encrypted_data_bag_secret == UNSET_VALUE
           @environment = nil if @environment == UNSET_VALUE
-          @validation_client_name = "chef-validator" if @validation_client_name == UNSET_VALUE
+          @validation_client_name = 'chef-validator' if @validation_client_name == UNSET_VALUE
           @validation_key_path = nil if @validation_key_path == UNSET_VALUE
 
           @local_mode = false if @local_mode == UNSET_VALUE
+          @nfs = false if @nfs == UNSET_VALUE
 
           #
           # Taken from chef_solo.rb
           #
           if @cookbooks_path == UNSET_VALUE
             @cookbooks_path = []
-            @cookbooks_path << [:host, "cookbooks"] if !@recipe_url
-            @cookbooks_path << [:vm, "cookbooks"]
+            @cookbooks_path << [:host, 'cookbooks'] unless @recipe_url
+            @cookbooks_path << [:vm, 'cookbooks']
           end
 
           @data_bags_path    = [] if @data_bags_path == UNSET_VALUE
@@ -91,18 +92,21 @@ module VagrantPlugins
         def validate(machine)
           errors = _detected_errors
           errors.concat(validate_base(machine))
-          errors << I18n.t("vagrant.config.chef.server_url_empty") if \
-            !chef_server_url || chef_server_url.strip == ""
-          errors << I18n.t("vagrant.config.chef.validation_key_path") if \
-            !validation_key_path
+
+          unless @local_mode
+            errors << I18n.t('vagrant.config.chef.server_url_empty') unless \
+              chef_server_url || chef_server_url.strip == ''
+            errors << I18n.t('vagrant.config.chef.validation_key_path') unless \
+              validation_key_path
+          end
 
           if delete_client || delete_node
-            if !Vagrant::Util::Which.which("knife")
-              errors << I18n.t("vagrant.chef_config_knife_not_found")
+            unless Vagrant::Util::Which.which('knife')
+              errors << I18n.t('vagrant.chef_config_knife_not_found')
             end
           end
 
-          { "chef client provisioner" => errors }
+          { 'chef client provisioner' => errors }
         end
 
         protected
@@ -113,13 +117,24 @@ module VagrantPlugins
         # @return [Array]
         def prepare_folders_config(config)
           # Make sure the path is an array
-          config = [config] if !config.is_a?(Array) || config.first.is_a?(Symbol)
+          config = [config] unless config.is_a?(Array) || config.first.is_a?(Symbol)
 
           # Make sure all the paths are in the proper format
           config.map do |path|
-            path = [:host, path] if !path.is_a?(Array)
+            path = [:host, path] unless path.is_a?(Array)
             path
           end
+        end
+
+        # This was taken from schisamo's omnibus plugin
+        # https://github.com/schisamo/vagrant-omnibus/blob/master/lib/vagrant-omnibus/action/install_chef.rb
+        def install_chef_version
+          version = nil
+          command = 'echo $(chef-client -v | awk "{print \\$2}" || "")'
+          @machine.communicate.sudo(command) do |type, data|
+            version = data.chomp if [:stderr, :stdout].include?(type)
+          end
+          version
         end
       end
     end
