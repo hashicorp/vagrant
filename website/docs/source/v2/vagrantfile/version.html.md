@@ -36,7 +36,7 @@ for each version, and properly merges them, just like any other configuration.
 The important thing to understand as a general user of Vagrant is that
 _within a single configuration section_, only a single version can be used.
 You can't use the new `config.vm.provider` configurations in a version 1
-configuration section. Likewise, `config.vm.forwarded_port` won't work
+configuration section. Likewise, `config.vm.forward_port` won't work
 in a version 2 configuration section (it was renamed).
 
 If you want, you can mix and match multiple configuration versions in the
