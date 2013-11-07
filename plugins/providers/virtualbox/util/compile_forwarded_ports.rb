@@ -21,6 +21,10 @@ module VagrantPlugins
 
               # If the forwarded port was marked as disabled, ignore.
               next if options[:disabled]
+              
+              if id == "ssh"
+                guest_port = config.ssh.guest_port
+              end
 
               mappings[host_port.to_s + protocol.to_s] =
                 Model::ForwardedPort.new(id, host_port, guest_port, options)
