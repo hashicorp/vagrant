@@ -55,11 +55,19 @@ module VagrantPlugins
         # the given string to the log, and also includes the exit status in
         # the log message.
         #
+        # We assume every command is idempotent and pass along the `retryable`
+        # flag. This is because VBoxManage is janky about running simultaneously
+        # on the same box, and if we up multiple boxes at the same time, a bunch
+        # of modifyvm commands get fired
+        #
         # @param [Array] command Command to run
         # @param [String] log Log message to write.
         def attempt_and_log(command, log)
-          result = @env[:machine].provider.driver.execute_command(command)
-          @logger.info("#{log} (exit status = #{result.exit_code})")
+          begin
+            @env[:machine].provider.driver.execute_command(command + [:retryable => true])
+          rescue Vagrant::Errors::VBoxManageError => e
+            @logger.info("#{log} (error = #{e.inspect})")
+          end
         end
 
         # This uses some heuristics to determine if the NAT DNS proxy should
