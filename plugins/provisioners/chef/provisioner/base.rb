@@ -1,5 +1,6 @@
 require 'tempfile'
 
+require "log4r"
 require "vagrant/util/counter"
 require "vagrant/util/template_renderer"
 
@@ -10,6 +11,8 @@ module VagrantPlugins
       # chef-solo and chef-client provisioning are stored. This is **not an actual
       # provisioner**. Instead, {ChefSolo} or {ChefServer} should be used.
       class Base < Vagrant.plugin("2", :provisioner)
+        extend Vagrant::Util::Counter
+        include Vagrant::Util::Counter
         class ChefError < Vagrant::Errors::VagrantError
           error_namespace("vagrant.provisioners.chef")
         end
@@ -87,6 +90,74 @@ module VagrantPlugins
           end
         end
 
+        def verify_shared_folders(folders)
+          folders.each do |folder|
+            @logger.debug("Checking for shared folder: #{folder}")
+            unless @machine.communicate.test("test -d #{folder}", sudo: true)
+              fail ChefError, :missing_shared_folders
+            end
+          end
+        end
+
+        # Converts paths to a list of properly expanded paths with types.
+        def expanded_folders(paths, appended_folder = nil)
+          # Convert the path to an array if it is a string or just a single
+          # path element which contains the folder location (:host or :vm)
+          paths = [paths] if paths.is_a?(String) || paths.first.is_a?(Symbol)
+
+          results = []
+          paths.each do |type, path|
+            # Create the local/remote path based on whether this is a host
+            # or VM path.
+            local_path = nil
+            remote_path = nil
+            if type == :host
+              # Get the expanded path that the host path points to
+              local_path = File.expand_path(path, @machine.env.root_path)
+
+              if File.exist?(local_path)
+                # Path exists on the host, setup the remote path
+                remote_path = "#{@config.provisioning_path}/chef-local-#{get_and_update_counter(:cookbooks_path)}"
+              else
+                @machine.ui.warn(I18n.t('vagrant.provisioners.chef.cookbook_folder_not_found_warning',
+                                        path: local_path.to_s))
+                next
+              end
+            else
+              # Path already exists on the virtual machine. Expand it
+              # relative to where we're provisioning.
+              remote_path = File.expand_path(path, @config.provisioning_path)
+
+              # Remove drive letter if running on a windows host. This is a bit
+              # of a hack but is the most portable way I can think of at the moment
+              # to achieve this. Otherwise, Vagrant attempts to share at some crazy
+              # path like /home/vagrant/c:/foo/bar
+              remote_path = remote_path.gsub(/^[a-zA-Z]:/, '')
+            end
+
+            # If we have specified a folder name to append then append it
+            remote_path += "/#{appended_folder}" if appended_folder
+
+            # Append the result
+            results << [type, local_path, remote_path]
+          end
+
+          results
+        end
+
+        # Shares the given folders with the given prefix. The folders should
+        # be of the structure resulting from the `expanded_folders` function.
+        def share_folders(root_config, prefix, folders)
+          folders.each do |type, local_path, remote_path|
+            if type == :host
+              root_config.vm.synced_folder(
+                local_path, remote_path,
+                id: "v-#{prefix}-#{self.class.get_and_update_counter(:shared_folder)}",
+                nfs: @config.nfs)
+            end
+          end
+        end
+
         def setup_json
           @machine.env.ui.info I18n.t("vagrant.provisioners.chef.json")
 
@@ -106,6 +177,11 @@ module VagrantPlugins
             comm.sudo("rm #{remote_file}", :error_check => false)
             comm.upload(temp.path, remote_file)
           end
+        end
+
+        # Extracts only the remote paths from a list of folders
+        def guest_paths(folders)
+          folders.map { |parts| parts[2] }
         end
       end
     end
