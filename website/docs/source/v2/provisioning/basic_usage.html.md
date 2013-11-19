@@ -23,7 +23,7 @@ Vagrant.configure("2") do |config|
 end
 ```
 
-Every provisioner has an identifier, such as `"shell", used as the first
+Every provisioner has an identifier, such as `"shell"`, used as the first
 parameter to the provisioning configuration. Following that is basic key/value
 for configuring that specific provisioner. Instead of basic key/value, you
 can also use a Ruby block for a syntax that is more like variable assignment.
