@@ -29,7 +29,7 @@ module Vagrant
           exts = ENV['PATHEXT'].split(';')
         end
 
-        ENV['PATH'].split(File::PATH_SEPARATOR).each do |path|
+        ENV['PATH'].encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '').split(File::PATH_SEPARATOR).each do |path|
           exts.each do |ext|
             exe = "#{path}#{File::SEPARATOR}#{cmd}#{ext}"
             return exe if File.executable? exe
