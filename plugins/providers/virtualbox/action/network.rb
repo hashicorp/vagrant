@@ -314,7 +314,7 @@ module VagrantPlugins
                   interface[:dhcp][:lower] == config[:dhcp_lower] &&
                   interface[:dhcp][:upper] == config[:dhcp_upper]
 
-              raise Errors::NetworkDHCPAlreadyAttached if !valid
+              raise Vagrant::Errors::NetworkDHCPAlreadyAttached if !valid
 
               @logger.debug("DHCP server already properly configured")
             else
