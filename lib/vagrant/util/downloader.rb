@@ -37,7 +37,8 @@ module Vagrant
           "--location",
           "--max-redirs", "10",
           "--user-agent", USER_AGENT,
-          "--output", @destination
+          "--output", @destination,
+          "--continue-at", "-"
         ]
 
         options << "--insecure" if @insecure
