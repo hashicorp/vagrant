@@ -10,6 +10,7 @@ BUG FIXES:
 
   - core: Make sure machine IDs are always strings. [GH-2434]
   - core: 100% CPU spike when waiting for SSH is fixed. [GH-2401]
+  - core: Command lookup works on systems where PATH is not valid UTF-8 [GH-2514]
   - guests/freebsd: Mounting NFS folders works. [GH-2400]
   - guests/ubuntu: "localhost" is preserved when changing hostnames.
     [GH-2383]
