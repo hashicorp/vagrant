@@ -32,6 +32,11 @@ module Vagrant
         # @return [Hash<Symbol, Registry>]
         attr_reader :providers
 
+        # This contains all the synced folder implementations by name.
+        #
+        # @return [Registry<Symbol, Class>]
+        attr_reader :synced_folders
+
         def initialize
           # The action hooks hash defaults to []
           @action_hooks = Hash.new { |h, k| h[k] = [] }
@@ -40,6 +45,7 @@ module Vagrant
           @guests  = Registry.new
           @guest_capabilities = Hash.new { |h, k| h[k] = Registry.new }
           @providers = Registry.new
+          @synced_folders = Registry.new
         end
       end
     end

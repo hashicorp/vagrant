@@ -194,6 +194,19 @@ module Vagrant
           data[:provisioners]
         end
 
+        # Registers additional synced folder implementations.
+        #
+        # @param [String] name Name of the implementation.
+        # @param [Integer] priority The priority of the implementation,
+        # higher (big) numbers are tried before lower (small) numbers.
+        def self.synced_folder(name, priority=10, &block)
+          components.synced_folders.register(name.to_sym) do
+            [block.call, priority]
+          end
+
+          nil
+        end
+
         # Returns the internal data associated with this plugin. This
         # should NOT be called by the general public.
         #
