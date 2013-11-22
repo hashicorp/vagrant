@@ -13,6 +13,7 @@ require "support/tempdir"
 require "unit/support/dummy_communicator"
 require "unit/support/dummy_provider"
 require "unit/support/shared/base_context"
+require "unit/support/shared/virtualbox_context"
 
 # Do not buffer output
 $stdout.sync = true

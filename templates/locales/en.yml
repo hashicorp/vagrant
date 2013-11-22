@@ -390,9 +390,9 @@ en:
         No host IP was given to the Vagrant core NFS helper. This is
         an internal error that should be reported as a bug.
       nfs_no_hostonly_network: |-
-        NFS requires a host-only network with a static IP to be created.
-        Please add a host-only network with a static IP to the machine
-        for NFS to work.
+        NFS requires a host-only network to be created.
+        Please add a host-only network to the machine (with either DHCP or a
+        static IP) for NFS to work.
       no_default_synced_folder_impl: |-
         No synced folder implementation is available for your synced folders!
         Please consult the documentation to learn why this may be the case.
@@ -645,6 +645,10 @@ en:
         4.2.14 contains a critical bug that causes it to not work with
         Vagrant. VirtualBox 4.2.16+ fixes this problem. Please upgrade
         VirtualBox.
+      virtualbox_guest_property_not_found: |-
+        Could not find a required VirtualBox guest property:
+          %{guest_property}
+        This is an internal error that should be reported as a bug.
       virtualbox_invalid_version: |-
         Vagrant has detected that you have a version of VirtualBox installed
         that is not supported. Please install one of the supported versions

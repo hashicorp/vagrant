@@ -2,41 +2,56 @@ module VagrantPlugins
   module ProviderVirtualBox
     module Action
       class PrepareNFSSettings
+        include Vagrant::Util::Retryable
+
         def initialize(app,env)
           @app = app
           @logger = Log4r::Logger.new("vagrant::action::vm::nfs")
         end
 
         def call(env)
+          @machine = env[:machine]
           @app.call(env)
 
-          using_nfs = false
-          env[:machine].config.vm.synced_folders.each do |id, opts|
-            if opts[:type] == :nfs
-              using_nfs = true
-              break
-            end
-          end
-
-          if using_nfs
+          if using_nfs?
             @logger.info("Using NFS, preparing NFS settings by reading host IP and machine IP")
-            env[:nfs_host_ip]    = read_host_ip(env[:machine])
-            env[:nfs_machine_ip] = read_machine_ip(env[:machine])
-
-            raise Vagrant::Errors::NFSNoHostonlyNetwork if !env[:nfs_machine_ip]
+            add_nfs_settings_to_env!(env)
           end
         end
 
-        # Returns the IP address of the first host only network adapter
+        # We're using NFS if we have any synced folder with NFS configured. If
+        # we are not using NFS we don't need to do the extra work to
+        # populate these fields in the environment.
+        def using_nfs?
+          @machine.config.vm.synced_folders.any? { |_, opts| opts[:type] == :nfs }
+        end
+
+        # Extracts the proper host and guest IPs for NFS mounts and stores them
+        # in the environment for the SyncedFolder action to use them in
+        # mounting.
         #
-        # @param [Machine] machine
-        # @return [String]
-        def read_host_ip(machine)
-          machine.provider.driver.read_network_interfaces.each do |adapter, opts|
+        # The ! indicates that this method modifies its argument.
+        def add_nfs_settings_to_env!(env)
+          adapter, host_ip = find_host_only_adapter
+          machine_ip       = nil
+          machine_ip       = read_machine_ip(adapter) if adapter
+
+          raise Vagrant::Errors::NFSNoHostonlyNetwork if !host_ip || !machine_ip
+
+          env[:nfs_host_ip]    = host_ip
+          env[:nfs_machine_ip] = machine_ip
+        end
+
+        # Finds first host only network adapter and returns its adapter number
+        # and IP address
+        #
+        # @return [Integer, String] adapter number, ip address of found host-only adapter
+        def find_host_only_adapter
+          @machine.provider.driver.read_network_interfaces.each do |adapter, opts|
             if opts[:type] == :hostonly
-              machine.provider.driver.read_host_only_interfaces.each do |interface|
+              @machine.provider.driver.read_host_only_interfaces.each do |interface|
                 if interface[:name] == opts[:hostonly]
-                  return interface[:ip]
+                  return adapter, interface[:ip]
                 end
               end
             end
@@ -45,23 +60,34 @@ module VagrantPlugins
           nil
         end
 
-        # Returns the IP address of the guest by looking at the first
-        # enabled host only network.
+        # Returns the IP address of the guest by looking at vbox guest property
+        # for the appropriate guest adapter.
         #
-        # @return [String]
-        def read_machine_ip(machine)
-          ips = []
-          machine.config.vm.networks.each do |type, options|
-            if type == :private_network && options[:ip].is_a?(String)
-              ips << options[:ip]
-            end
-          end
+        # For DHCP interfaces, the guest property will not be present until the
+        # guest completes
+        #
+        # @param [Integer] adapter number to read IP for
+        # @return [String] ip address of adapter
+        def read_machine_ip(adapter)
+          # vbox guest properties are 0-indexed, while showvminfo network
+          # interfaces are 1-indexed. go figure.
+          guestproperty_adapter = adapter - 1
 
-          if ips.empty?
-            return nil
+          # we need to wait for the guest's IP to show up as a guest property.
+          # retry thresholds are relatively high since we might need to wait
+          # for DHCP, but even static IPs can take a second or two to appear.
+          retryable(retry_options.merge(on: Vagrant::Errors::VirtualBoxGuestPropertyNotFound)) do
+            @machine.provider.driver.read_guest_ip(guestproperty_adapter)
           end
+        rescue Vagrant::Errors::VirtualBoxGuestPropertyNotFound
+          # this error is more specific with a better error message directing
+          # the user towards the fact that it's probably a reportable bug
+          raise Vagrant::Errors::NFSNoGuestIP
+        end
 
-          ips
+        # Separating these out so we can stub out the sleep in tests
+        def retry_options
+          {tries: 15, sleep: 1}
         end
       end
     end
