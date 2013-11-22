@@ -54,6 +54,7 @@ module VagrantPlugins
           :error_class => Vagrant::Errors::VagrantError,
           :error_key   => :ssh_bad_exit_status,
           :command     => command,
+          :shell       => nil,
           :sudo        => false
         }.merge(opts || {})
 
@@ -61,7 +62,7 @@ module VagrantPlugins
         stdout = ""
         stderr = ""
         exit_status = connect do |connection|
-          shell_execute(connection, command, opts[:sudo]) do |type, data|
+          shell_execute(connection, command, opts[:sudo], opts[:shell]) do |type, data|
             if type == :stdout
               stdout += data
             elsif type == :stderr
@@ -273,18 +274,20 @@ module VagrantPlugins
       end
 
       # Executes the command on an SSH connection within a login shell.
-      def shell_execute(connection, command, sudo=false)
+      def shell_execute(connection, command, sudo=false, shell=nil)
         @logger.info("Execute: #{command} (sudo=#{sudo.inspect})")
         exit_status = nil
 
-        # Determine the shell to execute. If we are using `sudo` then we
+        # Determine the shell to execute. Prefer the explicitly passed in shell
+        # over the default configured shell. If we are using `sudo` then we
         # need to wrap the shell in a `sudo` call.
-        shell = @machine.config.ssh.shell
-        shell = "sudo -H #{shell}" if sudo
+        shell_cmd = @machine.config.ssh.shell
+        shell_cmd = shell if shell
+        shell_cmd = "sudo -H #{shell_cmd}" if sudo
 
         # Open the channel so we can execute or command
         channel = connection.open_channel do |ch|
-          ch.exec(shell) do |ch2, _|
+          ch.exec(shell_cmd) do |ch2, _|
             # Setup the channel callbacks so we can get data and exit status
             ch2.on_data do |ch3, data|
               # Filter out the clear screen command
