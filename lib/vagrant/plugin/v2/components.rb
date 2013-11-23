@@ -34,7 +34,7 @@ module Vagrant
 
         # This contains all the synced folder implementations by name.
         #
-        # @return [Registry<Symbol, Class>]
+        # @return [Registry<Symbol, Array<Class, Integer>>]
         attr_reader :synced_folders
 
         def initialize

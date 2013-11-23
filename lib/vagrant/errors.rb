@@ -364,6 +364,10 @@ module Vagrant
       error_key(:nfs_no_hostonly_network)
     end
 
+    class NoDefaultSyncedFolderImpl < VagrantError
+      error_key(:no_default_synced_folder_impl)
+    end
+
     class NoEnvironmentError < VagrantError
       error_key(:no_env)
     end

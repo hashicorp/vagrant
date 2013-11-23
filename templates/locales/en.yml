@@ -387,6 +387,14 @@ en:
         NFS requires a host-only network with a static IP to be created.
         Please add a host-only network with a static IP to the machine
         for NFS to work.
+      no_default_synced_folder_impl: |-
+        No synced folder implementation is available for your synced folders!
+        Please consult the documentation to learn why this may be the case.
+        You may force a synced folder implementation by specifying a "type:"
+        option for the synced folders. Available synced folder implementations
+        are listed below.
+
+        %{types}
       no_env: |-
         A Vagrant environment is required to run this command. Run `vagrant init`
         to set one up in this directory, or change to a directory with a

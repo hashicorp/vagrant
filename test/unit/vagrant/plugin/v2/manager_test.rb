@@ -171,4 +171,21 @@ describe Vagrant::Plugin::V2::Manager do
     instance.provider_configs[:foo].should == "foo"
     instance.provider_configs[:bar].should == "bar"
   end
+
+  it "should enumerate all registered synced folder implementations" do
+    pA = plugin do |p|
+      p.synced_folder("foo") { "bar" }
+    end
+
+    pB = plugin do |p|
+      p.synced_folder("bar", 50) { "baz" }
+    end
+
+    instance.register(pA)
+    instance.register(pB)
+
+    instance.synced_folders.to_hash.length.should == 2
+    instance.synced_folders[:foo].should == ["bar", 10]
+    instance.synced_folders[:bar].should == ["baz", 50]
+  end
 end

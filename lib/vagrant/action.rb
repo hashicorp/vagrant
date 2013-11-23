@@ -24,6 +24,7 @@ module Vagrant
       autoload :SetHostname, "vagrant/action/builtin/set_hostname"
       autoload :SSHExec, "vagrant/action/builtin/ssh_exec"
       autoload :SSHRun,  "vagrant/action/builtin/ssh_run"
+      autoload :SyncedFolders, "vagrant/action/builtin/synced_folders"
       autoload :WaitForCommunicator, "vagrant/action/builtin/wait_for_communicator"
     end
 

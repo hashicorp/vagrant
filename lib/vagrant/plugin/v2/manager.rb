@@ -142,6 +142,17 @@ module Vagrant
           end
         end
 
+        # This returns all synced folder implementations.
+        #
+        # @return [Registry]
+        def synced_folders
+          Registry.new.tap do |result|
+            @registered.each do |plugin|
+              result.merge!(plugin.components.synced_folders)
+            end
+          end
+        end
+
         # This registers a plugin. This should _NEVER_ be called by the public
         # and should only be called from within Vagrant. Vagrant will
         # automatically register V2 plugins when a name is set on the
