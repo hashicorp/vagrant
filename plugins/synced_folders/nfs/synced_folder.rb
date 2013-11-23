@@ -23,8 +23,8 @@ module VagrantPlugins
       end
 
       def enable(machine, folders, nfsopts)
-        raise Errors::NFSNoHostIP if !nfsopts[:nfs_host_ip]
-        raise Errors::NFSNoGuestIP if !nfsopts[:nfs_machine_ip]
+        raise Vagrant::Errors::NFSNoHostIP if !nfsopts[:nfs_host_ip]
+        raise Vagrant::Errors::NFSNoGuestIP if !nfsopts[:nfs_machine_ip]
 
         machine_ip = nfsopts[:nfs_machine_ip]
         machine_ip = [machine_ip] if !machine_ip.is_a?(Array)
