@@ -33,6 +33,13 @@ module Vagrant
           downloader_options[:insecure] = env[:box_download_insecure]
           downloader_options[:ui] = env[:ui]
 
+          # If the temporary path exists, verify it is not too old. If its
+          # too old, delete it first because the data may have changed.
+          if @temp_path.file? && @temp_path.mtime.to_i < (Time.now.to_i - 6 * 60 * 60)
+            @logger.info("Existing temp file is too old. Removing.")
+            @temp_path.unlink
+          end
+
           # Download the box to a temporary path. We store the temporary
           # path as an instance variable so that the `#recover` method can
           # access it.
