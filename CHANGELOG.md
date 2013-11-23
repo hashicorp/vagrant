@@ -4,6 +4,8 @@ FEATURES:
 
   - New plugin type: synced folder implementation. This allows new ways of
     syncing folders to be added as plugins to Vagrant.
+  - The `--debug` flag can be specified on any command now to get debug-level
+    log output to ease reporting bugs.
 
 IMPROVEMENTS:
 
