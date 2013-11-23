@@ -21,6 +21,16 @@ Before diving into your first project, please [install Vagrant](/v2/installation
 And because we'll be using [VirtualBox](http://www.virtualbox.org) as our
 provider for the getting started guide, please install that as well.
 
+<div class="alert alert-block alert-info">
+<p>
+<strong>More of a book person?</strong> If you prefer to read a physical
+book, you may be interested in
+<a href="http://www.amazon.com/Vagrant-Up-Running-Mitchell-Hashimoto/dp/1449335837">
+Vagrant: Up and Running
+</a>, written by the author of Vagrant and published by O'Reilly.
+</p>
+</div>
+
 ## Up and Running
 
 ```
