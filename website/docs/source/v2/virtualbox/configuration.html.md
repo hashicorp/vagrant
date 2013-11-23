@@ -61,3 +61,12 @@ more than 50% would be used on your own host machine. Some details:
 
 * Multiple `customize` directives can be used. They will be executed in the
   order given.
+
+There is also a shortcut for specifying the memory size (MB) for the virtual
+machine:
+
+```ruby
+config.vm.provider "virtualbox" do |v|
+  v.memory = 1024
+end
+```
