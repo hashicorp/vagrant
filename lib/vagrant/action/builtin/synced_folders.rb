@@ -1,5 +1,7 @@
 require "log4r"
 
+require 'vagrant/util/platform'
+
 module Vagrant
   module Action
     module Builtin
@@ -29,15 +31,20 @@ module Vagrant
             fs.each do |id, data|
               data[:hostpath] = File.expand_path(data[:hostpath], env[:root_path])
 
-              # Don't do anything else if this directory exists or its
-              # not flagged to auto-create
-              next if File.directory?(data[:hostpath]) || !data[:create]
-              @logger.info("Creating shared folder host directory: #{data[:hostpath]}")
-              begin
-                Pathname.new(data[:hostpath]).mkpath
-              rescue Errno::EACCES
-                raise Vagrant::Errors::SharedFolderCreateFailed,
-                  path: data[:hostpath]
+              # Create the hostpath if it doesn't exist and we've been told to
+              if !File.directory?(data[:hostpath]) && data[:create]
+                @logger.info("Creating shared folder host directory: #{data[:hostpath]}")
+                begin
+                  Pathname.new(data[:hostpath]).mkpath
+                rescue Errno::EACCES
+                  raise Vagrant::Errors::SharedFolderCreateFailed,
+                    path: data[:hostpath]
+                end
+              end
+
+              if File.directory?(data[:hostpath])
+                data[:hostpath] = File.realpath(data[:hostpath])
+                data[:hostpath] = Util::Platform.fs_real_path(data[:hostpath])
               end
             end
           end

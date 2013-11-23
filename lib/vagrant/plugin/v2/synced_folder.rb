@@ -6,10 +6,10 @@ module Vagrant
         def usable?(machine)
         end
 
-        def prepare(machine, folders)
+        def prepare(machine, folders, opts)
         end
 
-        def enable(machine, folders)
+        def enable(machine, folders, opts)
         end
       end
     end

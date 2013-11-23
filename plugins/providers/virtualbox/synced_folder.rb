@@ -8,7 +8,7 @@ module VagrantPlugins
         machine.provider_name == :virtualbox
       end
 
-      def prepare(machine, folders)
+      def prepare(machine, folders, _opts)
         defs = []
         folders.each do |id, data|
           hostpath = Vagrant::Util::Platform.cygwin_windows_path(data[:hostpath])
@@ -23,7 +23,7 @@ module VagrantPlugins
         driver(machine).share_folders(defs)
       end
 
-      def enable(machine, folders)
+      def enable(machine, folders, _opts)
         # short guestpaths first, so we don't step on ourselves
         folders = folders.sort_by do |id, data|
           if data[:guestpath]
