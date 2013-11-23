@@ -24,7 +24,7 @@ module VagrantPlugins
           @nfs_start_command = "/usr/bin/systemctl start nfsd rpc-mountd rpcbind"
         else
           @nfs_check_command = "/etc/init.d/nfs status"
-          @nfs_start_command = "/etc/init.d/nfs start"
+          @nfs_start_command = "/etc/init.d/nfs restart"
         end
       end
 
