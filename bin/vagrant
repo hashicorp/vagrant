@@ -64,7 +64,11 @@ opts[:ui_class] ||= Vagrant::UI::Colored
 # of the plugin interface.
 ARGV.each do |arg|
   if !arg.start_with?("-")
-    ENV["VAGRANT_NO_PLUGINS"] = "1" if arg == "plugin"
+    if arg == "plugin"
+      ENV["VAGRANT_NO_PLUGINS"] = "1"
+      ENV["VAGRANT_VAGRANTFILE"] = "plugin_command_#{Time.now.to_i}"
+    end
+
     break
   end
 end

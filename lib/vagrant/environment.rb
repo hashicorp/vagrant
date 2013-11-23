@@ -62,12 +62,12 @@ module Vagrant
     # to the `Dir.pwd` (which is the cwd of the executing process).
     def initialize(opts=nil)
       opts = {
-        :cwd => nil,
-        :home_path => nil,
-        :local_data_path => nil,
-        :lock_path => nil,
-        :ui_class => nil,
-        :vagrantfile_name => nil
+        :cwd              => nil,
+        :home_path        => nil,
+        :local_data_path  => nil,
+        :lock_path        => nil,
+        :ui_class         => nil,
+        :vagrantfile_name => nil,
       }.merge(opts || {})
 
       # Set the default working directory to look for the vagrantfile
