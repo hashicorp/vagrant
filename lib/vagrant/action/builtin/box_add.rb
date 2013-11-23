@@ -1,3 +1,4 @@
+require "digest/sha1"
 require "log4r"
 
 require "vagrant/util/downloader"
@@ -15,7 +16,8 @@ module Vagrant
         end
 
         def call(env)
-          @temp_path = env[:tmp_path].join("box" + Time.now.to_i.to_s)
+          @download_interrupted = false
+          @temp_path = env[:tmp_path].join("box" + Digest::SHA1.hexdigest(env[:box_url]))
           @logger.info("Downloading box to: #{@temp_path}")
 
           url = env[:box_url]
@@ -40,6 +42,7 @@ module Vagrant
           rescue Errors::DownloaderInterrupted
             # The downloader was interrupted, so just return, because that
             # means we were interrupted as well.
+            @download_interrupted = true
             env[:ui].info(I18n.t("vagrant.actions.box.download.interrupted"))
             return
           end
@@ -82,7 +85,7 @@ module Vagrant
         end
 
         def recover(env)
-          if @temp_path && File.exist?(@temp_path)
+          if @temp_path && File.exist?(@temp_path) && !@download_interrupted
             File.unlink(@temp_path)
           end
         end
