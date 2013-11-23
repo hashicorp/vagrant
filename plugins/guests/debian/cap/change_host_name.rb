@@ -3,33 +3,79 @@ module VagrantPlugins
     module Cap
       class ChangeHostName
         def self.change_host_name(machine, name)
-          machine.communicate.tap do |comm|
+          new(machine, name).change!
+        end
 
-            # Get the current hostname
-            # if existing fqdn setup improperly, this returns just hostname
-            old = ''
-            comm.sudo "hostname -f" do |type, data|
-             if type == :stdout
-               old = data.chomp
-             end
-            end
+        attr_reader :machine, :new_hostname
 
-            # this works even if they're not both fqdn
-            if old.split('.')[0] != name.split('.')[0]
+        def initialize(machine, new_hostname)
+          @machine = machine
+          @new_hostname = new_hostname
+        end
 
-              comm.sudo("sed -i 's/.*$/#{name.split('.')[0]}/' /etc/hostname")
+        def change!
+          return unless should_change?
 
-              # hosts should resemble:
-              # 127.0.0.1   localhost host.fqdn.com host
-              # 127.0.1.1   host.fqdn.com host
-              comm.sudo("sed -ri 's@^(([0-9]{1,3}\.){3}[0-9]{1,3})\\s+(localhost)\\b.*$@\\1\\t\\3 #{name} #{name.split('.')[0]}@g' /etc/hosts")
-              comm.sudo("sed -ri 's@^(([0-9]{1,3}\.){3}[0-9]{1,3})\\s+(#{old.split('.')[0]})\\b.*$@\\1\\t#{name} #{name.split('.')[0]}@g' /etc/hosts")
+          update_etc_hostname
+          update_etc_hosts
+          refresh_hostname_service
+          update_mailname
+          renew_dhcp
+        end
 
-              comm.sudo("hostname -F /etc/hostname")
-              comm.sudo("hostname --fqdn > /etc/mailname")
-              comm.sudo("ifdown -a; ifup -a; ifup eth0")
-            end
+        def should_change?
+          new_hostname != current_hostname
+        end
+
+        def current_hostname
+          @current_hostname ||= get_current_hostname
+        end
+
+        def get_current_hostname
+          sudo "hostname -f" do |type, data|
+            return data.chomp if type == :stdout
           end
+          ''
+        end
+
+        def update_etc_hostname
+          sudo("echo '#{short_hostname}' > /etc/hostname")
+        end
+
+        # /etc/hosts should resemble:
+        # 127.0.0.1   localhost
+        # 127.0.1.1   host.fqdn.com host.fqdn host
+        def update_etc_hosts
+          ip_address = '([0-9]{1,3}\.){3}[0-9]{1,3}'
+          search     = "^(#{ip_address})\\s+#{current_hostname}\\b.*$"
+          replace    = "\\1\\t#{fqdn} #{short_hostname}"
+          expression = ['s', search, replace, 'g'].join('@')
+
+          sudo("sed -ri '#{expression}' /etc/hosts")
+        end
+
+        def refresh_hostname_service
+          sudo("hostname -F /etc/hostname")
+        end
+
+        def update_mailname
+          sudo("hostname --fqdn > /etc/mailname")
+        end
+
+        def renew_dhcp
+          sudo("ifdown -a; ifup -a; ifup eth0")
+        end
+
+        def fqdn
+          new_hostname
+        end
+
+        def short_hostname
+          new_hostname.split('.').first
+        end
+
+        def sudo(cmd, &block)
+          machine.communicate.sudo(cmd, &block)
         end
       end
     end
