@@ -8,13 +8,27 @@ module VagrantPlugins
 
           mount_commands = []
 
+          if options[:owner].is_a? Integer
+            mount_uid = options[:owner]
+          else
+            mount_uid = "`id -u #{options[:owner]}`"
+          end
+
+          if options[:group].is_a? Integer
+            mount_gid = options[:group]
+            mount_gid_old = options[:group]
+          else
+            mount_gid = "`getent group #{options[:group]} | cut -d: -f3`"
+            mount_gid_old = "`id -g #{options[:group]}`"
+          end
+
           # First mount command uses getent to get the group
-          mount_options = "-o uid=`id -u #{options[:owner]}`,gid=`getent group #{options[:group]} | cut -d: -f3`"
+          mount_options = "-o uid=#{mount_uid},gid=#{mount_gid}"
           mount_options += ",#{options[:mount_options].join(",")}" if options[:mount_options]
           mount_commands << "mount -t vboxsf #{mount_options} #{name} #{expanded_guest_path}"
 
           # Second mount command uses the old style `id -g`
-          mount_options = "-o uid=`id -u #{options[:owner]}`,gid=`id -g #{options[:group]}`"
+          mount_options = "-o uid=#{mount_uid},gid=#{mount_gid_old}"
           mount_options += ",#{options[:mount_options].join(",")}" if options[:mount_options]
           mount_commands << "mount -t vboxsf #{mount_options} #{name} #{expanded_guest_path}"
 
@@ -50,10 +64,8 @@ module VagrantPlugins
 
           # Chown the directory to the proper user
           chown_commands = []
-          chown_commands << "chown `id -u #{options[:owner]}`:`getent group #{options[:group]} " +
-            "| cut -d: -f3` #{expanded_guest_path}"
-          chown_commands << "chown `id -u #{options[:owner]}`:`id -g #{options[:group]}` " +
-            "#{expanded_guest_path}"
+          chown_commands << "chown #{mount_uid}:#{mount_gid} #{expanded_guest_path}"
+          chown_commands << "chown #{mount_uid}:#{mount_gid_old} #{expanded_guest_path}"
 
           exit_status = machine.communicate.sudo(chown_commands[0], error_check: false)
           return if exit_status == 0
