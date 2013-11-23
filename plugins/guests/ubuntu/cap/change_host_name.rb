@@ -20,7 +20,7 @@ module VagrantPlugins
               comm.sudo("sed -i 's/.*$/#{name.split('.')[0]}/' /etc/hostname")
 
               # hosts should resemble:
-              # 127.0.0.1   localhost host.fqdn.com host
+              # 127.0.0.1   localhost
               # 127.0.1.1   host.fqdn.com host
               if name.split('.').length > 1
                 # if there's an FQDN, put it in the right format
