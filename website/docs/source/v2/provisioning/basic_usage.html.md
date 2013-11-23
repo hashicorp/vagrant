@@ -9,6 +9,10 @@ While Vagrant offers multiple options for how you are able to provision
 your machine, there is a standard usage pattern as well as some important
 points common to all provisioners that are important to know.
 
+## Idempotentcy Required
+
+Initial setup is not the only case where you will want to run provisioning. Any time you or a colleague makes changes to the Vagrantfile, you can propagate those changes to your virtual machine by provisioning again. This requires that whatever provisioning you set up be idempotent. More advanced tools like Chef and Puppet provide idempotentcy as their default. But if you are using the simpler shell provisioning, you must take your own measures to ensure idempotentcy. For example, adding a `-p` flag to any `mkdir` command. Luckily, operations like `apt-get install foo` are naturally idempotent. 
+
 ## Configuration
 
 First, every provisioner is configured within your [Vagrantfile](/v2/vagrantfile/index.html)
