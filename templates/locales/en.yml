@@ -180,6 +180,10 @@ en:
         a new box. This box, in turn, specified a different box. This isn't
         allowed, as it could lead to infinite recursion of Vagrant configuration
         loading. Please fix this.
+      box_metadata_corrupted: |-
+        The metadata associated with the box '%{name}' appears corrupted.
+        This is most often caused by a disk issue or system crash. Please
+        remove the box, re-add it, and try again.
       box_metadata_file_not_found: |-
         The "metadata.json" file for the box '%{name}' was not found.
         Boxes require this file in order for Vagrant to determine the
@@ -580,7 +584,7 @@ en:
         Port: %{port}
         Username: %{username}
         Private key: %{key_path}
-      synced_folder_unusable: |
+      synced_folder_unusable: |-
         The synced folder type '%{type}' is reporting as unusable for
         your current setup. Please verify you have all the proper
         prerequisites for using this shared folder type and try again.

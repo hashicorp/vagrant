@@ -40,6 +40,19 @@ describe Vagrant::Box do
     instance.metadata.should == data
   end
 
+  context "with a corrupt metadata file" do
+    before do
+      directory.join("metadata.json").open("w") do |f|
+        f.write("")
+      end
+    end
+
+    it "should raise an exception" do
+      expect { subject }.
+        to raise_error(Vagrant::Errors::BoxMetadataCorrupted)
+    end
+  end
+
   context "without a metadata file" do
     before :each do
       directory.join("metadata.json").delete

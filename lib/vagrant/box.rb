@@ -47,7 +47,12 @@ module Vagrant
 
       metadata_file = directory.join("metadata.json")
       raise Errors::BoxMetadataFileNotFound, :name => @name if !metadata_file.file?
-      @metadata = JSON.parse(directory.join("metadata.json").read)
+
+      begin
+        @metadata = JSON.parse(directory.join("metadata.json").read)
+      rescue JSON::ParserError
+        raise Errors::BoxMetadataCorrupted, name: @name
+      end
 
       @logger = Log4r::Logger.new("vagrant::box")
     end
