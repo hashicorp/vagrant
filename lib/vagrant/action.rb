@@ -18,7 +18,6 @@ module Vagrant
       autoload :HandleBoxUrl, "vagrant/action/builtin/handle_box_url"
       autoload :HandleForwardedPortCollisions, "vagrant/action/builtin/handle_forwarded_port_collisions"
       autoload :Lock, "vagrant/action/builtin/lock"
-      autoload :NFS, "vagrant/action/builtin/nfs"
       autoload :Provision, "vagrant/action/builtin/provision"
       autoload :ProvisionerCleanup, "vagrant/action/builtin/provisioner_cleanup"
       autoload :SetHostname, "vagrant/action/builtin/set_hostname"
