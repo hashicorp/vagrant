@@ -5,6 +5,13 @@
 # initializing which have historically resulted in stack traces.
 Signal.trap("INT") { exit 1 }
 
+# Set logging level to `debug`. This is done before loading 'vagrant', as it
+# sets up the logging system.
+if ARGV.include?("--debug")
+  ARGV.delete("--debug")
+  ENV["VAGRANT_LOG"] = "debug"
+end
+
 require 'log4r'
 require 'vagrant'
 require 'vagrant/cli'
