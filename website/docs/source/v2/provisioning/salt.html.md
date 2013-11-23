@@ -55,8 +55,8 @@ on this machine
 * `install_syndic`   (boolean) - Install the salt-syndic, default 
 `false`
 
-* `install_type`  (stable | git | daily) - Whether to install from a 
-distribution's stable package manager, a daily ppa, or git treeish.
+* `install_type`  (stable | git | daily | testing) - Whether to install from a 
+distribution's stable package manager, git tree-ish, daily ppa, or testing repository.
 
 * `install_args` (develop) - When performing a git install, 
 you can specify a branch, tag, or any treeish.
