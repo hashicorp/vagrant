@@ -59,9 +59,9 @@ module VagrantPlugins
           b.use PrepareForwardedPortCollisionParams
           b.use HandleForwardedPortCollisions
           b.use PruneNFSExports
-          b.use PrepareNFSSettings
           b.use ClearSharedFolders
           b.use SyncedFolders
+          b.use PrepareNFSSettings
           b.use ClearNetworkInterfaces
           b.use Network
           b.use ForwardPorts

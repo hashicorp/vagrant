@@ -44,7 +44,7 @@ module Vagrant
 
               if File.directory?(data[:hostpath])
                 data[:hostpath] = File.realpath(data[:hostpath])
-                data[:hostpath] = Util::Platform.fs_real_path(data[:hostpath])
+                data[:hostpath] = Util::Platform.fs_real_path(data[:hostpath]).to_s
               end
             end
           end
