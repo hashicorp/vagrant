@@ -43,14 +43,19 @@ describe Vagrant::Action::Builtin::SyncedFolders do
 
   describe "call" do
     let(:synced_folders) { {} }
+    let(:plugins) { {} }
 
     before do
+      plugins[:default] = [impl(true, "default"), 10]
+      plugins[:nfs] = [impl(true, "nfs"), 5]
+
       env[:root_path] = Pathname.new(Dir.mktmpdir)
+      subject.stub(:plugins => plugins)
       subject.stub(:synced_folders => synced_folders)
     end
 
     it "should create on the host if specified" do
-      synced_folders[impl(true, "good")] = {
+      synced_folders["default"] = {
         "root" => {
           hostpath: "foo",
         },
@@ -69,17 +74,19 @@ describe Vagrant::Action::Builtin::SyncedFolders do
 
     it "should invoke prepare then enable" do
       order = []
-      sf = Class.new(impl(true, "good")) do
-        define_method(:prepare) do |machine, folders|
+      tracker = Class.new(impl(true, "good")) do
+        define_method(:prepare) do |machine, folders, opts|
           order << :prepare
         end
 
-        define_method(:enable) do |machine, folders|
+        define_method(:enable) do |machine, folders, opts|
           order << :enable
         end
       end
 
-      synced_folders[sf] = {
+      plugins[:tracker] = [tracker, 15]
+
+      synced_folders["tracker"] = {
         "root" => {
           hostpath: "foo",
         },
@@ -105,7 +112,22 @@ describe Vagrant::Action::Builtin::SyncedFolders do
       }
 
       result = subject.default_synced_folder_type(machine, plugins)
-      result.new.name.should == "good"
+      result.should == "good"
+    end
+  end
+
+  describe "impl_opts" do
+    it "should return only relevant keys" do
+      env = {
+        :foo_bar => "baz",
+        :bar_bar => "nope",
+        :foo_baz => "bar",
+      }
+
+      result = subject.impl_opts("foo", env)
+      result.length.should == 2
+      result[:foo_bar].should == "baz"
+      result[:foo_baz].should == "bar"
     end
   end
 
@@ -134,8 +156,8 @@ describe Vagrant::Action::Builtin::SyncedFolders do
 
       result = subject.synced_folders(machine)
       result.length.should == 2
-      result[plugins[:default][0]].should == { "root" => folders["root"] }
-      result[plugins[:nfs][0]].should == { "nfs" => folders["nfs"] }
+      result[:default].should == { "root" => folders["root"] }
+      result[:nfs].should == { "nfs" => folders["nfs"] }
     end
 
     it "should ignore disabled folders" do
@@ -144,7 +166,7 @@ describe Vagrant::Action::Builtin::SyncedFolders do
 
       result = subject.synced_folders(machine)
       result.length.should == 1
-      result[plugins[:default][0]].length.should == 1
+      result[:default].length.should == 1
     end
   end
 end

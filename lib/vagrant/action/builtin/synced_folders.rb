@@ -50,18 +50,18 @@ module Vagrant
           end
 
           # Go through each folder and prepare the folders
-          folders.each do |impl, fs|
-            @logger.info("Invoking synced folder prepare for: #{impl}")
-            impl.new.prepare(env[:machine], fs)
+          folders.each do |impl_name, fs|
+            @logger.info("Invoking synced folder prepare for: #{impl_name}")
+            plugins[impl_name.to_sym][0].new.prepare(env[:machine], fs, impl_opts(impl_name, env))
           end
 
           # Continue, we need the VM to be booted.
           @app.call(env)
 
           # Once booted, setup the folder contents
-          folders.each do |impl, fs|
-            @logger.info("Invoking synced folder enable: #{impl}")
-            impl.new.enable(env[:machine], fs)
+          folders.each do |impl_name, fs|
+            @logger.info("Invoking synced folder enable: #{impl_name}")
+            plugins[impl_name.to_sym][0].new.enable(env[:machine], fs, impl_opts(impl_name, env))
           end
         end
 
@@ -75,18 +75,32 @@ module Vagrant
             impl     = data[0]
             priority = data[1]
 
-            ordered << [priority, impl]
+            ordered << [priority, key, impl]
           end
 
           # Order the plugins by priority
-          ordered = ordered.sort { |a, b| b[0] <=> a[0] }.map { |p| p[1] }
+          ordered = ordered.sort { |a, b| b[0] <=> a[0] }
 
           # Find the proper implementation
-          ordered.each do |impl|
-            return impl if impl.new.usable?(machine)
+          ordered.each do |_, key, impl|
+            return key if impl.new.usable?(machine)
           end
 
           return nil
+        end
+
+        # This finds the options in the env that are set for a given
+        # synced folder type.
+        def impl_opts(name, env)
+          {}.tap do |result|
+            env.each do |k, v|
+              if k.to_s.start_with?("#{name}_")
+                k = k.dup if !k.is_a?(Symbol)
+                v = v.dup if !v.is_a?(Symbol)
+                result[k] = v
+              end
+            end
+          end
         end
 
         # This returns the available synced folder implementations. This
@@ -107,18 +121,14 @@ module Vagrant
             # Ignore disabled synced folders
             next if data[:disabled]
 
-            impl = ["", 0]
-            impl = plugins[data[:type].to_sym] if data[:type]
+            impl = ""
+            impl = data[:type].to_sym if data[:type]
 
-            if impl == nil
+            if impl != "" && !plugins[impl]
               # This should never happen because configuration validation
               # should catch this case. But we put this here as an assert
               raise "Internal error. Report this as a bug. Invalid: #{data[:type]}"
             end
-
-            # The implementation class rather than the priority, since the
-            # array is [class, priority].
-            impl = impl[0]
 
             # Keep track of this shared folder by the implementation.
             folders[impl] ||= {}
