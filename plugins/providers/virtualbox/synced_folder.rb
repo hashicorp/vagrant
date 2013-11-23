@@ -35,6 +35,7 @@ module VagrantPlugins
         end
 
         # Go through each folder and mount
+        machine.ui.info(I18n.t("vagrant.actions.vm.share_folders.mounting"))
         folders.each do |id, data|
           if data[:guestpath]
             # Guest path specified, so mount the folder to specified point
