@@ -22,6 +22,8 @@ BUG FIXES:
   - guests/ubuntu: "localhost" is preserved when changing hostnames.
     [GH-2383]
   - hosts/gentoo: Support systemd for NFS startup. [GH-2382]
+  - providers/virtualbox: Don't start new VM if VirtualBox has transient
+    failure during `up` from suspended. [GH-2479]
   - provisioners/salt: Bootstrap on FreeBSD systems work. [GH-2525]
 
 ## 1.3.5 (October 15, 2013)

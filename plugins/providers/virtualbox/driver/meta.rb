@@ -63,7 +63,8 @@ module VagrantPlugins
 
           if !driver_klass
             supported_versions = driver_map.keys.sort.join(", ")
-            raise Vagrant::Errors::VirtualBoxInvalidVersion, :supported_versions => supported_versions
+            raise Vagrant::Errors::VirtualBoxInvalidVersion,
+              supported_versions: supported_versions
           end
 
           @logger.info("Using VirtualBox driver: #{driver_klass}")

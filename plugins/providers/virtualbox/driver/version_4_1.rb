@@ -482,7 +482,23 @@ module VagrantPlugins
         end
 
         def vm_exists?(uuid)
-          raw("showvminfo", uuid).exit_code == 0
+          5.times do |i|
+            result = raw("showvminfo", uuid)
+            return true if result.exit_code == 0
+
+            # GH-2479: Sometimes this happens. In this case, retry. If
+            # we don't see this text, the VM really probably doesn't exist.
+            return false if !result.stderr.include?("CO_E_SERVER_EXEC_FAILURE")
+
+            # Sleep a bit though to give VirtualBox time to fix itself
+            sleep 2
+          end
+
+          # If we reach this point, it means that we consistently got the
+          # failure, do a standard vboxmanage now. This will raise an
+          # exception if it fails again.
+          execute("showvminfo", uuid)
+          return true
         end
       end
     end
