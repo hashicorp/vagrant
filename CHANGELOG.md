@@ -19,6 +19,7 @@ BUG FIXES:
   - core: 100% CPU spike when waiting for SSH is fixed. [GH-2401]
   - core: Command lookup works on systems where PATH is not valid UTF-8 [GH-2514]
   - guests/freebsd: Mounting NFS folders works. [GH-2400]
+  - guests/freebsd: Uses `sh` by default for shell. [GH-2485]
   - guests/ubuntu: "localhost" is preserved when changing hostnames.
     [GH-2383]
   - hosts/gentoo: Support systemd for NFS startup. [GH-2382]
