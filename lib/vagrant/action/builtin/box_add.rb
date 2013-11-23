@@ -37,6 +37,11 @@ module Vagrant
           # path as an instance variable so that the `#recover` method can
           # access it.
           env[:ui].info(I18n.t("vagrant.actions.box.download.downloading"))
+
+          if @temp_path.file?
+            env[:ui].info(I18n.t("vagrant.actions.box.download.resuming"))
+          end
+
           begin
             downloader = Util::Downloader.new(url, @temp_path, downloader_options)
             downloader.download!

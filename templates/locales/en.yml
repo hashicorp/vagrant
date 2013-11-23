@@ -1120,6 +1120,7 @@ en:
           cleaning: "Cleaning up downloaded box..."
           downloading: "Downloading or copying the box..."
           interrupted: "Box download was interrupted. Exiting."
+          resuming: "Box download is resuming from prior download progress"
         verify:
           verifying: "Verifying box..."
           failed: |-
