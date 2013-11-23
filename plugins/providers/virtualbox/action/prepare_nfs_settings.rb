@@ -12,7 +12,7 @@ module VagrantPlugins
 
           using_nfs = false
           env[:machine].config.vm.synced_folders.each do |id, opts|
-            if opts[:nfs]
+            if opts[:type] == :nfs
               using_nfs = true
               break
             end

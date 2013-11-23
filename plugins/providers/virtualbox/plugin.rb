@@ -18,6 +18,11 @@ module VagrantPlugins
         require File.expand_path("../config", __FILE__)
         Config
       end
+
+      synced_folder(:virtualbox) do
+        require File.expand_path("../synced_folder", __FILE__)
+        SyncedFolder
+      end
     end
 
     autoload :Action, File.expand_path("../action", __FILE__)

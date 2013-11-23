@@ -364,6 +364,10 @@ module Vagrant
       error_key(:nfs_no_hostonly_network)
     end
 
+    class NoDefaultSyncedFolderImpl < VagrantError
+      error_key(:no_default_synced_folder_impl)
+    end
+
     class NoEnvironmentError < VagrantError
       error_key(:no_env)
     end
@@ -506,6 +510,10 @@ module Vagrant
 
     class SSHUnavailableWindows < VagrantError
       error_key(:ssh_unavailable_windows)
+    end
+
+    class SyncedFolderUnusable < VagrantError
+      error_key(:synced_folder_unusable)
     end
 
     class UIExpectsTTY < VagrantError

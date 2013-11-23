@@ -101,6 +101,7 @@ module Vagrant
     c.register([:"2", :host])         { Plugin::V2::Host }
     c.register([:"2", :provider])     { Plugin::V2::Provider }
     c.register([:"2", :provisioner])  { Plugin::V2::Provisioner }
+    c.register([:"2", :synced_folder]) { Plugin::V2::SyncedFolder }
   end
 
   # This returns a true/false showing whether we're running from the

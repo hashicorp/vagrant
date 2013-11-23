@@ -40,7 +40,6 @@ module VagrantPlugins
       autoload :SaneDefaults, File.expand_path("../action/sane_defaults", __FILE__)
       autoload :SetName, File.expand_path("../action/set_name", __FILE__)
       autoload :SetupPackageFiles, File.expand_path("../action/setup_package_files", __FILE__)
-      autoload :ShareFolders, File.expand_path("../action/share_folders", __FILE__)
       autoload :Suspend, File.expand_path("../action/suspend", __FILE__)
 
       # Include the built-in modules so that we can use them as top-level
@@ -60,10 +59,9 @@ module VagrantPlugins
           b.use PrepareForwardedPortCollisionParams
           b.use HandleForwardedPortCollisions
           b.use PruneNFSExports
-          b.use NFS
-          b.use PrepareNFSSettings
           b.use ClearSharedFolders
-          b.use ShareFolders
+          b.use SyncedFolders
+          b.use PrepareNFSSettings
           b.use ClearNetworkInterfaces
           b.use Network
           b.use ForwardPorts

@@ -278,6 +278,42 @@ describe Vagrant::Plugin::V2::Plugin do
     end
   end
 
+  describe "synced folders" do
+    it "should register implementations" do
+      plugin = Class.new(described_class) do
+        synced_folder("foo") { "bar" }
+      end
+
+      plugin.components.synced_folders[:foo].should == ["bar", 10]
+    end
+
+    it "should be able to specify priorities" do
+      plugin = Class.new(described_class) do
+        synced_folder("foo", 50) { "bar" }
+      end
+
+      plugin.components.synced_folders[:foo].should == ["bar", 50]
+    end
+
+    it "should lazily register implementations" do
+      # Below would raise an error if the value of the config class was
+      # evaluated immediately. By asserting that this does not raise an
+      # error, we verify that the value is actually lazily loaded
+      plugin = nil
+      expect {
+        plugin = Class.new(described_class) do
+          synced_folder("foo") { raise StandardError, "FAIL!" }
+        end
+      }.to_not raise_error
+
+      # Now verify when we actually get the configuration key that
+      # a proper error is raised.
+      expect {
+        plugin.components.synced_folders[:foo]
+      }.to raise_error(StandardError)
+    end
+  end
+
   describe "plugin registration" do
     let(:manager) { described_class.manager }
 

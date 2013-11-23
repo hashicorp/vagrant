@@ -294,9 +294,16 @@ module VagrantPlugins
         end
 
         @__synced_folders.each do |id, options|
+          if options[:nfs]
+            options[:type] = :nfs
+          end
+
+          # Make sure the type is a symbol
+          options[:type] = options[:type].to_sym if options[:type]
+
           # Ignore NFS on Windows
-          if options[:nfs] && Vagrant::Util::Platform.windows?
-            options[:nfs] = false
+          if options[:type] == :nfs && Vagrant::Util::Platform.windows?
+            options.delete(:type)
           end
         end
 
@@ -381,7 +388,7 @@ module VagrantPlugins
                              :path => options[:hostpath])
           end
 
-          if options[:nfs]
+          if options[:type] == :nfs
             has_nfs = true
 
             if options[:owner] || options[:group]
