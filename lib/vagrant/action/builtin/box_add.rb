@@ -35,9 +35,17 @@ module Vagrant
 
           # If the temporary path exists, verify it is not too old. If its
           # too old, delete it first because the data may have changed.
-          if @temp_path.file? && @temp_path.mtime.to_i < (Time.now.to_i - 6 * 60 * 60)
-            @logger.info("Existing temp file is too old. Removing.")
-            @temp_path.unlink
+          if @temp_path.file?
+            delete = false
+            if env[:box_clean]
+              @logger.info("Cleaning existing temp box file.")
+              delete = true
+            elsif @temp_path.mtime.to_i < (Time.now.to_i - 6 * 60 * 60)
+              @logger.info("Existing temp file is too old. Removing.")
+              delete = true
+            end
+
+            @temp_path.unlink if delete
           end
 
           # Download the box to a temporary path. We store the temporary

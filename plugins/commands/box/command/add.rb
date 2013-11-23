@@ -11,6 +11,10 @@ module VagrantPlugins
             o.banner = "Usage: vagrant box add <name> <url> [--provider provider] [-h]"
             o.separator ""
 
+            o.on("-c", "--clean", "Remove old temporary download if it exists.") do |c|
+              options[:clean] = c
+            end
+
             o.on("-f", "--force", "Overwrite an existing box if it exists.") do |f|
               options[:force] = f
             end
@@ -38,6 +42,7 @@ module VagrantPlugins
             :box_name     => argv[0],
             :box_provider => provider,
             :box_url      => argv[1],
+            :box_clean    => options[:clean],
             :box_force    => options[:force],
             :box_download_insecure => options[:insecure],
           })
