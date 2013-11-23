@@ -18,6 +18,8 @@ IMPROVEMENTS:
   - providers/virtualbox: Enable symlinks for VirtualBox 4.1. [GH-2414]
   - providers/virtualbox: default VM name now includes milliseconds with
     a random number to try to avoid conflicts in CI environments. [GH-2482]
+  - synced\_folders/nfs: Specify `nfs_udp` to false to disable UDP based
+    NFS folders. [GH-2304]
 
 BUG FIXES:
 

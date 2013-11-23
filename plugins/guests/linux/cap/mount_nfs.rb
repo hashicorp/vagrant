@@ -20,7 +20,8 @@ module VagrantPlugins
             hostpath.gsub!("'", "'\\\\''")
 
             # Figure out any options
-            mount_opts = ["vers=#{opts[:nfs_version]}", "udp"]
+            mount_opts = ["vers=#{opts[:nfs_version]}"]
+            mount_opts << "udp" if opts[:nfs_udp]
             if opts[:mount_options]
               mount_opts = opts[:mount_options].dup
             end

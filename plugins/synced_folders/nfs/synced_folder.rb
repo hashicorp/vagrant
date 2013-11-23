@@ -56,6 +56,7 @@ module VagrantPlugins
       def prepare_folder(machine, opts)
         opts[:map_uid] = prepare_permission(machine, :uid, opts)
         opts[:map_gid] = prepare_permission(machine, :gid, opts)
+        opts[:nfs_udp] = true if !opts.has_key?(:nfs_udp)
         opts[:nfs_version] ||= 3
 
         # We use a CRC32 to generate a 32-bit checksum so that the
