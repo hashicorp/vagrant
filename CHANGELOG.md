@@ -1,4 +1,9 @@
-## 1.3.6 (unreleased)
+## 1.4.0 (unreleased)
+
+FEATURES:
+
+  - New plugin type: synced folder implementation. This allows new ways of
+    syncing folders to be added as plugins to Vagrant.
 
 IMPROVEMENTS:
 
