@@ -124,10 +124,19 @@ module Vagrant
             impl = ""
             impl = data[:type].to_sym if data[:type]
 
-            if impl != "" && !plugins[impl]
-              # This should never happen because configuration validation
-              # should catch this case. But we put this here as an assert
-              raise "Internal error. Report this as a bug. Invalid: #{data[:type]}"
+            if impl != ""
+              impl_class = plugins[impl]
+              if !impl_class
+                # This should never happen because configuration validation
+                # should catch this case. But we put this here as an assert
+                raise "Internal error. Report this as a bug. Invalid: #{data[:type]}"
+              end
+
+              if !impl_class[0].new.usable?(machine)
+                # Verify that explicitly defined shared folder types are
+                # actually usable.
+                raise Errors::SyncedFolderUnusable, type: data[:type].to_s
+              end
             end
 
             # Keep track of this shared folder by the implementation.

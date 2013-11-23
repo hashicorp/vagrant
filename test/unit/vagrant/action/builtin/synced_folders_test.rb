@@ -160,6 +160,14 @@ describe Vagrant::Action::Builtin::SyncedFolders do
       result[:nfs].should == { "nfs" => folders["nfs"] }
     end
 
+    it "should error if an explicit type is unusable" do
+      plugins[:unusable] = [impl(false, "bad"), 15]
+      folders["root"] = { type: "unusable" }
+
+      expect { subject.synced_folders(machine) }.
+        to raise_error
+    end
+
     it "should ignore disabled folders" do
       folders["root"] = {}
       folders["foo"] = { disabled: true }

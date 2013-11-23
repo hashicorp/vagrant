@@ -512,6 +512,10 @@ module Vagrant
       error_key(:ssh_unavailable_windows)
     end
 
+    class SyncedFolderUnusable < VagrantError
+      error_key(:synced_folder_unusable)
+    end
+
     class UIExpectsTTY < VagrantError
       error_key(:ui_expects_tty)
     end
