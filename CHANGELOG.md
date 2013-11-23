@@ -6,6 +6,7 @@ FEATURES:
     syncing folders to be added as plugins to Vagrant.
   - The `--debug` flag can be specified on any command now to get debug-level
     log output to ease reporting bugs.
+  - You can now specify a memory using `vb.memory` setting with VirtualBox.
 
 IMPROVEMENTS:
 

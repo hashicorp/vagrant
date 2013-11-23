@@ -81,7 +81,7 @@ module VagrantPlugins
       #
       # @param size [Integer, String] the memory size in MB
       def memory=(size)
-        customize "pre-boot", ["modifyvm", :id, "--memory", size]
+        customize("pre-boot", ["modifyvm", :id, "--memory", size.to_s])
       end
 
       # This is the hook that is called to finalize the object before it
