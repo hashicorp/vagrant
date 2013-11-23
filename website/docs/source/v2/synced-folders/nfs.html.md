@@ -28,6 +28,11 @@ OS X, and is typically a simple package install on Linux.
 Additionally, the guest machine must have NFS support installed. This is
 also usually a simple package installation away.
 
+If you're using the VirtualBox provider, you'll also need to make sure you
+have a
+[private network setup with a static IP](http://localhost:4567/v2/networking/private_network.html). This is due to a limitation of VirtualBox's built-in networking. With
+VMware, you do not need this.
+
 ## Root Privilege Requirement
 
 To configure NFS, Vagrant must modify system files on the host. Therefore,
@@ -35,7 +40,6 @@ at some point during the `vagrant up` sequence, you may be prompted for
 administrative privileges (via the typical `sudo` program). These
 privileges are used to modify `/etc/exports` as well as to start and
 stop the NFS server daemon.
-
 
 ## Enabling NFS Synced Folders
 
