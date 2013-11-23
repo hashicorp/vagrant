@@ -7,6 +7,10 @@ module VagrantPlugins
     class Command < Vagrant.plugin("2", :command)
       include Vagrant::Util::SafePuts
 
+      def self.synopsis
+        "outputs OpenSSH valid configuration to connect to the machine"
+      end
+
       def execute
         options = {}
 

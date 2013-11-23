@@ -5,11 +5,13 @@ require 'vagrant/util/template_renderer'
 module VagrantPlugins
   module CommandInit
     class Command < Vagrant.plugin("2", :command)
-      def execute
-        options = {}
+      def self.synopsis
+        "initializes a new Vagrant environment by creating a Vagrantfile"
+      end
 
-        opts = OptionParser.new do |opts|
-          opts.banner = "Usage: vagrant init [box-name] [box-url]"
+      def execute
+        opts = OptionParser.new do |o|
+          o.banner = "Usage: vagrant init [box-name] [box-url]"
         end
 
         # Parse the options
@@ -34,7 +36,7 @@ module VagrantPlugins
 
         # Success, exit status 0
         0
-       end
+      end
     end
   end
 end

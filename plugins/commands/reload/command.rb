@@ -11,6 +11,10 @@ module VagrantPlugins
       # to this.
       include VagrantPlugins::CommandUp::StartMixins
 
+      def self.synopsis
+        "restarts vagrant machine, loads new Vagrantfile configuration"
+      end
+
       def execute
         options = {}
         options[:provision_ignore_sentinel] = false

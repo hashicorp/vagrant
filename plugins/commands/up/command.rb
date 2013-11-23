@@ -9,6 +9,10 @@ module VagrantPlugins
     class Command < Vagrant.plugin("2", :command)
       include StartMixins
 
+      def self.synopsis
+        "starts and provisions the vagrant environment"
+      end
+
       def execute
         options = {}
         options[:destroy_on_error] = true

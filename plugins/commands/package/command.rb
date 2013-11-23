@@ -3,6 +3,10 @@ require 'optparse'
 module VagrantPlugins
   module CommandPackage
     class Command < Vagrant.plugin("2", :command)
+      def self.synopsis
+        "packages a running vagrant environment into a box"
+      end
+
       def execute
         options = {}
 

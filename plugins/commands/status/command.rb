@@ -3,6 +3,10 @@ require 'optparse'
 module VagrantPlugins
   module CommandStatus
     class Command < Vagrant.plugin("2", :command)
+      def self.synopsis
+        "outputs status of the vagrant machine"
+      end
+
       def execute
         opts = OptionParser.new do |o|
           o.banner = "Usage: vagrant status [machine-name]"

@@ -4,6 +4,10 @@ module VagrantPlugins
   module CommandPlugin
     module Command
       class Root < Vagrant.plugin("2", :command)
+        def self.synopsis
+          "manages plugins: install, uninstall, update, etc."
+        end
+
         def initialize(argv, env)
           super
 

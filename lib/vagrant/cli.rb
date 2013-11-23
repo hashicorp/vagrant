@@ -55,13 +55,16 @@ module Vagrant
 
         # Add the available subcommands as separators in order to print them
         # out as well.
-        keys = []
-        Vagrant.plugin("2").manager.commands.each do |key, _|
-          keys << key
+        commands = {}
+        longest = 0
+        Vagrant.plugin("2").manager.commands.each do |key, klass|
+          key = key.to_s
+          commands[key] = klass.synopsis
+          longest = key.length if key.length > longest
         end
 
-        keys.sort.each do |key|
-          o.separator "     #{key}"
+        commands.keys.sort.each do |key|
+          o.separator "     #{key.ljust(longest+2)} #{commands[key]}"
         end
 
         o.separator ""

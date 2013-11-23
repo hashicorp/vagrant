@@ -1,6 +1,10 @@
 module VagrantPlugins
   module CommandDestroy
     class Command < Vagrant.plugin("2", :command)
+      def self.synopsis
+        "stops and deletes all traces of the vagrant machine"
+      end
+
       def execute
         options = {}
         options[:force] = false

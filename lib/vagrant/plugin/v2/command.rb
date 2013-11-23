@@ -9,6 +9,14 @@ module Vagrant
       class Command
         include Util::SafePuts
 
+        # This should return a brief (60 characters or less) synopsis of what
+        # this command does. It will be used in the output of the help.
+        #
+        # @return [String]
+        def self.synopsis
+          ""
+        end
+
         def initialize(argv, env)
           @argv = argv
           @env  = env

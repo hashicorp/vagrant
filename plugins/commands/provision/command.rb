@@ -3,6 +3,10 @@ require 'optparse'
 module VagrantPlugins
   module CommandProvision
     class Command < Vagrant.plugin("2", :command)
+      def self.synopsis
+        "provisions the vagrant machine"
+      end
+
       def execute
         options = {}
         options[:provision_types] = nil
@@ -14,7 +18,7 @@ module VagrantPlugins
                     "Enable only certain provisioners, by type.") do |list|
             options[:provision_types] = list.map { |type| type.to_sym }
           end
-          
+
           o.on("--[no-]parallel",
                "Enable or disable parallelism if provider supports it.") do |parallel|
             options[:parallel] = parallel

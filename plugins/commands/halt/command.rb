@@ -3,6 +3,10 @@ require 'optparse'
 module VagrantPlugins
   module CommandHalt
     class Command < Vagrant.plugin("2", :command)
+      def self.synopsis
+        "stops the vagrant machine"
+      end
+
       def execute
         options = {}
         options[:force] = false

@@ -3,6 +3,10 @@ require 'optparse'
 module VagrantPlugins
   module CommandSSH
     class Command < Vagrant.plugin("2", :command)
+      def self.synopsis
+        "connects to machine via SSH"
+      end
+
       def execute
         options = {}
 

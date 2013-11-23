@@ -4,6 +4,10 @@ module VagrantPlugins
   module CommandBox
     module Command
       class Root < Vagrant.plugin("2", :command)
+        def self.synopsis
+          "manages boxes: installation, removal, etc."
+        end
+
         def initialize(argv, env)
           super
 

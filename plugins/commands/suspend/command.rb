@@ -3,6 +3,10 @@ require 'optparse'
 module VagrantPlugins
   module CommandSuspend
     class Command < Vagrant.plugin("2", :command)
+      def self.synopsis
+        "suspends the machine"
+      end
+
       def execute
         opts = OptionParser.new do |o|
           o.banner = "Usage: vagrant suspend [vm-name]"
