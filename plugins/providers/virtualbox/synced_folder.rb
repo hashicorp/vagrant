@@ -15,7 +15,7 @@ module VagrantPlugins
 
           defs << {
             name: id,
-            hostpath: hostpath,
+            hostpath: hostpath.to_s,
             transient: data[:transient],
           }
         end
