@@ -20,10 +20,15 @@ module VagrantPlugins
               comm.sudo("sed -i 's/.*$/#{name.split('.')[0]}/' /etc/hostname")
 
               # hosts should resemble:
-              # 127.0.0.1   localhost host.fqdn.com host
+              # 127.0.0.1   localhost
               # 127.0.1.1   host.fqdn.com host
-              comm.sudo("sed -ri 's@^(([0-9]{1,3}\.){3}[0-9]{1,3})\\s+(localhost)\\b.*$@\\1\\t\\3 #{name} #{name.split('.')[0]}@g' /etc/hosts")
-              comm.sudo("sed -ri 's@^(([0-9]{1,3}\.){3}[0-9]{1,3})\\s+(#{old.split('.')[0]})\\b.*$@\\1\\t#{name} #{name.split('.')[0]}@g' /etc/hosts")
+              if name.split('.').length > 1
+                # if there's an FQDN, put it in the right format
+                comm.sudo("sed -ri 's@^(([0-9]{1,3}\.){3}[0-9]{1,3})\\s+(#{old.split('.')[0]})\\b.*$@\\1\\t#{name} #{name.split('.')[0]}@g' /etc/hosts")
+              else
+                # if there's not an FQDN, don't print the hostname twice
+                comm.sudo("sed -ri 's@^(([0-9]{1,3}\.){3}[0-9]{1,3})\\s+(#{old.split('.')[0]})\\b.*$@\\1\\t#{name}@g' /etc/hosts")
+              end
 
               if comm.test("[ `lsb_release -c -s` = hardy ]")
                 # hostname.sh returns 1, so I grep for the right name in /etc/hostname just to have a 0 exitcode
