@@ -20,6 +20,7 @@ module Vagrant
 
         # Get the various optional values
         options     ||= {}
+        @continue    = options[:continue]
         @insecure    = options[:insecure]
         @ui          = options[:ui]
       end
@@ -38,9 +39,9 @@ module Vagrant
           "--max-redirs", "10",
           "--user-agent", USER_AGENT,
           "--output", @destination,
-          "--continue-at", "-"
         ]
 
+        options += ["--continue-at", "-"] if @continue
         options << "--insecure" if @insecure
         options << @source
 

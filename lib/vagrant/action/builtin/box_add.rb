@@ -29,6 +29,7 @@ module Vagrant
           end
 
           downloader_options = {}
+          downloader_options[:continue] = true
           downloader_options[:insecure] = env[:box_download_insecure]
           downloader_options[:ui] = env[:ui]
 
