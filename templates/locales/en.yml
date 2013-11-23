@@ -614,6 +614,18 @@ en:
         message is reproduced below for convenience:
 
         %{file}
+      vagrant_version_bad: |-
+        This Vagrant environment has specified that it requires the Vagrant
+        version to satisfy the following version requirements:
+
+          %{requirements}
+
+        You are running Vagrant %{version}, which does not satisify
+        these requirements. Please change your Vagrant version or update
+        the Vagrantfile to allow this Vagrant version. However, be warned
+        that if the Vagrantfile has specified another version, it probably has
+        good reason to do so, and changing that may cause the environment to
+        not function properly.
       vboxmanage_error: |-
         There was an error while executing `VBoxManage`, a CLI used by Vagrant
         for controlling VirtualBox. The command and stderr is shown below.

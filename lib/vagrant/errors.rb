@@ -544,6 +544,10 @@ module Vagrant
       error_key(:vagrantfile_syntax_error)
     end
 
+    class VagrantVersionBad < VagrantError
+      error_key(:vagrant_version_bad)
+    end
+
     class VBoxManageError < VagrantError
       error_key(:vboxmanage_error)
     end

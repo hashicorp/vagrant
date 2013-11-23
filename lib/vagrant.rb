@@ -1,4 +1,5 @@
 require 'log4r'
+require 'rubygems'
 
 # Enable logging if it is requested. We do this before
 # anything else so that we can setup the output before
@@ -229,6 +230,33 @@ module Vagrant
   ensure
     $stderr = previous_stderr if previous_stderr
     $stdout = previous_stdout if previous_stdout
+  end
+
+  # This allows a Vagrantfile to specify the version of Vagrant that is
+  # required. You can specify a list of requirements which will all be checked
+  # against the running Vagrant version.
+  #
+  # This should be specified at the _top_ of any Vagrantfile.
+  #
+  # Examples are shown below:
+  #
+  #   Vagrant.require_version(">= 1.3.5")
+  #   Vagrant.require_version(">= 1.3.5", "< 1.4.0")
+  #   Vagrant.require_version("~> 1.3.5")
+  #
+  def self.require_version(*requirements)
+    logger = Log4r::Logger.new("vagrant::root")
+    logger.info("Version requirements from Vagrantfile: #{requirements.inspect}")
+
+    req = Gem::Requirement.new(*requirements)
+    if req.satisfied_by?(Gem::Version.new(VERSION))
+      logger.info("  - Version requirements satisfied!")
+      return
+    end
+
+    raise Errors::VagrantVersionBad,
+      requirements: requirements.join(", "),
+      version: VERSION
   end
 end
 

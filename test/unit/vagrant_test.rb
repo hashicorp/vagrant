@@ -88,4 +88,16 @@ describe Vagrant do
       described_class.has_plugin?("i_dont_exist").should be_false
     end
   end
+
+  describe "require_version" do
+    it "should succeed if valid range" do
+      expect { described_class.require_version(Vagrant::VERSION) }.
+        to_not raise_error
+    end
+
+    it "should not succeed if bad range" do
+      expect { described_class.require_version("> #{Vagrant::VERSION}") }.
+        to raise_error(Vagrant::Errors::VagrantVersionBad)
+    end
+  end
 end

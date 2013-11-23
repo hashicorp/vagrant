@@ -4,6 +4,8 @@ FEATURES:
 
   - New plugin type: synced folder implementation. This allows new ways of
     syncing folders to be added as plugins to Vagrant.
+  - The `Vagrant.require_version` function can be used at the top of a Vagrantfile
+    to enforce a minimum/maximum Vagrant version.
   - The `--debug` flag can be specified on any command now to get debug-level
     log output to ease reporting bugs.
   - You can now specify a memory using `vb.memory` setting with VirtualBox.
