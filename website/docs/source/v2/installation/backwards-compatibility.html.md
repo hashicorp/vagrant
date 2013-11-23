@@ -12,6 +12,12 @@ Vagrantfiles which don't use plugins. After installing Vagrant 1.1, your 1.0.x e
 continue working without modifications, and existing running machines will
 continue to be managed properly.
 
+This compatibility layer will remain in Vagrant up to and including Vagrant 2.0.
+It may still exist after that, but Vagrant's compatibility promise is only for
+two versions. Seeing that major Vagrant releases take years to develop and
+release, it is safe to stick with your version 1.0.x Vagrantfile for the
+time being.
+
 If you use any Vagrant 1.0.x plugins, you must remove references to these from
 your Vagrantfile prior to upgrading. Vagrant 1.1+ introduces a new plugin
 format that will protect against this sort of incompatibility from ever
