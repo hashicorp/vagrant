@@ -20,11 +20,6 @@ module VagrantPlugins
         SSHConfig
       end
 
-      config("nfs") do
-        require File.expand_path("../config/nfs", __FILE__)
-        NFSConfig
-      end
-
       config("package") do
         require File.expand_path("../config/package", __FILE__)
         PackageConfig

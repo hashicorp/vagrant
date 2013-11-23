@@ -9,7 +9,12 @@ module VagrantPlugins
       implementation.
       EOF
 
-      synced_folder(:nfs, 5) do
+      config("nfs") do
+        require File.expand_path("../config", __FILE__)
+        Config
+      end
+
+      synced_folder("nfs", 5) do
         require File.expand_path("../synced_folder", __FILE__)
         SyncedFolder
       end
