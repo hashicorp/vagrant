@@ -22,6 +22,7 @@ BUG FIXES:
   - guests/freebsd: Uses `sh` by default for shell. [GH-2485]
   - guests/ubuntu: "localhost" is preserved when changing hostnames.
     [GH-2383]
+  - hosts/bsd: Don't set mapall if maproot is set in NFS. [GH-2448]
   - hosts/gentoo: Support systemd for NFS startup. [GH-2382]
   - providers/virtualbox: Don't start new VM if VirtualBox has transient
     failure during `up` from suspended. [GH-2479]

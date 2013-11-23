@@ -83,6 +83,8 @@ module VagrantPlugins
 
           hasmapall = false
           opts[:bsd__nfs_options].each do |opt|
+            # mapall/maproot are mutually exclusive, so we have to check
+            # for both here.
             if opt =~ /^mapall=/ || opt =~ /^maproot=/
               hasmapall = true
               break
