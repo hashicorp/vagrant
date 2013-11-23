@@ -1,6 +1,7 @@
 require "log4r"
 
 require 'vagrant/util/platform'
+require 'vagrant/util/scoped_hash_override'
 
 module Vagrant
   module Action
@@ -8,6 +9,8 @@ module Vagrant
       # This middleware will setup the synced folders for the machine using
       # the appropriate synced folder plugin.
       class SyncedFolders
+        include Vagrant::Util::ScopedHashOverride
+
         def initialize(app, env)
           @app    = app
           @logger = Log4r::Logger.new("vagrant::action::builtin::synced_folders")
@@ -16,18 +19,21 @@ module Vagrant
         def call(env)
           folders = synced_folders(env[:machine])
 
-          # Log all the folders that we have enabled and with what
-          # implementation...
-          folders.each do |impl, fs|
-            @logger.info("Synced Folder Implementation: #{impl}")
+          folders.each do |impl_name, fs|
+            @logger.info("Synced Folder Implementation: #{impl_name}")
+
             fs.each do |id, data|
+              # Log every implementation and their paths
               @logger.info("  - #{id}: #{data[:hostpath]} => #{data[:guestpath]}")
+
+              # Scope hash override
+              fs[id] = scoped_hash_override(data, impl_name)
             end
           end
 
           # Go through each folder and make sure to create it if
           # it does not exist on host
-          folders.each do |impl, fs|
+          folders.each do |_, fs|
             fs.each do |id, data|
               data[:hostpath] = File.expand_path(data[:hostpath], env[:root_path])
 

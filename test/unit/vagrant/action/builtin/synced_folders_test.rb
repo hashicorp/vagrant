@@ -101,6 +101,28 @@ describe Vagrant::Action::Builtin::SyncedFolders do
 
       order.should == [:prepare, :enable]
     end
+
+    it "should scope hash override the settings" do
+      actual = nil
+      tracker = Class.new(impl(true, "good")) do
+        define_method(:prepare) do |machine, folders, opts|
+          actual = folders
+        end
+      end
+
+      plugins[:tracker] = [tracker, 15]
+
+      synced_folders["tracker"] = {
+        "root" => {
+          hostpath: "foo",
+          tracker__foo: "bar",
+        },
+      }
+
+      subject.call(env)
+
+      actual["root"][:foo].should == "bar"
+    end
   end
 
   describe "default_synced_folder_type" do
