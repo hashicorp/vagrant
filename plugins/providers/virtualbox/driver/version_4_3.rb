@@ -163,28 +163,33 @@ module VagrantPlugins
           total = ""
           last  = 0
 
-          # Dry-run the import to get the suggested name & path
+          # Dry-run the import to get the suggested name and path
+          @logger.debug("Doing dry-run import to determine parallel-safe name...")
           output = execute("import", "-n", ovf)
-          output =~ /Suggested VM name "(.+?)"/
-          suggested_name = $1.to_s
+          result = /Suggested VM name "(.+?)"/.match(output)
+          suggested_name = result[1].to_s
 
-          # Append millisecond + random to the path in case we're importing the same box elsewhere
+          # Append millisecond plus a random to the path in case we're
+          # importing the same box elsewhere.
           specified_name = "#{suggested_name}_#{(Time.now.to_f * 1000.0).to_i}_#{rand(100000)}"
+          @logger.debug("-- Parallel safe name: #{specified_name}")
 
           # Build the specified name param list
-          name_params = Array.new
-          name_params << "--vsys" << "0" << "--vmname" << specified_name
+          name_params = [
+            "--vsys", "0",
+            "--vmname", specified_name,
+          ]
 
           # Extract the disks list and build the disk target params
-          disk_params = Array.new
+          disk_params = []
           disks = output.scan(/(\d+): Hard disk image: source image=.+, target path=(.+),/)
           disks.each do |unit_num, path|
              disk_params << "--vsys"
-              disk_params << "0"
-              disk_params << "--unit"
-              disk_params << unit_num
-              disk_params << "--disk"
-              disk_params << path.sub("/#{suggested_name}/", "/#{specified_name}/")
+             disk_params << "0"
+             disk_params << "--unit"
+             disk_params << unit_num
+             disk_params << "--disk"
+             disk_params << path.sub("/#{suggested_name}/", "/#{specified_name}/")
           end
 
           execute("import", ovf , *name_params, *disk_params) do |type, data|
@@ -200,8 +205,9 @@ module VagrantPlugins
               if lines.include?("OK.")
                 # The progress of the import will be in the last line. Do a greedy
                 # regular expression to find what we're looking for.
-                if lines.last =~ /.+(\d{2})%/
-                  current = $1.to_i
+                match = /.+(\d{2})%/.match(lines.last)
+                if match
+                  current = match[1].to_i
                   if current > last
                     last = current
                     yield current if block_given?
@@ -212,10 +218,8 @@ module VagrantPlugins
           end
 
           output = execute("list", "vms")
-          if output =~ /^"#{Regexp.escape(specified_name)}" \{(.+?)\}$/
-            return $1.to_s
-          end
-
+          match = /^"#{Regexp.escape(specified_name)}" \{(.+?)\}$/.match(output)
+          return match[1].to_s if match
           nil
         end
 
