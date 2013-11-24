@@ -60,6 +60,8 @@ module Vagrant
     end
 
     class MachineReadable < Interface
+      include Util::SafePuts
+
       def initialize
         super
 
@@ -81,6 +83,7 @@ module Vagrant
 
         # Prepare the data by replacing characters that aren't outputted
         data.each_index do |i|
+          data[i] = data[i].to_s
           data[i].gsub!(",", "%!(VAGRANT_COMMA)")
           data[i].gsub!("\n", "\\n")
           data[i].gsub!("\r", "\\r")

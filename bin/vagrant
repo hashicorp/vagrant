@@ -58,7 +58,7 @@ end
 # Highest precedence is if we have enabled machine-readable output
 if ARGV.include?("--machine-readable")
   ARGV.delete("--machine-readable")
-  opts[:ui_class] = Vagrant::Ui::MachineReadable
+  opts[:ui_class] = Vagrant::UI::MachineReadable
 end
 
 # Default to colored output

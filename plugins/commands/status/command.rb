@@ -25,7 +25,15 @@ module VagrantPlugins
         results = []
         with_target_vms(argv) do |machine|
           state = machine.state if !state
-          results << "#{machine.name.to_s.ljust(max_name_length)} #{machine.state.short_description} (#{machine.provider_name})"
+          current_state = machine.state
+          results << "#{machine.name.to_s.ljust(max_name_length)} " +
+            "#{current_state.short_description} (#{machine.provider_name})"
+
+          opts = { scope: machine.name.to_s }
+          @env.ui.machine("provider", machine.provider_name, opts)
+          @env.ui.machine("state", current_state.id, opts)
+          @env.ui.machine("state-human-short", current_state.short_description, opts)
+          @env.ui.machine("state-human-long", current_state.long_description, opts)
         end
 
         message = nil
