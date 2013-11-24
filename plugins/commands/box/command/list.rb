@@ -30,6 +30,9 @@ module VagrantPlugins
           # and which don't, since we plan on doing that transparently.
           boxes.each do |name, provider, _v1|
             @env.ui.info("#{name.ljust(longest_box_length)} (#{provider})", :prefix => false)
+
+            @env.ui.machine("box-name", name)
+            @env.ui.machine("box-provider", provider)
           end
 
           # Success, exit status 0

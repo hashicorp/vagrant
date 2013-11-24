@@ -74,6 +74,20 @@ with the machine-readable output.
 </thead>
 
 <tr>
+<td>box-name</td>
+<td>
+	Name of a box installed into Vagrant.
+</td>
+</tr>
+
+<tr>
+<td>box-provider</td>
+<td>
+	Provider for an installed box.
+</td>
+</tr>
+
+<tr>
 <td>provider-name</td>
 <td>
 	The provider name of the target machine.
