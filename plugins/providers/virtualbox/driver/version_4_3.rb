@@ -162,7 +162,32 @@ module VagrantPlugins
           output = ""
           total = ""
           last  = 0
-          execute("import", ovf) do |type, data|
+
+          # Dry-run the import to get the suggested name & path
+          output = execute("import", "-n", ovf)
+          output =~ /Suggested VM name "(.+?)"/
+          suggested_name = $1.to_s
+
+          # Append millisecond + random to the path in case we're importing the same box elsewhere
+          specified_name = "#{suggested_name}_#{(Time.now.to_f * 1000.0).to_i}_#{rand(100000)}"
+
+          # Build the specified name param list
+          name_params = Array.new
+          name_params << "--vsys" << "0" << "--vmname" << specified_name
+
+          # Extract the disks list and build the disk target params
+          disk_params = Array.new
+          disks = output.scan(/(\d+): Hard disk image: source image=.+, target path=(.+),/)
+          disks.each do |unit_num, path|
+             disk_params << "--vsys"
+              disk_params << "0"
+              disk_params << "--unit"
+              disk_params << unit_num
+              disk_params << "--disk"
+              disk_params << path.sub("/#{suggested_name}/", "/#{specified_name}/")
+          end
+
+          execute("import", ovf , *name_params, *disk_params) do |type, data|
             if type == :stdout
               # Keep track of the stdout so that we can get the VM name
               output << data
@@ -186,16 +211,8 @@ module VagrantPlugins
             end
           end
 
-          # Find the name of the VM name
-          if output !~ /Suggested VM name "(.+?)"/
-            @logger.error("Couldn't find VM name in the output.")
-            return nil
-          end
-
-          name = $1.to_s
-
           output = execute("list", "vms")
-          if output =~ /^"#{Regexp.escape(name)}" \{(.+?)\}$/
+          if output =~ /^"#{Regexp.escape(specified_name)}" \{(.+?)\}$/
             return $1.to_s
           end
 
