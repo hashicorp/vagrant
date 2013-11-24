@@ -18,6 +18,8 @@ IMPROVEMENTS:
 
   - core: Support resumable downloads [GH-57]
   - core: owner/group of shared folders can be specified by integers. [GH-2390]
+  - core: the VAGRANT\_NO\_COLOR environmental variable may be used to enable
+    `--no-color` mode globally. [GH-2261]
   - commands/init: Add `--output` option for specifing output path, or
     "-" for stdin. [GH-1364]
   - commands/provision: Add `--no-parallel` option to disable provider
