@@ -37,9 +37,9 @@ module VagrantPlugins
               command = ["modifyvm", env[:machine].id, "--natdnsproxy1", "on"]
               attempt_and_log(command, "Enable the NAT DNS proxy on adapter 1...")
             else
-              command = [ "modifyvm", env[:machine].id, "--natdnsproxy1", "off" ]
+              command = ["modifyvm", env[:machine].id, "--natdnsproxy1", "off" ]
               attempt_and_log(command, "Disable the NAT DNS proxy on adapter 1...")
-              command = [ "modifyvm", env[:machine].id, "--natdnshostresolver1", "off" ]
+              command = ["modifyvm", env[:machine].id, "--natdnshostresolver1", "off" ]
               attempt_and_log(command, "Disable the NAT DNS resolver on adapter 1...")
             end
           else
@@ -64,7 +64,8 @@ module VagrantPlugins
         # @param [String] log Log message to write.
         def attempt_and_log(command, log)
           begin
-            @env[:machine].provider.driver.execute_command(command + [:retryable => true])
+            @env[:machine].provider.driver.execute_command(
+              command + [retryable: true])
           rescue Vagrant::Errors::VBoxManageError => e
             @logger.info("#{log} (error = #{e.inspect})")
           end

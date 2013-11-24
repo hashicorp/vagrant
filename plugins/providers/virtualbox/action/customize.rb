@@ -26,7 +26,8 @@ module VagrantPlugins
               end
 
               begin
-                env[:machine].provider.driver.execute_command(processed_command + [:retryable => true])
+                env[:machine].provider.driver.execute_command(
+                  processed_command + [retryable: true])
               rescue Vagrant::Errors::VBoxManageError => e
                 raise Vagrant::Errors::VMCustomizationFailed, {
                   :command => command,
