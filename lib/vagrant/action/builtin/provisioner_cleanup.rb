@@ -28,7 +28,7 @@ module Vagrant
 
         def do_cleanup(env)
           # Ask the provisioners to modify the configuration if needed
-          provisioner_instances.each do |p|
+          provisioner_instances(env).each do |p|
             env[:ui].info(I18n.t(
               "vagrant.provisioner_cleanup",
               name: provisioner_type_map[p].to_s))

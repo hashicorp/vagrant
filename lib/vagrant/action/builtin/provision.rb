@@ -51,7 +51,7 @@ module Vagrant
           end
 
           # Ask the provisioners to modify the configuration if needed
-          provisioner_instances.each do |p|
+          provisioner_instances(env).each do |p|
             p.configure(env[:machine].config)
           end
 
@@ -60,7 +60,7 @@ module Vagrant
 
           # Actually provision if we enabled it
           if enabled
-            provisioner_instances.each do |p|
+            provisioner_instances(env).each do |p|
               next if env[:provision_types] && \
                 !env[:provision_types].include?(provisioner_type_map[p])
 
