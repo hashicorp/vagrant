@@ -55,6 +55,12 @@ if ARGV.include?("--color")
   opts[:ui_class] = Vagrant::UI::Colored
 end
 
+# Highest precedence is if we have enabled machine-readable output
+if ARGV.include?("--machine-readable")
+  ARGV.delete("--machine-readable")
+  opts[:ui_class] = Vagrant::Ui::MachineReadable
+end
+
 # Default to colored output
 opts[:ui_class] ||= Vagrant::UI::Colored
 

@@ -31,6 +31,14 @@ module Vagrant
         define_method(method) { |*args| }
       end
 
+      # For machine-readable output.
+      #
+      # @param [String] type The type of the data
+      # @param [Array] data The data associated with the type
+      def machine(type, *data)
+        @logger.info("Machine: #{type} #{data.inspect}")
+      end
+
       # Returns a new UI class that is scoped to the given resource name.
       # Subclasses can then use this scope name to do whatever they please.
       #
@@ -48,6 +56,43 @@ module Vagrant
 
         # Silent can't do this, obviously.
         raise Errors::UIExpectsTTY
+      end
+    end
+
+    class MachineReadable < Interface
+      def initialize
+        super
+
+        @lock = Mutex.new
+      end
+
+      def ask(*args)
+        super
+
+        # Machine-readable can't ask for input
+        raise Errors::UIExpectsTTY
+      end
+
+      def machine(type, *data)
+        opts = {}
+        opts = data.pop if data.last.kind_of?(Hash)
+
+        target = opts[:scope] || ""
+
+        # Prepare the data by replacing characters that aren't outputted
+        data.each_index do |i|
+          data[i].gsub!(",", "%!(VAGRANT_COMMA)")
+          data[i].gsub!("\n", "\\n")
+          data[i].gsub!("\r", "\\r")
+        end
+
+        @lock.synchronize do
+          safe_puts("#{Time.now.utc.to_i},#{target},#{type},#{data.join(",")}")
+        end
+      end
+
+      def scope(scope_name)
+        BasicScope.new(self, scope_name)
       end
     end
 
@@ -171,6 +216,14 @@ module Vagrant
       [:clear_line, :report_progress].each do |method|
         # By default do nothing, these aren't logged
         define_method(method) { |*args| @ui.send(method, *args) }
+      end
+
+      def machine(type, *data)
+        opts = {}
+        opts = data.pop if data.last.is_a?(Hash)
+        opts[:scope] = @scope
+        data << opts
+        @ui.machine(type, *data)
       end
     end
 
