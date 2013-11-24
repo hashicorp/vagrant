@@ -25,11 +25,12 @@ module VagrantPlugins
                 arg.to_s
               end
 
-              result = env[:machine].provider.driver.execute_command(processed_command)
-              if result.exit_code != 0
+              begin
+                env[:machine].provider.driver.execute_command(processed_command + [:retryable => true])
+              rescue Vagrant::Errors::VBoxManageError => e
                 raise Vagrant::Errors::VMCustomizationFailed, {
-                  :command => processed_command.inspect,
-                  :error   => result.stderr
+                  :command => command,
+                  :error   => e.inspect
                 }
               end
             end

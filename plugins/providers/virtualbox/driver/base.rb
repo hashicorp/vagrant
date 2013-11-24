@@ -108,6 +108,11 @@ module VagrantPlugins
 
         # Execute a raw command straight through to VBoxManage.
         #
+        # Accepts a :retryable => true option if the command should be retried
+        # upon failure.
+        #
+        # Raises a VBoxManage error if it fails.
+        #
         # @param [Array] command Command to execute.
         def execute_command(command)
         end

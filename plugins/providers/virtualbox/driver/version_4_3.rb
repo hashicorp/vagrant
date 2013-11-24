@@ -127,7 +127,7 @@ module VagrantPlugins
         end
 
         def execute_command(command)
-          raw(*command)
+          execute(*command)
         end
 
         def export(path)
