@@ -19,6 +19,8 @@ IMPROVEMENTS:
   - providers/virtualbox: Enable symlinks for VirtualBox 4.1. [GH-2414]
   - providers/virtualbox: default VM name now includes milliseconds with
     a random number to try to avoid conflicts in CI environments. [GH-2482]
+  - providers/virtualbox: customizations via VBoxManage are retried, avoiding
+    VirtualBox flakiness [GH-2483]
   - provisioners/shell: Added `keep_color` option to not automatically color
     output based on stdout/stderr. [GH-2505]
   - synced\_folders/nfs: Specify `nfs_udp` to false to disable UDP based
