@@ -16,7 +16,7 @@ module Vagrant
         end
 
         def call(env)
-          @env = env
+          @app.call(env)
 
           # Ask the provisioners to modify the configuration if needed
           provisioner_instances.each do |p|
@@ -25,9 +25,6 @@ module Vagrant
               name: provisioner_type_map[p].to_s))
             p.cleanup
           end
-
-          # Continue, we need the VM to be booted.
-          @app.call(env)
         end
       end
     end
