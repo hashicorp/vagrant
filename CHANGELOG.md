@@ -9,6 +9,8 @@ FEATURES:
   - The `--debug` flag can be specified on any command now to get debug-level
     log output to ease reporting bugs.
   - You can now specify a memory using `vb.memory` setting with VirtualBox.
+  - Plugin developers can now hook into `environment_plugins_loaded`, which is
+    executed after plugins are loaded but before Vagrantfiles are parsed.
 
 IMPROVEMENTS:
 
