@@ -35,17 +35,13 @@ module VagrantPlugins
                 # Output the data with the proper color based on the stream.
                 color = type == :stdout ? :green : :red
 
-                # Note: Be sure to chomp the data to avoid the newlines that the
-                # Chef outputs.
-                if config.keep_color
-                  @machine.env.ui.info(
-                      data,
-                      :new_line => false, :prefix => false)
-                else
-                  @machine.env.ui.info(
-                      data,
-                      :color => color, :new_line => false, :prefix => false)
-                end
+                options = {
+                  new_line: false,
+                  prefix: false,
+                }
+                options[:color] = color if !config.keep_color
+
+                @machine.env.ui.info(data, options)
               end
             end
           end

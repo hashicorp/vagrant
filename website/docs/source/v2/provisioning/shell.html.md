@@ -45,9 +45,10 @@ The remainder of the available options are optional:
   be uploaded to. The script is uploaded as the SSH user over SCP, so this
   location must be writable to that user. By default this is "/tmp/vagrant-shell"
 
-* `keep_color` (boolean) - Vagrant automatically color output in green and
-  red (errors). If this is true, then Vagrant will not do this. By default
-  this is "false". This allow you to have custom colored output.
+* `keep_color` (boolean) - Vagrant automatically colors output in green and
+  red depending on whether the output is from stdout or stderr. If this is
+  true, Vagrant will not do this, allowing the native colors from the script
+  to be outputted.
 
 <a name="inline-scripts"></a>
 ## Inline Scripts
