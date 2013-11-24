@@ -2,6 +2,8 @@
 
 FEATURES:
 
+  - Machine readable output. Vagrant now has machine-friendly output by
+    using the `--machine-readable` flag.
   - New plugin type: synced folder implementation. This allows new ways of
     syncing folders to be added as plugins to Vagrant.
   - The `Vagrant.require_version` function can be used at the top of a Vagrantfile
