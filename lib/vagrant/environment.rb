@@ -133,7 +133,7 @@ module Vagrant
 
       # Call the hooks that does not require configurations to be loaded
       # by using a "clean" action runner
-      hook(:environment_plugins_loaded, Action::Runner.new)
+      hook(:environment_plugins_loaded, Action::Runner.new(env: self))
 
       # Call the environment load hooks
       hook(:environment_load)
