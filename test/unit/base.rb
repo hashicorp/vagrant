@@ -10,6 +10,7 @@ $:.unshift File.expand_path("../../", __FILE__)
 
 # Load in helpers
 require "support/tempdir"
+require "unit/support/dummy_communicator"
 require "unit/support/dummy_provider"
 require "unit/support/shared/base_context"
 
