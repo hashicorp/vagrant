@@ -25,6 +25,18 @@ with Vagrant, you may safely skip this section.
 </p>
 </div>
 
+## Work-In-Progress
+
+The machine-readable output is very new (released as part of Vagrant 1.4).
+We're still gathering use cases for it and building up the output for each
+of the commands. It is likely that what you may want to achieve with
+the machine-readable output is not possible due to missing information.
+
+In this case, we ask that you please
+[open an issue](https://github.com/mitchellh/vagrant/issues)
+requesting that certain information become available. We'll most likely add
+it!
+
 ## Format
 
 The machine readable format is a line-oriented, comma-delimeted text format.
