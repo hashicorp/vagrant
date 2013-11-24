@@ -1,5 +1,7 @@
 require "log4r"
 
+require "vagrant/util/ssh"
+
 module Vagrant
   module Action
     module Builtin
@@ -13,26 +15,24 @@ module Vagrant
         end
 
         def call(env)
-          command = env[:ssh_run_command]
+          # Grab the SSH info from the machine
+          info = env[:machine].ssh_info
 
-          @logger.debug("Executing command: #{command}")
-          exit_status = 0
-          exit_status = env[:machine].communicate.execute(command, :error_check => false) do |type, data|
-            # Determine the proper channel to send the output onto depending
-            # on the type of data we are receiving.
-            channel = type == :stdout ? :out : :error
+          # If the result is nil, then the machine is telling us that it is
+          # not yet ready for SSH, so we raise this exception.
+          raise Errors::SSHNotReady if info.nil?
 
-            # Print the output as it comes in, but don't prefix it and don't
-            # force a new line so that the output is properly preserved however
-            # it may be formatted.
-            env[:ui].info(data.to_s,
-                          :prefix => false,
-                          :new_line => false,
-                          :channel => channel)
+          if info[:private_key_path]
+            # Check the SSH key permissions
+            Util::SSH.check_key_permissions(Pathname.new(info[:private_key_path]))
           end
 
-          # Set the exit status on a known environmental variable
-          env[:ssh_run_exit_status] = exit_status
+          # Execute!
+          command = env[:ssh_run_command]
+          opts = env[:ssh_opts] || {}
+          opts[:extra_args] = ["-t", command]
+          opts[:subprocess] = true
+          env[:ssh_run_exit_status] = Util::SSH.exec(info, opts)
 
           # Call the next middleware
           @app.call(env)

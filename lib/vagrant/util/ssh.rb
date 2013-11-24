@@ -1,5 +1,7 @@
 require "log4r"
 
+require 'childprocess'
+
 require "vagrant/util/file_mode"
 require "vagrant/util/platform"
 require "vagrant/util/safe_exec"
@@ -148,8 +150,20 @@ module Vagrant
         ENV["nodosfilewarning"] = "1" if Platform.cygwin?
 
         # Invoke SSH with all our options
-        LOGGER.info("Invoking SSH: #{command_options.inspect}")
-        SafeExec.exec("ssh", *command_options)
+        if !opts[:subprocess]
+          LOGGER.info("Invoking SSH: #{command_options.inspect}")
+          SafeExec.exec("ssh", *command_options)
+          return
+        end
+
+        # If we're still here, it means we're supposed to subprocess
+        # out to ssh rather than exec it.
+        LOGGER.info("Executing SSH in subprocess: #{command_options.inspect}")
+        process = ChildProcess.build("ssh", *command_options)
+        process.io.inherit!
+        process.start
+        process.wait
+        return process.exit_code
       end
     end
   end
