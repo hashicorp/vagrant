@@ -71,23 +71,6 @@ module VagrantPlugins
             environment && environments_path.empty?
           { "chef solo provisioner" => errors }
         end
-
-        protected
-
-        # This takes any of the configurations that take a path or
-        # array of paths and turns it into the proper format.
-        #
-        # @return [Array]
-        def prepare_folders_config(config)
-          # Make sure the path is an array
-          config = [config] if !config.is_a?(Array) || config.first.is_a?(Symbol)
-
-          # Make sure all the paths are in the proper format
-          config.map do |path|
-            path = [:host, path] if !path.is_a?(Array)
-            path
-          end
-        end
       end
     end
   end

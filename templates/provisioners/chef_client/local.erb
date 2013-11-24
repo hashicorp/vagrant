@@ -1,0 +1,34 @@
+log_level          <%= log_level.inspect %>
+log_location       STDOUT
+verbose_logging    <%= verbose_logging.inspect %>
+<% if node_name %>
+node_name          "<%= node_name %>"
+<% end %>
+
+cookbook_path <%= cookbook_path %>
+node_path "<%= node_path %>"
+client_path "<%= client_path %>"
+role_path "<%= role_path %>"
+data_bag_path "<%= data_bag_path %>"
+environment_path "<%= environment_path %>"
+
+encrypted_data_bag_secret "<%= encrypted_data_bag_secret %>"
+
+<% unless environment.nil? %>
+environment        "<%= environment %>"
+<% end %>
+
+file_cache_path    "<%= file_cache_path %>"
+file_backup_path   "<%= file_backup_path %>"
+
+pid_file           "/var/run/chef/chef-client.pid"
+
+Mixlib::Log::Formatter.show_time = true
+
+<% if formatter %>
+add_formatter "<%= formatter %>"
+<% end %>
+
+<% if custom_configuration -%>
+load "<%= custom_configuration %>"
+<% end -%>
