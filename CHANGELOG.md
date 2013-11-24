@@ -18,6 +18,8 @@ IMPROVEMENTS:
 
   - core: Support resumable downloads [GH-57]
   - core: owner/group of shared folders can be specified by integers. [GH-2390]
+  - commands/init: Add `--output` option for specifing output path, or
+    "-" for stdin. [GH-1364]
   - commands/provision: Add `--no-parallel` option to disable provider
     parallelization if the provider supports it. [GH-2404]
   - commands/ssh: SSH compression is enabled by default. [GH-2456]
