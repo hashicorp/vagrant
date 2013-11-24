@@ -37,9 +37,15 @@ module VagrantPlugins
 
                 # Note: Be sure to chomp the data to avoid the newlines that the
                 # Chef outputs.
-                @machine.env.ui.info(
-                  data,
-                  :color => color, :new_line => false, :prefix => false)
+                if config.keep_color
+                  @machine.env.ui.info(
+                      data,
+                      :new_line => false, :prefix => false)
+                else
+                  @machine.env.ui.info(
+                      data,
+                      :color => color, :new_line => false, :prefix => false)
+                end
               end
             end
           end
