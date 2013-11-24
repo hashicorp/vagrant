@@ -10,14 +10,23 @@ module Vagrant
       class ProvisionerCleanup
         include MixinProvisioners
 
-        def initialize(app, env)
+        def initialize(app, env, place=nil)
           @app    = app
           @logger = Log4r::Logger.new("vagrant::action::builtin::provision_cleanup")
+          @place ||= :after
+          @place = @place.to_sym
         end
 
         def call(env)
-          @env = env
+          do_cleanup(env) if @place == :before
 
+          # Continue, we need the VM to be booted.
+          @app.call(env)
+
+          do_cleanup(env) if @place == :after
+        end
+
+        def do_cleanup(env)
           # Ask the provisioners to modify the configuration if needed
           provisioner_instances.each do |p|
             env[:ui].info(I18n.t(
@@ -25,9 +34,6 @@ module Vagrant
               name: provisioner_type_map[p].to_s))
             p.cleanup
           end
-
-          # Continue, we need the VM to be booted.
-          @app.call(env)
         end
       end
     end
