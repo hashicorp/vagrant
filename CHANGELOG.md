@@ -18,6 +18,7 @@ IMPROVEMENTS:
   - core: owner/group of shared folders can be specified by integers. [GH-2390]
   - commands/provision: Add `--no-parallel` option to disable provider
     parallelization if the provider supports it. [GH-2404]
+  - commands/ssh: SSH compression is enabled by default. [GH-2456]
   - providers/virtualbox: Enable symlinks for VirtualBox 4.1. [GH-2414]
   - providers/virtualbox: default VM name now includes milliseconds with
     a random number to try to avoid conflicts in CI environments. [GH-2482]
