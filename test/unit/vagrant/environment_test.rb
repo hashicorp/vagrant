@@ -312,7 +312,7 @@ describe Vagrant::Environment do
     it "should allow passing in a custom action runner" do
       instance.action_runner.should_not_receive(:run)
       other_runner = mock
-      other_runner.should_receive(:run).with(:bar).and_return(:foo)
+      other_runner.should_receive(:run).and_return(:foo)
 
       instance.hook(:bar, other_runner).should == :foo
     end
