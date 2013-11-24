@@ -31,7 +31,23 @@ The name argument of this command is a _logical name_, meaning you can
 effectively choose whatever you want. This is the name that Vagrant searches
 for to match with the `config.vm.box` setting in Vagrantfiles.
 
+If an error occurs during the download or the download is interrupted with
+a Ctrl-C, then Vagrant will attempt to resume the download the next time it
+is requested. Vagrant will only attempt to resume a download for six hours
+after the initial download.
+
 ## Options
+
+* `--clean` - If given, Vagrant will remove any old temporary files from
+  prior downloads of the same URL. This is useful if you don't want Vagrant
+  to resume a download from a previous point, perhaps because the contents
+  changed.
+
+* `--force` - When present, the box will be downloaded and overwrite any
+  existing box with this name.
+
+* `--insecure` - When present, SSL certificates won't be verified if the
+  URL is an HTTPS URL.
 
 * `--provider PROVIDER` - If given, Vagrant will verify the box you're
   adding is for the given provider. By default, Vagrant automatically
