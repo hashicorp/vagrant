@@ -42,8 +42,13 @@ module Vagrant
             end
           end
 
-          # If we explicitly specified, take that value.
-          enabled = env[:provision_enabled] if env.has_key?(:provision_enabled)
+          if env.has_key?(:provision_enabled)
+            # If we explicitly specified, take that value.
+            enabled = env[:provision_enabled]
+          else
+            # Otherwise store the value so that other actions can use it.
+            env[:provision_enabled] = enabled
+          end
 
           # Ask the provisioners to modify the configuration if needed
           provisioner_instances.each do |p|
