@@ -1258,12 +1258,22 @@ en:
         module_path_missing: "The configured module path doesn't exist: %{path}"
 
       puppet_server:
+        cert_requires_node: |-
+          "puppet_node" is required when a client cert or key is specified
+        client_cert_and_private_key: |-
+          Both a client certificate and private key must be specified, if any
+        client_cert_not_found: |-
+          The specified client cert path could not be found
+        client_private_key_not_found: |-
+          The specified client private key path could not be found
         not_detected: |-
           The `%{binary}` binary appears to not be in the PATH of the guest. This
           could be because the PATH is not properly setup or perhaps Puppet is not
           installed on this guest. Puppet provisioning can not continue without
           Puppet properly installed.
         running_puppetd: "Running Puppet agent..."
+        uploading_client_cert: |-
+          Uploading client certificate and private key...
 
       shell:
         args_bad_type: "Shell provisioner `args` must be a string or array."

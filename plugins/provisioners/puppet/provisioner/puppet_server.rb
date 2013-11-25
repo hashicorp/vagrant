@@ -41,6 +41,27 @@ module VagrantPlugins
           # Add the certname option if there is one
           options += ["--certname", cn] if cn
 
+          # A shortcut to make things easier
+          comm = @machine.communicate
+
+          # If we have client certs specified, then upload them
+          if config.client_cert_path && config.client_private_key_path
+            @machine.ui.info(
+              I18n.t("vagrant.provisioners.puppet_server.uploading_client_cert"))
+            dirname = "/tmp/puppet-#{Time.now.to_i}-#{rand(1000)}"
+            comm.sudo("mkdir -p #{dirname}")
+            comm.sudo("mkdir -p #{dirname}/certs")
+            comm.sudo("mkdir -p #{dirname}/private_keys")
+            comm.sudo("chmod -R 0777 #{dirname}")
+            comm.upload(config.client_cert_path, "#{dirname}/certs/#{cn}.pem")
+            comm.upload(config.client_private_key_path,
+              "#{dirname}/private_keys/#{cn}.pem")
+
+            # Setup the options so that they point to our directories
+            options << "--certdir=#{dirname}/certs"
+            options << "--privatekeydir=#{dirname}/private_keys"
+          end
+
           # Disable colors if we must
           if !@machine.env.ui.is_a?(Vagrant::UI::Colored)
             options << "--color=false"
@@ -59,9 +80,10 @@ module VagrantPlugins
             facter = "#{facts.join(" ")} "
           end
 
-          command = "#{facter}puppet agent #{options} --server #{config.puppet_server} --detailed-exitcodes || [ $? -eq 2 ]"
+          command = "#{facter}puppet agent #{options} --server " +
+            "#{config.puppet_server} --detailed-exitcodes || [ $? -eq 2 ]"
 
-          @machine.env.ui.info I18n.t("vagrant.provisioners.puppet_server.running_puppetd")
+          @machine.ui.info I18n.t("vagrant.provisioners.puppet_server.running_puppetd")
           @machine.communicate.sudo(command) do |type, data|
             if !data.empty?
               @machine.env.ui.info(data, :new_line => false, :prefix => false)

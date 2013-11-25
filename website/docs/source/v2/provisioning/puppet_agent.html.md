@@ -21,6 +21,32 @@ the set of modules and manifests from there.
 	</p>
 </div>
 
+## Options
+
+The `puppet_server` provisioner takes various options. None are strictly
+required. They are listed below:
+
+* `client_cert_path` (string) - Path to the client certificate for the
+  node on your disk. This defaults to nothing, in which case a client
+  cert won't be uploaded.
+
+* `client_private_key_path` (string) - Path to the client private key for
+  the node on your disk. This defaults to nothing, in which case a client
+  private key won't be uploaded.
+
+* `facter` (hash) - Additional Facter facts to make available to the
+  Puppet run.
+
+* `options` (string or array) - Additional command line options to pass
+  to `puppet agent` when Puppet is ran.
+
+* `puppet_node` (string) - The name of the node. If this isn't set,
+  this will attempt to use a hostname if set via `config.vm.hostname`.
+  Otherwise, the box name will be used.
+
+* `puppet_server` (string) - Hostname of the Puppet server. By default
+  "puppet" will be used.
+
 ## Specifying the Puppet Master
 
 The quickest way to get started with the Puppet agent provisioner is to just
