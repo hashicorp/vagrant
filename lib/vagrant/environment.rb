@@ -133,7 +133,7 @@ module Vagrant
 
       # Call the hooks that does not require configurations to be loaded
       # by using a "clean" action runner
-      hook(:environment_plugins_loaded, Action::Runner.new(env: self))
+      hook(:environment_plugins_loaded, runner: Action::Runner.new(env: self))
 
       # Call the environment load hooks
       hook(:environment_load)
@@ -273,14 +273,14 @@ module Vagrant
     #
     # @param [Symbol] name Name of the hook.
     # @param [Action::Runner] action_runner A custom action runner for running hooks.
-    def hook(name, runner=nil)
+    def hook(name, opts=nil)
       @logger.info("Running hook: #{name}")
       callable = Action::Builder.new
-      runner ||= action_runner
-      runner.run(
-        callable,
-        :action_name => name,
-        :env => self)
+      opts ||= {}
+      opts[:runner] ||= action_runner
+      opts[:action_name] = name
+      opts[:env] = self
+      opts.delete(:runner).run(callable, opts)
     end
 
     # This returns a machine with the proper provider for this environment.

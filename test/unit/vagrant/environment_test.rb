@@ -314,7 +314,15 @@ describe Vagrant::Environment do
       other_runner = mock
       other_runner.should_receive(:run).and_return(:foo)
 
-      instance.hook(:bar, other_runner).should == :foo
+      instance.hook(:bar, runner: other_runner).should == :foo
+    end
+
+    it "should allow passing in custom data" do
+      instance.action_runner.should_receive(:run).with do |callable, env|
+        env[:foo].should == :bar
+      end
+
+      instance.hook(:foo, foo: :bar)
     end
   end
 
