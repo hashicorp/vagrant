@@ -59,6 +59,11 @@ after the initial download.
 
 This command lists all the boxes that are installed into Vagrant.
 
+## Options
+
+* `--box-info` - If given, Vagrant will display the URL from where the box
+  has been downloaded and the date it was added
+
 # Box Remove
 
 **Command: `vagrant box remove NAME PROVIDER`**
