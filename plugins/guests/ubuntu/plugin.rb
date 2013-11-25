@@ -22,11 +22,6 @@ module VagrantPlugins
         require_relative "cap/mount_nfs"
         Cap::MountNFS
       end
-
-      guest_capability("ubuntu", "mount_virtualbox_shared_folder") do
-        require_relative "cap/mount_virtualbox_shared_folder"
-        Cap::MountVirtualBoxSharedFolder
-      end
     end
   end
 end

@@ -31,6 +31,8 @@ IMPROVEMENTS:
     stdin works!
   - communicators/ssh: new configuration `config.ssh.pty` is a boolean for
     whether you want ot use a PTY for provisioning.
+  - guests/linux: emit upstart event `vagrant-mounted` if upstart is
+    available. [GH-2502]
   - providers/virtualbox: Enable symlinks for VirtualBox 4.1. [GH-2414]
   - providers/virtualbox: default VM name now includes milliseconds with
     a random number to try to avoid conflicts in CI environments. [GH-2482]

@@ -68,8 +68,11 @@ module VagrantPlugins
           chown_commands << "chown #{mount_uid}:#{mount_gid_old} #{expanded_guest_path}"
 
           exit_status = machine.communicate.sudo(chown_commands[0], error_check: false)
-          return if exit_status == 0
-          machine.communicate.sudo(chown_commands[1])
+          machine.communicate.sudo(chown_commands[1]) if exit_status != 0
+
+          # Emit an upstart event if we can
+          machine.communicate.sudo("[ -x /sbin/initctl ] && " +
+            "/sbin/initctl emit vagrant-mounted MOUNTPOINT=#{guestpath}")
         end
       end
     end
