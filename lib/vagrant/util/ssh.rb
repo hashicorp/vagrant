@@ -70,7 +70,7 @@ module Vagrant
               :host => ssh_info[:host],
               :port => ssh_info[:port],
               :username => ssh_info[:username],
-              :key_path => ssh_info[:private_key_path]
+              :key_path => ssh_info[:private_key_path].join(", ")
           end
 
           raise Errors::SSHUnavailable
@@ -85,7 +85,7 @@ module Vagrant
               :host => ssh_info[:host],
               :port => ssh_info[:port],
               :username => ssh_info[:username],
-              :key_path => ssh_info[:private_key_path]
+              :key_path => ssh_info[:private_key_path].join(", ")
           end
         end
 
@@ -116,7 +116,11 @@ module Vagrant
         end
 
         # If we're not in plain mode, attach the private key path.
-        command_options += ["-i", options[:private_key_path].to_s] if !plain_mode
+        if !plain_mode
+          options[:private_key_path].each do |path|
+            command_options += ["-i", path.to_s]
+          end
+        end
 
         if ssh_info[:forward_x11]
           # Both are required so that no warnings are shown regarding X11

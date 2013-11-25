@@ -299,8 +299,15 @@ module Vagrant
         end
       end
 
+      # Setup the keys
+      if !info[:private_key_path].is_a?(Array)
+        info[:private_key_path] = [info[:private_key_path]]
+      end
+
       # Expand the private key path relative to the root path
-      info[:private_key_path] = File.expand_path(info[:private_key_path], @env.root_path)
+      info[:private_key_path].map! do |path|
+        File.expand_path(path, @env.root_path)
+      end
 
       # Return the final compiled SSH info data
       info

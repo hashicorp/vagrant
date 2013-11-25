@@ -23,6 +23,8 @@ IMPROVEMENTS:
     `--no-color` mode globally. [GH-2261]
   - core: box URL and add date is tracked and shown if `-i` flag is
     specified for `vagrant box list` [GH-2327]
+  - core: Multiple SSH keys can be specified with `config.ssh.private_key_path`
+    [GH-907]
   - commands/init: Add `--output` option for specifing output path, or
     "-" for stdin. [GH-1364]
   - commands/provision: Add `--no-parallel` option to disable provider

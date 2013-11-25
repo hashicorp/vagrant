@@ -43,6 +43,10 @@ that ships with Vagrant, since that is what public boxes use. If you make
 your own custom box with a custom SSH key, this should point to that
 private key.
 
+You can also specify multiple private keys by setting this to be an array.
+This is useful, for example, if you use the default private key to bootstrap
+the machine, but replace it with perhaps a more secure key later.
+
 <hr>
 
 `config.ssh.forward_agent` - If `true`, agent forwarding over SSH

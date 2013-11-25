@@ -167,7 +167,7 @@ module VagrantPlugins
           :auth_methods          => ["none", "publickey", "hostbased", "password"],
           :config                => false,
           :forward_agent         => ssh_info[:forward_agent],
-          :keys                  => [ssh_info[:private_key_path]],
+          :keys                  => ssh_info[:private_key_path],
           :keys_only             => true,
           :paranoid              => false,
           :port                  => ssh_info[:port],
@@ -175,7 +175,9 @@ module VagrantPlugins
         }
 
         # Check that the private key permissions are valid
-        Vagrant::Util::SSH.check_key_permissions(Pathname.new(ssh_info[:private_key_path]))
+        ssh_info[:private_key_path].each do |path|
+          Vagrant::Util::SSH.check_key_permissions(Pathname.new(path))
+        end
 
         # Connect to SSH, giving it a few tries
         connection = nil
