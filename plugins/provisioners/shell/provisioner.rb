@@ -7,8 +7,11 @@ module VagrantPlugins
   module Shell
     class Provisioner < Vagrant.plugin("2", :provisioner)
       def provision
-        args = ""
-        args = " #{config.args}" if config.args
+        case config.args
+        when String then args = " #{config.args}"
+        when Array  then args = " #{config.args.map{|arg| quote_and_escape(arg)}.join(" ")}"
+        else args = ""
+        end
         command = "chmod +x #{config.upload_path} && #{config.upload_path}#{args}"
 
         with_script_file do |path|
@@ -49,6 +52,11 @@ module VagrantPlugins
       end
 
       protected
+
+      # Quote and escape strings for shell execution, thanks to @capistrano
+      def quote_and_escape(text, quote = '"')
+        "#{quote}#{text.gsub(/#{quote}/) { |m| "#{m}\\#{m}#{m}" }}#{quote}"
+      end
 
       # This method yields the path to a script to upload and execute
       # on the remote server. This method will properly clean up the
