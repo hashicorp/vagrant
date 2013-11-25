@@ -517,6 +517,7 @@ module Vagrant
           :action_runner  => action_runner,
           :box_collection => boxes,
           :global_config  => config_global,
+          :hook           => method(:hook),
           :host           => host,
           :gems_path      => gems_path,
           :home_path      => home_path,
