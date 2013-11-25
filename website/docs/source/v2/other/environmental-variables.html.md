@@ -9,7 +9,7 @@ Vagrant has a set of environmental variables that can be used to
 configure and control it in a global way. This page lists those environmental
 variables.
 
-## VAGRANT\_CWWD
+## VAGRANT\_CWD
 
 `VAGRANT_CWD` can be set to change the working directory of Vagrant. By
 default, Vagrant uses the current directory you're in. The working directory
