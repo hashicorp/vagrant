@@ -52,6 +52,7 @@ BUG FIXES:
   - core: Human-friendly error if box metadata.json becomes corrupted. [GH-2305]
   - core: Don't load Vagrantfile on `vagrant plugin` commands, allowing
     Vagrantfiles that use plugins to work. [GH-2388]
+  - core: global flags are ignored past the "--" on the CLI. [GH-2491]
   - guests/freebsd: Mounting NFS folders works. [GH-2400]
   - guests/freebsd: Uses `sh` by default for shell. [GH-2485]
   - guests/redhat: Down interface before messing up configuration file

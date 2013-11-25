@@ -5,10 +5,18 @@
 # initializing which have historically resulted in stack traces.
 Signal.trap("INT") { exit 1 }
 
+# Split arguments by "--" if its there, we'll recombine them later
+argv = ARGV.dup
+argv_extra = []
+if idx = argv.index("--")
+  argv_extra = argv.slice(idx+1, argv.length-2)
+  argv = argv.slice(0, idx)
+end
+
 # Set logging level to `debug`. This is done before loading 'vagrant', as it
 # sets up the logging system.
-if ARGV.include?("--debug")
-  ARGV.delete("--debug")
+if argv.include?("--debug")
+  argv.delete("--debug")
   ENV["VAGRANT_LOG"] = "debug"
 end
 
@@ -35,10 +43,10 @@ opts = {}
 #   * STDOUT is not a TTY
 #   * The terminal doesn't support colors (Windows)
 #
-if ARGV.include?("--no-color") || ENV["VAGRANT_NO_COLOR"]
+if argv.include?("--no-color") || ENV["VAGRANT_NO_COLOR"]
   # Delete the argument from the list so that it doesn't
   # cause any invalid arguments down the road.
-  ARGV.delete("--no-color")
+  argv.delete("--no-color")
 
   opts[:ui_class] = Vagrant::UI::Basic
 elsif !Vagrant::Util::Platform.terminal_supports_colors?
@@ -50,14 +58,14 @@ elsif !$stdout.tty? && !Vagrant::Util::Platform.cygwin?
 end
 
 # Also allow users to force colors.
-if ARGV.include?("--color")
-  ARGV.delete("--color")
+if argv.include?("--color")
+  argv.delete("--color")
   opts[:ui_class] = Vagrant::UI::Colored
 end
 
 # Highest precedence is if we have enabled machine-readable output
-if ARGV.include?("--machine-readable")
-  ARGV.delete("--machine-readable")
+if argv.include?("--machine-readable")
+  argv.delete("--machine-readable")
   opts[:ui_class] = Vagrant::UI::MachineReadable
 end
 
@@ -68,7 +76,7 @@ opts[:ui_class] ||= Vagrant::UI::Colored
 # if we're accessing the plugin interface, we want to NOT load plugins
 # for this run, because they can actually interfere with the function
 # of the plugin interface.
-ARGV.each do |arg|
+argv.each do |arg|
   if !arg.start_with?("-")
     if arg == "plugin"
       ENV["VAGRANT_NO_PLUGINS"] = "1"
@@ -80,10 +88,14 @@ ARGV.each do |arg|
 end
 
 # Fast path the version of Vagrant
-if ARGV.include?("-v") || ARGV.include?("--version")
+if argv.include?("-v") || argv.include?("--version")
   puts "Vagrant #{Vagrant::VERSION}"
   exit 0
 end
+
+# Recombine the arguments
+argv << "--"
+argv += argv_extra
 
 env = nil
 begin
@@ -112,7 +124,7 @@ begin
 
   begin
     # Execute the CLI interface, and exit with the proper error code
-    exit_status = env.cli(ARGV)
+    exit_status = env.cli(argv)
   ensure
     # Unload the environment so cleanup can be done
     env.unload
