@@ -113,6 +113,11 @@ module VagrantPlugins
                           adapter[:hostonly]])
             end
 
+            if adapter[:intnet]
+              args.concat(["--intnet#{adapter[:adapter]}",
+                          adapter[:intnet]])
+            end
+
             if adapter[:mac_address]
               args.concat(["--macaddress#{adapter[:adapter]}",
                           adapter[:mac_address]])
@@ -162,12 +167,12 @@ module VagrantPlugins
           output = ""
           total = ""
           last  = 0
-          
+
           output = execute("import", "-n", ovf)
           output =~ /Suggested VM name "(.+?)"/
           suggested_name = $1.to_s
           specified_name = "#{suggested_name}_#{(Time.now.to_f * 1000.0).to_i}_#{rand(100000)}" #Millisecond + Random
-          
+
           #Build the specified name param list
           name_params = Array.new
           name_params << "--vsys" << "0" << "--vmname" << specified_name

@@ -54,14 +54,21 @@ module VagrantPlugins
               slot = available_slots.shift
             end
 
+            # Internal network is a special type
+            if type == :private_network && options[:intnet]
+              type = :internal_network
+            end
+
             # Configure it
             data = nil
             if type == :private_network
               # private_network = hostonly
-              data        = [:hostonly, options]
+              data = [:hostonly, options]
             elsif type == :public_network
               # public_network = bridged
-              data        = [:bridged, options]
+              data = [:bridged, options]
+            elsif type == :internal_network
+              data = [:intnet, options]
             end
 
             # Store it!
@@ -339,6 +346,36 @@ module VagrantPlugins
             :adapter_ip => config[:adapter_ip],
             :ip         => config[:ip],
             :netmask    => config[:netmask]
+          }
+        end
+
+        def intnet_config(options)
+          return {
+            :type => "static",
+            :ip => nil,
+            :netmask => "255.255.255.0",
+            :adapter => nil,
+            :mac => nil,
+            :intnet => nil,
+            :auto_config => true
+          }.merge(options || {})
+        end
+
+        def intnet_adapter(config)
+          return {
+            :adapter => config[:adapter],
+            :type => :intnet,
+            :mac_address => config[:mac],
+            :nic_type => config[:nic_type],
+            :intnet => config[:intnet]
+          }
+        end
+
+        def intnet_network_config(config)
+          return {
+            :type => config[:type],
+            :ip => config[:ip],
+            :netmask => config[:netmask]
           }
         end
 

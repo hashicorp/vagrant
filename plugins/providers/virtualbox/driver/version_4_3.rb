@@ -113,6 +113,11 @@ module VagrantPlugins
                           adapter[:hostonly]])
             end
 
+            if adapter[:intnet]
+              args.concat(["--intnet#{adapter[:adapter]}",
+                          adapter[:intnet]])
+            end
+
             if adapter[:mac_address]
               args.concat(["--macaddress#{adapter[:adapter]}",
                           adapter[:mac_address]])
