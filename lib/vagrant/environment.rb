@@ -275,12 +275,12 @@ module Vagrant
     # @param [Action::Runner] action_runner A custom action runner for running hooks.
     def hook(name, opts=nil)
       @logger.info("Running hook: #{name}")
-      callable = Action::Builder.new
       opts ||= {}
+      opts[:callable] ||= Action::Builder.new
       opts[:runner] ||= action_runner
       opts[:action_name] = name
       opts[:env] = self
-      opts.delete(:runner).run(callable, opts)
+      opts.delete(:runner).run(opts.delete(:callable), opts)
     end
 
     # This returns a machine with the proper provider for this environment.

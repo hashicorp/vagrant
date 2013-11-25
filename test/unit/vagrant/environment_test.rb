@@ -324,6 +324,14 @@ describe Vagrant::Environment do
 
       instance.hook(:foo, foo: :bar)
     end
+
+    it "should allow passing a custom callable" do
+      instance.action_runner.should_receive(:run).with do |callable, env|
+        callable.should == :what
+      end
+
+      instance.hook(:foo, callable: :what)
+    end
   end
 
   describe "primary machine name" do
