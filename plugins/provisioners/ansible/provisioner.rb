@@ -76,7 +76,8 @@ module VagrantPlugins
           # A JSON or YAML file is referenced (requires Ansible 1.3+)
           return config.extra_vars
         else
-          # Expected to be a Hash after config validation. (extra_vars as JSON requires Ansible 1.2+, while YAML requires Ansible 1.3+)
+          # Expected to be a Hash after config validation. (extra_vars as
+          # JSON requires Ansible 1.2+, while YAML requires Ansible 1.3+)
           return config.extra_vars.to_json
         end
       end

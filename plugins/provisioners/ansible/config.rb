@@ -66,14 +66,15 @@ module VagrantPlugins
           end
         end
 
-        # Validate that extra_vars is either a hash, or a path to an existing file
+        # Validate that extra_vars is either a hash, or a path to an
+        # existing file
         if extra_vars
-          extra_vars_is_valid = (extra_vars.kind_of?(Hash) or extra_vars.kind_of?(String))
-
+          extra_vars_is_valid = extra_vars.kind_of?(Hash) || extra_vars.kind_of?(String)
           if extra_vars.kind_of?(String)
-            # Accept the usage of '@' prefix in Vagrantfile (e.g. '@vars.yml' and 'vars.yml' are both supported)
-            extra_vars =~ /^@?(.+)$/
-            extra_vars_path = $1.to_s
+            # Accept the usage of '@' prefix in Vagrantfile (e.g. '@vars.yml'
+            # and 'vars.yml' are both supported)
+            match_data = /^@?(.+)$/.match(extra_vars)
+            extra_vars_path = match_data[1].to_s
             expanded_path = Pathname.new(extra_vars_path).expand_path(machine.env.root_path)
             extra_vars_is_valid = expanded_path.exist?
             if extra_vars_is_valid
