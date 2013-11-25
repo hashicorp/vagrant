@@ -13,7 +13,7 @@ client_key             "<%= client_key %>"
 
 encrypted_data_bag_secret "<%= encrypted_data_bag_secret %>"
 
-<% unless environment.nil? %>
+<% if environment %>
 environment        "<%= environment %>"
 <% end %>
 

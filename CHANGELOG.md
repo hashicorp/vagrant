@@ -71,6 +71,8 @@ BUG FIXES:
   - hosts/gentoo: Support systemd for NFS startup. [GH-2382]
   - providers/virtualbox: Don't start new VM if VirtualBox has transient
     failure during `up` from suspended. [GH-2479]
+  - provisioners/chef: Chef client encrypted data bag secrets are now
+    uploaded to the provisioning path to avoid perm issues. [GH-1246]
   - provisioners/salt: Bootstrap on FreeBSD systems work. [GH-2525]
 
 ## 1.3.5 (October 15, 2013)

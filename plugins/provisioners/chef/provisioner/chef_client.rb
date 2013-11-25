@@ -46,7 +46,7 @@ module VagrantPlugins
         def upload_encrypted_data_bag_secret
           @machine.env.ui.info I18n.t("vagrant.provisioners.chef.upload_encrypted_data_bag_secret_key")
           @machine.communicate.upload(encrypted_data_bag_secret_key_path,
-                                  @config.encrypted_data_bag_secret)
+            guest_encrypted_data_bag_secret_key_path)
         end
 
         def setup_server_config
@@ -57,7 +57,7 @@ module VagrantPlugins
             :validation_key => guest_validation_key_path,
             :client_key => @config.client_key_path,
             :environment => @config.environment,
-            :encrypted_data_bag_secret => @config.encrypted_data_bag_secret
+            :encrypted_data_bag_secret => guest_encrypted_data_bag_secret_key_path,
           })
         end
 
@@ -68,7 +68,9 @@ module VagrantPlugins
 
           command_env = @config.binary_env ? "#{@config.binary_env} " : ""
           command_args = @config.arguments ? " #{@config.arguments}" : ""
-          command = "#{command_env}#{chef_binary_path("chef-client")} -c #{@config.provisioning_path}/client.rb -j #{@config.provisioning_path}/dna.json #{command_args}"
+          command = "#{command_env}#{chef_binary_path("chef-client")} " +
+            "-c #{@config.provisioning_path}/client.rb " +
+            "-j #{@config.provisioning_path}/dna.json #{command_args}"
 
           @config.attempts.times do |attempt|
             if attempt == 0
@@ -98,6 +100,11 @@ module VagrantPlugins
 
         def encrypted_data_bag_secret_key_path
           File.expand_path(@config.encrypted_data_bag_secret_key_path, @machine.env.root_path)
+        end
+
+        def guest_encrypted_data_bag_secret_key_path
+          File.join(@config.provisioning_path,
+            "encrypted_data_bag_secret_key.pem")
         end
 
         def guest_validation_key_path
