@@ -66,33 +66,24 @@ module Vagrant
               next if env[:provision_types] && \
                 !env[:provision_types].include?(type_name)
 
-              run_provisioner(env, type_name.to_s, p)
+              env[:ui].info(I18n.t(
+                "vagrant.actions.vm.provision.beginning",
+                provisioner: type_name))
+
+              env[:hook].call(:provisioner_run, env.merge(
+                callable: method(:run_provisioner),
+                provisioner: p,
+                provisioner_name: type_name,
+              ))
             end
           end
         end
 
         # This is pulled out into a seperate method so that users can
-        # subclass and implement custom behavior if they'd like around
+        # subclass and implement custom behavior if they'd like to work around
         # this step.
-        def run_provisioner(env, name, p)
-          env[:ui].info(I18n.t("vagrant.actions.vm.provision.beginning",
-                               :provisioner => name))
-
-          callable = Builder.new.tap { |b| b.use ProvisionerRun, p }
-          action_runner.run(callable,
-            :action_name   => :provisioner_run,
-            :provider_name => name
-          )
-        end
-
-        def action_runner
-          @action_runner ||= Action::Runner.new do
-            {
-              :env     => @env[:env],
-              :machine => @env[:machine],
-              :ui      => @env[:ui]
-            }
-          end
+        def run_provisioner(env)
+          env[:provisioner].provision
         end
       end
     end
