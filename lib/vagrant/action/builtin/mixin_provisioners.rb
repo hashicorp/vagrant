@@ -30,9 +30,9 @@ module Vagrant
 
         # This will return a mapping of a provisioner instance to its
         # type.
-        def provisioner_type_map
+        def provisioner_type_map(env)
           # Call this in order to initial the map if it hasn't been already
-          provisioner_instances
+          provisioner_instances(env)
 
           # Return the type map
           @_provisioner_types

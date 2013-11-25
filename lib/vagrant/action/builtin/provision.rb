@@ -60,11 +60,12 @@ module Vagrant
 
           # Actually provision if we enabled it
           if enabled
+            type_map = provisioner_type_map(env)
             provisioner_instances(env).each do |p|
               next if env[:provision_types] && \
-                !env[:provision_types].include?(provisioner_type_map[p])
+                !env[:provision_types].include?(type_map[p])
 
-              run_provisioner(env, provisioner_type_map[p].to_s, p)
+              run_provisioner(env, type_map[p].to_s, p)
             end
           end
         end
