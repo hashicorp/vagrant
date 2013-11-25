@@ -1,6 +1,6 @@
 ---
 page_title: "Debugging and Troubleshooting"
-sidebar_current: "debugging"
+sidebar_current: "other-debugging"
 ---
 
 # Debugging

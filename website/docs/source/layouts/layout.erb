@@ -222,7 +222,14 @@
 								</ul>
 								<% end %>
 
-								<li<%= sidebar_current("debugging") %>><a href="/v2/debugging.html">Debugging</a></li>
+								<li<%= sidebar_current("other") %>><a href="/v2/other/index.html">Other</a></li>
+
+								<% if sidebar_section == "other" %>
+								<ul class="sub unstyled">
+									<li<%= sidebar_current("other-debugging") %>><a href="/v2/other/debugging.html">Debugging</a></li>
+									<li<%= sidebar_current("other-envvars") %>><a href="/v2/other/environmental-variables.html">Environmental Variables</a></li>
+								</ul>
+								<% end %>
 							</ul>
 							</aside> <!-- /.sidebar -->
 						</div> <!-- /.sidebar -->
