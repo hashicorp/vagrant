@@ -29,10 +29,11 @@ is required:
 
 The remainder of the available options are optional:
 
-* `args` (string) - Arguments to pass to the shell script when executing it
+* `args` (string or array) - Arguments to pass to the shell script when executing it
   as a single string. These arguments must be written as if they were typed
   directly on the command line, so be sure to escape characters, quote,
-  etc. as needed.
+  etc. as needed. You may also pass the arguments in using an array. In this
+  case, Vagrant will handle quoting for you.
 
 * `binary` (boolean) - Vagrant automatically replaces Windows line endings with
   Unix line endings. If this is true, then Vagrant will not do this. By default
@@ -128,6 +129,18 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell" do |s|
     s.inline = "echo $1"
     s.args   = "'hello, world!'"
+  end
+end
+```
+
+You can also specify arguments an array if you don't want to worry about
+quoting:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.provision "shell" do |s|
+    s.inline = "echo $1"
+    s.args   = ["hello, world!"]
   end
 end
 ```

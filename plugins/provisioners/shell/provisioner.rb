@@ -7,11 +7,14 @@ module VagrantPlugins
   module Shell
     class Provisioner < Vagrant.plugin("2", :provisioner)
       def provision
-        case config.args
-        when String then args = " #{config.args}"
-        when Array  then args = " #{config.args.map{|arg| quote_and_escape(arg)}.join(" ")}"
-        else args = ""
+        args = ""
+        if args.is_a?(String)
+          args = " #{config.args}"
+        elsif args.is_a?(Array)
+          args = config.args.map { |a| quote_and_escape(a) }
+          args = " #{args.join(" ")}"
         end
+
         command = "chmod +x #{config.upload_path} && #{config.upload_path}#{args}"
 
         with_script_file do |path|
@@ -53,7 +56,7 @@ module VagrantPlugins
 
       protected
 
-      # Quote and escape strings for shell execution, thanks to @capistrano
+      # Quote and escape strings for shell execution, thanks to Capistrano.
       def quote_and_escape(text, quote = '"')
         "#{quote}#{text.gsub(/#{quote}/) { |m| "#{m}\\#{m}#{m}" }}#{quote}"
       end

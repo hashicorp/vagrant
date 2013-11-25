@@ -56,8 +56,8 @@ module VagrantPlugins
         end
 
         # If there are args and its not a string, that is a problem
-        if args && !args.is_a?(String)
-          errors << I18n.t("vagrant.provisioners.shell.args_not_string")
+        if args && (!args.is_a?(String) || !args.is_a?(Array))
+          errors << I18n.t("vagrant.provisioners.shell.args_bad_type")
         end
 
         { "shell provisioner" => errors }

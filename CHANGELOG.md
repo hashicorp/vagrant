@@ -43,6 +43,7 @@ IMPROVEMENTS:
   - provisioners/ansible: allow files for extra vars [GH-2366]
   - provisioners/shell: Added `keep_color` option to not automatically color
     output based on stdout/stderr. [GH-2505]
+  - provisioners/shell: Arguments can now be an array of args. [GH-1949]
   - synced\_folders/nfs: Specify `nfs_udp` to false to disable UDP based
     NFS folders. [GH-2304]
 
