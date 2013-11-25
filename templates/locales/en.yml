@@ -722,7 +722,7 @@ en:
           hyphens or dots. It cannot start with a hyphen or dot.
         network_invalid: |-
           The network type '%{type}' is not valid. Please use
-          'hostonly' or 'bridged'.
+          'hostonly', 'bridged', or 'intnet'.
         network_ip_invalid: |-
           The host only network IP '%{ip}' is invalid.
         network_ip_ends_one: |-
