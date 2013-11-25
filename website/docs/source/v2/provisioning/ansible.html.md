@@ -119,11 +119,14 @@ end
 The Ansible provisioner also includes a number of additional options that can be set,
 all of which get passed to the `ansible-playbook` command that ships with Ansible.
 
-* `ansible.extra_vars` can be used to pass a hash of additional variables to the playbook. For example:
+* `ansible.extra_vars` can be used to pass additional variables (with highest priority) to the playbook. This parameter can be a path to a JSON or YAML file, or a hash. For example:
 ```
 ansible.extra_vars = {
   ntp_server: "pool.ntp.org",
-  nginx_workers: 4
+  nginx: {
+    port: 8008,
+    workers: 4
+  }
 }
 ```
 These variables take the highest precedence over any other variables.
