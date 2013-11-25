@@ -67,8 +67,6 @@ module VagrantPlugins
             options << "--color=false"
           end
 
-          options = options.join(" ")
-
           # Build up the custom facts if we have any
           facter = ""
           if !config.facter.empty?
@@ -80,6 +78,7 @@ module VagrantPlugins
             facter = "#{facts.join(" ")} "
           end
 
+          options = options.join(" ")
           command = "#{facter}puppet agent #{options} --server " +
             "#{config.puppet_server} --detailed-exitcodes || [ $? -eq 2 ]"
 
