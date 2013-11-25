@@ -79,13 +79,13 @@ module VagrantPlugins
           end
 
           options = options.join(" ")
-          command = "#{facter}puppet agent #{options} --server " +
-            "#{config.puppet_server} --detailed-exitcodes || [ $? -eq 2 ]"
+          command = "#{facter}puppet agent --onetime --no-daemonize #{options} " +
+            "--server #{config.puppet_server} --detailed-exitcodes || [ $? -eq 2 ]"
 
           @machine.ui.info I18n.t("vagrant.provisioners.puppet_server.running_puppetd")
           @machine.communicate.sudo(command) do |type, data|
             if !data.empty?
-              @machine.env.ui.info(data, :new_line => false, :prefix => false)
+              @machine.ui.info(data, :new_line => false, :prefix => false)
             end
           end
         end
