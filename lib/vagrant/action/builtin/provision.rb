@@ -78,7 +78,21 @@ module Vagrant
           env[:ui].info(I18n.t("vagrant.actions.vm.provision.beginning",
                                :provisioner => name))
 
-          p.provision
+          callable = Builder.new.tap { |b| b.use ProvisionerRun, p }
+          action_runner.run(callable,
+            :action_name   => :provisioner_run,
+            :provider_name => name
+          )
+        end
+
+        def action_runner
+          @action_runner ||= Action::Runner.new do
+            {
+              :env     => @env[:env],
+              :machine => @env[:machine],
+              :ui      => @env[:ui]
+            }
+          end
         end
       end
     end

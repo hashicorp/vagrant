@@ -20,6 +20,7 @@ module Vagrant
       autoload :Lock, "vagrant/action/builtin/lock"
       autoload :Provision, "vagrant/action/builtin/provision"
       autoload :ProvisionerCleanup, "vagrant/action/builtin/provisioner_cleanup"
+      autoload :ProvisionerRun,     "vagrant/action/builtin/provisioner_run"
       autoload :SetHostname, "vagrant/action/builtin/set_hostname"
       autoload :SSHExec, "vagrant/action/builtin/ssh_exec"
       autoload :SSHRun,  "vagrant/action/builtin/ssh_run"
