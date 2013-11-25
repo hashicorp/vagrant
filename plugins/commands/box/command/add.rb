@@ -44,7 +44,7 @@ module VagrantPlugins
             :box_url      => argv[1],
             :box_clean    => options[:clean],
             :box_force    => options[:force],
-            :box_download_insecure => options[:insecure],
+            :box_download_insecure => options[:insecure]
           })
 
           # Success, exit status 0
