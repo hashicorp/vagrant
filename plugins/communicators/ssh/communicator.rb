@@ -287,6 +287,16 @@ module VagrantPlugins
 
         # Open the channel so we can execute or command
         channel = connection.open_channel do |ch|
+          if @machine.config.ssh.pty
+            ch.request_pty do |ch2, success|
+              if success
+                @logger.debug("pty obtained for connection")
+              else
+                @logger.warn("failed to obtain pty, will try to continue anyways")
+              end
+            end
+          end
+
           ch.exec(shell_cmd) do |ch2, _|
             # Setup the channel callbacks so we can get data and exit status
             ch2.on_data do |ch3, data|

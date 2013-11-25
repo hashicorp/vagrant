@@ -11,6 +11,7 @@ module VagrantPlugins
       attr_accessor :keep_alive
       attr_accessor :shell
       attr_accessor :proxy_command
+      attr_accessor :pty
 
       attr_reader :default
 
@@ -22,6 +23,7 @@ module VagrantPlugins
         @guest_port    = UNSET_VALUE
         @keep_alive    = UNSET_VALUE
         @proxy_command = UNSET_VALUE
+        @pty           = UNSET_VALUE
         @shell         = UNSET_VALUE
 
         @default    = SSHConnectConfig.new
@@ -42,6 +44,7 @@ module VagrantPlugins
         @guest_port = nil if @guest_port == UNSET_VALUE
         @keep_alive = false if @keep_alive == UNSET_VALUE
         @proxy_command = nil if @proxy_command == UNSET_VALUE
+        @pty        = false if @pty == UNSET_VALUE
         @shell      = nil if @shell == UNSET_VALUE
 
         @default.finalize!
