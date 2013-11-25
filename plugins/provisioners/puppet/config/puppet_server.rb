@@ -7,9 +7,21 @@ module VagrantPlugins
         attr_accessor :options
         attr_accessor :facter
 
-        def facter; @facter ||= {}; end
-        def puppet_server; @puppet_server || "puppet"; end
-        def options; @options ||= []; end
+        def initialize
+          super
+
+          @facter        = {}
+          @options       = []
+          @puppet_node   = UNSET_VALUE
+          @puppet_server = UNSET_VALUE
+        end
+
+        def finalize!
+          super
+
+          @puppet_node   = nil if @puppet_node == UNSET_VALUE
+          @puppet_server = "puppet" if @puppet_server == UNSET_VALUE
+        end
       end
     end
   end
