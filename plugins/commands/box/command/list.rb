@@ -7,11 +7,11 @@ module VagrantPlugins
         def execute
           options = {}
 
-          opts = OptionParser.new do |opts|
-            opts.banner = "Usage: vagrant box list"
-            opts.separator ""
+          opts = OptionParser.new do |o|
+            o.banner = "Usage: vagrant box list"
+            o.separator ""
 
-            opts.on("-i", "--box-info", "Displays additional information about the boxes.") do |i|
+            o.on("-i", "--box-info", "Displays additional information about the boxes.") do |i|
               options[:info] = i
             end
           end
@@ -38,10 +38,6 @@ module VagrantPlugins
           longest_box = boxes.max_by { |x| x[0].length }
           longest_box_length = longest_box[0].length
 
-          # Find the longest provider name
-          longest_provider = boxes.max_by { |x| x[1].length }
-          longest_provider_length = longest_provider[1].length
-
           # Go through each box and output the information about it. We
           # ignore the "v1" param for now since I'm not yet sure if its
           # important for the user to know what boxes need to be upgraded
@@ -52,27 +48,17 @@ module VagrantPlugins
             @env.ui.machine("box-name", name)
             @env.ui.machine("box-provider", provider)
 
-            extra = ''
-            if extra_info
-              extra << format_extra_info(name.to_s, provider.to_s)
+            info_file = @env.boxes.find(name, provider).directory.join("info.json")
+            if info_file.file?
+              info = JSON.parse(info_file.read)
+              info.each do |k, v|
+                @env.ui.machine("box-info", k, v)
+
+                if extra_info
+                  @env.ui.info("  - #{k}: #{v}", prefix: false)
+                end
+              end
             end
-
-            name     = name.ljust(longest_box_length)
-            provider = "(#{provider})".ljust(longest_provider_length + 2) # 2 -> parenthesis
-            box_info = "#{name} #{provider}#{extra}"
-
-            @env.ui.info(box_info, :prefix => false)
-          end
-        end
-
-        def format_extra_info(name, provider)
-          info_json = @env.boxes.find(name, provider).directory.join('info.json')
-          if info_json.file?
-            info = JSON.parse(info_json.read)
-            return "\n  `- URL:  #{info['url']}" +
-                   "\n  `- Date: #{info['downloaded_at']}"
-          else
-            return ''
           end
         end
       end
