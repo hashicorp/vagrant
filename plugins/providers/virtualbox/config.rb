@@ -120,6 +120,14 @@ module VagrantPlugins
           end
         end
 
+        # Verify that internal networks are only on private networks.
+        machine.config.vm.networks.each do |type, data|
+          if data[:virtualbox__intnet] && type != :private_network
+            errors << I18n.t("vagrant.virtualbox.config.intnet_on_bad_type")
+            break
+          end
+        end
+
         { "VirtualBox Provider" => errors }
       end
 
