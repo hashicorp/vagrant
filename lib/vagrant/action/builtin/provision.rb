@@ -28,17 +28,14 @@ module Vagrant
           # Check if we already provisioned, and if so, disable the rest
           ignore_sentinel = true
           ignore_sentinel = env[:provision_ignore_sentinel] if env.has_key?(:provision_ignore_sentinel)
+          sentinel_path = nil
+
           if !ignore_sentinel
             @logger.info("Checking provisioner sentinel if we should run...")
-            sentinel = env[:machine].data_dir.join("action_provision")
-            if sentinel.file?
+            sentinel_path = env[:machine].data_dir.join("action_provision")
+            if sentinel_path.file?
               @logger.info("Sentinel found! Not provisioning.")
               enabled = false
-            else
-              @logger.info("Sentinel not found.")
-              sentinel.open("w") do |f|
-                f.write(Time.now.to_i.to_s)
-              end
             end
           end
 
@@ -57,6 +54,14 @@ module Vagrant
 
           # Continue, we need the VM to be booted.
           @app.call(env)
+
+          # Write the sentinel if we have to
+          if sentinel_path && !sentinel_path.file?
+            @logger.info("Writing provisioning sentinel so we don't provision again")
+            sentinel_path.open("w") do |f|
+              f.write(Time.now.to_i.to_s)
+            end
+          end
 
           # Actually provision if we enabled it
           if enabled

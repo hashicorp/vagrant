@@ -53,6 +53,7 @@ BUG FIXES:
   - core: Don't load Vagrantfile on `vagrant plugin` commands, allowing
     Vagrantfiles that use plugins to work. [GH-2388]
   - core: global flags are ignored past the "--" on the CLI. [GH-2491]
+  - core: provisoining will properly happen if `up` failed. [GH-2488]
   - guests/freebsd: Mounting NFS folders works. [GH-2400]
   - guests/freebsd: Uses `sh` by default for shell. [GH-2485]
   - guests/redhat: Down interface before messing up configuration file
