@@ -12,7 +12,8 @@
     .page-contents {
 
         h1,
-        h2 {
+        h2,
+        h3 {
             text-transform: uppercase;
             text-align: left;
             .museo-sans-light;
@@ -37,6 +38,14 @@
                 margin-top: @baseline * .5;
             } //h2 first child
         } //h2
+
+        h3 {
+            margin: (@baseline * 2) 0 @baseline;
+
+            &:first-child {
+                margin-top: @baseline * .5;
+            } //h3 first child
+        }
     } //page-contents
 
     /* home */
