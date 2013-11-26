@@ -170,6 +170,18 @@ module Vagrant
           data[:hosts]
         end
 
+        # Defines a capability for the given host. The block should return
+        # a class/module that has a method with the capability name, ready
+        # to be executed. This means that if it is an instance method,
+        # the block should return an instance of the class.
+        #
+        # @param [String] guest The name of the host
+        # @param [String] cap The name of the capability
+        def self.host_capability(guest, cap, &block)
+          components.host_capabilities[guest.to_sym].register(cap.to_sym, &block)
+          nil
+        end
+
         # Registers additional providers to be available.
         #
         # @param [Symbol] name Name of the provider.
