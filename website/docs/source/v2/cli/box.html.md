@@ -38,6 +38,9 @@ after the initial download.
 
 ## Options
 
+* `--cert CERTFILE` - A client certificate to use when downloading the box, if
+  necessary.
+
 * `--clean` - If given, Vagrant will remove any old temporary files from
   prior downloads of the same URL. This is useful if you don't want Vagrant
   to resume a download from a previous point, perhaps because the contents

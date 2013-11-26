@@ -23,6 +23,18 @@ the installed boxes on the system.
 
 <hr>
 
+`config.vm.box_download_client_cert` - Path to a client certificate to
+use when downloading the box, if it is necessary. By default, no client
+certificate is used to download the box.
+
+<hr>
+
+`config.vm.box_download_insecure` - If true, then SSL certificates
+from the server will not be verified. By default, if the URL is an HTTPS
+URL, then SSL certs will be verified.
+
+<hr>
+
 `config.vm.box_url` - The URL that the configured box can be found at.
 If the box is not installed on the system, it will be retrieved from this
 URL when `vagrant up` is run.
