@@ -67,6 +67,7 @@ BUG FIXES:
   - core: provisoining will properly happen if `up` failed. [GH-2488]
   - guests/freebsd: Mounting NFS folders works. [GH-2400]
   - guests/freebsd: Uses `sh` by default for shell. [GH-2485]
+  - guests/redhat: `DHCP_HOSTNAME` is set to the hostname, not the FQDN. [GH-2441]
   - guests/redhat: Down interface before messing up configuration file
     for networking. [GH-1577]
   - guests/ubuntu: "localhost" is preserved when changing hostnames.
