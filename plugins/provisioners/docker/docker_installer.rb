@@ -22,7 +22,7 @@ module VagrantPlugins
           @machine.guest.capability(:docker_install, @version)
 
           if !@machine.guest.capability(:docker_installed)
-            raise Errors::DockerInstallFailed
+            raise DockerError, :install_failed
           end
         end
 

@@ -1295,3 +1295,7 @@ en:
         playbook_path_invalid: "`playbook` for the Ansible provisioner does not exist on the host system: %{path}"
         inventory_path_invalid: "`inventory_path` for the Ansible provisioner does not exist on the host system: %{path}"
         extra_vars_invalid: "`extra_vars` for the Ansible provisioner must be a hash or a path to an existing file. Received: %{value} (as %{type})"
+
+      docker:
+        not_running: "Docker is not running on the guest VM."
+        install_failed: "Docker installation failed."

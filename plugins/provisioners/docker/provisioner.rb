@@ -1,9 +1,12 @@
-require_relative "errors"
 require_relative "docker_client"
 require_relative "docker_installer"
 
 module VagrantPlugins
   module Docker
+    class DockerError < Vagrant::Errors::VagrantError
+      error_namespace("vagrant.provisioners.docker")
+    end
+
     # TODO: Improve handling of vagrant-lxc specifics (like checking for apparmor
     #       profile stuff + autocorrection)
     class Provisioner < Vagrant.plugin("2", :provisioner)
@@ -15,7 +18,7 @@ module VagrantPlugins
       end
 
       def provision
-        @logger = Log4r::Logger.new("vagrant::provisioners::vocker")
+        @logger = Log4r::Logger.new("vagrant::provisioners::docker")
 
         @logger.info("Checking for Docker installation...")
         @installer.ensure_installed
@@ -23,7 +26,7 @@ module VagrantPlugins
         # Attempt to start service if not running
         @client.start_service
         unless @client.daemon_running?
-          raise Errors::DockerNotRunning
+          raise DockerError, :not_running
         end
 
         if config.images.any?
