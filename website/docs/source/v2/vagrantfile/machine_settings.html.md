@@ -39,6 +39,10 @@ URL, then SSL certs will be verified.
 If the box is not installed on the system, it will be retrieved from this
 URL when `vagrant up` is run.
 
+This can also be an array of multiple URLs. The URLs will be tried in
+order. Note that any client certificates, insecure download settings, and
+so on will apply to all URLs in this list.
+
 <hr>
 
 `config.vm.graceful_halt_timeout` - The time in seconds that Vagrant will

@@ -17,57 +17,33 @@ module Vagrant
 
         def call(env)
           @download_interrupted = false
-          @temp_path = env[:tmp_path].join("box" + Digest::SHA1.hexdigest(env[:box_url]))
-          @logger.info("Downloading box to: #{@temp_path}")
 
-          url = env[:box_url]
-          if File.file?(url) || url !~ /^[a-z0-9]+:.*$/i
-            @logger.info("URL is a file or protocol not found and assuming file.")
-            file_path = File.expand_path(url)
-            file_path = Util::Platform.cygwin_windows_path(file_path)
-            url = "file:#{file_path}"
-          end
-
-          downloader_options = {}
-          downloader_options[:continue] = true
-          downloader_options[:insecure] = env[:box_download_insecure]
-          downloader_options[:ui] = env[:ui]
-          downloader_options[:client_cert] = env[:box_client_cert]
-
-          # If the temporary path exists, verify it is not too old. If its
-          # too old, delete it first because the data may have changed.
-          if @temp_path.file?
-            delete = false
-            if env[:box_clean]
-              @logger.info("Cleaning existing temp box file.")
-              delete = true
-            elsif @temp_path.mtime.to_i < (Time.now.to_i - 6 * 60 * 60)
-              @logger.info("Existing temp file is too old. Removing.")
-              delete = true
+          # Go through each URL and attempt to download it
+          download_error = nil
+          download_url = nil
+          urls = env[:box_url]
+          urls = [env[:box_url]] if !urls.is_a?(Array)
+          urls.each do |url|
+            begin
+              @temp_path = download_box_url(url, env)
+              download_error = nil
+              download_url = url
+            rescue Errors::DownloaderError => e
+              env[:ui].error(I18n.t(
+                "vagrant.actions.box.download.download_failed"))
+              download_error = e
             end
 
-            @temp_path.unlink if delete
+            # If we were interrupted during this download, then just return
+            # at this point, we don't need to try anymore.
+            if @download_interrupted
+              @logger.warn("Download interrupted, not trying any more box URLs.")
+              return
+            end
           end
 
-          # Download the box to a temporary path. We store the temporary
-          # path as an instance variable so that the `#recover` method can
-          # access it.
-          env[:ui].info(I18n.t("vagrant.actions.box.download.downloading"))
-
-          if @temp_path.file?
-            env[:ui].info(I18n.t("vagrant.actions.box.download.resuming"))
-          end
-
-          begin
-            downloader = Util::Downloader.new(url, @temp_path, downloader_options)
-            downloader.download!
-          rescue Errors::DownloaderInterrupted
-            # The downloader was interrupted, so just return, because that
-            # means we were interrupted as well.
-            @download_interrupted = true
-            env[:ui].info(I18n.t("vagrant.actions.box.download.interrupted"))
-            return
-          end
+          # If all the URLs failed, then raise an exception
+          raise download_error if download_error
 
           box_formats = env[:box_provider]
           if box_formats
@@ -103,7 +79,7 @@ module Vagrant
             I18n.t("vagrant.actions.box.add.added", name: box_added.name, provider: box_added.provider))
 
           # Persists URL used on download and the time it was added
-          write_extra_info(box_added, url)
+          write_extra_info(box_added, download_url)
 
           # Passes on the newly added box to the rest of the middleware chain
           env[:box_added] = box_added
@@ -116,6 +92,65 @@ module Vagrant
           if @temp_path && File.exist?(@temp_path) && !@download_interrupted
             File.unlink(@temp_path)
           end
+        end
+
+        def download_box_url(url, env)
+          temp_path = env[:tmp_path].join("box" + Digest::SHA1.hexdigest(url))
+          @logger.info("Downloading box: #{url} => #{temp_path}")
+
+          if File.file?(url) || url !~ /^[a-z0-9]+:.*$/i
+            @logger.info("URL is a file or protocol not found and assuming file.")
+            file_path = File.expand_path(url)
+            file_path = Util::Platform.cygwin_windows_path(file_path)
+            url = "file:#{file_path}"
+          end
+
+          downloader_options = {}
+          downloader_options[:continue] = true
+          downloader_options[:insecure] = env[:box_download_insecure]
+          downloader_options[:ui] = env[:ui]
+          downloader_options[:client_cert] = env[:box_client_cert]
+
+          # If the temporary path exists, verify it is not too old. If its
+          # too old, delete it first because the data may have changed.
+          if temp_path.file?
+            delete = false
+            if env[:box_clean]
+              @logger.info("Cleaning existing temp box file.")
+              delete = true
+            elsif temp_path.mtime.to_i < (Time.now.to_i - 6 * 60 * 60)
+              @logger.info("Existing temp file is too old. Removing.")
+              delete = true
+            end
+
+            temp_path.unlink if delete
+          end
+
+          # Download the box to a temporary path. We store the temporary
+          # path as an instance variable so that the `#recover` method can
+          # access it.
+          env[:ui].info(I18n.t(
+            "vagrant.actions.box.download.downloading",
+            url: url))
+          if temp_path.file?
+            env[:ui].info(I18n.t("vagrant.actions.box.download.resuming"))
+          end
+
+          begin
+            downloader = Util::Downloader.new(url, temp_path, downloader_options)
+            downloader.download!
+          rescue Errors::DownloaderInterrupted
+            # The downloader was interrupted, so just return, because that
+            # means we were interrupted as well.
+            @download_interrupted = true
+            env[:ui].info(I18n.t("vagrant.actions.box.download.interrupted"))
+          rescue Errors::DownloaderError
+            # The download failed for some reason, clean out the temp path
+            temp_path.unlink if temp_path.file?
+            raise
+          end
+
+          temp_path
         end
 
         def write_extra_info(box_added, url)

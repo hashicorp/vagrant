@@ -25,6 +25,7 @@ IMPROVEMENTS:
     specified for `vagrant box list` [GH-2327]
   - core: Multiple SSH keys can be specified with `config.ssh.private_key_path`
     [GH-907]
+  - core: `config.vm.box_url` can be an array of URLs. [GH-1958]
   - commands/box/add: Can now specify a client cert when downloading a
     box. [GH-1889]
   - commands/init: Add `--output` option for specifing output path, or
