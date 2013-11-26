@@ -26,6 +26,41 @@ of a single page of documentation.
 	</p>
 </div>
 
+## Options
+
+This section lists the complete set of available options for the Chef solo
+provisioner. More detailed examples of how to use the provisioner are
+available below this section.
+
+Note that only the Chef-solo specific options are shown below. There is
+also a large set of [common options](/v2/provisioning/chef_common.html)
+that are available with both the Chef solo and Chef client provisioners.
+
+* `cookbooks_path` (string or array) - A list of paths to where cookbooks
+  are stored. By default this is "cookbooks", expecting a cookbooks folder
+  relative to the Vagrantfile location.
+
+* `data_bags_path` (string or array) - A list of paths where data bags are
+  stored. By default, no data bag paths are set.
+
+* `encrypted_data_bag_secret_key_path` (string) - The path to the secret key
+  file to decrypt encrypted data bags. By default, this is not set.
+
+* `environments_path` (string or array) - A list of paths where environment
+  definitions are located. By default, no environments folder is set.
+
+* `environment` (string) - The environment you want the Chef run to be
+  a part of. This requires that `environments_path` is set.
+
+* `nfs` (boolean) - If true, any synced folders that need to be used are
+  shared via NFS, rather than the default synced folder mechanism. This can
+  result in performance increases. By default, this is false.
+
+* `recipe_url` (string) - URL to an archive of cookbooks that Chef will download
+  and use.
+
+* `roles_path` (string or array) - A list of paths where roles are defined.
+  By default this is empty.
 
 ## Specifying a Run List
 
