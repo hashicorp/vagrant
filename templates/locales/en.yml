@@ -42,6 +42,17 @@ en:
       to automatically delete Chef nodes and clients.
     chef_run_list_empty: |-
       Warning: Chef run list is empty. This may not be what you want.
+
+    docker_installing: |-
+      Installing Docker onto machine...
+    docker_pulling_images:
+      Pulling Docker images...
+    docker_starting_containers:
+      Starting Docker containers...
+    docker_auto_start_not_available: |-
+      Unable to configure automatic restart of Docker containers on
+      the guest machine
+
     provisioner_cleanup: |-
       Running cleanup tasks for '%{name}' provisioner...
 
