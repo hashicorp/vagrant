@@ -4,8 +4,11 @@ module VagrantPlugins
       def provision
         ssh = @machine.ssh_info
 
-        # Connect with Vagrant user (unless --user or --private-key are overidden by 'raw_arguments')
-        options = %W[--private-key=#{ssh[:private_key_path]} --user=#{ssh[:username]}]
+        # Connect with Vagrant user (unless --user or --private-key are
+        # overidden by 'raw_arguments').
+        #
+        # TODO: multiple private key support
+        options = %W[--private-key=#{ssh[:private_key_path][0]} --user=#{ssh[:username]}]
 
         # Joker! Not (yet) supported arguments can be passed this way.
         options << "#{config.raw_arguments}" if config.raw_arguments
