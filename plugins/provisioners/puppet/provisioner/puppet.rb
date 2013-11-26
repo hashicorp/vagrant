@@ -45,7 +45,10 @@ module VagrantPlugins
 
         def provision
           # Check that the shared folders are properly shared
-          check = [manifests_guest_path]
+          check = []
+          if @config.manifests_path[0] == :host
+            check << manifests_guest_path
+          end
           @module_paths.each do |host_path, guest_path|
             check << guest_path
           end

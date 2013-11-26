@@ -69,10 +69,11 @@ module VagrantPlugins
 
           # Manifests path/file validation
           if manifests_path[0].to_sym == :host
-            expanded_path = File.expand_path(manifests_path[1], machine.env.root_path)
-            if expanded_path.directory?
+            expanded_path = Pathname.new(manifests_path[1]).
+              expand_path(machine.env.root_path)
+            if !expanded_path.directory?
               errors << I18n.t("vagrant.provisioners.puppet.manifests_path_missing",
-                               :path => this_expanded_manifests_path)
+                               :path => expanded_path.to_s)
             else
               expanded_manifest_file = expanded_path.join(manifest_file)
               if !expanded_manifest_file.file?
