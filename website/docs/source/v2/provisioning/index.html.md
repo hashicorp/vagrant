@@ -26,3 +26,14 @@ for provisioning.
 
 You can find the full list of built-in provisioners and usage of these
 provisioners in the navigational area to the left.
+
+<div class="alert alert-info">
+	<p>
+		<strong>`vagrant up` behaviour changes:</strong>
+        The way `vagrant up` behaves changed throughout the lifecycle of vagrant.
+        Older version of vagrant run the provisioners as part of every `vagrant up`
+        process. Newer version are only provisioning on the first boot. You can
+        force provisioning by either using `vagrant up --provision` or by running
+        the `vagrant provision` process after the machine has booted successfully.
+	</p>
+</div>
