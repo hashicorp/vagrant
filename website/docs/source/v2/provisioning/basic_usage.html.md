@@ -54,7 +54,7 @@ can take over later.
 
 ## Running Provisioners
 
-Provisioners are run in three cases: `vagrant up`, `vagrant reload`, and
+Provisioners are run in two cases: `vagrant up` if it's the first time the vm is bootet and
 `vagrant provision`.
 
 A `--no-provision` flag can be passed to `up` and `reload` if you don't
