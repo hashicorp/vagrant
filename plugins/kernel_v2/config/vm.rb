@@ -30,6 +30,7 @@ module VagrantPlugins
         @boot_timeout                 = UNSET_VALUE
         @box_download_client_cert     = UNSET_VALUE
         @box_download_insecure        = UNSET_VALUE
+        @box_url                      = UNSET_VALUE
         @graceful_halt_timeout        = UNSET_VALUE
         @guest                        = UNSET_VALUE
         @hostname                     = UNSET_VALUE
@@ -254,6 +255,7 @@ module VagrantPlugins
         @boot_timeout = 300 if @boot_timeout == UNSET_VALUE
         @box_download_client_cert = nil if @box_download_client_cert == UNSET_VALUE
         @box_download_insecure = false if @box_download_insecure == UNSET_VALUE
+        @box_url = nil if @box_url == UNSET_VALUE
         @graceful_halt_timeout = 300 if @graceful_halt_timeout == UNSET_VALUE
         @guest = nil if @guest == UNSET_VALUE
         @hostname = nil if @hostname == UNSET_VALUE
