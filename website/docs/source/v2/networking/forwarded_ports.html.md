@@ -28,12 +28,36 @@ end
 
 This will allow acessing port 80 on the guest via port 8080 on the host.
 
+## Options Reference
+
+This is a complete list of the options that are available for forwarded
+ports. Only the `guest` and `host` options are required. Below this section,
+there are more detailed examples of using these options.
+
+* `guest` (int) - The port on the guest that you want to be exposed on
+  the host. This can be any port.
+
+* `guest_ip` (string) - The guest IP to bind the forwarded port to. If
+  this is not set, the port will go to the every interface. By default,
+  this is empty.
+
+* `host` (int) - The port on the host that you want to use to access the
+  port on the guest. This must be greater than port 1024 unless Vagrant
+  is running as root (which is not recommended).
+
+* `host_ip` (string) - The IP on the host you want to bind the forwarded
+  port to. If not specified, it will be bound to every IP. By default,
+  this is empty.
+
+* `protocol` (string) - Either "udp" or "tcp". This specifies the protocol
+  that will be allowed through the forwared port. By default this is "tcp".
+
 ## Forwarded Port Protocols
 
 By default, any defined port will only forward the TCP protocol. As an optional
-third parameter, you may specify `protocol: 'udp'` in order to pass UDP 
-traffic. If a given port needs to be able to listen to the same port on both 
-protocols, you must define the port twice with each protocol specified, like 
+third parameter, you may specify `protocol: 'udp'` in order to pass UDP
+traffic. If a given port needs to be able to listen to the same port on both
+protocols, you must define the port twice with each protocol specified, like
 so:
 
 ```
