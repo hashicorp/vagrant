@@ -17,6 +17,7 @@ module VagrantPlugins
       attr_accessor :base_mac
       attr_accessor :boot_timeout
       attr_accessor :box
+      attr_accessor :client_cert
       attr_accessor :box_url
       attr_accessor :box_download_insecure
       attr_accessor :graceful_halt_timeout

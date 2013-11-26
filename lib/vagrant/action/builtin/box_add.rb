@@ -32,6 +32,7 @@ module Vagrant
           downloader_options[:continue] = true
           downloader_options[:insecure] = env[:box_download_insecure]
           downloader_options[:ui] = env[:ui]
+          downloader_options[:client_cert] = env[:box_client_cert]
 
           # If the temporary path exists, verify it is not too old. If its
           # too old, delete it first because the data may have changed.

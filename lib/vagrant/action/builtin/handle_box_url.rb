@@ -38,6 +38,7 @@ module Vagrant
             # raise a terrible runtime error.
             box_name = env[:machine].config.vm.box
             box_url  = env[:machine].config.vm.box_url
+            box_download_client_cert = env[:machine].config.vm.box_download_client_cert
             box_download_insecure = env[:machine].config.vm.box_download_insecure
 
             lock.synchronize do
@@ -61,10 +62,11 @@ module Vagrant
 
                 begin
                   env[:action_runner].run(Vagrant::Action.action_box_add, {
+                    :box_client_cert => box_download_client_cert,
                     :box_download_insecure => box_download_insecure,
                     :box_name     => box_name,
                     :box_provider => box_formats,
-                    :box_url      => box_url
+                    :box_url      => box_url,
                   })
                 rescue Errors::BoxAlreadyExists
                   # Just ignore this, since it means the next part will succeed!
