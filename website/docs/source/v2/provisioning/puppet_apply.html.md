@@ -64,6 +64,23 @@ end
 The path can be relative or absolute. If it is relative, it is relative
 to the project root.
 
+You can also specify a manifests path that is on the remote machine
+already, perhaps put in place by a shell provisioner. In this case, Vagrant
+won't attempt to upload the manifests directory. To specify a remote
+manifests path, use the following syntax:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.provision "puppet" do |puppet|
+    puppet.manifests_path = ["vm", "/path/to/manifests"]
+    puppet.manifest_file = "default.pp"
+  end
+end
+```
+
+It is a somewhat odd syntax, but the tuple (two-element array) says
+that the path is located in the "vm" at "/path/to/manifests".
+
 ## Modules
 
 Vagrant also supports provisioning with [Puppet modules](http://docs.puppetlabs.com/guides/modules.html).
