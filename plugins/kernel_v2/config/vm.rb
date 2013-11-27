@@ -18,6 +18,7 @@ module VagrantPlugins
       attr_accessor :boot_timeout
       attr_accessor :box
       attr_accessor :box_url
+      attr_accessor :box_download_ca_cert
       attr_accessor :box_download_client_cert
       attr_accessor :box_download_insecure
       attr_accessor :graceful_halt_timeout
@@ -28,6 +29,7 @@ module VagrantPlugins
 
       def initialize
         @boot_timeout                 = UNSET_VALUE
+        @box_download_ca_cert         = UNSET_VALUE
         @box_download_client_cert     = UNSET_VALUE
         @box_download_insecure        = UNSET_VALUE
         @box_url                      = UNSET_VALUE
@@ -253,6 +255,7 @@ module VagrantPlugins
       def finalize!
         # Defaults
         @boot_timeout = 300 if @boot_timeout == UNSET_VALUE
+        @box_download_ca_cert = nil if @box_download_ca_cert == UNSET_VALUE
         @box_download_client_cert = nil if @box_download_client_cert == UNSET_VALUE
         @box_download_insecure = false if @box_download_insecure == UNSET_VALUE
         @box_url = nil if @box_url == UNSET_VALUE

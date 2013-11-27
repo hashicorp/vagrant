@@ -40,8 +40,11 @@ module Vagrant
 
           box_name = env[:machine].config.vm.box
           box_url  = env[:machine].config.vm.box_url
+          box_download_ca_cert = env[:machine].config.vm.box_download_ca_cert
           box_download_client_cert = env[:machine].config.vm.box_download_client_cert
           box_download_insecure = env[:machine].config.vm.box_download_insecure
+
+          # TODO: expand ca cert path relative to root path
 
           lock.synchronize do
             # Check that we don't already have the box, which can happen
@@ -61,6 +64,7 @@ module Vagrant
 
             begin
               env[:action_runner].run(Vagrant::Action.action_box_add, {
+                :box_download_ca_cert => box_download_ca_cert,
                 :box_client_cert => box_download_client_cert,
                 :box_download_insecure => box_download_insecure,
                 :box_name     => box_name,
