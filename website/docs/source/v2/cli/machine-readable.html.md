@@ -100,6 +100,13 @@ with the machine-readable output.
 </tr>
 
 <tr>
+<td>cli-command</td>
+<td>
+	A subcommand of <code>vagrant</code> that is available.
+</td>
+</tr>
+
+<tr>
 <td>provider-name</td>
 <td>
 	The provider name of the target machine.

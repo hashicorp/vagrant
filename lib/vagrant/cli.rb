@@ -65,6 +65,7 @@ module Vagrant
 
         commands.keys.sort.each do |key|
           o.separator "     #{key.ljust(longest+2)} #{commands[key]}"
+          @env.ui.machine("cli-command", key.dup)
         end
 
         o.separator ""
