@@ -20,6 +20,7 @@ module Vagrant
 
         # Get the various optional values
         options     ||= {}
+        @ca_cert     = options[:ca_cert]
         @continue    = options[:continue]
         @insecure    = options[:insecure]
         @ui          = options[:ui]
@@ -42,6 +43,7 @@ module Vagrant
           "--output", @destination,
         ]
 
+        options += ["--cacert", @ca_cert] if @ca_cert
         options += ["--continue-at", "-"] if @continue
         options << "--insecure" if @insecure
         options << "--cert" << @client_cert if @client_cert

@@ -106,6 +106,7 @@ module Vagrant
           end
 
           downloader_options = {}
+          downloader_options[:ca_cert] = env[:box_download_ca_cert]
           downloader_options[:continue] = true
           downloader_options[:insecure] = env[:box_download_insecure]
           downloader_options[:ui] = env[:ui]

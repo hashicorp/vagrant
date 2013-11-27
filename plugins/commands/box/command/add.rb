@@ -23,6 +23,10 @@ module VagrantPlugins
               options[:insecure] = i
             end
 
+            o.on("--cacert certfile", String, "CA certificate") do |c|
+              options[:ca_cert] = c
+            end
+
             o.on("--cert certfile", String,
                  "The client SSL cert") do |c|
               options[:client_cert] = c
@@ -49,6 +53,7 @@ module VagrantPlugins
             :box_url      => argv[1],
             :box_clean    => options[:clean],
             :box_force    => options[:force],
+            :box_download_ca_cert => options[:ca_cert],
             :box_download_client_cert => options[:client_cert],
             :box_download_insecure => options[:insecure],
           })
