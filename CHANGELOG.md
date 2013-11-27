@@ -78,6 +78,8 @@ BUG FIXES:
     failure during `up` from suspended. [GH-2479]
   - provisioners/chef: Chef client encrypted data bag secrets are now
     uploaded to the provisioning path to avoid perm issues. [GH-1246]
+  - provisioners/chef: Verify environment paths exist in config
+    validation step. [GH-2381]
   - provisioners/salt: Bootstrap on FreeBSD systems work. [GH-2525]
 
 ## 1.3.5 (October 15, 2013)

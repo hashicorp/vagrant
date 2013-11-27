@@ -70,6 +70,16 @@ module VagrantPlugins
           errors << I18n.t("vagrant.config.chef.environment_path_required") if \
             environment && environments_path.empty?
           { "chef solo provisioner" => errors }
+
+          environments_path.each do |type, raw_path|
+            next if type != :host
+
+            path = Pathname.new(raw_path).expand_path(machine.env.root_path)
+            if !path.directory?j
+              errors << I18n.t("vagrant.config.chef.environment_path_missing",
+                path: raw_path.to_s)
+            end
+          end
         end
 
         protected

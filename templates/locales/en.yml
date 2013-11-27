@@ -699,7 +699,10 @@ en:
         error_empty: "`%{field}` must be not be empty."
       chef:
         cookbooks_path_empty: "Must specify a cookbooks path for chef solo."
-        environment_path_required: "When 'environment' is specified, you must provide 'environments_path'."
+        environment_path_missing: |-
+          Environment path not found: %{path}
+        environment_path_required: |-
+          When 'environment' is specified, you must provide 'environments_path'.
         cookbooks_path_missing: |-
           Cookbook path doesn't exist: %{path}
         custom_config_path_missing: |-
