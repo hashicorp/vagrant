@@ -54,8 +54,8 @@ can take over later.
 
 ## Running Provisioners
 
-Provisioners are run in three cases: `vagrant up`, `vagrant reload`, and
-`vagrant provision`.
+Provisioners are run in three cases: the initial `vagrant up`, `vagrant
+provision`, and `vagrant reload --provision`.
 
 A `--no-provision` flag can be passed to `up` and `reload` if you don't
 want to run provisioners. Likewise, you can pass `--provision` to force

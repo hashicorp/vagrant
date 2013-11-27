@@ -26,3 +26,21 @@ for provisioning.
 
 You can find the full list of built-in provisioners and usage of these
 provisioners in the navigational area to the left.
+
+## When Provisioning Happens
+
+Provisioning happens at certain points during the lifetime of your
+Vagrant environment:
+
+* On the first `vagrant up` that creates the environment, provisioning is run.
+  If the environment was already created and the up is just resuming a machine
+  or booting it up, they won't run unless the `--provision` flag is explicitly
+  provided.
+
+* When `vagrant provision` is used on a running environment.
+
+* When `vagrant reload --provision` is called. The `--provision` flag must
+  be present to force provisioning.
+
+You can also bring up your environment and explicitly _not_ run provisioners
+by specifying `--no-provision`.
