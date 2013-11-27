@@ -375,6 +375,16 @@ module VagrantPlugins
         errors << I18n.t("vagrant.config.vm.hostname_invalid_characters") if \
           @hostname && @hostname !~ /^[a-z0-9][-.a-z0-9]+$/i
 
+        if box_download_ca_cert
+          path = Pathname.new(box_download_ca_cert).
+            expand_path(machine.env.root_path)
+          if !path.file?
+            errors << I18n.t(
+              "vagrant.config.vm.box_download_ca_cert_not_found",
+              path: box_download_ca_cert)
+          end
+        end
+
         has_nfs = false
         used_guest_paths = Set.new
         @__synced_folders.each do |id, options|

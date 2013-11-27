@@ -44,7 +44,12 @@ module Vagrant
           box_download_client_cert = env[:machine].config.vm.box_download_client_cert
           box_download_insecure = env[:machine].config.vm.box_download_insecure
 
-          # TODO: expand ca cert path relative to root path
+          # Expand the CA cert file relative to the Vagrantfile path, if
+          # there is one.
+          if box_download_ca_cert
+            box_download_ca_cert = File.expand_path(
+              box_download_ca_cert, env[:machine].env.root_path)
+          end
 
           lock.synchronize do
             # Check that we don't already have the box, which can happen
