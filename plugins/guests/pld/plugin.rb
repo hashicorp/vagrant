@@ -11,6 +11,11 @@ module VagrantPlugins
         Guest
       end
 
+      guest_capability("pld", "change_host_name") do
+        require_relative "cap/change_host_name"
+        Cap::ChangeHostName
+      end
+
       guest_capability("pld", "network_scripts_dir") do
         require_relative "cap/network_scripts_dir"
         Cap::NetworkScriptsDir
