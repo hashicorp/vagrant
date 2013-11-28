@@ -6,7 +6,7 @@ module Vagrant
   module Config
     module V2
       # This is the root configuration class. An instance of this is what
-      # is passed into version 1 Vagrant configuration blocks.
+      # is passed into version 2 Vagrant configuration blocks.
       class Root
         # Initializes a root object that maps the given keys to specific
         # configuration classes.
