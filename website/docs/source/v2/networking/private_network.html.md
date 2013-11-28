@@ -54,7 +54,7 @@ VirtualBox [internal network](https://www.virtualbox.org/manual/ch06.html#networ
 By default, private networks are host-only networks, because those are the
 easiest to work with. However, internal networks can be enabled as well.
 
-To speciay a private network as an internal network for VirtualBox
+To specify a private network as an internal network for VirtualBox
 use the `virtualbox__intnet` option with the network. The `virtualbox__`
 (double underscore) prefix tells Vagrant that this option is only for the
 VirtualBox provider.
