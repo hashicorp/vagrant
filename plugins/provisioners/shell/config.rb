@@ -55,7 +55,7 @@ module VagrantPlugins
           errors << I18n.t("vagrant.provisioners.shell.upload_path_not_set")
         end
 
-        unless args_valid?
+        if !args_valid?
           errors << I18n.t("vagrant.provisioners.shell.args_bad_type")
         end
 
@@ -65,7 +65,7 @@ module VagrantPlugins
       # Args are optional, but if they're provided we only support them as a
       # string or as an array.
       def args_valid?
-        return true unless args
+        return true if !args
         args.is_a?(String) || args.is_a?(Array)
       end
 
