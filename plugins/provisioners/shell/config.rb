@@ -55,12 +55,18 @@ module VagrantPlugins
           errors << I18n.t("vagrant.provisioners.shell.upload_path_not_set")
         end
 
-        # If there are args and its not a string, that is a problem
-        if args && (!args.is_a?(String) || !args.is_a?(Array))
+        unless args_valid?
           errors << I18n.t("vagrant.provisioners.shell.args_bad_type")
         end
 
         { "shell provisioner" => errors }
+      end
+
+      # Args are optional, but if they're provided we only support them as a
+      # string or as an array.
+      def args_valid?
+        return true unless args
+        args.is_a?(String) || args.is_a?(Array)
       end
 
       def remote?
