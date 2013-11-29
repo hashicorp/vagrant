@@ -27,7 +27,7 @@ module VagrantPlugins
 
       def run(containers)
         containers.each do |name, config|
-          cids_dir = "/var/lib/vocker/cids"
+          cids_dir = "/var/lib/vagrant/cids"
           config[:cidfile] ||= "#{cids_dir}/#{Digest::SHA1.hexdigest name}"
 
           @machine.communicate.sudo("mkdir -p #{cids_dir}")
