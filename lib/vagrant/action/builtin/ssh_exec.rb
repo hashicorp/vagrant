@@ -29,8 +29,10 @@ module Vagrant
           raise Errors::SSHNotReady if info.nil?
 
           if info[:private_key_path]
-            # Check the SSH key permissions
-            SSH.check_key_permissions(Pathname.new(info[:private_key_path]))
+            # Check SSH key permissions
+            info[:private_key_path].each do |path|
+              SSH.check_key_permissions(Pathname.new(path))
+            end
           end
 
           # Exec!

@@ -9,6 +9,9 @@ module Vagrant
       # mirror the output to the UI. The resulting exit status of the command
       # will exist in the `:ssh_run_exit_status` key in the environment.
       class SSHRun
+        # For quick access to the `SSH` class.
+        include Vagrant::Util
+
         def initialize(app, env)
           @app    = app
           @logger = Log4r::Logger.new("vagrant::action::builtin::ssh_run")
@@ -23,8 +26,10 @@ module Vagrant
           raise Errors::SSHNotReady if info.nil?
 
           if info[:private_key_path]
-            # Check the SSH key permissions
-            Util::SSH.check_key_permissions(Pathname.new(info[:private_key_path]))
+            # Check SSH key permissions
+            info[:private_key_path].each do |path|
+              SSH.check_key_permissions(Pathname.new(path))
+            end
           end
 
           # Execute!
