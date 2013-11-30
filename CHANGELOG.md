@@ -84,6 +84,8 @@ BUG FIXES:
   - provisioners/chef: Verify environment paths exist in config
     validation step. [GH-2381]
   - provisioners/salt: Bootstrap on FreeBSD systems work. [GH-2525]
+  - provisioners/salt: Extra args for bootstrap are put in the proper
+    location. [GH-2558]
 
 ## 1.3.5 (October 15, 2013)
 
