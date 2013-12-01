@@ -7,7 +7,7 @@ sidebar_current: "gettingstarted-providers"
 
 In this getting started guide, your project was always backed with
 [VirtualBox](http://www.virtualbox.org). But Vagrant can work with
-a wide variety of backend providers, such as [VMware Fusion](/v2/vmware-fusion/index.html),
+a wide variety of backend providers, such as [VMware](/v2/vmware/index.html),
 [AWS](http://github.com/mitchellh/vagrant-aws), and more. Read the page
 of each provider for more information on how to set them up.
 
