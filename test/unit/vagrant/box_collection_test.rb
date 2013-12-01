@@ -123,14 +123,18 @@ describe Vagrant::BoxCollection do
       CHECKSUM_OFFSET = 148
       CHECKSUM_LENGTH = 8
 
-      Tempfile.new(['vagrant_testing', '.tar']) do |f|
+      f = Tempfile.new(['vagrant_testing', '.tar'])
+      begin
         # Corrupt the tar by writing over the checksum field
         f.seek(CHECKSUM_OFFSET)
         f.write("\0"*CHECKSUM_LENGTH)
         f.close
 
-        expect { instance.add(path, "foo", :virtualbox) }.
+        expect { instance.add(f.path, "foo", :virtualbox) }.
           to raise_error(Vagrant::Errors::BoxUnpackageFailure)
+      ensure
+        f.close
+        f.unlink
       end
     end
   end
