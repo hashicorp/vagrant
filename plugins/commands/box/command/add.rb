@@ -11,6 +11,14 @@ module VagrantPlugins
             o.banner = "Usage: vagrant box add <name> <url> [--provider provider] [-h]"
             o.separator ""
 
+            o.on("--checksum VALUE", String, "Checksum") do |c|
+              options[:checksum] = c
+            end
+
+            o.on("--checksum-type VALUE", String, "Checksum type") do |c|
+              options[:checksum_type] = c
+            end
+
             o.on("-c", "--clean", "Remove old temporary download if it exists.") do |c|
               options[:clean] = c
             end
@@ -51,6 +59,8 @@ module VagrantPlugins
             :box_name     => argv[0],
             :box_provider => provider,
             :box_url      => argv[1],
+            :box_checksum_type => options[:checksum_type],
+            :box_checksum => options[:checksum],
             :box_clean    => options[:clean],
             :box_force    => options[:force],
             :box_download_ca_cert => options[:ca_cert],

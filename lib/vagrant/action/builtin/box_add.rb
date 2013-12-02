@@ -18,6 +18,22 @@ module Vagrant
         def call(env)
           @download_interrupted = false
 
+          # Determine the checksum type to use
+          checksum = env[:box_checksum]
+          checksum_klass = case env[:box_checksum_type]
+          when nil
+            nil
+          when :md5
+            Digest::MD5
+          when :sha1
+            Digest::SHA1
+          when :sha256
+            Digest::SHA2
+          else
+            raise Errors::BoxChecksumInvalidType,
+              type: env[:box_checksum_type].to_s
+          end
+
           # Go through each URL and attempt to download it
           download_error = nil
           download_url = nil
@@ -44,6 +60,18 @@ module Vagrant
 
           # If all the URLs failed, then raise an exception
           raise download_error if download_error
+
+          if checksum_klass
+            @logger.info("Validating checksum with #{checksum_klass}")
+            @logger.info("Expected checksum: #{checksum}")
+
+            actual = FileChecksum.new(@temp_path, checksum_klass).checksum
+            if actual != checksum
+              raise Errors::BoxChecksumMismatch,
+                actual: actual,
+                expected: checksum
+            end
+          end
 
           box_formats = env[:box_provider]
           if box_formats
