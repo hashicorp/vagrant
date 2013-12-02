@@ -2,6 +2,7 @@ require "digest/sha1"
 require "log4r"
 
 require "vagrant/util/downloader"
+require "vagrant/util/file_checksum"
 require "vagrant/util/platform"
 
 module Vagrant
