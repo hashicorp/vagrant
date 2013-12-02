@@ -44,6 +44,15 @@ after the initial download.
 * `--cert CERTFILE` - A client certificate to use when downloading the box, if
   necessary.
 
+* `--checksum VALUE` - A checksum for the box that is downloaded. If specified,
+  Vagrant will compare this checksum to what is actually downloaded and will
+  error if the checksums do not match. This is highly recommended since
+  box files are so large. If this is specified, `--checksum-type` must
+  also be specified.
+
+* `--checksum-type TYPE` - The type of checksum that `--checksum` is if it
+  is specified. Supported values are currently "md5", "sha1", and "sha256".
+
 * `--clean` - If given, Vagrant will remove any old temporary files from
   prior downloads of the same URL. This is useful if you don't want Vagrant
   to resume a download from a previous point, perhaps because the contents
