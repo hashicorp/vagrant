@@ -11,6 +11,7 @@ module VagrantPlugins
       class ChefSolo < Base
         extend Vagrant::Util::Counter
         include Vagrant::Util::Counter
+        attr_reader :nodes_folders
         attr_reader :environments_folders
         attr_reader :cookbook_folders
         attr_reader :role_folders
@@ -26,17 +27,19 @@ module VagrantPlugins
           @role_folders      = expanded_folders(@config.roles_path, "roles")
           @data_bags_folders = expanded_folders(@config.data_bags_path, "data_bags")
           @environments_folders = expanded_folders(@config.environments_path, "environments")
+          @nodes_folders = expanded_folders(@config.nodes_path, "nodes")
 
           share_folders(root_config, "csc", @cookbook_folders)
           share_folders(root_config, "csr", @role_folders)
           share_folders(root_config, "csdb", @data_bags_folders)
           share_folders(root_config, "cse", @environments_folders)
+          share_folders(root_config, "csn", @nodes_folders)
         end
 
         def provision
           # Verify that the proper shared folders exist.
           check = []
-          [@cookbook_folders, @role_folders, @data_bags_folders, @environments_folders].each do |folders|
+          [@cookbook_folders, @role_folders, @data_bags_folders, @environments_folders, @nodes_folders].each do |folders|
             folders.each do |type, local_path, remote_path|
               # We only care about checking folders that have a local path, meaning
               # they were shared from the local machine, rather than assumed to
@@ -127,8 +130,10 @@ module VagrantPlugins
           roles_path = guest_paths(@role_folders).first
           data_bags_path = guest_paths(@data_bags_folders).first
           environments_path = guest_paths(@environments_folders).first
+          nodes_path = guest_paths(@nodes_folders).first
           setup_config("provisioners/chef_solo/solo", "solo.rb", {
             :node_name => @config.node_name,
+            :nodes_path => nodes_path,
             :cookbooks_path => cookbooks_path,
             :recipe_url => @config.recipe_url,
             :roles_path => roles_path,

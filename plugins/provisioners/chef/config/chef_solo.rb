@@ -11,6 +11,7 @@ module VagrantPlugins
         attr_accessor :environments_path
         attr_accessor :environment
         attr_accessor :nfs
+        attr_accessor :nodes_path
         attr_accessor :recipe_url
         attr_accessor :roles_path
 
@@ -24,6 +25,7 @@ module VagrantPlugins
           @recipe_url                = UNSET_VALUE
           @roles_path                = UNSET_VALUE
           @nfs                       = UNSET_VALUE
+          @nodes_path                = UNSET_VALUE
           @encrypted_data_bag_secret = UNSET_VALUE
           @encrypted_data_bag_secret_key_path = UNSET_VALUE
         end
@@ -47,6 +49,8 @@ module VagrantPlugins
           @data_bags_path    = [] if @data_bags_path == UNSET_VALUE
           @roles_path        = [] if @roles_path == UNSET_VALUE
           @environments_path = [] if @environments_path == UNSET_VALUE
+          @nodes_path        = [] if @nodes_path == UNSET_VALUE
+
           @environments_path = [@environments_path].flatten
 
           # Make sure the path is an array.
@@ -54,6 +58,7 @@ module VagrantPlugins
           @data_bags_path    = prepare_folders_config(@data_bags_path)
           @roles_path        = prepare_folders_config(@roles_path)
           @environments_path = prepare_folders_config(@environments_path)
+          @nodes_path        = prepare_folders_config(@nodes_path)
 
           @nfs = false if @nfs == UNSET_VALUE
           @encrypted_data_bag_secret = "/tmp/encrypted_data_bag_secret" if \
