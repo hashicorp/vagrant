@@ -16,7 +16,7 @@ module VagrantPlugins
             end
 
             o.on("--checksum-type VALUE", String, "Checksum type") do |c|
-              options[:checksum_type] = c
+              options[:checksum_type] = c.to_sym
             end
 
             o.on("-c", "--clean", "Remove old temporary download if it exists.") do |c|

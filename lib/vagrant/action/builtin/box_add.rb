@@ -19,8 +19,8 @@ module Vagrant
           @download_interrupted = false
 
           # Determine the checksum type to use
-          checksum = env[:box_checksum] || ""
-          checksum_klass = case env[:box_checksum_type]
+          checksum = (env[:box_checksum] || "").to_s
+          checksum_klass = case env[:box_checksum_type].to_sym
           when nil
             nil
           when :md5

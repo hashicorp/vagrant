@@ -270,6 +270,10 @@ module VagrantPlugins
         @hostname = nil if @hostname == UNSET_VALUE
         @hostname = @hostname.to_s if @hostname
 
+        if @box_download_checksum_type
+          @box_download_checksum_type = @box_download_checksum_type.to_sym
+        end
+
         # Make sure the box URL is an array if it is set
         if @box_url && !@box_url.is_a?(Array)
           @box_url = [@box_url]
