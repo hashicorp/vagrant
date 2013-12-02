@@ -72,7 +72,7 @@ describe Vagrant::BoxCollection do
 
       # Attempt to add the box with the same name
       box_path = environment.box2_file(prev_box_provider, metadata: { "replaced" => "yes" })
-      box = instance.add(box_path, prev_box_name, nil, true)
+      box = instance.add(box_path, prev_box_name, nil, force: true)
       box.metadata["replaced"].should == "yes"
     end
 
