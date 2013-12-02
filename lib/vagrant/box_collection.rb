@@ -70,7 +70,7 @@ module Vagrant
     #   the box represents will be added.
     # @param [Boolean] force If true, any existing box with the same name
     #   and provider will be replaced.
-    def add(path, name, formats=nil, force: false)
+    def add(path, name, formats=nil, force=false)
       formats = [formats] if formats && !formats.is_a?(Array)
       provider = nil
 
