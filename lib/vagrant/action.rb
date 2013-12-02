@@ -25,6 +25,7 @@ module Vagrant
       autoload :SSHExec, "vagrant/action/builtin/ssh_exec"
       autoload :SSHRun,  "vagrant/action/builtin/ssh_run"
       autoload :SyncedFolders, "vagrant/action/builtin/synced_folders"
+      autoload :SyncedFolderCleanup, "vagrant/action/builtin/synced_folder_cleanup"
       autoload :WaitForCommunicator, "vagrant/action/builtin/wait_for_communicator"
     end
 

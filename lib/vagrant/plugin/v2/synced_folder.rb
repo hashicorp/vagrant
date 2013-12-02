@@ -11,6 +11,9 @@ module Vagrant
 
         def enable(machine, folders, opts)
         end
+
+        def cleanup(machine)
+        end
       end
     end
   end
