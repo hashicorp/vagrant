@@ -19,7 +19,7 @@ module Vagrant
           @download_interrupted = false
 
           # Determine the checksum type to use
-          checksum = env[:box_checksum]
+          checksum = env[:box_checksum] || ""
           checksum_klass = case env[:box_checksum_type]
           when nil
             nil
@@ -65,6 +65,8 @@ module Vagrant
             @logger.info("Validating checksum with #{checksum_klass}")
             @logger.info("Expected checksum: #{checksum}")
 
+            env[:ui].info(I18n.t("vagrant.actions.box.add.checksumming",
+              name: env[:box_name]))
             actual = FileChecksum.new(@temp_path, checksum_klass).checksum
             if actual != checksum
               raise Errors::BoxChecksumMismatch,

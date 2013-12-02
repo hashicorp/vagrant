@@ -1133,6 +1133,8 @@ en:
             Extracting box...
           added: |-
             Successfully added box '%{name}' with provider '%{provider}'!
+          checksumming: |-
+            Calculating and comparing box checksum...
         destroy:
           destroying: "Deleting box '%{name}'..."
         download:
