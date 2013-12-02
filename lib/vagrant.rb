@@ -1,9 +1,3 @@
-# Do a Ruby version check early so we can fail fast before any additional
-# files are loaded.
-if RUBY_VERSION < "2.0.0"
-  abort "Vagrant requires Ruby 2.0+"
-end
-
 require 'log4r'
 require 'rubygems'
 
