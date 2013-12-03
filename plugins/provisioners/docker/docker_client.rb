@@ -65,40 +65,12 @@ module VagrantPlugins
       end
 
       def create_container(config)
-        # DISCUSS: Does this really belong here?
-        ensure_bind_mounts_exist(config)
-
         args = "-cidfile=#{config[:cidfile]} -d "
-        args << prepare_run_arguments(config)
+        args << config[:args] if config[:args]
         @machine.communicate.sudo %[
           rm -f #{config[:cidfile]}
           docker run #{args} #{config[:image]} #{config[:cmd]}
         ]
-      end
-
-      private
-
-      def ensure_bind_mounts_exist(config)
-        Array(config[:volumes]).each do |volume|
-          if volume =~ /(.+):.+/
-            guest_vm_path = $1
-            @machine.communicate.sudo "mkdir -p #{guest_vm_path}"
-          end
-        end
-      end
-
-      def prepare_run_arguments(config)
-        args = []
-
-        args << "-dns=#{config[:dns]}"            if config[:dns]
-        args << "-name=#{config[:name]}"          if config[:name]
-        args << "#{config[:additional_run_args]}" if config[:additional_run_args]
-
-        args += Array(config[:volumes]).map { |volume| "-v #{volume}" }
-        args += Array(config[:ports]).map   { |port| "-p #{port}" }
-        args += Array(config[:links]).map   { |link| "-link #{link}" }
-
-        args.compact.flatten.join ' '
       end
     end
   end
