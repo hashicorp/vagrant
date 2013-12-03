@@ -120,6 +120,14 @@ module Vagrant
       error_key(:already_exists, "vagrant.actions.box.unpackage")
     end
 
+    class BoxChecksumInvalidType < VagrantError
+      error_key(:box_checksum_invalid_type)
+    end
+
+    class BoxChecksumMismatch < VagrantError
+      error_key(:box_checksum_mismatch)
+    end
+
     class BoxConfigChangingBox < VagrantError
       error_key(:box_config_changing_box)
     end

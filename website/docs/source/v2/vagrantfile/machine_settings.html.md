@@ -23,6 +23,23 @@ the installed boxes on the system.
 
 <hr>
 
+`config.vm.box_download_checksum` - The checksum of the box specified by
+`config.vm.box_url`. If not specified, no checksum comparison will be done.
+If specified, Vagrant will compare the checksum of the downloaded box to
+this value and error if they do not match. Checksum checking is only done
+when Vagrant must download the box.
+
+If this is specified, then `config.vm.box_download_checksum_type` must
+also be specified.
+
+<hr>
+
+`config.vm.box_download_checksum_type` - The type of checksum specified
+by `config.vm.box_download_checksum` (if any). Supported values are
+currently "md5", "sha1", and "sha256".
+
+<hr>
+
 `config.vm.box_download_client_cert` - Path to a client certificate to
 use when downloading the box, if it is necessary. By default, no client
 certificate is used to download the box.

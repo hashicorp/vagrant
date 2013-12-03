@@ -19,6 +19,8 @@ module VagrantPlugins
       attr_accessor :box
       attr_accessor :box_url
       attr_accessor :box_download_ca_cert
+      attr_accessor :box_download_checksum
+      attr_accessor :box_download_checksum_type
       attr_accessor :box_download_client_cert
       attr_accessor :box_download_insecure
       attr_accessor :graceful_halt_timeout
@@ -30,6 +32,8 @@ module VagrantPlugins
       def initialize
         @boot_timeout                 = UNSET_VALUE
         @box_download_ca_cert         = UNSET_VALUE
+        @box_download_checksum        = UNSET_VALUE
+        @box_download_checksum_type   = UNSET_VALUE
         @box_download_client_cert     = UNSET_VALUE
         @box_download_insecure        = UNSET_VALUE
         @box_url                      = UNSET_VALUE
@@ -256,6 +260,8 @@ module VagrantPlugins
         # Defaults
         @boot_timeout = 300 if @boot_timeout == UNSET_VALUE
         @box_download_ca_cert = nil if @box_download_ca_cert == UNSET_VALUE
+        @box_download_checksum = nil if @box_download_checksum == UNSET_VALUE
+        @box_download_checksum_type = nil if @box_download_checksum_type == UNSET_VALUE
         @box_download_client_cert = nil if @box_download_client_cert == UNSET_VALUE
         @box_download_insecure = false if @box_download_insecure == UNSET_VALUE
         @box_url = nil if @box_url == UNSET_VALUE
@@ -263,6 +269,10 @@ module VagrantPlugins
         @guest = nil if @guest == UNSET_VALUE
         @hostname = nil if @hostname == UNSET_VALUE
         @hostname = @hostname.to_s if @hostname
+
+        if @box_download_checksum_type
+          @box_download_checksum_type = @box_download_checksum_type.to_sym
+        end
 
         # Make sure the box URL is an array if it is set
         if @box_url && !@box_url.is_a?(Array)
@@ -382,6 +392,16 @@ module VagrantPlugins
             errors << I18n.t(
               "vagrant.config.vm.box_download_ca_cert_not_found",
               path: box_download_ca_cert)
+          end
+        end
+
+        if box_download_checksum_type
+          if box_download_checksum == ""
+            errors << I18n.t("vagrant.config.vm.box_download_checksum_blank")
+          end
+        else
+          if box_download_checksum != ""
+            errors << I18n.t("vagrant.config.vm.box_download_checksum_notblank")
           end
         end
 
