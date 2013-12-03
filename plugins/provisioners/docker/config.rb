@@ -20,22 +20,12 @@ module VagrantPlugins
         @images += images.map(&:to_s)
       end
 
-      def run(*args)
-        container_name = args.shift
-        params         = {}
-
-        if args.empty?
-          params[:image] = container_name
-        elsif args.first.is_a?(String)
-          params[:image] = args.shift
-          params[:cmd]   = container_name
-        else
-          params = args.shift
-          params[:cmd] ||= container_name
-        end
+      def run(name, **options)
+        params = options.dup
+        params[:image] = name
 
         # TODO: Validate provided parameters before assignment
-        @containers[container_name.to_s] = params
+        @containers[name.to_s] = params
       end
 
       def finalize!

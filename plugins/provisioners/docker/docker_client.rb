@@ -30,8 +30,11 @@ module VagrantPlugins
           cids_dir = "/var/lib/vagrant/cids"
           config[:cidfile] ||= "#{cids_dir}/#{Digest::SHA1.hexdigest name}"
 
+          @machine.ui.info(I18n.t("vagrant.docker_running", name: name))
           @machine.communicate.sudo("mkdir -p #{cids_dir}")
-          run_container({name: name}.merge config)
+          run_container({
+            name: name
+          }.merge(config))
         end
       end
 
