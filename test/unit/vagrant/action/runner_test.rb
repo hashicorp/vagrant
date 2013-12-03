@@ -12,6 +12,16 @@ describe Vagrant::Action::Runner do
     expect { instance.run(callable) }.to raise_error(Exception, "BOOM")
   end
 
+  it "should be able to use a Method instance as a callable" do
+    klass = Class.new do
+      def action(env)
+        raise Exception, "BANG"
+      end
+    end
+    callable = klass.new.method(:action)
+    expect { instance.run(callable) }.to raise_error(Exception, "BANG")
+  end
+
   it "should be able to use a Class as a callable" do
     callable = Class.new do
       def initialize(app, env)
