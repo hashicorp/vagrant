@@ -34,9 +34,13 @@ module VagrantPlugins
         @containers[container_name.to_s] = params
       end
 
+      def finalize!
+        @version = @version.to_sym
+      end
+
       def merge(other)
         super.tap do |result|
-          result.pull_images *(other.images + self.images)
+          result.pull_images(*(other.images + self.images))
         end
       end
     end
