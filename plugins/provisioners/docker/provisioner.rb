@@ -25,9 +25,7 @@ module VagrantPlugins
 
         # Attempt to start service if not running
         @client.start_service
-        unless @client.daemon_running?
-          raise DockerError, :not_running
-        end
+        raise DockerError, :not_running if !@client.daemon_running?
 
         if config.images.any?
           @machine.ui.info(I18n.t("vagrant.docker_pulling_images"))
