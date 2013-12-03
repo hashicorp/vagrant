@@ -12,6 +12,7 @@ module VagrantPlugins
     class Provisioner < Vagrant.plugin("2", :provisioner)
       def initialize(machine, config, installer = nil, client = nil)
         super(machine, config)
+
         # TODO: Rename to installer / client (drop docker suffix)
         @installer = installer || DockerInstaller.new(@machine, config.version)
         @client    = client    || DockerClient.new(@machine)

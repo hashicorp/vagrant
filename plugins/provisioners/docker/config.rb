@@ -12,6 +12,10 @@ module VagrantPlugins
         @version    = :latest
       end
 
+      def images=(images)
+        @images = Set.new(images)
+      end
+
       def pull_images(*images)
         @images += images.map(&:to_s)
       end
