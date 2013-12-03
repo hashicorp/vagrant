@@ -47,6 +47,8 @@ en:
       Installing Docker onto machine...
     docker_pulling_images:
       Pulling Docker images...
+    docker_pulling_single: |-
+      -- Image: %{name}
     docker_running: |-
       -- Container: %{name}
     docker_starting_containers:

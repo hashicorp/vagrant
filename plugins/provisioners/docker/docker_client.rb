@@ -10,6 +10,7 @@ module VagrantPlugins
       def pull_images(*images)
         @machine.communicate.tap do |comm|
           images.each do |image|
+            @machine.ui.info(I18n.t("vagrant.docker_pulling_single", name: image))
             comm.sudo("docker images | grep -q #{image} || docker pull #{image}")
           end
         end
