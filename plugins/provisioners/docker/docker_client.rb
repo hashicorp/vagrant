@@ -39,7 +39,7 @@ module VagrantPlugins
       end
 
       def run_container(config)
-        raise "Container's cidfile was not provided!" unless config[:cidfile]
+        raise "Container's cidfile was not provided!" if !config[:cidfile]
 
         id = "$(cat #{config[:cidfile]})"
 
@@ -55,7 +55,7 @@ module VagrantPlugins
       end
 
       def start_container(id)
-        unless container_running?(id)
+        if !container_running?(id)
           @machine.communicate.sudo("docker start #{id}")
         end
       end
