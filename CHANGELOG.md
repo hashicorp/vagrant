@@ -50,6 +50,7 @@ IMPROVEMENTS:
     a random number to try to avoid conflicts in CI environments. [GH-2482]
   - providers/virtualbox: customizations via VBoxManage are retried, avoiding
     VirtualBox flakiness [GH-2483]
+  - providers/virtualbox: NFS works with DHCP host-only networks now. [GH-2560]
   - provisioners/ansible: allow files for extra vars [GH-2366]
   - provisioners/puppet: client cert and private key can now be specified
     for the puppet server provisioner. [GH-902]
