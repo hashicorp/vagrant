@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
   s.add_dependency "erubis", "~> 2.7.0"
   s.add_dependency "i18n", "~> 0.6.0"
   s.add_dependency "log4r", "~> 1.1.9"
-  s.add_dependency "net-ssh", ">= 2.6.6"
+  s.add_dependency "net-ssh", "~> 2.7.0"
   s.add_dependency "net-scp", "~> 1.1.0"
 
   s.add_development_dependency "rake"
