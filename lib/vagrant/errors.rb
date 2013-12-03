@@ -568,6 +568,10 @@ module Vagrant
       error_key(:virtualbox_broken_version_040214)
     end
 
+    class VirtualBoxGuestPropertyNotFound < VagrantError
+      error_key(:virtualbox_guest_property_not_found)
+    end
+
     class VirtualBoxInvalidVersion < VagrantError
       error_key(:virtualbox_invalid_version)
     end
