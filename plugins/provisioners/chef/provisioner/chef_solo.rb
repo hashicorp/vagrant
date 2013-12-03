@@ -131,6 +131,7 @@ module VagrantPlugins
           data_bags_path = guest_paths(@data_bags_folders).first
           environments_path = guest_paths(@environments_folders).first
           nodes_path = guest_paths(@nodes_folders).first
+          
           setup_config("provisioners/chef_solo/solo", "solo.rb", {
             :node_name => @config.node_name,
             :nodes_path => nodes_path,
@@ -141,6 +142,7 @@ module VagrantPlugins
             :encrypted_data_bag_secret => @config.encrypted_data_bag_secret,
             :environments_path => environments_path,
             :environment => @config.environment,
+            :local_mode => @config.local_mode
           })
         end
 
@@ -158,9 +160,12 @@ module VagrantPlugins
             options << "--no-color"
           end
 
+          command_exe = chef_binary_path("chef-solo")
+          command_exe = chef_binary_path("chef-client") if @config.local_mode
+
           command_env = @config.binary_env ? "#{@config.binary_env} " : ""
           command_args = @config.arguments ? " #{@config.arguments}" : ""
-          command = "#{command_env}#{chef_binary_path("chef-solo")} " +
+          command = "#{command_env}#{command_exe} " +
             "#{options.join(" ")} #{command_args}"
 
           @config.attempts.times do |attempt|

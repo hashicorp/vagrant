@@ -14,6 +14,7 @@ module VagrantPlugins
         attr_accessor :nodes_path
         attr_accessor :recipe_url
         attr_accessor :roles_path
+        attr_accessor :local_mode
 
         def initialize
           super
@@ -28,6 +29,7 @@ module VagrantPlugins
           @nodes_path                = UNSET_VALUE
           @encrypted_data_bag_secret = UNSET_VALUE
           @encrypted_data_bag_secret_key_path = UNSET_VALUE
+          @local_mode                = UNSET_VALUE
         end
 
         #------------------------------------------------------------
@@ -39,6 +41,7 @@ module VagrantPlugins
 
           @recipe_url = nil if @recipe_url == UNSET_VALUE
           @environment = nil if @environment == UNSET_VALUE
+          @local_mode = false if @local_mode == UNSET_VALUE
 
           if @cookbooks_path == UNSET_VALUE
             @cookbooks_path = []
