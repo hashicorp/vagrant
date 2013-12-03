@@ -69,7 +69,6 @@ module VagrantPlugins
             !cookbooks_path || [cookbooks_path].flatten.empty?
           errors << I18n.t("vagrant.config.chef.environment_path_required") if \
             environment && environments_path.empty?
-          { "chef solo provisioner" => errors }
 
           environments_path.each do |type, raw_path|
             next if type != :host
@@ -80,6 +79,8 @@ module VagrantPlugins
                 path: raw_path.to_s)
             end
           end
+
+          { "chef solo provisioner" => errors }
         end
 
         protected
