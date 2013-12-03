@@ -16,7 +16,7 @@ module VagrantPlugins
         end
 
         if !@machine.guest.capability(:docker_installed)
-          @machine.ui.info(I18n.t("vagrant.docker_installing"))
+          @machine.ui.info(I18n.t("vagrant.docker_installing", version: @version.to_s))
           @machine.guest.capability(:docker_install, @version)
 
           if !@machine.guest.capability(:docker_installed)
