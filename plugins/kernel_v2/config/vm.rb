@@ -270,6 +270,9 @@ module VagrantPlugins
         @hostname = nil if @hostname == UNSET_VALUE
         @hostname = @hostname.to_s if @hostname
 
+        # Make sure that the download checksum is a string and that
+        # the type is a symbol
+        @box_download_checksum = "" if !@box_download_checksum
         if @box_download_checksum_type
           @box_download_checksum_type = @box_download_checksum_type.to_sym
         end
