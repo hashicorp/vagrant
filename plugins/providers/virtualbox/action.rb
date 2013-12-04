@@ -12,7 +12,6 @@ module VagrantPlugins
       autoload :CleanMachineFolder, File.expand_path("../action/clean_machine_folder", __FILE__)
       autoload :ClearForwardedPorts, File.expand_path("../action/clear_forwarded_ports", __FILE__)
       autoload :ClearNetworkInterfaces, File.expand_path("../action/clear_network_interfaces", __FILE__)
-      autoload :ClearSharedFolders, File.expand_path("../action/clear_shared_folders", __FILE__)
       autoload :Created, File.expand_path("../action/created", __FILE__)
       autoload :Customize, File.expand_path("../action/customize", __FILE__)
       autoload :Destroy, File.expand_path("../action/destroy", __FILE__)
@@ -59,7 +58,6 @@ module VagrantPlugins
           b.use PrepareForwardedPortCollisionParams
           b.use HandleForwardedPortCollisions
           b.use PruneNFSExports
-          b.use ClearSharedFolders
           b.use SyncedFolderCleanup
           b.use SyncedFolders
           b.use PrepareNFSSettings
@@ -148,7 +146,7 @@ module VagrantPlugins
             b2.use CheckAccessible
             b2.use action_halt
             b2.use ClearForwardedPorts
-            b2.use ClearSharedFolders
+            b2.use SyncedFolderCleanup
             b2.use Export
             b2.use PackageVagrantfile
             b2.use Package
