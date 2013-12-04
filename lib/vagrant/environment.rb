@@ -740,21 +740,34 @@ module Vagrant
         end
       end
 
+      # This keeps track of the old plugins that need to be reinstalled
+      # because they were installed with an old version of Ruby.
+      reinstall = []
+
       # Load the plugins
       plugins_json_file = @home_path.join("plugins.json")
       @logger.debug("Loading plugins from: #{plugins_json_file}")
-      if plugins_json_file.file?
-        data = JSON.parse(plugins_json_file.read)
-        data["installed"].each do |plugin|
-          @logger.info("Loading plugin from JSON: #{plugin}")
-          begin
-            Vagrant.require_plugin(plugin)
-          rescue Errors::PluginLoadError => e
-            @ui.error(e.message + "\n")
-          rescue Errors::PluginLoadFailed => e
-            @ui.error(e.message + "\n")
-          end
+      state = VagrantPlugins::CommandPlugin::StateFile.new(plugins_json_file)
+      state.installed_plugins.each do |name, extra|
+        # If the Ruby version changed, then they need to reinstall the plugin
+        if extra["ruby_version"] != RUBY_VERSION
+          reinstall << name
+          next
         end
+
+        @logger.info("Loading plugin from JSON: #{plugin}")
+        begin
+          Vagrant.require_plugin(plugin)
+        rescue Errors::PluginLoadError => e
+          @ui.error(e.message + "\n")
+        rescue Errors::PluginLoadFailed => e
+          @ui.error(e.message + "\n")
+        end
+      end
+
+      if !reinstall.empty?
+        @ui.warn(I18n.t("vagrant.plugin_needs_reinstall",
+          names: reinstall.join(", ")))
       end
     end
 

@@ -29,7 +29,10 @@ describe VagrantPlugins::CommandPlugin::StateFile do
       instance = described_class.new(path)
       plugins = instance.installed_plugins
       expect(plugins.length).to eql(1)
-      expect(plugins["foo"]).to eql({ "vagrant_version" => Vagrant::VERSION })
+      expect(plugins["foo"]).to eql({
+        "ruby_version"    => RUBY_VERSION,
+        "vagrant_version" => Vagrant::VERSION,
+      })
     end
 
     it "should remove plugins" do
@@ -63,6 +66,7 @@ describe VagrantPlugins::CommandPlugin::StateFile do
     it "should have the right installed plugins" do
       plugins = subject.installed_plugins
       expect(plugins.keys).to eql(["foo"])
+      expect(plugins["foo"]["ruby_version"]).to eql("0")
       expect(plugins["foo"]["vagrant_version"]).to eql("0")
     end
   end

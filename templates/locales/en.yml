@@ -42,7 +42,6 @@ en:
       to automatically delete Chef nodes and clients.
     chef_run_list_empty: |-
       Warning: Chef run list is empty. This may not be what you want.
-
     docker_installing: |-
       Installing Docker (%{version}) onto machine...
     docker_pulling_images:
@@ -56,7 +55,23 @@ en:
     docker_auto_start_not_available: |-
       Unable to configure automatic restart of Docker containers on
       the guest machine
+    plugin_needs_reinstall: |-
+      The following plugins were installed with a version of Vagrant
+      that had different versions of underlying components. Because
+      these component versions were changed (which rarely happens),
+      the plugins must be uninstalled and reinstalled.
 
+      To ensure that all the dependencies are properly updated as well
+      it is _highly recommended_ to do a `vagrant plugin uninstall`
+      prior to reinstalling.
+
+      This message will not go away until all the plugins below are
+      either uninstalled or uninstalled then reinstalled.
+
+      The plugins below will not be loaded until they're uninstalled
+      and reinstalled:
+
+      %{names}
     provisioner_cleanup: |-
       Running cleanup tasks for '%{name}' provisioner...
 

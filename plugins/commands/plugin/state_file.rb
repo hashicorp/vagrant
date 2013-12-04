@@ -24,6 +24,7 @@ module VagrantPlugins
       def add_plugin(name)
         if !@data["installed"].has_key?(name)
           @data["installed"][name] = {
+            "ruby_version"    => RUBY_VERSION,
             "vagrant_version" => Vagrant::VERSION,
           }
         end
@@ -65,6 +66,7 @@ module VagrantPlugins
         new_installed = {}
         (@data["installed"] || []).each do |plugin|
           new_installed[plugin] = {
+            "ruby_version"    => "0",
             "vagrant_version" => "0",
           }
         end
