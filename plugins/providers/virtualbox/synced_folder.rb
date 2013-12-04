@@ -61,6 +61,10 @@ module VagrantPlugins
         end
       end
 
+      def cleanup(machine)
+        driver.clear_shared_folders
+      end
+
       protected
 
       # This is here so that we can stub it for tests
