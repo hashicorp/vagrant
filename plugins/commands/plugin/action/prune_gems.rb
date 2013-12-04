@@ -34,7 +34,7 @@ module VagrantPlugins
           @logger.info("Pruning gems...")
 
           # Get the list of installed plugins according to the state file
-          installed = Set.new(env[:plugin_state_file].installed_plugins)
+          installed = env[:plugin_state_file].installed_plugins.keys
 
           # Get the actual specifications of installed gems
           all_specs = env[:gem_helper].with_environment do
