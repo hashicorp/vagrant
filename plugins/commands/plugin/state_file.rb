@@ -9,16 +9,23 @@ module VagrantPlugins
         @path = path
 
         @data = {}
-        @data = JSON.parse(@path.read) if @path.exist?
-        @data["installed"] ||= []
+        if @path.exist?
+          @data = JSON.parse(@path.read)
+          upgrade_v0! if !@data["version"]
+        end
+
+        @data["version"] ||= "1"
+        @data["installed"] ||= {}
       end
 
       # Add a plugin that is installed to the state file.
       #
       # @param [String] name The name of the plugin
       def add_plugin(name)
-        if !@data["installed"].include?(name)
-          @data["installed"] << name
+        if !@data["installed"].has_key?(name)
+          @data["installed"][name] = {
+            "vagrant_version" => Vagrant::VERSION,
+          }
         end
 
         save!
@@ -43,14 +50,26 @@ module VagrantPlugins
 
       # This saves the state back into the state file.
       def save!
-        # Scrub some fields
-        @data["installed"].sort!
-        @data["installed"].uniq!
-
-        # Save
         @path.open("w+") do |f|
           f.write(JSON.dump(@data))
         end
+      end
+
+      protected
+
+      # This upgrades the internal data representation from V0 (the initial
+      # version) to V1.
+      def upgrade_v0!
+        @data["version"] = "1"
+
+        new_installed = {}
+        (@data["installed"] || []).each do |plugin|
+          new_installed[plugin] = {}
+        end
+
+        @data["installed"] = new_installed
+
+        save!
       end
     end
   end
