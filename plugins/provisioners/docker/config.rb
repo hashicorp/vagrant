@@ -9,7 +9,7 @@ module VagrantPlugins
       def initialize
         @images     = Set.new
         @containers = Hash.new
-        @version    = :latest
+        @version    = UNSET_VALUE
       end
 
       def images=(images)
@@ -29,6 +29,7 @@ module VagrantPlugins
       end
 
       def finalize!
+        @version = "latest" if @version == UNSET_VALUE
         @version = @version.to_sym
       end
 
