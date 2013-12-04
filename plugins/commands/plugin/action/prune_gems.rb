@@ -38,9 +38,14 @@ module VagrantPlugins
 
           # Get the actual specifications of installed gems
           all_specs = env[:gem_helper].with_environment do
-            result = []
-            Gem::Specification.find_all { |s| result << s }
-            result
+            [].tap do |result|
+              Gem::Specification.find_all do |s|
+                # Ignore default gems since they can't be uninstalled
+                next if s.respond_to?(:default_gem?) && s.default_gem?
+
+                result << s
+              end
+            end
           end
 
           # The list of specs to prune initially starts out as all of them
