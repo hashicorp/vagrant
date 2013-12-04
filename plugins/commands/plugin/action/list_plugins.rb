@@ -18,7 +18,7 @@ module VagrantPlugins
 
         def call(env)
           # Get the list of installed plugins according to the state file
-          installed = Set.new(env[:plugin_state_file].installed_plugins)
+          installed = env[:plugin_state_file].installed_plugins.keys
 
           # Go through the plugins installed in this environment and
           # get the latest version of each.

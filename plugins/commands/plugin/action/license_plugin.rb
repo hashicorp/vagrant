@@ -18,7 +18,7 @@ module VagrantPlugins
 
         def call(env)
           # Get the list of installed plugins according to the state file
-          installed = Set.new(env[:plugin_state_file].installed_plugins)
+          installed = env[:plugin_state_file].installed_plugins.keys
 
           # If the plugin we're trying to license doesn't exist in the
           # state file, then it is an error.

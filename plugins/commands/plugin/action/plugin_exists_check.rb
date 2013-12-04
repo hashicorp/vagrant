@@ -12,7 +12,7 @@ module VagrantPlugins
 
         def call(env)
           # Get the list of installed plugins according to the state file
-          installed = Set.new(env[:plugin_state_file].installed_plugins)
+          installed = env[:plugin_state_file].installed_plugins.keys
           if !installed.include?(env[:plugin_name])
             raise Vagrant::Errors::PluginNotInstalled,
               name: env[:plugin_name]
