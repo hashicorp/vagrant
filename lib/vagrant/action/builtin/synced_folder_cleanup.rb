@@ -9,7 +9,7 @@ module Vagrant
       # the appropriate synced folder plugin.
       class SyncedFolderCleanup
         include MixinSyncedFolders
-        
+
         def initialize(app, env)
           @app    = app
           @logger = Log4r::Logger.new("vagrant::action::builtin::synced_folder_cleanup")

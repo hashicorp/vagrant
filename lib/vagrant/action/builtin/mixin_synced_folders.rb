@@ -25,20 +25,6 @@ module Vagrant
 
           return nil
         end
-        
-        # This finds the options in the env that are set for a given
-        # synced folder type.
-        def impl_opts(name, env)
-          {}.tap do |result|
-            env.each do |k, v|
-              if k.to_s.start_with?("#{name}_")
-                k = k.dup if !k.is_a?(Symbol)
-                v = v.dup if !v.is_a?(Symbol)
-                result[k] = v
-              end
-            end
-          end
-        end
 
         # This returns the available synced folder implementations. This
         # is a separate method so that it can be easily stubbed by tests.
@@ -49,6 +35,8 @@ module Vagrant
         # This returns the set of shared folders that should be done for
         # this machine. It returns the folders in a hash keyed by the
         # implementation class for the synced folders.
+        #
+        # @return [Hash<Symbol, Hash<String, Hash>>]
         def synced_folders(machine)
           folders = {}
 

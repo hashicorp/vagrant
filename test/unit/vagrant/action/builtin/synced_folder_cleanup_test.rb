@@ -4,6 +4,8 @@ require "tmpdir"
 require File.expand_path("../../../../base", __FILE__)
 
 describe Vagrant::Action::Builtin::SyncedFolderCleanup do
+  include_context "synced folder actions"
+
   let(:app) { lambda { |env| } }
   let(:env) { { :machine => machine, :ui => ui } }
   let(:machine) do
@@ -28,15 +30,16 @@ describe Vagrant::Action::Builtin::SyncedFolderCleanup do
 
   subject { described_class.new(app, env) }
 
-  # This creates a synced folder implementation.
-  def impl(usable, name)
-    Class.new(Vagrant.plugin("2", :synced_folder)) do
-      define_method(:name) do
-        name
+  def create_cleanup_tracker
+    Class.new(impl(true, "good")) do
+      class_variable_set(:@@clean, false)
+
+      def self.clean
+        class_variable_get(:@@clean)
       end
 
-      define_method(:usable?) do |machine|
-        usable
+      def cleanup(machine)
+        self.class.class_variable_set(:@@clean, true)
       end
     end
   end
@@ -50,18 +53,13 @@ describe Vagrant::Action::Builtin::SyncedFolderCleanup do
       plugins[:nfs] = [impl(true, "nfs"), 5]
 
       env[:root_path] = Pathname.new(Dir.mktmpdir)
+
       subject.stub(:plugins => plugins)
       subject.stub(:synced_folders => synced_folders)
     end
 
     it "should invoke cleanup" do
-      cleaned_up = nil
-      tracker = Class.new(impl(true, "good")) do
-        define_method(:cleanup) do |machine|
-          cleaned_up = true
-        end
-      end
-
+      tracker = create_cleanup_tracker
       plugins[:tracker] = [tracker, 15]
 
       synced_folders["tracker"] = {
@@ -76,21 +74,15 @@ describe Vagrant::Action::Builtin::SyncedFolderCleanup do
       }
 
       subject.call(env)
-
-      cleaned_up.should be_true
+      tracker.clean.should be_true
     end
 
     it "should invoke cleanup once per implementation" do
-      call_count = 0
-      trackers   = []
+      trackers = []
       (0..2).each do |tracker|
-        trackers << Class.new(impl(true, "good")) do
-          define_method(:cleanup) do |machine|
-            call_count += 1
-          end
-        end
+        trackers << create_cleanup_tracker
       end
-      
+
       plugins[:tracker_0] = [trackers[0], 15]
       plugins[:tracker_1] = [trackers[1], 15]
       plugins[:tracker_2] = [trackers[2], 15]
@@ -129,7 +121,9 @@ describe Vagrant::Action::Builtin::SyncedFolderCleanup do
 
       subject.call(env)
 
-      call_count.should == 3
+      trackers[0].clean.should be_true
+      trackers[1].clean.should be_true
+      trackers[2].clean.should be_true
     end
   end
 end

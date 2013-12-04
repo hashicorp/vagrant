@@ -73,6 +73,20 @@ module Vagrant
             plugins[impl_name.to_sym][0].new.enable(env[:machine], fs, impl_opts(impl_name, env))
           end
         end
+
+        # This finds the options in the env that are set for a given
+        # synced folder type.
+        def impl_opts(name, env)
+          {}.tap do |result|
+            env.each do |k, v|
+              if k.to_s.start_with?("#{name}_")
+                k = k.dup if !k.is_a?(Symbol)
+                v = v.dup if !v.is_a?(Symbol)
+                result[k] = v
+              end
+            end
+          end
+        end
       end
     end
   end
