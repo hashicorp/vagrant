@@ -52,6 +52,7 @@ describe Vagrant::Action::Builtin::SyncedFolderCleanup do
       plugins[:default] = [impl(true, "default"), 10]
       plugins[:nfs] = [impl(true, "nfs"), 5]
 
+      env[:machine] = Object.new
       env[:root_path] = Pathname.new(Dir.mktmpdir)
 
       subject.stub(:plugins => plugins)
@@ -73,8 +74,10 @@ describe Vagrant::Action::Builtin::SyncedFolderCleanup do
         }
       }
 
+      expect_any_instance_of(tracker).to receive(:cleanup).
+        with(env[:machine])
+
       subject.call(env)
-      tracker.clean.should be_true
     end
 
     it "should invoke cleanup once per implementation" do

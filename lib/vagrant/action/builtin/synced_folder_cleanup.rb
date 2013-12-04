@@ -21,7 +21,7 @@ module Vagrant
           # Go through each folder and do cleanup
           folders.each_key do |impl_name|
             @logger.info("Invoking synced folder cleanup for: #{impl_name}")
-            plugins[impl_name.to_sym][0].new.cleanup(env)
+            plugins[impl_name.to_sym][0].new.cleanup(env[:machine])
           end
 
           @app.call(env)

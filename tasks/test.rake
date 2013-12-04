@@ -2,8 +2,7 @@ require 'rake/testtask'
 require 'rspec/core/rake_task'
 
 namespace :test do
-  RSpec::Core::RakeTask.new do |t|
-    t.name = "unit"
+  RSpec::Core::RakeTask.new(:unit) do |t|
     t.pattern = "test/unit/**/*_test.rb"
   end
 
@@ -13,8 +12,7 @@ namespace :test do
     t.pattern = "test/unit_legacy/**/*_test.rb"
   end
 
-  RSpec::Core::RakeTask.new do |t|
-    t.name = "acceptance"
+  RSpec::Core::RakeTask.new(:acceptance) do |t|
     t.pattern = "test/acceptance/**/*_test.rb"
   end
 end
