@@ -263,9 +263,11 @@ end
 # Default I18n to load the en locale
 I18n.load_path << File.expand_path("templates/locales/en.yml", Vagrant.source_root)
 
-# Make sure only available locales are used. This will be the default in the
-# future but we need this to silence a deprecation warning from 0.6.9
-I18n.config.enforce_available_locales = true
+if I18n.config.respond_to?(:enforce_available_locales=)
+  # Make sure only available locales are used. This will be the default in the
+  # future but we need this to silence a deprecation warning from 0.6.9
+  I18n.config.enforce_available_locales = true
+end
 
 # A lambda that knows how to load plugins from a single directory.
 plugin_load_proc = lambda do |directory|
