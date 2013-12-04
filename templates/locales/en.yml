@@ -42,6 +42,21 @@ en:
       to automatically delete Chef nodes and clients.
     chef_run_list_empty: |-
       Warning: Chef run list is empty. This may not be what you want.
+
+    docker_installing: |-
+      Installing Docker (%{version}) onto machine...
+    docker_pulling_images:
+      Pulling Docker images...
+    docker_pulling_single: |-
+      -- Image: %{name}
+    docker_running: |-
+      -- Container: %{name}
+    docker_starting_containers:
+      Starting Docker containers...
+    docker_auto_start_not_available: |-
+      Unable to configure automatic restart of Docker containers on
+      the guest machine
+
     provisioner_cleanup: |-
       Running cleanup tasks for '%{name}' provisioner...
 
@@ -1317,3 +1332,7 @@ en:
         playbook_path_invalid: "`playbook` for the Ansible provisioner does not exist on the host system: %{path}"
         inventory_path_invalid: "`inventory_path` for the Ansible provisioner does not exist on the host system: %{path}"
         extra_vars_invalid: "`extra_vars` for the Ansible provisioner must be a hash or a path to an existing file. Received: %{value} (as %{type})"
+
+      docker:
+        not_running: "Docker is not running on the guest VM."
+        install_failed: "Docker installation failed."
