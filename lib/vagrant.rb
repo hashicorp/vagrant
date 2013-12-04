@@ -58,6 +58,8 @@ require 'openssl'
 require 'vagrant/version'
 global_logger = Log4r::Logger.new("vagrant::global")
 global_logger.info("Vagrant version: #{Vagrant::VERSION}")
+global_logger.info("Ruby version: #{RUBY_VERSION}")
+global_logger.info("RubyGems version: #{Gem::VERSION}")
 
 # We need these components always so instead of an autoload we
 # just require them explicitly here.
