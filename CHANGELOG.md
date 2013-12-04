@@ -2,6 +2,8 @@
 
 FEATURES:
 
+  - New provisioner: Docker. Install Docker, pull containers, and run
+    containers easier than ever.
   - Machine readable output. Vagrant now has machine-friendly output by
     using the `--machine-readable` flag.
   - New plugin type: synced folder implementation. This allows new ways of
