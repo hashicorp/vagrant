@@ -21,18 +21,19 @@ module Vagrant
 
           # Determine the checksum type to use
           checksum = (env[:box_checksum] || "").to_s
-          checksum_klass = case env[:box_checksum_type].to_sym
-          when nil
-            nil
-          when :md5
-            Digest::MD5
-          when :sha1
-            Digest::SHA1
-          when :sha256
-            Digest::SHA2
-          else
-            raise Errors::BoxChecksumInvalidType,
-              type: env[:box_checksum_type].to_s
+          checksum_klass = nil
+          if env[:box_checksum_type]
+            checksum_klass = case env[:box_checksum_type].to_sym
+            when :md5
+              Digest::MD5
+            when :sha1
+              Digest::SHA1
+            when :sha256
+              Digest::SHA2
+            else
+              raise Errors::BoxChecksumInvalidType,
+                type: env[:box_checksum_type].to_s
+            end
           end
 
           # Go through each URL and attempt to download it
