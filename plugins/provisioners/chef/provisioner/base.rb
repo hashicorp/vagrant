@@ -40,9 +40,15 @@ module VagrantPlugins
         end
 
         def chown_provisioning_folder
+          paths = [@config.provisioning_path,
+                   @config.file_backup_pach,
+                   @config.file_cache_path]
+
           @machine.communicate.tap do |comm|
-            comm.sudo("mkdir -p #{@config.provisioning_path}")
-            comm.sudo("chown #{@machine.ssh_info[:username]} #{@config.provisioning_path}")
+            paths.each do |path|
+              comm.sudo("mkdir -p #{path}")
+              comm.sudo("chown #{@machine.ssh_info[:username]} #{path}")
+            end
           end
         end
 
