@@ -64,7 +64,9 @@ module VagrantPlugins
 
         new_installed = {}
         (@data["installed"] || []).each do |plugin|
-          new_installed[plugin] = {}
+          new_installed[plugin] = {
+            "vagrant_version" => "0",
+          }
         end
 
         @data["installed"] = new_installed

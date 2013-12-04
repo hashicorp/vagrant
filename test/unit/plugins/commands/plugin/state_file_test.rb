@@ -61,7 +61,9 @@ describe VagrantPlugins::CommandPlugin::StateFile do
     end
 
     it "should have the right installed plugins" do
-      subject.installed_plugins.keys.should eql(["foo"])
+      plugins = subject.installed_plugins
+      expect(plugins.keys).to eql(["foo"])
+      expect(plugins["foo"]["vagrant_version"]).to eql("0")
     end
   end
 end
