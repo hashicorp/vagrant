@@ -41,7 +41,7 @@ module VagrantPlugins
 
         def chown_provisioning_folder
           paths = [@config.provisioning_path,
-                   @config.file_backup_pach,
+                   @config.file_backup_path,
                    @config.file_cache_path]
 
           @machine.communicate.tap do |comm|
