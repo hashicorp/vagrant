@@ -6,7 +6,7 @@ sidebar_current: "vagrantfile-version"
 # Configuration Version
 
 Configuration versions are the mechanism by which Vagrant 1.1+ is able
-to remain [backwards compatible](v2/installation/backwards-compatibility.html)
+to remain [backwards compatible](/v2/installation/backwards-compatibility.html)
 with Vagrant 1.0.x Vagrantfiles, while introducing dramatically new features
 and configuration options.
 

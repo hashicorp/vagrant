@@ -755,9 +755,9 @@ module Vagrant
           next
         end
 
-        @logger.info("Loading plugin from JSON: #{plugin}")
+        @logger.info("Loading plugin from JSON: #{name}")
         begin
-          Vagrant.require_plugin(plugin)
+          Vagrant.require_plugin(name)
         rescue Errors::PluginLoadError => e
           @ui.error(e.message + "\n")
         rescue Errors::PluginLoadFailed => e

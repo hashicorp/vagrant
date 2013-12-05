@@ -32,11 +32,11 @@ module VagrantPlugins
         save!
       end
 
-      # This returns a list of installed plugins according to the state
+      # This returns a hash of installed plugins according to the state
       # file. Note that this may _not_ directly match over to actually
       # installed gems.
       #
-      # @return [Array<String>]
+      # @return [Hash]
       def installed_plugins
         @data["installed"]
       end
