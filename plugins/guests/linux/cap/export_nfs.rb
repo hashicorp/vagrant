@@ -55,7 +55,7 @@ module VagrantPlugins
           @machine.communicate.test("#{@nfs_test_command}")
         end
 
-        # TODO - DRY this ripped completely from plugins/hosts/linux/host.rb
+        # TODO - DRY this; ripped completely from plugins/hosts/linux/host.rb
         def nfs_opts_setup()
           @folders.each do |k, opts|
             if !opts[:linux__nfs_options]

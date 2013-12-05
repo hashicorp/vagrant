@@ -4,6 +4,12 @@ module VagrantPlugins
       class PrepareNFSGuestSettings
         include Vagrant::Util::Retryable
 
+        # TODO - DRY this; ripped completely from plugins/providers/virtualbox/action/prepare_nfs_settings.rb
+        #
+        # This is only required to deal with the hard coded :nfs_host_ip and :nfs_machine_ip symbols 
+        # not using the impl name this stops them being availabe in nfsopts because the impl is called
+        # nfs_guest. There has to be a better way.
+
         def initialize(app,env)
           @app = app
           @logger = Log4r::Logger.new("vagrant::action::vm::nfs")
