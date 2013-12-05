@@ -13,6 +13,7 @@ namespace :test do
   end
 
   RSpec::Core::RakeTask.new(:acceptance) do |t|
+    $: << File.expand_path("../test/acceptance", __FILE__)
     t.pattern = "test/acceptance/**/*_test.rb"
   end
 end
