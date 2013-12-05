@@ -11,8 +11,4 @@ namespace :test do
     t.libs << "test/unit_legacy"
     t.pattern = "test/unit_legacy/**/*_test.rb"
   end
-
-  RSpec::Core::RakeTask.new(:acceptance) do |t|
-    t.pattern = "test/acceptance/**/*_test.rb"
-  end
 end
