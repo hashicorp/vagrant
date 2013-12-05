@@ -62,7 +62,7 @@ module VagrantPlugins
       end
 
       def cleanup(machine)
-        driver(machine).clear_shared_folders
+        driver(machine).clear_shared_folders if machine.id && machine.id != ""
       end
 
       protected
