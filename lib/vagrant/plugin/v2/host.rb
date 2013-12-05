@@ -61,7 +61,7 @@ module Vagrant
         def nfs_prune(valid_ids)
         end
 
-        # Mounts then given hash of folders via the guests NFS export
+        # Mounts the given hash of folders via the guests NFS export
         #
         # @param [String] id A unique ID that is guaranteed to be unique to
         #   match these sets of folders.
