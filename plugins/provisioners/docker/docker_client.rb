@@ -52,13 +52,7 @@ module VagrantPlugins
       end
 
       def container_exists?(id)
-        @machine.communicate.tap do |comm|
-          # Docker < 0.7.0 stores container IDs using its short version while
-          # recent versions use the full container ID
-          # See https://github.com/dotcloud/docker/pull/2140 for more information
-          return comm.test("sudo docker ps -a -q | grep -wFq #{id}") ||
-                   comm.test("sudo docker ps -a -q -notrunc | grep -wFq #{id}")
-        end
+        lookup_container(id, true)
       end
 
       def start_container(id)
@@ -68,13 +62,7 @@ module VagrantPlugins
       end
 
       def container_running?(id)
-        @machine.communicate.tap do |comm|
-          # Docker < 0.7.0 stores container IDs using its short version while
-          # recent versions use the full container ID
-          # See https://github.com/dotcloud/docker/pull/2140 for more information
-          return comm.test("sudo docker ps -q | grep -wFq #{id}") ||
-                   comm.test("sudo docker ps -q -notrunc | grep -wFq #{id}")
-        end
+        lookup_container(id)
       end
 
       def create_container(config)
@@ -84,6 +72,18 @@ module VagrantPlugins
           rm -f #{config[:cidfile]}
           docker run #{args} #{config[:image]} #{config[:cmd]}
         ]
+      end
+
+      def lookup_container(id, list_all = false)
+        docker_ps = "sudo docker ps -q"
+        docker_ps << " -a" if list_all
+        @machine.communicate.tap do |comm|
+          # Docker < 0.7.0 stores container IDs using its short version while
+          # recent versions use the full container ID
+          # See https://github.com/dotcloud/docker/pull/2140 for more information
+          return comm.test("#{docker_ps} | grep -wFq #{id}") ||
+                   comm.test("#{docker_ps} -notrunc | grep -wFq #{id}")
+        end
       end
     end
   end
