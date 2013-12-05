@@ -54,36 +54,31 @@ This will run the unit test suite, which should come back all green! Then you're
 If you want to run Vagrant without having to install the gem, you may use `bundle exec`,
 like so:
 
-    bundle exec bin/vagrant help
+    bundle exec vagrant help
 
 ### Acceptance Tests
 
-Vagrant also comes with an acceptance test suite which runs the system
-end-to-end, without mocking out any dependencies. Note that this test
-suite is **extremely slow**, with the test suite taking hours on even
-a decent system. A CI will be setup in due time to run these tests
-automatically. However, it is still useful to know how to run these
-tests since it is often useful to run a single test if you're working
-on a specific feature.
+Vagrant also comes with an acceptance test suite that does black-box
+tests of various Vagrant components. Note that these tests are **extremely
+slow** because actual VMs are spun up and down. The full test suite can
+take hours. Instead, try to run focused component tests.
 
-The acceptance tests have absolutely _zero_ dependence on the Vagrant
-source. Instead, an external configuration file must be used to give
-the acceptance tests some parameters (such as what Vagrant version is
-running, where the Vagrant `vagrant` binary is, etc.). If you want to
-run acceptance tests against source, or just want to see an example of
-this file, you can generate it automatically for the source code:
+To run the acceptance test suite, first copy `vagrant-spec.config.example.rb`
+to `vagrant-spec.config.rb` and modify it to valid values. The places you
+should fill in are clearly marked.
 
-    rake acceptance:config
+Next, see the components that can be tested:
 
-This will drop an `acceptance_config.yml` file in your working directory.
-You can then run a specific acceptance test like so:
+```
+$ rake acceptance:components
+cli
+provider/virtualbox/basic
+...
+```
 
-    ACCEPTANCE_CONFIG=./acceptance_config.yml ruby test/acceptance/version_test.rb
+Then, run one of those components:
 
-That's it!
-
-If you're developing an acceptance test and you're unsure why things
-might be failing, you can also view log output for the acceptance tests,
-which can be very verbose but are a great help in finding bugs:
-
-    ACCEPTANCE_LOGGING=debug ACCEPTANCE_CONFIG=./acceptance_config.yml ruby test/acceptance/version_test.rb
+```
+$ rake acceptance:run COMPONENTS="cli"
+...
+```
