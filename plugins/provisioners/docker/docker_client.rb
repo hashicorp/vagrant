@@ -44,15 +44,21 @@ module VagrantPlugins
 
         id = "$(cat #{config[:cidfile]})"
 
-        if container_exist?(id)
+        if container_exists?(id)
           start_container(id)
         else
           create_container(config)
         end
       end
 
-      def container_exist?(id)
-        @machine.communicate.test("sudo docker ps -a -q | grep -q #{id}")
+      def container_exists?(id)
+        @machine.communicate.tap do |comm|
+          # Docker < 0.7.0 stores container IDs using its short version while
+          # recent versions use the full container ID
+          # See https://github.com/dotcloud/docker/pull/2140 for more information
+          return comm.test("sudo docker ps -a -q | grep -wFq #{id}") ||
+                   comm.test("sudo docker ps -a -q -notrunc | grep -wFq #{id}")
+        end
       end
 
       def start_container(id)
@@ -62,7 +68,13 @@ module VagrantPlugins
       end
 
       def container_running?(id)
-        @machine.communicate.test("sudo docker ps -q | grep #{id}")
+        @machine.communicate.tap do |comm|
+          # Docker < 0.7.0 stores container IDs using its short version while
+          # recent versions use the full container ID
+          # See https://github.com/dotcloud/docker/pull/2140 for more information
+          return comm.test("sudo docker ps -q | grep -wFq #{id}") ||
+                   comm.test("sudo docker ps -q -notrunc | grep -wFq #{id}")
+        end
       end
 
       def create_container(config)
