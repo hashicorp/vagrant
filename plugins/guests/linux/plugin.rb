@@ -26,9 +26,29 @@ module VagrantPlugins
         Cap::MountNFS
       end
 
+      guest_capability("linux", "export_nfs_folders") do
+        require_relative "cap/export_nfs"
+        Cap::ExportNFS
+      end
+
+      guest_capability("linux", "export_nfs_capable") do
+        require_relative "cap/export_nfs"
+        Cap::ExportNFS
+      end
+
       guest_capability("linux", "mount_virtualbox_shared_folder") do
         require_relative "cap/mount_virtualbox_shared_folder"
         Cap::MountVirtualBoxSharedFolder
+      end
+
+      guest_capability("linux", "read_uid") do
+        require_relative "cap/read_user_ids.rb"
+        Cap::ReadUserIDs
+      end
+
+      guest_capability("linux", "read_gid") do
+        require_relative "cap/read_user_ids.rb"
+        Cap::ReadUserIDs
       end
 
       guest_capability("linux", "read_ip_address") do
