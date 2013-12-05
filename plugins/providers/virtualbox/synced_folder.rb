@@ -62,7 +62,7 @@ module VagrantPlugins
       end
 
       def cleanup(machine)
-        driver.clear_shared_folders
+        driver(machine).clear_shared_folders
       end
 
       protected
