@@ -1,6 +1,5 @@
 require 'tempfile'
 
-require "vagrant/util/counter"
 require "vagrant/util/template_renderer"
 
 module VagrantPlugins
@@ -12,14 +11,6 @@ module VagrantPlugins
       class Base < Vagrant.plugin("2", :provisioner)
         class ChefError < Vagrant::Errors::VagrantError
           error_namespace("vagrant.provisioners.chef")
-        end
-
-        include Vagrant::Util::Counter
-
-        def initialize(machine, config)
-          super
-
-          config.provisioning_path ||= "/tmp/vagrant-chef-#{get_and_update_counter(:provisioning_path)}"
         end
 
         def verify_binary(binary)

@@ -1,7 +1,11 @@
+require "vagrant/util/counter"
+
 module VagrantPlugins
   module Chef
     module Config
       class Base < Vagrant.plugin("2", :config)
+        extend Vagrant::Util::Counter
+
         attr_accessor :arguments
         attr_accessor :attempts
         attr_accessor :binary_path
@@ -74,6 +78,12 @@ module VagrantPlugins
 
           # Make sure the log level is a symbol
           @log_level = @log_level.to_sym
+
+          # Set the default provisioning path to be a unique path in /tmp
+          if !@provisioning_path
+            counter = self.class.get_and_update_counter(:chef_config)
+            @provisioning_path = "/tmp/vagrant-chef-#{counter}"
+          end
         end
 
         def merge(other)
