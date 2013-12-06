@@ -51,6 +51,13 @@ module VagrantPlugins
           :mount_nfs_folder, nfsopts[:nfs_host_ip], mount_folders)
       end
 
+      def cleanup(machine)
+        # Get the ID of all active machines.
+        ids = machine.env.active_machines.map { |m| machine.env.machine(m[0], m[1]).id }
+
+        machine.env.host.nfs_prune(ids)
+      end
+
       protected
 
       def prepare_folder(machine, opts)
