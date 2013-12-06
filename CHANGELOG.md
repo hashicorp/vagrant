@@ -92,6 +92,8 @@ BUG FIXES:
   - provisioners/chef: Create/chown the cache and backup folders. [GH-2281]
   - provisioners/chef: Verify environment paths exist in config
     validation step. [GH-2381]
+  - provisioners/puppet: Multiple puppet definitions in a Vagrantfile
+    work correctly.
   - provisioners/salt: Bootstrap on FreeBSD systems work. [GH-2525]
   - provisioners/salt: Extra args for bootstrap are put in the proper
     location. [GH-2558]
