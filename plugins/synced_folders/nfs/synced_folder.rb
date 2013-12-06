@@ -53,8 +53,11 @@ module VagrantPlugins
 
       def cleanup(machine)
         # Get the ID of all active machines.
-        ids = machine.env.active_machines.map { |m| machine.env.machine(m[0], m[1]).id }
+        ids = machine.env.active_machines.map do |name, provider|
+          machine.env.machine(name, provider).id
+        end
 
+        # Prune any of the unused machines
         machine.env.host.nfs_prune(ids)
       end
 
