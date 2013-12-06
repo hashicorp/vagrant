@@ -209,6 +209,7 @@ module VagrantPlugins
               b2.use PrepareForwardedPortCollisionParams
               b2.use HandleForwardedPortCollisions
               b2.use Resume
+              b2.use WaitForCommunicator, [:restoring, :running]
             else
               b2.use MessageNotCreated
             end
