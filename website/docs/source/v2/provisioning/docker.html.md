@@ -110,3 +110,15 @@ Vagrant.configure("2") do |config|
   end
 end
 ```
+
+In case you need to run multiple containers based off the same image, you can do
+so by providing different names and specifying the `image` parameter to it:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.provision "docker" do |d|
+    d.run "db-1", image: "user/mysql"
+    d.run "db-2", image: "user/mysql"
+  end
+end
+```
