@@ -74,7 +74,7 @@ module VagrantPlugins
             next if type != :host
 
             path = Pathname.new(raw_path).expand_path(machine.env.root_path)
-            if !path.directory?j
+            if !path.directory?
               errors << I18n.t("vagrant.config.chef.environment_path_missing",
                 path: raw_path.to_s)
             end
