@@ -92,11 +92,11 @@ to the name, the `run` method accepts a set of options, all optional:
   but can also be given here as an option.
 
 * `cmd` (string) - The command to start within the container. If not specified,
-  then the containers default "run" command will be used, such as the
-  "run" command specified when the container was built.
+  then the container's default "run" command will be used, such as the
+  "run" command [specified on the `Dockerfile`](http://docs.docker.io/en/latest/use/builder/#run).
 
-* `args` (string) - Extra arguments for `docker run` on the command line.
-  These are raw arguments that are passed directly to Docker.
+* `args` (string) - Extra arguments for [`docker run`](http://docs.docker.io/en/latest/commandline/cli/#run)
+  on the command line. These are raw arguments that are passed directly to Docker.
 
 For example, here is how you would configure Docker to run a container
 with the Vagrant shared directory mounted inside of it:
@@ -107,6 +107,18 @@ Vagrant.configure("2") do |config|
     d.run "ubuntu",
       cmd: "bash -l",
       args: "-v '/vagrant:/var/www'"
+  end
+end
+```
+
+In case you need to run multiple containers based off the same image, you can do
+so by providing different names and specifying the `image` parameter to it:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.provision "docker" do |d|
+    d.run "db-1", image: "user/mysql"
+    d.run "db-2", image: "user/mysql"
   end
 end
 ```
