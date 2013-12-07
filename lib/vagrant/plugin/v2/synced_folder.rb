@@ -27,10 +27,14 @@ module Vagrant
         end
 
         # This is called after destroying the machine during a
-        # `vagrant destroy`.
+        # `vagrant destroy` and also prior to syncing folders during
+        # a `vagrant up`.
         #
         # No return value.
-        def cleanup(machine)
+        #
+        # @param [Machine] machine
+        # @param [Hash] opts
+        def cleanup(machine, opts)
         end
       end
     end

@@ -113,19 +113,4 @@ describe Vagrant::Action::Builtin::SyncedFolders do
       actual["root"][:foo].should == "bar"
     end
   end
-
-  describe "impl_opts" do
-    it "should return only relevant keys" do
-      env = {
-        :foo_bar => "baz",
-        :bar_bar => "nope",
-        :foo_baz => "bar",
-      }
-
-      result = subject.impl_opts("foo", env)
-      result.length.should == 2
-      result[:foo_bar].should == "baz"
-      result[:foo_baz].should == "bar"
-    end
-  end
 end

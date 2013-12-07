@@ -38,7 +38,7 @@ describe Vagrant::Action::Builtin::SyncedFolderCleanup do
         class_variable_get(:@@clean)
       end
 
-      def cleanup(machine)
+      def cleanup(machine, opts)
         self.class.class_variable_set(:@@clean, true)
       end
     end
@@ -75,7 +75,10 @@ describe Vagrant::Action::Builtin::SyncedFolderCleanup do
       }
 
       expect_any_instance_of(tracker).to receive(:cleanup).
-        with(env[:machine])
+        with(env[:machine], { tracker_foo: :bar })
+
+      # Test that the impl-specific opts are passed through
+      env[:tracker_foo] = :bar
 
       subject.call(env)
     end
