@@ -22,10 +22,9 @@ module Vagrant
         def call(env)
           @env = env
 
-          # Check if we're even provisioning things.
+          # Check if we already provisioned, and if so, disable the rest
           enabled = true
 
-          # Check if we already provisioned, and if so, disable the rest
           ignore_sentinel = true
           ignore_sentinel = env[:provision_ignore_sentinel] if env.has_key?(:provision_ignore_sentinel)
           sentinel_path = nil
@@ -39,13 +38,8 @@ module Vagrant
             end
           end
 
-          if env.has_key?(:provision_enabled)
-            # If we explicitly specified, take that value.
-            enabled = env[:provision_enabled]
-          else
-            # Otherwise store the value so that other actions can use it.
-            env[:provision_enabled] = enabled
-          end
+          # Store the value so that other actions can use it
+          env[:provision_enabled] = enabled if !env.has_key?(:provision_enabled)
 
           # Ask the provisioners to modify the configuration if needed
           provisioner_instances(env).each do |p|
@@ -64,7 +58,7 @@ module Vagrant
           end
 
           # Actually provision if we enabled it
-          if enabled
+          if env[:provision_enabled]
             type_map = provisioner_type_map(env)
             provisioner_instances(env).each do |p|
               type_name = type_map[p]
@@ -81,6 +75,8 @@ module Vagrant
                 provisioner_name: type_name,
               ))
             end
+          elsif !enabled
+            env[:ui].info(I18n.t("vagrant.actions.vm.provision.disabled_by_sentinel"))
           end
         end
 
