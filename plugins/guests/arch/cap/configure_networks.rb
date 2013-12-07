@@ -36,6 +36,7 @@ module VagrantPlugins
             # replacing the correct interface name within ruby seems more
             # complicted too (I'm far from being a ruby expert though).
             machine.communicate.sudo("sed -i \"s/eth#{network[:interface]}/`ip link | sed -n 's/.*:\\s\\(.*\\): <.*/\\1/p' | sed -n #{snth}p`/g\" /etc/netctl/eth#{network[:interface]}")
+            machine.communicate.sudo("ip link set eth#{network[:interface]} down")
             machine.communicate.sudo("netctl start eth#{network[:interface]}")
           end
         end
