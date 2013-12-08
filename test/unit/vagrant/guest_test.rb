@@ -156,6 +156,15 @@ describe Vagrant::Guest do
       subject.name.should == :bar
     end
 
+    it "raises an exception if the forced guest can't be found" do
+      register_guest(:foo, nil, true)
+
+      machine.config.vm.stub(:guest => :bar)
+
+      expect { subject.detect! }.
+        to raise_error(Vagrant::Errors::GuestExplicitNotDetected)
+    end
+
     it "raises an exception if no guest can be detected" do
       expect { subject.detect! }.
         to raise_error(Vagrant::Errors::GuestNotDetected)

@@ -39,74 +39,23 @@ module Vagrant
     def detect!
       @logger.info("Detect guest for machine: #{@machine}")
 
-      # Get the mapping of guests with the most parents. We start searching
-      # with the guests with the most parents first.
-      parent_count = {}
-      @guests.each do |name, parts|
-        parent_count[name] = 0
-
-        parent = parts[1]
-        while parent
-          parent_count[name] += 1
-          parent = @guests[parent]
-          parent = parent[1] if parent
-        end
+      guest_name = @machine.config.vm.guest
+      if guest_name
+        @logger.info("Using explicit config.vm.guest value: #{guest_name}")
+      else
+        # No explicit guest was specified, so autodetect it.
+        guest_name = autodetect_guest
+        raise Errors::GuestNotDetected if !guest_name
       end
 
-      # Now swap around the mapping so that it is a mapping of
-      # count to the actual list of guest names
-      parent_count_to_guests = {}
-      parent_count.each do |name, count|
-        parent_count_to_guests[count] ||= []
-        parent_count_to_guests[count] << name
+      if !@guests[guest_name]
+        # This can happen if config.vm.guest was specified with a value
+        # that doesn't exist.
+        raise Errors::GuestExplicitNotDetected, value: guest_name.to_s
       end
 
-      catch(:guest_os) do
-        sorted_counts = parent_count_to_guests.keys.sort.reverse
-        sorted_counts.each do |count|
-          parent_count_to_guests[count].each do |name|
-            @logger.debug("Trying: #{name}")
-            guest_info = @guests[name]
-            guest      = guest_info[0].new
-
-            # If a specific guest was specified, then attempt to use that
-            # guest no matter what. Otherwise, only use it if it was detected.
-            use_this_guest = false
-            if @machine.config.vm.guest.nil?
-              use_this_guest = guest.detect?(@machine)
-            else
-              use_this_guest = @machine.config.vm.guest.to_sym == name.to_sym
-            end
-
-            if use_this_guest
-              @logger.info("Detected: #{name}!")
-              @chain << [name, guest]
-              @name = name
-
-              # Build the proper chain of parents if there are any.
-              # This allows us to do "inheritance" of capabilities later
-              if guest_info[1]
-                parent_name = guest_info[1]
-                parent_info = @guests[parent_name]
-                while parent_info
-                  @chain << [parent_name, parent_info[0].new]
-                  parent_name = parent_info[1]
-                  parent_info = @guests[parent_name]
-                end
-              end
-
-              @logger.info("Full guest chain: #{@chain.inspect}")
-
-              # Exit the search
-              throw :guest_os
-            end
-          end
-        end
-      end
-
-      # We shouldn't reach this point. Ideally we would detect
-      # all operating systems.
-      raise Errors::GuestNotDetected if @chain.empty?
+      @name  = guest_name
+      @chain = guest_chain(@name)
     end
 
     # Tests whether the guest has the named capability.
@@ -167,6 +116,76 @@ module Vagrant
       end
 
       nil
+    end
+
+    # This autodetects the guest to use and returns the name of the guest.
+    # This returns nil if the guest type could not be autodetected.
+    #
+    # @return [Symbol]
+    def autodetect_guest
+      @logger.info("Autodetecting guest for machine: #{@machine}")
+
+      # Get the mapping of guests with the most parents. We start searching
+      # with the guests with the most parents first.
+      parent_count = {}
+      @guests.each do |name, parts|
+        parent_count[name] = 0
+
+        parent = parts[1]
+        while parent
+          parent_count[name] += 1
+          parent = @guests[parent]
+          parent = parent[1] if parent
+        end
+      end
+
+      # Now swap around the mapping so that it is a mapping of
+      # count to the actual list of guest names
+      parent_count_to_guests = {}
+      parent_count.each do |name, count|
+        parent_count_to_guests[count] ||= []
+        parent_count_to_guests[count] << name
+      end
+
+      sorted_counts = parent_count_to_guests.keys.sort.reverse
+      sorted_counts.each do |count|
+        parent_count_to_guests[count].each do |name|
+          @logger.debug("Trying: #{name}")
+          guest_info = @guests[name]
+          guest      = guest_info[0].new
+
+          if guest.detect?(@machine)
+            @logger.info("Detected: #{name}!")
+            return name
+          end
+        end
+      end
+
+      return nil
+    end
+
+    # This returns the complete chain for the given guest.
+    #
+    # @return [Array]
+    def guest_chain(name)
+      guest_info = @guests[name]
+      guest      = guest_info[0].new
+      chain      = []
+      chain << [name, guest]
+
+      # Build the proper chain of parents if there are any.
+      # This allows us to do "inheritance" of capabilities later
+      if guest_info[1]
+        parent_name = guest_info[1]
+        parent_info = @guests[parent_name]
+        while parent_info
+          chain << [parent_name, parent_info[0].new]
+          parent_name = parent_info[1]
+          parent_info = @guests[parent_name]
+        end
+      end
+
+      return chain
     end
   end
 end

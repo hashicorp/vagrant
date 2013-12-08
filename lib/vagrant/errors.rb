@@ -300,6 +300,10 @@ module Vagrant
       error_key(:guest_capability_not_found)
     end
 
+    class GuestExplicitNotDetected < VagrantError
+      error_key(:guest_explicit_not_detected)
+    end
+
     class GuestNotDetected < VagrantError
       error_key(:guest_not_detected)
     end
