@@ -26,9 +26,11 @@ module Vagrant
           enabled = true
 
           ignore_sentinel = true
-          ignore_sentinel = env[:provision_ignore_sentinel] if env.has_key?(:provision_ignore_sentinel)
-          sentinel_path = nil
+          if env.has_key?(:provision_ignore_sentinel)
+            ignore_sentinel = env[:provision_ignore_sentinel]
+          end
 
+          sentinel_path = nil
           if !ignore_sentinel
             @logger.info("Checking provisioner sentinel if we should run...")
             sentinel_path = env[:machine].data_dir.join("action_provision")

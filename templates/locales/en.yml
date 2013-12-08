@@ -1138,7 +1138,8 @@ en:
           persisting: "Persisting the VM UUID (%{uuid})..."
         provision:
           beginning: "Running provisioner: %{provisioner}..."
-          disabled_by_sentinel: "VM already provisioned. Run `vagrant provision` or use `--provision` to force it"
+          disabled_by_sentinel: |-
+            VM already provisioned. Run `vagrant provision` or use `--provision` to force it
         resume:
           resuming: Resuming suspended VM...
           unpausing: |-
