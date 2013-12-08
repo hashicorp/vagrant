@@ -20,6 +20,7 @@ module VagrantPlugins
             temp.close
 
             machine.communicate.upload(temp.path, "/tmp/vagrant_network")
+            machine.communicate.sudo("ln -sf /dev/null /etc/udev/rules.d/80-net-name-slot.rules")
             machine.communicate.sudo("mv /tmp/vagrant_network /etc/netctl/eth#{network[:interface]}")
 
             # Only consider nth line of sed's output below. There's always an
@@ -36,6 +37,7 @@ module VagrantPlugins
             # replacing the correct interface name within ruby seems more
             # complicted too (I'm far from being a ruby expert though).
             machine.communicate.sudo("sed -i \"s/eth#{network[:interface]}/`ip link | sed -n 's/.*:\\s\\(.*\\): <.*/\\1/p' | sed -n #{snth}p`/g\" /etc/netctl/eth#{network[:interface]}")
+            machine.communicate.sudo("ip link set eth#{network[:interface]} down")
             machine.communicate.sudo("netctl start eth#{network[:interface]}")
           end
         end
