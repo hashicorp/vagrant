@@ -22,8 +22,6 @@ module VagrantPlugins
       end
 
       def build_images(*images)
-        possible_options = @build_options.keys
-
         @build_images = images.map do |image|
           image.values_at(:path, :args)
         end
