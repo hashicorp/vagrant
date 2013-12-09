@@ -11,6 +11,7 @@ $vagrant_os_mappings = {
 }
 
 if ENV["VAGRANT_VERSION"]
+  puts "Finding downloads for Vagrant: #{ENV["VAGRANT_VERSION"]}"
   raise "BINTRAY_API_KEY must be set." if !ENV["BINTRAY_API_KEY"]
   http = Net::HTTP.new("dl.bintray.com", 80)
   req = Net::HTTP::Get.new("/mitchellh/vagrant")
@@ -18,6 +19,7 @@ if ENV["VAGRANT_VERSION"]
   response = http.request(req)
 
   response.body.split("\n").each do |line|
+    puts "[DEBUG] Line: #{line}"
     next if line !~ /\/mitchellh\/vagrant\/(.+?)'/
     filename = $1.to_s
     $vagrant_os_mappings.each do |suffix, os|
@@ -31,6 +33,11 @@ if ENV["VAGRANT_VERSION"]
   $vagrant_os = $vagrant_files.keys
   $vagrant_files.each do |key, value|
     value.sort!
+
+    puts "Downloads for #{key}:"
+    value.each do |file|
+      puts "  -- File: #{file}"
+    end
   end
 end
 
