@@ -16,6 +16,16 @@ module VagrantPlugins
         end
       end
 
+      def build_images(images)
+        @machine.communicate.tap do |comm|
+          images.each do |image|
+            path = image[:path]
+            @machine.ui.info(I18n.t("vagrant.docker_building_single", path: path))
+            comm.sudo("docker build #{image[:args]} #{path}")
+          end
+        end
+      end
+
       def start_service
         if !daemon_running? && @machine.guest.capability?(:docker_start_service)
           @machine.guest.capability(:docker_start_service)
