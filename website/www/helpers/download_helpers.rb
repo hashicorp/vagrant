@@ -39,6 +39,8 @@ if ENV["VAGRANT_VERSION"]
       puts "  -- File: #{file}"
     end
   end
+else
+  puts "Not generating downloads."
 end
 
 module DownloadHelpers
