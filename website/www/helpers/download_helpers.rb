@@ -19,7 +19,6 @@ if ENV["VAGRANT_VERSION"]
   response = http.request(req)
 
   response.body.split("\n").each do |line|
-    puts "[DEBUG] Line: #{line}"
     next if line !~ /\/mitchellh\/vagrant\/(.+?)'/
     filename = $1.to_s
     $vagrant_os_mappings.each do |suffix, os|
