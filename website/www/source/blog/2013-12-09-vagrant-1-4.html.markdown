@@ -7,6 +7,8 @@ author_url: https://github.com/mitchellh
 
 Vagrant 1.4 has been released! This is a major new release of Vagrant
 with an incredible amount of new features, improvements, and bug fixes.
+Vagrant 1.4 can be downloaded on our new
+[downloads page](/downloads.html).
 
 First, I have to thank the new core committers of Vagrant for building
 many of the incredible features and improvements that made it into this release:
