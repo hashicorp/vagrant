@@ -22,6 +22,12 @@ if [ -z $BINTRAY_API_KEY ]; then
     exit 1
 fi
 
+# Calculate the checksums
+pushd ./dist
+shasum -a256 * > ./${VERSION}_SHA256SUMS
+popd
+
+# Upload
 for ARCHIVE in ./dist/*; do
     ARCHIVE_NAME=$(basename ${ARCHIVE})
 
