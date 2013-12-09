@@ -20,7 +20,7 @@ Vagrant 1.4 introduces no Vagrantfile backwards incompatibilities so
 it can be considered a drop-in upgrade for prior versions. Vagrant environments
 also do not need to be destroyed prior to upgrading.
 
-There are a huge number of new features introduces in Vagrant 1.4,
+There are a huge number of new features introduced in Vagrant 1.4,
 and this blog post will attempt to cover the major ones. For all changes
 see the [changelog](https://github.com/mitchellh/vagrant/blob/v1.4.0/CHANGELOG.md).
 This blog post will cover:
