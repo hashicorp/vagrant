@@ -1,6 +1,8 @@
 ## 1.4.1 (unreleased)
 
+BUG FIXES:
 
+  - Debian/Ubuntu: fix change_host_name for FQDNs with trailing dots [GH-2610]
 
 ## 1.4.0 (December 9, 2013)
 
