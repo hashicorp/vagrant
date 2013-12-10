@@ -179,7 +179,7 @@ module Vagrant
   # the process.
   #
   # @param [String] name Name of the plugin to load.
-  # @param [String] required_version Optional version specifier to require
+  # @param [String, Array<String>] required_version Optional version specifier to require
   def self.require_plugin(name, required_version = nil)
     if ENV["VAGRANT_NO_PLUGINS"]
       logger = Log4r::Logger.new("vagrant::root")
@@ -236,7 +236,7 @@ module Vagrant
       if !Gem::Requirement.new(required_version).satisfied_by?(Gem::Version.new(installed_version))
         raise Errors::PluginVersionMismatch,
           :plugin => name,
-          :required_version => required_version,
+          :required_version => required_version.inspect,
           :installed_version => installed_version
       end
     end
