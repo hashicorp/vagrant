@@ -6,7 +6,7 @@ sidebar_current: "installation"
 # Installing Vagrant
 
 Installing Vagrant is extremely easy. Head over to the
-[downloads page](http://downloads.vagrantup.com/) and get the appropriate
+[downloads page](http://www.vagrantup.com/downloads) and get the appropriate
 installer or package for your platform. Then install it using standard
 procedures for your operating system.
 

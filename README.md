@@ -15,7 +15,7 @@ between Windows, Mac OS X, and Linux.
 ## Quick Start
 
 First, make sure your development machine has [VirtualBox](http://www.virtualbox.org)
-installed. After this, [download and install the appropriate Vagrant package for your OS](http://downloads.vagrantup.com). If you're not on Mac OS X or Windows, you'll need
+installed. After this, [download and install the appropriate Vagrant package for your OS](http://www.vagrantup.com/downloads). If you're not on Mac OS X or Windows, you'll need
 to add `/opt/vagrant/bin` to your `PATH`. After this, you're ready to go!
 
 To build your first virtual environment:
