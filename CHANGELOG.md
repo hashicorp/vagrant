@@ -2,7 +2,8 @@
 
 BUG FIXES:
 
-  - Debian/Ubuntu: fix change_host_name for FQDNs with trailing dots [GH-2610]
+  - guests/debian,ubuntu: fix change\_host\_name for FQDNs with trailing
+    dots [GH-2610]
 
 ## 1.4.0 (December 9, 2013)
 
