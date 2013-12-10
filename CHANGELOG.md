@@ -6,6 +6,8 @@ BUG FIXES:
     dots [GH-2610]
   - guests/freebsd: configuring networks in the guest works properly
     [GH-2620]
+  - guests/redhat: fix configure networks bringing down interfaces that
+    don't exist. [GH-2614]
 
 ## 1.4.0 (December 9, 2013)
 

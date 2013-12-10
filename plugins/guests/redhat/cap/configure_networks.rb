@@ -51,8 +51,12 @@ module VagrantPlugins
           # SSH never dies.
           interfaces.each do |interface|
             retryable(:on => Vagrant::Errors::VagrantError, :tries => 3, :sleep => 2) do
-              # The interface should already be down
-              machine.communicate.sudo("/sbin/ifdown eth#{interface} 2> /dev/null")
+              # The interface should already be down so this probably
+              # won't do anything, so we run it with error_check false.j
+              machine.communicate.sudo(
+                "/sbin/ifdown eth#{interface} 2> /dev/null", error_check: false)
+
+              # Add the new interface and bring it up
               machine.communicate.sudo("cat /tmp/vagrant-network-entry_#{interface} >> #{network_scripts_dir}/ifcfg-eth#{interface}")
               machine.communicate.sudo("ARPCHECK=no /sbin/ifup eth#{interface} 2> /dev/null")
             end
