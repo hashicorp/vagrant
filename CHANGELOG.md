@@ -4,6 +4,8 @@ BUG FIXES:
 
   - guests/debian,ubuntu: fix change\_host\_name for FQDNs with trailing
     dots [GH-2610]
+  - guests/freebsd: configuring networks in the guest works properly
+    [GH-2620]
 
 ## 1.4.0 (December 9, 2013)
 
