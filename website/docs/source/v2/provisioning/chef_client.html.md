@@ -92,9 +92,17 @@ of these variables:
 
 When you provision your Vagrant virtual machine with Chef server, it creates a
 new Chef "node" entry and Chef "client" entry on the Chef server, using the
-hostname of the machine. After you tear down your guest machine, you must
-explicitly delete these entries from the Chef server before you provision
-a new one with Chef server. For example, using Chef's built-in `knife` tool:
+hostname of the machine. After you tear down your guest machine, Vagrant can be
+configured to do it automatically with the following settings:
+
+```ruby
+chef.delete_node = true
+chef.delete_client = true
+```
+
+If you don't specify it or set it to `false`, you must explicitly delete these
+entries from the Chef server before you provision a new one with Chef server.
+For example, using Chef's built-in `knife` tool:
 
 ```
 $ knife node delete precise64
