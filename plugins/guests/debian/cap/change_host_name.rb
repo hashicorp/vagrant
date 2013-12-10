@@ -47,8 +47,8 @@ module VagrantPlugins
         # 127.0.1.1   host.fqdn.com host.fqdn host
         def update_etc_hosts
           ip_address = '([0-9]{1,3}\.){3}[0-9]{1,3}'
-          search     = "^(#{ip_address})\\s+#{current_hostname}\\b.*$"
-          replace    = "\\1\\t#{fqdn} #{short_hostname}"
+          search     = "^(#{ip_address})\\s+#{Regexp.escape(current_hostname)}(\\s.*)?$"
+          replace    = "\\1 #{fqdn} #{short_hostname}"
           expression = ['s', search, replace, 'g'].join('@')
 
           sudo("sed -ri '#{expression}' /etc/hosts")
