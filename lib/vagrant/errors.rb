@@ -440,6 +440,10 @@ module Vagrant
       error_key(:plugin_load_failed_with_output)
     end
 
+    class PluginVersionMismatch < VagrantError
+      error_key(:plugin_version_mismatch)
+    end
+
     class PluginNotFound < VagrantError
       error_key(:plugin_not_found)
     end
