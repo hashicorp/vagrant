@@ -21,10 +21,10 @@ module VagrantPlugins
           networks.each do |network|
             interfaces.add(network[:interface])
 
-            # Down the interface before munging the config file
-            retryable(:on => Vagrant::Errors::VagrantError, :tries => 3, :sleep => 2) do
-              machine.communicate.sudo("/sbin/ifdown eth#{network[:interface]} 2> /dev/null")
-            end
+            # Down the interface before munging the config file. This might fail
+            # if the interface is not actually set up yet so ignore errors.
+            machine.communicate.sudo(
+              "/sbin/ifdown eth#{network[:interface]} 2> /dev/null", error_check: false)
 
             # Remove any previous vagrant configuration in this network interface's
             # configuration files.
@@ -52,7 +52,7 @@ module VagrantPlugins
           interfaces.each do |interface|
             retryable(:on => Vagrant::Errors::VagrantError, :tries => 3, :sleep => 2) do
               # The interface should already be down so this probably
-              # won't do anything, so we run it with error_check false.j
+              # won't do anything, so we run it with error_check false.
               machine.communicate.sudo(
                 "/sbin/ifdown eth#{interface} 2> /dev/null", error_check: false)
 
