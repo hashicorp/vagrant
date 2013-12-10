@@ -22,7 +22,7 @@ module VagrantPlugins
             temp.write(entry)
             temp.close
 
-            machine.communicate.upload(temp.path, "/tmp/vagrant-network-entry", {:shell => "sh"})
+            machine.communicate.upload(temp.path, "/tmp/vagrant-network-entry")
             machine.communicate.sudo("su -m root -c 'cat /tmp/vagrant-network-entry >> /etc/rc.conf'", {:shell => "sh"})
             machine.communicate.sudo("rm /tmp/vagrant-network-entry", {:shell => "sh"})
 
