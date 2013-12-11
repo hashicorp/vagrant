@@ -3,7 +3,7 @@ require "timeout"
 
 module Vagrant
   module Util
-    # Contains the method {#is_ruby_open?} to check if a port is open
+    # Contains the method {#is_port_open?} to check if a port is open
     # (listening) or closed (not in use). This method isn't completely
     # fool-proof, but it works enough of the time to be useful.
     module IsPortOpen
