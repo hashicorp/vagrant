@@ -3,6 +3,10 @@ module VagrantPlugins
     module Cap
       class Halt
         def self.halt(machine)
+          # unmount any host mounted NFS folders
+          folders = machine.config.vm.synced_folders
+          machine.env.host.unmount_nfs_folders(folders)
+
           begin
             machine.communicate.sudo("shutdown -h now")
           rescue IOError

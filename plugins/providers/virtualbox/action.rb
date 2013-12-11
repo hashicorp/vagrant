@@ -33,6 +33,7 @@ module VagrantPlugins
       autoload :Package, File.expand_path("../action/package", __FILE__)
       autoload :PackageVagrantfile, File.expand_path("../action/package_vagrantfile", __FILE__)
       autoload :PrepareNFSSettings, File.expand_path("../action/prepare_nfs_settings", __FILE__)
+      autoload :PrepareNFSGuestSettings, File.expand_path("../action/prepare_nfs_guest_settings", __FILE__)
       autoload :PrepareForwardedPortCollisionParams, File.expand_path("../action/prepare_forwarded_port_collision_params", __FILE__)
       autoload :Resume, File.expand_path("../action/resume", __FILE__)
       autoload :SaneDefaults, File.expand_path("../action/sane_defaults", __FILE__)
@@ -59,6 +60,7 @@ module VagrantPlugins
           b.use SyncedFolderCleanup
           b.use SyncedFolders
           b.use PrepareNFSSettings
+          b.use PrepareNFSGuestSettings
           b.use ClearNetworkInterfaces
           b.use Network
           b.use ForwardPorts
