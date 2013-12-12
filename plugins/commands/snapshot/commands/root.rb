@@ -6,7 +6,7 @@ module VagrantPlugins
       # the subcommands here within.
       class Root < Vagrant.plugin('2', :command)
         def self.synopsis
-          'Manage snapshots through the command-line interface'
+          'manages snapshots: creation, deletion, etc.'
         end
 
         def initialize(argv, argc)
@@ -25,8 +25,8 @@ module VagrantPlugins
             Create
           end
 
-          @subcommands.register(:destroy) do
-            require_relative 'destroy'
+          @subcommands.register(:delete) do
+            require_relative 'delete'
             Delete
           end
 

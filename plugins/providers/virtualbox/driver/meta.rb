@@ -107,6 +107,7 @@ module VagrantPlugins
           :read_used_ports,
           :read_vms,
           :resume,
+          :restore_snapshot,
           :set_mac_address,
           :set_name,
           :share_folders,

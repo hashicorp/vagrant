@@ -1,6 +1,6 @@
 # coding: utf-8
 module VagrantPlugins
-  module ProviderVirtualBox
+  module CommandSnapshot
     module Action
       class ListSnapshots
         def initialize(app, env)
@@ -12,7 +12,12 @@ module VagrantPlugins
           
           # List all of the snapshots for the machine.
           env[:ui].info I18n.t("vagrant.actions.vm.snapshot.listing")          
-          env[:machine].provider.driver.list_snapshots
+          output = env[:machine].provider.driver.list_snapshots({
+            :machine_readable => env[:snapshot_machinereadable],
+            :details => env[:snapshot_details]
+          })
+
+          puts output
 
           @app.call(env)
         end

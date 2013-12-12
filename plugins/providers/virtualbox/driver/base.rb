@@ -74,6 +74,15 @@ module VagrantPlugins
         # 
         # @param [Hash] options Options for the snapshot.
         def create_snapshot(options)
+          args = []
+          
+          if options[:description]
+            args.concat(['--description', options[:description]])
+          end
+
+          args.concat('--live') if options[:live]
+          
+          execute('snapshot', @uuid, 'take', options[:name], *args)
         end
 
         # Creates a host only network with the given options.
@@ -90,9 +99,9 @@ module VagrantPlugins
 
         # Deletes a snapshot associated with this VM.
         # 
-        # @param [String] uuid Unique identifier for the snapshot.
-        # @param [Hash] options Options for the snapshot.
-        def delete_snapshot(uuid, options)
+        # @param [String] name Unique identifier for the snapshot.
+        def delete_snapshot(name)
+          execute('snapshot', @uuid, 'delete', name)
         end
 
         # Deletes any host only networks that aren't being used for anything.
@@ -173,7 +182,12 @@ module VagrantPlugins
 
         # Lists the snapshots of the VM.
         #
-        def list_snapshots
+        # @param [Hash] options Options for snapshot listing.
+        def list_snapshots(options)
+          args = []
+          args.concat('--details') if options[:details]
+          args.concat('--machinereadable') if options[:machine_readable]
+          execute('snapshot', @uuid, 'list', *args).inspect
         end
 
         # Returns the maximum number of network adapters.
@@ -253,6 +267,13 @@ module VagrantPlugins
         #
         # @return [Array<String>]
         def read_vms
+        end
+
+        # Restores the VM state to an earlier snapshot.
+        #
+        # @param [String] name Unique identifier of the snapshot.
+        def restore_snapshot(name)
+          execute('snapshot', @uuid, 'restore', name)
         end
 
         # Sets the MAC address of the first network adapter.

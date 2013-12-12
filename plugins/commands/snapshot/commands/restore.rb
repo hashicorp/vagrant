@@ -1,4 +1,6 @@
 # coding: utf-8
+require 'optparse'
+
 module VagrantPlugins
   module CommandSnapshot
     module Command
@@ -10,6 +12,7 @@ module VagrantPlugins
         end
         
         def execute
+          options = {}
           opts = OptionParser.new do |o|
             o.banner = 'Usage: vagrant snapshot restore <machine> <snapshot> [<args>]'
           end
@@ -17,9 +20,15 @@ module VagrantPlugins
           # Parse the options and require snapshot identifier.
           argv = parse_options(opts)
           return unless argv
+          fail Vagrant::Errors::CLIInvalidUsage, :help => opts.help.chomp if argv.length < 2
 
-          with_target_vms(argv) do |m|
-            m.action(:restore_snapshot, opts)
+          options[:snapshot_name] = argv[1]
+          with_target_vms(argv[0], single_target: true) do |m|
+            @env.action_runner.run(Action::RestoreSnapshot, {
+              :action_name => "machine_action_restore_snapshot".to_sym,
+              :machine => m,
+              :snapshot_name => options[:snapshot_name]
+            })            
           end
         end
       end

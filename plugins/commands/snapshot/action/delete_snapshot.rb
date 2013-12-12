@@ -1,6 +1,6 @@
 # coding: utf-8
 module VagrantPlugins
-  module ProviderVirtualBox
+  module CommandSnapshot
     module Action
       class DeleteSnapshot
         def initialize(app, env)
@@ -12,6 +12,7 @@ module VagrantPlugins
           
           # Take a snapshot of the machine.
           env[:ui].info I18n.t("vagrant.actions.vm.snapshot.deleting")          
+          env[:machine].provider.driver.delete_snapshot(env[:snapshot_name])
 
           @app.call(env)
         end

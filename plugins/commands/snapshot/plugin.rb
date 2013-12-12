@@ -2,6 +2,7 @@
 module VagrantPlugins
   module CommandSnapshot
     class Plugin < Vagrant.plugin('2')
+      name 'snapshot command'
       description <<-DESC
         This command helps manage snapshots within the Vagrant
         environment if the guest provider has that capability.
@@ -11,5 +12,7 @@ DESC
         Command::Root
       end
     end
+
+    autoload :Action, File.expand_path('../action', __FILE__)
   end
 end
