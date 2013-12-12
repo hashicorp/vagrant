@@ -38,7 +38,7 @@ on remote clouds such as AWS or RackSpace with the _same workflow_. Ditch
 your custom scripts to recycle EC2 instances, stop juggling SSH prompts
 to various machines, and start using Vagrant to bring sanity to your life.
 
-If you're a **designer**, Vagrant will automatically setup everything required
+If you're a **designer**, Vagrant will automatically set everything up that is required
 for that web app in order for you to focus on doing what you do best:
 design. Once a developer configures Vagrant, you don't need to worry about
 how to get that app running ever again. No more bothering other developers

@@ -48,7 +48,7 @@ Now imagine every project you've ever worked on being this easy to
 set up.
 
 With Vagrant, `vagrant up` is all you need to work on any project,
-to install every dependency that project needs, and to setup any
+to install every dependency that project needs, and to set up any
 networking and synced folders so you can continue working from the
 comfort of your own machine.
 

@@ -31,7 +31,7 @@ and examples. Don't be afraid if it looks intimidating, we'll modify it
 soon enough.
 
 You can also run `vagrant init` in a pre-existing directory to
-setup Vagrant for an existing project.
+set up Vagrant for an existing project.
 
 The Vagrantfile is meant to be committed to version control with
 your project, if you use version control. This way, every person working
