@@ -3,13 +3,14 @@ require 'set'
 module VagrantPlugins
   module Docker
     class Config < Vagrant.plugin("2", :config)
-      attr_reader :images, :containers
+      attr_reader :images, :containers, :build_options
       attr_accessor :version
 
       def initialize
-        @images     = Set.new
-        @containers = Hash.new
-        @version    = UNSET_VALUE
+        @images         = Set.new
+        @containers     = Hash.new
+        @version        = UNSET_VALUE
+        @build_images   = []
       end
 
       def images=(images)
@@ -18,6 +19,12 @@ module VagrantPlugins
 
       def pull_images(*images)
         @images += images.map(&:to_s)
+      end
+
+      def build_images(*images)
+        @build_images = images.map do |image|
+          image.values_at(:path, :args)
+        end
       end
 
       def run(name, **options)

@@ -33,6 +33,11 @@ module VagrantPlugins
           @client.pull_images(*config.images)
         end
 
+        if config.build_images.any?
+          @machine.ui.info(I18n.t("vagrant.docker_building_images"))
+          @client.build_images(config.build_images)
+        end
+
         if config.containers.any?
           @machine.ui.info(I18n.t("vagrant.docker_starting_containers"))
           @client.run(config.containers)
