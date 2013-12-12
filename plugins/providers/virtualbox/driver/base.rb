@@ -70,6 +70,12 @@ module VagrantPlugins
         def create_dhcp_server(network, options)
         end
 
+        # Creates a snapshot of the VM associated with driver.
+        # 
+        # @param [Hash] options Options for the snapshot.
+        def create_snapshot(options)
+        end
+
         # Creates a host only network with the given options.
         #
         # @param [Hash] options Options to create the host only network.
@@ -80,6 +86,13 @@ module VagrantPlugins
 
         # Deletes the virtual machine references by this driver.
         def delete
+        end
+
+        # Deletes a snapshot associated with this VM.
+        # 
+        # @param [String] uuid Unique identifier for the snapshot.
+        # @param [Hash] options Options for the snapshot.
+        def delete_snapshot(uuid, options)
         end
 
         # Deletes any host only networks that aren't being used for anything.
@@ -156,6 +169,11 @@ module VagrantPlugins
         # @param [String] ovf Path to the OVF file.
         # @return [String] UUID of the imported VM.
         def import(ovf)
+        end
+
+        # Lists the snapshots of the VM.
+        #
+        def list_snapshots
         end
 
         # Returns the maximum number of network adapters.
