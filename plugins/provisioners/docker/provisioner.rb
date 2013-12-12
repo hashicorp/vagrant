@@ -1,5 +1,5 @@
-require_relative "docker_client"
-require_relative "docker_installer"
+require_relative "client"
+require_relative "installer"
 
 module VagrantPlugins
   module Docker
@@ -13,9 +13,8 @@ module VagrantPlugins
       def initialize(machine, config, installer = nil, client = nil)
         super(machine, config)
 
-        # TODO: Rename to installer / client (drop docker suffix)
-        @installer = installer || DockerInstaller.new(@machine, config.version)
-        @client    = client    || DockerClient.new(@machine)
+        @installer = installer || Installer.new(@machine, config.version)
+        @client    = client    || Client.new(@machine)
       end
 
       def provision
