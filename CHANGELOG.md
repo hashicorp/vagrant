@@ -1,5 +1,10 @@
 ## 1.4.1 (unreleased)
 
+IMPROVEMENTS:
+
+  - provisioners/docker: Remove "Docker" prefix from Client and Installer
+    classes [GH-2641]
+
 BUG FIXES:
 
   - core: box removal of a V1 box works
