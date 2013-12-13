@@ -112,7 +112,7 @@ module VagrantPlugins
         end
 
         def delete_from_chef_server(deletable)
-          node_name = @config.node_name || @machine.config.vm.host_name
+          node_name = @config.node_name || @machine.config.vm.hostname
           @machine.env.ui.info(I18n.t(
             "vagrant.provisioners.chef.deleting_from_server",
             deletable: deletable, name: node_name))
