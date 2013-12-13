@@ -2,6 +2,7 @@
 
 BUG FIXES:
 
+  - core: box removal of a V1 box works
   - guests/debian,ubuntu: fix change\_host\_name for FQDNs with trailing
     dots [GH-2610]
   - guests/freebsd: configuring networks in the guest works properly

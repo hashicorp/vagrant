@@ -18,7 +18,7 @@ module Vagrant
           begin
             box = env[:box_collection].find(box_name, box_provider)
           rescue Vagrant::Errors::BoxUpgradeRequired
-            @env.boxes.upgrade(box_name)
+            env[:box_collection].upgrade(box_name)
             retry
           end
 
