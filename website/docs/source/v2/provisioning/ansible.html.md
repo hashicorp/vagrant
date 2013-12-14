@@ -120,16 +120,17 @@ The Ansible provisioner also includes a number of additional options that can be
 all of which get passed to the `ansible-playbook` command that ships with Ansible.
 
 * `ansible.extra_vars` can be used to pass additional variables (with highest priority) to the playbook. This parameter can be a path to a JSON or YAML file, or a hash. For example:
-```
-ansible.extra_vars = {
-  ntp_server: "pool.ntp.org",
-  nginx: {
-    port: 8008,
-    workers: 4
-  }
-}
-```
-These variables take the highest precedence over any other variables.
+
+    ```
+    ansible.extra_vars = {
+      ntp_server: "pool.ntp.org",
+      nginx: {
+        port: 8008,
+        workers: 4
+      }
+    }
+    ```
+    These variables take the highest precedence over any other variables.
 * `ansible.sudo` can be set to `true` to cause Ansible to perform commands using sudo.
 * `ansible.sudo_user` can be set to a string containing a username on the guest who should be used
 by the sudo command.
@@ -147,12 +148,13 @@ by the sudo command.
   * Any supported options (described above) will override conflicting `raw_arguments` value (e.g. `--tags` or `--start-at-task`)
   * Vagrant default user authentication can be overridden via `raw_arguments` (with custom values for `--user` and `--private-key`)
 * `ansible.groups` can be used to pass a hash of group names and group members to be included in the generated inventory file.  For example:
-```
-ansible.groups = {
-  "group1" => ["machine1"],
-  "group2" => ["machine2", "machine3"],
-  "all_groups:children" => ["group1", "group2"]
-}
-```
-Note that only the current machine and its related groups will be added to the inventory file.
+
+    ```
+    ansible.groups = {
+      "group1" => ["machine1"],
+      "group2" => ["machine2", "machine3"],
+      "all_groups:children" => ["group1", "group2"]
+    }
+    ```
+    Note that only the current machine and its related groups will be added to the inventory file.
 * `ansible.host_key_checking` can be set to `false` which will disable host key checking and prevent `"FAILED: (25, 'Inappropriate ioctl for device')"` errors from being reported during provisioner runs.  The default value is `true`, which matches the default behavior of Ansible 1.2.1 and later.
