@@ -4,18 +4,19 @@ module VagrantPlugins
       class PrepareNFSSettings
         include Vagrant::Util::Retryable
 
-        def initialize(app,env)
+        def initialize(app, env)
           @app = app
           @logger = Log4r::Logger.new("vagrant::action::vm::nfs")
         end
 
         def call(env)
           @machine = env[:machine]
+
           @app.call(env)
 
           if using_nfs?
             @logger.info("Using NFS, preparing NFS settings by reading host IP and machine IP")
-            add_nfs_settings_to_env!(env)
+            add_ips_to_env!(env)
           end
         end
 
@@ -31,7 +32,7 @@ module VagrantPlugins
         # mounting.
         #
         # The ! indicates that this method modifies its argument.
-        def add_nfs_settings_to_env!(env)
+        def add_ips_to_env!(env)
           adapter, host_ip = find_host_only_adapter
           machine_ip       = nil
           machine_ip       = read_machine_ip(adapter) if adapter

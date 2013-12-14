@@ -1,6 +1,8 @@
 require 'fileutils'
 require 'zlib'
 
+require "log4r"
+
 require "vagrant/util/platform"
 
 module VagrantPlugins
@@ -13,6 +15,12 @@ module VagrantPlugins
     #     will be mounted.
     #
     class SyncedFolder < Vagrant.plugin("2", :synced_folder)
+      def initialize(*args)
+        super
+
+        @logger = Log4r::Logger.new("vagrant::synced_folders::nfs")
+      end
+
       def usable?(machine)
         # NFS is always available
         true
@@ -53,14 +61,10 @@ module VagrantPlugins
 
       def cleanup(machine, opts)
         ids = opts[:nfs_valid_ids]
-        if !ids
-          # Get the ID of all active machines.
-          ids = machine.env.active_machines.map do |name, provider|
-            machine.env.machine(name, provider).id
-          end
-        end
+        raise Vagrant::Errors::NFSNoValidIds if !ids
 
         # Prune any of the unused machines
+        @logger.info("NFS pruning. Valid IDs: #{ids.inspect}")
         machine.env.host.nfs_prune(ids)
       end
 

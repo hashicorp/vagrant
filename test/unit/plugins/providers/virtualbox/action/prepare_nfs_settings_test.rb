@@ -38,24 +38,22 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSSettings do
     called.should == true
   end
 
-  describe "with an nfs synced folder" do
+  context "with an nfs synced folder" do
     before do
       env[:machine].config.vm.synced_folder("/host/path", "/guest/path", nfs: true)
       env[:machine].config.finalize!
+
+      # Stub out the stuff so it just works by default
+      driver.stub(read_network_interfaces: {
+        2 => {type: :hostonly, hostonly: "vmnet2"},
+      })
+      driver.stub(read_host_only_interfaces: [
+        {name: "vmnet2", ip: "1.2.3.4"},
+      ])
+      driver.stub(:read_guest_ip).with(1).and_return("2.3.4.5")
     end
 
     it "sets nfs_host_ip and nfs_machine_ip properly" do
-      adapter_number = 2
-      adapter_name   = "vmnet2"
-      driver.stub(:read_network_interfaces).and_return(
-        adapter_number => {type: :hostonly, hostonly: adapter_name}
-      )
-      driver.stub(:read_host_only_interfaces).and_return([
-        {name: adapter_name, ip: "1.2.3.4"}
-      ])
-      driver.should_receive(:read_guest_ip).with(adapter_number-1).
-        and_return("2.3.4.5")
-
       subject.call(env)
 
       env[:nfs_host_ip].should    == "1.2.3.4"
@@ -70,17 +68,6 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSSettings do
     end
 
     it "retries through guest property not found errors" do
-      adapter_number = 2
-      adapter_name   = "vmnet2"
-      driver.stub(:read_network_interfaces).and_return({
-        adapter_number => {type: :hostonly, hostonly: adapter_name}
-      })
-      driver.stub(:read_host_only_interfaces).and_return([
-        {name: adapter_name, ip: "1.2.3.4"}
-      ])
-      driver.should_receive(:read_guest_ip).with(adapter_number-1).
-        and_return("2.3.4.5")
-
       raise_then_return = [
         lambda { raise Vagrant::Errors::VirtualBoxGuestPropertyNotFound, :guest_property => 'stub' },
         lambda { "2.3.4.5" }
@@ -98,14 +85,6 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSSettings do
     end
 
     it "raises an error informing the user of a bug when the guest IP cannot be found" do
-      adapter_number = 2
-      adapter_name   = "vmnet2"
-      driver.stub(:read_network_interfaces).and_return({
-        adapter_number => {type: :hostonly, hostonly: adapter_name}
-      })
-      driver.stub(:read_host_only_interfaces).and_return([
-        {name: adapter_name, ip: "1.2.3.4"}
-      ])
       driver.stub(:read_guest_ip) {
         raise Vagrant::Errors::VirtualBoxGuestPropertyNotFound, :guest_property => 'stub'
       }

@@ -33,6 +33,7 @@ module VagrantPlugins
       autoload :Package, File.expand_path("../action/package", __FILE__)
       autoload :PackageVagrantfile, File.expand_path("../action/package_vagrantfile", __FILE__)
       autoload :PrepareNFSSettings, File.expand_path("../action/prepare_nfs_settings", __FILE__)
+      autoload :PrepareNFSValidIds, File.expand_path("../action/prepare_nfs_valid_ids", __FILE__)
       autoload :PrepareForwardedPortCollisionParams, File.expand_path("../action/prepare_forwarded_port_collision_params", __FILE__)
       autoload :Resume, File.expand_path("../action/resume", __FILE__)
       autoload :SaneDefaults, File.expand_path("../action/sane_defaults", __FILE__)
@@ -56,6 +57,7 @@ module VagrantPlugins
           b.use EnvSet, :port_collision_repair => true
           b.use PrepareForwardedPortCollisionParams
           b.use HandleForwardedPortCollisions
+          b.use PrepareNFSValidIds
           b.use SyncedFolderCleanup
           b.use SyncedFolders
           b.use PrepareNFSSettings
@@ -93,6 +95,7 @@ module VagrantPlugins
                 b3.use CleanMachineFolder
                 b3.use DestroyUnusedNetworkInterfaces
                 b3.use ProvisionerCleanup
+                b3.use PrepareNFSValidIds
                 b3.use SyncedFolderCleanup
               else
                 b3.use MessageWillNotDestroy
@@ -143,6 +146,7 @@ module VagrantPlugins
             b2.use CheckAccessible
             b2.use action_halt
             b2.use ClearForwardedPorts
+            b2.use PrepareNFSValidIds
             b2.use SyncedFolderCleanup
             b2.use Export
             b2.use PackageVagrantfile
