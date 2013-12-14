@@ -55,6 +55,9 @@ en:
     docker_auto_start_not_available: |-
       Unable to configure automatic restart of Docker containers on
       the guest machine
+    docker_install_with_version_not_supported: |-
+      Vagrant is not capable of installing an specific version of Docker
+      onto the guest machine and the latest version will be installed.
     plugin_needs_reinstall: |-
       The following plugins were installed with a version of Vagrant
       that had different versions of underlying components. Because
