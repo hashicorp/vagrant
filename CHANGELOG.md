@@ -3,6 +3,8 @@
 IMPROVEMENTS:
 
   - hosts/bsd: check NFS exports file for issues prior to exporting
+  - provisioners/ansible: Add ability to use Ansible groups in generated
+    inventory [GH-2606]
   - provisioners/docker: Add support for using the provisioner with RedHat
     based guests [GH-2649]
   - provisioners/docker: Remove "Docker" prefix from Client and Installer
