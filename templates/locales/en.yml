@@ -1011,8 +1011,9 @@ en:
             The guest additions on this VM do not match the installed version of
             VirtualBox! In most cases this is fine, but in rare cases it can
             cause things such as shared folders to not work properly. If you see
-            shared folder errors, please update the guest additions within the
-            virtual machine and reload your VM.
+            shared folder errors, please make sure the guest additions within the
+            virtual machine match the version of VirtualBox you have installed on
+            your host and reload your VM.
 
             Guest Additions Version: %{guest_version}
             VirtualBox Version: %{virtualbox_version}
