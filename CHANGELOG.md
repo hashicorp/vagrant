@@ -10,6 +10,8 @@ IMPROVEMENTS:
 BUG FIXES:
 
   - core: box removal of a V1 box works
+  - core: `vagrant ssh -c` commands are now executed in the context of
+    a login shell (regression). [GH-2636]
   - guests/debian: fix `use_dhcp_assigned_default_route` to work properly.
     [GH-2648]
   - guests/debian,ubuntu: fix change\_host\_name for FQDNs with trailing

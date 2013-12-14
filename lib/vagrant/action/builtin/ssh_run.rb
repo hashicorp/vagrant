@@ -32,8 +32,14 @@ module Vagrant
             end
           end
 
-          # Execute!
+          # Get the command and wrap it in a login shell
           command = env[:ssh_run_command]
+          command = command.gsub(/'/) do |m|
+            "#{m}\\#{m}#{m}"
+          end
+          command = "#{env[:machine].config.ssh.shell} -c '#{command}'"
+
+          # Execute!
           opts = env[:ssh_opts] || {}
           opts[:extra_args] = ["-t", command]
           opts[:subprocess] = true
