@@ -10,6 +10,8 @@ IMPROVEMENTS:
 BUG FIXES:
 
   - core: box removal of a V1 box works
+  - guests/debian: fix `use_dhcp_assigned_default_route` to work properly.
+    [GH-2648]
   - guests/debian,ubuntu: fix change\_host\_name for FQDNs with trailing
     dots [GH-2610]
   - guests/freebsd: configuring networks in the guest works properly
