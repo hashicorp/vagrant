@@ -16,7 +16,8 @@ BUG FIXES:
     [GH-2620]
   - guests/redhat: fix configure networks bringing down interfaces that
     don't exist. [GH-2614]
-  - provisioners/chef: fix node/client deletion when node_name is not set [GH-2345]
+  - provisioners/chef: fix node/client deletion when node_name is not
+    set. [GH-2345]
 
 ## 1.4.0 (December 9, 2013)
 
