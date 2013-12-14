@@ -2,6 +2,8 @@
 
 IMPROVEMENTS:
 
+  - provisioners/docker: Add support for using the provisioner with RedHat
+    based guests [GH-2649]
   - provisioners/docker: Remove "Docker" prefix from Client and Installer
     classes [GH-2641]
 
