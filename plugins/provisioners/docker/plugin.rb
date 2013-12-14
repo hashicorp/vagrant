@@ -24,11 +24,6 @@ module VagrantPlugins
         Cap::Debian::DockerConfigureAutoStart
       end
 
-      guest_capability("debian", "docker_configure_vagrant_user") do
-        require_relative "cap/debian/docker_configure_vagrant_user"
-        Cap::Debian::DockerConfigureVagrantUser
-      end
-
       guest_capability("debian", "docker_start_service") do
         require_relative "cap/debian/docker_start_service"
         Cap::Debian::DockerStartService
@@ -44,11 +39,6 @@ module VagrantPlugins
         Cap::Redhat::DockerConfigureAutoStart
       end
 
-      guest_capability("redhat", "docker_configure_vagrant_user") do
-        require_relative "cap/redhat/docker_configure_vagrant_user"
-        Cap::Redhat::DockerConfigureVagrantUser
-      end
-
       guest_capability("redhat", "docker_start_service") do
         require_relative "cap/redhat/docker_start_service"
         Cap::Redhat::DockerStartService
@@ -57,6 +47,11 @@ module VagrantPlugins
       guest_capability("linux", "docker_installed") do
         require_relative "cap/linux/docker_installed"
         Cap::Linux::DockerInstalled
+      end
+
+      guest_capability("linux", "docker_configure_vagrant_user") do
+        require_relative "cap/linux/docker_configure_vagrant_user"
+        Cap::Linux::DockerConfigureVagrantUser
       end
 
       provisioner(:docker) do
