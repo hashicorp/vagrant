@@ -55,7 +55,7 @@ module VagrantPlugins
             return exit_status
           else
             @logger.debug("Invoking `ssh` action on machine")
-            vm.action(:ssh, :ssh_opts => opts)
+            vm.action(:ssh, :ssh_opts => ssh_opts)
 
             # We should never reach this point, since the point of `ssh`
             # is to exec into the proper SSH shell, but we'll just return
