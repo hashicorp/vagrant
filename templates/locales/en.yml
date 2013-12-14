@@ -429,6 +429,12 @@ en:
         A multi-vm environment is required for name specification to this command.
       multi_vm_target_required: |-
         This command requires a specific VM name to target in a multi-VM environment.
+      nfs_bad_exports: |-
+        NFS is reporting that your exports file is invalid. Vagrant does
+        this check before making any changes to the file. Please correct
+        the issues below and execute "vagrant reload":
+
+        %{output}
       nfs_cant_read_exports: |-
         Vagrant can't read your current NFS exports! The exports file should be
         readable by any user. This is usually caused by invalid permissions

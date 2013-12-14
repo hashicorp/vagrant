@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+  - hosts/bsd: check NFS exports file for issues prior to exporting
   - provisioners/docker: Add support for using the provisioner with RedHat
     based guests [GH-2649]
   - provisioners/docker: Remove "Docker" prefix from Client and Installer

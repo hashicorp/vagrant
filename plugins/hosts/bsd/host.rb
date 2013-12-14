@@ -2,6 +2,7 @@ require 'log4r'
 
 require "vagrant"
 require 'vagrant/util/platform'
+require "vagrant/util/subprocess"
 
 module VagrantPlugins
   module HostBSD
@@ -35,6 +36,8 @@ module VagrantPlugins
       end
 
       def nfs_export(id, ips, folders)
+        nfs_checkexports!
+
         # We need to build up mapping of directories that are enclosed
         # within each other because the exports file has to have subdirectories
         # of an exported directory on the same line. e.g.:
@@ -161,6 +164,13 @@ module VagrantPlugins
       end
 
       protected
+
+      def nfs_checkexports!
+        r = Subprocess.execute("nfsd", "checkexports")
+        if r.exit_code != 0
+          raise Vagrant::Errors::NFSBadExports, output: r.stderr
+        end
+      end
 
       def nfs_cleanup(id)
         return if !File.exist?("/etc/exports")
