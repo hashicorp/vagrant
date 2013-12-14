@@ -38,20 +38,22 @@ module VagrantPlugins
 
         # Execute the actual SSH
         with_target_vms(argv, :single_target => true) do |vm|
+          ssh_opts = {
+            :plain_mode => options[:plain_mode],
+            :extra_args => options[:ssh_args]
+          }
+
           if options[:command]
             @logger.debug("Executing single command on remote machine: #{options[:command]}")
-            env = vm.action(:ssh_run, :ssh_run_command => options[:command])
+            env = vm.action(:ssh_run,
+                            ssh_opts: ssh_opts,
+                            ssh_run_command: options[:command],)
 
             # Exit with the exit status of the command or a 0 if we didn't
             # get one.
             exit_status = env[:ssh_run_exit_status] || 0
             return exit_status
           else
-            opts = {
-              :plain_mode => options[:plain_mode],
-              :extra_args => options[:ssh_args]
-            }
-
             @logger.debug("Invoking `ssh` action on machine")
             vm.action(:ssh, :ssh_opts => opts)
 

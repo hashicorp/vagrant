@@ -41,7 +41,14 @@ module Vagrant
 
           # Execute!
           opts = env[:ssh_opts] || {}
-          opts[:extra_args] = ["-t", command]
+
+          # Allow the user to specify a tty or non-tty manually, but if they
+          # don't then we default to a TTY
+          if !opts[:extra_args].include?("-t") && !opts[:extra_args].include?("-T")
+            opts[:extra_args] << "-t"
+          end
+
+          opts[:extra_args] << command
           opts[:subprocess] = true
           env[:ssh_run_exit_status] = Util::SSH.exec(info, opts)
 
