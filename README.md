@@ -38,6 +38,8 @@ If you want the bleeding edge version of Vagrant, we try to keep master pretty s
 and you're welcome to give it a shot. The following is an example showing how to do this:
 
     rake install
+    
+Ruby 2.0 is needed.
 
 ## Contributing to Vagrant
 
