@@ -564,6 +564,10 @@ module Vagrant
       error_key(:vagrantfile_syntax_error)
     end
 
+    class VagrantfileWriteError < VagrantError
+      error_key(:vagrantfile_write_error)
+    end
+
     class VagrantVersionBad < VagrantError
       error_key(:vagrant_version_bad)
     end

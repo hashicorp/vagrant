@@ -17,6 +17,7 @@ BUG FIXES:
     a login shell (regression). [GH-2636]
   - core: specifying `-t` or `-T` to `vagrant ssh -c` as extra args
     will properly enable/disable a TTY for OpenSSH. [GH-2618]
+  - commands/init: Error if can't write Vagrantfile to directory. [GH-2660]
   - guests/debian: fix `use_dhcp_assigned_default_route` to work properly.
     [GH-2648]
   - guests/debian,ubuntu: fix change\_host\_name for FQDNs with trailing

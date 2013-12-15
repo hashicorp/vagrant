@@ -676,6 +676,11 @@ en:
         message is reproduced below for convenience:
 
         %{file}
+      vagrantfile_write_error: |-
+        The user that is running Vagrant doesn't have the proper permissions
+        to write a Vagrantfile to the specified location. Please ensure that
+        you call `vagrant init` in a location where the proper permissions
+        are in place to create a Vagrantfile.
       vagrant_version_bad: |-
         This Vagrant environment has specified that it requires the Vagrant
         version to satisfy the following version requirements:

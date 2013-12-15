@@ -38,8 +38,12 @@ module VagrantPlugins
 
         if save_path
           # Write out the contents
-          save_path.open("w+") do |f|
-            f.write(contents)
+          begin
+            save_path.open("w+") do |f|
+              f.write(contents)
+            end
+          rescue Errno::EACCES
+            raise Vagrant::Errors::VagrantfileWriteError
           end
 
           @env.ui.info(I18n.t("vagrant.commands.init.success"), prefix: false)
