@@ -70,6 +70,21 @@ module VagrantPlugins
         def create_dhcp_server(network, options)
         end
 
+        # Creates a snapshot of the VM associated with driver.
+        # 
+        # @param [Hash] options Options for the snapshot.
+        def create_snapshot(options)
+          args = []
+          
+          if options[:description]
+            args.concat(['--description', options[:description]])
+          end
+
+          args.concat('--live') if options[:live]
+          
+          execute('snapshot', @uuid, 'take', options[:name], *args)
+        end
+
         # Creates a host only network with the given options.
         #
         # @param [Hash] options Options to create the host only network.
@@ -80,6 +95,13 @@ module VagrantPlugins
 
         # Deletes the virtual machine references by this driver.
         def delete
+        end
+
+        # Deletes a snapshot associated with this VM.
+        # 
+        # @param [String] name Unique identifier for the snapshot.
+        def delete_snapshot(name)
+          execute('snapshot', @uuid, 'delete', name)
         end
 
         # Deletes any host only networks that aren't being used for anything.
@@ -156,6 +178,16 @@ module VagrantPlugins
         # @param [String] ovf Path to the OVF file.
         # @return [String] UUID of the imported VM.
         def import(ovf)
+        end
+
+        # Lists the snapshots of the VM.
+        #
+        # @param [Hash] options Options for snapshot listing.
+        def list_snapshots(options)
+          args = []
+          args.concat('--details') if options[:details]
+          args.concat('--machinereadable') if options[:machine_readable]
+          execute('snapshot', @uuid, 'list', *args).inspect
         end
 
         # Returns the maximum number of network adapters.
@@ -235,6 +267,13 @@ module VagrantPlugins
         #
         # @return [Array<String>]
         def read_vms
+        end
+
+        # Restores the VM state to an earlier snapshot.
+        #
+        # @param [String] name Unique identifier of the snapshot.
+        def restore_snapshot(name)
+          execute('snapshot', @uuid, 'restore', name)
         end
 
         # Sets the MAC address of the first network adapter.
