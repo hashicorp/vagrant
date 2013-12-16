@@ -11,7 +11,7 @@ module VagrantPlugins
         options = %W[--private-key=#{ssh[:private_key_path][0]} --user=#{ssh[:username]}]
 
         # Joker! Not (yet) supported arguments can be passed this way.
-        options << "#{config.raw_arguments}" if config.raw_arguments
+        options.concat(self.as_array(config.raw_arguments)) if config.raw_arguments
 
         # Append Provisioner options (highest precedence):
         options << "--inventory-file=#{self.setup_inventory_file}"
@@ -122,6 +122,10 @@ module VagrantPlugins
 
       def as_list_argument(v)
         v.kind_of?(Array) ? v.join(',') : v
+      end
+
+      def as_array(v)
+        v.kind_of?(Array) ? v : [v]
       end
     end
   end
