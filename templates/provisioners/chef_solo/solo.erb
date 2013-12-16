@@ -1,6 +1,9 @@
 <% if node_name %>
 node_name "<%= node_name %>"
 <% end %>
+<% if nodes_path %>
+node_path <%= nodes_path.inspect %>
+<% end %>
 file_cache_path    "<%= file_cache_path %>"
 file_backup_path   "<%= file_backup_path %>"
 cookbook_path <%= cookbooks_path.inspect %>
@@ -9,7 +12,9 @@ role_path <%= roles_path.inspect %>
 <% end %>
 log_level <%= log_level.inspect %>
 verbose_logging    <%= verbose_logging.inspect %>
-
+<% if local_mode %>
+local_mode <%= local_mode %>
+<% end %>
 encrypted_data_bag_secret "<%= encrypted_data_bag_secret %>"
 
 <% if data_bags_path -%>
