@@ -143,7 +143,7 @@ by the sudo command.
 * `ansible.tags` can be set to a string or an array of tags. Only plays, roles and tasks tagged with these values will be executed.
 * `ansible.skip_tags` can be set to a string or an array of tags. Only plays, roles and tasks that *do not match* these values will be executed.
 * `ansible.start_at_task` can be set to a string corresponding to the task name where the playbook provision will start.
-* `ansible.raw_arguments` is an *unsafe wildcard* string that can be used to take advantage of `ansible-playbook` arguments that are not (yet) supported by this Vagrant provisioner plugin. This can be very useful when integrating with bleeding edge Ansible versions. Following precedence rules apply:
+* `ansible.raw_arguments` can be set to an array of strings corresponding to a list of `ansible-playbook` arguments (e.g. `['--check', '-M /my/modules']`). It is an *unsafe wildcard* that can be used to apply Ansible options that are not (yet) supported by this Vagrant provisioner. Following precedence rules apply:
   * Any supported options (described above) will override conflicting `raw_arguments` value (e.g. `--tags` or `--start-at-task`)
   * Vagrant default user authentication can be overridden via `raw_arguments` (with custom values for `--user` and `--private-key`)
 * `ansible.groups` can be used to pass a hash of group names and group members to be included in the generated inventory file.  For example:
