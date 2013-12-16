@@ -43,13 +43,13 @@ stop the NFS server daemon.
 
 ## Enabling NFS Synced Folders
 
-To enable NFS, just add the `type: "nfs"` flag onto your synced folder:
+To enable NFS, just add the `nfs: true` flag onto your synced folder:
 
 ```ruby
 Vagrant.configure("2") do |config|
   # ...
 
-  config.vm.synced_folder ".", "/vagrant", type: "nfs"
+  config.vm.synced_folder ".", "/vagrant", nfs: true
 end
 ```
 
@@ -61,7 +61,7 @@ be sure to `vagrant reload` to see your changes.
 NFS synced folders have a set of options that can be specified that are
 unique to NFS. These are listed below. These options can be specified in
 the final part of the `config.vm.synced_folder` definition, along with the
-`type` option.
+`nfs` option.
 
 * `nfs_udp` (boolean) - Whether or not to use UDP as the transport. UDP
   is faster but has some limitations (see the NFS documentation for more
