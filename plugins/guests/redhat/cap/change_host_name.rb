@@ -3,16 +3,93 @@ module VagrantPlugins
     module Cap
       class ChangeHostName
         def self.change_host_name(machine, name)
-          machine.communicate.tap do |comm|
-            # Only do this if the hostname is not already set
-            if !comm.test("sudo hostname | grep --line-regexp '#{name}'")
-              comm.sudo("sed -i 's/\\(HOSTNAME=\\).*/\\1#{name}/' /etc/sysconfig/network")
-              comm.sudo("hostname #{name}")
-              comm.sudo("sed -i 's@^\\(127[.]0[.]0[.]1[[:space:]]\\+\\)@\\1#{name} #{name.split('.')[0]} @' /etc/hosts")
-              comm.sudo("sed -i 's/\\(DHCP_HOSTNAME=\\).*/\\1\"#{name.split('.')[0]}\"/' /etc/sysconfig/network-scripts/ifcfg-*")
-              comm.sudo("service network restart")
+          new(machine, name).change!
+        end
+
+        attr_reader :machine, :new_hostname
+
+        def initialize(machine, new_hostname)
+          @machine = machine
+          @new_hostname = new_hostname
+        end
+
+        def change!
+          return unless should_change?
+
+          update_sysconfig
+          update_hostname
+          update_etc_hosts
+          update_dhcp_hostnames
+          restart_networking
+        end
+
+        def should_change?
+          new_hostname != current_hostname
+        end
+
+        def current_hostname
+          @current_hostname ||= get_current_hostname
+        end
+
+        def get_current_hostname
+          hostname = ''
+          block = lambda do |type, data|
+            if type == :stdout 
+              hostname += data.chomp
             end
           end
+
+          execute 'hostname -f', error_check: false, &block
+          execute 'hostname',&block if hostname.empty?
+          /localhost(\..*)?/.match(hostname) ? '' : hostname
+        end
+
+        def update_sysconfig
+          sudo "sed -i 's/\\(HOSTNAME=\\).*/\\1#{fqdn}/' /etc/sysconfig/network"
+        end
+
+        def update_hostname
+          sudo "hostname #{short_hostname}"
+        end 
+
+        # /etc/hosts should resemble:
+        # 127.0.0.1   host.fqdn.com host localhost ...
+        def update_etc_hosts
+          s = '[[:space:]]'
+          current_fqdn  = Regexp.escape(current_hostname)
+          current_short = Regexp.escape(current_hostname.split('.').first.to_s)
+          currents      = "\\(#{current_fqdn}#{s}\\+\\|#{current_short}#{s}\\+\\)*" unless current_hostname.empty?
+          local_ip      = '127[.]0[.]0[.]1'
+          search        = "^\\(#{local_ip}#{s}\\+\\)#{currents}"
+          replace       = "\\1#{fqdn} "
+          replace       = "#{replace}#{short_hostname} " unless fqdn == short_hostname
+          expression    = ['s', search, replace,''].join('@')
+
+          sudo "sed -i '#{expression}' /etc/hosts"
+        end
+
+        def update_dhcp_hostnames
+          sudo "sed -i 's/\\(DHCP_HOSTNAME=\\).*/\\1\"#{short_hostname}\"/' /etc/sysconfig/network-scripts/ifcfg-*"
+        end
+
+        def restart_networking
+          sudo 'service network restart'
+        end
+
+        def fqdn
+          new_hostname
+        end
+
+        def short_hostname
+          new_hostname.split('.').first
+        end
+
+        def execute(cmd, opts=nil, &block)
+          machine.communicate.execute(cmd, opts, &block)
+        end
+
+        def sudo(cmd, opts=nil, &block)
+          machine.communicate.sudo(cmd, opts, &block)
         end
       end
     end
