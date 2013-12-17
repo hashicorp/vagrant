@@ -21,10 +21,10 @@ module Vagrant
         # @return [Registry<Symbol, Array<Class, Symbol>>]
         attr_reader :guests
 
-        # This contains all the registered guest capabilities.
+        # This contains all the registered capabilities.
         #
         # @return [Hash<Symbol, Registry>]
-        attr_reader :guest_capabilities
+        attr_reader :capabilities
 
         # This contains all the provider plugins by name, and returns
         # the provider class and options.
@@ -43,7 +43,7 @@ module Vagrant
 
           @configs = Hash.new { |h, k| h[k] = Registry.new }
           @guests  = Registry.new
-          @guest_capabilities = Hash.new { |h, k| h[k] = Registry.new }
+          @capabilities = Hash.new { |h, k| h[k] = Registry.new }
           @providers = Registry.new
           @synced_folders = Registry.new
         end

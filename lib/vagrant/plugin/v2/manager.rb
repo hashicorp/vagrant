@@ -79,7 +79,7 @@ module Vagrant
           results = Hash.new { |h, k| h[k] = Registry.new }
 
           @registered.each do |plugin|
-            plugin.components.guest_capabilities.each do |guest, caps|
+            plugin.components.capabilities.get(:guest).each do |guest, caps|
               results[guest].merge!(caps)
             end
           end
@@ -98,6 +98,21 @@ module Vagrant
           end
         end
 
+        # This returns all the registered host capabilities.
+        #
+        # @return [Hash]
+        def host_capabilities
+          results = Hash.new { |h, k| h[k] = Registry.new }
+
+          @registered.each do |plugin|
+            plugin.components.capabilities.get(:host).each do |host, caps|
+              results[host].merge!(caps)
+            end
+          end
+
+          results
+        end
+
         # This returns all registered providers.
         #
         # @return [Hash]
@@ -107,6 +122,21 @@ module Vagrant
               result.merge!(plugin.components.providers)
             end
           end
+        end
+
+        # This returns all the registered provider capabilities.
+        #
+        # @return [Hash]
+        def provider_capabilities
+          results = Hash.new { |h, k| h[k] = Registry.new }
+
+          @registered.each do |plugin|
+            plugin.components.capabilities.get(:provider).each do |provider, caps|
+              results[provider].merge!(caps)
+            end
+          end
+
+          results
         end
 
         # This returns all the config classes for the various providers.
