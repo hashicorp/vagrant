@@ -116,7 +116,7 @@ module VagrantPlugins
         def upload_encrypted_data_bag_secret
           @machine.env.ui.info I18n.t("vagrant.provisioners.chef.upload_encrypted_data_bag_secret_key")
           @machine.communicate.tap do |comm|
-            comm.sudo("rm #{@config.encrypted_data_bag_secret}", :error_check => false)
+            comm.sudo("rm -f #{@config.encrypted_data_bag_secret}", :error_check => false)
             comm.upload(encrypted_data_bag_secret_key_path,
                         @config.encrypted_data_bag_secret)
           end
