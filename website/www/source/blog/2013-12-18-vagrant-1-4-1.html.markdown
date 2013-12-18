@@ -16,3 +16,5 @@ Vagrant 1.4.1 can be downloaded today from the
 
 One notable improvement is that the Docker provisioner now works with
 RedHat-based guest machines. The remainder of changes are bug fixes.
+
+READMORE
