@@ -22,6 +22,10 @@ if ENV["VAGRANT_VERSION"]
     next if line !~ /\/mitchellh\/vagrant\/(.+?)'/
     filename = $1.to_s
     $vagrant_os_mappings.each do |suffix, os|
+      if !filename.include?(ENV["VAGRANT_VERSION"])
+        next
+      end
+
       if filename.end_with?(suffix)
         $vagrant_files[os] ||= []
         $vagrant_files[os] << filename
