@@ -30,15 +30,15 @@ BUG FIXES:
     [GH-2620]
   - guests/redhat: fix configure networks bringing down interfaces that
     don't exist. [GH-2614]
+  - providers/virtualbox: Don't override NFS exports for all VMs when
+    coming up. [GH-2645]
   - provisioners/ansible: Array arguments work for raw options [GH-2667]
+  - provisioners/chef-client: Fix node/client deletion when node\_name is not
+    set. [GH-2345]
   - provisioners/chef-solo: Force remove files to avoid cases where
     a prompt would be shown to users. [GH-2669]
   - provisioners/puppet: Don't prepend default module path for Puppet
     in case Puppet is managing its own paths. [GH-2677]
-  - providers/virtualbox: don't override NFS exports for all VMs when
-    coming up. [GH-2645]
-  - provisioners/chef: fix node/client deletion when node\_name is not
-    set. [GH-2345]
 
 ## 1.4.0 (December 9, 2013)
 
