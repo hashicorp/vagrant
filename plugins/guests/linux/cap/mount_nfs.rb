@@ -27,7 +27,7 @@ module VagrantPlugins
             end
 
             mount_command = "mount -o '#{mount_opts.join(",")}' #{ip}:'#{hostpath}' #{expanded_guest_path}"
-            retryable(:on => Vagrant::Errors::LinuxNFSMountFailed, :tries => 5, :sleep => 3) do
+            retryable(:on => Vagrant::Errors::LinuxNFSMountFailed, :tries => 8, :sleep => 3) do
               machine.communicate.sudo(mount_command,
                                        :error_class => Vagrant::Errors::LinuxNFSMountFailed)
             end
