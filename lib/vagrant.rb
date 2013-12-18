@@ -140,7 +140,10 @@ module Vagrant
   # be used from the Vagrantfile to easily branch based on plugin
   # availability.
   def self.has_plugin?(name)
-    plugin("2").manager.registered.any? { |plugin| plugin.name == name }
+    manager = plugin("2").manager
+
+    manager.required.any? { |gem_name| gem_name == name } ||
+      manager.registered.any? { |plugin| plugin.name == name }
   end
 
   # Returns a superclass to use when creating a plugin for Vagrant.
@@ -198,6 +201,7 @@ module Vagrant
     # Attempt the normal require
     begin
       require name
+      plugin("2").manager.plugin_required(name)
     rescue Exception => e
       # Since this is a rare case, we create a one-time logger here
       # in order to output the error
