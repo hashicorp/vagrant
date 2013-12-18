@@ -29,6 +29,8 @@ BUG FIXES:
   - provisioners/ansible: Array arguments work for raw options [GH-2667]
   - provisioners/chef-solo: Force remove files to avoid cases where
     a prompt would be shown to users. [GH-2669]
+  - provisioners/puppet: Don't prepend default module path for Puppet
+    in case Puppet is managing its own paths. [GH-2677]
   - providers/virtualbox: don't override NFS exports for all VMs when
     coming up. [GH-2645]
   - provisioners/chef: fix node/client deletion when node\_name is not
