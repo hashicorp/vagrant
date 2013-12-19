@@ -11,7 +11,7 @@ This will SSH into a running Vagrant machine and give you access to a shell.
 
 If a `--` (two hyphens) are found on the command line, any arguments after
 this are passed directly into the `ssh` executable. This allows you to pass
-any abitrary commands to do things such as reverse tunneling down into the
+any arbitrary commands to do things such as reverse tunneling down into the
 `ssh` program.
 
 ## Options
