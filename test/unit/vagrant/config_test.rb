@@ -32,6 +32,31 @@ describe Vagrant::Config do
     procs[1][1].call
   end
 
+  it "should work with integer configurations "do
+    receiver = double()
+
+    procs = described_class.capture_configures do
+      Vagrant.configure(1) do
+        receiver.one
+      end
+
+      Vagrant.configure(2) do
+        receiver.two
+      end
+    end
+
+    procs.should be_kind_of(Array)
+    procs.length.should == 2
+    procs[0][0].should == "1"
+    procs[1][0].should == "2"
+
+    # Verify the proper procs were captured
+    receiver.should_receive(:one).once.ordered
+    receiver.should_receive(:two).once.ordered
+    procs[0][1].call
+    procs[1][1].call
+  end
+
   it "should capture configuration procs" do
     receiver = double()
 

@@ -1,6 +1,8 @@
 ## 1.4.2 (unreleased)
 
+BUG FIXES:
 
+  - core: The version for `Vagrant.configure` can now be an int. [GH-2689]
 
 ## 1.4.1 (December 18, 2013)
 

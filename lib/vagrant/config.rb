@@ -35,7 +35,7 @@ module Vagrant
     def self.run(version="1", &block)
       # Store it for later
       @last_procs ||= []
-      @last_procs << [version, block]
+      @last_procs << [version.to_s, block]
     end
 
     # This is a method which will yield to a block and will capture all
