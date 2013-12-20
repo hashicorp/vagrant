@@ -3,6 +3,8 @@
 BUG FIXES:
 
   - core: The version for `Vagrant.configure` can now be an int. [GH-2689]
+  - core: `Vagrant.has_plugin?` tries to use plugin's gem name before
+    registered plugin name [GH-2617]
 
 ## 1.4.1 (December 18, 2013)
 
