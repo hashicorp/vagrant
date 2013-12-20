@@ -25,6 +25,7 @@ describe Vagrant::Action::Builtin::SyncedFolders do
   let(:ui) do
     double("ui").tap do |result|
       result.stub(:info)
+      result.stub(:warn)
     end
   end
 
@@ -43,14 +44,55 @@ describe Vagrant::Action::Builtin::SyncedFolders do
       subject.stub(:synced_folders => synced_folders)
     end
 
+    it "should warn if a guest paths shadows an earlier entry" do
+      synced_folders["default"] = {
+        "foo" => {
+          hostpath: "foo",
+          guestpath: "/vagrant/foo",
+        },
+
+        "root" => {
+          hostpath: "bar",
+          guestpath: "/vagrant",
+        }
+
+      }
+
+      expect(env[:ui]).to receive(:warn) do |msg|
+        expect(msg).to match(/shadows/)
+      end
+
+      subject.call(env)
+    end
+
+    it "shouldn't warn if a guest paths is subdirectory of an earlier entry" do
+      synced_folders["default"] = {
+        "foo" => {
+          hostpath: "foo",
+          guestpath: "/vagrant",
+        },
+
+        "root" => {
+          hostpath: "bar",
+          guestpath: "/vagrant/bar",
+        }
+
+      }
+
+      expect(env[:ui]).to_not receive(:warn)
+      subject.call(env)
+    end
+
     it "should create on the host if specified" do
       synced_folders["default"] = {
         "root" => {
           hostpath: "foo",
+          guestpath: "/foo",
         },
 
         "other" => {
           hostpath: "bar",
+          guestpath: "/bar",
           create: true,
         }
       }
@@ -78,10 +120,12 @@ describe Vagrant::Action::Builtin::SyncedFolders do
       synced_folders["tracker"] = {
         "root" => {
           hostpath: "foo",
+          guestpath: "/foo",
         },
 
         "other" => {
           hostpath: "bar",
+          guestpath: "/bar",
           create: true,
         }
       }
@@ -104,6 +148,7 @@ describe Vagrant::Action::Builtin::SyncedFolders do
       synced_folders["tracker"] = {
         "root" => {
           hostpath: "foo",
+          guestpath: "/foo",
           tracker__foo: "bar",
         },
       }

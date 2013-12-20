@@ -1173,6 +1173,9 @@ en:
           mounting: Mounting shared folders...
           mounting_entry: "-- %{guest_path}"
           nomount_entry: "-- Automounting disabled: %{host_path}"
+          shadowing: |-
+            The shared folder path '%{path}' shadows
+            an earlier path '%{shadowed}'
         set_name:
           setting_name: |-
             Setting the name of the VM...
