@@ -92,8 +92,8 @@ to the name, the `run` method accepts a set of options, all optional:
   but can also be given here as an option.
 
 * `cmd` (string) - The command to start within the container. If not specified,
-  then the container's default "run" command will be used, such as the
-  "run" command [specified on the `Dockerfile`](http://docs.docker.io/en/latest/use/builder/#run).
+  then the container's default command will be used, such as the
+  "CMD" command [specified in the `Dockerfile`](http://docs.docker.io/en/latest/use/builder/#cmd).
 
 * `args` (string) - Extra arguments for [`docker run`](http://docs.docker.io/en/latest/commandline/cli/#run)
   on the command line. These are raw arguments that are passed directly to Docker.
