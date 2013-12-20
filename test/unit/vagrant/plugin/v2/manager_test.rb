@@ -188,4 +188,16 @@ describe Vagrant::Plugin::V2::Manager do
     instance.synced_folders[:foo].should == ["bar", 10]
     instance.synced_folders[:bar].should == ["baz", 50]
   end
+
+  it "should list the required plugins" do
+    instance.plugin_required("foo")
+    instance.plugin_required("bar")
+    expect(instance.required).to eq(["foo", "bar"])
+  end
+
+  it "should list the required plugins only once" do
+    instance.plugin_required("foo")
+    instance.plugin_required("foo")
+    expect(instance.required).to eq(["foo"])
+  end
 end

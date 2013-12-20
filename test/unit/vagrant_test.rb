@@ -54,6 +54,12 @@ describe Vagrant do
         to_not raise_error
     end
 
+    it "should add the gem name to plugin manager" do
+      expect(described_class.plugin("2").manager).
+        to receive(:plugin_required).with("set")
+      described_class.require_plugin "set"
+    end
+
     it "should raise an error if the file doesn't exist" do
       expect { described_class.require_plugin("i_dont_exist") }.
         to raise_error(Vagrant::Errors::PluginLoadError)
@@ -72,20 +78,27 @@ describe Vagrant do
   end
 
   describe "has_plugin?" do
-    after(:each) do
-      described_class.plugin('2').manager.reset!
-    end
-
-    it "should return true if the plugin is installed" do
-      plugin = Class.new(described_class.plugin('2')) do
+    before(:each) do
+      Class.new(described_class.plugin("2")) do
         name "i_am_installed"
       end
+      manager.plugin_required("plugin_gem")
+    end
+    after(:each) do
+      manager.reset!
+    end
+    let(:manager) { described_class.plugin("2").manager }
 
-      described_class.has_plugin?("i_am_installed").should be_true
+    it "should find the installed plugin by the gem name" do
+      expect(described_class.has_plugin?("plugin_gem")).to be_true
+    end
+
+    it "should find the installed plugin by the registered name" do
+      expect(described_class.has_plugin?("i_am_installed")).to be_true
     end
 
     it "should return false if the plugin is not installed" do
-      described_class.has_plugin?("i_dont_exist").should be_false
+      expect(described_class.has_plugin?("i_dont_exist")).to be_false
     end
   end
 

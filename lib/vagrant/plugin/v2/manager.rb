@@ -8,10 +8,12 @@ module Vagrant
       # those plugins as a single unit.
       class Manager
         attr_reader :registered
+        attr_reader :required
 
         def initialize
           @logger = Log4r::Logger.new("vagrant::plugin::v2::manager")
           @registered = []
+          @required = []
         end
 
         # This returns all the action hooks.
@@ -164,10 +166,20 @@ module Vagrant
           end
         end
 
+        # This registers a required plugin. This should _NEVER_ be called by
+        # the public and should only be called from within Vagrant.
+        def plugin_required(gem_name)
+          if !@required.include?(gem_name)
+            @logger.info("Registered required plugin: #{gem_name}")
+            @required << gem_name
+          end
+        end
+
         # This clears out all the registered plugins. This is only used by
         # unit tests and should not be called directly.
         def reset!
           @registered.clear
+          @required.clear
         end
 
         # This unregisters a plugin so that its components will no longer
