@@ -258,7 +258,7 @@ en:
         CFEngine installation. Please verify that CFEngine was properly
         installed, as the installation may have failed.
       cfengine_not_installed: |-
-        CFEngine appears to not be installed on the guest machine. Vagrant
+        CFEngine appears not to be installed on the guest machine. Vagrant
         can attempt to install CFEngine for you if you set the "install"
         setting to "true", but this setting was not set. Please install
         CFEngine on the guest machine or enable the "install" setting for
@@ -707,7 +707,7 @@ en:
         that the VirtualBox version is outputted.
       virtualbox_broken_version_040214: |-
         Vagrant detected you have VirtualBox 4.2.14 installed. VirtualBox
-        4.2.14 contains a critical bug that causes it to not work with
+        4.2.14 contains a critical bug which prevents it from working with
         Vagrant. VirtualBox 4.2.16+ fixes this problem. Please upgrade
         VirtualBox.
       virtualbox_guest_property_not_found: |-
@@ -1015,7 +1015,7 @@ en:
           version_mismatch: |-
             The guest additions on this VM do not match the installed version of
             VirtualBox! In most cases this is fine, but in rare cases it can
-            cause things such as shared folders to not work properly. If you see
+            prevent things such as shared folders from working properly. If you see
             shared folder errors, please make sure the guest additions within the
             virtual machine match the version of VirtualBox you have installed on
             your host and reload your VM.
@@ -1133,7 +1133,7 @@ en:
           collides: |-
             The specified host network collides with a non-hostonly network!
             This will cause your specified IP to be inaccessible. Please change
-            the IP or name of your host only network to not match that of
+            the IP or name of your host only network so that it no longer matches that of
             a bridged or non-hostonly network.
           creating: "Creating new host only network for environment..."
           enabling: "Enabling host only network..."
@@ -1300,7 +1300,7 @@ en:
           Chef never successfully completed! Any errors should be visible in the
           output above. Please fix your recipes so that they properly complete.
         not_detected: |-
-          The `%{binary}` binary appears to not be in the PATH of the guest. This
+          The `%{binary}` binary appears not to be in the PATH of the guest. This
           could be because the PATH is not properly setup or perhaps chef is not
           installed on this guest. Chef provisioning can not continue without
           chef properly installed.
@@ -1324,7 +1324,7 @@ en:
 
       puppet:
         not_detected: |-
-          The `%{binary}` binary appears to not be in the PATH of the guest. This
+          The `%{binary}` binary appears not to be in the PATH of the guest. This
           could be because the PATH is not properly setup or perhaps Puppet is not
           installed on this guest. Puppet provisioning can not continue without
           Puppet properly installed.
@@ -1352,7 +1352,7 @@ en:
         client_private_key_not_found: |-
           The specified client private key path could not be found
         not_detected: |-
-          The `%{binary}` binary appears to not be in the PATH of the guest. This
+          The `%{binary}` binary appears not to be in the PATH of the guest. This
           could be because the PATH is not properly setup or perhaps Puppet is not
           installed on this guest. Puppet provisioning can not continue without
           Puppet properly installed.
