@@ -16,6 +16,7 @@ module VagrantPlugins
               comm.sudo("curl http://get.docker.io/gpg | apt-key add -")
               comm.sudo("echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list")
               comm.sudo("apt-get update")
+              comm.sudo("echo lxc lxc/directory string /var/lib/lxc | debconf-set-selections")
               comm.sudo("apt-get install -y --force-yes -q xz-utils #{package} -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold'")
             end
           end
