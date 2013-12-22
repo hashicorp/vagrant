@@ -44,7 +44,7 @@ Guest capabilities are defined by calling the `guest_capability` method,
 which takes two parameters: the guest to add the capability to, and the
 name of the capability itself. Then, the block argument returns a class
 that implements a method named the same as the capability. This is
-coverd in more detail in the next section.
+covered in more detail in the next section.
 
 ## Implementation
 
@@ -54,7 +54,7 @@ on the class returned from the `guest_capability` component, meaning that
 if it is an instance method, an instance should be returned.
 
 In general, class methods are used for capabilities. For example, here
-is the imlementation for the capability above:
+is the implementation for the capability above:
 
 ```ruby
 module Cap
@@ -67,7 +67,7 @@ end
 ```
 
 All capabilities get the Vagrant machine object as the first argument.
-Additional arguments are deterined by the specific capability, so view the
+Additional arguments are determined by the specific capability, so view the
 documentation or usage of the capability you're trying to implement for more
 information.
 

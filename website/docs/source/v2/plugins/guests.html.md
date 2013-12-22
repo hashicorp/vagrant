@@ -51,7 +51,7 @@ is booted in order to determine what operating system the guest is running.
 If you detect that it is your operating system, return `true` from `detect?`.
 Otherwise, return `false`.
 
-Communication channels to the machine are guranteed to be running at this
+Communication channels to the machine are guaranteed to be running at this
 point, so the most common way to detect the operating system is to do
 some basic testing:
 
