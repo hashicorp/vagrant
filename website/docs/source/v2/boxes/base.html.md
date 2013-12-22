@@ -143,7 +143,7 @@ vagrant ALL=(ALL) NOPASSWD: ALL
 ```
 
 Additionally, Vagrant doesn't use a pty or tty by default when connected
-via SSH. You'll need to ake sure there is no line that has `requiretty` in
+via SSH. You'll need to make sure there is no line that has `requiretty` in
 it. Remove that if it exists. This allows sudo to work properly without a
 tty. Note that you _can_ configure Vagrant to request a pty, which lets
 you keep this configuration. But Vagrant by default doesn't do this.
