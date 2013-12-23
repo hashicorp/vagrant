@@ -501,6 +501,10 @@ en:
         prior to attempting to do anything with it.
       plugin_not_installed: |-
         The plugin '%{name}' is not installed. Please install it first.
+      plugin_version_mismatch: |-
+        The plugin '%{plugin}' is required with a version matching
+        '%{required_version}', but '%{installed_version}' is installed.
+        Please install a version of the plugin that matches the specification.
       port_collision_resume: |-
         This VM cannot be resumed, because the forwarded ports would collide
         with a running program (it could be another virtual machine). Normally,

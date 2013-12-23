@@ -185,7 +185,8 @@ module Vagrant
   # the process.
   #
   # @param [String] name Name of the plugin to load.
-  def self.require_plugin(name)
+  # @param [String, Array<String>] required_version Optional version specifier to require
+  def self.require_plugin(name, required_version = nil)
     if ENV["VAGRANT_NO_PLUGINS"]
       logger = Log4r::Logger.new("vagrant::root")
       logger.warn("VAGRANT_NO_PLUGINS is set, not loading 3rd party plugin: #{name}")
@@ -236,6 +237,17 @@ module Vagrant
       raise Errors::PluginLoadFailed,
         :plugin => name
     end
+
+    if required_version
+      installed_version = Gem::Specification.find_by_name(name).version
+      if !Gem::Requirement.new(required_version).satisfied_by?(Gem::Version.new(installed_version))
+        raise Errors::PluginVersionMismatch,
+          :plugin => name,
+          :required_version => required_version.inspect,
+          :installed_version => installed_version
+      end
+    end
+
   ensure
     $stderr = previous_stderr if previous_stderr
     $stdout = previous_stdout if previous_stdout

@@ -75,6 +75,14 @@ describe Vagrant do
       expect { described_class.require_plugin(plugin_path.to_s) }.
         to raise_error(Vagrant::Errors::PluginLoadFailed)
     end
+
+    it "should raise a version mismatch error when gem load fails but require works" do
+      described_class.stub(:require).with("wrong_version") { true }
+      Gem::Specification.stub(:find_by_name).with("wrong_version") { double(version: "1.2.4") }
+      expect {
+        described_class.require_plugin("wrong_version", "1.2.3")
+      }. to raise_error(Vagrant::Errors::PluginVersionMismatch)
+    end
   end
 
   describe "has_plugin?" do
