@@ -164,7 +164,7 @@ your base box to work with Vagrant. However, there is some additional software
 you can install if you wish.
 
 While we plan on it in the future, Vagrant still doesn't install Chef
-or Puppet automatically when using those provisioners. Uesrs can use a shell
+or Puppet automatically when using those provisioners. Users can use a shell
 provisioner to do this, but if you want Chef/Puppet to just work out of the
 box, you'll have to install them in the base box.
 
