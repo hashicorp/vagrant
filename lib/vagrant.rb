@@ -186,8 +186,9 @@ module Vagrant
   #
   # @param [String] name Name of the plugin to load.
   def self.require_plugin(name)
+    logger = Log4r::Logger.new("vagrant::root")
+
     if ENV["VAGRANT_NO_PLUGINS"]
-      logger = Log4r::Logger.new("vagrant::root")
       logger.warn("VAGRANT_NO_PLUGINS is set, not loading 3rd party plugin: #{name}")
       return
     end
@@ -205,7 +206,6 @@ module Vagrant
     rescue Exception => e
       # Since this is a rare case, we create a one-time logger here
       # in order to output the error
-      logger = Log4r::Logger.new("vagrant::root")
       logger.error("Failed to load plugin: #{name}")
       logger.error(" -- Error: #{e.inspect}")
       logger.error(" -- Backtrace:")
@@ -236,6 +236,12 @@ module Vagrant
       raise Errors::PluginLoadFailed,
         :plugin => name
     end
+
+    # Log plugin version
+    gem = Gem::Specification.find { |spec| spec.name == name }
+    version = gem ? gem.version : "<unknown>"
+    logger.info("Loaded plugin #{name}, version #{version}")
+
   ensure
     $stderr = previous_stderr if previous_stderr
     $stdout = previous_stdout if previous_stdout
