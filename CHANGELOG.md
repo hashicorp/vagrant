@@ -7,6 +7,8 @@ BUG FIXES:
     registered plugin name [GH-2617]
   - core: Fix exception if an EOFError was somehow raised by Ruby while
     checking a box checksum. [GH-2716]
+  - hosts/bsd: Only run `nfsd checkexports` if there is an exports file.
+    [GH-2714]
 
 ## 1.4.1 (December 18, 2013)
 

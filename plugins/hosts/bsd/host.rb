@@ -36,7 +36,7 @@ module VagrantPlugins
       end
 
       def nfs_export(id, ips, folders)
-        nfs_checkexports!
+        nfs_checkexports! if File.file?("/etc/exports")
 
         # We need to build up mapping of directories that are enclosed
         # within each other because the exports file has to have subdirectories
