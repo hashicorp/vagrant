@@ -91,15 +91,15 @@ module VagrantPlugins
 
         if @master_key && @master_pub
           if !@minion_key && !@minion_pub
-            errors << I18n.t("salt.missing_key")
+            errors << I18n.t("vagrant.provisioners.salt.missing_key")
           end
         end
 
         if @install_master && !@no_minion && !@seed_master && @run_highstate
-          errors << I18n.t("salt.must_accept_keys")
+          errors << I18n.t("vagrant.provisioners.salt.must_accept_keys")
         end
 
-        return {"salt" => errors}
+        return {"salt provisioner" => errors}
       end
 
 

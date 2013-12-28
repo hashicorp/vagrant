@@ -1377,3 +1377,9 @@ en:
       docker:
         not_running: "Docker is not running on the guest VM."
         install_failed: "Docker installation failed."
+
+      salt:
+        missing_key: |-
+          You must include both public and private keys.
+        must_accept_keys: |-
+          You must accept keys when running highstate with master!
