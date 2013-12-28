@@ -10,7 +10,13 @@ module VagrantPlugins
 
         @data = {}
         if @path.exist?
-          @data = JSON.parse(@path.read)
+          begin
+            @data = JSON.parse(@path.read)
+          rescue JSON::ParserError => e
+            raise Vagrant::Errors::PluginStateFileParseError,
+              :path => path, :message => e.message
+          end
+
           upgrade_v0! if !@data["version"]
         end
 

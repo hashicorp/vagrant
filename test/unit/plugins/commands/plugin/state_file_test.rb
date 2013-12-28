@@ -70,4 +70,17 @@ describe VagrantPlugins::CommandPlugin::StateFile do
       expect(plugins["foo"]["vagrant_version"]).to eql("0")
     end
   end
+
+  context "with parse errors" do
+    before do
+      path.open("w+") do |f|
+        f.write("I'm not json")
+      end
+    end
+
+    it "should raise a VagrantError" do
+      expect { subject }.
+        to raise_error(Vagrant::Errors::PluginStateFileParseError)
+    end
+  end
 end

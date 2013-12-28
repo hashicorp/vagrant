@@ -460,6 +460,10 @@ module Vagrant
       error_key(:plugin_not_installed)
     end
 
+    class PluginStateFileParseError < VagrantError
+      error_key(:plugin_state_file_not_parsable)
+    end
+
     class SCPPermissionDenied < VagrantError
       error_key(:scp_permission_denied)
     end
