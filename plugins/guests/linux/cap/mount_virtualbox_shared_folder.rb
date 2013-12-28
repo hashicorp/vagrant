@@ -73,7 +73,7 @@ module VagrantPlugins
           # Emit an upstart event if we can
           if machine.communicate.test("test -x /sbin/initctl")
             machine.communicate.sudo(
-              "/sbin/initctl emit --no-wait vagrant-mounted MOUNTPOINT=#{guestpath}")
+              "/sbin/initctl emit --no-wait vagrant-mounted MOUNTPOINT=#{expanded_guest_path}")
           end
         end
       end
