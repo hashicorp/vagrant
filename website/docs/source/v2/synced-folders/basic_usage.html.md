@@ -36,6 +36,9 @@ allow more options. See the documentation for your specific synced folder
 type for more details. The built-in synced folder types are documented
 in other pages available in the navigation for these docs.
 
+* `create` (boolean) - If true, the host path will be created if it
+  does not exist. Defaults to false.
+
 * `disabled` (boolean) - If true, this synced folder will be disabled and
   won't be setup. This can be used to disable a previously defined synced
   folder or to conditionally disable a definition based on some external
