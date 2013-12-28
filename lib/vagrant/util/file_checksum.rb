@@ -28,8 +28,14 @@ class FileChecksum
 
     File.open(@path, "r") do |f|
       while !f.eof
-        buf = f.readpartial(BUFFER_SIZE)
-        digest.update(buf)
+        begin
+          buf = f.readpartial(BUFFER_SIZE)
+          digest.update(buf)
+        rescue EOFError
+          # Although we check for EOF earlier, this seems to happen
+          # sometimes anyways [GH-2716].
+          break
+        end
       end
     end
 
