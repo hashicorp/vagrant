@@ -1,5 +1,9 @@
 ## 1.4.2 (unreleased)
 
+IMPROVEMENTS:
+
+  - guests/linux: emit upstart event when NFS folders are mounted. [GH-2705]
+
 BUG FIXES:
 
   - core: The version for `Vagrant.configure` can now be an int. [GH-2689]
