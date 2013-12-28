@@ -241,7 +241,6 @@ module Vagrant
     gem = Gem::Specification.find { |spec| spec.name == name }
     version = gem ? gem.version : "<unknown>"
     logger.info("Loaded plugin #{name}, version #{version}")
-
   ensure
     $stderr = previous_stderr if previous_stderr
     $stdout = previous_stdout if previous_stdout
