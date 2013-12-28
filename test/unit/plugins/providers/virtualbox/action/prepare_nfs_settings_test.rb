@@ -51,6 +51,10 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSSettings do
         {name: "vmnet2", ip: "1.2.3.4"},
       ])
       driver.stub(:read_guest_ip).with(1).and_return("2.3.4.5")
+
+      # override sleep to 0 so test does not take seconds
+      retry_options = subject.retry_options
+      subject.stub(:retry_options).and_return(retry_options.merge(sleep: 0))
     end
 
     it "sets nfs_host_ip and nfs_machine_ip properly" do
@@ -74,10 +78,6 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSSettings do
       ]
       driver.stub(:read_guest_ip) { raise_then_return.shift.call }
 
-      # override sleep to 0 so test does not take seconds
-      retry_options = subject.retry_options
-      subject.stub(:retry_options).and_return(retry_options.merge(sleep: 0))
-
       subject.call(env)
 
       env[:nfs_host_ip].should    == "1.2.3.4"
@@ -89,12 +89,21 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSSettings do
         raise Vagrant::Errors::VirtualBoxGuestPropertyNotFound, :guest_property => 'stub'
       }
 
-      # override sleep to 0 so test does not take seconds
-      retry_options = subject.retry_options
-      subject.stub(:retry_options).and_return(retry_options.merge(sleep: 0))
-
       expect { subject.call(env) }.
         to raise_error(Vagrant::Errors::NFSNoGuestIP)
+    end
+
+    it "allows statically configured guest IPs to work for NFS, even when guest property would fail" do
+      env[:machine].config.vm.network :private_network, ip: "11.12.13.14"
+
+      driver.stub(:read_guest_ip) {
+        raise Vagrant::Errors::VirtualBoxGuestPropertyNotFound, :guest_property => "stub"
+      }
+
+      subject.call(env)
+
+      env[:nfs_host_ip].should    == "1.2.3.4"
+      env[:nfs_machine_ip].should == ["11.12.13.14"]
     end
   end
 end
