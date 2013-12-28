@@ -13,6 +13,8 @@ BUG FIXES:
     checking a box checksum. [GH-2716]
   - hosts/bsd: Only run `nfsd checkexports` if there is an exports file.
     [GH-2714]
+  - commands/plugin: Fix exception that could happen rarely when installing
+    a plugin.
 
 ## 1.4.1 (December 18, 2013)
 

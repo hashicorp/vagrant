@@ -58,6 +58,9 @@ module VagrantPlugins
 
             installer = Gem::DependencyInstaller.new(:document => [], :prerelease => prerelease)
 
+            # If we don't have a version, use the default version
+            version ||= Gem::Requirement.default
+
             begin
               installer.install(plugin_name, version)
             rescue Gem::GemNotFoundException
