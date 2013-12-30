@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'thread'
 require 'zlib'
 
 require "log4r"
@@ -15,6 +16,8 @@ module VagrantPlugins
     #     will be mounted.
     #
     class SyncedFolder < Vagrant.plugin("2", :synced_folder)
+      @@lock = Mutex.new
+
       def initialize(*args)
         super
 
@@ -41,9 +44,13 @@ module VagrantPlugins
         # and such on the folder itself.
         folders.each { |id, opts| prepare_folder(machine, opts) }
 
-        # Export the folders
-        machine.ui.info I18n.t("vagrant.actions.vm.nfs.exporting")
-        machine.env.host.nfs_export(machine.id, machine_ip, folders)
+        # Export the folders. We do this with a class-wide lock because
+        # NFS exporting often requires sudo privilege and we don't want
+        # overlapping input requests. [GH-2680]
+        @@lock.synchronize do
+          machine.ui.info I18n.t("vagrant.actions.vm.nfs.exporting")
+          machine.env.host.nfs_export(machine.id, machine_ip, folders)
+        end
 
         # Mount
         machine.ui.info I18n.t("vagrant.actions.vm.nfs.mounting")

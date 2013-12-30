@@ -18,6 +18,8 @@ BUG FIXES:
     [GH-2714]
   - commands/plugin: Fix exception that could happen rarely when installing
     a plugin.
+  - synced\_folders/nfs: sudo will only ask for password one at a time
+    when using a parallel provider [GH-2680]
 
 ## 1.4.1 (December 18, 2013)
 
