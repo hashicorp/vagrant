@@ -180,11 +180,15 @@ module Vagrant
         channel = type == :error || opts[:channel] == :error ? $stderr : $stdout
 
         # Output! We wrap this in a lock so that it safely outputs only
-        # one line at a time.
-        @lock.synchronize do
-          safe_puts(format_message(type, message, opts),
-                    :io => channel, :printer => printer)
-        end
+        # one line at a time. We wrap this in a thread because as of Ruby 2.0
+        # we can't acquire locks in a trap context (ctrl-c), so we have to
+        # do this.
+        Thread.new do
+          @lock.synchronize do
+            safe_puts(format_message(type, message, opts),
+                      :io => channel, :printer => printer)
+          end
+        end.join
       end
 
       def scope(scope_name)
