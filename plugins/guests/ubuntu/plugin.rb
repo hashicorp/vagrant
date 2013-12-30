@@ -17,11 +17,6 @@ module VagrantPlugins
         require_relative "cap/change_host_name"
         Cap::ChangeHostName
       end
-
-      guest_capability("ubuntu", "mount_nfs_folder") do
-        require_relative "cap/mount_nfs"
-        Cap::MountNFS
-      end
     end
   end
 end
