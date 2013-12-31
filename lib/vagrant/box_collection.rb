@@ -233,7 +233,7 @@ module Vagrant
     # Find a box in the collection with the given name and provider.
     #
     # @param [String] name Name of the box (logical name).
-    # @param [String] provider Provider that the box implements.
+    # @param [Array] providers Providers that the box implements.
     # @return [Box] The box found, or `nil` if not found.
     def find(name, providers)
       providers = [providers].flatten
