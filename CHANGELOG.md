@@ -3,6 +3,8 @@
 IMPROVEMENTS:
 
   - guests/linux: emit upstart event when NFS folders are mounted. [GH-2705]
+  - provisioners/chef-solo: Encrypted data bag secret is removed from the
+    machine after provisioning. [GH-2712]
 
 BUG FIXES:
 

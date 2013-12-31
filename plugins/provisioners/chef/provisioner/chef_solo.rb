@@ -52,6 +52,7 @@ module VagrantPlugins
           setup_json
           setup_solo_config
           run_chef_solo
+          delete_encrypted_data_bag_secret
         end
 
         # Converts paths to a list of properly expanded paths with types.
@@ -110,6 +111,12 @@ module VagrantPlugins
                 :id =>  "v-#{prefix}-#{self.class.get_and_update_counter(:shared_folder)}",
                 :nfs => @config.nfs)
             end
+          end
+        end
+
+        def delete_encrypted_data_bag_secret
+          @machine.communicate.tap do |comm|
+            comm.sudo("rm -f #{@config.encrypted_data_bag_secret}", error_check: false)
           end
         end
 
