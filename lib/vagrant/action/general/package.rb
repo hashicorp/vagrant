@@ -34,9 +34,9 @@ module Vagrant
           raise Errors::PackageRequiresDirectory if !env["package.directory"] ||
             !File.directory?(env["package.directory"])
 
-          compress
-
           @app.call(env)
+
+          compress
         end
 
         def recover(env)

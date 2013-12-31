@@ -19,6 +19,8 @@ BUG FIXES:
     [GH-2714]
   - commands/plugin: Fix exception that could happen rarely when installing
     a plugin.
+  - providers/virtualbox: Error when packaging if the package already exists
+    _before_ the export is done. [GH-2380]
   - synced\_folders/nfs: sudo will only ask for password one at a time
     when using a parallel provider [GH-2680]
 
