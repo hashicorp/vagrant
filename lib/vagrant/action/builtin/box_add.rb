@@ -19,6 +19,19 @@ module Vagrant
         def call(env)
           @download_interrupted = false
 
+          box_name = env[:box_name]
+
+          box_formats = env[:box_provider]
+          if box_formats
+            # Determine the formats a box can support and allow the box to
+            # be any of those formats.
+            provider_plugin = Vagrant.plugin("2").manager.providers[env[:box_provider]]
+            if provider_plugin
+              box_formats = provider_plugin[1][:box_format]
+              box_formats ||= env[:box_provider]
+            end
+          end
+
           # Determine the checksum type to use
           checksum = (env[:box_checksum] || "").to_s
           checksum_klass = nil
@@ -68,7 +81,7 @@ module Vagrant
             @logger.info("Expected checksum: #{checksum}")
 
             env[:ui].info(I18n.t("vagrant.actions.box.add.checksumming",
-              name: env[:box_name]))
+              name: box_name))
             actual = FileChecksum.new(@temp_path, checksum_klass).checksum
             if actual != checksum
               raise Errors::BoxChecksumMismatch,
@@ -77,26 +90,15 @@ module Vagrant
             end
           end
 
-          box_formats = env[:box_provider]
-          if box_formats
-            # Determine the formats a box can support and allow the box to
-            # be any of those formats.
-            provider_plugin = Vagrant.plugin("2").manager.providers[env[:box_provider]]
-            if provider_plugin
-              box_formats = provider_plugin[1][:box_format]
-              box_formats ||= env[:box_provider]
-            end
-          end
-
           # Add the box
-          env[:ui].info I18n.t("vagrant.actions.box.add.adding", :name => env[:box_name])
+          env[:ui].info I18n.t("vagrant.actions.box.add.adding", :name => box_name)
           box_added = nil
           begin
             box_added = env[:box_collection].add(
-              @temp_path, env[:box_name], box_formats, env[:box_force])
+              @temp_path, box_name, box_formats, env[:box_force])
           rescue Vagrant::Errors::BoxUpgradeRequired
             # Upgrade the box
-            env[:box_collection].upgrade(env[:box_name])
+            env[:box_collection].upgrade(box_name)
 
             # Try adding it again
             retry
