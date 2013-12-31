@@ -20,7 +20,6 @@ module Vagrant
           @download_interrupted = false
 
           box_name = env[:box_name]
-
           box_formats = env[:box_provider]
           if box_formats
             # Determine the formats a box can support and allow the box to
@@ -29,6 +28,22 @@ module Vagrant
             if provider_plugin
               box_formats = provider_plugin[1][:box_format]
               box_formats ||= env[:box_provider]
+            end
+          end
+
+          # Determine if we already have the box before downloading
+          # it again. We can only do this if we specify a format
+          if box_formats
+            begin
+              if env[:box_collection].find(box_name, box_formats)
+                raise Errors::BoxAlreadyExists,
+                  :name => box_name,
+                  :formats => [box_formats].flatten.join(", ")
+              end
+            rescue Vagrant::Errors::BoxUpgradeRequired
+              # If the box needs to be upgraded, do it.
+              env[:box_collection].upgrade(box_name)
+              retry
             end
           end
 
