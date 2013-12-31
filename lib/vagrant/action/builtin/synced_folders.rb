@@ -22,12 +22,26 @@ module Vagrant
         def call(env)
           folders = synced_folders(env[:machine])
 
+          guestpaths = []
           folders.each do |impl_name, fs|
             @logger.info("Synced Folder Implementation: #{impl_name}")
 
             fs.each do |id, data|
               # Log every implementation and their paths
               @logger.info("  - #{id}: #{data[:hostpath]} => #{data[:guestpath]}")
+
+              # Warn if the guestpath shadows an earlier entry
+              shadowed = guestpaths.find do |path|
+                path.start_with?("#{data[:guestpath].chomp('/')}/")
+              end
+              if shadowed
+                env[:ui].warn I18n.t(
+                  "vagrant.actions.vm.share_folders.shadowing",
+                  path: data[:guestpath],
+                  shadowed: shadowed
+                )
+              end
+              guestpaths << data[:guestpath]
 
               # Scope hash override
               fs[id] = scoped_hash_override(data, impl_name)
