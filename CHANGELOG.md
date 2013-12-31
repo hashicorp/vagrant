@@ -23,6 +23,8 @@ BUG FIXES:
     a plugin.
   - providers/virtualbox: Error when packaging if the package already exists
     _before_ the export is done. [GH-2380]
+  - providers/virtualbox: NFS with static IP works even if VirtualBox
+    guest additions aren't installed (regression). [GH-2674]
   - synced\_folders/nfs: sudo will only ask for password one at a time
     when using a parallel provider [GH-2680]
 
