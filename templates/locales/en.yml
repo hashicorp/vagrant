@@ -1213,6 +1213,11 @@ en:
           download_failed: |-
             Download failed. Will try another box URL if there is one.
           interrupted: "Box download was interrupted. Exiting."
+          no_provider_cant_check: |-
+            A provider wasn't explicitly provided to the "box add" command.
+            Without a provider, Vagrant can't verify if this box already
+            exists until the box is fully downloaded. This is just a warning,
+            and is not an error.
           resuming: "Box download is resuming from prior download progress"
         verify:
           verifying: "Verifying box..."

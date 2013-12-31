@@ -33,7 +33,10 @@ module Vagrant
 
           # Determine if we already have the box before downloading
           # it again. We can only do this if we specify a format
-          if box_formats
+          if !box_formats
+              env[:ui].warn(I18n.t(
+                "vagrant.actions.box.download.no_provider_cant_check"))
+          else
             begin
               if env[:box_collection].find(box_name, box_formats)
                 raise Errors::BoxAlreadyExists,
