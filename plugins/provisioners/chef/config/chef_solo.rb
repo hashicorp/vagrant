@@ -10,9 +10,9 @@ module VagrantPlugins
         attr_accessor :encrypted_data_bag_secret
         attr_accessor :environments_path
         attr_accessor :environment
-        attr_accessor :nfs
         attr_accessor :recipe_url
         attr_accessor :roles_path
+        attr_accessor :synced_folder_type
 
         def initialize
           super
@@ -23,9 +23,21 @@ module VagrantPlugins
           @environment               = UNSET_VALUE
           @recipe_url                = UNSET_VALUE
           @roles_path                = UNSET_VALUE
-          @nfs                       = UNSET_VALUE
+          @synced_folder_type        = UNSET_VALUE
           @encrypted_data_bag_secret = UNSET_VALUE
           @encrypted_data_bag_secret_key_path = UNSET_VALUE
+        end
+
+        def nfs=(value)
+          puts "DEPRECATION: The 'nfs' setting for the Puppet provisioner is"
+          puts "deprecated. Please use the 'synced_folder_type' setting instead."
+          puts "The 'nfs' setting will be removed in the next version of Vagrant."
+
+          if value
+            @synced_folder_type = "nfs"
+          else
+            @synced_folder_type = nil
+          end
         end
 
         #------------------------------------------------------------
@@ -35,8 +47,9 @@ module VagrantPlugins
         def finalize!
           super
 
-          @recipe_url = nil if @recipe_url == UNSET_VALUE
           @environment = nil if @environment == UNSET_VALUE
+          @recipe_url = nil if @recipe_url == UNSET_VALUE
+          @synced_folder_type = nil if @synced_folder_type == UNSET_VALUE
 
           if @cookbooks_path == UNSET_VALUE
             @cookbooks_path = []
@@ -55,7 +68,6 @@ module VagrantPlugins
           @roles_path        = prepare_folders_config(@roles_path)
           @environments_path = prepare_folders_config(@environments_path)
 
-          @nfs = false if @nfs == UNSET_VALUE
           @encrypted_data_bag_secret = "/tmp/encrypted_data_bag_secret" if \
             @encrypted_data_bag_secret == UNSET_VALUE
           @encrypted_data_bag_secret_key_path = nil if \
@@ -76,7 +88,7 @@ module VagrantPlugins
             path = Pathname.new(raw_path).expand_path(machine.env.root_path)
             if !path.directory?
               errors << I18n.t("vagrant.config.chef.environment_path_missing",
-                path: raw_path.to_s)
+                               path: raw_path.to_s)
             end
           end
 
