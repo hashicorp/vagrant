@@ -14,7 +14,7 @@ module VagrantPlugins
         attr_accessor :options
         attr_accessor :temp_dir
         attr_accessor :working_directory
-        attr_accessor :nfs
+        attr_accessor :synced_folder_type
 
         def initialize
           super
@@ -25,9 +25,21 @@ module VagrantPlugins
           @module_path       = UNSET_VALUE
           @options           = []
           @facter            = {}
+          @synced_folder_type = UNSET_VALUE
           @temp_dir          = UNSET_VALUE
           @working_directory = UNSET_VALUE
-          @nfs               = UNSET_VALUE
+        end
+
+        def nfs=(value)
+          puts "DEPRECATION: The 'nfs' setting for the Puppet provisioner is"
+          puts "deprecated. Please use the 'synced_folder_type' setting instead."
+          puts "The 'nfs' setting will be removed in the next version of Vagrant."
+
+          if value
+            @synced_folder_type = "nfs"
+          else
+            @synced_folder_type = nil
+          end
         end
 
         def finalize!
@@ -46,9 +58,9 @@ module VagrantPlugins
           @hiera_config_path = nil if @hiera_config_path == UNSET_VALUE
           @manifest_file  = "default.pp" if @manifest_file == UNSET_VALUE
           @module_path    = nil if @module_path == UNSET_VALUE
+          @synced_folder_type = nil if @synced_folder_type == UNSET_VALUE
           @temp_dir       = nil if @temp_dir == UNSET_VALUE
           @working_directory = nil if @working_directory == UNSET_VALUE
-          @nfs            = false if @nfs == UNSET_VALUE
 
           # Set a default temp dir that has an increasing counter so
           # that multiple Puppet definitions won't overwrite each other

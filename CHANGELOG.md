@@ -1,8 +1,20 @@
 ## 1.5.0 (unreleased)
 
+DEPRECATIONS:
+
+  - provisioners/puppet: The "nfs" setting has been replaced by
+    `synced_folder_type`. The "nfs" setting will be removed in the next
+    version.
+
 FEATURES:
 
   - **New guest:** Funtoo (change host name and networks supported)
+
+IMPROVEMENTS:
+
+  - provisioners/puppet: New config `synced_folder_type` replaces the
+    `nfs` option. This can be used to set the synced folders the provisioner
+    needs to any type. [GH-2709]
 
 ## 1.4.3 (January 2, 2014)
 
