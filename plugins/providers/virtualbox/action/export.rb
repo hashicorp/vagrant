@@ -4,8 +4,6 @@ module VagrantPlugins
   module ProviderVirtualBox
     module Action
       class Export
-        attr_reader :temp_dir
-
         def initialize(app, env)
           @app = app
         end
@@ -16,24 +14,9 @@ module VagrantPlugins
           raise Vagrant::Errors::VMPowerOffToPackage if \
             @env[:machine].provider.state.id != :poweroff
 
-          setup_temp_dir
           export
 
           @app.call(env)
-
-          recover(env) # called to cleanup temp directory
-        end
-
-        def recover(env)
-          if temp_dir && File.exist?(temp_dir)
-            FileUtils.rm_rf(temp_dir)
-          end
-        end
-
-        def setup_temp_dir
-          @env[:ui].info I18n.t("vagrant.actions.vm.export.create_dir")
-          @temp_dir = @env["export.temp_dir"] = @env[:tmp_path].join(Time.now.to_i.to_s)
-          FileUtils.mkpath(@env["export.temp_dir"])
         end
 
         def export

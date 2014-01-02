@@ -40,6 +40,8 @@ module Vagrant
         end
 
         def recover(env)
+          @env = env
+
           # There are certain exceptions that we don't delete the file for.
           ignore_exc = [Errors::PackageOutputDirectory, Errors::PackageOutputExists]
           ignore_exc.each do |exc|
