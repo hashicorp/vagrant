@@ -1,3 +1,9 @@
+## 1.4.3 (January 2, 2014)
+
+BUG FIXES:
+
+  - providers/virtualbox: `vagrant package` works properly again. [GH-2739]
+
 ## 1.4.2 (December 31, 2013)
 
 IMPROVEMENTS:
