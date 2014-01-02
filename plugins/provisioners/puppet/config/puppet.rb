@@ -12,9 +12,9 @@ module VagrantPlugins
         attr_accessor :manifests_path
         attr_accessor :module_path
         attr_accessor :options
+        attr_accessor :synced_folder_type
         attr_accessor :temp_dir
         attr_accessor :working_directory
-        attr_accessor :synced_folder_type
 
         def initialize
           super
