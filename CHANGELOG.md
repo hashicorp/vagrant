@@ -1,6 +1,8 @@
-## 1.4.3 (unreleased)
+## 1.5.0 (unreleased)
 
+FEATURES:
 
+  - **New guest:** Funtoo (change host name and networks supported)
 
 ## 1.4.2 (December 31, 2013)
 
