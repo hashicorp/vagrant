@@ -52,15 +52,16 @@ that are available with both the Chef solo and Chef client provisioners.
 * `environment` (string) - The environment you want the Chef run to be
   a part of. This requires that `environments_path` is set.
 
-* `nfs` (boolean) - If true, any synced folders that need to be used are
-  shared via NFS, rather than the default synced folder mechanism. This can
-  result in performance increases. By default, this is false.
-
 * `recipe_url` (string) - URL to an archive of cookbooks that Chef will download
   and use.
 
 * `roles_path` (string or array) - A list of paths where roles are defined.
   By default this is empty.
+
+* `synced_folder_type` (string) - The type of synced folders to use when
+  sharing the data required for the provisioner to work properly. By default
+  this will use the default synced folder type. For example, you can set this
+  to "nfs" to use NFS synced folders.
 
 ## Specifying a Run List
 
