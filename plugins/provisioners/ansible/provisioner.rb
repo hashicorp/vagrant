@@ -29,14 +29,20 @@ module VagrantPlugins
         command = (%w(ansible-playbook) << options << config.playbook).flatten
 
         # Write stdout and stderr data, since it's the regular Ansible output
-        command << {
-          :env => {
+        #
+        
+        env = {
             "ANSIBLE_FORCE_COLOR" => "true",
             "ANSIBLE_HOST_KEY_CHECKING" => "#{config.host_key_checking}",
             # Ensure Ansible output isn't buffered so that we receive ouput
             # on a task-by-task basis.
             "PYTHONUNBUFFERED" => 1
-          },
+        }
+
+        env["ANSIBLE_SSH_ARGS"] ="-o ForwardAgent=yes" if config.ssh.forward_agent
+
+        command << {
+          :env => env,
           :notify => [:stdout, :stderr],
           :workdir => @machine.env.root_path.to_s
         }
