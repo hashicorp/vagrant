@@ -35,6 +35,10 @@ module Vagrant
             end
           end
 
+          if info[:private_key_path].empty? && info[:password]
+            env[:ui].warn(I18n.t("vagrant.ssh_exec_password"))
+          end
+
           # Exec!
           SSH.exec(info, env[:ssh_opts])
         end

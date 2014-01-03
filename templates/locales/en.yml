@@ -77,6 +77,11 @@ en:
       %{names}
     provisioner_cleanup: |-
       Running cleanup tasks for '%{name}' provisioner...
+    ssh_exec_password: |-
+      The machine you're attempting to SSH into is configured to use
+      password-based authentication. Vagrant can't script entering the
+      password for you. If you're prompted for a password, please enter
+      the same password you have configured in the Vagrantfile.
 
     cfengine_config:
       classes_array: |-
