@@ -12,6 +12,9 @@ DEPRECATIONS:
 FEATURES:
 
   - **New guest:** Funtoo (change host name and networks supported)
+  - Password-based SSH authentication. This lets you use almost any off-the-shelf
+    virtual machine image with Vagrant. Additionally, Vagrant will automatically
+    insert a keypair into the machine.
 
 IMPROVEMENTS:
 
@@ -24,6 +27,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - core: If an exception was raised while attempting to connect to SSH
+    for the first time, it would get swallowed. It is properly raised now.
   - providers/virtualbox: Enabling internal networks by just setting "true"
     works properly. [GH-2751]
 
