@@ -52,7 +52,7 @@ module VagrantPlugins
         # If we're already attempting to switch out the SSH key, then
         # just return that we're ready (for Machine#guest).
         @lock.synchronize do
-          return true if @inserted_key
+          return true if @inserted_key || !@machine.config.ssh.insert_key
           @inserted_key = true
         end
 
