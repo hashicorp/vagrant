@@ -650,6 +650,15 @@ en:
 
         Please make sure that you have a forwarded port that goes to the configured
         guest port value, or specify an explicit SSH port with `config.ssh.port`.
+      ssh_run_requires_keys: |-
+        Using `vagrant ssh -c` requires key-based SSH authentication, but your
+        Vagrant environmet is configured to use only password-based authentication.
+        Please configure your Vagrantfile with a private key to use this
+        feature.
+
+        Note that Vagrant can automatically insert a keypair and use that
+        keypair for you. Just set `config.ssh.insert_key = true` in your
+        Vagrantfile.
       ssh_unavailable: "`ssh` binary could not be found. Is an SSH client installed?"
       ssh_unavailable_windows: |-
         `ssh` executable not found in any directories in the %PATH% variable. Is an

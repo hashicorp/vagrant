@@ -532,6 +532,10 @@ module Vagrant
       error_key(:ssh_port_not_detected)
     end
 
+    class SSHRunRequiresKeys < VagrantError
+      error_key(:ssh_run_requires_keys)
+    end
+
     class SSHUnavailable < VagrantError
       error_key(:ssh_unavailable)
     end
