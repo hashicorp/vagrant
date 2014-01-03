@@ -56,6 +56,10 @@ module Vagrant
             return if env[:interrupted]
           end
 
+          # Join so that they can raise exceptions if there were any
+          ready_thr.join if !ready_thr.alive?
+          states_thr.join if !states_thr.alive?
+
           # If it went into a bad state, then raise an error
           if !states_thr[:result]
             raise Errors::VMBootBadState,
