@@ -362,12 +362,15 @@ module VagrantPlugins
         end
 
         def intnet_adapter(config)
+          intnet_name = config[:intnet]
+          intnet_name = "intnet" if intnet_name == true
+
           return {
             :adapter => config[:adapter],
             :type => :intnet,
             :mac_address => config[:mac],
             :nic_type => config[:nic_type],
-            :intnet => config[:intnet]
+            :intnet => intnet_name,
           }
         end
 

@@ -1,0 +1,6 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "box"
+  config.vm.network "private_network",
+    ip: "192.168.50.4",
+    virtualbox__intnet: true
+end
