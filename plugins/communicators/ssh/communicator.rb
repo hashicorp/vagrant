@@ -60,6 +60,7 @@ module VagrantPlugins
         ssh_info = @machine.ssh_info
         if ssh_info[:password] && ssh_info[:private_key_path].empty?
           @logger.info("Inserting insecure key to avoid password")
+          @machine.ui.info(I18n.t("vagrant.inserting_insecure_key"))
           @machine.guest.capability(
             :insert_public_key,
             Vagrant.source_root.join("keys", "vagrant.pub").read)
@@ -70,7 +71,7 @@ module VagrantPlugins
             f.write(Vagrant.source_root.join("keys", "vagrant").read)
           end
 
-          @logger.info("Disconecting SSH so we can reconnect with new SSH key")
+          @machine.ui.info(I18n.t("vagrant.inserted_key"))
           @connection.close
           @connection = nil
 

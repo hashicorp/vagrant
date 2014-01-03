@@ -58,6 +58,10 @@ en:
     docker_install_with_version_not_supported: |-
       Vagrant is not capable of installing an specific version of Docker
       onto the guest machine and the latest version will be installed.
+    inserted_key: |-
+      Key inserted! Disconnecting and reconnecting using new SSH key...
+    inserting_insecure_key: |-
+      Inserting Vagrant public key within guest...
     plugin_needs_reinstall: |-
       The following plugins were installed with a version of Vagrant
       that had different versions of underlying components. Because
