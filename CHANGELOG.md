@@ -22,6 +22,11 @@ IMPROVEMENTS:
     `nfs` option. This can be used to set the synced folders the provisioner
     needs to any type. [GH-2709]
 
+BUG FIXES:
+
+  - providers/virtualbox: Enabling internal networks by just setting "true"
+    works properly. [GH-2751]
+
 ## 1.4.3 (January 2, 2014)
 
 BUG FIXES:
