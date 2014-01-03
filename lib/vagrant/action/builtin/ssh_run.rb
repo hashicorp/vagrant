@@ -26,11 +26,15 @@ module Vagrant
           # not yet ready for SSH, so we raise this exception.
           raise Errors::SSHNotReady if info.nil?
 
-          if info[:private_key_path]
-            # Check SSH key permissions
-            info[:private_key_path].each do |path|
-              SSH.check_key_permissions(Pathname.new(path))
-            end
+          info[:private_key_path] ||= []
+
+          # Check SSH key permissions
+          info[:private_key_path].each do |path|
+            SSH.check_key_permissions(Pathname.new(path))
+          end
+
+          if info[:private_key_path].empty?
+            raise Errors::SSHRunRequiresKeys
           end
 
           # Get the command and wrap it in a login shell

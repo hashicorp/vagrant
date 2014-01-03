@@ -1,6 +1,7 @@
 require 'logger'
 require 'pathname'
 require 'stringio'
+require 'thread'
 require 'timeout'
 
 require 'log4r'
@@ -27,25 +28,58 @@ module VagrantPlugins
       end
 
       def initialize(machine)
+        @lock    = Mutex.new
         @machine = machine
         @logger  = Log4r::Logger.new("vagrant::communication::ssh")
         @connection = nil
+        @inserted_key = false
       end
 
       def ready?
         @logger.debug("Checking whether SSH is ready...")
 
         # Attempt to connect. This will raise an exception if it fails.
-        connect
+        begin
+          connect
+          @logger.info("SSH is ready!")
+        rescue Vagrant::Errors::VagrantError => e
+          # We catch a `VagrantError` which would signal that something went
+          # wrong expectedly in the `connect`, which means we didn't connect.
+          @logger.info("SSH not up: #{e.inspect}")
+          return false
+        end
+
+        # If we're already attempting to switch out the SSH key, then
+        # just return that we're ready (for Machine#guest).
+        @lock.synchronize do
+          return true if @inserted_key || !@machine.config.ssh.insert_key
+          @inserted_key = true
+        end
+
+        # If we used a password, then insert the insecure key
+        ssh_info = @machine.ssh_info
+        if ssh_info[:password] && ssh_info[:private_key_path].empty?
+          @logger.info("Inserting insecure key to avoid password")
+          @machine.ui.info(I18n.t("vagrant.inserting_insecure_key"))
+          @machine.guest.capability(
+            :insert_public_key,
+            Vagrant.source_root.join("keys", "vagrant.pub").read)
+
+          # Write out the private key in the data dir so that the
+          # machine automatically picks it up.
+          @machine.data_dir.join("private_key").open("w+") do |f|
+            f.write(Vagrant.source_root.join("keys", "vagrant").read)
+          end
+
+          @machine.ui.info(I18n.t("vagrant.inserted_key"))
+          @connection.close
+          @connection = nil
+
+          return ready?
+        end
 
         # If we reached this point then we successfully connected
-        @logger.info("SSH is ready!")
         true
-      rescue Vagrant::Errors::VagrantError => e
-        # We catch a `VagrantError` which would signal that something went
-        # wrong expectedly in the `connect`, which means we didn't connect.
-        @logger.info("SSH not up: #{e.inspect}")
-        return false
       end
 
       def execute(command, opts=nil, &block)
@@ -170,6 +204,7 @@ module VagrantPlugins
           :keys                  => ssh_info[:private_key_path],
           :keys_only             => true,
           :paranoid              => false,
+          :password              => ssh_info[:password],
           :port                  => ssh_info[:port],
           :user_known_hosts_file => []
         }
@@ -222,6 +257,7 @@ module VagrantPlugins
                 @logger.info("  - Host: #{ssh_info[:host]}")
                 @logger.info("  - Port: #{ssh_info[:port]}")
                 @logger.info("  - Username: #{ssh_info[:username]}")
+                @logger.info("  - Password? #{!!ssh_info[:password]}")
                 @logger.info("  - Key Path: #{ssh_info[:private_key_path]}")
 
                 Net::SSH.start(ssh_info[:host], ssh_info[:username], connect_opts)

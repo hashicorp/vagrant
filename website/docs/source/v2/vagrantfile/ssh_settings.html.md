@@ -20,6 +20,14 @@ public boxes are made as.
 
 <hr>
 
+`config.ssh.password` - This sets a password that Vagrant will use to
+authenticate the SSH user. Note that Vagrant recommends you use key-based
+authentiation rather than a password (see `private_key_path`) below. If
+you use a password, Vagrant will automatically insert a keypair if
+`insert_key` is true.
+
+<hr>
+
 `config.ssh.host` - The hostname or IP to SSH into. By default this is
 empty, because the provider usually figures this out for you.
 
@@ -56,6 +64,12 @@ connections is enabled. Defaults to false.
 
 `config.ssh.forward_x11` - If `true`, X11 forwarding over SSH connections
 is enabled. Defaults to false.
+
+<hr>
+
+`config.ssh.insert_key` - If `true`, Vagrant will automatically insert
+an insecure keypair to use for SSH. By default, this is true. This only
+has an effect if you don't already use private keys for authentication.
 
 <hr>
 

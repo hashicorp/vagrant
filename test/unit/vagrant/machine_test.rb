@@ -279,7 +279,7 @@ describe Vagrant::Machine do
       let(:provider_ssh_info) { {} }
 
       before(:each) do
-        provider.should_receive(:ssh_info).and_return(provider_ssh_info)
+        provider.stub(:ssh_info).and_return(provider_ssh_info)
       end
 
       [:host, :port, :username].each do |type|
@@ -372,6 +372,29 @@ describe Vagrant::Machine do
 
         instance.ssh_info[:private_key_path].should ==
           [instance.env.default_private_key_path.to_s]
+      end
+
+      it "should not set any default private keys if a password is specified" do
+        provider_ssh_info[:private_key_path] = nil
+        instance.config.ssh.private_key_path = nil
+        instance.config.ssh.password = ""
+
+        expect(instance.ssh_info[:private_key_path]).to be_empty
+        expect(instance.ssh_info[:password]).to eql("")
+      end
+
+      it "should return the private key in the data dir above all else" do
+        provider_ssh_info[:private_key_path] = nil
+        instance.config.ssh.private_key_path = nil
+        instance.config.ssh.password = ""
+
+        instance.data_dir.join("private_key").open("w+") do |f|
+          f.write("hey")
+        end
+
+        expect(instance.ssh_info[:private_key_path]).to eql(
+          [instance.data_dir.join("private_key").to_s])
+        expect(instance.ssh_info[:password]).to eql("")
       end
     end
   end
