@@ -3,7 +3,7 @@
 # Trap interrupts to quit cleanly. This will be overriden at some point
 # by Vagrant. This is made to catch any interrupts while Vagrant is
 # initializing which have historically resulted in stack traces.
-Signal.trap("INT") { exit 1 }
+Signal.trap("INT") { abort }
 
 # Split arguments by "--" if its there, we'll recombine them later
 argv = ARGV.dup
