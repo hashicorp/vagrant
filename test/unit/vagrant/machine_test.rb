@@ -382,6 +382,20 @@ describe Vagrant::Machine do
         expect(instance.ssh_info[:private_key_path]).to be_empty
         expect(instance.ssh_info[:password]).to eql("")
       end
+
+      it "should return the private key in the data dir above all else" do
+        provider_ssh_info[:private_key_path] = nil
+        instance.config.ssh.private_key_path = nil
+        instance.config.ssh.password = ""
+
+        instance.data_dir.join("private_key").open("w+") do |f|
+          f.write("hey")
+        end
+
+        expect(instance.ssh_info[:private_key_path]).to eql(
+          [instance.data_dir.join("private_key").to_s])
+        expect(instance.ssh_info[:password]).to eql("")
+      end
     end
   end
 

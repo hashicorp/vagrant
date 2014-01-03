@@ -300,6 +300,12 @@ module Vagrant
         end
       end
 
+      # If we have a private key in our data dir, then use that
+      data_private_key = @data_dir.join("private_key")
+      if data_private_key.file?
+        info[:private_key_path] = [data_private_key.to_s]
+      end
+
       # Setup the keys
       info[:private_key_path] ||= []
       if !info[:private_key_path].is_a?(Array)

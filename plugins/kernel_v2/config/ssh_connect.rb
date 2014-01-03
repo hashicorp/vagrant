@@ -6,6 +6,7 @@ module VagrantPlugins
       attr_accessor :private_key_path
       attr_accessor :username
       attr_accessor :password
+      attr_accessor :insert_key
 
       def initialize
         @host             = UNSET_VALUE
@@ -13,6 +14,7 @@ module VagrantPlugins
         @private_key_path = UNSET_VALUE
         @username         = UNSET_VALUE
         @password         = UNSET_VALUE
+        @insert_key       = UNSET_VALUE
       end
 
       def finalize!
@@ -21,6 +23,7 @@ module VagrantPlugins
         @private_key_path = nil if @private_key_path == UNSET_VALUE
         @username         = nil if @username == UNSET_VALUE
         @password         = nil if @password == UNSET_VALUE
+        @insert_key       = true if @insert_key == UNSET_VALUE
 
         if @private_key_path && !@private_key_path.is_a?(Array)
           @private_key_path = [@private_key_path]

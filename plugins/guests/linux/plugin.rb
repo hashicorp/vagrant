@@ -16,6 +16,11 @@ module VagrantPlugins
         Cap::Halt
       end
 
+      guest_capability("linux", "insert_public_key") do
+        require_relative "cap/insert_public_key"
+        Cap::InsertPublicKey
+      end
+
       guest_capability("linux", "shell_expand_guest_path") do
         require_relative "cap/shell_expand_guest_path"
         Cap::ShellExpandGuestPath
