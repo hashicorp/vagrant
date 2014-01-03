@@ -170,6 +170,7 @@ module VagrantPlugins
           :keys                  => ssh_info[:private_key_path],
           :keys_only             => true,
           :paranoid              => false,
+          :password              => ssh_info[:password],
           :port                  => ssh_info[:port],
           :user_known_hosts_file => []
         }
@@ -222,6 +223,7 @@ module VagrantPlugins
                 @logger.info("  - Host: #{ssh_info[:host]}")
                 @logger.info("  - Port: #{ssh_info[:port]}")
                 @logger.info("  - Username: #{ssh_info[:username]}")
+                @logger.info("  - Password? #{!!ssh_info[:password]}")
                 @logger.info("  - Key Path: #{ssh_info[:private_key_path]}")
 
                 Net::SSH.start(ssh_info[:host], ssh_info[:username], connect_opts)
