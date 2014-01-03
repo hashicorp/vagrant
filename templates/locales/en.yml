@@ -395,7 +395,7 @@ en:
 
         Local data directory: %{local_data_path}
       linux_mount_failed: |-
-        Failed to mount folders in Linux guest. This is usually beacuse
+        Failed to mount folders in Linux guest. This is usually because
         the "vboxsf" file system is not available. Please verify that
         the guest additions are properly installed in the guest and
         can work properly. The command attempted was:
