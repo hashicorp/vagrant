@@ -5,8 +5,17 @@
 # initializing which have historically resulted in stack traces.
 Signal.trap("INT") { abort }
 
+# Split arguments by "--" if its there, we'll recombine them later
+argv = ARGV.dup
+argv_extra = []
+if idx = argv.index("--")
+  argv_extra = argv.slice(idx+1, argv.length-2)
+  argv = argv.slice(0, idx)
+end
+
 # Fast path the version of Vagrant
 if argv.include?("-v") || argv.include?("--version")
+  require "vagrant/version"
   puts "Vagrant #{Vagrant::VERSION}"
   exit 0
 end
@@ -21,14 +30,6 @@ if !ENV["VAGRANT_INTERNAL_BUNDLERIZED"]
     File.expand_path("../../lib/vagrant/pre-rubygems.rb", __FILE__),
     *ARGV)
   raise "Fatal error: this line should never be reached"
-end
-
-# Split arguments by "--" if its there, we'll recombine them later
-argv = ARGV.dup
-argv_extra = []
-if idx = argv.index("--")
-  argv_extra = argv.slice(idx+1, argv.length-2)
-  argv = argv.slice(0, idx)
 end
 
 # Set logging level to `debug`. This is done before loading 'vagrant', as it
