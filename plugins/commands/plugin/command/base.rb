@@ -1,3 +1,5 @@
+require "vagrant/plugin/state_file"
+
 module VagrantPlugins
   module CommandPlugin
     module Command
@@ -11,7 +13,7 @@ module VagrantPlugins
         def action(callable, env=nil)
           env = {
             :gem_helper => GemHelper.new(@env.gems_path),
-            :plugin_state_file => StateFile.new(@env.home_path.join("plugins.json"))
+            :plugin_state_file => Vagrant::Plugin::StateFile.new(@env.home_path.join("plugins.json"))
           }.merge(env || {})
 
           @env.action_runner.run(callable, env)

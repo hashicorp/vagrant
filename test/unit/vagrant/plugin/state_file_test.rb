@@ -1,9 +1,9 @@
 require "json"
 require "pathname"
 
-require File.expand_path("../../../../base", __FILE__)
+require File.expand_path("../../../base", __FILE__)
 
-describe VagrantPlugins::CommandPlugin::StateFile do
+describe Vagrant::Plugin::StateFile do
   let(:path) do
     f = Tempfile.new("vagrant")
     p = f.path

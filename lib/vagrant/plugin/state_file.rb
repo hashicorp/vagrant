@@ -1,7 +1,7 @@
 require "json"
 
-module VagrantPlugins
-  module CommandPlugin
+module Vagrant
+  module Plugin
     # This is a helper to deal with the plugin state file that Vagrant
     # uses to track what plugins are installed and activated and such.
     class StateFile
