@@ -24,7 +24,7 @@ module Vagrant
       raise "Bundler already initialized" if defined?(::Bundler)
 
       # Setup the Bundler configuration
-      @configfile = Tempfile.new("vagrant-bundler-config")
+      @configfile = File.open(Tempfile.new("vagrant").path + "1", "w+")
       @configfile.close
 
       # Build up the Gemfile for our Bundler context. We make sure to
@@ -80,7 +80,8 @@ module Vagrant
     #
     # @return [Tempfile]
     def build_gemfile(plugins)
-      Tempfile.new("vagrant-gemfile").tap do |gemfile|
+      f = File.open(Tempfile.new("vagrant").path + "2", "w+")
+      f.tap do |gemfile|
         gemfile.puts(%Q[source "https://rubygems.org"])
         gemfile.puts(%Q[source "http://gems.hashicorp.com"])
         gemfile.puts(%Q[gem "vagrant", "= #{Vagrant::VERSION}"])
