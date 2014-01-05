@@ -1,6 +1,6 @@
 require "json"
 
-require_relative "paths"
+require_relative "shared_helpers"
 
 module Vagrant
   class PluginManager

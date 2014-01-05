@@ -139,11 +139,6 @@ en:
 
         Old: %{old}
         New: %{new}
-      in_bundler: |-
-        You appear to be running Vagrant in a Bundler environment. Because
-        Vagrant should be run within installers (outside of Bundler), Vagrant
-        will assume that you're developing plugins and will change its behavior
-        in certain ways to better assist plugin development.
       not_in_installer: |-
         You appear to be running Vagrant outside of the official installers.
         Note that the installers are what ensure that Vagrant has all required

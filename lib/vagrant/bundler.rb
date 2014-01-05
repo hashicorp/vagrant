@@ -1,6 +1,6 @@
 require "tempfile"
 
-require_relative "paths"
+require_relative "shared_helpers"
 require_relative "version"
 
 module Vagrant
@@ -21,7 +21,9 @@ module Vagrant
       @configfile = Tempfile.new("vagrant-bundler-config")
       @configfile.close
 
-      # Build up the Gemfile for our Bundler context
+      # Build up the Gemfile for our Bundler context. We make sure to
+      # lock Vagrant to our current Vagrant version. In addition to that,
+      # we add all our plugin dependencies.
       @gemfile = Tempfile.new("vagrant-gemfile")
       @gemfile.puts(%Q[gem "vagrant", "= #{Vagrant::VERSION}"])
       plugins.each do |plugin|

@@ -105,21 +105,8 @@ begin
   env = Vagrant::Environment.new(opts)
 
   if !Vagrant.in_installer?
-    warned = false
-
-    # If we're in a bundler environment, we assume it is for plugin
-    # development and will let the user know that.
-    if defined?(Bundler)
-      require 'bundler/shared_helpers'
-      if Bundler::SharedHelpers.in_bundle?
-        env.ui.warn(I18n.t("vagrant.general.in_bundler"))
-        env.ui.warn("")
-        warned = true
-      end
-    end
-
     # If we're not in the installer, warn.
-    env.ui.warn(I18n.t("vagrant.general.not_in_installer")) if !warned
+    env.ui.warn(I18n.t("vagrant.general.not_in_installer"))
   end
 
   begin

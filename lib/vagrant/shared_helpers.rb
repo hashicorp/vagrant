@@ -1,8 +1,16 @@
 require "pathname"
 
 module Vagrant
-  # The source root is the path to the root directory of
-  # the Vagrant gem.
+  # This returns whether or not 3rd party plugins should be loaded.
+  #
+  # @return [Boolean]
+  def self.plugins_enabled?
+    !ENV["VAGRANT_NO_PLUGINS"]
+  end
+
+  # The source root is the path to the root directory of the Vagrant source.
+  #
+  # @return [Pathname]
   def self.source_root
     @source_root ||= Pathname.new(File.expand_path('../../../', __FILE__))
   end
