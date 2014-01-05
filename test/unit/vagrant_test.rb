@@ -47,36 +47,6 @@ describe Vagrant do
     end
   end
 
-  describe "requiring plugins" do
-    it "should require the plugin given" do
-      # For now, just require a stdlib
-      expect { described_class.require_plugin "set" }.
-        to_not raise_error
-    end
-
-    it "should add the gem name to plugin manager" do
-      expect(described_class.plugin("2").manager).
-        to receive(:plugin_required).with("set")
-      described_class.require_plugin "set"
-    end
-
-    it "should raise an error if the file doesn't exist" do
-      expect { described_class.require_plugin("i_dont_exist") }.
-        to raise_error(Vagrant::Errors::PluginLoadError)
-    end
-
-    it "should raise an error if the loading failed in some other way" do
-      plugin_dir  = temporary_dir
-      plugin_path = plugin_dir.join("test.rb")
-      plugin_path.open("w") do |f|
-        f.write(%Q[require 'I_dont_exist'])
-      end
-
-      expect { described_class.require_plugin(plugin_path.to_s) }.
-        to raise_error(Vagrant::Errors::PluginLoadFailed)
-    end
-  end
-
   describe "has_plugin?" do
     before(:each) do
       Class.new(described_class.plugin("2")) do
