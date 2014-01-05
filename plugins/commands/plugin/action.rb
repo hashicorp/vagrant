@@ -47,7 +47,6 @@ module VagrantPlugins
       autoload :LicensePlugin, action_root.join("license_plugin")
       autoload :ListPlugins, action_root.join("list_plugins")
       autoload :PluginExistsCheck, action_root.join("plugin_exists_check")
-      autoload :PruneGems, action_root.join("prune_gems")
       autoload :UninstallPlugin, action_root.join("uninstall_plugin")
     end
   end
