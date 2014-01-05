@@ -1,5 +1,3 @@
-require "set"
-
 module VagrantPlugins
   module CommandPlugin
     module Action
