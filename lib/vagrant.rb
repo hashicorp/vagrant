@@ -19,7 +19,7 @@ if Vagrant.plugins_enabled?
   # Initialize Bundler before we load _any_ RubyGems.
   require_relative "vagrant/bundler"
   require_relative "vagrant/plugin_manager"
-  Vagrant::Bundler.instance.init!(Vagrant::PluginManager.plugins)
+  Vagrant::Bundler.instance.init!(Vagrant::Plugin::Manager.instance.installed_plugins)
 end
 
 # Initialize Vagrant now that our Gem paths are setup

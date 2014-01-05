@@ -1,3 +1,5 @@
+require "vagrant/plugin/manager"
+
 module VagrantPlugins
   module CommandPlugin
     module Action
@@ -20,7 +22,7 @@ module VagrantPlugins
           # Go through the plugins installed in this environment and
           # get the latest version of each.
           installed_map = {}
-          Bundler.load.specs.each do |spec|
+          Vagrant::Plugin::Manager.instance.installed_specs.each do |spec|
             # Ignore specs that aren't in our installed list
             next if !installed.include?(spec.name)
 
