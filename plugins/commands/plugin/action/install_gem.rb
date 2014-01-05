@@ -8,6 +8,7 @@ rescue LoadError
 end
 
 require "log4r"
+require "vagrant/plugin/manager"
 
 module VagrantPlugins
   module CommandPlugin
@@ -49,40 +50,10 @@ module VagrantPlugins
           plugin_name_label += " --version '#{version}'" if version
           env[:ui].info(I18n.t("vagrant.commands.plugin.installing",
                                :name => plugin_name_label))
-          installed_gems = env[:gem_helper].with_environment do
-            # Override the list of sources by the ones set as a parameter if given
-            if env[:plugin_sources]
-              @logger.info("Custom plugin sources: #{env[:plugin_sources]}")
-              Gem.sources = env[:plugin_sources]
-            end
 
-            installer = Gem::DependencyInstaller.new(:document => [], :prerelease => prerelease)
-
-            # If we don't have a version, use the default version
-            version ||= Gem::Requirement.default
-
-            begin
-              installer.install(plugin_name, version)
-            rescue Gem::GemNotFoundException
-              raise Vagrant::Errors::PluginInstallNotFound,
-                :name => plugin_name
-            end
-          end
-
-          # The plugin spec is the last installed gem since RubyGems
-          # currently always installed the requested gem last.
-          @logger.debug("Installed #{installed_gems.length} gems.")
-          plugin_spec = installed_gems.find do |gem|
-            gem.name.downcase == find_plugin_name.downcase
-          end
-
-          # Store the installed name so we can uninstall it if things go
-          # wrong.
-          @installed_plugin_name = plugin_spec.name
-
-          # Mark that we installed the gem
-          @logger.info("Adding the plugin to the state file...")
-          env[:plugin_state_file].add_plugin(plugin_spec.name)
+          # TODO: support version, pre-release, custom sources
+          manager = Vagrant::Plugin::Manager.instance
+          plugin_spec = manager.install_plugin(plugin_name)
 
           # Tell the user
           env[:ui].success(I18n.t("vagrant.commands.plugin.installed",

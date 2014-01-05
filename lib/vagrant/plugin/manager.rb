@@ -1,4 +1,6 @@
+require_relative "../bundler"
 require_relative "../shared_helpers"
+require_relative "state_file"
 
 module Vagrant
   module Plugin
@@ -18,6 +20,20 @@ module Vagrant
       # @param [Pathname] global_file
       def initialize(global_file)
         @global_file = StateFile.new(global_file)
+      end
+
+      # Installs another plugin into our gem directory.
+      #
+      # @param [String] name Name of the plugin (gem)
+      def install_plugin(name)
+        result = nil
+        Vagrant::Bundler.instance.install(installed_plugins.push(name)).each do |spec|
+          next if spec.name != name
+          next if result && result.version >= spec.version
+          result = spec
+        end
+
+        result
       end
 
       # This returns the list of plugins that should be enabled.

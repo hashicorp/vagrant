@@ -18,7 +18,7 @@ require_relative "vagrant/shared_helpers"
 if Vagrant.plugins_enabled?
   # Initialize Bundler before we load _any_ RubyGems.
   require_relative "vagrant/bundler"
-  require_relative "vagrant/plugin_manager"
+  require_relative "vagrant/plugin/manager"
   Vagrant::Bundler.instance.init!(Vagrant::Plugin::Manager.instance.installed_plugins)
 end
 

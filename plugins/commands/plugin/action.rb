@@ -9,7 +9,6 @@ module VagrantPlugins
       def self.action_install
         Vagrant::Action::Builder.new.tap do |b|
           b.use InstallGem
-          b.use PruneGems
         end
       end
 
@@ -31,7 +30,6 @@ module VagrantPlugins
       def self.action_uninstall
         Vagrant::Action::Builder.new.tap do |b|
           b.use UninstallPlugin
-          b.use PruneGems
         end
       end
 
@@ -40,7 +38,6 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           b.use PluginExistsCheck
           b.use InstallGem
-          b.use PruneGems
         end
       end
 

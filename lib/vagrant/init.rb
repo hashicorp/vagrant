@@ -66,6 +66,7 @@ end
 
 # We need these components always so instead of an autoload we
 # just require them explicitly here.
+require "vagrant/plugin"
 require "vagrant/registry"
 
 module Vagrant
