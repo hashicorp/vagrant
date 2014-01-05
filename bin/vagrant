@@ -5,6 +5,12 @@
 # initializing which have historically resulted in stack traces.
 Signal.trap("INT") { abort }
 
+# Fast path the version of Vagrant
+if argv.include?("-v") || argv.include?("--version")
+  puts "Vagrant #{Vagrant::VERSION}"
+  exit 0
+end
+
 # First, make sure that we're executing using the proper Bundler context
 # with our plugins. If we're not, then load that and reload Vagrant.
 if !ENV["VAGRANT_INTERNAL_BUNDLERIZED"]
@@ -97,12 +103,6 @@ argv.each do |arg|
 
     break
   end
-end
-
-# Fast path the version of Vagrant
-if argv.include?("-v") || argv.include?("--version")
-  puts "Vagrant #{Vagrant::VERSION}"
-  exit 0
 end
 
 # Recombine the arguments
