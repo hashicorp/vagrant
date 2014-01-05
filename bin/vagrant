@@ -39,6 +39,10 @@ if argv.include?("--debug")
   ENV["VAGRANT_LOG"] = "debug"
 end
 
+# Setup our dependencies by initializing Bundler
+require "bundler"
+Bundler.setup
+
 require 'log4r'
 require 'vagrant'
 require 'vagrant/cli'

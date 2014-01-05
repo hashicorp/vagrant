@@ -261,4 +261,4 @@ Vagrant.source_root.join("plugins").children(true).each do |directory|
 end
 
 # If we have plugins enabled, then load those
-Bundler.require(:default) if Vagrant.plugins_enabled?
+Bundler.require(:plugins) if Vagrant.plugins_enabled?

@@ -25,6 +25,7 @@ module Vagrant
       # Installs another plugin into our gem directory.
       #
       # @param [String] name Name of the plugin (gem)
+      # @return [Gem::Specification]
       def install_plugin(name)
         result = nil
         Vagrant::Bundler.instance.install(installed_plugins.push(name)).each do |spec|
@@ -32,6 +33,9 @@ module Vagrant
           next if result && result.version >= spec.version
           result = spec
         end
+
+        # Add the plugin to the state file
+        @global_file.add_plugin(result.name)
 
         result
       end

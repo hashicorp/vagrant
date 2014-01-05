@@ -39,9 +39,8 @@ module Vagrant
         "#{Vagrant.user_data_path.join("gems")}#{::File::PATH_SEPARATOR}#{@gem_path}"
       Gem.clear_paths
 
-      # Load Bundler and setup our paths
+      # Load Bundler now
       require "bundler"
-      ::Bundler.setup
 
       # Do some additional Bundler initialization
       ::Bundler.ui = ::Bundler::UI.new
@@ -70,7 +69,7 @@ module Vagrant
 
       # Clean up any unused/old gems
       runtime = ::Bundler::Runtime.new(root, definition)
-      runtime.clean
+      #runtime.clean
 
       definition.specs
     end
@@ -85,9 +84,11 @@ module Vagrant
         gemfile.puts(%Q[source "https://rubygems.org"])
         gemfile.puts(%Q[source "http://gems.hashicorp.com"])
         gemfile.puts(%Q[gem "vagrant", "= #{Vagrant::VERSION}"])
+        gemfile.puts("group :plugins do")
         plugins.each do |plugin|
           gemfile.puts(%Q[gem "#{plugin}"])
         end
+        gemfile.puts("end")
         gemfile.close
       end
     end
