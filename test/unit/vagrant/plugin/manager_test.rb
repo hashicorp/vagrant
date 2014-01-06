@@ -45,11 +45,14 @@ describe Vagrant::Plugin::Manager do
 
     describe "#installed_specs" do
       it "has the plugins" do
-        runtime = double("runtime")
-        runtime.stub(specs: ["foo"])
-        ::Bundler.stub(:load => runtime)
+        # We just add "i18n" because it is a dependency of Vagrant and
+        # we know it will be there.
+        sf = Vagrant::Plugin::StateFile.new(path)
+        sf.add_plugin("i18n")
 
-        expect(subject.installed_specs).to eql(["foo"])
+        specs = subject.installed_specs
+        expect(specs.length).to eql(1)
+        expect(specs.first.name).to eql("i18n")
       end
     end
   end
