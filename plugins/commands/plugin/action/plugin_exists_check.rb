@@ -11,7 +11,7 @@ module VagrantPlugins
         end
 
         def call(env)
-          installed = Vagrant::Plugin::Manager.instance.installed_specs
+          installed = Vagrant::Plugin::Manager.instance.installed_plugins
           if !installed.has_key?(env[:plugin_name])
             raise Vagrant::Errors::PluginNotInstalled,
               name: env[:plugin_name]
