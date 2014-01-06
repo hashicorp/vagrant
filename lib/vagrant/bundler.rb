@@ -1,4 +1,5 @@
 require "pathname"
+require "set"
 require "tempfile"
 
 require "bundler"
@@ -94,9 +95,15 @@ module Vagrant
       f.tap do |gemfile|
         gemfile.puts(%Q[source "https://rubygems.org"])
         gemfile.puts(%Q[source "http://gems.hashicorp.com"])
-        gemfile.puts(%Q[gem "vagrant", "= #{Vagrant::VERSION}"])
-        gemfile.puts("group :plugins do")
+        sources = plugins.values.map { |p| p["sources"] }.flatten.compact.uniq
+        sources.each do |source|
+          next if source == ""
+          gemfile.puts(%Q[source "#{source}"])
+        end
 
+        gemfile.puts(%Q[gem "vagrant", "= #{Vagrant::VERSION}"])
+
+        gemfile.puts("group :plugins do")
         plugins.each do |name, plugin|
           version = plugin["gem_version"]
           version = nil if version == ""
@@ -108,9 +115,11 @@ module Vagrant
 
           gemfile.puts(%Q[gem "#{name}", #{version.inspect}, #{opts.inspect}])
         end
-
         gemfile.puts("end")
+
         gemfile.close
+
+        puts File.read(gemfile.path)
       end
     end
 

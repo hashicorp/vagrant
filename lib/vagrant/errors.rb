@@ -168,6 +168,10 @@ module Vagrant
       error_key(:failed, "vagrant.actions.box.verify")
     end
 
+    class BundlerError < VagrantError
+      error_key(:bundler_error)
+    end
+
     class CFEngineBootstrapFailed < VagrantError
       error_key(:cfengine_bootstrap_failed)
     end

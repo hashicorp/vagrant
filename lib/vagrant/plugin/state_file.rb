@@ -33,6 +33,7 @@ module Vagrant
           "vagrant_version" => Vagrant::VERSION,
           "gem_version"     => opts[:version] || "",
           "require"         => opts[:require] || "",
+          "sources"         => opts[:sources] || [],
         }
 
         save!

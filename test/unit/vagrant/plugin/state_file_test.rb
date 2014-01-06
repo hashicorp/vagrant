@@ -34,6 +34,7 @@ describe Vagrant::Plugin::StateFile do
         "vagrant_version" => Vagrant::VERSION,
         "gem_version"     => "",
         "require"         => "",
+        "sources"         => [],
       })
     end
 

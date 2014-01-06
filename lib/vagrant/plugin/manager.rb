@@ -33,6 +33,7 @@ module Vagrant
         plugins[name] = {
           "require"     => opts[:require],
           "gem_version" => opts[:version],
+          "sources"     => opts[:sources],
         }
 
         result = nil
@@ -44,11 +45,17 @@ module Vagrant
 
         # Add the plugin to the state file
         @global_file.add_plugin(
-          result.name, version: opts[:version], require: opts[:require])
+          result.name,
+          version: opts[:version],
+          require: opts[:require],
+          sources: opts[:sources],
+        )
 
         result
       rescue ::Bundler::GemNotFound
         raise Errors::PluginGemNotFound, name: name
+      rescue ::Bundler::BundlerError => e
+        raise Errors::BundlerError, message: e.to_s
       end
 
       # Uninstalls the plugin with the given name.
@@ -59,11 +66,15 @@ module Vagrant
 
         # Clean the environment, removing any old plugins
         Vagrant::Bundler.instance.clean(installed_plugins)
+      rescue ::Bundler::BundlerError => e
+        raise Errors::BundlerError, message: e.to_s
       end
 
       # Updates all or a specific set of plugins.
       def update_plugins(specific)
         Vagrant::Bundler.instance.update(installed_plugins, specific)
+      rescue ::Bundler::BundlerError => e
+        raise Errors::BundlerError, message: e.to_s
       end
 
       # This returns the list of plugins that should be enabled.

@@ -16,11 +16,82 @@ describe Vagrant::Plugin::Manager do
     Pathname.new(p)
   end
 
+  let(:bundler) { double("bundler") }
+
   after do
     path.unlink if path.file?
   end
 
+  before do
+    Vagrant::Bundler.stub(instance: bundler)
+  end
+
   subject { described_class.new(path) }
+
+  describe "#install_plugin" do
+    it "installs the plugin and adds it to the state file" do
+      specs = Array.new(5) { Gem::Specification.new }
+      specs[3].name = "foo"
+      bundler.should_receive(:install).once.with do |plugins|
+        expect(plugins).to have_key("foo")
+      end.and_return(specs)
+
+      result = subject.install_plugin("foo")
+
+      # It should return the spec of the installed plugin
+      expect(result).to eql(specs[3])
+
+      # It should've added the plugin to the state
+      expect(subject.installed_plugins).to have_key("foo")
+    end
+
+    it "masks GemNotFound with our error" do
+      bundler.should_receive(:install).and_raise(Bundler::GemNotFound)
+
+      expect { subject.install_plugin("foo") }.
+        to raise_error(Vagrant::Errors::PluginGemNotFound)
+    end
+
+    it "masks bundler errors with our own error" do
+      bundler.should_receive(:install).and_raise(Bundler::InstallError)
+
+      expect { subject.install_plugin("foo") }.
+        to raise_error(Vagrant::Errors::BundlerError)
+    end
+  end
+
+  describe "#uninstall_plugin" do
+    it "removes the plugin from the state" do
+      sf = Vagrant::Plugin::StateFile.new(path)
+      sf.add_plugin("foo")
+
+      # Sanity
+      expect(subject.installed_plugins).to have_key("foo")
+
+      # Test
+      bundler.should_receive(:clean).once.with({})
+
+      # Remove it
+      subject.uninstall_plugin("foo")
+      expect(subject.installed_plugins).to_not have_key("foo")
+    end
+
+    it "masks bundler errors with our own error" do
+      bundler.should_receive(:clean).and_raise(Bundler::InstallError)
+
+      expect { subject.uninstall_plugin("foo") }.
+        to raise_error(Vagrant::Errors::BundlerError)
+    end
+  end
+
+  describe "#update_plugins" do
+    it "masks bundler errors with our own error" do
+      bundler.should_receive(:update).and_raise(Bundler::InstallError)
+
+      expect { subject.update_plugins([]) }.
+        to raise_error(Vagrant::Errors::BundlerError)
+    end
+  end
 
   context "without state" do
     describe "#installed_plugins" do
@@ -29,7 +100,6 @@ describe Vagrant::Plugin::Manager do
       end
     end
   end
-
 
   context "with state" do
     before do

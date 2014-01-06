@@ -24,6 +24,7 @@ module VagrantPlugins
         def call(env)
           entrypoint  = env[:plugin_entry_point]
           plugin_name = env[:plugin_name]
+          sources     = env[:plugin_sources]
           version     = env[:plugin_version]
 
           # Determine the plugin name we'll look for in the installed set
@@ -52,7 +53,10 @@ module VagrantPlugins
 
           manager = Vagrant::Plugin::Manager.instance
           plugin_spec = manager.install_plugin(
-            plugin_name, version: version, require: entrypoint)
+            plugin_name,
+            version: version,
+            require: entrypoint,
+            sources: sources,)
 
           # Record it so we can uninstall if something goes wrong
           @installed_plugin_name = plugin_spec.name
