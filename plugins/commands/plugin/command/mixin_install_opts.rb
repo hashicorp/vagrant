@@ -8,9 +8,13 @@ module VagrantPlugins
             options[:entry_point] = entry_point
           end
 
+          # @deprecated
           o.on("--plugin-prerelease",
                "Allow prerelease versions of this plugin.") do |plugin_prerelease|
-            options[:plugin_prerelease] = plugin_prerelease
+            puts "--plugin-prelease is deprecated and will be removed in the next"
+            puts "version of Vagrant. It has no effect now. Use the '--plugin-version'"
+            puts "flag to get a specific pre-release version."
+            puts
           end
 
           o.on("--plugin-source PLUGIN_SOURCE", String,

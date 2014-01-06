@@ -23,7 +23,6 @@ module VagrantPlugins
 
         def call(env)
           plugin_name = env[:plugin_name]
-          prerelease  = env[:plugin_prerelease]
           version     = env[:plugin_version]
 
           # Determine the plugin name we'll look for in the installed set
@@ -46,7 +45,6 @@ module VagrantPlugins
 
           # Install the gem
           plugin_name_label = plugin_name
-          plugin_name_label += ' --prerelease' if prerelease
           plugin_name_label += " --version '#{version}'" if version
           env[:ui].info(I18n.t("vagrant.commands.plugin.installing",
                                :name => plugin_name_label))
