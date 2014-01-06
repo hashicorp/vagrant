@@ -118,8 +118,6 @@ module Vagrant
         gemfile.puts("end")
 
         gemfile.close
-
-        puts File.read(gemfile.path)
       end
     end
 
