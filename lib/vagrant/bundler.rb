@@ -67,11 +67,17 @@ module Vagrant
         ::Bundler::Installer.install(root, definition, opts)
       end
 
-      # Clean up any unused/old gems
-      runtime = ::Bundler::Runtime.new(root, definition)
-      #runtime.clean
-
       definition.specs
+    end
+
+    # Clean removes any unused gems.
+    def clean(plugins)
+      gemfile    = build_gemfile(plugins)
+      lockfile   = "#{gemfile.path}.lock"
+      definition = ::Bundler::Definition.build(gemfile, lockfile, nil)
+      root       = File.dirname(gemfile.path)
+      runtime    = ::Bundler::Runtime.new(root, definition)
+      runtime.clean
     end
 
     # Builds a valid Gemfile for use with Bundler given the list of

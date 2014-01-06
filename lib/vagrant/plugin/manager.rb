@@ -40,6 +40,16 @@ module Vagrant
         result
       end
 
+      # Uninstalls the plugin with the given name.
+      #
+      # @param [String] name
+      def uninstall_plugin(name)
+        @global_file.remove_plugin(name)
+
+        # Clean the environment, removing any old plugins
+        Vagrant::Bundler.instance.clean(installed_plugins)
+      end
+
       # This returns the list of plugins that should be enabled.
       #
       # @return [Array<String>]
