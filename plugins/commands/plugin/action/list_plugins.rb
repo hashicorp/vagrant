@@ -16,15 +16,36 @@ module VagrantPlugins
         end
 
         def call(env)
-          specs = Vagrant::Plugin::Manager.instance.installed_specs
+          manager = Vagrant::Plugin::Manager.instance
+          plugins = manager.installed_plugins
+          specs   = manager.installed_specs
 
           # Output!
           if specs.empty?
             env[:ui].info(I18n.t("vagrant.commands.plugin.no_plugins"))
+            return @app.call(env)
           end
 
           specs.each do |spec|
             env[:ui].info "#{spec.name} (#{spec.version})"
+
+            # Grab the plugin. Note that the check for whether it exists
+            # shouldn't be necessary since installed_specs checks that but
+            # its nice to be certain.
+            plugin = plugins[spec.name]
+            next if !plugin
+
+            if plugin["gem_version"] && plugin["gem_version"] != ""
+              env[:ui].info(I18n.t(
+                "vagrant.commands.plugin.plugin_version",
+                version: plugin["gem_version"]))
+            end
+
+            if plugin["require"] && plugin["require"] != ""
+              env[:ui].info(I18n.t(
+                "vagrant.commands.plugin.plugin_require",
+                require: plugin["require"]))
+            end
           end
 
           @app.call(env)

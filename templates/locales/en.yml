@@ -919,6 +919,8 @@ en:
           Installing license for '%{name}'...
         no_plugins: |-
           No plugins installed.
+        plugin_require: "  - Custom entrypoint: %{require}"
+        plugin_version: "  - Version Constraint: %{version}"
         installed: |-
           Installed the plugin '%{name} (%{version})'!
         installing: |-
