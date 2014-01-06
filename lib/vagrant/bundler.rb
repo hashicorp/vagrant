@@ -1,3 +1,4 @@
+require "monitor"
 require "pathname"
 require "set"
 require "tempfile"
@@ -17,6 +18,8 @@ module Vagrant
     end
 
     def initialize
+      @monitor  = Monitor.new
+
       @gem_home = ENV["GEM_HOME"]
       @gem_path = ENV["GEM_PATH"]
 
@@ -59,6 +62,41 @@ module Vagrant
       internal_install(plugins, nil)
     end
 
+    # Installs a local '*.gem' file so that Bundler can find it.
+    #
+    # @param [String] path Path to a local gem file.
+    # @return [Gem::Specification]
+    def install_local(path)
+      # We have to do this load here because this file can be loaded
+      # before RubyGems is actually loaded.
+      require "rubygems/dependency_installer"
+      begin
+        require "rubygems/format"
+      rescue LoadError
+        # rubygems 2.x
+      end
+
+      # If we're installing from a gem file, determine the name
+      # based on the spec in the file.
+      pkg = if defined?(Gem::Format)
+              # RubyGems 1.x
+              Gem::Format.from_file_by_path(path)
+            else
+              # RubyGems 2.x
+              Gem::Package.new(path)
+            end
+
+      # Install the gem manually. If the gem exists locally, then
+      # Bundler shouldn't attempt to get it remotely.
+      with_isolated_gem do
+        installer = Gem::DependencyInstaller.new(
+          :document => [], :prerelease => false)
+        installer.install(path, "= #{pkg.spec.version}")
+      end
+
+      pkg.spec
+    end
+
     # Update updates the given plugins, or every plugin if none is given.
     #
     # @param [Hash] plugins
@@ -81,6 +119,21 @@ module Vagrant
       with_isolated_gem do
         runtime = ::Bundler::Runtime.new(root, definition)
         runtime.clean
+      end
+    end
+
+    # During the duration of the yielded block, Bundler loud output
+    # is enabled.
+    def verbose
+      @monitor.synchronize do
+        begin
+          old_ui = ::Bundler.ui
+          require 'bundler/vendored_thor'
+          ::Bundler.ui = ::Bundler::UI::Shell.new
+          yield
+        ensure
+          ::Bundler.ui = old_ui
+        end
       end
     end
 

@@ -10,12 +10,16 @@ module VagrantPlugins
         include MixinInstallOpts
 
         def execute
-          options = {}
+          options = { verbose: false }
 
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant plugin install <name> [-h]"
             o.separator ""
             build_install_opts(o, options)
+
+            o.on("--verbose", "Enable verbose output for plugin installation") do |v|
+              options[:verbose] = v
+            end
           end
 
           # Parse the options
@@ -28,7 +32,8 @@ module VagrantPlugins
             :plugin_entry_point => options[:entry_point],
             :plugin_version     => options[:plugin_version],
             :plugin_sources     => options[:plugin_sources],
-            :plugin_name        => argv[0]
+            :plugin_name        => argv[0],
+            :plugin_verbose     => options[:verbose]
           })
 
           # Success, exit status 0

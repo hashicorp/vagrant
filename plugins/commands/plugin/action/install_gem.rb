@@ -1,12 +1,3 @@
-require "rubygems"
-require "rubygems/dependency_installer"
-
-begin
-  require "rubygems/format"
-rescue LoadError
-  # rubygems 2.x
-end
-
 require "log4r"
 require "vagrant/plugin/manager"
 
@@ -27,24 +18,6 @@ module VagrantPlugins
           sources     = env[:plugin_sources]
           version     = env[:plugin_version]
 
-          # Determine the plugin name we'll look for in the installed set
-          # in order to determine the version and all that.
-          find_plugin_name = plugin_name
-          if plugin_name =~ /\.gem$/
-            # If we're installing from a gem file, determine the name
-            # based on the spec in the file.
-            pkg = if defined?(Gem::Format)
-              # RubyGems 1.x
-              Gem::Format.from_file_by_path(plugin_name)
-            else
-              # RubyGems 2.x
-              Gem::Package.new(plugin_name)
-            end
-
-            find_plugin_name = pkg.spec.name
-            version = pkg.spec.version
-          end
-
           # Install the gem
           plugin_name_label = plugin_name
           plugin_name_label += " --version '#{version}'" if version
@@ -56,7 +29,9 @@ module VagrantPlugins
             plugin_name,
             version: version,
             require: entrypoint,
-            sources: sources,)
+            sources: sources,
+            verbose: !!env[:plugin_verbose],
+          )
 
           # Record it so we can uninstall if something goes wrong
           @installed_plugin_name = plugin_spec.name
