@@ -161,7 +161,10 @@ module Vagrant
       # Clear paths so that it reads the new GEM_HOME setting
       Gem.paths = ENV
 
-      # Set a custom configuration to avoid loading ~/.gemrc loads and
+      # Reset the all specs override that Bundler does
+      old_all = Gem::Specification._all
+      Gem::Specification.all = nil
+
       # /etc/gemrc and so on.
       old_config = nil
       begin
@@ -185,6 +188,7 @@ module Vagrant
 
       Gem.configuration = old_config
       Gem.paths = ENV
+      Gem::Specification.all = old_all
     end
 
     # This is pretty hacky but it is a custom implementation of
