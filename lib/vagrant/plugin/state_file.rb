@@ -38,6 +38,15 @@ module Vagrant
         save!
       end
 
+      # Adds a RubyGems index source to look up gems.
+      #
+      # @param [String] url URL of the source.
+      def add_source(url)
+        @data["sources"] ||= []
+        @data["sources"] << url if !@data["sources"].include?(url)
+        save!
+      end
+
       # This returns a hash of installed plugins according to the state
       # file. Note that this may _not_ directly match over to actually
       # installed gems.
@@ -53,6 +62,23 @@ module Vagrant
       def remove_plugin(name)
         @data["installed"].delete(name)
         save!
+      end
+
+      # Remove a source for RubyGems.
+      #
+      # @param [String] url URL of the source
+      def remove_source(url)
+        @data["sources"] ||= []
+        @data["sources"].delete(url)
+        save!
+      end
+
+      # Returns the list of RubyGems sources that will be searched for
+      # plugins.
+      #
+      # @return [Array<String>]
+      def sources
+        @data["sources"] || []
       end
 
       # This saves the state back into the state file.

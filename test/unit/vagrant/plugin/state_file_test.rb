@@ -57,6 +57,29 @@ describe Vagrant::Plugin::StateFile do
       subject.add_plugin("foo", version: "1.2.3")
       expect(subject.installed_plugins["foo"]["gem_version"]).to eql("1.2.3")
     end
+
+    describe "sources" do
+      it "should have no sources" do
+        expect(subject.sources).to be_empty
+      end
+
+      it "should add sources" do
+        subject.add_source("foo")
+        expect(subject.sources).to eql(["foo"])
+      end
+
+      it "should de-dup sources" do
+        subject.add_source("foo")
+        subject.add_source("foo")
+        expect(subject.sources).to eql(["foo"])
+      end
+
+      it "can remove sources" do
+        subject.add_source("foo")
+        subject.remove_source("foo")
+        expect(subject.sources).to be_empty
+      end
+    end
   end
 
   context "with an old-style file" do
