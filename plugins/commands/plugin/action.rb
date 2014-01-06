@@ -29,6 +29,7 @@ module VagrantPlugins
       # This middleware sequence will uninstall a plugin.
       def self.action_uninstall
         Vagrant::Action::Builder.new.tap do |b|
+          b.use PluginExistsCheck
           b.use UninstallPlugin
         end
       end
