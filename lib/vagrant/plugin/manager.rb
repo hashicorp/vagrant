@@ -61,6 +61,11 @@ module Vagrant
         Vagrant::Bundler.instance.clean(installed_plugins)
       end
 
+      # Updates all or a specific set of plugins.
+      def update_plugins(specific)
+        Vagrant::Bundler.instance.update(installed_plugins, specific)
+      end
+
       # This returns the list of plugins that should be enabled.
       #
       # @return [Hash]

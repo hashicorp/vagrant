@@ -52,25 +52,22 @@ module Vagrant
 
     # Installs the list of plugins.
     #
+    # @param [Hash] plugins
     # @return [Array<Gem::Specification>]
     def install(plugins)
-      gemfile    = build_gemfile(plugins)
-      lockfile   = "#{gemfile.path}.lock"
-      definition = ::Bundler::Definition.build(gemfile, lockfile, nil)
-      root       = File.dirname(gemfile.path)
-      opts       = {}
+      internal_install(plugins, nil)
+    end
 
-      with_isolated_gem do
-        ::Bundler::Installer.install(root, definition, opts)
-      end
-
-      # TODO(mitchellh): clean gems here... for some reason when I put
-      # it in on install, we get a GemNotFound exception. Gotta investigate.
-
-      definition.specs
-    rescue ::Bundler::VersionConflict => e
-      raise Errors::PluginInstallVersionConflict,
-        conflicts: e.to_s.gsub("Bundler", "Vagrant")
+    # Update updates the given plugins, or every plugin if none is given.
+    #
+    # @param [Hash] plugins
+    # @param [Array<String>] specific Specific plugin names to update. If
+    #   empty or nil, all plugins will be updated.
+    def update(plugins, specific)
+      specific ||= []
+      update = true
+      update = { gems: specific } if !specific.empty?
+      internal_install(plugins, update)
     end
 
     # Clean removes any unused gems.
@@ -85,6 +82,8 @@ module Vagrant
         runtime.clean
       end
     end
+
+    protected
 
     # Builds a valid Gemfile for use with Bundler given the list of
     # plugins.
@@ -115,7 +114,31 @@ module Vagrant
       end
     end
 
-    protected
+    # This installs a set of plugins and optionally updates those gems.
+    #
+    # @param [Hash] plugins
+    # @param [Hash, Boolean] update If true, updates all plugins, otherwise
+    #   can be a hash of options. See Bundler.definition.
+    # @return [Array<Gem::Specification>]
+    def internal_install(plugins, update)
+      gemfile    = build_gemfile(plugins)
+      lockfile   = "#{gemfile.path}.lock"
+      definition = ::Bundler::Definition.build(gemfile, lockfile, update)
+      root       = File.dirname(gemfile.path)
+      opts       = {}
+
+      with_isolated_gem do
+        ::Bundler::Installer.install(root, definition, opts)
+      end
+
+      # TODO(mitchellh): clean gems here... for some reason when I put
+      # it in on install, we get a GemNotFound exception. Gotta investigate.
+
+      definition.specs
+    rescue ::Bundler::VersionConflict => e
+      raise Errors::PluginInstallVersionConflict,
+        conflicts: e.to_s.gsub("Bundler", "Vagrant")
+    end
 
     def with_isolated_gem
       # Remove bundler settings so that Bundler isn't loaded when building

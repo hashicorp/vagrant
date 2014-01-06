@@ -38,8 +38,7 @@ module VagrantPlugins
       # This middleware sequence will update a plugin.
       def self.action_update
         Vagrant::Action::Builder.new.tap do |b|
-          b.use PluginExistsCheck
-          b.use InstallGem
+          b.use UpdateGems
         end
       end
 
@@ -50,6 +49,7 @@ module VagrantPlugins
       autoload :ListPlugins, action_root.join("list_plugins")
       autoload :PluginExistsCheck, action_root.join("plugin_exists_check")
       autoload :UninstallPlugin, action_root.join("uninstall_plugin")
+      autoload :UpdateGems, action_root.join("update_gems")
     end
   end
 end

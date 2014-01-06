@@ -927,6 +927,14 @@ en:
           Installing the '%{name}' plugin. This can take a few minutes...
         uninstalling: |-
           Uninstalling the '%{name}' plugin...
+        up_to_date: |-
+          All plugins are up to date.
+        updated: |-
+          Updated '%{name}' to version '%{version}'!
+        updating: |-
+          Updating installed plugins...
+        updating_specific: |-
+          Updating plugins: %{names}. This may take a few minutes...
         post_install: |-
           Post install message from the '%{name}' plugin:
 
