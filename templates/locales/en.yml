@@ -474,6 +474,9 @@ en:
         manage Vagrant plugins. The output of the errors are shown below:
 
         %{output}
+      plugin_gem_not_found: |-
+        The plugin '%{name}' could not be installed because it could not
+        be found. Please double check the name and try again.
       plugin_install_bad_entry_point: |-
         Attempting to load the plugin '%{name}' failed, because
         the entry point doesn't exist. The entry point attempted was

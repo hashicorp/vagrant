@@ -40,6 +40,8 @@ module Vagrant
         @global_file.add_plugin(result.name)
 
         result
+      rescue ::Bundler::GemNotFound
+        raise Errors::PluginGemNotFound, name: name
       end
 
       # Uninstalls the plugin with the given name.

@@ -428,6 +428,10 @@ module Vagrant
       error_key(:plugin_gem_error)
     end
 
+    class PluginGemNotFound < VagrantError
+      error_key(:plugin_gem_not_found)
+    end
+
     class PluginInstallBadEntryPoint < VagrantError
       error_key(:plugin_install_bad_entry_point)
     end
