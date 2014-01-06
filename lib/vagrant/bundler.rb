@@ -18,6 +18,16 @@ module Vagrant
     def initialize
       @gem_home = ENV["GEM_HOME"]
       @gem_path = ENV["GEM_PATH"]
+
+      # Set the Bundler UI to be a silent UI. We have to add the
+      # `silence` method to it because Bundler UI doesn't have it.
+      ::Bundler.ui = ::Bundler::UI.new
+      if !::Bundler.ui.respond_to?(:silence)
+        ui = ::Bundler.ui
+        def ui.silence(*args)
+          yield
+        end
+      end
     end
 
     # Initializes Bundler and the various gem paths so that we can begin
@@ -38,15 +48,6 @@ module Vagrant
       ENV["GEM_PATH"] =
         "#{Vagrant.user_data_path.join("gems")}#{::File::PATH_SEPARATOR}#{@gem_path}"
       Gem.clear_paths
-
-      # Do some additional Bundler initialization
-      ::Bundler.ui = ::Bundler::UI.new
-      if !::Bundler.ui.respond_to?(:silence)
-        ui = ::Bundler.ui
-        def ui.silence(*args)
-          yield
-        end
-      end
     end
 
     # Installs the list of plugins.
