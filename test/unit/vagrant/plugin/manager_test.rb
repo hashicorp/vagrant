@@ -32,8 +32,9 @@ describe Vagrant::Plugin::Manager do
     it "installs the plugin and adds it to the state file" do
       specs = Array.new(5) { Gem::Specification.new }
       specs[3].name = "foo"
-      bundler.should_receive(:install).once.with do |plugins|
+      bundler.should_receive(:install).once.with do |plugins, local|
         expect(plugins).to have_key("foo")
+        expect(local).to be_false
       end.and_return(specs)
 
       result = subject.install_plugin("foo")
