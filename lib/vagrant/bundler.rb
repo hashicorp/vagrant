@@ -58,8 +58,8 @@ module Vagrant
     #
     # @param [Hash] plugins
     # @return [Array<Gem::Specification>]
-    def install(plugins)
-      internal_install(plugins, nil)
+    def install(plugins, local=false)
+      internal_install(plugins, nil, local: local)
     end
 
     # Installs a local '*.gem' file so that Bundler can find it.
@@ -180,12 +180,13 @@ module Vagrant
     # @param [Hash, Boolean] update If true, updates all plugins, otherwise
     #   can be a hash of options. See Bundler.definition.
     # @return [Array<Gem::Specification>]
-    def internal_install(plugins, update)
+    def internal_install(plugins, update, **extra)
       gemfile    = build_gemfile(plugins)
       lockfile   = "#{gemfile.path}.lock"
       definition = ::Bundler::Definition.build(gemfile, lockfile, update)
       root       = File.dirname(gemfile.path)
       opts       = {}
+      opts["local"] = true if extra[:local]
 
       with_isolated_gem do
         ::Bundler::Installer.install(root, definition, opts)

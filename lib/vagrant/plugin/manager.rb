@@ -29,11 +29,13 @@ module Vagrant
       # @param [String] name Name of the plugin (gem)
       # @return [Gem::Specification]
       def install_plugin(name, **opts)
+        local = false
         if name =~ /\.gem$/
           # If this is a gem file, then we install that gem locally.
           local_spec = Vagrant::Bundler.instance.install_local(name)
           name       = local_spec.name
           opts[:version] = "= #{local_spec.version}"
+          local      = true
         end
 
         plugins = installed_plugins
@@ -45,7 +47,7 @@ module Vagrant
 
         result = nil
         install_lambda = lambda do
-          Vagrant::Bundler.instance.install(plugins).each do |spec|
+          Vagrant::Bundler.instance.install(plugins, local).each do |spec|
             next if spec.name != name
             next if result && result.version >= spec.version
             result = spec
