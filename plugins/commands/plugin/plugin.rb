@@ -16,6 +16,5 @@ DESC
     end
 
     autoload :Action, File.expand_path("../action", __FILE__)
-    autoload :GemHelper, File.expand_path("../gem_helper", __FILE__)
   end
 end

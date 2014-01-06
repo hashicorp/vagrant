@@ -15,6 +15,7 @@ module VagrantPlugins
       # This middleware sequence licenses paid addons.
       def self.action_license
         Vagrant::Action::Builder.new.tap do |b|
+          b.use PluginExistsCheck
           b.use LicensePlugin
         end
       end

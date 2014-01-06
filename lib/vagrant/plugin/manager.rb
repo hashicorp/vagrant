@@ -63,7 +63,7 @@ module Vagrant
 
       # This returns the list of plugins that should be enabled.
       #
-      # @return [Array<String>]
+      # @return [Hash]
       def installed_plugins
         @global_file.installed_plugins
       end

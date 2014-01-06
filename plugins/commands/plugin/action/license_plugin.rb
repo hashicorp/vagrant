@@ -17,15 +17,6 @@ module VagrantPlugins
         end
 
         def call(env)
-          # Get the list of installed plugins according to the state file
-          installed = env[:plugin_state_file].installed_plugins.keys
-
-          # If the plugin we're trying to license doesn't exist in the
-          # state file, then it is an error.
-          if !installed.include?(env[:plugin_name])
-            raise Vagrant::Errors::PluginNotFound, :name => env[:plugin_name]
-          end
-
           # Verify the license file exists
           license_file = Pathname.new(env[:plugin_license_path])
           if !license_file.file?

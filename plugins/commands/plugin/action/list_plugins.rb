@@ -16,31 +16,15 @@ module VagrantPlugins
         end
 
         def call(env)
-          # Get the list of installed plugins according to the state file
-          installed = env[:plugin_state_file].installed_plugins.keys
-
-          # Go through the plugins installed in this environment and
-          # get the latest version of each.
-          installed_map = {}
-          Vagrant::Plugin::Manager.instance.installed_specs.each do |spec|
-            # Ignore specs that aren't in our installed list
-            next if !installed.include?(spec.name)
-
-            # If we already have a newer version in our list of installed,
-            # then ignore it
-            next if installed_map.has_key?(spec.name) &&
-              installed_map[spec.name].version >= spec.version
-
-            installed_map[spec.name] = spec
-          end
+          specs = Vagrant::Plugin::Manager.instance.installed_specs
 
           # Output!
-          if installed_map.empty?
+          if specs.empty?
             env[:ui].info(I18n.t("vagrant.commands.plugin.no_plugins"))
-          else
-            installed_map.values.each do |spec|
-              env[:ui].info "#{spec.name} (#{spec.version})"
-            end
+          end
+
+          specs.each do |spec|
+            env[:ui].info "#{spec.name} (#{spec.version})"
           end
 
           @app.call(env)
