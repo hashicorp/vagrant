@@ -1,3 +1,5 @@
+require "set"
+
 require_relative "../bundler"
 require_relative "../shared_helpers"
 require_relative "state_file"
@@ -62,7 +64,24 @@ module Vagrant
       #
       # @return [Array<Gem::Specification>]
       def installed_specs
-        ::Bundler.load.specs
+        installed = Set.new(installed_plugins)
+
+        # Go through the plugins installed in this environment and
+        # get the latest version of each.
+        installed_map = {}
+        Gem::Specification.find_all.each do |spec|
+          # Ignore specs that aren't in our installed list
+          next if !installed.include?(spec.name)
+
+          # If we already have a newer version in our list of installed,
+          # then ignore it
+          next if installed_map.has_key?(spec.name) &&
+            installed_map[spec.name].version >= spec.version
+
+          installed_map[spec.name] = spec
+        end
+
+        installed_map.values
       end
     end
   end
