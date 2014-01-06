@@ -486,6 +486,16 @@ en:
       plugin_install_not_found: |-
         The plugin '%{name}' could not be found in local or remote
         repositories. Please check the name of the plugin and try again.
+      plugin_install_version_conflict: |-
+        The plugin(s) can't be installed due to the version conflicts below.
+        This means that the plugins depend on a library version that conflicts
+        with other plugins or Vagrant itself, creating an impossible situation
+        where Vagrant wouldn't be able to load the plugins.
+
+        You can fix the issue by either removing a conflicting plugin or
+        by contacting a plugin author to see if they can address the conflict.
+
+        %{conflicts}
       plugin_load_error: |-
         The plugin "%{plugin}" could not be found. Please make sure that it is
         properly installed via `vagrant plugin`. Note that plugins made for

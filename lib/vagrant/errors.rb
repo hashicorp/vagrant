@@ -440,6 +440,10 @@ module Vagrant
       error_key(:plugin_install_not_found)
     end
 
+    class PluginInstallVersionConflict < VagrantError
+      error_key(:plugin_install_version_conflict)
+    end
+
     class PluginLoadError < VagrantError
       error_key(:plugin_load_error)
     end

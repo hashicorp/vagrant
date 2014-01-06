@@ -65,6 +65,9 @@ module Vagrant
       end
 
       definition.specs
+    rescue ::Bundler::VersionConflict => e
+      raise Errors::PluginInstallVersionConflict,
+        conflicts: e.to_s.gsub("Bundler", "Vagrant")
     end
 
     # Clean removes any unused gems.
