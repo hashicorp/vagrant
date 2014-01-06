@@ -22,6 +22,7 @@ module VagrantPlugins
         end
 
         def call(env)
+          entrypoint  = env[:plugin_entry_point]
           plugin_name = env[:plugin_name]
           version     = env[:plugin_version]
 
@@ -51,7 +52,8 @@ module VagrantPlugins
 
           # TODO: support version, pre-release, custom sources
           manager = Vagrant::Plugin::Manager.instance
-          plugin_spec = manager.install_plugin(plugin_name)
+          plugin_spec = manager.install_plugin(
+            plugin_name, version: version, require: entrypoint)
 
           # Tell the user
           env[:ui].success(I18n.t("vagrant.commands.plugin.installed",

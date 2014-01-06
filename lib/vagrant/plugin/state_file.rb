@@ -27,13 +27,13 @@ module Vagrant
       # Add a plugin that is installed to the state file.
       #
       # @param [String] name The name of the plugin
-      def add_plugin(name)
-        if !@data["installed"].has_key?(name)
-          @data["installed"][name] = {
-            "ruby_version"    => RUBY_VERSION,
-            "vagrant_version" => Vagrant::VERSION,
-          }
-        end
+      def add_plugin(name, **opts)
+        @data["installed"][name] = {
+          "ruby_version"    => RUBY_VERSION,
+          "vagrant_version" => Vagrant::VERSION,
+          "gem_version"     => opts[:version] || "",
+          "require"         => opts[:require] || "",
+        }
 
         save!
       end

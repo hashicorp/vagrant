@@ -97,9 +97,19 @@ module Vagrant
         gemfile.puts(%Q[source "http://gems.hashicorp.com"])
         gemfile.puts(%Q[gem "vagrant", "= #{Vagrant::VERSION}"])
         gemfile.puts("group :plugins do")
-        plugins.each do |plugin|
-          gemfile.puts(%Q[gem "#{plugin}"])
+
+        plugins.each do |name, plugin|
+          version = plugin["gem_version"]
+          version = nil if version == ""
+
+          opts = {}
+          if plugin["require"] && plugin["require"] != ""
+            opts[:require] = plugin["require"]
+          end
+
+          gemfile.puts(%Q[gem "#{name}", #{version.inspect}, #{opts.inspect}])
         end
+
         gemfile.puts("end")
         gemfile.close
       end

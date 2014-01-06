@@ -28,16 +28,23 @@ module Vagrant
       #
       # @param [String] name Name of the plugin (gem)
       # @return [Gem::Specification]
-      def install_plugin(name)
+      def install_plugin(name, **opts)
+        plugins = installed_plugins
+        plugins[name] = {
+          "require"     => opts[:require],
+          "gem_version" => opts[:version],
+        }
+
         result = nil
-        Vagrant::Bundler.instance.install(installed_plugins.push(name)).each do |spec|
+        Vagrant::Bundler.instance.install(plugins).each do |spec|
           next if spec.name != name
           next if result && result.version >= spec.version
           result = spec
         end
 
         # Add the plugin to the state file
-        @global_file.add_plugin(result.name)
+        @global_file.add_plugin(
+          result.name, version: opts[:version], require: opts[:require])
 
         result
       rescue ::Bundler::GemNotFound
@@ -58,7 +65,7 @@ module Vagrant
       #
       # @return [Array<String>]
       def installed_plugins
-        @global_file.installed_plugins.keys
+        @global_file.installed_plugins
       end
 
       # This returns the list of plugins that are installed as
@@ -66,7 +73,7 @@ module Vagrant
       #
       # @return [Array<Gem::Specification>]
       def installed_specs
-        installed = Set.new(installed_plugins)
+        installed = Set.new(installed_plugins.keys)
 
         # Go through the plugins installed in this environment and
         # get the latest version of each.

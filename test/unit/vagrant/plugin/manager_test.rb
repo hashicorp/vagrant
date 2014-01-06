@@ -39,7 +39,9 @@ describe Vagrant::Plugin::Manager do
 
     describe "#installed_plugins" do
       it "has the plugins" do
-        expect(subject.installed_plugins).to eql(["foo"])
+        plugins = subject.installed_plugins
+        expect(plugins.length).to eql(1)
+        expect(plugins).to have_key("foo")
       end
     end
 
