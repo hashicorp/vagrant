@@ -64,8 +64,8 @@ module Vagrant
         ::Bundler::Installer.install(root, definition, opts)
       end
 
-      # Clean out the unused gems, if we have any
-      clean(plugins)
+      # TODO(mitchellh): clean gems here... for some reason when I put
+      # it in on install, we get a GemNotFound exception. Gotta investigate.
 
       definition.specs
     rescue ::Bundler::VersionConflict => e
