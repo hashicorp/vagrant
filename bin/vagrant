@@ -20,9 +20,27 @@ if argv.include?("-v") || argv.include?("--version")
   exit 0
 end
 
+# This is kind of hacky, and I'd love to find a better way to do this, but
+# if we're accessing the plugin interface, we want to NOT load plugins
+# for this run, because they can actually interfere with the function
+# of the plugin interface.
+argv.each do |arg|
+  if !arg.start_with?("-")
+    if arg == "plugin"
+      ENV["VAGRANT_NO_PLUGINS"] = "1"
+      ENV["VAGRANT_VAGRANTFILE"] = "plugin_command_#{Time.now.to_i}"
+    end
+
+    break
+  end
+end
+
+# Require some stuff that is NOT dependent on RubyGems
+require "vagrant/shared_helpers"
+
 # First, make sure that we're executing using the proper Bundler context
 # with our plugins. If we're not, then load that and reload Vagrant.
-if !ENV["VAGRANT_INTERNAL_BUNDLERIZED"]
+if !ENV["VAGRANT_INTERNAL_BUNDLERIZED"] && Vagrant.plugins_enabled?
   require "rbconfig"
   ruby_path = File.join(RbConfig::CONFIG["bindir"], RbConfig::CONFIG["ruby_install_name"])
   Kernel.exec(
@@ -39,24 +57,11 @@ if argv.include?("--debug")
   ENV["VAGRANT_LOG"] = "debug"
 end
 
-# This is kind of hacky, and I'd love to find a better way to do this, but
-# if we're accessing the plugin interface, we want to NOT load plugins
-# for this run, because they can actually interfere with the function
-# of the plugin interface.
-argv.each do |arg|
-  if !arg.start_with?("-")
-    if arg == "plugin"
-      ENV["VAGRANT_NO_PLUGINS"] = "1"
-      ENV["VAGRANT_VAGRANTFILE"] = "plugin_command_#{Time.now.to_i}"
-    end
-
-    break
-  end
+# Setup our dependencies by initializing Bundler if we're using plugins
+if Vagrant.plugins_enabled?
+  require "bundler"
+  Bundler.setup
 end
-
-# Setup our dependencies by initializing Bundler
-require "bundler"
-Bundler.setup
 
 require 'log4r'
 require 'vagrant'

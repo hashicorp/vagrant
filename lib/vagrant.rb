@@ -3,7 +3,9 @@
 
 ENV["VAGRANT_INSTALLER_EMBEDDED_DIR"] = "/Applications/Vagrant/embedded"
 
-if !defined?(Bundler)
+require "vagrant/shared_helpers"
+
+if Vagrant.plugins_enabled? && !defined?(Bundler)
   puts "It appears that Vagrant was not properly loaded. Specifically,"
   puts "the bundler context Vagrant requires was not setup. Please execute"
   puts "vagrant using only the `vagrant` executable."
@@ -80,7 +82,6 @@ end
 # just require them explicitly here.
 require "vagrant/plugin"
 require "vagrant/registry"
-require "vagrant/shared_helpers"
 
 module Vagrant
   autoload :Action,        'vagrant/action'

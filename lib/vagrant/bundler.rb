@@ -1,6 +1,8 @@
 require "pathname"
 require "tempfile"
 
+require "bundler"
+
 require_relative "shared_helpers"
 require_relative "version"
 
@@ -21,8 +23,6 @@ module Vagrant
     # Initializes Bundler and the various gem paths so that we can begin
     # loading gems. This must only be called once.
     def init!(plugins)
-      raise "Bundler already initialized" if defined?(::Bundler)
-
       # Setup the Bundler configuration
       @configfile = File.open(Tempfile.new("vagrant").path + "1", "w+")
       @configfile.close
@@ -38,9 +38,6 @@ module Vagrant
       ENV["GEM_PATH"] =
         "#{Vagrant.user_data_path.join("gems")}#{::File::PATH_SEPARATOR}#{@gem_path}"
       Gem.clear_paths
-
-      # Load Bundler now
-      require "bundler"
 
       # Do some additional Bundler initialization
       ::Bundler.ui = ::Bundler::UI.new
