@@ -64,6 +64,9 @@ module Vagrant
         ::Bundler::Installer.install(root, definition, opts)
       end
 
+      # Clean out the unused gems, if we have any
+      clean(plugins)
+
       definition.specs
     rescue ::Bundler::VersionConflict => e
       raise Errors::PluginInstallVersionConflict,
@@ -76,8 +79,11 @@ module Vagrant
       lockfile   = "#{gemfile.path}.lock"
       definition = ::Bundler::Definition.build(gemfile, lockfile, nil)
       root       = File.dirname(gemfile.path)
-      runtime    = ::Bundler::Runtime.new(root, definition)
-      runtime.clean
+
+      with_isolated_gem do
+        runtime = ::Bundler::Runtime.new(root, definition)
+        runtime.clean
+      end
     end
 
     # Builds a valid Gemfile for use with Bundler given the list of
