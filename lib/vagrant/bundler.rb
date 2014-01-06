@@ -59,7 +59,6 @@ module Vagrant
       definition = ::Bundler::Definition.build(gemfile, lockfile, nil)
       root       = File.dirname(gemfile.path)
       opts       = {}
-      opts["update"] = true
 
       with_isolated_gem do
         ::Bundler::Installer.install(root, definition, opts)
