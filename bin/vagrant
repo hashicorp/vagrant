@@ -39,6 +39,21 @@ if argv.include?("--debug")
   ENV["VAGRANT_LOG"] = "debug"
 end
 
+# This is kind of hacky, and I'd love to find a better way to do this, but
+# if we're accessing the plugin interface, we want to NOT load plugins
+# for this run, because they can actually interfere with the function
+# of the plugin interface.
+argv.each do |arg|
+  if !arg.start_with?("-")
+    if arg == "plugin"
+      ENV["VAGRANT_NO_PLUGINS"] = "1"
+      ENV["VAGRANT_VAGRANTFILE"] = "plugin_command_#{Time.now.to_i}"
+    end
+
+    break
+  end
+end
+
 # Setup our dependencies by initializing Bundler
 require "bundler"
 Bundler.setup
@@ -94,21 +109,6 @@ end
 
 # Default to colored output
 opts[:ui_class] ||= Vagrant::UI::Colored
-
-# This is kind of hacky, and I'd love to find a better way to do this, but
-# if we're accessing the plugin interface, we want to NOT load plugins
-# for this run, because they can actually interfere with the function
-# of the plugin interface.
-argv.each do |arg|
-  if !arg.start_with?("-")
-    if arg == "plugin"
-      ENV["VAGRANT_NO_PLUGINS"] = "1"
-      ENV["VAGRANT_VAGRANTFILE"] = "plugin_command_#{Time.now.to_i}"
-    end
-
-    break
-  end
-end
 
 # Recombine the arguments
 argv << "--"
