@@ -57,6 +57,8 @@ If you want to run Vagrant without having to install the gem, you may use `bundl
 like so:
 
     bundle exec vagrant help
+    
+**NOTE:** By default running Vagrant in via `bundle` will disable plugins (e.g. `vagrant-berkshelf1`).
 
 ### Acceptance Tests
 
