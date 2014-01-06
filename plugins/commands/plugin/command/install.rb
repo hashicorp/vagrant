@@ -23,14 +23,16 @@ module VagrantPlugins
           return if !argv
           raise Vagrant::Errors::CLIInvalidUsage, :help => opts.help.chomp if argv.length < 1
 
-          # Install the gem
-          action(Action.action_install, {
-            :plugin_entry_point => options[:entry_point],
-            :plugin_prerelease  => options[:plugin_prerelease],
-            :plugin_version     => options[:plugin_version],
-            :plugin_sources     => options[:plugin_sources],
-            :plugin_name        => argv[0]
-          })
+          # Install the gems
+          argv.each do |gem|
+            action(Action.action_install, {
+              :plugin_entry_point => options[:entry_point],
+              :plugin_prerelease  => options[:plugin_prerelease],
+              :plugin_version     => options[:plugin_version],
+              :plugin_sources     => options[:plugin_sources],
+              :plugin_name        => gem,
+            })
+          end
 
           # Success, exit status 0
           0
