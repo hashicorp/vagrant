@@ -16,8 +16,7 @@ require_relative "bundler"
 require_relative "plugin/manager"
 require_relative "shared_helpers"
 
-plugins = []
-plugins = Vagrant::Plugin::Manager.instance.installed_plugins if Vagrant.plugins_enabled?
+plugins = Vagrant::Plugin::Manager.instance.installed_plugins
 Vagrant::Bundler.instance.init!(plugins)
 
 ENV["VAGRANT_INTERNAL_BUNDLERIZED"] = "1"

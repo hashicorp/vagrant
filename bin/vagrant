@@ -59,10 +59,8 @@ require "vagrant/shared_helpers"
 
 # Setup our dependencies by initializing Bundler. If we're using plugins,
 # then also initialize the paths to the plugins.
-groups = [:default]
-groups << :plugins if Vagrant.plugins_enabled?
 require "bundler"
-Bundler.setup(*groups)
+Bundler.setup
 
 require 'log4r'
 require 'vagrant'
