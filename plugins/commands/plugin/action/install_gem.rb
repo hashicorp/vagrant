@@ -50,10 +50,12 @@ module VagrantPlugins
           env[:ui].info(I18n.t("vagrant.commands.plugin.installing",
                                :name => plugin_name_label))
 
-          # TODO: support version, pre-release, custom sources
           manager = Vagrant::Plugin::Manager.instance
           plugin_spec = manager.install_plugin(
             plugin_name, version: version, require: entrypoint)
+
+          # Record it so we can uninstall if something goes wrong
+          @installed_plugin_name = plugin_spec.name
 
           # Tell the user
           env[:ui].success(I18n.t("vagrant.commands.plugin.installed",
