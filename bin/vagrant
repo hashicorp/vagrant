@@ -35,12 +35,9 @@ argv.each do |arg|
   end
 end
 
-# Require some stuff that is NOT dependent on RubyGems
-require "vagrant/shared_helpers"
-
 # First, make sure that we're executing using the proper Bundler context
 # with our plugins. If we're not, then load that and reload Vagrant.
-if !ENV["VAGRANT_INTERNAL_BUNDLERIZED"] && Vagrant.plugins_enabled?
+if !ENV["VAGRANT_INTERNAL_BUNDLERIZED"]
   require "rbconfig"
   ruby_path = File.join(RbConfig::CONFIG["bindir"], RbConfig::CONFIG["ruby_install_name"])
   Kernel.exec(
@@ -56,6 +53,9 @@ if argv.include?("--debug")
   argv.delete("--debug")
   ENV["VAGRANT_LOG"] = "debug"
 end
+
+# Require some stuff that is NOT dependent on RubyGems
+require "vagrant/shared_helpers"
 
 # Setup our dependencies by initializing Bundler if we're using plugins
 if Vagrant.plugins_enabled?
