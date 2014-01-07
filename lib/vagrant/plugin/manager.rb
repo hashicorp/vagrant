@@ -34,7 +34,7 @@ module Vagrant
           # If this is a gem file, then we install that gem locally.
           local_spec = Vagrant::Bundler.instance.install_local(name)
           name       = local_spec.name
-          opts[:version] = "= #{local_spec.version}"
+          opts[:version] = local_spec.version.to_s
           local      = true
         end
 

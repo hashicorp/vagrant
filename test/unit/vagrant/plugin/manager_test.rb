@@ -60,6 +60,30 @@ describe Vagrant::Plugin::Manager do
         to raise_error(Vagrant::Errors::BundlerError)
     end
 
+    it "can install a local gem" do
+      name    = "foo.gem"
+      version = "1.0"
+
+      local_spec = Gem::Specification.new
+      local_spec.name = "bar"
+      local_spec.version = version
+
+      bundler.should_receive(:install_local).with(name).
+        ordered.and_return(local_spec)
+
+      bundler.should_receive(:install).once.with do |plugins, local|
+        expect(plugins).to have_key("bar")
+        expect(plugins["bar"]["gem_version"]).to eql("#{version}")
+        expect(local).to be_true
+      end.ordered.and_return([local_spec])
+
+      subject.install_plugin(name)
+
+      plugins = subject.installed_plugins
+      expect(plugins).to have_key("bar")
+      expect(plugins["bar"]["gem_version"]).to eql("")
+    end
+
     describe "installation options" do
       let(:specs) do
         specs = Array.new(5) { Gem::Specification.new }
