@@ -1,8 +1,6 @@
 # This file is load before RubyGems are loaded, and allow us to actually
 # resolve plugin dependencies and load the proper versions of everything.
 
-ENV["VAGRANT_INSTALLER_EMBEDDED_DIR"] = "/Applications/Vagrant/embedded"
-
 require "vagrant/shared_helpers"
 
 if Vagrant.plugins_enabled? && !defined?(Bundler)
