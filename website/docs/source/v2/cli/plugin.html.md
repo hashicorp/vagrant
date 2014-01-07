@@ -65,10 +65,12 @@ be shown, too.
 
 # Plugin Uninstall
 
-**Command: `vagrant plugin uninstall <name>`**
+**Command: `vagrant plugin uninstall <name> [<name2> <name3> ...]`**
 
 This uninstalls the plugin with the given name. Any dependencies of the
 plugin will also be uninstalled assuming no other plugin needs them.
+
+If multiple plugins are given, multiple plugins will be uninstalled.
 
 # Plugin Update
 

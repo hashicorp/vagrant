@@ -28,6 +28,8 @@ IMPROVEMENTS:
     needs to any type. [GH-2709]
   - commands/plugin: `vagrant plugin update` will now update all installed
     plugins, respecting any constraints set.
+  - commands/plugin: `vagrant plugin uninstall` can now uninstall multiple
+    plugins.
 
 BUG FIXES:
 
