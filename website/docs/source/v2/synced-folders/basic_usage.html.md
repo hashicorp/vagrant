@@ -85,3 +85,20 @@ owner and group. It is possible to set these options:
 config.vm.synced_folder "src/", "/srv/website",
   owner: "root", group: "root"
 ```
+
+## Caveats
+
+Unless [NFS](http://docs.vagrantup.com/v2/synced-folders/nfs.html) is used,
+there is a [VirtualBox bug][sendfile bug] related to `sendfile` which can result
+in corrupted or non-updating files. You should deactivate `sendfile` in any web servers you
+may be running.
+
+In Nginx:
+
+    sendfile off;
+
+In Apache:
+
+    EnableSendfile Off
+
+[sendfile bug]: https://github.com/mitchellh/vagrant/issues/351#issuecomment-1339640
