@@ -1,13 +1,5 @@
-require "rubygems"
-require "rubygems/dependency_installer"
-
-begin
-  require "rubygems/format"
-rescue LoadError
-  # rubygems 2.x
-end
-
 require "log4r"
+require "vagrant/plugin/manager"
 
 module VagrantPlugins
   module CommandPlugin
@@ -21,68 +13,28 @@ module VagrantPlugins
         end
 
         def call(env)
+          entrypoint  = env[:plugin_entry_point]
           plugin_name = env[:plugin_name]
-          prerelease  = env[:plugin_prerelease]
+          sources     = env[:plugin_sources]
           version     = env[:plugin_version]
-
-          # Determine the plugin name we'll look for in the installed set
-          # in order to determine the version and all that.
-          find_plugin_name = plugin_name
-          if plugin_name =~ /\.gem$/
-            # If we're installing from a gem file, determine the name
-            # based on the spec in the file.
-            pkg = if defined?(Gem::Format)
-              # RubyGems 1.x
-              Gem::Format.from_file_by_path(plugin_name)
-            else
-              # RubyGems 2.x
-              Gem::Package.new(plugin_name)
-            end
-
-            find_plugin_name = pkg.spec.name
-            version = pkg.spec.version
-          end
 
           # Install the gem
           plugin_name_label = plugin_name
-          plugin_name_label += ' --prerelease' if prerelease
           plugin_name_label += " --version '#{version}'" if version
           env[:ui].info(I18n.t("vagrant.commands.plugin.installing",
                                :name => plugin_name_label))
-          installed_gems = env[:gem_helper].with_environment do
-            # Override the list of sources by the ones set as a parameter if given
-            if env[:plugin_sources]
-              @logger.info("Custom plugin sources: #{env[:plugin_sources]}")
-              Gem.sources = env[:plugin_sources]
-            end
 
-            installer = Gem::DependencyInstaller.new(:document => [], :prerelease => prerelease)
+          manager = Vagrant::Plugin::Manager.instance
+          plugin_spec = manager.install_plugin(
+            plugin_name,
+            version: version,
+            require: entrypoint,
+            sources: sources,
+            verbose: !!env[:plugin_verbose],
+          )
 
-            # If we don't have a version, use the default version
-            version ||= Gem::Requirement.default
-
-            begin
-              installer.install(plugin_name, version)
-            rescue Gem::GemNotFoundException
-              raise Vagrant::Errors::PluginInstallNotFound,
-                :name => plugin_name
-            end
-          end
-
-          # The plugin spec is the last installed gem since RubyGems
-          # currently always installed the requested gem last.
-          @logger.debug("Installed #{installed_gems.length} gems.")
-          plugin_spec = installed_gems.find do |gem|
-            gem.name.downcase == find_plugin_name.downcase
-          end
-
-          # Store the installed name so we can uninstall it if things go
-          # wrong.
+          # Record it so we can uninstall if something goes wrong
           @installed_plugin_name = plugin_spec.name
-
-          # Mark that we installed the gem
-          @logger.info("Adding the plugin to the state file...")
-          env[:plugin_state_file].add_plugin(plugin_spec.name)
 
           # Tell the user
           env[:ui].success(I18n.t("vagrant.commands.plugin.installed",

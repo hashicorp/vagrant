@@ -1,9 +1,9 @@
 require "json"
 require "pathname"
 
-require File.expand_path("../../../../base", __FILE__)
+require File.expand_path("../../../base", __FILE__)
 
-describe VagrantPlugins::CommandPlugin::StateFile do
+describe Vagrant::Plugin::StateFile do
   let(:path) do
     f = Tempfile.new("vagrant")
     p = f.path
@@ -32,6 +32,9 @@ describe VagrantPlugins::CommandPlugin::StateFile do
       expect(plugins["foo"]).to eql({
         "ruby_version"    => RUBY_VERSION,
         "vagrant_version" => Vagrant::VERSION,
+        "gem_version"     => "",
+        "require"         => "",
+        "sources"         => [],
       })
     end
 
@@ -49,6 +52,34 @@ describe VagrantPlugins::CommandPlugin::StateFile do
 
       instance = described_class.new(path)
       expect(instance.installed_plugins.keys).to eql(["foo"])
+    end
+
+    it "should store metadata" do
+      subject.add_plugin("foo", version: "1.2.3")
+      expect(subject.installed_plugins["foo"]["gem_version"]).to eql("1.2.3")
+    end
+
+    describe "sources" do
+      it "should have no sources" do
+        expect(subject.sources).to be_empty
+      end
+
+      it "should add sources" do
+        subject.add_source("foo")
+        expect(subject.sources).to eql(["foo"])
+      end
+
+      it "should de-dup sources" do
+        subject.add_source("foo")
+        subject.add_source("foo")
+        expect(subject.sources).to eql(["foo"])
+      end
+
+      it "can remove sources" do
+        subject.add_source("foo")
+        subject.remove_source("foo")
+        expect(subject.sources).to be_empty
+      end
     end
   end
 

@@ -139,11 +139,6 @@ en:
 
         Old: %{old}
         New: %{new}
-      in_bundler: |-
-        You appear to be running Vagrant in a Bundler environment. Because
-        Vagrant should be run within installers (outside of Bundler), Vagrant
-        will assume that you're developing plugins and will change its behavior
-        in certain ways to better assist plugin development.
       not_in_installer: |-
         You appear to be running Vagrant outside of the official installers.
         Note that the installers are what ensure that Vagrant has all required
@@ -259,6 +254,13 @@ en:
         The box '%{name}' is still stored on disk in the Vagrant 1.0.x
         format. This box must be upgraded in order to work properly with
         this version of Vagrant.
+      bundler_error: |-
+        Bundler, the underlying system Vagrant uses to install plugins,
+        reported an error. The error is shown below. These errors are usually
+        caused by misconfigured plugin installations or transient network
+        issues. The error from Bundler is:
+
+        %{message}
       cfengine_bootstrap_failed: |-
         Failed to bootstrap CFEngine. Please see the output above to
         see what went wrong and address the issue.
@@ -479,6 +481,9 @@ en:
         manage Vagrant plugins. The output of the errors are shown below:
 
         %{output}
+      plugin_gem_not_found: |-
+        The plugin '%{name}' could not be installed because it could not
+        be found. Please double check the name and try again.
       plugin_install_bad_entry_point: |-
         Attempting to load the plugin '%{name}' failed, because
         the entry point doesn't exist. The entry point attempted was
@@ -491,6 +496,16 @@ en:
       plugin_install_not_found: |-
         The plugin '%{name}' could not be found in local or remote
         repositories. Please check the name of the plugin and try again.
+      plugin_install_version_conflict: |-
+        The plugin(s) can't be installed due to the version conflicts below.
+        This means that the plugins depend on a library version that conflicts
+        with other plugins or Vagrant itself, creating an impossible situation
+        where Vagrant wouldn't be able to load the plugins.
+
+        You can fix the issue by either removing a conflicting plugin or
+        by contacting a plugin author to see if they can address the conflict.
+
+        %{conflicts}
       plugin_load_error: |-
         The plugin "%{plugin}" could not be found. Please make sure that it is
         properly installed via `vagrant plugin`. Note that plugins made for
@@ -911,12 +926,22 @@ en:
           Installing license for '%{name}'...
         no_plugins: |-
           No plugins installed.
+        plugin_require: "  - Custom entrypoint: %{require}"
+        plugin_version: "  - Version Constraint: %{version}"
         installed: |-
           Installed the plugin '%{name} (%{version})'!
         installing: |-
           Installing the '%{name}' plugin. This can take a few minutes...
         uninstalling: |-
           Uninstalling the '%{name}' plugin...
+        up_to_date: |-
+          All plugins are up to date.
+        updated: |-
+          Updated '%{name}' to version '%{version}'!
+        updating: |-
+          Updating installed plugins...
+        updating_specific: |-
+          Updating plugins: %{names}. This may take a few minutes...
         post_install: |-
           Post install message from the '%{name}' plugin:
 

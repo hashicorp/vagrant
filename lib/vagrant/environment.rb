@@ -128,9 +128,6 @@ module Vagrant
       @default_private_key_path = @home_path.join("insecure_private_key")
       copy_insecure_private_key
 
-      # Load the plugins
-      load_plugins
-
       # Call the hooks that does not require configurations to be loaded
       # by using a "clean" action runner
       hook(:environment_plugins_loaded, runner: Action::Runner.new(env: self))
@@ -591,7 +588,7 @@ module Vagrant
     def setup_home_path
       @home_path = Pathname.new(File.expand_path(@home_path ||
                                                  ENV["VAGRANT_HOME"] ||
-                                                 default_home_path))
+                                                 Vagrant.user_data_path))
       @logger.info("Home path: #{@home_path}")
 
       # Setup the list of child directories that need to be created if they
@@ -691,23 +688,6 @@ module Vagrant
       end
     end
 
-    # This returns the default home directory path for Vagrant, which
-    # can differ depending on the system.
-    #
-    # @return [Pathname]
-    def default_home_path
-      path = "~/.vagrant.d"
-
-      # On Windows, we default ot the USERPROFILE directory if it
-      # is available. This is more compatible with Cygwin and sharing
-      # the home directory across shells.
-      if Util::Platform.windows? && ENV["USERPROFILE"]
-        path = "#{ENV["USERPROFILE"]}/.vagrant.d"
-      end
-
-      Pathname.new(path)
-    end
-
     # Finds the Vagrantfile in the given directory.
     #
     # @param [Pathname] path Path to search in.
@@ -720,55 +700,6 @@ module Vagrant
       end
 
       nil
-    end
-
-    # Loads the Vagrant plugins by properly setting up RubyGems so that
-    # our private gem repository is on the path.
-    def load_plugins
-      # Add our private gem path to the gem path and reset the paths
-      # that Rubygems knows about.
-      ENV["GEM_PATH"] = "#{@gems_path}#{::File::PATH_SEPARATOR}#{ENV["GEM_PATH"]}"
-      ::Gem.clear_paths
-
-      # If we're in a Bundler environment, don't load plugins. This only
-      # happens in plugin development environments.
-      if defined?(Bundler)
-        require 'bundler/shared_helpers'
-        if Bundler::SharedHelpers.in_bundle?
-          @logger.warn("In a bundler environment, not loading environment plugins!")
-          return
-        end
-      end
-
-      # This keeps track of the old plugins that need to be reinstalled
-      # because they were installed with an old version of Ruby.
-      reinstall = []
-
-      # Load the plugins
-      plugins_json_file = @home_path.join("plugins.json")
-      @logger.debug("Loading plugins from: #{plugins_json_file}")
-      state = VagrantPlugins::CommandPlugin::StateFile.new(plugins_json_file)
-      state.installed_plugins.each do |name, extra|
-        # If the Ruby version changed, then they need to reinstall the plugin
-        if extra["ruby_version"] != RUBY_VERSION
-          reinstall << name
-          next
-        end
-
-        @logger.info("Loading plugin from JSON: #{name}")
-        begin
-          Vagrant.require_plugin(name)
-        rescue Errors::PluginLoadError => e
-          @ui.error(e.message + "\n")
-        rescue Errors::PluginLoadFailed => e
-          @ui.error(e.message + "\n")
-        end
-      end
-
-      if !reinstall.empty?
-        @ui.warn(I18n.t("vagrant.plugin_needs_reinstall",
-          names: reinstall.join(", ")))
-      end
     end
 
     # This upgrades a Vagrant 1.0.x "dotfile" to the new V2 format.

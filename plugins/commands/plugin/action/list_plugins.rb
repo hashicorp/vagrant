@@ -1,5 +1,4 @@
-require "rubygems"
-require "set"
+require "vagrant/plugin/manager"
 
 module VagrantPlugins
   module CommandPlugin
@@ -17,32 +16,35 @@ module VagrantPlugins
         end
 
         def call(env)
-          # Get the list of installed plugins according to the state file
-          installed = env[:plugin_state_file].installed_plugins.keys
-
-          # Go through the plugins installed in this environment and
-          # get the latest version of each.
-          installed_map = {}
-          env[:gem_helper].with_environment do
-            Gem::Specification.find_all.each do |spec|
-              # Ignore specs that aren't in our installed list
-              next if !installed.include?(spec.name)
-
-              # If we already have a newer version in our list of installed,
-              # then ignore it
-              next if installed_map.has_key?(spec.name) &&
-                installed_map[spec.name].version >= spec.version
-
-              installed_map[spec.name] = spec
-            end
-          end
+          manager = Vagrant::Plugin::Manager.instance
+          plugins = manager.installed_plugins
+          specs   = manager.installed_specs
 
           # Output!
-          if installed_map.empty?
+          if specs.empty?
             env[:ui].info(I18n.t("vagrant.commands.plugin.no_plugins"))
-          else
-            installed_map.values.each do |spec|
-              env[:ui].info "#{spec.name} (#{spec.version})"
+            return @app.call(env)
+          end
+
+          specs.each do |spec|
+            env[:ui].info "#{spec.name} (#{spec.version})"
+
+            # Grab the plugin. Note that the check for whether it exists
+            # shouldn't be necessary since installed_specs checks that but
+            # its nice to be certain.
+            plugin = plugins[spec.name]
+            next if !plugin
+
+            if plugin["gem_version"] && plugin["gem_version"] != ""
+              env[:ui].info(I18n.t(
+                "vagrant.commands.plugin.plugin_version",
+                version: plugin["gem_version"]))
+            end
+
+            if plugin["require"] && plugin["require"] != ""
+              env[:ui].info(I18n.t(
+                "vagrant.commands.plugin.plugin_require",
+                require: plugin["require"]))
             end
           end
 

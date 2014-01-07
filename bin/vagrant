@@ -13,12 +13,54 @@ if idx = argv.index("--")
   argv = argv.slice(0, idx)
 end
 
+# Fast path the version of Vagrant
+if argv.include?("-v") || argv.include?("--version")
+  require "vagrant/version"
+  puts "Vagrant #{Vagrant::VERSION}"
+  exit 0
+end
+
+# This is kind of hacky, and I'd love to find a better way to do this, but
+# if we're accessing the plugin interface, we want to NOT load plugins
+# for this run, because they can actually interfere with the function
+# of the plugin interface.
+argv.each do |arg|
+  if !arg.start_with?("-")
+    if arg == "plugin"
+      ENV["VAGRANT_NO_PLUGINS"] = "1"
+      ENV["VAGRANT_VAGRANTFILE"] = "plugin_command_#{Time.now.to_i}"
+    end
+
+    break
+  end
+end
+
+# First, make sure that we're executing using the proper Bundler context
+# with our plugins. If we're not, then load that and reload Vagrant.
+if !ENV["VAGRANT_INTERNAL_BUNDLERIZED"]
+  require "rbconfig"
+  ruby_path = File.join(RbConfig::CONFIG["bindir"], RbConfig::CONFIG["ruby_install_name"])
+  Kernel.exec(
+    ruby_path,
+    File.expand_path("../../lib/vagrant/pre-rubygems.rb", __FILE__),
+    *ARGV)
+  raise "Fatal error: this line should never be reached"
+end
+
 # Set logging level to `debug`. This is done before loading 'vagrant', as it
 # sets up the logging system.
 if argv.include?("--debug")
   argv.delete("--debug")
   ENV["VAGRANT_LOG"] = "debug"
 end
+
+# Require some stuff that is NOT dependent on RubyGems
+require "vagrant/shared_helpers"
+
+# Setup our dependencies by initializing Bundler. If we're using plugins,
+# then also initialize the paths to the plugins.
+require "bundler"
+Bundler.setup
 
 require 'log4r'
 require 'vagrant'
@@ -72,27 +114,6 @@ end
 # Default to colored output
 opts[:ui_class] ||= Vagrant::UI::Colored
 
-# This is kind of hacky, and I'd love to find a better way to do this, but
-# if we're accessing the plugin interface, we want to NOT load plugins
-# for this run, because they can actually interfere with the function
-# of the plugin interface.
-argv.each do |arg|
-  if !arg.start_with?("-")
-    if arg == "plugin"
-      ENV["VAGRANT_NO_PLUGINS"] = "1"
-      ENV["VAGRANT_VAGRANTFILE"] = "plugin_command_#{Time.now.to_i}"
-    end
-
-    break
-  end
-end
-
-# Fast path the version of Vagrant
-if argv.include?("-v") || argv.include?("--version")
-  puts "Vagrant #{Vagrant::VERSION}"
-  exit 0
-end
-
 # Recombine the arguments
 argv << "--"
 argv += argv_extra
@@ -105,21 +126,8 @@ begin
   env = Vagrant::Environment.new(opts)
 
   if !Vagrant.in_installer?
-    warned = false
-
-    # If we're in a bundler environment, we assume it is for plugin
-    # development and will let the user know that.
-    if defined?(Bundler)
-      require 'bundler/shared_helpers'
-      if Bundler::SharedHelpers.in_bundle?
-        env.ui.warn(I18n.t("vagrant.general.in_bundler"))
-        env.ui.warn("")
-        warned = true
-      end
-    end
-
     # If we're not in the installer, warn.
-    env.ui.warn(I18n.t("vagrant.general.not_in_installer")) if !warned
+    env.ui.warn(I18n.t("vagrant.general.not_in_installer"))
   end
 
   begin

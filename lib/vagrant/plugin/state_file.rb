@@ -1,7 +1,7 @@
 require "json"
 
-module VagrantPlugins
-  module CommandPlugin
+module Vagrant
+  module Plugin
     # This is a helper to deal with the plugin state file that Vagrant
     # uses to track what plugins are installed and activated and such.
     class StateFile
@@ -27,14 +27,24 @@ module VagrantPlugins
       # Add a plugin that is installed to the state file.
       #
       # @param [String] name The name of the plugin
-      def add_plugin(name)
-        if !@data["installed"].has_key?(name)
-          @data["installed"][name] = {
-            "ruby_version"    => RUBY_VERSION,
-            "vagrant_version" => Vagrant::VERSION,
-          }
-        end
+      def add_plugin(name, **opts)
+        @data["installed"][name] = {
+          "ruby_version"    => RUBY_VERSION,
+          "vagrant_version" => Vagrant::VERSION,
+          "gem_version"     => opts[:version] || "",
+          "require"         => opts[:require] || "",
+          "sources"         => opts[:sources] || [],
+        }
 
+        save!
+      end
+
+      # Adds a RubyGems index source to look up gems.
+      #
+      # @param [String] url URL of the source.
+      def add_source(url)
+        @data["sources"] ||= []
+        @data["sources"] << url if !@data["sources"].include?(url)
         save!
       end
 
@@ -53,6 +63,23 @@ module VagrantPlugins
       def remove_plugin(name)
         @data["installed"].delete(name)
         save!
+      end
+
+      # Remove a source for RubyGems.
+      #
+      # @param [String] url URL of the source
+      def remove_source(url)
+        @data["sources"] ||= []
+        @data["sources"].delete(url)
+        save!
+      end
+
+      # Returns the list of RubyGems sources that will be searched for
+      # plugins.
+      #
+      # @return [Array<String>]
+      def sources
+        @data["sources"] || []
       end
 
       # This saves the state back into the state file.

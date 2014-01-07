@@ -1,4 +1,4 @@
-require "set"
+require "vagrant/plugin/manager"
 
 module VagrantPlugins
   module CommandPlugin
@@ -11,9 +11,8 @@ module VagrantPlugins
         end
 
         def call(env)
-          # Get the list of installed plugins according to the state file
-          installed = env[:plugin_state_file].installed_plugins.keys
-          if !installed.include?(env[:plugin_name])
+          installed = Vagrant::Plugin::Manager.instance.installed_plugins
+          if !installed.has_key?(env[:plugin_name])
             raise Vagrant::Errors::PluginNotInstalled,
               name: env[:plugin_name]
           end

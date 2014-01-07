@@ -168,6 +168,10 @@ module Vagrant
       error_key(:failed, "vagrant.actions.box.verify")
     end
 
+    class BundlerError < VagrantError
+      error_key(:bundler_error)
+    end
+
     class CFEngineBootstrapFailed < VagrantError
       error_key(:cfengine_bootstrap_failed)
     end
@@ -428,6 +432,10 @@ module Vagrant
       error_key(:plugin_gem_error)
     end
 
+    class PluginGemNotFound < VagrantError
+      error_key(:plugin_gem_not_found)
+    end
+
     class PluginInstallBadEntryPoint < VagrantError
       error_key(:plugin_install_bad_entry_point)
     end
@@ -438,6 +446,10 @@ module Vagrant
 
     class PluginInstallNotFound < VagrantError
       error_key(:plugin_install_not_found)
+    end
+
+    class PluginInstallVersionConflict < VagrantError
+      error_key(:plugin_install_version_conflict)
     end
 
     class PluginLoadError < VagrantError

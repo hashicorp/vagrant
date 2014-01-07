@@ -29,7 +29,15 @@ module VagrantPlugins
 
         # Set a custom configuration to avoid loading ~/.gemrc loads and
         # /etc/gemrc and so on.
-        old_config = Gem.configuration
+        old_config = nil
+        begin
+          old_config = Gem.configuration
+        rescue Psych::SyntaxError
+          # Just ignore this. This means that the ".gemrc" file has
+          # an invalid syntax and can't be loaded. We don't care, because
+          # when we set Gem.configuration to nil later, it'll force a reload
+          # if it is needed.
+        end
         Gem.configuration = NilGemConfig.new
 
         # Clear the sources so that installation uses custom sources
