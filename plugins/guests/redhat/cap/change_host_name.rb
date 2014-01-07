@@ -49,7 +49,7 @@ module VagrantPlugins
         end
 
         def update_hostname
-          sudo "hostname #{short_hostname}"
+          sudo "hostname #{fqdn}"
         end 
 
         # /etc/hosts should resemble:
