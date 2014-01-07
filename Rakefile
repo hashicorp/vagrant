@@ -15,4 +15,7 @@ Dir["#{task_dir}/**/*.rake"].each do |task_file|
   load task_file
 end
 
+# Load i18n-tasks
+load 'tasks/i18n-tasks.rake'
+
 task :default => "test:unit"

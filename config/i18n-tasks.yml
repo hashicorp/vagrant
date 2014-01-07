@@ -1,0 +1,13 @@
+search:
+  paths:
+    - "bin/"
+    - "lib/"
+    - "plugins/"
+data:
+  adapter: yaml
+  read:
+    - 'templates/locales/%{locale}.yml'
+  write:
+    - 'templates/locales/%{locale}.yml'
+ignore_unused:
+  - 'vagrant.errors.*'

@@ -28,6 +28,7 @@ Gem::Specification.new do |s|
   # This has problems on Windows, we need to find a better way:
   # s.add_development_dependency "sys-proctable", "~> 0.9.0"
   s.add_development_dependency "rspec", "~> 2.14.0"
+  s.add_development_dependency "i18n-tasks", "~> 0.2.15"
 
   # The following block of code determines the files that should be included
   # in the gem. It does this by reading all the files in the directory where
