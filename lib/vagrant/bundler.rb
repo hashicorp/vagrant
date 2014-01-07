@@ -154,7 +154,7 @@ module Vagrant
           gemfile.puts(%Q[source "#{source}"])
         end
 
-        gemfile.puts(%Q[gem "vagrant", "= #{Vagrant::VERSION}"])
+        gemfile.puts(%Q[gem "vagrant", path: "#{Vagrant.source_root}"])
 
         gemfile.puts("group :plugins do")
         plugins.each do |name, plugin|
