@@ -30,6 +30,8 @@ IMPROVEMENTS:
     plugins, respecting any constraints set.
   - commands/plugin: `vagrant plugin uninstall` can now uninstall multiple
     plugins.
+  - commands/plugin: `vagrant plugin install` can now install multiple
+    plugins.
 
 BUG FIXES:
 

@@ -13,7 +13,7 @@ module VagrantPlugins
           options = { verbose: false }
 
           opts = OptionParser.new do |o|
-            o.banner = "Usage: vagrant plugin install <name> [-h]"
+            o.banner = "Usage: vagrant plugin install <name>... [-h]"
             o.separator ""
             build_install_opts(o, options)
 
@@ -28,13 +28,15 @@ module VagrantPlugins
           raise Vagrant::Errors::CLIInvalidUsage, :help => opts.help.chomp if argv.length < 1
 
           # Install the gem
-          action(Action.action_install, {
-            :plugin_entry_point => options[:entry_point],
-            :plugin_version     => options[:plugin_version],
-            :plugin_sources     => options[:plugin_sources],
-            :plugin_name        => argv[0],
-            :plugin_verbose     => options[:verbose]
-          })
+          argv.each do |name|
+            action(Action.action_install, {
+              :plugin_entry_point => options[:entry_point],
+              :plugin_version     => options[:plugin_version],
+              :plugin_sources     => options[:plugin_sources],
+              :plugin_name        => name,
+              :plugin_verbose     => options[:verbose]
+            })
+          end
 
           # Success, exit status 0
           0

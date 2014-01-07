@@ -20,13 +20,17 @@ of subcommands:
 
 # Plugin Install
 
-**Command: `vagrant plugin install <name>`**
+**Command: `vagrant plugin install <name>...`**
 
 This installs a plugin with the given name or file path. If the name
 is not a path to a file, then the plugin is installed from remote
 repositories, usually [RubyGems](http://rubygems.org). This command will
 also update a plugin if it is already installed, but you can also use
 `vagrant plugin update` for that.
+
+If multiple names are specified, multiple plugins will be installed. If
+flags are given below, the flags will apply to _all_ plugins being installed
+by the current command invocation.
 
 This command accepts optional command-line flags:
 
