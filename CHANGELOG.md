@@ -15,6 +15,8 @@ FEATURES:
   - Password-based SSH authentication. This lets you use almost any off-the-shelf
     virtual machine image with Vagrant. Additionally, Vagrant will automatically
     insert a keypair into the machine.
+  - Plugin versions can now be constrained to a range of versions. Example:
+    `vagrant plugin install foo --plugin-version "> 1.0, < 1.1"`
 
 IMPROVEMENTS:
 
@@ -24,11 +26,17 @@ IMPROVEMENTS:
   - provisioners/puppet: New config `synced_folder_type` replaces the
     `nfs` option. This can be used to set the synced folders the provisioner
     needs to any type. [GH-2709]
+  - commands/plugin: `vagrant plugin update` will now update all installed
+    plugins, respecting any constraints set.
 
 BUG FIXES:
 
   - core: If an exception was raised while attempting to connect to SSH
     for the first time, it would get swallowed. It is properly raised now.
+  - core: Plugin installation does not fail if your local gemrc file has
+    syntax errors.
+  - commands/plugin: Plugin installation will fail if dependencies conflict,
+    rather than at runtime.
   - providers/virtualbox: Enabling internal networks by just setting "true"
     works properly. [GH-2751]
 
