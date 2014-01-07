@@ -38,7 +38,7 @@ If you want the bleeding edge version of Vagrant, we try to keep master pretty s
 and you're welcome to give it a shot. The following is an example showing how to do this:
 
     rake install
-    
+
 Ruby 2.0 is needed.
 
 ## Contributing to Vagrant
@@ -57,8 +57,11 @@ If you want to run Vagrant without having to install the gem, you may use `bundl
 like so:
 
     bundle exec vagrant help
-    
-**NOTE:** By default running Vagrant in via `bundle` will disable plugins (e.g. `vagrant-berkshelf1`).
+
+**NOTE:** By default running Vagrant in via `bundle` will disable plugins.
+This is necessary because Vagrant creates its own private Bundler context
+(it does not respect your Gemfile), because it uses Bundler to manage plugin
+dependencies.
 
 ### Acceptance Tests
 
