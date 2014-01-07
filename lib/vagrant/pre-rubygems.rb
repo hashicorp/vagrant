@@ -5,10 +5,17 @@
 if defined?(Bundler)
   require "bundler/shared_helpers"
   if Bundler::SharedHelpers.in_bundle?
-    puts "Vagrant appears to be running in a Bundler environment. Plugins"
-    puts "will not be loaded and plugin commands are disabled."
-    puts
-    ENV["VAGRANT_NO_PLUGINS"] = "1"
+    if ENV["VAGRANT_FORCE_PLUGINS"]
+      puts "Vagrant appears to be running in a Bundler environment. Normally,"
+      puts "plugins would not be loaded, but VAGRANT_FORCE_PLUGINS is enabled,"
+      puts "so they will be."
+      puts
+    else
+      puts "Vagrant appears to be running in a Bundler environment. Plugins"
+      puts "will not be loaded and plugin commands are disabled."
+      puts
+      ENV["VAGRANT_NO_PLUGINS"] = "1"
+    end
   end
 end
 
