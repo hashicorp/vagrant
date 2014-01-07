@@ -59,6 +59,46 @@ describe Vagrant::Plugin::Manager do
       expect { subject.install_plugin("foo") }.
         to raise_error(Vagrant::Errors::BundlerError)
     end
+
+    describe "installation options" do
+      let(:specs) do
+        specs = Array.new(5) { Gem::Specification.new }
+        specs[3].name = "foo"
+        specs
+      end
+
+      before do
+        bundler.stub(:install).and_return(specs)
+      end
+
+      it "installs a version with constraints" do
+        bundler.should_receive(:install).once.with do |plugins, local|
+          expect(plugins).to have_key("foo")
+          expect(plugins["foo"]["gem_version"]).to eql(">= 0.1.0")
+          expect(local).to be_false
+        end.and_return(specs)
+
+        subject.install_plugin("foo", version: ">= 0.1.0")
+
+        plugins = subject.installed_plugins
+        expect(plugins).to have_key("foo")
+        expect(plugins["foo"]["gem_version"]).to eql(">= 0.1.0")
+      end
+
+      it "installs with an exact version but doesn't constrain" do
+        bundler.should_receive(:install).once.with do |plugins, local|
+          expect(plugins).to have_key("foo")
+          expect(plugins["foo"]["gem_version"]).to eql("0.1.0")
+          expect(local).to be_false
+        end.and_return(specs)
+
+        subject.install_plugin("foo", version: "0.1.0")
+
+        plugins = subject.installed_plugins
+        expect(plugins).to have_key("foo")
+        expect(plugins["foo"]["gem_version"]).to eql("")
+      end
+    end
   end
 
   describe "#uninstall_plugin" do

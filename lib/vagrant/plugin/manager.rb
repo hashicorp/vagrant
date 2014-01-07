@@ -60,6 +60,10 @@ module Vagrant
           install_lambda.call
         end
 
+        # If the version constraint is just a specific version, don't
+        # store the constraint.
+        opts.delete(:version) if opts[:version] && opts[:version] =~ /^\d/
+
         # Add the plugin to the state file
         @global_file.add_plugin(
           result.name,
