@@ -62,7 +62,7 @@ VirtualBox provider.
 ```ruby
 Vagrant.configure("2") do |config|
   config.vm.network "private_network", ip: "192.168.50.4",
-    virtualbox__intnet: true
+    virtualbox__intnet: "true"
 end
 ```
 
