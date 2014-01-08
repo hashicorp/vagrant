@@ -43,6 +43,9 @@ module Vagrant
     # error code, and the error key is used as a default message from
     # I18n.
     class VagrantError < StandardError
+      # This is extra data passed into the message for translation.
+      attr_accessor :extra_data
+
       def self.error_key(key=nil, namespace=nil)
         define_method(:error_key) { key }
         error_namespace(namespace) if namespace
@@ -57,6 +60,8 @@ module Vagrant
       end
 
       def initialize(message=nil, *args)
+        message ||= {}
+        @extra_data = message.dup
         message = { :_key => message } if message && !message.is_a?(Hash)
         message = { :_key => error_key, :_namespace => error_namespace }.merge(message || {})
 
