@@ -487,22 +487,34 @@ module Vagrant
     def host
       return @host if defined?(@host)
 
-      # Attempt to figure out the host class. Note that the order
-      # matters here, so please don't touch. Specifically: The symbol
-      # check is done after the detect check because the symbol check
-      # will return nil, and we don't want to trigger a detect load.
+      # Determine the host class to use. ":detect" is an old Vagrant config
+      # that shouldn't be valid anymore, but we respect it here by assuming
+      # its old behavior. No need to deprecate this because I thin it is
+      # fairly harmless.
       host_klass = config_global.vagrant.host
-      if host_klass.nil? || host_klass == :detect
-        hosts = Vagrant.plugin("2").manager.hosts.to_hash
+      host_klass = nil if host_klass == :detect
 
-        # Get the flattened list of available hosts
-        host_klass = Hosts.detect(hosts)
+      begin
+        @host = Host.new(
+          host_klass,
+          Vagrant.plugin("2").manager.hosts,
+          Vagrant.plugin("2").manager.host_capabilities,
+          self)
+      rescue Errors::CapabilityHostNotDetected
+        # If the auto-detect failed, then we create a brand new host
+        # with no capabilities and use that. This should almost never happen
+        # since Vagrant works on most host OS's now, so this is a "slow path"
+        klass = Class.new(Vagrant.plugin("2", :host)) do
+          def detect?(env); true; end
+        end
+
+        hosts     = { generic: [klass, nil] }
+        host_caps = {}
+
+        @host = Host.new(:generic, hosts, host_caps, self)
+      rescue Errors::CapabilityHostExplicitNotDetected => e
+        raise Errors::HostExplicitNotDetected, e.extra_data
       end
-
-      # If no host class is detected, we use the base class.
-      host_klass ||= Vagrant.plugin("2", :host)
-
-      @host ||= host_klass.new(@ui)
     end
 
     # Action runner for executing actions in the context of this environment.

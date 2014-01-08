@@ -379,6 +379,9 @@ en:
         Host port: %{host}
         Guest port: %{guest}
         Adapter: %{adapter}
+      freebsd_nfs_whitespace: |-
+        FreeBSD hosts do not support sharing directories with whitespace in
+        their path. Please adjust your path accordingly.
       gem_command_in_bundler: |-
         You cannot run the `vagrant plugin` command while in a bundler environment.
         This should generally never happen unless Vagrant is installed outside
@@ -412,6 +415,11 @@ en:
         directory that Vagrant uses must be both readable and writable.
 
         You specified: %{home_path}
+      host_explicit_not_detected: |-
+        The host implementation explicitly specified in your Vagrantfile
+        ("%{value}") could not be found. Please verify that the plugin is
+        installed which implements this host and that the value you used
+        for `config.vagrant.host` is correct.
       interrupted: |-
         Vagrant exited after cleanup due to external interrupt.
       local_data_dir_not_accessible: |-
@@ -869,9 +877,6 @@ en:
           that `nfsd` is installed on your machine, and try again. If you're
           on Windows, NFS isn't supported. If the problem persists, please
           contact Vagrant support.
-        nfs_requires_host: |-
-          Using NFS shared folders requires a host to be specified
-          using `config.vagrant.host`.
         network_ip_ends_in_one: |-
           Static IPs cannot end in ".1" since that address is always
           reserved for the router. Please use another ending.
@@ -1340,10 +1345,6 @@ en:
       arch:
         nfs_export:
           prepare: "Preparing to edit /etc/exports. Administrator privileges will be required..."
-      freebsd:
-        nfs_whitespace: |-
-          FreeBSD hosts do not support sharing directories with whitespace in
-          their path. Please adjust your path accordingly.
 
     provisioners:
       chef:

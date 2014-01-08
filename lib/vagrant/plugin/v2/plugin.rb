@@ -135,7 +135,7 @@ module Vagrant
         #
         # @param [String] name Name of the guest.
         # @param [String] parent Name of the parent guest (if any)
-        def self.guest(name=UNSET_VALUE, parent=nil, &block)
+        def self.guest(name, parent=nil, &block)
           components.guests.register(name.to_sym) do
             parent = parent.to_sym if parent
 
@@ -160,14 +160,26 @@ module Vagrant
         # the given key.
         #
         # @param [String] name Name of the host.
-        def self.host(name=UNSET_VALUE, &block)
-          data[:hosts] ||= Registry.new
+        # @param [String] parent Name of the parent host (if any)
+        def self.host(name, parent=nil, &block)
+          components.hosts.register(name.to_sym) do
+            parent = parent.to_sym if parent
 
-          # Register a new host class only if a name was given
-          data[:hosts].register(name.to_sym, &block) if name != UNSET_VALUE
+            [block.call, parent]
+          end
+          nil
+        end
 
-          # Return the registry
-          data[:hosts]
+        # Defines a capability for the given host. The block should return
+        # a class/module that has a method with the capability name, ready
+        # to be executed. This means that if it is an instance method,
+        # the block should return an instance of the class.
+        #
+        # @param [String] host The name of the host
+        # @param [String] cap The name of the capability
+        def self.host_capability(host, cap, &block)
+          components.host_capabilities[host.to_sym].register(cap.to_sym, &block)
+          nil
         end
 
         # Registers additional providers to be available.

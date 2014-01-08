@@ -49,7 +49,8 @@ module VagrantPlugins
         # overlapping input requests. [GH-2680]
         @@lock.synchronize do
           machine.ui.info I18n.t("vagrant.actions.vm.nfs.exporting")
-          machine.env.host.nfs_export(machine.id, machine_ip, folders)
+          machine.env.host.capability(:nfs_export,
+            machine.ui, machine.id, machine_ip, folders)
         end
 
         # Mount
@@ -72,7 +73,7 @@ module VagrantPlugins
 
         # Prune any of the unused machines
         @logger.info("NFS pruning. Valid IDs: #{ids.inspect}")
-        machine.env.host.nfs_prune(ids)
+        machine.env.host.capability(:nfs_prune, machine.ui, ids)
       end
 
       protected

@@ -1,6 +1,7 @@
 require_relative "../base"
 
 describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSSettings do
+  include_context "unit"
   include_context "virtualbox"
 
   let(:machine) {

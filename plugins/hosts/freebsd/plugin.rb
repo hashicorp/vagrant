@@ -6,9 +6,25 @@ module VagrantPlugins
       name "FreeBSD host"
       description "FreeBSD host support."
 
-      host("freebsd") do
-        require File.expand_path("../host", __FILE__)
+      host("freebsd", "bsd") do
+        require_relative "host"
         Host
+      end
+
+      host_capability("freebsd", "nfs_export") do
+        require_relative "cap/nfs"
+        Cap::NFS
+      end
+
+      # BSD-specific helpers
+      host_capability("freebsd", "nfs_exports_template") do
+        require_relative "cap/nfs"
+        Cap::NFS
+      end
+
+      host_capability("freebsd", "nfs_restart_command") do
+        require_relative "cap/nfs"
+        Cap::NFS
       end
     end
   end

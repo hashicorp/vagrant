@@ -93,7 +93,7 @@ module Vagrant
   autoload :Environment,   'vagrant/environment'
   autoload :Errors,        'vagrant/errors'
   autoload :Guest,         'vagrant/guest'
-  autoload :Hosts,         'vagrant/hosts'
+  autoload :Host,          'vagrant/host'
   autoload :Machine,       'vagrant/machine'
   autoload :MachineState,  'vagrant/machine_state'
   autoload :Plugin,        'vagrant/plugin'
