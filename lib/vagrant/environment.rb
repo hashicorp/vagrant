@@ -498,7 +498,8 @@ module Vagrant
         @host = Host.new(
           host_klass,
           Vagrant.plugin("2").manager.hosts,
-          Vagrant.plugin("2").manager.host_capabilities)
+          Vagrant.plugin("2").manager.host_capabilities,
+          self)
       rescue Errors::CapabilityHostNotDetected
         # If the auto-detect failed, then we create a brand new host
         # with no capabilities and use that. This should almost never happen
@@ -510,7 +511,7 @@ module Vagrant
         hosts     = { generic: [klass, nil] }
         host_caps = {}
 
-        @host = Host.new(:generic, hosts, host_caps)
+        @host = Host.new(:generic, hosts, host_caps, self)
       rescue Errors::CapabilityHostExplicitNotDetected => e
         raise Errors::HostExplicitNotDetected, e.extra_data
       end

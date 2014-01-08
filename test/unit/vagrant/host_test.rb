@@ -7,11 +7,12 @@ describe Vagrant::Host do
 
   let(:capabilities) { {} }
   let(:hosts)  { {} }
+  let(:env) { Object.new }
 
   it "initializes the capabilities" do
     described_class.any_instance.should_receive(:initialize_capabilities!).
-      with(:foo, hosts, capabilities)
+      with(:foo, hosts, capabilities, env)
 
-    described_class.new(:foo, hosts, capabilities)
+    described_class.new(:foo, hosts, capabilities, env)
   end
 end
