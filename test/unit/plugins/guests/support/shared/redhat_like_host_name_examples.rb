@@ -1,9 +1,5 @@
 shared_examples 'a partial redhat-like host name change' do
   shared_examples 'shared between newhostname styles' do
-    it 'updates hostname on the machine with the new short hostname' do
-      communicator.expect_command(%q(hostname newhostname))
-      described_class.change_host_name(machine, new_hostname)
-    end
 
     it 'sets dhcp_hostname with the provided short hostname' do
       communicator.expect_command(%q(sed -i 's/\\(DHCP_HOSTNAME=\\).*/\\1"newhostname"/' /etc/sysconfig/network-scripts/ifcfg-*))
@@ -12,7 +8,7 @@ shared_examples 'a partial redhat-like host name change' do
 
     it 'restarts networking' do
       communicator.expect_command(%q(service network restart))
-      described_class.change_host_name(machine, new_hostname)    
+      described_class.change_host_name(machine, new_hostname)
     end
   end
 
@@ -23,6 +19,11 @@ shared_examples 'a partial redhat-like host name change' do
 
     it 'updates sysconfig with the provided full hostname' do
       communicator.expect_command(%q(sed -i 's/\\(HOSTNAME=\\).*/\\1newhostname.newdomain.tld/' /etc/sysconfig/network))
+      described_class.change_host_name(machine, new_hostname)
+    end
+
+    it 'updates hostname on the machine with the new hostname' do
+      communicator.expect_command(%q(hostname newhostname.newdomain.tld))
       described_class.change_host_name(machine, new_hostname)
     end
   end
@@ -36,6 +37,12 @@ shared_examples 'a partial redhat-like host name change' do
       communicator.expect_command(%q(sed -i 's/\\(HOSTNAME=\\).*/\\1newhostname/' /etc/sysconfig/network))
       described_class.change_host_name(machine, new_hostname)
     end
+
+    it 'updates hostname on the machine with the new hostname' do
+      communicator.expect_command(%q(hostname newhostname))
+      described_class.change_host_name(machine, new_hostname)
+    end
+
   end
 end
 
@@ -66,15 +73,15 @@ shared_examples 'mutating /etc/hosts helpers' do
   let(:expression) { sed_command.sub(%r{^sed -i '\(.*\)' /etc/hosts$}, "\1") }
   let(:search)     { Regexp.new(expression.split('@')[1].gsub(/\\/,'')) }
   let(:replace)    { expression.split('@')[2] }
-end 
+end
 
 shared_examples 'inserting hostname in /etc/hosts' do
   include_examples 'mutating /etc/hosts helpers'
-  
+
   context 'when target hostname is qualified' do
     let(:new_hostname) {'newhostname.newdomain.tld'}
 
-    it 'works with a basic file' do  
+    it 'works with a basic file' do
       original_etc_hosts = <<-ETC_HOSTS.gsub(/^ */, '')
         127.0.0.1   localhost.localdomain localhost
         ::1     localhost6.localdomain6 localhost6
