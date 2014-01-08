@@ -261,6 +261,22 @@ en:
         issues. The error from Bundler is:
 
         %{message}
+      capability_host_explicit_not_detected: |-
+        The explicit capability host specified of '%{value}' could not be
+        found.
+
+        This is an internal error that users should never see. Please report
+        a bug.
+      capability_host_not_detected: |-
+        The capability host could not be detected. This is an internal error
+        that users should never see. Please report a bug.
+      capability_invalid: |-
+        The capability '%{cap}' is invalid. This is an internal error that
+        users should never see. Please report a bug.
+      capability_not_found: |-
+        The capability '%{cap}' could not be found. This is an internal error
+        that users should never see. Please report a bug.
+
       cfengine_bootstrap_failed: |-
         Failed to bootstrap CFEngine. Please see the output above to
         see what went wrong and address the issue.

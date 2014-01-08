@@ -172,6 +172,22 @@ module Vagrant
       error_key(:bundler_error)
     end
 
+    class CapabilityHostExplicitNotDetected < VagrantError
+      error_key(:capability_host_explicit_not_detected)
+    end
+
+    class CapabilityHostNotDetected < VagrantError
+      error_key(:capability_host_not_detected)
+    end
+
+    class CapabilityInvalid < VagrantError
+      error_key(:capability_invalid)
+    end
+
+    class CapabilityNotFound < VagrantError
+      error_key(:capability_not_found)
+    end
+
     class CFEngineBootstrapFailed < VagrantError
       error_key(:cfengine_bootstrap_failed)
     end
