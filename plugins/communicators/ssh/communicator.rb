@@ -63,7 +63,7 @@ module VagrantPlugins
           @machine.ui.info(I18n.t("vagrant.inserting_insecure_key"))
           @machine.guest.capability(
             :insert_public_key,
-            Vagrant.source_root.join("keys", "vagrant.pub").read)
+            Vagrant.source_root.join("keys", "vagrant.pub").read.chomp)
 
           # Write out the private key in the data dir so that the
           # machine automatically picks it up.
