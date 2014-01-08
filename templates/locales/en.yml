@@ -412,6 +412,11 @@ en:
         directory that Vagrant uses must be both readable and writable.
 
         You specified: %{home_path}
+      host_explicit_not_detected: |-
+        The host implementation explicitly specified in your Vagrantfile
+        ("%{value}") could not be found. Please verify that the plugin is
+        installed which implements this host and that the value you used
+        for `config.vagrant.host` is correct.
       interrupted: |-
         Vagrant exited after cleanup due to external interrupt.
       local_data_dir_not_accessible: |-

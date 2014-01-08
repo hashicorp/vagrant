@@ -333,6 +333,10 @@ module Vagrant
       error_key(:guest_not_detected)
     end
 
+    class HostExplicitNotDetected < VagrantError
+      error_key(:host_explicit_not_detected)
+    end
+
     class LinuxMountFailed < VagrantError
       error_key(:linux_mount_failed)
     end

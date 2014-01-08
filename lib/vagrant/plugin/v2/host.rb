@@ -14,16 +14,6 @@ module Vagrant
           false
         end
 
-        # Initializes a new host class.
-        #
-        # The only required parameter is a UI object so that the host
-        # objects have some way to communicate with the outside world.
-        #
-        # @param [UI] ui UI for the hosts to output to.
-        def initialize(ui)
-          @ui = ui
-        end
-
         # Returns true of false denoting whether or not this host supports
         # NFS shared folder setup. This method ideally should verify that
         # NFS is installed.

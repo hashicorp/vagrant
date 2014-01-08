@@ -8,6 +8,7 @@ require "vagrant/util/file_mode"
 
 describe Vagrant::Environment do
   include_context "unit"
+  include_context "capability_helpers"
 
   let(:env) do
     isolated_environment.tap do |e|
@@ -21,8 +22,82 @@ describe Vagrant::Environment do
   end
 
   let(:instance)  { env.create_vagrant_env }
-
   subject { instance }
+
+  describe "#host" do
+    let(:plugin_hosts) { {} }
+    let(:plugin_host_caps) { {} }
+
+    before do
+      m = Vagrant.plugin("2").manager
+      m.stub(hosts: plugin_hosts)
+      m.stub(host_capabilities: plugin_host_caps)
+    end
+
+    it "should default to some host even if there are none" do
+      env.vagrantfile <<-VF
+      Vagrant.configure("2") do |config|
+        config.vagrant.host = nil
+      end
+      VF
+
+      expect(subject.host).to be
+    end
+
+    it "should attempt to detect a host if no host is set" do
+      env.vagrantfile <<-VF
+      Vagrant.configure("2") do |config|
+        config.vagrant.host = nil
+      end
+      VF
+
+      plugin_hosts[:foo] = [detect_class(true), nil]
+      plugin_host_caps[:foo] = { bar: Class }
+
+      result = subject.host
+      expect(result.capability?(:bar)).to be_true
+    end
+
+    it "should attempt to detect a host if host is :detect" do
+      env.vagrantfile <<-VF
+      Vagrant.configure("2") do |config|
+        config.vagrant.host = :detect
+      end
+      VF
+
+      plugin_hosts[:foo] = [detect_class(true), nil]
+      plugin_host_caps[:foo] = { bar: Class }
+
+      result = subject.host
+      expect(result.capability?(:bar)).to be_true
+    end
+
+    it "should use an exact host if specified" do
+      env.vagrantfile <<-VF
+      Vagrant.configure("2") do |config|
+        config.vagrant.host = "foo"
+      end
+      VF
+
+      plugin_hosts[:foo] = [detect_class(false), nil]
+      plugin_hosts[:bar] = [detect_class(true), nil]
+      plugin_host_caps[:foo] = { bar: Class }
+
+      result = subject.host
+      expect(result.capability?(:bar)).to be_true
+    end
+
+    it "should raise an error if an exact match was specified but not found" do
+      env.vagrantfile <<-VF
+      Vagrant.configure("2") do |config|
+        config.vagrant.host = "bar"
+      end
+      VF
+
+      expect { subject.host }.
+        to raise_error(Vagrant::Errors::HostExplicitNotDetected)
+    end
+  end
 
   describe "active machines" do
     it "should be empty if the machines folder doesn't exist" do
