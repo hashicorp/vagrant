@@ -531,19 +531,10 @@ en:
 
         %{conflicts}
       plugin_load_error: |-
-        The plugin "%{plugin}" could not be found. Please make sure that it is
-        properly installed via `vagrant plugin`. Note that plugins made for
-        Vagrant 1.0.x are not compatible with 1.1+ and this error will likely
-        continue to show when you use `plugin install` with a 1.0.x plugin.
-      plugin_load_failed: |-
-        Failed to load the "%{plugin}" plugin. View logs for more details.
-      plugin_load_failed_with_output: |-
-        Failed to load the "%{plugin}" plugin. The output from loading
-        the plugin is shown below. View the logs for complete details.
+        The plugins failed to load properly. The error message given is
+        shown below.
 
-        stdout: %{stdout}
-
-        stderr: %{stderr}
+        %{message}
       plugin_not_found: |-
         The plugin '%{name}' could not be found. Please install this plugin
         prior to attempting to do anything with it.

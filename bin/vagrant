@@ -54,72 +54,69 @@ if argv.include?("--debug")
   ENV["VAGRANT_LOG"] = "debug"
 end
 
-# Require some stuff that is NOT dependent on RubyGems
-require "vagrant/shared_helpers"
-
 # Setup our dependencies by initializing Bundler. If we're using plugins,
 # then also initialize the paths to the plugins.
 require "bundler"
 Bundler.setup
 
-require 'log4r'
-require 'vagrant'
-require 'vagrant/cli'
-require 'vagrant/util/platform'
-
-# Create a logger right away
-logger = Log4r::Logger.new("vagrant::bin::vagrant")
-logger.info("`vagrant` invoked: #{ARGV.inspect}")
-
 # Stdout/stderr should not buffer output
 $stdout.sync = true
 $stderr.sync = true
 
-# These will be the options that are passed to initialze the Vagrant
-# environment.
-opts = {}
-
-# Disable color in a few cases:
-#
-#   * --no-color is anywhere in our arguments
-#   * STDOUT is not a TTY
-#   * The terminal doesn't support colors (Windows)
-#
-if argv.include?("--no-color") || ENV["VAGRANT_NO_COLOR"]
-  # Delete the argument from the list so that it doesn't
-  # cause any invalid arguments down the road.
-  argv.delete("--no-color")
-
-  opts[:ui_class] = Vagrant::UI::Basic
-elsif !Vagrant::Util::Platform.terminal_supports_colors?
-  opts[:ui_class] = Vagrant::UI::Basic
-elsif !$stdout.tty? && !Vagrant::Util::Platform.cygwin?
-  # Cygwin always reports STDOUT is not a TTY, so we only disable
-  # colors if its not a TTY AND its not Cygwin.
-  opts[:ui_class] = Vagrant::UI::Basic
-end
-
-# Also allow users to force colors.
-if argv.include?("--color")
-  argv.delete("--color")
-  opts[:ui_class] = Vagrant::UI::Colored
-end
-
-# Highest precedence is if we have enabled machine-readable output
-if argv.include?("--machine-readable")
-  argv.delete("--machine-readable")
-  opts[:ui_class] = Vagrant::UI::MachineReadable
-end
-
-# Default to colored output
-opts[:ui_class] ||= Vagrant::UI::Colored
-
-# Recombine the arguments
-argv << "--"
-argv += argv_extra
-
 env = nil
 begin
+  require 'log4r'
+  require 'vagrant'
+  require 'vagrant/cli'
+  require 'vagrant/util/platform'
+
+  # Create a logger right away
+  logger = Log4r::Logger.new("vagrant::bin::vagrant")
+  logger.info("`vagrant` invoked: #{ARGV.inspect}")
+
+  # These will be the options that are passed to initialze the Vagrant
+  # environment.
+  opts = {}
+
+  # Disable color in a few cases:
+  #
+  #   * --no-color is anywhere in our arguments
+  #   * STDOUT is not a TTY
+  #   * The terminal doesn't support colors (Windows)
+  #
+  if argv.include?("--no-color") || ENV["VAGRANT_NO_COLOR"]
+    # Delete the argument from the list so that it doesn't
+    # cause any invalid arguments down the road.
+    argv.delete("--no-color")
+
+    opts[:ui_class] = Vagrant::UI::Basic
+  elsif !Vagrant::Util::Platform.terminal_supports_colors?
+    opts[:ui_class] = Vagrant::UI::Basic
+  elsif !$stdout.tty? && !Vagrant::Util::Platform.cygwin?
+    # Cygwin always reports STDOUT is not a TTY, so we only disable
+    # colors if its not a TTY AND its not Cygwin.
+    opts[:ui_class] = Vagrant::UI::Basic
+  end
+
+  # Also allow users to force colors.
+  if argv.include?("--color")
+    argv.delete("--color")
+    opts[:ui_class] = Vagrant::UI::Colored
+  end
+
+  # Highest precedence is if we have enabled machine-readable output
+  if argv.include?("--machine-readable")
+    argv.delete("--machine-readable")
+    opts[:ui_class] = Vagrant::UI::MachineReadable
+  end
+
+  # Default to colored output
+  opts[:ui_class] ||= Vagrant::UI::Colored
+
+  # Recombine the arguments
+  argv << "--"
+  argv += argv_extra
+
   # Create the environment, which is the cwd of wherever the
   # `vagrant` command was invoked from
   logger.debug("Creating Vagrant environment")
@@ -141,6 +138,8 @@ begin
   # Exit with the exit status from our CLI command
   exit(exit_status)
 rescue Vagrant::Errors::VagrantError => e
+  require 'log4r'
+  logger = Log4r::Logger.new("vagrant::bin::vagrant")
   logger.error("Vagrant experienced an error! Details:")
   logger.error(e.inspect)
   logger.error(e.message)

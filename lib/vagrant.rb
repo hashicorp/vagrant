@@ -262,4 +262,10 @@ Vagrant.source_root.join("plugins").children(true).each do |directory|
 end
 
 # If we have plugins enabled, then load those
-Bundler.require(:plugins) if Vagrant.plugins_enabled?
+if Vagrant.plugins_enabled?
+  begin
+    Bundler.require(:plugins)
+  rescue Exception => e
+    raise Vagrant::Errors::PluginLoadError, message: e.to_s
+  end
+end
