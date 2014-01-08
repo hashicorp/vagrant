@@ -10,19 +10,8 @@ module Vagrant
         # matches the host class.
         #
         # @return [Boolean]
-        def self.match?
-          nil
-        end
-
-        # The precedence of the host when checking for matches. This is to
-        # allow certain host such as generic OS's ("Linux", "BSD", etc.)
-        # to be specified last.
-        #
-        # The hosts with the higher numbers will be checked first.
-        #
-        # If you're implementing a basic host, you can probably ignore this.
-        def self.precedence
-          5
+        def detect?
+          false
         end
 
         # Initializes a new host class.
