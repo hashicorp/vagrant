@@ -5,7 +5,7 @@ require "vagrant"
 module VagrantPlugins
   module HostOpenSUSE
     class Host < Vagrant.plugin("2", :host)
-      def self.detect?(env)
+      def detect?(env)
         release_file = Pathname.new("/etc/SuSE-release")
 
         if release_file.exist?

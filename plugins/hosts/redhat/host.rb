@@ -5,7 +5,7 @@ require "vagrant"
 module VagrantPlugins
   module HostRedHat
     class Host < Vagrant.plugin("2", :host)
-      def self.detect?(env)
+      def detect?(env)
         release_file = Pathname.new("/etc/redhat-release")
 
         if release_file.exist?
