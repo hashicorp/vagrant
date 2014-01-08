@@ -29,7 +29,7 @@ module VagrantPlugins
         end
 
         def nfs=(value)
-          puts "DEPRECATION: The 'nfs' setting for the Puppet provisioner is"
+          puts "DEPRECATION: The 'nfs' setting for the Chef Solo provisioner is"
           puts "deprecated. Please use the 'synced_folder_type' setting instead."
           puts "The 'nfs' setting will be removed in the next version of Vagrant."
 
