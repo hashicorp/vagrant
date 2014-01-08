@@ -379,6 +379,9 @@ en:
         Host port: %{host}
         Guest port: %{guest}
         Adapter: %{adapter}
+      freebsd_nfs_whitespace: |-
+        FreeBSD hosts do not support sharing directories with whitespace in
+        their path. Please adjust your path accordingly.
       gem_command_in_bundler: |-
         You cannot run the `vagrant plugin` command while in a bundler environment.
         This should generally never happen unless Vagrant is installed outside
@@ -1345,10 +1348,6 @@ en:
       arch:
         nfs_export:
           prepare: "Preparing to edit /etc/exports. Administrator privileges will be required..."
-      freebsd:
-        nfs_whitespace: |-
-          FreeBSD hosts do not support sharing directories with whitespace in
-          their path. Please adjust your path accordingly.
 
     provisioners:
       chef:
