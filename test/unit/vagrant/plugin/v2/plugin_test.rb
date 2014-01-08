@@ -192,7 +192,7 @@ describe Vagrant::Plugin::V2::Plugin do
         host("foo") { "bar" }
       end
 
-      plugin.host[:foo].should == "bar"
+      plugin.components.hosts[:foo].should == ["bar", nil]
     end
 
     it "should lazily register host classes" do
@@ -211,6 +211,16 @@ describe Vagrant::Plugin::V2::Plugin do
       expect {
         plugin.host[:foo]
       }.to raise_error(StandardError)
+    end
+  end
+
+  describe "host capabilities" do
+    it "should register host capabilities" do
+      plugin = Class.new(described_class) do
+        host_capability("foo", "bar") { "baz" }
+      end
+
+      plugin.components.host_capabilities[:foo][:bar].should == "baz"
     end
   end
 

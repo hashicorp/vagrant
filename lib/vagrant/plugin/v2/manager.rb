@@ -88,17 +88,32 @@ module Vagrant
 
           results
         end
-
-        # This returns all registered host classes.
+        # This returns all the registered guests.
         #
         # @return [Hash]
         def hosts
           Registry.new.tap do |result|
             @registered.each do |plugin|
-              result.merge!(plugin.host)
+              result.merge!(plugin.components.hosts)
             end
           end
         end
+
+        # This returns all the registered host capabilities.
+        #
+        # @return [Hash]
+        def host_capabilities
+          results = Hash.new { |h, k| h[k] = Registry.new }
+
+          @registered.each do |plugin|
+            plugin.components.host_capabilities.each do |host, caps|
+              results[host].merge!(caps)
+            end
+          end
+
+          results
+        end
+
 
         # This returns all registered providers.
         #
