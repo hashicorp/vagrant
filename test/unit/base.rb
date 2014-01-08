@@ -29,3 +29,11 @@ end
 # Configure VAGRANT_CWD so that the tests never find an actual
 # Vagrantfile anywhere, or at least this minimizes those chances.
 ENV["VAGRANT_CWD"] = Tempdir.new.path
+
+# Unset all host plugins so that we aren't executing subprocess things
+# to detect a host for every test.
+Vagrant.plugin("2").manager.registered.dup.each do |plugin|
+  if plugin.components.hosts.to_hash.length > 0
+    Vagrant.plugin("2").manager.unregister(plugin)
+  end
+end
