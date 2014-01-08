@@ -48,27 +48,31 @@ describe Vagrant do
   end
 
   describe "has_plugin?" do
-    before(:each) do
-      Class.new(described_class.plugin("2")) do
-        name "i_am_installed"
-      end
-      manager.plugin_required("plugin_gem")
-    end
     after(:each) do
       manager.reset!
     end
+
     let(:manager) { described_class.plugin("2").manager }
 
-    it "should find the installed plugin by the gem name" do
-      expect(described_class.has_plugin?("plugin_gem")).to be_true
-    end
-
     it "should find the installed plugin by the registered name" do
+      Class.new(described_class.plugin(Vagrant::Config::CURRENT_VERSION)) do
+        name "i_am_installed"
+      end
+
       expect(described_class.has_plugin?("i_am_installed")).to be_true
     end
 
     it "should return false if the plugin is not installed" do
       expect(described_class.has_plugin?("i_dont_exist")).to be_false
+    end
+
+    it "finds plugins by gem name" do
+      specs = [Gem::Specification.new]
+      specs[0].name = "foo"
+      Vagrant::Plugin::Manager.instance.stub(:installed_specs => specs)
+
+      expect(described_class.has_plugin?("foo")).to be_true
+      expect(described_class.has_plugin?("bar")).to be_false
     end
   end
 

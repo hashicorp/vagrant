@@ -147,10 +147,12 @@ module Vagrant
   # be used from the Vagrantfile to easily branch based on plugin
   # availability.
   def self.has_plugin?(name)
-    manager = plugin("2").manager
+    # We check the plugin names first because those are cheaper to check
+    return true if plugin("2").manager.registered.any? { |p| p.name == name }
 
-    manager.required.any? { |gem_name| gem_name == name } ||
-      manager.registered.any? { |plugin| plugin.name == name }
+    # Now check the plugin gem names
+    require "vagrant/plugin/manager"
+    Plugin::Manager.instance.installed_specs.any? { |s| s.name == name }
   end
 
   # Returns a superclass to use when creating a plugin for Vagrant.
