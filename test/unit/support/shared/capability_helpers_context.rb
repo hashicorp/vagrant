@@ -1,7 +1,7 @@
 shared_context "capability_helpers" do
   def detect_class(result)
     Class.new do
-      define_method(:detect?) do
+      define_method(:detect?) do |*args|
         result
       end
     end
