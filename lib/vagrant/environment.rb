@@ -504,8 +504,8 @@ module Vagrant
         # If the auto-detect failed, then we create a brand new host
         # with no capabilities and use that. This should almost never happen
         # since Vagrant works on most host OS's now, so this is a "slow path"
-        klass     = Class.new(Vagrant.plugin("2", :host)) do
-          def detect?; true; end
+        klass = Class.new(Vagrant.plugin("2", :host)) do
+          def detect?(env); true; end
         end
 
         hosts     = { generic: [klass, nil] }
