@@ -92,12 +92,12 @@ module VagrantPlugins
 
         if @minion_key || @minion_pub
           if !@minion_key || !@minion_pub
-            errors << @minion_pub
+            errors << I18n.t("vagrant.provisioners.salt.missing_key")
           end
         end
 
-        if @master_key && @master_pub
-          if !@minion_key && !@minion_pub
+        if @master_key || @master_pub
+          if !@master_key || !@master_pub
             errors << I18n.t("vagrant.provisioners.salt.missing_key")
           end
         end
