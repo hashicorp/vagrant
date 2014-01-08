@@ -17,6 +17,10 @@ FEATURES:
     insert a keypair into the machine.
   - Plugin versions can now be constrained to a range of versions. Example:
     `vagrant plugin install foo --plugin-version "> 1.0, < 1.1"`
+  - Host-specific operations now use a "host capabilities" system much like
+    guests have used "guest capabilities" for a few releases now. This allows
+    plugin developers to create pluggable host-specific capabilities and makes
+    further integrating Vagrant with new operating systems even easier.
 
 IMPROVEMENTS:
 
