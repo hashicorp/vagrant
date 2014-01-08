@@ -3,30 +3,12 @@ require File.expand_path("../../base", __FILE__)
 require "vagrant/capability_host"
 
 describe Vagrant::CapabilityHost do
+  include_context "capability_helpers"
+
   subject do
     Class.new do
       extend Vagrant::CapabilityHost
     end
-  end
-
-  def detect_class(result)
-    Class.new do
-      define_method(:detect?) do
-        result
-      end
-    end
-  end
-
-  def cap_instance(name, options=nil)
-    options ||= {}
-
-    Class.new do
-      if !options[:corrupt]
-        define_method(name) do |*args|
-          raise "cap: #{name} #{args.inspect}"
-        end
-      end
-    end.new
   end
 
   describe "#initialize_capabilities! and #capability_host_chain" do
@@ -43,6 +25,21 @@ describe Vagrant::CapabilityHost do
 
       expect { subject.initialize_capabilities!(nil, hosts, {}) }.
         to raise_error(Vagrant::Errors::CapabilityHostNotDetected)
+    end
+
+    it "passes on extra args to the detect method" do
+      klass = Class.new do
+        def detect?(*args)
+          raise "detect: #{args.inspect}"
+        end
+      end
+
+      hosts = {
+        foo: [klass, nil],
+      }
+
+      expect { subject.initialize_capabilities!(nil, hosts, {}, 1, 2) }.
+        to raise_error(RuntimeError, "detect: [1, 2]")
     end
 
     it "detects a basic child" do

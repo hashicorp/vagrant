@@ -32,7 +32,7 @@ module Vagrant
       end
 
       if !host
-        host = autodetect_capability_host(hosts) if !host
+        host = autodetect_capability_host(hosts, *args) if !host
         raise Errors::CapabilityHostNotDetected if !host
       end
 
