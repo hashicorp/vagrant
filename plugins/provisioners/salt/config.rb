@@ -90,7 +90,7 @@ module VagrantPlugins
         end
 
         if @master_key && @master_pub
-          if !@minion_key && !@minion_pub
+          if !@master_key && !@master_pub
             errors << I18n.t("vagrant.provisioners.salt.missing_key")
           end
         end
