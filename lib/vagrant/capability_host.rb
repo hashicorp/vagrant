@@ -88,7 +88,6 @@ module Vagrant
     #
     # @param [Symbol] cap_name Name of the capability
     def capability(cap_name, *args)
-      @cap_logger.info("Execute capability: #{cap_name} (#{@cap_host_chain[0][0]})")
       cap_mod = capability_module(cap_name.to_sym)
       if !cap_mod
         raise Errors::CapabilityNotFound,
@@ -106,6 +105,8 @@ module Vagrant
       end
 
       args = @cap_args + args
+      @cap_logger.info(
+        "Execute capability: #{cap_name} #{args.inspect} (#{@cap_host_chain[0][0]})")
       cap_method.call(*args)
     end
 
