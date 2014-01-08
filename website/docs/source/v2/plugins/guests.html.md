@@ -64,7 +64,7 @@ end
 ```
 
 After detecting an OS, that OS is used for various
-[guest capabilities](/v2/plugins/guest_capabilities.html) that may be
+[guest capabilities](/v2/plugins/guest-capabilities.html) that may be
 required.
 
 ## Guest Inheritance
@@ -76,7 +76,7 @@ Inheritance allows guests to share a lot of common behavior while allowing
 distro-specific overrides.
 
 Inheritance is not done via standard Ruby class inheritance because Vagrant
-uses a custom [capability-based](/v2/plugins/guest_capabilities.html) system.
+uses a custom [capability-based](/v2/plugins/guest-capabilities.html) system.
 Vagrant handles inheritance dispatch for you.
 
 To subclass another guest, specify that guest's name as a second parameter
