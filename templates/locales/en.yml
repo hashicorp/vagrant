@@ -877,9 +877,6 @@ en:
           that `nfsd` is installed on your machine, and try again. If you're
           on Windows, NFS isn't supported. If the problem persists, please
           contact Vagrant support.
-        nfs_requires_host: |-
-          Using NFS shared folders requires a host to be specified
-          using `config.vagrant.host`.
         network_ip_ends_in_one: |-
           Static IPs cannot end in ".1" since that address is always
           reserved for the router. Please use another ending.
