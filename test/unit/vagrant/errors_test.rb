@@ -32,10 +32,16 @@ describe Vagrant::Errors::VagrantError do
       end
     end
 
-    subject { klass.new }
+    subject { klass.new(data: "yep") }
 
     it "should use the translation for the message" do
       subject.to_s.should == "foo"
+    end
+
+    it "should expose translation keys to the user" do
+      expect(subject.extra_data.length).to eql(1)
+      expect(subject.extra_data).to have_key(:data)
+      expect(subject.extra_data[:data]).to eql("yep")
     end
   end
 end

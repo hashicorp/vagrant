@@ -14,6 +14,7 @@ require "unit/support/dummy_communicator"
 require "unit/support/dummy_provider"
 require "unit/support/shared/base_context"
 require "unit/support/shared/action_synced_folders_context"
+require "unit/support/shared/capability_helpers_context"
 require "unit/support/shared/virtualbox_context"
 
 # Do not buffer output

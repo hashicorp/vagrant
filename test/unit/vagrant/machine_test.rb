@@ -225,8 +225,8 @@ describe Vagrant::Machine do
     it "should return the configured guest" do
       result = instance.guest
       result.should be_kind_of(Vagrant::Guest)
-      result.ready?.should be
-      result.chain[0][0].should == :test
+      expect(result).to be_ready
+      expect(result.capability_host_chain[0][0]).to eql(:test)
     end
   end
 
