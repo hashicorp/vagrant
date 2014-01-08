@@ -459,7 +459,7 @@ module VagrantPlugins
             errors << I18n.t("vagrant.config.vm.nfs_requires_host")
           else
             errors << I18n.t("vagrant.config.vm.nfs_not_supported") if \
-              !machine.env.host.nfs?
+              !machine.env.host.capability(:nfs_installed)
           end
         end
 
