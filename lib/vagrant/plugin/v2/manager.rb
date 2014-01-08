@@ -88,6 +88,7 @@ module Vagrant
 
           results
         end
+
         # This returns all the registered guests.
         #
         # @return [Hash]
