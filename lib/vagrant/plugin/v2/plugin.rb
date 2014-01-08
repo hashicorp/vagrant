@@ -130,6 +130,19 @@ module Vagrant
           nil
         end
 
+        # Defines a capability for the plugin.  The block should return a
+        # class which inherits from Capability and responds to a method
+        # called from the registered name.
+        #
+        # @param type [String] The type of capability (e.g. provider, host).
+        # @param name [String] A name classifying it within scope of type.
+        # @param cap [String] The name of the capability.
+        def self.capability(type, name, cap, &block)
+          components.capabilities[type.to_sym].register name.to_sym do |c|
+            c.register(cap.to_sym, &block)
+          end
+        end
+
         # Defines an additionally available guest implementation with
         # the given key.
         #
@@ -149,10 +162,14 @@ module Vagrant
         # to be executed. This means that if it is an instance method,
         # the block should return an instance of the class.
         #
-        # @param [String] guest The name of the guest
+        # @param [String] name The name of the guest
         # @param [String] cap The name of the capability
-        def self.guest_capability(guest, cap, &block)
-          components.guest_capabilities[guest.to_sym].register(cap.to_sym, &block)
+        def self.guest_capability(name, cap, &block)
+          # In order to support this syntax in a plugin definition we need
+          # to create an instance of Capability which will utilize the lazy
+          # evaluation of the block (and thus, original implementation).
+          callable = Proc.new { Capability.new(cap, &block) }
+          capability('guest', name, cap, callable)
           nil
         end
 
