@@ -449,7 +449,7 @@ module VagrantPlugins
             end
 
             # Output the command
-            ch2.send_data "#{command}\n"
+            ch2.send_data "#{command}\n".force_encoding('ASCII-8BIT')
 
             # Remember to exit or this channel will hang open
             ch2.send_data "exit\n"
