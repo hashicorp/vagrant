@@ -42,6 +42,16 @@ en:
       to automatically delete Chef nodes and clients.
     chef_run_list_empty: |-
       Warning: Chef run list is empty. This may not be what you want.
+    docker_auto_start_not_available: |-
+      Unable to configure automatic restart of Docker containers on
+      the guest machine
+    docker_cant_detect: |-
+      Vagrant doesn't support detecting whether Docker is installed
+      for the guest OS running in the machine. Vagrant will assume it is
+      installed and attempt to continue.
+    docker_install_with_version_not_supported: |-
+      Vagrant is not capable of installing an specific version of Docker
+      onto the guest machine and the latest version will be installed.
     docker_installing: |-
       Installing Docker (%{version}) onto machine...
     docker_pulling_images:
@@ -52,12 +62,6 @@ en:
       -- Container: %{name}
     docker_starting_containers:
       Starting Docker containers...
-    docker_auto_start_not_available: |-
-      Unable to configure automatic restart of Docker containers on
-      the guest machine
-    docker_install_with_version_not_supported: |-
-      Vagrant is not capable of installing an specific version of Docker
-      onto the guest machine and the latest version will be installed.
     inserted_key: |-
       Key inserted! Disconnecting and reconnecting using new SSH key...
     inserting_insecure_key: |-
