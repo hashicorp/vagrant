@@ -25,7 +25,8 @@ module Vagrant
     #   is a hash where the key is the name of the capability and the value
     #   is the class/module implementing it.
     def initialize_capabilities!(host, hosts, capabilities, *args)
-      @cap_logger = Log4r::Logger.new("vagrant::capability_host::#{self.class}")
+      @cap_logger = Log4r::Logger.new(
+        "vagrant::capability_host::#{self.class.to_s.downcase}")
 
       if host && !hosts[host]
         raise Errors::CapabilityHostExplicitNotDetected, value: host.to_s
@@ -113,7 +114,7 @@ module Vagrant
     protected
 
     def autodetect_capability_host(hosts, *args)
-      @cap_logger.info("Autodetecting guest for machine: #{@machine}")
+      @cap_logger.info("Autodetecting host type for #{args.inspect}")
 
       # Get the mapping of hosts with the most parents. We start searching
       # with the hosts with the most parents first.
