@@ -45,6 +45,7 @@ BUG FIXES:
     syntax errors.
   - core: Plugins that fork within certain actions will no longer hang
     indefinitely. [GH-2756]
+  - commands/box: Box add `--force` works with `--provider` flag. [GH-2757]
   - commands/plugin: Plugin installation will fail if dependencies conflict,
     rather than at runtime.
   - guests/redhat: Set hostname to FQDN, per the documentation for RedHat.
