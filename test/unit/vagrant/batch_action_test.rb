@@ -1,4 +1,5 @@
 require 'thread'
+require 'timeout'
 
 require File.expand_path("../../base", __FILE__)
 
@@ -31,6 +32,24 @@ describe Vagrant::BatchAction do
 
       called_actions.include?([machine, "up", nil]).should be
       called_actions.include?([machine2, "destroy", nil]).should be
+    end
+
+    it "should handle forks gracefully" do
+      machine.stub(:action) do |action, opts|
+        pid = fork
+        if !pid
+          # Child process
+          exit
+        end
+
+        # Parent process, wait for the child to exit
+        Timeout.timeout(1) do
+          Process.waitpid(pid)
+        end
+      end
+
+      subject.action(machine, "up")
+      subject.run
     end
   end
 end
