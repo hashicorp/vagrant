@@ -43,6 +43,8 @@ BUG FIXES:
     for the first time, it would get swallowed. It is properly raised now.
   - core: Plugin installation does not fail if your local gemrc file has
     syntax errors.
+  - core: Plugins that fork within certain actions will no longer hang
+    indefinitely. [GH-2756]
   - commands/plugin: Plugin installation will fail if dependencies conflict,
     rather than at runtime.
   - guests/redhat: Set hostname to FQDN, per the documentation for RedHat.

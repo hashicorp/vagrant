@@ -59,14 +59,40 @@ module Vagrant
         thread = Thread.new do
           Thread.current[:error] = nil
 
+          # Record our pid when we started in order to figure out if
+          # we've forked...
+          start_pid = Process.pid
+
           begin
             machine.send(:action, action, options)
           rescue Exception => e
-            # If we're not parallelizing, then raise the error
-            raise if !par
+            # If we're not parallelizing, then raise the error. We also
+            # don't raise the error if we've forked, because it'll hang
+            # the process.
+            raise if !par && Process.pid == start_pid
 
             # Store the exception that will be processed later
             Thread.current[:error] = e
+          end
+
+          # If we forked during the process run, we need to do a hard
+          # exit here. Ruby's fork only copies the running process (which
+          # would be us), so if we return from this thread, it results
+          # in a zombie Ruby process.
+          if Process.pid != start_pid
+            # We forked.
+
+            exit_status = true
+            if Thread.current[:error]
+              # We had an error, print the stack trace and exit immediately.
+              exit_status = false
+              error = Thread.current[:error]
+              @logger.error(error.inspect)
+              @logger.error(error.message)
+              @logger.error(error.backtrace.join("\n"))
+            end
+
+            Process.exit!(exit_status)
           end
         end
 
