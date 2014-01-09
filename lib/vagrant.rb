@@ -75,6 +75,11 @@ global_logger.info("RubyGems version: #{Gem::VERSION}")
 ENV.each do |k, v|
   global_logger.info("#{k}=#{v.inspect}") if k =~ /^VAGRANT_/
 end
+global_logger.info("Plugins:")
+Bundler.definition.specs_for([:plugins]).each do |spec|
+  global_logger.info("  - #{spec.name} = #{spec.version}")
+end
+
 
 # We need these components always so instead of an autoload we
 # just require them explicitly here.
@@ -264,6 +269,7 @@ end
 # If we have plugins enabled, then load those
 if Vagrant.plugins_enabled?
   begin
+    global_logger.info("Loading plugins!")
     Bundler.require(:plugins)
   rescue Exception => e
     raise Vagrant::Errors::PluginLoadError, message: e.to_s
