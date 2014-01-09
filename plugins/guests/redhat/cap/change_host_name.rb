@@ -34,7 +34,7 @@ module VagrantPlugins
         def get_current_hostname
           hostname = ''
           block = lambda do |type, data|
-            if type == :stdout 
+            if type == :stdout
               hostname += data.chomp
             end
           end
@@ -49,8 +49,8 @@ module VagrantPlugins
         end
 
         def update_hostname
-          sudo "hostname #{short_hostname}"
-        end 
+          sudo "hostname #{fqdn}"
+        end
 
         # /etc/hosts should resemble:
         # 127.0.0.1   host.fqdn.com host localhost ...
