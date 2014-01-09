@@ -629,17 +629,6 @@ en:
         get this error message, please view the documentation for the provider
         you're using.
       ssh_run_requires_keys: |-
-      ssh_port_not_detected: |-
-        Vagrant couldn't determine the SSH port for your VM! Vagrant attempts to
-        automatically find a forwarded port that matches your `config.ssh.guest_port`
-        (default: 22) value and uses this for SSH. Alternatively, if `config.ssh.port`
-        is set, it will use this.
-
-        However, in this case Vagrant was unable to find a forwarded port that matches
-        the guest port and `config.ssh.port` is not set!
-
-        Please make sure that you have a forwarded port that goes to the configured
-        guest port value, or specify an explicit SSH port with `config.ssh.port`.
         Using `vagrant ssh -c` requires key-based SSH authentication, but your
         Vagrant environmet is configured to use only password-based authentication.
         Please configure your Vagrantfile with a private key to use this
