@@ -137,7 +137,12 @@ begin
 
   # Exit with the exit status from our CLI command
   exit(exit_status)
-rescue Vagrant::Errors::VagrantError => e
+rescue Exception => e
+  # It is possible for errors to happen in Vagrant's initialization. In
+  # this case, we don't have access to this class yet, so we check for it.
+  raise if !defined?(Vagrant) || !defined?(Vagrant::Errors)
+  raise if !e.is_a?(Vagrant::Errors::VagrantError)
+
   require 'log4r'
   logger = Log4r::Logger.new("vagrant::bin::vagrant")
   logger.error("Vagrant experienced an error! Details:")
