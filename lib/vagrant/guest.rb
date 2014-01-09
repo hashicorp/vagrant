@@ -38,6 +38,19 @@ module Vagrant
       raise Errors::GuestNotDetected
     end
 
+    # See {CapabilityHost#capability}
+    def capability(*args)
+      super
+    rescue Errors::CapabilityNotFound => e
+      raise Errors::GuestCapabilityNotFound,
+        cap: e.extra_data[:cap],
+        guest: name
+    rescue Errors::CapabilityInvalid => e
+      raise Errors::GuestCapabilityInvalid,
+        cap: e.extra_data[:cap],
+        guest: name
+    end
+
     # Returns the specified or detected guest type name.
     #
     # @return [Symbol]

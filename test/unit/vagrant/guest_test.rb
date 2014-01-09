@@ -18,6 +18,33 @@ describe Vagrant::Guest do
 
   subject { described_class.new(machine, guests, capabilities) }
 
+  describe "#capability" do
+    before(:each) do
+      guests[:foo] = [detect_class(true), nil]
+      capabilities[:foo] = {
+        foo_cap: cap_instance(:foo_cap),
+        corrupt_cap: cap_instance(:corrupt_cap, corrupt: true),
+      }
+
+      subject.detect!
+    end
+
+    it "executes existing capabilities" do
+      expect { subject.capability(:foo_cap) }.
+        to raise_error(RuntimeError, "cap: foo_cap [machine]")
+    end
+
+    it "raises user-friendly error for non-existing caps" do
+      expect { subject.capability(:what_cap) }.
+        to raise_error(Vagrant::Errors::GuestCapabilityNotFound)
+    end
+
+    it "raises a user-friendly error for corrupt caps" do
+      expect { subject.capability(:corrupt_cap) }.
+        to raise_error(Vagrant::Errors::GuestCapabilityInvalid)
+    end
+  end
+
   describe "#detect!" do
     it "auto-detects if no explicit guest name given" do
       machine.config.vm.stub(guest: nil)
