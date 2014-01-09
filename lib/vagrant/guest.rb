@@ -45,5 +45,12 @@ module Vagrant
     def ready?
       !!capability_host_chain
     end
+
+    # Returns the specified or detected guest type name
+    #
+    # @return [Symbol]
+    def name
+      capability_host_chain[0][0]
+    end
   end
 end
