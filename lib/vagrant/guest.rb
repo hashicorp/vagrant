@@ -22,7 +22,6 @@ module Vagrant
     include CapabilityHost
 
     def initialize(machine, guests, capabilities)
-      @logger       = Log4r::Logger.new("vagrant::guest")
       @capabilities = capabilities
       @guests       = guests
       @machine      = machine
@@ -31,8 +30,6 @@ module Vagrant
     # This will detect the proper guest OS for the machine and set up
     # the class to actually execute capabilities.
     def detect!
-      @logger.info("Detect guest for machine: #{@machine}")
-
       guest_name = @machine.config.vm.guest
       initialize_capabilities!(guest_name, @guests, @capabilities, @machine)
     end
@@ -44,6 +41,13 @@ module Vagrant
     # @return [Boolean]
     def ready?
       !!capability_host_chain
+    end
+
+    # Returns the specified or detected guest type name
+    #
+    # @return [Symbol]
+    def name
+      capability_host_chain[0][0]
     end
   end
 end
