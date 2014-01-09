@@ -116,10 +116,6 @@ module Vagrant
       error_key(:ansible_playbook_app_not_found)
     end
 
-    class BaseVMNotFound < VagrantError
-      error_key(:base_vm_not_found)
-    end
-
     class BatchMultiError < VagrantError
       error_key(:batch_multi_error)
     end
@@ -152,16 +148,8 @@ module Vagrant
       error_key(:box_not_found)
     end
 
-    class BoxNotSpecified < VagrantError
-      error_key(:not_specified, "vagrant.actions.vm.check_box")
-    end
-
     class BoxProviderDoesntMatch < VagrantError
       error_key(:box_provider_doesnt_match)
-    end
-
-    class BoxSpecifiedDoesntExist < VagrantError
-      error_key(:does_not_exist, "vagrant.actions.vm.check_box")
     end
 
     class BoxUnpackageFailure < VagrantError
@@ -248,10 +236,6 @@ module Vagrant
       error_key(:destroy_requires_force)
     end
 
-    class DotfileIsDirectory < VagrantError
-      error_key(:dotfile_is_directory)
-    end
-
     class DotfileUpgradeJSONError < VagrantError
       error_key(:dotfile_upgrade_json_error)
     end
@@ -272,14 +256,6 @@ module Vagrant
       error_key(:environment_locked)
     end
 
-    class GemCommandInBundler < VagrantError
-      error_key(:gem_command_in_bundler)
-    end
-
-    class HomeDirectoryMigrationFailed < VagrantError
-      error_key(:home_dir_migration_failed)
-    end
-
     class HomeDirectoryNotAccessible < VagrantError
       error_key(:home_dir_not_accessible)
     end
@@ -294,10 +270,6 @@ module Vagrant
 
     class ForwardPortCollision < VagrantError
       error_key(:collision_error, "vagrant.actions.vm.forward_ports")
-    end
-
-    class ForwardPortCollisionResume < VagrantError
-      error_key(:port_collision_resume)
     end
 
     class GuestCapabilityInvalid < VagrantError
@@ -348,24 +320,12 @@ module Vagrant
       error_key(:machine_state_invalid)
     end
 
-    class MultiVMEnvironmentRequired < VagrantError
-      error_key(:multi_vm_required)
-    end
-
     class MultiVMTargetRequired < VagrantError
       error_key(:multi_vm_target_required)
     end
 
-    class NetworkAdapterCollision < VagrantError
-      error_key(:adapter_collision, "vagrant.actions.vm.network")
-    end
-
     class NetworkCollision < VagrantError
       error_key(:collides, "vagrant.actions.vm.host_only_network")
-    end
-
-    class NetworkNoAdapters < VagrantError
-      error_key(:no_adapters, "vagrant.actions.vm.network")
     end
 
     class NetworkDHCPAlreadyAttached < VagrantError
@@ -432,24 +392,12 @@ module Vagrant
       error_key(:provisioner_flag_invalid)
     end
 
-    class PluginGemError < VagrantError
-      error_key(:plugin_gem_error)
-    end
-
     class PluginGemNotFound < VagrantError
       error_key(:plugin_gem_not_found)
     end
 
-    class PluginInstallBadEntryPoint < VagrantError
-      error_key(:plugin_install_bad_entry_point)
-    end
-
     class PluginInstallLicenseNotFound < VagrantError
       error_key(:plugin_install_license_not_found)
-    end
-
-    class PluginInstallNotFound < VagrantError
-      error_key(:plugin_install_not_found)
     end
 
     class PluginInstallVersionConflict < VagrantError
@@ -458,10 +406,6 @@ module Vagrant
 
     class PluginLoadError < VagrantError
       error_key(:plugin_load_error)
-    end
-
-    class PluginNotFound < VagrantError
-      error_key(:plugin_not_found)
     end
 
     class PluginNotInstalled < VagrantError
@@ -534,10 +478,6 @@ module Vagrant
 
     class SSHNotReady < VagrantError
       error_key(:ssh_not_ready)
-    end
-
-    class SSHPortNotDetected < VagrantError
-      error_key(:ssh_port_not_detected)
     end
 
     class SSHRunRequiresKeys < VagrantError
@@ -638,18 +578,6 @@ module Vagrant
 
     class VMCustomizationFailed < VagrantError
       error_key(:failure, "vagrant.actions.vm.customize")
-    end
-
-    class VMFailedToBoot < VagrantError
-      error_key(:failed_to_boot, "vagrant.actions.vm.boot")
-    end
-
-    class VMFailedToRun < VagrantError
-      error_key(:failed_to_run, "vagrant.actions.vm.boot")
-    end
-
-    class VMGuestError < VagrantError
-      error_namespace("vagrant.errors.guest")
     end
 
     class VMImportFailure < VagrantError

@@ -174,7 +174,6 @@ en:
         If you haven't installed Ansible yet, please install Ansible
         on your system. Vagrant can't do this for you in a safe, automated
         way. Please see ansible.cc for more info.
-      base_vm_not_found: The base VM with the name '%{name}' was not found.
       batch_multi_error: |-
         An error occurred while executing multiple actions in parallel.
         Any errors that occurred are shown below.
@@ -324,12 +323,6 @@ en:
         Destroy doesn't have a TTY to ask for confirmation. Please pass the
         `--force` flag to force a destroy, otherwise attach a TTY so that
         the destroy can be confirmed.
-      dotfile_is_directory: |-
-        The local file Vagrant uses to store data ".vagrant" already exists
-        and is a directory! If you are in your home directory, then please run
-        this command in another directory. If you aren't in a home directory,
-        then please rename ".vagrant" to something else, or configure Vagrant
-        to use another filename by modifying `config.vagrant.dotfile_name`.
       dotfile_upgrade_json_error: |-
         A Vagrant 1.0.x local state file was found. Vagrant is able to upgrade
         this to the latest format automatically, however various checks are
@@ -378,12 +371,6 @@ en:
       freebsd_nfs_whitespace: |-
         FreeBSD hosts do not support sharing directories with whitespace in
         their path. Please adjust your path accordingly.
-      gem_command_in_bundler: |-
-        You cannot run the `vagrant plugin` command while in a bundler environment.
-        This should generally never happen unless Vagrant is installed outside
-        of the official installers or another gem is wrongly attempting to
-        use Vagrant internals directly. Please properly install Vagrant to
-        fix this. If this error persists, please contact support.
       guest_capability_invalid: |-
         The registered guest capability '%{cap}' for the
         detected guest OS '%{guest}' is invalid. The capability does
@@ -406,13 +393,6 @@ en:
         as mounting shared folders and configuring networks. Please add
         the ability to detect this guest operating system to Vagrant
         by creating a plugin or reporting a bug.
-      home_dir_migration_failed: |-
-        Both an old and new Vagrant home directory exist. Only the new one will
-        be used. Please merge the old directory into the new directory if you'd
-        like to use the old data as well.
-
-        Old: %{old}
-        New: %{new}
       home_dir_not_accessible: |-
         The home directory you specified is not accessible. The home
         directory that Vagrant uses must be both readable and writable.
@@ -463,8 +443,6 @@ en:
         the provider you're using, and not with Vagrant itself or with
         any configuration you may have done. Please report this bug to
         the proper location.
-      multi_vm_required: |-
-        A multi-vm environment is required for name specification to this command.
       multi_vm_target_required: |-
         This command requires a specific VM name to target in a multi-VM environment.
       nfs_bad_exports: |-
@@ -503,26 +481,13 @@ en:
         A Vagrant environment is required to run this command. Run `vagrant init`
         to set one up in this directory, or change to a directory with a
         Vagrantfile and try again.
-      plugin_gem_error: |-
-        An error occurred within RubyGems, the underlying system used to
-        manage Vagrant plugins. The output of the errors are shown below:
-
-        %{output}
       plugin_gem_not_found: |-
         The plugin '%{name}' could not be installed because it could not
         be found. Please double check the name and try again.
-      plugin_install_bad_entry_point: |-
-        Attempting to load the plugin '%{name}' failed, because
-        the entry point doesn't exist. The entry point attempted was
-        '%{entry_point}'. If this is not correct, please manually
-        specify an `--entry-point` when installing the plugin.
       plugin_install_license_not_found: |-
         The license file to install could not be found. Please verify
         the path you gave is correct. The path to the license file given
         was: '%{path}'
-      plugin_install_not_found: |-
-        The plugin '%{name}' could not be found in local or remote
-        repositories. Please check the name of the plugin and try again.
       plugin_install_version_conflict: |-
         The plugin(s) can't be installed due to the version conflicts below.
         This means that the plugins depend on a library version that conflicts
@@ -538,9 +503,6 @@ en:
         shown below.
 
         %{message}
-      plugin_not_found: |-
-        The plugin '%{name}' could not be found. Please install this plugin
-        prior to attempting to do anything with it.
       plugin_not_installed: |-
         The plugin '%{name}' is not installed. Please install it first.
       plugin_state_file_not_parsable: |-
@@ -549,12 +511,6 @@ en:
 
         Please remove the file and reinstall the plugins.
         If this error recurs, please report a bug.
-      port_collision_resume: |-
-        This VM cannot be resumed, because the forwarded ports would collide
-        with a running program (it could be another virtual machine). Normally,
-        Vagrant will attempt to fix this for you but VirtualBox only allows
-        forwarded ports to change if the VM is powered off. Therefore, please
-        reload your VM or stop the other program to continue.
       provider_not_found: |-
         The provider '%{provider}' could not be found, but was requested to
         back the machine '%{machine}'. Please use a provider that exists.
@@ -672,6 +628,7 @@ en:
         that the machine is in the state that you expect. If you continue to
         get this error message, please view the documentation for the provider
         you're using.
+      ssh_run_requires_keys: |-
       ssh_port_not_detected: |-
         Vagrant couldn't determine the SSH port for your VM! Vagrant attempts to
         automatically find a forwarded port that matches your `config.ssh.guest_port`
@@ -683,7 +640,6 @@ en:
 
         Please make sure that you have a forwarded port that goes to the configured
         guest port value, or specify an explicit SSH port with `config.ssh.port`.
-      ssh_run_requires_keys: |-
         Using `vagrant ssh -c` requires key-based SSH authentication, but your
         Vagrant environmet is configured to use only password-based authentication.
         Please configure your Vagrantfile with a private key to use this
@@ -1019,14 +975,6 @@ en:
       vm:
         boot:
           booting: Booting VM...
-          failed_to_boot: |-
-            Failed to connect to VM via SSH. Please verify the VM successfully booted
-            by looking at the VirtualBox GUI.
-          failed_to_run: |-
-            The VM failed to remain in the "running" state while attempting to boot.
-            This is normally caused by a misconfiguration or host system incompatibilities.
-            Please open the VirtualBox GUI and attempt to boot the virtual machine
-            manually to get a more informative error message.
         bridged_networking:
           available: |-
             Available bridged network interfaces:
@@ -1046,15 +994,6 @@ en:
             a box for this provider, you should interrupt Vagrant now and add
             the box yourself. Otherwise Vagrant will attempt to download the
             full box prior to discovering this error.
-          not_specified: |-
-            No base box was specified! A base box is required as a staring point
-            for every vagrant virtual machine. Please specify one in your Vagrantfile
-            using `config.vm.box`
-          does_not_exist: |-
-            Specified box `%{name}` does not exist!
-
-            The box must be added through the `vagrant box add` command. Please view
-            the documentation associated with the command for more information.
         check_guest_additions:
           not_detected: |-
             No guest additions were detected on the base box for this VM! Guest
@@ -1160,10 +1099,6 @@ en:
             MAC address is typically up to the box and box maintiner. Please contact
             the relevant person to solve this issue.
         network:
-          adapter_collision: |-
-            More than one network have been assigned to the same adapter. Please
-            make sure your networks you've configured in your Vagrantfile do not
-            overlap.
           configuring: |-
             Configuring and enabling network interfaces...
           dhcp_already_attached: |-
@@ -1174,11 +1109,6 @@ en:
             host only network interface can have only one DHCP server. Please
             reconfigure your host only network or remove the virtual machine
             using the other host only network.
-          no_adapters: |-
-            No available adapters on the virtual machine were found to accomodate
-            for all configured networks. VirtualBox virtual machines have 8
-            network interfaces available usually, so please lower the number of
-            networks to below 8.
           preparing: |-
             Preparing network interfaces based on configuration...
         host_only_network:
