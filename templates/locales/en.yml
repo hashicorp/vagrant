@@ -8,11 +8,6 @@ en:
       Bootstrapping CFEngine with policy server: %{policy_server}...
     cfengine_bootstrapping_policy_hub: |-
       Performing additional bootstrap for policy hubs...
-    cfengine_cant_autodetect_ip: |-
-      Vagrant was unable to automatically detect the IP address of the
-      running machine to use as the policy server address. Please specify
-      the policy server address manually, or verify that the networks are
-      configured properly internally.
     cfengine_cant_detect: |-
       Vagrant doesn't support detecting whether CFEngine is installed
       for the guest OS running in the machine. Vagrant will assume it is
@@ -135,14 +130,6 @@ en:
         shown below.
 
         %{output}
-      moving_home_dir: "Moving old Vagrant home directory to new location: %{directory}"
-      home_dir_migration_failed: |-
-        Both an old and new Vagrant home directory exist. Only the new one will
-        be used. Please merge the old directory into the new directory if you'd
-        like to use the old data as well.
-
-        Old: %{old}
-        New: %{new}
       not_in_installer: |-
         You appear to be running Vagrant outside of the official installers.
         Note that the installers are what ensure that Vagrant has all required
@@ -284,6 +271,11 @@ en:
       cfengine_bootstrap_failed: |-
         Failed to bootstrap CFEngine. Please see the output above to
         see what went wrong and address the issue.
+      cfengine_cant_autodetect_ip: |-
+        Vagrant was unable to automatically detect the IP address of the
+        running machine to use as the policy server address. Please specify
+        the policy server address manually, or verify that the networks are
+        configured properly internally.
       cfengine_install_failed: |-
         After installing CFEngine, Vagrant still can't detect a proper
         CFEngine installation. Please verify that CFEngine was properly
@@ -414,6 +406,13 @@ en:
         as mounting shared folders and configuring networks. Please add
         the ability to detect this guest operating system to Vagrant
         by creating a plugin or reporting a bug.
+      home_dir_migration_failed: |-
+        Both an old and new Vagrant home directory exist. Only the new one will
+        be used. Please merge the old directory into the new directory if you'd
+        like to use the old data as well.
+
+        Old: %{old}
+        New: %{new}
       home_dir_not_accessible: |-
         The home directory you specified is not accessible. The home
         directory that Vagrant uses must be both readable and writable.
@@ -823,7 +822,6 @@ en:
     config:
       common:
         bad_field: "The following settings shouldn't exist: %{fields}"
-        error_empty: "`%{field}` must be not be empty."
       chef:
         cookbooks_path_empty: "Must specify a cookbooks path for chef solo."
         environment_path_missing: |-
@@ -846,7 +844,6 @@ en:
       ssh:
         private_key_missing: "`private_key_path` file must exist: %{path}"
       vm:
-        base_mac_invalid: "Base MAC address for eth0/NAT must be set. Contact box maintainer for more information."
         box_download_ca_cert_not_found: |-
           "box_download_ca_cert" file not found: %{path}
         box_download_checksum_blank: |-
@@ -858,14 +855,6 @@ en:
         hostname_invalid_characters: |-
           The hostname set for the VM should only contain letters, numbers,
           hyphens or dots. It cannot start with a hyphen or dot.
-        network_invalid: |-
-          The network type '%{type}' is not valid. Please use
-          'hostonly' or 'bridged'.
-        network_ip_invalid: |-
-          The host only network IP '%{ip}' is invalid.
-        network_ip_ends_one: |-
-          The host only network IP '%{ip}' must not end in a 1, as this
-          is reserved for the host machine.
         nfs_not_supported: |-
           It appears your machine doesn't support NFS, or there is not an
           adapter to enable NFS on this machine for Vagrant. Please verify
@@ -1019,8 +1008,6 @@ en:
       up:
         upping: |-
           Bringing machine '%{name}' up with '%{provider}' provider...
-      version:
-        output: "Vagrant version %{version}"
 
 #-------------------------------------------------------------------------------
 # Translations for Vagrant middleware acions
@@ -1211,20 +1198,6 @@ en:
         nfs:
           exporting: Exporting NFS shared folders...
           mounting: Mounting NFS shared folders...
-        persist:
-          dotfile_error: |-
-            The dotfile which Vagrant uses to store the UUID of the project's
-            virtual machine already exists and is not a file! The dotfile is
-            currently configured to be '%{dotfile_path}'
-
-            To change this value, please see `config.vagrant.dotfile_name`
-
-            Are you trying to use Vagrant from your home directory? This is the
-            leading cause of this error message. To resolve this, simply use a
-            different directory. Or, if you really want to run Vagrant from your
-            home directory, modify the `config.vagrant.dotfile_name` configuration
-            key.
-          persisting: "Persisting the VM UUID (%{uuid})..."
         provision:
           beginning: "Running provisioner: %{provisioner}..."
           disabled_by_sentinel: |-
@@ -1272,11 +1245,6 @@ en:
           download_failed: |-
             Download failed. Will try another box URL if there is one.
           interrupted: "Box download was interrupted. Exiting."
-          no_provider_cant_check: |-
-            A provider wasn't explicitly provided to the "box add" command.
-            Without a provider, Vagrant can't verify if this box already
-            exists until the box is fully downloaded. This is just a warning,
-            and is not an error.
           resuming: "Box download is resuming from prior download progress"
         verify:
           verifying: "Verifying box..."
@@ -1301,30 +1269,6 @@ en:
             and is a result of an internal inconsistency.
           include_file_missing: |-
             Package include file doesn't exist: %{file}
-
-    downloaders:
-      file:
-        download: "Copying box to temporary location..."
-        file_missing: "The specified path to a file doesn't exist."
-      http:
-        connection_reset: |-
-          The remote server unexpectedly closed the connection. Vagrant was
-          unable to finish downloading the box. Please try again. If this
-          problem persists, please try downloading the box manually outside
-          of Vagrant, then adding the box from the filesystem.
-        connection_timeout: |-
-          Vagrant timed out while attempting to connect to the HTTP host.
-          Please check your internet and proxy settings and try again.
-        download: "Downloading box: %{url}"
-        socket_error: |-
-          An error occurred while trying to download the specified box. This most
-          often happens if there is no internet connection or the address is
-          invalid.
-        status_error: |-
-          Bad status code: %{status}
-
-          Please verify that the box exists and is accessible. Also verify that
-          this computer is properly connected to the internet.
 
     hosts:
       bsd:

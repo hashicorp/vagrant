@@ -264,26 +264,6 @@ module Vagrant
       error_key(:downloader_interrupted)
     end
 
-    class DownloaderFileDoesntExist < VagrantError
-      error_key(:file_missing, "vagrant.downloaders.file")
-    end
-
-    class DownloaderHTTPConnectReset < VagrantError
-      error_key(:connection_reset, "vagrant.downloaders.http")
-    end
-
-    class DownloaderHTTPConnectTimeout < VagrantError
-      error_key(:connection_timeout, "vagrant.downloaders.http")
-    end
-
-    class DownloaderHTTPSocketError < VagrantError
-      error_key(:socket_error, "vagrant.downloaders.http")
-    end
-
-    class DownloaderHTTPStatusError < VagrantError
-      error_key(:status_error, "vagrant.downloaders.http")
-    end
-
     class EnvironmentNonExistentCWD < VagrantError
       error_key(:environment_non_existent_cwd)
     end
@@ -442,10 +422,6 @@ module Vagrant
 
     class PackageRequiresDirectory < VagrantError
       error_key(:requires_directory, "vagrant.actions.general.package")
-    end
-
-    class PersistDotfileExists < VagrantError
-      error_key(:dotfile_error, "vagrant.actions.vm.persist")
     end
 
     class ProviderNotFound < VagrantError
