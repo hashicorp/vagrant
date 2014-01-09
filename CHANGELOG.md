@@ -45,6 +45,8 @@ BUG FIXES:
     syntax errors.
   - commands/plugin: Plugin installation will fail if dependencies conflict,
     rather than at runtime.
+  - guests/redhat: Set hostname to FQDN, per the documentation for RedHat.
+    [GH-2792]
   - providers/virtualbox: Enabling internal networks by just setting "true"
     works properly. [GH-2751]
 
