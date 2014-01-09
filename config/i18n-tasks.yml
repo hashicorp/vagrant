@@ -10,3 +10,5 @@ data:
     - 'templates/locales/%{locale}.yml'
   write:
     - 'templates/locales/%{locale}.yml'
+ignore_unused:
+  - vagrant.errors.test_key
