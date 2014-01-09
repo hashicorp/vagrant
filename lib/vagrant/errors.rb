@@ -59,11 +59,14 @@ module Vagrant
         define_method(:error_namespace) { namespace }
       end
 
-      def initialize(message=nil, *args)
+      def initialize(*args)
+        key     = args.shift if args.first.is_a?(Symbol)
+        message = args.shift if args.first.is_a?(Hash)
         message ||= {}
-        @extra_data = message.dup
-        message = { :_key => message } if message && !message.is_a?(Hash)
-        message = { :_key => error_key, :_namespace => error_namespace }.merge(message || {})
+        @extra_data    = message.dup
+        message[:_key] ||= error_key
+        message[:_namespace] ||= error_namespace
+        message[:_key] = key if key
 
         if message[:_key]
           message = translate_error(message)
@@ -71,7 +74,7 @@ module Vagrant
           message = error_message
         end
 
-        super
+        super(message)
       end
 
       # The error message for this error. This is used if no error_key

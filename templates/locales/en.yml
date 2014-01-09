@@ -708,7 +708,6 @@ en:
         The synced folder type '%{type}' is reporting as unusable for
         your current setup. Please verify you have all the proper
         prerequisites for using this shared folder type and try again.
-      test_key: "test value"
       ui_expects_tty: |-
         Vagrant is attempting to interface with the UI in a way that requires
         a TTY. Most actions in Vagrant that require a TTY have configuration
@@ -816,6 +815,7 @@ en:
       vm_not_running: |-
         VM must be running to open SSH connection. Run `vagrant up`
         to start the virtual machine.
+      test_key: "test value"
 
 #-------------------------------------------------------------------------------
 # Translations for config validation errors

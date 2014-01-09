@@ -43,5 +43,11 @@ describe Vagrant::Errors::VagrantError do
       expect(subject.extra_data).to have_key(:data)
       expect(subject.extra_data[:data]).to eql("yep")
     end
+
+    it "should use a symbol initializer as a key" do
+      subject = klass.new(:test_key)
+      expect(subject.extra_data).to be_empty
+      expect(subject.to_s).to eql("test value")
+    end
   end
 end
