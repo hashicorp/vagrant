@@ -32,6 +32,10 @@ module Vagrant
     def detect!
       guest_name = @machine.config.vm.guest
       initialize_capabilities!(guest_name, @guests, @capabilities, @machine)
+    rescue Errors::CapabilityHostExplicitNotDetected => e
+      raise Errors::GuestExplicitNotDetected, value: e.extra_data[:value]
+    rescue Errors::CapabilityHostNotDetected
+      raise Errors::GuestNotDetected
     end
 
     # Returns the specified or detected guest type name.

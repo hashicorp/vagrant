@@ -34,6 +34,18 @@ describe Vagrant::Guest do
 
       subject.detect!
     end
+
+    it "raises a user-friendly error if specified guest doesn't exist" do
+      machine.config.vm.stub(guest: :foo)
+
+      expect { subject.detect! }.
+        to raise_error(Vagrant::Errors::GuestExplicitNotDetected)
+    end
+
+    it "raises a user-friendly error if auto-detected guest not found" do
+      expect { subject.detect! }.
+        to raise_error(Vagrant::Errors::GuestNotDetected)
+    end
   end
 
   describe "#name" do
