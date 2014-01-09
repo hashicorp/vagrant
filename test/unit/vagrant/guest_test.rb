@@ -36,6 +36,16 @@ describe Vagrant::Guest do
     end
   end
 
+  describe "#name" do
+    it "should be the name of the detected guest" do
+      guests[:foo] = [detect_class(true), nil]
+      guests[:bar] = [detect_class(false), nil]
+
+      subject.detect!
+      expect(subject.name).to eql(:foo)
+    end
+  end
+
   describe "#ready?" do
     before(:each) do
       guests[:foo] = [detect_class(true), nil]
