@@ -3,11 +3,10 @@ search:
     - "bin/"
     - "lib/"
     - "plugins/"
+  scanner: Vagrant::Util::I18nScanner
 data:
   adapter: yaml
   read:
     - 'templates/locales/%{locale}.yml'
   write:
     - 'templates/locales/%{locale}.yml'
-ignore_unused:
-  - 'vagrant.errors.*'

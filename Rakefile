@@ -15,7 +15,8 @@ Dir["#{task_dir}/**/*.rake"].each do |task_file|
   load task_file
 end
 
-# Load i18n-tasks
+# Load i18n tasks
+require File.expand_path('lib/vagrant/util/i18n_scanner', File.dirname(__FILE__))
 load 'tasks/i18n-tasks.rake'
 
 task :default => "test:unit"

@@ -672,10 +672,6 @@ module Vagrant
       error_key(:failed_to_run, "vagrant.actions.vm.boot")
     end
 
-    class VMGuestError < VagrantError
-      error_namespace("vagrant.errors.guest")
-    end
-
     class VMImportFailure < VagrantError
       error_key(:failure, "vagrant.actions.vm.import")
     end
