@@ -80,7 +80,7 @@ module VagrantPlugins
         options = ""
 
         if configure
-          options = "%s -c %s" % [options, config_dir]
+          options = " -c %s %s" % [config_dir, options]
         end
 
         if @config.seed_master and @config.install_master
