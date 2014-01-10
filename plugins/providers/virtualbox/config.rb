@@ -84,6 +84,14 @@ module VagrantPlugins
         customize("pre-boot", ["modifyvm", :id, "--memory", size.to_s])
       end
 
+      # Shortcut for setting CPU count for the virtual machine.
+      # Calls #customize internally.
+      #
+      # @param count [Integer, String] the count of CPUs
+      def cpus=(count)
+        customize("pre-boot", ["modifyvm", :id, "--cpus", count.to_i])
+      end
+
       # This is the hook that is called to finalize the object before it
       # is put into use.
       def finalize!
