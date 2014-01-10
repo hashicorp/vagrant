@@ -13,7 +13,7 @@ describe VagrantPlugins::SyncedFolderNFS::ActionCleanup do
   end
 
   let(:host)    { double("host") }
-  let(:machine) { iso_env.machine(iso_env.machine_names[0], :virtualbox) }
+  let(:machine) { iso_env.machine(iso_env.machine_names[0], :dummy) }
 
   let(:app) { lambda {} }
   let(:env) { {
