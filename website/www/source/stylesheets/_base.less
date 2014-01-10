@@ -89,17 +89,17 @@ h6 {
 p {
     letter-spacing: 1px;
     line-height: 32px;
+}
 
-    a {
-        color: @docs-blue;
+p a, ul li a {
+    color: @docs-blue;
+    text-decoration: none;
+    border-bottom: 1px solid @docs-blue;
+
+    &:hover {
         text-decoration: none;
-        border-bottom: 1px solid @docs-blue;
-
-        &:hover {
-            text-decoration: none;
-            color: darken(@blue, 10%);
-            border-bottom: 1px solid darken(@blue, 10%);
-        }
+        color: darken(@blue, 10%);
+        border-bottom: 1px solid darken(@blue, 10%);
     }
 }
 
