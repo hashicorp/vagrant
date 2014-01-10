@@ -25,6 +25,11 @@ module VagrantPlugins
         require_relative "cap/network_scripts_dir"
         Cap::NetworkScriptsDir
       end
+
+      guest_capability("linux", "nfs_client_install") do
+        require_relative "cap/nfs_client"
+        Cap::NFSClient
+      end
     end
   end
 end

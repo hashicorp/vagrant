@@ -36,6 +36,8 @@ IMPROVEMENTS:
     plugins.
   - commands/plugin: `vagrant plugin install` can now install multiple
     plugins.
+  - synced\_folders/nfs: If the guest supports it, NFS clients will be
+    automatically installed in the guest.
 
 BUG FIXES:
 

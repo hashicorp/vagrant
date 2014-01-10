@@ -36,6 +36,11 @@ module VagrantPlugins
         Cap::MountVirtualBoxSharedFolder
       end
 
+      guest_capability("linux", "nfs_client_installed") do
+        require_relative "cap/nfs_client"
+        Cap::NFSClient
+      end
+
       guest_capability("linux", "read_ip_address") do
         require_relative "cap/read_ip_address"
         Cap::ReadIPAddress

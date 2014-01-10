@@ -360,6 +360,10 @@ module Vagrant
       error_key(:nfs_no_valid_ids)
     end
 
+    class NFSClientNotInstalledInGuest < VagrantError
+      error_key(:nfs_client_not_installed_in_guest)
+    end
+
     class NoDefaultSyncedFolderImpl < VagrantError
       error_key(:no_default_synced_folder_impl)
     end

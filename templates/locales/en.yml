@@ -469,6 +469,14 @@ en:
         No valid IDs were given to the NFS synced folder implementation to
         prune. This is an internal bug with Vagrant and an issue should be
         filed.
+      nfs_client_not_installed_in_guest: |-
+        No NFS client was detected as installed in your guest machine. This
+        is required for NFS synced folders to work. In addition to this, Vagrant
+        doesn't know how to automatically install NFS for your machine, so
+        you must do this manually.
+
+        If this message is erroneous, you may disable this check by setting
+        `config.nfs.verify_installed` to `false` in your Vagrantfile.
       no_default_synced_folder_impl: |-
         No synced folder implementation is available for your synced folders!
         Please consult the documentation to learn why this may be the case.
@@ -1116,6 +1124,7 @@ en:
           preparing: "Preparing host only network..."
         nfs:
           exporting: Exporting NFS shared folders...
+          installing: "Installing NFS client..."
           mounting: Mounting NFS shared folders...
         provision:
           beginning: "Running provisioner: %{provisioner}..."
