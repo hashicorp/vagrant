@@ -56,6 +56,8 @@ BUG FIXES:
     [GH-2792]
   - providers/virtualbox: Enabling internal networks by just setting "true"
     works properly. [GH-2751]
+  - provisioners/salt: Options can now set install type and install args.
+    [GH-2766]
   - synced\_folders/nfs: NFS entries are pruned on every `vagrant up`,
     if there are any to prune. [GH-2738]
 
