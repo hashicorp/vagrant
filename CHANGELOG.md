@@ -21,6 +21,8 @@ FEATURES:
     guests have used "guest capabilities" for a few releases now. This allows
     plugin developers to create pluggable host-specific capabilities and makes
     further integrating Vagrant with new operating systems even easier.
+  - providers/virtualbox: Provider-specific configuration `cpus` can be used
+    to set the number of CPUs on the VM [GH-2800]
 
 IMPROVEMENTS:
 
