@@ -9,11 +9,13 @@ page_title: "Download Old Versions of Vagrant"
 <h2>Old Versions</h2>
 
 <p>
-Old versions of Vagrant can currently be found at the old downloads
-website here: <a href="http://downloads.vagrantup.com/">http://downloads.vagrantup.com/</a>
+This webpage lists the older versions of Vagrant that are available for
+download. Some even older versions are available from the
+<a href="http://downloads.vagrantup.com/">legacy downloads page</a>.
 </p>
 
-<p>
-In the future, old versions will be transitioned to the new download
-system, so please do not rely on the URLs at that web page.
-</p>
+<ul>
+	<% $vagrant_versions.each do |version| %>
+		<li><a href="/download-archive/v<%= version.to_s %>.html"><%= version.to_s %></a></li>
+	<% end %>
+</ul>

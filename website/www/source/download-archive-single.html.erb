@@ -3,24 +3,27 @@ layout: "inner"
 sidebar_current: "downloads"
 sidebar_template: "downloads"
 sidebar_title: "Download"
-page_title: "Download Vagrant"
+page_title: "Download Old Vagrant Version"
 ---
 
-<h2>Download Vagrant</h2>
+<h2>Old Vagrant Version: <%= version %></h2>
+
+<div class="alert alert-block alert-info">
+This is the downloads page for an <em>old</em> version of Vagrant.
+The latest version of Vagrant can always be found on the
+<a href="/downloads.html">main downloads page</a>.
+</div>
 
 <div class="downloads">
 <div class="description">
 <p>
-Below are all available downloads for the latest version of Vagrant
-(<%= latest_version %>). Please download the proper package for your
-operating system and architecture. You can find SHA256 checksums
-for packages <a href="https://dl.bintray.com/mitchellh/vagrant/<%= latest_version %>_SHA256SUMS?direct">here</a>.
+You can find the SHA256 checksums for this version of Vagrant
+<a href="https://dl.bintray.com/mitchellh/vagrant/<%= version %>_SHA256SUMS?direct">here</a>.
 </p>
 </div>
 
-<% if latest_version %>
 <% $vagrant_os_order.each do |os| %>
-	<% downloads = $vagrant_downloads[latest_version] %>
+	<% downloads = $vagrant_downloads[version] %>
 	<% if downloads[os] && !downloads[os].empty? %>
 	<div class="row">
 	<div class="span8 download">
@@ -38,7 +41,6 @@ for packages <a href="https://dl.bintray.com/mitchellh/vagrant/<%= latest_versio
 	</div>
 	<% end %>
 <% end %>
-<% end %>
 
 	<div class="poweredby">
 		<a href='http://www.bintray.com'>
@@ -46,3 +48,4 @@ for packages <a href="https://dl.bintray.com/mitchellh/vagrant/<%= latest_versio
 		</a>
 	</div>
 </div>
+

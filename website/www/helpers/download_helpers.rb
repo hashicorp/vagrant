@@ -10,8 +10,12 @@ $vagrant_os_mappings = {
   ".rpm" => "rpm",
 }
 
+$vagrant_os_order  = ["darwin", "windows", "debian", "rpm"]
+$vagrant_downloads = {}
+$vagrant_versions  = []
+
 if ENV["VAGRANT_VERSION"]
-  puts "Finding downloads for Vagrant: #{ENV["VAGRANT_VERSION"]}"
+  puts "Finding downloads for Vagrant"
   raise "BINTRAY_API_KEY must be set." if !ENV["BINTRAY_API_KEY"]
   http = Net::HTTP.new("dl.bintray.com", 80)
   req = Net::HTTP::Get.new("/mitchellh/vagrant")
@@ -21,26 +25,23 @@ if ENV["VAGRANT_VERSION"]
   response.body.split("\n").each do |line|
     next if line !~ /\/mitchellh\/vagrant\/(.+?)'/
     filename = $1.to_s
-    $vagrant_os_mappings.each do |suffix, os|
-      if !filename.include?(ENV["VAGRANT_VERSION"])
-        next
-      end
 
+    # Ignore any files that don't appear to have a version in it
+    next if filename !~ /[-_]?(\d+\.\d+\.\d+[^-_.]*)/
+    version = Gem::Version.new($1.to_s)
+    $vagrant_downloads[version] ||= {}
+
+    $vagrant_os_mappings.each do |suffix, os|
       if filename.end_with?(suffix)
-        $vagrant_files[os] ||= []
-        $vagrant_files[os] << filename
+        $vagrant_downloads[version][os] ||= []
+        $vagrant_downloads[version][os] << filename
       end
     end
   end
 
-  $vagrant_os = $vagrant_files.keys
-  $vagrant_files.each do |key, value|
-    value.sort!
-
-    puts "Downloads for #{key}:"
-    value.each do |file|
-      puts "  -- File: #{file}"
-    end
+  $vagrant_versions = $vagrant_downloads.keys.sort.reverse
+  $vagrant_versions.each do |v|
+    puts "- Version #{v} found"
   end
 else
   puts "Not generating downloads."
@@ -76,6 +77,6 @@ module DownloadHelpers
   end
 
   def latest_version
-    ENV["VAGRANT_VERSION"]
+    $vagrant_versions.first
   end
 end

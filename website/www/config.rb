@@ -1,4 +1,12 @@
+require File.expand_path("../helpers/download_helpers", __FILE__)
+
 page "/blog_feed.xml", layout: false
+
+# Archived download pages
+$vagrant_versions.each do |version|
+  proxy "/download-archive/v#{version}.html", "/download-archive-single.html",
+    locals: { version: version }, ignore: true
+end
 
 set :css_dir, 'stylesheets'
 set :js_dir, 'javascripts'
