@@ -26,16 +26,15 @@ module VagrantPlugins
       end
 
       def enable(machine, folders, opts)
-        rootdir  = machine.env.root_path.to_s
         ssh_info = machine.ssh_info
 
         folders.each do |id, folder_opts|
-          rsync_single(ssh_info, rootdir, machine.ui, folder_opts)
+          rsync_single(machine, ssh_info, folder_opts)
         end
       end
 
       # rsync_single rsync's a single folder with the given options.
-      def rsync_single(ssh_info, rootdir, ui, opts)
+      def rsync_single(machine, ssh_info, opts)
         # Folder info
         guestpath = opts[:guestpath]
         hostpath  = opts[:hostpath]
@@ -64,14 +63,19 @@ module VagrantPlugins
           hostpath,
           "#{username}@#{host}:#{guestpath}"
         ].flatten
-
         command_opts = {}
 
         # The working directory should be the root path
-        command_opts[:workdir] = rootdir
+        command_opts[:workdir] = machine.env.root_path.to_s
 
-        ui.info(I18n.t(
+        machine.ui.info(I18n.t(
           "vagrant.rsync_folder", guestpath: guestpath, hostpath: hostpath))
+
+        # If we have tasks to do before rsyncing, do those.
+        if machine.guest.capability?(:rsync_pre)
+          machine.guest.capability(:rsync_pre, opts)
+        end
+
         r = Vagrant::Util::Subprocess.execute(*(command + [command_opts]))
         if r.exit_code != 0
           raise Vagrant::Errors::RSyncError,

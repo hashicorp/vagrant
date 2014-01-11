@@ -12,11 +12,13 @@ describe VagrantPlugins::SyncedFolderRSync::SyncedFolder do
     env.create_vagrant_env
   end
 
+  let(:guest)   { double("guest") }
   let(:host)    { double("host") }
   let(:machine) { iso_env.machine(iso_env.machine_names[0], :dummy) }
 
   before do
     machine.env.stub(host: host)
+    machine.stub(guest: guest)
   end
 
   describe "#usable?" do
@@ -52,7 +54,7 @@ describe VagrantPlugins::SyncedFolderRSync::SyncedFolder do
 
       folders.each do |_, opts|
         subject.should_receive(:rsync_single).
-          with(ssh_info, machine.env.root_path.to_s, machine.ui, opts).
+          with(machine, ssh_info, opts).
           ordered
       end
 
@@ -67,22 +69,23 @@ describe VagrantPlugins::SyncedFolderRSync::SyncedFolder do
       private_key_path: [],
     }}
     let(:opts)      { {} }
-    let(:root_path) { "foo" }
     let(:ui)        { machine.ui }
 
     before do
       Vagrant::Util::Subprocess.stub(execute: result)
+
+      guest.stub(capability?: false)
     end
 
     it "doesn't raise an error if it succeeds" do
-      subject.rsync_single(ssh_info, root_path, ui, opts)
+      subject.rsync_single(machine, ssh_info, opts)
     end
 
     it "raises an error if the exit code is non-zero" do
       Vagrant::Util::Subprocess.stub(
         execute: Vagrant::Util::Subprocess::Result.new(1, "", ""))
 
-      expect {subject.rsync_single(ssh_info, root_path, ui, opts) }.
+      expect {subject.rsync_single(machine, ssh_info, opts) }.
         to raise_error(Vagrant::Errors::RSyncError)
     end
 
@@ -91,10 +94,18 @@ describe VagrantPlugins::SyncedFolderRSync::SyncedFolder do
         expect(args.last).to be_kind_of(Hash)
 
         opts = args.last
-        expect(opts[:workdir]).to eql(root_path)
+        expect(opts[:workdir]).to eql(machine.env.root_path.to_s)
       end
 
-      subject.rsync_single(ssh_info, root_path, ui, opts)
+      subject.rsync_single(machine, ssh_info, opts)
+    end
+
+    it "executes the rsync_pre capability first if it exists" do
+      guest.should_receive(:capability?).with(:rsync_pre).and_return(true)
+      guest.should_receive(:capability).with(:rsync_pre, opts).ordered
+      Vagrant::Util::Subprocess.should_receive(:execute).ordered.and_return(result)
+
+      subject.rsync_single(machine, ssh_info, opts)
     end
   end
 end
