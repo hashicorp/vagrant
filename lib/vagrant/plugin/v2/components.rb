@@ -11,6 +11,13 @@ module Vagrant
         # @return [Hash<Symbol, Array>]
         attr_reader :action_hooks
 
+        # This contains all the command plugins by name, and returns
+        # the command class and options. The command class is wrapped
+        # in a Proc so that it can be lazy loaded.
+        #
+        # @return [Registry<Symbol, Array<Proc, Hash>>]
+        attr_reader :commands
+
         # This contains all the configuration plugins by scope.
         #
         # @return [Hash<Symbol, Registry>]
@@ -51,6 +58,7 @@ module Vagrant
           # The action hooks hash defaults to []
           @action_hooks = Hash.new { |h, k| h[k] = [] }
 
+          @commands = Registry.new
           @configs = Hash.new { |h, k| h[k] = Registry.new }
           @guests  = Registry.new
           @guest_capabilities = Hash.new { |h, k| h[k] = Registry.new }

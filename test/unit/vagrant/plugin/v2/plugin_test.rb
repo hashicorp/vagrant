@@ -53,7 +53,28 @@ describe Vagrant::Plugin::V2::Plugin do
         command("foo") { "bar" }
       end
 
-      plugin.command[:foo].should == "bar"
+      expect(plugin.components.commands.keys).to be_include(:foo)
+      expect(plugin.components.commands[:foo][0].call).to eql("bar")
+    end
+
+    it "should register command classes with options" do
+      plugin = Class.new(described_class) do
+        command("foo", opt: :bar) { "bar" }
+      end
+
+      expect(plugin.components.commands.keys).to be_include(:foo)
+      expect(plugin.components.commands[:foo][0].call).to eql("bar")
+      expect(plugin.components.commands[:foo][1][:opt]).to eql(:bar)
+    end
+
+    it "should register commands as primary by default" do
+      plugin = Class.new(described_class) do
+        command("foo") { "bar" }
+        command("bar", primary: false) { "bar" }
+      end
+
+      expect(plugin.components.commands[:foo][1][:primary]).to be_true
+      expect(plugin.components.commands[:bar][1][:primary]).to be_false
     end
 
     ["spaces bad", "sym^bols"].each do |bad|
@@ -79,8 +100,8 @@ describe Vagrant::Plugin::V2::Plugin do
       # Now verify when we actually get the command key that
       # a proper error is raised.
       expect {
-        plugin.command[:foo]
-      }.to raise_error(StandardError)
+        plugin.components.commands[:foo][0].call
+      }.to raise_error(StandardError, "FAIL!")
     end
   end
 
