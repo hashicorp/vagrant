@@ -23,6 +23,8 @@ FEATURES:
     further integrating Vagrant with new operating systems even easier.
   - providers/virtualbox: Provider-specific configuration `cpus` can be used
     to set the number of CPUs on the VM [GH-2800]
+  - **New synced folder type:** rsync - Does a one-time one-directional sync
+    to the guest machine. Future Vagrant versions will re-sync.
 
 IMPROVEMENTS:
 
