@@ -40,6 +40,13 @@ describe Vagrant::Registry do
 
     instance["foo"].should eql(object)
   end
+  
+  it "should be able to get keys with #keys" do
+    instance.register("foo") { "bar" }
+    instance.register("baz") { "qux" }
+
+    instance.keys.sort.should == [ 'baz', 'foo' ]
+  end
 
   it "should cache the result of the item so they can be modified" do
     # Make the proc generate a NEW array each time
