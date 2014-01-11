@@ -82,6 +82,7 @@ en:
       Running cleanup tasks for '%{name}' provisioner...
     rsync_folder: |-
       Rsyncing folder: %{hostpath} => %{guestpath}
+    rsync_folder_excludes: "  - Exclude: %{excludes}"
     ssh_exec_password: |-
       The machine you're attempting to SSH into is configured to use
       password-based authentication. Vagrant can't script entering the

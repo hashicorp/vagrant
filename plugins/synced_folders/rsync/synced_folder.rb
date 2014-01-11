@@ -50,7 +50,7 @@ module VagrantPlugins
         # Exclude some files by default, and any that might be configured
         # by the user.
         excludes = ['.vagrant/']
-        excludes += Array(opts[:exclude]) if opts[:exclude]
+        excludes += Array(opts[:exclude]).map(&:to_s) if opts[:exclude]
         excludes.uniq!
 
         # Build up the actual command to execute
@@ -71,6 +71,10 @@ module VagrantPlugins
 
         machine.ui.info(I18n.t(
           "vagrant.rsync_folder", guestpath: guestpath, hostpath: hostpath))
+        if excludes.length > 1
+          machine.ui.info(I18n.t(
+            "vagrant.rsync_folder_excludes", excludes: excludes.inspect))
+        end
 
         # If we have tasks to do before rsyncing, do those.
         if machine.guest.capability?(:rsync_pre)
