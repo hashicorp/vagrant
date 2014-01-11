@@ -40,10 +40,10 @@ describe Vagrant::Registry do
 
     instance["foo"].should eql(object)
   end
-  
+
   it "should be able to get keys with #keys" do
     instance.register("foo") { "bar" }
-    instance.register("baz") { "qux" }
+    instance.register("baz") { raise "BOOM" }
 
     instance.keys.sort.should == [ 'baz', 'foo' ]
   end
