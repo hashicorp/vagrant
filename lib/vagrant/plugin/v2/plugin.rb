@@ -81,21 +81,18 @@ module Vagrant
         # "vagrant foo" becomes available.
         #
         # @param [String] name Subcommand key.
-        def self.command(name=UNSET_VALUE, &block)
-          data[:command] ||= Registry.new
-
-          if name != UNSET_VALUE
-            # Validate the name of the command
-            if name.to_s !~ /^[-a-z0-9]+$/i
-              raise InvalidCommandName, "Commands can only contain letters, numbers, and hyphens"
-            end
-
-            # Register a new command class only if a name was given.
-            data[:command].register(name.to_sym, &block)
+        def self.command(name, **opts, &block)
+          # Validate the name of the command
+          if name.to_s !~ /^[-a-z0-9]+$/i
+            raise InvalidCommandName, "Commands can only contain letters, numbers, and hyphens"
           end
 
-          # Return the registry
-          data[:command]
+          # Register the command
+          components.commands.register(name.to_sym) do
+            [block, opts]
+          end
+
+          nil
         end
 
         # Defines additional communicators to be available. Communicators
