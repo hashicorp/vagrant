@@ -42,15 +42,15 @@ describe Vagrant::CLI do
   describe "#help" do
     subject { described_class.new([], env) }
 
-    it "includes all available subcommands" do
-      commands[:foo] = [command_lambda("foo", 0), {}]
-      commands[:bar] = [command_lambda("bar", 0), {}]
-      commands[:baz] = [command_lambda("baz", 0), {}]
+    it "includes all primary subcommands" do
+      commands[:foo] = [command_lambda("foo", 0), { primary: true }]
+      commands[:bar] = [command_lambda("bar", 0), { primary: true }]
+      commands[:baz] = [command_lambda("baz", 0), { primary: false }]
 
       env.ui.should_receive(:info).with do |message, opts|
         expect(message).to include("foo")
         expect(message).to include("bar")
-        expect(message).to include("baz")
+        expect(message.include?("baz")).to be_false
       end
 
       subject.help

@@ -60,6 +60,10 @@ module Vagrant
         commands = {}
         longest = 0
         Vagrant.plugin("2").manager.commands.each do |key, data|
+          # Skip non-primary commands. These only show up in extended
+          # help output.
+          next if !data[1][:primary]
+
           key           = key.to_s
           klass         = data[0].call
           commands[key] = klass.synopsis
