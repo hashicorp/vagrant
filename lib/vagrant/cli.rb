@@ -23,15 +23,17 @@ module Vagrant
 
       # If we reached this far then we must have a subcommand. If not,
       # then we also just print the help and exit.
-      command_class = nil
+      command_plugin = nil
       if @sub_command
-        command_class = Vagrant.plugin("2").manager.commands[@sub_command.to_sym]
+        command_plugin = Vagrant.plugin("2").manager.commands[@sub_command.to_sym]
       end
 
-      if !command_class || !@sub_command
+      if !command_plugin || !@sub_command
         help
         return 1
       end
+
+      command_class = command_plugin[0].call
       @logger.debug("Invoking command class: #{command_class} #{@sub_args.inspect}")
 
       # Initialize and execute the command class, returning the exit status.
@@ -57,10 +59,11 @@ module Vagrant
         # out as well.
         commands = {}
         longest = 0
-        Vagrant.plugin("2").manager.commands.each do |key, klass|
-          key = key.to_s
+        Vagrant.plugin("2").manager.commands.each do |key, data|
+          key           = key.to_s
+          klass         = data[0].call
           commands[key] = klass.synopsis
-          longest = key.length if key.length > longest
+          longest       = key.length if key.length > longest
         end
 
         commands.keys.sort.each do |key|

@@ -30,11 +30,11 @@ module Vagrant
 
         # This returns all the registered commands.
         #
-        # @return [Hash]
+        # @return [Registry<Symbol, Array<Proc, Hash>>]
         def commands
           Registry.new.tap do |result|
             @registered.each do |plugin|
-              result.merge!(plugin.command)
+              result.merge!(plugin.components.commands)
             end
           end
         end
