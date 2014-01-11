@@ -61,6 +61,11 @@ en:
       Key inserted! Disconnecting and reconnecting using new SSH key...
     inserting_insecure_key: |-
       Inserting Vagrant public key within guest...
+    list_commands: |-
+      Below is a listing of all available Vagrant commands and a brief
+      description of what they do.
+
+      %{list}
     plugin_needs_reinstall: |-
       The following plugins were installed with a version of Vagrant
       that had different versions of underlying components. Because

@@ -4,6 +4,7 @@ require "vagrant/cli"
 
 describe Vagrant::CLI do
   include_context "unit"
+  include_context "command plugin helpers"
 
   let(:commands) { {} }
   let(:iso_env) { isolated_environment }
@@ -11,16 +12,6 @@ describe Vagrant::CLI do
 
   before do
     Vagrant.plugin("2").manager.stub(commands: commands)
-  end
-
-  def command_lambda(name, result)
-    lambda do
-      Class.new(Vagrant.plugin("2", "command")) do
-        define_method(:execute) do
-          result
-        end
-      end
-    end
   end
 
   describe "#execute" do
