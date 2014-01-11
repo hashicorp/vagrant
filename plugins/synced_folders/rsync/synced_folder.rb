@@ -49,8 +49,9 @@ module VagrantPlugins
 
         # Exclude some files by default, and any that might be configured
         # by the user.
-        # TODO(mitchellh): allow the user to configure it
         excludes = ['.vagrant/']
+        excludes += Array(opts[:exclude]) if opts[:exclude]
+        excludes.uniq!
 
         # Build up the actual command to execute
         command = [

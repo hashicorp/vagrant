@@ -107,5 +107,35 @@ describe VagrantPlugins::SyncedFolderRSync::SyncedFolder do
 
       subject.rsync_single(machine, ssh_info, opts)
     end
+
+    context "excluding files" do
+      it "excludes files if given as a string" do
+        opts[:exclude] = "foo"
+
+        Vagrant::Util::Subprocess.should_receive(:execute).with do |*args|
+          index = args.find_index("foo")
+          expect(index).to be > 0
+          expect(args[index-1]).to eql("--exclude")
+        end
+
+        subject.rsync_single(machine, ssh_info, opts)
+      end
+
+      it "excludes multiple files" do
+        opts[:exclude] = ["foo", "bar"]
+
+        Vagrant::Util::Subprocess.should_receive(:execute).with do |*args|
+          index = args.find_index("foo")
+          expect(index).to be > 0
+          expect(args[index-1]).to eql("--exclude")
+
+          index = args.find_index("bar")
+          expect(index).to be > 0
+          expect(args[index-1]).to eql("--exclude")
+        end
+
+        subject.rsync_single(machine, ssh_info, opts)
+      end
+    end
   end
 end
