@@ -36,7 +36,7 @@ implements the `Vagrant.plugin(2, "command")` interface.
 
 You can also define _non-primary commands_. These commands do not show
 up in the `vagrant -h` output. They only show up if the user explicitly
-does a `vagrant help commands` which shows the full listing of available
+does a `vagrant list-commands` which shows the full listing of available
 commands. This is useful for highly specific commands or plugins that a
 beginner to Vagrant would not be using anyways. Vagrant itself uses non-primary
 commands to expose some internal functions, as well.

@@ -64,9 +64,17 @@ describe Vagrant::Plugin::V2::Plugin do
 
       expect(plugin.components.commands.keys).to be_include(:foo)
       expect(plugin.components.commands[:foo][0].call).to eql("bar")
-      expect(plugin.components.commands[:foo][1]).to eql({
-        opt: :bar,
-      })
+      expect(plugin.components.commands[:foo][1][:opt]).to eql(:bar)
+    end
+
+    it "should register commands as primary by default" do
+      plugin = Class.new(described_class) do
+        command("foo") { "bar" }
+        command("bar", primary: false) { "bar" }
+      end
+
+      expect(plugin.components.commands[:foo][1][:primary]).to be_true
+      expect(plugin.components.commands[:bar][1][:primary]).to be_false
     end
 
     ["spaces bad", "sym^bols"].each do |bad|

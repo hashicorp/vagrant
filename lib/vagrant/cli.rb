@@ -53,7 +53,7 @@ module Vagrant
         o.on("-v", "--version", "Print the version and exit.")
         o.on("-h", "--help", "Print this help.")
         o.separator ""
-        o.separator "Available subcommands:"
+        o.separator "Common subcommands:"
 
         # Add the available subcommands as separators in order to print them
         # out as well.
@@ -77,6 +77,10 @@ module Vagrant
 
         o.separator ""
         o.separator "For help on any individual command run `vagrant COMMAND -h`"
+        o.separator ""
+        o.separator "Additional subcommands are available, but are either more advanced"
+        o.separator "or not commonly used. To see all subcommands, run the command"
+        o.separator "`vagrant list-commands`."
       end
 
       @env.ui.info(opts.help, :prefix => false)

@@ -87,6 +87,9 @@ module Vagrant
             raise InvalidCommandName, "Commands can only contain letters, numbers, and hyphens"
           end
 
+          # By default, the command is primary
+          opts[:primary] = true if !opts.has_key?(:primary)
+
           # Register the command
           components.commands.register(name.to_sym) do
             [block, opts]
