@@ -71,7 +71,7 @@ module Vagrant
                 raise "Internal error. Report this as a bug. Invalid: #{data[:type]}"
               end
 
-              if !impl_class[0].new.usable?(machine)
+              if !impl_class[0].new.usable?(machine, true)
                 # Verify that explicitly defined shared folder types are
                 # actually usable.
                 raise Errors::SyncedFolderUnusable, type: data[:type].to_s

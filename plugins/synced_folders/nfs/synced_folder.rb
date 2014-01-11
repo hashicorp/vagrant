@@ -24,7 +24,7 @@ module VagrantPlugins
         @logger = Log4r::Logger.new("vagrant::synced_folders::nfs")
       end
 
-      def usable?(machine)
+      def usable?(machine, raise_error=false)
         # NFS is always available
         true
       end

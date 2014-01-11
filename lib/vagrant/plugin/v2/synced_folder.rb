@@ -7,8 +7,11 @@ module Vagrant
         # if this implementation can be used for this machine. This should
         # return true or false.
         #
+        # @param [Machine] machine
+        # @param [Boolean] raise_error If true, should raise an exception
+        #   if it isn't usable.
         # @return [Boolean]
-        def usable?(machine)
+        def usable?(machine, raise_error=false)
         end
 
         # This is called before the machine is booted, allowing the
