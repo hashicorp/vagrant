@@ -1,14 +1,23 @@
 require File.expand_path("../../../../base", __FILE__)
 
-describe "VagrantPlugins::CommandSSHConfig::Command" do
+require Vagrant.source_root.join("plugins/commands/ssh_config/command")
+
+describe VagrantPlugins::CommandSSHConfig::Command do
   include_context "unit"
   include_context "virtualbox"
 
-  let(:described_class) { Vagrant.plugin("2").manager.commands[:"ssh-config"] }
+  let(:iso_env) do
+    # We have to create a Vagrantfile so there is a root path
+    env = isolated_environment
+    env.vagrantfile("")
+    env.create_vagrant_env
+  end
+
+  let(:guest)   { double("guest") }
+  let(:host)    { double("host") }
+  let(:machine) { iso_env.machine(iso_env.machine_names[0], :dummy) }
 
   let(:argv)     { [] }
-  let(:env)      { Vagrant::Environment.new }
-  let(:machine)  { double("Vagrant::Machine", :name => nil) }
   let(:ssh_info) {{
     :host             => "testhost.vagrant.dev",
     :port             => 1234,
@@ -18,17 +27,17 @@ describe "VagrantPlugins::CommandSSHConfig::Command" do
     :forward_x11      => false
   }}
 
-  subject { described_class.new(argv, env) }
+  subject { described_class.new(argv, iso_env) }
 
   before do
+    machine.stub(ssh_info: ssh_info)
     subject.stub(:with_target_vms) { |&block| block.call machine }
   end
 
   describe "execute" do
     it "prints out the ssh config for the given machine" do
-      machine.stub(:ssh_info) { ssh_info }
       subject.should_receive(:safe_puts).with(<<-SSHCONFIG)
-Host vagrant
+Host #{machine.name}
   HostName testhost.vagrant.dev
   User testuser
   Port 1234
