@@ -40,7 +40,9 @@ describe VagrantPlugins::SyncedFolderRSync::SyncedFolder do
   end
 
   describe "#enable" do
-    let(:ssh_info) { Object.new }
+    let(:ssh_info) {{
+      private_key_path: [],
+    }}
 
     before do
       machine.stub(ssh_info: ssh_info)

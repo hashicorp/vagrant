@@ -83,6 +83,14 @@ en:
     rsync_folder: |-
       Rsyncing folder: %{hostpath} => %{guestpath}
     rsync_folder_excludes: "  - Exclude: %{excludes}"
+    rsync_ssh_password: |-
+      The machine you're rsyncing folders to is configured to use
+      password-based authentication. Vagrant can't script rsync to automatically
+      enter this password, so you'll likely be prompted for a password
+      shortly.
+
+      If you don't want to have to do this, please enable automatic
+      key insertion using `config.ssh.insert_key`.
     ssh_exec_password: |-
       The machine you're attempting to SSH into is configured to use
       password-based authentication. Vagrant can't script entering the

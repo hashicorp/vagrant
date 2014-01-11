@@ -28,6 +28,10 @@ module VagrantPlugins
       def enable(machine, folders, opts)
         ssh_info = machine.ssh_info
 
+        if ssh_info[:private_key_path].empty? && ssh_info[:password]
+          machine.ui.warn(I18n.t("vagrant.rsync_ssh_password"))
+        end
+
         folders.each do |id, folder_opts|
           rsync_single(machine, ssh_info, folder_opts)
         end
