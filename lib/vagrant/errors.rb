@@ -420,6 +420,14 @@ module Vagrant
       error_key(:plugin_state_file_not_parsable)
     end
 
+    class RSyncError < VagrantError
+      error_key(:rsync_error)
+    end
+
+    class RSyncNotFound < VagrantError
+      error_key(:rsync_not_found)
+    end
+
     class SCPPermissionDenied < VagrantError
       error_key(:scp_permission_denied)
     end

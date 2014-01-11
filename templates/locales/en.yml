@@ -80,6 +80,8 @@ en:
       %{names}
     provisioner_cleanup: |-
       Running cleanup tasks for '%{name}' provisioner...
+    rsync_folder: |-
+      Rsyncing folder: %{hostpath} => %{guestpath}
     ssh_exec_password: |-
       The machine you're attempting to SSH into is configured to use
       password-based authentication. Vagrant can't script entering the
@@ -525,6 +527,17 @@ en:
       provisioner_flag_invalid: |-
         '%{name}' is not a known provisioner. Please specify a valid
         provisioner.
+      rsync_error: |-
+        There was an error when attempting to rsync a synced folder.
+        Please inspect the error message below for more info.
+
+        Host path: %{hostpath}
+        Guest path: %{guestpath}
+        Command: %{command}
+        Error: %{stderr}
+      rsync_not_found: |-
+        "rsync" could not be found on your PATH. Make sure that rsync
+        is properly installed on your system and available on the PATH.
       scp_permission_denied: |-
         Failed to upload a file to the guest VM via SCP due to a permissions
         error. This is normally because the user running Vagrant doesn't have

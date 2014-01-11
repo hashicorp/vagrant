@@ -6,7 +6,8 @@ shared_context "synced folder actions" do
         name
       end
 
-      define_method(:usable?) do |machine|
+      define_method(:usable?) do |machine, raise_error=false|
+        raise "#{name}: usable" if raise_error && !usable
         usable
       end
     end
