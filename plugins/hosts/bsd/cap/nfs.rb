@@ -2,13 +2,12 @@ require "log4r"
 
 require "vagrant/util"
 require "vagrant/util/shell_quote"
+require "vagrant/util/which"
 
 module VagrantPlugins
   module HostBSD
     module Cap
       class NFS
-        extend Vagrant::Util::Retryable
-
         def self.nfs_export(environment, ui, id, ips, folders)
           nfs_exports_template = environment.host.capability(:nfs_exports_template)
           nfs_restart_command  = environment.host.capability(:nfs_restart_command)
@@ -117,9 +116,7 @@ module VagrantPlugins
         end
 
         def self.nfs_installed(environment)
-          retryable(:tries => 10, :on => TypeError) do
-            system("which nfsd > /dev/null 2>&1")
-          end
+          !!Vagrant::Util::Which.which("nfsd")
         end
 
         def self.nfs_prune(environment, ui, valid_ids)
