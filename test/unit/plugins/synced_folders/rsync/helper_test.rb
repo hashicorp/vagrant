@@ -27,7 +27,9 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
     let(:ssh_info) {{
       private_key_path: [],
     }}
-    let(:opts)      { {} }
+    let(:opts)      {{
+      hostpath: "/foo",
+    }}
     let(:ui)        { machine.ui }
 
     before do
@@ -46,6 +48,34 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
 
       expect {subject.rsync_single(machine, ssh_info, opts) }.
         to raise_error(Vagrant::Errors::RSyncError)
+    end
+
+    context "host and guest paths" do
+      it "syncs the hostpath to the guest path" do
+        opts[:hostpath] = "/foo"
+        opts[:guestpath] = "/bar"
+
+        Vagrant::Util::Subprocess.should_receive(:execute).with do |*args|
+          expect(args[args.length - 3]).to eql("/foo")
+          expect(args[args.length - 2]).to include("/bar")
+        end
+
+        subject.rsync_single(machine, ssh_info, opts)
+      end
+
+      it "expands the hostpath relative to the root path" do
+        opts[:hostpath] = "foo"
+        opts[:guestpath] = "/bar"
+
+        hostpath_expanded = File.expand_path(opts[:hostpath], machine.env.root_path)
+
+        Vagrant::Util::Subprocess.should_receive(:execute).with do |*args|
+          expect(args[args.length - 3]).to eql(hostpath_expanded)
+          expect(args[args.length - 2]).to include("/bar")
+        end
+
+        subject.rsync_single(machine, ssh_info, opts)
+      end
     end
 
     it "executes within the root path" do

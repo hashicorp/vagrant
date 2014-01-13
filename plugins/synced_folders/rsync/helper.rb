@@ -9,6 +9,7 @@ module VagrantPlugins
         # Folder info
         guestpath = opts[:guestpath]
         hostpath  = opts[:hostpath]
+        hostpath  = File.expand_path(hostpath, machine.env.root_path)
 
         # Connection information
         username = ssh_info[:username]
