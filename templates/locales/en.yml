@@ -85,6 +85,9 @@ en:
       %{names}
     provisioner_cleanup: |-
       Running cleanup tasks for '%{name}' provisioner...
+    rsync_communicator_not_ready: |-
+      The machine is reporting that it is not ready for rsync to
+      communiate with it. Verify that this machine is properly running.
     rsync_folder: |-
       Rsyncing folder: %{hostpath} => %{guestpath}
     rsync_folder_excludes: "  - Exclude: %{excludes}"

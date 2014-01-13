@@ -9,6 +9,11 @@ module VagrantPlugins
       The Rsync synced folder plugin will sync folders via rsync.
       EOF
 
+      command("rsync", primary: false) do
+        require_relative "command/rsync"
+        Command::Rsync
+      end
+
       synced_folder("rsync", 5) do
         require_relative "synced_folder"
         SyncedFolder
