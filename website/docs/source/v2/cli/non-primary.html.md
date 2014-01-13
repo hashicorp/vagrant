@@ -17,3 +17,8 @@ Note that while you have to run a special command to list the non-primary
 subcommands, you don't have to do anything special to actually _run_ the
 non-primary subcommands. They're executed just like any other subcommand:
 `vagrant COMMAND`.
+
+The list of non-primary commands is below. Click on any command to learn
+more about it.
+
+* [rsync](/v2/cli/rsync.html)

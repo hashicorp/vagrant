@@ -44,7 +44,6 @@ end
 
 ## Re-Syncing
 
-The rsync sync is done only during a `vagrant up` or `vagrant reload`. It
-is not currently possible to force a re-sync in any way other than reloading.
-
-We plan on exposing a command to force a sync in a future version of Vagrant.
+The rsync sync is done only during a `vagrant up` or `vagrant reload`. Vagrant
+does not automatically listen for changes on the filesystem and resync them.
+Resyncing can be forced with a call to [vagrant rsync](/v2/cli/rsync.html).
