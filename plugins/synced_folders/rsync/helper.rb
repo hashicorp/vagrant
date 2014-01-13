@@ -30,6 +30,7 @@ module VagrantPlugins
           "rsync",
           "--verbose",
           "--archive",
+          "--delete",
           "-z",
           excludes.map { |e| ["--exclude", e] },
           "-e", rsh,
