@@ -1,7 +1,6 @@
 require "log4r"
 
 require 'vagrant/util/platform'
-require 'vagrant/util/scoped_hash_override'
 
 require_relative "mixin_synced_folders"
 
@@ -12,7 +11,6 @@ module Vagrant
       # the appropriate synced folder plugin.
       class SyncedFolders
         include MixinSyncedFolders
-        include Vagrant::Util::ScopedHashOverride
 
         def initialize(app, env)
           @app    = app
@@ -28,9 +26,6 @@ module Vagrant
             fs.each do |id, data|
               # Log every implementation and their paths
               @logger.info("  - #{id}: #{data[:hostpath]} => #{data[:guestpath]}")
-
-              # Scope hash override
-              fs[id] = scoped_hash_override(data, impl_name)
             end
           end
 

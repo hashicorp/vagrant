@@ -324,7 +324,7 @@ module Vagrant
     # Returns the state of this machine. The state is queried from the
     # backing provider, so it can be any arbitrary symbol.
     #
-    # @return [Symbol]
+    # @return [MachineState]
     def state
       result = @provider.state
       raise Errors::MachineStateInvalid if !result.is_a?(MachineState)
