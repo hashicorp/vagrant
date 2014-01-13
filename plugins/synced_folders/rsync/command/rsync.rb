@@ -1,11 +1,15 @@
 require 'optparse'
 
+require "vagrant/action/builtin/mixin_synced_folders"
+
 require_relative "../helper"
 
 module VagrantPlugins
   module SyncedFolderRSync
     module Command
       class Rsync < Vagrant.plugin("2", :command)
+        include Vagrant::Action::Builtin::MixinSyncedFolders
+
         def self.synopsis
           "syncs rsync synced folders to remote machine"
         end
@@ -27,6 +31,18 @@ module VagrantPlugins
               machine.ui.error(I18n.t("vagrant.rsync_communicator_not_ready"))
               error = true
               next
+            end
+
+            # Determine the rsync synced folders for this machine
+            folders = synced_folders(machine)[:rsync]
+            next if !folders || folders.empty?
+
+            # Get the SSH info for this machine so we can access it
+            ssh_info = machine.ssh_info
+
+            # Sync them!
+            folders.each do |id, folder_opts|
+              RsyncHelper.rsync_single(machine, ssh_info, folder_opts)
             end
           end
 

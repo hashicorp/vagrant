@@ -31,6 +31,9 @@ end
 # Vagrantfile anywhere, or at least this minimizes those chances.
 ENV["VAGRANT_CWD"] = Tempdir.new.path
 
+# Set the dummy provider to the default for tests
+ENV["VAGRANT_DEFAULT_PROVIDER"] = "dummy"
+
 # Unset all host plugins so that we aren't executing subprocess things
 # to detect a host for every test.
 Vagrant.plugin("2").manager.registered.dup.each do |plugin|
