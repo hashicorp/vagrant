@@ -1,7 +1,11 @@
+require 'vagrant/util/scoped_hash_override'
+
 module Vagrant
   module Action
     module Builtin
       module MixinSyncedFolders
+        include Vagrant::Util::ScopedHashOverride
+
         # This goes over all the registered synced folder types and returns
         # the highest priority implementation that is usable for this machine.
         def default_synced_folder_type(machine, plugins)
@@ -94,6 +98,13 @@ module Vagrant
 
             folders[default_impl] = folders[""]
             folders.delete("")
+          end
+
+          # Apply the scoped hash overrides to get the options
+          folders.each do |impl_name, fs|
+            fs.each do |id, data|
+              fs[id] = scoped_hash_override(data, impl_name)
+            end
           end
 
           return folders

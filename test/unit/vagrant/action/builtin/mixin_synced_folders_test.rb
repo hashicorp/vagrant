@@ -98,5 +98,16 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
       result.length.should == 1
       result[:default].length.should == 1
     end
+
+    it "should scope hash override the settings" do
+      folders["root"] = {
+        hostpath: "foo",
+        type: "nfs",
+        nfs__foo: "bar",
+      }
+
+      result = subject.synced_folders(machine)
+      expect(result[:nfs]["root"][:foo]).to eql("bar")
+    end
   end
 end
