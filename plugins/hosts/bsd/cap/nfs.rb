@@ -1,6 +1,7 @@
 require "log4r"
 
 require "vagrant/util"
+require "vagrant/util/shell_quote"
 
 module VagrantPlugins
   module HostBSD
@@ -102,14 +103,13 @@ module VagrantPlugins
 
           # Output the rendered template into the exports
           output.split("\n").each do |line|
-            line.gsub!('"', '\"')
-            line.gsub!("'", "'\\\\''")
-            system(%Q[sudo -s -- "echo '#{line}' >> /etc/exports"])
+            line = Vagrant::Util::ShellQuote.escape(line, "'")
+            system("sudo", "-s", "--", "echo '#{line}' >> /etc/exports")
           end
 
           # We run restart here instead of "update" just in case nfsd
           # is not starting
-          system(nfs_restart_command)
+          system(*nfs_restart_command)
         end
 
         def self.nfs_exports_template(environment)
@@ -152,7 +152,7 @@ module VagrantPlugins
         end
 
         def self.nfs_restart_command(environment)
-          "sudo nfsd restart"
+          ["sudo", "nfsd", "restart"]
         end
 
         protected
@@ -168,7 +168,10 @@ module VagrantPlugins
 
           # Use sed to just strip out the block of code which was inserted
           # by Vagrant, and restart NFS.
-          system("sudo sed -E -e '/^# VAGRANT-BEGIN:( #{user})? #{id}/,/^# VAGRANT-END:( #{user})? #{id}/ d' -ibak /etc/exports")
+          system(
+            "sudo", "sed", "-E", "-e",
+            "/^# VAGRANT-BEGIN:( #{user})? #{id}/,/^# VAGRANT-END:( #{user})? #{id}/ d",
+            "-ibak", "/etc/exports")
         end
 
         def self.nfs_checkexports!

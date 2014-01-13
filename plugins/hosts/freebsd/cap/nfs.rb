@@ -23,7 +23,7 @@ module VagrantPlugins
         end
 
         def self.nfs_restart_command(environment)
-          "sudo /etc/rc.d/mountd onereload"
+          ["sudo", "/etc/rc.d/mountd", "onereload"]
         end
       end
     end
