@@ -24,7 +24,8 @@ FEATURES:
   - providers/virtualbox: Provider-specific configuration `cpus` can be used
     to set the number of CPUs on the VM [GH-2800]
   - **New synced folder type:** rsync - Does a one-time one-directional sync
-    to the guest machine. Future Vagrant versions will re-sync.
+    to the guest machine. New commands `vagrant rsync` and `vagrant rsync-auto`
+    can resync the folders.
   - provisioners/docker: Can now build images using `docker build`. [GH-2615]
 
 IMPROVEMENTS:
