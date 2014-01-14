@@ -22,3 +22,4 @@ The list of non-primary commands is below. Click on any command to learn
 more about it.
 
 * [rsync](/v2/cli/rsync.html)
+* [rsync-auto](/v2/cli/rsync-auto.html)
