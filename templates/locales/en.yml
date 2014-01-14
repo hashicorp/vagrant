@@ -55,6 +55,8 @@ en:
       Pulling Docker images...
     docker_pulling_single: |-
       -- Image: %{name}
+    docker_building_single: |-
+      -- Path: %{path}
     docker_running: |-
       -- Container: %{name}
     docker_starting_containers:
