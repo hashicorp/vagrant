@@ -16,6 +16,11 @@ machine.
 The rsync synced folder does a one-time one-way sync from the machine running
 to the machine being started by Vagrant.
 
+The [rsync](/v2/cli/rsync.html) and [rsync-auto](/v2/cli/rsync-auto.html)
+commands can be used to force a resync and to automatically resync when
+changes occur in the filesystem. Without running these commands, Vagrant
+only syncs the folders on `vagrant up` or `vagrant reload`.
+
 ## Prerequisites
 
 To use the rsync synced folder type, the machine running Vagrant must have
@@ -41,9 +46,3 @@ Vagrant.configure("2") do |config|
     rsync__exclude: ".git/"
 end
 </pre>
-
-## Re-Syncing
-
-The rsync sync is done only during a `vagrant up` or `vagrant reload`. Vagrant
-does not automatically listen for changes on the filesystem and resync them.
-Resyncing can be forced with a call to [vagrant rsync](/v2/cli/rsync.html).
