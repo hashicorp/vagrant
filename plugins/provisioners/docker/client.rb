@@ -7,21 +7,20 @@ module VagrantPlugins
         @machine = machine
       end
 
+      def build_images(images)
+        @machine.communicate.tap do |comm|
+          images.each do |path, opts|
+            @machine.ui.info(I18n.t("vagrant.docker_building_single", path: path))
+            comm.sudo("docker build #{image[:args]} #{path}")
+          end
+        end
+      end
+
       def pull_images(*images)
         @machine.communicate.tap do |comm|
           images.each do |image|
             @machine.ui.info(I18n.t("vagrant.docker_pulling_single", name: image))
             comm.sudo("docker images | grep -q #{image} || docker pull #{image}")
-          end
-        end
-      end
-
-      def build_images(images)
-        @machine.communicate.tap do |comm|
-          images.each do |image|
-            path = image[:path]
-            @machine.ui.info(I18n.t("vagrant.docker_building_single", path: path))
-            comm.sudo("docker build #{image[:args]} #{path}")
           end
         end
       end

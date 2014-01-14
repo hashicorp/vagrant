@@ -5,6 +5,17 @@ require Vagrant.source_root.join("plugins/provisioners/docker/config")
 describe VagrantPlugins::Docker::Config do
   subject { described_class.new }
 
+  describe "#build_image" do
+    it "stores them" do
+      subject.build_image("foo")
+      subject.build_image("bar", foo: :bar)
+      subject.finalize!
+      expect(subject.build_images.length).to eql(2)
+      expect(subject.build_images[0]).to eql(["foo", {}])
+      expect(subject.build_images[1]).to eql(["bar", { foo: :bar }])
+    end
+  end
+
   describe "#images" do
     it "stores them in a set" do
       subject.images = ["1", "1", "2"]

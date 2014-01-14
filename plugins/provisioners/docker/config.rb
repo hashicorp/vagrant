@@ -3,7 +3,7 @@ require 'set'
 module VagrantPlugins
   module Docker
     class Config < Vagrant.plugin("2", :config)
-      attr_reader :images, :containers, :build_options
+      attr_reader :build_images, :images, :containers, :build_options
       attr_accessor :version
 
       def initialize
@@ -13,18 +13,20 @@ module VagrantPlugins
         @build_images   = []
       end
 
+      # Defines an image to build using `docker build` within the machine.
+      #
+      # @param [String] path Path to the Dockerfile to pass to
+      #   `docker build`.
+      def build_image(path, **opts)
+        @build_images << [path, opts]
+      end
+
       def images=(images)
         @images = Set.new(images)
       end
 
       def pull_images(*images)
         @images += images.map(&:to_s)
-      end
-
-      def build_images(*images)
-        @build_images = images.map do |image|
-          image.values_at(:path, :args)
-        end
       end
 
       def run(name, **options)

@@ -36,6 +36,40 @@ for you (if it isn't already installed).
 * `version` (string) - The version of Docker to install. This defaults to
   "latest" and will install the latest version of Docker.
 
+In addition to the options that can be set, various functions are available
+and can be called to configure other aspects of the Docker provisioner. Most
+of these functions have examples in more detailed sections below.
+
+* `build_image` - Build an image from a Dockerfile.
+
+* `pull_images` - Pull the given images. This does not start these images.
+
+* `run` - Run a container and configure it to start on boot.
+
+## Building Images
+
+The provisioner can automatically build images. Images are built prior to
+any configured containers to run, so you can build an image before running it.
+Building an image is easy:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.provision "docker" do |d|
+    d.build_image "/vagrant/app"
+  end
+end
+```
+
+The argument to build an image is the path to give to `docker build`. This
+must be a path that exists within the guest machine. If you need to get data
+to the guest machine, use a synced folder.
+
+The `build_image` function accepts options as a second parameter. Here
+are the available options:
+
+* `args` (string) - Additional arguments to pass to `docker build`. Use this
+  to pass in things like `-t "foo"` to tag the image.
+
 ## Pulling Images
 
 The docker provisioner can automatically pull images from the

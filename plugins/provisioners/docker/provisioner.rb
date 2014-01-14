@@ -7,8 +7,6 @@ module VagrantPlugins
       error_namespace("vagrant.provisioners.docker")
     end
 
-    # TODO: Improve handling of vagrant-lxc specifics (like checking for apparmor
-    #       profile stuff + autocorrection)
     class Provisioner < Vagrant.plugin("2", :provisioner)
       def initialize(machine, config, installer = nil, client = nil)
         super(machine, config)
