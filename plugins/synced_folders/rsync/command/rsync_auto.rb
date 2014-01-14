@@ -40,6 +40,7 @@ module VagrantPlugins
               hostpath = File.expand_path(hostpath, machine.env.root_path)
               paths[hostpath] ||= []
               paths[hostpath] << {
+                id: id,
                 machine: machine,
                 opts:    folder_opts,
               }
