@@ -37,6 +37,8 @@ en:
       to automatically delete Chef nodes and clients.
     chef_run_list_empty: |-
       Warning: Chef run list is empty. This may not be what you want.
+    cli_interrupt: |-
+      Exiting due to interrupt.
     docker_auto_start_not_available: |-
       Unable to configure automatic restart of Docker containers on
       the guest machine

@@ -28,6 +28,13 @@ describe Vagrant::CLI do
       subject.should_not_receive(:help)
       expect(subject.execute).to eql(42)
     end
+
+    it "returns exit code 1 if interrupted" do
+      commands[:destroy] = [command_lambda("destroy", 42, exception: Interrupt), {}]
+
+      subject = described_class.new(["destroy"], env)
+      expect(subject.execute).to eql(1)
+    end
   end
 
   describe "#help" do

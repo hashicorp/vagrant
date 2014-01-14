@@ -37,7 +37,14 @@ module Vagrant
       @logger.debug("Invoking command class: #{command_class} #{@sub_args.inspect}")
 
       # Initialize and execute the command class, returning the exit status.
-      result = command_class.new(@sub_args, @env).execute
+      result = 0
+      begin
+        result = command_class.new(@sub_args, @env).execute
+      rescue Interrupt
+        @env.ui.info(I18n.t("vagrant.cli_interrupt"))
+        result = 1
+      end
+
       result = 0 if !result.is_a?(Fixnum)
       return result
     end
