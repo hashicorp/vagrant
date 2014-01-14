@@ -72,6 +72,10 @@ module VagrantPlugins
                   throw :done, true if listenpath.start_with?(hostpath)
                 end
               end
+
+              # Make sure to return false if all else fails so that we
+              # don't sync to this machine.
+              false
             end
 
             # If it should be synced, store it for later
