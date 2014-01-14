@@ -25,6 +25,7 @@ FEATURES:
     to set the number of CPUs on the VM [GH-2800]
   - **New synced folder type:** rsync - Does a one-time one-directional sync
     to the guest machine. Future Vagrant versions will re-sync.
+  - provisioners/docker: Can now build images using `docker build`. [GH-2615]
 
 IMPROVEMENTS:
 
