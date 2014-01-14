@@ -7,7 +7,7 @@ module VagrantPlugins
     # Contributed by Blake Irvin <b.irvin@modcloth.com>
     class Guest < Vagrant.plugin("2", :guest)
       def detect?(machine)
-        machine.communicate.test("uname -s | grep SunOS")
+        machine.communicate.test("uname -sr | grep SunOS | grep -v 5.11")
       end
     end
   end
