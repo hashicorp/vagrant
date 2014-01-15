@@ -53,6 +53,8 @@ BUG FIXES:
     syntax errors.
   - core: Plugins that fork within certain actions will no longer hang
     indefinitely. [GH-2756]
+  - core: Windows checks home directory permissions more correctly to
+    warn of potential issues.
   - commands/box: Box add `--force` works with `--provider` flag. [GH-2757]
   - commands/plugin: Plugin installation will fail if dependencies conflict,
     rather than at runtime.

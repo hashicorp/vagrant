@@ -621,6 +621,17 @@ module Vagrant
         end
       end
 
+      # Attempt to write into the home directory to verify we can
+      begin
+        path = @home_path.join("perm_test")
+        path.open("w") do |f|
+          f.write("hello")
+        end
+        path.unlink
+      rescue Errno::EACCES
+        raise Errors::HomeDirectoryNotAccessible, home_path: @home_path.to_s
+      end
+
       # Create the version file to mark the version of the home directory
       # we're using.
       version_file = @home_path.join("setup_version")
