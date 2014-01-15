@@ -60,7 +60,18 @@ module Vagrant
         # of the path.
         def fs_real_path(path)
           path = Pathname.new(File.expand_path(path))
-          raise "Path must exist for path expansion" if !path.exist?
+
+          if windows?
+            # Fix the drive letter to be uppercase.
+            path = path.to_s
+            if path[1] == ":"
+              path[0] = path[0].upcase
+            end
+
+            path = Pathname.new(path)
+          end
+
+          return path if !path.exist?
           return path if fs_case_sensitive?
 
           # Build up all the parts of the path

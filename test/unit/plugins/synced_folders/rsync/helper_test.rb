@@ -1,5 +1,7 @@
 require_relative "../../../base"
 
+require "vagrant/util/platform"
+
 require Vagrant.source_root.join("plugins/synced_folders/rsync/helper")
 
 describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
@@ -56,7 +58,7 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
         opts[:guestpath] = "/bar"
 
         Vagrant::Util::Subprocess.should_receive(:execute).with do |*args|
-          expect(args[args.length - 3]).to eql("/foo")
+          expect(args[args.length - 3]).to eql(Vagrant::Util::Platform.fs_real_path("/foo").to_s)
           expect(args[args.length - 2]).to include("/bar")
         end
 

@@ -1,3 +1,4 @@
+require "vagrant/util/platform"
 require "vagrant/util/subprocess"
 
 module VagrantPlugins
@@ -10,6 +11,7 @@ module VagrantPlugins
         guestpath = opts[:guestpath]
         hostpath  = opts[:hostpath]
         hostpath  = File.expand_path(hostpath, machine.env.root_path)
+        hostpath  = Vagrant::Util::Platform.fs_real_path(hostpath).to_s
 
         # Connection information
         username = ssh_info[:username]
