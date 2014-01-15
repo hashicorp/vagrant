@@ -1,9 +1,8 @@
 require "fileutils"
 require "pathname"
+require "tmpdir"
 
 require "log4r"
-
-require "support/tempdir"
 
 # This class manages an isolated environment for Vagrant to
 # run in. It creates a temporary directory to act as the
@@ -27,12 +26,12 @@ class IsolatedEnvironment
     @logger = Log4r::Logger.new("test::isolated_environment")
 
     # Create a temporary directory for our work
-    @tempdir = Tempdir.new("vagrant")
-    @logger.info("Initialize isolated environment: #{@tempdir.path}")
+    @tempdir = Dir.mktmpdir("vagrant")
+    @logger.info("Initialize isolated environment: #{@tempdir}")
 
     # Setup the home and working directories
-    @homedir = Pathname.new(File.join(@tempdir.path, "home"))
-    @workdir = Pathname.new(File.join(@tempdir.path, "work"))
+    @homedir = Pathname.new(File.join(@tempdir, "home"))
+    @workdir = Pathname.new(File.join(@tempdir, "work"))
 
     @homedir.mkdir
     @workdir.mkdir
@@ -40,7 +39,7 @@ class IsolatedEnvironment
 
   # This closes the environment by cleaning it up.
   def close
-    @logger.info("Removing isolated environment: #{@tempdir.path}")
-    FileUtils.rm_rf(@tempdir.path)
+    @logger.info("Removing isolated environment: #{@tempdir}")
+    FileUtils.rm_rf(@tempdir)
   end
 end

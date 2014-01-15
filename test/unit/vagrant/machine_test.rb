@@ -1,4 +1,5 @@
 require "pathname"
+require "tmpdir"
 
 require File.expand_path("../../base", __FILE__)
 
@@ -17,7 +18,7 @@ describe Vagrant::Machine do
   let(:provider_options) { {} }
   let(:box)      { Object.new }
   let(:config)   { env.config_global }
-  let(:data_dir) { Pathname.new(Tempdir.new.path) }
+  let(:data_dir) { Pathname.new(Dir.mktmpdir("vagrant")) }
   let(:env)      do
     # We need to create a Vagrantfile so that this test environment
     # has a proper root path

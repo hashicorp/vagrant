@@ -1,6 +1,6 @@
 require "tempfile"
+require "tmpdir"
 
-require "support/tempdir"
 require "unit/support/isolated_environment"
 
 shared_context "unit" do
@@ -76,7 +76,7 @@ shared_context "unit" do
   def temporary_dir
     # Create a temporary directory and append it to the instance
     # variabe so that it isn't garbage collected and deleted
-    d = Tempdir.new("vagrant-unit")
+    d = Dir.mktmpdir("vagrant")
     @_temp_files << d
 
     # Return the pathname

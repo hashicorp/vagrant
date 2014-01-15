@@ -1,3 +1,4 @@
+require "tmpdir"
 require "rubygems"
 require "rspec/autorun"
 
@@ -9,7 +10,6 @@ require "vagrant"
 $:.unshift File.expand_path("../../", __FILE__)
 
 # Load in helpers
-require "support/tempdir"
 require "unit/support/dummy_communicator"
 require "unit/support/dummy_provider"
 require "unit/support/shared/base_context"
@@ -29,7 +29,7 @@ end
 
 # Configure VAGRANT_CWD so that the tests never find an actual
 # Vagrantfile anywhere, or at least this minimizes those chances.
-ENV["VAGRANT_CWD"] = Tempdir.new.path
+ENV["VAGRANT_CWD"] = Dir.mktmpdir("vagrant")
 
 # Set the dummy provider to the default for tests
 ENV["VAGRANT_DEFAULT_PROVIDER"] = "dummy"

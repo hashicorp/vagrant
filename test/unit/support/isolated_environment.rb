@@ -1,6 +1,7 @@
 require "fileutils"
 require "pathname"
 require "tempfile"
+require "tmpdir"
 
 require "json"
 require "log4r"
@@ -9,7 +10,6 @@ require "vagrant/util/platform"
 require "vagrant/util/subprocess"
 
 require "support/isolated_environment"
-require "support/tempdir"
 
 module Unit
   class IsolatedEnvironment < ::IsolatedEnvironment
@@ -94,8 +94,8 @@ module Unit
     # @return [Pathname] Path to the newly created box.
     def box1_file
       # Create a temporary directory to store our data we will tar up
-      td_source = Tempdir.new
-      td_dest   = Tempdir.new
+      td_source = Dir.mktmpdir
+      td_dest   = Dir.mktmpdir
 
       # Store the temporary directory so it is not deleted until
       # this instance is garbage collected.
@@ -139,8 +139,8 @@ module Unit
       }.merge(options[:metadata] || {})
 
       # Create a temporary directory to store our data we will tar up
-      td_source = Tempdir.new
-      td_dest   = Tempdir.new
+      td_source = Dir.mktmpdir
+      td_dest   = Dir.mktmpdir
 
       # Store the temporary directory so it is not deleted until
       # this instance is garbage collected.
