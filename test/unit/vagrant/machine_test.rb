@@ -332,22 +332,24 @@ describe Vagrant::Machine do
       it "should return the provider private key if given" do
         provider_ssh_info[:private_key_path] = "/foo"
 
-        instance.ssh_info[:private_key_path].should == ["/foo"]
+        instance.ssh_info[:private_key_path].should == [File.expand_path("/foo", env.root_path)]
       end
 
       it "should return the configured SSH key path if set" do
         provider_ssh_info[:private_key_path] = nil
         instance.config.ssh.private_key_path = "/bar"
 
-        instance.ssh_info[:private_key_path].should == ["/bar"]
+        instance.ssh_info[:private_key_path].should == [File.expand_path("/bar", env.root_path)]
       end
 
       it "should return the array of SSH keys if set" do
         provider_ssh_info[:private_key_path] = nil
         instance.config.ssh.private_key_path = ["/foo", "/bar"]
 
-        instance.ssh_info[:private_key_path].should ==
-          ["/foo", "/bar"]
+        instance.ssh_info[:private_key_path].should == [
+          File.expand_path("/foo", env.root_path),
+          File.expand_path("/bar", env.root_path),
+        ]
       end
 
       context "expanding path relative to the root path" do
