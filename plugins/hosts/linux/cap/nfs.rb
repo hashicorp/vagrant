@@ -5,7 +5,7 @@ module VagrantPlugins
   module HostLinux
     module Cap
       class NFS
-        extend Vagrant::Util::Retryabe
+        extend Vagrant::Util::Retryable
 
         def self.nfs_apply_command(env)
           "/usr/bin/exportfs -r"
