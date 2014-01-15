@@ -80,7 +80,7 @@ shared_context "unit" do
     @_temp_files << d
 
     # Return the pathname
-    return Pathname.new(d.path)
+    return Pathname.new(d)
   end
 
   # This helper provides temporary environmental variable changes.
