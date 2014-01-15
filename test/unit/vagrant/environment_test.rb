@@ -5,6 +5,7 @@ require "tempfile"
 require "tmpdir"
 
 require "vagrant/util/file_mode"
+require "vagrant/util/platform"
 
 describe Vagrant::Environment do
   include_context "unit"
@@ -287,7 +288,12 @@ describe Vagrant::Environment do
     end
 
     describe "upgrading V1 dotfiles" do
-      let(:v1_dotfile_tempfile) { Tempfile.new("vagrant") }
+      let(:v1_dotfile_tempfile) do
+        Tempfile.new("vagrant").tap do |f|
+          f.close
+        end
+      end
+
       let(:v1_dotfile)          { Pathname.new(v1_dotfile_tempfile.path) }
       let(:local_data_path)     { v1_dotfile_tempfile.path }
       let(:instance) { described_class.new(:local_data_path => local_data_path) }
@@ -343,7 +349,10 @@ describe Vagrant::Environment do
 
       pk = env.homedir.join("insecure_private_key")
       pk.should be_exist
-      Vagrant::Util::FileMode.from_octal(pk.stat.mode).should == "600"
+
+      if !Vagrant::Util::Platform.windows?
+        Vagrant::Util::FileMode.from_octal(pk.stat.mode).should == "600"
+      end
     end
   end
 
