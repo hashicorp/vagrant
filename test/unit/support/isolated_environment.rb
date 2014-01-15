@@ -103,10 +103,10 @@ module Unit
       @_box2_file_temp << td_dest
 
       # The source as a Pathname, which is easier to work with
-      source = Pathname.new(td_source.path)
+      source = Pathname.new(td_source)
 
       # The destination file
-      result = Pathname.new(td_dest.path).join("temporary.box")
+      result = Pathname.new(td_dest).join("temporary.box")
 
       # Put a "box.ovf" in there.
       source.join("box.ovf").open("w") do |f|
@@ -148,10 +148,10 @@ module Unit
       @_box2_file_temp << td_dest
 
       # The source as a Pathname, which is easier to work with
-      source = Pathname.new(td_source.path)
+      source = Pathname.new(td_source)
 
       # The destination file
-      result = Pathname.new(td_dest.path).join("temporary.box")
+      result = Pathname.new(td_dest).join("temporary.box")
 
       # Put the metadata.json in here.
       source.join("metadata.json").open("w") do |f|
