@@ -5,6 +5,7 @@ require "rspec/autorun"
 # Require Vagrant itself so we can reference the proper
 # classes to test.
 require "vagrant"
+require "vagrant/util/platform"
 
 # Add the test directory to the load path
 $:.unshift File.expand_path("../../", __FILE__)
@@ -25,6 +26,11 @@ $stderr.sync = true
 # Configure RSpec
 RSpec.configure do |c|
   c.expect_with :rspec, :stdlib
+  c.treat_symbols_as_metadata_keys_with_true_values = true
+
+  if Vagrant::Util::Platform.windows?
+    c.filter_run_excluding :skip_windows
+  end
 end
 
 # Configure VAGRANT_CWD so that the tests never find an actual

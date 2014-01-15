@@ -20,7 +20,7 @@ describe Vagrant::Util::SSH do
       key_path.stat.mode.should == mode
     end
 
-    it "should fix the permissions" do
+    it "should fix the permissions", :skip_windows do
       key_path.chmod(0644)
 
       described_class.check_key_permissions(key_path)
