@@ -34,7 +34,9 @@ describe Vagrant::BatchAction do
       called_actions.include?([machine2, "destroy", nil]).should be
     end
 
-    it "should handle forks gracefully" do
+    it "should handle forks gracefully", :skip_windows do
+      # Doesn't need to be tested on Windows since Windows doesn't
+      # support fork(1)
       machine.stub(:action) do |action, opts|
         pid = fork
         if !pid
