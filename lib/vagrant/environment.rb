@@ -599,7 +599,7 @@ module Vagrant
     # @return [Pathname]
     def setup_home_path
       @home_path = Util::Platform.fs_real_path(
-        @home_path || ENV["VAGRANT_HOME"] || Vagrant.user_data_path)
+        @home_path || Vagrant.user_data_path)
       @logger.info("Home path: #{@home_path}")
 
       # Setup the list of child directories that need to be created if they
