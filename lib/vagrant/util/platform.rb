@@ -61,6 +61,24 @@ module Vagrant
         def fs_real_path(path)
           path = Pathname.new(File.expand_path(path))
 
+          if path.exist? && !fs_case_sensitive?
+            # Build up all the parts of the path
+            original = []
+            while !path.root?
+              original.unshift(path.basename.to_s)
+              path = path.parent
+            end
+
+            # Traverse each part and join it into the resulting path
+            original.each do |single|
+              Dir.entries(path).each do |entry|
+                if entry.downcase == single.downcase
+                  path = path.join(entry)
+                end
+              end
+            end
+          end
+
           if windows?
             # Fix the drive letter to be uppercase.
             path = path.to_s
@@ -69,25 +87,6 @@ module Vagrant
             end
 
             path = Pathname.new(path)
-          end
-
-          return path if !path.exist?
-          return path if fs_case_sensitive?
-
-          # Build up all the parts of the path
-          original = []
-          while !path.root?
-            original.unshift(path.basename.to_s)
-            path = path.parent
-          end
-
-          # Traverse each part and join it into the resulting path
-          original.each do |single|
-            Dir.entries(path).each do |entry|
-              if entry.downcase == single.downcase
-                path = path.join(entry)
-              end
-            end
           end
 
           path
