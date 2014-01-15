@@ -30,6 +30,8 @@ RSpec.configure do |c|
 
   if Vagrant::Util::Platform.windows?
     c.filter_run_excluding :skip_windows
+  else
+    c.filter_run_excluding :windows
   end
 end
 
