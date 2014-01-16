@@ -11,7 +11,7 @@ module VagrantPlugins
         @machine.communicate.tap do |comm|
           images.each do |path, opts|
             @machine.ui.info(I18n.t("vagrant.docker_building_single", path: path))
-            comm.sudo("docker build #{image[:args]} #{path}")
+            comm.sudo("docker build #{opts[:args]} #{path}")
           end
         end
       end
