@@ -33,11 +33,19 @@ module Vagrant
         # path on Windows machines in Cygwin.
         #
         # @return [String]
-        def cygwin_windows_path(path)
-          return path if !cygwin?
+        def cygwin_windows_path(path, **opts)
+          return path if !cygwin? && !opts[:force]
 
-          process = Subprocess.execute("cygpath", "-w", "-l", "-a", path.to_s)
-          process.stdout.chomp
+          begin
+            # First try the real cygpath
+            process = Subprocess.execute("cygpath", "-w", "-l", "-a", path.to_s)
+            return process.stdout.chomp
+          rescue Errors::CommandUnavailableWindows
+            # Sometimes cygpath isn't available (msys). Instead, do what we
+            # can with bash tricks.
+            process = Subprocess.execute("bash", "-c", "cd #{path} && pwd")
+            return process.stdout.chomp
+          end
         end
 
         # This checks if the filesystem is case sensitive. This is not a

@@ -21,6 +21,11 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
 
   before do
     machine.stub(guest: guest)
+
+    # Don't do all the crazy Cygwin stuff
+    Vagrant::Util::Platform.stub(:cygwin_windows_path) do |path, **opts|
+      path
+    end
   end
 
   describe "#rsync_single" do
@@ -41,6 +46,23 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
     end
 
     it "doesn't raise an error if it succeeds" do
+      subject.rsync_single(machine, ssh_info, opts)
+    end
+
+    it "doesn't call cygwin_windows_path on non-Windows" do
+      Vagrant::Util::Platform.stub(windows?: false)
+      Vagrant::Util::Platform.should_not_receive(:cygwin_windows_path)
+      subject.rsync_single(machine, ssh_info, opts)
+    end
+
+    it "calls cygwin_windows_path on Windows" do
+      Vagrant::Util::Platform.stub(windows?: true)
+      Vagrant::Util::Platform.should_receive(:cygwin_windows_path).and_return("foo")
+
+      Vagrant::Util::Subprocess.should_receive(:execute).with do |*args|
+        expect(args[args.length - 3]).to eql("foo")
+      end
+
       subject.rsync_single(machine, ssh_info, opts)
     end
 

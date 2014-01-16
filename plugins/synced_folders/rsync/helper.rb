@@ -13,6 +13,12 @@ module VagrantPlugins
         hostpath  = File.expand_path(hostpath, machine.env.root_path)
         hostpath  = Vagrant::Util::Platform.fs_real_path(hostpath).to_s
 
+        if Vagrant::Util::Platform.windows?
+          # rsync for Windows expects cygwin style paths
+          hostpath = Vagrant::Util::Platform.cygwin_windows_path(
+            hostpath, force: true)
+        end
+
         # Connection information
         username = ssh_info[:username]
         host     = ssh_info[:host]
