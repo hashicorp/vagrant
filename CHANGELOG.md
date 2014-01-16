@@ -63,6 +63,8 @@ BUG FIXES:
   - hosts/bsd: Don't invoke shell for NFS sudo calls. [GH-2808]
   - providers/virtualbox: Enabling internal networks by just setting "true"
     works properly. [GH-2751]
+  - providers/virtualbox: Make more internal interactions with VBoxManage
+    retryable to avoid spurious VirtualBox errors. [GH-2831]
   - provisioners/chef: When chowning folders, don't follow symlinks.
   - provisioners/salt: Options can now set install type and install args.
     [GH-2766]

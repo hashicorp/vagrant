@@ -68,7 +68,7 @@ module VagrantPlugins
 
         def delete_unused_host_only_networks
           networks = []
-          execute("list", "hostonlyifs").split("\n").each do |line|
+          execute("list", "hostonlyifs", retryable: true).split("\n").each do |line|
             networks << $1.to_s if line =~ /^Name:\s+(.+?)$/
           end
 
@@ -338,7 +338,7 @@ module VagrantPlugins
             dhcp[info[:network]] = info
           end
 
-          execute("list", "hostonlyifs", :retryable => true).split("\n\n").collect do |block|
+          execute("list", "hostonlyifs", retryable: true).split("\n\n").collect do |block|
             info = {}
 
             block.split("\n").each do |line|
@@ -521,7 +521,7 @@ module VagrantPlugins
         def verify!
           # This command sometimes fails if kernel drivers aren't properly loaded
           # so we just run the command and verify that it succeeded.
-          execute("list", "hostonlyifs")
+          execute("list", "hostonlyifs", retryable: true)
         end
 
         def verify_image(path)
