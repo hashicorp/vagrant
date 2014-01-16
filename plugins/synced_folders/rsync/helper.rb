@@ -19,6 +19,12 @@ module VagrantPlugins
             hostpath, force: true)
         end
 
+        # Make sure the host path ends with a "/" to avoid creating
+        # a nested directory...
+        if !hostpath.end_with?("/")
+          hostpath += "/"
+        end
+
         # Connection information
         username = ssh_info[:username]
         host     = ssh_info[:host]
