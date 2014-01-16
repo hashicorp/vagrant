@@ -21,7 +21,7 @@ module VagrantPlugins
         Cap::ChangeHostName
       end
 
-      guest_capability("linux", "nfs_client_install") do
+      guest_capability("debian", "nfs_client_install") do
         require_relative "cap/nfs_client"
         Cap::NFSClient
       end
