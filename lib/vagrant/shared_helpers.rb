@@ -20,15 +20,19 @@ module Vagrant
   #
   # @return [Pathname]
   def self.user_data_path
-    path = "~/.vagrant.d"
+    # Use user spcified env var if available
+    path = ENV["VAGRANT_HOME"]
 
     # On Windows, we default ot the USERPROFILE directory if it
     # is available. This is more compatible with Cygwin and sharing
     # the home directory across shells.
-    if ENV["USERPROFILE"]
+    if !path && ENV["USERPROFILE"]
       path = "#{ENV["USERPROFILE"]}/.vagrant.d"
     end
 
-    return Pathname.new(path).expand_path
+    # Fallback to the default
+    path ||= "~/.vagrant.d"
+
+    Pathname.new(path).expand_path
   end
 end
