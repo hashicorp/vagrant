@@ -31,9 +31,18 @@ describe VagrantPlugins::SyncedFolderNFS::ActionCleanup do
     subject.call(env)
   end
 
+  it "does nothing if the host doesn't support pruning NFS" do
+    host.stub(:capability?).with(:nfs_prune).and_return(false)
+    host.should_receive(:capability).never
+    app.should_receive(:call).with(env)
+
+    subject.call(env)
+  end
+
   it "prunes the NFS entries if valid IDs are given" do
     env[:nfs_valid_ids] = [1,2,3]
 
+    host.stub(:capability?).with(:nfs_prune).and_return(true)
     host.should_receive(:capability).with(:nfs_prune, machine.ui, [1,2,3]).ordered
     app.should_receive(:call).with(env).ordered
 

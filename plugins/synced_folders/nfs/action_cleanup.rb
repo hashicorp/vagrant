@@ -14,6 +14,11 @@ module VagrantPlugins
           return @app.call(env)
         end
 
+        if !env[:machine].env.host.capability?(:nfs_prune)
+          @logger.info("Host doesn't support pruning NFS. Skipping.")
+          return @app.call(env)
+        end
+
         @logger.info("NFS pruning. Valid IDs: #{env[:nfs_valid_ids].inspect}")
         env[:machine].env.host.capability(
           :nfs_prune, env[:machine].ui, env[:nfs_valid_ids])
