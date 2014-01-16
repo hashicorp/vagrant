@@ -110,7 +110,7 @@ module VagrantPlugins
       end
 
       def validate(machine)
-        errors = []
+        errors = _detected_errors
 
         valid_events = ["pre-import", "pre-boot", "post-boot"]
         @customizations.each do |event, _|
