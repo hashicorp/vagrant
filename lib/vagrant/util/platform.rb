@@ -43,7 +43,11 @@ module Vagrant
           rescue Errors::CommandUnavailableWindows
             # Sometimes cygpath isn't available (msys). Instead, do what we
             # can with bash tricks.
-            process = Subprocess.execute("bash", "-c", "cd #{path} && pwd")
+            process = Subprocess.execute(
+              "bash",
+              "--noprofile",
+              "--norc",
+              "-c", "cd #{path} && pwd")
             return process.stdout.chomp
           end
         end
