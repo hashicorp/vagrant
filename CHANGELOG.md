@@ -30,6 +30,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+  - guests/solaris: More accurate Solaris >= 11, < 11 detection. [GH-2824]
   - provisioners/chef-solo: New config `synced_folder_type` replaces the
     `nfs` option. This can be used to set the synced folders the provisioner
     needs to any type. [GH-2709]
