@@ -1,4 +1,6 @@
 shared_context "virtualbox" do
+  include_context "unit"
+
   let(:vbox_context) { true                                }
   let(:uuid)         { "1234-abcd-5678-efgh"               }
   let(:vbox_version) { "4.3.4"                             }
@@ -26,5 +28,12 @@ shared_context "virtualbox" do
     subprocess.stub(:execute).
       with("VBoxManage", "showvminfo", kind_of(String), kind_of(Hash)).
       and_return(subprocess_result(exit_code: 0))
+  end
+
+  around do |example|
+    # On Windows, we don't want to accidentally call the actual VirtualBox
+    with_temp_env("VBOX_INSTALL_PATH" => nil) do
+      example.run
+    end
   end
 end

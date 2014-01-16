@@ -60,7 +60,7 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
       Vagrant::Util::Platform.should_receive(:cygwin_windows_path).and_return("foo")
 
       Vagrant::Util::Subprocess.should_receive(:execute).with do |*args|
-        expect(args[args.length - 3]).to eql("foo")
+        expect(args[args.length - 3]).to eql("foo/")
       end
 
       subject.rsync_single(machine, ssh_info, opts)
@@ -80,7 +80,8 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
         opts[:guestpath] = "/bar"
 
         Vagrant::Util::Subprocess.should_receive(:execute).with do |*args|
-          expect(args[args.length - 3]).to eql(Vagrant::Util::Platform.fs_real_path("/foo").to_s)
+          expected = Vagrant::Util::Platform.fs_real_path("/foo").to_s
+          expect(args[args.length - 3]).to eql("#{expected}/")
           expect(args[args.length - 2]).to include("/bar")
         end
 
@@ -94,7 +95,7 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
         hostpath_expanded = File.expand_path(opts[:hostpath], machine.env.root_path)
 
         Vagrant::Util::Subprocess.should_receive(:execute).with do |*args|
-          expect(args[args.length - 3]).to eql(hostpath_expanded)
+          expect(args[args.length - 3]).to eql("#{hostpath_expanded}/")
           expect(args[args.length - 2]).to include("/bar")
         end
 
