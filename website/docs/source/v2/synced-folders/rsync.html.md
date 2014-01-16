@@ -27,6 +27,9 @@ To use the rsync synced folder type, the machine running Vagrant must have
 `rsync` (or `rsync.exe`) on the path. This executable is expected to behave
 like the standard rsync tool.
 
+On Windows, rsync installed with Cygwin or MinGW will be detected by
+Vagrant and works well.
+
 ## Options
 
 The rsync synced folder type accepts the following options:
