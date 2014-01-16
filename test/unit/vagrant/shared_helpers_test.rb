@@ -8,6 +8,20 @@ describe Vagrant do
 
   subject { described_class }
 
+  describe "#plugins_enabled?" do
+    it "returns true if the env is not set" do
+      with_temp_env("VAGRANT_NO_PLUGINS" => nil) do
+        expect(subject.plugins_enabled?).to be_true
+      end
+    end
+
+    it "returns false if the env is set" do
+      with_temp_env("VAGRANT_NO_PLUGINS" => "1") do
+        expect(subject.plugins_enabled?).to be_false
+      end
+    end
+  end
+
   describe "#user_data_path" do
     around do |example|
       env = {
