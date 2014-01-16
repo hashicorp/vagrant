@@ -47,6 +47,16 @@ module VagrantPlugins
             end
           end
 
+          # Output to the user what paths we'll be watching
+          paths.keys.sort.each do |path|
+            paths[path].each do |path_opts|
+              path_opts[:machine].ui.info(I18n.t(
+                "vagrant.rsync_auto_path",
+                path: path.to_s,
+              ))
+            end
+          end
+
           @logger.info("Listening to paths: #{paths.keys.sort.inspect}")
           @logger.info("Listening via: #{Listen::Adapter.select.inspect}")
           callback = method(:callback).to_proc.curry[paths]
