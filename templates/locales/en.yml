@@ -748,6 +748,11 @@ en:
         be found. Please verify VirtualBox is properly installed. You can verify
         everything is okay by running "VBoxManage --version" and verifying
         that the VirtualBox version is outputted.
+
+        If you're on Windows and just installed VirtualBox, you have to
+        log out and log back in for the new environmental variables to take
+        effect. If you're on Linux or Mac, verify your PATH contains the folder
+        that has VBoxManage in it.
       virtualbox_broken_version_040214: |-
         Vagrant detected you have VirtualBox 4.2.14 installed. VirtualBox
         4.2.14 contains a critical bug which prevents it from working with
