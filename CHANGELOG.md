@@ -68,6 +68,8 @@ BUG FIXES:
     retryable to avoid spurious VirtualBox errors. [GH-2831]
   - providers/virtualbox: Config validation catches invalid keys. [GH-2843]
   - provisioners/chef: When chowning folders, don't follow symlinks.
+  - provisioners/docker: Only add SSH user to docker group if the user
+    isn't already in it. [GH-2838]
   - provisioners/salt: Options can now set install type and install args.
     [GH-2766]
   - synced\_folders/nfs: NFS entries are pruned on every `vagrant up`,

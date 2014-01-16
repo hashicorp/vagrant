@@ -4,7 +4,13 @@ module VagrantPlugins
       module Linux
         module DockerConfigureVagrantUser
           def self.docker_configure_vagrant_user(machine)
-            machine.communicate.sudo("usermod -a -G docker #{machine.config.ssh.username || "vagrant"}")
+            ssh_info = machine.ssh_info
+
+            machine.communicate.tap do |comm|
+              if !comm.test("id -Gn | grep docker")
+                comm.sudo("usermod -a -G docker #{ssh_info[:username]}")
+              end
+            end
           end
         end
       end
