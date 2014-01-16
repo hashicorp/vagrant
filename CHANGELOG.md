@@ -12,6 +12,7 @@ DEPRECATIONS:
 FEATURES:
 
   - **New guest:** Funtoo (change host name and networks supported)
+  - **New guest:** NetBSD
   - Password-based SSH authentication. This lets you use almost any off-the-shelf
     virtual machine image with Vagrant. Additionally, Vagrant will automatically
     insert a keypair into the machine.
