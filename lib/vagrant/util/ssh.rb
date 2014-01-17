@@ -5,6 +5,7 @@ require 'childprocess'
 require "vagrant/util/file_mode"
 require "vagrant/util/platform"
 require "vagrant/util/safe_exec"
+require "vagrant/util/safe_puts"
 require "vagrant/util/subprocess"
 require "vagrant/util/which"
 
@@ -14,6 +15,8 @@ module Vagrant
     # helpers don't depend on any part of Vagrant except what is given
     # via the parameters.
     class SSH
+      extend SafePuts
+
       LOGGER = Log4r::Logger.new("vagrant::util::ssh")
 
       # Checks that the permissions for a private key are valid, and fixes
@@ -162,11 +165,39 @@ module Vagrant
 
         # If we're still here, it means we're supposed to subprocess
         # out to ssh rather than exec it.
+        #
+        # There is a lot of special-case code for Windows below. Windows
+        # has a bug with creating a TTY file handle for stdin so SSH doesn't
+        # work well. We simulate it by copying stdin over. It isn't ideal,
+        # but it kind of works.
         LOGGER.info("Executing SSH in subprocess: #{command_options.inspect}")
         process = ChildProcess.build("ssh", *command_options)
         process.io.inherit!
+        process.duplex = true if Platform.windows?
         process.start
-        process.wait
+
+        # We wait for the process in a thread because the IO.copy_stream
+        # below must happen from the main thread for some reason. It just
+        # hangs on other threads.
+        t = Thread.new do
+          process.wait
+          if Platform.windows?
+            # On Windows, the copy_stream below won't finish until we
+            # enter at least one more key. This asks the user to do that.
+            safe_puts
+            safe_puts("Press any key to exit.")
+          end
+        end
+
+        if Platform.windows?
+          begin
+            IO.copy_stream(STDIN, process.io.stdin)
+          rescue Errno::EPIPE
+          end
+        end
+
+        t.join
+
         return process.exit_code
       end
     end

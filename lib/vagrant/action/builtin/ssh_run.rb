@@ -49,6 +49,7 @@ module Vagrant
           # don't then we default to a TTY
           if !opts[:extra_args].include?("-t") && !opts[:extra_args].include?("-T")
             opts[:extra_args] << "-t"
+            opts[:extra_args] << "-t"
           end
 
           opts[:extra_args] << command

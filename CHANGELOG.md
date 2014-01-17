@@ -62,6 +62,7 @@ BUG FIXES:
   - commands/box: Box add `--force` works with `--provider` flag. [GH-2757]
   - commands/plugin: Plugin installation will fail if dependencies conflict,
     rather than at runtime.
+  - commands/ssh: When using `-c` on Windows, no more TTY errors.
   - guests/redhat: Set hostname to FQDN, per the documentation for RedHat.
     [GH-2792]
   - hosts/bsd: Don't invoke shell for NFS sudo calls. [GH-2808]
