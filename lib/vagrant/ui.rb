@@ -19,7 +19,7 @@ module Vagrant
         @logger   = Log4r::Logger.new("vagrant::ui::interface")
       end
 
-      [:ask, :warn, :error, :info, :success].each do |method|
+      [:ask, :detail, :warn, :error, :info, :output, :success].each do |method|
         define_method(method) do |message, *opts|
           # Log normal console messages
           @logger.info { "#{method}: #{message}" }
@@ -104,6 +104,9 @@ module Vagrant
     class Basic < Interface
       include Util::SafePuts
 
+      # The prefix for `output` messages.
+      OUTPUT_PREFIX = "==> "
+
       def initialize
         super
 
@@ -113,7 +116,7 @@ module Vagrant
       # Use some light meta-programming to create the various methods to
       # output text to the UI. These all delegate the real functionality
       # to `say`.
-      [:info, :warn, :error, :success].each do |method|
+      [:detail, :info, :warn, :error, :output, :success].each do |method|
         class_eval <<-CODE
           def #{method}(message, *args)
             super(message)
@@ -196,10 +199,14 @@ module Vagrant
       end
 
       # This is called by `say` to format the message for output.
-      def format_message(type, message, opts=nil)
-        opts ||= {}
-        message = "[#{opts[:scope]}] #{message}" if opts[:scope] && opts[:prefix]
-        message
+      def format_message(type, message, **opts)
+        prefix = ""
+        if !opts.has_key?(:prefix) || opts[:prefix]
+          prefix = OUTPUT_PREFIX
+          prefix = " " * OUTPUT_PREFIX.length if type == :detail
+        end
+
+        prefix + message
       end
     end
 
@@ -212,10 +219,11 @@ module Vagrant
         @scope = scope
       end
 
-      [:ask, :warn, :error, :info, :success].each do |method|
+      [:ask, :detail, :warn, :error, :info, :output, :success].each do |method|
         define_method(method) do |message, opts=nil|
           opts ||= {}
           opts[:scope] = @scope
+          message = "#{@scope}: #{message}" if !opts.has_key?(:prefix) || opts[:prefix]
           @ui.send(method, message, opts)
         end
       end
