@@ -13,6 +13,8 @@ FEATURES:
 
   - **New guest:** Funtoo (change host name and networks supported)
   - **New guest:** NetBSD
+  - **New guest:** TinyCore Linux. This allows features such as networking,
+    halting, rsync and more work with Boot2Docker.
   - Password-based SSH authentication. This lets you use almost any off-the-shelf
     virtual machine image with Vagrant. Additionally, Vagrant will automatically
     insert a keypair into the machine.
