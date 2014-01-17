@@ -176,28 +176,17 @@ module Vagrant
         process.duplex = true if Platform.windows?
         process.start
 
-        # We wait for the process in a thread because the IO.copy_stream
-        # below must happen from the main thread for some reason. It just
-        # hangs on other threads.
-        t = Thread.new do
-          process.wait
-          if Platform.windows?
-            # On Windows, the copy_stream below won't finish until we
-            # enter at least one more key. This asks the user to do that.
-            safe_puts
-            safe_puts("Press any key to exit.")
-          end
-        end
-
         if Platform.windows?
-          begin
-            ::IO.copy_stream(STDIN, process.io.stdin)
-          rescue Errno::EPIPE
+          # On Windows, we have to mirror the STDIN to the child process.
+          while true
+            results = ::IO.select([$stdin], [], [], 0.5)
+            break if process.exited?
+            next if results[0].empty?
+            process.io.stdin.write(IO.read_until_block($stdin))
           end
         end
 
-        t.join
-
+        process.wait if !process.exited?
         return process.exit_code
       end
     end
