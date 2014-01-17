@@ -173,20 +173,8 @@ module Vagrant
         LOGGER.info("Executing SSH in subprocess: #{command_options.inspect}")
         process = ChildProcess.build("ssh", *command_options)
         process.io.inherit!
-        process.duplex = true if Platform.windows?
         process.start
-
-        if Platform.windows?
-          # On Windows, we have to mirror the STDIN to the child process.
-          while true
-            results = ::IO.select([$stdin], [], [], 0.5)
-            break if process.exited?
-            next if results[0].empty?
-            process.io.stdin.write(IO.read_until_block($stdin))
-          end
-        end
-
-        process.wait if !process.exited?
+        process.wait
         return process.exit_code
       end
     end

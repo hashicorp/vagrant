@@ -50,12 +50,6 @@ module Vagrant
           # don't then we default to a TTY
           if !opts[:extra_args].include?("-t") && !opts[:extra_args].include?("-T")
             opts[:extra_args] << "-t"
-
-            if Util::Platform.windows?
-              # Windows currently has a bug where STDIN won't be a TTY.
-              # This absolutely forces the allocation.
-              opts[:extra_args] << "-t"
-            end
           end
 
           opts[:extra_args] << command
