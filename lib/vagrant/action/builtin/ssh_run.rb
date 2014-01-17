@@ -43,6 +43,7 @@ module Vagrant
 
           # Execute!
           opts = env[:ssh_opts] || {}
+          opts[:extra_args] ||= []
 
           # Allow the user to specify a tty or non-tty manually, but if they
           # don't then we default to a TTY
