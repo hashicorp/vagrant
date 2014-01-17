@@ -18,6 +18,8 @@ module Vagrant
     end
 
     def initialize
+      @enabled  = !::Bundler::SharedHelpers.in_bundle?
+      @enabled  = true if ENV["VAGRANT_FORCE_BUNDLER"]
       @monitor  = Monitor.new
 
       @gem_home = ENV["GEM_HOME"]
@@ -37,6 +39,9 @@ module Vagrant
     # Initializes Bundler and the various gem paths so that we can begin
     # loading gems. This must only be called once.
     def init!(plugins)
+      # If we're not enabled, then we don't do anything.
+      return if !@enabled
+
       # Setup the Bundler configuration
       @configfile = File.open(Tempfile.new("vagrant").path + "1", "w+")
       @configfile.close
@@ -202,6 +207,8 @@ module Vagrant
     end
 
     def with_isolated_gem
+      raise Errors::BundlerDisabled if !@enabled
+
       # Remove bundler settings so that Bundler isn't loaded when building
       # native extensions because it causes all sorts of problems.
       old_rubyopt = ENV["RUBYOPT"]

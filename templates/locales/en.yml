@@ -269,6 +269,13 @@ en:
         The box '%{name}' is still stored on disk in the Vagrant 1.0.x
         format. This box must be upgraded in order to work properly with
         this version of Vagrant.
+      bundler_disabled: |-
+        Vagrant's built-in bundler management mechanism is disabled because
+        Vagrant is running in an external bundler environment. In these
+        cases, plugin management does not work with Vagrant. To install
+        plugins, use your own Gemfile. To load plugins, either put the
+        plugins in the `plugins` group in your Gemfile or manually require
+        them in a Vagrantfile.
       bundler_error: |-
         Bundler, the underlying system Vagrant uses to install plugins,
         reported an error. The error is shown below. These errors are usually

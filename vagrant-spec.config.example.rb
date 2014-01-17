@@ -1,5 +1,3 @@
-ENV["VAGRANT_FORCE_PLUGINS"] = "1"
-
 require_relative "test/acceptance/base"
 
 Vagrant::Spec::Acceptance.configure do |c|
