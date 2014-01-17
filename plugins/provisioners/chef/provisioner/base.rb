@@ -57,6 +57,7 @@ module VagrantPlugins
 
           config_file = Vagrant::Util::TemplateRenderer.render(template, {
             :custom_configuration => remote_custom_config_path,
+            :encrypted_data_bag_secret => guest_encrypted_data_bag_secret_key_path,
             :file_cache_path => @config.file_cache_path,
             :file_backup_path => @config.file_backup_path,
             :log_level        => @config.log_level.to_sym,
@@ -103,6 +104,34 @@ module VagrantPlugins
             comm.sudo("rm -f #{remote_file}", :error_check => false)
             comm.upload(temp.path, remote_file)
           end
+        end
+
+        def upload_encrypted_data_bag_secret
+          return if !@config.encrypted_data_bag_secret_key_path
+
+          @machine.env.ui.info I18n.t(
+            "vagrant.provisioners.chef.upload_encrypted_data_bag_secret_key")
+
+          remote_file = guest_encrypted_data_bag_secret_key_path
+          @machine.communicate.tap do |comm|
+            comm.sudo("rm -f #{remote_file}", error_check: false)
+            comm.upload(encrypted_data_bag_secret_key_path, remote_file)
+          end
+        end
+
+        def delete_encrypted_data_bag_secret
+          @machine.communicate.sudo(
+            "rm -f #{guest_encrypted_data_bag_secret_key_path}",
+            error_check: false)
+        end
+
+        def encrypted_data_bag_secret_key_path
+          File.expand_path(@config.encrypted_data_bag_secret_key_path,
+            @machine.env.root_path)
+        end
+
+        def guest_encrypted_data_bag_secret_key_path
+          File.join(@config.provisioning_path, "encrypted_data_bag_secret_key")
         end
       end
     end

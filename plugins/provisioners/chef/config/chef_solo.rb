@@ -6,8 +6,6 @@ module VagrantPlugins
       class ChefSolo < Base
         attr_accessor :cookbooks_path
         attr_accessor :data_bags_path
-        attr_accessor :encrypted_data_bag_secret_key_path
-        attr_accessor :encrypted_data_bag_secret
         attr_accessor :environments_path
         attr_accessor :environment
         attr_accessor :recipe_url
@@ -24,8 +22,6 @@ module VagrantPlugins
           @recipe_url                = UNSET_VALUE
           @roles_path                = UNSET_VALUE
           @synced_folder_type        = UNSET_VALUE
-          @encrypted_data_bag_secret = UNSET_VALUE
-          @encrypted_data_bag_secret_key_path = UNSET_VALUE
         end
 
         def nfs=(value)
@@ -67,11 +63,6 @@ module VagrantPlugins
           @data_bags_path    = prepare_folders_config(@data_bags_path)
           @roles_path        = prepare_folders_config(@roles_path)
           @environments_path = prepare_folders_config(@environments_path)
-
-          @encrypted_data_bag_secret = "/tmp/encrypted_data_bag_secret" if \
-            @encrypted_data_bag_secret == UNSET_VALUE
-          @encrypted_data_bag_secret_key_path = nil if \
-            @encrypted_data_bag_secret_key_path == UNSET_VALUE
         end
 
         def validate(machine)
