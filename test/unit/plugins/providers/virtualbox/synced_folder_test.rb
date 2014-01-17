@@ -3,7 +3,6 @@ require Vagrant.source_root.join("test/unit/base")
 
 require Vagrant.source_root.join("plugins/providers/virtualbox/synced_folder")
 
-# TODO(mitchellh): tag with v2
 describe VagrantPlugins::ProviderVirtualBox::SyncedFolder do
   let(:machine) do
     double("machine").tap do |m|

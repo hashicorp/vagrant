@@ -72,8 +72,8 @@ module VagrantPlugins
       #
       # @param [Integer] slot The slot for this network adapter.
       # @param [Symbol] type The type of adapter.
-      def network_adapter(slot, type, *args)
-        @network_adapters[slot] = [type, args]
+      def network_adapter(slot, type, **opts)
+        @network_adapters[slot] = [type, opts]
       end
 
       # Shortcut for setting memory size for the virtual machine.
