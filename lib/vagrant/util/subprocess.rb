@@ -3,6 +3,7 @@ require 'thread'
 require 'childprocess'
 require 'log4r'
 
+require 'vagrant/util/io'
 require 'vagrant/util/platform'
 require 'vagrant/util/safe_chdir'
 require 'vagrant/util/which'
@@ -16,9 +17,6 @@ module Vagrant
     # from the subprocess in real time, by simply passing a block to
     # the execute method.
     class Subprocess
-      # The chunk size for reading from subprocess IO.
-      READ_CHUNK_SIZE = 4096
-
       # Convenience method for executing a method.
       def self.execute(*command, &block)
         new(*command).execute(&block)
@@ -67,8 +65,8 @@ module Vagrant
 
         # Create the pipes so we can read the output in real time as
         # we execute the command.
-        stdout, stdout_writer = IO.pipe
-        stderr, stderr_writer = IO.pipe
+        stdout, stdout_writer = ::IO.pipe
+        stderr, stderr_writer = ::IO.pipe
         process.io.stdout = stdout_writer
         process.io.stderr = stderr_writer
         process.duplex = true
@@ -130,7 +128,7 @@ module Vagrant
         @logger.debug("Selecting on IO")
         while true
           writers = notify_stdin ? [process.io.stdin] : []
-          results = IO.select([stdout, stderr], writers, nil, timeout || 0.1)
+          results = ::IO.select([stdout, stderr], writers, nil, timeout || 0.1)
           results ||= []
           readers = results[0]
           writers = results[1]
@@ -142,7 +140,7 @@ module Vagrant
           if readers && !readers.empty?
             readers.each do |r|
               # Read from the IO object
-              data = read_io(r)
+              data = IO.read_until_block(r)
 
               # We don't need to do anything if the data is empty
               next if data.empty?
@@ -184,7 +182,7 @@ module Vagrant
         # process exited.
         [stdout, stderr].each do |io|
           # Read the extra data, ignoring if there isn't any
-          extra_data = read_io(io)
+          extra_data = IO.read_until_block(io)
           next if extra_data == ""
 
           # Log it out and accumulate
@@ -208,65 +206,6 @@ module Vagrant
       end
 
       protected
-
-      # Reads data from an IO object while it can, returning the data it reads.
-      # When it encounters a case when it can't read anymore, it returns the
-      # data.
-      #
-      # @return [String]
-      def read_io(io)
-        data = ""
-
-        while true
-          begin
-            if Platform.windows?
-              # Windows doesn't support non-blocking reads on
-              # file descriptors or pipes so we have to get
-              # a bit more creative.
-
-              # Check if data is actually ready on this IO device.
-              # We have to do this since `readpartial` will actually block
-              # until data is available, which can cause blocking forever
-              # in some cases.
-              results = IO.select([io], nil, nil, 0.1)
-              break if !results || results[0].empty?
-
-              # Read!
-              data << io.readpartial(READ_CHUNK_SIZE)
-            else
-              # Do a simple non-blocking read on the IO object
-              data << io.read_nonblock(READ_CHUNK_SIZE)
-            end
-          rescue Exception => e
-            # The catch-all rescue here is to support multiple Ruby versions,
-            # since we use some Ruby 1.9 specific exceptions.
-
-            breakable = false
-            if e.is_a?(EOFError)
-              # An `EOFError` means this IO object is done!
-              breakable = true
-            elsif defined?(IO::WaitReadable) && e.is_a?(IO::WaitReadable)
-              # IO::WaitReadable is only available on Ruby 1.9+
-
-              # An IO::WaitReadable means there may be more IO but this
-              # IO object is not ready to be read from yet. No problem,
-              # we read as much as we can, so we break.
-              breakable = true
-            elsif e.is_a?(Errno::EAGAIN)
-              # Otherwise, we just look for the EAGAIN error which should be
-              # all that IO::WaitReadable does in Ruby 1.9.
-              breakable = true
-            end
-
-            # Break out if we're supposed to. Otherwise re-raise the error
-            # because it is a real problem.
-            break if breakable
-            raise
-          end
-        end
-
-        data
-      end
 
       # An error which raises when a process fails to start
       class LaunchError < StandardError; end

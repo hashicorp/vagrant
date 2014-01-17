@@ -191,7 +191,7 @@ module Vagrant
 
         if Platform.windows?
           begin
-            IO.copy_stream(STDIN, process.io.stdin)
+            ::IO.copy_stream(STDIN, process.io.stdin)
           rescue Errno::EPIPE
           end
         end
