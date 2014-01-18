@@ -66,6 +66,7 @@ BUG FIXES:
   - guests/redhat: Set hostname to FQDN, per the documentation for RedHat.
     [GH-2792]
   - hosts/bsd: Don't invoke shell for NFS sudo calls. [GH-2808]
+  - hosts/gentoo: Look for systemctl in `/usr/bin` [GH-2858]
   - providers/virtualbox: Enabling internal networks by just setting "true"
     works properly. [GH-2751]
   - providers/virtualbox: Make more internal interactions with VBoxManage
