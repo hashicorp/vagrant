@@ -49,6 +49,10 @@ module Vagrant
         # wait_for_ready waits until the communicator is ready, blocking
         # until then. It will wait up to the given duration or raise an
         # exception if something goes wrong.
+        #
+        # @param [Fixnum] duration Timeout in seconds.
+        # @return [Boolean] Will return true on successful connection
+        #   or false on timeout.
         def wait_for_ready(duration)
           # By default, we implement a naive solution.
           begin
