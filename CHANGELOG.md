@@ -63,6 +63,7 @@ BUG FIXES:
   - commands/plugin: Plugin installation will fail if dependencies conflict,
     rather than at runtime.
   - commands/ssh: When using `-c` on Windows, no more TTY errors.
+  - guests/coreos: Restart etcd after configuring networks. [GH-2852]
   - guests/redhat: Set hostname to FQDN, per the documentation for RedHat.
     [GH-2792]
   - hosts/bsd: Don't invoke shell for NFS sudo calls. [GH-2808]

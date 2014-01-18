@@ -63,8 +63,10 @@ module VagrantPlugins
 
             comm.sudo("mv /tmp/etcd-cluster.service /media/state/units/")
             comm.sudo("systemctl restart local-enable.service")
-          end
 
+            # Restart default etcd
+            comm.sudo("systemctl start etcd")
+          end
         end
       end
     end
