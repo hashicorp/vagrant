@@ -1,4 +1,5 @@
 require "vagrant/util/subprocess"
+require "vagrant/util/which"
 
 module VagrantPlugins
   module HostGentoo
@@ -6,7 +7,7 @@ module VagrantPlugins
       class NFS
         def self.nfs_check_command(env)
           if systemd?
-            return "/usr/bin/systemctl status nfsd"
+            return "#{systemctl_path} status nfsd"
           else
             return "/etc/init.d/nfs status"
           end
@@ -14,7 +15,7 @@ module VagrantPlugins
 
         def self.nfs_start_command(env)
           if systemd?
-            return "/usr/bin/systemctl start nfsd rpc-mountd rpcbind"
+            return "#{systemctl_path} start nfsd rpc-mountd rpcbind"
           else
             return "/etc/init.d/nfs restart"
           end
@@ -27,6 +28,17 @@ module VagrantPlugins
         def self.systemd?
           result = Vagrant::Util::Subprocess.execute("ps", "-o", "comm=", "1")
           return result.stdout.chomp == "systemd"
+        end
+
+        def self.systemctl_path
+          path = Vagrant::Util::Which.which("systemctl")
+          return path if path
+
+          folders = ["/usr/bin", "/usr/sbin"]
+          folders.each do |folder|
+            path = "#{folder}/systemctl"
+            return path if File.file?(path)
+          end
         end
       end
     end
