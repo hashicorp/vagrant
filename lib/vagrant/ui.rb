@@ -277,6 +277,7 @@ module Vagrant
         blue:    34,
         magenta: 35,
         cyan:    36,
+        white:   37,
       }
 
       # This is called by `say` to format the message for output.
