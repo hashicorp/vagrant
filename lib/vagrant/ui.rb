@@ -175,9 +175,9 @@ module Vagrant
 
       # This method handles actually outputting a message of a given type
       # to the console.
-      def say(type, message, opts=nil)
+      def say(type, message, **opts)
         defaults = { :new_line => true, :prefix => true }
-        opts     = defaults.merge(opts || {})
+        opts     = defaults.merge(@opts).merge(opts)
 
         # Determine whether we're expecting to output our
         # own new line or not.
@@ -221,6 +221,8 @@ module Vagrant
 
     # This implements a scope for the {Basic} UI.
     class BasicScope < Interface
+      attr_reader :scope, :ui
+
       def initialize(ui, scope)
         super()
 
@@ -283,11 +285,13 @@ module Vagrant
         message = super
 
         opts = @opts.merge(opts)
-        return message if !opts.has_key?(:color)
 
         # Special case some colors for certain message types
         opts[:color] = :red if type == :error
         opts[:color] = :yellow if type == :warn
+
+        # If there is no color specified, exit early
+        return message if !opts.has_key?(:color)
 
         # If it is a detail, it is not bold. Every other message type
         # is bolded.
