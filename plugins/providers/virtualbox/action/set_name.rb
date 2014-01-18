@@ -35,8 +35,8 @@ module VagrantPlugins
           if vms.has_key?(name)
             @logger.info("Not setting the name because our name is already set.")
           else
-            @logger.info("Setting the name of the VM: #{name}")
-            env[:ui].info(I18n.t("vagrant.actions.vm.set_name.setting_name"))
+            env[:ui].info(I18n.t(
+              "vagrant.actions.vm.set_name.setting_name", name: name))
             env[:machine].provider.driver.set_name(name)
           end
 
