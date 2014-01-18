@@ -240,13 +240,9 @@ module Vagrant
           opts ||= {}
           opts[:scope] = @scope
           if !opts.has_key?(:prefix) || opts[:prefix]
-            first = true
             prefix = "#{@scope}: "
-            prefix_blank = " " * prefix.length
             message = message.split("\n").map do |line|
-              scope = first ? prefix : prefix_blank
-              first = false
-              "#{scope}#{line}"
+              "#{prefix}#{line}"
             end.join("\n")
           end
           @ui.send(method, message, opts)

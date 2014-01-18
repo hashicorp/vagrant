@@ -104,7 +104,16 @@ module VagrantPlugins
           if !adapters.empty?
             # Enable the adapters
             @logger.info("Enabling adapters...")
-            env[:ui].info I18n.t("vagrant.actions.vm.network.preparing")
+            env[:ui].output(I18n.t("vagrant.actions.vm.network.preparing"))
+            adapters.each do |adapter|
+              env[:ui].detail(I18n.t(
+                "vagrant.virtualbox.network_adapter",
+                adapter: adapter[:adapter].to_s,
+                type: adapter[:type].to_s,
+                extra: "",
+              ))
+            end
+
             env[:machine].provider.driver.enable_adapters(adapters)
           end
 
