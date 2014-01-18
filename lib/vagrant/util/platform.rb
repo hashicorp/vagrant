@@ -110,6 +110,7 @@ module Vagrant
           if windows?
             return true if ENV.has_key?("ANSICON")
             return true if cygwin?
+            return true if ENV["TERM"] == "cygwin"
             return false
           end
 

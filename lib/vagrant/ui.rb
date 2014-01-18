@@ -15,8 +15,13 @@ module Vagrant
     # * `error`
     # * `success`
     class Interface
+      # Opts can be used to set some options. These options are implementation
+      # specific. See the implementation for more docs.
+      attr_accessor :opts
+
       def initialize
         @logger   = Log4r::Logger.new("vagrant::ui::interface")
+        @opts     = {}
       end
 
       [:ask, :detail, :warn, :error, :info, :output, :success].each do |method|
@@ -219,6 +224,13 @@ module Vagrant
         @scope = scope
       end
 
+      # Return the parent's opts.
+      #
+      # @return [Hash]
+      def opts
+        @ui.opts
+      end
+
       [:ask, :detail, :warn, :error, :info, :output, :success].each do |method|
         define_method(method) do |message, opts=nil|
           opts ||= {}
@@ -248,34 +260,29 @@ module Vagrant
     class Colored < Basic
       # Terminal colors
       COLORS = {
-        :clear  => "\e[0m",
-        :red    => "\e[31m",
-        :green  => "\e[32m",
-        :yellow => "\e[33m"
-      }
-
-      # Mapping between type of message and the color to output
-      COLOR_MAP = {
-        :warn    => COLORS[:yellow],
-        :error   => COLORS[:red],
-        :success => COLORS[:green]
+        red:     31,
+        green:   32,
+        yellow:  33,
+        blue:    34,
+        magenta: 35,
+        cyan:    36,
       }
 
       # This is called by `say` to format the message for output.
-      def format_message(type, message, opts=nil)
+      def format_message(type, message, **opts)
         # Get the format of the message before adding color.
         message = super
 
-        # Colorize the message if there is a color for this type of message,
-        # either specified by the options or via the default color map.
-        if opts.has_key?(:color)
-          color   = COLORS[opts[:color]]
-          message = "#{color}#{message}#{COLORS[:clear]}"
-        else
-          message = "#{COLOR_MAP[type]}#{message}#{COLORS[:clear]}" if COLOR_MAP[type]
-        end
+        opts = @opts.merge(opts)
+        return message if !opts.has_key?(:color)
 
-        message
+        # If it is a detail, it is not bold. Every other message type
+        # is bolded.
+        bold  = type != :detail
+        color = COLORS[opts[:color]]
+
+        # Color the message and make sure to reset the color at the end
+        "\033[#{bold ? 1 : 0};#{color}m#{message}\033[0m"
       end
     end
   end
