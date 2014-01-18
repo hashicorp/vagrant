@@ -211,7 +211,11 @@ module Vagrant
           prefix = " " * OUTPUT_PREFIX.length if type == :detail
         end
 
-        prefix + message
+        # Fast-path if there is no prefix
+        return message if prefix.empty?
+
+        # Otherwise, make sure to prefix every line properly
+        message.split("\n").map { |line| "#{prefix}#{line}" }.join("\n")
       end
     end
 
@@ -235,7 +239,16 @@ module Vagrant
         define_method(method) do |message, opts=nil|
           opts ||= {}
           opts[:scope] = @scope
-          message = "#{@scope}: #{message}" if !opts.has_key?(:prefix) || opts[:prefix]
+          if !opts.has_key?(:prefix) || opts[:prefix]
+            first = true
+            prefix = "#{@scope}: "
+            prefix_blank = " " * prefix.length
+            message = message.split("\n").map do |line|
+              scope = first ? prefix : prefix_blank
+              first = false
+              "#{scope}#{line}"
+            end.join("\n")
+          end
           @ui.send(method, message, opts)
         end
       end
