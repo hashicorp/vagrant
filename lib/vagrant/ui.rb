@@ -84,6 +84,7 @@ module Vagrant
         # Prepare the data by replacing characters that aren't outputted
         data.each_index do |i|
           data[i] = data[i].to_s
+          data[i] = data[i].dup if data[i].frozen?
           data[i].gsub!(",", "%!(VAGRANT_COMMA)")
           data[i].gsub!("\n", "\\n")
           data[i].gsub!("\r", "\\r")
