@@ -60,6 +60,7 @@ BUG FIXES:
   - core: Windows checks home directory permissions more correctly to
     warn of potential issues.
   - commands/box: Box add `--force` works with `--provider` flag. [GH-2757]
+  - commands/box: Listing boxes with machine-readable output crash is gone.
   - commands/plugin: Plugin installation will fail if dependencies conflict,
     rather than at runtime.
   - commands/ssh: When using `-c` on Windows, no more TTY errors.
