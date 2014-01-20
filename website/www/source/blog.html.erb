@@ -7,7 +7,7 @@ page_title: "Blog"
 ---
 
 <div class="Modules blog-landing">
-<% blog.articles.each_index do |i| %>
+<% blog.articles.take(5).each_index do |i| %>
 <% article = blog.articles[i] %>
 <div class="row">
 	<div class="span8">
