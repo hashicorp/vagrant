@@ -254,45 +254,6 @@ module Vagrant
       end
     end
 
-    # This implements a scope for the {Basic} UI.
-    class BasicScope < Interface
-      attr_reader :scope, :ui
-
-      def initialize(ui, scope)
-        super()
-
-        @ui    = ui
-        @scope = scope
-      end
-
-      [:ask, :detail, :warn, :error, :info, :output, :success].each do |method|
-        define_method(method) do |message, opts=nil|
-          opts ||= {}
-          opts[:scope] = @scope
-          if !opts.has_key?(:prefix) || opts[:prefix]
-            prefix = "#{@scope}: "
-            message = message.split("\n").map do |line|
-              "#{prefix}#{line}"
-            end.join("\n")
-          end
-          @ui.send(method, message, opts)
-        end
-      end
-
-      [:clear_line, :report_progress].each do |method|
-        # By default do nothing, these aren't logged
-        define_method(method) { |*args| @ui.send(method, *args) }
-      end
-
-      def machine(type, *data)
-        opts = {}
-        opts = data.pop if data.last.is_a?(Hash)
-        opts[:scope] = @scope
-        data << opts
-        @ui.machine(type, *data)
-      end
-    end
-
     # This is a UI implementation that outputs color for various types
     # of messages. This should only be used with a TTY that supports color,
     # but is up to the user of the class to verify this is the case.
