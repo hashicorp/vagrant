@@ -6,5 +6,6 @@ ONBOOT=yes
 IPADDR=<%= options[:ip] %>
 NETMASK=<%= options[:netmask] %>
 DEVICE=eth<%= options[:interface] %>
+<%= options[:gateway] ? "GATEWAY=#{options[:gateway]}" : '' %>
 PEERDNS=no
 #VAGRANT-END
