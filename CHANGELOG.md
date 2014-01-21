@@ -46,6 +46,7 @@ IMPROVEMENTS:
     plugins.
   - commands/plugin: `vagrant plugin install` can now install multiple
     plugins.
+  - hosts/redhat: Recognize Korora OS. [GH-2869]
   - synced\_folders/nfs: If the guest supports it, NFS clients will be
     automatically installed in the guest.
 
