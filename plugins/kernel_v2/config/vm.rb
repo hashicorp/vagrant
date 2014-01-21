@@ -23,9 +23,11 @@ module VagrantPlugins
       attr_accessor :box_download_checksum_type
       attr_accessor :box_download_client_cert
       attr_accessor :box_download_insecure
+      attr_accessor :cpus
       attr_accessor :graceful_halt_timeout
       attr_accessor :guest
       attr_accessor :hostname
+      attr_accessor :memory
       attr_accessor :usable_port_range
       attr_reader :provisioners
 
@@ -37,9 +39,11 @@ module VagrantPlugins
         @box_download_client_cert     = UNSET_VALUE
         @box_download_insecure        = UNSET_VALUE
         @box_url                      = UNSET_VALUE
+        @cpus                         = UNSET_VALUE
         @graceful_halt_timeout        = UNSET_VALUE
         @guest                        = UNSET_VALUE
         @hostname                     = UNSET_VALUE
+        @memory                       = UNSET_VALUE
         @provisioners                 = []
 
         # Internal state
@@ -265,10 +269,14 @@ module VagrantPlugins
         @box_download_client_cert = nil if @box_download_client_cert == UNSET_VALUE
         @box_download_insecure = false if @box_download_insecure == UNSET_VALUE
         @box_url = nil if @box_url == UNSET_VALUE
+        @cpus = nil if @cpus == UNSET_VALUE
+        @cpus = @cpus.to_i if @cpus
         @graceful_halt_timeout = 300 if @graceful_halt_timeout == UNSET_VALUE
         @guest = nil if @guest == UNSET_VALUE
         @hostname = nil if @hostname == UNSET_VALUE
         @hostname = @hostname.to_s if @hostname
+        @memory = nil if @memory == UNSET_VALUE
+        @memory = memory.to_i if @memory
 
         # Make sure that the download checksum is a string and that
         # the type is a symbol
@@ -499,6 +507,18 @@ module VagrantPlugins
               errors << I18n.t("vagrant.config.vm.network_ip_ends_in_one")
             end
           end
+        end
+
+        # validate cpu and memory
+        if @cpus && ![*1 .. Vagrant::Util::Platform.max_cpus].include?(@cpus)
+          errors << I18n.t("vagrant.config.vm.cpus_bad_value",
+                            max_cpus: Vagrant::Util::Platform.max_cpus,
+                            cpus: @cpus)
+        end
+        if @memory && ![*1 ..  Vagrant::Util::Platform.max_memory].include?(@memory)
+          errors << I18n.t("vagrant.config.vm.memory_bad_value",
+                            max_memory: Vagrant::Util::Platform.max_memory,
+                            memory: @memory)
         end
 
         # We're done with VM level errors so prepare the section
