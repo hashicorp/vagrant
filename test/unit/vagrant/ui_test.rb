@@ -142,6 +142,66 @@ describe Vagrant::UI::Colored do
   end
 end
 
+describe Vagrant::UI::MachineReadable do
+  describe "#ask" do
+    it "raises an exception" do
+      expect { subject.ask("foo") }.
+        to raise_error(Vagrant::Errors::UIExpectsTTY)
+    end
+  end
+
+  describe "#machine" do
+    it "is formatted properly" do
+      subject.should_receive(:safe_puts).with do |message|
+        parts = message.split(",")
+        expect(parts.length).to eq(5)
+        expect(parts[1]).to eq("")
+        expect(parts[2]).to eq("type")
+        expect(parts[3]).to eq("data")
+        expect(parts[4]).to eq("another")
+        true
+      end
+
+      subject.machine(:type, "data", "another")
+    end
+
+    it "includes a target if given" do
+      subject.should_receive(:safe_puts).with do |message|
+        parts = message.split(",")
+        expect(parts.length).to eq(4)
+        expect(parts[1]).to eq("boom")
+        expect(parts[2]).to eq("type")
+        expect(parts[3]).to eq("data")
+        true
+      end
+
+      subject.machine(:type, "data", target: "boom")
+    end
+
+    it "replaces commas" do
+      subject.should_receive(:safe_puts).with do |message|
+        parts = message.split(",")
+        expect(parts.length).to eq(4)
+        expect(parts[3]).to eq("foo%!(VAGRANT_COMMA)bar")
+        true
+      end
+
+      subject.machine(:type, "foo,bar")
+    end
+
+    it "replaces newlines" do
+      subject.should_receive(:safe_puts).with do |message|
+        parts = message.split(",")
+        expect(parts.length).to eq(4)
+        expect(parts[3]).to eq("foo\\nbar\\r")
+        true
+      end
+
+      subject.machine(:type, "foo\nbar\r")
+    end
+  end
+end
+
 describe Vagrant::UI::Prefixed do
   let(:prefix) { "foo" }
   let(:ui)     { Vagrant::UI::Basic.new }
