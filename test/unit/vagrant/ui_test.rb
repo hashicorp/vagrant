@@ -129,7 +129,7 @@ describe Vagrant::UI::Colored do
   describe "#error" do
     it "colors red" do
       subject.should_receive(:safe_puts).with do |message, *args|
-        expect(message).to start_with("\033[1;31m")
+        expect(message).to start_with("\033[0;31m")
         expect(message).to end_with("\033[0m")
       end
 
@@ -164,12 +164,23 @@ describe Vagrant::UI::Colored do
 
       subject.output("foo", color: :green)
     end
+
+    it "doesn't bold the output if specified" do
+      subject.opts[:color] = :red
+
+      subject.should_receive(:safe_puts).with do |message, *args|
+        expect(message).to start_with("\033[0;31m")
+        expect(message).to end_with("\033[0m")
+      end
+
+      subject.output("foo", bold: false)
+    end
   end
 
   describe "#warn" do
     it "colors yellow" do
       subject.should_receive(:safe_puts).with do |message, *args|
-        expect(message).to start_with("\033[1;33m")
+        expect(message).to start_with("\033[0;33m")
         expect(message).to end_with("\033[0m")
       end
 

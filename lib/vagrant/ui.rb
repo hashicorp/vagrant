@@ -288,6 +288,9 @@ module Vagrant
 
         opts = @opts.merge(opts)
 
+        # Default the bold option if its not given
+        opts[:bold] = type == :output if !opts.has_key?(:bold)
+
         # Special case some colors for certain message types
         opts[:color] = :red if type == :error
         opts[:color] = :yellow if type == :warn
@@ -297,7 +300,7 @@ module Vagrant
 
         # If it is a detail, it is not bold. Every other message type
         # is bolded.
-        bold  = type != :detail
+        bold  = !!opts[:bold]
         color = COLORS[opts[:color]]
 
         # Color the message and make sure to reset the color at the end
