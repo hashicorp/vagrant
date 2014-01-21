@@ -96,7 +96,7 @@ module Vagrant
       @provider_config = provider_config
       @provider_name   = provider_name
       @provider_options = provider_options
-      @ui              = @env.ui.scope(@name)
+      @ui              = Vagrant::UI::Prefixed.new(@env.ui, @name)
 
       # Read the ID, which is usually in local storage
       @id = nil

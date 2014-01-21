@@ -1,3 +1,4 @@
+require "delegate"
 require "thread"
 
 require "log4r"
@@ -42,15 +43,6 @@ module Vagrant
       # @param [Array] data The data associated with the type
       def machine(type, *data)
         @logger.info("Machine: #{type} #{data.inspect}")
-      end
-
-      # Returns a new UI class that is scoped to the given resource name.
-      # Subclasses can then use this scope name to do whatever they please.
-      #
-      # @param [String] scope_name
-      # @return [Interface]
-      def scope(scope_name)
-        self
       end
     end
 
@@ -99,19 +91,12 @@ module Vagrant
           safe_puts("#{Time.now.utc.to_i},#{target},#{type},#{data.join(",")}")
         end
       end
-
-      def scope(scope_name)
-        BasicScope.new(self, scope_name)
-      end
     end
 
     # This is a UI implementation that outputs the text as is. It
     # doesn't add any color.
     class Basic < Interface
       include Util::SafePuts
-
-      # The prefix for `output` messages.
-      OUTPUT_PREFIX = "==> "
 
       def initialize
         super
@@ -194,17 +179,64 @@ module Vagrant
         # do this.
         Thread.new do
           @lock.synchronize do
-            safe_puts(format_message(type, message, opts),
+            safe_puts(format_message(type, message, **opts),
                       :io => channel, :printer => printer)
           end
         end.join
       end
 
-      def scope(scope_name)
-        BasicScope.new(self, scope_name)
+      def format_message(type, message, **opts)
+        message
+      end
+    end
+
+    # Prefixed wraps an existing UI and adds a prefix to it.
+    class Prefixed < Interface
+      # The prefix for `output` messages.
+      OUTPUT_PREFIX = "==> "
+
+      def initialize(ui, prefix)
+        super()
+
+        @prefix = prefix
+        @ui     = ui
       end
 
-      # This is called by `say` to format the message for output.
+      # Use some light meta-programming to create the various methods to
+      # output text to the UI. These all delegate the real functionality
+      # to `say`.
+      [:ask, :detail, :info, :warn, :error, :output, :success].each do |method|
+        class_eval <<-CODE
+          def #{method}(message, *args, **opts)
+            super(message)
+            opts[:bold] = #{method.inspect} != :detail if !opts.has_key?(:bold)
+            @ui.#{method}(format_message(#{method.inspect}, message, **opts), *args, **opts)
+          end
+        CODE
+      end
+
+      [:clear_line, :report_progress].each do |method|
+        # By default do nothing, these aren't formatted
+        define_method(method) { |*args| @ui.send(method, *args) }
+      end
+
+      # For machine-readable output, set the prefix in the
+      # options hash and continue it on.
+      def machine(type, *data)
+        opts = {}
+        opts = data.pop if data.last.is_a?(Hash)
+        opts[:scope] = @prefix
+        data << opts
+        @ui.machine(type, *data)
+      end
+
+      # Return the parent's opts.
+      #
+      # @return [Hash]
+      def opts
+        @ui.opts
+      end
+
       def format_message(type, message, **opts)
         prefix = ""
         if !opts.has_key?(:prefix) || opts[:prefix]
@@ -216,7 +248,9 @@ module Vagrant
         return message if prefix.empty?
 
         # Otherwise, make sure to prefix every line properly
-        message.split("\n").map { |line| "#{prefix}#{line}" }.join("\n")
+        message.split("\n").map do |line|
+          "#{prefix}#{@prefix}: #{line}"
+        end.join("\n")
       end
     end
 
@@ -229,13 +263,6 @@ module Vagrant
 
         @ui    = ui
         @scope = scope
-      end
-
-      # Return the parent's opts.
-      #
-      # @return [Hash]
-      def opts
-        @ui.opts
       end
 
       [:ask, :detail, :warn, :error, :info, :output, :success].each do |method|
@@ -287,9 +314,6 @@ module Vagrant
         message = super
 
         opts = @opts.merge(opts)
-
-        # Default the bold option if its not given
-        opts[:bold] = type == :output if !opts.has_key?(:bold)
 
         # Special case some colors for certain message types
         opts[:color] = :red if type == :error

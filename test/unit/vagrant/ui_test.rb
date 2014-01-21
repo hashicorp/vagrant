@@ -58,57 +58,10 @@ describe Vagrant::UI::Basic do
       subject.error("foo")
     end
   end
-
-  describe "#detail" do
-    it "prefixes with spaces" do
-      subject.should_receive(:safe_puts).with("    foo", anything)
-      subject.detail("foo")
-    end
-
-    it "doesn't prefix if told not to" do
-      subject.should_receive(:safe_puts).with("foo", anything)
-      subject.detail("foo", prefix: false)
-    end
-
-    it "prefixes every line" do
-      subject.should_receive(:safe_puts).with("    foo\n    bar", anything)
-      subject.detail("foo\nbar")
-    end
-  end
-
-  describe "#output" do
-    it "prefixes with ==>" do
-      subject.should_receive(:safe_puts).with("==> foo", anything)
-      subject.output("foo")
-    end
-
-    it "doesn't prefix if told not to" do
-      subject.should_receive(:safe_puts).with("foo", anything)
-      subject.output("foo", prefix: false)
-    end
-
-    it "prefixes every line" do
-      subject.should_receive(:safe_puts).with("==> foo\n==> bar", anything)
-      subject.output("foo\nbar")
-    end
-  end
-
-  describe "#scope" do
-    it "creates a basic scope" do
-      scope = subject.scope("foo")
-      expect(scope.scope).to eql("foo")
-      expect(scope.ui).to be(subject)
-    end
-  end
 end
 
 describe Vagrant::UI::Colored do
   include_context "unit"
-
-  before do
-    # We don't want any prefixes on anything...
-    subject.opts[:prefix] = false
-  end
 
   describe "#detail" do
     it "colors output nothing by default" do
@@ -147,7 +100,7 @@ describe Vagrant::UI::Colored do
       subject.opts[:color] = :red
 
       subject.should_receive(:safe_puts).with do |message, *args|
-        expect(message).to start_with("\033[1;31m")
+        expect(message).to start_with("\033[0;31m")
         expect(message).to end_with("\033[0m")
       end
 
@@ -158,22 +111,22 @@ describe Vagrant::UI::Colored do
       subject.opts[:color] = :red
 
       subject.should_receive(:safe_puts).with do |message, *args|
-        expect(message).to start_with("\033[1;32m")
+        expect(message).to start_with("\033[0;32m")
         expect(message).to end_with("\033[0m")
       end
 
       subject.output("foo", color: :green)
     end
 
-    it "doesn't bold the output if specified" do
+    it "bolds the output if specified" do
       subject.opts[:color] = :red
 
       subject.should_receive(:safe_puts).with do |message, *args|
-        expect(message).to start_with("\033[0;31m")
+        expect(message).to start_with("\033[1;31m")
         expect(message).to end_with("\033[0m")
       end
 
-      subject.output("foo", bold: false)
+      subject.output("foo", bold: true)
     end
   end
 
@@ -189,20 +142,37 @@ describe Vagrant::UI::Colored do
   end
 end
 
-describe Vagrant::UI::BasicScope do
-  let(:scope) { "foo" }
-  let(:ui)    { double("ui") }
+describe Vagrant::UI::Prefixed do
+  let(:prefix) { "foo" }
+  let(:ui)     { Vagrant::UI::Basic.new }
 
-  subject { described_class.new(ui, scope) }
+  subject { described_class.new(ui, prefix) }
+
+  describe "#detail" do
+    it "prefixes with spaces and the message" do
+      ui.should_receive(:safe_puts).with("    #{prefix}: foo", anything)
+      subject.detail("foo")
+    end
+
+    it "prefixes every line" do
+      ui.should_receive(:detail).with("    #{prefix}: foo\n    #{prefix}: bar", bold: false)
+      subject.detail("foo\nbar")
+    end
+
+    it "doesn't prefix if requestsed" do
+      ui.should_receive(:detail).with("foo", prefix: false, bold: false)
+      subject.detail("foo", prefix: false)
+    end
+  end
 
   describe "#machine" do
     it "sets the scope option" do
-      ui.should_receive(:machine).with(:foo, scope: scope)
+      ui.should_receive(:machine).with(:foo, scope: prefix)
       subject.machine(:foo)
     end
 
     it "preserves existing options" do
-      ui.should_receive(:machine).with(:foo, :bar, foo: :bar, scope: scope)
+      ui.should_receive(:machine).with(:foo, :bar, foo: :bar, scope: prefix)
       subject.machine(:foo, :bar, foo: :bar)
     end
   end
@@ -215,24 +185,23 @@ describe Vagrant::UI::BasicScope do
   end
 
   describe "#output" do
-    it "prefixes with the scope" do
-      ui.should_receive(:output).with("#{scope}: foo", anything)
+    it "prefixes with an arrow and the message" do
+      ui.should_receive(:output).with("==> #{prefix}: foo", anything)
       subject.output("foo")
     end
 
-    it "does not prefix if told not to" do
-      ui.should_receive(:output).with("foo", anything)
-      subject.output("foo", prefix: false)
-    end
-
     it "prefixes every line" do
-      ui.should_receive(:output).with(
-        "#{scope}: foo\n#{scope}: bar", anything)
+      ui.should_receive(:output).with("==> #{prefix}: foo\n==> #{prefix}: bar", anything)
       subject.output("foo\nbar")
     end
 
-    it "puts the scope into the options hash" do
-      ui.should_receive(:output).with(anything, scope: scope)
+    it "doesn't prefix if requestsed" do
+      ui.should_receive(:output).with("foo", prefix: false, bold: true)
+      subject.output("foo", prefix: false)
+    end
+
+    it "requests bolding" do
+      ui.should_receive(:output).with("==> #{prefix}: foo", bold: true)
       subject.output("foo")
     end
   end
