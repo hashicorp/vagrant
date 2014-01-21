@@ -76,7 +76,7 @@ module Vagrant
         opts = {}
         opts = data.pop if data.last.kind_of?(Hash)
 
-        target = opts[:scope] || ""
+        target = opts[:target] || ""
 
         # Prepare the data by replacing characters that aren't outputted
         data.each_index do |i|
@@ -225,7 +225,7 @@ module Vagrant
       def machine(type, *data)
         opts = {}
         opts = data.pop if data.last.is_a?(Hash)
-        opts[:scope] = @prefix
+        opts[:target] = @prefix
         data << opts
         @ui.machine(type, *data)
       end

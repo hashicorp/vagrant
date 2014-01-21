@@ -166,13 +166,13 @@ describe Vagrant::UI::Prefixed do
   end
 
   describe "#machine" do
-    it "sets the scope option" do
-      ui.should_receive(:machine).with(:foo, scope: prefix)
+    it "sets the target option" do
+      ui.should_receive(:machine).with(:foo, target: prefix)
       subject.machine(:foo)
     end
 
     it "preserves existing options" do
-      ui.should_receive(:machine).with(:foo, :bar, foo: :bar, scope: prefix)
+      ui.should_receive(:machine).with(:foo, :bar, foo: :bar, target: prefix)
       subject.machine(:foo, :bar, foo: :bar)
     end
   end
