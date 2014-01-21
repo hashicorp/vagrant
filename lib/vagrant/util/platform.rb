@@ -118,7 +118,63 @@ module Vagrant
         end
 
         def platform
-          RbConfig::CONFIG["host_os"].downcase
+          @platform ||= RbConfig::CONFIG["host_os"].downcase
+        end
+
+        def max_cpus
+          # Taken from https://github.com/grosser/parallel/blob/master/lib/parallel.rb#L136
+          @processor_count ||= begin
+            if platform =~ /mingw|mswin/
+              require 'win32ole'
+              result = WIN32OLE.connect("winmgmts://").ExecQuery(
+                        "select NumberOfLogicalProcessors from Win32_Processor")
+              result.to_enum.collect(&:NumberOfLogicalProcessors).reduce(:+)
+            elsif File.readable?("/proc/cpuinfo")
+              ::IO.read("/proc/cpuinfo").scan(/^processor/).size
+            elsif File.executable?("/usr/bin/hwprefs")
+              ::IO.popen("/usr/bin/hwprefs thread_count").read.to_i
+            elsif File.executable?("/usr/sbin/psrinfo")
+              ::IO.popen("/usr/sbin/psrinfo").read.scan(/^.*on-*line/).size
+            elsif File.executable?("/usr/sbin/ioscan")
+              ::IO.popen("/usr/sbin/ioscan -kC processor") do |out|
+                out.read.scan(/^.*processor/).size
+              end
+            elsif File.executable?("/usr/sbin/pmcycles")
+              ::IO.popen("/usr/sbin/pmcycles -m").read.count("\n")
+            elsif File.executable?("/usr/sbin/lsdev")
+              ::IO.popen("/usr/sbin/lsdev -Cc processor -S 1").read.count("\n")
+            elsif File.executable?("/usr/sbin/sysconf") and platform =~ /irix/
+              ::IO.popen("/usr/sbin/sysconf NPROC_ONLN").read.to_i
+            elsif File.executable?("/usr/sbin/sysctl")
+              ::IO.popen("/usr/sbin/sysctl -n hw.ncpu").read.to_i
+            elsif File.executable?("/sbin/sysctl")
+              ::IO.popen("/sbin/sysctl -n hw.ncpu").read.to_i
+            else
+              $stderr.puts "Unknown platform: #{platform}"
+              $stderr.puts "Assuming 1 processor."
+              1
+            end
+          end
+        end
+
+        def max_memory
+          @memory_size ||= begin
+            if platform =~ /mingw|mswin/
+              #require 'win32ole'
+              # Completely untested.  Probably won't work
+              #result = WIN32OLE.connect("winmgmts://").ExecQuery(
+              #          "select Win32_LogicalMemoryConfiguration from Win32_MemoryArray")
+              #result.to_i
+              $stderr.puts "I don't know how to get memsize in windows.  Assume 1024 MB"
+              1024
+            elsif File.readable?("/proc/meminfo")
+              ::IO.read("/proc/meminfo")[/^MemTotal:\s+(?<size>\d+)\s+/, "size"].to_i / 1024
+            else
+              $stderr.puts "Unknown platform: #{platform}"
+              $stderr.puts "Assuming 1024 MB RAM"
+              1024
+            end
+          end
         end
       end
     end

@@ -12,6 +12,7 @@ module VagrantPlugins
       autoload :CleanMachineFolder, File.expand_path("../action/clean_machine_folder", __FILE__)
       autoload :ClearForwardedPorts, File.expand_path("../action/clear_forwarded_ports", __FILE__)
       autoload :ClearNetworkInterfaces, File.expand_path("../action/clear_network_interfaces", __FILE__)
+      autoload :Cpus, File.expand_path("../action/cpus", __FILE__)
       autoload :Created, File.expand_path("../action/created", __FILE__)
       autoload :Customize, File.expand_path("../action/customize", __FILE__)
       autoload :Destroy, File.expand_path("../action/destroy", __FILE__)
@@ -25,6 +26,7 @@ module VagrantPlugins
       autoload :IsRunning, File.expand_path("../action/is_running", __FILE__)
       autoload :IsSaved, File.expand_path("../action/is_saved", __FILE__)
       autoload :MatchMACAddress, File.expand_path("../action/match_mac_address", __FILE__)
+      autoload :Memory, File.expand_path("../action/memory", __FILE__)
       autoload :MessageAlreadyRunning, File.expand_path("../action/message_already_running", __FILE__)
       autoload :MessageNotCreated, File.expand_path("../action/message_not_created", __FILE__)
       autoload :MessageNotRunning, File.expand_path("../action/message_not_running", __FILE__)
@@ -66,6 +68,8 @@ module VagrantPlugins
           b.use ForwardPorts
           b.use SetHostname
           b.use SaneDefaults
+          b.use Cpus
+          b.use Memory
           b.use Customize, "pre-boot"
           b.use Boot
           b.use Customize, "post-boot"
