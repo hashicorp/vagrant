@@ -35,12 +35,13 @@ module VagrantPlugins
         end
 
         # Go through each folder and mount
-        machine.ui.info(I18n.t("vagrant.actions.vm.share_folders.mounting"))
+        machine.ui.output(I18n.t("vagrant.actions.vm.share_folders.mounting"))
         folders.each do |id, data|
           if data[:guestpath]
             # Guest path specified, so mount the folder to specified point
-            machine.ui.info(I18n.t("vagrant.actions.vm.share_folders.mounting_entry",
-                                  :guest_path => data[:guestpath]))
+            machine.ui.detail(I18n.t("vagrant.actions.vm.share_folders.mounting_entry",
+                                  guestpath: data[:guestpath],
+                                  hostpath: data[:hostpath]))
 
             # Dup the data so we can pass it to the guest API
             data = data.dup
@@ -55,8 +56,8 @@ module VagrantPlugins
               :mount_virtualbox_shared_folder, id, data[:guestpath], data)
           else
             # If no guest path is specified, then automounting is disabled
-            machine.ui.info(I18n.t("vagrant.actions.vm.share_folders.nomount_entry",
-                                  :host_path => data[:hostpath]))
+            machine.ui.detail(I18n.t("vagrant.actions.vm.share_folders.nomount_entry",
+                                  :hostpath => data[:hostpath]))
           end
         end
       end

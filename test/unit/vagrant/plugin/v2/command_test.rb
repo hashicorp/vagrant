@@ -75,9 +75,11 @@ describe Vagrant::Plugin::V2::Command do
     it "should yield every VM in order is no name is given" do
       foo_vm = double("foo")
       foo_vm.stub(:name => "foo", :provider => :foobarbaz)
+      foo_vm.stub(ui: Vagrant::UI::Silent.new)
 
       bar_vm = double("bar")
       bar_vm.stub(:name => "bar", :provider => :foobarbaz)
+      bar_vm.stub(ui: Vagrant::UI::Silent.new)
 
       environment.stub(:machine_names => [:foo, :bar])
       environment.stub(:machine).with(:foo, default_provider).and_return(foo_vm)
@@ -102,6 +104,7 @@ describe Vagrant::Plugin::V2::Command do
     it "yields the given VM if a name is given" do
       foo_vm = double("foo")
       foo_vm.stub(:name => "foo", :provider => :foobarbaz)
+      foo_vm.stub(ui: Vagrant::UI::Silent.new)
 
       environment.stub(:machine).with(:foo, default_provider).and_return(foo_vm)
 
@@ -115,6 +118,7 @@ describe Vagrant::Plugin::V2::Command do
       provider = :foobarbaz
 
       foo_vm.stub(:name => "foo", :provider => provider)
+      foo_vm.stub(ui: Vagrant::UI::Silent.new)
       environment.stub(:machine).with(:foo, provider).and_return(foo_vm)
 
       vms = []
@@ -138,6 +142,7 @@ describe Vagrant::Plugin::V2::Command do
       environment.stub(:active_machines => [[name, provider]])
       environment.stub(:machine).with(name, provider).and_return(vmware_vm)
       vmware_vm.stub(:name => name, :provider => provider)
+      vmware_vm.stub(ui: Vagrant::UI::Silent.new)
 
       vms = []
       instance.with_target_vms(name.to_s) { |vm| vms << vm }
@@ -151,7 +156,7 @@ describe Vagrant::Plugin::V2::Command do
 
       environment.stub(:active_machines => [[name, provider]])
       environment.stub(:machine).with(name, provider).and_return(vmware_vm)
-      vmware_vm.stub(:name => name, :provider => provider)
+      vmware_vm.stub(:name => name, :provider => provider, ui: Vagrant::UI::Silent.new)
 
       vms = []
       instance.with_target_vms(name.to_s, :provider => provider) { |vm| vms << vm }
@@ -164,6 +169,7 @@ describe Vagrant::Plugin::V2::Command do
 
       environment.stub(:machine).with(name, default_provider).and_return(machine)
       machine.stub(:name => name, :provider => default_provider)
+      machine.stub(ui: Vagrant::UI::Silent.new)
 
       results = []
       instance.with_target_vms(name.to_s) { |m| results << m }
@@ -180,6 +186,7 @@ describe Vagrant::Plugin::V2::Command do
       environment.stub(:machine_names => [])
       environment.stub(:primary_machine_name => name)
       vmware_vm.stub(:name => name, :provider => provider)
+      vmware_vm.stub(ui: Vagrant::UI::Silent.new)
 
       vms = []
       instance.with_target_vms(nil, :single_target => true) { |vm| vms << vm }
@@ -195,6 +202,7 @@ describe Vagrant::Plugin::V2::Command do
       environment.stub(:machine_names => [])
       environment.stub(:primary_machine_name => name)
       machine.stub(:name => name, :provider => default_provider)
+      machine.stub(ui: Vagrant::UI::Silent.new)
 
       vms = []
       instance.with_target_vms(nil, :single_target => true) { |vm| vms << machine }

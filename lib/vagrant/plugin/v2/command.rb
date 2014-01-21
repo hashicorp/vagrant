@@ -188,7 +188,14 @@ module Vagrant
           machines.reverse! if options[:reverse]
 
           # Go through each VM and yield it!
+          color_order = [:white]
+          color_index = 0
+
           machines.each do |machine|
+            # Set the machine color
+            machine.ui.opts[:color] = color_order[color_index % color_order.length]
+            color_index += 1
+
             @logger.info("With machine: #{machine.name} (#{machine.provider.inspect})")
             yield machine
           end

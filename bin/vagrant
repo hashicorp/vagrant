@@ -124,7 +124,7 @@ begin
 
   if !Vagrant.in_installer?
     # If we're not in the installer, warn.
-    env.ui.warn(I18n.t("vagrant.general.not_in_installer") + "\n")
+    env.ui.warn(I18n.t("vagrant.general.not_in_installer") + "\n", prefix: false)
   end
 
   begin

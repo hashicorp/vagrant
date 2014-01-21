@@ -25,7 +25,7 @@ module VagrantPlugins
             end
           end
 
-          env[:ui].info I18n.t("vagrant.actions.vm.forward_ports.forwarding")
+          env[:ui].output(I18n.t("vagrant.actions.vm.forward_ports.forwarding"))
           forward_ports
 
           @app.call(env)
@@ -47,7 +47,7 @@ module VagrantPlugins
             # because the VM is using Virtualbox NAT networking. Host-only
             # bridged networking don't require port-forwarding and establishing
             # forwarded ports on these attachment types has uncertain behaviour.
-            @env[:ui].info(I18n.t("vagrant.actions.vm.forward_ports.forwarding_entry",
+            @env[:ui].detail(I18n.t("vagrant.actions.vm.forward_ports.forwarding_entry",
                                     message_attributes))
 
             # Verify we have the network interface to attach to
@@ -61,7 +61,7 @@ module VagrantPlugins
             # Port forwarding requires the network interface to be a NAT interface,
             # so verify that that is the case.
             if interfaces[fp.adapter][:type] != :nat
-              @env[:ui].info(I18n.t("vagrant.actions.vm.forward_ports.non_nat",
+              @env[:ui].detail(I18n.t("vagrant.actions.vm.forward_ports.non_nat",
                                     message_attributes))
               next
             end

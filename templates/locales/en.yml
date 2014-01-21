@@ -124,6 +124,10 @@ en:
         The 'run_file' specified could not be found.
 
     virtualbox:
+      checking_guest_additions: |-
+        Checking for guest additions in VM...
+      network_adapter: |-
+        Adapter %{adapter}: %{type}%{extra}
       config:
         id_in_pre_import: |-
           The ':id' parameter is not available in "pre-import" customizations.
@@ -1114,7 +1118,7 @@ en:
             Fixed port collision for %{guest_port} => %{host_port}. Now on port %{new_port}.
           forwarding: Forwarding ports...
           forwarding_entry: |-
-            -- %{guest_port} => %{host_port} (adapter %{adapter})
+            %{guest_port} => %{host_port} (adapter %{adapter})
           non_nat: |-
             VirtualBox adapter #%{adapter} not configured as "NAT". Skipping port
             forwards on this adapter.
@@ -1185,11 +1189,11 @@ en:
         share_folders:
           creating: Creating shared folders metadata...
           mounting: Mounting shared folders...
-          mounting_entry: "-- %{guest_path}"
-          nomount_entry: "-- Automounting disabled: %{host_path}"
+          mounting_entry: "%{guestpath} => %{hostpath}"
+          nomount_entry: "Automounting disabled: %{hostpath}"
         set_name:
           setting_name: |-
-            Setting the name of the VM...
+            Setting the name of the VM: %{name}
         suspend:
           suspending: Saving VM state and suspending execution...
 
