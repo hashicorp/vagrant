@@ -199,6 +199,19 @@ describe Vagrant::UI::MachineReadable do
 
       subject.machine(:type, "foo\nbar\r")
     end
+
+    # This is for a bug where JSON parses are frozen and an
+    # exception was being raised.
+    it "works properly with frozen string arguments" do
+      subject.should_receive(:safe_puts).with do |message|
+        parts = message.split(",")
+        expect(parts.length).to eq(4)
+        expect(parts[3]).to eq("foo\\nbar\\r")
+        true
+      end
+
+      subject.machine(:type, "foo\nbar\r".freeze)
+    end
   end
 end
 
