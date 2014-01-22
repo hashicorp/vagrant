@@ -8,17 +8,16 @@ describe Vagrant::BoxCollection do
 
   let(:box_class)   { Vagrant::Box }
   let(:environment) { isolated_environment }
-  let(:instance)    { described_class.new(environment.boxes_dir) }
 
-  subject { instance }
+  subject { described_class.new(environment.boxes_dir) }
 
   it "should tell us the directory it is using" do
-    instance.directory.should == environment.boxes_dir
+    subject.directory.should == environment.boxes_dir
   end
 
   describe "#all" do
     it "should return an empty array when no boxes are there" do
-      instance.all.should == []
+      subject.all.should == []
     end
 
     it "should return the boxes and their providers" do
@@ -28,7 +27,7 @@ describe Vagrant::BoxCollection do
       environment.box3("bar", "0", :ec2)
 
       # Verify some output
-      results = instance.all
+      results = subject.all
       results.length.should == 3
       results.include?(["foo", "1.0", :virtualbox]).should be
       results.include?(["foo", "1.0", :vmware]).should be
@@ -37,7 +36,7 @@ describe Vagrant::BoxCollection do
 
     it 'does not raise an exception when a file appears in the boxes dir' do
       Tempfile.new('a_file', environment.boxes_dir)
-      expect { instance.all }.to_not raise_error
+      expect { subject.all }.to_not raise_error
     end
   end
 
@@ -88,24 +87,23 @@ describe Vagrant::BoxCollection do
       box_path = environment.box2_file(:virtualbox)
 
       # Add the box
-      box = instance.add(box_path, "foo", :virtualbox)
-      box.should be_kind_of(box_class)
-      box.name.should == "foo"
-      box.provider.should == :virtualbox
+      box = subject.add(box_path, "foo", "1.0", providers: :virtualbox)
+      expect(box).to be_kind_of(box_class)
+      expect(box.name).to eq("foo")
+      expect(box.provider).to eq(:virtualbox)
 
       # Verify we can find it as well
-      box = instance.find("foo", :virtualbox)
-      box.should_not be_nil
+      expect(subject.find("foo", :virtualbox, "1.0")).to_not be_nil
     end
 
     it "should add a box without specifying a provider" do
       box_path = environment.box2_file(:vmware)
 
       # Add the box
-      box = instance.add(box_path, "foo")
-      box.should be_kind_of(box_class)
-      box.name.should == "foo"
-      box.provider.should == :vmware
+      box = subject.add(box_path, "foo", "1.0")
+      expect(box).to be_kind_of(box_class)
+      expect(box.name).to eq("foo")
+      expect(box.provider).to eq(:vmware)
     end
 
     it "should add a V1 box" do
@@ -113,35 +111,39 @@ describe Vagrant::BoxCollection do
       box_path = environment.box1_file
 
       # Add the box
-      box = instance.add(box_path, "foo")
-      box.should be_kind_of(box_class)
-      box.name.should == "foo"
-      box.provider.should == :virtualbox
+      box = subject.add(box_path, "foo", "1.0")
+      expect(box).to be_kind_of(box_class)
+      expect(box.name).to eq("foo")
+      expect(box.provider).to eq(:virtualbox)
     end
 
     it "should raise an exception if the box already exists" do
       prev_box_name = "foo"
       prev_box_provider = :virtualbox
+      prev_box_version = "1.0"
 
       # Create the box we're adding
-      environment.box2(prev_box_name, prev_box_provider)
+      environment.box3(prev_box_name, "1.0", prev_box_provider)
 
       # Attempt to add the box with the same name
       box_path = environment.box2_file(prev_box_provider)
-      expect { instance.add(box_path, prev_box_name, prev_box_provider) }.
-        to raise_error(Vagrant::Errors::BoxAlreadyExists)
+      expect {
+        subject.add(box_path, prev_box_name,
+                    prev_box_version, providers: prev_box_provider)
+      }.to raise_error(Vagrant::Errors::BoxAlreadyExists)
     end
 
     it "should replace the box if force is specified" do
       prev_box_name = "foo"
       prev_box_provider = :vmware
+      prev_box_version = "1.0"
 
       # Setup the environment with the box pre-added
-      environment.box2(prev_box_name, prev_box_provider)
+      environment.box3(prev_box_name, prev_box_version, prev_box_provider)
 
       # Attempt to add the box with the same name
       box_path = environment.box2_file(prev_box_provider, metadata: { "replaced" => "yes" })
-      box = instance.add(box_path, prev_box_name, nil, true)
+      box = subject.add(box_path, prev_box_name, prev_box_version, force: true)
       box.metadata["replaced"].should == "yes"
     end
 
@@ -151,23 +153,11 @@ describe Vagrant::BoxCollection do
       box_path = environment.box2_file(:vmware)
 
       # Add it once, successfully
-      expect { instance.add(box_path, box_name) }.to_not raise_error
+      expect { subject.add(box_path, box_name, "1.0") }.to_not raise_error
 
       # Add it again, and fail!
-      expect { instance.add(box_path, box_name) }.
+      expect { subject.add(box_path, box_name, "1.0") }.
         to raise_error(Vagrant::Errors::BoxAlreadyExists)
-    end
-
-    it "should raise an exception if you're attempting to add a box that exists as a V1 box" do
-      prev_box_name = "foo"
-
-      # Create the V1 box
-      environment.box1(prev_box_name)
-
-      # Attempt to add some V2 box with the same name
-      box_path = environment.box2_file(:vmware)
-      expect { instance.add(box_path, prev_box_name) }.
-        to raise_error(Vagrant::Errors::BoxUpgradeRequired)
     end
 
     it "should raise an exception and not add the box if the provider doesn't match" do
@@ -180,11 +170,11 @@ describe Vagrant::BoxCollection do
 
       # Add the box but with an invalid provider, verify we get the proper
       # error.
-      expect { instance.add(box_path, box_name, bad_provider) }.
+      expect { subject.add(box_path, box_name, "1.0", providers: bad_provider) }.
         to raise_error(Vagrant::Errors::BoxProviderDoesntMatch)
 
       # Verify the box doesn't exist
-      instance.find(box_name, bad_provider).should be_nil
+      expect(subject.find(box_name, bad_provider, "1.0")).to be_nil
     end
 
     it "should raise an exception if you add an invalid box file" do
@@ -199,7 +189,7 @@ describe Vagrant::BoxCollection do
         f.write("\0"*CHECKSUM_LENGTH)
         f.close
 
-        expect { instance.add(f.path, "foo", :virtualbox) }.
+        expect { subject.add(f.path, "foo", "1.0") }.
           to raise_error(Vagrant::Errors::BoxUnpackageFailure)
       ensure
         f.close
@@ -208,57 +198,15 @@ describe Vagrant::BoxCollection do
     end
   end
 
-  describe "upgrading" do
-    it "should upgrade a V1 box to V2" do
-      # Create a V1 box
-      environment.box1("foo")
-
-      # Verify that only a V1 box exists
-      expect { instance.find("foo", :virtualbox) }.
-        to raise_error(Vagrant::Errors::BoxUpgradeRequired)
-
-      # Upgrade the box
-      instance.upgrade("foo").should be
-
-      # Verify the box exists
-      box = instance.find("foo", :virtualbox)
-      box.should_not be_nil
-      box.name.should == "foo"
-    end
-
-    it "should raise a BoxNotFound exception if a non-existent box is upgraded" do
-      expect { instance.upgrade("i-dont-exist") }.
-        to raise_error(Vagrant::Errors::BoxNotFound)
-    end
-
-    it "should return true if we try to upgrade a V2 box" do
-      # Create a V2 box
-      environment.box2("foo", :vmware)
-
-      instance.upgrade("foo").should be
-    end
-  end
-
   describe "#upgrade_v1_1_v1_5" do
     let(:boxes_dir) { environment.boxes_dir }
 
     before do
       # Create all the various box directories
-      @foo_path    = boxes_dir.join("foo", "virtualbox")
-      @vbox_path   = boxes_dir.join("precise64", "virtualbox")
-      @vmware_path = boxes_dir.join("precise64", "vmware")
-      @v1_path     = boxes_dir.join("v1box")
-
-      [@foo_path, @vbox_path, @vmware_path].each do |path|
-        path.mkpath
-        path.join("name").open("w") do |f|
-          f.write(path.to_s)
-        end
-      end
-
-      @v1_path.mkpath
-      @v1_path.join("box.ovf").open("w") { |f| f.write("yep!") }
-      @v1_path.join("name").open("w") { |f| f.write("v1box") }
+      @foo_path    = environment.box2("foo", "virtualbox")
+      @vbox_path   = environment.box2("precise64", "virtualbox")
+      @vmware_path = environment.box2("precise64", "vmware")
+      @v1_path     = environment.box("v1box")
     end
 
     it "upgrades the boxes" do

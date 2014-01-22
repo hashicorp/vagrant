@@ -1230,7 +1230,8 @@ en:
             The box you're attempting to add already exists:
 
             Name: %{name}
-            Provider: %{formats}
+            Version: %{version}
+            Provider: %{providers}
         add:
           adding: |-
             Extracting box...
