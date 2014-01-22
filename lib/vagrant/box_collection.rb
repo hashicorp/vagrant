@@ -229,42 +229,40 @@ module Vagrant
     #
     # @param [String] name Name of the box (logical name).
     # @param [Array] providers Providers that the box implements.
+    # @param [String] version Version constraints to adhere to. Example:
+    #   "~> 1.0" or "= 1.0, ~> 1.1"
     # @return [Box] The box found, or `nil` if not found.
-    def find(name, providers)
-      providers = [providers].flatten
+    def find(name, providers, version)
+      providers = Array(providers)
+
+      # Build up the requirements we have
+      requirements = version.split(",").map do |v|
+        Gem::Requirement.new(v.strip)
+      end
 
       with_collection_lock do
-        providers.each do |provider|
-          # First look directly for the box we're asking for.
-          box_directory = @directory.join(name, provider.to_s, "metadata.json")
-          @logger.info("Searching for box: #{name} (#{provider}) in #{box_directory}")
-          if box_directory.file?
-            @logger.info("Box found: #{name} (#{provider})")
-            return Box.new(name, provider, box_directory.dirname)
+        box_directory = @directory.join(name)
+        if !box_directory.directory?
+          @logger.info("Box not found: #{name} (#{providers.join(", ")})")
+          return nil
+        end
+
+        box_directory.children(true).each do |versiondir|
+          version = versiondir.basename.to_s
+          if !requirements.all? { |r| r.satisfied_by?(Gem::Version.new(version)) }
+            # Unsatisfied version requirements
+            next
           end
 
-          # If we're looking for a VirtualBox box, then we check if there is
-          # a V1 box.
-          if provider.to_sym == :virtualbox
-            # Check if a V1 version of this box exists, and if so, raise an
-            # exception notifying the caller that the box exists but needs
-            # to be upgraded. We don't do the upgrade here because it can be
-            # a fairly intensive activity and don't want to immediately degrade
-            # user performance on a find.
-            #
-            # To determine if it is a V1 box we just do a simple heuristic
-            # based approach.
-            @logger.info("Searching for V1 box: #{name}")
-            if v1_box?(@directory.join(name))
-              @logger.warn("V1 box found: #{name}")
-              raise Errors::BoxUpgradeRequired, :name => name
-            end
+          providers.each do |provider|
+            provider_dir = versiondir.join(provider.to_s)
+            next if !provider_dir.directory?
+            @logger.info("Box found: #{name} (#{provider})")
+            return Box.new(name, provider, provider_dir)
           end
         end
       end
 
-      # Didn't find it, return nil
-      @logger.info("Box not found: #{name} (#{providers.join(", ")})")
       nil
     end
 

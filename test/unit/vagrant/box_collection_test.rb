@@ -41,37 +41,45 @@ describe Vagrant::BoxCollection do
     end
   end
 
-  describe "finding" do
-    it "should return nil if the box does not exist" do
-      instance.find("foo", :i_dont_exist).should be_nil
+  describe "#find" do
+    it "returns nil if the box does not exist" do
+      expect(subject.find("foo", :i_dont_exist, ">= 0")).to be_nil
     end
 
-    it "should return a box if the box does exist" do
+    it "returns a box if the box does exist" do
       # Create the "box"
-      environment.box2("foo", :virtualbox)
+      environment.box3("foo", "0", :virtualbox)
 
       # Actual test
-      result = instance.find("foo", :virtualbox)
-      result.should_not be_nil
-      result.should be_kind_of(box_class)
-      result.name.should == "foo"
+      result = subject.find("foo", :virtualbox, ">= 0")
+      expect(result).to_not be_nil
+      expect(result).to be_kind_of(box_class)
+      expect(result.name).to eq("foo")
     end
 
-    it "should throw an exception if it is a v1 box" do
-      # Create a V1 box
-      environment.box1("foo")
+    it "can satisfy complex constraints" do
+      # Create the "box"
+      environment.box3("foo", "0.1", :virtualbox)
+      environment.box3("foo", "1.0", :virtualbox)
+      environment.box3("foo", "2.1", :virtualbox)
 
-      # Test!
-      expect { instance.find("foo", :virtualbox) }.
-        to raise_error(Vagrant::Errors::BoxUpgradeRequired)
+      # Actual test
+      result = subject.find("foo", :virtualbox, ">= 0.9, < 1.5")
+      expect(result).to_not be_nil
+      expect(result).to be_kind_of(box_class)
+      expect(result.name).to eq("foo")
+      # TODO: test version
     end
 
-    it "should return nil if there is a V1 box but we're looking for another provider" do
-      # Create a V1 box
-      environment.box1("foo")
+    it "returns nil if a box's constraints can't be satisfied" do
+      # Create the "box"
+      environment.box3("foo", "0.1", :virtualbox)
+      environment.box3("foo", "1.0", :virtualbox)
+      environment.box3("foo", "2.1", :virtualbox)
 
-      # Test
-      instance.find("foo", :another_provider).should be_nil
+      # Actual test
+      result = subject.find("foo", :virtualbox, "> 1.0, < 1.5")
+      expect(result).to be_nil
     end
   end
 
