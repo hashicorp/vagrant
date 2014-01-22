@@ -96,7 +96,8 @@ module Vagrant
               raise Errors::NoDefaultSyncedFolderImpl, types: types
             end
 
-            folders[default_impl] = folders[""]
+            folders[default_impl] ||= {}
+            folders[default_impl].merge!(folders[""])
             folders.delete("")
           end
 
