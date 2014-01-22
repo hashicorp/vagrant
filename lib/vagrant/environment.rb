@@ -642,6 +642,10 @@ module Vagrant
       version_file = @home_path.join("setup_version")
       if version_file.file?
         version = version_file.read
+        if version > CURRENT_SETUP_VERSION
+          raise Errors::HomeDirectoryLaterVersion
+        end
+
         case version
         when CURRENT_SETUP_VERSION
           # We're already good, at the latest version.

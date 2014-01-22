@@ -69,6 +69,17 @@ describe Vagrant::Environment do
         end
       end
 
+      it "raises an exception if the version is newer than ours" do
+        Dir.mktmpdir do |dir|
+          Pathname.new(dir).join("setup_version").open("w") do |f|
+            f.write("100.5")
+          end
+
+          expect { described_class.new(home_path: dir) }.
+            to raise_error(Vagrant::Errors::HomeDirectoryLaterVersion)
+        end
+      end
+
       it "raises an exception if there is an unknown home directory version" do
         Dir.mktmpdir do |dir|
           Pathname.new(dir).join("setup_version").open("w") do |f|
@@ -105,37 +116,6 @@ describe Vagrant::Environment do
         collection.should_receive(:upgrade_v1_1_v1_5).once
         subject
       end
-=begin
-        # Create all the old box directories
-        boxdir = env.homedir.join("boxes")
-        boxdir.mkpath
-
-        foo_path    = boxdir.join("foo", "virtualbox")
-        vbox_path   = boxdir.join("precise64", "virtualbox")
-        vmware_path = boxdir.join("precise64", "vmware")
-        v1_path     = boxdir.join("v1box")
-
-        [foo_path, vbox_path, vmware_path].each do |path|
-          path.mkpath
-          path.join("name").open("w") do |f|
-            f.write(path.to_s)
-          end
-        end
-
-        v1_path.mkpath
-        v1_path.join("name").open("w") { |f| f.write("v1box") }
-
-        # Upgrade!
-        subject
-
-        expect(boxdir).to be_directory
-        expect(boxdir.children(false).map(&:to_s).sort).to eq(
-          ["foo", "precise64", "v1box"])
-        expect(foo_path).to_not exist
-        expect(vbox_path).to_not exist
-        expect(vmware_path).to_not exist
-        expect(v1_path).to_not exist
-=end
     end
   end
 

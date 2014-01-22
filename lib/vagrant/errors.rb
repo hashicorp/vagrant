@@ -260,6 +260,10 @@ module Vagrant
       error_key(:environment_locked)
     end
 
+    class HomeDirectoryLaterVersion < VagrantError
+      error_key(:home_dir_later_version)
+    end
+
     class HomeDirectoryNotAccessible < VagrantError
       error_key(:home_dir_not_accessible)
     end

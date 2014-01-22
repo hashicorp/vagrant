@@ -432,6 +432,11 @@ en:
         as mounting shared folders and configuring networks. Please add
         the ability to detect this guest operating system to Vagrant
         by creating a plugin or reporting a bug.
+      home_dir_later_version: |-
+        It appears that a newer version of Vagrant was run on this machine
+        at some point. The current version of Vagrant is unable to read
+        the configuration structure of this newer version. Please upgrade to
+        the latest version of Vagrant.
       home_dir_not_accessible: |-
         The home directory you specified is not accessible. The home
         directory that Vagrant uses must be both readable and writable.
