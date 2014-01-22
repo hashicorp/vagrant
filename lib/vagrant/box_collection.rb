@@ -1,5 +1,5 @@
 require "digest/sha1"
-require "thread"
+require "monitor"
 require "tmpdir"
 
 require "log4r"
@@ -44,7 +44,7 @@ module Vagrant
       options ||= {}
 
       @directory = directory
-      @lock      = Mutex.new
+      @lock      = Monitor.new
       @temp_root = options[:temp_dir_root]
       @logger    = Log4r::Logger.new("vagrant::box_collection")
     end
@@ -361,17 +361,7 @@ module Vagrant
     # This locks the region given by the block with a lock on this
     # collection.
     def with_collection_lock
-      lock = @lock
-
-      begin
-        lock.synchronize {}
-      rescue ThreadError
-        # If we already hold the lock, just create a new lock so
-        # we definitely don't block and don't get an error.
-        lock = Mutex.new
-      end
-
-      lock.synchronize do
+      @lock.synchronize do
         return yield
       end
     end
