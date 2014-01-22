@@ -46,6 +46,8 @@ en:
       Vagrant doesn't support detecting whether Docker is installed
       for the guest OS running in the machine. Vagrant will assume it is
       installed and attempt to continue.
+    docker_configure_autostart: |-
+      Configuring Docker to autostart containers...
     docker_install_with_version_not_supported: |-
       Vagrant is not capable of installing an specific version of Docker
       onto the guest machine and the latest version will be installed.

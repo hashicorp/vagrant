@@ -16,7 +16,7 @@ module VagrantPlugins
         end
 
         if !@machine.guest.capability(:docker_installed)
-          @machine.ui.info(I18n.t("vagrant.docker_installing", version: @version.to_s))
+          @machine.ui.detail(I18n.t("vagrant.docker_installing", version: @version.to_s))
           @machine.guest.capability(:docker_install, @version)
 
           if !@machine.guest.capability(:docker_installed)
@@ -25,6 +25,7 @@ module VagrantPlugins
         end
 
         if @machine.guest.capability?(:docker_configure_auto_start)
+          @machine.ui.detail(I18n.t("vagrant.docker_configure_autostart"))
           @machine.guest.capability(:docker_configure_auto_start)
         else
           @machine.env.ui.warn I18n.t('vagrant.docker_auto_start_not_available')
