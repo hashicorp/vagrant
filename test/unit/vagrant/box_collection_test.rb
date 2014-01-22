@@ -16,6 +16,65 @@ describe Vagrant::BoxCollection do
     instance.directory.should == environment.boxes_dir
   end
 
+  describe "#all" do
+    it "should return an empty array when no boxes are there" do
+      instance.all.should == []
+    end
+
+    it "should return the boxes and their providers" do
+      # Create some boxes
+      environment.box3("foo", "1.0", :virtualbox)
+      environment.box3("foo", "1.0", :vmware)
+      environment.box3("bar", "0", :ec2)
+
+      # Verify some output
+      results = instance.all
+      results.length.should == 3
+      results.include?(["foo", "1.0", :virtualbox]).should be
+      results.include?(["foo", "1.0", :vmware]).should be
+      results.include?(["bar", "0", :ec2]).should be
+    end
+
+    it 'does not raise an exception when a file appears in the boxes dir' do
+      Tempfile.new('a_file', environment.boxes_dir)
+      expect { instance.all }.to_not raise_error
+    end
+  end
+
+  describe "finding" do
+    it "should return nil if the box does not exist" do
+      instance.find("foo", :i_dont_exist).should be_nil
+    end
+
+    it "should return a box if the box does exist" do
+      # Create the "box"
+      environment.box2("foo", :virtualbox)
+
+      # Actual test
+      result = instance.find("foo", :virtualbox)
+      result.should_not be_nil
+      result.should be_kind_of(box_class)
+      result.name.should == "foo"
+    end
+
+    it "should throw an exception if it is a v1 box" do
+      # Create a V1 box
+      environment.box1("foo")
+
+      # Test!
+      expect { instance.find("foo", :virtualbox) }.
+        to raise_error(Vagrant::Errors::BoxUpgradeRequired)
+    end
+
+    it "should return nil if there is a V1 box but we're looking for another provider" do
+      # Create a V1 box
+      environment.box1("foo")
+
+      # Test
+      instance.find("foo", :another_provider).should be_nil
+    end
+  end
+
   describe "adding" do
     it "should add a valid box to the system" do
       box_path = environment.box2_file(:virtualbox)
@@ -138,75 +197,6 @@ describe Vagrant::BoxCollection do
         f.close
         f.unlink
       end
-    end
-  end
-
-  describe "listing all" do
-    it "should return an empty array when no boxes are there" do
-      instance.all.should == []
-    end
-
-    it "should return the boxes and their providers" do
-      # Create some boxes
-      environment.box2("foo", :virtualbox)
-      environment.box2("foo", :vmware)
-      environment.box2("bar", :ec2)
-
-      # Verify some output
-      results = instance.all
-      results.length.should == 3
-      results.include?(["foo", :virtualbox]).should be
-      results.include?(["foo", :vmware]).should be
-      results.include?(["bar", :ec2]).should be
-    end
-
-    it "should return V1 boxes as well" do
-      # Create some boxes, including a V1 box
-      environment.box1("bar")
-      environment.box2("foo", :vmware)
-
-      # Verify some output
-      results = instance.all.sort
-      results.should == [["bar", :virtualbox, :v1], ["foo", :vmware]]
-    end
-
-    it 'does not raise an exception when a file appears in the boxes dir' do
-      Tempfile.new('a_file', environment.boxes_dir)
-      expect { instance.all }.to_not raise_error
-    end
-  end
-
-  describe "finding" do
-    it "should return nil if the box does not exist" do
-      instance.find("foo", :i_dont_exist).should be_nil
-    end
-
-    it "should return a box if the box does exist" do
-      # Create the "box"
-      environment.box2("foo", :virtualbox)
-
-      # Actual test
-      result = instance.find("foo", :virtualbox)
-      result.should_not be_nil
-      result.should be_kind_of(box_class)
-      result.name.should == "foo"
-    end
-
-    it "should throw an exception if it is a v1 box" do
-      # Create a V1 box
-      environment.box1("foo")
-
-      # Test!
-      expect { instance.find("foo", :virtualbox) }.
-        to raise_error(Vagrant::Errors::BoxUpgradeRequired)
-    end
-
-    it "should return nil if there is a V1 box but we're looking for another provider" do
-      # Create a V1 box
-      environment.box1("foo")
-
-      # Test
-      instance.find("foo", :another_provider).should be_nil
     end
   end
 

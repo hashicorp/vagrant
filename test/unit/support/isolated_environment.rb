@@ -89,6 +89,29 @@ module Unit
       box_dir
     end
 
+    # Creates a fake box to exist in this environment according
+    # to the "gen-3" box format.
+    #
+    # @param [String] name
+    # @param [String] version
+    # @param [String] provider
+    # @return [Pathname]
+    def box3(name, version, provider, **opts)
+      # Create the directory for the box
+      box_dir = boxes_dir.join(name, version, provider.to_s)
+      box_dir.mkpath
+
+      # Create the metadata.json for it
+      box_metadata_file = box_dir.join("metadata.json")
+      box_metadata_file.open("w") do |f|
+        f.write(JSON.generate({
+          :provider => provider.to_s
+        }))
+      end
+
+      box_dir
+    end
+
     # This creates a "box" file that is a valid V1 box.
     #
     # @return [Pathname] Path to the newly created box.

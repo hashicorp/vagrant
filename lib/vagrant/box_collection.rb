@@ -188,9 +188,8 @@ module Vagrant
     # This returns an array of all the boxes on the system, given by
     # their name and their provider.
     #
-    # @return [Array] Array of `[name, provider]` pairs of the boxes
-    #   installed on this system. An optional third element in the array
-    #   may specify `:v1` if the box is a version 1 box.
+    # @return [Array] Array of `[name, version, provider]` of the boxes
+    #   installed on this system.
     def all
       results = []
 
@@ -203,25 +202,21 @@ module Vagrant
 
           box_name = child.basename.to_s
 
-          # If this is a V1 box, we still return that name, but specify
-          # that the box is a V1 box.
-          if v1_box?(child)
-            @logger.debug("V1 box found: #{box_name}")
-            results << [box_name, :virtualbox, :v1]
-            next
-          end
-
-          # Otherwise, traverse the subdirectories and see what providers
+          # Otherwise, traverse the subdirectories and see what versions
           # we have.
-          child.children(true).each do |provider|
-            # Verify this is a potentially valid box. If it looks
-            # correct enough then include it.
-            if provider.directory? && provider.join("metadata.json").file?
-              provider_name = provider.basename.to_s.to_sym
-              @logger.debug("Box: #{box_name} (#{provider_name})")
-              results << [box_name, provider_name]
-            else
-              @logger.debug("Invalid box, ignoring: #{provider}")
+          child.children(true).each do |versiondir|
+            version = versiondir.basename.to_s
+
+            versiondir.children(true).each do |provider|
+              # Verify this is a potentially valid box. If it looks
+              # correct enough then include it.
+              if provider.directory? && provider.join("metadata.json").file?
+                provider_name = provider.basename.to_s.to_sym
+                @logger.debug("Box: #{box_name} (#{provider_name})")
+                results << [box_name, version, provider_name]
+              else
+                @logger.debug("Invalid box, ignoring: #{provider}")
+              end
             end
           end
         end
