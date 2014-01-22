@@ -10,6 +10,8 @@ describe Vagrant::BoxCollection do
   let(:environment) { isolated_environment }
   let(:instance)    { described_class.new(environment.boxes_dir) }
 
+  subject { instance }
+
   it "should tell us the directory it is using" do
     instance.directory.should == environment.boxes_dir
   end
@@ -236,6 +238,50 @@ describe Vagrant::BoxCollection do
       environment.box2("foo", :vmware)
 
       instance.upgrade("foo").should be
+    end
+  end
+
+  describe "#upgrade_v1_1_v1_5" do
+    let(:boxes_dir) { environment.boxes_dir }
+
+    before do
+      # Create all the various box directories
+      @foo_path    = boxes_dir.join("foo", "virtualbox")
+      @vbox_path   = boxes_dir.join("precise64", "virtualbox")
+      @vmware_path = boxes_dir.join("precise64", "vmware")
+      @v1_path     = boxes_dir.join("v1box")
+
+      [@foo_path, @vbox_path, @vmware_path].each do |path|
+        path.mkpath
+        path.join("name").open("w") do |f|
+          f.write(path.to_s)
+        end
+      end
+
+      @v1_path.mkpath
+      @v1_path.join("box.ovf").open("w") { |f| f.write("yep!") }
+      @v1_path.join("name").open("w") { |f| f.write("v1box") }
+    end
+
+    it "upgrades the boxes" do
+      subject.upgrade_v1_1_v1_5
+
+      # The old paths should not exist anymore
+      expect(@foo_path).to_not exist
+      expect(@vbox_path).to_not exist
+      expect(@vmware_path).to_not exist
+      expect(@v1_path.join("box.ovf")).to_not exist
+
+      # New paths should exist
+      foo_path = boxes_dir.join("foo", "0", "virtualbox")
+      vbox_path = boxes_dir.join("precise64", "0", "virtualbox")
+      vmware_path = boxes_dir.join("precise64", "0", "vmware")
+      v1_path = boxes_dir.join("v1box", "0", "virtualbox")
+
+      expect(foo_path).to exist
+      expect(vbox_path).to exist
+      expect(vmware_path).to exist
+      expect(v1_path).to exist
     end
   end
 end

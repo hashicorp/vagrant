@@ -304,6 +304,38 @@ module Vagrant
       return true
     end
 
+    # This upgrades a v1.1 - v1.4 box directory structure up to a v1.5
+    # directory structure. This will raise exceptions if it fails in any
+    # way.
+    def upgrade_v1_1_v1_5
+      with_collection_lock do
+        temp_dir = Pathname.new(Dir.mktmpdir(TEMP_PREFIX, @temp_root))
+
+        @directory.children(true).each do |boxdir|
+          # Ignore all non-directories because they can't be boxes
+          next if !boxdir.directory?
+
+          box_name = boxdir.basename.to_s
+
+          # If it is a v1 box, then we need to upgrade it first
+          upgrade(box_name) if v1_box?(boxdir)
+
+          # Create the directory for this box
+          new_box_dir = temp_dir.join(box_name, "0")
+          new_box_dir.mkpath
+
+          # Go through each provider and move it
+          boxdir.children(true).each do |providerdir|
+            FileUtils.cp_r(providerdir, new_box_dir.join(providerdir.basename))
+          end
+        end
+
+        # Move the folder into place
+        @directory.rmtree
+        FileUtils.mv(temp_dir.to_s, @directory.to_s)
+      end
+    end
+
     protected
 
     # This checks if the given directory represents a V1 box on the

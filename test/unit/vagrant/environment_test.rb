@@ -49,36 +49,7 @@ describe Vagrant::Environment do
       }.to raise_error(Vagrant::Errors::HomeDirectoryNotAccessible)
     end
 
-    context "default home path" do
-      it "is set to '~/.vagrant.d' by default" do
-        expected = Vagrant::Util::Platform.fs_real_path("~/.vagrant.d")
-        described_class.new.home_path.should == expected
-      end
-
-      it "is set to '~/.vagrant.d' if on Windows but no USERPROFILE" do
-        Vagrant::Util::Platform.stub(:windows? => true)
-
-        expected = Vagrant::Util::Platform.fs_real_path("~/.vagrant.d")
-
-        with_temp_env("USERPROFILE" => nil) do
-          described_class.new.home_path.should == expected
-        end
-      end
-
-      it "is set to '%USERPROFILE%/.vagrant.d' if on Windows and USERPROFILE is set" do
-        Vagrant::Util::Platform.stub(:windows? => true)
-
-        Dir.mktmpdir do |dir|
-          expected = Vagrant::Util::Platform.fs_real_path("#{dir}/.vagrant.d")
-
-          with_temp_env("USERPROFILE" => dir) do
-            described_class.new.home_path.should == expected
-          end
-        end
-      end
-    end
-
-    context "setup version file" do
+    context "with setup version file" do
       it "creates a setup version flie" do
         path = subject.home_path.join("setup_version")
         expect(path).to be_file
@@ -108,6 +79,63 @@ describe Vagrant::Environment do
             to raise_error(Vagrant::Errors::HomeDirectoryUnknownVersion)
         end
       end
+    end
+
+    context "upgrading a v1.1 directory structure" do
+      let(:env) { isolated_environment }
+
+      before do
+        env.homedir.join("setup_version").open("w") do |f|
+          f.write("1.1")
+        end
+      end
+
+      it "replaces the setup version with the new version" do
+        expect(subject.home_path.join("setup_version").read).
+          to eq(Vagrant::Environment::CURRENT_SETUP_VERSION)
+      end
+
+      it "moves the boxes into the new directory structure" do
+        # Kind of hacky but avoids two instantiations of BoxCollection
+        Vagrant::Environment.any_instance.stub(boxes: double("boxes"))
+
+        collection = double("collection")
+        Vagrant::BoxCollection.should_receive(:new).with(
+          env.homedir.join("boxes"), anything).and_return(collection)
+        collection.should_receive(:upgrade_v1_1_v1_5).once
+        subject
+      end
+=begin
+        # Create all the old box directories
+        boxdir = env.homedir.join("boxes")
+        boxdir.mkpath
+
+        foo_path    = boxdir.join("foo", "virtualbox")
+        vbox_path   = boxdir.join("precise64", "virtualbox")
+        vmware_path = boxdir.join("precise64", "vmware")
+        v1_path     = boxdir.join("v1box")
+
+        [foo_path, vbox_path, vmware_path].each do |path|
+          path.mkpath
+          path.join("name").open("w") do |f|
+            f.write(path.to_s)
+          end
+        end
+
+        v1_path.mkpath
+        v1_path.join("name").open("w") { |f| f.write("v1box") }
+
+        # Upgrade!
+        subject
+
+        expect(boxdir).to be_directory
+        expect(boxdir.children(false).map(&:to_s).sort).to eq(
+          ["foo", "precise64", "v1box"])
+        expect(foo_path).to_not exist
+        expect(vbox_path).to_not exist
+        expect(vmware_path).to_not exist
+        expect(v1_path).to_not exist
+=end
     end
   end
 
