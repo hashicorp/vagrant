@@ -60,6 +60,8 @@ BUG FIXES:
     indefinitely. [GH-2756]
   - core: Windows checks home directory permissions more correctly to
     warn of potential issues.
+  - core: Synced folders set to the default synced folder explicitly won't
+    be deleted. [GH-2873]
   - commands/box: Box add `--force` works with `--provider` flag. [GH-2757]
   - commands/box: Listing boxes with machine-readable output crash is gone.
   - commands/plugin: Plugin installation will fail if dependencies conflict,

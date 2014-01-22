@@ -75,12 +75,14 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
     it "should return the proper set of folders" do
       folders["root"] = {}
       folders["another"] = { type: "" }
+      folders["foo"] = { type: "default" }
       folders["nfs"] = { type: "nfs" }
 
       result = subject.synced_folders(machine)
       result.length.should == 2
       result[:default].should == {
         "another" => folders["another"],
+        "foo" => folders["foo"],
         "root" => folders["root"],
       }
       result[:nfs].should == { "nfs" => folders["nfs"] }
