@@ -65,7 +65,7 @@ module Vagrant
             next if data[:disabled]
 
             impl = ""
-            impl = data[:type].to_sym if data[:type]
+            impl = data[:type].to_sym if data[:type] && !data[:type].empty?
 
             if impl != ""
               impl_class = plugins[impl]
