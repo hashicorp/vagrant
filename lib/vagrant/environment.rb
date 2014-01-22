@@ -14,6 +14,12 @@ module Vagrant
   # defined as basically a folder with a "Vagrantfile." This class allows
   # access to the VMs, CLI, etc. all in the scope of this environment.
   class Environment
+    # This is the current version that this version of Vagrant is
+    # compatible with in the home directory.
+    #
+    # @return [String]
+    CURRENT_SETUP_VERSION = "1.1"
+
     DEFAULT_LOCAL_DATA = ".vagrant"
 
     # The `cwd` that this environment represents
@@ -634,10 +640,22 @@ module Vagrant
       # we're using.
       version_file = @home_path.join("setup_version")
       if !version_file.file?
-        @logger.debug("Setting up the version file.")
+        @logger.debug(
+          "Creating home directory version file: #{CURRENT_SETUP_VERSION}")
         version_file.open("w") do |f|
-          f.write("1.1")
+          f.write(CURRENT_SETUP_VERSION)
         end
+      end
+
+      # Determine if we need to update the directory structure
+      version = version_file.read
+      case version
+      when CURRENT_SETUP_VERSION
+        # We're already good, at the latest version.
+      else
+        raise Errors::HomeDirectoryUnknownVersion,
+          path: @home_path.to_s,
+          version: version
       end
 
       # Create the rgloader/loader file so we can use encoded files.

@@ -25,6 +25,92 @@ describe Vagrant::Environment do
   let(:instance)  { env.create_vagrant_env }
   subject { instance }
 
+  describe "#home_path" do
+    it "is set to the home path given" do
+      Dir.mktmpdir do |dir|
+        instance = described_class.new(:home_path => dir)
+        instance.home_path.should == Pathname.new(dir)
+      end
+    end
+
+    it "is set to the environmental variable VAGRANT_HOME" do
+      Dir.mktmpdir do |dir|
+        instance = with_temp_env("VAGRANT_HOME" => dir) do
+          described_class.new
+        end
+
+        instance.home_path.should == Pathname.new(dir)
+      end
+    end
+
+    it "throws an exception if inaccessible" do
+      expect {
+        described_class.new(:home_path => "/")
+      }.to raise_error(Vagrant::Errors::HomeDirectoryNotAccessible)
+    end
+
+    context "default home path" do
+      it "is set to '~/.vagrant.d' by default" do
+        expected = Vagrant::Util::Platform.fs_real_path("~/.vagrant.d")
+        described_class.new.home_path.should == expected
+      end
+
+      it "is set to '~/.vagrant.d' if on Windows but no USERPROFILE" do
+        Vagrant::Util::Platform.stub(:windows? => true)
+
+        expected = Vagrant::Util::Platform.fs_real_path("~/.vagrant.d")
+
+        with_temp_env("USERPROFILE" => nil) do
+          described_class.new.home_path.should == expected
+        end
+      end
+
+      it "is set to '%USERPROFILE%/.vagrant.d' if on Windows and USERPROFILE is set" do
+        Vagrant::Util::Platform.stub(:windows? => true)
+
+        Dir.mktmpdir do |dir|
+          expected = Vagrant::Util::Platform.fs_real_path("#{dir}/.vagrant.d")
+
+          with_temp_env("USERPROFILE" => dir) do
+            described_class.new.home_path.should == expected
+          end
+        end
+      end
+    end
+
+    context "setup version file" do
+      it "creates a setup version flie" do
+        path = subject.home_path.join("setup_version")
+        expect(path).to be_file
+        expect(path.read).to eq(Vagrant::Environment::CURRENT_SETUP_VERSION)
+      end
+
+      it "is okay if it has the current version" do
+        Dir.mktmpdir do |dir|
+          Pathname.new(dir).join("setup_version").open("w") do |f|
+            f.write(Vagrant::Environment::CURRENT_SETUP_VERSION)
+          end
+
+          instance = described_class.new(home_path: dir)
+          path = instance.home_path.join("setup_version")
+          expect(path).to be_file
+          expect(path.read).to eq(Vagrant::Environment::CURRENT_SETUP_VERSION)
+        end
+      end
+
+      it "raises an exception if there is an unknown home directory version" do
+        Dir.mktmpdir do |dir|
+          Pathname.new(dir).join("setup_version").open("w") do |f|
+            f.write("0.7")
+          end
+
+          expect { described_class.new(home_path: dir) }.
+            to raise_error(Vagrant::Errors::HomeDirectoryUnknownVersion)
+        end
+      end
+    end
+  end
+
   describe "#host" do
     let(:plugin_hosts) { {} }
     let(:plugin_host_caps) { {} }
@@ -208,60 +294,6 @@ describe Vagrant::Environment do
       with_temp_env("VAGRANT_DEFAULT_PROVIDER" => "foo") do
         subject.default_provider.should == :foo
       end
-    end
-  end
-
-  describe "home path" do
-    it "is set to the home path given" do
-      Dir.mktmpdir do |dir|
-        instance = described_class.new(:home_path => dir)
-        instance.home_path.should == Pathname.new(dir)
-      end
-    end
-
-    it "is set to the environmental variable VAGRANT_HOME" do
-      Dir.mktmpdir do |dir|
-        instance = with_temp_env("VAGRANT_HOME" => dir) do
-          described_class.new
-        end
-
-        instance.home_path.should == Pathname.new(dir)
-      end
-    end
-
-    context "default home path" do
-      it "is set to '~/.vagrant.d' by default" do
-        expected = Vagrant::Util::Platform.fs_real_path("~/.vagrant.d")
-        described_class.new.home_path.should == expected
-      end
-
-      it "is set to '~/.vagrant.d' if on Windows but no USERPROFILE" do
-        Vagrant::Util::Platform.stub(:windows? => true)
-
-        expected = Vagrant::Util::Platform.fs_real_path("~/.vagrant.d")
-
-        with_temp_env("USERPROFILE" => nil) do
-          described_class.new.home_path.should == expected
-        end
-      end
-
-      it "is set to '%USERPROFILE%/.vagrant.d' if on Windows and USERPROFILE is set" do
-        Vagrant::Util::Platform.stub(:windows? => true)
-
-        Dir.mktmpdir do |dir|
-          expected = Vagrant::Util::Platform.fs_real_path("#{dir}/.vagrant.d")
-
-          with_temp_env("USERPROFILE" => dir) do
-            described_class.new.home_path.should == expected
-          end
-        end
-      end
-    end
-
-    it "throws an exception if inaccessible" do
-      expect {
-        described_class.new(:home_path => "/")
-      }.to raise_error(Vagrant::Errors::HomeDirectoryNotAccessible)
     end
   end
 

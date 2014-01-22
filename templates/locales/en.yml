@@ -437,6 +437,10 @@ en:
         directory that Vagrant uses must be both readable and writable.
 
         You specified: %{home_path}
+      home_dir_unknown_version: |-
+        The Vagrant app data directory (%{path}) is in a
+        structure Vagrant doesn't understand. This is a rare exception.
+        Please report an issue or ask the mailing list for help.
       host_explicit_not_detected: |-
         The host implementation explicitly specified in your Vagrantfile
         ("%{value}") could not be found. Please verify that the plugin is

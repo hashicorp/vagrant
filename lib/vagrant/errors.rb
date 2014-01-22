@@ -264,6 +264,10 @@ module Vagrant
       error_key(:home_dir_not_accessible)
     end
 
+    class HomeDirectoryUnknownVersion < VagrantError
+      error_key(:home_dir_unknown_version)
+    end
+
     class ForwardPortAdapterNotFound < VagrantError
       error_key(:forward_port_adapter_not_found)
     end
