@@ -120,6 +120,14 @@ module Vagrant
       error_key(:batch_multi_error)
     end
 
+    class BoxAddNoMatchingProvider < VagrantError
+      error_key(:box_add_no_matching_provider)
+    end
+
+    class BoxAddNoMatchingVersion < VagrantError
+      error_key(:box_add_no_matching_version)
+    end
+
     class BoxAlreadyExists < VagrantError
       error_key(:already_exists, "vagrant.actions.box.unpackage")
     end

@@ -211,6 +211,23 @@ en:
         Any errors that occurred are shown below.
 
         %{message}
+      box_add_no_matching_provider: |-
+        The box you're attempting to add doesn't support the provider
+        you requested. Please find an alternate box or use an alternate
+        provider. Double-check your requested provider to verify you didn't
+        simply misspell it.
+
+        Box: %{url}
+        Requested provider: %{requested}
+        Available providers: %{providers}
+      box_add_no_matching_version: |-
+        The box you're attempting to add has no available version that
+        matches the constraints you requested. Please double-check your
+        settings.
+
+        Box: %{url}
+        Constraints: %{constraints}
+        Available versions: %{versions}
       boot_bad_state: |-
         The guest machine entered an invalid state while waiting for it
         to boot. Valid states are '%{valid}'. The machine is in the
