@@ -277,6 +277,7 @@ module Vagrant
 
         # Special case some colors for certain message types
         opts[:color] = :red if type == :error
+        opts[:color] = :green if type == :success
         opts[:color] = :yellow if type == :warn
 
         # If there is no color specified, exit early

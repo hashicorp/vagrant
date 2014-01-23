@@ -130,6 +130,17 @@ describe Vagrant::UI::Colored do
     end
   end
 
+  describe "#success" do
+    it "colors green" do
+      subject.should_receive(:safe_puts).with do |message, *args|
+        expect(message).to start_with("\033[0;32m")
+        expect(message).to end_with("\033[0m")
+      end
+
+      subject.success("foo")
+    end
+  end
+
   describe "#warn" do
     it "colors yellow" do
       subject.should_receive(:safe_puts).with do |message, *args|
