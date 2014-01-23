@@ -266,6 +266,12 @@ en:
         box file format can be found at the URL below:
 
         http://docs.vagrantup.com/v2/boxes/format.html
+      box_metadata_malformed: |-
+        The metadata for the box was malformed. The exact error
+        is shown below. Please contact the maintainer of the box so
+        that this issue can be fixed.
+
+        %{error}
       box_not_found: Box '%{name}' with '%{provider}' provider could not be found.
       box_provider_doesnt_match: |-
         The box you attempted to add doesn't match the provider you specified.

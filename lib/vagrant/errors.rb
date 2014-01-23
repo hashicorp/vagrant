@@ -144,6 +144,10 @@ module Vagrant
       error_key(:box_metadata_file_not_found)
     end
 
+    class BoxMetadataMalformed < VagrantError
+      error_key(:box_metadata_malformed)
+    end
+
     class BoxNotFound < VagrantError
       error_key(:box_not_found)
     end
