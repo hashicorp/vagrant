@@ -124,7 +124,8 @@ module Vagrant
 
             # Add the box!
             box = env[:box_collection].add(
-              box_url, metadata.name, metadata_version.version)
+              box_url, metadata.name, metadata_version.version,
+              force: env[:box_force])
           ensure
             # Make sure we delete the temporary file after we add it,
             # unless we were interrupted, in which case we keep it around

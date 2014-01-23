@@ -368,5 +368,45 @@ describe Vagrant::Action::Builtin::BoxAdd do
       expect { subject.call(env) }.
         to raise_error(Vagrant::Errors::BoxAddNoMatchingProvider)
     end
+
+    it "force adds a box if specified" do
+      box_path = iso_env.box2_file(:virtualbox)
+      tf = Tempfile.new("vagrant").tap do |f|
+        f.write(<<-RAW)
+        {
+          "name": "foo/bar",
+          "versions": [
+            {
+              "version": "0.5"
+            },
+            {
+              "version": "0.7",
+              "providers": [
+                {
+                  "name": "virtualbox",
+                  "url":  "#{box_path}"
+                }
+              ]
+            }
+          ]
+        }
+        RAW
+        f.close
+      end
+
+      env[:box_force] = true
+      env[:box_url] = tf.path
+      box_collection.should_receive(:add).with do |path, name, version, **opts|
+        expect(checksum(path)).to eq(checksum(box_path))
+        expect(name).to eq("foo/bar")
+        expect(version).to eq("0.7")
+        expect(opts[:force]).to be_true
+        true
+      end.and_return(box)
+
+      app.should_receive(:call).with(env)
+
+      subject.call(env)
+    end
   end
 end
