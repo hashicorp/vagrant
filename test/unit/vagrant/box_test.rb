@@ -11,21 +11,20 @@ describe Vagrant::Box do
 
   let(:name)          { "foo" }
   let(:provider)      { :virtualbox }
+  let(:version)       { "1.0" }
   let(:directory)     { environment.box2("foo", :virtualbox) }
-  let(:instance)      { described_class.new(name, provider, directory) }
-
-  subject { described_class.new(name, provider, directory) }
+  subject             { described_class.new(name, provider, version, directory) }
 
   it "provides the name" do
-    instance.name.should == name
+    subject.name.should == name
   end
 
   it "provides the provider" do
-    instance.provider.should == provider
+    subject.provider.should == provider
   end
 
   it "provides the directory" do
-    instance.directory.should == directory
+    subject.directory.should == directory
   end
 
   it "provides the metadata associated with a box" do
@@ -37,7 +36,7 @@ describe Vagrant::Box do
     end
 
     # Verify the metadata
-    instance.metadata.should == data
+    subject.metadata.should == data
   end
 
   context "with a corrupt metadata file" do
@@ -70,15 +69,15 @@ describe Vagrant::Box do
       directory.exist?.should be
 
       # Destroy it
-      instance.destroy!.should be
+      subject.destroy!.should be
 
       # Verify that it is "destroyed"
       directory.exist?.should_not be
     end
 
     it "should not error destroying a non-existent box" do
-      # Get the instance so that it is instantiated
-      box = instance
+      # Get the subject so that it is instantiated
+      box = subject
 
       # Delete the directory
       directory.rmtree
@@ -100,36 +99,51 @@ describe Vagrant::Box do
 
       # Repackage our box to some temporary directory
       box_output_path = temporary_dir.join("package.box")
-      instance.repackage(box_output_path).should be
+      expect(subject.repackage(box_output_path)).to be_true
 
       # Let's now add this box again under a different name, and then
       # verify that we get the proper result back.
-      new_box = box_collection.add(box_output_path, "foo2")
+      new_box = box_collection.add(box_output_path, "foo2", "1.0")
       new_box.directory.join("test_file").read.should == test_file_contents
     end
   end
 
   describe "comparison and ordering" do
-    it "should be equal if the name and provider match" do
-      a = described_class.new("a", :foo, directory)
-      b = described_class.new("a", :foo, directory)
+    it "should be equal if the name, provider, version match" do
+      a = described_class.new("a", :foo, "1.0", directory)
+      b = described_class.new("a", :foo, "1.0", directory)
 
       a.should == b
     end
 
-    it "should not be equal if the name and provider do not match" do
-      a = described_class.new("a", :foo, directory)
-      b = described_class.new("b", :foo, directory)
+    it "should not be equal if name doesn't match" do
+      a = described_class.new("a", :foo, "1.0", directory)
+      b = described_class.new("b", :foo, "1.0", directory)
 
-      a.should_not == b
+      expect(a).to_not eq(b)
     end
 
-    it "should sort them in order of name then provider" do
-      a = described_class.new("a", :foo, directory)
-      b = described_class.new("b", :foo, directory)
-      c = described_class.new("c", :foo2, directory)
+    it "should not be equal if provider doesn't match" do
+      a = described_class.new("a", :foo, "1.0", directory)
+      b = described_class.new("a", :bar, "1.0", directory)
 
-      [c, a, b].sort.should == [a, b, c]
+      expect(a).to_not eq(b)
+    end
+
+    it "should not be equal if version doesn't match" do
+      a = described_class.new("a", :foo, "1.0", directory)
+      b = described_class.new("a", :foo, "1.1", directory)
+
+      expect(a).to_not eq(b)
+    end
+
+    it "should sort them in order of name, version, provider" do
+      a = described_class.new("a", :foo, "1.0", directory)
+      b = described_class.new("a", :foo2, "1.0", directory)
+      c = described_class.new("a", :foo2, "1.1", directory)
+      d = described_class.new("b", :foo2, "1.0", directory)
+
+      [d, c, a, b].sort.should == [a, b, c, d]
     end
   end
 end

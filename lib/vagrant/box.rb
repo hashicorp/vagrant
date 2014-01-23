@@ -23,6 +23,11 @@ module Vagrant
     # @return [Symbol]
     attr_reader :provider
 
+    # The version of this box.
+    #
+    # @return [String]
+    attr_reader :version
+
     # This is the directory on disk where this box exists.
     #
     # @return [Pathname]
@@ -40,8 +45,9 @@ module Vagrant
     # @param [Symbol] provider The provider that this box implements.
     # @param [Pathname] directory The directory where this box exists on
     #   disk.
-    def initialize(name, provider, directory)
+    def initialize(name, provider, version, directory)
       @name      = name
+      @version   = version
       @provider  = provider
       @directory = directory
 
@@ -96,7 +102,8 @@ module Vagrant
       return super if !other.is_a?(self.class)
 
       # Comparison is done by composing the name and provider
-      "#{@name}-#{@provider}" <=> "#{other.name}-#{other.provider}"
+      "#{@name}-#{@version}-#{@provider}" <=>
+        "#{other.name}-#{other.version}-#{other.provider}"
     end
   end
 end

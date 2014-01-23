@@ -131,7 +131,7 @@ module Vagrant
           with_temp_dir(temp_dir) do |final_temp_dir|
             # Get an instance of the box we just added before it is finalized
             # in the system so we can inspect and use its metadata.
-            box = Box.new(name, nil, final_temp_dir)
+            box = Box.new(name, nil, version, final_temp_dir)
 
             # Get the provider, since we'll need that to at the least add it
             # to the system or check that it matches what is given to us.
@@ -256,7 +256,7 @@ module Vagrant
             provider_dir = versiondir.join(provider.to_s)
             next if !provider_dir.directory?
             @logger.info("Box found: #{name} (#{provider})")
-            return Box.new(name, provider, provider_dir)
+            return Box.new(name, provider, version, provider_dir)
           end
         end
       end
