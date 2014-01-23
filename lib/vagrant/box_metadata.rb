@@ -45,15 +45,19 @@ module Vagrant
     #   be a constraint.
     # @return [Version] The matching version or nil if a matching
     #   version was not found.
-    def version(version)
+    def version(version, **opts)
       requirements = version.split(",").map do |v|
         Gem::Requirement.new(v.strip)
       end
 
+      providers = nil
+      providers = Array(opts[:provider]) if opts[:provider]
+
       @version_map.keys.sort.reverse.each do |v|
-        if requirements.all? { |r| r.satisfied_by?(v) }
-          return Version.new(@version_map[v])
-        end
+        next if !requirements.all? { |r| r.satisfied_by?(v) }
+        version = Version.new(@version_map[v])
+        next if (providers & version.providers).empty? if providers
+        return version
       end
 
       nil

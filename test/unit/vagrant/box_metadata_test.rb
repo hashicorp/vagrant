@@ -12,13 +12,24 @@ describe Vagrant::BoxMetadata do
         "description": "bar",
         "versions": [
           {
-            "version": "1.0.0"
+            "version": "1.0.0",
+            "providers": [
+              { "name": "virtualbox" },
+              { "name": "vmware" }
+            ]
           },
           {
-            "version": "1.1.5"
+            "version": "1.1.5",
+            "providers": [
+              { "name": "virtualbox" }
+            ]
           },
           {
-            "version": "1.1.0"
+            "version": "1.1.0",
+            "providers": [
+              { "name": "virtualbox" },
+              { "name": "vmware" }
+            ]
           }
         ]
       }
@@ -63,6 +74,13 @@ describe Vagrant::BoxMetadata do
       expect(result).to_not be_nil
       expect(result).to be_kind_of(Vagrant::BoxMetadata::Version)
       expect(result.version).to eq("1.0.0")
+    end
+
+    it "matches the constraint that has the given provider" do
+      result = subject.version(">= 0", provider: "vmware")
+      expect(result).to_not be_nil
+      expect(result).to be_kind_of(Vagrant::BoxMetadata::Version)
+      expect(result.version).to eq("1.1.0")
     end
   end
 
