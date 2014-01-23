@@ -349,7 +349,8 @@ module Vagrant
         box = nil
         if config.vm.box
           begin
-            box = boxes.find(config.vm.box, box_formats)
+            # TODO: support real version constraints
+            box = boxes.find(config.vm.box, box_formats, ">= 0")
           rescue Errors::BoxUpgradeRequired
             # Upgrade the box if we must
             @logger.info("Upgrading box during config load: #{config.vm.box}")

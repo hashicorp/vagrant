@@ -13,7 +13,7 @@ describe Vagrant::Environment do
 
   let(:env) do
     isolated_environment.tap do |e|
-      e.box2("base", :virtualbox)
+      e.box3("base", "1.0", :virtualbox)
       e.vagrantfile <<-VF
       Vagrant.configure("2") do |config|
         config.vm.box = "base"
@@ -469,7 +469,7 @@ Vagrant.configure("2") do |config|
 end
 VF
 
-        env.box2("base", :virtualbox)
+        env.box3("base", "1.0", :virtualbox)
       end
 
       env = environment.create_vagrant_env
@@ -486,7 +486,7 @@ Vagrant.configure("2") do |config|
 end
 VF
 
-        env.box2("base", :virtualbox)
+        env.box3("base", "1.0", :virtualbox)
       end
 
       env = environment.create_vagrant_env
@@ -588,7 +588,7 @@ Vagrant.configure("2") do |config|
 end
 VF
 
-        e.box2("base", :foo)
+        e.box3("base", "1.0", :foo)
       end
 
       # Verify that we can get the machine
@@ -621,7 +621,7 @@ Vagrant.configure("2") do |config|
 end
 VF
 
-        e.box2("base", :foo)
+        e.box3("base", "1.0", :foo)
       end
 
       # Verify that we can get the machine
@@ -648,8 +648,8 @@ Vagrant.configure("2") do |config|
 end
 VF
 
-        e.box2("base", :foo)
-        e.box2("base", :bar)
+        e.box3("base", "1.0", :foo)
+        e.box3("base", "1.0", :bar)
       end
 
       env = isolated_env.create_vagrant_env
@@ -694,7 +694,7 @@ Vagrant.configure("2") do |config|
 end
 VF
 
-        env.box2("base", :foo)
+        env.box3("base", "1.0", :foo)
       end
 
       env = environment.create_vagrant_env
@@ -713,7 +713,7 @@ Vagrant.configure("2") do |config|
 end
 VF
 
-        env.box2("base", :foo, :vagrantfile => <<-VF)
+        env.box3("base", "1.0", :foo, :vagrantfile => <<-VF)
 Vagrant.configure("2") do |config|
   config.ssh.port = 100
 end
@@ -735,7 +735,7 @@ Vagrant.configure("2") do |config|
 end
 VF
 
-        env.box2("base", :foo, :vagrantfile => <<-VF)
+        env.box3("base", "1.0", :foo, :vagrantfile => <<-VF)
 Vagrant.configure("2") do |config|
   config.ssh.port = 100
 end
@@ -760,7 +760,7 @@ Vagrant.configure("2") do |config|
 end
 VF
 
-        env.box2("base", :bar, :vagrantfile => <<-VF)
+        env.box3("base", "1.0", :bar, :vagrantfile => <<-VF)
 Vagrant.configure("2") do |config|
   config.ssh.port = 100
 end
@@ -782,13 +782,13 @@ Vagrant.configure("2") do |config|
 end
 VF
 
-        env.box2("base", :fA, :vagrantfile => <<-VF)
+        env.box3("base", "1.0", :fA, :vagrantfile => <<-VF)
 Vagrant.configure("2") do |config|
   config.ssh.port = 100
 end
 VF
 
-        env.box2("base", :fB, :vagrantfile => <<-VF)
+        env.box3("base", "1.0", :fB, :vagrantfile => <<-VF)
 Vagrant.configure("2") do |config|
   config.ssh.port = 200
 end
@@ -835,7 +835,7 @@ Vagrant.configure("2") do |config|
 end
 VF
 
-        e.box2("base", :foo)
+        e.box3("base", "1.0", :foo)
       end
 
       env = isolated_env.create_vagrant_env

@@ -109,6 +109,14 @@ module Unit
         }))
       end
 
+      # Create a Vagrantfile
+      if opts[:vagrantfile]
+        box_vagrantfile = box_dir.join("Vagrantfile")
+        box_vagrantfile.open("w") do |f|
+          f.write(opts[:vagrantfile])
+        end
+      end
+
       box_dir
     end
 
