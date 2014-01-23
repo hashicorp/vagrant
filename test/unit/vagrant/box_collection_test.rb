@@ -67,7 +67,7 @@ describe Vagrant::BoxCollection do
       expect(result).to_not be_nil
       expect(result).to be_kind_of(box_class)
       expect(result.name).to eq("foo")
-      # TODO: test version
+      expect(result.version).to eq("1.0")
     end
 
     it "returns nil if a box's constraints can't be satisfied" do
