@@ -153,7 +153,8 @@ module Vagrant
       end
 
       def clear_line
-        reset = "\r"
+        # See: http://en.wikipedia.org/wiki/ANSI_escape_code
+        reset = "\r\033[K"
 
         info(reset, :new_line => false)
       end
