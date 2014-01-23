@@ -129,7 +129,7 @@ module Vagrant
     end
 
     class BoxAlreadyExists < VagrantError
-      error_key(:already_exists, "vagrant.actions.box.unpackage")
+      error_key(:box_add_exists)
     end
 
     class BoxChecksumInvalidType < VagrantError

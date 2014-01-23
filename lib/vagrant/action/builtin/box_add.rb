@@ -114,8 +114,17 @@ module Vagrant
             version: metadata_version.version,
             provider: metadata_provider.name))
 
-          # TODO(mitchellh): verify that the box we're adding
-          # doesn't already exist.
+          # Verify the box we're adding doesn't already exist
+          if !env[:box_force]
+            box = env[:box_collection].find(
+              metadata.name, metadata_provider.name, metadata_version.version)
+            if box
+              raise Errors::BoxAlreadyExists,
+                name: metadata.name,
+                provider: metadata_provider.name,
+                version: metadata_version.version
+            end
+          end
 
           # Now we have a URL, we have to download this URL.
           box = nil

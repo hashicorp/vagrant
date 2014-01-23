@@ -32,6 +32,10 @@ describe Vagrant::Action::Builtin::BoxAdd do
     FileChecksum.new(path, Digest::SHA1).checksum
   end
 
+  before do
+    box_collection.stub(find: nil)
+  end
+
   context "with box file directly" do
     it "adds it" do
       box_path = iso_env.box2_file(:virtualbox)
@@ -369,6 +373,41 @@ describe Vagrant::Action::Builtin::BoxAdd do
         to raise_error(Vagrant::Errors::BoxAddNoMatchingProvider)
     end
 
+    it "raises an error if a box already exists" do
+      box_path = iso_env.box2_file(:virtualbox)
+      tf = Tempfile.new("vagrant").tap do |f|
+        f.write(<<-RAW)
+        {
+          "name": "foo/bar",
+          "versions": [
+            {
+              "version": "0.5"
+            },
+            {
+              "version": "0.7",
+              "providers": [
+                {
+                  "name": "virtualbox",
+                  "url":  "#{box_path}"
+                }
+              ]
+            }
+          ]
+        }
+        RAW
+        f.close
+      end
+
+      env[:box_url] = tf.path
+      box_collection.should_receive(:find).
+        with("foo/bar", "virtualbox", "0.7").and_return(box)
+      box_collection.should_receive(:add).never
+      app.should_receive(:call).never
+
+      expect { subject.call(env) }.
+        to raise_error(Vagrant::Errors::BoxAlreadyExists)
+    end
+
     it "force adds a box if specified" do
       box_path = iso_env.box2_file(:virtualbox)
       tf = Tempfile.new("vagrant").tap do |f|
@@ -396,6 +435,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
 
       env[:box_force] = true
       env[:box_url] = tf.path
+      box_collection.stub(find: box)
       box_collection.should_receive(:add).with do |path, name, version, **opts|
         expect(checksum(path)).to eq(checksum(box_path))
         expect(name).to eq("foo/bar")

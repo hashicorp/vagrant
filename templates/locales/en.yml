@@ -4,6 +4,13 @@ en:
       Machine booted and ready!
     boot_waiting: |-
       Waiting for machine to boot. This may take a few minutes...
+    box_add_exists: |-
+      The box you're attempting to add already exists. Remove it before
+      adding it again or add it with the `--force` flag.
+
+      Name: %{name}
+      Provider: %{provider}
+      Version: %{version}
     box_add_with_version: |-
       Adding box '%{name}' (v%{version}) for '%{provider}' provider...
     box_added: |-
@@ -1252,12 +1259,6 @@ en:
             output from attempting to unpackage (if any):
 
             %{output}
-          already_exists: |-
-            The box you're attempting to add already exists:
-
-            Name: %{name}
-            Version: %{version}
-            Provider: %{providers}
         add:
           adding: |-
             Extracting box...
