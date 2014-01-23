@@ -109,6 +109,52 @@ describe Vagrant::Action::Builtin::BoxAdd do
       subject.call(env)
     end
 
+    it "adds the latest version of a box with the specified provider, even if not latest" do
+      box_path = iso_env.box2_file(:vmware)
+      tf = Tempfile.new("vagrant").tap do |f|
+        f.write(<<-RAW)
+        {
+          "name": "foo/bar",
+          "versions": [
+            {
+              "version": "0.5"
+            },
+            {
+              "version": "0.7",
+              "providers": [
+                {
+                  "name": "virtualbox",
+                  "url":  "#{iso_env.box2_file(:virtualbox)}"
+                },
+                {
+                  "name": "vmware",
+                  "url":  "#{box_path}"
+                }
+              ]
+            },
+            {
+              "version": "1.5"
+            }
+          ]
+        }
+        RAW
+        f.close
+      end
+
+      env[:box_url] = tf.path
+      env[:box_provider] = "vmware"
+      box_collection.should_receive(:add).with do |path, name, version|
+        expect(checksum(path)).to eq(checksum(box_path))
+        expect(name).to eq("foo/bar")
+        expect(version).to eq("0.7")
+        true
+      end
+
+      app.should_receive(:call).with(env)
+
+      subject.call(env)
+    end
+
     it "adds the constrained version of a box with the only provider" do
       box_path = iso_env.box2_file(:vmware)
       tf = Tempfile.new("vagrant").tap do |f|
@@ -180,6 +226,51 @@ describe Vagrant::Action::Builtin::BoxAdd do
         expect(checksum(path)).to eq(checksum(box_path))
         expect(name).to eq("foo/bar")
         expect(version).to eq("0.5")
+        true
+      end
+
+      app.should_receive(:call).with(env)
+
+      subject.call(env)
+    end
+
+    it "adds the latest version of a box with any specified provider" do
+      box_path = iso_env.box2_file(:vmware)
+      tf = Tempfile.new("vagrant").tap do |f|
+        f.write(<<-RAW)
+        {
+          "name": "foo/bar",
+          "versions": [
+            {
+              "version": "0.5",
+              "providers": [
+                {
+                  "name": "virtualbox",
+                  "url":  "#{iso_env.box2_file(:virtualbox)}"
+                }
+              ]
+            },
+            {
+              "version": "0.7",
+              "providers": [
+                {
+                  "name": "vmware",
+                  "url":  "#{box_path}"
+                }
+              ]
+            }
+          ]
+        }
+        RAW
+        f.close
+      end
+
+      env[:box_url] = tf.path
+      env[:box_provider] = ["virtualbox", "vmware"]
+      box_collection.should_receive(:add).with do |path, name, version|
+        expect(checksum(path)).to eq(checksum(box_path))
+        expect(name).to eq("foo/bar")
+        expect(version).to eq("0.7")
         true
       end
 

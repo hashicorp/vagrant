@@ -219,7 +219,6 @@ en:
 
         Box: %{url}
         Requested provider: %{requested}
-        Available providers: %{providers}
       box_add_no_matching_version: |-
         The box you're attempting to add has no available version that
         matches the constraints you requested. Please double-check your

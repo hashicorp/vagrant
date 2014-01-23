@@ -21,6 +21,7 @@ module Vagrant
           @download_interrupted = false
 
           provider = env[:box_provider]
+          provider = Array(provider) if provider
           url = env[:box_url]
           version = env[:box_version]
 
@@ -34,26 +35,29 @@ module Vagrant
             end
           end
 
-          # TODO: provider that is in an earlier version
-          # TODO: multiple providers
-          metadata_version  = metadata.version(version || ">= 0")
+          metadata_version  = metadata.version(
+            version || ">= 0", provider: provider)
           if !metadata_version
-            raise Errors::BoxAddNoMatchingVersion,
-              constraints: version || ">= 0",
-              url: url,
-              versions: metadata.versions.join(", ")
+            if !provider
+              raise Errors::BoxAddNoMatchingVersion,
+                constraints: version || ">= 0",
+                url: url,
+                versions: metadata.versions.join(", ")
+            else
+              # TODO: show supported providers
+              raise Errors::BoxAddNoMatchingProvider,
+                requested: provider,
+                url: url
+            end
           end
 
           metadata_provider = nil
           if provider
             # If a provider was specified, make sure we get that specific
             # version.
-            metadata_provider = metadata_version.provider(provider)
-            if !metadata_provider
-              raise Errors::BoxAddNoMatchingProvider,
-                providers: metadata_version.providers.join(", "),
-                requested: provider,
-                url: url
+            provider.each do |p|
+              metadata_provider = metadata_version.provider(p)
+              break if metadata_provider
             end
           elsif metadata_version.providers.length == 1
             # If we have only one provider in the metadata, just use that
