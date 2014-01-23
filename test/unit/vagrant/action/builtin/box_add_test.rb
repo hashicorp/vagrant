@@ -28,6 +28,11 @@ describe Vagrant::Action::Builtin::BoxAdd do
   end
 
   context "with box metadata" do
+    let(:box) do
+      box_dir = iso_env.box3("foo", "1.0", :virtualbox)
+      Vagrant::Box.new("foo", :virtualbox, "1.0", box_dir)
+    end
+
     it "adds the latest version of a box with only one provider" do
       box_path = iso_env.box2_file(:virtualbox)
       tf = Tempfile.new("vagrant").tap do |f|
@@ -59,7 +64,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
         expect(name).to eq("foo/bar")
         expect(version).to eq("0.7")
         true
-      end
+      end.and_return(box)
 
       app.should_receive(:call).with(env)
 
@@ -102,7 +107,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
         expect(name).to eq("foo/bar")
         expect(version).to eq("0.7")
         true
-      end
+      end.and_return(box)
 
       app.should_receive(:call).with(env)
 
@@ -148,7 +153,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
         expect(name).to eq("foo/bar")
         expect(version).to eq("0.7")
         true
-      end
+      end.and_return(box)
 
       app.should_receive(:call).with(env)
 
@@ -185,7 +190,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
         expect(name).to eq("foo/bar")
         expect(version).to eq("0.5")
         true
-      end
+      end.and_return(box)
 
       app.should_receive(:call).with(env)
 
@@ -227,7 +232,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
         expect(name).to eq("foo/bar")
         expect(version).to eq("0.5")
         true
-      end
+      end.and_return(box)
 
       app.should_receive(:call).with(env)
 
@@ -272,7 +277,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
         expect(name).to eq("foo/bar")
         expect(version).to eq("0.7")
         true
-      end
+      end.and_return(box)
 
       app.should_receive(:call).with(env)
 

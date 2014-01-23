@@ -4,6 +4,10 @@ en:
       Machine booted and ready!
     boot_waiting: |-
       Waiting for machine to boot. This may take a few minutes...
+    box_add_with_version: |-
+      Adding box '%{name}' (v%{version}) for '%{provider}' provider...
+    box_added: |-
+      Successfully added box '%{name}' for '%{provider}'!
     cfengine_bootstrapping: |-
       Bootstrapping CFEngine with policy server: %{policy_server}...
     cfengine_bootstrapping_policy_hub: |-
@@ -1257,8 +1261,6 @@ en:
         add:
           adding: |-
             Extracting box...
-          added: |-
-            Successfully added box '%{name}' with provider '%{provider}'!
           checksumming: |-
             Calculating and comparing box checksum...
         destroy:

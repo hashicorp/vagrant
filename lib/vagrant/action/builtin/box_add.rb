@@ -66,12 +66,22 @@ module Vagrant
               metadata_version.providers.first)
           end
 
+          env[:ui].output(I18n.t(
+            "vagrant.box_add_with_version",
+            name: metadata.name,
+            version: metadata_version.version,
+            provider: metadata_provider.name))
+
           # Now we have a URL, we have to download this URL.
           box_url = download(metadata_provider.url, env)
 
           # Add the box!
-          env[:box_collection].add(
+          box = env[:box_collection].add(
             box_url, metadata.name, metadata_version.version)
+
+          env[:ui].success(I18n.t(
+            "vagrant.box_added",
+            name: box.name, provider: box.provider))
 
           @app.call(env)
         end
