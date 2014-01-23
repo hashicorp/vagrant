@@ -1,6 +1,7 @@
 require "log4r"
 
 require "vagrant/util/busy"
+require "vagrant/util/platform"
 require "vagrant/util/subprocess"
 
 module Vagrant
@@ -138,7 +139,13 @@ module Vagrant
 
         # If we're outputting to the UI, clear the output to
         # avoid lingering progress meters.
-        @ui.clear_line if @ui
+        if @ui
+          @ui.clear_line
+
+          # Windows doesn't clear properly for some reason, so we just
+          # output one more newline.
+          @ui.info("") if Platform.windows?
+        end
 
         # If it didn't exit successfully, we need to parse the data and
         # show an error message.
