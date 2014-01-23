@@ -42,13 +42,15 @@ module VagrantPlugins
           # ignore the "v1" param for now since I'm not yet sure if its
           # important for the user to know what boxes need to be upgraded
           # and which don't, since we plan on doing that transparently.
-          boxes.each do |name, provider, _v1|
-            @env.ui.info("#{name.ljust(longest_box_length)} (#{provider})", :prefix => false)
+          boxes.each do |name, version, provider|
+            @env.ui.info("#{name.ljust(longest_box_length)} (#{provider})")
 
             @env.ui.machine("box-name", name)
             @env.ui.machine("box-provider", provider)
+            @env.ui.machine("box-version", version)
 
-            info_file = @env.boxes.find(name, provider).directory.join("info.json")
+            info_file = @env.boxes.find(name, provider, version).
+              directory.join("info.json")
             if info_file.file?
               info = JSON.parse(info_file.read)
               info.each do |k, v|

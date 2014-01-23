@@ -12,7 +12,7 @@ describe Vagrant::Box do
   let(:name)          { "foo" }
   let(:provider)      { :virtualbox }
   let(:version)       { "1.0" }
-  let(:directory)     { environment.box2("foo", :virtualbox) }
+  let(:directory)     { environment.box3("foo", "1.0", :virtualbox) }
   subject             { described_class.new(name, provider, version, directory) }
 
   it "provides the name" do
