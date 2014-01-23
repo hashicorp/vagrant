@@ -153,7 +153,7 @@ module Vagrant
             provider = box_provider.to_sym
 
             # Create the directory for this box, not including the provider
-            box_dir = @directory.join(name, version)
+            box_dir = @directory.join(dir_name(name), version)
             box_dir.mkpath
             @logger.debug("Box directory: #{box_dir}")
 
@@ -198,7 +198,7 @@ module Vagrant
           # us in our folder structure.
           next if !child.directory?
 
-          box_name = child.basename.to_s
+          box_name = undir_name(child.basename.to_s)
 
           # Otherwise, traverse the subdirectories and see what versions
           # we have.
@@ -239,7 +239,7 @@ module Vagrant
       end
 
       with_collection_lock do
-        box_directory = @directory.join(name)
+        box_directory = @directory.join(dir_name(name))
         if !box_directory.directory?
           @logger.info("Box not found: #{name} (#{providers.join(", ")})")
           return nil
@@ -284,7 +284,7 @@ module Vagrant
           end
 
           # Create the directory for this box
-          new_box_dir = temp_dir.join(box_name, "0")
+          new_box_dir = temp_dir.join(dir_name(box_name), "0")
           new_box_dir.mkpath
 
           # Go through each provider and move it
@@ -300,6 +300,19 @@ module Vagrant
     end
 
     protected
+
+    # Returns the directory name for the box of the given name.
+    #
+    # @param [String] name
+    # @return [String]
+    def dir_name(name)
+      name.gsub("/", "-VAGRANTSLASH-")
+    end
+
+    # Returns the directory name for the box cleaned up
+    def undir_name(name)
+      name.gsub("-VAGRANTSLASH-", "/")
+    end
 
     # This checks if the given directory represents a V1 box on the
     # system.

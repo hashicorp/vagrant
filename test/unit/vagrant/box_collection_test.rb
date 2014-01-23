@@ -25,13 +25,15 @@ describe Vagrant::BoxCollection do
       environment.box3("foo", "1.0", :virtualbox)
       environment.box3("foo", "1.0", :vmware)
       environment.box3("bar", "0", :ec2)
+      environment.box3("foo-VAGRANTSLASH-bar", "1.0", :virtualbox)
 
       # Verify some output
       results = subject.all
-      results.length.should == 3
+      results.length.should == 4
       results.include?(["foo", "1.0", :virtualbox]).should be
       results.include?(["foo", "1.0", :vmware]).should be
       results.include?(["bar", "0", :ec2]).should be
+      results.include?(["foo/bar", "1.0", :virtualbox]).should be
     end
 
     it 'does not raise an exception when a file appears in the boxes dir' do
@@ -94,6 +96,19 @@ describe Vagrant::BoxCollection do
 
       # Verify we can find it as well
       expect(subject.find("foo", :virtualbox, "1.0")).to_not be_nil
+    end
+
+    it "should add a box with a name with '/' in it" do
+      box_path = environment.box2_file(:virtualbox)
+
+      # Add the box
+      box = subject.add(box_path, "foo/bar", "1.0")
+      expect(box).to be_kind_of(box_class)
+      expect(box.name).to eq("foo/bar")
+      expect(box.provider).to eq(:virtualbox)
+
+      # Verify we can find it as well
+      expect(subject.find("foo/bar", :virtualbox, "1.0")).to_not be_nil
     end
 
     it "should add a box without specifying a provider" do
