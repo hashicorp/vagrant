@@ -22,17 +22,37 @@ describe Vagrant::Action::Builtin::BoxAdd do
   let(:box_collection) { double("box_collection") }
   let(:iso_env) { isolated_environment }
 
+  let(:box) do
+    box_dir = iso_env.box3("foo", "1.0", :virtualbox)
+    Vagrant::Box.new("foo", :virtualbox, "1.0", box_dir)
+  end
+
   # Helper to quickly SHA1 checksum a path
   def checksum(path)
     FileChecksum.new(path, Digest::SHA1).checksum
   end
 
-  context "with box metadata" do
-    let(:box) do
-      box_dir = iso_env.box3("foo", "1.0", :virtualbox)
-      Vagrant::Box.new("foo", :virtualbox, "1.0", box_dir)
-    end
+  context "with box file directly" do
+    it "adds it" do
+      box_path = iso_env.box2_file(:virtualbox)
 
+      env[:box_name] = "foo"
+      env[:box_url] = box_path.to_s
+
+      box_collection.should_receive(:add).with do |path, name, version|
+        expect(checksum(path)).to eq(checksum(box_path))
+        expect(name).to eq("foo")
+        expect(version).to eq("0")
+        true
+      end.and_return(box)
+
+      app.should_receive(:call).with(env)
+
+      subject.call(env)
+    end
+  end
+
+  context "with box metadata" do
     it "adds the latest version of a box with only one provider" do
       box_path = iso_env.box2_file(:virtualbox)
       tf = Tempfile.new("vagrant").tap do |f|

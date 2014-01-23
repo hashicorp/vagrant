@@ -14,6 +14,9 @@ module Vagrant
       # are properly tracked.
       USER_AGENT = "Vagrant/#{VERSION}"
 
+      attr_reader :source
+      attr_reader :destination
+
       def initialize(source, destination, options=nil)
         @logger      = Log4r::Logger.new("vagrant::util::downloader")
         @source      = source.to_s

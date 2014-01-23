@@ -1,5 +1,7 @@
 require "digest/sha1"
 require "log4r"
+require "pathname"
+require "uri"
 
 require "vagrant/box_metadata"
 require "vagrant/util/downloader"
@@ -20,6 +22,47 @@ module Vagrant
         def call(env)
           @download_interrupted = false
 
+          url = env[:box_url]
+          if metadata_url?(url, env)
+            add_from_metadata(env)
+          else
+            add_direct(env)
+          end
+
+          @app.call(env)
+        end
+
+        # Adds a box file directly (no metadata component, versioning,
+        # etc.)
+        def add_direct(env)
+          # TODO: what if we have no name
+          name = env[:box_name]
+          url  = env[:box_url]
+
+          # Now we have a URL, we have to download this URL.
+          box = nil
+          begin
+            box_url = download(url, env)
+
+            # Add the box!
+            box = env[:box_collection].add(box_url, name, "0")
+          ensure
+            # Make sure we delete the temporary file after we add it,
+            # unless we were interrupted, in which case we keep it around
+            # so we can resume the download later.
+            if !@download_interrupted
+              @logger.debug("Deleting temporary box: #{box_url}")
+              box_url.delete
+            end
+          end
+
+          env[:ui].success(I18n.t(
+            "vagrant.box_added",
+            name: box.name, provider: box.provider))
+        end
+
+        # Adds a box given that the URL is a metadata document.
+        def add_from_metadata(env)
           provider = env[:box_provider]
           provider = Array(provider) if provider
           url = env[:box_url]
@@ -28,7 +71,6 @@ module Vagrant
           metadata = nil
           if File.file?(url)
             # TODO: What if file isn't valid JSON
-            # TODO: What if file is old-style box
             # TODO: What if URL is in the "file:" format
             File.open(url) do |f|
               metadata = BoxMetadata.new(f)
@@ -72,6 +114,9 @@ module Vagrant
             version: metadata_version.version,
             provider: metadata_provider.name))
 
+          # TODO(mitchellh): verify that the box we're adding
+          # doesn't already exist.
+
           # Now we have a URL, we have to download this URL.
           box = nil
           begin
@@ -93,72 +138,9 @@ module Vagrant
           env[:ui].success(I18n.t(
             "vagrant.box_added",
             name: box.name, provider: box.provider))
-
-          @app.call(env)
         end
 
-        def download(url, env)
-          temp_path = env[:tmp_path].join("box" + Digest::SHA1.hexdigest(url))
-          @logger.info("Downloading box: #{url} => #{temp_path}")
-
-          if File.file?(url) || url !~ /^[a-z0-9]+:.*$/i
-            @logger.info("URL is a file or protocol not found and assuming file.")
-            file_path = File.expand_path(url)
-            file_path = Util::Platform.cygwin_windows_path(file_path)
-            url = "file:#{file_path}"
-          end
-
-          downloader_options = {}
-          downloader_options[:ca_cert] = env[:box_download_ca_cert]
-          downloader_options[:continue] = true
-          downloader_options[:insecure] = env[:box_download_insecure]
-          downloader_options[:ui] = env[:ui]
-          downloader_options[:client_cert] = env[:box_client_cert]
-
-          # If the temporary path exists, verify it is not too old. If its
-          # too old, delete it first because the data may have changed.
-          if temp_path.file?
-            delete = false
-            if env[:box_clean]
-              @logger.info("Cleaning existing temp box file.")
-              delete = true
-            elsif temp_path.mtime.to_i < (Time.now.to_i - 6 * 60 * 60)
-              @logger.info("Existing temp file is too old. Removing.")
-              delete = true
-            end
-
-            temp_path.unlink if delete
-          end
-
-          # Download the box to a temporary path. We store the temporary
-          # path as an instance variable so that the `#recover` method can
-          # access it.
-          env[:ui].info(I18n.t(
-            "vagrant.actions.box.download.downloading",
-            url: url))
-          if temp_path.file?
-            env[:ui].info(I18n.t("vagrant.actions.box.download.resuming"))
-          end
-
-          begin
-            downloader = Util::Downloader.new(url, temp_path, downloader_options)
-            downloader.download!
-          rescue Errors::DownloaderInterrupted
-            # The downloader was interrupted, so just return, because that
-            # means we were interrupted as well.
-            @download_interrupted = true
-            env[:ui].info(I18n.t("vagrant.actions.box.download.interrupted"))
-          rescue Errors::DownloaderError
-            # The download failed for some reason, clean out the temp path
-            temp_path.unlink if temp_path.file?
-            raise
-          end
-
-          temp_path
-        end
 =begin
-          @download_interrupted = false
-
           box_name = env[:box_name]
           box_formats = env[:box_provider]
           if box_formats
@@ -350,6 +332,103 @@ module Vagrant
           end
         end
 =end
+
+        protected
+
+        # Returns the download options for the download.
+        #
+        # @return [Hash]
+        def downloader(url, env)
+          temp_path = env[:tmp_path].join("box" + Digest::SHA1.hexdigest(url))
+          @logger.info("Downloading box: #{url} => #{temp_path}")
+
+          if File.file?(url) || url !~ /^[a-z0-9]+:.*$/i
+            @logger.info("URL is a file or protocol not found and assuming file.")
+            file_path = File.expand_path(url)
+            file_path = Util::Platform.cygwin_windows_path(file_path)
+            url = "file:#{file_path}"
+          end
+
+          # If the temporary path exists, verify it is not too old. If its
+          # too old, delete it first because the data may have changed.
+          if temp_path.file?
+            delete = false
+            if env[:box_clean]
+              @logger.info("Cleaning existing temp box file.")
+              delete = true
+            elsif temp_path.mtime.to_i < (Time.now.to_i - 6 * 60 * 60)
+              @logger.info("Existing temp file is too old. Removing.")
+              delete = true
+            end
+
+            temp_path.unlink if delete
+          end
+
+          downloader_options = {}
+          downloader_options[:ca_cert] = env[:box_download_ca_cert]
+          downloader_options[:continue] = true
+          downloader_options[:insecure] = env[:box_download_insecure]
+          downloader_options[:ui] = env[:ui]
+          downloader_options[:client_cert] = env[:box_client_cert]
+
+          Util::Downloader.new(url, temp_path, downloader_options)
+        end
+
+        def download(url, env)
+          d = downloader(url, env)
+
+          # Download the box to a temporary path. We store the temporary
+          # path as an instance variable so that the `#recover` method can
+          # access it.
+          env[:ui].info(I18n.t(
+            "vagrant.actions.box.download.downloading",
+            url: url))
+          if File.file?(d.destination)
+            env[:ui].info(I18n.t("vagrant.actions.box.download.resuming"))
+          end
+
+          begin
+            d.download!
+          rescue Errors::DownloaderInterrupted
+            # The downloader was interrupted, so just return, because that
+            # means we were interrupted as well.
+            @download_interrupted = true
+            env[:ui].info(I18n.t("vagrant.actions.box.download.interrupted"))
+          rescue Errors::DownloaderError
+            # The download failed for some reason, clean out the temp path
+            File.unlink(d.destination) if File.file?(d.destination)
+            raise
+          end
+
+          Pathname.new(d.destination)
+        end
+
+        # Tests whether the given URL points to a metadata file or a
+        # box file without completely downloading the file.
+        #
+        # @param [String] url
+        # @return [Boolean] true if metadata
+        def metadata_url?(url, env)
+          d = downloader(url, env)
+
+          # If we're downloading a file, cURL just returns no
+          # content-type (makes sense), so we just test if it is JSON
+          # by trying to parse JSON!
+          uri = URI.parse(d.source)
+          if uri.scheme == "file"
+            begin
+              File.open(uri.opaque, "r") do |f|
+                BoxMetadata.new(f)
+              end
+              return true
+            rescue Errors::BoxMetadataMalformed
+              return false
+            end
+          end
+
+          # TODO: do the HEAD request
+          true
+        end
       end
     end
   end
