@@ -38,27 +38,15 @@ module Vagrant
           # TODO: what if we have no name
           name = env[:box_name]
           url  = env[:box_url]
+          provider = env[:box_provider]
+          provider = Array(provider) if provider
 
-          # Now we have a URL, we have to download this URL.
-          box = nil
-          begin
-            box_url = download(url, env)
-
-            # Add the box!
-            box = env[:box_collection].add(box_url, name, "0")
-          ensure
-            # Make sure we delete the temporary file after we add it,
-            # unless we were interrupted, in which case we keep it around
-            # so we can resume the download later.
-            if !@download_interrupted
-              @logger.debug("Deleting temporary box: #{box_url}")
-              box_url.delete
-            end
-          end
-
-          env[:ui].success(I18n.t(
-            "vagrant.box_added",
-            name: box.name, provider: box.provider))
+          box_add(
+            url,
+            name,
+            "0",
+            provider,
+            env)
         end
 
         # Adds a box given that the URL is a metadata document.
@@ -108,77 +96,14 @@ module Vagrant
               metadata_version.providers.first)
           end
 
-          env[:ui].output(I18n.t(
-            "vagrant.box_add_with_version",
-            name: metadata.name,
-            version: metadata_version.version,
-            provider: metadata_provider.name))
-
-          # Verify the box we're adding doesn't already exist
-          if !env[:box_force]
-            box = env[:box_collection].find(
-              metadata.name, metadata_provider.name, metadata_version.version)
-            if box
-              raise Errors::BoxAlreadyExists,
-                name: metadata.name,
-                provider: metadata_provider.name,
-                version: metadata_version.version
-            end
-          end
-
-          # Now we have a URL, we have to download this URL.
-          box = nil
-          begin
-            box_url = download(metadata_provider.url, env)
-
-            # Add the box!
-            box = env[:box_collection].add(
-              box_url, metadata.name, metadata_version.version,
-              force: env[:box_force])
-          ensure
-            # Make sure we delete the temporary file after we add it,
-            # unless we were interrupted, in which case we keep it around
-            # so we can resume the download later.
-            if !@download_interrupted
-              @logger.debug("Deleting temporary box: #{box_url}")
-              box_url.delete
-            end
-          end
-
-          env[:ui].success(I18n.t(
-            "vagrant.box_added",
-            name: box.name, provider: box.provider))
+          box_add(
+            metadata_provider.url,
+            metadata.name,
+            metadata_version.version,
+            metadata_provider.name, env)
         end
 
 =begin
-          box_name = env[:box_name]
-          box_formats = env[:box_provider]
-          if box_formats
-            # Determine the formats a box can support and allow the box to
-            # be any of those formats.
-            provider_plugin = Vagrant.plugin("2").manager.providers[env[:box_provider]]
-            if provider_plugin
-              box_formats = provider_plugin[1][:box_format]
-              box_formats ||= env[:box_provider]
-            end
-          end
-
-          # Determine if we already have the box before downloading
-          # it again. We can only do this if we specify a format
-          if box_formats && !env[:box_force]
-            begin
-              if env[:box_collection].find(box_name, box_formats)
-                raise Errors::BoxAlreadyExists,
-                  :name => box_name,
-                  :formats => [box_formats].flatten.join(", ")
-              end
-            rescue Vagrant::Errors::BoxUpgradeRequired
-              # If the box needs to be upgraded, do it.
-              env[:box_collection].upgrade(box_name)
-              retry
-            end
-          end
-
           # Determine the checksum type to use
           checksum = (env[:box_checksum] || "").to_s
           checksum_klass = nil
@@ -237,28 +162,6 @@ module Vagrant
             end
           end
 
-          # Add the box
-          env[:ui].info I18n.t("vagrant.actions.box.add.adding", :name => box_name)
-          box_added = nil
-          begin
-            box_added = env[:box_collection].add(
-              @temp_path, box_name, box_formats, env[:box_force])
-          rescue Vagrant::Errors::BoxUpgradeRequired
-            # Upgrade the box
-            env[:box_collection].upgrade(box_name)
-
-            # Try adding it again
-            retry
-          end
-
-          # Call the 'recover' method in all cases to clean up the
-          # downloaded temporary file.
-          recover(env)
-
-          # Success, we added a box!
-          env[:ui].success(
-            I18n.t("vagrant.actions.box.add.added", name: box_added.name, provider: box_added.provider))
-
           # Persists URL used on download and the time it was added
           write_extra_info(box_added, download_url)
 
@@ -267,72 +170,6 @@ module Vagrant
 
           # Carry on!
           @app.call(env)
-        end
-
-        def recover(env)
-          if @temp_path && File.exist?(@temp_path) && !@download_interrupted
-            File.unlink(@temp_path)
-          end
-        end
-
-        def download_box_url(url, env)
-          temp_path = env[:tmp_path].join("box" + Digest::SHA1.hexdigest(url))
-          @logger.info("Downloading box: #{url} => #{temp_path}")
-
-          if File.file?(url) || url !~ /^[a-z0-9]+:.*$/i
-            @logger.info("URL is a file or protocol not found and assuming file.")
-            file_path = File.expand_path(url)
-            file_path = Util::Platform.cygwin_windows_path(file_path)
-            url = "file:#{file_path}"
-          end
-
-          downloader_options = {}
-          downloader_options[:ca_cert] = env[:box_download_ca_cert]
-          downloader_options[:continue] = true
-          downloader_options[:insecure] = env[:box_download_insecure]
-          downloader_options[:ui] = env[:ui]
-          downloader_options[:client_cert] = env[:box_client_cert]
-
-          # If the temporary path exists, verify it is not too old. If its
-          # too old, delete it first because the data may have changed.
-          if temp_path.file?
-            delete = false
-            if env[:box_clean]
-              @logger.info("Cleaning existing temp box file.")
-              delete = true
-            elsif temp_path.mtime.to_i < (Time.now.to_i - 6 * 60 * 60)
-              @logger.info("Existing temp file is too old. Removing.")
-              delete = true
-            end
-
-            temp_path.unlink if delete
-          end
-
-          # Download the box to a temporary path. We store the temporary
-          # path as an instance variable so that the `#recover` method can
-          # access it.
-          env[:ui].info(I18n.t(
-            "vagrant.actions.box.download.downloading",
-            url: url))
-          if temp_path.file?
-            env[:ui].info(I18n.t("vagrant.actions.box.download.resuming"))
-          end
-
-          begin
-            downloader = Util::Downloader.new(url, temp_path, downloader_options)
-            downloader.download!
-          rescue Errors::DownloaderInterrupted
-            # The downloader was interrupted, so just return, because that
-            # means we were interrupted as well.
-            @download_interrupted = true
-            env[:ui].info(I18n.t("vagrant.actions.box.download.interrupted"))
-          rescue Errors::DownloaderError
-            # The download failed for some reason, clean out the temp path
-            temp_path.unlink if temp_path.file?
-            raise
-          end
-
-          temp_path
         end
 
         def write_extra_info(box_added, url)
@@ -344,6 +181,61 @@ module Vagrant
 =end
 
         protected
+
+        # Shared helper to add a box once you know various details
+        # about it. Shared between adding via metadata or by direct.
+        #
+        # @param [String] url
+        # @param [String] name
+        # @param [String] version
+        # @param [String] provider
+        # @param [Hash] env
+        # @return [Box]
+        def box_add(url, name, version, provider, env, **opts)
+          env[:ui].output(I18n.t(
+            "vagrant.box_add_with_version",
+            name: name,
+            version: version,
+            provider: provider))
+
+          # Verify the box we're adding doesn't already exist
+          if provider && !env[:box_force]
+            box = env[:box_collection].find(
+              name, provider, version)
+            if box
+              raise Errors::BoxAlreadyExists,
+                name: name,
+                provider: provider,
+                version: version
+            end
+          end
+
+          # Now we have a URL, we have to download this URL.
+          box = nil
+          begin
+            box_url = download(url, env)
+
+            # Add the box!
+            box = env[:box_collection].add(
+              box_url, name, version,
+              force: env[:box_force],
+              providers: provider)
+          ensure
+            # Make sure we delete the temporary file after we add it,
+            # unless we were interrupted, in which case we keep it around
+            # so we can resume the download later.
+            if !@download_interrupted
+              @logger.debug("Deleting temporary box: #{box_url}")
+              box_url.delete
+            end
+          end
+
+          env[:ui].success(I18n.t(
+            "vagrant.box_added",
+            name: box.name, provider: box.provider))
+
+          box
+        end
 
         # Returns the download options for the download.
         #

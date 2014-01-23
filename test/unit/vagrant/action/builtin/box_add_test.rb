@@ -54,6 +54,42 @@ describe Vagrant::Action::Builtin::BoxAdd do
 
       subject.call(env)
     end
+
+    it "raises an error if the box already exists" do
+      box_path = iso_env.box2_file(:virtualbox)
+
+      env[:box_name] = "foo"
+      env[:box_url] = box_path.to_s
+      env[:box_provider] = "virtualbox"
+
+      box_collection.should_receive(:find).with(
+        "foo", ["virtualbox"], "0").and_return(box)
+      box_collection.should_receive(:add).never
+      app.should_receive(:call).never
+
+      expect { subject.call(env) }.
+        to raise_error(Vagrant::Errors::BoxAlreadyExists)
+    end
+
+    it "force adds if exists and specified" do
+      box_path = iso_env.box2_file(:virtualbox)
+
+      env[:box_force] = true
+      env[:box_name] = "foo"
+      env[:box_url] = box_path.to_s
+      env[:box_provider] = "virtualbox"
+
+      box_collection.stub(find: box)
+      box_collection.should_receive(:add).with do |path, name, version|
+        expect(checksum(path)).to eq(checksum(box_path))
+        expect(name).to eq("foo")
+        expect(version).to eq("0")
+        true
+      end.and_return(box)
+      app.should_receive(:call).with(env).once
+
+      subject.call(env)
+    end
   end
 
   context "with box metadata" do
