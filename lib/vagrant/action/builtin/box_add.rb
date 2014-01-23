@@ -161,22 +161,6 @@ module Vagrant
                 expected: checksum
             end
           end
-
-          # Persists URL used on download and the time it was added
-          write_extra_info(box_added, download_url)
-
-          # Passes on the newly added box to the rest of the middleware chain
-          env[:box_added] = box_added
-
-          # Carry on!
-          @app.call(env)
-        end
-
-        def write_extra_info(box_added, url)
-          info = {'url' => url, 'downloaded_at' => Time.now.utc}
-          box_added.directory.join('info.json').open("w+") do |f|
-            f.write(JSON.dump(info))
-          end
         end
 =end
 
@@ -233,6 +217,9 @@ module Vagrant
           env[:ui].success(I18n.t(
             "vagrant.box_added",
             name: box.name, provider: box.provider))
+
+          # Store the added box in the env for future middleware
+          env[:box_added] = box
 
           box
         end

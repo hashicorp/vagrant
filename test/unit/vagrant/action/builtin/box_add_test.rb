@@ -172,6 +172,8 @@ describe Vagrant::Action::Builtin::BoxAdd do
       app.should_receive(:call).with(env)
 
       subject.call(env)
+
+      expect(env[:box_added]).to equal(box)
     end
 
     it "adds the latest version of a box with the specified provider, even if not latest" do
@@ -218,6 +220,8 @@ describe Vagrant::Action::Builtin::BoxAdd do
       app.should_receive(:call).with(env)
 
       subject.call(env)
+
+      expect(env[:box_added]).to equal(box)
     end
 
     it "adds the constrained version of a box with the only provider" do
@@ -255,6 +259,8 @@ describe Vagrant::Action::Builtin::BoxAdd do
       app.should_receive(:call).with(env)
 
       subject.call(env)
+
+      expect(env[:box_added]).to equal(box)
     end
 
     it "adds the constrained version of a box with the specified provider" do
@@ -297,6 +303,8 @@ describe Vagrant::Action::Builtin::BoxAdd do
       app.should_receive(:call).with(env)
 
       subject.call(env)
+
+      expect(env[:box_added]).to equal(box)
     end
 
     it "adds the latest version of a box with any specified provider" do
@@ -342,6 +350,8 @@ describe Vagrant::Action::Builtin::BoxAdd do
       app.should_receive(:call).with(env)
 
       subject.call(env)
+
+      expect(env[:box_added]).to equal(box)
     end
 
     it "raises an exception if no matching version" do
@@ -483,6 +493,8 @@ describe Vagrant::Action::Builtin::BoxAdd do
       app.should_receive(:call).with(env)
 
       subject.call(env)
+
+      expect(env[:box_added]).to equal(box)
     end
   end
 end
