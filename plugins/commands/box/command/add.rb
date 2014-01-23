@@ -36,6 +36,10 @@ module VagrantPlugins
               options[:provider] = p
             end
 
+            o.on("--version VALUE", String, "Constrain version of the added box") do |v|
+              options[:version] = v
+            end
+
             o.separator ""
             o.separator "The options below only apply if you're adding a box file directly,"
             o.separator "and not using a Vagrant server or a box structured like 'user/box':"
@@ -72,6 +76,7 @@ module VagrantPlugins
             box_url: url,
             box_name: options[:name],
             box_provider: options[:provider],
+            box_version: options[:version],
             box_checksum_type: options[:checksum_type],
             box_checksum: options[:checksum],
             box_clean: options[:clean],
