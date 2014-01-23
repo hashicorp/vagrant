@@ -73,11 +73,22 @@ module Vagrant
             provider: metadata_provider.name))
 
           # Now we have a URL, we have to download this URL.
-          box_url = download(metadata_provider.url, env)
+          box = nil
+          begin
+            box_url = download(metadata_provider.url, env)
 
-          # Add the box!
-          box = env[:box_collection].add(
-            box_url, metadata.name, metadata_version.version)
+            # Add the box!
+            box = env[:box_collection].add(
+              box_url, metadata.name, metadata_version.version)
+          ensure
+            # Make sure we delete the temporary file after we add it,
+            # unless we were interrupted, in which case we keep it around
+            # so we can resume the download later.
+            if !@download_interrupted
+              @logger.debug("Deleting temporary box: #{box_url}")
+              box_url.delete
+            end
+          end
 
           env[:ui].success(I18n.t(
             "vagrant.box_added",
