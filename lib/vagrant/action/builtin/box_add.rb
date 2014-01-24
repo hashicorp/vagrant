@@ -281,7 +281,7 @@ module Vagrant
             "vagrant.box_add_with_version",
             name: name,
             version: version,
-            provider: provider))
+            providers: Array(provider).join(", ")))
 
           # Verify the box we're adding doesn't already exist
           if provider && !env[:box_force]

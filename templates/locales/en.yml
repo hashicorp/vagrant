@@ -17,7 +17,7 @@ en:
     box_add_choose_provider_again: |-
       Invalid choice. Try again:
     box_add_with_version: |-
-      Adding box '%{name}' (v%{version}) for '%{provider}' provider...
+      Adding box '%{name}' (v%{version}) for provider: %{providers}
     box_added: |-
       Successfully added box '%{name}' for '%{provider}'!
     box_downloading: |-
