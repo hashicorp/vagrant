@@ -102,7 +102,8 @@ module Vagrant
           version = env[:box_version]
 
           env[:ui].output(I18n.t(
-            "vagrant.box_loading_metadata", name: original_url))
+            "vagrant.box_loading_metadata",
+            name: Array(original_url).first))
           if original_url != url
             env[:ui].detail(I18n.t(
               "vagrant.box_expanding_url", url: url))
@@ -291,9 +292,6 @@ module Vagrant
             box_url = nil
 
             urls.each do |url|
-              env[:ui].detail(I18n.t(
-                "vagrant.box_downloading", url: url))
-
               begin
                 box_url = download(url, env)
                 break
@@ -379,8 +377,8 @@ module Vagrant
           # path as an instance variable so that the `#recover` method can
           # access it.
           if opts[:ui]
-            env[:ui].info(I18n.t(
-              "vagrant.actions.box.download.downloading",
+            env[:ui].detail(I18n.t(
+              "vagrant.box_downloading",
               url: url))
             if File.file?(d.destination)
               env[:ui].info(I18n.t("vagrant.actions.box.download.resuming"))
