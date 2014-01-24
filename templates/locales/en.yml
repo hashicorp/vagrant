@@ -315,12 +315,33 @@ en:
         that this issue can be fixed.
 
         %{error}
-      box_not_found: Box '%{name}' with '%{provider}' provider could not be found.
       box_provider_doesnt_match: |-
         The box you attempted to add doesn't match the provider you specified.
 
         Provider expected: %{expected}
         Provider of box: %{actual}
+      box_remove_multi_provider: |-
+        You requested to remove the box '%{name}'. This box has
+        multiple providers. You must explicitly select a single
+        provider to remove with `--provider`.
+
+        Available providers: %{providers}
+      box_remove_multi_version: |-
+        You requested to remove the box '%{name}' with provider
+        '%{provider}'. This box has multiple versions. You must
+        explicitly specify which version you want to remove with
+        the `--box-version` flag.
+
+        Versions: %{versions}
+      box_remove_not_found: |-
+        The box you requested to be removed could not be found. No
+        boxes named '%{name}' could be found.
+      box_remove_provider_not_found: |-
+        You requested to remove the box '%{name}' with provider
+        '%{provider}'. The box '%{name}' exists but not with
+        the provider specified. Please double-check and try again.
+
+        The providers for this are: %{providers}
       box_upgrade_required: |-
         The box '%{name}' is still stored on disk in the Vagrant 1.0.x
         format. This box must be upgraded in order to work properly with

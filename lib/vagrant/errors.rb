@@ -160,12 +160,24 @@ module Vagrant
       error_key(:box_metadata_malformed)
     end
 
-    class BoxNotFound < VagrantError
-      error_key(:box_not_found)
-    end
-
     class BoxProviderDoesntMatch < VagrantError
       error_key(:box_provider_doesnt_match)
+    end
+
+    class BoxRemoveNotFound < VagrantError
+      error_key(:box_remove_not_found)
+    end
+
+    class BoxRemoveProviderNotFound < VagrantError
+      error_key(:box_remove_provider_not_found)
+    end
+
+    class BoxRemoveMultiProvider < VagrantError
+      error_key(:box_remove_multi_provider)
+    end
+
+    class BoxRemoveMultiVersion < VagrantError
+      error_key(:box_remove_multi_version)
     end
 
     class BoxUnpackageFailure < VagrantError
