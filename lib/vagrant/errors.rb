@@ -120,6 +120,10 @@ module Vagrant
       error_key(:batch_multi_error)
     end
 
+    class BoxAddNameRequired < VagrantError
+      error_key(:box_add_name_required)
+    end
+
     class BoxAddNoMatchingProvider < VagrantError
       error_key(:box_add_no_matching_provider)
     end

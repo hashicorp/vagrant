@@ -96,6 +96,18 @@ describe Vagrant::Action::Builtin::BoxAdd do
       end
     end
 
+    it "raises an error if no name is given" do
+      box_path = iso_env.box2_file(:virtualbox)
+
+      env[:box_url] = box_path.to_s
+
+      box_collection.should_receive(:add).never
+      app.should_receive(:call).never
+
+      expect { subject.call(env) }.
+        to raise_error(Vagrant::Errors::BoxAddNameRequired)
+    end
+
     it "raises an error if the box already exists" do
       box_path = iso_env.box2_file(:virtualbox)
 

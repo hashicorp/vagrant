@@ -4,13 +4,6 @@ en:
       Machine booted and ready!
     boot_waiting: |-
       Waiting for machine to boot. This may take a few minutes...
-    box_add_exists: |-
-      The box you're attempting to add already exists. Remove it before
-      adding it again or add it with the `--force` flag.
-
-      Name: %{name}
-      Provider: %{provider}
-      Version: %{version}
     box_add_with_version: |-
       Adding box '%{name}' (v%{version}) for '%{provider}' provider...
     box_added: |-
@@ -263,6 +256,17 @@ en:
 
         If the box appears to be booting properly, you may want to increase
         the timeout ("config.vm.boot_timeout") value.
+      box_add_exists: |-
+        The box you're attempting to add already exists. Remove it before
+        adding it again or add it with the `--force` flag.
+
+        Name: %{name}
+        Provider: %{provider}
+        Version: %{version}
+      box_add_name_required: |-
+        A name is required when adding a box file directly. Please pass
+        the `--name` parameter to `vagrant box add`. See
+        `vagrant box add -h` for more help.
       box_checksum_invalid_type: |-
         The specified checksum type is not supported by Vagrant: %{type}.
         Vagrant supports the following checksum types:

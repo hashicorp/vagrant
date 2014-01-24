@@ -35,8 +35,11 @@ module Vagrant
         # Adds a box file directly (no metadata component, versioning,
         # etc.)
         def add_direct(env)
-          # TODO: what if we have no name
           name = env[:box_name]
+          if !name || name == ""
+            raise Errors::BoxAddNameRequired
+          end
+
           url  = env[:box_url]
           provider = env[:box_provider]
           provider = Array(provider) if provider
