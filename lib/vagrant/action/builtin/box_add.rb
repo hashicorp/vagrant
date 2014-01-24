@@ -22,30 +22,49 @@ module Vagrant
         def call(env)
           @download_interrupted = false
 
-          url = env[:box_url]
+          url = Array(env[:box_url])
 
           # If we received a shorthand URL ("mitchellh/precise64"),
           # then expand it properly.
           expanded = false
-          uri = URI.parse(url)
-          if !uri.scheme && !File.file?(url)
-            expanded = true
-            url = "#{Vagrant.server_url}/#{url}"
+          url.each_index do |i|
+            uri = URI.parse(url[i])
+            if !uri.scheme && !File.file?(url[i])
+              expanded = true
+              url[i] = "#{Vagrant.server_url}/#{url[i]}"
+            end
           end
 
-          is_metadata = false
-          begin
-            is_metadata = metadata_url?(url, env)
-          rescue Errors::DownloaderError => e
-            raise if !expanded
-            raise Errors::BoxAddShortNotFound,
-              error: e.extra_data[:message],
-              name: env[:box_url],
-              url: url
+          # Test if any of our URLs point to metadata
+          is_metadata_results = url.map do |u|
+            begin
+              metadata_url?(u, env)
+            rescue Errors::DownloaderError => e
+              e
+            end
+          end
+
+          if expanded && url.length == 1
+            is_error = is_metadata_results.find do |b|
+              b.is_a?(Errors::DownloaderError)
+            end
+
+            if is_error
+              raise Errors::BoxAddShortNotFound,
+                error: is_error.extra_data[:message],
+                name: env[:box_url],
+                url: url
+            end
+          end
+
+          is_metadata = is_metadata_results.any? { |b| b === true }
+          if is_metadata && url.length > 1
+            raise Errors::BoxAddMetadataMultiURL,
+              urls: url.join(", ")
           end
 
           if is_metadata
-            add_from_metadata(url, env)
+            add_from_metadata(url.first, env, expanded)
           else
             add_direct(url, env)
           end
@@ -55,7 +74,10 @@ module Vagrant
 
         # Adds a box file directly (no metadata component, versioning,
         # etc.)
-        def add_direct(url, env)
+        #
+        # @param [Array<String>] urls
+        # @param [Hash] env
+        def add_direct(urls, env)
           name = env[:box_name]
           if !name || name == ""
             raise Errors::BoxAddNameRequired
@@ -65,7 +87,7 @@ module Vagrant
           provider = Array(provider) if provider
 
           box_add(
-            url,
+            urls,
             name,
             "0",
             provider,
@@ -73,7 +95,7 @@ module Vagrant
         end
 
         # Adds a box given that the URL is a metadata document.
-        def add_from_metadata(url, env)
+        def add_from_metadata(url, env, expanded)
           original_url = env[:box_url]
           provider = env[:box_provider]
           provider = Array(provider) if provider
@@ -93,6 +115,12 @@ module Vagrant
             File.open(metadata_path) do |f|
               metadata = BoxMetadata.new(f)
             end
+          rescue Errors::DownloaderError => e
+            raise if !expanded
+            raise Errors::BoxAddShortNotFound,
+              error: e.extra_data[:message],
+              name: original_url,
+              url: url
           ensure
             metadata_path.delete if metadata_path && metadata_path.file?
           end
@@ -160,7 +188,7 @@ module Vagrant
           end
 
           box_add(
-            metadata_provider.url,
+            [metadata_provider.url],
             metadata.name,
             metadata_version.version,
             metadata_provider.name, env)
@@ -232,13 +260,13 @@ module Vagrant
         # Shared helper to add a box once you know various details
         # about it. Shared between adding via metadata or by direct.
         #
-        # @param [String] url
+        # @param [Array<String>] urls
         # @param [String] name
         # @param [String] version
         # @param [String] provider
         # @param [Hash] env
         # @return [Box]
-        def box_add(url, name, version, provider, env, **opts)
+        def box_add(urls, name, version, provider, env, **opts)
           env[:ui].output(I18n.t(
             "vagrant.box_add_with_version",
             name: name,
@@ -260,7 +288,21 @@ module Vagrant
           # Now we have a URL, we have to download this URL.
           box = nil
           begin
-            box_url = download(url, env)
+            box_url = nil
+
+            urls.each do |url|
+              env[:ui].detail(I18n.t(
+                "vagrant.box_downloading", url: url))
+
+              begin
+                box_url = download(url, env)
+                break
+              rescue Errors::DownloaderError => e
+                env[:ui].error(I18n.t(
+                  "vagrant.box_download_error",  message: e.message))
+                box_url = nil
+              end
+            end
 
             # Add the box!
             box = env[:box_collection].add(
@@ -273,7 +315,7 @@ module Vagrant
             # so we can resume the download later.
             if !@download_interrupted
               @logger.debug("Deleting temporary box: #{box_url}")
-              box_url.delete
+              box_url.delete if box_url
             end
           end
 

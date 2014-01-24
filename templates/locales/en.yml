@@ -20,6 +20,10 @@ en:
       Adding box '%{name}' (v%{version}) for '%{provider}' provider...
     box_added: |-
       Successfully added box '%{name}' for '%{provider}'!
+    box_downloading: |-
+      Downloading: %{url}
+    box_download_error: |-
+      Error downloading: %{message}
     box_expanding_url: |-
       URL: %{url}
     box_loading_metadata: |-
@@ -289,6 +293,13 @@ en:
         Name: %{name}
         Provider: %{provider}
         Version: %{version}
+      box_add_metadata_multi_url: |-
+        Multiple URLs for a box can't be specified when adding
+        versioned boxes. Please specify a single URL to the box
+        metadata (JSON) information. The full list of URLs you
+        specified is shown below:
+
+        %{urls}
       box_add_name_mismatch: |-
         The box you're adding has a name different from the name you
         requested. For boxes with metadata, you cannot override the name.

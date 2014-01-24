@@ -77,6 +77,27 @@ describe Vagrant::Action::Builtin::BoxAdd do
       subject.call(env)
     end
 
+    it "adds from multiple URLs" do
+      box_path = iso_env.box2_file(:virtualbox)
+
+      env[:box_name] = "foo"
+      env[:box_url] = [
+        "/foo/bar/baz",
+        box_path.to_s,
+      ]
+
+      box_collection.should_receive(:add).with do |path, name, version|
+        expect(checksum(path)).to eq(checksum(box_path))
+        expect(name).to eq("foo")
+        expect(version).to eq("0")
+        true
+      end.and_return(box)
+
+      app.should_receive(:call).with(env)
+
+      subject.call(env)
+    end
+
     it "adds from HTTP URL" do
       box_path = iso_env.box2_file(:virtualbox)
       with_web_server(box_path) do |port|
@@ -250,6 +271,42 @@ describe Vagrant::Action::Builtin::BoxAdd do
             to raise_error(Vagrant::Errors::BoxAddShortNotFound)
         end
       end
+    end
+
+    it "raises an error if multiple metadata URLs are given" do
+      box_path = iso_env.box2_file(:virtualbox)
+      tf = Tempfile.new("vagrant").tap do |f|
+        f.write(<<-RAW)
+        {
+          "name": "foo/bar",
+          "versions": [
+            {
+              "version": "0.5"
+            },
+            {
+              "version": "0.7",
+              "providers": [
+                {
+                  "name": "virtualbox",
+                  "url":  "#{box_path}"
+                }
+              ]
+            }
+          ]
+        }
+        RAW
+        f.close
+      end
+
+      env[:box_url] = [
+        "/foo/bar/baz",
+        tf.path,
+      ]
+      box_collection.should_receive(:add).never
+      app.should_receive(:call).never
+
+      expect { subject.call(env) }.
+        to raise_error(Vagrant::Errors::BoxAddMetadataMultiURL)
     end
 
     it "adds the latest version of a box with only one provider" do

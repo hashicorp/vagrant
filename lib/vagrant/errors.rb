@@ -120,6 +120,10 @@ module Vagrant
       error_key(:batch_multi_error)
     end
 
+    class BoxAddMetadataMultiURL < VagrantError
+      error_key(:box_add_metadata_multi_url)
+    end
+
     class BoxAddNameMismatch < VagrantError
       error_key(:box_add_name_mismatch)
     end
