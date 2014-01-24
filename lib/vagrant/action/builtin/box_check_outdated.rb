@@ -41,10 +41,12 @@ module Vagrant
           newer = md.version(
             "> #{machine.box.version}", provider: machine.box.provider)
           if !newer
-            env[:ui].success(I18n.t(
-              "vagrant.box_up_to_date_single",
-              name: machine.box.name,
-              version: machine.box.version))
+            if env[:box_outdated_success_ui]
+              env[:ui].success(I18n.t(
+                "vagrant.box_up_to_date_single",
+                name: machine.box.name,
+                version: machine.box.version))
+            end
 
             env[:box_outdated] = false
             return @app.call(env)

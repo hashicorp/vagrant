@@ -6,6 +6,7 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
   let(:app) { lambda { |env| } }
   let(:env) { {
     machine: machine,
+    ui: Vagrant::UI::Silent.new,
   } }
 
   subject { described_class.new(app, env) }
@@ -63,9 +64,10 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
 
     let(:box_dir) { iso_env.box3("foo", "1.0", :virtualbox) }
 
-    it "isn't outdated if it isn't" do
-      File.open(metadata_url.path, "w") do |f|
-        f.write(<<-RAW)
+    context "isn't outdated" do
+      before do
+        File.open(metadata_url.path, "w") do |f|
+          f.write(<<-RAW)
         {
           "name": "foo/bar",
           "versions": [
@@ -80,16 +82,42 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
             }
           ]
         }
-        RAW
+          RAW
+        end
+
+        box = Vagrant::Box.new(
+          "foo", :virtualbox, "1.0", box_dir,
+          metadata_url: metadata_url.path)
+        machine.stub(box: box)
       end
 
-      box = Vagrant::Box.new(
-        "foo", :virtualbox, "1.0", box_dir, metadata_url: metadata_url.path)
-      machine.stub(box: box)
+      it "marks it isn't outdated" do
+        app.should_receive(:call).with(env)
 
-      subject.call(env)
+        subject.call(env)
 
-      expect(env[:box_outdated]).to be_false
+        expect(env[:box_outdated]).to be_false
+      end
+
+      it "talks to the UI" do
+        env[:box_outdated_success_ui] = true
+
+        app.should_receive(:call).with(env)
+        env[:ui].should_receive(:success)
+
+        subject.call(env)
+
+        expect(env[:box_outdated]).to be_false
+      end
+
+      it "doesn't talk to UI if it is told" do
+        app.should_receive(:call).with(env)
+        env[:ui].should_receive(:success).never
+
+        subject.call(env)
+
+        expect(env[:box_outdated]).to be_false
+      end
     end
 
     it "is outdated if it is" do
