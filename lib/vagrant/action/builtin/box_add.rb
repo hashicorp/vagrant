@@ -100,6 +100,7 @@ module Vagrant
             name,
             "0",
             provider,
+            nil,
             env)
         end
 
@@ -201,7 +202,9 @@ module Vagrant
             [metadata_provider.url],
             metadata.name,
             metadata_version.version,
-            metadata_provider.name, env)
+            metadata_provider.name,
+            url,
+            env)
         end
 
 =begin
@@ -276,7 +279,7 @@ module Vagrant
         # @param [String] provider
         # @param [Hash] env
         # @return [Box]
-        def box_add(urls, name, version, provider, env, **opts)
+        def box_add(urls, name, version, provider, md_url, env, **opts)
           env[:ui].output(I18n.t(
             "vagrant.box_add_with_version",
             name: name,
@@ -315,6 +318,7 @@ module Vagrant
             box = env[:box_collection].add(
               box_url, name, version,
               force: env[:box_force],
+              metadata_url: md_url,
               providers: provider)
           ensure
             # Make sure we delete the temporary file after we add it,
