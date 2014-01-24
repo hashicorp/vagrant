@@ -310,8 +310,11 @@ module Vagrant
           # by trying to parse JSON!
           uri = URI.parse(d.source)
           if uri.scheme == "file"
+            url = uri.path
+            url = uri.opaque if Util::Platform.windows?
+
             begin
-              File.open(uri.opaque, "r") do |f|
+              File.open(url, "r") do |f|
                 BoxMetadata.new(f)
               end
               return true
