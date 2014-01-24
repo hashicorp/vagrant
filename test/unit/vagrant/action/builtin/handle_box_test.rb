@@ -37,24 +37,25 @@ describe Vagrant::Action::Builtin::HandleBox do
     subject.call(env)
   end
 
-  context "without a box_url" do
+  it "doesn't do anything if a box exists" do
+    machine.stub(box: box)
+
+    action_runner.should_receive(:run).never
+    app.should_receive(:call).with(env)
+
+    subject.call(env)
+  end
+
+  context "with a box set and no box_url" do
     before do
       machine.stub(box: nil)
 
       machine.config.vm.box = "foo"
     end
 
-    it "doesn't do anything if a box exists" do
-      machine.stub(box: box)
-
-      action_runner.should_receive(:run).never
-      app.should_receive(:call).with(env)
-
-      subject.call(env)
-    end
-
     it "adds a box that doesn't exist" do
       action_runner.should_receive(:run).with do |action, opts|
+        expect(opts[:box_name]).to eq(machine.config.vm.box)
         expect(opts[:box_url]).to eq(machine.config.vm.box)
         expect(opts[:box_provider]).to eq(:dummy)
         expect(opts[:box_version]).to eq(machine.config.vm.box_version)
@@ -70,8 +71,32 @@ describe Vagrant::Action::Builtin::HandleBox do
       machine.provider_options[:box_format] = [:foo, :bar]
 
       action_runner.should_receive(:run).with do |action, opts|
+        expect(opts[:box_name]).to eq(machine.config.vm.box)
         expect(opts[:box_url]).to eq(machine.config.vm.box)
         expect(opts[:box_provider]).to eq([:foo, :bar])
+        expect(opts[:box_version]).to eq(machine.config.vm.box_version)
+        true
+      end
+
+      app.should_receive(:call).with(env)
+
+      subject.call(env)
+    end
+  end
+
+  context "with a box and box_url set" do
+    before do
+      machine.stub(box: nil)
+
+      machine.config.vm.box = "foo"
+      machine.config.vm.box_url = "bar"
+    end
+
+    it "adds a box that doesn't exist" do
+      action_runner.should_receive(:run).with do |action, opts|
+        expect(opts[:box_name]).to eq(machine.config.vm.box)
+        expect(opts[:box_url]).to eq(machine.config.vm.box_url)
+        expect(opts[:box_provider]).to eq(:dummy)
         expect(opts[:box_version]).to eq(machine.config.vm.box_version)
         true
       end
