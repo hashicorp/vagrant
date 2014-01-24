@@ -87,7 +87,7 @@ module Vagrant
             "Box already exists, can't add: #{name} v#{version} #{box_formats.join(", ")}")
           raise Errors::BoxAlreadyExists,
             name: name,
-            providers: box_formats.join(", "),
+            provider: box_formats.join(", "),
             version: version
         end
 
