@@ -22,7 +22,16 @@ module Vagrant
         def call(env)
           @download_interrupted = false
 
-          url = Array(env[:box_url])
+          url = Array(env[:box_url]).map do |u|
+            next u if u =~ /^[a-z0-9]+:.*$/i
+
+            # Expand the path and try to use that, if possible
+            p = File.expand_path(u)
+            p = Util::Platform.cygwin_windows_path(p)
+            next p if File.file?(p)
+
+            u
+          end
 
           # If we received a shorthand URL ("mitchellh/precise64"),
           # then expand it properly.
