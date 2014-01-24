@@ -61,13 +61,13 @@ module Vagrant
 
           metadata = nil
           begin
-            metadata_path = download(url, env)
+            metadata_path = download(url, env, ui: false)
 
             File.open(metadata_path) do |f|
               metadata = BoxMetadata.new(f)
             end
           ensure
-            metadata_path.delete if metadata_path.file?
+            metadata_path.delete if metadata_path && metadata_path.file?
           end
 
           metadata_version  = metadata.version(
@@ -234,7 +234,9 @@ module Vagrant
         # Returns the download options for the download.
         #
         # @return [Hash]
-        def downloader(url, env)
+        def downloader(url, env, **opts)
+          opts[:ui] = true if !opts.has_key?(:ui)
+
           temp_path = env[:tmp_path].join("box" + Digest::SHA1.hexdigest(url))
           @logger.info("Downloading box: #{url} => #{temp_path}")
 
@@ -264,23 +266,27 @@ module Vagrant
           downloader_options[:ca_cert] = env[:box_download_ca_cert]
           downloader_options[:continue] = true
           downloader_options[:insecure] = env[:box_download_insecure]
-          downloader_options[:ui] = env[:ui]
           downloader_options[:client_cert] = env[:box_client_cert]
+          downloader_options[:ui] = env[:ui] if opts[:ui]
 
           Util::Downloader.new(url, temp_path, downloader_options)
         end
 
-        def download(url, env)
-          d = downloader(url, env)
+        def download(url, env, **opts)
+          opts[:ui] = true if !opts.has_key?(:ui)
+
+          d = downloader(url, env, **opts)
 
           # Download the box to a temporary path. We store the temporary
           # path as an instance variable so that the `#recover` method can
           # access it.
-          env[:ui].info(I18n.t(
-            "vagrant.actions.box.download.downloading",
-            url: url))
-          if File.file?(d.destination)
-            env[:ui].info(I18n.t("vagrant.actions.box.download.resuming"))
+          if opts[:ui]
+            env[:ui].info(I18n.t(
+              "vagrant.actions.box.download.downloading",
+              url: url))
+            if File.file?(d.destination)
+              env[:ui].info(I18n.t("vagrant.actions.box.download.resuming"))
+            end
           end
 
           begin
@@ -305,7 +311,7 @@ module Vagrant
         # @param [String] url
         # @return [Boolean] true if metadata
         def metadata_url?(url, env)
-          d = downloader(url, env)
+          d = downloader(url, env, ui: false)
 
           # If we're downloading a file, cURL just returns no
           # content-type (makes sense), so we just test if it is JSON
