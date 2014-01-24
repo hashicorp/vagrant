@@ -65,7 +65,7 @@ describe Vagrant::UI::Colored do
 
   describe "#detail" do
     it "colors output nothing by default" do
-      subject.should_receive(:safe_puts).with("foo", anything)
+      subject.should_receive(:safe_puts).with("\033[0mfoo\033[0m", anything)
       subject.detail("foo")
     end
 
@@ -91,9 +91,14 @@ describe Vagrant::UI::Colored do
   end
 
   describe "#output" do
-    it "colors output nothing by default" do
-      subject.should_receive(:safe_puts).with("foo", anything)
+    it "colors output nothing by default, no bold" do
+      subject.should_receive(:safe_puts).with("\033[0mfoo\033[0m", anything)
       subject.output("foo")
+    end
+
+    it "bolds output without color if specified" do
+      subject.should_receive(:safe_puts).with("\033[1mfoo\033[0m", anything)
+      subject.output("foo", bold: true)
     end
 
     it "colors output to color specified in global opts" do
@@ -231,6 +236,13 @@ describe Vagrant::UI::Prefixed do
   let(:ui)     { Vagrant::UI::Basic.new }
 
   subject { described_class.new(ui, prefix) }
+
+  describe "#ask" do
+    it "does not request bolding" do
+      ui.should_receive(:ask).with("    #{prefix}: foo", bold: false)
+      subject.ask("foo")
+    end
+  end
 
   describe "#detail" do
     it "prefixes with spaces and the message" do

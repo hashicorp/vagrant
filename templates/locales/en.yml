@@ -18,6 +18,8 @@ en:
       Adding box '%{name}' (v%{version}) for '%{provider}' provider...
     box_added: |-
       Successfully added box '%{name}' for '%{provider}'!
+    box_loading_metadata: |-
+      Loading metadata for box '%{name}'
     cfengine_bootstrapping: |-
       Bootstrapping CFEngine with policy server: %{policy_server}...
     cfengine_bootstrapping_policy_hub: |-

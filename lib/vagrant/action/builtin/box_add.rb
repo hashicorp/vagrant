@@ -59,6 +59,8 @@ module Vagrant
           url = env[:box_url]
           version = env[:box_version]
 
+          env[:ui].output(I18n.t(
+            "vagrant.box_loading_metadata", name: url))
           metadata = nil
           begin
             metadata_path = download(url, env, ui: false)

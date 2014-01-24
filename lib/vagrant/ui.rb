@@ -209,7 +209,10 @@ module Vagrant
         class_eval <<-CODE
           def #{method}(message, *args, **opts)
             super(message)
-            opts[:bold] = #{method.inspect} != :detail if !opts.has_key?(:bold)
+            if !opts.has_key?(:bold)
+              opts[:bold] = #{method.inspect} != :detail && \
+                #{method.inspect} != :ask
+            end
             @ui.#{method}(format_message(#{method.inspect}, message, **opts), *args, **opts)
           end
         CODE
@@ -241,7 +244,8 @@ module Vagrant
         prefix = ""
         if !opts.has_key?(:prefix) || opts[:prefix]
           prefix = OUTPUT_PREFIX
-          prefix = " " * OUTPUT_PREFIX.length if type == :detail
+          prefix = " " * OUTPUT_PREFIX.length if \
+            type == :detail || type == :ask
         end
 
         # Fast-path if there is no prefix
@@ -281,16 +285,17 @@ module Vagrant
         opts[:color] = :green if type == :success
         opts[:color] = :yellow if type == :warn
 
-        # If there is no color specified, exit early
-        return message if !opts.has_key?(:color)
-
         # If it is a detail, it is not bold. Every other message type
         # is bolded.
         bold  = !!opts[:bold]
-        color = COLORS[opts[:color]]
+        colorseq = "#{bold ? 1 : 0 }"
+        if opts[:color]
+          color = COLORS[opts[:color]]
+          colorseq += ";#{color}"
+        end
 
         # Color the message and make sure to reset the color at the end
-        "\033[#{bold ? 1 : 0};#{color}m#{message}\033[0m"
+        "\033[#{colorseq}m#{message}\033[0m"
       end
     end
   end

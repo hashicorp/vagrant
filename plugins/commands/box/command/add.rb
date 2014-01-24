@@ -84,6 +84,7 @@ module VagrantPlugins
             box_download_ca_cert: options[:ca_cert],
             box_download_client_cert: options[:client_cert],
             box_download_insecure: options[:insecure],
+            ui: Vagrant::UI::Prefixed.new(@env.ui, "box"),
           })
 
           # Success, exit status 0

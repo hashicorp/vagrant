@@ -92,7 +92,7 @@ module Vagrant
 
               output = "Progress: #{columns[0]}% (Rate: #{columns[11]}/s, Estimated time remaining: #{columns[10]})"
               @ui.clear_line
-              @ui.info(output, :new_line => false)
+              @ui.detail(output, :new_line => false)
             end
           end
         end
@@ -111,7 +111,7 @@ module Vagrant
 
             # Windows doesn't clear properly for some reason, so we just
             # output one more newline.
-            @ui.info("") if Platform.windows?
+            @ui.detail("") if Platform.windows?
           end
         end
 
