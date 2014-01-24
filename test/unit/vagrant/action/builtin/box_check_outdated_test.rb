@@ -5,6 +5,7 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
 
   let(:app) { lambda { |env| } }
   let(:env) { {
+    box_collection: iso_vagrant_env.boxes,
     machine: machine,
     ui: Vagrant::UI::Silent.new,
   } }
@@ -37,37 +38,70 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
     end
   end
 
-  context "box with no metadata_url" do
-    let(:box) do
-      box_dir = iso_env.box3("foo", "1.0", :virtualbox)
-      Vagrant::Box.new("foo", :virtualbox, "1.0", box_dir)
-    end
-
+  context "without refreshing" do
     before do
+      env[:box_outdated_refresh] = false
+
       machine.stub(box: box)
     end
 
-    it "raises an exception" do
-      app.should_receive(:call).never
+    it "isn't outdated if there are no newer boxes" do
+      iso_env.box3("foo", "0.5", :virtualbox)
 
-      expect { subject.call(env) }.
-        to raise_error(Vagrant::Errors::BoxOutdatedNoMetadata)
+      app.should_receive(:call).with(env)
+
+      subject.call(env)
+
+      expect(env[:box_outdated]).to be_false
+    end
+
+    it "is outdated if there are newer boxes" do
+      iso_env.box3("foo", "1.5", :virtualbox)
+
+      app.should_receive(:call).with(env)
+
+      subject.call(env)
+
+      expect(env[:box_outdated]).to be_true
     end
   end
 
-  context "with a metadata URL" do
-    let(:metadata_url) do
-      Tempfile.new("vagrant").tap do |f|
-        f.close
+  context "with refreshing" do
+    before do
+      env[:box_outdated_refresh] = true
+    end
+
+    context "no metadata URL" do
+      let(:box) do
+        box_dir = iso_env.box3("foo", "1.0", :virtualbox)
+        Vagrant::Box.new("foo", :virtualbox, "1.0", box_dir)
+      end
+
+      before do
+        machine.stub(box: box)
+      end
+
+      it "raises an exception" do
+        app.should_receive(:call).never
+
+        expect { subject.call(env) }.
+          to raise_error(Vagrant::Errors::BoxOutdatedNoMetadata)
       end
     end
 
-    let(:box_dir) { iso_env.box3("foo", "1.0", :virtualbox) }
+    context "with metadata URL" do
+      let(:metadata_url) do
+        Tempfile.new("vagrant").tap do |f|
+          f.close
+        end
+      end
 
-    context "isn't outdated" do
-      before do
-        File.open(metadata_url.path, "w") do |f|
-          f.write(<<-RAW)
+      let(:box_dir) { iso_env.box3("foo", "1.0", :virtualbox) }
+
+      context "isn't outdated" do
+        before do
+          File.open(metadata_url.path, "w") do |f|
+            f.write(<<-RAW)
         {
           "name": "foo/bar",
           "versions": [
@@ -82,47 +116,47 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
             }
           ]
         }
-          RAW
+            RAW
+          end
+
+          box = Vagrant::Box.new(
+            "foo", :virtualbox, "1.0", box_dir,
+            metadata_url: metadata_url.path)
+          machine.stub(box: box)
         end
 
-        box = Vagrant::Box.new(
-          "foo", :virtualbox, "1.0", box_dir,
-          metadata_url: metadata_url.path)
-        machine.stub(box: box)
+        it "marks it isn't outdated" do
+          app.should_receive(:call).with(env)
+
+          subject.call(env)
+
+          expect(env[:box_outdated]).to be_false
+        end
+
+        it "talks to the UI" do
+          env[:box_outdated_success_ui] = true
+
+          app.should_receive(:call).with(env)
+          env[:ui].should_receive(:success)
+
+          subject.call(env)
+
+          expect(env[:box_outdated]).to be_false
+        end
+
+        it "doesn't talk to UI if it is told" do
+          app.should_receive(:call).with(env)
+          env[:ui].should_receive(:success).never
+
+          subject.call(env)
+
+          expect(env[:box_outdated]).to be_false
+        end
       end
 
-      it "marks it isn't outdated" do
-        app.should_receive(:call).with(env)
-
-        subject.call(env)
-
-        expect(env[:box_outdated]).to be_false
-      end
-
-      it "talks to the UI" do
-        env[:box_outdated_success_ui] = true
-
-        app.should_receive(:call).with(env)
-        env[:ui].should_receive(:success)
-
-        subject.call(env)
-
-        expect(env[:box_outdated]).to be_false
-      end
-
-      it "doesn't talk to UI if it is told" do
-        app.should_receive(:call).with(env)
-        env[:ui].should_receive(:success).never
-
-        subject.call(env)
-
-        expect(env[:box_outdated]).to be_false
-      end
-    end
-
-    it "is outdated if it is" do
-      File.open(metadata_url.path, "w") do |f|
-        f.write(<<-RAW)
+      it "is outdated if it is" do
+        File.open(metadata_url.path, "w") do |f|
+          f.write(<<-RAW)
         {
           "name": "foo/bar",
           "versions": [
@@ -140,21 +174,21 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
             }
           ]
         }
-        RAW
+          RAW
+        end
+
+        box = Vagrant::Box.new(
+          "foo", :virtualbox, "1.0", box_dir, metadata_url: metadata_url.path)
+        machine.stub(box: box)
+
+        subject.call(env)
+
+        expect(env[:box_outdated]).to be_true
       end
 
-      box = Vagrant::Box.new(
-        "foo", :virtualbox, "1.0", box_dir, metadata_url: metadata_url.path)
-      machine.stub(box: box)
-
-      subject.call(env)
-
-      expect(env[:box_outdated]).to be_true
-    end
-
-    it "isn't outdated if the newer box is for another provider" do
-      File.open(metadata_url.path, "w") do |f|
-        f.write(<<-RAW)
+      it "isn't outdated if the newer box is for another provider" do
+        File.open(metadata_url.path, "w") do |f|
+          f.write(<<-RAW)
         {
           "name": "foo/bar",
           "versions": [
@@ -172,16 +206,17 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
             }
           ]
         }
-        RAW
+          RAW
+        end
+
+        box = Vagrant::Box.new(
+          "foo", :virtualbox, "1.0", box_dir, metadata_url: metadata_url.path)
+        machine.stub(box: box)
+
+        subject.call(env)
+
+        expect(env[:box_outdated]).to be_false
       end
-
-      box = Vagrant::Box.new(
-        "foo", :virtualbox, "1.0", box_dir, metadata_url: metadata_url.path)
-      machine.stub(box: box)
-
-      subject.call(env)
-
-      expect(env[:box_outdated]).to be_false
     end
   end
 end

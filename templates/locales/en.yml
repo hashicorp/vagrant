@@ -30,6 +30,11 @@ en:
       Loading metadata for box '%{name}'
     box_outdated: |-
       * '%{name}' is outdated! Current: %{current}. Latest: %{latest}
+    box_outdated_local: |-
+      A newer version of the box '%{name}' is available and already
+      installed, but your Vagrant machine is running against
+      version '%{old}'. To update to version '%{new}',
+      destroy and recreate your machine.
     box_outdated_single: |-
       A newer version of the box '%{name}' is available! You currently
       have version '%{current}'. The latest is version '%{latest}'. Run

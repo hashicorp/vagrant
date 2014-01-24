@@ -31,6 +31,36 @@ module Vagrant
             raise Errors::BoxOutdatedNoBox, name: machine.config.vm.box
           end
 
+          if env[:box_outdated_refresh]
+            @logger.info(
+              "Checking if box is outdated by refreshing metadata")
+            check_outdated_refresh(env)
+          else
+            @logger.info("Checking if box is outdated locally")
+            check_outdated_local(env)
+          end
+
+          @app.call(env)
+        end
+
+        def check_outdated_local(env)
+          machine = env[:machine]
+          box = env[:box_collection].find(
+            machine.box.name, machine.box.provider,
+            "> #{machine.box.version}")
+          if box
+            env[:ui].warn(I18n.t(
+              "vagrant.box_outdated_local",
+              name: box.name,
+              old: machine.box.version,
+              new: box.version))
+            env[:box_outdated] = true
+          end
+        end
+
+        def check_outdated_refresh(env)
+          machine = env[:machine]
+
           if !machine.box.metadata_url
             # This box doesn't have a metadata URL, so we can't
             # possibly check the version information.
@@ -49,7 +79,7 @@ module Vagrant
             end
 
             env[:box_outdated] = false
-            return @app.call(env)
+            return
           end
 
           env[:ui].warn(I18n.t(
@@ -58,8 +88,6 @@ module Vagrant
             current: machine.box.version,
             latest: newer.version))
           env[:box_outdated] = true
-
-          @app.call(env)
         end
       end
     end
