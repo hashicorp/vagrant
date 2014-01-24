@@ -29,7 +29,7 @@ module Vagrant
 
       @name = @raw["name"]
       @description = @raw["description"]
-      @version_map = @raw["versions"].map do |v|
+      @version_map = (@raw["versions"] || []).map do |v|
         [Gem::Version.new(v["version"]), v]
       end
       @version_map = Hash[@version_map]

@@ -28,6 +28,14 @@ en:
       URL: %{url}
     box_loading_metadata: |-
       Loading metadata for box '%{name}'
+    box_outdated: |-
+      * '%{name}' is outdated! Current: %{current}. Latest: %{latest}
+    box_outdated_metadata_error: |-
+      * '%{name}': Error loading metadata: %{message}
+    box_outdated_no_metadata: |-
+      * '%{name}' wasn't added from a catalog, no version information
+    box_up_to_date: |-
+      * '%{name}' (v%{version}) is up to date
     cfengine_bootstrapping: |-
       Bootstrapping CFEngine with policy server: %{policy_server}...
     cfengine_bootstrapping_policy_hub: |-

@@ -1,8 +1,11 @@
 require 'fileutils'
+require "tempfile"
 
 require "json"
 require "log4r"
 
+require "vagrant/box_metadata"
+require "vagrant/util/downloader"
 require "vagrant/util/platform"
 require "vagrant/util/safe_chdir"
 require "vagrant/util/subprocess"
@@ -82,6 +85,25 @@ module Vagrant
       return true
     end
 
+    # Loads the metadata URL and returns the latest metadata associated
+    # with this box.
+    #
+    # @return [BoxMetadata]
+    def load_metadata
+      tf = Tempfile.new("vagrant")
+      tf.close
+
+      url = @metadata_url
+      if File.file?(url) || url !~ /^[a-z0-9]+:.*$/i
+        url = File.expand_path(url)
+        url = Util::Platform.cygwin_windows_path(url)
+        url = "file:#{url}"
+      end
+
+      Util::Downloader.new(url, tf.path).download!
+      BoxMetadata.new(File.open(tf.path, "r"))
+    end
+
     # This repackages this box and outputs it to the given path.
     #
     # @param [Pathname] path The full path (filename included) of where
@@ -110,7 +132,7 @@ module Vagrant
 
       # Comparison is done by composing the name and provider
       "#{@name}-#{@version}-#{@provider}" <=>
-        "#{other.name}-#{other.version}-#{other.provider}"
+      "#{other.name}-#{other.version}-#{other.provider}"
     end
   end
 end

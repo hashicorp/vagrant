@@ -208,6 +208,8 @@ module Vagrant
           # Otherwise, traverse the subdirectories and see what versions
           # we have.
           child.children(true).each do |versiondir|
+            next if !versiondir.directory?
+
             version = versiondir.basename.to_s
 
             versiondir.children(true).each do |provider|

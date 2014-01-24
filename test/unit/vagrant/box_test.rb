@@ -1,6 +1,7 @@
 require File.expand_path("../../base", __FILE__)
 
 require "pathname"
+require "tempfile"
 
 describe Vagrant::Box do
   include_context "unit"
@@ -72,6 +73,32 @@ describe Vagrant::Box do
     it "should raise an exception" do
       expect { subject }.
         to raise_error(Vagrant::Errors::BoxMetadataFileNotFound)
+    end
+  end
+
+  context "#load_metadata" do
+    let(:metadata_url) do
+      Tempfile.new("vagrant").tap do |f|
+        f.write(<<-RAW)
+        {
+          "name": "foo",
+          "description": "bar"
+        }
+        RAW
+        f.close
+      end
+    end
+
+    subject do
+      described_class.new(
+        name, provider, version, directory,
+        metadata_url: metadata_url.path)
+    end
+
+    it "loads the url and returns the data" do
+      result = subject.load_metadata
+      expect(result.name).to eq("foo")
+      expect(result.description).to eq("bar")
     end
   end
 

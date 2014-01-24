@@ -24,6 +24,11 @@ module VagrantPlugins
             List
           end
 
+          @subcommands.register(:outdated) do
+            require_relative "outdated"
+            Outdated
+          end
+
           @subcommands.register(:remove) do
             require File.expand_path("../remove", __FILE__)
             Remove
