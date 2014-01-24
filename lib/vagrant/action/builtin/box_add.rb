@@ -76,11 +76,13 @@ module Vagrant
             if !provider
               raise Errors::BoxAddNoMatchingVersion,
                 constraints: version || ">= 0",
+                name: metadata.name,
                 url: url,
                 versions: metadata.versions.join(", ")
             else
               # TODO: show supported providers
               raise Errors::BoxAddNoMatchingProvider,
+                name: metadata.name,
                 requested: provider,
                 url: url
             end

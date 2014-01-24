@@ -221,14 +221,16 @@ en:
         provider. Double-check your requested provider to verify you didn't
         simply misspell it.
 
-        Box: %{url}
+        Name: %{name}
+        Address: %{url}
         Requested provider: %{requested}
       box_add_no_matching_version: |-
         The box you're attempting to add has no available version that
         matches the constraints you requested. Please double-check your
         settings.
 
-        Box: %{url}
+        Box: %{name}
+        Address: %{url}
         Constraints: %{constraints}
         Available versions: %{versions}
       boot_bad_state: |-

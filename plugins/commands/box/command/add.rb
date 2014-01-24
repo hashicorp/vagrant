@@ -36,7 +36,7 @@ module VagrantPlugins
               options[:provider] = p
             end
 
-            o.on("--version VALUE", String, "Constrain version of the added box") do |v|
+            o.on("--box-version VALUE", String, "Constrain version of the added box") do |v|
               options[:version] = v
             end
 
