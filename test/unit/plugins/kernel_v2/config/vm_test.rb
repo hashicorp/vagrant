@@ -33,9 +33,26 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
   end
 
   describe "#box_url" do
-    it "defaults properly" do
+    it "defaults to nil" do
       subject.finalize!
+
       expect(subject.box_url).to be_nil
+    end
+
+    it "turns into an array" do
+      subject.box_url = "foo"
+      subject.finalize!
+
+      expect(subject.box_url).to eq(
+        ["foo"])
+    end
+
+    it "keeps in array" do
+      subject.box_url = ["foo", "bar"]
+      subject.finalize!
+
+      expect(subject.box_url).to eq(
+        ["foo", "bar"])
     end
   end
 

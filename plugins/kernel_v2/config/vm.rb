@@ -329,9 +329,7 @@ module VagrantPlugins
         end
 
         # Make sure the box URL is an array if it is set
-        if @box_url && !@box_url.is_a?(Array)
-          @box_url = [@box_url]
-        end
+        @box_url = Array(@box_url) if @box_url
 
         # Set the guest properly
         @guest = @guest.to_sym if @guest

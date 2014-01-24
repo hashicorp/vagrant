@@ -1329,7 +1329,6 @@ en:
           destroying: "Deleting box '%{name}'..."
         download:
           cleaning: "Cleaning up downloaded box..."
-          downloading: "Downloading box from URL: %{url}"
           download_failed: |-
             Download failed. Will try another box URL if there is one.
           interrupted: "Box download was interrupted. Exiting."
