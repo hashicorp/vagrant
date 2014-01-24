@@ -67,14 +67,14 @@ module Vagrant
           env[:ui].detail("Box Version: #{machine.config.vm.box_version}")
 
           begin
-            env[:action_runner].run(Vagrant::Action.action_box_add, {
+            env[:action_runner].run(Vagrant::Action.action_box_add, env.merge({
               box_url: machine.config.vm.box,
               box_provider: box_formats,
               box_version: machine.config.vm.box_version,
               box_client_cert: box_download_client_cert,
               box_download_ca_cert: box_download_ca_cert,
               box_download_insecure: box_download_insecure,
-            })
+            }))
           rescue Errors::BoxAlreadyExists
             # Just ignore this, since it means the next part will succeed!
             # This can happen in a multi-threaded environment.
