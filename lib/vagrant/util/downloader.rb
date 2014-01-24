@@ -38,30 +38,8 @@ module Vagrant
       # If this method returns without an exception, the download
       # succeeded. An exception will be raised if the download failed.
       def download!
-        # Build the list of parameters to execute with cURL
-        options = [
-          "--fail",
-          "--location",
-          "--max-redirs", "10",
-          "--user-agent", USER_AGENT,
-          "--output", @destination,
-        ]
-
-        options += ["--cacert", @ca_cert] if @ca_cert
-        options += ["--continue-at", "-"] if @continue
-        options << "--insecure" if @insecure
-        options << "--cert" << @client_cert if @client_cert
-        options << @source
-
-        # Specify some options for the subprocess
-        subprocess_options = {}
-
-        # If we're in Vagrant, then we use the packaged CA bundle
-        if Vagrant.in_installer?
-          subprocess_options[:env] ||= {}
-          subprocess_options[:env]["CURL_CA_BUNDLE"] =
-            File.expand_path("cacert.pem", ENV["VAGRANT_INSTALLER_EMBEDDED_DIR"])
-        end
+        options, subprocess_options = self.options
+        options += ["--output", @destination]
 
         # This variable can contain the proc that'll be sent to
         # the subprocess execute.
@@ -118,7 +96,42 @@ module Vagrant
           end
         end
 
-        # Add the subprocess options onto the options we'll execute with
+        @logger.info("Downloader starting download: ")
+        @logger.info("  -- Source: #{@source}")
+        @logger.info("  -- Destination: #{@destination}")
+
+        begin
+          execute_curl(options, subprocess_options, &data_proc)
+        ensure
+          # If we're outputting to the UI, clear the output to
+          # avoid lingering progress meters.
+          if @ui
+            @ui.clear_line
+
+            # Windows doesn't clear properly for some reason, so we just
+            # output one more newline.
+            @ui.info("") if Platform.windows?
+          end
+        end
+
+        # Everything succeeded
+        true
+      end
+
+      # Does a HEAD request of the URL and returns the output.
+      def head
+        options, subprocess_options = self.options
+        options.unshift("-I")
+
+        @logger.info("HEAD: #{@source}")
+        result = execute_curl(options, subprocess_options)
+        result.stdout
+      end
+
+      protected
+
+      def execute_curl(options, subprocess_options, &data_proc)
+        options = options.dup
         options << subprocess_options
 
         # Create the callback that is called if we are interrupted
@@ -128,10 +141,6 @@ module Vagrant
           interrupted = true
         end
 
-        @logger.info("Downloader starting download: ")
-        @logger.info("  -- Source: #{@source}")
-        @logger.info("  -- Destination: #{@destination}")
-
         # Execute!
         result = Busy.busy(int_callback) do
           Subprocess.execute("curl", *options, &data_proc)
@@ -139,16 +148,6 @@ module Vagrant
 
         # If the download was interrupted, then raise a specific error
         raise Errors::DownloaderInterrupted if interrupted
-
-        # If we're outputting to the UI, clear the output to
-        # avoid lingering progress meters.
-        if @ui
-          @ui.clear_line
-
-          # Windows doesn't clear properly for some reason, so we just
-          # output one more newline.
-          @ui.info("") if Platform.windows?
-        end
 
         # If it didn't exit successfully, we need to parse the data and
         # show an error message.
@@ -159,8 +158,38 @@ module Vagrant
           raise Errors::DownloaderError, :message => parts[1].chomp
         end
 
-        # Everything succeeded
-        true
+        result
+      end
+
+      # Returns the varoius cURL and subprocess options.
+      #
+      # @return [Array<Array, Hash>]
+      def options
+        # Build the list of parameters to execute with cURL
+        options = [
+          "--fail",
+          "--location",
+          "--max-redirs", "10",
+          "--user-agent", USER_AGENT,
+        ]
+
+        options += ["--cacert", @ca_cert] if @ca_cert
+        options += ["--continue-at", "-"] if @continue
+        options << "--insecure" if @insecure
+        options << "--cert" << @client_cert if @client_cert
+        options << @source
+
+        # Specify some options for the subprocess
+        subprocess_options = {}
+
+        # If we're in Vagrant, then we use the packaged CA bundle
+        if Vagrant.in_installer?
+          subprocess_options[:env] ||= {}
+          subprocess_options[:env]["CURL_CA_BUNDLE"] =
+            File.expand_path("cacert.pem", ENV["VAGRANT_INSTALLER_EMBEDDED_DIR"])
+        end
+
+        return [options, subprocess_options]
       end
     end
   end

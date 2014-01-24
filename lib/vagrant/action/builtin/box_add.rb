@@ -57,12 +57,14 @@ module Vagrant
           version = env[:box_version]
 
           metadata = nil
-          if File.file?(url)
-            # TODO: What if file isn't valid JSON
-            # TODO: What if URL is in the "file:" format
-            File.open(url) do |f|
+          begin
+            metadata_path = download(url, env)
+
+            File.open(metadata_path) do |f|
               metadata = BoxMetadata.new(f)
             end
+          ensure
+            metadata_path.delete if metadata_path.file?
           end
 
           metadata_version  = metadata.version(
@@ -316,7 +318,10 @@ module Vagrant
           end
 
           # TODO: do the HEAD request
-          true
+          output = d.head
+          match  = output.scan(/^Content-Type: (.+?)$/).last
+          return false if !match
+          match.last.chomp == "application/json"
         end
       end
     end
