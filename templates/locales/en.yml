@@ -974,17 +974,6 @@ en:
         vm_not_created: "VM not created. Moving on..."
         vm_not_running: "VM is not currently running. Please, first bring it up with `vagrant up` then run this command."
       box:
-        remove_must_specify_provider: |-
-          Multiple providers were found for the box '%{name}'. Please specify
-          the specific provider for the box you want to remove. The list of
-          providers backing this box is:
-
-          '%{providers}'
-
-          To remove the box for a specific provider, run the following command,
-          filling in PROVIDER with one of the providers above:
-
-          vagrant box remove '%{name}' PROVIDER
         no_installed_boxes: "There are no installed boxes! Use `vagrant box add` to add some."
         removing: |-
           Removing box '%{name}' with provider '%{provider}'...
