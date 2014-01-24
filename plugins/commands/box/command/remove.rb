@@ -15,7 +15,7 @@ module VagrantPlugins
               options[:provider] = p
             end
 
-            o.on("--version VALUE", String,
+            o.on("--box-version VALUE", String,
                  "The specific version of the box to remove.") do |v|
               options[:version] = v
             end
