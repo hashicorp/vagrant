@@ -1,12 +1,4 @@
-require "digest/sha1"
 require "log4r"
-require "pathname"
-require "uri"
-
-require "vagrant/box_metadata"
-require "vagrant/util/downloader"
-require "vagrant/util/file_checksum"
-require "vagrant/util/platform"
 
 module Vagrant
   module Action
