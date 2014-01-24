@@ -307,6 +307,7 @@ module VagrantPlugins
           end
 
           b.use ConfigValidate
+          b.use BoxCheckOutdated
           b.use Call, Created do |env, b2|
             # If the VM is NOT created yet, then do the setup steps
             if !env[:result]

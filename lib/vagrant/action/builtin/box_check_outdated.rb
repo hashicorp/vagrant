@@ -20,6 +20,11 @@ module Vagrant
             if !machine.config.vm.box_check_update
               return @app.call(env)
             end
+
+            if !env.has_key?(:box_outdated_refresh)
+              env[:box_outdated_refresh] = true
+              env[:box_outdated_ignore_errors] = true
+            end
           end
 
           if !machine.box
@@ -30,9 +35,17 @@ module Vagrant
           end
 
           if env[:box_outdated_refresh]
-            @logger.info(
-              "Checking if box is outdated by refreshing metadata")
-            check_outdated_refresh(env)
+            env[:ui].output(I18n.t(
+              "vagrant.box_outdated_checking_with_refresh",
+              name: machine.box.name))
+            begin
+              check_outdated_refresh(env)
+            rescue Errors::VagrantError => e
+              raise if !env[:box_outdated_ignore_errors]
+              env[:ui].detail(I18n.t(
+                "vagrant.box_outdated_metadata_error",
+                message: e.message))
+            end
           else
             @logger.info("Checking if box is outdated locally")
             check_outdated_local(env)
