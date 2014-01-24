@@ -8,6 +8,14 @@ module Vagrant
     !ENV["VAGRANT_NO_PLUGINS"]
   end
 
+  # Returns the URL prefix to the server.
+  #
+  # @return [String]
+  def self.server_url
+    # TODO: default
+    ENV["VAGRANT_SERVER_URL"]
+  end
+
   # The source root is the path to the root directory of the Vagrant source.
   #
   # @return [Pathname]
