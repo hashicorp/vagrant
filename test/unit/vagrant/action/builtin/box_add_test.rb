@@ -171,7 +171,6 @@ describe Vagrant::Action::Builtin::BoxAdd do
         f.close
       end
 
-
       md_path = Pathname.new(tf.path)
       with_web_server(md_path) do |port|
         env[:box_url] = "http://127.0.0.1:#{port}/#{md_path.basename}"
@@ -186,6 +185,52 @@ describe Vagrant::Action::Builtin::BoxAdd do
         app.should_receive(:call).with(env)
 
         subject.call(env)
+      end
+    end
+
+    it "adds from shorthand path" do
+      box_path = iso_env.box2_file(:virtualbox)
+      td = Pathname.new(Dir.mktmpdir)
+      tf = td.join("mitchellh", "precise64.json")
+      tf.dirname.mkpath
+      tf.open("w") do |f|
+        f.write(<<-RAW)
+        {
+          "name": "mitchellh/precise64",
+          "versions": [
+            {
+              "version": "0.5"
+            },
+            {
+              "version": "0.7",
+              "providers": [
+                {
+                  "name": "virtualbox",
+                  "url":  "#{box_path}"
+                }
+              ]
+            }
+          ]
+        }
+        RAW
+      end
+
+      with_web_server(tf.dirname) do |port|
+        env[:box_url] = "mitchellh/precise64.json"
+
+        box_collection.should_receive(:add).with do |path, name, version|
+          expect(name).to eq("mitchellh/precise64")
+          expect(version).to eq("0.7")
+          expect(checksum(path)).to eq(checksum(box_path))
+          true
+        end.and_return(box)
+
+        app.should_receive(:call).with(env)
+
+        url = "http://127.0.0.1:#{port}"
+        with_temp_env("VAGRANT_SERVER_URL" => url) do
+          subject.call(env)
+        end
       end
     end
 

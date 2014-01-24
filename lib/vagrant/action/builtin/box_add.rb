@@ -23,6 +23,15 @@ module Vagrant
           @download_interrupted = false
 
           url = env[:box_url]
+
+          # If we received a shorthand URL ("mitchellh/precise64"),
+          # then expand it properly.
+          uri = URI.parse(url)
+          if !uri.scheme && !File.file?(url)
+            url = "#{Vagrant.server_url}/#{url}"
+            env[:box_url] = url
+          end
+
           if metadata_url?(url, env)
             add_from_metadata(env)
           else
