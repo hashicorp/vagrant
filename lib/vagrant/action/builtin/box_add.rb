@@ -433,6 +433,8 @@ module Vagrant
               return true
             rescue Errors::BoxMetadataMalformed
               return false
+            rescue Errno::ENOENT
+              return false
             end
           end
 
