@@ -47,6 +47,38 @@ module Vagrant
         end
 
         def handle_metadata_box(env)
+          machine = env[:machine]
+
+          if machine.box
+            @logger.info("Machine already has box. HandleBox will not run.")
+            return
+          end
+
+          # Determine the set of formats that this box can be in
+          box_download_ca_cert = env[:machine].config.vm.box_download_ca_cert
+          box_download_client_cert = env[:machine].config.vm.box_download_client_cert
+          box_download_insecure = env[:machine].config.vm.box_download_insecure
+          box_formats = env[:machine].provider_options[:box_format] ||
+            env[:machine].provider_name
+
+          env[:ui].output(I18n.t(
+            "vagrant.box_auto_adding", name: machine.config.vm.box))
+          env[:ui].detail("Box Provider: #{Array(box_formats).join(", ")}")
+          env[:ui].detail("Box Version: #{machine.config.vm.box_version}")
+
+          begin
+            env[:action_runner].run(Vagrant::Action.action_box_add, {
+              box_url: machine.config.vm.box,
+              box_provider: box_formats,
+              box_version: machine.config.vm.box_version,
+              box_client_cert: box_download_client_cert,
+              box_download_ca_cert: box_download_ca_cert,
+              box_download_insecure: box_download_insecure,
+            })
+          rescue Errors::BoxAlreadyExists
+            # Just ignore this, since it means the next part will succeed!
+            # This can happen in a multi-threaded environment.
+          end
         end
 
 =begin

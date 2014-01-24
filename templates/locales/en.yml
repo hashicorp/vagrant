@@ -4,6 +4,8 @@ en:
       Machine booted and ready!
     boot_waiting: |-
       Waiting for machine to boot. This may take a few minutes...
+    box_auto_adding: |-
+      Box '%{name}' could not be found. Attempting to find and install...
     box_add_choose_provider: |-
       This box can work with multiple providers! The providers that it
       can work with are listed below. Please review the list and choose
