@@ -18,6 +18,8 @@ en:
       Adding box '%{name}' (v%{version}) for '%{provider}' provider...
     box_added: |-
       Successfully added box '%{name}' for '%{provider}'!
+    box_expanding_url: |-
+      URL: %{url}
     box_loading_metadata: |-
       Loading metadata for box '%{name}'
     cfengine_bootstrapping: |-

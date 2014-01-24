@@ -29,13 +29,12 @@ module Vagrant
           uri = URI.parse(url)
           if !uri.scheme && !File.file?(url)
             url = "#{Vagrant.server_url}/#{url}"
-            env[:box_url] = url
           end
 
           if metadata_url?(url, env)
-            add_from_metadata(env)
+            add_from_metadata(url, env)
           else
-            add_direct(env)
+            add_direct(url, env)
           end
 
           @app.call(env)
@@ -43,13 +42,12 @@ module Vagrant
 
         # Adds a box file directly (no metadata component, versioning,
         # etc.)
-        def add_direct(env)
+        def add_direct(url, env)
           name = env[:box_name]
           if !name || name == ""
             raise Errors::BoxAddNameRequired
           end
 
-          url  = env[:box_url]
           provider = env[:box_provider]
           provider = Array(provider) if provider
 
@@ -62,14 +60,19 @@ module Vagrant
         end
 
         # Adds a box given that the URL is a metadata document.
-        def add_from_metadata(env)
+        def add_from_metadata(url, env)
+          original_url = env[:box_url]
           provider = env[:box_provider]
           provider = Array(provider) if provider
-          url = env[:box_url]
           version = env[:box_version]
 
           env[:ui].output(I18n.t(
-            "vagrant.box_loading_metadata", name: url))
+            "vagrant.box_loading_metadata", name: original_url))
+          if original_url != url
+            env[:ui].detail(I18n.t(
+              "vagrant.box_expanding_url", url: url))
+          end
+
           metadata = nil
           begin
             metadata_path = download(url, env, ui: false)
