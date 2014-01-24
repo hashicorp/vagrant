@@ -51,7 +51,7 @@ module Vagrant
       end
 
       providers = nil
-      providers = Array(opts[:provider]) if opts[:provider]
+      providers = Array(opts[:provider]).map(&:to_sym) if opts[:provider]
 
       @version_map.keys.sort.reverse.each do |v|
         next if !requirements.all? { |r| r.satisfied_by?(v) }
@@ -84,7 +84,7 @@ module Vagrant
 
         @version = raw["version"]
         @provider_map = (raw["providers"] || []).map do |p|
-          [p["name"], p]
+          [p["name"].to_sym, p]
         end
         @provider_map = Hash[@provider_map]
       end
@@ -92,7 +92,7 @@ module Vagrant
       # Returns a [Provider] for the given name, or nil if it isn't
       # supported by this version.
       def provider(name)
-        p = @provider_map[name]
+        p = @provider_map[name.to_sym]
         return nil if !p
         Provider.new(p)
       end
@@ -100,9 +100,9 @@ module Vagrant
       # Returns the providers that are available for this version
       # of the box.
       #
-      # @return [Provider]
+      # @return [Array<Symbol>]
       def providers
-        @provider_map.keys
+        @provider_map.keys.map(&:to_sym)
       end
     end
 

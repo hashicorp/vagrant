@@ -77,7 +77,7 @@ describe Vagrant::BoxMetadata do
     end
 
     it "matches the constraint that has the given provider" do
-      result = subject.version(">= 0", provider: "vmware")
+      result = subject.version(">= 0", provider: :vmware)
       expect(result).to_not be_nil
       expect(result).to be_kind_of(Vagrant::BoxMetadata::Version)
       expect(result.version).to eq("1.1.0")
@@ -131,7 +131,7 @@ describe Vagrant::BoxMetadata::Version do
   describe "#providers" do
     it "returns the providers available" do
       expect(subject.providers.sort).to eq(
-        ["virtualbox", "vmware"])
+        [:virtualbox, :vmware])
     end
   end
 end
