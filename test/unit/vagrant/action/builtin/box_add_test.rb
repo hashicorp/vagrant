@@ -450,6 +450,51 @@ describe Vagrant::Action::Builtin::BoxAdd do
       expect(env[:box_added]).to equal(box)
     end
 
+    it "asks the user what provider if multiple options" do
+      box_path = iso_env.box2_file(:virtualbox)
+      tf = Tempfile.new("vagrant").tap do |f|
+        f.write(<<-RAW)
+        {
+          "name": "foo/bar",
+          "versions": [
+            {
+              "version": "0.5"
+            },
+            {
+              "version": "0.7",
+              "providers": [
+                {
+                  "name": "virtualbox",
+                  "url":  "#{box_path}"
+                },
+                {
+                  "name": "vmware",
+                  "url":  "#{iso_env.box2_file(:vmware)}"
+                }
+              ]
+            }
+          ]
+        }
+        RAW
+        f.close
+      end
+
+      env[:box_url] = tf.path
+
+      env[:ui].should_receive(:ask).and_return("1")
+
+      box_collection.should_receive(:add).with do |path, name, version|
+        expect(checksum(path)).to eq(checksum(box_path))
+        expect(name).to eq("foo/bar")
+        expect(version).to eq("0.7")
+        true
+      end.and_return(box)
+
+      app.should_receive(:call).with(env)
+
+      subject.call(env)
+    end
+
     it "raises an exception if no matching version" do
       box_path = iso_env.box2_file(:vmware)
       tf = Tempfile.new("vagrant").tap do |f|

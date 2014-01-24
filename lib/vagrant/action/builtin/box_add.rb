@@ -101,6 +101,28 @@ module Vagrant
             # provider.
             metadata_provider = metadata_version.provider(
               metadata_version.providers.first)
+          else
+            providers = metadata_version.providers.sort
+
+            choice = 0
+            options = providers.map do |p|
+              choice += 1
+              "#{choice}) #{p}"
+            end.join("\n")
+
+            # We have more than one provider, ask the user what they want
+            choice = env[:ui].ask(I18n.t(
+              "vagrant.box_add_choose_provider",
+              options: options))
+            choice = choice.to_i if choice
+            while !choice || choice <= 0 || choice > providers.length
+              choice = env[:ui].ask(I18n.t(
+                "vagrant.box_add_choose_provider_again"))
+              choice = choice.to_i if choice
+            end
+
+            metadata_provider = metadata_version.provider(
+              providers[choice-1])
           end
 
           box_add(
@@ -331,7 +353,6 @@ module Vagrant
             end
           end
 
-          # TODO: do the HEAD request
           output = d.head
           match  = output.scan(/^Content-Type: (.+?)$/).last
           return false if !match
