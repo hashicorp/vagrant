@@ -244,8 +244,11 @@ describe Vagrant::Action::Builtin::BoxAdd do
         box_collection.should_receive(:add).never
         app.should_receive(:call).never
 
-        expect { subject.call(env) }.
-          to raise_error(Vagrant::Errors::BoxAddShortNotFound)
+        url = "http://127.0.0.1:#{port}"
+        with_temp_env("VAGRANT_SERVER_URL" => url) do
+          expect { subject.call(env) }.
+            to raise_error(Vagrant::Errors::BoxAddShortNotFound)
+        end
       end
     end
 
