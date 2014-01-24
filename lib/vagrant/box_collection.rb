@@ -56,8 +56,6 @@ module Vagrant
     # * BoxProviderDoesntMatch - If the given box provider doesn't match the
     #   actual box provider in the untarred box.
     # * BoxUnpackageFailure - An invalid tar file.
-    # * BoxUpgradeRequired - You're attempting to add a box when there is a
-    #   V1 box with the same name that must first be upgraded.
     #
     # Preconditions:
     # * File given in `path` must exist.

@@ -376,10 +376,6 @@ en:
         the provider specified. Please double-check and try again.
 
         The providers for this are: %{providers}
-      box_upgrade_required: |-
-        The box '%{name}' is still stored on disk in the Vagrant 1.0.x
-        format. This box must be upgraded in order to work properly with
-        this version of Vagrant.
       bundler_disabled: |-
         Vagrant's built-in bundler management mechanism is disabled because
         Vagrant is running in an external bundler environment. In these

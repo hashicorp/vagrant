@@ -348,14 +348,8 @@ module Vagrant
       load_box_and_overrides = lambda do
         box = nil
         if config.vm.box
-          begin
-            box = boxes.find(config.vm.box, box_formats, config.vm.box_version)
-          rescue Errors::BoxUpgradeRequired
-            # Upgrade the box if we must
-            @logger.info("Upgrading box during config load: #{config.vm.box}")
-            boxes.upgrade(config.vm.box)
-            retry
-          end
+          box = boxes.find(
+            config.vm.box, box_formats, config.vm.box_version)
         end
 
         # If a box was found, then we attempt to load the Vagrantfile for
