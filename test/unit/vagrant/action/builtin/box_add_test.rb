@@ -234,6 +234,21 @@ describe Vagrant::Action::Builtin::BoxAdd do
       end
     end
 
+    it "raises an error if shorthand is invalid" do
+      tf = Tempfile.new("foo")
+      tf.close
+
+      with_web_server(Pathname.new(tf.path)) do |port|
+        env[:box_url] = "mitchellh/precise64.json"
+
+        box_collection.should_receive(:add).never
+        app.should_receive(:call).never
+
+        expect { subject.call(env) }.
+          to raise_error(Vagrant::Errors::BoxAddShortNotFound)
+      end
+    end
+
     it "adds the latest version of a box with only one provider" do
       box_path = iso_env.box2_file(:virtualbox)
       tf = Tempfile.new("vagrant").tap do |f|

@@ -247,6 +247,13 @@ en:
         Address: %{url}
         Constraints: %{constraints}
         Available versions: %{versions}
+      box_add_short_not_found: |-
+        The box '%{name}' could not be found or could not be accessed
+        in the remote catalog. Please double-check the name. The
+        expanded URL and error message are shown below.
+
+        URL: %{url}
+        Error: %{error}
       boot_bad_state: |-
         The guest machine entered an invalid state while waiting for it
         to boot. Valid states are '%{valid}'. The machine is in the

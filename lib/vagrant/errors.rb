@@ -132,6 +132,10 @@ module Vagrant
       error_key(:box_add_no_matching_version)
     end
 
+    class BoxAddShortNotFound < VagrantError
+      error_key(:box_add_short_not_found)
+    end
+
     class BoxAlreadyExists < VagrantError
       error_key(:box_add_exists)
     end

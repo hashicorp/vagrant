@@ -26,12 +26,25 @@ module Vagrant
 
           # If we received a shorthand URL ("mitchellh/precise64"),
           # then expand it properly.
+          expanded = false
           uri = URI.parse(url)
           if !uri.scheme && !File.file?(url)
+            expanded = true
             url = "#{Vagrant.server_url}/#{url}"
           end
 
-          if metadata_url?(url, env)
+          is_metadata = false
+          begin
+            is_metadata = metadata_url?(url, env)
+          rescue Errors::DownloaderError => e
+            raise if !expanded
+            raise Errors::BoxAddShortNotFound,
+              error: e.extra_data[:message],
+              name: env[:box_url],
+              url: url
+          end
+
+          if is_metadata
             add_from_metadata(url, env)
           else
             add_direct(url, env)
