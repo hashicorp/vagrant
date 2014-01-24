@@ -950,6 +950,8 @@ en:
       ssh:
         private_key_missing: "`private_key_path` file must exist: %{path}"
       vm:
+        bad_version: |-
+          Invalid box version constraints: %{version}
         box_download_ca_cert_not_found: |-
           "box_download_ca_cert" file not found: %{path}
         box_download_checksum_blank: |-
@@ -957,7 +959,6 @@ en:
         box_download_checksum_notblank: |-
           Checksum specified but must also specify "box_download_checksum_type"
         box_missing: "A box must be specified."
-        box_not_found: "The box '%{name}' could not be found."
         hostname_invalid_characters: |-
           The hostname set for the VM should only contain letters, numbers,
           hyphens or dots. It cannot start with a hyphen or dot.

@@ -58,6 +58,19 @@ describe Vagrant::BoxCollection do
       expect(result.name).to eq("foo")
     end
 
+    it "returns latest version matching constraint" do
+      # Create the "box"
+      environment.box3("foo", "1.0", :virtualbox)
+      environment.box3("foo", "1.5", :virtualbox)
+
+      # Actual test
+      result = subject.find("foo", :virtualbox, ">= 0")
+      expect(result).to_not be_nil
+      expect(result).to be_kind_of(box_class)
+      expect(result.name).to eq("foo")
+      expect(result.version).to eq("1.5")
+    end
+
     it "can satisfy complex constraints" do
       # Create the "box"
       environment.box3("foo", "0.1", :virtualbox)

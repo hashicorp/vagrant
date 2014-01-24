@@ -16,6 +16,7 @@ module Vagrant
       autoload :DestroyConfirm, "vagrant/action/builtin/destroy_confirm"
       autoload :EnvSet,  "vagrant/action/builtin/env_set"
       autoload :GracefulHalt, "vagrant/action/builtin/graceful_halt"
+      autoload :HandleBox, "vagrant/action/builtin/handle_box"
       autoload :HandleBoxUrl, "vagrant/action/builtin/handle_box_url"
       autoload :HandleForwardedPortCollisions, "vagrant/action/builtin/handle_forwarded_port_collisions"
       autoload :Lock, "vagrant/action/builtin/lock"

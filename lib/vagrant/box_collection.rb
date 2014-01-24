@@ -245,18 +245,24 @@ module Vagrant
           return nil
         end
 
-        box_directory.children(true).each do |versiondir|
+        versions = box_directory.children(true).map do |versiondir|
           version = versiondir.basename.to_s
-          if !requirements.all? { |r| r.satisfied_by?(Gem::Version.new(version)) }
+          Gem::Version.new(version)
+        end
+
+        # Traverse through versions with the latest version first
+        versions.sort.reverse.each do |v|
+          if !requirements.all? { |r| r.satisfied_by?(v) }
             # Unsatisfied version requirements
             next
           end
 
+          versiondir = box_directory.join(v.to_s)
           providers.each do |provider|
             provider_dir = versiondir.join(provider.to_s)
             next if !provider_dir.directory?
             @logger.info("Box found: #{name} (#{provider})")
-            return Box.new(name, provider, version, provider_dir)
+            return Box.new(name, provider, v.to_s, provider_dir)
           end
         end
       end
