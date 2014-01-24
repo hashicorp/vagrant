@@ -40,6 +40,7 @@ module Vagrant
       def download!
         options, subprocess_options = self.options
         options += ["--output", @destination]
+        options << @source
 
         # This variable can contain the proc that'll be sent to
         # the subprocess execute.
@@ -122,6 +123,7 @@ module Vagrant
       def head
         options, subprocess_options = self.options
         options.unshift("-I")
+        options << @source
 
         @logger.info("HEAD: #{@source}")
         result = execute_curl(options, subprocess_options)
@@ -177,7 +179,6 @@ module Vagrant
         options += ["--continue-at", "-"] if @continue
         options << "--insecure" if @insecure
         options << "--cert" << @client_cert if @client_cert
-        options << @source
 
         # Specify some options for the subprocess
         subprocess_options = {}
