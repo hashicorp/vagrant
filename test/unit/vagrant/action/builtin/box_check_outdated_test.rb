@@ -25,7 +25,38 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
     box_dir = iso_env.box3("foo", "1.0", :virtualbox)
     Vagrant::Box.new("foo", :virtualbox, "1.0", box_dir)
   end
-  let(:machine) { iso_vagrant_env.machine(iso_vagrant_env.machine_names[0], :dummy) }
+  let(:machine) do
+    m = iso_vagrant_env.machine(iso_vagrant_env.machine_names[0], :dummy)
+    m.config.vm.box_check_update = true
+    m
+  end
+
+  before do
+    machine.stub(box: box)
+  end
+
+  context "disabling outdated checking" do
+    it "doesn't check" do
+      machine.config.vm.box_check_update = false
+
+      app.should_receive(:call).with(env).once
+
+      subject.call(env)
+
+      expect(env).to_not have_key(:box_outdated)
+    end
+
+    it "checks if forced" do
+      machine.config.vm.box_check_update = false
+      env[:box_outdated_force] = true
+
+      app.should_receive(:call).with(env).once
+
+      subject.call(env)
+
+      expect(env).to have_key(:box_outdated)
+    end
+  end
 
   context "no box" do
     it "raises an exception if the machine doesn't have a box yet" do

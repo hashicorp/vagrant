@@ -24,6 +24,12 @@ module Vagrant
         def call(env)
           machine = env[:machine]
 
+          if !env[:box_outdated_force]
+            if !machine.config.vm.box_check_update
+              return @app.call(env)
+            end
+          end
+
           if !machine.box
             # The box doesn't exist. I suppose technically that means
             # that it is "outdated" but we show a specialized error
@@ -55,7 +61,10 @@ module Vagrant
               old: machine.box.version,
               new: box.version))
             env[:box_outdated] = true
+            return
           end
+
+          env[:box_outdated] = false
         end
 
         def check_outdated_refresh(env)

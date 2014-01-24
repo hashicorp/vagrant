@@ -17,6 +17,7 @@ module VagrantPlugins
       attr_accessor :base_mac
       attr_accessor :boot_timeout
       attr_accessor :box
+      attr_accessor :box_check_update
       attr_accessor :box_url
       attr_accessor :box_version
       attr_accessor :box_download_ca_cert
@@ -33,6 +34,7 @@ module VagrantPlugins
       def initialize
         @base_mac                     = UNSET_VALUE
         @boot_timeout                 = UNSET_VALUE
+        @box_check_update             = UNSET_VALUE
         @box_download_ca_cert         = UNSET_VALUE
         @box_download_checksum        = UNSET_VALUE
         @box_download_checksum_type   = UNSET_VALUE
@@ -305,6 +307,7 @@ module VagrantPlugins
         # Defaults
         @base_mac = nil if @base_mac == UNSET_VALUE
         @boot_timeout = 300 if @boot_timeout == UNSET_VALUE
+        @box_check_update = nil if @box_check_update == UNSET_VALUE
         @box_download_ca_cert = nil if @box_download_ca_cert == UNSET_VALUE
         @box_download_checksum = nil if @box_download_checksum == UNSET_VALUE
         @box_download_checksum_type = nil if @box_download_checksum_type == UNSET_VALUE

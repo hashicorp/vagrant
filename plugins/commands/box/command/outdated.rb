@@ -26,6 +26,7 @@ module VagrantPlugins
 
           with_target_vms(argv) do |machine|
             @env.action_runner.run(Vagrant::Action.action_box_outdated, {
+              box_outdated_force: true,
               box_outdated_refresh: true,
               box_outdated_success_ui: true,
               machine: machine,
