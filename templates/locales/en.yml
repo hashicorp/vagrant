@@ -289,6 +289,15 @@ en:
         Name: %{name}
         Provider: %{provider}
         Version: %{version}
+      box_add_name_mismatch: |-
+        The box you're adding has a name different from the name you
+        requested. For boxes with metadata, you cannot override the name.
+        If you're adding a box using `vagrant box add`, don't specify
+        the `--name` parameter. If the box is being added via a Vagrantfile,
+        change the `config.vm.box` value to match the name below.
+
+        Requested name: %{requested_name}
+        Actual name: %{actual_name}
       box_add_name_required: |-
         A name is required when adding a box file directly. Please pass
         the `--name` parameter to `vagrant box add`. See

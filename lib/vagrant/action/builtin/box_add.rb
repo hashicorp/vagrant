@@ -97,6 +97,12 @@ module Vagrant
             metadata_path.delete if metadata_path && metadata_path.file?
           end
 
+          if env[:box_name] && metadata.name != env[:box_name]
+            raise Errors::BoxAddNameMismatch,
+              actual_name: metadata.name,
+              requested_name: env[:box_name]
+          end
+
           metadata_version  = metadata.version(
             version || ">= 0", provider: provider)
           if !metadata_version

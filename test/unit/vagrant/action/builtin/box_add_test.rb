@@ -558,6 +558,41 @@ describe Vagrant::Action::Builtin::BoxAdd do
       subject.call(env)
     end
 
+    it "raises an exception if the name doesn't match a requested name" do
+      box_path = iso_env.box2_file(:virtualbox)
+      tf = Tempfile.new("vagrant").tap do |f|
+        f.write(<<-RAW)
+        {
+          "name": "foo/bar",
+          "versions": [
+            {
+              "version": "0.5"
+            },
+            {
+              "version": "0.7",
+              "providers": [
+                {
+                  "name": "virtualbox",
+                  "url":  "#{box_path}"
+                }
+              ]
+            }
+          ]
+        }
+        RAW
+        f.close
+      end
+
+      env[:box_name] = "foo"
+      env[:box_url] = tf.path
+
+      box_collection.should_receive(:add).never
+      app.should_receive(:call).never
+
+      expect { subject.call(env) }.
+        to raise_error(Vagrant::Errors::BoxAddNameMismatch)
+    end
+
     it "raises an exception if no matching version" do
       box_path = iso_env.box2_file(:vmware)
       tf = Tempfile.new("vagrant").tap do |f|
