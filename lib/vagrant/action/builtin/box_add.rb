@@ -113,11 +113,11 @@ module Vagrant
             # We have more than one provider, ask the user what they want
             choice = env[:ui].ask(I18n.t(
               "vagrant.box_add_choose_provider",
-              options: options))
+              options: options) + " ")
             choice = choice.to_i if choice
             while !choice || choice <= 0 || choice > providers.length
               choice = env[:ui].ask(I18n.t(
-                "vagrant.box_add_choose_provider_again"))
+                "vagrant.box_add_choose_provider_again") + " ")
               choice = choice.to_i if choice
             end
 
