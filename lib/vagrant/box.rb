@@ -39,17 +39,24 @@ module Vagrant
     # @return [Hash]
     attr_reader :metadata
 
+    # This is the URL to the version info and other metadata for this
+    # box.
+    #
+    # @return [String]
+    attr_reader :metadata_url
+
     # This is used to initialize a box.
     #
     # @param [String] name Logical name of the box.
     # @param [Symbol] provider The provider that this box implements.
     # @param [Pathname] directory The directory where this box exists on
     #   disk.
-    def initialize(name, provider, version, directory)
+    def initialize(name, provider, version, directory, **opts)
       @name      = name
       @version   = version
       @provider  = provider
       @directory = directory
+      @metadata_url = opts[:metadata_url]
 
       metadata_file = directory.join("metadata.json")
       raise Errors::BoxMetadataFileNotFound, :name => @name if !metadata_file.file?

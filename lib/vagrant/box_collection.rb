@@ -151,7 +151,8 @@ module Vagrant
             provider = box_provider.to_sym
 
             # Create the directory for this box, not including the provider
-            box_dir = @directory.join(dir_name(name), version)
+            root_box_dir = @directory.join(dir_name(name))
+            box_dir = root_box_dir.join(version)
             box_dir.mkpath
             @logger.debug("Box directory: #{box_dir}")
 
@@ -172,6 +173,12 @@ module Vagrant
               destination = final_dir.join(f.basename)
               @logger.debug("Moving: #{f} => #{destination}")
               FileUtils.mv(f, destination)
+            end
+
+            if opts[:metadata_url]
+              root_box_dir.join("metadata_url").open("w") do |f|
+                f.write(opts[:metadata_url])
+              end
             end
           end
         end
@@ -244,9 +251,10 @@ module Vagrant
         end
 
         versions = box_directory.children(true).map do |versiondir|
+          next if !versiondir.directory?
           version = versiondir.basename.to_s
           Gem::Version.new(version)
-        end
+        end.compact
 
         # Traverse through versions with the latest version first
         versions.sort.reverse.each do |v|
@@ -260,7 +268,15 @@ module Vagrant
             provider_dir = versiondir.join(provider.to_s)
             next if !provider_dir.directory?
             @logger.info("Box found: #{name} (#{provider})")
-            return Box.new(name, provider, v.to_s, provider_dir)
+
+            metadata_url = nil
+            metadata_url_file = box_directory.join("metadata_url")
+            metadata_url = metadata_url_file.read if metadata_url_file.file?
+
+            return Box.new(
+              name, provider, v.to_s, provider_dir,
+              metadata_url: metadata_url,
+            )
           end
         end
       end

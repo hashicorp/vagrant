@@ -15,6 +15,8 @@ describe Vagrant::Box do
   let(:directory)     { environment.box3("foo", "1.0", :virtualbox) }
   subject             { described_class.new(name, provider, version, directory) }
 
+  its(:metadata_url) { should be_nil }
+
   it "provides the name" do
     subject.name.should == name
   end
@@ -37,6 +39,16 @@ describe Vagrant::Box do
 
     # Verify the metadata
     subject.metadata.should == data
+  end
+
+  context "with a metadata URL" do
+    subject do
+      described_class.new(
+        name, provider, version, directory,
+        metadata_url: "foo")
+    end
+
+    its(:metadata_url) { should eq("foo") }
   end
 
   context "with a corrupt metadata file" do

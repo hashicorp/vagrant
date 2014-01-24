@@ -97,7 +97,7 @@ describe Vagrant::BoxCollection do
     end
   end
 
-  describe "adding" do
+  describe "#add" do
     it "should add a valid box to the system" do
       box_path = environment.box2_file(:virtualbox)
 
@@ -132,6 +132,17 @@ describe Vagrant::BoxCollection do
       expect(box).to be_kind_of(box_class)
       expect(box.name).to eq("foo")
       expect(box.provider).to eq(:vmware)
+    end
+
+    it "should store a metadata URL" do
+      box_path = environment.box2_file(:virtualbox)
+
+      subject.add(
+        box_path, "foo", "1.0",
+        metadata_url: "bar")
+
+      box = subject.find("foo", :virtualbox, "1.0")
+      expect(box.metadata_url).to eq("bar")
     end
 
     it "should add a V1 box" do
