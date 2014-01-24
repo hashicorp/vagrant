@@ -9,6 +9,7 @@ module Vagrant
     # and are thus available to all plugins as a "standard library" of sorts.
     module Builtin
       autoload :BoxAdd,    "vagrant/action/builtin/box_add"
+      autoload :BoxCheckOutdated, "vagrant/action/builtin/box_check_outdated"
       autoload :BoxRemove, "vagrant/action/builtin/box_remove"
       autoload :Call,    "vagrant/action/builtin/call"
       autoload :Confirm, "vagrant/action/builtin/confirm"
@@ -42,6 +43,14 @@ module Vagrant
     def self.action_box_add
       Builder.new.tap do |b|
         b.use Builtin::BoxAdd
+      end
+    end
+
+    # This actions checks if a box is outdated in a given Vagrant
+    # environment for a single machine.
+    def self.action_box_outdated
+      Builder.new.tap do |b|
+        b.use Builtin::BoxCheckOutdated
       end
     end
 

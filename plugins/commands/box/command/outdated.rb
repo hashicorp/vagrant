@@ -5,10 +5,34 @@ module VagrantPlugins
     module Command
       class Outdated < Vagrant.plugin("2", :command)
         def execute
-          OptionParser.new do |o|
+          options = {}
+
+          opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant box outdated"
+            o.separator ""
+
+            o.on("--global", "Check all boxes installed.") do |g|
+              options[:global] = g
+            end
           end
 
+          argv = parse_options(opts)
+
+          # If we're checking the boxes globally, then do that.
+          if options[:global]
+            outdated_global
+            return 0
+          end
+
+          with_target_vms(argv) do |machine|
+            @env.action_runner.run(Vagrant::Action.action_box_outdated, {
+              box_outdated_refresh: true,
+              machine: machine,
+            })
+          end
+        end
+
+        def outdated_global
           boxes = {}
           @env.boxes.all.reverse.each do |name, version, provider|
             next if boxes[name]
@@ -49,9 +73,6 @@ module VagrantPlugins
                 latest: latest.to_s,))
             end
           end
-
-          # Success, exit status 0
-          0
         end
       end
     end

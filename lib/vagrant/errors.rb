@@ -172,6 +172,14 @@ module Vagrant
       error_key(:box_metadata_malformed)
     end
 
+    class BoxOutdatedNoBox < VagrantError
+      error_key(:box_outdated_no_box)
+    end
+
+    class BoxOutdatedNoMetadata < VagrantError
+      error_key(:box_outdated_no_metadata)
+    end
+
     class BoxProviderDoesntMatch < VagrantError
       error_key(:box_provider_doesnt_match)
     end
