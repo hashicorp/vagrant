@@ -19,7 +19,7 @@ en:
     box_add_with_version: |-
       Adding box '%{name}' (v%{version}) for provider: %{providers}
     box_added: |-
-      Successfully added box '%{name}' for '%{provider}'!
+      Successfully added box '%{name}' (v%{version}) for '%{provider}'!
     box_downloading: |-
       Downloading: %{url}
     box_download_error: |-

@@ -332,7 +332,9 @@ module Vagrant
 
           env[:ui].success(I18n.t(
             "vagrant.box_added",
-            name: box.name, provider: box.provider))
+            name: box.name,
+            version: box.version,
+            provider: box.provider))
 
           # Store the added box in the env for future middleware
           env[:box_added] = box
