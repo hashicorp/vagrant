@@ -176,10 +176,6 @@ module Vagrant
       error_key(:box_outdated_no_box)
     end
 
-    class BoxOutdatedNoMetadata < VagrantError
-      error_key(:box_outdated_no_metadata)
-    end
-
     class BoxProviderDoesntMatch < VagrantError
       error_key(:box_provider_doesnt_match)
     end
@@ -202,6 +198,10 @@ module Vagrant
 
     class BoxUnpackageFailure < VagrantError
       error_key(:untar_failure, "vagrant.actions.box.unpackage")
+    end
+
+    class BoxUpdateNoMetadata < VagrantError
+      error_key(:box_update_no_metadata)
     end
 
     class BoxVerificationFailed < VagrantError

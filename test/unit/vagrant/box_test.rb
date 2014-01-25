@@ -1,7 +1,10 @@
 require File.expand_path("../../base", __FILE__)
 
 require "pathname"
+require "stringio"
 require "tempfile"
+
+require "vagrant/box_metadata"
 
 describe Vagrant::Box do
   include_context "unit"
@@ -73,6 +76,116 @@ describe Vagrant::Box do
     it "should raise an exception" do
       expect { subject }.
         to raise_error(Vagrant::Errors::BoxMetadataFileNotFound)
+    end
+  end
+
+  context "#has_update?" do
+    subject do
+      described_class.new(
+        name, provider, version, directory,
+        metadata_url: "foo")
+    end
+
+    it "raises an exception if no metadata_url is set" do
+      subject = described_class.new(
+        name, provider, version, directory)
+
+      expect { subject.has_update?("> 0") }.
+        to raise_error(Vagrant::Errors::BoxUpdateNoMetadata)
+    end
+
+    it "returns nil if there is no update" do
+      metadata = Vagrant::BoxMetadata.new(StringIO.new(<<-RAW))
+      {
+        "name": "foo",
+        "versions": [
+          { "version": "1.0" }
+        ]
+      }
+      RAW
+
+      subject.stub(load_metadata: metadata)
+
+      expect(subject.has_update?).to be_nil
+    end
+
+    it "returns the updated box info if there is an update available" do
+      metadata = Vagrant::BoxMetadata.new(StringIO.new(<<-RAW))
+      {
+        "name": "foo",
+        "versions": [
+          {
+            "version": "1.0"
+          },
+          {
+            "version": "1.1",
+            "providers": [
+              {
+                "name": "virtualbox",
+                "url": "bar"
+              }
+            ]
+          }
+        ]
+      }
+      RAW
+
+      subject.stub(load_metadata: metadata)
+
+      result = subject.has_update?
+      expect(result).to_not be_nil
+
+      expect(result[0]).to be_kind_of(Vagrant::BoxMetadata)
+      expect(result[1]).to be_kind_of(Vagrant::BoxMetadata::Version)
+      expect(result[2]).to be_kind_of(Vagrant::BoxMetadata::Provider)
+
+      expect(result[0].name).to eq("foo")
+      expect(result[1].version).to eq("1.1")
+      expect(result[2].url).to eq("bar")
+    end
+
+    it "returns the updated box info within constraints" do
+      metadata = Vagrant::BoxMetadata.new(StringIO.new(<<-RAW))
+      {
+        "name": "foo",
+        "versions": [
+          {
+            "version": "1.0"
+          },
+          {
+            "version": "1.1",
+            "providers": [
+              {
+                "name": "virtualbox",
+                "url": "bar"
+              }
+            ]
+          },
+          {
+            "version": "1.4",
+            "providers": [
+              {
+                "name": "virtualbox",
+                "url": "bar"
+              }
+            ]
+          }
+        ]
+      }
+      RAW
+
+      subject.stub(load_metadata: metadata)
+
+      result = subject.has_update?(">= 1.1, < 1.4")
+      expect(result).to_not be_nil
+
+      expect(result[0]).to be_kind_of(Vagrant::BoxMetadata)
+      expect(result[1]).to be_kind_of(Vagrant::BoxMetadata::Version)
+      expect(result[2]).to be_kind_of(Vagrant::BoxMetadata::Provider)
+
+      expect(result[0].name).to eq("foo")
+      expect(result[1].version).to eq("1.1")
+      expect(result[2].url).to eq("bar")
     end
   end
 

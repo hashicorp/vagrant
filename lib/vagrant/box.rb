@@ -104,6 +104,32 @@ module Vagrant
       BoxMetadata.new(File.open(tf.path, "r"))
     end
 
+    # Checks if the box has an update and returns the metadata, version,
+    # and provider. If the box doesn't have an update that satisfies the
+    # constraints, it will return nil.
+    #
+    # This will potentially make a network call if it has to load the
+    # metadata from the network.
+    #
+    # @param [String] version Version constraints the update must
+    #   satisfy. If nil, the version constrain defaults to being a
+    #   larger version than this box.
+    # @return [Array]
+    def has_update?(version=nil)
+      if !@metadata_url
+        raise Errors::BoxUpdateNoMetadata, name: @name
+      end
+
+      version += ", " if version
+      version ||= ""
+      version += "> #{@version}"
+      md      = self.load_metadata
+      newer   = md.version(version, provider: @provider)
+      return nil if !newer
+
+      [md, newer, newer.provider(@provider)]
+    end
+
     # This repackages this box and outputs it to the given path.
     #
     # @param [Pathname] path The full path (filename included) of where

@@ -8,7 +8,13 @@ module VagrantPlugins
           options = {}
 
           opts = OptionParser.new do |o|
-            o.banner = "Usage: vagrant box outdated"
+            o.banner = "Usage: vagrant box outdated [options]"
+            o.separator ""
+            o.separator "Checks if there is a new version available for the box"
+            o.separator "that are you are using. If you pass in the --global flag,"
+            o.separator "all boxes will be checked for updates."
+            o.separator ""
+            o.separator "Options:"
             o.separator ""
 
             o.on("--global", "Check all boxes installed.") do |g|
@@ -17,6 +23,7 @@ module VagrantPlugins
           end
 
           argv = parse_options(opts)
+          return if !argv
 
           # If we're checking the boxes globally, then do that.
           if options[:global]

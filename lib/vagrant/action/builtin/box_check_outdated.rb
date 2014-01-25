@@ -20,11 +20,6 @@ module Vagrant
             if !machine.config.vm.box_check_update
               return @app.call(env)
             end
-
-            if !env.has_key?(:box_outdated_refresh)
-              env[:box_outdated_refresh] = true
-              env[:box_outdated_ignore_errors] = true
-            end
           end
 
           if !machine.box
@@ -33,22 +28,28 @@ module Vagrant
             # message anyways.
             raise Errors::BoxOutdatedNoBox, name: machine.config.vm.box
           end
+          box = machine.box
+          constraints = machine.config.vm.box_version
 
-          if env[:box_outdated_refresh]
-            env[:ui].output(I18n.t(
-              "vagrant.box_outdated_checking_with_refresh",
-              name: machine.box.name))
-            begin
-              check_outdated_refresh(env)
-            rescue Errors::VagrantError => e
-              raise if !env[:box_outdated_ignore_errors]
-              env[:ui].detail(I18n.t(
-                "vagrant.box_outdated_metadata_error",
-                message: e.message))
-            end
-          else
-            @logger.info("Checking if box is outdated locally")
-            check_outdated_local(env)
+          env[:ui].output(I18n.t(
+            "vagrant.box_outdated_checking_with_refresh",
+            name: box.name))
+          update = nil
+          begin
+            update = box.has_update?(constraints)
+          rescue Errors::VagrantError => e
+            raise if !env[:box_outdated_ignore_errors]
+            env[:ui].detail(I18n.t(
+              "vagrant.box_outdated_metadata_error_single",
+              message: e.message))
+          end
+          env[:box_outdated] = update != nil
+          if update
+            env[:ui].warn(I18n.t(
+              "vagrant.box_outdated_single",
+              name: update[0].name,
+              current: box.version,
+              latest: update[1].version))
           end
 
           @app.call(env)
@@ -70,38 +71,6 @@ module Vagrant
           end
 
           env[:box_outdated] = false
-        end
-
-        def check_outdated_refresh(env)
-          machine = env[:machine]
-
-          if !machine.box.metadata_url
-            # This box doesn't have a metadata URL, so we can't
-            # possibly check the version information.
-            raise Errors::BoxOutdatedNoMetadata, name: machine.box.name
-          end
-
-          md = machine.box.load_metadata
-          newer = md.version(
-            "> #{machine.box.version}", provider: machine.box.provider)
-          if !newer
-            if env[:box_outdated_success_ui]
-              env[:ui].success(I18n.t(
-                "vagrant.box_up_to_date_single",
-                name: machine.box.name,
-                version: machine.box.version))
-            end
-
-            env[:box_outdated] = false
-            return
-          end
-
-          env[:ui].warn(I18n.t(
-            "vagrant.box_outdated_single",
-            name: machine.box.name,
-            current: machine.box.version,
-            latest: newer.version))
-          env[:box_outdated] = true
         end
       end
     end

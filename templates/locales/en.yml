@@ -37,7 +37,7 @@ en:
       installed, but your Vagrant machine is running against
       version '%{old}'. To update to version '%{new}',
       destroy and recreate your machine.
-    box_outdated_metadata_error: |-
+    box_outdated_metadata_error_single: |-
       Error loading box metadata while attempting to check for
       updates: %{message}
     box_outdated_single: |-
@@ -373,11 +373,6 @@ en:
         that this issue can be fixed.
 
         %{error}
-      box_outdated_no_metadata: |-
-        The box '%{name}' is not a versioned box. The box was added
-        directly instead of from a box catalog. Vagrant can only
-        check the versions of boxes that were added from a catalog
-        such as from the public Vagrant Server.
       box_outdated_no_box: |-
         The box '%{name}' isn't downloaded or added yet, so we can't
         check if it is outdated. Run a `vagrant up` or add the box
@@ -409,6 +404,11 @@ en:
         the provider specified. Please double-check and try again.
 
         The providers for this are: %{providers}
+      box_update_no_metadata: |-
+        The box '%{name}' is not a versioned box. The box was added
+        directly instead of from a box catalog. Vagrant can only
+        check the versions of boxes that were added from a catalog
+        such as from the public Vagrant Server.
       bundler_disabled: |-
         Vagrant's built-in bundler management mechanism is disabled because
         Vagrant is running in an external bundler environment. In these
