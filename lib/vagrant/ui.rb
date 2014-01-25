@@ -136,6 +136,10 @@ module Vagrant
           input = $stdin.gets
         else
           input = $stdin.noecho(&:gets)
+
+          # Output a newline because without echo, the newline isn't
+          # echoed either.
+          say(:info, "\n", opts)
         end
 
         # Get the results and chomp off the newline. We do a logical OR
