@@ -27,6 +27,7 @@ module Vagrant
           error: e.to_s
       end
 
+      @raw ||= {}
       @name = @raw["name"]
       @description = @raw["description"]
       @version_map = (@raw["versions"] || []).map do |v|

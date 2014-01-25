@@ -1,3 +1,6 @@
+require "pathname"
+require "tmpdir"
+
 require File.expand_path("../../../../../base", __FILE__)
 
 require Vagrant.source_root.join("plugins/commands/box/command/update")
@@ -23,6 +26,126 @@ describe VagrantPlugins::CommandBox::Command::Update do
   end
 
   describe "execute" do
+    context "updating specific box" do
+      let(:argv) { ["--box", "foo"] }
+
+      let(:metadata_url) { Pathname.new(Dir.mktmpdir).join("metadata.json") }
+
+      before do
+        metadata_url.open("w") do |f|
+          f.write("")
+        end
+
+        test_iso_env.box3(
+          "foo", "1.0", :virtualbox, metadata_url: metadata_url.to_s)
+      end
+
+      it "doesn't update if they're up to date" do
+        action_runner.should_receive(:run).never
+
+        subject.execute
+      end
+
+      it "does update if there is an update" do
+        metadata_url.open("w") do |f|
+          f.write(<<-RAW)
+      {
+        "name": "foo",
+        "versions": [
+          {
+            "version": "1.0"
+          },
+          {
+            "version": "1.1",
+            "providers": [
+              {
+                "name": "virtualbox",
+                "url": "bar"
+              }
+            ]
+          }
+        ]
+      }
+          RAW
+        end
+
+        action_runner.should_receive(:run).with do |action, opts|
+          expect(opts[:box_url]).to eq(metadata_url.to_s)
+          expect(opts[:box_provider]).to eq("virtualbox")
+          expect(opts[:box_version]).to eq("1.1")
+          true
+        end
+
+        subject.execute
+      end
+
+      it "raises an error if there are multiple providers" do
+        test_iso_env.box3("foo", "1.0", :vmware)
+
+        action_runner.should_receive(:run).never
+
+        expect { subject.execute }.
+          to raise_error(Vagrant::Errors::BoxUpdateMultiProvider)
+      end
+
+      context "with multiple providers and specifying the provider" do
+        let(:argv) { ["--box", "foo", "--provider", "vmware"] }
+
+        it "updates the proper box" do
+          metadata_url.open("w") do |f|
+            f.write(<<-RAW)
+      {
+        "name": "foo",
+        "versions": [
+          {
+            "version": "1.0"
+          },
+          {
+            "version": "1.1",
+            "providers": [
+              {
+                "name": "vmware",
+                "url": "bar"
+              }
+            ]
+          }
+        ]
+      }
+            RAW
+          end
+
+          test_iso_env.box3("foo", "1.0", :vmware)
+
+          action_runner.should_receive(:run).with do |action, opts|
+            expect(opts[:box_url]).to eq(metadata_url.to_s)
+            expect(opts[:box_provider]).to eq("vmware")
+            expect(opts[:box_version]).to eq("1.1")
+            true
+          end
+
+          subject.execute
+        end
+
+        it "raises an error if that provider doesn't exist" do
+          action_runner.should_receive(:run).never
+
+          expect { subject.execute }.
+            to raise_error(Vagrant::Errors::BoxNotFoundWithProvider)
+        end
+      end
+
+      context "with a box that doesn't exist" do
+        let(:argv) { ["--box", "nope"] }
+
+        it "raises an exception" do
+          action_runner.should_receive(:run).never
+
+          expect { subject.execute }.
+            to raise_error(Vagrant::Errors::BoxNotFound)
+        end
+      end
+    end
+
     context "updating environment machines" do
       before do
         subject.stub(:with_target_vms) { |&block| block.call machine }

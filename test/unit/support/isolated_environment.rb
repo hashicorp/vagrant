@@ -117,6 +117,13 @@ module Unit
         end
       end
 
+      # Create the metadata URL
+      if opts[:metadata_url]
+        boxes_dir.join(name, "metadata_url").open("w") do |f|
+          f.write(opts[:metadata_url])
+        end
+      end
+
       box_dir
     end
 

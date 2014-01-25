@@ -378,6 +378,16 @@ en:
         that this issue can be fixed.
 
         %{error}
+      box_not_found: |-
+        The box '%{name}' does not exist. Please double check and
+        try again. You can see the boxes that are installed with
+        `vagrant box list`.
+      box_not_found_with_provider: |-
+        The box '%{name}' isn't installed for the provider '%{provider}'.
+        Please double-check and try again. The installed providers for
+        the box are shown below:
+
+        %{providers}
       box_outdated_no_box: |-
         The box '%{name}' isn't downloaded or added yet, so we can't
         check if it is outdated. Run a `vagrant up` or add the box
@@ -409,6 +419,12 @@ en:
         the provider specified. Please double-check and try again.
 
         The providers for this are: %{providers}
+      box_update_multi_provider: |-
+        You requested to update the box '%{name}'. This box has
+        multiple providers. You must explicitly select a single
+        provider to remove with `--provider`.
+
+        Available providers: %{providers}
       box_update_no_metadata: |-
         The box '%{name}' is not a versioned box. The box was added
         directly instead of from a box catalog. Vagrant can only

@@ -172,6 +172,14 @@ module Vagrant
       error_key(:box_metadata_malformed)
     end
 
+    class BoxNotFound < VagrantError
+      error_key(:box_not_found)
+    end
+
+    class BoxNotFoundWithProvider < VagrantError
+      error_key(:box_not_found_with_provider)
+    end
+
     class BoxOutdatedNoBox < VagrantError
       error_key(:box_outdated_no_box)
     end
@@ -198,6 +206,10 @@ module Vagrant
 
     class BoxUnpackageFailure < VagrantError
       error_key(:untar_failure, "vagrant.actions.box.unpackage")
+    end
+
+    class BoxUpdateMultiProvider < VagrantError
+      error_key(:box_update_multi_provider)
     end
 
     class BoxUpdateNoMetadata < VagrantError
