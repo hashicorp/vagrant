@@ -180,6 +180,15 @@ Packaging the box into a `box` file is provider-specific. Please refer to
 the provider-specific documentation for creating a base box. Some
 provider-specific guides are linked to towards the top of this page.
 
+## Distributing the Box
+
+You can distribute the box file however you'd like. However, if you want
+to support versioning, putting multiple providers at a single URL, pushing
+updates, analytics, and more, we recommend you add the box to
+[Vagrant Cloud](#).
+
+You can upload both public and private boxes to this service.
+
 ## Testing the Box
 
 To test the box, pretend you're a new user of Vagrant and give it a shot:

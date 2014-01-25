@@ -5,74 +5,44 @@ sidebar_current: "boxes"
 
 # Boxes
 
-Boxes are the skeleton from which Vagrant machines are constructed. They are
-portable files which can be used by others on any platform that runs Vagrant
-to bring up a working environment.
+Boxes are the package format for Vagrant environments. A box can be used by
+anyone on any platform that Vagrant supports to bring up an identical
+working environment.
 
 The `vagrant box` utility provides all the functionality for managing
-boxes. Boxes must currently be created manually.
+boxes. You can read the documentation on the [vagrant box](/v2/cli/box.html)
+command for more information.
 
-Boxes are [provider-specific](/v2/providers/index.html), so you must obtain
-the proper box depending on what provider you're using.
+The easiest way to use a box is to add a box from the
+[publicly available catalog of Vagrant boxes](#).
+You can also add and share your own customized boxes on this website.
 
-If you're interested in more details on the exact file format of
-boxes, there is a separate [page dedicated to that](/v2/boxes/format.html), since
-it is an advanced topic that general users don't need to know.
+Boxes also support versioning so that members of your team using Vagrant
+can update the underlying box easily, and the people who create boxes
+can push fixes and communicate these fixes efficiently.
 
-## Adding Boxes
+You can learn all about boxes by reading this page as well as the
+sub-pages in the navigation to the left.
 
-Adding boxes is straightforward:
+## Discovering Boxes
 
-```
-$ vagrant box add name url
-```
+The easiest way to find boxes is to look on the
+[public Vagrant box catalog](#)
+for a box matching your use case. The catalog contains most major operating
+systems as bases, as well as specialized boxes to get you up and running
+quickly with LAMP stacks, Ruby, Python, etc.
 
-`name` is a logical name by which the box is referenced from the
-Vagrantfile. You can put anything you want here, but know that Vagrant
-matches the `config.vm.box` directive with this name in order to look up
-the box to use.
+The boxes on the public catalog work with many different
+[providers](/v2/providers/index.html). Whether you're using Vagrant with
+VirtualBox, VMware, AWS, etc. you should be able to find a box you need.
 
-`url` is the location of the box. This can be a path to your local filesystem
-or an HTTP URL to the box remotely.
-
-Vagrant will automatically determine the provider the box was built
-for by reading the "metadata.json" file within the box archive. You
-may also tell Vagrant what provider the box is for by specifying the
-`--provider` flag.
-
-This is recommended as it adds an extra level of verification
-to the box you're downloading. Additionally, Vagrant can exit early with
-an error if a box with that name and provider already exists, whereas
-it must download the entire box before showing such an error in the other
-case.
-
-Multiple boxes with the same name can exist as long as they are all
-for different providers. The example of listing boxes below shows this,
-where there are multiple precise64 boxes, backed by different providers.
-This lets a single `config.vm.box` configuration within a Vagrantfile
-properly reference boxes across providers.
-
-## Listing Boxes
-
-To view what boxes Vagrant has locally installed, use `vagrant box list`:
+Adding a box from the catalog is very easy. Each box shows you instructions
+with how to add it, but they all follow the same format:
 
 ```
-$ vagrant box list
-precise64 (virtualbox)
-precise64 (vmware_fusion)
+$ vagrant box add USER/BOX
+...
 ```
 
-Vagrant lists all boxes along with the providers the box is for in parentheses.
-
-## Removing Boxes
-
-Boxes can be removed just as easily as they are added:
-
-```
-$ vagrant box remove precise64 virtualbox
-```
-
-The two arguments are the logical name of the box and the provider of the
-box. The second argument (the provider) is optional. If you have only a single
-provider backing that box, it doesn't need to be specified. If you have multiple
-providers backing a box and it isn't specified, Vagrant will show an error.
+For example: `vagrant box add hashicorp/precise64`. You can also quickly
+initialize a Vagrant environment with `vagrant init hashicorp/precise64`.
