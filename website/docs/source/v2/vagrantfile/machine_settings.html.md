@@ -18,8 +18,16 @@ for the machine to boot and be accessible. By default this is 300 seconds.
 <hr>
 
 `config.vm.box` - This configures what [box](/v2/boxes.html) the
-machine will be brought up against. The value here should match one of
-the installed boxes on the system.
+machine will be brought up against. The value here should be the name
+of an installed box or a shorthand name of a box in
+[Vagrant Cloud](#).
+
+<hr>
+
+`config.vm.box_check_update` - If true, Vagrant will check for updates to
+the configured box on every `vagrant up`. If an update is found, Vagrant
+will tell the user. By default this is false, and updates must be explicitly
+checked for using `vagrant box outdated`.
 
 <hr>
 
@@ -53,12 +61,22 @@ URL, then SSL certs will be verified.
 <hr>
 
 `config.vm.box_url` - The URL that the configured box can be found at.
-If the box is not installed on the system, it will be retrieved from this
-URL when `vagrant up` is run.
+If `config.vm.box` is a shorthand to a box in [Vagrant Cloud](#)
+then this value doesn't need to be specified. Otherwise, it should
+point to the proper place where the box can be found if it isn't
+installed.
 
 This can also be an array of multiple URLs. The URLs will be tried in
 order. Note that any client certificates, insecure download settings, and
 so on will apply to all URLs in this list.
+
+<hr>
+
+`config.vm.box_version` - The version of the box to use. This defaults to
+">= 0" (the latest version available). This can contain an arbitrary list
+of constraints, separated by commas, such as: `>= 1.0, < 1.5`. When constraints
+are given, Vagrant will use the latest available box satisfying these
+constraints.
 
 <hr>
 
