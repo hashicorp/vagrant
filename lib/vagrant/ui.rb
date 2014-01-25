@@ -1,4 +1,5 @@
 require "delegate"
+require "io/console"
 require "thread"
 
 require "log4r"
@@ -123,17 +124,24 @@ module Vagrant
 
         # Setup the options so that the new line is suppressed
         opts ||= {}
+        opts[:echo]     = true  if !opts.has_key?(:echo)
         opts[:new_line] = false if !opts.has_key?(:new_line)
         opts[:prefix]   = false if !opts.has_key?(:prefix)
 
         # Output the data
         say(:info, message, opts)
 
+        input = nil
+        if opts[:echo]
+          input = $stdin.gets
+        else
+          input = $stdin.noecho(&:gets)
+        end
+
         # Get the results and chomp off the newline. We do a logical OR
         # here because `gets` can return a nil, for example in the case
         # that ctrl-D is pressed on the input.
-        input = $stdin.gets || ""
-        input.chomp
+        (input || "").chomp
       end
 
       # This is used to output progress reports to the UI.
