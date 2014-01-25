@@ -51,7 +51,7 @@ en:
     box_up_to_date: |-
       * '%{name}' (v%{version}) is up to date
     box_up_to_date_single: |-
-      Your box '%{name}' (v%{version}) is running the latest version.
+      Box '%{name}' (v%{version}) is running the latest version.
     cfengine_bootstrapping: |-
       Bootstrapping CFEngine with policy server: %{policy_server}...
     cfengine_bootstrapping_policy_hub: |-

@@ -29,11 +29,27 @@ module VagrantPlugins
           return if !argv
 
           with_target_vms(argv) do |machine|
-            @env.action_runner.run(Vagrant::Action.action_box_update, {
-              box_outdated_force: true,
-              box_outdated_refresh: true,
-              box_outdated_success_ui: true,
-              machine: machine,
+            if !machine.box
+              machine.ui.output(I18n.t(
+                "vagrant.errors.box_update_no_box",
+                name: machine.config.vm.box))
+              next
+            end
+
+            box = machine.box
+            update = box.has_update?(machine.config.vm.box_version)
+            if !update
+              machine.ui.success(I18n.t(
+                "vagrant.box_up_to_date_single",
+                name: box.name, version: box.version))
+              next
+            end
+
+            @env.action_runner.run(Vagrant::Action.action_box_add, {
+              box_url: box.metadata_url,
+              box_provider: update[2].name,
+              box_version: update[1].version,
+              ui: machine.ui,
             })
           end
         end

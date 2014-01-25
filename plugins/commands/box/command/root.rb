@@ -38,6 +38,11 @@ module VagrantPlugins
             require File.expand_path("../repackage", __FILE__)
             Repackage
           end
+
+          @subcommands.register(:update) do
+            require_relative "update"
+            Update
+          end
         end
 
         def execute
