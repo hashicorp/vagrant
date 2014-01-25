@@ -37,7 +37,13 @@ module VagrantPlugins
             end
 
             box = machine.box
-            update = box.has_update?(machine.config.vm.box_version)
+            version = machine.config.vm.box_version
+
+            machine.ui.output(I18n.t("vagrant.box_update_checking", name: box.name))
+            machine.ui.detail("Version constraints: #{version}")
+            machine.ui.detail("Provider: #{box.provider}")
+
+            update = box.has_update?(version)
             if !update
               machine.ui.success(I18n.t(
                 "vagrant.box_up_to_date_single",

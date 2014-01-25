@@ -51,6 +51,8 @@ en:
     box_updating: |-
       Updating '%{name}' with provider '%{provider}' from version
       '%{old}' to '%{new}'...
+    box_update_checking: |-
+      Checking for updates to '%{name}'
     box_up_to_date: |-
       * '%{name}' (v%{version}) is up to date
     box_up_to_date_single: |-
