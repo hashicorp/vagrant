@@ -45,6 +45,12 @@ module VagrantPlugins
               next
             end
 
+            machine.ui.output(I18n.t(
+              "vagrant.box_updating",
+              name: update[0].name,
+              provider: update[2].name,
+              old: box.version,
+              new: update[1].version))
             @env.action_runner.run(Vagrant::Action.action_box_add, {
               box_url: box.metadata_url,
               box_provider: update[2].name,

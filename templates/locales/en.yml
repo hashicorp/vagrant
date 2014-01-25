@@ -48,6 +48,9 @@ en:
       * '%{name}': Error loading metadata: %{message}
     box_outdated_no_metadata: |-
       * '%{name}' wasn't added from a catalog, no version information
+    box_updating: |-
+      Updating '%{name}' with provider '%{provider}' from version
+      '%{old}' to '%{new}'...
     box_up_to_date: |-
       * '%{name}' (v%{version}) is up to date
     box_up_to_date_single: |-
