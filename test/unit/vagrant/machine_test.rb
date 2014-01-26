@@ -7,7 +7,11 @@ describe Vagrant::Machine do
   include_context "unit"
 
   let(:name)     { "foo" }
-  let(:provider) { double("provider") }
+  let(:provider) do
+    double("provider").tap do |obj|
+      obj.stub(:_initialize => nil)
+    end
+  end
   let(:provider_cls) do
     obj = double("provider_cls")
     obj.stub(:new => provider)
@@ -132,7 +136,7 @@ describe Vagrant::Machine do
           true
         end
 
-        provider_init_test
+        provider_init_test(instance)
       end
     end
   end
