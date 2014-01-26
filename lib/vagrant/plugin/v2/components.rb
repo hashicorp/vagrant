@@ -49,6 +49,11 @@ module Vagrant
         # @return [Hash<Symbol, Registry>]
         attr_reader :providers
 
+        # This contains all the registered provider capabilities.
+        #
+        # @return [Hash<Symbol, Registry>]
+        attr_reader :provider_capabilities
+
         # This contains all the synced folder implementations by name.
         #
         # @return [Registry<Symbol, Array<Class, Integer>>]
@@ -65,6 +70,7 @@ module Vagrant
           @hosts   = Registry.new
           @host_capabilities = Hash.new { |h, k| h[k] = Registry.new }
           @providers = Registry.new
+          @provider_capabilities = Hash.new { |h, k| h[k] = Registry.new }
           @synced_folders = Registry.new
         end
       end

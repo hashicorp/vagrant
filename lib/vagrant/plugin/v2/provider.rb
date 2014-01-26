@@ -1,3 +1,5 @@
+require "vagrant/capability_host"
+
 module Vagrant
   module Plugin
     module V2
@@ -5,6 +7,8 @@ module Vagrant
       # is responsible for creating compute resources to match the needs
       # of a Vagrant-configured system.
       class Provider
+        include CapabilityHost
+
         # Initialize the provider to represent the given machine.
         #
         # @param [Vagrant::Machine] machine The machine that this provider
@@ -62,6 +66,18 @@ module Vagrant
         # @return [MachineState]
         def state
           nil
+        end
+
+        # This is an internal initialize function that should never be
+        # overridden. It is used to initialize some common internal state
+        # that is used in a provider.
+        def _initialize(name, machine)
+          initialize_capabilities!(
+            name.to_sym,
+            { name.to_sym => [Class.new, nil] },
+            Vagrant.plugin("2").manager.provider_capabilities,
+            machine,
+          )
         end
       end
     end

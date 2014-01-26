@@ -281,6 +281,16 @@ describe Vagrant::Plugin::V2::Plugin do
     end
   end
 
+  describe "provider capabilities" do
+    it "should register host capabilities" do
+      plugin = Class.new(described_class) do
+        provider_capability("foo", "bar") { "baz" }
+      end
+
+      plugin.components.provider_capabilities[:foo][:bar].should == "baz"
+    end
+  end
+
   describe "provisioners" do
     it "should register provisioner classes" do
       plugin = Class.new(described_class) do
