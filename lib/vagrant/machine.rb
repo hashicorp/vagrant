@@ -114,6 +114,7 @@ module Vagrant
       # Initializes the provider last so that it has access to all the
       # state we setup on this machine.
       @provider = provider_cls.new(self)
+      @provider._initialize(@provider_name, self)
     end
 
     # This calls an action on the provider. The provider may or may not

@@ -193,6 +193,18 @@ module Vagrant
           nil
         end
 
+        # Defines a capability for the given provider. The block should return
+        # a class/module that has a method with the capability name, ready
+        # to be executed. This means that if it is an instance method,
+        # the block should return an instance of the class.
+        #
+        # @param [String] provider The name of the provider
+        # @param [String] cap The name of the capability
+        def self.provider_capability(provider, cap, &block)
+          components.provider_capabilities[provider.to_sym].register(cap.to_sym, &block)
+          nil
+        end
+
         # Registers additional provisioners to be available.
         #
         # @param [String] name Name of the provisioner.

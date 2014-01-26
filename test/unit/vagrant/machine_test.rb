@@ -48,8 +48,13 @@ describe Vagrant::Machine do
       #
       # @yield [machine] Yields the machine that the provider initialization
       #   method received so you can run additional tests on it.
-      def provider_init_test
+      def provider_init_test(instance=nil)
         received_machine = nil
+
+        if !instance
+          instance = double("instance")
+          instance.stub(:_initialize => nil)
+        end
 
         provider_cls = double("provider_cls")
         provider_cls.should_receive(:new) do |machine|
@@ -62,7 +67,8 @@ describe Vagrant::Machine do
 
           # Yield our machine if we want to do additional tests
           yield machine if block_given?
-        end
+          true
+        end.and_return(instance)
 
         # Initialize a new machine and verify that we properly receive
         # the machine we expect.
@@ -116,6 +122,17 @@ describe Vagrant::Machine do
         provider_init_test do |machine|
           machine.provider.should be_nil
         end
+      end
+
+      it "should initialize the capabilities" do
+        instance = double("instance")
+        instance.should_receive(:_initialize).with do |p, m|
+          expect(p).to eq(provider_name)
+          expect(m.name).to eq(name)
+          true
+        end
+
+        provider_init_test
       end
     end
   end
