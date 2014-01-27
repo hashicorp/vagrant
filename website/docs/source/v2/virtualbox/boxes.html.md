@@ -55,7 +55,7 @@ Then mount the CD-ROM to some location. On Ubuntu, this usually looks like
 this:
 
 ```
-$ sudo mount /dev/cdrom /mnt/cdrom
+$ sudo mount /dev/cdrom /media/cdrom
 ```
 
 Finally, run the shell script that matches your system to install the
