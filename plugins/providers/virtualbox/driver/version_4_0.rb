@@ -107,7 +107,7 @@ module VagrantPlugins
 
             if adapter[:bridge]
               args.concat(["--bridgeadapter#{adapter[:adapter]}",
-                          adapter[:bridge]])
+                          adapter[:bridge], "--cableconnected#{adapter[:adapter]}", "on"])
             end
 
             if adapter[:hostonly]
