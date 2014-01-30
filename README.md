@@ -43,6 +43,8 @@ Ruby 2.0 is needed.
 
 ## Contributing to Vagrant
 
+[![Code Climate](https://codeclimate.com/github/mitchellh/vagrant.png)](https://codeclimate.com/github/mitchellh/vagrant)
+
 ### Dependencies and Unit Tests
 
 To hack on vagrant, you'll need [bundler](http://github.com/carlhuda/bundler) which can
