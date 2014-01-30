@@ -494,10 +494,6 @@ module VagrantPlugins
                 errors << I18n.t("vagrant.config.vm.network_ip_required")
               end
             end
-
-            if options[:ip] && options[:ip].end_with?(".1")
-              errors << I18n.t("vagrant.config.vm.network_ip_ends_in_one")
-            end
           end
         end
 
