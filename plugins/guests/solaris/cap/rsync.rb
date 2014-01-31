@@ -1,5 +1,5 @@
 module VagrantPlugins
-  module GuestLinux
+  module GuestSolaris
     module Cap
       class RSync
         def self.rsync_installed(machine)

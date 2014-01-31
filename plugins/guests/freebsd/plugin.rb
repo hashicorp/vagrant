@@ -30,6 +30,21 @@ module VagrantPlugins
         require_relative "cap/mount_nfs_folder"
         Cap::MountNFSFolder
       end
+
+      guest_capability("freebsd", "rsync_install") do
+        require_relative "cap/rsync"
+        Cap::RSync
+      end
+
+      guest_capability("freebsd", "rsync_installed") do
+        require_relative "cap/rsync"
+        Cap::RSync
+      end
+
+      guest_capability("freebsd", "rsync_pre") do
+        require_relative "cap/rsync"
+        Cap::RSync
+      end
     end
   end
 end
