@@ -57,7 +57,7 @@ end
 # Setup our dependencies by initializing Bundler. If we're using plugins,
 # then also initialize the paths to the plugins.
 require "bundler"
-Bundler.setup
+Bundler.setup(:default, :plugins)
 
 # Stdout/stderr should not buffer output
 $stdout.sync = true
