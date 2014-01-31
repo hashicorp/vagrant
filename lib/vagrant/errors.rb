@@ -432,6 +432,10 @@ module Vagrant
       error_key(:rsync_not_found)
     end
 
+    class RSyncNotInstalledInGuest < VagrantError
+      error_key(:rsync_not_installed_in_guest)
+    end
+
     class SCPPermissionDenied < VagrantError
       error_key(:scp_permission_denied)
     end

@@ -39,6 +39,16 @@ module VagrantPlugins
         require_relative "cap/mount_virtualbox_shared_folder"
         Cap::MountVirtualBoxSharedFolder
       end
+
+      guest_capability("solaris11", "rsync_installed") do
+        require_relative "cap/rsync"
+        Cap::RSync
+      end
+
+      guest_capability("solaris11", "rsync_pre") do
+        require_relative "cap/rsync"
+        Cap::RSync
+      end
     end
   end
 end

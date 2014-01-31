@@ -30,6 +30,11 @@ module VagrantPlugins
         require_relative "cap/nfs_client"
         Cap::NFSClient
       end
+
+      guest_capability("redhat", "rsync_install") do
+        require_relative "cap/rsync"
+        Cap::RSync
+      end
     end
   end
 end
