@@ -150,6 +150,8 @@ module VagrantPlugins
         options = options.dup
         options[:guestpath] = guestpath.to_s.gsub(/\/$/, '')
         options[:hostpath]  = hostpath
+        # Make sure the type is a symbol
+        options[:type] = options[:type].to_sym if options[:type]
 
         @__synced_folders[options[:guestpath]] = options
       end
@@ -323,9 +325,6 @@ module VagrantPlugins
           if options[:nfs]
             options[:type] = :nfs
           end
-
-          # Make sure the type is a symbol
-          options[:type] = options[:type].to_sym if options[:type]
 
           # Ignore NFS on Windows
           if options[:type] == :nfs && Vagrant::Util::Platform.windows?
