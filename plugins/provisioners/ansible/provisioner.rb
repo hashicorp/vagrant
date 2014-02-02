@@ -104,6 +104,10 @@ module VagrantPlugins
           included_groups = []
 
           config.groups.each_pair do |gname, gmembers|
+            # Require that gmembers be an array
+            # (easier to be tolerant and avoid error management of few value)
+            gmembers = [gmembers] if !gmembers.is_a?(Array)
+
             if gname.end_with?(":children")
               groups_of_groups[gname] = gmembers
             else
