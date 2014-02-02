@@ -110,7 +110,8 @@ module VagrantPlugins
 
             if gname.end_with?(":children")
               groups_of_groups[gname] = gmembers
-            else
+            elsif !gname.include?(':')
+              # skip group variables [:vars] and any other ":" suffixes
               included_groups << gname
               file.write("\n[#{gname}]\n")
               gmembers.each do |gm|
