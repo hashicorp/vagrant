@@ -17,7 +17,7 @@ module VagrantPlugins
           if !real_path
             # If no real guest path was detected, this is really strange
             # and we raise an exception because this is a bug.
-            raise LinuxShellExpandFailed
+            raise ShellExpandFailed
           end
 
           # Chomp the string so that any trailing newlines are killed

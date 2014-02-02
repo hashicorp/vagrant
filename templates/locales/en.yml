@@ -463,11 +463,6 @@ en:
         that the NFS client software is properly installed, and consult any resources
         specific to the linux distro you're using for more information on how to
         do this.
-      linux_shell_expand_failed: |-
-        Vagrant failed to determine the shell expansion of the guest path
-        for one of your shared folders. This is an extremely rare error case
-        and most likely indicates an unusual configuration of the guest system.
-        Please report a bug with your Vagrantfile.
       machine_guest_not_ready: |-
         Guest-specific operations were attempted on a machine that is not
         ready for guest communication. This should not happen and a bug
@@ -591,6 +586,11 @@ en:
         %{path}
 
         Please create the folder manually or specify another path to share.
+      shell_expand_failed: |-
+        Vagrant failed to determine the shell expansion of a guest path
+        (probably for one of your shared folders). This is an extremely rare
+        error case and most likely indicates an unusual configuration of the
+        guest system. Please report a bug with your Vagrantfile and debug log.
       ssh_authentication_failed: |-
         SSH authentication failed! This is typically caused by the public/private
         keypair for the SSH user not being properly set on the guest VM. Please
