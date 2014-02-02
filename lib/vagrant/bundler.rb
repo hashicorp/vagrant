@@ -18,8 +18,9 @@ module Vagrant
     end
 
     def initialize
-      @enabled  = !::Bundler::SharedHelpers.in_bundle?
-      @enabled  = true if ENV["VAGRANT_FORCE_BUNDLER"]
+      @enabled = true if ENV["VAGRANT_INSTALLER_ENV"] ||
+        ENV["VAGRANT_FORCE_BUNDLER"]
+      @enabled  = !::Bundler::SharedHelpers.in_bundle? if !@enabled
       @monitor  = Monitor.new
 
       @gem_home = ENV["GEM_HOME"]
