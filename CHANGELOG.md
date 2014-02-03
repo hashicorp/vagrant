@@ -73,6 +73,7 @@ BUG FIXES:
     [GH-2792]
   - hosts/bsd: Don't invoke shell for NFS sudo calls. [GH-2808]
   - hosts/gentoo: Look for systemctl in `/usr/bin` [GH-2858]
+  - hosts/opensuse: Start NFS server properly. [GH-2923]
   - providers/virtualbox: Enabling internal networks by just setting "true"
     works properly. [GH-2751]
   - providers/virtualbox: Make more internal interactions with VBoxManage
