@@ -430,7 +430,7 @@ module Vagrant
           uri = URI.parse(d.source)
           if uri.scheme == "file"
             url = uri.path
-            url = uri.opaque if Util::Platform.windows?
+            url ||= uri.opaque
 
             begin
               File.open(url, "r") do |f|
