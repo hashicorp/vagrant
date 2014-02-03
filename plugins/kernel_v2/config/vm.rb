@@ -360,6 +360,11 @@ module VagrantPlugins
           @__compiled_provider_configs[name]   = config
         end
 
+        # Finaliez all the provisioners
+        @provisioners.each do |p|
+          p.config.finalize! if !p.invalid?
+        end
+
         @__synced_folders.each do |id, options|
           if options[:nfs]
             options[:type] = :nfs
