@@ -65,7 +65,6 @@ module VagrantPlugins
           other_networks = other.instance_variable_get(:@__networks)
 
           result.instance_variable_set(:@__networks, @__networks.merge(other_networks))
-          result.instance_variable_set(:@provisioners, @provisioners + other.provisioners)
 
           # Merge defined VMs by first merging the defined VM keys,
           # preserving the order in which they were defined.
@@ -106,6 +105,27 @@ module VagrantPlugins
             new_overrides[key] ||= []
             new_overrides[key] += blocks
           end
+
+          # Merge provisioners. First we deal with overrides and making
+          # sure the ordering is good there. Then we merge them.
+          new_provs = []
+          @provisioners.each do |p|
+            if p.id
+              other_p = other.provisioners.find { |o| p.id == o.id }
+              if other_p
+                # There is an override. Take it.
+                other_p.config = p.config.merge(other_p.config)
+                next
+              end
+            end
+
+            # There is an override, merge it into the
+            new_provs << p.dup
+          end
+          other.provisioners.each do |p|
+            new_provs << p.dup
+          end
+          result.instance_variable_set(:@provisioners, new_provs)
 
           # Merge synced folders.
           other_folders = other.instance_variable_get(:@__synced_folders)

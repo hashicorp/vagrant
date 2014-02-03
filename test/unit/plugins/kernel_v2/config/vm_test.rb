@@ -36,5 +36,44 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       expect(r.length).to eql(1)
       expect(r[0]).to be_invalid
     end
+
+    describe "merging" do
+      it "copies the configs" do
+        subject.provision("shell", inline: "foo")
+        subject_provs = subject.provisioners
+
+        other = described_class.new
+        other.provision("shell", inline: "bar")
+
+        merged = subject.merge(other)
+        merged_provs = merged.provisioners
+
+        expect(merged_provs.length).to eql(2)
+        expect(merged_provs[0].config.inline).
+          to eq(subject_provs[0].config.inline)
+        expect(merged_provs[0].config.object_id).
+          to_not eq(subject_provs[0].config.object_id)
+      end
+
+      it "uses the proper order when merging overrides" do
+        subject.provision("shell", inline: "foo", id: "original")
+        subject.provision("shell", inline: "other", id: "other")
+
+        other = described_class.new
+        other.provision("shell", inline: "bar")
+        other.provision("shell", inline: "foo-overload", id: "original")
+
+        merged = subject.merge(other)
+        merged_provs = merged.provisioners
+
+        expect(merged_provs.length).to eql(3)
+        expect(merged_provs[0].config.inline).
+          to eq("other")
+        expect(merged_provs[1].config.inline).
+          to eq("bar")
+        expect(merged_provs[2].config.inline).
+          to eq("foo-overload")
+      end
+    end
   end
 end

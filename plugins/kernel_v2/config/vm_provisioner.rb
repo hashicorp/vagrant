@@ -18,7 +18,7 @@ module VagrantPlugins
       # The configuration associated with the provisioner, if there is any.
       #
       # @return [Object]
-      attr_reader :config
+      attr_accessor :config
 
       def initialize(id, name)
         @logger = Log4r::Logger.new("vagrant::config::vm::provisioner")
@@ -43,6 +43,11 @@ module VagrantPlugins
           @logger.info(
             "Provisioner config for '#{@name}' not found. Ignoring config.")
         end
+      end
+
+      def initialize_copy(orig)
+        super
+        @config = @config.dup if @config
       end
 
       def add_config(**options, &block)
