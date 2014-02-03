@@ -20,6 +20,12 @@ module VagrantPlugins
           @puppet_server           = UNSET_VALUE
         end
 
+        def merge(other)
+          super.tap do |result|
+            result.facter  = @facter.merge(other.facter)
+          end
+        end
+
         def finalize!
           super
 

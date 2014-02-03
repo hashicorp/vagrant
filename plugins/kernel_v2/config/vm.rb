@@ -65,7 +65,6 @@ module VagrantPlugins
           other_networks = other.instance_variable_get(:@__networks)
 
           result.instance_variable_set(:@__networks, @__networks.merge(other_networks))
-          result.instance_variable_set(:@provisioners, @provisioners + other.provisioners)
 
           # Merge defined VMs by first merging the defined VM keys,
           # preserving the order in which they were defined.
@@ -106,6 +105,32 @@ module VagrantPlugins
             new_overrides[key] ||= []
             new_overrides[key] += blocks
           end
+
+          # Merge provisioners. First we deal with overrides and making
+          # sure the ordering is good there. Then we merge them.
+          new_provs   = []
+          other_provs = other.provisioners.dup
+          @provisioners.each do |p|
+            if p.id
+              other_p = other_provs.find { |o| p.id == o.id }
+              if other_p
+                # There is an override. Take it.
+                other_p.config = p.config.merge(other_p.config)
+                next if !other_p.preserve_order
+
+                # We're preserving order, delete from other
+                p = other_p
+                other_provs.delete(other_p)
+              end
+            end
+
+            # There is an override, merge it into the
+            new_provs << p.dup
+          end
+          other_provs.each do |p|
+            new_provs << p.dup
+          end
+          result.instance_variable_set(:@provisioners, new_provs)
 
           # Merge synced folders.
           other_folders = other.instance_variable_get(:@__synced_folders)
@@ -221,8 +246,22 @@ module VagrantPlugins
         end
       end
 
-      def provision(name, options=nil, &block)
-        @provisioners << VagrantConfigProvisioner.new(name.to_sym, options, &block)
+      def provision(name, **options, &block)
+        options[:id] = options[:id].to_s if options[:id]
+
+        prov = nil
+        if options[:id]
+          prov = @provisioners.find { |p| p.id == options[:id] }
+        end
+
+        if !prov
+          prov = VagrantConfigProvisioner.new(options[:id], name.to_sym)
+          @provisioners << prov
+        end
+
+        prov.preserve_order = !!options[:preserve_order]
+        prov.add_config(options, &block)
+        nil
       end
 
       def defined_vms
@@ -319,6 +358,11 @@ module VagrantPlugins
 
           # Store it for retrieval later
           @__compiled_provider_configs[name]   = config
+        end
+
+        # Finaliez all the provisioners
+        @provisioners.each do |p|
+          p.config.finalize! if !p.invalid?
         end
 
         @__synced_folders.each do |id, options|
