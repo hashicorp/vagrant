@@ -1,10 +1,11 @@
 module VagrantPlugins
-  module GuestDarwin
+  module GuestFreeBSD
     module Cap
       class ShellExpandGuestPath
         def self.shell_expand_guest_path(machine, path)
           real_path = nil
-          machine.communicate.execute("printf #{path}") do |type, data|
+          machine.communicate.execute("printf #{path}",
+                                      shell: "sh") do |type, data|
             if type == :stdout
               real_path ||= ""
               real_path += data

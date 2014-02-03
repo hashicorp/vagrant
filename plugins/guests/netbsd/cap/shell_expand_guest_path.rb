@@ -1,5 +1,5 @@
 module VagrantPlugins
-  module GuestDarwin
+  module GuestNetBSD
     module Cap
       class ShellExpandGuestPath
         def self.shell_expand_guest_path(machine, path)

@@ -304,10 +304,6 @@ module Vagrant
       error_key(:linux_nfs_mount_failed)
     end
 
-    class LinuxShellExpandFailed < VagrantError
-      error_key(:linux_shell_expand_failed)
-    end
-
     class LocalDataDirectoryNotAccessible < VagrantError
       error_key(:local_data_dir_not_accessible)
     end
@@ -442,6 +438,10 @@ module Vagrant
 
     class SharedFolderCreateFailed < VagrantError
       error_key(:shared_folder_create_failed)
+    end
+
+    class ShellExpandFailed < VagrantError
+      error_key(:shell_expand_failed)
     end
 
     class SSHAuthenticationFailed < VagrantError

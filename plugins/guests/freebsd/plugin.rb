@@ -30,6 +30,11 @@ module VagrantPlugins
         require_relative "cap/mount_nfs_folder"
         Cap::MountNFSFolder
       end
+
+      guest_capability("freebsd", "shell_expand_guest_path") do
+        require_relative "cap/shell_expand_guest_path"
+        Cap::ShellExpandGuestPath
+      end
     end
   end
 end
