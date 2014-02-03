@@ -80,6 +80,8 @@ BUG FIXES:
   - providers/virtualbox: Config validation catches invalid keys. [GH-2843]
   - providers/virtualbox: Fix network adapter configuration issue if using
     provider-specific config. [GH-2854]
+  - providers/virtualbox: Bridge network adapters always have their
+    "cable connected" properly. [GH-2906]
   - provisioners/chef: When chowning folders, don't follow symlinks.
   - provisioners/docker: Only add SSH user to docker group if the user
     isn't already in it. [GH-2838]
