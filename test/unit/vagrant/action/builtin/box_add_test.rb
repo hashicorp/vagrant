@@ -262,6 +262,21 @@ describe Vagrant::Action::Builtin::BoxAdd do
       end
     end
 
+    it "raises an error if no Vagrant server is set" do
+      tf = Tempfile.new("foo")
+      tf.close
+
+      env[:box_url] = "mitchellh/precise64.json"
+
+      box_collection.should_receive(:add).never
+      app.should_receive(:call).never
+
+      Vagrant.stub(server_url: nil)
+
+      expect { subject.call(env) }.
+        to raise_error(Vagrant::Errors::BoxServerNotSet)
+    end
+
     it "raises an error if shorthand is invalid" do
       tf = Tempfile.new("foo")
       tf.close

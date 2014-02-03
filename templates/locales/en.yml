@@ -419,6 +419,17 @@ en:
         the provider specified. Please double-check and try again.
 
         The providers for this are: %{providers}
+      box_server_not_set: |-
+        A URL to a Vagrant Cloud server is not set, so boxes cannot
+        be added with a shorthand ("mitchellh/precise64") format.
+        You may also be seeing this error if you meant to type in
+        a path to a box file which doesn't exist locally on your
+        system.
+
+        To set a URL to a Vagrant Cloud server, set the
+        `VAGRANT_SERVER_URL` environmental variable. Or, if you
+        meant to use a file path, make sure the path to the file
+        is valid.
       box_update_multi_provider: |-
         You requested to update the box '%{name}'. This box has
         multiple providers. You must explicitly select a single

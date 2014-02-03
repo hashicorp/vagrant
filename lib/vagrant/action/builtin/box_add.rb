@@ -37,10 +37,14 @@ module Vagrant
           # then expand it properly.
           expanded = false
           url.each_index do |i|
-            uri = URI.parse(url[i])
-            if !uri.scheme && !File.file?(url[i])
+            next if url[i] !~ /^[^\/]+\/[^\/]+$/
+
+            if !File.file?(url[i])
+              server   = Vagrant.server_url
+              raise Errors::BoxServerNotSet if !server
+
               expanded = true
-              url[i] = "#{Vagrant.server_url}/#{url[i]}"
+              url[i] = "#{server}/#{url[i]}"
             end
           end
 

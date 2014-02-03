@@ -204,6 +204,10 @@ module Vagrant
       error_key(:box_remove_multi_version)
     end
 
+    class BoxServerNotSet < VagrantError
+      error_key(:box_server_not_set)
+    end
+
     class BoxUnpackageFailure < VagrantError
       error_key(:untar_failure, "vagrant.actions.box.unpackage")
     end
