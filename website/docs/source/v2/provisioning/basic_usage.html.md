@@ -23,7 +23,7 @@ Vagrant.configure("2") do |config|
 end
 ```
 
-Every provisioner has an identifier, such as `"shell"`, used as the first
+Every provisioner has a type, such as `"shell"`, used as the first
 parameter to the provisioning configuration. Following that is basic key/value
 for configuring that specific provisioner. Instead of basic key/value, you
 can also use a Ruby block for a syntax that is more like variable assignment.
@@ -44,14 +44,6 @@ it can greatly improve readability. Additionally, some provisioners, like
 the Chef provisioner, have special methods that can be called within that
 block to ease configuration that can't be done with the key/value approach.
 
-## Multiple Provisioners
-
-Multiple `config.vm.provision` methods can be used to define multiple
-provisioners. These provisioners will be run in the order they're defined.
-This is useful for a variety of reasons, but most commonly it is used so
-that a shell script can bootstrap some of the system so that another provisioner
-can take over later.
-
 ## Running Provisioners
 
 Provisioners are run in three cases: the initial `vagrant up`, `vagrant
@@ -65,3 +57,93 @@ The `--provision-with` flag can be used if you only want to run a
 specific provisioner if you have multiple provisioners specified. For
 example, if you have a shell and Puppet provisioner and only want to
 run the shell one, you can do `vagrant provision --provision-with shell`.
+
+## Multiple Provisioners
+
+Multiple `config.vm.provision` methods can be used to define multiple
+provisioners. These provisioners will be run in the order they're defined.
+This is useful for a variety of reasons, but most commonly it is used so
+that a shell script can bootstrap some of the system so that another provisioner
+can take over later.
+
+If you define provisioners at multiple "scope" levels (such as globally
+in the configuration block, then in a
+[multi-machine](/v2/multi-machine/index.html) definition, then maybe
+in a [provider-specific override](/v2/providers/configuration.html)),
+then the outer scopes will always run _before_ any inner scopes. For
+example, in the Vagrantfile below:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.provision "shell", inline: "echo foo"
+
+  config.vm.define "web" do |web|
+    web.vm.provision "shell", inline: "echo bar"
+  end
+
+  config.vm.provision "shell", inline: "echo baz"
+end
+```
+
+The ordering of the provisioners will be to echo "foo", "baz", then
+"bar" (note the second one might not be what you expect!). Remember:
+ordering is _outside in_.
+
+## Overriding Provisioner Settings
+
+<div class="alert alert-block alert-warn">
+<p>
+<strong>Warning: Advanced Topic!</strong> Provisioner overriding is
+an advanced topic that really only becomes useful if you're already
+using multi-machine and/or provider overrides. If you're just getting
+started with Vagrant, you can safely skip this.
+</p>
+</div>
+
+When using features such as [multi-machine](/v2/multi-machine/index.html)
+or [provider-specific overrides](/v2/providers/configuration.html),
+you may want to define common provisioners in the global configuration
+scope of a Vagrantfile, but override certain aspects of them internally.
+Vagrant allows you to do this, but has some details to consider.
+
+To override settings, you must assign an ID to your provisioner. Then
+it is only a matter of specifying the same ID to override:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.provision "shell",
+    inline: "echo foo", id: "foo"
+
+  config.vm.define "web" do |web|
+    web.vm.provision "shell",
+      inline: "echo bar", id: "foo"
+  end
+end
+```
+
+In the above, only "bar" will be echoed, because the inline setting
+overloaded the outer provisioner. This overload is only effective
+within that scope: the "web" VM. If there were another VM defined,
+it would still echo "foo" unless it itself also overloaded the
+provisioner.
+
+**Be careful with ordering.** When overriding a provisioner in
+a sub-scope, the provisioner will run at _that point_. In the example
+below, the output would be "foo" then "bar":
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.provision "shell",
+    inline: "echo ORIGINAL!", id: "foo"
+
+  config.vm.define "web" do |web|
+    web.vm.provision "shell",
+      inline: "echo foo"
+    web.vm.provision "shell",
+      inline: "echo bar", id: "foo"
+  end
+end
+```
+
+If you want to preserve the original ordering, you can specify
+the `preserve_order: true` flag.
