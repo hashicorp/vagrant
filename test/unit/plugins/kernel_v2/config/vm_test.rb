@@ -33,10 +33,10 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
   end
 
   context "#box_check_update" do
-    it "defaults to nil" do
+    it "defaults to true" do
       subject.finalize!
 
-      expect(subject.box_check_update).to be_nil
+      expect(subject.box_check_update).to be_true
     end
   end
 
