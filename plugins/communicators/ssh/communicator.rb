@@ -163,7 +163,7 @@ module VagrantPlugins
 
         # Otherwise, it is a permission denied, so let's raise a proper
         # exception
-        raise Vagrant::Errors::SCPPermissionDenied, :path => from.to_s
+        raise Vagrant::Errors::SCPPermissionDenied, :path => to.to_s
       end
 
       protected
