@@ -16,5 +16,14 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       expect(r[0].config.inline).to eql("foo")
       expect(r[1].config.inline).to eql("bar")
     end
+
+    it "marks as invalid if a bad name" do
+      subject.provision("nope", inline: "foo")
+      subject.finalize!
+
+      r = subject.provisioners
+      expect(r.length).to eql(1)
+      expect(r[0]).to be_invalid
+    end
   end
 end
