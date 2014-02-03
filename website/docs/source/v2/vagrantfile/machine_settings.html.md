@@ -26,8 +26,10 @@ of an installed box or a shorthand name of a box in
 
 `config.vm.box_check_update` - If true, Vagrant will check for updates to
 the configured box on every `vagrant up`. If an update is found, Vagrant
-will tell the user. By default this is false, and updates must be explicitly
-checked for using `vagrant box outdated`.
+will tell the user. By default this is true. Updates will only be checked
+for boxes that properly support updates (boxes from
+[Vagrant Cloud](#)
+or some other versioned box).
 
 <hr>
 
