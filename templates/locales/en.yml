@@ -571,10 +571,12 @@ en:
         is properly installed on your system and available on the PATH.
       scp_permission_denied: |-
         Failed to upload a file to the guest VM via SCP due to a permissions
-        error. This is normally because the user running Vagrant doesn't have
-        read permission on the file. Please set proper permissions on the file:
+        error. This is normally because the SSH user doesn't have permission
+        to write to the destination location. Alternately, the user running
+        Vagrant on the host machine may not have permission to read the file.
 
-        %{path}
+        Source: %{from}
+        Dest: %{to}
       scp_unavailable: |-
         SSH server on the guest doesn't support SCP. Please install the necessary
         software to enable SCP on your guest operating system.
