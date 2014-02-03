@@ -869,8 +869,10 @@ en:
           on Windows, NFS isn't supported. If the problem persists, please
           contact Vagrant support.
         network_ip_ends_in_one: |-
-          Static IPs cannot end in ".1" since that address is always
-          reserved for the router. Please use another ending.
+          You assigned a static IP ending in ".1" to this machine.
+          This is very often used by the router and can cause the
+          network to not work properly. If you the network doesn't work
+          properly, try changing this IP.
         network_ip_required: |-
           An IP is required for a private network.
         network_fp_host_not_unique: |-

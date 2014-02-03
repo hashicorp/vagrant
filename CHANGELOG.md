@@ -62,6 +62,7 @@ BUG FIXES:
     warn of potential issues.
   - core: Synced folders set to the default synced folder explicitly won't
     be deleted. [GH-2873]
+  - core: Static IPs can end in ".1". A warning is now shown. [GH-2914]
   - commands/box: Box add `--force` works with `--provider` flag. [GH-2757]
   - commands/box: Listing boxes with machine-readable output crash is gone.
   - commands/plugin: Plugin installation will fail if dependencies conflict,
