@@ -99,6 +99,7 @@ en:
     rsync_folder: |-
       Rsyncing folder: %{hostpath} => %{guestpath}
     rsync_folder_excludes: "  - Exclude: %{excludes}"
+    rsync_installing: "Installing rsync to the VM..."
     rsync_ssh_password: |-
       The machine you're rsyncing folders to is configured to use
       password-based authentication. Vagrant can't script rsync to automatically
@@ -569,6 +570,11 @@ en:
       rsync_not_found: |-
         "rsync" could not be found on your PATH. Make sure that rsync
         is properly installed on your system and available on the PATH.
+      rsync_not_installed_in_guest: |-
+        "rsync" was not detected as installed in your guest machine. This
+        is required for rsync synced folders to work. In addition to this,
+        Vagrant doesn't know how to automatically install rsync for your
+        machine, so you must do this manually.
       scp_permission_denied: |-
         Failed to upload a file to the guest VM via SCP due to a permissions
         error. This is normally because the SSH user doesn't have permission

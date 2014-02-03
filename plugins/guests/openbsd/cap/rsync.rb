@@ -1,7 +1,13 @@
 module VagrantPlugins
-  module GuestLinux
+  module GuestOpenBSD
     module Cap
       class RSync
+        def self.rsync_install(machine)
+          machine.communicate.tap do |comm|
+            comm.sudo("pkg_add -I rsync--")
+          end
+        end
+
         def self.rsync_installed(machine)
           machine.communicate.test("which rsync")
         end

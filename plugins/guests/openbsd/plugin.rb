@@ -31,6 +31,21 @@ module VagrantPlugins
         Cap::MountNFSFolder
       end
 
+      guest_capability("openbsd", "rsync_install") do
+        require_relative "cap/rsync"
+        Cap::RSync
+      end
+
+      guest_capability("openbsd", "rsync_installed") do
+        require_relative "cap/rsync"
+        Cap::RSync
+      end
+
+      guest_capability("openbsd", "rsync_pre") do
+        require_relative "cap/rsync"
+        Cap::RSync
+      end
+
       guest_capability("openbsd", "shell_expand_guest_path") do
         require_relative "cap/shell_expand_guest_path"
         Cap::ShellExpandGuestPath

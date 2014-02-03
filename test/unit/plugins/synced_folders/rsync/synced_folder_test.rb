@@ -48,6 +48,7 @@ describe VagrantPlugins::SyncedFolderRSync::SyncedFolder do
 
     before do
       machine.stub(ssh_info: ssh_info)
+      guest.stub(:capability?).with(:rsync_installed)
     end
 
     it "rsyncs each folder" do
@@ -63,6 +64,34 @@ describe VagrantPlugins::SyncedFolderRSync::SyncedFolder do
       end
 
       subject.enable(machine, folders, {})
+    end
+
+    it "installs rsync if capable" do
+      folders = [ [:foo, {}] ]
+
+      helper_class.stub(:rsync_single)
+
+      guest.stub(:capability?).with(:rsync_installed).and_return(true)
+      guest.stub(:capability?).with(:rsync_install).and_return(true)
+
+      expect(guest).to receive(:capability).with(:rsync_installed).and_return(false)
+      expect(guest).to receive(:capability).with(:rsync_install)
+
+      subject.enable(machine, folders, {})
+    end
+
+    it "errors if rsync not installable" do
+      folders = [ [:foo, {}] ]
+
+      helper_class.stub(:rsync_single)
+
+      guest.stub(:capability?).with(:rsync_installed).and_return(true)
+      guest.stub(:capability?).with(:rsync_install).and_return(false)
+
+      expect(guest).to receive(:capability).with(:rsync_installed).and_return(false)
+
+      expect { subject.enable(machine, folders, {}) }.
+        to raise_error(Vagrant::Errors::RSyncNotInstalledInGuest)
     end
   end
 end

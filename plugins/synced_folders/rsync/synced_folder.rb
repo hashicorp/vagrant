@@ -28,6 +28,16 @@ module VagrantPlugins
       end
 
       def enable(machine, folders, opts)
+        if machine.guest.capability?(:rsync_installed)
+          installed = machine.guest.capability(:rsync_installed)
+          if !installed
+            can_install = machine.guest.capability?(:rsync_install)
+            raise Vagrant::Errors::RSyncNotInstalledInGuest if !can_install
+            machine.ui.info I18n.t("vagrant.rsync_installing")
+            machine.guest.capability(:rsync_install)
+          end
+        end
+
         ssh_info = machine.ssh_info
 
         if ssh_info[:private_key_path].empty? && ssh_info[:password]

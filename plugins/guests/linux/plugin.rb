@@ -46,7 +46,11 @@ module VagrantPlugins
         Cap::ReadIPAddress
       end
 
-      # RSync synced folders
+      guest_capability("linux", "rsync_installed") do
+        require_relative "cap/rsync"
+        Cap::RSync
+      end
+
       guest_capability("linux", "rsync_pre") do
         require_relative "cap/rsync"
         Cap::RSync
