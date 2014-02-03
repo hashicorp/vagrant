@@ -28,7 +28,12 @@ module Vagrant
             # message anyways.
             raise Errors::BoxOutdatedNoBox, name: machine.config.vm.box
           end
+
           box = machine.box
+          if box.version == "0" && !box.metadata_url
+            return @app.call(env)
+          end
+
           constraints = machine.config.vm.box_version
 
           env[:ui].output(I18n.t(

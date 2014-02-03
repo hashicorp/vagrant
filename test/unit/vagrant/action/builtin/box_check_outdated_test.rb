@@ -72,6 +72,18 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
     end
   end
 
+  context "with a non-versioned box" do
+    it "does nothing" do
+      box.stub(metadata_url: nil)
+      box.stub(version: "0")
+
+      app.should_receive(:call).once
+      box.should_receive(:has_update?).never
+
+      subject.call(env)
+    end
+  end
+
   context "with a box" do
     it "sets env if no update" do
       box.should_receive(:has_update?).and_return(nil)
