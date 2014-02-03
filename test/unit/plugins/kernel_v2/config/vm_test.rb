@@ -74,6 +74,28 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
         expect(merged_provs[2].config.inline).
           to eq("foo-overload")
       end
+
+      it "can preserve order for overrides" do
+        subject.provision("shell", inline: "foo", id: "original")
+        subject.provision("shell", inline: "other", id: "other")
+
+        other = described_class.new
+        other.provision("shell", inline: "bar")
+        other.provision(
+          "shell", inline: "foo-overload", id: "original",
+          preserve_order: true)
+
+        merged = subject.merge(other)
+        merged_provs = merged.provisioners
+
+        expect(merged_provs.length).to eql(3)
+        expect(merged_provs[0].config.inline).
+          to eq("foo-overload")
+        expect(merged_provs[1].config.inline).
+          to eq("other")
+        expect(merged_provs[2].config.inline).
+          to eq("bar")
+      end
     end
   end
 end

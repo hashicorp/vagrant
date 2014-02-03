@@ -108,21 +108,26 @@ module VagrantPlugins
 
           # Merge provisioners. First we deal with overrides and making
           # sure the ordering is good there. Then we merge them.
-          new_provs = []
+          new_provs   = []
+          other_provs = other.provisioners.dup
           @provisioners.each do |p|
             if p.id
-              other_p = other.provisioners.find { |o| p.id == o.id }
+              other_p = other_provs.find { |o| p.id == o.id }
               if other_p
                 # There is an override. Take it.
                 other_p.config = p.config.merge(other_p.config)
-                next
+                next if !other_p.preserve_order
+
+                # We're preserving order, delete from other
+                p = other_p
+                other_provs.delete(other_p)
               end
             end
 
             # There is an override, merge it into the
             new_provs << p.dup
           end
-          other.provisioners.each do |p|
+          other_provs.each do |p|
             new_provs << p.dup
           end
           result.instance_variable_set(:@provisioners, new_provs)
@@ -254,6 +259,7 @@ module VagrantPlugins
           @provisioners << prov
         end
 
+        prov.preserve_order = !!options[:preserve_order]
         prov.add_config(options, &block)
         nil
       end

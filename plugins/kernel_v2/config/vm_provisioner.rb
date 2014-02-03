@@ -20,6 +20,12 @@ module VagrantPlugins
       # @return [Object]
       attr_accessor :config
 
+      # Whether or not to preserve the order when merging this with a
+      # parent scope.
+      #
+      # @return [Boolean]
+      attr_accessor :preserve_order
+
       def initialize(id, name)
         @logger = Log4r::Logger.new("vagrant::config::vm::provisioner")
         @logger.debug("Provisioner defined: #{name}")
@@ -28,6 +34,7 @@ module VagrantPlugins
         @id      = id
         @invalid = false
         @name    = name
+        @preserve_order = false
 
         # Attempt to find the provisioner...
         if !Vagrant.plugin("2").manager.provisioners[name]
