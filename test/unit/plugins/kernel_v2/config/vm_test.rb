@@ -17,6 +17,17 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       expect(r[1].config.inline).to eql("bar")
     end
 
+    it "allows provisioner settings to be overriden" do
+      subject.provision("shell", path: "foo", inline: "foo", id: "s")
+      subject.provision("shell", inline: "bar", id: "s")
+      subject.finalize!
+
+      r = subject.provisioners
+      expect(r.length).to eql(1)
+      expect(r[0].config.inline).to eql("bar")
+      expect(r[0].config.path).to eql("foo")
+    end
+
     it "marks as invalid if a bad name" do
       subject.provision("nope", inline: "foo")
       subject.finalize!

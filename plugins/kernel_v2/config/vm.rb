@@ -221,8 +221,21 @@ module VagrantPlugins
         end
       end
 
-      def provision(name, options=nil, &block)
-        @provisioners << VagrantConfigProvisioner.new(name.to_sym, options, &block)
+      def provision(name, **options, &block)
+        options[:id] = options[:id].to_s if options[:id]
+
+        prov = nil
+        if options[:id]
+          prov = @provisioners.find { |p| p.id == options[:id] }
+        end
+
+        if !prov
+          prov = VagrantConfigProvisioner.new(options[:id], name.to_sym)
+          @provisioners << prov
+        end
+
+        prov.add_config(options, &block)
+        nil
       end
 
       def defined_vms
