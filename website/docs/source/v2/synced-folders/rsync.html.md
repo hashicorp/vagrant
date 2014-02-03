@@ -30,6 +30,11 @@ like the standard rsync tool.
 On Windows, rsync installed with Cygwin or MinGW will be detected by
 Vagrant and works well.
 
+The destination machine must also have rsync installed, but Vagrant
+can automatically install rsync into many operating systems. If Vagrant
+is unable to automatically install rsync for your operating system,
+it will tell you.
+
 ## Options
 
 The rsync synced folder type accepts the following options:
