@@ -32,6 +32,7 @@ module VagrantPlugins
       def run(name, **options)
         params = options.dup
         params[:image] ||= name
+        params[:daemonize] = true if !params.has_key?(:daemonize)
 
         # TODO: Validate provided parameters before assignment
         @containers[name.to_s] = params

@@ -40,6 +40,32 @@ describe VagrantPlugins::Docker::Config do
     end
   end
 
+  describe "#run" do
+    it "runs the given image" do
+      subject.run("foo")
+
+      subject.finalize!
+      expect(subject.containers).to eql({
+        "foo" => {
+          daemonize: true,
+          image: "foo",
+        }
+      })
+    end
+
+    it "can not daemonize" do
+      subject.run("foo", daemonize: false)
+
+      subject.finalize!
+      expect(subject.containers).to eql({
+        "foo" => {
+          daemonize: false,
+          image: "foo",
+        }
+      })
+    end
+  end
+
   describe "#version" do
     it "defaults to latest" do
       subject.finalize!

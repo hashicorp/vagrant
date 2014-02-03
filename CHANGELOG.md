@@ -37,6 +37,7 @@ IMPROVEMENTS:
   - provisioners/chef-solo: New config `synced_folder_type` replaces the
     `nfs` option. This can be used to set the synced folders the provisioner
     needs to any type. [GH-2709]
+  - provisioners/docker: Can start a container without daemonization.
   - provisioners/puppet: New config `synced_folder_type` replaces the
     `nfs` option. This can be used to set the synced folders the provisioner
     needs to any type. [GH-2709]

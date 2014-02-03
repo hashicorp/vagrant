@@ -75,7 +75,8 @@ module VagrantPlugins
       end
 
       def create_container(config)
-        args = "-cidfile=#{config[:cidfile]} -d "
+        args = "-cidfile=#{config[:cidfile]} "
+        args << "-d " if config[:daemonize]
         args << config[:args] if config[:args]
         @machine.communicate.sudo %[
           rm -f #{config[:cidfile]}

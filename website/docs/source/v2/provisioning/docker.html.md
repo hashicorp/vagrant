@@ -132,6 +132,9 @@ to the name, the `run` method accepts a set of options, all optional:
 * `args` (string) - Extra arguments for [`docker run`](http://docs.docker.io/en/latest/commandline/cli/#run)
   on the command line. These are raw arguments that are passed directly to Docker.
 
+* `daemonize` (boolean) - If true, the "-d" flag is given to `docker run` to
+  daemonize the containers. By default this is true.
+
 For example, here is how you would configure Docker to run a container
 with the Vagrant shared directory mounted inside of it:
 
