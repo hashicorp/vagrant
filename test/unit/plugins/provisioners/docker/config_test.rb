@@ -31,6 +31,56 @@ describe VagrantPlugins::Docker::Config do
     end
   end
 
+  describe "#merge" do
+    it "has all images to pull" do
+      subject.pull_images("1")
+
+      other = described_class.new
+      other.pull_images("2", "3")
+
+      result = subject.merge(other)
+      expect(result.images.to_a.sort).to eq(
+        ["1", "2", "3"])
+    end
+
+    it "has all the containers to run" do
+      subject.run("foo", image: "bar", daemonize: false)
+      subject.run("bar")
+
+      other = described_class.new
+      other.run("foo", image: "foo")
+
+      result = subject.merge(other)
+      result.finalize!
+
+      cs     = result.containers
+      expect(cs.length).to eq(2)
+      expect(cs["foo"]).to eq({
+        image: "foo",
+        daemonize: false,
+      })
+      expect(cs["bar"]).to eq({
+        image: "bar",
+        daemonize: true,
+      })
+    end
+
+    it "has all the containers to build" do
+      subject.build_image("foo")
+
+      other = described_class.new
+      other.build_image("bar")
+
+      result = subject.merge(other)
+      result.finalize!
+
+      images = result.build_images
+      expect(images.length).to eq(2)
+      expect(images[0]).to eq(["foo", {}])
+      expect(images[1]).to eq(["bar", {}])
+    end
+  end
+
   describe "#pull_images" do
     it "adds images to the list of images to build" do
       subject.pull_images("1")
