@@ -34,7 +34,7 @@ via DHCP.
 
 ```ruby
 Vagrant.configure("2") do |config|
-  config.vm.network "private_network", type: :dhcp
+  config.vm.network "private_network", type: "dhcp"
 end
 ```
 
