@@ -361,7 +361,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
         expect(checksum(path)).to eq(checksum(box_path))
         expect(name).to eq("foo/bar")
         expect(version).to eq("0.7")
-        expect(opts[:metadata_url]).to eq(tf.path)
+        expect(opts[:metadata_url]).to eq("file://#{tf.path}")
         true
       end.and_return(box)
 
@@ -405,7 +405,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
         expect(checksum(path)).to eq(checksum(box_path))
         expect(name).to eq("foo/bar")
         expect(version).to eq("0.7")
-        expect(opts[:metadata_url]).to eq(tf.path)
+        expect(opts[:metadata_url]).to eq("file://#{tf.path}")
         true
       end.and_return(box)
 
@@ -454,7 +454,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
         expect(checksum(path)).to eq(checksum(box_path))
         expect(name).to eq("foo/bar")
         expect(version).to eq("0.7")
-        expect(opts[:metadata_url]).to eq(tf.path)
+        expect(opts[:metadata_url]).to eq("file://#{tf.path}")
         true
       end.and_return(box)
 
@@ -494,7 +494,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
         expect(checksum(path)).to eq(checksum(box_path))
         expect(name).to eq("foo/bar")
         expect(version).to eq("0.5")
-        expect(opts[:metadata_url]).to eq(tf.path)
+        expect(opts[:metadata_url]).to eq("file://#{tf.path}")
         true
       end.and_return(box)
 
@@ -539,7 +539,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
         expect(checksum(path)).to eq(checksum(box_path))
         expect(name).to eq("foo/bar")
         expect(version).to eq("0.5")
-        expect(opts[:metadata_url]).to eq(tf.path)
+        expect(opts[:metadata_url]).to eq("file://#{tf.path}")
         true
       end.and_return(box)
 
@@ -587,7 +587,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
         expect(checksum(path)).to eq(checksum(box_path))
         expect(name).to eq("foo/bar")
         expect(version).to eq("0.7")
-        expect(opts[:metadata_url]).to eq(tf.path)
+        expect(opts[:metadata_url]).to eq("file://#{tf.path}")
         true
       end.and_return(box)
 
@@ -635,7 +635,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
         expect(checksum(path)).to eq(checksum(box_path))
         expect(name).to eq("foo/bar")
         expect(version).to eq("0.7")
-        expect(opts[:metadata_url]).to eq(tf.path)
+        expect(opts[:metadata_url]).to eq("file://#{tf.path}")
         true
       end.and_return(box)
 
@@ -812,7 +812,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
         expect(name).to eq("foo/bar")
         expect(version).to eq("0.7")
         expect(opts[:force]).to be_true
-        expect(opts[:metadata_url]).to eq(tf.path)
+        expect(opts[:metadata_url]).to eq("file://#{tf.path}")
         true
       end.and_return(box)
 

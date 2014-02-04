@@ -23,12 +23,21 @@ module Vagrant
           @download_interrupted = false
 
           url = Array(env[:box_url]).map do |u|
-            next u if u =~ /^[a-z0-9]+:.*$/i
+            u = u.gsub("\\", "/")
+            if Util::Platform.windows? && u =~ /^[a-z]:/i
+              # On Windows, we need to be careful about drive letters
+              u = "file://#{u}"
+            end
+
+            if u =~ /^[a-z0-9]+:.*$/i && !u.start_with?("file://")
+              # This is not a file URL... carry on
+              next u
+            end
 
             # Expand the path and try to use that, if possible
-            p = File.expand_path(u)
+            p = File.expand_path(u.gsub(/^file:\/\//, ""))
             p = Util::Platform.cygwin_windows_path(p)
-            next p if File.file?(p)
+            next "file://#{p}" if File.file?(p)
 
             u
           end
