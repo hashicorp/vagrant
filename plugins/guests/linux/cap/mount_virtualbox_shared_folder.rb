@@ -62,13 +62,16 @@ module VagrantPlugins
             sleep 2
           end
 
-          # Chown the directory to the proper user
-          chown_commands = []
-          chown_commands << "chown #{mount_uid}:#{mount_gid} #{expanded_guest_path}"
-          chown_commands << "chown #{mount_uid}:#{mount_gid_old} #{expanded_guest_path}"
+          # Chown the directory to the proper user. We skip this if the
+          # mount options contained a readonly flag, because it won't work.
+          if !opts[:mount_options].include?("ro")
+            chown_commands = []
+            chown_commands << "chown #{mount_uid}:#{mount_gid} #{expanded_guest_path}"
+            chown_commands << "chown #{mount_uid}:#{mount_gid_old} #{expanded_guest_path}"
 
-          exit_status = machine.communicate.sudo(chown_commands[0], error_check: false)
-          machine.communicate.sudo(chown_commands[1]) if exit_status != 0
+            exit_status = machine.communicate.sudo(chown_commands[0], error_check: false)
+            machine.communicate.sudo(chown_commands[1]) if exit_status != 0
+          end
 
           # Emit an upstart event if we can
           if machine.communicate.test("test -x /sbin/initctl")

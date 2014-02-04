@@ -72,6 +72,8 @@ BUG FIXES:
     rather than at runtime.
   - commands/ssh: When using `-c` on Windows, no more TTY errors.
   - guests/coreos: Restart etcd after configuring networks. [GH-2852]
+  - guests/linux: Don't chown VirtualBox synced folders if mounting
+    as readonly. [GH-2442]
   - guests/redhat: Set hostname to FQDN, per the documentation for RedHat.
     [GH-2792]
   - hosts/bsd: Don't invoke shell for NFS sudo calls. [GH-2808]
