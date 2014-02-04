@@ -8,22 +8,24 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
   describe "#provision" do
     it "stores the provisioners" do
       subject.provision("shell", inline: "foo")
-      subject.provision("shell", inline: "bar")
+      subject.provision("shell", inline: "bar") { |s| s.path = "baz" }
       subject.finalize!
 
       r = subject.provisioners
       expect(r.length).to eql(2)
       expect(r[0].config.inline).to eql("foo")
       expect(r[1].config.inline).to eql("bar")
+      expect(r[1].config.path).to eql("baz")
     end
 
     it "allows provisioner settings to be overriden" do
-      subject.provision("shell", path: "foo", inline: "foo", id: "s")
-      subject.provision("shell", inline: "bar", id: "s")
+      subject.provision("shell", path: "foo", id: "s") { |s| s.inline = "foo" }
+      subject.provision("shell", inline: "bar", id: "s") { |s| s.args = "bar" }
       subject.finalize!
 
       r = subject.provisioners
       expect(r.length).to eql(1)
+      expect(r[0].config.args).to eql("bar")
       expect(r[0].config.inline).to eql("bar")
       expect(r[0].config.path).to eql("foo")
     end

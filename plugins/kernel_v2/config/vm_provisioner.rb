@@ -62,7 +62,7 @@ module VagrantPlugins
 
         current = @config_class.new
         current.set_options(options) if options
-        current.call(@config) if block
+        block.call(current) if block
         current = @config.merge(current) if @config
         @config = current
       end
