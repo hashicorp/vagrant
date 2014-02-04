@@ -27,11 +27,27 @@ can communicate with each other on private networks.
 	</p>
 </div>
 
+## DHCP
+
+The easiest way to use a private network is to allow the IP to be assigned
+via DHCP.
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.network "private_network", type: :dhcp
+end
+```
+
+This will automatically assign an IP address from the reserved address space.
+The IP address can be determined by using `vagrant ssh` to SSH into the
+machine and using the appropriate command line tool to find the IP,
+such as `ifconfig`.
+
 ## Static IP
 
-The easiest way to use a private network is to assign a static IP to it.
-This let's you access the Vagrant managed machine using a static, known
-IP. The Vagrantfile for a static IP looks like this:
+You can also specify a static IP address for the machine. This lets you
+access the Vagrant managed machine using a static, known IP. The
+Vagrantfile for a static IP looks like this:
 
 ```ruby
 Vagrant.configure("2") do |config|
