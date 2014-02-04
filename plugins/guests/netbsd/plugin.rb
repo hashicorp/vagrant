@@ -26,6 +26,11 @@ module VagrantPlugins
         Cap::Halt
       end
 
+      guest_capability("netbsd", "insert_public_key") do
+        require_relative "cap/insert_public_key"
+        Cap::InsertPublicKey
+      end
+
       guest_capability("netbsd", "mount_nfs_folder") do
         require_relative "cap/mount_nfs_folder"
         Cap::MountNFSFolder
