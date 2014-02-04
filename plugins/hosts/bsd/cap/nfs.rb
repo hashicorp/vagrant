@@ -25,7 +25,7 @@ module VagrantPlugins
           # We build up this mapping within the following hash.
           logger.debug("Compiling map of sub-directories for NFS exports...")
           dirmap = {}
-          folders.sort { |(_,a),(_,b)| a[:hostpath] <=> b[:hostpath] }.each do |_,opts|
+          folders.sort_by { |_, opts| opts[:hostpath] }.each do |_,opts|
             hostpath = opts[:hostpath].dup
             hostpath.gsub!('"', '\"')
 
