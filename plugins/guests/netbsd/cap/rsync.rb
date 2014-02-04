@@ -8,8 +8,8 @@ module VagrantPlugins
 
         def self.rsync_install(machine)
           machine.communicate.sudo(
-            'export PKG_PATH="http://ftp.NetBSD.org/pub/pkgsrc/packages/NetBSD/' \
-            '`uname -m`/`uname -r | cut -d. -f1-2`/All"; ' \
+            'PKG_PATH="http://ftp.NetBSD.org/pub/pkgsrc/packages/NetBSD/' \
+            '`uname -m`/`uname -r | cut -d. -f1-2`/All" ' \
             'pkg_add rsync')
         end
 

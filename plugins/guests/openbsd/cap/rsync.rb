@@ -3,9 +3,10 @@ module VagrantPlugins
     module Cap
       class RSync
         def self.rsync_install(machine)
-          machine.communicate.tap do |comm|
-            comm.sudo("pkg_add -I rsync--")
-          end
+          machine.communicate.sudo(
+            'PKG_PATH="http://ftp.openbsd.org/pub/OpenBSD/' \
+            '`uname -r`/packages/`arch -s`/" ' \
+            'pkg_add -I rsync--')
         end
 
         def self.rsync_installed(machine)
