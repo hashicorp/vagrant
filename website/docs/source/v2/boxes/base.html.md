@@ -185,7 +185,7 @@ provider-specific guides are linked to towards the top of this page.
 You can distribute the box file however you'd like. However, if you want
 to support versioning, putting multiple providers at a single URL, pushing
 updates, analytics, and more, we recommend you add the box to
-[Vagrant Cloud](#).
+[Vagrant Cloud](http://www.vagrantcloud.com).
 
 You can upload both public and private boxes to this service.
 

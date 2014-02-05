@@ -20,7 +20,7 @@ for the machine to boot and be accessible. By default this is 300 seconds.
 `config.vm.box` - This configures what [box](/v2/boxes.html) the
 machine will be brought up against. The value here should be the name
 of an installed box or a shorthand name of a box in
-[Vagrant Cloud](#).
+[Vagrant Cloud](http://www.vagrantcloud.com).
 
 <hr>
 
@@ -28,7 +28,7 @@ of an installed box or a shorthand name of a box in
 the configured box on every `vagrant up`. If an update is found, Vagrant
 will tell the user. By default this is true. Updates will only be checked
 for boxes that properly support updates (boxes from
-[Vagrant Cloud](#)
+[Vagrant Cloud](http://www.vagrantcloud.com)
 or some other versioned box).
 
 <hr>
@@ -63,7 +63,7 @@ URL, then SSL certs will be verified.
 <hr>
 
 `config.vm.box_url` - The URL that the configured box can be found at.
-If `config.vm.box` is a shorthand to a box in [Vagrant Cloud](#)
+If `config.vm.box` is a shorthand to a box in [Vagrant Cloud](http://www.vagrantcloud.com)
 then this value doesn't need to be specified. Otherwise, it should
 point to the proper place where the box can be found if it isn't
 installed.
