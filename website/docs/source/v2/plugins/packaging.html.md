@@ -51,6 +51,34 @@ for a good example.
 	</p>
 </div>
 
+Once the directory structure for a RubyGem is setup, you'll want
+to modify your Gemfile. Here is the basic structure of a Gemfile for
+Vagrant plugin development:
+
+```ruby
+source "https://rubygems.org"
+
+group :development do
+  gem "vagrant", :git => "https://github.com/mitchellh/vagrant.git"
+end
+
+group :plugins do
+  gem "my-vagrant-plugin", path: "."
+end
+```
+
+This Gemfile gets "vagrant" for development. This allows you to
+`bundle exec vagrant` to run Vagrant with your plugin already loaded,
+so that you can test it manually that way.
+
+The only thing about this Gemfile that may stand out as odd is the
+"plugins" group and putting your plugin in that group. Because
+`vagrant plugin` commands don't work in development, this is how
+you "install" your plugin into Vagrant. Vagrant will automatically
+load any gems listed in the "plugins" group. Note that this also
+allows you to add multiple plugins to Vagrant for development, if
+your plugin works with another plugin.
+
 Next, create a `Rakefile` that has at the very least, the following
 contents:
 
@@ -69,33 +97,14 @@ for a more comprehensive example that includes testing.
 
 ## Testing Your Plugin
 
-You have a couple options for testing your plugin. First, you can run
-`rake package`, then `vagrant plugin install` the resulting file to
-test it. The downside of this is that there is a pretty slow feedback
-loop every time you want to test the plugin.
+To manually test your plugin during development, use
+`bundle exec vagrant` to execute Vagrant with your plugin loaded
+(thanks to the Gemfile setup we did earlier).
 
-Alternatively, you can depend on Vagrant from your Gemfile for development
-purposes only. Then you can use `bundle exec vagrant` and a Vagrantfile
-in your own directory to test it. This has a fast feedback loop, but requires
-that Vagrant has all the dependencies it needs installed on your system.
-
-vagrant-aws uses the second option. You can see the dependency in the
-[Gemfile](https://github.com/mitchellh/vagrant-aws/blob/master/Gemfile).
-The Vagrantfile is gitignored so that sensitive and volatile test
-information can be put into it. The important bit is that the Vagrantfile
-must have a `Vagrant.require_plugin` call so that it is loaded, since
-Vagrant doesn't automatically know about plugins not installed using
-`vagrant plugin`.
-
-For example, a vagrant-aws development Vagrantfile might look like this:
-
-```ruby
-Vagrant.require_plugin "vagrant-aws"
-
-Vagrant.configure("2") do |config|
-  config.vm.box = "test"
-end
-```
-
-Then you can run `bundle exec vagrant up` to test it. Note the "bundle exec"
-is required so that Bundler uses the proper Vagrant installation.
+For automated testing, the
+[vagrant-spec](https://github.com/mitchellh/vagrant-spec)
+project provides helpers for both unit and acceptance testing
+plugins. See the giant README for that project for a detailed
+description of how to integrate vagrant-spec into your project.
+Vagrant itself (and all of its core plugins) use vagrant-spec
+for automated testing.
