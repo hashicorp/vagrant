@@ -41,12 +41,13 @@ module VagrantPlugins
 
         @forward_agent = false if @forward_agent == UNSET_VALUE
         @forward_x11   = false if @forward_x11 == UNSET_VALUE
-        @guest_port = nil if @guest_port == UNSET_VALUE
-        @keep_alive = false if @keep_alive == UNSET_VALUE
+        @guest_port = 22 if @guest_port == UNSET_VALUE
+        @keep_alive = true if @keep_alive == UNSET_VALUE
         @proxy_command = nil if @proxy_command == UNSET_VALUE
         @pty        = false if @pty == UNSET_VALUE
-        @shell      = nil if @shell == UNSET_VALUE
+        @shell      = "bash -l" if @shell == UNSET_VALUE
 
+        @default.username = "vagrant" if @default.username == UNSET_VALUE
         @default.finalize!
       end
 

@@ -30,6 +30,7 @@ module VagrantPlugins
       attr_reader :provisioners
 
       def initialize
+        @base_mac                     = UNSET_VALUE
         @boot_timeout                 = UNSET_VALUE
         @box_download_ca_cert         = UNSET_VALUE
         @box_download_checksum        = UNSET_VALUE
@@ -41,6 +42,7 @@ module VagrantPlugins
         @guest                        = UNSET_VALUE
         @hostname                     = UNSET_VALUE
         @provisioners                 = []
+        @usable_port_range            = UNSET_VALUE
 
         # Internal state
         @__compiled_provider_configs   = {}
@@ -299,6 +301,7 @@ module VagrantPlugins
 
       def finalize!
         # Defaults
+        @base_mac = nil if @base_mac == UNSET_VALUE
         @boot_timeout = 300 if @boot_timeout == UNSET_VALUE
         @box_download_ca_cert = nil if @box_download_ca_cert == UNSET_VALUE
         @box_download_checksum = nil if @box_download_checksum == UNSET_VALUE
@@ -306,10 +309,14 @@ module VagrantPlugins
         @box_download_client_cert = nil if @box_download_client_cert == UNSET_VALUE
         @box_download_insecure = false if @box_download_insecure == UNSET_VALUE
         @box_url = nil if @box_url == UNSET_VALUE
-        @graceful_halt_timeout = 300 if @graceful_halt_timeout == UNSET_VALUE
+        @graceful_halt_timeout = 60 if @graceful_halt_timeout == UNSET_VALUE
         @guest = nil if @guest == UNSET_VALUE
         @hostname = nil if @hostname == UNSET_VALUE
         @hostname = @hostname.to_s if @hostname
+
+        if @usable_port_range == UNSET_VALUE
+          @usable_port_range = (2200..2250)
+        end
 
         # Make sure that the download checksum is a string and that
         # the type is a symbol
@@ -330,8 +337,18 @@ module VagrantPlugins
         # default VM which just inherits the rest of the configuration.
         define(DEFAULT_VM_NAME) if defined_vm_keys.empty?
 
+        # Make sure the SSH forwarding is added if it doesn't exist
+        if !@__networks["ssh"]
+          network :forwarded_port,
+            guest: 22,
+            host: 2222,
+            host_ip: "127.0.0.1",
+            id: "ssh",
+            auto_correct: true
+        end
+
         # Clean up some network configurations
-        @__networks.each do |type, opts|
+        @__networks.values.each do |type, opts|
           if type == :forwarded_port
             opts[:guest] = opts[:guest].to_i if opts[:guest]
             opts[:host] = opts[:host].to_i if opts[:host]
@@ -360,9 +377,15 @@ module VagrantPlugins
           @__compiled_provider_configs[name]   = config
         end
 
-        # Finaliez all the provisioners
+        # Finalize all the provisioners
         @provisioners.each do |p|
           p.config.finalize! if !p.invalid?
+        end
+
+        # If we didn't share our current directory, then do it
+        # manually.
+        if !@__synced_folders["/vagrant"]
+          synced_folder(".", "/vagrant")
         end
 
         @__synced_folders.each do |id, options|

@@ -14,8 +14,8 @@ module VagrantPlugins
       end
 
       def finalize!
-        @map_uid = nil if @map_uid == UNSET_VALUE
-        @map_gid = nil if @map_gid == UNSET_VALUE
+        @map_uid = :auto if @map_uid == UNSET_VALUE
+        @map_gid = :auto if @map_gid == UNSET_VALUE
       end
 
       def to_s

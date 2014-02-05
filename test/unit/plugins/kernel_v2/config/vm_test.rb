@@ -5,6 +5,45 @@ require Vagrant.source_root.join("plugins/kernel_v2/config/vm")
 describe VagrantPlugins::Kernel_V2::VMConfig do
   subject { described_class.new }
 
+  describe "#base_mac" do
+    it "defaults properly" do
+      subject.finalize!
+      expect(subject.base_mac).to be_nil
+    end
+  end
+
+  describe "#box_url" do
+    it "defaults properly" do
+      subject.finalize!
+      expect(subject.box_url).to be_nil
+    end
+  end
+
+  describe "#network(s)" do
+    it "defaults to forwarding SSH" do
+      subject.finalize!
+      n = subject.networks
+      expect(n.length).to eq(1)
+      expect(n[0][0]).to eq(:forwarded_port)
+      expect(n[0][1][:guest]).to eq(22)
+      expect(n[0][1][:host]).to eq(2222)
+      expect(n[0][1][:host_ip]).to eq("127.0.0.1")
+      expect(n[0][1][:id]).to eq("ssh")
+    end
+
+    it "turns all forwarded port ports to ints" do
+      subject.network "forwarded_port",
+        guest: "45", host: "4545", id: "test"
+      subject.finalize!
+      n = subject.networks.find do |type, data|
+        type == :forwarded_port && data[:id] == "test"
+      end
+      expect(n).to_not be_nil
+      expect(n[1][:guest]).to eq(45)
+      expect(n[1][:host]).to eq(4545)
+    end
+  end
+
   describe "#provision" do
     it "stores the provisioners" do
       subject.provision("shell", inline: "foo")
@@ -98,6 +137,33 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
         expect(merged_provs[2].config.inline).
           to eq("bar")
       end
+    end
+  end
+
+  describe "#synced_folder(s)" do
+    it "defaults to sharing the current directory" do
+      subject.finalize!
+      sf = subject.synced_folders
+      expect(sf.length).to eq(1)
+      expect(sf).to have_key("/vagrant")
+      expect(sf["/vagrant"][:disabled]).to_not be
+    end
+
+    it "allows overriding settings on the /vagrant sf" do
+      subject.synced_folder(".", "/vagrant", disabled: true)
+      subject.finalize!
+      sf = subject.synced_folders
+      expect(sf.length).to eq(1)
+      expect(sf).to have_key("/vagrant")
+      expect(sf["/vagrant"][:disabled]).to be_true
+    end
+  end
+
+  describe "#usable_port_range" do
+    it "defaults properly" do
+      subject.finalize!
+      expect(subject.usable_port_range).to eq(
+        Range.new(2200, 2250))
     end
   end
 end

@@ -10,7 +10,7 @@ module VagrantPlugins
       end
 
       def finalize!
-        @host = nil if @host == UNSET_VALUE
+        @host = :detect if @host == UNSET_VALUE
         @host = @host.to_sym if @host
       end
 

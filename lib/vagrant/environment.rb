@@ -252,14 +252,13 @@ module Vagrant
       # managing. Then, the actual individual configuration is loaded for
       # each {#machine} call.
       @config_loader = Config::Loader.new(Config::VERSIONS, Config::VERSIONS_ORDER)
-      @config_loader.set(:default, File.expand_path("config/default.rb", Vagrant.source_root))
       @config_loader.set(:home, home_vagrantfile) if home_vagrantfile
       @config_loader.set(:root, root_vagrantfile) if root_vagrantfile
 
       # Make the initial call to get the "global" config. This is mostly
       # only useful to get the list of machines that we are managing.
       # Because of this, we ignore any warnings or errors.
-      @config_global, _ = @config_loader.load([:default, :home, :root])
+      @config_global, _ = @config_loader.load([:home, :root])
 
       # Return the config
       @config_global
@@ -329,7 +328,7 @@ module Vagrant
       vm_config_key = "vm_#{name}".to_sym
       @config_loader.set(vm_config_key, sub_vm.config_procs)
       config, config_warnings, config_errors = \
-        @config_loader.load([:default, :home, :root, vm_config_key])
+        @config_loader.load([:home, :root, vm_config_key])
 
       # Determine the possible box formats for any boxes and find the box
       box_formats = provider_options[:box_format] || provider
@@ -365,7 +364,7 @@ module Vagrant
             box_config_key = "box_#{box.name}_#{box.provider}".to_sym
             @config_loader.set(box_config_key, box_vagrantfile)
             config, config_warnings, config_errors = \
-              @config_loader.load([:default, box_config_key, :home, :root, vm_config_key])
+              @config_loader.load([box_config_key, :home, :root, vm_config_key])
           end
         end
 
@@ -377,7 +376,7 @@ module Vagrant
           provider_override_key = "vm_#{name}_#{config.vm.box}_#{provider}".to_sym
           @config_loader.set(provider_override_key, provider_overrides)
           config, config_warnings, config_errors = \
-            @config_loader.load([:default, box_config_key, :home, :root, vm_config_key, provider_override_key])
+            @config_loader.load([box_config_key, :home, :root, vm_config_key, provider_override_key])
         end
 
         if config.vm.box && original_box != config.vm.box
