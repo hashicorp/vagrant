@@ -41,6 +41,18 @@ available via `vagrant`, provisioners should be available via
 **Note:** In the future, the `vagrant plugin` command will include a
 subcommand that will document the components that each plugin installs.
 
+## Updating
+
+Plugins can be updated by running `vagrant plugin update`. This will
+update every installed plugin to the latest version. You can update a
+specific plugin by calling `vagrant plugin update NAME`. Vagrant will
+output what plugins were updated and to what version.
+
+To determine the changes in a specific version of a plugin, refer to
+the plugin's homepage (usually a GitHub page or similar). It is the
+plugin author's responsibility to provide a change log if he or she
+chooses to.
+
 ## Uninstallation
 
 Uninstalling a plugin is as easy as installing it. Just use the
