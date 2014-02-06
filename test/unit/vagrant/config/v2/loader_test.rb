@@ -22,7 +22,7 @@ describe Vagrant::Config::V2::Loader do
       # Register a plugin for our test
       register_plugin("2") do |plugin|
         plugin.config "foo" do
-          Class.new do
+          Class.new(Vagrant.plugin("2", "config")) do
             attr_accessor :bar
 
             def finalize!

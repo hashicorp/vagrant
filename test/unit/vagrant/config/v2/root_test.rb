@@ -43,7 +43,7 @@ describe Vagrant::Config::V2::Root do
 
   describe "#finalize!" do
     it "should call #finalize!" do
-      foo_class = Class.new do
+      foo_class = Class.new(Vagrant.plugin("2", "config")) do
         attr_accessor :foo
 
         def finalize!
@@ -59,7 +59,7 @@ describe Vagrant::Config::V2::Root do
     end
 
     it "should call #_finalize!" do
-      klass = Class.new
+      klass = Class.new(Vagrant.plugin("2", "config"))
 
       klass.any_instance.should_receive(:finalize!)
       klass.any_instance.should_receive(:_finalize!)
