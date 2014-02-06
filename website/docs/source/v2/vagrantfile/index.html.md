@@ -53,14 +53,15 @@ allows Vagrantfiles of varying level of specificity to override prior settings.
 Vagrantfiles are loaded in the order shown below. Note that if a Vagrantfile
 is not found at any step, Vagrant continues with the next step.
 
-1. Built-in default Vagrantfile that ships with Vagrant. This has default
-  settings and should never be changed by any user of Vagrant.
-2. Vagrantfile packaged with the [box](/v2/boxes.html) that is to be used
+1. Vagrantfile packaged with the [box](/v2/boxes.html) that is to be used
   for a given machine.
-3. Vagrantfile in your Vagrant home directory (defaults to `~/.vagrant.d`).
+2. Vagrantfile in your Vagrant home directory (defaults to `~/.vagrant.d`).
   This lets you specify some defaults for your system user.
-4. Vagrantfile from the project directory. This is the Vagrantfile that you'll
+3. Vagrantfile from the project directory. This is the Vagrantfile that you'll
   be modifying most of the time.
+4. [Multi-machine overrides](/v2/multi-machine/index.html) if any.
+5. [Provider-specific overrides](/v2/providers/configuration.html),
+   if any.
 
 At each level, settings set will be merged with previous values. What this
 exactly means depends on the setting. For most settings, this means that
@@ -68,6 +69,10 @@ the newer setting overrides the older one. However, for things such as defining
 networks, the networks are actually appended to each other. By default, you
 should assume that settings will override each other. If the behavior is
 different, it will be noted in the relevant documentation section.
+
+Within each Vagrantfile, you may specify multiple `Vagrant.configure` blocks.
+All configurations will be merged within a single Vagrantfile in the order
+they're defined.
 
 ## Available Configuration Options
 
