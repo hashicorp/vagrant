@@ -236,39 +236,25 @@ module Vagrant
       @_boxes ||= BoxCollection.new(boxes_path, temp_dir_root: tmp_path)
     end
 
-    # This is the global config, comprised of loading configuration from
-    # the default, home, and root Vagrantfiles. This configuration is only
-    # really useful for reading the list of virtual machines, since each
-    # individual VM can override _most_ settings.
+    # Returns the {Config::Loader} that can be used to load Vagrantflies
+    # given the settings of this environment.
     #
-    # This is lazy-loaded upon first use.
-    #
-    # @return [Object]
-    def config_global
-      return @config_global if @config_global
-
-      @logger.info("Initializing config...")
+    # @return [Config::Loader]
+    def config_loader
+      return @config_loader if @config_loader
 
       home_vagrantfile = nil
       root_vagrantfile = nil
       home_vagrantfile = find_vagrantfile(home_path) if home_path
-      root_vagrantfile = find_vagrantfile(root_path, @vagrantfile_name) if root_path
+      if root_path
+        root_vagrantfile = find_vagrantfile(root_path, @vagrantfile_name)
+      end
 
-      # Create the configuration loader and set the sources that are global.
-      # We use this to load the configuration, and the list of machines we are
-      # managing. Then, the actual individual configuration is loaded for
-      # each {#machine} call.
-      @config_loader = Config::Loader.new(Config::VERSIONS, Config::VERSIONS_ORDER)
+      @config_loader = Config::Loader.new(
+        Config::VERSIONS, Config::VERSIONS_ORDER)
       @config_loader.set(:home, home_vagrantfile) if home_vagrantfile
       @config_loader.set(:root, root_vagrantfile) if root_vagrantfile
-
-      # Make the initial call to get the "global" config. This is mostly
-      # only useful to get the list of machines that we are managing.
-      # Because of this, we ignore any warnings or errors.
-      @config_global, _ = @config_loader.load([:home, :root])
-
-      # Return the config
-      @config_global
+      @config_loader
     end
 
     # This defines a hook point where plugin action hooks that are registered
@@ -379,7 +365,7 @@ module Vagrant
     end
 
     def vagrantfile
-      @vagrantfile ||= Vagrantfile.new(@config_loader, [:home, :root])
+      @vagrantfile ||= Vagrantfile.new(config_loader, [:home, :root])
     end
 
     # Unload the environment, running completion hooks. The environment
@@ -413,7 +399,7 @@ module Vagrant
       # that shouldn't be valid anymore, but we respect it here by assuming
       # its old behavior. No need to deprecate this because I thin it is
       # fairly harmless.
-      host_klass = config_global.vagrant.host
+      host_klass = vagrantfile.config.vagrant.host
       host_klass = nil if host_klass == :detect
 
       begin
@@ -447,7 +433,6 @@ module Vagrant
         {
           :action_runner  => action_runner,
           :box_collection => boxes,
-          :global_config  => config_global,
           :hook           => method(:hook),
           :host           => host,
           :gems_path      => gems_path,

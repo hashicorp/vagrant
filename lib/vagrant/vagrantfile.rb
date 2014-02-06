@@ -9,6 +9,10 @@ module Vagrant
   # loading the configuration of a specific machine/provider combo,
   # etc.
   class Vagrantfile
+    # This is the configuration loaded as-is given the loader and
+    # keys to #initialize.
+    attr_reader :config
+
     # Initializes by loading a Vagrantfile.
     #
     # @param [Config::Loader] loader Configuration loader that should

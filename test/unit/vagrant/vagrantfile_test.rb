@@ -13,6 +13,24 @@ describe Vagrant::Vagrantfile do
 
   subject { described_class.new(loader, keys) }
 
+  describe "#config" do
+    before do
+      keys << :test
+    end
+
+    def configure(&block)
+      loader.set(:test, [["2", block]])
+    end
+
+    it "exposes the global configuration" do
+      configure do |config|
+        config.vm.box = "what"
+      end
+
+      expect(subject.config.vm.box).to eq("what")
+    end
+  end
+
   describe "#machine_config" do
     let(:iso_env) { isolated_environment }
     let(:boxes) { Vagrant::BoxCollection.new(iso_env.boxes_dir) }
