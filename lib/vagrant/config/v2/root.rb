@@ -48,6 +48,7 @@ module Vagrant
 
           @keys.each do |_key, instance|
             instance.finalize!
+            instance._finalize!
           end
         end
 

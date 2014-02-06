@@ -70,6 +70,8 @@ module Vagrant
         # Capture all bad configuration calls and save them for an error
         # message later during validation.
         def method_missing(name, *args, &block)
+          return super if @__finalized
+
           name = name.to_s
           name = name[0...-1] if name.end_with?("=")
 
@@ -129,6 +131,11 @@ module Vagrant
           return [] if !@__invalid_methods || @__invalid_methods.empty?
           return [I18n.t("vagrant.config.common.bad_field",
                          :fields => @__invalid_methods.to_a.sort.join(", "))]
+        end
+
+        # An internal finalize call that no subclass should override.
+        def _finalize!
+          @__finalized = true
         end
       end
     end
