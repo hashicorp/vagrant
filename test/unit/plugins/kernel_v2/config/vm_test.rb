@@ -15,6 +15,9 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
   end
 
   before do
+    env = double("env")
+    env.stub(root_path: nil)
+    machine.stub(env: env)
     machine.stub(provider_config: nil)
 
     subject.box = "foo"
