@@ -8,6 +8,7 @@ require 'log4r'
 
 require 'vagrant/util/file_mode'
 require 'vagrant/util/platform'
+require "vagrant/vagrantfile"
 
 module Vagrant
   # Represents a single Vagrant environment. A "Vagrant environment" is
@@ -313,11 +314,6 @@ module Vagrant
       end
 
       @logger.info("Uncached load of machine.")
-      sub_vm = config_global.vm.defined_vms[name]
-      if !sub_vm
-        raise Errors::MachineNotFound, :name => name, :provider => provider
-      end
-
       provider_plugin  = Vagrant.plugin("2").manager.providers[provider]
       if !provider_plugin
         raise Errors::ProviderNotFound, :machine => name, :provider => provider
@@ -327,86 +323,15 @@ module Vagrant
       provider_cls     = provider_plugin[0]
       provider_options = provider_plugin[1]
 
-      # Build the machine configuration. This requires two passes: The first pass
-      # loads in the machine sub-configuration. Since this can potentially
-      # define a new box to base the machine from, we then make a second pass
-      # with the box Vagrantfile (if it has one).
-      vm_config_key = "vm_#{name}".to_sym
-      @config_loader.set(vm_config_key, sub_vm.config_procs)
-      config, config_warnings, config_errors = \
-        @config_loader.load([:home, :root, vm_config_key])
-
-      # Determine the possible box formats for any boxes and find the box
-      box_formats = provider_options[:box_format] || provider
-      box = nil
-
-      # Set this variable in order to keep track of if the box changes
-      # too many times.
-      original_box = config.vm.box
-      box_changed  = false
-
-      load_box_and_overrides = lambda do
-        box = nil
-        if config.vm.box
-          box = boxes.find(
-            config.vm.box, box_formats, config.vm.box_version)
-        end
-
-        # If a box was found, then we attempt to load the Vagrantfile for
-        # that box. We don't require a box since we allow providers to download
-        # boxes and so on.
-        if box
-          box_vagrantfile = find_vagrantfile(box.directory)
-          if box_vagrantfile
-            # The box has a custom Vagrantfile, so we load that into the config
-            # as well.
-            @logger.info("Box exists with Vagrantfile. Reloading machine config.")
-            box_config_key = "box_#{box.name}_#{box.provider}".to_sym
-            @config_loader.set(box_config_key, box_vagrantfile)
-            config, config_warnings, config_errors = \
-              @config_loader.load([box_config_key, :home, :root, vm_config_key])
-          end
-        end
-
-        # If there are provider overrides for the machine, then we run
-        # those as well.
-        provider_overrides = config.vm.get_provider_overrides(provider)
-        if provider_overrides.length > 0
-          @logger.info("Applying #{provider_overrides.length} provider overrides. Reloading config.")
-          provider_override_key = "vm_#{name}_#{config.vm.box}_#{provider}".to_sym
-          @config_loader.set(provider_override_key, provider_overrides)
-          config, config_warnings, config_errors = \
-            @config_loader.load([box_config_key, :home, :root, vm_config_key, provider_override_key])
-        end
-
-        if config.vm.box && original_box != config.vm.box
-          if box_changed
-            # We already changed boxes once, so report an error that a
-            # box is attempting to change boxes again.
-            raise Errors::BoxConfigChangingBox
-          end
-
-          # The box changed, probably due to the provider override. Let's
-          # run the configuration one more time with the new box.
-          @logger.info("Box changed to: #{config.vm.box}. Reloading configurations.")
-          original_box = config.vm.box
-          box_changed  = true
-
-          # Recurse so that we reload all the configurations
-          load_box_and_overrides.call
-        end
-      end
-
-      # Load the box and overrides configuration
-      load_box_and_overrides.call
-
-      # Get the provider configuration from the final loaded configuration
-      provider_config = config.vm.get_provider_config(provider)
-
       # Determine the machine data directory and pass it to the machine.
       # XXX: Permissions error here.
-      machine_data_path = @local_data_path.join("machines/#{name}/#{provider}")
+      machine_data_path = @local_data_path.join(
+        "machines/#{name}/#{provider}")
       FileUtils.mkdir_p(machine_data_path)
+
+      # Load the actual configuration for the machine
+      config, config_warnings, config_errors, box =
+        vagrantfile.machine_config(name, provider, boxes)
 
       # If there were warnings or errors we want to output them
       if !config_warnings.empty? || !config_errors.empty?
@@ -425,6 +350,9 @@ module Vagrant
           raise Errors::ConfigUpgradeErrors if !config_errors.empty?
       end
 
+      # Get the provider configuration from the final loaded configuration
+      provider_config = config.vm.get_provider_config(provider)
+
       # Create the machine and cache it for future calls. This will also
       # return the machine from this method.
       @machines[cache_key] = Machine.new(name, provider, provider_cls, provider_config,
@@ -437,7 +365,7 @@ module Vagrant
     #
     # @return [Array<Symbol>] Configured machine names.
     def machine_names
-      config_global.vm.defined_vm_keys.dup
+      vagrantfile.machine_names
     end
 
     # This returns the name of the machine that is the "primary." In the
@@ -447,16 +375,11 @@ module Vagrant
     #
     # @return [Symbol]
     def primary_machine_name
-      # If it is a single machine environment, then return the name
-      return machine_names.first if machine_names.length == 1
+      vagrantfile.primary_machine_name
+    end
 
-      # If it is a multi-machine environment, then return the primary
-      config_global.vm.defined_vms.each do |name, subvm|
-        return name if subvm.options[:primary]
-      end
-
-      # If no primary was specified, nil it is
-      nil
+    def vagrantfile
+      @vagrantfile ||= Vagrantfile.new(@config_loader, [:home, :root])
     end
 
     # Unload the environment, running completion hooks. The environment

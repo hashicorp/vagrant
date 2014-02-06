@@ -65,6 +65,7 @@ module Vagrant
       config, config_warnings, config_errors = @loader.load(keys)
 
       # Track the original box so we know if we changed
+      box = nil
       original_box = config.vm.box
 
       # The proc below loads the box and provider overrides. This is
@@ -110,7 +111,7 @@ module Vagrant
       # Load the box and provider overrides
       load_box_proc.call
 
-      return config, config_warnings, config_errors
+      return config, config_warnings, config_errors, box
     end
 
     # Returns a list of the machines that are defined within this

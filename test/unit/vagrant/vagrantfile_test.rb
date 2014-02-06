@@ -47,8 +47,9 @@ describe Vagrant::Vagrantfile do
         config.vm.box = "foo"
       end
 
-      config, _ = subject.machine_config(:default, :foo, boxes)
+      config, _, _, box = subject.machine_config(:default, :foo, boxes)
       expect(config.vm.box).to eq("foo")
+      expect(box).to be_nil
     end
 
     it "configures with sub-machine config" do
@@ -81,9 +82,11 @@ describe Vagrant::Vagrantfile do
       end
       VF
 
-      config, _ = subject.machine_config(:default, :foo, boxes)
+      config, _, _, box = subject.machine_config(:default, :foo, boxes)
       expect(config.vm.box).to eq("base")
       expect(config.ssh.port).to eq(123)
+      expect(box).to_not be_nil
+      expect(box.name).to eq("base")
     end
 
     it "configures with box config of other supported formats" do
@@ -151,9 +154,11 @@ describe Vagrant::Vagrantfile do
       end
       VF
 
-      config, _ = subject.machine_config(:default, :foo, boxes)
+      config, _, _, box = subject.machine_config(:default, :foo, boxes)
       expect(config.vm.box).to eq("foobox")
       expect(config.ssh.port).to eq(234)
+      expect(box).to_not be_nil
+      expect(box.name).to eq("foobox")
     end
 
     it "raises an error if the machine is not found" do
