@@ -59,15 +59,18 @@ describe Vagrant::Vagrantfile do
     end
 
     it "should return a basic configured machine" do
-      register_provider("foo")
+      provider_cls = register_provider("foo")
 
       configure do |config|
         config.vm.box = "foo"
       end
 
-      config, _, _, box = subject.machine_config(:default, :foo, boxes)
+      results = subject.machine_config(:default, :foo, boxes)
+      box     = results[:box]
+      config  = results[:config]
       expect(config.vm.box).to eq("foo")
       expect(box).to be_nil
+      expect(results[:provider_cls]).to equal(provider_cls)
     end
 
     it "configures with sub-machine config" do
@@ -82,7 +85,8 @@ describe Vagrant::Vagrantfile do
         end
       end
 
-      config, _ = subject.machine_config(:foo, :foo, boxes)
+      results = subject.machine_config(:foo, :foo, boxes)
+      config  = results[:config]
       expect(config.vm.box).to eq("base")
       expect(config.ssh.port).to eq(100)
     end
@@ -100,7 +104,9 @@ describe Vagrant::Vagrantfile do
       end
       VF
 
-      config, _, _, box = subject.machine_config(:default, :foo, boxes)
+      results = subject.machine_config(:default, :foo, boxes)
+      box     = results[:box]
+      config  = results[:config]
       expect(config.vm.box).to eq("base")
       expect(config.ssh.port).to eq(123)
       expect(box).to_not be_nil
@@ -127,7 +133,9 @@ describe Vagrant::Vagrantfile do
       end
       VF
 
-      config, _, _, box = subject.machine_config(:default, :foo, boxes)
+      results = subject.machine_config(:default, :foo, boxes)
+      box     = results[:box]
+      config  = results[:config]
       expect(config.vm.box).to eq("base")
       expect(config.ssh.port).to eq(245)
       expect(box).to_not be_nil
@@ -148,7 +156,8 @@ describe Vagrant::Vagrantfile do
       end
       VF
 
-      config, _ = subject.machine_config(:default, :foo, boxes)
+      results = subject.machine_config(:default, :foo, boxes)
+      config  = results[:config]
       expect(config.vm.box).to eq("base")
       expect(config.ssh.port).to eq(123)
     end
@@ -167,12 +176,14 @@ describe Vagrant::Vagrantfile do
       end
 
       # Test with the override
-      config, _ = subject.machine_config(:default, :foo, boxes)
+      results = subject.machine_config(:default, :foo, boxes)
+      config  = results[:config]
       expect(config.vm.box).to eq("base")
       expect(config.ssh.port).to eq(100)
 
       # Test without the override
-      config, _ = subject.machine_config(:default, :bar, boxes)
+      results = subject.machine_config(:default, :bar, boxes)
+      config  = results[:config]
       expect(config.vm.box).to eq("base")
       expect(config.ssh.port).to eq(1)
     end
@@ -200,7 +211,9 @@ describe Vagrant::Vagrantfile do
       end
       VF
 
-      config, _, _, box = subject.machine_config(:default, :foo, boxes)
+      results = subject.machine_config(:default, :foo, boxes)
+      config  = results[:config]
+      box     = results[:box]
       expect(config.vm.box).to eq("foobox")
       expect(config.ssh.port).to eq(234)
       expect(box).to_not be_nil

@@ -300,24 +300,21 @@ module Vagrant
       end
 
       @logger.info("Uncached load of machine.")
-      provider_plugin  = Vagrant.plugin("2").manager.providers[provider]
-      if !provider_plugin
-        raise Errors::ProviderNotFound, :machine => name, :provider => provider
-      end
 
-      # Extra the provider class and options from the plugin data
-      provider_cls     = provider_plugin[0]
-      provider_options = provider_plugin[1]
+      # Load the actual configuration for the machine
+      results = vagrantfile.machine_config(name, provider, boxes)
+      box             = results[:box]
+      config          = results[:config]
+      config_errors   = results[:config_errors]
+      config_warnings = results[:config_warnings]
+      provider_cls    = results[:provider_cls]
+      provider_options = results[:provider_options]
 
       # Determine the machine data directory and pass it to the machine.
       # XXX: Permissions error here.
       machine_data_path = @local_data_path.join(
         "machines/#{name}/#{provider}")
       FileUtils.mkdir_p(machine_data_path)
-
-      # Load the actual configuration for the machine
-      config, config_warnings, config_errors, box =
-        vagrantfile.machine_config(name, provider, boxes)
 
       # If there were warnings or errors we want to output them
       if !config_warnings.empty? || !config_errors.empty?

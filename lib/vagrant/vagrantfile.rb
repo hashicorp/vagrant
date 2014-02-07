@@ -58,7 +58,9 @@ module Vagrant
           :machine => name, :provider => provider
       end
 
-      box_formats = provider_plugin[1][:box_format] || provider
+      provider_cls     = provider_plugin[0]
+      provider_options = provider_plugin[1]
+      box_formats      = provider_options[:box_format] || provider
 
       # Add the sub-machine configuration to the loader and keys
       vm_config_key = "#{object_id}_machine_#{name}"
@@ -115,7 +117,14 @@ module Vagrant
       # Load the box and provider overrides
       load_box_proc.call
 
-      return config, config_warnings, config_errors, box
+      return {
+        box: box,
+        provider_cls: provider_cls,
+        provider_options: provider_options,
+        config: config,
+        config_warnings: config_warnings,
+        config_errors: config_errors,
+      }
     end
 
     # Returns a list of the machines that are defined within this
