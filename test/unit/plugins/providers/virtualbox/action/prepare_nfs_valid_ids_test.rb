@@ -1,30 +1,25 @@
 require_relative "../base"
 
 describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSValidIds do
+  include_context "unit"
   include_context "virtualbox"
 
-  let(:machine) {
-    environment                    = Vagrant::Environment.new
-    provider                       = :virtualbox
-    provider_cls, provider_options = Vagrant.plugin("2").manager.providers[provider]
-    provider_config                = Vagrant.plugin("2").manager.provider_configs[provider]
+  let(:iso_env) do
+    # We have to create a Vagrantfile so there is a root path
+    env = isolated_environment
+    env.vagrantfile("")
+    env.create_vagrant_env
+  end
 
-    Vagrant::Machine.new(
-      'test_machine',
-      provider,
-      provider_cls,
-      provider_config,
-      provider_options,
-      environment.vagrantfile.config,
-      Pathname('data_dir'),
-      double('box'),
-      environment
-    )
-  }
+  let(:machine) do
+    iso_env.machine(iso_env.machine_names[0], :dummy).tap do |m|
+      m.provider.stub(driver: driver)
+    end
+  end
 
   let(:env)    {{ machine: machine }}
   let(:app)    { lambda { |*args| }}
-  let(:driver) { env[:machine].provider.driver }
+  let(:driver) { double("driver") }
 
   subject { described_class.new(app, env) }
 

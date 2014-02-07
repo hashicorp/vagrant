@@ -54,8 +54,9 @@ describe Vagrant::Vagrantfile do
     let(:data_path) { Pathname.new(Dir.mktmpdir) }
     let(:env)   { iso_env.create_vagrant_env }
     let(:iso_env) { isolated_environment }
+    let(:vagrantfile) { described_class.new(loader, keys) }
 
-    subject { super().machine(:default, :foo, boxes, data_path, env) }
+    subject { vagrantfile.machine(:default, :foo, boxes, data_path, env) }
 
     before do
       @foo_config_cls = Class.new(Vagrant.plugin("2", "config")) do
@@ -83,6 +84,7 @@ describe Vagrant::Vagrantfile do
     its(:name)     { should eq(:default)  }
     its(:provider) { should be_kind_of(@provider_cls) }
     its(:provider_name) { should eq(:foo) }
+    its(:vagrantfile) { should equal(vagrantfile) }
 
     it "has the proper box" do
       expect(subject.box.name).to eq("foo")

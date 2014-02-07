@@ -73,7 +73,7 @@ module Vagrant
       # Create the machine and cache it for future calls. This will also
       # return the machine from this method.
       return Machine.new(name, provider, provider_cls, provider_config,
-        provider_options, config, data_path, box, env)
+        provider_options, config, data_path, box, env, self)
     end
 
     # Returns the configuration for a single machine.
