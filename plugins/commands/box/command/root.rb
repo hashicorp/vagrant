@@ -24,6 +24,11 @@ module VagrantPlugins
             List
           end
 
+          @subcommands.register(:outdated) do
+            require_relative "outdated"
+            Outdated
+          end
+
           @subcommands.register(:remove) do
             require File.expand_path("../remove", __FILE__)
             Remove
@@ -32,6 +37,11 @@ module VagrantPlugins
           @subcommands.register(:repackage) do
             require File.expand_path("../repackage", __FILE__)
             Repackage
+          end
+
+          @subcommands.register(:update) do
+            require_relative "update"
+            Update
           end
         end
 

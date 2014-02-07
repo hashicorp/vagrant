@@ -120,8 +120,32 @@ module Vagrant
       error_key(:batch_multi_error)
     end
 
+    class BoxAddMetadataMultiURL < VagrantError
+      error_key(:box_add_metadata_multi_url)
+    end
+
+    class BoxAddNameMismatch < VagrantError
+      error_key(:box_add_name_mismatch)
+    end
+
+    class BoxAddNameRequired < VagrantError
+      error_key(:box_add_name_required)
+    end
+
+    class BoxAddNoMatchingProvider < VagrantError
+      error_key(:box_add_no_matching_provider)
+    end
+
+    class BoxAddNoMatchingVersion < VagrantError
+      error_key(:box_add_no_matching_version)
+    end
+
+    class BoxAddShortNotFound < VagrantError
+      error_key(:box_add_short_not_found)
+    end
+
     class BoxAlreadyExists < VagrantError
-      error_key(:already_exists, "vagrant.actions.box.unpackage")
+      error_key(:box_add_exists)
     end
 
     class BoxChecksumInvalidType < VagrantError
@@ -144,20 +168,56 @@ module Vagrant
       error_key(:box_metadata_file_not_found)
     end
 
+    class BoxMetadataMalformed < VagrantError
+      error_key(:box_metadata_malformed)
+    end
+
     class BoxNotFound < VagrantError
       error_key(:box_not_found)
+    end
+
+    class BoxNotFoundWithProvider < VagrantError
+      error_key(:box_not_found_with_provider)
+    end
+
+    class BoxOutdatedNoBox < VagrantError
+      error_key(:box_outdated_no_box)
     end
 
     class BoxProviderDoesntMatch < VagrantError
       error_key(:box_provider_doesnt_match)
     end
 
+    class BoxRemoveNotFound < VagrantError
+      error_key(:box_remove_not_found)
+    end
+
+    class BoxRemoveProviderNotFound < VagrantError
+      error_key(:box_remove_provider_not_found)
+    end
+
+    class BoxRemoveMultiProvider < VagrantError
+      error_key(:box_remove_multi_provider)
+    end
+
+    class BoxRemoveMultiVersion < VagrantError
+      error_key(:box_remove_multi_version)
+    end
+
+    class BoxServerNotSet < VagrantError
+      error_key(:box_server_not_set)
+    end
+
     class BoxUnpackageFailure < VagrantError
       error_key(:untar_failure, "vagrant.actions.box.unpackage")
     end
 
-    class BoxUpgradeRequired < VagrantError
-      error_key(:box_upgrade_required)
+    class BoxUpdateMultiProvider < VagrantError
+      error_key(:box_update_multi_provider)
+    end
+
+    class BoxUpdateNoMetadata < VagrantError
+      error_key(:box_update_no_metadata)
     end
 
     class BoxVerificationFailed < VagrantError
@@ -260,8 +320,16 @@ module Vagrant
       error_key(:environment_locked)
     end
 
+    class HomeDirectoryLaterVersion < VagrantError
+      error_key(:home_dir_later_version)
+    end
+
     class HomeDirectoryNotAccessible < VagrantError
       error_key(:home_dir_not_accessible)
+    end
+
+    class HomeDirectoryUnknownVersion < VagrantError
+      error_key(:home_dir_unknown_version)
     end
 
     class ForwardPortAdapterNotFound < VagrantError

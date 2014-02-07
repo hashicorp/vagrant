@@ -14,6 +14,12 @@ module Vagrant
   # defined as basically a folder with a "Vagrantfile." This class allows
   # access to the VMs, CLI, etc. all in the scope of this environment.
   class Environment
+    # This is the current version that this version of Vagrant is
+    # compatible with in the home directory.
+    #
+    # @return [String]
+    CURRENT_SETUP_VERSION = "1.5"
+
     DEFAULT_LOCAL_DATA = ".vagrant"
 
     # The `cwd` that this environment represents
@@ -342,14 +348,8 @@ module Vagrant
       load_box_and_overrides = lambda do
         box = nil
         if config.vm.box
-          begin
-            box = boxes.find(config.vm.box, box_formats)
-          rescue Errors::BoxUpgradeRequired
-            # Upgrade the box if we must
-            @logger.info("Upgrading box during config load: #{config.vm.box}")
-            boxes.upgrade(config.vm.box)
-            retry
-          end
+          box = boxes.find(
+            config.vm.box, box_formats, config.vm.box_version)
         end
 
         # If a box was found, then we attempt to load the Vagrantfile for
@@ -630,13 +630,37 @@ module Vagrant
         raise Errors::HomeDirectoryNotAccessible, home_path: @home_path.to_s
       end
 
-      # Create the version file to mark the version of the home directory
-      # we're using.
+      # Create the version file that we use to track the structure of
+      # the home directory. If we have an old version, we need to explicitly
+      # upgrade it. Otherwise, we just mark that its the current version.
       version_file = @home_path.join("setup_version")
+      if version_file.file?
+        version = version_file.read
+        if version > CURRENT_SETUP_VERSION
+          raise Errors::HomeDirectoryLaterVersion
+        end
+
+        case version
+        when CURRENT_SETUP_VERSION
+          # We're already good, at the latest version.
+        when "1.1"
+          # We need to update our directory structure
+          upgrade_home_path_v1_1
+
+          # Delete the version file so we put our latest version in
+          version_file.delete
+        else
+          raise Errors::HomeDirectoryUnknownVersion,
+            path: @home_path.to_s,
+            version: version
+        end
+      end
+
       if !version_file.file?
-        @logger.debug("Setting up the version file.")
+        @logger.debug(
+          "Creating home directory version file: #{CURRENT_SETUP_VERSION}")
         version_file.open("w") do |f|
-          f.write("1.1")
+          f.write(CURRENT_SETUP_VERSION)
         end
       end
 
@@ -721,6 +745,14 @@ module Vagrant
       end
 
       nil
+    end
+
+    # This upgrades a home directory that was in the v1.1 format to the
+    # v1.5 format. It will raise exceptions if anything fails.
+    def upgrade_home_path_v1_1
+      collection = BoxCollection.new(
+        @home_path.join("boxes"), temp_dir_root: tmp_path)
+      collection.upgrade_v1_1_v1_5
     end
 
     # This upgrades a Vagrant 1.0.x "dotfile" to the new V2 format.

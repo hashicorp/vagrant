@@ -1,8 +1,11 @@
 require 'fileutils'
+require "tempfile"
 
 require "json"
 require "log4r"
 
+require "vagrant/box_metadata"
+require "vagrant/util/downloader"
 require "vagrant/util/platform"
 require "vagrant/util/safe_chdir"
 require "vagrant/util/subprocess"
@@ -23,6 +26,11 @@ module Vagrant
     # @return [Symbol]
     attr_reader :provider
 
+    # The version of this box.
+    #
+    # @return [String]
+    attr_reader :version
+
     # This is the directory on disk where this box exists.
     #
     # @return [Pathname]
@@ -34,16 +42,24 @@ module Vagrant
     # @return [Hash]
     attr_reader :metadata
 
+    # This is the URL to the version info and other metadata for this
+    # box.
+    #
+    # @return [String]
+    attr_reader :metadata_url
+
     # This is used to initialize a box.
     #
     # @param [String] name Logical name of the box.
     # @param [Symbol] provider The provider that this box implements.
     # @param [Pathname] directory The directory where this box exists on
     #   disk.
-    def initialize(name, provider, directory)
+    def initialize(name, provider, version, directory, **opts)
       @name      = name
+      @version   = version
       @provider  = provider
       @directory = directory
+      @metadata_url = opts[:metadata_url]
 
       metadata_file = directory.join("metadata.json")
       raise Errors::BoxMetadataFileNotFound, :name => @name if !metadata_file.file?
@@ -67,6 +83,51 @@ module Vagrant
     rescue Errno::ENOENT
       # This means the directory didn't exist. Not a problem.
       return true
+    end
+
+    # Loads the metadata URL and returns the latest metadata associated
+    # with this box.
+    #
+    # @return [BoxMetadata]
+    def load_metadata
+      tf = Tempfile.new("vagrant")
+      tf.close
+
+      url = @metadata_url
+      if File.file?(url) || url !~ /^[a-z0-9]+:.*$/i
+        url = File.expand_path(url)
+        url = Util::Platform.cygwin_windows_path(url)
+        url = "file:#{url}"
+      end
+
+      Util::Downloader.new(url, tf.path).download!
+      BoxMetadata.new(File.open(tf.path, "r"))
+    end
+
+    # Checks if the box has an update and returns the metadata, version,
+    # and provider. If the box doesn't have an update that satisfies the
+    # constraints, it will return nil.
+    #
+    # This will potentially make a network call if it has to load the
+    # metadata from the network.
+    #
+    # @param [String] version Version constraints the update must
+    #   satisfy. If nil, the version constrain defaults to being a
+    #   larger version than this box.
+    # @return [Array]
+    def has_update?(version=nil)
+      if !@metadata_url
+        raise Errors::BoxUpdateNoMetadata, name: @name
+      end
+
+      version += ", " if version
+      version ||= ""
+      version += "> #{@version}"
+      md      = self.load_metadata
+      newer   = md.version(version, provider: @provider)
+      return nil if !newer
+
+      [md, newer, newer.provider(@provider)]
     end
 
     # This repackages this box and outputs it to the given path.
@@ -96,7 +157,8 @@ module Vagrant
       return super if !other.is_a?(self.class)
 
       # Comparison is done by composing the name and provider
-      "#{@name}-#{@provider}" <=> "#{other.name}-#{other.provider}"
+      "#{@name}-#{@version}-#{@provider}" <=>
+      "#{other.name}-#{other.version}-#{other.provider}"
     end
   end
 end

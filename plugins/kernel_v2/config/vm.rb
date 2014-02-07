@@ -17,7 +17,9 @@ module VagrantPlugins
       attr_accessor :base_mac
       attr_accessor :boot_timeout
       attr_accessor :box
+      attr_accessor :box_check_update
       attr_accessor :box_url
+      attr_accessor :box_version
       attr_accessor :box_download_ca_cert
       attr_accessor :box_download_checksum
       attr_accessor :box_download_checksum_type
@@ -32,12 +34,14 @@ module VagrantPlugins
       def initialize
         @base_mac                     = UNSET_VALUE
         @boot_timeout                 = UNSET_VALUE
+        @box_check_update             = UNSET_VALUE
         @box_download_ca_cert         = UNSET_VALUE
         @box_download_checksum        = UNSET_VALUE
         @box_download_checksum_type   = UNSET_VALUE
         @box_download_client_cert     = UNSET_VALUE
         @box_download_insecure        = UNSET_VALUE
         @box_url                      = UNSET_VALUE
+        @box_version                  = UNSET_VALUE
         @graceful_halt_timeout        = UNSET_VALUE
         @guest                        = UNSET_VALUE
         @hostname                     = UNSET_VALUE
@@ -303,12 +307,14 @@ module VagrantPlugins
         # Defaults
         @base_mac = nil if @base_mac == UNSET_VALUE
         @boot_timeout = 300 if @boot_timeout == UNSET_VALUE
+        @box_check_update = true if @box_check_update == UNSET_VALUE
         @box_download_ca_cert = nil if @box_download_ca_cert == UNSET_VALUE
         @box_download_checksum = nil if @box_download_checksum == UNSET_VALUE
         @box_download_checksum_type = nil if @box_download_checksum_type == UNSET_VALUE
         @box_download_client_cert = nil if @box_download_client_cert == UNSET_VALUE
         @box_download_insecure = false if @box_download_insecure == UNSET_VALUE
         @box_url = nil if @box_url == UNSET_VALUE
+        @box_version = ">= 0" if @box_version == UNSET_VALUE
         @graceful_halt_timeout = 60 if @graceful_halt_timeout == UNSET_VALUE
         @guest = nil if @guest == UNSET_VALUE
         @hostname = nil if @hostname == UNSET_VALUE
@@ -326,9 +332,7 @@ module VagrantPlugins
         end
 
         # Make sure the box URL is an array if it is set
-        if @box_url && !@box_url.is_a?(Array)
-          @box_url = [@box_url]
-        end
+        @box_url = Array(@box_url) if @box_url
 
         # Set the guest properly
         @guest = @guest.to_sym if @guest
@@ -449,10 +453,19 @@ module VagrantPlugins
       def validate(machine)
         errors = _detected_errors
         errors << I18n.t("vagrant.config.vm.box_missing") if !box
-        errors << I18n.t("vagrant.config.vm.box_not_found", :name => box) if \
-          box && !box_url && !machine.box
         errors << I18n.t("vagrant.config.vm.hostname_invalid_characters") if \
           @hostname && @hostname !~ /^[a-z0-9][-.a-z0-9]+$/i
+
+        if @box_version
+          @box_version.split(",").each do |v|
+            begin
+              Gem::Requirement.new(v.strip)
+            rescue Gem::Requirement::BadRequirementError
+              errors << I18n.t(
+                "vagrant.config.vm.bad_version", version: v)
+            end
+          end
+        end
 
         if box_download_ca_cert
           path = Pathname.new(box_download_ca_cert).

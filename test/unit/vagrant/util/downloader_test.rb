@@ -54,4 +54,22 @@ describe Vagrant::Util::Downloader do
       pending "tests for a UI"
     end
   end
+
+  describe "#head" do
+    let(:curl_options) {
+      ["--fail", "--location", "--max-redirs", "10", "--user-agent", described_class::USER_AGENT, source, {}]
+    }
+
+    it "returns the output" do
+      subprocess_result.stub(stdout: "foo")
+
+      options = curl_options.dup
+      options.unshift("-I")
+
+      Vagrant::Util::Subprocess.should_receive(:execute).
+        with("curl", *options).and_return(subprocess_result)
+
+      expect(subject.head).to eq("foo")
+    end
+  end
 end

@@ -14,7 +14,7 @@ module VagrantPlugins
           # Parse the options
           argv = parse_options(opts)
           return if !argv
-          raise Vagrant::Errors::CLIInvalidUsage, :help => opts.help.chomp if argv.length < 2
+          raise Vagrant::Errors::CLIInvalidUsage, :help => opts.help.chomp if argv.length != 2
 
           box_name     = argv[0]
           box_provider = argv[1].to_sym

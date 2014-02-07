@@ -1,11 +1,25 @@
 require "pathname"
 
 module Vagrant
+  # This is the default endpoint of the Vagrant Cloud in
+  # use. API calls will be made to this for various functions
+  # of Vagrant that may require remote access.
+  #
+  # @return [String]
+  DEFAULT_SERVER_URL = "http://www.vagrantcloud.com"
+
   # This returns whether or not 3rd party plugins should be loaded.
   #
   # @return [Boolean]
   def self.plugins_enabled?
     !ENV["VAGRANT_NO_PLUGINS"]
+  end
+
+  # Returns the URL prefix to the server.
+  #
+  # @return [String]
+  def self.server_url
+    ENV["VAGRANT_SERVER_URL"] || DEFAULT_SERVER_URL
   end
 
   # The source root is the path to the root directory of the Vagrant source.

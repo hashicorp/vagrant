@@ -4,6 +4,59 @@ en:
       Machine booted and ready!
     boot_waiting: |-
       Waiting for machine to boot. This may take a few minutes...
+    box_auto_adding: |-
+      Box '%{name}' could not be found. Attempting to find and install...
+    box_add_choose_provider: |-
+      This box can work with multiple providers! The providers that it
+      can work with are listed below. Please review the list and choose
+      the provider you will be working with.
+
+      %{options}
+
+      Enter your choice:
+    box_add_choose_provider_again: |-
+      Invalid choice. Try again:
+    box_add_with_version: |-
+      Adding box '%{name}' (v%{version}) for provider: %{providers}
+    box_added: |-
+      Successfully added box '%{name}' (v%{version}) for '%{provider}'!
+    box_downloading: |-
+      Downloading: %{url}
+    box_download_error: |-
+      Error downloading: %{message}
+    box_expanding_url: |-
+      URL: %{url}
+    box_loading_metadata: |-
+      Loading metadata for box '%{name}'
+    box_outdated: |-
+      * '%{name}' is outdated! Current: %{current}. Latest: %{latest}
+    box_outdated_checking_with_refresh: |-
+      Checking if box '%{name}' is up to date...
+    box_outdated_local: |-
+      A newer version of the box '%{name}' is available and already
+      installed, but your Vagrant machine is running against
+      version '%{old}'. To update to version '%{new}',
+      destroy and recreate your machine.
+    box_outdated_metadata_error_single: |-
+      Error loading box metadata while attempting to check for
+      updates: %{message}
+    box_outdated_single: |-
+      A newer version of the box '%{name}' is available! You currently
+      have version '%{current}'. The latest is version '%{latest}'. Run
+      `vagrant box update` to update.
+    box_outdated_metadata_error: |-
+      * '%{name}': Error loading metadata: %{message}
+    box_outdated_no_metadata: |-
+      * '%{name}' wasn't added from a catalog, no version information
+    box_updating: |-
+      Updating '%{name}' with provider '%{provider}' from version
+      '%{old}' to '%{new}'...
+    box_update_checking: |-
+      Checking for updates to '%{name}'
+    box_up_to_date: |-
+      * '%{name}' (v%{version}) is up to date
+    box_up_to_date_single: |-
+      Box '%{name}' (v%{version}) is running the latest version.
     cfengine_bootstrapping: |-
       Bootstrapping CFEngine with policy server: %{policy_server}...
     cfengine_bootstrapping_policy_hub: |-
@@ -211,6 +264,32 @@ en:
         Any errors that occurred are shown below.
 
         %{message}
+      box_add_no_matching_provider: |-
+        The box you're attempting to add doesn't support the provider
+        you requested. Please find an alternate box or use an alternate
+        provider. Double-check your requested provider to verify you didn't
+        simply misspell it.
+
+        Name: %{name}
+        Address: %{url}
+        Requested provider: %{requested}
+      box_add_no_matching_version: |-
+        The box you're attempting to add has no available version that
+        matches the constraints you requested. Please double-check your
+        settings.
+
+        Box: %{name}
+        Address: %{url}
+        Constraints: %{constraints}
+        Available versions: %{versions}
+      box_add_short_not_found: |-
+        The box '%{name}' could not be found or
+        could not be accessed in the remote catalog. Please
+        double-check the name. The expanded URL and error message
+        are shown below.
+
+        URL: %{url}
+        Error: %{error}
       boot_bad_state: |-
         The guest machine entered an invalid state while waiting for it
         to boot. Valid states are '%{valid}'. The machine is in the
@@ -236,6 +315,33 @@ en:
 
         If the box appears to be booting properly, you may want to increase
         the timeout ("config.vm.boot_timeout") value.
+      box_add_exists: |-
+        The box you're attempting to add already exists. Remove it before
+        adding it again or add it with the `--force` flag.
+
+        Name: %{name}
+        Provider: %{provider}
+        Version: %{version}
+      box_add_metadata_multi_url: |-
+        Multiple URLs for a box can't be specified when adding
+        versioned boxes. Please specify a single URL to the box
+        metadata (JSON) information. The full list of URLs you
+        specified is shown below:
+
+        %{urls}
+      box_add_name_mismatch: |-
+        The box you're adding has a name different from the name you
+        requested. For boxes with metadata, you cannot override the name.
+        If you're adding a box using `vagrant box add`, don't specify
+        the `--name` parameter. If the box is being added via a Vagrantfile,
+        change the `config.vm.box` value to match the name below.
+
+        Requested name: %{requested_name}
+        Actual name: %{actual_name}
+      box_add_name_required: |-
+        A name is required when adding a box file directly. Please pass
+        the `--name` parameter to `vagrant box add`. See
+        `vagrant box add -h` for more help.
       box_checksum_invalid_type: |-
         The specified checksum type is not supported by Vagrant: %{type}.
         Vagrant supports the following checksum types:
@@ -266,16 +372,75 @@ en:
         box file format can be found at the URL below:
 
         http://docs.vagrantup.com/v2/boxes/format.html
-      box_not_found: Box '%{name}' with '%{provider}' provider could not be found.
+      box_metadata_malformed: |-
+        The metadata for the box was malformed. The exact error
+        is shown below. Please contact the maintainer of the box so
+        that this issue can be fixed.
+
+        %{error}
+      box_not_found: |-
+        The box '%{name}' does not exist. Please double check and
+        try again. You can see the boxes that are installed with
+        `vagrant box list`.
+      box_not_found_with_provider: |-
+        The box '%{name}' isn't installed for the provider '%{provider}'.
+        Please double-check and try again. The installed providers for
+        the box are shown below:
+
+        %{providers}
+      box_outdated_no_box: |-
+        The box '%{name}' isn't downloaded or added yet, so we can't
+        check if it is outdated. Run a `vagrant up` or add the box
+        with `vagrant box add` to download an appropriate version.
       box_provider_doesnt_match: |-
         The box you attempted to add doesn't match the provider you specified.
 
         Provider expected: %{expected}
         Provider of box: %{actual}
-      box_upgrade_required: |-
-        The box '%{name}' is still stored on disk in the Vagrant 1.0.x
-        format. This box must be upgraded in order to work properly with
-        this version of Vagrant.
+      box_remove_multi_provider: |-
+        You requested to remove the box '%{name}'. This box has
+        multiple providers. You must explicitly select a single
+        provider to remove with `--provider`.
+
+        Available providers: %{providers}
+      box_remove_multi_version: |-
+        You requested to remove the box '%{name}' with provider
+        '%{provider}'. This box has multiple versions. You must
+        explicitly specify which version you want to remove with
+        the `--box-version` flag.
+
+        Versions: %{versions}
+      box_remove_not_found: |-
+        The box you requested to be removed could not be found. No
+        boxes named '%{name}' could be found.
+      box_remove_provider_not_found: |-
+        You requested to remove the box '%{name}' with provider
+        '%{provider}'. The box '%{name}' exists but not with
+        the provider specified. Please double-check and try again.
+
+        The providers for this are: %{providers}
+      box_server_not_set: |-
+        A URL to a Vagrant Cloud server is not set, so boxes cannot
+        be added with a shorthand ("mitchellh/precise64") format.
+        You may also be seeing this error if you meant to type in
+        a path to a box file which doesn't exist locally on your
+        system.
+
+        To set a URL to a Vagrant Cloud server, set the
+        `VAGRANT_SERVER_URL` environmental variable. Or, if you
+        meant to use a file path, make sure the path to the file
+        is valid.
+      box_update_multi_provider: |-
+        You requested to update the box '%{name}'. This box has
+        multiple providers. You must explicitly select a single
+        provider to remove with `--provider`.
+
+        Available providers: %{providers}
+      box_update_no_metadata: |-
+        The box '%{name}' is not a versioned box. The box was added
+        directly instead of from a box catalog. Vagrant can only
+        check the versions of boxes that were added from a catalog
+        such as from the public Vagrant Server.
       bundler_disabled: |-
         Vagrant's built-in bundler management mechanism is disabled because
         Vagrant is running in an external bundler environment. In these
@@ -432,11 +597,20 @@ en:
         as mounting shared folders and configuring networks. Please add
         the ability to detect this guest operating system to Vagrant
         by creating a plugin or reporting a bug.
+      home_dir_later_version: |-
+        It appears that a newer version of Vagrant was run on this machine
+        at some point. The current version of Vagrant is unable to read
+        the configuration structure of this newer version. Please upgrade to
+        the latest version of Vagrant.
       home_dir_not_accessible: |-
         The home directory you specified is not accessible. The home
         directory that Vagrant uses must be both readable and writable.
 
         You specified: %{home_path}
+      home_dir_unknown_version: |-
+        The Vagrant app data directory (%{path}) is in a
+        structure Vagrant doesn't understand. This is a rare exception.
+        Please report an issue or ask the mailing list for help.
       host_explicit_not_detected: |-
         The host implementation explicitly specified in your Vagrantfile
         ("%{value}") could not be found. Please verify that the plugin is
@@ -859,6 +1033,8 @@ en:
       ssh:
         private_key_missing: "`private_key_path` file must exist: %{path}"
       vm:
+        bad_version: |-
+          Invalid box version constraints: %{version}
         box_download_ca_cert_not_found: |-
           "box_download_ca_cert" file not found: %{path}
         box_download_checksum_blank: |-
@@ -866,7 +1042,6 @@ en:
         box_download_checksum_notblank: |-
           Checksum specified but must also specify "box_download_checksum_type"
         box_missing: "A box must be specified."
-        box_not_found: "The box '%{name}' could not be found."
         hostname_invalid_characters: |-
           The hostname set for the VM should only contain letters, numbers,
           hyphens or dots. It cannot start with a hyphen or dot.
@@ -916,17 +1091,6 @@ en:
         vm_not_created: "VM not created. Moving on..."
         vm_not_running: "VM is not currently running. Please, first bring it up with `vagrant up` then run this command."
       box:
-        remove_must_specify_provider: |-
-          Multiple providers were found for the box '%{name}'. Please specify
-          the specific provider for the box you want to remove. The list of
-          providers backing this box is:
-
-          '%{providers}'
-
-          To remove the box for a specific provider, run the following command,
-          filling in PROVIDER with one of the providers above:
-
-          vagrant box remove '%{name}' PROVIDER
         no_installed_boxes: "There are no installed boxes! Use `vagrant box add` to add some."
         removing: |-
           Removing box '%{name}' with provider '%{provider}'...
@@ -1217,23 +1381,15 @@ en:
             output from attempting to unpackage (if any):
 
             %{output}
-          already_exists: |-
-            The box you're attempting to add already exists:
-
-            Name: %{name}
-            Provider: %{formats}
         add:
           adding: |-
             Extracting box...
-          added: |-
-            Successfully added box '%{name}' with provider '%{provider}'!
           checksumming: |-
             Calculating and comparing box checksum...
         destroy:
           destroying: "Deleting box '%{name}'..."
         download:
           cleaning: "Cleaning up downloaded box..."
-          downloading: "Downloading box from URL: %{url}"
           download_failed: |-
             Download failed. Will try another box URL if there is one.
           interrupted: "Box download was interrupted. Exiting."

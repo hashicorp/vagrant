@@ -22,6 +22,21 @@ describe Vagrant do
     end
   end
 
+  describe "#server_url" do
+    it "defaults to the default value" do
+      with_temp_env("VAGRANT_SERVER_URL" => nil) do
+        expect(subject.server_url).to eq(
+          Vagrant::DEFAULT_SERVER_URL)
+      end
+    end
+
+    it "is the VAGRANT_SERVER_URL value" do
+      with_temp_env("VAGRANT_SERVER_URL" => "foo") do
+        expect(subject.server_url).to eq("foo")
+      end
+    end
+  end
+
   describe "#user_data_path" do
     around do |example|
       env = {
