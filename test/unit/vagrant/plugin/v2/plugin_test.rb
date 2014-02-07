@@ -1,10 +1,8 @@
 require File.expand_path("../../../../base", __FILE__)
 
 describe Vagrant::Plugin::V2::Plugin do
-  after(:each) do
-    # We want to make sure that the registered plugins remains empty
-    # after each test.
-    described_class.manager.reset!
+  before do
+    described_class.stub(manager: Vagrant::Plugin::V2::Manager.new)
   end
 
   it "should be able to set and get the name" do
