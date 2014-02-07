@@ -134,7 +134,7 @@ module Vagrant
 
           metadata = nil
           begin
-            metadata_path = download(url, env, ui: false)
+            metadata_path = download(url, env, json: true, ui: false)
 
             File.open(metadata_path) do |f|
               metadata = BoxMetadata.new(f)
@@ -391,6 +391,7 @@ module Vagrant
           downloader_options[:continue] = true
           downloader_options[:insecure] = env[:box_download_insecure]
           downloader_options[:client_cert] = env[:box_client_cert]
+          downloader_options[:headers] = ["Accept: application/json"] if opts[:json]
           downloader_options[:ui] = env[:ui] if opts[:ui]
 
           Util::Downloader.new(url, temp_path, downloader_options)

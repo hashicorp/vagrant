@@ -26,6 +26,7 @@ module Vagrant
         options     ||= {}
         @ca_cert     = options[:ca_cert]
         @continue    = options[:continue]
+        @headers     = options[:headers]
         @insecure    = options[:insecure]
         @ui          = options[:ui]
         @client_cert = options[:client_cert]
@@ -179,6 +180,12 @@ module Vagrant
         options += ["--continue-at", "-"] if @continue
         options << "--insecure" if @insecure
         options << "--cert" << @client_cert if @client_cert
+
+        if @headers
+          Array(@headers).each do |header|
+            options << "-H" << header
+          end
+        end
 
         # Specify some options for the subprocess
         subprocess_options = {}
