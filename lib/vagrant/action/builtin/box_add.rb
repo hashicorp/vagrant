@@ -436,7 +436,7 @@ module Vagrant
         # @param [String] url
         # @return [Boolean] true if metadata
         def metadata_url?(url, env)
-          d = downloader(url, env, ui: false)
+          d = downloader(url, env, json: true, ui: false)
 
           # If we're downloading a file, cURL just returns no
           # content-type (makes sense), so we just test if it is JSON
