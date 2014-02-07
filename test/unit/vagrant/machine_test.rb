@@ -21,7 +21,7 @@ describe Vagrant::Machine do
   let(:provider_name) { :test }
   let(:provider_options) { {} }
   let(:box)      { Object.new }
-  let(:config)   { env.config_global }
+  let(:config)   { env.vagrantfile.config }
   let(:data_dir) { Pathname.new(Dir.mktmpdir("vagrant")) }
   let(:env)      do
     # We need to create a Vagrantfile so that this test environment

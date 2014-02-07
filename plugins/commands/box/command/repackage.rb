@@ -31,7 +31,7 @@ module VagrantPlugins
           raise Vagrant::Errors::BoxNotFound, :name => box_name, :provider => box_provider if !box
 
           # Repackage the box
-          output_name = @env.config_global.package.name || "package.box"
+          output_name = @env.vagrantfile.config.package.name || "package.box"
           output_path = Pathname.new(File.expand_path(output_name, FileUtils.pwd))
           box.repackage(output_path)
 

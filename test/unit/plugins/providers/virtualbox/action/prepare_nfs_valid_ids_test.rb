@@ -15,7 +15,7 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSValidIds do
       provider_cls,
       provider_config,
       provider_options,
-      environment.config_global,
+      environment.vagrantfile.config,
       Pathname('data_dir'),
       double('box'),
       environment
