@@ -833,7 +833,7 @@ VF
       end
 
       env = environment.create_vagrant_env
-      env.config_global.ssh.port.should == 200
+      env.vagrantfile.config.ssh.port.should == 200
     end
 
     it "should load from a custom Vagrantfile" do
@@ -846,7 +846,7 @@ VF
       end
 
       env = environment.create_vagrant_env(:vagrantfile_name => "non_standard_name")
-      env.config_global.ssh.port.should == 200
+      env.vagrantfile.config.ssh.port.should == 200
     end
 
     it "should load from a custom Vagrantfile specified by env var" do
@@ -862,7 +862,7 @@ VF
         environment.create_vagrant_env
       end
 
-      env.config_global.ssh.port.should == 400
+      env.vagrantfile.config.ssh.port.should == 400
     end
   end
 

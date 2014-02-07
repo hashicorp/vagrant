@@ -23,7 +23,8 @@ module Vagrant
           @app = app
 
           env["package.files"]  ||= {}
-          env["package.output"] ||= env[:global_config].package.name
+          env["package.output"] ||= env[:machine].package.name
+          env["package.output"] ||= "package.box"
         end
 
         def call(env)

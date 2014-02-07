@@ -34,7 +34,7 @@ module Vagrant
 
     # Name of the machine. This is assigned by the Vagrantfile.
     #
-    # @return [String]
+    # @return [Symbol]
     attr_reader :name
 
     # The provider backing this machine.
@@ -62,6 +62,11 @@ module Vagrant
     # @return [UI]
     attr_reader :ui
 
+    # The Vagrantfile that this machine is attached to.
+    #
+    # @return [Vagrantfile]
+    attr_reader :vagrantfile
+
     # Initialize a new machine.
     #
     # @param [String] name Name of the virtual machine.
@@ -77,7 +82,7 @@ module Vagrant
     # @param [Box] box The box that is backing this virtual machine.
     # @param [Environment] env The environment that this machine is a
     #   part of.
-    def initialize(name, provider_name, provider_cls, provider_config, provider_options, config, data_dir, box, env, base=false)
+    def initialize(name, provider_name, provider_cls, provider_config, provider_options, config, data_dir, box, env, vagrantfile, base=false)
       @logger = Log4r::Logger.new("vagrant::machine")
       @logger.info("Initializing machine: #{name}")
       @logger.info("  - Provider: #{provider_cls}")
@@ -88,6 +93,7 @@ module Vagrant
       @config          = config
       @data_dir        = data_dir
       @env             = env
+      @vagrantfile     = vagrantfile
       @guest           = Guest.new(
         self,
         Vagrant.plugin("2").manager.guests,

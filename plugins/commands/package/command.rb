@@ -59,9 +59,9 @@ module VagrantPlugins
         vm = Vagrant::Machine.new(
           options[:base],
           :virtualbox, provider[0], nil, provider[1],
-          @env.config_global,
+          @env.vagrantfile.config,
           nil, nil,
-          @env, true)
+          @env, @env.vagrantfile, true)
         @logger.debug("Packaging base VM: #{vm.name}")
         package_vm(vm, options)
       end

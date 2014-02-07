@@ -21,7 +21,7 @@ describe Vagrant::Machine do
   let(:provider_name) { :test }
   let(:provider_options) { {} }
   let(:box)      { Object.new }
-  let(:config)   { env.config_global }
+  let(:config)   { env.vagrantfile.config }
   let(:data_dir) { Pathname.new(Dir.mktmpdir("vagrant")) }
   let(:env)      do
     # We need to create a Vagrantfile so that this test environment
@@ -41,7 +41,8 @@ describe Vagrant::Machine do
   # Returns a new instance with the test data
   def new_instance
     described_class.new(name, provider_name, provider_cls, provider_config,
-                        provider_options, config, data_dir, box, env)
+                        provider_options, config, data_dir, box,
+                        env, env.vagrantfile)
   end
 
   describe "initialization" do
@@ -77,7 +78,8 @@ describe Vagrant::Machine do
         # Initialize a new machine and verify that we properly receive
         # the machine we expect.
         instance = described_class.new(name, provider_name, provider_cls, provider_config,
-                                       provider_options, config, data_dir, box, env)
+                                       provider_options, config, data_dir, box,
+                                       env, env.vagrantfile)
         received_machine.should eql(instance)
       end
 
@@ -107,6 +109,12 @@ describe Vagrant::Machine do
       it "should have the environment" do
         provider_init_test do |machine|
           machine.env.should eql(env)
+        end
+      end
+
+      it "should have the vagrantfile" do
+        provider_init_test do |machine|
+          expect(machine.vagrantfile).to equal(env.vagrantfile)
         end
       end
 
