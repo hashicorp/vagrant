@@ -100,7 +100,8 @@ module Vagrant
         url = "file:#{url}"
       end
 
-      Util::Downloader.new(url, tf.path).download!
+      opts = { headers: ["Accept: application/json"] }
+      Util::Downloader.new(url, tf.path, **opts).download!
       BoxMetadata.new(File.open(tf.path, "r"))
     end
 
