@@ -152,9 +152,24 @@ module Vagrant
       "#<#{self.class}: #{@cwd}>"
     end
 
-    #---------------------------------------------------------------
-    # Helpers
-    #---------------------------------------------------------------
+    # Action runner for executing actions in the context of this environment.
+    #
+    # @return [Action::Runner]
+    def action_runner
+      @action_runner ||= Action::Runner.new do
+        {
+          :action_runner  => action_runner,
+          :box_collection => boxes,
+          :hook           => method(:hook),
+          :host           => host,
+          :gems_path      => gems_path,
+          :home_path      => home_path,
+          :root_path      => root_path,
+          :tmp_path       => tmp_path,
+          :ui             => @ui
+        }
+      end
+    end
 
     # Returns a list of machines that this environment is currently
     # managing that physically have been created.
@@ -220,6 +235,15 @@ module Vagrant
       end
     end
 
+    # Makes a call to the CLI with the given arguments as if they
+    # came from the real command line (sometimes they do!). An example:
+    #
+    #     env.cli("package", "--vagrantfile", "Vagrantfile")
+    #
+    def cli(*args)
+      CLI.new(args.flatten, self).execute
+    end
+
     # This returns the provider name for the default provider for this
     # environment. The provider returned is currently hardcoded to "virtualbox"
     # but one day should be a detected valid, best-case provider for this
@@ -271,6 +295,75 @@ module Vagrant
       opts[:action_name] = name
       opts[:env] = self
       opts.delete(:runner).run(opts.delete(:callable), opts)
+    end
+
+    # Returns the host object associated with this environment.
+    #
+    # @return [Class]
+    def host
+      return @host if defined?(@host)
+
+      # Determine the host class to use. ":detect" is an old Vagrant config
+      # that shouldn't be valid anymore, but we respect it here by assuming
+      # its old behavior. No need to deprecate this because I thin it is
+      # fairly harmless.
+      host_klass = vagrantfile.config.vagrant.host
+      host_klass = nil if host_klass == :detect
+
+      begin
+        @host = Host.new(
+          host_klass,
+          Vagrant.plugin("2").manager.hosts,
+          Vagrant.plugin("2").manager.host_capabilities,
+          self)
+      rescue Errors::CapabilityHostNotDetected
+        # If the auto-detect failed, then we create a brand new host
+        # with no capabilities and use that. This should almost never happen
+        # since Vagrant works on most host OS's now, so this is a "slow path"
+        klass = Class.new(Vagrant.plugin("2", :host)) do
+          def detect?(env); true; end
+        end
+
+        hosts     = { generic: [klass, nil] }
+        host_caps = {}
+
+        @host = Host.new(:generic, hosts, host_caps, self)
+      rescue Errors::CapabilityHostExplicitNotDetected => e
+        raise Errors::HostExplicitNotDetected, e.extra_data
+      end
+    end
+
+    # This returns the path which Vagrant uses to determine the location
+    # of the file lock. This is specific to each operating system.
+    def lock_path
+      @lock_path || tmp_path.join("vagrant.lock")
+    end
+
+    # This locks Vagrant for the duration of the block passed to this
+    # method. During this time, any other environment which attempts
+    # to lock which points to the same lock file will fail.
+    def lock
+      # This allows multiple locks in the same process to be nested
+      return yield if @lock_acquired
+
+      File.open(lock_path, "w+") do |f|
+        # The file locking fails only if it returns "false." If it
+        # succeeds it returns a 0, so we must explicitly check for
+        # the proper error case.
+        raise Errors::EnvironmentLockedError if f.flock(File::LOCK_EX | File::LOCK_NB) === false
+
+        begin
+          # Mark that we have a lock
+          @lock_acquired = true
+
+          yield
+        ensure
+          # We need to make sure that no matter what this is always
+          # reset to false so we don't think we have a lock when we
+          # actually don't.
+          @lock_acquired = false
+        end
+      end
     end
 
     # This returns a machine with the proper provider for this environment.
@@ -333,86 +426,6 @@ module Vagrant
       vagrantfile.primary_machine_name
     end
 
-    def vagrantfile
-      @vagrantfile ||= Vagrantfile.new(config_loader, [:home, :root])
-    end
-
-    # Unload the environment, running completion hooks. The environment
-    # should not be used after this (but CAN be, technically). It is
-    # recommended to always immediately set the variable to `nil` after
-    # running this so you can't accidentally run any more methods. Example:
-    #
-    #     env.unload
-    #     env = nil
-    #
-    def unload
-      hook(:environment_unload)
-    end
-
-    # Makes a call to the CLI with the given arguments as if they
-    # came from the real command line (sometimes they do!). An example:
-    #
-    #     env.cli("package", "--vagrantfile", "Vagrantfile")
-    #
-    def cli(*args)
-      CLI.new(args.flatten, self).execute
-    end
-
-    # Returns the host object associated with this environment.
-    #
-    # @return [Class]
-    def host
-      return @host if defined?(@host)
-
-      # Determine the host class to use. ":detect" is an old Vagrant config
-      # that shouldn't be valid anymore, but we respect it here by assuming
-      # its old behavior. No need to deprecate this because I thin it is
-      # fairly harmless.
-      host_klass = vagrantfile.config.vagrant.host
-      host_klass = nil if host_klass == :detect
-
-      begin
-        @host = Host.new(
-          host_klass,
-          Vagrant.plugin("2").manager.hosts,
-          Vagrant.plugin("2").manager.host_capabilities,
-          self)
-      rescue Errors::CapabilityHostNotDetected
-        # If the auto-detect failed, then we create a brand new host
-        # with no capabilities and use that. This should almost never happen
-        # since Vagrant works on most host OS's now, so this is a "slow path"
-        klass = Class.new(Vagrant.plugin("2", :host)) do
-          def detect?(env); true; end
-        end
-
-        hosts     = { generic: [klass, nil] }
-        host_caps = {}
-
-        @host = Host.new(:generic, hosts, host_caps, self)
-      rescue Errors::CapabilityHostExplicitNotDetected => e
-        raise Errors::HostExplicitNotDetected, e.extra_data
-      end
-    end
-
-    # Action runner for executing actions in the context of this environment.
-    #
-    # @return [Action::Runner]
-    def action_runner
-      @action_runner ||= Action::Runner.new do
-        {
-          :action_runner  => action_runner,
-          :box_collection => boxes,
-          :hook           => method(:hook),
-          :host           => host,
-          :gems_path      => gems_path,
-          :home_path      => home_path,
-          :root_path      => root_path,
-          :tmp_path       => tmp_path,
-          :ui             => @ui
-        }
-      end
-    end
-
     # The root path is the path where the top-most (loaded last)
     # Vagrantfile resides. It can be considered the project root for
     # this environment.
@@ -433,37 +446,34 @@ module Vagrant
       @root_path = root_finder.call(cwd)
     end
 
-    # This returns the path which Vagrant uses to determine the location
-    # of the file lock. This is specific to each operating system.
-    def lock_path
-      @lock_path || tmp_path.join("vagrant.lock")
+    # Unload the environment, running completion hooks. The environment
+    # should not be used after this (but CAN be, technically). It is
+    # recommended to always immediately set the variable to `nil` after
+    # running this so you can't accidentally run any more methods. Example:
+    #
+    #     env.unload
+    #     env = nil
+    #
+    def unload
+      hook(:environment_unload)
     end
 
-    # This locks Vagrant for the duration of the block passed to this
-    # method. During this time, any other environment which attempts
-    # to lock which points to the same lock file will fail.
-    def lock
-      # This allows multiple locks in the same process to be nested
-      return yield if @lock_acquired
-
-      File.open(lock_path, "w+") do |f|
-        # The file locking fails only if it returns "false." If it
-        # succeeds it returns a 0, so we must explicitly check for
-        # the proper error case.
-        raise Errors::EnvironmentLockedError if f.flock(File::LOCK_EX | File::LOCK_NB) === false
-
-        begin
-          # Mark that we have a lock
-          @lock_acquired = true
-
-          yield
-        ensure
-          # We need to make sure that no matter what this is always
-          # reset to false so we don't think we have a lock when we
-          # actually don't.
-          @lock_acquired = false
-        end
-      end
+    # Represents the default Vagrantfile, or the Vagrantfile that is
+    # in the working directory or a parent of the working directory
+    # of this environment.
+    #
+    # The existence of this function is primarily a convenience. There
+    # is nothing stopping you from instantiating your own {Vagrantfile}
+    # and loading machines in any way you see fit. Typical behavior of
+    # Vagrant, however, loads this Vagrantfile.
+    #
+    # This Vagrantfile is comprised of two major sources: the Vagrantfile
+    # in the user's home directory as well as the "root" Vagrantfile or
+    # the Vagrantfile in the working directory (or parent).
+    #
+    # @return [Vagrantfile]
+    def vagrantfile
+      @vagrantfile ||= Vagrantfile.new(config_loader, [:home, :root])
     end
 
     #---------------------------------------------------------------
