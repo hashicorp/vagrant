@@ -301,45 +301,16 @@ module Vagrant
 
       @logger.info("Uncached load of machine.")
 
-      # Load the actual configuration for the machine
-      results = vagrantfile.machine_config(name, provider, boxes)
-      box             = results[:box]
-      config          = results[:config]
-      config_errors   = results[:config_errors]
-      config_warnings = results[:config_warnings]
-      provider_cls    = results[:provider_cls]
-      provider_options = results[:provider_options]
-
       # Determine the machine data directory and pass it to the machine.
       # XXX: Permissions error here.
       machine_data_path = @local_data_path.join(
         "machines/#{name}/#{provider}")
       FileUtils.mkdir_p(machine_data_path)
 
-      # If there were warnings or errors we want to output them
-      if !config_warnings.empty? || !config_errors.empty?
-        # The color of the output depends on whether we have warnings
-        # or errors...
-        level  = config_errors.empty? ? :warn : :error
-        output = Util::TemplateRenderer.render(
-          "config/messages",
-          :warnings => config_warnings,
-          :errors => config_errors).chomp
-        @ui.send(level, I18n.t("vagrant.general.config_upgrade_messages",
-                               name: name,
-                               :output => output))
-
-          # If we had errors, then we bail
-          raise Errors::ConfigUpgradeErrors if !config_errors.empty?
-      end
-
-      # Get the provider configuration from the final loaded configuration
-      provider_config = config.vm.get_provider_config(provider)
-
       # Create the machine and cache it for future calls. This will also
       # return the machine from this method.
-      @machines[cache_key] = Machine.new(name, provider, provider_cls, provider_config,
-                                         provider_options, config, machine_data_path, box, self)
+      @machines[cache_key] = vagrantfile.machine(
+        name, provider, boxes, machine_data_path, self)
     end
 
     # This returns a list of the configured machines for this environment.

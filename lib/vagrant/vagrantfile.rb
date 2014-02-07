@@ -1,3 +1,5 @@
+require "vagrant/util/template_renderer"
+
 module Vagrant
   # This class provides a way to load and access the contents
   # of a Vagrantfile.
@@ -26,6 +28,54 @@ module Vagrant
       @config, _ = loader.load(keys)
     end
 
+    # Returns a {Machine} for the given name and provider that
+    # is represented by this Vagrantfile.
+    #
+    # @param [Symbol] name Name of the machine.
+    # @param [Symbol] provider The provider the machine should
+    #   be backed by (required for provider overrides).
+    # @param [BoxCollection] boxes BoxCollection to look up the
+    #   box Vagrantfile.
+    # @param [Pathname] data_path Path where local machine data
+    #   can be stored.
+    # @param [Environment] env The environment running this machine
+    # @return [Machine]
+    def machine(name, provider, boxes, data_path, env)
+      # Load the configuration for the machine
+      results = machine_config(name, provider, boxes)
+      box             = results[:box]
+      config          = results[:config]
+      config_errors   = results[:config_errors]
+      config_warnings = results[:config_warnings]
+      provider_cls    = results[:provider_cls]
+      provider_options = results[:provider_options]
+
+      # If there were warnings or errors we want to output them
+      if !config_warnings.empty? || !config_errors.empty?
+        # The color of the output depends on whether we have warnings
+        # or errors...
+        level  = config_errors.empty? ? :warn : :error
+        output = Util::TemplateRenderer.render(
+          "config/messages",
+          :warnings => config_warnings,
+          :errors => config_errors).chomp
+        env.ui.send(level, I18n.t("vagrant.general.config_upgrade_messages",
+                               name: name,
+                               output: output))
+
+        # If we had errors, then we bail
+        raise Errors::ConfigUpgradeErrors if !config_errors.empty?
+      end
+
+      # Get the provider configuration from the final loaded configuration
+      provider_config = config.vm.get_provider_config(provider)
+
+      # Create the machine and cache it for future calls. This will also
+      # return the machine from this method.
+      return Machine.new(name, provider, provider_cls, provider_config,
+        provider_options, config, data_path, box, env)
+    end
+
     # Returns the configuration for a single machine.
     #
     # When loading a box Vagrantfile, it will be prepended to the
@@ -38,11 +88,23 @@ module Vagrant
     # - sub-machine
     # - provider
     #
+    # The return value is a hash with the following keys (symbols)
+    # and values:
+    #
+    #   - box: the {Box} backing the machine
+    #   - config: the actual configuration
+    #   - config_errors: list of errors, if any
+    #   - config_warnings: list of warnings, if any
+    #   - provider_cls: class of the provider backing the machine
+    #   - provider_options: options for the provider
+    #
     # @param [Symbol] name Name of the machine.
     # @param [Symbol] provider The provider the machine should
     #   be backed by (required for provider overrides).
     # @param [BoxCollection] boxes BoxCollection to look up the
     #   box Vagrantfile.
+    # @return [Hash<Symbol, Object>] Various configuration parameters for a
+    #   machine. See the main documentation body for more info.
     def machine_config(name, provider, boxes)
       keys = @keys.dup
 

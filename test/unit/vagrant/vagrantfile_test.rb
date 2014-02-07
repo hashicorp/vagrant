@@ -1,5 +1,8 @@
 require File.expand_path("../../base", __FILE__)
 
+require "pathname"
+require "tmpdir"
+
 require "vagrant/vagrantfile"
 
 describe Vagrant::Vagrantfile do
@@ -13,15 +16,30 @@ describe Vagrant::Vagrantfile do
 
   subject { described_class.new(loader, keys) }
 
+  before do
+    keys << :test
+  end
+
+  def configure(&block)
+    loader.set(:test, [["2", block]])
+  end
+
+  # A helper to register a provider for use in tests.
+  def register_provider(name, config_class=nil, options=nil)
+    provider_cls = Class.new(Vagrant.plugin("2", :provider))
+
+    register_plugin("2") do |p|
+      p.provider(name, options) { provider_cls }
+
+      if config_class
+        p.config(name, :provider) { config_class }
+      end
+    end
+
+    provider_cls
+  end
+
   describe "#config" do
-    before do
-      keys << :test
-    end
-
-    def configure(&block)
-      loader.set(:test, [["2", block]])
-    end
-
     it "exposes the global configuration" do
       configure do |config|
         config.vm.box = "what"
@@ -31,32 +49,58 @@ describe Vagrant::Vagrantfile do
     end
   end
 
-  describe "#machine_config" do
-    let(:iso_env) { isolated_environment }
+  describe "#machine" do
     let(:boxes) { Vagrant::BoxCollection.new(iso_env.boxes_dir) }
+    let(:data_path) { Pathname.new(Dir.mktmpdir) }
+    let(:env)   { iso_env.create_vagrant_env }
+    let(:iso_env) { isolated_environment }
+
+    subject { super().machine(:default, :foo, boxes, data_path, env) }
 
     before do
-      keys << :test
-    end
+      @foo_config_cls = Class.new(Vagrant.plugin("2", "config")) do
+        attr_accessor :value
+      end
 
-    def configure(&block)
-      loader.set(:test, [["2", block]])
-    end
+      @provider_cls = register_provider("foo", @foo_config_cls)
 
-    # A helper to register a provider for use in tests.
-    def register_provider(name, config_class=nil, options=nil)
-      provider_cls = Class.new(Vagrant.plugin("2", :provider))
-
-      register_plugin("2") do |p|
-        p.provider(name, options) { provider_cls }
-
-        if config_class
-          p.config(name, :provider) { config_class }
+      configure do |config|
+        config.vm.box = "foo"
+        config.vm.provider "foo" do |p|
+          p.value = "rawr"
         end
       end
 
-      provider_cls
+      iso_env.box3("foo", "1.0", :foo, vagrantfile: <<-VF)
+      Vagrant.configure("2") do |config|
+        config.ssh.port = 123
+      end
+      VF
     end
+
+    its(:data_dir) { should eq(data_path) }
+    its(:env)      { should equal(env)    }
+    its(:name)     { should eq(:default)  }
+    its(:provider) { should be_kind_of(@provider_cls) }
+    its(:provider_name) { should eq(:foo) }
+
+    it "has the proper box" do
+      expect(subject.box.name).to eq("foo")
+    end
+
+    it "has the valid configuration" do
+      expect(subject.config.vm.box).to eq("foo")
+    end
+
+    it "loads the provider-specific configuration" do
+      expect(subject.provider_config).to be_kind_of(@foo_config_cls)
+      expect(subject.provider_config.value).to eq("rawr")
+    end
+  end
+
+  describe "#machine_config" do
+    let(:iso_env) { isolated_environment }
+    let(:boxes) { Vagrant::BoxCollection.new(iso_env.boxes_dir) }
 
     it "should return a basic configured machine" do
       provider_cls = register_provider("foo")
@@ -232,14 +276,6 @@ describe Vagrant::Vagrantfile do
   end
 
   describe "#machine_names" do
-    before do
-      keys << :test
-    end
-
-    def configure(&block)
-      loader.set(:test, [["2", block]])
-    end
-
     it "returns the default name when single-VM" do
       configure { |config| }
 
@@ -258,14 +294,6 @@ describe Vagrant::Vagrantfile do
   end
 
   describe "#primary_machine_name" do
-    before do
-      keys << :test
-    end
-
-    def configure(&block)
-      loader.set(:test, [["2", block]])
-    end
-
     it "returns the default name when single-VM" do
       configure { |config| }
 

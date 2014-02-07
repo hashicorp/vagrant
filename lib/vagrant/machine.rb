@@ -34,7 +34,7 @@ module Vagrant
 
     # Name of the machine. This is assigned by the Vagrantfile.
     #
-    # @return [String]
+    # @return [Symbol]
     attr_reader :name
 
     # The provider backing this machine.
