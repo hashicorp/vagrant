@@ -11,9 +11,10 @@ require 'vagrant/util/platform'
 require "vagrant/vagrantfile"
 
 module Vagrant
-  # Represents a single Vagrant environment. A "Vagrant environment" is
-  # defined as basically a folder with a "Vagrantfile." This class allows
-  # access to the VMs, CLI, etc. all in the scope of this environment.
+  # A "Vagrant environment" represents a configuration of how Vagrant
+  # should behave: data directories, working directory, UI output,
+  # etc. In day-to-day usage, every `vagrant` invocation typically
+  # leads to a single Vagrant environment.
   class Environment
     # This is the current version that this version of Vagrant is
     # compatible with in the home directory.
