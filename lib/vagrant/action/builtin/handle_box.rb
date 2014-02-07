@@ -32,13 +32,23 @@ module Vagrant
             lock = @@small_locks[machine.config.vm.box]
           end
 
+          box_updated = false
           lock.synchronize do
+            if machine.box
+              @logger.info("Machine already has box. HandleBox will not run.")
+              next
+            end
+
             handle_box(env)
+            box_updated = true
           end
 
-          # Reload the environment and set the VM to be the new loaded VM.
-          env[:machine] = env[:machine].env.machine(
-            env[:machine].name, env[:machine].provider_name, true)
+          if box_updated
+            # Reload the environment and set the VM to be the new loaded VM.
+            env[:machine] = machine.vagrantfile.machine(
+              machine.name, machine.provider_name,
+              machine.env.boxes, machine.data_dir, machine.env)
+          end
 
           @app.call(env)
         end
@@ -46,17 +56,12 @@ module Vagrant
         def handle_box(env)
           machine = env[:machine]
 
-          if machine.box
-            @logger.info("Machine already has box. HandleBox will not run.")
-            return
-          end
-
           # Determine the set of formats that this box can be in
-          box_download_ca_cert = env[:machine].config.vm.box_download_ca_cert
-          box_download_client_cert = env[:machine].config.vm.box_download_client_cert
-          box_download_insecure = env[:machine].config.vm.box_download_insecure
-          box_formats = env[:machine].provider_options[:box_format] ||
-            env[:machine].provider_name
+          box_download_ca_cert = machine.config.vm.box_download_ca_cert
+          box_download_client_cert = machine.config.vm.box_download_client_cert
+          box_download_insecure = machine.config.vm.box_download_insecure
+          box_formats = machine.provider_options[:box_format] ||
+            machine.provider_name
 
           env[:ui].output(I18n.t(
             "vagrant.box_auto_adding", name: machine.config.vm.box))
