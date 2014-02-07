@@ -94,7 +94,7 @@ describe Vagrant::Vagrantfile do
         config.vm.box = "base"
       end
 
-      iso_env.box2("base", :foo, vagrantfile: <<-VF)
+      iso_env.box3("base", "1.0", :foo, vagrantfile: <<-VF)
       Vagrant.configure("2") do |config|
         config.ssh.port = 123
       end
@@ -107,6 +107,34 @@ describe Vagrant::Vagrantfile do
       expect(box.name).to eq("base")
     end
 
+    it "configures with the proper box version" do
+      register_provider("foo")
+
+      configure do |config|
+        config.vm.box = "base"
+        config.vm.box_version = "~> 1.2"
+      end
+
+      iso_env.box3("base", "1.0", :foo, vagrantfile: <<-VF)
+      Vagrant.configure("2") do |config|
+        config.ssh.port = 123
+      end
+      VF
+
+      iso_env.box3("base", "1.3", :foo, vagrantfile: <<-VF)
+      Vagrant.configure("2") do |config|
+        config.ssh.port = 245
+      end
+      VF
+
+      config, _, _, box = subject.machine_config(:default, :foo, boxes)
+      expect(config.vm.box).to eq("base")
+      expect(config.ssh.port).to eq(245)
+      expect(box).to_not be_nil
+      expect(box.name).to eq("base")
+      expect(box.version).to eq("1.3")
+    end
+
     it "configures with box config of other supported formats" do
       register_provider("foo", nil, box_format: "bar")
 
@@ -114,7 +142,7 @@ describe Vagrant::Vagrantfile do
         config.vm.box = "base"
       end
 
-      iso_env.box2("base", :bar, vagrantfile: <<-VF)
+      iso_env.box3("base", "1.0", :bar, vagrantfile: <<-VF)
       Vagrant.configure("2") do |config|
         config.ssh.port = 123
       end
@@ -160,13 +188,13 @@ describe Vagrant::Vagrantfile do
         end
       end
 
-      iso_env.box2("base", :foo, vagrantfile: <<-VF)
+      iso_env.box3("base", "1.0", :foo, vagrantfile: <<-VF)
       Vagrant.configure("2") do |config|
         config.ssh.port = 123
       end
       VF
 
-      iso_env.box2("foobox", :foo, vagrantfile: <<-VF)
+      iso_env.box3("foobox", "1.0", :foo, vagrantfile: <<-VF)
       Vagrant.configure("2") do |config|
         config.ssh.port = 234
       end

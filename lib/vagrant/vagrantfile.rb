@@ -80,7 +80,7 @@ module Vagrant
 
         # Load the box Vagrantfile, if there is one
         if config.vm.box
-          box = boxes.find(config.vm.box, box_formats)
+          box = boxes.find(config.vm.box, box_formats, config.vm.box_version)
           if box
             box_vagrantfile = find_vagrantfile(box.directory)
             if box_vagrantfile
