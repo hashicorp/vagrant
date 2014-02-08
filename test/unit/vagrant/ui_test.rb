@@ -293,6 +293,11 @@ describe Vagrant::UI::Prefixed do
       subject.output("foo")
     end
 
+    it "prefixes with spaces if requested" do
+      ui.should_receive(:output).with("    #{prefix}: foo", anything)
+      subject.output("foo", prefix_spaces: true)
+    end
+
     it "prefixes every line" do
       ui.should_receive(:output).with("==> #{prefix}: foo\n==> #{prefix}: bar", anything)
       subject.output("foo\nbar")

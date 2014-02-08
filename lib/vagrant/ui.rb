@@ -267,7 +267,7 @@ module Vagrant
         if !opts.has_key?(:prefix) || opts[:prefix]
           prefix = OUTPUT_PREFIX
           prefix = " " * OUTPUT_PREFIX.length if \
-            type == :detail || type == :ask
+            type == :detail || type == :ask || opts[:prefix_spaces]
         end
 
         # Fast-path if there is no prefix
