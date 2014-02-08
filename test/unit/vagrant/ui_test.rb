@@ -255,7 +255,7 @@ describe Vagrant::UI::Prefixed do
       subject.detail("foo\nbar")
     end
 
-    it "doesn't prefix if requestsed" do
+    it "doesn't prefix if requested" do
       ui.should_receive(:detail).with("foo", prefix: false, bold: false)
       subject.detail("foo", prefix: false)
     end
@@ -298,6 +298,12 @@ describe Vagrant::UI::Prefixed do
 
     it "requests bolding" do
       ui.should_receive(:output).with("==> #{prefix}: foo", bold: true)
+      subject.output("foo")
+    end
+
+    it "does not request bolding if class-level disabled" do
+      ui.opts[:bold] = false
+      ui.should_receive(:output).with("==> #{prefix}: foo", {})
       subject.output("foo")
     end
   end

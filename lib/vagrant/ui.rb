@@ -221,7 +221,7 @@ module Vagrant
         class_eval <<-CODE
           def #{method}(message, *args, **opts)
             super(message)
-            if !opts.has_key?(:bold)
+            if !@ui.opts.has_key?(:bold) && !opts.has_key?(:bold)
               opts[:bold] = #{method.inspect} != :detail && \
                 #{method.inspect} != :ask
             end
