@@ -445,4 +445,18 @@ describe Vagrant::Machine do
         to raise_error(Vagrant::Errors::MachineStateInvalid)
     end
   end
+
+  describe "#with_ui" do
+    it "temporarily changes the UI" do
+      ui = Object.new
+      changed_ui = nil
+
+      subject.with_ui(ui) do
+        changed_ui = subject.ui
+      end
+
+      expect(changed_ui).to equal(ui)
+      expect(subject.ui).to_not equal(ui)
+    end
+  end
 end

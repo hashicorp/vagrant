@@ -1,3 +1,5 @@
+require "thread"
+
 require "log4r"
 
 module Vagrant
@@ -103,6 +105,7 @@ module Vagrant
       @provider_name   = provider_name
       @provider_options = provider_options
       @ui              = Vagrant::UI::Prefixed.new(@env.ui, @name)
+      @ui_mutex        = Mutex.new
 
       # Read the ID, which is usually in local storage
       @id = nil
@@ -336,6 +339,20 @@ module Vagrant
       result = @provider.state
       raise Errors::MachineStateInvalid if !result.is_a?(MachineState)
       result
+    end
+
+    # Temporarily changes the machine UI. This is useful if you want
+    # to execute an {#action} with a different UI.
+    def with_ui(ui)
+      @ui_mutex.synchronize do
+        begin
+          old_ui = @ui
+          @ui    = ui
+          yield
+        ensure
+          @ui = old_ui
+        end
+      end
     end
   end
 end
