@@ -263,6 +263,8 @@ module Vagrant
       end
 
       def format_message(type, message, **opts)
+        opts = self.opts.merge(opts)
+
         prefix = ""
         if !opts.has_key?(:prefix) || opts[:prefix]
           prefix = OUTPUT_PREFIX
