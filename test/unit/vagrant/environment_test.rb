@@ -205,7 +205,7 @@ describe Vagrant::Environment do
 
       subject.lock do
         begin
-          another.lock
+          another.lock {}
         rescue Vagrant::Errors::EnvironmentLockedError
           raised = true
         end
