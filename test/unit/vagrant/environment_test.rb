@@ -194,6 +194,39 @@ describe Vagrant::Environment do
     end
   end
 
+  describe "#lock" do
+    it "does nothing if no block is given" do
+      subject.lock
+    end
+
+    it "locks the environment" do
+      another = env.create_vagrant_env
+      raised  = false
+
+      subject.lock do
+        begin
+          another.lock
+        rescue Vagrant::Errors::EnvironmentLockedError
+          raised = true
+        end
+      end
+
+      expect(raised).to be_true
+    end
+
+    it "allows nested locks on the same environment" do
+      success = false
+
+      subject.lock do
+        subject.lock do
+          success = true
+        end
+      end
+
+      expect(success).to be_true
+    end
+  end
+
   describe "#machine" do
     # A helper to register a provider for use in tests.
     def register_provider(name, config_class=nil, options=nil)

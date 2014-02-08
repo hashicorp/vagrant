@@ -343,6 +343,9 @@ module Vagrant
     # method. During this time, any other environment which attempts
     # to lock which points to the same lock file will fail.
     def lock
+      # If we don't have a block, then locking is useless, so ignore it
+      return if !block_given?
+
       # This allows multiple locks in the same process to be nested
       return yield if @lock_acquired
 
