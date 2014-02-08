@@ -13,10 +13,13 @@ module VagrantPlugins
         options = { output: "Vagrantfile" }
 
         opts = OptionParser.new do |o|
-          o.banner = "Usage: vagrant init [box-name] [box-url]"
+          o.banner = "Usage: vagrant init [name] [url]"
+          o.separator ""
+          o.separator "Options:"
+          o.separator ""
 
-          o.on("--output FILENAME", String,
-               "Output path for the box. '-' for stdout.") do |output|
+          o.on("--output FILE", String,
+               "Output path for the box. '-' for stdout") do |output|
             options[:output] = output
           end
         end

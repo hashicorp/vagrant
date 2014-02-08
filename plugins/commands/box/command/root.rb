@@ -64,7 +64,7 @@ module VagrantPlugins
         # Prints the help out for this command
         def help
           opts = OptionParser.new do |opts|
-            opts.banner = "Usage: vagrant box <command> [<args>]"
+            opts.banner = "Usage: vagrant box <subcommand> [<args>]"
             opts.separator ""
             opts.separator "Available subcommands:"
 
@@ -78,7 +78,7 @@ module VagrantPlugins
             end
 
             opts.separator ""
-            opts.separator "For help on any individual command run `vagrant box COMMAND -h`"
+            opts.separator "For help on any individual subcommand run `vagrant box <subcommand> -h`"
           end
 
           @env.ui.info(opts.help, :prefix => false)

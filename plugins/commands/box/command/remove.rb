@@ -9,14 +9,16 @@ module VagrantPlugins
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant box remove <name>"
             o.separator ""
+            o.separator "Options:"
+            o.separator ""            
 
-            o.on("--provider VALUE", String,
-                 "The specific provider type for the box to remove.") do |p|
+            o.on("--provider PROVIDER", String,
+                 "The specific provider type for the box to remove") do |p|
               options[:provider] = p
             end
 
-            o.on("--box-version VALUE", String,
-                 "The specific version of the box to remove.") do |v|
+            o.on("--box-version VERSION", String,
+                 "The specific version of the box to remove") do |v|
               options[:version] = v
             end
           end

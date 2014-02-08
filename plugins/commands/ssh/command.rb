@@ -11,15 +11,16 @@ module VagrantPlugins
         options = {}
 
         opts = OptionParser.new do |o|
-          o.banner = "Usage: vagrant ssh [vm-name] [-c command] [-- extra ssh args]"
-
+          o.banner = "Usage: vagrant ssh [options] [name] [-- extra ssh args]"
+          o.separator ""
+          o.separator "Options:"
           o.separator ""
 
-          o.on("-c", "--command COMMAND", "Execute an SSH command directly.") do |c|
+          o.on("-c", "--command COMMAND", "Execute an SSH command directly") do |c|
             options[:command] = c
           end
 
-          o.on("-p", "--plain", "Plain mode, leaves authentication up to user.") do |p|
+          o.on("-p", "--plain", "Plain mode, leaves authentication up to user") do |p|
             options[:plain_mode] = p
           end
         end

@@ -8,14 +8,16 @@ module VagrantPlugins
           options = {}
 
           opts = OptionParser.new do |o|
-            o.banner = "Usage: vagrant box add <url> [-h]"
+            o.banner = "Usage: vagrant box add [options] <url>"
+            o.separator ""
+            o.separator "Options:"
             o.separator ""
 
             o.on("-c", "--clean", "Clean any temporary download files") do |c|
               options[:clean] = c
             end
 
-            o.on("-f", "--force", "Overwrite an existing box if it exists.") do |f|
+            o.on("-f", "--force", "Overwrite an existing box if it exists") do |f|
               options[:force] = f
             end
 
@@ -23,20 +25,20 @@ module VagrantPlugins
               options[:insecure] = i
             end
 
-            o.on("--cacert certfile", String, "CA certificate for SSL download") do |c|
+            o.on("--cacert FILE", String, "CA certificate for SSL download") do |c|
               options[:ca_cert] = c
             end
 
-            o.on("--cert certfile", String,
+            o.on("--cert FILE", String,
                  "A client SSL cert, if needed") do |c|
               options[:client_cert] = c
             end
 
-            o.on("--provider VALUE", String, "Provider the box should satisfy") do |p|
+            o.on("--provider PROVIDER", String, "Provider the box should satisfy") do |p|
               options[:provider] = p
             end
 
-            o.on("--box-version VALUE", String, "Constrain version of the added box") do |v|
+            o.on("--box-version VERSION", String, "Constrain version of the added box") do |v|
               options[:version] = v
             end
 
@@ -45,15 +47,15 @@ module VagrantPlugins
             o.separator "and not using a Vagrant server or a box structured like 'user/box':"
             o.separator ""
 
-            o.on("--checksum VALUE", String, "Checksum for the box") do |c|
+            o.on("--checksum CHECKSUM", String, "Checksum for the box") do |c|
               options[:checksum] = c
             end
 
-            o.on("--checksum-type VALUE", String, "Checksum type (md5, sha1, sha256)") do |c|
+            o.on("--checksum-type TYPE", String, "Checksum type (md5, sha1, sha256)") do |c|
               options[:checksum_type] = c.to_sym
             end
 
-            o.on("--name VALUE", String, "Name of the box") do |n|
+            o.on("--name BOX", String, "Name of the box") do |n|
               options[:name] = n
             end
           end
