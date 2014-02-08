@@ -237,6 +237,13 @@ describe Vagrant::UI::Prefixed do
 
   subject { described_class.new(ui, prefix) }
 
+  describe "#initialize_copy" do
+    it "duplicates the underlying ui too" do
+      another = subject.dup
+      expect(another.opts).to_not equal(subject.opts)
+    end
+  end
+
   describe "#ask" do
     it "does not request bolding" do
       ui.should_receive(:ask).with("    #{prefix}: foo", bold: false)

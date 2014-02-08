@@ -26,6 +26,11 @@ module Vagrant
         @opts     = {}
       end
 
+      def initialize_copy(original)
+        super
+        @opts = original.opts.dup
+      end
+
       [:ask, :detail, :warn, :error, :info, :output, :success].each do |method|
         define_method(method) do |message, *opts|
           # Log normal console messages
@@ -212,6 +217,11 @@ module Vagrant
 
         @prefix = prefix
         @ui     = ui
+      end
+
+      def initialize_copy(original)
+        super
+        @ui = original.instance_variable_get(:@ui).dup
       end
 
       # Use some light meta-programming to create the various methods to
