@@ -8,6 +8,12 @@ module VagrantPlugins
       # @return [Boolean]
       attr_accessor :auto_nat_dns_proxy
 
+      # If true, will check if guest additions are installed and up to
+      # date. By default, this is true.
+      #
+      # @return [Boolean]
+      attr_accessor :check_guest_additions
+
       # An array of customizations to make on the VM prior to booting it.
       #
       # @return [Array]
@@ -39,6 +45,7 @@ module VagrantPlugins
 
       def initialize
         @auto_nat_dns_proxy = UNSET_VALUE
+        @check_guest_additions = UNSET_VALUE
         @customizations   = []
         @destroy_unused_network_interfaces = UNSET_VALUE
         @name             = UNSET_VALUE
@@ -97,6 +104,10 @@ module VagrantPlugins
       def finalize!
         # Default is to auto the DNS proxy
         @auto_nat_dns_proxy = true if @auto_nat_dns_proxy == UNSET_VALUE
+
+        if @check_guest_additions == UNSET_VALUE
+          @check_guest_additions = true
+        end
 
         if @destroy_unused_network_interfaces == UNSET_VALUE
           @destroy_unused_network_interfaces = false

@@ -6,6 +6,10 @@ describe VagrantPlugins::ProviderVirtualBox::Config do
   context "defaults" do
     before { subject.finalize! }
 
+    its(:check_guest_additions) { should be_true }
+    its(:gui) { should be_false }
+    its(:name) { should be_nil }
+
     it "should have one NAT adapter" do
       expect(subject.network_adapters).to eql({
         1 => [:nat, {}],

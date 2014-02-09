@@ -1,12 +1,20 @@
+require "log4r"
+
 module VagrantPlugins
   module ProviderVirtualBox
     module Action
       class CheckGuestAdditions
         def initialize(app, env)
           @app = app
+          @logger = Log4r::Logger.new("vagrant::plugins::virtualbox::check_guest_additions")
         end
 
         def call(env)
+          if !env[:machine].provider_config.check_guest_additions
+            @logger.info("Not checking guest additions because configuration")
+            return @app.call(env)
+          end
+
           env[:ui].output(I18n.t("vagrant.virtualbox.checking_guest_additions"))
 
           # Use the raw interface for now, while the virtualbox gem
