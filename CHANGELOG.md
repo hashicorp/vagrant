@@ -71,6 +71,8 @@ BUG FIXES:
   - commands/plugin: Plugin installation will fail if dependencies conflict,
     rather than at runtime.
   - commands/ssh: When using `-c` on Windows, no more TTY errors.
+  - commands/ssh-config: ProxyCommand is included in output if it is
+    set. [GH-2950]
   - guests/coreos: Restart etcd after configuring networks. [GH-2852]
   - guests/linux: Don't chown VirtualBox synced folders if mounting
     as readonly. [GH-2442]
