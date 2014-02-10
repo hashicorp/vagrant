@@ -6,7 +6,7 @@ module VagrantPlugins
         ssh = @machine.ssh_info
 
         # Connect with Vagrant SSH identity, forcing 'ssh' ansible connection mode
-        # as 'paramiko' mode cannot support multiple keys.
+        # as 'paramiko' mode cannot support multiple keys and ssh-forwarding.
         # These default settings can be overridden by 'raw_arguments' option.
         options = %W[--connection=ssh --private-key=#{ssh[:private_key_path][0]} --user=#{ssh[:username]}]
 
@@ -41,7 +41,7 @@ module VagrantPlugins
           # on a task-by-task basis.
           "PYTHONUNBUFFERED" => 1
         }
-        # Support Multiple SSH keys:
+        # Support Multiple SSH keys and SSH forwarding:
         ansible_ssh_args = get_ansible_ssh_args
         env["ANSIBLE_SSH_ARGS"] = ansible_ssh_args if !ansible_ssh_args.empty?
 
@@ -163,6 +163,9 @@ module VagrantPlugins
         ssh[:private_key_path].drop(1).each do |key|
           ssh_options << "-o IdentityFile=#{key}"
         end
+
+        # SSH Forwarding
+        ssh_options << "-o ForwardAgent=yes" if ssh[:forward_agent]
 
         return ssh_options.join(' ')
       end
