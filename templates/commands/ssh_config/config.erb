@@ -20,3 +20,6 @@ Host <%= host_key %>
 <% if forward_x11 -%>
   ForwardX11 yes
 <% end -%>
+<% if proxy_command -%>
+  ProxyCommand <%= proxy_command %>
+<% end -%>
