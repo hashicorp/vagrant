@@ -5,11 +5,10 @@ module VagrantPlugins
         @logger = Log4r::Logger.new("vagrant::provisioners::ansible")
         ssh = @machine.ssh_info
 
-        # Connect with Vagrant user (unless --user or --private-key are
-        # overidden by 'raw_arguments').
-        #
-        # TODO: multiple private key support
-        options = %W[--private-key=#{ssh[:private_key_path][0]} --user=#{ssh[:username]}]
+        # Connect with Vagrant SSH identity, forcing 'ssh' ansible connection mode
+        # as 'paramiko' mode cannot support multiple keys.
+        # These default settings can be overridden by 'raw_arguments' option.
+        options = %W[--connection=ssh --private-key=#{ssh[:private_key_path][0]} --user=#{ssh[:username]}]
 
         # By default we limit by the current machine.
         # This can be overridden by the limit config option.
@@ -33,15 +32,22 @@ module VagrantPlugins
         # Assemble the full ansible-playbook command
         command = (%w(ansible-playbook) << options << config.playbook).flatten
 
+        # Some Ansible options must be passed as environment variables
+        env = {
+          "ANSIBLE_FORCE_COLOR" => "true",
+          "ANSIBLE_HOST_KEY_CHECKING" => "#{config.host_key_checking}",
+
+          # Ensure Ansible output isn't buffered so that we receive ouput
+          # on a task-by-task basis.
+          "PYTHONUNBUFFERED" => 1
+        }
+        # Support Multiple SSH keys:
+        ansible_ssh_args = get_ansible_ssh_args
+        env["ANSIBLE_SSH_ARGS"] = ansible_ssh_args if !ansible_ssh_args.empty?
+
         # Write stdout and stderr data, since it's the regular Ansible output
         command << {
-          :env => {
-            "ANSIBLE_FORCE_COLOR" => "true",
-            "ANSIBLE_HOST_KEY_CHECKING" => "#{config.host_key_checking}",
-            # Ensure Ansible output isn't buffered so that we receive ouput
-            # on a task-by-task basis.
-            "PYTHONUNBUFFERED" => 1
-          },
+          :env => env,
           :notify => [:stdout, :stderr],
           :workdir => @machine.env.root_path.to_s
         }
@@ -147,6 +153,18 @@ module VagrantPlugins
           # safe default, in case input strays
           return '-v'
         end
+      end
+
+      def get_ansible_ssh_args
+        ssh = @machine.ssh_info
+        ssh_options = []
+
+        # Multiple Private Keys
+        ssh[:private_key_path].drop(1).each do |key|
+          ssh_options << "-o IdentityFile=#{key}"
+        end
+
+        return ssh_options.join(' ')
       end
 
       def as_list_argument(v)
