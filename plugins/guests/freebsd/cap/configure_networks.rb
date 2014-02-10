@@ -13,7 +13,8 @@ module VagrantPlugins
           machine.communicate.sudo("sed -i '' -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/rc.conf", {:shell => "sh"})
 
           networks.each do |network|
-            entry = TemplateRenderer.render("guests/freebsd/network_#{network[:type]}",
+            device = "#{machine.config.freebsd.device}#{network[:interface]}"
+            entry  = TemplateRenderer.render("guests/freebsd/network_#{network[:type]}",
                                             :options => network)
 
             # Write the entry to a temporary location
@@ -27,9 +28,9 @@ module VagrantPlugins
             machine.communicate.sudo("rm /tmp/vagrant-network-entry", {:shell => "sh"})
 
             if network[:type].to_sym == :static
-              machine.communicate.sudo("ifconfig em#{network[:interface]} inet #{network[:ip]} netmask #{network[:netmask]}", {:shell => "sh"})
+              machine.communicate.sudo("ifconfig #{device} inet #{network[:ip]} netmask #{network[:netmask]}", {:shell => "sh"})
             elsif network[:type].to_sym == :dhcp
-              machine.communicate.sudo("dhclient em#{network[:interface]}", {:shell => "sh"})
+              machine.communicate.sudo("dhclient #{device}", {:shell => "sh"})
             end
           end
         end
