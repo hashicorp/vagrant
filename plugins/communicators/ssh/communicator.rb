@@ -201,7 +201,7 @@ module VagrantPlugins
         # Build the options we'll use to initiate the connection via Net::SSH
         opts = {
           :auth_methods          => ["none", "publickey", "hostbased", "password"],
-          :config                => false,
+          :config                => true,
           :forward_agent         => ssh_info[:forward_agent],
           :keys                  => ssh_info[:private_key_path],
           :keys_only             => true,
