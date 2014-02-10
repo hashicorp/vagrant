@@ -39,6 +39,7 @@ Gem::Specification.new do |s|
   root_path      = File.dirname(__FILE__)
   all_files      = Dir.chdir(root_path) { Dir.glob("**/{*,.*}") }
   all_files.reject! { |file| [".", ".."].include?(File.basename(file)) }
+  all_files.reject! { |file| file.start_with?("website/") }
   gitignore_path = File.join(root_path, ".gitignore")
   gitignore      = File.readlines(gitignore_path)
   gitignore.map!    { |line| line.chomp.strip }
