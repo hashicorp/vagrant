@@ -20,23 +20,25 @@ module VagrantPlugins
         options[:provision_ignore_sentinel] = false
 
         opts = OptionParser.new do |o|
-          o.banner = "Usage: vagrant up [vm-name] [options] [-h]"
+          o.banner = "Usage: vagrant up [options] [name]"
+          o.separator ""
+          o.separator "Options:"
           o.separator ""
 
           build_start_options(o, options)
 
           o.on("--[no-]destroy-on-error",
-               "Destroy machine if any fatal error happens (default to true).") do |destroy|
+               "Destroy machine if any fatal error happens (default to true)") do |destroy|
             options[:destroy_on_error] = destroy
           end
 
           o.on("--[no-]parallel",
-               "Enable or disable parallelism if provider supports it.") do |parallel|
+               "Enable or disable parallelism if provider supports it") do |parallel|
             options[:parallel] = parallel
           end
 
-          o.on("--provider provider", String,
-               "Back the machine with a specific provider.") do |provider|
+          o.on("--provider PROVIDER", String,
+               "Back the machine with a specific provider") do |provider|
             options[:provider] = provider
           end
         end

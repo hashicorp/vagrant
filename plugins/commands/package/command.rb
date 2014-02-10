@@ -11,9 +11,9 @@ module VagrantPlugins
         options = {}
 
         opts = OptionParser.new do |o|
-          o.banner = "Usage: vagrant package [vm-name] [--base name] [--output name.box]"
-          o.separator "                       [--include one,two,three] [--vagrantfile file]"
-
+          o.banner = "Usage: vagrant package [options] [name]"
+          o.separator ""
+          o.separator "Options:"
           o.separator ""
 
           o.on("--base NAME", "Name of a VM in virtualbox to package as a base box") do |b|
@@ -24,11 +24,11 @@ module VagrantPlugins
             options[:output] = output
           end
 
-          o.on("--include x,y,z", Array, "Additional files to package with the box.") do |i|
+          o.on("--include FILE...", Array, "Additional files to package with the box") do |i|
             options[:include] = i
           end
 
-          o.on("--vagrantfile file", "Vagrantfile to package with the box.") do |v|
+          o.on("--vagrantfile FILE", "Vagrantfile to package with the box") do |v|
             options[:vagrantfile] = v
           end
         end

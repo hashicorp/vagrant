@@ -12,7 +12,9 @@ module VagrantPlugins
         options[:force] = false
 
         opts = OptionParser.new do |o|
-          o.banner = "Usage: vagrant halt [vm-name] [--force] [-h]"
+          o.banner = "Usage: vagrant halt [options] [name]"
+          o.separator ""
+          o.separator "Options:"
           o.separator ""
 
           o.on("-f", "--force", "Force shut down (equivalent of pulling power)") do |f|

@@ -20,11 +20,11 @@ module VagrantPlugins
             o.separator "Options:"
             o.separator ""
 
-            o.on("--box VALUE", String, "Update a specific box") do |b|
+            o.on("--box BOX", String, "Update a specific box") do |b|
               options[:box] = b
             end
 
-            o.on("--provider VALUE", String, "Update box with specific provider.") do |p|
+            o.on("--provider PROVIDER", String, "Update box with specific provider") do |p|
               options[:provider] = p.to_sym
             end
           end

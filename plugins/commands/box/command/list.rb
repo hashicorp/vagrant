@@ -8,10 +8,12 @@ module VagrantPlugins
           options = {}
 
           opts = OptionParser.new do |o|
-            o.banner = "Usage: vagrant box list"
+            o.banner = "Usage: vagrant box list [options]"
+            o.separator ""
+            o.separator "Options:"
             o.separator ""
 
-            o.on("-i", "--box-info", "Displays additional information about the boxes.") do |i|
+            o.on("-i", "--box-info", "Displays additional information about the boxes") do |i|
               options[:info] = i
             end
           end

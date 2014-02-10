@@ -17,7 +17,7 @@ module VagrantPlugins
             o.separator "Options:"
             o.separator ""
 
-            o.on("--global", "Check all boxes installed.") do |g|
+            o.on("--global", "Check all boxes installed") do |g|
               options[:global] = g
             end
           end

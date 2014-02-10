@@ -55,12 +55,12 @@ module Vagrant
       # an optionparser above because I don't think the performance hits
       # of creating a whole object are worth checking only a couple flags.
       opts = OptionParser.new do |o|
-        o.banner = "Usage: vagrant [-v] [-h] command [<args>]"
+        o.banner = "Usage: vagrant [options] <command> [<args>]"
         o.separator ""
         o.on("-v", "--version", "Print the version and exit.")
         o.on("-h", "--help", "Print this help.")
         o.separator ""
-        o.separator "Common subcommands:"
+        o.separator "Common commands:"
 
         # Add the available subcommands as separators in order to print them
         # out as well.
