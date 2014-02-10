@@ -5,19 +5,34 @@ module VagrantPlugins
         @logger = Log4r::Logger.new("vagrant::provisioners::ansible")
         ssh = @machine.ssh_info
 
-        # Connect with Vagrant SSH identity, forcing 'ssh' ansible connection mode
-        # as 'paramiko' mode cannot support multiple keys and ssh-forwarding.
-        # These default settings can be overridden by 'raw_arguments' option.
-        options = %W[--connection=ssh --private-key=#{ssh[:private_key_path][0]} --user=#{ssh[:username]}]
+        #
+        # 1) Default Settings (lowest precedence)
+        #
+
+        # Connect with Vagrant SSH identity
+        options = %W[--private-key=#{ssh[:private_key_path][0]} --user=#{ssh[:username]}]
+
+        # Multiple SSH keys and/or SSH forwarding can be passed via
+        # ANSIBLE_SSH_ARGS environment variable, which requires 'ssh' mode.
+        # Note that multiple keys and ssh-forwarding settings are not supported
+        # by deprecated 'paramiko' mode.
+        ansible_ssh_args = get_ansible_ssh_args
+        options << "--connection=ssh" unless ansible_ssh_args.empty?
 
         # By default we limit by the current machine.
         # This can be overridden by the limit config option.
         options << "--limit=#{@machine.name}"
 
-        # Joker! Not (yet) supported arguments can be passed this way.
+        #
+        # 2) Configuration Joker
+        #
+
         options.concat(self.as_array(config.raw_arguments)) if config.raw_arguments
 
-        # Append Provisioner options (highest precedence):
+        #
+        # 3) Append Provisioner options (highest precedence):
+        #
+
         options << "--inventory-file=#{self.setup_inventory_file}"
         options << "--extra-vars=#{self.get_extra_vars_argument}" if config.extra_vars
         options << "--sudo" if config.sudo
@@ -42,8 +57,7 @@ module VagrantPlugins
           "PYTHONUNBUFFERED" => 1
         }
         # Support Multiple SSH keys and SSH forwarding:
-        ansible_ssh_args = get_ansible_ssh_args
-        env["ANSIBLE_SSH_ARGS"] = ansible_ssh_args if !ansible_ssh_args.empty?
+        env["ANSIBLE_SSH_ARGS"] = ansible_ssh_args unless ansible_ssh_args.empty?
 
         # Write stdout and stderr data, since it's the regular Ansible output
         command << {
