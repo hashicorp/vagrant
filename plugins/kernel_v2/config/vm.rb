@@ -371,8 +371,14 @@ module VagrantPlugins
           # Load it up
           config    = config_class.new
 
-          blocks.each do |b|
-            b.call(config, Vagrant::Config::V2::DummyConfig.new)
+          begin
+            blocks.each do |b|
+              b.call(config, Vagrant::Config::V2::DummyConfig.new)
+            end
+          rescue Exception => e
+            raise Vagrant::Errors::VagrantfileLoadError,
+              path: "<provider config: #{name}>",
+              message: e.message
           end
 
           config.finalize!

@@ -114,6 +114,34 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     end
   end
 
+  describe "#provider and #get_provider_config" do
+    it "compiles the configurations for a provider" do
+      subject.provider "virtualbox" do |vb|
+        vb.gui = true
+      end
+
+      subject.provider "virtualbox" do |vb|
+        vb.name = "foo"
+      end
+
+      subject.finalize!
+
+      config = subject.get_provider_config(:virtualbox)
+      expect(config.name).to eq("foo")
+      expect(config.gui).to be_true
+    end
+
+    it "raises an exception if there is a problem loading" do
+      subject.provider "virtualbox" do |vb|
+        # Purposeful bad variable
+        vm.foo = "bar"
+      end
+
+      expect { subject.finalize! }.
+        to raise_error(Vagrant::Errors::VagrantfileLoadError)
+    end
+  end
+
   describe "#provision" do
     it "stores the provisioners" do
       subject.provision("shell", inline: "foo")
