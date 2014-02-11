@@ -10,7 +10,7 @@ module Vagrant
     # The box that is backing this machine.
     #
     # @return [Box]
-    attr_reader :box
+    attr_accessor :box
 
     # Configuration for the machine.
     #
