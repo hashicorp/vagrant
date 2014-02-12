@@ -1,6 +1,7 @@
 require File.expand_path("../helpers/download_helpers", __FILE__)
 
 page "/blog_feed.xml", layout: false
+ignore "/download-archive-single.html"
 
 # Archived download pages
 $vagrant_versions.each do |version|
