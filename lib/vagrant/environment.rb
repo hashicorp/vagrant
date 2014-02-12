@@ -525,7 +525,7 @@ module Vagrant
       # upgrade it. Otherwise, we just mark that its the current version.
       version_file = @home_path.join("setup_version")
       if version_file.file?
-        version = version_file.read
+        version = version_file.read.chomp
         if version > CURRENT_SETUP_VERSION
           raise Errors::HomeDirectoryLaterVersion
         end
