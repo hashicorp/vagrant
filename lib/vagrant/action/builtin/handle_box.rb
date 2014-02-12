@@ -45,9 +45,11 @@ module Vagrant
 
           if box_updated
             # Reload the environment and set the VM to be the new loaded VM.
+            old_machine   = env[:machine]
             env[:machine] = machine.vagrantfile.machine(
               machine.name, machine.provider_name,
               machine.env.boxes, machine.data_dir, machine.env)
+            env[:machine].ui = old_machine.ui
           end
 
           @app.call(env)
