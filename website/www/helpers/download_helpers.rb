@@ -18,7 +18,7 @@ if ENV["VAGRANT_VERSION"]
   puts "Finding downloads for Vagrant"
   raise "BINTRAY_API_KEY must be set." if !ENV["BINTRAY_API_KEY"]
   http = Net::HTTP.new("dl.bintray.com", 80)
-  req = Net::HTTP::Get.new("/mitchellh/vagrant")
+  req = Net::HTTP::Get.new("/mitchellh/vagrant/")
   req.basic_auth "mitchellh", ENV["BINTRAY_API_KEY"]
   response = http.request(req)
 
