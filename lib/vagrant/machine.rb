@@ -15,7 +15,7 @@ module Vagrant
     # Configuration for the machine.
     #
     # @return [Object]
-    attr_reader :config
+    attr_accessor :config
 
     # Directory where machine-specific data can be stored.
     #
@@ -47,7 +47,7 @@ module Vagrant
     # The provider-specific configuration for this machine.
     #
     # @return [Object]
-    attr_reader :provider_config
+    attr_accessor :provider_config
 
     # The name of the provider.
     #
