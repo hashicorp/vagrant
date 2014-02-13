@@ -174,13 +174,7 @@ module Vagrant
         process = ChildProcess.build("ssh", *command_options)
         process.io.inherit!
         process.start
-
-        # Poll for exited rather than call #wait because #wait will hold
-        # the GIL, locking up the entire Ruby VM. See ChildProcess #68
-        while !process.exited?
-          sleep 0.2
-        end
-
+        process.wait
         return process.exit_code
       end
     end
