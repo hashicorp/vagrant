@@ -66,7 +66,13 @@ module VagrantPlugins
       # string or as an array.
       def args_valid?
         return true if !args
-        args.is_a?(String) || args.is_a?(Array)
+        return true if args.is_a?(String) or args.is_a?(Fixnum)
+        if args.is_a?(Array)
+          args.each do |a|
+            return false if not a.kind_of?(String) and not a.kind_of?(Fixnum)
+          end
+          return true
+        end
       end
 
       def remote?

@@ -30,6 +30,16 @@ describe "VagrantPlugins::Shell::Config" do
       result["shell provisioner"].should == []
     end
 
+    it "passes with fixnum args" do
+      subject.path = file_that_exists
+      subject.args = 1
+      subject.finalize!
+
+      result = subject.validate(machine)
+
+      result["shell provisioner"].should == []
+    end
+
     it "passes with array args" do
       subject.path = file_that_exists
       subject.args = ["an", "array"]
@@ -45,6 +55,28 @@ describe "VagrantPlugins::Shell::Config" do
 
       subject.path = file_that_exists
       subject.args = neither_array_nor_string
+      subject.finalize!
+
+      result = subject.validate(machine)
+
+      result["shell provisioner"].should == [
+        I18n.t("vagrant.provisioners.shell.args_bad_type")
+      ]
+    end
+
+    it "handles scalar array args" do
+      subject.path = file_that_exists
+      subject.args = ["string", 1, 2]
+      subject.finalize!
+
+      result = subject.validate(machine)
+
+      result["shell provisioner"].should == []
+    end
+
+    it "returns an error if args is an array with non-scalar types" do
+      subject.path = file_that_exists
+      subject.args = [[1]]
       subject.finalize!
 
       result = subject.validate(machine)
