@@ -306,7 +306,8 @@ module VagrantPlugins
           raise Vagrant::Errors::SSHKeyTypeNotSupported
         end
 
-        @connection = connection
+        @connection          = connection
+        @connection_ssh_info = ssh_info
 
         # Yield the connection that is ready to be used and
         # return the value of the block
@@ -368,7 +369,7 @@ module VagrantPlugins
             # Set SSH_AUTH_SOCK if we are in sudo and forwarding agent.
             # This is to work around often misconfigured boxes where
             # the SSH_AUTH_SOCK env var is not preserved.
-            if @machine.ssh_info[:forward_agent] && sudo
+            if @connection_ssh_info[:forward_agent] && sudo
               auth_socket = ""
               execute("echo; printf $SSH_AUTH_SOCK") do |type, data|
                 if type == :stdout
