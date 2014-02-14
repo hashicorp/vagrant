@@ -40,7 +40,6 @@ describe "VagrantPlugins::Shell::Config" do
       result["shell provisioner"].should == []
     end
 
-
     it "passes with array args" do
       subject.path = file_that_exists
       subject.args = ["an", "array"]
