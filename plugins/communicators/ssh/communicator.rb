@@ -53,6 +53,7 @@ module VagrantPlugins
           @machine.ui.detail("SSH auth method: #{ssh_auth_type}")
 
           while true
+            message = nil
             begin
               begin
                 connect(retries: 1)
@@ -75,9 +76,13 @@ module VagrantPlugins
               message = "Host appears down."
             rescue Errno::EHOSTUNREACH
               message = "Host unreachable."
+            rescue Vagrant::Errors::VagrantError => e
+              # Ignore it, SSH is not ready, some other error.
             end
 
-            @machine.ui.detail("Error: #{message} Retrying...")
+            if message
+              @machine.ui.detail("Error: #{message} Retrying...")
+            end
           end
         end
       rescue Timeout::Error
