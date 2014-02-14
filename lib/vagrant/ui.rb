@@ -182,6 +182,9 @@ module Vagrant
         defaults = { :new_line => true, :prefix => true }
         opts     = defaults.merge(@opts).merge(opts)
 
+        # Don't output if we're hiding details
+        return if type == :detail && opts[:hide_detail]
+
         # Determine whether we're expecting to output our
         # own new line or not.
         printer = opts[:new_line] ? :puts : :print

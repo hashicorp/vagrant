@@ -58,6 +58,24 @@ describe Vagrant::UI::Basic do
       subject.error("foo")
     end
   end
+
+  context "#detail" do
+    it "outputs details" do
+      subject.should_receive(:safe_puts).with do |message, **opts|
+        expect(message).to eq("foo")
+        true
+      end
+
+      subject.detail("foo")
+    end
+
+    it "doesn't output details if disabled" do
+      subject.should_receive(:safe_puts).never
+
+      subject.opts[:hide_detail] = true
+      subject.detail("foo")
+    end
+  end
 end
 
 describe Vagrant::UI::Colored do
