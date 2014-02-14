@@ -8,10 +8,10 @@ module VagrantPlugins
     class Provisioner < Vagrant.plugin("2", :provisioner)
       def provision
         args = ""
-        if config.args.is_a?(String) or config.args.is_a?(Fixnum)
+        if config.args.is_a?(String)
           args = " #{config.args.to_s}"
         elsif config.args.is_a?(Array)
-          args = config.args.map { |a| quote_and_escape(a.to_s) }
+          args = config.args.map { |a| quote_and_escape(a) }
           args = " #{args.join(" ")}"
         end
 

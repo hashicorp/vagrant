@@ -29,6 +29,10 @@ module VagrantPlugins
         @privileged  = true if @privileged == UNSET_VALUE
         @binary      = false if @binary == UNSET_VALUE
         @keep_color  = false if @keep_color == UNSET_VALUE
+
+        if @args && !@args.is_a?(Array) && args_valid?
+          @args = @args.to_s
+        end
       end
 
       def validate(machine)
@@ -66,11 +70,13 @@ module VagrantPlugins
       # string or as an array.
       def args_valid?
         return true if !args
-        return true if args.is_a?(String) or args.is_a?(Fixnum)
+        return true if args.is_a?(String)
+        return true if args.is_a?(Fixnum)
         if args.is_a?(Array)
           args.each do |a|
-            return false if not a.kind_of?(String) and not a.kind_of?(Fixnum)
+            return false if !a.kind_of?(String) && !a.kind_of?(Fixnum)
           end
+
           return true
         end
       end
