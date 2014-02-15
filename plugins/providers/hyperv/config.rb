@@ -1,11 +1,7 @@
-#-------------------------------------------------------------------------
-# Copyright (c) Microsoft Open Technologies, Inc.
-# All Rights Reserved. Licensed under the MIT License.
-#--------------------------------------------------------------------------
-
 require "vagrant"
 require_relative "guest_config/config"
 require_relative "host_share/config"
+
 module VagrantPlugins
   module HyperV
     class Config < Vagrant.plugin("2", :config)
@@ -13,6 +9,7 @@ module VagrantPlugins
       #
       # @return [Boolean]
       attr_accessor :gui
+
       attr_reader :host_share, :guest
 
       def host_config(&block)
@@ -44,7 +41,6 @@ module VagrantPlugins
         end
         { "HyperV" => errors }
       end
-
     end
   end
 end

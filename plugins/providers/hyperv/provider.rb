@@ -1,14 +1,8 @@
-#-------------------------------------------------------------------------
-# Copyright (c) Microsoft Open Technologies, Inc.
-# All Rights Reserved. Licensed under the MIT License.
-#--------------------------------------------------------------------------
 require "log4r"
-require "vagrant"
 
 module VagrantPlugins
   module HyperV
     class Provider < Vagrant.plugin("2", :provider)
-
       def initialize(machine)
         @machine = machine
       end
@@ -30,7 +24,6 @@ module VagrantPlugins
         state_id = env[:machine_state_id]
 
         # Get the short and long description
-        # TODO
         short = "Machine's current state is #{state_id}"
         long  = ""
 

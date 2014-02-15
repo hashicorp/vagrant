@@ -1,9 +1,5 @@
-#-------------------------------------------------------------------------
-# Copyright (c) Microsoft Open Technologies, Inc.
-# All Rights Reserved. Licensed under the MIT License.
-#--------------------------------------------------------------------------
-
 require "pathname"
+
 require "vagrant/action/builder"
 
 module VagrantPlugins

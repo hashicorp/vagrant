@@ -1,9 +1,3 @@
-#-------------------------------------------------------------------------
-# Copyright (c) Microsoft Open Technologies, Inc.
-# All Rights Reserved. Licensed under the MIT License.
-#--------------------------------------------------------------------------
-
-
 param (
     [string]$vm_xml_config = $(throw "-vm_xml_config is required."),
     [string]$vhdx_path = $(throw "-vhdx_path is required.")
