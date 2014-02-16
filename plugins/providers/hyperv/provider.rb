@@ -3,6 +3,7 @@ require "log4r"
 require_relative "driver"
 require_relative "plugin"
 
+require "vagrant/util/platform"
 require "vagrant/util/powershell"
 
 module VagrantPlugins
@@ -13,6 +14,14 @@ module VagrantPlugins
       def initialize(machine)
         @driver  = Driver.new
         @machine = machine
+
+        if !Vagrant::Util::Platform.windows?
+          raise Errors::WindowsRequired
+        end
+
+        if !Vagrant::Util::Platform.windows_admin?
+          raise Errors::AdminRequired
+        end
 
         if !Vagrant::Util::PowerShell.available?
           raise Errors::PowerShellRequired

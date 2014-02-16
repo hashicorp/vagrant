@@ -6,12 +6,20 @@ module VagrantPlugins
         error_namespace("vagrant_hyperv.errors")
       end
 
+      class AdminRequired < HyperVError
+        error_key(:admin_required)
+      end
+
       class PowerShellError < HyperVError
         error_key(:powershell_error)
       end
 
       class PowerShellRequired < HyperVError
         error_key(:powershell_required)
+      end
+
+      class WindowsRequired < HyperVError
+        error_key(:windows_required)
       end
     end
   end

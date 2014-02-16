@@ -1,6 +1,12 @@
 en:
   vagrant_hyperv:
     errors:
+      admin_required: |-
+        The Hyper-V provider requires that Vagrant be run with
+        administrative privileges. This is a limitation of Hyper-V itself.
+        Hyper-V requires administrative privileges for management
+        commands. Please restart your console with administrative
+        privileges and try again.
       powershell_error: |-
         An error occurred while executing a PowerShell script. This error
         is shown below. Please read the error message and see if this is
@@ -14,3 +20,6 @@ en:
       powershell_required: |-
         The Vagrant Hyper-V provider requires PowerShell to be available.
         Please make sure "powershell.exe" is available on your PATH.
+      windows_required: |-
+        The Hyper-V provider only works on Windows. Please try to
+        use another provider.
