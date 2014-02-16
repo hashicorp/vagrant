@@ -1,0 +1,6 @@
+en:
+  vagrant_hyperv:
+    errors:
+      powershell_required: |-
+        The Vagrant Hyper-V provider requires PowerShell to be available.
+        Please make sure "powershell.exe" is available on your PATH.

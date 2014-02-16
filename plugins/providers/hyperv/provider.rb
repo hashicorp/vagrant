@@ -1,10 +1,22 @@
 require "log4r"
 
+require_relative "driver"
+require_relative "plugin"
+
+require "vagrant/util/powershell"
+
 module VagrantPlugins
   module HyperV
     class Provider < Vagrant.plugin("2", :provider)
+      attr_reader :driver
+
       def initialize(machine)
+        @driver  = Driver.new
         @machine = machine
+
+        if !Vagrant::Util::PowerShell.available?
+          raise Errors::PowerShellRequired
+        end
       end
 
       def action(name)
@@ -44,10 +56,6 @@ module VagrantPlugins
         if env[:machine_ssh_info]
           env[:machine_ssh_info].merge!(:port => 22)
         end
-      end
-
-      def driver
-        @driver ||= Driver::Base.new()
       end
     end
   end

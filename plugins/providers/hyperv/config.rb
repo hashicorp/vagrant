@@ -32,6 +32,7 @@ module VagrantPlugins
 
       def validate(machine)
         errors = _detected_errors
+=begin
         unless host_share.valid_config?
           errors << host_share.errors.flatten.join(" ")
         end
@@ -39,6 +40,7 @@ module VagrantPlugins
         unless guest.valid_config?
           errors << guest.errors.flatten.join(" ")
         end
+=end
         { "HyperV" => errors }
       end
     end
