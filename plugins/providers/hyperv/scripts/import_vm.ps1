@@ -1,13 +1,13 @@
 Param(
-    [string]$vm_xml_config = $(throw "-vm_xml_config is required."),
-    [string]$vhdx_path = $(throw "-vhdx_path is required.")
+    [Parameter(Mandatory=$true)]
+    [string]$vm_xml_config,
+    [Parameter(Mandatory=$true)]
+    [string]$vhdx_path
 )
-
-$ErrorActionPreference = "Stop"
 
 # Include the following modules
 $Dir = Split-Path $script:MyInvocation.MyCommand.Path
-. [System.IO.Path]::Combine($Dir, "utils\write_messages.ps1")
+. ([System.IO.Path]::Combine($Dir, "utils\write_messages.ps1"))
 
 [xml]$vmconfig = Get-Content -Path  $vm_xml_config
 

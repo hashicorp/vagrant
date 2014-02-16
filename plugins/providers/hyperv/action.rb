@@ -32,19 +32,19 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           b.use Call, IsCreated do |env1, b1|
             if !env1[:result]
-              b2.use MessageNotCreated
+              b1.use MessageNotCreated
               next
             end
 
-            b2.use Call, DestroyConfirm do |env2, b3|
+            b1.use Call, DestroyConfirm do |env2, b2|
               if !env2[:result]
-                b3.use MessageWillNotDestroy
+                b2.use MessageWillNotDestroy
                 next
               end
 
-              b3.use ConfigValidate
-              b3.use StopInstance
-              b3.use DeleteVM
+              b2.use ConfigValidate
+              b2.use StopInstance
+              b2.use DeleteVM
             end
           end
         end
@@ -128,6 +128,7 @@ module VagrantPlugins
 
       # The autoload farm
       action_root = Pathname.new(File.expand_path("../action", __FILE__))
+      autoload :DeleteVM, action_root.join("delete_vm")
       autoload :IsCreated, action_root.join("is_created")
       autoload :IsStopped, action_root.join("is_stopped")
       autoload :ReadState, action_root.join("read_state")

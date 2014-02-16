@@ -1,15 +1,15 @@
 module VagrantPlugins
   module HyperV
     module Action
-      class StopInstance
+      class DeleteVM
         def initialize(app, env)
-          @app    = app
+          @app = app
         end
 
         def call(env)
-          env[:ui].info('Stopping the Machine')
+          env[:ui].info('Deleting the Machine')
           options = { VmId: env[:machine].id }
-          env[:machine].provider.driver.execute('stop_vm.ps1', options)
+          env[:machine].provider.driver.execute('delete_vm.ps1', options)
           @app.call(env)
         end
       end
