@@ -30,15 +30,15 @@ a single page of documentation.
 When using Ansible, it needs to know on which machines a given playbook should run. It does
 this by way of an inventory file which lists those machines. In the context of Vagrant,
 there are two ways to approach working with inventory files. The first and simplest option
-is to not provide one to Vagrant at all. Vagrant will generate inventory files for each
-virtual machine it manages, and use them for provisioning machines. Generated inventory files
-are created adjacent to your Vagrantfile, named using the machine names set in your Vagrantfile.
+is to not provide one to Vagrant at all. Vagrant will generate an inventory file encompassing
+all of the virtual machine it manages, and use it for provisioning machines. The generated
+inventory file is created adjacent to your Vagrantfile, named `vagrant_ansible_inventory`.
 
-The second option is for situations where you'd like to have more than one virtual machine
-in a single inventory file, perhaps leveraging more complex playbooks or inventory grouping.
-If you provide the `ansible.inventory_path` option referencing a specific inventory file
-dedicated to your Vagrant project, that one will be used instead of generating them.
-Such an inventory file for use with Vagrant might look like:
+The second option is for situations where you'd like to have more control over the inventory file,
+perhaps leveraging more complex playbooks or inventory grouping. If you provide the
+`ansible.inventory_path` option referencing a specific inventory file dedicated to your Vagrant
+project, that one will be used instead of generating them. Such an inventory file for use with
+Vagrant might look like:
 
 ```
 [vagrant]
@@ -153,8 +153,8 @@ by the sudo command.
     ansible.groups = {
       "group1" => ["machine1"],
       "group2" => ["machine2", "machine3"],
-      "all_groups:children" => ["group1", "group2"]
+      "all_groups:children" => ["group1", "group2", "group3"]
     }
     ```
-    Note that only the current machine and its related groups will be added to the inventory file.
+    Note that undefined machines and groups are not added to the inventory.  For example, `group3` in the above example would not be added to the inventory file.
 * `ansible.host_key_checking` can be set to `false` which will disable host key checking and prevent `"FAILED: (25, 'Inappropriate ioctl for device')"` errors from being reported during provisioner runs.  The default value is `true`, which matches the default behavior of Ansible 1.2.1 and later.
