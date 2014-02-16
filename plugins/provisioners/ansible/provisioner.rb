@@ -73,7 +73,7 @@ module VagrantPlugins
         ssh = @machine.ssh_info
 
         # Managed machines
-        inventory_machines = []
+        inventory_machines = {}
 
         generated_inventory_file =
           @machine.env.root_path.join("vagrant_ansible_inventory")
@@ -86,7 +86,7 @@ module VagrantPlugins
               m = @machine.env.machine(*am)
               if !m.ssh_info.nil?
                 file.write("#{m.name} ansible_ssh_host=#{m.ssh_info[:host]} ansible_ssh_port=#{m.ssh_info[:port]}\n")
-                inventory_machines << m
+                inventory_machines[m.name] = m
               else
                 @logger.error("Auto-generated inventory: Impossible to get SSH information for machine '#{m.name} (#{m.provider_name})'. This machine should be recreated.")
                 # Let a note about this missing machine
@@ -97,11 +97,12 @@ module VagrantPlugins
             end
           end
 
-          # Write out groups information.  Only includes groups and
-          # machines which have been defined, otherwise Ansible will
-          # complain.
+          # Write out groups information.
+          # All defined groups will be included, but only supported
+          # machines and defined child groups will be included.
+          # Group variables are intentionally skipped.
           groups_of_groups = {}
-          included_groups = []
+          defined_groups = []
 
           config.groups.each_pair do |gname, gmembers|
             # Require that gmembers be an array
@@ -110,22 +111,21 @@ module VagrantPlugins
 
             if gname.end_with?(":children")
               groups_of_groups[gname] = gmembers
-            elsif !gname.include?(':')
-              # skip group variables [:vars] and any other ":" suffixes
-              included_groups << gname
+              defined_groups << gname.sub(/:children$/, '')
+            elsif !gname.include?(':vars')
+              defined_groups << gname
               file.write("\n[#{gname}]\n")
               gmembers.each do |gm|
-                file.write("#{gm}\n") if inventory_machines.map { |m| m.name }.include?(gm.to_sym)
+                file.write("#{gm}\n") if inventory_machines.include?(gm.to_sym)
               end
             end
           end
 
+          defined_groups.uniq!
           groups_of_groups.each_pair do |gname, gmembers|
-            unless (included_groups & gmembers).empty?
-              file.write("\n[#{gname}]\n")
-              gmembers.each do |gm|
-                file.write("#{gm}\n") if included_groups.include?(gm)
-              end
+            file.write("\n[#{gname}]\n")
+            gmembers.each do |gm|
+              file.write("#{gm}\n") if defined_groups.include?(gm)
             end
           end
         end

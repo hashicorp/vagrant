@@ -37,7 +37,9 @@ machines. The generated inventory file is created adjacent to your Vagrantfile, 
 `vagrant_ansible_inventory`.
 
 The `ansible.groups` option can be used to pass a hash of group
-names and group members to be included in the generated inventory file. For example:
+names and group members to be included in the generated inventory file. Group variables
+are intentionally not supported, as this practice is not recommended.
+For example:
 
 ```
 ansible.groups = {
@@ -47,7 +49,7 @@ ansible.groups = {
 }
 ```
 
-Note that undefined machines and groups are not added to the inventory.
+Note that unmanaged machines and undefined groups are not added to the inventory.
 For example, `group3` in the above example would not be added to the inventory file.
 
 A generated inventory might look like:
