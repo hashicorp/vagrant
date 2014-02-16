@@ -7,6 +7,9 @@ require_relative "plugin"
 module VagrantPlugins
   module HyperV
     class Driver
+      ERROR_REGEXP  = /===Begin-Error===(.+?)===End-Error===/m
+      OUTPUT_REGEXP = /===Begin-Output===(.+?)===End-Output===/m
+
       attr_reader :vmid
 
       def initialize(id=nil)
@@ -15,29 +18,32 @@ module VagrantPlugins
       end
 
       def execute(path, options)
-        r = execute_powershell(path, options) do |type, data|
-          process_output(type, data)
-        end
+        r = execute_powershell(path, options)
         if r.exit_code != 0
           raise Errors::PowerShellError,
             script: path,
             stderr: r.stderr
         end
 
-        if success?
-          JSON.parse(json_output[:success].join) unless json_output[:success].empty?
-        else
-          message = json_output[:error].join unless json_output[:error].empty?
-          raise Error::SubprocessError, message if message
-        end
-      end
+        # We only want unix-style line endings within Vagrant
+        r.stdout.gsub!("\r\n", "\n")
+        r.stderr.gsub!("\r\n", "\n")
 
-      def raw_execute(command)
-        command = [command , {notify: [:stdout, :stderr, :stdin]}].flatten
-        clear_output_buffer
-        Vagrant::Util::Subprocess.execute(*command) do |type, data|
-          process_output(type, data)
+        error_match  = ERROR_REGEXP.match(r.stdout)
+        output_match = OUTPUT_REGEXP.match(r.stdout)
+
+        if error_match
+          data = JSON.parse(error_match[1])
+
+          # We have some error data.
+          raise Errors::PowerShellError,
+            script: path,
+            stderr: data["error"]
         end
+
+        # Nothing
+        return nil if !output_match
+        return JSON.parse(output_match[1])
       end
 
       protected
@@ -86,7 +92,7 @@ module VagrantPlugins
       end
 
       def execute_powershell(path, options, &block)
-        lib_path = Pathname.new(File.expand_path("../../scripts", __FILE__))
+        lib_path = Pathname.new(File.expand_path("../scripts", __FILE__))
         path = lib_path.join(path).to_s.gsub("/", "\\")
         options = options || {}
         ps_options = []
