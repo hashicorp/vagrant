@@ -11,16 +11,12 @@ module VagrantPlugins
         # TODO: multiple private key support
         options = %W[--private-key=#{ssh[:private_key_path][0]} --user=#{ssh[:username]}]
 
+        # By default we limit by the current machine.
+        # This can be overridden by the limit config option.
+        options << "--limit=#{@machine.name}"
+
         # Joker! Not (yet) supported arguments can be passed this way.
         options.concat(self.as_array(config.raw_arguments)) if config.raw_arguments
-
-        # By default we limit by the current machine.  This can be
-        # overriden by the limit config option.
-        limit_option = if config.limit == nil
-                         "--limit=#{@machine.name}"
-                       elsif not config.limit.empty?
-                         "--limit=#{as_list_argument(config.limit)}"
-                       end
 
         # Append Provisioner options (highest precedence):
         options << "--inventory-file=#{self.setup_inventory_file}"
@@ -31,7 +27,7 @@ module VagrantPlugins
         options << "--ask-sudo-pass" if config.ask_sudo_pass
         options << "--tags=#{as_list_argument(config.tags)}" if config.tags
         options << "--skip-tags=#{as_list_argument(config.skip_tags)}" if config.skip_tags
-        options << limit_option if limit_option
+        options << "--limit=#{as_list_argument(config.limit)}" if config.limit
         options << "--start-at-task=#{config.start_at_task}" if config.start_at_task
 
         # Assemble the full ansible-playbook command
