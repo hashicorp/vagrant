@@ -7,6 +7,19 @@ en:
         Hyper-V requires administrative privileges for management
         commands. Please restart your console with administrative
         privileges and try again.
+      box_invalid: |-
+        The box you're using with the Hyper-V provider ('%{name}')
+        is invalid. A Hyper-V box should contain both a
+        "Virtual Machines" and a "Virtual Hard Disks" folder that are
+        created as part of exporting a Hyper-V machine.
+
+        Within these directories, Vagrant expects to find the
+        virtual machine configuration as well as the root hard disk.
+
+        The box you're attempting to use is missing one or both of
+        these directories or does not contain the files expected. Verify
+        that you added the correct box. If this problem persists,
+        please contact the creator of the box for assistance.
       powershell_error: |-
         An error occurred while executing a PowerShell script. This error
         is shown below. Please read the error message and see if this is

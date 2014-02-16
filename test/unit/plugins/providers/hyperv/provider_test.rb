@@ -39,4 +39,10 @@ describe VagrantPlugins::HyperV::Provider do
         to raise_error(VagrantPlugins::HyperV::Errors::PowerShellRequired)
     end
   end
+
+  describe "#driver" do
+    it "is initialized" do
+      expect(subject.driver).to be_kind_of(VagrantPlugins::HyperV::Driver)
+    end
+  end
 end

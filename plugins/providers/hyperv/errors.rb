@@ -10,6 +10,10 @@ module VagrantPlugins
         error_key(:admin_required)
       end
 
+      class BoxInvalid < HyperVError
+        error_key(:box_invalid)
+      end
+
       class PowerShellError < HyperVError
         error_key(:powershell_error)
       end
