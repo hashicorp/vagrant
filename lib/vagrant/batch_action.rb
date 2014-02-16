@@ -47,6 +47,11 @@ module Vagrant
         end
       end
 
+      if par && @actions.length <= 1
+        @logger.info("Disabling parallelization because only executing one action")
+        par = false
+      end
+
       @logger.info("Batch action will parallelize: #{par.inspect}")
 
       threads = []
