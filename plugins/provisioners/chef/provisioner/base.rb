@@ -107,12 +107,12 @@ module VagrantPlugins
         end
 
         def upload_encrypted_data_bag_secret
-          return if !@config.encrypted_data_bag_secret_key_path
+          remote_file = guest_encrypted_data_bag_secret_key_path
+          return if !remote_file
 
           @machine.env.ui.info I18n.t(
             "vagrant.provisioners.chef.upload_encrypted_data_bag_secret_key")
 
-          remote_file = guest_encrypted_data_bag_secret_key_path
           @machine.communicate.tap do |comm|
             comm.sudo("rm -f #{remote_file}", error_check: false)
             comm.upload(encrypted_data_bag_secret_key_path, remote_file)
@@ -120,9 +120,10 @@ module VagrantPlugins
         end
 
         def delete_encrypted_data_bag_secret
-          @machine.communicate.sudo(
-            "rm -f #{guest_encrypted_data_bag_secret_key_path}",
-            error_check: false)
+          remote_file = guest_encrypted_data_bag_secret_key_path
+          if remote_file
+            @machine.communicate.sudo("rm -f #{remote_file}", error_check: false)
+          end
         end
 
         def encrypted_data_bag_secret_key_path
@@ -131,7 +132,9 @@ module VagrantPlugins
         end
 
         def guest_encrypted_data_bag_secret_key_path
-          File.join(@config.provisioning_path, "encrypted_data_bag_secret_key")
+          if @config.encrypted_data_bag_secret_key_path
+            File.join(@config.provisioning_path, "encrypted_data_bag_secret_key")
+          end
         end
       end
     end

@@ -33,7 +33,14 @@ describe VagrantPlugins::Chef::Provisioner::Base do
   end
 
   describe "#guest_encrypted_data_bag_secret_key_path" do
+    it "returns nil if host path is not configured" do
+      config.stub(:encrypted_data_bag_secret_key_path).and_return(nil)
+      config.stub(:provisioning_path).and_return("/tmp/foo")
+      expect(subject.guest_encrypted_data_bag_secret_key_path).to be_nil
+    end
+
     it "returns path under config.provisioning_path" do
+      config.stub(:encrypted_data_bag_secret_key_path).and_return("secret")
       config.stub(:provisioning_path).and_return("/tmp/foo")
       expect(File.dirname(subject.guest_encrypted_data_bag_secret_key_path)).
         to eq "/tmp/foo"

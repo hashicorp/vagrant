@@ -11,7 +11,7 @@ validation_client_name "<%= validation_client_name %>"
 validation_key         "<%= validation_key %>"
 client_key             "<%= client_key %>"
 
-encrypted_data_bag_secret "<%= encrypted_data_bag_secret %>"
+encrypted_data_bag_secret <%= encrypted_data_bag_secret.inspect %>
 
 <% if environment %>
 environment        "<%= environment %>"
