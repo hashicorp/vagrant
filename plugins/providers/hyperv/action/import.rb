@@ -29,12 +29,7 @@ module VagrantPlugins
           }
 
           env[:ui].info "Importing a Hyper-V instance"
-          begin
-            server = env[:machine].provider.driver.execute('import_vm.ps1', options)
-          rescue Error::SubprocessError => e
-            env[:ui].info e.message
-            return
-          end
+          server = env[:machine].provider.driver.execute('import_vm.ps1', options)
           env[:ui].info "Successfully imported a VM with name   #{server['name']}"
           env[:machine].id = server["id"]
           @app.call(env)

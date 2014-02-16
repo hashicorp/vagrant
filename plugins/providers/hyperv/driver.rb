@@ -2,6 +2,8 @@ require "json"
 
 require "vagrant/util/powershell"
 
+require_relative "plugin"
+
 module VagrantPlugins
   module HyperV
     class Driver
@@ -13,9 +15,15 @@ module VagrantPlugins
       end
 
       def execute(path, options)
-        execute_powershell(path, options) do |type, data|
+        r = execute_powershell(path, options) do |type, data|
           process_output(type, data)
         end
+        if r.exit_code != 0
+          raise Errors::PowerShellError,
+            script: path,
+            stderr: r.stderr
+        end
+
         if success?
           JSON.parse(json_output[:success].join) unless json_output[:success].empty?
         else
