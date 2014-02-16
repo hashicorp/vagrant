@@ -45,4 +45,20 @@ describe VagrantPlugins::HyperV::Provider do
       expect(subject.driver).to be_kind_of(VagrantPlugins::HyperV::Driver)
     end
   end
+
+  describe "#state" do
+    it "returns not_created if no ID" do
+      machine.stub(id: nil)
+
+      expect(subject.state.id).to eq(:not_created)
+    end
+
+    it "calls an action to determine the ID" do
+      machine.stub(id: "foo")
+      machine.should_receive(:action).with(:read_state).
+        and_return({ machine_state_id: :bar })
+
+      expect(subject.state.id).to eq(:bar)
+    end
+  end
 end

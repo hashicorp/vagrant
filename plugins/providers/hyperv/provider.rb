@@ -38,11 +38,16 @@ module VagrantPlugins
       end
 
       def state
-        # Run a custom action we define called "read_state" which does
-        # what it says. It puts the state in the `:machine_state_id`
-        # key in the environment.
-        env = @machine.action("read_state")
-        state_id = env[:machine_state_id]
+        state_id = nil
+        state_id = :not_created if !@machine.id
+
+        if !state_id
+          # Run a custom action we define called "read_state" which does
+          # what it says. It puts the state in the `:machine_state_id`
+          # key in the environment.
+          env = @machine.action(:read_state)
+          state_id = env[:machine_state_id]
+        end
 
         # Get the short and long description
         short = "Machine's current state is #{state_id}"

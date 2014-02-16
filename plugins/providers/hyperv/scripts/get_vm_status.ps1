@@ -1,30 +1,25 @@
-#-------------------------------------------------------------------------
-# Copyright (c) Microsoft Open Technologies, Inc.
-# All Rights Reserved. Licensed under the MIT License.
-#--------------------------------------------------------------------------
-
-param (
-    [string]$vm_id = $(throw "-vm_id is required.")
- )
+Param(
+    [Parameter(Mandatory=$true)]
+    [string]$VmId
+)
 
 # Include the following modules
-$presentDir = Split-Path -parent $PSCommandPath
-$modules = @()
-$modules += $presentDir + "\utils\write_messages.ps1"
-forEach ($module in $modules) { . $module }
+$Dir = Split-Path $script:MyInvocation.MyCommand.Path
+. ([System.IO.Path]::Combine($Dir, "utils\write_messages.ps1"))
 
+# Get the VM with the given name
 try {
-  $vm = Get-VM -Id $vm_id -ErrorAction "stop"
-  $state = $vm.state
-  $status = $vm.status
-  $resultHash = @{
-    state = "$state"
-    status = "$status"
-  }
-  $result = ConvertTo-Json $resultHash
-  Write-Output-Message $result
+    $VM = Get-VM -Id $VmId -ErrorAction "Stop"
+    $State = $VM.state
+    $Status = $VM.status
+} catch [Microsoft.HyperV.PowerShell.VirtualizationOperationFailedException] {
+    $State = "not_created"
+    $Status = $State
+}
 
+$resultHash = @{
+    state = "$State"
+    status = "$Status"
 }
-catch {
-  Write-Error-Message $_
-}
+$result = ConvertTo-Json $resultHash
+Write-Output-Message $result

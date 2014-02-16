@@ -11,15 +11,9 @@ module VagrantPlugins
 
         def call(env)
           if env[:machine].id
-            begin
-              options = { vm_id: env[:machine].id }
-              response = env[:machine].provider.driver.execute('get_vm_status.ps1', options)
-              env[:machine_state_id] = response["state"].downcase.to_sym
-            rescue Error::SubprocessError
-              env[:machine].id = nil
-              env[:ui].info "Could not find a machine, assuming it to be deleted or terminated."
-              env[:machine_state_id] = :not_created
-            end
+            options = { VmId: env[:machine].id }
+            response = env[:machine].provider.driver.execute('get_vm_status.ps1', options)
+            env[:machine_state_id] = response["state"].downcase.to_sym
           else
             env[:machine_state_id] = :not_created
           end
