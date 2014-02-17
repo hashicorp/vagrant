@@ -195,3 +195,28 @@ by the sudo command.
   * Any supported options (described above) will override conflicting `raw_arguments` value (e.g. `--tags` or `--start-at-task`)
   * Vagrant default user authentication can be overridden via `raw_arguments` (with custom values for `--user` and `--private-key`)
 * `ansible.host_key_checking` can be set to `false` which will disable host key checking and prevent `"FAILED: (25, 'Inappropriate ioctl for device')"` errors from being reported during provisioner runs.  The default value is `true`, which matches the default behavior of Ansible 1.2.1 and later.
+
+## Tips and Tricks
+
+### Ansible Parallel Execution
+
+Vagrant is designed to provision [multi-machine environments](/v2/multi-machine) in sequence, but the following configuration pattern can be used to take advantage of Ansible parallelism:
+
+```
+  config.vm.define 'machine2' do |machine|
+    machine.vm.hostname = 'machine2'
+    machine.vm.network "private_network", ip: "192.168.77.22"
+  end
+
+  config.vm.define 'machine1' do |machine|
+    machine.vm.hostname = 'machine1'
+    machine.vm.network "private_network", ip: "192.168.77.21"
+
+    machine.vm.provision :ansible do |ansible|
+      ansible.playbook = "playbook.yml"
+
+      # Disable default limit (required with Vagrant 1.5+)
+      ansible.limit = 'all'
+    end
+  end
+```
