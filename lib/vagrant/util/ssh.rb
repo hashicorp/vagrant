@@ -173,13 +173,6 @@ module Vagrant
         LOGGER.info("Executing SSH in subprocess: #{command_options.inspect}")
         process = ChildProcess.build("ssh", *command_options)
         process.io.inherit!
-
-        # This is to workaround issue #69 on ChildProcess. This will
-        # be removed at some point.
-        if process.kind_of?(ChildProcess::Unix::Process)
-          process.keep_pgid = true if process.respond_to?(:keep_pgid=)
-        end
-
         process.start
         process.wait
         return process.exit_code
