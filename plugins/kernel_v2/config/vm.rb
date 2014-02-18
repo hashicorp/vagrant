@@ -203,8 +203,7 @@ module VagrantPlugins
       #
       # @param [Symbol] type Type of network
       # @param [Hash] options Options for the network.
-      def network(type, options=nil)
-        options ||= {}
+      def network(type, **options)
         options = options.dup
         options[:protocol] ||= "tcp"
 
