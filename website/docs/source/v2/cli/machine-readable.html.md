@@ -5,7 +5,7 @@ sidebar_current: "cli-machinereadable"
 
 # Machine Readable Output
 
-Every Vagrant commands accepts a `--machine-readable` flag which enables
+Every Vagrant command accepts a `--machine-readable` flag which enables
 machine readable output mode. In this mode, the output to the terminal
 is replaced with machine-friendly output.
 
