@@ -10,8 +10,9 @@ role_path <%= roles_path.inspect %>
 log_level <%= log_level.inspect %>
 verbose_logging    <%= verbose_logging.inspect %>
 
+<% if encrypted_data_bag_secret_enabled %>
 encrypted_data_bag_secret "<%= encrypted_data_bag_secret %>"
-
+<% end %>
 <% if data_bags_path -%>
 data_bag_path <%= data_bags_path.inspect %>
 <% end %>

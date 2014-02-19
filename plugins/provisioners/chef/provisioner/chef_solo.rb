@@ -142,6 +142,7 @@ module VagrantPlugins
             :roles_path => roles_path,
             :data_bags_path => data_bags_path,
             :encrypted_data_bag_secret => @config.encrypted_data_bag_secret,
+            :encrypted_data_bag_secret_enabled => @config.encrypted_data_bag_secret_key_path.to_s.length != 0,
             :environments_path => environments_path,
             :environment => @config.environment,
           })
