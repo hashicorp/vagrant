@@ -133,9 +133,10 @@ that supports multiple providers:
 
 ```
 $ vagrant box add hashicorp/precise64
-This box can work with multiple providers! The providers that it
-can work with are listed below. Please review the list and choose
-the provider you will be working with.
+This box can work with multiple providers! The providers
+that it can work with are listed below. Please review
+the list and choose the provider you will be working
+with.
 
 1.) virtualbox
 2.) vmware
