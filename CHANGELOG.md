@@ -92,6 +92,12 @@ BUG FIXES:
   - providers/virtualbox: Bridge network adapters always have their
     "cable connected" properly. [GH-2906]
   - provisioners/chef: When chowning folders, don't follow symlinks.
+  - provisioners/chef: Encrypted data bag secrets also in Chef solo are
+    now uploaded to the provisioning path to avoid perm issues. [GH-2845]
+  - provisioners/chef: Encrypted data bag secret is removed from the
+    machine before and after provisioning also with Chef client. [GH-2845]
+  - provisioners/chef: Set `encrypted_data_bag_secret` on the VM to `nil`
+    if the secret is not specified. [GH-2984]
   - provisioners/docker: Only add SSH user to docker group if the user
     isn't already in it. [GH-2838]
   - provisioners/docker: Configuring autostart works properly with
