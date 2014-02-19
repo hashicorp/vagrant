@@ -20,10 +20,11 @@ module VagrantPlugins
           chown_provisioning_folder
           create_client_key_folder
           upload_validation_key
-          upload_encrypted_data_bag_secret if @config.encrypted_data_bag_secret_key_path
+          upload_encrypted_data_bag_secret
           setup_json
           setup_server_config
           run_chef_client
+          delete_encrypted_data_bag_secret
         end
 
         def cleanup
@@ -43,12 +44,6 @@ module VagrantPlugins
           @machine.communicate.upload(validation_key_path, guest_validation_key_path)
         end
 
-        def upload_encrypted_data_bag_secret
-          @machine.env.ui.info I18n.t("vagrant.provisioners.chef.upload_encrypted_data_bag_secret_key")
-          @machine.communicate.upload(encrypted_data_bag_secret_key_path,
-            guest_encrypted_data_bag_secret_key_path)
-        end
-
         def setup_server_config
           setup_config("provisioners/chef_client/client", "client.rb", {
             :node_name => @config.node_name,
@@ -57,7 +52,6 @@ module VagrantPlugins
             :validation_key => guest_validation_key_path,
             :client_key => @config.client_key_path,
             :environment => @config.environment,
-            :encrypted_data_bag_secret => guest_encrypted_data_bag_secret_key_path,
           })
         end
 
@@ -96,15 +90,6 @@ module VagrantPlugins
 
         def validation_key_path
           File.expand_path(@config.validation_key_path, @machine.env.root_path)
-        end
-
-        def encrypted_data_bag_secret_key_path
-          File.expand_path(@config.encrypted_data_bag_secret_key_path, @machine.env.root_path)
-        end
-
-        def guest_encrypted_data_bag_secret_key_path
-          File.join(@config.provisioning_path,
-            "encrypted_data_bag_secret_key.pem")
         end
 
         def guest_validation_key_path

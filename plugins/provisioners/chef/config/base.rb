@@ -11,6 +11,7 @@ module VagrantPlugins
         attr_accessor :binary_path
         attr_accessor :binary_env
         attr_accessor :custom_config_path
+        attr_accessor :encrypted_data_bag_secret_key_path
         attr_accessor :formatter
         attr_accessor :http_proxy
         attr_accessor :http_proxy_user
@@ -36,6 +37,7 @@ module VagrantPlugins
           @binary_path       = UNSET_VALUE
           @binary_env        = UNSET_VALUE
           @custom_config_path = UNSET_VALUE
+          @encrypted_data_bag_secret_key_path = UNSET_VALUE
           @formatter         = UNSET_VALUE
           @http_proxy        = UNSET_VALUE
           @http_proxy_user   = UNSET_VALUE
@@ -53,6 +55,12 @@ module VagrantPlugins
 
           @json              = {}
           @run_list          = []
+        end
+
+        def encrypted_data_bag_secret=(value)
+          puts "DEPRECATION: Chef encrypted_data_bag_secret has no effect anymore."
+          puts "Remove this from your Vagrantfile since it'll be removed in the next"
+          puts "Vagrant version."
         end
 
         def finalize!
@@ -75,6 +83,10 @@ module VagrantPlugins
           @file_backup_path  = "/var/chef/backup" if @file_backup_path == UNSET_VALUE
           @file_cache_path   = "/var/chef/cache" if @file_cache_path == UNSET_VALUE
           @verbose_logging   = false if @verbose_logging == UNSET_VALUE
+
+          if @encrypted_data_bag_secret_key_path == UNSET_VALUE
+            @encrypted_data_bag_secret_key_path = nil
+          end
 
           # Make sure the log level is a symbol
           @log_level = @log_level.to_sym
