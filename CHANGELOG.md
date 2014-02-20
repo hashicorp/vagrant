@@ -98,6 +98,7 @@ BUG FIXES:
     machine before and after provisioning also with Chef client. [GH-2845]
   - provisioners/chef: Set `encrypted_data_bag_secret` on the VM to `nil`
     if the secret is not specified. [GH-2984]
+  - provisioners/chef: Fix loading of the custom configure file. [GH-876]
   - provisioners/docker: Only add SSH user to docker group if the user
     isn't already in it. [GH-2838]
   - provisioners/docker: Configuring autostart works properly with

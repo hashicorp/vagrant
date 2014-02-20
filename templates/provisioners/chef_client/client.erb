@@ -37,5 +37,5 @@ add_formatter "<%= formatter %>"
 <% end %>
 
 <% if custom_configuration -%>
-load "<%= custom_configuration %>"
+Chef::Config.from_file "<%= custom_configuration %>"
 <% end -%>
