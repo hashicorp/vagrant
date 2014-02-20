@@ -79,8 +79,13 @@ module VagrantPlugins
       def bootstrap_options(install, configure, config_dir)
         options = ""
 
+        ## Any extra options passed to bootstrap
+        if @config.bootstrap_options
+          options = "%s %s" % [options, @config.bootstrap_options]
+        end
+
         if configure
-          options = " -c %s %s" % [config_dir, options]
+          options = "%s -c %s" % [options, config_dir]
         end
 
         if @config.seed_master and @config.install_master
@@ -119,11 +124,6 @@ module VagrantPlugins
           if @config.install_args
             options = "%s %s" % [options, @config.install_args]
           end
-        end
-
-        ## Any extra options passed to bootstrap
-        if @config.bootstrap_options
-          options = "%s %s" % [options, @config.bootstrap_options]
         end
 
         if @config.verbose
