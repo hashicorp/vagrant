@@ -21,8 +21,8 @@ provisioners.
   This defaults to 1. This can be increased to a higher number if your Chef
   runs take multiple runs to reach convergence.
 
-* `binary_path` (string) - The full path to the binary to execute to run
-  Chef. By default, Vagrant looks for the proper Chef binary on the PATH.
+* `binary_path` (string) - The path to the directory of the Chef executable
+  binaries. By default, Vagrant looks for the proper Chef binary on the PATH.
 
 * `custom_config_path` (string) - A path to a custom Chef configuration local
   on your machine that will be used as the Chef configuration. This Chef
@@ -30,6 +30,12 @@ provisioners.
   generates, allowing you to override anything that Vagrant does. This is
   also a great way to use new Chef features that may not be supported fully
   by Vagrant's abstractions yet.
+
+* `encrypted_data_bag_secret_key_path` (string) - The path to the secret key
+  file to decrypt encrypted data bags. By default, this is not set.
+
+* `environment` (string) - The environment you want the Chef run to be
+  a part of.
 
 * `formatter` (string) - The formatter to use for output from Chef.
 
