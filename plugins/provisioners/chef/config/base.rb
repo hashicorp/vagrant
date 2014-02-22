@@ -12,6 +12,7 @@ module VagrantPlugins
         attr_accessor :binary_env
         attr_accessor :custom_config_path
         attr_accessor :encrypted_data_bag_secret_key_path
+        attr_accessor :environment
         attr_accessor :formatter
         attr_accessor :http_proxy
         attr_accessor :http_proxy_user
@@ -38,6 +39,7 @@ module VagrantPlugins
           @binary_env        = UNSET_VALUE
           @custom_config_path = UNSET_VALUE
           @encrypted_data_bag_secret_key_path = UNSET_VALUE
+          @environment       = UNSET_VALUE
           @formatter         = UNSET_VALUE
           @http_proxy        = UNSET_VALUE
           @http_proxy_user   = UNSET_VALUE
@@ -69,6 +71,7 @@ module VagrantPlugins
           @binary_path       = nil if @binary_path == UNSET_VALUE
           @binary_env        = nil if @binary_env == UNSET_VALUE
           @custom_config_path = nil if @custom_config_path == UNSET_VALUE
+          @environment       = nil if @environment == UNSET_VALUE
           @formatter         = nil if @formatter == UNSET_VALUE
           @http_proxy        = nil if @http_proxy == UNSET_VALUE
           @http_proxy_user   = nil if @http_proxy_user == UNSET_VALUE

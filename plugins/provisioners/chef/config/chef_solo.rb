@@ -7,7 +7,6 @@ module VagrantPlugins
         attr_accessor :cookbooks_path
         attr_accessor :data_bags_path
         attr_accessor :environments_path
-        attr_accessor :environment
         attr_accessor :recipe_url
         attr_accessor :roles_path
         attr_accessor :synced_folder_type
@@ -18,7 +17,6 @@ module VagrantPlugins
           @cookbooks_path            = UNSET_VALUE
           @data_bags_path            = UNSET_VALUE
           @environments_path         = UNSET_VALUE
-          @environment               = UNSET_VALUE
           @recipe_url                = UNSET_VALUE
           @roles_path                = UNSET_VALUE
           @synced_folder_type        = UNSET_VALUE
@@ -43,7 +41,6 @@ module VagrantPlugins
         def finalize!
           super
 
-          @environment = nil if @environment == UNSET_VALUE
           @recipe_url = nil if @recipe_url == UNSET_VALUE
           @synced_folder_type = nil if @synced_folder_type == UNSET_VALUE
 

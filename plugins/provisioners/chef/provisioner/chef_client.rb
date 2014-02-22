@@ -46,12 +46,10 @@ module VagrantPlugins
 
         def setup_server_config
           setup_config("provisioners/chef_client/client", "client.rb", {
-            :node_name => @config.node_name,
             :chef_server_url => @config.chef_server_url,
             :validation_client_name => @config.validation_client_name,
             :validation_key => guest_validation_key_path,
             :client_key => @config.client_key_path,
-            :environment => @config.environment,
           })
         end
 

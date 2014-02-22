@@ -58,9 +58,11 @@ module VagrantPlugins
           config_file = Vagrant::Util::TemplateRenderer.render(template, {
             :custom_configuration => remote_custom_config_path,
             :encrypted_data_bag_secret => guest_encrypted_data_bag_secret_key_path,
-            :file_cache_path => @config.file_cache_path,
+            :environment      => @config.environment,
+            :file_cache_path  => @config.file_cache_path,
             :file_backup_path => @config.file_backup_path,
             :log_level        => @config.log_level.to_sym,
+            :node_name        => @config.node_name,
             :verbose_logging  => @config.verbose_logging,
             :http_proxy       => @config.http_proxy,
             :http_proxy_user  => @config.http_proxy_user,

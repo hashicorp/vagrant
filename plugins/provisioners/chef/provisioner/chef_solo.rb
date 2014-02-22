@@ -121,13 +121,11 @@ module VagrantPlugins
           data_bags_path = guest_paths(@data_bags_folders).first
           environments_path = guest_paths(@environments_folders).first
           setup_config("provisioners/chef_solo/solo", "solo.rb", {
-            :node_name => @config.node_name,
             :cookbooks_path => cookbooks_path,
             :recipe_url => @config.recipe_url,
             :roles_path => roles_path,
             :data_bags_path => data_bags_path,
             :environments_path => environments_path,
-            :environment => @config.environment,
           })
         end
 
