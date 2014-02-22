@@ -117,7 +117,7 @@ module VagrantPlugins
 
         def setup_solo_config
           cookbooks_path = guest_paths(@cookbook_folders)
-          roles_path = guest_paths(@role_folders).first
+          roles_path = guest_paths(@role_folders)
           data_bags_path = guest_paths(@data_bags_folders).first
           environments_path = guest_paths(@environments_folders).first
           setup_config("provisioners/chef_solo/solo", "solo.rb", {
