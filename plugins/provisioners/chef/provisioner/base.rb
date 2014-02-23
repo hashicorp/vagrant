@@ -62,7 +62,7 @@ module VagrantPlugins
             :file_cache_path  => @config.file_cache_path,
             :file_backup_path => @config.file_backup_path,
             :log_level        => @config.log_level.to_sym,
-            :node_name        => @config.node_name,
+            :node_name        => node_name,
             :verbose_logging  => @config.verbose_logging,
             :http_proxy       => @config.http_proxy,
             :http_proxy_user  => @config.http_proxy_user,
@@ -137,6 +137,10 @@ module VagrantPlugins
           if @config.encrypted_data_bag_secret_key_path
             File.join(@config.provisioning_path, "encrypted_data_bag_secret_key")
           end
+        end
+
+        def node_name
+          @config.node_name || @machine.config.vm.hostname
         end
       end
     end
