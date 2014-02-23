@@ -1,5 +1,6 @@
+require 'chef-api'
 require 'pathname'
-require 'vagrant/util/subprocess'
+require 'tempfile'
 
 require File.expand_path("../base", __FILE__)
 
@@ -28,8 +29,20 @@ module VagrantPlugins
         end
 
         def cleanup
-          delete_from_chef_server('client') if @config.delete_client
-          delete_from_chef_server('node') if @config.delete_node
+          return if !@config.delete_client && !@config.delete_node
+
+          if !node_name
+            @machine.env.ui.error(I18n.t(
+              "vagrant.provisioners.chef.no_node_name_for_deleting"))
+          elsif !cached_client_key_path.exist?
+            @machine.env.ui.error(I18n.t(
+              "vagrant.provisioners.chef.no_cached_client_key",
+              node_name: node_name))
+          else
+            delete_from_chef_server(:node) if @config.delete_node
+            delete_from_chef_server(:client) if @config.delete_client
+            cached_client_key_path.delete
+          end
         end
 
         def create_client_key_folder
@@ -79,8 +92,13 @@ module VagrantPlugins
             end
 
             # There is no need to run Chef again if it converges
-            return if exit_status == 0
+            if exit_status == 0
+              download_client_key
+              return
+            end
           end
+
+          download_client_key
 
           # If we reached this point then Chef never converged! Error.
           raise ChefError, :no_convergence
@@ -94,20 +112,62 @@ module VagrantPlugins
           File.join(@config.provisioning_path, "validation.pem")
         end
 
+        def cached_client_key_path
+          @machine.data_dir.parent.join("chef-client.pem")
+        end
+
+        def download_client_key
+          return if !@config.delete_client && !@config.delete_node
+
+          @machine.env.ui.info(I18n.t(
+            "vagrant.provisioners.chef.download_client_key"))
+
+          if !@machine.communicate.test("test -f #{@config.client_key_path}",
+                                        sudo: true)
+            @machine.env.ui.warn(I18n.t(
+              "vagrant.provisioners.chef.no_client_key"))
+            return
+          end
+
+          # We don't have permissions to scp the key directly, so we have to
+          # copy it first for the vagrant user.
+          # Echoing the key over stdin would get tricky too if PTY is enabled.
+          @machine.communicate.tap do |comm|
+            tmp_key = File.join(@config.provisioning_path, "tmp-client.pem")
+
+            comm.sudo("cp #{@config.client_key_path} #{tmp_key}")
+            comm.sudo("chown #{@machine.ssh_info[:username]} #{tmp_key}")
+            comm.download(tmp_key, cached_client_key_path)
+            comm.sudo("rm -f #{tmp_key}")
+          end
+        end
+
         def delete_from_chef_server(deletable)
           @machine.env.ui.info(I18n.t(
-            "vagrant.provisioners.chef.deleting_from_server",
+            "vagrant.provisioners.chef.delete_from_server",
             deletable: deletable, name: node_name))
 
-          command = ["knife", deletable, "delete", "--yes", node_name]
-          r = Vagrant::Util::Subprocess.execute(*command)
-          if r.exit_code != 0
+          begin
+            chefAPI.const_get(deletable.capitalize).delete(node_name)
+          rescue ChefAPI::Error::ChefAPIError => e
             @machine.env.ui.error(I18n.t(
               "vagrant.chef_client_cleanup_failed",
               deletable: deletable,
-              stdout: r.stdout,
-              stderr: r.stderr))
+              error: e))
           end
+        end
+
+        def chefAPI
+          return @chefAPI if @chefAPI
+
+          ChefAPI.configure do |config|
+            config.endpoint = @config.chef_server_url
+            config.client = node_name
+            config.key = cached_client_key_path.to_s
+            # TODO: proxy config
+            # TODO: SSL config
+          end
+          @chefAPI = ChefAPI::Resource
         end
       end
     end
