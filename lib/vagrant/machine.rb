@@ -230,7 +230,7 @@ module Vagrant
       end
 
       # Store the ID locally
-      @id = value.to_s
+      @id = value.nil? ? nil : value.to_s
 
       # Notify the provider that the ID changed in case it needs to do
       # any accounting from it.
