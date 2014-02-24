@@ -110,6 +110,8 @@ BUG FIXES:
     the newest versions of Docker. [GH-2874]
   - provisioners/salt: Options can now set install type and install args.
     [GH-2766]
+  - provisioners/salt: Fix case when salt would say "options only allowed
+    before install arguments" [GH-3005]
   - synced\_folders/nfs: NFS entries are pruned on every `vagrant up`,
     if there are any to prune. [GH-2738]
 
