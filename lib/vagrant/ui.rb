@@ -34,7 +34,14 @@ module Vagrant
       [:ask, :detail, :warn, :error, :info, :output, :success].each do |method|
         define_method(method) do |message, *opts|
           # Log normal console messages
-          @logger.info { "#{method}: #{message}" }
+          begin
+            @logger.info { "#{method}: #{message}" }
+          rescue ThreadError
+            # We're being called in a trap-context. Wrap in a thread.
+            Thread.new do
+              @logger.info { "#{method}: #{message}" }
+            end.join
+          end
         end
       end
 
