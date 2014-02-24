@@ -354,7 +354,10 @@ module VagrantPlugins
         def raw(*command, &block)
           int_callback = lambda do
             @interrupted = true
-            @logger.info("Interrupted.")
+
+            # We have to execute this in a thread due to trap contexts
+            # and locks.
+            Thread.new { @logger.info("Interrupted.") }.join
           end
 
           # Append in the options for subprocess
