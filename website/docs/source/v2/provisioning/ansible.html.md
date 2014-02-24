@@ -33,8 +33,7 @@ there are two ways to approach working with inventory files.
 
 The first and simplest option is to not provide one to Vagrant at all. Vagrant will generate an
 inventory file encompassing all of the virtual machine it manages, and use it for provisioning
-machines. The generated inventory file is created adjacent to your Vagrantfile, named
-`vagrant_ansible_inventory`.
+machines. The generated inventory file is stored as part of your local Vagrant environment in `.vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory`.
 
 The `ansible.groups` option can be used to pass a hash of group
 names and group members to be included in the generated inventory file. Group variables
