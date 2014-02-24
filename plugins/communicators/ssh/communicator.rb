@@ -62,20 +62,22 @@ module VagrantPlugins
                 @logger.info("SSH not ready: #{e.inspect}")
                 raise
               end
-            rescue Errno::ETIMEDOUT, Timeout::Error
+            rescue Vagrant::Errors::SSHConnectionTimeout
               message = "Connection timout."
-            rescue Net::SSH::AuthenticationFailed
+            rescue Vagrant::Errors::SSHAuthenticationFailed
               message = "Authentication failure."
-            rescue Net::SSH::Disconnect
+            rescue Vagrant::Errors::SSHDisconnected
               message = "Remote connection disconnect."
-            rescue Errno::ECONNREFUSED
+            rescue Vagrant::Errors::SSHConnectionRefused
               message = "Connection refused."
-            rescue Errno::ECONNRESET
+            rescue Vagrant::Errors::SSHConnectionReset
               message = "Connection reset."
-            rescue Errno::EHOSTDOWN
+            rescue Vagrant::Errors::SSHHostDown
               message = "Host appears down."
-            rescue Errno::EHOSTUNREACH
+            rescue Vagrant::Errors::SSHNoRoute
               message = "Host unreachable."
+            rescue Vagrant::Errors::SSHKeyTypeNotSupported
+              raise
             rescue Vagrant::Errors::VagrantError => e
               # Ignore it, SSH is not ready, some other error.
             end
