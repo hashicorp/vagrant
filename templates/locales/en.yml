@@ -1312,6 +1312,11 @@ en:
             Forcing shutdown of VM...
           graceful: |-
             Attempting graceful shutdown of VM...
+          guest_not_ready: |-
+            Guest communication could not be established! This is usually because
+            SSH is not running, the authentication information was changed,
+            or some other networking issue. Vagrant will force halt, if
+            capable.
         hostname:
           setting: "Setting hostname..."
         import:
