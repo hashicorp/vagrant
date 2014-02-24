@@ -88,6 +88,8 @@ BUG FIXES:
   - hosts/bsd: Don't invoke shell for NFS sudo calls. [GH-2808]
   - hosts/bsd: Sort NFS exports to avoid false validation errors. [GH-2927]
   - hosts/gentoo: Look for systemctl in `/usr/bin` [GH-2858]
+  - hosts/linux: Properly escape regular expression to prune NFS exports,
+    allowing VMware to work properly. [GH-2934]
   - hosts/opensuse: Start NFS server properly. [GH-2923]
   - providers/virtualbox: Enabling internal networks by just setting "true"
     works properly. [GH-2751]

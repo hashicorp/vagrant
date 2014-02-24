@@ -89,7 +89,8 @@ module VagrantPlugins
         def self.nfs_cleanup(id)
           return if !File.exist?("/etc/exports")
 
-          user = Process.uid
+          user = Regexp.escape(Process.uid.to_s)
+          id   = Regexp.escape(id.to_s)
 
           # Use sed to just strip out the block of code which was inserted
           # by Vagrant
