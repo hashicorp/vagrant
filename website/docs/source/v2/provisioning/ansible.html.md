@@ -28,7 +28,7 @@ a single page of documentation.
 ## Inventory File
 
 When using Ansible, it needs to know on which machines a given playbook should run. It does
-this by way of an inventory file which lists those machines. In the context of Vagrant,
+this by way of an [inventory](http://docs.ansible.com/intro_inventory.html) file which lists those machines. In the context of Vagrant,
 there are two ways to approach working with inventory files.
 
 The first and simplest option is to not provide one to Vagrant at all. Vagrant will generate an
@@ -71,11 +71,10 @@ group1
 group2
 ```
 
-The second option is for situations where you'd like to have more control over the inventory file.
-If you provide the `ansible.inventory_path` option referencing a specific inventory file dedicated
-to your Vagrant project, that one will be used instead of generating it.
+The second option is for situations where you'd like to have more control over the inventory management.
+With the `ansible.inventory_path` option, you can reference a specific inventory resource (e.g. a static inventory file, a [dynamic inventory script](http://docs.ansible.com/intro_dynamic_inventory.html) or even [multiple inventories stored in the same directory](http://docs.ansible.com/intro_dynamic_inventory.html#using-multiple-inventory-sources)). Vagrant will then use this inventory information instead of generating it.
 
-Such an inventory file for use with Vagrant might look like:
+A very simple inventory file for use with Vagrant might look like:
 
 ```
 default ansible_ssh_host=192.168.111.222
