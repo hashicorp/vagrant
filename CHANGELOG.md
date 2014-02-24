@@ -112,6 +112,8 @@ BUG FIXES:
     isn't already in it. [GH-2838]
   - provisioners/docker: Configuring autostart works properly with
     the newest versions of Docker. [GH-2874]
+  - provisioners/puppet: Append default module path to the module paths
+    always. [GH-2677]
   - provisioners/salt: Options can now set install type and install args.
     [GH-2766]
   - provisioners/salt: Fix case when salt would say "options only allowed
