@@ -35,8 +35,13 @@ module Vagrant
             @logger.info("Checking provisioner sentinel if we should run...")
             sentinel_path = env[:machine].data_dir.join("action_provision")
             if sentinel_path.file?
-              @logger.info("Sentinel found! Not provisioning.")
-              enabled = false
+              if sentinel_path.read.chomp == env[:machine].id.to_s
+                @logger.info("Sentinel found! Not provisioning.")
+                enabled = false
+              else
+                @logger.info("Sentinel found with another machine ID. Removing.")
+                sentinel_path.unlink
+              end
             end
           end
 
@@ -55,7 +60,7 @@ module Vagrant
           if sentinel_path && !sentinel_path.file?
             @logger.info("Writing provisioning sentinel so we don't provision again")
             sentinel_path.open("w") do |f|
-              f.write(Time.now.to_i.to_s)
+              f.write(env[:machine].id.to_s)
             end
           end
 

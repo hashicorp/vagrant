@@ -69,6 +69,8 @@ BUG FIXES:
     be deleted. [GH-2873]
   - core: Static IPs can end in ".1". A warning is now shown. [GH-2914]
   - core: Adding boxes that have directories in them works on Windows.
+  - core: Vagrant will not think provisioning is already done if
+    the VM is manually deleted outside of Vagrant.
   - commands/box: Box add `--force` works with `--provider` flag. [GH-2757]
   - commands/box: Listing boxes with machine-readable output crash is gone.
   - commands/plugin: Plugin installation will fail if dependencies conflict,
