@@ -112,6 +112,7 @@ BUG FIXES:
     [GH-2766]
   - provisioners/salt: Fix case when salt would say "options only allowed
     before install arguments" [GH-3005]
+  - provisioners/shell: Error if script is encoded incorrectly. [GH-3000]
   - synced\_folders/nfs: NFS entries are pruned on every `vagrant up`,
     if there are any to prune. [GH-2738]
 

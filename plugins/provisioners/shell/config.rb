@@ -46,11 +46,20 @@ module VagrantPlugins
         end
 
         # If it is not an URL, we validate the existence of a script to upload
-        if path && ! remote?
+        if path && !remote?
           expanded_path = Pathname.new(path).expand_path(machine.env.root_path)
           if !expanded_path.file?
             errors << I18n.t("vagrant.provisioners.shell.path_invalid",
                               :path => expanded_path)
+          else
+            data = expanded_path.read(16)
+            if !data.valid_encoding?
+              errors << I18n.t(
+                "vagrant.provisioners.shell.invalid_encoding",
+                actual: data.encoding.to_s,
+                default: Encoding.default_external.to_s,
+                path: expanded_path.to_s)
+            end
           end
         end
 

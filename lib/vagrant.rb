@@ -1,6 +1,3 @@
-# This file is load before RubyGems are loaded, and allow us to actually
-# resolve plugin dependencies and load the proper versions of everything.
-
 require "vagrant/shared_helpers"
 
 if Vagrant.plugins_enabled? && !defined?(Bundler)
