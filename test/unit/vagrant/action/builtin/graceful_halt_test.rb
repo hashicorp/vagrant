@@ -26,7 +26,7 @@ describe Vagrant::Action::Builtin::GracefulHalt do
   let(:target_state) { :target }
   let(:ui) do
     double("ui").tap do |result|
-      result.stub(:info)
+      result.stub(:output)
     end
   end
 
