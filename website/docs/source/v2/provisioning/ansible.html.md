@@ -8,7 +8,7 @@ sidebar_current: "provisioning-ansible"
 **Provisioner name: `"ansible"`**
 
 The ansible provisioner allows you to provision the guest using
-[Ansible](http://ansible.cc) playbooks.
+[Ansible](http://ansible.com) playbooks.
 
 Ansible playbooks are [YAML](http://en.wikipedia.org/wiki/YAML) documents that
 comprise the set of steps to be orchestrated on one or more machines. This documentation
@@ -92,9 +92,9 @@ unless you use `ansible.limit` option to reference the correct machines.
 
 The second component of a successful Ansible provisioner setup is the Ansible playbook
 which contains the steps that should be run on the guest. Ansible's
-[playbook documentation](http://ansible.cc/docs/playbooks.html) goes into great
+[playbook documentation](http://docs.ansible.com/playbooks.html) goes into great
 detail on how to author playbooks, and there are a number of
-[best practices](http://ansible.cc/docs/bestpractices.html) that can be applied to use
+[best practices](http://docs.ansible.com/playbooks_best_practices.html) that can be applied to use
 Ansible's powerful features effectively. A playbook that installs and starts (or restarts
 if it was updated) the NTP daemon via YUM looks like:
 
@@ -112,7 +112,7 @@ if it was updated) the NTP daemon via YUM looks like:
 ```
 
 You can of course target other operating systems that don't have YUM by changing the
-playbook tasks. Ansible ships with a number of [modules](http://ansible.cc/docs/modules.html)
+playbook tasks. Ansible ships with a number of [modules](http://docs.ansible.com/modules.html)
 that make running otherwise tedious tasks dead simple.
 
 ## Running Ansible
