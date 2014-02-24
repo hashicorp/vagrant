@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
   s.rubyforge_project         = "vagrant"
 
   s.add_dependency "bundler", "~> 1.5.2"
+  s.add_dependency "chef-api", "~> 0.2.0"
   s.add_dependency "childprocess", "~> 0.5.0"
   s.add_dependency "erubis", "~> 2.7.0"
   s.add_dependency "i18n", "~> 0.6.0"

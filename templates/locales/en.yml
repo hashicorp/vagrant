@@ -78,16 +78,12 @@ en:
     cfengine_single_run_execute: |-
       Executing run file for CFEngine...
     chef_client_cleanup_failed: |-
-      Cleaning up the '%{deletable}' for Chef failed. The stdout and
-      stderr are shown below. Vagrant will continue destroying the machine,
-      so please clean up these resources manually.
+      Cleaning up the '%{deletable}' for Chef failed. The error is show below.
+      Vagrant will continue destroying the machine, so please clean up these
+      resources manually.
 
-      stdout: %{stdout}
-
-      stderr: %{stderr}
-    chef_config_knife_not_found: |-
-      The `knife` application was not found! This is required by Vagrant
-      to automatically delete Chef nodes and clients.
+      error:
+      %{error}
     chef_run_list_empty: |-
       Warning: Chef run list is empty. This may not be what you want.
     cli_interrupt: |-
@@ -1446,6 +1442,7 @@ en:
           "The cookbook path '%{path}' doesn't exist. Ignoring..."
         json: "Generating chef JSON and uploading..."
         client_key_folder: "Creating folder to hold client key..."
+        download_client_key: "Downloading chef client key..."
         upload_validation_key: "Uploading chef client validation key..."
         upload_encrypted_data_bag_secret_key: "Uploading chef encrypted data bag secret key..."
         running_client: "Running chef-client..."
@@ -1457,9 +1454,19 @@ en:
           This is usually due to configuration changing after already booting the
           machine. The fix is to run a `vagrant reload` so that the proper shared
           folders will be prepared and mounted on the VM.
+        no_cached_client_key: |-
+          The client key to delete the client/node from the Chef server was not
+          found. Probably the provisioning never succeeded in registering them,
+          but in case it did, please delete them manually with e.g.
+          `knife node delete %{node_name}` and `knife client delete %{node_name}`.
+        no_client_key: |-
+          The client key was not found on the VM.
         no_convergence: |-
           Chef never successfully completed! Any errors should be visible in the
           output above. Please fix your recipes so that they properly complete.
+        no_node_name_for_deleting: |-
+          To be able to delete the client/node from the Chef server, either
+          `chef.node_name` or `config.vm.hostname` must be specified.
         not_detected: |-
           The `%{binary}` binary appears not to be in the PATH of the guest. This
           could be because the PATH is not properly setup or perhaps chef is not
@@ -1476,7 +1483,7 @@ en:
         server_validation_key_doesnt_exist: |-
           The validation key set for `config.chef.validation_key_path` does not exist! This
           file needs to exist so it can be uploaded to the virtual machine.
-        deleting_from_server: "Deleting %{deletable} \"%{name}\" from Chef server..."
+        delete_from_server: "Deleting %{deletable} \"%{name}\" from Chef server..."
 
       file:
         no_dest_file: "File destination must be specified."
