@@ -1,0 +1,46 @@
+require File.expand_path("../../../../base", __FILE__)
+
+require Vagrant.source_root.join("plugins/provisioners/salt/config")
+
+describe VagrantPlugins::Salt::Config do
+  include_context "unit"
+
+  subject { described_class.new }
+
+  let(:iso_env) do
+    # We have to create a Vagrantfile so there is a root path
+    env = isolated_environment
+    env.vagrantfile("")
+    env.create_vagrant_env
+  end
+
+  let(:machine) { iso_env.machine(iso_env.machine_names[0], :dummy) }
+
+  describe "validate" do
+    let(:error_key) { "salt provisioner" }
+
+    it "passes by default" do
+      subject.finalize!
+      result = subject.validate(machine)
+      expect(result[error_key]).to be_empty
+    end
+
+    context "minion_config" do
+      it "fails if minion_config is set and missing" do
+        subject.minion_config = "/nope/nope/i/dont/exist"
+        subject.finalize!
+
+        result = subject.validate(machine)
+        expect(result[error_key]).to_not be_empty
+      end
+
+      it "is valid if is set and not missing" do
+        subject.minion_config = File.expand_path(__FILE__)
+        subject.finalize!
+
+        result = subject.validate(machine)
+        expect(result[error_key]).to be_empty
+      end
+    end
+  end
+end

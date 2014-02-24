@@ -83,6 +83,13 @@ module VagrantPlugins
 
       def validate(machine)
         errors = _detected_errors
+        if @minion_config
+          expanded = Pathname.new(@minion_config).expand_path(machine.env.root_path)
+          if !expanded.file?
+            errors << I18n.t("vagrant.provisioners.salt.minion_config_nonexist")
+          end
+        end
+
         if @minion_key || @minion_pub
           if !@minion_key || !@minion_pub
             errors << @minion_pub

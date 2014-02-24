@@ -1548,6 +1548,8 @@ en:
         install_failed: "Docker installation failed."
 
       salt:
+        minion_config_nonexist: |-
+          The specified minion_config file could not be found.
         missing_key: |-
           You must include both public and private keys.
         must_accept_keys: |-
