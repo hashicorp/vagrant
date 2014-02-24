@@ -35,6 +35,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+  - core: Added "error-exit" type to machine-readable output which contains
+    error information that caused a non-zero exit status. [GH-2999]
   - guests/solaris: More accurate Solaris >= 11, < 11 detection. [GH-2824]
   - provisioners/chef-solo: New config `synced_folder_type` replaces the
     `nfs` option. This can be used to set the synced folders the provisioner

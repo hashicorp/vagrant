@@ -153,6 +153,7 @@ rescue Exception => e
   if env
     opts = { :prefix => false }
     env.ui.error e.message, opts if e.message
+    env.ui.machine("error-exit", e.class.to_s, e.message.to_s)
   else
     $stderr.puts "Vagrant failed to initialize at a very early stage:\n\n"
     $stderr.puts e.message

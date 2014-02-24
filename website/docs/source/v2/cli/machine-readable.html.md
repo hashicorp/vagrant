@@ -107,6 +107,14 @@ with the machine-readable output.
 </tr>
 
 <tr>
+<td>error-exit</td>
+<td>
+	An error occured that caused Vagrant to exit. This contains that
+	error. Contains two data elements: type of error, error message.
+</td>
+</tr>
+
+<tr>
 <td>provider-name</td>
 <td>
 	The provider name of the target machine.
