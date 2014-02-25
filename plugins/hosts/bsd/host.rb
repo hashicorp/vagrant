@@ -75,6 +75,7 @@ module VagrantPlugins
         # Sort all the keys by length so that the directory closest to
         # the root is exported first.
         dirmap.each do |dirs, _|
+          dirs.uniq!
           dirs.sort_by! { |d| d.length }
         end
 
