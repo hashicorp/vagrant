@@ -218,3 +218,11 @@ Vagrant is designed to provision [multi-machine environments](/v2/multi-machine)
     end
   end
 ```
+
+### Provide a local `ansible.cfg` file
+
+Certain settings in Ansible are (only) adjustable via a [configuration file](http://docs.ansible.com/intro_configuration.html), and you might want to ship such a file in your Vagrant project.
+
+As `ansible-playbook` command looks for local [`ansible.cfg`] configuration file in its *current directory* (but not in the directory that contains the main playbook), you have to store this file adjacent to your Vagrantfile.
+
+Note that it is also possible to reference an Ansible configuration file via `ANSIBLE_CONFIG` environment variable, if you want to be flexible about the location of this file.
