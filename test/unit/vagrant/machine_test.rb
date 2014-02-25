@@ -291,6 +291,7 @@ describe Vagrant::Machine do
       second = new_instance
       second.id.should == "foo"
       second.id = nil
+      expect(second.id).to be_nil
 
       third = new_instance
       third.id.should be_nil
