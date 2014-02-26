@@ -50,8 +50,10 @@ module VagrantPlugins
           end
 
           # Sort all the keys by length so that the directory closest to
-          # the root is exported first.
+          # the root is exported first. Also, remove duplicates so that
+          # checkexports will work properly.
           dirmap.each do |dirs, _|
+            dirs.uniq!
             dirs.sort_by! { |d| d.length }
           end
 

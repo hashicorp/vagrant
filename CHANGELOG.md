@@ -88,6 +88,8 @@ BUG FIXES:
     [GH-2792]
   - hosts/bsd: Don't invoke shell for NFS sudo calls. [GH-2808]
   - hosts/bsd: Sort NFS exports to avoid false validation errors. [GH-2927]
+  - hosts/bsd: No more checkexports NFS errors if you're sharing the
+    same directory. [GH-3023]
   - hosts/gentoo: Look for systemctl in `/usr/bin` [GH-2858]
   - hosts/linux: Properly escape regular expression to prune NFS exports,
     allowing VMware to work properly. [GH-2934]
