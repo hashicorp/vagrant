@@ -30,6 +30,7 @@ READMORE
 ### Demo
 
 Before we get into details about Vagrant share, let's show a few demos.
+You may need to go fullscreen to read the text.
 
 Sharing an HTTP server:
 
