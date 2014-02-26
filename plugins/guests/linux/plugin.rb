@@ -11,6 +11,11 @@ module VagrantPlugins
         Guest
       end
 
+      guest_capability("linux", "choose_addressable_ip_addr") do
+        require_relative "cap/choose_addressable_ip_addr"
+        Cap::ChooseAddressableIPAddr
+      end
+
       guest_capability("linux", "halt") do
         require_relative "cap/halt"
         Cap::Halt
@@ -29,6 +34,11 @@ module VagrantPlugins
       guest_capability("linux", "mount_nfs_folder") do
         require_relative "cap/mount_nfs"
         Cap::MountNFS
+      end
+
+      guest_capability("linux", "mount_smb_shared_folder") do
+        require_relative "cap/mount_smb_shared_folder"
+        Cap::MountSMBSharedFolder
       end
 
       guest_capability("linux", "mount_virtualbox_shared_folder") do

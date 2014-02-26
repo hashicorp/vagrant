@@ -16,14 +16,9 @@ module VagrantPlugins
               b2.use MessageNotCreated
               next
             end
+
             b2.use action_halt
-            b2.use Call, WaitForState, :off, 120 do |env2, b3|
-              if env2[:result]
-                b3.use action_up
-              else
-                env2[:ui].info("Machine did not reload, Check machine's status")
-              end
-            end
+            b2.use action_start
           end
         end
       end
@@ -58,7 +53,12 @@ module VagrantPlugins
               b2.use MessageNotCreated
               next
             end
-            b2.use StopInstance
+
+            b2.use Call, GracefulHalt, :off, :running do |env2, b3|
+              if !env2[:result]
+                b3.use StopInstance
+              end
+            end
           end
         end
       end
@@ -69,6 +69,8 @@ module VagrantPlugins
           b.use StartInstance
           b.use WaitForIPAddress
           b.use WaitForCommunicator, [:running]
+          b.use SyncedFolders
+
           #b.use ShareFolders
           #b.use SyncFolders
         end
@@ -79,18 +81,11 @@ module VagrantPlugins
           b.use HandleBox
           b.use ConfigValidate
           b.use Call, IsCreated do |env1, b1|
-            if env1[:result]
-              b1.use Call, IsStopped do |env2, b2|
-                if env2[:result]
-                  b2.use action_start
-                else
-                  b2.use MessageAlreadyCreated
-                end
-              end
-            else
+            if !env1[:result]
               b1.use Import
-              b1.use action_start
             end
+
+            b1.use action_start
           end
         end
       end
@@ -145,7 +140,6 @@ module VagrantPlugins
       autoload :ReadGuestIP, action_root.join('read_guest_ip')
       autoload :ShareFolders, action_root.join('share_folders')
       autoload :WaitForIPAddress, action_root.join("wait_for_ip_address")
-      autoload :WaitForState, action_root.join('wait_for_state')
     end
   end
 end
