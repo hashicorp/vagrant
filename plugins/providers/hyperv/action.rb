@@ -67,6 +67,7 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           b.use StartInstance
           b.use WaitForIPAddress
+          b.use WaitForCommunicator, [:running]
           #b.use ShareFolders
           #b.use SyncFolders
         end

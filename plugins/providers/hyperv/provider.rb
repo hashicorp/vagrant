@@ -50,7 +50,7 @@ module VagrantPlugins
         end
 
         # Get the short and long description
-        short = "Machine's current state is #{state_id}"
+        short = state_id.to_s
         long  = ""
 
         # Return the MachineState object
