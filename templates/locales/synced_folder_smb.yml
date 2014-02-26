@@ -37,3 +37,7 @@ en:
         Error:
 
         %{stderr}
+      windows_host_required: |-
+        SMB shared folders are only available when Vagrant is running
+        on Windows. The guest machine can be running non-Windows. Please use
+        another synced folder type.

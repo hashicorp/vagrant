@@ -16,7 +16,7 @@ module VagrantPlugins
 
       def usable?(machine, raise_error=false)
         if !Vagrant::Util::Platform.windows?
-          # TODO: raise error if specified
+          raise Errors::WindowsHostRequired if raise_error
           return false
         end
 

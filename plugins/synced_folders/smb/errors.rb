@@ -17,6 +17,10 @@ module VagrantPlugins
       class PowershellError < SMBError
         error_key(:powershell_error)
       end
+
+      class WindowsHostRequired < SMBError
+        error_key(:windows_host_required)
+      end
     end
   end
 end
