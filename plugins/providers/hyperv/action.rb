@@ -65,6 +65,7 @@ module VagrantPlugins
 
       def self.action_start
         Vagrant::Action::Builder.new.tap do |b|
+          b.use Provision
           b.use StartInstance
           b.use WaitForIPAddress
           b.use WaitForCommunicator, [:running]
