@@ -57,7 +57,7 @@ module VagrantPlugins
             begin
               begin
                 connect(retries: 1)
-                return true
+                return true if ready?
               rescue Vagrant::Errors::VagrantError => e
                 @logger.info("SSH not ready: #{e.inspect}")
                 raise
