@@ -121,7 +121,7 @@ Loading share 'awful-squirrel-9454'...
 Password for the private key:
 Executing SSH...
 
-Welcome to Ubuntu 12.04.1 LTS (GNU/Linux 3.2.0-29-virtual x86_64)
+Welcome to Ubuntu 12.04.1 LTS
 
  * Documentation:  https://help.ubuntu.com/
 Last login: Wed Feb 26 08:38:55 2014 from 192.168.148.1
