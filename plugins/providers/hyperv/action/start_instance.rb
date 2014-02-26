@@ -9,7 +9,7 @@ module VagrantPlugins
         def call(env)
           env[:ui].output('Starting the machine...')
           options = { vm_id: env[:machine].id }
-          response = env[:machine].provider.driver.execute('start_vm.ps1', options)
+          env[:machine].provider.driver.execute('start_vm.ps1', options)
 
           @app.call(env)
         end
