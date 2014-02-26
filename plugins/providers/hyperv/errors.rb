@@ -14,6 +14,10 @@ module VagrantPlugins
         error_key(:box_invalid)
       end
 
+      class IPAddrTimeout < HyperVError
+        error_key(:ip_addr_timeout)
+      end
+
       class PowerShellError < HyperVError
         error_key(:powershell_error)
       end

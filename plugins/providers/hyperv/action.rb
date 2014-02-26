@@ -66,6 +66,7 @@ module VagrantPlugins
       def self.action_start
         Vagrant::Action::Builder.new.tap do |b|
           b.use StartInstance
+          b.use WaitForIPAddress
           #b.use ShareFolders
           #b.use SyncFolders
         end
@@ -139,9 +140,10 @@ module VagrantPlugins
       autoload :MessageAlreadyCreated, action_root.join('message_already_created')
       autoload :MessageNotRunning, action_root.join('message_not_running')
       autoload :SyncFolders, action_root.join('sync_folders')
-      autoload :WaitForState, action_root.join('wait_for_state')
       autoload :ReadGuestIP, action_root.join('read_guest_ip')
       autoload :ShareFolders, action_root.join('share_folders')
+      autoload :WaitForIPAddress, action_root.join("wait_for_ip_address")
+      autoload :WaitForState, action_root.join('wait_for_state')
     end
   end
 end

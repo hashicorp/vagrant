@@ -20,6 +20,16 @@ en:
         these directories or does not contain the files expected. Verify
         that you added the correct box. If this problem persists,
         please contact the creator of the box for assistance.
+      ip_addr_timeout: |-
+        Hyper-V failed to determine your machine's IP address within the
+        configured timeout. Please verify the machine properly booted and
+        the network works. To do this, open the Hyper-V manager, find your
+        virtual machine, and connect to it.
+
+        The most common cause for this error is that the running virtual
+        machine doesn't have the latest Hyper-V integration drivers. Please
+        research for your operating system how to install these in order
+        for the VM to properly communicate its IP address to Hyper-V.
       powershell_error: |-
         An error occurred while executing a PowerShell script. This error
         is shown below. Please read the error message and see if this is

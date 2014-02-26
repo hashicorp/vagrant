@@ -44,10 +44,10 @@ module VagrantPlugins
             vhdx_path:      vhdx_path.to_s.gsub("/", "\\")
           }
 
-          env[:ui].info "Importing a Hyper-V instance"
+          env[:ui].output("Importing a Hyper-V instance")
           server = env[:machine].provider.driver.execute(
             'import_vm.ps1', options)
-          env[:ui].info "Successfully imported a VM with name: #{server['name']}"
+          env[:ui].detail("Successfully imported a VM with name: #{server['name']}")
           env[:machine].id = server["id"]
           @app.call(env)
         end
