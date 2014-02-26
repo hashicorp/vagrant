@@ -1,3 +1,5 @@
+require "fileutils"
+
 require "log4r"
 
 module VagrantPlugins
@@ -37,6 +39,13 @@ module VagrantPlugins
             raise Errors::BoxInvalid
           end
 
+          env[:ui].output("Importing a Hyper-V instance")
+          env[:ui].detail("Cloning virtual hard drive...")
+          source_path = vhdx_path.to_s
+          dest_path   = env[:machine].data_dir.join("disk.vhdx").to_s
+          FileUtils.cp(source_path, dest_path)
+          vhdx_path = dest_path
+
           # We have to normalize the paths to be Windows paths since
           # we're executing PowerShell.
           options = {
@@ -44,7 +53,7 @@ module VagrantPlugins
             vhdx_path:      vhdx_path.to_s.gsub("/", "\\")
           }
 
-          env[:ui].output("Importing a Hyper-V instance")
+          env[:ui].detail("Creating and registering the VM...")
           server = env[:machine].provider.driver.execute(
             'import_vm.ps1', options)
           env[:ui].detail("Successfully imported a VM with name: #{server['name']}")
