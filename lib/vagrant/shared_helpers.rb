@@ -6,7 +6,7 @@ module Vagrant
   # of Vagrant that may require remote access.
   #
   # @return [String]
-  DEFAULT_SERVER_URL = "http://www.vagrantcloud.com"
+  DEFAULT_SERVER_URL = "https://www.vagrantcloud.com"
 
   # This returns whether or not 3rd party plugins should be loaded.
   #
