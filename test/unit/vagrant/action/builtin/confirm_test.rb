@@ -33,4 +33,21 @@ describe Vagrant::Action::Builtin::Confirm do
     described_class.new(app, env, message).call(env)
     env[:result].should_not be
   end
+
+  it "should ask multiple times if an allowed set is given and response isn't in that set" do
+    times = 0
+    env[:ui].stub(:ask) do |arg|
+      expect(arg).to eql(message)
+      times += 1
+
+      if times <= 3
+        "nope"
+      else
+        "y"
+      end
+    end
+    described_class.new(app, env, message, allowed: ["y", "N"]).call(env)
+    expect(env[:result]).to be_true
+    expect(times).to eq(4)
+  end
 end
