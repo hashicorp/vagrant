@@ -19,7 +19,9 @@ module Vagrant
   #
   # @return [String]
   def self.server_url
-    ENV["VAGRANT_SERVER_URL"] || DEFAULT_SERVER_URL
+    result = ENV["VAGRANT_SERVER_URL"]
+    result = nil if result == ""
+    result || DEFAULT_SERVER_URL
   end
 
   # The source root is the path to the root directory of the Vagrant source.

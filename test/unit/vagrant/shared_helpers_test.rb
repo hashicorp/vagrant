@@ -30,6 +30,13 @@ describe Vagrant do
       end
     end
 
+    it "defaults if the string is empty" do
+      with_temp_env("VAGRANT_SERVER_URL" => "") do
+        expect(subject.server_url).to eq(
+          Vagrant::DEFAULT_SERVER_URL)
+      end
+    end
+
     it "is the VAGRANT_SERVER_URL value" do
       with_temp_env("VAGRANT_SERVER_URL" => "foo") do
         expect(subject.server_url).to eq("foo")
