@@ -12,8 +12,15 @@ module VagrantPlugins
         def call(env)
           if env[:machine].id
             options = { VmId: env[:machine].id }
-            response = env[:machine].provider.driver.execute('get_vm_status.ps1', options)
+            response = env[:machine].provider.driver.execute(
+              "get_vm_status.ps1", options)
             env[:machine_state_id] = response["state"].downcase.to_sym
+
+            # If the machine isn't created, then our ID is stale, so just
+            # mark it as not created.
+            if env[:machine_state_id] == :not_created
+              env[:machine].id = nil
+            end
           else
             env[:machine_state_id] = :not_created
           end
