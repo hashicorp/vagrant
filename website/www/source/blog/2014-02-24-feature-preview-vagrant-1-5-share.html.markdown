@@ -237,4 +237,4 @@ account in the yet to be announced web service.
 At that time, we'll publish further details about share, connect
 and the account required to use them.
 
-Next week, we'll cover another feature of Vagrant 1.5 – stay tuned.
+Next week, we'll cover another feature of Vagrant 1.5 &mdash; stay tuned.
