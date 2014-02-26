@@ -174,6 +174,10 @@ help control access and manage security:
 
 In addition to these options, there are other features we've built to help:
 
+  * Vagrant share uses end-to-end TLS connections. So even unencrypted TCP streams
+    are encrypted through the various proxies and only unencrypted during the final
+    local communication between the local proxy and the Vagrant environment.
+
   * SSH keys are encrypted by default, using a password that is not transmitted
     to our servers or across the network at all.
 
@@ -237,4 +241,4 @@ account in the yet to be announced web service.
 At that time, we'll publish further details about share, connect
 and the account required to use them.
 
-Next week, we'll cover another feature of Vagrant 1.5 &mdash; stay tuned.
+Next week, we'll cover another feature of Vagrant 1.5 -- stay tuned.
