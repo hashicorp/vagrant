@@ -31,13 +31,13 @@ READMORE
 
 Before we get into details about Vagrant share, let's show a few demos.
 
-Sharing SSH access:
-
-<iframe src="//player.vimeo.com/video/87525810" width="770" height="394" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
-
 Sharing an HTTP server:
 
 <iframe src="//player.vimeo.com/video/87525972" width="770" height="394" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+
+Sharing SSH access:
+
+<iframe src="//player.vimeo.com/video/87525810" width="770" height="394" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
 
 Sharing a static IP with Vagrant Connect:
 
