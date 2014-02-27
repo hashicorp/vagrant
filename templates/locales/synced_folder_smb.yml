@@ -37,6 +37,11 @@ en:
         Error:
 
         %{stderr}
+      windows_admin_required: |-
+        SMB shared folders require running Vagrant with administrative
+        privileges. This is a limitation of Windows, since creating new
+        network shares requires admin privileges. Please try again in a
+        console with proper permissions or use another synced folder type.
       windows_host_required: |-
         SMB shared folders are only available when Vagrant is running
         on Windows. The guest machine can be running non-Windows. Please use

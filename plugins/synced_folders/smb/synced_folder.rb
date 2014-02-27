@@ -20,6 +20,11 @@ module VagrantPlugins
           return false
         end
 
+        if !Vagrant::Util::Platform.windows_admin?
+          raise Errors::WindowsAdminRequired if raise_error
+          return false
+        end
+
         true
       end
 

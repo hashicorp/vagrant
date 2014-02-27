@@ -21,6 +21,10 @@ module VagrantPlugins
       class WindowsHostRequired < SMBError
         error_key(:windows_host_required)
       end
+
+      class WindowsAdminRequired < SMBError
+        error_key(:windows_admin_required)
+      end
     end
   end
 end
