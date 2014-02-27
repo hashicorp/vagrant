@@ -19,7 +19,7 @@ module Vagrant
             ordered << [priority, key, impl]
           end
 
-          # Order the plugins by priority
+          # Order the plugins by priority. Higher is tries before lower.
           ordered = ordered.sort { |a, b| b[0] <=> a[0] }
 
           # Find the proper implementation
