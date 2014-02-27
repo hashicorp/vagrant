@@ -4,6 +4,8 @@ en:
       Hyper-V instance already running.
     message_not_created: |-
       VM not created. Moving on...
+    message_not_running: |-
+      Hyper-V machine isn't running. Can't SSH in!
 
     errors:
       admin_required: |-

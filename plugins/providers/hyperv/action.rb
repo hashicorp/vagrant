@@ -11,9 +11,9 @@ module VagrantPlugins
       def self.action_reload
         Vagrant::Action::Builder.new.tap do |b|
           b.use ConfigValidate
-          b.use Call, IsCreated do |env, b2|
-            if !env[:result]
-              b2.use MessageNotCreated
+          b.use Call, IsState, :not_created do |env, b2|
+            if env[:result]
+              b2.use Message, I18n.t("vagrant_hyperv.message_not_created")
               next
             end
 
@@ -25,9 +25,9 @@ module VagrantPlugins
 
       def self.action_destroy
         Vagrant::Action::Builder.new.tap do |b|
-          b.use Call, IsCreated do |env1, b1|
-            if !env1[:result]
-              b1.use MessageNotCreated
+          b.use Call, IsState, :not_created do |env1, b1|
+            if env1[:result]
+              b1.use Message, I18n.t("vagrant_hyperv.message_not_created")
               next
             end
 
@@ -48,9 +48,9 @@ module VagrantPlugins
       def self.action_halt
         Vagrant::Action::Builder.new.tap do |b|
           b.use ConfigValidate
-          b.use Call, IsCreated do |env, b2|
-            if !env[:result]
-              b2.use MessageNotCreated
+          b.use Call, IsState, :not_created do |env, b2|
+            if env[:result]
+              b2.use Message, I18n.t("vagrant_hyperv.message_not_created")
               next
             end
 
@@ -67,8 +67,8 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           b.use HandleBox
           b.use ConfigValidate
-          b.use Call, IsCreated do |env1, b1|
-            if !env1[:result]
+          b.use Call, IsState, :not_created do |env, b2|
+            if env1[:result]
               b1.use Message, I18n.t("vagrant_hyperv.message_not_created")
               next
             end
@@ -108,8 +108,8 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           b.use HandleBox
           b.use ConfigValidate
-          b.use Call, IsCreated do |env1, b1|
-            if !env1[:result]
+          b.use Call, IsState, :not_created do |env1, b1|
+            if env1[:result]
               b1.use Import
             end
 
@@ -128,17 +128,19 @@ module VagrantPlugins
       def self.action_ssh
         Vagrant::Action::Builder.new.tap do |b|
           b.use ConfigValidate
-          b.use Call, IsCreated do |env, b2|
-            if !env[:result]
-              b2.use MessageNotCreated
+          b.use Call, IsState, :not_created do |env, b2|
+            if env[:result]
+              b2.use Message, I18n.t("vagrant_hyperv.message_not_created")
               next
             end
-            b2.use Call, IsStopped do |env1, b3|
-              if env1[:result]
-                b3.use MessageNotRunning
-              else
-                b3.use SSHExec
+
+            b2.use Call, IsState, :running do |env1, b3|
+              if !env1[:result]
+                b3.use Message, I18n.t("vagrant_hyperv.message_not_running")
+                next
               end
+
+              b3.use SSHExec
             end
           end
         end
@@ -147,9 +149,9 @@ module VagrantPlugins
       def self.action_suspend
         Vagrant::Action::Builder.new.tap do |b|
           b.use ConfigValidate
-          b.use Call, IsCreated do |env, b2|
-            if !env[:result]
-              b2.use MessageNotCreated
+          b.use Call, IsState, :not_created do |env, b2|
+            if env[:result]
+              b2.use Message, I18n.t("vagrant_hyperv.message_not_created")
               next
             end
 
@@ -169,17 +171,12 @@ module VagrantPlugins
       # The autoload farm
       action_root = Pathname.new(File.expand_path("../action", __FILE__))
       autoload :DeleteVM, action_root.join("delete_vm")
-      autoload :IsCreated, action_root.join("is_created")
-      autoload :IsStopped, action_root.join("is_stopped")
       autoload :Import, action_root.join("import")
       autoload :ReadState, action_root.join("read_state")
       autoload :ResumeVM, action_root.join("resume_vm")
       autoload :StartInstance, action_root.join('start_instance')
       autoload :StopInstance, action_root.join('stop_instance')
       autoload :SuspendVM, action_root.join("suspend_vm")
-      autoload :MessageNotCreated, action_root.join('message_not_created')
-      autoload :MessageAlreadyCreated, action_root.join('message_already_created')
-      autoload :MessageNotRunning, action_root.join('message_not_running')
       autoload :ReadGuestIP, action_root.join('read_guest_ip')
       autoload :WaitForIPAddress, action_root.join("wait_for_ip_address")
     end
