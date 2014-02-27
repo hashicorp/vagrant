@@ -1,5 +1,10 @@
 en:
   vagrant_hyperv:
+    message_already_running: |-
+      Hyper-V instance already running.
+    message_not_created: |-
+      VM not created. Moving on...
+
     errors:
       admin_required: |-
         The Hyper-V provider requires that Vagrant be run with

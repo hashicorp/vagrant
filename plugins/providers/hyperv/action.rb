@@ -63,13 +63,44 @@ module VagrantPlugins
         end
       end
 
+      def self.action_resume
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use HandleBox
+          b.use ConfigValidate
+          b.use Call, IsCreated do |env1, b1|
+            if !env1[:result]
+              b1.use Message, I18n.t("vagrant_hyperv.message_not_created")
+              next
+            end
+
+            b1.use ResumeVM
+            b1.use WaitForIPAddress
+            b1.use WaitForCommunicator, [:running]
+          end
+        end
+      end
+
       def self.action_start
         Vagrant::Action::Builder.new.tap do |b|
-          b.use Provision
-          b.use StartInstance
-          b.use WaitForIPAddress
-          b.use WaitForCommunicator, [:running]
-          b.use SyncedFolders
+          b.use Call, IsState, :running do |env1, b1|
+            if env1[:result]
+              b1.use Message, I18n.t("vagrant_hyperv.message_already_running")
+              next
+            end
+
+            b1.use Call, IsState, :paused do |env2, b2|
+              if env2[:result]
+                b2.use action_resume
+                next
+              end
+
+              b2.use Provision
+              b2.use StartInstance
+              b2.use WaitForIPAddress
+              b2.use WaitForCommunicator, [:running]
+              b2.use SyncedFolders
+            end
+          end
         end
       end
 
@@ -113,6 +144,20 @@ module VagrantPlugins
         end
       end
 
+      def self.action_suspend
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use ConfigValidate
+          b.use Call, IsCreated do |env, b2|
+            if !env[:result]
+              b2.use MessageNotCreated
+              next
+            end
+
+            b2.use SuspendVM
+          end
+        end
+      end
+
       def self.action_read_guest_ip
         Vagrant::Action::Builder.new.tap do |b|
           b.use ConfigValidate
@@ -126,10 +171,12 @@ module VagrantPlugins
       autoload :DeleteVM, action_root.join("delete_vm")
       autoload :IsCreated, action_root.join("is_created")
       autoload :IsStopped, action_root.join("is_stopped")
-      autoload :ReadState, action_root.join("read_state")
       autoload :Import, action_root.join("import")
+      autoload :ReadState, action_root.join("read_state")
+      autoload :ResumeVM, action_root.join("resume_vm")
       autoload :StartInstance, action_root.join('start_instance')
       autoload :StopInstance, action_root.join('stop_instance')
+      autoload :SuspendVM, action_root.join("suspend_vm")
       autoload :MessageNotCreated, action_root.join('message_not_created')
       autoload :MessageAlreadyCreated, action_root.join('message_already_created')
       autoload :MessageNotRunning, action_root.join('message_not_running')
