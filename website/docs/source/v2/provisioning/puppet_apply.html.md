@@ -59,6 +59,26 @@ available below this section.
   directory when Puppet is executed. This is usually only set because relative
   paths are used in the Hiera configuration.
 
+* `profiling` (integer) - Activate or deactivate (0) the Puppet profiler (evaltrace).
+  This will display a list of the puppet resources taking the longest to execute,
+  provided the provisioning ran successfully.
+  By default profiling is deactivated. To activate, set the option to a
+  positive integer corresponding to the maximum number of resources you
+  want to display in the profiling report.
+  For instance, setting profiling to 5 would display the slowest 5 Puppet
+  resources as such:
+
+```
+Top 5 Puppet resources by runtime
+=================================
+       0s - Service[squid3]
+       0s - Class[Squid]
+       0s - Class[Settings]
+       0s - Stage[post-yum-repo-setup]
+       0s - Class[Squid]
+       0s - Stage[yum-repo-setup]
+```
+
 ## Bare Minimum
 
 The quickest way to get started with the Puppet provisioner is to just
