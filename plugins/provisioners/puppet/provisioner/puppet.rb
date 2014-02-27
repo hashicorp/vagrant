@@ -113,6 +113,13 @@ module VagrantPlugins
             options << "--color=false"
           end
 
+          # Support for profiling (evaltraces)
+          puppet_profile_samples = []
+          if @config.profiling > 0
+            @machine.env.ui.info("activating puppet profiling")
+            options << "--evaltrace"
+          end
+
           options << "--manifestdir #{manifests_guest_path}"
           options << "--detailed-exitcodes"
           options << @manifest_file
@@ -138,9 +145,32 @@ module VagrantPlugins
                                       :manifest => config.manifest_file)
 
           @machine.communicate.sudo(command) do |type, data|
-            if !data.empty?
+            if @config.profiling > 0
+              # Execute puppet commands, saving profiling information if it comes through
+              line = data.chomp
+              if line =~ /info: .*([A-Z][^\[]+)\[(.+?)\]: Evaluated in ([\d\.]+) seconds/
+                type = $1
+                title = $2
+                time = $3.to_f
+                puppet_profile_samples << [type, title, time]
+              elsif line !~/Starting to evaluate the/ && line != ''
+                @machine.env.ui.info(line)
+              end
+            elsif !data.empty?
               @machine.env.ui.info(data, :new_line => false, :prefix => false)
             end
+          end
+
+          # Report puppet profile sampling, if present
+          if puppet_profile_samples.any?
+            title = "Top #{@config.profiling} Puppet resources by runtime"
+            @machine.env.ui.info("")
+            @machine.env.ui.info(title)
+            @machine.env.ui.info("=" * title.length)
+            puppet_profile_samples.sort { |a, b| a[2] <=> b[2] }.reverse[0..@config.profiling].each { |item|
+              @machine.env.ui.info("#{format('%4d', item[2]).rjust(8)}s - #{item[0]}[#{item[1]}]")
+            }
+            @machine.env.ui.info("")
           end
         end
 

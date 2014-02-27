@@ -15,6 +15,7 @@ module VagrantPlugins
         attr_accessor :synced_folder_type
         attr_accessor :temp_dir
         attr_accessor :working_directory
+        attr_accessor :profiling
 
         def initialize
           super
@@ -28,6 +29,7 @@ module VagrantPlugins
           @synced_folder_type = UNSET_VALUE
           @temp_dir          = UNSET_VALUE
           @working_directory = UNSET_VALUE
+          @profiling         = UNSET_VALUE
         end
 
         def nfs=(value)
@@ -67,6 +69,7 @@ module VagrantPlugins
           @synced_folder_type = nil if @synced_folder_type == UNSET_VALUE
           @temp_dir       = nil if @temp_dir == UNSET_VALUE
           @working_directory = nil if @working_directory == UNSET_VALUE
+          @profiling      = 0 if @profiling == UNSET_VALUE
 
           # Set a default temp dir that has an increasing counter so
           # that multiple Puppet definitions won't overwrite each other
