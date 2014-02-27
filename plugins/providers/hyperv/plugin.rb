@@ -10,7 +10,7 @@ module VagrantPlugins
       machines in Hyper-V.
       DESC
 
-      provider(:hyperv, parallel: true) do
+      provider(:hyperv) do
         require_relative "provider"
         init!
         Provider
