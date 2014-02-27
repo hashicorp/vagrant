@@ -123,6 +123,12 @@ module VagrantPlugins
             end
           end
 
+          # Validate that profiling is a positive integer or 0
+          if !(@profiling.is_a?(Integer) &&  @profiling >= 0)
+            errors << I18n.t("vagrant.provisioners.puppet.profiling_incorrect_value",
+                             :value => @profiling)
+          end
+
           { "puppet provisioner" => errors }
         end
       end
