@@ -71,7 +71,6 @@ module VagrantPlugins
           b.use WaitForCommunicator, [:running]
           b.use SyncedFolders
 
-          #b.use ShareFolders
           #b.use SyncFolders
         end
       end
@@ -138,7 +137,6 @@ module VagrantPlugins
       autoload :MessageNotRunning, action_root.join('message_not_running')
       autoload :SyncFolders, action_root.join('sync_folders')
       autoload :ReadGuestIP, action_root.join('read_guest_ip')
-      autoload :ShareFolders, action_root.join('share_folders')
       autoload :WaitForIPAddress, action_root.join("wait_for_ip_address")
     end
   end
