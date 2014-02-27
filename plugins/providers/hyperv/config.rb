@@ -1,5 +1,4 @@
 require "vagrant"
-require_relative "host_share/config"
 
 module VagrantPlugins
   module HyperV
