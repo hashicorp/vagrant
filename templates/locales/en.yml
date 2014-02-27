@@ -1507,6 +1507,13 @@ en:
           machine. The fix is to run a `vagrant reload` so that the proper shared
           folders will be prepared and mounted on the VM.
         module_path_missing: "The configured module path doesn't exist: %{path}"
+        profiling_incorrect_value: |-
+          Incorrect value `%{value}` for the profiling option.
+          Correct values for the profiling option are either:
+          - 0, if you want to deactivate resource profiling completely
+          - a positive integer, if you want to activate profiling. The integer in
+           that case correspond to the maximum number of resources to display
+           in the list after a successful provisioning.
 
       puppet_server:
         cert_requires_node: |-
