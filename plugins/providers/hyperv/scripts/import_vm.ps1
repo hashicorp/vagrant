@@ -74,15 +74,14 @@ $notes = (Select-Xml -xml $vmconfig -XPath "//notes").node.'#text'
 
 $more_vm_params = @{
     ProcessorCount = $processors
-        MemoryStartupBytes = $MemoryStartupBytes
+    MemoryStartupBytes = $MemoryStartupBytes
 }
 
 If ($dynamicmemory) {
     $more_vm_params.Add("DynamicMemory",$True)
-        $more_vm_params.Add("MemoryMinimumBytes",$MemoryMinimumBytes)
-        $more_vm_params.Add("MemoryMaximumBytes", $MemoryMaximumBytes)
-}
-else {
+    $more_vm_params.Add("MemoryMinimumBytes",$MemoryMinimumBytes)
+    $more_vm_params.Add("MemoryMaximumBytes", $MemoryMaximumBytes)
+} else {
     $more_vm_params.Add("StaticMemory",$True)
 }
 
@@ -95,36 +94,38 @@ $vm | Set-VM @more_vm_params -Passthru
 
 # Add drives to the virtual machine
 $controllers = Select-Xml -xml $vmconfig -xpath "//*[starts-with(name(.),'controller')]"
+
 # A regular expression pattern to pull the number from controllers
 [regex]$rx="\d"
 
 foreach ($controller in $controllers) {
     $node = $controller.Node
-# Check for SCSI
-        if ($node.ParentNode.ChannelInstanceGuid) {
-            $ControllerType = "SCSI"
-        }
-        else {
-            $ControllerType = "IDE"
-        }
+
+    # Check for SCSI
+    if ($node.ParentNode.ChannelInstanceGuid) {
+        $ControllerType = "SCSI"
+    } else {
+        $ControllerType = "IDE"
+    }
 
     $drives = $node.ChildNodes | where {$_.pathname."#text"}
     foreach ($drive in $drives) {
-#if drive type is ISO then set DVD Drive accordingly
+        #if drive type is ISO then set DVD Drive accordingly
         $driveType = $drive.type."#text"
 
-            $addDriveParam = @{
-                ControllerNumber = $rx.Match($controller.node.name).value
-                    Path = $vhdx_path
-            }
+        $addDriveParam = @{
+            ControllerNumber = $rx.Match($controller.node.name).value
+            Path = $vhdx_path
+        }
+
         if ($drive.pool_id."#text") {
             $ResourcePoolName = $drive.pool_id."#text"
-                $addDriveParam.Add("ResourcePoolname",$ResourcePoolName)
+            $addDriveParam.Add("ResourcePoolname",$ResourcePoolName)
         }
 
         if ($drivetype -eq 'VHD') {
             $addDriveParam.add("ControllerType",$ControllerType)
-                $vm | Add-VMHardDiskDrive @AddDriveparam
+            $vm | Add-VMHardDiskDrive @AddDriveparam
         }
     }
 }
@@ -132,7 +133,8 @@ foreach ($controller in $controllers) {
 $vm_id = (Get-VM $vm_name).id.guid
 $resultHash = @{
     name = $vm_name
-        id = $vm_id
+    id = $vm_id
 }
+
 $result = ConvertTo-Json $resultHash
 Write-Output-Message $result
