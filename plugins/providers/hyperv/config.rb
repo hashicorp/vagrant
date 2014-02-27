@@ -10,15 +10,8 @@ module VagrantPlugins
       # @return [Integer]
       attr_accessor :ip_address_timeout
 
-      attr_reader :host_share
-
       def initialize
         @ip_address_timeout = UNSET_VALUE
-        @host_share = HostShare::Config.new
-      end
-
-      def host_config(&block)
-        block.call(@host_share)
       end
 
       def finalize!
@@ -27,15 +20,10 @@ module VagrantPlugins
         end
       end
 
-
       def validate(machine)
         errors = _detected_errors
-=begin
-        unless host_share.valid_config?
-          errors << host_share.errors.flatten.join(" ")
-        end
-=end
-        { "HyperV" => errors }
+
+        { "Hyper-V" => errors }
       end
     end
   end
