@@ -1,6 +1,6 @@
 ---
 page_title: "Vagrant 1.5 Plugin Development Improvements"
-title: "Plugin Development Improvements in 1.5"
+title: "Plugin Development Improvements in Vagrant 1.5"
 author: "Mitchell Hashimoto"
 author_url: https://github.com/mitchellh
 ---
