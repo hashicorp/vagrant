@@ -70,8 +70,6 @@ module VagrantPlugins
           b.use WaitForIPAddress
           b.use WaitForCommunicator, [:running]
           b.use SyncedFolders
-
-          #b.use SyncFolders
         end
       end
 
