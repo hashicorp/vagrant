@@ -106,6 +106,7 @@
 								<% if sidebar_section == "cli" %>
 								<ul class="sub unstyled nocap">
 									<li<%= sidebar_current("cli-box") %>><a href="/v2/cli/box.html">box</a></li>
+									<li<%= sidebar_current("cli-connect") %>><a href="/v2/cli/connect.html">connect</a></li>
 									<li<%= sidebar_current("cli-destroy") %>><a href="/v2/cli/destroy.html">destroy</a></li>
 									<li<%= sidebar_current("cli-halt") %>><a href="/v2/cli/halt.html">halt</a></li>
 									<li<%= sidebar_current("cli-init") %>><a href="/v2/cli/init.html">init</a></li>
@@ -114,6 +115,7 @@
 									<li<%= sidebar_current("cli-provision") %>><a href="/v2/cli/provision.html">provision</a></li>
 									<li<%= sidebar_current("cli-reload") %>><a href="/v2/cli/reload.html">reload</a></li>
 									<li<%= sidebar_current("cli-resume") %>><a href="/v2/cli/resume.html">resume</a></li>
+									<li<%= sidebar_current("cli-share") %>><a href="/v2/cli/share.html">share</a></li>
 									<li<%= sidebar_current("cli-ssh") %>><a href="/v2/cli/ssh.html">ssh</a></li>
 									<li<%= sidebar_current("cli-ssh_config") %>><a href="/v2/cli/ssh_config.html">ssh-config</a></li>
 									<li<%= sidebar_current("cli-status") %>><a href="/v2/cli/status.html">status</a></li>
@@ -121,6 +123,16 @@
 									<li<%= sidebar_current("cli-up") %>><a href="/v2/cli/up.html">up</a></li>
 									<li<%= sidebar_current("cli-nonprimary") %>><a href="/v2/cli/non-primary.html">More Commands</a></li>
 									<li<%= sidebar_current("cli-machinereadable") %>><a href="/v2/cli/machine-readable.html">Machine Readable Output</a></li>
+								</ul>
+								<% end %>
+
+								<li <%= sidebar_current("share") %>><a href="/v2/share/index.html">Vagrant Share</a></li>
+								<% if sidebar_section == "share" %>
+								<ul class="sub unstyled">
+									<li<%= sidebar_current("share-http") %>><a href="/v2/share/http.html">HTTP Sharing</a></li>
+									<li<%= sidebar_current("share-ssh") %>><a href="/v2/share/ssh.html">SSH Sharing</a></li>
+									<li<%= sidebar_current("share-connect") %>><a href="/v2/share/connect.html">vagrant connect</a></li>
+									<li<%= sidebar_current("share-security") %>><a href="/v2/share/security.html">Security</a></li>
 								</ul>
 								<% end %>
 
