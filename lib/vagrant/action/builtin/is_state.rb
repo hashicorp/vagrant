@@ -14,6 +14,7 @@ module Vagrant
           @app    = app
           @logger = Log4r::Logger.new("vagrant::action::builtin::is_state")
           @check  = check
+          @invert = !!opts[:invert]
         end
 
         def call(env)
@@ -22,6 +23,7 @@ module Vagrant
           @logger.debug("-- Machine state: #{state}")
 
           env[:result] = @check == state
+          env[:result] = !env[:result] if @invert
           @app.call(env)
         end
       end

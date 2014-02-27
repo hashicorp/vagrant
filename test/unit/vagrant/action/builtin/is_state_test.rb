@@ -15,6 +15,17 @@ describe Vagrant::Action::Builtin::IsState do
   let(:state) { double("state") }
 
   describe "#call" do
+    it "sets result to false if is proper state" do
+      state.stub(id: :foo)
+
+      subject = described_class.new(app, env, :bar)
+
+      app.should_receive(:call).with(env)
+
+      subject.call(env)
+      expect(env[:result]).to be_false
+    end
+
     it "sets result to true if is proper state" do
       state.stub(id: :foo)
 
@@ -24,6 +35,17 @@ describe Vagrant::Action::Builtin::IsState do
 
       subject.call(env)
       expect(env[:result]).to be_true
+    end
+
+    it "inverts the result if specified" do
+      state.stub(id: :foo)
+
+      subject = described_class.new(app, env, :foo, invert: true)
+
+      app.should_receive(:call).with(env)
+
+      subject.call(env)
+      expect(env[:result]).to be_false
     end
   end
 end
