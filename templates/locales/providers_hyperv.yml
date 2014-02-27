@@ -1,5 +1,9 @@
 en:
   vagrant_hyperv:
+    choose_switch: |-
+      Please choose a switch to attach to your Hyper-V instance.
+      If none of these are appropriate, please open the Hyper-V manager
+      to create a new virtual switch.
     message_already_running: |-
       Hyper-V instance already running.
     message_not_created: |-
@@ -37,6 +41,16 @@ en:
         machine doesn't have the latest Hyper-V integration drivers. Please
         research for your operating system how to install these in order
         for the VM to properly communicate its IP address to Hyper-V.
+      no_switches: |-
+        There are no virtual switches created for Hyper-V! Please open
+        the Hyper-V Manager, go to the "Virtual Switch Manager", and create
+        at least one virtual switch.
+
+        A virtual switch is required for Vagrant to create a Hyper-V
+        machine that is connected to a network so it can access it.
+
+        For more help, please see the documentation on the Vagrant website
+        for Hyper-V.
       powershell_error: |-
         An error occurred while executing a PowerShell script. This error
         is shown below. Please read the error message and see if this is

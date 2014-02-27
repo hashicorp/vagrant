@@ -18,6 +18,10 @@ module VagrantPlugins
         error_key(:ip_addr_timeout)
       end
 
+      class NoSwitches < HyperVError
+        error_key(:no_switches)
+      end
+
       class PowerShellError < HyperVError
         error_key(:powershell_error)
       end
