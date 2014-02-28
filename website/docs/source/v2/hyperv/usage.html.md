@@ -15,3 +15,7 @@ Hyper-V also requires that you execute Vagrant with administrative
 privileges. Creating and managing virtual machines with Hyper-V requires
 admin rights. Vagrant will show you an error if it doesn't have the proper
 permissions.
+
+Boxes for Hyper-V can be easily found on
+[Vagrant Cloud](http://www.vagrantcloud.com). To get started, you might
+want to try the `hashicorp/precise64` box.
