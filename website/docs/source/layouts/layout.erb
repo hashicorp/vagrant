@@ -190,6 +190,7 @@
 									<li<%= sidebar_current("syncedfolder-basic") %>><a href="/v2/synced-folders/basic_usage.html">Basic Usage</a></li>
 									<li<%= sidebar_current("syncedfolder-nfs") %>><a href="/v2/synced-folders/nfs.html">NFS</a></li>
 									<li<%= sidebar_current("syncedfolder-rsync") %>><a href="/v2/synced-folders/rsync.html">RSync</a></li>
+									<li<%= sidebar_current("syncedfolder-smb") %>><a href="/v2/synced-folders/smb.html">SMB</a></li>
 									<li<%= sidebar_current("syncedfolder-virtualbox") %>><a href="/v2/synced-folders/virtualbox.html">VirtualBox</a></li>
 								</ul>
 								<% end %>
@@ -224,6 +225,16 @@
 									<li<%= sidebar_current("vmware-boxes") %>><a href="/v2/vmware/boxes.html">Boxes</a></li>
 									<li<%= sidebar_current("vmware-configuration") %>><a href="/v2/vmware/configuration.html">Configuration</a></li>
 									<li<%= sidebar_current("vmware-known-issues") %>><a href="/v2/vmware/known-issues.html">Known Issues</a></li>
+								</ul>
+								<% end %>
+
+								<li<%= sidebar_current("hyperv") %>><a href="/v2/hyperv/index.html">Hyper-V</a></li>
+								<% if sidebar_section == "hyperv" %>
+								<ul class="sub unstyled">
+									<li<%= sidebar_current("hyperv-usage") %>><a href="/v2/hyperv/usage.html">Usage</a></li>
+									<li<%= sidebar_current("hyperv-boxes") %>><a href="/v2/hyperv/boxes.html">Creating a Base Box</a></li>
+									<li<%= sidebar_current("hyperv-configuration") %>><a href="/v2/hyperv/configuration.html">Configuration</a></li>
+									<li<%= sidebar_current("hyperv-limitations") %>><a href="/v2/hyperv/limitations.html">Limitations</a></li>
 								</ul>
 								<% end %>
 
