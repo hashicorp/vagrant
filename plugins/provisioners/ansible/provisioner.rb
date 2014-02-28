@@ -1,22 +1,27 @@
 module VagrantPlugins
   module Ansible
     class Provisioner < Vagrant.plugin("2", :provisioner)
-      def provision
+
+      def initialize(machine, config)
+        super
+
         @logger = Log4r::Logger.new("vagrant::provisioners::ansible")
-        ssh = @machine.ssh_info
+        @ssh_info = @machine.ssh_info
+      end
+
+      def provision
 
         #
         # 1) Default Settings (lowest precedence)
         #
 
         # Connect with Vagrant SSH identity
-        options = %W[--private-key=#{ssh[:private_key_path][0]} --user=#{ssh[:username]}]
+        options = %W[--private-key=#{@ssh_info[:private_key_path][0]} --user=#{@ssh_info[:username]}]
 
         # Multiple SSH keys and/or SSH forwarding can be passed via
         # ANSIBLE_SSH_ARGS environment variable, which requires 'ssh' mode.
         # Note that multiple keys and ssh-forwarding settings are not supported
         # by deprecated 'paramiko' mode.
-        ansible_ssh_args = get_ansible_ssh_args
         options << "--connection=ssh" unless ansible_ssh_args.empty?
 
         # By default we limit by the current machine.
@@ -169,19 +174,22 @@ module VagrantPlugins
         end
       end
 
+      def ansible_ssh_args
+        @ansible_ssh_args ||= get_ansible_ssh_args
+      end
+
       def get_ansible_ssh_args
-        ssh = @machine.ssh_info
         ssh_options = []
 
         # Multiple Private Keys
-        ssh[:private_key_path].drop(1).each do |key|
+        @ssh_info[:private_key_path].drop(1).each do |key|
           ssh_options << "-o IdentityFile=#{key}"
         end
 
         # SSH Forwarding
-        ssh_options << "-o ForwardAgent=yes" if ssh[:forward_agent]
+        ssh_options << "-o ForwardAgent=yes" if @ssh_info[:forward_agent]
 
-        return ssh_options.join(' ')
+        ssh_options.join(' ')
       end
 
       def as_list_argument(v)
