@@ -1,24 +1,43 @@
 module VagrantPlugins
   module Ansible
     class Provisioner < Vagrant.plugin("2", :provisioner)
-      def provision
-        @logger = Log4r::Logger.new("vagrant::provisioners::ansible")
-        ssh = @machine.ssh_info
 
-        # Connect with Vagrant user (unless --user or --private-key are
-        # overidden by 'raw_arguments').
+      def initialize(machine, config)
+        super
+
+        @logger = Log4r::Logger.new("vagrant::provisioners::ansible")
+        @ssh_info = @machine.ssh_info
+      end
+
+      def provision
+
         #
-        # TODO: multiple private key support
-        options = %W[--private-key=#{ssh[:private_key_path][0]} --user=#{ssh[:username]}]
+        # 1) Default Settings (lowest precedence)
+        #
+
+        # Connect with Vagrant SSH identity
+        options = %W[--private-key=#{@ssh_info[:private_key_path][0]} --user=#{@ssh_info[:username]}]
+
+        # Multiple SSH keys and/or SSH forwarding can be passed via
+        # ANSIBLE_SSH_ARGS environment variable, which requires 'ssh' mode.
+        # Note that multiple keys and ssh-forwarding settings are not supported
+        # by deprecated 'paramiko' mode.
+        options << "--connection=ssh" unless ansible_ssh_args.empty?
 
         # By default we limit by the current machine.
         # This can be overridden by the limit config option.
         options << "--limit=#{@machine.name}"
 
-        # Joker! Not (yet) supported arguments can be passed this way.
+        #
+        # 2) Configuration Joker
+        #
+
         options.concat(self.as_array(config.raw_arguments)) if config.raw_arguments
 
-        # Append Provisioner options (highest precedence):
+        #
+        # 3) Append Provisioner options (highest precedence):
+        #
+
         options << "--inventory-file=#{self.setup_inventory_file}"
         options << "--extra-vars=#{self.get_extra_vars_argument}" if config.extra_vars
         options << "--sudo" if config.sudo
@@ -33,15 +52,21 @@ module VagrantPlugins
         # Assemble the full ansible-playbook command
         command = (%w(ansible-playbook) << options << config.playbook).flatten
 
+        # Some Ansible options must be passed as environment variables
+        env = {
+          "ANSIBLE_FORCE_COLOR" => "true",
+          "ANSIBLE_HOST_KEY_CHECKING" => "#{config.host_key_checking}",
+
+          # Ensure Ansible output isn't buffered so that we receive ouput
+          # on a task-by-task basis.
+          "PYTHONUNBUFFERED" => 1
+        }
+        # Support Multiple SSH keys and SSH forwarding:
+        env["ANSIBLE_SSH_ARGS"] = ansible_ssh_args unless ansible_ssh_args.empty?
+
         # Write stdout and stderr data, since it's the regular Ansible output
         command << {
-          :env => {
-            "ANSIBLE_FORCE_COLOR" => "true",
-            "ANSIBLE_HOST_KEY_CHECKING" => "#{config.host_key_checking}",
-            # Ensure Ansible output isn't buffered so that we receive ouput
-            # on a task-by-task basis.
-            "PYTHONUNBUFFERED" => 1
-          },
+          :env => env,
           :notify => [:stdout, :stderr],
           :workdir => @machine.env.root_path.to_s
         }
@@ -147,6 +172,24 @@ module VagrantPlugins
           # safe default, in case input strays
           return '-v'
         end
+      end
+
+      def ansible_ssh_args
+        @ansible_ssh_args ||= get_ansible_ssh_args
+      end
+
+      def get_ansible_ssh_args
+        ssh_options = []
+
+        # Multiple Private Keys
+        @ssh_info[:private_key_path].drop(1).each do |key|
+          ssh_options << "-o IdentityFile=#{key}"
+        end
+
+        # SSH Forwarding
+        ssh_options << "-o ForwardAgent=yes" if @ssh_info[:forward_agent]
+
+        ssh_options.join(' ')
       end
 
       def as_list_argument(v)
