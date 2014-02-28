@@ -125,7 +125,7 @@ new functionality that plugin developers can take advantage of in Vagrant 1.5.
 **Provider capabilities** allow providers to opt-in to provider-specific
 functionality. Plugins can query whether the provider supports a certain
 functionality and behave accordingly. As an example use case, the recently
-announced [Vagrant Share](#)
+announced [Vagrant Share](/blog/feature-preview-vagrant-1-5-share.html)
 functionality uses a provider-capability `read_ip_address` to ask
 providers for an accessible IP address to the machine.
 
