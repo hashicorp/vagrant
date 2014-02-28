@@ -11,6 +11,8 @@ DEPRECATIONS:
 
 FEATURES:
 
+  - **New provider:** Hyper-V. If you're on a Windows machine with Hyper-V
+    enabled, Vagrant can now manage Hyper-V virtual machines out of the box.
   - **New guest:** Funtoo (change host name and networks supported)
   - **New guest:** NetBSD
   - **New guest:** TinyCore Linux. This allows features such as networking,
@@ -18,6 +20,8 @@ FEATURES:
   - **New synced folder type:** rsync - Does a one-time one-directional sync
     to the guest machine. New commands `vagrant rsync` and `vagrant rsync-auto`
     can resync the folders.
+  - **New synced folder type:** SMB- Allows bi-directional folder syncing
+    using SMB on Windows hosts with any guest.
   - Password-based SSH authentication. This lets you use almost any off-the-shelf
     virtual machine image with Vagrant. Additionally, Vagrant will automatically
     insert a keypair into the machine.
