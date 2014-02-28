@@ -66,8 +66,6 @@ module VagrantPlugins
       def setup_inventory_file
         return config.inventory_path if config.inventory_path
 
-        ssh = @machine.ssh_info
-
         # Managed machines
         inventory_machines = {}
 
