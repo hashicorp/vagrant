@@ -215,6 +215,16 @@
 								</ul>
 								<% end %>
 
+								<li<%= sidebar_current("hyperv") %>><a href="/v2/hyperv/index.html">Hyper-V</a></li>
+								<% if sidebar_section == "hyperv" %>
+								<ul class="sub unstyled">
+									<li<%= sidebar_current("hyperv-usage") %>><a href="/v2/hyperv/usage.html">Usage</a></li>
+									<li<%= sidebar_current("hyperv-boxes") %>><a href="/v2/hyperv/boxes.html">Creating a Base Box</a></li>
+									<li<%= sidebar_current("hyperv-configuration") %>><a href="/v2/hyperv/configuration.html">Configuration</a></li>
+									<li<%= sidebar_current("hyperv-limitations") %>><a href="/v2/hyperv/limitations.html">Limitations</a></li>
+								</ul>
+								<% end %>
+
 								<li<%= sidebar_current("plugins") %>><a href="/v2/plugins/index.html">Plugins</a></li>
 								<% if sidebar_section == "plugins" %>
 								<ul class="sub unstyled">
