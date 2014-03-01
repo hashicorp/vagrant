@@ -149,6 +149,21 @@ describe Vagrant::Action::Builtin::BoxAdd do
         to raise_error(Vagrant::Errors::BoxAlreadyExists)
     end
 
+    it "raises an error if checksum specified and doesn't match" do
+      box_path = iso_env.box2_file(:virtualbox)
+
+      env[:box_name] = "foo"
+      env[:box_url] = box_path.to_s
+      env[:box_checksum] = checksum(box_path) + "A"
+      env[:box_checksum_type] = "sha1"
+
+      box_collection.should_receive(:add).never
+      app.should_receive(:call).never
+
+      expect { subject.call(env) }.
+        to raise_error(Vagrant::Errors::BoxChecksumMismatch)
+    end
+
     it "force adds if exists and specified" do
       box_path = iso_env.box2_file(:virtualbox)
 

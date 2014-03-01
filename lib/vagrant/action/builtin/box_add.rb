@@ -124,7 +124,10 @@ module Vagrant
             "0",
             provider,
             nil,
-            env)
+            env,
+            checksum: env[:box_checksum],
+            checksum_type: env[:box_checksum_type],
+          )
         end
 
         # Adds a box given that the URL is a metadata document.
@@ -265,33 +268,6 @@ module Vagrant
             end
           end
 
-          # Go through each URL and attempt to download it
-          download_error = nil
-          download_url = nil
-          urls = env[:box_url]
-          urls = [env[:box_url]] if !urls.is_a?(Array)
-          urls.each do |url|
-            begin
-              @temp_path = download_box_url(url, env)
-              download_error = nil
-              download_url = url
-            rescue Errors::DownloaderError => e
-              env[:ui].error(I18n.t(
-                "vagrant.actions.box.download.download_failed"))
-              download_error = e
-            end
-
-            # If we were interrupted during this download, then just return
-            # at this point, we don't need to try anymore.
-            if @download_interrupted
-              @logger.warn("Download interrupted, not trying any more box URLs.")
-              return
-            end
-          end
-
-          # If all the URLs failed, then raise an exception
-          raise download_error if download_error
-
           if checksum_klass
             @logger.info("Validating checksum with #{checksum_klass}")
             @logger.info("Expected checksum: #{checksum}")
@@ -352,6 +328,11 @@ module Vagrant
                   "vagrant.box_download_error",  message: e.message))
                 box_url = nil
               end
+            end
+
+            if opts[:checksum] && opts[:checksum_type]
+              validate_checksum(
+                opts[:checksum_type], opts[:checksum], box_url)
             end
 
             # Add the box!
@@ -489,6 +470,30 @@ module Vagrant
           match  = output.scan(/^Content-Type: (.+?)$/).last
           return false if !match
           match.last.chomp == "application/json"
+        end
+
+        def validate_checksum(checksum_type, checksum, path)
+          checksum_klass = case checksum_type.to_sym
+          when :md5
+            Digest::MD5
+          when :sha1
+            Digest::SHA1
+          when :sha256
+            Digest::SHA2
+          else
+            raise Errors::BoxChecksumInvalidType,
+              type: env[:box_checksum_type].to_s
+          end
+
+          @logger.info("Validating checksum with #{checksum_klass}")
+          @logger.info("Expected checksum: #{checksum}")
+
+          actual = FileChecksum.new(path, checksum_klass).checksum
+          if actual != checksum
+            raise Errors::BoxChecksumMismatch,
+              actual: actual,
+              expected: checksum
+          end
         end
       end
     end
