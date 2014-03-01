@@ -247,42 +247,11 @@ module Vagrant
             metadata_version.version,
             metadata_provider.name,
             url,
-            env)
+            env,
+            checksum: metadata_provider.checksum,
+            checksum_type: metadata_provider.checksum_type,
+          )
         end
-
-=begin
-          # Determine the checksum type to use
-          checksum = (env[:box_checksum] || "").to_s
-          checksum_klass = nil
-          if env[:box_checksum_type]
-            checksum_klass = case env[:box_checksum_type].to_sym
-            when :md5
-              Digest::MD5
-            when :sha1
-              Digest::SHA1
-            when :sha256
-              Digest::SHA2
-            else
-              raise Errors::BoxChecksumInvalidType,
-                type: env[:box_checksum_type].to_s
-            end
-          end
-
-          if checksum_klass
-            @logger.info("Validating checksum with #{checksum_klass}")
-            @logger.info("Expected checksum: #{checksum}")
-
-            env[:ui].info(I18n.t("vagrant.actions.box.add.checksumming",
-              name: box_name))
-            actual = FileChecksum.new(@temp_path, checksum_klass).checksum
-            if actual != checksum
-              raise Errors::BoxChecksumMismatch,
-                actual: actual,
-                expected: checksum
-            end
-          end
-        end
-=end
 
         protected
 

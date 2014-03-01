@@ -331,6 +331,89 @@ describe Vagrant::Action::Builtin::BoxAdd do
       end
     end
 
+    it "adds from HTTP URL with a checksum" do
+      box_path = iso_env.box2_file(:virtualbox)
+      tf = Tempfile.new(["vagrant", ".json"]).tap do |f|
+        f.write(<<-RAW)
+        {
+          "name": "foo/bar",
+          "versions": [
+            {
+              "version": "0.5"
+            },
+            {
+              "version": "0.7",
+              "providers": [
+                {
+                  "name": "virtualbox",
+                  "url":  "#{box_path}",
+                  "checksum_type": "sha1",
+                  "checksum": "#{checksum(box_path)}"
+                }
+              ]
+            }
+          ]
+        }
+        RAW
+        f.close
+      end
+
+      md_path = Pathname.new(tf.path)
+      with_web_server(md_path) do |port|
+        env[:box_url] = "http://127.0.0.1:#{port}/#{md_path.basename}"
+
+        box_collection.should_receive(:add).with do |path, name, version, **opts|
+          expect(name).to eq("foo/bar")
+          expect(version).to eq("0.7")
+          expect(checksum(path)).to eq(checksum(box_path))
+          expect(opts[:metadata_url]).to eq(env[:box_url])
+          true
+        end.and_return(box)
+
+        app.should_receive(:call).with(env)
+
+        subject.call(env)
+      end
+    end
+
+    it "raises an exception if checksum given but not correct" do
+      box_path = iso_env.box2_file(:virtualbox)
+      tf = Tempfile.new(["vagrant", ".json"]).tap do |f|
+        f.write(<<-RAW)
+        {
+          "name": "foo/bar",
+          "versions": [
+            {
+              "version": "0.5"
+            },
+            {
+              "version": "0.7",
+              "providers": [
+                {
+                  "name": "virtualbox",
+                  "url":  "#{box_path}",
+                  "checksum_type": "sha1",
+                  "checksum": "thisisnotcorrect"
+                }
+              ]
+            }
+          ]
+        }
+        RAW
+        f.close
+      end
+
+      md_path = Pathname.new(tf.path)
+      with_web_server(md_path) do |port|
+        env[:box_url] = "http://127.0.0.1:#{port}/#{md_path.basename}"
+
+        box_collection.should_receive(:add).never
+        app.should_receive(:call).never
+
+        expect { subject.call(env) }.
+          to raise_error(Vagrant::Errors::BoxChecksumMismatch)
+      end
+    end
 
     it "raises an error if no Vagrant server is set" do
       tf = Tempfile.new("foo")
