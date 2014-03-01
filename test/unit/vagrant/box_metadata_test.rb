@@ -154,4 +154,19 @@ describe Vagrant::BoxMetadata::Provider do
       expect(subject.url).to eq("bar")
     end
   end
+
+  describe "#checksum and #checksum_type" do
+    it "is set properly" do
+      raw["checksum"] = "foo"
+      raw["checksum_type"] = "bar"
+
+      expect(subject.checksum).to eq("foo")
+      expect(subject.checksum_type).to eq("bar")
+    end
+
+    it "is nil if not set" do
+      expect(subject.checksum).to be_nil
+      expect(subject.checksum_type).to be_nil
+    end
+  end
 end

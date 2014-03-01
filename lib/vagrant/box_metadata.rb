@@ -120,9 +120,21 @@ module Vagrant
       # @return [String]
       attr_accessor :url
 
+      # The checksum value for this box, if any.
+      #
+      # @return [String]
+      attr_accessor :checksum
+
+      # The type of checksum (if any) associated with this provider.
+      #
+      # @return [String]
+      attr_accessor :checksum_type
+
       def initialize(raw)
         @name = raw["name"]
         @url  = raw["url"]
+        @checksum = raw["checksum"]
+        @checksum_type = raw["checksum_type"]
       end
     end
   end
