@@ -89,6 +89,12 @@ you're not using a catalog).
   a catalog, the name is included in the catalog entry and doesn't have
   to be specified.
 
+<div class="alert alert-block alert-warn">
+<strong>Checksums for versioned boxes or boxes from Vagrant Cloud:</strong>
+For boxes from Vagrant Cloud, the checksums are embedded in the metadata
+of the box. The metadata itself is served over TLS and its format is validated.
+</div>
+
 # Box List
 
 **Command: `vagrant box list`**
