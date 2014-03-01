@@ -56,6 +56,42 @@ describe Vagrant::BoxCollection do
       expect(result).to_not be_nil
       expect(result).to be_kind_of(box_class)
       expect(result.name).to eq("foo")
+      expect(result.metadata_url).to be_nil
+    end
+
+    it "sets a metadata URL if it has one" do
+      # Create the "box"
+      environment.box3("foo", "0", :virtualbox,
+        metadata_url: "foourl")
+
+      # Actual test
+      result = subject.find("foo", :virtualbox, ">= 0")
+      expect(result).to_not be_nil
+      expect(result).to be_kind_of(box_class)
+      expect(result.name).to eq("foo")
+      expect(result.metadata_url).to eq("foourl")
+    end
+
+    it "sets the metadata URL to an authenticated URL if it has one" do
+      hook    = double("hook")
+      subject = described_class.new(environment.boxes_dir, hook: hook)
+
+      # Create the "box"
+      environment.box3("foo", "0", :virtualbox,
+        metadata_url: "foourl")
+
+      hook.should_receive(:call).with do |name, env|
+        expect(name).to eq(:authenticate_box_url)
+        expect(env[:box_urls]).to eq(["foourl"])
+        true
+      end.and_return(box_urls: ["bar"])
+
+      # Actual test
+      result = subject.find("foo", :virtualbox, ">= 0")
+      expect(result).to_not be_nil
+      expect(result).to be_kind_of(box_class)
+      expect(result.name).to eq("foo")
+      expect(result.metadata_url).to eq("bar")
     end
 
     it "returns latest version matching constraint" do

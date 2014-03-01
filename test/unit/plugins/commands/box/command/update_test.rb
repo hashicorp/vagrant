@@ -41,9 +41,18 @@ describe VagrantPlugins::CommandBox::Command::Update do
       end
 
       it "doesn't update if they're up to date" do
-        action_runner.should_receive(:run).never
+        called = false
+        action_runner.stub(:run) do |callable, opts|
+          if opts[:box_provider]
+            called = true
+          end
+
+          opts
+        end
 
         subject.execute
+
+        expect(called).to be_false
       end
 
       it "does update if there is an update" do
@@ -69,14 +78,21 @@ describe VagrantPlugins::CommandBox::Command::Update do
           RAW
         end
 
-        action_runner.should_receive(:run).with do |action, opts|
-          expect(opts[:box_url]).to eq(metadata_url.to_s)
-          expect(opts[:box_provider]).to eq("virtualbox")
-          expect(opts[:box_version]).to eq("1.1")
-          true
+        action_called = false
+        action_runner.stub(:run) do |action, opts|
+          if opts[:box_provider]
+            action_called = true
+            expect(opts[:box_url]).to eq(metadata_url.to_s)
+            expect(opts[:box_provider]).to eq("virtualbox")
+            expect(opts[:box_version]).to eq("1.1")
+          end
+
+          opts
         end
 
         subject.execute
+
+        expect(action_called).to be_true
       end
 
       it "raises an error if there are multiple providers" do
@@ -116,14 +132,21 @@ describe VagrantPlugins::CommandBox::Command::Update do
 
           test_iso_env.box3("foo", "1.0", :vmware)
 
-          action_runner.should_receive(:run).with do |action, opts|
-            expect(opts[:box_url]).to eq(metadata_url.to_s)
-            expect(opts[:box_provider]).to eq("vmware")
-            expect(opts[:box_version]).to eq("1.1")
-            true
+          action_called = false
+          action_runner.stub(:run) do |action, opts|
+            if opts[:box_provider]
+              action_called = true
+              expect(opts[:box_url]).to eq(metadata_url.to_s)
+              expect(opts[:box_provider]).to eq("vmware")
+              expect(opts[:box_version]).to eq("1.1")
+            end
+
+            opts
           end
 
           subject.execute
+
+          expect(action_called).to be_true
         end
 
         it "raises an error if that provider doesn't exist" do

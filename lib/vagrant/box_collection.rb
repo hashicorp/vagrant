@@ -44,6 +44,7 @@ module Vagrant
       options ||= {}
 
       @directory = directory
+      @hook      = options[:hook]
       @lock      = Monitor.new
       @temp_root = options[:temp_dir_root]
       @logger    = Log4r::Logger.new("vagrant::box_collection")
@@ -288,6 +289,12 @@ module Vagrant
             metadata_url = nil
             metadata_url_file = box_directory.join("metadata_url")
             metadata_url = metadata_url_file.read if metadata_url_file.file?
+
+            if metadata_url && @hook
+              hook_env     = @hook.call(
+                :authenticate_box_url, box_urls: [metadata_url])
+              metadata_url = hook_env[:box_urls].first
+            end
 
             return Box.new(
               name, provider, v.to_s, provider_dir,

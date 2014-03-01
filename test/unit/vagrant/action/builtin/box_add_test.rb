@@ -14,6 +14,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
   let(:app) { lambda { |env| } }
   let(:env) { {
     box_collection: box_collection,
+    hook: Proc.new { |name, env| env },
     tmp_path: Pathname.new(Dir.mktmpdir),
     ui: Vagrant::UI::Silent.new,
   } }
@@ -261,6 +262,60 @@ describe Vagrant::Action::Builtin::BoxAdd do
         end
       end
     end
+
+    it "authenticates HTTP URLs and adds them" do
+      box_path = iso_env.box2_file(:virtualbox)
+      tf = Tempfile.new(["vagrant", ".json"]).tap do |f|
+        f.write(<<-RAW)
+        {
+          "name": "foo/bar",
+          "versions": [
+            {
+              "version": "0.5"
+            },
+            {
+              "version": "0.7",
+              "providers": [
+                {
+                  "name": "virtualbox",
+                  "url":  "#{box_path}"
+                }
+              ]
+            }
+          ]
+        }
+        RAW
+        f.close
+      end
+
+      md_path = Pathname.new(tf.path)
+      with_web_server(md_path) do |port|
+        real_url = "http://127.0.0.1:#{port}/#{md_path.basename}"
+
+        # Set the box URL to something fake so we can modify it in place
+        env[:box_url] = "foo"
+
+        env[:hook] = double("hook")
+        env[:hook].should_receive(:call) do |name, opts|
+          expect(name).to eq(:authenticate_box_url)
+          expect(opts[:box_urls]).to eq(["foo"])
+          { box_urls: [real_url] }
+        end
+
+        box_collection.should_receive(:add).with do |path, name, version, **opts|
+          expect(name).to eq("foo/bar")
+          expect(version).to eq("0.7")
+          expect(checksum(path)).to eq(checksum(box_path))
+          expect(opts[:metadata_url]).to eq(env[:box_url])
+          true
+        end.and_return(box)
+
+        app.should_receive(:call).with(env)
+
+        subject.call(env)
+      end
+    end
+
 
     it "raises an error if no Vagrant server is set" do
       tf = Tempfile.new("foo")

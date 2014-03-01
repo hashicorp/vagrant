@@ -57,8 +57,17 @@ module Vagrant
             end
           end
 
+          # Call the hook to transform URLs into authenticated URLs.
+          # In the case we don't have a plugin that does this, then it
+          # will just return the same URLs.
+          hook_env    = env[:hook].call(:authenticate_box_url, box_urls: url)
+          authed_urls = hook_env[:box_urls]
+          if !authed_urls || authed_urls.length != url.length
+            raise "Bad box authentication hook, did not generate proper results."
+          end
+
           # Test if any of our URLs point to metadata
-          is_metadata_results = url.map do |u|
+          is_metadata_results = authed_urls.map do |u|
             begin
               metadata_url?(u, env)
             rescue Errors::DownloaderError => e
@@ -86,7 +95,8 @@ module Vagrant
           end
 
           if is_metadata
-            add_from_metadata(url.first, env, expanded)
+            url = [url.first, authed_urls.first]
+            add_from_metadata(url, env, expanded)
           else
             add_direct(url, env)
           end
@@ -118,11 +128,27 @@ module Vagrant
         end
 
         # Adds a box given that the URL is a metadata document.
+        #
+        # @param [String | Array<String>] url The URL of the metadata for
+        #   the box to add. If this is an array, then it must be a two-element
+        #   array where the first element is the original URL and the second
+        #   element is an authenticated URL.
+        # @param [Hash] env
+        # @param [Bool] expanded True if the metadata URL was expanded with
+        #   a Vagrant Cloud server URL.
         def add_from_metadata(url, env, expanded)
           original_url = env[:box_url]
           provider = env[:box_provider]
           provider = Array(provider) if provider
           version = env[:box_version]
+
+          authenticated_url = url
+          if url.is_a?(Array)
+            # We have both a normal URL and "authenticated" URL. Split
+            # them up.
+            authenticated_url = url[1]
+            url               = url[0]
+          end
 
           env[:ui].output(I18n.t(
             "vagrant.box_loading_metadata",
@@ -134,7 +160,8 @@ module Vagrant
 
           metadata = nil
           begin
-            metadata_path = download(url, env, json: true, ui: false)
+            metadata_path = download(
+              authenticated_url, env, json: true, ui: false)
 
             File.open(metadata_path) do |f|
               metadata = BoxMetadata.new(f)

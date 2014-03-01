@@ -757,6 +757,11 @@ VF
     collection = instance.boxes
     collection.should be_kind_of(Vagrant::BoxCollection)
     collection.directory.should == instance.boxes_path
+
+    # Reach into some internal state here but not sure how else
+    # to test this at the moment.
+    expect(collection.instance_variable_get(:@hook)).
+      to eq(instance.method(:hook))
   end
 
   describe "action runner" do
