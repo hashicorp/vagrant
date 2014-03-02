@@ -593,6 +593,18 @@ en:
 
         Source: %{source}
         Destination: %{destination}
+      corrupt_machine_index: |-
+        The machine index which stores all required information about
+        running Vagrant environments has become corrupt. This is usually
+        caused by external tampering of the Vagrant data folder.
+
+        Vagrant cannot manage any Vagrant environments if the index is
+        corrupt. Please attempt to manually correct it. If you are unable
+        to manually correct it, then remove the data file at the path below.
+        This will leave all existing Vagrant environments "orphaned" and
+        they'll have to be destroyed manually.
+
+        Path: %{path}
       destroy_requires_force: |-
         Destroy doesn't have a TTY to ask for confirmation. Please pass the
         `--force` flag to force a destroy, otherwise attach a TTY so that
