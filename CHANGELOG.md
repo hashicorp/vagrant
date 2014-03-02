@@ -82,6 +82,8 @@ BUG FIXES:
   - core: Adding boxes that have directories in them works on Windows.
   - core: Vagrant will not think provisioning is already done if
     the VM is manually deleted outside of Vagrant.
+  - core: Box file checksums of large files works properly on Windows.
+    [GH-3045]
   - commands/box: Box add `--force` works with `--provider` flag. [GH-2757]
   - commands/box: Listing boxes with machine-readable output crash is gone.
   - commands/plugin: Plugin installation will fail if dependencies conflict,
