@@ -316,6 +316,10 @@ module Vagrant
       error_key(:copy_private_key_failed)
     end
 
+    class CorruptMachineIndex < VagrantError
+      error_key(:corrupt_machine_index)
+    end
+
     class DarwinNFSMountFailed < VagrantError
       error_key(:darwin_nfs_mount_failed)
     end
