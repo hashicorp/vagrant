@@ -400,6 +400,10 @@ module Vagrant
       error_key(:machine_guest_not_ready)
     end
 
+    class MachineLocked < VagrantError
+      error_key(:machine_locked)
+    end
+
     class MachineNotFound < VagrantError
       error_key(:machine_not_found)
     end

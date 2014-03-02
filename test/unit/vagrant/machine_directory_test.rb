@@ -9,12 +9,12 @@ require "vagrant/machine_index"
 describe Vagrant::MachineIndex do
   include_context "unit"
 
-  let(:data_file) { temporary_file }
+  let(:data_dir) { temporary_dir }
 
-  subject { described_class.new(data_file) }
+  subject { described_class.new(data_dir) }
 
   it "raises an exception if the data file is corrupt" do
-    data_file.open("w") do |f|
+    data_dir.join("index").open("w") do |f|
       f.write(JSON.dump({}))
     end
 
@@ -23,7 +23,7 @@ describe Vagrant::MachineIndex do
   end
 
   it "raises an exception if the JSON is invalid" do
-    data_file.open("w") do |f|
+    data_dir.join("index").open("w") do |f|
       f.write("foo")
     end
 
@@ -31,7 +31,7 @@ describe Vagrant::MachineIndex do
       to raise_error(Vagrant::Errors::CorruptMachineIndex)
   end
 
-  describe "#[]" do
+  describe "#get and #release" do
     before do
       data = {
         "version" => 1,
@@ -46,17 +46,17 @@ describe Vagrant::MachineIndex do
         }
       }
 
-      data_file.open("w") do |f|
+      data_dir.join("index").open("w") do |f|
         f.write(JSON.dump(data))
       end
     end
 
     it "returns nil if the machine doesn't exist" do
-      expect(subject["foo"]).to be_nil
+      expect(subject.get("foo")).to be_nil
     end
 
     it "returns a valid entry if the machine exists" do
-      result = subject["bar"]
+      result = subject.get("bar")
 
       expect(result.id).to eq("bar")
       expect(result.name).to eq("default")
@@ -65,22 +65,47 @@ describe Vagrant::MachineIndex do
       expect(result.state).to eq("running")
       expect(result.updated_at).to eq("foo")
     end
+
+    it "locks the entry so subsequent gets fail" do
+      result = subject.get("bar")
+      expect(result).to_not be_nil
+
+      expect { subject.get("bar") }.
+        to raise_error(Vagrant::Errors::MachineLocked)
+    end
+
+    it "can unlock a machine" do
+      result = subject.get("bar")
+      expect(result).to_not be_nil
+      subject.release(result)
+
+      result = subject.get("bar")
+      expect(result).to_not be_nil
+    end
   end
 
-  describe "#set and #[]" do
+  describe "#set and #get" do
     let(:entry_klass) { Vagrant::MachineIndex::Entry }
 
-    it "adds a new entry" do
-      entry = entry_klass.new
-      entry.name = "foo"
-      entry.vagrantfile_path = "/bar"
+    let(:new_entry) do
+      entry_klass.new.tap do |e|
+        e.name = "foo"
+        e.vagrantfile_path = "/bar"
+      end
+    end
 
-      result = subject.set(entry)
+    it "adds a new entry" do
+      result = subject.set(new_entry)
       expect(result.id).to_not be_empty
 
+      # It should be locked
+      expect { subject.get(result.id) }.
+        to raise_error(Vagrant::Errors::MachineLocked)
+
       # Get it froma new class and check the results
-      subject = described_class.new(data_file)
-      entry   = subject[result.id]
+      subject.release(result)
+      subject = described_class.new(data_dir)
+      entry   = subject.get(result.id)
       expect(entry).to_not be_nil
       expect(entry.name).to eq("foo")
 
@@ -100,9 +125,12 @@ describe Vagrant::MachineIndex do
       nextresult = subject.set(result)
       expect(nextresult.id).to eq(result.id)
 
+      # Release it so we can test the contents
+      subject.release(nextresult)
+
       # Get it froma new class and check the results
-      subject = described_class.new(data_file)
-      entry   = subject[result.id]
+      subject = described_class.new(data_dir)
+      entry   = subject.get(result.id)
       expect(entry).to_not be_nil
       expect(entry.name).to eq("bar")
     end
