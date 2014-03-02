@@ -673,6 +673,14 @@ en:
         Guest-specific operations were attempted on a machine that is not
         ready for guest communication. This should not happen and a bug
         should be reported.
+      machine_locked: |-
+        Vagrant can't use the requested machine because it is locekd! This
+        means that another Vagrant process is currently reading or modifying
+        the machine. Please wait for that Vagrant process to end and try
+        again. Details about the machine are shown below:
+
+        Name: %{name}
+        Provider: %{provider}
       machine_not_found: |-
         The machine with the name '%{name}' was not found configured for
         this Vagrant environment.
