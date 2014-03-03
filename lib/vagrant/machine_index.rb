@@ -125,7 +125,7 @@ module Vagrant
         # Verify the machine is locked so we can safely write
         # to it.
         if !id
-          id = SecureRandom.uuid
+          id = SecureRandom.uuid.gsub("-", "")
           lock_file = lock_machine(id)
           if !lock_file
             raise "Failed to lock new machine: #{entry.name}"
