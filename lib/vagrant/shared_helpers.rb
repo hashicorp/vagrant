@@ -8,6 +8,15 @@ module Vagrant
   # @return [String]
   DEFAULT_SERVER_URL = "https://www.vagrantcloud.com"
 
+  # Returns the path to the embedded directory of the Vagrant installer,
+  # if there is one (if we're running in an installer).
+  #
+  # @return [String]
+  def self.installer_embedded_dir
+    return nil if !Vagrant.in_installer?
+    ENV["VAGRANT_INSTALLER_EMBEDDED_DIR"]
+  end
+
   # This returns whether or not 3rd party plugins should be loaded.
   #
   # @return [Boolean]

@@ -8,6 +8,21 @@ describe Vagrant do
 
   subject { described_class }
 
+  describe "#installer_embedded_dir" do
+    it "returns nil if not in an installer" do
+      Vagrant.stub(in_installer?: false)
+      expect(subject.installer_embedded_dir).to be_nil
+    end
+
+    it "returns the set directory" do
+      Vagrant.stub(in_installer?: true)
+
+      with_temp_env("VAGRANT_INSTALLER_EMBEDDED_DIR" => "/foo") do
+        expect(subject.installer_embedded_dir).to eq("/foo")
+      end
+    end
+  end
+
   describe "#plugins_enabled?" do
     it "returns true if the env is not set" do
       with_temp_env("VAGRANT_NO_PLUGINS" => nil) do
