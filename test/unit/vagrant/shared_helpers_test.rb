@@ -8,6 +8,20 @@ describe Vagrant do
 
   subject { described_class }
 
+  describe "#in_installer?" do
+    it "is not if env is not set" do
+      with_temp_env("VAGRANT_INSTALLER_ENV" => nil) do
+        expect(subject.in_installer?).to be_false
+      end
+    end
+
+    it "is if env is set" do
+      with_temp_env("VAGRANT_INSTALLER_ENV" => "/foo") do
+        expect(subject.in_installer?).to be_true
+      end
+    end
+  end
+
   describe "#installer_embedded_dir" do
     it "returns nil if not in an installer" do
       Vagrant.stub(in_installer?: false)

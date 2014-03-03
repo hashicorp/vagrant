@@ -125,14 +125,6 @@ module Vagrant
     c.register([:"2", :synced_folder]) { Plugin::V2::SyncedFolder }
   end
 
-  # This returns a true/false showing whether we're running from the
-  # environment setup by the Vagrant installers.
-  #
-  # @return [Boolean]
-  def self.in_installer?
-    !!ENV["VAGRANT_INSTALLER_ENV"]
-  end
-
   # Configure a Vagrant environment. The version specifies the version
   # of the configuration that is expected by the block. The block, based
   # on that version, configures the environment.

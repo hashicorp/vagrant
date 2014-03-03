@@ -8,6 +8,14 @@ module Vagrant
   # @return [String]
   DEFAULT_SERVER_URL = "https://www.vagrantcloud.com"
 
+  # This returns a true/false showing whether we're running from the
+  # environment setup by the Vagrant installers.
+  #
+  # @return [Boolean]
+  def self.in_installer?
+    !!ENV["VAGRANT_INSTALLER_ENV"]
+  end
+
   # Returns the path to the embedded directory of the Vagrant installer,
   # if there is one (if we're running in an installer).
   #
