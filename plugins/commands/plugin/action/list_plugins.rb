@@ -27,13 +27,12 @@ module VagrantPlugins
           end
 
           specs.each do |spec|
-            env[:ui].info "#{spec.name} (#{spec.version})"
-
-            # Grab the plugin. Note that the check for whether it exists
-            # shouldn't be necessary since installed_specs checks that but
-            # its nice to be certain.
+            # Grab the plugin.
             plugin = plugins[spec.name]
-            next if !plugin
+
+            system = ""
+            system = ", system" if plugin && plugin["system"]
+            env[:ui].info "#{spec.name} (#{spec.version}#{system})"
 
             if plugin["gem_version"] && plugin["gem_version"] != ""
               env[:ui].info(I18n.t(
