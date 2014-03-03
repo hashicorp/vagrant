@@ -8,6 +8,8 @@ require "vagrant/plugin/state_file"
 require File.expand_path("../../../base", __FILE__)
 
 describe Vagrant::Plugin::Manager do
+  include_context "unit"
+
   let(:path) do
     f = Tempfile.new("vagrant")
     p = f.path
@@ -169,7 +171,7 @@ describe Vagrant::Plugin::Manager do
   context "with state" do
     before do
       sf = Vagrant::Plugin::StateFile.new(path)
-      sf.add_plugin("foo")
+      sf.add_plugin("foo", version: "0.1.0")
     end
 
     describe "#installed_plugins" do
@@ -190,6 +192,30 @@ describe Vagrant::Plugin::Manager do
         specs = subject.installed_specs
         expect(specs.length).to eql(1)
         expect(specs.first.name).to eql("i18n")
+      end
+    end
+
+    context "with system plugins" do
+      let(:systems_path) { temporary_file }
+
+      before do
+        systems_path.unlink
+
+        described_class.stub(system_plugins_file: systems_path)
+
+        sf = Vagrant::Plugin::StateFile.new(systems_path)
+        sf.add_plugin("foo", version: "0.2.0")
+        sf.add_plugin("bar")
+      end
+
+      describe "#installed_plugins" do
+        it "has the plugins" do
+          plugins = subject.installed_plugins
+          expect(plugins.length).to eql(2)
+          expect(plugins).to have_key("foo")
+          expect(plugins["foo"]["gem_version"]).to eq("0.1.0")
+          expect(plugins).to have_key("bar")
+        end
       end
     end
   end
