@@ -114,7 +114,13 @@ module Vagrant
       #
       # @return [Hash]
       def installed_plugins
-        system = @system_file ? @system_file.installed_plugins : {}
+        system = {}
+        if @system_file
+          @system_file.installed_plugins.each do |k, v|
+            system[k] = v.merge("system" => true)
+          end
+        end
+
         system.merge(@user_file.installed_plugins)
       end
 

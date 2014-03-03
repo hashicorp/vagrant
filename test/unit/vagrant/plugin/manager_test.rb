@@ -214,7 +214,9 @@ describe Vagrant::Plugin::Manager do
           expect(plugins.length).to eql(2)
           expect(plugins).to have_key("foo")
           expect(plugins["foo"]["gem_version"]).to eq("0.1.0")
+          expect(plugins["foo"]["system"]).to be_false
           expect(plugins).to have_key("bar")
+          expect(plugins["bar"]["system"]).to be_true
         end
       end
     end
