@@ -149,6 +149,39 @@ describe Vagrant::Plugin::Manager do
       expect { subject.uninstall_plugin("foo") }.
         to raise_error(Vagrant::Errors::BundlerError)
     end
+
+    context "with a system file" do
+      let(:systems_path) { temporary_file }
+
+      before do
+        systems_path.unlink
+
+        described_class.stub(system_plugins_file: systems_path)
+
+        sf = Vagrant::Plugin::StateFile.new(systems_path)
+        sf.add_plugin("foo", version: "0.2.0")
+        sf.add_plugin("bar")
+      end
+
+      it "uninstalls the user plugin if it exists" do
+        sf = Vagrant::Plugin::StateFile.new(path)
+        sf.add_plugin("bar")
+
+        # Test
+        bundler.should_receive(:clean).once.with(anything)
+
+        # Remove it
+        subject.uninstall_plugin("bar")
+
+        plugins = subject.installed_plugins
+        expect(plugins["foo"]["system"]).to be_true
+      end
+
+      it "raises an error if uninstalling a system gem" do
+        expect { subject.uninstall_plugin("bar") }.
+          to raise_error(Vagrant::Errors::PluginUninstallSystem)
+      end
+    end
   end
 
   describe "#update_plugins" do

@@ -95,6 +95,13 @@ module Vagrant
       #
       # @param [String] name
       def uninstall_plugin(name)
+        if @system_file
+          if !@user_file.has_plugin?(name) && @system_file.has_plugin?(name)
+            raise Errors::PluginUninstallSystem,
+              name: name
+          end
+        end
+
         @user_file.remove_plugin(name)
 
         # Clean the environment, removing any old plugins

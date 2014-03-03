@@ -488,6 +488,10 @@ module Vagrant
       error_key(:plugin_state_file_not_parsable)
     end
 
+    class PluginUninstallSystem < VagrantError
+      error_key(:plugin_uninstall_system)
+    end
+
     class RSyncError < VagrantError
       error_key(:rsync_error)
     end
