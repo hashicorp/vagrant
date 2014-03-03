@@ -80,7 +80,7 @@ module VagrantPlugins
         args << config[:args] if config[:args]
         @machine.communicate.sudo %[
           rm -f #{config[:cidfile]}
-          docker run #{args} #{config[:image]} #{config[:cmd]}
+          docker run #{args} -name #{config[:name]} #{config[:image]} #{config[:cmd]}
         ]
       end
 
