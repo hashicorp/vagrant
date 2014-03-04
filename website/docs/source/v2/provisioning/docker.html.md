@@ -132,6 +132,9 @@ to the name, the `run` method accepts a set of options, all optional:
 * `args` (string) - Extra arguments for [`docker run`](http://docs.docker.io/en/latest/commandline/cli/#run)
   on the command line. These are raw arguments that are passed directly to Docker.
 
+* `auto_assign_name` (boolean) - If true, the `-name` of the container will
+  be set to the first argument of the run. By default this is true.
+
 * `daemonize` (boolean) - If true, the "-d" flag is given to `docker run` to
   daemonize the containers. By default this is true.
 
