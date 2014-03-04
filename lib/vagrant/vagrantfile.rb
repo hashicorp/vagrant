@@ -197,6 +197,20 @@ module Vagrant
       @config.vm.defined_vm_keys.dup
     end
 
+    # Returns a list of the machines that are defined within this
+    # Vagrantfile that do not have "autostart" set to false.
+    #
+    # @return [Array<Symbol>]
+    def autostart_machine_names
+      machines = []
+      # Remove any machines that have autostart set to false from machine_names
+      @config.vm.defined_vms.each do |name, subvm|
+        machines << name if subvm.options[:autostart] == nil or subvm.options[:autostart] == true
+      end
+
+      return machines
+    end
+
     # Returns the name of the machine that is designated as the
     # "primary."
     #
