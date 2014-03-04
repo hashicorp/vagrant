@@ -295,6 +295,29 @@ describe Vagrant::Vagrantfile do
     end
   end
 
+  describe "#autostart_machine_names" do
+    it "returns machine_names if no autostart values where set" do
+      configure do |config|
+        config.vm.define "foo"
+        config.vm.define "bar"
+      end
+
+      expect(subject.autostart_machine_names).to eq(
+        subject.machine_names)
+    end
+
+    it "returns only machine_names without autostart or autostart true" do
+      configure do |config|
+        config.vm.define "foo"
+        config.vm.define "bar", autostart: false
+        config.vm.define "baz", autostart: true
+      end
+
+      expect(subject.autostart_machine_names).to eq(
+        [:foo, :baz])
+    end
+  end
+
   describe "#primary_machine_name" do
     it "returns the default name when single-VM" do
       configure { |config| }
