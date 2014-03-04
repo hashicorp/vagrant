@@ -7,7 +7,7 @@ module VagrantPlugins
       # in seconds.
       #
       # @return [Integer]
-      attr_accessor :ip_address_timeout
+      attr_accessor :ip_address_timeout, :guest
 
       def initialize
         @ip_address_timeout = UNSET_VALUE
@@ -16,6 +16,9 @@ module VagrantPlugins
       def finalize!
         if @ip_address_timeout == UNSET_VALUE
           @ip_address_timeout = 120
+        end
+        if @guest == UNSET_VALUE
+          @guest = :windows
         end
       end
 

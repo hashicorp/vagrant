@@ -1,7 +1,6 @@
 require "json"
 
 require "vagrant/util/powershell"
-
 require_relative "plugin"
 
 module VagrantPlugins
@@ -9,6 +8,13 @@ module VagrantPlugins
     class Driver
       ERROR_REGEXP  = /===Begin-Error===(.+?)===End-Error===/m
       OUTPUT_REGEXP = /===Begin-Output===(.+?)===End-Output===/m
+
+      attr_reader :vm_id, :machine
+
+      def initialize(machine)
+        @vm_id = machine.id
+        @machine = machine
+      end
 
       def execute(path, options)
         r = execute_powershell(path, options)
@@ -37,6 +43,38 @@ module VagrantPlugins
         # Nothing
         return nil if !output_match
         return JSON.parse(output_match[1])
+      end
+
+      def get_current_state
+        execute('get_vm_status.ps1', { vm_id: vm_id })
+      end
+
+      def delete_vm
+        execute('delete_vm.ps1', { vm_id: vm_id })
+      end
+
+      def read_guest_ip
+        execute('get_network_config.ps1', { vm_id: vm_id })
+      end
+
+      def resume
+        execute('resume_vm.ps1', { vm_id: vm_id })
+      end
+
+      def start
+        execute('start_vm.ps1', { vm_id: vm_id })
+      end
+
+      def stop
+        execute('stop_vm.ps1', { vm_id: vm_id })
+      end
+
+      def suspend
+        execute("suspend_vm.ps1", { vm_id: vm_id })
+      end
+
+      def import(options)
+        execute('import_vm.ps1', options)
       end
 
       protected

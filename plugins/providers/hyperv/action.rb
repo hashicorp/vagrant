@@ -97,7 +97,6 @@ module VagrantPlugins
               b2.use Provision
               b2.use StartInstance
               b2.use WaitForIPAddress
-              b2.use WaitForCommunicator, [:running]
               b2.use SyncedFolders
               b2.use SetHostname
             end

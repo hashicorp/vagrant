@@ -1,5 +1,4 @@
 require "log4r"
-
 require "vagrant/capability_host"
 
 module Vagrant

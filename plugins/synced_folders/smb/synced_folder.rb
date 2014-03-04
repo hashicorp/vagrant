@@ -1,5 +1,4 @@
 require "json"
-
 require "log4r"
 
 require "vagrant/util/platform"
@@ -34,13 +33,12 @@ module VagrantPlugins
         folders.each do |id, data|
           hostpath = data[:hostpath]
 
-          data[:smb_id] ||= "#{machine.id}-#{id.gsub("/", "-")}"
+          data[:smb_id] ||= "#{machine.id}-#{id.gsub("/", "-").gsub(":","-")}"
 
           args = []
           args << "-path" << hostpath.gsub("/", "\\")
           args << "-share_name" << data[:smb_id]
           #args << "-host_share_username" << "mitchellh"
-
           r = Vagrant::Util::PowerShell.execute(script_path, *args)
           if r.exit_code != 0
             raise Errors::DefineShareFailed,

@@ -1,5 +1,4 @@
 require "log4r"
-
 require 'vagrant/util/platform'
 
 require_relative "mixin_synced_folders"

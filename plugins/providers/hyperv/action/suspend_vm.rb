@@ -8,8 +8,7 @@ module VagrantPlugins
 
         def call(env)
           env[:ui].info("Suspending the machine...")
-          options = { VmId: env[:machine].id }
-          env[:machine].provider.driver.execute("suspend_vm.ps1", options)
+          env[:machine].provider.driver.suspend
           @app.call(env)
         end
       end
