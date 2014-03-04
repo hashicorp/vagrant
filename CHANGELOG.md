@@ -53,6 +53,7 @@ IMPROVEMENTS:
   - provisioners/chef-solo: `roles_paths` can now be an array of paths in
     Chef 11.8.0 and newer. [GH-2975]
   - provisioners/docker: Can start a container without daemonization.
+  - provisioners/docker: Started containers are given names. [GH-3051]
   - provisioners/puppet: New config `synced_folder_type` replaces the
     `nfs` option. This can be used to set the synced folders the provisioner
     needs to any type. [GH-2709]
