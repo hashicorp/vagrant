@@ -7,6 +7,7 @@ module VagrantPlugins
         attr_accessor :cookbooks_path
         attr_accessor :data_bags_path
         attr_accessor :environments_path
+        attr_accessor :nodes_path
         attr_accessor :recipe_url
         attr_accessor :roles_path
         attr_accessor :synced_folder_type
@@ -17,6 +18,7 @@ module VagrantPlugins
           @cookbooks_path            = UNSET_VALUE
           @data_bags_path            = UNSET_VALUE
           @environments_path         = UNSET_VALUE
+          @nodes_path                = UNSET_VALUE
           @recipe_url                = UNSET_VALUE
           @roles_path                = UNSET_VALUE
           @synced_folder_type        = UNSET_VALUE
@@ -54,12 +56,14 @@ module VagrantPlugins
           @roles_path        = [] if @roles_path == UNSET_VALUE
           @environments_path = [] if @environments_path == UNSET_VALUE
           @environments_path = [@environments_path].flatten
+          @nodes_path = [] if @nodes_path == UNSET_VALUE
 
           # Make sure the path is an array.
           @cookbooks_path    = prepare_folders_config(@cookbooks_path)
           @data_bags_path    = prepare_folders_config(@data_bags_path)
           @roles_path        = prepare_folders_config(@roles_path)
           @environments_path = prepare_folders_config(@environments_path)
+          @nodes_path = prepare_folders_config(@nodes_path)
         end
 
         def validate(machine)

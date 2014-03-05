@@ -21,6 +21,7 @@ module VagrantPlugins
         attr_accessor :https_proxy_user
         attr_accessor :https_proxy_pass
         attr_accessor :json
+        attr_reader   :local_mode
         attr_accessor :log_level
         attr_accessor :no_proxy
         attr_accessor :node_name
@@ -47,6 +48,7 @@ module VagrantPlugins
           @https_proxy       = UNSET_VALUE
           @https_proxy_user  = UNSET_VALUE
           @https_proxy_pass  = UNSET_VALUE
+          @local_mode        = UNSET_VALUE
           @log_level         = UNSET_VALUE
           @no_proxy          = UNSET_VALUE
           @node_name         = UNSET_VALUE
@@ -79,6 +81,7 @@ module VagrantPlugins
           @https_proxy       = nil if @https_proxy == UNSET_VALUE
           @https_proxy_user  = nil if @https_proxy_user == UNSET_VALUE
           @https_proxy_pass  = nil if @https_proxy_pass == UNSET_VALUE
+          @local_mode        = false if @local_mode == UNSET_VALUE
           @log_level         = :info if @log_level == UNSET_VALUE
           @no_proxy          = nil if @no_proxy == UNSET_VALUE
           @node_name         = nil if @node_name == UNSET_VALUE
