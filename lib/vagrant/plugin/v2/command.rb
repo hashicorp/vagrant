@@ -188,7 +188,7 @@ module Vagrant
           machines.reverse! if options[:reverse]
 
           # Go through each VM and yield it!
-          color_order = [:white]
+          color_order = [:default]
           color_index = 0
 
           machines.each do |machine|

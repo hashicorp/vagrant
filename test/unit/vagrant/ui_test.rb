@@ -114,6 +114,11 @@ describe Vagrant::UI::Colored do
       subject.output("foo")
     end
 
+    it "doesn't use a color if default color" do
+      subject.should_receive(:safe_puts).with("\033[0mfoo\033[0m", anything)
+      subject.output("foo", color: :default)
+    end
+
     it "bolds output without color if specified" do
       subject.should_receive(:safe_puts).with("\033[1mfoo\033[0m", anything)
       subject.output("foo", bold: true)

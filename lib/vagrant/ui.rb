@@ -323,7 +323,7 @@ module Vagrant
         # is bolded.
         bold  = !!opts[:bold]
         colorseq = "#{bold ? 1 : 0 }"
-        if opts[:color]
+        if opts[:color] && opts[:color] != :default
           color = COLORS[opts[:color]]
           colorseq += ";#{color}"
         end
