@@ -57,7 +57,16 @@ end
 # Setup our dependencies by initializing Bundler. If we're using plugins,
 # then also initialize the paths to the plugins.
 require "bundler"
-Bundler.setup(:default, :plugins)
+begin
+  Bundler.setup(:default, :plugins)
+rescue Bundler::VersionConflict
+  $stderr.puts "Vagrant experienced a version conflict with some installed plugins!"
+  $stderr.puts "To fix this error, please update or remove the plugins which are"
+  $stderr.puts "conflicting, and report this issue to the plugin creator. The conflict"
+  $stderr.puts "is shown below:\n\n"
+  $stderr.puts e.message
+  exit 1
+end
 
 # Stdout/stderr should not buffer output
 $stdout.sync = true
