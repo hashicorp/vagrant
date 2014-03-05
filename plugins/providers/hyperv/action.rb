@@ -109,6 +109,26 @@ module VagrantPlugins
         end
       end
 
+      def self.action_provision
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use ConfigValidate
+          b.use Call, IsState, :not_created do |env1, b1|
+            if env1[:result]
+              b1.use Message, I18n.t("vagrant_hyperv.message_not_created")
+              next
+            end
+            b1.use Call, IsState, :running do |env2, b2|
+              if !env2[:result]
+                b2.use Message, I18n.t("vagrant_hyperv.message_not_running")
+                next
+              end
+              b2.use Provision
+              b2.use SyncedFolders
+            end
+          end
+        end
+      end
+
       def self.action_up
         Vagrant::Action::Builder.new.tap do |b|
           b.use HandleBox
@@ -184,6 +204,7 @@ module VagrantPlugins
       autoload :SuspendVM, action_root.join("suspend_vm")
       autoload :ReadGuestIP, action_root.join('read_guest_ip')
       autoload :WaitForIPAddress, action_root.join("wait_for_ip_address")
+      autoload :Provision, action_root.join("provision")
     end
   end
 end

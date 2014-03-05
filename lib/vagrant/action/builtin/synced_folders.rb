@@ -2,7 +2,6 @@ require "log4r"
 require 'vagrant/util/platform'
 
 require_relative "mixin_synced_folders"
-
 module Vagrant
   module Action
     module Builtin
@@ -18,7 +17,6 @@ module Vagrant
 
         def call(env)
           folders = synced_folders(env[:machine])
-
           folders.each do |impl_name, fs|
             @logger.info("Synced Folder Implementation: #{impl_name}")
 
@@ -67,7 +65,7 @@ module Vagrant
           folders.each do |impl_name, fs|
             @logger.info("Invoking synced folder enable: #{impl_name}")
             @implementer[impl_name.to_sym] ||= plugins[impl_name.to_sym][0].new
-            @implementer[impl_name.to_sym].enable(env[:machine], fs, impl_opts(impl_name, env))
+            # @implementer[impl_name.to_sym].enable(env[:machine], fs, impl_opts(impl_name, env))
           end
         end
       end

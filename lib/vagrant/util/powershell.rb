@@ -28,7 +28,6 @@ module Vagrant
         # Append on the options hash since Subprocess doesn't use
         # Ruby 2.0 style options yet.
         command << opts
-
         Subprocess.execute(*command, &block)
       end
     end

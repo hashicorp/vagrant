@@ -21,8 +21,8 @@ module VagrantPlugins
         @machine = machine
       end
 
-      def execute(path, options)
-        r = execute_powershell(path, options)
+      def execute(path, options, &block)
+        r = execute_powershell(path, options, &block)
         if r.exit_code != 0
           raise Errors::PowerShellError,
             script: path,
@@ -82,7 +82,32 @@ module VagrantPlugins
         execute('import_vm.ps1', options)
       end
 
+      def upload(from, to)
+        options = {
+          vm_id: vm_id,
+          host_path: windows_path(from),
+          guest_path: windows_path(to)
+        }
+        execute('upload_file.ps1',options)
+      end
+
+      def folder_copy(from, to, ssh_info)
+        options = {
+          vm_id: vm_id,
+          username: ssh_info[:username],
+          host_path: windows_path(from),
+          guest_path: windows_path(to),
+          guest_ip: ssh_info[:host],
+          password: "vagrant"
+        }
+        execute('file_sync.ps1', options)
+      end
+
       protected
+
+      def windows_path(path)
+        path.gsub("/","\\")
+      end
 
       def execute_powershell(path, options, &block)
         lib_path = Pathname.new(File.expand_path("../scripts", __FILE__))

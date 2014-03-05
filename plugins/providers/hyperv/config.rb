@@ -16,6 +16,7 @@ module VagrantPlugins
 
       def initialize
         @ip_address_timeout = UNSET_VALUE
+        @guest = UNSET_VALUE
       end
 
       def finalize!
