@@ -6,7 +6,7 @@ module Vagrant
   # of Vagrant that may require remote access.
   #
   # @return [String]
-  DEFAULT_SERVER_URL = "https://www.vagrantcloud.com"
+  DEFAULT_SERVER_URL = "https://vagrantcloud.com"
 
   # This returns a true/false showing whether we're running from the
   # environment setup by the Vagrant installers.
