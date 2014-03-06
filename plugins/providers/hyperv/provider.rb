@@ -70,15 +70,17 @@ module VagrantPlugins
       end
 
       def ssh_info
-        # Run a custom action called "read_guest_ip" which does what it
-        # says and puts the resulting SSH info into the `:machine_ssh_info`
-        # key in the environment.
-        env = @machine.action("read_guest_ip")
-        if env[:machine_ssh_info]
-          env[:machine_ssh_info].merge!(:port => 22)
-        end
+        # We can only SSH into a running machine
+        return nil if state.id != :running
 
-        env[:machine_ssh_info]
+        # Read the IP of the machine using Hyper-V APIs
+        network = @driver.read_guest_ip
+        return nil if !network["ip"]
+
+        {
+          host: network["ip"],
+          port: 22,
+        }
       end
     end
   end
