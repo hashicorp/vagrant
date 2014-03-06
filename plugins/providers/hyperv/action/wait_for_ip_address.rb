@@ -24,7 +24,8 @@ module VagrantPlugins
               network_info = env[:machine].provider.driver.execute(
                 "get_network_config.ps1", VmId: env[:machine].id)
               guest_ip = network_info["ip"]
-              break if guest_ip && guest_ip != ""
+              # Check if the guest IP is a valid IP Address.
+              break if guest_ip && !(/\d+(\.)\d+(\.)\d+(\.)\d+/.match(guest_ip).nil?)
 
               sleep 1
             end
