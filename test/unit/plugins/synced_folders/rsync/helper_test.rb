@@ -151,5 +151,34 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
         subject.rsync_single(machine, ssh_info, opts)
       end
     end
+
+    context "custom arguments" do
+      it "uses the default arguments if not given" do
+        Vagrant::Util::Subprocess.should_receive(:execute).with do |*args|
+          expect(args[1]).to eq("--verbose")
+          expect(args[2]).to eq("--archive")
+          expect(args[3]).to eq("--delete")
+
+          expected = Vagrant::Util::Platform.fs_real_path("/foo").to_s
+          expect(args[args.length - 3]).to eql("#{expected}/")
+        end
+
+        subject.rsync_single(machine, ssh_info, opts)
+      end
+
+      it "uses the custom arguments if given" do
+        opts[:args] = ["--verbose", "-z"]
+
+        Vagrant::Util::Subprocess.should_receive(:execute).with do |*args|
+          expect(args[1]).to eq("--verbose")
+          expect(args[2]).to eq("-z")
+
+          expected = Vagrant::Util::Platform.fs_real_path("/foo").to_s
+          expect(args[args.length - 3]).to eql("#{expected}/")
+        end
+
+        subject.rsync_single(machine, ssh_info, opts)
+      end
+    end
   end
 end

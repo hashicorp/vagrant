@@ -39,21 +39,23 @@ module VagrantPlugins
         excludes += Array(opts[:exclude]).map(&:to_s) if opts[:exclude]
         excludes.uniq!
 
+        # Get the command-line arguments
+        args = nil
+        args = Array(opts[:args]) if opts[:args]
+        args ||= ["--verbose", "--archive", "--delete", "-z"]
+
         # Build up the actual command to execute
         command = [
           "rsync",
-          "--verbose",
-          "--archive",
-          "--delete",
-          "-z",
-          excludes.map { |e| ["--exclude", e] },
+          args,
           "-e", rsh,
+          excludes.map { |e| ["--exclude", e] },
           hostpath,
-          "#{username}@#{host}:#{guestpath}"
+          "#{username}@#{host}:#{guestpath}",
         ].flatten
-        command_opts = {}
 
         # The working directory should be the root path
+        command_opts = {}
         command_opts[:workdir] = machine.env.root_path.to_s
 
         machine.ui.info(I18n.t(
