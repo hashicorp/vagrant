@@ -57,7 +57,7 @@ Hyper-V:
 ```
 $ sudo apt-get install linux-tools-3.11.0-15-generic
 $ sudo apt-get install hv-kvp-daemon-init
-$ cp/usr/lib/linux-tools-3.11.0-15/hv_* /usr/sbin/
+$ sudo cp /usr/lib/linux-tools/3.11.0-15/hv_* /usr/sbin/
 ```
 
 ## Packaging the Box
