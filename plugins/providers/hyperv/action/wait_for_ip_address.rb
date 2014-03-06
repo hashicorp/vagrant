@@ -1,3 +1,4 @@
+require "ipaddr"
 require "timeout"
 
 module VagrantPlugins
@@ -6,6 +7,7 @@ module VagrantPlugins
       class WaitForIPAddress
         def initialize(app, env)
           @app = app
+          @logger = Log4r::Logger.new("vagrant::hyperv::wait_for_ip_addr")
         end
 
         def call(env)
@@ -24,7 +26,16 @@ module VagrantPlugins
               network_info = env[:machine].provider.driver.execute(
                 "get_network_config.ps1", VmId: env[:machine].id)
               guest_ip = network_info["ip"]
-              break if guest_ip && guest_ip != ""
+
+              if guest_ip
+                begin
+                  IPAddr.new(guest_ip)
+                  break
+                rescue IPAddr::InvalidAddressError
+                  # Ignore, continue looking.
+                  @logger.warn("Invalid IP address returned: #{guest_ip}")
+                end
+              end
 
               sleep 1
             end
