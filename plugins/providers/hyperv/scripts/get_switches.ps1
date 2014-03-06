@@ -1,3 +1,8 @@
+#-------------------------------------------------------------------------
+# Copyright (c) Microsoft Open Technologies, Inc.
+# All Rights Reserved. Licensed under the MIT License.
+#--------------------------------------------------------------------------
+
 # This will have a SwitchType property. As far as I know the values are:
 #
 #   0 - Private

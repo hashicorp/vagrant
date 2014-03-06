@@ -1,3 +1,8 @@
+#-------------------------------------------------------------------------
+# Copyright (c) Microsoft Open Technologies, Inc.
+# All Rights Reserved. Licensed under the MIT License.
+#--------------------------------------------------------------------------
+
 require "vagrant"
 
 module VagrantPlugins
@@ -7,15 +12,19 @@ module VagrantPlugins
       # in seconds.
       #
       # @return [Integer]
-      attr_accessor :ip_address_timeout
+      attr_accessor :ip_address_timeout, :guest
 
       def initialize
         @ip_address_timeout = UNSET_VALUE
+        @guest = UNSET_VALUE
       end
 
       def finalize!
         if @ip_address_timeout == UNSET_VALUE
           @ip_address_timeout = 120
+        end
+        if @guest == UNSET_VALUE
+          @guest = :windows
         end
       end
 

@@ -1,3 +1,8 @@
+#-------------------------------------------------------------------------
+# Copyright (c) Microsoft Open Technologies, Inc.
+# All Rights Reserved. Licensed under the MIT License.
+#--------------------------------------------------------------------------
+
 module VagrantPlugins
   module HyperV
     module Action
@@ -8,9 +13,7 @@ module VagrantPlugins
 
         def call(env)
           env[:ui].output('Starting the machine...')
-          options = { vm_id: env[:machine].id }
-          env[:machine].provider.driver.execute('start_vm.ps1', options)
-
+          env[:machine].provider.driver.start
           @app.call(env)
         end
       end

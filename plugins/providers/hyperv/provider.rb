@@ -1,3 +1,8 @@
+#-------------------------------------------------------------------------
+# Copyright (c) Microsoft Open Technologies, Inc.
+# All Rights Reserved. Licensed under the MIT License.
+#--------------------------------------------------------------------------
+
 require "log4r"
 
 require_relative "driver"
@@ -12,7 +17,6 @@ module VagrantPlugins
       attr_reader :driver
 
       def initialize(machine)
-        @driver  = Driver.new
         @machine = machine
 
         if !Vagrant::Util::Platform.windows?
@@ -26,6 +30,10 @@ module VagrantPlugins
         if !Vagrant::Util::PowerShell.available?
           raise Errors::PowerShellRequired
         end
+
+        # This method will load in our driver, so we call it now to
+        # initialize it.
+        machine_id_changed
       end
 
       def action(name)
@@ -35,6 +43,12 @@ module VagrantPlugins
         action_method = "action_#{name}"
         return Action.send(action_method) if Action.respond_to?(action_method)
         nil
+      end
+
+      # If the machine ID changed, then we need to rebuild our underlying
+      # driver.
+      def machine_id_changed
+        @driver = Driver.new(@machine)
       end
 
       def state

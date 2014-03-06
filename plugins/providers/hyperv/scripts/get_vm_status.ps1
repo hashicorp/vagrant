@@ -1,6 +1,11 @@
+#-------------------------------------------------------------------------
+# Copyright (c) Microsoft Open Technologies, Inc.
+# All Rights Reserved. Licensed under the MIT License.
+#--------------------------------------------------------------------------
+
 Param(
     [Parameter(Mandatory=$true)]
-    [string]$VmId
+    [string]$vm_id
 )
 
 # Include the following modules
@@ -9,7 +14,7 @@ $Dir = Split-Path $script:MyInvocation.MyCommand.Path
 
 # Get the VM with the given name
 try {
-    $VM = Get-VM -Id $VmId -ErrorAction "Stop"
+    $VM = Get-VM -Id $vm_id -ErrorAction "Stop"
     $State = $VM.state
     $Status = $VM.status
 } catch [Microsoft.HyperV.PowerShell.VirtualizationOperationFailedException] {

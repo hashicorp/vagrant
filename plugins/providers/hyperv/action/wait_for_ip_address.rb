@@ -1,5 +1,9 @@
-require "timeout"
+#-------------------------------------------------------------------------
+# Copyright (c) Microsoft Open Technologies, Inc.
+# All Rights Reserved. Licensed under the MIT License.
+#--------------------------------------------------------------------------
 
+require "timeout"
 module VagrantPlugins
   module HyperV
     module Action
@@ -21,11 +25,10 @@ module VagrantPlugins
               return if env[:interrupted]
 
               # Try to get the IP
-              network_info = env[:machine].provider.driver.execute(
-                "get_network_config.ps1", VmId: env[:machine].id)
+              network_info = env[:machine].provider.driver.read_guest_ip
               guest_ip = network_info["ip"]
-              break if guest_ip && guest_ip != ""
-
+              # Check if the guest IP is a valid IP Address.
+              break if guest_ip && !(/\d+(\.)\d+(\.)\d+(\.)\d+/.match(guest_ip).nil?)
               sleep 1
             end
           end

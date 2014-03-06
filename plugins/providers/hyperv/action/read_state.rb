@@ -1,3 +1,8 @@
+#-------------------------------------------------------------------------
+# Copyright (c) Microsoft Open Technologies, Inc.
+# All Rights Reserved. Licensed under the MIT License.
+#--------------------------------------------------------------------------
+
 require "log4r"
 
 module VagrantPlugins
@@ -11,9 +16,8 @@ module VagrantPlugins
 
         def call(env)
           if env[:machine].id
-            options = { VmId: env[:machine].id }
-            response = env[:machine].provider.driver.execute(
-              "get_vm_status.ps1", options)
+            response = env[:machine].provider.driver.get_current_state
+
             env[:machine_state_id] = response["state"].downcase.to_sym
 
             # If the machine isn't created, then our ID is stale, so just

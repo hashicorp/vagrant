@@ -1,3 +1,8 @@
+#-------------------------------------------------------------------------
+# Copyright (c) Microsoft Open Technologies, Inc.
+# All Rights Reserved. Licensed under the MIT License.
+#--------------------------------------------------------------------------
+
 require "fileutils"
 
 require "log4r"
@@ -78,8 +83,7 @@ module VagrantPlugins
           options[:switchname] = switch if switch
 
           env[:ui].detail("Creating and registering the VM...")
-          server = env[:machine].provider.driver.execute(
-            'import_vm.ps1', options)
+          server = env[:machine].provider.driver.import(options)
           env[:ui].detail("Successfully imported a VM with name: #{server['name']}")
           env[:machine].id = server["id"]
           @app.call(env)

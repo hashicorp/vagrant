@@ -1,3 +1,8 @@
+#-------------------------------------------------------------------------
+# Copyright (c) Microsoft Open Technologies, Inc.
+# All Rights Reserved. Licensed under the MIT License.
+#--------------------------------------------------------------------------
+
 module VagrantPlugins
   module HyperV
     module Errors
@@ -32,6 +37,10 @@ module VagrantPlugins
 
       class WindowsRequired < HyperVError
         error_key(:windows_required)
+      end
+
+      class WindowsVmRequired < HyperVError
+        error_key(:windows_vm_required)
       end
     end
   end

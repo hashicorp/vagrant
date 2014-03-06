@@ -1,3 +1,8 @@
+#-------------------------------------------------------------------------
+# Copyright (c) Microsoft Open Technologies, Inc.
+# All Rights Reserved. Licensed under the MIT License.
+#--------------------------------------------------------------------------
+
 Param(
     [Parameter(Mandatory=$true)]
     [string]$vm_xml_config,
@@ -99,7 +104,7 @@ $vm | Set-VM @more_vm_params -Passthru
 # Add drives to the virtual machine
 $controllers = Select-Xml -xml $vmconfig -xpath "//*[starts-with(name(.),'controller')]"
 
-# A regular expression pattern to pull the number from controllers
+# A regular expression to find the number from controllers
 [regex]$rx="\d"
 
 foreach ($controller in $controllers) {

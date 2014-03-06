@@ -1,7 +1,13 @@
+#-------------------------------------------------------------------------
+# Copyright (c) Microsoft Open Technologies, Inc.
+# All Rights Reserved. Licensed under the MIT License.
+#--------------------------------------------------------------------------
+
 module VagrantPlugins
   module HyperV
     autoload :Action, File.expand_path("../action", __FILE__)
     autoload :Errors, File.expand_path("../errors", __FILE__)
+    autoload :WindowsProvisioner, File.expand_path("../windows_provisioner", __FILE__)
 
     class Plugin < Vagrant.plugin("2")
       name "Hyper-V provider"

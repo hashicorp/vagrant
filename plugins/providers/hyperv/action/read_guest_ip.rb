@@ -1,3 +1,8 @@
+#-------------------------------------------------------------------------
+# Copyright (c) Microsoft Open Technologies, Inc.
+# All Rights Reserved. Licensed under the MIT License.
+#--------------------------------------------------------------------------
+
 require "log4r"
 require "timeout"
 
@@ -26,8 +31,7 @@ module VagrantPlugins
           begin
             Timeout.timeout(120) do
             begin
-              options = { VmId: env[:machine].id }
-              network_info  = env[:machine].provider.driver.execute('get_network_config.ps1', options)
+              network_info  = env[:machine].provider.driver.read_guest_ip
               host_ip = network_info["ip"]
               sleep 10 if host_ip.empty?
               end while host_ip.empty?
