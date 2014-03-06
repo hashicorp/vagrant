@@ -1,5 +1,5 @@
 param (
-    [string]$vm_id = $(throw "-vm_id is required.")
+    [string]$VmId = $(throw "-VmId is required.")
  )
 
 # Include the following modules
@@ -9,7 +9,7 @@ $modules += $presentDir + "\utils\write_messages.ps1"
 forEach ($module in $modules) { . $module }
 
 try {
-  $vm = Get-VM -Id $vm_id -ErrorAction "stop"
+  $vm = Get-VM -Id $VmId -ErrorAction "stop"
   Start-VM $vm
   $state = $vm.state
   $status = $vm.status

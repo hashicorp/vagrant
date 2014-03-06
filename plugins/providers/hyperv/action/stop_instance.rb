@@ -8,8 +8,7 @@ module VagrantPlugins
 
         def call(env)
           env[:ui].info("Stopping the machine...")
-          options = { VmId: env[:machine].id }
-          env[:machine].provider.driver.execute('stop_vm.ps1', options)
+          env[:machine].provider.driver.stop
           @app.call(env)
         end
       end

@@ -8,8 +8,7 @@ module VagrantPlugins
 
         def call(env)
           env[:ui].info("Resuming the machine...")
-          options = { VmId: env[:machine].id }
-          env[:machine].provider.driver.execute("resume_vm.ps1", options)
+          env[:machine].provider.driver.resume
           @app.call(env)
         end
       end
