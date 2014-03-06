@@ -10,10 +10,6 @@ module VagrantPlugins
         NFS_EXPORTS_PATH = "/etc/exports".freeze
         extend Vagrant::Util::Retryable
 
-        def self.nfs_apply_command(env)
-          "exportfs -ar"
-        end
-
         def self.nfs_check_command(env)
           "/etc/init.d/nfs-kernel-server status"
         end
@@ -24,16 +20,10 @@ module VagrantPlugins
 
         def self.nfs_export(env, ui, id, ips, folders)
           # Get some values we need before we do anything
-          nfs_apply_command = env.host.capability(:nfs_apply_command)
           nfs_check_command = env.host.capability(:nfs_check_command)
           nfs_start_command = env.host.capability(:nfs_start_command)
 
           nfs_opts_setup(folders)
-          output = Vagrant::Util::TemplateRenderer.render('nfs/exports_linux',
-                                           uuid: id,
-                                           ips: ips,
-                                           folders: folders,
-                                           user: Process.uid)
 
           ui.info I18n.t("vagrant.hosts.linux.nfs_export")
           sleep 0.5
@@ -42,10 +32,14 @@ module VagrantPlugins
           output = "#{nfs_exports_content}\n#{output}"
           nfs_write_exports(output)
 
-          if nfs_running?(nfs_check_command)
-            system("sudo #{nfs_apply_command}")
-          else
+          if !nfs_running?(nfs_check_command)
             system("sudo #{nfs_start_command}")
+          end
+
+          ips.each do |ip|
+            folders.each_value do |opts|
+              system("sudo exportfs -o #{opts[:linux__nfs_options].join(',')} #{ip}:#{opts[:hostpath]}")
+            end
           end
         end
 
@@ -57,111 +51,33 @@ module VagrantPlugins
         end
 
         def self.nfs_prune(environment, ui, valid_ids)
-          return if !File.exist?(NFS_EXPORTS_PATH)
-
           logger = Log4r::Logger.new("vagrant::hosts::linux")
           logger.info("Pruning invalid NFS entries...")
 
-          user = Process.uid
+          output = false
 
-          # Create editor instance for removing invalid IDs
-          editor = Vagrant::Util::StringBlockEditor.new(nfs_exports_content)
+          nfs_current_exports.each do |export|
+            if id = export[:linux__nfs_options][/replicas=([\w-]+)?/, 1]
+              if valid_ids.include?(id)
+                logger.debug("Valid ID: #{id}")
+              else
+                if !output
+                  # We want to warn the user but we only want to output once
+                  ui.info I18n.t("vagrant.hosts.linux.nfs_prune")
+                  output = true
+                end
 
-          # Build composite IDs with UID information and discover invalid entries
-          composite_ids = valid_ids.map do |v_id|
-            "#{user} #{v_id}"
-          end
-          remove_ids = editor.keys - composite_ids
-
-          logger.debug("Known valid NFS export IDs: #{valid_ids}")
-          logger.debug("Composite valid NFS export IDs with user: #{composite_ids}")
-          logger.debug("NFS export IDs to be removed: #{remove_ids}")
-          if !remove_ids.empty?
-            ui.info I18n.t("vagrant.hosts.linux.nfs_prune")
-            nfs_cleanup(remove_ids)
+                logger.info("Invalid ID, pruning: #{id}")
+                nfs_cleanup(export[:ip], export[:hostpath])
+              end
+            end
           end
         end
 
         protected
 
-        def self.nfs_cleanup(remove_ids)
-          return if !File.exist?(NFS_EXPORTS_PATH)
-
-          editor = Vagrant::Util::StringBlockEditor.new(nfs_exports_content)
-          remove_ids = Array(remove_ids)
-
-          # Remove all invalid ID entries
-          remove_ids.each do |r_id|
-            editor.delete(r_id)
-          end
-          nfs_write_exports(editor.value)
-        end
-
-        def self.nfs_write_exports(new_exports_content)
-          if(nfs_exports_content != new_exports_content.strip)
-            begin
-              # Write contents out to temporary file
-              new_exports_file = Tempfile.create('vagrant')
-              new_exports_file.puts(new_exports_content)
-              new_exports_file.close
-              new_exports_path = new_exports_file.path
-
-              # Only use "sudo" if we can't write to /etc/exports directly
-              sudo_command = ""
-              sudo_command = "sudo " if !File.writable?(NFS_EXPORTS_PATH)
-
-              # Ensure new file mode and uid/gid match existing file to replace
-              existing_stat = File.stat(NFS_EXPORTS_PATH)
-              new_stat = File.stat(new_exports_path)
-              if existing_stat.mode != new_stat.mode
-                File.chmod(existing_stat.mode, new_exports_path)
-              end
-              if existing_stat.uid != new_stat.uid || existing_stat.gid != new_stat.gid
-                chown_cmd = "#{sudo_command}chown #{existing_stat.uid}:#{existing_stat.gid} #{new_exports_path}"
-                result = Vagrant::Util::Subprocess.execute(*Shellwords.split(chown_cmd))
-                if result.exit_code != 0
-                  raise Vagrant::Errors::NFSExportsFailed,
-                    command: chown_cmd,
-                    stderr: result.stderr,
-                    stdout: result.stdout
-                end
-              end
-              # Always force move the file to prevent overwrite prompting
-              mv_cmd = "#{sudo_command}mv -f #{new_exports_path} #{NFS_EXPORTS_PATH}"
-              result = Vagrant::Util::Subprocess.execute(*Shellwords.split(mv_cmd))
-              if result.exit_code != 0
-                raise Vagrant::Errors::NFSExportsFailed,
-                  command: mv_cmd,
-                  stderr: result.stderr,
-                  stdout: result.stdout
-              end
-            ensure
-              if File.exist?(new_exports_path)
-                File.unlink(new_exports_path)
-              end
-            end
-          end
-        end
-
-        def self.nfs_exports_content
-          if(File.exist?(NFS_EXPORTS_PATH))
-            if(File.readable?(NFS_EXPORTS_PATH))
-              File.read(NFS_EXPORTS_PATH)
-            else
-              cmd = "sudo cat #{NFS_EXPORTS_PATH}"
-              result = Vagrant::Util::Subprocess.execute(*Shellwords.split(cmd))
-              if result.exit_code != 0
-                raise Vagrant::Errors::NFSExportsFailed,
-                  command: cmd,
-                  stderr: result.stderr,
-                  stdout: result.stdout
-              else
-                result.stdout
-              end
-            end
-          else
-            ""
-          end
+        def self.nfs_cleanup(ip, host)
+          system("sudo exportfs -u #{ip}:#{host}")
         end
 
         def self.nfs_opts_setup(folders)
@@ -181,13 +97,52 @@ module VagrantPlugins
 
             opts[:linux__nfs_options] << "anonuid=#{opts[:map_uid]}" if !hasuid
             opts[:linux__nfs_options] << "anongid=#{opts[:map_gid]}" if !hasgid
-            opts[:linux__nfs_options] << "fsid=#{opts[:uuid]}"
+            opts[:linux__nfs_options] << "fsid=#{opts[:fsid]}"
+            # We need to store reference to machine somewhere, `replicas`
+            # seems to be the only place it is possible and harmless
+            opts[:linux__nfs_options] << "replicas=#{opts[:uuid]}"
           end
         end
 
         def self.nfs_running?(check_command)
           system(check_command)
         end
+
+        def self.nfs_current_exports
+          exports = `sudo exportfs -v`
+
+          # exportfs output should be properly parsed
+          #
+          # This is a little bit complicated because folder with long path looks like this:
+          #   `sudo exportfs -v`
+          #   #=> "/very_long_path\n\t\t192.168.122.4(rw,all_squash,no_subtree_check,fsid=180077614,replicas=8c085523-3e67-48b3-a362-613167dde240)"
+          #
+          # while short path looks like this:
+          #   `sudo exportfs -v`
+          #   #=> "/short_path      \t192.168.122.153(rw,all_squash,no_subtree_check,fsid=180077614,replicas=8c085523-3e67-48b3-a362-613167dde240)"
+          #
+          # We need to properly handle both cases.
+          exports.gsub!(/\n\t/, ' ')
+          exports_line_regexp = /
+            \A
+              (.+?)                 # full path to directory
+              \s+                   # separator between path and IP address
+              (\d+\.\d+\.\d+\.\d+)  # IP address
+              \((.+)\)              # NFS options
+            \z
+          /x
+
+          exports.split("\n").map do |line|
+            path, ip_address, nfs_options = line.scan(exports_line_regexp).first
+            {
+              :hostpath => path,
+              :ip => ip_address,
+              :linux__nfs_options => nfs_options
+            }
+          end
+        end
+
+        def self.nfs_export_
       end
     end
   end
