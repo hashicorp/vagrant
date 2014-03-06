@@ -22,6 +22,11 @@ module VagrantPlugins
         Config
       end
 
+      provider_capability("hyperv", "public_address") do
+        require_relative "cap/public_address"
+        Cap::PublicAddress
+      end
+
       protected
 
       def self.init!

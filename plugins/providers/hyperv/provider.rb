@@ -77,6 +77,8 @@ module VagrantPlugins
         if env[:machine_ssh_info]
           env[:machine_ssh_info].merge!(:port => 22)
         end
+
+        env[:machine_ssh_info]
       end
     end
   end
