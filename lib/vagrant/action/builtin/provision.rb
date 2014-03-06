@@ -30,12 +30,31 @@ module Vagrant
             ignore_sentinel = env[:provision_ignore_sentinel]
           end
 
-          sentinel_path = nil
+          sentinel_path   = nil
+          update_sentinel = false
           if !ignore_sentinel
             @logger.info("Checking provisioner sentinel if we should run...")
             sentinel_path = env[:machine].data_dir.join("action_provision")
             if sentinel_path.file?
-              if sentinel_path.read.chomp == env[:machine].id.to_s
+              # The sentinel file is in the format of "version:data" so that
+              # we can remain backwards compatible with previous sentinels.
+              # Versions so far:
+              #
+              #   Vagrant < 1.5.0: A timestamp. The weakness here was that
+              #     if it wasn't cleaned up, it would incorrectly not provision
+              #     new machines.
+              #
+              #   Vagrant >= 1.5.0: "1.5:ID", where ID is the machine ID.
+              #     We compare both so we know whether it is a new machine.
+              #
+              contents = sentinel_path.read.chomp
+              parts    = contents.split(":", 2)
+
+              if parts.length == 1
+                @logger.info("Old-style sentinel found! Not provisioning.")
+                enabled = false
+                update_sentinel = true
+              elsif parts[0] == "1.5" && parts[1] == env[:machine].id.to_s
                 @logger.info("Sentinel found! Not provisioning.")
                 enabled = false
               else
@@ -57,10 +76,12 @@ module Vagrant
           @app.call(env)
 
           # Write the sentinel if we have to
-          if sentinel_path && !sentinel_path.file?
-            @logger.info("Writing provisioning sentinel so we don't provision again")
-            sentinel_path.open("w") do |f|
-              f.write(env[:machine].id.to_s)
+          if sentinel_path
+            if update_sentinel || !sentinel_path.file?
+              @logger.info("Writing provisioning sentinel so we don't provision again")
+              sentinel_path.open("w") do |f|
+                f.write("1.5:#{env[:machine].id}")
+              end
             end
           end
 
