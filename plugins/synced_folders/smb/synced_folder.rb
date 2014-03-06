@@ -31,6 +31,10 @@ module VagrantPlugins
       def prepare(machine, folders, opts)
         script_path = File.expand_path("../scripts/set_share.ps1", __FILE__)
 
+        if smb_credentials_required?(folders)
+          fetch_smb_credentials(machine)
+        end
+
         folders.each do |id, data|
           hostpath = data[:hostpath]
 
@@ -39,6 +43,7 @@ module VagrantPlugins
           args = []
           args << "-path" << hostpath.gsub("/", "\\")
           args << "-share_name" << data[:smb_id]
+          args << "-host_share_username" << (data[:smb_username] || smb_credentials[:username])
           #args << "-host_share_username" << "mitchellh"
 
           r = Vagrant::Util::PowerShell.execute(script_path, *args)
@@ -82,21 +87,8 @@ module VagrantPlugins
           end
         end
 
-        # If we need auth information, then ask the user
-        username = nil
-        password = nil
-        need_auth = false
-        folders.each do |id, data|
-          if !data[:smb_username] || !data[:smb_password]
-            need_auth = true
-            break
-          end
-        end
-
-        if need_auth
-          machine.ui.detail(I18n.t("vagrant_sf_smb.warning_password") + "\n ")
-          username = machine.ui.ask("Username: ")
-          password = machine.ui.ask("Password (will be hidden): ", echo: false)
+        if smb_credentials_required?(folders)
+          fetch_smb_credentials(machine)
         end
 
         # This is used for defaulting the owner/group
@@ -105,8 +97,8 @@ module VagrantPlugins
         folders.each do |id, data|
           data = data.dup
           data[:smb_host] ||= host_ip
-          data[:smb_username] ||= username
-          data[:smb_password] ||= password
+          data[:smb_username] ||= smb_credentials[:username]
+          data[:smb_password] ||= smb_credentials[:password]
 
           # Default the owner/group of the folder to the SSH user
           data[:owner] ||= ssh_info[:username]
@@ -137,6 +129,33 @@ module VagrantPlugins
         end
 
         JSON.parse(r.stdout)["ip_addresses"]
+      end
+
+      def smb_credentials_required?(folders)
+        # If we need auth information, then ask the user
+        username = nil
+        password = nil
+        need_auth = false
+        folders.each do |id, data|
+          if !data[:smb_username] || !data[:smb_password]
+            need_auth = true
+            break
+          end
+        end
+        need_auth
+      end
+
+      def fetch_smb_credentials(machine)
+        if @smb_credentials.nil?
+          machine.ui.detail(I18n.t("vagrant_sf_smb.warning_password") + "\n ")
+          username = machine.ui.ask("Username: ")
+          password = machine.ui.ask("Password (will be hidden): ", echo: false)
+          @smb_credentials = { username: username, password: password }
+        end
+      end
+
+      def smb_credentials
+        @smb_credentials
       end
 
 =begin
