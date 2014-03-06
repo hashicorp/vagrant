@@ -1,7 +1,7 @@
 module VagrantPlugins
-  module Share
+  module HyperV
     module Cap
-      class VirtualBox
+      module PublicAddress
         def self.public_address(machine)
           return nil if machine.state.id != :running
 
