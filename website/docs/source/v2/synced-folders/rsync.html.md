@@ -42,6 +42,9 @@ The rsync synced folder type accepts the following options:
 * `rsync__args` (string or array of strings) - A list of arguments to supply
   to `rsync`. By default this is "--verbose --archive --delete -z".
 
+* `rsync__auto` (boolean) - If false, then `rsync-auto` will not
+  watch and automatically sync this folder. By default, this is true.
+
 * `rsync__exclude` (string or array of strings) - A list of files or directories
   to exclude from the sync. The values can be any acceptable rsync exclude
   pattern. By default, the ".vagrant/" directory is excluded. We recommend

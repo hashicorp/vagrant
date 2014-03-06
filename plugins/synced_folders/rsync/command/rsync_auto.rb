@@ -36,6 +36,10 @@ module VagrantPlugins
             next if !folders || folders.empty?
 
             folders.each do |id, folder_opts|
+              # If we marked this folder to not auto sync, then
+              # don't do it.
+              next if folder_opts.has_key?(:auto) && !folder_opts[:auto]
+
               hostpath = folder_opts[:hostpath]
               hostpath = File.expand_path(hostpath, machine.env.root_path)
               paths[hostpath] ||= []
