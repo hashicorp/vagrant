@@ -31,12 +31,6 @@ module VagrantPlugins
         machine_id_changed
       end
 
-      # If the machine ID changed, then we need to rebuild our underlying
-      # driver.
-      def machine_id_changed
-        @driver = Driver.new(@machine)
-      end
-
       def action(name)
         # Attempt to get the action method from the Action class if it
         # exists, otherwise return nil to show that we don't support the
@@ -44,6 +38,10 @@ module VagrantPlugins
         action_method = "action_#{name}"
         return Action.send(action_method) if Action.respond_to?(action_method)
         nil
+      end
+
+      def machine_id_changed
+        @driver = Driver.new(@machine.id)
       end
 
       def state

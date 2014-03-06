@@ -9,11 +9,11 @@ module VagrantPlugins
     class Driver
       ERROR_REGEXP  = /===Begin-Error===(.+?)===End-Error===/m
       OUTPUT_REGEXP = /===Begin-Output===(.+?)===End-Output===/m
-      attr_reader :vm_id, :machine
 
-      def initialize(machine)
-        @vm_id = machine.id
-        @machine = machine
+      attr_reader :vm_id
+
+      def initialize(id)
+        @vm_id = id
       end
 
       def execute(path, options)
