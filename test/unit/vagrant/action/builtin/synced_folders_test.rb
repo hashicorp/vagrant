@@ -62,13 +62,16 @@ describe Vagrant::Action::Builtin::SyncedFolders do
     end
 
     it "should invoke prepare then enable" do
+      ids   = []
       order = []
       tracker = Class.new(impl(true, "good")) do
         define_method(:prepare) do |machine, folders, opts|
+          ids   << self.object_id
           order << :prepare
         end
 
         define_method(:enable) do |machine, folders, opts|
+          ids   << self.object_id
           order << :enable
         end
       end
@@ -89,6 +92,8 @@ describe Vagrant::Action::Builtin::SyncedFolders do
       subject.call(env)
 
       order.should == [:prepare, :enable]
+      expect(ids.length).to eq(2)
+      expect(ids[0]).to eq(ids[1])
     end
   end
 end
