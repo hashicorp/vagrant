@@ -10,10 +10,10 @@ module VagrantPlugins
         # Override this method from core vagrant, here we branch out the provision for windows
         def run_provisioner(env)
           if env[:machine].provider_config.guest == :windows
-            case env[:provisioner].class.to_s
-            when "VagrantPlugins::Shell::Provisioner"
+            case env[:provisioner]
+            when VagrantPlugins::Shell::Provisioner
               WindowsProvisioner::Shell.new(env).provision
-            when "VagrantPlugins::Puppet::Provisioner::Puppet"
+            when VagrantPlugins::Puppet::Provisioner::Puppet
               WindowsProvisioner::Puppet.new(env).provision
             end
           else

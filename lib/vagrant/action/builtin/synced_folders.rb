@@ -1,7 +1,9 @@
 require "log4r"
+
 require 'vagrant/util/platform'
 
 require_relative "mixin_synced_folders"
+
 module Vagrant
   module Action
     module Builtin
@@ -17,6 +19,7 @@ module Vagrant
 
         def call(env)
           folders = synced_folders(env[:machine])
+
           folders.each do |impl_name, fs|
             @logger.info("Synced Folder Implementation: #{impl_name}")
 

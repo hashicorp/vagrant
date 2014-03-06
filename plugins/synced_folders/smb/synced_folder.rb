@@ -1,4 +1,5 @@
 require "json"
+
 require "log4r"
 
 require "vagrant/util/platform"

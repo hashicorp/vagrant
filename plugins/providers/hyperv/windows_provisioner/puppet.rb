@@ -15,7 +15,6 @@ module VagrantPlugins
         end
 
         def provision
-
           options = [config.options].flatten
           @module_paths = provisioner.instance_variable_get("@module_paths")
           @hiera_config_path = provisioner.instance_variable_get("@hiera_config_path")
@@ -23,6 +22,7 @@ module VagrantPlugins
 
           # Copy the puppet manifest folders to Guest
           ssh_info = @env[:machine].ssh_info
+
           @env[:machine].config.vm.synced_folders.each do |id, data|
             if data[:hostpath] == @env[:machine].env.root_path.join(config.manifests_path[1]).to_s
               if config.manifests_path[0].to_sym == :host

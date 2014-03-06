@@ -1,4 +1,5 @@
 require "log4r"
+
 require_relative "mixin_provisioners"
 
 module Vagrant
@@ -74,6 +75,7 @@ module Vagrant
               env[:ui].info(I18n.t(
                 "vagrant.actions.vm.provision.beginning",
                 provisioner: type_name))
+
               env[:hook].call(:provisioner_run, env.merge(
                 callable: method(:run_provisioner),
                 provisioner: p,
