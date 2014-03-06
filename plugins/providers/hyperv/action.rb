@@ -123,7 +123,6 @@ module VagrantPlugins
                 next
               end
               b2.use Provision
-              b2.use SyncedFolders
             end
           end
         end
@@ -192,6 +191,27 @@ module VagrantPlugins
         end
       end
 
+      def self.action_rdp
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use ConfigValidate
+          b.use Call, IsState, :not_created do |env, b2|
+            if env[:result]
+              b2.use Message, I18n.t("vagrant_hyperv.message_not_created")
+              next
+            end
+
+            b2.use Call, IsState, :running do |env1, b3|
+              if !env1[:result]
+                b3.use Message, I18n.t("vagrant_hyperv.message_rdp_not_ready")
+                next
+              end
+
+              b3.use Rdp
+            end
+          end
+        end
+      end
+
 
       # The autoload farm
       action_root = Pathname.new(File.expand_path("../action", __FILE__))
@@ -205,6 +225,7 @@ module VagrantPlugins
       autoload :ReadGuestIP, action_root.join('read_guest_ip')
       autoload :WaitForIPAddress, action_root.join("wait_for_ip_address")
       autoload :Provision, action_root.join("provision")
+      autoload :Rdp, action_root.join("rdp")
     end
   end
 end

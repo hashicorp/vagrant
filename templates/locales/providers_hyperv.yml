@@ -10,6 +10,8 @@ en:
       VM not created. Moving on...
     message_not_running: |-
       Hyper-V machine isn't running. Can't SSH in!
+    message_rdp_not_ready: |-
+      Hyper-V machine isn't running. Can't RDP to in!
 
     errors:
       admin_required: |-
@@ -67,3 +69,6 @@ en:
       windows_required: |-
         The Hyper-V provider only works on Windows. Please try to
         use another provider.
+      windows_vm_required: |-
+        The RDP command works only when the Virtual Machine is Windows. Vagrant
+        detected the guest as %{guest}

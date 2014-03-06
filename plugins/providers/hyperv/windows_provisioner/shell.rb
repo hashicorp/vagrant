@@ -24,7 +24,7 @@
               config.upload_path
             end
 
-            response = @env[:machine].provider.driver.upload(path, guest_path)
+            @env[:machine].provider.driver.upload(path, guest_path)
 
             @env[:ui].info "Executing the script in Guest"
             # Execute the file from remote location
