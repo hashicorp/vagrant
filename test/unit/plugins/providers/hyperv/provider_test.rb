@@ -12,6 +12,7 @@ describe VagrantPlugins::HyperV::Provider do
   before do
     stub_const("Vagrant::Util::Platform", platform)
     stub_const("Vagrant::Util::PowerShell", powershell)
+    machine.stub(id: "foo")
     platform.stub(windows?: true)
     platform.stub(windows_admin?: true)
     powershell.stub(available?: true)
