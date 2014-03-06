@@ -173,6 +173,7 @@ module VagrantPlugins
       action_root = Pathname.new(File.expand_path("../action", __FILE__))
       autoload :DeleteVM, action_root.join("delete_vm")
       autoload :Import, action_root.join("import")
+      autoload :IsWindows, action_root.join("is_windows")
       autoload :ReadState, action_root.join("read_state")
       autoload :ResumeVM, action_root.join("resume_vm")
       autoload :StartInstance, action_root.join('start_instance')

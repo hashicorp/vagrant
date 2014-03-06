@@ -89,6 +89,19 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     end
   end
 
+  describe "#guest" do
+    it "is nil by default" do
+      subject.finalize!
+      expect(subject.guest).to be_nil
+    end
+
+    it "is symbolized" do
+      subject.guest = "foo"
+      subject.finalize!
+      expect(subject.guest).to eq(:foo)
+    end
+  end
+
   describe "#network(s)" do
     it "defaults to forwarding SSH" do
       subject.finalize!
