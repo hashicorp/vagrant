@@ -33,6 +33,11 @@ module VagrantPlugins
       class WindowsRequired < HyperVError
         error_key(:windows_required)
       end
+
+      class WindowsVmRequired < HyperVError
+        error_key(:windows_vm_required)
+      end
+
     end
   end
 end
