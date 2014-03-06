@@ -2,6 +2,7 @@
 # Copyright (c) Microsoft Open Technologies, Inc.
 # All Rights Reserved. Licensed under the MIT License.
 #--------------------------------------------------------------------------
+module VagrantPlugins
   module HyperV
     module WindowsProvisioner
       class Shell < VagrantPlugins::Shell::Provisioner
@@ -82,8 +83,7 @@
             end
           end
         end
-
-        end
       end
     end
   end
+end
