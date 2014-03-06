@@ -4,8 +4,10 @@ en:
       Mounting SMB shared folders...
     mounting_single: |-
       %{host} => %{guest}
+    preparing: |-
+      Preparing SMB shared folders...
     warning_password: |-
-      You will be asked for the username and password to use to mount the
+      You will be asked for the username and password to use for the SMB
       folders shortly. Please use the proper username/password of your
       Windows account.
 

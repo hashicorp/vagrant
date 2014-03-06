@@ -12,6 +12,7 @@ module VagrantPlugins
         super
 
         @logger = Log4r::Logger.new("vagrant::synced_folders::smb")
+        @creds  = {}
       end
 
       def usable?(machine, raise_error=false)
@@ -29,7 +30,24 @@ module VagrantPlugins
       end
 
       def prepare(machine, folders, opts)
+        machine.ui.output(I18n.t("vagrant_sf_smb.preparing"))
+
         script_path = File.expand_path("../scripts/set_share.ps1", __FILE__)
+
+        # If we need auth information, then ask the user.
+        need_auth = false
+        folders.each do |id, data|
+          if !data[:smb_username] || !data[:smb_password]
+            need_auth = true
+            break
+          end
+        end
+
+        if need_auth
+          machine.ui.detail(I18n.t("vagrant_sf_smb.warning_password") + "\n ")
+          @creds[:username] = machine.ui.ask("Username: ")
+          @creds[:password] = machine.ui.ask("Password (will be hidden): ", echo: false)
+        end
 
         folders.each do |id, data|
           hostpath = data[:hostpath]
@@ -39,7 +57,7 @@ module VagrantPlugins
           args = []
           args << "-path" << hostpath.gsub("/", "\\")
           args << "-share_name" << data[:smb_id]
-          #args << "-host_share_username" << "mitchellh"
+          #args << "-host_share_username" << @creds[:username]
 
           r = Vagrant::Util::PowerShell.execute(script_path, *args)
           if r.exit_code != 0
@@ -82,31 +100,14 @@ module VagrantPlugins
           end
         end
 
-        # If we need auth information, then ask the user
-        username = nil
-        password = nil
-        need_auth = false
-        folders.each do |id, data|
-          if !data[:smb_username] || !data[:smb_password]
-            need_auth = true
-            break
-          end
-        end
-
-        if need_auth
-          machine.ui.detail(I18n.t("vagrant_sf_smb.warning_password") + "\n ")
-          username = machine.ui.ask("Username: ")
-          password = machine.ui.ask("Password (will be hidden): ", echo: false)
-        end
-
         # This is used for defaulting the owner/group
         ssh_info = machine.ssh_info
 
         folders.each do |id, data|
           data = data.dup
           data[:smb_host] ||= host_ip
-          data[:smb_username] ||= username
-          data[:smb_password] ||= password
+          data[:smb_username] ||= @creds[:username]
+          data[:smb_password] ||= @creds[:password]
 
           # Default the owner/group of the folder to the SSH user
           data[:owner] ||= ssh_info[:username]

@@ -26,6 +26,7 @@ if (![string]::IsNullOrEmpty($host_share_username)) {
 
     # Here we need to set the proper ACL for this folder. This lets full
     # recursive access to this folder.
+    <#
     Get-ChildItem $path -recurse -Force |% {
         $current_acl = Get-ACL $_.fullname
         $permission = "$computer_name\$host_share_username","FullControl","ContainerInherit,ObjectInherit","None","Allow"
@@ -33,6 +34,7 @@ if (![string]::IsNullOrEmpty($host_share_username)) {
         $current_acl.SetAccessRule($acl_access_rule)
         $current_acl | Set-Acl $_.fullname
     }
+    #>
 }
 
 $result = net share $share_name=$path /unlimited /GRANT:$grant
