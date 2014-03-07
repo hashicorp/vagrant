@@ -8,7 +8,7 @@ sidebar_current: "share-connect"
 Vagrant can share any or _every_ port to your Vagrant environment, not
 just SSH and HTTP. The `vagrant connect` command gives the connecting person
 a static IP they can use to communicate to the shared Vagrant environment.
-Any TCP/UDP traffic sent to this IP is sent to the shared Vagrant environment.
+Any TCP traffic sent to this IP is sent to the shared Vagrant environment.
 
 ## Usage
 
