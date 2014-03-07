@@ -47,6 +47,9 @@ IMPROVEMENTS:
     one per machine. See docs for more info. [GH-2991]
   - provisioners/ansible: SSH forwarding support. [GH-2952]
   - provisioners/ansible: Multiple SSH keys can now be attempted [GH-2952]
+  - provisioners/ansible: Disable SSH host key checking by default,
+    which improves the experience. We believe this is a sane default
+    for ephemeral dev machines.
   - provisioners/chef-solo: New config `synced_folder_type` replaces the
     `nfs` option. This can be used to set the synced folders the provisioner
     needs to any type. [GH-2709]
