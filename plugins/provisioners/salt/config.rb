@@ -1,5 +1,5 @@
-require "i18n"
 require "vagrant"
+require "vagrant/util/deep_merge"
 
 module VagrantPlugins
   module Salt
@@ -78,7 +78,7 @@ module VagrantPlugins
 
       def pillar(data)
         @pillar_data = {} if @pillar_data == UNSET_VALUE
-        @pillar_data.deep_merge!(data)
+        @pillar_data = Vagrant::Util::DeepMerge.deep_merge(@pillar_data, data)
       end
 
       def validate(machine)
