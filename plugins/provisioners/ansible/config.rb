@@ -32,7 +32,7 @@ module VagrantPlugins
         @start_at_task     = UNSET_VALUE
         @raw_arguments     = UNSET_VALUE
         @groups            = UNSET_VALUE
-        @host_key_checking = "true"
+        @host_key_checking = "false"
       end
 
       def finalize!

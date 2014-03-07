@@ -192,7 +192,7 @@ by the sudo command.
 * `ansible.raw_arguments` can be set to an array of strings corresponding to a list of `ansible-playbook` arguments (e.g. `['--check', '-M /my/modules']`). It is an *unsafe wildcard* that can be used to apply Ansible options that are not (yet) supported by this Vagrant provisioner. Following precedence rules apply:
   * Any supported options (described above) will override conflicting `raw_arguments` value (e.g. `--tags` or `--start-at-task`)
   * Vagrant default user authentication can be overridden via `raw_arguments` (with custom values for `--user` and `--private-key`)
-* `ansible.host_key_checking` can be set to `false` which will disable host key checking and prevent `"FAILED: (25, 'Inappropriate ioctl for device')"` errors from being reported during provisioner runs.  The default value is `true`, which matches the default behavior of Ansible 1.2.1 and later.
+* `ansible.host_key_checking` can be set to `true` which will enable host key checking. As Vagrant 1.5, the default value is `false`, to avoid connection problems when creating new virtual machines.
 
 ## Tips and Tricks
 
@@ -223,7 +223,7 @@ Vagrant is designed to provision [multi-machine environments](/v2/multi-machine)
 
 Certain settings in Ansible are (only) adjustable via a [configuration file](http://docs.ansible.com/intro_configuration.html), and you might want to ship such a file in your Vagrant project.
 
-As `ansible-playbook` command looks for local [`ansible.cfg`] configuration file in its *current directory* (but not in the directory that contains the main playbook), you have to store this file adjacent to your Vagrantfile.
+As `ansible-playbook` command looks for local `ansible.cfg` configuration file in its *current directory* (but not in the directory that contains the main playbook), you have to store this file adjacent to your Vagrantfile.
 
 Note that it is also possible to reference an Ansible configuration file via `ANSIBLE_CONFIG` environment variable, if you want to be flexible about the location of this file.
 
