@@ -28,10 +28,10 @@ module VagrantPlugins
             comm.upload(path.to_s, config.upload_path)
 
             if config.path
-              @machine.ui.info(I18n.t("vagrant.provisioners.shell.running",
+              @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
                                       script: path.to_s))
             else
-              @machine.ui.info(I18n.t("vagrant.provisioners.shell.running",
+              @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
                                       script: "inline script"))
             end
 
