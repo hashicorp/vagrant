@@ -57,6 +57,10 @@ module Vagrant
         def cygwin_windows_path(path, **opts)
           return path if !cygwin? && !opts[:force]
 
+          # First, no matter what process we use below, we must replace
+          # all "\" with "/", otherwise cygpath doesn't work.
+          path = path.gsub("\\", "/")
+
           begin
             # First try the real cygpath
             process = Subprocess.execute("cygpath", "-w", "-l", "-a", path.to_s)
