@@ -192,6 +192,7 @@ by the sudo command.
 * `ansible.raw_arguments` can be set to an array of strings corresponding to a list of `ansible-playbook` arguments (e.g. `['--check', '-M /my/modules']`). It is an *unsafe wildcard* that can be used to apply Ansible options that are not (yet) supported by this Vagrant provisioner. Following precedence rules apply:
   * Any supported options (described above) will override conflicting `raw_arguments` value (e.g. `--tags` or `--start-at-task`)
   * Vagrant default user authentication can be overridden via `raw_arguments` (with custom values for `--user` and `--private-key`)
+* `ansible.raw_ssh_args` can be set to an array of strings corresponding to a list of OpenSSH client parameters (e.g. `['-o ControlMaster=no']`). It is an *unsafe wildcard* that can be used to pass additional SSH settings to Ansible via `ANSIBLE_SSH_ARGS` environment variable.
 * `ansible.host_key_checking` can be set to `true` which will enable host key checking. As Vagrant 1.5, the default value is `false`, to avoid connection problems when creating new virtual machines.
 
 ## Tips and Tricks
