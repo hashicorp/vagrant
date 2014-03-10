@@ -25,6 +25,12 @@ module VagrantPlugins
           # Install the gem
           plugin_name_label = plugin_name
           plugin_name_label += " --version '#{version}'" if version
+          if git
+            plugin_name_label += " git: '#{git}'"
+            plugin_name_label += " ref: '#{git_ref}'" if git_ref
+            plugin_name_label += " tag: '#{git_tag}'" if git_tag
+            plugin_name_label += " branch: '#{git_branch}'" if git_branch
+          end
           env[:ui].info(I18n.t("vagrant.commands.plugin.installing",
                                :name => plugin_name_label))
 
