@@ -1,6 +1,8 @@
 ## 1.5.1 (unreleased)
 
+BUG FIXES:
 
+  - core: V1 Vagrantfiles can upgrade provisioners properly. [GH-3092]
 
 ## 1.5.0 (March 10, 2014)
 
