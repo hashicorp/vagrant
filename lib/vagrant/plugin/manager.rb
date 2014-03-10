@@ -86,6 +86,10 @@ module Vagrant
           version: opts[:version],
           require: opts[:require],
           sources: opts[:sources],
+          git:     opts[:git],
+          git_ref: opts[:git_ref],
+          git_tag: opts[:git_tag],
+          git_branch: opts[:git_branch],
         )
 
         result
