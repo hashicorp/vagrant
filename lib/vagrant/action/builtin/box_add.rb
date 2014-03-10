@@ -241,8 +241,19 @@ module Vagrant
               providers[choice-1])
           end
 
+          provider_url = metadata_provider.url
+          if url != authenticated_url
+            # Authenticate the provider URL since we're using auth
+            hook_env    = env[:hook].call(:authenticate_box_url, box_urls: [provider_url])
+            authed_urls = hook_env[:box_urls]
+            if !authed_urls || authed_urls.length != 1
+              raise "Bad box authentication hook, did not generate proper results."
+            end
+            provider_url = authed_urls[0]
+          end
+
           box_add(
-            [metadata_provider.url],
+            [[provider_url, metadata_provider.url]],
             metadata.name,
             metadata_version.version,
             metadata_provider.name,
@@ -289,8 +300,14 @@ module Vagrant
             box_url = nil
 
             urls.each do |url|
+              show_url = nil
+              if url.is_a?(Array)
+                show_url = url[1]
+                url      = url[0]
+              end
+
               begin
-                box_url = download(url, env)
+                box_url = download(url, env, show_url: show_url)
                 break
               rescue Errors::DownloaderError => e
                 env[:ui].error(I18n.t(
@@ -383,9 +400,12 @@ module Vagrant
           # path as an instance variable so that the `#recover` method can
           # access it.
           if opts[:ui]
+            show_url = opts[:show_url]
+            show_url ||= url
+
             env[:ui].detail(I18n.t(
               "vagrant.box_downloading",
-              url: url))
+              url: show_url))
             if File.file?(d.destination)
               env[:ui].info(I18n.t("vagrant.actions.box.download.resuming"))
             end

@@ -293,7 +293,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
               "providers": [
                 {
                   "name": "virtualbox",
-                  "url":  "#{box_path}"
+                  "url":  "bar"
                 }
               ]
             }
@@ -311,10 +311,15 @@ describe Vagrant::Action::Builtin::BoxAdd do
         env[:box_url] = "foo"
 
         env[:hook] = double("hook")
-        env[:hook].should_receive(:call) do |name, opts|
+        env[:hook].stub(:call) do |name, opts|
           expect(name).to eq(:authenticate_box_url)
-          expect(opts[:box_urls]).to eq(["foo"])
-          { box_urls: [real_url] }
+          if opts[:box_urls] == ["foo"]
+            next { box_urls: [real_url] }
+          elsif opts[:box_urls] == ["bar"]
+            next { box_urls: [box_path.to_s] }
+          else
+            raise "UNKNOWN: #{opts[:box_urls].inspect}"
+          end
         end
 
         box_collection.should_receive(:add).with do |path, name, version, **opts|
