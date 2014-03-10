@@ -58,12 +58,17 @@ end
 # then also initialize the paths to the plugins.
 require "bundler"
 begin
-  Bundler.setup(:default, :plugins)
-rescue Bundler::VersionConflict
+  groups = [:default, :plugins]
+  Bundler.setup(*groups)
+rescue Bundler::VersionConflict => e
   $stderr.puts "Vagrant experienced a version conflict with some installed plugins!"
-  $stderr.puts "To fix this error, please update or remove the plugins which are"
-  $stderr.puts "conflicting, and report this issue to the plugin creator. The conflict"
-  $stderr.puts "is shown below:\n\n"
+  $stderr.puts "If you recently upgraded Vagrant, the recommended way to fix this is"
+  $stderr.puts "to remove your existing plugins and reinstall them one-by-one. To"
+  $stderr.puts "remove all plugins:"
+  $stderr.puts ""
+  $stderr.puts "    rm -r ~/.vagrant.d/plugins.json ~/.vagrant.d/gems"
+  $stderr.puts ""
+  $stderr.puts "The error message is shown below:\n\n"
   $stderr.puts e.message
   exit 1
 end
