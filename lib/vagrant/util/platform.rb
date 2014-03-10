@@ -50,20 +50,15 @@ module Vagrant
           end
         end
 
-        # This takes any path and converts it to a full-length Windows
-        # path on Windows machines in Cygwin.
+        # This takes any path and converts it from a Windows path to a
+        # Cygwin or msys style path.
         #
+        # @param [String] path
         # @return [String]
-        def cygwin_windows_path(path, **opts)
-          return path if !cygwin? && !opts[:force]
-
-          # First, no matter what process we use below, we must replace
-          # all "\" with "/", otherwise cygpath doesn't work.
-          path = path.gsub("\\", "/")
-
+        def cygwin_path(path)
           begin
             # First try the real cygpath
-            process = Subprocess.execute("cygpath", "-w", "-l", "-a", path.to_s)
+            process = Subprocess.execute("cygpath", "-u", "-a", path.to_s)
             return process.stdout.chomp
           rescue Errors::CommandUnavailableWindows
             # Sometimes cygpath isn't available (msys). Instead, do what we
@@ -75,6 +70,21 @@ module Vagrant
               "-c", "cd #{path} && pwd")
             return process.stdout.chomp
           end
+        end
+
+        # This takes any path and converts it to a full-length Windows
+        # path on Windows machines in Cygwin.
+        #
+        # @return [String]
+        def cygwin_windows_path(path)
+          return path if !cygwin?
+
+          # Replace all "\" with "/", otherwise cygpath doesn't work.
+          path = path.gsub("\\", "/")
+
+          # Call out to cygpath and gather the result
+          process = Subprocess.execute("cygpath", "-w", "-l", "-a", path.to_s)
+          return process.stdout.chomp
         end
 
         # This checks if the filesystem is case sensitive. This is not a
