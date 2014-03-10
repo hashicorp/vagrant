@@ -58,8 +58,7 @@ end
 # then also initialize the paths to the plugins.
 require "bundler"
 begin
-  groups = [:default, :plugins]
-  Bundler.setup(*groups)
+  Bundler.setup(:default, :plugins)
 rescue Bundler::VersionConflict => e
   $stderr.puts "Vagrant experienced a version conflict with some installed plugins!"
   $stderr.puts "If you recently upgraded Vagrant, the recommended way to fix this is"
