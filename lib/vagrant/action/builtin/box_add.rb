@@ -450,6 +450,10 @@ module Vagrant
               return true
             rescue Errors::BoxMetadataMalformed
               return false
+            rescue Errno::EINVAL
+              # Actually not sure what causes this, but its always
+              # in a case that isn't true.
+              return false
             rescue Errno::ENOENT
               return false
             end

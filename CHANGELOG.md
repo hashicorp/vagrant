@@ -3,6 +3,7 @@
 BUG FIXES:
 
   - core: V1 Vagrantfiles can upgrade provisioners properly. [GH-3092]
+  - core: Rare EINVAL errors on box adding are gone. [GH-3094]
 
 ## 1.5.0 (March 10, 2014)
 
