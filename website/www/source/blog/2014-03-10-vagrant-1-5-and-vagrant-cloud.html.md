@@ -52,7 +52,7 @@ for each:
 
   * [Boxes 2.0](/blog/feature-preview-vagrant-1-5-boxes-2-0.html) - Versioned
     boxes make it easier to track changes, and box names are now as simple
-    as `hashicorp/precise64`. In short: boxes are much more pleasent to use.
+    as `hashicorp/precise64`. In short: boxes are much more pleasant to use.
 
   * [Rsync Synced Folders](/blog/feature-preview-vagrant-1-5-rsync.html) -
     Use `rsync` to sync folders between the host and the guest. This creates
