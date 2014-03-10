@@ -6,7 +6,9 @@ for each item will be kept below.
 
 ## List of Contrib Items
 
-* `emacs` - Contains a file showing how to associate `Vagrantfile` with
-  Ruby syntax highlighting.
+* `bash` - Contains a bash script for improving autocompletion with bash.
+* `emacs` - Contains a file for enabling Ruby syntax highlighting for `Vagrantfile`s in `emacs`.
+* `st` - Contains a `.sublime-settings` file for enabling Ruby syntax highlighting
+  for `Vagrantfile`s in Sublime Text.
 * `vim` - Contains a `.vim` file for enabling Ruby syntax highlighting
-  for `Vagrantfile`s.
+  for `Vagrantfile`s in `vim`.
