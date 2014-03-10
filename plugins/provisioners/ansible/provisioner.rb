@@ -189,6 +189,18 @@ module VagrantPlugins
         # SSH Forwarding
         ssh_options << "-o ForwardAgent=yes" if @ssh_info[:forward_agent]
 
+        # Unchecked SSH Parameters
+        ssh_options.concat(self.as_array(config.raw_ssh_args)) if config.raw_ssh_args
+
+        # Re-enable ControlPersist Ansible defaults,
+        # which are lost when ANSIBLE_SSH_ARGS is defined.
+        unless ssh_options.empty?
+          ssh_options << "-o ControlMaster=auto"
+          ssh_options << "-o ControlPersist=60s"
+          # Intentionally keep ControlPath undefined to let ansible-playbook
+          # automatically sets this option to Ansible default value
+        end
+
         ssh_options.join(' ')
       end
 

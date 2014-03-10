@@ -15,8 +15,10 @@ module VagrantPlugins
       attr_accessor :groups
       attr_accessor :host_key_checking
 
-      # Joker attribute, used to pass unsupported arguments to ansible anyway
+      # Joker attribute, used to pass unsupported arguments to ansible-playbook anyway
       attr_accessor :raw_arguments
+      # Joker attribute, used to set additional SSH parameters for ansible-playbook anyway
+      attr_accessor :raw_ssh_args
 
       def initialize
         @playbook          = UNSET_VALUE
@@ -30,9 +32,10 @@ module VagrantPlugins
         @tags              = UNSET_VALUE
         @skip_tags         = UNSET_VALUE
         @start_at_task     = UNSET_VALUE
-        @raw_arguments     = UNSET_VALUE
         @groups            = UNSET_VALUE
         @host_key_checking = "false"
+        @raw_arguments     = UNSET_VALUE
+        @raw_ssh_args      = UNSET_VALUE
       end
 
       def finalize!
@@ -47,9 +50,10 @@ module VagrantPlugins
         @tags              = nil if @tags == UNSET_VALUE
         @skip_tags         = nil if @skip_tags == UNSET_VALUE
         @start_at_task     = nil if @start_at_task == UNSET_VALUE
-        @raw_arguments     = nil if @raw_arguments == UNSET_VALUE
         @groups            = {}  if @groups == UNSET_VALUE
         @host_key_checking = nil if @host_key_checking == UNSET_VALUE
+        @raw_arguments     = nil if @raw_arguments == UNSET_VALUE
+        @raw_ssh_args      = nil if @raw_ssh_args == UNSET_VALUE
       end
 
       def validate(machine)
