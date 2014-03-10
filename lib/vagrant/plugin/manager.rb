@@ -55,6 +55,10 @@ module Vagrant
           "require"     => opts[:require],
           "gem_version" => opts[:version],
           "sources"     => opts[:sources],
+          "git"         => opts[:git],
+          "git-ref"     => opts[:git_ref],
+          "git-tag"     => opts[:git_tag],
+          "git-branch"  => opts[:git_branch],
         }
 
         result = nil

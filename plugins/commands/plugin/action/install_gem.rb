@@ -17,6 +17,10 @@ module VagrantPlugins
           plugin_name = env[:plugin_name]
           sources     = env[:plugin_sources]
           version     = env[:plugin_version]
+          git         = env[:plugin_git]
+          git_ref     = env[:plugin_git_ref]
+          git_tag     = env[:plugin_git_tag]
+          git_branch  = env[:plugin_git_branch]
 
           # Install the gem
           plugin_name_label = plugin_name
@@ -30,6 +34,10 @@ module VagrantPlugins
             version: version,
             require: entrypoint,
             sources: sources,
+            git:     git,
+            git_ref: git_ref,
+            git_tag: git_tag,
+            git_branch: git_branch,
             verbose: !!env[:plugin_verbose],
           )
 

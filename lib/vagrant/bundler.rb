@@ -181,6 +181,17 @@ module Vagrant
           if plugin["require"] && plugin["require"] != ""
             opts[:require] = plugin["require"]
           end
+          if plugin["git"] && plugin["git"] != ""
+            opts[:git] = plugin["git"]
+            # Only add git related options if using git, and only add one type.
+            if plugin["git-ref"] && plugin["git-ref"] != ""
+              opts[:ref] = plugin["git-ref"]
+            elsif plugin["git-tag"] && plugin["git-tag"] != ""
+              opts[:tag] = plugin["git-tag"]
+            elsif plugin["git-branch"] && plugin["git-branch"] != ""
+              opts[:branch] = plugin["git-branch"]
+            end
+          end
 
           gemfile.puts(%Q[gem "#{name}", #{version.inspect}, #{opts.inspect}])
         end
