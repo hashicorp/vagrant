@@ -179,8 +179,8 @@ all of which get passed to the `ansible-playbook` command that ships with Ansibl
 by the sudo command.
 * `ansible.ask_sudo_pass` can be set to `true` to require Ansible to prompt for a sudo password.
 * `ansible.limit` can be set to a string or an array of machines or groups from the inventory file to further control which hosts are affected. Note that:
-  * As Vagrant 1.5, the machine name (taken from Vagrantfile) is set as **default limit** to ensure that `vagrant provision` steps only affect the expected machine. Setting `ansible.limit` will override this default.
-  * Setting `ansible.limit = 'all'` can be used to make Ansible connects to all machines from the inventory file.
+  * As of Vagrant 1.5, the machine name (taken from Vagrantfile) is set as **default limit** to ensure that `vagrant provision` steps only affect the expected machine. Setting `ansible.limit` will override this default.
+  * Setting `ansible.limit = 'all'` can be used to make Ansible connect to all machines from the inventory file.
 * `ansible.verbose` can be set to increase Ansible's verbosity to obtain detailed logging:
   * `'v'`, verbose mode
   * `'vv'`
