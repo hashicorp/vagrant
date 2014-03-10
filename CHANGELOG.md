@@ -7,6 +7,12 @@ BUG FIXES:
 
 ## 1.5.0 (March 10, 2014)
 
+BREAKING CHANGES:
+
+  - provisioners/ansible: the machine name (taken from Vagrantfile) is now
+    set as default limit to ensure that vagrant provision steps only
+    affect the expected machine.
+
 DEPRECATIONS:
 
   - provisioners/chef-solo: The "nfs" setting has been replaced by
