@@ -4,6 +4,8 @@ BUG FIXES:
 
   - core: V1 Vagrantfiles can upgrade provisioners properly. [GH-3092]
   - core: Rare EINVAL errors on box adding are gone. [GH-3094]
+  - core: Upgrading the home directory for Vagrant 1.5 uses the Vagrant
+    temp dir. [GH-3095]
 
 ## 1.5.0 (March 10, 2014)
 

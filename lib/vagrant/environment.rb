@@ -115,11 +115,15 @@ module Vagrant
       @logger.info("  - cwd: #{cwd}")
 
       # Setup the home directory
-      setup_home_path
+      @home_path  ||= Vagrant.user_data_path
+      @home_path  = Util::Platform.fs_real_path(@home_path)
       @boxes_path = @home_path.join("boxes")
       @data_dir   = @home_path.join("data")
       @gems_path  = @home_path.join("gems")
       @tmp_path   = @home_path.join("tmp")
+
+      # Prepare the directories
+      setup_home_path
 
       # Setup the local data directory. If a configuration path is given,
       # then it is expanded relative to the working directory. Otherwise,
@@ -490,8 +494,6 @@ module Vagrant
     #
     # @return [Pathname]
     def setup_home_path
-      @home_path = Util::Platform.fs_real_path(
-        @home_path || Vagrant.user_data_path)
       @logger.info("Home path: #{@home_path}")
 
       # Setup the list of child directories that need to be created if they
