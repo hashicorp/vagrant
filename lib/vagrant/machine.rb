@@ -173,9 +173,10 @@ module Vagrant
     # @return [Object]
     def communicate
       if !@communicator
-        # For now, we always return SSH. In the future, we'll abstract
-        # this and allow plugins to define new methods of communication.
-        klass = Vagrant.plugin("2").manager.communicators[:ssh]
+        requested  = @config.vm.communicator
+        requested ||= :ssh
+        klass = Vagrant.plugin("2").manager.communicators[requested]
+        raise Errors::CommunicatorNotFound, comm: requested.to_s if !klass
         @communicator = klass.new(self)
       end
 
