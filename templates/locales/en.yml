@@ -568,6 +568,9 @@ en:
         The executable '%{file}' Vagrant is trying to run was not
         found in the %PATH% variable. This is an error. Please verify
         this software is installed and on the path.
+      communicator_not_found: |-
+        The requested communicator '%{comm}' could not be found.
+        Please verify the name is correct and try again.
       config_invalid: |-
         There are errors in the configuration of this machine. Please fix
         the following errors and try again:
