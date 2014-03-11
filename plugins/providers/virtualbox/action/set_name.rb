@@ -23,7 +23,9 @@ module VagrantPlugins
           if !name
             prefix = "#{env[:root_path].basename.to_s}_#{env[:machine].name}"
             prefix.gsub!(/[^-a-z0-9_]/i, "")
-            # milliseconds + random number suffix to allow for simultaneous `vagrant up` of the same box in different dirs
+
+            # milliseconds + random number suffix to allow for simultaneous
+            # `vagrant up` of the same box in different dirs
             name = prefix + "_#{(Time.now.to_f * 1000.0).to_i}_#{rand(100000)}"
           end
 
