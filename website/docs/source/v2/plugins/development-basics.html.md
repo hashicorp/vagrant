@@ -45,7 +45,7 @@ group :development do
 end
 
 group :plugins do
-  gem "my-vagrant-plugin", path: "."
+  gem "my-vagrant-plugin", :path => "."
 end
 ```
 
