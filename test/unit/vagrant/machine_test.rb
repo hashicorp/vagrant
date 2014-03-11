@@ -240,14 +240,27 @@ describe Vagrant::Machine do
     end
   end
 
-  describe "communicator" do
-    it "should always return the SSH communicator" do
-      expect(instance.communicate).to be_kind_of(VagrantPlugins::CommunicatorSSH::Communicator)
+  describe "#communicate" do
+    it "should return the SSH communicator by default" do
+      expect(subject.communicate).
+        to be_kind_of(VagrantPlugins::CommunicatorSSH::Communicator)
+    end
+
+    it "should return the specified communicator if given" do
+      subject.config.vm.communicator = :winrm
+      expect(subject.communicate).
+        to be_kind_of(VagrantPlugins::CommunicatorWinRM::Communicator)
     end
 
     it "should memoize the result" do
-      obj = instance.communicate
-      expect(instance.communicate).to eql(obj)
+      obj = subject.communicate
+      expect(subject.communicate).to equal(obj)
+    end
+
+    it "raises an exception if an invalid communicator is given" do
+      subject.config.vm.communicator = :foo
+      expect { subject.communicate }.
+        to raise_error(Vagrant::Errors::CommunicatorNotFound)
     end
   end
 
