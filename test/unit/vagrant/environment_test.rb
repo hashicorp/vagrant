@@ -43,7 +43,7 @@ describe Vagrant::Environment do
       end
     end
 
-    it "throws an exception if inaccessible" do
+    it "throws an exception if inaccessible", skip_windows: true do
       expect {
         described_class.new(:home_path => "/")
       }.to raise_error(Vagrant::Errors::HomeDirectoryNotAccessible)
