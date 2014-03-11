@@ -15,6 +15,10 @@ module VagrantPlugins
             comm.execute("#{sudo} chown -R #{username} '#{folder_opts[:guestpath]}'")
           end
         end
+
+        def self.rsync_pre(machine, folder_opts)
+          rsync_install(machine, folder_opts)
+        end
       end
     end
   end
