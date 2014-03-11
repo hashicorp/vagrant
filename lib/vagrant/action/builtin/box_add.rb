@@ -41,7 +41,7 @@ module Vagrant
             # Expand the path and try to use that, if possible
             p = File.expand_path(u.gsub(/^file:\/\//, ""))
             p = Util::Platform.cygwin_windows_path(p)
-            next "file://#{p}" if File.file?(p)
+            next "file://#{p.gsub("\\", "/")}" if File.file?(p)
 
             u
           end
