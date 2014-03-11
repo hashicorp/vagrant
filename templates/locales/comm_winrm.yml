@@ -1,0 +1,22 @@
+en:
+  vagrant_winrm:
+    errors:
+      auth_error: |-
+        An authorization error occurred while connecting to WinRM.
+
+        User: %{user}
+        Password: %{password}
+        Endpoint: %{endpoint}
+        Message: %{message}
+      execution_error: |-
+        An error occurred executing a remote WinRM command.
+
+        Shell: %{shell}
+        Command: %{command}
+        Message: %{message}
+      invalid_shell: |-
+        %{shell} is not a supported type of Windows shell.
+      winrm_not_ready: |-
+        The box is not able to report an address for WinRM to connect to yet.
+        WinRM cannot access this Vagrant environment. Please wait for the
+        Vagrant environment to be running and try again.
