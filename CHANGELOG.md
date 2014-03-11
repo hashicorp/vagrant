@@ -7,6 +7,8 @@ BUG FIXES:
   - core: Upgrading the home directory for Vagrant 1.5 uses the Vagrant
     temp dir. [GH-3095]
   - core: Assume a box isn't metadata if it exceeds 20 MB. [GH-3107]
+  - provisioners/ansible: Request SSH info within the provision method,
+    when we know its available. [GH-3111]
 
 ## 1.5.0 (March 10, 2014)
 

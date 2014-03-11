@@ -6,10 +6,10 @@ module VagrantPlugins
         super
 
         @logger = Log4r::Logger.new("vagrant::provisioners::ansible")
-        @ssh_info = @machine.ssh_info
       end
 
       def provision
+        @ssh_info = @machine.ssh_info
 
         #
         # 1) Default Settings (lowest precedence)
