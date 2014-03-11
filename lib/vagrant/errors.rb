@@ -292,6 +292,10 @@ module Vagrant
       error_key(:command_unavailable_windows)
     end
 
+    class CommunicatorNotFound < VagrantError
+      error_key(:communicator_not_found)
+    end
+
     class ConfigInvalid < VagrantError
       error_key(:config_invalid)
     end
