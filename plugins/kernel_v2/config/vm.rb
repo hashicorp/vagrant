@@ -25,6 +25,7 @@ module VagrantPlugins
       attr_accessor :box_download_checksum_type
       attr_accessor :box_download_client_cert
       attr_accessor :box_download_insecure
+      attr_accessor :communicator
       attr_accessor :graceful_halt_timeout
       attr_accessor :guest
       attr_accessor :hostname
@@ -42,6 +43,7 @@ module VagrantPlugins
         @box_download_insecure        = UNSET_VALUE
         @box_url                      = UNSET_VALUE
         @box_version                  = UNSET_VALUE
+        @communicator                 = UNSET_VALUE
         @graceful_halt_timeout        = UNSET_VALUE
         @guest                        = UNSET_VALUE
         @hostname                     = UNSET_VALUE
@@ -314,6 +316,7 @@ module VagrantPlugins
         @box_download_insecure = false if @box_download_insecure == UNSET_VALUE
         @box_url = nil if @box_url == UNSET_VALUE
         @box_version = nil if @box_version == UNSET_VALUE
+        @communicator = nil if @communicator == UNSET_VALUE
         @graceful_halt_timeout = 60 if @graceful_halt_timeout == UNSET_VALUE
         @guest = nil if @guest == UNSET_VALUE
         @hostname = nil if @hostname == UNSET_VALUE
