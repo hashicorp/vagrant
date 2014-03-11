@@ -3,9 +3,10 @@ module VagrantPlugins
     module Cap
       class ConfigureNetworks
         def self.configure_networks(machine, networks)
+          su_cmd = machine.config.smartos.suexec_cmd
+
           networks.each do |network|
             device = "#{machine.config.smartos.device}#{network[:interface]}"
-            su_cmd = machine.config.smartos.suexec_cmd
             ifconfig_cmd = "#{su_cmd} /sbin/ifconfig #{device}"
 
             machine.communicate.execute("#{ifconfig_cmd} plumb")
