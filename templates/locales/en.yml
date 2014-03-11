@@ -443,6 +443,8 @@ en:
         provider to remove with `--provider`.
 
         Available providers: %{providers}
+      box_update_no_box: |-
+        Box '%{name}' not installed, can't check for updates.
       box_update_no_metadata: |-
         The box '%{name}' is not a versioned box. The box was added
         directly instead of from a box catalog. Vagrant can only
