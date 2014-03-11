@@ -6,6 +6,7 @@ BUG FIXES:
   - core: Rare EINVAL errors on box adding are gone. [GH-3094]
   - core: Upgrading the home directory for Vagrant 1.5 uses the Vagrant
     temp dir. [GH-3095]
+  - core: Assume a box isn't metadata if it exceeds 20 MB. [GH-3107]
 
 ## 1.5.0 (March 10, 2014)
 

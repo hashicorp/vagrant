@@ -14,6 +14,10 @@ module Vagrant
       # This middleware will download a remote box and add it to the
       # given box collection.
       class BoxAdd
+        # This is the size in bytes that if a file exceeds, is considered
+        # to NOT be metadata.
+        METADATA_SIZE_LIMIT = 20971520
+
         def initialize(app, env)
           @app    = app
           @logger = Log4r::Logger.new("vagrant::action::builtin::box_add")
@@ -445,6 +449,12 @@ module Vagrant
 
             begin
               File.open(url, "r") do |f|
+                if f.size > METADATA_SIZE_LIMIT
+                  # Quit early, don't try to parse the JSON of gigabytes
+                  # of box files...
+                  return false
+                end
+
                 BoxMetadata.new(f)
               end
               return true
