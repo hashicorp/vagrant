@@ -76,6 +76,14 @@ module VagrantPlugins
             guestpath: guestpath,
             hostpath: hostpath,
             stderr: r.stderr
+        else
+          if opts[:owner] || opts[:group]
+            group = opts[:group] ? ":#{folder_opts[:group]}" : ''
+
+            machine.communicate.tap do |comm|
+              comm.sudo("chown -R #{opts[:owner]}#{group} '#{guestpath}'")
+            end
+          end
         end
       end
     end
