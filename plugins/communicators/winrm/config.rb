@@ -32,12 +32,12 @@ module VagrantPlugins
       def validate(machine)
         errors = []
 
-        errors << "winrm.username cannot be nil."   if machine.config.winrm.username.nil?
-        errors << "winrm.password cannot be nil."   if machine.config.winrm.password.nil?
-        errors << "winrm.port cannot be nil."       if machine.config.winrm.port.nil?
-        errors << "winrm.guest_port cannot be nil." if machine.config.winrm.guest_port.nil?
-        errors << "winrm.max_tries cannot be nil."  if machine.config.winrm.max_tries.nil?
-        errors << "winrm.timeout cannot be nil."    if machine.config.winrm.timeout.nil?
+        errors << "winrm.username cannot be nil."   if @username.nil?
+        errors << "winrm.password cannot be nil."   if @password.nil?
+        errors << "winrm.port cannot be nil."       if @port.nil?
+        errors << "winrm.guest_port cannot be nil." if @guest_port.nil?
+        errors << "winrm.max_tries cannot be nil."  if @max_tries.nil?
+        errors << "winrm.timeout cannot be nil."    if @timeout.nil?
 
         { "WinRM" => errors }
       end
