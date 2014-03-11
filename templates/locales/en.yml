@@ -170,6 +170,12 @@ en:
       Error! Your console doesn't support hiding input. We'll ask for
       input again below, but we WILL NOT be able to hide input. If this
       is a problem for you, ctrl-C to exit and fix your stdin.
+    upgrading_home_path_v1_5: |-
+      Vagrant is upgrading some internal state for the latest version.
+      Please do not quit Vagrant at this time. While upgrading, Vagrant
+      will need to copy all your boxes, so it will use a considerable
+      amount of disk space. After it is done upgrading, the temporary disk
+      space will be freed.
 
     cfengine_config:
       classes_array: |-
