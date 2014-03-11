@@ -98,6 +98,13 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     end
   end
 
+  describe "#communicator" do
+    it "is nil by default" do
+      subject.finalize!
+      expect(subject.communicator).to be_nil
+    end
+  end
+
   describe "#guest" do
     it "is nil by default" do
       subject.finalize!
