@@ -166,6 +166,10 @@ en:
       password-based authentication. Vagrant can't script entering the
       password for you. If you're prompted for a password, please enter
       the same password you have configured in the Vagrantfile.
+    stdin_cant_hide_input: |-
+      Error! Your console doesn't support hiding input. We'll ask for
+      input again below, but we WILL NOT be able to hide input. If this
+      is a problem for you, ctrl-C to exit and fix your stdin.
 
     cfengine_config:
       classes_array: |-
