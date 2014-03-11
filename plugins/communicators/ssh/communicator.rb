@@ -63,7 +63,7 @@ module VagrantPlugins
                 raise
               end
             rescue Vagrant::Errors::SSHConnectionTimeout
-              message = "Connection timout."
+              message = "Connection timeout."
             rescue Vagrant::Errors::SSHAuthenticationFailed
               message = "Authentication failure."
             rescue Vagrant::Errors::SSHDisconnected
