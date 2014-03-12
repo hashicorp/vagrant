@@ -94,7 +94,7 @@ module VagrantPlugins
 
           # Use sed to just strip out the block of code which was inserted
           # by Vagrant
-          system("sudo sed -r -e '/^# VAGRANT-BEGIN:( #{user})? #{id}/,/^# VAGRANT-END:( #{user})? #{id}/ d' -ibak /etc/exports")
+          system("sudo sed -r -e '\\\x01^# VAGRANT-BEGIN:( #{user})? #{id}\x01,\\\x01^# VAGRANT-END:( #{user})? #{id}\x01 d' -ibak /etc/exports")
         end
 
         def self.nfs_opts_setup(folders)
