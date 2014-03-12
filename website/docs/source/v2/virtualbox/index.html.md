@@ -18,4 +18,15 @@ VirtualBox can be installed by [downloading](https://www.virtualbox.org/wiki/Dow
 a package or installer for your operating system and using standard procedures
 to install that package.
 
+<div class="alert alert-block alert-warning">
+<p>
+<strong>Hanging Vagrant commands on Windows?</strong> If your prompt hangs on a 
+Vagrant command on Windows when using the VirtualBox provider this may be caused 
+by a permissions problem within VirtualBox, starting VirtualBox normally or as 
+a Windows administrator will prevent you from accessing it the opposite way. 
+Please keep in mind that when a Vagrant command interacts with VirtualBox it 
+will access VirtualBox with the access level of your Windows console.
+</p>
+</div>
+
 Use the navigation to the left to find a specific VirtualBox topic to read more about.
