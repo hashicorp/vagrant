@@ -7,7 +7,7 @@ sidebar_current: "cli-rsyncauto"
 
 **Command: `vagrant rsync-auto`**
 
-This command watches all local directories of anj
+This command watches all local directories of any
 [rsync synced folders](/v2/synced-folders/rsync.html) and automatically
 initiates an rsync transfer when changes are detected. This command does
 not exit until an interrupt is received.
