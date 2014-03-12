@@ -72,7 +72,7 @@ module VagrantPlugins
             networks << $1.to_s if line =~ /^Name:\s+(.+?)$/
           end
 
-          execute("list", "vms").split("\n").each do |line|
+          execute("list", "vms", retryable: true).split("\n").each do |line|
             if line =~ /^".+?"\s+\{(.+?)\}$/
               info = execute("showvminfo", $1.to_s, "--machinereadable", :retryable => true)
               info.split("\n").each do |inner_line|
@@ -222,7 +222,7 @@ module VagrantPlugins
             end
           end
 
-          output = execute("list", "vms")
+          output = execute("list", "vms", retryable: true)
           match = /^"#{Regexp.escape(specified_name)}" \{(.+?)\}$/.match(output)
           return match[1].to_s if match
           nil
