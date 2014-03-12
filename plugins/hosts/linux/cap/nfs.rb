@@ -8,7 +8,7 @@ module VagrantPlugins
         extend Vagrant::Util::Retryable
 
         def self.nfs_apply_command(env)
-          "/usr/bin/exportfs -ar"
+          "/usr/sbin/exportfs -ar"
         end
 
         def self.nfs_check_command(env)
