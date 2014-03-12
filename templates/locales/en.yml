@@ -294,9 +294,10 @@ en:
         Available versions: %{versions}
       box_add_short_not_found: |-
         The box '%{name}' could not be found or
-        could not be accessed in the remote catalog. Please
-        double-check the name. The expanded URL and error message
-        are shown below.
+        could not be accessed in the remote catalog. If this is a private
+        box on Vagrant Cloud, please verify you're logged in via
+        `vagrant login`. Also, please double-check the name. The expanded
+        URL and error message are shown below:
 
         URL: %{url}
         Error: %{error}
