@@ -81,7 +81,12 @@ module VagrantPlugins
             group = opts[:group] ? ":#{folder_opts[:group]}" : ''
 
             machine.communicate.tap do |comm|
-              comm.sudo("chown -R #{opts[:owner]}#{group} '#{guestpath}'")
+              shell_opts = nil
+              if machine.communicate.test("uname -s | grep 'FreeBSD'", { shell: 'sh' })
+                shell_opts = { shell: 'sh' }
+              end
+
+              comm.sudo("chown -R #{opts[:owner]}#{group} '#{guestpath}'", shell_opts)
             end
           end
         end
