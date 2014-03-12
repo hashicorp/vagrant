@@ -82,7 +82,7 @@ module VagrantPlugins
 
             machine.communicate.tap do |comm|
               shell_opts = nil
-              if machine.communicate.test("uname -s | grep 'FreeBSD'", { shell: 'sh' })
+              if comm.test("uname -s | grep 'FreeBSD'", { shell: 'sh' })
                 shell_opts = { shell: 'sh' }
               end
 
