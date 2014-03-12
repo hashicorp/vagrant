@@ -18,7 +18,7 @@ module VagrantPlugins
           machine.communicate.download("/tmp/vagrant.interfaces",tmpints)
 
           devlist = []
-          ints = IO.read(tmpints)
+          ints = ::IO.read(tmpints)
           ints.split(/\n\n/m).each do |i|
             if i.match(/Hardware/) and not i.match(/Ethernet/).nil?
               devmap = {}
