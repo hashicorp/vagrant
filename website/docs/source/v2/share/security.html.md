@@ -26,7 +26,7 @@ In addition to these options, there are other features we've built to help:
     are encrypted through the various proxies and only unencrypted during the final
     local communication between the local proxy and the Vagrant environment.
 
-  * Share names, such as happy-panda-1234, are randoly chosen from a pool
+  * Share names, such as happy-panda-1234, are randomly chosen from a pool
     of over 40,000,000 possible names. And we're routinely adding more
     words to grow this pool. It is unlikely that anyone will guess your
     share name.
