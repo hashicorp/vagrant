@@ -15,6 +15,7 @@ BUG FIXES:
     hiding input. [GH-3119]
   - core: Adding a box by path in Cygwin on Windos works. [GH-3132]
   - guests/darwin: Fix an exception when configuring networks. [GH-3143]
+  - hosts/linux: Unusual sed delimiter to avoid conflicts. [GH-3167]
   - providers/virtualbox: Make more internal interactions with VBoxManage
     retryable to avoid spurious VirtualBox errors. [GH-2831]
   - provisioners/ansible: Request SSH info within the provision method,
