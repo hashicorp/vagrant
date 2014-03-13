@@ -59,6 +59,13 @@ end
 require "bundler"
 begin
   Bundler.setup(:default, :plugins)
+rescue Bundler::GemNotFound
+  $stderr.puts "Bundler, the underlying system used to manage Vagrant plugins,"
+  $stderr.puts "is reporting that a plugin or its dependency can't be found."
+  $stderr.puts "This is usually caused by manual tampering with the 'plugins.json'"
+  $stderr.puts "file in the Vagrant home directory. To fix this error, please"
+  $stderr.puts "remove that file and reinstall all your plugins using `vagrant"
+  $stderr.puts "plugin install`."
 rescue Bundler::VersionConflict => e
   $stderr.puts "Vagrant experienced a version conflict with some installed plugins!"
   $stderr.puts "This usually happens if you recently upgraded Vagrant. As part of the"
