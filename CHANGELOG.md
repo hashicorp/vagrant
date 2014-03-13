@@ -3,6 +3,8 @@
 IMPROVEMENTS:
 
   - guests/tinycore: Will now auto-install rsync.
+  - synced\_folders/rsync: rsync-auto will not watch filesystem for
+    excluded paths. [GH-3159]
 
 BUG FIXES:
 

@@ -31,6 +31,7 @@ module VagrantPlugins
 
           # Build up the paths that we need to listen to.
           paths = {}
+          ignores = []
           with_target_vms(argv) do |machine|
             folders = synced_folders(machine)[:rsync]
             next if !folders || folders.empty?
@@ -48,6 +49,12 @@ module VagrantPlugins
                 machine: machine,
                 opts:    folder_opts,
               }
+
+              if folder_opts[:exclude]
+                Array(folder_opts[:exclude]).each do |pattern|
+                  ignores << RsyncHelper.exclude_to_regexp(hostpath, pattern.to_s)
+                end
+              end
             end
           end
 
@@ -62,9 +69,13 @@ module VagrantPlugins
           end
 
           @logger.info("Listening to paths: #{paths.keys.sort.inspect}")
+          @logger.info("Ignoring #{ignores.length} paths:")
+          ignores.each do |ignore|
+            @logger.info("  -- #{ignore.to_s}")
+          end
           @logger.info("Listening via: #{Listen::Adapter.select.inspect}")
           callback = method(:callback).to_proc.curry[paths]
-          listener = Listen.to(*paths.keys, &callback)
+          listener = Listen.to(*paths.keys, ignore: ignores, &callback)
           listener.start
           listener.thread.join
 
@@ -73,10 +84,10 @@ module VagrantPlugins
 
         # This is the callback that is called when any changes happen
         def callback(paths, modified, added, removed)
-          @logger.debug("File change callback called!")
-          @logger.debug("  - Modified: #{modified.inspect}")
-          @logger.debug("  - Added: #{added.inspect}")
-          @logger.debug("  - Removed: #{removed.inspect}")
+          @logger.info("File change callback called!")
+          @logger.info("  - Modified: #{modified.inspect}")
+          @logger.info("  - Added: #{added.inspect}")
+          @logger.info("  - Removed: #{removed.inspect}")
 
           tosync = []
           paths.each do |hostpath, folders|

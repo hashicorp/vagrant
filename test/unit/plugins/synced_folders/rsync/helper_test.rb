@@ -28,6 +28,30 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
     end
   end
 
+  describe "#exclude_to_regexp" do
+    let(:path) { "/foo/bar" }
+
+    it "converts a directory match" do
+      expect(described_class.exclude_to_regexp(path, "foo/")).
+        to eq(/^#{Regexp.escape(path)}\/.*foo\//)
+    end
+
+    it "converts the start anchor" do
+      expect(described_class.exclude_to_regexp(path, "/foo")).
+        to eq(/^\/foo\/bar\/foo/)
+    end
+
+    it "converts the **" do
+      expect(described_class.exclude_to_regexp(path, "fo**o")).
+        to eq(/^#{Regexp.escape(path)}\/.*fo.*o/)
+    end
+
+    it "converts the *" do
+      expect(described_class.exclude_to_regexp(path, "fo*o")).
+        to eq(/^#{Regexp.escape(path)}\/.*fo[^\/]*o/)
+    end
+  end
+
   describe "#rsync_single" do
     let(:result) { Vagrant::Util::Subprocess::Result.new(0, "", "") }
 

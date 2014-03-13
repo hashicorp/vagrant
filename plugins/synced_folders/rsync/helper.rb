@@ -6,6 +6,31 @@ module VagrantPlugins
     # This is a helper that abstracts out the functionality of rsyncing
     # folders so that it can be called from anywhere.
     class RsyncHelper
+      # This converts an rsync exclude pattern to a regular expression
+      # we can send to Listen.
+      def self.exclude_to_regexp(path, exclude)
+        start_anchor = false
+
+        if exclude.start_with?("/")
+          start_anchor = true
+          exclude      = exclude[1..-1]
+        end
+
+        path   = "#{path}/" if !path.end_with?("/")
+        regexp = "^#{Regexp.escape(path)}"
+        regexp += ".*" if !start_anchor
+
+        # This is REALLY ghetto, but its a start. We can improve and
+        # keep unit tests passing in the future.
+        exclude = exclude.gsub("**", "|||GLOBAL|||")
+        exclude = exclude.gsub("*", "|||PATH|||")
+        exclude = exclude.gsub("|||PATH|||", "[^/]*")
+        exclude = exclude.gsub("|||GLOBAL|||", ".*")
+        regexp += exclude
+
+        Regexp.new(regexp)
+      end
+
       def self.rsync_single(machine, ssh_info, opts)
         # Folder info
         guestpath = opts[:guestpath]
