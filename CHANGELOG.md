@@ -1,4 +1,4 @@
-## 1.5.1 (unreleased)
+## 1.5.1 (March 13, 2014)
 
 IMPROVEMENTS:
 
