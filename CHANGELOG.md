@@ -22,6 +22,7 @@ BUG FIXES:
   - core: Validation on forwarded ports to make sure they're between
     0 and 65535. [GH-3187]
   - core: Downloads with user/password use the curl `-u` flag. [GH-3183]
+  - core: `vagrant help` no longer loads the Vagrantfile. [GH-3180]
   - guests/darwin: Fix an exception when configuring networks. [GH-3143]
   - hosts/linux: Unusual sed delimiter to avoid conflicts. [GH-3167]
   - providers/virtualbox: Make more internal interactions with VBoxManage

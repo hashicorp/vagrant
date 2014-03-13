@@ -31,6 +31,10 @@ argv.each do |arg|
       ENV["VAGRANT_VAGRANTFILE"] = "plugin_command_#{Time.now.to_i}"
     end
 
+    if arg == "help"
+      ENV["VAGRANT_VAGRANTFILE"] = "plugin_command_#{Time.now.to_i}"
+    end
+
     break
   end
 end
