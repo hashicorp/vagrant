@@ -21,7 +21,7 @@ module Vagrant
           "powershell",
           "-NoProfile",
           "-ExecutionPolicy", "Bypass",
-          path,
+          "'#{path}'",
           args
         ].flatten
 

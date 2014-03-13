@@ -16,6 +16,8 @@ BUG FIXES:
   - core: Asking for input works even in consoles that don't support
     hiding input. [GH-3119]
   - core: Adding a box by path in Cygwin on Windos works. [GH-3132]
+  - core: PowerShell scripts work when they're in a directory with
+    spaces. [GH-3100]
   - guests/darwin: Fix an exception when configuring networks. [GH-3143]
   - hosts/linux: Unusual sed delimiter to avoid conflicts. [GH-3167]
   - providers/virtualbox: Make more internal interactions with VBoxManage
