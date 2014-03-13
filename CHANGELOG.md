@@ -18,6 +18,7 @@ BUG FIXES:
   - core: Adding a box by path in Cygwin on Windos works. [GH-3132]
   - core: PowerShell scripts work when they're in a directory with
     spaces. [GH-3100]
+  - core: If you add a box path that doesn't exist, error earlier. [GH-3091]
   - guests/darwin: Fix an exception when configuring networks. [GH-3143]
   - hosts/linux: Unusual sed delimiter to avoid conflicts. [GH-3167]
   - providers/virtualbox: Make more internal interactions with VBoxManage

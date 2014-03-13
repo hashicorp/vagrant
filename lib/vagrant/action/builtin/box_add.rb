@@ -314,6 +314,9 @@ module Vagrant
                 box_url = download(url, env, show_url: show_url)
                 break
               rescue Errors::DownloaderError => e
+                # If we don't have multiple URLs, just raise the error
+                raise if urls.length == 1
+
                 env[:ui].error(I18n.t(
                   "vagrant.box_download_error",  message: e.message))
                 box_url = nil
