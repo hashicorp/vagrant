@@ -14,18 +14,42 @@ module VagrantPlugins
         def self.configure_networks(machine, networks)
           network_scripts_dir = machine.guest.capability("network_scripts_dir")
 
+          interface_names = Array.new
+          machine.communicate.sudo("/usr/sbin/biosdevname -d | grep Kernel | cut -f2 -d: | sed -e 's/ //;'") do |_, result|
+            interface_names = result.split("\n")
+          end
+
+          interface_name_pairs = Array.new
+          interface_names.each do |interface_name|
+            machine.communicate.sudo("/usr/sbin/biosdevname --policy=all_ethN -i #{interface_name}") do |_, result|
+              interface_name_pairs.push([interface_name, result.gsub("\n", "")])
+            end
+          end
+
+          setting_interface_names = networks.map do |network|
+             "eth#{network[:interface]}"
+          end
+
+          interface_name_pairs.each do |interface_name, previous_interface_name| 
+            if setting_interface_names.index(previous_interface_name) == nil
+              interface_names.delete(interface_name)
+            end
+          end
+
           # Accumulate the configurations to add to the interfaces file as well
           # as what interfaces we're actually configuring since we use that later.
           interfaces = Set.new
           networks.each do |network|
-            interfaces.add(network[:interface])
+            interface = interface_names[network[:interface]-1]
+            interfaces.add(interface)
+            network[:device] = interface
 
             # Remove any previous vagrant configuration in this network
             # interface's configuration files.
-            machine.communicate.sudo("touch #{network_scripts_dir}/ifcfg-p7p#{network[:interface]}")
-            machine.communicate.sudo("sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' #{network_scripts_dir}/ifcfg-p7p#{network[:interface]} > /tmp/vagrant-ifcfg-p7p#{network[:interface]}")
-            machine.communicate.sudo("cat /tmp/vagrant-ifcfg-p7p#{network[:interface]} > #{network_scripts_dir}/ifcfg-p7p#{network[:interface]}")
-            machine.communicate.sudo("rm /tmp/vagrant-ifcfg-p7p#{network[:interface]}")
+            machine.communicate.sudo("touch #{network_scripts_dir}/ifcfg-#{interface}")
+            machine.communicate.sudo("sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' #{network_scripts_dir}/ifcfg-#{interface} > /tmp/vagrant-ifcfg-#{interface}")
+            machine.communicate.sudo("cat /tmp/vagrant-ifcfg-#{interface} > #{network_scripts_dir}/ifcfg-#{interface}")
+            machine.communicate.sudo("rm /tmp/vagrant-ifcfg-#{interface}")
 
             # Render and upload the network entry file to a deterministic
             # temporary location.
@@ -37,7 +61,7 @@ module VagrantPlugins
             temp.write(entry)
             temp.close
 
-            machine.communicate.upload(temp.path, "/tmp/vagrant-network-entry_#{network[:interface]}")
+            machine.communicate.upload(temp.path, "/tmp/vagrant-network-entry_#{interface}")
           end
 
           # Bring down all the interfaces we're reconfiguring. By bringing down
@@ -45,9 +69,9 @@ module VagrantPlugins
           # SSH never dies.
           interfaces.each do |interface|
             retryable(:on => Vagrant::Errors::VagrantError, :tries => 3, :sleep => 2) do
-              machine.communicate.sudo("/sbin/ifdown p7p#{interface} 2> /dev/null", :error_check => false)
-              machine.communicate.sudo("cat /tmp/vagrant-network-entry_#{interface} >> #{network_scripts_dir}/ifcfg-p7p#{interface}")
-              machine.communicate.sudo("/sbin/ifup p7p#{interface} 2> /dev/null")
+              machine.communicate.sudo("cat /tmp/vagrant-network-entry_#{interface} >> #{network_scripts_dir}/ifcfg-#{interface}")
+              machine.communicate.sudo("/sbin/ifdown #{interface}", :error_check => true)
+              machine.communicate.sudo("/sbin/ifup #{interface}")
             end
 
             machine.communicate.sudo("rm /tmp/vagrant-network-entry_#{interface}")
