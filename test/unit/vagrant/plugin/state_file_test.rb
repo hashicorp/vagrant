@@ -35,6 +35,10 @@ describe Vagrant::Plugin::StateFile do
         "gem_version"     => "",
         "require"         => "",
         "sources"         => [],
+        "git"             => "",
+        "git-ref"         => "",
+        "git-tag"         => "",
+        "git-branch"      => "",
       })
     end
 
@@ -63,6 +67,15 @@ describe Vagrant::Plugin::StateFile do
     it "should store metadata" do
       subject.add_plugin("foo", version: "1.2.3")
       expect(subject.installed_plugins["foo"]["gem_version"]).to eql("1.2.3")
+    end
+
+    it "should add git metadata" do
+      subject.add_plugin("foo", git: "bar", git_ref: "baz", git_tag: "bom", git_branch: "zab")
+      plugin = subject.installed_plugins["foo"]
+      expect(plugin["git"]).to eql("bar")
+      expect(plugin["git-ref"]).to eql("baz")
+      expect(plugin["git-tag"]).to eql("bom")
+      expect(plugin["git-branch"]).to eql("zab")
     end
 
     describe "sources" do

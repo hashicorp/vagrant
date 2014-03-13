@@ -33,6 +33,10 @@ module VagrantPlugins
               :plugin_entry_point => options[:entry_point],
               :plugin_version     => options[:plugin_version],
               :plugin_sources     => options[:plugin_sources],
+              :plugin_git         => options[:plugin_git],
+              :plugin_git_ref     => options[:plugin_git_ref],
+              :plugin_git_tag     => options[:plugin_git_tag],
+              :plugin_git_branch  => options[:plugin_git_branch],
               :plugin_name        => name,
               :plugin_verbose     => options[:verbose]
             })

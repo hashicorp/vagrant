@@ -34,6 +34,10 @@ module Vagrant
           "gem_version"     => opts[:version] || "",
           "require"         => opts[:require] || "",
           "sources"         => opts[:sources] || [],
+          "git"             => opts[:git] || "",
+          "git-ref"         => opts[:git_ref] || "",
+          "git-tag"         => opts[:git_tag] || "",
+          "git-branch"      => opts[:git_branch] || "",
         }
 
         save!
