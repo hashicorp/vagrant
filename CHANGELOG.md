@@ -1,5 +1,9 @@
 ## 1.5.1 (unreleased)
 
+IMPROVEMENTS:
+
+  - guests/tinycore: Will now auto-install rsync.
+
 BUG FIXES:
 
   - core: V1 Vagrantfiles can upgrade provisioners properly. [GH-3092]
