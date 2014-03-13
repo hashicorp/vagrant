@@ -1,6 +1,8 @@
 ## 1.5.2 (unreleased)
 
+BUG FIXES:
 
+  - core: Vagrant won't collide with newer versions of Bundler [GH-3193]
 
 ## 1.5.1 (March 13, 2014)
 
