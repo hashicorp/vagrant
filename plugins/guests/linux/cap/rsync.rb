@@ -14,6 +14,12 @@ module VagrantPlugins
             comm.sudo("chown -R #{username} '#{folder_opts[:guestpath]}'")
           end
         end
+
+        def self.rsync_post(machine, opts)
+          machine.communicate.tap do |comm|
+            comm.sudo("chown -R #{opts[:owner]}:#{opts[:group]} '#{opts[:guestpath]}'")
+          end
+        end
       end
     end
   end

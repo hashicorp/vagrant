@@ -24,6 +24,10 @@ module VagrantPlugins
           hostpath += "/"
         end
 
+        # Folder options
+        opts[:owner] ||= ssh_info[:username]
+        opts[:group] ||= ssh_info[:username]
+
         # Connection information
         username = ssh_info[:username]
         host     = ssh_info[:host]
@@ -76,6 +80,11 @@ module VagrantPlugins
             guestpath: guestpath,
             hostpath: hostpath,
             stderr: r.stderr
+        end
+
+        # If we have tasks to do after rsyncing, do those.
+        if machine.guest.capability?(:rsync_post)
+          machine.guest.capability(:rsync_post, opts)
         end
       end
     end

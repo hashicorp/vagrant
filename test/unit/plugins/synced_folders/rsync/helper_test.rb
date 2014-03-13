@@ -122,6 +122,14 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
       subject.rsync_single(machine, ssh_info, opts)
     end
 
+    it "executes the rsync_post capability after if it exists" do
+      guest.should_receive(:capability?).with(:rsync_post).and_return(true)
+      Vagrant::Util::Subprocess.should_receive(:execute).ordered.and_return(result)
+      guest.should_receive(:capability).with(:rsync_post, opts).ordered
+
+      subject.rsync_single(machine, ssh_info, opts)
+    end
+
     context "excluding files" do
       it "excludes files if given as a string" do
         opts[:exclude] = "foo"

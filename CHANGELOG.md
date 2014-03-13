@@ -20,6 +20,7 @@ BUG FIXES:
     retryable to avoid spurious VirtualBox errors. [GH-2831]
   - provisioners/ansible: Request SSH info within the provision method,
     when we know its available. [GH-3111]
+  - synced\_folders/rsync: owner/group settings work. [GH-3163]
 
 ## 1.5.0 (March 10, 2014)
 

@@ -61,6 +61,11 @@ module VagrantPlugins
         Cap::RSync
       end
 
+      guest_capability("linux", "rsync_post") do
+        require_relative "cap/rsync"
+        Cap::RSync
+      end
+
       guest_capability("linux", "rsync_pre") do
         require_relative "cap/rsync"
         Cap::RSync
