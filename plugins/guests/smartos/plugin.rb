@@ -41,11 +41,6 @@ module VagrantPlugins
         Cap::RSync
       end
 
-      guest_capability("smartos", "rsync_install") do
-        require_relative "cap/rsync"
-        Cap::RSync
-      end
-
       guest_capability("smartos", "rsync_pre") do
         require_relative "cap/rsync"
         Cap::RSync

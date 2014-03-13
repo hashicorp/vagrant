@@ -6,7 +6,7 @@ module VagrantPlugins
           machine.communicate.test("which rsync")
         end
 
-        def self.rsync_install(machine, folder_opts)
+        def self.rsync_pre(machine, folder_opts)
           username = machine.ssh_info[:username]
           sudo = machine.config.smartos.suexec_cmd
 
@@ -14,10 +14,6 @@ module VagrantPlugins
             comm.execute("#{sudo} mkdir -p '#{folder_opts[:guestpath]}'")
             comm.execute("#{sudo} chown -R #{username} '#{folder_opts[:guestpath]}'")
           end
-        end
-
-        def self.rsync_pre(machine, folder_opts)
-          rsync_install(machine, folder_opts)
         end
       end
     end
