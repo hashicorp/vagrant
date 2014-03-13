@@ -22,6 +22,7 @@ BUG FIXES:
   - hosts/linux: Unusual sed delimiter to avoid conflicts. [GH-3167]
   - providers/virtualbox: Make more internal interactions with VBoxManage
     retryable to avoid spurious VirtualBox errors. [GH-2831]
+  - providers/virtualbox: Import progress works again on Windows.
   - provisioners/ansible: Request SSH info within the provision method,
     when we know its available. [GH-3111]
   - synced\_folders/rsync: owner/group settings work. [GH-3163]

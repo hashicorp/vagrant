@@ -203,7 +203,7 @@ module VagrantPlugins
               output << data
             elsif type == :stderr
               # Append the data so we can see the full view
-              total << data
+              total << data.gsub("\r", "")
 
               # Break up the lines. We can't get the progress until we see an "OK"
               lines = total.split("\n")
