@@ -7,6 +7,13 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
 
   let(:machine) { double("machine") }
 
+  def assert_invalid
+    errors = subject.validate(machine)
+    if !errors.values.any? { |v| !v.empty? }
+      raise "No errors: #{errors.inspect}"
+    end
+  end
+
   def assert_valid
     errors = subject.validate(machine)
     if !errors.values.all? { |v| v.empty? }
@@ -124,6 +131,20 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       expect(n).to_not be_nil
       expect(n[1][:guest]).to eq(45)
       expect(n[1][:host]).to eq(4545)
+    end
+
+    it "is an error if forwarding a port too low" do
+      subject.network "forwarded_port",
+        guest: "45", host: "-5"
+      subject.finalize!
+      assert_invalid
+    end
+
+    it "is an error if forwarding a port too high" do
+      subject.network "forwarded_port",
+        guest: "45", host: "74545"
+      subject.finalize!
+      assert_invalid
     end
   end
 

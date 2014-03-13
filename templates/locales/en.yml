@@ -1082,6 +1082,8 @@ en:
           properly, try changing this IP.
         network_ip_required: |-
           An IP is required for a private network.
+        network_fp_invalid_port: |-
+          Ports to forward must be 1 to 65535
         network_fp_host_not_unique: |-
           Forwarded port '%{host}' (host port) is declared multiple times
           with the protocol '%{protocol}'.

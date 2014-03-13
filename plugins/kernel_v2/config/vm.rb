@@ -548,6 +548,7 @@ module VagrantPlugins
         fp_used = Set.new
         valid_network_types = [:forwarded_port, :private_network, :public_network]
 
+        port_range=(1..65535)
         networks.each do |type, options|
           if !valid_network_types.include?(type)
             errors << I18n.t("vagrant.config.vm.network_type_invalid",
@@ -569,6 +570,10 @@ module VagrantPlugins
               end
 
               fp_used.add(key)
+            end
+
+            if !port_range.include?(options[:host]) || !port_range.include?(options[:guest])
+              errors << I18n.t("vagrant.config.vm.network_fp_invalid_port")
             end
           end
 
