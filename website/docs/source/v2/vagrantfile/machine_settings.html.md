@@ -72,10 +72,9 @@ This can also be an array of multiple URLs. The URLs will be tried in
 order. Note that any client certificates, insecure download settings, and
 so on will apply to all URLs in this list.
 
-`config.vm.box_url` can point to local files:
-```
-file:///tmp/test.box
-```
+The URLs can also be local files by using the `file://` scheme. For
+example: "file:///tmp/test.box".
+
 <hr>
 
 `config.vm.box_version` - The version of the box to use. This defaults to
