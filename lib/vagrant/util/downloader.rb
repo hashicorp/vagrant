@@ -1,3 +1,5 @@
+require "uri"
+
 require "log4r"
 
 require "vagrant/util/busy"
@@ -18,12 +20,28 @@ module Vagrant
       attr_reader :destination
 
       def initialize(source, destination, options=nil)
+        options     ||= {}
+
         @logger      = Log4r::Logger.new("vagrant::util::downloader")
         @source      = source.to_s
         @destination = destination.to_s
 
+        begin
+          url = URI.parse(@source)
+          if url.scheme && url.scheme.start_with?("http") && url.user
+            auth = "#{url.user}"
+            auth += ":#{url.password}" if url.password
+            url.user = nil
+            url.password = nil
+            options[:auth] ||= auth
+            @source = url.to_s
+          end
+        rescue URI::InvalidURIError
+          # Ignore, since its clearly not HTTP
+        end
+
         # Get the various optional values
-        options     ||= {}
+        @auth        = options[:auth]
         @ca_cert     = options[:ca_cert]
         @continue    = options[:continue]
         @headers     = options[:headers]
@@ -180,6 +198,7 @@ module Vagrant
         options += ["--continue-at", "-"] if @continue
         options << "--insecure" if @insecure
         options << "--cert" << @client_cert if @client_cert
+        options << "-u" << @auth if @auth
 
         if @headers
           Array(@headers).each do |header|
