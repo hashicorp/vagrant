@@ -57,7 +57,7 @@ boxes.
 
 Provider-specific guides are linked below:
 
-* [VirtualBox Base Boxes](/v2/virtualbox/boxes.html)
+* [VirtualBox Base Boxes](/website/docs/source/v2/virtualbox/boxes.html.md)
 
 ### Disk Space
 
