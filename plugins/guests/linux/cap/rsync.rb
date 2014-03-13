@@ -11,14 +11,14 @@ module VagrantPlugins
 
           machine.communicate.tap do |comm|
             comm.sudo("mkdir -p '#{opts[:guestpath]}'")
-            comm.sudo("find '#{opts[:guestpath]}' ! -user vagrant -print0 | " +
+            comm.sudo("find '#{opts[:guestpath]}' ! -user #{username} -print0 | " +
               "xargs -0 -r chown -v #{username}:")
           end
         end
 
         def self.rsync_post(machine, opts)
           machine.communicate.tap do |comm|
-            comm.sudo("find '#{opts[:guestpath]}' ! -user vagrant -print0 | " +
+            comm.sudo("find '#{opts[:guestpath]}' ! -user #{username} -print0 | " +
               "xargs -0 -r chown -v #{opts[:owner]}:#{opts[:group]}")
           end
         end
