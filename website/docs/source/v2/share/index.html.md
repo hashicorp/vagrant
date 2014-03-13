@@ -34,4 +34,4 @@ to the left. We also have a section where we go into detail about the
 security implications of this feature.
 
 Vagrant Share requires an account with
-[Vagrant Cloud](http://www.vagrantcloud.com) to be used.
+[Vagrant Cloud](https://vagrantcloud.com) to be used.

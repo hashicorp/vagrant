@@ -18,7 +18,7 @@ environment from any device in the world that is connected to the internet.
 ## Login to Vagrant Cloud
 
 Before being able to share your Vagrant environment, you'll need an account on
-[Vagrant Cloud](http://www.vagrantcloud.com). Don't worry, it's free.
+[Vagrant Cloud](https://vagrantcloud.com). Don't worry, it's free.
 
 Once you have an account, log in using `vagrant login`:
 
