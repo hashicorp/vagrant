@@ -79,7 +79,7 @@ module VagrantPlugins
       def bootstrap_options(install, configure, config_dir)
         options = ""
 
-        ## Any extra options passed to bootstrap
+        # Any extra options passed to bootstrap
         if @config.bootstrap_options
           options = "%s %s" % [options, @config.bootstrap_options]
         end
@@ -88,7 +88,7 @@ module VagrantPlugins
           options = "%s -c %s" % [options, config_dir]
         end
 
-        if @config.seed_master and @config.install_master
+        if @config.seed_master && @config.install_master
           seed_dir = "/tmp/minion-seed-keys"
           @machine.communicate.sudo("mkdir -p -m777 #{seed_dir}")
           @config.seed_master.each do |name, keyfile|
@@ -99,15 +99,12 @@ module VagrantPlugins
           options = "#{options} -k #{seed_dir}"
         end
 
-        if configure and !install
+        if configure && !install
           options = "%s -C" % options
         else
-
           if @config.install_master
             options = "%s -M" % options
           end
-
-
 
           if @config.install_syndic
             options = "%s -S" % options
