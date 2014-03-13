@@ -38,7 +38,7 @@ providers from a single file, and more.
 
 <div class="alert alert-block alert-info">
 <strong>You don't need to manually make the metadata.</strong> If you
-have an account with <a href="http://www.vagrantcloud.com">Vagrant Cloud</a>, you
+have an account with <a href="https://vagrantcloud.com">Vagrant Cloud</a>, you
 can create boxes there, and Vagrant Cloud automatically creates
 the metadata for you. The format is still documented here.
 </div>

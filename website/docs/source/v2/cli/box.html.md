@@ -26,10 +26,10 @@ This adds a box with the given address to Vagrant. The address can be
 one of three things:
 
 * A shorthand name from the
-[public catalog of available Vagrant images](http://www.vagrantcloud.com),
+[public catalog of available Vagrant images](https://vagrantcloud.com),
 such as "hashicorp/precise64".
 
-* File path or HTTP URL to a box in a [catalog](http://www.vagrantcloud.com).
+* File path or HTTP URL to a box in a [catalog](https://vagrantcloud.com).
 For HTTP, basic authentication is supported and `http_proxy` environmental
 variables are respected. HTTPS is also supported.
 
