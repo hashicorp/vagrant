@@ -24,6 +24,7 @@ Gem::Specification.new do |s|
   s.add_dependency "net-scp", "~> 1.1.0"
   s.add_dependency "rb-kqueue", "~> 0.2.0"
   s.add_dependency "wdm", "~> 0.1.0"
+  s.add_dependency "winrm", "~> 1.1.3"
 
   s.add_development_dependency "rake"
   s.add_development_dependency "contest", ">= 0.1.2"
