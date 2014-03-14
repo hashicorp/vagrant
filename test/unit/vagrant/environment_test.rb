@@ -558,6 +558,29 @@ VF
     end
   end
 
+  describe "#machine_index" do
+    it "returns a machine index" do
+      expect(subject.machine_index).to be_kind_of(Vagrant::MachineIndex)
+    end
+
+    it "caches the result" do
+      result = subject.machine_index
+      expect(subject.machine_index).to equal(result)
+    end
+
+    it "uses a directory within the home directory by default" do
+      klass = double("machine_index")
+      stub_const("Vagrant::MachineIndex", klass)
+
+      klass.should_receive(:new).with do |path|
+        expect(path.to_s.start_with?(subject.home_path.to_s)).to be_true
+        true
+      end
+
+      subject.machine_index
+    end
+  end
+
   describe "active machines" do
     it "should be empty if the machines folder doesn't exist" do
       folder = instance.local_data_path.join("machines")
