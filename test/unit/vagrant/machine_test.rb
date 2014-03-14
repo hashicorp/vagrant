@@ -339,6 +339,33 @@ describe Vagrant::Machine do
     end
   end
 
+  describe "#index_uuid" do
+    before(:each) do
+      allow(provider).to receive(:machine_id_changed)
+    end
+
+    it "should not have an index UUID by default" do
+      expect(subject.index_uuid).to be_nil
+    end
+
+    it "is set one when setting an ID" do
+      subject.id = "foo"
+
+      uuid = subject.index_uuid
+      expect(uuid).to_not be_nil
+      expect(new_instance.index_uuid).to eq(uuid)
+    end
+
+    it "deletes the UUID when setting to nil" do
+      subject.id = "foo"
+      uuid = subject.index_uuid
+
+      subject.id = nil
+      expect(subject.index_uuid).to be_nil
+      expect(env.machine_index.get(uuid)).to be_nil
+    end
+  end
+
   describe "ssh info" do
     describe "with the provider returning nil" do
       it "should return nil if the provider returns nil" do
