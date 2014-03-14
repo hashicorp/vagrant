@@ -125,6 +125,17 @@ en:
       description of what they do.
 
       %{list}
+    global_status_footer: |-
+      The above shows information about all known Vagrant environments
+      on this machine. This data is cached and may not be completely
+      up-to-date. To interact with any of the machines, you can go to
+      that directory and run Vagrant, or you can use the ID directly
+      with Vagrant commands from any directory. For example:
+      "vagrant destroy 1a2b3c4d"
+    global_status_none: |-
+      There are no active Vagrant environments on this computer! Or,
+      you haven't destroyed and recreated Vagrant environments that were
+      started with an older version of Vagrant.
     plugin_needs_reinstall: |-
       The following plugins were installed with a version of Vagrant
       that had different versions of underlying components. Because
