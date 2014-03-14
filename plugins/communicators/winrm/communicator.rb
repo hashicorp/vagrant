@@ -19,11 +19,11 @@ module VagrantPlugins
         @logger  = Log4r::Logger.new("vagrant::communication::winrm")
         @shell   = nil
 
-        @logger.debug("Initializing WinRMCommunicator")
+        @logger.info("Initializing WinRMCommunicator")
       end
 
       def ready?
-        @logger.debug("Checking whether WinRM is ready...")
+        @logger.info("Checking whether WinRM is ready...")
 
         Timeout.timeout(@machine.config.winrm.timeout) do
           shell.powershell("hostname")
@@ -97,7 +97,38 @@ module VagrantPlugins
 
         host_port = @machine.config.winrm.port
         if @machine.config.winrm.guest_port
-          # TODO: search by guest port
+          @logger.debug("Searching for WinRM host port to match: " +
+            @machine.config.winrm.guest_port.to_s)
+
+          # Search by guest port if we can. We use a provider capability
+          # if we have it. Otherwise, we just scan the Vagrantfile defined
+          # ports.
+          port = nil
+          if @machine.provider.capability?(:forwarded_ports)
+            @machine.provider.capability(:forwarded_ports).each do |host, guest|
+              if guest == @machine.config.winrm.guest_port
+                port = host
+                break
+              end
+            end
+          end
+
+          if !port
+            machine.config.vm.networks.each do |type, netopts|
+              next if type != :forwarded_port
+              next if !netopts[:host]
+              if netopts[:guest] == @machine.config.winrm.guest_port
+                port = netopts[:host]
+                break
+              end
+            end
+          end
+
+          # Set it if we found it
+          if port
+            @logger.debug("Found forwarded port: #{host_port}")
+            host_port = port
+          end
         end
 
         WinRMShell.new(
@@ -114,7 +145,9 @@ module VagrantPlugins
         if shell.eql? :cmd
           shell.cmd(command, &block)[:exitcode]
         else
-          command = VagrantWindows.load_script("command_alias.ps1") << "\r\n" << command << "\r\nexit $LASTEXITCODE"
+          script  = File.expand_path("../scripts/command_alias.ps1", __FILE__)
+          script  = File.read(script)
+          command = script << "\r\n" << command << "\r\nexit $LASTEXITCODE"
           shell.powershell(command, &block)[:exitcode]
         end
       end
