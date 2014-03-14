@@ -12,7 +12,7 @@ module VagrantPlugins
           @env = env
 
           raise Vagrant::Errors::VMPowerOffToPackage if \
-            @env[:machine].provider.state.id != :poweroff
+            @env[:machine].state.id != :poweroff
 
           export
 

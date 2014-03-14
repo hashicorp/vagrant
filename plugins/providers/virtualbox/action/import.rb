@@ -33,7 +33,7 @@ module VagrantPlugins
         end
 
         def recover(env)
-          if env[:machine].provider.state.id != :not_created
+          if env[:machine].state.id != :not_created
             return if env["vagrant.error"].is_a?(Vagrant::Errors::VagrantError)
 
             # If we're not supposed to destroy on error then just return
