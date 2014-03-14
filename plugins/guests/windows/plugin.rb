@@ -2,6 +2,8 @@ require "vagrant"
 
 module VagrantPlugins
   module GuestWindows
+    autoload :Errors, File.expand_path("../errors", __FILE__)
+
     class Plugin < Vagrant.plugin("2")
       name "Windows guest."
       description "Windows guest support."
@@ -13,6 +15,7 @@ module VagrantPlugins
 
       guest("windows")  do
         require_relative "guest"
+        init!
         Guest
       end
 
@@ -44,6 +47,16 @@ module VagrantPlugins
       guest_capability(:windows, :mount_parallels_shared_folder) do
         require_relative "cap/mount_shared_folder"
         Cap::MountSharedFolder
+      end
+
+      protected
+
+      def self.init!
+        return if defined?(@_init)
+        I18n.load_path << File.expand_path(
+          "templates/locales/guest_windows.yml", Vagrant.source_root)
+        I18n.reload!
+        @_init = true
       end
     end
   end
