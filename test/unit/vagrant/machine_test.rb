@@ -502,7 +502,7 @@ describe Vagrant::Machine do
     end
   end
 
-  describe "state" do
+  describe "#state" do
     it "should query state from the provider" do
       state = Vagrant::MachineState.new(:id, "short", "long")
 
@@ -514,6 +514,21 @@ describe Vagrant::Machine do
       expect(provider).to receive(:state).and_return(:old_school)
       expect { instance.state }.
         to raise_error(Vagrant::Errors::MachineStateInvalid)
+    end
+
+    it "should save the state with the index" do
+      allow(provider).to receive(:machine_id_changed)
+      subject.id = "foo"
+
+      state = Vagrant::MachineState.new(:id, "short", "long")
+      expect(provider).to receive(:state).and_return(state)
+
+      subject.state
+
+      entry = env.machine_index.get(subject.index_uuid)
+      expect(entry).to_not be_nil
+      expect(entry.state).to eq("short")
+      env.machine_index.release(entry)
     end
   end
 
