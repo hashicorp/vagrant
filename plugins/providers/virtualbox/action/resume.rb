@@ -7,7 +7,7 @@ module VagrantPlugins
         end
 
         def call(env)
-          current_state = env[:machine].provider.state.id
+          current_state = env[:machine].state.id
 
           if current_state == :paused
             env[:ui].info I18n.t("vagrant.actions.vm.resume.unpausing")
