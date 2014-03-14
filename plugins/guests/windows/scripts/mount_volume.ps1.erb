@@ -1,0 +1,48 @@
+function Test-ReparsePoint([string]$path) {
+  $file = Get-Item $path -Force -ea 0
+  return [bool]($file.Attributes -band [IO.FileAttributes]::ReparsePoint)
+}
+
+$MountPoint = [System.IO.Path]::GetFullPath("<%= options[:mount_point] %>")
+$ShareName = "<%= options[:share_name] %>"
+$VmProviderUncPath = "<%= options[:vm_provider_unc_path] %>"
+
+# https://github.com/BIAINC/vagrant-windows/issues/4
+# Not sure why this works, but it does.
+
+& net use $ShareName 2>&1 | Out-Null
+
+Write-Debug "Attempting to mount $ShareName to $MountPoint"
+if( (Test-Path "$MountPoint") -and (Test-ReparsePoint "$MountPoint") )
+{
+  Write-Debug "Junction already exists, so I will delete it"
+  # Powershell refuses to delete junctions, oh well use cmd
+  cmd /c rd "$MountPoint"
+
+  if ( $LASTEXITCODE -ne 0 )
+  {
+    Write-Error "Failed to delete symbolic link at $MountPoint"
+    exit 1
+  }
+
+}
+elseif(Test-Path $MountPoint)
+{
+  Write-Debug "Mount point already exists and is not a symbolic link"
+  exit 1
+}
+
+$BaseDirectory = [System.IO.Path]::GetDirectoryName($MountPoint)
+
+if (-not (Test-Path $BaseDirectory))
+{
+  Write-Debug "Creating parent directory for mount point $BaseDirectory"
+  New-Item $BaseDirectory -Type Directory -Force | Out-Null
+}
+
+cmd /c mklink /D "$MountPoint" "$VmProviderUncPath" | out-null
+
+if ( $LASTEXITCODE -ne 0 )
+{
+  exit 1
+}
