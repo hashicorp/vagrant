@@ -2,6 +2,7 @@ require "timeout"
 
 require "log4r"
 
+require_relative "helper"
 require_relative "shell"
 
 module VagrantPlugins
@@ -88,48 +89,8 @@ module VagrantPlugins
       # This creates anew WinRMShell based on the information we know
       # about this machine.
       def create_shell
-        host_address = @machine.config.winrm.host
-        if !host_address
-          ssh_info = @machine.ssh_info
-          raise Errors::WinRMNotReady if !ssh_info
-          host_address = ssh_info[:host]
-        end
-
-        host_port = @machine.config.winrm.port
-        if @machine.config.winrm.guest_port
-          @logger.debug("Searching for WinRM host port to match: " +
-            @machine.config.winrm.guest_port.to_s)
-
-          # Search by guest port if we can. We use a provider capability
-          # if we have it. Otherwise, we just scan the Vagrantfile defined
-          # ports.
-          port = nil
-          if @machine.provider.capability?(:forwarded_ports)
-            @machine.provider.capability(:forwarded_ports).each do |host, guest|
-              if guest == @machine.config.winrm.guest_port
-                port = host
-                break
-              end
-            end
-          end
-
-          if !port
-            machine.config.vm.networks.each do |type, netopts|
-              next if type != :forwarded_port
-              next if !netopts[:host]
-              if netopts[:guest] == @machine.config.winrm.guest_port
-                port = netopts[:host]
-                break
-              end
-            end
-          end
-
-          # Set it if we found it
-          if port
-            @logger.debug("Found forwarded port: #{host_port}")
-            host_port = port
-          end
-        end
+        host_address = Helper.winrm_address(@machine)
+        host_port    = Helper.winrm_port(@machine)
 
         WinRMShell.new(
           host_address,
