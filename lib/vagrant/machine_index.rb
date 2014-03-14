@@ -34,6 +34,8 @@ module Vagrant
   #   }
   #
   class MachineIndex
+    include Enumerable
+
     # Initializes a MachineIndex at the given file location.
     #
     # @param [Pathname] data_dir Path to the directory where data for the
@@ -80,6 +82,15 @@ module Vagrant
       end
 
       true
+    end
+
+    # Iterate over every machine in the index. The yielded {Entry} objects
+    # will NOT be locked, so you'll have to call {#get} manually to acquire
+    # the lock on them.
+    def each
+      @machines.each do |uuid, data|
+        yield Entry.new(uuid, data.merge("id" => uuid))
+      end
     end
 
     # Accesses a machine by UUID and returns a {MachineIndex::Entry}
