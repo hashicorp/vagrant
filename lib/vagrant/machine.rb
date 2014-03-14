@@ -378,6 +378,19 @@ module Vagrant
     def state
       result = @provider.state
       raise Errors::MachineStateInvalid if !result.is_a?(MachineState)
+
+      # Update our state cache if we have a UUID and an entry in the
+      # master index.
+      uuid = index_uuid
+      if uuid
+        entry = @env.machine_index.get(uuid)
+        if entry
+          entry.state = result.short_description
+          @env.machine_index.set(entry)
+          @env.machine_index.release(entry)
+        end
+      end
+
       result
     end
 
