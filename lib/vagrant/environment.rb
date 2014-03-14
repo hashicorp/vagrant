@@ -121,6 +121,7 @@ module Vagrant
       @data_dir   = @home_path.join("data")
       @gems_path  = @home_path.join("gems")
       @tmp_path   = @home_path.join("tmp")
+      @machine_index_dir = @data_dir.join("machine-index")
 
       # Prepare the directories
       setup_home_path
@@ -417,6 +418,13 @@ module Vagrant
         name, provider, boxes, machine_data_path, self)
     end
 
+    # The {MachineIndex} to store information about the machines.
+    #
+    # @return [MachineIndex]
+    def machine_index
+      @machine_index ||= MachineIndex.new(@machine_index_dir)
+    end
+
     # This returns a list of the configured machines for this environment.
     # Each of the names returned by this method is valid to be used with
     # the {#machine} method.
@@ -508,9 +516,15 @@ module Vagrant
 
       # Setup the list of child directories that need to be created if they
       # don't already exist.
-      dirs    = [@home_path]
-      subdirs = ["boxes", "data", "gems", "rgloader", "tmp"]
-      dirs    += subdirs.collect { |subdir| @home_path.join(subdir) }
+      dirs    = [
+        @home_path,
+        @home_path.join("rgloader"),
+        @boxes_path,
+        @data_dir,
+        @gems_path,
+        @tmp_path,
+        @machine_index_dir,
+      ]
 
       # Go through each required directory, creating it if it doesn't exist
       dirs.each do |dir|
