@@ -13,8 +13,8 @@ describe Vagrant::Action::Builtin::Message do
     it "outputs the given message" do
       subject = described_class.new(app, env, "foo")
 
-      ui.should_receive(:output).with("foo")
-      app.should_receive(:call).with(env)
+      expect(ui).to receive(:output).with("foo")
+      expect(app).to receive(:call).with(env)
 
       subject.call(env)
     end

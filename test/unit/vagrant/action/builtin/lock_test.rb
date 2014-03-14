@@ -42,7 +42,7 @@ describe Vagrant::Action::Builtin::Lock do
     instance = described_class.new(app, env, options)
     instance.call(env)
 
-    inner_acquire.should == false
+    expect(inner_acquire).to eq(false)
   end
 
   it "should allow the exception to be a proc" do
@@ -51,7 +51,7 @@ describe Vagrant::Action::Builtin::Lock do
 
     File.open(lock_path, "w+") do |f|
       # Acquire lock
-      f.flock(File::LOCK_EX | File::LOCK_NB).should == 0
+      expect(f.flock(File::LOCK_EX | File::LOCK_NB)).to eq(0)
 
       # Test!
       instance = described_class.new(app, env, options)
@@ -71,13 +71,13 @@ describe Vagrant::Action::Builtin::Lock do
     instance = described_class.new(app, env, options)
     instance.call(env)
 
-    inner_acquire.should == false
+    expect(inner_acquire).to eq(false)
   end
 
   it "should raise an exception if the lock is already held" do
     File.open(lock_path, "w+") do |f|
       # Acquire lock
-      f.flock(File::LOCK_EX | File::LOCK_NB).should == 0
+      expect(f.flock(File::LOCK_EX | File::LOCK_NB)).to eq(0)
 
       # Test!
       instance = described_class.new(app, env, options)
@@ -93,6 +93,6 @@ describe Vagrant::Action::Builtin::Lock do
     outer = described_class.new(inner, env, options)
     outer.call(env)
 
-    called.should == true
+    expect(called).to eq(true)
   end
 end

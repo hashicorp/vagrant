@@ -21,20 +21,20 @@ describe Vagrant::Plugin::V1::Command do
       result = klass.new(["-f", "foo"], nil).parse_options(opts)
 
       # Check the results
-      options[:f].should be
-      result.should == ["foo"]
+      expect(options[:f]).to be
+      expect(result).to eq(["foo"])
     end
 
     it "creates an option parser if none is given" do
       result = klass.new(["foo"], nil).parse_options(nil)
-      result.should == ["foo"]
+      expect(result).to eq(["foo"])
     end
 
     ["-h", "--help"].each do |help_string|
       it "returns nil and prints the help if '#{help_string}' is given" do
         instance = klass.new([help_string], nil)
-        instance.should_receive(:safe_puts)
-        instance.parse_options(OptionParser.new).should be_nil
+        expect(instance).to receive(:safe_puts)
+        expect(instance.parse_options(OptionParser.new)).to be_nil
       end
     end
 
@@ -70,10 +70,10 @@ describe Vagrant::Plugin::V1::Command do
 
     it "should yield every VM in order is no name is given" do
       foo_vm = double("foo")
-      foo_vm.stub(:name).and_return("foo")
+      allow(foo_vm).to receive(:name).and_return("foo")
 
       bar_vm = double("bar")
-      bar_vm.stub(:name).and_return("bar")
+      allow(bar_vm).to receive(:name).and_return("bar")
 
       environment.stub(:multivm? => true,
                        :vms => { "foo" => foo_vm, "bar" => bar_vm },
@@ -84,7 +84,7 @@ describe Vagrant::Plugin::V1::Command do
         vms << vm
       end
 
-      vms.should == [foo_vm, bar_vm]
+      expect(vms).to eq([foo_vm, bar_vm])
     end
 
     it "raises an exception if the named VM doesn't exist" do
@@ -96,14 +96,14 @@ describe Vagrant::Plugin::V1::Command do
 
     it "yields the given VM if a name is given" do
       foo_vm = double("foo")
-      foo_vm.stub(:name).and_return(:foo)
+      allow(foo_vm).to receive(:name).and_return(:foo)
 
       environment.stub(:multivm? => true,
                        :vms => { :foo => foo_vm, :bar => nil })
 
       vms = []
       instance.with_target_vms("foo") { |vm| vms << vm }
-      vms.should == [foo_vm]
+      expect(vms).to eq([foo_vm])
     end
   end
 
@@ -117,27 +117,27 @@ describe Vagrant::Plugin::V1::Command do
 
     it "should work when given all 3 parts" do
       result = instance.split_main_and_subcommand(["-v", "status", "-h", "-v"])
-      result.should == [["-v"], "status", ["-h", "-v"]]
+      expect(result).to eq([["-v"], "status", ["-h", "-v"]])
     end
 
     it "should work when given only a subcommand and args" do
       result = instance.split_main_and_subcommand(["status", "-h"])
-      result.should == [[], "status", ["-h"]]
+      expect(result).to eq([[], "status", ["-h"]])
     end
 
     it "should work when given only main flags" do
       result = instance.split_main_and_subcommand(["-v", "-h"])
-      result.should == [["-v", "-h"], nil, []]
+      expect(result).to eq([["-v", "-h"], nil, []])
     end
 
     it "should work when given only a subcommand" do
       result = instance.split_main_and_subcommand(["status"])
-      result.should == [[], "status", []]
+      expect(result).to eq([[], "status", []])
     end
 
     it "works when there are other non-flag args after the subcommand" do
       result = instance.split_main_and_subcommand(["-v", "box", "add", "-h"])
-      result.should == [["-v"], "box", ["add", "-h"]]
+      expect(result).to eq([["-v"], "box", ["add", "-h"]])
     end
   end
 end

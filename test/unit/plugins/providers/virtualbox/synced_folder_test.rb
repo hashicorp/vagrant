@@ -14,12 +14,12 @@ describe VagrantPlugins::ProviderVirtualBox::SyncedFolder do
   describe "usable" do
     it "should be with virtualbox provider" do
       machine.stub(provider_name: :virtualbox)
-      subject.should be_usable(machine)
+      expect(subject).to be_usable(machine)
     end
 
     it "should not be with another provider" do
       machine.stub(provider_name: :vmware_fusion)
-      subject.should_not be_usable(machine)
+      expect(subject).not_to be_usable(machine)
     end
   end
 

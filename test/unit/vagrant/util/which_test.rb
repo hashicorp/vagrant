@@ -23,21 +23,21 @@ describe Vagrant::Util::Which do
 
   it "should return a path for an executable file" do
     tester '.bat', '.bat', 0755 do |name|
-      described_class.which(name).should_not be_nil
+      expect(described_class.which(name)).not_to be_nil
     end
   end
 
   if Vagrant::Util::Platform.windows?
     it "should return a path for a Windows executable file" do
       tester '.bat', '', 0755 do |name|
-        described_class.which(name).should_not be_nil
+        expect(described_class.which(name)).not_to be_nil
       end
     end
   end
 
   it "should return nil for a non-executable file" do
     tester '.txt', '.txt', 0644 do |name|
-      described_class.which(name).should be_nil
+      expect(described_class.which(name)).to be_nil
     end
   end
 end

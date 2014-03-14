@@ -12,7 +12,7 @@ describe Vagrant::Plugin::V1::Plugin do
       name "foo"
     end
 
-    plugin.name.should == "foo"
+    expect(plugin.name).to eq("foo")
   end
 
   it "should be able to set and get the description" do
@@ -20,7 +20,7 @@ describe Vagrant::Plugin::V1::Plugin do
       description "bar"
     end
 
-    plugin.description.should == "bar"
+    expect(plugin.description).to eq("bar")
   end
 
   describe "action hooks" do
@@ -30,8 +30,8 @@ describe Vagrant::Plugin::V1::Plugin do
       end
 
       hooks = plugin.action_hook("foo")
-      hooks.length.should == 1
-      hooks[0].call.should == "bar"
+      expect(hooks.length).to eq(1)
+      expect(hooks[0].call).to eq("bar")
     end
   end
 
@@ -41,7 +41,7 @@ describe Vagrant::Plugin::V1::Plugin do
         command("foo") { "bar" }
       end
 
-      plugin.command[:foo].should == "bar"
+      expect(plugin.command[:foo]).to eq("bar")
     end
 
     ["spaces bad", "sym^bols"].each do |bad|
@@ -78,7 +78,7 @@ describe Vagrant::Plugin::V1::Plugin do
         communicator("foo") { "bar" }
       end
 
-      plugin.communicator[:foo].should == "bar"
+      expect(plugin.communicator[:foo]).to eq("bar")
     end
 
     it "should lazily register communicator classes" do
@@ -106,7 +106,7 @@ describe Vagrant::Plugin::V1::Plugin do
         config("foo") { "bar" }
       end
 
-      plugin.config[:foo].should == "bar"
+      expect(plugin.config[:foo]).to eq("bar")
     end
 
     it "should lazily register configuration classes" do
@@ -134,7 +134,7 @@ describe Vagrant::Plugin::V1::Plugin do
         guest("foo") { "bar" }
       end
 
-      plugin.guest[:foo].should == "bar"
+      expect(plugin.guest[:foo]).to eq("bar")
     end
 
     it "should lazily register guest classes" do
@@ -162,7 +162,7 @@ describe Vagrant::Plugin::V1::Plugin do
         host("foo") { "bar" }
       end
 
-      plugin.host[:foo].should == "bar"
+      expect(plugin.host[:foo]).to eq("bar")
     end
 
     it "should lazily register host classes" do
@@ -190,7 +190,7 @@ describe Vagrant::Plugin::V1::Plugin do
         provider("foo") { "bar" }
       end
 
-      plugin.provider[:foo].should == "bar"
+      expect(plugin.provider[:foo]).to eq("bar")
     end
 
     it "should lazily register provider classes" do
@@ -218,7 +218,7 @@ describe Vagrant::Plugin::V1::Plugin do
         provisioner("foo") { "bar" }
       end
 
-      plugin.provisioner[:foo].should == "bar"
+      expect(plugin.provisioner[:foo]).to eq("bar")
     end
 
     it "should lazily register provisioner classes" do
@@ -244,7 +244,7 @@ describe Vagrant::Plugin::V1::Plugin do
     let(:manager) { described_class.manager }
 
     it "should have no registered plugins" do
-      manager.registered.should be_empty
+      expect(manager.registered).to be_empty
     end
 
     it "should register a plugin when a name is set" do
@@ -252,7 +252,7 @@ describe Vagrant::Plugin::V1::Plugin do
         name "foo"
       end
 
-      manager.registered.should == [plugin]
+      expect(manager.registered).to eq([plugin])
     end
 
     it "should register a plugin only once" do
@@ -261,7 +261,7 @@ describe Vagrant::Plugin::V1::Plugin do
         name "bar"
       end
 
-      manager.registered.should == [plugin]
+      expect(manager.registered).to eq([plugin])
     end
   end
 end

@@ -9,7 +9,7 @@ describe "VagrantPlugins::GuestRedHat::Cap::ChangeHostName" do
   let(:communicator) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
 
   before do
-    machine.stub(:communicate).and_return(communicator)
+    allow(machine).to receive(:communicate).and_return(communicator)
     communicator.stub_command('hostname -f', stdout: old_hostname)
     communicator.expect_command('hostname -f')
   end
@@ -61,7 +61,7 @@ describe "VagrantPlugins::GuestRedHat::Cap::ChangeHostName" do
 
     it "does more even when the provided hostname is not different" do
       described_class.change_host_name(machine, old_hostname)
-      communicator.received_commands.to_set.should_not == communicator.expected_commands.keys.to_set
+      expect(communicator.received_commands.to_set).not_to eq(communicator.expected_commands.keys.to_set)
     end
   end
 end

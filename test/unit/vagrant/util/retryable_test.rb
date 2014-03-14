@@ -22,7 +22,7 @@ describe Vagrant::Util::Retryable do
       to raise_error(RuntimeError)
 
     # It should've tried once
-    tries.should == 1
+    expect(tries).to eq(1)
   end
 
   it "retries the set number of times" do
@@ -38,7 +38,7 @@ describe Vagrant::Util::Retryable do
       to raise_error(RuntimeError)
 
     # It should've tried all specified times
-    tries.should == 5
+    expect(tries).to eq(5)
   end
 
   it "only retries on the given exception" do
@@ -54,7 +54,7 @@ describe Vagrant::Util::Retryable do
       to raise_error(StandardError)
 
     # It should've never tried since it was a different kind of error
-    tries.should == 1
+    expect(tries).to eq(1)
   end
 
   it "can retry on multiple types of errors" do
@@ -75,7 +75,7 @@ describe Vagrant::Util::Retryable do
       to raise_error(RuntimeError)
 
     # It should've never tried since it was a different kind of error
-    tries.should == 3
+    expect(tries).to eq(3)
   end
 
   it "doesn't sleep between tries by default" do
@@ -84,7 +84,7 @@ describe Vagrant::Util::Retryable do
     end
 
     # Sleep should never be called
-    klass.should_not_receive(:sleep)
+    expect(klass).not_to receive(:sleep)
 
     # Run it.
     expect { klass.retryable(:tries => 5, &block) }.
@@ -97,7 +97,7 @@ describe Vagrant::Util::Retryable do
     end
 
     # Sleep should be called between each retry
-    klass.should_receive(:sleep).with(10).exactly(4).times
+    expect(klass).to receive(:sleep).with(10).exactly(4).times
 
     # Run it.
     expect { klass.retryable(:tries => 5, :sleep => 10, &block) }.

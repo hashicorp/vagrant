@@ -11,7 +11,7 @@ shared_examples "a debian-like host name change" do
 
   it "does nothing when the provided hostname is not different" do
     described_class.change_host_name(machine, 'oldhostname.olddomain.tld')
-    communicator.received_commands.should == ['hostname -f']
+    expect(communicator.received_commands).to eq(['hostname -f'])
   end
 
   describe "flipping out the old hostname in /etc/hosts" do
@@ -36,7 +36,7 @@ shared_examples "a debian-like host name change" do
 
       modified_etc_hosts = original_etc_hosts.gsub(search, replace)
 
-      modified_etc_hosts.should == <<-RESULT.gsub(/^ */, '')
+      expect(modified_etc_hosts).to eq <<-RESULT.gsub(/^ */, '')
         127.0.0.1 localhost
         127.0.1.1 newhostname.newdomain.tld newhostname
       RESULT
@@ -56,7 +56,7 @@ shared_examples "a debian-like host name change" do
 
       modified_etc_hosts = original_etc_hosts.gsub(search, replace)
 
-      modified_etc_hosts.should == <<-RESULT.gsub(/^ */, '')
+      expect(modified_etc_hosts).to eq <<-RESULT.gsub(/^ */, '')
         127.0.0.1 localhost
         127.0.1.1 newhostname.newdomain.tld newhostname
 
@@ -79,7 +79,7 @@ shared_examples "a debian-like host name change" do
 
         modified_etc_hosts = original_etc_hosts.gsub(search, replace)
 
-        modified_etc_hosts.should == <<-RESULT.gsub(/^ */, '')
+        expect(modified_etc_hosts).to eq <<-RESULT.gsub(/^ */, '')
           127.0.0.1 localhost
           127.0.1.1 newhostname.newdomain.tld newhostname
         RESULT

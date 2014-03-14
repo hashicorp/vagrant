@@ -51,12 +51,12 @@ shared_examples 'a full redhat-like host name change' do
 
   it "does nothing when the provided hostname is not different" do
     described_class.change_host_name(machine, old_hostname)
-    communicator.received_commands.to_set.should == communicator.expected_commands.keys.to_set
+    expect(communicator.received_commands.to_set).to eq(communicator.expected_commands.keys.to_set)
   end
 
   it "does more when the provided hostname is a similar version" do
     described_class.change_host_name(machine, similar_hostname)
-    communicator.received_commands.to_set.should_not == communicator.expected_commands.keys.to_set
+    expect(communicator.received_commands.to_set).not_to eq(communicator.expected_commands.keys.to_set)
   end
 end
 
@@ -89,7 +89,7 @@ shared_examples 'inserting hostname in /etc/hosts' do
 
       modified_etc_hosts = original_etc_hosts.gsub(search, replace)
 
-      modified_etc_hosts.should == <<-RESULT.gsub(/^ */, '')
+      expect(modified_etc_hosts).to eq <<-RESULT.gsub(/^ */, '')
         127.0.0.1   newhostname.newdomain.tld newhostname localhost.localdomain localhost
         ::1     localhost6.localdomain6 localhost6
       RESULT
@@ -107,7 +107,7 @@ shared_examples 'inserting hostname in /etc/hosts' do
 
       modified_etc_hosts = original_etc_hosts.gsub(search, replace)
 
-      modified_etc_hosts.should == <<-RESULT.gsub(/^ */, '')
+      expect(modified_etc_hosts).to eq <<-RESULT.gsub(/^ */, '')
         127.0.0.1   newhostname localhost.localdomain localhost
         ::1     localhost6.localdomain6 localhost6
       RESULT
@@ -129,7 +129,7 @@ shared_examples 'swapping simple hostname in /etc/hosts' do
 
       modified_etc_hosts = original_etc_hosts.gsub(search, replace)
 
-      modified_etc_hosts.should == <<-RESULT.gsub(/^ */, '')
+      expect(modified_etc_hosts).to eq <<-RESULT.gsub(/^ */, '')
         127.0.0.1   newhostname.newdomain.tld newhostname localhost.localdomain localhost
         ::1     localhost6.localdomain6 localhost6
       RESULT
@@ -143,7 +143,7 @@ shared_examples 'swapping simple hostname in /etc/hosts' do
 
       modified_etc_hosts = original_etc_hosts.gsub(search, replace)
 
-      modified_etc_hosts.should == <<-RESULT.gsub(/^ */, '')
+      expect(modified_etc_hosts).to eq <<-RESULT.gsub(/^ */, '')
         127.0.0.1   newhostname.newdomain.tld newhostname oldhostname.nope localhost.localdomain localhost
         ::1     localhost6.localdomain6 localhost6
       RESULT
@@ -161,7 +161,7 @@ shared_examples 'swapping simple hostname in /etc/hosts' do
 
       modified_etc_hosts = original_etc_hosts.gsub(search, replace)
 
-      modified_etc_hosts.should == <<-RESULT.gsub(/^ */, '')
+      expect(modified_etc_hosts).to eq <<-RESULT.gsub(/^ */, '')
         127.0.0.1   newhostname localhost.localdomain localhost
         ::1     localhost6.localdomain6 localhost6
       RESULT
@@ -175,7 +175,7 @@ shared_examples 'swapping simple hostname in /etc/hosts' do
 
       modified_etc_hosts = original_etc_hosts.gsub(search, replace)
 
-      modified_etc_hosts.should == <<-RESULT.gsub(/^ */, '')
+      expect(modified_etc_hosts).to eq <<-RESULT.gsub(/^ */, '')
         127.0.0.1   newhostname oldhostname.nope localhost.localdomain localhost
         ::1     localhost6.localdomain6 localhost6
       RESULT
@@ -197,7 +197,7 @@ shared_examples 'swapping qualified hostname in /etc/hosts' do
 
       modified_etc_hosts = original_etc_hosts.gsub(search, replace)
 
-      modified_etc_hosts.should == <<-RESULT.gsub(/^ */, '')
+      expect(modified_etc_hosts).to eq <<-RESULT.gsub(/^ */, '')
         127.0.0.1   newhostname.newdomain.tld newhostname localhost.localdomain localhost
         ::1     localhost6.localdomain6 localhost6
       RESULT
@@ -211,7 +211,7 @@ shared_examples 'swapping qualified hostname in /etc/hosts' do
 
       modified_etc_hosts = original_etc_hosts.gsub(search, replace)
 
-      modified_etc_hosts.should == <<-RESULT.gsub(/^ */, '')
+      expect(modified_etc_hosts).to eq <<-RESULT.gsub(/^ */, '')
         127.0.0.1   newhostname.newdomain.tld newhostname oldhostname.nope localhost.localdomain localhost
         ::1     localhost6.localdomain6 localhost6
       RESULT
@@ -229,7 +229,7 @@ shared_examples 'swapping qualified hostname in /etc/hosts' do
 
       modified_etc_hosts = original_etc_hosts.gsub(search, replace)
 
-      modified_etc_hosts.should == <<-RESULT.gsub(/^ */, '')
+      expect(modified_etc_hosts).to eq <<-RESULT.gsub(/^ */, '')
         127.0.0.1   newhostname localhost.localdomain localhost
         ::1     localhost6.localdomain6 localhost6
       RESULT
@@ -243,7 +243,7 @@ shared_examples 'swapping qualified hostname in /etc/hosts' do
 
       modified_etc_hosts = original_etc_hosts.gsub(search, replace)
 
-      modified_etc_hosts.should == <<-RESULT.gsub(/^ */, '')
+      expect(modified_etc_hosts).to eq <<-RESULT.gsub(/^ */, '')
         127.0.0.1   newhostname oldhostname.nope localhost.localdomain localhost
         ::1     localhost6.localdomain6 localhost6
       RESULT

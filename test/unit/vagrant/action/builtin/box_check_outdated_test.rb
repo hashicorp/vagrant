@@ -42,7 +42,7 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
     it "doesn't check" do
       machine.config.vm.box_check_update = false
 
-      app.should_receive(:call).with(env).once
+      expect(app).to receive(:call).with(env).once
 
       subject.call(env)
 
@@ -53,7 +53,7 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
       machine.config.vm.box_check_update = false
       env[:box_outdated_force] = true
 
-      app.should_receive(:call).with(env).once
+      expect(app).to receive(:call).with(env).once
 
       subject.call(env)
 
@@ -65,7 +65,7 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
     it "raises an exception if the machine doesn't have a box yet" do
       machine.stub(box: nil)
 
-      app.should_receive(:call).never
+      expect(app).to receive(:call).never
 
       expect { subject.call(env) }.
         to raise_error(Vagrant::Errors::BoxOutdatedNoBox)
@@ -77,8 +77,8 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
       box.stub(metadata_url: nil)
       box.stub(version: "0")
 
-      app.should_receive(:call).once
-      box.should_receive(:has_update?).never
+      expect(app).to receive(:call).once
+      expect(box).to receive(:has_update?).never
 
       subject.call(env)
     end
@@ -86,9 +86,9 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
 
   context "with a box" do
     it "sets env if no update" do
-      box.should_receive(:has_update?).and_return(nil)
+      expect(box).to receive(:has_update?).and_return(nil)
 
-      app.should_receive(:call).with(env).once
+      expect(app).to receive(:call).with(env).once
 
       subject.call(env)
 
@@ -116,10 +116,10 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
       }
       RAW
 
-      box.should_receive(:has_update?).with(machine.config.vm.box_version).
+      expect(box).to receive(:has_update?).with(machine.config.vm.box_version).
         and_return([md, md.version("1.1"), md.version("1.1").provider("virtualbox")])
 
-      app.should_receive(:call).with(env).once
+      expect(app).to receive(:call).with(env).once
 
       subject.call(env)
 
@@ -127,9 +127,9 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
     end
 
     it "raises error if has_update? errors" do
-      box.should_receive(:has_update?).and_raise(Vagrant::Errors::VagrantError)
+      expect(box).to receive(:has_update?).and_raise(Vagrant::Errors::VagrantError)
 
-      app.should_receive(:call).never
+      expect(app).to receive(:call).never
 
       expect { subject.call(env) }.to raise_error(Vagrant::Errors::VagrantError)
     end
@@ -137,8 +137,8 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
     it "doesn't raise an error if ignore errors is on" do
       env[:box_outdated_ignore_errors] = true
 
-      box.should_receive(:has_update?).and_raise(Vagrant::Errors::VagrantError)
-      app.should_receive(:call).with(env).once
+      expect(box).to receive(:has_update?).and_raise(Vagrant::Errors::VagrantError)
+      expect(app).to receive(:call).with(env).once
 
       expect { subject.call(env) }.to_not raise_error
     end

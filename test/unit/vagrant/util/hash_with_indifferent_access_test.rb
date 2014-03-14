@@ -6,25 +6,25 @@ describe Vagrant::Util::HashWithIndifferentAccess do
   let(:instance) { described_class.new }
 
   it "is a Hash" do
-    instance.should be_kind_of(Hash)
+    expect(instance).to be_kind_of(Hash)
   end
 
   it "allows indifferent access when setting with a string" do
     instance["foo"] = "bar"
-    instance[:foo].should == "bar"
+    expect(instance[:foo]).to eq("bar")
   end
 
   it "allows indifferent access when setting with a symbol" do
     instance[:foo] = "bar"
-    instance["foo"].should == "bar"
+    expect(instance["foo"]).to eq("bar")
   end
 
   it "allows indifferent key lookup" do
     instance["foo"] = "bar"
-    instance.key?(:foo).should be
-    instance.has_key?(:foo).should be
-    instance.include?(:foo).should be
-    instance.member?(:foo).should be
+    expect(instance.key?(:foo)).to be
+    expect(instance.has_key?(:foo)).to be
+    expect(instance.include?(:foo)).to be
+    expect(instance.member?(:foo)).to be
   end
 
   it "allows for defaults to be passed in via an initializer block" do
@@ -32,7 +32,7 @@ describe Vagrant::Util::HashWithIndifferentAccess do
       h[k] = "foo"
     end
 
-    instance[:foo].should == "foo"
-    instance["bar"].should == "foo"
+    expect(instance[:foo]).to eq("foo")
+    expect(instance["bar"]).to eq("foo")
   end
 end

@@ -56,7 +56,7 @@ describe VagrantPlugins::HyperV::Provider do
 
     it "calls an action to determine the ID" do
       machine.stub(id: "foo")
-      machine.should_receive(:action).with(:read_state).
+      expect(machine).to receive(:action).with(:read_state).
         and_return({ machine_state_id: :bar })
 
       expect(subject.state.id).to eq(:bar)

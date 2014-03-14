@@ -12,12 +12,12 @@ describe Vagrant::BoxCollection do
   subject { described_class.new(environment.boxes_dir) }
 
   it "should tell us the directory it is using" do
-    subject.directory.should == environment.boxes_dir
+    expect(subject.directory).to eq(environment.boxes_dir)
   end
 
   describe "#all" do
     it "should return an empty array when no boxes are there" do
-      subject.all.should == []
+      expect(subject.all).to eq([])
     end
 
     it "should return the boxes and their providers" do
@@ -29,11 +29,11 @@ describe Vagrant::BoxCollection do
 
       # Verify some output
       results = subject.all
-      results.length.should == 4
-      results.include?(["foo", "1.0", :virtualbox]).should be
-      results.include?(["foo", "1.0", :vmware]).should be
-      results.include?(["bar", "0", :ec2]).should be
-      results.include?(["foo/bar", "1.0", :virtualbox]).should be
+      expect(results.length).to eq(4)
+      expect(results.include?(["foo", "1.0", :virtualbox])).to be
+      expect(results.include?(["foo", "1.0", :vmware])).to be
+      expect(results.include?(["bar", "0", :ec2])).to be
+      expect(results.include?(["foo/bar", "1.0", :virtualbox])).to be
     end
 
     it 'does not raise an exception when a file appears in the boxes dir' do
@@ -80,11 +80,11 @@ describe Vagrant::BoxCollection do
       environment.box3("foo", "0", :virtualbox,
         metadata_url: "foourl")
 
-      hook.should_receive(:call).with do |name, env|
+      expect(hook).to receive(:call).with { |name, env|
         expect(name).to eq(:authenticate_box_url)
         expect(env[:box_urls]).to eq(["foourl"])
         true
-      end.and_return(box_urls: ["bar"])
+      }.and_return(box_urls: ["bar"])
 
       # Actual test
       result = subject.find("foo", :virtualbox, ">= 0")
@@ -219,7 +219,7 @@ describe Vagrant::BoxCollection do
       # Attempt to add the box with the same name
       box_path = environment.box2_file(prev_box_provider, metadata: { "replaced" => "yes" })
       box = subject.add(box_path, prev_box_name, prev_box_version, force: true)
-      box.metadata["replaced"].should == "yes"
+      expect(box.metadata["replaced"]).to eq("yes")
     end
 
     it "should raise an exception if the box already exists and no provider is given" do

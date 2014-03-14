@@ -10,7 +10,7 @@ describe Vagrant::Action::Builtin::SyncedFolders do
   let(:env) { { :machine => machine, :ui => ui } }
   let(:machine) do
     double("machine").tap do |machine|
-      machine.stub(:config).and_return(machine_config)
+      allow(machine).to receive(:config).and_return(machine_config)
     end
   end
 
@@ -24,7 +24,7 @@ describe Vagrant::Action::Builtin::SyncedFolders do
 
   let(:ui) do
     double("ui").tap do |result|
-      result.stub(:info)
+      allow(result).to receive(:info)
     end
   end
 
@@ -57,8 +57,8 @@ describe Vagrant::Action::Builtin::SyncedFolders do
 
       subject.call(env)
 
-      env[:root_path].join("foo").should_not be_directory
-      env[:root_path].join("bar").should be_directory
+      expect(env[:root_path].join("foo")).not_to be_directory
+      expect(env[:root_path].join("bar")).to be_directory
     end
 
     it "should invoke prepare then enable" do
@@ -91,7 +91,7 @@ describe Vagrant::Action::Builtin::SyncedFolders do
 
       subject.call(env)
 
-      order.should == [:prepare, :enable]
+      expect(order).to eq([:prepare, :enable])
       expect(ids.length).to eq(2)
       expect(ids[0]).to eq(ids[1])
     end

@@ -10,7 +10,7 @@ describe Vagrant::Action::Builtin::SyncedFolderCleanup do
   let(:env) { { :machine => machine, :ui => ui } }
   let(:machine) do
     double("machine").tap do |machine|
-      machine.stub(:config).and_return(machine_config)
+      allow(machine).to receive(:config).and_return(machine_config)
     end
   end
 
@@ -24,7 +24,7 @@ describe Vagrant::Action::Builtin::SyncedFolderCleanup do
 
   let(:ui) do
     double("ui").tap do |result|
-      result.stub(:info)
+      allow(result).to receive(:info)
     end
   end
 
@@ -127,9 +127,9 @@ describe Vagrant::Action::Builtin::SyncedFolderCleanup do
 
       subject.call(env)
 
-      trackers[0].clean.should be_true
-      trackers[1].clean.should be_true
-      trackers[2].clean.should be_true
+      expect(trackers[0].clean).to be_true
+      expect(trackers[1].clean).to be_true
+      expect(trackers[2].clean).to be_true
     end
   end
 end

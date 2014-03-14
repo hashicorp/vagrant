@@ -51,9 +51,9 @@ describe Vagrant::Config::Loader do
       instance.set(:proc, [[current_version, proc]])
       config, warnings, errors = instance.load([:proc])
 
-      config[:foo].should == "yep"
-      warnings.should == []
-      errors.should == []
+      expect(config[:foo]).to eq("yep")
+      expect(warnings).to eq([])
+      expect(errors).to eq([])
     end
   end
 
@@ -73,8 +73,8 @@ describe Vagrant::Config::Loader do
       # Run the actual configuration and assert that we get the proper result
       instance.set(:proc, [[current_version, proc]])
       config, _ = instance.load([:proc])
-      config[:foo].should == "yep"
-      config[:finalized].should == true
+      expect(config[:foo]).to eq("yep")
+      expect(config[:finalized]).to eq(true)
     end
   end
 
@@ -96,8 +96,8 @@ describe Vagrant::Config::Loader do
       proc = lambda { |config| config[:foo] = "yep" }
       instance.set(:proc, [["1", proc]])
       config, _ = instance.load([:proc])
-      config[:foo].should == "yep"
-      config[:v2].should == true
+      expect(config[:foo]).to eq("yep")
+      expect(config[:v2]).to eq(true)
     end
 
     it "should keep track of warnings and errors" do
@@ -117,10 +117,10 @@ describe Vagrant::Config::Loader do
       proc = lambda { |config| config[:foo] = "yep" }
       instance.set(:proc, [["1", proc]])
       config, warnings, errors = instance.load([:proc])
-      config[:foo].should == "yep"
-      config[:v2].should == true
-      warnings.should == ["foo!"]
-      errors.should == ["bar!"]
+      expect(config[:foo]).to eq("yep")
+      expect(config[:v2]).to eq(true)
+      expect(warnings).to eq(["foo!"])
+      expect(errors).to eq(["bar!"])
     end
   end
 
@@ -138,10 +138,10 @@ describe Vagrant::Config::Loader do
         result, _ = instance.load([:proc])
 
         # Verify the config result
-        result[:foo].should == "yep"
+        expect(result[:foo]).to eq("yep")
 
         # Verify the count is only one
-        count.should == 1
+        expect(count).to eq(1)
       end
     end
 
@@ -154,7 +154,7 @@ describe Vagrant::Config::Loader do
       5.times { instance.set(:file, file) }
       5.times { instance.load([:file]) }
 
-      $_config_data.should == 1
+      expect($_config_data).to eq(1)
     end
 
     it "should not clear the cache if setting to the same value multiple times" do
@@ -168,7 +168,7 @@ describe Vagrant::Config::Loader do
       instance.set(:proc, file)
       5.times { instance.load([:proc]) }
 
-      $_config_data.should == 1
+      expect($_config_data).to eq(1)
     end
 
     it "should raise proper error if there is a syntax error in a Vagrantfile" do

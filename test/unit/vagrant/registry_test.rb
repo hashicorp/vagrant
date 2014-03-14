@@ -4,12 +4,12 @@ describe Vagrant::Registry do
   let(:instance) { described_class.new }
 
   it "should return nil for nonexistent items" do
-    instance.get("foo").should be_nil
+    expect(instance.get("foo")).to be_nil
   end
 
   it "should register a simple key/value" do
     instance.register("foo") { "value" }
-    instance.get("foo").should == "value"
+    expect(instance.get("foo")).to eq("value")
   end
 
   it "should register an item without calling the block yet" do
@@ -31,21 +31,21 @@ describe Vagrant::Registry do
       object
     end
 
-    instance.get("foo").should eql(object)
+    expect(instance.get("foo")).to eql(object)
   end
 
   it "should be able to get the item with []" do
     object = Object.new
     instance.register("foo") { object }
 
-    instance["foo"].should eql(object)
+    expect(instance["foo"]).to eql(object)
   end
 
   it "should be able to get keys with #keys" do
     instance.register("foo") { "bar" }
     instance.register("baz") { raise "BOOM" }
 
-    instance.keys.sort.should == [ 'baz', 'foo' ]
+    expect(instance.keys.sort).to eq([ 'baz', 'foo' ])
   end
 
   it "should cache the result of the item so they can be modified" do
@@ -54,15 +54,15 @@ describe Vagrant::Registry do
 
     # Test that modifying the result modifies the actual cached
     # value. This verifies we're caching.
-    instance.get("foo").should == []
+    expect(instance.get("foo")).to eq([])
     instance.get("foo") << "value"
-    instance.get("foo").should == ["value"]
+    expect(instance.get("foo")).to eq(["value"])
   end
 
   it "should be able to check if a key exists" do
     instance.register("foo") { "bar" }
-    instance.should have_key("foo")
-    instance.should_not have_key("bar")
+    expect(instance).to have_key("foo")
+    expect(instance).not_to have_key("bar")
   end
 
   it "should be enumerable" do
@@ -76,8 +76,8 @@ describe Vagrant::Registry do
       values << value
     end
 
-    keys.sort.should == ["bar", "foo"]
-    values.sort.should == ["barvalue", "foovalue"]
+    expect(keys.sort).to eq(["bar", "foo"])
+    expect(values.sort).to eq(["barvalue", "foovalue"])
   end
 
   it "should be able to convert to a hash" do
@@ -85,9 +85,9 @@ describe Vagrant::Registry do
     instance.register("bar") { "barvalue" }
 
     result = instance.to_hash
-    result.should be_a(Hash)
-    result["foo"].should == "foovalue"
-    result["bar"].should == "barvalue"
+    expect(result).to be_a(Hash)
+    expect(result["foo"]).to eq("foovalue")
+    expect(result["bar"]).to eq("barvalue")
   end
 
   describe "merging" do
@@ -114,8 +114,8 @@ describe Vagrant::Registry do
       two["bar"] << 2
 
       three = one.merge(two)
-      three["foo"].should == []
-      three["bar"].should == []
+      expect(three["foo"]).to eq([])
+      expect(three["bar"]).to eq([])
     end
   end
 
@@ -128,8 +128,8 @@ describe Vagrant::Registry do
       two.register("bar") { "bar" }
 
       one.merge!(two)
-      one["foo"].should == "foo"
-      one["bar"].should == "bar"
+      expect(one["foo"]).to eq("foo")
+      expect(one["bar"]).to eq("bar")
     end
   end
 end
