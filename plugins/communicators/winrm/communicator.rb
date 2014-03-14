@@ -102,15 +102,15 @@ module VagrantPlugins
         )
       end
 
-      def do_execute(command, shell, &block)
-        if shell.eql? :cmd
-          shell.cmd(command, &block)[:exitcode]
-        else
-          script  = File.expand_path("../scripts/command_alias.ps1", __FILE__)
-          script  = File.read(script)
-          command = script << "\r\n" << command << "\r\nexit $LASTEXITCODE"
-          shell.powershell(command, &block)[:exitcode]
+      def do_execute(command, shell_type, &block)
+        if shell_type == :cmd
+          return shell.cmd(command, &block)[:exitcode]
         end
+
+        script  = File.expand_path("../scripts/command_alias.ps1", __FILE__)
+        script  = File.read(script)
+        command = script << "\r\n" << command << "\r\nexit $LASTEXITCODE"
+        shell.powershell(command, &block)[:exitcode]
       end
 
       def raise_execution_error(opts, exit_code)
