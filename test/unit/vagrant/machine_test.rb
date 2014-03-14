@@ -20,6 +20,7 @@ describe Vagrant::Machine do
   let(:provider_config) { Object.new }
   let(:provider_name) { :test }
   let(:provider_options) { {} }
+  let(:base)     { false }
   let(:box)      { Object.new }
   let(:config)   { env.vagrantfile.config }
   let(:data_dir) { Pathname.new(Dir.mktmpdir("vagrant")) }
@@ -42,7 +43,7 @@ describe Vagrant::Machine do
   def new_instance
     described_class.new(name, provider_name, provider_cls, provider_config,
                         provider_options, config, data_dir, box,
-                        env, env.vagrantfile)
+                        env, env.vagrantfile, base)
   end
 
   describe "initialization" do
@@ -458,6 +459,20 @@ describe Vagrant::Machine do
         expect(instance.ssh_info[:private_key_path]).to eql(
           [instance.data_dir.join("private_key").to_s])
         expect(instance.ssh_info[:password]).to eql("")
+      end
+
+      context "with no data dir" do
+        let(:base)     { true }
+        let(:data_dir) { nil }
+
+        it "returns nil as the private key path" do
+          provider_ssh_info[:private_key_path] = nil
+          instance.config.ssh.private_key_path = nil
+          instance.config.ssh.password = ""
+
+          expect(instance.ssh_info[:private_key_path]).to be_empty
+          expect(instance.ssh_info[:password]).to eql("")
+        end
       end
     end
   end
