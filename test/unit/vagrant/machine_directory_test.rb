@@ -10,6 +10,7 @@ describe Vagrant::MachineIndex do
   include_context "unit"
 
   let(:data_dir) { temporary_dir }
+  let(:entry_klass) { Vagrant::MachineIndex::Entry }
 
   subject { described_class.new(data_dir) }
 
@@ -29,6 +30,35 @@ describe Vagrant::MachineIndex do
 
     expect { subject }.
       to raise_error(Vagrant::Errors::CorruptMachineIndex)
+  end
+
+  describe "#each" do
+    before do
+      5.times do |i|
+        e = entry_klass.new
+        e.name = "entry-#{i}"
+        e.vagrantfile_path = "/foo"
+        subject.release(subject.set(e))
+      end
+    end
+
+    it "should iterate over all the elements" do
+      items = []
+
+      subject = described_class.new(data_dir)
+      subject.each do |entry|
+        items << entry.name
+      end
+
+      items.sort!
+      expect(items).to eq([
+        "entry-0",
+        "entry-1",
+        "entry-2",
+        "entry-3",
+        "entry-4",
+      ])
+    end
   end
 
   describe "#get and #release" do
@@ -85,8 +115,6 @@ describe Vagrant::MachineIndex do
   end
 
   describe "#set and #get and #delete" do
-    let(:entry_klass) { Vagrant::MachineIndex::Entry }
-
     let(:new_entry) do
       entry_klass.new.tap do |e|
         e.name = "foo"
