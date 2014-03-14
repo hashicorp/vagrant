@@ -63,7 +63,7 @@ module VagrantPlugins
       # https://github.com/WinRb/vagrant-windows/issues/63
       def set_all_networks_to_work
         @logger.info("Setting all networks to 'Work Network'")
-        command = File.read(File.expand_path("../scripts/set_work_network.ps1"))
+        command = File.read(File.expand_path("../scripts/set_work_network.ps1", __FILE__))
         @winrmshell.powershell(command)
       end
 
@@ -106,7 +106,7 @@ module VagrantPlugins
       #
       # @return [Array]
       def network_adapters_v3_winrm
-        command = File.read(File.expand_path("../scripts/winrs_v3_get_adapters.ps1"))
+        command = File.read(File.expand_path("../scripts/winrs_v3_get_adapters.ps1", __FILE__))
         output = ""
         @winrmshell.powershell(command) do |type, line|
           output = output + "#{line}" if type == :stdout && !line.nil?
