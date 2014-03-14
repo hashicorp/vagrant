@@ -3,6 +3,8 @@
 BUG FIXES:
 
   - core: Vagrant won't collide with newer versions of Bundler [GH-3193]
+  - synced\_folders/smb: IDs of synced folders are hashed to work better
+      with VMware. [GH-3219]
 
 ## 1.5.1 (March 13, 2014)
 

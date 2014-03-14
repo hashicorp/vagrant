@@ -1,3 +1,4 @@
+require "digest/md5"
 require "json"
 
 require "log4r"
@@ -52,7 +53,8 @@ module VagrantPlugins
         folders.each do |id, data|
           hostpath = data[:hostpath]
 
-          data[:smb_id] ||= "#{machine.id}-#{id.gsub("/", "-")}"
+          data[:smb_id] ||= Digest::MD5.hexdigest(
+            "#{machine.id}-#{id.gsub("/", "-")}")
 
           args = []
           args << "-path" << hostpath.gsub("/", "\\")
