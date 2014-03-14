@@ -84,7 +84,7 @@ describe Vagrant::MachineIndex do
     end
   end
 
-  describe "#set and #get" do
+  describe "#set and #get and #delete" do
     let(:entry_klass) { Vagrant::MachineIndex::Entry }
 
     let(:new_entry) do
@@ -110,6 +110,22 @@ describe Vagrant::MachineIndex do
       expect(entry.name).to eq("foo")
 
       # TODO: test that updated_at is set
+    end
+
+    it "can delete an entry" do
+      result = subject.set(new_entry)
+      expect(result.id).to_not be_empty
+      subject.delete(result)
+
+      # Get it from a new class and check the results
+      subject = described_class.new(data_dir)
+      entry   = subject.get(result.id)
+      expect(entry).to be_nil
+    end
+
+    it "can delete an entry that doesn't exist" do
+      e = entry_klass.new
+      expect(subject.delete(e)).to be_true
     end
 
     it "updates an existing entry" do
