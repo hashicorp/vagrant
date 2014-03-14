@@ -8,7 +8,7 @@ describe Vagrant::Action::Builtin::IsState do
   let(:env) { { :machine => machine } }
   let(:machine) do
     double("machine").tap do |machine|
-      machine.stub(:state).and_return(state)
+      allow(machine).to receive(:state).and_return(state)
     end
   end
 
@@ -20,7 +20,7 @@ describe Vagrant::Action::Builtin::IsState do
 
       subject = described_class.new(app, env, :bar)
 
-      app.should_receive(:call).with(env)
+      expect(app).to receive(:call).with(env)
 
       subject.call(env)
       expect(env[:result]).to be_false
@@ -31,7 +31,7 @@ describe Vagrant::Action::Builtin::IsState do
 
       subject = described_class.new(app, env, :foo)
 
-      app.should_receive(:call).with(env)
+      expect(app).to receive(:call).with(env)
 
       subject.call(env)
       expect(env[:result]).to be_true
@@ -42,7 +42,7 @@ describe Vagrant::Action::Builtin::IsState do
 
       subject = described_class.new(app, env, :foo, invert: true)
 
-      app.should_receive(:call).with(env)
+      expect(app).to receive(:call).with(env)
 
       subject.call(env)
       expect(env[:result]).to be_false

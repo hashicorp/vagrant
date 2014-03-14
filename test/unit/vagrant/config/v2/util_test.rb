@@ -15,7 +15,7 @@ describe Vagrant::Config::V2::Util do
       }
 
       result = described_class.merge_errors(first, second)
-      result.should == expected
+      expect(result).to eq(expected)
     end
   end
 end

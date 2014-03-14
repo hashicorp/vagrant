@@ -22,7 +22,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap do
 
   describe "#forwarded_ports" do
     it "returns all the forwarded ports" do
-      driver.should_receive(:read_forwarded_ports).and_return([
+      expect(driver).to receive(:read_forwarded_ports).and_return([
         [nil, nil, 123, 456],
         [nil, nil, 245, 245],
       ])

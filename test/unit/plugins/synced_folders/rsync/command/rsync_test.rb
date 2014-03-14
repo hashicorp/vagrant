@@ -53,14 +53,14 @@ describe VagrantPlugins::SyncedFolderRSync::Command::Rsync do
       it "doesn't sync if communicator isn't ready and exits with 1" do
         communicator.stub(ready?: false)
 
-        helper_class.should_receive(:rsync_single).never
+        expect(helper_class).to receive(:rsync_single).never
 
         expect(subject.execute).to eql(1)
       end
 
       it "rsyncs each folder and exits successfully" do
         synced_folders[:rsync].each do |_, opts|
-          helper_class.should_receive(:rsync_single).
+          expect(helper_class).to receive(:rsync_single).
             with(machine, ssh_info, opts).
             ordered
         end

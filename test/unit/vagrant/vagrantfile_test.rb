@@ -79,12 +79,35 @@ describe Vagrant::Vagrantfile do
       VF
     end
 
-    its(:data_dir) { should eq(data_path) }
-    its(:env)      { should equal(env)    }
-    its(:name)     { should eq(:default)  }
-    its(:provider) { should be_kind_of(@provider_cls) }
-    its(:provider_name) { should eq(:foo) }
-    its(:vagrantfile) { should equal(vagrantfile) }
+    describe '#data_dir' do
+      subject { super().data_dir }
+      it { should eq(data_path) }
+    end
+
+    describe '#env' do
+      subject { super().env }
+      it      { should equal(env)    }
+    end
+
+    describe '#name' do
+      subject { super().name }
+      it     { should eq(:default)  }
+    end
+
+    describe '#provider' do
+      subject { super().provider }
+      it { should be_kind_of(@provider_cls) }
+    end
+
+    describe '#provider_name' do
+      subject { super().provider_name }
+      it { should eq(:foo) }
+    end
+
+    describe '#vagrantfile' do
+      subject { super().vagrantfile }
+      it { should equal(vagrantfile) }
+    end
 
     it "has the proper box" do
       expect(subject.box.name).to eq("foo")

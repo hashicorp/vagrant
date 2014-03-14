@@ -32,7 +32,7 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSSettings do
     action = described_class.new(app, env)
     action.call(env)
 
-    called.should == true
+    expect(called).to eq(true)
   end
 
   context "with an nfs synced folder" do
@@ -50,22 +50,22 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSSettings do
       driver.stub(read_host_only_interfaces: [
         {name: "vmnet2", ip: "1.2.3.4"},
       ])
-      driver.stub(:read_guest_ip).with(1).and_return("2.3.4.5")
+      allow(driver).to receive(:read_guest_ip).with(1).and_return("2.3.4.5")
 
       # override sleep to 0 so test does not take seconds
       retry_options = subject.retry_options
-      subject.stub(:retry_options).and_return(retry_options.merge(sleep: 0))
+      allow(subject).to receive(:retry_options).and_return(retry_options.merge(sleep: 0))
     end
 
     it "sets nfs_host_ip and nfs_machine_ip properly" do
       subject.call(env)
 
-      env[:nfs_host_ip].should    == "1.2.3.4"
-      env[:nfs_machine_ip].should == "2.3.4.5"
+      expect(env[:nfs_host_ip]).to    eq("1.2.3.4")
+      expect(env[:nfs_machine_ip]).to eq("2.3.4.5")
     end
 
     it "raises an error when no host only adapter is configured" do
-      driver.stub(:read_network_interfaces) {{}}
+      allow(driver).to receive(:read_network_interfaces) {{}}
 
       expect { subject.call(env) }.
         to raise_error(Vagrant::Errors::NFSNoHostonlyNetwork)
@@ -76,16 +76,16 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSSettings do
         lambda { raise Vagrant::Errors::VirtualBoxGuestPropertyNotFound, :guest_property => 'stub' },
         lambda { "2.3.4.5" }
       ]
-      driver.stub(:read_guest_ip) { raise_then_return.shift.call }
+      allow(driver).to receive(:read_guest_ip) { raise_then_return.shift.call }
 
       subject.call(env)
 
-      env[:nfs_host_ip].should    == "1.2.3.4"
-      env[:nfs_machine_ip].should == "2.3.4.5"
+      expect(env[:nfs_host_ip]).to    eq("1.2.3.4")
+      expect(env[:nfs_machine_ip]).to eq("2.3.4.5")
     end
 
     it "raises an error informing the user of a bug when the guest IP cannot be found" do
-      driver.stub(:read_guest_ip) {
+      allow(driver).to receive(:read_guest_ip) {
         raise Vagrant::Errors::VirtualBoxGuestPropertyNotFound, :guest_property => 'stub'
       }
 
@@ -96,14 +96,14 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSSettings do
     it "allows statically configured guest IPs to work for NFS, even when guest property would fail" do
       env[:machine].config.vm.network :private_network, ip: "11.12.13.14"
 
-      driver.stub(:read_guest_ip) {
+      allow(driver).to receive(:read_guest_ip) {
         raise Vagrant::Errors::VirtualBoxGuestPropertyNotFound, :guest_property => "stub"
       }
 
       subject.call(env)
 
-      env[:nfs_host_ip].should    == "1.2.3.4"
-      env[:nfs_machine_ip].should == ["11.12.13.14"]
+      expect(env[:nfs_host_ip]).to    eq("1.2.3.4")
+      expect(env[:nfs_machine_ip]).to eq(["11.12.13.14"])
     end
   end
 end

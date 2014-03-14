@@ -10,7 +10,7 @@ describe Vagrant::Util::LineEndingHelpers do
   end
 
   it "should convert DOS to unix-style line endings" do
-    klass.dos_to_unix("foo\r\nbar\r\n").should == "foo\nbar\n"
+    expect(klass.dos_to_unix("foo\r\nbar\r\n")).to eq("foo\nbar\n")
   end
 end
 

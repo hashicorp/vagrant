@@ -20,14 +20,14 @@ describe Vagrant::Config do
       end
     end
 
-    procs.should be_kind_of(Array)
-    procs.length.should == 2
-    procs[0][0].should == "1"
-    procs[1][0].should == "2"
+    expect(procs).to be_kind_of(Array)
+    expect(procs.length).to eq(2)
+    expect(procs[0][0]).to eq("1")
+    expect(procs[1][0]).to eq("2")
 
     # Verify the proper procs were captured
-    receiver.should_receive(:one).once.ordered
-    receiver.should_receive(:two).once.ordered
+    expect(receiver).to receive(:one).once.ordered
+    expect(receiver).to receive(:two).once.ordered
     procs[0][1].call
     procs[1][1].call
   end
@@ -45,14 +45,14 @@ describe Vagrant::Config do
       end
     end
 
-    procs.should be_kind_of(Array)
-    procs.length.should == 2
-    procs[0][0].should == "1"
-    procs[1][0].should == "2"
+    expect(procs).to be_kind_of(Array)
+    expect(procs.length).to eq(2)
+    expect(procs[0][0]).to eq("1")
+    expect(procs[1][0]).to eq("2")
 
     # Verify the proper procs were captured
-    receiver.should_receive(:one).once.ordered
-    receiver.should_receive(:two).once.ordered
+    expect(receiver).to receive(:one).once.ordered
+    expect(receiver).to receive(:two).once.ordered
     procs[0][1].call
     procs[1][1].call
   end
@@ -67,12 +67,12 @@ describe Vagrant::Config do
     end
 
     # Verify the structure of the result
-    procs.should be_kind_of(Array)
-    procs.length.should == 1
+    expect(procs).to be_kind_of(Array)
+    expect(procs.length).to eq(1)
 
     # Verify that the proper proc was captured
-    receiver.should_receive(:hello!).once
-    procs[0][0].should == "1"
+    expect(receiver).to receive(:hello!).once
+    expect(procs[0][0]).to eq("1")
     procs[0][1].call
   end
 
@@ -83,9 +83,9 @@ describe Vagrant::Config do
     end
 
     # Verify the structure of the result
-    procs.should be_kind_of(Array)
-    procs.length.should == 2
-    procs[0][0].should == "1"
-    procs[1][0].should == "2"
+    expect(procs).to be_kind_of(Array)
+    expect(procs.length).to eq(2)
+    expect(procs[0][0]).to eq("1")
+    expect(procs[1][0]).to eq("2")
   end
 end

@@ -12,8 +12,8 @@ describe Vagrant::Plugin::V1::Config do
 
   it "has an UNSET_VALUE constant" do
     value = described_class.const_get("UNSET_VALUE")
-    value.should be_kind_of Object
-    value.should eql(described_class.const_get("UNSET_VALUE"))
+    expect(value).to be_kind_of Object
+    expect(value).to eql(described_class.const_get("UNSET_VALUE"))
   end
 
   describe "merging" do
@@ -26,8 +26,8 @@ describe Vagrant::Plugin::V1::Config do
       two.two = 5
 
       result = one.merge(two)
-      result.one.should == 2
-      result.two.should == 5
+      expect(result.one).to eq(2)
+      expect(result.two).to eq(5)
     end
 
     it "doesn't merge values that start with a double underscore" do
@@ -42,9 +42,9 @@ describe Vagrant::Plugin::V1::Config do
 
       # Merge and verify
       result = one.merge(two)
-      result.one.should == 1
-      result.two.should == 2
-      result.instance_variable_get(:@__bar).should be_nil
+      expect(result.one).to eq(1)
+      expect(result.two).to eq(2)
+      expect(result.instance_variable_get(:@__bar)).to be_nil
     end
   end
 end

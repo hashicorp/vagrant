@@ -38,8 +38,15 @@ describe Vagrant::BoxMetadata do
 
   subject { described_class.new(raw) }
 
-  its(:name) { should eq("foo") }
-  its(:description) { should eq("bar") }
+  describe '#name' do
+    subject { super().name }
+    it { should eq("foo") }
+  end
+
+  describe '#description' do
+    subject { super().description }
+    it { should eq("bar") }
+  end
 
   context "with poorly formatted JSON" do
     let(:raw) {

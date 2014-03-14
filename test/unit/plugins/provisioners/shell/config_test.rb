@@ -17,7 +17,7 @@ describe "VagrantPlugins::Shell::Config" do
 
       result = subject.validate(machine)
 
-      result["shell provisioner"].should == []
+      expect(result["shell provisioner"]).to eq([])
     end
 
     it "passes with string args" do
@@ -27,7 +27,7 @@ describe "VagrantPlugins::Shell::Config" do
 
       result = subject.validate(machine)
 
-      result["shell provisioner"].should == []
+      expect(result["shell provisioner"]).to eq([])
     end
 
     it "passes with fixnum args" do
@@ -37,7 +37,7 @@ describe "VagrantPlugins::Shell::Config" do
 
       result = subject.validate(machine)
 
-      result["shell provisioner"].should == []
+      expect(result["shell provisioner"]).to eq([])
     end
 
     it "passes with array args" do
@@ -47,7 +47,7 @@ describe "VagrantPlugins::Shell::Config" do
 
       result = subject.validate(machine)
 
-      result["shell provisioner"].should == []
+      expect(result["shell provisioner"]).to eq([])
     end
 
     it "returns an error if args is neither a string nor an array" do
@@ -59,9 +59,9 @@ describe "VagrantPlugins::Shell::Config" do
 
       result = subject.validate(machine)
 
-      result["shell provisioner"].should == [
+      expect(result["shell provisioner"]).to eq([
         I18n.t("vagrant.provisioners.shell.args_bad_type")
-      ]
+      ])
     end
 
     it "handles scalar array args" do
@@ -71,7 +71,7 @@ describe "VagrantPlugins::Shell::Config" do
 
       result = subject.validate(machine)
 
-      result["shell provisioner"].should == []
+      expect(result["shell provisioner"]).to eq([])
     end
 
     it "returns an error if args is an array with non-scalar types" do
@@ -81,9 +81,9 @@ describe "VagrantPlugins::Shell::Config" do
 
       result = subject.validate(machine)
 
-      result["shell provisioner"].should == [
+      expect(result["shell provisioner"]).to eq([
         I18n.t("vagrant.provisioners.shell.args_bad_type")
-      ]
+      ])
     end
   end
 end

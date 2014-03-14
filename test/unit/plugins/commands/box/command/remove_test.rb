@@ -32,10 +32,10 @@ describe VagrantPlugins::CommandBox::Command::Remove do
     let(:argv) { ["foo"] }
 
     it "invokes the action runner" do
-      action_runner.should_receive(:run).with do |action, opts|
+      expect(action_runner).to receive(:run).with { |action, opts|
         expect(opts[:box_name]).to eq("foo")
         true
-      end
+      }
 
       subject.execute
     end
@@ -45,11 +45,11 @@ describe VagrantPlugins::CommandBox::Command::Remove do
     let(:argv) { ["foo", "bar"] }
 
     it "uses the 2nd arg as a provider" do
-      action_runner.should_receive(:run).with do |action, opts|
+      expect(action_runner).to receive(:run).with { |action, opts|
         expect(opts[:box_name]).to eq("foo")
         expect(opts[:box_provider]).to eq("bar")
         true
-      end
+      }
 
       subject.execute
     end

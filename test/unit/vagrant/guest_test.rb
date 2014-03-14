@@ -48,7 +48,7 @@ describe Vagrant::Guest do
   describe "#detect!" do
     it "auto-detects if no explicit guest name given" do
       machine.config.vm.stub(guest: nil)
-      subject.should_receive(:initialize_capabilities!).
+      expect(subject).to receive(:initialize_capabilities!).
         with(nil, guests, capabilities, machine)
 
       subject.detect!
@@ -56,7 +56,7 @@ describe Vagrant::Guest do
 
     it "uses the explicit guest name if specified" do
       machine.config.vm.stub(guest: :foo)
-      subject.should_receive(:initialize_capabilities!).
+      expect(subject).to receive(:initialize_capabilities!).
         with(:foo, guests, capabilities, machine)
 
       subject.detect!
@@ -91,12 +91,12 @@ describe Vagrant::Guest do
     end
 
     it "should not be ready by default" do
-      subject.ready?.should_not be
+      expect(subject.ready?).not_to be
     end
 
     it "should be ready after detecting" do
       subject.detect!
-      subject.ready?.should be
+      expect(subject.ready?).to be
     end
   end
 end

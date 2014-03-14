@@ -32,7 +32,7 @@ describe Vagrant::Action::Builtin::HandleBox do
     machine.config.vm.box = nil
     machine.config.vm.box_url = nil
 
-    app.should_receive(:call).with(env)
+    expect(app).to receive(:call).with(env)
 
     subject.call(env)
   end
@@ -40,8 +40,8 @@ describe Vagrant::Action::Builtin::HandleBox do
   it "doesn't do anything if a box exists" do
     machine.stub(box: box)
 
-    action_runner.should_receive(:run).never
-    app.should_receive(:call).with(env)
+    expect(action_runner).to receive(:run).never
+    expect(app).to receive(:call).with(env)
 
     subject.call(env)
   end
@@ -54,15 +54,15 @@ describe Vagrant::Action::Builtin::HandleBox do
     end
 
     it "adds a box that doesn't exist" do
-      action_runner.should_receive(:run).with do |action, opts|
+      expect(action_runner).to receive(:run).with { |action, opts|
         expect(opts[:box_name]).to eq(machine.config.vm.box)
         expect(opts[:box_url]).to eq(machine.config.vm.box)
         expect(opts[:box_provider]).to eq(:dummy)
         expect(opts[:box_version]).to eq(machine.config.vm.box_version)
         true
-      end
+      }
 
-      app.should_receive(:call).with(env)
+      expect(app).to receive(:call).with(env)
 
       subject.call(env)
     end
@@ -70,15 +70,15 @@ describe Vagrant::Action::Builtin::HandleBox do
     it "adds a box using any format the provider allows" do
       machine.provider_options[:box_format] = [:foo, :bar]
 
-      action_runner.should_receive(:run).with do |action, opts|
+      expect(action_runner).to receive(:run).with { |action, opts|
         expect(opts[:box_name]).to eq(machine.config.vm.box)
         expect(opts[:box_url]).to eq(machine.config.vm.box)
         expect(opts[:box_provider]).to eq([:foo, :bar])
         expect(opts[:box_version]).to eq(machine.config.vm.box_version)
         true
-      end
+      }
 
-      app.should_receive(:call).with(env)
+      expect(app).to receive(:call).with(env)
 
       subject.call(env)
     end
@@ -93,15 +93,15 @@ describe Vagrant::Action::Builtin::HandleBox do
     end
 
     it "adds a box that doesn't exist" do
-      action_runner.should_receive(:run).with do |action, opts|
+      expect(action_runner).to receive(:run).with { |action, opts|
         expect(opts[:box_name]).to eq(machine.config.vm.box)
         expect(opts[:box_url]).to eq(machine.config.vm.box_url)
         expect(opts[:box_provider]).to eq(:dummy)
         expect(opts[:box_version]).to eq(machine.config.vm.box_version)
         true
-      end
+      }
 
-      app.should_receive(:call).with(env)
+      expect(app).to receive(:call).with(env)
 
       subject.call(env)
     end

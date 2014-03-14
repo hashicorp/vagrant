@@ -11,16 +11,16 @@ describe Vagrant::MachineState do
 
   it "should give access to the id" do
     instance = described_class.new(id, short, long)
-    instance.id.should == id
+    expect(instance.id).to eq(id)
   end
 
   it "should give access to the short description" do
     instance = described_class.new(id, short, long)
-    instance.short_description.should == short
+    expect(instance.short_description).to eq(short)
   end
 
   it "should give access to the long description" do
     instance = described_class.new(id, short, long)
-    instance.long_description.should == long
+    expect(instance.long_description).to eq(long)
   end
 end

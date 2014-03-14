@@ -13,7 +13,7 @@ describe Vagrant::Config::V1::Loader do
   describe "empty" do
     it "returns an empty configuration object" do
       result = described_class.init
-      result.should be_kind_of(Vagrant::Config::V1::Root)
+      expect(result).to be_kind_of(Vagrant::Config::V1::Root)
     end
 
     it "returns an object with all configuration keys loaded if V1" do
@@ -28,8 +28,8 @@ describe Vagrant::Config::V1::Loader do
 
       # Test that we have all keys
       result = described_class.init
-      result.foo.should be_kind_of(OpenStruct)
-      result.bar.should be_kind_of(OpenStruct)
+      expect(result.foo).to be_kind_of(OpenStruct)
+      expect(result.bar).to be_kind_of(OpenStruct)
     end
 
     it "returns only upgradable config objects if not V1" do
@@ -44,7 +44,7 @@ describe Vagrant::Config::V1::Loader do
 
       # Test that we have all keys
       result = described_class.init
-      result.bar.should be_kind_of(OpenStruct)
+      expect(result.bar).to be_kind_of(OpenStruct)
     end
   end
 
@@ -70,11 +70,11 @@ describe Vagrant::Config::V1::Loader do
 
       # Test that it works properly
       config = described_class.load(config_proc)
-      config.foo.bar.should == "value"
+      expect(config.foo.bar).to eq("value")
 
       # Finalize it
       described_class.finalize(config)
-      config.foo.bar.should == "finalized"
+      expect(config.foo.bar).to eq("finalized")
     end
   end
 
@@ -92,7 +92,7 @@ describe Vagrant::Config::V1::Loader do
 
       # Test that it works properly
       config = described_class.load(config_proc)
-      config.foo.bar.should == "value"
+      expect(config.foo.bar).to eq("value")
     end
   end
 
@@ -101,8 +101,8 @@ describe Vagrant::Config::V1::Loader do
       old = Vagrant::Config::V1::Root.new({ :foo => Object })
       new = Vagrant::Config::V1::Root.new({ :bar => Object })
       result = described_class.merge(old, new)
-      result.foo.should be_kind_of(Object)
-      result.bar.should be_kind_of(Object)
+      expect(result.foo).to be_kind_of(Object)
+      expect(result.bar).to be_kind_of(Object)
     end
 
     it "should merge instantiated objects" do
@@ -117,8 +117,8 @@ describe Vagrant::Config::V1::Loader do
       new.bar.value = "new"
 
       result = described_class.merge(old, new)
-      result.foo.value.should == "old"
-      result.bar.value.should == "new"
+      expect(result.foo.value).to eq("old")
+      expect(result.bar.value).to eq("new")
     end
 
     it "should merge conflicting classes by calling `merge`" do
@@ -139,7 +139,7 @@ describe Vagrant::Config::V1::Loader do
       new.foo.value = 15
 
       result = described_class.merge(old, new)
-      result.foo.value.should == 25
+      expect(result.foo.value).to eq(25)
     end
   end
 end

@@ -7,7 +7,7 @@ describe Vagrant::Action::Builtin::SSHExec do
   let(:env) { { :machine => machine } }
   let(:machine) do
     result = double("machine")
-    result.stub(:ssh_info).and_return(machine_ssh_info)
+    allow(result).to receive(:ssh_info).and_return(machine_ssh_info)
     result
   end
   let(:machine_ssh_info) { {} }
@@ -16,13 +16,13 @@ describe Vagrant::Action::Builtin::SSHExec do
   before(:each) do
     # Stub the methods so that even if we test incorrectly, no side
     # effects actually happen.
-    ssh_klass.stub(:check_key_permissions)
-    ssh_klass.stub(:exec)
+    allow(ssh_klass).to receive(:check_key_permissions)
+    allow(ssh_klass).to receive(:exec)
   end
 
   it "should raise an exception if SSH is not ready" do
     not_ready_machine = double("machine")
-    not_ready_machine.stub(:ssh_info).and_return(nil)
+    allow(not_ready_machine).to receive(:ssh_info).and_return(nil)
 
     env[:machine] = not_ready_machine
     expect { described_class.new(app, env).call(env) }.
@@ -33,12 +33,12 @@ describe Vagrant::Action::Builtin::SSHExec do
     key_path = "/foo"
     machine_ssh_info[:private_key_path] = [key_path]
 
-    ssh_klass.should_receive(:check_key_permissions).
+    expect(ssh_klass).to receive(:check_key_permissions).
       with(Pathname.new(key_path)).
       once.
       ordered
 
-    ssh_klass.should_receive(:exec).
+    expect(ssh_klass).to receive(:exec).
       with(machine_ssh_info, nil).
       once.
       ordered
@@ -49,7 +49,7 @@ describe Vagrant::Action::Builtin::SSHExec do
   it "should exec with the options given in `ssh_opts`" do
     ssh_opts = { :foo => :bar }
 
-    ssh_klass.should_receive(:exec).
+    expect(ssh_klass).to receive(:exec).
       with(machine_ssh_info, ssh_opts)
 
     env[:ssh_opts] = ssh_opts

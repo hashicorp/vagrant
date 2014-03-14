@@ -10,21 +10,21 @@ describe Vagrant::Util::SSH do
     let(:key_path) { temporary_file }
 
     it "should do nothing on Windows" do
-      Vagrant::Util::Platform.stub(:windows?).and_return(true)
+      allow(Vagrant::Util::Platform).to receive(:windows?).and_return(true)
 
       key_path.chmod(0700)
 
       # Get the mode now and verify that it is untouched afterwards
       mode = key_path.stat.mode
       described_class.check_key_permissions(key_path)
-      key_path.stat.mode.should == mode
+      expect(key_path.stat.mode).to eq(mode)
     end
 
     it "should fix the permissions", :skip_windows do
       key_path.chmod(0644)
 
       described_class.check_key_permissions(key_path)
-      key_path.stat.mode.should == 0100600
+      expect(key_path.stat.mode).to eq(0100600)
     end
   end
 end

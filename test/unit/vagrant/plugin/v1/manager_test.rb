@@ -23,9 +23,9 @@ describe Vagrant::Plugin::V1::Manager do
     instance.register(pA)
     instance.register(pB)
 
-    instance.communicators.length.should == 2
-    instance.communicators[:foo].should == "bar"
-    instance.communicators[:bar].should == "baz"
+    expect(instance.communicators.length).to eq(2)
+    expect(instance.communicators[:foo]).to eq("bar")
+    expect(instance.communicators[:bar]).to eq("baz")
   end
 
   it "should enumerate registered configuration classes" do
@@ -40,9 +40,9 @@ describe Vagrant::Plugin::V1::Manager do
     instance.register(pA)
     instance.register(pB)
 
-    instance.config.length.should == 2
-    instance.config[:foo].should == "bar"
-    instance.config[:bar].should == "baz"
+    expect(instance.config.length).to eq(2)
+    expect(instance.config[:foo]).to eq("bar")
+    expect(instance.config[:bar]).to eq("baz")
   end
 
   it "should enumerate registered upgrade safe config classes" do
@@ -57,8 +57,8 @@ describe Vagrant::Plugin::V1::Manager do
     instance.register(pA)
     instance.register(pB)
 
-    instance.config_upgrade_safe.length.should == 1
-    instance.config_upgrade_safe[:foo].should == "bar"
+    expect(instance.config_upgrade_safe.length).to eq(1)
+    expect(instance.config_upgrade_safe[:foo]).to eq("bar")
   end
 
   it "should enumerate registered guest classes" do
@@ -73,9 +73,9 @@ describe Vagrant::Plugin::V1::Manager do
     instance.register(pA)
     instance.register(pB)
 
-    instance.guests.length.should == 2
-    instance.guests[:foo].should == "bar"
-    instance.guests[:bar].should == "baz"
+    expect(instance.guests.length).to eq(2)
+    expect(instance.guests[:foo]).to eq("bar")
+    expect(instance.guests[:bar]).to eq("baz")
   end
 
   it "should enumerate registered host classes" do
@@ -90,9 +90,9 @@ describe Vagrant::Plugin::V1::Manager do
     instance.register(pA)
     instance.register(pB)
 
-    instance.hosts.length.should == 2
-    instance.hosts[:foo].should == "bar"
-    instance.hosts[:bar].should == "baz"
+    expect(instance.hosts.length).to eq(2)
+    expect(instance.hosts[:foo]).to eq("bar")
+    expect(instance.hosts[:bar]).to eq("baz")
   end
 
   it "should enumerate registered provider classes" do
@@ -107,8 +107,8 @@ describe Vagrant::Plugin::V1::Manager do
     instance.register(pA)
     instance.register(pB)
 
-    instance.providers.length.should == 2
-    instance.providers[:foo].should == "bar"
-    instance.providers[:bar].should == "baz"
+    expect(instance.providers.length).to eq(2)
+    expect(instance.providers[:foo]).to eq("bar")
+    expect(instance.providers[:bar]).to eq("baz")
   end
 end

@@ -43,7 +43,7 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
       ]
 
       paths["/foo"].each do |data|
-        helper_class.should_receive(:rsync_single).
+        expect(helper_class).to receive(:rsync_single).
           with(data[:machine], data[:machine].ssh_info, data[:opts]).
           once
       end
@@ -64,7 +64,7 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
       ]
 
       paths["/foo"].each do |data|
-        helper_class.should_receive(:rsync_single).
+        expect(helper_class).to receive(:rsync_single).
           with(data[:machine], data[:machine].ssh_info, data[:opts]).
           once
       end
@@ -85,7 +85,7 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
       ]
 
       paths["/foo"].each do |data|
-        helper_class.should_receive(:rsync_single).
+        expect(helper_class).to receive(:rsync_single).
           with(data[:machine], data[:machine].ssh_info, data[:opts]).
           once
       end

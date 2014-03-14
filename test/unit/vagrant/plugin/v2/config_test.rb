@@ -24,8 +24,8 @@ describe Vagrant::Plugin::V2::Config do
       two.two = 5
 
       result = one.merge(two)
-      result.one.should == 2
-      result.two.should == 5
+      expect(result.one).to eq(2)
+      expect(result.two).to eq(5)
     end
 
     it "prefers any set value over an UNSET_VALUE" do
@@ -38,8 +38,8 @@ describe Vagrant::Plugin::V2::Config do
       two.two = 5
 
       result = one.merge(two)
-      result.one.should == 1
-      result.two.should == 5
+      expect(result.one).to eq(1)
+      expect(result.two).to eq(5)
     end
 
     it "doesn't merge values that start with a double underscore" do
@@ -54,9 +54,9 @@ describe Vagrant::Plugin::V2::Config do
 
       # Merge and verify
       result = one.merge(two)
-      result.one.should == 1
-      result.two.should == 2
-      result.instance_variable_get(:@__bar).should be_nil
+      expect(result.one).to eq(1)
+      expect(result.two).to eq(2)
+      expect(result.instance_variable_get(:@__bar)).to be_nil
     end
   end
 

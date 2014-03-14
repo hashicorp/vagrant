@@ -17,7 +17,7 @@ describe Vagrant::Util::Downloader do
   subject { described_class.new(source, destination) }
 
   before :each do
-    Vagrant::Util::Subprocess.stub(:execute).and_return(subprocess_result)
+    allow(Vagrant::Util::Subprocess).to receive(:execute).and_return(subprocess_result)
   end
 
   describe "#download!" do
@@ -31,11 +31,11 @@ describe Vagrant::Util::Downloader do
       let(:exit_code) { 0 }
 
       it "downloads the file and returns true" do
-        Vagrant::Util::Subprocess.should_receive(:execute).
+        expect(Vagrant::Util::Subprocess).to receive(:execute).
           with("curl", *curl_options).
           and_return(subprocess_result)
 
-        subject.download!.should be
+        expect(subject.download!).to be
       end
     end
 
@@ -43,7 +43,7 @@ describe Vagrant::Util::Downloader do
       let(:exit_code) { 1 }
 
       it "raises an exception" do
-        Vagrant::Util::Subprocess.should_receive(:execute).
+        expect(Vagrant::Util::Subprocess).to receive(:execute).
           with("curl", *curl_options).
           and_return(subprocess_result)
 
@@ -65,7 +65,7 @@ describe Vagrant::Util::Downloader do
         curl_options.insert(i, "foo:bar")
         curl_options.insert(i, "-u")
 
-        Vagrant::Util::Subprocess.should_receive(:execute).
+        expect(Vagrant::Util::Subprocess).to receive(:execute).
           with("curl", *curl_options).
           and_return(subprocess_result)
 
@@ -85,7 +85,7 @@ describe Vagrant::Util::Downloader do
       options = curl_options.dup
       options.unshift("-I")
 
-      Vagrant::Util::Subprocess.should_receive(:execute).
+      expect(Vagrant::Util::Subprocess).to receive(:execute).
         with("curl", *options).and_return(subprocess_result)
 
       expect(subject.head).to eq("foo")
