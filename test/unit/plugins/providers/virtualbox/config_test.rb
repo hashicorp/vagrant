@@ -4,22 +4,13 @@ require Vagrant.source_root.join("plugins/providers/virtualbox/config")
 
 describe VagrantPlugins::ProviderVirtualBox::Config do
   context "defaults" do
+    subject { VagrantPlugins::ProviderVirtualBox::Config.new }
+
     before { subject.finalize! }
 
-    describe '#check_guest_additions' do
-      subject { super().check_guest_additions }
-      it { should be_true }
-    end
-
-    describe '#gui' do
-      subject { super().gui }
-      it { should be_false }
-    end
-
-    describe '#name' do
-      subject { super().name }
-      it { should be_nil }
-    end
+    it { expect(subject.check_guest_additions).to be_true }
+    it { expect(subject.gui).to be_false }
+    it { expect(subject.name).to be_nil }
 
     it "should have one NAT adapter" do
       expect(subject.network_adapters).to eql({
