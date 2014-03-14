@@ -120,6 +120,9 @@ module Vagrant
         @id = id_file.read.chomp if id_file.file?
       end
 
+      # Keep track of where our UUID should be placed
+      @index_uuid_file = @data_dir.join("index_uuid")
+
       # Initializes the provider last so that it has access to all the
       # state we setup on this machine.
       @provider = provider_cls.new(self)
@@ -207,7 +210,8 @@ module Vagrant
       @logger.info("New machine ID: #{value.inspect}")
 
       # The file that will store the id if we have one. This allows the
-      # ID to persist across Vagrant runs.
+      # ID to persist across Vagrant runs. Also, store the UUID for the
+      # machine index.
       id_file = @data_dir.join("id")
 
       if value
@@ -215,9 +219,33 @@ module Vagrant
         id_file.open("w+") do |f|
           f.write(value)
         end
+
+        # If we don't have a UUID, then create one
+        if index_uuid.nil?
+          # Create the index entry and save it
+          entry = MachineIndex::Entry.new
+          entry.name = @name.to_s
+          entry.provider = @provider_name.to_s
+          entry.state = "preparing"
+          entry.vagrantfile_path = @env.root_path
+          entry = @env.machine_index.set(entry)
+          @env.machine_index.release(entry)
+
+          # Store our UUID so we can access it later
+          @index_uuid_file.open("w+") do |f|
+            f.write(entry.id)
+          end
+        end
       else
         # Delete the file, since the machine is now destroyed
         id_file.delete if id_file.file?
+
+        # If we have a UUID associated with the index, remove it
+        uuid = index_uuid
+        if uuid
+          entry = @env.machine_index.get(uuid)
+          @env.machine_index.delete(entry) if entry
+        end
 
         # Delete the entire data directory contents since all state
         # associated with the VM is now gone.
@@ -236,6 +264,15 @@ module Vagrant
       # Notify the provider that the ID changed in case it needs to do
       # any accounting from it.
       @provider.machine_id_changed
+    end
+
+    # Returns the UUID associated with this machine in the machine
+    # index. We only have a UUID if an ID has been set.
+    #
+    # @return [String] UUID or nil if we don't have one yet.
+    def index_uuid
+      return @index_uuid_file.read.chomp if @index_uuid_file.file?
+      return nil
     end
 
     # This returns a clean inspect value so that printing the value via
