@@ -21,7 +21,7 @@ module VagrantPlugins
         def self.mount_shared_folder(machine, name, guestpath, vm_provider_unc_base)
           name = name.gsub(/[\/\/]/,'_').sub(/^_/, '')
 
-          path = File.expand_path("../../scripts/mount_volume.ps1.erb", __FILE__)
+          path = File.expand_path("../../scripts/mount_volume.ps1", __FILE__)
           script = Vagrant::Util::TemplateRenderer.render(path, options: {
             mount_point: guestpath,
             share_name: name,
