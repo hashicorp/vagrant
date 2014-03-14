@@ -33,7 +33,7 @@ module Vagrant
 
             # Otherwise, periodically verify the VM isn't in a bad state.
             while true
-              state = env[:machine].provider.state.id
+              state = env[:machine].state.id
 
               # Used to report invalid states
               Thread.current[:last_known_state] = state
