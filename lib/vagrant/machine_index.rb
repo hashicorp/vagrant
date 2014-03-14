@@ -50,6 +50,38 @@ module Vagrant
       end
     end
 
+    # Deletes a machine by UUID.
+    #
+    # The machine being deleted with this UUID must either be locked
+    # by this index or must be unlocked.
+    #
+    # @param [Entry] entry The entry to delete.
+    # @return [Boolean] true if delete is successful
+    def delete(entry)
+      return true if !entry.id
+
+      @lock.synchronize do
+        with_index_lock do
+          return true if !@machines[entry.id]
+
+          # If we don't have the lock, then we need to acquire it.
+          if !@machine_locks[entry.id]
+            raise "Unlocked delete on machine: #{entry.id}"
+          end
+
+          # Reload so we have the latest data, then delete and save
+          unlocked_reload
+          @machines.delete(entry.id)
+          unlocked_save
+
+          # Release acccess on this machine
+          unlocked_release(entry.id)
+        end
+      end
+
+      true
+    end
+
     # Accesses a machine by UUID and returns a {MachineIndex::Entry}
     #
     # The entry returned is locked and can't be read again or updated by
@@ -94,11 +126,7 @@ module Vagrant
     # @param [Entry] entry
     def release(entry)
       @lock.synchronize do
-        lock_file = @machine_locks[entry.id]
-        if lock_file
-          lock_file.close
-          @machine_locks.delete(entry.id)
-        end
+        unlocked_release(entry.id)
       end
     end
 
@@ -168,6 +196,18 @@ module Vagrant
       end
 
       lock_file
+    end
+
+    # Releases a local lock on a machine. This does not acquire any locks
+    # so make sure to lock around it.
+    #
+    # @param [String] id
+    def unlocked_release(id)
+      lock_file = @machine_locks[id]
+      if lock_file
+        lock_file.close
+        @machine_locks.delete(id)
+      end
     end
 
     # This will reload the data without locking the index. It is assumed
