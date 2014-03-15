@@ -795,9 +795,11 @@ en:
 
         %{types}
       no_env: |-
-        A Vagrant environment is required to run this command. Run `vagrant init`
-        to set one up in this directory, or change to a directory with a
-        Vagrantfile and try again.
+        A Vagrant environment or target machine is required to run this
+        command. Run `vagrant init` to create a new Vagrant environment. Or,
+        get an ID of a target machine from `vagrant global-status` to run
+        this command on. A final option is to change to a directory with a
+        Vagrantfile and to try again.
       plugin_gem_not_found: |-
         The plugin '%{name}' could not be installed because it could not
         be found. Please double check the name and try again.
