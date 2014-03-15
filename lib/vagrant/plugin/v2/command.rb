@@ -1,6 +1,7 @@
 require 'log4r'
 
 require "vagrant/util/safe_puts"
+require "vagrant/util/silence_warnings"
 
 module Vagrant
   module Plugin
@@ -130,12 +131,18 @@ module Vagrant
               @env.machine_index.release(entry)
 
               # Create an environment for this location and yield the
-              # machine in that environment.
-              env = Vagrant::Environment.new(
-                cwd: entry.vagrantfile_path,
-                home_path: @env.home_path,
-              )
-              next env.machine(entry.name.to_sym, entry.provider.to_sym)
+              # machine in that environment. We silence warnings here because
+              # Vagrantfiles often have constants, so people would otherwise
+              # constantly (heh) get "already initialized constant" warnings.
+              machine = Vagrant::Util::SilenceWarnings.silence! do
+                env = Vagrant::Environment.new(
+                  cwd: entry.vagrantfile_path,
+                  home_path: @env.home_path,
+                )
+                env.machine(entry.name.to_sym, entry.provider.to_sym)
+              end
+
+              next machine
             end
 
             active_machines.each do |active_name, active_provider|
