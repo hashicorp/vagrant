@@ -2,6 +2,8 @@ require File.expand_path("../../../../base", __FILE__)
 require 'optparse'
 
 describe Vagrant::Plugin::V2::Command do
+  include_context "unit"
+
   describe "parsing options" do
     let(:klass) do
       Class.new(described_class) do
@@ -53,17 +55,16 @@ describe Vagrant::Plugin::V2::Command do
       end
     end
 
-    let(:default_provider) { :virtualbox }
-
     let(:environment) do
-      env = double("environment")
-      env.stub(:active_machines => [])
-      env.stub(:default_provider => default_provider)
-      env.stub(:root_path => "foo")
-      env
+      # We have to create a Vagrantfile so there is a root path
+      test_iso_env.vagrantfile("")
+      test_iso_env.create_vagrant_env
     end
+    let(:test_iso_env) { isolated_environment }
 
     let(:instance)    { klass.new([], environment) }
+
+    subject { instance }
 
     it "should raise an exception if a root_path is not available" do
       environment.stub(:root_path => nil)
@@ -82,8 +83,8 @@ describe Vagrant::Plugin::V2::Command do
       bar_vm.stub(ui: Vagrant::UI::Silent.new)
 
       environment.stub(:machine_names => [:foo, :bar])
-      allow(environment).to receive(:machine).with(:foo, default_provider).and_return(foo_vm)
-      allow(environment).to receive(:machine).with(:bar, default_provider).and_return(bar_vm)
+      allow(environment).to receive(:machine).with(:foo, environment.default_provider).and_return(foo_vm)
+      allow(environment).to receive(:machine).with(:bar, environment.default_provider).and_return(bar_vm)
 
       vms = []
       instance.with_target_vms do |vm|
@@ -106,7 +107,7 @@ describe Vagrant::Plugin::V2::Command do
       foo_vm.stub(:name => "foo", :provider => :foobarbaz)
       foo_vm.stub(ui: Vagrant::UI::Silent.new)
 
-      allow(environment).to receive(:machine).with(:foo, default_provider).and_return(foo_vm)
+      allow(environment).to receive(:machine).with(:foo, environment.default_provider).and_return(foo_vm)
 
       vms = []
       instance.with_target_vms("foo") { |vm| vms << vm }
@@ -167,8 +168,8 @@ describe Vagrant::Plugin::V2::Command do
       name = :foo
       machine = double("machine")
 
-      allow(environment).to receive(:machine).with(name, default_provider).and_return(machine)
-      machine.stub(:name => name, :provider => default_provider)
+      allow(environment).to receive(:machine).with(name, environment.default_provider).and_return(machine)
+      machine.stub(:name => name, :provider => environment.default_provider)
       machine.stub(ui: Vagrant::UI::Silent.new)
 
       results = []
@@ -198,15 +199,36 @@ describe Vagrant::Plugin::V2::Command do
       machine = double("machine")
 
       environment.stub(:active_machines => [])
-      allow(environment).to receive(:machine).with(name, default_provider).and_return(machine)
+      allow(environment).to receive(:machine).with(name, environment.default_provider).and_return(machine)
       environment.stub(:machine_names => [])
       environment.stub(:primary_machine_name => name)
-      machine.stub(:name => name, :provider => default_provider)
+      machine.stub(:name => name, :provider => environment.default_provider)
       machine.stub(ui: Vagrant::UI::Silent.new)
 
       vms = []
       instance.with_target_vms(nil, :single_target => true) { |vm| vms << machine }
       expect(vms).to eq([machine])
+    end
+
+    it "should yield machines from another environment" do
+      iso_env       = isolated_environment
+      iso_env.vagrantfile("")
+      other_env     = iso_env.create_vagrant_env(
+        home_path: environment.home_path)
+      other_machine = other_env.machine(
+        other_env.machine_names[0], other_env.default_provider)
+
+      # Set an ID on it so that it is "created" in the index
+      other_machine.id = "foo"
+
+      # Make sure we don't have a root path, to test
+      environment.stub(root_path: nil)
+
+      results = []
+      subject.with_target_vms(other_machine.index_uuid) { |m| results << m }
+
+      expect(results.length).to eq(1)
+      expect(results[0].id).to eq(other_machine.id)
     end
   end
 
