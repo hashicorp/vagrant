@@ -12,6 +12,13 @@ describe Vagrant::MachineIndex do
   let(:data_dir) { temporary_dir }
   let(:entry_klass) { Vagrant::MachineIndex::Entry }
 
+  let(:new_entry) do
+    entry_klass.new.tap do |e|
+      e.name = "foo"
+      e.vagrantfile_path = "/bar"
+    end
+  end
+
   subject { described_class.new(data_dir) }
 
   it "raises an exception if the data file is corrupt" do
@@ -96,6 +103,17 @@ describe Vagrant::MachineIndex do
       expect(result.updated_at).to eq("foo")
     end
 
+    it "returns a valid entry by unique prefix" do
+      result = subject.get("b")
+
+      expect(result).to_not be_nil
+      expect(result.id).to eq("bar")
+    end
+
+    it "should include? by prefix" do
+      expect(subject.include?("b")).to be_true
+    end
+
     it "locks the entry so subsequent gets fail" do
       result = subject.get("bar")
       expect(result).to_not be_nil
@@ -114,14 +132,22 @@ describe Vagrant::MachineIndex do
     end
   end
 
-  describe "#set and #get and #delete" do
-    let(:new_entry) do
-      entry_klass.new.tap do |e|
-        e.name = "foo"
-        e.vagrantfile_path = "/bar"
-      end
+  describe "#include" do
+    it "should not include non-existent things" do
+      expect(subject.include?("foo")).to be_false
     end
 
+    it "should include created entries" do
+      result = subject.set(new_entry)
+      expect(result.id).to_not be_empty
+      subject.release(result)
+
+      subject = described_class.new(data_dir)
+      expect(subject.include?(result.id)).to be_true
+    end
+  end
+
+  describe "#set and #get and #delete" do
     it "adds a new entry" do
       result = subject.set(new_entry)
       expect(result.id).to_not be_empty
