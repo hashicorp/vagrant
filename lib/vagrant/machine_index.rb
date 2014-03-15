@@ -108,9 +108,11 @@ module Vagrant
 
       @lock.synchronize do
         with_index_lock do
-          return nil if !@machines[uuid]
+          data = find_by_prefix(uuid)
+          return nil if !data
+          uuid = data["id"]
 
-          entry = Entry.new(uuid, @machines[uuid].merge("id" => uuid))
+          entry = Entry.new(uuid, data)
 
           # Lock this machine
           lock_file = lock_machine(uuid)
@@ -125,6 +127,14 @@ module Vagrant
       end
 
       entry
+    end
+
+    # Tests if the index has the given UUID.
+    #
+    # @param [String] uuid
+    # @return [Boolean]
+    def include?(uuid)
+      !!find_by_prefix(uuid)
     end
 
     # Releases an entry, unlocking it.
@@ -191,6 +201,17 @@ module Vagrant
     end
 
     protected
+
+    # Finds a machine where the UUID is prefixed by the given string.
+    #
+    # @return [Hash]
+    def find_by_prefix(prefix)
+      @machines.each do |uuid, data|
+        return data.merge("id" => uuid) if uuid.start_with?(prefix)
+      end
+
+      nil
+    end
 
     # Locks a machine exclusively to us, returning the file handle
     # that holds the lock.
