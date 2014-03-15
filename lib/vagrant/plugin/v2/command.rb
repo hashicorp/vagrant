@@ -82,15 +82,27 @@ module Vagrant
           @logger.debug(" -- names: #{names.inspect}")
           @logger.debug(" -- options: #{options.inspect}")
 
-          # Using VMs requires a Vagrant environment to be properly setup
-          raise Errors::NoEnvironmentError if !@env.root_path
-
           # Setup the options hash
           options ||= {}
 
           # Require that names be an array
           names ||= []
           names = [names] if !names.is_a?(Array)
+
+          # Determine if we require a local Vagrant environment. There are
+          # two cases that we require a local environment:
+          #
+          #   * We're asking for ANY/EVERY VM (no names given).
+          #
+          #   * We're asking for specific VMs, at least once of which
+          #     is NOT in the local machine index.
+          #
+          requires_local_env = false
+          requires_local_env = true if names.empty?
+          requires_local_env ||= names.any? { |n|
+            !@env.machine_index.include?(n)
+          }
+          raise Errors::NoEnvironmentError if requires_local_env && !@env.root_path
 
           # Cache the active machines outside the loop
           active_machines = @env.active_machines
@@ -111,6 +123,20 @@ module Vagrant
             # Check for an active machine with the same name
             provider_to_use = options[:provider]
             provider_to_use = provider_to_use.to_sym if provider_to_use
+
+            # If we have this machine in our index, load that.
+            entry = @env.machine_index.get(name.to_s)
+            if entry
+              @env.machine_index.release(entry)
+
+              # Create an environment for this location and yield the
+              # machine in that environment.
+              env = Vagrant::Environment.new(
+                cwd: entry.vagrantfile_path,
+                home_path: @env.home_path,
+              )
+              next env.machine(entry.name.to_sym, entry.provider.to_sym)
+            end
 
             active_machines.each do |active_name, active_provider|
               if name == active_name
