@@ -19,6 +19,8 @@ module VagrantPlugins
       attr_accessor :verbose
       attr_accessor :seed_master
       attr_reader   :pillar_data
+      attr_accessor :masterless
+      attr_accessor :minion_id
 
       ## bootstrap options
       attr_accessor :temp_config_dir
@@ -50,6 +52,8 @@ module VagrantPlugins
         @install_syndic = UNSET_VALUE
         @no_minion = UNSET_VALUE
         @bootstrap_options = UNSET_VALUE
+        @masterless = UNSET_VALUE
+        @minion_id = UNSET_VALUE
       end
 
       def finalize!
@@ -73,7 +77,8 @@ module VagrantPlugins
         @install_syndic     = nil if @install_syndic == UNSET_VALUE
         @no_minion          = nil if @no_minion == UNSET_VALUE
         @bootstrap_options  = nil if @bootstrap_options == UNSET_VALUE
-
+        @masterless 	    = false if @masterless == UNSET_VALUE
+        @minion_id 	    = nil if @minion_id == UNSET_VALUE
       end
 
       def pillar(data)
