@@ -23,6 +23,8 @@ module VagrantPlugins
       attr_reader   :pillar_data
       attr_accessor :colorize
       attr_accessor :log_level
+      attr_accessor :masterless
+      attr_accessor :minion_id
 
       ## bootstrap options
       attr_accessor :temp_config_dir
@@ -58,6 +60,8 @@ module VagrantPlugins
         @no_minion = UNSET_VALUE
         @bootstrap_options = UNSET_VALUE
         @config_dir = UNSET_VALUE
+        @masterless = UNSET_VALUE
+        @minion_id = UNSET_VALUE
       end
 
       def finalize!
@@ -85,7 +89,8 @@ module VagrantPlugins
         @no_minion          = nil if @no_minion == UNSET_VALUE
         @bootstrap_options  = nil if @bootstrap_options == UNSET_VALUE
         @config_dir         = nil if @config_dir == UNSET_VALUE
-
+        @masterless 	    = false if @masterless == UNSET_VALUE
+        @minion_id 	    = nil if @minion_id == UNSET_VALUE
       end
 
       def pillar(data)
@@ -149,8 +154,6 @@ module VagrantPlugins
 
         return {"salt provisioner" => errors}
       end
-
-
     end
   end
 end
