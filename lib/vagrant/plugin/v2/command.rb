@@ -138,6 +138,7 @@ module Vagrant
                 env = Vagrant::Environment.new(
                   cwd: entry.vagrantfile_path,
                   home_path: @env.home_path,
+                  ui_class: @env.ui_class,
                 )
                 env.machine(entry.name.to_sym, entry.provider.to_sym)
               end
