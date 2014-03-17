@@ -19,7 +19,12 @@ if ($existing_share) {
     net share $share_name /delete /y
 }
 
-$grant = "Everyone,Full"
+# The names of the user are language dependent!
+$objSID = New-Object System.Security.Principal.SecurityIdentifier("S-1-1-0")
+$objUser = $objSID.Translate([System.Security.Principal.NTAccount])
+
+$grant = "$objUser,Full"
+
 if (![string]::IsNullOrEmpty($host_share_username)) {
     $computer_name = $(Get-WmiObject Win32_Computersystem).name
     $grant         = "$computer_name\$host_share_username,Full"
@@ -38,7 +43,7 @@ if (![string]::IsNullOrEmpty($host_share_username)) {
 }
 
 $result = net share $share_name=$path /unlimited /GRANT:$grant
-if ($result -Match "$share_name was shared successfully.") {
+if ($LastExitCode -eq 0) {
     exit 0
 }
 
