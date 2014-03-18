@@ -3,6 +3,8 @@ require File.expand_path("../../../../base", __FILE__)
 require Vagrant.source_root.join("plugins/kernel_v2/config/vm")
 
 describe VagrantPlugins::Kernel_V2::VMConfig do
+  include_context "unit"
+
   subject { described_class.new }
 
   let(:machine) { double("machine") }
@@ -208,6 +210,24 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       r = subject.provisioners
       expect(r.length).to eql(1)
       expect(r[0]).to be_invalid
+    end
+
+    it "allows provisioners that don't define any config" do
+      register_plugin("2") do |p|
+        p.name "foo"
+        # This plugin registers a dummy provisioner
+        # without registering a provisioner config
+        p.provisioner(:foo) do
+          Class.new Vagrant::plugin("2", :provisioner)
+        end
+      end
+
+      subject.provision("foo") do |c|
+        c.bar = "baz"
+      end
+
+      # This should succeed without errors
+      expect{ subject.finalize! }.to_not raise_error
     end
 
     describe "merging" do

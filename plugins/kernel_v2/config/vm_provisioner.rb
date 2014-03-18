@@ -49,6 +49,7 @@ module VagrantPlugins
         if !@config_class
           @logger.info(
             "Provisioner config for '#{@name}' not found. Ignoring config.")
+          @config_class = Vagrant::Config::V2::DummyConfig
         end
       end
 
