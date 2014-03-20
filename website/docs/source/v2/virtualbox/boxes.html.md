@@ -67,7 +67,7 @@ guest additions. For example, for Linux on x86, it is the following:
 $ sudo sh /media/cdrom/VBoxLinuxAdditions.run
 ```
 
-If the commands succeeds, then the guest additions are now installed!
+If the command succeeds, then the guest additions are now installed!
 
 #### To install via the command line:
 
