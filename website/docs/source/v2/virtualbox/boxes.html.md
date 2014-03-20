@@ -46,7 +46,7 @@ and the basic developer tools. On Ubuntu, you can easily install these like
 so:
 
 ```
-$ sudo apt-get install linux-headers-$(uname -r) build-essential
+$ sudo apt-get install linux-headers-generic build-essential dkms
 ```
 
 Next, make sure that the guest additions image is available by using the
