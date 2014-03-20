@@ -15,6 +15,11 @@ module VagrantPlugins
         require_relative "cap/change_host_name"
         Cap::ChangeHostName
       end
+
+      guest_capability("omnios", "mount_nfs_folder") do
+        require_relative "cap/mount_nfs_folder"
+        Cap::MountNFSFolder
+      end
     end
   end
 end
