@@ -46,8 +46,10 @@ and the basic developer tools. On Ubuntu, you can easily install these like
 so:
 
 ```
-$ sudo apt-get install linux-headers-$(uname -r) build-essential
+$ sudo apt-get install linux-headers-generic build-essential dkms
 ```
+
+#### To install via the GUI:
 
 Next, make sure that the guest additions image is available by using the
 GUI and clicking on "Devices" followed by "Install Guest Additions".
@@ -65,12 +67,31 @@ guest additions. For example, for Linux on x86, it is the following:
 $ sudo sh /media/cdrom/VBoxLinuxAdditions.run
 ```
 
+If the command succeeds, then the guest additions are now installed!
+
+#### To install via the command line:
+
+You can find the appropriate guest additions version to match your VirtualBox
+version by selecting the appropriate version
+[here](http://download.virtualbox.org/virtualbox/). The examples below use
+4.3.8, which was the latest VirtualBox version at the time of writing.
+
+```
+wget http://download.virtualbox.org/virtualbox/4.3.8/VBoxGuestAdditions_4.3.8.iso
+sudo mkdir /media/VBoxGuestAdditions
+sudo mount -o loop,ro VBoxGuestAdditions_4.3.8.iso /media/VBoxGuestAdditions
+sudo sh /media/VBoxGuestAdditions/VBoxLinuxAdditions.run
+rm VBoxGuestAdditions_4.3.8.iso
+sudo umount /media/VBoxGuestAdditions
+sudo rmdir /media/VBoxGuestAdditions
+```
+
 If you didn’t install a Desktop environment when you installed the operating
 system, as recommended to reduce size, the install of the VirtualBox additions
 should warn you about the lack of OpenGL or Window System Drivers, but you can
 safely ignore this.
 
-If the command succeeds, then the guest additions are now installed!
+If the commands succeed, then the guest additions are now installed!
 
 ## Packaging the Box
 
