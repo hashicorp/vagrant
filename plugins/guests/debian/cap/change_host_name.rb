@@ -32,10 +32,12 @@ module VagrantPlugins
         end
 
         def get_current_hostname
+          hostname = ""
           sudo "hostname -f" do |type, data|
-            return data.chomp if type == :stdout
+            hostname = data.chomp if type == :stdout && hostname.empty?
           end
-          ''
+
+          hostname
         end
 
         def update_etc_hostname

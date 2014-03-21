@@ -10,6 +10,7 @@ BUG FIXES:
   - core: Vagrant won't collide with newer versions of Bundler [GH-3193]
   - core: Allow provisioner plugins to not have a config class. [GH-3272]
   - commands/status: Machine readable output contains the target. [GH-3218]
+  - guests/debian: Changing host name works properly. [GH-3283]
   - synced\_folders/smb: IDs of synced folders are hashed to work better
       with VMware. [GH-3219]
   - synced\_folders/smb: Passwords with symbols now work. [GH-3242]
