@@ -10,6 +10,9 @@ BUG FIXES:
   - commands/status: Machine readable output contains the target. [GH-3218]
   - synced\_folders/smb: IDs of synced folders are hashed to work better
       with VMware. [GH-3219]
+  - synced\_folders/smb: Passwords with symbols now work. [GH-3242]
+  - synced\_folders/smb: Exporting works for non-english locale Windows
+      machines. [GH-3251]
 
 ## 1.5.1 (March 13, 2014)
 
