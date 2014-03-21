@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+  - **New guest:** SmartOS
   - guests/omnios: Mount NFS capability [GH-3282]
 
 BUG FIXES:
