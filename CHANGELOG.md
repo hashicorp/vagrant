@@ -1,5 +1,9 @@
 ## 1.5.2 (unreleased)
 
+IMPROVEMENTS:
+
+  - guests/omnios: Mount NFS capability [GH-3282]
+
 BUG FIXES:
 
   - core: Vagrant won't collide with newer versions of Bundler [GH-3193]
