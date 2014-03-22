@@ -83,7 +83,7 @@ module VagrantPlugins
             end
 
             if message
-              @machine.ui.detail("Error: #{message} Retrying...")
+              @machine.ui.detail("Warning: #{message} Retrying...")
             end
           end
         end

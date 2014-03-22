@@ -3,6 +3,8 @@
 IMPROVEMENTS:
 
   - **New guest:** SmartOS
+  - core: Change wording from "error" to "warning" on SSH retry output
+    to convey actual meaning.
   - guests/omnios: Mount NFS capability [GH-3282]
 
 BUG FIXES:
