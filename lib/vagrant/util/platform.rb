@@ -1,4 +1,5 @@
 require 'rbconfig'
+require 'shellwords'
 require 'tmpdir'
 
 require "vagrant/util/subprocess"
@@ -67,7 +68,7 @@ module Vagrant
               "bash",
               "--noprofile",
               "--norc",
-              "-c", "cd #{path} && pwd")
+              "-c", "cd #{Shellwords.escape(path)} && pwd")
             return process.stdout.chomp
           end
         end
