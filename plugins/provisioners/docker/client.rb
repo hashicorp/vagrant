@@ -1,7 +1,7 @@
 require 'digest/sha1'
 
 module VagrantPlugins
-  module Docker
+  module DockerProvisioner
     class Client
       def initialize(machine)
         @machine = machine

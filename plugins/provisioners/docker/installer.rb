@@ -1,5 +1,5 @@
 module VagrantPlugins
-  module Docker
+  module DockerProvisioner
     class Installer
       def initialize(machine, version)
         @machine = machine

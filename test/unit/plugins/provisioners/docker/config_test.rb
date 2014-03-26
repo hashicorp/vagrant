@@ -2,7 +2,7 @@ require File.expand_path("../../../../base", __FILE__)
 
 require Vagrant.source_root.join("plugins/provisioners/docker/config")
 
-describe VagrantPlugins::Docker::Config do
+describe VagrantPlugins::DockerProvisioner::Config do
   subject { described_class.new }
 
   describe "#build_image" do
