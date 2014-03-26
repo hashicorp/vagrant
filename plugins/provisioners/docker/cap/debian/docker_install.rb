@@ -1,5 +1,5 @@
 module VagrantPlugins
-  module Docker
+  module DockerProvisioner
     module Cap
       module Debian
         module DockerInstall
