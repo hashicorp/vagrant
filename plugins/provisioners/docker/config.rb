@@ -1,7 +1,7 @@
 require 'set'
 
 module VagrantPlugins
-  module Docker
+  module DockerProvisioner
     class Config < Vagrant.plugin("2", :config)
       attr_reader :images
       attr_accessor :version

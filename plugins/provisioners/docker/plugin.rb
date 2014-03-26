@@ -1,7 +1,7 @@
 require "vagrant"
 
 module VagrantPlugins
-  module Docker
+  module DockerProvisioner
     class Plugin < Vagrant.plugin("2")
       name "docker"
       description <<-DESC
