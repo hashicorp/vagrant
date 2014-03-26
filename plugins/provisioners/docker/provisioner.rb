@@ -2,7 +2,7 @@ require_relative "client"
 require_relative "installer"
 
 module VagrantPlugins
-  module Docker
+  module DockerProvisioner
     class DockerError < Vagrant::Errors::VagrantError
       error_namespace("vagrant.provisioners.docker")
     end
