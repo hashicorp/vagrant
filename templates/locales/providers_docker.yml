@@ -1,0 +1,32 @@
+en:
+  docker_provider:
+    messages:
+      not_created: |-
+        The container hasn't been created yet.
+      not_running: |-
+        The container is not currently running.
+      will_not_destroy: |-
+        The container '%{name}' will not be destroyed, since the confirmation
+        was declined.
+      starting: |-
+        Starting container...
+      stopping: |-
+        Stopping container...
+      container_ready: |-
+        Container started and ready for use!
+
+    errors:
+      config:
+        cmd_not_set: |-
+          The Docker command has not been set!
+
+  vagrant:
+    errors:
+      docker_provider_nfs_without_privileged: |-
+        You've configured a NFS synced folder but didn't enable privileged
+        mode for the container. Please set the `privileged` option to true
+        on the provider block from your Vagrantfile, recreate the container
+        and try again.
+
+      docker_provider_image_not_configured: |-
+        The base Docker image has not been set for the '%{name}' VM!
