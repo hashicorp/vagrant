@@ -40,13 +40,13 @@ module VagrantPlugins
           b.use ConfigValidate
           b.use Call, Created do |env1, b2|
             if !env1[:result]
-              b2.use Message, :not_created
+              b2.use Message, I18n.t("docker_provider.messages.not_created")
               next
             end
 
             b2.use Call, IsRunning do |env2, b3|
               if !env2[:result]
-                b3.use Message, :not_running
+                b3.use Message, I18n.t("docker_provider.messages.not_running")
                 next
               end
 
@@ -68,7 +68,7 @@ module VagrantPlugins
                 end
               end
             else
-              b2.use Message, :not_created
+              b2.use Message, I18n.t("docker_provider.messages.not_created")
             end
           end
         end
@@ -81,7 +81,7 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           b.use Call, Created do |env1, b2|
             if !env1[:result]
-              b2.use Message, :not_created
+              b2.use Message, I18n.t("docker_provider.messages.not_created")
               next
             end
 
@@ -98,7 +98,7 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           b.use Call, Created do |env1, b2|
             if !env1[:result]
-              b2.use Message, :not_created
+              b2.use Message, I18n.t("docker_provider.messages.not_created")
               next
             end
 
@@ -110,7 +110,7 @@ module VagrantPlugins
                 b3.use Destroy
                 b3.use ProvisionerCleanup
               else
-                b3.use Message, :will_not_destroy
+                b3.use Message, I18n.t("docker_provider.messages.will_not_destroy")
               end
             end
           end
@@ -141,7 +141,7 @@ module VagrantPlugins
             next if env[:result]
 
             b2.use Provision
-            b2.use Message, :starting
+            b2.use Message, I18n.t("docker_provider.messages.starting")
             b2.use action_boot
           end
         end
@@ -163,7 +163,6 @@ module VagrantPlugins
       autoload :Destroy, action_root.join("destroy")
       autoload :ForwardPorts, action_root.join("forward_ports")
       autoload :Stop, action_root.join("stop")
-      autoload :Message, action_root.join("message")
       autoload :PrepareNFSValidIds, action_root.join("prepare_nfs_valid_ids")
       autoload :PrepareNFSSettings, action_root.join("prepare_nfs_settings")
       autoload :IsRunning, action_root.join("is_running")
