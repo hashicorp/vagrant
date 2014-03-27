@@ -228,17 +228,17 @@ As `ansible-playbook` command looks for local `ansible.cfg` configuration file i
 
 Note that it is also possible to reference an Ansible configuration file via `ANSIBLE_CONFIG` environment variable, if you want to be flexible about the location of this file.
 
-### Why Ansible provisioner does connect with a wrong user ?
+### Why does the Ansible provisioner connect as the wrong user?
 
-It is good to know that following Ansible settings always override `config.ssh.username` option defined in [Vagrant SSH Settings](/v2/vagrantfile/ssh_settings.html):
+It is good to know that following Ansible settings always override the `config.ssh.username` option defined in [Vagrant SSH Settings](/v2/vagrantfile/ssh_settings.html):
 
 * `ansible_ssh_user` variable
 * `remote_user` (or `user`) play attribute
 * `remote_user` task attribute
 
-Be aware that copying snippets from Ansible documentation might lead to this problem, as `root` is used as remote user in many [examples](http://docs.ansible.com/playbooks_intro.html#hosts-and-users).
+Be aware that copying snippets from the Ansible documentation might lead to this problem, as `root` is used as the remote user in many [examples](http://docs.ansible.com/playbooks_intro.html#hosts-and-users).
 
-Example of SSH error (with `vvv` log level), where an undefined remote user `xyz` has replaced `vagrant`:
+Example of an SSH error (with `vvv` log level), where an undefined remote user `xyz` has replaced `vagrant`:
 
 ```
 TASK: [my_role | do something] *****************
