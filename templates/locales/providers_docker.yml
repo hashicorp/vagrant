@@ -6,8 +6,7 @@ en:
       not_running: |-
         The container is not currently running.
       will_not_destroy: |-
-        The container '%{name}' will not be destroyed, since the confirmation
-        was declined.
+        The container will not be destroyed, since the confirmation was declined.
       starting: |-
         Starting container...
       stopping: |-
