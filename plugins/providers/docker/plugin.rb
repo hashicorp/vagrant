@@ -6,6 +6,10 @@ module VagrantPlugins
 
     class Plugin < Vagrant.plugin("2")
       name "docker-provider"
+      description <<-EOF
+      The Docker provider allows Vagrant to manage and control
+      Docker containers.
+      EOF
 
       provider(:docker, parallel: true) do
         require_relative 'provider'
