@@ -1,6 +1,7 @@
 module VagrantPlugins
   module DockerProvider
     module Action
+      # Include the built-in modules so we can use them as top-level things.
       include Vagrant::Action::Builtin
 
       # This action brings the "machine" up from nothing, including creating the
@@ -8,8 +9,9 @@ module VagrantPlugins
       def self.action_up
         Vagrant::Action::Builder.new.tap do |b|
           b.use ConfigValidate
-          b.use Call, Created do |env, b2|
-            if !env[:result]
+          b.use Call, IsState, :not_created do |env, b2|
+            # If the VM is NOT created yet, then do the setup steps
+            if env[:result]
               b2.use HandleBox
               # TODO: Find out where this fits into the process
               # b2.use EnvSet, :port_collision_repair => true
@@ -38,13 +40,13 @@ module VagrantPlugins
       def self.action_provision
         Vagrant::Action::Builder.new.tap do |b|
           b.use ConfigValidate
-          b.use Call, Created do |env1, b2|
-            if !env1[:result]
+          b.use Call, IsState, :not_created do |env, b2|
+            if env[:result]
               b2.use Message, I18n.t("docker_provider.messages.not_created")
               next
             end
 
-            b2.use Call, IsRunning do |env2, b3|
+            b2.use Call, IsState, :running do |env2, b3|
               if !env2[:result]
                 b3.use Message, I18n.t("docker_provider.messages.not_running")
                 next
@@ -60,15 +62,16 @@ module VagrantPlugins
       # the virtual machine, gracefully or by force.
       def self.action_halt
         Vagrant::Action::Builder.new.tap do |b|
-          b.use Call, Created do |env, b2|
+          b.use Call, IsState, :not_created do |env, b2|
             if env[:result]
-              b2.use Call, GracefulHalt, :stopped, :running do |env2, b3|
-                if !env2[:result]
-                  b3.use Stop
-                end
-              end
-            else
               b2.use Message, I18n.t("docker_provider.messages.not_created")
+              next
+            end
+
+            b2.use Call, GracefulHalt, :stopped, :running do |env2, b3|
+              if !env2[:result]
+                b3.use Stop
+              end
             end
           end
         end
@@ -79,8 +82,8 @@ module VagrantPlugins
       # machine back up with the new configuration.
       def self.action_reload
         Vagrant::Action::Builder.new.tap do |b|
-          b.use Call, Created do |env1, b2|
-            if !env1[:result]
+          b.use Call, IsState, :not_created do |env, b2|
+            if env[:result]
               b2.use Message, I18n.t("docker_provider.messages.not_created")
               next
             end
@@ -96,8 +99,8 @@ module VagrantPlugins
       # freeing the resources of the underlying virtual machine.
       def self.action_destroy
         Vagrant::Action::Builder.new.tap do |b|
-          b.use Call, Created do |env1, b2|
-            if !env1[:result]
+          b.use Call, IsState, :not_created do |env, b2|
+            if env[:result]
               b2.use Message, I18n.t("docker_provider.messages.not_created")
               next
             end
@@ -120,23 +123,47 @@ module VagrantPlugins
       # This is the action that will exec into an SSH shell.
       def self.action_ssh
         Vagrant::Action::Builder.new.tap do |b|
-          b.use CheckRunning
-          b.use SSHExec
+          b.use Call, IsState, :not_created do |env, b2|
+            if env[:result]
+              b2.use Message, I18n.t("docker_provider.messages.not_created")
+              next
+            end
+
+            b2.use Call, IsState, :running do |env2, b3|
+              if !env2[:result]
+                b3.use Message, I18n.t("docker_provider.messages.not_running")
+                next
+              end
+              b3.use SSHExec
+            end
+          end
         end
       end
 
       # This is the action that will run a single SSH command.
       def self.action_ssh_run
         Vagrant::Action::Builder.new.tap do |b|
-          b.use CheckRunning
-          b.use SSHRun
+          b.use Call, IsState, :not_created do |env, b2|
+            if env[:result]
+              b2.use Message, I18n.t("docker_provider.messages.not_created")
+              next
+            end
+
+            b2.use Call, IsState, :running do |env2, b3|
+              if !env2[:result]
+                raise Vagrant::Errors::VMNotRunningError
+              end
+
+              b3.use SSHRun
+            end
+          end
         end
       end
 
       def self.action_start
         Vagrant::Action::Builder.new.tap do |b|
           b.use ConfigValidate
-          b.use Call, IsRunning do |env, b2|
+          b.use Call, IsState, :running do |env, b2|
             # If the container is running, then our work here is done, exit
             next if env[:result]
 
@@ -157,15 +184,12 @@ module VagrantPlugins
 
       # The autoload farm
       action_root = Pathname.new(File.expand_path("../action", __FILE__))
-      autoload :CheckRunning, action_root.join("check_running")
-      autoload :Created, action_root.join("created")
       autoload :Create, action_root.join("create")
       autoload :Destroy, action_root.join("destroy")
       autoload :ForwardPorts, action_root.join("forward_ports")
       autoload :Stop, action_root.join("stop")
       autoload :PrepareNFSValidIds, action_root.join("prepare_nfs_valid_ids")
       autoload :PrepareNFSSettings, action_root.join("prepare_nfs_settings")
-      autoload :IsRunning, action_root.join("is_running")
       autoload :Start, action_root.join("start")
     end
   end
