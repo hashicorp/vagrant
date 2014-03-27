@@ -1,25 +1,23 @@
 module VagrantPlugins
   module DockerProvider
     module Action
-      # Shortcuts
-      Builtin = Vagrant::Action::Builtin
-      Builder = Vagrant::Action::Builder
+      include Vagrant::Action::Builtin
 
       # This action brings the "machine" up from nothing, including creating the
       # container, configuring metadata, and booting.
       def self.action_up
-        Builder.new.tap do |b|
-          b.use Builtin::ConfigValidate
-          b.use Builtin::Call, Created do |env, b2|
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use ConfigValidate
+          b.use Call, Created do |env, b2|
             if !env[:result]
-              b2.use Builtin::HandleBoxUrl
+              b2.use HandleBoxUrl
               # TODO: Find out where this fits into the process
-              # b2.use Builtin::EnvSet, :port_collision_repair => true
-              # b2.use Builtin::HandleForwardedPortCollisions
-              b2.use Builtin::Provision
+              # b2.use EnvSet, :port_collision_repair => true
+              # b2.use HandleForwardedPortCollisions
+              b2.use Provision
               b2.use PrepareNFSValidIds
-              b2.use Builtin::SyncedFolderCleanup
-              b2.use Builtin::SyncedFolders
+              b2.use SyncedFolderCleanup
+              b2.use SyncedFolders
               b2.use PrepareNFSSettings
               b2.use ForwardPorts
               # This will actually create and start, but that's fine
@@ -27,8 +25,8 @@ module VagrantPlugins
               b2.use action_boot
             else
               b2.use PrepareNFSValidIds
-              b2.use Builtin::SyncedFolderCleanup
-              b2.use Builtin::SyncedFolders
+              b2.use SyncedFolderCleanup
+              b2.use SyncedFolders
               b2.use PrepareNFSSettings
               b2.use action_start
             end
@@ -38,21 +36,21 @@ module VagrantPlugins
 
       # This action just runs the provisioners on the machine.
       def self.action_provision
-        Builder.new.tap do |b|
-          b.use Builtin::ConfigValidate
-          b.use Builtin::Call, Created do |env1, b2|
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use ConfigValidate
+          b.use Call, Created do |env1, b2|
             if !env1[:result]
               b2.use Message, :not_created
               next
             end
 
-            b2.use Builtin::Call, IsRunning do |env2, b3|
+            b2.use Call, IsRunning do |env2, b3|
               if !env2[:result]
                 b3.use Message, :not_running
                 next
               end
 
-              b3.use Builtin::Provision
+              b3.use Provision
             end
           end
         end
@@ -61,10 +59,10 @@ module VagrantPlugins
       # This is the action that is primarily responsible for halting
       # the virtual machine, gracefully or by force.
       def self.action_halt
-        Builder.new.tap do |b|
-          b.use Builtin::Call, Created do |env, b2|
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use Call, Created do |env, b2|
             if env[:result]
-              b2.use Builtin::Call, Builtin::GracefulHalt, :stopped, :running do |env2, b3|
+              b2.use Call, GracefulHalt, :stopped, :running do |env2, b3|
                 if !env2[:result]
                   b3.use Stop
                 end
@@ -80,14 +78,14 @@ module VagrantPlugins
       # brings it down, sucks in new configuration, and brings the
       # machine back up with the new configuration.
       def self.action_reload
-        Builder.new.tap do |b|
-          b.use Builtin::Call, Created do |env1, b2|
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use Call, Created do |env1, b2|
             if !env1[:result]
               b2.use Message, :not_created
               next
             end
 
-            b2.use Builtin::ConfigValidate
+            b2.use ConfigValidate
             b2.use action_halt
             b2.use action_start
           end
@@ -97,20 +95,20 @@ module VagrantPlugins
       # This is the action that is primarily responsible for completely
       # freeing the resources of the underlying virtual machine.
       def self.action_destroy
-        Builder.new.tap do |b|
-          b.use Builtin::Call, Created do |env1, b2|
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use Call, Created do |env1, b2|
             if !env1[:result]
               b2.use Message, :not_created
               next
             end
 
-            b2.use Builtin::Call, Builtin::DestroyConfirm do |env2, b3|
+            b2.use Call, DestroyConfirm do |env2, b3|
               if env2[:result]
-                b3.use Builtin::ConfigValidate
-                b3.use Builtin::EnvSet, :force_halt => true
+                b3.use ConfigValidate
+                b3.use EnvSet, :force_halt => true
                 b3.use action_halt
                 b3.use Destroy
-                b3.use Builtin::ProvisionerCleanup
+                b3.use ProvisionerCleanup
               else
                 b3.use Message, :will_not_destroy
               end
@@ -121,28 +119,28 @@ module VagrantPlugins
 
       # This is the action that will exec into an SSH shell.
       def self.action_ssh
-        Builder.new.tap do |b|
+        Vagrant::Action::Builder.new.tap do |b|
           b.use CheckRunning
-          b.use Builtin::SSHExec
+          b.use SSHExec
         end
       end
 
       # This is the action that will run a single SSH command.
       def self.action_ssh_run
-        Builder.new.tap do |b|
+        Vagrant::Action::Builder.new.tap do |b|
           b.use CheckRunning
-          b.use Builtin::SSHRun
+          b.use SSHRun
         end
       end
 
       def self.action_start
-        Builder.new.tap do |b|
-          b.use Builtin::ConfigValidate
-          b.use Builtin::Call, IsRunning do |env, b2|
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use ConfigValidate
+          b.use Call, IsRunning do |env, b2|
             # If the container is running, then our work here is done, exit
             next if env[:result]
 
-            b2.use Builtin::Provision
+            b2.use Provision
             b2.use Message, :starting
             b2.use action_boot
           end
@@ -150,10 +148,10 @@ module VagrantPlugins
       end
 
       def self.action_boot
-        Builder.new.tap do |b|
-          # TODO: b.use Builtin::SetHostname
+        Vagrant::Action::Builder.new.tap do |b|
+          # TODO: b.use SetHostname
           b.use Start
-          b.use Builtin::WaitForCommunicator
+          b.use WaitForCommunicator
         end
       end
 
