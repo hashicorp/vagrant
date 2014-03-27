@@ -1,8 +1,5 @@
 require "log4r"
 
-require_relative 'driver'
-require_relative 'action'
-
 module VagrantPlugins
   module DockerProvider
     class Provider < Vagrant.plugin("2", :provider)
