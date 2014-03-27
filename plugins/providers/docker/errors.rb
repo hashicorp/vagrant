@@ -1,5 +1,3 @@
-require 'vagrant/errors'
-
 module VagrantPlugins
   module DockerProvider
     module Errors
