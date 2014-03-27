@@ -184,7 +184,7 @@ describe VagrantPlugins::DockerProvider::Driver do
     before { subject.stub(execute: containers) }
 
     it 'returns an array of all known containers' do
-      subject.should_receive(:execute).with('docker', 'ps', '-a', '-q', '-notrunc')
+      subject.should_receive(:execute).with('docker', 'ps', '-a', '-q', '--no-trunc')
       expect(subject.all_containers).to eq(['container1', 'container2'])
     end
   end

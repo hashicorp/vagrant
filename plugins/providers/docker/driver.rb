@@ -21,10 +21,10 @@ module VagrantPlugins
         name    = params.fetch(:name)
         cmd     = Array(params.fetch(:cmd))
 
-        run_cmd = %W(docker run -name #{name} -d)
+        run_cmd = %W(docker run --name #{name} -d)
         run_cmd += ports.map { |p| ['-p', p.to_s] }
         run_cmd += volumes.map { |v| ['-v', v.to_s] }
-        run_cmd += %W(-privileged) if params[:privileged]
+        run_cmd += %W(--privileged) if params[:privileged]
         run_cmd += %W(-h #{params[:hostname]}) if params[:hostname]
         run_cmd += [image, cmd]
 
@@ -45,12 +45,12 @@ module VagrantPlugins
       end
 
       def created?(cid)
-        result = execute('docker', 'ps', '-a', '-q', '-notrunc').to_s
+        result = execute('docker', 'ps', '-a', '-q', '--no-trunc').to_s
         result =~ /^#{Regexp.escape cid}$/
       end
 
       def running?(cid)
-        result = execute('docker', 'ps', '-q', '-notrunc')
+        result = execute('docker', 'ps', '-q', '--no-trunc')
         result =~ /^#{Regexp.escape cid}$/m
       end
 
@@ -87,7 +87,7 @@ module VagrantPlugins
       end
 
       def all_containers
-        execute('docker', 'ps', '-a', '-q', '-notrunc').to_s.split
+        execute('docker', 'ps', '-a', '-q', '--no-trunc').to_s.split
       end
 
       def docker_bridge_ip
