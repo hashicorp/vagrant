@@ -13,9 +13,8 @@ module VagrantPlugins
             # If the VM is NOT created yet, then do the setup steps
             if env[:result]
               b2.use HandleBox
-              # TODO: Find out where this fits into the process
-              # b2.use EnvSet, :port_collision_repair => true
-              # b2.use HandleForwardedPortCollisions
+              b2.use EnvSet, :port_collision_repair => true
+              b2.use HandleForwardedPortCollisions
               b2.use Provision
               b2.use PrepareNFSValidIds
               b2.use SyncedFolderCleanup
