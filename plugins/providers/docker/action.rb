@@ -10,7 +10,7 @@ module VagrantPlugins
           b.use ConfigValidate
           b.use Call, Created do |env, b2|
             if !env[:result]
-              b2.use HandleBoxUrl
+              b2.use HandleBox
               # TODO: Find out where this fits into the process
               # b2.use EnvSet, :port_collision_repair => true
               # b2.use HandleForwardedPortCollisions
