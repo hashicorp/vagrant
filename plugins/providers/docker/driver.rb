@@ -28,9 +28,7 @@ module VagrantPlugins
         run_cmd += %W(-h #{params[:hostname]}) if params[:hostname]
         run_cmd += [image, cmd]
 
-        retryable(tries: 10, sleep: 1) do
-          execute(*run_cmd.flatten).chomp
-        end
+        execute(*run_cmd.flatten).chomp
       end
 
       def state(cid)
