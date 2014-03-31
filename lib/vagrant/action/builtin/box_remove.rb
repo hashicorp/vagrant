@@ -65,6 +65,14 @@ module Vagrant
           box = env[:box_collection].find(
             box_name, box_provider, box_version)
 
+          if box == nil
+            raise Errors::BoxRemoveVersionNotFound,
+              name: box_name,
+              provider: box_provider.to_s,
+              version: box_version,
+              versions: all_versions.join(", ")
+          end
+
           env[:ui].info(I18n.t("vagrant.commands.box.removing",
                               :name => box.name,
                               :provider => box.provider))
