@@ -76,7 +76,7 @@ module VagrantPlugins
         command = [
           "rsync",
           args,
-          "-e", rsh,
+          "-e",'"', rsh,'"',
           excludes.map { |e| ["--exclude", e] },
           hostpath,
           "#{username}@#{host}:#{guestpath}",
