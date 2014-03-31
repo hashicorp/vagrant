@@ -115,7 +115,7 @@ module VagrantPlugins
 
             if adapter[:intnet]
               args.concat(["--intnet#{adapter[:adapter]}",
-                          adapter[:intnet]])
+                          adapter[:intnet], "--cableconnected#{adapter[:adapter]}", "on"])
             end
 
             if adapter[:mac_address]
