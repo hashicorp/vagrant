@@ -110,7 +110,7 @@ module VagrantPlugins
 
             if adapter[:hostonly]
               args.concat(["--hostonlyadapter#{adapter[:adapter]}",
-                          adapter[:hostonly]])
+                          adapter[:hostonly], "--cableconnected#{adapter[:adapter]}", "on"])
             end
 
             if adapter[:intnet]
