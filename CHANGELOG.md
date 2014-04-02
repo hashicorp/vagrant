@@ -23,6 +23,8 @@ BUG FIXES:
   - provisioners/docker: Use proper flags for 0.9. [GH-3356]
   - synced\_folders/smb: IDs of synced folders are hashed to work better
       with VMware. [GH-3219]
+  - synced\_folders/smb: Properly remove existing folders with the
+      same name. [GH-3354]
   - synced\_folders/smb: Passwords with symbols now work. [GH-3242]
   - synced\_folders/smb: Exporting works for non-english locale Windows
       machines. [GH-3251]
