@@ -72,9 +72,11 @@ module Vagrant
           install_lambda.call
         end
 
-        # If the version constraint is just a specific version, don't
+        # If the version constraint is just a specific (non prerelease) version, don't
         # store the constraint.
-        opts.delete(:version) if opts[:version] && opts[:version] =~ /^\d/
+        if opts[:version] && opts[:version] =~ /^\d/ && !Gem::Requirement.parse(opts[:version])[1].prerelease?
+          opts.delete(:version)
+        end
 
         # Add the plugin to the state file
         @user_file.add_plugin(
