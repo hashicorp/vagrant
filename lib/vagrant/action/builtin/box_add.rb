@@ -119,6 +119,10 @@ module Vagrant
             raise Errors::BoxAddNameRequired
           end
 
+          if env[:box_version]
+            raise Errors::BoxAddDirectVersion
+          end
+
           provider = env[:box_provider]
           provider = Array(provider) if provider
 

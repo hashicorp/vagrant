@@ -24,6 +24,7 @@ BUG FIXES:
   - core: Better error message when adding a box with a malformed version. [GH-3332]
   - core: Fix a rare issue where vagrant up would complain it couldn't
       check version of a box that doesn't exist. [GH-3326]
+  - core: Box version constraint can't be specified with old-style box. [GH-3260]
   - commands/box: Show versions when listing. [GH-3316]
   - commands/box: Outdated check can list local boxes that are newer. [GH-3321]
   - commands/status: Machine readable output contains the target. [GH-3218]

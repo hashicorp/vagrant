@@ -336,6 +336,11 @@ en:
         Name: %{name}
         Provider: %{provider}
         Version: %{version}
+      box_add_direct_version: |-
+        You specified a box version constraint with a direct box file
+        path. Box version constraints only work with boxes from Vagrant
+        Cloud or a custom box host. Please remove the version constraint
+        and try again.
       box_add_metadata_multi_url: |-
         Multiple URLs for a box can't be specified when adding
         versioned boxes. Please specify a single URL to the box

@@ -120,6 +120,10 @@ module Vagrant
       error_key(:batch_multi_error)
     end
 
+    class BoxAddDirectVersion < VagrantError
+      error_key(:box_add_direct_version)
+    end
+
     class BoxAddMetadataMultiURL < VagrantError
       error_key(:box_add_metadata_multi_url)
     end

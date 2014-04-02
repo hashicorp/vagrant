@@ -177,6 +177,21 @@ describe Vagrant::Action::Builtin::BoxAdd do
         to raise_error(Vagrant::Errors::DownloaderError)
     end
 
+    it "raises an error if a version was specified" do
+      box_path = iso_env.box2_file(:virtualbox)
+
+      env[:box_name] = "foo"
+      env[:box_url] = box_path.to_s
+      env[:box_version] = "1"
+
+      expect(box_collection).to receive(:add).never
+
+      expect(app).to receive(:call).never
+
+      expect { subject.call(env) }.
+        to raise_error(Vagrant::Errors::BoxAddDirectVersion)
+    end
+
     it "force adds if exists and specified" do
       box_path = iso_env.box2_file(:virtualbox)
 
