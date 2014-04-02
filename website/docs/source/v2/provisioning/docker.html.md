@@ -119,8 +119,13 @@ Vagrant.configure("2") do |config|
 end
 ```
 
-This will `docker run` a container with the "rabbitmq" image. In addition
-to the name, the `run` method accepts a set of options, all optional:
+This will `docker run` a container with the "rabbitmq" image. Note that
+Vagrant uses the first parameter (the image name by default) to override any
+settings used in a previous `run` definition. Therefore, if you need to run
+multiple containers from the same image then you must specify the `image`
+option (documented below) with a unique name.
+
+In addition to the name, the `run` method accepts a set of options, all optional:
 
 * `image` (string) - The image to run. This defaults to the first argument
   but can also be given here as an option.
