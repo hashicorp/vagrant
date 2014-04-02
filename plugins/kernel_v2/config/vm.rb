@@ -578,7 +578,7 @@ module VagrantPlugins
           end
 
           if type == :private_network
-            if options[:type] != :dhcp
+            if options[:type].to_sym != :dhcp
               if !options[:ip]
                 errors << I18n.t("vagrant.config.vm.network_ip_required")
               end

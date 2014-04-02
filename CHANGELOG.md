@@ -14,6 +14,8 @@ BUG FIXES:
   - core: Removing a specific box version that doesn't exist doesn't
       crash Vagrant. [GH-3364]
   - core: SSH commands are forced to be ASCII.
+  - core: private networks with DHCP type work if type parameter is
+      a string and not a symbol. [GH-3349]
   - commands/status: Machine readable output contains the target. [GH-3218]
   - guests/debian: Changing host name works properly. [GH-3283]
   - guests/suse: Shutdown works correctly on SLES [GH-2775]
