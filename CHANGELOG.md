@@ -26,6 +26,7 @@ BUG FIXES:
   - guests/arch: Reload udev rules after network change. [GH-3322]
   - guests/debian: Changing host name works properly. [GH-3283]
   - guests/suse: Shutdown works correctly on SLES [GH-2775]
+  - hosts/linux: Don't hardcode `exportfs` path. Now searches the PATH. [GH-3292]
   - providers/hyperv: Resume command works properly. [GH-3336]
   - providers/virtualbox: Add missing translation for stopping status. [GH-3368]
   - providers/virtualbox: Host-only networks set cableconnected property
