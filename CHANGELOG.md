@@ -13,6 +13,7 @@ BUG FIXES:
   - core: Allow provisioner plugins to not have a config class. [GH-3272]
   - core: Removing a specific box version that doesn't exist doesn't
       crash Vagrant. [GH-3364]
+  - core: SSH commands are forced to be ASCII.
   - commands/status: Machine readable output contains the target. [GH-3218]
   - guests/debian: Changing host name works properly. [GH-3283]
   - guests/suse: Shutdown works correctly on SLES [GH-2775]
