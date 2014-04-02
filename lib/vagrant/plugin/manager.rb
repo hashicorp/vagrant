@@ -72,9 +72,10 @@ module Vagrant
           install_lambda.call
         end
 
-        # If the version constraint is just a specific (non prerelease) version, don't
-        # store the constraint.
-        if opts[:version] && opts[:version] =~ /^\d/ && !Gem::Requirement.parse(opts[:version])[1].prerelease?
+        # If the version constraint is just a specific version, don't
+        # store the constraint. However, if it is a prerelease version,
+        # we DO store the constraint to avoid Bundler updating it.
+        if opts[:version] && opts[:version] =~ /^\d/ && opts[:version] !~ /[a-z]/i
           opts.delete(:version)
         end
 
