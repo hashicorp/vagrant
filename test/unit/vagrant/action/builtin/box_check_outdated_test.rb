@@ -127,6 +127,32 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
       expect(env[:box_outdated]).to be_true
     end
 
+    it "has an update if it is local" do
+      iso_env.box3("foo", "1.1", :virtualbox)
+
+      expect(box).to receive(:has_update?).and_return(nil)
+
+      expect(app).to receive(:call).with(env).once
+
+      subject.call(env)
+
+      expect(env[:box_outdated]).to be_true
+    end
+
+    it "does not have a local update if not within constraints" do
+      iso_env.box3("foo", "1.1", :virtualbox)
+
+      machine.config.vm.box_version = "> 1.0, < 1.1"
+
+      expect(box).to receive(:has_update?).and_return(nil)
+
+      expect(app).to receive(:call).with(env).once
+
+      subject.call(env)
+
+      expect(env[:box_outdated]).to be_false
+    end
+
     it "raises error if has_update? errors" do
       expect(box).to receive(:has_update?).and_raise(Vagrant::Errors::VagrantError)
 

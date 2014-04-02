@@ -25,6 +25,7 @@ BUG FIXES:
   - core: Fix a rare issue where vagrant up would complain it couldn't
       check version of a box that doesn't exist. [GH-3326]
   - commands/box: Show versions when listing. [GH-3316]
+  - commands/box: Outdated check can list local boxes that are newer. [GH-3321]
   - commands/status: Machine readable output contains the target. [GH-3218]
   - guests/arch: Reload udev rules after network change. [GH-3322]
   - guests/debian: Changing host name works properly. [GH-3283]

@@ -54,6 +54,8 @@ module Vagrant
               name: update[0].name,
               current: box.version,
               latest: update[1].version))
+          else
+            check_outdated_local(env)
           end
 
           @app.call(env)
@@ -61,9 +63,15 @@ module Vagrant
 
         def check_outdated_local(env)
           machine = env[:machine]
+
+          # Make sure we respect the constraints set within the Vagrantfile
+          version = machine.config.vm.box_version
+          version += ", " if version
+          version ||= ""
+          version += "> #{machine.box.version}"
+
           box = env[:box_collection].find(
-            machine.box.name, machine.box.provider,
-            "> #{machine.box.version}")
+            machine.box.name, machine.box.provider, version)
           if box
             env[:ui].warn(I18n.t(
               "vagrant.box_outdated_local",
