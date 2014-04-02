@@ -374,6 +374,9 @@ module Vagrant
             file_path = File.expand_path(url)
             file_path = Util::Platform.cygwin_windows_path(file_path)
             url = "file:#{file_path}"
+          else
+            # if url contains space character
+            url.gsub!(/\s/,'%20') if url.include? " "
           end
 
           # If the temporary path exists, verify it is not too old. If its
