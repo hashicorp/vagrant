@@ -196,6 +196,10 @@ module Vagrant
       error_key(:box_remove_provider_not_found)
     end
 
+    class BoxRemoveVersionNotFound < VagrantError
+      error_key(:box_remove_version_not_found)
+    end
+
     class BoxRemoveMultiProvider < VagrantError
       error_key(:box_remove_multi_provider)
     end
