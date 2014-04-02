@@ -54,6 +54,26 @@ describe Vagrant::Action::Builtin::BoxRemove do
     expect(env[:box_removed]).to equal(box)
   end
 
+  it "deletes the box with the specified version if given" do
+    box_collection.stub(
+      all: [
+        ["foo", "1.0", :virtualbox],
+        ["foo", "1.1", :virtualbox],
+      ])
+
+    env[:box_name] = "foo"
+    env[:box_version] = "1.0"
+
+    expect(box_collection).to receive(:find).with(
+      "foo", :virtualbox, "1.0").and_return(box)
+    expect(box).to receive(:destroy!).once
+    expect(app).to receive(:call).with(env).once
+
+    subject.call(env)
+
+    expect(env[:box_removed]).to equal(box)
+  end
+
   it "errors if the box doesn't exist" do
     box_collection.stub(all: [])
 
@@ -104,5 +124,17 @@ describe Vagrant::Action::Builtin::BoxRemove do
 
     expect { subject.call(env) }.
       to raise_error(Vagrant::Errors::BoxRemoveMultiVersion)
+  end
+
+  it "errors if the specified version doesn't exist" do
+    env[:box_name] = "foo"
+    env[:box_version] = "1.1"
+
+    box_collection.stub(all: [["foo", "1.0", :virtualbox]])
+
+    expect(app).to receive(:call).never
+
+    expect { subject.call(env) }.
+      to raise_error(Vagrant::Errors::BoxRemoveVersionNotFound)
   end
 end

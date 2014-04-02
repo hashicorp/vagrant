@@ -11,6 +11,8 @@ BUG FIXES:
 
   - core: Vagrant won't collide with newer versions of Bundler [GH-3193]
   - core: Allow provisioner plugins to not have a config class. [GH-3272]
+  - core: Removing a specific box version that doesn't exist doesn't
+      crash Vagrant. [GH-3364]
   - commands/status: Machine readable output contains the target. [GH-3218]
   - guests/debian: Changing host name works properly. [GH-3283]
   - providers/virtualbox: Add missing translation for stopping status. [GH-3368]

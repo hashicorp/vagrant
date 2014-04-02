@@ -434,12 +434,12 @@ en:
 
         The providers for this are: %{providers}
       box_remove_version_not_found: |-
-        You requested to remove the box '%{name}' with provider
-        '%{provider}' in version '%{version}'. The box '%{name}'
-        exists but not in the specified version '%{version}'.
-        Please double-check and try again.
+        You requested to remove the box '%{name}' version '%{version}' with
+        provider '%{provider}', but that specific version of the box is
+        not install. Please double-check and try again. The available versions
+        for this box are:
 
-        The available versions for this box are: %{versions}
+        %{versions}
       box_server_not_set: |-
         A URL to a Vagrant Cloud server is not set, so boxes cannot
         be added with a shorthand ("mitchellh/precise64") format.
