@@ -1,4 +1,6 @@
 require 'ostruct'
+require "pathname"
+
 require 'erubis'
 
 module Vagrant
@@ -38,6 +40,10 @@ module Vagrant
       def initialize(template, data = {})
         super()
 
+        @template_root = data.delete(:template_root)
+        @template_root ||= Vagrant.source_root.join("templates")
+        @template_root = Pathname.new(@template_root)
+
         data[:template] = template
         data.each do |key, value|
           send("#{key}=", value)
@@ -76,7 +82,7 @@ module Vagrant
       #
       # @return [String]
       def full_template_path
-        Vagrant.source_root.join('templates', "#{template}.erb").to_s.squeeze("/")
+        @template_root.join("#{template}.erb").to_s.squeeze("/")
       end
     end
   end
