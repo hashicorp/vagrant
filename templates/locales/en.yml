@@ -407,10 +407,6 @@ en:
         the box are shown below:
 
         %{providers}
-      box_outdated_no_box: |-
-        The box '%{name}' isn't downloaded or added yet, so we can't
-        check if it is outdated. Run a `vagrant up` or add the box
-        with `vagrant box add` to download an appropriate version.
       box_provider_doesnt_match: |-
         The box you attempted to add doesn't match the provider you specified.
 

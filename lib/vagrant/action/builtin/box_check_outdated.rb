@@ -23,10 +23,9 @@ module Vagrant
           end
 
           if !machine.box
-            # The box doesn't exist. I suppose technically that means
-            # that it is "outdated" but we show a specialized error
-            # message anyways.
-            raise Errors::BoxOutdatedNoBox, name: machine.config.vm.box
+            # We don't have a box. Just ignore, we can't check for
+            # outdated...
+            return @app.call(env)
           end
 
           box = machine.box

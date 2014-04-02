@@ -65,10 +65,11 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
     it "raises an exception if the machine doesn't have a box yet" do
       machine.stub(box: nil)
 
-      expect(app).to receive(:call).never
+      expect(app).to receive(:call).with(env).once
 
-      expect { subject.call(env) }.
-        to raise_error(Vagrant::Errors::BoxOutdatedNoBox)
+      subject.call(env)
+
+      expect(env).to_not have_key(:box_outdated)
     end
   end
 
