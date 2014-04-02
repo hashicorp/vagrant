@@ -36,6 +36,7 @@ BUG FIXES:
   - providers/virtualbox: Host-only networks set cableconnected property
       to "yes" [GH-3365]
   - provisioners/docker: Use proper flags for 0.9. [GH-3356]
+  - synced\_folders/rsync: Set chmod flag by default on Windows. [GH-3256]
   - synced\_folders/smb: IDs of synced folders are hashed to work better
       with VMware. [GH-3219]
   - synced\_folders/smb: Properly remove existing folders with the

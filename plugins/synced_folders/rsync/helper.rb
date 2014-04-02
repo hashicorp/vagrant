@@ -72,6 +72,11 @@ module VagrantPlugins
         args = Array(opts[:args]) if opts[:args]
         args ||= ["--verbose", "--archive", "--delete", "-z"]
 
+        # On Windows, we have to set the chmod flag to avoid permission issues
+        if Vagrant::Util::Platform.windows?
+          args << "--chmod=ugo=rwX"
+        end
+
         # Build up the actual command to execute
         command = [
           "rsync",
