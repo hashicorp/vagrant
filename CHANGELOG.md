@@ -19,6 +19,7 @@ BUG FIXES:
   - providers/virtualbox: Add missing translation for stopping status. [GH-3368]
   - providers/virtualbox: Host-only networks set cableconnected property
       to "yes" [GH-3365]
+  - provisioners/docker: Use proper flags for 0.9. [GH-3356]
   - synced\_folders/smb: IDs of synced folders are hashed to work better
       with VMware. [GH-3219]
   - synced\_folders/smb: Passwords with symbols now work. [GH-3242]
