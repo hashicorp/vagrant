@@ -8,15 +8,8 @@ Param(
 
 $ErrorAction = "Stop"
 
-# See all available shares and check alert user for existing/conflicting
-# share names.
-$path_regexp = [System.Text.RegularExpressions.Regex]::Escape($path)
-$name_regexp = [System.Text.RegularExpressions.Regex]::Escape($share_name)
-$reg = "(?m)$name_regexp\s+$path_regexp\s"
-$existing_share = $($(net share) -join "`n") -Match $reg
-if ($existing_share) {
-    # Always clear the existing share name and create a new one
-    net share $share_name /delete /y
+if (net share | Select-String $share_name) {
+  net share $share_name /delete /y
 }
 
 # The names of the user are language dependent!
