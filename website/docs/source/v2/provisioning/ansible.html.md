@@ -246,3 +246,9 @@ TASK: [my_role | do something] *****************
 <127.0.0.1> EXEC ['ssh', '-tt', '-vvv', '-o', 'ControlMaster=auto',...
 fatal: [ansible-devbox] => SSH encountered an unknown error. We recommend you re-run the command using -vvvv, which will enable SSH debugging output to help diagnose the issue.
 ```
+
+In a situation like the above, to override the `remote_user` specified in a play you can use the following line in your Vagrantfile `vm.provision` block:
+
+```
+ansible.extra_vars = { ansible_ssh_user: 'vagrant' }
+```
