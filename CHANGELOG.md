@@ -19,6 +19,7 @@ BUG FIXES:
   - commands/status: Machine readable output contains the target. [GH-3218]
   - guests/debian: Changing host name works properly. [GH-3283]
   - guests/suse: Shutdown works correctly on SLES [GH-2775]
+  - providers/hyperv: Resume command works properly. [GH-3336]
   - providers/virtualbox: Add missing translation for stopping status. [GH-3368]
   - providers/virtualbox: Host-only networks set cableconnected property
       to "yes" [GH-3365]
