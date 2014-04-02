@@ -340,7 +340,11 @@ module Vagrant
             # so we can resume the download later.
             if !@download_interrupted
               @logger.debug("Deleting temporary box: #{box_url}")
-              box_url.delete if box_url
+              begin
+                box_url.delete if box_url
+              rescue Errno::ENOENT
+                # Not a big deal, the temp file may not actually exist
+              end
             end
           end
 
