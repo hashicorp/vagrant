@@ -172,6 +172,10 @@ module Vagrant
       error_key(:box_metadata_malformed)
     end
 
+    class BoxMetadataMalformedVersion < VagrantError
+      error_key(:box_metadata_malformed_version)
+    end
+
     class BoxNotFound < VagrantError
       error_key(:box_not_found)
     end

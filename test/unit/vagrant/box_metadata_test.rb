@@ -61,6 +61,25 @@ describe Vagrant::BoxMetadata do
     end
   end
 
+  context "with poorly formatted version" do
+    let(:raw) {
+      <<-RAW
+      { "name": "foo",
+        "versions": [
+          {
+            "version": "I AM NOT VALID"
+          }
+        ]
+      }
+      RAW
+    }
+
+    it "raises an exception" do
+      expect { subject }.
+        to raise_error(Vagrant::Errors::BoxMetadataMalformedVersion)
+    end
+  end
+
   describe "#version" do
     it "matches an exact version" do
       result = subject.version("1.0.0")

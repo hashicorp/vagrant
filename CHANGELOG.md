@@ -21,6 +21,7 @@ BUG FIXES:
   - core: Can add boxes with spaces in their path. [GH-3306]
   - core: Prerelease plugins installed are locked to that prerelease
       version. [GH-3301]
+  - core: Better error message when adding a box with a malformed version. [GH-3332]
   - commands/box: Show versions when listing. [GH-3316]
   - commands/status: Machine readable output contains the target. [GH-3218]
   - guests/arch: Reload udev rules after network change. [GH-3322]

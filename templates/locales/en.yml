@@ -392,6 +392,11 @@ en:
         that this issue can be fixed.
 
         %{error}
+      box_metadata_malformed_version: |-
+        A version of the box you're loading is formatted in a way that
+        Vagrant cannot parse: '%{version}'. Please reformat the version
+        to be properly formatted. It should be in the format of
+        X.Y.Z.
       box_not_found: |-
         The box '%{name}' does not exist. Please double check and
         try again. You can see the boxes that are installed with
