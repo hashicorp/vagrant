@@ -17,6 +17,7 @@ BUG FIXES:
   - core: private networks with DHCP type work if type parameter is
       a string and not a symbol. [GH-3349]
   - commands/status: Machine readable output contains the target. [GH-3218]
+  - guests/arch: Reload udev rules after network change. [GH-3322]
   - guests/debian: Changing host name works properly. [GH-3283]
   - guests/suse: Shutdown works correctly on SLES [GH-2775]
   - providers/hyperv: Resume command works properly. [GH-3336]
