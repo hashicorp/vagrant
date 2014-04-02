@@ -16,6 +16,7 @@ BUG FIXES:
   - core: SSH commands are forced to be ASCII.
   - core: private networks with DHCP type work if type parameter is
       a string and not a symbol. [GH-3349]
+  - core: Converting to cygwin path works for folders with spaces. [GH-3304]
   - commands/status: Machine readable output contains the target. [GH-3218]
   - guests/arch: Reload udev rules after network change. [GH-3322]
   - guests/debian: Changing host name works properly. [GH-3283]
