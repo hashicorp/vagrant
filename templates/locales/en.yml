@@ -1192,6 +1192,8 @@ en:
           that vagrant would be able to control the VM again.
         poweroff: |-
           The VM is powered off. To restart the VM, simply run `vagrant up`
+        stopping: |-
+          The VM is stopping.
         running: |-
           The VM is running. To stop this VM, you can run `vagrant halt` to
           shut it down forcefully, or you can run `vagrant suspend` to simply
