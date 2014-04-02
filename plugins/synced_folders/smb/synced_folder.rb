@@ -27,6 +27,15 @@ module VagrantPlugins
           return false
         end
 
+        psv = Vagrant::Util::PowerShell.version.to_i
+        if psv < 3
+          if raise_error
+            raise Errors::PowershellVersion,
+              version: psv.to_s
+          end
+          return false
+        end
+
         true
       end
 

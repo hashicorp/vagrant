@@ -31,6 +31,22 @@ module Vagrant
 
         Subprocess.execute(*command, &block)
       end
+
+      # Returns the version of PowerShell that is installed.
+      #
+      # @return [String]
+      def self.version
+        command = [
+          "powershell",
+          "-NoProfile",
+          "-ExecutionPolicy", "Bypass",
+          "$PSVersionTable.PSVersion.Major"
+        ].flatten
+
+        r = Subprocess.execute(*command)
+        return nil if r.exit_code != 0
+        return r.stdout.chomp
+      end
     end
   end
 end

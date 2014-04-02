@@ -7,6 +7,7 @@ IMPROVEMENTS:
     to convey actual meaning.
   - commands/plugin: Listing plugins now has machine-readable output. [GH-3293]
   - guests/omnios: Mount NFS capability [GH-3282]
+  - synced\_folders/smb: Verify PowerShell v3 or later is running. [GH-3257]
 
 BUG FIXES:
 

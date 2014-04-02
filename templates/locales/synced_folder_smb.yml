@@ -39,6 +39,10 @@ en:
         Error:
 
         %{stderr}
+      powershell_version: |-
+        PowerShell version 3 or later is required for SMB synced folders
+        to work on Windows. You have version: '%{version}'. Please update
+        your PowerShell installation.
       windows_admin_required: |-
         SMB shared folders require running Vagrant with administrative
         privileges. This is a limitation of Windows, since creating new
