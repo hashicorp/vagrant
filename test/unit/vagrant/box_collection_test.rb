@@ -59,6 +59,18 @@ describe Vagrant::BoxCollection do
       expect(result.metadata_url).to be_nil
     end
 
+    it "returns a box if the box does exist, with no constraints" do
+      # Create the "box"
+      environment.box3("foo", "0", :virtualbox)
+
+      # Actual test
+      result = subject.find("foo", :virtualbox, nil)
+      expect(result).to_not be_nil
+      expect(result).to be_kind_of(box_class)
+      expect(result.name).to eq("foo")
+      expect(result.metadata_url).to be_nil
+    end
+
     it "sets a metadata URL if it has one" do
       # Create the "box"
       environment.box3("foo", "0", :virtualbox,

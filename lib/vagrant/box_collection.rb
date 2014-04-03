@@ -256,7 +256,7 @@ module Vagrant
       providers = Array(providers)
 
       # Build up the requirements we have
-      requirements = version.split(",").map do |v|
+      requirements = version.to_s.split(",").map do |v|
         Gem::Requirement.new(v.strip)
       end
 
