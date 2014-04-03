@@ -66,10 +66,13 @@ module Vagrant
           box_formats = machine.provider_options[:box_format] ||
             machine.provider_name
 
+          version_ui = machine.config.vm.box_version
+          version_ui ||= ">= 0"
+
           env[:ui].output(I18n.t(
             "vagrant.box_auto_adding", name: machine.config.vm.box))
           env[:ui].detail("Box Provider: #{Array(box_formats).join(", ")}")
-          env[:ui].detail("Box Version: #{machine.config.vm.box_version}")
+          env[:ui].detail("Box Version: #{version_ui}")
 
           begin
             env[:action_runner].run(Vagrant::Action.action_box_add, env.merge({

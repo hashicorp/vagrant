@@ -77,10 +77,10 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
   end
 
   context "#box_version" do
-    it "defaults to >= 0" do
+    it "defaults to nil" do
       subject.finalize!
 
-      expect(subject.box_version).to eq(">= 0")
+      expect(subject.box_version).to be_nil
     end
 
     it "errors if invalid version" do
