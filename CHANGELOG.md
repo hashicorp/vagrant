@@ -2,6 +2,8 @@
 
 BUG FIXES:
 
+  - core: Randomize some filenames internally to improve the parallelism
+      of Vagrant. [GH-3386]
   - core: Don't error if network problems cause box update check to
       fail [GH-3391]
   - guests/fedora: Fix hostname setting. [GH-3382]
