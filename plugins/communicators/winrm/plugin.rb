@@ -26,10 +26,18 @@ module VagrantPlugins
 
       def self.init!
         return if defined?(@_init)
+        @_init = true
+
+        # Setup the I18n
         I18n.load_path << File.expand_path(
           "templates/locales/comm_winrm.yml", Vagrant.source_root)
         I18n.reload!
-        @_init = true
+
+        # Load the WinRM gem
+        require "vagrant/util/silence_warnings"
+        Vagrant::Util::SilenceWarnings.silence! do
+          require "winrm"
+        end
       end
     end
   end

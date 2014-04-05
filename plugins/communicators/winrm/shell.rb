@@ -1,9 +1,13 @@
 require "timeout"
 
 require "log4r"
-require "winrm"
 
 require "vagrant/util/retryable"
+require "vagrant/util/silence_warnings"
+
+Vagrant::Util::SilenceWarnings.silence! do
+  require "winrm"
+end
 
 module VagrantPlugins
   module CommunicatorWinRM
