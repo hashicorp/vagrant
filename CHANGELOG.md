@@ -2,6 +2,8 @@
 
 BUG FIXES:
 
+  - core: Don't error if network problems cause box update check to
+      fail [GH-3391]
   - guests/fedora: Fix hostname setting. [GH-3382]
   - guests/fedora: Support predictable network interface names for
       public/private networks. [GH-3207]

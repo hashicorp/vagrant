@@ -153,6 +153,17 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
       expect(env[:box_outdated]).to be_false
     end
 
+    it "does nothing if metadata download fails" do
+      expect(box).to receive(:has_update?).and_raise(
+        Vagrant::Errors::BoxMetadataDownloadError.new(message: "foo"))
+
+      expect(app).to receive(:call).once
+
+      subject.call(env)
+
+      expect(env[:box_outdated]).to be_false
+    end
+
     it "raises error if has_update? errors" do
       expect(box).to receive(:has_update?).and_raise(Vagrant::Errors::VagrantError)
 

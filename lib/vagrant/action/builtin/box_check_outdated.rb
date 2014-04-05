@@ -41,6 +41,10 @@ module Vagrant
           update = nil
           begin
             update = box.has_update?(constraints)
+          rescue Errors::BoxMetadataDownloadError => e
+            env[:ui].warn(I18n.t(
+              "vagrant.box_outdated_metadata_download_error",
+              message: e.extra_data[:message]))
           rescue Errors::VagrantError => e
             raise if !env[:box_outdated_ignore_errors]
             env[:ui].detail(I18n.t(

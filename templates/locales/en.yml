@@ -37,6 +37,16 @@ en:
       installed, but your Vagrant machine is running against
       version '%{old}'. To update to version '%{new}',
       destroy and recreate your machine.
+    box_outdated_metadata_download_error: |-
+      There was a problem while downloading the metadata for your box
+      to check for updates. This is not an error, since it is usually due
+      to temporary network problems. This is just a warning. The problem
+      encountered was:
+
+      %{message}
+
+      If you want to check for box updates, verify your network connection
+      is valid and try again.
     box_outdated_metadata_error_single: |-
       Error loading box metadata while attempting to check for
       updates: %{message}
