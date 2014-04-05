@@ -1,6 +1,9 @@
 ## 1.5.3 (unreleased)
 
+BUG FIXES:
 
+  - synced\_folders/smb: Only set the chmod properly by default on Windows
+      if it isn't already set. [GH-3394]
 
 ## 1.5.2 (April 2, 2014)
 
