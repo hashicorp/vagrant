@@ -69,8 +69,8 @@ Of course, you're free to use versions however you'd like!
 
 Using the [Vagrantfile](/v2/vagrantfile/index.html), you can also configure
 Vagrant to automatically check for updates during any `vagrant up`. This is
-disabled by default, but can easily be enabled with
-`config.vm.box_check_update = true` in your Vagrantfile.
+enabled by default, but can easily be disabled with
+`config.vm.box_check_update = false` in your Vagrantfile.
 
 When this is enabled, Vagrant will check for updates on every `vagrant up`,
 not just when the machine is being created from scratch, but also when it
