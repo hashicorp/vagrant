@@ -2,6 +2,7 @@
 
 BUG FIXES:
 
+  - guests/fedora: Fix hostname setting. [GH-3382]
   - guests/fedora: Support predictable network interface names for
       public/private networks. [GH-3207]
   - synced\_folders/smb: Only set the chmod properly by default on Windows
