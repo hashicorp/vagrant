@@ -121,7 +121,8 @@ module Vagrant
       end
 
       # Keep track of where our UUID should be placed
-      @index_uuid_file = @data_dir.join("index_uuid")
+      @index_uuid_file = nil
+      @index_uuid_file = @data_dir.join("index_uuid") if @data_dir
 
       # Initializes the provider last so that it has access to all the
       # state we setup on this machine.
@@ -232,8 +233,10 @@ module Vagrant
           @env.machine_index.release(entry)
 
           # Store our UUID so we can access it later
-          @index_uuid_file.open("w+") do |f|
-            f.write(entry.id)
+          if @index_uuid_file
+            @index_uuid_file.open("w+") do |f|
+              f.write(entry.id)
+            end
           end
         end
       else
@@ -271,6 +274,7 @@ module Vagrant
     #
     # @return [String] UUID or nil if we don't have one yet.
     def index_uuid
+      return nil if !@index_uuid_file
       return @index_uuid_file.read.chomp if @index_uuid_file.file?
       return nil
     end
