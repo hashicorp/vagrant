@@ -516,6 +516,8 @@ module Vagrant
 
       # Attempt to write into the home directory to verify we can
       begin
+        # Append a random suffix to avoid race conditions if Vagrant
+        # is running in parallel with other Vagrant processes.
         suffix = (0...32).map { (65 + rand(26)).chr }.join
         path   = @home_path.join("perm_test_#{suffix}")
         path.open("w") do |f|
