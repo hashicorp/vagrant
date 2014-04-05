@@ -22,6 +22,14 @@ module VagrantPlugins
         Config
       end
 
+      def self.initialize_winrm
+        # Not all versions of GSSAPI support all of the GSSAPI methods, so
+        # temporarily disable warnings while loading the gsapi gem.
+        silence_warnings do
+          require "winrm"
+        end
+      end
+
       protected
 
       def self.init!
@@ -31,6 +39,19 @@ module VagrantPlugins
         I18n.reload!
         @_init = true
       end
+
+      # Sets $VERBOSE to nil for the duration of the block and back to its original
+      # value afterwards.
+      def self.silence_warnings()
+        old_verbose, $VERBOSE = $VERBOSE, nil
+        yield
+      ensure
+        $VERBOSE = old_verbose
+      end
+
     end
   end
 end
+
+# We need to initialize winrm upfront, see issue #3390
+VagrantPlugins::CommunicatorWinRM::Plugin.initialize_winrm()
