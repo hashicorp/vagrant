@@ -37,7 +37,7 @@ available below this section.
   exist in the configured `manifests_path` (see below). This defaults
   to "init.pp"
 
-* `manifest_path` (string) - The path to the directory which contains the
+* `manifests_path` (string) - The path to the directory which contains the
   manifest files. This defaults to "manifests"
 
 * `module_path` (string) - Path, on the host, to the directory which
