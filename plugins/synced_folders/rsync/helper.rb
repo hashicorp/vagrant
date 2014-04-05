@@ -74,12 +74,12 @@ module VagrantPlugins
 
         # On Windows, we have to set a default chmod flag to avoid permission issues
         if Vagrant::Util::Platform.windows? && !args.any? { |arg| arg.start_with?("--chmod=") }
-          #Ensures that all non-masked bits get enabled
+          # Ensures that all non-masked bits get enabled
           args << "--chmod=ugo=rwX"
-          
-          #Remove the -p option if --archive is enabled (--archive equals -rlptgoD)
-          #otherwise new files will not have the destination-default permissions
-          args << "--no-perms" if (args.include? "--archive") || (args.include? "-a")
+
+          # Remove the -p option if --archive is enabled (--archive equals -rlptgoD)
+          # otherwise new files will not have the destination-default permissions
+          args << "--no-perms" if args.include?("--archive") || args.include?("-a")
         end
 
         # Build up the actual command to execute
