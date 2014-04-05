@@ -168,6 +168,10 @@ module Vagrant
       error_key(:box_metadata_corrupted)
     end
 
+    class BoxMetadataDownloadError < VagrantError
+      error_key(:box_metadata_download_error)
+    end
+
     class BoxMetadataFileNotFound < VagrantError
       error_key(:box_metadata_file_not_found)
     end

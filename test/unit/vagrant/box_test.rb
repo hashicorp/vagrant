@@ -219,6 +219,16 @@ describe Vagrant::Box do
       expect(result.name).to eq("foo")
       expect(result.description).to eq("bar")
     end
+
+    it "raises an error if the download failed" do
+      dl = double("downloader")
+      Vagrant::Util::Downloader.stub(new: dl)
+      dl.should_receive(:download!).and_raise(
+        Vagrant::Errors::DownloaderError.new(message: "foo"))
+
+      expect { subject.load_metadata }.
+        to raise_error(Vagrant::Errors::BoxMetadataDownloadError)
+    end
   end
 
   describe "destroying" do

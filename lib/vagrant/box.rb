@@ -103,6 +103,9 @@ module Vagrant
       opts = { headers: ["Accept: application/json"] }
       Util::Downloader.new(url, tf.path, **opts).download!
       BoxMetadata.new(File.open(tf.path, "r"))
+    rescue Errors::DownloaderError => e
+      raise Errors::BoxMetadataDownloadError,
+        message: e.extra_data[:message]
     end
 
     # Checks if the box has an update and returns the metadata, version,

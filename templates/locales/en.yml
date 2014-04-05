@@ -382,6 +382,11 @@ en:
         The metadata associated with the box '%{name}' appears corrupted.
         This is most often caused by a disk issue or system crash. Please
         remove the box, re-add it, and try again.
+      box_metadata_download_error: |-
+        There was an error while downloading the metadata for this box.
+        The error message is shown below:
+
+        %{message}
       box_metadata_file_not_found: |-
         The "metadata.json" file for the box '%{name}' was not found.
         Boxes require this file in order for Vagrant to determine the
