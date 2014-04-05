@@ -11,6 +11,11 @@ module VagrantPlugins
         Guest
       end
 
+      guest_capability("fedora", "change_host_name") do
+        require_relative "cap/change_host_name"
+        Cap::ChangeHostName
+      end
+
       guest_capability("fedora", "configure_networks") do
         require_relative "cap/configure_networks"
         Cap::ConfigureNetworks
