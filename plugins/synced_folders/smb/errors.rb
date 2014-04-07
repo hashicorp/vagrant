@@ -19,7 +19,7 @@ module VagrantPlugins
       end
 
       class PowershellVersion < SMBError
-        error_Key(:powershell_version)
+        error_key(:powershell_version)
       end
 
       class WindowsHostRequired < SMBError
