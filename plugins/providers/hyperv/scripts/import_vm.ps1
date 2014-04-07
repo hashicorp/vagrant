@@ -3,9 +3,15 @@ Param(
     [string]$vm_xml_config,
     [Parameter(Mandatory=$true)]
     [string]$vhdx_path,
-
-    [string]$switchname=$null
+    [string]$switchname=$null,
+    $networks
 )
+
+if(!$networks) {
+    Write-Error "No networks specified"
+} else {
+    $networks = $networks | ConvertFrom-Json
+}
 
 # Include the following modules
 $Dir = Split-Path $script:MyInvocation.MyCommand.Path
@@ -63,14 +69,21 @@ $vm_params = @{
     Name = $vm_name
     NoVHD = $True
     MemoryStartupBytes = $MemoryStartupBytes
-    SwitchName = $switchname
     BootDevice = $bootdevice
     ErrorAction = "Stop"
 }
 
 # Create the VM using the values in the hash map
 
+Write-Host "New-VM "
+Write-Host @vm_params
+
 $vm = New-VM @vm_params
+Remove-VMNetworkAdapter -VMName $vm_name
+
+$networks | %{
+    Add-VMNetworkAdapter $vm -SwitchName $_.switch
+}
 
 $notes = (Select-Xml -xml $vmconfig -XPath "//notes").node.'#text'
 
