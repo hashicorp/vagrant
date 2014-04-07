@@ -55,6 +55,45 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # View the documentation for the provider you're using for more
   # information on available options.
 
+  # Enable provisioning with CFEngine. CFEngine Community packages are
+  # automatically installed. For example, configure the host as a
+  # policy server and optionally a policy file to run:
+  #
+  # config.vm.provision "cfengine" do |cf|
+  #   cf.am_policy_hub = true
+  #   # cf.run_file = "motd.cf"
+  # end
+  #
+  # You can also configure and bootstrap a client to an existing
+  # policy server:
+  #
+  # config.vm.provision "cfengine" do |cf|
+  #   cf.policy_server_address = "10.0.2.15"
+  # end
+  #
+  # An example CFEngine policy to provision the message of the day
+  # which even handles Debian's way gracefully (store it in motd.cf in
+  # the same directory as this Vagrantfile, and uncomment cf.run_file
+  # above):
+  #
+  # # body common control
+  # # {
+  # #         bundlesequence => { "edit_motd" };
+  # #         inputs => { "$(sys.workdir)/inputs/lib/3.5/files.cf",
+  # #                     "$(sys.workdir)/inputs/lib/3.5/common.cf" };
+  # # }
+  # # bundle agent edit_motd
+  # # {
+  # #   vars:
+  # #     debian::
+  # #       "motd_file" string => "/etc/motd.tail";
+  # #     !debian::
+  # #       "motd_file" string => "/etc/motd";
+  # #   files:
+  # #       "$(motd_file)"
+  # #         edit_line => insert_lines("Managed by CFEngine!");
+  # # }
+
   # Enable provisioning with Puppet stand alone.  Puppet manifests
   # are contained in a directory path relative to this Vagrantfile.
   # You will need to create the manifests directory and a manifest in
