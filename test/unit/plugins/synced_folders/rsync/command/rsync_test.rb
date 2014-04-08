@@ -58,15 +58,36 @@ describe VagrantPlugins::SyncedFolderRSync::Command::Rsync do
         expect(subject.execute).to eql(1)
       end
 
-      it "rsyncs each folder and exits successfully" do
-        synced_folders[:rsync].each do |_, opts|
-          expect(helper_class).to receive(:rsync_single).
-            with(machine, ssh_info, opts).
-            ordered
+      it "delegates to plugin 'enable()' method and exits successfully" do
+        rsync_class = Class.new Vagrant::plugin("2", :synced_folder)
+        rsync_inst  = double('mydouble')
+
+        # stub the 'new' method in order to make expectations on a predefined double
+        rsync_class.stub(new: rsync_inst)
+
+        # Create a plugin for the test to be unregistered at the end
+        register_plugin("2") do |plugin|
+          plugin.synced_folder("rsync") do
+            # RsyncPlugin
+            rsync_class
+          end
         end
+
+        expect(rsync_class).to receive(:new).once
+        expect(rsync_inst).to receive(:enable).with(machine, synced_folders[:rsync], {}).once
 
         expect(subject.execute).to eql(0)
       end
+
+      # it "rsyncs each folder and exits successfully" do
+      #   synced_folders[:rsync].each do |_, opts|
+      #     expect(helper_class).to receive(:rsync_single).
+      #       with(machine, ssh_info, opts).
+      #       ordered
+      #   end
+
+      #   expect(subject.execute).to eql(0)
+      # end
     end
   end
 end
