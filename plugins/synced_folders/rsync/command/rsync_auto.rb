@@ -29,12 +29,20 @@ module VagrantPlugins
           argv = parse_options(opts)
           return if !argv
 
+          # get an instance of rsync plugin
+          rsyncplugin = plugins[:rsync][0].new
+
           # Build up the paths that we need to listen to.
           paths = {}
           ignores = []
           with_target_vms(argv) do |machine|
             folders = synced_folders(machine)[:rsync]
             next if !folders || folders.empty?
+
+            # Use the rsync plugin to enable the rsync plugin if
+            # it has not yet been installed
+            # (a first rsync is performed within this call)
+            rsyncplugin.enable(machine, folders, {})
 
             folders.each do |id, folder_opts|
               # If we marked this folder to not auto sync, then
