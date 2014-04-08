@@ -68,7 +68,6 @@ describe VagrantPlugins::SyncedFolderRSync::Command::Rsync do
         # Create a plugin for the test to be unregistered at the end
         register_plugin("2") do |plugin|
           plugin.synced_folder("rsync") do
-            # RsyncPlugin
             rsync_class
           end
         end
@@ -78,16 +77,6 @@ describe VagrantPlugins::SyncedFolderRSync::Command::Rsync do
 
         expect(subject.execute).to eql(0)
       end
-
-      # it "rsyncs each folder and exits successfully" do
-      #   synced_folders[:rsync].each do |_, opts|
-      #     expect(helper_class).to receive(:rsync_single).
-      #       with(machine, ssh_info, opts).
-      #       ordered
-      #   end
-
-      #   expect(subject.execute).to eql(0)
-      # end
     end
   end
 end
