@@ -18,6 +18,8 @@ BUG FIXES:
   - guests/fedora: Fix hostname setting. [GH-3382]
   - guests/fedora: Support predictable network interface names for
       public/private networks. [GH-3207]
+  - guests/linux: If SMB folder mounting fails, the password will no
+      longer be shown in plaintext in the output. [GH-3203]
   - providers/hyperv: Check for PowerShell features. [GH-3398]
   - synced\_folders/smb: Only set the chmod properly by default on Windows
       if it isn't already set. [GH-3394]

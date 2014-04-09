@@ -61,8 +61,11 @@ module VagrantPlugins
 
             attempts += 1
             if attempts > 10
+              command = mount_commands.join("\n")
+              command.gsub!(options[:smb_password], "PASSWORDHIDDEN")
+
               raise Vagrant::Errors::LinuxMountFailed,
-                command: mount_commands.join("\n")
+                command: command
             end
 
             sleep 2
