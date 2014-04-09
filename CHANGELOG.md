@@ -1,5 +1,9 @@
 ## 1.5.3 (unreleased)
 
+IMPROVEMENTS:
+
+  - commands/rsync-auto: An initial sync is done before watching folders. [GH-3327]
+
 BUG FIXES:
 
   - core: Randomize some filenames internally to improve the parallelism

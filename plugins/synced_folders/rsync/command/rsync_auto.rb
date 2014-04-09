@@ -36,6 +36,16 @@ module VagrantPlugins
             folders = synced_folders(machine)[:rsync]
             next if !folders || folders.empty?
 
+            # Get the SSH info for this machine so we can do an initial
+            # sync to the VM.
+            ssh_info = machine.ssh_info
+            if ssh_info
+              machine.ui.info(I18n.t("vagrant.rsync_auto_initial"))
+              folders.each do |id, folder_opts|
+                RsyncHelper.rsync_single(machine, ssh_info, folder_opts)
+              end
+            end
+
             folders.each do |id, folder_opts|
               # If we marked this folder to not auto sync, then
               # don't do it.
