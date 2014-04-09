@@ -107,6 +107,7 @@ module VagrantPlugins
 
       def self.action_up
         Vagrant::Action::Builder.new.tap do |b|
+          b.use CheckEnabled
           b.use HandleBox
           b.use ConfigValidate
           b.use Call, IsState, :not_created do |env1, b1|
@@ -163,6 +164,7 @@ module VagrantPlugins
 
       # The autoload farm
       action_root = Pathname.new(File.expand_path("../action", __FILE__))
+      autoload :CheckEnabled, action_root.join("check_enabled")
       autoload :DeleteVM, action_root.join("delete_vm")
       autoload :Import, action_root.join("import")
       autoload :IsWindows, action_root.join("is_windows")
