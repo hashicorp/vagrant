@@ -10,6 +10,8 @@ BUG FIXES:
       of Vagrant. [GH-3386]
   - core: Don't error if network problems cause box update check to
       fail [GH-3391]
+  - core: `vagrant` on Windows cmd.exe doesn't always exit with exit
+      code zero. [GH-3420]
   - commands/rsync-auto: Don't crash if the machine can't be communicated
       to. [GH-3419]
   - guests/fedora: Fix hostname setting. [GH-3382]
