@@ -232,6 +232,10 @@ module Vagrant
       error_key(:box_update_no_metadata)
     end
 
+    class BoxUrlIsNetworkShare < VagrantError
+      error_key(:box_url_is_network_share)
+    end
+
     class BoxVerificationFailed < VagrantError
       error_key(:failed, "vagrant.actions.box.verify")
     end

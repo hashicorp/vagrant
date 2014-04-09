@@ -495,6 +495,13 @@ en:
         directly instead of from a box catalog. Vagrant can only
         check the versions of boxes that were added from a catalog
         such as from the public Vagrant Server.
+      box_url_is_network_share: |-
+        You specified a network share path as a path to add a box. Vagrant
+        current doesn't support network share URLs. Please copy the file
+        from the network share to your local machine, then add it from
+        there.
+
+        URL: %{url}
       bundler_disabled: |-
         Vagrant's built-in bundler management mechanism is disabled because
         Vagrant is running in an external bundler environment. In these
