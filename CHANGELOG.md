@@ -1,3 +1,11 @@
+## 1.6.0 (unreleased)
+
+FEATURES:
+
+  - Can now specify a `post_up_message` in your Vagrantfile that is shown
+    after a `vagrant up`. This is useful for putting some instructions of how
+    to use the development environment.
+
 ## 1.5.4 (April 21, 2014)
 
 IMPROVEMENTS:
