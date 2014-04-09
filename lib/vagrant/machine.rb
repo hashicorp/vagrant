@@ -133,7 +133,7 @@ module Vagrant
       # GH-3390
       if @config.vm.communicator == :winrm
         @logger.debug("Eager loading WinRM communicator to avoid GH-3390")
-        communiate
+        communicate
       end
     end
 
