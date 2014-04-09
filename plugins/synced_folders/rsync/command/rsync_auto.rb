@@ -112,7 +112,14 @@ module VagrantPlugins
           tosync.each do |folders|
             folders.each do |opts|
               ssh_info = opts[:machine].ssh_info
-              RsyncHelper.rsync_single(opts[:machine], ssh_info, opts[:opts])
+              begin
+                RsyncHelper.rsync_single(opts[:machine], ssh_info, opts[:opts])
+              rescue Vagrant::Errors::MachineGuestNotReady
+                # Error communicating to the machine, probably a reload or
+                # halt is happening. Just notify the user but don't fail out.
+                opts[:machine].ui.error(I18n.t(
+                  "vagrant.rsync_communicator_not_ready_callback"))
+              end
             end
           end
         end

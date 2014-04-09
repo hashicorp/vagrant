@@ -159,6 +159,10 @@ en:
     rsync_communicator_not_ready: |-
       The machine is reporting that it is not ready for rsync to
       communiate with it. Verify that this machine is properly running.
+    rsync_communicator_not_ready_callback: |-
+      Failed to connect to remote machine. This is usually caused by the
+      machine rebooting or being halted. Please make sure the machine is
+      running, and modify a file to try again.
     rsync_folder: |-
       Rsyncing folder: %{hostpath} => %{guestpath}
     rsync_folder_excludes: "  - Exclude: %{excludes}"

@@ -6,6 +6,8 @@ BUG FIXES:
       of Vagrant. [GH-3386]
   - core: Don't error if network problems cause box update check to
       fail [GH-3391]
+  - commands/rsync-auto: Don't crash if the machine can't be communicated
+      to. [GH-3419]
   - guests/fedora: Fix hostname setting. [GH-3382]
   - guests/fedora: Support predictable network interface names for
       public/private networks. [GH-3207]
