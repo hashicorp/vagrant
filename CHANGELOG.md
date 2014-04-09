@@ -20,6 +20,7 @@ BUG FIXES:
       public/private networks. [GH-3207]
   - guests/linux: If SMB folder mounting fails, the password will no
       longer be shown in plaintext in the output. [GH-3203]
+  - guests/linux: SMB mount works with passwords with symbols. [GH-3202]
   - providers/hyperv: Check for PowerShell features. [GH-3398]
   - synced\_folders/smb: Only set the chmod properly by default on Windows
       if it isn't already set. [GH-3394]

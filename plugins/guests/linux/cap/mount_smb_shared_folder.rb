@@ -1,3 +1,5 @@
+require "shellwords"
+
 module VagrantPlugins
   module GuestLinux
     module Cap
@@ -23,10 +25,12 @@ module VagrantPlugins
             mount_gid_old = "`id -g #{options[:group]}`"
           end
 
+          smb_password = Shellwords.shellescape(options[:smb_password])
+
           options[:mount_options] ||= []
           options[:mount_options] << "sec=ntlm"
           options[:mount_options] << "username=#{options[:smb_username]}"
-          options[:mount_options] << "pass='#{options[:smb_password]}'"
+          options[:mount_options] << "pass='#{smb_password}'"
 
           # First mount command uses getent to get the group
           mount_options = "-o uid=#{mount_uid},gid=#{mount_gid}"
@@ -62,7 +66,7 @@ module VagrantPlugins
             attempts += 1
             if attempts > 10
               command = mount_commands.join("\n")
-              command.gsub!(options[:smb_password], "PASSWORDHIDDEN")
+              command.gsub!(smb_password, "PASSWORDHIDDEN")
 
               raise Vagrant::Errors::LinuxMountFailed,
                 command: command
