@@ -30,7 +30,7 @@ module Vagrant
           type_map = provisioner_type_map(env)
 
           # Ask the provisioners to modify the configuration if needed
-          provisioner_instances(env).each do |p|
+          provisioner_instances(env).each do |p, _|
             env[:ui].info(I18n.t(
               "vagrant.provisioner_cleanup",
               name: type_map[p].to_s))

@@ -201,14 +201,16 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
   describe "#provision" do
     it "stores the provisioners" do
       subject.provision("shell", inline: "foo")
-      subject.provision("shell", inline: "bar") { |s| s.path = "baz" }
+      subject.provision("shell", inline: "bar", run: "always") { |s| s.path = "baz" }
       subject.finalize!
 
       r = subject.provisioners
       expect(r.length).to eql(2)
+      expect(r[0].run).to be_nil
       expect(r[0].config.inline).to eql("foo")
       expect(r[1].config.inline).to eql("bar")
       expect(r[1].config.path).to eql("baz")
+      expect(r[1].run).to eql(:always)
     end
 
     it "allows provisioner settings to be overriden" do
@@ -251,6 +253,20 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     end
 
     describe "merging" do
+      it "ignores non-overriding runs" do
+        subject.provision("shell", inline: "foo", run: "once")
+
+        other = described_class.new
+        other.provision("shell", inline: "bar", run: "always")
+
+        merged = subject.merge(other)
+        merged_provs = merged.provisioners
+
+        expect(merged_provs.length).to eql(2)
+        expect(merged_provs[0].run).to eq("once")
+        expect(merged_provs[1].run).to eq("always")
+      end
+
       it "copies the configs" do
         subject.provision("shell", inline: "foo")
         subject_provs = subject.provisioners

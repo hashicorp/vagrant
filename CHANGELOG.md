@@ -5,6 +5,9 @@ FEATURES:
   - Can now specify a `post_up_message` in your Vagrantfile that is shown
     after a `vagrant up`. This is useful for putting some instructions of how
     to use the development environment.
+  - Can configure provisioners to run "once" or "always" (defaults to "once"),
+    so that subsequent `vagrant up` or `reload` calls will always run a
+    provisioner. [GH-2421]
 
 ## 1.5.3 (unreleased)
 

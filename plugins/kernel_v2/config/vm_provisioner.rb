@@ -20,6 +20,11 @@ module VagrantPlugins
       # @return [Object]
       attr_accessor :config
 
+      # When to run this provisioner. Either "once" or "always"
+      #
+      # @return [String]
+      attr_accessor :run
+
       # Whether or not to preserve the order when merging this with a
       # parent scope.
       #
@@ -35,6 +40,7 @@ module VagrantPlugins
         @invalid = false
         @name    = name
         @preserve_order = false
+        @run     = nil
 
         # Attempt to find the provisioner...
         if !Vagrant.plugin("2").manager.provisioners[name]
