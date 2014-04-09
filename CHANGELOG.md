@@ -25,6 +25,7 @@ BUG FIXES:
       longer be shown in plaintext in the output. [GH-3203]
   - guests/linux: SMB mount works with passwords with symbols. [GH-3202]
   - providers/hyperv: Check for PowerShell features. [GH-3398]
+  - provisioners/shell: Empty shell scripts don't cause errors. [GH-3423]
   - synced\_folders/smb: Only set the chmod properly by default on Windows
       if it isn't already set. [GH-3394]
   - synced\_folders/smb: Sharing folders with odd characters like parens
