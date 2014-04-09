@@ -11,6 +11,8 @@ BUG FIXES:
       public/private networks. [GH-3207]
   - synced\_folders/smb: Only set the chmod properly by default on Windows
       if it isn't already set. [GH-3394]
+  - synced\_folders/smb: Sharing folders with odd characters like parens
+      works properly now. [GH-3405]
 
 ## 1.5.2 (April 2, 2014)
 
