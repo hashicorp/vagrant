@@ -269,7 +269,8 @@ module VagrantPlugins
           @provisioners << prov
         end
 
-        prov.preserve_order = !!options[:preserve_order]
+        prov.preserve_order = !!options.delete(:preserve_order) if \
+          options.has_key?(:preserve_order)
         prov.run = options.delete(:run) if options.has_key?(:run)
         prov.add_config(options, &block)
         nil
