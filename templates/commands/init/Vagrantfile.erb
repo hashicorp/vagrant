@@ -12,9 +12,16 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Every Vagrant virtual environment requires a box to build off of.
   config.vm.box = "<%= box_name %>"
 
+  <% if box_url -%>
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
-  <% if box_url.nil? %># <% end %>config.vm.box_url = "<%= box_url || "http://domain.com/path/to/above.box" %>"
+  config.vm.box_url = "<%= box_url %>"
+  <% else -%>
+  # Disable automatic box update checking. If you disable this, then
+  # boxes will only be checked for updates when the user runs
+  # `vagrant box outdated`. This is not recommended.
+  # config.vm.box_check_update = false
+  <% end -%>
 
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
@@ -70,47 +77,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # config.vm.provision "cfengine" do |cf|
   #   cf.policy_server_address = "10.0.2.15"
   # end
-  #
-  # An example CFEngine policy to provision the message of the day
-  # which even handles Debian's way gracefully (store it in motd.cf in
-  # the same directory as this Vagrantfile, and uncomment cf.run_file
-  # above):
-  #
-  # # body common control
-  # # {
-  # #         bundlesequence => { "edit_motd" };
-  # #         inputs => { "$(sys.workdir)/inputs/lib/3.5/files.cf",
-  # #                     "$(sys.workdir)/inputs/lib/3.5/common.cf" };
-  # # }
-  # # bundle agent edit_motd
-  # # {
-  # #   vars:
-  # #     debian::
-  # #       "motd_file" string => "/etc/motd.tail";
-  # #     !debian::
-  # #       "motd_file" string => "/etc/motd";
-  # #   files:
-  # #       "$(motd_file)"
-  # #         edit_line => insert_lines("Managed by CFEngine!");
-  # # }
 
   # Enable provisioning with Puppet stand alone.  Puppet manifests
   # are contained in a directory path relative to this Vagrantfile.
   # You will need to create the manifests directory and a manifest in
-  # the file <%= box_name %>.pp in the manifests_path directory.
-  #
-  # An example Puppet manifest to provision the message of the day:
-  #
-  # # group { "puppet":
-  # #   ensure => "present",
-  # # }
-  # #
-  # # File { owner => 0, group => 0, mode => 0644 }
-  # #
-  # # file { '/etc/motd':
-  # #   content => "Welcome to your Vagrant-built virtual machine!
-  # #               Managed by Puppet.\n"
-  # # }
+  # the file default.pp in the manifests_path directory.
   #
   # config.vm.provision "puppet" do |puppet|
   #   puppet.manifests_path = "manifests"
