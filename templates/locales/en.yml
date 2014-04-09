@@ -193,6 +193,10 @@ en:
       amount of disk space. After it is done upgrading, the temporary disk
       space will be freed.
 
+      Press ctrl-c now to exit if you want to remove some boxes or free
+      up some disk space.
+
+      Press any other key to continue.
     cfengine_config:
       classes_array: |-
         The 'classes' configuration must be an array.

@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+  - core: 1.5 upgrade code gives users a chance to quit. [GH-3212]
   - commands/rsync-auto: An initial sync is done before watching folders. [GH-3327]
 
 BUG FIXES:
