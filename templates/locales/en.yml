@@ -1490,8 +1490,11 @@ en:
           mounting: Mounting NFS shared folders...
         provision:
           beginning: "Running provisioner: %{provisioner}..."
+          disabled_by_config: |-
+            Machine not provisioning because `--no-provision` is specified.
           disabled_by_sentinel: |-
-            VM already provisioned. Run `vagrant provision` or use `--provision` to force it
+            Machine already provisioned. Run `vagrant provision` or use the `--provision`
+            to force provisioning. Provisioners marked to run always will still run.
         resume:
           resuming: Resuming suspended VM...
           unpausing: |-
