@@ -36,7 +36,14 @@ describe VagrantPlugins::CommandSSHConfig::Command do
 
   describe "execute" do
     it "prints out the ssh config for the given machine" do
-      expect(subject).to receive(:safe_puts).with(<<-SSHCONFIG)
+      output = ""
+      allow(subject).to receive(:safe_puts) do |data|
+        output += data if data
+      end
+
+      subject.execute
+
+      expect(output).to eq(<<-SSHCONFIG)
 Host #{machine.name}
   HostName testhost.vagrant.dev
   User testuser
@@ -47,40 +54,58 @@ Host #{machine.name}
   IdentitiesOnly yes
   LogLevel FATAL
       SSHCONFIG
-      subject.execute
     end
 
     it "turns on agent forwarding when it is configured" do
       allow(machine).to receive(:ssh_info) { ssh_info.merge(:forward_agent => true) }
-      expect(subject).to receive(:safe_puts).with { |ssh_config|
-        expect(ssh_config).to include("ForwardAgent yes")
-      }
+
+      output = ""
+      allow(subject).to receive(:safe_puts) do |data|
+        output += data if data
+      end
+
       subject.execute
+
+      expect(output).to include("ForwardAgent yes")
     end
 
     it "turns on x11 forwarding when it is configured" do
       allow(machine).to receive(:ssh_info) { ssh_info.merge(:forward_x11 => true) }
-      expect(subject).to receive(:safe_puts).with { |ssh_config|
-        expect(ssh_config).to include("ForwardX11 yes")
-      }
+
+      output = ""
+      allow(subject).to receive(:safe_puts) do |data|
+        output += data if data
+      end
+
       subject.execute
+
+      expect(output).to include("ForwardX11 yes")
     end
 
     it "handles multiple private key paths" do
       allow(machine).to receive(:ssh_info) { ssh_info.merge(:private_key_path => ["foo", "bar"]) }
-      expect(subject).to receive(:safe_puts).with { |ssh_config|
-        expect(ssh_config).to include("IdentityFile foo")
-        expect(ssh_config).to include("IdentityFile bar")
-      }
+
+      output = ""
+      allow(subject).to receive(:safe_puts) do |data|
+        output += data if data
+      end
+
       subject.execute
+
+      expect(output).to include("IdentityFile foo")
+      expect(output).to include("IdentityFile bar")
     end
 
     it "puts quotes around an identityfile path if it has a space" do
       allow(machine).to receive(:ssh_info) { ssh_info.merge(:private_key_path => ["with a space"]) }
-      expect(subject).to receive(:safe_puts).with { |ssh_config|
-        expect(ssh_config).to include('IdentityFile "with a space"')
-      }
+      output = ""
+      allow(subject).to receive(:safe_puts) do |data|
+        output += data if data
+      end
+
       subject.execute
+
+      expect(output).to include('IdentityFile "with a space"')
     end
   end
 end
