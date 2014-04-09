@@ -1,9 +1,11 @@
 require "log4r"
 require 'optparse'
+require "thread"
 
 require "listen"
 
 require "vagrant/action/builtin/mixin_synced_folders"
+require "vagrant/util/busy"
 
 require_relative "../helper"
 
@@ -86,8 +88,22 @@ module VagrantPlugins
           @logger.info("Listening via: #{Listen::Adapter.select.inspect}")
           callback = method(:callback).to_proc.curry[paths]
           listener = Listen.to(*paths.keys, ignore: ignores, &callback)
-          listener.start
-          listener.thread.join
+
+          # Create the callback that lets us know when we've been interrupted
+          queue    = Queue.new
+          callback = lambda do
+            # This needs to execute in another thread because Thread
+            # synchronization can't happen in a trap context.
+            Thread.new { queue << true }.join
+          end
+
+          # Run the listener in a busy block so that we can cleanly
+          # exit once we receive an interrupt.
+          Vagrant::Util::Busy.busy(callback) do
+            listener.start
+            queue.pop
+            listener.stop if listener.listen?
+          end
 
           0
         end
