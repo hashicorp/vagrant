@@ -29,7 +29,7 @@ module VagrantPlugins
           results << "#{machine.name.to_s.ljust(max_name_length)} " +
             "#{current_state.short_description} (#{machine.provider_name})"
 
-          opts = { scope: machine.name.to_s }
+          opts = { target: machine.name.to_s }
           @env.ui.machine("provider-name", machine.provider_name, opts)
           @env.ui.machine("state", current_state.id, opts)
           @env.ui.machine("state-human-short", current_state.short_description, opts)

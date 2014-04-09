@@ -23,6 +23,11 @@ module VagrantPlugins
         require File.expand_path("../synced_folder", __FILE__)
         SyncedFolder
       end
+
+      provider_capability(:virtualbox, :forwarded_ports) do
+        require_relative "cap"
+        Cap
+      end
     end
 
     autoload :Action, File.expand_path("../action", __FILE__)

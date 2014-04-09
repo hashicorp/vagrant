@@ -26,10 +26,10 @@ This adds a box with the given address to Vagrant. The address can be
 one of three things:
 
 * A shorthand name from the
-[public catalog of available Vagrant images](http://www.vagrantcloud.com),
+[public catalog of available Vagrant images](https://vagrantcloud.com),
 such as "hashicorp/precise64".
 
-* File path or HTTP URL to a box in a [catalog](http://www.vagrantcloud.com).
+* File path or HTTP URL to a box in a [catalog](https://vagrantcloud.com).
 For HTTP, basic authentication is supported and `http_proxy` environmental
 variables are respected. HTTPS is also supported.
 
@@ -88,6 +88,12 @@ you're not using a catalog).
   would put into `config.vm.box` in your Vagrantfile. When adding a box from
   a catalog, the name is included in the catalog entry and doesn't have
   to be specified.
+
+<div class="alert alert-block alert-warn">
+<strong>Checksums for versioned boxes or boxes from Vagrant Cloud:</strong>
+For boxes from Vagrant Cloud, the checksums are embedded in the metadata
+of the box. The metadata itself is served over TLS and its format is validated.
+</div>
 
 # Box List
 

@@ -10,8 +10,6 @@ module VagrantPlugins
         attr_accessor :client_key_path
         attr_accessor :delete_client
         attr_accessor :delete_node
-        attr_accessor :encrypted_data_bag_secret_key_path
-        attr_accessor :environment
         attr_accessor :validation_key_path
         attr_accessor :validation_client_name
 
@@ -22,16 +20,8 @@ module VagrantPlugins
           @client_key_path                    = UNSET_VALUE
           @delete_client                      = UNSET_VALUE
           @delete_node                        = UNSET_VALUE
-          @encrypted_data_bag_secret_key_path = UNSET_VALUE
-          @environment                        = UNSET_VALUE
           @validation_key_path                = UNSET_VALUE
           @validation_client_name             = UNSET_VALUE
-        end
-
-        def encrypted_data_bag_secret=(value)
-          puts "DEPRECATION: Chef encrypted_data_bag_secret has no effect anymore."
-          puts "Remove this from your Vagrantfile since it'll be removed in the next"
-          puts "Vagrant version."
         end
 
         def finalize!
@@ -41,8 +31,6 @@ module VagrantPlugins
           @client_key_path        = "/etc/chef/client.pem" if @client_key_path == UNSET_VALUE
           @delete_client = false if @delete_client == UNSET_VALUE
           @delete_node = false if @delete_node == UNSET_VALUE
-          @encrypted_data_bag_secret_key_path = nil if @encrypted_data_bag_secret_key_path == UNSET_VALUE
-          @environment = nil if @environment == UNSET_VALUE
           @validation_client_name = "chef-validator" if @validation_client_name == UNSET_VALUE
           @validation_key_path = nil if @validation_key_path == UNSET_VALUE
         end

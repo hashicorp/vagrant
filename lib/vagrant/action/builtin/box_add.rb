@@ -14,6 +14,10 @@ module Vagrant
       # This middleware will download a remote box and add it to the
       # given box collection.
       class BoxAdd
+        # This is the size in bytes that if a file exceeds, is considered
+        # to NOT be metadata.
+        METADATA_SIZE_LIMIT = 20971520
+
         def initialize(app, env)
           @app    = app
           @logger = Log4r::Logger.new("vagrant::action::builtin::box_add")
@@ -26,7 +30,7 @@ module Vagrant
             u = u.gsub("\\", "/")
             if Util::Platform.windows? && u =~ /^[a-z]:/i
               # On Windows, we need to be careful about drive letters
-              u = "file://#{u}"
+              u = "file://#{URI.escape(u)}"
             end
 
             if u =~ /^[a-z0-9]+:.*$/i && !u.start_with?("file://")
@@ -35,9 +39,9 @@ module Vagrant
             end
 
             # Expand the path and try to use that, if possible
-            p = File.expand_path(u.gsub(/^file:\/\//, ""))
+            p = File.expand_path(URI.unescape(u.gsub(/^file:\/\//, "")))
             p = Util::Platform.cygwin_windows_path(p)
-            next "file://#{p}" if File.file?(p)
+            next "file://#{URI.escape(p.gsub("\\", "/"))}" if File.file?(p)
 
             u
           end
@@ -57,8 +61,17 @@ module Vagrant
             end
           end
 
+          # Call the hook to transform URLs into authenticated URLs.
+          # In the case we don't have a plugin that does this, then it
+          # will just return the same URLs.
+          hook_env    = env[:hook].call(:authenticate_box_url, box_urls: url.dup)
+          authed_urls = hook_env[:box_urls]
+          if !authed_urls || authed_urls.length != url.length
+            raise "Bad box authentication hook, did not generate proper results."
+          end
+
           # Test if any of our URLs point to metadata
-          is_metadata_results = url.map do |u|
+          is_metadata_results = authed_urls.map do |u|
             begin
               metadata_url?(u, env)
             rescue Errors::DownloaderError => e
@@ -86,7 +99,8 @@ module Vagrant
           end
 
           if is_metadata
-            add_from_metadata(url.first, env, expanded)
+            url = [url.first, authed_urls.first]
+            add_from_metadata(url, env, expanded)
           else
             add_direct(url, env)
           end
@@ -105,6 +119,10 @@ module Vagrant
             raise Errors::BoxAddNameRequired
           end
 
+          if env[:box_version]
+            raise Errors::BoxAddDirectVersion
+          end
+
           provider = env[:box_provider]
           provider = Array(provider) if provider
 
@@ -114,15 +132,34 @@ module Vagrant
             "0",
             provider,
             nil,
-            env)
+            env,
+            checksum: env[:box_checksum],
+            checksum_type: env[:box_checksum_type],
+          )
         end
 
         # Adds a box given that the URL is a metadata document.
+        #
+        # @param [String | Array<String>] url The URL of the metadata for
+        #   the box to add. If this is an array, then it must be a two-element
+        #   array where the first element is the original URL and the second
+        #   element is an authenticated URL.
+        # @param [Hash] env
+        # @param [Bool] expanded True if the metadata URL was expanded with
+        #   a Vagrant Cloud server URL.
         def add_from_metadata(url, env, expanded)
           original_url = env[:box_url]
           provider = env[:box_provider]
           provider = Array(provider) if provider
           version = env[:box_version]
+
+          authenticated_url = url
+          if url.is_a?(Array)
+            # We have both a normal URL and "authenticated" URL. Split
+            # them up.
+            authenticated_url = url[1]
+            url               = url[0]
+          end
 
           env[:ui].output(I18n.t(
             "vagrant.box_loading_metadata",
@@ -134,7 +171,8 @@ module Vagrant
 
           metadata = nil
           begin
-            metadata_path = download(url, env, json: true, ui: false)
+            metadata_path = download(
+              authenticated_url, env, json: true, ui: false)
 
             File.open(metadata_path) do |f|
               metadata = BoxMetadata.new(f)
@@ -211,75 +249,28 @@ module Vagrant
               providers[choice-1])
           end
 
+          provider_url = metadata_provider.url
+          if url != authenticated_url
+            # Authenticate the provider URL since we're using auth
+            hook_env    = env[:hook].call(:authenticate_box_url, box_urls: [provider_url])
+            authed_urls = hook_env[:box_urls]
+            if !authed_urls || authed_urls.length != 1
+              raise "Bad box authentication hook, did not generate proper results."
+            end
+            provider_url = authed_urls[0]
+          end
+
           box_add(
-            [metadata_provider.url],
+            [[provider_url, metadata_provider.url]],
             metadata.name,
             metadata_version.version,
             metadata_provider.name,
             url,
-            env)
+            env,
+            checksum: metadata_provider.checksum,
+            checksum_type: metadata_provider.checksum_type,
+          )
         end
-
-=begin
-          # Determine the checksum type to use
-          checksum = (env[:box_checksum] || "").to_s
-          checksum_klass = nil
-          if env[:box_checksum_type]
-            checksum_klass = case env[:box_checksum_type].to_sym
-            when :md5
-              Digest::MD5
-            when :sha1
-              Digest::SHA1
-            when :sha256
-              Digest::SHA2
-            else
-              raise Errors::BoxChecksumInvalidType,
-                type: env[:box_checksum_type].to_s
-            end
-          end
-
-          # Go through each URL and attempt to download it
-          download_error = nil
-          download_url = nil
-          urls = env[:box_url]
-          urls = [env[:box_url]] if !urls.is_a?(Array)
-          urls.each do |url|
-            begin
-              @temp_path = download_box_url(url, env)
-              download_error = nil
-              download_url = url
-            rescue Errors::DownloaderError => e
-              env[:ui].error(I18n.t(
-                "vagrant.actions.box.download.download_failed"))
-              download_error = e
-            end
-
-            # If we were interrupted during this download, then just return
-            # at this point, we don't need to try anymore.
-            if @download_interrupted
-              @logger.warn("Download interrupted, not trying any more box URLs.")
-              return
-            end
-          end
-
-          # If all the URLs failed, then raise an exception
-          raise download_error if download_error
-
-          if checksum_klass
-            @logger.info("Validating checksum with #{checksum_klass}")
-            @logger.info("Expected checksum: #{checksum}")
-
-            env[:ui].info(I18n.t("vagrant.actions.box.add.checksumming",
-              name: box_name))
-            actual = FileChecksum.new(@temp_path, checksum_klass).checksum
-            if actual != checksum
-              raise Errors::BoxChecksumMismatch,
-                actual: actual,
-                expected: checksum
-            end
-          end
-        end
-=end
 
         protected
 
@@ -317,14 +308,28 @@ module Vagrant
             box_url = nil
 
             urls.each do |url|
+              show_url = nil
+              if url.is_a?(Array)
+                show_url = url[1]
+                url      = url[0]
+              end
+
               begin
-                box_url = download(url, env)
+                box_url = download(url, env, show_url: show_url)
                 break
               rescue Errors::DownloaderError => e
+                # If we don't have multiple URLs, just raise the error
+                raise if urls.length == 1
+
                 env[:ui].error(I18n.t(
                   "vagrant.box_download_error",  message: e.message))
                 box_url = nil
               end
+            end
+
+            if opts[:checksum] && opts[:checksum_type]
+              validate_checksum(
+                opts[:checksum_type], opts[:checksum], box_url)
             end
 
             # Add the box!
@@ -339,7 +344,11 @@ module Vagrant
             # so we can resume the download later.
             if !@download_interrupted
               @logger.debug("Deleting temporary box: #{box_url}")
-              box_url.delete if box_url
+              begin
+                box_url.delete if box_url
+              rescue Errno::ENOENT
+                # Not a big deal, the temp file may not actually exist
+              end
             end
           end
 
@@ -406,9 +415,12 @@ module Vagrant
           # path as an instance variable so that the `#recover` method can
           # access it.
           if opts[:ui]
+            show_url = opts[:show_url]
+            show_url ||= url
+
             env[:ui].detail(I18n.t(
               "vagrant.box_downloading",
-              url: url))
+              url: show_url))
             if File.file?(d.destination)
               env[:ui].info(I18n.t("vagrant.actions.box.download.resuming"))
             end
@@ -448,10 +460,20 @@ module Vagrant
 
             begin
               File.open(url, "r") do |f|
+                if f.size > METADATA_SIZE_LIMIT
+                  # Quit early, don't try to parse the JSON of gigabytes
+                  # of box files...
+                  return false
+                end
+
                 BoxMetadata.new(f)
               end
               return true
             rescue Errors::BoxMetadataMalformed
+              return false
+            rescue Errno::EINVAL
+              # Actually not sure what causes this, but its always
+              # in a case that isn't true.
               return false
             rescue Errno::ENOENT
               return false
@@ -462,6 +484,30 @@ module Vagrant
           match  = output.scan(/^Content-Type: (.+?)$/).last
           return false if !match
           match.last.chomp == "application/json"
+        end
+
+        def validate_checksum(checksum_type, checksum, path)
+          checksum_klass = case checksum_type.to_sym
+          when :md5
+            Digest::MD5
+          when :sha1
+            Digest::SHA1
+          when :sha256
+            Digest::SHA2
+          else
+            raise Errors::BoxChecksumInvalidType,
+              type: env[:box_checksum_type].to_s
+          end
+
+          @logger.info("Validating checksum with #{checksum_klass}")
+          @logger.info("Expected checksum: #{checksum}")
+
+          actual = FileChecksum.new(path, checksum_klass).checksum
+          if actual != checksum
+            raise Errors::BoxChecksumMismatch,
+              actual: actual,
+              expected: checksum
+          end
         end
       end
     end

@@ -119,8 +119,13 @@ Vagrant.configure("2") do |config|
 end
 ```
 
-This will `docker run` a container with the "rabbitmq" image. In addition
-to the name, the `run` method accepts a set of options, all optional:
+This will `docker run` a container with the "rabbitmq" image. Note that
+Vagrant uses the first parameter (the image name by default) to override any
+settings used in a previous `run` definition. Therefore, if you need to run
+multiple containers from the same image then you must specify the `image`
+option (documented below) with a unique name.
+
+In addition to the name, the `run` method accepts a set of options, all optional:
 
 * `image` (string) - The image to run. This defaults to the first argument
   but can also be given here as an option.
@@ -131,6 +136,9 @@ to the name, the `run` method accepts a set of options, all optional:
 
 * `args` (string) - Extra arguments for [`docker run`](http://docs.docker.io/en/latest/commandline/cli/#run)
   on the command line. These are raw arguments that are passed directly to Docker.
+
+* `auto_assign_name` (boolean) - If true, the `-name` of the container will
+  be set to the first argument of the run. By default this is true.
 
 * `daemonize` (boolean) - If true, the "-d" flag is given to `docker run` to
   daemonize the containers. By default this is true.

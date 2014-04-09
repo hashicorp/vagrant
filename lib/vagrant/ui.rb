@@ -34,7 +34,14 @@ module Vagrant
       [:ask, :detail, :warn, :error, :info, :output, :success].each do |method|
         define_method(method) do |message, *opts|
           # Log normal console messages
-          @logger.info { "#{method}: #{message}" }
+          begin
+            @logger.info { "#{method}: #{message}" }
+          rescue ThreadError
+            # We're being called in a trap-context. Wrap in a thread.
+            Thread.new do
+              @logger.info { "#{method}: #{message}" }
+            end.join
+          end
         end
       end
 
@@ -140,11 +147,19 @@ module Vagrant
         if opts[:echo]
           input = $stdin.gets
         else
-          input = $stdin.noecho(&:gets)
+          begin
+            input = $stdin.noecho(&:gets)
 
-          # Output a newline because without echo, the newline isn't
-          # echoed either.
-          say(:info, "\n", opts)
+            # Output a newline because without echo, the newline isn't
+            # echoed either.
+            say(:info, "\n", opts)
+          rescue Errno::EBADF
+            # This means that stdin doesn't support echoless input.
+            say(:info, "\n#{I18n.t("vagrant.stdin_cant_hide_input")}\n ", opts)
+
+            # Ask again, with echo enabled
+            input = ask(message, opts.merge(echo: true))
+          end
         end
 
         # Get the results and chomp off the newline. We do a logical OR
@@ -181,6 +196,9 @@ module Vagrant
       def say(type, message, **opts)
         defaults = { :new_line => true, :prefix => true }
         opts     = defaults.merge(@opts).merge(opts)
+
+        # Don't output if we're hiding details
+        return if type == :detail && opts[:hide_detail]
 
         # Determine whether we're expecting to output our
         # own new line or not.
@@ -313,7 +331,7 @@ module Vagrant
         # is bolded.
         bold  = !!opts[:bold]
         colorseq = "#{bold ? 1 : 0 }"
-        if opts[:color]
+        if opts[:color] && opts[:color] != :default
           color = COLORS[opts[:color]]
           colorseq += ";#{color}"
         end

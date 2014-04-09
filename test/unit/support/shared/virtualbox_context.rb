@@ -20,12 +20,12 @@ shared_context "virtualbox" do
 
     # drivers will blow up on instantiation if they cannot determine the
     # virtualbox version, so wire this stub in automatically
-    subprocess.stub(:execute).
+    allow(subprocess).to receive(:execute).
       with("VBoxManage", "--version", an_instance_of(Hash)).
       and_return(subprocess_result(stdout: vbox_version))
 
     # drivers also call vm_exists? during init;
-    subprocess.stub(:execute).
+    allow(subprocess).to receive(:execute).
       with("VBoxManage", "showvminfo", kind_of(String), kind_of(Hash)).
       and_return(subprocess_result(exit_code: 0))
   end

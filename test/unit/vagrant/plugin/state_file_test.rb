@@ -38,6 +38,12 @@ describe Vagrant::Plugin::StateFile do
       })
     end
 
+    it "should check for plugins" do
+      expect(subject.has_plugin?("foo")).to be_false
+      subject.add_plugin("foo")
+      expect(subject.has_plugin?("foo")).to be_true
+    end
+
     it "should remove plugins" do
       subject.add_plugin("foo")
       subject.remove_plugin("foo")

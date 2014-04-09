@@ -53,19 +53,26 @@ module Vagrant
             end
           end
 
+          # Build up the instances of the synced folders. We do this once
+          # so that they can store state.
+          folders = folders.map do |impl_name, fs|
+            instance = plugins[impl_name.to_sym][0].new
+            [instance, impl_name, fs]
+          end
+
           # Go through each folder and prepare the folders
-          folders.each do |impl_name, fs|
+          folders.each do |impl, impl_name, fs|
             @logger.info("Invoking synced folder prepare for: #{impl_name}")
-            plugins[impl_name.to_sym][0].new.prepare(env[:machine], fs, impl_opts(impl_name, env))
+            impl.prepare(env[:machine], fs, impl_opts(impl_name, env))
           end
 
           # Continue, we need the VM to be booted.
           @app.call(env)
 
           # Once booted, setup the folder contents
-          folders.each do |impl_name, fs|
+          folders.each do |impl, impl_name, fs|
             @logger.info("Invoking synced folder enable: #{impl_name}")
-            plugins[impl_name.to_sym][0].new.enable(env[:machine], fs, impl_opts(impl_name, env))
+            impl.enable(env[:machine], fs, impl_opts(impl_name, env))
           end
         end
       end

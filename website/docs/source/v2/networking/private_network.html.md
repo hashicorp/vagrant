@@ -63,6 +63,18 @@ the [reserved private address space](http://en.wikipedia.org/wiki/Private_networ
 and most routers actually block traffic from going to them from the
 outside world.
 
+## Disable Auto-Configuration
+
+If you want to manually configure the network interface yourself, you
+can disable Vagrant's auto-configure feature by specifying `auto_config`:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.network "private_network", ip: "192.168.50.4",
+    auto_config: false
+end
+```
+
 ## VirtualBox Internal Network
 
 The VirtualBox provider supports using the private network as a

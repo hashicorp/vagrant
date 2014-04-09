@@ -72,7 +72,7 @@ module VagrantPlugins
             networks << $1.to_s if line =~ /^Name:\s+(.+?)$/
           end
 
-          execute("list", "vms").split("\n").each do |line|
+          execute("list", "vms", retryable: true).split("\n").each do |line|
             if line =~ /^".+?"\s+\{(.+?)\}$/
               info = execute("showvminfo", $1.to_s, "--machinereadable", :retryable => true)
               info.split("\n").each do |inner_line|
@@ -110,12 +110,12 @@ module VagrantPlugins
 
             if adapter[:hostonly]
               args.concat(["--hostonlyadapter#{adapter[:adapter]}",
-                          adapter[:hostonly]])
+                          adapter[:hostonly], "--cableconnected#{adapter[:adapter]}", "on"])
             end
 
             if adapter[:intnet]
               args.concat(["--intnet#{adapter[:adapter]}",
-                          adapter[:intnet]])
+                          adapter[:intnet], "--cableconnected#{adapter[:adapter]}", "on"])
             end
 
             if adapter[:mac_address]
@@ -203,7 +203,7 @@ module VagrantPlugins
               output << data
             elsif type == :stderr
               # Append the data so we can see the full view
-              total << data
+              total << data.gsub("\r", "")
 
               # Break up the lines. We can't get the progress until we see an "OK"
               lines = total.split("\n")
@@ -222,7 +222,7 @@ module VagrantPlugins
             end
           end
 
-          output = execute("list", "vms")
+          output = execute("list", "vms", retryable: true)
           match = /^"#{Regexp.escape(specified_name)}" \{(.+?)\}$/.match(output)
           return match[1].to_s if match
           nil
@@ -511,7 +511,9 @@ module VagrantPlugins
           end
 
           # If we reached this point then it didn't work out.
-          raise Vagrant::Errors::VBoxManageError, :command => command.inspect
+          raise Vagrant::Errors::VBoxManageError,
+            command: command.inspect,
+            stderr: r.stderr
         end
 
         def suspend

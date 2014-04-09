@@ -15,7 +15,7 @@ describe Vagrant::Util::ScopedHashOverride do
       :another_value => "foo"
     }
 
-    klass.scoped_hash_override(original, "foo").should == original
+    expect(klass.scoped_hash_override(original, "foo")).to eq(original)
   end
 
   it "should override if the scope matches" do
@@ -28,7 +28,7 @@ describe Vagrant::Util::ScopedHashOverride do
       :key => "replaced"
     }
 
-    klass.scoped_hash_override(original, "scope").should == expected
+    expect(klass.scoped_hash_override(original, "scope")).to eq(expected)
   end
 
   it "should ignore non-matching scopes" do
@@ -43,6 +43,6 @@ describe Vagrant::Util::ScopedHashOverride do
       :another__key => "value"
     }
 
-    klass.scoped_hash_override(original, "scope").should == expected
+    expect(klass.scoped_hash_override(original, "scope")).to eq(expected)
   end
 end

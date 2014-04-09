@@ -28,11 +28,11 @@ describe VagrantPlugins::CommandListCommands::Command do
       commands[:bar] = [command_lambda("bar", 0), { primary: true }]
       commands[:baz] = [command_lambda("baz", 0), { primary: false }]
 
-      iso_env.ui.should_receive(:info).with do |message, opts|
+      expect(iso_env.ui).to receive(:info).with { |message, opts|
         expect(message).to include("foo")
         expect(message).to include("bar")
         expect(message).to include("baz")
-      end
+      }
 
       subject.execute
     end

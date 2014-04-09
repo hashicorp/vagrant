@@ -87,7 +87,7 @@ h6 {
 }
 
 p {
-    letter-spacing: 1px;
+    letter-spacing: normal;
     line-height: 32px;
 
     a {
@@ -166,11 +166,11 @@ code {
 
 pre {
     border: none;
-    font-size: @base-font-size;
+    font-size: @code-font-size;
     background: @black;
-    color: @white;
+    color: @light-gray-text;
     padding: 20px;
-    line-height: @base-line-height;
+    line-height: @code-line-height;
 
     span {
         color: @code-highlight-text;
@@ -323,4 +323,8 @@ a.read-more {
     position: relative;
     top: -80px;
     visibility: hidden;
+}
+
+.center {
+    text-align: center;
 }

@@ -10,7 +10,7 @@ describe "VagrantPlugins::GuestDebian::Cap::ChangeHostName" do
   let(:old_hostname) { 'oldhostname.olddomain.tld' }
 
   before do
-    machine.stub(:communicate).and_return(communicator)
+    allow(machine).to receive(:communicate).and_return(communicator)
     communicator.stub_command('hostname -f', stdout: old_hostname)
   end
 

@@ -19,7 +19,7 @@ module Vagrant
             ordered << [priority, key, impl]
           end
 
-          # Order the plugins by priority
+          # Order the plugins by priority. Higher is tries before lower.
           ordered = ordered.sort { |a, b| b[0] <=> a[0] }
 
           # Find the proper implementation
@@ -36,8 +36,12 @@ module Vagrant
           {}.tap do |result|
             env.each do |k, v|
               if k.to_s.start_with?("#{name}_")
-                k = k.dup if !k.is_a?(Symbol)
-                v = v.dup if !v.is_a?(Symbol)
+                # While I generally don't like the 'rescue' syntax,
+                # we do this to just fall back to the default value
+                # if it isn't dup-able.
+                k = k.dup rescue k
+                v = v.dup rescue v
+
                 result[k] = v
               end
             end

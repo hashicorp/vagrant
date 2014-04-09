@@ -31,12 +31,14 @@ module Vagrant
       @name = @raw["name"]
       @description = @raw["description"]
       @version_map = (@raw["versions"] || []).map do |v|
-        [Gem::Version.new(v["version"]), v]
+        begin
+          [Gem::Version.new(v["version"]), v]
+        rescue ArgumentError
+          raise Errors::BoxMetadataMalformedVersion,
+            version: v["version"].to_s
+        end
       end
       @version_map = Hash[@version_map]
-
-      # TODO: check for corruption:
-      #   - malformed version
     end
 
     # Returns data about a single version that is included in this
@@ -120,9 +122,21 @@ module Vagrant
       # @return [String]
       attr_accessor :url
 
+      # The checksum value for this box, if any.
+      #
+      # @return [String]
+      attr_accessor :checksum
+
+      # The type of checksum (if any) associated with this provider.
+      #
+      # @return [String]
+      attr_accessor :checksum_type
+
       def initialize(raw)
         @name = raw["name"]
         @url  = raw["url"]
+        @checksum = raw["checksum"]
+        @checksum_type = raw["checksum_type"]
       end
     end
   end

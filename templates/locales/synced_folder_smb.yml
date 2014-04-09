@@ -1,0 +1,54 @@
+en:
+  vagrant_sf_smb:
+    mounting: |-
+      Mounting SMB shared folders...
+    mounting_single: |-
+      %{host} => %{guest}
+    preparing: |-
+      Preparing SMB shared folders...
+    warning_password: |-
+      You will be asked for the username and password to use for the SMB
+      folders shortly. Please use the proper username/password of your
+      Windows account.
+
+    errors:
+      define_share_failed: |-
+        Exporting an SMB share failed! Details about the failure are shown
+        below. Please inspect the error message and correct any problems.
+
+        Host path: %{host}
+
+        Stderr: %{stderr}
+
+        Stdout: %{stdout}
+      no_routable_host_addr: |-
+        We couldn't detect an IP address that was routable to this
+        machine from the guest machine! Please verify networking is properly
+        setup in the guest machine and that it is able to access this
+        host.
+
+        As another option, you can manually specify an IP for the machine
+        to mount from using the `smb_host` option to the synced folder.
+      powershell_error: |-
+        An error occurred while executing a PowerShell script. This error
+        is shown below. Please read the error message and see if this is
+        a configuration error with your system. If it is not, then please
+        report a bug.
+
+        Script: %{script}
+        Error:
+
+        %{stderr}
+      powershell_version: |-
+        PowerShell version 3 or later is required for SMB synced folders
+        to work on Windows. You have version: '%{version}'. Please update
+        your PowerShell installation.
+      windows_admin_required: |-
+        SMB shared folders require running Vagrant with administrative
+        privileges. This is a limitation of Windows, since creating new
+        network shares requires admin privileges. Please try again in a
+        console with proper permissions or use another synced folder type.
+      windows_host_required: |-
+        SMB shared folders are only available when Vagrant is running
+        on Windows. The guest machine can be running non-Windows. Please use
+        another synced folder type.

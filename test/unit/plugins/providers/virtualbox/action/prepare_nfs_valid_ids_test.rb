@@ -34,7 +34,7 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSValidIds do
     action = described_class.new(app, env)
     action.call(env)
 
-    called.should == true
+    expect(called).to eq(true)
   end
 
   it "sets nfs_valid_ids" do

@@ -34,7 +34,7 @@ Vagrant: Up and Running
 ## Up and Running
 
 ```
-$ vagrant init precise32 http://files.vagrantup.com/precise32.box
+$ vagrant init hashicorp/precise32
 $ vagrant up
 ```
 

@@ -115,11 +115,15 @@ module Vagrant
       @logger.info("  - cwd: #{cwd}")
 
       # Setup the home directory
-      setup_home_path
+      @home_path  ||= Vagrant.user_data_path
+      @home_path  = Util::Platform.fs_real_path(@home_path)
       @boxes_path = @home_path.join("boxes")
       @data_dir   = @home_path.join("data")
       @gems_path  = @home_path.join("gems")
       @tmp_path   = @home_path.join("tmp")
+
+      # Prepare the directories
+      setup_home_path
 
       # Setup the local data directory. If a configuration path is given,
       # then it is expanded relative to the working directory. Otherwise,
@@ -258,7 +262,10 @@ module Vagrant
     #
     # @return [BoxCollection]
     def boxes
-      @_boxes ||= BoxCollection.new(boxes_path, temp_dir_root: tmp_path)
+      @_boxes ||= BoxCollection.new(
+        boxes_path,
+        hook: method(:hook),
+        temp_dir_root: tmp_path)
     end
 
     # Returns the {Config::Loader} that can be used to load Vagrantflies
@@ -487,8 +494,6 @@ module Vagrant
     #
     # @return [Pathname]
     def setup_home_path
-      @home_path = Util::Platform.fs_real_path(
-        @home_path || Vagrant.user_data_path)
       @logger.info("Home path: #{@home_path}")
 
       # Setup the list of child directories that need to be created if they
@@ -511,7 +516,10 @@ module Vagrant
 
       # Attempt to write into the home directory to verify we can
       begin
-        path = @home_path.join("perm_test")
+        # Append a random suffix to avoid race conditions if Vagrant
+        # is running in parallel with other Vagrant processes.
+        suffix = (0...32).map { (65 + rand(26)).chr }.join
+        path   = @home_path.join("perm_test_#{suffix}")
         path.open("w") do |f|
           f.write("hello")
         end
@@ -525,7 +533,7 @@ module Vagrant
       # upgrade it. Otherwise, we just mark that its the current version.
       version_file = @home_path.join("setup_version")
       if version_file.file?
-        version = version_file.read
+        version = version_file.read.chomp
         if version > CURRENT_SETUP_VERSION
           raise Errors::HomeDirectoryLaterVersion
         end
@@ -640,6 +648,7 @@ module Vagrant
     # This upgrades a home directory that was in the v1.1 format to the
     # v1.5 format. It will raise exceptions if anything fails.
     def upgrade_home_path_v1_1
+      @ui.ask(I18n.t("vagrant.upgrading_home_path_v1_5"))
       collection = BoxCollection.new(
         @home_path.join("boxes"), temp_dir_root: tmp_path)
       collection.upgrade_v1_1_v1_5

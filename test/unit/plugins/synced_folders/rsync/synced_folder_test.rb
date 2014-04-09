@@ -25,17 +25,17 @@ describe VagrantPlugins::SyncedFolderRSync::SyncedFolder do
 
   describe "#usable?" do
     it "is usable if rsync can be found" do
-      Vagrant::Util::Which.should_receive(:which).with("rsync").and_return(true)
+      expect(Vagrant::Util::Which).to receive(:which).with("rsync").and_return(true)
       expect(subject.usable?(machine)).to be_true
     end
 
     it "is not usable if rsync cant be found" do
-      Vagrant::Util::Which.should_receive(:which).with("rsync").and_return(false)
+      expect(Vagrant::Util::Which).to receive(:which).with("rsync").and_return(false)
       expect(subject.usable?(machine)).to be_false
     end
 
     it "raises an exception if asked to" do
-      Vagrant::Util::Which.should_receive(:which).with("rsync").and_return(false)
+      expect(Vagrant::Util::Which).to receive(:which).with("rsync").and_return(false)
       expect { subject.usable?(machine, true) }.
         to raise_error(Vagrant::Errors::RSyncNotFound)
     end
@@ -48,7 +48,7 @@ describe VagrantPlugins::SyncedFolderRSync::SyncedFolder do
 
     before do
       machine.stub(ssh_info: ssh_info)
-      guest.stub(:capability?).with(:rsync_installed)
+      allow(guest).to receive(:capability?).with(:rsync_installed)
     end
 
     it "rsyncs each folder" do
@@ -58,7 +58,7 @@ describe VagrantPlugins::SyncedFolderRSync::SyncedFolder do
       ]
 
       folders.each do |_, opts|
-        helper_class.should_receive(:rsync_single).
+        expect(helper_class).to receive(:rsync_single).
           with(machine, ssh_info, opts).
           ordered
       end
@@ -69,10 +69,10 @@ describe VagrantPlugins::SyncedFolderRSync::SyncedFolder do
     it "installs rsync if capable" do
       folders = [ [:foo, {}] ]
 
-      helper_class.stub(:rsync_single)
+      allow(helper_class).to receive(:rsync_single)
 
-      guest.stub(:capability?).with(:rsync_installed).and_return(true)
-      guest.stub(:capability?).with(:rsync_install).and_return(true)
+      allow(guest).to receive(:capability?).with(:rsync_installed).and_return(true)
+      allow(guest).to receive(:capability?).with(:rsync_install).and_return(true)
 
       expect(guest).to receive(:capability).with(:rsync_installed).and_return(false)
       expect(guest).to receive(:capability).with(:rsync_install)
@@ -83,10 +83,10 @@ describe VagrantPlugins::SyncedFolderRSync::SyncedFolder do
     it "errors if rsync not installable" do
       folders = [ [:foo, {}] ]
 
-      helper_class.stub(:rsync_single)
+      allow(helper_class).to receive(:rsync_single)
 
-      guest.stub(:capability?).with(:rsync_installed).and_return(true)
-      guest.stub(:capability?).with(:rsync_install).and_return(false)
+      allow(guest).to receive(:capability?).with(:rsync_installed).and_return(true)
+      allow(guest).to receive(:capability?).with(:rsync_install).and_return(false)
 
       expect(guest).to receive(:capability).with(:rsync_installed).and_return(false)
 

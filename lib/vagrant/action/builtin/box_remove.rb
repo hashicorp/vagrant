@@ -60,6 +60,12 @@ module Vagrant
                 provider: box_provider.to_s,
                 versions: all_versions.join(", ")
             end
+          elsif !all_versions.include?(box_version)
+            raise Errors::BoxRemoveVersionNotFound,
+              name: box_name,
+              provider: box_provider.to_s,
+              version: box_version,
+              versions: all_versions.join(", ")
           end
 
           box = env[:box_collection].find(

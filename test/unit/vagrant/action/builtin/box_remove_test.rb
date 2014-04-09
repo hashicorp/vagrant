@@ -24,10 +24,10 @@ describe Vagrant::Action::Builtin::BoxRemove do
 
     env[:box_name] = "foo"
 
-    box_collection.should_receive(:find).with(
+    expect(box_collection).to receive(:find).with(
       "foo", :virtualbox, "1.0").and_return(box)
-    box.should_receive(:destroy!).once
-    app.should_receive(:call).with(env).once
+    expect(box).to receive(:destroy!).once
+    expect(app).to receive(:call).with(env).once
 
     subject.call(env)
 
@@ -44,10 +44,30 @@ describe Vagrant::Action::Builtin::BoxRemove do
     env[:box_name] = "foo"
     env[:box_provider] = "virtualbox"
 
-    box_collection.should_receive(:find).with(
+    expect(box_collection).to receive(:find).with(
       "foo", :virtualbox, "1.0").and_return(box)
-    box.should_receive(:destroy!).once
-    app.should_receive(:call).with(env).once
+    expect(box).to receive(:destroy!).once
+    expect(app).to receive(:call).with(env).once
+
+    subject.call(env)
+
+    expect(env[:box_removed]).to equal(box)
+  end
+
+  it "deletes the box with the specified version if given" do
+    box_collection.stub(
+      all: [
+        ["foo", "1.0", :virtualbox],
+        ["foo", "1.1", :virtualbox],
+      ])
+
+    env[:box_name] = "foo"
+    env[:box_version] = "1.0"
+
+    expect(box_collection).to receive(:find).with(
+      "foo", :virtualbox, "1.0").and_return(box)
+    expect(box).to receive(:destroy!).once
+    expect(app).to receive(:call).with(env).once
 
     subject.call(env)
 
@@ -57,7 +77,7 @@ describe Vagrant::Action::Builtin::BoxRemove do
   it "errors if the box doesn't exist" do
     box_collection.stub(all: [])
 
-    app.should_receive(:call).never
+    expect(app).to receive(:call).never
 
     expect { subject.call(env) }.
       to raise_error(Vagrant::Errors::BoxRemoveNotFound)
@@ -69,7 +89,7 @@ describe Vagrant::Action::Builtin::BoxRemove do
 
     box_collection.stub(all: [["foo", "1.0", :virtualbox]])
 
-    app.should_receive(:call).never
+    expect(app).to receive(:call).never
 
     expect { subject.call(env) }.
       to raise_error(Vagrant::Errors::BoxRemoveProviderNotFound)
@@ -84,7 +104,7 @@ describe Vagrant::Action::Builtin::BoxRemove do
         ["foo", "1.0", :vmware],
       ])
 
-    app.should_receive(:call).never
+    expect(app).to receive(:call).never
 
     expect { subject.call(env) }.
       to raise_error(Vagrant::Errors::BoxRemoveMultiProvider)
@@ -100,9 +120,21 @@ describe Vagrant::Action::Builtin::BoxRemove do
         ["foo", "1.1", :virtualbox],
       ])
 
-    app.should_receive(:call).never
+    expect(app).to receive(:call).never
 
     expect { subject.call(env) }.
       to raise_error(Vagrant::Errors::BoxRemoveMultiVersion)
+  end
+
+  it "errors if the specified version doesn't exist" do
+    env[:box_name] = "foo"
+    env[:box_version] = "1.1"
+
+    box_collection.stub(all: [["foo", "1.0", :virtualbox]])
+
+    expect(app).to receive(:call).never
+
+    expect { subject.call(env) }.
+      to raise_error(Vagrant::Errors::BoxRemoveVersionNotFound)
   end
 end

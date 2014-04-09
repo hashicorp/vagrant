@@ -6,9 +6,10 @@ if defined?(Bundler)
   require "bundler/shared_helpers"
   if Bundler::SharedHelpers.in_bundle?
     puts "Vagrant appears to be running in a Bundler environment. Your "
-    puts "existing Gemfile will be used. Vagrant will not auto-load any plugins."
-    puts "You must load any plugins you want manually in a Vagrantfile. You can"
-    puts "force Vagrant to take over with VAGRANT_FORCE_BUNDLER."
+    puts "existing Gemfile will be used. Vagrant will not auto-load any plugins"
+    puts "installed with `vagrant plugin`. Vagrant will autoload any plugins in"
+    puts "the 'plugins' group in your Gemfile. You can force Vagrant to take over"
+    puts "with VAGRANT_FORCE_BUNDLER."
     puts
   end
 end

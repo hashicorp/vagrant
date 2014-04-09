@@ -17,7 +17,7 @@ describe Vagrant::CLI do
   describe "#execute" do
     it "invokes help and exits with 1 if invalid command" do
       subject = described_class.new(["i-dont-exist"], env)
-      subject.should_receive(:help).once
+      expect(subject).to receive(:help).once
       expect(subject.execute).to eql(1)
     end
 
@@ -25,7 +25,7 @@ describe Vagrant::CLI do
       commands[:destroy] = [command_lambda("destroy", 42), {}]
 
       subject = described_class.new(["destroy"], env)
-      subject.should_not_receive(:help)
+      expect(subject).not_to receive(:help)
       expect(subject.execute).to eql(42)
     end
 
@@ -45,11 +45,11 @@ describe Vagrant::CLI do
       commands[:bar] = [command_lambda("bar", 0), { primary: true }]
       commands[:baz] = [command_lambda("baz", 0), { primary: false }]
 
-      env.ui.should_receive(:info).with do |message, opts|
+      expect(env.ui).to receive(:info).with { |message, opts|
         expect(message).to include("foo")
         expect(message).to include("bar")
         expect(message.include?("baz")).to be_false
-      end
+      }
 
       subject.help
     end

@@ -36,7 +36,7 @@ describe Vagrant::Util::IsPortOpen do
     end
 
     # Verify that we report the port is open
-    klass.is_port_open?("localhost", open_port).should be
+    expect(klass.is_port_open?("localhost", open_port)).to be
 
     # Kill the thread
     thr[:die] = true
@@ -47,7 +47,7 @@ describe Vagrant::Util::IsPortOpen do
     # This CAN fail, since port 52811 might actually be in use, but I'm
     # not sure what to do except choose some random port and hope for the
     # best, really.
-    klass.is_port_open?("localhost", closed_port).should_not be
+    expect(klass.is_port_open?("localhost", closed_port)).not_to be
   end
 end
 

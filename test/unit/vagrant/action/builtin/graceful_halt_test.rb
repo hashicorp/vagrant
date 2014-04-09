@@ -5,9 +5,9 @@ describe Vagrant::Action::Builtin::GracefulHalt do
   let(:env) { { :machine => machine, :ui => ui } }
   let(:machine) do
     result = double("machine")
-    result.stub(:config).and_return(machine_config)
-    result.stub(:guest).and_return(machine_guest)
-    result.stub(:state).and_return(machine_state)
+    allow(result).to receive(:config).and_return(machine_config)
+    allow(result).to receive(:guest).and_return(machine_guest)
+    allow(result).to receive(:state).and_return(machine_state)
     result
   end
   let(:machine_config) do
@@ -20,41 +20,41 @@ describe Vagrant::Action::Builtin::GracefulHalt do
   let(:machine_guest) { double("machine_guest") }
   let(:machine_state) do
     double("machine_state").tap do |result|
-      result.stub(:id).and_return(:unknown)
+      allow(result).to receive(:id).and_return(:unknown)
     end
   end
   let(:target_state) { :target }
   let(:ui) do
     double("ui").tap do |result|
-      result.stub(:info)
+      allow(result).to receive(:output)
     end
   end
 
   it "should do nothing if force is specified" do
     env[:force_halt] = true
 
-    machine_guest.should_not_receive(:capability)
+    expect(machine_guest).not_to receive(:capability)
 
     described_class.new(app, env, target_state).call(env)
 
-    env[:result].should == false
+    expect(env[:result]).to eq(false)
   end
 
   it "should do nothing if there is an invalid source state" do
-    machine_state.stub(:id).and_return(:invalid_source)
-    machine_guest.should_not_receive(:capability)
+    allow(machine_state).to receive(:id).and_return(:invalid_source)
+    expect(machine_guest).not_to receive(:capability)
 
     described_class.new(app, env, target_state, :target_source).call(env)
 
-    env[:result].should == false
+    expect(env[:result]).to eq(false)
   end
 
   it "should gracefully halt and wait for the target state" do
-    machine_guest.should_receive(:capability).with(:halt).once
-    machine_state.stub(:id).and_return(target_state)
+    expect(machine_guest).to receive(:capability).with(:halt).once
+    allow(machine_state).to receive(:id).and_return(target_state)
 
     described_class.new(app, env, target_state).call(env)
 
-    env[:result].should == true
+    expect(env[:result]).to eq(true)
   end
 end

@@ -17,10 +17,10 @@ describe VagrantPlugins::CommandPlugin::Action::InstallGem do
   describe "#call" do
     it "should install the plugin" do
       spec = Gem::Specification.new
-      manager.should_receive(:install_plugin).with(
+      expect(manager).to receive(:install_plugin).with(
         "foo", version: nil, require: nil, sources: nil, verbose: false).once.and_return(spec)
 
-      app.should_receive(:call).with(env).once
+      expect(app).to receive(:call).with(env).once
 
       env[:plugin_name] = "foo"
       subject.call(env)
@@ -28,10 +28,10 @@ describe VagrantPlugins::CommandPlugin::Action::InstallGem do
 
     it "should specify the version if given" do
       spec = Gem::Specification.new
-      manager.should_receive(:install_plugin).with(
+      expect(manager).to receive(:install_plugin).with(
         "foo", version: "bar", require: nil, sources: nil, verbose: false).once.and_return(spec)
 
-      app.should_receive(:call).with(env).once
+      expect(app).to receive(:call).with(env).once
 
       env[:plugin_name] = "foo"
       env[:plugin_version] = "bar"
@@ -40,10 +40,10 @@ describe VagrantPlugins::CommandPlugin::Action::InstallGem do
 
     it "should specify the entrypoint if given" do
       spec = Gem::Specification.new
-      manager.should_receive(:install_plugin).with(
+      expect(manager).to receive(:install_plugin).with(
         "foo", version: "bar", require: "baz", sources: nil, verbose: false).once.and_return(spec)
 
-      app.should_receive(:call).with(env).once
+      expect(app).to receive(:call).with(env).once
 
       env[:plugin_entry_point] = "baz"
       env[:plugin_name] = "foo"
@@ -53,10 +53,10 @@ describe VagrantPlugins::CommandPlugin::Action::InstallGem do
 
     it "should specify the sources if given" do
       spec = Gem::Specification.new
-      manager.should_receive(:install_plugin).with(
+      expect(manager).to receive(:install_plugin).with(
         "foo", version: nil, require: nil, sources: ["foo"], verbose: false).once.and_return(spec)
 
-      app.should_receive(:call).with(env).once
+      expect(app).to receive(:call).with(env).once
 
       env[:plugin_name] = "foo"
       env[:plugin_sources] = ["foo"]
@@ -84,9 +84,9 @@ describe VagrantPlugins::CommandPlugin::Action::InstallGem do
       end
 
       it "should uninstall the plugin" do
-        action_runner.should_receive(:run).with do |action, newenv|
+        expect(action_runner).to receive(:run).with { |action, newenv|
           expect(newenv[:plugin_name]).to eql("foo")
-        end
+        }
 
         subject.recover(env)
       end

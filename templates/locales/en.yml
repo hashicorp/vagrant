@@ -37,6 +37,16 @@ en:
       installed, but your Vagrant machine is running against
       version '%{old}'. To update to version '%{new}',
       destroy and recreate your machine.
+    box_outdated_metadata_download_error: |-
+      There was a problem while downloading the metadata for your box
+      to check for updates. This is not an error, since it is usually due
+      to temporary network problems. This is just a warning. The problem
+      encountered was:
+
+      %{message}
+
+      If you want to check for box updates, verify your network connection
+      is valid and try again.
     box_outdated_metadata_error_single: |-
       Error loading box metadata while attempting to check for
       updates: %{message}
@@ -144,11 +154,17 @@ en:
       %{names}
     provisioner_cleanup: |-
       Running cleanup tasks for '%{name}' provisioner...
+    rsync_auto_initial: |-
+      Doing an initial rsync...
     rsync_auto_path: |-
       Watching: %{path}
     rsync_communicator_not_ready: |-
       The machine is reporting that it is not ready for rsync to
       communiate with it. Verify that this machine is properly running.
+    rsync_communicator_not_ready_callback: |-
+      Failed to connect to remote machine. This is usually caused by the
+      machine rebooting or being halted. Please make sure the machine is
+      running, and modify a file to try again.
     rsync_folder: |-
       Rsyncing folder: %{hostpath} => %{guestpath}
     rsync_folder_excludes: "  - Exclude: %{excludes}"
@@ -166,7 +182,21 @@ en:
       password-based authentication. Vagrant can't script entering the
       password for you. If you're prompted for a password, please enter
       the same password you have configured in the Vagrantfile.
+    stdin_cant_hide_input: |-
+      Error! Your console doesn't support hiding input. We'll ask for
+      input again below, but we WILL NOT be able to hide input. If this
+      is a problem for you, ctrl-C to exit and fix your stdin.
+    upgrading_home_path_v1_5: |-
+      Vagrant is upgrading some internal state for the latest version.
+      Please do not quit Vagrant at this time. While upgrading, Vagrant
+      will need to copy all your boxes, so it will use a considerable
+      amount of disk space. After it is done upgrading, the temporary disk
+      space will be freed.
 
+      Press ctrl-c now to exit if you want to remove some boxes or free
+      up some disk space.
+
+      Press any other key to continue.
     cfengine_config:
       classes_array: |-
         The 'classes' configuration must be an array.
@@ -284,9 +314,10 @@ en:
         Available versions: %{versions}
       box_add_short_not_found: |-
         The box '%{name}' could not be found or
-        could not be accessed in the remote catalog. Please
-        double-check the name. The expanded URL and error message
-        are shown below.
+        could not be accessed in the remote catalog. If this is a private
+        box on Vagrant Cloud, please verify you're logged in via
+        `vagrant login`. Also, please double-check the name. The expanded
+        URL and error message are shown below:
 
         URL: %{url}
         Error: %{error}
@@ -304,8 +335,11 @@ en:
       boot_timeout: |-
         Timed out while waiting for the machine to boot. This means that
         Vagrant was unable to communicate with the guest machine within
-        the configured ("config.vm.boot_timeout" value) time period. This can
-        mean a number of things.
+        the configured ("config.vm.boot_timeout" value) time period.
+
+        If you look above, you should be able to see the error(s) that
+        Vagrant had when attempting to connect to the machine. These errors
+        are usually good hints as to what may be wrong.
 
         If you're using a custom box, make sure that networking is properly
         working and you're able to connect to the machine. It is a common
@@ -322,6 +356,11 @@ en:
         Name: %{name}
         Provider: %{provider}
         Version: %{version}
+      box_add_direct_version: |-
+        You specified a box version constraint with a direct box file
+        path. Box version constraints only work with boxes from Vagrant
+        Cloud or a custom box host. Please remove the version constraint
+        and try again.
       box_add_metadata_multi_url: |-
         Multiple URLs for a box can't be specified when adding
         versioned boxes. Please specify a single URL to the box
@@ -363,6 +402,11 @@ en:
         The metadata associated with the box '%{name}' appears corrupted.
         This is most often caused by a disk issue or system crash. Please
         remove the box, re-add it, and try again.
+      box_metadata_download_error: |-
+        There was an error while downloading the metadata for this box.
+        The error message is shown below:
+
+        %{message}
       box_metadata_file_not_found: |-
         The "metadata.json" file for the box '%{name}' was not found.
         Boxes require this file in order for Vagrant to determine the
@@ -378,6 +422,11 @@ en:
         that this issue can be fixed.
 
         %{error}
+      box_metadata_malformed_version: |-
+        A version of the box you're loading is formatted in a way that
+        Vagrant cannot parse: '%{version}'. Please reformat the version
+        to be properly formatted. It should be in the format of
+        X.Y.Z.
       box_not_found: |-
         The box '%{name}' does not exist. Please double check and
         try again. You can see the boxes that are installed with
@@ -388,10 +437,6 @@ en:
         the box are shown below:
 
         %{providers}
-      box_outdated_no_box: |-
-        The box '%{name}' isn't downloaded or added yet, so we can't
-        check if it is outdated. Run a `vagrant up` or add the box
-        with `vagrant box add` to download an appropriate version.
       box_provider_doesnt_match: |-
         The box you attempted to add doesn't match the provider you specified.
 
@@ -419,6 +464,13 @@ en:
         the provider specified. Please double-check and try again.
 
         The providers for this are: %{providers}
+      box_remove_version_not_found: |-
+        You requested to remove the box '%{name}' version '%{version}' with
+        provider '%{provider}', but that specific version of the box is
+        not install. Please double-check and try again. The available versions
+        for this box are:
+
+        %{versions}
       box_server_not_set: |-
         A URL to a Vagrant Cloud server is not set, so boxes cannot
         be added with a shorthand ("mitchellh/precise64") format.
@@ -436,6 +488,8 @@ en:
         provider to remove with `--provider`.
 
         Available providers: %{providers}
+      box_update_no_box: |-
+        Box '%{name}' not installed, can't check for updates.
       box_update_no_metadata: |-
         The box '%{name}' is not a versioned box. The box was added
         directly instead of from a box catalog. Vagrant can only
@@ -727,6 +781,18 @@ en:
 
         Please remove the file and reinstall the plugins.
         If this error recurs, please report a bug.
+      plugin_uninstall_system: |-
+        The plugin you're attempting to uninstall ('%{name}') is a
+        system plugin. This means that the plugin is part of the installation
+        of Vagrant. These plugins cannot be removed.
+
+        You can however, install a plugin with the same name to replace
+        these plugins. User-installed plugins take priority over
+        system-installed plugins.
+      package_include_symlink: |-
+        A file or directory you're attempting to include with your packaged
+        box has symlinks in it. Vagrant cannot include symlinks in the
+        resulting package. Please remove the symlinks and try again.
       provider_not_found: |-
         The provider '%{provider}' could not be found, but was requested to
         back the machine '%{machine}'. Please use a provider that exists.
@@ -1058,6 +1124,8 @@ en:
           properly, try changing this IP.
         network_ip_required: |-
           An IP is required for a private network.
+        network_fp_invalid_port: |-
+          Ports to forward must be 1 to 65535
         network_fp_host_not_unique: |-
           Forwarded port '%{host}' (host port) is declared multiple times
           with the protocol '%{protocol}'.
@@ -1075,7 +1143,7 @@ en:
         shared_folder_hostpath_missing: |-
           The host path of the shared folder is missing: %{path}
         shared_folder_nfs_owner_group: |-
-          Shared folder that have NFS enabled do not support owner/group
+          Shared folders that have NFS enabled do not support owner/group
           attributes. Host path: %{path}
         shared_folder_mount_options_array: |-
           Shared folder mount options specified by 'mount_options' must
@@ -1166,6 +1234,8 @@ en:
           that vagrant would be able to control the VM again.
         poweroff: |-
           The VM is powered off. To restart the VM, simply run `vagrant up`
+        stopping: |-
+          The VM is stopping.
         running: |-
           The VM is running. To stop this VM, you can run `vagrant halt` to
           shut it down forcefully, or you can run `vagrant suspend` to simply
@@ -1309,6 +1379,11 @@ en:
             Forcing shutdown of VM...
           graceful: |-
             Attempting graceful shutdown of VM...
+          guest_not_ready: |-
+            Guest communication could not be established! This is usually because
+            SSH is not running, the authentication information was changed,
+            or some other networking issue. Vagrant will force halt, if
+            capable.
         hostname:
           setting: "Setting hostname..."
         import:
@@ -1520,6 +1595,9 @@ en:
 
       shell:
         args_bad_type: "Shell provisioner `args` must be a string or array."
+        invalid_encoding: |-
+          Invalid encoding '%{actual}' for script at '%{path}'.
+          Must be '%{default}' or UTF-8.
         no_path_or_inline: "One of `path` or `inline` must be set."
         path_and_inline_set: "Only one of `path` or `inline` may be set."
         path_invalid: "`path` for shell provisioner does not exist on the host system: %{path}"
@@ -1537,6 +1615,8 @@ en:
         install_failed: "Docker installation failed."
 
       salt:
+        minion_config_nonexist: |-
+          The specified minion_config file could not be found.
         missing_key: |-
           You must include both public and private keys.
         must_accept_keys: |-

@@ -1,5 +1,5 @@
-require "i18n"
 require "vagrant"
+require "vagrant/util/deep_merge"
 
 module VagrantPlugins
   module Salt
@@ -78,19 +78,26 @@ module VagrantPlugins
 
       def pillar(data)
         @pillar_data = {} if @pillar_data == UNSET_VALUE
-        @pillar_data.deep_merge!(data)
+        @pillar_data = Vagrant::Util::DeepMerge.deep_merge(@pillar_data, data)
       end
 
       def validate(machine)
         errors = _detected_errors
-        if @minion_key || @minion_pub
-          if !@minion_key || !@minion_pub
-            errors << @minion_pub
+        if @minion_config
+          expanded = Pathname.new(@minion_config).expand_path(machine.env.root_path)
+          if !expanded.file?
+            errors << I18n.t("vagrant.provisioners.salt.minion_config_nonexist")
           end
         end
 
-        if @master_key && @master_pub
-          if !@minion_key && !@minion_pub
+        if @minion_key || @minion_pub
+          if !@minion_key || !@minion_pub
+            errors << I18n.t("vagrant.provisioners.salt.missing_key")
+          end
+        end
+
+        if @master_key || @master_pub
+          if !@master_key || !@master_pub
             errors << I18n.t("vagrant.provisioners.salt.missing_key")
           end
         end

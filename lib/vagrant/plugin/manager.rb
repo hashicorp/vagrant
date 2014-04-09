@@ -1,3 +1,4 @@
+require "pathname"
 require "set"
 
 require_relative "../bundler"
@@ -8,20 +9,31 @@ module Vagrant
   module Plugin
     # The Manager helps with installing, listing, and initializing plugins.
     class Manager
-      # Returns the path to the [StateFile] for global plugins.
+      # Returns the path to the [StateFile] for user plugins.
       #
       # @return [Pathname]
-      def self.global_plugins_file
+      def self.user_plugins_file
         Vagrant.user_data_path.join("plugins.json")
       end
 
-      def self.instance
-        @instance ||= self.new(global_plugins_file)
+      # Returns the path to the [StateFile] for system plugins.
+      def self.system_plugins_file
+        dir = Vagrant.installer_embedded_dir
+        return nil if !dir
+        Pathname.new(dir).join("plugins.json")
       end
 
-      # @param [Pathname] global_file
-      def initialize(global_file)
-        @global_file = StateFile.new(global_file)
+      def self.instance
+        @instance ||= self.new(user_plugins_file)
+      end
+
+      # @param [Pathname] user_file
+      def initialize(user_file)
+        @user_file   = StateFile.new(user_file)
+
+        system_path  = self.class.system_plugins_file
+        @system_file = nil
+        @system_file = StateFile.new(system_path) if system_path && system_path.file?
       end
 
       # Installs another plugin into our gem directory.
@@ -61,11 +73,14 @@ module Vagrant
         end
 
         # If the version constraint is just a specific version, don't
-        # store the constraint.
-        opts.delete(:version) if opts[:version] && opts[:version] =~ /^\d/
+        # store the constraint. However, if it is a prerelease version,
+        # we DO store the constraint to avoid Bundler updating it.
+        if opts[:version] && opts[:version] =~ /^\d/ && opts[:version] !~ /[a-z]/i
+          opts.delete(:version)
+        end
 
         # Add the plugin to the state file
-        @global_file.add_plugin(
+        @user_file.add_plugin(
           result.name,
           version: opts[:version],
           require: opts[:require],
@@ -83,7 +98,14 @@ module Vagrant
       #
       # @param [String] name
       def uninstall_plugin(name)
-        @global_file.remove_plugin(name)
+        if @system_file
+          if !@user_file.has_plugin?(name) && @system_file.has_plugin?(name)
+            raise Errors::PluginUninstallSystem,
+              name: name
+          end
+        end
+
+        @user_file.remove_plugin(name)
 
         # Clean the environment, removing any old plugins
         Vagrant::Bundler.instance.clean(installed_plugins)
@@ -102,7 +124,14 @@ module Vagrant
       #
       # @return [Hash]
       def installed_plugins
-        @global_file.installed_plugins
+        system = {}
+        if @system_file
+          @system_file.installed_plugins.each do |k, v|
+            system[k] = v.merge("system" => true)
+          end
+        end
+
+        system.merge(@user_file.installed_plugins)
       end
 
       # This returns the list of plugins that are installed as

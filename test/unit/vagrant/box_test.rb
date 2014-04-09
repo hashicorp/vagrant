@@ -19,18 +19,21 @@ describe Vagrant::Box do
   let(:directory)     { environment.box3("foo", "1.0", :virtualbox) }
   subject             { described_class.new(name, provider, version, directory) }
 
-  its(:metadata_url) { should be_nil }
+  describe '#metadata_url' do
+    subject { super().metadata_url }
+    it { should be_nil }
+  end
 
   it "provides the name" do
-    subject.name.should == name
+    expect(subject.name).to eq(name)
   end
 
   it "provides the provider" do
-    subject.provider.should == provider
+    expect(subject.provider).to eq(provider)
   end
 
   it "provides the directory" do
-    subject.directory.should == directory
+    expect(subject.directory).to eq(directory)
   end
 
   it "provides the metadata associated with a box" do
@@ -42,7 +45,7 @@ describe Vagrant::Box do
     end
 
     # Verify the metadata
-    subject.metadata.should == data
+    expect(subject.metadata).to eq(data)
   end
 
   context "with a metadata URL" do
@@ -52,7 +55,10 @@ describe Vagrant::Box do
         metadata_url: "foo")
     end
 
-    its(:metadata_url) { should eq("foo") }
+    describe '#metadata_url' do
+      subject { super().metadata_url }
+      it { should eq("foo") }
+    end
   end
 
   context "with a corrupt metadata file" do
@@ -213,18 +219,28 @@ describe Vagrant::Box do
       expect(result.name).to eq("foo")
       expect(result.description).to eq("bar")
     end
+
+    it "raises an error if the download failed" do
+      dl = double("downloader")
+      Vagrant::Util::Downloader.stub(new: dl)
+      dl.should_receive(:download!).and_raise(
+        Vagrant::Errors::DownloaderError.new(message: "foo"))
+
+      expect { subject.load_metadata }.
+        to raise_error(Vagrant::Errors::BoxMetadataDownloadError)
+    end
   end
 
   describe "destroying" do
     it "should destroy an existing box" do
       # Verify that our "box" exists
-      directory.exist?.should be
+      expect(directory.exist?).to be
 
       # Destroy it
-      subject.destroy!.should be
+      expect(subject.destroy!).to be
 
       # Verify that it is "destroyed"
-      directory.exist?.should_not be
+      expect(directory.exist?).not_to be
     end
 
     it "should not error destroying a non-existent box" do
@@ -235,7 +251,7 @@ describe Vagrant::Box do
       directory.rmtree
 
       # Destroy it
-      box.destroy!.should be
+      expect(box.destroy!).to be
     end
   end
 
@@ -256,7 +272,7 @@ describe Vagrant::Box do
       # Let's now add this box again under a different name, and then
       # verify that we get the proper result back.
       new_box = box_collection.add(box_output_path, "foo2", "1.0")
-      new_box.directory.join("test_file").read.should == test_file_contents
+      expect(new_box.directory.join("test_file").read).to eq(test_file_contents)
     end
   end
 
@@ -265,7 +281,7 @@ describe Vagrant::Box do
       a = described_class.new("a", :foo, "1.0", directory)
       b = described_class.new("a", :foo, "1.0", directory)
 
-      a.should == b
+      expect(a).to eq(b)
     end
 
     it "should not be equal if name doesn't match" do
@@ -295,7 +311,7 @@ describe Vagrant::Box do
       c = described_class.new("a", :foo2, "1.1", directory)
       d = described_class.new("b", :foo2, "1.0", directory)
 
-      [d, c, a, b].sort.should == [a, b, c, d]
+      expect([d, c, a, b].sort).to eq([a, b, c, d])
     end
   end
 end

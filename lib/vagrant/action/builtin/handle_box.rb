@@ -45,9 +45,12 @@ module Vagrant
 
           if box_updated
             # Reload the environment and set the VM to be the new loaded VM.
-            env[:machine] = machine.vagrantfile.machine(
+            new_machine = machine.vagrantfile.machine(
               machine.name, machine.provider_name,
               machine.env.boxes, machine.data_dir, machine.env)
+            env[:machine].box = new_machine.box
+            env[:machine].config = new_machine.config
+            env[:machine].provider_config = new_machine.provider_config
           end
 
           @app.call(env)
@@ -63,10 +66,13 @@ module Vagrant
           box_formats = machine.provider_options[:box_format] ||
             machine.provider_name
 
+          version_ui = machine.config.vm.box_version
+          version_ui ||= ">= 0"
+
           env[:ui].output(I18n.t(
             "vagrant.box_auto_adding", name: machine.config.vm.box))
           env[:ui].detail("Box Provider: #{Array(box_formats).join(", ")}")
-          env[:ui].detail("Box Version: #{machine.config.vm.box_version}")
+          env[:ui].detail("Box Version: #{version_ui}")
 
           begin
             env[:action_runner].run(Vagrant::Action.action_box_add, env.merge({

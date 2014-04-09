@@ -1,4 +1,5 @@
 require 'rbconfig'
+require 'shellwords'
 require 'tmpdir'
 
 require "vagrant/util/subprocess"
@@ -29,16 +30,36 @@ module Vagrant
           false
         end
 
-        # This takes any path and converts it to a full-length Windows
-        # path on Windows machines in Cygwin.
+        # Checks if the user running Vagrant on Windows has administrative
+        # privileges.
         #
-        # @return [String]
-        def cygwin_windows_path(path, **opts)
-          return path if !cygwin? && !opts[:force]
+        # @return [Boolean]
+        def windows_admin?
+          # We lazily-load this because it is only available on Windows
+          require 'win32/registry'
 
+          # Verify that we have administrative privileges. The odd method of
+          # detecting this is based on this StackOverflow question:
+          #
+          # http://stackoverflow.com/questions/560366/
+          #   detect-if-running-with-administrator-privileges-under-windows-xp
+          begin
+            Win32::Registry::HKEY_USERS.open("S-1-5-19") {}
+            return true
+          rescue Win32::Registry::Error
+            return false
+          end
+        end
+
+        # This takes any path and converts it from a Windows path to a
+        # Cygwin or msys style path.
+        #
+        # @param [String] path
+        # @return [String]
+        def cygwin_path(path)
           begin
             # First try the real cygpath
-            process = Subprocess.execute("cygpath", "-w", "-l", "-a", path.to_s)
+            process = Subprocess.execute("cygpath", "-u", "-a", path.to_s)
             return process.stdout.chomp
           rescue Errors::CommandUnavailableWindows
             # Sometimes cygpath isn't available (msys). Instead, do what we
@@ -47,9 +68,24 @@ module Vagrant
               "bash",
               "--noprofile",
               "--norc",
-              "-c", "cd #{path} && pwd")
+              "-c", "cd #{Shellwords.escape(path)} && pwd")
             return process.stdout.chomp
           end
+        end
+
+        # This takes any path and converts it to a full-length Windows
+        # path on Windows machines in Cygwin.
+        #
+        # @return [String]
+        def cygwin_windows_path(path)
+          return path if !cygwin?
+
+          # Replace all "\" with "/", otherwise cygpath doesn't work.
+          path = path.gsub("\\", "/")
+
+          # Call out to cygpath and gather the result
+          process = Subprocess.execute("cygpath", "-w", "-l", "-a", path.to_s)
+          return process.stdout.chomp
         end
 
         # This checks if the filesystem is case sensitive. This is not a

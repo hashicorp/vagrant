@@ -44,6 +44,7 @@ module Vagrant
       options ||= {}
 
       @directory = directory
+      @hook      = options[:hook]
       @lock      = Monitor.new
       @temp_root = options[:temp_dir_root]
       @logger    = Log4r::Logger.new("vagrant::box_collection")
@@ -166,13 +167,27 @@ module Vagrant
             # Move to final destination
             final_dir.mkpath
 
-            # Go through each child and copy them one-by-one. This avoids
-            # an issue where on Windows cross-device directory copies are
-            # failing for some reason. [GH-1424]
-            final_temp_dir.children(true).each do |f|
-              destination = final_dir.join(f.basename)
-              @logger.debug("Moving: #{f} => #{destination}")
-              FileUtils.mv(f, destination)
+            # Recursively move individual files from the temporary directory
+            # to the final location. We do this instead of moving the entire
+            # directory to avoid issues on Windows. [GH-1424]
+            copy_pairs = [[final_temp_dir, final_dir]]
+            while !copy_pairs.empty?
+              from, to = copy_pairs.shift
+              from.children(true).each do |f|
+                dest = to.join(f.basename)
+
+                # We don't copy entire directories, so create the
+                # directory and then add to our list to copy.
+                if f.directory?
+                  dest.mkpath
+                  copy_pairs << [f, dest]
+                  next
+                end
+
+                # Copy the single file
+                @logger.debug("Moving: #{f} => #{dest}")
+                FileUtils.mv(f, dest)
+              end
             end
 
             if opts[:metadata_url]
@@ -241,7 +256,7 @@ module Vagrant
       providers = Array(providers)
 
       # Build up the requirements we have
-      requirements = version.split(",").map do |v|
+      requirements = version.to_s.split(",").map do |v|
         Gem::Requirement.new(v.strip)
       end
 
@@ -274,6 +289,12 @@ module Vagrant
             metadata_url = nil
             metadata_url_file = box_directory.join("metadata_url")
             metadata_url = metadata_url_file.read if metadata_url_file.file?
+
+            if metadata_url && @hook
+              hook_env     = @hook.call(
+                :authenticate_box_url, box_urls: [metadata_url])
+              metadata_url = hook_env[:box_urls].first
+            end
 
             return Box.new(
               name, provider, v.to_s, provider_dir,

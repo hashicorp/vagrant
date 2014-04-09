@@ -203,8 +203,7 @@ module VagrantPlugins
       #
       # @param [Symbol] type Type of network
       # @param [Hash] options Options for the network.
-      def network(type, options=nil)
-        options ||= {}
+      def network(type, **options)
         options = options.dup
         options[:protocol] ||= "tcp"
 
@@ -314,7 +313,7 @@ module VagrantPlugins
         @box_download_client_cert = nil if @box_download_client_cert == UNSET_VALUE
         @box_download_insecure = false if @box_download_insecure == UNSET_VALUE
         @box_url = nil if @box_url == UNSET_VALUE
-        @box_version = ">= 0" if @box_version == UNSET_VALUE
+        @box_version = nil if @box_version == UNSET_VALUE
         @graceful_halt_timeout = 60 if @graceful_halt_timeout == UNSET_VALUE
         @guest = nil if @guest == UNSET_VALUE
         @hostname = nil if @hostname == UNSET_VALUE
@@ -371,8 +370,14 @@ module VagrantPlugins
           # Load it up
           config    = config_class.new
 
-          blocks.each do |b|
-            b.call(config, Vagrant::Config::V2::DummyConfig.new)
+          begin
+            blocks.each do |b|
+              b.call(config, Vagrant::Config::V2::DummyConfig.new)
+            end
+          rescue Exception => e
+            raise Vagrant::Errors::VagrantfileLoadError,
+              path: "<provider config: #{name}>",
+              message: e.message
           end
 
           config.finalize!
@@ -543,6 +548,7 @@ module VagrantPlugins
         fp_used = Set.new
         valid_network_types = [:forwarded_port, :private_network, :public_network]
 
+        port_range=(1..65535)
         networks.each do |type, options|
           if !valid_network_types.include?(type)
             errors << I18n.t("vagrant.config.vm.network_type_invalid",
@@ -565,10 +571,14 @@ module VagrantPlugins
 
               fp_used.add(key)
             end
+
+            if !port_range.include?(options[:host]) || !port_range.include?(options[:guest])
+              errors << I18n.t("vagrant.config.vm.network_fp_invalid_port")
+            end
           end
 
           if type == :private_network
-            if options[:type] != :dhcp
+            if options[:type] && options[:type].to_sym != :dhcp
               if !options[:ip]
                 errors << I18n.t("vagrant.config.vm.network_ip_required")
               end

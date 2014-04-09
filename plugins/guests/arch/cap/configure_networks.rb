@@ -21,6 +21,7 @@ module VagrantPlugins
 
             machine.communicate.upload(temp.path, "/tmp/vagrant_network")
             machine.communicate.sudo("ln -sf /dev/null /etc/udev/rules.d/80-net-name-slot.rules")
+            machine.communicate.sudo("udevadm control --reload")
             machine.communicate.sudo("mv /tmp/vagrant_network /etc/netctl/eth#{network[:interface]}")
 
             # Only consider nth line of sed's output below. There's always an

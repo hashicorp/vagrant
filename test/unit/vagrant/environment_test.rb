@@ -29,7 +29,7 @@ describe Vagrant::Environment do
     it "is set to the home path given" do
       Dir.mktmpdir do |dir|
         instance = described_class.new(:home_path => dir)
-        instance.home_path.should == Pathname.new(dir)
+        expect(instance.home_path).to eq(Pathname.new(dir))
       end
     end
 
@@ -39,11 +39,11 @@ describe Vagrant::Environment do
           described_class.new
         end
 
-        instance.home_path.should == Pathname.new(dir)
+        expect(instance.home_path).to eq(Pathname.new(dir))
       end
     end
 
-    it "throws an exception if inaccessible" do
+    it "throws an exception if inaccessible", skip_windows: true do
       expect {
         described_class.new(:home_path => "/")
       }.to raise_error(Vagrant::Errors::HomeDirectoryNotAccessible)
@@ -99,6 +99,9 @@ describe Vagrant::Environment do
         env.homedir.join("setup_version").open("w") do |f|
           f.write("1.1")
         end
+
+        allow_any_instance_of(Vagrant::UI::Silent).
+          to receive(:ask)
       end
 
       it "replaces the setup version with the new version" do
@@ -111,9 +114,9 @@ describe Vagrant::Environment do
         Vagrant::Environment.any_instance.stub(boxes: double("boxes"))
 
         collection = double("collection")
-        Vagrant::BoxCollection.should_receive(:new).with(
+        expect(Vagrant::BoxCollection).to receive(:new).with(
           env.homedir.join("boxes"), anything).and_return(collection)
-        collection.should_receive(:upgrade_v1_1_v1_5).once
+        expect(collection).to receive(:upgrade_v1_1_v1_5).once
         subject
       end
     end
@@ -262,10 +265,10 @@ VF
       # Verify that we can get the machine
       env = isolated_env.create_vagrant_env
       machine = env.machine(:foo, :foo)
-      machine.should be_kind_of(Vagrant::Machine)
-      machine.name.should == :foo
-      machine.provider.should be_kind_of(foo_provider)
-      machine.provider_config.should be_nil
+      expect(machine).to be_kind_of(Vagrant::Machine)
+      expect(machine.name).to eq(:foo)
+      expect(machine.provider).to be_kind_of(foo_provider)
+      expect(machine.provider_config).to be_nil
     end
 
     it "should return a machine object with the machine configuration" do
@@ -295,10 +298,10 @@ VF
       # Verify that we can get the machine
       env = isolated_env.create_vagrant_env
       machine = env.machine(:foo, :foo)
-      machine.should be_kind_of(Vagrant::Machine)
-      machine.name.should == :foo
-      machine.provider.should be_kind_of(foo_provider)
-      machine.provider_config.value.should == 100
+      expect(machine).to be_kind_of(Vagrant::Machine)
+      expect(machine.name).to eq(:foo)
+      expect(machine.provider).to be_kind_of(foo_provider)
+      expect(machine.provider_config.value).to eq(100)
     end
 
     it "should cache the machine objects by name and provider" do
@@ -325,10 +328,10 @@ VF
       vm1_bar = env.machine(:vm1, :bar)
       vm2_foo = env.machine(:vm2, :foo)
 
-      vm1_foo.should eql(env.machine(:vm1, :foo))
-      vm1_bar.should eql(env.machine(:vm1, :bar))
-      vm1_foo.should_not eql(vm1_bar)
-      vm2_foo.should eql(env.machine(:vm2, :foo))
+      expect(vm1_foo).to eql(env.machine(:vm1, :foo))
+      expect(vm1_bar).to eql(env.machine(:vm1, :bar))
+      expect(vm1_foo).not_to eql(vm1_bar)
+      expect(vm2_foo).to eql(env.machine(:vm2, :foo))
     end
 
     it "should load a machine without a box" do
@@ -344,7 +347,7 @@ VF
 
       env = environment.create_vagrant_env
       machine = env.machine(:default, :foo)
-      machine.box.should be_nil
+      expect(machine.box).to be_nil
     end
 
     it "should load the machine configuration" do
@@ -367,8 +370,8 @@ VF
 
       env = environment.create_vagrant_env
       machine = env.machine(:vm1, :foo)
-      machine.config.ssh.port.should == 100
-      machine.config.vm.box.should == "base"
+      expect(machine.config.ssh.port).to eq(100)
+      expect(machine.config.vm.box).to eq("base")
     end
 
     it "should load the box configuration for a box" do
@@ -390,7 +393,7 @@ VF
 
       env = environment.create_vagrant_env
       machine = env.machine(:default, :foo)
-      machine.config.ssh.port.should == 100
+      expect(machine.config.ssh.port).to eq(100)
     end
 
     it "should load the box configuration for a box and custom Vagrantfile name" do
@@ -415,7 +418,7 @@ VF
       end
 
       machine = env.machine(:default, :foo)
-      machine.config.ssh.port.should == 100
+      expect(machine.config.ssh.port).to eq(100)
     end
 
     it "should load the box configuration for other formats for a box" do
@@ -437,7 +440,7 @@ VF
 
       env = environment.create_vagrant_env
       machine = env.machine(:default, :foo)
-      machine.config.ssh.port.should == 100
+      expect(machine.config.ssh.port).to eq(100)
     end
 
     it "prefer sooner formats when multiple box formats are available" do
@@ -465,7 +468,7 @@ VF
 
       env = environment.create_vagrant_env
       machine = env.machine(:default, :foo)
-      machine.config.ssh.port.should == 100
+      expect(machine.config.ssh.port).to eq(100)
     end
 
     it "should load the proper version of a box" do
@@ -494,7 +497,7 @@ VF
 
       env = environment.create_vagrant_env
       machine = env.machine(:default, :foo)
-      machine.config.ssh.port.should == 200
+      expect(machine.config.ssh.port).to eq(200)
     end
 
     it "should load the provider override if set" do
@@ -516,8 +519,8 @@ VF
       env = isolated_env.create_vagrant_env
       foo_vm = env.machine(:default, :foo)
       bar_vm = env.machine(:default, :bar)
-      foo_vm.config.vm.box.should == "bar"
-      bar_vm.config.vm.box.should == "foo"
+      expect(foo_vm.config.vm.box).to eq("bar")
+      expect(bar_vm.config.vm.box).to eq("foo")
     end
 
     it "should reload the cache if refresh is set" do
@@ -540,8 +543,8 @@ VF
       vm2 = env.machine(:default, :foo, true)
       vm3 = env.machine(:default, :foo)
 
-      vm1.should_not eql(vm2)
-      vm2.should eql(vm3)
+      expect(vm1).not_to eql(vm2)
+      expect(vm2).to eql(vm3)
     end
 
     it "should raise an error if the VM is not found" do
@@ -558,9 +561,9 @@ VF
   describe "active machines" do
     it "should be empty if the machines folder doesn't exist" do
       folder = instance.local_data_path.join("machines")
-      folder.should_not be_exist
+      expect(folder).not_to be_exist
 
-      instance.active_machines.should be_empty
+      expect(instance.active_machines).to be_empty
     end
 
     it "should return the name and provider of active machines" do
@@ -575,22 +578,22 @@ VF
       machine_bar = machines.join("bar/virtualbox")
       machine_bar.mkpath
 
-      instance.active_machines.should == [[:foo, :virtualbox]]
+      expect(instance.active_machines).to eq([[:foo, :virtualbox]])
     end
   end
 
   describe "batching" do
     let(:batch) do
       double("batch") do |b|
-        b.stub(:run)
+        allow(b).to receive(:run)
       end
     end
 
     context "without the disabling env var" do
       it "should run without disabling parallelization" do
         with_temp_env("VAGRANT_NO_PARALLEL" => nil) do
-          Vagrant::BatchAction.should_receive(:new).with(true).and_return(batch)
-          batch.should_receive(:run)
+          expect(Vagrant::BatchAction).to receive(:new).with(true).and_return(batch)
+          expect(batch).to receive(:run)
 
           instance.batch {}
         end
@@ -598,8 +601,8 @@ VF
 
       it "should run with disabling parallelization if explicit" do
         with_temp_env("VAGRANT_NO_PARALLEL" => nil) do
-          Vagrant::BatchAction.should_receive(:new).with(false).and_return(batch)
-          batch.should_receive(:run)
+          expect(Vagrant::BatchAction).to receive(:new).with(false).and_return(batch)
+          expect(batch).to receive(:run)
 
           instance.batch(false) {}
         end
@@ -609,8 +612,8 @@ VF
     context "with the disabling env var" do
       it "should run with disabling parallelization" do
         with_temp_env("VAGRANT_NO_PARALLEL" => "yes") do
-          Vagrant::BatchAction.should_receive(:new).with(false).and_return(batch)
-          batch.should_receive(:run)
+          expect(Vagrant::BatchAction).to receive(:new).with(false).and_return(batch)
+          expect(batch).to receive(:run)
 
           instance.batch {}
         end
@@ -623,7 +626,7 @@ VF
       Dir.mktmpdir do |temp_dir|
         Dir.chdir(temp_dir) do
           with_temp_env("VAGRANT_CWD" => nil) do
-            described_class.new.cwd.should == Pathname.new(Dir.pwd)
+            expect(described_class.new.cwd).to eq(Pathname.new(Dir.pwd))
           end
         end
       end
@@ -632,7 +635,7 @@ VF
     it "is set to the cwd given" do
       Dir.mktmpdir do |directory|
         instance = described_class.new(:cwd => directory)
-        instance.cwd.should == Pathname.new(directory)
+        expect(instance.cwd).to eq(Pathname.new(directory))
       end
     end
 
@@ -642,7 +645,7 @@ VF
           described_class.new
         end
 
-        instance.cwd.should == Pathname.new(directory)
+        expect(instance.cwd).to eq(Pathname.new(directory))
       end
     end
 
@@ -655,13 +658,13 @@ VF
   describe "default provider" do
     it "is virtualbox without any environmental variable" do
       with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil) do
-        subject.default_provider.should == :virtualbox
+        expect(subject.default_provider).to eq(:virtualbox)
       end
     end
 
     it "is whatever the environmental variable is if set" do
       with_temp_env("VAGRANT_DEFAULT_PROVIDER" => "foo") do
-        subject.default_provider.should == :foo
+        expect(subject.default_provider).to eq(:foo)
       end
     end
   end
@@ -669,18 +672,18 @@ VF
   describe "local data path" do
     it "is set to the proper default" do
       default = instance.root_path.join(described_class::DEFAULT_LOCAL_DATA)
-      instance.local_data_path.should == default
+      expect(instance.local_data_path).to eq(default)
     end
 
     it "is expanded relative to the cwd" do
       instance = described_class.new(:local_data_path => "foo")
-      instance.local_data_path.should == instance.cwd.join("foo")
+      expect(instance.local_data_path).to eq(instance.cwd.join("foo"))
     end
 
     it "is set to the given value" do
       Dir.mktmpdir do |dir|
         instance = described_class.new(:local_data_path => dir)
-        instance.local_data_path.to_s.should == dir
+        expect(instance.local_data_path.to_s).to eq(dir)
       end
     end
 
@@ -701,7 +704,7 @@ VF
         end
 
         expect { instance }.to_not raise_error
-        Pathname.new(local_data_path).should be_directory
+        expect(Pathname.new(local_data_path)).to be_directory
       end
 
       it "should upgrade all active VMs" do
@@ -720,12 +723,12 @@ VF
 
         local_data_pathname = Pathname.new(local_data_path)
         foo_id_file = local_data_pathname.join("machines/foo/virtualbox/id")
-        foo_id_file.should be_file
-        foo_id_file.read.should == "foo_id"
+        expect(foo_id_file).to be_file
+        expect(foo_id_file.read).to eq("foo_id")
 
         bar_id_file = local_data_pathname.join("machines/bar/virtualbox/id")
-        bar_id_file.should be_file
-        bar_id_file.read.should == "bar_id"
+        expect(bar_id_file).to be_file
+        expect(bar_id_file.read).to eq("bar_id")
       end
 
       it "should raise an error if invalid JSON" do
@@ -745,23 +748,28 @@ VF
       instance = described_class.new(:home_path => env.homedir)
 
       pk = env.homedir.join("insecure_private_key")
-      pk.should be_exist
+      expect(pk).to be_exist
 
       if !Vagrant::Util::Platform.windows?
-        Vagrant::Util::FileMode.from_octal(pk.stat.mode).should == "600"
+        expect(Vagrant::Util::FileMode.from_octal(pk.stat.mode)).to eq("600")
       end
     end
   end
 
   it "has a box collection pointed to the proper directory" do
     collection = instance.boxes
-    collection.should be_kind_of(Vagrant::BoxCollection)
-    collection.directory.should == instance.boxes_path
+    expect(collection).to be_kind_of(Vagrant::BoxCollection)
+    expect(collection.directory).to eq(instance.boxes_path)
+
+    # Reach into some internal state here but not sure how else
+    # to test this at the moment.
+    expect(collection.instance_variable_get(:@hook)).
+      to eq(instance.method(:hook))
   end
 
   describe "action runner" do
     it "has an action runner" do
-      instance.action_runner.should be_kind_of(Vagrant::Action::Runner)
+      expect(instance.action_runner).to be_kind_of(Vagrant::Action::Runner)
     end
 
     it "has a `ui` in the globals" do
@@ -769,7 +777,7 @@ VF
       callable = lambda { |env| result = env[:ui] }
 
       instance.action_runner.run(callable)
-      result.should eql(instance.ui)
+      expect(result).to eql(instance.ui)
     end
   end
 
@@ -777,39 +785,39 @@ VF
     it "should call the action runner with the proper hook" do
       hook_name = :foo
 
-      instance.action_runner.should_receive(:run).with do |callable, env|
-        env[:action_name].should == hook_name
-      end
+      expect(instance.action_runner).to receive(:run).with { |callable, env|
+        expect(env[:action_name]).to eq(hook_name)
+      }
 
       instance.hook(hook_name)
     end
 
     it "should return the result of the action runner run" do
-      instance.action_runner.should_receive(:run).and_return(:foo)
+      expect(instance.action_runner).to receive(:run).and_return(:foo)
 
-      instance.hook(:bar).should == :foo
+      expect(instance.hook(:bar)).to eq(:foo)
     end
 
     it "should allow passing in a custom action runner" do
-      instance.action_runner.should_not_receive(:run)
+      expect(instance.action_runner).not_to receive(:run)
       other_runner = double("runner")
-      other_runner.should_receive(:run).and_return(:foo)
+      expect(other_runner).to receive(:run).and_return(:foo)
 
-      instance.hook(:bar, runner: other_runner).should == :foo
+      expect(instance.hook(:bar, runner: other_runner)).to eq(:foo)
     end
 
     it "should allow passing in custom data" do
-      instance.action_runner.should_receive(:run).with do |callable, env|
-        env[:foo].should == :bar
-      end
+      expect(instance.action_runner).to receive(:run).with { |callable, env|
+        expect(env[:foo]).to eq(:bar)
+      }
 
       instance.hook(:foo, foo: :bar)
     end
 
     it "should allow passing a custom callable" do
-      instance.action_runner.should_receive(:run).with do |callable, env|
-        callable.should == :what
-      end
+      expect(instance.action_runner).to receive(:run).with { |callable, env|
+        expect(callable).to eq(:what)
+      }
 
       instance.hook(:foo, callable: :what)
     end
@@ -817,7 +825,7 @@ VF
 
   describe "primary machine name" do
     it "should be the only machine if not a multi-machine environment" do
-      instance.primary_machine_name.should == instance.machine_names.first
+      expect(instance.primary_machine_name).to eq(instance.machine_names.first)
     end
 
     it "should be the machine marked as the primary" do
@@ -834,7 +842,7 @@ VF
       end
 
       env = environment.create_vagrant_env
-      env.primary_machine_name.should == :bar
+      expect(env.primary_machine_name).to eq(:bar)
     end
 
     it "should be nil if no primary is specified in a multi-machine environment" do
@@ -851,7 +859,7 @@ VF
       end
 
       env = environment.create_vagrant_env
-      env.primary_machine_name.should be_nil
+      expect(env.primary_machine_name).to be_nil
     end
   end
 
@@ -866,7 +874,7 @@ VF
       end
 
       env = environment.create_vagrant_env
-      env.vagrantfile.config.ssh.port.should == 200
+      expect(env.vagrantfile.config.ssh.port).to eq(200)
     end
 
     it "should load from a custom Vagrantfile" do
@@ -879,7 +887,7 @@ VF
       end
 
       env = environment.create_vagrant_env(:vagrantfile_name => "non_standard_name")
-      env.vagrantfile.config.ssh.port.should == 200
+      expect(env.vagrantfile.config.ssh.port).to eq(200)
     end
 
     it "should load from a custom Vagrantfile specified by env var" do
@@ -895,13 +903,13 @@ VF
         environment.create_vagrant_env
       end
 
-      env.vagrantfile.config.ssh.port.should == 400
+      expect(env.vagrantfile.config.ssh.port).to eq(400)
     end
   end
 
   describe "ui" do
     it "should be a silent UI by default" do
-      described_class.new.ui.should be_kind_of(Vagrant::UI::Silent)
+      expect(described_class.new.ui).to be_kind_of(Vagrant::UI::Silent)
     end
 
     it "should be a UI given in the constructor" do
@@ -909,13 +917,13 @@ VF
       class CustomUI < Vagrant::UI::Interface; end
 
       instance = described_class.new(:ui_class => CustomUI)
-      instance.ui.should be_kind_of(CustomUI)
+      expect(instance.ui).to be_kind_of(CustomUI)
     end
   end
 
   describe "#unload" do
     it "should run the unload hook" do
-      instance.should_receive(:hook).with(:environment_unload).once
+      expect(instance).to receive(:hook).with(:environment_unload).once
       instance.unload
     end
   end
@@ -931,7 +939,7 @@ VF
       end
 
       env = isolated_env.create_vagrant_env
-      env.machine_names.should == [:default]
+      expect(env.machine_names).to eq([:default])
     end
 
     it "should return the machine names in order" do
@@ -946,7 +954,7 @@ VF
       end
 
       env = isolated_env.create_vagrant_env
-      env.machine_names.should == [:foo, :bar]
+      expect(env.machine_names).to eq([:foo, :bar])
     end
   end
 end

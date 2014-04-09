@@ -38,7 +38,7 @@ providers from a single file, and more.
 
 <div class="alert alert-block alert-info">
 <strong>You don't need to manually make the metadata.</strong> If you
-have an account with <a href="#">Vagrant Cloud</a>, you
+have an account with <a href="https://vagrantcloud.com">Vagrant Cloud</a>, you
 can create boxes there, and Vagrant Cloud automatically creates
 the metadata for you. The format is still documented here.
 </div>
@@ -53,7 +53,9 @@ It is a JSON document, structured in the following way:
     "version": "0.1.0",
     "providers": [{
       "name": "virtualbox",
-      "url": "http://somewhere.s3.com/precise64_010_virtualbox.box"
+      "url": "http://somewhere.com/precise64_010_virtualbox.box",
+      "checksum_type": "sha1",
+      "checksum": "foo"
     }]
   }]
 }

@@ -27,24 +27,27 @@ module VagrantPlugins
           end
 
           specs.each do |spec|
-            env[:ui].info "#{spec.name} (#{spec.version})"
-
-            # Grab the plugin. Note that the check for whether it exists
-            # shouldn't be necessary since installed_specs checks that but
-            # its nice to be certain.
+            # Grab the plugin.
             plugin = plugins[spec.name]
-            next if !plugin
+
+            system = ""
+            system = ", system" if plugin && plugin["system"]
+            env[:ui].info "#{spec.name} (#{spec.version}#{system})"
+            env[:ui].machine("plugin-name", spec.name)
+            env[:ui].machine("plugin-version", "#{spec.version}#{system}")
 
             if plugin["gem_version"] && plugin["gem_version"] != ""
               env[:ui].info(I18n.t(
                 "vagrant.commands.plugin.plugin_version",
                 version: plugin["gem_version"]))
+              env[:ui].machine("plugin-version-constraint", plugin["gem_version"])
             end
 
             if plugin["require"] && plugin["require"] != ""
               env[:ui].info(I18n.t(
                 "vagrant.commands.plugin.plugin_require",
                 require: plugin["require"]))
+              env[:ui].machine("plugin-custom-entrypoint", plugin["require"])
             end
           end
 

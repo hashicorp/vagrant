@@ -73,6 +73,10 @@ module VagrantTests
       def sudo(command, opts=nil, &block)
         execute(command, opts, &block)
       end
+
+      def test(command, opts=nil)
+        execute(command, opts) == 0
+      end
     end
   end
 end

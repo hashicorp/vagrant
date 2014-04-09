@@ -1,0 +1,73 @@
+en:
+  vagrant_hyperv:
+    choose_switch: |-
+      Please choose a switch to attach to your Hyper-V instance.
+      If none of these are appropriate, please open the Hyper-V manager
+      to create a new virtual switch.
+    message_already_running: |-
+      Hyper-V instance already running.
+    message_not_created: |-
+      VM not created. Moving on...
+    message_not_running: |-
+      Hyper-V machine isn't running. Can't SSH in!
+
+    errors:
+      admin_required: |-
+        The Hyper-V provider requires that Vagrant be run with
+        administrative privileges. This is a limitation of Hyper-V itself.
+        Hyper-V requires administrative privileges for management
+        commands. Please restart your console with administrative
+        privileges and try again.
+      box_invalid: |-
+        The box you're using with the Hyper-V provider ('%{name}')
+        is invalid. A Hyper-V box should contain both a
+        "Virtual Machines" and a "Virtual Hard Disks" folder that are
+        created as part of exporting a Hyper-V machine.
+
+        Within these directories, Vagrant expects to find the
+        virtual machine configuration as well as the root hard disk.
+
+        The box you're attempting to use is missing one or both of
+        these directories or does not contain the files expected. Verify
+        that you added the correct box. If this problem persists,
+        please contact the creator of the box for assistance.
+      ip_addr_timeout: |-
+        Hyper-V failed to determine your machine's IP address within the
+        configured timeout. Please verify the machine properly booted and
+        the network works. To do this, open the Hyper-V manager, find your
+        virtual machine, and connect to it.
+
+        The most common cause for this error is that the running virtual
+        machine doesn't have the latest Hyper-V integration drivers. Please
+        research for your operating system how to install these in order
+        for the VM to properly communicate its IP address to Hyper-V.
+      no_switches: |-
+        There are no virtual switches created for Hyper-V! Please open
+        the Hyper-V Manager, go to the "Virtual Switch Manager", and create
+        at least one virtual switch.
+
+        A virtual switch is required for Vagrant to create a Hyper-V
+        machine that is connected to a network so it can access it.
+
+        For more help, please see the documentation on the Vagrant website
+        for Hyper-V.
+      powershell_features_disabled: |-
+        The Hyper-V cmdlets for PowerShell are not available! Vagrant
+        requires these to control Hyper-V. Please enable them in the
+        "Windows Features" control panel and try again.
+      powershell_error: |-
+        An error occurred while executing a PowerShell script. This error
+        is shown below. Please read the error message and see if this is
+        a configuration error with your system. If it is not, then please
+        report a bug.
+
+        Script: %{script}
+        Error:
+
+        %{stderr}
+      powershell_required: |-
+        The Vagrant Hyper-V provider requires PowerShell to be available.
+        Please make sure "powershell.exe" is available on your PATH.
+      windows_required: |-
+        The Hyper-V provider only works on Windows. Please try to
+        use another provider.

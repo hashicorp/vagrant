@@ -45,7 +45,7 @@ module VagrantPlugins
           # important for the user to know what boxes need to be upgraded
           # and which don't, since we plan on doing that transparently.
           boxes.each do |name, version, provider|
-            @env.ui.info("#{name.ljust(longest_box_length)} (#{provider})")
+            @env.ui.info("#{name.ljust(longest_box_length)} (#{provider}, #{version})")
 
             @env.ui.machine("box-name", name)
             @env.ui.machine("box-provider", provider)

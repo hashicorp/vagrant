@@ -13,7 +13,7 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
 
   let(:machine) do
     double("machine").tap do |machine|
-      machine.stub(:config).and_return(machine_config)
+      allow(machine).to receive(:config).and_return(machine_config)
     end
   end
 
@@ -34,7 +34,7 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
       }
 
       result = subject.default_synced_folder_type(machine, plugins)
-      result.should == "good"
+      expect(result).to eq("good")
     end
   end
 
@@ -47,9 +47,9 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
       }
 
       result = subject.impl_opts("foo", env)
-      result.length.should == 2
-      result[:foo_bar].should == "baz"
-      result[:foo_baz].should == "bar"
+      expect(result.length).to eq(2)
+      expect(result[:foo_bar]).to eq("baz")
+      expect(result[:foo_baz]).to eq("bar")
     end
   end
 
@@ -79,13 +79,13 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
       folders["nfs"] = { type: "nfs" }
 
       result = subject.synced_folders(machine)
-      result.length.should == 2
-      result[:default].should == {
+      expect(result.length).to eq(2)
+      expect(result[:default]).to eq({
         "another" => folders["another"],
         "foo" => folders["foo"],
         "root" => folders["root"],
-      }
-      result[:nfs].should == { "nfs" => folders["nfs"] }
+      })
+      expect(result[:nfs]).to eq({ "nfs" => folders["nfs"] })
     end
 
     it "should error if an explicit type is unusable" do
@@ -101,8 +101,8 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
       folders["foo"] = { disabled: true }
 
       result = subject.synced_folders(machine)
-      result.length.should == 1
-      result[:default].length.should == 1
+      expect(result.length).to eq(1)
+      expect(result[:default].length).to eq(1)
     end
 
     it "should scope hash override the settings" do

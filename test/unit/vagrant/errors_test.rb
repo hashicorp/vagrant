@@ -11,17 +11,20 @@ describe Vagrant::Errors::VagrantError do
     subject { klass.new }
 
     it "should use the translation for the message" do
-      subject.to_s.should == "test value"
+      expect(subject.to_s).to eq("test value")
     end
 
-    its("status_code") { should eq(1) }
+    describe '#status_code' do
+      subject { super().status_code }
+      it { should eq(1) }
+    end
   end
 
   describe "passing error key through options" do
     subject { described_class.new(_key: "test_key") }
 
     it "should use the translation for the message" do
-      subject.to_s.should == "test value"
+      expect(subject.to_s).to eq("test value")
     end
   end
 
@@ -35,7 +38,7 @@ describe Vagrant::Errors::VagrantError do
     subject { klass.new(data: "yep") }
 
     it "should use the translation for the message" do
-      subject.to_s.should == "foo"
+      expect(subject.to_s).to eq("foo")
     end
 
     it "should expose translation keys to the user" do

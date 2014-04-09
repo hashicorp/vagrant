@@ -120,6 +120,10 @@ module Vagrant
       error_key(:batch_multi_error)
     end
 
+    class BoxAddDirectVersion < VagrantError
+      error_key(:box_add_direct_version)
+    end
+
     class BoxAddMetadataMultiURL < VagrantError
       error_key(:box_add_metadata_multi_url)
     end
@@ -164,6 +168,10 @@ module Vagrant
       error_key(:box_metadata_corrupted)
     end
 
+    class BoxMetadataDownloadError < VagrantError
+      error_key(:box_metadata_download_error)
+    end
+
     class BoxMetadataFileNotFound < VagrantError
       error_key(:box_metadata_file_not_found)
     end
@@ -172,16 +180,16 @@ module Vagrant
       error_key(:box_metadata_malformed)
     end
 
+    class BoxMetadataMalformedVersion < VagrantError
+      error_key(:box_metadata_malformed_version)
+    end
+
     class BoxNotFound < VagrantError
       error_key(:box_not_found)
     end
 
     class BoxNotFoundWithProvider < VagrantError
       error_key(:box_not_found_with_provider)
-    end
-
-    class BoxOutdatedNoBox < VagrantError
-      error_key(:box_outdated_no_box)
     end
 
     class BoxProviderDoesntMatch < VagrantError
@@ -194,6 +202,10 @@ module Vagrant
 
     class BoxRemoveProviderNotFound < VagrantError
       error_key(:box_remove_provider_not_found)
+    end
+
+    class BoxRemoveVersionNotFound < VagrantError
+      error_key(:box_remove_version_not_found)
     end
 
     class BoxRemoveMultiProvider < VagrantError
@@ -444,6 +456,10 @@ module Vagrant
       error_key(:include_file_missing, "vagrant.actions.general.package")
     end
 
+    class PackageIncludeSymlink < VagrantError
+      error_key(:package_include_symlink)
+    end
+
     class PackageOutputDirectory < VagrantError
       error_key(:output_is_directory, "vagrant.actions.general.package")
     end
@@ -486,6 +502,10 @@ module Vagrant
 
     class PluginStateFileParseError < VagrantError
       error_key(:plugin_state_file_not_parsable)
+    end
+
+    class PluginUninstallSystem < VagrantError
+      error_key(:plugin_uninstall_system)
     end
 
     class RSyncError < VagrantError

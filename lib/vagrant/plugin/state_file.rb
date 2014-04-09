@@ -57,6 +57,13 @@ module Vagrant
         @data["installed"]
       end
 
+      # Returns true/false if the plugin is present in this state file.
+      #
+      # @return [Boolean]
+      def has_plugin?(name)
+        @data["installed"].has_key?(name)
+      end
+
       # Remove a plugin that is installed from the state file.
       #
       # @param [String] name The name of the plugin.

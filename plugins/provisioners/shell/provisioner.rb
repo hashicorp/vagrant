@@ -9,7 +9,7 @@ module VagrantPlugins
       def provision
         args = ""
         if config.args.is_a?(String)
-          args = " #{config.args}"
+          args = " #{config.args.to_s}"
         elsif config.args.is_a?(Array)
           args = config.args.map { |a| quote_and_escape(a) }
           args = " #{args.join(" ")}"
@@ -28,10 +28,10 @@ module VagrantPlugins
             comm.upload(path.to_s, config.upload_path)
 
             if config.path
-              @machine.ui.info(I18n.t("vagrant.provisioners.shell.running",
+              @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
                                       script: path.to_s))
             else
-              @machine.ui.info(I18n.t("vagrant.provisioners.shell.running",
+              @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
                                       script: "inline script"))
             end
 

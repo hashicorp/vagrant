@@ -27,14 +27,14 @@ describe VagrantPlugins::SyncedFolderNFS::ActionCleanup do
   end
 
   it "does nothing if there are no valid IDs" do
-    app.should_receive(:call).with(env)
+    expect(app).to receive(:call).with(env)
     subject.call(env)
   end
 
   it "does nothing if the host doesn't support pruning NFS" do
-    host.stub(:capability?).with(:nfs_prune).and_return(false)
-    host.should_receive(:capability).never
-    app.should_receive(:call).with(env)
+    allow(host).to receive(:capability?).with(:nfs_prune).and_return(false)
+    expect(host).to receive(:capability).never
+    expect(app).to receive(:call).with(env)
 
     subject.call(env)
   end
@@ -42,9 +42,9 @@ describe VagrantPlugins::SyncedFolderNFS::ActionCleanup do
   it "prunes the NFS entries if valid IDs are given" do
     env[:nfs_valid_ids] = [1,2,3]
 
-    host.stub(:capability?).with(:nfs_prune).and_return(true)
-    host.should_receive(:capability).with(:nfs_prune, machine.ui, [1,2,3]).ordered
-    app.should_receive(:call).with(env).ordered
+    allow(host).to receive(:capability?).with(:nfs_prune).and_return(true)
+    expect(host).to receive(:capability).with(:nfs_prune, machine.ui, [1,2,3]).ordered
+    expect(app).to receive(:call).with(env).ordered
 
     subject.call(env)
   end

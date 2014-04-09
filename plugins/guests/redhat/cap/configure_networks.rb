@@ -31,7 +31,7 @@ module VagrantPlugins
             machine.communicate.sudo("touch #{network_scripts_dir}/ifcfg-eth#{network[:interface]}")
             machine.communicate.sudo("sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' #{network_scripts_dir}/ifcfg-eth#{network[:interface]} > /tmp/vagrant-ifcfg-eth#{network[:interface]}")
             machine.communicate.sudo("cat /tmp/vagrant-ifcfg-eth#{network[:interface]} > #{network_scripts_dir}/ifcfg-eth#{network[:interface]}")
-            machine.communicate.sudo("rm /tmp/vagrant-ifcfg-eth#{network[:interface]}")
+            machine.communicate.sudo("rm -f /tmp/vagrant-ifcfg-eth#{network[:interface]}")
 
             # Render and upload the network entry file to a deterministic
             # temporary location.
@@ -61,7 +61,7 @@ module VagrantPlugins
               machine.communicate.sudo("ARPCHECK=no /sbin/ifup eth#{interface} 2> /dev/null")
             end
 
-            machine.communicate.sudo("rm /tmp/vagrant-network-entry_#{interface}")
+            machine.communicate.sudo("rm -f /tmp/vagrant-network-entry_#{interface}")
           end
         end
       end

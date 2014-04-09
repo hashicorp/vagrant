@@ -1,6 +1,3 @@
-# This file is load before RubyGems are loaded, and allow us to actually
-# resolve plugin dependencies and load the proper versions of everything.
-
 require "vagrant/shared_helpers"
 
 if Vagrant.plugins_enabled? && !defined?(Bundler)
@@ -126,14 +123,6 @@ module Vagrant
     c.register([:"2", :provider])     { Plugin::V2::Provider }
     c.register([:"2", :provisioner])  { Plugin::V2::Provisioner }
     c.register([:"2", :synced_folder]) { Plugin::V2::SyncedFolder }
-  end
-
-  # This returns a true/false showing whether we're running from the
-  # environment setup by the Vagrant installers.
-  #
-  # @return [Boolean]
-  def self.in_installer?
-    !!ENV["VAGRANT_INSTALLER_ENV"]
   end
 
   # Configure a Vagrant environment. The version specifies the version

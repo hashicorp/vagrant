@@ -1,3 +1,5 @@
+require 'chef/version_constraint'
+
 <% if node_name %>
 node_name "<%= node_name %>"
 <% end %>
@@ -5,12 +7,16 @@ file_cache_path    "<%= file_cache_path %>"
 file_backup_path   "<%= file_backup_path %>"
 cookbook_path <%= cookbooks_path.inspect %>
 <% if roles_path %>
-role_path <%= roles_path.inspect %>
+if Chef::VersionConstraint.new("< 11.8.0").include?(Chef::VERSION)
+  role_path <%= roles_path.first.inspect %>
+else
+  role_path <%= roles_path.inspect %>
+end
 <% end %>
 log_level <%= log_level.inspect %>
 verbose_logging    <%= verbose_logging.inspect %>
 
-encrypted_data_bag_secret "<%= encrypted_data_bag_secret %>"
+encrypted_data_bag_secret <%= encrypted_data_bag_secret.inspect %>
 
 <% if data_bags_path -%>
 data_bag_path <%= data_bags_path.inspect %>
@@ -41,5 +47,5 @@ add_formatter "<%= formatter %>"
 <% end %>
 
 <% if custom_configuration -%>
-load "<%= custom_configuration %>"
+Chef::Config.from_file "<%= custom_configuration %>"
 <% end -%>

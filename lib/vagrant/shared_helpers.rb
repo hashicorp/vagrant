@@ -6,7 +6,24 @@ module Vagrant
   # of Vagrant that may require remote access.
   #
   # @return [String]
-  DEFAULT_SERVER_URL = "http://www.vagrantcloud.com"
+  DEFAULT_SERVER_URL = "https://vagrantcloud.com"
+
+  # This returns a true/false showing whether we're running from the
+  # environment setup by the Vagrant installers.
+  #
+  # @return [Boolean]
+  def self.in_installer?
+    !!ENV["VAGRANT_INSTALLER_ENV"]
+  end
+
+  # Returns the path to the embedded directory of the Vagrant installer,
+  # if there is one (if we're running in an installer).
+  #
+  # @return [String]
+  def self.installer_embedded_dir
+    return nil if !Vagrant.in_installer?
+    ENV["VAGRANT_INSTALLER_EMBEDDED_DIR"]
+  end
 
   # This returns whether or not 3rd party plugins should be loaded.
   #
@@ -19,7 +36,9 @@ module Vagrant
   #
   # @return [String]
   def self.server_url
-    ENV["VAGRANT_SERVER_URL"] || DEFAULT_SERVER_URL
+    result = ENV["VAGRANT_SERVER_URL"]
+    result = nil if result == ""
+    result || DEFAULT_SERVER_URL
   end
 
   # The source root is the path to the root directory of the Vagrant source.

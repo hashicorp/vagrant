@@ -13,7 +13,7 @@ describe Vagrant::BatchAction do
     double("machine").tap do |m|
       m.stub(:provider_name => provider_name)
       m.stub(:provider_options => options)
-      m.stub(:action) do |action, opts|
+      allow(m).to receive(:action) do |action, opts|
         lock.synchronize do
           called_actions << [m, action, opts]
         end
@@ -30,14 +30,14 @@ describe Vagrant::BatchAction do
       subject.action(machine2, "destroy")
       subject.run
 
-      called_actions.include?([machine, "up", nil]).should be
-      called_actions.include?([machine2, "destroy", nil]).should be
+      expect(called_actions.include?([machine, "up", nil])).to be
+      expect(called_actions.include?([machine2, "destroy", nil])).to be
     end
 
     it "should handle forks gracefully", :skip_windows do
       # Doesn't need to be tested on Windows since Windows doesn't
       # support fork(1)
-      machine.stub(:action) do |action, opts|
+      allow(machine).to receive(:action) do |action, opts|
         pid = fork
         if !pid
           # Child process

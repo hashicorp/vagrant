@@ -40,23 +40,22 @@ that are available with both the Chef solo and Chef client provisioners.
   are stored. By default this is "cookbooks", expecting a cookbooks folder
   relative to the Vagrantfile location.
 
-* `data_bags_path` (string or array) - A list of paths where data bags are
-  stored. By default, no data bag paths are set.
+* `data_bags_path` (string) - A path where data bags are stored. By default, no
+  data bag path is set.
 
-* `encrypted_data_bag_secret_key_path` (string) - The path to the secret key
-  file to decrypt encrypted data bags. By default, this is not set.
-
-* `environments_path` (string or array) - A list of paths where environment
-  definitions are located. By default, no environments folder is set.
+* `environments_path` (string) - A path where environment definitions are
+  located. By default, no environments folder is set.
 
 * `environment` (string) - The environment you want the Chef run to be
-  a part of. This requires that `environments_path` is set.
+  a part of. This requires Chef 11.6.0 or later, and that `environments_path`
+  is set.
 
 * `recipe_url` (string) - URL to an archive of cookbooks that Chef will download
   and use.
 
 * `roles_path` (string or array) - A list of paths where roles are defined.
-  By default this is empty.
+  By default this is empty. Multiple role directories are only supported by
+  Chef 11.8.0 and later.
 
 * `synced_folder_type` (string) - The type of synced folders to use when
   sharing the data required for the provisioner to work properly. By default
@@ -133,6 +132,9 @@ end
 
 Just like the cookbooks path, the roles path is relative to the project
 root if a relative path is given.
+
+The configuration value can also be an array of paths on Chef 11.8.0 and newer.
+On older Chef versions only the first path is used.
 
 **Note:** The name of the role file must be the same as the role name.
 For example the `web` role must be in the `roles_path` as web.json or web.rb.

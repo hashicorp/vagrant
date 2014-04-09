@@ -30,6 +30,9 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
     def machine_stub(name)
       double(name).tap do |m|
         m.stub(ssh_info: ssh_info)
+        m.stub(ui: double("ui"))
+
+        m.ui.stub(error: nil)
       end
     end
 
@@ -43,7 +46,7 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
       ]
 
       paths["/foo"].each do |data|
-        helper_class.should_receive(:rsync_single).
+        expect(helper_class).to receive(:rsync_single).
           with(data[:machine], data[:machine].ssh_info, data[:opts]).
           once
       end
@@ -64,7 +67,7 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
       ]
 
       paths["/foo"].each do |data|
-        helper_class.should_receive(:rsync_single).
+        expect(helper_class).to receive(:rsync_single).
           with(data[:machine], data[:machine].ssh_info, data[:opts]).
           once
       end
@@ -85,7 +88,7 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
       ]
 
       paths["/foo"].each do |data|
-        helper_class.should_receive(:rsync_single).
+        expect(helper_class).to receive(:rsync_single).
           with(data[:machine], data[:machine].ssh_info, data[:opts]).
           once
       end
@@ -94,6 +97,28 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
       a = []
       r = ["/foo/bar"]
       subject.callback(paths, m, a, r)
+    end
+
+    it "doesn't fail if guest error occurs" do
+      paths["/foo"] = [
+        { machine: machine_stub("m1"), opts: double("opts_m1") },
+        { machine: machine_stub("m2"), opts: double("opts_m2") },
+      ]
+      paths["/bar"] = [
+        { machine: machine_stub("m3"), opts: double("opts_m3") },
+      ]
+
+      paths["/foo"].each do |data|
+        expect(helper_class).to receive(:rsync_single).
+          with(data[:machine], data[:machine].ssh_info, data[:opts]).
+          and_raise(Vagrant::Errors::MachineGuestNotReady)
+      end
+
+      m = []
+      a = []
+      r = ["/foo/bar"]
+      expect { subject.callback(paths, m, a, r) }.
+        to_not raise_error
     end
   end
 end

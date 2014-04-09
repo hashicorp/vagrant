@@ -15,7 +15,7 @@ content
 # VAGRANT-END: bar
 DATA
 
-      described_class.new(data).keys.should == ["foo", "bar"]
+      expect(described_class.new(data).keys).to eq(["foo", "bar"])
     end
   end
 
@@ -25,7 +25,7 @@ DATA
 
       instance = described_class.new(data)
       instance.delete("key")
-      instance.value.should == data
+      expect(instance.value).to eq(data)
     end
 
     it "should delete the matching blocks if they exist" do
@@ -51,7 +51,7 @@ DATA
 
       instance = described_class.new(data)
       instance.delete("foo")
-      instance.value.should == new_data
+      expect(instance.value).to eq(new_data)
     end
   end
 
@@ -70,16 +70,16 @@ DATA
     subject { described_class.new(data) }
 
     it "should get the value" do
-      subject.get("bar").should == "content"
+      expect(subject.get("bar")).to eq("content")
     end
 
     it "should get nil for nonexistent values" do
-      subject.get("baz").should be_nil
+      expect(subject.get("baz")).to be_nil
     end
 
     it "should get complicated keys" do
       result = subject.get("/Users/studio/Projects (studio)/tubes/.vagrant/machines/web/vmware_fusion/vm.vmwarevm")
-      result.should == "complex"
+      expect(result).to eq("complex")
     end
   end
 
@@ -100,7 +100,7 @@ DATA
 
       instance = described_class.new(data)
       instance.insert("foo", "value")
-      instance.value.should == new_data
+      expect(instance.value).to eq(new_data)
     end
   end
 end

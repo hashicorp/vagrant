@@ -26,7 +26,7 @@ class FileChecksum
   def checksum
     digest = @digest_klass.new
 
-    File.open(@path, "r") do |f|
+    File.open(@path, "rb") do |f|
       while !f.eof
         begin
           buf = f.readpartial(BUFFER_SIZE)

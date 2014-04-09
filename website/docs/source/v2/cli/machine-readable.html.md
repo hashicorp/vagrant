@@ -5,7 +5,7 @@ sidebar_current: "cli-machinereadable"
 
 # Machine Readable Output
 
-Every Vagrant commands accepts a `--machine-readable` flag which enables
+Every Vagrant command accepts a `--machine-readable` flag which enables
 machine readable output mode. In this mode, the output to the terminal
 is replaced with machine-friendly output.
 
@@ -103,6 +103,14 @@ with the machine-readable output.
 <td>cli-command</td>
 <td>
 	A subcommand of <code>vagrant</code> that is available.
+</td>
+</tr>
+
+<tr>
+<td>error-exit</td>
+<td>
+	An error occured that caused Vagrant to exit. This contains that
+	error. Contains two data elements: type of error, error message.
 </td>
 </tr>
 

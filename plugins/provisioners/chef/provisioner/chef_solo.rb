@@ -48,7 +48,7 @@ module VagrantPlugins
           chown_provisioning_folder
           verify_shared_folders(check)
           verify_binary(chef_binary_path("chef-solo"))
-          upload_encrypted_data_bag_secret if @config.encrypted_data_bag_secret_key_path
+          upload_encrypted_data_bag_secret
           setup_json
           setup_solo_config
           run_chef_solo
@@ -115,35 +115,17 @@ module VagrantPlugins
           end
         end
 
-        def delete_encrypted_data_bag_secret
-          @machine.communicate.tap do |comm|
-            comm.sudo("rm -f #{@config.encrypted_data_bag_secret}", error_check: false)
-          end
-        end
-
-        def upload_encrypted_data_bag_secret
-          @machine.env.ui.info I18n.t("vagrant.provisioners.chef.upload_encrypted_data_bag_secret_key")
-          @machine.communicate.tap do |comm|
-            comm.sudo("rm -f #{@config.encrypted_data_bag_secret}", :error_check => false)
-            comm.upload(encrypted_data_bag_secret_key_path,
-                        @config.encrypted_data_bag_secret)
-          end
-        end
-
         def setup_solo_config
           cookbooks_path = guest_paths(@cookbook_folders)
-          roles_path = guest_paths(@role_folders).first
+          roles_path = guest_paths(@role_folders)
           data_bags_path = guest_paths(@data_bags_folders).first
           environments_path = guest_paths(@environments_folders).first
           setup_config("provisioners/chef_solo/solo", "solo.rb", {
-            :node_name => @config.node_name,
             :cookbooks_path => cookbooks_path,
             :recipe_url => @config.recipe_url,
             :roles_path => roles_path,
             :data_bags_path => data_bags_path,
-            :encrypted_data_bag_secret => @config.encrypted_data_bag_secret,
             :environments_path => environments_path,
-            :environment => @config.environment,
           })
         end
 
@@ -195,10 +177,6 @@ module VagrantPlugins
               raise ChefError, :missing_shared_folders
             end
           end
-        end
-
-        def encrypted_data_bag_secret_key_path
-          File.expand_path(@config.encrypted_data_bag_secret_key_path, @machine.env.root_path)
         end
 
         protected

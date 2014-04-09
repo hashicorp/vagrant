@@ -38,8 +38,15 @@ describe Vagrant::BoxMetadata do
 
   subject { described_class.new(raw) }
 
-  its(:name) { should eq("foo") }
-  its(:description) { should eq("bar") }
+  describe '#name' do
+    subject { super().name }
+    it { should eq("foo") }
+  end
+
+  describe '#description' do
+    subject { super().description }
+    it { should eq("bar") }
+  end
 
   context "with poorly formatted JSON" do
     let(:raw) {
@@ -51,6 +58,25 @@ describe Vagrant::BoxMetadata do
     it "raises an exception" do
       expect { subject }.
         to raise_error(Vagrant::Errors::BoxMetadataMalformed)
+    end
+  end
+
+  context "with poorly formatted version" do
+    let(:raw) {
+      <<-RAW
+      { "name": "foo",
+        "versions": [
+          {
+            "version": "I AM NOT VALID"
+          }
+        ]
+      }
+      RAW
+    }
+
+    it "raises an exception" do
+      expect { subject }.
+        to raise_error(Vagrant::Errors::BoxMetadataMalformedVersion)
     end
   end
 
@@ -152,6 +178,21 @@ describe Vagrant::BoxMetadata::Provider do
     it "is the URL specified" do
       raw["url"] = "bar"
       expect(subject.url).to eq("bar")
+    end
+  end
+
+  describe "#checksum and #checksum_type" do
+    it "is set properly" do
+      raw["checksum"] = "foo"
+      raw["checksum_type"] = "bar"
+
+      expect(subject.checksum).to eq("foo")
+      expect(subject.checksum_type).to eq("bar")
+    end
+
+    it "is nil if not set" do
+      expect(subject.checksum).to be_nil
+      expect(subject.checksum_type).to be_nil
     end
   end
 end

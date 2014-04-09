@@ -18,7 +18,7 @@ describe Vagrant::Util::SafeChdir do
       result = Dir.pwd
     end
 
-    result.should == expected
+    expect(result).to eq(expected)
   end
 
   it "should allow recursive chdir" do
@@ -38,6 +38,6 @@ describe Vagrant::Util::SafeChdir do
       end
     end.to_not raise_error
 
-    result.should == expected
+    expect(result).to eq(expected)
   end
 end

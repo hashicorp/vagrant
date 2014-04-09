@@ -25,7 +25,7 @@ module VagrantPlugins
           # We build up this mapping within the following hash.
           logger.debug("Compiling map of sub-directories for NFS exports...")
           dirmap = {}
-          folders.each do |_, opts|
+          folders.sort_by { |_, opts| opts[:hostpath] }.each do |_, opts|
             hostpath = opts[:hostpath].dup
             hostpath.gsub!('"', '\"')
 
@@ -50,8 +50,10 @@ module VagrantPlugins
           end
 
           # Sort all the keys by length so that the directory closest to
-          # the root is exported first.
+          # the root is exported first. Also, remove duplicates so that
+          # checkexports will work properly.
           dirmap.each do |dirs, _|
+            dirs.uniq!
             dirs.sort_by! { |d| d.length }
           end
 

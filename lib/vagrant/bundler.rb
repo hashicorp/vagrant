@@ -25,6 +25,13 @@ module Vagrant
 
       @gem_home = ENV["GEM_HOME"]
       @gem_path = ENV["GEM_PATH"]
+    end
+
+    # Initializes Bundler and the various gem paths so that we can begin
+    # loading gems. This must only be called once.
+    def init!(plugins)
+      # If we're not enabled, then we don't do anything.
+      return if !@enabled
 
       # Set the Bundler UI to be a silent UI. We have to add the
       # `silence` method to it because Bundler UI doesn't have it.
@@ -35,13 +42,15 @@ module Vagrant
           yield
         end
       end
-    end
 
-    # Initializes Bundler and the various gem paths so that we can begin
-    # loading gems. This must only be called once.
-    def init!(plugins)
-      # If we're not enabled, then we don't do anything.
-      return if !@enabled
+      bundle_path = Vagrant.user_data_path.join("gems")
+
+      # Setup the "local" Bundler configuration. We need to set BUNDLE_PATH
+      # because the existence of this actually suppresses `sudo`.
+      @appconfigpath = Dir.mktmpdir
+      File.open(File.join(@appconfigpath, "config"), "w+") do |f|
+        f.write("BUNDLE_PATH: \"#{bundle_path}\"")
+      end
 
       # Setup the Bundler configuration
       @configfile = File.open(Tempfile.new("vagrant").path + "1", "w+")
@@ -53,10 +62,11 @@ module Vagrant
       @gemfile = build_gemfile(plugins)
 
       # Set the environmental variables for Bundler
+      ENV["BUNDLE_APP_CONFIG"] = @appconfigpath
       ENV["BUNDLE_CONFIG"]  = @configfile.path
       ENV["BUNDLE_GEMFILE"] = @gemfile.path
       ENV["GEM_PATH"] =
-        "#{Vagrant.user_data_path.join("gems")}#{::File::PATH_SEPARATOR}#{@gem_path}"
+        "#{bundle_path}#{::File::PATH_SEPARATOR}#{@gem_path}"
       Gem.clear_paths
     end
 
@@ -160,7 +170,7 @@ module Vagrant
           gemfile.puts(%Q[source "#{source}"])
         end
 
-        gemfile.puts(%Q[gem "vagrant", path: "#{Vagrant.source_root}"])
+        gemfile.puts(%Q[gem "vagrant", "= #{VERSION}"])
 
         gemfile.puts("group :plugins do")
         plugins.each do |name, plugin|

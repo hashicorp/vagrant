@@ -10,12 +10,12 @@ module Vagrant
     # The box that is backing this machine.
     #
     # @return [Box]
-    attr_reader :box
+    attr_accessor :box
 
     # Configuration for the machine.
     #
     # @return [Object]
-    attr_reader :config
+    attr_accessor :config
 
     # Directory where machine-specific data can be stored.
     #
@@ -47,7 +47,7 @@ module Vagrant
     # The provider-specific configuration for this machine.
     #
     # @return [Object]
-    attr_reader :provider_config
+    attr_accessor :provider_config
 
     # The name of the provider.
     #
@@ -230,7 +230,7 @@ module Vagrant
       end
 
       # Store the ID locally
-      @id = value.to_s
+      @id = value.nil? ? nil : value.to_s
 
       # Notify the provider that the ID changed in case it needs to do
       # any accounting from it.
@@ -311,9 +311,11 @@ module Vagrant
       end
 
       # If we have a private key in our data dir, then use that
-      data_private_key = @data_dir.join("private_key")
-      if data_private_key.file?
-        info[:private_key_path] = [data_private_key.to_s]
+      if @data_dir
+        data_private_key = @data_dir.join("private_key")
+        if data_private_key.file?
+          info[:private_key_path] = [data_private_key.to_s]
+        end
       end
 
       # Setup the keys

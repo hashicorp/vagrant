@@ -56,10 +56,12 @@ describe VagrantPlugins::Docker::Config do
       cs     = result.containers
       expect(cs.length).to eq(2)
       expect(cs["foo"]).to eq({
+        auto_assign_name: true,
         image: "foo",
         daemonize: false,
       })
       expect(cs["bar"]).to eq({
+        auto_assign_name: true,
         image: "bar",
         daemonize: true,
       })
@@ -97,6 +99,20 @@ describe VagrantPlugins::Docker::Config do
       subject.finalize!
       expect(subject.containers).to eql({
         "foo" => {
+          auto_assign_name: true,
+          daemonize: true,
+          image: "foo",
+        }
+      })
+    end
+
+    it "can not auto assign name" do
+      subject.run("foo", auto_assign_name: false)
+
+      subject.finalize!
+      expect(subject.containers).to eql({
+        "foo" => {
+          auto_assign_name: false,
           daemonize: true,
           image: "foo",
         }
@@ -109,6 +125,7 @@ describe VagrantPlugins::Docker::Config do
       subject.finalize!
       expect(subject.containers).to eql({
         "foo" => {
+          auto_assign_name: true,
           daemonize: false,
           image: "foo",
         }

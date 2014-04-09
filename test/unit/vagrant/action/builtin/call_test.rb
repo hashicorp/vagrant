@@ -15,7 +15,7 @@ describe Vagrant::Action::Builtin::Call do
       received = env[:result]
     end.call({})
 
-    received.should == "value"
+    expect(received).to eq("value")
   end
 
   it "should update the original env with any changes" do
@@ -26,7 +26,7 @@ describe Vagrant::Action::Builtin::Call do
       builder.use next_step
     end.call(env)
 
-    env[:inner].should == true
+    expect(env[:inner]).to eq(true)
   end
 
   it "should call the callable with the original environment" do
@@ -37,7 +37,7 @@ describe Vagrant::Action::Builtin::Call do
       # Nothing.
     end.call({ :foo => :bar })
 
-    received.should == :bar
+    expect(received).to eq(:bar)
    end
 
   it "should call the next builder" do
@@ -49,7 +49,7 @@ describe Vagrant::Action::Builtin::Call do
       builder.use next_step
     end.call({})
 
-    received.should == "value"
+    expect(received).to eq("value")
   end
 
   it "should call the next builder with the original environment" do
@@ -61,7 +61,7 @@ describe Vagrant::Action::Builtin::Call do
       builder.use next_step
     end.call({ :foo => :bar })
 
-    received.should == :bar
+    expect(received).to eq(:bar)
   end
 
   it "should instantiate the callable with the extra args" do
@@ -81,7 +81,7 @@ describe Vagrant::Action::Builtin::Call do
     end
     instance.call(env)
 
-    result.should == :foo
+    expect(result).to eq(:foo)
   end
 
   it "should call the recover method for the sequence in an error" do
@@ -131,7 +131,7 @@ describe Vagrant::Action::Builtin::Call do
     instance.call(env)
     instance.recover(env)
 
-    env[:steps].should == [:call_A, :call_B, :recover_B, :recover_A]
+    expect(env[:steps]).to eq([:call_A, :call_B, :recover_B, :recover_A])
   end
 
   it "should recover even if it failed in the callable" do

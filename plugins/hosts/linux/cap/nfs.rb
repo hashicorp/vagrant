@@ -8,7 +8,7 @@ module VagrantPlugins
         extend Vagrant::Util::Retryable
 
         def self.nfs_apply_command(env)
-          "/usr/bin/exportfs -ar"
+          "exportfs -ar"
         end
 
         def self.nfs_check_command(env)
@@ -89,11 +89,12 @@ module VagrantPlugins
         def self.nfs_cleanup(id)
           return if !File.exist?("/etc/exports")
 
-          user = Process.uid
+          user = Regexp.escape(Process.uid.to_s)
+          id   = Regexp.escape(id.to_s)
 
           # Use sed to just strip out the block of code which was inserted
           # by Vagrant
-          system("sudo sed -r -e '/^# VAGRANT-BEGIN:( #{user})? #{id}/,/^# VAGRANT-END:( #{user})? #{id}/ d' -ibak /etc/exports")
+          system("sudo sed -r -e '\\\x01^# VAGRANT-BEGIN:( #{user})? #{id}\x01,\\\x01^# VAGRANT-END:( #{user})? #{id}\x01 d' -ibak /etc/exports")
         end
 
         def self.nfs_opts_setup(folders)

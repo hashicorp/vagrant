@@ -13,7 +13,7 @@ describe Vagrant::Config::V2::Loader do
   describe "empty" do
     it "returns an empty configuration object" do
       result = described_class.init
-      result.should be_kind_of(Vagrant::Config::V2::Root)
+      expect(result).to be_kind_of(Vagrant::Config::V2::Root)
     end
   end
 
@@ -39,11 +39,11 @@ describe Vagrant::Config::V2::Loader do
 
       # Test that it works properly
       config = described_class.load(config_proc)
-      config.foo.bar.should == "value"
+      expect(config.foo.bar).to eq("value")
 
       # Finalize it
       described_class.finalize(config)
-      config.foo.bar.should == "finalized"
+      expect(config.foo.bar).to eq("finalized")
     end
   end
 
@@ -61,7 +61,7 @@ describe Vagrant::Config::V2::Loader do
 
       # Test that it works properly
       config = described_class.load(config_proc)
-      config.foo.bar.should == "value"
+      expect(config.foo.bar).to eq("value")
     end
   end
 
@@ -70,8 +70,8 @@ describe Vagrant::Config::V2::Loader do
       old = Vagrant::Config::V2::Root.new({ :foo => Object })
       new = Vagrant::Config::V2::Root.new({ :bar => Object })
       result = described_class.merge(old, new)
-      result.foo.should be_kind_of(Object)
-      result.bar.should be_kind_of(Object)
+      expect(result.foo).to be_kind_of(Object)
+      expect(result.bar).to be_kind_of(Object)
     end
 
     it "should merge instantiated objects" do
@@ -86,8 +86,8 @@ describe Vagrant::Config::V2::Loader do
       new.bar.value = "new"
 
       result = described_class.merge(old, new)
-      result.foo.value.should == "old"
-      result.bar.value.should == "new"
+      expect(result.foo.value).to eq("old")
+      expect(result.bar.value).to eq("new")
     end
 
     it "should merge conflicting classes by calling `merge`" do
@@ -108,7 +108,7 @@ describe Vagrant::Config::V2::Loader do
       new.foo.value = 15
 
       result = described_class.merge(old, new)
-      result.foo.value.should == 25
+      expect(result.foo.value).to eq(25)
     end
   end
 
@@ -143,9 +143,9 @@ describe Vagrant::Config::V2::Loader do
       old.foo.value = 5
 
       data = described_class.upgrade(old)
-      data[0].foo.value.should == 10
-      data[1].should == ["foo"]
-      data[2].should == ["bar"]
+      expect(data[0].foo.value).to eq(10)
+      expect(data[1]).to eq(["foo"])
+      expect(data[2]).to eq(["bar"])
     end
   end
 end

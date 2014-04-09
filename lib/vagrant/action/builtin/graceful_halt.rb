@@ -44,23 +44,23 @@ module Vagrant
           # Only attempt to perform graceful shutdown under certain cases
           # checked above.
           if graceful
-            env[:ui].info I18n.t("vagrant.actions.vm.halt.graceful")
+            env[:ui].output(I18n.t("vagrant.actions.vm.halt.graceful"))
 
             begin
               env[:machine].guest.capability(:halt)
-            rescue Errors::MachineGuestNotReady
-              @logger.info("Machine guest not ready while attempting to halt. Ignoring.")
-            end
 
-            @logger.debug("Waiting for target graceful halt state: #{@target_state}")
-            begin
-              Timeout.timeout(env[:machine].config.vm.graceful_halt_timeout) do
-                while env[:machine].state.id != @target_state
-                  sleep 1
+              @logger.debug("Waiting for target graceful halt state: #{@target_state}")
+              begin
+                Timeout.timeout(env[:machine].config.vm.graceful_halt_timeout) do
+                  while env[:machine].state.id != @target_state
+                    sleep 1
+                  end
                 end
+              rescue Timeout::Error
+                # Don't worry about it, we catch the case later.
               end
-            rescue Timeout::Error
-              # Don't worry about it, we catch the case later.
+            rescue Errors::MachineGuestNotReady
+              env[:ui].detail(I18n.t("vagrant.actions.vm.halt.guest_not_ready"))
             end
 
             # The result of this matters on whether we reached our

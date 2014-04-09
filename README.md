@@ -20,7 +20,7 @@ to add `/opt/vagrant/bin` to your `PATH`. After this, you're ready to go!
 
 To build your first virtual environment:
 
-    vagrant init precise32 http://files.vagrantup.com/precise32.box
+    vagrant init hashicorp/precise32
     vagrant up
 
 Note: The above `vagrant up` command will also trigger Vagrant to download the
@@ -29,7 +29,7 @@ the box doesn't already exist on your system.
 
 ## Getting Started Guide
 
-To learn how to build a fully functional rails development environment, view the
+To learn how to build a fully functional development environment, follow the
 [getting started guide](http://docs.vagrantup.com/v2/getting-started/index.html).
 
 ## Installing the Gem from Git
@@ -46,7 +46,7 @@ Ruby 2.0 is needed.
 ### Dependencies and Unit Tests
 
 To hack on vagrant, you'll need [bundler](http://github.com/carlhuda/bundler) which can
-be installed with a simple `gem install bundler`. Afterwords, do the following:
+be installed with a simple `gem install bundler`. Afterwards, do the following:
 
     bundle install
     rake

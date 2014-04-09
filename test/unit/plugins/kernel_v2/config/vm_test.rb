@@ -3,9 +3,18 @@ require File.expand_path("../../../../base", __FILE__)
 require Vagrant.source_root.join("plugins/kernel_v2/config/vm")
 
 describe VagrantPlugins::Kernel_V2::VMConfig do
+  include_context "unit"
+
   subject { described_class.new }
 
   let(:machine) { double("machine") }
+
+  def assert_invalid
+    errors = subject.validate(machine)
+    if !errors.values.any? { |v| !v.empty? }
+      raise "No errors: #{errors.inspect}"
+    end
+  end
 
   def assert_valid
     errors = subject.validate(machine)
@@ -68,10 +77,10 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
   end
 
   context "#box_version" do
-    it "defaults to >= 0" do
+    it "defaults to nil" do
       subject.finalize!
 
-      expect(subject.box_version).to eq(">= 0")
+      expect(subject.box_version).to be_nil
     end
 
     it "errors if invalid version" do
@@ -86,6 +95,19 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       subject.finalize!
 
       assert_valid
+    end
+  end
+
+  describe "#guest" do
+    it "is nil by default" do
+      subject.finalize!
+      expect(subject.guest).to be_nil
+    end
+
+    it "is symbolized" do
+      subject.guest = "foo"
+      subject.finalize!
+      expect(subject.guest).to eq(:foo)
     end
   end
 
@@ -111,6 +133,48 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       expect(n).to_not be_nil
       expect(n[1][:guest]).to eq(45)
       expect(n[1][:host]).to eq(4545)
+    end
+
+    it "is an error if forwarding a port too low" do
+      subject.network "forwarded_port",
+        guest: "45", host: "-5"
+      subject.finalize!
+      assert_invalid
+    end
+
+    it "is an error if forwarding a port too high" do
+      subject.network "forwarded_port",
+        guest: "45", host: "74545"
+      subject.finalize!
+      assert_invalid
+    end
+  end
+
+  describe "#provider and #get_provider_config" do
+    it "compiles the configurations for a provider" do
+      subject.provider "virtualbox" do |vb|
+        vb.gui = true
+      end
+
+      subject.provider "virtualbox" do |vb|
+        vb.name = "foo"
+      end
+
+      subject.finalize!
+
+      config = subject.get_provider_config(:virtualbox)
+      expect(config.name).to eq("foo")
+      expect(config.gui).to be_true
+    end
+
+    it "raises an exception if there is a problem loading" do
+      subject.provider "virtualbox" do |vb|
+        # Purposeful bad variable
+        vm.foo = "bar"
+      end
+
+      expect { subject.finalize! }.
+        to raise_error(Vagrant::Errors::VagrantfileLoadError)
     end
   end
 
@@ -146,6 +210,24 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       r = subject.provisioners
       expect(r.length).to eql(1)
       expect(r[0]).to be_invalid
+    end
+
+    it "allows provisioners that don't define any config" do
+      register_plugin("2") do |p|
+        p.name "foo"
+        # This plugin registers a dummy provisioner
+        # without registering a provisioner config
+        p.provisioner(:foo) do
+          Class.new Vagrant::plugin("2", :provisioner)
+        end
+      end
+
+      subject.provision("foo") do |c|
+        c.bar = "baz"
+      end
+
+      # This should succeed without errors
+      expect{ subject.finalize! }.to_not raise_error
     end
 
     describe "merging" do
