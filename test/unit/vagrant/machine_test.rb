@@ -47,6 +47,27 @@ describe Vagrant::Machine do
   end
 
   describe "initialization" do
+    describe "communicator loading" do
+      it "doesn't eager load SSH" do
+        config.vm.communicator = :ssh
+
+        klass = Vagrant.plugin("2").manager.communicators[:ssh]
+        expect(klass).to_not receive(:new)
+
+        subject
+      end
+
+      it "eager loads WinRM" do
+        config.vm.communicator = :winrm
+
+        klass    = Vagrant.plugin("2").manager.communicators[:winrm]
+        instance = double("instance")
+        expect(klass).to receive(:new).and_return(instance)
+
+        subject
+      end
+    end
+
     describe "provider initialization" do
       # This is a helper that generates a test for provider intialization.
       # This is a separate helper method because it takes a block that can
