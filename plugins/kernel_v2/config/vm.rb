@@ -126,6 +126,7 @@ module VagrantPlugins
               if other_p
                 # There is an override. Take it.
                 other_p.config = p.config.merge(other_p.config)
+                other_p.run    ||= p.run
                 next if !other_p.preserve_order
 
                 # We're preserving order, delete from other
@@ -269,6 +270,7 @@ module VagrantPlugins
         end
 
         prov.preserve_order = !!options[:preserve_order]
+        prov.run = options.delete(:run) if options.has_key?(:run)
         prov.add_config(options, &block)
         nil
       end
@@ -395,6 +397,7 @@ module VagrantPlugins
         # Finalize all the provisioners
         @provisioners.each do |p|
           p.config.finalize! if !p.invalid?
+          p.run = p.run.to_sym if p.run
         end
 
         # If we didn't share our current directory, then do it
