@@ -66,7 +66,7 @@ module VagrantPlugins
             "#{machine.id}-#{id.gsub("/", "-")}")
 
           args = []
-          args << "-path" << hostpath.gsub("/", "\\")
+          args << "-path" << "\"#{hostpath.gsub("/", "\\")}\""
           args << "-share_name" << data[:smb_id]
           #args << "-host_share_username" << @creds[:username]
 
