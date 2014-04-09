@@ -18,7 +18,7 @@ module VagrantPlugins
           o.banner = "Usage: vagrant ssh-config [options] [name]"
           o.separator ""
           o.separator "Options:"
-          o.separator ""                    
+          o.separator ""
 
           o.on("--host NAME", "Name the host for the config") do |h|
             options[:host] = h
@@ -28,7 +28,7 @@ module VagrantPlugins
         argv = parse_options(opts)
         return if !argv
 
-        with_target_vms(argv, :single_target => true) do |machine|
+        with_target_vms(argv) do |machine|
           ssh_info = machine.ssh_info
           raise Vagrant::Errors::SSHNotReady if ssh_info.nil?
 
@@ -46,6 +46,7 @@ module VagrantPlugins
           # Render the template and output directly to STDOUT
           template = "commands/ssh_config/config"
           safe_puts(Vagrant::Util::TemplateRenderer.render(template, variables))
+          safe_puts
         end
 
         # Success, exit status 0

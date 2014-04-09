@@ -9,6 +9,10 @@ FEATURES:
     so that subsequent `vagrant up` or `reload` calls will always run a
     provisioner. [GH-2421]
 
+IMPROVEMENTS:
+
+  - commands/ssh-config: Works without a target in multi-machine envs [GH-2844]
+
 ## 1.5.4 (unreleased)
 
 BUG FIXES:
