@@ -5,7 +5,7 @@ module Vagrant
         # This returns all the instances of the configured provisioners.
         # This is safe to call multiple times since it will cache the results.
         #
-        # @return [Array<Provisioner>]
+        # @return [Array<Provisioner, Hash>]
         def provisioner_instances(env)
           return @_provisioner_instances if @_provisioner_instances
 
@@ -21,8 +21,13 @@ module Vagrant
             # Store in the type map so that --provision-with works properly
             @_provisioner_types[result] = provisioner.name
 
+            # Build up the options
+            options = {
+              run: provisioner.run,
+            }
+
             # Return the result
-            result
+            [result, options]
           end
 
           return @_provisioner_instances

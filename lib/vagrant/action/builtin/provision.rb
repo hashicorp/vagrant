@@ -22,8 +22,12 @@ module Vagrant
         def call(env)
           @env = env
 
+          # Tracks whether we were configured to provision
+          config_enabled = true
+          config_enabled = env[:provision_enabled] if env.has_key?(:provision_enabled)
+
           # Check if we already provisioned, and if so, disable the rest
-          enabled = true
+          sentinel_enabled = true
 
           ignore_sentinel = true
           if env.has_key?(:provision_ignore_sentinel)
@@ -52,11 +56,11 @@ module Vagrant
 
               if parts.length == 1
                 @logger.info("Old-style sentinel found! Not provisioning.")
-                enabled = false
+                sentinel_enabled = false
                 update_sentinel = true
               elsif parts[0] == "1.5" && parts[1] == env[:machine].id.to_s
                 @logger.info("Sentinel found! Not provisioning.")
-                enabled = false
+                sentinel_enabled = false
               else
                 @logger.info("Sentinel found with another machine ID. Removing.")
                 sentinel_path.unlink
@@ -65,10 +69,10 @@ module Vagrant
           end
 
           # Store the value so that other actions can use it
-          env[:provision_enabled] = enabled if !env.has_key?(:provision_enabled)
+          env[:provision_enabled] = sentinel_enabled if !env.has_key?(:provision_enabled)
 
           # Ask the provisioners to modify the configuration if needed
-          provisioner_instances(env).each do |p|
+          provisioner_instances(env).each do |p, _|
             p.configure(env[:machine].config)
           end
 
@@ -85,26 +89,36 @@ module Vagrant
             end
           end
 
-          # Actually provision if we enabled it
-          if env[:provision_enabled]
-            type_map = provisioner_type_map(env)
-            provisioner_instances(env).each do |p|
-              type_name = type_map[p]
-              next if env[:provision_types] && \
-                !env[:provision_types].include?(type_name)
+          # If we're configured to not provision, notify the user and stop
+          if !config_enabled
+            env[:ui].info(I18n.t("vagrant.actions.vm.provision.disabled_by_config"))
+            return
+          end
 
-              env[:ui].info(I18n.t(
-                "vagrant.actions.vm.provision.beginning",
-                provisioner: type_name))
-
-              env[:hook].call(:provisioner_run, env.merge(
-                callable: method(:run_provisioner),
-                provisioner: p,
-                provisioner_name: type_name,
-              ))
-            end
-          elsif !enabled
+          # If we're not provisioning because of the sentinel, tell the user
+          # but continue trying for the "always" provisioners
+          if !sentinel_enabled
             env[:ui].info(I18n.t("vagrant.actions.vm.provision.disabled_by_sentinel"))
+          end
+
+          type_map = provisioner_type_map(env)
+          provisioner_instances(env).each do |p, options|
+            type_name = type_map[p]
+            next if env[:provision_types] && \
+              !env[:provision_types].include?(type_name)
+
+            # Don't run if sentinel is around and we're not always running
+            next if !sentinel_enabled && options[:run] != :always
+
+            env[:ui].info(I18n.t(
+              "vagrant.actions.vm.provision.beginning",
+              provisioner: type_name))
+
+            env[:hook].call(:provisioner_run, env.merge(
+              callable: method(:run_provisioner),
+              provisioner: p,
+              provisioner_name: type_name,
+            ))
           end
         end
 
