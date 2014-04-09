@@ -128,6 +128,13 @@ module Vagrant
       # state we setup on this machine.
       @provider = provider_cls.new(self)
       @provider._initialize(@provider_name, self)
+
+      # If we're using WinRM, we eager load the plugin because of
+      # GH-3390
+      if @config.vm.communicator == :winrm
+        @logger.debug("Eager loading WinRM communicator to avoid GH-3390")
+        communiate
+      end
     end
 
     # This calls an action on the provider. The provider may or may not
