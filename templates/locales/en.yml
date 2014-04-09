@@ -163,6 +163,11 @@ en:
       and reinstalled:
 
       %{names}
+    post_up_message: |-
+      Machine '%{name}' has a post `vagrant up` message. This is a message
+      from the creator of the Vagrantfile, and not from Vagrant itself:
+
+      %{message}
     provisioner_cleanup: |-
       Running cleanup tasks for '%{name}' provisioner...
     rsync_auto_initial: |-

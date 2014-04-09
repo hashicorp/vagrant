@@ -54,6 +54,7 @@ module VagrantPlugins
         @logger.debug("'Up' each target VM...")
 
         # Build up the batch job of what we'll do
+        machines = []
         @env.batch(options[:parallel]) do |batch|
           with_target_vms(argv, :provider => options[:provider]) do |machine|
             @env.ui.info(I18n.t(
@@ -61,8 +62,24 @@ module VagrantPlugins
               :name => machine.name,
               :provider => machine.provider_name))
 
+            machines << machine
+
             batch.action(machine, :up, options)
           end
+        end
+
+        # Output the post-up messages that we have, if any
+        machines.each do |m|
+          next if !m.config.vm.post_up_message
+          next if m.config.vm.post_up_message == ""
+
+          # Add a newline to separate things.
+          @env.ui.info("", prefix: false)
+
+          m.ui.success(I18n.t(
+            "vagrant.post_up_message",
+            name: m.name.to_s,
+            message: m.config.vm.post_up_message))
         end
 
         # Success, exit status 0

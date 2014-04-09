@@ -157,6 +157,19 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     end
   end
 
+  describe "#post_up_message" do
+    it "defaults to empty string" do
+      subject.finalize!
+      expect(subject.post_up_message).to eq("")
+    end
+
+    it "can be set" do
+      subject.post_up_message = "foo"
+      subject.finalize!
+      expect(subject.post_up_message).to eq("foo")
+    end
+  end
+
   describe "#provider and #get_provider_config" do
     it "compiles the configurations for a provider" do
       subject.provider "virtualbox" do |vb|
