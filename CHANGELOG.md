@@ -19,6 +19,7 @@ BUG FIXES:
   - guests/fedora: Fix hostname setting. [GH-3382]
   - guests/fedora: Support predictable network interface names for
       public/private networks. [GH-3207]
+  - guests/linux: Rsync folders have proper group if owner not set. [GH-3223]
   - guests/linux: If SMB folder mounting fails, the password will no
       longer be shown in plaintext in the output. [GH-3203]
   - guests/linux: SMB mount works with passwords with symbols. [GH-3202]
