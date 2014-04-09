@@ -72,6 +72,11 @@ module Vagrant
               FileUtils.cp(from, to, :preserve => true)
             end
           end
+        rescue Errno::EEXIST => e
+          raise if !e.to_s.include?("symlink")
+
+          # The directory contains symlinks. Show a nicer error.
+          raise Errors::PackageIncludeSymlink
         end
 
         # Compress the exported file into a package

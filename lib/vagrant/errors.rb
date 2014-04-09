@@ -456,6 +456,10 @@ module Vagrant
       error_key(:include_file_missing, "vagrant.actions.general.package")
     end
 
+    class PackageIncludeSymlink < VagrantError
+      error_key(:package_include_symlink)
+    end
+
     class PackageOutputDirectory < VagrantError
       error_key(:output_is_directory, "vagrant.actions.general.package")
     end
