@@ -53,7 +53,7 @@ module VagrantPlugins
                               :path => expanded_path)
           else
             data = expanded_path.read(16)
-            if !data.valid_encoding?
+            if data != nil && !data.valid_encoding?
               errors << I18n.t(
                 "vagrant.provisioners.shell.invalid_encoding",
                 actual: data.encoding.to_s,
