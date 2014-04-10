@@ -4,8 +4,8 @@ module VagrantPlugins
       attr_accessor :image, :cmd, :ports, :volumes, :privileged
 
       def initialize
-        @image      = nil
         @cmd        = UNSET_VALUE
+        @image      = UNSET_VALUE
         @ports      = []
         @privileged = UNSET_VALUE
         @volumes    = []
@@ -13,6 +13,7 @@ module VagrantPlugins
 
       def finalize!
         @cmd        = [] if @cmd == UNSET_VALUE
+        @image      = nil if @image == UNSET_VALUE
         @privileged = false if @privileged == UNSET_VALUE
       end
 
@@ -22,13 +23,7 @@ module VagrantPlugins
         # TODO: Detect if base image has a CMD / ENTRYPOINT set before erroring out
         errors << I18n.t("docker_provider.errors.config.cmd_not_set")   if @cmd == UNSET_VALUE
 
-        { "docker-provider" => errors }
-      end
-
-      private
-
-      def using_nfs?(machine)
-        machine.config.vm.synced_folders.any? { |_, opts| opts[:type] == :nfs }
+        { "docker provider" => errors }
       end
     end
   end
