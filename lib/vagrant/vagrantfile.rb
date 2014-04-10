@@ -124,6 +124,16 @@ module Vagrant
       provider_options = provider_plugin[1]
       box_formats      = provider_options[:box_format] || provider
 
+      # Test if the provider is usable or not
+      begin
+        provider_cls.usable?(true)
+      rescue Errors::VagrantError => e
+        raise Errors::ProviderNotUsable,
+          machine: name.to_s,
+          provider: provider.to_s,
+          message: e.to_s
+      end
+
       # Add the sub-machine configuration to the loader and keys
       vm_config_key = "#{object_id}_machine_#{name}"
       @loader.set(vm_config_key, sub_machine.config_procs)

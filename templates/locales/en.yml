@@ -850,6 +850,12 @@ en:
       provider_not_found: |-
         The provider '%{provider}' could not be found, but was requested to
         back the machine '%{machine}'. Please use a provider that exists.
+      provider_not_usable: |-
+        The provider '%{provider}' that was requested to back the machine
+        '%{machine}' is reporting that it isn't usable on this system. The
+        reason is shown below:
+
+        %{message}
       provisioner_flag_invalid: |-
         '%{name}' is not a known provisioner. Please specify a valid
         provisioner.

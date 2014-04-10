@@ -26,7 +26,14 @@ describe Vagrant::Vagrantfile do
 
   # A helper to register a provider for use in tests.
   def register_provider(name, config_class=nil, options=nil)
-    provider_cls = Class.new(Vagrant.plugin("2", :provider))
+    provider_cls = Class.new(Vagrant.plugin("2", :provider)) do
+      if options && options[:unusable]
+        def self.usable?(raise_error=false)
+          raise Vagrant::Errors::VagrantError if raise_error
+          false
+        end
+      end
+    end
 
     register_plugin("2") do |p|
       p.provider(name, options) { provider_cls }
@@ -297,6 +304,13 @@ describe Vagrant::Vagrantfile do
     it "raises an error if the provider is not found" do
       expect { subject.machine_config(:default, :foo, boxes) }.
         to raise_error(Vagrant::Errors::ProviderNotFound)
+    end
+
+    it "raises an error if the provider is not usable" do
+      register_provider("foo", nil, unusable: true)
+
+      expect { subject.machine_config(:default, :foo, boxes) }.
+        to raise_error(Vagrant::Errors::ProviderNotUsable)
     end
   end
 
