@@ -332,26 +332,27 @@ describe Vagrant::Vagrantfile do
     end
   end
 
-  describe "#autostart_machine_names" do
-    it "returns machine_names if no autostart values where set" do
-      configure do |config|
-        config.vm.define "foo"
-        config.vm.define "bar"
-      end
+  describe "#machine_names_and_options" do
+    it "returns the default name" do
+      configure { |config| }
 
-      expect(subject.autostart_machine_names).to eq(
-        subject.machine_names)
+      expect(subject.machine_names_and_options).to eq({
+        default: { config_version: "2" },
+      })
     end
 
-    it "returns only machine_names without autostart or autostart true" do
+    it "returns all the machines" do
       configure do |config|
         config.vm.define "foo"
         config.vm.define "bar", autostart: false
         config.vm.define "baz", autostart: true
       end
 
-      expect(subject.autostart_machine_names).to eq(
-        [:foo, :baz])
+      expect(subject.machine_names_and_options).to eq({
+        foo: { config_version: "2" },
+        bar: { config_version: "2", autostart: false },
+        baz: { config_version: "2", autostart: true },
+      })
     end
   end
 
