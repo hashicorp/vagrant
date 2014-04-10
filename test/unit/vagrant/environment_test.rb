@@ -956,5 +956,22 @@ VF
       env = isolated_env.create_vagrant_env
       expect(env.machine_names).to eq([:foo, :bar])
     end
+
+    it "should return only the machine names configured to autostart" do
+      # Create the config
+      isolated_env = isolated_environment do |e|
+        e.vagrantfile(<<-VF)
+Vagrant.configure("2") do |config|
+  config.vm.define "foo"
+  config.vm.define "bar", autostart: false
+  config.vm.define "baz", autostart: true
+end
+VF
+      end
+
+      env = isolated_env.create_vagrant_env
+      env.autostart_machine_names.should == [:foo, :baz]
+    end
+
   end
 end
