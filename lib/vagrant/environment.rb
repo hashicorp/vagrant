@@ -434,16 +434,6 @@ module Vagrant
       vagrantfile.machine_names
     end
 
-    # This returns a list of the configured machines for this environment
-    # that do not have "autostart" set to false.
-    # Each of the names returned by this method is valid to be used with
-    # the {#machine} method.
-    #
-    # @return [Array<Symbol>] Configured autostart machine names.
-    def autostart_machine_names
-      vagrantfile.autostart_machine_names
-    end
-
     # This returns the name of the machine that is the "primary." In the
     # case of  a single-machine environment, this is just the single machine
     # name. In the case of a multi-machine environment, then this can

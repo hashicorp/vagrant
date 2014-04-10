@@ -57,7 +57,12 @@ module VagrantPlugins
         machines = []
         @env.batch(options[:parallel]) do |batch|
           names = argv
-          names = @env.autostart_machine_names if names.empty?
+          if names.empty?
+            @env.vagrantfile.machine_names_and_options.each do |n, o|
+              o[:autostart] = true if !o.has_key?(:autostart)
+              names << n if o[:autostart]
+            end
+          end
 
           with_target_vms(names, :provider => options[:provider]) do |machine|
             @env.ui.info(I18n.t(
