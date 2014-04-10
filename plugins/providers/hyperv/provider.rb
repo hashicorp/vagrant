@@ -11,9 +11,7 @@ module VagrantPlugins
     class Provider < Vagrant.plugin("2", :provider)
       attr_reader :driver
 
-      def initialize(machine)
-        @machine = machine
-
+      def self.usable?(raise_error=false)
         if !Vagrant::Util::Platform.windows?
           raise Errors::WindowsRequired
         end
@@ -25,6 +23,15 @@ module VagrantPlugins
         if !Vagrant::Util::PowerShell.available?
           raise Errors::PowerShellRequired
         end
+
+        true
+      rescue HyperVError
+        raise if raise_error
+        return false
+      end
+
+      def initialize(machine)
+        @machine = machine
 
         # This method will load in our driver, so we call it now to
         # initialize it.
