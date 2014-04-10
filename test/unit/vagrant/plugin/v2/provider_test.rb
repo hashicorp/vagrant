@@ -8,6 +8,10 @@ describe Vagrant::Plugin::V2::Provider do
 
   subject { instance }
 
+  it "should be usable by default" do
+    expect(described_class).to be_usable
+  end
+
   it "should return nil by default for actions" do
     expect(instance.action(:whatever)).to be_nil
   end

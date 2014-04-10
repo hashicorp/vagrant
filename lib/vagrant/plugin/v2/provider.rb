@@ -9,6 +9,21 @@ module Vagrant
       class Provider
         include CapabilityHost
 
+        # This is called early, before a machine is instantiated, to check
+        # if this provider is usable. This should return true or false.
+        #
+        # If raise_error is true, then instead of returning false, this
+        # should raise an error with a helpful message about why this
+        # provider cannot be used.
+        #
+        # @param [Boolean] raise_error If true, raise exception if not usable.
+        # @return [Boolean]
+        def self.usable?(raise_error=false)
+          # Return true by default for backwards compat since this was
+          # introduced long after providers were being written.
+          true
+        end
+
         # Initialize the provider to represent the given machine.
         #
         # @param [Vagrant::Machine] machine The machine that this provider

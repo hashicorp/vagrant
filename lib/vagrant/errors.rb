@@ -492,6 +492,10 @@ module Vagrant
       error_key(:provider_not_found)
     end
 
+    class ProviderNotUsable < VagrantError
+      error_key(:provider_not_usable)
+    end
+
     class ProvisionerFlagInvalid < VagrantError
       error_key(:provisioner_flag_invalid)
     end
