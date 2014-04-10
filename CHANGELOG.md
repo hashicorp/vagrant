@@ -2,12 +2,21 @@
 
 FEATURES:
 
+  - **New guest: Windows**. Vagrant now fully supports Windows as a guest
+      VM. WinRM can be used for communication (or SSH), and the shell
+      provisioner, Chef, and Puppet all work with Windows VMs.
+  - **New command: global-status**. This command shows the state of every
+      created Vagrant environment on the system for that logged in user.
+  - Control Vagrant environments from any directory. Using the UUIDs given
+      in `vagrant global-status`, you can issue commands from anywhere on
+      your machine, not just that environment's directory. Example:
+      `vagrant destroy UUID` from anywhere.
   - Can now specify a `post_up_message` in your Vagrantfile that is shown
-    after a `vagrant up`. This is useful for putting some instructions of how
-    to use the development environment.
+      after a `vagrant up`. This is useful for putting some instructions of how
+      to use the development environment.
   - Can configure provisioners to run "once" or "always" (defaults to "once"),
-    so that subsequent `vagrant up` or `reload` calls will always run a
-    provisioner. [GH-2421]
+      so that subsequent `vagrant up` or `reload` calls will always run a
+      provisioner. [GH-2421]
 
 IMPROVEMENTS:
 
