@@ -13,6 +13,15 @@ IMPROVEMENTS:
 
   - commands/ssh-config: Works without a target in multi-machine envs [GH-2844]
 
+PLUGIN AUTHOR CHANGES:
+
+  - provider: Providers can now specify that boxes are optional. This lets
+      you use the provider without a `config.vm.box`. Useful for providers like
+      AWS or Docker.
+  - provider: A new class-level `usable?` method can be implemented on the
+      provider implementation. This returns or raises an error when the
+      provider is not usable (i.e. VirtualBox isn't installed for VirtualBox)
+
 ## 1.5.4 (unreleased)
 
 BUG FIXES:
