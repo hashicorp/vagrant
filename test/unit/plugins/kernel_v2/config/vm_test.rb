@@ -28,6 +28,7 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     env.stub(root_path: nil)
     machine.stub(env: env)
     machine.stub(provider_config: nil)
+    machine.stub(provider_options: {})
 
     subject.box = "foo"
   end
@@ -41,6 +42,21 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     it "defaults properly" do
       subject.finalize!
       expect(subject.base_mac).to be_nil
+    end
+  end
+
+  describe "#box" do
+    it "is required" do
+      subject.box = nil
+      subject.finalize!
+      assert_invalid
+    end
+
+    it "is not required if the provider says so" do
+      machine.provider_options[:box_optional] = true
+      subject.box = nil
+      subject.finalize!
+      assert_valid
     end
   end
 
