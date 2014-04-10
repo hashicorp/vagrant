@@ -103,3 +103,20 @@ config.vm.define "web", primary: true do |web|
   # ...
 end
 ```
+
+## Autostart Machines
+
+By default in a multi-machine environment, `vagrant up` will start
+all of the defined machines. The `autostart` setting allows you to tell
+Vagrant to _not_ start specific machines. Example:
+
+```ruby
+config.vm.define "web"
+config.vm.define "db"
+config.vm.define "db_slave", autostart: false
+```
+
+When running `vagrant up` with the settings above, Vagrant will automatically
+start the "web" and "db" machines, but will not start the "db\_slave" machine.
+You can manually force the "db\_slave" machine to start by running
+`vagrant up db_slave`.
