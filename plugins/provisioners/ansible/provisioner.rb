@@ -89,12 +89,17 @@ module VagrantPlugins
       # Auto-generate "safe" inventory file based on Vagrantfile,
       # unless inventory_path is explicitly provided
       def setup_inventory_file
-        return config.inventory_path if config.inventory_path
+        return config.inventory_path if config.inventory_path and not config.generate_inventory
 
         # Managed machines
         inventory_machines = {}
 
-        generated_inventory_dir = @machine.env.local_data_path.join(File.join(%w(provisioners ansible inventory)))
+        if config.inventory_path
+          generated_inventory_dir = Pathname.new(File.expand_path(config.inventory_path, @machine.env.cwd))
+        else
+          generated_inventory_dir = @machine.env.local_data_path.join(File.join(%w(provisioners ansible inventory)))
+        end
+
         FileUtils.mkdir_p(generated_inventory_dir) unless File.directory?(generated_inventory_dir)
         generated_inventory_file = generated_inventory_dir.join('vagrant_ansible_inventory')
 
@@ -150,7 +155,11 @@ module VagrantPlugins
           end
         end
 
-        return generated_inventory_file.to_s
+        if config.inventory_path
+          return generated_inventory_dir.to_s
+        else
+          return generated_inventory_file.to_s
+        end
       end
 
       def get_extra_vars_argument
