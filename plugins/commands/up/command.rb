@@ -56,7 +56,11 @@ module VagrantPlugins
         # Build up the batch job of what we'll do
         machines = []
         @env.batch(options[:parallel]) do |batch|
-          with_target_vms(argv, :provider => options[:provider]) do |machine|
+          names = argv
+          if names.empty? then
+            names = @env.autostart_machine_names
+          end
+          with_target_vms(names, :provider => options[:provider]) do |machine|
             @env.ui.info(I18n.t(
               "vagrant.commands.up.upping",
               :name => machine.name,
