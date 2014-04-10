@@ -25,7 +25,7 @@ module VagrantPlugins
         end
 
         true
-      rescue HyperVError
+      rescue Errors::HyperVError
         raise if raise_error
         return false
       end
