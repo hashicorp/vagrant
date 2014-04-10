@@ -18,14 +18,14 @@ en:
       config:
         cmd_not_set: |-
           The Docker command has not been set!
-
-  vagrant:
-    errors:
       docker_provider_nfs_without_privileged: |-
         You've configured a NFS synced folder but didn't enable privileged
         mode for the container. Please set the `privileged` option to true
         on the provider block from your Vagrantfile, recreate the container
         and try again.
-
       docker_provider_image_not_configured: |-
         The base Docker image has not been set for the '%{name}' VM!
+      synced_folder_non_docker: |-
+        The "docker" synced folder type can't be used because the  provider
+        in use is not Docker. This synced folder type only works with the
+        Docker provider. The provider this machine is using is: %{provider}
