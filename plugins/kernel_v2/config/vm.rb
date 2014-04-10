@@ -469,7 +469,11 @@ module VagrantPlugins
 
       def validate(machine)
         errors = _detected_errors
-        errors << I18n.t("vagrant.config.vm.box_missing") if !box
+
+        if !box && !machine.provider_options[:box_optional]
+          errors << I18n.t("vagrant.config.vm.box_missing")
+        end
+
         errors << I18n.t("vagrant.config.vm.hostname_invalid_characters") if \
           @hostname && @hostname !~ /^[a-z0-9][-.a-z0-9]+$/i
 
