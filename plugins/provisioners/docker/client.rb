@@ -32,7 +32,7 @@ module VagrantPlugins
       end
 
       def daemon_running?
-        @machine.communicate.test('test -f /var/run/docker.pid')
+        @machine.guest.capability(:docker_daemon_running)
       end
 
       def run(containers)
