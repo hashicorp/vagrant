@@ -14,6 +14,7 @@ BUG FIXES:
   - core: `vagrant` on Windows cmd.exe doesn't always exit with exit
       code zero. [GH-3420]
   - core: Adding a box from a network share has nice error on Windows. [GH-3279]
+  - core: Setting an ID on a provisioner now works. [GH-3424]
   - commands/package: Nice error if includes contain symlinks. [GH-3200]
   - commands/rsync-auto: Don't crash if the machine can't be communicated
       to. [GH-3419]

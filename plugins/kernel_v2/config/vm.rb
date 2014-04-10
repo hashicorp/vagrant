@@ -252,15 +252,15 @@ module VagrantPlugins
       end
 
       def provision(name, **options, &block)
-        options[:id] = options[:id].to_s if options[:id]
+        id = options.delete(:id).to_s if options.has_key?(:id)
 
         prov = nil
-        if options[:id]
-          prov = @provisioners.find { |p| p.id == options[:id] }
+        if id
+          prov = @provisioners.find { |p| p.id == id }
         end
 
         if !prov
-          prov = VagrantConfigProvisioner.new(options[:id], name.to_sym)
+          prov = VagrantConfigProvisioner.new(id, name.to_sym)
           @provisioners << prov
         end
 
