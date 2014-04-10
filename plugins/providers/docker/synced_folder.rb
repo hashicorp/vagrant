@@ -1,9 +1,18 @@
 module VagrantPlugins
   module DockerProvider
     class SyncedFolder < Vagrant.plugin("2", :synced_folder)
-      def usable?(machine)
+      def usable?(machine, raise_error=false)
         # These synced folders only work if the provider is Docker
-        machine.provider_name == :docker
+        if machine.provider_name != :docker
+          if raise_error
+            raise Errors::SyncedFolderNonDocker,
+              provider: machine.provider_name.to_s
+          end
+
+          return false
+        end
+
+        true
       end
 
       def prepare(machine, folders, _opts)
