@@ -17,6 +17,8 @@ FEATURES:
   - Can configure provisioners to run "once" or "always" (defaults to "once"),
       so that subsequent `vagrant up` or `reload` calls will always run a
       provisioner. [GH-2421]
+  - Multi-machine environments can specify an "autostart" option (default
+      to true). `vagrant up` starts all machines that have enabled autostart.
 
 IMPROVEMENTS:
 
