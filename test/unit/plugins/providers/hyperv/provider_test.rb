@@ -18,25 +18,42 @@ describe VagrantPlugins::HyperV::Provider do
     powershell.stub(available?: true)
   end
 
-  describe "#initialize" do
+  describe ".usable?" do
+    subject { described_class }
+
+    it "returns false if not windows" do
+      platform.stub(windows?: false)
+      expect(subject).to_not be_usable
+    end
+
+    it "returns false if not an admin" do
+      platform.stub(windows_admin?: false)
+      expect(subject).to_not be_usable
+    end
+
+    it "returns false if powershell is not available" do
+      powershell.stub(available?: false)
+      expect(subject).to_not be_usable
+    end
+
     it "raises an exception if not windows" do
       platform.stub(windows?: false)
 
-      expect { subject }.
+      expect { subject.usable?(true) }.
         to raise_error(VagrantPlugins::HyperV::Errors::WindowsRequired)
     end
 
     it "raises an exception if not an admin" do
       platform.stub(windows_admin?: false)
 
-      expect { subject }.
+      expect { subject.usable?(true) }.
         to raise_error(VagrantPlugins::HyperV::Errors::AdminRequired)
     end
 
     it "raises an exception if powershell is not available" do
       powershell.stub(available?: false)
 
-      expect { subject }.
+      expect { subject.usable?(true) }.
         to raise_error(VagrantPlugins::HyperV::Errors::PowerShellRequired)
     end
   end
