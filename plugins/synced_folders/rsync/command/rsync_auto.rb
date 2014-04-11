@@ -72,7 +72,6 @@ module VagrantPlugins
 
           # Exit immediately if there is nothing to watch
           if paths.empty?
-            @logger.warn("No paths to listen for so exiting")
             @env.ui.info(I18n.t("vagrant.rsync_auto_no_paths"))
             return 1
           end

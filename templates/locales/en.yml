@@ -159,7 +159,9 @@ en:
     rsync_auto_initial: |-
       Doing an initial rsync...
     rsync_auto_no_paths: |-
-      No paths to watch
+      There are no paths to watch! This is either because you have no
+      synced folders using rsync, or any rsync synced folders you have
+      have specified `rsync_auto` to be false.
     rsync_auto_path: |-
       Watching: %{path}
     rsync_communicator_not_ready: |-
