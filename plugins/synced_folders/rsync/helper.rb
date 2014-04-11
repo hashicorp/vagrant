@@ -70,7 +70,7 @@ module VagrantPlugins
         # Get the command-line arguments
         args = nil
         args = Array(opts[:args]) if opts[:args]
-        args ||= ["--verbose", "--archive", "--delete", "-z"]
+        args ||= ["--verbose", "--archive", "--delete", "--copy-dirlinks", "-z"]
 
         # On Windows, we have to set a default chmod flag to avoid permission issues
         if Vagrant::Util::Platform.windows? && !args.any? { |arg| arg.start_with?("--chmod=") }
