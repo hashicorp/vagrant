@@ -341,5 +341,10 @@ describe Vagrant::UI::Prefixed do
       expect(ui).to receive(:output).with("==> #{prefix}: foo", {})
       subject.output("foo")
     end
+
+    it "prefixes with another prefix if requested" do
+      expect(ui).to receive(:output).with("==> bar: foo", anything)
+      subject.output("foo", target: "bar")
+    end
   end
 end

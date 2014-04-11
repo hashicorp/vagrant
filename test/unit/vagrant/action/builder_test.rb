@@ -16,6 +16,20 @@ describe Vagrant::Action::Builder do
     result
   end
 
+  def wrapper_proc(data)
+    Class.new do
+      def initialize(app, env)
+        @app = app
+      end
+
+      define_method(:call) do |env|
+        env[:data] << "#{data}_in"
+        @app.call(env)
+        env[:data] << "#{data}_out"
+      end
+    end
+  end
+
   context "copying" do
     it "should copy the stack" do
       copy = subject.dup
@@ -237,6 +251,36 @@ describe Vagrant::Action::Builder do
       data[:action_hooks] = [hook]
       data[:action_hooks_already_ran] = true
       subject.call(data)
+    end
+  end
+
+  describe "calling another app later" do
+    it "calls in the proper order" do
+      # We have to do this because inside the Class.new, it can't see these
+      # rspec methods...
+      described_klass = described_class
+      wrapper_proc    = self.method(:wrapper_proc)
+
+      wrapper = Class.new do
+        def initialize(app, env)
+          @app = app
+        end
+
+        define_method(:call) do |env|
+          inner = described_klass.new
+          inner.use wrapper_proc[2]
+          inner.use @app
+          inner.call(env)
+        end
+      end
+
+      subject.use wrapper_proc(1)
+      subject.use wrapper
+      subject.use wrapper_proc(3)
+      subject.call(data)
+
+      expect(data[:data]).to eq([
+        "1_in", "2_in", "3_in", "3_out", "2_out", "1_out"])
     end
   end
 end

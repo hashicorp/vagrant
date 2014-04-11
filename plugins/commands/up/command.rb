@@ -60,7 +60,7 @@ module VagrantPlugins
           if names.empty?
             @env.vagrantfile.machine_names_and_options.each do |n, o|
               o[:autostart] = true if !o.has_key?(:autostart)
-              names << n if o[:autostart]
+              names << n.to_s if o[:autostart]
             end
           end
 

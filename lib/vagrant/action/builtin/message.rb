@@ -6,11 +6,19 @@ module Vagrant
         def initialize(app, env, message, **opts)
           @app     = app
           @message = message
+          @opts    = opts
         end
 
         def call(env)
-          env[:ui].output(@message)
+          if !@opts[:post]
+            env[:ui].output(@message)
+          end
+
           @app.call(env)
+
+          if @opts[:post]
+            env[:ui].output(@message)
+          end
         end
       end
     end

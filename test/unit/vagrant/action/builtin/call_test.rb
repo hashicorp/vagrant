@@ -4,6 +4,20 @@ describe Vagrant::Action::Builtin::Call do
   let(:app) { lambda { |env| } }
   let(:env) { {} }
 
+  def wrapper_proc(data)
+    Class.new do
+      def initialize(app, env)
+        @app = app
+      end
+
+      define_method(:call) do |env|
+        env[:data] << "#{data}_in"
+        @app.call(env)
+        env[:data] << "#{data}_out"
+      end
+    end
+  end
+
   it "should yield the env to the block" do
     received = nil
 
@@ -62,6 +76,23 @@ describe Vagrant::Action::Builtin::Call do
     end.call({ :foo => :bar })
 
     expect(received).to eq(:bar)
+  end
+
+  it "should call the next builder inserted in our own stack" do
+    callable = lambda { |env| }
+
+    builder = Vagrant::Action::Builder.new.tap do |b|
+      b.use wrapper_proc(1)
+      b.use described_class, callable do |_env, b2|
+        b2.use wrapper_proc(2)
+      end
+      b.use wrapper_proc(3)
+    end
+
+    env = { data: [] }
+    builder.call(env)
+    expect(env[:data]).to eq([
+      "1_in", "2_in", "3_in", "3_out", "2_out", "1_out"])
   end
 
   it "should instantiate the callable with the extra args" do

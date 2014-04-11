@@ -1,0 +1,8 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "mitchellh/boot2docker"
+
+  config.vm.provider "virtualbox" do |v|
+    v.check_guest_additions = false
+    v.functional_vboxsf = false
+  end
+end

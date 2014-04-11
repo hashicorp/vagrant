@@ -5,6 +5,10 @@ module VagrantPlugins
         error_namespace("docker_provider.errors")
       end
 
+      class ExecuteError < DockerError
+        error_key(:execute_error)
+      end
+
       class ImageNotConfiguredError < DockerError
         error_key(:docker_provider_image_not_configured)
       end

@@ -1,17 +1,17 @@
-require "vagrant/util/busy"
-require "vagrant/util/subprocess"
-require "vagrant/util/retryable"
+require "json"
 
-require 'log4r'
-require 'json'
+require "log4r"
 
 module VagrantPlugins
   module DockerProvider
     class Driver
-      include Vagrant::Util::Retryable
+      # The executor is responsible for actually executing Docker commands.
+      # This is set by the provider, but defaults to local execution.
+      attr_accessor :executor
 
       def initialize
-        @logger = Log4r::Logger.new("vagrant::docker::driver")
+        @logger   = Log4r::Logger.new("vagrant::docker::driver")
+        @executor = Executor::Local.new
       end
 
       def create(params)
@@ -26,6 +26,7 @@ module VagrantPlugins
         run_cmd += volumes.map { |v| ['-v', v.to_s] }
         run_cmd += %W(--privileged) if params[:privileged]
         run_cmd += %W(-h #{params[:hostname]}) if params[:hostname]
+        run_cmd += params[:extra_args] if params[:extra_args]
         run_cmd += [image, cmd]
 
         execute(*run_cmd.flatten).chomp
@@ -101,35 +102,7 @@ module VagrantPlugins
       private
 
       def execute(*cmd, &block)
-        result = raw(*cmd, &block)
-
-        if result.exit_code != 0
-          if @interrupted
-            @logger.info("Exit code != 0, but interrupted. Ignoring.")
-          else
-            msg = result.stdout.gsub("\r\n", "\n")
-            msg << result.stderr.gsub("\r\n", "\n")
-            raise "#{cmd.inspect}\n#{msg}" #Errors::ExecuteError, :command => command.inspect
-          end
-        end
-
-        # Return the output, making sure to replace any Windows-style
-        # newlines with Unix-style.
-        result.stdout.gsub("\r\n", "\n")
-      end
-
-      def raw(*cmd, &block)
-        int_callback = lambda do
-          @interrupted = true
-          @logger.info("Interrupted.")
-        end
-
-        # Append in the options for subprocess
-        cmd << { :notify => [:stdout, :stderr] }
-
-        Vagrant::Util::Busy.busy(int_callback) do
-          Vagrant::Util::Subprocess.execute(*cmd, &block)
-        end
+        @executor.execute(*cmd, &block)
       end
     end
   end

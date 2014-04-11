@@ -38,6 +38,13 @@ module VagrantPlugins
       # @return [String]
       attr_accessor :name
 
+      # Whether or not this VM has a functional vboxsf filesystem module.
+      # This defaults to true. If you set this to false, then the "virtualbox"
+      # synced folder type won't be valid.
+      #
+      # @return [Boolean]
+      attr_accessor :functional_vboxsf
+
       # The defined network adapters.
       #
       # @return [Hash]
@@ -48,6 +55,7 @@ module VagrantPlugins
         @check_guest_additions = UNSET_VALUE
         @customizations   = []
         @destroy_unused_network_interfaces = UNSET_VALUE
+        @functional_vboxsf = UNSET_VALUE
         @name             = UNSET_VALUE
         @network_adapters = {}
         @gui              = UNSET_VALUE
@@ -111,6 +119,10 @@ module VagrantPlugins
 
         if @destroy_unused_network_interfaces == UNSET_VALUE
           @destroy_unused_network_interfaces = false
+        end
+
+        if @functional_vboxsf == UNSET_VALUE
+          @functional_vboxsf = true
         end
 
         # Default is to not show a GUI
