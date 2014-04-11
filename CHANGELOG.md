@@ -23,8 +23,7 @@ FEATURES:
 IMPROVEMENTS:
 
   - commands/ssh-config: Works without a target in multi-machine envs [GH-2844]
-  - guests/freebsd: Added `config.freebsd.device` setting to set the network
-      device prefix, defaults to "em". [GH-2956]
+  - guests/freebsd: Support for virtio interfaces. [GH-3082]
   - guests/openbsd: Support for virtio interfaces. [GH-3082]
 
 PLUGIN AUTHOR CHANGES:
