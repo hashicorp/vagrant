@@ -14,6 +14,7 @@ module VagrantPlugins
       attr_accessor :start_at_task
       attr_accessor :groups
       attr_accessor :host_key_checking
+      attr_accessor :generate_inventory
 
       # Joker attribute, used to pass unsupported arguments to ansible-playbook anyway
       attr_accessor :raw_arguments
@@ -36,6 +37,7 @@ module VagrantPlugins
         @host_key_checking = "false"
         @raw_arguments     = UNSET_VALUE
         @raw_ssh_args      = UNSET_VALUE
+        @generate_inventory= UNSET_VALUE
       end
 
       def finalize!
@@ -54,6 +56,9 @@ module VagrantPlugins
         @host_key_checking = nil if @host_key_checking == UNSET_VALUE
         @raw_arguments     = nil if @raw_arguments == UNSET_VALUE
         @raw_ssh_args      = nil if @raw_ssh_args == UNSET_VALUE
+
+        # backwards compatible inventory file generation logic
+        @generate_inventory= (not @inventory_path) if @generate_inventory == UNSET_VALUE
       end
 
       def validate(machine)
