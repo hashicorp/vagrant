@@ -150,7 +150,7 @@ module VagrantPlugins
           end
         end
 
-        return generated_inventory_file.to_s
+        return generated_inventory_dir.to_s
       end
 
       def get_extra_vars_argument
