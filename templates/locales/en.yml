@@ -467,7 +467,7 @@ en:
       box_remove_version_not_found: |-
         You requested to remove the box '%{name}' version '%{version}' with
         provider '%{provider}', but that specific version of the box is
-        not install. Please double-check and try again. The available versions
+        not installed. Please double-check and try again. The available versions
         for this box are:
 
         %{versions}
