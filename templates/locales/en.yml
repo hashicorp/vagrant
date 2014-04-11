@@ -1168,7 +1168,7 @@ en:
       box:
         no_installed_boxes: "There are no installed boxes! Use `vagrant box add` to add some."
         removing: |-
-          Removing box '%{name}' with provider '%{provider}'...
+          Removing box '%{name}' with provider '%{provider}' in version '%{version}'...
       destroy:
         confirmation: "Are you sure you want to destroy the '%{name}' VM? [y/N] "
         will_not_destroy: |-
