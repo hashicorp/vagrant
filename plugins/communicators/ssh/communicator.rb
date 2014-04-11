@@ -52,8 +52,10 @@ module VagrantPlugins
           ssh_auth_type = "password" if ssh_info[:password]
           @machine.ui.detail("SSH auth method: #{ssh_auth_type}")
 
+          attempts = 0
           while true
-            message = nil
+            attempts +=1
+            message  = nil
             begin
               begin
                 connect(retries: 1)
@@ -82,7 +84,9 @@ module VagrantPlugins
               # Ignore it, SSH is not ready, some other error.
             end
 
-            if message
+            # Start showing warning messages after the 3rd attempt, since
+            # the first couple are usually just waiting for actual booting.
+            if message && attempts >= 3
               @machine.ui.detail("Warning: #{message} Retrying...")
             end
           end

@@ -18,6 +18,8 @@ BUG FIXES:
   - commands/package: Nice error if includes contain symlinks. [GH-3200]
   - commands/rsync-auto: Don't crash if the machine can't be communicated
       to. [GH-3419]
+  - communicators/ssh: Only show connection warnings after three connection
+      attempt failures. [GH-3442]
   - guests/coreos: Docker provisioner works. [GH-3425]
   - guests/fedora: Fix hostname setting. [GH-3382]
   - guests/fedora: Support predictable network interface names for
