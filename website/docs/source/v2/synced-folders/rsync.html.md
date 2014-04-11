@@ -40,7 +40,7 @@ it will tell you.
 The rsync synced folder type accepts the following options:
 
 * `rsync__args` (array of strings) - A list of arguments to supply
-  to `rsync`. By default this is `["--verbose", "--archive", "--delete", "-z"]`.
+  to `rsync`. By default this is `["--verbose", "--archive", "--delete", "--copy-dirlinks", "-z"]`.
 
 * `rsync__auto` (boolean) - If false, then `rsync-auto` will not
   watch and automatically sync this folder. By default, this is true.
