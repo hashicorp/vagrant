@@ -35,7 +35,11 @@ module Vagrant
             fs.each do |id, data|
               data[:hostpath] = File.expand_path(
                 data[:hostpath], env[:root_path])
-              data[:hostpath] = File.realpath(data[:hostpath])
+
+              # Expand the symlink if this is a path that exists
+              if File.file?(data[:hostpath])
+                data[:hostpath] = File.realpath(data[:hostpath])
+              end
 
               # Create the hostpath if it doesn't exist and we've been told to
               if !File.directory?(data[:hostpath]) && data[:create]

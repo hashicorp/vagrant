@@ -4,6 +4,7 @@ require "tmpdir"
 require File.expand_path("../../../../base", __FILE__)
 
 describe Vagrant::Action::Builtin::SyncedFolders do
+  include_context "unit"
   include_context "synced folder actions"
 
   let(:app) { lambda { |env| } }
