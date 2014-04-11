@@ -73,7 +73,8 @@ module Vagrant
 
           env[:ui].info(I18n.t("vagrant.commands.box.removing",
                               :name => box.name,
-                              :provider => box.provider))
+                              :provider => box.provider,
+                              :version => box.version))
           box.destroy!
 
           # Passes on the removed box to the rest of the middleware chain
