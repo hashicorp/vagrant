@@ -1,10 +1,26 @@
 en:
   docker_provider:
+    creating: |-
+      Creating the container...
+    created: |-
+      Container created: %{id}
+    host_machine_needed: |-
+      Docker host is required. One will be created if necessary...
+    host_machine_ready: |-
+      Docker host VM is already ready.
+    host_machine_starting: |-
+      Vagrant will now create or start a local VM to act as the Docker
+      host. You'll see the output of the `vagrant up` for this VM below.
+
     messages:
+      destroying: |-
+        Deleting the container...
       not_created: |-
         The container hasn't been created yet.
       not_running: |-
         The container is not currently running.
+      provision_no_ssh: |-
+        Provisioners will not be run since container doesn't support SSH.
       will_not_destroy: |-
         The container will not be destroyed, since the confirmation was declined.
       starting: |-
@@ -13,6 +29,23 @@ en:
         Stopping container...
       container_ready: |-
         Container started and ready for use!
+
+    status:
+      host_state_unknown: |-
+        The host VM for the Docker containers appears to not be running
+        or is currently inaccessible. Because of this, we can't determine
+        the state of the containers on that host. Run `vagrant up` to
+        bring up the host VM again.
+      not_created: |-
+        The environment has not yet been created. Run `vagrant up` to
+        create the environment. If a machine is not created, only the
+        default provider will be shown. So if a provider is not listed,
+        then the machine is not created for that environment.
+      stopped: |-
+        The container is created but not running. You can run it again
+        with `vagrant up`. If the container always goes to "stopped"
+        right away after being started, it is because the command being
+        run exits and doesn't keep running.
 
     errors:
       config:
@@ -25,6 +58,16 @@ en:
         and try again.
       docker_provider_image_not_configured: |-
         The base Docker image has not been set for the '%{name}' VM!
+      execute_error: |-
+        A Docker command executed by Vagrant didn't complete successfully!
+        The command run along with the output from the command is shown
+        below.
+
+        Command: %{command}
+
+        Stderr: %{stderr}
+
+        Stdout: %{stdout}
       synced_folder_non_docker: |-
         The "docker" synced folder type can't be used because the  provider
         in use is not Docker. This synced folder type only works with the

@@ -3,9 +3,10 @@ require "vagrant/util/platform"
 module VagrantPlugins
   module ProviderVirtualBox
     class SyncedFolder < Vagrant.plugin("2", :synced_folder)
-      def usable?(machine)
+      def usable?(machine, raise_errors=false)
         # These synced folders only work if the provider if VirtualBox
-        machine.provider_name == :virtualbox
+        machine.provider_name == :virtualbox &&
+          machine.provider_config.functional_vboxsf
       end
 
       def prepare(machine, folders, _opts)

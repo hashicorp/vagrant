@@ -293,9 +293,12 @@ module Vagrant
         # Fast-path if there is no prefix
         return message if prefix.empty?
 
+        target = @prefix
+        target = opts[:target] if opts.has_key?(:target)
+
         # Otherwise, make sure to prefix every line properly
         message.split("\n").map do |line|
-          "#{prefix}#{@prefix}: #{line}"
+          "#{prefix}#{target}: #{line}"
         end.join("\n")
       end
     end

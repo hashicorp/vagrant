@@ -7,10 +7,9 @@ module VagrantPlugins
         end
 
         def call(env)
-          env[:ui].info I18n.t("vagrant.actions.vm.destroy.destroying")
+          env[:ui].info I18n.t("docker_provider.messages.destroying")
 
           machine = env[:machine]
-          config  = machine.provider_config
           driver  = machine.provider.driver
 
           driver.rm(machine.id)

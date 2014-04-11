@@ -9,13 +9,30 @@ module VagrantPlugins
       def self.action_up
         Vagrant::Action::Builder.new.tap do |b|
           b.use ConfigValidate
+          b.use HandleBox
+
+          b.use Call, IsState, :host_state_unknown do |env, b2|
+            if env[:result]
+              b2.use HostMachine
+            end
+          end
+
           b.use Call, IsState, :not_created do |env, b2|
             # If the VM is NOT created yet, then do the setup steps
             if env[:result]
-              b2.use HandleBox
               b2.use EnvSet, :port_collision_repair => true
               b2.use HandleForwardedPortCollisions
-              b2.use Provision
+
+              b2.use Call, HasSSH do |env2, b3|
+                if env2[:result]
+                  b3.use Provision
+                else
+                  b3.use Message,
+                    I18n.t("docker_provider.messages.provision_no_ssh"),
+                    post: true
+                end
+              end
+
               b2.use PrepareNFSValidIds
               b2.use SyncedFolderCleanup
               b2.use SyncedFolders
@@ -61,6 +78,12 @@ module VagrantPlugins
       # the virtual machine, gracefully or by force.
       def self.action_halt
         Vagrant::Action::Builder.new.tap do |b|
+          b.use Call, IsState, :host_state_unknown do |env, b2|
+            if env[:result]
+              b2.use HostMachine
+            end
+          end
+
           b.use Call, IsState, :not_created do |env, b2|
             if env[:result]
               b2.use Message, I18n.t("docker_provider.messages.not_created")
@@ -98,6 +121,12 @@ module VagrantPlugins
       # freeing the resources of the underlying virtual machine.
       def self.action_destroy
         Vagrant::Action::Builder.new.tap do |b|
+          b.use Call, IsState, :host_state_unknown do |env, b2|
+            if env[:result]
+              b2.use HostMachine
+            end
+          end
+
           b.use Call, IsState, :not_created do |env, b2|
             if env[:result]
               b2.use Message, I18n.t("docker_provider.messages.not_created")
@@ -177,7 +206,12 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           # TODO: b.use SetHostname
           b.use Start
-          b.use WaitForCommunicator
+
+          b.use Call, HasSSH do |env, b2|
+            if env[:result]
+              b2.use WaitForCommunicator
+            end
+          end
         end
       end
 
@@ -186,6 +220,8 @@ module VagrantPlugins
       autoload :Create, action_root.join("create")
       autoload :Destroy, action_root.join("destroy")
       autoload :ForwardPorts, action_root.join("forward_ports")
+      autoload :HasSSH, action_root.join("has_ssh")
+      autoload :HostMachine, action_root.join("host_machine")
       autoload :Stop, action_root.join("stop")
       autoload :PrepareNFSValidIds, action_root.join("prepare_nfs_valid_ids")
       autoload :PrepareNFSSettings, action_root.join("prepare_nfs_settings")

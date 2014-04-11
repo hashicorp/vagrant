@@ -46,15 +46,14 @@ module Vagrant
           builder = Builder.new
           @block.call(new_env, builder)
 
-          # Run the result with our new environment
+          # Append our own app onto the builder so we slide the new
+          # stack into our own chain...
+          builder.use @app
           @child_app = builder.to_app(new_env)
-          final_env = runner.run(@child_app, new_env)
+          final_env  = runner.run(@child_app, new_env)
 
           # Merge the environment into our original environment
           env.merge!(final_env)
-
-          # Call the next step using our final environment
-          @app.call(env)
         end
 
         def recover(env)
