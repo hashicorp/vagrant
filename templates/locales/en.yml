@@ -154,11 +154,17 @@ en:
       %{names}
     provisioner_cleanup: |-
       Running cleanup tasks for '%{name}' provisioner...
+    rsync_auto_initial: |-
+      Doing an initial rsync...
     rsync_auto_path: |-
       Watching: %{path}
     rsync_communicator_not_ready: |-
       The machine is reporting that it is not ready for rsync to
       communiate with it. Verify that this machine is properly running.
+    rsync_communicator_not_ready_callback: |-
+      Failed to connect to remote machine. This is usually caused by the
+      machine rebooting or being halted. Please make sure the machine is
+      running, and modify a file to try again.
     rsync_folder: |-
       Rsyncing folder: %{hostpath} => %{guestpath}
     rsync_folder_excludes: "  - Exclude: %{excludes}"
@@ -187,6 +193,10 @@ en:
       amount of disk space. After it is done upgrading, the temporary disk
       space will be freed.
 
+      Press ctrl-c now to exit if you want to remove some boxes or free
+      up some disk space.
+
+      Press any other key to continue.
     cfengine_config:
       classes_array: |-
         The 'classes' configuration must be an array.
@@ -485,6 +495,13 @@ en:
         directly instead of from a box catalog. Vagrant can only
         check the versions of boxes that were added from a catalog
         such as from the public Vagrant Server.
+      box_url_is_network_share: |-
+        You specified a network share path as a path to add a box. Vagrant
+        current doesn't support network share URLs. Please copy the file
+        from the network share to your local machine, then add it from
+        there.
+
+        URL: %{url}
       bundler_disabled: |-
         Vagrant's built-in bundler management mechanism is disabled because
         Vagrant is running in an external bundler environment. In these
@@ -779,6 +796,10 @@ en:
         You can however, install a plugin with the same name to replace
         these plugins. User-installed plugins take priority over
         system-installed plugins.
+      package_include_symlink: |-
+        A file or directory you're attempting to include with your packaged
+        box has symlinks in it. Vagrant cannot include symlinks in the
+        resulting package. Please remove the symlinks and try again.
       provider_not_found: |-
         The provider '%{provider}' could not be found, but was requested to
         back the machine '%{machine}'. Please use a provider that exists.

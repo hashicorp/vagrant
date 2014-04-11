@@ -1,16 +1,37 @@
 ## 1.5.3 (unreleased)
 
+IMPROVEMENTS:
+
+  - core: 1.5 upgrade code gives users a chance to quit. [GH-3212]
+  - commands/rsync-auto: An initial sync is done before watching folders. [GH-3327]
+
 BUG FIXES:
 
   - core: Randomize some filenames internally to improve the parallelism
       of Vagrant. [GH-3386]
   - core: Don't error if network problems cause box update check to
       fail [GH-3391]
+  - core: `vagrant` on Windows cmd.exe doesn't always exit with exit
+      code zero. [GH-3420]
+  - core: Adding a box from a network share has nice error on Windows. [GH-3279]
+  - core: Setting an ID on a provisioner now works. [GH-3424]
+  - commands/package: Nice error if includes contain symlinks. [GH-3200]
+  - commands/rsync-auto: Don't crash if the machine can't be communicated
+      to. [GH-3419]
+  - guests/coreos: Docker provisioner works. [GH-3425]
   - guests/fedora: Fix hostname setting. [GH-3382]
   - guests/fedora: Support predictable network interface names for
       public/private networks. [GH-3207]
+  - guests/linux: Rsync folders have proper group if owner not set. [GH-3223]
+  - guests/linux: If SMB folder mounting fails, the password will no
+      longer be shown in plaintext in the output. [GH-3203]
+  - guests/linux: SMB mount works with passwords with symbols. [GH-3202]
+  - providers/hyperv: Check for PowerShell features. [GH-3398]
+  - provisioners/shell: Empty shell scripts don't cause errors. [GH-3423]
   - synced\_folders/smb: Only set the chmod properly by default on Windows
       if it isn't already set. [GH-3394]
+  - synced\_folders/smb: Sharing folders with odd characters like parens
+      works properly now. [GH-3405]
 
 ## 1.5.2 (April 2, 2014)
 

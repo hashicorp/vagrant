@@ -167,3 +167,14 @@ Vagrant.configure("2") do |config|
   end
 end
 ```
+
+## Other
+
+This section documents some other things related to the Docker provisioner
+that are generally useful to know if you're using this provisioner.
+
+### Customize `/etc/default/docker`
+
+To customize this file, use a shell provisioner before the Docker provisioner
+that sets this file up. The Docker provisioner will not modify this file
+in a destructive way.

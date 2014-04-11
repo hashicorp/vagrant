@@ -232,6 +232,10 @@ module Vagrant
       error_key(:box_update_no_metadata)
     end
 
+    class BoxUrlIsNetworkShare < VagrantError
+      error_key(:box_url_is_network_share)
+    end
+
     class BoxVerificationFailed < VagrantError
       error_key(:failed, "vagrant.actions.box.verify")
     end
@@ -454,6 +458,10 @@ module Vagrant
 
     class PackageIncludeMissing < VagrantError
       error_key(:include_file_missing, "vagrant.actions.general.package")
+    end
+
+    class PackageIncludeSymlink < VagrantError
+      error_key(:package_include_symlink)
     end
 
     class PackageOutputDirectory < VagrantError

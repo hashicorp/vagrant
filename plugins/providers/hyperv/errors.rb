@@ -22,6 +22,10 @@ module VagrantPlugins
         error_key(:no_switches)
       end
 
+      class PowerShellFeaturesDisabled < HyperVError
+        error_key(:powershell_features_disabled)
+      end
+
       class PowerShellError < HyperVError
         error_key(:powershell_error)
       end

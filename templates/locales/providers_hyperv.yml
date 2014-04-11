@@ -51,6 +51,10 @@ en:
 
         For more help, please see the documentation on the Vagrant website
         for Hyper-V.
+      powershell_features_disabled: |-
+        The Hyper-V cmdlets for PowerShell are not available! Vagrant
+        requires these to control Hyper-V. Please enable them in the
+        "Windows Features" control panel and try again.
       powershell_error: |-
         An error occurred while executing a PowerShell script. This error
         is shown below. Please read the error message and see if this is

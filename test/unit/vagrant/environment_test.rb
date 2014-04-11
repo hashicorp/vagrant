@@ -99,6 +99,9 @@ describe Vagrant::Environment do
         env.homedir.join("setup_version").open("w") do |f|
           f.write("1.1")
         end
+
+        allow_any_instance_of(Vagrant::UI::Silent).
+          to receive(:ask)
       end
 
       it "replaces the setup version with the new version" do

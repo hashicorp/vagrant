@@ -1,9 +1,11 @@
 require "log4r"
 require 'optparse'
+require "thread"
 
 require "listen"
 
 require "vagrant/action/builtin/mixin_synced_folders"
+require "vagrant/util/busy"
 
 require_relative "../helper"
 
@@ -35,6 +37,16 @@ module VagrantPlugins
           with_target_vms(argv) do |machine|
             folders = synced_folders(machine)[:rsync]
             next if !folders || folders.empty?
+
+            # Get the SSH info for this machine so we can do an initial
+            # sync to the VM.
+            ssh_info = machine.ssh_info
+            if ssh_info
+              machine.ui.info(I18n.t("vagrant.rsync_auto_initial"))
+              folders.each do |id, folder_opts|
+                RsyncHelper.rsync_single(machine, ssh_info, folder_opts)
+              end
+            end
 
             folders.each do |id, folder_opts|
               # If we marked this folder to not auto sync, then
@@ -76,8 +88,22 @@ module VagrantPlugins
           @logger.info("Listening via: #{Listen::Adapter.select.inspect}")
           callback = method(:callback).to_proc.curry[paths]
           listener = Listen.to(*paths.keys, ignore: ignores, &callback)
-          listener.start
-          listener.thread.join
+
+          # Create the callback that lets us know when we've been interrupted
+          queue    = Queue.new
+          callback = lambda do
+            # This needs to execute in another thread because Thread
+            # synchronization can't happen in a trap context.
+            Thread.new { queue << true }.join
+          end
+
+          # Run the listener in a busy block so that we can cleanly
+          # exit once we receive an interrupt.
+          Vagrant::Util::Busy.busy(callback) do
+            listener.start
+            queue.pop
+            listener.stop if listener.listen?
+          end
 
           0
         end
@@ -112,7 +138,14 @@ module VagrantPlugins
           tosync.each do |folders|
             folders.each do |opts|
               ssh_info = opts[:machine].ssh_info
-              RsyncHelper.rsync_single(opts[:machine], ssh_info, opts[:opts])
+              begin
+                RsyncHelper.rsync_single(opts[:machine], ssh_info, opts[:opts])
+              rescue Vagrant::Errors::MachineGuestNotReady
+                # Error communicating to the machine, probably a reload or
+                # halt is happening. Just notify the user but don't fail out.
+                opts[:machine].ui.error(I18n.t(
+                  "vagrant.rsync_communicator_not_ready_callback"))
+              end
             end
           end
         end
