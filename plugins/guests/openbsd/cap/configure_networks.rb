@@ -18,10 +18,10 @@ module VagrantPlugins
             temp.write(entry)
             temp.close
 
+            # Determine the interface prefix...
             command = "ifconfig -a | grep -o ^[0-9a-z]*"
             result = ""
             ifname = ""
-
             machine.communicate.execute(command) do |type, data|
               result << data if type == :stdout
               if result.split(/\n/).any?{|i| i.match(/vio*/)}
@@ -30,6 +30,7 @@ module VagrantPlugins
                 ifname = "em#{network[:interface]}"
               end
             end
+
             machine.communicate.upload(temp.path, "/tmp/vagrant-network-entry")
             machine.communicate.sudo("mv /tmp/vagrant-network-entry /etc/hostname.#{ifname}")
 

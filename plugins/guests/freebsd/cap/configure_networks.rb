@@ -13,7 +13,19 @@ module VagrantPlugins
           machine.communicate.sudo("sed -i '' -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/rc.conf", {:shell => "sh"})
 
           networks.each do |network|
-            device = "#{machine.config.freebsd.device}#{network[:interface]}"
+            # Determine the interface prefix...
+            command = "ifconfig -a | grep -o ^[0-9a-z]*"
+            result = ""
+            ifname = ""
+            machine.communicate.execute(command) do |type, data|
+              result << data if type == :stdout
+              if result.split(/\n/).any?{|i| i.match(/vio*/)}
+                ifname = "vio#{network[:interface]}"
+              else
+                ifname = "em#{network[:interface]}"
+              end
+            end
+
             entry  = TemplateRenderer.render("guests/freebsd/network_#{network[:type]}",
                                             :options => network)
 
@@ -28,9 +40,9 @@ module VagrantPlugins
             machine.communicate.sudo("rm /tmp/vagrant-network-entry", {:shell => "sh"})
 
             if network[:type].to_sym == :static
-              machine.communicate.sudo("ifconfig #{device} inet #{network[:ip]} netmask #{network[:netmask]}", {:shell => "sh"})
+              machine.communicate.sudo("ifconfig #{ifname} inet #{network[:ip]} netmask #{network[:netmask]}", {:shell => "sh"})
             elsif network[:type].to_sym == :dhcp
-              machine.communicate.sudo("dhclient #{device}", {:shell => "sh"})
+              machine.communicate.sudo("dhclient #{ifname}", {:shell => "sh"})
             end
           end
         end
