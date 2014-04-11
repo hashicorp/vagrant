@@ -33,7 +33,9 @@ module Vagrant
           # it does not exist on host
           folders.each do |_, fs|
             fs.each do |id, data|
-              data[:hostpath] = File.expand_path(data[:hostpath], env[:root_path])
+              data[:hostpath] = File.expand_path(
+                data[:hostpath], env[:root_path])
+              data[:hostpath] = File.realpath(data[:hostpath])
 
               # Create the hostpath if it doesn't exist and we've been told to
               if !File.directory?(data[:hostpath]) && data[:create]
