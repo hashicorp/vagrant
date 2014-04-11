@@ -122,6 +122,8 @@ en:
       -- Image: %{name}
     docker_building_single: |-
       -- Path: %{path}
+    docker_building_images:
+      Building Docker images...
     docker_running: |-
       -- Container: %{name}
     docker_starting_containers:
