@@ -19,8 +19,8 @@ module VagrantPlugins
             ifname = ""
             machine.communicate.execute(command) do |type, data|
               result << data if type == :stdout
-              if result.split(/\n/).any?{|i| i.match(/vio*/)}
-                ifname = "vio#{network[:interface]}"
+              if result.split(/\n/).any?{|i| i.match(/vtnet*/)}
+                ifname = "vtnet#{network[:interface]}"
               else
                 ifname = "em#{network[:interface]}"
               end
