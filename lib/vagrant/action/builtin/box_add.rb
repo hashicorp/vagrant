@@ -70,7 +70,8 @@ module Vagrant
           # Call the hook to transform URLs into authenticated URLs.
           # In the case we don't have a plugin that does this, then it
           # will just return the same URLs.
-          hook_env    = env[:hook].call(:authenticate_box_url, box_urls: url.dup)
+          hook_env    = env[:hook].call(
+            :authenticate_box_url, box_urls: url.dup)
           authed_urls = hook_env[:box_urls]
           if !authed_urls || authed_urls.length != url.length
             raise "Bad box authentication hook, did not generate proper results."

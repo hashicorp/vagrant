@@ -354,7 +354,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
           expect(name).to eq("foo/bar")
           expect(version).to eq("0.7")
           expect(checksum(path)).to eq(checksum(box_path))
-          expect(opts[:metadata_url]).to eq(env[:box_url])
+          expect(opts[:metadata_url]).to eq("foo")
           true
         }.and_return(box)
 
