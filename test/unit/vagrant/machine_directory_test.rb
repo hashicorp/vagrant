@@ -79,7 +79,17 @@ describe Vagrant::MachineIndex do
             "vagrantfile_path" => "/foo/bar/baz",
             "state" => "running",
             "updated_at" => "foo",
-          }
+          },
+          "baz" => {
+            "name" => "default",
+            "provider" => "vmware",
+            "vagrantfile_path" => "/foo/bar/baz",
+            "state" => "running",
+            "updated_at" => "foo",
+            "extra_data" => {
+              "foo" => "bar",
+            },
+          },
         }
       }
 
@@ -101,6 +111,15 @@ describe Vagrant::MachineIndex do
       expect(result.vagrantfile_path).to eq(Pathname.new("/foo/bar/baz"))
       expect(result.state).to eq("running")
       expect(result.updated_at).to eq("foo")
+      expect(result.extra_data).to eq({})
+    end
+
+    it "returns a valid entry with extra data" do
+      result = subject.get("baz")
+      expect(result.id).to eq("baz")
+      expect(result.extra_data).to eq({
+        "foo" => "bar",
+      })
     end
 
     it "returns a valid entry by unique prefix" do
@@ -191,6 +210,7 @@ describe Vagrant::MachineIndex do
       expect(result.id).to_not be_empty
 
       result.name = "bar"
+      result.extra_data["foo"] = "bar"
 
       nextresult = subject.set(result)
       expect(nextresult.id).to eq(result.id)
@@ -203,6 +223,9 @@ describe Vagrant::MachineIndex do
       entry   = subject.get(result.id)
       expect(entry).to_not be_nil
       expect(entry.name).to eq("bar")
+      expect(entry.extra_data).to eq({
+        "foo" => "bar",
+      })
     end
   end
 end

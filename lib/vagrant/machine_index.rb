@@ -318,6 +318,12 @@ module Vagrant
       # @return [DateTime]
       attr_reader :updated_at
 
+      # Extra data to store with the index entry. This can be anything
+      # and is treated like a general global state bag.
+      #
+      # @return [Hash]
+      attr_accessor :extra_data
+
       # Initializes an entry.
       #
       # The parameter given should be nil if this is being created
@@ -333,6 +339,7 @@ module Vagrant
         @vagrantfile_path = Pathname.new(raw["vagrantfile_path"])
         # TODO(mitchellh): parse into a proper datetime
         @updated_at       = raw["updated_at"]
+        @extra_data       = raw["extra_data"] || {}
       end
 
       # Converts to the structure used by the JSON
@@ -343,6 +350,7 @@ module Vagrant
           "state"            => @state,
           "vagrantfile_path" => @vagrantfile_path,
           "updated_at"       => @updated_at,
+          "extra_data"       => @extra_data,
         }
       end
     end
