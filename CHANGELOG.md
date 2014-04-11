@@ -4,6 +4,8 @@ IMPROVEMENTS:
 
   - core: 1.5 upgrade code gives users a chance to quit. [GH-3212]
   - commands/rsync-auto: An initial sync is done before watching folders. [GH-3327]
+  - commands/rsync-auto: Exit immediately if there are no paths to watch.
+      [GH-3446]
 
 BUG FIXES:
 
@@ -18,8 +20,6 @@ BUG FIXES:
   - commands/package: Nice error if includes contain symlinks. [GH-3200]
   - commands/rsync-auto: Don't crash if the machine can't be communicated
       to. [GH-3419]
-  - commands/rsync-auto: Exit immediately if there are no paths to watch.
-      [GH-3446]
   - communicators/ssh: Only show connection warnings after three connection
       attempt failures. [GH-3442]
   - guests/coreos: Docker provisioner works. [GH-3425]
