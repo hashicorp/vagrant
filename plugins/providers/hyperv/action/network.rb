@@ -69,8 +69,6 @@ module VagrantPlugins
             network_adapters_config[slot] = data
           end
 
-          puts "Network adapter: #{network_adapters_config}"
-
           @logger.info("Determining adapters and compiling network configuration...")
           adapters = []
           networks = []
@@ -79,29 +77,22 @@ module VagrantPlugins
             options = data[1]
 
             @logger.info("Network slot #{slot}. Type: #{type}.")
-            puts "Network slot #{slot}. Type: #{type}."
 
             # Get the normalized configuration for this type
             config = send("#{type}_config", options)
             config[:adapter] = slot
             @logger.debug("Normalized configuration: #{config.inspect}")
-            puts "Normalized configuration: #{config.inspect}"
 
             # Get the HyperV adapter configuration
             adapter = send("#{type}_adapter", config)
             adapters << adapter
             @logger.debug("Adapter configuration: #{adapter.inspect}")
-            puts "Adapter configuration: #{adapter.inspect}"
 
             # Get the network configuration
             network = send("#{type}_network_config", config)
             network[:auto_config] = config[:auto_config]
             networks << network
-
-            puts "Network configuration: #{network.inspect}"
           end
-
-          puts "++++++++++++ Before Networks to configure: #{networks.inspect}"
 
           if !adapters.empty?
             # Enable the adapters
