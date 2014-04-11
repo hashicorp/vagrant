@@ -16,7 +16,7 @@ module VagrantPlugins
         #
 
         # Connect with Vagrant SSH identity
-        options = %W[--private-key=#{@ssh_info[:private_key_path][0]} --user=#{@ssh_info[:username]}]
+        options = "--inventory-file=#{self.setup_inventory_file}"
 
         # Multiple SSH keys and/or SSH forwarding can be passed via
         # ANSIBLE_SSH_ARGS environment variable, which requires 'ssh' mode.
@@ -38,7 +38,6 @@ module VagrantPlugins
         # 3) Append Provisioner options (highest precedence):
         #
 
-        options << "--inventory-file=#{self.setup_inventory_file}"
         options << "--extra-vars=#{self.get_extra_vars_argument}" if config.extra_vars
         options << "--sudo" if config.sudo
         options << "--sudo-user=#{config.sudo_user}" if config.sudo_user
@@ -105,7 +104,7 @@ module VagrantPlugins
             begin
               m = @machine.env.machine(*am)
               if !m.ssh_info.nil?
-                file.write("#{m.name} ansible_ssh_host=#{m.ssh_info[:host]} ansible_ssh_port=#{m.ssh_info[:port]}\n")
+                file.write("#{m.name} ansible_ssh_host=#{m.ssh_info[:host]} ansible_ssh_port=#{m.ssh_info[:port]} ansible_ssh_user=#{m.ssh_info[:username]} ansible_ssh_private_key_file=#{m.ssh_info[:private_key_path][0]}\n")
                 inventory_machines[m.name] = m
               else
                 @logger.error("Auto-generated inventory: Impossible to get SSH information for machine '#{m.name} (#{m.provider_name})'. This machine should be recreated.")
