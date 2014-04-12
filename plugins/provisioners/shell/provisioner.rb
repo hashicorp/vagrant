@@ -24,6 +24,22 @@ module VagrantPlugins
 
       protected
 
+      # This handles outputting the communication data back to the UI
+      def handle_comm(type, data)
+        if [:stderr, :stdout].include?(type)
+          # Output the data with the proper color based on the stream.
+          color = type == :stdout ? :green : :red
+
+          options = {
+            new_line: false,
+            prefix: false,
+          }
+          options[:color] = color if !config.keep_color
+
+          @machine.env.ui.info(data, options)
+        end
+      end
+
       # This is the provision method called if SSH is what is running
       # on the remote end, which assumes a POSIX-style host.
       def provision_ssh(args)
@@ -49,18 +65,7 @@ module VagrantPlugins
 
             # Execute it with sudo
             comm.execute(command, sudo: config.privileged) do |type, data|
-              if [:stderr, :stdout].include?(type)
-                # Output the data with the proper color based on the stream.
-                color = type == :stdout ? :green : :red
-
-                options = {
-                  new_line: false,
-                  prefix: false,
-                }
-                options[:color] = color if !config.keep_color
-
-                @machine.env.ui.info(data, options)
-              end
+              handle_comm(type, data)
             end
           end
         end
@@ -97,14 +102,7 @@ module VagrantPlugins
 
             # Execute it with sudo
             comm.sudo(command) do |type, data|
-              if [:stderr, :stdout].include?(type)
-                # Output the data with the proper color based on the stream.
-                color = type == :stdout ? :green : :red
-
-                @machine.ui.info(
-                  data,
-                  :color => color, :new_line => false, :prefix => false)
-              end
+              handle_comm(type, data)
             end
         end
       end
