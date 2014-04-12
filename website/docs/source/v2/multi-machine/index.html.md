@@ -68,11 +68,14 @@ The moment more than one machine is defined within a Vagrantfile, the
 usage of the various `vagrant` commands changes slightly. The change should
 be mostly intuitive.
 
-Most commands, such as `vagrant up`, begin requiring the name of the machine
-to control. Using the example above, you could say `vagrant up web`, or
-`vagrant up db`. If no name is specified, it is assumed you mean to perform
-that operation on every machine. Therefore, `vagrant up` alone will bring
-up both the web and DB machine.
+Commands that only make sense to target a single machine, such as
+`vagrant ssh`, now _require_ the name of the machine to control. Using
+the example above, you would say `vagrant ssh web` or `vagrant ssh db`.
+
+Other commands, such as `vagrant up`, operate on _every_ machine by
+default. So if you ran `vagrant up`, Vagrant would bring up both the
+web and DB machine. You could also optionally be specific and say
+`vagrant up web` or `vagrant up db`.
 
 Additionally, you can specify a regular expression for matching only
 certain machines. This is useful in some cases where you specify many similar
