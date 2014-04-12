@@ -15,6 +15,34 @@ module VagrantPlugins
           args = " #{args.join(" ")}"
         end
 
+        if @config.vm.communicator == :winrm
+          provision_winrm(args)
+        else
+          provision_ssh(args)
+        end
+      end
+
+      protected
+
+      # This handles outputting the communication data back to the UI
+      def handle_comm(type, data)
+        if [:stderr, :stdout].include?(type)
+          # Output the data with the proper color based on the stream.
+          color = type == :stdout ? :green : :red
+
+          options = {
+            new_line: false,
+            prefix: false,
+          }
+          options[:color] = color if !config.keep_color
+
+          @machine.env.ui.info(data, options)
+        end
+      end
+
+      # This is the provision method called if SSH is what is running
+      # on the remote end, which assumes a POSIX-style host.
+      def provision_ssh(args)
         command = "chmod +x #{config.upload_path} && #{config.upload_path}#{args}"
 
         with_script_file do |path|
@@ -37,24 +65,58 @@ module VagrantPlugins
 
             # Execute it with sudo
             comm.execute(command, sudo: config.privileged) do |type, data|
-              if [:stderr, :stdout].include?(type)
-                # Output the data with the proper color based on the stream.
-                color = type == :stdout ? :green : :red
-
-                options = {
-                  new_line: false,
-                  prefix: false,
-                }
-                options[:color] = color if !config.keep_color
-
-                @machine.env.ui.info(data, options)
-              end
+              handle_comm(type, data)
             end
           end
         end
       end
 
-      protected
+      # This provisions using WinRM, which assumes a PowerShell
+      # console on the other side.
+      def provision_winrm(args)
+        if @machine.guest.capability?(:wait_for_reboot)
+          @machine.guest.capability(:wait_for_reboot)
+        end
+
+        with_script_file do |path|
+          @machine.communicate.tap do |comm|
+            # Make sure that the upload path has an extension, since
+            # having an extension is critical for Windows execution
+            upload_path = config.upload_path.to_s
+            if File.extname(upload_path) == ""
+              upload_path += File.extname(path.to_s)
+            end
+
+            # Upload it
+            comm.upload(path.to_s, upload_path)
+
+            # Calculate the path that we'll be executing
+            exec_path = upload_path
+            exec_path.gsub!('/', '\\')
+            exec_path = "c:#{exec_path}" if exec_path.start_with?("\\")
+
+            command = <<-EOH
+            $old = Get-ExecutionPolicy;
+            Set-ExecutionPolicy Unrestricted -force;
+            #{exec_path}#{args};
+            Set-ExecutionPolicy $old -force
+            EOH
+
+            if config.path
+              @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
+                                      script: exec_path))
+            else
+              @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
+                                      script: "inline PowerShell script"))
+            end
+
+            # Execute it with sudo
+            comm.sudo(command) do |type, data|
+              handle_comm(type, data)
+            end
+          end
+        end
+      end
 
       # Quote and escape strings for shell execution, thanks to Capistrano.
       def quote_and_escape(text, quote = '"')
@@ -65,31 +127,43 @@ module VagrantPlugins
       # on the remote server. This method will properly clean up the
       # script file if needed.
       def with_script_file
+        ext    = nil
         script = nil
 
         if config.remote?
-          download_path = @machine.env.tmp_path.join("#{@machine.id}-remote-script")
+          download_path = @machine.env.tmp_path.join(
+            "#{@machine.id}-remote-script")
           download_path.delete if download_path.file?
 
-          Vagrant::Util::Downloader.new(config.path, download_path).download!
-          script = download_path.read
+          begin
+            Vagrant::Util::Downloader.new(config.path, download_path).download!
+            ext    = File.extname(config.path)
+            script = download_path.read
+          ensure
+            download_path.delete if download_path.file?
+          end
 
           download_path.delete
         elsif config.path
           # Just yield the path to that file...
           root_path = @machine.env.root_path
+          ext    = File.extname(config.path)
           script = Pathname.new(config.path).expand_path(root_path).read
         else
           # The script is just the inline code...
+          ext    = ".ps1"
           script = config.inline
         end
 
         # Replace Windows line endings with Unix ones unless binary file
-        script.gsub!(/\r\n?$/, "\n") if !config.binary
+        # or we're running on Windows.
+        if !config.binary && config.vm.communicator != :winrm
+          script.gsub!(/\r\n?$/, "\n")
+        end
 
         # Otherwise we have an inline script, we need to Tempfile it,
         # and handle it specially...
-        file = Tempfile.new('vagrant-shell')
+        file = Tempfile.new(['vagrant-shell', ext])
 
         # Unless you set binmode, on a Windows host the shell script will
         # have CRLF line endings instead of LF line endings, causing havoc
