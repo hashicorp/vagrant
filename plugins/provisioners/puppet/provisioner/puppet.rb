@@ -44,6 +44,12 @@ module VagrantPlugins
         end
 
         def provision
+          # If the machine has a wait for reboot functionality, then
+          # do that (primarily Windows)
+          if @machine.guest.capability?(:wait_for_reboot)
+            @machine.guest.capability(:wait_for_reboot)
+          end
+
           # Check that the shared folders are properly shared
           check = []
           if @config.manifests_path[0] == :host
