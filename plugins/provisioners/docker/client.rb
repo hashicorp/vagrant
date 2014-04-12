@@ -43,7 +43,8 @@ module VagrantPlugins
           @machine.ui.info(I18n.t("vagrant.docker_running", name: name))
           @machine.communicate.sudo("mkdir -p #{cids_dir}")
           run_container({
-            name: name
+            name: name,
+            original_name: name,
           }.merge(config))
         end
       end
@@ -75,9 +76,16 @@ module VagrantPlugins
       end
 
       def create_container(config)
+        name = config[:name]
+
+        # If the name is the automatically assigned name, then
+        # replace the "/" with "-" because "/" is not a valid
+        # character for a docker container name.
+        name = name.gsub("/", "-") if name == config[:original_name]
+
         args = "--cidfile=#{config[:cidfile]} "
         args << "-d " if config[:daemonize]
-        args << "--name #{config[:name]} " if config[:name] && config[:auto_assign_name]
+        args << "--name #{name} " if name && config[:auto_assign_name]
         args << config[:args] if config[:args]
         @machine.communicate.sudo %[
           rm -f #{config[:cidfile]}
