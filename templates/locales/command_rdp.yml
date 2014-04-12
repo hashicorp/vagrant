@@ -1,6 +1,15 @@
 en:
   vagrant_rdp:
     errors:
+      guest_unsupported: |-
+        The guest OS detected by Vagrant ('%{name}') is reporting
+        that it does not supported RDP connections. If this is an
+        error, it is because Vagrant does not know how to connect
+        via RDP to this guest.
+
+        Please open an issue documenting how to connect via RDP
+        to this guest OS and we can fix this.
+
       host_unsupported: |-
         Vagrant doesn't support running an RDP client on your
         host OS. Currently only Windows is supported for RDP

@@ -945,7 +945,7 @@ en:
         taking too long to reboot. First, try reloading your machine with
         `vagrant reload`, since a simple restart sometimes fixes things.
         If that doesn't work, destroy your machine and recreate it with
-        a `vagrant destroy` followed by a `1vagrant up`. If that doesn't work,
+        a `vagrant destroy` followed by a `vagrant up`. If that doesn't work,
         contact support.
       ssh_connection_timeout: |-
         Vagrant timed out while attempting to connect via SSH. This usually
