@@ -100,6 +100,14 @@ module VagrantPlugins
             Set-ExecutionPolicy $old -force
             EOH
 
+            if config.path
+              @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
+                                      script: exec_path))
+            else
+              @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
+                                      script: "inline PowerShell script"))
+            end
+
             # Execute it with sudo
             comm.sudo(command) do |type, data|
               handle_comm(type, data)
