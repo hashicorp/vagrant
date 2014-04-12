@@ -49,6 +49,11 @@ module VagrantPlugins
         Cap::MountSharedFolder
       end
 
+      guest_capability(:windows, :rdp_info) do
+        require_relative "cap/rdp"
+        Cap::RDP
+      end
+
       guest_capability(:windows, :wait_for_reboot) do
         require_relative "cap/reboot"
         Cap::Reboot
