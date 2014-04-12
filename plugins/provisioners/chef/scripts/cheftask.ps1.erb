@@ -1,0 +1,48 @@
+# kill the task so we can recreate it
+schtasks /delete /tn "chef-solo" /f 2>&1 | out-null
+
+# Ensure the chef task running file doesn't exist from a previous failure
+if (Test-Path "<%= options[:chef_task_running] %>") {
+  del "<%= options[:chef_task_running] %>"
+}
+
+# schedule the task to run once in the far distant future
+schtasks /create /tn 'chef-solo' /xml '<%= options[:chef_task_xml] %>' /ru '<%= options[:user] %>' /rp '<%= options[:pass] %>' | Out-Null
+
+# start the scheduled task right now
+schtasks /run /tn "chef-solo" | Out-Null
+
+# wait for run_chef.ps1 to start or timeout after 1 minute
+$timeoutSeconds = 60
+$elapsedSeconds = 0
+while ( (!(Test-Path "<%= options[:chef_task_running] %>")) -and ($elapsedSeconds -lt $timeoutSeconds) ) {
+  Start-Sleep -s 1
+  $elapsedSeconds++
+}
+
+if ($elapsedSeconds -ge $timeoutSeconds) {
+  Write-Error "Timed out waiting for chef scheduled task to start"
+  exit -2
+}
+
+# read the entire file, but only write out new lines we haven't seen before
+$numLinesRead = 0
+$success = $TRUE
+while (Test-Path "<%= options[:chef_task_running] %>") {
+  Start-Sleep -m 100
+
+  if (Test-Path "<%= options[:chef_stdout_log] %>") {
+    $text = (get-content "<%= options[:chef_stdout_log] %>")
+    $numLines = ($text | Measure-Object -line).lines
+    $numLinesToRead = $numLines - $numLinesRead
+
+    if ($numLinesToRead -gt 0) {
+      $text | select -first $numLinesToRead -skip $numLinesRead | ForEach {
+        Write-Host "$_"
+      }
+      $numLinesRead += $numLinesToRead
+    }
+  }
+}
+
+exit Get-Content "<%= options[:chef_task_exitcode] %>"
