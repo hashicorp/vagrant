@@ -21,6 +21,18 @@ module VagrantPlugins
 
         # Execute RDP if we can
         with_target_vms(argv, single_target: true) do |machine|
+          if !machine.communicate.ready?
+            raise Vagrant::Errors::VMNotCreatedError
+          end
+
+          if !machine.guest.capability?(:rdp_info)
+            raise Errors::GuestUnsupported,
+              name: machine.guest.name.to_s
+          end
+
+          @env.host.capability(
+            :rdp_client,
+            machine.guest.capability(:rdp_info))
         end
       end
     end
