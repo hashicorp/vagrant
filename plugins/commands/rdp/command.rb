@@ -48,11 +48,11 @@ module VagrantPlugins
         end
 
         host = ssh_info[:host]
-        port = 3389
+        port = machine.config.rdp.port
 
         if host == "127.0.0.1"
           # We need to find a forwarded port...
-          search_port = 3389
+          search_port = machine.config.rdp.search_port
           ports       = nil
           if machine.provider.capability?(:forwarded_ports)
             ports = machine.provider.capability(:forwarded_ports)
