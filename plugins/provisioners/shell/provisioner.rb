@@ -112,6 +112,7 @@ module VagrantPlugins
             comm.sudo(command) do |type, data|
               handle_comm(type, data)
             end
+          end
         end
       end
 
