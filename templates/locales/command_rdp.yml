@@ -19,3 +19,8 @@ en:
         an RDP client, please contribute this functionality back
         into Vagrant. At the very least, open an issue on how it
         could be done and we can handle the integration.
+      rdp_undetected: |-
+        RDP connection information for this machine could not be
+        detected. This is typically caused when we can't find the IP
+        or port to connect to for RDP. Please verify you're forwarding
+        an RDP port and that your machine is accessible.
