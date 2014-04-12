@@ -6,7 +6,7 @@ module VagrantPlugins
     class Provisioner < Vagrant.plugin("2", :provisioner)
       def provision
         if @machine.config.vm.communicator == :winrm
-          raise Vagrant::Errors::ProvisionerWinRMUnsupported,a
+          raise Vagrant::Errors::ProvisionerWinRMUnsupported,
             name: "cfengine"
         end
 
