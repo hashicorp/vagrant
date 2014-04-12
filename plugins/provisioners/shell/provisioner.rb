@@ -88,8 +88,12 @@ module VagrantPlugins
             "#{@machine.id}-remote-script")
           download_path.delete if download_path.file?
 
-          Vagrant::Util::Downloader.new(config.path, download_path).download!
-          script = download_path.read
+          begin
+            Vagrant::Util::Downloader.new(config.path, download_path).download!
+            script = download_path.read
+          ensure
+            download_path.delete if download_path.file?
+          end
 
           download_path.delete
         elsif config.path
@@ -102,7 +106,10 @@ module VagrantPlugins
         end
 
         # Replace Windows line endings with Unix ones unless binary file
-        script.gsub!(/\r\n?$/, "\n") if !config.binary
+        # or we're running on Windows.
+        if !config.binary && config.vm.communicator != :winrm
+          script.gsub!(/\r\n?$/, "\n")
+        end
 
         # Otherwise we have an inline script, we need to Tempfile it,
         # and handle it specially...
