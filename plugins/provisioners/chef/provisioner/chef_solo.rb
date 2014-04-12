@@ -134,6 +134,14 @@ module VagrantPlugins
             @machine.ui.warn(I18n.t("vagrant.chef_run_list_empty"))
           end
 
+          if windows?
+            # This re-establishes our symbolic links if they were
+            # created between now and a reboot
+            @machine.communicate.execute(
+              "& net use a-non-existant-share",
+              error_check: false)
+          end
+
           options = [
             "-c #{@config.provisioning_path}/solo.rb",
             "-j #{@config.provisioning_path}/dna.json"
