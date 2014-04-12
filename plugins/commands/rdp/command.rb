@@ -26,9 +26,7 @@ module VagrantPlugins
           end
 
           rdp_info = get_rdp_info(machine)
-          if !rdp_info
-            raise Errors::RDPUndetected
-          end
+          raise Errors::RDPUndetected if !rdp_info
 
           @env.host.capability(:rdp_client, rdp_info)
         end
