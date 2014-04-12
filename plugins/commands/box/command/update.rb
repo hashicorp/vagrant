@@ -69,7 +69,7 @@ module VagrantPlugins
           end
 
           to_update = [
-            [name, provider, boxes[name][provider].last],
+            [name, provider, boxes[name][provider].sort.last],
           ]
 
           to_update.each do |n, p, v|
