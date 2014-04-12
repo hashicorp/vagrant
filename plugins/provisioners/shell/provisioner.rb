@@ -116,6 +116,7 @@ module VagrantPlugins
       # on the remote server. This method will properly clean up the
       # script file if needed.
       def with_script_file
+        ext    = nil
         script = nil
 
         if config.remote?
@@ -125,6 +126,7 @@ module VagrantPlugins
 
           begin
             Vagrant::Util::Downloader.new(config.path, download_path).download!
+            ext    = File.extname(config.path)
             script = download_path.read
           ensure
             download_path.delete if download_path.file?
@@ -134,9 +136,11 @@ module VagrantPlugins
         elsif config.path
           # Just yield the path to that file...
           root_path = @machine.env.root_path
+          ext    = File.extname(config.path)
           script = Pathname.new(config.path).expand_path(root_path).read
         else
           # The script is just the inline code...
+          ext    = ".ps1"
           script = config.inline
         end
 
@@ -148,7 +152,7 @@ module VagrantPlugins
 
         # Otherwise we have an inline script, we need to Tempfile it,
         # and handle it specially...
-        file = Tempfile.new('vagrant-shell')
+        file = Tempfile.new(['vagrant-shell', ext])
 
         # Unless you set binmode, on a Windows host the shell script will
         # have CRLF line endings instead of LF line endings, causing havoc
