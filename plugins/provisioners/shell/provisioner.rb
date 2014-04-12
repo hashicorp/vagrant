@@ -7,18 +7,6 @@ module VagrantPlugins
   module Shell
     class Provisioner < Vagrant.plugin("2", :provisioner)
       def provision
-        if @config.vm.communicator == :winrm
-          provision_winrm
-        else
-          provision_ssh
-        end
-      end
-
-      protected
-
-      # This is the provision method called if SSH is what is running
-      # on the remote end, which assumes a POSIX-style host.
-      def provision_ssh
         args = ""
         if config.args.is_a?(String)
           args = " #{config.args.to_s}"
@@ -27,6 +15,18 @@ module VagrantPlugins
           args = " #{args.join(" ")}"
         end
 
+        if @config.vm.communicator == :winrm
+          provision_winrm(args)
+        else
+          provision_ssh(args)
+        end
+      end
+
+      protected
+
+      # This is the provision method called if SSH is what is running
+      # on the remote end, which assumes a POSIX-style host.
+      def provision_ssh(args)
         command = "chmod +x #{config.upload_path} && #{config.upload_path}#{args}"
 
         with_script_file do |path|
@@ -68,8 +68,45 @@ module VagrantPlugins
 
       # This provisions using WinRM, which assumes a PowerShell
       # console on the other side.
-      def provision_winrm
-        # TODO
+      def provision_winrm(args)
+        # TODO: Wait for rebooting
+
+        with_script_file do |path|
+          @machine.communicate.tap do |comm|
+            # Make sure that the upload path has an extension, since
+            # having an extension is critical for Windows execution
+            upload_path = config.upload_path.to_s
+            if File.extname(upload_path) == ""
+              upload_path += File.extname(path.to_s)
+            end
+
+            # Upload it
+            comm.upload(path.to_s, upload_path)
+
+            # Calculate the path that we'll be executing
+            exec_path = upload_path
+            exec_path.gsub!('/', '\\')
+            exec_path = "c:#{exec_path}" if exec_path.start_with?("\\")
+
+            command = <<-EOH
+            $old = Get-ExecutionPolicy;
+            Set-ExecutionPolicy Unrestricted -force;
+            #{exec_path}#{args};
+            Set-ExecutionPolicy $old -force
+            EOH
+
+            # Execute it with sudo
+            comm.sudo(command) do |type, data|
+              if [:stderr, :stdout].include?(type)
+                # Output the data with the proper color based on the stream.
+                color = type == :stdout ? :green : :red
+
+                @machine.ui.info(
+                  data,
+                  :color => color, :new_line => false, :prefix => false)
+              end
+            end
+        end
       end
 
       # Quote and escape strings for shell execution, thanks to Capistrano.
