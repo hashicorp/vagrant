@@ -74,7 +74,9 @@ module VagrantPlugins
       # This provisions using WinRM, which assumes a PowerShell
       # console on the other side.
       def provision_winrm(args)
-        # TODO: Wait for rebooting
+        if @machine.guest.capability?(:wait_for_reboot)
+          @machine.guest.capability(:wait_for_reboot)
+        end
 
         with_script_file do |path|
           @machine.communicate.tap do |comm|
