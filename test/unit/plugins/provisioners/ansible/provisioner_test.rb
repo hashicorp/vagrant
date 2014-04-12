@@ -46,7 +46,8 @@ VF
   }}
 
   let(:existing_file) { File.expand_path(__FILE__) }
-  let(:generated_inventory_file) { File.join(machine.env.local_data_path, %w(provisioners ansible inventory vagrant_ansible_inventory)) }
+  let(:generated_inventory_dir) { File.join(machine.env.local_data_path, %w(provisioners ansible inventory)) }
+  let(:generated_inventory_file) { File.join(generated_inventory_dir, 'vagrant_ansible_inventory') }
 
   before do
     machine.stub(ssh_info: ssh_info)
@@ -163,9 +164,9 @@ VF
       }
     end
 
-    it "uses the auto-generated inventory file" do
+    it "sets as ansible inventory the directory containing the auto-generated inventory file" do
       expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
-        inventory_index = args.rindex("--inventory-file=#{generated_inventory_file}")
+        inventory_index = args.rindex("--inventory-file=#{generated_inventory_dir}")
         expect(inventory_index).to be > 0
         expect(find_last_argument_after(inventory_index, args, /--inventory-file=\w+/)).to be_false
       }
