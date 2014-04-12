@@ -259,7 +259,7 @@ VF
 
     describe "with host_key_checking option enabled" do
       before do
-        config.host_key_checking = "true"
+        config.host_key_checking = true
       end
 
       it_should_set_arguments_and_environment_variables 5, 3, true

@@ -1,4 +1,5 @@
 require_relative "../../../base"
+require_relative "../support/shared/config"
 
 require Vagrant.source_root.join("plugins/provisioners/ansible/config")
 
@@ -38,18 +39,28 @@ describe VagrantPlugins::Ansible::Config do
 
     expect(subject.playbook).to be_nil
     expect(subject.extra_vars).to be_nil
-    expect(subject.ask_sudo_pass).to be_nil
+    expect(subject.ask_sudo_pass).to be_false
     expect(subject.limit).to be_nil
-    expect(subject.sudo).to be_nil
+    expect(subject.sudo).to be_false
     expect(subject.sudo_user).to be_nil
     expect(subject.verbose).to be_nil
     expect(subject.tags).to be_nil
     expect(subject.skip_tags).to be_nil
     expect(subject.start_at_task).to be_nil
     expect(subject.groups).to eq({})
-    expect(subject.host_key_checking).to eq('false')
+    expect(subject.host_key_checking).to be_false
     expect(subject.raw_arguments).to be_nil
     expect(subject.raw_ssh_args).to be_nil
+  end
+
+  describe "host_key_checking option" do
+    it_behaves_like "any VagrantConfigProvisioner strict boolean attribute", :host_key_checking, false
+  end
+  describe "ask_sudo_pass option" do
+    it_behaves_like "any VagrantConfigProvisioner strict boolean attribute", :ask_sudo_pass, false
+  end
+  describe "sudo option" do
+    it_behaves_like "any VagrantConfigProvisioner strict boolean attribute", :sudo, false
   end
 
   describe "#validate" do
