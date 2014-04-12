@@ -25,9 +25,15 @@ module VagrantPlugins
             raise Vagrant::Errors::VMNotCreatedError
           end
 
+          machine.ui.output(I18n.t("vagrant_rdp.detecting"))
           rdp_info = get_rdp_info(machine)
           raise Errors::RDPUndetected if !rdp_info
 
+          machine.ui.detail(
+            "Address: #{rdp_info[:host]}:#{rdp_info[:port]}")
+          machine.ui.detail("Username: #{rdp_info[:username]}")
+
+          machine.ui.success(I18n.t("vagrant_rdp.connecting"))
           @env.host.capability(:rdp_client, rdp_info)
         end
       end
