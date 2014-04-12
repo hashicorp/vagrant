@@ -13,6 +13,10 @@ module VagrantPlugins
       class HostUnsupported < RDPError
         error_key(:host_unsupported)
       end
+
+      class RDPUndetected < RDPError
+        error_key(:rdp_undetected)
+      end
     end
   end
 end
