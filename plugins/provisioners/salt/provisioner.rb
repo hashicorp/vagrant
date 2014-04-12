@@ -4,6 +4,11 @@ module VagrantPlugins
   module Salt
     class Provisioner < Vagrant.plugin("2", :provisioner)
       def provision
+        if @machine.config.vm.communicator == :winrm
+          raise Vagrant::Errors::ProvisionerWinRMUnsupported,
+            name: "salt"
+        end
+
         upload_configs
         upload_keys
         run_bootstrap_script
