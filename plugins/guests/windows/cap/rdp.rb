@@ -10,7 +10,7 @@ module VagrantPlugins
           end
 
           return {
-            host: ssh_info[:host],
+            host: machine.provider.capability(:public_address),
             username: username,
           }
         end
