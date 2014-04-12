@@ -30,9 +30,12 @@ module VagrantPlugins
               name: machine.guest.name.to_s
           end
 
-          @env.host.capability(
-            :rdp_client,
-            machine.guest.capability(:rdp_info))
+          rdp_info = machine.guest.capability(:rdp_info)
+          if !rdp_info
+            raise Errors::RDPUndetected
+          end
+
+          @env.host.capability(:rdp_client, rdp_info)
         end
       end
     end
