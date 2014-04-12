@@ -50,7 +50,9 @@ The remainder of the available options are optional:
 
 * `upload_path` (string) - Is the remote path where the shell script will
   be uploaded to. The script is uploaded as the SSH user over SCP, so this
-  location must be writable to that user. By default this is "/tmp/vagrant-shell"
+  location must be writable to that user. By default this is
+  "/tmp/vagrant-shell". On Windows, this will default to
+  "C:\tmp\vagrant-shell".
 
 * `keep_color` (boolean) - Vagrant automatically colors output in green and
   red depending on whether the output is from stdout or stderr. If this is
