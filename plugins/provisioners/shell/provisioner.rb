@@ -7,6 +7,18 @@ module VagrantPlugins
   module Shell
     class Provisioner < Vagrant.plugin("2", :provisioner)
       def provision
+        if @config.vm.communicator == :winrm
+          provision_winrm
+        else
+          provision_ssh
+        end
+      end
+
+      protected
+
+      # This is the provision method called if SSH is what is running
+      # on the remote end, which assumes a POSIX-style host.
+      def provision_ssh
         args = ""
         if config.args.is_a?(String)
           args = " #{config.args.to_s}"
@@ -54,7 +66,11 @@ module VagrantPlugins
         end
       end
 
-      protected
+      # This provisions using WinRM, which assumes a PowerShell
+      # console on the other side.
+      def provision_winrm
+        # TODO
+      end
 
       # Quote and escape strings for shell execution, thanks to Capistrano.
       def quote_and_escape(text, quote = '"')
@@ -68,7 +84,8 @@ module VagrantPlugins
         script = nil
 
         if config.remote?
-          download_path = @machine.env.tmp_path.join("#{@machine.id}-remote-script")
+          download_path = @machine.env.tmp_path.join(
+            "#{@machine.id}-remote-script")
           download_path.delete if download_path.file?
 
           Vagrant::Util::Downloader.new(config.path, download_path).download!
