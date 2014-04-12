@@ -17,6 +17,11 @@ module VagrantPlugins
         Command
       end
 
+      config("rdp") do
+        require_relative "config"
+        Config
+      end
+
       protected
 
       def self.init!
