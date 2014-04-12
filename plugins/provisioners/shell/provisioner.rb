@@ -15,7 +15,7 @@ module VagrantPlugins
           args = " #{args.join(" ")}"
         end
 
-        if @config.vm.communicator == :winrm
+        if @machine.config.vm.communicator == :winrm
           provision_winrm(args)
         else
           provision_ssh(args)
