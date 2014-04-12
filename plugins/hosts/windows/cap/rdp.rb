@@ -25,10 +25,7 @@ module VagrantPlugins
           # Launch it
           Vagrant::Util::PowerShell.execute("mstsc", config.path)
         ensure
-          if config
-            config.close
-            config.unlink
-          end
+          config.close if config
         end
       end
     end
