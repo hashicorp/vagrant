@@ -10,8 +10,7 @@ module VagrantPlugins
           config = nil
           opts   = {
             "drivestoredirect:s"       => "*",
-            "full address:s"           => rdp_info[:host],
-            "port:i"                   => rdp_info[:port],
+            "full address:s"           => "#{rdp_info[:host]}:#{rdp_info[:port]}",
             "prompt for credentials:i" => "1",
             "username:s"               => rdp_info[:username],
           }
