@@ -1,0 +1,12 @@
+en:
+  vagrant_rdp:
+    errors:
+      host_unsupported: |-
+        Vagrant doesn't support running an RDP client on your
+        host OS. Currently only Windows is supported for RDP
+        clients.
+
+        If you wish for the OS you're running to support launching
+        an RDP client, please contribute this functionality back
+        into Vagrant. At the very least, open an issue on how it
+        could be done and we can handle the integration.
