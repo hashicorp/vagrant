@@ -142,19 +142,7 @@ module VagrantPlugins
               error_check: false)
           end
 
-          options = [
-            "-c #{@config.provisioning_path}/solo.rb",
-            "-j #{@config.provisioning_path}/dna.json"
-          ]
-
-          if !@machine.env.ui.is_a?(Vagrant::UI::Colored)
-            options << "--no-color"
-          end
-
-          command_env = @config.binary_env ? "#{@config.binary_env} " : ""
-          command_args = @config.arguments ? " #{@config.arguments}" : ""
-          command = "#{command_env}#{chef_binary_path("chef-solo")} " +
-            "#{options.join(" ")} #{command_args}"
+          command = build_command(:solo)
 
           @config.attempts.times do |attempt|
             if attempt == 0

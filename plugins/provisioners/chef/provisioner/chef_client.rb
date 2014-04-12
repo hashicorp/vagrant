@@ -66,11 +66,7 @@ module VagrantPlugins
               error_check: false)
           end
 
-          command_env = @config.binary_env ? "#{@config.binary_env} " : ""
-          command_args = @config.arguments ? " #{@config.arguments}" : ""
-          command = "#{command_env}#{chef_binary_path("chef-client")} " +
-            "-c #{@config.provisioning_path}/client.rb " +
-            "-j #{@config.provisioning_path}/dna.json #{command_args}"
+          command = build_command(:client)
 
           @config.attempts.times do |attempt|
             if attempt == 0
