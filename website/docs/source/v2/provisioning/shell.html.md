@@ -7,13 +7,17 @@ sidebar_current: "provisioning-shell"
 
 **Provisioner name: `"shell"`**
 
-The shell provisioner allows you to upload and execute a script as
-the root user within the guest machine.
+The shell provisioner allows you to upload and execute a script within
+the guest machine.
 
 Shell provisioning is ideal for users new to Vagrant who want to get up
 and running quickly and provides a strong alternative for users who aren't
 comfortable with a full configuration management system such as Chef or
 Puppet.
+
+For POSIX-like machines, the shell provisioner executes scripts with
+SSH. For Windows guest machines that are configured to use WinRM, the
+shell provisioner executes PowerShell and Batch scripts over WinRM.
 
 ## Options
 
@@ -37,10 +41,12 @@ The remainder of the available options are optional:
 
 * `binary` (boolean) - Vagrant automatically replaces Windows line endings with
   Unix line endings. If this is true, then Vagrant will not do this. By default
-  this is "false".
+  this is "false". If the shell provisioner is communicating over WinRM, this
+  defaults to "true".
 
 * `privileged` (boolean) - Specifies whether to execute the shell script
-  as a privileged user or not (`sudo`). By default this is "true".
+  as a privileged user or not (`sudo`). By default this is "true". This has
+  no effect for Windows guests.
 
 * `upload_path` (string) - Is the remote path where the shell script will
   be uploaded to. The script is uploaded as the SSH user over SCP, so this
@@ -82,7 +88,7 @@ Vagrant.configure("2") do |config|
 end
 ```
 
-I understand if you're not familiar with Ruby, the above may seem very
+I understand that if you're not familiar with Ruby, the above may seem very
 advanced or foreign. But don't fear, what it is doing is quite simple:
 the script is assigned to a global variable `$script`. This global variable
 contains a string which is then passed in as the inline script to the
@@ -91,6 +97,9 @@ Vagrant configuration.
 Of course, if any Ruby in your Vagrantfile outside of basic variable assignment
 makes you uncomfortable, you can use an actual script file, documented in
 the next section.
+
+For Windows guest machines, the inline script _must_ be PowerShell. Batch
+scripts are not allowed as inline scripts.
 
 ## External Script
 
@@ -116,6 +125,11 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", path: "https://example.com/provisioner.sh"
 end
 ```
+
+If you're running a Batch of PowerShell script for Windows, make sure
+that the external path has the proper extension (".bat" or ".ps1"), because
+Windows uses this to determine what kind fo file it is to execute. If you
+exclude this extension, it likely won't work.
 
 ## Script Arguments
 
