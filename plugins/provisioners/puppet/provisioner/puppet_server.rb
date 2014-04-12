@@ -7,6 +7,11 @@ module VagrantPlugins
 
       class PuppetServer < Vagrant.plugin("2", :provisioner)
         def provision
+          if @machine.config.vm.communicator == :winrm
+            raise Vagrant::Errors::ProvisionerWinRMUnsupported,
+              name: "puppet_server"
+          end
+
           verify_binary("puppet")
           run_puppet_agent
         end

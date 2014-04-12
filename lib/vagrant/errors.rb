@@ -500,6 +500,10 @@ module Vagrant
       error_key(:provisioner_flag_invalid)
     end
 
+    class ProvisionerWinRMUnsupported < VagrantError
+      error_key(:provisioner_winrm_unsupported)
+    end
+
     class PluginGemNotFound < VagrantError
       error_key(:plugin_gem_not_found)
     end

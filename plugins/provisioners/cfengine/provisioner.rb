@@ -5,6 +5,11 @@ module VagrantPlugins
   module CFEngine
     class Provisioner < Vagrant.plugin("2", :provisioner)
       def provision
+        if @machine.config.vm.communicator == :winrm
+          raise Vagrant::Errors::ProvisionerWinRMUnsupported,a
+            name: "cfengine"
+        end
+
         @logger = Log4r::Logger.new("vagrant::plugins::cfengine")
 
         @logger.info("Checking for CFEngine installation...")

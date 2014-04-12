@@ -859,6 +859,17 @@ en:
       provisioner_flag_invalid: |-
         '%{name}' is not a known provisioner. Please specify a valid
         provisioner.
+      provisioner_winrm_unsupported: |-
+        The provisioner '%{name}' doesn't support provisioning on
+        Windows guests via WinRM. This is likely not a limitation
+        of the provisioner itself but rather that Vagrant doesn't know
+        how to run this provisioner over WinRM.
+
+        If you'd like this provisioner to work over WinRM, please
+        take a look at the Vagrant source code linked below and try
+        to contribute back support. Thank you!
+
+        https://github.com/mitchellh/vagrant
       rsync_error: |-
         There was an error when attempting to rsync a synced folder.
         Please inspect the error message below for more info.
