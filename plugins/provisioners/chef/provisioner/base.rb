@@ -138,6 +138,10 @@ module VagrantPlugins
             File.join(@config.provisioning_path, "encrypted_data_bag_secret_key")
           end
         end
+
+        def windows?
+          @machine.config.vm.communicator == :winrm
+        end
       end
     end
   end
