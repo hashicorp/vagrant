@@ -158,10 +158,13 @@ module VagrantPlugins
           :error_check => true,
           :error_class => Vagrant::Errors::VagrantError,
           :error_key   => :ssh_bad_exit_status,
+          :good_exit   => 0,
           :command     => command,
           :shell       => nil,
-          :sudo        => false
+          :sudo        => false,
         }.merge(opts || {})
+
+        opts[:good_exit] = Array(opts[:good_exit])
 
         # Connect via SSH and execute the command in the shell.
         stdout = ""
@@ -179,7 +182,7 @@ module VagrantPlugins
         end
 
         # Check for any errors
-        if opts[:error_check] && exit_status != 0
+        if opts[:error_check] && !opts[:good_exit].include?(exit_status)
           # The error classes expect the translation key to be _key,
           # but that makes for an ugly configuration parameter, so we
           # set it here from `error_key`

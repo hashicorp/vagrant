@@ -101,11 +101,24 @@ module VagrantPlugins
         end
 
         def run_puppet_apply
+          if windows?
+            # This re-establishes our symbolic links if they were
+            # created between now and a reboot
+            @machine.communicate.execute(
+              "& net use a-non-existant-share",
+              error_check: false)
+          end
+
+          default_module_path = "/etc/puppet/modules"
+          if windows?
+            default_module_path = "/ProgramData/PuppetLabs/puppet/etc/modules"
+          end
+
           options = [config.options].flatten
           module_paths = @module_paths.map { |_, to| to }
           if !@module_paths.empty?
             # Append the default module path
-            module_paths << "/etc/puppet/modules"
+            module_paths << default_module_path
 
             # Add the command line switch to add the module path
             options << "--modulepath '#{module_paths.join(':')}'"
@@ -132,18 +145,28 @@ module VagrantPlugins
               facts << "FACTER_#{key}='#{value}'"
             end
 
+            # If we're on Windows, we need to use the PowerShell style
+            if windows?
+              facts.map! { |v| "$env:#{v}" }
+            end
+
             facter = "#{facts.join(" ")} "
           end
 
-          command = "#{facter}puppet apply #{options} || [ $? -eq 2 ]"
+          command = "#{facter}puppet apply #{options}"
           if config.working_directory
-            command = "cd #{config.working_directory} && #{command}"
+            if windows?
+              command = "cd #{config.working_directory}; if ($?) \{ #{command} \}"
+            else
+              command = "cd #{config.working_directory} && #{command}"
+            end
           end
 
-          @machine.env.ui.info I18n.t("vagrant.provisioners.puppet.running_puppet",
-                                      :manifest => config.manifest_file)
+          @machine.env.ui.info(I18n.t(
+            "vagrant.provisioners.puppet.running_puppet",
+            :manifest => config.manifest_file))
 
-          @machine.communicate.sudo(command) do |type, data|
+          @machine.communicate.sudo(command, good_exit: [0,2]) do |type, data|
             if !data.empty?
               @machine.env.ui.info(data, :new_line => false, :prefix => false)
             end
@@ -157,6 +180,10 @@ module VagrantPlugins
               raise PuppetError, :missing_shared_folders
             end
           end
+        end
+
+        def windows?
+          @machine.config.vm.communicator == :winrm
         end
       end
     end
