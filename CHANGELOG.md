@@ -7,6 +7,8 @@ FEATURES:
       provisioner, Chef, and Puppet all work with Windows VMs.
   - **New command: global-status**. This command shows the state of every
       created Vagrant environment on the system for that logged in user.
+  - **New command: rdp**. This command connects to the running machine
+      via the Remote Desktop Protocol.
   - Control Vagrant environments from any directory. Using the UUIDs given
       in `vagrant global-status`, you can issue commands from anywhere on
       your machine, not just that environment's directory. Example:
@@ -28,6 +30,8 @@ IMPROVEMENTS:
 
 PLUGIN AUTHOR CHANGES:
 
+  - New host capability: "rdp\_client". This capability gets the RDP connection
+      info and must launch the RDP client on the system.
   - provider: Providers can now specify that boxes are optional. This lets
       you use the provider without a `config.vm.box`. Useful for providers like
       AWS or Docker.
