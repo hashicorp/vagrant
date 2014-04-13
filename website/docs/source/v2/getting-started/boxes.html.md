@@ -66,7 +66,7 @@ this getting started guide, the first question you'll probably have is
 
 The best place to find more boxes is [Vagrant Cloud](https://vagrantcloud.com).
 Vagrant Cloud has a public directory of freely available boxes that
-run various platorms and technologies. Vagrant Cloud also has a great search
+run various platforms and technologies. Vagrant Cloud also has a great search
 feature to allow you to find the box you care about.
 
 In addition to finding free boxes, Vagrant Cloud lets you host your own
