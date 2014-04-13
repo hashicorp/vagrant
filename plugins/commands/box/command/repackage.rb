@@ -8,27 +8,25 @@ module VagrantPlugins
       class Repackage < Vagrant.plugin("2", :command)
         def execute
           opts = OptionParser.new do |o|
-            o.banner = "Usage: vagrant box repackage <name> <provider>"
+            o.banner = "Usage: vagrant box repackage <name> <provider> <version>"
           end
 
           # Parse the options
           argv = parse_options(opts)
           return if !argv
-          raise Vagrant::Errors::CLIInvalidUsage, :help => opts.help.chomp if argv.length != 2
+          raise Vagrant::Errors::CLIInvalidUsage, :help => opts.help.chomp if argv.length != 3
 
           box_name     = argv[0]
           box_provider = argv[1].to_sym
+          box_version  = argv[2]
 
           # Verify the box exists that we want to repackage
-          box = nil
-          begin
-            box = @env.boxes.find(box_name, box_provider)
-          rescue Vagrant::Errors::BoxUpgradeRequired
-            @env.boxes.upgrade(box_name)
-            retry
+          box = @env.boxes.find(box_name, box_provider, "= #{box_version}")
+          if !box
+            raise Vagrant::Errors::BoxNotFound,
+              :name => box_name,
+              :provider => box_provider
           end
-
-          raise Vagrant::Errors::BoxNotFound, :name => box_name, :provider => box_provider if !box
 
           # Repackage the box
           output_name = @env.vagrantfile.config.package.name || "package.box"
