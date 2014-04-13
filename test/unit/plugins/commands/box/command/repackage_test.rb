@@ -38,13 +38,22 @@ describe VagrantPlugins::CommandBox::Command::Repackage do
   end
 
   context "with two arguments" do
+    let(:argv) { ["one", "two"] }
+
+    it "shows help" do
+      expect { subject.execute }.
+        to raise_error(Vagrant::Errors::CLIInvalidUsage)
+    end
+  end
+
+  context "with three arguments" do
     it "repackages the box with the given provider" do
       pending
     end
   end
 
-  context "with more than two arguments" do
-    let(:argv) { ["one", "two", "three"] }
+  context "with more than three arguments" do
+    let(:argv) { ["one", "two", "three", "four"] }
 
     it "shows help" do
       expect { subject.execute }.
