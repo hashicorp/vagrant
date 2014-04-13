@@ -192,6 +192,10 @@ module Vagrant
       error_key(:box_not_found_with_provider)
     end
 
+    class BoxNotFoundWithProviderAndVersion < VagrantError
+      error_key(:box_not_found_with_provider_and_version)
+    end
+
     class BoxProviderDoesntMatch < VagrantError
       error_key(:box_provider_doesnt_match)
     end

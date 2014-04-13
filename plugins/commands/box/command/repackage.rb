@@ -23,9 +23,10 @@ module VagrantPlugins
           # Verify the box exists that we want to repackage
           box = @env.boxes.find(box_name, box_provider, "= #{box_version}")
           if !box
-            raise Vagrant::Errors::BoxNotFound,
-              :name => box_name,
-              :provider => box_provider
+            raise Vagrant::Errors::BoxNotFoundWithProviderAndVersion,
+              name: box_name,
+              provider: box_provider.to_s,
+              version: box_version
           end
 
           # Repackage the box

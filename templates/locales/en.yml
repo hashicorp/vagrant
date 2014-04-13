@@ -443,6 +443,10 @@ en:
         the box are shown below:
 
         %{providers}
+      box_not_found_with_provider_and_version: |-
+        The box '%{name}' (v%{version}) with provider '%{provider}'
+        could not be found. Please double check and try again. You
+        can see all the boxes that are installed with `vagrant box list`.
       box_provider_doesnt_match: |-
         The box you attempted to add doesn't match the provider you specified.
 
