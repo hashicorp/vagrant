@@ -204,7 +204,7 @@ module Vagrant
         # Return an exit status container
         return Result.new(process.exit_code, io_data[:stdout], io_data[:stderr])
       ensure
-        if process && !process.exited?
+        if process && process.alive?
           # Make sure no matter what happens, the process exits
           process.stop(2)
         end
