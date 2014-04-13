@@ -128,12 +128,15 @@ This command removes a box from Vagrant that matches the given name.
 
 If a box has multiple providers, the exact provider must be specified
 with the `--provider` flag. If a box has multiple versions, you can select
-what versions to delete with the `--box-version` flag.
+what versions to delete with the `--box-version` flag or remove all versions
+with the `--all` flag.
 
 ## Options
 
 * `--box-version VALUE` - Version of version constraints of the boxes to
   remove. See documentation on this flag for `box add` for more details.
+
+* `--all` - Remove all available versions of a box.
 
 * `--force` - Forces removing the box even if an active Vagrant
   environment is using it.

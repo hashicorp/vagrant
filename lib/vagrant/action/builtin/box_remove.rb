@@ -15,6 +15,7 @@ module Vagrant
           box_provider = env[:box_provider]
           box_provider = box_provider.to_sym if box_provider
           box_version  = env[:box_version]
+          box_remove_all_versions = env[:box_remove_all_versions]
 
           boxes = {}
           env[:box_collection].all.each do |n, v, p|
@@ -53,7 +54,7 @@ module Vagrant
             if all_versions.length == 1
               # There is only one version, just use that.
               box_version = all_versions.first
-            else
+            elsif not box_remove_all_versions
               # There are multiple versions, we can't choose.
               raise Errors::BoxRemoveMultiVersion,
                 name: box_name,
@@ -68,47 +69,52 @@ module Vagrant
               versions: all_versions.sort.map { |k| " * #{k}" }.join("\n")
           end
 
-          box = env[:box_collection].find(
-            box_name, box_provider, box_version)
+          versions_to_remove = [box_version]
+          versions_to_remove = all_versions if box_remove_all_versions
 
-          # Verify that this box is not in use by an active machine,
-          # otherwise warn the user.
-          users = box.in_use?(env[:machine_index]) || []
-          users = users.find_all { |u| u.valid?(env[:home_path]) }
-          if !users.empty?
-            # Build up the output to show the user.
-            users = users.map do |entry|
-              "#{entry.name} (ID: #{entry.id})"
-            end.join("\n")
+          versions_to_remove.sort.each do |version_to_remove|
+            box = env[:box_collection].find(
+              box_name, box_provider, box_version)
 
-            force_key = :force_confirm_box_remove
-            message   = I18n.t(
-              "vagrant.commands.box.remove_in_use_query",
-              name: box.name,
-              provider: box.provider,
-              version: box.version,
-              users: users) + " "
+            # Verify that this box is not in use by an active machine,
+            # otherwise warn the user.
+            users = box.in_use?(env[:machine_index]) || []
+            users = users.find_all { |u| u.valid?(env[:home_path]) }
+            if !users.empty?
+              # Build up the output to show the user.
+              users = users.map do |entry|
+                "#{entry.name} (ID: #{entry.id})"
+              end.join("\n")
 
-            # Ask the user if we should do this
-            stack = Builder.new.tap do |b|
-              b.use Confirm, message, force_key
+              force_key = :force_confirm_box_remove
+              message   = I18n.t(
+                "vagrant.commands.box.remove_in_use_query",
+                name: box.name,
+                provider: box.provider,
+                version: box.version,
+                users: users) + " "
+
+              # Ask the user if we should do this
+              stack = Builder.new.tap do |b|
+                b.use Confirm, message, force_key
+              end
+
+              result = env[:action_runner].run(stack, env)
+              if !result[:result]
+                # They said "no", so continue with the next box
+                next
+              end
             end
 
-            result = env[:action_runner].run(stack, env)
-            if !result[:result]
-              # They said "no", so just return
-              return @app.call(env)
-            end
+            env[:ui].info(I18n.t("vagrant.commands.box.removing",
+                                name: box.name,
+                                provider: box.provider,
+                                version: box.version))
+            box.destroy!
+
+            # Passes on the removed box to the rest of the middleware chain
+            env[:box_removed] = box
           end
-
-          env[:ui].info(I18n.t("vagrant.commands.box.removing",
-                              name: box.name,
-                              provider: box.provider,
-                              version: box.version))
-          box.destroy!
-
-          # Passes on the removed box to the rest of the middleware chain
-          env[:box_removed] = box
 
           @app.call(env)
         end
