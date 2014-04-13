@@ -19,6 +19,7 @@ BUG FIXES:
   - core: Setting an ID on a provisioner now works. [GH-3424]
   - core: All synced folder paths containing symlinks are fully
       expanded before sharing. [GH-3444]
+  - commands/box/repackage: Works again. [GH-3372]
   - commands/box/update: Update should check for updates from latest
       version. [GH-3452]
   - commands/package: Nice error if includes contain symlinks. [GH-3200]
