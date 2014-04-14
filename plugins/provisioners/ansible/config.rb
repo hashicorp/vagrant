@@ -47,7 +47,7 @@ module VagrantPlugins
         @extra_vars          = nil if @extra_vars == UNSET_VALUE
         @inventory_path      = nil if @inventory_path == UNSET_VALUE
         @ask_sudo_pass       = false unless @ask_sudo_pass == true
-        @ask_vault_pass      = false unless @ask_sudo_pass == true
+        @ask_vault_pass      = false unless @ask_vault_pass == true
         @vault_password_file = nil if @vault_password_file == UNSET_VALUE
         @limit               = nil if @limit == UNSET_VALUE
         @sudo                = false unless @sudo == true
@@ -108,6 +108,15 @@ module VagrantPlugins
           expanded_path = Pathname.new(inventory_path).expand_path(machine.env.root_path)
           if !expanded_path.exist?
             errors << I18n.t("vagrant.provisioners.ansible.inventory_path_invalid",
+                              :path => expanded_path)
+          end
+        end
+
+        # Validate the existence of the vault_password_file, if specified
+        if vault_password_file
+          expanded_path = Pathname.new(vault_password_file).expand_path(machine.env.root_path)
+          if !expanded_path.exist?
+            errors << I18n.t("vagrant.provisioners.ansible.vault_password_file_invalid",
                               :path => expanded_path)
           end
         end
