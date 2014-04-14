@@ -1,6 +1,8 @@
 ## 1.5.4 (unreleased)
 
+BUG FIXES:
 
+  - command/rsync-auto: Works properly on Windows.
 
 ## 1.5.3 (April 14, 2014)
 

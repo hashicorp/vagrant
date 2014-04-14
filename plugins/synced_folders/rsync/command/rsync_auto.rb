@@ -2,12 +2,18 @@ require "log4r"
 require 'optparse'
 require "thread"
 
-require "listen"
 
 require "vagrant/action/builtin/mixin_synced_folders"
 require "vagrant/util/busy"
+require "vagrant/util/platform"
 
 require_relative "../helper"
+
+# This is to avoid a bug in nio 1.0.0. Remove around nio 1.0.1
+if Vagrant::Util::Platform.windows?
+  ENV["NIO4R_PURE"] = "1"
+  require "listen"
+end
 
 module VagrantPlugins
   module SyncedFolderRSync
