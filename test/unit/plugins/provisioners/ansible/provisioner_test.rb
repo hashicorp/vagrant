@@ -270,6 +270,7 @@ VF
       before do
         config.sudo = false
         config.ask_sudo_pass = false
+        config.ask_vault_pass = false
 
         config.sudo_user = 'root'
       end
@@ -281,6 +282,7 @@ VF
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
           expect(args.index("--sudo")).to be_nil
           expect(args.index("--ask-sudo-pass")).to be_nil
+          expect(args.index("--ask-vault-pass")).to be_nil
         }
       end
     end
@@ -351,6 +353,34 @@ VF
           expect(args).to include("--inventory-file=#{existing_file}")
           expect(args).not_to include("--inventory-file=#{generated_inventory_file}")
           expect(File.exists?(generated_inventory_file)).to be_false
+        }
+      end
+    end
+
+    describe "with ask_vault_pass option" do
+      before do
+        config.ask_vault_pass = true
+      end
+
+      it_should_set_arguments_and_environment_variables 6
+
+      it "should ask the vault password" do
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+          expect(args).to include("--ask-vault-pass")
+        }
+      end
+    end
+
+    describe "with vault_password_file option" do
+      before do
+        config.vault_password_file = existing_file
+      end
+
+      it_should_set_arguments_and_environment_variables 6
+
+      it "uses the given vault password file" do
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+          expect(args).to include("--vault-password-file=#{existing_file}")
         }
       end
     end
