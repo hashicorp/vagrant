@@ -1,7 +1,6 @@
 require 'log4r'
 
 require "vagrant/util/safe_puts"
-require "vagrant/util/silence_warnings"
 
 module Vagrant
   module Plugin
@@ -134,13 +133,9 @@ module Vagrant
               # machine in that environment. We silence warnings here because
               # Vagrantfiles often have constants, so people would otherwise
               # constantly (heh) get "already initialized constant" warnings.
-              machine = Vagrant::Util::SilenceWarnings.silence! do
-                env = entry.vagrant_env(
-                  @env.home_path, ui_class: @env.ui_class)
-                env.machine(entry.name.to_sym, entry.provider.to_sym)
-              end
-
-              next machine
+              env = entry.vagrant_env(
+                @env.home_path, ui_class: @env.ui_class)
+              next env.machine(entry.name.to_sym, entry.provider.to_sym)
             end
 
             active_machines.each do |active_name, active_provider|

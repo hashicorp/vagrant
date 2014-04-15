@@ -3,6 +3,8 @@ require "pathname"
 require "securerandom"
 require "thread"
 
+require "vagrant/util/silence_warnings"
+
 module Vagrant
   # MachineIndex is able to manage the index of created Vagrant environments
   # in a central location.
@@ -383,11 +385,13 @@ module Vagrant
       #
       # @return [Vagrant::Environment]
       def vagrant_env(home_path, **opts)
-        Environment.new({
-          cwd: @vagrantfile_path,
-          home_path: home_path,
-          vagrantfile_name: @vagrantfile_name,
-        }.merge(opts))
+        Vagrant::Util::SilenceWarnings.silence! do
+          Environment.new({
+            cwd: @vagrantfile_path,
+            home_path: home_path,
+            vagrantfile_name: @vagrantfile_name,
+          }.merge(opts))
+        end
       end
 
       # Converts to the structure used by the JSON
