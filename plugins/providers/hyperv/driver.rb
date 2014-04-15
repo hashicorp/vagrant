@@ -76,6 +76,42 @@ module VagrantPlugins
        def import(options)
          execute('import_vm.ps1', options)
        end
+       
+       def enable_adapters(adapters)
+          puts "Will enable adapters here"
+        end
+
+        def read_network_interfaces
+          nics = {}
+          info = execute('get_network_interfaces.ps1', { VmId: vm_id })
+          info.each_with_index do |nic, index|
+              adapter = index + 1
+
+              nics[adapter] ||= {}
+              nics[adapter][:switch_name] = nic["SwitchName"]
+              nics[adapter][:mac_address] = nic["MacAddress"]
+              nics[adapter][:id] = nic["Id"]
+          end
+
+          nics
+        end
+
+      # Share a set of folders on this VM.
+      #
+      # @param [Array<Hash>] folders
+      def share_folders(folders)
+      end
+
+      def read_mac_addresses
+        nics = {}
+        info = execute('get_network_interfaces.ps1', { VmId: vm_id })
+        info.each_with_index do |nic, index|
+            adapter = index + 1
+
+            nics[adapter] = nic["MacAddress"].gsub(":", "")
+        end
+        nics
+      end
 
       protected
 
@@ -86,7 +122,7 @@ module VagrantPlugins
         ps_options = []
         options.each do |key, value|
           ps_options << "-#{key}"
-          ps_options << "'#{value}'"
+          ps_options << "#{value}"
         end
 
         # Always have a stop error action for failures

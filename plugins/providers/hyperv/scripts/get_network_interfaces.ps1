@@ -10,11 +10,5 @@ $Dir = Split-Path $script:MyInvocation.MyCommand.Path
 $vm = Get-VM -Id $VmId -ErrorAction "Stop"
 $network = Get-VMNetworkAdapter -VM $vm
 
-if($network.IpAddresses) {
-    $ip_address = $network.IpAddresses[0]
-}
-$resultHash = @{
-    ip = "$ip_address"
-}
-$result = ConvertTo-Json $resultHash
+$result = ConvertTo-Json $network
 Write-Output-Message $result
