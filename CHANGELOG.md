@@ -2,6 +2,7 @@
 
 BUG FIXES:
 
+  - commands/box/remove: Make output nicer. [GH-3470]
   - command/rsync-auto: Works properly on Windows.
   - guests/coreos: Fix test for Docker daemon running.
   - guests/linux: Fix test for Docker provisioner whether Docker is
