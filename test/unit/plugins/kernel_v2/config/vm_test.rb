@@ -123,6 +123,19 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       expect(n[0][1][:id]).to eq("ssh")
     end
 
+    it "allows overriding SSH" do
+      subject.network "forwarded_port",
+        guest: 22, host: 14100, id: "ssh"
+      subject.finalize!
+
+      n = subject.networks
+      expect(n.length).to eq(1)
+      expect(n[0][0]).to eq(:forwarded_port)
+      expect(n[0][1][:guest]).to eq(22)
+      expect(n[0][1][:host]).to eq(14100)
+      expect(n[0][1][:id]).to eq("ssh")
+    end
+
     it "turns all forwarded port ports to ints" do
       subject.network "forwarded_port",
         guest: "45", host: "4545", id: "test"

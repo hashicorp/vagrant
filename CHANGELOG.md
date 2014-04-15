@@ -2,6 +2,7 @@
 
 BUG FIXES:
 
+  - core: Allow overriding of the default SSH port. [GH-3474]
   - commands/box/remove: Make output nicer. [GH-3470]
   - commands/box/update: Show currently installed version. [GH-3467]
   - command/rsync-auto: Works properly on Windows.
