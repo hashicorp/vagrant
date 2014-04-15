@@ -271,6 +271,12 @@ module Vagrant
       lock_file = @machine_locks[id]
       if lock_file
         lock_file.close
+        begin
+          File.delete(lock_file.path)
+        rescue Errno::EACCES
+          # Another process is probably opened it, no problem.
+        end
+
         @machine_locks.delete(id)
       end
     end
