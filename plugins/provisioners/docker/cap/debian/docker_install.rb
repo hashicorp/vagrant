@@ -12,6 +12,7 @@ module VagrantPlugins
               if machine.provider_name != :lxc
                 comm.sudo("lsmod | grep aufs || modprobe aufs || apt-get install -y linux-image-extra-`uname -r`")
               end
+              comm.sudo("apt-get update -y")
               comm.sudo("apt-get install -y --force-yes -q curl")
               comm.sudo("curl http://get.docker.io/gpg | apt-key add -")
               comm.sudo("echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list")
