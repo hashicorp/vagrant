@@ -462,9 +462,10 @@ en:
         You requested to remove the box '%{name}' with provider
         '%{provider}'. This box has multiple versions. You must
         explicitly specify which version you want to remove with
-        the `--box-version` flag.
+        the `--box-version` flag. The available versions for this
+        box are:
 
-        Versions: %{versions}
+        %{versions}
       box_remove_not_found: |-
         The box you requested to be removed could not be found. No
         boxes named '%{name}' could be found.
