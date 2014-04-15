@@ -87,7 +87,15 @@ module Vagrant
     # Iterate over every machine in the index. The yielded {Entry} objects
     # will NOT be locked, so you'll have to call {#get} manually to acquire
     # the lock on them.
-    def each
+    def each(reload=false)
+      if reload
+        @lock.synchronize do
+          with_index_lock do
+            unlocked_reload
+          end
+        end
+      end
+
       @machines.each do |uuid, data|
         yield Entry.new(uuid, data.merge("id" => uuid))
       end

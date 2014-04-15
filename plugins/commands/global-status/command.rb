@@ -8,8 +8,14 @@ module VagrantPlugins
       end
 
       def execute
+        options = {}
+
         opts = OptionParser.new do |o|
           o.banner = "Usage: vagrant global-status"
+          o.separator ""
+          o.on("--prune", "Prune invalid entries.") do |p|
+            options[:prune] = true
+          end
         end
 
         # Parse the options
@@ -32,7 +38,15 @@ module VagrantPlugins
         widths[:vagrantfile_path] = 35
 
         entries = []
+        prune   = []
         @env.machine_index.each do |entry|
+          # If we're pruning and this entry is invalid, skip it
+          # and prune it later.
+          if options[:prune] && invalid?(entry)
+            prune << entry
+            next
+          end
+
           entries << entry
 
           columns.each do |_, method|
@@ -43,6 +57,12 @@ module VagrantPlugins
             cur = entry.send(method).to_s.length
             widths[method] = cur if cur > widths[method]
           end
+        end
+
+        # Prune all the entries to prune
+        prune.each do |entry|
+          deletable = @env.machine_index.get(entry.id)
+          @env.machine_index.delete(deletable) if deletable
         end
 
         total_width = 0
@@ -74,6 +94,27 @@ module VagrantPlugins
 
         # Success, exit status 0
         0
+      end
+
+      protected
+
+      # Tests if a entry is invalid and should be pruned
+      def invalid?(entry)
+        return true if !entry.vagrantfile_path.file?
+
+        # Create an environment so we can determine the active
+        # machines...
+        env = Vagrant::Environment.new(
+          cwd: entry.vagrantfile_path.dirname,
+          home_path: @env.home_path,
+        )
+
+        env.active_machines.each do |name, provider|
+          return false if name.to_s == entry.name.to_s &&
+            provider.to_s == entry.provider.to_s
+        end
+
+        true
       end
     end
   end
