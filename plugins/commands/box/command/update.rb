@@ -95,7 +95,7 @@ module VagrantPlugins
 
         def box_update(box, version, ui)
           ui.output(I18n.t("vagrant.box_update_checking", name: box.name))
-          ui.detail("Version constraints: #{version}")
+          ui.detail("Version constraints: #{box.version}")
           ui.detail("Provider: #{box.provider}")
 
           update = box.has_update?(version)
