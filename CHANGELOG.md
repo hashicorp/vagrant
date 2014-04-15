@@ -9,6 +9,8 @@ BUG FIXES:
   - guests/coreos: Fix test for Docker daemon running.
   - guests/linux: Fix test for Docker provisioner whether Docker is
       running.
+  - provisioners/docker: Fix issue where we weren't waiting for Docker
+      to properly start before issuing commands. [GH-3482]
 
 ## 1.5.3 (April 14, 2014)
 
