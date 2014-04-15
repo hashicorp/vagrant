@@ -171,27 +171,40 @@ module Vagrant
       id     = entry.id
 
       @lock.synchronize do
-        # Verify the machine is locked so we can safely write
-        # to it.
-        if !id
-          id = SecureRandom.uuid.gsub("-", "")
-          lock_file = lock_machine(id)
-          if !lock_file
-            raise "Failed to lock new machine: #{entry.name}"
+        with_index_lock do
+          # Reload so we have the latest machine data. This allows other
+          # processes to update their own machines without conflicting
+          # with our own.
+          unlocked_reload
+
+          # If we don't have a machine ID, try to look one up
+          if !id
+            self.each do |other|
+              if entry.name == other.name &&
+                entry.provider == other.provider &&
+                entry.vagrantfile_path.to_s == other.vagrantfile_path.to_s
+                id = other.id
+                break
+              end
+            end
+
+            # If we still don't have an ID, generate a random one
+            id = SecureRandom.uuid.gsub("-", "") if !id
+
+            # Get a lock on this machine
+            lock_file = lock_machine(id)
+            if !lock_file
+              raise "Failed to lock new machine: #{entry.name}"
+            end
+
+            @machine_locks[id] = lock_file
           end
 
-          @machine_locks[id] = lock_file
-        end
+          if !@machine_locks[id]
+            raise "Unlocked write on machine: #{id}"
+          end
 
-        if !@machine_locks[id]
-          raise "Unlocked write on machine: #{id}"
-        end
-
-        with_index_lock do
-          # Reload so we have the latest machine data, then update
-          # this particular machine, then write. This allows other processes
-          # to update their own machines without conflicting with our own.
-          unlocked_reload
+          # Set our machine and save
           @machines[id] = struct
           unlocked_save
         end
@@ -217,6 +230,8 @@ module Vagrant
     # that holds the lock.
     #
     # If the lock cannot be acquired, then nil is returned.
+    #
+    # This should be called within an index lock.
     #
     # @return [File]
     def lock_machine(uuid)
