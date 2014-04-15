@@ -108,6 +108,9 @@ module Vagrant
 
       @lock.synchronize do
         with_index_lock do
+          # Reload the data
+          unlocked_reload
+
           data = find_by_prefix(uuid)
           return nil if !data
           uuid = data["id"]
@@ -134,7 +137,12 @@ module Vagrant
     # @param [String] uuid
     # @return [Boolean]
     def include?(uuid)
-      !!find_by_prefix(uuid)
+      @lock.synchronize do
+        with_index_lock do
+          unlocked_reload
+          return !!find_by_prefix(uuid)
+        end
+      end
     end
 
     # Releases an entry, unlocking it.
