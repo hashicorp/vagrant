@@ -236,6 +236,7 @@ module Vagrant
           entry.provider = @provider_name.to_s
           entry.state = "preparing"
           entry.vagrantfile_path = @env.root_path
+          entry.vagrantfile_name = @env.vagrantfile_name
           entry = @env.machine_index.set(entry)
           @env.machine_index.release(entry)
 
