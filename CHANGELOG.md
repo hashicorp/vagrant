@@ -38,6 +38,11 @@ PLUGIN AUTHOR CHANGES:
   - provider: A new class-level `usable?` method can be implemented on the
       provider implementation. This returns or raises an error when the
       provider is not usable (i.e. VirtualBox isn't installed for VirtualBox)
+  - core: The "Call" middleware now merges the resulting middlewaer stack
+      into the current stack, rather than running it as a separate stack.
+      The result is that ordering is preserved.
+  - core: The "Message" middleware now takes a "post" option that will
+      output the message on the return-side of the middleware stack.
 
 ## 1.5.4 (April 21, 2014)
 
