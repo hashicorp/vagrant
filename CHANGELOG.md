@@ -3,6 +3,8 @@
 BUG FIXES:
 
   - command/rsync-auto: Works properly on Windows.
+  - guests/linux: Fix test for Docker provisioner whether Docker is
+      running.
 
 ## 1.5.3 (April 14, 2014)
 
