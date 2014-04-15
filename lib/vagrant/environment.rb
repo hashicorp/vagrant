@@ -73,7 +73,6 @@ module Vagrant
         :cwd              => nil,
         :home_path        => nil,
         :local_data_path  => nil,
-        :lock_path        => nil,
         :ui_class         => nil,
         :vagrantfile_name => nil,
       }.merge(opts || {})
@@ -99,7 +98,6 @@ module Vagrant
       # Set instance variables for all the configuration parameters.
       @cwd              = opts[:cwd]
       @home_path        = opts[:home_path]
-      @lock_path        = opts[:lock_path]
       @vagrantfile_name = opts[:vagrantfile_name]
       @ui               = opts[:ui_class].new
       @ui_class         = opts[:ui_class]
@@ -108,7 +106,7 @@ module Vagrant
       # runs at a time from {#batch}.
       @batch_lock = Mutex.new
 
-      @lock_acquired = false
+      @locks = {}
 
       @logger = Log4r::Logger.new("vagrant::environment")
       @logger.info("Environment initialized (#{self})")
@@ -341,38 +339,46 @@ module Vagrant
       end
     end
 
-    # This returns the path which Vagrant uses to determine the location
-    # of the file lock. This is specific to each operating system.
-    def lock_path
-      @lock_path || tmp_path.join("vagrant.lock")
-    end
-
-    # This locks Vagrant for the duration of the block passed to this
-    # method. During this time, any other environment which attempts
-    # to lock which points to the same lock file will fail.
-    def lock
+    # This acquires a process-level lock with the given name.
+    #
+    # The lock file is held within the data directory of this environment,
+    # so make sure that all environments that are locking are sharing
+    # the same data directory.
+    #
+    # This will raise Errors::EnvironmentLockedError if the lock can't
+    # be obtained.
+    #
+    # @param [String] name Name of the lock, since multiple locks can
+    #   be held at one time.
+    def lock(name="global", **opts)
       # If we don't have a block, then locking is useless, so ignore it
       return if !block_given?
 
       # This allows multiple locks in the same process to be nested
-      return yield if @lock_acquired
+      return yield if @locks[name]
+
+      # The path to this lock
+      lock_path = data_dir.join("lock.#{name}.lock")
 
       File.open(lock_path, "w+") do |f|
         # The file locking fails only if it returns "false." If it
         # succeeds it returns a 0, so we must explicitly check for
         # the proper error case.
-        raise Errors::EnvironmentLockedError if f.flock(File::LOCK_EX | File::LOCK_NB) === false
+        if f.flock(File::LOCK_EX | File::LOCK_NB) === false
+          raise Errors::EnvironmentLockedError,
+            name: name
+        end
 
         begin
           # Mark that we have a lock
-          @lock_acquired = true
+          @locks[name] = true
 
           yield
         ensure
           # We need to make sure that no matter what this is always
           # reset to false so we don't think we have a lock when we
           # actually don't.
-          @lock_acquired = false
+          @locks.delete(name)
         end
       end
     end

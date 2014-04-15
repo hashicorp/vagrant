@@ -658,10 +658,9 @@ en:
         The download was interrupted by an external signal. It did not
         complete.
       environment_locked: |-
-        An instance of Vagrant is already running. Only one instance of Vagrant
-        may run at any given time to avoid problems with VirtualBox inconsistencies
-        occurring. Please wait for the other instance of Vagrant to end and then
-        try again.
+        Vagrant attempted to acquire a lock named '%{name}', but this
+        lock is being held by another instance of Vagrant already. Please
+        wait and try again.
       environment_non_existent_cwd: |-
         The working directory for Vagrant doesn't exist! This is the
         specified working directory:
