@@ -135,11 +135,8 @@ module Vagrant
               # Vagrantfiles often have constants, so people would otherwise
               # constantly (heh) get "already initialized constant" warnings.
               machine = Vagrant::Util::SilenceWarnings.silence! do
-                env = Vagrant::Environment.new(
-                  cwd: entry.vagrantfile_path,
-                  home_path: @env.home_path,
-                  ui_class: @env.ui_class,
-                )
+                env = entry.vagrant_env(
+                  @env.home_path, ui_class: @env.ui_class)
                 env.machine(entry.name.to_sym, entry.provider.to_sym)
               end
 
