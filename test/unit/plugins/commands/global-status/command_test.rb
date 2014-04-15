@@ -51,7 +51,7 @@ describe VagrantPlugins::CommandGlobalStatus::Command do
       entryB_env = isolated_environment
       entryB_env.vagrantfile("")
       entryB = new_entry("B")
-      entryB.vagrantfile_path = entryB_env.workdir.join("Vagrantfile")
+      entryB.vagrantfile_path = entryB_env.workdir
       locked = iso_env.machine_index.set(entryB)
       iso_env.machine_index.release(locked)
 
@@ -63,7 +63,7 @@ describe VagrantPlugins::CommandGlobalStatus::Command do
       entryC_machine.id = "foo"
       entryC = new_entry(entryC_machine.name)
       entryC.provider = "dummy"
-      entryC.vagrantfile_path = entryC_env.workdir.join("Vagrantfile")
+      entryC.vagrantfile_path = entryC_env.workdir
       locked = iso_env.machine_index.set(entryC)
       iso_env.machine_index.release(locked)
 

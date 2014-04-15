@@ -100,15 +100,11 @@ module VagrantPlugins
 
       # Tests if a entry is invalid and should be pruned
       def invalid?(entry)
-        return true if !entry.vagrantfile_path.file?
+        return true if !entry.vagrantfile_path.directory?
 
         # Create an environment so we can determine the active
         # machines...
-        env = Vagrant::Environment.new(
-          cwd: entry.vagrantfile_path.dirname,
-          home_path: @env.home_path,
-        )
-
+        env = entry.vagrant_env(@env.home_path)
         env.active_machines.each do |name, provider|
           return false if name.to_s == entry.name.to_s &&
             provider.to_s == entry.provider.to_s

@@ -379,6 +379,17 @@ module Vagrant
         @extra_data       = raw["extra_data"] || {}
       end
 
+      # Creates a {Vagrant::Environment} for this entry.
+      #
+      # @return [Vagrant::Environment]
+      def vagrant_env(home_path, **opts)
+        Environment.new({
+          cwd: @vagrantfile_path,
+          home_path: home_path,
+          vagrantfile_name: @vagrantfile_name,
+        }.merge(opts))
+      end
+
       # Converts to the structure used by the JSON
       def to_json_struct
         {
