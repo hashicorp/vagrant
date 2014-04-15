@@ -43,7 +43,7 @@ module Vagrant
     def initialize(data_dir)
       @data_dir   = data_dir
       @index_file = data_dir.join("index")
-      @lock       = Mutex.new
+      @lock       = Monitor.new
       @machines  = {}
       @machine_locks = {}
 
