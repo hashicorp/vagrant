@@ -3,6 +3,7 @@
 BUG FIXES:
 
   - command/rsync-auto: Works properly on Windows.
+  - guests/coreos: Fix test for Docker daemon running.
   - guests/linux: Fix test for Docker provisioner whether Docker is
       running.
 

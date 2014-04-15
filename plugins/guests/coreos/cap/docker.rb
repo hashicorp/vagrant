@@ -3,7 +3,7 @@ module VagrantPlugins
     module Cap
       module Docker
         def self.docker_daemon_running(machine)
-          machine.communicate.test("test -f /run/docker.sock")
+          machine.communicate.test("test -S /run/docker.sock")
         end
       end
     end
