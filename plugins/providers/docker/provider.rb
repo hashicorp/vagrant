@@ -42,8 +42,6 @@ module VagrantPlugins
       def host_vm
         return @host_vm if @host_vm
 
-        # TODO(mitchellh): process-wide lock
-
         vf_path           = @machine.provider_config.vagrant_vagrantfile
         host_machine_name = @machine.provider_config.vagrant_machine || :default
         if !vf_path
