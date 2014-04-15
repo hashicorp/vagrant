@@ -373,7 +373,7 @@ module Vagrant
           # Mark that we have a lock
           @locks[name] = true
 
-          yield
+          return yield
         ensure
           # We need to make sure that no matter what this is always
           # reset to false so we don't think we have a lock when we

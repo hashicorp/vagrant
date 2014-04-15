@@ -52,8 +52,17 @@ module VagrantPlugins
           # we don't write into our installation dir (we can't).
           default_path = File.expand_path("../hostmachine/Vagrantfile", __FILE__)
           vf_path      = @machine.env.data_dir.join("docker-host", "Vagrantfile")
-          vf_path.dirname.mkpath
-          FileUtils.cp(default_path, vf_path)
+          begin
+            if !vf_path.file?
+              @machine.env.lock("docker-provider-hostvm") do
+                vf_path.dirname.mkpath
+                FileUtils.cp(default_path, vf_path)
+              end
+            end
+          rescue Vagrant::Errors::EnvironmentLockedError
+            # Lock contention, just retry
+            retry
+          end
 
           # Set the machine name since we hardcode that for the default
           host_machine_name = :default
