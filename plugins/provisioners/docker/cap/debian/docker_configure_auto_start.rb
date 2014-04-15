@@ -13,9 +13,15 @@ module VagrantPlugins
                 # Wait some amount time for the pid to become available
                 # so that we don't start executing Docker commands until
                 # it is available.
-                [0, 1, 2, 4].each do |delay|
-                  sleep delay
-                  break if machine.guest.capability(:docker_daemon_running)
+                if machine.guest.capability?(:docker_daemon_running)
+                  [0, 1, 2, 4].each do |delay|
+                    sleep delay
+                    break if machine.guest.capability(:docker_daemon_running)
+                  end
+                else
+                  # This OS doesn't support checking if Docker is running,
+                  # so just wait 5 seconds.
+                  sleep 5
                 end
               end
             end
