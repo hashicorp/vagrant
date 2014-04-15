@@ -227,5 +227,39 @@ describe Vagrant::MachineIndex do
         "foo" => "bar",
       })
     end
+
+    it "updates an existing directory if the name, provider, and path are the same" do
+      entry = entry_klass.new
+      entry.name = "foo"
+      entry.provider = "bar"
+      entry.vagrantfile_path = "/bar"
+      entry.state = "foo"
+
+      result = subject.set(entry)
+      expect(result.id).to_not be_empty
+
+      # Release it so we can modify it
+      subject.release(result)
+
+      entry2 = entry_klass.new
+      entry2.name = entry.name
+      entry2.provider = entry.provider
+      entry2.vagrantfile_path = entry.vagrantfile_path
+      entry2.state = "bar"
+      expect(entry2.id).to be_nil
+
+      nextresult = subject.set(entry2)
+      expect(nextresult.id).to eq(result.id)
+
+      # Release it so we can test the contents
+      subject.release(nextresult)
+
+      # Get it from a new class and check the results
+      subject = described_class.new(data_dir)
+      entry   = subject.get(result.id)
+      expect(entry).to_not be_nil
+      expect(entry.name).to eq(entry2.name)
+      expect(entry.state).to eq(entry2.state)
+    end
   end
 end
