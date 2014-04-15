@@ -146,8 +146,10 @@ begin
   opts[:ui_class] ||= Vagrant::UI::Colored
 
   # Recombine the arguments
-  argv << "--"
-  argv += argv_extra
+  if !argv_extra.empty?
+    argv << "--"
+    argv += argv_extra
+  end
 
   # Create the environment, which is the cwd of wherever the
   # `vagrant` command was invoked from
