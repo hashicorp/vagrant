@@ -339,6 +339,11 @@ module Vagrant
       # @return [String]
       attr_accessor :state
 
+      # The valid Vagrantfile filenames for this environment.
+      #
+      # @return [Array<String>]
+      attr_accessor :vagrantfile_name
+
       # The path to the Vagrantfile that manages this machine.
       #
       # @return [Pathname]
@@ -367,6 +372,7 @@ module Vagrant
         @name             = raw["name"]
         @provider         = raw["provider"]
         @state            = raw["state"]
+        @vagrantfile_name = raw["vagrantfile_name"]
         @vagrantfile_path = Pathname.new(raw["vagrantfile_path"])
         # TODO(mitchellh): parse into a proper datetime
         @updated_at       = raw["updated_at"]
@@ -379,6 +385,7 @@ module Vagrant
           "name"             => @name,
           "provider"         => @provider,
           "state"            => @state,
+          "vagrantfile_name" => @vagrantfile_name,
           "vagrantfile_path" => @vagrantfile_path,
           "updated_at"       => @updated_at,
           "extra_data"       => @extra_data,
