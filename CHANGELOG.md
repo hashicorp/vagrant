@@ -30,6 +30,11 @@ IMPROVEMENTS:
   - guests/freebsd: Support for virtio interfaces. [GH-3082]
   - guests/openbsd: Support for virtio interfaces. [GH-3082]
 
+BUG FIXES:
+
+  - synced\_folders/nfs: Acquires a process-level lock so exports don't
+      collide with Vagrant running in parallel.
+
 PLUGIN AUTHOR CHANGES:
 
   - New host capability: "rdp\_client". This capability gets the RDP connection
