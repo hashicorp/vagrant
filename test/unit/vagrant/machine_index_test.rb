@@ -76,6 +76,7 @@ describe Vagrant::MachineIndex do
           "bar" => {
             "name" => "default",
             "provider" => "vmware",
+            "local_data_path" => "/foo",
             "vagrantfile_path" => "/foo/bar/baz",
             "state" => "running",
             "updated_at" => "foo",
@@ -108,6 +109,7 @@ describe Vagrant::MachineIndex do
       expect(result.id).to eq("bar")
       expect(result.name).to eq("default")
       expect(result.provider).to eq("vmware")
+      expect(result.local_data_path).to eq(Pathname.new("/foo"))
       expect(result.vagrantfile_path).to eq(Pathname.new("/foo/bar/baz"))
       expect(result.state).to eq("running")
       expect(result.updated_at).to eq("foo")

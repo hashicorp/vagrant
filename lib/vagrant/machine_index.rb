@@ -332,6 +332,11 @@ module Vagrant
       # @return [String]
       attr_reader :id
 
+      # The path for the "local data" directory for the environment.
+      #
+      # @return [Pathname]
+      attr_accessor :local_data_path
+
       # The name of the machine.
       #
       # @return [String]
@@ -377,14 +382,19 @@ module Vagrant
         return if !raw
 
         @id               = id
+        @local_data_path  = raw["local_data_path"]
         @name             = raw["name"]
         @provider         = raw["provider"]
         @state            = raw["state"]
         @vagrantfile_name = raw["vagrantfile_name"]
-        @vagrantfile_path = Pathname.new(raw["vagrantfile_path"])
+        @vagrantfile_path = raw["vagrantfile_path"]
         # TODO(mitchellh): parse into a proper datetime
         @updated_at       = raw["updated_at"]
         @extra_data       = raw["extra_data"] || {}
+
+        # Convert to proper types
+        @local_data_path = Pathname.new(@local_data_path) if @local_data_path
+        @vagrantfile_path = Pathname.new(@vagrantfile_path) if @vagrantfile_path
       end
 
       # Creates a {Vagrant::Environment} for this entry.
@@ -395,6 +405,7 @@ module Vagrant
           Environment.new({
             cwd: @vagrantfile_path,
             home_path: home_path,
+            local_data_path: @local_data_path,
             vagrantfile_name: @vagrantfile_name,
           }.merge(opts))
         end
@@ -403,11 +414,12 @@ module Vagrant
       # Converts to the structure used by the JSON
       def to_json_struct
         {
+          "local_data_path"  => @local_data_path.to_s,
           "name"             => @name,
           "provider"         => @provider,
           "state"            => @state,
           "vagrantfile_name" => @vagrantfile_name,
-          "vagrantfile_path" => @vagrantfile_path,
+          "vagrantfile_path" => @vagrantfile_path.to_s,
           "updated_at"       => @updated_at,
           "extra_data"       => @extra_data,
         }
