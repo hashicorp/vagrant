@@ -17,28 +17,28 @@ module VagrantPlugins
         def call(env)
           return @app.call(env) if !env[:machine].provider.host_vm?
 
+          # Read our random ID for this instance
+          id_path   = env[:machine].data_dir.join("host_machine_sfid")
+          return @app.call(env) if !id_path.file?
+          host_sfid = id_path.read.chomp
+
           host_machine = env[:machine].provider.host_vm
+
+          @app.call(env)
 
           begin
             env[:machine].provider.host_vm_lock do
-              setup_synced_folders(host_machine, env)
+              setup_synced_folders(host_machine, host_sfid, env)
             end
           rescue Vagrant::Errors::EnvironmentLockedError
             sleep 1
             retry
           end
-
-          @app.call(env)
         end
 
         protected
 
-        def setup_synced_folders(host_machine, env)
-          # Read our random ID for this instance
-          id_path   = env[:machine].data_dir.join("host_machine_sfid")
-          return if !id_path.file?
-          host_sfid = id_path.read.chomp
-
+        def setup_synced_folders(host_machine, host_sfid, env)
           to_disable = []
 
           # Read the existing folders that are setup

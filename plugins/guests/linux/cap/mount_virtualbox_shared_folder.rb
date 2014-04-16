@@ -79,6 +79,14 @@ module VagrantPlugins
               "/sbin/initctl emit --no-wait vagrant-mounted MOUNTPOINT=#{expanded_guest_path}")
           end
         end
+
+        def self.unmount_virtualbox_shared_folder(machine, guestpath, options)
+          result = machine.communicate.sudo(
+            "umount #{guestpath}", error_check: false)
+          if result == 0
+            machine.communicate.sudo("rm -rf #{guestpath}", error_check: false)
+          end
+        end
       end
     end
   end

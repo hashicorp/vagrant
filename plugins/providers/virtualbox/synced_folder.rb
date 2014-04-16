@@ -67,7 +67,13 @@ module VagrantPlugins
       end
 
       def disable(machine, folders, _opts)
-        # TODO: unmount.
+        if machine.guest.capability?(:unmount_virtualbox_shared_folder)
+          folders.each do |id, data|
+            machine.guest.capability(
+              :unmount_virtualbox_shared_folder,
+              data[:guestpath], data)
+          end
+        end
 
         # Remove the shared folders from the VM metadata
         names = folders.map { |id, _data| os_friendly_id(id) }
