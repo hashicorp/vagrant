@@ -1,3 +1,4 @@
+require "digest/md5"
 require "tempfile"
 
 module VagrantPlugins
@@ -132,14 +133,47 @@ module VagrantPlugins
         info = @machine.ssh_info
         info[:port] ||= 22
 
+        # Make sure our private keys are synced over to the host VM
+        key_args = sync_private_keys(info).map do |path|
+          "-i #{path}"
+        end.join(" ")
+
         # Build the SSH command
-        "ssh -i /home/vagrant/insecure " +
+        "ssh #{key_args} " +
           "-o Compression=yes " +
           "-o ConnectTimeout=5 " +
           "-o StrictHostKeyChecking=no " +
           "-o UserKnownHostsFile=/dev/null " +
           "-p#{info[:port]} " +
           "#{info[:username]}@#{info[:host]}"
+      end
+
+      protected
+
+      def sync_private_keys(info)
+        @keys ||= {}
+
+        id = Digest::MD5.hexdigest(
+          @machine.env.root_path.to_s + @machine.name.to_s)
+
+        result = []
+        info[:private_key_path].each do |path|
+          if !@keys[path.to_s]
+            # We haven't seen this before, upload it!
+            guest_path = "/tmp/key_#{id}_#{Digest::MD5.hexdigest(path.to_s)}"
+            @host_vm.communicate.upload(path.to_s, guest_path)
+
+            # Make sure it has the proper chmod
+            @host_vm.communicate.execute("chmod 0600 #{guest_path}")
+
+            # Set it
+            @keys[path.to_s] = guest_path
+          end
+
+          result << @keys[path.to_s]
+        end
+
+        result
       end
     end
   end
