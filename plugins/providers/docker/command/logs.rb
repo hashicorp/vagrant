@@ -30,8 +30,8 @@ module VagrantPlugins
           argv = parse_options(opts)
           return if !argv
 
-          # TODO: exit with exit status != 0 if all machines are unknown
-          # or not created.
+          # This keeps track of if we ran our action on any machines...
+          any_success = false
 
           # Start a batch action that sends all the logs to stdout. This
           # will parallelize, if enabled, across all containers that are
@@ -52,11 +52,17 @@ module VagrantPlugins
                 next
               end
 
+              # At least one was run!
+              any_success = true
+
               batch.custom(machine) do |m|
                 execute_single(m, options)
               end
             end
           end
+
+          # If we didn't run on any machines, then exit status 1
+          return any_success ? 0 : 1
         end
 
         protected
