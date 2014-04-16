@@ -1,5 +1,11 @@
 ## 1.6.0 (unreleased)
 
+BACKWARDS INCOMPATIBILITIES:
+
+  - providers/virtualbox: Shared folders backed by VirtualBox are now
+      "transient". They will be removed if you reboot outside of Vagrant.
+      Always use `vagrant reload`.
+
 FEATURES:
 
   - **New guest: Windows**. Vagrant now fully supports Windows as a guest
@@ -37,6 +43,11 @@ BUG FIXES:
 
 PLUGIN AUTHOR CHANGES:
 
+  - core: The "Call" middleware now merges the resulting middlewaer stack
+      into the current stack, rather than running it as a separate stack.
+      The result is that ordering is preserved.
+  - core: The "Message" middleware now takes a "post" option that will
+      output the message on the return-side of the middleware stack.
   - New host capability: "rdp\_client". This capability gets the RDP connection
       info and must launch the RDP client on the system.
   - provider: Providers can now specify that boxes are optional. This lets
@@ -45,11 +56,8 @@ PLUGIN AUTHOR CHANGES:
   - provider: A new class-level `usable?` method can be implemented on the
       provider implementation. This returns or raises an error when the
       provider is not usable (i.e. VirtualBox isn't installed for VirtualBox)
-  - core: The "Call" middleware now merges the resulting middlewaer stack
-      into the current stack, rather than running it as a separate stack.
-      The result is that ordering is preserved.
-  - core: The "Message" middleware now takes a "post" option that will
-      output the message on the return-side of the middleware stack.
+  - synced\_folders: New "disable" method for removing synced folders from
+      a running machine.
 
 ## 1.5.4 (April 21, 2014)
 

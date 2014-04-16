@@ -9,7 +9,8 @@ module VagrantPlugins
           machine.provider_config.functional_vboxsf
       end
 
-      def prepare(machine, folders, _opts)
+      def enable(machine, folders, _opts)
+        # Export the shared folders to the VM
         defs = []
         folders.each do |id, data|
           hostpath = Vagrant::Util::Platform.cygwin_windows_path(data[:hostpath])
@@ -17,14 +18,12 @@ module VagrantPlugins
           defs << {
             name: os_friendly_id(id),
             hostpath: hostpath.to_s,
-            transient: data[:transient],
+            transient: true,
           }
         end
 
         driver(machine).share_folders(defs)
-      end
 
-      def enable(machine, folders, _opts)
         # short guestpaths first, so we don't step on ourselves
         folders = folders.sort_by do |id, data|
           if data[:guestpath]
