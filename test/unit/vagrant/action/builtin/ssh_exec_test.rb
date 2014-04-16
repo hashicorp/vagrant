@@ -46,6 +46,16 @@ describe Vagrant::Action::Builtin::SSHExec do
     described_class.new(app, env).call(env)
   end
 
+  it "should exec with the SSH info in the env if given" do
+    ssh_info = { foo: :bar }
+
+    expect(ssh_klass).to receive(:exec).
+      with(ssh_info, nil)
+
+    env[:ssh_info] = ssh_info
+    described_class.new(app, env).call(env)
+  end
+
   it "should exec with the options given in `ssh_opts`" do
     ssh_opts = { :foo => :bar }
 
