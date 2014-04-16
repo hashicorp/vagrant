@@ -87,9 +87,10 @@ module Vagrant
         # implementation class for the synced folders.
         #
         # @return [Hash<Symbol, Hash<String, Hash>>]
-        def synced_folders(machine, config=nil, **opts)
+        def synced_folders(machine, **opts)
           return cached_synced_folders(machine) if opts[:cached]
 
+          config = opts[:config]
           config ||= machine.config.vm
           folders = {}
 

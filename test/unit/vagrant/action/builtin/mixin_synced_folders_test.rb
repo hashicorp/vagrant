@@ -101,7 +101,7 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
       other = double("config")
       other.stub(synced_folders: other_folders)
 
-      result = subject.synced_folders(machine, other)
+      result = subject.synced_folders(machine, config: other)
       expect(result.length).to eq(1)
       expect(result[:default]).to eq({
         "bar" => other_folders["bar"],
@@ -137,7 +137,7 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
     end
 
     it "returns nil if cached read with no cache" do
-      result = subject.synced_folders(machine, nil, cached: true)
+      result = subject.synced_folders(machine, cached: true)
       expect(result).to be_nil
     end
 
@@ -154,7 +154,7 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
       old_folders = folders.dup
       folders.clear
 
-      result = subject.synced_folders(machine, nil, cached: true)
+      result = subject.synced_folders(machine, cached: true)
       expect(result.length).to eq(2)
       expect(result[:default]).to eq({
         "another" => old_folders["another"],
@@ -180,7 +180,7 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
       folders.clear
 
       # Read them all back
-      result = subject.synced_folders(machine, nil, cached: true)
+      result = subject.synced_folders(machine, cached: true)
       expect(result.length).to eq(2)
       expect(result[:default]).to eq({
         "foo" => { type: "default" },
