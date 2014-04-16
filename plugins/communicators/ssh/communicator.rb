@@ -170,7 +170,12 @@ module VagrantPlugins
         stdout = ""
         stderr = ""
         exit_status = connect do |connection|
-          shell_execute(connection, command, opts[:sudo], opts[:shell]) do |type, data|
+          shell_opts = {
+            sudo: opts[:sudo],
+            shell: opts[:shell],
+          }
+
+          shell_execute(connection, command, **shell_opts) do |type, data|
             if type == :stdout
               stdout += data
             elsif type == :stderr
@@ -390,7 +395,15 @@ module VagrantPlugins
       end
 
       # Executes the command on an SSH connection within a login shell.
-      def shell_execute(connection, command, sudo=false, shell=nil)
+      def shell_execute(connection, command, **opts)
+        opts = {
+          sudo: false,
+          shell: nil
+        }.merge(opts)
+
+        sudo  = opts[:sudo]
+        shell = opts[:shell]
+
         @logger.info("Execute: #{command} (sudo=#{sudo.inspect})")
         exit_status = nil
 
