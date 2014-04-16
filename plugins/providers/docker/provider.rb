@@ -1,5 +1,6 @@
 require "digest/md5"
 require "fileutils"
+require "thread"
 
 require "log4r"
 
@@ -8,6 +9,8 @@ require "vagrant/util/silence_warnings"
 module VagrantPlugins
   module DockerProvider
     class Provider < Vagrant.plugin("2", :provider)
+      @@host_vm_mutex = Mutex.new
+
       def initialize(machine)
         @logger  = Log4r::Logger.new("vagrant::provider::docker")
         @machine = machine
@@ -94,9 +97,21 @@ module VagrantPlugins
       # This acquires a lock on the host VM.
       def host_vm_lock
         hash = Digest::MD5.hexdigest(host_vm.data_dir.to_s)
-        @machine.env.lock(hash) do
-          return yield
+
+        # We do a process-level mutex on the outside, since we can
+        # wait for that a short amount of time. Then, we do a process lock
+        # on the inside, which will raise an exception if locked.
+        host_vm_mutex.synchronize do
+          @machine.env.lock(hash) do
+            return yield
+          end
         end
+      end
+
+      # This is a process-local mutex that can be used by parallel
+      # providers to lock the host VM access.
+      def host_vm_mutex
+        @@host_vm_mutex
       end
 
       # This says whether or not Docker will be running within a VM
