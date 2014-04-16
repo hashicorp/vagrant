@@ -392,6 +392,10 @@ module Vagrant
         @updated_at       = raw["updated_at"]
         @extra_data       = raw["extra_data"] || {}
 
+        # Be careful with the paths
+        @local_data_path = nil  if @local_data_path == ""
+        @vagrantfile_path = nil if @vagrantfile_path == ""
+
         # Convert to proper types
         @local_data_path = Pathname.new(@local_data_path) if @local_data_path
         @vagrantfile_path = Pathname.new(@vagrantfile_path) if @vagrantfile_path
