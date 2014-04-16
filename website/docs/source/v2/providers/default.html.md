@@ -20,3 +20,6 @@ variable.
 Just set `VAGRANT_DEFAULT_PROVIDER` to the provider you wish to be the
 default. For example, if you use Vagrant with VMware Fusion, you can set
 the environmental variable to `vmware_fusion` and it will be your default.
+
+To set the default provider in your Vagrantfile you can add
+`ENV['VAGRANT_DEFAULT_PROVIDER'] = 'provider'` to the front.
