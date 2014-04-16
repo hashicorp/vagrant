@@ -261,6 +261,39 @@ describe Vagrant::Machine do
     end
   end
 
+  describe "#action_raw" do
+    let(:callable) {lambda { |e|
+      e[:called] = true
+      @env = e
+    }}
+
+    before do
+      @env = {}
+    end
+
+    it "should run the callable with the proper env" do
+      subject.action_raw(:foo, callable)
+
+      expect(@env[:called]).to be_true
+      expect(@env[:action_name]).to eq(:machine_action_foo)
+      expect(@env[:machine]).to equal(subject)
+      expect(@env[:machine_action]).to eq(:foo)
+      expect(@env[:ui]).to equal(subject.ui)
+    end
+
+    it "should return the environment as a result" do
+      result = subject.action_raw(:foo, callable)
+      expect(result).to equal(@env)
+    end
+
+    it "should merge in any extra env" do
+      subject.action_raw(:bar, callable, foo: :bar)
+
+      expect(@env[:called]).to be_true
+      expect(@env[:foo]).to eq(:bar)
+    end
+  end
+
   describe "#communicate" do
     it "should return the SSH communicator by default" do
       expect(subject.communicate).

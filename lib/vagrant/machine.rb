@@ -158,12 +158,23 @@ module Vagrant
           :provider => @provider.to_s
       end
 
+      action_raw(name, callable, extra_env)
+    end
+
+    # This calls a raw callable in the proper context of the machine using
+    # the middleware stack.
+    #
+    # @param [Symbol] name Name of the action
+    # @param [Proc] callable
+    # @param [Hash] extra_env Extra env for the action env.
+    # @return [Hash] The resulting env
+    def action_raw(name, callable, extra_env=nil)
       # Run the action with the action runner on the environment
       env = {
-        :action_name    => "machine_action_#{name}".to_sym,
-        :machine        => self,
-        :machine_action => name,
-        :ui             => @ui
+        action_name: "machine_action_#{name}".to_sym,
+        machine: self,
+        machine_action: name,
+        ui: @ui,
       }.merge(extra_env || {})
       @env.action_runner.run(callable, env)
     end
