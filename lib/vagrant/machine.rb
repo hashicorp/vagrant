@@ -382,9 +382,7 @@ module Vagrant
 
       # Setup the keys
       info[:private_key_path] ||= []
-      if !info[:private_key_path].is_a?(Array)
-        info[:private_key_path] = [info[:private_key_path]]
-      end
+      info[:private_key_path] = Array(info[:private_key_path])
 
       # Expand the private key path relative to the root path
       info[:private_key_path].map! do |path|
