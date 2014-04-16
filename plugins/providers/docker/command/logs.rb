@@ -33,7 +33,9 @@ module VagrantPlugins
           # TODO: exit with exit status != 0 if all machines are unknown
           # or not created.
 
-          # Go through each machine and execute the client on it
+          # Start a batch action that sends all the logs to stdout. This
+          # will parallelize, if enabled, across all containers that are
+          # chosen.
           @env.batch do |batch|
             with_target_vms(argv) do |machine|
               if machine.provider_name != :docker
@@ -57,6 +59,10 @@ module VagrantPlugins
           end
         end
 
+        protected
+
+        # Executes the "docker logs" command on a single machine and proxies
+        # the output to our UI.
         def execute_single(machine, options)
           command = ["docker", "logs"]
           command << "--follow" if options[:follow]
