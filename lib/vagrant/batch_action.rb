@@ -24,6 +24,13 @@ module Vagrant
       @actions << [machine, action, options]
     end
 
+    # Custom runs a custom proc against a machine.
+    #
+    # @param [Machine] machine The machine to run against.
+    def custom(machine, &block)
+      @actions << [machine, block, nil]
+    end
+
     # Run all the queued up actions, parallelizing if possible.
     #
     # This will parallelize if and only if the provider of every machine
@@ -69,7 +76,11 @@ module Vagrant
           start_pid = Process.pid
 
           begin
-            machine.send(:action, action, options)
+            if action.is_a?(Proc)
+              action.call(machine)
+            else
+              machine.send(:action, action, options)
+            end
           rescue Exception => e
             # If we're not parallelizing, then raise the error. We also
             # don't raise the error if we've forked, because it'll hang

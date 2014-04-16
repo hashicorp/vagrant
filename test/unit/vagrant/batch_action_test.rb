@@ -34,6 +34,16 @@ describe Vagrant::BatchAction do
       expect(called_actions.include?([machine2, "destroy", nil])).to be
     end
 
+    it "should run the arbitrary methods in order" do
+      called = []
+      subject.custom(machine)  { |m| called << m }
+      subject.custom(machine2) { |m| called << m }
+      subject.run
+
+      expect(called[0]).to equal(machine)
+      expect(called[1]).to equal(machine2)
+    end
+
     it "should handle forks gracefully", :skip_windows do
       # Doesn't need to be tested on Windows since Windows doesn't
       # support fork(1)
