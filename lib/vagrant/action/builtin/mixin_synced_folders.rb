@@ -59,12 +59,13 @@ module Vagrant
         # implementation class for the synced folders.
         #
         # @return [Hash<Symbol, Hash<String, Hash>>]
-        def synced_folders(machine)
+        def synced_folders(machine, config=nil)
+          config ||= machine.config.vm
           folders = {}
 
           # Determine all the synced folders as well as the implementation
           # they're going to use.
-          machine.config.vm.synced_folders.each do |id, data|
+          config.synced_folders.each do |id, data|
             # Ignore disabled synced folders
             next if data[:disabled]
 

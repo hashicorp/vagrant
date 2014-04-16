@@ -88,6 +88,21 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
       expect(result[:nfs]).to eq({ "nfs" => folders["nfs"] })
     end
 
+    it "should return the proper set of folders of a custom config" do
+      folders["root"] = {}
+      folders["another"] = {}
+
+      other_folders = { "bar" => {} }
+      other = double("config")
+      other.stub(synced_folders: other_folders)
+
+      result = subject.synced_folders(machine, other)
+      expect(result.length).to eq(1)
+      expect(result[:default]).to eq({
+        "bar" => other_folders["bar"],
+      })
+    end
+
     it "should error if an explicit type is unusable" do
       plugins[:unusable] = [impl(false, "bad"), 15]
       folders["root"] = { type: "unusable" }
