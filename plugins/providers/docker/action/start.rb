@@ -10,6 +10,9 @@ module VagrantPlugins
           machine = env[:machine]
           driver  = machine.provider.driver
           driver.start(machine.id)
+
+          # TODO(mitchellh): Wait for container to go to "running" state.
+
           @app.call(env)
         end
       end
