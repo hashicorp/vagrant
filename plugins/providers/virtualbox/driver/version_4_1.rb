@@ -488,6 +488,27 @@ module VagrantPlugins
           execute("controlvm", @uuid, "savestate")
         end
 
+        def unshare_folders(names)
+          names.each do |name|
+            begin
+              execute(
+                "sharedfolder", "remove", @uuid,
+                "--name", name,
+                "--transient")
+
+            execute(
+              "setextradata", @uuid,
+              "VBoxInternal2/SharedFoldersEnableSymlinksCreate/#{name}")
+            rescue Vagrant::Errors::VBoxManageError => e
+              if e.extra_data[:stderr].include?("VBOX_E_FILE_ERROR")
+                # The folder doesn't exist. ignore.
+              else
+                raise
+              end
+            end
+          end
+        end
+
         def verify!
           # This command sometimes fails if kernel drivers aren't properly loaded
           # so we just run the command and verify that it succeeded.

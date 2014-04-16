@@ -63,6 +63,14 @@ module VagrantPlugins
         end
       end
 
+      def disable(machine, folders, _opts)
+        # TODO: unmount.
+
+        # Remove the shared folders from the VM metadata
+        names = folders.map { |id, _data| os_friendly_id(id) }
+        driver(machine).unshare_folders(names)
+      end
+
       def cleanup(machine, opts)
         driver(machine).clear_shared_folders if machine.id && machine.id != ""
       end
