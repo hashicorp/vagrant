@@ -9,6 +9,8 @@ BUG FIXES:
   - guests/coreos: Fix test for Docker daemon running.
   - guests/linux: Fix test for Docker provisioner whether Docker is
       running.
+  - guests/linux: Fix regression where rsync owner/group stopped
+      working. [GH-3485]
   - provisioners/docker: Fix issue where we weren't waiting for Docker
       to properly start before issuing commands. [GH-3482]
 
