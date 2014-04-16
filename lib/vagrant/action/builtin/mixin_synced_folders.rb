@@ -168,6 +168,8 @@ module Vagrant
               r.delete(k)
             end
           end
+        rescue Errno::ENOENT
+          return nil
         end
       end
     end
