@@ -10,6 +10,9 @@ module VagrantPlugins
           # If we aren't using a host VM, then don't worry about it
           return @app.call(env) if !env[:machine].provider.host_vm?
 
+          env[:machine].ui.output(I18n.t(
+            "docker_provider.ssh_through_host_vm"))
+
           # Get the container's SSH info
           info = env[:machine].ssh_info
           info[:port] ||= 22

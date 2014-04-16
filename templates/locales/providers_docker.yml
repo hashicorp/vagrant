@@ -19,6 +19,9 @@ en:
       Container not created. Skipping.
     not_docker_provider: |-
       Not backed by Docker provider. Skipping.
+    ssh_through_host_vm: |-
+      SSH will be proxied through the Docker virtual machine since we're
+      not running Docker natively. This is just a notice, and not an error.
 
     messages:
       destroying: |-
