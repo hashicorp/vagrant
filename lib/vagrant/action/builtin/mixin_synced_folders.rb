@@ -1,3 +1,5 @@
+require "json"
+
 require 'vagrant/util/scoped_hash_override'
 
 module Vagrant
@@ -54,12 +56,26 @@ module Vagrant
           @plugins ||= Vagrant.plugin("2").manager.synced_folders
         end
 
+        # This saves the synced folders data to the machine data directory.
+        # They can then be retrieved again with `synced_folders` by passing
+        # the `cached` option to it.
+        #
+        # @param [Machine] machine The machine that the folders belong to
+        # @param [Hash] folders The result from a {#synced_folders} call.
+        def save_synced_folders(machine, folders)
+          machine.data_dir.join("synced_folders").open("w") do |f|
+            f.write(JSON.dump(folders))
+          end
+        end
+
         # This returns the set of shared folders that should be done for
         # this machine. It returns the folders in a hash keyed by the
         # implementation class for the synced folders.
         #
         # @return [Hash<Symbol, Hash<String, Hash>>]
-        def synced_folders(machine, config=nil)
+        def synced_folders(machine, config=nil, **opts)
+          return cached_synced_folders(machine) if opts[:cached]
+
           config ||= machine.config.vm
           folders = {}
 
@@ -118,6 +134,26 @@ module Vagrant
           end
 
           return folders
+        end
+
+        protected
+
+        def cached_synced_folders(machine)
+          JSON.parse(machine.data_dir.join("synced_folders").read).tap do |r|
+            # We have to do all sorts of things to make the proper things
+            # symbols and
+            r.keys.each do |k|
+              r[k].each do |ik, v|
+                v.keys.each do |vk|
+                  v[vk.to_sym] = v[vk]
+                  v.delete(vk)
+                end
+              end
+
+              r[k.to_sym] = r[k]
+              r.delete(k)
+            end
+          end
         end
       end
     end

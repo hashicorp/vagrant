@@ -1,3 +1,5 @@
+require "tmpdir"
+
 require File.expand_path("../../../../base", __FILE__)
 
 require "vagrant/action/builtin/mixin_synced_folders"
@@ -12,8 +14,11 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
   end
 
   let(:machine) do
+    data_dir = Pathname.new(Dir.mktmpdir)
+
     double("machine").tap do |machine|
       allow(machine).to receive(:config).and_return(machine_config)
+      allow(machine).to receive(:data_dir).and_return(data_dir)
     end
   end
 
@@ -129,6 +134,29 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
 
       result = subject.synced_folders(machine)
       expect(result[:nfs]["root"][:foo]).to eql("bar")
+    end
+
+    it "should be able to save and retrieve cached versions" do
+      folders["root"] = {}
+      folders["another"] = { type: "" }
+      folders["foo"] = { type: "default" }
+      folders["nfs"] = { type: "nfs" }
+
+      result = subject.synced_folders(machine)
+      subject.save_synced_folders(machine, result)
+
+      # Clear the folders so we know its reading from cache
+      old_folders = folders.dup
+      folders.clear
+
+      result = subject.synced_folders(machine, nil, cached: true)
+      expect(result.length).to eq(2)
+      expect(result[:default]).to eq({
+        "another" => old_folders["another"],
+        "foo" => old_folders["foo"],
+        "root" => old_folders["root"],
+      })
+      expect(result[:nfs]).to eq({ "nfs" => old_folders["nfs"] })
     end
   end
 end
