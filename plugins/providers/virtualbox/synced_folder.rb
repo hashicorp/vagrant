@@ -13,7 +13,10 @@ module VagrantPlugins
         # Export the shared folders to the VM
         defs = []
         folders.each do |id, data|
-          hostpath = Vagrant::Util::Platform.cygwin_windows_path(data[:hostpath])
+          hostpath = data[:hostpath]
+          if !data[:hostpath_exact]
+            hostpath = Vagrant::Util::Platform.cygwin_windows_path(hostpath)
+          end
 
           defs << {
             name: os_friendly_id(id),

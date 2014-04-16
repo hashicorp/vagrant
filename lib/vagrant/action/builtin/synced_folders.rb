@@ -33,6 +33,8 @@ module Vagrant
           # it does not exist on host
           folders.each do |_, fs|
             fs.each do |id, data|
+              next if data[:hostpath_exact]
+
               data[:hostpath] = File.expand_path(
                 data[:hostpath], env[:root_path])
 

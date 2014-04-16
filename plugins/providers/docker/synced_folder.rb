@@ -19,7 +19,7 @@ module VagrantPlugins
         # FIXME: Check whether the container has already been created with
         #        different synced folders and let the user know about it
         folders.each do |id, data|
-          host_path  = File.expand_path(data[:hostpath], machine.env.root_path)
+          host_path  = data[:hostpath]
           guest_path = data[:guestpath]
           machine.provider_config.volumes << "#{host_path}:#{guest_path}"
         end

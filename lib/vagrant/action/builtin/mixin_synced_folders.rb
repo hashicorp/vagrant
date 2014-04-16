@@ -107,10 +107,14 @@ module Vagrant
           end
 
           # Apply the scoped hash overrides to get the options
-          folders.each do |impl_name, fs|
+          folders.dup.each do |impl_name, fs|
+            new_fs = {}
             fs.each do |id, data|
-              fs[id] = scoped_hash_override(data, impl_name)
+              id         = data[:id] if data[:id]
+              new_fs[id] = scoped_hash_override(data, impl_name)
             end
+
+            folders[impl_name] = new_fs
           end
 
           return folders

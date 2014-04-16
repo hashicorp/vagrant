@@ -2,7 +2,6 @@ require "fileutils"
 
 require "log4r"
 
-require "vagrant/action/builtin/mixin_synced_folders"
 require "vagrant/util/silence_warnings"
 
 module VagrantPlugins
@@ -86,32 +85,6 @@ module VagrantPlugins
 
           # TODO(mitchellh): configure the provider of this machine somehow
           host_env.machine(host_machine_name, :virtualbox)
-        end
-
-        # Make sure we swap all the synced folders out from our
-        # machine so that we do a double synced folder: normal synced
-        # folders to the host machine, then Docker volumes within that host.
-        sf_helper_klass = Class.new do
-          include Vagrant::Action::Builtin::MixinSyncedFolders
-        end
-        sf_helper   = sf_helper_klass.new
-        our_folders = sf_helper.synced_folders(@machine)
-        if our_folders[:docker]
-          our_folders[:docker].each do |id, data|
-            data = data.dup
-            data.delete(:type)
-
-            # Add them to the host machine
-=begin
-            @host_vm.config.vm.synced_folder(
-              data[:hostpath],
-              data[:guestpath],
-              data)
-=end
-
-            # Remove from our machine
-            @machine.config.vm.synced_folders.delete(id)
-          end
         end
 
         @host_vm

@@ -10,13 +10,8 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           b.use ConfigValidate
           b.use HandleBox
-
-          b.use Call, IsState, :host_state_unknown do |env, b2|
-            if env[:result]
-              b2.use HostMachine
-            end
-          end
-
+          b.use HostMachine
+          b.use HostMachineSyncFolders
           b.use Call, IsState, :not_created do |env, b2|
             # If the VM is NOT created yet, then do the setup steps
             if env[:result]
@@ -224,6 +219,7 @@ module VagrantPlugins
       autoload :ForwardPorts, action_root.join("forward_ports")
       autoload :HasSSH, action_root.join("has_ssh")
       autoload :HostMachine, action_root.join("host_machine")
+      autoload :HostMachineSyncFolders, action_root.join("host_machine_sync_folders")
       autoload :PrepareSSH, action_root.join("prepare_ssh")
       autoload :Stop, action_root.join("stop")
       autoload :PrepareNFSValidIds, action_root.join("prepare_nfs_valid_ids")

@@ -21,8 +21,11 @@ module VagrantPlugins
           cid = ''
           @@mutex.synchronize do
             env[:ui].output(I18n.t("docker_provider.creating"))
-            env[:ui].detail(" Name: #{params[:name]}")
-            env[:ui].detail("Image: #{params[:image]}")
+            env[:ui].detail("  Name: #{params[:name]}")
+            env[:ui].detail(" Image: #{params[:image]}")
+            params[:volumes].each do |volume|
+              env[:ui].detail("Volume: #{volume}")
+            end
 
             cid = @driver.create(params)
           end

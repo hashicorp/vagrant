@@ -11,6 +11,8 @@ en:
     host_machine_starting: |-
       Vagrant will now create or start a local VM to act as the Docker
       host. You'll see the output of the `vagrant up` for this VM below.
+    host_machine_syncing_folders: |-
+      Syncing folders to the host VM...
     logs_host_state_unknown: |-
       This container requires a host VM, and the state of that VM
       is unknown. Run `vagrant up` to verify that the container and

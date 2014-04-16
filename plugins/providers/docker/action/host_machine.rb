@@ -2,9 +2,6 @@ require "digest/md5"
 
 require "log4r"
 
-require "vagrant/util/platform"
-require "vagrant/util/silence_warnings"
-
 module VagrantPlugins
   module DockerProvider
     module Action
@@ -46,23 +43,22 @@ module VagrantPlugins
         protected
 
         def setup_host_machine(host_machine, env)
-          # See if the machine is ready already.
-          if host_machine.communicate.ready?
-            env[:machine].ui.detail(I18n.t("docker_provider.host_machine_ready"))
-            return
-          end
-
           # Create a UI for this machine that stays at the detail level
           proxy_ui = host_machine.ui.dup
           proxy_ui.opts[:bold] = false
           proxy_ui.opts[:prefix_spaces] = true
           proxy_ui.opts[:target] = env[:machine].name.to_s
 
-          env[:machine].ui.detail(
-            I18n.t("docker_provider.host_machine_starting"))
-          env[:machine].ui.detail(" ")
-          host_machine.with_ui(proxy_ui) do
-            host_machine.action(:up)
+          # See if the machine is ready already. If not, start it.
+          if host_machine.communicate.ready?
+            env[:machine].ui.detail(I18n.t("docker_provider.host_machine_ready"))
+          else
+            env[:machine].ui.detail(
+              I18n.t("docker_provider.host_machine_starting"))
+            env[:machine].ui.detail(" ")
+            host_machine.with_ui(proxy_ui) do
+              host_machine.action(:up)
+            end
           end
         end
       end
