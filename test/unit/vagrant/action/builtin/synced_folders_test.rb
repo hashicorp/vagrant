@@ -83,7 +83,6 @@ describe Vagrant::Action::Builtin::SyncedFolders do
 
         "other" => {
           hostpath: "/bar",
-          create: true,
         }
       }
 
@@ -110,7 +109,6 @@ describe Vagrant::Action::Builtin::SyncedFolders do
 
         "other" => {
           hostpath: "/bar",
-          create: true,
         }
       }
 
@@ -190,7 +188,7 @@ describe Vagrant::Action::Builtin::SyncedFolders do
       env[:synced_folders_config] = new_config
 
       expect(subject).to receive(:synced_folders).
-        with(machine, new_config, cached: false).
+        with(machine, config: new_config, cached: false).
         and_return(synced_folders)
 
       subject.call(env)
