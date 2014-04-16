@@ -1,3 +1,5 @@
+require "tempfile"
+
 module VagrantPlugins
   module DockerProvider
     # This communicator uses the host VM as proxy to communicate to the
@@ -29,12 +31,73 @@ module VagrantPlugins
         raise "NOT IMPLEMENTED YET"
       end
 
-      def execute(command, opts=nil, &block)
-        @host_vm.communicate.execute(
-          "#{container_ssh_command} #{command}", opts, &block)
+      def execute(command, **opts, &block)
+        fence = {}
+        fence[:stderr] = "VAGRANT FENCE: #{Time.now.to_i} #{rand(100000)}"
+        fence[:stdout] = "VAGRANT FENCE: #{Time.now.to_i} #{rand(100000)}"
+
+        # We want to emulate how the SSH communicator actually executes
+        # things, so we build up the list of commands to execute in a
+        # giant shell script.
+        tf = Tempfile.new("vagrant")
+        tf.binmode
+        tf.write("export TERM=vt100\n")
+        tf.write("echo #{fence[:stdout]}\n")
+        tf.write("echo #{fence[:stderr]} >&2\n")
+        tf.write("#{command}\n")
+        tf.write("exit\n")
+        tf.close
+
+        # Upload the temp file to the remote machine
+        remote_temp = "/tmp/docker_#{Time.now.to_i}_#{rand(100000)}"
+        @host_vm.communicate.upload(tf.path, remote_temp)
+
+        # Determine the shell to execute. Prefer the explicitly passed in shell
+        # over the default configured shell. If we are using `sudo` then we
+        # need to wrap the shell in a `sudo` call.
+        shell_cmd = @machine.config.ssh.shell
+        shell_cmd = shell if opts[:shell]
+        shell_cmd = "sudo -E -H #{shell_cmd}" if opts[:sudo]
+
+        acc    = {}
+        fenced = {}
+        result = @host_vm.communicate.execute(
+          "#{container_ssh_command} '#{shell_cmd}' <#{remote_temp}",
+          opts) do |type, data|
+          # If we don't have a block, we don't care about the data
+          next if !block
+
+          # We only care about stdout and stderr output
+          next if ![:stdout, :stderr].include?(type)
+
+          # If we reached our fence, then just output
+          if fenced[type]
+            block.call(type, data)
+            next
+          end
+
+          # Otherwise, accumulate
+          acc[type] = data
+
+          # Look for the fence
+          index = acc[type].index(fence[type])
+          next if !index
+
+          fenced[type] = true
+          index += fence[type].length
+          data  = acc[type][index..-1].chomp
+          acc[type] = ""
+          block.call(type, data)
+        end
+
+        @host_vm.communicate.execute("rm #{remote_temp}", error_check: false)
+
+        return result
       end
 
-      def sudo(command, opts=nil)
+      def sudo(command, **opts, &block)
+        opts = { sudo: true }.merge(opts)
+        execute(command, opts, &block)
       end
 
       def test(command, **opts)
