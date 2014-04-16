@@ -3,6 +3,8 @@ require "tmpdir"
 
 require File.expand_path("../../../../base", __FILE__)
 
+require Vagrant.source_root.join("plugins/kernel_v2/config/vm")
+
 describe Vagrant::Action::Builtin::SyncedFolders do
   include_context "unit"
   include_context "synced folder actions"
@@ -89,6 +91,48 @@ describe Vagrant::Action::Builtin::SyncedFolders do
           create: true,
         }
       }
+
+      subject.call(env)
+
+      expect(order).to eq([:prepare, :enable])
+      expect(ids.length).to eq(2)
+      expect(ids[0]).to eq(ids[1])
+    end
+
+    it "syncs custom folders" do
+      ids   = []
+      order = []
+      tracker = Class.new(impl(true, "good")) do
+        define_method(:prepare) do |machine, folders, opts|
+          ids   << self.object_id
+          order << :prepare
+        end
+
+        define_method(:enable) do |machine, folders, opts|
+          ids   << self.object_id
+          order << :enable
+        end
+      end
+
+      plugins[:tracker] = [tracker, 15]
+
+      synced_folders["tracker"] = {
+        "root" => {
+          hostpath: "foo",
+        },
+
+        "other" => {
+          hostpath: "bar",
+          create: true,
+        }
+      }
+
+      new_config = double("config")
+      env[:synced_folders_config] = new_config
+
+      expect(subject).to receive(:synced_folders).
+        with(machine, new_config).
+        and_return(synced_folders)
 
       subject.call(env)
 

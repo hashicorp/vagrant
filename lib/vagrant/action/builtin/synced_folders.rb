@@ -18,7 +18,7 @@ module Vagrant
         end
 
         def call(env)
-          folders = synced_folders(env[:machine])
+          folders = synced_folders(env[:machine], env[:synced_folders_config])
 
           folders.each do |impl_name, fs|
             @logger.info("Synced Folder Implementation: #{impl_name}")
