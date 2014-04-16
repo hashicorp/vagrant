@@ -123,21 +123,17 @@ module VagrantPlugins
 
       # Returns the SSH info for accessing the Container.
       def ssh_info
-        # If the Container is not created then we cannot possibly SSH into it, so
-        # we return nil.
-        return nil if state == :not_created
+        # If the container isn't running, we can't SSH into it
+        return nil if state.id != :running
 
         network = driver.inspect_container(@machine.id)['NetworkSettings']
         ip      = network['IPAddress']
 
         # If we were not able to identify the container's IP, we return nil
         # here and we let Vagrant core deal with it ;)
-        return nil unless ip
+        return nil if !ip
 
-        {
-          :host => ip,
-          :port => @machine.config.ssh.guest_port
-        }
+        { host: ip }
       end
 
       def state

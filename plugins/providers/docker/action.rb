@@ -162,6 +162,8 @@ module VagrantPlugins
                 b3.use Message, I18n.t("docker_provider.messages.not_running")
                 next
               end
+
+              b3.use PrepareSSH
               b3.use SSHExec
             end
           end
@@ -222,6 +224,7 @@ module VagrantPlugins
       autoload :ForwardPorts, action_root.join("forward_ports")
       autoload :HasSSH, action_root.join("has_ssh")
       autoload :HostMachine, action_root.join("host_machine")
+      autoload :PrepareSSH, action_root.join("prepare_ssh")
       autoload :Stop, action_root.join("stop")
       autoload :PrepareNFSValidIds, action_root.join("prepare_nfs_valid_ids")
       autoload :PrepareNFSSettings, action_root.join("prepare_nfs_settings")
