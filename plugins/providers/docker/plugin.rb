@@ -28,6 +28,12 @@ module VagrantPlugins
         Command::Logs
       end
 
+      communicator(:docker_hostvm) do
+        require_relative "communicator"
+        init!
+        Communicator
+      end
+
       config(:docker, :provider) do
         require_relative 'config'
         init!

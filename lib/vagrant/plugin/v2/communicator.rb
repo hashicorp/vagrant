@@ -23,7 +23,7 @@ module Vagrant
         #
         # @return [Boolean]
         def self.match?(machine)
-          false
+          true
         end
 
         # Initializes the communicator with the machine that we will be

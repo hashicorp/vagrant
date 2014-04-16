@@ -63,6 +63,12 @@ en:
         run exits and doesn't keep running.
 
     errors:
+      communicator_non_docker: |-
+        The "docker_hostvm" communicator was specified on a machine that
+        is not provided by the Docker provider. This is a bug with your
+        Vagrantfile. Please contact the creator of your Vagrant environment
+        and notify them to not use this communicator for anything except the
+        "docker" provider.
       config:
         cmd_not_set: |-
           The Docker command has not been set!

@@ -11,6 +11,12 @@ module VagrantPlugins
       def initialize(machine)
         @logger  = Log4r::Logger.new("vagrant::provider::docker")
         @machine = machine
+
+        if host_vm?
+          # We need to use a special communicator that proxies our
+          # SSH requests over our host VM to the container itself.
+          @machine.config.vm.communicator = :docker_hostvm
+        end
       end
 
       # @see Vagrant::Plugin::V2::Provider#action
