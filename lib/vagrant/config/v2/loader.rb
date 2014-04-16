@@ -51,6 +51,16 @@ module Vagrant
           old_state = old.__internal_state
           new_state = new.__internal_state
 
+          # Make sure we instantiate every key in the config so that we
+          # merge every key. This avoids issues with the same reference
+          # being part of the config.
+          old_state["config_map"].each do |k, _|
+            old.send(k)
+          end
+          new_state["config_map"].each do |k, _|
+            new.send(k)
+          end
+
           # The config map for the new object is the old one merged with the
           # new one.
           config_map = old_state["config_map"].merge(new_state["config_map"])
