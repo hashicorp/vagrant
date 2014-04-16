@@ -41,6 +41,10 @@ en:
         create the environment. If a machine is not created, only the
         default provider will be shown. So if a provider is not listed,
         then the machine is not created for that environment.
+      running: |-
+        The container is created and running. You can stop it using
+        `vagrant halt`, attach to it with `vagrant docker-attach`, and
+        kill/destroy it with `vagrant destroy`.
       stopped: |-
         The container is created but not running. You can run it again
         with `vagrant up`. If the container always goes to "stopped"
