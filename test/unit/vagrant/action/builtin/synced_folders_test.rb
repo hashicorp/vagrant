@@ -44,6 +44,7 @@ describe Vagrant::Action::Builtin::SyncedFolders do
       env[:root_path] = Pathname.new(Dir.mktmpdir)
       subject.stub(:plugins => plugins)
       subject.stub(:synced_folders => synced_folders)
+      allow(subject).to receive(:save_synced_folders)
     end
 
     it "should create on the host if specified" do
@@ -189,7 +190,7 @@ describe Vagrant::Action::Builtin::SyncedFolders do
       env[:synced_folders_config] = new_config
 
       expect(subject).to receive(:synced_folders).
-        with(machine, new_config).
+        with(machine, new_config, cached: false).
         and_return(synced_folders)
 
       subject.call(env)

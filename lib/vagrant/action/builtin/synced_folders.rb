@@ -18,7 +18,12 @@ module Vagrant
         end
 
         def call(env)
-          folders = synced_folders(env[:machine], env[:synced_folders_config])
+          opts = {
+            cached: !!env[:synced_folders_cached],
+          }
+
+          folders = synced_folders(
+            env[:machine], env[:synced_folders_config], **opts)
 
           folders.each do |impl_name, fs|
             @logger.info("Synced Folder Implementation: #{impl_name}")
@@ -82,6 +87,9 @@ module Vagrant
             @logger.info("Invoking synced folder enable: #{impl_name}")
             impl.enable(env[:machine], fs, impl_opts(impl_name, env))
           end
+
+          # Save the synced folders
+          save_synced_folders(env[:machine], folders, merge: true)
         end
       end
     end

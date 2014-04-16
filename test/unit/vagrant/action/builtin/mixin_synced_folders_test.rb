@@ -158,5 +158,32 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
       })
       expect(result[:nfs]).to eq({ "nfs" => old_folders["nfs"] })
     end
+
+    it "should be able to save and retrieve cached versions" do
+      folders["foo"] = { type: "default" }
+      result = subject.synced_folders(machine)
+      subject.save_synced_folders(machine, result)
+
+      # Clear the folders and set some more
+      folders.clear
+      folders["bar"] = { type: "default" }
+      folders["baz"] = { type: "nfs" }
+      result = subject.synced_folders(machine)
+      subject.save_synced_folders(machine, result, merge: true)
+
+      # Clear one last time
+      folders.clear
+
+      # Read them all back
+      result = subject.synced_folders(machine, nil, cached: true)
+      expect(result.length).to eq(2)
+      expect(result[:default]).to eq({
+        "foo" => { type: "default" },
+        "bar" => { type: "default" },
+      })
+      expect(result[:nfs]).to eq({
+        "baz" => { type: "nfs" }
+      })
+    end
   end
 end

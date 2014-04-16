@@ -62,7 +62,21 @@ module Vagrant
         #
         # @param [Machine] machine The machine that the folders belong to
         # @param [Hash] folders The result from a {#synced_folders} call.
-        def save_synced_folders(machine, folders)
+        def save_synced_folders(machine, folders, **opts)
+          if opts[:merge]
+            existing = cached_synced_folders(machine)
+            if existing
+              folders.each do |impl, fs|
+                existing[impl] ||= {}
+                fs.each do |id, data|
+                  existing[impl][id] = data
+                end
+              end
+
+              folders = existing
+            end
+          end
+
           machine.data_dir.join("synced_folders").open("w") do |f|
             f.write(JSON.dump(folders))
           end
