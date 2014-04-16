@@ -99,10 +99,10 @@ module Vagrant
             end
 
             @logger.info("Invoking synced folder disable: #{impl_name}")
-            fs.each do |id, _|
+            to_disable.each do |id, _|
               @logger.info("  - Disabling: #{id}")
             end
-            impl.disable(env[:machine], fs, impl_opts(impl_name, env))
+            impl.disable(env[:machine], to_disable, impl_opts(impl_name, env))
           end
 
           # If we disabled folders, we have to delete some from the
