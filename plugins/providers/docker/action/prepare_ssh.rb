@@ -13,10 +13,6 @@ module VagrantPlugins
           env[:machine].ui.output(I18n.t(
             "docker_provider.ssh_through_host_vm"))
 
-          # Get the container's SSH info
-          info = env[:machine].ssh_info
-          info[:port] ||= 22
-
           # Modify the SSH info to be the host VM's info
           env[:ssh_info] = env[:machine].provider.host_vm.ssh_info
 
@@ -27,11 +23,10 @@ module VagrantPlugins
           ssh_opts[:extra_args] = Array(ssh_opts[:extra_args])
           ssh_opts[:extra_args] << "-t"
 
-          # Append our real SSH command
+          # Append our real SSH command. If we have a host VM we know
+          # we're using our special communicator, so we can call helpers there
           ssh_opts[:extra_args] <<
-            "ssh -i /home/vagrant/insecure " +
-            "-p#{info[:port]} " +
-            "#{info[:username]}@#{info[:host]}"
+           env[:machine].communicate.container_ssh_command
 
           # Set the opts
           env[:ssh_opts] = ssh_opts
