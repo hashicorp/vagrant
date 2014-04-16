@@ -98,6 +98,10 @@ module Vagrant
               to_disable[id] = data
             end
 
+            @logger.info("Invoking synced folder disable: #{impl_name}")
+            fs.each do |id, _|
+              @logger.info("  - Disabling: #{id}")
+            end
             impl.disable(env[:machine], fs, impl_opts(impl_name, env))
           end
 
