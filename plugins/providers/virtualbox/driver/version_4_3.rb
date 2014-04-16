@@ -528,9 +528,9 @@ module VagrantPlugins
                 "--name", name,
                 "--transient")
 
-            execute(
-              "setextradata", @uuid,
-              "VBoxInternal2/SharedFoldersEnableSymlinksCreate/#{name}")
+              execute(
+                "setextradata", @uuid,
+                "VBoxInternal2/SharedFoldersEnableSymlinksCreate/#{name}")
             rescue Vagrant::Errors::VBoxManageError => e
               if e.extra_data[:stderr].include?("VBOX_E_FILE_ERROR")
                 # The folder doesn't exist. ignore.

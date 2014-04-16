@@ -1,3 +1,5 @@
+require "digest/md5"
+
 require "log4r"
 
 require "vagrant/util/platform"
@@ -24,15 +26,30 @@ module VagrantPlugins
           env[:machine].ui.output(I18n.t(
             "docker_provider.host_machine_needed"))
 
-          # TODO(mitchellh): process-level lock so that we don't
-          # step on parallel Vagrant's toes.
-
           host_machine = env[:machine].provider.host_vm
 
+          # Grab a process-level lock on the data directory of this VM
+          # so that we only try to spin up one at a time
+          hash = Digest::MD5.hexdigest(host_machine.data_dir.to_s)
+          begin
+            env[:machine].env.lock(hash) do
+              setup_host_machine(host_machine, env)
+            end
+          rescue Vagrant::Errors::EnvironmentLockedError
+            sleep 1
+            retry
+          end
+
+          @app.call(env)
+        end
+
+        protected
+
+        def setup_host_machine(host_machine, env)
           # See if the machine is ready already.
           if host_machine.communicate.ready?
             env[:machine].ui.detail(I18n.t("docker_provider.host_machine_ready"))
-            return @app.call(env)
+            return
           end
 
           # Create a UI for this machine that stays at the detail level
@@ -47,8 +64,6 @@ module VagrantPlugins
           host_machine.with_ui(proxy_ui) do
             host_machine.action(:up)
           end
-
-          @app.call(env)
         end
       end
     end
