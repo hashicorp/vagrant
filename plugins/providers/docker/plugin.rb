@@ -22,10 +22,10 @@ module VagrantPlugins
         Provider
       end
 
-      command("docker-attach", primary: false) do
-        require_relative "command/attach"
+      command("docker-logs", primary: false) do
+        require_relative "command/logs"
         init!
-        Command::Attach
+        Command::Logs
       end
 
       config(:docker, :provider) do

@@ -1,9 +1,9 @@
 module VagrantPlugins
   module DockerProvider
     module Command
-      class Attach < Vagrant.plugin("2", :command)
+      class Logs < Vagrant.plugin("2", :command)
         def self.synopsis
-          "attaches to the output stream of a container"
+          "outputs the logs from the Docker container"
         end
 
         def execute
@@ -12,7 +12,7 @@ module VagrantPlugins
           options[:prefix] = true
 
           opts = OptionParser.new do |o|
-            o.banner = "Usage: vagrant docker-attach [options]"
+            o.banner = "Usage: vagrant docker-logs [options]"
             o.separator ""
             o.separator "Options:"
             o.separator ""
@@ -45,7 +45,7 @@ module VagrantPlugins
 
             state = machine.state
             if state == :host_state_unknown
-              machine.ui.output(I18n.t("docker_provider.attach_host_state_unknown"))
+              machine.ui.output(I18n.t("docker_provider.logs_host_state_unknown"))
               next
             elsif state == :not_created
               machine.ui.output(I18n.t("docker_provider.not_created_skip"))
