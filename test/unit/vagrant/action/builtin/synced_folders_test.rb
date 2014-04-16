@@ -64,6 +64,64 @@ describe Vagrant::Action::Builtin::SyncedFolders do
       expect(env[:root_path].join("bar")).to be_directory
     end
 
+    it "doesn't expand the host path if told not to" do
+      called_folders = nil
+      tracker = Class.new(impl(true, "good")) do
+        define_method(:prepare) do |machine, folders, opts|
+          called_folders = folders
+        end
+      end
+
+      plugins[:tracker] = [tracker, 15]
+
+      synced_folders["tracker"] = {
+        "root" => {
+          hostpath: "foo",
+          hostpath_exact: true,
+        },
+
+        "other" => {
+          hostpath: "/bar",
+          create: true,
+        }
+      }
+
+      subject.call(env)
+
+      expect(called_folders).to_not be_nil
+      expect(called_folders["root"][:hostpath]).to eq("foo")
+    end
+
+    it "expands the host path relative to the root path" do
+      called_folders = nil
+      tracker = Class.new(impl(true, "good")) do
+        define_method(:prepare) do |machine, folders, opts|
+          called_folders = folders
+        end
+      end
+
+      plugins[:tracker] = [tracker, 15]
+
+      synced_folders["tracker"] = {
+        "root" => {
+          hostpath: "foo",
+        },
+
+        "other" => {
+          hostpath: "/bar",
+          create: true,
+        }
+      }
+
+      subject.call(env)
+
+      expect(called_folders).to_not be_nil
+      expect(called_folders["root"][:hostpath]).to eq(
+        Pathname.new(File.expand_path(
+          called_folders["root"][:hostpath],
+          env[:root_path])).to_s)
+    end
+
     it "should invoke prepare then enable" do
       ids   = []
       order = []
