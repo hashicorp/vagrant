@@ -43,13 +43,16 @@ BUG FIXES:
 
 PLUGIN AUTHOR CHANGES:
 
+  - **Deprecation:** The "prepare" method for synced folders is deprecated.
+      Any preparation should be moved to the "enable" method. This is to
+      enable runtime changes of synced folders with the new "disable" method.
+  - **New host capability:** "rdp\_client". This capability gets the RDP connection
+      info and must launch the RDP client on the system.
   - core: The "Call" middleware now merges the resulting middlewaer stack
       into the current stack, rather than running it as a separate stack.
       The result is that ordering is preserved.
   - core: The "Message" middleware now takes a "post" option that will
       output the message on the return-side of the middleware stack.
-  - New host capability: "rdp\_client". This capability gets the RDP connection
-      info and must launch the RDP client on the system.
   - provider: Providers can now specify that boxes are optional. This lets
       you use the provider without a `config.vm.box`. Useful for providers like
       AWS or Docker.
