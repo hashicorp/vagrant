@@ -99,8 +99,6 @@ module VagrantPlugins
         end
       end
 
-      private
-
       def execute(*cmd, &block)
         @executor.execute(*cmd, &block)
       end

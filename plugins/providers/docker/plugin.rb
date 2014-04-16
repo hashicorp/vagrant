@@ -22,6 +22,12 @@ module VagrantPlugins
         Provider
       end
 
+      command("docker-attach", primary: false) do
+        require_relative "command/attach"
+        init!
+        Command::Attach
+      end
+
       config(:docker, :provider) do
         require_relative 'config'
         init!

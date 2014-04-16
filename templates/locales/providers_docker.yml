@@ -1,5 +1,9 @@
 en:
   docker_provider:
+    attach_host_state_unknown: |-
+      This container requires a host VM, and the state of that VM
+      is unknown. Run `vagrant up` to verify that the container and
+      its host VM is running, then try again.
     creating: |-
       Creating the container...
     created: |-
@@ -11,6 +15,10 @@ en:
     host_machine_starting: |-
       Vagrant will now create or start a local VM to act as the Docker
       host. You'll see the output of the `vagrant up` for this VM below.
+    not_created_skip: |-
+      Container not created. Skipping.
+    not_docker_provider: |-
+      Not backed by Docker provider. Skipping.
 
     messages:
       destroying: |-

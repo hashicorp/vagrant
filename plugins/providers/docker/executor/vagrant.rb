@@ -34,13 +34,22 @@ module VagrantPlugins
             if !fenced
               index = stdout.index(start_fence)
               if index
+                fenced = true
+
                 index += start_fence.length
                 stdout = stdout[index..-1]
                 stdout.chomp!
-              end
-            end
 
-            block.call(type, data) if block && fenced
+                # We're now fenced, send all the data through
+                if block
+                  block.call(:stdout, stdout)
+                  block.call(:stderr, stderr)
+                end
+              end
+            else
+              # If we're already fenced, just send the data through.
+              block.call(type, data) if block && fenced
+            end
           end
 
           if code != 0
