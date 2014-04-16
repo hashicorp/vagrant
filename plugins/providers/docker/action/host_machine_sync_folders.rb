@@ -1,4 +1,5 @@
 require "digest/md5"
+require "securerandom"
 
 require "log4r"
 
@@ -23,11 +24,9 @@ module VagrantPlugins
 
           host_machine = env[:machine].provider.host_vm
 
-          # Grab a process-level lock on the data directory of this VM
-          # so that we only try to modify this one at a time.
-          hash = Digest::MD5.hexdigest(host_machine.data_dir.to_s)
+          # Lock while we make changes
           begin
-            env[:machine].env.lock(hash) do
+            env[:machine].provider.host_vm_lock do
               setup_synced_folders(host_machine, env)
             end
           rescue Vagrant::Errors::EnvironmentLockedError
@@ -41,6 +40,19 @@ module VagrantPlugins
         protected
 
         def setup_synced_folders(host_machine, env)
+          # Write the host machine SFID if we have one
+          id_path   = env[:machine].data_dir.join("host_machine_sfid")
+          host_sfid = nil
+          if !id_path.file?
+            host_sfid = SecureRandom.uuid
+            id_path.open("w") do |f|
+              f.binmode
+              f.write("#{host_sfid}\n")
+            end
+          else
+            host_sfid = id_path.read.chomp
+          end
+
           # Create a UI for this machine that stays at the detail level
           proxy_ui = host_machine.ui.dup
           proxy_ui.opts[:bold] = false
@@ -53,7 +65,7 @@ module VagrantPlugins
           if existing_folders
             existing_folders.each do |impl, fs|
               fs.each do |_name, data|
-                if data[:docker_sfid]
+                if data[:docker_sfid] && data[:docker_host_sfid] == host_sfid
                   existing_ids[data[:docker_sfid]] = data
                 end
               end
@@ -80,6 +92,7 @@ module VagrantPlugins
               # Generate a new guestpath
               data[:docker_guestpath] = data[:guestpath]
               data[:docker_sfid] = id
+              data[:docker_host_sfid] = host_sfid
               data[:guestpath] = "/mnt/docker_#{Time.now.to_i}_#{rand(100000)}"
               data[:id] = id[0...6] + rand(10000).to_s
 

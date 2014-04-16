@@ -85,12 +85,39 @@ module Vagrant
 
           # Once booted, setup the folder contents
           folders.each do |impl, impl_name, fs|
-            @logger.info("Invoking synced folder enable: #{impl_name}")
-            impl.enable(env[:machine], fs, impl_opts(impl_name, env))
+            if !env[:synced_folders_disable]
+              @logger.info("Invoking synced folder enable: #{impl_name}")
+              impl.enable(env[:machine], fs, impl_opts(impl_name, env))
+              next
+            end
+
+            # We're disabling synced folders
+            to_disable = {}
+            fs.each do |id, data|
+              next if !env[:synced_folders_disable].include?(id)
+              to_disable[id] = data
+            end
+
+            impl.disable(env[:machine], fs, impl_opts(impl_name, env))
           end
 
-          # Save the synced folders
-          save_synced_folders(env[:machine], original_folders, merge: true)
+          # If we disabled folders, we have to delete some from the
+          # save, so we load the entire cached thing, and delete them.
+          if env[:synced_folders_disable]
+            all = synced_folders(env[:machine], cached: true)
+            all.each do |impl, fs|
+              fs.keys.each do |id|
+                if env[:synced_folders_disable].include?(id)
+                  fs.delete(id)
+                end
+              end
+            end
+
+            save_synced_folders(env[:machine], all)
+          else
+            # Save the synced folders
+            save_synced_folders(env[:machine], original_folders, merge: true)
+          end
         end
       end
     end

@@ -1,5 +1,3 @@
-require "digest/md5"
-
 require "log4r"
 
 module VagrantPlugins
@@ -25,11 +23,8 @@ module VagrantPlugins
 
           host_machine = env[:machine].provider.host_vm
 
-          # Grab a process-level lock on the data directory of this VM
-          # so that we only try to spin up one at a time
-          hash = Digest::MD5.hexdigest(host_machine.data_dir.to_s)
           begin
-            env[:machine].env.lock(hash) do
+            env[:machine].provider.host_vm_lock do
               setup_host_machine(host_machine, env)
             end
           rescue Vagrant::Errors::EnvironmentLockedError

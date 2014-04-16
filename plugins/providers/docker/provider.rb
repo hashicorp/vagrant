@@ -1,3 +1,4 @@
+require "digest/md5"
 require "fileutils"
 
 require "log4r"
@@ -88,6 +89,14 @@ module VagrantPlugins
         end
 
         @host_vm
+      end
+
+      # This acquires a lock on the host VM.
+      def host_vm_lock
+        hash = Digest::MD5.hexdigest(host_vm.data_dir.to_s)
+        @machine.env.lock(hash) do
+          return yield
+        end
       end
 
       # This says whether or not Docker will be running within a VM

@@ -133,6 +133,7 @@ module VagrantPlugins
                 b3.use ConfigValidate
                 b3.use EnvSet, :force_halt => true
                 b3.use action_halt
+                b3.use HostMachineSyncFoldersDisable
                 b3.use Destroy
                 b3.use ProvisionerCleanup
               else
@@ -220,6 +221,7 @@ module VagrantPlugins
       autoload :HasSSH, action_root.join("has_ssh")
       autoload :HostMachine, action_root.join("host_machine")
       autoload :HostMachineSyncFolders, action_root.join("host_machine_sync_folders")
+      autoload :HostMachineSyncFoldersDisable, action_root.join("host_machine_sync_folders_disable")
       autoload :PrepareSSH, action_root.join("prepare_ssh")
       autoload :Stop, action_root.join("stop")
       autoload :PrepareNFSValidIds, action_root.join("prepare_nfs_valid_ids")
