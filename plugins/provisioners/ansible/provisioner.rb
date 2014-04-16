@@ -26,7 +26,7 @@ module VagrantPlugins
 
         # By default we limit by the current machine.
         # This can be overridden by the limit config option.
-        options << "--limit=#{@machine.name}"
+        options << "--limit=#{@machine.name}" unless config.limit
 
         #
         # 2) Configuration Joker
