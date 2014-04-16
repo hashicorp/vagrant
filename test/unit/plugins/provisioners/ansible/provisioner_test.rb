@@ -330,14 +330,8 @@ VF
         config.limit = %w(foo !bar)
       end
 
-      it_should_set_arguments_and_environment_variables 6
+      it_should_set_arguments_and_environment_variables 5
       it_should_set_optional_arguments({ "limit" => "--limit=foo,!bar" })
-
-      it "sets custom limit argument after implicit default limit" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
-          expect(args.index("--limit=foo,!bar")).to be > args.index("--limit=#{machine.name}")
-        }
-      end
     end
 
     describe "with inventory_path option" do
@@ -440,7 +434,7 @@ VF
     end
 
     # Note:
-    # The Vagrant Ansible provisioner does not validate the coherency of arguments combination,
+    # The Vagrant Ansible provisioner does not validate the coherency of argument combinations,
     # and let ansible-playbook complain.
     describe "with a maximum of options" do
       before do
@@ -463,7 +457,7 @@ VF
         config.raw_ssh_args = ['-o ControlMaster=no']
       end
 
-      it_should_set_arguments_and_environment_variables 20, 4, true
+      it_should_set_arguments_and_environment_variables 19, 4, true
       it_should_force_ssh_transport_mode
       it_should_set_optional_arguments({  "extra_vars"          => "--extra-vars=@#{File.expand_path(__FILE__)}",
                                           "sudo"                => "--sudo",
