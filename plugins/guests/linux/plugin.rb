@@ -51,6 +51,12 @@ module VagrantPlugins
         Cap::NFSClient
       end
 
+      # For the Docker provider
+      guest_capability("linux", "port_open_check") do
+        require_relative "cap/port"
+        Cap::Port
+      end
+
       guest_capability("linux", "read_ip_address") do
         require_relative "cap/read_ip_address"
         Cap::ReadIPAddress

@@ -15,7 +15,7 @@ module VagrantPlugins
           b.use Call, IsState, :not_created do |env, b2|
             # If the VM is NOT created yet, then do the setup steps
             if env[:result]
-              b2.use EnvSet, :port_collision_repair => true
+              b2.use EnvSet, port_collision_repair: true
 
               b2.use Call, HasSSH do |env2, b3|
                 if env2[:result]
@@ -27,14 +27,8 @@ module VagrantPlugins
                 end
               end
 
-              b2.use Call, HostMachineRequired do |env2, b3|
-                if !env[:result]
-                  # We're not using a proxy host VM, so just handle
-                  # port collisions like we would any other system.
-                  b3.use HandleForwardedPortCollisions
-                end
-              end
-
+              b2.use HostMachinePortChecker
+              b2.use HandleForwardedPortCollisions
               b2.use PrepareNFSValidIds
               b2.use SyncedFolderCleanup
               b2.use SyncedFolders
@@ -225,6 +219,7 @@ module VagrantPlugins
       autoload :Destroy, action_root.join("destroy")
       autoload :HasSSH, action_root.join("has_ssh")
       autoload :HostMachine, action_root.join("host_machine")
+      autoload :HostMachinePortChecker, action_root.join("host_machine_port_checker")
       autoload :HostMachineRequired, action_root.join("host_machine_required")
       autoload :HostMachineSyncFolders, action_root.join("host_machine_sync_folders")
       autoload :HostMachineSyncFoldersDisable, action_root.join("host_machine_sync_folders_disable")

@@ -59,7 +59,7 @@ module VagrantPlugins
         def forwarded_ports
           mappings = {}
           @machine.config.vm.networks.each do |type, options|
-            if type == :forwarded_port && options[:id] != 'ssh'
+            if type == :forwarded_port
               mappings[options[:host]] = options
             end
           end
