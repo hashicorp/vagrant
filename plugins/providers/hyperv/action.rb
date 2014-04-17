@@ -63,6 +63,27 @@ module VagrantPlugins
         end
       end
 
+      def self.action_provision
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use ConfigValidate
+          b.use Call, Created do |env, b2|
+            if env[:result]
+              b2.use Message, I18n.t("vagrant_hyperv.message_not_created")
+              next
+            end
+
+            b2.use Call, IsState, :running do |env1, b3|
+              if !env1[:result]
+                b3.use Message, I18n.t("vagrant_hyperv.message_not_running")
+                next
+              end
+
+              b3.use Provision
+            end
+          end
+        end
+      end
+
       def self.action_resume
         Vagrant::Action::Builder.new.tap do |b|
           b.use HandleBox

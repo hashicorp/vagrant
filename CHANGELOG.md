@@ -1,5 +1,9 @@
 ## 1.5.4 (unreleased)
 
+IMPROVEMENTS:
+
+  - providers/hyperv: Implement the provision command. [GH-3494]
+
 BUG FIXES:
 
   - core: Allow overriding of the default SSH port. [GH-3474]
