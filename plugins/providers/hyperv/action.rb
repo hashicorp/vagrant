@@ -66,7 +66,7 @@ module VagrantPlugins
       def self.action_provision
         Vagrant::Action::Builder.new.tap do |b|
           b.use ConfigValidate
-          b.use Call, Created do |env, b2|
+          b.use Call, IsState, :not_created do |env, b2|
             if env[:result]
               b2.use Message, I18n.t("vagrant_hyperv.message_not_created")
               next
