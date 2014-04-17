@@ -43,6 +43,10 @@ module Vagrant
           # Determine the handler we'll use if we have any port collisions
           repair = !!env[:port_collision_repair]
 
+          # The method we'll use to check if a port is open.
+          port_checker = env[:port_collision_port_check]
+          port_checker ||= lambda { |port| is_port_open?("127.0.0.1", port) }
+
           # Log out some of our parameters
           @logger.debug("Extra in use: #{extra_in_use.inspect}")
           @logger.debug("Remap: #{remap.inspect}")
@@ -69,7 +73,7 @@ module Vagrant
             end
 
             # If the port is open (listening for TCP connections)
-            if extra_in_use.include?(host_port) || is_port_open?("127.0.0.1", host_port)
+            if extra_in_use.include?(host_port) || port_checker[host_port]
               if !repair || !options[:auto_correct]
                 raise Errors::ForwardPortCollision,
                   :guest_port => guest_port.to_s,
@@ -85,7 +89,7 @@ module Vagrant
                 usable_ports.delete(repaired_port)
 
                 # If the port is in use, then we can't use this either...
-                if extra_in_use.include?(repaired_port) || is_port_open?("127.0.0.1", repaired_port)
+                if extra_in_use.include?(repaired_port) || port_checker[repaired_port]
                   @logger.info("Reparied port also in use: #{repaired_port}. Trying another...")
                   next
                 end
