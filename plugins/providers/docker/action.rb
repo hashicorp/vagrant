@@ -27,6 +27,7 @@ module VagrantPlugins
                 end
               end
 
+              b2.use HostMachinePortWarning
               b2.use HostMachinePortChecker
               b2.use HandleForwardedPortCollisions
               b2.use PrepareNFSValidIds
@@ -220,6 +221,7 @@ module VagrantPlugins
       autoload :HasSSH, action_root.join("has_ssh")
       autoload :HostMachine, action_root.join("host_machine")
       autoload :HostMachinePortChecker, action_root.join("host_machine_port_checker")
+      autoload :HostMachinePortWarning, action_root.join("host_machine_port_warning")
       autoload :HostMachineRequired, action_root.join("host_machine_required")
       autoload :HostMachineSyncFolders, action_root.join("host_machine_sync_folders")
       autoload :HostMachineSyncFoldersDisable, action_root.join("host_machine_sync_folders_disable")

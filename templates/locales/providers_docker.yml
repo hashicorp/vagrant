@@ -6,6 +6,12 @@ en:
       Container created: %{id}
     host_machine_disabling_folders: |-
       Removing synced folders...
+    host_machine_forwarded_ports: |-
+      Warning: When using a remote Docker host, forwarded ports will NOT be
+      immediately available on your machine. They will still be forwarded on
+      the remote machine, however, so if you have a way to access the remote
+      machine, then you should be able to access those ports there. This is
+      not an error, it is only an informational message.
     host_machine_needed: |-
       Docker host is required. One will be created if necessary...
     host_machine_ready: |-
