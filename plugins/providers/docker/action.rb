@@ -16,7 +16,6 @@ module VagrantPlugins
             # If the VM is NOT created yet, then do the setup steps
             if env[:result]
               b2.use EnvSet, :port_collision_repair => true
-              b2.use HandleForwardedPortCollisions
 
               b2.use Call, HasSSH do |env2, b3|
                 if env2[:result]
@@ -25,6 +24,14 @@ module VagrantPlugins
                   b3.use Message,
                     I18n.t("docker_provider.messages.provision_no_ssh"),
                     post: true
+                end
+              end
+
+              b2.use Call, HostMachineRequired do |env2, b3|
+                if !env[:result]
+                  # We're not using a proxy host VM, so just handle
+                  # port collisions like we would any other system.
+                  b3.use HandleForwardedPortCollisions
                 end
               end
 
@@ -220,6 +227,7 @@ module VagrantPlugins
       autoload :ForwardPorts, action_root.join("forward_ports")
       autoload :HasSSH, action_root.join("has_ssh")
       autoload :HostMachine, action_root.join("host_machine")
+      autoload :HostMachineRequired, action_root.join("host_machine_required")
       autoload :HostMachineSyncFolders, action_root.join("host_machine_sync_folders")
       autoload :HostMachineSyncFoldersDisable, action_root.join("host_machine_sync_folders_disable")
       autoload :PrepareSSH, action_root.join("prepare_ssh")
