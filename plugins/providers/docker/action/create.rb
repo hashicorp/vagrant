@@ -26,6 +26,9 @@ module VagrantPlugins
             params[:volumes].each do |volume|
               env[:ui].detail("Volume: #{volume}")
             end
+            params[:ports].each do |pair|
+              env[:ui].detail("  Port: #{pair}")
+            end
 
             cid = @driver.create(params)
           end
@@ -54,7 +57,14 @@ module VagrantPlugins
         end
 
         def forwarded_ports
-          @env[:forwarded_ports].map do |fp|
+          mappings = {}
+          @machine.config.vm.networks.each do |type, options|
+            if type == :forwarded_port && options[:id] != 'ssh'
+              mappings[options[:host]] = options
+            end
+          end
+
+          mappings.values.map do |fp|
             # TODO: Support for the protocol argument
             "#{fp[:host]}:#{fp[:guest]}"
           end.compact

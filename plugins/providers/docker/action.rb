@@ -39,7 +39,6 @@ module VagrantPlugins
               b2.use SyncedFolderCleanup
               b2.use SyncedFolders
               b2.use PrepareNFSSettings
-              b2.use ForwardPorts
               # This will actually create and start, but that's fine
               b2.use Create
               b2.use action_boot
@@ -224,7 +223,6 @@ module VagrantPlugins
       action_root = Pathname.new(File.expand_path("../action", __FILE__))
       autoload :Create, action_root.join("create")
       autoload :Destroy, action_root.join("destroy")
-      autoload :ForwardPorts, action_root.join("forward_ports")
       autoload :HasSSH, action_root.join("has_ssh")
       autoload :HostMachine, action_root.join("host_machine")
       autoload :HostMachineRequired, action_root.join("host_machine_required")
