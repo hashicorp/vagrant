@@ -26,6 +26,8 @@ IMPROVEMENTS:
   - commands/rsync-auto: An initial sync is done before watching folders. [GH-3327]
   - commands/rsync-auto: Exit immediately if there are no paths to watch.
       [GH-3446]
+  - provisioners/ansible: custom vars/hosts files can be added in
+      .vagrant/provisioners/ansible/inventory/ directory [GH-3436]
 
 BUG FIXES:
 
