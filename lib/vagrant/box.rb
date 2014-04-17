@@ -106,6 +106,8 @@ module Vagrant
     rescue Errors::DownloaderError => e
       raise Errors::BoxMetadataDownloadError,
         message: e.extra_data[:message]
+    ensure
+      tf.unlink if tf
     end
 
     # Checks if the box has an update and returns the metadata, version,
