@@ -58,7 +58,7 @@ module VagrantPlugins
       end
 
       def start(cid)
-        unless running?(cid)
+        if !running?(cid)
           execute('docker', 'start', cid)
           # This resets the cached information we have around, allowing `vagrant reload`s
           # to work properly

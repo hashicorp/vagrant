@@ -21,6 +21,14 @@ module VagrantPlugins
         error_key(:docker_provider_nfs_without_privileged)
       end
 
+      class StateNotRunning < DockerError
+        error_key(:state_not_running)
+      end
+
+      class StateStopped < DockerError
+        error_key(:state_stopped)
+      end
+
       class SyncedFolderNonDocker < DockerError
         error_key(:synced_folder_non_docker)
       end

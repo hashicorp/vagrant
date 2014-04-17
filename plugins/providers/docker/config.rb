@@ -14,6 +14,12 @@ module VagrantPlugins
       # provisioning, etc.
       attr_accessor :has_ssh
 
+      # True if the docker container is meant to stay in the "running"
+      # state (is a long running process). By default this is true.
+      #
+      # @return [Boolean]
+      attr_accessor :remains_running
+
       # The name of the machine in the Vagrantfile set with
       # "vagrant_vagrantfile" that will be the docker host. Defaults
       # to "default"
@@ -43,6 +49,7 @@ module VagrantPlugins
         @image      = UNSET_VALUE
         @ports      = []
         @privileged = UNSET_VALUE
+        @remains_running = UNSET_VALUE
         @volumes    = []
         @vagrant_machine = UNSET_VALUE
         @vagrant_vagrantfile = UNSET_VALUE
@@ -54,6 +61,7 @@ module VagrantPlugins
         @has_ssh    = false if @has_ssh == UNSET_VALUE
         @image      = nil if @image == UNSET_VALUE
         @privileged = false if @privileged == UNSET_VALUE
+        @remains_running = true if @remains_running == UNSET_VALUE
         @vagrant_machine = nil if @vagrant_machine == UNSET_VALUE
         @vagrant_vagrantfile = nil if @vagrant_vagrantfile == UNSET_VALUE
       end

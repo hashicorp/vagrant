@@ -34,8 +34,8 @@ module VagrantPlugins
               b2.use SyncedFolderCleanup
               b2.use SyncedFolders
               b2.use PrepareNFSSettings
-              # This will actually create and start, but that's fine
               b2.use Create
+              b2.use WaitForRunning
               b2.use action_boot
             else
               b2.use PrepareNFSValidIds
@@ -205,6 +205,7 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           # TODO: b.use SetHostname
           b.use Start
+          b.use WaitForRunning
 
           b.use Call, HasSSH do |env, b2|
             if env[:result]
@@ -230,6 +231,7 @@ module VagrantPlugins
       autoload :PrepareNFSValidIds, action_root.join("prepare_nfs_valid_ids")
       autoload :PrepareNFSSettings, action_root.join("prepare_nfs_settings")
       autoload :Start, action_root.join("start")
+      autoload :WaitForRunning, action_root.join("wait_for_running")
     end
   end
 end

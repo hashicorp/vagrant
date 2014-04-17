@@ -32,6 +32,8 @@ en:
     ssh_through_host_vm: |-
       SSH will be proxied through the Docker virtual machine since we're
       not running Docker natively. This is just a notice, and not an error.
+    waiting_for_running: |-
+      Waiting for container to enter "running" state...
 
     messages:
       destroying: |-
@@ -99,6 +101,31 @@ en:
         Stderr: %{stderr}
 
         Stdout: %{stdout}
+      state_not_running: |-
+        The container never entered the "running" state, or entered it
+        briefly but reverted back to another state. Please verify that
+        the configuration of the container is correct.
+
+        If you meant for this container to not remain running, please
+        set the Docker provider configuration "remains_running" to "false":
+
+          config.vm.provider "docker" do |d|
+            d.remains_running = false
+          end
+
+      state_stopped: |-
+        The container started either never left the "stopped" state or
+        very quickly reverted to the "stopped" state. This is usually
+        because the container didn't execute a command that kept it running,
+        and usually indicates a misconfiguration.
+
+        If you meant for this container to not remain running, please
+        set the Docker provider configuration "remains_running" to "false":
+
+          config.vm.provider "docker" do |d|
+            d.remains_running = false
+          end
+
       synced_folder_non_docker: |-
         The "docker" synced folder type can't be used because the  provider
         in use is not Docker. This synced folder type only works with the
