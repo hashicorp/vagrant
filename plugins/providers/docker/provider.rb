@@ -141,7 +141,9 @@ module VagrantPlugins
 
       def state
         state_id = nil
-        state_id = :host_state_unknown if host_vm? && !host_vm.communicate.ready?
+        state_id = :not_created if !@machine.id
+        state_id = :host_state_unknown if !state_id && \
+          host_vm? && !host_vm.communicate.ready?
         state_id = :not_created if !state_id && \
           (!@machine.id || !driver.created?(@machine.id))
         state_id = driver.state(@machine.id) if @machine.id && !state_id

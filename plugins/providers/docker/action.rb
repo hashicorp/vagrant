@@ -9,8 +9,25 @@ module VagrantPlugins
       def self.action_up
         Vagrant::Action::Builder.new.tap do |b|
           b.use ConfigValidate
-          b.use HandleBox
+
+          b.use Call, IsState, :not_created do |env, b2|
+            if env[:result]
+              b2.use HandleBox
+            end
+          end
+
           b.use HostMachine
+
+          # Yeah, this is supposed to be here twice (once more above). This
+          # catches the case when the container was supposed to be created,
+          # but the host state was unknown, and now we know its not actually
+          # created.
+          b.use Call, IsState, :not_created do |env, b2|
+            if env[:result]
+              b2.use HandleBox
+            end
+          end
+
           b.use action_start
         end
       end
