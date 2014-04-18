@@ -53,9 +53,16 @@ module VagrantPlugins
               next
             end
 
-            b2.use Call, GracefulHalt, :stopped, :running do |env2, b3|
+            b2.use Call, HasSSH do |env2, b3|
               if !env2[:result]
                 b3.use Stop
+                next
+              end
+
+              b3.use Call, GracefulHalt, :stopped, :running do |env3, b4|
+                if !env3[:result]
+                  b4.use Stop
+                end
               end
             end
           end
