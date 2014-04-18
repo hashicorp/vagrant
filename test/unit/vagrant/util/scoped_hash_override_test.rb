@@ -25,7 +25,8 @@ describe Vagrant::Util::ScopedHashOverride do
     }
 
     expected = {
-      :key => "replaced"
+      :key => "replaced",
+      :scope__key => "replaced"
     }
 
     expect(klass.scoped_hash_override(original, "scope")).to eq(expected)
@@ -40,6 +41,7 @@ describe Vagrant::Util::ScopedHashOverride do
 
     expected = {
       :key => "replaced",
+      :scope__key => "replaced",
       :another__key => "value"
     }
 

@@ -3,6 +3,12 @@ module VagrantPlugins
     class Config < Vagrant.plugin("2", :config)
       attr_accessor :image, :cmd, :ports, :volumes, :privileged
 
+      # The directory with a Dockerfile to build and use as the basis
+      # for this container. If this is set, "image" should not be set.
+      #
+      # @return [String]
+      attr_accessor :build_dir
+
       # Additional arguments to pass to `docker run` when creating
       # the container for the first time. This is an array of args.
       #
@@ -54,6 +60,7 @@ module VagrantPlugins
       attr_accessor :vagrant_vagrantfile
 
       def initialize
+        @build_dir  = UNSET_VALUE
         @cmd        = UNSET_VALUE
         @create_args = []
         @env        = {}
@@ -87,6 +94,7 @@ module VagrantPlugins
       end
 
       def finalize!
+        @build_dir  = nil if @build_dir == UNSET_VALUE
         @cmd        = [] if @cmd == UNSET_VALUE
         @create_args = [] if @create_args == UNSET_VALUE
         @env       ||= {}

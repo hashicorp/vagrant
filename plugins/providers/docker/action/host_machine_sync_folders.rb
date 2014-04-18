@@ -91,14 +91,22 @@ module VagrantPlugins
               # Generate an ID that is deterministic based on our machine
               # and Vagrantfile path...
               id = Digest::MD5.hexdigest(
-                "#{env[:machine].env.root_path}#{env[:machine].name}")
+                "#{env[:machine].env.root_path}" +
+                "#{data[:hostpath]}" +
+                "#{data[:guestpath]}" +
+                "#{env[:machine].name}")
 
               # Generate a new guestpath
               data[:docker_guestpath] = data[:guestpath]
               data[:docker_sfid] = id
               data[:docker_host_sfid] = host_sfid
-              data[:guestpath] = "/mnt/docker_#{Time.now.to_i}_#{rand(100000)}"
               data[:id] = id[0...6] + rand(10000).to_s
+
+              # If we specify exact then we know what we're doing
+              if !data[:docker__exact]
+                data[:guestpath] =
+                  "/mnt/docker_#{Time.now.to_i}_#{rand(100000)}"
+              end
 
               # Add this synced folder onto the new config if we haven't
               # already shared it before.

@@ -34,7 +34,6 @@ module Vagrant
           # If this is our scope, then override
           if parts[0] == scope
             result[parts[1].to_sym] = value
-            result.delete(key)
           end
         end
 

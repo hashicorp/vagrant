@@ -14,6 +14,17 @@ module VagrantPlugins
         @executor = Executor::Local.new
       end
 
+      def build(dir, **opts)
+        result = execute('docker', 'build', dir)
+        regexp = /Successfully built (.+)$/i
+        match  = regexp.match(result)
+        if !match
+          # TODO: error
+        end
+
+        match[1]
+      end
+
       def create(params)
         image   = params.fetch(:image)
         links   = params.fetch(:links)

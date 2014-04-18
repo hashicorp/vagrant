@@ -16,9 +16,9 @@ module VagrantPlugins
       end
 
       def prepare(machine, folders, _opts)
-        # FIXME: Check whether the container has already been created with
-        #        different synced folders and let the user know about it
         folders.each do |id, data|
+          next if data[:ignore]
+
           host_path  = data[:hostpath]
           guest_path = data[:guestpath]
           machine.provider_config.volumes << "#{host_path}:#{guest_path}"

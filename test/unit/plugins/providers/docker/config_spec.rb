@@ -24,6 +24,7 @@ describe VagrantPlugins::DockerProvider::Config do
   describe "defaults" do
     before { subject.finalize! }
 
+    its(:build_dir) { should be_nil }
     its(:cmd) { should eq([]) }
     its(:env) { should eq({}) }
     its(:image) { should be_nil }

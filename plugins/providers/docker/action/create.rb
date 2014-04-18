@@ -50,6 +50,9 @@ module VagrantPlugins
             container_name << "_#{Time.now.to_i}"
           end
 
+          image = @env[:create_image]
+          image ||= @provider_config.image
+
           links = {}
           @provider_config._links.each do |link|
             parts = link.split(":", 2)
@@ -61,7 +64,7 @@ module VagrantPlugins
             env:        @provider_config.env,
             extra_args: @provider_config.create_args,
             hostname:   @machine_config.vm.hostname,
-            image:      @provider_config.image,
+            image:      image,
             links:      links,
             name:       container_name,
             ports:      forwarded_ports,

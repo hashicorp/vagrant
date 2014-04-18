@@ -107,6 +107,7 @@ module VagrantPlugins
 
             b2.use ConfigValidate
             b2.use action_halt
+            b2.use EnvSet, build_rebuild: true
             b2.use action_start
           end
         end
@@ -202,18 +203,18 @@ module VagrantPlugins
               end
             end
 
-            # We only want to actually sync folder differences if
-            # we're not created.
             b2.use Call, IsState, :not_created do |env2, b3|
               if !env2[:result]
                 b3.use EnvSet, host_machine_sync_folders: false
               end
             end
 
+            b2.use HostMachineBuildDir
             b2.use HostMachineSyncFolders
             b2.use PrepareNFSValidIds
             b2.use SyncedFolderCleanup
             b2.use PrepareNFSSettings
+            b2.use Build
 
             # If the VM is NOT created yet, then do some setup steps
             # necessary for creating it.
@@ -245,11 +246,13 @@ module VagrantPlugins
 
       # The autoload farm
       action_root = Pathname.new(File.expand_path("../action", __FILE__))
+      autoload :Build, action_root.join("build")
       autoload :CompareSyncedFolders, action_root.join("compare_synced_folders")
       autoload :Create, action_root.join("create")
       autoload :Destroy, action_root.join("destroy")
       autoload :HasSSH, action_root.join("has_ssh")
       autoload :HostMachine, action_root.join("host_machine")
+      autoload :HostMachineBuildDir, action_root.join("host_machine_build_dir")
       autoload :HostMachinePortChecker, action_root.join("host_machine_port_checker")
       autoload :HostMachinePortWarning, action_root.join("host_machine_port_warning")
       autoload :HostMachineRequired, action_root.join("host_machine_required")
