@@ -31,7 +31,15 @@ module VagrantPlugins
                 next
               end
 
-              b3.use Provision
+              b3.use Call, HasSSH do |env3, b4|
+                if env3[:result]
+                  b4.use Provision
+                else
+                  b4.use Message,
+                    I18n.t("docker_provider.messages.provision_no_ssh"),
+                    post: true
+                end
+              end
             end
           end
         end
