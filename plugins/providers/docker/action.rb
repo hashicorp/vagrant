@@ -107,6 +107,7 @@ module VagrantPlugins
 
             b2.use ConfigValidate
             b2.use action_halt
+            b2.use DestroyBuildImage
             b2.use EnvSet, build_rebuild: true
             b2.use action_start
           end
@@ -135,6 +136,7 @@ module VagrantPlugins
                 b3.use EnvSet, :force_halt => true
                 b3.use action_halt
                 b3.use HostMachineSyncFoldersDisable
+                b3.use DestroyBuildImage
                 b3.use Destroy
                 b3.use ProvisionerCleanup
               else
@@ -250,6 +252,7 @@ module VagrantPlugins
       autoload :CompareSyncedFolders, action_root.join("compare_synced_folders")
       autoload :Create, action_root.join("create")
       autoload :Destroy, action_root.join("destroy")
+      autoload :DestroyBuildImage, action_root.join("destroy_build_image")
       autoload :HasSSH, action_root.join("has_ssh")
       autoload :HostMachine, action_root.join("host_machine")
       autoload :HostMachineBuildDir, action_root.join("host_machine_build_dir")
