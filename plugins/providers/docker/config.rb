@@ -53,6 +53,7 @@ module VagrantPlugins
         @env        = {}
         @has_ssh    = UNSET_VALUE
         @image      = UNSET_VALUE
+        @links      = []
         @ports      = []
         @privileged = UNSET_VALUE
         @remains_running = UNSET_VALUE
@@ -61,12 +62,20 @@ module VagrantPlugins
         @vagrant_vagrantfile = UNSET_VALUE
       end
 
+      def link(name)
+        @links << name
+      end
+
       def merge(other)
         super.tap do |result|
           env = {}
           env.merge!(@env) if @env
           env.merge!(other.env) if other.env
           result.env = env
+
+          links = _links.dup
+          links += other._links
+          result.instance_variable_set(:@links, links)
         end
       end
 
@@ -85,10 +94,26 @@ module VagrantPlugins
       def validate(machine)
         errors = _detected_errors
 
+        @links.each do |link|
+          parts = link.split(":")
+          if parts.length != 2 || parts[0] == "" || parts[1] == ""
+            errors << I18n.t(
+              "docker_provider.errors.config.invalid_link", link: link)
+          end
+        end
+
         # TODO: Detect if base image has a CMD / ENTRYPOINT set before erroring out
         errors << I18n.t("docker_provider.errors.config.cmd_not_set") if @cmd == UNSET_VALUE
 
         { "docker provider" => errors }
+      end
+
+      #--------------------------------------------------------------
+      # Functions below should not be called by config files
+      #--------------------------------------------------------------
+
+      def _links
+        @links
       end
     end
   end

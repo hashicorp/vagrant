@@ -16,6 +16,7 @@ module VagrantPlugins
 
       def create(params)
         image   = params.fetch(:image)
+        links   = params.fetch(:links)
         ports   = Array(params[:ports])
         volumes = Array(params[:volumes])
         name    = params.fetch(:name)
@@ -24,6 +25,7 @@ module VagrantPlugins
 
         run_cmd = %W(docker run --name #{name} -d)
         run_cmd += env.map { |k,v| ['-e', "#{k}=#{v}"] }
+        run_cmd += links.map { |k, v| ['--link', "#{k}:#{v}"] }
         run_cmd += ports.map { |p| ['-p', p.to_s] }
         run_cmd += volumes.map { |v| ['-v', v.to_s] }
         run_cmd += %W(--privileged) if params[:privileged]

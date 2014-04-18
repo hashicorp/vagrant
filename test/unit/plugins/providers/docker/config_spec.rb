@@ -42,13 +42,34 @@ describe VagrantPlugins::DockerProvider::Config do
     assert_valid
   end
 
+  describe "#link" do
+    it "should be valid with good links" do
+      subject.link "foo:bar"
+      subject.link "db:blah"
+      subject.finalize!
+      assert_valid
+    end
+
+    it "should be invalid if not name:alias" do
+      subject.link "foo"
+      subject.finalize!
+      assert_invalid
+    end
+
+    it "should be invalid if too many colons" do
+      subject.link "foo:bar:baz"
+      subject.finalize!
+      assert_invalid
+    end
+  end
+
   describe "#merge" do
+    let(:one) { described_class.new }
+    let(:two) { described_class.new }
+
+    subject { one.merge(two) }
+
     context "env vars" do
-      let(:one) { described_class.new }
-      let(:two) { described_class.new }
-
-      subject { one.merge(two) }
-
       it "should merge the values" do
         one.env["foo"] = "bar"
         two.env["bar"] = "baz"
@@ -57,6 +78,16 @@ describe VagrantPlugins::DockerProvider::Config do
           "foo" => "bar",
           "bar" => "baz",
         })
+      end
+    end
+
+    context "links" do
+      it "should merge the links" do
+        one.link "foo"
+        two.link "bar"
+
+        expect(subject._links).to eq([
+          "foo", "bar"])
       end
     end
   end
