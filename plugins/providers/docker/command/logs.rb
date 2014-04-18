@@ -39,7 +39,7 @@ module VagrantPlugins
           @env.batch do |batch|
             with_target_vms(argv) do |machine|
               if machine.provider_name != :docker
-                machine.ui.output(I18n.t("docker_provider.not_docker_provder"))
+                machine.ui.output(I18n.t("docker_provider.not_docker_provider"))
                 next
               end
 
