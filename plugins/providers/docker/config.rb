@@ -19,6 +19,12 @@ module VagrantPlugins
       # provisioning, etc.
       attr_accessor :has_ssh
 
+      # The name for the container. This must be unique for all containers
+      # on the proxy machine if it is made.
+      #
+      # @return [String]
+      attr_accessor :name
+
       # True if the docker container is meant to stay in the "running"
       # state (is a long running process). By default this is true.
       #
@@ -53,6 +59,7 @@ module VagrantPlugins
         @env        = {}
         @has_ssh    = UNSET_VALUE
         @image      = UNSET_VALUE
+        @name       = UNSET_VALUE
         @links      = []
         @ports      = []
         @privileged = UNSET_VALUE
@@ -85,6 +92,7 @@ module VagrantPlugins
         @env       ||= {}
         @has_ssh    = false if @has_ssh == UNSET_VALUE
         @image      = nil if @image == UNSET_VALUE
+        @name       = nil if @name == UNSET_VALUE
         @privileged = false if @privileged == UNSET_VALUE
         @remains_running = true if @remains_running == UNSET_VALUE
         @vagrant_machine = nil if @vagrant_machine == UNSET_VALUE

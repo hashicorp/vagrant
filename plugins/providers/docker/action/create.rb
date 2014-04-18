@@ -43,9 +43,12 @@ module VagrantPlugins
         end
 
         def create_params
-          container_name = "#{@env[:root_path].basename.to_s}_#{@machine.name}"
-          container_name.gsub!(/[^-a-z0-9_]/i, "")
-          container_name << "_#{Time.now.to_i}"
+          container_name = @provider_config.name
+          if !container_name
+            container_name = "#{@env[:root_path].basename.to_s}_#{@machine.name}"
+            container_name.gsub!(/[^-a-z0-9_]/i, "")
+            container_name << "_#{Time.now.to_i}"
+          end
 
           links = {}
           @provider_config._links.each do |link|
