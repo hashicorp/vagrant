@@ -9,9 +9,9 @@ module VagrantPlugins
         def call(env)
           machine = env[:machine]
           driver  = machine.provider.driver
-          driver.start(machine.id)
 
-          # TODO(mitchellh): Wait for container to go to "running" state.
+          machine.ui.output(I18n.t("docker_provider.messages.starting"))
+          driver.start(machine.id)
 
           @app.call(env)
         end

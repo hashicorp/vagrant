@@ -11,40 +11,7 @@ module VagrantPlugins
           b.use ConfigValidate
           b.use HandleBox
           b.use HostMachine
-          b.use HostMachineSyncFolders
-          b.use Call, IsState, :not_created do |env, b2|
-            # If the VM is NOT created yet, then do the setup steps
-            if env[:result]
-              b2.use EnvSet, port_collision_repair: true
-
-              b2.use Call, HasSSH do |env2, b3|
-                if env2[:result]
-                  b3.use Provision
-                else
-                  b3.use Message,
-                    I18n.t("docker_provider.messages.provision_no_ssh"),
-                    post: true
-                end
-              end
-
-              b2.use HostMachinePortWarning
-              b2.use HostMachinePortChecker
-              b2.use HandleForwardedPortCollisions
-              b2.use PrepareNFSValidIds
-              b2.use SyncedFolderCleanup
-              b2.use SyncedFolders
-              b2.use PrepareNFSSettings
-              b2.use Create
-              b2.use WaitForRunning
-              b2.use action_boot
-            else
-              b2.use PrepareNFSValidIds
-              b2.use SyncedFolderCleanup
-              b2.use SyncedFolders
-              b2.use PrepareNFSSettings
-              b2.use action_start
-            end
-          end
+          b.use action_start
         end
       end
 
@@ -189,27 +156,55 @@ module VagrantPlugins
 
       def self.action_start
         Vagrant::Action::Builder.new.tap do |b|
-          b.use ConfigValidate
           b.use Call, IsState, :running do |env, b2|
             # If the container is running, then our work here is done, exit
             next if env[:result]
 
-            b2.use Provision
-            b2.use Message, I18n.t("docker_provider.messages.starting")
-            b2.use action_boot
-          end
-        end
-      end
+            b2.use Call, HasSSH do |env2, b3|
+              if env2[:result]
+                b3.use Provision
+              else
+                b3.use Message,
+                  I18n.t("docker_provider.messages.provision_no_ssh"),
+                  post: true
+              end
+            end
 
-      def self.action_boot
-        Vagrant::Action::Builder.new.tap do |b|
-          # TODO: b.use SetHostname
-          b.use Start
-          b.use WaitForRunning
+            # We only want to actually sync folder differences if
+            # we're not created.
+            b2.use Call, IsState, :not_created do |env2, b3|
+              if !env2[:result]
+                b3.use EnvSet, host_machine_sync_folders: false
+              end
+            end
 
-          b.use Call, HasSSH do |env, b2|
-            if env[:result]
-              b2.use WaitForCommunicator
+            b2.use HostMachineSyncFolders
+            b2.use PrepareNFSValidIds
+            b2.use SyncedFolderCleanup
+            b2.use SyncedFolders
+            b2.use PrepareNFSSettings
+
+            # If the VM is NOT created yet, then do some setup steps
+            # necessary for creating it.
+            b2.use Call, IsState, :not_created do |env2, b3|
+              if env2[:result]
+                b3.use EnvSet, port_collision_repair: true
+                b3.use HostMachineSyncFolders
+                b3.use HostMachinePortWarning
+                b3.use HostMachinePortChecker
+                b3.use HandleForwardedPortCollisions
+                b3.use Create
+                b3.use WaitForRunning
+              end
+            end
+
+            b2.use Start
+            b2.use WaitForRunning
+
+            b2.use Call, HasSSH do |env2, b3|
+              if env2[:result]
+                b3.use WaitForCommunicator
+              end
             end
           end
         end

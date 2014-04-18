@@ -22,6 +22,10 @@ module VagrantPlugins
         def call(env)
           return @app.call(env) if !env[:machine].provider.host_vm?
 
+          if !env.has_key?(:host_machine_sync_folders)
+            env[:host_machine_sync_folders] = true
+          end
+
           host_machine = env[:machine].provider.host_vm
 
           # Lock while we make changes
@@ -121,6 +125,11 @@ module VagrantPlugins
                 data[:docker_guestpath],
                 data)
             end
+          end
+
+          if !env[:host_machine_sync_folders]
+            @logger.info("Not syncing folders because container created.")
+            return
           end
 
           if !new_config.synced_folders.empty?
