@@ -213,7 +213,6 @@ module VagrantPlugins
             b2.use HostMachineSyncFolders
             b2.use PrepareNFSValidIds
             b2.use SyncedFolderCleanup
-            b2.use SyncedFolders
             b2.use PrepareNFSSettings
 
             # If the VM is NOT created yet, then do some setup steps
@@ -221,12 +220,14 @@ module VagrantPlugins
             b2.use Call, IsState, :not_created do |env2, b3|
               if env2[:result]
                 b3.use EnvSet, port_collision_repair: true
-                b3.use HostMachineSyncFolders
                 b3.use HostMachinePortWarning
                 b3.use HostMachinePortChecker
                 b3.use HandleForwardedPortCollisions
+                b3.use SyncedFolders
                 b3.use Create
                 b3.use WaitForRunning
+              else
+                b3.use CompareSyncedFolders
               end
             end
 
@@ -244,6 +245,7 @@ module VagrantPlugins
 
       # The autoload farm
       action_root = Pathname.new(File.expand_path("../action", __FILE__))
+      autoload :CompareSyncedFolders, action_root.join("compare_synced_folders")
       autoload :Create, action_root.join("create")
       autoload :Destroy, action_root.join("destroy")
       autoload :HasSSH, action_root.join("has_ssh")
