@@ -46,6 +46,7 @@ module VagrantPlugins
 
           {
             cmd:        @provider_config.cmd,
+            env:        @provider_config.env,
             extra_args: @provider_config.create_args,
             hostname:   @machine_config.vm.hostname,
             image:      @provider_config.image,

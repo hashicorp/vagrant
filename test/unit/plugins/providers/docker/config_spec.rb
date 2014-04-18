@@ -25,6 +25,7 @@ describe VagrantPlugins::DockerProvider::Config do
     before { subject.finalize! }
 
     its(:cmd) { should eq([]) }
+    its(:env) { should eq({}) }
     its(:image) { should be_nil }
     its(:privileged) { should be_false }
     its(:vagrant_machine) { should be_nil }
@@ -39,5 +40,24 @@ describe VagrantPlugins::DockerProvider::Config do
   it "should be valid by default" do
     subject.finalize!
     assert_valid
+  end
+
+  describe "#merge" do
+    context "env vars" do
+      let(:one) { described_class.new }
+      let(:two) { described_class.new }
+
+      subject { one.merge(two) }
+
+      it "should merge the values" do
+        one.env["foo"] = "bar"
+        two.env["bar"] = "baz"
+
+        expect(subject.env).to eq({
+          "foo" => "bar",
+          "bar" => "baz",
+        })
+      end
+    end
   end
 end

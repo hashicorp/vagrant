@@ -20,8 +20,10 @@ module VagrantPlugins
         volumes = Array(params[:volumes])
         name    = params.fetch(:name)
         cmd     = Array(params.fetch(:cmd))
+        env     = params.fetch(:env)
 
         run_cmd = %W(docker run --name #{name} -d)
+        run_cmd += env.map { |k,v| ['-e', "#{k}=#{v}"] }
         run_cmd += ports.map { |p| ['-p', p.to_s] }
         run_cmd += volumes.map { |v| ['-v', v.to_s] }
         run_cmd += %W(--privileged) if params[:privileged]

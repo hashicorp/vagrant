@@ -9,6 +9,11 @@ module VagrantPlugins
       # @return [Array<String>]
       attr_accessor :create_args
 
+      # Environmental variables to set in the container.
+      #
+      # @return [Hash]
+      attr_accessor :env
+
       # True if the Docker container exposes SSH access. If this is true,
       # then Vagrant can do a bunch more things like setting the hostname,
       # provisioning, etc.
@@ -45,6 +50,7 @@ module VagrantPlugins
       def initialize
         @cmd        = UNSET_VALUE
         @create_args = []
+        @env        = {}
         @has_ssh    = UNSET_VALUE
         @image      = UNSET_VALUE
         @ports      = []
@@ -55,9 +61,19 @@ module VagrantPlugins
         @vagrant_vagrantfile = UNSET_VALUE
       end
 
+      def merge(other)
+        super.tap do |result|
+          env = {}
+          env.merge!(@env) if @env
+          env.merge!(other.env) if other.env
+          result.env = env
+        end
+      end
+
       def finalize!
         @cmd        = [] if @cmd == UNSET_VALUE
         @create_args = [] if @create_args == UNSET_VALUE
+        @env       ||= {}
         @has_ssh    = false if @has_ssh == UNSET_VALUE
         @image      = nil if @image == UNSET_VALUE
         @privileged = false if @privileged == UNSET_VALUE
