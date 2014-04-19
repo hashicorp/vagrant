@@ -15,6 +15,7 @@ module VagrantPlugins
         end
 
         def call(env)
+          return @app.call(env) if env[:skip_docker_host_machine_sync_folders_disable]
           return @app.call(env) if !env[:machine].provider.host_vm?
 
           # Read our random ID for this instance
