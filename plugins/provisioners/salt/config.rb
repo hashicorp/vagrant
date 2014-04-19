@@ -90,6 +90,13 @@ module VagrantPlugins
           end
         end
 
+        if @master_config
+          expanded = Pathname.new(@master_config).expand_path(machine.env.root_path)
+          if !expanded.file?
+            errors << I18n.t("vagrant.provisioners.salt.master_config_nonexist")
+          end
+        end
+
         if @minion_key || @minion_pub
           if !@minion_key || !@minion_pub
             errors << I18n.t("vagrant.provisioners.salt.missing_key")
