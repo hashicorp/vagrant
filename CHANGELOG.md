@@ -15,6 +15,10 @@ FEATURES:
       created Vagrant environment on the system for that logged in user.
   - **New command: rdp**. This command connects to the running machine
       via the Remote Desktop Protocol.
+  - **New provider: Docker**. This provider will back your development
+      environments with Docker containers. If you're not on Linux, it will
+      automatically spin up a VM for you on any provider. You can even
+      specify a specific Vagrantfile to use as the Docker container host.
   - Control Vagrant environments from any directory. Using the UUIDs given
       in `vagrant global-status`, you can issue commands from anywhere on
       your machine, not just that environment's directory. Example:
