@@ -110,9 +110,8 @@ module VagrantPlugins
 
             b2.use Call, IsBuild do |env2, b3|
               if env2[:result]
-                b3.use EnvSet, force_confirm_destroy: true,
-                  skip_docker_host_machine_sync_folders_disable: true
-                b3.use action_destroy
+                b3.use EnvSet, force_confirm_destroy: true
+                b3.use action_destroy.flatten
               end
             end
 
