@@ -24,7 +24,9 @@ end
 # if we're accessing the plugin interface, we want to NOT load plugins
 # for this run, because they can actually interfere with the function
 # of the plugin interface.
-argv.each do |arg|
+argv.each_index do |i|
+  arg = argv[i]
+
   if !arg.start_with?("-")
     if arg == "plugin"
       ENV["VAGRANT_NO_PLUGINS"] = "1"
@@ -32,6 +34,10 @@ argv.each do |arg|
     end
 
     if arg == "help"
+      ENV["VAGRANT_VAGRANTFILE"] = "plugin_command_#{Time.now.to_i}"
+    end
+
+    if arg == "box" && argv[i+1] == "list"
       ENV["VAGRANT_VAGRANTFILE"] = "plugin_command_#{Time.now.to_i}"
     end
 

@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+  - commands/box/list: Doesn't parse Vagrantfile. [GH-3502]
   - providers/hyperv: Implement the provision command. [GH-3494]
 
 BUG FIXES:
