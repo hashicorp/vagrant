@@ -379,11 +379,13 @@ module VagrantPlugins
           config_class ||= Vagrant::Config::V2::DummyConfig
 
           # Load it up
-          config    = config_class.new
+          config = config_class.new
 
           begin
             blocks.each do |b|
-              b.call(config, Vagrant::Config::V2::DummyConfig.new)
+              new_config = config_class.new
+              b.call(new_config, Vagrant::Config::V2::DummyConfig.new)
+              config = config.merge(new_config)
             end
           rescue Exception => e
             raise Vagrant::Errors::VagrantfileLoadError,
