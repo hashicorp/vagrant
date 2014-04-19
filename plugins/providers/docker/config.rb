@@ -90,6 +90,19 @@ module VagrantPlugins
 
       def merge(other)
         super.tap do |result|
+          # This is a bit confusing. The tests explain the purpose of this
+          # better than the code lets on, I believe.
+          if (other.image != UNSET_VALUE || other.build_dir != UNSET_VALUE) &&
+            (other.image == UNSET_VALUE || other.build_dir == UNSET_VALUE)
+            if other.image != UNSET_VALUE && @build_dir != UNSET_VALUE
+              result.build_dir = nil
+            end
+
+            if other.build_dir != UNSET_VALUE && @image != UNSET_VALUE
+              result.image = nil
+            end
+          end
+
           env = {}
           env.merge!(@env) if @env
           env.merge!(other.env) if other.env

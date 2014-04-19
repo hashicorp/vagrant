@@ -127,6 +127,33 @@ describe VagrantPlugins::DockerProvider::Config do
 
     subject { one.merge(two) }
 
+    context "#build_dir and #image" do
+      it "overrides image if build_dir is set previously" do
+        one.build_dir = "foo"
+        two.image = "bar"
+
+        expect(subject.build_dir).to be_nil
+        expect(subject.image).to eq("bar")
+      end
+
+      it "overrides image if build_dir is set previously" do
+        one.image = "foo"
+        two.build_dir = "bar"
+
+        expect(subject.image).to be_nil
+        expect(subject.build_dir).to eq("bar")
+      end
+
+      it "preserves if both set" do
+        one.image = "foo"
+        two.image = "baz"
+        two.build_dir = "bar"
+
+        expect(subject.image).to eq("baz")
+        expect(subject.build_dir).to eq("bar")
+      end
+    end
+
     context "env vars" do
       it "should merge the values" do
         one.env["foo"] = "bar"
