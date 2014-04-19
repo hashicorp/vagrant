@@ -1,4 +1,5 @@
 require "json"
+require "set"
 
 require 'vagrant/util/scoped_hash_override'
 
@@ -149,6 +150,49 @@ module Vagrant
           end
 
           return folders
+        end
+
+        # This finds the difference between two lists of synced folder
+        # definitions.
+        #
+        # This will return a hash with three keys: "added", "removed",
+        # and "modified". These will contain a set of IDs of folders
+        # that were added, removed, or modified, respectively.
+        #
+        # The parameters should be results from the {#synced_folders} call.
+        #
+        # @return [hash]
+        def synced_folders_diff(one, two)
+          existing_ids = {}
+          one.each do |impl, fs|
+            fs.each do |id, data|
+              existing_ids[id] = data
+            end
+          end
+
+          result = Hash.new { |h, k| h[k] = Set.new }
+          two.each do |impl, fs|
+            fs.each do |id, data|
+              existing = existing_ids.delete(id)
+              if !existing
+                result[:added] << id
+                next
+              end
+
+              # Exists, so we have to compare the host and guestpath, which
+              # is most important...
+              if existing[:hostpath] != data[:hostpath] ||
+                existing[:guestpath] != data[:guestpath]
+                result[:modified] << id
+              end
+            end
+          end
+
+          existing_ids.each do |k, _|
+            result[:removed] << k
+          end
+
+          result
         end
 
         protected

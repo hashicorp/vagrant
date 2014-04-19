@@ -191,4 +191,64 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
       })
     end
   end
+
+  describe "#synced_folders_diff" do
+    it "sees two equal " do
+      one = {
+        default: { "foo" => {} },
+      }
+
+      two = {
+        default: { "foo" => {} },
+      }
+
+      expect(subject.synced_folders_diff(one, two)).to be_empty
+    end
+
+    it "sees modifications" do
+      one = {
+        default: { "foo" => {} },
+      }
+
+      two = {
+        default: { "foo" => { hostpath: "foo" } },
+      }
+
+      result = subject.synced_folders_diff(one, two)
+      expect(result[:modified]).to_not be_empty
+    end
+
+    it "sees adding" do
+      one = {
+        default: { "foo" => {} },
+      }
+
+      two = {
+        default: {
+          "foo" => {},
+          "bar" => {},
+        },
+      }
+
+      result = subject.synced_folders_diff(one, two)
+      expect(result[:added]).to_not be_empty
+      expect(result[:removed]).to be_empty
+      expect(result[:modified]).to be_empty
+    end
+
+    it "sees removing" do
+      one = {
+        default: { "foo" => {} },
+      }
+
+      two = {
+        default: {},
+      }
+
+      result = subject.synced_folders_diff(one, two)
+      expect(result[:added]).to be_empty
+      expect(result[:removed]).to_not be_empty
+      expect(result[:modified]).to be_empty
+    end
+  end
 end
