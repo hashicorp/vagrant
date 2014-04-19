@@ -89,8 +89,8 @@ module VagrantPlugins
 
           @machine.ui.info I18n.t("vagrant.provisioners.puppet_server.running_puppetd")
           @machine.communicate.sudo(command) do |type, data|
-            if !data.empty?
-              @machine.ui.info(data, :new_line => false, :prefix => false)
+            if !data.chomp.empty?
+              @machine.ui.info(data.chomp)
             end
           end
         end

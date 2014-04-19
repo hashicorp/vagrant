@@ -30,13 +30,14 @@ module VagrantPlugins
           # Output the data with the proper color based on the stream.
           color = type == :stdout ? :green : :red
 
-          options = {
-            new_line: false,
-            prefix: false,
-          }
+          # Clear out the newline since we add one
+          data = data.chomp
+          return if data.empty?
+
+          options = {}
           options[:color] = color if !config.keep_color
 
-          @machine.env.ui.info(data, options)
+          @machine.ui.info(data.chomp, options)
         end
       end
 

@@ -146,16 +146,19 @@ module VagrantPlugins
 
           @config.attempts.times do |attempt|
             if attempt == 0
-              @machine.env.ui.info I18n.t("vagrant.provisioners.chef.running_solo")
+              @machine.ui.info I18n.t("vagrant.provisioners.chef.running_solo")
             else
-              @machine.env.ui.info I18n.t("vagrant.provisioners.chef.running_solo_again")
+              @machine.ui.info I18n.t("vagrant.provisioners.chef.running_solo_again")
             end
 
             exit_status = @machine.communicate.sudo(command, :error_check => false) do |type, data|
               # Output the data with the proper color based on the stream.
               color = type == :stdout ? :green : :red
-              @machine.env.ui.info(
-                data, :color => color, :new_line => false, :prefix => false)
+
+              data = data.chomp
+              next if data.empty?
+
+              @machine.ui.info(data, :color => color)
             end
 
             # There is no need to run Chef again if it converges

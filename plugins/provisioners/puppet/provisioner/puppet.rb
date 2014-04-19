@@ -162,13 +162,13 @@ module VagrantPlugins
             end
           end
 
-          @machine.env.ui.info(I18n.t(
+          @machine.ui.info(I18n.t(
             "vagrant.provisioners.puppet.running_puppet",
             :manifest => config.manifest_file))
 
           @machine.communicate.sudo(command, good_exit: [0,2]) do |type, data|
-            if !data.empty?
-              @machine.env.ui.info(data, :new_line => false, :prefix => false)
+            if !data.chomp.empty?
+              @machine.ui.info(data.chomp)
             end
           end
         end
