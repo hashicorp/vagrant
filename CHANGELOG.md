@@ -32,6 +32,10 @@ IMPROVEMENTS:
 
   - commands/destroy: Exit codes changes. 0 means everything succeeded.
       1 means everything was declined. 2 means some were declined. [GH-811]
+  - commands/rsync-auto: Picks up and syncs provisioner folders if
+      provisioners are backed by rsync.
+  - commands/rsync-auto: Detects when new synced folders were added and warns
+      user they won't be synced until `vagrant reload`.
   - commands/ssh-config: Works without a target in multi-machine envs [GH-2844]
   - guests/freebsd: Support for virtio interfaces. [GH-3082]
   - guests/openbsd: Support for virtio interfaces. [GH-3082]
