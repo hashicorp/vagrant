@@ -2,7 +2,12 @@ Vagrant.configure("2") do |config|
   config.vm.box = "mitchellh/boot2docker"
 
   config.vm.provider "virtualbox" do |v|
+    # On VirtualBox, we don't have guest additions or a functional vboxsf
+    # in TinyCore Linux, so tell Vagrant that so it can be smarter.
     v.check_guest_additions = false
-    v.functional_vboxsf = false
+    v.functional_vboxsf     = false
   end
+
+  # Don't sync this directory
+  config.vm.synced_folder ".", "/vagrant", disabled: true
 end
