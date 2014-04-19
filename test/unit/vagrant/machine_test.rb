@@ -208,7 +208,7 @@ describe Vagrant::Machine do
     end
   end
 
-  describe "actions" do
+  describe "#action" do
     it "should be able to run an action that exists" do
       action_name = :up
       called      = false

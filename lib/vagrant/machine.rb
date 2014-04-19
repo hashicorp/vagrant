@@ -1,3 +1,4 @@
+require "digest/md5"
 require "thread"
 
 require "log4r"
@@ -147,18 +148,28 @@ module Vagrant
     def action(name, extra_env=nil)
       @logger.info("Calling action: #{name} on provider #{@provider}")
 
-      # Get the callable from the provider.
-      callable = @provider.action(name)
+      # Create a deterministic ID for this machine
+      id = Digest::MD5.hexdigest("#{@env.root_path}#{@name}")
 
-      # If this action doesn't exist on the provider, then an exception
-      # must be raised.
-      if callable.nil?
-        raise Errors::UnimplementedProviderAction,
-          :action => name,
-          :provider => @provider.to_s
+      # Lock this machine for the duration of this action
+      @env.lock("machine-action-#{id}") do
+        # Get the callable from the provider.
+        callable = @provider.action(name)
+
+        # If this action doesn't exist on the provider, then an exception
+        # must be raised.
+        if callable.nil?
+          raise Errors::UnimplementedProviderAction,
+            :action => name,
+            :provider => @provider.to_s
+        end
+
+        action_raw(name, callable, extra_env)
       end
-
-      action_raw(name, callable, extra_env)
+    rescue Errors::EnvironmentLockedError
+      raise Errors::MachineActionLockedError,
+        action: name,
+        name: @name
     end
 
     # This calls a raw callable in the proper context of the machine using

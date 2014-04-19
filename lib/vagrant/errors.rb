@@ -404,6 +404,10 @@ module Vagrant
       error_key(:local_data_dir_not_accessible)
     end
 
+    class MachineActionLockedError < VagrantError
+      error_key(:machine_action_locked)
+    end
+
     class MachineGuestNotReady < VagrantError
       error_key(:machine_guest_not_ready)
     end
