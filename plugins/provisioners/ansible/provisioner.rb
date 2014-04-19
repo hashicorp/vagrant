@@ -44,6 +44,8 @@ module VagrantPlugins
         options << "--sudo-user=#{config.sudo_user}" if config.sudo_user
         options << "#{self.get_verbosity_argument}" if config.verbose
         options << "--ask-sudo-pass" if config.ask_sudo_pass
+        options << "--ask-vault-pass" if config.ask_vault_pass
+        options << "--vault-password-file=#{config.vault_password_file}" if config.vault_password_file
         options << "--tags=#{as_list_argument(config.tags)}" if config.tags
         options << "--skip-tags=#{as_list_argument(config.skip_tags)}" if config.skip_tags
         options << "--limit=#{as_list_argument(config.limit)}" if config.limit

@@ -16,6 +16,7 @@ describe VagrantPlugins::Ansible::Config do
     config_options = subject.public_methods(false).find_all { |i| i.to_s.end_with?('=') }
     config_options.map! { |i| i.to_s.sub('=', '') }
     supported_options = %w( ask_sudo_pass
+                            ask_vault_pass
                             extra_vars
                             groups
                             host_key_checking
@@ -29,6 +30,7 @@ describe VagrantPlugins::Ansible::Config do
                             sudo
                             sudo_user
                             tags
+                            vault_password_file
                             verbose )
 
     expect(config_options.sort).to eql(supported_options)
@@ -40,6 +42,8 @@ describe VagrantPlugins::Ansible::Config do
     expect(subject.playbook).to be_nil
     expect(subject.extra_vars).to be_nil
     expect(subject.ask_sudo_pass).to be_false
+    expect(subject.ask_vault_pass).to be_false
+    expect(subject.vault_password_file).to be_nil
     expect(subject.limit).to be_nil
     expect(subject.sudo).to be_false
     expect(subject.sudo_user).to be_nil
@@ -57,6 +61,9 @@ describe VagrantPlugins::Ansible::Config do
     it_behaves_like "any VagrantConfigProvisioner strict boolean attribute", :host_key_checking, false
   end
   describe "ask_sudo_pass option" do
+    it_behaves_like "any VagrantConfigProvisioner strict boolean attribute", :ask_sudo_pass, false
+  end
+  describe "ask_vault_pass option" do
     it_behaves_like "any VagrantConfigProvisioner strict boolean attribute", :ask_sudo_pass, false
   end
   describe "sudo option" do
@@ -151,6 +158,17 @@ describe VagrantPlugins::Ansible::Config do
       result = subject.validate(machine)
       expect(result["ansible provisioner"]).to eql([
         I18n.t("vagrant.provisioners.ansible.inventory_path_invalid",
+               :path => non_existing_file)
+      ])
+    end
+
+    it "returns an error if vault_password_file is specified, but does not exist" do
+      subject.vault_password_file = non_existing_file
+      subject.finalize!
+
+      result = subject.validate(machine)
+      expect(result["ansible provisioner"]).to eql([
+        I18n.t("vagrant.provisioners.ansible.vault_password_file_invalid",
                :path => non_existing_file)
       ])
     end
