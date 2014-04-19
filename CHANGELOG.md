@@ -34,6 +34,9 @@ FEATURES:
 
 IMPROVEMENTS:
 
+  - core: Vagrant locks machine access to one Vagrant process at a time.
+      This will protect against two simultaneous `up` actions happening
+      on the same environment.
   - commands/destroy: Exit codes changes. 0 means everything succeeded.
       1 means everything was declined. 2 means some were declined. [GH-811]
   - commands/rsync-auto: Picks up and syncs provisioner folders if
