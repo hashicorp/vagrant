@@ -10,17 +10,26 @@ module VagrantPlugins
         end
 
         def call(env)
-          machine   = env[:machine]
+          machine = env[:machine]
+          image   = env[:build_image]
+          image_file = nil
 
-          # Try to read the image ID from the cache file if we've
-          # already built it.
-          image_file = machine.data_dir.join("docker_build_image")
-          image      = nil
-          if image_file.file?
-            image = image_file.read.chomp
+          if !image
+            # Try to read the image ID from the cache file if we've
+            # already built it.
+            image_file = machine.data_dir.join("docker_build_image")
+            image      = nil
+            if image_file.file?
+              image = image_file.read.chomp
+            end
+          end
 
+          if image
             machine.ui.output(I18n.t("docker_provider.build_image_destroy"))
             machine.provider.driver.rmi(image)
+          end
+
+          if image_file
             image_file.delete
           end
 

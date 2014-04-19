@@ -12,10 +12,18 @@ module VagrantPlugins
           machine = env[:machine]
           driver  = machine.provider.driver
 
+          # If we have a build image, store that
+          image_file = machine.data_dir.join("docker_build_image")
+          image      = nil
+          if image_file.file?
+            image = image_file.read.chomp
+          end
+          env[:build_image] = image
+
           driver.rm(machine.id)
           machine.id = nil
 
-          @app.call env
+          @app.call(env)
         end
       end
     end

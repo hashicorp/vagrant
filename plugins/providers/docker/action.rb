@@ -107,8 +107,14 @@ module VagrantPlugins
 
             b2.use ConfigValidate
             b2.use action_halt
-            b2.use DestroyBuildImage
-            b2.use EnvSet, build_rebuild: true
+
+            b2.use Call, IsBuild do |env2, b3|
+              if env2[:result]
+                b3.use Destroy
+                b3.use DestroyBuildImage
+              end
+            end
+
             b2.use action_start
           end
         end
@@ -136,8 +142,8 @@ module VagrantPlugins
                 b3.use EnvSet, :force_halt => true
                 b3.use action_halt
                 b3.use HostMachineSyncFoldersDisable
-                b3.use DestroyBuildImage
                 b3.use Destroy
+                b3.use DestroyBuildImage
                 b3.use ProvisionerCleanup
               else
                 b3.use Message, I18n.t("docker_provider.messages.will_not_destroy")
@@ -261,6 +267,7 @@ module VagrantPlugins
       autoload :HostMachineRequired, action_root.join("host_machine_required")
       autoload :HostMachineSyncFolders, action_root.join("host_machine_sync_folders")
       autoload :HostMachineSyncFoldersDisable, action_root.join("host_machine_sync_folders_disable")
+      autoload :IsBuild, action_root.join("is_build")
       autoload :PrepareSSH, action_root.join("prepare_ssh")
       autoload :Stop, action_root.join("stop")
       autoload :PrepareNFSValidIds, action_root.join("prepare_nfs_valid_ids")
