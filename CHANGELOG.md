@@ -54,9 +54,6 @@ BUG FIXES:
 
 PLUGIN AUTHOR CHANGES:
 
-  - **Deprecation:** The "prepare" method for synced folders is deprecated.
-      Any preparation should be moved to the "enable" method. This is to
-      enable runtime changes of synced folders with the new "disable" method.
   - **New host capability:** "rdp\_client". This capability gets the RDP connection
       info and must launch the RDP client on the system.
   - core: The "Call" middleware now merges the resulting middlewaer stack
