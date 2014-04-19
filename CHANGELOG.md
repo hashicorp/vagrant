@@ -46,6 +46,7 @@ IMPROVEMENTS:
   - commands/ssh-config: Works without a target in multi-machine envs [GH-2844]
   - guests/freebsd: Support for virtio interfaces. [GH-3082]
   - guests/openbsd: Support for virtio interfaces. [GH-3082]
+  - provisioners/ansible: Support for Ansible Vault. [GH-3338]
 
 BUG FIXES:
 
