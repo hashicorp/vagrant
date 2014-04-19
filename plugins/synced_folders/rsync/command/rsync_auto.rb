@@ -2,6 +2,7 @@ require "log4r"
 require 'optparse'
 require "thread"
 
+require "listen"
 
 require "vagrant/action/builtin/mixin_synced_folders"
 require "vagrant/util/busy"
