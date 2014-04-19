@@ -42,7 +42,14 @@ module VagrantPlugins
           paths = {}
           ignores = []
           with_target_vms(argv) do |machine|
-            folders = synced_folders(machine)[:rsync]
+            cached = synced_folders(machine, cached: true)
+            fresh  = synced_folders(machine)
+            diff   = synced_folders_diff(cached, fresh)
+            if !diff[:added].empty?
+              machine.ui.warn(I18n.t("vagrant.rsync_auto_new_folders"))
+            end
+
+            folders = cached[:rsync]
             next if !folders || folders.empty?
 
             # Get the SSH info for this machine so we can do an initial
