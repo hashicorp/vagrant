@@ -30,6 +30,7 @@ module VagrantPlugins
             # Build it
             machine.ui.output(I18n.t("docker_provider.building"))
             image = machine.provider.driver.build(build_dir)
+            machine.ui.detail("Image: #{image}")
 
             # Store the image ID
             image_file.open("w") do |f|
