@@ -41,6 +41,7 @@ describe VagrantPlugins::DockerProvider::Config do
     its(:build_dir) { should be_nil }
     its(:cmd) { should eq([]) }
     its(:env) { should eq({}) }
+    its(:force_host_vm) { should be_false }
     its(:image) { should be_nil }
     its(:name) { should be_nil }
     its(:privileged) { should be_false }

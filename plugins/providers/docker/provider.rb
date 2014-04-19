@@ -118,10 +118,8 @@ module VagrantPlugins
       # rather than directly on our system. Docker needs to run in a VM
       # when we're not on Linux, or not on a Linux that supports Docker.
       def host_vm?
-        # TODO: It'd be nice to also check if Docker supports the version
-        # of Linux that Vagrant is running on so that we can spin up a VM
-        # on old versions of Linux as well.
-        !Vagrant::Util::Platform.linux?
+        @machine.provider_config.force_host_vm ||
+          !Vagrant::Util::Platform.linux?
       end
 
       # Returns the SSH info for accessing the Container.

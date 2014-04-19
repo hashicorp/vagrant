@@ -22,6 +22,11 @@ module VagrantPlugins
       # @return [Hash]
       attr_accessor :env
 
+      # Force using a proxy VM, even on Linux hosts.
+      #
+      # @return [Boolean]
+      attr_accessor :force_host_vm
+
       # True if the Docker container exposes SSH access. If this is true,
       # then Vagrant can do a bunch more things like setting the hostname,
       # provisioning, etc.
@@ -66,6 +71,7 @@ module VagrantPlugins
         @cmd        = UNSET_VALUE
         @create_args = []
         @env        = {}
+        @force_host_vm = UNSET_VALUE
         @has_ssh    = UNSET_VALUE
         @image      = UNSET_VALUE
         @name       = UNSET_VALUE
@@ -100,6 +106,7 @@ module VagrantPlugins
         @cmd        = [] if @cmd == UNSET_VALUE
         @create_args = [] if @create_args == UNSET_VALUE
         @env       ||= {}
+        @force_host_vm = false if @force_host_vm == UNSET_VALUE
         @has_ssh    = false if @has_ssh == UNSET_VALUE
         @image      = nil if @image == UNSET_VALUE
         @name       = nil if @name == UNSET_VALUE
