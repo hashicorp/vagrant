@@ -92,8 +92,16 @@ en:
         and notify them to not use this communicator for anything except the
         "docker" provider.
       config:
+        both_build_and_image: |-
+          Only one of "build_dir" or "image" can be set
+        build_dir_invalid: |-
+          "build_dir" must exist and contain a Dockerfile
+        build_dir_or_image: |-
+          One of "build_dir" or "image" must be set
         invalid_link: |-
           Invalid link (should be 'name:alias'): "%{link}"
+        invalid_vagrantfile: |-
+          "vagrant_vagrantfile" must point to a Vagrantfile that exists.
       docker_provider_nfs_without_privileged: |-
         You've configured a NFS synced folder but didn't enable privileged
         mode for the container. Please set the `privileged` option to true
