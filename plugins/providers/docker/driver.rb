@@ -63,6 +63,11 @@ module VagrantPlugins
         result =~ /^#{Regexp.escape cid}$/
       end
 
+      def image?(id)
+        result = execute('docker', 'images', '-q').to_s
+        result =~ /^#{Regexp.escape(id)}$/
+      end
+
       def running?(cid)
         result = execute('docker', 'ps', '-q', '--no-trunc')
         result =~ /^#{Regexp.escape cid}$/m

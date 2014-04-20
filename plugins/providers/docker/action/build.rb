@@ -25,6 +25,12 @@ module VagrantPlugins
             image = image_file.read.chomp
           end
 
+          # Verify the image exists if we have one
+          if image && !machine.provider.driver.image?(image)
+            machine.ui.output(I18n.t("docker_provider.build_image_invalid"))
+            image = nil
+          end
+
           # If we have no image or we're rebuilding, we rebuild
           if !image || env[:build_rebuild]
             # Build it
