@@ -158,7 +158,7 @@ module Vagrant
           oldest  = Time.now.to_i - 60
           leasedir.children.each do |child|
             # Delete old, invalid leases while we're looking
-            if child.file? && child.mtime < oldest
+            if child.file? && child.mtime.to_i < oldest
               child.delete
             end
 
