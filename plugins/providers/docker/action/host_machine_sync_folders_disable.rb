@@ -72,7 +72,7 @@ module VagrantPlugins
 
             begin
               host_machine.action(:sync_folders, action_env)
-            rescue Vagrant::Errors::MachineLockedError
+            rescue Vagrant::Errors::MachineActionLockedError
               sleep 1
               retry
             rescue Vagrant::Errors::UnimplementedProviderAction
