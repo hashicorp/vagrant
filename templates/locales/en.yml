@@ -250,6 +250,8 @@ en:
           are: %{valid_events}
 
     general:
+      batch_notify_error: |-
+        An error occurred. The error will be shown after all tasks complete.
       batch_unexpected_error: |-
         An unexpected error ocurred when executing the action on the
         '%{machine}' machine. Please report this as a bug:
