@@ -60,11 +60,9 @@ module VagrantPlugins
           default_path = File.expand_path("../hostmachine/Vagrantfile", __FILE__)
           vf_path      = @machine.env.data_dir.join("docker-host", "Vagrantfile")
           begin
-            if !vf_path.file?
-              @machine.env.lock("docker-provider-hostvm") do
-                vf_path.dirname.mkpath
-                FileUtils.cp(default_path, vf_path)
-              end
+            @machine.env.lock("docker-provider-hostvm") do
+              vf_path.dirname.mkpath
+              FileUtils.cp(default_path, vf_path)
             end
           rescue Vagrant::Errors::EnvironmentLockedError
             # Lock contention, just retry
