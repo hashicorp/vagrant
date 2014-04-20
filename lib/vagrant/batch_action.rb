@@ -90,9 +90,13 @@ module Vagrant
             # Store the exception that will be processed later
             Thread.current[:error] = e
 
-            # Let the user know that this process had an error early
-            # so that they see it while other things are happening.
-            machine.ui.error(I18n.t("vagrant.general.batch_notify_error"))
+            # We can only do the things below if we do not fork, otherwise
+            # it'll hang the process.
+            if Process.pid == start_pid
+              # Let the user know that this process had an error early
+              # so that they see it while other things are happening.
+              machine.ui.error(I18n.t("vagrant.general.batch_notify_error"))
+            end
           end
 
           # If we forked during the process run, we need to do a hard
