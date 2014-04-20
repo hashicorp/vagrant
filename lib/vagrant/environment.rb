@@ -360,14 +360,18 @@ module Vagrant
       # The path to this lock
       lock_path = data_dir.join("lock.#{name}.lock")
 
+      @logger.debug("Attempting to acquire process-lock: #{name}")
       File.open(lock_path, "w+") do |f|
         # The file locking fails only if it returns "false." If it
         # succeeds it returns a 0, so we must explicitly check for
         # the proper error case.
         if f.flock(File::LOCK_EX | File::LOCK_NB) === false
+          @logger.warn("Process-lock in use: #{name}")
           raise Errors::EnvironmentLockedError,
             name: name
         end
+
+        @logger.info("Acquired process lock: #{name}")
 
         begin
           # Mark that we have a lock
