@@ -84,7 +84,7 @@ module VagrantPlugins
           result = machine.communicate.sudo(
             "umount #{guestpath}", error_check: false)
           if result == 0
-            machine.communicate.sudo("rm -rf #{guestpath}", error_check: false)
+            machine.communicate.sudo("rmdir #{guestpath}", error_check: false)
           end
         end
       end
