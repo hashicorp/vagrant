@@ -29,8 +29,12 @@ module VagrantPlugins
             machine.provider.driver.rmi(image)
           end
 
-          if image_file
-            image_file.delete
+          if image_file && image_file.file?
+            begin
+              image_file.delete
+            rescue Errno::ENOENT
+              # Its okay
+            end
           end
 
           @app.call(env)
