@@ -32,6 +32,25 @@ module Vagrant
         end
 
         def call(env)
+          @machine = env[:machine]
+
+          # Acquire a process-level lock so that we don't choose a port
+          # that someone else also chose.
+          begin
+            env[:machine].env.lock("fpcollision") do
+              handle(env)
+            end
+          rescue Errors::EnvironmentLockedError
+            sleep 1
+            retry
+          end
+
+          @app.call(env)
+        end
+
+        protected
+
+        def handle(env)
           @logger.info("Detecting any forwarded port collisions...")
 
           # Get the extra ports we consider in use
@@ -45,7 +64,7 @@ module Vagrant
 
           # The method we'll use to check if a port is open.
           port_checker = env[:port_collision_port_check]
-          port_checker ||= lambda { |port| is_port_open?("127.0.0.1", port) }
+          port_checker ||= method(:port_check)
 
           # Log out some of our parameters
           @logger.debug("Extra in use: #{extra_in_use.inspect}")
@@ -122,7 +141,37 @@ module Vagrant
           @app.call(env)
         end
 
-        protected
+        def port_check(port)
+          # Check if this port is "leased". We use a leasing system of
+          # about 60 seconds to avoid any forwarded port collisions in
+          # a highly parallelized environment.
+          leasedir = @machine.env.data_dir.join("fp-leases")
+          leasedir.mkpath
+
+          invalid = false
+          oldest  = Time.now.to_i - 60
+          leasedir.children.each do |child|
+            # Delete old, invalid leases while we're looking
+            if child.file? && child.mtime < oldest
+              child.delete
+            end
+
+            if child.basename.to_s == port.to_s
+              invalid = true
+            end
+          end
+
+          # If its invalid, then the port is "open" and in use
+          return true if invalid
+
+          # Otherwise, create the lease
+          leasedir.join(port.to_s).open("w+") do |f|
+            f.binmode
+            f.write(Time.now.to_i.to_s + "\n")
+          end
+
+          return is_port_open?("127.0.0.1", port)
+        end
 
         def with_forwarded_ports(env)
           env[:machine].config.vm.networks.each do |type, options|

@@ -62,6 +62,8 @@ PLUGIN AUTHOR CHANGES:
       The result is that ordering is preserved.
   - core: The "Message" middleware now takes a "post" option that will
       output the message on the return-side of the middleware stack.
+  - core: Forwarded port collision repair works when Vagrant is run in
+      parallel with other Vagrant processes. [GH-2966]
   - provider: Providers can now specify that boxes are optional. This lets
       you use the provider without a `config.vm.box`. Useful for providers like
       AWS or Docker.
