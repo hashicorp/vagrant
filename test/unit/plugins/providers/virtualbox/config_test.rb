@@ -3,9 +3,40 @@ require_relative "../../../base"
 require Vagrant.source_root.join("plugins/providers/virtualbox/config")
 
 describe VagrantPlugins::ProviderVirtualBox::Config do
-  context "defaults" do
-    subject { VagrantPlugins::ProviderVirtualBox::Config.new }
+  let(:machine) { double("machine") }
 
+  def assert_invalid
+    errors = subject.validate(machine)
+    if !errors.values.any? { |v| !v.empty? }
+      raise "No errors: #{errors.inspect}"
+    end
+  end
+
+  def assert_valid
+    errors = subject.validate(machine)
+    if !errors.values.all? { |v| v.empty? }
+      raise "Errors: #{errors.inspect}"
+    end
+  end
+
+  def valid_defaults
+    subject.image = "foo"
+  end
+
+  before do
+    vm_config = double("vm_config")
+    vm_config.stub(networks: [])
+    config = double("config")
+    config.stub(vm: vm_config)
+    machine.stub(config: config)
+  end
+
+  its "valid by default" do
+    subject.finalize!
+    assert_valid
+  end
+
+  context "defaults" do
     before { subject.finalize! }
 
     it { expect(subject.check_guest_additions).to be_true }
@@ -17,6 +48,22 @@ describe VagrantPlugins::ProviderVirtualBox::Config do
       expect(subject.network_adapters).to eql({
         1 => [:nat, {}],
       })
+    end
+  end
+
+  describe "#merge" do
+    let(:one) { described_class.new }
+    let(:two) { described_class.new }
+
+    subject { one.merge(two) }
+
+    it "merges the customizations" do
+      one.customize ["foo"]
+      two.customize ["bar"]
+
+      expect(subject.customizations).to eq([
+        ["pre-boot", ["foo"]],
+        ["pre-boot", ["bar"]]])
     end
   end
 

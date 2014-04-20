@@ -107,6 +107,14 @@ module VagrantPlugins
         customize("pre-boot", ["modifyvm", :id, "--cpus", count.to_i])
       end
 
+      def merge(other)
+        super.tap do |result|
+          c = customizations.dup
+          c += other.customizations
+          result.instance_variable_set(:@customizations, c)
+        end
+      end
+
       # This is the hook that is called to finalize the object before it
       # is put into use.
       def finalize!
