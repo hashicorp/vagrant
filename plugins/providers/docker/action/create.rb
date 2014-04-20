@@ -4,7 +4,6 @@ module VagrantPlugins
       class Create
         def initialize(app, env)
           @app = app
-          @@mutex ||= Mutex.new
         end
 
         def call(env)
@@ -18,23 +17,20 @@ module VagrantPlugins
 
           params = create_params
 
-          cid = ''
-          @@mutex.synchronize do
-            env[:ui].output(I18n.t("docker_provider.creating"))
-            env[:ui].detail("  Name: #{params[:name]}")
-            env[:ui].detail(" Image: #{params[:image]}")
-            params[:volumes].each do |volume|
-              env[:ui].detail("Volume: #{volume}")
-            end
-            params[:ports].each do |pair|
-              env[:ui].detail("  Port: #{pair}")
-            end
-            params[:links].each do |name, other|
-              env[:ui].detail("  Link: #{name}:#{other}")
-            end
-
-            cid = @driver.create(params)
+          env[:ui].output(I18n.t("docker_provider.creating"))
+          env[:ui].detail("  Name: #{params[:name]}")
+          env[:ui].detail(" Image: #{params[:image]}")
+          params[:volumes].each do |volume|
+            env[:ui].detail("Volume: #{volume}")
           end
+          params[:ports].each do |pair|
+            env[:ui].detail("  Port: #{pair}")
+          end
+          params[:links].each do |name, other|
+            env[:ui].detail("  Link: #{name}:#{other}")
+          end
+
+          cid = @driver.create(params)
 
           env[:ui].detail(" \n"+I18n.t(
             "docker_provider.created", id: cid[0...16]))
