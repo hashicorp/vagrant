@@ -92,7 +92,10 @@ module Vagrant
             end
 
             # If the port is open (listening for TCP connections)
-            if extra_in_use.include?(host_port) || port_checker[host_port]
+            in_use = extra_in_use.include?(host_port) ||
+              port_checker[host_port] ||
+              lease_check(host_port)
+            if in_use
               if !repair || !options[:auto_correct]
                 raise Errors::ForwardPortCollision,
                   :guest_port => guest_port.to_s,
@@ -108,7 +111,10 @@ module Vagrant
                 usable_ports.delete(repaired_port)
 
                 # If the port is in use, then we can't use this either...
-                if extra_in_use.include?(repaired_port) || port_checker[repaired_port]
+                in_use = extra_in_use.include?(repaired_port) ||
+                  port_checker[repaired_port] ||
+                  lease_check(repaired_port)
+                if in_use
                   @logger.info("Reparied port also in use: #{repaired_port}. Trying another...")
                   next
                 end
@@ -141,7 +147,7 @@ module Vagrant
           @app.call(env)
         end
 
-        def port_check(port)
+        def lease_check(port)
           # Check if this port is "leased". We use a leasing system of
           # about 60 seconds to avoid any forwarded port collisions in
           # a highly parallelized environment.
@@ -170,7 +176,12 @@ module Vagrant
             f.write(Time.now.to_i.to_s + "\n")
           end
 
-          return is_port_open?("127.0.0.1", port)
+          # Things look good to us!
+          false
+        end
+
+        def port_check(port)
+          is_port_open?("127.0.0.1", port)
         end
 
         def with_forwarded_ports(env)
