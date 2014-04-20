@@ -13,8 +13,6 @@ module VagrantPlugins
           @machine_config  = @machine.config
           @driver          = @machine.provider.driver
 
-          guard_cmd_configured!
-
           params = create_params
 
           env[:ui].output(I18n.t("docker_provider.creating"))
@@ -81,12 +79,6 @@ module VagrantPlugins
             # TODO: Support for the protocol argument
             "#{fp[:host]}:#{fp[:guest]}"
           end.compact
-        end
-
-        def guard_cmd_configured!
-          if ! @provider_config.image
-            raise Errors::ImageNotConfiguredError, name: @machine.name
-          end
         end
       end
     end
