@@ -27,7 +27,7 @@ module VagrantPlugins
         @logger.info("Checking whether WinRM is ready...")
 
         Timeout.timeout(@machine.config.winrm.timeout) do
-          shell.powershell("hostname")
+          shell(true).powershell("hostname")
         end
 
         @logger.info("WinRM is ready!")
@@ -44,7 +44,8 @@ module VagrantPlugins
         return false
       end
 
-      def shell
+      def shell(reload=false)
+        @shell = nil if reload
         @shell ||= create_shell
       end
 
@@ -65,7 +66,7 @@ module VagrantPlugins
       alias_method :sudo, :execute
 
       def test(command, opts=nil)
-        @logger.debug("Testing: #{command}")
+        @logger.info("Testing: #{command}")
 
         # HACK: to speed up Vagrant 1.2 OS detection, skip checking for *nix OS
         return false unless (command =~ /^uname|^cat \/etc|^cat \/proc|grep 'Fedora/).nil?
@@ -75,12 +76,12 @@ module VagrantPlugins
       end
 
       def upload(from, to)
-        @logger.debug("Uploading: #{from} to #{to}")
+        @logger.info("Uploading: #{from} to #{to}")
         shell.upload(from, to)
       end
 
       def download(from, to)
-        @logger.debug("Downloading: #{from} to #{to}")
+        @logger.info("Downloading: #{from} to #{to}")
         shell.download(from, to)
       end
 
