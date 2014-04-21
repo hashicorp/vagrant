@@ -42,5 +42,23 @@ describe VagrantPlugins::Salt::Config do
         expect(result[error_key]).to be_empty
       end
     end
+
+    context "master_config" do
+      it "fails if master_config is set and missing" do
+        subject.master_config = "/ceci/nest/pas/une/path"
+        subject.finalize!
+
+        result = subject.validate(machine)
+        expect(result[error_key]).to_not be_empty
+      end
+
+      it "is valid if is set and not missing" do
+        subject.master_config = File.expand_path(__FILE__)
+        subject.finalize!
+
+        result = subject.validate(machine)
+        expect(result[error_key]).to be_empty
+      end
+    end
   end
 end
