@@ -344,6 +344,9 @@ module VagrantPlugins
         # Make sure the box URL is an array if it is set
         @box_url = Array(@box_url) if @box_url
 
+        # Set the communicator properly
+        @communicator = @communicator.to_sym if @communicator
+
         # Set the guest properly
         @guest = @guest.to_sym if @guest
 
