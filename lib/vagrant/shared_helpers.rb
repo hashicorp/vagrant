@@ -32,6 +32,13 @@ module Vagrant
     !ENV["VAGRANT_NO_PLUGINS"]
   end
 
+  # Whether or not super quiet mode is enabled. This is ill-advised.
+  #
+  # @return [Boolean]
+  def self.very_quiet?
+    !!ENV["VAGRANT_I_KNOW_WHAT_IM_DOING_PLEASE_BE_QUIET"]
+  end
+
   # Returns the URL prefix to the server.
   #
   # @return [String]

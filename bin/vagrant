@@ -156,7 +156,7 @@ begin
   logger.debug("Creating Vagrant environment")
   env = Vagrant::Environment.new(opts)
 
-  if !Vagrant.in_installer?
+  if !Vagrant.in_installer? && !Vagrant.very_quiet?
     # If we're not in the installer, warn.
     env.ui.warn(I18n.t("vagrant.general.not_in_installer") + "\n", prefix: false)
   end

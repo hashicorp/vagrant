@@ -2,9 +2,11 @@
 # initializes the Bundler context so that Vagrant and its associated plugins
 # can load properly, and then execs out into Vagrant again.
 
+require_relative "shared_helpers"
+
 if defined?(Bundler)
   require "bundler/shared_helpers"
-  if Bundler::SharedHelpers.in_bundle?
+  if Bundler::SharedHelpers.in_bundle? && !Vagrant.very_quiet?
     puts "Vagrant appears to be running in a Bundler environment. Your "
     puts "existing Gemfile will be used. Vagrant will not auto-load any plugins"
     puts "installed with `vagrant plugin`. Vagrant will autoload any plugins in"
@@ -16,7 +18,6 @@ end
 
 require_relative "bundler"
 require_relative "plugin/manager"
-require_relative "shared_helpers"
 
 plugins = Vagrant::Plugin::Manager.instance.installed_plugins
 Vagrant::Bundler.instance.init!(plugins)
