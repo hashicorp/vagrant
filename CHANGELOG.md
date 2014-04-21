@@ -18,6 +18,8 @@ BUG FIXES:
       working. [GH-3485]
   - provisioners/docker: Fix issue where we weren't waiting for Docker
       to properly start before issuing commands. [GH-3482]
+  - provisioners/shell: Better validation of master config path, results
+      in no more stack traces at runtime. [GH-3505]
 
 ## 1.5.3 (April 14, 2014)
 
