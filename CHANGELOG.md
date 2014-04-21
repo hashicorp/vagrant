@@ -39,6 +39,7 @@ IMPROVEMENTS:
       on the same environment.
   - commands/destroy: Exit codes changes. 0 means everything succeeded.
       1 means everything was declined. 2 means some were declined. [GH-811]
+  - commands/destroy: Doesn't require box to exist anymore. [GH-1629]
   - commands/rsync-auto: Picks up and syncs provisioner folders if
       provisioners are backed by rsync.
   - commands/rsync-auto: Detects when new synced folders were added and warns
