@@ -88,7 +88,6 @@ module VagrantPlugins
 
             b2.use Call, DestroyConfirm do |env2, b3|
               if env2[:result]
-                b3.use ConfigValidate
                 b3.use CheckAccessible
                 b3.use EnvSet, :force_halt => true
                 b3.use action_halt
