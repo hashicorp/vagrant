@@ -1,4 +1,5 @@
-require "tempfile"
+require "pathname"
+require "tmpdir"
 
 require "vagrant/util/subprocess"
 
@@ -7,7 +8,6 @@ module VagrantPlugins
     module Cap
       class RDP
         def self.rdp_client(env, rdp_info)
-          config = nil
           opts   = {
             "drivestoredirect:s"       => "*",
             "full address:s"           => "#{rdp_info[:host]}:#{rdp_info[:port]}",
@@ -16,16 +16,16 @@ module VagrantPlugins
           }
 
           # Create the ".rdp" file
-          config = Tempfile.new(["vagrant-rdp", ".rdp"])
-          opts.each do |k, v|
-            config.puts("#{k}:#{v}")
+          config_path = Pathname.new(Dir.tmpdir).join(
+            "vagrant-rdp-#{Time.now.to_i}-#{rand(10000)}.rdp")
+          config_path.open("w+") do |f|
+            opts.each do |k, v|
+              f.puts("#{k}:#{v}")
+            end
           end
-          config.close
 
           # Launch it
-          Vagrant::Util::Subprocess.execute("open", config.path)
-        ensure
-          config.close if config
+          Vagrant::Util::Subprocess.execute("open", config_path.to_s)
         end
       end
     end
