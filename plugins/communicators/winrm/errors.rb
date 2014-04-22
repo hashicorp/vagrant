@@ -21,6 +21,10 @@ module VagrantPlugins
       class WinRMNotReady < WinRMError
         error_key(:winrm_not_ready)
       end
+
+      class WinRMFileTransferError < WinRMError
+        error_key(:winrm_file_transfer_error)
+      end
     end
   end
 end
