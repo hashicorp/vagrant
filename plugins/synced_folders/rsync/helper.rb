@@ -57,7 +57,9 @@ module VagrantPlugins
         username = ssh_info[:username]
         host     = ssh_info[:host]
         rsh = [
-          "ssh -p #{ssh_info[:port]} -o StrictHostKeyChecking=no",
+          "ssh -p #{ssh_info[:port]} " +
+          "-o StrictHostKeyChecking=no " +
+          "-o UserKnownHostsFile=/dev/null",
           ssh_info[:private_key_path].map { |p| "-i '#{p}'" },
         ].flatten.join(" ")
 
