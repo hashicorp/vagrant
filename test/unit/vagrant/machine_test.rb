@@ -403,7 +403,13 @@ describe Vagrant::Machine do
     end
 
     it "is set one when setting an ID" do
-      subject.config.vm.box = "FOO"
+      # Setup the box information
+      box = double("box")
+      box.stub(name: "foo")
+      box.stub(provider: :bar)
+      box.stub(version: "1.2.3")
+      subject.box = box
+
       subject.id = "foo"
 
       uuid = subject.index_uuid
@@ -412,12 +418,16 @@ describe Vagrant::Machine do
 
       # Test the entry itself
       entry = env.machine_index.get(uuid)
-      expect(entry.extra_data["box"]).to eq(subject.config.vm.box)
       expect(entry.name).to eq(subject.name)
       expect(entry.provider).to eq(subject.provider_name.to_s)
       expect(entry.state).to eq("preparing")
       expect(entry.vagrantfile_path).to eq(env.root_path)
       expect(entry.vagrantfile_name).to eq(env.vagrantfile_name)
+      expect(entry.extra_data["box"]).to eq({
+        "name"     => box.name,
+        "provider" => box.provider.to_s,
+        "version"  => box.version,
+      })
       env.machine_index.release(entry)
     end
 
