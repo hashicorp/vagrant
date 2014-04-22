@@ -24,13 +24,13 @@ module VagrantPlugins
       #
       # @return [Boolean]
       def is_dhcp_enabled(nic_index)
-        has_dhcp_enabled = false
-        cmd = "Get-WmiObject -Class Win32_NetworkAdapterConfiguration -Filter \"Index=#{nic_index} and DHCPEnabled=True\""
-        @communicator.execute(cmd) do |type, line|
-          has_dhcp_enabled = !line.nil?
-        end
-        @logger.debug("NIC #{nic_index} has DHCP enabled: #{has_dhcp_enabled}")
-        has_dhcp_enabled
+        cmd = <<-EOH
+          if (Get-WmiObject -Class Win32_NetworkAdapterConfiguration -Filter "Index=#{nic_index} and DHCPEnabled=True") {
+            exit 0
+          }
+          exit 1
+        EOH
+        @communicator.test(cmd)
       end
 
       # Configures the specified interface for DHCP
