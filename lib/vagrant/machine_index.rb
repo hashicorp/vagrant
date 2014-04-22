@@ -378,6 +378,8 @@ module Vagrant
       # The parameter given should be nil if this is being created
       # publicly.
       def initialize(id=nil, raw=nil)
+        @extra_data = {}
+
         # Do nothing if we aren't given a raw value. Otherwise, parse it.
         return if !raw
 

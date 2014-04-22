@@ -254,6 +254,7 @@ module Vagrant
         if index_uuid.nil?
           # Create the index entry and save it
           entry = MachineIndex::Entry.new
+          entry.extra_data["box"] = @config.vm.box
           entry.local_data_path = @env.local_data_path
           entry.name = @name.to_s
           entry.provider = @provider_name.to_s

@@ -403,11 +403,22 @@ describe Vagrant::Machine do
     end
 
     it "is set one when setting an ID" do
+      subject.config.vm.box = "FOO"
       subject.id = "foo"
 
       uuid = subject.index_uuid
       expect(uuid).to_not be_nil
       expect(new_instance.index_uuid).to eq(uuid)
+
+      # Test the entry itself
+      entry = env.machine_index.get(uuid)
+      expect(entry.extra_data["box"]).to eq(subject.config.vm.box)
+      expect(entry.name).to eq(subject.name)
+      expect(entry.provider).to eq(subject.provider_name.to_s)
+      expect(entry.state).to eq("preparing")
+      expect(entry.vagrantfile_path).to eq(env.root_path)
+      expect(entry.vagrantfile_name).to eq(env.vagrantfile_name)
+      env.machine_index.release(entry)
     end
 
     it "deletes the UUID when setting to nil" do
