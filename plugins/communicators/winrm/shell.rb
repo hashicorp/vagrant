@@ -9,6 +9,8 @@ Vagrant::Util::SilenceWarnings.silence! do
   require "winrm"
 end
 
+require_relative "file_manager"
+
 module VagrantPlugins
   module CommunicatorWinRM
     class WinRMShell
@@ -62,31 +64,11 @@ module VagrantPlugins
       end
 
       def upload(from, to)
-        @logger.debug("Uploading: #{from} to #{to}")
-        file_name = (cmd("echo %TEMP%\\winrm-upload-#{rand()}"))[:data][0][:stdout].chomp
-        powershell <<-EOH
-          if(Test-Path #{to}) {
-            rm #{to}
-          }
-        EOH
-        Base64.encode64(IO.binread(from)).gsub("\n",'').chars.to_a.each_slice(8000-file_name.size) do |chunk|
-          out = cmd("echo #{chunk.join} >> \"#{file_name}\"")
-        end
-        powershell <<-EOH
-          mkdir $([System.IO.Path]::GetDirectoryName(\"#{to}\"))
-          $base64_string = Get-Content \"#{file_name}\"
-          $bytes  = [System.Convert]::FromBase64String($base64_string)
-          $new_file = [System.IO.Path]::GetFullPath(\"#{to}\")
-          [System.IO.File]::WriteAllBytes($new_file,$bytes)
-        EOH
+        FileManager.new(self).upload(from, to)
       end
 
       def download(from, to)
-        @logger.debug("Downloading: #{from} to #{to}")
-        output = powershell("[System.convert]::ToBase64String([System.IO.File]::ReadAllBytes(\"#{from}\"))")
-        contents = output[:data].map!{|line| line[:stdout]}.join.gsub("\\n\\r", '')
-        out = Base64.decode64(contents)
-        IO.binwrite(to, out)
+        FileManager.new(self).download(from, to)
       end
 
       protected

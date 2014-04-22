@@ -20,3 +20,9 @@ en:
         The box is not able to report an address for WinRM to connect to yet.
         WinRM cannot access this Vagrant environment. Please wait for the
         Vagrant environment to be running and try again.
+      winrm_file_transfer_error: |-
+        Failed to transfer a file between the host and guest
+
+        From: %{from}
+        To: %{to}
+        Message: %{message}
