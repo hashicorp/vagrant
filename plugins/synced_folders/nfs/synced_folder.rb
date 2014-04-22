@@ -25,6 +25,12 @@ module VagrantPlugins
       end
 
       def usable?(machine, raise_error=false)
+        # If the machine explicitly said NFS is not supported, then
+        # it isn't supported.
+        if !machine.config.nfs.functional
+          return false
+        end
+
         # We don't currently support NFS on Windows
         if Vagrant::Util::Platform.windows?
           return false

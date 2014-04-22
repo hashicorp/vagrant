@@ -5,17 +5,13 @@ require Vagrant.source_root.join("plugins/synced_folders/nfs/config")
 describe VagrantPlugins::SyncedFolderNFS::Config do
   subject { described_class.new }
 
-  describe "#map_gid" do
-    it "defaults to :auto" do
+  context "defaults" do
+    before do
       subject.finalize!
-      expect(subject.map_gid).to eq(:auto)
     end
-  end
 
-  describe "#map_uid" do
-    it "defaults to nil" do
-      subject.finalize!
-      expect(subject.map_uid).to eq(:auto)
-    end
+    its(:functional) { should be_true }
+    its(:map_gid) { should eq(:auto) }
+    its(:map_uid) { should eq(:auto) }
   end
 end
