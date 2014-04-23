@@ -59,8 +59,8 @@ module VagrantPlugins
         execute_shell(command, :cmd, &block)
       end
 
-      def wql(query)
-        execute_wql(query)
+      def wql(query, &block)
+        execute_shell(query, :wql, &block)
       end
 
       def upload(from, to)
@@ -74,7 +74,7 @@ module VagrantPlugins
       protected
 
       def execute_shell(command, shell=:powershell, &block)
-        raise Errors::InvalidShell, shell: shell unless shell == :cmd || shell == :powershell
+        raise Errors::WinRMInvalidShell, :shell => shell unless [:powershell, :cmd, :wql].include?(shell)
 
         begin
           execute_shell_with_retry(command, shell, &block)
@@ -90,20 +90,9 @@ module VagrantPlugins
             block.call(:stdout, out) if block_given? && out
             block.call(:stderr, err) if block_given? && err
           end
-          @logger.debug("Exit status: #{output[:exitcode].inspect}")
+          @logger.debug("Output: #{output.inspect}")
           return output
         end
-      end
-
-      def execute_wql(query)
-        retryable(:tries => @max_tries, :on => @@exceptions_to_retry_on, :sleep => 10) do
-          @logger.debug("#executing wql: #{query}")
-          output = session.wql(query)
-          @logger.debug("wql result: #{output.inspect}")
-          return output
-        end
-      rescue => e
-        raise_winrm_exception(e, :wql, query)
       end
 
       def raise_winrm_exception(winrm_exception, shell, command)

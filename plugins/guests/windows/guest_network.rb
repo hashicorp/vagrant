@@ -7,9 +7,9 @@ module VagrantPlugins
       PS_GET_WSMAN_VER = '((test-wsman).productversion.split(" ") | select -last 1).split("\.")[0]'
       WQL_NET_ADAPTERS_V2 = 'SELECT * FROM Win32_NetworkAdapter WHERE MACAddress IS NOT NULL'
 
-      def initialize(winrmshell)
-        @logger     = Log4r::Logger.new("vagrant::windows::guestnetwork")
-        @winrmshell = winrmshell
+      def initialize(communicator)
+        @logger       = Log4r::Logger.new("vagrant::windows::guestnetwork")
+        @communicator = communicator
       end
 
       # Returns an array of all NICs on the guest. Each array entry is a
@@ -24,13 +24,13 @@ module VagrantPlugins
       #
       # @return [Boolean]
       def is_dhcp_enabled(nic_index)
-        has_dhcp_enabled = false
-        cmd = "Get-WmiObject -Class Win32_NetworkAdapterConfiguration -Filter \"Index=#{nic_index} and DHCPEnabled=True\""
-        @winrmshell.powershell(cmd) do |type, line|
-          has_dhcp_enabled = !line.nil?
-        end
-        @logger.debug("NIC #{nic_index} has DHCP enabled: #{has_dhcp_enabled}")
-        has_dhcp_enabled
+        cmd = <<-EOH
+          if (Get-WmiObject -Class Win32_NetworkAdapterConfiguration -Filter "Index=#{nic_index} and DHCPEnabled=True") {
+            exit 0
+          }
+          exit 1
+        EOH
+        @communicator.test(cmd)
       end
 
       # Configures the specified interface for DHCP
@@ -41,7 +41,7 @@ module VagrantPlugins
         @logger.info("Configuring NIC #{net_connection_id} for DHCP")
         if !is_dhcp_enabled(nic_index)
           netsh = "netsh interface ip set address \"#{net_connection_id}\" dhcp"
-          @winrmshell.powershell(netsh)
+          @communicator.execute(netsh)
         end
       end
 
@@ -55,7 +55,7 @@ module VagrantPlugins
         @logger.info("Configuring NIC #{net_connection_id} using static ip #{ip}")
         #netsh interface ip set address "Local Area Connection 2" static 192.168.33.10 255.255.255.0
         netsh = "netsh interface ip set address \"#{net_connection_id}\" static #{ip} #{netmask}"
-        @winrmshell.powershell(netsh)
+        @communicator.execute(netsh)
       end
 
       # Sets all networks on the guest to 'Work Network' mode. This is
@@ -64,7 +64,7 @@ module VagrantPlugins
       def set_all_networks_to_work
         @logger.info("Setting all networks to 'Work Network'")
         command = File.read(File.expand_path("../scripts/set_work_network.ps1", __FILE__))
-        @winrmshell.powershell(command)
+        @communicator.execute(command)
       end
 
       protected
@@ -76,7 +76,7 @@ module VagrantPlugins
       def wsman_version
         @logger.debug("querying WSMan version")
         version = ''
-        @winrmshell.powershell(PS_GET_WSMAN_VER) do |type, line|
+        @communicator.execute(PS_GET_WSMAN_VER) do |type, line|
           version = version + "#{line}" if type == :stdout && !line.nil?
         end
         @logger.debug("wsman version: #{version}")
@@ -93,7 +93,7 @@ module VagrantPlugins
 
         # Get all NICs that have a MAC address
         # http://msdn.microsoft.com/en-us/library/windows/desktop/aa394216(v=vs.85).aspx
-        adapters = @winrmshell.wql(WQL_NET_ADAPTERS_V2)[:win32_network_adapter]
+        adapters = @communicator.execute(WQL_NET_ADAPTERS_V2, { :shell => :wql } )[:win32_network_adapter]
         @logger.debug("#{adapters.inspect}")
         return adapters
       end
@@ -108,7 +108,7 @@ module VagrantPlugins
       def network_adapters_v3_winrm
         command = File.read(File.expand_path("../scripts/winrs_v3_get_adapters.ps1", __FILE__))
         output = ""
-        @winrmshell.powershell(command) do |type, line|
+        @communicator.execute(command) do |type, line|
           output = output + "#{line}" if type == :stdout && !line.nil?
         end
 

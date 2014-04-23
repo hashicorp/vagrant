@@ -57,11 +57,19 @@ module VagrantPlugins
           :command     => command,
           :shell       => :powershell
         }.merge(opts || {})
-        exit_status = do_execute(command, opts[:shell], &block)
-        if opts[:error_check] && exit_status != 0
-          raise_execution_error(opts, exit_status)
+
+        if opts[:shell] == :powershell
+          script  = File.expand_path("../scripts/command_alias.ps1", __FILE__)
+          script  = File.read(script)
+          command = script << "\r\n" << command << "\r\nexit $LASTEXITCODE"
         end
-        exit_status
+
+        output = shell.send(opts[:shell], command, &block)
+
+        return output if opts[:shell] == :wql
+        exitcode = output[:exitcode]
+        raise_execution_error(opts, exitcode) if opts[:error_check] && exitcode != 0
+        exitcode
       end
       alias_method :sudo, :execute
 
@@ -101,17 +109,6 @@ module VagrantPlugins
           timeout_in_seconds: @machine.config.winrm.timeout,
           max_tries: @machine.config.winrm.max_tries,
         )
-      end
-
-      def do_execute(command, shell_type, &block)
-        if shell_type == :cmd
-          return shell.cmd(command, &block)[:exitcode]
-        end
-
-        script  = File.expand_path("../scripts/command_alias.ps1", __FILE__)
-        script  = File.read(script)
-        command = script << "\r\n" << command << "\r\nexit $LASTEXITCODE"
-        shell.powershell(command, &block)[:exitcode]
       end
 
       def raise_execution_error(opts, exit_code)

@@ -11,7 +11,7 @@ module VagrantPlugins
         def self.configure_networks(machine, networks)
           @@logger.debug("Networks: #{networks.inspect}")
 
-          guest_network = GuestNetwork.new(machine.communicate.shell)
+          guest_network = GuestNetwork.new(machine.communicate)
           if machine.provider_name.to_s.start_with?("vmware")
             machine.ui.warn("Configuring secondary network adapters through VMware ")
             machine.ui.warn("on Windows is not yet supported. You will need to manually")
