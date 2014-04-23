@@ -6,11 +6,17 @@ module VagrantPlugins
       class Remove < Vagrant.plugin("2", :command)
         def execute
           options = {}
+          options[:force] = false
+
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant box remove <name>"
             o.separator ""
             o.separator "Options:"
-            o.separator ""            
+            o.separator ""
+
+            o.on("-f", "--force", "Destroy without confirmation.") do |f|
+              options[:force] = f
+            end
 
             o.on("--provider PROVIDER", String,
                  "The specific provider type for the box to remove") do |p|
@@ -43,6 +49,7 @@ module VagrantPlugins
             :box_name     => argv[0],
             :box_provider => options[:provider],
             :box_version  => options[:version],
+            :force_confirm_box_remove => options[:force],
           })
 
           # Success, exit status 0

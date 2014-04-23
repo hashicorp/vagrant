@@ -34,10 +34,25 @@ describe VagrantPlugins::CommandBox::Command::Remove do
     it "invokes the action runner" do
       expect(action_runner).to receive(:run).with { |action, opts|
         expect(opts[:box_name]).to eq("foo")
+        expect(opts[:force_confirm_box_remove]).to be_false
         true
       }
 
       subject.execute
+    end
+
+    context "with --force" do
+      let(:argv) { super() + ["--force"] }
+
+      it "invokes the action runner with force option" do
+        expect(action_runner).to receive(:run).with { |action, opts|
+          expect(opts[:box_name]).to eq("foo")
+          expect(opts[:force_confirm_box_remove]).to be_true
+          true
+        }
+
+        subject.execute
+      end
     end
   end
 
