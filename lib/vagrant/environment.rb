@@ -165,6 +165,7 @@ module Vagrant
           :box_collection => boxes,
           :hook           => method(:hook),
           :host           => host,
+          :machine_index  => machine_index,
           :gems_path      => gems_path,
           :home_path      => home_path,
           :root_path      => root_path,
