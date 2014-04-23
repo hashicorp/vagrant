@@ -265,3 +265,74 @@ describe Vagrant::MachineIndex do
     end
   end
 end
+
+describe Vagrant::MachineIndex::Entry do
+  include_context "unit"
+
+  let(:env) {
+    iso_env = isolated_environment
+    iso_env.vagrantfile(vagrantfile)
+    iso_env.create_vagrant_env
+  }
+
+  let(:vagrantfile) { "" }
+
+  describe "#valid?" do
+    let(:machine) { env.machine(:default, :dummy) }
+
+    subject do
+      described_class.new.tap do |e|
+        e.name = "default"
+        e.provider = "dummy"
+        e.vagrantfile_path = env.root_path
+      end
+    end
+
+    it "should be valid with a valid entry" do
+      machine.id = "foo"
+      expect(subject).to be_valid(env.home_path)
+    end
+
+    it "should be invalid if no Vagrantfile path is set" do
+      subject.vagrantfile_path = nil
+      expect(subject).to_not be_valid(env.home_path)
+    end
+
+    it "should be invalid if the Vagrantfile path does not exist" do
+      subject.vagrantfile_path = Pathname.new("/i/should/not/exist")
+      expect(subject).to_not be_valid(env.home_path)
+    end
+
+    it "should be invalid if the machine is inactive" do
+      machine.id = nil
+      expect(subject).to_not be_valid(env.home_path)
+    end
+
+    context "with another active machine" do
+      let(:vagrantfile) do
+        <<-VF
+        Vagrant.configure("2") do |config|
+          config.vm.define "web"
+          config.vm.define "db"
+        end
+        VF
+      end
+
+      it "should be invalid if the wrong machine is active only" do
+        m = env.machine(:web, :dummy)
+        m.id = "foo"
+
+        subject.name = "db"
+        expect(subject).to_not be_valid(env.home_path)
+      end
+
+      it "should be valid if the correct machine is active" do
+        env.machine(:web, :dummy).id = "foo"
+        env.machine(:db, :dummy).id = "foo"
+
+        subject.name = "db"
+        expect(subject).to be_valid(env.home_path)
+      end
+    end
+  end
+end

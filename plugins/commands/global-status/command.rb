@@ -42,7 +42,7 @@ module VagrantPlugins
         @env.machine_index.each do |entry|
           # If we're pruning and this entry is invalid, skip it
           # and prune it later.
-          if options[:prune] && invalid?(entry)
+          if options[:prune] && entry.invalid?(@env.home_path)
             prune << entry
             next
           end
@@ -94,23 +94,6 @@ module VagrantPlugins
 
         # Success, exit status 0
         0
-      end
-
-      protected
-
-      # Tests if a entry is invalid and should be pruned
-      def invalid?(entry)
-        return true if !entry.vagrantfile_path.directory?
-
-        # Create an environment so we can determine the active
-        # machines...
-        env = entry.vagrant_env(@env.home_path)
-        env.active_machines.each do |name, provider|
-          return false if name.to_s == entry.name.to_s &&
-            provider.to_s == entry.provider.to_s
-        end
-
-        true
       end
     end
   end

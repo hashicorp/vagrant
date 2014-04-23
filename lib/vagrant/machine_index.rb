@@ -403,6 +403,33 @@ module Vagrant
         @vagrantfile_path = Pathname.new(@vagrantfile_path) if @vagrantfile_path
       end
 
+      # Returns boolean true if this entry appears to be valid.
+      # The critera for being valid:
+      #
+      #   * Vagrantfile directory exists
+      #   * Vagrant environment contains a machine with this
+      #     name and provider.
+      #
+      # This method is _slow_. It should be used with care.
+      #
+      # @param [Pathname] home_path The home path for the Vagrant
+      #   environment.
+      # @return [Boolean]
+      def valid?(home_path)
+        return false if !vagrantfile_path
+        return false if !vagrantfile_path.directory?
+
+        # Create an environment so we can determine the active
+        # machines...
+        env = vagrant_env(home_path)
+        env.active_machines.each do |name, provider|
+          return true if name.to_s == self.name.to_s &&
+            provider.to_s == self.provider.to_s
+        end
+
+        false
+      end
+
       # Creates a {Vagrant::Environment} for this entry.
       #
       # @return [Vagrant::Environment]
