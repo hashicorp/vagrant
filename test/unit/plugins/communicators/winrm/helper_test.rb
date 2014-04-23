@@ -31,7 +31,7 @@ describe VagrantPlugins::CommunicatorWinRM::Helper do
       expect(subject.winrm_address(machine)).to eq("bar")
     end
 
-    it "raisee an exception if it can't detect a host" do
+    it "raise an exception if it can't detect a host" do
       machine.stub(ssh_info: nil)
       expect { subject.winrm_address(machine) }.
         to raise_error(VagrantPlugins::CommunicatorWinRM::Errors::WinRMNotReady)
