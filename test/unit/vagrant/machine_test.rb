@@ -21,7 +21,14 @@ describe Vagrant::Machine do
   let(:provider_name) { :test }
   let(:provider_options) { {} }
   let(:base)     { false }
-  let(:box)      { Object.new }
+  let(:box) do
+    double("box").tap do |b|
+      b.stub(name: "foo")
+      b.stub(provider: :dummy)
+      b.stub(version: "1.0")
+    end
+  end
+
   let(:config)   { env.vagrantfile.config }
   let(:data_dir) { Pathname.new(Dir.mktmpdir("vagrant")) }
   let(:env)      do
