@@ -8,9 +8,9 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
   let(:session) { double("winrm_session") }
 
   subject do
-    comm = described_class.new('localhost', 'username', 'password')
-    allow(comm).to receive(:new_session).and_return(session)
-    comm
+    described_class.new('localhost', 'username', 'password').tap do |comm|
+      allow(comm).to receive(:new_session).and_return(session)
+    end
   end
 
   describe ".powershell" do

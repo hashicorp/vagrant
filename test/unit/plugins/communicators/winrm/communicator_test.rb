@@ -12,9 +12,9 @@ describe VagrantPlugins::CommunicatorWinRM::Communicator do
   let(:shell) { double("shell") }
 
   subject do
-    comm = described_class.new(machine)
-    allow(comm).to receive(:create_shell).and_return(shell)
-    comm
+    described_class.new(machine).tap do |comm|
+      allow(comm).to receive(:create_shell).and_return(shell)
+    end
   end
 
   describe ".ready?" do
