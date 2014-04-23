@@ -6,12 +6,16 @@ describe Vagrant::Action::Builtin::BoxRemove do
   let(:app) { lambda { |env| } }
   let(:env) { {
     box_collection: box_collection,
+    home_path: home_path,
+    machine_index: machine_index,
     ui: Vagrant::UI::Silent.new,
   } }
 
   subject { described_class.new(app, env) }
 
   let(:box_collection) { double("box_collection") }
+  let(:home_path) { "foo" }
+  let(:machine_index) { [] }
   let(:iso_env) { isolated_environment }
 
   let(:box) do
@@ -72,6 +76,71 @@ describe Vagrant::Action::Builtin::BoxRemove do
     subject.call(env)
 
     expect(env[:box_removed]).to equal(box)
+  end
+
+  context "checking if a box is in use" do
+    def new_entry(name, provider, version, valid=true)
+      Vagrant::MachineIndex::Entry.new.tap do |entry|
+        entry.extra_data["box"] = {
+          "name" => "foo",
+          "provider" => "virtualbox",
+          "version" => "1.0",
+        }
+
+        entry.stub(valid?: valid)
+      end
+    end
+
+    let(:action_runner) { double("action_runner") }
+
+    before do
+      env[:action_runner] = action_runner
+
+      box_collection.stub(
+        all: [
+          ["foo", "1.0", :virtualbox],
+          ["foo", "1.1", :virtualbox],
+        ])
+
+      env[:box_name] = "foo"
+      env[:box_version] = "1.0"
+    end
+
+    it "does delete if the box is not in use" do
+      expect(box_collection).to receive(:find).with(
+        "foo", :virtualbox, "1.0").and_return(box)
+      expect(box).to receive(:destroy!).once
+
+      subject.call(env)
+    end
+
+    it "does delete if the box is in use and user confirms" do
+      machine_index << new_entry("foo", "virtualbox", "1.0")
+
+      result = { result: true }
+      expect(action_runner).to receive(:run).
+        with(anything, env).and_return(result)
+
+      expect(box_collection).to receive(:find).with(
+        "foo", :virtualbox, "1.0").and_return(box)
+      expect(box).to receive(:destroy!).once
+
+      subject.call(env)
+    end
+
+    it "doesn't delete if the box is in use" do
+      machine_index << new_entry("foo", "virtualbox", "1.0")
+
+      result = { result: false }
+      expect(action_runner).to receive(:run).
+        with(anything, env).and_return(result)
+
+      expect(box_collection).to receive(:find).with(
+        "foo", :virtualbox, "1.0").and_return(box)
+      expect(box).to receive(:destroy!).never
+
+      subject.call(env)
+    end
   end
 
   it "errors if the box doesn't exist" do
