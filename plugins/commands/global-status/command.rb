@@ -42,7 +42,7 @@ module VagrantPlugins
         @env.machine_index.each do |entry|
           # If we're pruning and this entry is invalid, skip it
           # and prune it later.
-          if options[:prune] && entry.invalid?(@env.home_path)
+          if options[:prune] && !entry.valid?(@env.home_path)
             prune << entry
             next
           end
