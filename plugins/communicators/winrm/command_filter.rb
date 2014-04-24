@@ -8,6 +8,7 @@ module VagrantPlugins
         "cat",
         "chmod",
         "chown",
+        "grep",
         "rm",
         "test",
         "uname",

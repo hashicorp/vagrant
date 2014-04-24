@@ -15,6 +15,10 @@ describe VagrantPlugins::CommunicatorWinRM::CommandFilter, :unit => true do
       expect(subject.filter('uname -s stuff')).to eq('')
     end
 
+    it 'filters out grep commands' do
+      expect(subject.filter("grep 'Fedora release [12][67890]' /etc/redhat-release")).to eq("")
+    end
+
     it 'filters out which commands' do
       expect(subject.filter('which ruby')).to include(
         '[Array](Get-Command ruby -errorAction SilentlyContinue)')
