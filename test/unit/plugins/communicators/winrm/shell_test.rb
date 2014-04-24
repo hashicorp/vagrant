@@ -8,14 +8,14 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
   let(:session) { double("winrm_session") }
 
   subject do
-    comm = described_class.new('localhost', 'username', 'password')
-    allow(comm).to receive(:new_session).and_return(session)
-    comm
+    described_class.new('localhost', 'username', 'password').tap do |comm|
+      allow(comm).to receive(:new_session).and_return(session)
+    end
   end
 
   describe ".powershell" do
     it "should call winrm powershell" do
-      expect(session).to receive(:powershell).with("dir").and_return({ :exitcode => 0 })
+      expect(session).to receive(:powershell).with("dir").and_return({ exitcode: 0 })
       expect(subject.powershell("dir")[:exitcode]).to eq(0)
     end
 
@@ -36,7 +36,7 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
 
   describe ".cmd" do
     it "should call winrm cmd" do
-      expect(session).to receive(:cmd).with("dir").and_return({ :exitcode => 0 })
+      expect(session).to receive(:cmd).with("dir").and_return({ exitcode: 0 })
       expect(subject.cmd("dir")[:exitcode]).to eq(0)
     end
   end
@@ -50,8 +50,8 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
   describe ".endpoint_options" do
     it "should create endpoint options" do
       expect(subject.send(:endpoint_options)).to eq(
-        { :user => "username", :pass => "password", :host => "localhost", :port => 5985,
-          :operation_timeout => 60, :basic_auth_only => true })
+        { user: "username", pass: "password", host: "localhost", port: 5985,
+          operation_timeout: 60, basic_auth_only: true })
     end
   end
 

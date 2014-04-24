@@ -12,14 +12,14 @@ describe VagrantPlugins::CommunicatorWinRM::Communicator do
   let(:shell) { double("shell") }
 
   subject do
-    comm = described_class.new(machine)
-    allow(comm).to receive(:create_shell).and_return(shell)
-    comm
+    described_class.new(machine).tap do |comm|
+      allow(comm).to receive(:create_shell).and_return(shell)
+    end
   end
 
   describe ".ready?" do
     it "returns true if hostname command executes without error" do
-      expect(shell).to receive(:powershell).with("hostname").and_return({ :exitcode => 0 })
+      expect(shell).to receive(:powershell).with("hostname").and_return({ exitcode: 0 })
       expect(subject.ready?).to be_true
     end
 
@@ -38,35 +38,35 @@ describe VagrantPlugins::CommunicatorWinRM::Communicator do
 
   describe ".execute" do
     it "defaults to running in powershell" do
-      expect(shell).to receive(:powershell).with(kind_of(String)).and_return({ :exitcode => 0 })
+      expect(shell).to receive(:powershell).with(kind_of(String)).and_return({ exitcode: 0 })
       expect(subject.execute("dir")).to eq(0)
     end
 
     it "can use cmd shell" do
-      expect(shell).to receive(:cmd).with(kind_of(String)).and_return({ :exitcode => 0 })
+      expect(shell).to receive(:cmd).with(kind_of(String)).and_return({ exitcode: 0 })
       expect(subject.execute("dir", { :shell => :cmd })).to eq(0)
     end
 
     it "raises error when error_check is true and exit code is non-zero" do
-      expect(shell).to receive(:powershell).with(kind_of(String)).and_return({ :exitcode => 1 })
+      expect(shell).to receive(:powershell).with(kind_of(String)).and_return({ exitcode: 1 })
       expect { subject.execute("dir") }.to raise_error(
         VagrantPlugins::CommunicatorWinRM::Errors::ExecutionError)
     end
 
     it "does not raise error when error_check is false and exit code is non-zero" do
-      expect(shell).to receive(:powershell).with(kind_of(String)).and_return({ :exitcode => 1 })
+      expect(shell).to receive(:powershell).with(kind_of(String)).and_return({ exitcode: 1 })
       expect(subject.execute("dir", { :error_check => false })).to eq(1)
     end
   end
 
   describe ".test" do
     it "returns true when exit code is zero" do
-      expect(shell).to receive(:powershell).with(kind_of(String)).and_return({ :exitcode => 0 })
+      expect(shell).to receive(:powershell).with(kind_of(String)).and_return({ exitcode: 0 })
       expect(subject.test("test -d c:/windows")).to be_true
     end
 
     it "returns false when exit code is non-zero" do
-      expect(shell).to receive(:powershell).with(kind_of(String)).and_return({ :exitcode => 1 })
+      expect(shell).to receive(:powershell).with(kind_of(String)).and_return({ exitcode: 1 })
       expect(subject.test("test -d /tmp/foobar")).to be_false
     end
 
