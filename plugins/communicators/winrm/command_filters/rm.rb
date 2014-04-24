@@ -1,10 +1,8 @@
 module VagrantPlugins
   module CommunicatorWinRM
     module CommandFilters
-
       # Converts a *nix 'rm' command to a PowerShell equivalent
       class Rm
-
         def filter(command)
           # rm -Rf /some/dir
           # rm /some/dir
@@ -20,9 +18,7 @@ module VagrantPlugins
         def accept?(command)
           command.start_with?('rm ')
         end
-
       end
-
     end
   end
 end

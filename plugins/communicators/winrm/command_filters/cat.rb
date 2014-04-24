@@ -1,10 +1,8 @@
 module VagrantPlugins
   module CommunicatorWinRM
     module CommandFilters
-
       # Handles the special case of determining the guest OS using cat
       class Cat
-
         def filter(command)
           # cat /etc/release | grep -i OmniOS
           # cat /etc/redhat-release
@@ -19,9 +17,7 @@ module VagrantPlugins
           # grep command
           command.start_with?('cat /etc/')
         end
-
       end
-
     end
   end
 end

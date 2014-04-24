@@ -1,8 +1,7 @@
 module VagrantPlugins
   module CommunicatorWinRM
     module CommandFilters
-
-      # Converts a *nix 'grep' command to a PowerShell equivalent
+      # Converts a *nix 'grep' command to a PowerShell equivalent (none)
       class Grep
 
         def filter(command)
@@ -18,9 +17,7 @@ module VagrantPlugins
         def accept?(command)
           command.start_with?('grep ')
         end
-
       end
-
     end
   end
 end

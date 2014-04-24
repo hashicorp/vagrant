@@ -12,7 +12,7 @@ module VagrantPlugins
         "rm",
         "test",
         "uname",
-        "which"
+        "which",
       ]
 
       # Filter the given Vagrant command to ensure compatibility with Windows
