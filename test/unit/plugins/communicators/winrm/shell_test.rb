@@ -15,19 +15,19 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
 
   describe ".powershell" do
     it "should call winrm powershell" do
-      expect(session).to receive(:powershell).with("dir").and_return({ exitcode: 0 })
+      expect(session).to receive(:powershell).with(/^dir.+/).and_return({ exitcode: 0 })
       expect(subject.powershell("dir")[:exitcode]).to eq(0)
     end
 
     it "should raise auth error when exception message contains 401" do
-      expect(session).to receive(:powershell).with("dir").and_raise(
+      expect(session).to receive(:powershell).with(/^dir.+/).and_raise(
         StandardError.new("Oh no! a 401 SOAP error!"))
       expect { subject.powershell("dir") }.to raise_error(
         VagrantPlugins::CommunicatorWinRM::Errors::AuthError)
     end
 
     it "should raise an execution error when an exception occurs" do
-      expect(session).to receive(:powershell).with("dir").and_raise(
+      expect(session).to receive(:powershell).with(/^dir.+/).and_raise(
         StandardError.new("Oh no! a 500 SOAP error!"))
       expect { subject.powershell("dir") }.to raise_error(
         VagrantPlugins::CommunicatorWinRM::Errors::ExecutionError)
