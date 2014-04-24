@@ -17,10 +17,10 @@ module VagrantPlugins
       end
 
       def initialize(machine)
+        @cmd_filter = CommandFilter.new()
+        @logger     = Log4r::Logger.new("vagrant::communication::winrm")
         @machine    = machine
         @shell      = nil
-        @logger     = Log4r::Logger.new("vagrant::communication::winrm")
-        @cmd_filter = CommandFilter.new()
 
         @logger.info("Initializing WinRMCommunicator")
       end
