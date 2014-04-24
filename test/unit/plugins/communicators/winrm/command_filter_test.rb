@@ -25,23 +25,31 @@ describe VagrantPlugins::CommunicatorWinRM::CommandFilter, :unit => true do
     end
 
     it 'filters out test -d commands' do
-      expect(subject.filter('test -d /tmp/dir')).to eq(
-        "if ((Test-Path '/tmp/dir') -and (get-item '/tmp/dir').PSIsContainer) { exit 0 } exit 1")
+      expect(subject.filter('test -d /tmp/dir')).to include(
+        "$p = \"/tmp/dir\"")
+      expect(subject.filter('test -d /tmp/dir')).to include(
+        "if ((Test-Path $p) -and (get-item $p).PSIsContainer) {")
     end
 
     it 'filters out test -f commands' do
-      expect(subject.filter('test -f /tmp/file.txt')).to eq(
-        "if ((Test-Path '/tmp/file.txt') -and (!(get-item '/tmp/file.txt').PSIsContainer)) { exit 0 } exit 1")
+      expect(subject.filter('test -f /tmp/file.txt')).to include(
+        "$p = \"/tmp/file.txt\"")
+      expect(subject.filter('test -f /tmp/file.txt')).to include(
+        "if ((Test-Path $p) -and (!(get-item $p).PSIsContainer)) {")
     end
 
     it 'filters out test -x commands' do
-      expect(subject.filter('test -x /tmp/file.txt')).to eq(
-        "if ((Test-Path '/tmp/file.txt') -and (!(get-item '/tmp/file.txt').PSIsContainer)) { exit 0 } exit 1")
+      expect(subject.filter('test -x /tmp/file.txt')).to include(
+        "$p = \"/tmp/file.txt\"")
+      expect(subject.filter('test -x /tmp/file.txt')).to include(
+        "if ((Test-Path $p) -and (!(get-item $p).PSIsContainer)) {")
     end
 
     it 'filters out other test commands' do
-      expect(subject.filter('test -L /tmp/file.txt')).to eq(
-        "if (Test-Path '/tmp/file.txt') { exit 0 } exit 1")
+      expect(subject.filter('test -L /tmp/file.txt')).to include(
+        "$p = \"/tmp/file.txt\"")
+      expect(subject.filter('test -L /tmp/file.txt')).to include(
+        "if (Test-Path $p) {")
     end
 
     it 'filters out rm -Rf commands' do
