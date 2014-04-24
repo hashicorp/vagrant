@@ -1,9 +1,7 @@
 module VagrantPlugins
   module CommunicatorWinRM
-   
     # Handles loading and applying all available WinRM command filters
     class CommandFilter
-
       @@cmd_filters = [
         "cat",
         "chmod",
@@ -42,7 +40,6 @@ module VagrantPlugins
           end
         end
       end
-
     end
   end
 end

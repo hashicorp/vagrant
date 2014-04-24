@@ -2,11 +2,9 @@ require "log4r"
 
 module VagrantPlugins
   module CommunicatorWinRM
-
     # Manages the file system on the remote guest allowing for file tranfer
     # between the guest and host.
     class FileManager
-
       def initialize(shell)
         @logger = Log4r::Logger.new("vagrant::communication::filemanager")
         @shell = shell
@@ -38,7 +36,6 @@ module VagrantPlugins
         out = Base64.decode64(contents)
         IO.binwrite(host_dest_file_path, out)
       end
-
 
       private
 
@@ -160,7 +157,6 @@ module VagrantPlugins
           :to => to,
           :message => out.inspect if out[:exitcode] != 0
       end
-    
-    end #class
+    end
   end
 end
