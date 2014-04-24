@@ -37,6 +37,8 @@ IMPROVEMENTS:
   - core: Vagrant locks machine access to one Vagrant process at a time.
       This will protect against two simultaneous `up` actions happening
       on the same environment.
+  - commands/box/remove: Warns if the box appears to be in use by an
+      environment. Can be forced with `--force`.
   - commands/destroy: Exit codes changes. 0 means everything succeeded.
       1 means everything was declined. 2 means some were declined. [GH-811]
   - commands/destroy: Doesn't require box to exist anymore. [GH-1629]
