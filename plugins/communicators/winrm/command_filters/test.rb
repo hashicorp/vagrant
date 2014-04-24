@@ -1,10 +1,8 @@
 module VagrantPlugins
   module CommunicatorWinRM
     module CommandFilters
-
       # Converts a *nix 'test' command to a PowerShell equivalent
       class Test
-
         def filter(command)
           # test -d /tmp/dir
           # test -f /tmp/afile
@@ -27,7 +25,6 @@ module VagrantPlugins
         def accept?(command)
           command.start_with?("test ")
         end
-
 
         private
 
@@ -60,9 +57,7 @@ module VagrantPlugins
             exit 1
           EOH
         end
-
       end
-
     end
   end
 end

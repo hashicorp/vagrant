@@ -1,10 +1,8 @@
 module VagrantPlugins
   module CommunicatorWinRM
     module CommandFilters
-
-      # Converts a *nix 'uname' command to a PowerShell equivalent
+      # Converts a *nix 'uname' command to a PowerShell equivalent (none)
       class Uname
-
         def filter(command)
           # uname -s | grep 'Darwin'
           # uname -s | grep VMkernel
@@ -23,9 +21,7 @@ module VagrantPlugins
         def accept?(command)
           command.start_with?('uname ')
         end
-
       end
-
     end
   end
 end
