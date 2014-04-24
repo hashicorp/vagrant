@@ -61,8 +61,18 @@ module VagrantPlugins
           :error_class => Errors::ExecutionError,
           :error_key   => :execution_error,
           :command     => command,
-          :shell       => :powershell
+          :shell       => :powershell,
+          :elevated    => false
         }.merge(opts || {})
+
+        if opts[:elevated]
+          path = File.expand_path("../scripts/elevated_shell.ps1", __FILE__)
+          command = Vagrant::Util::TemplateRenderer.render(path, options: {
+            username: shell.username,
+            password: shell.password,
+            command: command,
+          })
+        end
 
         output = shell.send(opts[:shell], command, &block)
         execution_output(output, opts)
