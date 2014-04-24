@@ -65,11 +65,7 @@ module VagrantPlugins
         }.merge(opts || {})
 
         output = shell.send(opts[:shell], command, &block)
-
-        return output if opts[:shell] == :wql
-        exitcode = output[:exitcode]
-        raise_execution_error(opts, exitcode) if opts[:error_check] && exitcode != 0
-        exitcode
+        execution_output(output, opts)
       end
       alias_method :sudo, :execute
 
@@ -110,10 +106,21 @@ module VagrantPlugins
         )
       end
 
-      def raise_execution_error(opts, exit_code)
+      # Handles the raw WinRM shell result and converts it to a
+      # standard Vagrant communicator result
+      def execution_output(output, opts)
+        if opts[:shell] == :wql
+          return output
+        elsif opts[:error_check] && output[:exitcode] != 0
+          raise_execution_error(output, opts)
+        end
+        output[:exitcode]
+      end
+
+      def raise_execution_error(output, opts)
         # The error classes expect the translation key to be _key, but that makes for an ugly
         # configuration parameter, so we set it here from `error_key`
-        msg = "Command execution failed with an exit code of #{exit_code}"
+        msg = "Command execution failed with an exit code of #{output[:exitcode]}"
         error_opts = opts.merge(:_key => opts[:error_key], :message => msg)
         raise opts[:error_class], error_opts
       end
