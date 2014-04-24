@@ -73,6 +73,13 @@ has an effect if you don't already use private keys for authentication.
 
 <hr>
 
+`config.ssh.proxy_command` - A command-line command to execute that receives
+the data to send to SSH on stdin. This can be used to proxy the SSH connection.
+`%h` in the command is replaced with the host and `%p` is replaced with
+the port.
+
+<hr>
+
 `config.ssh.shell` - The shell to use when executing SSH commands from
 Vagrant. By default this is `bash -l`. Note that this has no effect on
 the shell you get when you run `vagrant ssh`. This configuration option
