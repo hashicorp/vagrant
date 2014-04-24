@@ -4,6 +4,7 @@ require "log4r"
 
 require_relative "helper"
 require_relative "shell"
+require_relative "command_filter"
 
 module VagrantPlugins
   module CommunicatorWinRM
@@ -16,9 +17,10 @@ module VagrantPlugins
       end
 
       def initialize(machine)
-        @machine = machine
-        @logger  = Log4r::Logger.new("vagrant::communication::winrm")
-        @shell   = nil
+        @machine    = machine
+        @shell      = nil
+        @logger     = Log4r::Logger.new("vagrant::communication::winrm")
+        @cmd_filter = CommandFilter.new()
 
         @logger.info("Initializing WinRMCommunicator")
       end
@@ -50,6 +52,10 @@ module VagrantPlugins
       end
 
       def execute(command, opts={}, &block)
+        # If this is a *nix command with no Windows equivilant, don't run it
+        command = @cmd_filter.filter(command)
+        return 0 if command.empty?
+
         opts = {
           :error_check => true,
           :error_class => Errors::ExecutionError,
@@ -57,12 +63,6 @@ module VagrantPlugins
           :command     => command,
           :shell       => :powershell
         }.merge(opts || {})
-
-        if opts[:shell] == :powershell
-          script  = File.expand_path("../scripts/command_alias.ps1", __FILE__)
-          script  = File.read(script)
-          command = script << "\r\n" << command << "\r\nexit $LASTEXITCODE"
-        end
 
         output = shell.send(opts[:shell], command, &block)
 
@@ -74,10 +74,9 @@ module VagrantPlugins
       alias_method :sudo, :execute
 
       def test(command, opts=nil)
-        @logger.info("Testing: #{command}")
-
-        # HACK: to speed up Vagrant 1.2 OS detection, skip checking for *nix OS
-        return false unless (command =~ /^uname|^cat \/etc|^cat \/proc|grep 'Fedora/).nil?
+        # If this is a *nix command with no Windows equivilant, assume failure
+        command = @cmd_filter.filter(command)
+        return false if command.empty?
 
         opts = { :error_check => false }.merge(opts || {})
         execute(command, opts) == 0
