@@ -59,7 +59,7 @@ PLUGIN AUTHOR CHANGES:
 
   - **New host capability:** "rdp\_client". This capability gets the RDP connection
       info and must launch the RDP client on the system.
-  - core: The "Call" middleware now merges the resulting middlewaer stack
+  - core: The "Call" middleware now merges the resulting middleware stack
       into the current stack, rather than running it as a separate stack.
       The result is that ordering is preserved.
   - core: The "Message" middleware now takes a "post" option that will
