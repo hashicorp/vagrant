@@ -144,7 +144,7 @@ module Vagrant
       hook(:environment_plugins_loaded, runner: Action::Runner.new(env: self))
 
       # Call the environment load hooks
-      hook(:environment_load)
+      hook(:environment_load, runner: Action::Runner.new(env: self))
     end
 
     # Return a human-friendly string for pretty printed or inspected
@@ -165,6 +165,7 @@ module Vagrant
           :box_collection => boxes,
           :hook           => method(:hook),
           :host           => host,
+          :machine_index  => machine_index,
           :gems_path      => gems_path,
           :home_path      => home_path,
           :root_path      => root_path,

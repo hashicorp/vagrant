@@ -21,7 +21,14 @@ describe Vagrant::Machine do
   let(:provider_name) { :test }
   let(:provider_options) { {} }
   let(:base)     { false }
-  let(:box)      { Object.new }
+  let(:box) do
+    double("box").tap do |b|
+      b.stub(name: "foo")
+      b.stub(provider: :dummy)
+      b.stub(version: "1.0")
+    end
+  end
+
   let(:config)   { env.vagrantfile.config }
   let(:data_dir) { Pathname.new(Dir.mktmpdir("vagrant")) }
   let(:env)      do
@@ -403,11 +410,32 @@ describe Vagrant::Machine do
     end
 
     it "is set one when setting an ID" do
+      # Setup the box information
+      box = double("box")
+      box.stub(name: "foo")
+      box.stub(provider: :bar)
+      box.stub(version: "1.2.3")
+      subject.box = box
+
       subject.id = "foo"
 
       uuid = subject.index_uuid
       expect(uuid).to_not be_nil
       expect(new_instance.index_uuid).to eq(uuid)
+
+      # Test the entry itself
+      entry = env.machine_index.get(uuid)
+      expect(entry.name).to eq(subject.name)
+      expect(entry.provider).to eq(subject.provider_name.to_s)
+      expect(entry.state).to eq("preparing")
+      expect(entry.vagrantfile_path).to eq(env.root_path)
+      expect(entry.vagrantfile_name).to eq(env.vagrantfile_name)
+      expect(entry.extra_data["box"]).to eq({
+        "name"     => box.name,
+        "provider" => box.provider.to_s,
+        "version"  => box.version,
+      })
+      env.machine_index.release(entry)
     end
 
     it "deletes the UUID when setting to nil" do

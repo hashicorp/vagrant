@@ -1251,6 +1251,15 @@ en:
         vm_not_running: "VM is not currently running. Please, first bring it up with `vagrant up` then run this command."
       box:
         no_installed_boxes: "There are no installed boxes! Use `vagrant box add` to add some."
+        remove_in_use_query: |-
+          Box '%{name}' (v%{version}) with provider '%{provider}' appears
+          to still be in use by at least one Vagrant environment. Removing
+          the box could corrupt the environment. We recommend destroying
+          these environments first:
+
+          %{users}
+
+          Are you sure you want to remove this box? [y/N]
         removing: |-
           Removing box '%{name}' (v%{version}) with provider '%{provider}'...
       destroy:

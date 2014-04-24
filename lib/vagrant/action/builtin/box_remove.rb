@@ -71,6 +71,49 @@ module Vagrant
           box = env[:box_collection].find(
             box_name, box_provider, box_version)
 
+          # Verify that this box is not in use by an active machine,
+          # otherwise warn the user.
+          users = []
+          env[:machine_index].each do |entry|
+            box_data = entry.extra_data["box"]
+            next if !box_data
+
+            # If all the data matches AND the entry is a seemingly
+            # valid entry, then track it.
+            if box_data["name"] == box.name &&
+              box_data["provider"] == box.provider.to_s &&
+              box_data["version"] == box.version.to_s &&
+              entry.valid?(env[:home_path])
+              users << entry
+            end
+          end
+
+          if !users.empty?
+            # Build up the output to show the user.
+            users = users.map do |entry|
+              "#{entry.name} (ID: #{entry.id})"
+            end.join("\n")
+
+            force_key = :force_confirm_box_remove
+            message   = I18n.t(
+              "vagrant.commands.box.remove_in_use_query",
+              name: box.name,
+              provider: box.provider,
+              version: box.version,
+              users: users) + " "
+
+            # Ask the user if we should do this
+            stack = Builder.new.tap do |b|
+              b.use Confirm, message, force_key
+            end
+
+            result = env[:action_runner].run(stack, env)
+            if !result[:result]
+              # They said "no", so just return
+              return @app.call(env)
+            end
+          end
+
           env[:ui].info(I18n.t("vagrant.commands.box.removing",
                               :name => box.name,
                               :provider => box.provider,
