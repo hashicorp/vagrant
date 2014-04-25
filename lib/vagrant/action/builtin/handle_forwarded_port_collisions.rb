@@ -32,6 +32,7 @@ module Vagrant
         end
 
         def call(env)
+          @leased  = []
           @machine = env[:machine]
 
           # Acquire a process-level lock so that we don't choose a port
@@ -46,6 +47,13 @@ module Vagrant
           end
 
           @app.call(env)
+
+          # Always run the recover method so that we release leases
+          recover(env)
+        end
+
+        def recover(env)
+          lease_release
         end
 
         protected
@@ -176,8 +184,20 @@ module Vagrant
             f.write(Time.now.to_i.to_s + "\n")
           end
 
+          # Add to the leased array so we unlease it right away
+          @leased << port.to_s
+
           # Things look good to us!
           false
+        end
+
+        def lease_release
+          leasedir = @machine.env.data_dir.join("fp-leases")
+
+          @leased.each do |port|
+            path = leasedir.join(port)
+            path.delete if path.file?
+          end
         end
 
         def port_check(port)
