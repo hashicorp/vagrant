@@ -198,6 +198,13 @@ describe Vagrant::Environment do
   end
 
   describe "#lock" do
+    def lock_count
+      subject.data_dir.
+        children.
+        find_all { |c| c.to_s.end_with?("lock") }.
+        length
+    end
+
     it "does nothing if no block is given" do
       subject.lock
     end
@@ -227,6 +234,19 @@ describe Vagrant::Environment do
       end
 
       expect(success).to be_true
+    end
+
+    it "cleans up all lock files" do
+      inner_count = nil
+
+      expect(lock_count).to eq(0)
+      subject.lock do
+        inner_count = lock_count
+      end
+
+      expect(inner_count).to_not be_nil
+      expect(inner_count).to eq(2)
+      expect(lock_count).to eq(1)
     end
   end
 

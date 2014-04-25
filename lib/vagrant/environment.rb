@@ -358,18 +358,13 @@ module Vagrant
       return if !block_given?
 
       # This allows multiple locks in the same process to be nested
-      return yield if @locks[name]
+      return yield if @locks[name] || opts[:noop]
 
       # The path to this lock
       lock_path = data_dir.join("lock.#{name}.lock")
 
       @logger.debug("Attempting to acquire process-lock: #{name}")
-
-      if name != "dotlock"
-        lock("dotlock", no_clean: true) do
-          f = File.open(lock_path, "w+")
-        end
-      else
+      lock("dotlock", noop: name == "dotlock") do
         f = File.open(lock_path, "w+")
       end
 
@@ -398,8 +393,8 @@ module Vagrant
       end
 
       # Clean up the lock file, this requires another lock
-      if !opts[:no_clean]
-        lock("dotlock", no_clean: true) do
+      if name != "dotlock"
+        lock("dotlock") do
           f.close
           File.delete(lock_path)
         end
