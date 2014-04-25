@@ -15,6 +15,8 @@ FEATURES:
       created Vagrant environment on the system for that logged in user.
   - **New command: rdp**. This command connects to the running machine
       via the Remote Desktop Protocol.
+  - **New command: version**. This outputs the currently installed version
+      as well as the latest version of Vagrant available.
   - **New provider: Docker**. This provider will back your development
       environments with Docker containers. If you're not on Linux, it will
       automatically spin up a VM for you on any provider. You can even
