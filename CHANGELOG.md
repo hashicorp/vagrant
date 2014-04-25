@@ -55,6 +55,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - core: Adding a box from a network share on Windows works again. [GH-3279]
   - provisioners/salt: Always copy keys and configs on provision. [GH-3536]
   - synced\_folders/nfs: Acquires a process-level lock so exports don't
       collide with Vagrant running in parallel.
