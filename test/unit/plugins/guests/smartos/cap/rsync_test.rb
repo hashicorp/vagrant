@@ -1,7 +1,7 @@
 require File.expand_path("../../../../../base", __FILE__)
 
 describe "VagrantPlugins::VagrantPlugins::Cap::Rsync" do
-  let(:plugin) { VagrantPlugins::GuestSmartos::Plugin.components.guest_capabilities[:smartos].get(:rsync_pre) }
+  let(:plugin) { VagrantPlugins::GuestSmartos::Plugin.components.guest_capabilities[:smartos].get(:rsync_installed) }
   let(:machine) { double("machine") }
   let(:config) { double("config", smartos: VagrantPlugins::GuestSmartos::Config.new) }
   let(:communicator) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
@@ -28,24 +28,6 @@ describe "VagrantPlugins::VagrantPlugins::Cap::Rsync" do
         communicator.stub_command("which rsync", stdout: '', exit_code: 1)
         expect(plugin.rsync_installed(machine)).to be false
       end
-    end
-  end
-
-  describe ".rsync_pre" do
-    let(:username) { "some_user" }
-
-    before do
-      machine.stub(:ssh_info).and_return({username: username})
-    end
-
-    it "creates a local directory" do
-      communicator.expect_command(%Q(pfexec mkdir -p '/mountpoint'))
-      plugin.rsync_pre(machine, {guestpath: '/mountpoint'})
-    end
-
-    it "chowns local directory to ssh user" do
-      communicator.expect_command(%Q(pfexec chown -R #{username} '/mountpoint'))
-      plugin.rsync_pre(machine, {guestpath: '/mountpoint'})
     end
   end
 end

@@ -13,13 +13,14 @@ module VagrantPlugins
           machine.communicate.test("which rsync")
         end
 
-        def self.rsync_pre(machine, folder_opts)
-          username = machine.ssh_info[:username]
+        def self.rsync_command(machine)
+          "sudo rsync"
+        end
 
-          machine.communicate.tap do |comm|
-            comm.sudo("mkdir -p '#{folder_opts[:guestpath]}'")
-            comm.sudo("chown -R #{username} '#{folder_opts[:guestpath]}'")
-          end
+        def self.rsync_post(machine, opts)
+          machine.communicate.sudo(
+            "find '#{opts[:guestpath]}' '(' ! -user #{opts[:owner]} -or ! -group #{opts[:group]} ')' -print0 | " +
+            "xargs -0 -r chown -v #{opts[:owner]}:#{opts[:group]}")
         end
       end
     end
