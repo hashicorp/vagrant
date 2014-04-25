@@ -85,6 +85,33 @@ module Vagrant
       return true
     end
 
+    # Checks if this box is in use according to the given machine
+    # index and returns the entries that appear to be using the box.
+    #
+    # The entries returned, if any, are not tested for validity
+    # with {MachineIndex::Entry#valid?}, so the caller should do that
+    # if the caller cares.
+    #
+    # @param [MachineIndex] index
+    # @return [Array<MachineIndex::Entry>]
+    def in_use?(index)
+      results = []
+      index.each do |entry|
+        box_data = entry.extra_data["box"]
+        next if !box_data
+
+        # If all the data matches, record it
+        if box_data["name"] == self.name &&
+          box_data["provider"] == self.provider.to_s &&
+          box_data["version"] == self.version.to_s
+          results << entry
+        end
+      end
+
+      return nil if results.empty?
+      results
+    end
+
     # Loads the metadata URL and returns the latest metadata associated
     # with this box.
     #

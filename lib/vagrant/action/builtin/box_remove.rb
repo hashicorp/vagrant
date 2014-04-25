@@ -73,21 +73,8 @@ module Vagrant
 
           # Verify that this box is not in use by an active machine,
           # otherwise warn the user.
-          users = []
-          env[:machine_index].each do |entry|
-            box_data = entry.extra_data["box"]
-            next if !box_data
-
-            # If all the data matches AND the entry is a seemingly
-            # valid entry, then track it.
-            if box_data["name"] == box.name &&
-              box_data["provider"] == box.provider.to_s &&
-              box_data["version"] == box.version.to_s &&
-              entry.valid?(env[:home_path])
-              users << entry
-            end
-          end
-
+          users = box.in_use?(env[:machine_index]) || []
+          users = users.find_all { |u| u.valid?(env[:home_path]) }
           if !users.empty?
             # Build up the output to show the user.
             users = users.map do |entry|

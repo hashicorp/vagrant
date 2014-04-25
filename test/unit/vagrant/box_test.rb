@@ -195,6 +195,36 @@ describe Vagrant::Box do
     end
   end
 
+  context "#in_use?" do
+    let(:index) { [] }
+
+    def new_entry(name, provider, version)
+      Vagrant::MachineIndex::Entry.new.tap do |entry|
+        entry.extra_data["box"] = {
+          "name" => name,
+          "provider" => provider,
+          "version" => version,
+        }
+      end
+    end
+
+    it "returns nil if the index has no matching entries" do
+      index << new_entry("foo", "bar", "1.0")
+      index << new_entry("foo", "baz", "1.2")
+
+      expect(subject).to_not be_in_use(index)
+    end
+
+    it "returns matching entries if they exist" do
+      matching = new_entry(name, provider.to_s, version)
+      index << new_entry("foo", "bar", "1.0")
+      index << matching
+      index << new_entry("foo", "baz", "1.2")
+
+      expect(subject.in_use?(index)).to eq([matching])
+    end
+  end
+
   context "#load_metadata" do
     let(:metadata_url) do
       Tempfile.new("vagrant").tap do |f|
