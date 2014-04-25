@@ -224,7 +224,7 @@ VF
         config.groups = {
           "group1" => "#{machine.name}",
           "group1:children" => 'bar',
-          "group2" => ["iso_env.machine_names[1]"],
+          "group2" => [iso_env.machine_names[1]],
           "group3" => ["unknown", "#{machine.name}"],
           "bar" => ["#{machine.name}", "group3"],
           "bar:children" => ["group1", "group2", "group3", "group4"],
