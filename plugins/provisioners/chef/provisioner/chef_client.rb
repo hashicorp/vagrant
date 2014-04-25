@@ -75,7 +75,8 @@ module VagrantPlugins
               @machine.ui.info I18n.t("vagrant.provisioners.chef.running_client_again")
             end
 
-            exit_status = @machine.communicate.sudo(command, :error_check => false) do |type, data|
+            opts = { error_check: false, elevated: true }
+            exit_status = @machine.communicate.sudo(command, opts) do |type, data|
               # Output the data with the proper color based on the stream.
               color = type == :stdout ? :green : :red
 
