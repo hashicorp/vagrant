@@ -58,6 +58,10 @@ module VagrantPlugins
             @machine.ui.warn(I18n.t("vagrant.chef_run_list_empty"))
           end
 
+          if @machine.guest.capability?(:wait_for_reboot)
+            @machine.guest.capability(:wait_for_reboot)
+          end
+
           if windows?
             # This re-establishes our symbolic links if they were
             # created between now and a reboot
