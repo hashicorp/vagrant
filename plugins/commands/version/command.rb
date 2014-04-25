@@ -1,8 +1,5 @@
 require "json"
 require "optparse"
-require "tempfile"
-
-require "vagrant/util/downloader"
 
 module VagrantPlugins
   module CommandVersion
@@ -25,24 +22,18 @@ module VagrantPlugins
           "vagrant.version_current", version: Vagrant::VERSION))
         @env.ui.machine("version-installed", Vagrant::VERSION)
 
-        # Load the latest installed version to output that.
-        tf  = Tempfile.new("vagrant")
-        tf.close
-        url = "http://www.vagrantup.com/latest-version.json"
-        Vagrant::Util::Downloader.new(url, tf.path).download!
-
-        # Parse the JSON result
-        data = JSON.parse(File.read(tf.path))
+        # Load the latest version
+        latest = Vagrant.latest_version
 
         # Output latest version
         @env.ui.output(I18n.t(
-          "vagrant.version_latest", version: data["version"]))
-        @env.ui.machine("version-latest", data["version"])
+          "vagrant.version_latest", version: latest))
+        @env.ui.machine("version-latest", latest)
 
         # Determine if its a new version, and if so, output some more
         # information.
         current = Gem::Version.new(Vagrant::VERSION)
-        latest  = Gem::Version.new(data["version"])
+        latest  = Gem::Version.new(latest)
         if current >= latest
           @env.ui.success(" \n" + I18n.t(
             "vagrant.version_latest_installed"))

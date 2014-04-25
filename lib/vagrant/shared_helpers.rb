@@ -1,4 +1,5 @@
 require "pathname"
+require "tempfile"
 
 module Vagrant
   # This is the default endpoint of the Vagrant Cloud in
@@ -23,6 +24,23 @@ module Vagrant
   def self.installer_embedded_dir
     return nil if !Vagrant.in_installer?
     ENV["VAGRANT_INSTALLER_EMBEDDED_DIR"]
+  end
+
+  # Returns the latest version of Vagrant that is available.
+  #
+  # This makes an HTTP call.
+  #
+  # @return [String]
+  def self.latest_version
+    # Lazy-require this so that the overhead of this file is low
+    require "vagrant/util/downloader"
+
+    tf  = Tempfile.new("vagrant")
+    tf.close
+    url = "http://www.vagrantup.com/latest-version.json"
+    Vagrant::Util::Downloader.new(url, tf.path).download!
+    data = JSON.parse(File.read(tf.path))
+    data["version"]
   end
 
   # This returns whether or not 3rd party plugins should be loaded.
