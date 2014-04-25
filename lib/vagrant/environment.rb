@@ -352,6 +352,8 @@ module Vagrant
     # @param [String] name Name of the lock, since multiple locks can
     #   be held at one time.
     def lock(name="global", **opts)
+      f = nil
+
       # If we don't have a block, then locking is useless, so ignore it
       return if !block_given?
 
@@ -362,29 +364,53 @@ module Vagrant
       lock_path = data_dir.join("lock.#{name}.lock")
 
       @logger.debug("Attempting to acquire process-lock: #{name}")
-      File.open(lock_path, "w+") do |f|
-        # The file locking fails only if it returns "false." If it
-        # succeeds it returns a 0, so we must explicitly check for
-        # the proper error case.
-        if f.flock(File::LOCK_EX | File::LOCK_NB) === false
-          @logger.warn("Process-lock in use: #{name}")
-          raise Errors::EnvironmentLockedError,
-            name: name
+
+      if name != "dotlock"
+        lock("dotlock", no_clean: true) do
+          f = File.open(lock_path, "w+")
         end
+      else
+        f = File.open(lock_path, "w+")
+      end
 
-        @logger.info("Acquired process lock: #{name}")
+      # The file locking fails only if it returns "false." If it
+      # succeeds it returns a 0, so we must explicitly check for
+      # the proper error case.
+      if f.flock(File::LOCK_EX | File::LOCK_NB) === false
+        @logger.warn("Process-lock in use: #{name}")
+        raise Errors::EnvironmentLockedError,
+          name: name
+      end
 
-        begin
-          # Mark that we have a lock
-          @locks[name] = true
+      @logger.info("Acquired process lock: #{name}")
 
-          return yield
-        ensure
-          # We need to make sure that no matter what this is always
-          # reset to false so we don't think we have a lock when we
-          # actually don't.
-          @locks.delete(name)
+      result = nil
+      begin
+        # Mark that we have a lock
+        @locks[name] = true
+
+        result = yield
+      ensure
+        # We need to make sure that no matter what this is always
+        # reset to false so we don't think we have a lock when we
+        # actually don't.
+        @locks.delete(name)
+      end
+
+      # Clean up the lock file, this requires another lock
+      if !opts[:no_clean]
+        lock("dotlock", no_clean: true) do
+          f.close
+          File.delete(lock_path)
         end
+      end
+
+      # Return the result
+      return result
+    ensure
+      begin
+        f.close if f
+      rescue IOError
       end
     end
 
