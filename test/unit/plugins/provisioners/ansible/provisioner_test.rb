@@ -441,7 +441,7 @@ VF
 
     # Note:
     # The Vagrant Ansible provisioner does not validate the coherency of arguments combination,
-    # and let ansible-playbook complaign.
+    # and let ansible-playbook complain.
     describe "with a maximum of options" do
       before do
         # command line arguments
@@ -450,28 +450,41 @@ VF
         config.sudo_user = 'deployer'
         config.verbose = "vvv"
         config.ask_sudo_pass = true
+        config.ask_vault_pass = true
+        config.vault_password_file = existing_file
         config.tags = %w(db www)
         config.skip_tags = %w(foo bar)
         config.limit = 'machine*:&vagrant:!that_one'
         config.start_at_task = 'an awesome task'
+        config.raw_arguments = ["--why-not", "--su-user=foot", "--ask-su-pass"]
 
         # environment variables
         config.host_key_checking = true
         config.raw_ssh_args = ['-o ControlMaster=no']
       end
 
-      it_should_set_arguments_and_environment_variables 15, 4, true
+      it_should_set_arguments_and_environment_variables 20, 4, true
       it_should_force_ssh_transport_mode
-      it_should_set_optional_arguments({  "extra_vars"    => "--extra-vars=@#{File.expand_path(__FILE__)}",
-                                          "sudo"          => "--sudo",
-                                          "sudo_user"     => "--sudo-user=deployer",
-                                          "verbose"       => "-vvv",
-                                          "ask_sudo_pass" => "--ask-sudo-pass",
-                                          "tags"          => "--tags=db,www",
-                                          "skip_tags"     => "--skip-tags=foo,bar",
-                                          "limit"         => "--limit=machine*:&vagrant:!that_one",
-                                          "start_at_task" => '--start-at-task=an awesome task',
+      it_should_set_optional_arguments({  "extra_vars"          => "--extra-vars=@#{File.expand_path(__FILE__)}",
+                                          "sudo"                => "--sudo",
+                                          "sudo_user"           => "--sudo-user=deployer",
+                                          "verbose"             => "-vvv",
+                                          "ask_sudo_pass"       => "--ask-sudo-pass",
+                                          "ask_vault_pass"      => "--ask-vault-pass",
+                                          "vault_password_file" => "--vault-password-file=#{File.expand_path(__FILE__)}",
+                                          "tags"                => "--tags=db,www",
+                                          "skip_tags"           => "--skip-tags=foo,bar",
+                                          "limit"               => "--limit=machine*:&vagrant:!that_one",
+                                          "start_at_task"       => "--start-at-task=an awesome task",
                                         })
+    
+      it "also includes given raw arguments" do
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+          expect(args).to include("--su-user=foot")
+          expect(args).to include("--ask-su-pass")
+          expect(args).to include("--why-not")
+        }
+      end
     end
 
   end
