@@ -41,12 +41,6 @@ module Vagrant
             # Expand the path and try to use that, if possible
             p = File.expand_path(URI.unescape(u.gsub(/^file:\/\//, "")))
             p = Util::Platform.cygwin_windows_path(p)
-
-            # If this is a network share on Windows then show the user an error
-            if Util::Platform.windows? && (p.start_with?("//") || p.start_with?("\\\\"))
-              raise Errors::BoxUrlIsNetworkShare, url: p
-            end
-
             next "file://#{URI.escape(p.gsub("\\", "/"))}" if File.file?(p)
 
             u
