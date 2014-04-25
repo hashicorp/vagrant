@@ -223,6 +223,23 @@ en:
       up some disk space.
 
       Press any other key to continue.
+    version_current: |-
+      Installed Version: %{version}
+    version_latest: |-
+      Latest Version: %{version}
+    version_latest_installed: |-
+      You're running an up-to-date version of Vagrant!
+    version_upgrade_howto: |-
+      To upgrade to the latest version, visit the downloads page and
+      download and install the latest version of Vagrant from the URL
+      below:
+
+        http://www.vagrantup.com/downloads.html
+
+      If you're curious what changed in the latest release, view the
+      CHANGELOG below:
+
+        https://github.com/mitchellh/vagrant/blob/v%{version}/CHANGELOG.md
     cfengine_config:
       classes_array: |-
         The 'classes' configuration must be an array.
