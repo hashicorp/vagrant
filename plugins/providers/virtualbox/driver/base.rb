@@ -43,7 +43,7 @@ module VagrantPlugins
 
                 # If the executable exists, then set it as the main path
                 # and break out
-                vboxmanage = "#{path}VBoxManage.exe"
+                vboxmanage = "#{single}VBoxManage.exe"
                 if File.file?(vboxmanage)
                   @vboxmanage_path = Vagrant::Util::Platform.cygwin_windows_path(vboxmanage)
                   break
