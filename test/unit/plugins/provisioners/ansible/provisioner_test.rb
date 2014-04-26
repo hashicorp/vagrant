@@ -68,17 +68,28 @@ VF
         expect(args[1]).to eq("--private-key=#{machine.ssh_info[:private_key_path][0]}")
         expect(args[2]).to eq("--user=#{machine.ssh_info[:username]}")
 
-        limit_index = args.index("--limit=#{machine.name}")
-        expect(limit_index).to be > 2
-        expect(limit_index).to be < 5
-        if (limit_index == 4)
-          expect(args[3]).to match("--connection=ssh")
-        end
-
         inventory_count = args.count { |x| x =~ /--inventory-file=.+/ }
         expect(inventory_count).to be > 0
 
         expect(args[args.length-2]).to eq("playbook.yml")
+      }
+    end
+
+    it "sets --limit argument" do
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        raw_limits = []
+        if config.raw_arguments
+          raw_limits = config.raw_arguments.select { |x| x =~ /--limit=|-l/ }
+        end
+        all_limits = args.select { |x| x =~ /--limit=|-l/ }
+        expect((all_limits - raw_limits).length).to eq(1)
+
+        if config.limit
+          limit = config.limit.kind_of?(Array) ? config.limit.join(',') : config.limit
+          expect(all_limits.last).to eq("--limit=#{limit}")
+        else
+          expect(all_limits.first).to eq("--limit=#{machine.name}")
+        end
       }
     end
 
@@ -295,11 +306,14 @@ VF
                                 "--skip-tags=ignored",
                                 "--module-path=/other/modules",
                                 "--sudo",
+                                "-l localhost",
+                                "--limit=foo",
+                                "--limit=bar",
                                 "--inventory-file=/forget/it/my/friend",
                                 "--new-arg=yeah"]
       end
 
-      it_should_set_arguments_and_environment_variables 12
+      it_should_set_arguments_and_environment_variables 15
       it_should_create_and_use_generated_inventory
       it_should_use_transport_mode('paramiko')
 
@@ -330,8 +344,7 @@ VF
         config.limit = %w(foo !bar)
       end
 
-      it_should_set_arguments_and_environment_variables 5
-      it_should_set_optional_arguments({ "limit" => "--limit=foo,!bar" })
+      it_should_set_arguments_and_environment_variables
     end
 
     describe "with inventory_path option" do
@@ -450,14 +463,14 @@ VF
         config.skip_tags = %w(foo bar)
         config.limit = 'machine*:&vagrant:!that_one'
         config.start_at_task = 'an awesome task'
-        config.raw_arguments = ["--why-not", "--su-user=foot", "--ask-su-pass"]
+        config.raw_arguments = ["--why-not", "--su-user=foot", "--ask-su-pass", "--limit=all"]
 
         # environment variables
         config.host_key_checking = true
         config.raw_ssh_args = ['-o ControlMaster=no']
       end
 
-      it_should_set_arguments_and_environment_variables 19, 4, true
+      it_should_set_arguments_and_environment_variables 20, 4, true
       it_should_force_ssh_transport_mode
       it_should_set_optional_arguments({  "extra_vars"          => "--extra-vars=@#{File.expand_path(__FILE__)}",
                                           "sudo"                => "--sudo",
