@@ -26,7 +26,8 @@ module VagrantPlugins
 
       def win_path(path)
         path.gsub!("/", "\\")
-        "c:#{path}" if path.start_with?("\\")
+        path = "c:#{path}" if path.start_with?("\\")
+        path
       end
     end
   end
