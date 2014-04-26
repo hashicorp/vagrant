@@ -56,8 +56,10 @@ module VagrantPlugins
         # Connection information
         username = ssh_info[:username]
         host     = ssh_info[:host]
+        proxy_command = "-o ProxyCommand='#{ssh_info[:proxy_command]}' " if ssh_info[:proxy_command]
         rsh = [
           "ssh -p #{ssh_info[:port]} " +
+          proxy_command +
           "-o StrictHostKeyChecking=no " +
           "-o UserKnownHostsFile=/dev/null",
           ssh_info[:private_key_path].map { |p| "-i '#{p}'" },
