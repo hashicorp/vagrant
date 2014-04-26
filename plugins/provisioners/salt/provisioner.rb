@@ -106,6 +106,11 @@ module VagrantPlugins
 
         if configure && !install
           options = "%s -C" % options
+
+          if @config.no_minion
+            options = "%s -N" % options
+          end
+
         else
           if @config.install_master
             options = "%s -M" % options
