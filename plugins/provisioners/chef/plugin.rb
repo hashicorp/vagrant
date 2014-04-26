@@ -6,8 +6,6 @@ module VagrantPlugins
   module Chef
     root = Pathname.new(File.expand_path("../", __FILE__))
     autoload :CommandBuilder, root.join("command_builder")
-    autoload :CommandBuilderLinux, root.join("command_builder_linux")
-    autoload :CommandBuilderWindows, root.join("command_builder_windows")
 
     class Plugin < Vagrant.plugin("2")
       name "chef"
