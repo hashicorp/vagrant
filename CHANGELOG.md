@@ -65,6 +65,7 @@ BUG FIXES:
       collide with Vagrant running in parallel.
   - synced\_folders/rsync: Add UserKnownHostsFile option to not complain. [GH-3511]
   - synced\_folders/rsync: Proxy command is used properly if set. [GH-3553]
+  - synced\_folders/rsync: Owner/group settings are respected. [GH-3544]
 
 PLUGIN AUTHOR CHANGES:
 
