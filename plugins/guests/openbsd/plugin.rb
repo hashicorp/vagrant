@@ -46,7 +46,12 @@ module VagrantPlugins
         Cap::RSync
       end
 
-      guest_capability("openbsd", "rsync_pre") do
+      guest_capability("openbsd", "rsync_command") do
+        require_relative "cap/rsync"
+        Cap::RSync
+      end
+
+      guest_capability("openbsd", "rsync_post") do
         require_relative "cap/rsync"
         Cap::RSync
       end

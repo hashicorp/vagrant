@@ -90,6 +90,17 @@ module VagrantPlugins
           args << "--no-perms" if args.include?("--archive") || args.include?("-a")
         end
 
+        # Disable rsync's owner/group preservation (implied by --archive) unless
+        # specifically requested, since we adjust owner/group to match shared
+        # folder setting ourselves.
+        args << "--no-owner" unless args.include?("--owner") || args.include?("-o")
+        args << "--no-group" unless args.include?("--group") || args.include?("-g")
+
+        # Tell local rsync how to invoke remote rsync with sudo
+        if machine.guest.capability?(:rsync_command)
+          args << "--rsync-path"<< machine.guest.capability(:rsync_command)
+        end
+
         # Build up the actual command to execute
         command = [
           "rsync",

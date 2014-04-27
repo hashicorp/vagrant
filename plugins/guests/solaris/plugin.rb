@@ -41,7 +41,12 @@ module VagrantPlugins
         Cap::RSync
       end
 
-      guest_capability("solaris", "rsync_pre") do
+      guest_capability("solaris", "rsync_command") do
+        require_relative "cap/rsync"
+        Cap::RSync
+      end
+
+      guest_capability("solaris", "rsync_post") do
         require_relative "cap/rsync"
         Cap::RSync
       end
