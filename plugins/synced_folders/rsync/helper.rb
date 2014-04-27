@@ -56,7 +56,11 @@ module VagrantPlugins
         # Connection information
         username = ssh_info[:username]
         host     = ssh_info[:host]
-        proxy_command = "-o ProxyCommand='#{ssh_info[:proxy_command]}' " if ssh_info[:proxy_command]
+        proxy_command = ""
+        if ssh_info[:proxy_command]
+          proxy_command = "-o ProxyCommand='#{ssh_info[:proxy_command]}' "
+        end
+
         rsh = [
           "ssh -p #{ssh_info[:port]} " +
           proxy_command +

@@ -61,6 +61,7 @@ BUG FIXES:
   - synced\_folders/nfs: Acquires a process-level lock so exports don't
       collide with Vagrant running in parallel.
   - synced\_folders/rsync: Add UserKnownHostsFile option to not complain. [GH-3511]
+  - synced\_folders/rsync: Proxy command is used properly if set. [GH-3553]
 
 PLUGIN AUTHOR CHANGES:
 
