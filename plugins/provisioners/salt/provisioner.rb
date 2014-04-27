@@ -106,26 +106,25 @@ module VagrantPlugins
 
         if configure && !install
           options = "%s -C" % options
-        else
-          if @config.install_master
-            options = "%s -M" % options
-          end
 
-          if @config.install_syndic
-            options = "%s -S" % options
-          end
+        if @config.install_master
+          options = "%s -M" % options
+        end
 
-          if @config.no_minion
-            options = "%s -N" % options
-          end
+        if @config.install_syndic
+          options = "%s -S" % options
+        end
 
-          if @config.install_type
-            options = "%s %s" % [options, @config.install_type]
-          end
+        if @config.no_minion
+          options = "%s -N" % options
+        end
 
-          if @config.install_args
-            options = "%s %s" % [options, @config.install_args]
-          end
+        if @config.install_type
+          options = "%s %s" % [options, @config.install_type]
+        end
+
+        if @config.install_args
+          options = "%s %s" % [options, @config.install_args]
         end
 
         if @config.verbose
