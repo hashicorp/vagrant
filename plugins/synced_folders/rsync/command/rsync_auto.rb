@@ -114,7 +114,7 @@ module VagrantPlugins
           callback = lambda do
             # This needs to execute in another thread because Thread
             # synchronization can't happen in a trap context.
-            Thread.new { queue << true }.join
+            Thread.new { queue << true }
           end
 
           # Run the listener in a busy block so that we can cleanly
