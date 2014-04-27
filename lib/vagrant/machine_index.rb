@@ -419,7 +419,6 @@ module Vagrant
         return false if !vagrantfile_path
         return false if !vagrantfile_path.directory?
 
-
         # Create an environment so we can determine the active
         # machines...
         found = false
