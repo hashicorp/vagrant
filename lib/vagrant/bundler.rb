@@ -35,7 +35,14 @@ module Vagrant
 
       # Set the Bundler UI to be a silent UI. We have to add the
       # `silence` method to it because Bundler UI doesn't have it.
-      ::Bundler.ui = ::Bundler::UI.new
+      ::Bundler.ui =
+        if ::Bundler::UI.const_defined? :Silent
+          # bundler >= 1.6.0
+          ::Bundler::UI::Silent.new
+        else
+          # bundler < 1.6.0
+          ::Bundler::UI.new
+        end
       if !::Bundler.ui.respond_to?(:silence)
         ui = ::Bundler.ui
         def ui.silence(*args)
