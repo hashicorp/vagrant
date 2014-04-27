@@ -419,15 +419,30 @@ module Vagrant
         return false if !vagrantfile_path
         return false if !vagrantfile_path.directory?
 
+
         # Create an environment so we can determine the active
         # machines...
+        found = false
         env = vagrant_env(home_path)
         env.active_machines.each do |name, provider|
-          return true if name.to_s == self.name.to_s &&
+          if name.to_s == self.name.to_s &&
             provider.to_s == self.provider.to_s
+            found = true
+            break
+          end
         end
 
-        false
+        # If an active machine of the same name/provider was not
+        # found, it is already false.
+        return false if !found
+
+        # If the environment doesn't contain the machine with this
+        # name, then it is also false. At some point, we can remove
+        # this limitation if we support destroying machines where
+        # the Vagrantfile is moved.
+        return false if !env.machine_names.find { |n| n == self.name.to_sym }
+
+        true
       end
 
       # Creates a {Vagrant::Environment} for this entry.
