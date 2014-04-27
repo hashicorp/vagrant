@@ -136,9 +136,9 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
       expect(result[:nfs]["root"][:foo]).to eql("bar")
     end
 
-    it "returns nil if cached read with no cache" do
+    it "returns {} if cached read with no cache" do
       result = subject.synced_folders(machine, cached: true)
-      expect(result).to be_nil
+      expect(result).to eql({})
     end
 
     it "should be able to save and retrieve cached versions" do

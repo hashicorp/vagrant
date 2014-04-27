@@ -214,7 +214,10 @@ module Vagrant
             end
           end
         rescue Errno::ENOENT
-          return nil
+          # If the file doesn't exist, we probably just have a machine created
+          # by a version of Vagrant that didn't cache shared folders. Report no
+          # shared folders to be safe.
+          return {}
         end
       end
     end
