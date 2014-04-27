@@ -57,12 +57,22 @@ module VagrantPlugins
         return 0 if command.empty?
 
         opts = {
-          :error_check => true,
-          :error_class => Errors::ExecutionError,
-          :error_key   => :execution_error,
-          :command     => command,
-          :shell       => :powershell
+          error_check: true,
+          error_class: Errors::ExecutionError,
+          error_key:   :execution_error,
+          command:     command,
+          shell:       :powershell,
+          elevated:    false
         }.merge(opts || {})
+
+        if opts[:elevated]
+          path = File.expand_path("../scripts/elevated_shell.ps1", __FILE__)
+          command = Vagrant::Util::TemplateRenderer.render(path, options: {
+            username: shell.username,
+            password: shell.password,
+            command: command,
+          })
+        end
 
         output = shell.send(opts[:shell], command, &block)
         execution_output(output, opts)
@@ -121,7 +131,7 @@ module VagrantPlugins
         # The error classes expect the translation key to be _key, but that makes for an ugly
         # configuration parameter, so we set it here from `error_key`
         msg = "Command execution failed with an exit code of #{output[:exitcode]}"
-        error_opts = opts.merge(:_key => opts[:error_key], :message => msg)
+        error_opts = opts.merge(_key: opts[:error_key], message: msg)
         raise opts[:error_class], error_opts
       end
     end #WinRM class

@@ -26,9 +26,7 @@ module VagrantPlugins
         # This returns the command to run Chef for the given client
         # type.
         def build_command(client)
-          builder_klass = CommandBuilderLinux
-          builder_klass = CommandBuilderWindows if windows?
-          builder = builder_klass.new(@machine, @config, client)
+          builder = CommandBuilder.new(@config, client, windows?, @machine.env.ui.is_a?(Vagrant::UI::Colored))
           return builder.build_command
         end
 
