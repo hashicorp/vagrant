@@ -106,6 +106,7 @@ module VagrantPlugins
 
         if configure && !install
           options = "%s -C" % options
+        end
 
         if @config.install_master
           options = "%s -M" % options
