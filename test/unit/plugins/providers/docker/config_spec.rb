@@ -39,6 +39,7 @@ describe VagrantPlugins::DockerProvider::Config do
     before { subject.finalize! }
 
     its(:build_dir) { should be_nil }
+    its(:expose) { should eq([]) }
     its(:cmd) { should eq([]) }
     its(:env) { should eq({}) }
     its(:force_host_vm) { should be_false }
@@ -79,6 +80,20 @@ describe VagrantPlugins::DockerProvider::Config do
       subject.build_dir = temporary_dir.to_s
       subject.finalize!
       assert_invalid
+    end
+  end
+
+  describe "#expose" do
+    before do
+      valid_defaults
+    end
+
+    it "uniqs the ports" do
+      subject.expose = [1, 1, 4, 5]
+      subject.finalize!
+      assert_valid
+
+      expect(subject.expose).to eq([1, 4, 5])
     end
   end
 
@@ -163,6 +178,16 @@ describe VagrantPlugins::DockerProvider::Config do
           "foo" => "bar",
           "bar" => "baz",
         })
+      end
+    end
+
+    context "exposed ports" do
+      it "merges the exposed ports" do
+        one.expose << 1234
+        two.expose = [42, 54]
+
+        expect(subject.expose).to eq([
+          1234, 42, 54])
       end
     end
 

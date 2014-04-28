@@ -86,6 +86,7 @@ module VagrantPlugins
             cmd:        @provider_config.cmd,
             detach:     true,
             env:        @provider_config.env,
+            expose:     @provider_config.expose,
             extra_args: @provider_config.create_args,
             hostname:   @machine_config.vm.hostname,
             image:      image,
