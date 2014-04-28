@@ -37,6 +37,14 @@ en:
       Container not created. Skipping.
     not_docker_provider: |-
       Not backed by Docker provider. Skipping.
+    run_command_required: |-
+      `vagrant docker-run` requires a command to execute. This command
+      must be specified after a `--` in the command line. This is used
+      to separate possible machine names and options from the actual
+      command to execute. An example is shown below:
+
+        vagrant docker-run web -- rails new .
+
     ssh_through_host_vm: |-
       SSH will be proxied through the Docker virtual machine since we're
       not running Docker natively. This is just a notice, and not an error.
@@ -52,6 +60,9 @@ en:
         Deleting the container...
       not_created: |-
         The container hasn't been created yet.
+      not_created_original: |-
+        The original container hasn't been created yet. Run `vagrant up`
+        for this machine first.
       not_running: |-
         The container is not currently running.
       provision_no_ssh: |-

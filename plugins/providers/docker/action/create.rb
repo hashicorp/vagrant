@@ -15,9 +15,27 @@ module VagrantPlugins
 
           params = create_params
 
+          # If we're running a single command, we modify the params a bit
+          if env[:machine_action] == :run_command
+            # Use the command that is given to us
+            params[:cmd] = env[:run_command]
+
+            # Don't detach, we want to watch the command run
+            params[:detach] = false
+
+            # No ports should be shared to the host
+            params[:ports] = []
+
+            # We link to our original container
+            # TODO
+          end
+
           env[:ui].output(I18n.t("docker_provider.creating"))
           env[:ui].detail("  Name: #{params[:name]}")
           env[:ui].detail(" Image: #{params[:image]}")
+          if params[:cmd]
+            env[:ui].detail("   Cmd: #{params[:cmd].join(" ")}")
+          end
           params[:volumes].each do |volume|
             env[:ui].detail("Volume: #{volume}")
           end
@@ -30,10 +48,14 @@ module VagrantPlugins
 
           cid = @driver.create(params)
 
-          env[:ui].detail(" \n"+I18n.t(
-            "docker_provider.created", id: cid[0...16]))
-          @machine.id = cid
-          @app.call(env)
+          # If this isn't just a one-off command, then save the ID
+          if env[:machine_action] != :run_command
+            env[:ui].detail(" \n"+I18n.t(
+              "docker_provider.created", id: cid[0...16]))
+            @machine.id = cid
+          end
+
+            @app.call(env)
         end
 
         def create_params
@@ -55,6 +77,7 @@ module VagrantPlugins
 
           {
             cmd:        @provider_config.cmd,
+            detach:     true,
             env:        @provider_config.env,
             extra_args: @provider_config.create_args,
             hostname:   @machine_config.vm.hostname,

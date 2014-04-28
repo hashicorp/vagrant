@@ -35,6 +35,7 @@ module VagrantPlugins
         env     = params.fetch(:env)
 
         run_cmd = %W(docker run --name #{name} -d)
+        run_cmd << "-d" if params[:detach]
         run_cmd += env.map { |k,v| ['-e', "#{k}=#{v}"] }
         run_cmd += links.map { |k, v| ['--link', "#{k}:#{v}"] }
         run_cmd += ports.map { |p| ['-p', p.to_s] }
