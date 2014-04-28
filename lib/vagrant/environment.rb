@@ -390,6 +390,7 @@ module Vagrant
         # reset to false so we don't think we have a lock when we
         # actually don't.
         @locks.delete(name)
+        @logger.info("Released process lock: #{name}")
       end
 
       # Clean up the lock file, this requires another lock
