@@ -104,7 +104,9 @@ module VagrantPlugins
 
       def rmi(id)
         execute('docker', 'rmi', id)
+        return true
       rescue Exception => e
+        return false if e.to_s.include?("is using it")
         raise if !e.to_s.include?("No such image")
       end
 

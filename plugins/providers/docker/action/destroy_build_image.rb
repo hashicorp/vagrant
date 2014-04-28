@@ -26,7 +26,10 @@ module VagrantPlugins
 
           if image
             machine.ui.output(I18n.t("docker_provider.build_image_destroy"))
-            machine.provider.driver.rmi(image)
+            if !machine.provider.driver.rmi(image)
+              machine.ui.detail(I18n.t(
+                "docker_provider.build_image_destroy_in_use"))
+            end
           end
 
           if image_file && image_file.file?
