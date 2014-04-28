@@ -33,7 +33,7 @@ module VagrantPlugins
           env[:ui].output(I18n.t("docker_provider.creating"))
           env[:ui].detail("  Name: #{params[:name]}")
           env[:ui].detail(" Image: #{params[:image]}")
-          if params[:cmd]
+          if params[:cmd] && !params[:cmd].empty?
             env[:ui].detail("   Cmd: #{params[:cmd].join(" ")}")
           end
           params[:volumes].each do |volume|
