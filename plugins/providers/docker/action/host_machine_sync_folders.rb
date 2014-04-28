@@ -88,6 +88,12 @@ module VagrantPlugins
                 data.delete(:type)
               end
 
+              # Expand the hostpath relative to _our_ root path. Otherwise,
+              # it expands it relative to the proxy VM, which is not what
+              # we want.
+              data[:hostpath] = File.expand_path(
+                data[:hostpath], env[:machine].env.root_path)
+
               # Generate an ID that is deterministic based on our machine
               # and Vagrantfile path...
               id = Digest::MD5.hexdigest(
