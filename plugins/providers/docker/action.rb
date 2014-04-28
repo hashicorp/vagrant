@@ -10,7 +10,12 @@ module VagrantPlugins
       def self.action_run_command
         Vagrant::Action::Builder.new.tap do |b|
           b.use ConfigValidate
-          b.use HostMachine
+
+          b.use Call, IsState, :host_state_unknown do |env, b2|
+            if env[:result]
+              raise "Invalid usage"
+            end
+          end
 
           b.use Call, IsState, :not_created do |env, b2|
             if env[:result]
