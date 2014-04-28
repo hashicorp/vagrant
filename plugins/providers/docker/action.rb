@@ -111,24 +111,21 @@ module VagrantPlugins
       # machine back up with the new configuration.
       def self.action_reload
         Vagrant::Action::Builder.new.tap do |b|
+          b.use ConfigValidate
           b.use Call, IsState, :not_created do |env, b2|
-            if env[:result]
-              b2.use Message, I18n.t("docker_provider.messages.not_created")
-              next
+            if !env[:result]
+              b2.use action_halt
             end
-
-            b2.use ConfigValidate
-            b2.use action_halt
-
-            b2.use Call, IsBuild do |env2, b3|
-              if env2[:result]
-                b3.use EnvSet, force_confirm_destroy: true
-                b3.use action_destroy.flatten
-              end
-            end
-
-            b2.use action_start
           end
+
+          b.use Call, IsBuild do |env, b2|
+            if env[:result]
+              b2.use EnvSet, force_confirm_destroy: true
+              b2.use action_destroy.flatten
+            end
+          end
+
+          b.use action_start
         end
       end
 
