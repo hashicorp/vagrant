@@ -9,24 +9,10 @@ module VagrantPlugins
       # to exist long-running.
       def self.action_run_command
         Vagrant::Action::Builder.new.tap do |b|
-          b.use ConfigValidate
-
-          b.use Call, IsState, :host_state_unknown do |env, b2|
-            if env[:result]
-              raise "Invalid usage"
-            end
-          end
-
-          b.use Call, IsState, :not_created do |env, b2|
-            if env[:result]
-              b2.use Message,
-                I18n.t("docker_provider.messages.not_created_original")
-              next
-            else
-            end
-          end
-
-          b.use action_start
+          # We just call the "up" action. We create a separate action
+          # to hold this though in case we modify it in the future, and
+          # so that we can switch on the "machine_action" env var.
+          b.use action_up
         end
       end
 
@@ -252,27 +238,23 @@ module VagrantPlugins
             b2.use PrepareNFSSettings
             b2.use Build
 
-            # If the container is NOT created yet, then do some setup steps
-            # necessary for creating it.
-            b2.use Call, IsState, :not_created do |env2, b3|
-              if env2[:result]
-                b3.use EnvSet, port_collision_repair: true
-                b3.use HostMachinePortWarning
-                b3.use HostMachinePortChecker
-                b3.use HandleForwardedPortCollisions
-                b3.use SyncedFolders
-                b3.use Create
-                b3.use WaitForRunning
-              else
-                b3.use CompareSyncedFolders
+            if env[:machine_action] != :run_command
+              # If the container is NOT created yet, then do some setup steps
+              # necessary for creating it.
+              b2.use Call, IsState, :not_created do |env2, b3|
+                if env2[:result]
+                  b3.use EnvSet, port_collision_repair: true
+                  b3.use HostMachinePortWarning
+                  b3.use HostMachinePortChecker
+                  b3.use HandleForwardedPortCollisions
+                  b3.use SyncedFolders
+                  b3.use Create
+                  b3.use WaitForRunning
+                else
+                  b3.use CompareSyncedFolders
+                end
               end
-            end
 
-            # If we're doing a one-off command, then we create
-            if env[:machine_action] == :run_command
-              b2.use SyncedFolders
-              b2.use Create
-            else
               b2.use Start
               b2.use WaitForRunning
 
@@ -281,6 +263,9 @@ module VagrantPlugins
                   b3.use WaitForCommunicator
                 end
               end
+            else
+              b2.use SyncedFolders
+              b2.use Create
             end
           end
         end

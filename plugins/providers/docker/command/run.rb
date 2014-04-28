@@ -36,25 +36,7 @@ module VagrantPlugins
           argv = parse_options(opts)
           return if !argv
 
-          any_success = false
-          with_target_vms(argv) do |machine|
-            if machine.provider_name != :docker
-              machine.ui.output(I18n.t("docker_provider.not_docker_provider"))
-              next
-            end
-
-            state = machine.state
-            if state == :host_state_unknown
-              machine.ui.output(I18n.t("docker_provider.logs_host_state_unknown"))
-              next
-            elsif state == :not_created
-              machine.ui.output(I18n.t("docker_provider.not_created_skip"))
-              next
-            end
-
-            # At least one was run!
-            any_success = true
-
+          with_target_vms(argv, provider: :docker) do |machine|
             # Run it!
             machine.action(
               :run_command,
@@ -62,7 +44,7 @@ module VagrantPlugins
               run_detach: options[:detach])
           end
 
-          return any_success ? 0 : 1
+          0
         end
       end
     end
