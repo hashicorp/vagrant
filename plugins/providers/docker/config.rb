@@ -22,6 +22,12 @@ module VagrantPlugins
       # @return [Hash]
       attr_accessor :env
 
+      # Ports to expose from the container but not to the host machine.
+      # This is useful for links.
+      #
+      # @return [Array<Integer>]
+      attr_accessor :expose
+
       # Force using a proxy VM, even on Linux hosts.
       #
       # @return [Boolean]
@@ -71,6 +77,7 @@ module VagrantPlugins
         @cmd        = UNSET_VALUE
         @create_args = []
         @env        = {}
+        @expose     = []
         @force_host_vm = UNSET_VALUE
         @has_ssh    = UNSET_VALUE
         @image      = UNSET_VALUE
@@ -108,6 +115,10 @@ module VagrantPlugins
           env.merge!(other.env) if other.env
           result.env = env
 
+          expose = self.expose.dup
+          expose += other.expose
+          result.instance_variable_set(:@expose, expose)
+
           links = _links.dup
           links += other._links
           result.instance_variable_set(:@links, links)
@@ -127,6 +138,8 @@ module VagrantPlugins
         @remains_running = true if @remains_running == UNSET_VALUE
         @vagrant_machine = nil if @vagrant_machine == UNSET_VALUE
         @vagrant_vagrantfile = nil if @vagrant_vagrantfile == UNSET_VALUE
+
+        @expose.uniq!
       end
 
       def validate(machine)

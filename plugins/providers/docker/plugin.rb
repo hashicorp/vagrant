@@ -28,6 +28,12 @@ module VagrantPlugins
         Command::Logs
       end
 
+      command("docker-run", primary: false) do
+        require_relative "command/run"
+        init!
+        Command::Run
+      end
+
       communicator(:docker_hostvm) do
         require_relative "communicator"
         init!

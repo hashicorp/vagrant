@@ -4,6 +4,32 @@ module VagrantPlugins
       # Include the built-in modules so we can use them as top-level things.
       include Vagrant::Action::Builtin
 
+      # This action starts another container just like the real one running
+      # but only for the purpose of running a single command rather than
+      # to exist long-running.
+      def self.action_run_command
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use ConfigValidate
+
+          b.use Call, IsState, :host_state_unknown do |env, b2|
+            if env[:result]
+              raise "Invalid usage"
+            end
+          end
+
+          b.use Call, IsState, :not_created do |env, b2|
+            if env[:result]
+              b2.use Message,
+                I18n.t("docker_provider.messages.not_created_original")
+              next
+            else
+            end
+          end
+
+          b.use action_start
+        end
+      end
+
       # This action brings the "machine" up from nothing, including creating the
       # container, configuring metadata, and booting.
       def self.action_up
@@ -198,16 +224,18 @@ module VagrantPlugins
       def self.action_start
         Vagrant::Action::Builder.new.tap do |b|
           b.use Call, IsState, :running do |env, b2|
-            # If the container is running, then our work here is done, exit
-            next if env[:result]
+            # If the container is running and we're doing a run, we're done
+            next if env[:result] && env[:machine_action] != :run_command
 
-            b2.use Call, HasSSH do |env2, b3|
-              if env2[:result]
-                b3.use Provision
-              else
-                b3.use Message,
-                  I18n.t("docker_provider.messages.provision_no_ssh"),
-                  post: true
+            if env[:machine_action] != :run_command
+              b2.use Call, HasSSH do |env2, b3|
+                if env2[:result]
+                  b3.use Provision
+                else
+                  b3.use Message,
+                    I18n.t("docker_provider.messages.provision_no_ssh"),
+                    post: true
+                end
               end
             end
 
@@ -224,7 +252,7 @@ module VagrantPlugins
             b2.use PrepareNFSSettings
             b2.use Build
 
-            # If the VM is NOT created yet, then do some setup steps
+            # If the container is NOT created yet, then do some setup steps
             # necessary for creating it.
             b2.use Call, IsState, :not_created do |env2, b3|
               if env2[:result]
@@ -240,12 +268,18 @@ module VagrantPlugins
               end
             end
 
-            b2.use Start
-            b2.use WaitForRunning
+            # If we're doing a one-off command, then we create
+            if env[:machine_action] == :run_command
+              b2.use SyncedFolders
+              b2.use Create
+            else
+              b2.use Start
+              b2.use WaitForRunning
 
-            b2.use Call, HasSSH do |env2, b3|
-              if env2[:result]
-                b3.use WaitForCommunicator
+              b2.use Call, HasSSH do |env2, b3|
+                if env2[:result]
+                  b3.use WaitForCommunicator
+                end
               end
             end
           end

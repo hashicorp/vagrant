@@ -15,9 +15,27 @@ module VagrantPlugins
 
           params = create_params
 
+          # If we're running a single command, we modify the params a bit
+          if env[:machine_action] == :run_command
+            # Use the command that is given to us
+            params[:cmd] = env[:run_command]
+
+            # Don't detach, we want to watch the command run
+            params[:detach] = false
+
+            # No ports should be shared to the host
+            params[:ports] = []
+
+            # We link to our original container
+            # TODO
+          end
+
           env[:ui].output(I18n.t("docker_provider.creating"))
           env[:ui].detail("  Name: #{params[:name]}")
           env[:ui].detail(" Image: #{params[:image]}")
+          if params[:cmd]
+            env[:ui].detail("   Cmd: #{params[:cmd].join(" ")}")
+          end
           params[:volumes].each do |volume|
             env[:ui].detail("Volume: #{volume}")
           end
@@ -28,12 +46,23 @@ module VagrantPlugins
             env[:ui].detail("  Link: #{name}:#{other}")
           end
 
-          cid = @driver.create(params)
+          if env[:machine_action] != :run_command
+            # For regular "ups" create it and get the CID
+            cid = @driver.create(params)
+            env[:ui].detail(" \n"+I18n.t(
+              "docker_provider.created", id: cid[0...16]))
+            @machine.id = cid
+          elsif params[:detach]
+            env[:ui].detail(" \n"+I18n.t("docker_provider.running_detached"))
+          else
+            # For run commands, we run it and stream back the output
+            env[:ui].detail(" \n"+I18n.t("docker_provider.running")+"\n ")
+            @driver.create(params) do |type, data|
+              env[:ui].detail(data)
+            end
+          end
 
-          env[:ui].detail(" \n"+I18n.t(
-            "docker_provider.created", id: cid[0...16]))
-          @machine.id = cid
-          @app.call(env)
+            @app.call(env)
         end
 
         def create_params
@@ -55,7 +84,9 @@ module VagrantPlugins
 
           {
             cmd:        @provider_config.cmd,
+            detach:     true,
             env:        @provider_config.env,
+            expose:     @provider_config.expose,
             extra_args: @provider_config.create_args,
             hostname:   @machine_config.vm.hostname,
             image:      image,
