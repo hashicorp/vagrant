@@ -45,6 +45,10 @@ en:
 
         vagrant docker-run web -- rails new .
 
+    running: |-
+      Container is starting. Output will stream in below...
+    running_detached: |-
+      Container is started detached.
     ssh_through_host_vm: |-
       SSH will be proxied through the Docker virtual machine since we're
       not running Docker natively. This is just a notice, and not an error.

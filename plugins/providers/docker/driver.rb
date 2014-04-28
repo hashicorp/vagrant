@@ -25,7 +25,7 @@ module VagrantPlugins
         match[1]
       end
 
-      def create(params)
+      def create(params, &block)
         image   = params.fetch(:image)
         links   = params.fetch(:links)
         ports   = Array(params[:ports])
@@ -34,7 +34,7 @@ module VagrantPlugins
         cmd     = Array(params.fetch(:cmd))
         env     = params.fetch(:env)
 
-        run_cmd = %W(docker run --name #{name} -d)
+        run_cmd = %W(docker run --name #{name})
         run_cmd << "-d" if params[:detach]
         run_cmd += env.map { |k,v| ['-e', "#{k}=#{v}"] }
         run_cmd += links.map { |k, v| ['--link', "#{k}:#{v}"] }
@@ -45,7 +45,7 @@ module VagrantPlugins
         run_cmd += params[:extra_args] if params[:extra_args]
         run_cmd += [image, cmd]
 
-        execute(*run_cmd.flatten).chomp
+        execute(*run_cmd.flatten, &block).chomp
       end
 
       def state(cid)

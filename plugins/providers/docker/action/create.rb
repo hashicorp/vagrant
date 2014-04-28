@@ -46,13 +46,20 @@ module VagrantPlugins
             env[:ui].detail("  Link: #{name}:#{other}")
           end
 
-          cid = @driver.create(params)
-
-          # If this isn't just a one-off command, then save the ID
           if env[:machine_action] != :run_command
+            # For regular "ups" create it and get the CID
+            cid = @driver.create(params)
             env[:ui].detail(" \n"+I18n.t(
               "docker_provider.created", id: cid[0...16]))
             @machine.id = cid
+          elsif params[:detach]
+            env[:ui].detail(" \n"+I18n.t("docker_provider.running_detached"))
+          else
+            # For run commands, we run it and stream back the output
+            env[:ui].detail(" \n"+I18n.t("docker_provider.running"))
+            @driver.create(params) do |type, data|
+              env[:ui].detail(data)
+            end
           end
 
             @app.call(env)
