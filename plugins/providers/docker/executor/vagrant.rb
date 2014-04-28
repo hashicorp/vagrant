@@ -20,7 +20,7 @@ module VagrantPlugins
           # We have to do this because boot2docker outputs a login shell
           # boot2docker version that we get otherwise and messes up output.
           start_fence = "========== VAGRANT DOCKER BEGIN =========="
-          ssh_cmd     = "echo \"#{start_fence}\"; #{cmd}"
+          ssh_cmd     = "echo -n \"#{start_fence}\"; #{cmd}"
 
           stderr = ""
           stdout = ""
@@ -42,8 +42,8 @@ module VagrantPlugins
 
                 # We're now fenced, send all the data through
                 if block
-                  block.call(:stdout, stdout)
-                  block.call(:stderr, stderr)
+                  block.call(:stdout, stdout) if stdout != ""
+                  block.call(:stderr, stderr) if stderr != ""
                 end
               end
             else
