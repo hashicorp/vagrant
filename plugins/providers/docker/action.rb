@@ -37,6 +37,7 @@ module VagrantPlugins
           b.use Call, IsState, :not_created do |env, b2|
             if env[:result]
               b2.use HandleBox
+              b2.use DestroyBuildImage
             end
           end
 
