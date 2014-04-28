@@ -57,6 +57,7 @@ BUG FIXES:
 
   - core: Adding a box from a network share on Windows works again. [GH-3279]
   - commands/rsync-auto: Interrupt exits properly. [GH-3552]
+  - commands/rsync-auto: Run properly on Windows. [GH-3547]
   - providers/virtualbox: VirtalBox detection works properly again on
       Windows when the `VBOX_INSTALL_PATH` has multiple elements. [GH-3549]
   - provisioners/salt: Always copy keys and configs on provision. [GH-3536]
