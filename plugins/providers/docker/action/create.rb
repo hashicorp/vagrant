@@ -62,7 +62,7 @@ module VagrantPlugins
             end
           end
 
-            @app.call(env)
+          @app.call(env)
         end
 
         def create_params
