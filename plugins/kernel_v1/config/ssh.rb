@@ -38,8 +38,6 @@ module VagrantPlugins
         new.ssh.forward_agent    = @forward_agent if @forward_agent != UNSET_VALUE
         new.ssh.forward_x11      = @forward_x11 if @forward_x11 != UNSET_VALUE
         new.ssh.shell            = @shell if @shell != UNSET_VALUE
-
-        # TODO: Warn that max_tries and timeout are gone
       end
     end
   end

@@ -3,9 +3,6 @@ require 'log4r'
 require 'vagrant/action/hook'
 require 'vagrant/util/busy'
 
-# TODO:
-# * env.lock
-
 module Vagrant
   module Action
     class Runner

@@ -204,7 +204,6 @@ module Vagrant
                 url: url,
                 versions: metadata.versions.join(", ")
             else
-              # TODO: show supported providers
               raise Errors::BoxAddNoMatchingProvider,
                 name: metadata.name,
                 requested: provider,

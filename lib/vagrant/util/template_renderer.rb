@@ -56,7 +56,6 @@ module Vagrant
       #
       # @return [String]
       def render
-        # TODO: Seems like a pretty dirty way to do this. Perhaps refactor this
         old_template = template
         result = nil
         File.open(full_template_path, 'r') do |f|

@@ -76,7 +76,6 @@ module Vagrant
 
         unknown_sources = @sources.keys - order
         if !unknown_sources.empty?
-          # TODO: Raise exception here perhaps.
           @logger.error("Unknown config sources: #{unknown_sources.inspect}")
         end
 

@@ -19,7 +19,9 @@ module VagrantPlugins
         regexp = /Successfully built (.+)$/i
         match  = regexp.match(result)
         if !match
-          # TODO: error
+          # This will cause a stack trace in Vagrant, but it is a bug
+          # if this happens anyways.
+          raise "UNKNOWN OUTPUT: #{result}"
         end
 
         match[1]
@@ -86,7 +88,6 @@ module VagrantPlugins
           execute('docker', 'start', cid)
           # This resets the cached information we have around, allowing `vagrant reload`s
           # to work properly
-          # TODO: Add spec to verify this behavior
           @data = nil
         end
       end
