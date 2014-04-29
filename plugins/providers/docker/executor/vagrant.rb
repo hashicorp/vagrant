@@ -10,11 +10,14 @@ module VagrantPlugins
           @host_machine = host_machine
         end
 
-        def execute(*cmd, &block)
+        def execute(*cmd, **opts, &block)
           quote = '"'
           cmd   = cmd.map do |a|
             "#{quote}#{::Vagrant::Util::ShellQuote.escape(a, quote)}#{quote}"
           end.join(" ")
+
+          # If we want stdin, we just run in a full subprocess
+          return ssh_run(cmd) if opts[:stdin]
 
           # Add a start fence so we know when to start reading output.
           # We have to do this because boot2docker outputs a login shell
@@ -60,6 +63,17 @@ module VagrantPlugins
           end
 
           stdout.chomp
+        end
+
+        protected
+
+        def ssh_run(cmd)
+          @host_machine.action(
+            :ssh_run,
+            ssh_run_command: cmd,
+          )
+
+          ""
         end
       end
     end

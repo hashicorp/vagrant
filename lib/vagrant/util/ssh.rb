@@ -165,11 +165,6 @@ module Vagrant
 
         # If we're still here, it means we're supposed to subprocess
         # out to ssh rather than exec it.
-        #
-        # There is a lot of special-case code for Windows below. Windows
-        # has a bug with creating a TTY file handle for stdin so SSH doesn't
-        # work well. We simulate it by copying stdin over. It isn't ideal,
-        # but it kind of works.
         LOGGER.info("Executing SSH in subprocess: #{command_options.inspect}")
         process = ChildProcess.build("ssh", *command_options)
         process.io.inherit!

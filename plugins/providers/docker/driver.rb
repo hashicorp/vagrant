@@ -25,7 +25,7 @@ module VagrantPlugins
         match[1]
       end
 
-      def create(params, &block)
+      def create(params, **opts, &block)
         image   = params.fetch(:image)
         links   = params.fetch(:links)
         ports   = Array(params[:ports])
@@ -44,11 +44,11 @@ module VagrantPlugins
         run_cmd += volumes.map { |v| ['-v', v.to_s] }
         run_cmd += %W(--privileged) if params[:privileged]
         run_cmd += %W(-h #{params[:hostname]}) if params[:hostname]
-        run_cmd << "-t" if params[:pty]
+        run_cmd << "-i" << "-t" if params[:pty]
         run_cmd += params[:extra_args] if params[:extra_args]
         run_cmd += [image, cmd]
 
-        execute(*run_cmd.flatten, &block).chomp
+        execute(*run_cmd.flatten, **opts, &block).chomp
       end
 
       def state(cid)
@@ -131,8 +131,8 @@ module VagrantPlugins
         end
       end
 
-      def execute(*cmd, &block)
-        @executor.execute(*cmd, &block)
+      def execute(*cmd, **opts, &block)
+        @executor.execute(*cmd, **opts, &block)
       end
     end
   end
