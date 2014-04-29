@@ -159,12 +159,14 @@ module VagrantPlugins
         if @config.minion_key and @config.minion_pub
           @machine.env.ui.info "Uploading minion keys."
           @machine.communicate.upload(expanded_path(@config.minion_key).to_s, temp_config_dir + "/minion.pem")
+          @machine.communicate.sudo("chmod u+w #{temp_config_dir}/minion.pem")
           @machine.communicate.upload(expanded_path(@config.minion_pub).to_s, temp_config_dir + "/minion.pub")
         end
 
         if @config.master_key and @config.master_pub
           @machine.env.ui.info "Uploading master keys."
           @machine.communicate.upload(expanded_path(@config.master_key).to_s, temp_config_dir + "/master.pem")
+          @machine.communicate.sudo("chmod u+w #{temp_config_dir}/master.pem")
           @machine.communicate.upload(expanded_path(@config.master_pub).to_s, temp_config_dir + "/master.pub")
         end
       end
