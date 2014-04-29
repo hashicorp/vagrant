@@ -41,7 +41,10 @@ module VagrantPlugins
           argv = parse_options(opts)
           return if !argv
 
-          with_target_vms(argv, provider: :docker) do |machine|
+          target_opts = { provider: :docker }
+          target_opts[:single_target] = options[:pty]
+
+          with_target_vms(argv, target_opts) do |machine|
             # Run it!
             machine.action(
               :run_command,
