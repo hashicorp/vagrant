@@ -26,6 +26,9 @@ module VagrantPlugins
             # No ports should be shared to the host
             params[:ports] = []
 
+            # Allocate a pty if it was requested
+            params[:pty] = true if env[:run_pty]
+
             # We link to our original container
             # TODO
           end
@@ -94,6 +97,7 @@ module VagrantPlugins
             name:       container_name,
             ports:      forwarded_ports,
             privileged: @provider_config.privileged,
+            pty:        false,
             volumes:    @provider_config.volumes,
           }
         end
