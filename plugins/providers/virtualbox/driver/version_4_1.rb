@@ -138,7 +138,6 @@ module VagrantPlugins
         end
 
         def export(path)
-          # TODO: Progress
           execute("export", @uuid, "--output", path.to_s)
         end
 
