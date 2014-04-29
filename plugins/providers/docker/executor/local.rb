@@ -7,7 +7,7 @@ module VagrantPlugins
       # The Local executor executes a Docker client that is running
       # locally.
       class Local
-        def execute(*cmd, &block)
+        def execute(*cmd, **opts, &block)
           # Append in the options for subprocess
           cmd << { :notify => [:stdout, :stderr] }
 

@@ -26,6 +26,9 @@ module VagrantPlugins
             # No ports should be shared to the host
             params[:ports] = []
 
+            # Allocate a pty if it was requested
+            params[:pty] = true if env[:run_pty]
+
             # We link to our original container
             # TODO
           end
@@ -55,10 +58,20 @@ module VagrantPlugins
           elsif params[:detach]
             env[:ui].detail(" \n"+I18n.t("docker_provider.running_detached"))
           else
+            ui_opts = {}
+
+            # If we're running with a pty, we want the output to look as
+            # authentic as possible. We don't prefix things and we don't
+            # output a newline.
+            if env[:run_pty]
+              ui_opts[:prefix] = false
+              ui_opts[:new_line] = false
+            end
+
             # For run commands, we run it and stream back the output
             env[:ui].detail(" \n"+I18n.t("docker_provider.running")+"\n ")
-            @driver.create(params) do |type, data|
-              env[:ui].detail(data.chomp)
+            @driver.create(params, stdin: env[:run_pty]) do |type, data|
+              env[:ui].detail(data.chomp, **ui_opts)
             end
           end
 
@@ -94,6 +107,7 @@ module VagrantPlugins
             name:       container_name,
             ports:      forwarded_ports,
             privileged: @provider_config.privileged,
+            pty:        false,
             volumes:    @provider_config.volumes,
           }
         end

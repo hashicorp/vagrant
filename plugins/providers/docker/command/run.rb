@@ -9,6 +9,7 @@ module VagrantPlugins
         def execute
           options = {}
           options[:detach] = false
+          options[:pty] = false
 
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant docker-run [command...]"
@@ -18,6 +19,10 @@ module VagrantPlugins
 
             o.on("--[no-]detach", "Run in the background") do |d|
               options[:detach] = d
+            end
+
+            o.on("-t", "--[no-]tty", "Allocate a pty") do |t|
+              options[:pty] = t
             end
           end
 
@@ -36,12 +41,17 @@ module VagrantPlugins
           argv = parse_options(opts)
           return if !argv
 
-          with_target_vms(argv, provider: :docker) do |machine|
+          target_opts = { provider: :docker }
+          target_opts[:single_target] = options[:pty]
+
+          with_target_vms(argv, target_opts) do |machine|
             # Run it!
             machine.action(
               :run_command,
               run_command: command,
-              run_detach: options[:detach])
+              run_detach: options[:detach],
+              run_pty: options[:pty],
+            )
           end
 
           0
