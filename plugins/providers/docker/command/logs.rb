@@ -21,7 +21,7 @@ module VagrantPlugins
               options[:follow] = f
             end
 
-            o.on("--[no-]prefix", "Don't prefix output with machine names") do |p|
+            o.on("--[no-]prefix", "Prefix output with machine names") do |p|
               options[:prefix] = p
             end
           end
