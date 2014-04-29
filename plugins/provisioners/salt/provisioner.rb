@@ -12,6 +12,7 @@ module VagrantPlugins
         upload_configs
         upload_keys
         run_bootstrap_script
+        cleanup_temp_files
         call_overstate
         call_highstate
       end
@@ -227,6 +228,27 @@ module VagrantPlugins
           @machine.env.ui.info "Salt did not need installing or configuring."
         end
       end
+
+      # Cleanup the temp files that were created.
+      def cleanup_temp_files
+        @machine.env.ui.info "Removing temporary files..."
+        if @config.minion_config
+          @machine.communicate.sudo("rm #{temp_config_dir}/minion")
+        end
+        if @config.master_config
+          @machine.communicate.sudo("rm #{temp_config_dir}/master")
+        end
+        if @config.minion_key and @config.minion_pub
+          @machine.communicate.sudo("rm #{temp_config_dir}/minion.pem #{temp_config_dir}/minion.pub")
+        end
+        if @config.master_key and @config.master_pub
+          @machine.communicate.sudo("rm #{temp_config_dir}/master.pem #{temp_config_dir}/master.pub")
+        end
+        if @config.seed_master && @config.install_master
+          @machine.communicate.sudo("rm -r /tmp/minion-seed-keys")
+        end
+      end
+
       def call_overstate
         if @config.run_overstate
             if @config.install_master
