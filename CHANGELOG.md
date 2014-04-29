@@ -63,6 +63,7 @@ BUG FIXES:
       Windows when the `VBOX_INSTALL_PATH` has multiple elements. [GH-3549]
   - provisioners/salt: Always copy keys and configs on provision. [GH-3536]
   - provisioners/salt: Install args should always be present with bootstrap.
+  - provisioners/salt: Overwrite keys properly on subsequent provisions [GH-3575]
   - synced\_folders/nfs: Acquires a process-level lock so exports don't
       collide with Vagrant running in parallel.
   - synced\_folders/rsync: Add UserKnownHostsFile option to not complain. [GH-3511]
