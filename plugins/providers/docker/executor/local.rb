@@ -17,15 +17,17 @@ module VagrantPlugins
             Vagrant::Util::Subprocess.execute(*cmd, &block)
           end
 
+          result.stderr.gsub!("\r\n", "\n")
+          result.stdout.gsub!("\r\n", "\n")
+
           if result.exit_code != 0 && !interrupted
-            msg = result.stdout.gsub("\r\n", "\n")
-            msg << result.stderr.gsub("\r\n", "\n")
-            raise "#{cmd.inspect}\n#{msg}" #Errors::ExecuteError, :command => command.inspect
+            raise Errors::ExecuteError,
+              command: command.inspect,
+              stderr: result.stderr,
+              stdout: result.stdout
           end
 
-          # Return the output, making sure to replace any Windows-style
-          # newlines with Unix-style.
-          result.stdout.gsub("\r\n", "\n")
+          result.stdout
         end
       end
     end
