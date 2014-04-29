@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-# Trap interrupts to quit cleanly. This will be overriden at some point
+# Trap interrupts to quit cleanly. This will be overridden at some point
 # by Vagrant. This is made to catch any interrupts while Vagrant is
 # initializing which have historically resulted in stack traces.
 Signal.trap("INT") { abort }
