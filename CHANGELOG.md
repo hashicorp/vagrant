@@ -57,6 +57,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
   - core: Adding a box from a network share on Windows works again. [GH-3279]
+  - commands/plugin/install: Specific versions are now locked in.
   - commands/rsync-auto: Interrupt exits properly. [GH-3552]
   - commands/rsync-auto: Run properly on Windows. [GH-3547]
   - providers/virtualbox: VirtalBox detection works properly again on
