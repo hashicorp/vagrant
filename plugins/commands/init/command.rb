@@ -10,13 +10,20 @@ module VagrantPlugins
       end
 
       def execute
-        options = { output: "Vagrantfile" }
+        options = {
+          force: false,
+          output: "Vagrantfile",
+        }
 
         opts = OptionParser.new do |o|
           o.banner = "Usage: vagrant init [name] [url]"
           o.separator ""
           o.separator "Options:"
           o.separator ""
+
+          o.on("-f", "--force", "Overwrite existing Vagrantfile") do |f|
+            options[:force] = f
+          end
 
           o.on("--output FILE", String,
                "Output path for the box. '-' for stdout") do |output|
@@ -31,6 +38,7 @@ module VagrantPlugins
         save_path = nil
         if options[:output] != "-"
           save_path = Pathname.new(options[:output]).expand_path(@env.cwd)
+          save_file.delete if save_path.exist? && options[:force]
           raise Vagrant::Errors::VagrantfileExistsError if save_path.exist?
         end
 
