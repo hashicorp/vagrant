@@ -83,7 +83,7 @@ describe Vagrant::Plugin::Manager do
 
       plugins = subject.installed_plugins
       expect(plugins).to have_key("bar")
-      expect(plugins["bar"]["gem_version"]).to eql("")
+      expect(plugins["bar"]["gem_version"]).to eql("1.0")
     end
 
     describe "installation options" do
@@ -122,7 +122,7 @@ describe Vagrant::Plugin::Manager do
 
         plugins = subject.installed_plugins
         expect(plugins).to have_key("foo")
-        expect(plugins["foo"]["gem_version"]).to eql("")
+        expect(plugins["foo"]["gem_version"]).to eql("0.1.0")
       end
     end
   end
