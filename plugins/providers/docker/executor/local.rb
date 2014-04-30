@@ -13,8 +13,8 @@ module VagrantPlugins
 
           interrupted  = false
           int_callback = ->{ interrupted = true }
-          result = Vagrant::Util::Busy.busy(int_callback) do
-            Vagrant::Util::Subprocess.execute(*cmd, &block)
+          result = ::Vagrant::Util::Busy.busy(int_callback) do
+            ::Vagrant::Util::Subprocess.execute(*cmd, &block)
           end
 
           result.stderr.gsub!("\r\n", "\n")
