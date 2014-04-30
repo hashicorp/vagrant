@@ -7,6 +7,10 @@
 
 Vagrant is a tool for building and distributing development environments.
 
+Development environments managed by Vagrant can run on local virtualized
+platforms such as VirtualBox or VMware, in the cloud via AWS or OpenStack,
+or in containers such as with Docker or raw LXC.
+
 Vagrant provides the framework and configuration format to create and
 manage complete portable development environments. These development
 environments can live on your computer or in the cloud, and are portable
@@ -14,9 +18,15 @@ between Windows, Mac OS X, and Linux.
 
 ## Quick Start
 
-First, make sure your development machine has [VirtualBox](http://www.virtualbox.org)
-installed. After this, [download and install the appropriate Vagrant package for your OS](http://www.vagrantup.com/downloads). If you're not on Mac OS X or Windows, you'll need
-to add `/opt/vagrant/bin` to your `PATH`. After this, you're ready to go!
+For the quick-start, we'll bring up a development machine on
+[VirtualBox](http://www.virtualbox.org) because it is free and works
+on all major platforms. Vagrant can, however, work with almost any
+system such as OpenStack, VMware, Docker, etc.
+
+First, make sure your development machine has
+[VirtualBox](http://www.virtualbox.org)
+installed. After this,
+[download and install the appropriate Vagrant package for your OS](http://www.vagrantup.com/downloads).
 
 To build your first virtual environment:
 
