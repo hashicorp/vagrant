@@ -480,7 +480,9 @@ module VagrantPlugins
           end
 
           # If we reached this point then it didn't work out.
-          raise Vagrant::Errors::VBoxManageError, :command => command.inspect
+          raise Vagrant::Errors::VBoxManageError,
+            command: command.inspect,
+            stderr: r.stderr
         end
 
         def suspend
