@@ -5,6 +5,10 @@ BACKWARDS INCOMPATIBILITIES:
   - providers/virtualbox: Shared folders backed by VirtualBox are now
       "transient". They will be removed if you reboot outside of Vagrant.
       Always use `vagrant reload`.
+  - Deprecated: `halt_timeout` and `halt_check_interval` settings for
+      SmartOS, Solaris, and Solaris11 guests. These will be fully
+      removed in 1.7. A warning will be shown if they're in use in
+      1.6.
 
 FEATURES:
 
