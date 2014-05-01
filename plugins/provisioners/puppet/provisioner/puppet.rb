@@ -101,14 +101,6 @@ module VagrantPlugins
         end
 
         def run_puppet_apply
-          if windows?
-            # This re-establishes our symbolic links if they were
-            # created between now and a reboot
-            @machine.communicate.execute(
-              "& net use a-non-existant-share",
-              error_check: false)
-          end
-
           default_module_path = "/etc/puppet/modules"
           if windows?
             default_module_path = "/ProgramData/PuppetLabs/puppet/etc/modules"

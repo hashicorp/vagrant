@@ -62,14 +62,6 @@ module VagrantPlugins
             @machine.guest.capability(:wait_for_reboot)
           end
 
-          if windows?
-            # This re-establishes our symbolic links if they were
-            # created between now and a reboot
-            @machine.communicate.execute(
-              "& net use a-non-existant-share",
-              error_check: false)
-          end
-
           command = build_command(:client)
 
           @config.attempts.times do |attempt|
