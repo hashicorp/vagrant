@@ -14,7 +14,7 @@ This is the single most important command in Vagrant, since it is how
 any Vagrant machine is created. Anyone using Vagrant must use this command
 on a day-to-day basis.
 
-# Options
+## Options
 
 * `--[no-]destroy-on-error` - Destroy the newly created machine if a fatal,
   unexpected error occurs. This will only happen on the first `vagrant up`.
