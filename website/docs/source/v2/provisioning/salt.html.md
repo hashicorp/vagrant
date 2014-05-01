@@ -6,10 +6,10 @@ sidebar_current: "provisioning-salt"
 
 **Provisioner name: `salt`**
 
-The salt Provisioner allows you to provision the guest using 
+The salt Provisioner allows you to provision the guest using
 [Salt](http://saltstack.com/) states.
 
-Salt states are  [YAML](http://en.wikipedia.org/wiki/YAML) documents 
+Salt states are  [YAML](http://en.wikipedia.org/wiki/YAML) documents
 that describes the current state a machine should be in, e.g. what
 packages should be installed, which services are running, and the
 contents of arbitrary files.
@@ -41,24 +41,24 @@ on a single minion, without a master:
 This sets up a shared folder for the salt root, and copies
 the minion file over, then runs `state.highstate` on the
 machine. Your minion file must contain the line
-`file_client: local`  in order to work in a 
+`file_client: local`  in order to work in a
 masterless setup.
 
 ## Install Options
 
 
-* `install_master`  (boolean) - Should vagrant install the salt-master 
+* `install_master`  (boolean) - Should vagrant install the salt-master
 on this machine
 
 * `no_minion`  (boolean) - Don't install the minion, default `false`
 
-* `install_syndic`   (boolean) - Install the salt-syndic, default 
+* `install_syndic`   (boolean) - Install the salt-syndic, default
 `false`
 
-* `install_type`  (stable | git | daily | testing) - Whether to install from a 
+* `install_type`  (stable | git | daily | testing) - Whether to install from a
 distribution's stable package manager, git tree-ish, daily ppa, or testing repository.
 
-* `install_args` (develop) - When performing a git install, 
+* `install_args` (develop) - When performing a git install,
 you can specify a branch, tag, or any treeish.
 
 * `always_install`   (boolean) - Installs salt binaries even
@@ -68,12 +68,12 @@ you can specify a branch, tag, or any treeish.
 ## Minion Options
 These only make sense when `no_minion` is `false`.
 
-* `minion_config`    (string, default: "salt/minion") - Path to 
+* `minion_config`    (string, default: "salt/minion") - Path to
 a custom salt minion config file.
 
 * `minion_key`  (string) - Path to your minion key
 
-* `minion_pub`  (salt/key/minion.pub) - Path to your minion 
+* `minion_pub`  (salt/key/minion.pub) - Path to your minion
 public key
 
 
@@ -95,20 +95,20 @@ pre-seeding it before use. Example: `{minion_name:/path/to/key.pub}`
 Either of the following may be used to actually execute states
 during provisioning.
 
-* `run_highstate` - (boolean) Executes `state.highstate` on 
+* `run_highstate` - (boolean) Executes `state.highstate` on
 vagrant up. Can be applied to any machine.
-* `run_overstate` - (boolean) Executes `state.over` on 
+* `run_overstate` - (boolean) Executes `state.over` on
 vagrant up. Can be applied to the master only.
 
 ## Output Control
 
 These may be used to control the output of state execution:
 
-* `colorize` - (boolean) Should output be colorized? Defaults to `nil`.
+* `colorize` (boolean) - If true, output is colorized. Defaults to false.
 
-* `log_level` - (One of `all`, `garbage`, `trace`, `debug`, `info`, `warning`,
-  `error`, `quiet`) How verbose should the output be? Defaults to `debug`.
-
+* `log_level` (string) - The verbosity of the outputs. Defaults to "debug".
+  Can be one of "all", "garbage", "trace", "debug", "info", or
+  "warning".
 
 ## Pillar Data
 
@@ -144,7 +144,7 @@ times. The data passed in should only be hashes and lists. Here is an example::
 
 Preseeding keys is the recommended way to handle provisiong
 using a master.
-On a machine with salt installed, run 
+On a machine with salt installed, run
 `salt-key --gen-keys=[minion_id]` to generate the necessary
 .pub and .pem files
 
