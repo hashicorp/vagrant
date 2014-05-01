@@ -5,6 +5,10 @@ BACKWARDS INCOMPATIBILITIES:
   - providers/virtualbox: Shared folders backed by VirtualBox are now
       "transient". They will be removed if you reboot outside of Vagrant.
       Always use `vagrant reload`.
+  - `config.smartos.halt_timeout`, `config.smartos.halt_check_interval`,
+      `config.solaris.halt_timeout`, `config.solaris.halt_check_interval`,
+      `config.solaris11.halt_timeout`, `config.solaris11.halt_check_interval`
+      were unused by Vagrant, so they have been removed.
 
 FEATURES:
 
