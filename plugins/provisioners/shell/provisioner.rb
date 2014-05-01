@@ -141,8 +141,6 @@ module VagrantPlugins
           ensure
             download_path.delete if download_path.file?
           end
-
-          download_path.delete
         elsif config.path
           # Just yield the path to that file...
           root_path = @machine.env.root_path
