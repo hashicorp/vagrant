@@ -73,6 +73,7 @@ as shown below:
 Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: "echo hello",
     run: "always"
+end
 ```
 
 If you're using the block format, you must specify it outside
