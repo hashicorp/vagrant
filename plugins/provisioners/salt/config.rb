@@ -19,6 +19,8 @@ module VagrantPlugins
       attr_accessor :verbose
       attr_accessor :seed_master
       attr_reader   :pillar_data
+      attr_accessor :colorize
+      attr_accessor :log_level
 
       ## bootstrap options
       attr_accessor :temp_config_dir
@@ -43,6 +45,8 @@ module VagrantPlugins
         @verbose = UNSET_VALUE
         @seed_master = UNSET_VALUE
         @pillar_data = UNSET_VALUE
+        @colorize = UNSET_VALUE
+        @log_level = UNSET_VALUE
         @temp_config_dir = UNSET_VALUE
         @install_type = UNSET_VALUE
         @install_args = UNSET_VALUE
@@ -66,6 +70,8 @@ module VagrantPlugins
         @verbose            = nil if @verbose == UNSET_VALUE
         @seed_master        = nil if @seed_master == UNSET_VALUE
         @pillar_data        = {}  if @pillar_data == UNSET_VALUE
+        @colorize           = nil if @colorize == UNSET_VALUE
+        @log_level          = nil if @log_level == UNSET_VALUE
         @temp_config_dir    = nil if @temp_config_dir == UNSET_VALUE
         @install_type       = nil if @install_type == UNSET_VALUE
         @install_args       = nil if @install_args == UNSET_VALUE

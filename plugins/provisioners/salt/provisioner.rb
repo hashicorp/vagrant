@@ -141,6 +141,21 @@ module VagrantPlugins
         " pillar='#{@config.pillar_data.to_json}'" if !@config.pillar_data.empty?
       end
 
+      # Get colorization option string to pass with the salt command
+      def get_colorize
+        @config.colorize ? " --force-color" : " --no-color"
+      end
+
+      # Get log output level option string to pass with the salt command
+      def get_loglevel
+        log_levels = ["all", "garbage", "trace", "debug", "info", "warning", "error", "quiet"]
+        if log_levels.include? @config.log_level
+          " --log-level=#{@config.log_level}"
+        else
+          " --log-level=debug"
+        end
+      end
+
       # Copy master and minion configs to VM
       def upload_configs
         if @config.minion_config
@@ -250,14 +265,14 @@ module VagrantPlugins
           @machine.env.ui.info "Calling state.highstate... (this may take a while)"
           if @config.install_master
             @machine.communicate.sudo("salt '*' saltutil.sync_all")
-            @machine.communicate.sudo("salt '*' state.highstate --verbose#{get_pillar}") do |type, data|
+            @machine.communicate.sudo("salt '*' state.highstate --verbose#{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
               if @config.verbose
                 @machine.env.ui.info(data)
               end
             end
           else
             @machine.communicate.sudo("salt-call saltutil.sync_all")
-            @machine.communicate.sudo("salt-call state.highstate -l debug#{get_pillar}") do |type, data|
+            @machine.communicate.sudo("salt-call state.highstate #{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
               if @config.verbose
                 @machine.env.ui.info(data)
               end

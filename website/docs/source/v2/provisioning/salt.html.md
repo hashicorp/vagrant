@@ -100,6 +100,15 @@ vagrant up. Can be applied to any machine.
 * `run_overstate` - (boolean) Executes `state.over` on 
 vagrant up. Can be applied to the master only.
 
+## Output Control
+
+These may be used to control the output of state execution:
+
+* `colorize` - (boolean) Should output be colorized? Defaults to `nil`.
+
+* `log_level` - (One of `all`, `garbage`, `trace`, `debug`, `info`, `warning`,
+  `error`, `quiet`) How verbose should the output be? Defaults to `debug`.
+
 
 ## Pillar Data
 
