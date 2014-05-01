@@ -37,6 +37,9 @@ FEATURES:
       provisioner. [GH-2421]
   - Multi-machine environments can specify an "autostart" option (default
       to true). `vagrant up` starts all machines that have enabled autostart.
+  - Vagrant is smarter about choosing a default provider. If
+    `VAGRANT_DEFAULT_PROVIDER` is set, it still takes priority, but otherwise
+    Vagrant chooses a "best" provider.
 
 IMPROVEMENTS:
 
