@@ -33,7 +33,7 @@ READMORE
 
 The box system that is in place in Vagrant 1.4 and earlier has been
 mostly untouched since the first release of Vagrant. While the format
-of boxes and commands were modified slightly for Vagrant 1.1 to accomodate
+of boxes and commands were modified slightly for Vagrant 1.1 to accommodate
 multiple providers, the general use has not changed at all in over four years.
 
 During this time, we've learned a lot about how people use Vagrant and

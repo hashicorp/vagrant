@@ -26,7 +26,7 @@ Vagrant.configure("2") do |config|
 end
 ```
 
-This will allow acessing port 80 on the guest via port 8080 on the host.
+This will allow accessing port 80 on the guest via port 8080 on the host.
 
 ## Options Reference
 
