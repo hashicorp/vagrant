@@ -60,6 +60,8 @@ IMPROVEMENTS:
   - guests/freebsd: Support for virtio interfaces. [GH-3082]
   - guests/openbsd: Support for virtio interfaces. [GH-3082]
   - provisioners/ansible: Support for Ansible Vault. [GH-3338]
+  - provisioners/salt: Colorize option. [GH-3603]
+  - provisioners/salt: Ability to specify log level. [GH-3603]
 
 BUG FIXES:
 
