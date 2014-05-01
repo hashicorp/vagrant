@@ -717,7 +717,7 @@ VF
       end
     end
 
-    it "is the default provider if it is usable" do
+    it "is the default provider set if usable" do
       plugin_providers[:foo] = [provider_usable_class(true), { priority: 5 }]
       plugin_providers[:bar] = [provider_usable_class(true), { priority: 7 }]
       plugin_providers[:baz] = [provider_usable_class(true), { priority: 2 }]
@@ -725,6 +725,26 @@ VF
 
       with_temp_env("VAGRANT_DEFAULT_PROVIDER" => "baz") do
         expect(subject.default_provider).to eq(:baz)
+      end
+    end
+
+    it "is the default provider set even if unusable" do
+      plugin_providers[:baz] = [provider_usable_class(false), { priority: 5 }]
+      plugin_providers[:foo] = [provider_usable_class(true), { priority: 5 }]
+      plugin_providers[:bar] = [provider_usable_class(true), { priority: 7 }]
+
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => "baz") do
+        expect(subject.default_provider).to eq(:baz)
+      end
+    end
+
+    it "is the usable despite default if not forced" do
+      plugin_providers[:baz] = [provider_usable_class(false), { priority: 5 }]
+      plugin_providers[:foo] = [provider_usable_class(true), { priority: 5 }]
+      plugin_providers[:bar] = [provider_usable_class(true), { priority: 7 }]
+
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => "baz") do
+        expect(subject.default_provider(force_default: false)).to eq(:bar)
       end
     end
 

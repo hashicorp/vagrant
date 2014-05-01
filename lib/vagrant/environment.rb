@@ -249,15 +249,19 @@ module Vagrant
     end
 
     # This returns the provider name for the default provider for this
-    # environment. The provider returned is currently hardcoded to "virtualbox"
-    # but one day should be a detected valid, best-case provider for this
     # environment.
     #
     # @return [Symbol] Name of the default provider.
     def default_provider(**opts)
+      opts[:force_default] = true if !opts.has_key?(:force_default)
+
       default = ENV["VAGRANT_DEFAULT_PROVIDER"]
       default = nil if default == ""
       default = default.to_sym if default
+
+      # If we're forcing the default, just short-circuit and return
+      # that (the default behavior)
+      return default if default && opts[:force_default]
 
       ordered = []
       Vagrant.plugin("2").manager.providers.each do |key, data|
