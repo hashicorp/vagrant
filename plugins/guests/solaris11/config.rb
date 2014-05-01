@@ -12,10 +12,19 @@ module VagrantPlugins
       attr_accessor :device
 
       def initialize
-        @halt_timeout = 30
-        @halt_check_interval = 1
+        @halt_timeout = UNSET_VALUE
+        @halt_check_interval = UNSET_VALUE
         @suexec_cmd = 'sudo'
         @device = "net"
+      end
+
+      def finalize!
+        if @halt_timeout != UNSET_VALUE
+          puts "solaris11.halt_timeout is deprecated and will be removed in Vagrant 1.7"
+        end
+        if @halt_check_interval != UNSET_VALUE
+          puts "solaris11.halt_check_interval is deprecated and will be removed in Vagrant 1.7"
+        end
       end
     end
   end
