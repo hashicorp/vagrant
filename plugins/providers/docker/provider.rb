@@ -85,8 +85,9 @@ module VagrantPlugins
             vagrantfile_name: vf_file,
           )
 
-          # TODO(mitchellh): configure the provider of this machine somehow
-          host_env.machine(host_machine_name, :virtualbox)
+          host_env.machine(
+            host_machine_name,
+            host_env.default_provider(exclude: [:docker]))
         end
 
         @host_vm
