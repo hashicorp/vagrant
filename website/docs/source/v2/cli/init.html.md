@@ -16,3 +16,8 @@ setting in the created Vagrantfile.
 
 If a second argument is given, it will prepopulate the `config.vm.box_url`
 setting in the created Vagrantfile.
+
+## Options
+
+* `--force` - If specified, this command will overwite any existing
+  `Vagrantfile`.

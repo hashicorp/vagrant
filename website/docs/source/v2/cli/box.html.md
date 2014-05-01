@@ -132,6 +132,9 @@ what versions to delete with the `--box-version` flag.
 * `--box-version VALUE` - Version of version constraints of the boxes to
   remove. See documentation on this flag for `box add` for more details.
 
+* `--force` - Forces removing the box even if an active Vagrant
+  environment is using it.
+
 * `--provider VALUE` - The provider-specific box to remove with the given
   name. This is only required if a box is backed by multiple providers.
   If there is only a single provider, Vagrant will default to removing it.
