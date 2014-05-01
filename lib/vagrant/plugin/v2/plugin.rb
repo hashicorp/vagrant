@@ -185,7 +185,8 @@ module Vagrant
         # Registers additional providers to be available.
         #
         # @param [Symbol] name Name of the provider.
-        def self.provider(name=UNSET_VALUE, **options, &block)
+        def self.provider(name=UNSET_VALUE, options=nil, &block)
+          options ||= {}
           options[:priority] ||= 5
 
           components.providers.register(name.to_sym) do
