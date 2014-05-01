@@ -253,6 +253,7 @@ module Vagrant
     #
     # @return [Symbol] Name of the default provider.
     def default_provider(**opts)
+      opts[:exclude]       = Set.new(opts[:exclude]) if opts[:exclude]
       opts[:force_default] = true if !opts.has_key?(:force_default)
 
       default = ENV["VAGRANT_DEFAULT_PROVIDER"]
@@ -265,10 +266,13 @@ module Vagrant
 
       ordered = []
       Vagrant.plugin("2").manager.providers.each do |key, data|
-        impl = data[0]
-        opts = data[1]
+        impl  = data[0]
+        popts = data[1]
 
-        ordered << [opts[:priority], key, impl, opts]
+        # Skip excluded providers
+        next if opts[:exclude] && opts[:exclude].include?(key)
+
+        ordered << [popts[:priority], key, impl, popts]
       end
 
       # Order the providers by priority. Higher values are tried first.
