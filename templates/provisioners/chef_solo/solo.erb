@@ -1,5 +1,3 @@
-require 'chef/version_constraint'
-
 <% if node_name %>
 node_name "<%= node_name %>"
 <% end %>
@@ -7,7 +5,7 @@ file_cache_path    "<%= file_cache_path %>"
 file_backup_path   "<%= file_backup_path %>"
 cookbook_path <%= cookbooks_path.inspect %>
 <% if roles_path %>
-if Chef::VersionConstraint.new("< 11.8.0").include?(Chef::VERSION)
+if Chef::VERSION.to_f < 11.8
   role_path <%= roles_path.first.inspect %>
 else
   role_path <%= roles_path.inspect %>
