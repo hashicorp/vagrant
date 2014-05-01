@@ -208,10 +208,27 @@
 									<li<%= sidebar_current("providers-basic-usage") %>><a href="/v2/providers/basic_usage.html">Basic Usage</a></li>
 									<li<%= sidebar_current("providers-configuration") %>><a href="/v2/providers/configuration.html">Configuration</a></li>
 									<li<%= sidebar_current("providers-default") %>><a href="/v2/providers/default.html">Default Provider</a></li>
+									<li><a href="/v2/virtualbox/index.html">VirtualBox</a></li>
+									<li><a href="/v2/vmware/index.html">VMware</a></li>
+									<li><a href="/v2/docker/index.html">Docker</a></li>
+									<li><a href="/v2/hyperv/index.html">Hyper-V</a></li>
 									<li<%= sidebar_current("providers-custom") %>><a href="/v2/providers/custom.html">Custom Provider</a></li>
 								</ul> <!-- /.sub -->
 								<% end %>
 
+								<% if sidebar_section == "docker" %>
+								<li<%= sidebar_current("docker") %>><a href="/v2/docker/index.html">Docker</a></li>
+								<% if sidebar_section == "docker" %>
+								<ul class="sub unstyled">
+									<li<%= sidebar_current("docker-basics") %>><a href="/v2/docker/basics.html">Basic Usage</a></li>
+									<li<%= sidebar_current("docker-commands") %>><a href="/v2/docker/commands.html">Commands</a></li>
+									<li<%= sidebar_current("docker-boxes") %>><a href="/v2/docker/boxes.html">Boxes</a></li>
+									<li<%= sidebar_current("docker-configuration") %>><a href="/v2/docker/configuration.html">Configuration</a></li>
+								</ul>
+								<% end %>
+							  <% end %>
+
+								<% if sidebar_section == "virtualbox" %>
 								<li<%= sidebar_current("virtualbox") %>><a href="/v2/virtualbox/index.html">VirtualBox</a></li>
 								<% if sidebar_section == "virtualbox" %>
 								<ul class="sub unstyled">
@@ -221,7 +238,9 @@
 									<li<%= sidebar_current("virtualbox-issues") %>><a href="/v2/virtualbox/common-issues.html">Common Issues</a></li>
 								</ul>
 								<% end %>
+							  <% end %>
 
+								<% if sidebar_section == "vmware" %>
 								<li<%= sidebar_current("vmware") %>><a href="/v2/vmware/index.html">VMware</a></li>
 								<% if sidebar_section == "vmware" %>
 								<ul class="sub unstyled">
@@ -232,7 +251,9 @@
 									<li<%= sidebar_current("vmware-known-issues") %>><a href="/v2/vmware/known-issues.html">Known Issues</a></li>
 								</ul>
 								<% end %>
+								<% end %>
 
+								<% if sidebar_section == "hyperv" %>
 								<li<%= sidebar_current("hyperv") %>><a href="/v2/hyperv/index.html">Hyper-V</a></li>
 								<% if sidebar_section == "hyperv" %>
 								<ul class="sub unstyled">
@@ -242,6 +263,7 @@
 									<li<%= sidebar_current("hyperv-limitations") %>><a href="/v2/hyperv/limitations.html">Limitations</a></li>
 								</ul>
 								<% end %>
+							  <% end %>
 
 								<li<%= sidebar_current("plugins") %>><a href="/v2/plugins/index.html">Plugins</a></li>
 								<% if sidebar_section == "plugins" %>
