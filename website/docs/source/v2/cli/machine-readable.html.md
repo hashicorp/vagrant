@@ -60,7 +60,7 @@ Each component is explained below:
 * **type** is the type of machine-readable message being outputted. There are
   a set of standard types which are covered later.
 
-* **data** is zero or more comma-seperated values associated with the prior
+* **data** is zero or more comma-separated values associated with the prior
   type. The exact amount and meaning of this data is type-dependent, so you
   must read the documentation associated with the type to understand fully.
 
@@ -109,7 +109,7 @@ with the machine-readable output.
 <tr>
 <td>error-exit</td>
 <td>
-	An error occured that caused Vagrant to exit. This contains that
+	An error occurred that caused Vagrant to exit. This contains that
 	error. Contains two data elements: type of error, error message.
 </td>
 </tr>
@@ -118,7 +118,7 @@ with the machine-readable output.
 <td>provider-name</td>
 <td>
 	The provider name of the target machine.
-	<span class="label">targetted</span>
+	<span class="label">targeted</span>
 </td>
 </tr>
 
@@ -126,7 +126,7 @@ with the machine-readable output.
 <td>state</td>
 <td>
 	The state ID of the target machine.
-	<span class="label">targetted</span>
+	<span class="label">targeted</span>
 </td>
 </tr>
 
@@ -135,7 +135,7 @@ with the machine-readable output.
 <td>
 	Human-readable description of the state of the machine. This is the
 	long version, and may be a paragraph or longer.
-	<span class="label">targetted</span>
+	<span class="label">targeted</span>
 </td>
 </tr>
 
@@ -144,7 +144,7 @@ with the machine-readable output.
 <td>
 	Human-readable description of the state of the machine. This is the
 	short version, limited to at most a sentence.
-	<span class="label">targetted</span>
+	<span class="label">targeted</span>
 </td>
 </tr>
 

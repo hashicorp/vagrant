@@ -60,7 +60,7 @@ Providers can also override non-provider specific configuration, such
 as `config.vm.box` and any other Vagrant configuration. This is done by
 specifying a second argument to `config.vm.provider`. This argument is
 just like the normal `config`, so set any settings you want, and they will
-be overriden only for that provider.
+be overridden only for that provider.
 
 Example:
 

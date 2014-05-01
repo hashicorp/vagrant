@@ -38,7 +38,7 @@ is available below.
   when SSH sharing is enabled.
 
 * `--ssh-port PORT` - The port of the SSH server running in the Vagrant
-  enviroment. By default, Vagrant will attempt to find this for you.
+  environment. By default, Vagrant will attempt to find this for you.
 
 * `--ssh-once` - Allows SSH access only once. After the first attempt to
   connect via SSH to the Vagrant environment, the generated keypair is

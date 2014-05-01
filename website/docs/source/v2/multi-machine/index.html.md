@@ -87,7 +87,7 @@ slashes, it assumes you're using a regular expression.
 
 ## Communication Between Machines
 
-In order to faciliate communication within machines in a multi-machine setup,
+In order to facilitate communication within machines in a multi-machine setup,
 the various [networking](/v2/networking/index.html) options should be used.
 In particular, the [private network](/v2/networking/private_network.html) can
 be used to make a private network between multiple machines and the host.

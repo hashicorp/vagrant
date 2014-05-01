@@ -1696,7 +1696,7 @@ Note: 0.8.3 and 0.8.4 was yanked due to RubyGems encoding issue.
  - Checking guest addition versions now ignores OSE. [GH-438]
  - Chef solo from a remote URL fixed. [GH-431]
  - Arch linux support: host only networks and changing the host name. [GH-439] [GH-448]
- - Chef solo `roles_path` and `data_bags_path` can only be be single paths. [GH-446]
+ - Chef solo `roles_path` and `data_bags_path` can only be single paths. [GH-446]
  - Fix `virtualbox_not_detected` error message to require 4.1.x. [GH-458]
  - Add shortname (`hostname -s`) for hostname setting on RHEL systems. [GH-456]
  - `vagrant ssh -c` output no longer has a prefix and respects newlines

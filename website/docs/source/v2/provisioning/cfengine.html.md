@@ -110,7 +110,7 @@ has been bootstrapped.
 ## Full Alphabetical List of Configuration Options
 
 - `am_policy_hub` (boolean, default `false`) determines whether the VM will be
-  configured as a CFEngine policy hub (automaticaly bootstrapped to
+  configured as a CFEngine policy hub (automatically bootstrapped to
   its own IP address). You can combine it with `policy_server_address`
   if the VM has multiple network interfaces and you want to bootstrap
   to a specific one.

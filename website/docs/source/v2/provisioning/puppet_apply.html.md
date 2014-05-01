@@ -178,7 +178,7 @@ guest.
 ## Additional Options
 
 Puppet supports a lot of command-line flags. Basically any setting can
-be overriden on the command line. To give you the most power and flexibility
+be overridden on the command line. To give you the most power and flexibility
 possible with Puppet, Vagrant allows you to specify custom command line
 flags to use:
 
