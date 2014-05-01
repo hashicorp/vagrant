@@ -110,6 +110,12 @@ the machine. Please see the networking page for more information.
 
 <hr>
 
+`config.vm.post_up_message` - A message to show after `vagrant up`. This
+will be shown to the user and is useful for containing instructions
+such as how to access various components of the development environment.
+
+<hr>
+
 `config.vm.provider` - Configures [provider-specific configuration](/v2/providers/configuration.html),
 which is used to modify settings which are specific to a certain
 [provider](/v2/providers/index.html). If the provider you're configuring
