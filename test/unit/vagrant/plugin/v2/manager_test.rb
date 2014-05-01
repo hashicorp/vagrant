@@ -167,8 +167,8 @@ describe Vagrant::Plugin::V2::Manager do
     instance.register(pB)
 
     expect(instance.providers.to_hash.length).to eq(2)
-    expect(instance.providers[:foo]).to eq(["bar", {}])
-    expect(instance.providers[:bar]).to eq(["baz", { foo: "bar" }])
+    expect(instance.providers[:foo]).to eq(["bar", { priority: 5 }])
+    expect(instance.providers[:bar]).to eq(["baz", { foo: "bar", priority: 5 }])
   end
 
   it "provides the collection of registered provider configs" do
