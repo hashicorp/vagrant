@@ -58,6 +58,34 @@ specific provisioner if you have multiple provisioners specified. For
 example, if you have a shell and Puppet provisioner and only want to
 run the shell one, you can do `vagrant provision --provision-with shell`.
 
+## Run Once or Always
+
+By default, provisioners are only run once, during the first `vagrant up`
+since the last `vagrant destroy`, unless the `--provision` flag is set,
+as noted above.
+
+Optionally, you can configure provisioners to run on every `up` or
+`reload`. They'll only be not run if the `--no-provision` flag is
+explicitly specified. To do this set the `run` option to "always",
+as shown below:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.provision "shell", inline: "echo hello",
+    run: "always"
+```
+
+If you're using the block format, you must specify it outside
+of the block, as shown below:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.provision "shell", run: "always" do |s|
+    s.inline = "echo hello"
+  end
+end
+```
+
 ## Multiple Provisioners
 
 Multiple `config.vm.provision` methods can be used to define multiple
