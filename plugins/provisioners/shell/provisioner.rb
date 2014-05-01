@@ -96,12 +96,10 @@ module VagrantPlugins
             exec_path.gsub!('/', '\\')
             exec_path = "c:#{exec_path}" if exec_path.start_with?("\\")
 
-            command = <<-EOH
-            $old = Get-ExecutionPolicy;
-            Set-ExecutionPolicy Unrestricted -force;
-            #{exec_path}#{args};
-            Set-ExecutionPolicy $old -force
-            EOH
+            # For PowerShell scripts bypass the execution policy
+            command = "#{exec_path}#{args}"
+            command = "powershell -executionpolicy bypass -file #{command}" if
+              File.extname(exec_path).downcase == '.ps1'
 
             if config.path
               @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
@@ -112,7 +110,7 @@ module VagrantPlugins
             end
 
             # Execute it with sudo
-            comm.sudo(command) do |type, data|
+            comm.sudo(command, elevated: config.privileged) do |type, data|
               handle_comm(type, data)
             end
           end
@@ -143,8 +141,6 @@ module VagrantPlugins
           ensure
             download_path.delete if download_path.file?
           end
-
-          download_path.delete
         elsif config.path
           # Just yield the path to that file...
           root_path = @machine.env.root_path
