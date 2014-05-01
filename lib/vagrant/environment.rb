@@ -249,13 +249,48 @@ module Vagrant
     end
 
     # This returns the provider name for the default provider for this
-    # environment. The provider returned is currently hardcoded to "virtualbox"
-    # but one day should be a detected valid, best-case provider for this
     # environment.
     #
     # @return [Symbol] Name of the default provider.
-    def default_provider
-      (ENV['VAGRANT_DEFAULT_PROVIDER'] || :virtualbox).to_sym
+    def default_provider(**opts)
+      opts[:exclude]       = Set.new(opts[:exclude]) if opts[:exclude]
+      opts[:force_default] = true if !opts.has_key?(:force_default)
+
+      default = ENV["VAGRANT_DEFAULT_PROVIDER"]
+      default = nil if default == ""
+      default = default.to_sym if default
+
+      # If we're forcing the default, just short-circuit and return
+      # that (the default behavior)
+      return default if default && opts[:force_default]
+
+      ordered = []
+      Vagrant.plugin("2").manager.providers.each do |key, data|
+        impl  = data[0]
+        popts = data[1]
+
+        # Skip excluded providers
+        next if opts[:exclude] && opts[:exclude].include?(key)
+
+        ordered << [popts[:priority], key, impl, popts]
+      end
+
+      # Order the providers by priority. Higher values are tried first.
+      ordered = ordered.sort do |a, b|
+        # If we see the default, then that one always wins
+        next -1 if a[1] == default
+        next 1  if b[1] == default
+
+        b[0] <=> a[0]
+      end
+
+      # Find the matching implementation
+      ordered.each do |_, key, impl, _|
+        return key if impl.usable?(false)
+      end
+
+      # If all else fails, return VirtualBox
+      return :virtualbox
     end
 
     # Returns the collection of boxes for the environment.

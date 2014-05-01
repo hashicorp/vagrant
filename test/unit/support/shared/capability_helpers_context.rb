@@ -7,6 +7,14 @@ shared_context "capability_helpers" do
     end
   end
 
+  def provider_usable_class(result)
+    Class.new do
+      define_singleton_method(:usable?) do |*args|
+        result
+      end
+    end
+  end
+
   def cap_instance(name, options=nil)
     options ||= {}
 

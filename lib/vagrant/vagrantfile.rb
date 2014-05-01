@@ -192,7 +192,7 @@ module Vagrant
       return {
         box: box,
         provider_cls: provider_cls,
-        provider_options: provider_options,
+        provider_options: provider_options.dup,
         config: config,
         config_warnings: config_warnings,
         config_errors: config_errors,

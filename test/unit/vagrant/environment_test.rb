@@ -699,15 +699,73 @@ VF
   end
 
   describe "default provider" do
-    it "is virtualbox without any environmental variable" do
+    let(:plugin_providers) { {} }
+
+    before do
+      m = Vagrant.plugin("2").manager
+      m.stub(providers: plugin_providers)
+    end
+
+    it "is the highest matching usable provider" do
+      plugin_providers[:foo] = [provider_usable_class(true), { priority: 5 }]
+      plugin_providers[:bar] = [provider_usable_class(true), { priority: 7 }]
+      plugin_providers[:baz] = [provider_usable_class(true), { priority: 2 }]
+      plugin_providers[:boom] = [provider_usable_class(true), { priority: 3 }]
+
       with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil) do
-        expect(subject.default_provider).to eq(:virtualbox)
+        expect(subject.default_provider).to eq(:bar)
       end
     end
 
-    it "is whatever the environmental variable is if set" do
-      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => "foo") do
-        expect(subject.default_provider).to eq(:foo)
+    it "is the highest matching usable provider that isn't excluded" do
+      plugin_providers[:foo] = [provider_usable_class(true), { priority: 5 }]
+      plugin_providers[:bar] = [provider_usable_class(true), { priority: 7 }]
+      plugin_providers[:baz] = [provider_usable_class(true), { priority: 2 }]
+      plugin_providers[:boom] = [provider_usable_class(true), { priority: 3 }]
+
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil) do
+        expect(subject.default_provider(exclude: [:bar, :foo])).to eq(:boom)
+      end
+    end
+
+    it "is the default provider set if usable" do
+      plugin_providers[:foo] = [provider_usable_class(true), { priority: 5 }]
+      plugin_providers[:bar] = [provider_usable_class(true), { priority: 7 }]
+      plugin_providers[:baz] = [provider_usable_class(true), { priority: 2 }]
+      plugin_providers[:boom] = [provider_usable_class(true), { priority: 3 }]
+
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => "baz") do
+        expect(subject.default_provider).to eq(:baz)
+      end
+    end
+
+    it "is the default provider set even if unusable" do
+      plugin_providers[:baz] = [provider_usable_class(false), { priority: 5 }]
+      plugin_providers[:foo] = [provider_usable_class(true), { priority: 5 }]
+      plugin_providers[:bar] = [provider_usable_class(true), { priority: 7 }]
+
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => "baz") do
+        expect(subject.default_provider).to eq(:baz)
+      end
+    end
+
+    it "is the usable despite default if not forced" do
+      plugin_providers[:baz] = [provider_usable_class(false), { priority: 5 }]
+      plugin_providers[:foo] = [provider_usable_class(true), { priority: 5 }]
+      plugin_providers[:bar] = [provider_usable_class(true), { priority: 7 }]
+
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => "baz") do
+        expect(subject.default_provider(force_default: false)).to eq(:bar)
+      end
+    end
+
+    it "is VirtualBox if nothing else is usable" do
+      plugin_providers[:foo] = [provider_usable_class(false), { priority: 5 }]
+      plugin_providers[:bar] = [provider_usable_class(false), { priority: 5 }]
+      plugin_providers[:baz] = [provider_usable_class(false), { priority: 5 }]
+
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil) do
+        expect(subject.default_provider).to eq(:virtualbox)
       end
     end
   end
