@@ -249,7 +249,9 @@ describe Vagrant::Plugin::V2::Plugin do
         provider("foo") { "bar" }
       end
 
-      expect(plugin.components.providers[:foo]).to eq(["bar", {}])
+      result = plugin.components.providers[:foo]
+      expect(result[0]).to eq("bar")
+      expect(result[1][:priority]).to eq(5)
     end
 
     it "should register provider classes with options" do
@@ -257,7 +259,10 @@ describe Vagrant::Plugin::V2::Plugin do
         provider("foo", foo: "yep") { "bar" }
       end
 
-      expect(plugin.components.providers[:foo]).to eq(["bar", { foo: "yep" }])
+      result = plugin.components.providers[:foo]
+      expect(result[0]).to eq("bar")
+      expect(result[1][:priority]).to eq(5)
+      expect(result[1][:foo]).to eq("yep")
     end
 
     it "should lazily register provider classes" do
