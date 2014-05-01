@@ -114,6 +114,7 @@ module VagrantPlugins
               ))
             end
 
+            p adapters
             env[:machine].provider.driver.enable_adapters(adapters)
           end
 
@@ -341,11 +342,11 @@ module VagrantPlugins
           end
 
           return {
-            :adapter  => config[:adapter],
-            :hostonly => interface[:name],
-            :mac      => config[:mac],
-            :nic_type => config[:nic_type],
-            :type     => :hostonly
+            :adapter     => config[:adapter],
+            :hostonly    => interface[:name],
+            :mac_address => config[:mac],
+            :nic_type    => config[:nic_type],
+            :type        => :hostonly
           }
         end
 
