@@ -91,5 +91,5 @@ end
 
 The host VM will be spun up at the first `vagrant up` where the provider
 is Docker. To control this host VM, use the
-[global-status command](#)
+[global-status command](/v2/cli/global-status.html)
 along with global control.
