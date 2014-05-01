@@ -73,6 +73,8 @@ BUG FIXES:
       Windows when the `VBOX_INSTALL_PATH` has multiple elements. [GH-3549]
   - providers/virtualbox: Forcing MAC address on private network works
       properly again. [GH-3588]
+  - provisioners/chef-solo: Fix Chef version checking to work with prerelease
+      versions. [GH-3604]
   - provisioners/salt: Always copy keys and configs on provision. [GH-3536]
   - provisioners/salt: Install args should always be present with bootstrap.
   - provisioners/salt: Overwrite keys properly on subsequent provisions [GH-3575]
