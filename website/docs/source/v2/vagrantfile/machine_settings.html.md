@@ -87,7 +87,7 @@ constraints.
 
 `config.vm.graceful_halt_timeout` - The time in seconds that Vagrant will
 wait for the machine to gracefully halt when `vagrant halt` is called.
-Defaults to 300 seconds.
+Defaults to 60 seconds.
 
 <hr>
 
