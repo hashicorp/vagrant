@@ -16,7 +16,7 @@ in a way that is portable, easy to use, and easy to understand.
 
 An important fact is that even if you configure other providers within
 a Vagrantfile, the Vagrantfile remains portable even to individuals who
-don't necessarilly have that provider installed.
+don't necessarily have that provider installed.
 
 For example, if you configure VMware Fusion and send it to an individual
 who doesn't have the VMware Fusion provider, Vagrant will silently ignore
