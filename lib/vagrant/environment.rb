@@ -254,8 +254,35 @@ module Vagrant
     # environment.
     #
     # @return [Symbol] Name of the default provider.
-    def default_provider
-      (ENV['VAGRANT_DEFAULT_PROVIDER'] || :virtualbox).to_sym
+    def default_provider(**opts)
+      default = ENV["VAGRANT_DEFAULT_PROVIDER"]
+      default = nil if default == ""
+      default = default.to_sym if default
+
+      ordered = []
+      Vagrant.plugin("2").manager.providers.each do |key, data|
+        impl = data[0]
+        opts = data[1]
+
+        ordered << [opts[:priority], key, impl, opts]
+      end
+
+      # Order the providers by priority. Higher values are tried first.
+      ordered = ordered.sort do |a, b|
+        # If we see the default, then that one always wins
+        next -1 if a[1] == default
+        next 1  if b[1] == default
+
+        b[0] <=> a[0]
+      end
+
+      # Find the matching implementation
+      ordered.each do |_, key, impl, _|
+        return key if impl.usable?(false)
+      end
+
+      # If all else fails, return VirtualBox
+      return :virtualbox
     end
 
     # Returns the collection of boxes for the environment.
