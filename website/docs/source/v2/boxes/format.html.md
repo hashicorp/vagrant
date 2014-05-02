@@ -22,11 +22,13 @@ Today, there are two different components:
   Therefore, a VirtualBox box file has different contents from a VMware
   box file and so on.
 
-* Box Metadata - This is a JSON document that specifies the name of the box,
-  a description, available versions, available providers, and URLs to the
-  actual box files (next component) for each provider and version. If this
-  metadata doesn't exist, a box file can still be added directly, but it
-  will not support versioning and updating.
+* Box Catalog Metadata - This is a JSON document (typically exchanged
+  during interactions with [Vagrant Cloud](https://vagrantcloud.com))
+  that specifies the name of the box, a description, available
+  versions, available providers, and URLs to the actual box files
+  (next component) for each provider and version. If this catalog
+  metadata doesn't exist, a box file can still be added directly, but
+  it will not support versioning and updating.
 
 Each component is covered in more detail below.
 
@@ -41,12 +43,17 @@ archive can be anything, and is specific to each
 [provider](/v2/providers/index.html). Vagrant core itself only unpacks
 the boxes for use later.
 
-Within the archive, Vagrant does expect a single file: `metadata.json`.
-This is a JSON file that is completely unrelated to the above "box metadata"
-component. This file must contain at least the "provider" key with the
-provider the box is for. Vagrant uses this to verify the provider of the
-box. For example, if your box was for VirtualBox,
-the `metadata.json` would look like this:
+Within the archive, Vagrant does expect a single file:
+`metadata.json`.  This is a JSON file that is completely unrelated to
+the above box catalog metadata component; there is only one
+`metadata.json` per box file (inside the box file), whereas one
+catalog metadata JSON document can describe multiple versions of the
+same box, potentially spanning multiple providers.
+
+`metadata.json` must contain at least the "provider" key with the
+provider the box is for. Vagrant uses this to verify the provider of
+the box. For example, if your box was for VirtualBox, the
+`metadata.json` would look like this:
 
 ```json
 {
