@@ -114,7 +114,6 @@ module VagrantPlugins
               ))
             end
 
-            p adapters
             env[:machine].provider.driver.enable_adapters(adapters)
           end
 
