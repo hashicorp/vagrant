@@ -1,33 +1,118 @@
 #!/bin/bash
 
-# Autocompletion for Vagrant just put this line in your ~/.profile or link this file into it like:
-# source /path/to/vagrant/contrib/bash/completion.sh
-_vagrant() {
+# (The MIT License)
+#
+# Copyright (c) 2014 Kura
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the 'Software'), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
+__pwdln() {
+   pwdmod="${PWD}/"
+   itr=0
+   until [[ -z "$pwdmod" ]];do
+      itr=$(($itr+1))
+      pwdmod="${pwdmod#*/}"
+   done
+   echo -n $(($itr-1))
+}
+
+__vagrantinvestigate() {
+    if [ -f "${PWD}/.vagrant" -o -d "${PWD}/.vagrant" ];then
+      echo "${PWD}/.vagrant"
+      return 0
+   else
+      pwdmod2="${PWD}"
+      for (( i=2; i<=$(__pwdln); i++ ));do
+         pwdmod2="${pwdmod2%/*}"
+         if [ -f "${pwdmod2}/.vagrant" -o -d "${pwdmod2}/.vagrant" ];then
+            echo "${pwdmod2}/.vagrant"
+            return 0
+         fi
+      done
+   fi
+   return 1
+}
+
+_vagrant() {
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    preprev="${COMP_WORDS[COMP_CWORD-2]}"
+    commands="box connect destroy halt help init list-commands login package plugin provision reload resume rsync rsync-auto share ssh ssh-config status suspend up"
 
-    commands=$(vagrant --help | awk '/^     /{print $1}')
-
-    if [ $COMP_CWORD == 1 ] ; then
-      COMPREPLY=( $(compgen -W "${commands}" -- ${cur}) )
+    if [ $COMP_CWORD == 1 ]
+    then
+      COMPREPLY=($(compgen -W "${commands}" -- ${cur}))
       return 0
     fi
 
-    if [ $COMP_CWORD == 2 ] ; then
-        local sub_commands=$(vagrant $prev --help | awk '/^     /{print $1}')
-        COMPREPLY=( $(compgen -W "${sub_commands}" -- ${cur}) )
-        return 0
+    if [ $COMP_CWORD == 2 ]
+    then
+        case "$prev" in
+            "init")
+              local box_list=$(find $HOME/.vagrant.d/boxes -mindepth 1 -maxdepth 1 -type d -exec basename {} \;)
+              COMPREPLY=($(compgen -W "${box_list}" -- ${cur}))
+              return 0
+            ;;
+            "ssh"|"provision"|"reload"|"halt"|"suspend"|"resume"|"ssh-config"|"up")
+              vagrant_state_file=$(__vagrantinvestigate) || return 1
+	      if [[ -f $vagrant_state_file ]]; then
+		  running_vm_list=$(grep 'active' $vagrant_state_file | sed -e 's/"active"://' | tr ',' '\n' | cut -d '"' -f 2 | tr '\n' ' ')
+	      else
+		  running_vm_list=$(find $vagrant_state_file -type f -name "id" | awk -F"/" '{print $(NF-2)}')
+	      fi
+              COMPREPLY=($(compgen -W "${running_vm_list}" -- ${cur}))
+              return 0
+            ;;
+            "box")
+              box_commands="add help list remove repackage"
+              COMPREPLY=($(compgen -W "${box_commands}" -- ${cur}))
+              return 0
+            ;;
+            "plugin")
+              plugin_commands="install license list uninstall update"
+              COMPREPLY=($(compgen -W "${plugin_commands}" -- ${cur}))
+              return 0
+            ;;
+            "help")
+              COMPREPLY=($(compgen -W "${commands}" -- ${cur}))
+              return 0
+            ;;
+            *)
+            ;;
+        esac
     fi
 
-    if [[ ${cur} == -* ]] ; then
-        local command_opts=$(vagrant $preprev $prev --help | grep -E -o "((-\w{1}|--(\w|-)*=?)){1,2}")
-        COMPREPLY=( $(compgen -W "${command_opts}" -- ${cur}) )
-        return 0
+    if [ $COMP_CWORD == 3 ]
+    then
+      action="${COMP_WORDS[COMP_CWORD-2]}"
+      if [ $action == 'box' ]
+      then
+        case "$prev" in
+            "remove"|"repackage")
+              local box_list=$(find $HOME/.vagrant.d/boxes -mindepth 1 -maxdepth 1 -type d -exec basename {} \;)
+              COMPREPLY=($(compgen -W "${box_list}" -- ${cur}))
+              return 0
+              ;;
+            *)
+            ;;
+        esac
+      fi
     fi
+
 }
-
 complete -F _vagrant vagrant
-
-# /* vim: set filetype=sh : */
