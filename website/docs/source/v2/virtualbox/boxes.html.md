@@ -136,7 +136,10 @@ the "metadata.json" file used by Vagrant itself.
 
 Also, there is a "Vagrantfile." This contains some configuration to
 properly set the MAC address of the NAT network device, since VirtualBox
-requires this to be correct in order to function properly.
+requires this to be correct in order to function properly. If you're
+not using `vagrant package --base` above, you'll have to set the
+`config.vm.base_mac` setting in this Vagrantfile to the MAC address
+of the NAT device without colons.
 
 When bringing up a VirtualBox backed machine, Vagrant
 [imports](http://www.virtualbox.org/manual/ch08.html#vboxmanage-import)
