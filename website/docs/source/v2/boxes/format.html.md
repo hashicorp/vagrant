@@ -14,7 +14,7 @@ Box files made for Vagrant 1.0.x (the VirtualBox export `tar` files) continue
 to work with Vagrant today. When Vagrant encounters one of these old boxes,
 it automatically updates it internally to the new format.
 
-Today, box files are split into two different components:
+Today, there are two different components:
 
 * Box Metadata - This is a JSON document that specifies the name of the box,
   a description, available versions, available providers, and URLs to the
