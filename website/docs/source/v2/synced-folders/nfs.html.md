@@ -30,7 +30,7 @@ also usually a simple package installation away.
 
 If you're using the VirtualBox provider, you'll also need to make sure you
 have a
-[private network setup with a static IP](http://docs.vagrantup.com/v2/networking/private_network.html). This is due to a limitation of VirtualBox's built-in networking. With
+[private network set up](http://docs.vagrantup.com/v2/networking/private_network.html). This is due to a limitation of VirtualBox's built-in networking. With
 VMware, you do not need this.
 
 ## Root Privilege Requirement
