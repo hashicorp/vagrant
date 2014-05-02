@@ -10,7 +10,7 @@ of VirtualBox exports. With Vagrant supporting multiple
 [providers](/v2/providers/index.html) and [versioning](/v2/boxes/versioning.html)
 now, box files are slightly more complicated.
 
-Box files made for Vagrant 1.0.x (the VirtualBox export tar files) continue
+Box files made for Vagrant 1.0.x (the VirtualBox export `tar` files) continue
 to work with Vagrant today. When Vagrant encounters one of these old boxes,
 it automatically updates it internally to the new format.
 
@@ -22,7 +22,7 @@ Today, box files are split into two different components:
   metadata doesn't exist, a box file can still be added directly, but it
   will not support versioning and updating.
 
-* Box File - This is a compressed (tar, tar.gz, zip) file that is specific
+* Box File - This is a compressed (`tar`, `tar.gz`, `zip`) file that is specific
   to a single provider and can contain anything. Vagrant core doesn't ever
   use the contents of this file. Instead, they are passed to the provider.
   Therefore, a VirtualBox box file has different contents from a VMware
@@ -75,17 +75,17 @@ The actual box file is the required portion for Vagrant. It is recommended
 you always use a metadata file alongside a box file, but direct box files
 are supported for legacy reasons in Vagrant.
 
-Box files are compressed using tar, tar.gz, or zip. The contents of the
+Box files are compressed using `tar`, `tar.gz`, or `zip`. The contents of the
 archive can be anything, and is specific to each
 [provider](/v2/providers/index.html). Vagrant core itself only unpacks
 the boxes for use later.
 
-Within the archive, Vagrant does expect a single file: "metadata.json".
+Within the archive, Vagrant does expect a single file: `metadata.json`.
 This is a JSON file that is completely unrelated to the above "box metadata"
 component. This file must contain at least the "provider" key with the
 provider the box is for. Vagrant uses this to verify the provider of the
 box. For example, if your box was for VirtualBox,
-the metadata.json would look like this:
+the `metadata.json` would look like this:
 
 ```json
 {
@@ -93,7 +93,7 @@ the metadata.json would look like this:
 }
 ```
 
-If there is no metadata.json file or the file does not contain valid JSON
+If there is no `metadata.json` file or the file does not contain valid JSON
 with at least a "provider" key, then Vagrant will error when adding the box,
 because it can't verify the provider.
 
