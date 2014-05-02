@@ -1506,7 +1506,7 @@ en:
           no_base_mac: |-
             No base MAC address was specified. This is required for the NAT networking
             to work properly (and hence port forwarding, SSH, etc.). Specifying this
-            MAC address is typically up to the box and box maintiner. Please contact
+            MAC address is typically up to the box and box maintainer. Please contact
             the relevant person to solve this issue.
         network:
           configuring: |-
