@@ -104,7 +104,8 @@ It is a JSON document, structured in the following way:
 As you can see, the JSON document can describe multiple versions of a box,
 multiple providers, and can add/remove providers in different versions.
 
-This JSON file can be passed directly to `vagrant box add` from the local
-filesystem using a file path or via a URL, and Vagrant
-will install the proper version of the box. If multiple providers are
-available, Vagrant will ask what provider you want to use.
+This JSON file can be passed directly to `vagrant box add` from the
+local filesystem using a file path or via a URL, and Vagrant will
+install the proper version of the box. In this case, the value for the
+`url` key in the JSON can also be a file path. If multiple providers
+are available, Vagrant will ask what provider you want to use.
