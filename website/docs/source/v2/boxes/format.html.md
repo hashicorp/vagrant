@@ -64,7 +64,8 @@ It is a JSON document, structured in the following way:
 As you can see, the JSON document can describe multiple versions of a box,
 multiple providers, and can add/remove providers in different versions.
 
-This JSON file can be passed directly to `vagrant box add` and Vagrant
+This JSON file can be passed directly to `vagrant box add` from the local
+filesystem using a file path or via a URL, and Vagrant
 will install the proper version of the box. If multiple providers are
 available, Vagrant will ask what provider you want to use.
 
@@ -82,7 +83,8 @@ the boxes for use later.
 Within the archive, Vagrant does expect a single file: "metadata.json".
 This is a JSON file that is completely unrelated to the above "box metadata"
 component. This file must contain at least the "provider" key with the
-provider the box is for. For example, if your box was for VirtualBox,
+provider the box is for. Vagrant uses this to verify the provider of the
+box. For example, if your box was for VirtualBox,
 the metadata.json would look like this:
 
 ```json
@@ -92,4 +94,10 @@ the metadata.json would look like this:
 ```
 
 If there is no metadata.json file or the file does not contain valid JSON
-with at least a "provider" key, then Vagrant will error when adding the box.
+with at least a "provider" key, then Vagrant will error when adding the box,
+because it can't verify the provider.
+
+Other keys/values may be added to the metadata without issue. The value
+of the metadata file is passed opaquely into Vagrant and plugins can make
+use of it. At this point, Vagrant core does not use any other keys in this
+file.
