@@ -78,6 +78,8 @@ module VagrantPlugins
               message = "Host appears down."
             rescue Vagrant::Errors::SSHNoRoute
               message = "Host unreachable."
+            rescue Vagrant::Errors::SSHInvalidShell
+              raise
             rescue Vagrant::Errors::SSHKeyTypeNotSupported
               raise
             rescue Vagrant::Errors::VagrantError => e
@@ -118,6 +120,11 @@ module VagrantPlugins
           # wrong expectedly in the `connect`, which means we didn't connect.
           @logger.info("SSH not up: #{e.inspect}")
           return false
+        end
+
+        # Verify the shell is valid
+        if execute("", error_check: false) != 0
+          raise Vagrant::Errors::SSHInvalidShell
         end
 
         # If we're already attempting to switch out the SSH key, then

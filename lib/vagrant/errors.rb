@@ -592,6 +592,10 @@ module Vagrant
       error_key(:ssh_host_down)
     end
 
+    class SSHInvalidShell< VagrantError
+      error_key(:ssh_invalid_shell)
+    end
+
     class SSHIsPuttyLink < VagrantError
       error_key(:ssh_is_putty_link)
     end

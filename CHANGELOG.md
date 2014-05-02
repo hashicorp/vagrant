@@ -71,6 +71,7 @@ BUG FIXES:
       source, use that. [GH-3610]
   - commands/rsync-auto: Interrupt exits properly. [GH-3552]
   - commands/rsync-auto: Run properly on Windows. [GH-3547]
+  - communicators/ssh: Detect if `config.ssh.shell` is invalid. [GH-3040]
   - providers/virtualbox: VirtalBox detection works properly again on
       Windows when the `VBOX_INSTALL_PATH` has multiple elements. [GH-3549]
   - providers/virtualbox: Forcing MAC address on private network works

@@ -995,6 +995,12 @@ en:
         While attempting to connect with SSH, a "host is down" (EHOSTDOWN)
         error was received. Please verify your SSH settings are correct
         and try again.
+      ssh_invalid_shell: |-
+        The configured shell (config.ssh.shell) is invalid and unable
+        to properly execute commands. The most common cause for this is
+        using a shell that is unavailable on the system. Please verify
+        you're using the full path to the shell and that the shell is
+        executable by the SSH user.
       ssh_is_putty_link: |-
         The `ssh` executable found in the PATH is a PuTTY Link SSH client.
         Vagrant is only compatible with OpenSSH SSH clients. Please install
