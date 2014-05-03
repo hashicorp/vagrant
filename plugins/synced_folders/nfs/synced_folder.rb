@@ -30,14 +30,9 @@ module VagrantPlugins
         if !machine.config.nfs.functional
           return false
         end
-
-        # We don't currently support NFS on Windows
-        if Vagrant::Util::Platform.windows?
-          return false
-        end
-
-        # NFS is always available
-        true
+        return true if machine.env.host.capability(:nfs_installed)
+        return false if !raise_error
+        raise Vagrant::Errors::NFSNotSupported
       end
 
       def prepare(machine, folders, opts)

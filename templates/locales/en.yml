@@ -813,6 +813,12 @@ en:
         No valid IDs were given to the NFS synced folder implementation to
         prune. This is an internal bug with Vagrant and an issue should be
         filed.
+      nfs_not_supported: |-
+        It appears your machine doesn't support NFS, or there is not an
+        adapter to enable NFS on this machine for Vagrant. Please verify
+        that `nfsd` is installed on your machine, and try again. If you're
+        on Windows, NFS isn't supported. If the problem persists, please
+        contact Vagrant support.
       nfs_client_not_installed_in_guest: |-
         No NFS client was detected as installed in your guest machine. This
         is required for NFS synced folders to work. In addition to this, Vagrant
