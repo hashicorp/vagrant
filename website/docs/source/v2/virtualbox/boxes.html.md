@@ -28,6 +28,22 @@ Additionally, it is helpful to understand the
 	</p>
 </div>
 
+## Virtual Machine
+
+The virtual machine created in VirtualBox can use any configuration you'd
+like, but Vagrant has some hard requirements:
+
+  * The first network interface (adapter 1) _must_ be a NAT adapter.
+    Vagrant uses this to connect the first time.
+
+  * The MAC address of the first network interface (the NAT adapter)
+    should be noted, since you'll need to put it in a Vagrantfile
+    later as the value for `config.vm.base_mac`. To get this value, use
+    the VirtualBox GUI.
+
+Other than the above, you're free to customize the base virtual machine
+as you see fit.
+
 ## Additional Software
 
 In addition to the software that should be installed based on the
