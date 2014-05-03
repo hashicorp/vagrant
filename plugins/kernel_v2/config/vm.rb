@@ -513,7 +513,6 @@ module VagrantPlugins
           end
         end
 
-        has_nfs = false
         used_guest_paths = Set.new
         @__synced_folders.each do |id, options|
           # If the shared folder is disabled then don't worry about validating it
@@ -540,8 +539,6 @@ module VagrantPlugins
           end
 
           if options[:type] == :nfs
-            has_nfs = true
-
             if options[:owner] || options[:group]
               # Owner/group don't work with NFS
               errors << I18n.t("vagrant.config.vm.shared_folder_nfs_owner_group",
@@ -557,11 +554,6 @@ module VagrantPlugins
           if options[:extra]
             errors << "The 'extra' flag on synced folders is now 'mount_options'"
           end
-        end
-
-        if has_nfs
-          errors << I18n.t("vagrant.config.vm.nfs_not_supported") if \
-            !machine.env.host.capability(:nfs_installed)
         end
 
         # Validate networks
