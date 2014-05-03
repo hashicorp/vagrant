@@ -328,6 +328,7 @@ module Vagrant
             end
 
             if opts[:checksum] && opts[:checksum_type]
+              env[:ui].detail(I18n.t("vagrant.actions.box.add.checksumming"))
               validate_checksum(
                 opts[:checksum_type], opts[:checksum], box_url)
             end
