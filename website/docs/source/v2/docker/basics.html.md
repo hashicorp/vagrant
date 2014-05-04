@@ -5,7 +5,7 @@ sidebar_current: "docker-basics"
 
 # Docker Basic Usage
 
-The Docker provider in Vagrant behaves just link any other provider.
+The Docker provider in Vagrant behaves just like any other provider.
 If you're familiar with Vagrant already, then using the Docker provider
 should be intuitive and simple.
 
