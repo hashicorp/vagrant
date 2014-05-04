@@ -143,7 +143,7 @@ VF
   end
 
   def self.it_should_use_transport_mode(transport_mode)
-    it "it enables '#{transport_mode}' transport mode" do
+    it "enables '#{transport_mode}' transport mode" do
       expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
         index = args.rindex("--connection=#{transport_mode}")
         expect(index).to be > 0
@@ -394,7 +394,7 @@ VF
 
     describe "with raw_ssh_args" do
       before do
-        config.raw_ssh_args = ['-o ControlMaster=no']
+        config.raw_ssh_args = ['-o ControlMaster=no', '-o ForwardAgent=no']
       end
 
       it_should_set_arguments_and_environment_variables 6, 4
@@ -405,10 +405,23 @@ VF
           cmd_opts = args.last
           raw_opt_index = cmd_opts[:env]['ANSIBLE_SSH_ARGS'].index("-o ControlMaster=no")
           default_opt_index = cmd_opts[:env]['ANSIBLE_SSH_ARGS'].index("-o ControlMaster=auto")
-          expect(raw_opt_index).not_to be_nil
-          expect(default_opt_index).not_to be_nil
           expect(raw_opt_index).to be < default_opt_index
         }
+      end
+
+      describe "and with ssh forwarding enabled" do
+        before do
+          ssh_info[:forward_agent] = true
+        end
+
+        it "sets '-o ForwardAgent=yes' via ANSIBLE_SSH_ARGS with higher priority than raw_ssh_args values" do
+          expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+            cmd_opts = args.last
+            forwardAgentYes = cmd_opts[:env]['ANSIBLE_SSH_ARGS'].index("-o ForwardAgent=yes")
+            forwardAgentNo = cmd_opts[:env]['ANSIBLE_SSH_ARGS'].index("-o ForwardAgent=no")
+            expect(forwardAgentYes).to be < forwardAgentNo
+          }
+        end
       end
 
     end
