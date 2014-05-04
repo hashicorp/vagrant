@@ -75,6 +75,12 @@ Vagrant.configure("2") do |config|
 end
 ```
 
+Disabling the default `/vagrant` share can be done as follows:
+
+```ruby
+config.vm.synced_folder ".", "/vagrant", disabled: true
+```
+
 ## Modifying the Owner/Group
 
 By default, Vagrant mounts the synced folders with the owner/group set
