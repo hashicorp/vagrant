@@ -66,7 +66,7 @@ Synced folders are automatically setup during `vagrant up` and
 
 ## Disabling
 
-Shared folders can be disabled by adding the `disabled` option to
+Synced folders can be disabled by adding the `disabled` option to
 any definition:
 
 ```ruby
