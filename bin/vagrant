@@ -194,5 +194,5 @@ rescue Exception => e
   end
 
   exit e.status_code if e.respond_to?(:status_code)
-  exit 999 # An error occurred with no status code defined
+  exit 255 # An error occurred with no status code defined
 end
