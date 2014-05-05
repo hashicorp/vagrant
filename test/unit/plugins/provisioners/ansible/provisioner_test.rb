@@ -68,7 +68,7 @@ VF
         expect(args[1]).to eq("--private-key=#{machine.ssh_info[:private_key_path][0]}")
         expect(args[2]).to eq("--user=#{machine.ssh_info[:username]}")
 
-        inventory_count = args.count { |x| x =~ /--inventory-file=.+/ }
+        inventory_count = args.count { |x| x =~ /^--inventory-file=.+$/ }
         expect(inventory_count).to be > 0
 
         expect(args[args.length-2]).to eq("playbook.yml")
@@ -79,10 +79,10 @@ VF
       expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
         raw_limits = []
         if config.raw_arguments
-          raw_limits = config.raw_arguments.select { |x| x =~ /--limit=|-l/ }
+          raw_limits = config.raw_arguments.select { |x| x =~ /^(--limit=|-l)/ }
         end
-        all_limits = args.select { |x| x =~ /--limit=|-l/ }
-        expect((all_limits - raw_limits).length).to eq(1)
+        all_limits = args.select { |x| x =~ /^(--limit=|-l)/ }
+        expect(all_limits.length - raw_limits.length).to eq(1)
 
         if config.limit
           limit = config.limit.kind_of?(Array) ? config.limit.join(',') : config.limit
@@ -136,7 +136,7 @@ VF
 
     it "does not force any transport mode" do
       expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
-        total = args.count { |x| x =~ /--connection=\w+/ }
+        total = args.count { |x| x =~ /^--connection=\w+$/ }
         expect(total).to eql(0)
       }
     end
