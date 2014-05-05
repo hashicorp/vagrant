@@ -40,7 +40,7 @@ module VagrantPlugins
           output.split("\n").each do |line|
             # This should only ask for administrative permission once, even
             # though its executed in multiple subshells.
-            system(%Q[sudo su root -c "echo '#{line}' >> /etc/exports"])
+            system(%Q[echo '#{line}' | tee -a /etc/exports >/dev/null"])
           end
 
           if nfs_running?(nfs_check_command)
