@@ -86,6 +86,8 @@ BUG FIXES:
   - provisioners/salt: Bootstrap uses raw GitHub URL rather than subdomain. [GH-3583]
   - synced\_folders/nfs: Acquires a process-level lock so exports don't
       collide with Vagrant running in parallel.
+  - synced\_folders/nfs: Implement usability check so that hosts that
+      don't support NFS get an error earlier. [GH-3625]
   - synced\_folders/rsync: Add UserKnownHostsFile option to not complain. [GH-3511]
   - synced\_folders/rsync: Proxy command is used properly if set. [GH-3553]
   - synced\_folders/rsync: Owner/group settings are respected. [GH-3544]
