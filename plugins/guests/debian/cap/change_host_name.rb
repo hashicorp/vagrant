@@ -48,12 +48,18 @@ module VagrantPlugins
         # 127.0.0.1   localhost
         # 127.0.1.1   host.fqdn.com host.fqdn host
         def update_etc_hosts
-          ip_address = '([0-9]{1,3}\.){3}[0-9]{1,3}'
-          search     = "^(#{ip_address})\\s+#{Regexp.escape(current_hostname)}(\\s.*)?$"
-          replace    = "\\1 #{fqdn} #{short_hostname}"
-          expression = ['s', search, replace, 'g'].join('@')
+          if test("grep '#{current_hostname}' /etc/hosts")
+            # Current hostname entry is in /etc/hosts
+            ip_address = '([0-9]{1,3}\.){3}[0-9]{1,3}'
+            search     = "^(#{ip_address})\\s+#{Regexp.escape(current_hostname)}(\\s.*)?$"
+            replace    = "\\1 #{fqdn} #{short_hostname}"
+            expression = ['s', search, replace, 'g'].join('@')
 
-          sudo("sed -ri '#{expression}' /etc/hosts")
+            sudo("sed -ri '#{expression}' /etc/hosts")
+          else
+            # Current hostname entry isn't in /etc/hosts, just append it
+            sudo("echo '127.0.1.1 #{fqdn} #{short_hostname}' >>/etc/hosts")
+          end
         end
 
         def refresh_hostname_service
@@ -78,6 +84,10 @@ module VagrantPlugins
 
         def sudo(cmd, &block)
           machine.communicate.sudo(cmd, &block)
+        end
+
+        def test(cmd)
+          machine.communicate.test(cmd)
         end
       end
     end
