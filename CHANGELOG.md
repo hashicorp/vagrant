@@ -46,6 +46,7 @@ IMPROVEMENTS:
   - core: Vagrant locks machine access to one Vagrant process at a time.
       This will protect against two simultaneous `up` actions happening
       on the same environment.
+  - core: Boxes can be compressed with LZMA now as well. 
   - commands/box/remove: Warns if the box appears to be in use by an
       environment. Can be forced with `--force`.
   - commands/destroy: Exit codes changes. 0 means everything succeeded.
