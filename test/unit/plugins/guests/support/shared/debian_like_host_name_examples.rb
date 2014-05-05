@@ -28,6 +28,12 @@ shared_examples "a debian-like host name change" do
     let(:search)     { Regexp.new(expression.split('@')[1], Regexp::EXTENDED) }
     let(:replace)    { expression.split('@')[2] }
 
+    let(:grep_command) { "grep '#{old_hostname}' /etc/hosts" }
+
+    before do
+      communicator.stub_command(grep_command, exit_code: 0)
+    end
+
     it "works on an simple /etc/hosts file" do
       original_etc_hosts = <<-ETC_HOSTS.gsub(/^ */, '')
         127.0.0.1 localhost
