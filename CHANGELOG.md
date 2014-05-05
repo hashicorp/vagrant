@@ -59,6 +59,7 @@ IMPROVEMENTS:
   - commands/ssh-config: Works without a target in multi-machine envs [GH-2844]
   - guests/freebsd: Support for virtio interfaces. [GH-3082]
   - guests/openbsd: Support for virtio interfaces. [GH-3082]
+  - providers/hyperv: Implement `vagrant ssh -c` support. [GH-3615]
   - provisioners/ansible: Support for Ansible Vault. [GH-3338]
   - provisioners/ansible: Show Ansible command executed. [GH-3628]
   - provisioners/salt: Colorize option. [GH-3603]
