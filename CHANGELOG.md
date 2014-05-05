@@ -52,6 +52,7 @@ IMPROVEMENTS:
       1 means everything was declined. 2 means some were declined. [GH-811]
   - commands/destroy: Doesn't require box to exist anymore. [GH-1629]
   - commands/init: force flag. [GH-3564]
+  - commands/init: flag for minimal Vagrantfile creation (no comments). [GH-3611]
   - commands/rsync-auto: Picks up and syncs provisioner folders if
       provisioners are backed by rsync.
   - commands/rsync-auto: Detects when new synced folders were added and warns

@@ -12,6 +12,7 @@ module VagrantPlugins
       def execute
         options = {
           force: false,
+          minimal: false,
           output: "Vagrantfile",
         }
 
@@ -23,6 +24,10 @@ module VagrantPlugins
 
           o.on("-f", "--force", "Overwrite existing Vagrantfile") do |f|
             options[:force] = f
+          end
+
+          o.on("-m", "--minimal", "Create minimal Vagrantfile (no help comments)") do |m|
+            options[:minimal] = m
           end
 
           o.on("--output FILE", String,
@@ -42,7 +47,12 @@ module VagrantPlugins
           raise Vagrant::Errors::VagrantfileExistsError if save_path.exist?
         end
 
-        template_path = ::Vagrant.source_root.join("templates/commands/init/Vagrantfile")
+        template = "templates/commands/init/Vagrantfile"
+        if options[:minimal]
+          template = "templates/commands/init/Vagrantfile.min"
+        end
+
+        template_path = ::Vagrant.source_root.join(template)
         contents = Vagrant::Util::TemplateRenderer.render(template_path,
                                                           :box_name => argv[0] || "base",
                                                           :box_url => argv[1])
