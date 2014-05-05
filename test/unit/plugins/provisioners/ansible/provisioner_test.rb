@@ -226,6 +226,12 @@ VF
           expect(args.length).to be > 0
         }
       end
+
+      it "does not show the ansible-playbook command" do
+        expect(machine.env.ui).not_to receive(:detail).with { |full_command|
+          expect(full_command).to include("ansible-playbook")
+        }
+      end
     end
 
     describe "with groups option" do
@@ -459,11 +465,30 @@ VF
       end
     end
 
+    describe "with verbose option" do
+      before do
+        config.verbose = 'v'
+      end
+
+      it_should_set_arguments_and_environment_variables 6
+      it_should_set_optional_arguments({ "verbose" => "-v" })
+
+      it "shows the ansible-playbook command" do
+        expect(machine.env.ui).to receive(:detail).with { |full_command|
+          expect(full_command).to eq("ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false PYTHONUNBUFFERED=1 ansible-playbook --private-key=/path/to/my/key --user=testuser --limit='machine1' --inventory-file=#{generated_inventory_dir} -v playbook.yml")
+        }
+      end
+    end
+
     # Note:
     # The Vagrant Ansible provisioner does not validate the coherency of argument combinations,
     # and let ansible-playbook complain.
     describe "with a maximum of options" do
       before do
+        # vagrant general options
+        ssh_info[:forward_agent] = true
+        ssh_info[:private_key_path] = ['/my/key1', '/my/key2']
+
         # command line arguments
         config.extra_vars = "@#{existing_file}"
         config.sudo = true
@@ -503,6 +528,12 @@ VF
           expect(args).to include("--su-user=foot")
           expect(args).to include("--ask-su-pass")
           expect(args).to include("--why-not")
+        }
+      end
+
+      it "shows the ansible-playbook command, with additional quotes when required" do
+        expect(machine.env.ui).to receive(:detail).with { |full_command|
+          expect(full_command).to eq("ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=true PYTHONUNBUFFERED=1 ANSIBLE_SSH_ARGS='-o IdentityFile=/my/key2 -o ForwardAgent=yes -o ControlMaster=no -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --private-key=/my/key1 --user=testuser --connection=ssh --why-not --su-user=foot --ask-su-pass --limit='all' --inventory-file=#{generated_inventory_dir} --extra-vars=@#{File.expand_path(__FILE__)} --sudo --sudo-user=deployer -vvv --ask-sudo-pass --ask-vault-pass --vault-password-file=#{File.expand_path(__FILE__)} --tags=db,www --skip-tags=foo,bar --limit='machine*:&vagrant:!that_one' --start-at-task='an awesome task' playbook.yml")
         }
       end
     end

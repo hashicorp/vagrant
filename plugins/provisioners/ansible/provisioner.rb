@@ -66,6 +66,8 @@ module VagrantPlugins
         # Support Multiple SSH keys and SSH forwarding:
         env["ANSIBLE_SSH_ARGS"] = ansible_ssh_args unless ansible_ssh_args.empty?
 
+        show_ansible_playbook_command(env, command) if config.verbose
+
         # Write stdout and stderr data, since it's the regular Ansible output
         command << {
           :env => env,
@@ -212,6 +214,30 @@ module VagrantPlugins
 
       def as_array(v)
         v.kind_of?(Array) ? v : [v]
+      end
+
+      def show_ansible_playbook_command(env, command)
+        shell_command = ''
+        env.each_pair do |k, v|
+          if k == 'ANSIBLE_SSH_ARGS'
+            shell_command += "#{k}='#{v}' "
+          else
+            shell_command += "#{k}=#{v} "
+          end
+        end
+
+        shell_arg = []
+        command.each do |arg|
+          if arg =~ /(--start-at-task|--limit)=(.+)/
+            shell_arg << "#{$1}='#{$2}'"
+          else
+            shell_arg << arg
+          end
+        end
+
+        shell_command += shell_arg.join(' ')
+
+        @machine.env.ui.detail(shell_command)
       end
     end
   end
