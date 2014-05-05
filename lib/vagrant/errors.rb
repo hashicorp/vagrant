@@ -460,6 +460,10 @@ module Vagrant
       error_key(:nfs_no_valid_ids)
     end
 
+    class NFSNotSupported < VagrantError
+      error_key(:nfs_not_supported)
+    end
+
     class NFSClientNotInstalledInGuest < VagrantError
       error_key(:nfs_client_not_installed_in_guest)
     end

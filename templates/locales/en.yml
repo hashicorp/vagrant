@@ -813,6 +813,12 @@ en:
         No valid IDs were given to the NFS synced folder implementation to
         prune. This is an internal bug with Vagrant and an issue should be
         filed.
+      nfs_not_supported: |-
+        It appears your machine doesn't support NFS, or there is not an
+        adapter to enable NFS on this machine for Vagrant. Please verify
+        that `nfsd` is installed on your machine, and try again. If you're
+        on Windows, NFS isn't supported. If the problem persists, please
+        contact Vagrant support.
       nfs_client_not_installed_in_guest: |-
         No NFS client was detected as installed in your guest machine. This
         is required for NFS synced folders to work. In addition to this, Vagrant
@@ -1218,12 +1224,6 @@ en:
         hostname_invalid_characters: |-
           The hostname set for the VM should only contain letters, numbers,
           hyphens or dots. It cannot start with a hyphen or dot.
-        nfs_not_supported: |-
-          It appears your machine doesn't support NFS, or there is not an
-          adapter to enable NFS on this machine for Vagrant. Please verify
-          that `nfsd` is installed on your machine, and try again. If you're
-          on Windows, NFS isn't supported. If the problem persists, please
-          contact Vagrant support.
         network_ip_ends_in_one: |-
           You assigned a static IP ending in ".1" to this machine.
           This is very often used by the router and can cause the
