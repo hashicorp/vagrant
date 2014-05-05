@@ -74,6 +74,17 @@ shared_examples "a debian-like host name change" do
       RESULT
     end
 
+    it "appends 127.0.1.1 if it isn't there" do
+      communicator.stub_command(grep_command, exit_code: 1)
+      described_class.change_host_name(machine, 'newhostname.newdomain.tld')
+
+      sed = communicator.received_commands.find { |cmd| cmd =~ /^sed/ }
+      expect(sed).to be_nil
+
+      echo = communicator.received_commands.find { |cmd| cmd =~ /^echo/ }
+      expect(echo).to_not be_nil
+    end
+
     context "when the old fqdn has a trailing dot" do
       let(:old_hostname) { 'oldhostname.withtrailing.dot.' }
 
