@@ -2,9 +2,6 @@
 
 BACKWARDS INCOMPATIBILITIES:
 
-  - providers/virtualbox: Shared folders backed by VirtualBox are now
-      "transient". They will be removed if you reboot outside of Vagrant.
-      Always use `vagrant reload`.
   - Deprecated: `halt_timeout` and `halt_check_interval` settings for
       SmartOS, Solaris, and Solaris11 guests. These will be fully
       removed in 1.7. A warning will be shown if they're in use in
@@ -46,7 +43,7 @@ IMPROVEMENTS:
   - core: Vagrant locks machine access to one Vagrant process at a time.
       This will protect against two simultaneous `up` actions happening
       on the same environment.
-  - core: Boxes can be compressed with LZMA now as well. 
+  - core: Boxes can be compressed with LZMA now as well.
   - commands/box/remove: Warns if the box appears to be in use by an
       environment. Can be forced with `--force`.
   - commands/destroy: Exit codes changes. 0 means everything succeeded.

@@ -9,23 +9,12 @@ module VagrantPlugins
           machine.provider_config.functional_vboxsf
       end
 
+      def prepare(machine, folders, _opts)
+        share_folders(machine, folders, false)
+      end
+
       def enable(machine, folders, _opts)
-        # Export the shared folders to the VM
-        defs = []
-        folders.each do |id, data|
-          hostpath = data[:hostpath]
-          if !data[:hostpath_exact]
-            hostpath = Vagrant::Util::Platform.cygwin_windows_path(hostpath)
-          end
-
-          defs << {
-            name: os_friendly_id(id),
-            hostpath: hostpath.to_s,
-            transient: true,
-          }
-        end
-
-        driver(machine).share_folders(defs)
+        share_folders(machine, folders, true)
 
         # short guestpaths first, so we don't step on ourselves
         folders = folders.sort_by do |id, data|
@@ -93,6 +82,34 @@ module VagrantPlugins
 
       def os_friendly_id(id)
         id.gsub(/[\/]/,'_').sub(/^_/, '')
+      end
+
+      # share_folders sets up the shared folder definitions on the
+      # VirtualBox VM.
+      #
+      # The transient parameter determines if we're FORCING transient
+      # or not. If this is false, then any shared folders will be
+      # shared as non-transient unless they've specifically asked for
+      # transient.
+      def share_folders(machine, folders, transient)
+        defs = []
+        folders.each do |id, data|
+          hostpath = data[:hostpath]
+          if !data[:hostpath_exact]
+            hostpath = Vagrant::Util::Platform.cygwin_windows_path(hostpath)
+          end
+
+          # Only setup the shared folders that match our transient level
+          if (!!data[:transient]) == transient
+            defs << {
+              name: os_friendly_id(id),
+              hostpath: hostpath.to_s,
+              transient: transient,
+            }
+          end
+        end
+
+        driver(machine).share_folders(defs)
       end
     end
   end

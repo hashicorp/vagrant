@@ -117,6 +117,11 @@ module VagrantPlugins
               # Add this synced folder onto the new config if we haven't
               # already shared it before.
               if !existing_ids.has_key?(id)
+                # A bit of a hack for VirtualBox to mount our
+                # folder as transient. This can be removed once
+                # the VirtualBox synced folder mechanism is smarter.
+                data[:virtualbox__transient] = true
+
                 new_config.synced_folder(
                   data[:hostpath],
                   data[:guestpath],
