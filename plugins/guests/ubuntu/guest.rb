@@ -1,10 +1,8 @@
 require "vagrant"
 
-require Vagrant.source_root.join("plugins/guests/debian/guest")
-
 module VagrantPlugins
   module GuestUbuntu
-    class Guest < VagrantPlugins::GuestDebian::Guest
+    class Guest < Vagrant.plugin("2", :guest)
       def detect?(machine)
         machine.communicate.test("cat /etc/issue | grep 'Ubuntu'")
       end

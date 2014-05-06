@@ -1,10 +1,8 @@
 require "vagrant"
 
-require Vagrant.source_root.join("plugins/guests/ubuntu/guest")
-
 module VagrantPlugins
   module GuestMint
-    class Guest < VagrantPlugins::GuestUbuntu::Guest
+    class Guest < Vagrant.plugin("2", :guest)
       def detect?(machine)
         machine.communicate.test("cat /etc/issue | grep 'Linux Mint'")
       end
