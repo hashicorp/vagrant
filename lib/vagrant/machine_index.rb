@@ -435,11 +435,19 @@ module Vagrant
         # found, it is already false.
         return false if !found
 
-        # If the environment doesn't contain the machine with this
-        # name, then it is also false. At some point, we can remove
-        # this limitation if we support destroying machines where
-        # the Vagrantfile is moved.
-        return false if !env.machine_names.find { |n| n == self.name.to_sym }
+        # Get the machine
+        machine = nil
+        begin
+          machine = env.machine(self.name.to_sym, self.provider.to_sym)
+        rescue Errors::MachineNotFound
+          return false
+        end
+
+        # Refresh the machine state
+        machine.state
+
+        # If the machine doesn't have an ID, it is invalid
+        return false if !machine.id
 
         true
       end

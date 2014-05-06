@@ -73,14 +73,16 @@ module VagrantPlugins
       #
       # @return [Symbol]
       def state
-        # XXX: What happens if we destroy the VM but the UUID is still
-        # set here?
-
         # Determine the ID of the state here.
         state_id = nil
         state_id = :not_created if !@driver.uuid
         state_id = @driver.read_state if !state_id
         state_id = :unknown if !state_id
+
+        # If we're not created, then reset the ID to nil
+        if state_id == :not_created
+          @machine.id = nil
+        end
 
         # Translate into short/long descriptions
         short = state_id.to_s.gsub("_", " ")
