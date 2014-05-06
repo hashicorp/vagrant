@@ -10,6 +10,12 @@ module VagrantPlugins
           "#{machine.config.solaris11.suexec_cmd} rsync"
         end
 
+        def self.rsync_pre(machine, opts)
+          machine.communicate.tap do |comm|
+            comm.sudo("mkdir -p '#{opts[:guestpath]}'")
+          end
+        end
+
         def self.rsync_post(machine, opts)
           su_cmd = machine.config.solaris11.su_cmd
           machine.communicate.execute(

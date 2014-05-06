@@ -10,6 +10,7 @@ BUG FIXES:
       Vagrantfile.
   - commands/package: `--base` works without crashing for VirtualBox.
   - guests/redhat: Fix networking issues with CentOS. [GH-3649]
+  - synced\_folders/rsync: Create the directory before syncing.
 
 ## 1.6.0 (May 6, 2014)
 

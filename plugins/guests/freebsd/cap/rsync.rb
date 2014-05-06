@@ -16,6 +16,12 @@ module VagrantPlugins
           "sudo rsync"
         end
 
+        def self.rsync_pre(machine, opts)
+          machine.communicate.tap do |comm|
+            comm.sudo("mkdir -p '#{opts[:guestpath]}'")
+          end
+        end
+
         def self.rsync_post(machine, opts)
           machine.communicate.sudo(
             "find '#{opts[:guestpath]}' '(' ! -user #{opts[:owner]} -or ! -group #{opts[:group]} ')' -print0 | " +
