@@ -64,6 +64,8 @@ IMPROVEMENTS:
   - provisioners/ansible: Show Ansible command executed. [GH-3628]
   - provisioners/salt: Colorize option. [GH-3603]
   - provisioners/salt: Ability to specify log level. [GH-3603]
+  - synced\_folders: nfs: Improve sudo commands used to make them
+      sudoers friendly. Examples in docs. [GH-3638]
 
 BUG FIXES:
 
