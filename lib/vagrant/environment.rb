@@ -84,6 +84,7 @@ module Vagrant
       if !opts[:cwd].directory?
         raise Errors::EnvironmentNonExistentCWD, cwd: opts[:cwd].to_s
       end
+      opts[:cwd] = opts[:cwd].expand_path
 
       # Set the default ui class
       opts[:ui_class] ||= UI::Silent
