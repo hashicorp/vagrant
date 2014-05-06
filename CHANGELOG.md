@@ -1,6 +1,8 @@
 ## 1.6.1 (unreleased)
 
+IMPROVEMENTS:
 
+  - **New guest: Linux Mint** is now properly detected. [GH-3648]
 
 ## 1.6.0 (May 6, 2014)
 
