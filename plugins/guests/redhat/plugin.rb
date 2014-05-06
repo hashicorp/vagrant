@@ -35,11 +35,6 @@ module VagrantPlugins
         require_relative "cap/rsync"
         Cap::RSync
       end
-      
-      guest_capability("redhat", "interfaces_list") do
-        require_relative "cap/interfaces_list"
-        Cap::InterfacesList
-      end
     end
   end
 end
