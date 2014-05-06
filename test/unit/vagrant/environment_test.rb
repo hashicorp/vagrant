@@ -602,6 +602,13 @@ VF
   end
 
   describe "active machines" do
+    it "should be empty if there is no root path" do
+      Dir.mktmpdir do |temp_dir|
+        instance = described_class.new(cwd: temp_dir)
+        expect(instance.active_machines).to be_empty
+      end
+    end
+
     it "should be empty if the machines folder doesn't exist" do
       folder = instance.local_data_path.join("machines")
       expect(folder).not_to be_exist

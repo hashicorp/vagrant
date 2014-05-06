@@ -191,6 +191,9 @@ module Vagrant
     #
     # @return [Array<String, Symbol>]
     def active_machines
+      # We have no active machines if we have no data path
+      return [] if !@local_data_path
+
       machine_folder = @local_data_path.join("machines")
 
       # If the machine folder is not a directory then we just return

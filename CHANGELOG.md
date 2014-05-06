@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - core: Global control works from directories that don't have a
+      Vagrantfile.
   - commands/package: `--base` works without crashing for VirtualBox.
   - guests/redhat: Fix networking issues with CentOS. [GH-3649]
 
