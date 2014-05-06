@@ -58,6 +58,7 @@ IMPROVEMENTS:
   - commands/ssh-config: Works without a target in multi-machine envs [GH-2844]
   - guests/freebsd: Support for virtio interfaces. [GH-3082]
   - guests/openbsd: Support for virtio interfaces. [GH-3082]
+  - guests/redhat: Networking works for upcoming RHEL7 release. [GH-3643]
   - providers/hyperv: Implement `vagrant ssh -c` support. [GH-3615]
   - provisioners/ansible: Support for Ansible Vault. [GH-3338]
   - provisioners/ansible: Show Ansible command executed. [GH-3628]
@@ -94,6 +95,7 @@ BUG FIXES:
   - synced\_folders/rsync: Add UserKnownHostsFile option to not complain. [GH-3511]
   - synced\_folders/rsync: Proxy command is used properly if set. [GH-3553]
   - synced\_folders/rsync: Owner/group settings are respected. [GH-3544]
+  - synced\_folders/smb: Passwords with symbols work. [GH-3642]
 
 PLUGIN AUTHOR CHANGES:
 
