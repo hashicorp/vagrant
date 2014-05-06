@@ -13,6 +13,7 @@ module VagrantPlugins
         # Add the options
         parser.on("--[no-]provision", "Enable or disable provisioning") do |p|
           options[:provision_enabled] = p
+          options[:provision_ignore_sentinel] = true
         end
 
         parser.on("--provision-with x,y,z", Array,
