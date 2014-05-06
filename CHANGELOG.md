@@ -4,6 +4,10 @@ IMPROVEMENTS:
 
   - **New guest: Linux Mint** is now properly detected. [GH-3648]
 
+BUG FIXES:
+
+  - commands/package: `--base` works without crashing for VirtualBox.
+
 ## 1.6.0 (May 6, 2014)
 
 BACKWARDS INCOMPATIBILITIES:

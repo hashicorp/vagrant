@@ -6,6 +6,7 @@ module VagrantPlugins
       def usable?(machine, raise_errors=false)
         # These synced folders only work if the provider if VirtualBox
         machine.provider_name == :virtualbox &&
+          machine.provider_config &&
           machine.provider_config.functional_vboxsf
       end
 
