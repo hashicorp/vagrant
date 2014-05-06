@@ -143,6 +143,7 @@ module VagrantPlugins
           b.use Call, IsState, :not_created do |env, b2|
             if env[:result]
               b2.use Message, I18n.t("docker_provider.messages.not_created")
+              b2.use Destroy
               next
             end
 

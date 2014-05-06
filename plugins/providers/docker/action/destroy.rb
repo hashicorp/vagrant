@@ -7,20 +7,25 @@ module VagrantPlugins
         end
 
         def call(env)
-          env[:ui].info I18n.t("docker_provider.messages.destroying")
-
           machine = env[:machine]
-          driver  = machine.provider.driver
 
-          # If we have a build image, store that
-          image_file = machine.data_dir.join("docker_build_image")
-          image      = nil
-          if image_file.file?
-            image = image_file.read.chomp
+          # If the container actually exists, destroy it
+          if machine.state.id != :not_created
+            driver  = machine.provider.driver
+
+            # If we have a build image, store that
+            image_file = machine.data_dir.join("docker_build_image")
+            image      = nil
+            if image_file.file?
+              image = image_file.read.chomp
+            end
+            env[:build_image] = image
+
+            env[:ui].info I18n.t("docker_provider.messages.destroying")
+            driver.rm(machine.id)
           end
-          env[:build_image] = image
 
-          driver.rm(machine.id)
+          # Otherwise, always make sure we remove the ID
           machine.id = nil
 
           @app.call(env)
