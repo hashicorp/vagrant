@@ -146,11 +146,13 @@ module VagrantPlugins
         state_id = driver.state(@machine.id) if @machine.id && !state_id
         state_id = :unknown if !state_id
 
-        # If the machine is not created, make sure to clear out machine ID
-        @machine.id = nil if state_id == :not_created
-
         short = state_id.to_s.gsub("_", " ")
         long  = I18n.t("docker_provider.status.#{state_id}")
+
+        # If we're not created, then specify the special ID flag
+        if state_id == :not_created
+          state_id = Vagrant::MachineState::NOT_CREATED_ID
+        end
 
         Vagrant::MachineState.new(state_id, short, long)
       end

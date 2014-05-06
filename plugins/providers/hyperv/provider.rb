@@ -67,6 +67,11 @@ module VagrantPlugins
         short = state_id.to_s
         long  = ""
 
+        # If we're not created, then specify the special ID flag
+        if state_id == :not_created
+          state_id = Vagrant::MachineState::NOT_CREATED_ID
+        end
+
         # Return the MachineState object
         Vagrant::MachineState.new(state_id, short, long)
       end
