@@ -22,7 +22,7 @@ module VagrantPlugins
 
           if result.exit_code != 0 && !interrupted
             raise Errors::ExecuteError,
-              command: command.inspect,
+              command: cmd.inspect,
               stderr: result.stderr,
               stdout: result.stdout
           end
