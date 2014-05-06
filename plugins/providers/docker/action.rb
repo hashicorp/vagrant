@@ -134,29 +134,38 @@ module VagrantPlugins
       # freeing the resources of the underlying virtual machine.
       def self.action_destroy
         Vagrant::Action::Builder.new.tap do |b|
-          b.use Call, IsState, :host_state_unknown do |env, b2|
-            if env[:result]
-              b2.use HostMachine
-            end
-          end
-
-          b.use Call, IsState, :not_created do |env, b2|
-            if env[:result]
+          b.use Call, IsHostMachineCreated do |env, b2|
+            if !env[:result]
               b2.use Message, I18n.t("docker_provider.messages.not_created")
               next
             end
 
-            b2.use Call, DestroyConfirm do |env2, b3|
+            b2.use Call, IsState, :host_state_unknown do |env2, b3|
               if env2[:result]
-                b3.use ConfigValidate
-                b3.use EnvSet, :force_halt => true
-                b3.use action_halt
-                b3.use HostMachineSyncFoldersDisable
-                b3.use Destroy
-                b3.use DestroyBuildImage
-                b3.use ProvisionerCleanup
-              else
-                b3.use Message, I18n.t("docker_provider.messages.will_not_destroy")
+                b3.use HostMachine
+              end
+            end
+
+            b2.use Call, IsState, :not_created do |env2, b3|
+              if env2[:result]
+                b3.use Message,
+                  I18n.t("docker_provider.messages.not_created")
+                next
+              end
+
+              b3.use Call, DestroyConfirm do |env3, b4|
+                if env3[:result]
+                  b4.use ConfigValidate
+                  b4.use EnvSet, :force_halt => true
+                  b4.use action_halt
+                  b4.use HostMachineSyncFoldersDisable
+                  b4.use Destroy
+                  b4.use DestroyBuildImage
+                  b4.use ProvisionerCleanup
+                else
+                  b4.use Message,
+                    I18n.t("docker_provider.messages.will_not_destroy")
+                end
               end
             end
           end
@@ -285,6 +294,7 @@ module VagrantPlugins
       autoload :HostMachineSyncFolders, action_root.join("host_machine_sync_folders")
       autoload :HostMachineSyncFoldersDisable, action_root.join("host_machine_sync_folders_disable")
       autoload :IsBuild, action_root.join("is_build")
+      autoload :IsHostMachineCreated, action_root.join("is_host_machine_created")
       autoload :PrepareSSH, action_root.join("prepare_ssh")
       autoload :Stop, action_root.join("stop")
       autoload :PrepareNFSValidIds, action_root.join("prepare_nfs_valid_ids")
