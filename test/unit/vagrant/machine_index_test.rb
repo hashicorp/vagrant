@@ -308,6 +308,12 @@ describe Vagrant::MachineIndex::Entry do
       expect(subject).to_not be_valid(env.home_path)
     end
 
+    it "should be invalid if machine is not created" do
+      machine.id = "foo"
+      machine.provider.state = Vagrant::MachineState::NOT_CREATED_ID
+      expect(subject).to_not be_valid(env.home_path)
+    end
+
     context "with another active machine" do
       let(:vagrantfile) do
         <<-VF

@@ -444,10 +444,7 @@ module Vagrant
         end
 
         # Refresh the machine state
-        machine.state
-
-        # If the machine doesn't have an ID, it is invalid
-        return false if !machine.id
+        return false if machine.state.id == MachineState::NOT_CREATED_ID
 
         true
       end
