@@ -1,3 +1,7 @@
+## 1.6.1 (unreleased)
+
+
+
 ## 1.6.0 (May 6, 2014)
 
 BACKWARDS INCOMPATIBILITIES:
