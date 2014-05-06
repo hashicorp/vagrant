@@ -1227,7 +1227,7 @@ en:
         network_ip_ends_in_one: |-
           You assigned a static IP ending in ".1" to this machine.
           This is very often used by the router and can cause the
-          network to not work properly. If you the network doesn't work
+          network to not work properly. If the network doesn't work
           properly, try changing this IP.
         network_ip_required: |-
           An IP is required for a private network.
