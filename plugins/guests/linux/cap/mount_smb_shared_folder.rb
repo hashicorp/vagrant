@@ -30,7 +30,7 @@ module VagrantPlugins
           options[:mount_options] ||= []
           options[:mount_options] << "sec=ntlm"
           options[:mount_options] << "username=#{options[:smb_username]}"
-          options[:mount_options] << "pass='#{smb_password}'"
+          options[:mount_options] << "pass=#{smb_password}"
 
           # First mount command uses getent to get the group
           mount_options = "-o uid=#{mount_uid},gid=#{mount_gid}"
