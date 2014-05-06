@@ -1,4 +1,5 @@
 require "vagrant/util"
+require "vagrant/util/shell_quote"
 require "vagrant/util/retryable"
 
 module VagrantPlugins
@@ -38,9 +39,8 @@ module VagrantPlugins
           nfs_cleanup(id)
 
           output.split("\n").each do |line|
-            # This should only ask for administrative permission once, even
-            # though its executed in multiple subshells.
-            system(%Q[sudo su root -c "echo '#{line}' >> /etc/exports"])
+            line = Vagrant::Util::ShellQuote.escape(line, "'")
+            system(%Q[echo '#{line}' | sudo tee -a /etc/exports >/dev/null])
           end
 
           if nfs_running?(nfs_check_command)

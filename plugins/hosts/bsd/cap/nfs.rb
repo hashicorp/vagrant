@@ -105,7 +105,7 @@ module VagrantPlugins
           # Output the rendered template into the exports
           output.split("\n").each do |line|
             line = Vagrant::Util::ShellQuote.escape(line, "'")
-            system("sudo", "-s", "--", "echo '#{line}' >> /etc/exports")
+            system("echo '#{line}' | sudo tee -a /etc/exports >/dev/null")
           end
 
           # We run restart here instead of "update" just in case nfsd
