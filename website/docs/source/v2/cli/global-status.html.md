@@ -25,3 +25,11 @@ used with this ID to control it. For example: `vagrant destroy a1b2c3`.
 
 * `--prune` - Prunes invalid entries from the list. This is much more time
   consuming than simply listing the entries.
+
+## Environment Not Showing Up
+
+If your environment is not showing up, you may have to do a `vagrant destroy`
+followed by a `vagrant up`.
+
+If you just upgraded from a previous version of Vagrant, existing environments
+won't show up in global-status until they are destroyed and recreated.
