@@ -33,14 +33,6 @@ have a
 [private network set up](http://docs.vagrantup.com/v2/networking/private_network.html). This is due to a limitation of VirtualBox's built-in networking. With
 VMware, you do not need this.
 
-## Root Privilege Requirement
-
-To configure NFS, Vagrant must modify system files on the host. Therefore,
-at some point during the `vagrant up` sequence, you may be prompted for
-administrative privileges (via the typical `sudo` program). These
-privileges are used to modify `/etc/exports` as well as to start and
-stop the NFS server daemon.
-
 ## Enabling NFS Synced Folders
 
 To enable NFS, just add the `type: "nfs"` flag onto your synced folder:
@@ -69,3 +61,40 @@ the final part of the `config.vm.synced_folder` definition, along with the
 
 * `nfs_version` (string | integer) - The NFS protocol version to use when
   mounting the folder on the guest. This defaults to 3.
+
+## Root Privilege Requirement
+
+To configure NFS, Vagrant must modify system files on the host. Therefore,
+at some point during the `vagrant up` sequence, you may be prompted for
+administrative privileges (via the typical `sudo` program). These
+privileges are used to modify `/etc/exports` as well as to start and
+stop the NFS server daemon.
+
+If you don't want to type your password on every `vagrant up`, Vagrant
+uses thoughtfully crafted commands to make fine-grained sudoers modifications
+possible to avoid entering your password.
+
+Below, we have a couple example sudoers entries. Note that you may
+have to modify them _slightly_ on certain hosts because the way Vagrant
+modifies `/etc/exports` changes a bit from OS to OS.
+
+For OS X, sudoers should have this entry:
+
+```
+Cmnd_Alias VAGRANT_EXPORTS_ADD = /usr/bin/tee -a /etc/exports
+Cmnd_Alias VAGRANT_NFSD = /sbin/nfsd restart
+Cmnd_Alias VAGRANT_EXPORTS_REMOVE = /usr/bin/sed -E -e /*/ d -ibak /etc/exports
+%admin ALL=(root) NOPASSWD: VAGRANT_EXPORTS_ADD, VAGRANT_NFSD, VAGRANT_EXPORTS_REMOVE
+```
+
+For Linux, sudoers should look like this:
+
+```
+Cmnd_Alias VAGRANT_EXPORTS_ADD = /usr/bin/tee -a /etc/exports
+Cmnd_Alias VAGRANT_NFSD_CHECK = /etc/init.d/nfs-kernel-server status
+Cmnd_Alias VAGRANT_NFSD_START = /etc/init.d/nfs-kernel-server start
+Cmnd_Alias VAGRANT_NFSD_APPLY = /usr/sbin/exportfs -ar
+Cmnd_Alias VAGRANT_EXPORTS_REMOVE = /bin/sed -r -e * d -ibak /etc/exports
+%sudo ALL=(root) NOPASSWD: VAGRANT_EXPORTS_ADD, VAGRANT_NFSD_CHECK, VAGRANT_NFSD_START, VAGRANT_NFSD_APPLY, VAGRANT_EXPORTS_REMOVE
+```
+
