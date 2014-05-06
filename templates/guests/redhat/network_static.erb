@@ -5,6 +5,6 @@ BOOTPROTO=none
 ONBOOT=yes
 IPADDR=<%= options[:ip] %>
 NETMASK=<%= options[:netmask] %>
-DEVICE=eth<%= options[:interface] %>
+DEVICE=<%= options[:device] %>
 PEERDNS=no
 #VAGRANT-END
