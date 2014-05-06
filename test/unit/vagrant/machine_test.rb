@@ -627,6 +627,18 @@ describe Vagrant::Machine do
       expect(entry.state).to eq("short")
       env.machine_index.release(entry)
     end
+
+    it "should set the ID to nil if the state is not created" do
+      state = Vagrant::MachineState.new(
+       Vagrant::MachineState::NOT_CREATED_ID, "short", "long")
+
+      allow(provider).to receive(:machine_id_changed)
+      subject.id = "foo"
+
+      expect(provider).to receive(:state).and_return(state)
+      expect(subject.state.id).to eq(Vagrant::MachineState::NOT_CREATED_ID)
+      expect(subject.id).to be_nil
+    end
   end
 
   describe "#with_ui" do

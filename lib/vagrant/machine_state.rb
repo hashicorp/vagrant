@@ -14,6 +14,12 @@ module Vagrant
   # The long description can span multiple lines describing what the
   # state actually means.
   class MachineState
+    # This is a special ID that can be set for the state ID that
+    # tells Vagrant that the machine is not created. If this is the
+    # case, then Vagrant will set the ID to nil which will automatically
+    # clean out the machine data directory.
+    NOT_CREATED_ID = :not_created
+
     # Unique ID for this state.
     #
     # @return [Symbol]
