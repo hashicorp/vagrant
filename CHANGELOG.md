@@ -7,6 +7,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
   - commands/package: `--base` works without crashing for VirtualBox.
+  - guests/redhat: Fix networking issues with CentOS. [GH-3649]
 
 ## 1.6.0 (May 6, 2014)
 
