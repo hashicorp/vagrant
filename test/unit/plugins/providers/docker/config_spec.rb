@@ -202,6 +202,17 @@ describe VagrantPlugins::DockerProvider::Config do
     end
   end
 
+  describe "#vagrant_machine" do
+    before { valid_defaults }
+
+    it "should convert to a symbol" do
+      subject.vagrant_machine = "foo"
+      subject.finalize!
+      assert_valid
+      expect(subject.vagrant_machine).to eq(:foo)
+    end
+  end
+
   describe "#vagrant_vagrantfile" do
     before { valid_defaults }
 

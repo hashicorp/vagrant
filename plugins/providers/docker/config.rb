@@ -139,6 +139,9 @@ module VagrantPlugins
         @vagrant_machine = nil if @vagrant_machine == UNSET_VALUE
         @vagrant_vagrantfile = nil if @vagrant_vagrantfile == UNSET_VALUE
 
+        # The machine name must be a symbol
+        @vagrant_machine = @vagrant_machine.to_sym if @vagrant_machine
+
         @expose.uniq!
       end
 
