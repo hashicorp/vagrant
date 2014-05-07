@@ -19,6 +19,8 @@ BUG FIXES:
   - providers/docker: Show proper error message when on Linux. [GH-3654]
   - providers/docker: Proxy VM works properly even if default provider
       environmental variable set to "docker" [GH-3662]
+  - providers/docker: Put sync folders in `/var/lib/docker` because
+      it usually has disk space. [GH-3680]
   - synced\_folders/rsync: Create the directory before syncing.
 
 ## 1.6.0 (May 6, 2014)
