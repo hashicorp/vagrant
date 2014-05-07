@@ -10,6 +10,7 @@ BUG FIXES:
       Vagrantfile.
   - core: Plugins that define config methods that collide with Ruby Kernel/Object
   -   methods are merged properly. [GH-3670]
+  - commands/docker-run: `--help` works. [GH-3698]
   - commands/package: `--base` works without crashing for VirtualBox.
   - commands/reload: If `--provision` is specified, force provisioning. [GH-3657]
   - guests/redhat: Fix networking issues with CentOS. [GH-3649]
