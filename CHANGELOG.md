@@ -8,6 +8,8 @@ BUG FIXES:
 
   - core: Global control works from directories that don't have a
       Vagrantfile.
+  - core: Plugins that define config methods that collide with Ruby Kernel/Object
+  -   methods are merged properly. [GH-3670]
   - commands/package: `--base` works without crashing for VirtualBox.
   - commands/reload: If `--provision` is specified, force provisioning. [GH-3657]
   - guests/redhat: Fix networking issues with CentOS. [GH-3649]
