@@ -28,6 +28,7 @@ module VagrantPlugins
 
           # Parse out the extra args to send to SSH, which is everything
           # after the "--"
+          command     = nil
           split_index = @argv.index("--")
           if split_index
             command = @argv.drop(split_index + 1)
