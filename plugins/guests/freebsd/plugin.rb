@@ -56,6 +56,11 @@ module VagrantPlugins
         Cap::RSync
       end
 
+      guest_capability("linux", "rsync_pre") do
+        require_relative "cap/rsync"
+        Cap::RSync
+      end
+
       guest_capability("freebsd", "shell_expand_guest_path") do
         require_relative "cap/shell_expand_guest_path"
         Cap::ShellExpandGuestPath
