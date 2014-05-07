@@ -16,6 +16,9 @@ describe VagrantPlugins::DockerProvider::Driver do
       cmd:        ['play', 'voodoo-chile'],
       ports:      '8080:80',
       volumes:    '/host/path:guest/path',
+      detach:     true,
+      links:      'janis:joplin',
+      env:        {key: 'value'},
       name:       cid,
       hostname:   'jimi-hendrix',
       privileged: true
@@ -37,6 +40,14 @@ describe VagrantPlugins::DockerProvider::Driver do
 
     it 'shares folders' do
       expect(cmd_executed).to match(/-v #{params[:volumes]} .+ #{Regexp.escape params[:image]}/)
+    end
+
+    it 'links containers' do
+      expect(cmd_executed).to match(/--link #{params[:links]} .+ #{Regexp.escape params[:image]}/)
+    end
+
+    it 'sets environmental variables' do
+      expect(cmd_executed).to match(/-e key=value .+ #{Regexp.escape params[:image]}/)
     end
 
     it 'is able to run a privileged container' do
