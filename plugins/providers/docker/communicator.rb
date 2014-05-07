@@ -57,7 +57,7 @@ module VagrantPlugins
         # over the default configured shell. If we are using `sudo` then we
         # need to wrap the shell in a `sudo` call.
         shell_cmd = @machine.config.ssh.shell
-        shell_cmd = shell if opts[:shell]
+        shell_cmd = opts[:shell] if opts[:shell]
         shell_cmd = "sudo -E -H #{shell_cmd}" if opts[:sudo]
 
         acc    = {}
