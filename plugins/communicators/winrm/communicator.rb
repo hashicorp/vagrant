@@ -125,7 +125,7 @@ module VagrantPlugins
         if opts[:shell] == :wql
           return output
         elsif opts[:error_check] && \
-          !opts[:good_exit].include(output[:exitcode])
+          !opts[:good_exit].include?(output[:exitcode])
           raise_execution_error(output, opts)
         end
         output[:exitcode]
