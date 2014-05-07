@@ -57,13 +57,16 @@ module VagrantPlugins
         return 0 if command.empty?
 
         opts = {
+          command:     command,
+          elevated:    false,
           error_check: true,
           error_class: Errors::ExecutionError,
           error_key:   :execution_error,
-          command:     command,
+          good_exit:   0,
           shell:       :powershell,
-          elevated:    false
         }.merge(opts || {})
+
+        opts[:good_exit] = Array(opts[:good_exit])
 
         if opts[:elevated]
           path = File.expand_path("../scripts/elevated_shell.ps1", __FILE__)
@@ -121,7 +124,8 @@ module VagrantPlugins
       def execution_output(output, opts)
         if opts[:shell] == :wql
           return output
-        elsif opts[:error_check] && output[:exitcode] != 0
+        elsif opts[:error_check] && \
+          !opts[:good_exit].include(output[:exitcode])
           raise_execution_error(output, opts)
         end
         output[:exitcode]

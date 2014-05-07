@@ -14,6 +14,8 @@ BUG FIXES:
   - commands/reload: If `--provision` is specified, force provisioning. [GH-3657]
   - guests/redhat: Fix networking issues with CentOS. [GH-3649]
   - guests/windows: Human error if WinRM not in use to configure networks. [GH-3651]
+  - guests/windows: Puppet exit code 2 doesn't cause Windows to raise
+      an error. [GH-3677]
   - providers/docker: Show proper error message when on Linux. [GH-3654]
   - providers/docker: Proxy VM works properly even if default provider
       environmental variable set to "docker" [GH-3662]
