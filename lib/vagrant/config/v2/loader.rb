@@ -55,10 +55,10 @@ module Vagrant
           # merge every key. This avoids issues with the same reference
           # being part of the config.
           old_state["config_map"].each do |k, _|
-            old.send(k)
+            old.public_send(k)
           end
           new_state["config_map"].each do |k, _|
-            new.send(k)
+            new.public_send(k)
           end
 
           # The config map for the new object is the old one merged with the
