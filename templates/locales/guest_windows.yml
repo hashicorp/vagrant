@@ -9,3 +9,12 @@ en:
 
         Until then, you must remove any networking configurations other
         than forwarded ports from your Vagrantfile for Vagrant to continue.
+      network_winrm_required: |-
+        Configuring networks on Windows requires the communicator to be
+        set to WinRM. To do this, add the following to your Vagrantfile:
+
+          config.vm.communicator = "winrm"
+
+        Note that the Windows guest must be configured to accept insecure
+        WinRM connections, and the WinRM port must be forwarded properly from
+        the guest machine. This is not always done by default.

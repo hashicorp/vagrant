@@ -11,6 +11,7 @@ BUG FIXES:
   - commands/package: `--base` works without crashing for VirtualBox.
   - commands/reload: If `--provision` is specified, force provisioning. [GH-3657]
   - guests/redhat: Fix networking issues with CentOS. [GH-3649]
+  - guests/windows: Human error if WinRM not in use to configure networks. [GH-3651]
   - providers/docker: Show proper error message when on Linux. [GH-3654]
   - synced\_folders/rsync: Create the directory before syncing.
 
