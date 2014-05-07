@@ -31,7 +31,7 @@ describe VagrantPlugins::DockerProvider::Driver do
     end
 
     it 'sets container name' do
-      expect(cmd_executed).to match(/-name #{Regexp.escape params[:name]}/)
+      expect(cmd_executed).to match(/--name #{Regexp.escape params[:name]}/)
     end
 
     it 'forwards ports' do
@@ -51,7 +51,7 @@ describe VagrantPlugins::DockerProvider::Driver do
     end
 
     it 'is able to run a privileged container' do
-      expect(cmd_executed).to match(/-privileged .+ #{Regexp.escape params[:image]}/)
+      expect(cmd_executed).to match(/--privileged .+ #{Regexp.escape params[:image]}/)
     end
 
     it 'sets the hostname if specified' do
