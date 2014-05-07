@@ -16,6 +16,9 @@ describe VagrantPlugins::DockerProvider::Driver do
       cmd:        ['play', 'voodoo-chile'],
       ports:      '8080:80',
       volumes:    '/host/path:guest/path',
+      detach:     true,
+      links:      'janis:joplin',
+      env:        {key: 'value'},
       name:       cid,
       hostname:   'jimi-hendrix',
       privileged: true
@@ -28,7 +31,7 @@ describe VagrantPlugins::DockerProvider::Driver do
     end
 
     it 'sets container name' do
-      expect(cmd_executed).to match(/-name #{Regexp.escape params[:name]}/)
+      expect(cmd_executed).to match(/--name #{Regexp.escape params[:name]}/)
     end
 
     it 'forwards ports' do
@@ -39,8 +42,16 @@ describe VagrantPlugins::DockerProvider::Driver do
       expect(cmd_executed).to match(/-v #{params[:volumes]} .+ #{Regexp.escape params[:image]}/)
     end
 
+    it 'links containers' do
+      expect(cmd_executed).to match(/--link #{params[:links]} .+ #{Regexp.escape params[:image]}/)
+    end
+
+    it 'sets environmental variables' do
+      expect(cmd_executed).to match(/-e key=value .+ #{Regexp.escape params[:image]}/)
+    end
+
     it 'is able to run a privileged container' do
-      expect(cmd_executed).to match(/-privileged .+ #{Regexp.escape params[:image]}/)
+      expect(cmd_executed).to match(/--privileged .+ #{Regexp.escape params[:image]}/)
     end
 
     it 'sets the hostname if specified' do
