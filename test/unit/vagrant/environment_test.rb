@@ -766,6 +766,27 @@ VF
       end
     end
 
+    it "prefers the default even if not forced" do
+      plugin_providers[:baz] = [provider_usable_class(true), { priority: 5 }]
+      plugin_providers[:foo] = [provider_usable_class(true), { priority: 5 }]
+      plugin_providers[:bar] = [provider_usable_class(true), { priority: 7 }]
+
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => "baz") do
+        expect(subject.default_provider(force_default: false)).to eq(:baz)
+      end
+    end
+
+    it "uses the first usable provider that isn't the default if excluded" do
+      plugin_providers[:foo] = [provider_usable_class(true), { priority: 5 }]
+      plugin_providers[:bar] = [provider_usable_class(true), { priority: 7 }]
+      plugin_providers[:baz] = [provider_usable_class(true), { priority: 8 }]
+
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => "baz") do
+        expect(subject.default_provider(
+          exclude: [:baz], force_default: false)).to eq(:bar)
+      end
+    end
+
     it "is VirtualBox if nothing else is usable" do
       plugin_providers[:foo] = [provider_usable_class(false), { priority: 5 }]
       plugin_providers[:bar] = [provider_usable_class(false), { priority: 5 }]

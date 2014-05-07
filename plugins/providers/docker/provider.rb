@@ -87,7 +87,10 @@ module VagrantPlugins
 
           host_env.machine(
             host_machine_name,
-            host_env.default_provider(exclude: [:docker]))
+            host_env.default_provider(
+              exclude: [:docker],
+              force_default: false,
+            ))
         end
 
         @host_vm
