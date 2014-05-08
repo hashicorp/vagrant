@@ -213,6 +213,9 @@ module VagrantPlugins
         options = options.dup
         options[:protocol] ||= "tcp"
 
+        # Convert to symbol to allow strings
+        type = type.to_sym
+
         if !options[:id]
           default_id = nil
 
