@@ -23,6 +23,15 @@ install services like databases or web servers but use Docker to house
 your application runtime. You can use the Puppet provisioner along
 with the Docker provisioner.
 
+<div class="alert alert-info">
+	<p>
+		<strong>Note:</strong> This documentation is for the Docker
+        <em>provisioner</em>. If you're looking for the Docker
+		<em>provider</em>, visit the
+		<a href="/v2/docker/index.html">Docker provider documentation</a>.
+	</p>
+</div>
+
 ## Options
 
 The docker provisioner takes various options. None are required. If
