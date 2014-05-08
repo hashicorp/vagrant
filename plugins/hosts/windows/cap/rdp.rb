@@ -22,8 +22,14 @@ module VagrantPlugins
           end
           config.close
 
+          # Build up the args to mstsc
+          args = [config.path]
+          if rdp_info[:extra_args]
+            args = rdp_info[:extra_args] + args
+          end
+
           # Launch it
-          Vagrant::Util::PowerShell.execute("mstsc", config.path)
+          Vagrant::Util::PowerShell.execute("mstsc", *args)
         ensure
           config.close if config
         end

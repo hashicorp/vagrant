@@ -1,6 +1,9 @@
 ## 1.6.2 (unreleased)
 
+IMPROVEMENTS:
 
+  - command/rdp: Args after "--" are passed directly through to the
+      RDP client. [GH-3686]
 
 ## 1.6.1 (May 7, 2014)
 

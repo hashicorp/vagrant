@@ -8,8 +8,18 @@ module VagrantPlugins
       end
 
       def execute
+        options = {}
+
         opts = OptionParser.new do |o|
-          o.banner = "Usage: vagrant rdp [options] [name]"
+          o.banner = "Usage: vagrant rdp [options] [name] [-- extra args]"
+        end
+
+        # Parse out the extra args to send to the RDP client, which
+        # is everything after the "--"
+        split_index = @argv.index("--")
+        if split_index
+          options[:extra_args] = @argv.drop(split_index + 1)
+          @argv                = @argv.take(split_index)
         end
 
         # Parse the options and return if we don't have any target.
@@ -28,6 +38,9 @@ module VagrantPlugins
           machine.ui.output(I18n.t("vagrant_rdp.detecting"))
           rdp_info = get_rdp_info(machine)
           raise Errors::RDPUndetected if !rdp_info
+
+          # Extra arguments if we have any
+          rdp_info[:extra_args] = options[:extra_args]
 
           machine.ui.detail(
             "Address: #{rdp_info[:host]}:#{rdp_info[:port]}")
