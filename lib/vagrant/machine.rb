@@ -154,7 +154,7 @@ module Vagrant
       # We only lock if we're not executing an SSH action. In the future
       # we will want to do more fine-grained unlocking in actions themselves
       # but for a 1.6.2 release this will work.
-      locker = Proc.new { |*args| yield }
+      locker = Proc.new { |*args, &block| block.call }
       locker = @env.method(:lock) if !name.to_s.start_with?("ssh")
 
       # Lock this machine for the duration of this action
