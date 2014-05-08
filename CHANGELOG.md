@@ -11,6 +11,8 @@ BUG FIXES:
 
   - core: Hostnames can be one character. [GH-3713]
   - core: Don't lock machines on SSH actions. [GH-3664]
+  - provisioners/shell: Fix shell provisioner config validation when the
+    `binary` option is set to false [GH-3712]
   - providers/docker: default proxy VM won't use HGFS [GH-3687]
   - providers/docker: fix container linking [GH-3719]
   - providers/docker: Port settings expose to host properly. [GH-3723]

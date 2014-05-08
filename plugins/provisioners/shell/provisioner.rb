@@ -154,7 +154,7 @@ module VagrantPlugins
 
         # Replace Windows line endings with Unix ones unless binary file
         # or we're running on Windows.
-        if !config.binary && config.vm.communicator != :winrm
+        if !config.binary && @machine.config.vm.communicator != :winrm
           script.gsub!(/\r\n?$/, "\n")
         end
 
