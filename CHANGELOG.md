@@ -11,6 +11,7 @@ BUG FIXES:
 
   - core: Hostnames can be one character. [GH-3713]
   - core: Don't lock machines on SSH actions. [GH-3664]
+  - providers/docker: default proxy VM won't use HGFS [GH-3687]
 
 ## 1.6.1 (May 7, 2014)
 

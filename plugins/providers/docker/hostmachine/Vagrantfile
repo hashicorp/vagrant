@@ -8,6 +8,14 @@ Vagrant.configure("2") do |config|
     v.functional_vboxsf     = false
   end
 
+  ["vmware_fusion", "vmware_workstation"].each do |vmware|
+    config.vm.provider vmware do |v|
+      if v.respond_to?(:functional_hgfs=)
+        v.functional_hgfs = false
+      end
+    end
+  end
+
   # b2d doesn't support NFS
   config.nfs.functional = false
 end
