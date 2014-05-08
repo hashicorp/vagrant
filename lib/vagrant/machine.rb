@@ -151,8 +151,14 @@ module Vagrant
       # Create a deterministic ID for this machine
       id = Digest::MD5.hexdigest("#{@env.root_path}#{@name}")
 
+      # We only lock if we're not executing an SSH action. In the future
+      # we will want to do more fine-grained unlocking in actions themselves
+      # but for a 1.6.2 release this will work.
+      locker = Proc.new { |*args| yield }
+      locker = @env.method(:lock) if !name.to_s.start_with?("ssh")
+
       # Lock this machine for the duration of this action
-      @env.lock("machine-action-#{id}") do
+      locker.call("machine-action-#{id}") do
         # Get the callable from the provider.
         callable = @provider.action(name)
 

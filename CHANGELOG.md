@@ -10,6 +10,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
   - core: Hostnames can be one character. [GH-3713]
+  - core: Don't lock machines on SSH actions. [GH-3664]
 
 ## 1.6.1 (May 7, 2014)
 
