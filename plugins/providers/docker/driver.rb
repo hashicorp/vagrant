@@ -15,7 +15,9 @@ module VagrantPlugins
       end
 
       def build(dir, **opts)
-        result = execute('docker', 'build', dir)
+        args   = Array(opts[:extra_args])
+        args   << dir
+        result = execute('docker', 'build', *args)
         regexp = /Successfully built (.+)$/i
         match  = regexp.match(result)
         if !match

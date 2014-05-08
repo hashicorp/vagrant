@@ -35,7 +35,10 @@ module VagrantPlugins
           if !image || env[:build_rebuild]
             # Build it
             machine.ui.output(I18n.t("docker_provider.building"))
-            image = machine.provider.driver.build(build_dir)
+            image = machine.provider.driver.build(
+              build_dir,
+              extra_args: machine.provider_config.build_args,
+            )
             machine.ui.detail("Image: #{image}")
 
             # Store the image ID

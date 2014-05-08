@@ -4,6 +4,8 @@ IMPROVEMENTS:
 
   - command/rdp: Args after "--" are passed directly through to the
       RDP client. [GH-3686]
+  - providers/docker: `build_args` config to specify extra args for
+      `docker build`. [GH-3684]
 
 ## 1.6.1 (May 7, 2014)
 
