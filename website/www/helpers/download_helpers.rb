@@ -64,7 +64,7 @@ module DownloadHelpers
     elsif os == "debian"
       return "Debian / Ubuntu"
     elsif os == "rpm"
-      return "CentOS / RedHat / Fedora"
+      return "CentOS / RedHat / Fedora / openSUSE"
     elsif os == "windows"
       return "Windows"
     else
