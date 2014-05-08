@@ -62,9 +62,9 @@ module DownloadHelpers
     if os == "darwin"
       return "Mac OS X"
     elsif os == "debian"
-      return "Debian / Ubuntu"
+      return "Linux (Deb)"
     elsif os == "rpm"
-      return "CentOS / RedHat / Fedora"
+      return "Linux (RPM)"
     elsif os == "windows"
       return "Windows"
     else
