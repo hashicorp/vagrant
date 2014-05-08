@@ -18,6 +18,8 @@ module Vagrant
 
           if !env[:box_outdated_force]
             if !machine.config.vm.box_check_update
+              @logger.debug(
+                "Not checking for update: no force and no update config")
               return @app.call(env)
             end
           end
@@ -25,6 +27,7 @@ module Vagrant
           if !machine.box
             # We don't have a box. Just ignore, we can't check for
             # outdated...
+            @logger.warn("Not checking for update, no box")
             return @app.call(env)
           end
 
