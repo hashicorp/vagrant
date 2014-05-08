@@ -18,6 +18,9 @@ you may set. A complete reference is shown below.
 
 ### Optional
 
+  * `build_args` (array of strings) - Extra arguments to pass to
+      `docker build` when `build_dir` is in use.
+
   * `cmd` (array of strings) - Custom command to run on the container.
     Example: `["ls", "/app"]`.
 
