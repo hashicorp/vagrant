@@ -134,6 +134,16 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     end
   end
 
+  describe "#hostname" do
+    ["a", "foo", "foo-bar", "baz0"].each do |valid|
+      it "is valid: #{valid}" do
+        subject.hostname = valid
+        subject.finalize!
+        assert_valid
+      end
+    end
+  end
+
   describe "#network(s)" do
     it "defaults to forwarding SSH" do
       subject.finalize!

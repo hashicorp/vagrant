@@ -480,7 +480,7 @@ module VagrantPlugins
         end
 
         errors << I18n.t("vagrant.config.vm.hostname_invalid_characters") if \
-          @hostname && @hostname !~ /^[a-z0-9][-.a-z0-9]+$/i
+          @hostname && @hostname !~ /^[a-z0-9][-.a-z0-9]*$/i
 
         if @box_version
           @box_version.split(",").each do |v|

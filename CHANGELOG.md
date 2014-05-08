@@ -7,6 +7,10 @@ IMPROVEMENTS:
   - providers/docker: `build_args` config to specify extra args for
       `docker build`. [GH-3684]
 
+BUG FIXES:
+
+  - core: Hostnames can be one character. [GH-3713]
+
 ## 1.6.1 (May 7, 2014)
 
 IMPROVEMENTS:
