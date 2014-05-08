@@ -74,3 +74,16 @@ will automatically do this for you.
 
 Relative URLs to assets is generally a best practice in general, so you
 should do this anyways!
+
+## HTTPS (SSL)
+
+Vagrant Share can also expose an SSL port that can be accessed over
+SSL. For example, instead of accessing `http://foo.vagrantshare.com`, it
+could be accessed at `https://foo.vagrantshare.com`.
+
+`vagrant share` by default looks for any SSL traffic on port 443 in your
+development environment. If it can't find any, then SSL is disabled by
+default.
+
+You can force SSL by setting the `--https` flag to point to the accessible
+SSL port.
