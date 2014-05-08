@@ -35,7 +35,7 @@ available below this section.
 * `manifest_file` (string) - The name of the manifest file that will serve
   as the entrypoint for the Puppet run. This manifest file is expected to
   exist in the configured `manifests_path` (see below). This defaults
-  to "init.pp"
+  to "default.pp"
 
 * `manifests_path` (string) - The path to the directory which contains the
   manifest files. This defaults to "manifests"
