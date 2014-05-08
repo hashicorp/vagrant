@@ -258,6 +258,7 @@ module VagrantPlugins
                   b3.use HostMachinePortChecker
                   b3.use HandleForwardedPortCollisions
                   b3.use SyncedFolders
+                  b3.use ForwardedPorts
                   b3.use Create
                   b3.use WaitForRunning
                 else
@@ -288,6 +289,7 @@ module VagrantPlugins
       autoload :Create, action_root.join("create")
       autoload :Destroy, action_root.join("destroy")
       autoload :DestroyBuildImage, action_root.join("destroy_build_image")
+      autoload :ForwardedPorts, action_root.join("forwarded_ports")
       autoload :HasSSH, action_root.join("has_ssh")
       autoload :HostMachine, action_root.join("host_machine")
       autoload :HostMachineBuildDir, action_root.join("host_machine_build_dir")

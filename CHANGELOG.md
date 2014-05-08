@@ -13,6 +13,7 @@ BUG FIXES:
   - core: Don't lock machines on SSH actions. [GH-3664]
   - providers/docker: default proxy VM won't use HGFS [GH-3687]
   - providers/docker: fix container linking [GH-3719]
+  - providers/docker: Port settings expose to host properly. [GH-3723]
 
 ## 1.6.1 (May 7, 2014)
 
