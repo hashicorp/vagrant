@@ -32,7 +32,7 @@ module VagrantPlugins
           options       = {
             docker__ignore: true,
             docker__exact: true,
-          }
+          }.merge(machine.provider_config.host_vm_build_dir_options || {})
           machine.config.vm.synced_folder(build_dir, new_build_dir, options)
 
           # Set the build dir to be the correct one

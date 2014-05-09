@@ -44,6 +44,10 @@ you may set. A complete reference is shown below.
     the container. This allows `vagrant ssh` to work, provisioners, etc.
     This defaults to false.
 
+  * `host_vm_build_dir_options` (hash) - Synced folder options for the
+    `build_dir`, since the build directory is synced using a synced folder
+    if a host VM is in use.
+
   * `name` (string) - Name of the container. Note that this has to be unique
     across all containers on the host VM. By default Vagrant will generate
     some random name.

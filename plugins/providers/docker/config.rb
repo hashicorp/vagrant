@@ -44,6 +44,11 @@ module VagrantPlugins
       # provisioning, etc.
       attr_accessor :has_ssh
 
+      # Options for the build dir synced folder if a host VM is in use.
+      #
+      # @return [Hash]
+      attr_accessor :host_vm_build_dir_options
+
       # The name for the container. This must be unique for all containers
       # on the proxy machine if it is made.
       #
@@ -87,6 +92,7 @@ module VagrantPlugins
         @expose     = []
         @force_host_vm = UNSET_VALUE
         @has_ssh    = UNSET_VALUE
+        @host_vm_build_dir_options = UNSET_VALUE
         @image      = UNSET_VALUE
         @name       = UNSET_VALUE
         @links      = []
@@ -146,6 +152,10 @@ module VagrantPlugins
         @remains_running = true if @remains_running == UNSET_VALUE
         @vagrant_machine = nil if @vagrant_machine == UNSET_VALUE
         @vagrant_vagrantfile = nil if @vagrant_vagrantfile == UNSET_VALUE
+
+        if @host_vm_build_dir_options == UNSET_VALUE
+          @host_vm_build_dir_options = nil
+        end
 
         # The machine name must be a symbol
         @vagrant_machine = @vagrant_machine.to_sym if @vagrant_machine
