@@ -60,6 +60,15 @@ module VagrantPlugins
         # and such on the folder itself.
         folders.each { |id, opts| prepare_folder(machine, opts) }
 
+        # Determine what folders we'll export
+        export_folders = folders.dup
+        export_folders.keys.each do |id|
+          opts = export_folders[id]
+          if opts.has_key?(:nfs_export) && !opts[:nfs_export]
+            export_folders.delete(id)
+          end
+        end
+
         # Export the folders. We do this with a class-wide lock because
         # NFS exporting often requires sudo privilege and we don't want
         # overlapping input requests. [GH-2680]
@@ -68,7 +77,8 @@ module VagrantPlugins
             machine.env.lock("nfs-export") do
               machine.ui.info I18n.t("vagrant.actions.vm.nfs.exporting")
               machine.env.host.capability(
-                :nfs_export, machine.ui, machine.id, machine_ip, folders)
+                :nfs_export,
+                machine.ui, machine.id, machine_ip, export_folders)
             end
           rescue Vagrant::Errors::EnvironmentLockedError
             sleep 1

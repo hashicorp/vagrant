@@ -55,6 +55,9 @@ unique to NFS. These are listed below. These options can be specified in
 the final part of the `config.vm.synced_folder` definition, along with the
 `type` option.
 
+* `nfs_export` (boolean) - If this is false, then Vagrant won't modify
+  your `/etc/exports` automatically and assumes you've done so already.
+
 * `nfs_udp` (boolean) - Whether or not to use UDP as the transport. UDP
   is faster but has some limitations (see the NFS documentation for more
   details). This defaults to true.

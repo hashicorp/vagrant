@@ -8,6 +8,8 @@ IMPROVEMENTS:
       RDP client. [GH-3686]
   - providers/docker: `build_args` config to specify extra args for
       `docker build`. [GH-3684]
+  - synced\_folders/nfs: Can tell Vagrant not to handle exporting
+      by setting `nfs_export: false` [GH-3636]
 
 BUG FIXES:
 
