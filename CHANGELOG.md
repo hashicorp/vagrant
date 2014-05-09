@@ -17,6 +17,8 @@ BUG FIXES:
 
   - core: Hostnames can be one character. [GH-3713]
   - core: Don't lock machines on SSH actions. [GH-3664]
+  - core: Fixed crash when adding a box from Vagrant Cloud that was the
+      same name as a real directory. [GH-3732]
   - provisioners/shell: Fix shell provisioner config validation when the
     `binary` option is set to false [GH-3712]
   - providers/docker: default proxy VM won't use HGFS [GH-3687]
