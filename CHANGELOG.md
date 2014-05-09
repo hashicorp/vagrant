@@ -25,6 +25,7 @@ BUG FIXES:
   - providers/docker: fix container linking [GH-3719]
   - providers/docker: Port settings expose to host properly. [GH-3723]
   - provisioners/puppet: Separate module paths with ';' on Windows. [GH-3731]
+  - synced\_folders\rsync: Copy symlinks as real files. [GH-3734]
 
 ## 1.6.1 (May 7, 2014)
 
