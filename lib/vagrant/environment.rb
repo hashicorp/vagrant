@@ -276,6 +276,9 @@ module Vagrant
         # Skip excluded providers
         next if opts[:exclude] && opts[:exclude].include?(key)
 
+        # Skip providers that can't be defaulted
+        next if popts.has_key?(:defaultable) && !popts[:defaultable]
+
         ordered << [popts[:priority], key, impl, popts]
       end
 

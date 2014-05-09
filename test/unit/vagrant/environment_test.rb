@@ -724,6 +724,17 @@ VF
       end
     end
 
+    it "is the highest matching usable provider that is defaultable" do
+      plugin_providers[:foo] = [provider_usable_class(true), { priority: 5 }]
+      plugin_providers[:bar] = [
+        provider_usable_class(true), { defaultable: false, priority: 7 }]
+      plugin_providers[:baz] = [provider_usable_class(true), { priority: 2 }]
+
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil) do
+        expect(subject.default_provider).to eq(:foo)
+      end
+    end
+
     it "is the highest matching usable provider that isn't excluded" do
       plugin_providers[:foo] = [provider_usable_class(true), { priority: 5 }]
       plugin_providers[:bar] = [provider_usable_class(true), { priority: 7 }]
