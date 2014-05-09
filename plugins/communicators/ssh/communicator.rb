@@ -516,7 +516,7 @@ module VagrantPlugins
           # Wait for the channel to complete
           begin
             channel.wait
-          rescue IOError
+          rescue Errno::ECONNRESET, IOError
             @logger.info("SSH connection unexpected closed. Assuming reboot or something.")
             exit_status = 0
           end
