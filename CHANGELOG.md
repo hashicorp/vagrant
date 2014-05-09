@@ -2,6 +2,8 @@
 
 IMPROVEMENTS:
 
+  - core: Automatically forward WinRM port if communicator is
+      WinRM. [GH-3685]
   - command/rdp: Args after "--" are passed directly through to the
       RDP client. [GH-3686]
   - providers/docker: `build_args` config to specify extra args for

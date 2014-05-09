@@ -358,7 +358,16 @@ module VagrantPlugins
         define(DEFAULT_VM_NAME) if defined_vm_keys.empty?
 
         # Make sure the SSH forwarding is added if it doesn't exist
-        if !@__networks["forwarded_port-ssh"]
+        if @communicator == :winrm
+          if !@__networks["forwarded_port-winrm"]
+            network :forwarded_port,
+              guest: 5985,
+              host: 55985,
+              host_ip: "127.0.0.1",
+              id: "winrm",
+              auto_correct: true
+          end
+        elsif !@__networks["forwarded_port-ssh"]
           network :forwarded_port,
             guest: 22,
             host: 2222,

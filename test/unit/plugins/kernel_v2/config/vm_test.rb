@@ -145,7 +145,7 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
   end
 
   describe "#network(s)" do
-    it "defaults to forwarding SSH" do
+    it "defaults to forwarding SSH by default" do
       subject.finalize!
       n = subject.networks
       expect(n.length).to eq(1)
@@ -154,6 +154,18 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       expect(n[0][1][:host]).to eq(2222)
       expect(n[0][1][:host_ip]).to eq("127.0.0.1")
       expect(n[0][1][:id]).to eq("ssh")
+    end
+
+    it "defaults to forwarding WinRM if communicator is winrm" do
+      subject.communicator = "winrm"
+      subject.finalize!
+      n = subject.networks
+      expect(n.length).to eq(1)
+      expect(n[0][0]).to eq(:forwarded_port)
+      expect(n[0][1][:guest]).to eq(5985)
+      expect(n[0][1][:host]).to eq(55985)
+      expect(n[0][1][:host_ip]).to eq("127.0.0.1")
+      expect(n[0][1][:id]).to eq("winrm")
     end
 
     it "allows overriding SSH" do
@@ -167,6 +179,20 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       expect(n[0][1][:guest]).to eq(22)
       expect(n[0][1][:host]).to eq(14100)
       expect(n[0][1][:id]).to eq("ssh")
+    end
+
+    it "allows overriding WinRM" do
+      subject.communicator = :winrm
+      subject.network "forwarded_port",
+        guest: 22, host: 14100, id: "winrm"
+      subject.finalize!
+
+      n = subject.networks
+      expect(n.length).to eq(1)
+      expect(n[0][0]).to eq(:forwarded_port)
+      expect(n[0][1][:guest]).to eq(22)
+      expect(n[0][1][:host]).to eq(14100)
+      expect(n[0][1][:id]).to eq("winrm")
     end
 
     it "turns all forwarded port ports to ints" do
