@@ -403,17 +403,22 @@ module Vagrant
       lock_path = data_dir.join("lock.#{name}.lock")
 
       @logger.debug("Attempting to acquire process-lock: #{name}")
-      lock("dotlock", noop: name == "dotlock") do
+      lock("dotlock", noop: name == "dotlock", retry: true) do
         f = File.open(lock_path, "w+")
       end
 
       # The file locking fails only if it returns "false." If it
       # succeeds it returns a 0, so we must explicitly check for
       # the proper error case.
-      if f.flock(File::LOCK_EX | File::LOCK_NB) === false
+      while f.flock(File::LOCK_EX | File::LOCK_NB) === false
         @logger.warn("Process-lock in use: #{name}")
-        raise Errors::EnvironmentLockedError,
-          name: name
+
+        if !opts[:retry]
+          raise Errors::EnvironmentLockedError,
+            name: name
+        end
+
+        sleep 0.2
       end
 
       @logger.info("Acquired process lock: #{name}")
@@ -434,7 +439,7 @@ module Vagrant
 
       # Clean up the lock file, this requires another lock
       if name != "dotlock"
-        lock("dotlock") do
+        lock("dotlock", retry: true) do
           f.close
           File.delete(lock_path)
         end

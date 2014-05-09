@@ -19,6 +19,8 @@ BUG FIXES:
   - core: Don't lock machines on SSH actions. [GH-3664]
   - core: Fixed crash when adding a box from Vagrant Cloud that was the
       same name as a real directory. [GH-3732]
+  - core: Parallelization is more stable, doesn't crash due to to
+      bad locks. [GH-3735]
   - provisioners/shell: Fix shell provisioner config validation when the
     `binary` option is set to false [GH-3712]
   - providers/docker: default proxy VM won't use HGFS [GH-3687]
