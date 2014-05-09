@@ -410,6 +410,17 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       expect(sf).to have_key("/vagrant")
       expect(sf["/vagrant"][:disabled]).to be_true
     end
+
+    it "allows overriding previously set options" do
+      subject.synced_folder(".", "/vagrant", disabled: true)
+      subject.synced_folder(".", "/vagrant", foo: :bar)
+      subject.finalize!
+      sf = subject.synced_folders
+      expect(sf.length).to eq(1)
+      expect(sf).to have_key("/vagrant")
+      expect(sf["/vagrant"][:disabled]).to be_true
+      expect(sf["/vagrant"][:foo]).to eq(:bar)
+    end
   end
 
   describe "#usable_port_range" do

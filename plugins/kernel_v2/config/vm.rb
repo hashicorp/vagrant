@@ -184,9 +184,11 @@ module VagrantPlugins
         end
 
         options ||= {}
-        options = options.dup
         options[:guestpath] = guestpath.to_s.gsub(/\/$/, '')
         options[:hostpath]  = hostpath
+        options = (@__synced_folders[options[:guestpath]] || {}).
+          merge(options.dup)
+
         # Make sure the type is a symbol
         options[:type] = options[:type].to_sym if options[:type]
 
