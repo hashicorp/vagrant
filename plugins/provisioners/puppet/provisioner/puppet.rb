@@ -113,7 +113,8 @@ module VagrantPlugins
             module_paths << default_module_path
 
             # Add the command line switch to add the module path
-            options << "--modulepath '#{module_paths.join(':')}'"
+            module_path_sep = windows? ? ";" : ":"
+            options << "--modulepath '#{module_paths.join(module_path_sep)}'"
           end
 
           if @hiera_config_path
