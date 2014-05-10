@@ -18,7 +18,7 @@ module VagrantPlugins
 
         def self.rsync_post(machine, opts)
           machine.communicate.sudo("find '#{opts[:guestpath]}' '(' ! -user #{opts[:owner]} -or ! -group #{opts[:group]} ')' -print0 | " +
-              "xargs -0 -r chown -v #{opts[:owner]}:#{opts[:group]}")
+              "xargs -0 -r chown #{opts[:owner]}:#{opts[:group]}")
         end
       end
     end

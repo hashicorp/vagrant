@@ -23,7 +23,6 @@ BUG FIXES:
       bad locks. [GH-3735]
   - commands/package: Don't double included files in package. [GH-3637]
   - guests/linux: Rsync chown ignores symlinks. [GH-3744]
-  - guests/openbsd: Remove '-v' flag from chown for rsync. [GH-3743]
   - provisioners/shell: Fix shell provisioner config validation when the
     `binary` option is set to false [GH-3712]
   - providers/docker: default proxy VM won't use HGFS [GH-3687]
@@ -31,6 +30,7 @@ BUG FIXES:
   - providers/docker: Port settings expose to host properly. [GH-3723]
   - provisioners/puppet: Separate module paths with ';' on Windows. [GH-3731]
   - synced\_folders\rsync: Copy symlinks as real files. [GH-3734]
+  - synced\_folders\rsync: Remove non-portable '-v' flag from chown. [GH-3743]
 
 ## 1.6.1 (May 7, 2014)
 
