@@ -4,4 +4,7 @@ before_install:
   - sudo apt-get install -qq -y bsdtar
 rvm:
   - 2.0.0
+env:
+  global:
+    - NOKOGIRI_USE_SYSTEM_LIBRARIES=true
 script: rake test:unit
