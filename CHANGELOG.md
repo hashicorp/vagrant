@@ -30,7 +30,7 @@ BUG FIXES:
   - providers/docker: Port settings expose to host properly. [GH-3723]
   - provisioners/puppet: Separate module paths with ';' on Windows. [GH-3731]
   - synced\_folders\rsync: Copy symlinks as real files. [GH-3734]
-  - synced\_folders\rsync: Remove non-portable '-v' flag from chown. [GH-3743]
+  - synced\_folders/rsync: Remove non-portable '-v' flag from chown. [GH-3743]
 
 ## 1.6.1 (May 7, 2014)
 
