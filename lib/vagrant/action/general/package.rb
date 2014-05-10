@@ -93,7 +93,7 @@ module Vagrant
           # Switch into that directory and package everything up
           Util::SafeChdir.safe_chdir(@env["package.directory"]) do
             # Find all the files in our current directory and tar it up!
-            files = Dir.glob(File.join(".", "**", "*"))
+            files = Dir.glob(File.join(".", "*"))
 
             # Package!
             Util::Subprocess.execute("bsdtar", "-czf", output_path, *files)

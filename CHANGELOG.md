@@ -21,6 +21,7 @@ BUG FIXES:
       same name as a real directory. [GH-3732]
   - core: Parallelization is more stable, doesn't crash due to to
       bad locks. [GH-3735]
+  - commands/package: Don't double included files in package. [GH-3637]
   - guests/linux: Rsync chown ignores symlinks. [GH-3744]
   - guests/openbsd: Remove '-v' flag from chown for rsync. [GH-3743]
   - provisioners/shell: Fix shell provisioner config validation when the
