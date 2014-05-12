@@ -3,6 +3,13 @@ require 'json'
 module VagrantPlugins
   module Salt
     class Provisioner < Vagrant.plugin("2", :provisioner)
+
+      def initialize(machine, config)
+        super
+
+        @logger = Log4r::Logger.new("vagrant::provisioners::salt")
+      end
+
       def provision
         if @machine.config.vm.communicator == :winrm
           raise Vagrant::Errors::ProvisionerWinRMUnsupported,
@@ -128,9 +135,7 @@ module VagrantPlugins
           options = "%s %s" % [options, @config.install_args]
         end
 
-        if @config.verbose
-          @machine.env.ui.info "Using Bootstrap Options: %s" % options
-        end
+        @logger.info("Using Bootstrap Options: %s" % options)
 
         return options
       end
@@ -222,9 +227,7 @@ module VagrantPlugins
               # remove newlines and whitespace we would have used data.lstrip
               data = data[1..-1]
             end
-            if @config.verbose
-              @machine.env.ui.info(data.rstrip)
-            end
+            @logger.info(data.rstrip)
           end
 
           if !bootstrap
@@ -248,9 +251,7 @@ module VagrantPlugins
               @machine.env.ui.info "Calling state.overstate... (this may take a while)"
               @machine.communicate.sudo("salt '*' saltutil.sync_all")
               @machine.communicate.sudo("salt-run state.over") do |type, data|
-                if @config.verbose
-                  @machine.env.ui.info(data)
-                end
+                @machine.env.ui.info(data)
               end
             else
               @machine.env.ui.info "run_overstate does not make sense on a minion. Not running state.overstate."
@@ -266,16 +267,12 @@ module VagrantPlugins
           if @config.install_master
             @machine.communicate.sudo("salt '*' saltutil.sync_all")
             @machine.communicate.sudo("salt '*' state.highstate --verbose#{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
-              if @config.verbose
-                @machine.env.ui.info(data)
-              end
+              @machine.env.ui.info(data)
             end
           else
             @machine.communicate.sudo("salt-call saltutil.sync_all")
             @machine.communicate.sudo("salt-call state.highstate #{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
-              if @config.verbose
-                @machine.env.ui.info(data)
-              end
+              @machine.env.ui.info(data)
             end
           end
         else
