@@ -18,6 +18,7 @@ module VagrantPlugins
             end
 
             b2.use action_halt
+            b1.use Customize, "pre-boot"
             b2.use action_start
           end
         end
@@ -136,6 +137,7 @@ module VagrantPlugins
               b1.use Import
             end
 
+            b1.use Customize, "pre-boot"
             b1.use action_start
           end
         end
@@ -217,6 +219,7 @@ module VagrantPlugins
       autoload :SuspendVM, action_root.join("suspend_vm")
       autoload :WaitForIPAddress, action_root.join("wait_for_ip_address")
       autoload :MessageWillNotDestroy, action_root.join("message_will_not_destroy")
+      autoload :Customize, action_root.join("customize")
     end
   end
 end
