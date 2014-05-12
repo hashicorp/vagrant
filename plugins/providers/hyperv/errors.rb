@@ -37,6 +37,11 @@ module VagrantPlugins
       class WindowsRequired < HyperVError
         error_key(:windows_required)
       end
+
+      class NetworkDown < HyperVError
+        error_key(:network_down)
+      end
+
     end
   end
 end

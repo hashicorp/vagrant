@@ -2,9 +2,7 @@ Param(
     [Parameter(Mandatory=$true)]
     [string]$vm_xml_config,
     [Parameter(Mandatory=$true)]
-    [string]$vhdx_path,
-
-    [string]$switchname=$null
+    [string]$vhdx_path
 )
 
 # Include the following modules
@@ -43,11 +41,6 @@ $MemoryMaximumBytes = ($memory.limit."#text" -as [int]) * 1MB
 $MemoryStartupBytes = ($memory.size."#text" -as [int]) * 1MB
 $MemoryMinimumBytes = ($memory.reservation."#text" -as [int]) * 1MB
 
-if (!$switchname) {
-    # Get the name of the virtual switch
-    $switchname = (Select-Xml -xml $vmconfig -XPath "//AltSwitchName").node."#text"
-}
-
 # Determine boot device
 Switch ((Select-Xml -xml $vmconfig -XPath "//boot").node.device0."#text") {
     "Floppy"    { $bootdevice = "floppy" }
@@ -63,7 +56,6 @@ $vm_params = @{
     Name = $vm_name
     NoVHD = $True
     MemoryStartupBytes = $MemoryStartupBytes
-    SwitchName = $switchname
     BootDevice = $bootdevice
     ErrorAction = "Stop"
 }
