@@ -1,3 +1,10 @@
+## 1.6.3 (unreleased)
+
+BUG FIXES:
+
+  - provisioners/puppet: Fix setting facter vars with Windows
+      guests. [GH-3776]
+
 ## 1.6.2 (May 12, 2014)
 
 IMPROVEMENTS:
