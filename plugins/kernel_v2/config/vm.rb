@@ -186,6 +186,7 @@ module VagrantPlugins
         options ||= {}
         options[:guestpath] = guestpath.to_s.gsub(/\/$/, '')
         options[:hostpath]  = hostpath
+        options[:disabled]  = options[:disabled] || false
         options = (@__synced_folders[options[:guestpath]] || {}).
           merge(options.dup)
 
