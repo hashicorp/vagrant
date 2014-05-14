@@ -18,7 +18,7 @@ module VagrantPlugins
             end
 
             b2.use action_halt
-            b1.use Customize, "pre-boot"
+            b2.use Customize, "pre-boot"
             b2.use action_start
           end
         end
