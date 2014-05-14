@@ -93,6 +93,10 @@ module VagrantPlugins
          execute("switch_exist.ps1", options)
        end
 
+       def create_network_switch(options)
+         execute('create_switch.ps1', options)
+       end
+
       protected
 
       def execute_powershell(path, options, &block)
