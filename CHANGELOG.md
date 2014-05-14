@@ -1,5 +1,9 @@
 ## 1.6.3 (unreleased)
 
+IMPROVEMENTS:
+
+  - commands/halt: Halt in reverse order of up, like destroy. [GH-3790]
+
 BUG FIXES:
 
   - provisioners/puppet: Fix setting facter vars with Windows
