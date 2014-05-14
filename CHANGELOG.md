@@ -4,6 +4,7 @@ BUG FIXES:
 
   - provisioners/puppet: Fix setting facter vars with Windows
       guests. [GH-3776]
+  - guests/freebsd: Properly register the rsync_pre capability
 
 ## 1.6.2 (May 12, 2014)
 
