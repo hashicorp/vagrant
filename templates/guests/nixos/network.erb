@@ -1,0 +1,16 @@
+{ config, pkgs, ... }:
+{
+  networking.interfaces = [
+    <% networks.select {|n| n[:device]}.each do |network| %>
+    { 
+      name         = "<%= network[:device] %>";
+      <% if network[:type] == :static %>
+      ipAddress    = "<%= network[:ip] %>";
+      <% end %>
+      <% if network[:prefix_length] %>
+      prefixLength = <%= network[:prefix_length] %>;
+      <% end %>
+    }
+    <% end %>
+  ];
+}
