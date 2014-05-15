@@ -71,25 +71,23 @@ while ( (!($registered_task.state -eq 4)) -and ($sec -lt $timeout) ) {
   $sec++
 }
 
-# Read the entire file, but only write out new lines we haven't seen before
-$numLinesRead = 0
-do {
-  Start-Sleep -m 100
-  
+function SlurpOutput($out_file, $cur_line) {
   if (Test-Path $out_file) {
-    $text = (get-content $out_file)
-    $numLines = ($text | Measure-Object -line).lines    
-    $numLinesToRead = $numLines - $numLinesRead
-    
-    if ($numLinesToRead -gt 0) {
-      $text | select -first $numLinesToRead -skip $numLinesRead | ForEach {
-        Write-Host "$_"
-      }
-      $numLinesRead += $numLinesToRead
+    get-content $out_file | select -skip $cur_line | ForEach {
+      $cur_line += 1
+      Write-Host "$_" 
     }
   }
+  return $cur_line
+}
+
+$cur_line = 0
+do {
+  Start-Sleep -m 100
+  $cur_line = SlurpOutput $out_file $cur_line
 } while (!($registered_task.state -eq 3))
 
 $exit_code = $registered_task.LastTaskResult
 [System.Runtime.Interopservices.Marshal]::ReleaseComObject($schedule) | Out-Null
+
 exit $exit_code
