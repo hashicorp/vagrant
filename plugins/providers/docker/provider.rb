@@ -136,7 +136,10 @@ module VagrantPlugins
         # here and we let Vagrant core deal with it ;)
         return nil if !ip
 
-        { host: ip }
+        {
+          host: ip,
+          port: @machine.config.ssh.guest_port
+        }
       end
 
       def state
