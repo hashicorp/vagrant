@@ -57,7 +57,7 @@ module VagrantPlugins
               provider: machine.provider_name.to_s
           end
 
-          driver_mac_address = machine.provider.capability(:nic_mac_addresses)
+          driver_mac_address = machine.provider.capability(:nic_mac_addresses).invert
           @@logger.debug("mac addresses: #{driver_mac_address.inspect}")
 
           vm_interface_map = {}
