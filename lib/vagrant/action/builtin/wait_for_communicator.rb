@@ -21,16 +21,6 @@ module Vagrant
           states_thr = Thread.new do
             Thread.current[:result] = true
 
-            # If we aren't caring about states, just basically put this
-            # thread to sleep because it'll get killed later.
-            if !@states
-              while true
-                sleep 300
-              end
-
-              next
-            end
-
             # Otherwise, periodically verify the VM isn't in a bad state.
             while true
               state = env[:machine].state.id
@@ -39,7 +29,7 @@ module Vagrant
               Thread.current[:last_known_state] = state
 
               # Check if we have the proper state so we can break out
-              if !@states.include?(state)
+              if @states && !@states.include?(state)
                 Thread.current[:result] = false
                 break
               end

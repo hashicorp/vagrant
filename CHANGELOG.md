@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - core: Provider plugins more easily are compatible with global-status
+      and should show less stale data. [GH-3808]
   - commands/package: Package with `--base` for VirtualBox doesn't
       crash. [GH-3827]
   - provisioners/puppet: Fix setting facter vars with Windows
