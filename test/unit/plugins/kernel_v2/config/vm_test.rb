@@ -418,7 +418,7 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       sf = subject.synced_folders
       expect(sf.length).to eq(1)
       expect(sf).to have_key("/vagrant")
-      expect(sf["/vagrant"][:disabled]).to be_true
+      expect(sf["/vagrant"][:disabled]).to be_false
       expect(sf["/vagrant"][:foo]).to eq(:bar)
     end
   end
