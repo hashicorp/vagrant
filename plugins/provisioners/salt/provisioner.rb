@@ -4,11 +4,6 @@ module VagrantPlugins
   module Salt
     class Provisioner < Vagrant.plugin("2", :provisioner)
       def provision
-        if @machine.config.vm.communicator == :winrm
-          raise Vagrant::Errors::ProvisionerWinRMUnsupported,
-            name: "salt"
-        end
-
         upload_configs
         upload_keys
         run_bootstrap_script
@@ -38,16 +33,29 @@ module VagrantPlugins
         ## Determine States, ie: install vs configure
         desired_binaries = []
         if !@config.no_minion
-          desired_binaries.push('salt-minion')
-          desired_binaries.push('salt-call')
+          if @machine.config.vm.communicator == :winrm
+            desired_binaries.push('C:\\salt\\salt-minion.exe')
+            desired_binaries.push('C:\\salt\\salt-call.exe')
+          else
+            desired_binaries.push('salt-minion')
+            desired_binaries.push('salt-call')
+          end
         end
 
         if @config.install_master
-          desired_binaries.push('salt-master')
+          if @machine.config.vm.communicator == :winrm
+            desired_binaries.push('C:\\salt\\salt-master.exe')
+          else
+            desired_binaries.push('salt-master')
+          end
         end
 
         if @config.install_syndic
-          desired_binaries.push('salt-syndic')
+          if @machine.config.vm.communicator == :winrm
+            desired_binaries.push('C:\\salt\\salt-syndic.exe')
+          else
+            desired_binaries.push('salt-syndic')
+          end
         end
 
         found = true
@@ -77,7 +85,11 @@ module VagrantPlugins
       end
 
       def temp_config_dir
-        return @config.temp_config_dir || "/tmp"
+        if @machine.config.vm.communicator == :winrm
+          return @config.temp_config_dir || "C:\\tmp"
+        else
+          return @config.temp_config_dir || "/tmp"
+        end
       end
 
       # Generates option string for bootstrap script
@@ -191,7 +203,11 @@ module VagrantPlugins
         if @config.bootstrap_script
           bootstrap_abs_path = expanded_path(@config.bootstrap_script)
         else
-          bootstrap_abs_path = Pathname.new("../bootstrap-salt.sh").expand_path(__FILE__)
+          if @machine.config.vm.communicator == :winrm
+            bootstrap_abs_path = Pathname.new("../bootstrap-salt.ps1").expand_path(__FILE__)
+          else
+            bootstrap_abs_path = Pathname.new("../bootstrap-salt.sh").expand_path(__FILE__)
+          end
         end
 
         return bootstrap_abs_path
@@ -212,25 +228,43 @@ module VagrantPlugins
           end
 
           bootstrap_path = get_bootstrap
-          bootstrap_destination = File.join(config_dir, "bootstrap_salt.sh")
+          if @machine.config.vm.communicator == :winrm
+            bootstrap_destination = File.join(config_dir, "bootstrap_salt.ps1")
+          else
+            bootstrap_destination = File.join(config_dir, "bootstrap_salt.sh")
+          end
+ 
           @machine.communicate.sudo("rm -f %s" % bootstrap_destination)
           @machine.communicate.upload(bootstrap_path.to_s, bootstrap_destination)
           @machine.communicate.sudo("chmod +x %s" % bootstrap_destination)
-          bootstrap = @machine.communicate.sudo("%s %s" % [bootstrap_destination, options]) do |type, data|
-            if data[0] == "\n"
-              # Remove any leading newline but not whitespace. If we wanted to
-              # remove newlines and whitespace we would have used data.lstrip
-              data = data[1..-1]
+          if @machine.config.vm.communicator == :winrm
+            bootstrap = @machine.communicate.sudo("powershell.exe -executionpolicy bypass -file %s" % [bootstrap_destination]) do |type, data|
+              if data[0] == "\n"
+                # Remove any leading newline but not whitespace. If we wanted to
+                # remove newlines and whitespace we would have used data.lstrip
+                data = data[1..-1]
+              end
+              if @config.verbose
+                @machine.env.ui.info(data.rstrip)
+              end
             end
-            if @config.verbose
-              @machine.env.ui.info(data.rstrip)
+          else
+            bootstrap = @machine.communicate.sudo("%s %s" % [bootstrap_destination, options]) do |type, data|
+              if data[0] == "\n"
+                # Remove any leading newline but not whitespace. If we wanted to
+                # remove newlines and whitespace we would have used data.lstrip
+                data = data[1..-1]
+              end
+              if @config.verbose
+                @machine.env.ui.info(data.rstrip)
+              end
             end
           end
 
           if !bootstrap
             raise Salt::Errors::SaltError, :bootstrap_failed
           end
-
+           
           if configure and !install
             @machine.env.ui.info "Salt successfully configured!"
           elsif configure and install
@@ -242,14 +276,24 @@ module VagrantPlugins
           @machine.env.ui.info "Salt did not need installing or configuring."
         end
       end
+      
       def call_overstate
         if @config.run_overstate
             if @config.install_master
               @machine.env.ui.info "Calling state.overstate... (this may take a while)"
-              @machine.communicate.sudo("salt '*' saltutil.sync_all")
-              @machine.communicate.sudo("salt-run state.over") do |type, data|
-                if @config.verbose
-                  @machine.env.ui.info(data)
+              if @machine.config.vm.communicator == :winrm
+              	@machine.communicate.execute("C:\\salt\\salt.exe '*' saltutil.sync_all")
+                @machine.communicate.execute("C:\\salt\\salt-run.exe state.over") do |type, data|
+                  if @config.verbose
+                    @machine.env.ui.info(data)
+                  end
+                end
+              else
+                @machine.communicate.sudo("salt '*' saltutil.sync_all")
+                @machine.communicate.sudo("salt-run state.over") do |type, data|
+                  if @config.verbose
+                    @machine.env.ui.info(data)
+                  end
                 end
               end
             else
@@ -264,17 +308,35 @@ module VagrantPlugins
         if @config.run_highstate
           @machine.env.ui.info "Calling state.highstate... (this may take a while)"
           if @config.install_master
-            @machine.communicate.sudo("salt '*' saltutil.sync_all")
-            @machine.communicate.sudo("salt '*' state.highstate --verbose#{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
-              if @config.verbose
-                @machine.env.ui.info(data)
+	    if @machine.config.vm.communicator == :winrm
+              @machine.communicate.execute("C:\\salt\\salt.exe '*' saltutil.sync_all")
+              @machine.communicate.execute("C:\\salt\\salt.exe '*' state.highstate --verbose#{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
+                if @config.verbose
+                  @machine.env.ui.info(data)
+                end
+              end
+            else  
+              @machine.communicate.sudo("salt '*' saltutil.sync_all")
+              @machine.communicate.sudo("salt '*' state.highstate --verbose#{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
+                if @config.verbose
+                  @machine.env.ui.info(data)
+                end
               end
             end
           else
-            @machine.communicate.sudo("salt-call saltutil.sync_all")
-            @machine.communicate.sudo("salt-call state.highstate #{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
-              if @config.verbose
-                @machine.env.ui.info(data)
+	    if @machine.config.vm.communicator == :winrm
+              @machine.communicate.execute("C:\\salt\\salt-call.exe saltutil.sync_all")
+              @machine.communicate.execute("C:\\salt\\salt-call.exe state.highstate #{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
+                if @config.verbose
+                  @machine.env.ui.info(data)
+                end
+              end
+            else
+              @machine.communicate.sudo("salt-call saltutil.sync_all")
+              @machine.communicate.sudo("salt-call state.highstate #{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
+                if @config.verbose
+                  @machine.env.ui.info(data)
+                end
               end
             end
           end
