@@ -21,6 +21,7 @@ $webclient.DownloadFile($url, $file)
 Write-Host "Installing Salt minion..."
 C:\tmp\salt.exe /S
 
-Write-Host "Waiting for Salt minion to start..."
-# Give the minion some time to start before the highstate is called
-Start-Sleep -s 5
+# Wait a bit
+Start-Sleep -s 10
+net start salt-minion
+
