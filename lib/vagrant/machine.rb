@@ -245,15 +245,20 @@ module Vagrant
     def id=(value)
       @logger.info("New machine ID: #{value.inspect}")
 
-      # The file that will store the id if we have one. This allows the
-      # ID to persist across Vagrant runs. Also, store the UUID for the
-      # machine index.
-      id_file = @data_dir.join("id")
+      id_file = nil
+      if @data_dir
+        # The file that will store the id if we have one. This allows the
+        # ID to persist across Vagrant runs. Also, store the UUID for the
+        # machine index.
+        id_file = @data_dir.join("id")
+      end
 
       if value
-        # Write the "id" file with the id given.
-        id_file.open("w+") do |f|
-          f.write(value)
+        if id_file
+          # Write the "id" file with the id given.
+          id_file.open("w+") do |f|
+            f.write(value)
+          end
         end
 
         # If we don't have a UUID, then create one
@@ -287,7 +292,7 @@ module Vagrant
         end
       else
         # Delete the file, since the machine is now destroyed
-        id_file.delete if id_file.file?
+        id_file.delete if id_file && id_file.file?
 
         # If we have a UUID associated with the index, remove it
         uuid = index_uuid
