@@ -8,6 +8,8 @@ BUG FIXES:
 
   - core: Provider plugins more easily are compatible with global-status
       and should show less stale data. [GH-3808]
+  - core: When setting a synced folder, it will assume it is not disabled
+      unless explicitly specified. [GH-3783]
   - commands/package: Package with `--base` for VirtualBox doesn't
       crash. [GH-3827]
   - providers/docker: Never do graceful shutdown, always use
