@@ -11,12 +11,24 @@ module VagrantPlugins
             expanded_guest_path = machine.guest.capability(
               :shell_expand_guest_path, opts[:guestpath])
 
-              machine.communicate.sudo("if [ ! -d  #{expanded_guest_path} ]; then  mkdir -p #{expanded_guest_path};fi")
+            # Create the folder
+            machine.communicate.sudo("mkdir -p #{expanded_guest_path}")
 
-              mount_command = "mount -t nfs '#{ip}:#{opts[:hostpath]}' '#{expanded_guest_path}'"
-              retryable(:on => Vagrant::Errors::DarwinNFSMountFailed, :tries => 10, :sleep => 5) do
-                machine.communicate.sudo(mount_command, :error_class => Vagrant::Errors::DarwinNFSMountFailed)
-              end
+            # Figure out any options
+            mount_opts = ["vers=#{opts[:nfs_version]}"]
+            mount_opts << "udp" if opts[:nfs_udp]
+            if opts[:mount_options]
+              mount_opts = opts[:mount_options].dup
+            end
+
+            mount_command = "mount -t nfs " +
+              "-o '#{mount_opts.join(",")}' " +
+              "'#{ip}:#{opts[:hostpath]}' '#{expanded_guest_path}'"
+            retryable(:on => Vagrant::Errors::DarwinNFSMountFailed, :tries => 10, :sleep => 5) do
+              machine.communicate.sudo(
+                mount_command,
+                error_class: Vagrant::Errors::DarwinNFSMountFailed)
+            end
           end
         end
       end

@@ -16,6 +16,7 @@ BUG FIXES:
       `docker stop`. [GH-3798]
   - provisioners/puppet: Fix setting facter vars with Windows
       guests. [GH-3776]
+  - guests/darwin: Respect mount options for NFS. [GH-3791]
   - guests/freebsd: Properly register the rsync_pre capability
   - guests/windows: Certain executed provisioners won't leave output
       and exit status behind. [GH-3729]
