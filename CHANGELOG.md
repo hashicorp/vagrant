@@ -10,6 +10,8 @@ BUG FIXES:
       and should show less stale data. [GH-3808]
   - commands/package: Package with `--base` for VirtualBox doesn't
       crash. [GH-3827]
+  - providers/docker: Never do graceful shutdown, always use
+      `docker stop`. [GH-3798]
   - provisioners/puppet: Fix setting facter vars with Windows
       guests. [GH-3776]
   - guests/freebsd: Properly register the rsync_pre capability
