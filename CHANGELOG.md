@@ -17,6 +17,8 @@ BUG FIXES:
       and exit status behind. [GH-3729]
   - synced\_folders/rsync: `rsync__chown` can be set to `false` to
       disable recursive chown after sync. [GH-3810]
+  - synced\_folders/rsync: Use a proper msys path if not in
+      Cygwin. [GH-3804]
 
 ## 1.6.2 (May 12, 2014)
 

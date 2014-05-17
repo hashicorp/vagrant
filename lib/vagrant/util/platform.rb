@@ -57,20 +57,23 @@ module Vagrant
         # @param [String] path
         # @return [String]
         def cygwin_path(path)
-          begin
-            # First try the real cygpath
-            process = Subprocess.execute("cygpath", "-u", "-a", path.to_s)
-            return process.stdout.chomp
-          rescue Errors::CommandUnavailableWindows
-            # Sometimes cygpath isn't available (msys). Instead, do what we
-            # can with bash tricks.
-            process = Subprocess.execute(
-              "bash",
-              "--noprofile",
-              "--norc",
-              "-c", "cd #{Shellwords.escape(path)} && pwd")
-            return process.stdout.chomp
+          if cygwin?
+            begin
+              # First try the real cygpath
+              process = Subprocess.execute("cygpath", "-u", "-a", path.to_s)
+              return process.stdout.chomp
+            rescue Errors::CommandUnavailableWindows
+            end
           end
+
+          # Sometimes cygpath isn't available (msys). Instead, do what we
+          # can with bash tricks.
+          process = Subprocess.execute(
+            "bash",
+            "--noprofile",
+            "--norc",
+            "-c", "cd #{Shellwords.escape(path)} && pwd")
+          return process.stdout.chomp
         end
 
         # This takes any path and converts it to a full-length Windows
