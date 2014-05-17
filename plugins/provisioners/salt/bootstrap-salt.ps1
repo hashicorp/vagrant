@@ -1,5 +1,5 @@
 # Copy minion keys to correct location
-New-Item c:\salt\conf\pki\minion\ -ItemType directory
+New-Item c:\salt\conf\pki\minion\ -ItemType directory | out-null
 cp C:\tmp\minion.pem C:\salt\conf\pki\minion\
 cp C:\tmp\minion.pub C:\salt\conf\pki\minion\
 
