@@ -25,7 +25,9 @@ module VagrantPlugins
         return false if !@host_vm.communicate.ready?
 
         # We're ready if we can establish an SSH connection to the container
-        @host_vm.communicate.test("#{container_ssh_command} exit")
+        command = container_ssh_command
+        return false if !command
+        @host_vm.communicate.test("#{command} exit")
       end
 
       def download(from, to)
@@ -131,6 +133,7 @@ module VagrantPlugins
       def container_ssh_command
         # Get the container's SSH info
         info = @machine.ssh_info
+        return nil if !info
         info[:port] ||= 22
 
         # Make sure our private keys are synced over to the host VM

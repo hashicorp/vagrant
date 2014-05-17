@@ -14,6 +14,8 @@ BUG FIXES:
       crash. [GH-3827]
   - providers/docker: Never do graceful shutdown, always use
       `docker stop`. [GH-3798]
+  - providers/docker: Better error messaging when SSH is not ready
+      direct to container. [GH-3763]
   - provisioners/puppet: Fix setting facter vars with Windows
       guests. [GH-3776]
   - guests/darwin: Respect mount options for NFS. [GH-3791]
