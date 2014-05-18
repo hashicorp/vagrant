@@ -1,5 +1,10 @@
 ## 1.6.3 (unreleased)
 
+FEATURES:
+
+  - **New Guest:** NixOS - Supports changing host names and setting
+      networks. [GH-3830]
+
 IMPROVEMENTS:
 
   - commands/halt: Halt in reverse order of up, like destroy. [GH-3790]
