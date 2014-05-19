@@ -17,6 +17,8 @@ BUG FIXES:
       unless explicitly specified. [GH-3783]
   - commands/package: Package with `--base` for VirtualBox doesn't
       crash. [GH-3827]
+  - guests/windows: Private networks with static IPs work when there
+      is more than one. [GH-3818]
   - providers/docker: Never do graceful shutdown, always use
       `docker stop`. [GH-3798]
   - providers/docker: Better error messaging when SSH is not ready
