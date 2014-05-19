@@ -30,18 +30,19 @@ $webclient.DownloadFile($url, $file)
 Write-Host "Installing Salt minion..."
 C:\tmp\salt.exe /S
 
-# Try starting the Salt minion service
-Start-Service -Name "salt-minion" -ErrorAction SilentlyContinue
+# Wait for salt-minion service to be registered before trying to start it
 $service = Get-Service salt-minion -ErrorAction SilentlyContinue
-$try = 0
-
 While (!$service) {
-	Start-Sleep -s 2
-        $service = Get-Service salt-minion -ErrorAction SilentlyContinue
+  Start-Sleep -s 2
+  $service = Get-Service salt-minion -ErrorAction SilentlyContinue
 }
 
-# Retry starting the service 4 times if it's not running
-# and wait 2 seconds between each try
+# Start service
+Start-Service -Name "salt-minion" -ErrorAction SilentlyContinue
+
+# Check if service is started, otherwise retry starting the 
+# service 4 times.
+$try = 0
 While (($service.Status -ne "Running") -and ($try -ne 4)) {
   Start-Service -Name "salt-minion" -ErrorAction SilentlyContinue
   $service = Get-Service salt-minion -ErrorAction SilentlyContinue
