@@ -35,9 +35,14 @@ Start-Service -Name "salt-minion" -ErrorAction SilentlyContinue
 $service = Get-Service salt-minion -ErrorAction SilentlyContinue
 $try = 0
 
+While (!$service) {
+	Start-Sleep -s 2
+        $service = Get-Service salt-minion -ErrorAction SilentlyContinue
+}
+
 # Retry starting the service 4 times if it's not running
 # and wait 2 seconds between each try
-While (($service.Status -eq "Stopped") -and ($try -ne 4)) {
+While (($service.Status -ne "Running") -and ($try -ne 4)) {
   Start-Service -Name "salt-minion" -ErrorAction SilentlyContinue
   $service = Get-Service salt-minion -ErrorAction SilentlyContinue
   Start-Sleep -s 2
