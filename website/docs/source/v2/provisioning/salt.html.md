@@ -48,18 +48,19 @@ masterless setup.
 
 
 * `install_master`  (boolean) - Should vagrant install the salt-master
-on this machine
+on this machine. Not supported on Windows.
 
 * `no_minion`  (boolean) - Don't install the minion, default `false`
 
 * `install_syndic`   (boolean) - Install the salt-syndic, default
-`false`
+`false`. Not supported on Windows.
 
 * `install_type`  (stable | git | daily | testing) - Whether to install from a
-distribution's stable package manager, git tree-ish, daily ppa, or testing repository.
+distribution's stable package manager, git tree-ish, daily ppa, or testing repository. 
+Not supported on Windows.
 
 * `install_args` (develop) - When performing a git install,
-you can specify a branch, tag, or any treeish.
+you can specify a branch, tag, or any treeish. Not supported on Windows.
 
 * `always_install`   (boolean) - Installs salt binaries even
  if they are already detected, default `false`

@@ -1,7 +1,8 @@
-# Copy minion keys to correct location
+# Copy minion keys & config to correct location
 New-Item c:\salt\conf\pki\minion\ -ItemType directory | out-null
 cp C:\tmp\minion.pem C:\salt\conf\pki\minion\
 cp C:\tmp\minion.pub C:\salt\conf\pki\minion\
+cp C:\tmp\minion C:\salt\conf\
 
 # Detect architecture
 if ([IntPtr]::Size -eq 4) {
