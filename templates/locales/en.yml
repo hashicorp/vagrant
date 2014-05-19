@@ -1216,6 +1216,8 @@ en:
           Invalid box version constraints: %{version}
         box_download_ca_cert_not_found: |-
           "box_download_ca_cert" file not found: %{path}
+        box_download_ca_path_not_found: |-
+          "box_download_ca_path" directory not found: %{path}
         box_download_checksum_blank: |-
           Checksum type specified but "box_download_checksum" is blank
         box_download_checksum_notblank: |-

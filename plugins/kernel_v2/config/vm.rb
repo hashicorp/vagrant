@@ -21,6 +21,7 @@ module VagrantPlugins
       attr_accessor :box_url
       attr_accessor :box_version
       attr_accessor :box_download_ca_cert
+      attr_accessor :box_download_ca_path
       attr_accessor :box_download_checksum
       attr_accessor :box_download_checksum_type
       attr_accessor :box_download_client_cert
@@ -39,6 +40,7 @@ module VagrantPlugins
         @box                          = UNSET_VALUE
         @box_check_update             = UNSET_VALUE
         @box_download_ca_cert         = UNSET_VALUE
+        @box_download_ca_path         = UNSET_VALUE
         @box_download_checksum        = UNSET_VALUE
         @box_download_checksum_type   = UNSET_VALUE
         @box_download_client_cert     = UNSET_VALUE
@@ -323,6 +325,7 @@ module VagrantPlugins
         @box = nil if @box == UNSET_VALUE
         @box_check_update = true if @box_check_update == UNSET_VALUE
         @box_download_ca_cert = nil if @box_download_ca_cert == UNSET_VALUE
+        @box_download_ca_path = nil if @box_download_ca_path == UNSET_VALUE
         @box_download_checksum = nil if @box_download_checksum == UNSET_VALUE
         @box_download_checksum_type = nil if @box_download_checksum_type == UNSET_VALUE
         @box_download_client_cert = nil if @box_download_client_cert == UNSET_VALUE
@@ -515,6 +518,16 @@ module VagrantPlugins
             errors << I18n.t(
               "vagrant.config.vm.box_download_ca_cert_not_found",
               path: box_download_ca_cert)
+          end
+        end
+
+        if box_download_ca_path
+          path = Pathname.new(box_download_ca_path).
+            expand_path(machine.env.root_path)
+          if !path.directory?
+            errors << I18n.t(
+              "vagrant.config.vm.box_download_ca_path_not_found",
+              path: box_download_ca_path)
           end
         end
 
