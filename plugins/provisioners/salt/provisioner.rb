@@ -308,7 +308,7 @@ module VagrantPlugins
               end
             end
           else
-	    if @machine.config.vm.communicator == :winrm
+            if @machine.config.vm.communicator == :winrm
               opts = { elevated: true }
               @machine.communicate.execute("C:\\salt\\salt-call.exe saltutil.sync_all", opts)
               @machine.communicate.execute("C:\\salt\\salt-call.exe state.highstate #{get_loglevel}#{get_colorize}#{get_pillar}", opts) do |type, data|
