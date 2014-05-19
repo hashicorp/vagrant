@@ -44,7 +44,8 @@ module VagrantPlugins
 
         if @config.install_master
           if @machine.config.vm.communicator == :winrm
-            desired_binaries.push('C:\\salt\\salt-master.exe')
+            raise Vagrant::Errors::ProvisionerWinRMUnsupported,
+              name: "salt.install_master"
           else
             desired_binaries.push('salt-master')
           end
@@ -52,7 +53,8 @@ module VagrantPlugins
 
         if @config.install_syndic
           if @machine.config.vm.communicator == :winrm
-            desired_binaries.push('C:\\salt\\salt-syndic.exe')
+            raise Vagrant::Errors::ProvisionerWinRMUnsupported,
+              name: "salt.install_syndic"
           else
             desired_binaries.push('salt-syndic')
           end
@@ -279,27 +281,17 @@ module VagrantPlugins
       
       def call_overstate
         if @config.run_overstate
-            if @config.install_master
-              @machine.env.ui.info "Calling state.overstate... (this may take a while)"
-              if @machine.config.vm.communicator == :winrm
-                opts = { elevated: true }
-                @machine.communicate.execute("C:\\salt\\salt.exe '*' saltutil.sync_all", opts)
-                @machine.communicate.execute("C:\\salt\\salt-run.exe state.over", opts) do |type, data|
-                  if @config.verbose
-                    @machine.env.ui.info(data)
-                  end
-                end
-              else
-                @machine.communicate.sudo("salt '*' saltutil.sync_all")
-                @machine.communicate.sudo("salt-run state.over") do |type, data|
-                  if @config.verbose
-                    @machine.env.ui.info(data)
-                  end
-                end
+          if @config.install_master
+            @machine.env.ui.info "Calling state.overstate... (this may take a while)"
+            @machine.communicate.sudo("salt '*' saltutil.sync_all")
+            @machine.communicate.sudo("salt-run state.over") do |type, data|
+              if @config.verbose
+                @machine.env.ui.info(data)
               end
-            else
-              @machine.env.ui.info "run_overstate does not make sense on a minion. Not running state.overstate."
             end
+          else
+            @machine.env.ui.info "run_overstate does not make sense on a minion. Not running state.overstate."
+          end
         else
           @machine.env.ui.info "run_overstate set to false. Not running state.overstate."
         end
@@ -309,20 +301,10 @@ module VagrantPlugins
         if @config.run_highstate
           @machine.env.ui.info "Calling state.highstate... (this may take a while)"
           if @config.install_master
-	    if @machine.config.vm.communicator == :winrm
-              opts = { elevated: true }
-              @machine.communicate.execute("C:\\salt\\salt.exe '*' saltutil.sync_all", opts)
-              @machine.communicate.execute("C:\\salt\\salt.exe '*' state.highstate --verbose#{get_loglevel}#{get_colorize}#{get_pillar}", opts) do |type, data|
-                if @config.verbose
-                  @machine.env.ui.info(data)
-                end
-              end
-            else  
-              @machine.communicate.sudo("salt '*' saltutil.sync_all")
-              @machine.communicate.sudo("salt '*' state.highstate --verbose#{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
-                if @config.verbose
-                  @machine.env.ui.info(data)
-                end
+            @machine.communicate.sudo("salt '*' saltutil.sync_all")
+            @machine.communicate.sudo("salt '*' state.highstate --verbose#{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
+              if @config.verbose
+                @machine.env.ui.info(data)
               end
             end
           else
