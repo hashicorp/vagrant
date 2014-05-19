@@ -282,8 +282,9 @@ module VagrantPlugins
             if @config.install_master
               @machine.env.ui.info "Calling state.overstate... (this may take a while)"
               if @machine.config.vm.communicator == :winrm
-              	@machine.communicate.execute("C:\\salt\\salt.exe '*' saltutil.sync_all")
-                @machine.communicate.execute("C:\\salt\\salt-run.exe state.over") do |type, data|
+                opts = { elevated: true }
+                @machine.communicate.execute("C:\\salt\\salt.exe '*' saltutil.sync_all", opts)
+                @machine.communicate.execute("C:\\salt\\salt-run.exe state.over", opts) do |type, data|
                   if @config.verbose
                     @machine.env.ui.info(data)
                   end
@@ -309,8 +310,9 @@ module VagrantPlugins
           @machine.env.ui.info "Calling state.highstate... (this may take a while)"
           if @config.install_master
 	    if @machine.config.vm.communicator == :winrm
-              @machine.communicate.execute("C:\\salt\\salt.exe '*' saltutil.sync_all")
-              @machine.communicate.execute("C:\\salt\\salt.exe '*' state.highstate --verbose#{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
+              opts = { elevated: true }
+              @machine.communicate.execute("C:\\salt\\salt.exe '*' saltutil.sync_all", opts)
+              @machine.communicate.execute("C:\\salt\\salt.exe '*' state.highstate --verbose#{get_loglevel}#{get_colorize}#{get_pillar}", opts) do |type, data|
                 if @config.verbose
                   @machine.env.ui.info(data)
                 end
@@ -325,8 +327,9 @@ module VagrantPlugins
             end
           else
 	    if @machine.config.vm.communicator == :winrm
-              @machine.communicate.execute("C:\\salt\\salt-call.exe saltutil.sync_all")
-              @machine.communicate.execute("C:\\salt\\salt-call.exe state.highstate #{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
+              opts = { elevated: true }
+              @machine.communicate.execute("C:\\salt\\salt-call.exe saltutil.sync_all", opts)
+              @machine.communicate.execute("C:\\salt\\salt-call.exe state.highstate #{get_loglevel}#{get_colorize}#{get_pillar}", opts) do |type, data|
                 if @config.verbose
                   @machine.env.ui.info(data)
                 end
