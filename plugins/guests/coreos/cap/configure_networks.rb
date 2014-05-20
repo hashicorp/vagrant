@@ -15,7 +15,7 @@ module VagrantPlugins
 
             # Read network interface names
             interfaces = []
-            comm.sudo("ifconfig | grep enp0 | cut -f1 -d:") do |_, result|
+            comm.sudo("ifconfig | grep 'enp0\\|ens' | cut -f1 -d:") do |_, result|
               interfaces = result.split("\n")
             end
 
