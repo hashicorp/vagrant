@@ -26,6 +26,8 @@ BUG FIXES:
       `docker stop`. [GH-3798]
   - providers/docker: Better error messaging when SSH is not ready
       direct to container. [GH-3763]
+  - providers/virtualbox: On Windows, check `VBOX_MSI_INSTALL_PATH`
+      for VBoxManage path as well. [GH-3852]
   - provisioners/puppet: Fix setting facter vars with Windows
       guests. [GH-3776]
   - guests/darwin: Respect mount options for NFS. [GH-3791]
