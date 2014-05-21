@@ -48,11 +48,9 @@ describe VagrantPlugins::CommunicatorWinRM::Communicator do
     end
 
     it "wraps command in elevated shell script when elevated is true" do
+      expect(shell).to receive(:upload).with(kind_of(String), "c:/tmp/vagrant-elevated-shell.ps1")
       expect(shell).to receive(:powershell) do |cmd|
-        expect(cmd).to include("$command = \"dir\"")
-        expect(cmd).to include("$user = 'vagrant'")
-        expect(cmd).to include("$password = 'password'")
-        expect(cmd).to include("New-Object -ComObject \"Schedule.Service\"")
+        expect(cmd).to eq("powershell -executionpolicy bypass -file c:/tmp/vagrant-elevated-shell.ps1")
       end.and_return({ exitcode: 0 })
       expect(subject.execute("dir", { elevated: true })).to eq(0)
     end

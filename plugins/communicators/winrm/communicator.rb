@@ -69,12 +69,8 @@ module VagrantPlugins
         opts[:good_exit] = Array(opts[:good_exit])
 
         if opts[:elevated]
-          path = File.expand_path("../scripts/elevated_shell.ps1", __FILE__)
-          command = Vagrant::Util::TemplateRenderer.render(path, options: {
-            username: shell.username,
-            password: shell.password,
-            command: command,
-          })
+          guest_script_path = create_elevated_shell_script(command)
+          command = "powershell -executionpolicy bypass -file #{guest_script_path}"
         end
 
         output = shell.send(opts[:shell], command, &block)
@@ -118,6 +114,33 @@ module VagrantPlugins
           timeout_in_seconds: @machine.config.winrm.timeout,
           max_tries: @machine.config.winrm.max_tries,
         )
+      end
+
+      # Creates and uploads a PowerShell script which wraps the specified
+      # command in a scheduled task. The scheduled task allows commands to
+      # run on the guest as a true local admin without any of the restrictions
+      # that WinRM puts in place.
+      #
+      # @return The path to elevated_shell.ps1 on the guest 
+      def create_elevated_shell_script(command)
+        path = File.expand_path("../scripts/elevated_shell.ps1", __FILE__)
+        script = Vagrant::Util::TemplateRenderer.render(path, options: {
+          username: shell.username,
+          password: shell.password,
+          command: command,
+        })
+        guest_script_path = "c:/tmp/vagrant-elevated-shell.ps1"
+        file = Tempfile.new(["vagrant-elevated-shell", "ps1"])
+        begin
+          file.write(script)
+          file.fsync
+          file.close
+          upload(file.path, guest_script_path)
+        ensure
+          file.close
+          file.unlink
+        end
+        guest_script_path
       end
 
       # Handles the raw WinRM shell result and converts it to a
