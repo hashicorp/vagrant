@@ -1,6 +1,6 @@
 require "tempfile"
 
-require "vagrant/util/powershell"
+require "vagrant/util/subprocess"
 
 module VagrantPlugins
   module HostWindows
@@ -29,7 +29,7 @@ module VagrantPlugins
           end
 
           # Launch it
-          Vagrant::Util::PowerShell.execute("mstsc", *args)
+          Vagrant::Util::Subprocess.execute("mstsc", *args)
         ensure
           config.close if config
         end

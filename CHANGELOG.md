@@ -26,6 +26,8 @@ BUG FIXES:
       not accessing the local host. [GH-3861]
   - guests/windows: Fix errors with arg lists that are too long over
       WinRM in some cases. [GH-3816]
+  - hosts/windows: Don't execute mstsc using PowerShell since it doesn't
+      exit properly. [GH-3837]
   - providers/docker: Never do graceful shutdown, always use
       `docker stop`. [GH-3798]
   - providers/docker: Better error messaging when SSH is not ready
