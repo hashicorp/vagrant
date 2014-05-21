@@ -9,6 +9,7 @@ IMPROVEMENTS:
 
   - commands/halt: Halt in reverse order of up, like destroy. [GH-3790]
   - hosts/linux: Uses rdesktop to RDP into machines if available. [GH-3845]
+  - provisioners/salt: Works on Windows guests. [GH-3825]
 
 BUG FIXES:
 
