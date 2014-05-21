@@ -15,6 +15,7 @@ BUG FIXES:
       and should show less stale data. [GH-3808]
   - core: When setting a synced folder, it will assume it is not disabled
       unless explicitly specified. [GH-3783]
+  - core: Ignore UDP forwarded ports for collision detection. [GH-3859]
   - commands/package: Package with `--base` for VirtualBox doesn't
       crash. [GH-3827]
   - guests/windows: Private networks with static IPs work when there

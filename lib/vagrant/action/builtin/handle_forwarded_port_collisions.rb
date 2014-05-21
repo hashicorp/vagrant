@@ -93,6 +93,11 @@ module Vagrant
             guest_port = options[:guest]
             host_port  = options[:host]
 
+            if options[:protocol] && options[:protocol] != "tcp"
+              @logger.debug("Skipping #{host_port} because UDP protocol.")
+              next
+            end
+
             if remap[host_port]
               remap_port = remap[host_port]
               @logger.debug("Remap port override: #{host_port} => #{remap_port}")
