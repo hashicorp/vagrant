@@ -26,6 +26,11 @@ module VagrantPlugins
         Cap::NFS
       end
 
+      host_capability("linux", "rdp_client") do
+        require_relative "cap/rdp"
+        Cap::RDP
+      end
+
       # Linux-specific helpers we need to determine paths that can
       # be overriden.
       host_capability("linux", "nfs_apply_command") do

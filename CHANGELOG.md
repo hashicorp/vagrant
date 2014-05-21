@@ -8,6 +8,7 @@ FEATURES:
 IMPROVEMENTS:
 
   - commands/halt: Halt in reverse order of up, like destroy. [GH-3790]
+  - hosts/linux: Uses rdesktop to RDP into machines if available. [GH-3845]
 
 BUG FIXES:
 
