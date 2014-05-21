@@ -48,7 +48,7 @@ module VagrantPlugins
         @shell      = "bash -l" if @shell == UNSET_VALUE
 
         @default.username = "vagrant" if @default.username == UNSET_VALUE
-        @default.port     = 22 if @default.port == UNSET_VALUE
+        @default.port     = @guest_port if @default.port == UNSET_VALUE
         @default.finalize!
       end
 
