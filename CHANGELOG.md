@@ -7,6 +7,9 @@ FEATURES:
 
 IMPROVEMENTS:
 
+  - core: A CA path can be specified in the Vagrantfile, not just
+      a file, when using a custom CA. [GH-3848]
+  - commands/box/add: `--capath` flag added for custom CA path. [GH-3848]
   - commands/halt: Halt in reverse order of up, like destroy. [GH-3790]
   - hosts/linux: Uses rdesktop to RDP into machines if available. [GH-3845]
   - provisioners/salt: Works on Windows guests. [GH-3825]
