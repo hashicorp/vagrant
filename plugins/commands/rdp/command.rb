@@ -57,6 +57,7 @@ module VagrantPlugins
         rdp_info = {}
         if machine.provider.capability?(:rdp_info)
           rdp_info = machine.provider.capability(:rdp_info)
+          rdp_info ||= {}
         end
 
         ssh_info = machine.ssh_info
