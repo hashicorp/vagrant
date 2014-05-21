@@ -107,7 +107,8 @@ module VagrantPlugins
       # about this machine.
       def create_shell
         host_address = Helper.winrm_address(@machine)
-        host_port    = Helper.winrm_port(@machine)
+        host_port    = Helper.winrm_port(
+          @machine, host_address == "127.0.0.1")
 
         WinRMShell.new(
           host_address,

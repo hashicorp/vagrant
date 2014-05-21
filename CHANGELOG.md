@@ -19,6 +19,8 @@ BUG FIXES:
       crash. [GH-3827]
   - guests/windows: Private networks with static IPs work when there
       is more than one. [GH-3818]
+  - guests/windows: Don't look up a forwarded port for WinRM if we're
+      not accessing the local host. [GH-3861]
   - providers/docker: Never do graceful shutdown, always use
       `docker stop`. [GH-3798]
   - providers/docker: Better error messaging when SSH is not ready

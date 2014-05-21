@@ -22,9 +22,13 @@ module VagrantPlugins
       #
       # @param [Vagrant::Machine] machine
       # @return [Integer]
-      def self.winrm_port(machine)
+      def self.winrm_port(machine, local=true)
         host_port = machine.config.winrm.port
         if machine.config.winrm.guest_port
+          # If we're not requesting a local port, return
+          # the guest port directly.
+          return machine.config.winrm.guest_port if !local
+
           # Search by guest port if we can. We use a provider capability
           # if we have it. Otherwise, we just scan the Vagrantfile defined
           # ports.
