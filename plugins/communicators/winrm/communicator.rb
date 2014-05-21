@@ -102,15 +102,13 @@ module VagrantPlugins
       # This creates anew WinRMShell based on the information we know
       # about this machine.
       def create_shell
-        host_address = Helper.winrm_address(@machine)
-        host_port    = Helper.winrm_port(
-          @machine, host_address == "127.0.0.1")
+        winrm_info = Helper.winrm_info(@machine)
 
         WinRMShell.new(
-          host_address,
+          winrm_info[:host],
           @machine.config.winrm.username,
           @machine.config.winrm.password,
-          port: host_port,
+          port: winrm_info[:port],
           timeout_in_seconds: @machine.config.winrm.timeout,
           max_tries: @machine.config.winrm.max_tries,
         )
@@ -121,7 +119,7 @@ module VagrantPlugins
       # run on the guest as a true local admin without any of the restrictions
       # that WinRM puts in place.
       #
-      # @return The path to elevated_shell.ps1 on the guest 
+      # @return The path to elevated_shell.ps1 on the guest
       def create_elevated_shell_script(command)
         path = File.expand_path("../scripts/elevated_shell.ps1", __FILE__)
         script = Vagrant::Util::TemplateRenderer.render(path, options: {

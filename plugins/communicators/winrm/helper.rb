@@ -4,6 +4,25 @@ module VagrantPlugins
     # communicator. This is extracted into a module so that we can
     # easily unit test these methods.
     module Helper
+      # Returns the host and port to access WinRM.
+      #
+      # This asks the provider via the `winrm_info` capability if it
+      # exists, otherwise defaulting to its own heuristics.
+      #
+      # @param [Vagrant::Machine] machine
+      # @return [Hash]
+      def self.winrm_info(machine)
+        info = {}
+        if machine.provider.capability?(:winrm_info)
+          info = machine.provider.capability(:winrm_info)
+          raise Errors::WinRMNotReady if !info
+        end
+
+        info[:host] ||= winrm_address(machine)
+        info[:port] ||= winrm_port(machine, info[:host] == "127.0.0.1")
+        return info
+      end
+
       # Returns the address to access WinRM. This does not contain
       # the port.
       #

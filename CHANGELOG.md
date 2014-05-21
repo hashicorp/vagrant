@@ -46,6 +46,11 @@ BUG FIXES:
   - synced\_folders/rsync: Don't append args infinitely, clear out
       arg list on each run. [GH-3864]
 
+PLUGIN AUTHOR CHANGES:
+
+  - Providers can now implement the `winrm_info` provider capability
+      to get proper info for `vagrant rdp` to function.
+
 ## 1.6.2 (May 12, 2014)
 
 IMPROVEMENTS:
