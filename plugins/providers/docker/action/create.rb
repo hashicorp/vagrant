@@ -105,19 +105,22 @@ module VagrantPlugins
             image:      image,
             links:      links,
             name:       container_name,
-            ports:      forwarded_ports,
+            ports:      forwarded_ports(@provider_config.has_ssh),
             privileged: @provider_config.privileged,
             pty:        false,
             volumes:    @provider_config.volumes,
           }
         end
 
-        def forwarded_ports
+        def forwarded_ports(include_ssh=false)
           mappings = {}
           @machine.config.vm.networks.each do |type, options|
-            if type == :forwarded_port
-              mappings[options[:host]] = options
-            end
+            next if type != :forwarded_port
+
+            # Don't include SSH if we've explicitly asked not to
+            next if options[:id] == "ssh" && !include_ssh
+
+            mappings[options[:host]] = options
           end
 
           mappings.values.map do |fp|
