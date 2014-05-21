@@ -48,7 +48,7 @@ BUG FIXES:
 
 PLUGIN AUTHOR CHANGES:
 
-  - Providers can now implement the `winrm_info` provider capability
+  - Providers can now implement the `rdp_info` provider capability
       to get proper info for `vagrant rdp` to function.
 
 ## 1.6.2 (May 12, 2014)

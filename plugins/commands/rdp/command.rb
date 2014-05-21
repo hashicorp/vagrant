@@ -54,16 +54,25 @@ module VagrantPlugins
       protected
 
       def get_rdp_info(machine)
-        ssh_info = machine.ssh_info
-        username = ssh_info[:username]
-        if machine.config.vm.communicator == :winrm
-          username = machine.config.winrm.username
+        rdp_info = {}
+        if machine.provider.capability?(:rdp_info)
+          rdp_info = machine.provider.capability(:rdp_info)
         end
 
-        host = ssh_info[:host]
-        port = machine.config.rdp.port
+        ssh_info = machine.ssh_info
 
-        if host == "127.0.0.1"
+        if !rdp_info[:username]
+          username = ssh_info[:username]
+          if machine.config.vm.communicator == :winrm
+            username = machine.config.winrm.username
+          end
+          rdp_info[:username] = username
+        end
+
+        rdp_info[:host] ||= ssh_info[:host]
+        rdp_info[:port] ||= machine.config.rdp.port
+
+        if rdp_info[:host] == "127.0.0.1"
           # We need to find a forwarded port...
           search_port = machine.config.rdp.search_port
           ports       = nil
@@ -81,14 +90,11 @@ module VagrantPlugins
 
           ports = ports.invert
           port  = ports[search_port]
+          rdp_info[:port] = port
           return nil if !port
         end
 
-        return {
-          host: host,
-          port: port,
-          username: username,
-        }
+        return rdp_info
       end
     end
   end
