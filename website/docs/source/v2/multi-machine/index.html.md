@@ -62,6 +62,25 @@ just like other Vagrantfiles within the
 If you're familiar with programming, this is similar to how languages have
 different variable scopes.
 
+When using these scopes, order of execution for things such as
+provisioners becomes important. Vagrant enforces ordering outside-in, in
+the order listed in the Vagrnatfile. For example, with the Vagrantfile
+below:
+
+```ruby
+Vagrant.configure("2") do |config|
+    config.vm.provision :shell, :inline => 'echo A'
+    config.vm.define :testing do |test|
+        test.vm.provision :shell, :inline => 'echo B'
+    end
+    config.vm.provision :shell, :inline => 'echo C'
+end
+```
+
+The provisioners in this case will output "A", then "C", then "B". Notice
+that "B" is last. That is because the ordering is outside-in, in
+the order of the file.
+
 ## Controlling Multiple Machines
 
 The moment more than one machine is defined within a Vagrantfile, the
