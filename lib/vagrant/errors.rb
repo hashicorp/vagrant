@@ -396,6 +396,10 @@ module Vagrant
       error_key(:linux_nfs_mount_failed)
     end
 
+    class LinuxRDesktopNotFound < VagrantError
+      error_key(:linux_rdesktop_not_found)
+    end
+
     class LocalDataDirectoryNotAccessible < VagrantError
       error_key(:local_data_dir_not_accessible)
     end
