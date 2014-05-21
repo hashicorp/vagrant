@@ -15,6 +15,15 @@ the "base image" for a Docker container is pulled from the
 built from a [Dockerfile](/v2/docker/dockerfiles.html), the box doesn't
 add much value, and is optional for this provider.
 
+<div class="alert alert-info">
+	<h3>Windows Host Prerequisites</h3>
+	<p>
+		Windows users will need to install [rsync](/v2/synced-folders/rsync.html) and 
+		configure the `/vagrant` folder to be shared using rsync, for example:
+    `config.vm.synced_folder ".", "/vagrant", type: "rsync"`
+	</p>
+</div>
+
 ## Docker Images
 
 The first method that Vagrant can use to source a Docker container
