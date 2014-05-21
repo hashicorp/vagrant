@@ -77,7 +77,7 @@ module VagrantPlugins
 
         # Get the command-line arguments
         args = nil
-        args = Array(opts[:args]) if opts[:args]
+        args = Array(opts[:args]).dup if opts[:args]
         args ||= ["--verbose", "--archive", "--delete", "-z", "--copy-links"]
 
         # On Windows, we have to set a default chmod flag to avoid permission issues
