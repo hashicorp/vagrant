@@ -61,6 +61,7 @@ module Vagrant
 
           # Determine the set of formats that this box can be in
           box_download_ca_cert = machine.config.vm.box_download_ca_cert
+          box_download_ca_path = machine.config.vm.box_download_ca_path
           box_download_client_cert = machine.config.vm.box_download_client_cert
           box_download_insecure = machine.config.vm.box_download_insecure
           box_formats = machine.provider_options[:box_format] ||
@@ -82,6 +83,7 @@ module Vagrant
               box_version: machine.config.vm.box_version,
               box_client_cert: box_download_client_cert,
               box_download_ca_cert: box_download_ca_cert,
+              box_download_ca_path: box_download_ca_path,
               box_download_insecure: box_download_insecure,
             }))
           rescue Errors::BoxAlreadyExists

@@ -51,6 +51,9 @@ after the initial download.
 * `--cacert CERTFILE` - The certificate for the CA used to verify the peer.
   This should be used if the remote end doesn't use a standard root CA.
 
+* `--capath CERTDIR` - The certificate directoryt for the CA used to verify the peer.
+  This should be used if the remote end doesn't use a standard root CA.
+
 * `--cert CERTFILE` - A client certificate to use when downloading the box, if
   necessary.
 

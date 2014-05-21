@@ -29,6 +29,10 @@ module VagrantPlugins
               options[:ca_cert] = c
             end
 
+            o.on("--capath DIR", String, "CA certificate directory for SSL download") do |c|
+              options[:ca_path] = c
+            end
+
             o.on("--cert FILE", String,
                  "A client SSL cert, if needed") do |c|
               options[:client_cert] = c
@@ -84,6 +88,7 @@ module VagrantPlugins
             box_clean: options[:clean],
             box_force: options[:force],
             box_download_ca_cert: options[:ca_cert],
+            box_download_ca_path: options[:ca_path],
             box_download_client_cert: options[:client_cert],
             box_download_insecure: options[:insecure],
             ui: Vagrant::UI::Prefixed.new(@env.ui, "box"),
