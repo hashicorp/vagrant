@@ -22,6 +22,8 @@ BUG FIXES:
       is more than one. [GH-3818]
   - guests/windows: Don't look up a forwarded port for WinRM if we're
       not accessing the local host. [GH-3861]
+  - guests/windows: Fix errors with arg lists that are too long over
+      WinRM in some cases. [GH-3816]
   - providers/docker: Never do graceful shutdown, always use
       `docker stop`. [GH-3798]
   - providers/docker: Better error messaging when SSH is not ready
