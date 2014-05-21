@@ -33,6 +33,7 @@ BUG FIXES:
   - providers/docker: Don't port map SSH port if container doesn't
       support SSH. [GH-3857]
   - providers/docker: Proper SSH info if using native driver. [GH-3799]
+  - providers/docker: Verify host VM has SSH ready. [GH-3838]
   - providers/virtualbox: On Windows, check `VBOX_MSI_INSTALL_PATH`
       for VBoxManage path as well. [GH-3852]
   - provisioners/puppet: Fix setting facter vars with Windows

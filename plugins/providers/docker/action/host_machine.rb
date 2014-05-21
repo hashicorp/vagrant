@@ -54,6 +54,12 @@ module VagrantPlugins
             host_machine.with_ui(proxy_ui) do
               host_machine.action(:up)
             end
+
+            # Verify communication is ready. If not, we have a problem.
+            if !host_machine.communicate.ready?
+              raise Errors::HostVMCommunicatorNotReady,
+                id: host_machine.id
+            end
           end
         end
       end

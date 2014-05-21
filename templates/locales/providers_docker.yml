@@ -140,6 +140,17 @@ en:
         Stderr: %{stderr}
 
         Stdout: %{stdout}
+      host_vm_communicator_not_ready: |-
+        The Docker provider was able to bring up the host VM successfully
+        but the host VM is still reporting that SSH is unavailable. This
+        sometimes happens with certain providers due to bugs in the
+        underlying hypervisor, and can be fixed with a `vagrant reload`.
+        The ID for the host VM is shown below for convenience.
+
+        If this does not fix it, please verify that the host VM provider
+        is functional and properly configured.
+
+        Host VM ID: %{id}
       state_not_running: |-
         The container never entered the "running" state, or entered it
         briefly but reverted back to another state. Please verify that

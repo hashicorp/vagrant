@@ -13,6 +13,10 @@ module VagrantPlugins
         error_key(:execute_error)
       end
 
+      class HostVMCommunicatorNotReady < DockerError
+        error_key(:host_vm_communicator_not_ready)
+      end
+
       class ImageNotConfiguredError < DockerError
         error_key(:docker_provider_image_not_configured)
       end
