@@ -1,4 +1,5 @@
-require "tempfile"
+require "pathname"
+require "tmpdir"
 
 require "vagrant/util/subprocess"
 
@@ -16,11 +17,13 @@ module VagrantPlugins
           }
 
           # Create the ".rdp" file
-          config = Tempfile.new(["vagrant-rdp", ".rdp"])
-          opts.each do |k, v|
-            config.puts("#{k}:#{v}")
+          config_path = Pathname.new(Dir.tmpdir).join(
+            "vagrant-rdp-#{Time.now.to_i}-#{rand(10000)}.rdp")
+          config_path.open("w+") do |f|
+            opts.each do |k, v|
+              config.puts("#{k}:#{v}")
+            end
           end
-          config.close
 
           # Build up the args to mstsc
           args = [config.path]
@@ -30,8 +33,6 @@ module VagrantPlugins
 
           # Launch it
           Vagrant::Util::Subprocess.execute("mstsc", *args)
-        ensure
-          config.close if config
         end
       end
     end
