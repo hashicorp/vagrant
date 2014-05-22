@@ -67,8 +67,8 @@ describe Vagrant::Config::V2::Loader do
 
   describe "merging" do
     it "should merge available configuration keys" do
-      old = Vagrant::Config::V2::Root.new({ :foo => Object })
-      new = Vagrant::Config::V2::Root.new({ :bar => Object })
+      old = Vagrant::Config::V2::Root.new({ foo: Object })
+      new = Vagrant::Config::V2::Root.new({ bar: Object })
       result = described_class.merge(old, new)
       expect(result.foo).to be_kind_of(Object)
       expect(result.bar).to be_kind_of(Object)
@@ -79,10 +79,10 @@ describe Vagrant::Config::V2::Loader do
         attr_accessor :value
       end
 
-      old = Vagrant::Config::V2::Root.new({ :foo => config_class })
+      old = Vagrant::Config::V2::Root.new({ foo: config_class })
       old.foo.value = "old"
 
-      new = Vagrant::Config::V2::Root.new({ :bar => config_class })
+      new = Vagrant::Config::V2::Root.new({ bar: config_class })
       new.bar.value = "new"
 
       result = described_class.merge(old, new)
@@ -101,10 +101,10 @@ describe Vagrant::Config::V2::Loader do
         end
       end
 
-      old = Vagrant::Config::V2::Root.new({ :foo => config_class })
+      old = Vagrant::Config::V2::Root.new({ foo: config_class })
       old.foo.value = 10
 
-      new = Vagrant::Config::V2::Root.new({ :foo => config_class })
+      new = Vagrant::Config::V2::Root.new({ foo: config_class })
       new.foo.value = 15
 
       result = described_class.merge(old, new)
@@ -115,7 +115,7 @@ describe Vagrant::Config::V2::Loader do
   describe "upgrading" do
     it "should continue fine if the key doesn't implement upgrade" do
       # Make an old V1 root object
-      old = Vagrant::Config::V1::Root.new({ :foo => Class.new })
+      old = Vagrant::Config::V1::Root.new({ foo: Class.new })
 
       # It should work fine
       expect { result = described_class.upgrade(old) }.to_not raise_error
@@ -139,7 +139,7 @@ describe Vagrant::Config::V2::Loader do
       end
 
       # Test it out!
-      old = Vagrant::Config::V1::Root.new({ :foo => config_class })
+      old = Vagrant::Config::V1::Root.new({ foo: config_class })
       old.foo.value = 5
 
       data = described_class.upgrade(old)

@@ -14,8 +14,8 @@ module Vagrant
       def safe_puts(message=nil, opts=nil)
         message ||= ""
         opts = {
-          :io => $stdout,
-          :printer => :puts
+          io: $stdout,
+          printer: :puts
         }.merge(opts || {})
 
         begin

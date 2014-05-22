@@ -5,7 +5,7 @@ require File.expand_path("../../../../base", __FILE__)
 
 describe Vagrant::Action::Builtin::Message do
   let(:app) { lambda { |env| } }
-  let(:env) { { :ui => ui } }
+  let(:env) { { ui: ui } }
 
   let(:ui)  { double("ui") }
 

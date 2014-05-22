@@ -92,8 +92,8 @@ module Vagrant
       cap_mod = capability_module(cap_name.to_sym)
       if !cap_mod
         raise Errors::CapabilityNotFound,
-          :cap  => cap_name.to_s,
-          :host => @cap_host_chain[0][0].to_s
+          cap:  cap_name.to_s,
+          host: @cap_host_chain[0][0].to_s
       end
 
       cap_method = nil
@@ -101,8 +101,8 @@ module Vagrant
         cap_method = cap_mod.method(cap_name)
       rescue NameError
         raise Errors::CapabilityInvalid,
-          :cap => cap_name.to_s,
-          :host => @cap_host_chain[0][0].to_s
+          cap: cap_name.to_s,
+          host: @cap_host_chain[0][0].to_s
       end
 
       args = @cap_args + args

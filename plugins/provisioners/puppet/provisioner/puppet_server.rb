@@ -19,9 +19,9 @@ module VagrantPlugins
         def verify_binary(binary)
           @machine.communicate.sudo(
             "which #{binary}",
-            :error_class => PuppetServerError,
-            :error_key => :not_detected,
-            :binary => binary)
+            error_class: PuppetServerError,
+            error_key: :not_detected,
+            binary: binary)
         end
 
         def run_puppet_agent

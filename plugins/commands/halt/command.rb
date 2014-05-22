@@ -28,7 +28,7 @@ module VagrantPlugins
 
         @logger.debug("Halt command: #{argv.inspect} #{options.inspect}")
         with_target_vms(argv, reverse: true) do |vm|
-          vm.action(:halt, :force_halt => options[:force])
+          vm.action(:halt, force_halt: options[:force])
         end
 
         # Success, exit status 0

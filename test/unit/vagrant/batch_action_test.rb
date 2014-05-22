@@ -11,8 +11,8 @@ describe Vagrant::BatchAction do
 
   def new_machine(options)
     double("machine").tap do |m|
-      m.stub(:provider_name => provider_name)
-      m.stub(:provider_options => options)
+      m.stub(provider_name: provider_name)
+      m.stub(provider_options: options)
       allow(m).to receive(:action) do |action, opts|
         lock.synchronize do
           called_actions << [m, action, opts]

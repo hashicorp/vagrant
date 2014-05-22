@@ -115,7 +115,7 @@ An example of using the helper, again pulled directly from the built-in
 `destroy` command:
 
 ```ruby
-with_target_vms(argv, :reverse => true) do |machine|
+with_target_vms(argv, reverse: true) do |machine|
   machine.action(:destroy)
 end
 ```

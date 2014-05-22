@@ -80,7 +80,7 @@ module Vagrant
           # If we have missing keys, record those as errors
           if !@missing_key_calls.empty?
             errors["Vagrant"] = @missing_key_calls.to_a.sort.map do |key|
-              I18n.t("vagrant.config.root.bad_key", :key => key)
+              I18n.t("vagrant.config.root.bad_key", key: key)
             end
           end
 

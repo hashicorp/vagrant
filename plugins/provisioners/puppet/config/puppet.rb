@@ -102,12 +102,12 @@ module VagrantPlugins
               expand_path(machine.env.root_path)
             if !expanded_path.directory?
               errors << I18n.t("vagrant.provisioners.puppet.manifests_path_missing",
-                               :path => expanded_path.to_s)
+                               path: expanded_path.to_s)
             else
               expanded_manifest_file = expanded_path.join(manifest_file)
               if !expanded_manifest_file.file?
                 errors << I18n.t("vagrant.provisioners.puppet.manifest_missing",
-                                 :manifest => expanded_manifest_file.to_s)
+                                 manifest: expanded_manifest_file.to_s)
               end
             end
           end
@@ -116,7 +116,7 @@ module VagrantPlugins
           this_expanded_module_paths.each do |path|
             if !path.directory?
               errors << I18n.t("vagrant.provisioners.puppet.module_path_missing",
-                               :path => path)
+                               path: path)
             end
           end
 

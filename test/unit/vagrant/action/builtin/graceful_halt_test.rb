@@ -2,7 +2,7 @@ require File.expand_path("../../../../base", __FILE__)
 
 describe Vagrant::Action::Builtin::GracefulHalt do
   let(:app) { lambda { |env| } }
-  let(:env) { { :machine => machine, :ui => ui } }
+  let(:env) { { machine: machine, ui: ui } }
   let(:machine) do
     result = double("machine")
     allow(result).to receive(:config).and_return(machine_config)
@@ -13,8 +13,8 @@ describe Vagrant::Action::Builtin::GracefulHalt do
   let(:machine_config) do
     double("machine_config").tap do |top_config|
       vm_config = double("machien_vm_config")
-      vm_config.stub(:graceful_halt_timeout => 10)
-      top_config.stub(:vm => vm_config)
+      vm_config.stub(graceful_halt_timeout: 10)
+      top_config.stub(vm: vm_config)
     end
   end
   let(:machine_guest) { double("machine_guest") }

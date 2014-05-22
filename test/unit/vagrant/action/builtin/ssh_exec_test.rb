@@ -4,7 +4,7 @@ require "vagrant/util/ssh"
 
 describe Vagrant::Action::Builtin::SSHExec do
   let(:app) { lambda { |env| } }
-  let(:env) { { :machine => machine } }
+  let(:env) { { machine: machine } }
   let(:machine) do
     result = double("machine")
     allow(result).to receive(:ssh_info).and_return(machine_ssh_info)
@@ -57,7 +57,7 @@ describe Vagrant::Action::Builtin::SSHExec do
   end
 
   it "should exec with the options given in `ssh_opts`" do
-    ssh_opts = { :foo => :bar }
+    ssh_opts = { foo: :bar }
 
     expect(ssh_klass).to receive(:exec).
       with(machine_ssh_info, ssh_opts)

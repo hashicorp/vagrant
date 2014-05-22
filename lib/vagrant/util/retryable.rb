@@ -11,7 +11,7 @@ module Vagrant
       # http://blog.codefront.net/2008/01/14/retrying-code-blocks-in-ruby-on-exceptions-whatever/
       def retryable(opts=nil)
         logger = nil
-        opts   = { :tries => 1, :on => Exception }.merge(opts || {})
+        opts   = { tries: 1, on: Exception }.merge(opts || {})
 
         begin
           return yield

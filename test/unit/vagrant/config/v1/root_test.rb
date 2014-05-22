@@ -5,7 +5,7 @@ describe Vagrant::Config::V1::Root do
 
   it "should provide access to config objects" do
     foo_class = Class.new
-    map       = { :foo => foo_class }
+    map       = { foo: foo_class }
 
     instance  = described_class.new(map)
     foo       = instance.foo
@@ -14,7 +14,7 @@ describe Vagrant::Config::V1::Root do
   end
 
   it "can be created with initial state" do
-    instance = described_class.new({}, { :foo => "bar" })
+    instance = described_class.new({}, { foo: "bar" })
     expect(instance.foo).to eq("bar")
   end
 

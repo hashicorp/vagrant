@@ -34,7 +34,7 @@ describe Vagrant::Util::Retryable do
     end
 
     # It should re-raise the error
-    expect { klass.retryable(:tries => 5, &block) }.
+    expect { klass.retryable(tries: 5, &block) }.
       to raise_error(RuntimeError)
 
     # It should've tried all specified times
@@ -50,7 +50,7 @@ describe Vagrant::Util::Retryable do
     end
 
     # It should re-raise the error
-    expect { klass.retryable(:tries => 5, :on => RuntimeError, &block) }.
+    expect { klass.retryable(tries: 5, on: RuntimeError, &block) }.
       to raise_error(StandardError)
 
     # It should've never tried since it was a different kind of error
@@ -71,7 +71,7 @@ describe Vagrant::Util::Retryable do
     end
 
     # It should re-raise the error
-    expect { klass.retryable(:tries => 5, :on => [foo_error, bar_error], &block) }.
+    expect { klass.retryable(tries: 5, on: [foo_error, bar_error], &block) }.
       to raise_error(RuntimeError)
 
     # It should've never tried since it was a different kind of error
@@ -87,7 +87,7 @@ describe Vagrant::Util::Retryable do
     expect(klass).not_to receive(:sleep)
 
     # Run it.
-    expect { klass.retryable(:tries => 5, &block) }.
+    expect { klass.retryable(tries: 5, &block) }.
       to raise_error(RuntimeError)
   end
 
@@ -100,7 +100,7 @@ describe Vagrant::Util::Retryable do
     expect(klass).to receive(:sleep).with(10).exactly(4).times
 
     # Run it.
-    expect { klass.retryable(:tries => 5, :sleep => 10, &block) }.
+    expect { klass.retryable(tries: 5, sleep: 10, &block) }.
       to raise_error(RuntimeError)
   end
 end

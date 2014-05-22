@@ -41,14 +41,14 @@ module VagrantPlugins
 
       def share_folder(name, guestpath, hostpath, opts=nil)
         @shared_folders[name] = {
-          :guestpath => guestpath.to_s,
-          :hostpath => hostpath.to_s,
-          :create => false,
-          :owner => nil,
-          :group => nil,
-          :nfs   => false,
-          :transient => false,
-          :extra => nil
+          guestpath: guestpath.to_s,
+          hostpath: hostpath.to_s,
+          create: false,
+          owner: nil,
+          group: nil,
+          nfs:   false,
+          transient: false,
+          extra: nil
         }.merge(opts || {})
       end
 

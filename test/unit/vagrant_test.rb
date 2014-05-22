@@ -69,7 +69,7 @@ describe Vagrant do
     it "finds plugins by gem name" do
       specs = [Gem::Specification.new]
       specs[0].name = "foo"
-      Vagrant::Plugin::Manager.instance.stub(:installed_specs => specs)
+      Vagrant::Plugin::Manager.instance.stub(installed_specs: specs)
 
       expect(described_class.has_plugin?("foo")).to be_true
       expect(described_class.has_plugin?("bar")).to be_false

@@ -7,8 +7,8 @@ module VagrantPlugins
 
           folders.each do |name, opts|
             machine.communicate.tap do |comm|
-              comm.execute("#{sudo} mkdir -p #{opts[:guestpath]}", {:shell => "sh"})
-              comm.execute("#{sudo} /usr/sbin/mount -F nfs '#{ip}:#{opts[:hostpath]}' '#{opts[:guestpath]}'", {:shell => "sh"})
+              comm.execute("#{sudo} mkdir -p #{opts[:guestpath]}", {shell: "sh"})
+              comm.execute("#{sudo} /usr/sbin/mount -F nfs '#{ip}:#{opts[:hostpath]}' '#{opts[:guestpath]}'", {shell: "sh"})
             end
           end
         end

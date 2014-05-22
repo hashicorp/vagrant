@@ -551,11 +551,11 @@ module VagrantPlugins
 
           if guestpath.relative? && guestpath.to_s !~ /^\w+:/
             errors << I18n.t("vagrant.config.vm.shared_folder_guestpath_relative",
-                             :path => options[:guestpath])
+                             path: options[:guestpath])
           else
             if used_guest_paths.include?(options[:guestpath])
               errors << I18n.t("vagrant.config.vm.shared_folder_guestpath_duplicate",
-                               :path => options[:guestpath])
+                               path: options[:guestpath])
             end
 
             used_guest_paths.add(options[:guestpath])
@@ -563,14 +563,14 @@ module VagrantPlugins
 
           if !hostpath.directory? && !options[:create]
             errors << I18n.t("vagrant.config.vm.shared_folder_hostpath_missing",
-                             :path => options[:hostpath])
+                             path: options[:hostpath])
           end
 
           if options[:type] == :nfs
             if options[:owner] || options[:group]
               # Owner/group don't work with NFS
               errors << I18n.t("vagrant.config.vm.shared_folder_nfs_owner_group",
-                               :path => options[:hostpath])
+                               path: options[:hostpath])
             end
           end
 
@@ -593,7 +593,7 @@ module VagrantPlugins
         networks.each do |type, options|
           if !valid_network_types.include?(type)
             errors << I18n.t("vagrant.config.vm.network_type_invalid",
-                            :type => type.to_s)
+                            type: type.to_s)
           end
 
           if type == :forwarded_port
@@ -606,8 +606,8 @@ module VagrantPlugins
               key = "#{options[:protocol]}#{options[:host]}"
               if fp_used.include?(key)
                 errors << I18n.t("vagrant.config.vm.network_fp_host_not_unique",
-                                :host => options[:host].to_s,
-                                :protocol => options[:protocol].to_s)
+                                host: options[:host].to_s,
+                                protocol: options[:protocol].to_s)
               end
 
               fp_used.add(key)
@@ -647,7 +647,7 @@ module VagrantPlugins
         @provisioners.each do |vm_provisioner|
           if vm_provisioner.invalid?
             errors["vm"] << I18n.t("vagrant.config.vm.provisioner_not_found",
-                                   :name => vm_provisioner.name)
+                                   name: vm_provisioner.name)
             next
           end
 

@@ -181,20 +181,20 @@ module Vagrant
           line    = "Progress: #{progress}"
         end
 
-        info(line, :new_line => false)
+        info(line, new_line: false)
       end
 
       def clear_line
         # See: http://en.wikipedia.org/wiki/ANSI_escape_code
         reset = "\r\033[K"
 
-        info(reset, :new_line => false)
+        info(reset, new_line: false)
       end
 
       # This method handles actually outputting a message of a given type
       # to the console.
       def say(type, message, **opts)
-        defaults = { :new_line => true, :prefix => true }
+        defaults = { new_line: true, prefix: true }
         opts     = defaults.merge(@opts).merge(opts)
 
         # Don't output if we're hiding details
@@ -215,7 +215,7 @@ module Vagrant
         Thread.new do
           @lock.synchronize do
             safe_puts(format_message(type, message, **opts),
-                      :io => channel, :printer => printer)
+                      io: channel, printer: printer)
           end
         end.join
       end

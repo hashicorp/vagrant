@@ -62,7 +62,7 @@ module Vagrant
       @metadata_url = opts[:metadata_url]
 
       metadata_file = directory.join("metadata.json")
-      raise Errors::BoxMetadataFileNotFound, :name => @name if !metadata_file.file?
+      raise Errors::BoxMetadataFileNotFound, name: @name if !metadata_file.file?
 
       begin
         @metadata = JSON.parse(directory.join("metadata.json").read)

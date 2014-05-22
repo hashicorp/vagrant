@@ -4,16 +4,16 @@ module Vagrant
     # prefix. An example speaks best here. Imagine the following hash:
     #
     #     original = {
-    #       :id => "foo",
-    #       :mitchellh__id => "bar",
-    #       :mitchellh__other => "foo"
+    #       id: "foo",
+    #       mitchellh__id: "bar",
+    #       mitchellh__other: "foo"
     #     }
     #
     #     scoped = scoped_hash_override(original, "mitchellh")
     #
     #     scoped == {
-    #       :id => "bar",
-    #       :other => "foo"
+    #       id: "bar",
+    #       other: "foo"
     #     }
     #
     module ScopedHashOverride

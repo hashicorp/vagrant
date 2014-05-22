@@ -50,7 +50,7 @@ module VagrantPlugins
           expanded_path = Pathname.new(path).expand_path(machine.env.root_path)
           if !expanded_path.file?
             errors << I18n.t("vagrant.provisioners.shell.path_invalid",
-                              :path => expanded_path)
+                              path: expanded_path)
           else
             data = expanded_path.read(16)
             if data && !data.valid_encoding?

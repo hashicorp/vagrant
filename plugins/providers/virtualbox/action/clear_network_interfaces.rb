@@ -14,8 +14,8 @@ module VagrantPlugins
           adapters = []
           2.upto(env[:machine].provider.driver.max_network_adapters).each do |i|
             adapters << {
-              :adapter => i,
-              :type    => :none
+              adapter: i,
+              type:    :none
             }
           end
 

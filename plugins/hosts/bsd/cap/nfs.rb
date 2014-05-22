@@ -89,10 +89,10 @@ module VagrantPlugins
           end
 
           output = Vagrant::Util::TemplateRenderer.render(nfs_exports_template,
-                                           :uuid => id,
-                                           :ips => ips,
-                                           :folders => dirmap,
-                                           :user => Process.uid)
+                                           uuid: id,
+                                           ips: ips,
+                                           folders: dirmap,
+                                           user: Process.uid)
 
           # The sleep ensures that the output is truly flushed before any `sudo`
           # commands are issued.

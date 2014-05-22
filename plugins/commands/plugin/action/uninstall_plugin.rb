@@ -12,7 +12,7 @@ module VagrantPlugins
         def call(env)
           # Remove it!
           env[:ui].info(I18n.t("vagrant.commands.plugin.uninstalling",
-                               :name => env[:plugin_name]))
+                               name: env[:plugin_name]))
 
           manager = Vagrant::Plugin::Manager.instance
           manager.uninstall_plugin(env[:plugin_name])

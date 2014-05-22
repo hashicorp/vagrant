@@ -28,10 +28,10 @@ module VagrantPlugins
 
           nfs_opts_setup(folders)
           output = Vagrant::Util::TemplateRenderer.render('nfs/exports_linux',
-                                           :uuid => id,
-                                           :ips => ips,
-                                           :folders => folders,
-                                           :user => Process.uid)
+                                           uuid: id,
+                                           ips: ips,
+                                           folders: folders,
+                                           user: Process.uid)
 
           ui.info I18n.t("vagrant.hosts.linux.nfs_export")
           sleep 0.5
@@ -51,7 +51,7 @@ module VagrantPlugins
         end
 
         def self.nfs_installed(environment)
-          retryable(:tries => 10, :on => TypeError) do
+          retryable(tries: 10, on: TypeError) do
             # Check procfs to see if NFSd is a supported filesystem
             system("cat /proc/filesystems | grep nfsd > /dev/null 2>&1")
           end

@@ -21,10 +21,10 @@ use HashiCorp::Rack::RedirectV1Docs
 # we hash the contents of the assets to determine filenames, this is safe
 # to do.
 use Rack::StaticCache,
-  :root => "build",
-  :urls => ["/images", "/javascripts", "/stylesheets"],
-  :duration => 2,
-  :versioning => false
+  root: "build",
+  urls: ["/images", "/javascripts", "/stylesheets"],
+  duration: 2,
+  versioning: false
 
 # For anything that matches below this point, we set the surrogate key
 # for Fastly so that we can quickly purge all the pages without touching
@@ -36,9 +36,9 @@ end
 # Try to find a static file that matches our request, since Middleman
 # statically generates everything.
 use Rack::TryStatic,
-  :root => "build",
-  :urls => ["/"],
-  :try  => [".html", "index.html", "/index.html"]
+  root: "build",
+  urls: ["/"],
+  try:  [".html", "index.html", "/index.html"]
 
 # 404 if we reached this point. Sad times.
 run Rack::NotFound.new(File.expand_path("../build/404.html", __FILE__))

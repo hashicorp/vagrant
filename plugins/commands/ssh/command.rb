@@ -38,10 +38,10 @@ module VagrantPlugins
         return if !argv
 
         # Execute the actual SSH
-        with_target_vms(argv, :single_target => true) do |vm|
+        with_target_vms(argv, single_target: true) do |vm|
           ssh_opts = {
-            :plain_mode => options[:plain_mode],
-            :extra_args => options[:ssh_args]
+            plain_mode: options[:plain_mode],
+            extra_args: options[:ssh_args]
           }
 
           if options[:command]
@@ -56,7 +56,7 @@ module VagrantPlugins
             return exit_status
           else
             @logger.debug("Invoking `ssh` action on machine")
-            vm.action(:ssh, :ssh_opts => ssh_opts)
+            vm.action(:ssh, ssh_opts: ssh_opts)
 
             # We should never reach this point, since the point of `ssh`
             # is to exec into the proper SSH shell, but we'll just return

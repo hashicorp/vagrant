@@ -120,7 +120,7 @@ module Vagrant
         end
 
         # Create a dictionary to store all the output we see.
-        io_data = { :stdout => "", :stderr => "" }
+        io_data = { stdout: "", stderr: "" }
 
         # Record the start time for timeout purposes
         start_time = Time.now.to_i

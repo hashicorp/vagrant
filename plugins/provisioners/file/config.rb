@@ -18,7 +18,7 @@ module VagrantPlugins
           s = File.expand_path(source)
           if ! File.exist?(s)
             errors << I18n.t("vagrant.provisioners.file.path_invalid",
-                              :path => s)
+                              path: s)
           end
         end
 

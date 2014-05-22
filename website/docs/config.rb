@@ -18,10 +18,10 @@
 # Per-page layout changes:
 #
 # With no layout
-# page "/path/to/file.html", :layout => false
+# page "/path/to/file.html", layout: false
 #
 # With alternative layout
-# page "/path/to/file.html", :layout => :otherlayout
+# page "/path/to/file.html", layout: :otherlayout
 #
 # A path which all have the same layout
 # with_layout :admin do
@@ -29,7 +29,7 @@
 # end
 
 # Proxy (fake) files
-# page "/this-page-has-no-template.html", :proxy => "/template-file.html" do
+# page "/this-page-has-no-template.html", proxy: "/template-file.html" do
 #   @which_fake_page = "Rendering a fake page with a variable"
 # end
 
@@ -53,7 +53,7 @@ set :images_dir, 'images'
 
 # Use the RedCarpet Markdown engine
 set :markdown_engine, :redcarpet
-set :markdown, :fenced_code_blocks => true
+set :markdown, fenced_code_blocks: true
 
 # Build-specific configuration
 configure :build do

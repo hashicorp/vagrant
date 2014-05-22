@@ -77,7 +77,7 @@ module VagrantPlugins
       protected
 
       def execute_shell(command, shell=:powershell, &block)
-        raise Errors::WinRMInvalidShell, :shell => shell unless [:powershell, :cmd, :wql].include?(shell)
+        raise Errors::WinRMInvalidShell, shell: shell unless [:powershell, :cmd, :wql].include?(shell)
 
         begin
           execute_shell_with_retry(command, shell, &block)
@@ -87,7 +87,7 @@ module VagrantPlugins
       end
 
       def execute_shell_with_retry(command, shell, &block)
-        retryable(:tries => @max_tries, :on => @@exceptions_to_retry_on, :sleep => 10) do
+        retryable(tries: @max_tries, on: @@exceptions_to_retry_on, sleep: 10) do
           @logger.debug("#{shell} executing:\n#{command}")
           output = session.send(shell, command) do |out, err|
             block.call(:stdout, out) if block_given? && out
@@ -102,16 +102,16 @@ module VagrantPlugins
         # If the error is a 401, we can return a more specific error message
         if winrm_exception.message.include?("401")
           raise Errors::AuthError,
-            :user => @username,
-            :password => @password,
-            :endpoint => endpoint,
-            :message => winrm_exception.message
+            user: @username,
+            password: @password,
+            endpoint: endpoint,
+            message: winrm_exception.message
         end
 
         raise Errors::ExecutionError,
-          :shell => shell,
-          :command => command,
-          :message => winrm_exception.message
+          shell: shell,
+          command: command,
+          message: winrm_exception.message
       end
 
       def new_session
@@ -135,12 +135,12 @@ module VagrantPlugins
       end
 
       def endpoint_options
-        { :user => @username,
-          :pass => @password,
-          :host => @host,
-          :port => @port,
-          :operation_timeout => @timeout_in_seconds,
-          :basic_auth_only => true }
+        { user: @username,
+          pass: @password,
+          host: @host,
+          port: @port,
+          operation_timeout: @timeout_in_seconds,
+          basic_auth_only: true }
       end
     end #WinShell class
   end

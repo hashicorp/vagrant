@@ -112,7 +112,7 @@ module Vagrant
 
               output = "Progress: #{columns[0]}% (Rate: #{columns[11]}/s, Estimated time remaining: #{columns[10]})"
               @ui.clear_line
-              @ui.detail(output, :new_line => false)
+              @ui.detail(output, new_line: false)
             end
           end
         end
@@ -177,7 +177,7 @@ module Vagrant
           @logger.warn("Downloader exit code: #{result.exit_code}")
           parts    = result.stderr.split(/\n*curl:\s+\(\d+\)\s*/, 2)
           parts[1] ||= ""
-          raise Errors::DownloaderError, :message => parts[1].chomp
+          raise Errors::DownloaderError, message: parts[1].chomp
         end
 
         result

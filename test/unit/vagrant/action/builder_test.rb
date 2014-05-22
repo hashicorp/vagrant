@@ -1,7 +1,7 @@
 require File.expand_path("../../../base", __FILE__)
 
 describe Vagrant::Action::Builder do
-  let(:data) { { :data => [] } }
+  let(:data) { { data: [] } }
 
   # This returns a proc that can be used with the builder
   # that simply appends data to an array in the env.
@@ -246,7 +246,7 @@ describe Vagrant::Action::Builder do
 
     it "applies without prepend/append if it has already" do
       hook = double("hook")
-      expect(hook).to receive(:apply).with(anything, { :no_prepend_or_append => true }).once
+      expect(hook).to receive(:apply).with(anything, { no_prepend_or_append: true }).once
 
       data[:action_hooks] = [hook]
       data[:action_hooks_already_ran] = true

@@ -55,14 +55,14 @@ describe Vagrant::Plugin::V1::Command do
 
     let(:environment) do
       env = double("environment")
-      env.stub(:root_path => "foo")
+      env.stub(root_path: "foo")
       env
     end
 
     let(:instance)    { klass.new([], environment) }
 
     it "should raise an exception if a root_path is not available" do
-      environment.stub(:root_path => nil)
+      environment.stub(root_path: nil)
 
       expect { instance.with_target_vms }.
         to raise_error(Vagrant::Errors::NoEnvironmentError)
@@ -75,9 +75,9 @@ describe Vagrant::Plugin::V1::Command do
       bar_vm = double("bar")
       allow(bar_vm).to receive(:name).and_return("bar")
 
-      environment.stub(:multivm? => true,
-                       :vms => { "foo" => foo_vm, "bar" => bar_vm },
-                       :vms_ordered => [foo_vm, bar_vm])
+      environment.stub(multivm?: true,
+                       vms: { "foo" => foo_vm, "bar" => bar_vm },
+                       vms_ordered: [foo_vm, bar_vm])
 
       vms = []
       instance.with_target_vms do |vm|
@@ -88,7 +88,7 @@ describe Vagrant::Plugin::V1::Command do
     end
 
     it "raises an exception if the named VM doesn't exist" do
-      environment.stub(:multivm? => true, :vms => {})
+      environment.stub(multivm?: true, vms: {})
 
       expect { instance.with_target_vms("foo") }.
         to raise_error(Vagrant::Errors::VMNotFoundError)
@@ -98,8 +98,8 @@ describe Vagrant::Plugin::V1::Command do
       foo_vm = double("foo")
       allow(foo_vm).to receive(:name).and_return(:foo)
 
-      environment.stub(:multivm? => true,
-                       :vms => { :foo => foo_vm, :bar => nil })
+      environment.stub(multivm?: true,
+                       vms: { foo: foo_vm, bar: nil })
 
       vms = []
       instance.with_target_vms("foo") { |vm| vms << vm }

@@ -98,8 +98,8 @@ describe Vagrant::Config::V1::Loader do
 
   describe "merging" do
     it "should merge available configuration keys" do
-      old = Vagrant::Config::V1::Root.new({ :foo => Object })
-      new = Vagrant::Config::V1::Root.new({ :bar => Object })
+      old = Vagrant::Config::V1::Root.new({ foo: Object })
+      new = Vagrant::Config::V1::Root.new({ bar: Object })
       result = described_class.merge(old, new)
       expect(result.foo).to be_kind_of(Object)
       expect(result.bar).to be_kind_of(Object)
@@ -110,10 +110,10 @@ describe Vagrant::Config::V1::Loader do
         attr_accessor :value
       end
 
-      old = Vagrant::Config::V1::Root.new({ :foo => config_class })
+      old = Vagrant::Config::V1::Root.new({ foo: config_class })
       old.foo.value = "old"
 
-      new = Vagrant::Config::V1::Root.new({ :bar => config_class })
+      new = Vagrant::Config::V1::Root.new({ bar: config_class })
       new.bar.value = "new"
 
       result = described_class.merge(old, new)
@@ -132,10 +132,10 @@ describe Vagrant::Config::V1::Loader do
         end
       end
 
-      old = Vagrant::Config::V1::Root.new({ :foo => config_class })
+      old = Vagrant::Config::V1::Root.new({ foo: config_class })
       old.foo.value = 10
 
-      new = Vagrant::Config::V1::Root.new({ :foo => config_class })
+      new = Vagrant::Config::V1::Root.new({ foo: config_class })
       new.foo.value = 15
 
       result = described_class.merge(old, new)

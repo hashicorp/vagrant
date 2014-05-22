@@ -166,8 +166,8 @@ module Vagrant
         # must be raised.
         if callable.nil?
           raise Errors::UnimplementedProviderAction,
-            :action => name,
-            :provider => @provider.to_s
+            action: name,
+            provider: @provider.to_s
         end
 
         action_raw(name, callable, extra_env)
@@ -347,10 +347,10 @@ module Vagrant
     # not documented here:
     #
     #     {
-    #       :host => "1.2.3.4",
-    #       :port => "22",
-    #       :username => "mitchellh",
-    #       :private_key_path => "/path/to/my/key"
+    #       host: "1.2.3.4",
+    #       port: "22",
+    #       username: "mitchellh",
+    #       private_key_path: "/path/to/my/key"
     #     }
     #
     # Note that Vagrant makes no guarantee that this info works or is

@@ -18,7 +18,7 @@ module VagrantPlugins
             # Configure each network interface
             networks.each do |network|
               entry = TemplateRenderer.render("guests/gentoo/network_#{network[:type]}",
-                                              :options => network)
+                                              options: network)
 
               # Upload the entry to a temporary location
               temp = Tempfile.new("vagrant")

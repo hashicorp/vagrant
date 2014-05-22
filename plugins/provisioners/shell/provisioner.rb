@@ -52,7 +52,7 @@ module VagrantPlugins
             # Reset upload path permissions for the current ssh user
             user = @machine.ssh_info[:username]
             comm.sudo("chown -R #{user} #{config.upload_path}",
-                      :error_check => false)
+                      error_check: false)
 
             comm.upload(path.to_s, config.upload_path)
 

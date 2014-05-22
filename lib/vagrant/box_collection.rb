@@ -141,7 +141,7 @@ module Vagrant
               if !found
                 @logger.error("Added box provider doesnt match expected: #{log_provider}")
                 raise Errors::BoxProviderDoesntMatch,
-                  :expected => log_provider, :actual => box_provider
+                  expected: log_provider, actual: box_provider
               end
             else
               # Verify the box doesn't already exist
@@ -400,7 +400,7 @@ module Vagrant
       if !metadata_file.file?
         metadata_file.open("w") do |f|
           f.write(JSON.generate({
-            :provider => "virtualbox"
+            provider: "virtualbox"
           }))
         end
       end

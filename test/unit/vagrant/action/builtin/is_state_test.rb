@@ -5,7 +5,7 @@ require File.expand_path("../../../../base", __FILE__)
 
 describe Vagrant::Action::Builtin::IsState do
   let(:app) { lambda { |env| } }
-  let(:env) { { :machine => machine } }
+  let(:env) { { machine: machine } }
   let(:machine) do
     double("machine").tap do |machine|
       allow(machine).to receive(:state).and_return(state)

@@ -54,7 +54,7 @@ module VagrantPlugins
           b.use SetName
           b.use ClearForwardedPorts
           b.use Provision
-          b.use EnvSet, :port_collision_repair => true
+          b.use EnvSet, port_collision_repair: true
           b.use PrepareForwardedPortCollisionParams
           b.use HandleForwardedPortCollisions
           b.use PrepareNFSValidIds
@@ -89,7 +89,7 @@ module VagrantPlugins
             b2.use Call, DestroyConfirm do |env2, b3|
               if env2[:result]
                 b3.use CheckAccessible
-                b3.use EnvSet, :force_halt => true
+                b3.use EnvSet, force_halt: true
                 b3.use action_halt
                 b3.use Destroy
                 b3.use CleanMachineFolder
@@ -206,7 +206,7 @@ module VagrantPlugins
           b.use Call, Created do |env, b2|
             if env[:result]
               b2.use CheckAccessible
-              b2.use EnvSet, :port_collision_repair => false
+              b2.use EnvSet, port_collision_repair: false
               b2.use PrepareForwardedPortCollisionParams
               b2.use HandleForwardedPortCollisions
               b2.use Resume

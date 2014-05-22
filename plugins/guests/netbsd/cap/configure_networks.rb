@@ -18,7 +18,7 @@ module VagrantPlugins
 
             # create an interface configuration file fragment
             entry = TemplateRenderer.render("guests/netbsd/network_#{network[:type]}",
-                                            :options => network)
+                                            options: network)
 
             temp = Tempfile.new("vagrant")
             temp.binmode
@@ -32,8 +32,8 @@ module VagrantPlugins
 
             ifname = "wm#{network[:interface]}"
             # remove old configuration
-            machine.communicate.sudo("/sbin/dhcpcd -x #{ifname}", { :error_check => false })
-            machine.communicate.sudo("/sbin/ifconfig #{ifname} inet delete", { :error_check => false })
+            machine.communicate.sudo("/sbin/dhcpcd -x #{ifname}", { error_check: false })
+            machine.communicate.sudo("/sbin/ifconfig #{ifname} inet delete", { error_check: false })
 
             # live new configuration
             if network[:type].to_sym == :static

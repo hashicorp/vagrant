@@ -113,7 +113,7 @@ module Vagrant
       # Bundler shouldn't attempt to get it remotely.
       with_isolated_gem do
         installer = Gem::DependencyInstaller.new(
-          :document => [], :prerelease => false)
+          document: [], prerelease: false)
         installer.install(path, "= #{pkg.spec.version}")
       end
 

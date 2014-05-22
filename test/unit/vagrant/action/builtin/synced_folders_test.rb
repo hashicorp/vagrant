@@ -10,7 +10,7 @@ describe Vagrant::Action::Builtin::SyncedFolders do
   include_context "synced folder actions"
 
   let(:app) { lambda { |env| } }
-  let(:env) { { :machine => machine, :ui => ui } }
+  let(:env) { { machine: machine, ui: ui } }
   let(:machine) do
     double("machine").tap do |machine|
       allow(machine).to receive(:config).and_return(machine_config)
@@ -19,7 +19,7 @@ describe Vagrant::Action::Builtin::SyncedFolders do
 
   let(:machine_config) do
     double("machine_config").tap do |top_config|
-      top_config.stub(:vm => vm_config)
+      top_config.stub(vm: vm_config)
     end
   end
 
@@ -42,8 +42,8 @@ describe Vagrant::Action::Builtin::SyncedFolders do
       plugins[:nfs] = [impl(true, "nfs"), 5]
 
       env[:root_path] = Pathname.new(Dir.mktmpdir)
-      subject.stub(:plugins => plugins)
-      subject.stub(:synced_folders => synced_folders)
+      subject.stub(plugins: plugins)
+      subject.stub(synced_folders: synced_folders)
       allow(subject).to receive(:save_synced_folders)
     end
 

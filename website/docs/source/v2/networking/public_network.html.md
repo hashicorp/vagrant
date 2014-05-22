@@ -45,7 +45,7 @@ ask you to choose which interface the virtual machine should bridge to. A defaul
 interface can be specified by adding a `:bridge` clause to the network definition.
 
 ```ruby
-config.vm.network "public_network", :bridge => 'en1: Wi-Fi (AirPort)'
+config.vm.network "public_network", bridge: 'en1: Wi-Fi (AirPort)'
 ```
 
 The string identifying the desired interface must exactly match the name of an

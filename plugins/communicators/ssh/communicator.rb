@@ -162,13 +162,13 @@ module VagrantPlugins
 
       def execute(command, opts=nil, &block)
         opts = {
-          :error_check => true,
-          :error_class => Vagrant::Errors::VagrantError,
-          :error_key   => :ssh_bad_exit_status,
-          :good_exit   => 0,
-          :command     => command,
-          :shell       => nil,
-          :sudo        => false,
+          error_check: true,
+          error_class: Vagrant::Errors::VagrantError,
+          error_key:   :ssh_bad_exit_status,
+          good_exit:   0,
+          command:     command,
+          shell:       nil,
+          sudo:        false,
         }.merge(opts || {})
 
         opts[:good_exit] = Array(opts[:good_exit])
@@ -199,9 +199,9 @@ module VagrantPlugins
           # but that makes for an ugly configuration parameter, so we
           # set it here from `error_key`
           error_opts = opts.merge(
-            :_key => opts[:error_key],
-            :stdout => stdout,
-            :stderr => stderr
+            _key: opts[:error_key],
+            stdout: stdout,
+            stderr: stderr
           )
           raise opts[:error_class], error_opts
         end
@@ -212,7 +212,7 @@ module VagrantPlugins
 
       def sudo(command, opts=nil, &block)
         # Run `execute` but with the `sudo` option.
-        opts = { :sudo => true }.merge(opts || {})
+        opts = { sudo: true }.merge(opts || {})
         execute(command, opts, &block)
       end
 
@@ -225,7 +225,7 @@ module VagrantPlugins
       end
 
       def test(command, opts=nil)
-        opts = { :error_check => false }.merge(opts || {})
+        opts = { error_check: false }.merge(opts || {})
         execute(command, opts) == 0
       end
 
@@ -235,7 +235,7 @@ module VagrantPlugins
         scp_connect do |scp|
           if File.directory?(from)
             # Recurisvely upload directories
-            scp.upload!(from, to, :recursive => true)
+            scp.upload!(from, to, recursive: true)
           else
             # Open file read only to fix issue [GH-1036]
             scp.upload!(File.open(from, "r"), to)
@@ -289,17 +289,17 @@ module VagrantPlugins
 
         # Build the options we'll use to initiate the connection via Net::SSH
         common_connect_opts = {
-          :auth_methods          => ["none", "publickey", "hostbased", "password"],
-          :config                => false,
-          :forward_agent         => ssh_info[:forward_agent],
-          :keys                  => ssh_info[:private_key_path],
-          :keys_only             => true,
-          :paranoid              => false,
-          :password              => ssh_info[:password],
-          :port                  => ssh_info[:port],
-          :timeout               => 15,
-          :user_known_hosts_file => [],
-          :verbose               => :debug,
+          auth_methods:          ["none", "publickey", "hostbased", "password"],
+          config:                false,
+          forward_agent:         ssh_info[:forward_agent],
+          keys:                  ssh_info[:private_key_path],
+          keys_only:             true,
+          paranoid:              false,
+          password:              ssh_info[:password],
+          port:                  ssh_info[:port],
+          timeout:               15,
+          user_known_hosts_file: [],
+          verbose:               :debug,
         }
 
         # Check that the private key permissions are valid
@@ -327,7 +327,7 @@ module VagrantPlugins
           timeout = 60
 
           @logger.info("Attempting SSH connnection...")
-          connection = retryable(:tries => opts[:retries], :on => exceptions) do
+          connection = retryable(tries: opts[:retries], on: exceptions) do
             Timeout.timeout(timeout) do
               begin
                 # This logger will get the Net-SSH log data for us.

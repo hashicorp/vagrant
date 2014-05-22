@@ -59,7 +59,7 @@ module Vagrant
           opts.parse!(argv)
           return argv
         rescue OptionParser::InvalidOption
-          raise Errors::CLIInvalidOptions, :help => opts.help.chomp
+          raise Errors::CLIInvalidOptions, help: opts.help.chomp
         end
 
         # Yields a VM for each target VM for the command.
@@ -146,9 +146,9 @@ module Vagrant
                   # We found an active machine with a provider that doesn't
                   # match the requested provider. Show an error.
                   raise Errors::ActiveMachineWithDifferentProvider,
-                    :name => active_name.to_s,
-                    :active_provider => active_provider.to_s,
-                    :requested_provider => provider_to_use.to_s
+                    name: active_name.to_s,
+                    active_provider: active_provider.to_s,
+                    requested_provider: provider_to_use.to_s
                 else
                   # Use this provider and exit out of the loop. One of the
                   # invariants [for now] is that there shouldn't be machines
@@ -190,7 +190,7 @@ module Vagrant
                 # String name, just look for a specific VM
                 @logger.debug("Finding machine that match name: #{name}")
                 machines << get_machine.call(name.to_sym)
-                raise Errors::VMNotFoundError, :name => name if !machines[0]
+                raise Errors::VMNotFoundError, name: name if !machines[0]
               end
             end
           else

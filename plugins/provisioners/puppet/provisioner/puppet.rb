@@ -95,9 +95,9 @@ module VagrantPlugins
         def verify_binary(binary)
           @machine.communicate.sudo(
             "which #{binary}",
-            :error_class => PuppetError,
-            :error_key => :not_detected,
-            :binary => binary)
+            error_class: PuppetError,
+            error_key: :not_detected,
+            binary: binary)
         end
 
         def run_puppet_apply
@@ -157,7 +157,7 @@ module VagrantPlugins
 
           @machine.ui.info(I18n.t(
             "vagrant.provisioners.puppet.running_puppet",
-            :manifest => config.manifest_file))
+            manifest: config.manifest_file))
 
           @machine.communicate.sudo(command, good_exit: [0,2]) do |type, data|
             if !data.chomp.empty?

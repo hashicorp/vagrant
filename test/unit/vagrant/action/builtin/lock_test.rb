@@ -10,8 +10,8 @@ describe Vagrant::Action::Builtin::Lock do
 
   let(:options) do
     {
-      :exception => Class.new(StandardError),
-      :path      => lock_path
+      exception: Class.new(StandardError),
+      path:      lock_path
     }
   end
 
@@ -19,13 +19,13 @@ describe Vagrant::Action::Builtin::Lock do
     expect { described_class.new(app, env) }.
       to raise_error(ArgumentError)
 
-    expect { described_class.new(app, env, :path => "foo") }.
+    expect { described_class.new(app, env, path: "foo") }.
       to raise_error(ArgumentError)
 
-    expect { described_class.new(app, env, :exception => "foo") }.
+    expect { described_class.new(app, env, exception: "foo") }.
       to raise_error(ArgumentError)
 
-    expect { described_class.new(app, env, :path => "bar", :exception => "foo") }.
+    expect { described_class.new(app, env, path: "bar", exception: "foo") }.
       to_not raise_error
   end
 

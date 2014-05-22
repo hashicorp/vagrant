@@ -37,7 +37,7 @@ module VagrantPlugins
           # Verify the mapping
           files.each do |from, _|
             raise Vagrant::Errors::PackageIncludeMissing,
-              :file => from if !File.exist?(from)
+              file: from if !File.exist?(from)
           end
 
           # Save the mapping

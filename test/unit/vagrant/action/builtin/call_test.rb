@@ -49,7 +49,7 @@ describe Vagrant::Action::Builtin::Call do
 
     described_class.new(app, env, callable) do |_env, _builder|
       # Nothing.
-    end.call({ :foo => :bar })
+    end.call({ foo: :bar })
 
     expect(received).to eq(:bar)
    end
@@ -73,7 +73,7 @@ describe Vagrant::Action::Builtin::Call do
 
     described_class.new(app, env, callable) do |_env, builder|
       builder.use next_step
-    end.call({ :foo => :bar })
+    end.call({ foo: :bar })
 
     expect(received).to eq(:bar)
   end

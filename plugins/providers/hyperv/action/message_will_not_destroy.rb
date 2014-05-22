@@ -8,7 +8,7 @@ module VagrantPlugins
 
         def call(env)
           env[:ui].info I18n.t("vagrant.commands.destroy.will_not_destroy",
-                              :name => env[:machine].name)
+                              name: env[:machine].name)
           @app.call(env)
         end
       end

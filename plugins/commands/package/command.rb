@@ -67,7 +67,7 @@ module VagrantPlugins
       end
 
       def package_target(name, options)
-        with_target_vms(name, :single_target => true) do |vm|
+        with_target_vms(name, single_target: true) do |vm|
           @logger.debug("Packaging VM: #{vm.name}")
           package_vm(vm, options)
         end

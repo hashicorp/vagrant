@@ -111,8 +111,8 @@ module Vagrant
             if in_use
               if !repair || !options[:auto_correct]
                 raise Errors::ForwardPortCollision,
-                  :guest_port => guest_port.to_s,
-                  :host_port  => host_port.to_s
+                  guest_port: guest_port.to_s,
+                  host_port:  host_port.to_s
               end
 
               @logger.info("Attempting to repair FP collision: #{host_port}")
@@ -139,9 +139,9 @@ module Vagrant
               # If we have no usable ports then we can't repair
               if !repaired_port && usable_ports.empty?
                 raise Errors::ForwardPortAutolistEmpty,
-                  :vm_name    => env[:machine].name,
-                  :guest_port => guest_port.to_s,
-                  :host_port  => host_port.to_s
+                  vm_name:    env[:machine].name,
+                  guest_port: guest_port.to_s,
+                  host_port:  host_port.to_s
               end
 
               # Modify the args in place
@@ -151,9 +151,9 @@ module Vagrant
 
               # Notify the user
               env[:ui].info(I18n.t("vagrant.actions.vm.forward_ports.fixed_collision",
-                                   :host_port  => host_port.to_s,
-                                   :guest_port => guest_port.to_s,
-                                   :new_port   => repaired_port.to_s))
+                                   host_port:  host_port.to_s,
+                                   guest_port: guest_port.to_s,
+                                   new_port:   repaired_port.to_s))
             end
           end
 

@@ -73,7 +73,7 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSSettings do
 
     it "retries through guest property not found errors" do
       raise_then_return = [
-        lambda { raise Vagrant::Errors::VirtualBoxGuestPropertyNotFound, :guest_property => 'stub' },
+        lambda { raise Vagrant::Errors::VirtualBoxGuestPropertyNotFound, guest_property: 'stub' },
         lambda { "2.3.4.5" }
       ]
       allow(driver).to receive(:read_guest_ip) { raise_then_return.shift.call }
@@ -86,7 +86,7 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSSettings do
 
     it "raises an error informing the user of a bug when the guest IP cannot be found" do
       allow(driver).to receive(:read_guest_ip) {
-        raise Vagrant::Errors::VirtualBoxGuestPropertyNotFound, :guest_property => 'stub'
+        raise Vagrant::Errors::VirtualBoxGuestPropertyNotFound, guest_property: 'stub'
       }
 
       expect { subject.call(env) }.
@@ -97,7 +97,7 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSSettings do
       env[:machine].config.vm.network :private_network, ip: "11.12.13.14"
 
       allow(driver).to receive(:read_guest_ip) {
-        raise Vagrant::Errors::VirtualBoxGuestPropertyNotFound, :guest_property => "stub"
+        raise Vagrant::Errors::VirtualBoxGuestPropertyNotFound, guest_property: "stub"
       }
 
       subject.call(env)

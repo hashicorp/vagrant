@@ -73,7 +73,7 @@ module Vagrant
       #
       # @return [String]
       def render_string
-        Erubis::Eruby.new(template, :trim => true).result(binding)
+        Erubis::Eruby.new(template, trim: true).result(binding)
       end
 
       # Returns the full path to the template, taking into accoun the gem directory

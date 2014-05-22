@@ -22,7 +22,7 @@ module VagrantPlugins
           plugin_name_label = plugin_name
           plugin_name_label += " --version '#{version}'" if version
           env[:ui].info(I18n.t("vagrant.commands.plugin.installing",
-                               :name => plugin_name_label))
+                               name: plugin_name_label))
 
           manager = Vagrant::Plugin::Manager.instance
           plugin_spec = manager.install_plugin(
@@ -38,8 +38,8 @@ module VagrantPlugins
 
           # Tell the user
           env[:ui].success(I18n.t("vagrant.commands.plugin.installed",
-                                  :name => plugin_spec.name,
-                                  :version => plugin_spec.version.to_s))
+                                  name: plugin_spec.name,
+                                  version: plugin_spec.version.to_s))
 
           # If the plugin's spec includes a post-install message display it
           post_install_message = plugin_spec.post_install_message
@@ -49,8 +49,8 @@ module VagrantPlugins
             end
 
             env[:ui].info(I18n.t("vagrant.commands.plugin.post_install",
-                                 :name => plugin_spec.name,
-                                 :message => post_install_message.to_s))
+                                 name: plugin_spec.name,
+                                 message: post_install_message.to_s))
           end
 
           # Continue

@@ -22,7 +22,7 @@ module VagrantPlugins
                 comm.sudo(cmd)
                 ifFile = "netif.eth#{network[:interface]}"
                 entry = TemplateRenderer.render("guests/funtoo/network_#{network[:type]}",
-                                                 :options => network)
+                                                 options: network)
                 # Upload the entry to a temporary location
                 temp = Tempfile.new("vagrant")
                 temp.binmode

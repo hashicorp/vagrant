@@ -70,11 +70,11 @@ module Vagrant
     # to the `Dir.pwd` (which is the cwd of the executing process).
     def initialize(opts=nil)
       opts = {
-        :cwd              => nil,
-        :home_path        => nil,
-        :local_data_path  => nil,
-        :ui_class         => nil,
-        :vagrantfile_name => nil,
+        cwd:              nil,
+        home_path:        nil,
+        local_data_path:  nil,
+        ui_class:         nil,
+        vagrantfile_name: nil,
       }.merge(opts || {})
 
       # Set the default working directory to look for the vagrantfile
@@ -162,16 +162,16 @@ module Vagrant
     def action_runner
       @action_runner ||= Action::Runner.new do
         {
-          :action_runner  => action_runner,
-          :box_collection => boxes,
-          :hook           => method(:hook),
-          :host           => host,
-          :machine_index  => machine_index,
-          :gems_path      => gems_path,
-          :home_path      => home_path,
-          :root_path      => root_path,
-          :tmp_path       => tmp_path,
-          :ui             => @ui
+          action_runner:  action_runner,
+          box_collection: boxes,
+          hook:           method(:hook),
+          host:           host,
+          machine_index:  machine_index,
+          gems_path:      gems_path,
+          home_path:      home_path,
+          root_path:      root_path,
+          tmp_path:       tmp_path,
+          ui:             @ui
         }
       end
     end
@@ -604,7 +604,7 @@ module Vagrant
           @logger.info("Creating: #{dir}")
           FileUtils.mkdir_p(dir)
         rescue Errno::EACCES
-          raise Errors::HomeDirectoryNotAccessible, :home_path => @home_path.to_s
+          raise Errors::HomeDirectoryNotAccessible, home_path: @home_path.to_s
         end
       end
 
@@ -686,7 +686,7 @@ module Vagrant
         FileUtils.mkdir_p(@local_data_path)
       rescue Errno::EACCES
         raise Errors::LocalDataDirectoryNotAccessible,
-          :local_data_path => @local_data_path.to_s
+          local_data_path: @local_data_path.to_s
       end
     end
 
@@ -710,8 +710,8 @@ module Vagrant
           FileUtils.cp(source, destination)
         rescue Errno::EACCES
           raise Errors::CopyPrivateKeyFailed,
-            :source => source,
-            :destination => destination
+            source: source,
+            destination: destination
         end
       end
 
@@ -779,7 +779,7 @@ module Vagrant
         # The file could've been tampered with since Vagrant 1.0.x is
         # supposed to ensure that the contents are valid JSON. Show an error.
         raise Errors::DotfileUpgradeJSONError,
-          :state_file => path.to_s
+          state_file: path.to_s
       end
 
       # Alright, let's upgrade this guy to the new structure. Start by
@@ -810,7 +810,7 @@ module Vagrant
 
       # Upgrade complete! Let the user know
       @ui.info(I18n.t("vagrant.general.upgraded_v1_dotfile",
-                      :backup_path => backup_file.to_s))
+                      backup_path: backup_file.to_s))
     end
   end
 end
