@@ -64,11 +64,11 @@ module VagrantPlugins
             end
           end
 
-          with_target_vms(names, :provider => options[:provider]) do |machine|
+          with_target_vms(names, provider: options[:provider]) do |machine|
             @env.ui.info(I18n.t(
               "vagrant.commands.up.upping",
-              :name => machine.name,
-              :provider => machine.provider_name))
+              name: machine.name,
+              provider: machine.provider_name))
 
             machines << machine
 

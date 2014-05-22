@@ -14,7 +14,7 @@ module VagrantPlugins
           # Parse the options
           argv = parse_options(opts)
           return if !argv
-          raise Vagrant::Errors::CLIInvalidUsage, :help => opts.help.chomp if argv.length > 0
+          raise Vagrant::Errors::CLIInvalidUsage, help: opts.help.chomp if argv.length > 0
 
           # List the installed plugins
           action(Action.action_list)

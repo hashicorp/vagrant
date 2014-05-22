@@ -90,7 +90,7 @@ module Vagrant
         o.separator "`vagrant list-commands`."
       end
 
-      @env.ui.info(opts.help, :prefix => false)
+      @env.ui.info(opts.help, prefix: false)
     end
   end
 end

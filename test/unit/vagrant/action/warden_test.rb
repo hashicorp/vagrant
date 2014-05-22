@@ -1,7 +1,7 @@
 require File.expand_path("../../../base", __FILE__)
 
 describe Vagrant::Action::Warden do
-  let(:data) { { :data => [] } }
+  let(:data) { { data: [] } }
   let(:instance) { described_class.new }
 
   # This returns a proc that can be used with the builder
@@ -48,7 +48,7 @@ describe Vagrant::Action::Warden do
 
     error_proc = Proc.new { raise "ERROR!" }
 
-    data     = { :recover => [] }
+    data     = { recover: [] }
     instance = described_class.new([Action, ActionTwo, error_proc], data)
 
     # The error should be raised back up

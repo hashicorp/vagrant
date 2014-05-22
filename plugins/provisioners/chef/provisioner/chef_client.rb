@@ -46,10 +46,10 @@ module VagrantPlugins
 
         def setup_server_config
           setup_config("provisioners/chef_client/client", "client.rb", {
-            :chef_server_url => @config.chef_server_url,
-            :validation_client_name => @config.validation_client_name,
-            :validation_key => guest_validation_key_path,
-            :client_key => @config.client_key_path,
+            chef_server_url: @config.chef_server_url,
+            validation_client_name: @config.validation_client_name,
+            validation_key: guest_validation_key_path,
+            client_key: @config.client_key_path,
           })
         end
 
@@ -79,7 +79,7 @@ module VagrantPlugins
               data = data.chomp
               next if data.empty?
 
-              @machine.ui.info(data, :color => color)
+              @machine.ui.info(data, color: color)
             end
 
             # There is no need to run Chef again if it converges

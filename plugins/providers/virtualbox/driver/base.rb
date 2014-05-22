@@ -96,9 +96,9 @@ module VagrantPlugins
         # The format of each adapter specification should be like so:
         #
         # {
-        #   :type     => :hostonly,
-        #   :hostonly => "vboxnet0",
-        #   :mac_address => "tubes"
+        #   type:     :hostonly,
+        #   hostonly: "vboxnet0",
+        #   mac_address: "tubes"
         # }
         #
         # This must support setting up both host only and bridged networks.
@@ -109,7 +109,7 @@ module VagrantPlugins
 
         # Execute a raw command straight through to VBoxManage.
         #
-        # Accepts a :retryable => true option if the command should be retried
+        # Accepts a retryable: true option if the command should be retried
         # upon failure.
         #
         # Raises a VBoxManage error if it fails.
@@ -133,11 +133,11 @@ module VagrantPlugins
         # The format of each port hash should be the following:
         #
         #     {
-        #       :name => "foo",
-        #       :hostport => 8500,
-        #       :guestport => 80,
-        #       :adapter => 1,
-        #       :protocol => "tcp"
+        #       name: "foo",
+        #       hostport: 8500,
+        #       guestport: 80,
+        #       adapter: 1,
+        #       protocol: "tcp"
         #     }
         #
         # Note that "adapter" and "protocol" are optional and will default
@@ -302,7 +302,7 @@ module VagrantPlugins
           # Variable to store our execution result
           r = nil
 
-          retryable(:on => Vagrant::Errors::VBoxManageError, :tries => tries, :sleep => 1) do
+          retryable(on: Vagrant::Errors::VBoxManageError, tries: tries, sleep: 1) do
             # If there is an error with VBoxManage, this gets set to true
             errored = false
 
@@ -345,8 +345,8 @@ module VagrantPlugins
             # output.
             if errored
               raise Vagrant::Errors::VBoxManageError,
-                :command => command.inspect,
-                :stderr  => r.stderr
+                command: command.inspect,
+                stderr:  r.stderr
             end
           end
 
@@ -366,7 +366,7 @@ module VagrantPlugins
           end
 
           # Append in the options for subprocess
-          command << { :notify => [:stdout, :stderr] }
+          command << { notify: [:stdout, :stderr] }
 
           Vagrant::Util::Busy.busy(int_callback) do
             Vagrant::Util::Subprocess.execute(@vboxmanage_path, *command, &block)

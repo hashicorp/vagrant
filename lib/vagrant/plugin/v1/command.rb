@@ -51,7 +51,7 @@ module Vagrant
           opts.parse!(argv)
           return argv
         rescue OptionParser::InvalidOption
-          raise Errors::CLIInvalidOptions, :help => opts.help.chomp
+          raise Errors::CLIInvalidOptions, help: opts.help.chomp
         end
 
         # Yields a VM for each target VM for the command.
@@ -91,7 +91,7 @@ module Vagrant
               else
                 # String name, just look for a specific VM
                 vms << @env.vms[name.to_sym]
-                raise Errors::VMNotFoundError, :name => name if !vms[0]
+                raise Errors::VMNotFoundError, name: name if !vms[0]
               end
             end
           else

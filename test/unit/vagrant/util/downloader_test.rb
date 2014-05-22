@@ -9,8 +9,8 @@ describe Vagrant::Util::Downloader do
 
   let(:subprocess_result) do
     double("subprocess_result").tap do |result|
-      result.stub(:exit_code => exit_code)
-      result.stub(:stderr => "")
+      result.stub(exit_code: exit_code)
+      result.stub(stderr: "")
     end
   end
 

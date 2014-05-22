@@ -15,8 +15,8 @@ module Unit
   class IsolatedEnvironment < ::IsolatedEnvironment
     def create_vagrant_env(options=nil)
       options = {
-        :cwd => @workdir,
-        :home_path => @homedir
+        cwd: @workdir,
+        home_path: @homedir
       }.merge(options || {})
 
       Vagrant::Environment.new(options)
@@ -64,7 +64,7 @@ module Unit
     def box2(name, provider, options=nil)
       # Default options
       options = {
-        :vagrantfile => ""
+        vagrantfile: ""
       }.merge(options || {})
 
       # Make the box directory
@@ -75,7 +75,7 @@ module Unit
       box_metadata_file = box_dir.join("metadata.json")
       box_metadata_file.open("w") do |f|
         f.write(JSON.generate({
-          :provider => provider.to_s
+          provider: provider.to_s
         }))
       end
 
@@ -105,7 +105,7 @@ module Unit
       box_metadata_file = box_dir.join("metadata.json")
       box_metadata_file.open("w") do |f|
         f.write(JSON.generate({
-          :provider => provider.to_s
+          provider: provider.to_s
         }))
       end
 

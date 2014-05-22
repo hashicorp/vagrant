@@ -23,7 +23,7 @@ module VagrantPlugins
         def create_vagrantfile
           File.open(File.join(@env["export.temp_dir"], "Vagrantfile"), "w") do |f|
             f.write(TemplateRenderer.render("package_Vagrantfile", {
-              :base_mac => @env[:machine].provider.driver.read_mac_address
+              base_mac: @env[:machine].provider.driver.read_mac_address
             }))
           end
         end

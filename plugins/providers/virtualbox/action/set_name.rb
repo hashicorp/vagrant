@@ -31,7 +31,7 @@ module VagrantPlugins
 
           # Verify the name is not taken
           vms = env[:machine].provider.driver.read_vms
-          raise Vagrant::Errors::VMNameExists, :name => name if \
+          raise Vagrant::Errors::VMNameExists, name: name if \
             vms.has_key?(name) && vms[name] != env[:machine].id
 
           if vms.has_key?(name)

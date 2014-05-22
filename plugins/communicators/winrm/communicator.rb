@@ -83,7 +83,7 @@ module VagrantPlugins
         command = @cmd_filter.filter(command)
         return false if command.empty?
 
-        opts = { :error_check => false }.merge(opts || {})
+        opts = { error_check: false }.merge(opts || {})
         execute(command, opts) == 0
       end
 

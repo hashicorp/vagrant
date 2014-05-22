@@ -99,7 +99,7 @@ describe VagrantPlugins::Ansible::Config do
       result = subject.validate(machine)
       expect(result["ansible provisioner"]).to eql([
         I18n.t("vagrant.provisioners.ansible.playbook_path_invalid",
-               :path => non_existing_file)
+               path: non_existing_file)
       ])
     end
 
@@ -126,8 +126,8 @@ describe VagrantPlugins::Ansible::Config do
       result = subject.validate(machine)
       expect(result["ansible provisioner"]).to eql([
         I18n.t("vagrant.provisioners.ansible.extra_vars_invalid",
-               :type  => subject.extra_vars.class.to_s,
-               :value => subject.extra_vars.to_s)
+               type:  subject.extra_vars.class.to_s,
+               value: subject.extra_vars.to_s)
       ])
     end
 
@@ -138,8 +138,8 @@ describe VagrantPlugins::Ansible::Config do
       result = subject.validate(machine)
       expect(result["ansible provisioner"]).to eql([
         I18n.t("vagrant.provisioners.ansible.extra_vars_invalid",
-               :type  => subject.extra_vars.class.to_s,
-               :value => subject.extra_vars.to_s)
+               type:  subject.extra_vars.class.to_s,
+               value: subject.extra_vars.to_s)
       ])
     end
 
@@ -158,7 +158,7 @@ describe VagrantPlugins::Ansible::Config do
       result = subject.validate(machine)
       expect(result["ansible provisioner"]).to eql([
         I18n.t("vagrant.provisioners.ansible.inventory_path_invalid",
-               :path => non_existing_file)
+               path: non_existing_file)
       ])
     end
 
@@ -169,7 +169,7 @@ describe VagrantPlugins::Ansible::Config do
       result = subject.validate(machine)
       expect(result["ansible provisioner"]).to eql([
         I18n.t("vagrant.provisioners.ansible.vault_password_file_invalid",
-               :path => non_existing_file)
+               path: non_existing_file)
       ])
     end
 
@@ -182,14 +182,14 @@ describe VagrantPlugins::Ansible::Config do
       result = subject.validate(machine)
       expect(result["ansible provisioner"]).to include(
         I18n.t("vagrant.provisioners.ansible.playbook_path_invalid",
-               :path => non_existing_file))
+               path: non_existing_file))
       expect(result["ansible provisioner"]).to include(
         I18n.t("vagrant.provisioners.ansible.extra_vars_invalid",
-               :type  => subject.extra_vars.class.to_s,
-               :value => subject.extra_vars.to_s))
+               type:  subject.extra_vars.class.to_s,
+               value: subject.extra_vars.to_s))
       expect(result["ansible provisioner"]).to include(
         I18n.t("vagrant.provisioners.ansible.inventory_path_invalid",
-               :path => non_existing_file))
+               path: non_existing_file))
     end
 
   end

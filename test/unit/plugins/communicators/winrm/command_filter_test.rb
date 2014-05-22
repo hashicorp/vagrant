@@ -2,7 +2,7 @@ require File.expand_path("../../../../base", __FILE__)
 
 require Vagrant.source_root.join("plugins/communicators/winrm/command_filter")
 
-describe VagrantPlugins::CommunicatorWinRM::CommandFilter, :unit => true do
+describe VagrantPlugins::CommunicatorWinRM::CommandFilter, unit: true do
 
   describe '.command_filters' do
     it 'initializes all command filters in command filters directory' do

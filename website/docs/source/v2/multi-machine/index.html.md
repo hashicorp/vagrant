@@ -69,11 +69,11 @@ below:
 
 ```ruby
 Vagrant.configure("2") do |config|
-    config.vm.provision :shell, :inline => 'echo A'
+    config.vm.provision :shell, inline: 'echo A'
     config.vm.define :testing do |test|
-        test.vm.provision :shell, :inline => 'echo B'
+        test.vm.provision :shell, inline: 'echo B'
     end
-    config.vm.provision :shell, :inline => 'echo C'
+    config.vm.provision :shell, inline: 'echo C'
 end
 ```
 

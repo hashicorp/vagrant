@@ -75,7 +75,7 @@ module VagrantPlugins
           expanded_path = Pathname.new(playbook).expand_path(machine.env.root_path)
           if !expanded_path.file?
             errors << I18n.t("vagrant.provisioners.ansible.playbook_path_invalid",
-                              :path => expanded_path)
+                              path: expanded_path)
           end
         end
 
@@ -97,8 +97,8 @@ module VagrantPlugins
 
           if !extra_vars_is_valid
             errors << I18n.t("vagrant.provisioners.ansible.extra_vars_invalid",
-                              :type  => extra_vars.class.to_s,
-                              :value => extra_vars.to_s
+                              type:  extra_vars.class.to_s,
+                              value: extra_vars.to_s
                             )
           end
         end
@@ -108,7 +108,7 @@ module VagrantPlugins
           expanded_path = Pathname.new(inventory_path).expand_path(machine.env.root_path)
           if !expanded_path.exist?
             errors << I18n.t("vagrant.provisioners.ansible.inventory_path_invalid",
-                              :path => expanded_path)
+                              path: expanded_path)
           end
         end
 
@@ -117,7 +117,7 @@ module VagrantPlugins
           expanded_path = Pathname.new(vault_password_file).expand_path(machine.env.root_path)
           if !expanded_path.exist?
             errors << I18n.t("vagrant.provisioners.ansible.vault_password_file_invalid",
-                              :path => expanded_path)
+                              path: expanded_path)
           end
         end
 

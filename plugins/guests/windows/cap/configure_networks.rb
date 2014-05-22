@@ -66,10 +66,10 @@ module VagrantPlugins
             naked_mac = nic[:mac_address].gsub(':','')
             if driver_mac_address[naked_mac]
               vm_interface_map[driver_mac_address[naked_mac]] = {
-                :net_connection_id => nic[:net_connection_id],
-                :mac_address => naked_mac,
-                :interface_index => nic[:interface_index],
-                :index => nic[:index] }
+                net_connection_id: nic[:net_connection_id],
+                mac_address: naked_mac,
+                interface_index: nic[:interface_index],
+                index: nic[:index] }
             end
           end
 

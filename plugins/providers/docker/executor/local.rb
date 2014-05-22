@@ -9,7 +9,7 @@ module VagrantPlugins
       class Local
         def execute(*cmd, **opts, &block)
           # Append in the options for subprocess
-          cmd << { :notify => [:stdout, :stderr] }
+          cmd << { notify: [:stdout, :stderr] }
 
           interrupted  = false
           int_callback = ->{ interrupted = true }

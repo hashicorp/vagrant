@@ -35,7 +35,7 @@ module Vagrant
 
         if !stat.owned?
           # The SSH key must be owned by ourselves
-          raise Errors::SSHKeyBadOwner, :key_path => key_path
+          raise Errors::SSHKeyBadOwner, key_path: key_path
         end
 
         if FileMode.from_octal(stat.mode) != "600"
@@ -45,13 +45,13 @@ module Vagrant
           # Re-stat the file to get the new mode, and verify it worked
           stat = key_path.stat
           if FileMode.from_octal(stat.mode) != "600"
-            raise Errors::SSHKeyBadPermissions, :key_path => key_path
+            raise Errors::SSHKeyBadPermissions, key_path: key_path
           end
         end
       rescue Errno::EPERM
         # This shouldn't happen since we verify we own the file, but
         # it is possible in theory, so we raise an error.
-        raise Errors::SSHKeyBadPermissions, :key_path => key_path
+        raise Errors::SSHKeyBadPermissions, key_path: key_path
       end
 
       # Halts the running of this process and replaces it with a full-fledged
@@ -70,10 +70,10 @@ module Vagrant
         if !ssh_path
           if Platform.windows?
             raise Errors::SSHUnavailableWindows,
-              :host => ssh_info[:host],
-              :port => ssh_info[:port],
-              :username => ssh_info[:username],
-              :key_path => ssh_info[:private_key_path].join(", ")
+              host: ssh_info[:host],
+              port: ssh_info[:port],
+              username: ssh_info[:username],
+              key_path: ssh_info[:private_key_path].join(", ")
           end
 
           raise Errors::SSHUnavailable
@@ -85,10 +85,10 @@ module Vagrant
           r = Subprocess.execute(ssh_path)
           if r.stdout.include?("PuTTY Link")
             raise Errors::SSHIsPuttyLink,
-              :host => ssh_info[:host],
-              :port => ssh_info[:port],
-              :username => ssh_info[:username],
-              :key_path => ssh_info[:private_key_path].join(", ")
+              host: ssh_info[:host],
+              port: ssh_info[:port],
+              username: ssh_info[:username],
+              key_path: ssh_info[:private_key_path].join(", ")
           end
         end
 

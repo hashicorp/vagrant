@@ -136,11 +136,11 @@ module VagrantPlugins
 
         def bridged_config(options)
           return {
-            :auto_config                     => true,
-            :bridge                          => nil,
-            :mac                             => nil,
-            :nic_type                        => nil,
-            :use_dhcp_assigned_default_route => false
+            auto_config:                     true,
+            bridge:                          nil,
+            mac:                             nil,
+            nic_type:                        nil,
+            use_dhcp_assigned_default_route: false
           }.merge(options || {})
         end
 
@@ -168,7 +168,7 @@ module VagrantPlugins
             # If one wasn't found, then we notify the user here.
             if !chosen_bridge
               @env[:ui].info I18n.t("vagrant.actions.vm.bridged_networking.specific_not_found",
-                                    :bridge => config[:bridge])
+                                    bridge: config[:bridge])
             end
           end
 
@@ -185,10 +185,10 @@ module VagrantPlugins
               # More than one bridgable interface requires a user decision, so
               # show options to choose from.
               @env[:ui].info I18n.t("vagrant.actions.vm.bridged_networking.available",
-                                    :prefix => false)
+                                    prefix: false)
               bridgedifs.each_index do |index|
                 interface = bridgedifs[index]
-                @env[:ui].info("#{index + 1}) #{interface[:name]}", :prefix => false)
+                @env[:ui].info("#{index + 1}) #{interface[:name]}", prefix: false)
               end
 
               # The range of valid choices
@@ -209,39 +209,39 @@ module VagrantPlugins
 
           # Given the choice we can now define the adapter we're using
           return {
-            :adapter     => config[:adapter],
-            :type        => :bridged,
-            :bridge      => chosen_bridge,
-            :mac_address => config[:mac],
-            :nic_type    => config[:nic_type]
+            adapter:     config[:adapter],
+            type:        :bridged,
+            bridge:      chosen_bridge,
+            mac_address: config[:mac],
+            nic_type:    config[:nic_type]
           }
         end
 
         def bridged_network_config(config)
           if config[:ip]
             options = {
-                :auto_config => true,
-                :mac         => nil,
-                :netmask     => "255.255.255.0",
-                :type        => :static
+                auto_config: true,
+                mac:         nil,
+                netmask:     "255.255.255.0",
+                type:        :static
             }.merge(config)
             options[:type] = options[:type].to_sym
             return options
           end
 
           return {
-            :type => :dhcp,
-            :use_dhcp_assigned_default_route => config[:use_dhcp_assigned_default_route]
+            type: :dhcp,
+            use_dhcp_assigned_default_route: config[:use_dhcp_assigned_default_route]
           }
         end
 
         def hostonly_config(options)
           options = {
-            :auto_config => true,
-            :mac         => nil,
-            :nic_type    => nil,
-            :netmask     => "255.255.255.0",
-            :type        => :static
+            auto_config: true,
+            mac:         nil,
+            nic_type:    nil,
+            netmask:     "255.255.255.0",
+            type:        :static
           }.merge(options)
 
           # Make sure the type is a symbol
@@ -294,13 +294,13 @@ module VagrantPlugins
           end
 
           return {
-            :adapter_ip  => options[:adapter_ip],
-            :auto_config => options[:auto_config],
-            :ip          => options[:ip],
-            :mac         => options[:mac],
-            :netmask     => options[:netmask],
-            :nic_type    => options[:nic_type],
-            :type        => options[:type]
+            adapter_ip:  options[:adapter_ip],
+            auto_config: options[:auto_config],
+            ip:          options[:ip],
+            mac:         options[:mac],
+            netmask:     options[:netmask],
+            nic_type:    options[:nic_type],
+            type:        options[:type]
           }.merge(dhcp_options)
         end
 
@@ -314,7 +314,7 @@ module VagrantPlugins
             # It is an error if a specific host only network name was specified
             # but the network wasn't found.
             if config[:name]
-              raise Vagrant::Errors::NetworkNotFound, :name => config[:name]
+              raise Vagrant::Errors::NetworkNotFound, name: config[:name]
             end
 
             # Create a new network
@@ -341,32 +341,32 @@ module VagrantPlugins
           end
 
           return {
-            :adapter     => config[:adapter],
-            :hostonly    => interface[:name],
-            :mac_address => config[:mac],
-            :nic_type    => config[:nic_type],
-            :type        => :hostonly
+            adapter:     config[:adapter],
+            hostonly:    interface[:name],
+            mac_address: config[:mac],
+            nic_type:    config[:nic_type],
+            type:        :hostonly
           }
         end
 
         def hostonly_network_config(config)
           return {
-            :type       => config[:type],
-            :adapter_ip => config[:adapter_ip],
-            :ip         => config[:ip],
-            :netmask    => config[:netmask]
+            type:       config[:type],
+            adapter_ip: config[:adapter_ip],
+            ip:         config[:ip],
+            netmask:    config[:netmask]
           }
         end
 
         def intnet_config(options)
           return {
-            :type => "static",
-            :ip => nil,
-            :netmask => "255.255.255.0",
-            :adapter => nil,
-            :mac => nil,
-            :intnet => nil,
-            :auto_config => true
+            type: "static",
+            ip: nil,
+            netmask: "255.255.255.0",
+            adapter: nil,
+            mac: nil,
+            intnet: nil,
+            auto_config: true
           }.merge(options || {})
         end
 
@@ -375,32 +375,32 @@ module VagrantPlugins
           intnet_name = "intnet" if intnet_name == true
 
           return {
-            :adapter => config[:adapter],
-            :type => :intnet,
-            :mac_address => config[:mac],
-            :nic_type => config[:nic_type],
-            :intnet => intnet_name,
+            adapter: config[:adapter],
+            type: :intnet,
+            mac_address: config[:mac],
+            nic_type: config[:nic_type],
+            intnet: intnet_name,
           }
         end
 
         def intnet_network_config(config)
           return {
-            :type => config[:type],
-            :ip => config[:ip],
-            :netmask => config[:netmask]
+            type: config[:type],
+            ip: config[:ip],
+            netmask: config[:netmask]
           }
         end
 
         def nat_config(options)
           return {
-            :auto_config => false
+            auto_config: false
           }
         end
 
         def nat_adapter(config)
           return {
-            :adapter => config[:adapter],
-            :type    => :nat,
+            adapter: config[:adapter],
+            type:    :nat,
           }
         end
 
@@ -450,8 +450,8 @@ module VagrantPlugins
         # This creates a host only network for the given configuration.
         def hostonly_create_network(config)
           @env[:machine].provider.driver.create_host_only_network(
-            :adapter_ip => config[:adapter_ip],
-            :netmask    => config[:netmask]
+            adapter_ip: config[:adapter_ip],
+            netmask:    config[:netmask]
           )
         end
 

@@ -145,18 +145,18 @@ module Vagrant
             message += "\n#{e.backtrace.join("\n")}"
 
             errors << I18n.t("vagrant.general.batch_unexpected_error",
-                             :machine => thread[:machine].name,
-                             :message => message)
+                             machine: thread[:machine].name,
+                             message: message)
           else
             errors << I18n.t("vagrant.general.batch_vagrant_error",
-                             :machine => thread[:machine].name,
-                             :message => thread[:error].message)
+                             machine: thread[:machine].name,
+                             message: thread[:error].message)
           end
         end
       end
 
       if !errors.empty?
-        raise Errors::BatchMultiError, :message => errors.join("\n\n")
+        raise Errors::BatchMultiError, message: errors.join("\n\n")
       end
     end
   end

@@ -70,15 +70,15 @@ module VagrantPlugins
 
         # Write stdout and stderr data, since it's the regular Ansible output
         command << {
-          :env => env,
-          :notify => [:stdout, :stderr],
-          :workdir => @machine.env.root_path.to_s
+          env: env,
+          notify: [:stdout, :stderr],
+          workdir: @machine.env.root_path.to_s
         }
 
         begin
           result = Vagrant::Util::Subprocess.execute(*command) do |type, data|
             if type == :stdout || type == :stderr
-              @machine.env.ui.info(data, :new_line => false, :prefix => false)
+              @machine.env.ui.info(data, new_line: false, prefix: false)
             end
           end
 

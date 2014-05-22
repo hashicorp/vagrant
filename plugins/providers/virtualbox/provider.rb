@@ -63,8 +63,8 @@ module VagrantPlugins
         # VirtualBox VMs are always local. The port we try to discover
         # by reading the forwarded ports.
         return {
-          :host => "127.0.0.1",
-          :port => @driver.ssh_port(@machine.config.ssh.guest_port)
+          host: "127.0.0.1",
+          port: @driver.ssh_port(@machine.config.ssh.guest_port)
         }
       end
 

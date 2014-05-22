@@ -46,10 +46,10 @@ module VagrantPlugins
           end
 
           @env.action_runner.run(Vagrant::Action.action_box_remove, {
-            :box_name     => argv[0],
-            :box_provider => options[:provider],
-            :box_version  => options[:version],
-            :force_confirm_box_remove => options[:force],
+            box_name:     argv[0],
+            box_provider: options[:provider],
+            box_version:  options[:version],
+            force_confirm_box_remove: options[:force],
           })
 
           # Success, exit status 0

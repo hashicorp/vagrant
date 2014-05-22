@@ -9,10 +9,10 @@ describe Vagrant::Guest do
   let(:guests)  { {} }
   let(:machine) do
     double("machine").tap do |m|
-      m.stub(:inspect => "machine")
-      m.stub(:config => double("config"))
-      m.config.stub(:vm => double("vm_config"))
-      m.config.vm.stub(:guest => nil)
+      m.stub(inspect: "machine")
+      m.stub(config: double("config"))
+      m.config.stub(vm: double("vm_config"))
+      m.config.vm.stub(guest: nil)
     end
   end
 

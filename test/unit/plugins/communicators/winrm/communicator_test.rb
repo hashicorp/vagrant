@@ -5,9 +5,9 @@ require Vagrant.source_root.join("plugins/communicators/winrm/communicator")
 describe VagrantPlugins::CommunicatorWinRM::Communicator do
   include_context "unit"
 
-  let(:winrm) { double("winrm", :timeout => 1) }
-  let(:config) { double("config", :winrm => winrm) }
-  let(:machine) { double("machine", :config => config) }
+  let(:winrm) { double("winrm", timeout: 1) }
+  let(:config) { double("config", winrm: winrm) }
+  let(:machine) { double("machine", config: config) }
 
   let(:shell) { double("shell") }
 
@@ -57,7 +57,7 @@ describe VagrantPlugins::CommunicatorWinRM::Communicator do
 
     it "can use cmd shell" do
       expect(shell).to receive(:cmd).with(kind_of(String)).and_return({ exitcode: 0 })
-      expect(subject.execute("dir", { :shell => :cmd })).to eq(0)
+      expect(subject.execute("dir", { shell: :cmd })).to eq(0)
     end
 
     it "raises error when error_check is true and exit code is non-zero" do
@@ -68,7 +68,7 @@ describe VagrantPlugins::CommunicatorWinRM::Communicator do
 
     it "does not raise error when error_check is false and exit code is non-zero" do
       expect(shell).to receive(:powershell).with(kind_of(String)).and_return({ exitcode: 1 })
-      expect(subject.execute("dir", { :error_check => false })).to eq(1)
+      expect(subject.execute("dir", { error_check: false })).to eq(1)
     end
   end
 

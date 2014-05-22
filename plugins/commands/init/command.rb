@@ -54,8 +54,8 @@ module VagrantPlugins
 
         template_path = ::Vagrant.source_root.join(template)
         contents = Vagrant::Util::TemplateRenderer.render(template_path,
-                                                          :box_name => argv[0] || "base",
-                                                          :box_url => argv[1])
+                                                          box_name: argv[0] || "base",
+                                                          box_url: argv[1])
 
         if save_path
           # Write out the contents

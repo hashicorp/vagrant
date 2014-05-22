@@ -24,7 +24,7 @@ module VagrantPlugins
             mount_command = "mount -t nfs " +
               "-o '#{mount_opts.join(",")}' " +
               "'#{ip}:#{opts[:hostpath]}' '#{expanded_guest_path}'"
-            retryable(:on => Vagrant::Errors::DarwinNFSMountFailed, :tries => 10, :sleep => 5) do
+            retryable(on: Vagrant::Errors::DarwinNFSMountFailed, tries: 10, sleep: 5) do
               machine.communicate.sudo(
                 mount_command,
                 error_class: Vagrant::Errors::DarwinNFSMountFailed)

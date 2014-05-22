@@ -130,7 +130,7 @@ module Vagrant
         def _detected_errors
           return [] if !@__invalid_methods || @__invalid_methods.empty?
           return [I18n.t("vagrant.config.common.bad_field",
-                         :fields => @__invalid_methods.to_a.sort.join(", "))]
+                         fields: @__invalid_methods.to_a.sort.join(", "))]
         end
 
         # An internal finalize call that no subclass should override.

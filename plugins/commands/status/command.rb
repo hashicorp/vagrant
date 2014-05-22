@@ -44,9 +44,9 @@ module VagrantPlugins
         end
 
         @env.ui.info(I18n.t("vagrant.commands.status.output",
-                            :states => results.join("\n"),
-                            :message => message),
-                     :prefix => false)
+                            states: results.join("\n"),
+                            message: message),
+                     prefix: false)
 
         # Success, exit status 0
         0

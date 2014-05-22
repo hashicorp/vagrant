@@ -14,7 +14,7 @@ module Vagrant
             @data = JSON.parse(@path.read)
           rescue JSON::ParserError => e
             raise Vagrant::Errors::PluginStateFileParseError,
-              :path => path, :message => e.message
+              path: path, message: e.message
           end
 
           upgrade_v0! if !@data["version"]

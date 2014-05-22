@@ -62,14 +62,14 @@ module Vagrant
             # We place the file in the include directory
             to = include_directory.join(dest)
 
-            @env[:ui].info I18n.t("vagrant.actions.general.package.packaging", :file => from)
+            @env[:ui].info I18n.t("vagrant.actions.general.package.packaging", file: from)
             FileUtils.mkdir_p(to.parent)
 
             # Copy direcotry contents recursively.
             if File.directory?(from)
-              FileUtils.cp_r(Dir.glob(from), to.parent, :preserve => true)
+              FileUtils.cp_r(Dir.glob(from), to.parent, preserve: true)
             else
-              FileUtils.cp(from, to, :preserve => true)
+              FileUtils.cp(from, to, preserve: true)
             end
           end
         rescue Errno::EEXIST => e
@@ -81,7 +81,7 @@ module Vagrant
 
         # Compress the exported file into a package
         def compress
-          @env[:ui].info I18n.t("vagrant.actions.general.package.compressing", :tar_path => tar_path)
+          @env[:ui].info I18n.t("vagrant.actions.general.package.compressing", tar_path: tar_path)
 
           # Copy over the included files
           copy_include_files

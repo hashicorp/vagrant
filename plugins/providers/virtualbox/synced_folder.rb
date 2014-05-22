@@ -54,7 +54,7 @@ module VagrantPlugins
           else
             # If no guest path is specified, then automounting is disabled
             machine.ui.detail(I18n.t("vagrant.actions.vm.share_folders.nomount_entry",
-                                  :hostpath => data[:hostpath]))
+                                  hostpath: data[:hostpath]))
           end
         end
       end

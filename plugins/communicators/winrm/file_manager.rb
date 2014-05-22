@@ -153,9 +153,9 @@ module VagrantPlugins
 
       def raise_upload_error_if_failed(out, from, to)
         raise Errors::WinRMFileTransferError,
-          :from => from,
-          :to => to,
-          :message => out.inspect if out[:exitcode] != 0
+          from: from,
+          to: to,
+          message: out.inspect if out[:exitcode] != 0
       end
     end
   end

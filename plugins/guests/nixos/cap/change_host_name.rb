@@ -10,7 +10,7 @@ module VagrantPlugins
 
         def self.change_host_name(machine, name)
           # upload the config file
-          hostname_module = TemplateRenderer.render("guests/nixos/hostname", :name => name)
+          hostname_module = TemplateRenderer.render("guests/nixos/hostname", name: name)
           upload(machine, hostname_module, "/etc/nixos/vagrant-hostname.nix")
         end
 

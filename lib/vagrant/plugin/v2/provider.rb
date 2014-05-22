@@ -57,10 +57,10 @@ module Vagrant
         # following:
         #
         #     {
-        #       :host => "1.2.3.4",
-        #       :port => "22",
-        #       :username => "mitchellh",
-        #       :private_key_path => "/path/to/my/key"
+        #       host: "1.2.3.4",
+        #       port: "22",
+        #       username: "mitchellh",
+        #       private_key_path: "/path/to/my/key"
         #     }
         #
         # **Note:** Vagrant only supports private key based authentication,

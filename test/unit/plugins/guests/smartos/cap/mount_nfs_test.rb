@@ -18,12 +18,12 @@ describe "VagrantPlugins::VagrantPlugins::Cap::MountNFS" do
   describe ".mount_nfs_folder" do
     it "creates the directory mount point" do
       communicator.expect_command(%Q(pfexec mkdir -p /mountpoint))
-      plugin.mount_nfs_folder(machine, '1.1.1.1', {'nfs' => {:guestpath => '/mountpoint'}})
+      plugin.mount_nfs_folder(machine, '1.1.1.1', {'nfs' => {guestpath: '/mountpoint'}})
     end
 
     it "mounts the NFS share" do
       communicator.expect_command(%Q(pfexec /usr/sbin/mount -F nfs '1.1.1.1:/some/share' '/mountpoint'))
-      plugin.mount_nfs_folder(machine, '1.1.1.1', {'nfs' => {:guestpath => '/mountpoint', :hostpath => '/some/share'}})
+      plugin.mount_nfs_folder(machine, '1.1.1.1', {'nfs' => {guestpath: '/mountpoint', hostpath: '/some/share'}})
     end
   end
 end

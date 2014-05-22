@@ -81,7 +81,7 @@ module VagrantPlugins
             opts.separator "For help on any individual subcommand run `vagrant box <subcommand> -h`"
           end
 
-          @env.ui.info(opts.help, :prefix => false)
+          @env.ui.info(opts.help, prefix: false)
         end
       end
     end

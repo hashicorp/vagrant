@@ -24,7 +24,7 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
 
   let(:machine_config) do
     double("machine_config").tap do |top_config|
-      top_config.stub(:vm => vm_config)
+      top_config.stub(vm: vm_config)
     end
   end
 
@@ -46,9 +46,9 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
   describe "impl_opts" do
     it "should return only relevant keys" do
       env = {
-        :foo_bar => "baz",
-        :bar_bar => "nope",
-        :foo_baz => "bar",
+        foo_bar: "baz",
+        bar_bar: "nope",
+        foo_baz: "bar",
       }
 
       result = subject.impl_opts("foo", env)
@@ -66,8 +66,8 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
       plugins[:default] = [impl(true, "default"), 10]
       plugins[:nfs] = [impl(true, "nfs"), 5]
 
-      subject.stub(:plugins => plugins)
-      vm_config.stub(:synced_folders => folders)
+      subject.stub(plugins: plugins)
+      vm_config.stub(synced_folders: folders)
     end
 
     it "should raise exception if bad type is given" do

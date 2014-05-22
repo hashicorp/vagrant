@@ -7,7 +7,7 @@ describe Vagrant::Action::Builtin::SyncedFolderCleanup do
   include_context "synced folder actions"
 
   let(:app) { lambda { |env| } }
-  let(:env) { { :machine => machine, :ui => ui } }
+  let(:env) { { machine: machine, ui: ui } }
   let(:machine) do
     double("machine").tap do |machine|
       allow(machine).to receive(:config).and_return(machine_config)
@@ -16,7 +16,7 @@ describe Vagrant::Action::Builtin::SyncedFolderCleanup do
 
   let(:machine_config) do
     double("machine_config").tap do |top_config|
-      top_config.stub(:vm => vm_config)
+      top_config.stub(vm: vm_config)
     end
   end
 
@@ -55,8 +55,8 @@ describe Vagrant::Action::Builtin::SyncedFolderCleanup do
       env[:machine] = Object.new
       env[:root_path] = Pathname.new(Dir.mktmpdir)
 
-      subject.stub(:plugins => plugins)
-      subject.stub(:synced_folders => synced_folders)
+      subject.stub(plugins: plugins)
+      subject.stub(synced_folders: synced_folders)
     end
 
     it "should invoke cleanup" do

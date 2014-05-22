@@ -26,7 +26,7 @@ module VagrantPlugins
         end
 
         def clear_shared_folders
-          info = execute("showvminfo", @uuid, "--machinereadable", :retryable => true)
+          info = execute("showvminfo", @uuid, "--machinereadable", retryable: true)
           info.split("\n").each do |line|
             if line =~ /^SharedFolderNameMachineMapping\d+="(.+?)"$/
               execute("sharedfolder", "remove", @uuid, "--name", $1.to_s)
@@ -55,10 +55,10 @@ module VagrantPlugins
 
           # Return the details
           return {
-            :name => name,
-            :ip   => options[:adapter_ip],
-            :netmask => options[:netmask],
-            :dhcp => nil
+            name: name,
+            ip:   options[:adapter_ip],
+            netmask: options[:netmask],
+            dhcp: nil
           }
         end
 
@@ -74,7 +74,7 @@ module VagrantPlugins
 
           execute("list", "vms").split("\n").each do |line|
             if line =~ /^".+?"\s+\{(.+?)\}$/
-              info = execute("showvminfo", $1.to_s, "--machinereadable", :retryable => true)
+              info = execute("showvminfo", $1.to_s, "--machinereadable", retryable: true)
               info.split("\n").each do |inner_line|
                 if inner_line =~ /^hostonlyadapter\d+="(.+?)"$/
                   networks.delete($1.to_s)
@@ -232,7 +232,7 @@ module VagrantPlugins
 
           results = []
           current_nic = nil
-          info = execute("showvminfo", uuid, "--machinereadable", :retryable => true)
+          info = execute("showvminfo", uuid, "--machinereadable", retryable: true)
           info.split("\n").each do |line|
             # This is how we find the nic that a FP is attached to,
             # since this comes first.
@@ -278,7 +278,7 @@ module VagrantPlugins
 
         def read_guest_additions_version
           output = execute("guestproperty", "get", @uuid, "/VirtualBox/GuestAdd/Version",
-                           :retryable => true)
+                           retryable: true)
           if output =~ /^Value: (.+?)$/
             # Split the version by _ since some distro versions modify it
             # to look like this: 4.1.2_ubuntu, and the distro part isn't
@@ -289,7 +289,7 @@ module VagrantPlugins
 
           # If we can't get the guest additions version by guest property, try
           # to get it from the VM info itself.
-          info = execute("showvminfo", @uuid, "--machinereadable", :retryable => true)
+          info = execute("showvminfo", @uuid, "--machinereadable", retryable: true)
           info.split("\n").each do |line|
             return $1.to_s if line =~ /^GuestAdditionsVersion="(.+?)"$/
           end
@@ -306,13 +306,13 @@ module VagrantPlugins
           if output =~ /^Value: (.+?)$/
             $1.to_s
           else
-            raise Vagrant::Errors::VirtualBoxGuestPropertyNotFound, :guest_property => property
+            raise Vagrant::Errors::VirtualBoxGuestPropertyNotFound, guest_property: property
           end
         end
 
         def read_host_only_interfaces
           dhcp = {}
-          execute("list", "dhcpservers", :retryable => true).split("\n\n").each do |block|
+          execute("list", "dhcpservers", retryable: true).split("\n\n").each do |block|
             info = {}
 
             block.split("\n").each do |line|
@@ -331,7 +331,7 @@ module VagrantPlugins
             dhcp[info[:network]] = info
           end
 
-          execute("list", "hostonlyifs", :retryable => true).split("\n\n").collect do |block|
+          execute("list", "hostonlyifs", retryable: true).split("\n\n").collect do |block|
             info = {}
 
             block.split("\n").each do |line|
@@ -354,7 +354,7 @@ module VagrantPlugins
         end
 
         def read_mac_address
-          info = execute("showvminfo", @uuid, "--machinereadable", :retryable => true)
+          info = execute("showvminfo", @uuid, "--machinereadable", retryable: true)
           info.split("\n").each do |line|
             return $1.to_s if line =~ /^macaddress1="(.+?)"$/
           end
@@ -364,7 +364,7 @@ module VagrantPlugins
 
         def read_mac_addresses
           macs = {}
-          info = execute("showvminfo", @uuid, "--machinereadable", :retryable => true)
+          info = execute("showvminfo", @uuid, "--machinereadable", retryable: true)
           info.split("\n").each do |line|
             if matcher = /^macaddress(\d+)="(.+?)"$/.match(line)
               adapter = matcher[1].to_i
@@ -376,7 +376,7 @@ module VagrantPlugins
         end
 
         def read_machine_folder
-          execute("list", "systemproperties", :retryable => true).split("\n").each do |line|
+          execute("list", "systemproperties", retryable: true).split("\n").each do |line|
             if line =~ /^Default machine folder:\s+(.+?)$/i
               return $1.to_s
             end
@@ -387,7 +387,7 @@ module VagrantPlugins
 
         def read_network_interfaces
           nics = {}
-          info = execute("showvminfo", @uuid, "--machinereadable", :retryable => true)
+          info = execute("showvminfo", @uuid, "--machinereadable", retryable: true)
           info.split("\n").each do |line|
             if line =~ /^nic(\d+)="(.+?)"$/
               adapter = $1.to_i
@@ -414,7 +414,7 @@ module VagrantPlugins
         end
 
         def read_state
-          output = execute("showvminfo", @uuid, "--machinereadable", :retryable => true)
+          output = execute("showvminfo", @uuid, "--machinereadable", retryable: true)
           if output =~ /^name="<inaccessible>"$/
             return :inaccessible
           elsif output =~ /^VMState="(.+?)"$/
@@ -426,7 +426,7 @@ module VagrantPlugins
 
         def read_used_ports
           ports = []
-          execute("list", "vms", :retryable => true).split("\n").each do |line|
+          execute("list", "vms", retryable: true).split("\n").each do |line|
             if line =~ /^".+?" \{(.+?)\}$/
               uuid = $1.to_s
 
@@ -444,7 +444,7 @@ module VagrantPlugins
 
         def read_vms
           results = {}
-          execute("list", "vms", :retryable => true).split("\n").each do |line|
+          execute("list", "vms", retryable: true).split("\n").each do |line|
             if line =~ /^"(.+?)" \{(.+?)\}$/
               results[$1.to_s] = $2.to_s
             end
@@ -458,7 +458,7 @@ module VagrantPlugins
         end
 
         def set_name(name)
-          execute("modifyvm", @uuid, "--name", name, :retryable => true)
+          execute("modifyvm", @uuid, "--name", name, retryable: true)
         end
 
         def share_folders(folders)

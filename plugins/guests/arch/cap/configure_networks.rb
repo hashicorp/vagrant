@@ -12,7 +12,7 @@ module VagrantPlugins
         def self.configure_networks(machine, networks)
           networks.each do |network|
             entry = TemplateRenderer.render("guests/arch/network_#{network[:type]}",
-                                            :options => network)
+                                            options: network)
 
             temp = Tempfile.new("vagrant")
             temp.binmode

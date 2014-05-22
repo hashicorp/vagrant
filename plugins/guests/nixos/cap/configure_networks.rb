@@ -19,7 +19,7 @@ module VagrantPlugins
           assign_device_names(machine, networks)
 
           # upload the config file
-          network_module = TemplateRenderer.render("guests/nixos/network", :networks => networks)
+          network_module = TemplateRenderer.render("guests/nixos/network", networks: networks)
           upload(machine, network_module, "/etc/nixos/vagrant-network.nix")
         end
 
@@ -111,9 +111,9 @@ module VagrantPlugins
           # populate the interface list
           kernel_if_names.each_index do |i|
             interfaces << {
-              :kernel      => kernel_if_names[i],
-              :ethn        => ethns[i],
-              :mac_address => mac_addresses[i]
+              kernel:      kernel_if_names[i],
+              ethn:        ethns[i],
+              mac_address: mac_addresses[i]
             }
           end
 

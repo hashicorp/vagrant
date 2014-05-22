@@ -77,8 +77,8 @@ module Vagrant
 
     def __internal_state
       {
-        :items => @items,
-        :results_cache => @results_cache
+        items: @items,
+        results_cache: @results_cache
       }
     end
   end

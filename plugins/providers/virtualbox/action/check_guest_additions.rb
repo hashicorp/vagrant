@@ -40,8 +40,8 @@ module VagrantPlugins
 
             if guest_version != vb_version
               env[:ui].detail(I18n.t("vagrant.actions.vm.check_guest_additions.version_mismatch",
-                                   :guest_version => version,
-                                   :virtualbox_version => vb_version))
+                                   guest_version: version,
+                                   virtualbox_version: vb_version))
             end
           end
 

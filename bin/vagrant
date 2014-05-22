@@ -185,7 +185,7 @@ rescue Exception => e
   logger.error(e.backtrace.join("\n"))
 
   if env
-    opts = { :prefix => false }
+    opts = { prefix: false }
     env.ui.error e.message, opts if e.message
     env.ui.machine("error-exit", e.class.to_s, e.message.to_s)
   else

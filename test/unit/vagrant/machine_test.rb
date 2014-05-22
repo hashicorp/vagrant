@@ -9,12 +9,12 @@ describe Vagrant::Machine do
   let(:name)     { "foo" }
   let(:provider) do
     double("provider").tap do |obj|
-      obj.stub(:_initialize => nil)
+      obj.stub(_initialize: nil)
     end
   end
   let(:provider_cls) do
     obj = double("provider_cls")
-    obj.stub(:new => provider)
+    obj.stub(new: provider)
     obj
   end
   let(:provider_config) { Object.new }
@@ -87,7 +87,7 @@ describe Vagrant::Machine do
 
         if !instance
           instance = double("instance")
-          instance.stub(:_initialize => nil)
+          instance.stub(_initialize: nil)
         end
 
         provider_cls = double("provider_cls")
@@ -243,7 +243,7 @@ describe Vagrant::Machine do
       callable    = lambda { |env| foo = env[:foo] }
 
       allow(provider).to receive(:action).with(action_name).and_return(callable)
-      instance.action(:up, :foo => :bar)
+      instance.action(:up, foo: :bar)
 
       expect(foo).to eq(:bar)
     end

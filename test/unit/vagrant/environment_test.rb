@@ -28,7 +28,7 @@ describe Vagrant::Environment do
   describe "#home_path" do
     it "is set to the home path given" do
       Dir.mktmpdir do |dir|
-        instance = described_class.new(:home_path => dir)
+        instance = described_class.new(home_path: dir)
         expect(instance.home_path).to eq(Pathname.new(dir))
       end
     end
@@ -45,7 +45,7 @@ describe Vagrant::Environment do
 
     it "throws an exception if inaccessible", skip_windows: true do
       expect {
-        described_class.new(:home_path => "/")
+        described_class.new(home_path: "/")
       }.to raise_error(Vagrant::Errors::HomeDirectoryNotAccessible)
     end
 
@@ -404,7 +404,7 @@ Vagrant.configure("2") do |config|
 end
 VF
 
-        env.box3("base", "1.0", :foo, :vagrantfile => <<-VF)
+        env.box3("base", "1.0", :foo, vagrantfile: <<-VF)
 Vagrant.configure("2") do |config|
   config.ssh.port = 100
 end
@@ -426,7 +426,7 @@ Vagrant.configure("2") do |config|
 end
 VF
 
-        env.box3("base", "1.0", :foo, :vagrantfile => <<-VF)
+        env.box3("base", "1.0", :foo, vagrantfile: <<-VF)
 Vagrant.configure("2") do |config|
   config.ssh.port = 100
 end
@@ -451,7 +451,7 @@ Vagrant.configure("2") do |config|
 end
 VF
 
-        env.box3("base", "1.0", :bar, :vagrantfile => <<-VF)
+        env.box3("base", "1.0", :bar, vagrantfile: <<-VF)
 Vagrant.configure("2") do |config|
   config.ssh.port = 100
 end
@@ -473,13 +473,13 @@ Vagrant.configure("2") do |config|
 end
 VF
 
-        env.box3("base", "1.0", :fA, :vagrantfile => <<-VF)
+        env.box3("base", "1.0", :fA, vagrantfile: <<-VF)
 Vagrant.configure("2") do |config|
   config.ssh.port = 100
 end
 VF
 
-        env.box3("base", "1.0", :fB, :vagrantfile => <<-VF)
+        env.box3("base", "1.0", :fB, vagrantfile: <<-VF)
 Vagrant.configure("2") do |config|
   config.ssh.port = 200
 end
@@ -502,13 +502,13 @@ Vagrant.configure("2") do |config|
 end
 VF
 
-        env.box3("base", "1.0", :foo, :vagrantfile => <<-VF)
+        env.box3("base", "1.0", :foo, vagrantfile: <<-VF)
 Vagrant.configure("2") do |config|
   config.ssh.port = 100
 end
 VF
 
-        env.box3("base", "1.5", :foo, :vagrantfile => <<-VF)
+        env.box3("base", "1.5", :foo, vagrantfile: <<-VF)
 Vagrant.configure("2") do |config|
   config.ssh.port = 200
 end
@@ -684,7 +684,7 @@ VF
 
     it "is set to the cwd given" do
       Dir.mktmpdir do |directory|
-        instance = described_class.new(:cwd => directory)
+        instance = described_class.new(cwd: directory)
         expect(instance.cwd).to eq(Pathname.new(directory))
       end
     end
@@ -700,7 +700,7 @@ VF
     end
 
     it "raises an exception if the CWD doesn't exist" do
-      expect { described_class.new(:cwd => "doesntexist") }.
+      expect { described_class.new(cwd: "doesntexist") }.
         to raise_error(Vagrant::Errors::EnvironmentNonExistentCWD)
     end
   end
@@ -816,13 +816,13 @@ VF
     end
 
     it "is expanded relative to the cwd" do
-      instance = described_class.new(:local_data_path => "foo")
+      instance = described_class.new(local_data_path: "foo")
       expect(instance.local_data_path).to eq(instance.cwd.join("foo"))
     end
 
     it "is set to the given value" do
       Dir.mktmpdir do |dir|
-        instance = described_class.new(:local_data_path => dir)
+        instance = described_class.new(local_data_path: dir)
         expect(instance.local_data_path.to_s).to eq(dir)
       end
     end
@@ -836,7 +836,7 @@ VF
 
       let(:v1_dotfile)          { Pathname.new(v1_dotfile_tempfile.path) }
       let(:local_data_path)     { v1_dotfile_tempfile.path }
-      let(:instance) { described_class.new(:local_data_path => local_data_path) }
+      let(:instance) { described_class.new(local_data_path: local_data_path) }
 
       it "should be fine if dotfile is empty" do
         v1_dotfile.open("w+") do |f|
@@ -885,7 +885,7 @@ VF
   describe "copying the private SSH key" do
     it "copies the SSH key into the home directory" do
       env = isolated_environment
-      instance = described_class.new(:home_path => env.homedir)
+      instance = described_class.new(home_path: env.homedir)
 
       pk = env.homedir.join("insecure_private_key")
       expect(pk).to be_exist
@@ -974,7 +974,7 @@ VF
 Vagrant.configure("2") do |config|
   config.vm.box = "base"
   config.vm.define :foo
-  config.vm.define :bar, :primary => true
+  config.vm.define :bar, primary: true
 end
 VF
 
@@ -1026,7 +1026,7 @@ end
 VF
       end
 
-      env = environment.create_vagrant_env(:vagrantfile_name => "non_standard_name")
+      env = environment.create_vagrant_env(vagrantfile_name: "non_standard_name")
       expect(env.vagrantfile.config.ssh.port).to eq(200)
     end
 
@@ -1056,7 +1056,7 @@ VF
       # Create a custom UI for our test
       class CustomUI < Vagrant::UI::Interface; end
 
-      instance = described_class.new(:ui_class => CustomUI)
+      instance = described_class.new(ui_class: CustomUI)
       expect(instance.ui).to be_kind_of(CustomUI)
     end
   end

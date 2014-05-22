@@ -20,7 +20,7 @@ describe "VagrantPlugins::VagrantPlugins::Cap::ConfigureNetworks" do
     let(:device) { "e1000g#{interface}" }
 
     describe 'dhcp' do
-      let(:network) { {:interface => interface, :type => :dhcp} }
+      let(:network) { {interface: interface, type: :dhcp} }
 
       it "plumbs the device" do
         communicator.expect_command(%Q(pfexec /sbin/ifconfig #{device} plumb))
@@ -34,7 +34,7 @@ describe "VagrantPlugins::VagrantPlugins::Cap::ConfigureNetworks" do
     end
 
     describe 'static' do
-      let(:network) { {:interface => interface, :type => :static, :ip => '1.1.1.1', :netmask => '255.255.255.0'} }
+      let(:network) { {interface: interface, type: :static, ip: '1.1.1.1', netmask: '255.255.255.0'} }
 
       it "plumbs the network" do
         communicator.expect_command(%Q(pfexec /sbin/ifconfig #{device} plumb))

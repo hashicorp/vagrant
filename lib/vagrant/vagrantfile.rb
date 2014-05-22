@@ -57,8 +57,8 @@ module Vagrant
         level  = config_errors.empty? ? :warn : :error
         output = Util::TemplateRenderer.render(
           "config/messages",
-          :warnings => config_warnings,
-          :errors => config_errors).chomp
+          warnings: config_warnings,
+          errors: config_errors).chomp
         env.ui.send(level, I18n.t("vagrant.general.config_upgrade_messages",
                                name: name,
                                output: output))
@@ -111,13 +111,13 @@ module Vagrant
       sub_machine = @config.vm.defined_vms[name]
       if !sub_machine
         raise Errors::MachineNotFound,
-          :name => name, :provider => provider
+          name: name, provider: provider
       end
 
       provider_plugin  = Vagrant.plugin("2").manager.providers[provider]
       if !provider_plugin
         raise Errors::ProviderNotFound,
-          :machine => name, :provider => provider
+          machine: name, provider: provider
       end
 
       provider_cls     = provider_plugin[0]

@@ -14,11 +14,11 @@ module VagrantPlugins
           # Parse the options
           argv = parse_options(opts)
           return if !argv
-          raise Vagrant::Errors::CLIInvalidUsage, :help => opts.help.chomp if argv.length < 1
+          raise Vagrant::Errors::CLIInvalidUsage, help: opts.help.chomp if argv.length < 1
 
           # Uninstall the gems
           argv.each do |gem|
-            action(Action.action_uninstall, :plugin_name => gem)
+            action(Action.action_uninstall, plugin_name: gem)
           end
 
           # Success, exit status 0

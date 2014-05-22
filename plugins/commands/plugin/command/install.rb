@@ -25,16 +25,16 @@ module VagrantPlugins
           # Parse the options
           argv = parse_options(opts)
           return if !argv
-          raise Vagrant::Errors::CLIInvalidUsage, :help => opts.help.chomp if argv.length < 1
+          raise Vagrant::Errors::CLIInvalidUsage, help: opts.help.chomp if argv.length < 1
 
           # Install the gem
           argv.each do |name|
             action(Action.action_install, {
-              :plugin_entry_point => options[:entry_point],
-              :plugin_version     => options[:plugin_version],
-              :plugin_sources     => options[:plugin_sources],
-              :plugin_name        => name,
-              :plugin_verbose     => options[:verbose]
+              plugin_entry_point: options[:entry_point],
+              plugin_version:     options[:plugin_version],
+              plugin_sources:     options[:plugin_sources],
+              plugin_name:        name,
+              plugin_verbose:     options[:verbose]
             })
           end
 

@@ -31,7 +31,7 @@ module VagrantPlugins
             # Render and upload the network entry file to a deterministic
             # temporary location.
             entry = TemplateRenderer.render("guests/suse/network_#{network[:type]}",
-                                            :options => network)
+                                            options: network)
 
             temp = Tempfile.new("vagrant")
             temp.binmode
@@ -45,8 +45,8 @@ module VagrantPlugins
           # each specifically, we avoid reconfiguring eth0 (the NAT interface) so
           # SSH never dies.
           interfaces.each do |interface|
-            retryable(:on => Vagrant::Errors::VagrantError, :tries => 3, :sleep => 2) do
-              machine.communicate.sudo("/sbin/ifdown eth#{interface} 2> /dev/null", :error_check => false)
+            retryable(on: Vagrant::Errors::VagrantError, tries: 3, sleep: 2) do
+              machine.communicate.sudo("/sbin/ifdown eth#{interface} 2> /dev/null", error_check: false)
               machine.communicate.sudo("cat /tmp/vagrant-network-entry_#{interface} >> #{network_scripts_dir}/ifcfg-eth#{interface}")
               machine.communicate.sudo("/sbin/ifup eth#{interface} 2> /dev/null")
             end

@@ -16,8 +16,8 @@ set :images_dir, 'images'
 # Use the RedCarpet Markdown engine
 set :markdown_engine, :redcarpet
 set :markdown,
-    :fenced_code_blocks => true,
-    :with_toc_data => true
+    fenced_code_blocks: true,
+    with_toc_data: true
 
 # Enable the blog and set the time zone so that post times appear
 # correctly.

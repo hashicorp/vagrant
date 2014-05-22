@@ -21,7 +21,7 @@ module VagrantPlugins
 
           # Update the gem
           action(Action.action_update, {
-            :plugin_name        => argv,
+            plugin_name:        argv,
           })
 
           # Success, exit status 0

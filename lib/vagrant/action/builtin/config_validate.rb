@@ -16,9 +16,9 @@ module Vagrant
 
             if errors && !errors.empty?
               raise Errors::ConfigInvalid,
-                :errors => Util::TemplateRenderer.render(
+                errors: Util::TemplateRenderer.render(
                   "config/validation_failed",
-                  :errors => errors)
+                  errors: errors)
             end
           end
 

@@ -48,7 +48,7 @@ module VagrantPlugins
             color = type == :stdout ? :green : :red
             @machine.ui.info(
               data,
-              :color => color, :new_line => false, :prefix => false)
+              color: color, new_line: false, prefix: false)
           end
         end
       end

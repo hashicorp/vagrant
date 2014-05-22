@@ -11,7 +11,7 @@ module VagrantPlugins
         def self.configure_networks(machine, networks)
           networks.each do |network|
             entry = TemplateRenderer.render("guests/openbsd/network_#{network[:type]}",
-                                            :options => network)
+                                            options: network)
 
             temp = Tempfile.new("vagrant")
             temp.binmode
@@ -35,8 +35,8 @@ module VagrantPlugins
             machine.communicate.sudo("mv /tmp/vagrant-network-entry /etc/hostname.#{ifname}")
 
             # remove old configurations
-            machine.communicate.sudo("sudo ifconfig #{ifname} inet delete", { :error_check => false })
-            machine.communicate.sudo("pkill -f 'dhclient: #{ifname}'", { :error_check => false })
+            machine.communicate.sudo("sudo ifconfig #{ifname} inet delete", { error_check: false })
+            machine.communicate.sudo("pkill -f 'dhclient: #{ifname}'", { error_check: false })
 
             if network[:type].to_sym == :static
               machine.communicate.sudo("ifconfig #{ifname} inet #{network[:ip]} netmask #{network[:netmask]}")

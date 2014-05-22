@@ -197,7 +197,7 @@ module Vagrant
             Kernel.load path
           rescue SyntaxError => e
             # Report syntax errors in a nice way.
-            raise Errors::VagrantfileSyntaxError, :file => e.message
+            raise Errors::VagrantfileSyntaxError, file: e.message
           rescue SystemExit
             # Continue raising that exception...
             raise
@@ -211,8 +211,8 @@ module Vagrant
 
             # Report the generic exception
             raise Errors::VagrantfileLoadError,
-              :path => path,
-              :message => e.message
+              path: path,
+              message: e.message
           end
         end
       end

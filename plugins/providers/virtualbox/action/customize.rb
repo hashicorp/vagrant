@@ -30,8 +30,8 @@ module VagrantPlugins
                   processed_command + [retryable: true])
               rescue Vagrant::Errors::VBoxManageError => e
                 raise Vagrant::Errors::VMCustomizationFailed, {
-                  :command => command,
-                  :error   => e.inspect
+                  command: command,
+                  error:   e.inspect
                 }
               end
             end

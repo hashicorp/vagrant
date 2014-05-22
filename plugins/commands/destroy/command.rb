@@ -27,9 +27,9 @@ module VagrantPlugins
         @logger.debug("'Destroy' each target VM...")
         declined = 0
         total    = 0
-        with_target_vms(argv, :reverse => true) do |vm|
+        with_target_vms(argv, reverse: true) do |vm|
           action_env = vm.action(
-            :destroy, :force_confirm_destroy => options[:force])
+            :destroy, force_confirm_destroy: options[:force])
 
           total    += 1
           declined += 1 if action_env.has_key?(:force_confirm_destroy_result) &&
