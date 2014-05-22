@@ -2,13 +2,10 @@ require 'optparse'
 
 require "vagrant"
 
-require Vagrant.source_root.join("plugins/commands/up/start_mixins")
 
 module VagrantPlugins
   module CommandRebuild
     class Command < Vagrant.plugin("2", :command)
-      # We assume that the `up` and `destroy` plugin exists and that we'll have access
-      # to this.
 
       def self.synopsis
         "rebuild vagrant machine"
