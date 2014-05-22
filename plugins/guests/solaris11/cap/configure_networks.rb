@@ -22,7 +22,9 @@ module VagrantPlugins
               machine.communicate.execute("#{su_cmd} ipadm create-addr -T static -a #{network[:ip]}/#{cidr} #{device}/v4")
             elsif network[:type].to_sym == :dhcp
               #machine.communicate.execute("#{ifconfig_cmd} dhcp start")
-              machine.communicate.execute("#{su_cmd} ipadm create-addr -T addrconf #{device}/v4")
+              if machine.communicate.test("ipadm show-if -o all | grep #{device} | tr -s ' ' | cut -d ' ' -f 6  | grep '4\|6'")
+                machine.communicate.execute("#{su_cmd} ipadm create-addr -T addrconf #{device}/v4")
+              end
             end
           end
         end
