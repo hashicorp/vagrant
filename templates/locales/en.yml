@@ -1063,7 +1063,7 @@ en:
       ssh_unavailable_windows: |-
         `ssh` executable not found in any directories in the %PATH% variable. Is an
         SSH client installed? Try installing Cygwin, MinGW or Git, all of which
-        contain an SSH client. Or use the PuTTY SSH client with the following
+        contain an SSH client. Or use your favorite SSH client with the following
         authentication information shown below:
 
         Host: %{host}
