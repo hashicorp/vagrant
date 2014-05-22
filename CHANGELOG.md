@@ -23,6 +23,8 @@ BUG FIXES:
   - core: Ignore UDP forwarded ports for collision detection. [GH-3859]
   - commands/package: Package with `--base` for VirtualBox doesn't
       crash. [GH-3827]
+  - guests/solaris11: Fix issue with public network and DHCP on newer
+      Solaris releases. [GH-3874]
   - guests/windows: Private networks with static IPs work when there
       is more than one. [GH-3818]
   - guests/windows: Don't look up a forwarded port for WinRM if we're
