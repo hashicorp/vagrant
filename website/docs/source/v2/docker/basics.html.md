@@ -77,6 +77,14 @@ can be customized to point to _any_ Vagrantfile. This allows the host VM
 to more closely match production by running a VM running Ubuntu, RHEL,
 etc. It can run any operating system supported by Vagrant.
 
+<div class="alert alert-info">
+	<strong>Synced folder note:</strong> Vagrant will attempt to use the
+	"best" synced folder implementation it can. For boot2docker, this is
+	often rsync. In this case, make sure you have rsync installed on your
+	host machine. Vagrant will give you a human-friendly error message if
+	it isn't.
+</div>
+
 An example of changing the host VM is shown below. Remember that this
 is optional, and Vagrant will spin up a default host VM if it isn't
 specified:
