@@ -18,8 +18,8 @@ that may be running in the machine, or debugging a strange boot issue.
 You can easily tell the VirtualBox provider to boot with a GUI:
 
 ```
-config.vm.provider "virtualbox" do |v|
-  v.gui = true
+config.vm.provider "virtualbox" do |vb|
+  vb.gui = true
 end
 ```
 
@@ -31,8 +31,8 @@ folder of the Vagrantfile plus a timestamp of when the machine was created.
 By setting another name, your VM can be more easily identified.
 
 ```ruby
-config.vm.provider "virtualbox" do |v|
-  v.name = "my_vm"
+config.vm.provider "virtualbox" do |vb|
+  vb.name = "my_vm"
 end
 ```
 
@@ -46,8 +46,8 @@ Vagrant exposes a way to call any command against VBoxManage just prior
 to booting the machine:
 
 ```ruby
-config.vm.provider "virtualbox" do |v|
-  v.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
+config.vm.provider "virtualbox" do |vb|
+  vb.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
 end
 ```
 
@@ -65,8 +65,8 @@ more than 50% would be used on your own host machine. Some details:
 There are some convenience shortcuts for memory and CPU settings:
 
 ```ruby
-config.vm.provider "virtualbox" do |v|
-  v.memory = 1024
-  v.cpus = 2
+config.vm.provider "virtualbox" do |vb|
+  vb.memory = 1024
+  vb.cpus = 2
 end
 ```
