@@ -124,8 +124,9 @@ module VagrantPlugins
           end
 
           mappings.values.map do |fp|
-            # TODO: Support for the protocol argument
-            "#{fp[:host]}:#{fp[:guest]}"
+            protocol = ""
+            protocol = "/udp" if fp[:protocol].to_s == "udp"
+            "#{fp[:host]}:#{fp[:guest]}#{protocol}"
           end.compact
         end
       end

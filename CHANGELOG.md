@@ -12,6 +12,7 @@ IMPROVEMENTS:
   - commands/box/add: `--capath` flag added for custom CA path. [GH-3848]
   - commands/halt: Halt in reverse order of up, like destroy. [GH-3790]
   - hosts/linux: Uses rdesktop to RDP into machines if available. [GH-3845]
+  - providers/docker: Support for UDP forwarded ports. [GH-3886]
   - provisioners/salt: Works on Windows guests. [GH-3825]
 
 BUG FIXES:
