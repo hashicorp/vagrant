@@ -8,7 +8,7 @@ module VagrantPlugins
           options = {}
 
           opts = OptionParser.new do |o|
-            o.banner = "Usage: vagrant box add [options] <name or url>"
+            o.banner = "Usage: vagrant box add [options] <box descriptor>"
             o.separator ""
             o.separator "Options:"
             o.separator ""
@@ -46,6 +46,10 @@ module VagrantPlugins
               options[:version] = v
             end
 
+            o.separator ""
+            o.separator "The box descriptor can be the name of a box on Vagrant Cloud,"
+            o.separator "or a URL, or a local .box file, or a local .json file containing"
+            o.separator "the catalog metadata."
             o.separator ""
             o.separator "The options below only apply if you're adding a box file directly,"
             o.separator "and not using a Vagrant server or a box structured like 'user/box':"
