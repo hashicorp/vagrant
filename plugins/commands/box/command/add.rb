@@ -8,7 +8,7 @@ module VagrantPlugins
           options = {}
 
           opts = OptionParser.new do |o|
-            o.banner = "Usage: vagrant box add [options] <box descriptor>"
+            o.banner = "Usage: vagrant box add [options] <name, url, or path>"
             o.separator ""
             o.separator "Options:"
             o.separator ""
