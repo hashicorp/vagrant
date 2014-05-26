@@ -159,7 +159,7 @@ module VagrantPlugins
             "vagrant.provisioners.puppet.running_puppet",
             manifest: config.manifest_file))
 
-          @machine.communicate.sudo(command, good_exit: [0,2]) do |type, data|
+          @machine.communicate.sudo(command, elevated: true, good_exit: [0,2]) do |type, data|
             if !data.chomp.empty?
               @machine.ui.info(data.chomp)
             end
