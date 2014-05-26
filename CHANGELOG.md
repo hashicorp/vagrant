@@ -47,6 +47,7 @@ BUG FIXES:
       for VBoxManage path as well. [GH-3852]
   - provisioners/puppet: Fix setting facter vars with Windows
       guests. [GH-3776]
+  - provisioners/puppet: On Windows, run in elevated prompt. [GH-3903]
   - guests/darwin: Respect mount options for NFS. [GH-3791]
   - guests/freebsd: Properly register the rsync_pre capability
   - guests/windows: Certain executed provisioners won't leave output
