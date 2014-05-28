@@ -32,6 +32,8 @@ BUG FIXES:
       not accessing the local host. [GH-3861]
   - guests/windows: Fix errors with arg lists that are too long over
       WinRM in some cases. [GH-3816]
+  - guests/windows: Powershell exits with proper exit code, fixing
+  -   issues where non-zero exit codes weren't properly detected. [GH-3922]
   - hosts/windows: Don't execute mstsc using PowerShell since it doesn't
       exit properly. [GH-3837]
   - hosts/windows: For RDP, don't remove the Tempfile right away. [GH-3875]
