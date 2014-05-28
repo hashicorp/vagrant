@@ -1,4 +1,4 @@
-$command = "<%= options[:command] %>"
+$command = "<%= options[:command] %>" + '; exit $LASTEXITCODE'
 $user = '<%= options[:username] %>'
 $password = '<%= options[:password] %>'
 
