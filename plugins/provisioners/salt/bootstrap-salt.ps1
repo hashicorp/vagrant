@@ -1,8 +1,11 @@
 # Salt version to install
 $version = '2014.1.4'
 
+# Create C:\tmp\ - if Vagrant doesn't upload keys and/or config it might not exist
+New-Item C:\tmp\ -ItemType directory | out-null
+
 # Copy minion keys & config to correct location
-New-Item c:\salt\conf\pki\minion\ -ItemType directory | out-null
+New-Item C:\salt\conf\pki\minion\ -ItemType directory | out-null
 
 # Check if minion keys have been uploaded
 if (Test-Path C:\tmp\minion.pem) {
