@@ -1,3 +1,6 @@
+# Salt version to install
+$version = '2014.1.4'
+
 # Copy minion keys & config to correct location
 New-Item c:\salt\conf\pki\minion\ -ItemType directory | out-null
 
@@ -22,7 +25,7 @@ if ([IntPtr]::Size -eq 4) {
 # Download minion setup file
 Write-Host "Downloading Salt minion installer ($arch)..."
 $webclient = New-Object System.Net.WebClient
-$url = "https://docs.saltstack.com/downloads/Salt-Minion-2014.1.3-1-$arch-Setup.exe"
+$url = "https://docs.saltstack.com/downloads/Salt-Minion-$version-$arch-Setup.exe"
 $file = "C:\tmp\salt.exe"
 $webclient.DownloadFile($url, $file)
 
