@@ -186,7 +186,7 @@ en:
       Watching: %{path}
     rsync_communicator_not_ready: |-
       The machine is reporting that it is not ready for rsync to
-      communiate with it. Verify that this machine is properly running.
+      communicate with it. Verify that this machine is properly running.
     rsync_communicator_not_ready_callback: |-
       Failed to connect to remote machine. This is usually caused by the
       machine rebooting or being halted. Please make sure the machine is
@@ -270,7 +270,7 @@ en:
       batch_notify_error: |-
         An error occurred. The error will be shown after all tasks complete.
       batch_unexpected_error: |-
-        An unexpected error ocurred when executing the action on the
+        An unexpected error occurred when executing the action on the
         '%{machine}' machine. Please report this as a bug:
 
         %{message}
@@ -432,7 +432,7 @@ en:
 
         md5, sha1, sha256
       box_checksum_mismatch: |-
-        The checksum of the dowloaded box did not match the expected
+        The checksum of the downloaded box did not match the expected
         value. Please verify that you have the proper URL setup and that
         you're downloading the proper file.
 
@@ -1052,7 +1052,7 @@ en:
         you're using.
       ssh_run_requires_keys: |-
         Using `vagrant ssh -c` requires key-based SSH authentication, but your
-        Vagrant environmet is configured to use only password-based authentication.
+        Vagrant environment is configured to use only password-based authentication.
         Please configure your Vagrantfile with a private key to use this
         feature.
 
@@ -1110,7 +1110,7 @@ en:
 
           %{requirements}
 
-        You are running Vagrant %{version}, which does not satisify
+        You are running Vagrant %{version}, which does not satisfy
         these requirements. Please change your Vagrant version or update
         the Vagrantfile to allow this Vagrant version. However, be warned
         that if the Vagrantfile has specified another version, it probably has
@@ -1383,7 +1383,7 @@ en:
           Bringing machine '%{name}' up with '%{provider}' provider...
 
 #-------------------------------------------------------------------------------
-# Translations for Vagrant middleware acions
+# Translations for Vagrant middleware actions
 #-------------------------------------------------------------------------------
     actions:
       runner:
