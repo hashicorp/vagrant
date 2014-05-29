@@ -19,9 +19,9 @@ you wanted to create three machines:
 
 <pre class="prettyprint">
 (1..3).each do |i|
-  config.vm.define "slave-#{i}" do |slave|
-    slave.vm.provision "shell",
-      inline: "echo hello from slave #{i}"
+  config.vm.define "node-#{i}" do |node|
+    node.vm.provision "shell",
+      inline: "echo hello from node #{i}"
   end
 end
 </pre>
@@ -34,16 +34,16 @@ the value of a variable used within the configs. For example, the loop below
 <pre class="prettyprint">
 # THIS DOES NOT WORK!
 for i in 1..3 do
-  config.vm.define "slave-#{i}" do |slave|
-    slave.vm.provision "shell",
-      inline: "echo hello from slave #{i}"
+  config.vm.define "node-#{i}" do |node|
+    node.vm.provision "shell",
+      inline: "echo hello from node #{i}"
   end
 end
 </pre>
 
 The "for i in  ..." construct in Ruby actually modifies the value of `i`
 for each iteration, rather than making a copy. Therefore, when you run this,
-every slave will actually provision with the same text.
+every node will actually provision with the same text.
 
 This is an easy mistake to make, and Vagrant can't really protect against it,
 so the best we can do is mention it here.

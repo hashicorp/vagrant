@@ -99,9 +99,9 @@ web and DB machine. You could also optionally be specific and say
 Additionally, you can specify a regular expression for matching only
 certain machines. This is useful in some cases where you specify many similar
 machines, for example if you're testing a distributed service you may have
-a `master` machine as well as a `slave0`, `slave1`, `slave2`, etc. If you
-want to bring up all the slaves but not the master, you can just do
-`vagrant up /slave[0-9]/`. If Vagrant sees a machine name within forward
+a `leader` machine as well as a `follower0`, `follower1`, `follower2`, etc. If you
+want to bring up all the followers but not the leader, you can just do
+`vagrant up /follower[0-9]/`. If Vagrant sees a machine name within forward
 slashes, it assumes you're using a regular expression.
 
 ## Communication Between Machines
@@ -135,10 +135,10 @@ Vagrant to _not_ start specific machines. Example:
 ```ruby
 config.vm.define "web"
 config.vm.define "db"
-config.vm.define "db_slave", autostart: false
+config.vm.define "db_follower", autostart: false
 ```
 
 When running `vagrant up` with the settings above, Vagrant will automatically
-start the "web" and "db" machines, but will not start the "db\_slave" machine.
-You can manually force the "db\_slave" machine to start by running
-`vagrant up db_slave`.
+start the "web" and "db" machines, but will not start the "db\_follower" machine.
+You can manually force the "db\_follower" machine to start by running
+`vagrant up db_follower`.
