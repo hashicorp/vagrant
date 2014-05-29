@@ -775,7 +775,7 @@ en:
         ready for guest communication. This should not happen and a bug
         should be reported.
       machine_locked: |-
-        Vagrant can't use the requested machine because it is locekd! This
+        Vagrant can't use the requested machine because it is locked! This
         means that another Vagrant process is currently reading or modifying
         the machine. Please wait for that Vagrant process to end and try
         again. Details about the machine are shown below:
