@@ -64,7 +64,7 @@ different variable scopes.
 
 When using these scopes, order of execution for things such as
 provisioners becomes important. Vagrant enforces ordering outside-in, in
-the order listed in the Vagrnatfile. For example, with the Vagrantfile
+the order listed in the Vagrantfile. For example, with the Vagrantfile
 below:
 
 ```ruby
