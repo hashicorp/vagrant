@@ -129,7 +129,7 @@ end
 ## Autostart Machines
 
 By default in a multi-machine environment, `vagrant up` will start
-all of the defined machines. The `autostart` setting allows you to tell
+all of the defined machines. The `autostart` setting (1.6.0 onwards) allows you to tell
 Vagrant to _not_ start specific machines. Example:
 
 ```ruby
